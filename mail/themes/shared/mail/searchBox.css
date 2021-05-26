@@ -106,11 +106,7 @@
 }
 
 .ac-url:not([selected=true]) > .ac-url-text {
-  color: var(--urlbar-popup-url-color);
-}
-
-.ac-action:not([selected=true]) > .ac-url-text {
-  color: var(--urlbar-popup-action-color);
+  color: var(--autocomplete-popup-url-color);
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {

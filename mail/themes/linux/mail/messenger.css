@@ -17,20 +17,12 @@
   --toolbar-non-lwt-textcolor: -moz-dialogtext;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));
   --chrome-content-separator-color: ThreeDShadow;
-
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: Highlight;
   --panel-separator-color: ThreeDShadow;
   --splitter-color: ThreeDShadow;
-  --urlbar-popup-url-color: -moz-nativehyperlinktext;
-  --urlbar-popup-action-color: -moz-nativehyperlinktext;
-
+  --autocomplete-popup-url-color: -moz-nativehyperlinktext;
   --select-focus-text-color: HighlightText;
-}
-
-:root:not(:-moz-lwtheme) {
-  --default-arrowpanel-background: Field;
-  --default-arrowpanel-color: FieldText;
 }
 
 @media not (-moz-proton) {

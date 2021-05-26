@@ -11,15 +11,14 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 :root {
+  --autocomplete-popup-url-color: -moz-nativehyperlinktext;
   --tabline-color: Highlight;
-
   --glassShadowColor: hsla(240, 5%, 5%, .3);
   --toolbar-non-lwt-bgcolor: -moz-dialog;
   --toolbar-non-lwt-textcolor: -moz-dialogText;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, .15),
                                              rgba(255, 255, 255, .15));
   --chrome-content-separator-color: ThreeDShadow;
-
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: Highlight;
   --panel-separator-color: ThreeDLightShadow;
@@ -42,33 +41,18 @@
   :root {
     --tabs-border-color: rgba(0,0,0,.3);
     --tabline-color: #0a84ff;
-
     --toolbar-non-lwt-bgcolor: #f9f9fa;
     --toolbar-non-lwt-textcolor: #0c0c0d;
     --toolbar-non-lwt-bgimage: none;
-
     --panel-separator-color: hsla(210,4%,10%,.14);
-
-    --urlbar-popup-url-color: hsl(210, 77%, 47%);
-    --urlbar-popup-action-color: hsl(178, 100%, 28%);
+    --autocomplete-popup-url-color: hsl(210, 77%, 47%);
     --splitter-color: #a9b7c9;
-
     --select-focus-text-color: -moz-DialogText;
-  }
-}
-
-@media (prefers-contrast) {
-  :root {
-    --urlbar-popup-url-color: -moz-nativehyperlinktext;
-    --urlbar-popup-action-color: -moz-nativehyperlinktext;
-
-    --select-focus-text-color: HighlightText;
   }
 }
 
 :root:-moz-lwtheme {
   --tabs-border-color: rgba(0, 0, 0, .3);
-
   --panel-separator-color: hsla(210, 4%, 10%, .14);
 }
 
@@ -88,6 +72,7 @@
 
 @media (prefers-contrast) {
   :root {
+    --select-focus-text-color: HighlightText;
     --tabs-border-color: ThreeDShadow;
     --tabline-color: Highlight;
     --item-focus-selected-border-color: HighlightText;
@@ -104,10 +89,8 @@
     --toolbarbutton-hover-background: Highlight;
     --toolbarbutton-hover-bordercolor: HighlightText !important;
     --toolbarbutton-header-bordercolor: HighlightText;
-
     --toolbarbutton-active-background: Highlight;
     --toolbarbutton-active-bordercolor: HighlightText;
-
     --toolbarbutton-checked-background: Highlight;
     --toolbarbutton-icon-fill-attention: Highlight;
   }

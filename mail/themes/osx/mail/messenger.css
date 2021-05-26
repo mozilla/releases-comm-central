@@ -12,19 +12,15 @@
 
 :root {
   --tabline-color: -moz-accent-color;
-
   --toolbar-non-lwt-bgcolor: #f9f9fa;
   --toolbar-non-lwt-textcolor: #0c0c0d;
   --toolbar-non-lwt-bgimage: none;
   --chrome-content-separator-color: hsl(0, 0%, 60%);
-
   --row-grouped-header-bg-color: #d5d5d5;
   --row-grouped-header-bg-color-selected: #3874d1;
   --panel-separator-color: hsla(210, 4%, 10%, .14);
   --splitter-color: #bdbdbd;
-  --urlbar-popup-url-color: hsl(210, 77%, 47%);
-  --urlbar-popup-action-color: hsl(178, 100%, 28%);
-
+  --autocomplete-popup-url-color: hsl(210, 77%, 47%);
   --select-focus-text-color: HighlightText;
 }
 

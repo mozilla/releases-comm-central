@@ -26,7 +26,6 @@ body {
   --autocomplete-popup-border-color: ThreeDShadow;
   --autocomplete-popup-highlight-background: Highlight;
   --autocomplete-popup-highlight-color: HighlightText;
-
   --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
   --button-hover-bgcolor: color-mix(in srgb, currentColor 17%, transparent);
   --button-active-bgcolor: color-mix(in srgb, currentColor 30%, transparent);
@@ -82,7 +81,6 @@ body {
   --checkbox-unchecked-bgcolor: var(--lwt-toolbar-field-background-color, Field);
   --checkbox-border-color: var(--lwt-toolbar-field-border-color, ThreeDDarkShadow);
   --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, -moz-accent-color 4%, var(--checkbox-unchecked-bgcolor));
-
   --toolbarbutton-border-radius: 3px;
 }
 
@@ -99,8 +97,6 @@ body {
     --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
     --buttons-secondary-active-bgcolor: rgb(207, 207, 216);
     --buttons-secondary-color: rgb(21, 20, 26);
-    --default-arrowpanel-background: #fff;
-    --default-arrowpanel-color: rgb(21, 20, 26);
     --arrowpanel-dimmed: color-mix(in srgb, currentColor 12%, transparent);
     --arrowpanel-dimmed-further: color-mix(in srgb, currentColor 20%, transparent);
     --arrowpanel-dimmed-even-further: color-mix(in srgb, currentColor 27%, transparent);
@@ -141,13 +137,10 @@ body {
   --button-background: #d2d2d3;
   --button-background-hover: #c2c2c3;
   --button-background-active: #b2b2b3;
-
   --toolbar-bgcolor: rgba(255, 255, 255, .4);
   --toolbar-bgimage: none;
   --toolbarbutton-icon-fill-opacity: 1;
-
-  --urlbar-popup-url-color: hsl(210, 77%, 47%);
-  --urlbar-popup-action-color: hsl(178, 100%, 28%);
+  --autocomplete-popup-url-color: hsl(210, 77%, 47%);
 }
 
 :root[lwt-tree] {
@@ -167,8 +160,7 @@ body {
 } /** END not Proton **/
 
 :root[lwt-popup-brighttext] {
-  --urlbar-popup-url-color: #0a84ff;
-  --urlbar-popup-action-color: #30e60b;
+  --autocomplete-popup-url-color: #0a84ff;
 }
 
 :root[extradragspace][tabsintitlebar]:not([inFullscreen]) {
@@ -177,7 +169,11 @@ body {
 
 /* Styles for the default system dark theme */
 :root[lwt-default-theme-in-dark-mode] {
-  --lwt-accent-color: rgb(24, 24, 26) !important; /* override the default variable */
+  --button-primary-bgcolor: rgb(0, 97, 224) !important; /* override the default variable */
+  --button-primary-hover-bgcolor: rgb(2, 80, 187) !important;
+  --button-primary-active-bgcolor: rgb(5, 62, 148) !important;
+  --button-primary-color: rgb(251, 251, 254) !important;
+  --lwt-accent-color: rgb(24, 24, 26) !important;
   --sidebar-border-color: #606064 !important;
 
   /* Toolbar buttons */
@@ -191,9 +187,7 @@ body {
 
   /* composer header fields bottom border */
   --composer-header-border-color: rgb(127, 127, 128);
-
   --lwt-toolbar-field-border-color: #5f5f6d !important;
-
   --unread-folder-color: var(--sidebar-text-color);
 }
 
@@ -214,14 +208,12 @@ toolbar[brighttext] {
                                         rgba(0, 0, 0, .1));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
                                          rgba(0, 0, 0, .1));
-
   --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background,
                                          rgba(0, 0, 0, .15));
   --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background,
                                           rgba(0, 0, 0, .15));
   --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background,
                                                   rgba(0, 0, 0, .15)) inset;
-
   --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background,
                                                     rgba(0, 0, 0, .15));
 }
@@ -235,13 +227,11 @@ toolbar[brighttext] {
                                          rgba(255, 255, 255, .5));
   --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background,
                                           rgba(255, 255, 255, .25));
-
   --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background,
                                          rgba(255, 255, 255, .4));
   --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background,
                                           rgba(255, 255, 255, .7));
   --toolbarbutton-active-boxshadow: none;
-
   --toolbarbutton-checked-background: rgba(0, 0, 0, .25);
 }
 
@@ -312,9 +302,7 @@ treechildren::-moz-tree-twisty(selected, focus) {
 :root[lwt-default-theme-in-dark-mode] #quick-filter-bar:-moz-lwtheme-brighttext {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
-
   --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background);
-
   --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
   --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
   --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
