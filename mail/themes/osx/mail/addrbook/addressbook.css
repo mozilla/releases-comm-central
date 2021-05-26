@@ -56,16 +56,27 @@
   -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
+:root:not([lwt-tree]) #dirTree treechildren::-moz-tree-row(selected, focus) {
+  appearance: none;
+  background-color: Highlight;
+}
+
 #dirTree treechildren::-moz-tree-cell-text {
   font-family: -apple-system;
   font-size: 9pt;
   font-weight: 400;
 }
 
+:root:not([lwt-tree]) #dirTree treechildren::-moz-tree-image(selected),
+:root:not([lwt-tree]) #dirTree treechildren::-moz-tree-twisty(selected),
+:root:not([lwt-tree]) #dirTree treechildren::-moz-tree-cell-text(selected) {
+  color: currentColor;
+}
+
 :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-image(selected, focus),
 :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-twisty(selected, focus),
 :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
-  color: #282828;
+  color: HighlightText;
 }
 
 /* splitters */
