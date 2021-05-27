@@ -1454,8 +1454,6 @@
         return;
       }
 
-      this.sizes = { small: 16, large: 32, tile: 32 };
-
       let children = Array.from(this._childNodes);
 
       children
@@ -1471,7 +1469,6 @@
 
     set view(val) {
       this.setAttribute("view", val);
-      this._setImageSize();
     }
 
     get view() {
@@ -1633,8 +1630,11 @@
 
       let iconContainer = this.ownerDocument.createXULElement("hbox");
       iconContainer.setAttribute("align", "center");
-      let icon = this.ownerDocument.createXULElement("image");
+      let icon = this.ownerDocument.createElement("img");
+      icon.setAttribute("alt", "");
       icon.classList.add("attachmentcell-icon");
+      // Hide if invalid.
+      icon.addEventListener("error", () => icon.classList.add("invalid-src"));
       iconContainer.appendChild(icon);
 
       let textContainer = this.ownerDocument.createXULElement("hbox");
@@ -1678,8 +1678,6 @@
       itemContainer.appendChild(dropIndicatorAfter);
       item.appendChild(itemContainer);
 
-      let imageSize = this.sizes[this.getAttribute("view")] || 16;
-      item.setAttribute("imagesize", imageSize);
       item.setAttribute("context", this.getAttribute("itemcontext"));
 
       item.attachment = attachment;
@@ -1705,15 +1703,14 @@
       item.setAttribute("size", size);
       item.querySelector(".attachmentcell-size").setAttribute("value", size);
 
-      // Pick out some nice icons (small and large) for the attachment
+      let src;
       if (attachment.contentType == "text/x-moz-deleted") {
-        let base = "chrome://messenger/skin/icons/";
-        item.setAttribute("image16", base + "attachment-deleted.svg");
-        item.setAttribute("image32", base + "attachment-deleted-large.svg");
+        src = "chrome://messenger/skin/icons/attachment-deleted.svg";
       } else {
         let iconName = attachment.name;
         if (iconName.toLowerCase().endsWith(".eml")) {
-          // Discard message names derived from crazy subject headers.
+          // Discard file names derived from subject headers with special
+          // characters.
           iconName = "message.eml";
         } else if (attachment.url) {
           // For local file urls, we are better off using the full file url
@@ -1732,28 +1729,15 @@
             iconName = url.fileName;
           }
         }
-        item.setAttribute(
-          "image16",
-          "moz-icon://" +
-            iconName +
-            "?size=16&contentType=" +
-            attachment.contentType
-        );
-        item.setAttribute(
-          "image32",
-          "moz-icon://" +
-            iconName +
-            "?size=32&contentType=" +
-            attachment.contentType
-        );
+        src = `moz-icon://${iconName}?size=16&contentType=${attachment.contentType}`;
       }
 
-      let attr = "image" + item.getAttribute("imagesize");
-      if (item.hasAttribute(attr)) {
-        item
-          .querySelector(".attachmentcell-icon")
-          .setAttribute("src", item.getAttribute(attr));
-      }
+      let icon = item.querySelector(".attachmentcell-icon");
+      icon.classList.remove("invalid-src");
+      // NOTE: Setting the same value for "src" should still trigger the
+      // reloading of the image, and re-add the invalid-src class if the same
+      // error occurs.
+      icon.setAttribute("src", src);
 
       return item;
     }
@@ -1817,14 +1801,6 @@
         this._childNodes[0].getBoundingClientRect().y;
 
       return Math.floor(this.clientHeight / itemHeight);
-    }
-
-    _setImageSize() {
-      let size = this.sizes[this.view] || 16;
-
-      for (let i = 0; i < this._childNodes.length; i++) {
-        this._childNodes[i].imageSize = size;
-      }
     }
 
     /**

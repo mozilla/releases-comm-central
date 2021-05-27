@@ -160,6 +160,10 @@
   height: 16px;
 }
 
+.attachmentcell-icon.invalid-src {
+  visibility: hidden;
+}
+
 .attachmentcell-name,
 .attachmentcell-size {
   padding-top: 1px;
