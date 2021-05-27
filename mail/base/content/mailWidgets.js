@@ -2280,14 +2280,14 @@
             event.preventDefault();
             let row = this.querySelector(".address-row:not(.hidden)");
             // If the close label is collapsed, focus on the input field.
-            if (row.querySelector(".aw-firstColBox > label").collapsed) {
+            if (row.querySelector(".aw-firstColBox > button").collapsed) {
               row
                 .querySelector(`input[is="autocomplete-input"][recipienttype]`)
                 .focus();
               return;
             }
             // Focus on the close label.
-            row.querySelector(".aw-firstColBox > label").focus();
+            row.querySelector(".aw-firstColBox > button").focus();
           }
         });
 
@@ -2454,7 +2454,7 @@
      *   have been dropped.
      * @param {boolean} [appendStart] - If the selected addresses should be
      *   appended at the start or at the end of existing addresses.
-     *   Specifiying targetAddress will override this.
+     *   Specifying targetAddress will override this.
      * @param {string} [targetAddress] - The existing address before which all
      *   selected addresses should be appended.
      */
@@ -2541,26 +2541,18 @@
 
       row.classList.add("hidden");
 
-      let closeLabel = document.createXULElement("label");
-      document.l10n.setAttributes(closeLabel, "remove-address-row-type-label", {
-        type: recipient.labelId,
-      });
+      let closeButton = document.createXULElement("button");
+      closeButton.classList.add("close-icon");
+      document.l10n.setAttributes(
+        closeButton,
+        "remove-address-row-type-label",
+        { type: recipient.labelId }
+      );
 
-      closeLabel.addEventListener("click", event => {
+      closeButton.addEventListener("click", event => {
         closeLabelOnClick(event);
       });
-      closeLabel.addEventListener("keypress", event => {
-        closeLabelOnKeyPress(event);
-      });
-      closeLabel.setAttribute("role", "button");
-      // Necessary to allow focus via TAB key.
-      closeLabel.setAttribute("tabindex", 0);
-
-      let closeImage = document.createXULElement("image");
-      closeImage.classList.add("close-icon");
-
-      closeLabel.appendChild(closeImage);
-      firstCol.appendChild(closeLabel);
+      firstCol.appendChild(closeButton);
       row.appendChild(firstCol);
 
       let labelContainer = document.createXULElement("hbox");
@@ -3229,8 +3221,8 @@
     moveFocusToPreviousElement(element) {
       let row = element.closest(".address-row");
       // Move focus on the close label if not collapsed.
-      if (!row.querySelector(".aw-firstColBox > label").collapsed) {
-        row.querySelector(".aw-firstColBox > label").focus();
+      if (!row.querySelector(".aw-firstColBox > button").collapsed) {
+        row.querySelector(".aw-firstColBox > button").focus();
         return;
       }
       // If a previous address row is available and not hidden,

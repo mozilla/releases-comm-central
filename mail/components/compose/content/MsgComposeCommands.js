@@ -4294,7 +4294,7 @@ async function setKeyboardShortcuts() {
   });
 
   document.addEventListener("keypress", event => {
-    // If the user presses Esc and the drop attachment overlay is stil visible,
+    // If the user presses Esc and the drop attachment overlay is still visible,
     // call the onDragLeave() method to properly hide it.
     if (
       event.key == "Escape" &&
@@ -4508,7 +4508,7 @@ async function updateAriaLabelsOfAddressRow(row) {
  */
 function updateTooltipsOfAddressRow(row) {
   let type = row.querySelector(".address-label-container > label").value;
-  let el = row.querySelector(".aw-firstColBox > label");
+  let el = row.querySelector(".aw-firstColBox > button");
   document.l10n.setAttributes(el, "remove-address-row-type-label", { type });
 }
 
@@ -6451,7 +6451,7 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
   }
 
   // Always show the attachment pane if we have any attachment, no matter if the
-  // upload was successful or not to prevent keeping the panel collpased when
+  // upload was successful or not to prevent keeping the panel collapsed when
   // the user interacts with the attachment button.
   if (gAttachmentBucket.itemCount) {
     toggleAttachmentPane("show");
@@ -7149,7 +7149,7 @@ function toggleAttachmentPane(aAction = "toggle") {
     return;
   }
 
-  // Update the tooltiptext based on the collpased status of the bucket.
+  // Update the tooltiptext based on the collapsed status of the bucket.
   document.l10n.setAttributes(
     document.getElementById("attachmentToolbar"),
     attachmentsBox.collapsed
@@ -7940,8 +7940,8 @@ function fromKeyPress(event) {
     .querySelector(".address-row:not(.hidden)");
 
   // Move focus on the close label if not collapsed.
-  if (!row.querySelector(".aw-firstColBox > label").collapsed) {
-    row.querySelector(".aw-firstColBox > label").focus();
+  if (!row.querySelector(".aw-firstColBox > button").collapsed) {
+    row.querySelector(".aw-firstColBox > button").focus();
     return;
   }
 

@@ -1068,12 +1068,15 @@ label.extra-recipients-label {
   background-color: var(--arrowpanel-dimmed-further);
 }
 
-.aw-firstColBox label {
+.aw-firstColBox button {
   margin-block: 4px 0;
+  min-width: 20px;
+  background: none;
+  border: none;
 }
 
 .address-extra-recipients label:focus:not(:hover),
-.aw-firstColBox label:focus:not(:hover) image {
+.aw-firstColBox button:focus:not(:hover) {
   outline: 2px solid var(--focus-outline-color);
 }
 

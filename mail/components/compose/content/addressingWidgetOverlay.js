@@ -231,14 +231,14 @@ function updateUIforNNTPAccount() {
   if (mailContainer.querySelectorAll("mail-address-pill").length == 0) {
     mailContainer
       .closest(".address-row")
-      .querySelector(".aw-firstColBox > label")
+      .querySelector(".aw-firstColBox > button")
       .click();
   }
 
   // Show the closing label.
   mailContainer
     .closest(".address-row")
-    .querySelector(".aw-firstColBox > label")
+    .querySelector(".aw-firstColBox > button")
     .removeAttribute("collapsed");
 
   // Show the `news-primary-input` field row if not already visible.
@@ -255,7 +255,7 @@ function updateUIforNNTPAccount() {
 
   // Hide the closing label.
   newsContainer
-    .querySelector(".aw-firstColBox > label")
+    .querySelector(".aw-firstColBox > button")
     .setAttribute("collapsed", "true");
 
   // Reorder `mail-label` menu items.
@@ -287,7 +287,7 @@ function updateUIforMailAccount() {
 
   // Hide the closing label.
   mailContainer
-    .querySelector(".aw-firstColBox > label")
+    .querySelector(".aw-firstColBox > button")
     .setAttribute("collapsed", "true");
 
   // Hide the `news-primary-input` field row if no pills have been created.
@@ -295,12 +295,12 @@ function updateUIforMailAccount() {
     .querySelector(".news-primary-input")
     .closest(".address-row");
   if (newsContainer.querySelectorAll("mail-address-pill").length == 0) {
-    newsContainer.querySelector(".aw-firstColBox > label").click();
+    newsContainer.querySelector(".aw-firstColBox > button").click();
   }
 
   // Show the closing label.
   newsContainer
-    .querySelector(".aw-firstColBox > label")
+    .querySelector(".aw-firstColBox > button")
     .removeAttribute("collapsed");
 
   // Reorder `mail-label` menu items.
@@ -583,7 +583,7 @@ function otherHeaderInputOnKeyDown(event) {
         input.selectionStart + input.selectionEnd ||
         input
           .closest(".address-row")
-          .querySelector(".aw-firstColBox > label[collapsed]")
+          .querySelector(".aw-firstColBox > button[collapsed]")
       ) {
         // Interrupt if repeated keydown from deleting text, input still has
         // text, or cursor selection is not at position 0 while deleting
@@ -714,7 +714,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
         event.key == "Backspace" &&
         input
           .closest(".address-row")
-          .querySelector(".aw-firstColBox > label:not([collapsed])")
+          .querySelector(".aw-firstColBox > button:not([collapsed])")
       ) {
         // If addressing row has no pills nor text, unrepeated Backspace
         // keydown, and row has an [x] button, hide row and focus previous row.
@@ -732,7 +732,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
           .querySelector("mail-address-pill") &&
         !input
           .closest(".address-row")
-          .querySelector(".aw-firstColBox > label[collapsed]")
+          .querySelector(".aw-firstColBox > button[collapsed]")
       ) {
         // If addressing row has no pills nor text, unrepeated Delete keydown,
         // and row has an [x] button, hide row and focus next available row.
@@ -1196,32 +1196,6 @@ function closeLabelOnClick(event) {
 }
 
 /**
- * Handle the keypress event on the close label of an address row.
- *
- * @param {Event} event - The DOM keypress event.
- */
-function closeLabelOnKeyPress(event) {
-  let closeLabel = event.target;
-
-  switch (event.key) {
-    case "Enter":
-      hideAddressRow(closeLabel);
-      break;
-
-    case "Tab":
-      if (event.shiftKey) {
-        return;
-      }
-      event.preventDefault();
-      closeLabel
-        .closest(".address-row")
-        .querySelector(`.address-input[recipienttype]`)
-        .focus();
-      break;
-  }
-}
-
-/**
  * Calculate the height of the composer header area when pills are created or
  * removed in order to automatically add or remove the scrollable overflow.
  */
@@ -1251,7 +1225,7 @@ function calculateHeaderHeight() {
   }
 
   // Interrupt if the user manually resized the header area and the current
-  // custom height is heigher than the entire container height. We run this
+  // custom height is higher than the entire container height. We run this
   // condition alone in order to allow resetting the header height when pills
   // are deleted and a custom height is not necessary.
   if (

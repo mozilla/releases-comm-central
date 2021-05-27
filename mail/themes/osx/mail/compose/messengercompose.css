@@ -170,7 +170,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 .address-extra-recipients label:focus:not(:hover),
-.aw-firstColBox label:focus:not(:hover) image {
+.aw-firstColBox button:focus:not(:hover) image {
   outline: 2px dashed -moz-mac-focusring;
 }
 
