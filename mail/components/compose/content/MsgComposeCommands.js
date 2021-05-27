@@ -177,6 +177,7 @@ function getComposeBundle() {
 }
 
 var gLastWindowToHaveFocus;
+var gLastKnownComposeStates;
 var gReceiptOptionChanged;
 var gDSNOptionChanged;
 var gAttachVCardOptionChanged;
@@ -255,6 +256,7 @@ function InitializeGlobalVariables() {
   gRecipientObserver = null;
 
   gLastWindowToHaveFocus = null;
+  gLastKnownComposeStates = {};
   gReceiptOptionChanged = false;
   gDSNOptionChanged = false;
   gAttachVCardOptionChanged = false;
@@ -282,6 +284,8 @@ function ReleaseGlobalVariables() {
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
   // eslint-disable-next-line no-global-assign
   msgWindow = null;
+
+  gLastKnownComposeStates = null;
 
   // Remove the observer.
   Services.obs.removeObserver(inputObserver, "autocomplete-did-enter-text");
@@ -2113,6 +2117,26 @@ function updateSendCommands(aHaveController) {
     goSetCommandEnabled(
       "cmd_sendWithCheck",
       defaultController.isCommandEnabled("cmd_sendWithCheck")
+    );
+  }
+
+  let changed = false;
+  let currentStates = {};
+  let changedStates = {};
+  for (let state of ["cmd_sendNow", "cmd_sendLater"]) {
+    currentStates[state] = defaultController.isCommandEnabled(state);
+    if (
+      !gLastKnownComposeStates.hasOwnProperty(state) ||
+      gLastKnownComposeStates[state] != currentStates[state]
+    ) {
+      gLastKnownComposeStates[state] = currentStates[state];
+      changedStates[state] = currentStates[state];
+      changed = true;
+    }
+  }
+  if (changed) {
+    window.dispatchEvent(
+      new CustomEvent("compose-state-changed", { detail: changedStates })
     );
   }
 }

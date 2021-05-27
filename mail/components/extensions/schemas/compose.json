@@ -8,7 +8,8 @@
           {
             "type": "string",
             "enum": [
-              "compose"
+              "compose",
+              "compose.send"
             ]
           }
         ]
@@ -57,6 +58,21 @@
             }
           }
         ]
+      },
+      {
+        "id": "ComposeState",
+        "type": "object",
+        "description": "Represent the state of the message composer.",
+        "properties": {
+          "canSendNow": {
+            "type": "boolean",
+            "description": "The message can be send now."
+          },
+          "canSendLater": {
+            "type": "boolean",
+            "description": "The message can be send later."
+          }
+        }
       },
       {
         "id": "ComposeDetails",
@@ -268,6 +284,21 @@
           {
             "name": "identityId",
             "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "onComposeStateChanged",
+        "type": "function",
+        "description": "Fired when the state of the message composer changed.",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "state",
+            "$ref": "ComposeState"
           }
         ]
       }
@@ -516,6 +547,71 @@
           {
             "name": "attachmentId",
             "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "sendMessage",
+        "permissions": [
+          "compose.send"
+        ],
+        "type": "function",
+        "description": "Sends the message currently being composed.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer"
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "default",
+                  "sendNow",
+                  "sendLater"
+                ]
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "description": "Returns false if the current state of the message composer prevented sending the message.",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "type": "boolean"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getComposeState",
+        "type": "function",
+        "description": "Returns information about the current state of the message composer.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "$ref": "ComposeState"
+              }
+            ]
           }
         ]
       }

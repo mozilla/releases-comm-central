@@ -453,6 +453,53 @@ async function fileURLForFile(file) {
   });
 }
 
+var composeStates = {
+  _states: {
+    canSendNow: "cmd_sendNow",
+    canSendLater: "cmd_sendLater",
+  },
+
+  getStates(tab) {
+    let states = {};
+    for (let [state, command] of Object.entries(this._states)) {
+      state[state] = tab.nativeTab.defaultController.isCommandEnabled(command);
+    }
+    return states;
+  },
+
+  // Translate core states (commands) to API states.
+  convert(states) {
+    let converted = {};
+    for (let [state, command] of Object.entries(this._states)) {
+      if (states.hasOwnProperty(command)) {
+        converted[state] = states[command];
+      }
+    }
+    return converted;
+  },
+};
+
+var composeCommands = {
+  _commands: {
+    sendNow: "cmd_sendNow",
+    sendLater: "cmd_sendLater",
+    default: "cmd_sendButton",
+  },
+
+  // Translate API modes to commands.
+  getCommand(mode = "default") {
+    return this._commands[mode];
+  },
+
+  goDoCommand(tab, command) {
+    if (!tab.nativeTab.defaultController.isCommandEnabled(command)) {
+      return false;
+    }
+    tab.nativeTab.goDoCommand(command);
+    return true;
+  },
+};
+
 var composeEventTracker = {
   listeners: new Set(),
 
@@ -672,6 +719,23 @@ this.compose = class extends ExtensionAPI {
             };
           },
         }).api(),
+        onComposeStateChanged: new ExtensionCommon.EventManager({
+          context,
+          name: "compose.onComposeStateChanged",
+          register(fire) {
+            function callback(event) {
+              fire.async(
+                tabManager.convert(event.target.ownerGlobal),
+                composeStates.convert(event.detail)
+              );
+            }
+
+            windowTracker.addListener("compose-state-changed", callback);
+            return function() {
+              windowTracker.removeListener("compose-state-changed", callback);
+            };
+          },
+        }).api(),
         async beginNew(messageId, details) {
           let type = Ci.nsIMsgCompType.New;
           if (messageId) {
@@ -722,6 +786,17 @@ this.compose = class extends ExtensionAPI {
           );
           return tabManager.convert(composeWindow);
         },
+
+        async sendMessage(tabId, options = {}) {
+          let command = composeCommands.getCommand(options.mode);
+          let tab = getComposeTab(tabId);
+          return composeCommands.goDoCommand(tab, command);
+        },
+        getComposeState(tabId) {
+          let tab = getComposeTab(tabId);
+          return composeStates.getStates(tab);
+        },
+
         getComposeDetails(tabId) {
           let tab = getComposeTab(tabId);
           return getComposeDetails(tab.nativeTab, extension);
