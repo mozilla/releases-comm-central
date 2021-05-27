@@ -1861,10 +1861,14 @@
       this.pillLabel.classList.add("pill-label");
       this.pillLabel.setAttribute("crop", "center");
 
-      this.pillIndicator = document.createXULElement("image");
+      this.pillIndicator = document.createElement("img");
+      this.pillIndicator.setAttribute(
+        "src",
+        "chrome://messenger/skin/icons/pill-indicator.svg"
+      );
+      this.pillIndicator.setAttribute("alt", "");
       this.pillIndicator.classList.add("pill-indicator");
-      this.pillIndicator.setAttribute("tabindex", "-1");
-      this.pillIndicator.collapsed = true;
+      this.pillIndicator.hidden = true;
 
       this.labelView.appendChild(this.pillLabel);
       this.labelView.appendChild(this.pillIndicator);
@@ -2152,7 +2156,7 @@
             email: this.fullAddress,
           })
         );
-        this.pillIndicator.collapsed = true;
+        this.pillIndicator.hidden = true;
 
         // Interrupt if the address is not valid as we don't need to check for
         // other conditions.
@@ -2161,7 +2165,7 @@
 
       this.classList.remove("invalid-address");
       this.removeAttribute("tooltiptext");
-      this.pillIndicator.collapsed = true;
+      this.pillIndicator.hidden = true;
 
       // Check if the address is not in the Address Book only if it's not a
       // mailing list.
@@ -2175,7 +2179,7 @@
             email: this.fullAddress,
           })
         );
-        this.pillIndicator.collapsed = false;
+        this.pillIndicator.hidden = false;
       }
     }
 
