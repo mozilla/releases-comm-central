@@ -179,23 +179,7 @@ menulist > menupopup:not([position]) {
 /* :::::: throbber :::::::::: */
 
 #throbber-box {
-  width: 17px;
   margin: 0 4px;
-}
-
-@media (min-resolution: 2dppx) {
-  #throbber-box[busy="true"] {
-    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
-  }
-
-  #throbber-box > image {
-    width: 17px;
-    margin: 0 4px;
-  }
-
-  #wrapper-throbber-box > #throbber-box {
-    list-style-image: url("chrome://messenger/skin/icons/notloading@2x.png");
-  }
 }
 
 /* ::::: online/offline icons ::::: */

@@ -84,8 +84,6 @@ classic.jar:
   skin/classic/messenger/icons/error.png                         (mail/icons/error.png)
   skin/classic/messenger/icons/empty-search-results.png          (mail/icons/empty-search-results.png)
   skin/classic/messenger/icons/connecting.png                    (mail/icons/connecting.png)
-  skin/classic/messenger/icons/notloading.png                    (mail/icons/notloading.png)
-  skin/classic/messenger/icons/notloading@2x.png                 (mail/icons/notloading@2x.png)
   skin/classic/messenger/icons/arrow/arrow-left.png              (mail/icons/arrow/arrow-left.png)
   skin/classic/messenger/icons/arrow/arrow-right.png             (mail/icons/arrow/arrow-right.png)
   skin/classic/messenger/icons/arrow/arrow-up.png                (mail/icons/arrow/arrow-up.png)

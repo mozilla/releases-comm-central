@@ -988,17 +988,27 @@ toolbarpaletteitem toolbarbutton {
 /* throbber */
 
 #throbber-box {
-  width: 16px;
-  min-height: 16px;
   margin: 0 3px;
 }
 
-#throbber-box[busy="true"] {
-  list-style-image: url("chrome://global/skin/icons/loading.png");
+#throbber-box img {
+  width: 16px;
+  height: 16px;
 }
 
-#wrapper-throbber-box > #throbber-box {
-  list-style-image: url("chrome://messenger/skin/icons/notloading.png");
+#throbber-box:not([busy="true"]) .animated-throbber-icon {
+  /* Hide the icon, but still occupy space in the toolbar. */
+  visibility: hidden;
+}
+
+/* When the throbber-box is wrapped by the customizeToolbar dialog, we show the
+ * static image. */
+#wrapper-throbber-box > #throbber-box .animated-throbber-icon {
+  display: none;
+}
+/* Else, we hide the static image. */
+:not(#wrapper-throbber-box) > #throbber-box .static-throbber-icon {
+  display: none;
 }
 
 /* Status panel */

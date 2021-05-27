@@ -292,7 +292,20 @@
                    observes="cmd_chat"
                    tooltiptext="&chatButton.tooltip;"/>
     <toolbaritem id="throbber-box" title="&throbberItem.title;" align="center" pack="center">
-      <image/>
+      <!-- NOTE: We only display up to one of these images at any given time.
+         - Only show the static icon when customizing the toolbar.
+         - Only show the animated icon when we are not customizing the toolbar
+         - and there is some activity.
+         - Once loading animation is handled by CSS, we can use a single image
+         - here instead. -->
+      <html:img class="animated-throbber-icon"
+                src="chrome://global/skin/icons/loading.png"
+                srcset="chrome://global/skin/icons/loading@2x.png 2x"
+                alt="" />
+      <html:img class="static-throbber-icon"
+                src="chrome://messenger/skin/icons/notloading.png"
+                srcset="chrome://messenger/skin/icons/notloading@2x.png 2x"
+                alt="" />
     </toolbaritem>
     <toolbarbutton id="button-stop"
                    class="toolbarbutton-1"
