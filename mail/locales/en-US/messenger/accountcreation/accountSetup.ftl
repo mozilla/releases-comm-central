@@ -23,10 +23,9 @@ account-setup-name-input =
 account-setup-name-info-icon =
     .title = Your name, as shown to others
 
-account-setup-name-warning = Please enter your name
 
 account-setup-name-warning-icon =
-    .title = { account-setup-name-warning }
+    .title = Please enter your name
 
 account-setup-email-label = Email address
     .accesskey = E
@@ -37,10 +36,8 @@ account-setup-email-input =
 account-setup-email-info-icon =
     .title = Your existing email address
 
-account-setup-email-warning = Invalid email address
-
 account-setup-email-warning-icon =
-    .title = { account-setup-email-warning }
+    .title = Invalid email address
 
 account-setup-password-label = Password
     .accesskey = P
@@ -180,6 +177,21 @@ account-setup-username-title = Username
 
 account-setup-exchange-title = Server
 
+account-setup-result-smtp = SMTP
+
+account-setup-result-no-encryption = No Encryption
+
+account-setup-result-ssl = SSL/TLS
+
+account-setup-result-starttls = STARTTLS
+
+account-setup-result-outgoing-existing = Use existing outgoing SMTP server
+
+# Variables:
+#  $incoming (String): The email/username used to log into the incoming server
+#  $outgoing (String): The email/username used to log into the outgoing server
+account-setup-result-username-different = Incoming: { $incoming }, Outgoing: { $outgoing }
+
 ## Error messages
 
 # Note: The reference to "janedoe" (Jane Doe) is the name of an example person. You will want to translate it to whatever example persons would be named in your language. In the example, AD is the name of the Windows domain, and this should usually not be translated.
@@ -191,52 +203,101 @@ account-setup-find-settings-failed = { -brand-short-name } failed to find the se
 
 account-setup-exchange-config-unverifiable = Configuration could not be verified. If your username and password are correct, it’s likely that the server administrator has disabled the selected configuration for your account. Try selecting another protocol.
 
-## Manual config area
+## Manual configuration area
 
-account-setup-manual-config-title = Server settings
+account-setup-manual-config-title = Manual configuration
 
-account-setup-incoming-protocol-label = Incoming Protocol
+account-setup-incoming-server-legend = Incoming server
+
+account-setup-protocol-label = Protocol:
 
 protocol-imap-option = { account-setup-result-imap }
 
 protocol-pop-option = { account-setup-result-pop }
 
-account-setup-outgoing-protocol-label = Outgoing Protocol
+protocol-exchange-option = { account-setup-result-exchange }
 
-outgoing-protocol = SMTP
+account-setup-hostname-label = Hostname:
 
-account-setup-incoming-server-label = Incoming Server
+account-setup-port-label = Port:
+    .title = Set the port number to 0 for autodetection
 
-account-setup-outgoing-server-label = Outgoing Server
+account-setup-auto-description = { -brand-short-name } will attempt to auto-detect fields that are left blank.
 
-account-setup-incoming-port-label = Incoming Port
+account-setup-ssl-label = Connection security:
 
-account-setup-outoing-port-label = Outgoing Port
+account-setup-outgoing-server-legend = Outgoing server
 
-account-setup-incoming-ssl-label = Incoming SSL
-
-account-setup-outgoing-ssl-label = Outgoing SSL
+## Incoming/Outgoing SSL Authentication options
 
 ssl-autodetect-option = Autodetect
 
+ssl-no-authentication-option = No authentication
+
+ssl-cleartext-password-option = Normal password
+
+ssl-encrypted-password-option = Encrypted password
+
+## Incoming/Outgoing SSL options
+
 ssl-noencryption-option = None
 
-ssl-starttls-option = STARTTLS
+account-setup-auth-label = Authentication method:
 
-ssl-tls-option = SSL/TLS
-
-account-setup-incoming-auth-label = Incoming Authentication
-
-account-setup-outgoing-auth-label = Outgoing Authentication
-
-account-setup-incoming-username-label = Incoming Username
-
-account-setup-outgoing-username-label = Outgoing Username
+account-setup-username-label = Username:
 
 account-setup-advanced-setup-button = Advanced config
     .accesskey = A
 
-## Warning insecure server
+## Warning insecure server dialog
+
+account-setup-insecure-title = Warning!
+
+account-setup-insecure-incoming-title = Incoming settings:
+
+account-setup-insecure-outgoing-title = Outgoing settings:
+
+# Variables:
+#  $server (String): The name of the hostname of the server the user was trying to connect to.
+account-setup-warning-cleartext = <b>{ $server }</b> does not use encryption.
+
+account-setup-warning-cleartext-details = Insecure mail servers do not use encrypted connections to protect your passwords and private information. By connecting to this server you could expose your password and private information.
 
 account-setup-insecure-server-checkbox = I understand the risks
     .accesskey = u
+
+account-setup-insecure-description = { -brand-short-name } can allow you to get to your mail using the provided configurations. However, you should contact your administrator or email provider regarding these improper connections. See the <a data-l10n-name="thunderbird-faq-link">Thunderbird FAQ</a> for more information.
+
+insecure-dialog-cancel-button = Change Settings
+    .accesskey = S
+
+insecure-dialog-confirm-button = Confirm
+    .accesskey = C
+
+## Warning Exchange confirmation dialog
+
+# Variables:
+#  $domain (String): The name of the server where the configuration was found, e.g. rackspace.com.
+exchange-dialog-question = { -brand-short-name } found your account setup information on { $domain }. Do you want to proceed and submit your credentials?
+
+exchange-dialog-confirm-button = Login
+
+exchange-dialog-cancel-button = Cancel
+
+## Alert dialogs
+
+account-setup-creation-error-title = Error Creating Account
+
+account-setup-error-server-exists = Incoming server already exists.
+
+account-setup-confirm-advanced-title = Confirm Advanced Configuration
+
+account-setup-confirm-advanced-description = This dialog will be closed and an account with the current settings will be created, even if the configuration is incorrect. Do you want to proceed?
+
+## Addon installation section
+
+account-setup-addon-install-title = Install
+
+account-setup-addon-install-intro = A third-party add-on can allow you to access your email account on this server:
+
+account-setup-addon-no-protocol = This email server unfortunately does not support open protocols. { account-setup-addon-install-intro }

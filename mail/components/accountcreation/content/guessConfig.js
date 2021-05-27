@@ -167,7 +167,7 @@ function guessConfig(
     }
   };
 
-  var logger = gEmailWizardLogger;
+  var logger = gAccountSetupLogger;
   var HostTryToAccountServer = function(thisTry, server) {
     server.type = protocolToString(thisTry.protocol);
     server.hostname = thisTry.hostname;
@@ -393,7 +393,7 @@ function HostDetector(progressCallback, successCallback, errorCallback) {
   this._hostsToTry = [];
 
   // init logging
-  this._log = gEmailWizardLogger;
+  this._log = gAccountSetupLogger;
   this._log.info("created host detector");
 }
 

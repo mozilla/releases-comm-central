@@ -75,7 +75,7 @@ add_task(async function test_mail_account_setup() {
 
   // XXX: This should probably use a notification, once we fix bug 561143.
   await BrowserTestUtils.waitForCondition(
-    () => tab.browser.contentWindow.gEmailConfigWizard._currentConfig != null,
+    () => tab.browser.contentWindow.gAccountSetup._currentConfig != null,
     "Timeout waiting for current config to become non-null"
   );
 

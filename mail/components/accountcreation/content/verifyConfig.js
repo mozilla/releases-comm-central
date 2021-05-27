@@ -84,7 +84,7 @@ function verifyConfig(
     inServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
   }
 
-  gEmailWizardLogger.info(
+  gAccountSetupLogger.info(
     "Setting incoming server authMethod to " + config.incoming.auth
   );
   inServer.authMethod = config.incoming.auth;
@@ -150,7 +150,7 @@ function verifyConfig(
       successCallback(config);
     }
   } catch (e) {
-    gEmailWizardLogger.error("verifyConfig failed: " + e);
+    gAccountSetupLogger.info("verifyConfig failed: " + e);
     // Avoid pref pollution, clear out server prefs.
     MailServices.accounts.removeIncomingServer(inServer, true);
     errorCallback(e);
@@ -165,7 +165,7 @@ function verifyLogon(
   successCallback,
   errorCallback
 ) {
-  gEmailWizardLogger.info("verifyLogon for server at " + inServer.hostName);
+  gAccountSetupLogger.info("verifyLogon for server at " + inServer.hostName);
   // hack - save away the old callbacks.
   let saveCallbacks = msgWindow.notificationCallbacks;
   // set our own callbacks - this works because verifyLogon will
@@ -207,7 +207,7 @@ function urlListener(
   this.mErrorCallback = errorCallback;
   this.mMsgWindow = msgWindow;
   this.mCertError = false;
-  this._log = gEmailWizardLogger;
+  this._log = gAccountSetupLogger;
 }
 urlListener.prototype = {
   OnStartRunningUrl(aUrl) {

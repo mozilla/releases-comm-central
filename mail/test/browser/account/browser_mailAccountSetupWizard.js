@@ -99,6 +99,14 @@ add_task(async function test_mail_account_setup() {
   EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
   input_value(mc, user.password);
 
+  let notificationBox = tab.browser.contentWindow.gAccountSetup.notificationBox;
+
+  let notificationShowed = BrowserTestUtils.waitForCondition(
+    () =>
+      notificationBox.getNotificationWithValue("accountSetupSuccess") != null,
+    "Timeout waiting for error notification to be showed"
+  );
+
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
   EventUtils.synthesizeMouseAtCenter(
     tabDocument.getElementById("continueButton"),
@@ -106,11 +114,8 @@ add_task(async function test_mail_account_setup() {
     tab.browser.contentWindow
   );
 
-  // XXX: This should probably use a notification, once we fix bug 561143.
-  await BrowserTestUtils.waitForCondition(
-    () => tab.browser.contentWindow.gEmailConfigWizard._currentConfig != null,
-    "Timeout waiting for current config to become non-null"
-  );
+  // Wait for the successful notification to show up.
+  await notificationShowed;
 
   // Register the prompt service to handle the confirm() dialog
   gMockPromptService.register();
@@ -130,6 +135,11 @@ add_task(async function test_mail_account_setup() {
     "Timeout waiting for the manual edit area to become visible"
   );
 
+  let tabChanged = BrowserTestUtils.waitForCondition(
+    () => mc.tabmail.selectedTab != tab,
+    "Timeout waiting for the currently active tab to change"
+  );
+
   let advancedSetupButton = tabDocument.getElementById("advancedSetupButton");
   advancedSetupButton.scrollIntoView();
 
@@ -138,6 +148,10 @@ add_task(async function test_mail_account_setup() {
     {},
     tab.browser.contentWindow
   );
+
+  // Wait for the current Account Setup tab to be closed and the Account
+  // Settings tab to open before running other sub tests.
+  await tabChanged;
 
   await subtest_verify_account(mc.tabmail.selectedTab);
 
@@ -257,8 +271,7 @@ add_task(async function test_bad_password_uses_old_settings() {
     "Timeout waiting for create button to become visible and active"
   );
 
-  let notificationBox =
-    tab.browser.contentWindow.gEmailConfigWizard.notificationBox;
+  let notificationBox = tab.browser.contentWindow.gAccountSetup.notificationBox;
 
   let notificationShowed = BrowserTestUtils.waitForCondition(
     () => notificationBox.getNotificationWithValue("accountSetupError") != null,

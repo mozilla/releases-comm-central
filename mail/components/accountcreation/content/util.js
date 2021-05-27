@@ -667,8 +667,8 @@ function deepCopy(org) {
   return result;
 }
 
-if (typeof gEmailWizardLogger == "undefined") {
-  var gEmailWizardLogger = new ConsoleAPI({
+if (typeof gAccountSetupLogger == "undefined") {
+  var gAccountSetupLogger = new ConsoleAPI({
     prefix: "mail.setup",
     maxLogLevel: "warn",
     maxLogLevelPref: "mail.setup.loglevel",
@@ -676,7 +676,7 @@ if (typeof gEmailWizardLogger == "undefined") {
 }
 
 function ddump(text) {
-  gEmailWizardLogger.info(text);
+  gAccountSetupLogger.info(text);
 }
 
 function debugObject(obj, name, maxDepth, curDepth) {

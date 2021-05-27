@@ -107,7 +107,7 @@ function FetchHTTP(url, args, successCallback, errorCallback) {
   this._args.timeout = sanitize.integer(args.timeout || 5000); // default 5 seconds
   this._successCallback = successCallback;
   this._errorCallback = errorCallback;
-  this._logger = gEmailWizardLogger;
+  this._logger = gAccountSetupLogger;
   this._logger.info("Requesting <" + url + ">");
 }
 FetchHTTP.prototype = {

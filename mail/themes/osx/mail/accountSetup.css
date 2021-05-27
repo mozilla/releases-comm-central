@@ -4,8 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/accountSetup.css");
 
-@media (min-resolution: 2dppx) {
-  .secureLarry {
-    background: url("chrome://messenger/skin/icons/identity@2x.png") no-repeat;
-  }
+#manualConfigArea select {
+  line-height: 2;
 }

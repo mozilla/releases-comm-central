@@ -172,7 +172,7 @@ function fetchConfigFromExchange(
     ) {
       // Given that we received the redirect URL from an insecure HTTP call,
       // we ask the user whether he trusts the redirect domain.
-      gEmailWizardLogger.info("AutoDiscover HTTP redirected to other domain");
+      gAccountSetupLogger.info("AutoDiscover HTTP redirected to other domain");
       let dialogSuccessive = new SuccessiveAbortable();
       // Because the dialog implements Abortable, the dialog will cancel and
       // close automatically, if a slow higher priority call returns late.
@@ -181,23 +181,8 @@ function fetchConfigFromExchange(
       call3ErrorCallback(new Exception("Redirected"));
       dialogSuccessive.current = new TimeoutAbortable(
         setTimeout(() => {
-          let questionLabel = gStringsBundle.getFormattedString(
-            "otherDomain.label",
-            [
-              document
-                .getElementById("bundle_brand")
-                .getString("brandShortName"),
-              redirectDomain,
-            ]
-          );
-          let okLabel = gStringsBundle.getString("otherDomain_ok.label");
-          let cancelLabel = gStringsBundle.getString(
-            "otherDomain_cancel.label"
-          );
-          dialogSuccessive.current = confirmDialog(
-            questionLabel,
-            okLabel,
-            cancelLabel,
+          dialogSuccessive.current = confirmExchange(
+            redirectDomain,
             () => {
               // User agreed.
               fetchRedirect();
@@ -600,7 +585,7 @@ function readAddonsJSON(json) {
  *   The AccountConfig object will be passed in as first parameter.
  */
 function detectStandardProtocols(config, domain, successCallback) {
-  gEmailWizardLogger.info("Exchange Autodiscover gave some results.");
+  gAccountSetupLogger.info("Exchange Autodiscover gave some results.");
   let alts = [config.incoming, ...config.incomingAlternatives];
   if (alts.find(alt => alt.type == "imap" || alt.type == "pop3")) {
     // Autodiscover found an exchange server with advertized IMAP and/or
@@ -634,7 +619,7 @@ function detectStandardProtocols(config, domain, successCallback) {
   guessConfig(
     domain,
     function(type, hostname, port, ssl, done, config) {
-      gEmailWizardLogger.info(
+      gAccountSetupLogger.info(
         `Probing exchange server ${hostname} for ${type} protocol support.`
       );
     },

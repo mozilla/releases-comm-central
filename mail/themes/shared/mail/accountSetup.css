@@ -88,9 +88,8 @@ header {
   flex-direction: column;
 }
 
-#form label,
-#manualConfigArea label {
-  font-size: 0.9em;
+#form label {
+  font-size: 1rem;
   line-height: 1em;
   margin-block-end: 3px;
 }
@@ -99,6 +98,11 @@ header {
   display: flex;
   align-items: center;
   margin-block-end: 21px;
+}
+
+.input-control.vertical {
+  flex-direction: column;
+  align-items: stretch;
 }
 
 #form .input-field {
@@ -120,8 +124,17 @@ header {
 }
 
 .icon-warning {
+  display: none;
   color: var(--orange-50);
   fill-opacity: 1;
+}
+
+input:user-invalid ~ .form-icon {
+  display: none;
+}
+
+input:user-invalid ~ .icon-warning {
+  display: inline-block;
 }
 
 .provisioner-button-container {
@@ -200,7 +213,12 @@ header {
 }
 
 .section-title {
-  margin-block: 0 6px;
+  margin-block: 0 12px;
+}
+
+.autoconfigautoconfig-note {
+  margin-block: 10px 0;
+  font-size: 0.85em;
 }
 
 .content-blocking-category {
@@ -268,14 +286,14 @@ header {
 
 /* Confirmation dialog */
 
-#confirmationDialog {
+.account-setup-dialog {
   max-width: 500px;
   border-radius: 6px;
   border: none;
   box-shadow: 0 2px 6px -5px #000;
 }
 
-#confirmationDialog::backdrop {
+.account-setup-dialog::backdrop {
   background: rgba(0, 0, 0, 0.35);
 }
 
@@ -285,14 +303,19 @@ header {
   margin-bottom: 12px;
 }
 
-.dialog-container img {
+.dialog-container.vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dialog-header-image {
   -moz-context-properties: fill;
   fill: var(--in-content-primary-button-background);
   margin-inline-end: 12px;
   height: 32px;
 }
 
-#confirmationQuestion {
+.dialog-description {
   margin-block: 0.2em;
   line-height: 1.4em;
 }
@@ -306,47 +329,122 @@ header {
   justify-content: end;
 }
 
+.dialog-menu-container.two-columns {
+  justify-content: space-between;
+}
+
+/* Insecure dialog */
+
+.account-setup-dialog.dialog-critical {
+  max-width: 700px;
+  box-shadow: 0 2px 20px -8px var(--red-70);
+}
+
+.warning-title {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  background-color: var(--red-60);
+  color: #fff;
+  border-radius: 3px;
+  padding: 6px;
+}
+
+.warning-icon {
+  fill: #fff;
+}
+
+.insecure-section h3 {
+  margin-top: 0;
+}
+
+.insecure-section-description {
+  font-size: 1.05rem;
+  line-height: 1.5em;
+}
+
+.dialog-footnote {
+  margin-inline: 6px;
+  font-size: 1.05rem;
+  line-height: 1.4em;
+}
+
 /* Manual config area */
 
 #manualConfigArea {
   margin-block-end: 15px;
 }
 
-#manualConfigArea menulist,
 #manualConfigArea select,
-#manualConfigArea input {
-  margin-inline: 4px;
+#manualConfigArea input:not([type="radio"],[type="checkbox"]) {
+  margin: 0;
   width: 4em;
   flex: 1;
 }
 
-#manualConfigArea input {
-  min-height: 20px;
-  margin-block: 4px;
+#manualConfigArea select {
+  padding-inline-start: 9px;
+  margin-block: 0;
 }
 
-.config-area {
-  background-color: var(--in-content-box-info-background);
-  border-style: none;
-  padding: 9px;
-  margin: 9px 0;
-  border-radius: 6px;
+#manualConfigArea select:not([size], [multiple]) {
+  background-position-x: right 10px;
+}
+
+#manualConfigArea select:not([size], [multiple]):dir(rtl) {
+  background-position-x: left 10px;
+}
+
+#manualConfigArea select > option {
+  padding-inline-start: 11px;
+}
+
+#manualConfigArea legend {
+  margin-top: 0;
+  background-color: var(--in-content-primary-button-background);
+  border-radius: var(--in-content-button-border-radius);
+  padding: 2px 6px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--in-content-primary-button-text-color);
+}
+
+#manualConfigArea input[type="number"] {
+  width: calc(2ch + 60px);
+  text-align: end;
 }
 
 .manual-config-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 12px;
   row-gap: 12px;
 }
 
+.manual-config-grid ~ .manual-config-grid {
+  margin-top: 15px;
+}
+
 .manual-config-grid aside {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  column-gap: 6px;
+  align-items: center;
 }
 
 .manual-config-grid .input-control {
+  align-items: initial;
   margin-block-end: 0;
+}
+
+.manual-config-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+}
+
+.option-label {
+  font-size: 1rem;
+  line-height: 1em;
+  font-weight: 500;
 }
 
 .link-row {
@@ -364,129 +462,11 @@ header {
 
 .foot-note {
   line-height: 1.5em;
-  font-size: .85em;
+  font-size: 0.85em;
   margin-block-start: 21px;
 }
 
-/* ================= OLD STYLE ===================== */
-
-#manualConfigArea menulist[is="menulist-editable"] {
-  padding-inline: 0 !important;
-}
-
-#manualConfigArea menulist[is="menulist-editable"][editable="true"] {
-  margin-inline-end: 4px;
-  -moz-default-appearance: auto;
-}
-
-#manualConfigArea menulist[is="menulist-editable"][editable="true"]::part(text-input) {
-  padding: 5px 8px;
-  border-start-start-radius: 4px;
-  border-end-start-radius: 4px;
-  background-color: var(--in-content-box-background);
-  border: 1px solid var(--in-content-box-border-color);
-  margin: -1px;
-  margin-inline-end: 9px;
-  color: inherit;
-}
-
-#manualConfigArea menulist[is="menulist-editable"]:not([editable="true"])::part(text-input) {
-  display: none;
-}
-
-#manualConfigArea menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  width: 1.5em;
-  margin-inline-end: 0;
-}
-
-.insecureLarry {
-  height: 32px;
-  width: 32px;
-  padding: 0;
-  background: url("chrome://global/skin/icons/security-warning.svg") no-repeat;
-  background-size: 32px;
-  margin-right: 1em;
-}
-
-.secureLarry {
-  height: 48px;
-  width: 48px;
-  padding: 0;
-  background: url("chrome://messenger/skin/icons/identity.png") no-repeat;
-  background-size: 48px;
-}
-
-#warningbox:not([hidden="true"]) {
-  background: #333 none repeat scroll 0% 0%;
-  padding: 1em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.warning {
-  padding: 1em;
-  border-radius: 8px;
-  background-color: #722;
-  max-width: 50rem;
-}
-
-.warning_text {
-  color: white;
-  font-size: 120%;
-}
-
-.warning_text > vbox {
-  padding-top: 5px;
-}
-
-.warning-header {
-  border-bottom: 1px solid ThreeDLightShadow;
-  padding-bottom: 0.5em;
-}
-
-.warning-heading {
-  font-size: 140%;
-  margin: 0;
-  color: white;
-}
-
-.warning_settings {
-  color: yellow;
-  font-weight: bold;
-  margin: 0;
-  margin-inline-end: 3px;
-}
-
-description {
-  margin-block-end: 6px;
-}
-
-.details {
-  font-style: italic;
-  padding: 3px;
-}
-
-.popup-panel {
-  padding: 2px 3px;
-  background-color: #ffffc7;
-  max-width: 320px;
-}
-
-.technical_details {
-  cursor: pointer;
-  margin: 0;
-  padding-left: 20px;
-  background: url("chrome://global/skin/icons/twisty-collapsed.svg") left center no-repeat;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-.technical_details[expanded] {
-  background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
-}
-
-/* result area */
+/* Result area */
 
 .result-host-info {
   display: flex;
@@ -494,10 +474,13 @@ description {
   padding-block: 0;
   background-color: transparent !important;
   appearance: none;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.result-host-info > label.protocolType {
+.result-host-info > .protocol-type {
   display: inline-block;
+  text-transform: uppercase;
   padding: 1px 4px;
   font-size: 0.8rem;
   margin-inline-end: 5px;
@@ -507,19 +490,22 @@ description {
   color: var(--in-content-primary-button-text-color);
 }
 
-.result-host-info > label {
+.result-host-info > span {
   margin-inline: 0;
 }
 
-.result-host-info > label.ssl {
+.result-host-info > .ssl {
   margin-inline-start: 0.4em;
 }
 
-.result-host-info > label.domain {
+.result-host-info > .domain {
   font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.result-host-info > label.insecure {
+.result-host-info > .insecure {
   display: inline-block;
   padding: 2px 4px;
   font-size: 0.8rem;
@@ -531,7 +517,7 @@ description {
   color: var(--btn-bg-hover);
 }
 
-.certStatus.insecure {
+.cert-status.insecure {
   margin: 0 0 5px 0;
   color: var(--red-70);
 }
@@ -547,20 +533,23 @@ description {
   margin-block: 3px 12px;
 }
 
-#resultAddonInstallRows image.icon {
+#resultAddonInstallRows .icon {
   width: 32px;
   height: 32px;
   margin-inline-end: 6px;
 }
 
+.addon-container {
+  display: flex;
+  align-items: center;
+}
+
 .link {
+  flex: 1;
   line-height: 1.2em;
 }
 
-textbox[disabled="true"],
-input[disabled="true"],
-menulist[disabled="true"],
-select[disabled="true"],
-menulist[is="menulist-editable"][editable="true"][disabled="true"] {
+input[disabled],
+select[disabled] {
   opacity: 0.5;
 }
