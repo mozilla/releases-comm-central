@@ -239,7 +239,10 @@ add_task(async function testChangeDetails() {
       }
 
       let accounts = await browser.accounts.list();
-      let [defaultIdentity, nonDefaultIdentity] = accounts[1].identities;
+      // If this test is run alone, the order of accounts is different compared
+      // to running all tests. We need the account with the 2 added identities.
+      let account = accounts.find(a => a.identities.length == 2);
+      let [defaultIdentity, nonDefaultIdentity] = account.identities;
 
       // Add a listener that changes the headers and body. Sending should
       // continue and the headers should change. This is largely the same code
