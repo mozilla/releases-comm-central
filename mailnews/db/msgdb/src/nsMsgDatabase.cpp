@@ -1424,6 +1424,7 @@ NS_IMETHODIMP nsMsgDatabase::Commit(nsMsgDBCommit commitType) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::Close(bool forceCommit /* = TRUE */) {
+  InvalidateEnumerators();
   return CloseMDB(forceCommit);
 }
 

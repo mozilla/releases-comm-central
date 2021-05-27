@@ -561,14 +561,19 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
   // don't need to reload from cache if we've already read from cache,
   // and, we might get stale info, so don't do it.
   if (!mInitializedFromCache) {
+    // This path is not used to open a file. Instead, it's used as a key into
+    // the foldercache.
     nsCOMPtr<nsIFile> dbPath;
     result =
         GetFolderCacheKey(getter_AddRefs(dbPath), true /* createDBIfMissing */);
     if (dbPath) {
       nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
       result = GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
-      if (NS_SUCCEEDED(result) && cacheElement)
-        result = ReadFromFolderCacheElem(cacheElement);
+      if (NS_SUCCEEDED(result) && cacheElement) {
+        if (NS_SUCCEEDED(ReadFromFolderCacheElem(cacheElement))) {
+          mInitializedFromCache = true;
+        }
+      }
     }
   }
 
@@ -616,7 +621,6 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
       // and read from the db that way.
       mInitializedFromCache = true;
     }
-    if (db) db->Close(false);
   }
   return result;
 }
@@ -1176,7 +1180,6 @@ NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(
   GetURI(uri);
   printf("read total %ld for %s\n", mNumTotalMessages, uri.get());
 #endif
-  mInitializedFromCache = true;
   return rv;
 }
 
