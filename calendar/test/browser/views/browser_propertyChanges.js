@@ -120,8 +120,7 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
   info("Check initial state.");
 
   checkBoxItems(thisBoxCount + notThisBoxCount, (boxItem, isThisCalendar) => {
-    let colorBox = boxItem.querySelector(".calendar-color-box");
-    let style = getComputedStyle(colorBox);
+    let style = getComputedStyle(boxItem);
 
     if (isThisCalendar) {
       Assert.equal(style.backgroundColor, "rgb(255, 238, 34)", "item background correct");
@@ -145,8 +144,7 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
 
   thisCalendar.setProperty("color", "#16a765");
   checkBoxItems(thisBoxCount + notThisBoxCount, (boxItem, isThisCalendar) => {
-    let colorBox = boxItem.querySelector(".calendar-color-box");
-    let style = getComputedStyle(colorBox);
+    let style = getComputedStyle(boxItem);
 
     if (isThisCalendar) {
       Assert.equal(style.backgroundColor, "rgb(22, 167, 101)", "item background correct");

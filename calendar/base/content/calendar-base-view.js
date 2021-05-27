@@ -545,10 +545,6 @@
       return typelist[0];
     }
 
-    get labeldaybox() {
-      return this.querySelector(".labeldaybox");
-    }
-
     set rotated(rotated) {
       this.setAttribute("orient", rotated ? "horizontal" : "vertical");
       this.toggleAttribute("rotated", rotated);
@@ -709,10 +705,9 @@
      * @param {boolean} forceShortName  Whether to force the use of a short name.
      */
     adjustWeekdayLength(forceShortName) {
-      const labelDayBoxKids = this.labeldaybox.children;
       let useShortNames = false;
 
-      if (!labelDayBoxKids || !labelDayBoxKids[0] || forceShortName === true) {
+      if (forceShortName === true) {
         useShortNames = true;
       } else {
         const clientWidth = this.querySelector(".mainbox").clientWidth;
@@ -725,7 +720,7 @@
         }
       }
 
-      for (const kid of labelDayBoxKids) {
+      for (const kid of this.querySelectorAll("calendar-day-label")) {
         kid.shortWeekNames = useShortNames;
       }
     }
@@ -739,15 +734,14 @@
       if (this.mLongWeekdayTotalPixels <= 0) {
         let maxDayWidth = 0;
 
-        for (const label of this.labeldaybox.children) {
-          if (label.localName == "calendar-day-label") {
-            label.shortWeekNames = false;
-            const curPixelLength = label.getLongWeekdayPixels();
-            maxDayWidth = Math.max(maxDayWidth, curPixelLength);
-          }
+        const dayLabels = this.querySelectorAll("calendar-day-label");
+        for (const label of dayLabels) {
+          label.shortWeekNames = false;
+          const curPixelLength = label.getLongWeekdayPixels();
+          maxDayWidth = Math.max(maxDayWidth, curPixelLength);
         }
         if (maxDayWidth > 0) {
-          this.mLongWeekdayTotalPixels = maxDayWidth * this.labeldaybox.children.length + 10;
+          this.mLongWeekdayTotalPixels = maxDayWidth * dayLabels.length + 10;
         }
       }
       return this.mLongWeekdayTotalPixels;

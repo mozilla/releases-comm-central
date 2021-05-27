@@ -193,7 +193,7 @@ function editReminder(
 function updateReminderDetails(reminderDetails, reminderList, calendar) {
   // find relevant elements in the document
   let reminderMultipleLabel = reminderDetails.querySelector(".reminder-multiple-alarms-label");
-  let iconBox = reminderDetails.querySelector(".reminder-icon-box");
+  let iconBox = reminderDetails.querySelector(".alarm-icons-box");
   let reminderSingleLabel = reminderDetails.querySelector(".reminder-single-alarms-label");
 
   let reminders = reminderList.querySelector(".reminder-custom-menuitem").reminders || [];
@@ -441,7 +441,7 @@ function commonUpdateReminder(
     // Clear the reminder icons first, this will make sure that while the
     // dialog is open the default reminder image is not shown which may
     // confuse users.
-    let iconBox = reminderDetails.querySelector(".reminder-icon-box");
+    let iconBox = reminderDetails.querySelector(".alarm-icons-box");
     while (iconBox.lastChild) {
       iconBox.lastChild.remove();
     }

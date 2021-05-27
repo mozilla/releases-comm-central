@@ -275,19 +275,17 @@ add_task(async function testInsideMultiweekView() {
     info(dayBoxes[i].date.icalString);
     let item = dayBoxes[i].querySelector("calendar-month-day-box-item");
     ok(item, "Event shown");
-    is(item.querySelector(".event-name-label").value, "Test Event");
+    is(item.querySelector(".event-name-label").textContent, "Test Event");
     if (i == 2) {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "start");
-      let timeLabel = item.querySelector(".calendar-month-day-box-item-label");
-      is(timeLabel.getAttribute("time"), "true");
-      is(timeLabel.value, startTime);
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "start");
+      let timeLabel = item.querySelector(".item-time-label");
+      is(timeLabel.textContent, startTime);
     } else if (i == 19) {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "end");
-      let timeLabel = item.querySelector(".calendar-month-day-box-item-label");
-      is(timeLabel.getAttribute("time"), "true");
-      is(timeLabel.value, endTime);
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "end");
+      let timeLabel = item.querySelector(".item-time-label");
+      is(timeLabel.textContent, endTime);
     } else {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "continue");
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "continue");
     }
   }
   for (let i = 20; i <= 27; i++) {
@@ -331,14 +329,13 @@ add_task(async function testOutsideMultiweekView() {
     info(dayBoxes[i].date.icalString);
     let item = dayBoxes[i].querySelector("calendar-month-day-box-item");
     ok(item, "Event shown");
-    is(item.querySelector(".event-name-label").value, "Test Event");
+    is(item.querySelector(".event-name-label").textContent, "Test Event");
     if (i == 23) {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "start");
-      let timeLabel = item.querySelector(".calendar-month-day-box-item-label");
-      is(timeLabel.getAttribute("time"), "true");
-      is(timeLabel.value, startTime);
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "start");
+      let timeLabel = item.querySelector(".item-time-label");
+      is(timeLabel.textContent, startTime);
     } else {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "continue");
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "continue");
     }
   }
 
@@ -355,7 +352,7 @@ add_task(async function testOutsideMultiweekView() {
     info(dayBoxes[i].date.icalString);
     let item = dayBoxes[i].querySelector("calendar-month-day-box-item");
     ok(item, "Event shown");
-    is(item.querySelector(".calendar-item-image").getAttribute("type"), "continue");
+    is(item.querySelector(".item-type-icon").getAttribute("type"), "continue");
   }
 
   // Go to the end of the event. The start of the event is beyond the current view:
@@ -371,14 +368,13 @@ add_task(async function testOutsideMultiweekView() {
     info(dayBoxes[i].date.icalString);
     let item = dayBoxes[i].querySelector("calendar-month-day-box-item");
     ok(item, "Event shown");
-    is(item.querySelector(".event-name-label").value, "Test Event");
+    is(item.querySelector(".event-name-label").textContent, "Test Event");
     if (i == 9) {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "end");
-      let timeLabel = item.querySelector(".calendar-month-day-box-item-label");
-      is(timeLabel.getAttribute("time"), "true");
-      is(timeLabel.value, endTime);
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "end");
+      let timeLabel = item.querySelector(".item-time-label");
+      is(timeLabel.textContent, endTime);
     } else {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "continue");
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "continue");
     }
   }
   for (let i = 10; i <= 27; i++) {
@@ -423,19 +419,17 @@ add_task(async function testInsideMonthView() {
     info(dayBoxes[i].date.icalString);
     let item = dayBoxes[i].querySelector("calendar-month-day-box-item");
     ok(item, "Event shown");
-    is(item.querySelector(".event-name-label").value, "Test Event");
+    is(item.querySelector(".event-name-label").textContent, "Test Event");
     if (i == 2) {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "start");
-      let timeLabel = item.querySelector(".calendar-month-day-box-item-label");
-      is(timeLabel.getAttribute("time"), "true");
-      is(timeLabel.value, startTime);
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "start");
+      let timeLabel = item.querySelector(".item-time-label");
+      is(timeLabel.textContent, startTime);
     } else if (i == 19) {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "end");
-      let timeLabel = item.querySelector(".calendar-month-day-box-item-label");
-      is(timeLabel.getAttribute("time"), "true");
-      is(timeLabel.value, endTime);
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "end");
+      let timeLabel = item.querySelector(".item-time-label");
+      is(timeLabel.textContent, endTime);
     } else {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "continue");
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "continue");
     }
   }
   for (let i = 20; i <= 34; i++) {
@@ -480,14 +474,13 @@ add_task(async function testOutsideMonthView() {
     info(dayBoxes[i].date.icalString);
     let item = dayBoxes[i].querySelector("calendar-month-day-box-item");
     ok(item, "Event shown");
-    is(item.querySelector(".event-name-label").value, "Test Event");
+    is(item.querySelector(".event-name-label").textContent, "Test Event");
     if (i == 24) {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "start");
-      let timeLabel = item.querySelector(".calendar-month-day-box-item-label");
-      is(timeLabel.getAttribute("time"), "true");
-      is(timeLabel.value, startTime);
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "start");
+      let timeLabel = item.querySelector(".item-time-label");
+      is(timeLabel.textContent, startTime);
     } else {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "continue");
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "continue");
     }
   }
 
@@ -505,8 +498,8 @@ add_task(async function testOutsideMonthView() {
     info(dayBoxes[i].date.icalString);
     let item = dayBoxes[i].querySelector("calendar-month-day-box-item");
     ok(item, "Event shown");
-    is(item.querySelector(".event-name-label").value, "Test Event");
-    is(item.querySelector(".calendar-item-image").getAttribute("type"), "continue");
+    is(item.querySelector(".event-name-label").textContent, "Test Event");
+    is(item.querySelector(".item-type-icon").getAttribute("type"), "continue");
   }
 
   // Go to the end of the event. The start of the event is beyond the current view:
@@ -523,14 +516,13 @@ add_task(async function testOutsideMonthView() {
     info(dayBoxes[i].date.icalString);
     let item = dayBoxes[i].querySelector("calendar-month-day-box-item");
     ok(item, "Event shown");
-    is(item.querySelector(".event-name-label").value, "Test Event");
+    is(item.querySelector(".event-name-label").textContent, "Test Event");
     if (i == 9) {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "end");
-      let timeLabel = item.querySelector(".calendar-month-day-box-item-label");
-      is(timeLabel.getAttribute("time"), "true");
-      is(timeLabel.value, endTime);
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "end");
+      let timeLabel = item.querySelector(".item-time-label");
+      is(timeLabel.textContent, endTime);
     } else {
-      is(item.querySelector(".calendar-item-image").getAttribute("type"), "continue");
+      is(item.querySelector(".item-type-icon").getAttribute("type"), "continue");
     }
   }
   for (let i = 10; i <= 34; i++) {

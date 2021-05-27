@@ -77,7 +77,7 @@ add_task(async function testDayView() {
 
   // Check if name was saved.
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
-  let eventName = eventBox.querySelector(".calendar-event-details-core");
+  let eventName = eventBox.querySelector(".event-name-label");
 
   Assert.ok(eventName);
   Assert.equal(eventName.textContent, TITLE2);

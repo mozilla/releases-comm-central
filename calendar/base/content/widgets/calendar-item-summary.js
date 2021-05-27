@@ -249,8 +249,7 @@
               </menupopup>
             </menulist>
             <hbox class="reminder-details">
-              <hbox class="reminder-icon-box alarm-icons-box"
-                    align="center"/>
+              <hbox class="alarm-icons-box" align="center"/>
               <!-- TODO oncommand? onkeypress? -->
               <label class="reminder-multiple-alarms-label text-link"
                      hidden="true"

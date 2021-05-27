@@ -86,7 +86,7 @@ add_task(async function testMonthView() {
   });
   let eventName = eventBox.querySelector(".event-name-label");
   Assert.ok(eventName);
-  Assert.equal(eventName.value, TITLE2);
+  Assert.equal(eventName.textContent, TITLE2);
 
   // Delete event.
   controller.click(eventBox);

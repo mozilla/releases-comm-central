@@ -362,19 +362,46 @@ richlistitem[is="agenda-allday-richlistitem"]:focus-visible > .agenda-allday-con
   color: inherit;
 }
 
-.wrap {
-  overflow: visible;
-}
-
 .agenda-container-box {
   border-radius: 2px;
   margin-inline: 4px;
   padding: 2px 4px;
 }
 
+richlistitem[is="agenda-allday-richlistitem"] {
+  /* Needed to give child grid full horizontal space. */
+  display: block;
+}
+
 .agenda-allday-container-box {
   border-radius: 2px;
   margin: 1px 4px;
+  display: grid;
+  grid-template: "a a" auto
+                 "b c" auto / auto 1fr;
+  align-items: baseline;
+}
+
+.agenda-allday-container-box > .agenda-event-start {
+  grid-area: a;
+}
+
+.agenda-allday-container-box > .agenda-multiDayEvent-image {
+  grid-area: b;
+}
+
+.agenda-allday-container-box > calendar-month-day-box-item {
+  grid-area: c;
+}
+
+.agenda-allday-container-box .item-classification-icon {
+  display: none;
+}
+
+.agenda-allday-container-box > calendar-month-day-box-item .event-name-label {
+  /* Allow the event name to wrap in the today pane. */
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .agenda-container-box[selected="true"],
@@ -415,15 +442,6 @@ richlistitem[is="agenda-allday-richlistitem"]:focus-visible > .agenda-allday-con
   --item-forecolor: var(--agenda-item-current-color);
 }
 
-.agenda-allday-container-box .item-classification-box {
-  display: none;
-}
-
-.agenda-allday-container-box calendar-month-day-box-item {
-  margin: 0;
-  padding: 0;
-}
-
 .agenda-event-title {
   margin-top: 0;
 }
@@ -447,15 +465,16 @@ richlistitem[is="agenda-allday-richlistitem"]:focus-visible > .agenda-allday-con
   height: 10px;
 }
 
+.agenda-multiDayEvent-image {
+  width: 11px;
+  height: 11px;
+}
+
 .agenda-multiDayEvent-image:not([type=""]) {
   margin-top: 0.35em;
   margin-inline-start: 3px;
   -moz-context-properties: fill;
   fill: currentColor;
-}
-
-.agenda-allday-container-box .agenda-multiDayEvent-image {
-  margin-top: 0.6em;
 }
 
 .agenda-multiDayEvent-image:not([src]) {

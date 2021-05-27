@@ -5,160 +5,240 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
-    --viewColor: #000;
-    --viewBackground: #fff;
-    --viewBorderColor: #d2d2d2;
-    --viewCalendarHeaderBackground: rgba(0, 0, 0, 0.03);
-    --viewHighlightBorderColor: #67acd8;
-    --viewTodayBorderColor: #7fb9ee;
-    --viewTodayColor: inherit;
-    --viewTodayBackground: #e1f0fd;
-    --viewTodayLabelColor: #fff;
-    --viewTodayLabelBackground: var(--primary);
-    --viewTodayOffBackground: #d7e8f8;
-    --viewTodayDayLabelBackground: #d2e3f3;
-    --viewTodayWeekendBackground: #e1f0fd;
-    --viewWeekendBackground: #f7ffe3;
-    --viewHeaderSelectedBackground: #fffcd8;
-    --viewDayBoxSelectedBackground: #fffcd8;
-    --viewDayBoxOffSelectedBackground: #f2edb2;
-    --viewDayBoxOtherSelectedBackground: #fffcd8;
-    --viewMonthOtherBackground: #f3f3f3;
-    --viewMonthDayBoxSelectedColor: #616163;
-    --viewMonthDayBoxLabelColor: #616163;
-    --viewMonthDayBoxWeekLabel: #aaaaaa;
-    --viewMonthDayOtherBackground: #e8e8e8;
-    --viewMonthDayOffLabelBackground: #eaf7ca;
-    --viewOffTimeBackground: #f0f0f0;
-    --viewTimeBoxColor: #6a6969;
-    --viewDayLabelSelectedColor: #000;
-    --viewDayLabelSelectedBackground: #fffabc;
-    --viewDragboxColor: -moz-dialogtext;
-    --viewDragboxBackground: linear-gradient(#fe4b22, #feb822);
-    --viewDropshadowBackground: #ffa47d;
+  --viewColor: #000;
+  --viewBackground: #fff;
+  --viewBorderColor: #d2d2d2;
+  --viewCalendarHeaderBackground: rgba(0, 0, 0, 0.03);
+  --viewHighlightBorderColor: #67acd8;
+  --viewTodayBorderColor: #7fb9ee;
+  --viewTodayColor: inherit;
+  --viewTodayBackground: #e1f0fd;
+  --viewTodayLabelColor: #fff;
+  --viewTodayLabelBackground: var(--primary);
+  --viewTodayOffBackground: #d7e8f8;
+  --viewTodayDayLabelBackground: #d2e3f3;
+  --viewTodayWeekendBackground: #e1f0fd;
+  --viewWeekendBackground: #f7ffe3;
+  --viewHeaderSelectedBackground: #fffcd8;
+  --viewDayBoxSelectedBackground: #fffcd8;
+  --viewDayBoxOffSelectedBackground: #f2edb2;
+  --viewDayBoxOtherSelectedBackground: #fffcd8;
+  --viewMonthOtherBackground: #f3f3f3;
+  --viewMonthDayBoxSelectedColor: #616163;
+  --viewMonthDayBoxLabelColor: #616163;
+  --viewMonthDayBoxWeekLabel: #aaaaaa;
+  --viewMonthDayOtherBackground: #e8e8e8;
+  --viewMonthDayOffLabelBackground: #eaf7ca;
+  --viewOffTimeBackground: #f0f0f0;
+  --viewTimeBoxColor: #6a6969;
+  --viewDayLabelSelectedColor: #000;
+  --viewDayLabelSelectedBackground: #fffabc;
+  --viewDragboxColor: -moz-dialogtext;
+  --viewDragboxBackground: linear-gradient(#fe4b22, #feb822);
+  --viewDropshadowBackground: #ffa47d;
 }
 
 :root[lwt-tree],
 :root[lwt-tree-brighttext] {
-    --viewColor: var(--sidebar-text-color);
-    --viewBackground: var(--sidebar-background-color, Field);
-    --viewBorderColor: var(--sidebar-border-color, var(--splitter-color));
-    --viewTodayColor: var(--sidebar-highlight-text-color, HighlightText);
-    --viewTodayBackground: var(--sidebar-highlight-background-color, Highlight);
-    --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, Highlight);
-    --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
-    --viewMonthDayBoxLabelColor: var(--sidebar-text-color, FieldText);
-    --viewMonthDayBoxWeekLabel: var(--sidebar-text-color, FieldText);
-    --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
-    --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
-    --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
+  --viewColor: var(--sidebar-text-color);
+  --viewBackground: var(--sidebar-background-color, Field);
+  --viewBorderColor: var(--sidebar-border-color, var(--splitter-color));
+  --viewTodayColor: var(--sidebar-highlight-text-color, HighlightText);
+  --viewTodayBackground: var(--sidebar-highlight-background-color, Highlight);
+  --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, Highlight);
+  --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
+  --viewMonthDayBoxLabelColor: var(--sidebar-text-color, FieldText);
+  --viewMonthDayBoxWeekLabel: var(--sidebar-text-color, FieldText);
+  --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
+  --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
+  --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
 }
 
 :root[lwt-tree-brighttext] {
-    --viewCalendarHeaderBackground: rgba(255, 255, 255, 0.05);
-    --viewHighlightBorderColor: #9fa3d9;
-    --viewTodayColor: var(--sidebar-highlight-text-color, #fff);
-    --viewTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
-    --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, #393b66);
-    --viewMonthOtherBackground: rgba(255, 255, 255, 0.3);
-    --viewOffTimeBackground: rgba(255, 255, 255, 0.05);
-    --viewTodayOffBackground: #5358a4;
-    --viewTodayWeekendBackground: #5358a4;
-    --viewWeekendBackground: #646a56;
-    --viewHeaderSelectedBackground: #8b8bbd;
-    --viewDayBoxSelectedBackground: #8b8bbd;
-    --viewDayBoxOffSelectedBackground: #676795;
-    --viewDayBoxOtherSelectedBackground: #fffcd8;
-    --viewMonthDayBoxSelectedColor: #d7d7ec;
-    --viewMonthDayOtherBackground: rgba(255, 255, 255, 0.3);
-    --viewMonthDayOffLabelBackground: #4f5935;
+  --viewCalendarHeaderBackground: rgba(255, 255, 255, 0.05);
+  --viewHighlightBorderColor: #9fa3d9;
+  --viewTodayColor: var(--sidebar-highlight-text-color, #fff);
+  --viewTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
+  --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, #393b66);
+  --viewMonthOtherBackground: rgba(255, 255, 255, 0.3);
+  --viewOffTimeBackground: rgba(255, 255, 255, 0.05);
+  --viewTodayOffBackground: #5358a4;
+  --viewTodayWeekendBackground: #5358a4;
+  --viewWeekendBackground: #646a56;
+  --viewHeaderSelectedBackground: #8b8bbd;
+  --viewDayBoxSelectedBackground: #8b8bbd;
+  --viewDayBoxOffSelectedBackground: #676795;
+  --viewDayBoxOtherSelectedBackground: #fffcd8;
+  --viewMonthDayBoxSelectedColor: #d7d7ec;
+  --viewMonthDayOtherBackground: rgba(255, 255, 255, 0.3);
+  --viewMonthDayOffLabelBackground: #4f5935;
 }
 
 :root[systemcolors] {
-    --viewColor: WindowText;
-    --viewBackground: Field;
-    --viewBorderColor: ThreeDShadow;
-    --viewHighlightBorderColor: Highlight;
-    --viewTodayColor: inherit;
-    --viewTodayBorderColor: Highlight;
-    --viewTodayBackground: Field;
-    --viewTodayLabelColor: HighlightText;
-    --viewTodayLabelBackground: Highlight;
-    --viewTodayOffBackground: ButtonFace;
-    --viewTodayDayLabelBackground: ButtonFace;
-    --viewTodayWeekendBackground: ButtonFace;
-    --viewWeekendBackground: rgba(0, 0, 0, .1);
-    --viewHeaderSelectedBackground: ButtonFace;
-    --viewDayBoxSelectedBackground: Field;
-    --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .2);
-    --viewDayBoxOtherSelectedBackground: rgba(0, 0, 0, .2);
-    --viewMonthOtherBackground: ButtonFace;
-    --viewMonthDayBoxSelectedColor: Highlight;
-    --viewMonthDayBoxLabelColor: WindowText;
-    --viewMonthDayBoxWeekLabel: GrayText;
-    --viewMonthDayOtherBackground: ButtonFace;
-    --viewMonthDayOffLabelBackground: rgba(0, 0, 0, .1);
-    --viewOffTimeBackground: rgba(0, 0, 0, .1);
-    --viewTimeBoxColor: GrayText;
-    --viewDayLabelSelectedColor: HighlightText;
-    --viewDayLabelSelectedBackground: Highlight;
-    --viewDragboxColor: GrayText;
-    --viewDragboxBackground: Highlight;
-    --viewDropshadowBackground: Highlight !important;
+  --viewColor: WindowText;
+  --viewBackground: Field;
+  --viewBorderColor: ThreeDShadow;
+  --viewHighlightBorderColor: Highlight;
+  --viewTodayColor: inherit;
+  --viewTodayBorderColor: Highlight;
+  --viewTodayBackground: Field;
+  --viewTodayLabelColor: HighlightText;
+  --viewTodayLabelBackground: Highlight;
+  --viewTodayOffBackground: ButtonFace;
+  --viewTodayDayLabelBackground: ButtonFace;
+  --viewTodayWeekendBackground: ButtonFace;
+  --viewWeekendBackground: rgba(0, 0, 0, .1);
+  --viewHeaderSelectedBackground: ButtonFace;
+  --viewDayBoxSelectedBackground: Field;
+  --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .2);
+  --viewDayBoxOtherSelectedBackground: rgba(0, 0, 0, .2);
+  --viewMonthOtherBackground: ButtonFace;
+  --viewMonthDayBoxSelectedColor: Highlight;
+  --viewMonthDayBoxLabelColor: WindowText;
+  --viewMonthDayBoxWeekLabel: GrayText;
+  --viewMonthDayOtherBackground: ButtonFace;
+  --viewMonthDayOffLabelBackground: rgba(0, 0, 0, .1);
+  --viewOffTimeBackground: rgba(0, 0, 0, .1);
+  --viewTimeBoxColor: GrayText;
+  --viewDayLabelSelectedColor: HighlightText;
+  --viewDayLabelSelectedBackground: Highlight;
+  --viewDragboxColor: GrayText;
+  --viewDragboxBackground: Highlight;
+  --viewDropshadowBackground: Highlight !important;
 }
 
 :root[lwt-tree] #calendar-nav-control {
-    background-color: var(--lwt-accent-color);
-    background-image: var(--lwt-header-image);
-    color: var(--lwt-text-color);
+  background-color: var(--lwt-accent-color);
+  background-image: var(--lwt-header-image);
+  color: var(--lwt-text-color);
 
-    --calview-tabline-color: var(--tab-line-color, --calview-tabline-color);
-    --calview-border-color: var(--sidebar-border-color);
-    --calview-border-bottom-color: var(--sidebar-border-color);
+  --calview-tabline-color: var(--tab-line-color, --calview-tabline-color);
+  --calview-border-color: var(--sidebar-border-color);
+  --calview-border-bottom-color: var(--sidebar-border-color);
 }
 
-/* Core */
-.calendar-category-box:not([categories]) {
-    display: none;
+/* Calendar Items */
+
+.calendar-item-grid {
+  display: grid;
+  /* NOTE: area "b" may be empty when the location is hidden, so we want it to
+   * be able to shrink to 0 height.
+   * Moreover, "a" will be calendar-item-flex, which is padded.
+   * Therefore, we don't use the "gap" attribute, but provide a margin for each
+   * child individually. */
+  grid-template: "a c" auto
+                 "b c" auto
+                 ". c" 1fr / 1fr auto;
+  overflow: hidden;
+  min-height: 100%;
+  width: 100%;
 }
 
-.calendar-category-box {
-    width: 7px;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.38), transparent) !important;
+.calendar-item-grid > .calendar-item-flex {
+  grid-area: a;
 }
 
-.calendar-category-box-stack {
-    pointer-events: none;
-    display: flex;
-    justify-content: end;
-    margin-inline-end: 2px;
+.calendar-item-grid > .location-desc {
+  grid-area: b;
+  /* Margin matches the padding of .calendar-item-flex. */
+  margin: 2px;
 }
 
-.calendar-category-box[categories] + hbox,
-.multiday-view-day-box .calendar-event-box-container[categories] > .calendar-event-details {
-    margin-inline-end: 8px;
+.calendar-item-grid > .calendar-category-box {
+  grid-area: c;
+  /* Margin matches the padding of .calendar-item-flex. */
+  margin: 2px;
 }
 
-.multiday-view-day-box .calendar-event-box-container > .calendar-event-details > .alarm-icons-box {
-  padding-top: 3px;
+.calendar-item-flex {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px;
+  overflow-x: hidden;
 }
 
-.calendar-item-image {
-    margin-inline-end: 4px;
-    -moz-context-properties: fill;
-    fill: currentColor;
+.calendar-item-flex > alarm-icons-box {
+  display: contents;
 }
 
-.calendar-item-image:not([src]) {
+.item-time-label {
+  flex: 0 0 auto;
+}
+
+.calendar-item-flex img {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+}
+
+.calendar-item-flex .calendar-category-box {
+  flex: 0 0 auto;
+  align-self: stretch;
+}
+
+.item-type-icon {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.item-type-icon:not([src]) {
   display: none;
 }
 
-.calendar-item-image[rotated-to-read-direction]:-moz-locale-dir(ltr) {
+.item-type-icon[rotated-to-read-direction]:-moz-locale-dir(ltr) {
   transform: rotate(-90deg);
 }
 
-.calendar-item-image[rotated-to-read-direction]:-moz-locale-dir(rtl) {
+.item-type-icon[rotated-to-read-direction]:-moz-locale-dir(rtl) {
   transform: rotate(90deg);
+}
+
+.event-name-input,
+.event-name-label,
+.location-desc {
+  font-weight: normal;
+  overflow-x: hidden;
+}
+
+.event-name-label,
+.location-desc {
+  text-overflow: ellipsis;
+}
+
+.event-name-label {
+  white-space: nowrap;
+}
+
+.event-name-input,
+.event-name-label {
+  flex: 1 1 auto;
+}
+
+.event-name-input {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.location-desc {
+  opacity: 0.5;
+  white-space: pre;
+}
+
+.item-classification-icon {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.item-classification-icon:not([src]) {
+  display: none;
+}
+
+.calendar-category-box {
+  width: 7px;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.38), transparent) !important;
 }
 
 /* Multiday view */
@@ -166,676 +246,701 @@
 /* Margin that allows event creation by click and drag when the time slot is
    full of events. On the right side in normal view ... */
 .multiday-column-box-stack > .multiday-column-top-box[orient="horizontal"] {
-    margin-inline-end: 5px;
+  margin-inline-end: 5px;
 }
 /* ... and on bottom in rotate view. */
 .multiday-column-box-stack > .multiday-column-top-box[orient="vertical"] {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 /* .. and on the right side in the header container in normal view */
 .multiday-view-header-day-box[orient="horizontal"] >
-  calendar-header-container {
-    padding-inline: 1px 6px;
+  calendar-header-container
+{
+  padding-inline: 1px 6px;
 }
 /* ... and on the bottom in rotated view. */
 .multiday-view-header-day-box[orient="vertical"] >
-  calendar-header-container {
-    padding-block: 1px 5px;
+  calendar-header-container
+{
+  padding-block: 1px 5px;
 }
 
 calendar-event-column {
-    background-color: var(--viewBackground);
+  background-color: var(--viewBackground);
 }
 
 calendar-event-column[orient="horizontal"] {
-    border-top: 1px solid var(--viewBorderColor);
+  border-top: 1px solid var(--viewBorderColor);
 }
 
 calendar-event-column[orient="vertical"] {
-    border-inline-start: 1px solid var(--viewBorderColor);
+  border-inline-start: 1px solid var(--viewBorderColor);
 }
 
 calendar-event-column[orient="horizontal"][relation="today"] {
-    border-block: 1px solid var(--viewHighlightBorderColor);
-    margin-bottom: -1px;
-    position: relative;
+  border-block: 1px solid var(--viewHighlightBorderColor);
+  margin-bottom: -1px;
+  position: relative;
 }
 
 calendar-event-column[orient="vertical"][relation="today"] {
-    border-inline: 1px solid var(--viewHighlightBorderColor);
-    margin-inline-end: -1px;
-    position: relative;
+  border-inline: 1px solid var(--viewHighlightBorderColor);
+  margin-inline-end: -1px;
+  position: relative;
 }
 
 calendar-header-container {
-    background-color: var(--viewBackground);
-    border-inline-start: 1px solid var(--viewBorderColor);
+  background-color: var(--viewBackground);
+  border-inline-start: 1px solid var(--viewBorderColor);
 }
 
 .multiday-view-header-day-box[orient="vertical"] >
-  calendar-header-container {
-    max-width: 150px;
+  calendar-header-container
+{
+  max-width: 150px;
 }
 
 calendar-header-container[weekend="true"],
 .calendar-event-column-linebox[weekend="true"] {
-    background-color: var(--viewWeekendBackground);
+  background-color: var(--viewWeekendBackground);
 }
 
 .calendar-event-column-linebox[off-time="true"] {
-    background-color: var(--viewOffTimeBackground);
+  background-color: var(--viewOffTimeBackground);
 }
 
 .calendar-event-column-linebox[off-time="true"][weekend="true"] {
-    background-color: var(--viewMonthDayOffLabelBackground);
+  background-color: var(--viewMonthDayOffLabelBackground);
 }
 
 calendar-header-container[relation="today"],
 .calendar-event-column-linebox[relation="today"],
 calendar-day-label[orient][relation="today"] {
-    background-color: var(--viewTodayBackground);
+  background-color: var(--viewTodayBackground);
 }
 
 .multiday-view-header-day-box[orient="horizontal"] >
-  calendar-header-container[relation="today"] {
-    border-inline: 1px solid var(--viewTodayBorderColor);
-    margin-inline-end: -1px;
-    position: relative;
+  calendar-header-container[relation="today"]
+{
+  border-inline: 1px solid var(--viewTodayBorderColor);
+  margin-inline-end: -1px;
+  position: relative;
 }
 
 .multiday-view-header-day-box[orient="vertical"] >
-  calendar-header-container[relation="today"] {
-    border-top: 1px solid var(--viewTodayBorderColor);
-    border-bottom: 1px solid var(--viewTodayBorderColor) !important;
-    margin-top: -1px;
-    position: relative;
+  calendar-header-container[relation="today"]
+{
+  border-top: 1px solid var(--viewTodayBorderColor);
+  border-bottom: 1px solid var(--viewTodayBorderColor) !important;
+  margin-top: -1px;
+  position: relative;
 }
 
 calendar-header-container[selected="true"],
 .calendar-event-column-linebox[selected="true"] {
-    background-color: var(--viewHeaderSelectedBackground);
+  background-color: var(--viewHeaderSelectedBackground);
 }
 
 calendar-header-container[weekend="true"][relation="today"],
 .calendar-event-column-linebox[weekend="true"][relation="today"] {
-    background-color: var(--viewTodayWeekendBackground);
+  background-color: var(--viewTodayWeekendBackground);
 }
 
 .calendar-event-column-linebox[off-time="true"][relation="today"] {
-    background-color: var(--viewTodayOffBackground);
+  background-color: var(--viewTodayOffBackground);
 }
 
 .multiday-view-header-day-box[orient="vertical"] .calendar-event-column-header {
-    border-bottom: 1px solid var(--viewBorderColor);
-    min-width: 100px;
+  border-bottom: 1px solid var(--viewBorderColor);
+  min-width: 100px;
 }
 
 calendar-header-container[weekend="true"][selected="true"],
 .calendar-event-column-linebox[weekend="true"][selected="true"] {
-    background-color: var(--viewHeaderSelectedBackground);
+  background-color: var(--viewHeaderSelectedBackground);
 }
 
 .calendar-event-column-linebox[off-time="true"][selected="true"] {
-    background-color: var(--viewDayBoxOffSelectedBackground);
+  background-color: var(--viewDayBoxOffSelectedBackground);
 }
 
 .calendar-event-column-linebox[orient="horizontal"] {
-    border-inline-end: 1px solid var(--viewBorderColor);
+  border-inline-end: 1px solid var(--viewBorderColor);
 }
 
 .calendar-event-column-linebox[orient="vertical"] {
-    border-bottom: 1px solid var(--viewBorderColor);
+  border-bottom: 1px solid var(--viewBorderColor);
 }
 
 .calendar-event-column-linebox[orient="horizontal"][relation="today"]:last-child {
-    border-inline-end: 1px solid var(--viewHighlightBorderColor);
+  border-inline-end: 1px solid var(--viewHighlightBorderColor);
 }
 
 .calendar-event-column-linebox[orient="vertical"][relation="today"]:last-child {
-    border-bottom: 1px solid var(--viewHighlightBorderColor);
+  border-bottom: 1px solid var(--viewHighlightBorderColor);
 }
 
 /* Make sure we extend the bold line separating scrollable and non-scrollable
    areas over the timebar. */
 .multiday-view-header-time-spacer[orient="horizontal"] {
-    border-bottom: 2px solid var(--viewBorderColor);
-    border-inline-end: 1px solid var(--viewBorderColor);
-    margin-inline-end: 1px;
+  border-bottom: 2px solid var(--viewBorderColor);
+  border-inline-end: 1px solid var(--viewBorderColor);
+  margin-inline-end: 1px;
 }
 
 .multiday-view-header-time-spacer[orient="vertical"] {
-    border-inline-end: 2px solid var(--viewBorderColor);
+  border-inline-end: 2px solid var(--viewBorderColor);
 }
 
 .multiday-view-label-box[orient="horizontal"] > .multiday-view-label-time-spacer {
-    border-inline-end: 1px solid var(--viewBorderColor);
-    margin-inline-end: 1px;
+  border-inline-end: 1px solid var(--viewBorderColor);
+  margin-inline-end: 1px;
 }
 
 .multiday-view-header-day-box[orient="horizontal"] {
-    border-inline-end: 1px solid var(--viewBorderColor);
-    border-bottom: 2px solid var(--viewBorderColor);
-    overflow-x: hidden;
-    overflow-y: auto;
-    max-height: 120px;
+  border-inline-end: 1px solid var(--viewBorderColor);
+  border-bottom: 2px solid var(--viewBorderColor);
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 120px;
 }
 
 .multiday-view-header-day-box[orient="horizontal"][todaylastinview="true"] {
-    border-inline-end: 1px solid var(--viewHighlightBorderColor);
+  border-inline-end: 1px solid var(--viewHighlightBorderColor);
 }
 
 /* Make sure the box for day-labels appears to end before the scrollbar. */
 .multiday-view-label-day-box[orient="horizontal"] {
-    border-top: 1px solid var(--viewBorderColor);
-    border-inline-end: 1px solid var(--viewBorderColor);
+  border-top: 1px solid var(--viewBorderColor);
+  border-inline-end: 1px solid var(--viewBorderColor);
 }
 
 .multiday-view-label-day-box[orient="vertical"] {
-    border-top: 1px solid var(--viewBorderColor);
+  border-top: 1px solid var(--viewBorderColor);
 }
 
 .multiday-view-header-day-box[orient="vertical"] {
-    border-top: 1px solid var(--viewBorderColor);
-    border-inline-end: 2px solid var(--viewBorderColor);
+  border-top: 1px solid var(--viewBorderColor);
+  border-inline-end: 2px solid var(--viewBorderColor);
 }
 
 /* Make sure to have a border between the edge of the views and the scrollbar. */
 .multiday-view-day-box {
-    border-inline-end: 1px solid var(--viewBorderColor);
-    border-bottom: 1px solid var(--viewBorderColor);
+  border-inline-end: 1px solid var(--viewBorderColor);
+  border-bottom: 1px solid var(--viewBorderColor);
 }
 
 .fgdragbox {
-    -moz-box-orient: inherit;
-    display: none;
+  -moz-box-orient: inherit;
+  display: none;
 }
 
 .fgdragbox[dragging="true"] {
-    display: -moz-box;
-    background: var(--viewDragboxBackground);
-    border: 5px var(--viewBackground);
-    opacity: 0.5;
-    min-height: 2px;
-    min-width: 2px;
+  display: -moz-box;
+  background: var(--viewDragboxBackground);
+  border: 5px var(--viewBackground);
+  opacity: 0.5;
+  min-height: 2px;
+  min-width: 2px;
 }
 
 .fgdragcontainer {
-    -moz-box-orient: inherit;
-    display: none;
+  -moz-box-orient: inherit;
+  display: none;
 }
 
 .fgdragcontainer[dragging="true"] {
-    display: -moz-box;
+  display: -moz-box;
   /* This is a workaround for a stack bug and display: hidden in underlying
    * elements -- the display: hidden bits get misrendered as being on top.
    * Setting an opacity here forces a view to be created for this element, too.
    */
-    opacity: 0.9999;
+  opacity: 0.9999;
 }
 
 .fgdragbox-label {
-    font-weight: bold;
-    text-align: center;
-    overflow: hidden;
-    color: var(--viewDragboxColor);
+  font-weight: bold;
+  text-align: center;
+  overflow: hidden;
+  color: var(--viewDragboxColor);
 }
 
 .timeIndicator[orient="vertical"] {
-    min-width: 1px;
-    margin-inline-start: -1px;
-    margin-inline-end: -1px;
-    border-top: 2px solid red;
-    opacity: 0.7;
+  min-width: 1px;
+  margin-inline-start: -1px;
+  margin-inline-end: -1px;
+  border-top: 2px solid red;
+  opacity: 0.7;
 }
 
 .timeIndicator[orient="horizontal"] {
-    min-height: 1px;
-    margin-top: -1px;
-    margin-bottom: -1px;
-    border-inline-start: 2px solid red;
-    opacity: 0.7;
+  min-height: 1px;
+  margin-top: -1px;
+  margin-bottom: -1px;
+  border-inline-start: 2px solid red;
+  opacity: 0.7;
 }
 
 .timeIndicator-timeBar {
-    background-color: red;
-    position: absolute;
-    display: block;
-    border-radius: 2px;
+  background-color: red;
+  position: absolute;
+  display: block;
+  border-radius: 2px;
 }
 
 .timeIndicator-timeBar[orient="vertical"] {
-    margin-top: -1px;
-    height: 4px;
-    width: 8px;
-    right: 0px;
+  margin-top: -1px;
+  height: 4px;
+  width: 8px;
+  right: 0px;
 }
 
 .timeIndicator-timeBar[orient="horizontal"] {
-    margin-left: -1px;
-    height: 8px;
-    width: 4px;
-    bottom: 0px;
-}
-
-.calendar-event-box-container {
-    padding: 0;
-    overflow: hidden;
-    margin: 1px;
-}
-
-.calendar-event-box-container[categories] {
-    margin-inline-end: 0px;
-}
-
-.calendar-event-details {
-    padding-inline-start: 2px;
-    overflow: hidden;
-}
-
-.calendar-event-details-core {
-    width: 0px;
-    margin: 0px;
-    overflow: hidden;
-}
-
-.calendar-event-name-textbox {
-    background: transparent !important;
-    color: inherit;
+  margin-left: -1px;
+  height: 8px;
+  width: 4px;
+  bottom: 0px;
 }
 
 calendar-event-box {
-    border: 1px solid transparent;
+  border: 1px solid transparent;
+  /* Be the containing block for the child calendar-event-gripbar elements. */
+  display: block;
+  position: relative;
 }
 
-calendar-month-day-box-item[selected="true"] .calendar-color-box,
-calendar-event-box[selected="true"] .calendar-color-box,
-calendar-editable-item[selected="true"] .calendar-color-box {
-    color: #000 !important;
-    background-color: #FDF5A0 !important;
-    box-shadow: 1px 2px 5px rgba(30, 20, 0, 0.6);
+calendar-month-day-box-item[selected="true"].calendar-color-box,
+calendar-event-box[selected="true"].calendar-color-box,
+calendar-editable-item[selected="true"].calendar-color-box {
+  color: #000 !important;
+  background-color: #FDF5A0 !important;
+  box-shadow: 1px 2px 5px rgba(30, 20, 0, 0.6);
 }
 
 
 /* RTL styles for the main box and children */
 .multiday-view-main-box {
-    direction: ltr;
+  direction: ltr;
 }
 
 .multiday-view-label-day-box:-moz-locale-dir(rtl) {
-    direction: rtl;
+  direction: rtl;
 }
 
 /* headers horizontal, times vertical */
 .multiday-view-label-box[orient="horizontal"] {
-    height: 10px;
+  height: 10px;
 }
 
 .multiday-view-header-box[orient="horizontal"] {
-    min-height: 30px;
+  min-height: 30px;
 }
 
 .multiday-view-label-box[orient="horizontal"] > .multiday-view-label-time-spacer,
 .multiday-view-header-box[orient="horizontal"] > .multiday-view-header-time-spacer,
 calendar-time-bar[orient="vertical"] {
-    width: 10ex; /* space for "11:00 AM" */
+  width: 10ex; /* space for "11:00 AM" */
 }
 
 /* headers vertical, times horizontal */
 .view-label-box[orient="vertical"] {
-    width: 30px;
+  width: 30px;
 }
 
 .view-header-box[orient="vertical"] {
-    width: 40px;
+  width: 40px;
 }
 
 .multiday-view-label-box[orient="vertical"] > .multiday-view-label-time-spacer,
 .multiday-view-header-box[orient="vertical"] > .multiday-view-header-time-spacer {
-    height: 40px;
+  height: 40px;
 }
 
 calendar-time-bar[orient="vertical"] {
-    margin-inline-end: 1px;
-    border-inline-end: 1px solid var(--viewBorderColor);
+  margin-inline-end: 1px;
+  border-inline-end: 1px solid var(--viewBorderColor);
 }
 
 calendar-time-bar[orient="horizontal"] {
-    height: 40px;
+  height: 40px;
 }
 
 /** Start time bar **/
 
 .calendar-time-bar-label {
-    font-size: 1em;
+  font-size: 1em;
 }
 
 .calendar-time-bar-box-odd,
 .calendar-time-bar-box-even {
-    color: var(--viewTimeBoxColor);
-    background-color: var(--viewBackground);
-    text-align: right;
-    overflow: hidden;
+  color: var(--viewTimeBoxColor);
+  background-color: var(--viewBackground);
+  text-align: right;
+  overflow: hidden;
 }
 
 .calendar-time-bar-box-odd[off-time="true"] ,
 .calendar-time-bar-box-even[off-time="true"] {
-    background-color: var(--viewOffTimeBackground);
+  background-color: var(--viewOffTimeBackground);
 }
 
 .calendar-time-bar-box-odd[orient="horizontal"],
 .calendar-time-bar-box-even[orient="horizontal"] {
-    border-inline-end: 1px solid var(--viewBorderColor);
-    border-top: 1px solid var(--viewBorderColor);
-    height: 40px; /* the same as the calendar-time-bar element */
-    margin-inline-end: 0;
+  border-inline-end: 1px solid var(--viewBorderColor);
+  border-top: 1px solid var(--viewBorderColor);
+  height: 40px; /* the same as the calendar-time-bar element */
+  margin-inline-end: 0;
 }
 
 .calendar-time-bar-box-odd[orient="vertical"],
 .calendar-time-bar-box-even[orient="vertical"] {
-    border-bottom: 1px  transparent !important;
-    width: 10ex; /* the same as the calendar-time-bar element */
+  border-bottom: 1px  transparent !important;
+  width: 10ex; /* the same as the calendar-time-bar element */
 }
 
-/** End time bar **/
-.calendar-event-details-core.title-desc,
-.calendar-event-details-core.location-desc {
-    font-weight: normal;
-}
-.calendar-event-details-core.location-desc {
-    opacity: 0.5;
-    margin: 0;
-    white-space: pre;
-}
 calendar-multiday-view {
-    background-color: var(--viewBackground);
-    padding: 0px;
+  background-color: var(--viewBackground);
+  padding: 0px;
 }
 
 calendar-multiday-view[hidden="true"] {
-    display: none;
+  display: none;
 }
 
 calendar-day-label {
-    color: var(--viewColor);
-    background-color: var(--viewBackground);
-    background-image: linear-gradient(transparent, transparent 48%,
-                                      rgba(0, 0, 0, 0.02) 52%, rgba(0, 0, 0, 0.1));
-    border-inline-start: 1px solid var(--viewBorderColor);
-    border-bottom: 1px solid var(--viewBorderColor);
+  color: var(--viewColor);
+  background-color: var(--viewBackground);
+  background-image: linear-gradient(transparent, transparent 48%,
+                                    rgba(0, 0, 0, 0.02) 52%, rgba(0, 0, 0, 0.1));
 }
 
 calendar-day-label[selected="true"] {
-    color: var(--viewDayLabelSelectedColor);
-    background-color: var(--viewDayLabelSelectedBackground) !important;
+  color: var(--viewDayLabelSelectedColor);
+  background-color: var(--viewDayLabelSelectedBackground) !important;
 }
 
 calendar-day-label[orient="vertical"] {
-    background-image: none !important;
-    min-width: 100px;
+  background-image: none !important;
+  min-width: 100px;
 }
 
 calendar-day-label[relation="today"],
 calendar-day-label[relation="today1day"] {
-    background-color: var(--viewTodayDayLabelBackground);
-    border: 1px solid var(--viewHighlightBorderColor);
-    color: var(--viewTodayColor);
-    margin-inline-end: -1px;
-    margin-top: -1px;
-    position: relative;
+  background-color: var(--viewTodayDayLabelBackground);
+  color: var(--viewTodayColor);
 }
 
 .calendar-day-label-name {
-    text-align: center;
+  text-align: center;
 }
 
 .calendar-day-label-name[relation="today"],
 .calendar-day-label-name[relation="today1day"] {
-    font-weight: bold;
+  font-weight: bold;
 }
 
-/* Month View */
+/* Day/Week View */
+
+:is(calendar-day-view, calendar-week-view) calendar-day-label {
+  border-inline-start: 1px solid var(--viewBorderColor);
+  border-bottom: 1px solid var(--viewBorderColor);
+}
+
+:is(calendar-day-view, calendar-week-view) calendar-day-label:is([relation="today"], [relation="today1day"]) {
+  border: 1px solid var(--viewHighlightBorderColor);
+  /* Cover neighbouring borders. */
+  position: relative;
+  margin-inline-end: -1px;
+  margin-top: -1px;
+}
+
+/* Multiweek/Month View */
 calendar-month-view,
 calendar-multiweek-view {
-    padding: 0px 2px 2px;
+  padding: 0px 2px 2px;
+  /* Only have a single child. Grid display will automatically stretch to fill
+   * the given space. */
+  display: grid;
 }
 
-calendar-month-view .mainbox,
-calendar-multiweek-view .mainbox {
-    display: flex;
-    flex-direction: column;
-    min-height: 1px;
+calendar-month-view[hidden],
+calendar-multiweek-view[hidden] {
+  display: none;
 }
 
-calendar-month-view tr[hidden],
-calendar-multiweek-view tr[hidden],
-calendar-month-view td[hidden],
-calendar-multiweek-view td[hidden] {
-    display: none;
+.monthtable {
+  display: grid;
+  /* Equal-width columns. To ensure they remain equal width when spacing
+   * becomes small, we must make sure each variable width element has
+   * overflow-x set to ensure they can shrink.
+   * NOTE: we don't set the number of columns to a fixed 7 days of the week
+   * since some days of the week can be hidden. This requires the grid-row
+   * to be set for each child to ensure they end up on the correct row. */
+  grid-auto-columns: 1fr;
+  /* The first row is headers, and should not be stretched. */
+  grid-template-rows: auto;
+  /* All other rows share equal height. Again, variable height elements should
+   * have overflow-y set so they can shrink. */
+  grid-auto-rows: 1fr;
+  border-spacing: 0;
+  margin: 0;
+  padding: 0;
+  /* Complete the end borders. */
+  border-inline-end: 1px solid var(--viewBorderColor);
+  border-block-end: 1px solid var(--viewBorderColor);
 }
 
-.monthgrid {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    border-spacing: 0;
-    margin: 0;
-    padding: 0;
-    min-height: 1px;
+.monthtable :is(tbody, thead, tr, td, th) {
+  /* Allow the calendar-month-day-box and calendar-day-label elements be the
+   * children of the grid. */
+  display: contents;
 }
 
-.monthgrid tr,
-.monthgrid td {
-    margin: 0;
-    padding: 0;
+.monthtable :is(tr, th, td)[hidden] {
+  /* NOTE: Need this CSS rule because the hidden attribute behaviour is
+   * overridden by the "display: contents" rule above. */
+  display: none;
 }
 
-.calendar-month-view-grid-column {
-    min-width: 1px;
-    width: 1px;
+.monthtable :is(td, th) > * {
+  /* Hidden overflow ensures each cell has the same width/height, even when the
+   * space becomes limited, because this allows the cells to shrink. */
+  overflow: hidden;
 }
 
-.calendar-month-view-grid-row {
-    min-height: 1px;
-    height: 1px;
-    border-inline-end: 1px solid var(--viewBorderColor);
-    display: flex;
-    flex: 1;
+.monthtable :is(td, th) > * {
+  /* Every cell in the body gets a starting border, which acts as the end border
+   * for the previous cell. */
+  border-inline-start: 1px solid var(--viewBorderColor);
+  border-block-start: 1px solid var(--viewBorderColor);
 }
 
-.calendar-month-view-grid-row td {
-    flex: 1;
-    display: flex;
+.monthtable td > :is(
+  .calendar-month-day-box-current-month[relation="today"],
+  .calendar-month-day-box-day-off[relation="today"],
+  .calendar-month-day-box-other-month[relation="today"],
+) {
+  border-color: var(--viewTodayBorderColor);
+}
+
+.monthtable th > :is(
+  calendar-day-label[relation="today"],
+  calendar-day-label[relation="today1day"]
+) {
+  border-color: var(--viewHighlightBorderColor);
+}
+
+.monthtable td > :is(
+  .calendar-month-day-box-current-month[relation="today"],
+  .calendar-month-day-box-day-off[relation="today"],
+  .calendar-month-day-box-other-month[relation="today"]
+),
+.monthtable th > :is(
+  calendar-day-label[relation="today"],
+  calendar-day-label[relation="today1day"]
+) {
+  /* Border on all sides. */
+  position: relative;
+  border-width: 1px;
+  border-style: solid;
+  /* Overlap the next cell's starting border,
+   * or the table's ending border if it is the last cell. */
+  margin-inline-end: -1px;
+  margin-block-end: -1px;
+}
+
+.monthtable calendar-day-label {
+  display: block;
 }
 
 calendar-month-day-box {
-    border:none !important;
-    border-inline-start: 1px solid var(--viewBorderColor) !important;
-    border-bottom: 1px solid var(--viewBorderColor) !important;
-    flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.calendar-month-day-box-items-box {
-    overflow-y: auto;
-    overflow-x: hidden;
+.calendar-month-day-box-dates {
+  flex: 0 0 auto;
+  overflow-x: hidden;
+}
+
+.calendar-month-day-box-list {
+  display: block;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.calendar-month-day-box-list-item {
+  display: block;
+  margin: 2px;
 }
 
 .calendar-month-day-box-current-month {
-    background-color: var(--viewBackground);
+  background-color: var(--viewBackground);
 }
 
 .calendar-month-day-box-day-off {
-    background-color: var(--viewWeekendBackground);
+  background-color: var(--viewWeekendBackground);
 }
 
 .calendar-month-day-box-other-month {
-    background-color: var(--viewMonthOtherBackground);
+  background-color: var(--viewMonthOtherBackground);
 }
 
 .calendar-month-day-box-other-month.calendar-month-day-box-day-off {
-    background-color: var(--viewMonthDayOtherBackground);
+  background-color: var(--viewMonthDayOtherBackground);
 }
 
 .calendar-month-day-box-current-month[relation="today"],
 .calendar-month-day-box-day-off[relation="today"],
 .calendar-month-day-box-other-month[relation="today"] {
-    background-color: var(--viewTodayBackground);
-    border: 1px solid var(--viewTodayBorderColor) !important;
-    margin-inline-end: -1px !important;
-    margin-top: -1px !important;
-    position: relative;
+  background-color: var(--viewTodayBackground);
 }
 
 .calendar-month-day-box-date-label[relation="today"] {
-    color: var(--viewTodayLabelColor);
-    background-color: var(--viewTodayLabelBackground);
-    font-weight: bold;
+  color: var(--viewTodayLabelColor);
+  background-color: var(--viewTodayLabelBackground);
+  font-weight: bold;
 }
 
 .calendar-month-day-box-current-month[selected="true"] {
-    background-color: var(--viewDayBoxSelectedBackground);
+  background-color: var(--viewDayBoxSelectedBackground);
 }
 
 .calendar-month-day-box-day-off[selected="true"] {
-    background-color: var(--viewDayBoxSelectedBackground);
+  background-color: var(--viewDayBoxSelectedBackground);
 }
 
 .calendar-month-day-box-other-month[selected="true"] {
-    background-color: var(--viewDayBoxOtherSelectedBackground);
+  background-color: var(--viewDayBoxOtherSelectedBackground);
 }
 
 .calendar-month-day-box-date-label[selected="true"] {
-    color: var(--viewMonthDayBoxSelectedColor);
+  color: var(--viewMonthDayBoxSelectedColor);
 }
 
 .calendar-month-day-box-date-label[relation="today"][selected="true"] {
-    color: var(--viewTodayLabelColor);
+  color: var(--viewTodayLabelColor);
 }
 
 .calendar-month-day-box-date-label {
-    color: var(--viewMonthDayBoxLabelColor);
-    font-size: 0.9em;
-    text-align: right;
-    margin: 0;
-    padding: 2px;
+  color: var(--viewMonthDayBoxLabelColor);
+  font-size: 0.9em;
+  text-align: right;
+  margin: 0;
+  padding: 2px;
 }
 
 .calendar-month-day-box-week-label {
-    text-align: left;
-    padding-inline-start: 2px;
-    font-weight: normal !important;
-    color: var(--viewMonthDayBoxWeekLabel) !important;
-}
-
-calendar-month-day-box-item {
-    margin: 1px;
-    padding: 1px;
+  text-align: left;
+  padding-inline-start: 2px;
+  font-weight: normal !important;
+  color: var(--viewMonthDayBoxWeekLabel) !important;
 }
 
 .calendar-color-box {
-    /* This rule should be adopted if the alarm image size is changed */
-    min-height: 13px;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.01) 50%, rgba(0, 0, 0, 0.05));
-    border: 1px solid transparent;
-    border-radius: 2px;
-    background-color: var(--item-backcolor);
-    color: var(--item-forecolor);
+  /* FIXME: Is min-height needed? */
+  min-height: 13px;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.01) 50%, rgba(0, 0, 0, 0.05));
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background-color: var(--item-backcolor);
+  color: var(--item-forecolor);
 }
 
-calendar-month-day-box calendar-month-day-box-item[allday="true"] .calendar-color-box {
-    border-color: rgba(0, 0, 0, 0.5);
-    box-shadow: inset -1px -1px 0 rgba(255, 255, 255, 0.7), inset 1px 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.calendar-month-day-box-item-label {
-    padding: 0;
-    margin: 0;
-}
-
-.calendar-month-day-box-item-label[time="true"] {
-    margin-inline-end: 4px;
-}
-
-.labeldaybox-container {
-    border-top: 1px solid var(--viewBorderColor);
-    border-inline-end: 1px solid var(--viewBorderColor);
+calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color-box {
+  border-color: rgba(0, 0, 0, 0.5);
+  box-shadow: inset -1px -1px 0 rgba(255, 255, 255, 0.7), inset 1px 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .dropshadow {
-    height: 1.2em;
-    margin: 1px;
-    padding: 0 1px;
-    background-color: var(--viewDropshadowBackground);
-    box-shadow: 1px 1px 3px rgba(68, 35, 0, 0.7) inset;
+  height: 1.2em;
+  background-color: var(--viewDropshadowBackground);
+  box-shadow: 1px 1px 3px rgba(68, 35, 0, 0.7) inset;
+}
+
+.calendar-header-container .dropshadow {
+  margin: 1px;
 }
 
 calendar-event-gripbar {
-    pointer-events: auto;
-    -moz-box-align: center;
-    -moz-box-pack: center;
-    min-height: 4px;
-    min-width: 4px;
-    overflow: hidden;
+  pointer-events: auto;
+  min-height: 4px;
+  min-width: 4px;
+  overflow: hidden;
+  position: absolute;
+  /* Center the image. */
+  display: grid;
+  align-content: center;
+  justify-content: center;
 }
 
 calendar-event-gripbar[parentorient="vertical"][whichside="start"] {
-    cursor: n-resize;
+  cursor: n-resize;
+  /* Stretch the width of the event box, attach to the top. */
+  inset: 0 0 auto 0;
 }
 
 calendar-event-gripbar[parentorient="vertical"][whichside="end"] {
-    cursor: s-resize;
+  cursor: s-resize;
+  inset: auto 0 0 0;
 }
 
 calendar-event-gripbar[parentorient="horizontal"][whichside="start"] {
-    cursor: w-resize;
+  cursor: w-resize;
+  inset: 0 auto 0 0;
 }
 
 calendar-event-gripbar[parentorient="horizontal"][whichside="end"] {
-    cursor: e-resize;
+  cursor: e-resize;
+  inset: 0 0 0 auto;
 }
 
 calendar-event-box calendar-event-gripbar img {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 calendar-event-box[gripBars="start"]:not([readonly="true"]):hover calendar-event-gripbar[whichside="start"] img,
 calendar-event-box[gripBars="end"]:not([readonly="true"]):hover calendar-event-gripbar[whichside="end"] img,
 calendar-event-box[gripBars="both"]:not([readonly="true"]):hover calendar-event-gripbar img {
-    visibility: visible;
+  visibility: visible;
 }
 
 /* tooltips */
 .tooltipBox {
-    max-width: 40em;
+  max-width: 40em;
 }
 
 .tooltipValueColumn {
-    max-width: 35em; /* tooltipBox max-width minus space for label */
+  max-width: 35em; /* tooltipBox max-width minus space for label */
 }
 
 .tooltipHeaderTable {
-    border-spacing: 0;
+  border-spacing: 0;
 }
 
 .tooltipHeaderLabel {
-    text-align: end;
-    padding-inline-end: 0.5em;
+  text-align: end;
+  padding-inline-end: 0.5em;
 }
 
 .tooltipBodySeparator {
-    height: 1ex; /* 1ex space above body text, below last header. */
+  height: 1ex; /* 1ex space above body text, below last header. */
 }
 
 .tooltipBody {
-    font-weight: normal;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    margin: 0pt;
+  font-weight: normal;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0pt;
 }
 
 #conflicts-vbox .tooltipBody {
-    overflow: auto;
-    min-height: 250px;
+  overflow: auto;
+  min-height: 250px;
 }
 
 #calendar-view-context-menu[type="event"] .todo-only,
@@ -846,31 +951,32 @@ calendar-event-box[gripBars="both"]:not([readonly="true"]):hover calendar-event-
 #calendar-item-context-menu[type="todo"] .event-only,
 #calendar-item-context-menu[type="mixed"] .event-only,
 #calendar-item-context-menu[type="mixed"] .todo-only {
-    display: none;
+  display: none;
 }
 
 .attendance-menu[itemType="single"] > menupopup > *[scope="all-occurrences"] {
-    display: none;
+  display: none;
 }
 
 .calendar-context-heading-label {
-    font-weight: bold;
-    color: menutext;
+  font-weight: bold;
+  color: menutext;
 }
 
 calendar-event-box,
 calendar-editable-item,
 calendar-month-day-box-item {
-    opacity: 0.99;
-    /* Do not change next line, since it would break item selection */
-    -moz-user-focus: normal;
+  opacity: 0.99;
+  /* Do not change next line, since it would break item selection */
+  -moz-user-focus: normal;
+  overflow: hidden;
 }
 
 calendar-event-box[invitation-status="NEEDS-ACTION"],
 calendar-editable-item[invitation-status="NEEDS-ACTION"],
 calendar-month-day-box-item[invitation-status="NEEDS-ACTION"] {
-    border: 2px dotted black;
-    opacity: 0.6;
+  border: 2px dotted black;
+  opacity: 0.6;
 }
 
 calendar-event-box[invitation-status="TENTATIVE"],
@@ -880,7 +986,7 @@ calendar-event-box[status="TENTATIVE"],
 calendar-editable-item[status="TENTATIVE"],
 calendar-month-day-box-item[status="TENTATIVE"],
 richlistitem[is="agenda-richlistitem"][status="TENTATIVE"] {
-    opacity: 0.6;
+  opacity: 0.6;
 }
 
 calendar-event-box[invitation-status="DECLINED"],
@@ -890,29 +996,29 @@ calendar-event-box[status="CANCELLED"],
 calendar-editable-item[status="CANCELLED"],
 calendar-month-day-box-item[status="CANCELLED"],
 richlistitem[is="agenda-richlistitem"][status="CANCELLED"] {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
-calendar-month-day-box-item[status="CANCELLED"] .calendar-color-box,
-calendar-event-box[status="CANCELLED"] .calendar-event-details-core,
-calendar-editable-item[status="CANCELLED"] .calendar-color-box,
+calendar-month-day-box-item[status="CANCELLED"],
+calendar-event-box[status="CANCELLED"],
+calendar-editable-item[status="CANCELLED"],
 richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-event-start {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 /* Navigation controls for the views */
 #view-box {
-    border: solid ThreeDShadow;
+  border: solid ThreeDShadow;
 }
 
 :root[lwt-tree] #view-box {
-    background-color: var(--sidebar-background-color);
-    border-color: var(--sidebar-border-color);
-    scrollbar-color: rgba(128,128,128,.5) rgba(230,230,235,.5);
+  background-color: var(--sidebar-background-color);
+  border-color: var(--sidebar-border-color);
+  scrollbar-color: rgba(128,128,128,.5) rgba(230,230,235,.5);
 }
 
 :root[lwt-tree-brighttext] #view-box {
-    scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
 :root[systemcolors] #view-box {
@@ -920,162 +1026,141 @@ richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-event-start {
 }
 
 .navigation-inner-box {
-    border-bottom: 1px solid var(--calview-border-bottom-color);
+  border-bottom: 1px solid var(--calview-border-bottom-color);
 }
 
 .navigation-spacer-box {
-    min-width: 15px;
-    border-bottom: 1px solid var(--calview-border-bottom-color);
+  min-width: 15px;
+  border-bottom: 1px solid var(--calview-border-bottom-color);
 }
 
 radiogroup#view-tabs{
-    margin: 0;
+  margin: 0;
 }
 
 radio.calview {
-    appearance: none;
-    min-width: unset;
-    border-inline: 1px solid var(--calview-border-color);
-    border-bottom: 1px solid var(--calview-border-bottom-color);
-    margin: 0;
-    padding: 3px 6px;
-    -moz-user-focus: normal;
-    background-color: transparent;
-    color: inherit;
-    font-size: 14px;
+  appearance: none;
+  min-width: unset;
+  border-inline: 1px solid var(--calview-border-color);
+  border-bottom: 1px solid var(--calview-border-bottom-color);
+  margin: 0;
+  padding: 3px 6px;
+  -moz-user-focus: normal;
+  background-color: transparent;
+  color: inherit;
+  font-size: 14px;
 }
 
 radio.calview > image {
-    display: none;
+  display: none;
 }
 
 radio.calview > hbox {
-    margin: 2px;
+  margin: 2px;
 }
 
 radio.calview:not(:first-child) {
-    margin-inline-start: -1px;
+  margin-inline-start: -1px;
 }
 
 
 radio.calview[selected="true"] {
-    background-image: linear-gradient(to bottom,
-                      var(--calview-tabline-color) 2px, transparent 2px);
-    border-bottom-width: 0;
-    padding-bottom: 4px;
-    color: ButtonText;
-    font-weight: bold;
+  background-image: linear-gradient(to bottom, var(--calview-tabline-color) 2px, transparent 2px);
+  border-bottom-width: 0;
+  padding-bottom: 4px;
+  color: ButtonText;
+  font-weight: bold;
 }
 
 radio.calview:not([selected=true]):hover {
-    background-color: rgba(0,0,0,.1);
+  background-color: rgba(0,0,0,.1);
 }
 
 :root[lwt-tree-brighttext] radio.calview:not([selected=true]):hover {
-    background-color: rgba(249,249,250,.3);
+  background-color: rgba(249,249,250,.3);
 }
 
 :root[lwt-tree] #view-tabs > radio.calview[selected="true"] {
-    background-color: var(--toolbar-bgcolor);
-    color: var(--toolbar-color);
+  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-color);
 }
 
 :root[lwt-tree] .navigation-bottombox {
-    background-color: var(--toolbar-bgcolor) !important;
+  background-color: var(--toolbar-bgcolor) !important;
 }
 
 .view-header {
-    font-weight: normal;
-    font-size: 14px;
-    color: inherit;
+  font-weight: normal;
+  font-size: 14px;
+  color: inherit;
 }
 
 .view-header[type="end"] {
-    text-align: right;
-    margin-inline-end: 6px;
+  text-align: right;
+  margin-inline-end: 6px;
 }
 
 .navigation-inner-box {
-    padding-inline-start: 6px;
-    padding-inline-end: 6px;
-    padding-bottom: 1px;
+  padding-inline-start: 6px;
+  padding-inline-end: 6px;
+  padding-bottom: 1px;
 }
 
 .navigation-bottombox {
-    min-height: 4px;
-    max-height: 4px;
+  min-height: 4px;
+  max-height: 4px;
 }
 
 .today-navigation-button {
-    -moz-user-focus: normal;
-    appearance: none;
-    border: 1px solid transparent;
-    border-radius: var(--toolbarbutton-border-radius);
-    margin-inline-start: 2px;
-    margin-inline-end: 2px;
-    color: inherit;
-    font-size: 14px;
+  -moz-user-focus: normal;
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+  margin-inline-start: 2px;
+  margin-inline-end: 2px;
+  color: inherit;
+  font-size: 14px;
 }
 
 .today-navigation-button:not([disabled="true"]):hover {
-    background: var(--toolbarbutton-hover-background);
-    border-color: var(--toolbarbutton-hover-bordercolor);
-    box-shadow: var(--toolbarbutton-hover-boxshadow);
-    color: inherit;
-    outline: none;
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  color: inherit;
+  outline: none;
 }
 
 :root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover {
-    background: rgba(255, 255, 255, .25);
-    border-color: rgba(255, 255, 255, .5);
+  background: rgba(255, 255, 255, .25);
+  border-color: rgba(255, 255, 255, .5);
 }
 
 .today-navigation-button:not([disabled="true"]):hover:active {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-    box-shadow: var(--toolbarbutton-active-boxshadow);
-    transition-duration: 10ms;
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  transition-duration: 10ms;
 }
 
 :root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover:active {
-    background: rgba(255, 255, 255, .4);
-    border-color: rgba(255, 255, 255, .7);
-    box-shadow: inset 0 0 rgba(255, 255, 255, .4);
+  background: rgba(255, 255, 255, .4);
+  border-color: rgba(255, 255, 255, .7);
+  box-shadow: inset 0 0 rgba(255, 255, 255, .4);
 }
 
 .today-navigation-button > .toolbarbutton-icon {
-    display: none;
-}
-
-.calendar-event-item-icons {
-  display: flex;
-  align-items: center;
-}
-
-#week-view .calendar-event-item-icons, #day-view .calendar-event-item-icons {
-  padding-top: 3px;
-}
-
-.item-classification-box {
-    width: 11px;
-    height: 11px;
-    -moz-context-properties: fill;
-    fill: currentColor;
-}
-
-.item-classification-box:not([src]) {
-    display: none;
+  display: none;
 }
 
 .fgdragspacer {
-    display: inherit;
-    overflow: hidden;
+  display: inherit;
+  overflow: hidden;
 }
 
 .fgdragcontainer {
-    min-width: 1px;
-    min-height: 1px;
-    overflow:hidden;
+  min-width: 1px;
+  min-height: 1px;
+  overflow:hidden;
 }
 
 .multiday-column-top-box,
@@ -1085,13 +1170,13 @@ radio.calview:not([selected=true]):hover {
 
 .multiday-column-box-stack, .multiday-column-bg-box, .multiday-column-top-box, .calendar-empty-space-box,
 .calendar-event-column-linebox, .calendar-xul-column {
-    min-width: 1px;
-    min-height: 1px;
+  min-width: 1px;
+  min-height: 1px;
 }
 
 @media (-moz-overlay-scrollbars) {
-    .multiday-headerscrollbarspacer,
-    .multiday-labelscrollbarspacer {
-        display: none;
-    }
+  .multiday-headerscrollbarspacer,
+  .multiday-labelscrollbarspacer {
+    display: none;
+  }
 }

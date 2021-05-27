@@ -21,11 +21,7 @@
   class MozCalendarEditableItem extends MozXULElement {
     static get inheritedAttributes() {
       return {
-        ".calendar-event-box-container":
-          "readonly,flashing,alarm,allday,priority,status,calendar,categories",
-        ".calendar-category-box": "categories",
         ".alarm-icons-box": "flashing",
-        ".calendar-event-details > vbox": "context",
       };
     }
     constructor() {
@@ -129,50 +125,21 @@
       }
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-          <vbox flex="1">
-            <hbox>
-              <box class="calendar-color-box"
-                   flex="1">
-                <box class="calendar-event-selection"
-                     orient="horizontal"
-                     flex="1">
-                  <stack class="calendar-event-box-container"
-                         flex="1">
-                    <hbox class="calendar-event-details">
-                      <vbox align="start"
-                            flex="1">
-                        <label class="event-name-label"
-                               crop="end"
-                               style="margin: 0;">
-                        </label>
-                        <html:input class="calendar-event-details-core title-desc"
-                                    hidden="hidden"
-                                    placeholder='${cal.l10n.getCalString("newEvent")}'
-                                    style="background: transparent !important;"/>
-                        <label crop="end"
-                               class="calendar-event-details-core location-desc">
-                        </label>
-                        <spacer flex="1">
-                        </spacer>
-                      </vbox>
-                      <hbox>
-                        <html:div class="calendar-event-item-icons">
-                          <hbox class="alarm-icons-box"
-                                align="center">
-                          </hbox>
-                          <html:img class="item-classification-box" />
-                        </html:div>
-                        <hbox class="calendar-category-box category-color-box calendar-event-selection">
-                        </hbox>
-                      </hbox>
-                    </hbox>
-                  </stack>
-                </box>
-              </box>
-            </hbox>
-          </vbox>
+          <html:div class="calendar-item-flex">
+            <html:img class="item-type-icon" alt="" />
+            <html:div class="event-name-label"></html:div>
+            <html:input class="plain event-name-input"
+                        hidden="hidden"
+                        placeholder='${cal.l10n.getCalString("newEvent")}'/>
+            <html:div class="alarm-icons-box"></html:div>
+            <html:img class="item-classification-icon" />
+          </html:div>
+          <html:div class="location-desc"></html:div>
+          <html:div class="calendar-category-box"></html:div>
         `)
       );
+
+      this.classList.add("calendar-color-box", "calendar-item-grid");
 
       // We have two event listeners for dragstart. This event listener is for the bubbling phase
       // where we are setting up the document.monthDragEvent which will be used in the event listener
@@ -240,7 +207,7 @@
     }
 
     get eventNameTextbox() {
-      return this.querySelector(".title-desc");
+      return this.querySelector(".event-name-input");
     }
 
     addEventNameTextboxListener() {
@@ -273,7 +240,7 @@
     setEditableLabel() {
       let label = this.eventNameLabel;
       let item = this.mOccurrence;
-      label.value = item.title
+      label.textContent = item.title
         ? item.title.replace(/\n/g, " ")
         : cal.l10n.getCalString("eventUntitled");
     }
@@ -283,7 +250,7 @@
       let location = this.mOccurrence.getProperty("LOCATION");
       let showLocation = Services.prefs.getBoolPref("calendar.view.showLocation", false);
 
-      locationLabel.value = showLocation && location ? location : "";
+      locationLabel.textContent = showLocation && location ? location : "";
       locationLabel.hidden = !showLocation || !location;
     }
 
@@ -293,11 +260,13 @@
       this.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
       this.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
       let categoriesArray = item.getCategories();
+      let categoriesBox = this.querySelector(".calendar-category-box");
       if (categoriesArray.length > 0) {
         let cssClassesArray = categoriesArray.map(cal.view.formatStringForCSSRule);
-        this.setAttribute("categories", cssClassesArray.join(" "));
-        let categoriesBox = this.querySelector(".calendar-category-box");
+        categoriesBox.hidden = false;
         categoriesBox.style.backgroundColor = `var(--category-${cssClassesArray[0]}-color)`;
+      } else {
+        categoriesBox.hidden = true;
       }
 
       // Add alarm icons as needed.
@@ -311,35 +280,35 @@
       }
 
       // Item classification / privacy.
-      let classificationBox = this.querySelector(".item-classification-box");
-      if (classificationBox) {
+      let classificationIcon = this.querySelector(".item-classification-icon");
+      if (classificationIcon) {
         switch (item.privacy) {
           case "PRIVATE":
-            classificationBox.setAttribute(
+            classificationIcon.setAttribute(
               "src",
               "chrome://calendar/skin/shared/icons/private.svg"
             );
             // Set the alt attribute.
             document.l10n.setAttributes(
-              classificationBox,
+              classificationIcon,
               "calendar-editable-item-privacy-icon-private"
             );
             break;
           case "CONFIDENTIAL":
-            classificationBox.setAttribute(
+            classificationIcon.setAttribute(
               "src",
               "chrome://calendar/skin/shared/icons/confidential.svg"
             );
             // Set the alt attribute.
             document.l10n.setAttributes(
-              classificationBox,
+              classificationIcon,
               "calendar-editable-item-privacy-icon-confidential"
             );
             break;
           default:
-            classificationBox.removeAttribute("src");
-            classificationBox.removeAttribute("data-l10n-id");
-            classificationBox.setAttribute("alt", "");
+            classificationIcon.removeAttribute("src");
+            classificationIcon.removeAttribute("data-l10n-id");
+            classificationIcon.setAttribute("alt", "");
             break;
         }
       }
@@ -349,7 +318,7 @@
         this.setAttribute("allday", "true");
       }
       if (item.isTodo()) {
-        let icon = this.querySelector(".calendar-item-image");
+        let icon = this.querySelector(".item-type-icon");
         if (cal.item.getProgressAtom(item) === "completed") {
           icon.setAttribute("src", "chrome://calendar/skin/shared/todo-complete.svg");
           document.l10n.setAttributes(icon, "calendar-editable-item-todo-icon-completed-task");
@@ -393,6 +362,8 @@
           "invitation-status",
           cal.itip.getInvitedAttendee(item).participationStatus
         );
+        // FIXME? Set as readonly, but the "click" event listener will still
+        // allow editing the name.
         this.setAttribute("readonly", "true");
       } else if (!cal.acl.isCalendarWritable(item.calendar)) {
         this.setAttribute("readonly", "true");
@@ -403,12 +374,12 @@
       this.editingTimer = null;
       this.mOriginalTextLabel = this.mOccurrence.title;
 
-      this.eventNameLabel.setAttribute("hidden", "true");
+      this.eventNameLabel.hidden = true;
 
       this.mEditing = true;
 
       this.eventNameTextbox.value = this.mOriginalTextLabel;
-      this.eventNameTextbox.removeAttribute("hidden");
+      this.eventNameTextbox.hidden = false;
       this.eventNameTextbox.focus();
     }
 
@@ -455,8 +426,8 @@
         return;
       }
 
-      this.eventNameTextbox.setAttribute("hidden", "hidden");
-      this.eventNameLabel.removeAttribute("hidden");
+      this.eventNameTextbox.hidden = true;
+      this.eventNameLabel.hidden = false;
     }
   }
 

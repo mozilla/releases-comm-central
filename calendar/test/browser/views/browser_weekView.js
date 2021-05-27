@@ -81,7 +81,7 @@ add_task(async function testWeekView() {
     }
     return false;
   });
-  let eventName = eventBox.querySelector(".calendar-event-details-core");
+  let eventName = eventBox.querySelector(".event-name-label");
   Assert.ok(eventName);
   Assert.equal(eventName.textContent, TITLE2);
 

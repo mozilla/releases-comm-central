@@ -374,6 +374,10 @@
       this.reorient();
     }
 
+    get labeldaybox() {
+      return this.querySelector(".labeldaybox");
+    }
+
     // calICalendarView Properties
 
     get supportsZoom() {

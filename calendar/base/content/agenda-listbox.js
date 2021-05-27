@@ -120,16 +120,11 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-          <hbox class="agenda-allday-container-box" flex="1">
-            <vbox pack="center" flex="1">
-              <label class="agenda-event-start" crop="end" hidden="true"></label>
-              <hbox flex="1" align="start">
-                <html:img class="agenda-multiDayEvent-image"
-                          alt="" />
-                <calendar-month-day-box-item flex="1" flat="true"></calendar-month-day-box-item>
-              </hbox>
-            </vbox>
-          </hbox>
+          <html:div class="agenda-allday-container-box">
+            <label class="agenda-event-start" crop="end" hidden="true"></label>
+            <html:img class="agenda-multiDayEvent-image" alt="" />
+            <calendar-month-day-box-item></calendar-month-day-box-item>
+          </html:div>
         `)
       );
       this.mAllDayItem = null;
@@ -186,13 +181,6 @@
         multiDayImage.removeAttribute("src");
         multiDayImage.removeAttribute("data-l10n-id");
         multiDayImage.setAttribute("alt", "");
-      }
-      // class wrap causes allday items to wrap its text in today-pane
-      let eventBoxContainer = this.mAllDayItem.querySelector(".calendar-event-box-container");
-      eventBoxContainer.classList.add("wrap");
-      let eventDetailBox = this.mAllDayItem.querySelector("event-detail-box");
-      if (eventDetailBox) {
-        eventDetailBox.classList.add("wrap");
       }
       allDayDateLabel.value = date;
     }

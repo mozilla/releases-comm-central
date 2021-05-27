@@ -25,47 +25,14 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       // this.hasConnected is set to true in super.connectedCallback.
       super.connectedCallback();
 
-      const row = `
-        <html:tr class="calendar-month-view-grid-row">
-          <html:td>
-            <calendar-month-day-box/>
-          </html:td>
-          <html:td>
-            <calendar-month-day-box/>
-          </html:td>
-          <html:td>
-            <calendar-month-day-box/>
-          </html:td>
-          <html:td>
-            <calendar-month-day-box/>
-          </html:td>
-          <html:td>
-            <calendar-month-day-box/>
-          </html:td>
-          <html:td>
-            <calendar-month-day-box/>
-          </html:td>
-          <html:td>
-            <calendar-month-day-box/>
-          </html:td>
-        </html:tr>
-        `;
-
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-          <vbox class="mainbox"
-                flex="1">
-            <hbox class="labeldaybox labeldaybox-container"
-                  equalsize="always"/>
-            <html:table class="monthgrid">
-              ${row}
-              ${row}
-              ${row}
-              ${row}
-              ${row}
-              ${row}
-            </html:table>
-          </vbox>
+          <html:table class="mainbox monthtable">
+            <html:thead>
+              <html:tr></html:tr>
+            </html:thead>
+            <html:tbody class="monthbody"></html:tbody>
+          </html:table>
         `)
       );
 
@@ -107,11 +74,39 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       this.mShowDaysOutsideMonth = true;
       this.mClickedTime = null;
 
+      let dayHeaderRow = this.querySelector("thead > tr");
+      this.dayHeaders = new Array(7);
       for (let i = 0; i < 7; i++) {
-        const hdr = document.createXULElement("calendar-day-label");
-        this.labeldaybox.appendChild(hdr);
+        let hdr = document.createXULElement("calendar-day-label");
+        let headerCell = document.createElement("th");
+        headerCell.setAttribute("scope", "col");
+        // NOTE: At the time of implementation, the natural columnheader role is
+        // lost, probably from setting the CSS display of the container table
+        // and row (Bug 1711273).
+        // For now, we restore the role explicitly.
+        headerCell.setAttribute("role", "columnheader");
+        headerCell.appendChild(hdr);
+        this.dayHeaders[i] = hdr;
+        dayHeaderRow.appendChild(headerCell);
         hdr.weekDay = (i + this.weekStartOffset) % 7;
         hdr.shortWeekNames = false;
+        hdr.style.gridRow = 1;
+      }
+
+      this.monthbody = this.querySelector(".monthbody");
+      for (let week = 1; week <= 6; week++) {
+        let weekRow = document.createElement("tr");
+        for (let day = 1; day <= 7; day++) {
+          let dayCell = document.createElement("td");
+          let dayContent = document.createXULElement("calendar-month-day-box");
+          dayCell.appendChild(dayContent);
+          weekRow.appendChild(dayCell);
+          // Set the grid row for the element. This is needed to ensure the
+          // elements appear on different lines. We don't set the gridColumn
+          // because some days may become hidden.
+          dayContent.style.gridRow = week + 1;
+        }
+        this.monthbody.appendChild(weekRow);
       }
 
       // Set the preference for displaying the week number.
@@ -200,10 +195,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
     get showDaysOutsideMonth() {
       return this.mShowDaysOutsideMonth;
-    }
-
-    get monthgrid() {
-      return this.querySelector(".monthgrid");
     }
 
     // calICalendarView Methods
@@ -395,9 +386,9 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
      */
     relayout() {
       // Adjust headers based on the starting day of the week, if necessary.
-      if (this.labeldaybox.firstElementChild.weekDay != this.weekStartOffset) {
-        for (let i = 0; i < this.labeldaybox.children.length; i++) {
-          this.labeldaybox.children[i].weekDay = (i + this.weekStartOffset) % 7;
+      if (this.dayHeaders[0].weekDay != this.weekStartOffset) {
+        for (let i = 0; i < this.dayHeaders.length; i++) {
+          this.dayHeaders[i].weekDay = (i + this.weekStartOffset) % 7;
         }
       }
 
@@ -429,9 +420,9 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       // week labels, taking into account whether days-off are displayed or not.
       let weekLabelColumnPos = -1;
 
-      const rows = this.monthgrid.children;
+      const rows = this.monthbody.children;
 
-      // Iterate through each monthgridrow and set up the day-boxes that
+      // Iterate through each monthbody row and set up the day-boxes that
       // are its child nodes.  Remember, children is not a normal array,
       // so don't use the in operator if you don't want extra properties
       // coming out.
@@ -457,7 +448,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
           // Consider only the first row index otherwise it will be
           // removed again afterwards the correct setting.
           if (i == 0) {
-            this.labeldaybox.children[j].removeAttribute("relation");
+            this.dayHeaders[j].removeAttribute("relation");
           }
 
           daybox.setAttribute("context", this.getAttribute("context"));
@@ -488,7 +479,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
               break;
             case 0:
               daybox.setAttribute("relation", "today");
-              this.labeldaybox.children[j].setAttribute("relation", "today");
+              this.dayHeaders[j].setAttribute("relation", "today");
               break;
             case 1:
               daybox.setAttribute("relation", "future");
@@ -574,7 +565,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
      * Hide the week numbers.
      */
     hideWeekNumbers() {
-      const rows = this.monthgrid.children;
+      const rows = this.monthbody.children;
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         for (let j = 0; j < row.children.length; j++) {
@@ -589,16 +580,16 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
      * Hide the days off.
      */
     hideDaysOff() {
-      const headerkids = this.querySelector(".labeldaybox").children;
-      const rows = this.monthgrid.children;
+      const rows = this.monthbody.children;
 
       const lastColNum = rows[0].children.length - 1;
       for (let colNum = 0; colNum <= lastColNum; colNum++) {
         const dayForColumn = (colNum + this.weekStartOffset) % 7;
-        const dayOff = this.mDaysOffArray.includes(dayForColumn);
-        headerkids[colNum].hidden = dayOff && !this.mDisplayDaysOff;
+        const dayOff = this.mDaysOffArray.includes(dayForColumn) && !this.mDisplayDaysOff;
+        // Set the hidden attribute on the parentNode td.
+        this.dayHeaders[colNum].parentNode.toggleAttribute("hidden", dayOff);
         for (let row of rows) {
-          row.children[colNum].toggleAttribute("hidden", dayOff && !this.mDisplayDaysOff);
+          row.children[colNum].toggleAttribute("hidden", dayOff);
         }
       }
     }

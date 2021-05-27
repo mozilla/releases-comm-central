@@ -40,13 +40,6 @@ richlistitem[is="agenda-richlistitem"][status="CANCELLED"] {
     opacity: 0.5;
 }
 
-calendar-month-day-box-item[status="CANCELLED"] .calendar-color-box,
-calendar-event-box[status="CANCELLED"] .calendar-color-box,
-calendar-editable-item[status="CANCELLED"] .calendar-color-box,
-richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-container-box {
-    text-decoration: line-through;
-}
-
 /* Navigation controls for the views */
 #calendar-nav-control {
     background-color: #e8e8e8;

@@ -96,6 +96,19 @@
       }
     }
 
+    setDropShadow(on) {
+      let existing = this.querySelector(".dropshadow");
+      if (on) {
+        if (!existing) {
+          let dropshadow = document.createXULElement("box");
+          dropshadow.classList.add("dropshadow");
+          this.insertBefore(dropshadow, this.firstElementChild);
+        }
+      } else if (existing) {
+        existing.remove();
+      }
+    }
+
     onDropItem(aItem) {
       let newItem = cal.item.moveToDate(aItem, this.mDate);
       newItem = cal.item.setToAllDay(newItem, true);
@@ -165,16 +178,9 @@
   class MozCalendarEventBox extends MozElements.MozCalendarEditableItem {
     static get inheritedAttributes() {
       return {
-        ".calendar-color-box":
-          "orient,readonly,flashing,alarm,allday,priority,status,calendar,categories,todoType",
-        ".calendar-event-box": "orient,width,height",
-        ".calendar-event-box-container":
-          "context,parentorient=orient,readonly,flashing,alarm,allday,priority,status,calendar,categories",
         ".alarm-icons-box": "flashing",
-        ".category-color-box": "categories",
         ".calendar-event-box-grippy-top": "parentorient=orient",
         ".calendar-event-box-grippy-bottom": "parentorient=orient",
-        ".calendar-event-gripbar-container": "orient",
       };
     }
     constructor() {
@@ -271,56 +277,30 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-          <box class="calendar-event-box"
-               flex="1">
-            <box class="calendar-color-box"
-                 flex="1">
-              <box class="calendar-event-selection"
-                   orient="horizontal"
-                   flex="1">
-                <stack class="calendar-event-box-container"
-                       flex="1">
-                  <hbox class="calendar-event-details"
-                        align="start">
-                    <html:img class="calendar-item-image"
-                              alt="" />
-                    <vbox flex="1">
-                      <label class="calendar-event-details-core event-name-label"
-                             crop="end">
-                      </label>
-                      <html:input class="plain calendar-event-details-core calendar-event-name-textbox title-desc"
-                                  hidden="hidden"
-                                  placeholder='${cal.l10n.getCalString("newEvent")}'/>
-                      <label class="calendar-event-details-core location-desc"
-                             crop="end">
-                      </label>
-                    </vbox>
-                    <html:div class="calendar-event-item-icons">
-                      <hbox class="alarm-icons-box"
-                            align="start">
-                      </hbox>
-                      <html:img class="item-classification-box" />
-                    </html:div>
-                  </hbox>
-                  <stack class="calendar-category-box-stack">
-                    <hbox class="calendar-category-box category-color-box calendar-event-selection">
-                    </hbox>
-                  </stack>
-                  <box class="calendar-event-gripbar-container">
-                    <calendar-event-gripbar class="calendar-event-box-grippy-top"
-                                            whichside="start">
-                    </calendar-event-gripbar>
-                    <spacer flex="1"/>
-                    <calendar-event-gripbar class="calendar-event-box-grippy-bottom"
-                                            whichside="end">
-                    </calendar-event-gripbar>
-                  </box>
-                </stack>
-              </box>
-            </box>
-          </box>
+          <!-- NOTE: The following div is the same markup as EditableItem. -->
+          <html:div class="calendar-item-grid">
+            <html:div class="calendar-item-flex">
+              <html:img class="item-type-icon" alt="" />
+              <html:div class="event-name-label"></html:div>
+              <html:input class="plain event-name-input"
+                          hidden="hidden"
+                          placeholder='${cal.l10n.getCalString("newEvent")}'/>
+              <html:div class="alarm-icons-box"></html:div>
+              <html:img class="item-classification-icon" />
+            </html:div>
+            <html:div class="location-desc"></html:div>
+            <html:div class="calendar-category-box"></html:div>
+          </html:div>
+          <calendar-event-gripbar class="calendar-event-box-grippy-top"
+                                  whichside="start">
+          </calendar-event-gripbar>
+          <calendar-event-gripbar class="calendar-event-box-grippy-bottom"
+                                  whichside="end">
+          </calendar-event-gripbar>
         `)
       );
+
+      this.classList.add("calendar-color-box");
 
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
@@ -357,36 +337,21 @@
     }
 
     getOptimalMinSize() {
+      let label = this.querySelector(".event-name-label");
       if (this.getAttribute("orient") == "vertical") {
         let minHeight =
-          getOptimalMinimumHeight(this.eventNameLabel) +
-          getSummarizedStyleValues(this.querySelector(".calendar-event-box-container"), [
-            "margin-bottom",
-            "margin-top",
-          ]) +
+          getOptimalMinimumHeight(label) +
+          getSummarizedStyleValues(label.parentNode, ["padding-bottom", "padding-top"]) +
           getSummarizedStyleValues(this, ["border-bottom-width", "border-top-width"]);
         this.setAttribute("minheight", minHeight);
         this.setAttribute("minwidth", "1");
         return minHeight;
       }
-      this.eventNameLabel.setAttribute("style", "min-width: 2em");
+      label.style.minWidth = "2em";
       let minWidth = getOptimalMinimumWidth(this.eventNameLabel);
       this.setAttribute("minwidth", minWidth);
       this.setAttribute("minheight", "1");
       return minWidth;
-    }
-
-    setEditableLabel() {
-      let label = this.eventNameLabel;
-      let item = this.mOccurrence;
-
-      label.textContent = item.title || cal.l10n.getCalString("eventUntitled");
-
-      let gripbar = this.querySelector(".calendar-event-box-grippy-top").getBoundingClientRect()
-        .height;
-      let height = this.querySelector(".calendar-event-box-container").getBoundingClientRect()
-        .height;
-      label.setAttribute("style", "max-height: " + Math.max(0, height - gripbar * 2) + "px");
     }
 
     startItemDrag() {

@@ -20,8 +20,8 @@
   class CalendarMonthDayBox extends MozElements.CalendarDnDContainer {
     static get inheritedAttributes() {
       return {
-        ".calendar-week-label": "relation,selected",
-        ".calendar-day-label": "relation,selected,value",
+        ".calendar-month-week-label": "relation,selected",
+        ".calendar-month-day-label": "relation,selected,value",
       };
     }
 
@@ -47,7 +47,7 @@
       this.setAttribute("orient", "vertical");
 
       let monthDayLabels = document.createXULElement("hbox");
-      monthDayLabels.style.overflow = "hidden";
+      monthDayLabels.classList.add("calendar-month-day-box-dates");
 
       let weekLabel = document.createXULElement("label");
       weekLabel.setAttribute("data-label", "week");
@@ -58,24 +58,23 @@
       weekLabel.classList.add(
         "calendar-month-day-box-week-label",
         "calendar-month-day-box-date-label",
-        "calendar-week-label"
+        "calendar-month-week-label"
       );
 
       let dayLabel = document.createXULElement("label");
       dayLabel.setAttribute("data-label", "day");
       dayLabel.setAttribute("flex", "1");
       dayLabel.style.pointerEvents = "none";
-      dayLabel.classList.add("calendar-month-day-box-date-label", "calendar-day-label");
+      dayLabel.classList.add("calendar-month-day-box-date-label", "calendar-month-day-label");
 
       monthDayLabels.appendChild(weekLabel);
       monthDayLabels.appendChild(dayLabel);
 
-      this.dayItems = document.createXULElement("vbox");
-      this.dayItems.setAttribute("flex", "1");
-      this.dayItems.classList.add("calendar-month-day-box-items-box", "calendar-day-items");
+      this.dayList = document.createElement("ol");
+      this.dayList.classList.add("calendar-month-day-box-list");
 
       this.appendChild(monthDayLabels);
-      this.appendChild(this.dayItems);
+      this.appendChild(this.dayList);
 
       this.initializeAttributeInheritance();
     }
@@ -130,8 +129,8 @@
     setDate(aDate) {
       // Remove all the old events.
       this.mItemHash = {};
-      while (this.dayItems.lastChild) {
-        this.dayItems.lastChild.remove();
+      while (this.dayList.lastChild) {
+        this.dayList.lastChild.remove();
       }
 
       if (this.mDate && aDate && this.mDate.compare(aDate) == 0) {
@@ -177,7 +176,18 @@
       box.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
       box.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
 
-      cal.data.binaryInsertNode(this.dayItems, box, aItem, cal.view.compareItems, false);
+      let listItemWrapper = document.createElement("li");
+      listItemWrapper.classList.add("calendar-month-day-box-list-item");
+      listItemWrapper.appendChild(box);
+      cal.data.binaryInsertNode(
+        this.dayList,
+        listItemWrapper,
+        aItem,
+        cal.view.compareItems,
+        false,
+        // Access the calendar item from a list item wrapper.
+        wrapper => wrapper.firstChild.item
+      );
 
       box.calendarView = this.calendarView;
       box.item = aItem;
@@ -202,9 +212,24 @@
 
     deleteItem(aItem) {
       if (aItem.hashId in this.mItemHash) {
-        let node = this.mItemHash[aItem.hashId];
+        // Delete the list item wrapper.
+        let node = this.mItemHash[aItem.hashId].parentNode;
         node.remove();
         delete this.mItemHash[aItem.hashId];
+      }
+    }
+
+    setDropShadow(on) {
+      let existing = this.dayList.querySelector(".dropshadow");
+      if (on) {
+        if (!existing) {
+          // Insert an empty list item.
+          let dropshadow = document.createElement("li");
+          dropshadow.classList.add("dropshadow", "calendar-month-day-box-list-item");
+          this.dayList.insertBefore(dropshadow, this.dayList.firstElementChild);
+        }
+      } else if (existing) {
+        existing.remove();
       }
     }
 
@@ -255,7 +280,7 @@
 
     onWheel(event) {
       if (cal.view.getParentNodeOrThisByAttribute(event.target, "data-label", "day") == null) {
-        if (this.dayItems.scrollHeight > this.dayItems.clientHeight) {
+        if (this.dayList.scrollHeight > this.dayList.clientHeight) {
           event.stopPropagation();
         }
       }
@@ -273,66 +298,30 @@
   class MozCalendarMonthDayBoxItem extends MozElements.MozCalendarEditableItem {
     static get inheritedAttributes() {
       return {
-        ".calendar-event-box-container":
-          "readonly,flashing,alarm,allday,priority,status,calendar,categories",
-        ".calendar-month-day-box-item-label": "context",
-        ".event-name-label-container": "context",
         ".alarm-icons-box": "flashing",
-        ".calendar-category-box": "categories",
       };
     }
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      // NOTE: This is the same structure as EditableItem, except this has a
+      // time label and we are missing the location-desc.
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-          <vbox flex="1">
-            <hbox>
-              <box class="calendar-color-box"
-                   flex="1">
-                <box class="calendar-event-selection"
-                     orient="horizontal"
-                     flex="1">
-                  <stack class="calendar-event-box-container"
-                         flex="1">
-                    <hbox class="calendar-event-details">
-                      <vbox pack="center">
-                          <html:img class="calendar-item-image"
-                                    alt="" />
-                      </vbox>
-                      <label class="calendar-month-day-box-item-label"></label>
-                      <vbox class="event-name-label-container"
-                            align="start" flex="1">
-                        <label class="event-name-label"
-                               crop="end"
-                               flex="1"
-                               style="margin: 0;">
-                        </label>
-                        <html:input class="plain calendar-event-name-textbox title-desc"
-                                    hidden="hidden"
-                                    placeholder='${cal.l10n.getCalString("newEvent")}'/>
-                        <spacer flex="1"></spacer>
-                      </vbox>
-                      <hbox class="category-container-box">
-                        <html:div class="calendar-event-item-icons">
-                          <hbox class="alarm-icons-box"
-                                pack="end"
-                                align="start">
-                          </hbox>
-                          <html:img class="item-classification-box" />
-                        </html:div>
-                        <hbox class="calendar-category-box category-color-box calendar-event-selection">
-                        </hbox>
-                      </hbox>
-                    </hbox>
-                  </stack>
-                </box>
-              </box>
-            </hbox>
-          </vbox>
+          <html:img class="item-type-icon" alt="" />
+          <html:div class="item-time-label"></html:div>
+          <html:div class="event-name-label"></html:div>
+          <html:input class="plain event-name-input"
+                      hidden="hidden"
+                      placeholder='${cal.l10n.getCalString("newEvent")}' />
+          <html:div class="alarm-icons-box"></html:div>
+          <html:img class="item-classification-icon" />
+          <html:div class="calendar-category-box"></html:div>
         `)
       );
+
+      this.classList.add("calendar-color-box", "calendar-item-flex");
 
       // We have two event listeners for dragstart. This event listener is for the bubbling phase
       // where we are setting up the document.monthDragEvent which will be used in the event listener
@@ -354,11 +343,10 @@
     set occurrence(val) {
       cal.ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
       this.mOccurrence = val;
+      let labelTime;
       if (val.isEvent()) {
         let type;
         if (!val.startDate.isDate) {
-          let label = this.querySelector(".calendar-month-day-box-item-label");
-          let formatter = cal.dtz.formatter;
           let timezone = this.calendarView ? this.calendarView.mTimezone : cal.dtz.defaultTimezone;
           let parentDate = this.parentBox.date;
           let parentTime = cal.createDateTime();
@@ -375,17 +363,16 @@
               type = "start";
             } else {
               type = "end";
-              label.value = formatter.formatTime(endTime);
+              labelTime = endTime;
             }
           } else if (comp == 1) {
             type = "start";
-            label.value = formatter.formatTime(startTime);
+            labelTime = startTime;
           } else {
-            label.value = formatter.formatTime(startTime);
+            labelTime = startTime;
           }
-          label.setAttribute("time", "true");
         }
-        let icon = this.querySelector(".calendar-item-image");
+        let icon = this.querySelector(".item-type-icon");
         if (type) {
           // NOTE: "type" attribute only seems to be used in the mochitest
           // browser_eventDisplay.js.
@@ -401,6 +388,15 @@
           icon.removeAttribute("data-l10n-id");
           icon.setAttribute("alt", "");
         }
+      }
+      let timeLabel = this.querySelector(".item-time-label");
+      if (labelTime === undefined) {
+        timeLabel.textContent = "";
+        timeLabel.hidden = true;
+      } else {
+        let formatter = cal.dtz.formatter;
+        timeLabel.textContent = formatter.formatTime(labelTime);
+        timeLabel.hidden = false;
       }
 
       this.setEditableLabel();

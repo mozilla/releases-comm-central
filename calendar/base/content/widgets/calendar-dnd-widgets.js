@@ -31,7 +31,6 @@
       }
       this.hasConnected = true;
 
-      this.mDropShadows = [];
       this.mCalendarView = null;
     }
 
@@ -55,42 +54,19 @@
       // method that may be overridden by derived bindings...
     }
 
-    getDropShadows() {
-      return this.mDropShadows;
-    }
-
     /**
      * Adds the dropshadows to the children of the binding.
      * The dropshadows are added at the first position of the children.
      */
     addDropShadows() {
-      if (!this.mDropShadows) {
-        return;
-      }
-
-      if (this.getElementsByAttribute("class", "dropshadow").length > 0) {
-        return;
-      }
-
       let offset = this.calendarView.mShadowOffset;
       let shadowStartDate = this.date.clone();
       shadowStartDate.addDuration(offset);
       this.calendarView.mDropShadows = [];
       for (let i = 0; i < this.calendarView.mDropShadowsLength; i++) {
         let box = this.calendarView.findDayBoxForDate(shadowStartDate);
-        if (!box) {
-          // Dragging to the end or beginning of a view.
-          shadowStartDate.day += 1;
-          continue;
-        }
-        let boxItems = box.querySelector(".calendar-day-items");
-        let dropshadow = document.createXULElement("box");
-        dropshadow.setAttribute("class", "dropshadow");
-        if (boxItems) {
-          boxItems.insertBefore(dropshadow, boxItems.firstElementChild);
-          this.calendarView.mDropShadows.push(boxItems);
-        } else {
-          box.insertBefore(dropshadow, box.firstElementChild);
+        if (box) {
+          box.setDropShadow(true);
           this.calendarView.mDropShadows.push(box);
         }
         shadowStartDate.day += 1;
@@ -104,8 +80,8 @@
     removeDropShadows() {
       // method that may be overwritten by derived bindings...
       if (this.calendarView.mDropShadows) {
-        for (let shadow of this.calendarView.mDropShadows) {
-          cal.view.removeChildElementsByAttribute(shadow, "class", "dropshadow");
+        for (let box of this.calendarView.mDropShadows) {
+          box.setDropShadow(false);
         }
       }
       this.calendarView.mDropShadows = null;
@@ -118,12 +94,10 @@
     setAttribute(aAttr, aVal) {
       if (aAttr == "dropbox") {
         let session = cal.getDragService().getCurrentSession();
-        let startingDayBox = session.sourceNode.mParentBox;
         if (session) {
           session.canDrop = true;
           // no shadows when dragging in the initial position
-          if (aVal == "true" && this != startingDayBox) {
-            this.mDropShadows = [session.sourceNode.sourceObject];
+          if (aVal == "true" && !this.contains(session.sourceNode)) {
             this.addDropShadows();
           } else {
             this.removeDropShadows();
@@ -140,7 +114,7 @@
         !draggedDOMNode.parentNode ||
         !draggedDOMNode.occurrence ||
         (draggedDOMNode.parentNode != this &&
-          !draggedDOMNode.parentNode.classList.contains("calendar-day-items"))
+          !draggedDOMNode.parentNode.classList.contains("calendar-month-day-box-list-item"))
       ) {
         return;
       }
@@ -175,9 +149,16 @@
     }
 
     onDragEnter(event) {
+      // FIXME: Why are we restricting showing the drop shadow to only these two
+      // cases? This excludes when we are dragged over a month day box item,
+      // despite ending the drag would successfully drop into this box.
+      // Also, the classList check uses sub-class specific knowledge, which
+      // should be handled by the subclass itself.
       if (
         event.target.localName == this.localName ||
-        event.target.classList.contains("calendar-day-items")
+        // classList is undefined if the target is a text node.
+        event.target.classList?.contains("calendar-month-day-box-list") ||
+        event.target.classList?.contains("calendar-month-day-box-list-item")
       ) {
         let session = cal.getDragService().getCurrentSession();
         if (session) {

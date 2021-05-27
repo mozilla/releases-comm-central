@@ -52,33 +52,6 @@ var calview = {
   },
 
   /**
-   * Removes those childnodes from a node that contain a specified attribute
-   * and where the value of this attribute matches a passed value
-   *
-   * @param aParentNode   The parent node that contains the child nodes in question
-   * @param aAttribute    The name of the attribute
-   * @param aAttribute    The value of the attribute
-   */
-  removeChildElementsByAttribute(aParentNode, aAttribute, aValue) {
-    let childNode = aParentNode.lastElementChild;
-    while (childNode) {
-      let prevChildNode = childNode.previousElementSibling;
-      if (!aAttribute || aAttribute === undefined) {
-        childNode.remove();
-      } else if (!aValue || aValue === undefined) {
-        childNode.remove();
-      } else if (
-        childNode &&
-        childNode.hasAttribute(aAttribute) &&
-        childNode.getAttribute(aAttribute) == aValue
-      ) {
-        childNode.remove();
-      }
-      childNode = prevChildNode;
-    }
-  },
-
-  /**
    * Returns a parentnode - or the passed node - with the given localName, by
    * traversing up the DOM hierarchy.
    *

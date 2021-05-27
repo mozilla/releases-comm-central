@@ -83,7 +83,7 @@ add_task(async function setupModule(module) {
       return false;
     }
     let eventName = eventBox.querySelector(".event-name-label");
-    return eventName && eventName.value == TITLE2;
+    return eventName && eventName.textContent == TITLE2;
   }, "Wait for the new title");
 
   // Delete event.

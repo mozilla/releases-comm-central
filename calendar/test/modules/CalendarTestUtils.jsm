@@ -450,7 +450,7 @@ class CalendarMonthViewTestUtils {
     }
 
     return win.document.documentElement.querySelector(
-      `${this.rootSelector} .monthgrid > tr:nth-of-type(${week}) >
+      `${this.rootSelector} .monthbody > tr:nth-of-type(${week}) >
         td:nth-of-type(${day}) > calendar-month-day-box`
     );
   }
@@ -473,7 +473,7 @@ class CalendarMonthViewTestUtils {
     }
 
     let dayBox = this.getDayBox(win, week, day);
-    return dayBox.querySelector(`calendar-month-day-box-item:nth-of-type(${index})`);
+    return dayBox.querySelector(`li:nth-of-type(${index}) calendar-month-day-box-item`);
   }
 
   /**
