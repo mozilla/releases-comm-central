@@ -867,7 +867,6 @@ html|ul.addon-installed-list {
 }
 
 :root[lwt-tree] #folderPaneHeader {
-  background-image: none;
   border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
 }
 

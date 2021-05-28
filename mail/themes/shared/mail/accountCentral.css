@@ -65,6 +65,7 @@ body {
   margin: 0;
   height: 100%;
   background-color: var(--body-background-color);
+  text-shadow: none;
 }
 
 #accountCentral {

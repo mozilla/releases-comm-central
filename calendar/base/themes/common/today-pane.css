@@ -64,6 +64,14 @@
   color: inherit;
 }
 
+#mini-day-image {
+  background-color: hsla(0, 0%, 50%, 0.1);
+}
+
+:root[lwt-tree] #mini-day-image {
+  background-color: transparent;
+}
+
 .today-pane-cycler {
   appearance: none;
   border-radius: var(--toolbarbutton-border-radius);

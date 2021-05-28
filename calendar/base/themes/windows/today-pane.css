@@ -31,17 +31,6 @@
   }
 }
 
-#mini-day-image {
-  background-image: linear-gradient(transparent, rgba(0, 0, 0, .1));
-}
-
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  #mini-day-image {
-    background-image: none;
-  }
-}
-
 #today-none-box {
   border-top: 1px solid ThreeDShadow;
 }

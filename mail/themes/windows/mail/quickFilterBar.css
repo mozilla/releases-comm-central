@@ -4,12 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/quickFilterBar.css");
 
-@media (-moz-windows-default-theme) {
-  #qfb-filter-label {
-    color: GrayText;
-  }
-}
-
 @media (-moz-os-version: windows-win7) {
   #qfb-qs-textbox {
     margin-block: 4px;

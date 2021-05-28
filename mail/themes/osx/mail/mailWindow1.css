@@ -14,22 +14,12 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
-#tabmail:-moz-lwtheme {
-  text-shadow: inherit;
-}
-
-#messengerBox:-moz-lwtheme {
-  text-shadow: none;
-}
-
 #folderPaneHeader {
-  background: linear-gradient(#f3f3f3, #ebebeb);
   border-bottom: 1px solid #bebebe;
 }
 
 #folderPaneHeader:-moz-window-inactive {
   background-color: -moz-mac-chrome-inactive;
-  background-image: none;
 }
 
 :root:not([lwt-tree]) #folderTree {

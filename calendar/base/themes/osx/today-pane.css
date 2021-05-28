@@ -24,21 +24,16 @@
   margin-bottom: 1px;
 }
 
-#mini-day-image {
-  background: linear-gradient(hsl(0, 0%, 93%), hsl(0, 0%, 83%));
-}
-
 #today-pane-panel:not(:-moz-lwtheme):-moz-window-inactive {
   background-color: hsl(0, 0%, 97%);
 }
 
 #mini-day-image:-moz-window-inactive {
-  background: linear-gradient(hsl(0, 0%, 97%), hsl(0, 0%, 95%));
+  background-color: -moz-mac-chrome-inactive;
 }
 
-:root[lwt-tree] #mini-day-image,
 :root[lwt-tree] #mini-day-image:-moz-window-inactive {
-  background: none;
+  background-color: transparent;
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
