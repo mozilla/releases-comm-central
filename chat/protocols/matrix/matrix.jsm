@@ -91,7 +91,12 @@ MatrixMessage.prototype = {
   },
 
   whenRead() {
-    if (this._read || this.conversation._account.noFullyRead) {
+    // whenRead is also called when the conversation is closed.
+    if (
+      this._read ||
+      !this.conversation._account ||
+      this.conversation._account.noFullyRead
+    ) {
       return;
     }
     this._read = true;
@@ -250,10 +255,34 @@ MatrixBuddy.prototype = {
 };
 
 /**
- * var so it can be tested using script loader.
- * @interface
+ * Matrix rooms are androgynous. Sometimes they are DM conversations, other
+ * times they are MUCs.
+ * This class implements both conversations state and transition between the
+ * two. Methods are grouped by shared/MUC/DM.
+ * The type is only changed on explicit request.
+ *
+ * @param {MatrixAccount} account - Account this room belongs to.
+ * @param {boolean} isMUC - True if this is a group conversation.
+ * @param {string} name - Name of the room.
  */
-var GenericMatrixConversation = {
+function MatrixRoom(account, isMUC, name) {
+  this._isChat = isMUC;
+  this._init(account, name, account.userId);
+  this._initialized = new Promise(resolve => {
+    this._resolveInitializer = resolve;
+  });
+}
+MatrixRoom.prototype = {
+  __proto__: GenericConvChatPrototype,
+  /**
+   * This conversation implements both the IM and the Chat prototype.
+   */
+  _interfaces: [Ci.prplIConversation, Ci.prplIConvIM, Ci.prplIConvChat],
+
+  get isChat() {
+    return this._isChat;
+  },
+
   /**
    * ID of the most recent event written to the conversation.
    */
@@ -272,11 +301,19 @@ var GenericMatrixConversation = {
    * the UI, but doesn't update the user's membership in the room.
    */
   forget() {
-    this._close?.();
+    if (!this.isChat) {
+      this.closeDm();
+    }
     this._account.roomList.delete(this._roomId);
     GenericConversationPrototype.close.call(this);
   },
 
+  /**
+   * Sends the given message as a text message to the Matrix room. Does not
+   * create the local copy, that is handled by the local echo of the SDK.
+   *
+   * @param {string} msg - Message to send.
+   */
   sendMsg(msg) {
     let content = {
       body: msg,
@@ -289,12 +326,12 @@ var GenericMatrixConversation = {
       });
   },
 
-  /*
-   * Shared init function between MatrixDirectConversation and MatrixConversation.
+  /**
+   * Shared init function between conversation types
    *
-   * @param {Object} room - associated room with the conversation.
+   * @param {Room} room - associated room with the conversation.
    */
-  sharedInitRoom(room) {
+  initRoom(room) {
     if (!room) {
       return;
     }
@@ -312,28 +349,22 @@ var GenericMatrixConversation = {
       this.notifyObservers(null, "update-conv-title");
     }
 
-    const avatarUrl = room.getAvatarUrl(
-      this._account._client.getHomeserverUrl(),
-      USER_ICON_SIZE,
-      USER_ICON_SIZE,
-      "scale",
-      false
-    );
-    if (avatarUrl) {
-      this.convIconFilename = avatarUrl;
+    this.updateConvIcon();
+
+    if (this.isChat) {
+      this.initRoomMuc(room);
+    } else {
+      this.initRoomDm(room);
     }
+
+    this._setInitialized();
   },
 
   /**
-   * Shared initialization in constructor of MatrixDirectConversation and
-   * MatrixConversation.
+   * Mark conversation as initialized, meaning it has an associated room in the
+   * state of the SDK. Sets the joining state to false and resolves
+   * _initialized.
    */
-  sharedInit() {
-    this._initialized = new Promise(resolve => {
-      this._resolveInitializer = resolve;
-    });
-  },
-
   _setInitialized() {
     this.joining = false;
     this._resolveInitializer();
@@ -344,7 +375,7 @@ var GenericMatrixConversation = {
    * Useful when converting between DM and MUC or possibly room version
    * upgrades.
    *
-   * @param {GenericMatrixConversation} newRoom - Room that replaces this room.
+   * @param {MatrixRoom} newRoom - Room that replaces this room.
    */
   replaceRoom(newRoom) {
     this._replacedBy = newRoom;
@@ -356,7 +387,7 @@ var GenericMatrixConversation = {
    * Wait until the conversation is fully initialized. Handles replacements of
    * the conversation in the meantime.
    *
-   * @returns {GenericMatrixConversation} The most recent instance of this room
+   * @returns {MatrixRoom} The most recent instance of this room
    * that is fully initialized.
    */
   async waitForRoom() {
@@ -489,21 +520,13 @@ var GenericMatrixConversation = {
         this.name
       );
       // Make sure the new room gets the correct conversation type.
-      newConversation
-        .waitForRoom()
-        .then(conv => this._account.checkRoomForUpdate(conv));
+      newConversation.waitForRoom().then(conv => conv.checkForUpdate());
       this.replaceRoom(newConversation);
       this.forget();
       //TODO link to the old logs based on the |predecessor| field of m.room.create
     } else if (eventType == EventType.RoomAvatar) {
       // Update the icon of this room.
-      this.convIconFilename = this.room.getAvatarUrl(
-        this._account._client.getHomeserverUrl(),
-        USER_ICON_SIZE,
-        USER_ICON_SIZE,
-        "scale",
-        false
-      );
+      this.updateConvIcon();
     } else {
       let message = getMatrixTextForEvent(event);
       // We don't think we should show a notice for this event.
@@ -526,6 +549,13 @@ var GenericMatrixConversation = {
   _typingTimer: null,
   _typingState: false,
 
+  /**
+   * Sets up the composing end timeout and sets the typing state based on the
+   * draft message if typing notifications should be sent.
+   *
+   * @param {string} string - Current draft message.
+   * @returns {number} Amount of remaining characters.
+   */
   sendTyping(string) {
     if (!this.shouldSendTypingNotifications) {
       return Ci.prplIConversation.NO_TYPING_LIMIT;
@@ -541,6 +571,10 @@ var GenericMatrixConversation = {
     return Ci.prplIConversation.NO_TYPING_LIMIT;
   },
 
+  /**
+   * Set the typing status to false if typing notifications are sent.
+   * @returns {undefined}
+   */
   finishedComposing() {
     if (!this.shouldSendTypingNotifications) {
       return;
@@ -549,6 +583,12 @@ var GenericMatrixConversation = {
     this._setTypingState(false);
   },
 
+  /**
+   * Send the given typing state, if it is changed.
+   *
+   * @param {boolean} isTyping - If the user is currently composing a message.
+   * @returns {undefined}
+   */
   _setTypingState(isTyping) {
     if (this._typingState == isTyping) {
       return;
@@ -557,6 +597,9 @@ var GenericMatrixConversation = {
     this._account._client.sendTyping(this._roomId, isTyping);
     this._typingState = isTyping;
   },
+  /**
+   * Cancel the typing end timer.
+   */
   _cancelTypingTimer() {
     if (this._typingTimer) {
       clearTimeout(this._typingTimer);
@@ -564,6 +607,14 @@ var GenericMatrixConversation = {
     }
   },
 
+  /**
+   * Write a message to the local conversation. Sets the containsNick flag on
+   * the message if appropriate.
+   *
+   * @param {string} aWho - MXID that composed the message.
+   * @param {string} aText - Message text.
+   * @param {object} aProperties - Extra attributes for the MatrixMessage.
+   */
   writeMessage(aWho, aText, aProperties) {
     if (this.isChat) {
       //TODO respect room notification settings
@@ -573,35 +624,126 @@ var GenericMatrixConversation = {
     const message = new MatrixMessage(aWho, aText, aProperties);
     message.conversation = this;
   },
-};
 
-/**
- * TODO Other functionality from MatrixClient to implement:
- *  sendNotice
- *  sendReadReceipt
- *
- * @class
- * @implements {GenericMatrixConversation}
- */
-function MatrixConversation(account, name, nick) {
-  this._init(account, name, nick);
-  this.sharedInit();
-}
-MatrixConversation.prototype = {
-  __proto__: GenericConvChatPrototype,
-
+  /**
+   * @type {Room}
+   */
   get room() {
     return this._account._client.getRoom(this._roomId);
   },
   get roomState() {
     return this.room.getLiveTimeline().getState(EventTimeline.FORWARDS);
   },
+  /**
+   * If we should send typing notifications to the remote server.
+   * @type {boolean}
+   */
   get shouldSendTypingNotifications() {
     return Services.prefs.getBoolPref("purple.conversations.im.send_typing");
   },
+  /**
+   * The ID of the room.
+   * @type {string}
+   */
   get normalizedName() {
     return this._roomId;
   },
+
+  /**
+   * Check if the type of the conversation (MUC or DM) needs to be changed and
+   * if it needs to change, update it.
+   *
+   * @returns {Promise<void>}
+   */
+  async checkForUpdate() {
+    if (this._waitingForUpdate) {
+      return;
+    }
+    this._waitingForUpdate = true;
+    await this._initialized;
+    this._waitingForUpdate = false;
+    if (this._replacedBy) {
+      return;
+    }
+    const shouldBeMuc = this.expectedToBeMuc();
+    if (shouldBeMuc === this.isChat) {
+      return;
+    }
+    this._isChat = shouldBeMuc;
+    this.notifyObservers(null, "chat-update-type");
+    if (shouldBeMuc) {
+      this.makeMuc();
+    } else {
+      this.makeDm();
+    }
+    this.updateConvIcon();
+  },
+
+  /**
+   * Check if the current conversation should be a MUC.
+   *
+   * @returns {boolean} If this conversation should be a MUC.
+   */
+  expectedToBeMuc() {
+    return !this._account.isDirectRoom(this._roomId);
+  },
+
+  /**
+   * Change the data in this conversation to match what we expect for a DM.
+   * This means setting a buddy and no participants.
+   */
+  makeDm() {
+    this._participants.clear();
+    this.initRoomDm(this.room);
+  },
+
+  /**
+   * Change the data in this conversation to match what we expect for a MUC.
+   * This means removing the associated buddy, initializing the participants
+   * list and updating the topic.
+   */
+  makeMuc() {
+    this.closeDm();
+    this.initRoomMuc(this.room);
+  },
+
+  /**
+   * Set the convIconFilename field for the conversation. Only writes to the
+   * field when the value changes.
+   */
+  updateConvIcon() {
+    const avatarUrl = this.room.getAvatarUrl(
+      this._account._client.getHomeserverUrl(),
+      USER_ICON_SIZE,
+      USER_ICON_SIZE,
+      "scale",
+      false
+    );
+    if (avatarUrl && this.convIconFilename !== avatarUrl) {
+      this.convIconFilename = avatarUrl;
+    } else if (!avatarUrl && this.convIconFilename) {
+      this.convIconFilename = "";
+    }
+  },
+
+  // mostly copied from jsProtoHelper but made type independent
+  _convIconFilename: "",
+  get convIconFilename() {
+    // By default, pass through information from the buddy for IM conversations
+    // that don't have their own icon.
+    const convIconFilename = this._convIconFilename;
+    if (convIconFilename || this.isChat) {
+      return convIconFilename;
+    }
+    return this.buddy?.buddyIconFilename;
+  },
+  set convIconFilename(aNewFilename) {
+    this._convIconFilename = aNewFilename;
+    this.notifyObservers(this, "update-conv-icon");
+  },
+
+  /* MUC */
+
   addParticipant(roomMember) {
     if (this._participants.has(roomMember.userId)) {
       return;
@@ -627,14 +769,12 @@ MatrixConversation.prototype = {
     );
   },
 
-  /*
+  /**
    * Initialize the room after the response from the Matrix client.
    *
    * @param {Object} room - associated room with the conversation.
    */
-  initRoom(room) {
-    this.sharedInitRoom(room);
-
+  initRoomMuc(room) {
     // If there are any participants, create them.
     let participants = [];
     room.getJoinedMembers().forEach(roomMember => {
@@ -654,9 +794,8 @@ MatrixConversation.prototype = {
     let roomState = this.roomState;
     if (roomState.getStateEvents(EventType.RoomTopic).length) {
       let event = roomState.getStateEvents(EventType.RoomTopic)[0];
-      this.setTopic(event.getContent().topic, event.getSender().name, true);
+      this.setTopic(event.getContent().topic, event.getSender(), true);
     }
-    this._setInitialized();
   },
 
   get topic() {
@@ -679,28 +818,15 @@ MatrixConversation.prototype = {
     }
     return false;
   },
-};
-Object.assign(MatrixConversation.prototype, GenericMatrixConversation);
 
-/**
- * @class
- * @implements {GenericMatrixConversation}
- */
-function MatrixDirectConversation(account, name) {
-  this._init(account, name);
-  this.sharedInit();
-}
-MatrixDirectConversation.prototype = {
-  __proto__: GenericConvIMPrototype,
+  /* DM */
 
   /**
    * Initialize the room after the response from the Matrix client.
    *
    * @param {Room} room - associated room with the conversation.
    */
-  initRoom(room) {
-    this.sharedInitRoom(room);
-
+  initRoomDm(room) {
     const dmUserId = room.guessDMUserId();
     if (dmUserId === this._account.userId) {
       // We are the only member of the room.
@@ -714,7 +840,6 @@ MatrixDirectConversation.prototype = {
           const user = this._account._client.getUser(dmUserId);
           this.buddy.setUser(user);
         }
-        this._setInitialized();
         return;
       }
       const user = this._account._client.getUser(dmUserId);
@@ -727,23 +852,13 @@ MatrixDirectConversation.prototype = {
       Services.contacts.accountBuddyAdded(this.buddy);
       this._account.buddies.set(dmUserId, this.buddy);
     }
-
-    this._setInitialized();
   },
 
-  get room() {
-    return this._account._client.getRoom(this._roomId);
-  },
-
-  get normalizedName() {
-    return this._roomId;
-  },
-
-  get shouldSendTypingNotifications() {
-    return Services.prefs.getBoolPref("purple.conversations.im.send_typing");
-  },
-
-  _close() {
+  /**
+   * Clean up the buddy associated with this DM conversation if it is the last
+   * conversation associated with it.
+   */
+  closeDm() {
     if (this.buddy) {
       const dmUserId = this.buddy.userName;
       const otherDMRooms = Array.from(this._account.roomList.values()).filter(
@@ -756,8 +871,10 @@ MatrixDirectConversation.prototype = {
       }
     }
   },
+
+  updateTyping: GenericConvIMPrototype.updateTyping,
+  typingState: Ci.prplIConvIM.NOT_TYPING,
 };
-Object.assign(MatrixDirectConversation.prototype, GenericMatrixConversation);
 
 /*
  * TODO Other random functionality from MatrixClient that will be useful:
@@ -1036,7 +1153,7 @@ MatrixAccount.prototype = {
           member.membership === "join" ||
           member.membership === "leave"
         ) {
-          this.checkRoomForUpdate(conv);
+          conv.checkForUpdate();
         }
       }
     });
@@ -1194,8 +1311,10 @@ MatrixAccount.prototype = {
       if (!joinedRooms.includes(roomId)) {
         conv.forget();
       } else {
-        const updatedConv = this.checkRoomForUpdate(conv);
-        updatedConv.catchup().catch(error => updatedConv.ERROR(error));
+        conv
+          .checkForUpdate()
+          .then(() => conv.catchup())
+          .catch(error => conv.ERROR(error));
       }
     }
     // Create new conversations
@@ -1306,60 +1425,8 @@ MatrixAccount.prototype = {
   },
 
   /**
-   * Converts the group conversation into the direct conversation.
-   *
-   * @param {MatrixConversation} groupConv - the group conversation which needs to be
-   *                             converted.
-   * @returns {MatrixDirectConversation}
-   */
-  convertToDM(groupConv) {
-    groupConv.forget();
-    let conv = new MatrixDirectConversation(this, groupConv._roomId);
-    groupConv.replaceRoom(conv);
-    this.roomList.set(groupConv._roomId, conv);
-    let directRoom = this._client.getRoom(groupConv._roomId);
-    conv.initRoom(directRoom);
-    //TODO re-select conv if it was already selected
-    return conv;
-  },
-
-  /**
-   * Converts the direct conversation into the group conversation.
-   *
-   * @param {MatrixDirectConversation} directConv - the direct conversation which needs to be
-   *                              converted.
-   * @return {MatrixConversation}
-   */
-  convertToGroup(directConv) {
-    directConv.forget();
-    let conv = new MatrixConversation(this, directConv._roomId, this.userId);
-    directConv.replaceRoom(conv);
-    this.roomList.set(directConv._roomId, conv);
-    let groupRoom = this._client.getRoom(directConv._roomId);
-    conv.initRoom(groupRoom);
-    //TODO re-select conv if it was already selected
-    return conv;
-  },
-
-  /**
-   * Checks if the conversation needs to be changed from the group conversation
-   * to the direct conversation or vice versa.
-   *
-   * @param {GenericMatrixConversation} conv - the conversation which needs to be checked.
-   * @returns {GenericMatrixConversation} potentially new conversation
-   */
-  checkRoomForUpdate(conv) {
-    if (conv.room && conv.isChat && this.isDirectRoom(conv._roomId)) {
-      return this.convertToDM(conv);
-    } else if (conv.room && !conv.isChat && !this.isDirectRoom(conv._roomId)) {
-      return this.convertToGroup(conv);
-    }
-    return conv;
-  },
-
-  /**
    * Room aliases and their conversation that are currently being created.
-   * @type {Map<string, MatrixConversation>}
+   * @type {Map<string, MatrixRoom>}
    */
   _pendingRoomAliases: null,
 
@@ -1374,7 +1441,7 @@ MatrixAccount.prototype = {
    * @param {string} roomId - ID of the room.
    * @param {string} [roomName] - Name of the room.
    *
-   * @return {MatrixConversation?} - The resulted conversation.
+   * @return {MatrixRoom?} - The resulted conversation.
    */
   getGroupConversation(roomId, roomName) {
     if (!roomId) {
@@ -1386,7 +1453,7 @@ MatrixAccount.prototype = {
       return existingConv;
     }
 
-    const conv = new MatrixConversation(this, roomName || roomId, this.userId);
+    const conv = new MatrixRoom(this, true, roomName || roomId);
     conv.joining = true;
 
     // If we are already in the room, just initialize the conversation with it.
@@ -1623,13 +1690,15 @@ MatrixAccount.prototype = {
     if (roomIdOrAlias.startsWith("!")) {
       // We create the group conversation initially. Then we check if the room
       // is the direct messaging room or not.
+      //TODO init with correct type from isDirectMessage(roomIdOrAlias)
       let conv = this.getGroupConversation(roomIdOrAlias);
       if (!conv) {
         return null;
       }
       // It can be any type of room so update it according to direct conversation
       // or group conversation.
-      return this.checkRoomForUpdate(conv);
+      conv.waitForRoom().then(() => conv.checkForUpdate());
+      return conv;
     }
 
     // If the ID does not start with @ or #, assume it is a group conversation and append #.
@@ -1653,7 +1722,7 @@ MatrixAccount.prototype = {
 
   /**
    * User IDs and their DM conversations which are being created.
-   * @type {Map<string, MatrixDirectConversation>}
+   * @type {Map<string, MatrixRoom>}
    */
   _pendingDirectChats: null,
 
@@ -1670,7 +1739,7 @@ MatrixAccount.prototype = {
    * @param {string} [roomId] - ID of the room.
    * @param {string} [roomName] - Name of the room.
    *
-   * @return {MatrixDirectConversation} - The resulted conversation.
+   * @return {MatrixRoom} - The resulted conversation.
    */
   getDirectConversation(userId, roomID, roomName) {
     let DMRoomId = this.getDMRoomIdForUserId(userId);
@@ -1682,10 +1751,7 @@ MatrixAccount.prototype = {
     // cases, we will pass roomID so that user will be joined to the room
     // and we will create corresponding conversation.
     if (DMRoomId || roomID) {
-      let conv = new MatrixDirectConversation(
-        this,
-        roomName || DMRoomId || roomID
-      );
+      let conv = new MatrixRoom(this, false, roomName || DMRoomId || roomID);
       this.roomList.set(DMRoomId || roomID, conv);
       conv.joining = true;
       this._client
@@ -1715,7 +1781,7 @@ MatrixAccount.prototype = {
       return this._pendingDirectChats.get(userId);
     }
 
-    let conv = new MatrixDirectConversation(this, userId);
+    let conv = new MatrixRoom(this, false, userId);
     this.createRoom(
       this._pendingDirectChats,
       userId,
@@ -1743,9 +1809,9 @@ MatrixAccount.prototype = {
    * operation. If there are no more pending rooms on completion, we need to
    * make sure we didn't miss a join from another room.
    *
-   * @param {Map<string, GenericMatrixConversation>} pendingMap - One of the lock maps.
+   * @param {Map<string, MatrixRoom>} pendingMap - One of the lock maps.
    * @param {string} key - The key to lock with in the set.
-   * @param {GenericMatrixConversation} conversation - Conversation for the room.
+   * @param {MatrixRoom} conversation - Conversation for the room.
    * @param {Object} roomInit - Parameters for room creation.
    * @param {function} [onCreated] - Callback to execute before room creation
    *  is finalized.
