@@ -8,9 +8,7 @@
 
 "use strict";
 
-var { HttpServer } = ChromeUtils.import(
-  "resource://testing-common/mozmill/httpd.jsm"
-);
+var { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
 
 var {
   gMockExtProtSvc,

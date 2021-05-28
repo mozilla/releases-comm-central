@@ -16,7 +16,6 @@ TESTING_JS_MODULES.mozmill += [
     "events.jsm",
     "EventUtils.jsm",
     "FolderDisplayHelpers.jsm",
-    "httpd.jsm",
     "JunkHelpers.jsm",
     "KeyboardHelpers.jsm",
     "MockObjectHelpers.jsm",
