@@ -16,6 +16,9 @@ var gOpenTime = 4000; // total time the alert should stay up once we are done an
 
 var gPendingPreviewFetchRequests = 0;
 var gOrigin = 0; // Default value: alert from bottom right.
+var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
+  Ci.nsIDragService
+);
 
 function prefillAlertInfo() {
   // unwrap all the args....
@@ -84,6 +87,18 @@ urlListener.prototype = {
 };
 
 function onAlertLoad() {
+  let dragSession = gDragService.getCurrentSession();
+  if (dragSession && dragSession.sourceNode) {
+    // If a drag session is active, adjusting this window's dimensions causes
+    // the drag session to be abruptly terminated. To avoid interrupting the
+    // user, wait until the drag is finished and then set up and show the alert.
+    dragSession.sourceNode.addEventListener("dragend", () => doOnAlertLoad());
+  } else {
+    doOnAlertLoad();
+  }
+}
+
+function doOnAlertLoad() {
   prefillAlertInfo();
 
   gOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
