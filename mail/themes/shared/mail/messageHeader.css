@@ -87,6 +87,14 @@
   padding-inline-start: 2px;
 }
 
+#msgHeaderView[shrink] .msgHeaderView-button .toolbarbutton-text {
+  display: none;
+}
+
+#msgHeaderView[shrink] .toolbarbutton-1 .toolbarbutton-menu-dropmarker {
+  margin-inline: 3px;
+}
+
 .hdrReplyToSenderButton,
 .hdrDummyReplyButton,
 .hdrReplyButton {
@@ -242,6 +250,7 @@
 
 #header-view-toolbar {
   -moz-box-pack: end;
+  margin-inline-end: 3px;
 }
 
 .headerName {

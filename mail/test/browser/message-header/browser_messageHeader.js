@@ -1031,38 +1031,46 @@ add_task(function test_more_widget_with_disabled_more() {
 });
 
 /**
- * When the window gets too narrow the toolbar should float above the From
- *  line.  Then they need to return back to the right when we get large
- *  enough again.
+ * When the window gets too narrow the toolbar buttons should display only icons
+ * and the label should be hidden.
  */
-add_task(function test_toolbar_collapse_and_expand() {
+add_task(async function test_toolbar_collapse_and_expand() {
   be_in_folder(folder);
   // Select and open a message, in this case the last, for no particular reason.
   select_click_row(-1);
 
-  try {
-    let expandedHeadersTopBox = mc.e("expandedHeadersTopBox");
+  let header = mc.window.document.getElementById("msgHeaderView");
 
-    resize_to(mc, 1200, gDefaultWindowHeight);
-    let shortHeight = expandedHeadersTopBox.clientHeight;
+  let expandedPromise = BrowserTestUtils.waitForCondition(
+    () => !header.hasAttribute("shrink"),
+    "The msgHeaderView doesn't have the `shrink` attribute"
+  );
 
-    resize_to(mc, 600, gDefaultWindowHeight);
-    let tallHeight = expandedHeadersTopBox.clientHeight;
+  // Set an initial size of 1200px.
+  resize_to(mc, 1200, gDefaultWindowHeight);
 
-    if (shortHeight >= tallHeight) {
-      throw new Error("The header box should have been made smaller!");
-    }
+  // Confirm that the button labels are visible.
+  await expandedPromise;
 
-    // And make our window big to achieve the same effect as the just icons mode.
-    resize_to(mc, 1200, gDefaultWindowHeight);
-    mc.waitFor(
-      () => expandedHeadersTopBox.clientHeight == shortHeight,
-      "The header box should have returned to its wide size!"
-    );
-  } finally {
-    // restore window to nominal dimensions
-    restore_default_window_size();
-  }
+  let shrinkedPromise = BrowserTestUtils.waitForCondition(
+    () => header.hasAttribute("shrink"),
+    "The msgHeaderView has the `shrink` attribute"
+  );
+
+  // Resize to 699px width.
+  resize_to(mc, 699, gDefaultWindowHeight);
+
+  // Confirm that the button labels are hidden.
+  await shrinkedPromise;
+
+  // Set the width to 700px.
+  resize_to(mc, 700, gDefaultWindowHeight);
+
+  // Confirm that the button labels are visible.
+  await expandedPromise;
+
+  // Restore window to nominal dimensions.
+  restore_default_window_size();
 });
 
 /**

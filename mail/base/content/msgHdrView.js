@@ -313,7 +313,7 @@ async function OnLoadMsgHeaderPane() {
 
   // Dispatch an event letting any listeners know that we have loaded
   // the message pane.
-  var headerViewElement = document.getElementById("msgHeaderView");
+  let headerViewElement = document.getElementById("msgHeaderView");
   headerViewElement.loaded = true;
   headerViewElement.dispatchEvent(
     new Event("messagepane-loaded", { bubbles: false, cancelable: true })
@@ -334,12 +334,13 @@ function OnUnloadMsgHeaderPane() {
 
   AddressBookListener.unregister();
 
-  // dispatch an event letting any listeners know that we have unloaded
-  // the message pane
-  var headerViewElement = document.getElementById("msgHeaderView");
-  headerViewElement.dispatchEvent(
-    new Event("messagepane-unloaded", { bubbles: false, cancelable: true })
-  );
+  // Dispatch an event letting any listeners know that we have unloaded
+  // the message pane.
+  document
+    .getElementById("msgHeaderView")
+    .dispatchEvent(
+      new Event("messagepane-unloaded", { bubbles: false, cancelable: true })
+    );
 }
 
 function OnResizeExpandedHeaderView() {
@@ -352,6 +353,8 @@ function OnResizeExpandedHeaderView() {
           document.getElementById("expandedHeaders2").clientHeight
       );
   }
+
+  onHeaderResize();
 }
 
 var MsgHdrViewObserver = {
@@ -1274,10 +1277,12 @@ function ClearCurrentHeaders() {
 function ShowMessageHeaderPane() {
   document.getElementById("msgHeaderView").collapsed = false;
   document.getElementById("mail-notification-top").collapsed = false;
+  onHeaderResize();
 }
 
 function HideMessageHeaderPane() {
-  document.getElementById("msgHeaderView").collapsed = true;
+  let header = document.getElementById("msgHeaderView");
+  header.collapsed = true;
   document.getElementById("mail-notification-top").collapsed = true;
 
   // Disable the Message/Attachments menuitem.
@@ -1295,6 +1300,18 @@ function HideMessageHeaderPane() {
   document.getElementById("attachment-splitter").collapsed = true;
 
   gMessageNotificationBar.clearMsgNotifications();
+
+  // Always remove the shrink attribute in order to start with the right size
+  // when loading a new message.
+  header.removeAttribute("shrink");
+}
+
+function onHeaderResize() {
+  let header = document.getElementById("msgHeaderView");
+  // Arbitrary size of 700px, which should be safe for now. This is a temporary
+  // fix while we wait for the @container media query to be supported, and in
+  // preparation for the full message header rebuild.
+  header.toggleAttribute("shrink", header.getBoundingClientRect().width < 700);
 }
 
 /**
