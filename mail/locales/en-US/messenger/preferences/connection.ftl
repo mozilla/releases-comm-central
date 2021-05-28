@@ -25,6 +25,9 @@ connection-dialog-window =
         *[other] width: 49em !important
     }
 
+connection-disable-extension =
+    .label = Disable Extension
+
 connection-proxy-legend = Configure Proxies to Access the Internet
 
 proxy-type-no =

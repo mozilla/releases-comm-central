@@ -21,12 +21,23 @@
 
   <linkset>
     <html:link rel="localization" href="messenger/preferences/connection.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
+    <html:link rel="localization" href="branding/brand.ftl"/>
   </linkset>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://global/content/preferencesBindings.js"/>
+  <script src="chrome://messenger/content/preferences/extensionControlled.js"/>
   <script src="chrome://messenger/content/preferences/connection.js"/>
+
+  <hbox id="proxyExtensionContent"
+        align="start" hidden="true" class="extension-controlled">
+    <description control="disableProxyExtension" flex="1" />
+    <button id="disableProxyExtension"
+            class="extension-controlled-button accessory-button"
+            data-l10n-id="connection-disable-extension" />
+  </hbox>
 
   <html:div>
   <html:fieldset>

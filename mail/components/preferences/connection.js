@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
+/* import-globals-from ./extensionControlled.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -110,6 +111,17 @@ window.addEventListener(
     document.documentElement.addEventListener("beforeaccept", e =>
       gConnectionsDialog.beforeAccept(e)
     );
+
+    document
+      .getElementById("disableProxyExtension")
+      .addEventListener(
+        "command",
+        makeDisableControllingExtension(PREF_SETTING_TYPE, PROXY_KEY).bind(
+          gConnectionsDialog
+        )
+      );
+    gConnectionsDialog.updateProxySettingsUI();
+    initializeProxyUI(gConnectionsDialog);
   },
   { once: true, capture: true }
 );
@@ -210,9 +222,9 @@ var gConnectionsDialog = {
 
     // Update http
     var httpProxyURLPref = Preferences.get("network.proxy.http");
-    httpProxyURLPref.disabled = proxyTypePref.value != 1;
+    httpProxyURLPref.updateControlDisabledState(proxyTypePref.value != 1);
     var httpProxyPortPref = Preferences.get("network.proxy.http_port");
-    httpProxyPortPref.disabled = proxyTypePref.value != 1;
+    httpProxyPortPref.updateControlDisabledState(proxyTypePref.value != 1);
 
     // Now update the other protocols
     this.updateProtocolPrefs();
@@ -220,14 +232,14 @@ var gConnectionsDialog = {
     var shareProxiesPref = Preferences.get(
       "network.proxy.share_proxy_settings"
     );
-    shareProxiesPref.disabled = proxyTypePref.value != 1;
+    shareProxiesPref.updateControlDisabledState(proxyTypePref.value != 1);
     var autologinProxyPref = Preferences.get("signon.autologin.proxy");
-    autologinProxyPref.disabled = proxyTypePref.value == 0;
+    autologinProxyPref.updateControlDisabledState(proxyTypePref.value == 0);
     var noProxiesPref = Preferences.get("network.proxy.no_proxies_on");
-    noProxiesPref.disabled = proxyTypePref.value == 0;
+    noProxiesPref.updateControlDisabledState(proxyTypePref.value == 0);
 
     var autoconfigURLPref = Preferences.get("network.proxy.autoconfig_url");
-    autoconfigURLPref.disabled = proxyTypePref.value != 2;
+    autoconfigURLPref.updateControlDisabledState(proxyTypePref.value != 2);
 
     this.updateReloadButton();
 
@@ -244,9 +256,10 @@ var gConnectionsDialog = {
     var socksDNSPref = Preferences.get("network.proxy.socks_remote_dns");
     var proxyTypePref = Preferences.get("network.proxy.type");
     var isDefinitelySocks4 =
-      !socksVersionPref.disabled && socksVersionPref.value == 4;
-    socksDNSPref.disabled =
-      isDefinitelySocks4 || proxyTypePref.value == 0 || socksDNSPref.locked;
+      proxyTypePref.value == 1 && socksVersionPref.value == 4;
+    socksDNSPref.updateControlDisabledState(
+      isDefinitelySocks4 || proxyTypePref.value == 0
+    );
     return undefined;
   },
 
@@ -265,8 +278,9 @@ var gConnectionsDialog = {
     var disableReloadPref = Preferences.get(
       "pref.advanced.proxies.disable_button.reload"
     );
-    disableReloadPref.disabled =
-      proxyTypeCur != 2 || proxyType != 2 || typedURL != pacURL;
+    disableReloadPref.updateControlDisabledState(
+      proxyTypeCur != 2 || proxyType != 2 || typedURL != pacURL
+    );
   },
 
   readProxyType() {
@@ -309,11 +323,15 @@ var gConnectionsDialog = {
       proxyServerURLPref.updateElements();
       proxyPortPref.updateElements();
       let prefIsShared = proxyPrefs[i] != "socks" && shareProxiesPref.value;
-      proxyServerURLPref.disabled = proxyTypePref.value != 1 || prefIsShared;
-      proxyPortPref.disabled = proxyServerURLPref.disabled;
+      proxyServerURLPref.updateControlDisabledState(
+        proxyTypePref.value != 1 || prefIsShared
+      );
+      proxyPortPref.updateControlDisabledState(
+        proxyTypePref.value != 1 || prefIsShared
+      );
     }
     var socksVersionPref = Preferences.get("network.proxy.socks_version");
-    socksVersionPref.disabled = proxyTypePref.value != 1;
+    socksVersionPref.updateControlDisabledState(proxyTypePref.value != 1);
     this.updateDNSPref();
     return undefined;
   },
@@ -399,6 +417,30 @@ var gConnectionsDialog = {
     ];
   },
 
+  // Update the UI to show/hide the extension controlled message for
+  // proxy settings.
+  async updateProxySettingsUI() {
+    let isLocked = API_PROXY_PREFS.some(pref =>
+      Services.prefs.prefIsLocked(pref)
+    );
+
+    function setInputsDisabledState(isControlled) {
+      for (let element of gConnectionsDialog.getProxyControls()) {
+        element.disabled = isControlled;
+      }
+      gConnectionsDialog.proxyTypeChanged();
+    }
+
+    if (isLocked) {
+      // An extension can't control this setting if any pref is locked.
+      hideControllingExtension(PROXY_KEY);
+    } else {
+      handleControllingExtension(PREF_SETTING_TYPE, PROXY_KEY).then(
+        setInputsDisabledState
+      );
+    }
+  },
+
   get dnsOverHttpsResolvers() {
     let rawValue = Preferences.get("network.trr.resolvers", "").value;
     // if there's no default, we'll hold its position with an empty string
@@ -443,7 +485,7 @@ var gConnectionsDialog = {
     // called to update checked element property to reflect current pref value
     let enabled = this.isDnsOverHttpsEnabled();
     let uriPref = Preferences.get("network.trr.uri");
-    uriPref.disabled = !enabled || this.isDnsOverHttpsLocked();
+    uriPref.updateControlDisabledState(!enabled || this.isDnsOverHttpsLocked());
     // this is the first signal we get when the prefs are available, so
     // lazy-init if appropriate
     if (!this._areTrrPrefsReady) {

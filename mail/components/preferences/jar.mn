@@ -18,6 +18,7 @@ messenger.jar:
     content/messenger/preferences/colors.js
 *   content/messenger/preferences/colors.xhtml
     content/messenger/preferences/compose.js
+    content/messenger/preferences/extensionControlled.js
     content/messenger/preferences/privacy.js
     content/messenger/preferences/sendoptions.xhtml
     content/messenger/preferences/sendoptions.js
