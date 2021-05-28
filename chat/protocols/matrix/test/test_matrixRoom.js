@@ -10,25 +10,25 @@ var matrix = {};
 Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
 Services.conversations.initConversations();
 
-add_task(async function test_sharedInit() {
-  const roomStub = {};
-  matrix.GenericMatrixConversation.sharedInit.call(roomStub);
+add_task(async function test_initRoom() {
+  const roomStub = getRoom(true);
   equal(typeof roomStub._resolveInitializer, "function");
   ok(roomStub._initialized);
   roomStub._resolveInitializer();
   await roomStub._initialized;
+  roomStub.forget();
 });
 
 add_task(function test_replaceRoom() {
   const roomStub = {
-    __proto__: matrix.GenericMatrixConversation,
+    __proto__: matrix.MatrixRoom.prototype,
     _resolveInitializer() {
       this.initialized = true;
     },
     _mostRecentEventId: "foo",
   };
   const newRoom = {};
-  matrix.GenericMatrixConversation.replaceRoom.call(roomStub, newRoom);
+  matrix.MatrixRoom.prototype.replaceRoom.call(roomStub, newRoom);
   strictEqual(roomStub._replacedBy, newRoom);
   ok(roomStub.initialized);
   equal(newRoom._mostRecentEventId, roomStub._mostRecentEventId);
@@ -38,45 +38,31 @@ add_task(async function test_waitForRoom() {
   const roomStub = {
     _initialized: Promise.resolve(),
   };
-  const awaitedRoom = await matrix.GenericMatrixConversation.waitForRoom.call(
+  const awaitedRoom = await matrix.MatrixRoom.prototype.waitForRoom.call(
     roomStub
   );
   strictEqual(awaitedRoom, roomStub);
 });
 
 add_task(async function test_waitForRoomReplaced() {
-  const roomStub = {
-    __proto__: matrix.GenericMatrixConversation,
-  };
-  matrix.GenericMatrixConversation.sharedInit.call(roomStub);
+  const roomStub = getRoom(true);
   const newRoom = {
     waitForRoom() {
       return Promise.resolve("success");
     },
   };
-  matrix.GenericMatrixConversation.replaceRoom.call(roomStub, newRoom);
-  const awaitedRoom = await matrix.GenericMatrixConversation.waitForRoom.call(
+  matrix.MatrixRoom.prototype.replaceRoom.call(roomStub, newRoom);
+  const awaitedRoom = await matrix.MatrixRoom.prototype.waitForRoom.call(
     roomStub
   );
   equal(awaitedRoom, "success");
+  roomStub.forget();
 });
-
-add_task(function test_conversationInheritance() {
-  testInheritance(matrix.MatrixConversation);
-  testInheritance(matrix.MatrixDirectConversation);
-});
-
-function testInheritance(targetConstructor) {
-  for (const [key, value] of Object.entries(matrix.GenericMatrixConversation)) {
-    ok(targetConstructor.prototype.hasOwnProperty(key));
-    strictEqual(targetConstructor.prototype[key], value);
-  }
-}
 
 add_task(function test_addEventRedacted() {
   const event = makeEvent("@user:example.com", {}, true);
   const roomStub = {};
-  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub._mostRecentEventId, 0);
 });
 
@@ -95,7 +81,7 @@ add_task(function test_addEventMessageIncoming() {
       this.options = options;
     },
   };
-  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "foo");
   ok(roomStub.options.incoming);
@@ -122,7 +108,7 @@ add_task(function test_addEventMessageOutgoing() {
       this.options = options;
     },
   };
-  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@test:example.com");
   equal(roomStub.message, "foo");
   ok(!roomStub.options.incoming);
@@ -149,7 +135,7 @@ add_task(function test_addEventMessageEmote() {
       this.options = options;
     },
   };
-  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "/me foo");
   ok(roomStub.options.incoming);
@@ -176,7 +162,7 @@ add_task(function test_addEventMessageDelayed() {
       this.options = options;
     },
   };
-  matrix.GenericMatrixConversation.addEvent.call(roomStub, event, true);
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event, true);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "foo");
   ok(roomStub.options.incoming);
@@ -214,13 +200,13 @@ add_task(function test_addEventTopic() {
       this.topic = topic;
     },
   };
-  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.topic, "foo bar");
   equal(roomStub._mostRecentEventId, 1);
 });
 
-add_task(async function test_addEventTombostone() {
+add_task(async function test_addEventTombstone() {
   const event = {
     isRedacted() {
       return false;
@@ -244,46 +230,18 @@ add_task(async function test_addEventTombostone() {
       return new Date();
     },
   };
-  const roomStub = {
-    replaceRoom(newConversation) {
-      this.newConversation = newConversation;
-    },
-    forget() {
-      this.forgot = true;
-    },
-    writeMessage(who, message, options) {
-      this.who = who;
-      this.message = message;
-      this.options = options;
-    },
-    isChat: true,
-    name: "test room",
-    _account: {
-      getGroupConversation(roomId, name) {
-        return {
-          roomId,
-          name,
-          waitForRoom() {
-            return Promise.resolve(roomStub);
-          },
-        };
-      },
-      checkRoomForUpdate(room) {
-        equal(room.id, roomStub.newConversation.id);
-        roomStub.checkedRoom = true;
-      },
-    },
-  };
-  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
-  equal(roomStub.newConversation.roomId, event.getContent().replacement_room);
-  equal(roomStub.newConversation.name, roomStub.name);
-  equal(roomStub.who, event.getSender());
-  equal(roomStub.message, event.getContent().body);
-  ok(roomStub.options.system);
-  ok(roomStub.options.incoming);
-  ok(roomStub.forgot);
-  await Promise.resolve();
-  ok(roomStub.checkedRoom);
+  const conversation = getRoom(true);
+  const newText = waitForNotification(conversation, "new-text");
+  conversation.addEvent(event);
+  const { subject: message } = await newText;
+  const newConversation = await conversation.waitForRoom();
+  equal(newConversation.normalizedName, event.getContent().replacement_room);
+  equal(message.who, event.getSender());
+  equal(message.message, event.getContent().body);
+  ok(message.system);
+  ok(message.incoming);
+  ok(!conversation._account);
+  newConversation.forget();
 });
 
 function makeEvent(sender, content = {}, redacted = false) {
@@ -316,7 +274,7 @@ function makeEvent(sender, content = {}, redacted = false) {
 add_task(function test_forgetWith_close() {
   const roomList = new Map();
   const roomStub = {
-    _close() {
+    closeDm() {
       this.closeCalled = true;
     },
     _roomId: "foo",
@@ -330,7 +288,7 @@ add_task(function test_forgetWith_close() {
   roomList.set(roomStub._roomId, roomStub);
   Services.conversations.addConversation(roomStub);
 
-  matrix.GenericMatrixConversation.forget.call(roomStub);
+  matrix.MatrixRoom.prototype.forget.call(roomStub);
   ok(!roomList.has(roomStub._roomId));
   ok(roomStub.closeCalled);
 });
@@ -338,6 +296,7 @@ add_task(function test_forgetWith_close() {
 add_task(function test_forgetWithout_close() {
   const roomList = new Map();
   const roomStub = {
+    isChat: true,
     _roomId: "foo",
     _account: {
       roomList,
@@ -349,7 +308,7 @@ add_task(function test_forgetWithout_close() {
   roomList.set(roomStub._roomId, roomStub);
   Services.conversations.addConversation(roomStub);
 
-  matrix.GenericMatrixConversation.forget.call(roomStub);
+  matrix.MatrixRoom.prototype.forget.call(roomStub);
   ok(!roomList.has(roomStub._roomId));
 });
 
@@ -368,7 +327,7 @@ add_task(function test_close() {
     },
   };
 
-  matrix.GenericMatrixConversation.close.call(roomStub);
+  matrix.MatrixRoom.prototype.close.call(roomStub);
   equal(roomStub.leftRoom, roomStub._roomId);
   ok(roomStub.forgetCalled);
 });
@@ -387,17 +346,17 @@ add_task(function test_setTypingState() {
     },
   };
 
-  matrix.GenericMatrixConversation._setTypingState.call(roomStub, true);
+  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, true);
   ok(!roomStub.typingRoomId);
   ok(!roomStub.typing);
   ok(roomStub._typingState);
 
-  matrix.GenericMatrixConversation._setTypingState.call(roomStub, false);
+  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, false);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(!roomStub.typing);
   ok(!roomStub._typingState);
 
-  matrix.GenericMatrixConversation._setTypingState.call(roomStub, true);
+  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, true);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
   ok(roomStub._typingState);
@@ -407,13 +366,13 @@ add_task(function test_cancelTypingTimer() {
   const roomStub = {
     _typingTimer: setTimeout(() => {}, 10000), // eslint-disable-line mozilla/no-arbitrary-setTimeout
   };
-  matrix.GenericMatrixConversation._cancelTypingTimer.call(roomStub);
+  matrix.MatrixRoom.prototype._cancelTypingTimer.call(roomStub);
   ok(!roomStub._typingTimer);
 });
 
 add_task(function test_finishedComposing() {
   const roomStub = {
-    __proto__: matrix.GenericMatrixConversation,
+    __proto__: matrix.MatrixRoom.prototype,
     _typingState: true,
     shouldSendTypingNotifications: false,
     _roomId: "foo",
@@ -424,17 +383,17 @@ add_task(function test_finishedComposing() {
     },
   };
 
-  matrix.GenericMatrixConversation.finishedComposing.call(roomStub);
+  matrix.MatrixRoom.prototype.finishedComposing.call(roomStub);
   ok(roomStub._typingState);
 
   roomStub.shouldSendTypingNotifications = true;
-  matrix.GenericMatrixConversation.finishedComposing.call(roomStub);
+  matrix.MatrixRoom.prototype.finishedComposing.call(roomStub);
   ok(!roomStub._typingState);
 });
 
 add_task(function test_sendTyping() {
   const roomStub = {
-    __proto__: matrix.GenericMatrixConversation,
+    __proto__: matrix.MatrixRoom.prototype,
     _typingState: false,
     shouldSendTypingNotifications: false,
     _roomId: "foo",
@@ -445,7 +404,7 @@ add_task(function test_sendTyping() {
     },
   };
 
-  let result = matrix.GenericMatrixConversation.sendTyping.call(
+  let result = matrix.MatrixRoom.prototype.sendTyping.call(
     roomStub,
     "lorem ipsum"
   );
@@ -454,15 +413,12 @@ add_task(function test_sendTyping() {
   equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
 
   roomStub.shouldSendTypingNotifications = true;
-  result = matrix.GenericMatrixConversation.sendTyping.call(
-    roomStub,
-    "lorem ipsum"
-  );
+  result = matrix.MatrixRoom.prototype.sendTyping.call(roomStub, "lorem ipsum");
   ok(roomStub._typingState);
   ok(roomStub._typingTimer);
   equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
 
-  result = matrix.GenericMatrixConversation.sendTyping.call(roomStub, "");
+  result = matrix.MatrixRoom.prototype.sendTyping.call(roomStub, "");
   ok(!roomStub._typingState);
   ok(!roomStub._typingTimer);
   equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
@@ -475,7 +431,126 @@ add_task(function test_setInitialized() {
     },
     joining: true,
   };
-  matrix.GenericMatrixConversation._setInitialized.call(roomStub);
+  matrix.MatrixRoom.prototype._setInitialized.call(roomStub);
   ok(roomStub.calledResolve);
   ok(!roomStub.joining);
 });
+
+/**
+ * Get a MatrixRoom instance with a mocked client.
+ * @param {boolean} isMUC
+ * @param {string} [name="#test:example.com"]
+ * @param {function} [clientHandler]
+ * @returns {MatrixRoom}
+ */
+function getRoom(
+  isMUC,
+  name = "#test:example.com",
+  clientHandler = () => undefined,
+  account
+) {
+  if (!account) {
+    account = getAccount(clientHandler);
+  }
+  const room = getClientRoom(name, clientHandler, account._client);
+  const conversation = new matrix.MatrixRoom(account, isMUC, name);
+  conversation.initRoom(room);
+  return conversation;
+}
+
+function getClientRoom(roomId, clientHandler, client) {
+  const room = new Proxy(
+    {
+      roomId,
+      summary: {
+        info: {
+          title: roomId,
+        },
+      },
+      getJoinedMembers() {
+        return [];
+      },
+      getAvatarUrl() {
+        return "";
+      },
+      getLiveTimeline() {
+        return {
+          getState() {
+            return {
+              getStateEvents() {
+                return [];
+              },
+            };
+          },
+        };
+      },
+    },
+    makeProxyHandler(clientHandler)
+  );
+  client._rooms.set(roomId, room);
+  return room;
+}
+
+function getAccount(clientHandler) {
+  const account = new matrix.MatrixAccount(
+    {
+      id: "prpl-matrix",
+    },
+    {
+      logDebugMessage() {},
+    }
+  );
+  account._client = new Proxy(
+    {
+      _rooms: new Map(),
+      credentials: {
+        userId: "@user:example.com",
+      },
+      getHomeserverUrl() {
+        return "https://example.com";
+      },
+      getRoom(roomId) {
+        return this._rooms.get(roomId);
+      },
+      async joinRoom(roomId) {
+        if (!this._rooms.has(roomId)) {
+          getClientRoom(roomId, clientHandler, this);
+        }
+        return this._rooms.get(roomId);
+      },
+    },
+    makeProxyHandler(clientHandler)
+  );
+  return account;
+}
+
+/**
+ * @param {function} [clientHandler]
+ * @returns {object}
+ */
+function makeProxyHandler(clientHandler) {
+  return {
+    get(target, key, receiver) {
+      const value = clientHandler(target, key);
+      if (value) {
+        return value;
+      }
+      return target[key];
+    },
+  };
+}
+
+function waitForNotification(target, expectedTopic) {
+  let promise = new Promise(resolve => {
+    let observer = {
+      observe(subject, topic, data) {
+        if (topic === expectedTopic) {
+          resolve({ subject, data });
+          target.removeObserver(observer);
+        }
+      },
+    };
+    target.addObserver(observer);
+  });
+  return promise;
+}

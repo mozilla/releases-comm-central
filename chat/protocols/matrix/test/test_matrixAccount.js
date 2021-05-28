@@ -218,17 +218,20 @@ add_task(async function test_getGroupConversation() {
   ok(mockAccount.left);
 });
 
-add_task(function test_joinChat() {
+add_task(async function test_joinChat() {
   const roomId = "!foo:example.com";
-  const conversation = {};
+  const conversation = {
+    waitForRoom() {
+      return Promise.resolve();
+    },
+    checkForUpdate() {
+      this.checked = true;
+    },
+  };
   const mockAccount = {
     getGroupConversation(id) {
       this.groupConv = id;
       return conversation;
-    },
-    checkRoomForUpdate(conv) {
-      strictEqual(conv, conversation);
-      return conv;
     },
   };
   const components = {
@@ -247,6 +250,8 @@ add_task(function test_joinChat() {
   );
   equal(mockAccount.groupConv, roomId);
   strictEqual(conv, conversation);
+  await Promise.resolve();
+  ok(conversation.checked);
 });
 
 function mockMatrixRoom(roomId) {

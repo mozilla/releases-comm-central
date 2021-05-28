@@ -29,6 +29,11 @@ FakeAccount.prototype = {
     return "@test:example.com";
   },
 
+  directRoomId: "",
+  isDirectRoom(roomId) {
+    return this.directRoomId === roomId;
+  },
+
   prepareClientRoom(roomId) {
     this._room = {
       roomId,
@@ -60,36 +65,21 @@ add_task(async function test_toDMConversation() {
   const acc = new FakeAccount();
   const roomId = "#test:example.com";
   acc.prepareClientRoom(roomId);
-  const groupConv = new matrix.MatrixConversation(acc, roomId, acc.userId);
-  groupConv.initRoom(acc._room);
-  acc.convertToDM(groupConv);
-  ok(!groupConv.joined);
-  const newRoom = await groupConv.waitForRoom();
-  try {
-    notStrictEqual(newRoom, groupConv);
-    equal(newRoom._roomId, groupConv._roomId);
-    const roomListInstance = acc.roomList.get(roomId);
-    strictEqual(roomListInstance, newRoom);
-  } finally {
-    newRoom.forget();
-  }
+  acc.directRoomId = roomId;
+  const conversation = new matrix.MatrixRoom(acc, true, roomId);
+  conversation.initRoom(acc._room);
+  await conversation.checkForUpdate();
+  ok(!conversation.isChat);
+  conversation.forget();
 });
 
 add_task(async function test_toGroupConversation() {
   const acc = new FakeAccount();
   const roomId = "#test:example.com";
   acc.prepareClientRoom(roomId);
-  const directConv = new matrix.MatrixDirectConversation(acc, roomId);
-  directConv.initRoom(acc._room);
-  acc.convertToGroup(directConv);
-  ok(!directConv.joined);
-  const newRoom = await directConv.waitForRoom();
-  try {
-    notStrictEqual(newRoom, directConv);
-    equal(newRoom._roomId, directConv._roomId);
-    const roomListInstance = acc.roomList.get(roomId);
-    strictEqual(roomListInstance, newRoom);
-  } finally {
-    newRoom.forget();
-  }
+  const conversation = new matrix.MatrixRoom(acc, false, roomId);
+  conversation.initRoom(acc._room);
+  await conversation.checkForUpdate();
+  ok(conversation.isChat);
+  conversation.forget();
 });
