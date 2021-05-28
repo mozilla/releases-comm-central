@@ -1163,6 +1163,12 @@ var OTR = {
       case "new-ui-conversation":
         this.addConversation(aObject);
         break;
+      case "conversation-update-type":
+        if (this._convos.has(aObject.target.id)) {
+          this._convos.get(aObject.target.id).removeObserver(this);
+        }
+        this.addConversation(aObject);
+        break;
     }
   },
 

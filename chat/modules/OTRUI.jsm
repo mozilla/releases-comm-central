@@ -274,6 +274,7 @@ var OTRUI = {
     OTR.loadFiles()
       .then(function() {
         Services.obs.addObserver(OTR, "new-ui-conversation");
+        Services.obs.addObserver(OTR, "conversation-update-type");
         // Disabled until #76 is resolved.
         // Services.obs.addObserver(OTRUI, "contact-added", false);
         Services.obs.addObserver(OTRUI, "account-added");
@@ -942,6 +943,7 @@ var OTRUI = {
     }
     OTRUI.disconnect(null);
     Services.obs.removeObserver(OTR, "new-ui-conversation");
+    Services.obs.removeObserver(OTR, "conversation-update-type");
     // Services.obs.removeObserver(OTRUI, "contact-added");
     // Services.obs.removeObserver(OTRUI, "contact-signed-off");
     Services.obs.removeObserver(OTRUI, "account-added");

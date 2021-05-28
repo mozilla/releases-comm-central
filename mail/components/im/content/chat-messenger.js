@@ -902,8 +902,8 @@ var chatHandler = {
       item.localName == "richlistitem" &&
       item.getAttribute("is") == "chat-imconv-richlistitem"
     ) {
-      let convBox = document.getElementById("conversationsBox");
       if (!item.convView) {
+        let convBox = document.getElementById("conversationsBox");
         let conv = document.createXULElement("chat-conversation");
         convBox.appendChild(conv);
         conv.conv = item.conv;
@@ -1440,6 +1440,34 @@ var chatHandler = {
         notification.close();
       }
     }
+    if (aTopic == "conversation-update-type") {
+      // Find conversation in conversation list.
+      let contactlistbox = document.getElementById("contactlistbox");
+      let convs = document.getElementById("conversationsGroup");
+      let convItem = convs.nextElementSibling;
+      while (
+        convItem.conv.target.id !== aSubject.target.id &&
+        convItem.id != "searchResultConv"
+      ) {
+        convItem = convItem.nextElementSibling;
+      }
+      if (convItem.conv.target.id !== aSubject.target.id) {
+        // Could not find a matching conversation in the front end.
+        return;
+      }
+      // Update UI conversation associated with components
+      convItem.conv = aSubject;
+      if (convItem.convView && convItem.convView.conv !== aSubject) {
+        convItem.convView.changeConversation(aSubject);
+      }
+      convItem.update();
+      // If the changed conversation is the selected item, make sure
+      // we update the UI elements to match the conversation type.
+      let selectedItem = contactlistbox.selectedItem;
+      if (selectedItem === convItem && selectedItem.convView) {
+        this.onListItemSelected();
+      }
+    }
   },
   initAfterChatCore() {
     let onGroup = document.getElementById("onlinecontactsGroup");
@@ -1467,6 +1495,7 @@ var chatHandler = {
       "account-disconnected",
       "account-added",
       "account-removed",
+      "conversation-update-type",
     ].forEach(chatHandler._addObserver);
 
     chatHandler._updateNoConvPlaceHolder();

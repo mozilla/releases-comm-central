@@ -306,7 +306,9 @@ var GlodaIMIndexer = {
   enable() {
     Services.obs.addObserver(this, "conversation-closed");
     Services.obs.addObserver(this, "new-ui-conversation");
+    Services.obs.addObserver(this, "conversation-update-type");
     Services.obs.addObserver(this, "ui-conversation-closed");
+    Services.obs.addObserver(this, "ui-conversation-replaced");
 
     // The shutdown blocker ensures pending saves happen even if the app
     // gets shut down before the timer fires.
@@ -375,7 +377,9 @@ var GlodaIMIndexer = {
   disable() {
     Services.obs.removeObserver(this, "conversation-closed");
     Services.obs.removeObserver(this, "new-ui-conversation");
+    Services.obs.removeObserver(this, "conversation-update-type");
     Services.obs.removeObserver(this, "ui-conversation-closed");
+    Services.obs.removeObserver(this, "ui-conversation-replaced");
   },
 
   /* _knownFiles is a tree whose leaves are the last modified times of
@@ -549,7 +553,10 @@ var GlodaIMIndexer = {
   },
 
   observe(aSubject, aTopic, aData) {
-    if (aTopic == "new-ui-conversation") {
+    if (
+      aTopic == "new-ui-conversation" ||
+      aTopic == "conversation-update-type"
+    ) {
       // Add ourselves to the ui-conversation's list of observers for the
       // unread-message-count-changed notification.
       // For this notification, aSubject is the ui-conversation that is opened.
@@ -557,7 +564,10 @@ var GlodaIMIndexer = {
       return;
     }
 
-    if (aTopic == "ui-conversation-closed") {
+    if (
+      aTopic == "ui-conversation-closed" ||
+      aTopic == "ui-conversation-replaced"
+    ) {
       aSubject.removeObserver(this);
       return;
     }

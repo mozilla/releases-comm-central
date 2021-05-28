@@ -20,7 +20,10 @@ interface prplIChatRoomFieldValues;
 [scriptable, uuid(f71c58d6-2c47-4468-934b-b1c61462c01a)]
 interface prplIConversation: nsISupports {
 
-  /* Indicate if this conversation implements prplIConvIM or prplIConvChat */
+  /**
+   * Indicate if this conversation implements prplIConvIM or prplIConvChat. If
+   * this ever changes at runtime, the conversation should emit a
+   * "chat-update-type" notification. */
   readonly attribute boolean isChat;
 
   /* The account used for this conversation */

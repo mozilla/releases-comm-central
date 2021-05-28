@@ -1692,11 +1692,11 @@
      * conversation.
      */
     initConversationUI() {
+      this._activeBuddies = {};
       if (this._conv.isChat) {
         let cti = document.getElementById("conv-top-info");
         cti.setAttribute("displayName", this._conv.title);
 
-        this._activeBuddies = {};
         this.showParticipants();
 
         if (Services.prefs.getBoolPref("messenger.conversations.showNicks")) {
@@ -1712,6 +1712,20 @@
 
       this.updateConvStatus();
       this.initTextboxFormat();
+    }
+
+    /**
+     * Change the UI Conversation attached to this component and its browser.
+     * Does not clear any existing messages in the conversation browser.
+     *
+     * @param {imIConversation} conv
+     */
+    changeConversation(conv) {
+      this._conv.removeObserver(this.observer);
+      this._conv = conv;
+      this._conv.addObserver(this.observer);
+      this.convBrowser._conv = conv;
+      this.initConversationUI();
     }
 
     get editor() {

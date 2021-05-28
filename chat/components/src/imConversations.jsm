@@ -134,10 +134,21 @@ imMessage.prototype = {
   },
 };
 
-function UIConversation(aPrplConversation) {
+/**
+ * @param {prplIConversation} aPrplConversation
+ * @param {number} [idToReuse] - ID to use for this UI conversation if it replaces another UI conversation.
+ */
+function UIConversation(aPrplConversation, idToReuse) {
   this._prplConv = {};
-  this.id = ++gLastUIConvId;
+  if (idToReuse) {
+    this.id = idToReuse;
+  } else {
+    this.id = ++gLastUIConvId;
+  }
+  // Observers listening to this instance's notifications.
   this._observers = [];
+  // Observers this instance has attached to prplIConversations.
+  this._convObservers = new WeakMap();
   this._messages = [];
   this.changeTargetTo(aPrplConversation);
   let iface = Ci["prplIConv" + (aPrplConversation.isChat ? "Chat" : "IM")];
@@ -145,7 +156,9 @@ function UIConversation(aPrplConversation) {
   // XPConnect will create a wrapper around 'this' after here,
   // so the list of exposed interfaces shouldn't change anymore.
   this.updateContactObserver();
-  Services.obs.notifyObservers(this, "new-ui-conversation");
+  if (!idToReuse) {
+    Services.obs.notifyObservers(this, "new-ui-conversation");
+  }
 }
 
 UIConversation.prototype = {
@@ -171,6 +184,9 @@ UIConversation.prototype = {
       delete this._observedContact;
     }
   },
+  /**
+   * @type {prplIConversation}
+   */
   get target() {
     return this._prplConv[this._currentTargetId];
   },
@@ -199,7 +215,9 @@ UIConversation.prototype = {
 
     if (!(id in this._prplConv)) {
       this._prplConv[id] = aPrplConversation;
-      aPrplConversation.addObserver(this.observeConv.bind(this, id));
+      let observeConv = this.observeConv.bind(this, id);
+      this._convObservers.set(aPrplConversation, observeConv);
+      aPrplConversation.addObserver(observeConv);
     }
 
     let shouldNotify = this._currentTargetId;
@@ -591,6 +609,22 @@ UIConversation.prototype = {
       }
     }
 
+    if (aTopic == "chat-update-type") {
+      // bail if there is no change of the conversation type
+      if (
+        (this.target.isChat && this._interfaces.includes(Ci.prplIConvChat)) ||
+        (!this.target.isChat && this._interfaces.includes(Ci.prplIConvIM))
+      ) {
+        return;
+      }
+      if (this._observedContact) {
+        this._observedContact.removeObserver(this);
+      }
+      this.target.removeObserver(this._convObservers.get(this.target));
+      gConversationsService.updateConversation(this.target);
+      return;
+    }
+
     for (let observer of this._observers) {
       if (!observer.observe && !this._observers.includes(observer)) {
         // Observer removed by a previous call to another observer.
@@ -798,6 +832,43 @@ ConversationsService.prototype = {
     if (contactId) {
       this._uiConvByContactId[contactId] = newUIConv;
     }
+  },
+  /**
+   * Informs the conversation service that the type of the conversation changed, which then lets the
+   * UI components know to use a new UI conversation instance.
+   *
+   * @param {prplIConversation} aPrplConversation - The prpl conversation to update the UI conv for.
+   */
+  updateConversation(aPrplConversation) {
+    let contactId;
+    let uiConv = this.getUIConversation(aPrplConversation);
+
+    if (!aPrplConversation.isChat) {
+      let accountBuddy = aPrplConversation.buddy;
+      if (accountBuddy) {
+        contactId = accountBuddy.buddy.contact.id;
+      }
+    }
+    // Ensure conv is not in the by contact ID map
+    for (const [contactId, uiConversation] of Object.entries(
+      this._uiConvByContactId
+    )) {
+      if (uiConversation === uiConv) {
+        delete this._uiConvByContactId[contactId];
+        break;
+      }
+    }
+    Services.obs.notifyObservers(uiConv, "ui-conversation-replaced");
+    let uiConvId = uiConv.id;
+    // create new UI conv with correct interfaces.
+    uiConv = new UIConversation(aPrplConversation, uiConvId);
+    this._uiConv[aPrplConversation.id] = uiConv;
+
+    // Ensure conv is in the by contact ID map if it has a contact
+    if (contactId) {
+      this._uiConvByContactId[contactId] = uiConv;
+    }
+    Services.obs.notifyObservers(uiConv, "conversation-update-type");
   },
   removeConversation(aPrplConversation) {
     Services.obs.notifyObservers(aPrplConversation, "conversation-closed");
