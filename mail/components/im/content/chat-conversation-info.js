@@ -271,11 +271,9 @@
      * Sets the shown status icon.
      *
      * @param {string} statusName - The name of the status.
-     * @param {string} title - The tooltip text to use for the icon.
      */
-    setStatusIcon(statusName, title) {
+    setStatusIcon(statusName) {
       let statusIcon = this.querySelector(".statusTypeIcon");
-      statusIcon.setAttribute("title", title);
       if (statusName === null) {
         statusIcon.hidden = true;
         statusIcon.removeAttribute("src");
@@ -311,11 +309,10 @@
      * separately with setUserIcon.
      *
      * @param {string} statusName - The internal name for the status.
-     * @param {string} statusDescription - Localized description of the status.
      * @param {string} statusText - The text to display as the status.
      */
-    setStatus(statusName, statusDescription, statusText) {
-      this.setStatusIcon(statusName, statusDescription);
+    setStatus(statusName, statusText) {
+      this.setStatusIcon(statusName);
       this.setStatusText(statusText);
       this.topicEditable = false;
     }
@@ -333,7 +330,7 @@
       this.noTopic = noTopic;
       this.topicEditable = topicEditable;
       this.setStatusText(topicText, noTopic);
-      this.setStatusIcon("chat", "");
+      this.setStatusIcon("chat");
     }
 
     /**
@@ -342,7 +339,7 @@
     clear() {
       this.querySelector(".protoIcon").removeAttribute("src");
       this.setStatusText("");
-      this.setStatusIcon(null, "");
+      this.setStatusIcon(null);
       this.setUserIcon("", false);
       this.topicEditable = false;
     }

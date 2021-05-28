@@ -819,12 +819,9 @@ var chatHandler = {
 
     let statusText = aContact.statusText;
     let statusType = aContact.statusType;
-    let statusDescription = Status.toLabel(statusType);
-    statusText = Status.toLabel(statusType, statusText);
     cti.setStatus(
       Status.toAttribute(statusType),
-      statusDescription,
-      statusText
+      Status.toLabel(statusType, statusText)
     );
 
     let bundle = document.getElementById("chatBundle");

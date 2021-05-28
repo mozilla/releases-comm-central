@@ -1632,7 +1632,6 @@
         cti.setAttribute("displayName", displayName);
 
         let statusName;
-        let statusDescription;
 
         let typingState = this._conv.typingState;
         let typingName = this._currentTypingName || this._conv.title;
@@ -1640,29 +1639,26 @@
         switch (typingState) {
           case Ci.prplIConvIM.TYPING:
             statusName = "active-typing";
-            statusDescription = this.bundle.formatStringFromName(
+            statusText = this.bundle.formatStringFromName(
               "chat.contactIsTyping",
               [typingName],
               1
             );
-            statusText = statusDescription;
             break;
           case Ci.prplIConvIM.TYPED:
             statusName = "paused-typing";
-            statusDescription = this.bundle.formatStringFromName(
+            statusText = this.bundle.formatStringFromName(
               "chat.contactHasStoppedTyping",
               [typingName],
               1
             );
-            statusText = statusDescription;
             break;
           default:
             statusName = Status.toAttribute(statusType);
-            statusDescription = Status.toLabel(statusType);
             statusText = Status.toLabel(statusType, statusText);
             break;
         }
-        cti.setStatus(statusName, statusDescription, statusText);
+        cti.setStatus(statusName, statusText);
       }
     }
 
