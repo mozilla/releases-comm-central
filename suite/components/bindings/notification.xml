@@ -489,6 +489,10 @@
                 break;
 
               case "perm-changed":
+                // If all permissions are cleared aSubject is null.
+                if (!aSubject)
+                  return;
+
                 var permission = aSubject.QueryInterface(Ci.nsIPermission);
                 if (permission.type != "popup" || aData != "added" || !this.popupCount)
                   return;
