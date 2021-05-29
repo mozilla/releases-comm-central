@@ -4611,30 +4611,9 @@ function cmdURLs(e)
 
 function cmdWebSearch(e)
 {
-    var searchText = e.selectedText;
-    var searchURL;
-    const SEARCH_SVC = "@mozilla.org/browser/search-service;1";
-    var nibss = getService(SEARCH_SVC, "nsIBrowserSearchService");
-    var engine = nibss.currentEngine;
-
-    if (client.prefs["websearch.url"])
-    {
-        searchText = encodeURIComponent(searchText).replace(/%20/g, "+");
-        var baseURL = client.prefs["websearch.url"];
-
-        if (baseURL.indexOf("%s") != -1)
-            searchURL = baseURL.replace(/%s/g, searchText);
-        else
-            searchURL = baseURL + searchText;
-    }
-    else if (engine)
-    {
-        searchURL = engine.getSubmission(searchText).uri.asciiSpec;
-    }
-    else
-    {
-        searchText = encodeURIComponent(searchText).replace(/%20/g, "+");
-        searchURL = "https://www.google.com/search?q=" + searchText;
-    }
-    dispatch(client.prefs["messages.click"], {url: searchURL});
+    let submission = Services.search.currentEngine
+                                    .getSubmission(e.selectedText);
+    let newTabPref = Services.prefs.getBoolPref("browser.search.opentabforcontextsearch");
+    dispatch(newTabPref ? "goto-url-newtab" : "goto-url-newwin",
+             {url: submission.uri.asciiSpec});
 }
