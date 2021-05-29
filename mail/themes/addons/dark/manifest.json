@@ -22,7 +22,7 @@
       "popup": "rgb(66, 65, 77)",
       "popup_text": "rgb(251, 251, 254)",
       "popup_border": "rgb(82, 82, 94)",
-      "popup_highlight": "rgb(43, 42, 51)",
+      "popup_highlight": "#0060df",
       "tab_line": "#0a84ff",
       "toolbar": "hsl(240, 1%, 20%)",
       "toolbar_bottom_separator": "hsl(240, 5%, 5%)",

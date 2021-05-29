@@ -154,7 +154,7 @@ const ThemeVariableMap = [
     },
   ],
   [
-    "--autocomplete-popup-border-color",
+    "--arrowpanel-border-color",
     {
       lwtProperty: "popup_border",
     },

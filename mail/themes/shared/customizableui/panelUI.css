@@ -170,7 +170,7 @@ panelview:not([mainview]) .toolbarbutton-text,
   min-width: calc(var(--menu-panel-width) + 32px);
 }
 
-.cui-widget-panel.cui-widget-panelWithFooter::part(arrowcontent) {
+.cui-widget-panel.cui-widget-panelWithFooter::part(content) {
   padding-bottom: 0;
 }
 

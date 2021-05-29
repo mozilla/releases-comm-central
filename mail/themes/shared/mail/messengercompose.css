@@ -65,9 +65,9 @@
 :root[lwt-tree] panel[type="autocomplete-richlistbox"] {
   margin-top: -1px;
   padding: 2px 0;
-  background: var(--arrowpanel-background);
-  color: var(--arrowpanel-color);
-  border-color: var(--arrowpanel-border-color);
+  --panel-background: var(--arrowpanel-background);
+  --panel-color: var(--arrowpanel-color);
+  --panel-border-color: var(--arrowpanel-border-color);
   scrollbar-color: rgba(128, 128, 128, 0.5) rgba(230, 230, 235, 0.5);
 }
 
@@ -653,7 +653,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 /* :::: Reorder Attachments Panel :::: */
 
-#reorderAttachmentsPanel::part(arrowcontent) {
+#reorderAttachmentsPanel::part(content) {
   --arrowpanel-padding: 4px;
 }
 

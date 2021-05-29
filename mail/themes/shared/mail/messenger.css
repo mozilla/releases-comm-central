@@ -23,7 +23,6 @@ body {
 :root {
   --autocomplete-popup-background: Field;
   --autocomplete-popup-color: FieldText;
-  --autocomplete-popup-border-color: ThreeDShadow;
   --autocomplete-popup-highlight-background: Highlight;
   --autocomplete-popup-highlight-color: HighlightText;
   --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
@@ -1258,6 +1257,6 @@ toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
   fill: currentColor;
 }
 
-panel[type="arrow"].panel-block-padding::part(arrowcontent) {
+panel[type="arrow"].panel-block-padding::part(content) {
   padding-block: 6px;
 }
