@@ -68,6 +68,7 @@ function convertAttachment(attachment) {
     name: attachment.name,
     size: attachment.size,
     partName: attachment.partName,
+    url: attachment.url,
   };
 }
 
