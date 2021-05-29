@@ -146,6 +146,7 @@ body {
 :root[lwt-tree] {
   --select-focus-text-color: var(--sidebar-highlight-text-color,
                                  var(--sidebar-text-color));
+  --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] {
@@ -899,24 +900,6 @@ tree:-moz-lwtheme:not(:focus)
 :root[lwt-tree] #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
 :root[lwt-tree] tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
   color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #folderTree >
-  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
-:root[lwt-tree] #folderTree >
-  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
-:root[lwt-tree] #folderTree >
-  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
-}
-
-:root[lwt-tree] #folderTree >
-  treechildren::-moz-tree-image(folderNameCol, selected, focus),
-:root[lwt-tree] #folderTree >
-  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
-:root[lwt-tree] #folderTree >
-  treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
-  fill: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
 }
 
 :root[lwt-tree] treechildren::-moz-tree-line {

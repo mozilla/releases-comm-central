@@ -4,17 +4,10 @@
 
 @import url("chrome://messenger/skin/shared/folderPane.css");
 
-treechildren::-moz-tree-image(folderNameCol) {
-  margin-top: 2px;
-}
-
 /* ::::: All Servers ::::: */
 
-treechildren::-moz-tree-image(folderNameCol, newMessages-true),
-treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
-treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-  color: -moz-hyperlinktext !important;
+treechildren::-moz-tree-image(folderNameCol) {
+  margin-top: 2px;
 }
 
 @media (prefers-contrast) {
@@ -34,49 +27,10 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
     fill: Highlight !important;
   }
 
-  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
-  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
-  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
-  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
-    color: HighlightText !important;
-  }
-
-  treechildren::-moz-tree-image(folderNameCol, selected, focus),
-  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
-  treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
-    opacity: 1 !important;
-    fill: HighlightText !important;
-  }
-
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-image(folderNameCol) {
     --default: FieldText;
+    --primary: Highlight;
   }
-
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-image(folderNameCol, selected) {
-    --default: HighlightText;
-    --primary: HighlightText;
-  }
-}
-
-@media (-moz-windows-default-theme) {
-  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
-  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
-  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
-  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
-    color: -moz-DialogText !important;
-  }
-
-  treechildren::-moz-tree-image(folderNameCol, selected, focus),
-  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
-  treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
-    opacity: 1 !important;
-    fill: -moz-DialogText !important;
-  }
-}
-
-treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
-  color: GrayText !important;
-  font-style: italic;
 }
 
 #folderTree treechildren::-moz-tree-indentation {

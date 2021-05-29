@@ -5,6 +5,7 @@
 :root {
   --default: #4f526d;
   --primary: #0a84ff;
+  --new-focused-folder-color: HighlightText;
   --unread-folder-color: inherit;
 }
 
@@ -226,6 +227,15 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
   font-weight: bold !important;
 }
 
+treechildren::-moz-tree-image(folderNameCol, newMessages-true),
+treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail),
+treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
+treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+  color: var(--new-folder-color) !important;
+  fill: currentColor;
+}
+
 treechildren::-moz-tree-image(folderNameCol, hasUnreadMessages-true),
 treechildren::-moz-tree-image(folderNameCol, closed, subfoldersHaveUnreadMessages-true) {
   opacity: 1 !important;
@@ -237,6 +247,24 @@ treechildren::-moz-tree-image(folderNameCol, newMessages-true),
 treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
   opacity: 1 !important;
   fill: -moz-hyperlinktext !important;
+}
+
+treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
+treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
+treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
+  color: var(--new-focused-folder-color) !important;
+}
+
+treechildren::-moz-tree-image(folderNameCol, selected, focus),
+treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
+treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
+  opacity: 1 !important;
+  fill: var(--new-focused-folder-color) !important;
+}
+
+treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
+  color: var(--noselect-folder-color) !important;
+  font-style: italic;
 }
 
 treechildren::-moz-tree-cell-text(imapdeleted) {

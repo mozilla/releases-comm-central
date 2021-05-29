@@ -22,6 +22,8 @@
   --splitter-color: #bdbdbd;
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
   --select-focus-text-color: HighlightText;
+  --noselect-folder-color: gray;
+  --new-folder-color: blue;
 }
 
 @media not (-moz-proton) {

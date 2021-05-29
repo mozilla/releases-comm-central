@@ -12,11 +12,12 @@
 
 :root {
   --tabline-color: -moz-accent-color;
-
   --toolbar-non-lwt-bgcolor: -moz-dialog;
   --toolbar-non-lwt-textcolor: -moz-dialogtext;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15));
   --chrome-content-separator-color: ThreeDShadow;
+  --noselect-folder-color: GrayText;
+  --new-folder-color: -moz-hyperlinktext;
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: Highlight;
   --panel-separator-color: ThreeDShadow;

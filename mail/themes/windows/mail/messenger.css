@@ -14,6 +14,8 @@
   --autocomplete-popup-url-color: -moz-nativehyperlinktext;
   --tabline-color: Highlight;
   --glassShadowColor: hsla(240, 5%, 5%, .3);
+  --new-folder-color: -moz-hyperlinktext;
+  --noselect-folder-color: GrayText;
   --toolbar-non-lwt-bgcolor: -moz-dialog;
   --toolbar-non-lwt-textcolor: -moz-dialogText;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, .15),
@@ -76,9 +78,11 @@
     --tabs-border-color: ThreeDShadow;
     --tabline-color: Highlight;
     --item-focus-selected-border-color: HighlightText;
+    --new-folder-color: Highligt;
     --menuitem-vertical-padding: 3px;
     --arrowpanel-dimmed: Highlight;
     --arrowpanel-dimmed-further: Highlight;
+    --toolbar-field-focus-border-color: Highlight;
   }
 
   :root:not(:-moz-lwtheme) .themeable-full,
@@ -104,19 +108,14 @@
     fill: currentColor;
   }
 
-  :root:not(:-moz-lwtheme)
-  treechildren::-moz-tree-image(folderNameCol, newMessages-true),
-  :root:not(:-moz-lwtheme)
-  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
-  :root:not(:-moz-lwtheme)
-  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-  :root:not(:-moz-lwtheme)
-  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-    color: Highlight !important;
-  }
-
   menulist {
     --toolbarbutton-hover-background: ButtonFace;
+  }
+}
+
+@media (-moz-windows-default-theme) {
+  :root:not([lwt-tree]) {
+    --new-focused-folder-color: -moz-DialogText;
   }
 }
 
