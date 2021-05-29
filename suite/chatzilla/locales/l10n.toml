@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-basepath = "../../../.."
+basepath = "../../.."
 
 locales = [
     "ca",
@@ -29,11 +29,11 @@ locales = [
     l = "{l10n_base}/{locale}/"
 
 [[paths]]
-    reference = "suite/extensions/irc/locales/en-US/**"
-    l10n = "{l}suite/extensions/irc/**"
+    reference = "suite/chatzilla/locales/en-US/**"
+    l10n = "{l}suite/chatzilla/**"
 
 # ignore MOZ_LANGPACK_CONTRIBUTORS
 [[filters]]
-    path = "{l}suite/extensions/irc/defines.inc"
+    path = "{l}suite/chatzilla/defines.inc"
     key = "MOZ_LANGPACK_CONTRIBUTORS"
     action = "ignore"

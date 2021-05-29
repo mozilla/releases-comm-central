@@ -8,9 +8,4 @@ if CONFIG["MOZ_DEBUGQA"]:
         "debugQA",
     ]
 
-if CONFIG["MOZ_IRC"]:
-    DIRS += [
-        "irc",
-    ]
-
 JAR_MANIFESTS += ["jar.mn"]

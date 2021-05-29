@@ -63,10 +63,10 @@ locales = [
     path = "calendar/locales/l10n.toml"
 
 [[includes]]
-    path = "suite/extensions/irc/locales/l10n.toml"
+    path = "{mozilla}/devtools/client/locales/l10n.toml"
 
 [[includes]]
-    path = "{mozilla}/devtools/client/locales/l10n.toml"
+    path = "suite/chatzilla/locales/l10n.toml"
 
 [[paths]]
     reference = "{mozilla}/devtools/startup/locales/en-US/**"
@@ -93,7 +93,7 @@ locales = [
 
 # ignore MOZ_LANGPACK_CONTRIBUTORS
 [[filters]]
-    path = "{l}suite/extensions/irc/defines.inc"
+    path = "{l}suite/chatzilla/defines.inc"
     key = "MOZ_LANGPACK_CONTRIBUTORS"
     action = "ignore"
 

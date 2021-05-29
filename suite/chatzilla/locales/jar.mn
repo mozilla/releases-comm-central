@@ -4,7 +4,7 @@
 
 #filter substitution
 
-chatzilla.jar:
+@AB_CD@.jar:
 # the "% locale" line gets put into the .manifest used by toolkit-based apps
 % locale chatzilla @AB_CD@ %locale/@AB_CD@/chatzilla/
   locale/@AB_CD@/chatzilla/chatzillaOverlay.dtd  (%chrome/chatzillaOverlay.dtd)

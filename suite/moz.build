@@ -19,6 +19,9 @@ DIRS += [
     "../common",
 ]
 
+if CONFIG['MOZ_IRC']:
+    DIRS += ['chatzilla']
+
 if CONFIG["MAKENSISU"]:
     DIRS += ["installer/windows"]
 

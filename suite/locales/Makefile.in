@@ -48,7 +48,8 @@ NON_OMNIJAR_FILES = \
 
 # Required for l10n.mk - defines a list of app sub dirs that should
 # be included in langpack xpis.
-DIST_SUBDIRS = extensions
+# Currently not set in SeaMonkey.
+DIST_SUBDIRS = $(DIST_SUBDIR)
 
 include $(topsrcdir)/config/rules.mk
 
@@ -102,7 +103,7 @@ l10n-%:
 #	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../calendar/locales AB_CD=$* XPI_NAME=locale-$*
 ifdef MOZ_IRC
-	@$(MAKE) -C ../extensions/irc/locales AB_CD=$* XPI_NAME=locale-$*
+	@$(MAKE) -C ../chatzilla/locales AB_CD=$* XPI_NAME=locale-$*
 endif
 ifdef MOZ_DEBUGQA
 	@$(MAKE) -C ../extensions/debugQA/locales AB_CD=$* XPI_NAME=locale-$*

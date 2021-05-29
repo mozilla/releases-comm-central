@@ -3,4 +3,4 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 LOCALE_TOPDIR=$(commtopsrcdir)
-LOCALE_RELATIVEDIR=suite/extensions/irc/locales
+LOCALE_RELATIVEDIR=suite/chatzilla

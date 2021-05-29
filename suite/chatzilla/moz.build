@@ -3,24 +3,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEFINES['MOZ_APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
 DEFINES['CHATZILLA_VERSION'] = '0.9.96'
 
 DIRS += ['locales']
 
-DIST_SUBDIR = 'extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}'
-export('DIST_SUBDIR')
-
 JAR_MANIFESTS += ["jar.mn"]
 
-USE_EXTENSION_MANIFEST = True
-export('USE_EXTENSION_MANIFEST')
-
 EXTRA_COMPONENTS += [
-  "js/lib/chatzilla-service.js",
-  "js/lib/chatzilla-service.manifest",
-]
-
-FINAL_TARGET_PP_FILES += [
-  'install.rdf.in'
+    "js/lib/chatzilla-service.js",
+    "js/lib/chatzilla-service.manifest",
 ]

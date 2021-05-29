@@ -502,7 +502,10 @@ man/*
 
 [chatzilla]
 #ifdef MOZ_IRC
-@RESPATH@/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi
+@RESPATH@/chrome/chatzilla@JAREXT@
+@RESPATH@/chrome/chatzilla.manifest
+@RESPATH@/components/chatzilla-service.js
+@RESPATH@/components/chatzilla-service.manifest
 #endif
 
 [debugqa]

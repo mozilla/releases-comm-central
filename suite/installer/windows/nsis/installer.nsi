@@ -202,16 +202,6 @@ Section "-InstallStartCleanup"
 
   ${If} $InstallType == ${INSTALLTYPE_CUSTOM}
     ; Custom installs.
-    ; If ChatZilla is installed and this install includes ChatZilla remove it
-    ; from the installation directory. This will remove it if the user
-    ; deselected ChatZilla on the components page.
-    ${If} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-      ${DeleteFile} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-      ${If} ${FileExists} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}"
-        RmDir /r "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}"
-      ${EndIf}
-    ${EndIf}
-
     ; If DebugQA is installed and this install includes DebugQA remove it
     ; from the installation directory. This will remove it if the user
     ; deselected DebugQA on the components page.
@@ -474,22 +464,6 @@ Section "-Application" APP_IDX
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "IRC Client" CZ_IDX
-  ${If} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-    SetDetailsPrint both
-    DetailPrint $(STATUS_INSTALL_OPTIONAL)
-    SetDetailsPrint none
-
-    ${RemoveDir} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}"
-    ${DeleteFile} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-    ${DeleteFile} "$INSTDIR\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-    ClearErrors
-    ${LogHeader} "Installing IRC Client"
-    CopyFiles /SILENT "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi" \
-                      "$INSTDIR\extensions\"
-  ${EndIf}
-SectionEnd
-
 Section /o "Debug and QA Tools" DEBUG_IDX
   ${If} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
     SetDetailsPrint both
@@ -665,19 +639,8 @@ Function preComponents
 FunctionEnd
 
 Function leaveComponents
-  ; If ChatZilla exists then it will be Field 2.
-  ; If ChatZilla doesn't exist then debugQA will be Field 2).
+  ; If debugQA exists then it will be Field 2.
   StrCpy $R1 2
-
- ${If} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-    ${MUI_INSTALLOPTIONS_READ} $R0 "components.ini" "Field $R1" "State"
-    ; State will be 1 for checked and 0 for unchecked so we can use that to set
-    ; the section flags for installation.
-    SectionSetFlags ${CZ_IDX} $R0
-    IntOp $R1 $R1 + 1
-  ${Else}
-    SectionSetFlags ${CZ_IDX} 0 ; Disable install for chatzilla
-  ${EndIf}
 
   ${If} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
     ${MUI_INSTALLOPTIONS_READ} $R0 "components.ini" "Field $R1" "State"
@@ -816,10 +779,6 @@ Function preSummary
 FunctionEnd
 
 Function leaveSummary
-  ${If} $InstallType != ${INSTALLTYPE_CUSTOM}
-    ; Set ChatZilla to be installed
-    SectionSetFlags ${CZ_IDX} 1
-  ${EndIf}
   ; Try to delete the app executable and if we can't delete it try to find the
   ; app's message window and prompt the user to close the app. This allows
   ; running an instance that is located in another directory. If for whatever
