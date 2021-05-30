@@ -8,6 +8,8 @@ var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+ChromeUtils.defineModuleGetter(this, "OAuth2Providers", "resource:///modules/OAuth2Providers.jsm");
+
 /**
  * Session and authentication tools for the caldav provider
  */
@@ -30,25 +32,35 @@ class CalDavGoogleOAuth extends OAuth2 {
   constructor(sessionId, name) {
     /* eslint-disable no-undef */
     super(
-      OAUTH_BASE_URI + "oauth2/auth",
-      OAUTH_BASE_URI + "oauth2/token",
-      OAUTH_SCOPE,
+      "https://accounts.google.com/o/oauth2/auth",
+      "https://www.googleapis.com/oauth2/v3/token",
+      "https://www.googleapis.com/auth/calendar",
       OAUTH_CLIENT_ID,
       OAUTH_HASH
     );
     /*  eslint-enable no-undef */
 
     this.id = sessionId;
+    this.origin = "oauth:" + sessionId;
     this.pwMgrId = "Google CalDAV v2";
+
+    // If no token is found for "Google CalDAV v2", this is either a new session (in which case
+    // it should use Thunderbird's credentials) or it's already using Thunderbird's credentials.
+    if (!this.refreshToken) {
+      [this.clientId, this.consumerSecret] = OAuth2Providers.getIssuerDetails(
+        "accounts.google.com"
+      );
+      this.origin = "oauth://accounts.google.com";
+      this.pwMgrId = "https://www.googleapis.com/auth/calendar";
+    }
+
     this.requestWindowTitle = cal.l10n.getAnyString(
       "global",
       "commonDialogs",
       "EnterUserPasswordFor2",
       [name]
     );
-
     this.extraAuthParams = [["login_hint", name]];
-    this.requestWindowFeatures = "chrome,private,centerscreen,width=430,height=600";
   }
 
   /**
@@ -66,8 +78,7 @@ class CalDavGoogleOAuth extends OAuth2 {
     if (!this._refreshToken) {
       let pass = { value: null };
       try {
-        let origin = "oauth:" + this.id;
-        cal.auth.passwordManagerGet(this.id, pass, origin, this.pwMgrId);
+        cal.auth.passwordManagerGet(this.id, pass, this.origin, this.pwMgrId);
       } catch (e) {
         // User might have cancelled the master password prompt, that's ok
         if (e.result != Cr.NS_ERROR_ABORT) {
@@ -85,11 +96,10 @@ class CalDavGoogleOAuth extends OAuth2 {
    */
   set refreshToken(aVal) {
     try {
-      let origin = "oauth:" + this.id;
       if (aVal) {
-        cal.auth.passwordManagerSave(this.id, aVal, origin, this.pwMgrId);
+        cal.auth.passwordManagerSave(this.id, aVal, this.origin, this.pwMgrId);
       } else {
-        cal.auth.passwordManagerRemove(this.id, origin, this.pwMgrId);
+        cal.auth.passwordManagerRemove(this.id, this.origin, this.pwMgrId);
       }
     } catch (e) {
       // User might have cancelled the master password prompt, that's ok
