@@ -9,7 +9,8 @@ function Startup() {
 }
 
 /**
- *
+ * Disable/enable clear on shutdown items in dialog depending on general pref
+ *  to clear on shutdown.
  */
 function updateClearOnShutdownBox(aDisable) {
   let clearOnShutdownBox = document.getElementById("clearOnShutdownBox");

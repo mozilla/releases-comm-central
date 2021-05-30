@@ -5,12 +5,12 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE overlay [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-%brandDTD;
-<!ENTITY % prefPrivateDataDTD SYSTEM "chrome://communicator/locale/pref/pref-privatedata.dtd">
-%prefPrivateDataDTD;
-<!ENTITY % prefSanitizeDTD SYSTEM "chrome://communicator/locale/sanitize.dtd">
-%prefSanitizeDTD;
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  %brandDTD;
+  <!ENTITY % prefPrivateDataDTD SYSTEM "chrome://communicator/locale/pref/pref-privatedata.dtd">
+  %prefPrivateDataDTD;
+  <!ENTITY % prefSanitizeDTD SYSTEM "chrome://communicator/locale/sanitize.dtd">
+  %prefSanitizeDTD;
 ]>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -97,9 +97,9 @@
       <separator class="thin" />
       <hbox id="clearDataBox" align="center">
         <checkbox id="alwaysClear" flex="1"
-                  preference="privacy.sanitize.sanitizeOnShutdown"
                   label="&alwaysClear.label;"
-                  accesskey="&alwaysClear.accesskey;"/>
+                  accesskey="&alwaysClear.accesskey;"
+                  preference="privacy.sanitize.sanitizeOnShutdown"/>
       </hbox>
 
       <separator class="thin"/>
@@ -110,70 +110,70 @@
       <hbox>
         <groupbox id="clearCpdBox" flex="1">
           <caption label="&clearData.cpd.label;"/>
-          <checkbox accesskey="&itemHistory.accesskey;"
-                    preference="privacy.cpd.history"
-                    label="&itemHistory.label;"/>
-          <checkbox accesskey="&itemUrlBar.accesskey;"
-                    preference="privacy.cpd.urlbar"
-                    label="&itemUrlBar.label;"/>
-          <checkbox accesskey="&itemDownloads.accesskey;"
-                    preference="privacy.cpd.downloads"
-                    label="&itemDownloads.label;"/>
-          <checkbox accesskey="&itemFormSearchHistory.accesskey;"
-                    preference="privacy.cpd.formdata"
-                    label="&itemFormSearchHistory.label;"/>
-          <checkbox accesskey="&itemCache.accesskey;"
-                    preference="privacy.cpd.cache"
-                    label="&itemCache.label;"/>
-          <checkbox accesskey="&itemCookies.accesskey;"
-                    preference="privacy.cpd.cookies"
-                    label="&itemCookies.label;"/>
-          <checkbox accesskey="&itemOfflineApps.accesskey;"
-                    preference="privacy.cpd.offlineApps"
-                    label="&itemOfflineApps.label;"/>
-          <checkbox accesskey="&itemPasswords.accesskey;"
-                    preference="privacy.cpd.passwords"
-                    label="&itemPasswords.label;"/>
-          <checkbox accesskey="&itemSessions.accesskey;"
-                    preference="privacy.cpd.sessions"
-                    label="&itemSessions.label;"/>
-          <checkbox accesskey="&itemSitePreferences.accesskey;"
-                    preference="privacy.cpd.siteSettings"
-                    label="&itemSitePreferences.label;"/>
+          <checkbox label="&itemHistory.label;"
+                    accesskey="&itemHistory.accesskey;"
+                    preference="privacy.cpd.history"/>
+          <checkbox label="&itemUrlBar.label;"
+                    accesskey="&itemUrlBar.accesskey;"
+                    preference="privacy.cpd.urlbar"/>
+          <checkbox label="&itemDownloads.label;"
+                    accesskey="&itemDownloads.accesskey;"
+                    preference="privacy.cpd.downloads"/>
+          <checkbox label="&itemFormSearchHistory.label;"
+                    accesskey="&itemFormSearchHistory.accesskey;"
+                    preference="privacy.cpd.formdata"/>
+          <checkbox label="&itemCache.label;"
+                    accesskey="&itemCache.accesskey;"
+                    preference="privacy.cpd.cache"/>
+          <checkbox label="&itemCookies.label;"
+                    accesskey="&itemCookies.accesskey;"
+                    preference="privacy.cpd.cookies"/>
+          <checkbox label="&itemOfflineApps.label;"
+                    accesskey="&itemOfflineApps.accesskey;"
+                    preference="privacy.cpd.offlineApps"/>
+          <checkbox label="&itemPasswords.label;"
+                    accesskey="&itemPasswords.accesskey;"
+                    preference="privacy.cpd.passwords"/>
+          <checkbox label="&itemSessions.label;"
+                    accesskey="&itemSessions.accesskey;"
+                    preference="privacy.cpd.sessions"/>
+          <checkbox label="&itemSitePreferences.label;"
+                    accesskey="&itemSitePreferences.accesskey;"
+                    preference="privacy.cpd.siteSettings"/>
         </groupbox>
 
         <groupbox id="clearOnShutdownBox" flex="1">
           <caption label="&clearData.onShutdown.label;"/>
-          <checkbox accesskey="&itemHistoryS.accesskey;"
-                    preference="privacy.clearOnShutdown.history"
-                    label="&itemHistory.label;"/>
-          <checkbox accesskey="&itemUrlBarS.accesskey;"
-                    preference="privacy.clearOnShutdown.urlbar"
-                    label="&itemUrlBar.label;"/>
-          <checkbox accesskey="&itemDownloadsS.accesskey;"
-                    preference="privacy.clearOnShutdown.downloads"
-                    label="&itemDownloads.label;"/>
-          <checkbox accesskey="&itemFormSearchHistoryS.accesskey;"
-                    preference="privacy.clearOnShutdown.formdata"
-                    label="&itemFormSearchHistory.label;"/>
-          <checkbox accesskey="&itemCacheS.accesskey;"
-                    preference="privacy.clearOnShutdown.cache"
-                    label="&itemCache.label;"/>
-          <checkbox accesskey="&itemCookiesS.accesskey;"
-                    preference="privacy.clearOnShutdown.cookies"
-                    label="&itemCookies.label;"/>
-          <checkbox accesskey="&itemOfflineAppsS.accesskey;"
-                    preference="privacy.clearOnShutdown.offlineApps"
-                    label="&itemOfflineApps.label;"/>
-          <checkbox accesskey="&itemPasswordsS.accesskey;"
-                    preference="privacy.clearOnShutdown.passwords"
-                    label="&itemPasswords.label;"/>
-          <checkbox accesskey="&itemSessionsS.accesskey;"
-                    preference="privacy.clearOnShutdown.sessions"
-                    label="&itemSessions.label;"/>
-          <checkbox accesskey="&itemSitePreferencesS.accesskey;"
-                    preference="privacy.clearOnShutdown.siteSettings"
-                    label="&itemSitePreferences.label;"/>
+          <checkbox label="&itemHistory.label;"
+                    accesskey="&itemHistoryS.accesskey;"
+                    preference="privacy.clearOnShutdown.history"/>
+          <checkbox label="&itemUrlBar.label;"
+                    accesskey="&itemUrlBarS.accesskey;"
+                    preference="privacy.clearOnShutdown.urlbar"/>
+          <checkbox label="&itemDownloads.label;"
+                    accesskey="&itemDownloadsS.accesskey;"
+                    preference="privacy.clearOnShutdown.downloads"/>
+          <checkbox label="&itemFormSearchHistory.label;"
+                    accesskey="&itemFormSearchHistoryS.accesskey;"
+                    preference="privacy.clearOnShutdown.formdata"/>
+          <checkbox label="&itemCache.label;"
+                    accesskey="&itemCacheS.accesskey;"
+                    preference="privacy.clearOnShutdown.cache"/>
+          <checkbox label="&itemCookies.label;"
+                    accesskey="&itemCookiesS.accesskey;"
+                    preference="privacy.clearOnShutdown.cookies"/>
+          <checkbox label="&itemOfflineApps.label;"
+                    accesskey="&itemOfflineAppsS.accesskey;"
+                    preference="privacy.clearOnShutdown.offlineApps"/>
+          <checkbox label="&itemPasswords.label;"
+                    accesskey="&itemPasswordsS.accesskey;"
+                    preference="privacy.clearOnShutdown.passwords"/>
+          <checkbox label="&itemSessions.label;"
+                    accesskey="&itemSessionsS.accesskey;"
+                    preference="privacy.clearOnShutdown.sessions"/>
+          <checkbox label="&itemSitePreferences.label;"
+                    accesskey="&itemSitePreferencesS.accesskey;"
+                    preference="privacy.clearOnShutdown.siteSettings"/>
         </groupbox>
       </hbox>
     </groupbox>
