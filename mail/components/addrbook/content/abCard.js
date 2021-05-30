@@ -147,7 +147,6 @@ function OnLoadNewCard() {
     }
 
     if ("escapedVCardStr" in window.arguments[0]) {
-      // hide non vcard values
       HideNonVcardFields();
       if (window.arguments[0].escapedVCardStr) {
         gEditCard.card = Cc["@mozilla.org/addressbook/msgvcardservice;1"]
@@ -599,6 +598,8 @@ function HideNonVcardFields() {
   document.getElementById("homeTabButton").hidden = true;
   document.getElementById("chatTabButton").hidden = true;
   document.getElementById("photoTabButton").hidden = true;
+  // Custom1-Custom4 don't have a standard representation in vCard.
+  document.getElementById("customFields").hidden = true;
   for (let field of kNonVcardFields.map(id => document.getElementById(id))) {
     field.disabled = true;
   }

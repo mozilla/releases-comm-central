@@ -161,9 +161,10 @@
         <button class="push" name="editVCard" label="&editVCard.label;"
                 accesskey="&editVCard.accesskey;"
                 oncommand="editVCard()"/>
-        <label hidden="true" wsm_persist="true" id="identity.escapedVCard"
-                  pref="true" preftype="string" prefattribute="value"
-                  prefstring="mail.identity.%identitykey%.escapedVCard"/>
+        <html:input id="identity.escapedVCard" type="hidden" value=""
+                    wsm_persist="true"
+                    pref="true" preftype="string" prefattribute="value"
+                    prefstring="mail.identity.%identitykey%.escapedVCard" />
       </hbox>
 
       <separator class="thin"/>

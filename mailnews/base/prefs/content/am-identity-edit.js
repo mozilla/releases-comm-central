@@ -465,6 +465,9 @@ function setupSignatureItems() {
 function editVCardCallback(escapedVCardStr) {
   var escapedVCard = document.getElementById("identity.escapedVCard");
   escapedVCard.value = escapedVCardStr;
+  // Trigger a change event so for the am-main view the event listener
+  // set up in AccountManager.js onLoad() can make sure to save the change.
+  escapedVCard.dispatchEvent(new CustomEvent("change"));
 }
 
 function editVCard() {
