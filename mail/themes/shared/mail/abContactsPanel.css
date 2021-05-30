@@ -39,6 +39,7 @@
   list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
   -moz-context-properties: fill;
   fill: currentColor;
+  --focus-outline-offset: -1px;
 }
 
 #abContextMenuButton:not(:hover) {
@@ -46,9 +47,8 @@
   border-color: transparent;
 }
 
-#abContextMenuButton:not(:hover):-moz-focusring {
-  outline: 2px dashed Highlight;
-  outline-offset: -2px;
+#abContextMenuButton:hover:focus-visible {
+  outline-style: none;
 }
 
 #abContextMenuButton > .toolbarbutton-icon {

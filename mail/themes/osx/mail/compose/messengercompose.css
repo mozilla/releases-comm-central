@@ -169,11 +169,6 @@ toolbar[nowindowdrag="true"] {
   margin-top: -2px;
 }
 
-.address-extra-recipients label:focus:not(:hover),
-.aw-firstColBox button:focus:not(:hover) image {
-  outline: 2px dashed -moz-mac-focusring;
-}
-
 /* ::::: autocomplete icons ::::: */
 
 .ac-site-icon {
