@@ -123,6 +123,7 @@ modern.jar:
   skin/modern/communicator/profile/migrate.png                     (communicator/profile/migrate.png)
   skin/modern/communicator/profile/profile.png                     (communicator/profile/profile.png)
   skin/modern/communicator/profile/profile.css                     (communicator/profile/profile.css)
+  skin/modern/communicator/sanitizeDialog.css                      (communicator/sanitizeDialog.css)
   skin/modern/communicator/search/engineManager.css                (communicator/search/engineManager.css)
   skin/modern/communicator/search/mainwindow-dropdown-arrow.png    (communicator/search/mainwindow-dropdown-arrow.png)
   skin/modern/communicator/search/search.css                       (communicator/search/search.css)

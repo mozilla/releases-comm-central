@@ -267,11 +267,6 @@ SuiteGlue.prototype = {
 
         Services.obs.removeObserver(this, "places-init-complete");
         break;
-      case "places-shutdown":
-        Services.obs.removeObserver(this, "places-shutdown");
-        // places-shutdown is fired when the profile is about to disappear.
-        this._onPlacesShutdown();
-        break;
       case "idle":
         this._backupBookmarks();
         break;
@@ -363,7 +358,6 @@ SuiteGlue.prototype = {
     Services.obs.addObserver(this, "weave:engine:clients:display-uri", true);
     Services.obs.addObserver(this, "session-save", true);
     Services.obs.addObserver(this, "places-init-complete", true);
-    Services.obs.addObserver(this, "places-shutdown", true);
     Services.obs.addObserver(this, "browser-search-engine-modified", true);
     Services.obs.addObserver(this, "notifications-open-settings", true);
     Services.obs.addObserver(this, "chrome-document-global-created", true);
@@ -404,15 +398,7 @@ SuiteGlue.prototype = {
     this._migrateUI2();
     migrateMailnews(); // mailnewsMigrator.js
 
-    Sanitizer.checkSettings();
-    Sanitizer.doPendingSanitize();
-
-    if (Services.prefs.prefHasUserValue("privacy.sanitize.didShutdownSanitize")) {
-      Services.prefs.clearUserPref("privacy.sanitize.didShutdownSanitize");
-      // We need to persist this preference change, since we want to
-      // check it at next app start even if the browser exits abruptly
-      Services.prefs.savePrefFile(null);
-    }
+    Sanitizer.onStartup();
 
     var timer = Cc["@mozilla.org/timer;1"]
                   .createInstance(Ci.nsITimer);
@@ -751,7 +737,6 @@ SuiteGlue.prototype = {
     if (this._saveSession) {
       this._setPrefToSaveSession();
     }
-    Sanitizer.checkSettings();
     AutoCompletePopup.uninit();
   },
 
@@ -1186,16 +1171,6 @@ SuiteGlue.prototype = {
   },
 
   /**
-   * Places shut-down tasks
-   * - finalize components depending on Places.
-   */
-  _onPlacesShutdown: function() {
-    if (!Sanitizer.doPendingSanitize()) {
-      Services.prefs.setBoolPref("privacy.sanitize.didShutdownSanitize", true);
-    }
-  },
-
-  /**
    * If a backup for today doesn't exist, this creates one.
    */
   _backupBookmarks: function BG__backupBookmarks() {
@@ -1368,11 +1343,8 @@ SuiteGlue.prototype = {
     }
   },
 
-  sanitize: function(aParentWindow)
-  {
-    // call the Sanitizer object's sanitize, which might return errors
-    // but do not forward them anywhere, as we are defined as void here
-    Sanitizer.sanitize(aParentWindow);
+  sanitize(aParentWindow) {
+    Sanitizer.showUI(aParentWindow);
   },
 
   async ensurePlacesDefaultQueriesInitialized() {

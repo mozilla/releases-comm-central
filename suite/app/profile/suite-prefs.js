@@ -706,9 +706,10 @@ pref("privacy.popups.showBrowserMessage",         true);
 
 // Sanitize options
 
-// Sanitize (clear private data manually) options
-pref("privacy.sanitize.promptOnSanitize", true);
+// Sanitize everything
+pref("privacy.sanitize.timeSpan", 0);
 
+// Sanitize (clear private data manually) options
 pref("privacy.cpd.history", true);
 pref("privacy.cpd.urlbar", true);
 pref("privacy.cpd.formdata", true);
@@ -718,6 +719,7 @@ pref("privacy.cpd.cookies", false);
 pref("privacy.cpd.cache", true);
 pref("privacy.cpd.sessions", true);
 pref("privacy.cpd.offlineApps", false);
+pref("privacy.cpd.siteSettings", false);
 
 // Sanitize (clear private data on shutdown) options
 pref("privacy.sanitize.sanitizeOnShutdown", false);
@@ -731,6 +733,7 @@ pref("privacy.clearOnShutdown.cookies", false);
 pref("privacy.clearOnShutdown.cache", true);
 pref("privacy.clearOnShutdown.sessions", true);
 pref("privacy.clearOnShutdown.offlineApps", false);
+pref("privacy.clearOnShutdown.siteSettings", false);
 
 pref("privacy.warn_tracking_content", true);
 

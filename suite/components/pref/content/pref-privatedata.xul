@@ -50,6 +50,9 @@
       <preference id="privacy.clearOnShutdown.sessions"
                   name="privacy.clearOnShutdown.sessions"
                   type="bool"/>
+      <preference id="privacy.clearOnShutdown.siteSettings"
+                  name="privacy.clearOnShutdown.siteSettings"
+                  type="bool"/>
 
       <!-- Clear Private Data manually -->
       <preference id="privacy.cpd.history"
@@ -78,6 +81,9 @@
                   type="bool"/>
       <preference id="privacy.cpd.sessions"
                   name="privacy.cpd.sessions"
+                  type="bool"/>
+      <preference id="privacy.cpd.siteSettings"
+                  name="privacy.cpd.siteSettings"
                   type="bool"/>
     </preferences>
 
@@ -131,6 +137,9 @@
           <checkbox accesskey="&itemSessions.accesskey;"
                     preference="privacy.cpd.sessions"
                     label="&itemSessions.label;"/>
+          <checkbox accesskey="&itemSitePreferences.accesskey;"
+                    preference="privacy.cpd.siteSettings"
+                    label="&itemSitePreferences.label;"/>
         </groupbox>
 
         <groupbox id="clearOnShutdownBox" flex="1">
@@ -162,6 +171,9 @@
           <checkbox accesskey="&itemSessionsS.accesskey;"
                     preference="privacy.clearOnShutdown.sessions"
                     label="&itemSessions.label;"/>
+          <checkbox accesskey="&itemSitePreferencesS.accesskey;"
+                    preference="privacy.clearOnShutdown.siteSettings"
+                    label="&itemSitePreferences.label;"/>
         </groupbox>
       </hbox>
     </groupbox>

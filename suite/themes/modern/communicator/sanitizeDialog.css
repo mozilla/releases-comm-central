@@ -1,0 +1,56 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#sanitizeDurationChoice {
+  margin-inline-end: 0;
+}
+
+/* Align the duration label with the warning box and item list */
+#sanitizeDurationLabel {
+  margin-inline-start: 3px;
+}
+
+
+/* Hide the duration dropdown suffix label if it's empty.  Otherwise it
+   takes up a little space, causing the end of the dropdown to not be aligned
+   with the warning box. */
+#sanitizeDurationSuffixLabel[value=""] {
+  display: none;
+}
+
+
+/* Sanitize everything warning box */
+#sanitizeWarningBox {
+  background-color: Window;
+  border: 1px solid #494F5D;
+  border-radius: 5px;
+  padding: 16px;
+}
+
+#sanitizeWarningIcon {
+  list-style-image: url("chrome://global/skin/icons/warning-48.png");
+  padding: 0;
+  margin: 0;
+}
+
+#sanitizeWarningDescBox {
+  padding: 0 16px;
+  margin: 0;
+}
+
+
+/* Make the item list the same width as the warning box */
+#itemList {
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+}
+
+
+/* Align the last dialog button with the end of the warning box */
+.dialog-button-box {
+  margin-inline-end: 0;
+}
+.dialog-button[dlgtype="cancel"] {
+  margin-inline-end: 0;
+}

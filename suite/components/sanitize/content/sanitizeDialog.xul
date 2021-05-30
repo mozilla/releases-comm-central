@@ -5,6 +5,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://communicator/skin/sanitizeDialog.css"?>
 
 <!DOCTYPE prefwindow [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
@@ -15,45 +16,139 @@
 
 <dialog id="SanitizeDialog"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        dlgbuttons="accept,cancel"
         title="&sanitizeDialog.title;"
+        dlgbuttons="accept,cancel"
+        style="width: &sanitizeDialog.width;;"
         onload="gSanitizePromptDialog.init();"
-        ondialogcancel="gSanitizePromptDialog.clearSettings();"
-        buttonlabelaccept="&sanitizeButton.label;">
+        ondialogaccept="return gSanitizePromptDialog.sanitize();">
 
   <script src="chrome://communicator/content/sanitizeDialog.js"/>
+  <stringbundle id="bundleSanitize"
+                src="chrome://communicator/locale/sanitize.properties"/>
 
-  <description>&sanitizeItems.label;</description>
+  <prefpane id="SanitizeDialogPane">
+    <preferences id="sanitizePreferences">
+      <preference id="privacy.cpd.history"
+                  name="privacy.cpd.history"
+                  type="bool"/>
+      <preference id="privacy.cpd.urlbar"
+                  name="privacy.cpd.urlbar"
+                  type="bool"/>
+      <preference id="privacy.cpd.downloads"
+                  name="privacy.cpd.downloads"
+                  type="bool"/>
+      <preference id="privacy.cpd.formdata"
+                  name="privacy.cpd.formdata"
+                  type="bool"/>
+      <preference id="privacy.cpd.cache"
+                  name="privacy.cpd.cache"
+                  type="bool"/>
+      <preference id="privacy.cpd.cookies"
+                  name="privacy.cpd.cookies"
+                  type="bool"/>
+      <preference id="privacy.cpd.offlineApps"
+                  name="privacy.cpd.offlineApps"
+                  type="bool"/>
+      <preference id="privacy.cpd.passwords"
+                  name="privacy.cpd.passwords"
+                  type="bool"/>
+      <preference id="privacy.cpd.sessions"
+                  name="privacy.cpd.sessions"
+                  type="bool"/>
+      <preference id="privacy.cpd.siteSettings"
+                  name="privacy.cpd.siteSettings"
+                  type="bool"/>
+    </preferences>
 
-  <vbox id="sanitizePreferences"
-        align="start"
-        oncommand="gSanitizePromptDialog.onCommand(event);">
-    <checkbox label="&itemHistory.label;"
-              accesskey="&itemHistory.accesskey;"
-              name="history"/>
-    <checkbox label="&itemUrlBar.label;"
-              accesskey="&itemUrlBar.accesskey;"
-              name="urlbar"/>
-    <checkbox label="&itemDownloads.label;"
-              accesskey="&itemDownloads.accesskey;"
-              name="downloads"/>
-    <checkbox label="&itemFormSearchHistory.label;"
-              accesskey="&itemFormSearchHistory.accesskey;"
-              name="formdata"/>
-    <checkbox label="&itemCache.label;"
-              accesskey="&itemCache.accesskey;"
-              name="cache"/>
-    <checkbox label="&itemCookies.label;"
-              accesskey="&itemCookies.accesskey;"
-              name="cookies"/>
-    <checkbox label="&itemOfflineApps.label;"
-              accesskey="&itemOfflineApps.accesskey;"
-              name="offlineApps"/>
-    <checkbox label="&itemPasswords.label;"
-              accesskey="&itemPasswords.accesskey;"
-              name="passwords"/>
-    <checkbox label="&itemSessions.label;"
-              accesskey="&itemSessions.accesskey;"
-              name="sessions"/>
-  </vbox>
+    <preferences id="nonItemPreferences">
+      <preference id="privacy.sanitize.timeSpan"
+                  name="privacy.sanitize.timeSpan"
+                  type="int"/>
+    </preferences>
+
+    <vbox id="sanitizeWarningBox">
+      <spacer flex="1"/>
+      <hbox align="center">
+        <image id="sanitizeWarningIcon"/>
+        <vbox id="sanitizeWarningDescBox" flex="1">
+          <description id="sanitizeSelectedWarning">
+                       &sanitizeSelectedWarning;
+          </description>
+          <description id="sanitizeUndoWarning">
+                       &sanitizeUndoWarning;
+          </description>
+        </vbox>
+      </hbox>
+      <spacer flex="1"/>
+    </vbox>
+
+    <separator class="thin"/>
+
+    <hbox id="SanitizeDurationBox" align="center">
+      <label id="sanitizeDurationLabel"
+             value="&clearTimeDuration.label;"
+             accesskey="&clearTimeDuration.accesskey;"
+             control="sanitizeDurationChoice"/>
+      <menulist id="sanitizeDurationChoice"
+                preference="privacy.sanitize.timeSpan"
+                flex="1">
+        <menupopup id="sanitizeDurationPopup">
+          <menuitem label="&clearTimeDuration.lastHour;" value="1"/>
+          <menuitem label="&clearTimeDuration.last2Hours;" value="2"/>
+          <menuitem label="&clearTimeDuration.last4Hours;" value="3"/>
+          <menuitem label="&clearTimeDuration.today;" value="4"/>
+          <menuseparator/>
+          <menuitem label="&clearTimeDuration.everything;" value="0"/>
+        </menupopup>
+      </menulist>
+      <label id="sanitizeDurationSuffixLabel"
+             value="&clearTimeDuration.suffix;"/>
+    </hbox>
+
+    <separator class="thin"/>
+
+    <groupbox id="itemList" flex="1">
+      <caption label="&sanitizeItems.label;"/>
+      <checkbox label="&itemHistory.label;"
+                accesskey="&itemHistory.accesskey;"
+                preference="privacy.cpd.history"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemUrlBar.label;"
+                accesskey="&itemUrlBar.accesskey;"
+                preference="privacy.cpd.urlbar"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemDownloads.label;"
+                accesskey="&itemDownloads.accesskey;"
+                preference="privacy.cpd.downloads"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemFormSearchHistory.label;"
+                accesskey="&itemFormSearchHistory.accesskey;"
+                preference="privacy.cpd.formdata"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemCache.label;"
+                accesskey="&itemCache.accesskey;"
+                preference="privacy.cpd.cache"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemCookies.label;"
+                accesskey="&itemCookies.accesskey;"
+                preference="privacy.cpd.cookies"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemOfflineApps.label;"
+                accesskey="&itemOfflineApps.accesskey;"
+                preference="privacy.cpd.offlineApps"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemPasswords.label;"
+                accesskey="&itemPasswords.accesskey;"
+                preference="privacy.cpd.passwords"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemSessions.label;"
+                accesskey="&itemSessions.accesskey;"
+                preference="privacy.cpd.sessions"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+      <checkbox label="&itemSitePreferences.label;"
+                accesskey="&itemSitePreferences.accesskey;"
+                preference="privacy.cpd.siteSettings"
+                onsyncfrompreference="return gSanitizePromptDialog.onReadGeneric();"/>
+    </groupbox>
+  </prefpane>
 </dialog>

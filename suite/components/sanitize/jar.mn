@@ -4,5 +4,5 @@
 
 comm.jar:
 % content communicator %content/communicator/ contentaccessible=yes
-  content/communicator/sanitizeDialog.xul      (content/sanitizeDialog.xul)
   content/communicator/sanitizeDialog.js       (content/sanitizeDialog.js)
+  content/communicator/sanitizeDialog.xul      (content/sanitizeDialog.xul)

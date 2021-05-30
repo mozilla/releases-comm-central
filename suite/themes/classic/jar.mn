@@ -48,6 +48,7 @@ classic.jar:
   skin/classic/communicator/places/tag.png                              (mac/communicator/places/tag.png)
   skin/classic/communicator/places/toolbarDropMarker.png                (mac/communicator/places/toolbarDropMarker.png)
   skin/classic/communicator/profile/profile.css                         (mac/communicator/profile/profile.css)
+  skin/classic/communicator/sanitizeDialog.css                          (mac/communicator/sanitizeDialog.css)
   skin/classic/communicator/search/searchbar.css                        (mac/communicator/search/searchbar.css)
   skin/classic/communicator/search/searchbar-dropmarker.png             (mac/communicator/search/searchbar-dropmarker.png)
   skin/classic/communicator/search/searchbar-search.png                 (mac/communicator/search/searchbar-search.png)
@@ -110,6 +111,11 @@ classic.jar:
   skin/classic/communicator/places/tag.png                              (communicator/places/tag.png)
   skin/classic/communicator/places/toolbarDropMarker.png                (communicator/places/toolbarDropMarker.png)
   skin/classic/communicator/profile/profile.css                         (communicator/profile/profile.css)
+#ifdef MOZ_WIDGET_GTK
+  skin/classic/communicator/sanitizeDialog.css                          (linux/communicator/sanitizeDialog.css)
+#else
+  skin/classic/communicator/sanitizeDialog.css                          (windows/communicator/sanitizeDialog.css)
+#endif
   skin/classic/communicator/search/mainwindow-dropdown-arrow.png        (communicator/search/mainwindow-dropdown-arrow.png)
   skin/classic/communicator/search/search-glass.png                     (communicator/search/search-glass.png)
   skin/classic/communicator/search/searchbar.css                        (communicator/search/searchbar.css)
