@@ -18,6 +18,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 // tests for calItipUtils.jsm
 
+do_get_profile();
+
 /*
  * Helper function to get an ics for testing sequence and stamp comparison
  *
