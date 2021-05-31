@@ -262,26 +262,8 @@ toolbar[customizing="true"][collapsed="true"] {
 
 /* Print UI, mostly from browser.css */
 
-/* This class makes the element behave as a <stack> without being one. From xul.css. */
 .printPreviewStack {
-  display: grid;
   position: relative;
-  /* Prevents calendar day and week views expanding to thousands of pixels high. */
-  min-height: 0;
-}
-
-.printPreviewStack > tabbox,
-.printPreviewStack > stack {
-  grid-area: 1 / 1;
-  z-index: 0;
-  /*
-    The default `min-height: auto` value makes grid items refuse to be smaller
-    than their content. This doesn't match the traditional behavior of XUL stack,
-    which often shoehorns tall content into a smaller stack and allows the content
-    to decide how to handle overflow (e.g. by scaling down if it's an image, or
-    by adding scrollbars if it's scrollable).
-  */
-  min-height: 0;
 }
 
 :is(browser, hbox, tabbox, vbox)[tabDialogShowing],
@@ -357,7 +339,9 @@ printpreview-pagination:focus-within,
 .dialogStack {
   /* Should outrank the z-index values of other UI elements, particularly the devtools
      splitter element. */
-  z-index: 2;
+  z-index: 11;
+  position: absolute;
+  inset: 0 0 0 0;
 }
 
 .dialogStack.temporarilyHidden {

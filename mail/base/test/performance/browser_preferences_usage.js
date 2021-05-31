@@ -112,7 +112,7 @@ add_task(async function startup() {
     },
     "layout.css.dpi": {
       min: 45,
-      max: 260,
+      max: 250,
     },
     "network.loadinfo.skip_type_assertion": {
       // This is accessed in debug only.
@@ -127,11 +127,11 @@ add_task(async function startup() {
     },
     "toolkit.scrollbox.verticalScrollDistance": {
       min: 100,
-      max: 475,
+      max: 355,
     },
     "toolkit.scrollbox.horizontalScrollDistance": {
       min: 1,
-      max: 140,
+      max: 130,
     },
     // Bug 944367: All gloda logs are controlled by one pref.
     "gloda.loglevel": {
