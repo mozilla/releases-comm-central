@@ -1679,16 +1679,59 @@ var messageTracker = {
   _nextId: 1,
   _messages: new Map(),
   _messageIds: new Map(),
+  _observerAdded: false,
+
+  /**
+   * Observer to update message tracker if a message has received a new key due
+   * to attachments being removed, which we do not consider to be a new message.
+   */
+  observe(aSubject, aTopic, aData) {
+    if (aTopic == "attachment-delete-msgkey-changed") {
+      let data = JSON.parse(aData);
+
+      if (data && data.folderURI && data.oldMessageKey && data.newMessageKey) {
+        let oldHash = this.getHash(data.folderURI, data.oldMessageKey);
+        if (this._messageIds.has(oldHash)) {
+          let id = this._messageIds.get(oldHash);
+
+          // Delete tracker entries of old message.
+          this._messageIds.delete(oldHash);
+
+          // Add new tracker entries.
+          let newHash = this.getHash(data.folderURI, data.newMessageKey);
+          this._messageIds.set(newHash, id);
+          this._messages.set(id, {
+            folderURI: data.folderURI,
+            messageKey: data.newMessageKey,
+          });
+        }
+      }
+    }
+  },
+
+  /**
+   * Returns an identifier for the the given folder and messageKey, which is
+   * globally unique.
+   * @return {string} Global unique identifier of the message
+   */
+  getHash(folderUri, messageKey) {
+    // Using stringify avoids potential issues with unexpected characters.
+    // This hash could be anything as long as it is unique for each
+    // [folder, message] combination.
+    return JSON.stringify([folderUri, messageKey]);
+  },
 
   /**
    * Finds a message in the map or adds it to the map.
    * @return {int} The identifier of the message
    */
   getId(msgHdr) {
-    // Using stringify avoids potential issues with unexpected characters.
-    // This hash could be anything as long as it is unique for each
-    // [folder, message] combination.
-    let hash = JSON.stringify([msgHdr.folder.URI, msgHdr.messageKey]);
+    if (!this._observerAdded) {
+      this._observerAdded = true;
+      Services.obs.addObserver(this, "attachment-delete-msgkey-changed");
+    }
+
+    let hash = this.getHash(msgHdr.folder.URI, msgHdr.messageKey);
     if (this._messageIds.has(hash)) {
       return this._messageIds.get(hash);
     }
@@ -1720,7 +1763,7 @@ var messageTracker = {
       }
     }
 
-    let hash = JSON.stringify([value.folderURI, value.messageKey]);
+    let hash = this.getHash(value.folderURI, value.messageKey);
     this._messages.delete(id);
     this._messageIds.delete(hash);
     return null;

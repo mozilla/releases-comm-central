@@ -2303,6 +2303,7 @@ class nsDelAttachListener : public nsIStreamListener,
   nsCOMPtr<nsIMsgFolder> mMessageFolder;           // original message folder
   nsCOMPtr<nsIMessenger> mMessenger;               // our messenger instance
   nsCOMPtr<nsIMsgWindow> mMsgWindow;               // our UI window
+  nsMsgKey mOriginalMessageKey;                    // old message key
   nsMsgKey mNewMessageKey;                         // new message key
   uint32_t mOrigMsgFlags;
 
@@ -2455,11 +2456,43 @@ nsDelAttachListener::OnProgress(uint32_t aProgress, uint32_t aProgressMax) {
   return NS_OK;
 }
 
+class CStringWriter final : public mozilla::JSONWriteFunc {
+ public:
+  void Write(const mozilla::Span<const char>& aStr) override {
+    mBuf.Append(aStr);
+  }
+
+  const nsCString& Get() const { return mBuf; }
+
+ private:
+  nsCString mBuf;
+};
+
 NS_IMETHODIMP
 nsDelAttachListener::SetMessageKey(nsMsgKey aKey) {
   // called during the copy of the modified message back into the message
   // store to notify us of the message key of the newly created message.
   mNewMessageKey = aKey;
+
+  nsCString folderURI;
+  nsresult rv = mMessageFolder->GetURI(folderURI);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mozilla::JSONWriter data(mozilla::MakeUnique<CStringWriter>());
+  data.Start();
+  data.IntProperty("oldMessageKey", mOriginalMessageKey);
+  data.IntProperty("newMessageKey", aKey);
+  data.StringProperty("folderURI", folderURI);
+  data.End();
+
+  nsCOMPtr<nsIObserverService> obs = services::GetObserverService();
+  if (obs) {
+    obs->NotifyObservers(
+        nullptr, "attachment-delete-msgkey-changed",
+        NS_ConvertUTF8toUTF16(
+            static_cast<CStringWriter*>(data.WriteFunc())->Get())
+            .get());
+  }
   return NS_OK;
 }
 
@@ -2540,6 +2573,8 @@ nsresult nsDelAttachListener::StartProcessing(nsMessenger* aMessenger,
   NS_ENSURE_SUCCESS(rv, rv);
   rv = mMessageService->MessageURIToMsgHdr(messageUri,
                                            getter_AddRefs(mOriginalMessage));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = mOriginalMessage->GetMessageKey(&mOriginalMessageKey);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = mOriginalMessage->GetFolder(getter_AddRefs(mMessageFolder));
   NS_ENSURE_SUCCESS(rv, rv);

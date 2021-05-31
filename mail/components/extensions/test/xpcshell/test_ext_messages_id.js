@@ -7,6 +7,7 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
+var subFolders;
 
 add_task(
   {
@@ -15,15 +16,29 @@ add_task(
   async function setup() {
     let account = createAccount();
     let rootFolder = account.incomingServer.rootFolder;
-    let subFolders = {
+    subFolders = {
       test1: await createSubfolder(rootFolder, "test1"),
       test2: await createSubfolder(rootFolder, "test2"),
       test3: await createSubfolder(rootFolder, "test3"),
+      attachment: await createSubfolder(rootFolder, "attachment"),
     };
     await createMessages(subFolders.test1, 5);
+    let textAttachment = {
+      body: "textAttachment",
+      filename: "test.txt",
+      contentType: "text/plain",
+    };
+    await createMessages(subFolders.attachment, {
+      count: 1,
+      subject: "Msg with text attachment",
+      attachments: [textAttachment],
+    });
   }
 );
 
+// In this test we'll move and copy some messages around between
+// folders. Every operation should result in the message's id property
+// changing to a never-seen-before value.
 add_task(
   {
     skip_if: () => IS_NNTP,
@@ -32,10 +47,6 @@ add_task(
     let extension = ExtensionTestUtils.loadExtension({
       files: {
         "background.js": async () => {
-          // In this test we'll move and copy some messages around between
-          // folders. Every operation should result in the message's id property
-          // changing to a never-seen-before value.
-
           let [{ folders }] = await browser.accounts.list();
           let testFolder1 = folders.find(f => f.name == "test1");
           let testFolder2 = folders.find(f => f.name == "test2");
@@ -143,6 +154,100 @@ add_task(
         background: { scripts: ["utils.js", "background.js"] },
         permissions: ["accountsRead", "messagesMove", "messagesRead"],
       },
+    });
+
+    await extension.startup();
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+// In this test we'll remove an attachment from a message and its id property
+// should not change. (Bug 1645595). Test does not work with IMAP test server,
+// which has issues with attachments.
+add_task(
+  {
+    skip_if: () => IS_NNTP || IS_IMAP,
+  },
+  async function test_attachments() {
+    let extension = ExtensionTestUtils.loadExtension({
+      files: {
+        "background.js": async () => {
+          let id;
+
+          browser.test.onMessage.addListener(async () => {
+            // This listener gets called once the attachment has been removed.
+            // Make sure we still get the message and it no longer has the
+            // attachment.
+            let modifiedMessage = await browser.messages.getFull(id);
+            browser.test.assertEq(
+              "Msg with text attachment",
+              modifiedMessage.headers.subject[0]
+            );
+            browser.test.assertEq(
+              "text/x-moz-deleted",
+              modifiedMessage.parts[0].parts[1].contentType
+            );
+            browser.test.assertEq(
+              "Deleted: test.txt",
+              modifiedMessage.parts[0].parts[1].name
+            );
+            browser.test.notifyPass("finished");
+          });
+
+          let [{ folders }] = await browser.accounts.list();
+          let testFolder = folders.find(f => f.name == "attachment");
+          let { messages } = await browser.messages.list(testFolder);
+          browser.test.assertEq(1, messages.length);
+          id = messages[0].id;
+
+          let originalMessage = await browser.messages.getFull(id);
+          browser.test.assertEq(
+            "Msg with text attachment",
+            originalMessage.headers.subject[0]
+          );
+          browser.test.assertEq(
+            "text/plain",
+            originalMessage.parts[0].parts[1].contentType
+          );
+          browser.test.assertEq(
+            "test.txt",
+            originalMessage.parts[0].parts[1].name
+          );
+          browser.test.sendMessage("removeAttachment", id);
+        },
+        "utils.js": await getUtilsJS(),
+      },
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+      },
+    });
+
+    let observer = {
+      observe(aSubject, aTopic, aData) {
+        if (aTopic == "attachment-delete-msgkey-changed") {
+          extension.sendMessage();
+        }
+      },
+    };
+    Services.obs.addObserver(observer, "attachment-delete-msgkey-changed");
+
+    extension.onMessage("removeAttachment", () => {
+      let msgHdr = subFolders.attachment.messages.getNext();
+      let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
+      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        Ci.nsIMessenger
+      );
+      messenger.detachAttachment(
+        "text/plain",
+        `${msgUri}?part=1.2&filename=test.txt`,
+        "test.txt",
+        msgUri,
+        false /* do not save */,
+        true /* do not ask */
+      );
+      console.log("REMOVED");
     });
 
     await extension.startup();
