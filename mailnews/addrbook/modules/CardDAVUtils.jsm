@@ -4,13 +4,19 @@
 
 const EXPORTED_SYMBOLS = ["CardDAVUtils", "NotificationCallbacks"];
 
+const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  OAuth2: "resource:///modules/OAuth2.jsm",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
 XPCOMUtils.defineLazyServiceGetter(
@@ -19,6 +25,23 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/nss_errors_service;1",
   "nsINSSErrorsService"
 );
+
+const console = new ConsoleAPI();
+console.prefix = "CardDAV setup";
+
+// Use presets only where DNS discovery fails. Set to null to prevent
+// auto-fill completely for a domain.
+const PRESETS = {
+  // For testing purposes.
+  "bad.invalid": null,
+  // Google responds correctly but the provided address returns 404.
+  "gmail.com": "https://www.googleapis.com",
+  "googlemail.com": "https://www.googleapis.com",
+  // For testing purposes.
+  "test.invalid": "http://localhost:9999",
+  // Yahoo! OAuth is not working yet.
+  "yahoo.com": null,
+};
 
 var CardDAVUtils = {
   _contextMap: new Map(),
@@ -214,6 +237,257 @@ var CardDAVUtils = {
       channel.asyncOpen(listener, channel);
     });
   },
+
+  /**
+   * @typedef foundBook
+   * @property {URL} url - The address for this address book.
+   * @param {string} name - The name of this address book on the server.
+   * @param {function} create - A callback to add this address book locally.
+   */
+
+  /**
+   * Uses DNS look-ups and magic URLs to detects CardDAV address books.
+   *
+   * @param {string} username - Username for the server at `location`.
+   * @param {string} [password] - If not given, the user will be prompted.
+   * @param {string} location - The URL of a server to query.
+   * @param {boolean} [forcePrompt=false] - If true, the user will be shown a
+   *     login prompt even if `password` is specified. If false, the user will
+   *     be shown a prompt only if `password` is not specified and no saved
+   *     password matches `username` and `location`.
+   * @returns {foundBook[]} - An array of found address books.
+   */
+  async detectAddressBooks(username, password, location, forcePrompt = false) {
+    // Use a unique context for each attempt, so a prompt is always shown.
+    let userContextId = Math.floor(Date.now() / 1000);
+
+    let url = new URL(location);
+
+    if (url.hostname in PRESETS) {
+      if (PRESETS[url.hostname] === null) {
+        throw new Components.Exception(
+          `${url} is known to be incompatible`,
+          Cr.NS_ERROR_NOT_AVAILABLE
+        );
+      }
+      console.log(`Using preset URL for ${url}`);
+      url = new URL(PRESETS[url.hostname]);
+    }
+
+    if (url.pathname == "/" && !(url.hostname in PRESETS)) {
+      console.log(`Looking up DNS record for ${url.hostname}`);
+      let srvRecords = await DNS.srv(`_carddavs._tcp.${url.hostname}`);
+      srvRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
+
+      if (srvRecords[0]) {
+        url = new URL(`https://${srvRecords[0].host}`);
+
+        let txtRecords = await DNS.txt(`_carddavs._tcp.${srvRecords[0].host}`);
+        txtRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
+        txtRecords = txtRecords.filter(result =>
+          result.data.startsWith("path=")
+        );
+
+        if (txtRecords[0]) {
+          url.pathname = txtRecords[0].data.substr(5);
+        }
+      }
+    }
+
+    let oAuth = null;
+    let callbacks = new NotificationCallbacks(username, password, forcePrompt);
+
+    let requestParams = {
+      method: "PROPFIND",
+      callbacks,
+      userContextId,
+      headers: {
+        Depth: 0,
+      },
+      body: `<propfind xmlns="DAV:">
+          <prop>
+            <resourcetype/>
+            <displayname/>
+          </prop>
+        </propfind>`,
+    };
+
+    let details = OAuth2Providers.getHostnameDetails(url.host);
+    if (details) {
+      let [issuer, scope] = details;
+      let [
+        clientId,
+        clientSecret,
+        authorizationEndpoint,
+        tokenEndpoint,
+      ] = OAuth2Providers.getIssuerDetails(issuer);
+
+      oAuth = new OAuth2(
+        authorizationEndpoint,
+        tokenEndpoint,
+        scope,
+        clientId,
+        clientSecret
+      );
+      oAuth._loginOrigin = `oauth://${issuer}`;
+      oAuth._scope = scope;
+      if (username) {
+        oAuth.extraAuthParams = [["login_hint", username]];
+      }
+
+      // Implement msgIOAuth2Module.connect, which CardDAVUtils.makeRequest expects.
+      requestParams.oAuth = {
+        QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
+        connect(withUI, listener) {
+          oAuth.connect(
+            () =>
+              listener.onSuccess(
+                // String format based on what OAuth2Module has.
+                btoa(`\x01auth=Bearer ${oAuth.accessToken}`)
+              ),
+            () => listener.onFailure(Cr.NS_ERROR_ABORT),
+            withUI,
+            false
+          );
+        },
+      };
+    }
+
+    let response;
+    let triedURLs = new Set();
+    async function tryURL(url) {
+      if (triedURLs.has(url)) {
+        return;
+      }
+      triedURLs.add(url);
+
+      console.log(`Attempting to connect to ${url}`);
+      response = await CardDAVUtils.makeRequest(url, requestParams);
+      if (response.status == 207 && response.dom) {
+        console.log(`${url} ... success`);
+      } else {
+        console.log(
+          `${url} ... response was "${response.status} ${response.statusText}"`
+        );
+        response = null;
+      }
+    }
+
+    if (url.pathname != "/") {
+      // This might be the full URL of an address book.
+      await tryURL(url.href);
+      if (!response?.dom?.querySelector("resourcetype addressbook")) {
+        response = null;
+      }
+    }
+    if (!response || !response.dom) {
+      // Auto-discovery using a magic URL.
+      requestParams.body = `<propfind xmlns="DAV:">
+        <prop>
+          <current-user-principal/>
+        </prop>
+      </propfind>`;
+      await tryURL(`${url.origin}/.well-known/carddav`);
+    }
+    if (!response) {
+      // Auto-discovery at the root of the domain.
+      await tryURL(`${url.origin}/`);
+    }
+    if (!response) {
+      // We've run out of ideas.
+      throw new Components.Exception(
+        "Address book discovery failed",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    if (!response.dom.querySelector("resourcetype addressbook")) {
+      // Steps two and three of auto-discovery. If the entered URL did point
+      // to an address book, we won't get here.
+      url = new URL(
+        response.dom.querySelector("current-user-principal href").textContent,
+        url
+      );
+      requestParams.body = `<propfind xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
+        <prop>
+          <card:addressbook-home-set/>
+        </prop>
+      </propfind>`;
+      await tryURL(url.href);
+
+      url = new URL(
+        response.dom.querySelector("addressbook-home-set href").textContent,
+        url
+      );
+      requestParams.headers.Depth = 1;
+      requestParams.body = `<propfind xmlns="DAV:">
+        <prop>
+          <resourcetype/>
+          <displayname/>
+        </prop>
+      </propfind>`;
+      await tryURL(url.href);
+    }
+
+    // Find any directories in the response.
+
+    let foundBooks = [];
+    for (let r of response.dom.querySelectorAll("response")) {
+      if (r.querySelector("status")?.textContent != "HTTP/1.1 200 OK") {
+        continue;
+      }
+      if (!r.querySelector("resourcetype addressbook")) {
+        continue;
+      }
+
+      foundBooks.push({
+        url: new URL(r.querySelector("href").textContent, url),
+        name: r.querySelector("displayname").textContent,
+        create() {
+          let dirPrefId = MailServices.ab.newAddressBook(
+            this.name,
+            null,
+            Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
+            null
+          );
+          let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+          book.setStringValue("carddav.url", this.url);
+
+          if (oAuth) {
+            let newLoginInfo = Cc[
+              "@mozilla.org/login-manager/loginInfo;1"
+            ].createInstance(Ci.nsILoginInfo);
+            newLoginInfo.init(
+              oAuth._loginOrigin,
+              null,
+              oAuth._scope,
+              book.UID,
+              oAuth.refreshToken,
+              "",
+              ""
+            );
+            Services.logins.addLogin(newLoginInfo);
+          } else if (callbacks.authInfo?.username) {
+            book.setStringValue(
+              "carddav.username",
+              callbacks.authInfo.username
+            );
+            callbacks.saveAuth();
+          }
+
+          let dir = CardDAVDirectory.forFile(book.fileName);
+          // Pass the context to the created address book. This prevents asking
+          // for a username/password again in the case that we didn't save it.
+          // The user won't be prompted again until Thunderbird is restarted.
+          dir._userContextId = userContextId;
+          dir.fetchAllFromServer();
+
+          return dir;
+        },
+      });
+    }
+    return foundBooks;
+  },
 };
 
 /**
@@ -253,6 +527,12 @@ class NotificationCallbacks {
     }
 
     if (!this.forcePrompt) {
+      if (this.username && this.password) {
+        authInfo.username = this.username;
+        authInfo.password = this.password;
+        return true;
+      }
+
       let logins = Services.logins.findLogins(channel.URI.prePath, null, "");
       for (let l of logins) {
         if (l.username == this.username) {

@@ -8,7 +8,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<window minwidth="500"
+<window style="width: 36em;"
         data-l10n-id="carddav-window"
         data-l10n-attrs="title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -35,7 +35,7 @@
              data-l10n-attrs="value,accesskey"/>
     </html:div>
     <html:div class="input-container">
-      <html:input id="carddav-username"
+      <html:input id="carddav-username" type="text"
                   oninput="fillLocationPlaceholder();"/>
     </html:div>
     <html:div>
@@ -44,7 +44,7 @@
              data-l10n-attrs="value,accesskey"/>
     </html:div>
     <html:div class="input-container">
-      <html:input id="carddav-location" type="location"
+      <html:input id="carddav-location" type="url"
                   data-l10n-id="carddav-location"
                   data-l10n-attrs="default-placeholder"
                   required="required"
