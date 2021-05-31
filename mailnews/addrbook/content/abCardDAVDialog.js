@@ -14,9 +14,10 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
+  CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.jsm",
-  NotificationCallbacks: "resource:///modules/CardDAVDirectory.jsm",
+  NotificationCallbacks: "resource:///modules/CardDAVUtils.jsm",
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
 });
@@ -200,7 +201,7 @@ async function check() {
         oAuth.extraAuthParams = [["login_hint", username]];
       }
 
-      // Implement msgIOAuth2Module.connect, which CardDAV.makeRequest expects.
+      // Implement msgIOAuth2Module.connect, which CardDAVUtils.makeRequest expects.
       requestParams.oAuth = {
         QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
         connect(withUI, listener) {
@@ -227,7 +228,7 @@ async function check() {
       triedURLs.add(url);
 
       console.log(`Attempting to connect to ${url}`);
-      response = await CardDAVDirectory.makeRequest(url, requestParams);
+      response = await CardDAVUtils.makeRequest(url, requestParams);
       if (response.status == 207 && response.dom) {
         console.log(`${url} ... success`);
       } else {

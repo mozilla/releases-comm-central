@@ -9,6 +9,7 @@ EXTRA_JS_MODULES += [
     "AddrBookManager.jsm",
     "AddrBookUtils.jsm",
     "CardDAVDirectory.jsm",
+    "CardDAVUtils.jsm",
     "LDAPDirectory.jsm",
     "LDAPModuleLoader.jsm",
     "LDAPReplicationService.jsm",
