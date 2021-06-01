@@ -300,6 +300,67 @@ function CreateMailWindowGlobals() {
   accountManager = MailServices.accounts;
 }
 
+function toggleCaretBrowsing() {
+  const enabledPref = "accessibility.browsewithcaret_shortcut.enabled";
+  const warnPref = "accessibility.warn_on_browsewithcaret";
+  const caretPref = "accessibility.browsewithcaret";
+
+  if (!Services.prefs.getBoolPref(enabledPref)) {
+    return;
+  }
+
+  let useCaret = Services.prefs.getBoolPref(caretPref, false);
+  let warn = Services.prefs.getBoolPref(warnPref, true);
+  if (!warn || useCaret) {
+    // Toggle immediately.
+    try {
+      Services.prefs.setBoolPref(caretPref, !useCaret);
+    } catch (ex) {}
+    return;
+  }
+
+  // Async prompt.
+  document.l10n
+    .formatValues([
+      { id: "caret-browsing-prompt-title" },
+      { id: "caret-browsing-prompt-text" },
+      { id: "caret-browsing-prompt-check-text" },
+    ])
+    .then(([title, promptText, checkText]) => {
+      let checkValue = { value: false };
+
+      useCaret =
+        0 ===
+        Services.prompt.confirmEx(
+          window,
+          title,
+          promptText,
+          Services.prompt.STD_YES_NO_BUTTONS |
+            Services.prompt.BUTTON_POS_1_DEFAULT,
+          null,
+          null,
+          null,
+          checkText,
+          checkValue
+        );
+
+      if (checkValue.value) {
+        if (useCaret) {
+          try {
+            Services.prefs.setBoolPref(warnPref, false);
+          } catch (ex) {}
+        } else {
+          try {
+            Services.prefs.setBoolPref(enabledPref, false);
+          } catch (ex) {}
+        }
+      }
+      try {
+        Services.prefs.setBoolPref(caretPref, useCaret);
+      } catch (ex) {}
+    });
+}
+
 function InitMsgWindow() {
   msgWindow.windowCommands = new nsMsgWindowCommands();
   // set the domWindow before setting the status feedback and header sink objects
@@ -332,6 +393,29 @@ function InitMsgWindow() {
       ReloadMessage();
     });
   });
+
+  let keypressListener = {
+    handleEvent: event => {
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      switch (event.code) {
+        case "F7":
+          // shift + F7 is the default DevTools shortcut for the Style Editor.
+          if (!event.shiftKey) {
+            toggleCaretBrowsing();
+          }
+          break;
+      }
+    },
+  };
+  Services.els.addSystemEventListener(
+    document,
+    "keypress",
+    keypressListener,
+    false
+  );
 }
 
 // We're going to implement our status feedback for the mail window in JS now.

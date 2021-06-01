@@ -126,6 +126,10 @@ addon-removal-title = Remove { $name }?
 addon-removal-confirmation-button = Remove
 addon-removal-confirmation-message = Remove { $name } as well as its configuration and data from { -brand-short-name }?
 
+caret-browsing-prompt-title = Caret Browsing
+caret-browsing-prompt-text = Pressing F7 turns Caret Browsing on or off. This feature places a moveable cursor within some content, allowing you to select text with the keyboard. Do you want to turn Caret Browsing on?
+caret-browsing-prompt-check-text = Do not ask again.
+
 repair-text-encoding-button =
   .label = Repair Text Encoding
   .tooltiptext = Guess correct text encoding from message content
