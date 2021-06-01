@@ -451,8 +451,9 @@ class SmtpClient {
    *
    * @param {nsresult} nsError - A nsresult.
    * @param {string} serverError - Error message returned from the SMTP server.
+   * @param {string} [extra] - Some messages take two arguments to format.
    */
-  _onNsError(nsError, serverError) {
+  _onNsError(nsError, serverError, extra) {
     let errorName = MsgUtils.getErrorStringName(nsError);
     let errorMessage = "";
     if (
@@ -469,7 +470,10 @@ class SmtpClient {
       let bundle = Services.strings.createBundle(
         "chrome://messenger/locale/messengercompose/composeMsgs.properties"
       );
-      errorMessage = bundle.formatStringFromName(errorName, [serverError]);
+      errorMessage = bundle.formatStringFromName(errorName, [
+        serverError,
+        extra,
+      ]);
     }
     this.onerror(nsError, errorMessage);
     this.close();
@@ -1180,36 +1184,31 @@ class SmtpClient {
   }
 
   /**
-   * Response to a RCPT TO command. If the command is unsuccessful, try the next one,
-   * as this might be related only to the current recipient, not a global error, so
-   * the following recipients might still be valid
+   * Response to a RCPT TO command. If the command is unsuccessful, emit an
+   * error to abort the sending.
    *
    * @param {Object} command Parsed command from the server {statusCode, data}
    */
   _actionRCPT(command) {
     if (!command.success) {
-      this.logger.warn("RCPT TO failed for: " + this._envelope.curRecipient);
-      // this is a soft error
-      this._envelope.rcptFailed.push(this._envelope.curRecipient);
-    } else {
-      this._envelope.responseQueue.push(this._envelope.curRecipient);
+      this._onNsError(
+        MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
+        command.data,
+        this._envelope.curRecipient
+      );
+      return;
     }
+    this._envelope.responseQueue.push(this._envelope.curRecipient);
 
-    if (!this._envelope.rcptQueue.length) {
-      if (this._envelope.rcptFailed.length < this._envelope.to.length) {
-        this._currentAction = this._actionDATA;
-        this.logger.debug("RCPT TO done, proceeding with payload");
-        this._sendCommand("DATA");
-      } else {
-        this.logger.error("Can't send mail - all recipients were rejected");
-        this._onNsError(MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND, command.data);
-        this._currentAction = this._actionIdle;
-      }
-    } else {
-      this.logger.debug("Adding recipient...");
+    if (this._envelope.rcptQueue.length) {
+      // Send the next recipient.
       this._envelope.curRecipient = this._envelope.rcptQueue.shift();
       this._currentAction = this._actionRCPT;
       this._sendCommand(`RCPT TO:<${this._envelope.curRecipient}>`);
+    } else {
+      this.logger.debug("RCPT TO done, proceeding with payload");
+      this._currentAction = this._actionDATA;
+      this._sendCommand("DATA");
     }
   }
 
