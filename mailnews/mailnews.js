@@ -414,6 +414,7 @@ pref("ldap_2.version", 3);
 
 // If true, LDAPDirectory.jsm is used. Otherwise, nsAbLDAPDirectory.cpp is used.
 pref("mailnews.ldap.jsmodule", false);
+pref("mailnews.ldap.loglevel", "Warn");
 
 pref("mailnews.confirm.moveFoldersToTrash", true);
 
