@@ -211,14 +211,15 @@ class SearchResultEntry extends LDAPResponse {
   parse() {
     let value = this.protocolOp.valueBlock.value;
     let objectName = new TextDecoder().decode(value[0].valueBlock.valueHex);
-    let attributes = value[1].valueBlock.value.map(attr => {
+    let attributes = {};
+    for (let attr of value[1].valueBlock.value) {
       let attrValue = attr.valueBlock.value;
       let type = new TextDecoder().decode(attrValue[0].valueBlock.valueHex);
       let vals = attrValue[1].valueBlock.value.map(v =>
         new TextDecoder().decode(v.valueBlock.valueHex)
       );
-      return { type, vals };
-    });
+      attributes[type] = vals;
+    }
     this.result = { objectName, attributes };
   }
 }

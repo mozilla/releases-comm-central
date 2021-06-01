@@ -24,6 +24,16 @@ function LDAPModuleLoader() {
 var ldapJSModules = [
   // moduleName, interfaceId, contractId
   [
+    "LDAPConnection",
+    "{f87b71b5-2a0f-4b37-8e4f-3c899f6b8432}",
+    "@mozilla.org/network/ldap-connection;1",
+  ],
+  [
+    "LDAPOperation",
+    "{a6f94ca4-cd2d-4983-bcf2-fe936190955c}",
+    "@mozilla.org/network/ldap-operation;1",
+  ],
+  [
     "LDAPDirectory",
     "{8683e821-f1b0-476d-ac15-07771c79bb11}",
     "@mozilla.org/addressbook/directory;1?type=moz-abldapdirectory",

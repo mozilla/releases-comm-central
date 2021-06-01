@@ -8,14 +8,19 @@ var { BindRequest, SearchRequest, LDAPResponse } = ChromeUtils.import(
 );
 
 class LDAPClient {
+  /**
+   * @param {string} url - The LDAP server url.
+   * @param {number} port - The LDAP server port.
+   */
   constructor(url, port) {
-    this._socket = new TCPSocket(url, port, {
-      binaryType: "arraybuffer",
-    });
-    this._socket.onopen = this._onOpen;
-    this._socket.onerror = this._onError;
+    this.onOpen = () => {};
+    this.onError = () => {};
+
+    this._url = url;
+    this._port = port;
 
     this._messageId = 1;
+    this._callbackMap = new Map();
 
     this._logger = console.createInstance({
       prefix: "mailnews.ldap",
@@ -24,25 +29,35 @@ class LDAPClient {
     });
   }
 
+  connect() {
+    this._socket = new TCPSocket(this._url, this._port, {
+      binaryType: "arraybuffer",
+    });
+    this._socket.onopen = this._onOpen;
+    this._socket.onerror = this._onError;
+  }
+
   /**
    * Send a bind request to the server.
    * @param {string} dn - The name to bind.
    * @param {string} password - The password.
+   * @param {Function} callback - Callback function when receiving BindResponse.
    */
-  bind(dn, password) {
+  bind(dn = "", password = "", callback) {
     this._logger.debug(`Binding ${dn}`);
     let req = new BindRequest(dn, password);
-    this._send(req);
+    this._send(req, callback);
   }
 
   /**
    * Send a search request to the server.
    * @param {string} dn - The name to search.
+   * @param {Function} callback - Callback function when receiving search responses.
    */
-  search(dn) {
+  search(dn, callback) {
     this._logger.debug(`Searching ${dn}`);
     let req = new SearchRequest(dn);
-    this._send(req);
+    this._send(req, callback);
   }
 
   /**
@@ -52,6 +67,7 @@ class LDAPClient {
     this._logger.debug("Connected");
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
+    this.onOpen();
   };
 
   /**
@@ -63,7 +79,18 @@ class LDAPClient {
     // The payload can contain multiple messages, parse it to the end.
     while (data.byteLength) {
       let res = LDAPResponse.fromBER(data);
-      this._logger.debug(res.constructor.name, res);
+      this._logger.debug(`S: [${res.messageId}] ${res.constructor.name}`);
+      let callback = this._callbackMap.get(res.messageId);
+      if (callback) {
+        callback(res);
+        if (
+          !["SearchResultEntry", "SearchResultReference"].includes(
+            res.constructor.name
+          )
+        ) {
+          this._callbackMap.delete(res.messageId);
+        }
+      }
       data = data.slice(res.byteLength);
     }
   };
@@ -81,13 +108,19 @@ class LDAPClient {
    */
   _onError = event => {
     this._logger.error(event);
+    this.onError();
   };
 
   /**
    * Send a message to the server.
    * @param {LDAPMessage} msg - The message to send.
+   * @param {Function} callback - Callback function when receiving server responses.
    */
-  _send(msg) {
+  _send(msg, callback) {
+    if (callback) {
+      this._callbackMap.set(this._messageId, callback);
+    }
+    this._logger.debug(`C: [${this._messageId}] ${msg.constructor.name}`);
     this._socket.send(msg.toBER(this._messageId++));
   }
 }

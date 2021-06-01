@@ -5,5 +5,7 @@
 
 EXTRA_JS_MODULES += [
     "LDAPClient.jsm",
+    "LDAPConnection.jsm",
     "LDAPMessage.jsm",
+    "LDAPOperation.jsm",
 ]
