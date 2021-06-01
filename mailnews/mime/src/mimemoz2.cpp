@@ -75,6 +75,23 @@ mime_stream_data::mime_stream_data()
 //
 MimeObject* mime_get_main_object(MimeObject* obj);
 
+// Appends a "filename" parameter with the attachment name to the object url.
+void AppendFilenameParameterToAttachmentDataUrl(
+    const nsMsgAttachmentData* attachmentData, nsCString& url) {
+  url.AppendLiteral("&filename=");
+  nsAutoCString aResult;
+  if (NS_SUCCEEDED(MsgEscapeString(attachmentData->m_realName,
+                                   nsINetUtil::ESCAPE_XALPHAS, aResult))) {
+    url.Append(aResult);
+  } else {
+    url.Append(attachmentData->m_realName);
+  }
+  if (attachmentData->m_realType.EqualsLiteral("message/rfc822") &&
+      !StringEndsWith(url, ".eml"_ns, nsCaseInsensitiveCStringComparator)) {
+    url.AppendLiteral(".eml");
+  }
+}
+
 nsresult MimeGetSize(MimeObject* child, int32_t* size) {
   bool isLeaf = mime_subclass_p(child->clazz, (MimeObjectClass*)&mimeLeafClass);
   bool isContainer =
@@ -170,7 +187,11 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
     } else {
       // This is just a normal MIME part as usual.
       tmpURL = mime_set_url_part(url, id, true);
-      rv = nsMimeNewURI(getter_AddRefs(tmp->m_url), tmpURL, nullptr);
+      nsCString urlString(tmpURL);
+      if (!tmp->m_realName.IsEmpty()) {
+        AppendFilenameParameterToAttachmentDataUrl(tmp, urlString);
+      }
+      rv = nsMimeNewURI(getter_AddRefs(tmp->m_url), urlString.get(), nullptr);
     }
 
     if (!tmp->m_url || NS_FAILED(rv)) {
@@ -420,17 +441,7 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
   }
 
   if (!tmp->m_realName.IsEmpty() && !tmp->m_isExternalAttachment) {
-    urlString.AppendLiteral("&filename=");
-    nsAutoCString aResult;
-    if (NS_SUCCEEDED(MsgEscapeString(tmp->m_realName,
-                                     nsINetUtil::ESCAPE_XALPHAS, aResult)))
-      urlString.Append(aResult);
-    else
-      urlString.Append(tmp->m_realName);
-    if (tmp->m_realType.EqualsLiteral("message/rfc822") &&
-        !StringEndsWith(urlString, ".eml"_ns,
-                        nsCaseInsensitiveCStringComparator))
-      urlString.AppendLiteral(".eml");
+    AppendFilenameParameterToAttachmentDataUrl(tmp, urlString);
   } else if (tmp->m_isExternalAttachment) {
     // Allows the JS mime emitter to figure out the part information.
     urlString.AppendLiteral("?part=");
