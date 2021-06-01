@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const EXPORTED_SYMBOLS = ["LDAPClient"];
-var { BindRequest, LDAPResponse } = ChromeUtils.import(
+var { BindRequest, SearchRequest, LDAPResponse } = ChromeUtils.import(
   "resource:///modules/LDAPMessage.jsm"
 );
 
@@ -36,6 +36,16 @@ class LDAPClient {
   }
 
   /**
+   * Send a search request to the server.
+   * @param {string} dn - The name to search.
+   */
+  search(dn) {
+    this._logger.debug(`Searching ${dn}`);
+    let req = new SearchRequest(dn);
+    this._send(req);
+  }
+
+  /**
    * The open event handler.
    */
   _onOpen = () => {
@@ -49,8 +59,13 @@ class LDAPClient {
    * @param {TCPSocketEvent} event - The data event.
    */
   _onData = event => {
-    let res = LDAPResponse.fromBER(event.data);
-    this._logger.debug(res.constructor.name, res);
+    let data = event.data;
+    // The payload can contain multiple messages, parse it to the end.
+    while (data.byteLength) {
+      let res = LDAPResponse.fromBER(data);
+      this._logger.debug(res.constructor.name, res);
+      data = data.slice(res.byteLength);
+    }
   };
 
   /**

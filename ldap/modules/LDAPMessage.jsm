@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["BindRequest", "LDAPResponse"];
+const EXPORTED_SYMBOLS = ["BindRequest", "SearchRequest", "LDAPResponse"];
 
 var {
   asn1js: { asn1js },
@@ -64,6 +64,52 @@ class BindRequest extends LDAPMessage {
   }
 }
 
+class SearchRequest extends LDAPMessage {
+  /**
+   * @param {string} dn - The name to search.
+   */
+  constructor(dn) {
+    super();
+    this.protocolOp = new asn1js.Constructed({
+      // [APPLICATION 0]
+      idBlock: {
+        tagClass: 2,
+        tagNumber: 3,
+      },
+      value: [
+        // base DN
+        new asn1js.OctetString({
+          valueHex: new TextEncoder().encode(dn),
+        }),
+        // scope
+        new asn1js.Enumerated({
+          value: 2,
+        }),
+        // derefAliases
+        new asn1js.Enumerated({
+          value: 0,
+        }),
+        // sizeLimit
+        new asn1js.Integer({ value: 0 }),
+        // timeLimit
+        new asn1js.Integer({ value: 10 }),
+        // typesOnly
+        new asn1js.Boolean({ value: false }),
+        // filter
+        new asn1js.Primitive({
+          idBlock: {
+            tagClass: 3,
+            tagNumber: 7,
+          },
+          valueHex: new TextEncoder().encode("objectClass"),
+        }),
+        // attributes
+        new asn1js.Sequence(),
+      ],
+    });
+  }
+}
+
 class LDAPResult {
   /**
    * @param {number} resultCode - The result code.
@@ -86,11 +132,13 @@ class LDAPResponse extends LDAPMessage {
   /**
    * @param {number} messageId - The message id.
    * @param {LocalBaseBlock} protocolOp - The message content.
+   * @param {number} byteLength - The byte size of this message in raw BER form.
    */
-  constructor(messageId, protocolOp) {
+  constructor(messageId, protocolOp, byteLength) {
     super();
     this.messageId = messageId;
     this.protocolOp = protocolOp;
+    this.byteLength = byteLength;
   }
 
   /**
@@ -132,7 +180,11 @@ class LDAPResponse extends LDAPMessage {
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
-    let op = new ProtocolOp(value[0].valueBlock.valueDec, protocolOp);
+    let op = new ProtocolOp(
+      value[0].valueBlock.valueDec,
+      protocolOp,
+      decoded.offset
+    );
     op.parse();
     return op;
   }
@@ -155,10 +207,28 @@ class LDAPResponse extends LDAPMessage {
 
 class BindResponse extends LDAPResponse {}
 
-class SearchResultEntry extends LDAPResponse {}
+class SearchResultEntry extends LDAPResponse {
+  parse() {
+    let value = this.protocolOp.valueBlock.value;
+    let objectName = new TextDecoder().decode(value[0].valueBlock.valueHex);
+    let attributes = value[1].valueBlock.value.map(attr => {
+      let attrValue = attr.valueBlock.value;
+      let type = new TextDecoder().decode(attrValue[0].valueBlock.valueHex);
+      let vals = attrValue[1].valueBlock.value.map(v =>
+        new TextDecoder().decode(v.valueBlock.valueHex)
+      );
+      return { type, vals };
+    });
+    this.result = { objectName, attributes };
+  }
+}
 
 class SearchResultDone extends LDAPResponse {}
 
-class SearchResultReference extends LDAPResponse {}
+class SearchResultReference extends LDAPResponse {
+  parse() {
+    this.result = {};
+  }
+}
 
 class ExtendedResponse extends LDAPResponse {}
