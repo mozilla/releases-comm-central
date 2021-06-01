@@ -107,16 +107,13 @@ function updatedCalendarReadStatus(item) {
   if (item.hasAttribute("calendar-readfailed")) {
     image.setAttribute("src", "chrome://calendar/skin/shared/icons/warn.svg");
     let tooltip = cal.l10n.getCalString("tooltipCalendarDisabled", [calendarName]);
-    image.setAttribute("alt", tooltip);
     image.setAttribute("title", tooltip);
   } else if (item.hasAttribute("calendar-readonly")) {
     image.setAttribute("src", "chrome://calendar/skin/shared/icons/locked.svg");
     let tooltip = cal.l10n.getCalString("tooltipCalendarReadOnly", [calendarName]);
-    image.setAttribute("alt", tooltip);
     image.setAttribute("title", tooltip);
   } else {
     image.removeAttribute("src");
-    image.setAttribute("alt", "");
     image.removeAttribute("title");
   }
 }

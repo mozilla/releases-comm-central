@@ -794,7 +794,6 @@ function setLeftAndWidth(element, startTime, endTime) {
       } else {
         return;
       }
-      targetIcon.setAttribute("alt", tooltip);
       targetIcon.setAttribute("title", tooltip);
     }
   }
