@@ -283,7 +283,7 @@
       this.showFullMessageIds = false;
 
       this.toggleButton = document.createElement("button");
-      this.toggleButton.classList.add("emailActionIconButton");
+      this.toggleButton.classList.add("icon-button", "email-action-button");
       // FIXME: Is the twisty icon the best representation since toggling the
       // twisty icon does not expand hidden content vertically?
       // A list of <details> elements may be more appropriate to capture this,
@@ -421,7 +421,7 @@
       // tooltip is not currently accessible to keyboard users and doesn't
       // appear as a node in the accessibility tree.
       this.starButton = document.createElement("button");
-      this.starButton.classList.add("emailActionIconButton");
+      this.starButton.classList.add("icon-button", "email-action-button");
       this.starButton.setAttribute("contextmenu", "emailAddressPopup");
       this.starIcon = document.createElement("img");
       this.starIcon.classList.add("emailStar");
@@ -2309,14 +2309,14 @@
             event.preventDefault();
             let row = this.querySelector(".address-row:not(.hidden)");
             // If the close label is collapsed, focus on the input field.
-            if (row.querySelector(".aw-firstColBox > button").collapsed) {
+            if (row.querySelector(".remove-field-button").hidden) {
               row
                 .querySelector(`input[is="autocomplete-input"][recipienttype]`)
                 .focus();
               return;
             }
             // Focus on the close label.
-            row.querySelector(".aw-firstColBox > button").focus();
+            row.querySelector(".remove-field-button").focus();
           }
         });
 
@@ -2570,13 +2570,18 @@
 
       row.classList.add("hidden");
 
-      let closeButton = document.createXULElement("button");
-      closeButton.classList.add("close-icon");
+      let closeButton = document.createElement("button");
+      closeButton.classList.add("remove-field-button", "icon-button");
       document.l10n.setAttributes(
         closeButton,
         "remove-address-row-type-label",
         { type: recipient.labelId }
       );
+      let closeIcon = document.createElement("img");
+      closeIcon.setAttribute("src", "chrome://global/skin/icons/close.svg");
+      // Button's title is the accessible name.
+      closeIcon.setAttribute("alt", "");
+      closeButton.appendChild(closeIcon);
 
       closeButton.addEventListener("click", event => {
         closeLabelOnClick(event);
@@ -3250,8 +3255,8 @@
     moveFocusToPreviousElement(element) {
       let row = element.closest(".address-row");
       // Move focus on the close label if not collapsed.
-      if (!row.querySelector(".aw-firstColBox > button").collapsed) {
-        row.querySelector(".aw-firstColBox > button").focus();
+      if (!row.querySelector(".remove-field-button").hidden) {
+        row.querySelector(".remove-field-button").focus();
         return;
       }
       // If a previous address row is available and not hidden,

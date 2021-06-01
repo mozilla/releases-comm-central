@@ -442,31 +442,15 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
   margin: 0;
 }
 
-.emailActionIconButton {
-  /* Only occupy the same space as its content. */
-  display: inline grid;
-  padding: 0;
-  margin: 0;
-  height: auto;
-  min-width: auto;
-  border: none;
-  border-radius: 0;
+button.email-action-button:hover {
   background: none;
 }
 
-.emailActionIconButton[hidden] {
-  display: none;
-}
-
-.emailActionIconButton:focus-visible:not(:hover) {
+button.email-action-button:focus-visible:not(:hover) {
   outline: 1px solid var(--focus-outline-color);
 }
 
-button.emailActionIconButton:hover {
-  background: none;
-}
-
-mail-emailaddress .emailActionIconButton {
+mail-emailaddress button.icon-button.email-action-button {
   margin-inline-start: 2px;
 }
 

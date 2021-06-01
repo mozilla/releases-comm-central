@@ -33,7 +33,7 @@
   color: #a1a1a1; /* lower contrast */
 }
 
-mail-messageids-headerfield .emailActionIconButton {
+mail-messageids-headerfield button.icon-button.email-action-button {
   margin-inline: 1px 3px;
 }
 

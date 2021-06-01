@@ -231,15 +231,14 @@ function updateUIforNNTPAccount() {
   if (mailContainer.querySelectorAll("mail-address-pill").length == 0) {
     mailContainer
       .closest(".address-row")
-      .querySelector(".aw-firstColBox > button")
+      .querySelector(".remove-field-button")
       .click();
   }
 
   // Show the closing label.
   mailContainer
     .closest(".address-row")
-    .querySelector(".aw-firstColBox > button")
-    .removeAttribute("collapsed");
+    .querySelector(".remove-field-button").hidden = false;
 
   // Show the `news-primary-input` field row if not already visible.
   let newsContainer = document
@@ -254,9 +253,7 @@ function updateUIforNNTPAccount() {
   }
 
   // Hide the closing label.
-  newsContainer
-    .querySelector(".aw-firstColBox > button")
-    .setAttribute("collapsed", "true");
+  newsContainer.querySelector(".remove-field-button").hidden = true;
 
   // Reorder `mail-label` menu items.
   let panel = document.getElementById("extraRecipientsPanel");
@@ -286,22 +283,18 @@ function updateUIforMailAccount() {
   }
 
   // Hide the closing label.
-  mailContainer
-    .querySelector(".aw-firstColBox > button")
-    .setAttribute("collapsed", "true");
+  mailContainer.querySelector(".remove-field-button").hidden = true;
 
   // Hide the `news-primary-input` field row if no pills have been created.
   let newsContainer = document
     .querySelector(".news-primary-input")
     .closest(".address-row");
   if (newsContainer.querySelectorAll("mail-address-pill").length == 0) {
-    newsContainer.querySelector(".aw-firstColBox > button").click();
+    newsContainer.querySelector(".remove-field-button").click();
   }
 
   // Show the closing label.
-  newsContainer
-    .querySelector(".aw-firstColBox > button")
-    .removeAttribute("collapsed");
+  newsContainer.querySelector(".remove-field-button").hidden = false;
 
   // Reorder `mail-label` menu items.
   let panel = document.getElementById("extraRecipientsPanel");
@@ -583,12 +576,12 @@ function otherHeaderInputOnKeyDown(event) {
         input.selectionStart + input.selectionEnd ||
         input
           .closest(".address-row")
-          .querySelector(".aw-firstColBox > button[collapsed]")
+          .querySelector(".remove-field-button[hidden]")
       ) {
         // Interrupt if repeated keydown from deleting text, input still has
         // text, or cursor selection is not at position 0 while deleting
         // whitespace, to allow regular text deletion before we remove the row.
-        // Also interrupt for non-removable rows with collapsed [x] button.
+        // Also interrupt for non-removable rows with hidden [x] button.
         break;
       }
       // If "Backspace" or "Delete" was explicitly pressed on an empty row,
@@ -714,7 +707,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
         event.key == "Backspace" &&
         input
           .closest(".address-row")
-          .querySelector(".aw-firstColBox > button:not([collapsed])")
+          .querySelector(".remove-field-button:not([hidden])")
       ) {
         // If addressing row has no pills nor text, unrepeated Backspace
         // keydown, and row has an [x] button, hide row and focus previous row.
@@ -732,7 +725,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
           .querySelector("mail-address-pill") &&
         !input
           .closest(".address-row")
-          .querySelector(".aw-firstColBox > button[collapsed]")
+          .querySelector(".remove-field-button[hidden]")
       ) {
         // If addressing row has no pills nor text, unrepeated Delete keydown,
         // and row has an [x] button, hide row and focus next available row.
@@ -1088,9 +1081,9 @@ function showAddressRow(label, rowID) {
  * Hide the container row of a recipient (Cc, Bcc, etc.).
  * The container can't be hidden if previously typed addresses are listed.
  *
- * @param {XULelement} element - A descendant element of the row to be hidden
- *   (or the row itself), usually the [x] label when triggered, or an empty
- *   address input upon Backspace or Del keydown.
+ * @param {Element} element - A descendant element of the row to be hidden (or
+ *   the row itself), usually the [x] label when triggered, or an empty address
+ *   input upon Backspace or Del keydown.
  * @param {("next"|"previous")} [focusType="next"] - How to move focus after
  *   hiding the address row: try to focus the input of an available next sibling
  *   row (for [x] or DEL) or previous sibling row (for BACKSPACE).

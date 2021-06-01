@@ -4407,7 +4407,7 @@ async function updateAriaLabelsOfAddressRow(row) {
  */
 function updateTooltipsOfAddressRow(row) {
   let type = row.querySelector(".address-label-container > label").value;
-  let el = row.querySelector(".aw-firstColBox > button");
+  let el = row.querySelector(".remove-field-button");
   document.l10n.setAttributes(el, "remove-address-row-type-label", { type });
 }
 
@@ -7845,8 +7845,8 @@ function fromKeyPress(event) {
     .querySelector(".address-row:not(.hidden)");
 
   // Move focus on the close label if not collapsed.
-  if (!row.querySelector(".aw-firstColBox > button").collapsed) {
-    row.querySelector(".aw-firstColBox > button").focus();
+  if (!row.querySelector(".remove-field-button").hidden) {
+    row.querySelector(".remove-field-button").focus();
     return;
   }
 

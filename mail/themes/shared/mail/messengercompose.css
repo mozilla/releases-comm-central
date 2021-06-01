@@ -538,10 +538,16 @@ menulist::part(description) {
   margin-inline-start: 1ex !important;
 }
 
-.aw-firstColBox,
-#firstcol-addressingWidget {
-  width: 21px;
+.address-row > .aw-firstColBox {
   flex-shrink: 0;
+  align-self: center;
+}
+
+.aw-firstColBox {
+  /* aw-firstColBox inline padding (4px + 4px) + remove-field-button inline
+   * padding (2px + 2px) + img width (16px) */
+  padding: 0 4px;
+  width: 28px;
 }
 
 .addressingWidgetItem,
@@ -1068,15 +1074,20 @@ label.extra-recipients-label {
   background-color: var(--arrowpanel-dimmed-further);
 }
 
-.aw-firstColBox button {
-  margin-block: 4px 0;
-  min-width: 20px;
-  background: none;
-  border: none;
+button.icon-button.remove-field-button {
+  padding: 2px;
+  border-radius: 4px;
 }
 
-.address-extra-recipients label:focus:not(:hover),
-.aw-firstColBox button:focus:not(:hover) {
+.remove-field-button > img {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  width: 16px;
+  height: 16px;
+}
+
+.address-extra-recipients label:focus,
+button.remove-field-button:focus {
   outline: 2px solid var(--focus-outline-color);
 }
 
