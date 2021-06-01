@@ -5809,7 +5809,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
 
     nsAutoCString service("imap@");
     service.Append(m_realHostName);
-    rv = DoGSSAPIStep1(service, userName, response);
+    rv = DoGSSAPIStep1(service.get(), userName, response);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoCString command(GetServerCommandTag());
