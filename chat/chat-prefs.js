@@ -87,8 +87,12 @@ pref("chat.irc.automaticList", true);
 pref("chat.xmpp.messageCarbons", true);
 // Disable Facebook as the XMPP gateway no longer exists.
 pref("chat.prpls.prpl-facebook.disable", true);
-// Disable experimental Matrix support.
+// Disable Matrix support except for trunk.
+#ifdef NIGHTLY_BUILD
+pref("chat.prpls.prpl-matrix.disable", false);
+#else
 pref("chat.prpls.prpl-matrix.disable", true);
+#endif
 // Disable Twitter as the streaming API was shut down.
 pref("chat.prpls.prpl-twitter.disable", true);
 // Disable Yahoo Messenger as legacy Yahoo was shut down.
