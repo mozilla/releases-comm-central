@@ -739,7 +739,7 @@ function awRecipientKeyDown(event, inputElement) {
     // Enable deletion of empty recipient rows.
     case "Delete":
     case "Backspace":
-      if (inputElement.textLength == 1 && event.repeat) {
+      if (inputElement.value.length == 1 && event.repeat) {
         // User is holding down Delete or Backspace to delete recipient text
         // inline and is now deleting the last character: Set flag to
         // temporarily block row deletion.

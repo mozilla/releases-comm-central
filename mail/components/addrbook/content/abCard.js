@@ -711,25 +711,24 @@ function CheckCardRequiredDataPresence(doc) {
   //            organization (company name).
   var primaryEmail = doc.getElementById("PrimaryEmail");
   if (
-    primaryEmail.textLength == 0 &&
-    doc.getElementById("FirstName").textLength == 0 &&
-    doc.getElementById("LastName").textLength == 0 &&
-    doc.getElementById("DisplayName").textLength == 0 &&
-    doc.getElementById("Company").textLength == 0
+    !primaryEmail.value &&
+    !doc.getElementById("FirstName").value &&
+    !doc.getElementById("LastName").value &&
+    !doc.getElementById("DisplayName").value &&
+    !doc.getElementById("Company").value
   ) {
     Services.prompt.alert(
       window,
       gAddressBookBundle.getString("cardRequiredDataMissingTitle"),
       gAddressBookBundle.getString("cardRequiredDataMissingMessage")
     );
-
     return false;
   }
 
   // Simple checks that the primary email should be of the form |user@host|.
   // Note: if the length of the primary email is 0 then we skip the check
   // as some other field must have something as per the check above.
-  if (primaryEmail.textLength != 0 && !/.@./.test(primaryEmail.value)) {
+  if (primaryEmail.value && !/.@./.test(primaryEmail.value)) {
     Services.prompt.alert(
       window,
       gAddressBookBundle.getString("incorrectEmailAddressFormatTitle"),
