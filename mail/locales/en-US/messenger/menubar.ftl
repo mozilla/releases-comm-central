@@ -2,12 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-## View Menu
-
-menu-view-charset =
-    .label = Text Encoding
-    .accesskey = c
-
 ## Tools Menu
 
 # Since v89 we dropped the platforms distinction between Options or Preferences
@@ -48,6 +42,12 @@ toolbar-delete-button =
 toolbar-undelete-button =
     .label = Undelete
     .tooltiptext = Undelete selected messages
+
+## View
+
+menu-view-repair-text-encoding =
+    .label = Repair Text Encoding
+    .accesskey = c
 
 ## View / Layout
 

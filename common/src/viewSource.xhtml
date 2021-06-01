@@ -15,8 +15,6 @@
 #endif
 <!ENTITY % sourceDTD SYSTEM "chrome://messenger/locale/viewSource.dtd" >
 %sourceDTD;
-<!ENTITY % charsetDTD SYSTEM "chrome://global/locale/charsetMenu.dtd" >
-%charsetDTD;
 <!ENTITY % editMenuDTD SYSTEM "chrome://global/locale/editMenuOverlay.dtd" >
 %editMenuDTD;
 ]>
@@ -248,13 +246,9 @@
           </menu>
 
           <!-- Charset Menu -->
-          <menu id="charsetMenu"
-                data-l10n-id="menu-view-charset"
-                oncommand="viewSourceChrome.onSetCharacterSet(event);"
-                onpopupshowing="CharsetMenu.build(event.target);
-                                CharsetMenu.update(event.target, content.document.characterSet);">
-            <menupopup/>
-          </menu>
+          <menuitem id="repair-text-encoding"
+                data-l10n-id="menu-view-repair-text-encoding"
+                oncommand="viewSourceChrome.onForceCharacterSet();"/>
           <menuseparator/>
           <menuitem id="menu_wrapLongLines" type="checkbox" command="cmd_wrapLongLines"
                     label="&menu_wrapLongLines.title;" accesskey="&menu_wrapLongLines.accesskey;"/>

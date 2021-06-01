@@ -687,11 +687,10 @@
                        label="&fullZoom.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-viewZoomView', this)"/>
-        <toolbarbutton id="appmenu_charsetMenu"
-                       class="subviewbutton subviewbutton-nav"
-                       data-l10n-id="menu-view-charset"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-viewTextEncodingView', this)"/>
+        <toolbarbutton id="appmenu_charsetRepairMenuitem"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="repair-text-encoding-button"
+                       oncommand="MailSetCharacterSet()"/>
         <toolbarseparator id="appmenu_viewAfterCharsetSeparator"/>
         <toolbarbutton id="appmenu_pageSourceMenuItem"
                        class="subviewbutton subviewbutton-iconic"
@@ -1150,14 +1149,6 @@
                        command="cmd_fullZoomToggle"
                        checked="false"/>
       </vbox>
-    </panelview>
-
-    <!-- View / Text Encoding -->
-    <panelview id="appMenu-viewTextEncodingView"
-               title="&charsetMenu2.label;"
-               class="PanelUI-subView"
-               oncommand="MailSetCharacterSet(event)">
-      <vbox class="panel-subview-body"/>
     </panelview>
 
     <!-- Go -->

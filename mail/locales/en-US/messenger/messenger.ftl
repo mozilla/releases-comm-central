@@ -125,3 +125,7 @@ message-header-address-not-in-address-book-icon =
 addon-removal-title = Remove { $name }?
 addon-removal-confirmation-button = Remove
 addon-removal-confirmation-message = Remove { $name } as well as its configuration and data from { -brand-short-name }?
+
+repair-text-encoding-button =
+  .label = Repair Text Encoding
+  .tooltiptext = Guess correct text encoding from message content

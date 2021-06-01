@@ -12,14 +12,11 @@
   MozXULElement msgWindow
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
-  UpdateCharsetMenu updateEditUIVisibility UpdateFullZoomMenu
+  updateEditUIVisibility UpdateFullZoomMenu
   gFolderTreeView initUiDensityAppMenu gDensityPreviewer
    */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { CharsetMenu } = ChromeUtils.import(
-  "resource://gre/modules/CharsetMenu.jsm"
-);
 var { CustomizableUI } = ChromeUtils.import(
   "resource:///modules/CustomizableUI.jsm"
 );
@@ -54,12 +51,6 @@ ChromeUtils.defineModuleGetter(
   "PanelMultiView",
   "resource:///modules/PanelMultiView.jsm"
 );
-
-// Needed for character encoding subviews.
-XPCOMUtils.defineLazyGetter(this, "gBundle", function() {
-  const kUrl = "chrome://global/locale/charsetMenu.properties";
-  return Services.strings.createBundle(kUrl);
-});
 
 /**
  * Maintains the state and dispatches events for the main menu panel.
@@ -434,9 +425,6 @@ const PanelUI = {
         break;
       case "appMenu-viewZoomView":
         UpdateFullZoomMenu();
-        break;
-      case "appMenu-viewTextEncodingView":
-        this._onTextEncodingViewShow(event);
         break;
       // Go
       case "appMenu-goRecentlyClosedTabsView":
@@ -885,56 +873,6 @@ const PanelUI = {
 
     InitAppFolderViewsMenu();
     InitViewFolderViewsMenu(event);
-  },
-
-  /**
-   * Create a toolbarbutton DOM node for a text encoding menu item.
-   * Similar to the CharsetMenu.build function.
-   *
-   * @param {Document} doc     The document where the node will be created.
-   * @param {Object} nodeInfo  Contains attributes to set on the node.
-   * @returns {Element}        The DOM node.
-   */
-  _createTextEncodingNode(doc, nodeInfo) {
-    const node = doc.createXULElement("toolbarbutton");
-    node.setAttribute("type", "radio");
-    node.setAttribute("name", nodeInfo.name + "Group");
-    node.setAttribute(nodeInfo.name, nodeInfo.value);
-    node.setAttribute("label", nodeInfo.label);
-    if (nodeInfo.accesskey) {
-      node.setAttribute("accesskey", nodeInfo.accesskey);
-    }
-    node.setAttribute("class", "subviewbutton subviewbutton-iconic");
-    return node;
-  },
-
-  /**
-   * Event listener for showing the View/Text_Encoding view.
-   * Similar to the CharsetMenu.build function.
-   *
-   * @param {ViewShowingEvent} event  ViewShowing event.
-   */
-  _onTextEncodingViewShow(event) {
-    const panelView = event.target;
-    const doc = panelView.ownerDocument;
-    const parent = panelView.querySelector(".panel-subview-body");
-
-    // Clear the view before recreating it.
-    while (parent.firstElementChild) {
-      parent.firstElementChild.remove();
-    }
-
-    // Add a toolbarbutton for each character encoding.
-    let { pinnedCharsets, otherCharsets } = CharsetMenu.getData();
-
-    let addButton = charsetInfo =>
-      parent.appendChild(PanelUI._createTextEncodingNode(doc, charsetInfo));
-
-    pinnedCharsets.forEach(addButton);
-    parent.appendChild(doc.createXULElement("toolbarseparator"));
-    otherCharsets.forEach(addButton);
-
-    UpdateCharsetMenu(msgWindow.mailCharacterSet, parent);
   },
 
   _updateQuitTooltip() {

@@ -26,8 +26,6 @@
 %msgViewPickerDTD;
 <!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
 %baseMenuOverlayDTD;
-<!ENTITY % charsetDTD SYSTEM "chrome://global/locale/charsetMenu.dtd">
-%charsetDTD;
 <!ENTITY % viewZoomOverlayDTD SYSTEM "chrome://messenger/locale/viewZoomOverlay.dtd">
 %viewZoomOverlayDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >

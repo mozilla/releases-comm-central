@@ -85,8 +85,8 @@ function checkMenuitems(menu, ...expectedItems) {
 add_task(async function test_view_source_reload() {
   be_in_folder(folder);
 
-  let contentLatin1 = "Testar, ett två tre.";
-  let contentUTF8 = "Testar, ett tv� tre";
+  let contentLatin1 = "Testar, ett tvÃ¥ tre.";
+  let contentUTF8 = "Testar, ett två tre.";
   let msg = addToFolder("view-source reload test123?", contentLatin1, folder);
 
   let selMsg = select_click_row(0);
@@ -125,9 +125,9 @@ add_task(async function test_view_source_reload() {
   );
   vsc.click(vsc.e("menu_view"));
   await popupshown;
+  Assert.ok(!vsc.e("repair-text-encoding").disabled);
   await vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"), [
-    { id: "charsetMenu" },
-    { label: "Unicode" },
+    { id: "repair-text-encoding" },
   ]);
 
   vsc.waitFor(

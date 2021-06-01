@@ -414,12 +414,13 @@ function view_init() {
   document.commandDispatcher.updateCommands("create-menu-view");
 
   // Disable the charset item if there's nothing to enable
+  let disableCharsetItems = !gMessageDisplay.displayedMessage;
   document
-    .getElementById("charsetMenu")
-    .setAttribute("disabled", !gMessageDisplay.displayedMessage);
-  let appmenuCharset = document.getElementById("appmenu_charsetMenu");
+    .getElementById("repair-text-encoding")
+    .setAttribute("disabled", disableCharsetItems);
+  let appmenuCharset = document.getElementById("appmenu_charsetRepairMenuitem");
   if (appmenuCharset) {
-    appmenuCharset.disabled = !gMessageDisplay.displayedMessage;
+    appmenuCharset.disabled = disableCharsetItems;
   }
 }
 

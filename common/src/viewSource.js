@@ -7,9 +7,6 @@
 /* globals gViewSourceUtils, internalSave */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { CharsetMenu } = ChromeUtils.import(
-  "resource://gre/modules/CharsetMenu.jsm"
-);
 
 var gBrowser;
 addEventListener("load", () => {
@@ -33,6 +30,19 @@ addEventListener("load", () => {
     viewSourceBrowser: gBrowser,
   });
   gBrowser.contentWindow.focus();
+
+  document
+    .getElementById("repair-text-encoding")
+    .setAttribute("disabled", !gBrowser.mayEnableCharacterEncodingMenu);
+  gBrowser.addEventListener(
+    "load",
+    () => {
+      document
+        .getElementById("repair-text-encoding")
+        .setAttribute("disabled", !gBrowser.mayEnableCharacterEncodingMenu);
+    },
+    true
+  );
 });
 
 var viewSourceChrome = {
@@ -54,23 +64,11 @@ var viewSourceChrome = {
   },
 
   /**
-   * Called by clicks on a menu populated by CharsetMenu.jsm to
-   * change the selected character set.
-   *
-   * @param event
-   *        The click event on a character set menuitem.
+   * Called by clicks on a menuitem to force the character set detection.
    */
-  onSetCharacterSet(event) {
-    if (event.target.hasAttribute("charset")) {
-      let charset = event.target.getAttribute("charset");
-      // Replace generic Japanese with Shift_JIS which will also auto-detect
-      // ISO-2022-JP and EUC-JP.
-      if (charset == "Japanese") {
-        charset = "Shift_JIS";
-      }
-      gBrowser.characterSet = charset;
-      gBrowser.reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
-    }
+  onForceCharacterSet() {
+    gBrowser.characterSet = "_autodetect_all";
+    gBrowser.reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
   },
 
   /**

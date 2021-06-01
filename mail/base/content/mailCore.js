@@ -25,9 +25,6 @@ var { AppConstants } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { CharsetMenu } = ChromeUtils.import(
-  "resource://gre/modules/CharsetMenu.jsm"
-);
 
 XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
   let scope = {};
@@ -985,7 +982,3 @@ nsFlavorDataProvider.prototype = {
     }
   },
 };
-
-function UpdateCharsetMenu(aCharset, aNode) {
-  CharsetMenu.update(aNode, aCharset);
-}

@@ -629,13 +629,9 @@
                         type="checkbox" command="cmd_fullZoomToggle" checked="false"/>
             </menupopup>
           </menu>
-          <menu id="charsetMenu"
-                data-l10n-id="menu-view-charset"
-                onpopupshowing="UpdateCharsetMenu(msgWindow.mailCharacterSet, this);"
-                oncommand="MailSetCharacterSet(event)">
-            <menupopup id="charsetPopup"
-                       onpopupshowing="CharsetMenu.build(this, true, this.getAttribute('detectors') != 'false');"/>
-          </menu>
+          <menuitem id="repair-text-encoding"
+                data-l10n-id="menu-view-repair-text-encoding"
+                oncommand="MailSetCharacterSet();"/>
           <menuseparator id="viewAfterCharsetSeparator"/>
           <menuitem id="pageSourceMenuItem"
                     label="&pageSourceCmd.label;"

@@ -1011,15 +1011,13 @@ nsBrowserAccess.prototype = {
   },
 };
 
-function MailSetCharacterSet(aEvent) {
-  if (aEvent.target.hasAttribute("charset")) {
-    msgWindow.mailCharacterSet = aEvent.target.getAttribute("charset");
-    msgWindow.charsetOverride = true;
-    gMessageDisplay.keyForCharsetOverride =
-      "messageKey" in gMessageDisplay.displayedMessage
-        ? gMessageDisplay.displayedMessage.messageKey
-        : null;
-  }
+function MailSetCharacterSet() {
+  msgWindow.mailCharacterSet = "_autodetect_all";
+  msgWindow.charsetOverride = true;
+  gMessageDisplay.keyForCharsetOverride =
+    "messageKey" in gMessageDisplay.displayedMessage
+      ? gMessageDisplay.displayedMessage.messageKey
+      : null;
   messenger.setDocumentCharset(msgWindow.mailCharacterSet);
 }
 
