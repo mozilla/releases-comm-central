@@ -124,10 +124,12 @@ add_library(librnp-obj OBJECT
   crypto/sm2.cpp
   crypto/symmetric.cpp
   crypto/signatures.cpp
+  crypto/mem.cpp
   crypto.cpp
   fingerprint.cpp
   generate-key.cpp
   key-provider.cpp
+  logging.cpp
   misc.cpp
   pass-provider.cpp
   pgp-key.cpp
@@ -170,7 +172,7 @@ set_target_properties(librnp
     VERSION "${RNP_VERSION}"
     SOVERSION "${RNP_VERSION_MAJOR}"
     PREFIX "lib"
-    OUTPUT_NAME "rnp-${RNP_VERSION_MAJOR}"
+    OUTPUT_NAME "rnp"
 )
 
 if (BUILD_SHARED_LIBS)
@@ -200,8 +202,6 @@ if (NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
   file(REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/version.h")
 endif()
 
-set(LIBRNP_INCLUDEDIR "rnp-${PROJECT_VERSION_MAJOR}")
-
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
   set(namelink_component NAMELINK_COMPONENT development)
 else()
@@ -216,7 +216,6 @@ install(TARGETS librnp
     COMPONENT runtime
     ${namelink_component}
   ARCHIVE DESTINATION  "${CMAKE_INSTALL_LIBDIR}"
-  INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${LIBRNP_INCLUDEDIR}"
 )
 
 # install dll only for windows
@@ -235,7 +234,7 @@ install(
   COMPONENT
     development
   DESTINATION
-    "${CMAKE_INSTALL_INCLUDEDIR}/${LIBRNP_INCLUDEDIR}/rnp"
+    "${CMAKE_INSTALL_INCLUDEDIR}/rnp"
   RENAME
     rnp.h
 )
@@ -245,7 +244,7 @@ install(
   COMPONENT
     development
   DESTINATION
-    "${CMAKE_INSTALL_INCLUDEDIR}/${LIBRNP_INCLUDEDIR}/rnp"
+    "${CMAKE_INSTALL_INCLUDEDIR}/rnp"
   RENAME
     rnp_err.h
 )
@@ -255,7 +254,7 @@ install(
   COMPONENT
     development
   DESTINATION
-    "${CMAKE_INSTALL_INCLUDEDIR}/${LIBRNP_INCLUDEDIR}/rnp"
+    "${CMAKE_INSTALL_INCLUDEDIR}/rnp"
   RENAME
     rnp_export.h
 )
@@ -338,12 +337,17 @@ if (PKG_CONFIG_FOUND)
   get_target_property(LIBRNP_OUTPUT_NAME librnp OUTPUT_NAME)
   configure_file(
     "${PROJECT_SOURCE_DIR}/cmake/librnp.pc.in"
-    "${PROJECT_BINARY_DIR}/librnp-${PROJECT_VERSION_MAJOR}.pc"
+    "${PROJECT_BINARY_DIR}/librnp.pc"
     @ONLY
   )
   install(
-    FILES "${PROJECT_BINARY_DIR}/librnp-${PROJECT_VERSION_MAJOR}.pc"
+    FILES "${PROJECT_BINARY_DIR}/librnp.pc"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
     COMPONENT development
   )
+endif()
+
+# Build and install man page
+if (ENABLE_DOC)
+  add_adoc_man("${CMAKE_CURRENT_SOURCE_DIR}/librnp.3.adoc" ${RNP_VERSION})
 endif()

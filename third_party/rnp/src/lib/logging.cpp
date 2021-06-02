@@ -1,11 +1,6 @@
-/*
- * Copyright (c) 2017-2020 [Ribose Inc](https://www.ribose.com).
- * Copyright (c) 2009-2010 The NetBSD Foundation, Inc.
+/*-
+ * Copyright (c) 2017-2021 Ribose Inc.
  * All rights reserved.
- *
- * This code is originally derived from software contributed to
- * The NetBSD Foundation by Alistair Crooks (agc@netbsd.org), and
- * carried further by Ribose Inc (https://www.ribose.com).
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,45 +23,34 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef RNPSDK_H_
-#define RNPSDK_H_
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
+#include "string.h"
+#include "logging.h"
 
-#if defined(__cplusplus)
-extern "C" {
+/* -1 -- not initialized
+    0 -- logging is off
+    1 -- logging is on
+*/
+static int8_t _rnp_log_switch =
+#ifdef NDEBUG
+  -1 // lazy-initialize later
+#else
+  1 // always on in debug build
 #endif
+  ;
 
-#include <rnp/rnp_def.h>
-
-typedef enum { RNP_HEX_LOWERCASE, RNP_HEX_UPPERCASE } rnp_hex_format_t;
-
-int rnp_strcasecmp(const char *, const char *);
-
-char *rnp_strhexdump_upper(char *dest, const uint8_t *src, size_t length, const char *sep);
-
-char *rnp_compose_path(const char *first, ...);
-char *rnp_compose_path_ex(char **buf, size_t *buf_len, const char *first, ...);
-
-bool rnp_path_exists(const char *path);
-bool rnp_dir_exists(const char *path);
-bool rnp_file_exists(const char *path);
-int  rnp_unlink(const char *path);
-
-bool rnp_hex_encode(
-  const uint8_t *buf, size_t buf_len, char *hex, size_t hex_len, rnp_hex_format_t format);
-size_t rnp_hex_decode(const char *hex, uint8_t *buf, size_t buf_len);
-
-char *rnp_strlwr(char *s);
-
-bool hex2bin(const char *hex, size_t hexlen, uint8_t *bin, size_t len, size_t *out);
-
-void pgp_forget(void *, size_t);
-
-#if defined(__cplusplus)
+void
+set_rnp_log_switch(int8_t value)
+{
+    _rnp_log_switch = value;
 }
-#endif
 
-#endif
+bool
+rnp_log_switch()
+{
+    if (_rnp_log_switch < 0) {
+        const char *var = getenv(RNP_LOG_CONSOLE);
+        _rnp_log_switch = (var && strcmp(var, "0")) ? 1 : 0;
+    }
+    return !!_rnp_log_switch;
+}

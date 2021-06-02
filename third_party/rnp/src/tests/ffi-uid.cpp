@@ -32,10 +32,7 @@ TEST_F(rnp_tests, test_ffi_uid_properties)
 {
     rnp_ffi_t ffi = NULL;
     assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
-    rnp_input_t input = NULL;
-    assert_rnp_success(rnp_input_from_path(&input, "data/test_uid_validity/key-uids-pub.pgp"));
-    assert_rnp_success(rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_PUBLIC_KEYS));
-    rnp_input_destroy(input);
+    assert_true(load_keys_gpg(ffi, "data/test_uid_validity/key-uids-pub.pgp"));
 
     rnp_key_handle_t key = NULL;
     assert_rnp_success(rnp_locate_key(ffi, "keyid", "F6E741D1DF582D90", &key));
@@ -111,11 +108,7 @@ TEST_F(rnp_tests, test_ffi_uid_validity)
 {
     rnp_ffi_t ffi = NULL;
     assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
-    rnp_input_t input = NULL;
-    assert_rnp_success(
-      rnp_input_from_path(&input, "data/test_uid_validity/key-uids-with-invalid.pgp"));
-    assert_rnp_success(rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_PUBLIC_KEYS));
-    rnp_input_destroy(input);
+    assert_true(load_keys_gpg(ffi, "data/test_uid_validity/key-uids-with-invalid.pgp"));
 
     rnp_key_handle_t key = NULL;
     assert_rnp_success(rnp_locate_key(ffi, "keyid", "F6E741D1DF582D90", &key));
@@ -163,10 +156,7 @@ TEST_F(rnp_tests, test_ffi_uid_validity)
     assert_null(newkey);
 
     /* Now import key with valid signature for the userid 2 */
-    assert_rnp_success(rnp_input_from_path(&input, "data/test_uid_validity/key-uids-pub.pgp"));
-    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
-    rnp_input_destroy(input);
-
+    assert_true(import_pub_keys(ffi, "data/test_uid_validity/key-uids-pub.pgp"));
     uids = 0;
     assert_rnp_success(rnp_key_get_uid_count(key, &uids));
     assert_int_equal(uids, 4);
@@ -198,11 +188,7 @@ TEST_F(rnp_tests, test_ffi_uid_validity)
     rnp_key_handle_destroy(newkey);
 
     /* Now import key with revoked primary userid */
-    assert_rnp_success(
-      rnp_input_from_path(&input, "data/test_uid_validity/key-uids-revoked-valid.pgp"));
-    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
-    rnp_input_destroy(input);
-
+    assert_true(import_pub_keys(ffi, "data/test_uid_validity/key-uids-revoked-valid.pgp"));
     uids = 0;
     assert_rnp_success(rnp_key_get_uid_count(key, &uids));
     assert_int_equal(uids, 4);
@@ -231,16 +217,119 @@ TEST_F(rnp_tests, test_ffi_uid_validity)
 
     /* Load expired key with single uid: now should be no primary */
     assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC));
-    assert_rnp_success(rnp_input_from_path(&input, "data/test_uid_validity/key-expired.pgp"));
-    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
-    rnp_input_destroy(input);
-
+    assert_true(import_pub_keys(ffi, "data/test_uid_validity/key-expired.pgp"));
     assert_rnp_success(rnp_locate_key(ffi, "keyid", "4BE147BB22DF1E60", &key));
     assert_non_null(key);
 
     uid_str = NULL;
     assert_rnp_failure(rnp_key_get_primary_uid(key, &uid_str));
     assert_null(uid_str);
+    rnp_key_handle_destroy(key);
+
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_ffi_remove_uid)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+    assert_true(load_keys_gpg(ffi, "data/test_uid_validity/key-uids-pub.pgp"));
+
+    rnp_key_handle_t key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "userid-valid", &key));
+    size_t count = 0;
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 4);
+    rnp_key_handle_t sub = NULL;
+    assert_rnp_success(rnp_key_get_subkey_at(key, 0, &sub));
+    rnp_uid_handle_t uid = NULL;
+    /* delete last userattr */
+    assert_rnp_success(rnp_key_get_uid_handle_at(key, 3, &uid));
+    assert_rnp_failure(rnp_uid_remove(NULL, uid));
+    assert_rnp_failure(rnp_uid_remove(key, NULL));
+    assert_rnp_failure(rnp_uid_remove(sub, uid));
+    assert_rnp_success(rnp_uid_remove(key, uid));
+    assert_rnp_success(rnp_uid_handle_destroy(uid));
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 3);
+    /* delete uid in the middle, userid-expired */
+    assert_rnp_success(rnp_key_get_uid_handle_at(key, 1, &uid));
+    char *uidstr = NULL;
+    assert_rnp_success(rnp_key_get_uid_at(key, 1, &uidstr));
+    assert_string_equal(uidstr, "userid-expired");
+    rnp_buffer_destroy(uidstr);
+    assert_rnp_success(rnp_uid_remove(key, uid));
+    assert_rnp_success(rnp_uid_handle_destroy(uid));
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 2);
+    /* delete first uid */
+    assert_rnp_success(rnp_key_get_uid_handle_at(key, 0, &uid));
+    assert_rnp_success(rnp_key_get_uid_at(key, 0, &uidstr));
+    assert_string_equal(uidstr, "userid-valid");
+    rnp_buffer_destroy(uidstr);
+    assert_rnp_success(rnp_uid_remove(key, uid));
+    assert_rnp_success(rnp_uid_handle_destroy(uid));
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 1);
+    /* delete last and only uid */
+    assert_rnp_success(rnp_key_get_uid_handle_at(key, 0, &uid));
+    assert_rnp_success(rnp_key_get_uid_at(key, 0, &uidstr));
+    assert_string_equal(uidstr, "userid-invalid");
+    rnp_buffer_destroy(uidstr);
+    assert_rnp_success(rnp_uid_remove(key, uid));
+    assert_rnp_success(rnp_uid_handle_destroy(uid));
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 0);
+    rnp_key_handle_destroy(key);
+    rnp_key_handle_destroy(sub);
+    /* now let's reload pubring to make sure that they are removed */
+    reload_pubring(&ffi);
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "userid-valid", &key));
+    assert_null(key);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "f6e741d1df582d90", &key));
+    count = 255;
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 0);
+    rnp_key_handle_destroy(key);
+
+    /* delete userids of the secret key and reload */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_true(load_keys_gpg(ffi,
+                              "data/test_uid_validity/key-uids-pub.pgp",
+                              "data/test_uid_validity/key-uids-sec.pgp"));
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "userid-valid", &key));
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 4);
+    bool secret = false;
+    assert_rnp_success(rnp_key_have_secret(key, &secret));
+    assert_true(secret);
+    /* remove userid-expired */
+    assert_rnp_success(rnp_key_get_uid_handle_at(key, 1, &uid));
+    assert_rnp_success(rnp_key_get_uid_at(key, 1, &uidstr));
+    assert_string_equal(uidstr, "userid-expired");
+    rnp_buffer_destroy(uidstr);
+    assert_rnp_success(rnp_uid_remove(key, uid));
+    assert_rnp_success(rnp_uid_handle_destroy(uid));
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 3);
+    /* remove userid-invalid */
+    assert_rnp_success(rnp_key_get_uid_handle_at(key, 1, &uid));
+    assert_rnp_success(rnp_key_get_uid_at(key, 1, &uidstr));
+    assert_string_equal(uidstr, "userid-invalid");
+    rnp_buffer_destroy(uidstr);
+    assert_rnp_success(rnp_uid_remove(key, uid));
+    assert_rnp_success(rnp_uid_handle_destroy(uid));
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 2);
+    rnp_key_handle_destroy(key);
+    /* reload */
+    reload_keyrings(&ffi);
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "userid-valid", &key));
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 2);
+    secret = false;
+    assert_rnp_success(rnp_key_have_secret(key, &secret));
+    assert_true(secret);
     rnp_key_handle_destroy(key);
 
     rnp_ffi_destroy(ffi);

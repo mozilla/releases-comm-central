@@ -80,22 +80,17 @@ __RCSID("$NetBSD: misc.c,v 1.41 2012/03/05 02:20:18 christos Exp $");
 #include "uniwin.h"
 #endif
 
-#include <botan/ffi.h>
 #include "crypto.h"
-#include <rnp/rnp_sdk.h>
+#include "crypto/mem.h"
 #include "utils.h"
 #include "json_utils.h"
 
 #ifdef _WIN32
+#include <windows.h>
+#include <locale>
+#include <codecvt>
 #define vsnprintf _vsnprintf
 #endif
-
-/* utility function to zero out memory */
-void
-pgp_forget(void *vp, size_t size)
-{
-    botan_scrub_mem(vp, size);
-}
 
 /**
  * Searches the given map for the given type.
@@ -145,10 +140,10 @@ hexdump(FILE *fp, const char *header, const uint8_t *src, size_t length)
     char   line[LINELEN + 1];
 
     (void) fprintf(fp, "%s%s", (header) ? header : "", (header) ? "" : "");
-    (void) fprintf(fp, " (%" PRIsize "u byte%s):\n", length, (length == 1) ? "" : "s");
+    (void) fprintf(fp, " (%zu byte%s):\n", length, (length == 1) ? "" : "s");
     for (i = 0; i < length; i++) {
         if (i % LINELEN == 0) {
-            (void) fprintf(fp, "%.5" PRIsize "u | ", i);
+            (void) fprintf(fp, "%.5zu | ", i);
         }
         (void) fprintf(fp, "%.02x ", (uint8_t) src[i]);
         line[i % LINELEN] = (isprint(src[i])) ? src[i] : '.';
@@ -236,34 +231,6 @@ rnp_clear_debug()
     debugc = 0;
 }
 
-/* -1 -- not initialized
-    0 -- logging is off
-    1 -- logging is on
-*/
-int8_t _rnp_log_switch =
-#ifdef NDEBUG
-  -1 // lazy-initialize later
-#else
-  1 // always on in debug build
-#endif
-  ;
-
-void
-set_rnp_log_switch(int8_t value)
-{
-    _rnp_log_switch = value;
-}
-
-bool
-rnp_log_switch()
-{
-    if (_rnp_log_switch < 0) {
-        const char *var = getenv(RNP_LOG_CONSOLE);
-        _rnp_log_switch = (var && strcmp(var, "0")) ? 1 : 0;
-    }
-    return !!_rnp_log_switch;
-}
-
 /* portable replacement for strcasecmp(3) */
 int
 rnp_strcasecmp(const char *s1, const char *s2)
@@ -289,149 +256,6 @@ rnp_strhexdump_upper(char *dest, const uint8_t *src, size_t length, const char *
     return dest;
 }
 
-static char *
-vcompose_path(char **buf, size_t *buf_len, const char *first, va_list ap)
-{
-    size_t curlen = 0;
-    char * tmp_buf = NULL;
-    size_t tmp_buf_len = 0;
-
-    if (!first) {
-        return NULL;
-    }
-    if (!buf) {
-        buf = &tmp_buf;
-    }
-    if (!buf_len) {
-        buf_len = &tmp_buf_len;
-    }
-
-    const char *s = first;
-    do {
-        size_t len = strlen(s);
-
-        // current string len + NULL terminator + possible '/' +
-        // len of this path component
-        size_t reqsize = curlen + 1 + 1 + len;
-        if (*buf_len < reqsize) {
-            char *newbuf = (char *) realloc(*buf, reqsize);
-            if (!newbuf) {
-                // realloc failed, bail
-                free(*buf);
-                *buf = NULL;
-                break;
-            }
-            *buf = newbuf;
-            *buf_len = reqsize;
-        }
-
-        if (s != first) {
-            if ((*buf)[curlen - 1] != '/' && *s != '/') {
-                // add missing separator
-                (*buf)[curlen] = '/';
-                curlen += 1;
-            } else if ((*buf)[curlen - 1] == '/' && *s == '/') {
-                // skip duplicate separator
-                s++;
-                len--;
-            }
-        }
-        memcpy(*buf + curlen, s, len + 1);
-        curlen += len;
-    } while ((s = va_arg(ap, const char *)));
-
-    return *buf;
-}
-
-/** compose a path from one or more components
- *
- *  Notes:
- *  - The final argument must be NULL.
- *  - The caller must free the returned buffer.
- *  - The returned buffer is always NULL-terminated.
- *
- *  @param first the first path component
- *  @return the composed path buffer. The caller must free it.
- */
-char *
-rnp_compose_path(const char *first, ...)
-{
-    va_list ap;
-    va_start(ap, first);
-    char *path = vcompose_path(NULL, NULL, first, ap);
-    va_end(ap);
-    return path;
-}
-
-/** compose a path from one or more components
- *
- *  This version is useful when a function is composing
- *  multiple paths and wants to try to avoid unnecessary
- *  allocations.
- *
- *  Notes:
- *  - The final argument must be NULL.
- *  - The caller must free the returned buffer.
- *  - The returned buffer is always NULL-terminated.
- *
- *  @code
- *  char *buf = NULL;
- *  size_t buf_len = 0;
- *  rnp_compose_path_ex(&buf, &buf_len, "/tmp", dir1, file1, NULL);
- *  // the calls below will realloc the buffer if needed
- *  rnp_compose_path_ex(&buf, &buf_len, "/tmp", dir3, NULL);
- *  rnp_compose_path_ex(&buf, &buf_len, "/tmp", something, NULL);
- *  free(buf);
- *  @endcode
- *
- *  @param buf pointer to the buffer where the result will be stored.
- *         If buf is NULL, the caller must use the returned value.
- *         If *buf is NULL, a new buffer will be allocated.
- *  @param buf_len pointer to the allocated buffer size.
- *         Can be NULL.
- *  @param first the first path component
- *  @return the composed path buffer. The caller must free it.
- */
-char *
-rnp_compose_path_ex(char **buf, size_t *buf_len, const char *first, ...)
-{
-    va_list ap;
-    va_start(ap, first);
-    char *path = vcompose_path(buf, buf_len, first, ap);
-    va_end(ap);
-    return path;
-}
-
-bool
-rnp_hex_encode(
-  const uint8_t *buf, size_t buf_len, char *hex, size_t hex_len, rnp_hex_format_t format)
-{
-    uint32_t flags = format == RNP_HEX_LOWERCASE ? BOTAN_FFI_HEX_LOWER_CASE : 0;
-
-    if (hex_len < (buf_len * 2 + 1)) {
-        return false;
-    }
-    hex[buf_len * 2] = '\0';
-    return botan_hex_encode(buf, buf_len, hex, flags) == 0;
-}
-
-size_t
-rnp_hex_decode(const char *hex, uint8_t *buf, size_t buf_len)
-{
-    size_t hexlen = strlen(hex);
-
-    /* check for 0x prefix */
-    if ((hexlen >= 2) && (hex[0] == '0') && ((hex[1] == 'x') || (hex[1] == 'X'))) {
-        hex += 2;
-        hexlen -= 2;
-    }
-    if (botan_hex_decode(hex, hexlen, buf, &buf_len) != 0) {
-        RNP_LOG("Hex decode failed on string: %s", hex);
-        return 0;
-    }
-    return buf_len;
-}
-
 char *
 rnp_strlwr(char *s)
 {
@@ -441,14 +265,6 @@ rnp_strlwr(char *s)
         p++;
     }
     return s;
-}
-
-/* convert hex string, probably prefixes with 0x, to binary form */
-bool
-hex2bin(const char *hex, size_t hexlen, uint8_t *bin, size_t len, size_t *out)
-{
-    *out = rnp_hex_decode(hex, bin, len);
-    return *out != 0;
 }
 
 /* Shortcut function to add field checking it for null to avoid allocation failure.
@@ -485,7 +301,7 @@ obj_add_hex_json(json_object *obj, const char *name, const uint8_t *val, size_t 
         return false;
     }
 
-    bool res = rnp_hex_encode(val, val_len, hexbuf, hexlen, RNP_HEX_LOWERCASE) &&
+    bool res = rnp::hex_encode(val, val_len, hexbuf, hexlen, rnp::HEX_LOWERCASE) &&
                obj_add_field_json(obj, name, json_object_new_string(hexbuf));
 
     if (hexbuf != smallbuf) {

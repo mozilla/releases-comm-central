@@ -56,6 +56,7 @@ add_executable(rnpkeys
   main.cpp
   ../rnp/rnpcfg.cpp
   ../rnp/fficli.cpp
+  ../lib/logging.cpp
   $<TARGET_OBJECTS:rnp-common>
 )
 
@@ -97,3 +98,8 @@ install(TARGETS rnpkeys
     DESTINATION "${CMAKE_INSTALL_BINDIR}"
     COMPONENT cli
 )
+
+# Build and install man page
+if (ENABLE_DOC)
+  add_adoc_man("${CMAKE_CURRENT_SOURCE_DIR}/rnpkeys.1.adoc" ${RNP_VERSION})
+endif()

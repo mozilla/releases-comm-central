@@ -38,6 +38,7 @@
 #include <rnp/rnp_def.h>
 #include "types.h"
 #include "crypto.h"
+#include "crypto/mem.h"
 #include "stream-packet.h"
 #include "stream-key.h"
 #include <algorithm>
@@ -387,52 +388,6 @@ stream_skip_packet(pgp_source_t *src)
     return stream_read_packet(src, NULL);
 }
 
-bool
-stream_write_sk_sesskey(const pgp_sk_sesskey_t *skey, pgp_dest_t *dst)
-{
-    try {
-        pgp_packet_body_t pktbody(PGP_PKT_SK_SESSION_KEY);
-        /* version and algorithm fields */
-        pktbody.add_byte(skey->version);
-        pktbody.add_byte(skey->alg);
-        if (skey->version == PGP_SKSK_V5) {
-            pktbody.add_byte(skey->aalg);
-        }
-        /* S2K specifier */
-        pktbody.add_byte(skey->s2k.specifier);
-        pktbody.add_byte(skey->s2k.hash_alg);
-
-        switch (skey->s2k.specifier) {
-        case PGP_S2KS_SIMPLE:
-            break;
-        case PGP_S2KS_SALTED:
-            pktbody.add(skey->s2k.salt, sizeof(skey->s2k.salt));
-            break;
-        case PGP_S2KS_ITERATED_AND_SALTED:
-            pktbody.add(skey->s2k.salt, sizeof(skey->s2k.salt));
-            pktbody.add_byte(skey->s2k.iterations);
-            break;
-        default:
-            RNP_LOG("Unexpected s2k specifier: %d", (int) skey->s2k.specifier);
-            return false;
-        }
-        /* v5 : iv */
-        if (skey->version == PGP_SKSK_V5) {
-            pktbody.add(skey->iv, skey->ivlen);
-        }
-        /* encrypted key and auth tag for v5 */
-        if (skey->enckeylen > 0) {
-            pktbody.add(skey->enckey, skey->enckeylen);
-        }
-        /* write packet */
-        pktbody.write(*dst);
-        return true;
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        return false;
-    }
-}
-
 rnp_result_t
 stream_parse_marker(pgp_source_t &src)
 {
@@ -533,7 +488,7 @@ pgp_packet_body_t::pgp_packet_body_t(const uint8_t *data, size_t len)
 pgp_packet_body_t::~pgp_packet_body_t()
 {
     if (secure_) {
-        pgp_forget(data_.data(), data_.size());
+        secure_clear(data_.data(), data_.size());
     }
 }
 

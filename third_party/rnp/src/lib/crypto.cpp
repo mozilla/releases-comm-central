@@ -68,7 +68,6 @@ __RCSID("$NetBSD: crypto.c,v 1.36 2014/02/17 07:39:19 agc Exp $");
 
 #include <string.h>
 #include <time.h>
-#include <rnp/rnp_sdk.h>
 #include <rnp/rnp_def.h>
 
 #include <librepgp/stream-packet.h>
@@ -135,7 +134,7 @@ pgp_generate_seckey(const rnp_keygen_crypto_params_t *crypto,
             seckey->material.ec.curve = crypto->ecc.curve;
             break;
         }
-    /* FALLTHROUGH for non-x25519 curves */
+    /* FALLS THROUGH for non-x25519 curves */
     case PGP_PKA_ECDSA:
     case PGP_PKA_SM2:
         if (ec_generate(crypto->rng, &seckey->material.ec, seckey->alg, crypto->ecc.curve)) {

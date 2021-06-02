@@ -34,7 +34,7 @@
 #include "uniwin.h"
 #endif
 #include <string.h>
-#include <time.h>
+#include "time-utils.h"
 #include "stream-def.h"
 #include "stream-dump.h"
 #include "stream-armor.h"
@@ -469,14 +469,14 @@ dst_print_s2k(pgp_dest_t *dst, pgp_s2k_t *s2k)
 static void
 dst_print_time(pgp_dest_t *dst, const char *name, uint32_t time)
 {
-    char   buf[26] = {0};
-    time_t _time = time;
+    char buf[26] = {0};
     if (!name) {
         name = "time";
     }
-    strncpy(buf, ctime(&_time), sizeof(buf));
+    strncpy(buf, rnp_ctime(time), sizeof(buf));
     buf[24] = '\0';
-    dst_printf(dst, "%s: %zu (%s)\n", name, (size_t) time, buf);
+    dst_printf(
+      dst, "%s: %zu (%s%s)\n", name, (size_t) time, rnp_y2k38_warning(time) ? ">=" : "", buf);
 }
 
 static void
@@ -503,7 +503,7 @@ dst_hexdump(pgp_dest_t *dst, const uint8_t *src, size_t length)
 
     for (i = 0; i < length; i++) {
         if (i % LINELEN == 0) {
-            dst_printf(dst, "%.5" PRIsize "u | ", i);
+            dst_printf(dst, "%.5zu | ", i);
         }
         dst_printf(dst, "%.02x ", (uint8_t) src[i]);
         line[i % LINELEN] = (isprint(src[i])) ? src[i] : '.';

@@ -24,6 +24,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef SUPPORT_H_
+#define SUPPORT_H_
+
 #include "config.h"
 #include <string>
 #include <stdarg.h>
@@ -51,6 +54,8 @@
 #include "rnp.h"
 #include "rekey/rnp_key_store.h"
 #include "../rnp/fficli.h"
+#include "file-utils.h"
+#include "crypto/mem.h"
 
 #ifdef _WIN32
 #define pipe(fds) _pipe(fds, 256, O_BINARY)
@@ -124,12 +129,10 @@ char *make_temp_dir(void);
  **/
 char *directory_from_file_path(const char *file_path, const char *reldir);
 
-/*
- */
-char *hex_encode(const uint8_t v[], size_t len);
-
 /* check whether bin value is equals hex string */
 bool bin_eq_hex(const uint8_t *data, size_t len, const char *val);
+
+bool hex2mpi(pgp_mpi_t *val, const char *hex);
 
 /* check whether key id is equal to hex string */
 bool cmp_keyid(const pgp_key_id_t &id, const char *val);
@@ -161,7 +164,7 @@ bool setup_cli_rnp_common(cli_rnp_t * rnp,
                           int *       pipefd);
 
 /* Initialize key generation params with default values and specified hash algorithm */
-void cli_set_default_rsa_key_desc(rnp_cfg_t *cfg, const char *hash);
+void cli_set_default_rsa_key_desc(rnp_cfg &cfg, const char *hash);
 
 // this is a password callback that will always fail
 bool failing_password_callback(const pgp_password_ctx_t *ctx,
@@ -221,3 +224,19 @@ pgp_key_t *rnp_tests_get_key_by_id(rnp_key_store_t *  keyring,
                                    pgp_key_t *        after);
 pgp_key_t *rnp_tests_get_key_by_fpr(rnp_key_store_t *keyring, const std::string &keyid);
 pgp_key_t *rnp_tests_key_search(rnp_key_store_t *keyring, const std::string &keyid);
+
+/* key load/reload  shortcuts */
+void reload_pubring(rnp_ffi_t *ffi);
+void reload_keyrings(rnp_ffi_t *ffi);
+bool load_keys_gpg(rnp_ffi_t ffi, const std::string &pub, const std::string &sec = "");
+bool load_keys_kbx_g10(rnp_ffi_t ffi, const std::string &pub, const std::string &sec = "");
+
+/* key import shortcuts */
+bool import_all_keys(rnp_ffi_t ffi, const std::string &path);
+bool import_pub_keys(rnp_ffi_t ffi, const std::string &path);
+bool import_sec_keys(rnp_ffi_t ffi, const std::string &path);
+bool import_all_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
+bool import_pub_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
+bool import_sec_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len);
+
+#endif /* SUPPORT_H_ */

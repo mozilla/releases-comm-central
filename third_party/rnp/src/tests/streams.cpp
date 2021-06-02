@@ -39,6 +39,8 @@
 #include <librepgp/stream-dump.h>
 #include <librepgp/stream-armor.h>
 #include <librepgp/stream-write.h>
+#include <algorithm>
+#include "time-utils.h"
 
 static bool
 stream_hash_file(pgp_hash_t *hash, const char *path)
@@ -1155,29 +1157,26 @@ TEST_F(rnp_tests, test_stream_key_signature_validate)
 
 TEST_F(rnp_tests, test_stream_verify_no_key)
 {
-    cli_rnp_t rnp = {0};
-    rnp_cfg_t cfg = {};
+    cli_rnp_t rnp;
+    rnp_cfg   cfg;
 
     /* setup rnp structure and params */
-    rnp_cfg_init(&cfg);
-    rnp_cfg_setstr(&cfg, CFG_KR_PUB_PATH, "");
-    rnp_cfg_setstr(&cfg, CFG_KR_SEC_PATH, "");
-    rnp_cfg_setstr(&cfg, CFG_KR_PUB_FORMAT, RNP_KEYSTORE_GPG);
-    rnp_cfg_setstr(&cfg, CFG_KR_SEC_FORMAT, RNP_KEYSTORE_GPG);
-    assert_true(cli_rnp_init(&rnp, &cfg));
-    rnp_cfg_free(&cfg);
+    cfg.set_str(CFG_KR_PUB_PATH, "");
+    cfg.set_str(CFG_KR_SEC_PATH, "");
+    cfg.set_str(CFG_KR_PUB_FORMAT, RNP_KEYSTORE_GPG);
+    cfg.set_str(CFG_KR_SEC_FORMAT, RNP_KEYSTORE_GPG);
+    assert_true(cli_rnp_init(&rnp, cfg));
 
-    rnp_cfg_t *rnpcfg = cli_rnp_cfg(&rnp);
+    rnp_cfg &rnpcfg = cli_rnp_cfg(rnp);
     /* setup cfg for verification */
-    rnp_cfg_setstr(
-      rnpcfg, CFG_INFILE, "data/test_stream_verification/verify_encrypted_no_key.pgp");
-    rnp_cfg_setstr(rnpcfg, CFG_OUTFILE, "output.dat");
-    rnp_cfg_setbool(rnpcfg, CFG_OVERWRITE, true);
+    rnpcfg.set_str(CFG_INFILE, "data/test_stream_verification/verify_encrypted_no_key.pgp");
+    rnpcfg.set_str(CFG_OUTFILE, "output.dat");
+    rnpcfg.set_bool(CFG_OVERWRITE, true);
     /* setup operation context */
     assert_rnp_success(
       rnp_ffi_set_pass_provider(rnp.ffi, ffi_string_password_provider, (void *) "pass1"));
     /* operation should success if output is not discarded, i.e. operation = decrypt */
-    rnp_cfg_setbool(rnpcfg, CFG_NO_OUTPUT, false);
+    rnpcfg.set_bool(CFG_NO_OUTPUT, false);
     assert_true(cli_rnp_process_file(&rnp));
     assert_int_equal(file_size("output.dat"), 4);
     /* try second password */
@@ -1196,7 +1195,7 @@ TEST_F(rnp_tests, test_stream_verify_no_key)
     assert_false(cli_rnp_process_file(&rnp));
     assert_int_equal(file_size("output.dat"), -1);
     /* verification fails if output is discarded, i.e. operation = verify */
-    rnp_cfg_setbool(rnpcfg, CFG_NO_OUTPUT, true);
+    rnpcfg.set_bool(CFG_NO_OUTPUT, true);
     assert_false(cli_rnp_process_file(&rnp));
     assert_int_equal(file_size("output.dat"), -1);
 
@@ -1256,6 +1255,78 @@ static bool
 check_dump_file(const char *file, bool mpi, bool grip)
 {
     return check_dump_file_dst(file, mpi, grip) && check_dump_file_json(file, mpi, grip);
+}
+
+TEST_F(rnp_tests, test_y2k38)
+{
+    cli_rnp_t rnp;
+    rnp_cfg   cfg;
+
+    /* setup rnp structure and params */
+    cfg.set_str(CFG_KR_PUB_PATH, "data/keyrings/6");
+    cfg.set_str(CFG_KR_SEC_PATH, "data/keyrings/6");
+    cfg.set_str(CFG_KR_PUB_FORMAT, RNP_KEYSTORE_GPG);
+    cfg.set_str(CFG_KR_SEC_FORMAT, RNP_KEYSTORE_GPG);
+    cfg.set_str(CFG_IO_RESS, "stderr.dat");
+    assert_true(cli_rnp_init(&rnp, cfg));
+
+    rnp_cfg &rnpcfg = cli_rnp_cfg(rnp);
+    /* verify */
+    rnpcfg.set_str(CFG_INFILE, "data/test_messages/future.pgp");
+    rnpcfg.set_bool(CFG_OVERWRITE, true);
+    assert_true(cli_rnp_process_file(&rnp));
+
+    /* clean up and flush the file */
+    cli_rnp_end(&rnp);
+
+    /* check the file for presense of correct dates */
+    auto        output = file_to_str("stderr.dat");
+    time_t      crtime = 0xC0000000;
+    std::string correctMade = "signature made ";
+    if (rnp_y2k38_warning(crtime)) {
+        correctMade += ">=";
+    }
+    correctMade += rnp_ctime(crtime);
+    assert_true(
+      std::search(output.begin(), output.end(), correctMade.begin(), correctMade.end()) !=
+      output.end());
+    time_t      validtime = rnp_timeadd(crtime, 0xD0000000);
+    std::string correctValid = "Valid until ";
+    if (rnp_y2k38_warning(validtime)) {
+        correctValid += ">=";
+    }
+    correctValid += rnp_ctime(validtime);
+    assert_true(
+      std::search(output.begin(), output.end(), correctValid.begin(), correctValid.end()) !=
+      output.end());
+    unlink("stderr.dat");
+}
+
+TEST_F(rnp_tests, test_stream_dumper_y2k38)
+{
+    pgp_source_t   src;
+    pgp_dest_t     dst;
+    rnp_dump_ctx_t ctx = {0};
+
+    assert_rnp_success(init_file_src(&src, "data/keyrings/6/pubring.gpg"));
+    assert_rnp_success(init_mem_dest(&dst, NULL, 0));
+    assert_rnp_success(stream_dump_packets(&ctx, &src, &dst));
+    src_close(&src);
+    auto   written = (const uint8_t *) mem_dest_get_memory(&dst);
+    auto   last = written + dst.writeb;
+    time_t timestamp = 2958774690;
+    // regenerate time for the current timezone
+    char buf[26] = {0};
+    strncpy(buf, rnp_ctime(timestamp), sizeof(buf));
+    buf[24] = '\0';
+    std::string correct = "creation time: 2958774690 (";
+    if (rnp_y2k38_warning(timestamp)) {
+        correct += ">=";
+    }
+    correct += buf;
+    correct += ')';
+    assert_true(std::search(written, last, correct.begin(), correct.end()) != last);
+    dst_close(&dst, false);
 }
 
 TEST_F(rnp_tests, test_stream_dumper)
@@ -1485,7 +1556,7 @@ TEST_F(rnp_tests, test_stream_dearmor_edge_cases)
     len = snprintf(msg, sizeof(msg), "%s\n\n%s\n%s\n11111%s\n", HDR, b64, CRC, FTR);
     assert_false(try_dearmor(msg, len));
 
-    /* cuted out or extended b64 padding */
+    /* cut out or extended b64 padding */
     len = snprintf(msg, sizeof(msg), "%s\n\n%.*s\n%s\n%s\n", HDR, b64len - 1, b64, CRC, FTR);
     assert_false(try_dearmor(msg, len));
     len = snprintf(msg, sizeof(msg), "%s\n\n%.*s\n%s\n%s\n", HDR, b64len - 2, b64, CRC, FTR);
@@ -1500,15 +1571,18 @@ TEST_F(rnp_tests, test_stream_dearmor_edge_cases)
     assert_false(try_dearmor(msg, len));
     b64[30] = old;
 
-    /* modified/malformed crc */
+    /* modified/malformed crc (should be accepted now, see #1401) */
     len = snprintf(msg, sizeof(msg), "%s\n\n%s\n=miZq\n%s\n", HDR, b64, FTR);
-    assert_false(try_dearmor(msg, len));
+    assert_true(try_dearmor(msg, len));
     len = snprintf(msg, sizeof(msg), "%s\n\n%s\nmiZp\n%s\n", HDR, b64, FTR);
     assert_false(try_dearmor(msg, len));
     len = snprintf(msg, sizeof(msg), "%s\n\n%s\n==miZp\n%s\n", HDR, b64, FTR);
     assert_false(try_dearmor(msg, len));
     len = snprintf(msg, sizeof(msg), "%s\n\n%s\n=miZpp\n%s\n", HDR, b64, FTR);
     assert_false(try_dearmor(msg, len));
+    /* missing crc */
+    len = snprintf(msg, sizeof(msg), "%s\n\n%s\n\n%s\n", HDR, b64, FTR);
+    assert_true(try_dearmor(msg, len));
 }
 
 static void

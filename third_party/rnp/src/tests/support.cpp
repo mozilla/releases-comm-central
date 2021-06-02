@@ -409,32 +409,6 @@ directory_from_file_path(const char *file_path, const char *reldir)
     return directory_from_relative_file_path(file_path, reldir);
 }
 
-// returns new string containing hex value
-char *
-hex_encode(const uint8_t v[], size_t len)
-{
-    char * s;
-    size_t i;
-
-    s = (char *) malloc(2 * len + 1);
-    if (s == NULL)
-        return NULL;
-
-    char hex_chars[] = "0123456789ABCDEF";
-
-    for (i = 0; i < len; ++i) {
-        uint8_t    b0 = 0x0F & (v[i] >> 4);
-        uint8_t    b1 = 0x0F & (v[i]);
-        const char c1 = hex_chars[b0];
-        const char c2 = hex_chars[b1];
-        s[2 * i] = c1;
-        s[2 * i + 1] = c2;
-    }
-    s[2 * len] = 0;
-
-    return s;
-}
-
 bool
 bin_eq_hex(const uint8_t *data, size_t len, const char *val)
 {
@@ -445,10 +419,32 @@ bin_eq_hex(const uint8_t *data, size_t len, const char *val)
     }
 
     assert_non_null(dec = (uint8_t *) malloc(len));
-    assert_true(rnp_hex_decode(val, dec, len));
+    assert_true(rnp::hex_decode(val, dec, len));
     bool res = !memcmp(data, dec, len);
     free(dec);
     return res;
+}
+
+bool
+hex2mpi(pgp_mpi_t *val, const char *hex)
+{
+    const size_t hex_len = strlen(hex);
+    size_t       buf_len = hex_len / 2;
+    bool         ok;
+
+    uint8_t *buf = NULL;
+
+    buf = (uint8_t *) malloc(buf_len);
+
+    if (buf == NULL) {
+        return false;
+    }
+
+    rnp::hex_decode(hex, buf, buf_len);
+
+    ok = mem2mpi(val, buf, buf_len);
+    free(buf);
+    return ok;
 }
 
 bool
@@ -467,15 +463,12 @@ int
 test_value_equal(const char *what, const char *expected_value, const uint8_t v[], size_t v_len)
 {
     assert_int_equal(strlen(expected_value), v_len * 2);
-
-    char *produced = hex_encode(v, v_len);
-    if (produced == NULL) {
+    char *produced = (char *) calloc(1, v_len * 2 + 1);
+    if (!produced) {
         return -1;
     }
-
-    // fixme - expects expected_value is also uppercase
+    rnp::hex_encode(v, v_len, produced, v_len * 2 + 1);
     assert_string_equal(produced, expected_value);
-
     free(produced);
     return 0;
 }
@@ -545,25 +538,23 @@ end:
 }
 
 static bool
-setup_rnp_cfg(rnp_cfg_t *cfg, const char *ks_format, const char *homedir, int *pipefd)
+setup_rnp_cfg(rnp_cfg &cfg, const char *ks_format, const char *homedir, int *pipefd)
 {
     bool res;
     char pubpath[MAXPATHLEN];
     char secpath[MAXPATHLEN];
     char homepath[MAXPATHLEN];
 
-    rnp_cfg_init(cfg);
-
     /* set password fd if any */
     if (pipefd) {
         if (!(res = setupPasswordfd(pipefd))) {
             return res;
         }
-        rnp_cfg_setint(cfg, CFG_PASSFD, pipefd[0]);
+        cfg.set_int(CFG_PASSFD, pipefd[0]);
         // pipefd[0] will be closed via passfp
         pipefd[0] = -1;
     }
-    /* setup keyring pathes */
+    /* setup keyring paths */
     if (homedir == NULL) {
         /* if we use default homedir then we append '.rnp' and create directory as well */
         homedir = getenv("HOME");
@@ -578,8 +569,8 @@ setup_rnp_cfg(rnp_cfg_t *cfg, const char *ks_format, const char *homedir, int *p
         return false;
     }
 
-    rnp_cfg_setstr(cfg, CFG_KR_PUB_FORMAT, ks_format);
-    rnp_cfg_setstr(cfg, CFG_KR_SEC_FORMAT, ks_format);
+    cfg.set_str(CFG_KR_PUB_FORMAT, ks_format);
+    cfg.set_str(CFG_KR_SEC_FORMAT, ks_format);
 
     if (strcmp(ks_format, RNP_KEYSTORE_GPG) == 0) {
         paths_concat(pubpath, MAXPATHLEN, homedir, PUBRING_GPG, NULL);
@@ -593,38 +584,35 @@ setup_rnp_cfg(rnp_cfg_t *cfg, const char *ks_format, const char *homedir, int *p
     } else if (strcmp(ks_format, RNP_KEYSTORE_GPG21) == 0) {
         paths_concat(pubpath, MAXPATHLEN, homedir, PUBRING_KBX, NULL);
         paths_concat(secpath, MAXPATHLEN, homedir, SECRING_G10, NULL);
-        rnp_cfg_setstr(cfg, CFG_KR_PUB_FORMAT, RNP_KEYSTORE_KBX);
-        rnp_cfg_setstr(cfg, CFG_KR_SEC_FORMAT, RNP_KEYSTORE_G10);
+        cfg.set_str(CFG_KR_PUB_FORMAT, RNP_KEYSTORE_KBX);
+        cfg.set_str(CFG_KR_SEC_FORMAT, RNP_KEYSTORE_G10);
     } else {
         return false;
     }
 
-    rnp_cfg_setstr(cfg, CFG_KR_PUB_PATH, pubpath);
-    rnp_cfg_setstr(cfg, CFG_KR_SEC_PATH, secpath);
+    cfg.set_str(CFG_KR_PUB_PATH, (char *) pubpath);
+    cfg.set_str(CFG_KR_SEC_PATH, (char *) secpath);
     return true;
 }
 
 bool
 setup_cli_rnp_common(cli_rnp_t *rnp, const char *ks_format, const char *homedir, int *pipefd)
 {
-    rnp_cfg_t cfg = {};
-
-    if (!setup_rnp_cfg(&cfg, ks_format, homedir, pipefd)) {
+    rnp_cfg cfg;
+    if (!setup_rnp_cfg(cfg, ks_format, homedir, pipefd)) {
         return false;
     }
 
     /*initialize the basic RNP structure. */
-    bool res = cli_rnp_init(rnp, &cfg);
-    rnp_cfg_free(&cfg);
-    return res;
+    return cli_rnp_init(rnp, cfg);
 }
 
 void
-cli_set_default_rsa_key_desc(rnp_cfg_t *cfg, const char *hashalg)
+cli_set_default_rsa_key_desc(rnp_cfg &cfg, const char *hashalg)
 {
-    rnp_cfg_setint(cfg, CFG_NUMBITS, 1024);
-    rnp_cfg_setstr(cfg, CFG_HASH, hashalg);
-    rnp_cfg_setint(cfg, CFG_S2K_ITER, 1);
+    cfg.set_int(CFG_NUMBITS, 1024);
+    cfg.set_str(CFG_HASH, hashalg);
+    cfg.set_int(CFG_S2K_ITER, 1);
     cli_rnp_set_generate_params(cfg);
 }
 
@@ -842,42 +830,31 @@ ishex(const std::string &hexid)
 pgp_key_t *
 rnp_tests_get_key_by_id(rnp_key_store_t *keyring, const std::string &keyid, pgp_key_t *after)
 {
-    pgp_key_t *  key = NULL;
-    pgp_key_id_t keyid_bin = {};
-    size_t       binlen = 0;
-
-    if (!keyring || keyid.empty()) {
+    if (!keyring || keyid.empty() || !ishex(keyid)) {
         return NULL;
     }
-    if (ishex(keyid) &&
-        hex2bin(keyid.c_str(), keyid.size(), keyid_bin.data(), keyid_bin.size(), &binlen)) {
-        if (binlen <= PGP_KEY_ID_SIZE) {
-            key = rnp_key_store_get_key_by_id(keyring, keyid_bin, after);
-        }
+    pgp_key_id_t keyid_bin = {};
+    size_t       binlen = rnp::hex_decode(keyid.c_str(), keyid_bin.data(), keyid_bin.size());
+    if (binlen > PGP_KEY_ID_SIZE) {
+        return NULL;
     }
-    return key;
+    return rnp_key_store_get_key_by_id(keyring, keyid_bin, after);
 }
 
 pgp_key_t *
 rnp_tests_get_key_by_fpr(rnp_key_store_t *keyring, const std::string &keyid)
 {
-    pgp_key_t *          key = NULL;
-    std::vector<uint8_t> keyid_bin(PGP_FINGERPRINT_SIZE, 0);
-    size_t               binlen = 0;
-
-    if (!keyring || keyid.empty()) {
+    if (!keyring || keyid.empty() || !ishex(keyid)) {
         return NULL;
     }
-
-    if (ishex(keyid) &&
-        hex2bin(keyid.c_str(), keyid.size(), keyid_bin.data(), keyid_bin.size(), &binlen)) {
-        if (binlen <= PGP_FINGERPRINT_SIZE) {
-            pgp_fingerprint_t fp = {{}, static_cast<unsigned>(binlen)};
-            memcpy(fp.fingerprint, keyid_bin.data(), binlen);
-            key = rnp_key_store_get_key_by_fpr(keyring, fp);
-        }
+    std::vector<uint8_t> keyid_bin(PGP_FINGERPRINT_SIZE, 0);
+    size_t binlen = rnp::hex_decode(keyid.c_str(), keyid_bin.data(), keyid_bin.size());
+    if (binlen > PGP_FINGERPRINT_SIZE) {
+        return NULL;
     }
-    return key;
+    pgp_fingerprint_t fp = {{}, static_cast<unsigned>(binlen)};
+    memcpy(fp.fingerprint, keyid_bin.data(), binlen);
+    return rnp_key_store_get_key_by_fpr(keyring, fp);
 }
 
 pgp_key_t *
@@ -891,4 +868,150 @@ rnp_tests_key_search(rnp_key_store_t *keyring, const std::string &keyid)
     strncpy(srch_userid.by.userid, keyid.c_str(), sizeof(srch_userid.by.userid));
     srch_userid.by.userid[sizeof(srch_userid.by.userid) - 1] = '\0';
     return rnp_key_store_search(keyring, &srch_userid, NULL);
+}
+
+void
+reload_pubring(rnp_ffi_t *ffi)
+{
+    rnp_output_t output = NULL;
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_save_keys(*ffi, "GPG", output, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    assert_rnp_success(rnp_ffi_destroy(*ffi));
+
+    /* get output */
+    uint8_t *buf = NULL;
+    size_t   len = 0;
+    assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &len, false));
+    rnp_input_t input = NULL;
+    assert_rnp_success(rnp_input_from_memory(&input, buf, len, false));
+
+    /* re-init ffi and load keys */
+    assert_rnp_success(rnp_ffi_create(ffi, "GPG", "GPG"));
+    assert_rnp_success(rnp_import_keys(*ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    assert_rnp_success(rnp_output_destroy(output));
+    assert_rnp_success(rnp_input_destroy(input));
+}
+
+void
+reload_keyrings(rnp_ffi_t *ffi)
+{
+    rnp_output_t outpub = NULL;
+    assert_rnp_success(rnp_output_to_memory(&outpub, 0));
+    assert_rnp_success(rnp_save_keys(*ffi, "GPG", outpub, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    rnp_output_t outsec = NULL;
+    assert_rnp_success(rnp_output_to_memory(&outsec, 0));
+    assert_rnp_success(rnp_save_keys(*ffi, "GPG", outsec, RNP_LOAD_SAVE_SECRET_KEYS));
+    assert_rnp_success(rnp_ffi_destroy(*ffi));
+    /* re-init ffi and load keys */
+    assert_rnp_success(rnp_ffi_create(ffi, "GPG", "GPG"));
+
+    uint8_t *buf = NULL;
+    size_t   len = 0;
+    assert_rnp_success(rnp_output_memory_get_buf(outpub, &buf, &len, false));
+    rnp_input_t input = NULL;
+    assert_rnp_success(rnp_input_from_memory(&input, buf, len, false));
+    assert_rnp_success(rnp_import_keys(*ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    assert_rnp_success(rnp_input_destroy(input));
+    assert_rnp_success(rnp_output_destroy(outpub));
+
+    assert_rnp_success(rnp_output_memory_get_buf(outsec, &buf, &len, false));
+    assert_rnp_success(rnp_input_from_memory(&input, buf, len, false));
+    assert_rnp_success(rnp_import_keys(*ffi, input, RNP_LOAD_SAVE_SECRET_KEYS, NULL));
+    assert_rnp_success(rnp_input_destroy(input));
+    assert_rnp_success(rnp_output_destroy(outsec));
+}
+
+static bool
+load_keys_internal(rnp_ffi_t          ffi,
+                   const std::string &format,
+                   const std::string &path,
+                   bool               secret)
+{
+    if (path.empty()) {
+        return true;
+    }
+    rnp_input_t input = NULL;
+    if (rnp_input_from_path(&input, path.c_str())) {
+        return false;
+    }
+    bool res = !rnp_load_keys(ffi,
+                              format.c_str(),
+                              input,
+                              secret ? RNP_LOAD_SAVE_SECRET_KEYS : RNP_LOAD_SAVE_PUBLIC_KEYS);
+    rnp_input_destroy(input);
+    return res;
+}
+
+bool
+load_keys_gpg(rnp_ffi_t ffi, const std::string &pub, const std::string &sec)
+{
+    return load_keys_internal(ffi, "GPG", pub, false) &&
+           load_keys_internal(ffi, "GPG", sec, true);
+}
+
+bool
+load_keys_kbx_g10(rnp_ffi_t ffi, const std::string &pub, const std::string &sec)
+{
+    return load_keys_internal(ffi, "KBX", pub, false) &&
+           load_keys_internal(ffi, "G10", sec, true);
+}
+
+static bool
+import_keys(rnp_ffi_t ffi, const std::string &path, uint32_t flags)
+{
+    rnp_input_t input = NULL;
+    if (rnp_input_from_path(&input, path.c_str())) {
+        return false;
+    }
+    bool res = !rnp_import_keys(ffi, input, flags, NULL);
+    rnp_input_destroy(input);
+    return res;
+}
+
+bool
+import_all_keys(rnp_ffi_t ffi, const std::string &path)
+{
+    return import_keys(ffi, path, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS);
+}
+
+bool
+import_pub_keys(rnp_ffi_t ffi, const std::string &path)
+{
+    return import_keys(ffi, path, RNP_LOAD_SAVE_PUBLIC_KEYS);
+}
+
+bool
+import_sec_keys(rnp_ffi_t ffi, const std::string &path)
+{
+    return import_keys(ffi, path, RNP_LOAD_SAVE_SECRET_KEYS);
+}
+
+static bool
+import_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len, uint32_t flags)
+{
+    rnp_input_t input = NULL;
+    if (rnp_input_from_memory(&input, data, len, false)) {
+        return false;
+    }
+    bool res = !rnp_import_keys(ffi, input, flags, NULL);
+    rnp_input_destroy(input);
+    return res;
+}
+
+bool
+import_all_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len)
+{
+    return import_keys(ffi, data, len, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS);
+}
+
+bool
+import_pub_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len)
+{
+    return import_keys(ffi, data, len, RNP_LOAD_SAVE_PUBLIC_KEYS);
+}
+
+bool
+import_sec_keys(rnp_ffi_t ffi, const uint8_t *data, size_t len)
+{
+    return import_keys(ffi, data, len, RNP_LOAD_SAVE_SECRET_KEYS);
 }

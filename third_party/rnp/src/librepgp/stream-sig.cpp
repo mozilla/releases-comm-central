@@ -303,7 +303,7 @@ signature_hash_direct(const pgp_signature_t *sig, const pgp_key_pkt_t *key, pgp_
 rnp_result_t
 signature_check(pgp_signature_info_t *sinfo, pgp_hash_t *hash)
 {
-    time_t       now;
+    uint32_t     now;
     uint32_t     create, expiry, kcreate;
     rnp_result_t ret = RNP_ERROR_SIGNATURE_INVALID;
 
@@ -391,7 +391,7 @@ signature_check_certification(pgp_signature_info_t *  sinfo,
 rnp_result_t
 signature_check_binding(pgp_signature_info_t *sinfo,
                         const pgp_key_pkt_t * key,
-                        pgp_key_t *           subkey)
+                        const pgp_key_t *     subkey)
 {
     pgp_hash_t   hash = {};
     rnp_result_t res = RNP_ERROR_SIGNATURE_INVALID;
@@ -1586,7 +1586,7 @@ pgp_signature_t::parse_v4(pgp_packet_body_t &pkt)
     /* hashed subpackets length */
     uint16_t splen = read_uint16(&buf[3]);
     /* hashed subpackets length + 2 bytes of length of unhashed subpackets */
-    if (pkt.left() < splen + 2) {
+    if (pkt.left() < (size_t)(splen + 2)) {
         RNP_LOG("wrong packet or hashed subpackets length");
         return RNP_ERROR_BAD_FORMAT;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2019-2021, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -32,17 +32,18 @@
 #include <time.h>
 #include "rnp/rnp.h"
 #include "rnp/rnp_err.h"
+#include "config.h"
 #include "rnpcfg.h"
 #include "json.h"
 
 typedef struct cli_rnp_t {
-    rnp_ffi_t ffi;
-    rnp_cfg_t cfg;
-    FILE *    resfp;      /* where to put result messages, defaults to stdout */
-    FILE *    passfp;     /* file pointer for password input */
-    FILE *    userio_in;  /* file pointer for user's inputs */
-    FILE *    userio_out; /* file pointer for user's outputs */
-    int       pswdtries;  /* number of password tries, -1 for unlimited */
+    rnp_ffi_t ffi{};
+    rnp_cfg   cfg{};
+    FILE *    resfp{};      /* where to put result messages, defaults to stdout */
+    FILE *    passfp{};     /* file pointer for password input */
+    FILE *    userio_in{};  /* file pointer for user's inputs */
+    FILE *    userio_out{}; /* file pointer for user's outputs */
+    int       pswdtries{};  /* number of password tries, -1 for unlimited */
 } cli_rnp_t;
 
 typedef enum cli_search_flags_t {
@@ -55,23 +56,23 @@ typedef enum cli_search_flags_t {
 } cli_search_flags_t;
 
 /**
- * @brief Set keystore parameters to the rnp_cfg_t. This includes keyring pathes, types and
+ * @brief Set keystore parameters to the rnp_cfg_t. This includes keyring paths, types and
  *        default key.
  *
  * @param cfg pointer to the allocated rnp_cfg_t structure
  * @return true on success or false otherwise.
  * @return false
  */
-bool cli_cfg_set_keystore_info(rnp_cfg_t *cfg);
+bool cli_cfg_set_keystore_info(rnp_cfg &cfg);
 
-rnp_cfg_t *       cli_rnp_cfg(cli_rnp_t *rnp);
+rnp_cfg &         cli_rnp_cfg(cli_rnp_t &rnp);
 const std::string cli_rnp_defkey(cli_rnp_t *rnp);
 const std::string cli_rnp_pubpath(cli_rnp_t *rnp);
 const std::string cli_rnp_secpath(cli_rnp_t *rnp);
 const std::string cli_rnp_pubformat(cli_rnp_t *rnp);
 const std::string cli_rnp_secformat(cli_rnp_t *rnp);
 
-bool cli_rnp_init(cli_rnp_t *, rnp_cfg_t *);
+bool cli_rnp_init(cli_rnp_t *, const rnp_cfg &);
 bool cli_rnp_baseinit(cli_rnp_t *);
 void cli_rnp_end(cli_rnp_t *);
 bool cli_rnp_load_keyrings(cli_rnp_t *rnp, bool loadsecret);
@@ -79,7 +80,7 @@ bool cli_rnp_save_keyrings(cli_rnp_t *rnp);
 void cli_rnp_set_default_key(cli_rnp_t *rnp);
 void cli_rnp_print_key_info(
   FILE *fp, rnp_ffi_t ffi, rnp_key_handle_t key, bool psecret, bool psigs);
-bool cli_rnp_set_generate_params(rnp_cfg_t *cfg);
+bool cli_rnp_set_generate_params(rnp_cfg &cfg);
 bool cli_rnp_generate_key(cli_rnp_t *rnp, const char *username);
 /**
  * @brief Find key(s) matching set of flags and search string.
@@ -92,7 +93,7 @@ bool cli_rnp_generate_key(cli_rnp_t *rnp, const char *username);
  *              CLI_SEARCH_SUBKEYS : include subkeys to the results (see
  *                CLI_SEARCH_SUBKEYS_AFTER description).
  *              CLI_SEARCH_FIRST_ONLY : include only first key found
- *              CLI_SEARCH_SUBKEYS_AFTER : for each primary key add it's subkeys after the main
+ *              CLI_SEARCH_SUBKEYS_AFTER : for each primary key add its subkeys after the main
  *                key. This changes behaviour of subkey search, since those will be added only
  *                if subkey is orphaned or primary key matches search.
  * @return true if operation succeeds and at least one key is found, or false otherwise.
@@ -120,6 +121,7 @@ bool        cli_rnp_keys_matching_strings(cli_rnp_t *                     rnp,
 bool        cli_rnp_export_keys(cli_rnp_t *rnp, const char *filter);
 bool        cli_rnp_export_revocation(cli_rnp_t *rnp, const char *key);
 bool        cli_rnp_revoke_key(cli_rnp_t *rnp, const char *key);
+bool        cli_rnp_remove_key(cli_rnp_t *rnp, const char *key);
 bool        cli_rnp_add_key(cli_rnp_t *rnp);
 bool        cli_rnp_dump_file(cli_rnp_t *rnp);
 bool        cli_rnp_armor_file(cli_rnp_t *rnp);
@@ -145,8 +147,6 @@ void rnp_win_clear_args(int argc, char **argv);
 #define RNP_FP_SIZE 20
 #define RNP_GRIP_SIZE 20
 
-#define MAX_PASSWORD_ATTEMPTS 3
-
 #define ERR_MSG(...)                           \
     do {                                       \
         (void) fprintf((stderr), __VA_ARGS__); \
@@ -157,5 +157,14 @@ void rnp_win_clear_args(int argc, char **argv);
 #define EXT_SIG (".sig")
 #define EXT_PGP (".pgp")
 #define EXT_GPG (".gpg")
+
+#define SUBDIRECTORY_GNUPG ".gnupg"
+#define SUBDIRECTORY_RNP ".rnp"
+#define PUBRING_KBX "pubring.kbx"
+#define SECRING_KBX "secring.kbx"
+#define PUBRING_GPG "pubring.gpg"
+#define SECRING_GPG "secring.gpg"
+#define PUBRING_G10 "public-keys-v1.d"
+#define SECRING_G10 "private-keys-v1.d"
 
 #endif

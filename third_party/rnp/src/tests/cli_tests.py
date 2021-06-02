@@ -10,11 +10,12 @@ import tempfile
 import time
 import unittest
 from os import path
+from platform import architecture
 
 import cli_common
 from cli_common import (file_text, find_utility, is_windows, list_upto,
                         path_for_gpg, pswd_pipe, raise_err, random_text,
-                        rnp_file_path, run_proc, CONSOLE_ENCODING)
+                        run_proc, decode_string_escape, CONSOLE_ENCODING)
 from gnupg import GnuPG as GnuPG
 from rnp import Rnp as Rnp
 
@@ -34,6 +35,10 @@ TEST_WORKFILES = []
 if sys.version_info >= (3,):
     unichr = chr
 
+def escape_regex(str):
+    return '^' + ''.join((c, "[\\x{:02X}]".format(ord(c)))[0 <= ord(c) <= 0x20 \
+        or c in ['[',']','(',')','|','"','$','.','*','^','$','\\','+','?','{','}']] for c in str) + '$'
+
 UNICODE_LATIN_CAPITAL_A_GRAVE = unichr(192)
 UNICODE_LATIN_SMALL_A_GRAVE = unichr(224)
 UNICODE_LATIN_CAPITAL_A_MACRON = unichr(256)
@@ -52,6 +57,16 @@ UNICODE_SEQUENCE_1 = UNICODE_LATIN_CAPITAL_A_GRAVE + UNICODE_LATIN_SMALL_A_MACRO
 UNICODE_SEQUENCE_2 = UNICODE_LATIN_SMALL_A_GRAVE + UNICODE_LATIN_CAPITAL_A_MACRON \
     + UNICODE_GREEK_SMALL_HETA + UNICODE_GREEK_CAPITAL_OMEGA \
     + UNICODE_CYRILLIC_SMALL_A + UNICODE_CYRILLIC_CAPITAL_YA
+WEIRD_USERID_UNICODE_1 = unichr(160) + unichr(161) \
+    + UNICODE_SEQUENCE_1 + unichr(40960) + u'@rnp'
+WEIRD_USERID_UNICODE_2 = unichr(160) + unichr(161) \
+    + UNICODE_SEQUENCE_2 + unichr(40960) + u'@rnp'
+WEIRD_USERID_SPECIAL_CHARS = '\\}{][)^*.+(\t\n|$@rnp'
+WEIRD_USERID_SPACE = ' '
+WEIRD_USERID_QUOTE = '"'
+WEIRD_USERID_SPACE_AND_QUOTE = ' "'
+WEIRD_USERID_QUOTE_AND_SPACE = '" '
+WEIRD_USERID_TOO_LONG = 'x' * 125 + '@rnp' # totaling 129 (MAX_USER_ID + 1)
 
 # Key userids
 KEY_ENCRYPT = 'encryption@rnp'
@@ -164,6 +179,40 @@ def check_packets(fname, regexp):
             logging.debug(output)
         return result
 
+def test_userid_genkey(userid_beginning, weird_part, userid_end, weird_part2=''):
+    clear_keyrings()
+    msgs = []
+    log = None
+    USERS = [userid_beginning + weird_part + userid_end]
+    if weird_part2:
+        USERS.append(userid_beginning + weird_part2 + userid_end)
+    # Run key generation
+    for userid in USERS:
+        rnp_genkey_rsa(userid, 1024)
+    # Read with GPG
+    ret, out, err = run_proc(GPG, ['--homedir', path_for_gpg(RNPDIR), '--list-keys', '--charset', CONSOLE_ENCODING])
+    if ret != 0:
+        msgs.append('gpg : failed to read keystore')
+        log = err
+    else:
+        tracker_escaped = re.findall(r'' + userid_beginning + '.*' + userid_end + '', out)
+        tracker_gpg = list(map(decode_string_escape, tracker_escaped))
+        if tracker_gpg != USERS:
+            msgs.append('gpg : failed to find expected userids from keystore')
+    # Read with rnpkeys
+    ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--list-keys'])
+    if ret != 0:
+        msgs.append('rnpkeys : failed to read keystore')
+        log = err
+    else:
+        tracker_escaped = re.findall(r'' + userid_beginning + '.*' + userid_end + '', out)
+        tracker_rnp = list(map(decode_string_escape, tracker_escaped))
+        if tracker_rnp != USERS:
+            msgs.append('rnpkeys : failed to find expected userids from keystore')
+    clear_keyrings()
+    if msgs:
+        raise_err('\n'.join(msgs), log)
+
 
 def clear_keyrings():
     shutil.rmtree(RNPDIR, ignore_errors=True)
@@ -177,6 +226,12 @@ def clear_keyrings():
             time.sleep(0.1)
     os.mkdir(GPGDIR, 0o700)
 
+def allow_y2k38_on_32bit(filename):
+    if architecture()[0] == '32bit':
+        return [filename, filename + '_y2k38']
+    else:
+        return [filename]
+
 def compare_files(src, dst, message):
     if file_text(src) != file_text(dst):
         raise_err(message)
@@ -184,6 +239,12 @@ def compare_files(src, dst, message):
 def compare_file(src, string, message):
     if file_text(src) != string:
         raise_err(message)
+
+def compare_file_any(srcs, string, message):
+    for src in srcs:
+        if file_text(src) == string:
+            return
+    raise_err(message)
 
 def compare_file_ex(src, string, message, symbol='?'):
     ftext = file_text(src)
@@ -218,7 +279,7 @@ def clear_workfiles():
     for fpath in TEST_WORKFILES:
         try:
             os.remove(fpath)
-        except OSError:
+        except (OSError, FileNotFoundError):
             pass
     TEST_WORKFILES = []
 
@@ -248,11 +309,11 @@ def rnp_params_insert_aead(params, pos, aead):
 def rnp_encrypt_file_ex(src, dst, recipients=None, passwords=None, aead=None, cipher=None,
                         z=None, armor=False):
     params = ['--homedir', RNPDIR, src, '--output', dst]
-    # Recipients. None disables PK encryption, [] to use default key. Otheriwse list of ids.
+    # Recipients. None disables PK encryption, [] to use default key. Otherwise list of ids.
     if recipients != None:
         params[2:2] = ['--encrypt']
         for userid in reversed(recipients):
-            params[2:2] = ['-r', userid]
+            params[2:2] = ['-r', escape_regex(userid)]
     # Passwords to encrypt to. None or [] disables password encryption.
     if passwords:
         if recipients == None:
@@ -283,10 +344,10 @@ def rnp_encrypt_and_sign_file(src, dst, recipients, encrpswd, signers, signpswd,
         params[2:2] = ['--passwords', str(len(encrpswd))]
     # Adding recipients. If list is empty then default will be used.
     for userid in reversed(recipients):
-        params[2:2] = ['-r', userid]
+        params[2:2] = ['-r', escape_regex(userid)]
     # Adding signers. If list is empty then default will be used.
     for signer in reversed(signers):
-        params[2:2] = ['-u', signer]
+        params[2:2] = ['-u', escape_regex(signer)]
     # Cipher or None for default
     if cipher: params[2:2] = ['--cipher', cipher]
     # Armor
@@ -319,7 +380,7 @@ def rnp_sign_file_ex(src, dst, signers, passwords, options = None):
         if 'detached' in options: params += ['--detach']
 
     for signer in reversed(signers):
-        params[4:4] = ['--userid', signer]
+        params[4:4] = ['--userid', escape_regex(signer)]
 
     ret, _, err = run_proc(RNP, params)
     os.close(pipe)
@@ -385,7 +446,7 @@ def gpg_import_pubring(kpath=None):
     if not kpath:
         kpath = path.join(RNPDIR, 'pubring.gpg')
     ret, _, err = run_proc(
-        GPG, ['--batch', '--homedir', GPGHOME, '--import', kpath])
+        GPG, ['--display-charset', CONSOLE_ENCODING, '--batch', '--homedir', GPGHOME, '--import', kpath])
     if ret != 0:
         raise_err('gpg key import failed', err)
 
@@ -394,7 +455,7 @@ def gpg_import_secring(kpath=None, password = PASSWORD):
     if not kpath:
         kpath = path.join(RNPDIR, 'secring.gpg')
     ret, _, err = run_proc(
-        GPG, ['--batch', '--passphrase', password, '--homedir', GPGHOME, '--import', kpath])
+        GPG, ['--display-charset', CONSOLE_ENCODING, '--batch', '--passphrase', password, '--homedir', GPGHOME, '--import', kpath])
     if ret != 0:
         raise_err('gpg secret key import failed', err)
 
@@ -451,7 +512,7 @@ def gpg_symencrypt_file(src, dst, cipher=None, z=None, armor=False, aead=None):
 def gpg_decrypt_file(src, dst, keypass):
     src = path_for_gpg(src)
     dst = path_for_gpg(dst)
-    ret, out, err = run_proc(GPG, ['--homedir', GPGHOME, '--pinentry-mode=loopback', '--batch',
+    ret, out, err = run_proc(GPG, ['--display-charset', CONSOLE_ENCODING, '--homedir', GPGHOME, '--pinentry-mode=loopback', '--batch',
                                    '--yes', '--passphrase', keypass, '--trust-model',
                                    'always', '-o', dst, '-d', src])
     if ret != 0:
@@ -461,7 +522,7 @@ def gpg_decrypt_file(src, dst, keypass):
 def gpg_verify_file(src, dst, signer=None):
     src = path_for_gpg(src)
     dst = path_for_gpg(dst)
-    ret, out, err = run_proc(GPG, ['--homedir', GPGHOME, '--batch',
+    ret, out, err = run_proc(GPG, ['--display-charset', CONSOLE_ENCODING, '--homedir', GPGHOME, '--batch',
                                    '--yes', '--trust-model', 'always', '-o', dst, '--verify', src])
     if ret != 0:
         raise_err('gpg verification failed', err)
@@ -476,7 +537,7 @@ def gpg_verify_file(src, dst, signer=None):
 def gpg_verify_detached(src, sig, signer=None):
     src = path_for_gpg(src)
     sig = path_for_gpg(sig)
-    ret, _, err = run_proc(GPG, ['--homedir', GPGHOME, '--batch', '--yes', '--trust-model', 
+    ret, _, err = run_proc(GPG, ['--display-charset', CONSOLE_ENCODING, '--homedir', GPGHOME, '--batch', '--yes', '--trust-model', 
                                  'always', '--verify', sig, src])
     if ret != 0:
         raise_err('gpg detached verification failed', err)
@@ -491,7 +552,7 @@ def gpg_verify_detached(src, sig, signer=None):
 def gpg_verify_cleartext(src, signer=None):
     src = path_for_gpg(src)
     ret, _, err = run_proc(
-        GPG, ['--homedir', GPGHOME, '--batch', '--yes', '--trust-model', 'always', '--verify', src])
+        GPG, ['--display-charset', CONSOLE_ENCODING, '--homedir', GPGHOME, '--batch', '--yes', '--trust-model', 'always', '--verify', src])
     if ret != 0:
         raise_err('gpg cleartext verification failed', err)
     # Check GPG output
@@ -538,7 +599,7 @@ def gpg_sign_cleartext(src, dst, signer):
 
 
 def gpg_agent_clear_cache():
-    run_proc(GPGCONF, ['--homedir', GPGHOME, '--kill', 'gpg-agent'])
+    run_proc(GPGCONF, ['--display-charset', CONSOLE_ENCODING, '--homedir', GPGHOME, '--kill', 'gpg-agent'])
 
 '''
     Things to try here later on:
@@ -747,10 +808,8 @@ def setup(loglvl):
     global RMWORKDIR, WORKDIR, RNPDIR, RNP, RNPK, GPG, GPGDIR, GPGHOME, GPGCONF
     logging.basicConfig(stream=sys.stderr, format="%(message)s")
     logging.getLogger().setLevel(loglvl)
-    WORKDIR = os.getcwd()
-    if not '/tmp/' in WORKDIR:
-        WORKDIR = tempfile.mkdtemp(prefix='rnpctmp')
-        RMWORKDIR = True
+    WORKDIR = tempfile.mkdtemp(prefix='rnpctmp')
+    RMWORKDIR = True
 
     logging.info('Running in ' + WORKDIR)
 
@@ -1360,6 +1419,94 @@ class Keystore(unittest.TestCase):
         if (ret != 0) or not re.match(r'(?s)^.*sub.*dd23ceb7febeff17.*\[REVOKED\].*a4bbb77370217bca2307ad0ddd23ceb7febeff17.*', out):
             raise_err('Wrong revoked subkey listing', out)
 
+    def test_userid_unicode_genkeys(self):
+        test_userid_genkey('track', WEIRD_USERID_UNICODE_1, 'end', WEIRD_USERID_UNICODE_2)
+
+    def test_userid_special_chars_genkeys(self):
+        test_userid_genkey('track', WEIRD_USERID_SPECIAL_CHARS, 'end')
+        test_userid_genkey('track', WEIRD_USERID_SPACE, 'end')
+        test_userid_genkey('track', WEIRD_USERID_QUOTE, 'end')
+        test_userid_genkey('track', WEIRD_USERID_SPACE_AND_QUOTE, 'end')
+
+    def test_userid_too_long_genkeys(self):
+        clear_keyrings()
+        userid = WEIRD_USERID_TOO_LONG
+        # Open pipe for password
+        pipe = pswd_pipe(PASSWORD)
+        # Run key generation
+        ret, out, err = run_proc(RNPK, ['--gen-key', '--userid', userid,
+                                '--homedir', RNPDIR, '--pass-fd', str(pipe)])
+        os.close(pipe)
+        if ret == 0: raise_err('should have failed on too long id', err)
+
+    def test_key_remove(self):
+        clear_keyrings()
+        # Import public keyring
+        ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', data_path('keyrings/1/pubring.gpg')])
+        if ret != 0:
+            raise_err('Public keyring import failed')
+        # Remove all imported public keys with subkeys
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key', '7bc6709b15c23a4a', '2fcadf05ffa501bb'])
+        if (ret != 0):
+            raise_err('Failed to remove keys', err)
+        # Check that keyring is empty
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--list-keys'])
+        if not re.match(r'Key\(s\) not found\.', out):
+            raise_err('Failed to remove public keys');
+        # Import secret keyring
+        ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', data_path('keyrings/1/secring.gpg')])
+        if ret != 0:
+            raise_err('Secret keyring import failed')
+        # Remove all secret keys with subkeys
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key', '7bc6709b15c23a4a', '2fcadf05ffa501bb', '--force'])
+        if (ret != 0):
+            raise_err('Failed to remove keys', err)
+        # Check that keyring is empty
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--list-keys'])
+        if not re.match(r'Key\(s\) not found\.', out):
+            raise_err('Failed to remove secret keys');
+        # Import public keyring
+        ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', data_path('keyrings/1/pubring.gpg')])
+        if ret != 0:
+            raise_err('Public keyring import failed')
+        # Remove all subkeys
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key',
+                                        '326ef111425d14a5', '54505a936a4a970e', '8a05b89fad5aded1', '1d7e8a5393c997a8', '1ed63ee56fadc34d'])
+        if (ret != 0):
+            raise_err('Failed to remove keys', err)
+        # Check that subkeys are removed
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--list-keys'])
+        if (ret != 0) or not re.match(r'2 keys found', out) or re.search('326ef111425d14a5|54505a936a4a970e|8a05b89fad5aded1|1d7e8a5393c997a8|1ed63ee56fadc34d', out):
+            raise_err('Failed to remove subkeys');
+        # Remove remaining public keys
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key', '7bc6709b15c23a4a', '2fcadf05ffa501bb'])
+        if (ret != 0):
+            raise_err('Failed to remove keys', err)
+        # Try to remove again
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key', '7bc6709b15c23a4a'])
+        if (ret == 0) or not re.search(r'Key matching \'7bc6709b15c23a4a\' not found\.', err):
+            raise_err('Unexpected result', err)
+        # Check that keyring is empty
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--list-keys'])
+        if not re.match(r'Key\(s\) not found\.', out):
+            raise_err('Failed to remove keys');
+        # Import public keyring
+        ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', data_path('keyrings/1/pubring.gpg')])
+        if ret != 0:
+            raise_err('Public keyring import failed')
+        # Try to remove by uid substring, should match multiple keys and refuse to remove
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key', 'uid0'])
+        if (ret == 0) or not re.search(r'Ambiguous input: too many keys found for \'uid0\'\.', err):
+            raise_err('Unexpected result', err)
+        # Remove keys by uids
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--remove-key', 'key0-uid0', 'key1-uid1'])
+        if (ret != 0):
+            raise_err('Failed to remove keys', err)
+        # Check that keyring is empty
+        ret, out, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--list-keys'])
+        if not re.match(r'Key\(s\) not found\.', out):
+            raise_err('Failed to remove keys');
+
 class Misc(unittest.TestCase):
 
     @classmethod
@@ -1468,14 +1615,14 @@ class Misc(unittest.TestCase):
         path = data_path('test_cli_rnpkeys') + '/'
 
         _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '--list-keys'])
-        compare_file(path + 'keyring_1_list_keys', out, 'keyring 1 key listing failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'keyring_1_list_keys'), out, 'keyring 1 key listing failed')
         _, out, _ = run_proc(RNPK, ['--hom', data_path('keyrings/1'), '-l', '--with-sigs'])
-        compare_file(path + 'keyring_1_list_sigs', out, 'keyring 1 sig listing failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'keyring_1_list_sigs'), out, 'keyring 1 sig listing failed')
         _, out, _ = run_proc(RNPK, ['--home', data_path('keyrings/1'), '--list-keys', '--secret'])
-        compare_file(path + 'keyring_1_list_keys_sec', out, 'keyring 1 sec key listing failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'keyring_1_list_keys_sec'), out, 'keyring 1 sec key listing failed')
         _, out, _ = run_proc(RNPK, ['--home', data_path('keyrings/1'), '--list-keys',
                                     '--secret', '--with-sigs'])
-        compare_file(path + 'keyring_1_list_sigs_sec', out, 'keyring 1 sec sig listing failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'keyring_1_list_sigs_sec'), out, 'keyring 1 sec sig listing failed')
 
         _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/2'), '--list-keys'])
         compare_file(path + 'keyring_2_list_keys', out, 'keyring 2 key listing failed')
@@ -1483,9 +1630,9 @@ class Misc(unittest.TestCase):
         compare_file(path + 'keyring_2_list_sigs', out, 'keyring 2 sig listing failed')
 
         _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/3'), '--list-keys'])
-        compare_file(path + 'keyring_3_list_keys', out, 'keyring 3 key listing failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'keyring_3_list_keys'), out, 'keyring 3 key listing failed')
         _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/3'), '-l', '--with-sigs'])
-        compare_file(path + 'keyring_3_list_sigs', out, 'keyring 3 sig listing failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'keyring_3_list_sigs'), out, 'keyring 3 sig listing failed')
 
         _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/5'), '--list-keys'])
         compare_file(path + 'keyring_5_list_keys', out, 'keyring 5 key listing failed')
@@ -1510,17 +1657,17 @@ class Misc(unittest.TestCase):
         #             'g10 sec keyring sig listing failed')
 
         _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '-l', '2fcadf05ffa501bb'])
-        compare_file(path + 'getkey_2fcadf05ffa501bb', out, 'list key 2fcadf05ffa501bb failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'getkey_2fcadf05ffa501bb'), out, 'list key 2fcadf05ffa501bb failed')
         _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '-l',
                                     '--with-sigs', '2fcadf05ffa501bb'])
-        compare_file(path + 'getkey_2fcadf05ffa501bb_sig', out, 'list sig 2fcadf05ffa501bb failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'getkey_2fcadf05ffa501bb_sig'), out, 'list sig 2fcadf05ffa501bb failed')
         _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '-l',
                                     '--secret', '2fcadf05ffa501bb'])
-        compare_file(path + 'getkey_2fcadf05ffa501bb_sec', out, 'list sec 2fcadf05ffa501bb failed')
+        compare_file_any(allow_y2k38_on_32bit(path + 'getkey_2fcadf05ffa501bb_sec'), out, 'list sec 2fcadf05ffa501bb failed')
 
-        _, out, err = run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '-l', '00000000'])
+        _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '-l', '00000000'])
         compare_file(path + 'getkey_00000000', out, 'list key 00000000 failed')
-        _, out, err = run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '-l', 'zzzzzzzz'])
+        _, out, _ = run_proc(RNPK, ['--homedir', data_path('keyrings/1'), '-l', 'zzzzzzzz'])
         compare_file(path + 'getkey_zzzzzzzz', out, 'list key zzzzzzzz failed')
 
     def test_rnpkeys_g10_list_order(self):
@@ -1645,8 +1792,8 @@ class Misc(unittest.TestCase):
         ret, out, err = run_proc(RNPK, params)
         if ret != 0:
             raise_err('packet listing failed', err)
-        compare_file_ex(data_path('test_cli_rnpkeys/pubring-malf-cert-permissive-import.txt'), out,
-                        'listing mismatch')
+        compare_file_any(allow_y2k38_on_32bit(data_path('test_cli_rnpkeys/pubring-malf-cert-permissive-import.txt')),
+            out, 'listing mismatch')
         return
 
     def test_rnp_list_packets(self):
@@ -1844,7 +1991,7 @@ class Encryption(unittest.TestCase):
         - different hash algorithms where applicable
 
         TODO:
-        Tests in this test case should be splitted into many algorithm-specific tests
+        Tests in this test case should be split into many algorithm-specific tests
         (potentially auto generated)
         Reason being - if you have a problem with BLOWFISH size 1000000, you don't want
         to wait until everything else gets
@@ -2036,6 +2183,63 @@ class Encryption(unittest.TestCase):
 
             remove_files(dst, dec)
 
+    def test_encryption_weird_userids_special_1(self):
+        uid = WEIRD_USERID_SPECIAL_CHARS
+        pswd = 'encSpecial1Pass'
+        rnp_genkey_rsa(uid, 1024, pswd)
+        # Encrypt
+        src = data_path('test_messages') + '/message.txt'
+        dst, dec = reg_workfiles('weird_userids_special_1', '.rnp', '.dec')
+        rnp_encrypt_file_ex(src, dst, [uid], None, None) 
+        # Decrypt
+        rnp_decrypt_file(dst, dec, pswd)
+        compare_files(src, dec, 'rnp decrypted data differs')
+        clear_workfiles()
+
+    def test_encryption_weird_userids_special_2(self):
+        USERIDS = [WEIRD_USERID_SPACE, WEIRD_USERID_QUOTE, WEIRD_USERID_SPACE_AND_QUOTE, WEIRD_USERID_QUOTE_AND_SPACE]
+        KEYPASS = ['encSpecial2Pass1', 'encSpecial2Pass2', 'encSpecial2Pass3', 'encSpecial2Pass4']
+        # Generate multiple keys
+        for uid, pswd in zip(USERIDS, KEYPASS):
+            rnp_genkey_rsa(uid, 1024, pswd)
+        # Encrypt to all recipients
+        src = data_path('test_messages') + '/message.txt'
+        dst, dec = reg_workfiles('weird_userids_special_2', '.rnp', '.dec')
+        rnp_encrypt_file_ex(src, dst, list(map(lambda uid: uid, USERIDS)), None, None) 
+        # Decrypt file with each of the passwords
+        for pswd in KEYPASS:
+            multiple_pass_attempts = (pswd + '\n') * len(KEYPASS)
+            rnp_decrypt_file(dst, dec, multiple_pass_attempts)
+            compare_files(src, dec, 'rnp decrypted data differs')
+            remove_files(dec)
+        # Cleanup
+        clear_workfiles()
+
+    def test_encryption_weird_userids_unicode(self):
+        USERIDS_1 = [
+            WEIRD_USERID_UNICODE_1, WEIRD_USERID_UNICODE_2]
+        USERIDS_2 = [
+            WEIRD_USERID_UNICODE_1, WEIRD_USERID_UNICODE_2]
+        # The idea is to generate keys with USERIDS_1 and encrypt with USERIDS_2
+        # (that differ only in case)
+        # But currently Unicode case-insensitive search is not working,
+        # so we're encrypting with exactly the same recipient
+        KEYPASS = ['encUnicodePass1', 'encUnicodePass2']
+        # Generate multiple keys
+        for uid, pswd in zip(USERIDS_1, KEYPASS):
+            rnp_genkey_rsa(uid, 1024, pswd)
+        # Encrypt to all recipients
+        src = data_path('test_messages') + '/message.txt'
+        dst, dec = reg_workfiles('weird_unicode', '.rnp', '.dec')
+        rnp_encrypt_file_ex(src, dst, list(map(lambda uid: uid, USERIDS_2)), None, None) 
+        # Decrypt file with each of the passwords
+        for pswd in KEYPASS:
+            multiple_pass_attempts = (pswd + '\n') * len(KEYPASS)
+            rnp_decrypt_file(dst, dec, multiple_pass_attempts)
+            compare_files(src, dec, 'rnp decrypted data differs')
+            remove_files(dec)
+        # Cleanup
+        clear_workfiles()
 
 class Compression(unittest.TestCase):
     @classmethod
@@ -2109,6 +2313,46 @@ class SignDefault(unittest.TestCase):
         KEYPASS = ['sign1pass', 'sign2pass', 'sign3pass']
 
         # Generate multiple keys and import to GnuPG
+        for uid, pswd in zip(USERIDS, KEYPASS):
+            rnp_genkey_rsa(uid, 1024, pswd)
+
+        gpg_import_pubring()
+        gpg_import_secring()
+
+        src, dst, sig, ver = reg_workfiles('cleartext', '.txt', '.rnp', '.txt.sig', '.ver')
+        # Generate random file of required size
+        random_text(src, 128000)
+
+        for keynum in range(1, len(USERIDS) + 1):
+            # Normal signing
+            rnp_sign_file(src, dst, USERIDS[:keynum], KEYPASS[:keynum])
+            gpg_verify_file(dst, ver)
+            remove_files(ver)
+            rnp_verify_file(dst, ver)
+            remove_files(dst, ver)
+
+            # Detached signing
+            rnp_sign_detached(src, USERIDS[:keynum], KEYPASS[:keynum])
+            gpg_verify_detached(src, sig)
+            rnp_verify_detached(sig)
+            remove_files(sig)
+
+            # Cleartext signing
+            rnp_sign_cleartext(src, dst, USERIDS[:keynum], KEYPASS[:keynum])
+            gpg_verify_cleartext(dst)
+            rnp_verify_cleartext(dst)
+            remove_files(dst)
+
+        clear_workfiles()
+
+    def test_sign_weird_userids(self):
+        USERIDS = [WEIRD_USERID_SPECIAL_CHARS, WEIRD_USERID_SPACE, WEIRD_USERID_QUOTE,
+            WEIRD_USERID_SPACE_AND_QUOTE, WEIRD_USERID_QUOTE_AND_SPACE,
+            WEIRD_USERID_UNICODE_1, WEIRD_USERID_UNICODE_2]
+        KEYPASS = ['signUnicodePass1', 'signUnicodePass2', 'signUnicodePass3', 'signUnicodePass4',
+            'signUnicodePass5', 'signUnicodePass6', 'signUnicodePass7']
+
+        # Generate multiple keys
         for uid, pswd in zip(USERIDS, KEYPASS):
             rnp_genkey_rsa(uid, 1024, pswd)
 

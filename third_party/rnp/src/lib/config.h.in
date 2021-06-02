@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define PACKAGE_STRING    "rnp 0.14+git20210121.7c8492b4.MZLA"
+#define PACKAGE_STRING    "rnp 0.15.1+git20210530.1af627eb.MZLA"
 #define PACKAGE_BUGREPORT "https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"
 
 #undef HAVE_BZLIB_H

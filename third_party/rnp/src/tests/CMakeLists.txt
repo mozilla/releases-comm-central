@@ -36,28 +36,43 @@ set_tests_properties(setupTestData PROPERTIES FIXTURES_SETUP testdata)
 
 # rnp_tests
 include(GoogleTest)
-# download and buld googletest
-configure_file(gtest-CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+if (GTEST_SOURCES)
+  # use Googletest sources if specified
+  add_subdirectory(${GTEST_SOURCES}
+    ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+    EXCLUDE_FROM_ALL)
+  set(GTestMain gtest_main)
+elseif (NOT DOWNLOAD_GTEST)
+  # use preinstalled googletest
+  find_package(GTest REQUIRED)
+  set(GTestMain GTest::Main)
+else()
+  # download and build googletest
+  configure_file(gtest-CMakeLists.txt.in googletest-download/CMakeLists.txt)
+  execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+  if(result)
+    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+  endif()
+  execute_process(COMMAND ${CMAKE_COMMAND} --build .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+  if(result)
+    message(FATAL_ERROR "Build step for googletest failed: ${result}")
+  endif()
+  # maintain compiler/linker settings on Windows
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  # add to our build (provides gtest_main target)
+  add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+                  ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+                  EXCLUDE_FROM_ALL)
+  set(GTestMain gtest_main)
 endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-  message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
-# maintain compiler/linker settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-# add to our build (provides gtest_main target)
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-                 EXCLUDE_FROM_ALL)
 
 find_package(JSON-C 0.11 REQUIRED)
+# We do not link against Botan, but need headers.
+find_package(Botan2 2.14.0 REQUIRED)
 add_executable(rnp_tests
   ../rnp/rnpcfg.cpp
   ../rnp/fficli.cpp
@@ -78,6 +93,7 @@ add_executable(rnp_tests
   ffi-enc.cpp
   ffi-uid.cpp
   ffi-key-sig.cpp
+  ffi-key-prop.cpp
   file-utils.cpp
   generatekey.cpp
   kbx-nsigs-test.cpp
@@ -147,12 +163,13 @@ target_include_directories(rnp_tests
   PRIVATE
     "${PROJECT_SOURCE_DIR}/src"
     "${PROJECT_SOURCE_DIR}/src/lib"
+    "${BOTAN2_INCLUDE_DIRS}"
 )
 target_link_libraries(rnp_tests
   PRIVATE
     librnp-static
     JSON-C::JSON-C
-    gtest_main
+    ${GTestMain}
 )
 if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_link_libraries(rnp_tests PRIVATE regex)
@@ -173,7 +190,7 @@ gtest_discover_tests(rnp_tests
 
 # ruby-rnp
 # cruby does not currently play nice with ASaN et al.
-if (NOT ENABLE_SANITIZERS AND BUILD_SHARED_LIBS AND NOT WIN32)
+if (DOWNLOAD_RUBYRNP AND NOT ENABLE_SANITIZERS AND BUILD_SHARED_LIBS AND NOT WIN32)
   include(ExternalProject)
   set(_sourcedir "${CMAKE_BINARY_DIR}/ruby-rnp")
   if (DEFINED ENV{RUBY_RNP_INSTALL})

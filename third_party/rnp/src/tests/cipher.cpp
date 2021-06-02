@@ -136,43 +136,12 @@ TEST_F(rnp_tests, pkcs1_rsa_test_success)
     assert_true(pgp_generate_seckey(&key_desc, &seckey, true));
     key_rsa = &seckey.material.rsa;
 
-#if defined(DEBUG_PRINT)
-    char *tmp = hex_encode(ptext, sizeof(ptext));
-    printf("PT = 0x%s\n", tmp);
-    free(tmp);
-    printf("N = ");
-    bn_print_fp(stdout, pub_rsa->n);
-    printf("\n");
-    printf("E = ");
-    bn_print_fp(stdout, pub_rsa->e);
-    printf("\n");
-    printf("P = ");
-    bn_print_fp(stdout, sec_rsa->p);
-    printf("\n");
-    printf("Q = ");
-    bn_print_fp(stdout, sec_rsa->q);
-    printf("\n");
-    printf("D = ");
-    bn_print_fp(stdout, sec_rsa->d);
-    printf("\n");
-#endif
-
     assert_rnp_success(rsa_encrypt_pkcs1(&global_rng, &enc, ptext, 3, key_rsa));
     assert_int_equal(enc.m.len, 1024 / 8);
 
     memset(dec, 0, sizeof(dec));
     dec_size = 0;
     assert_rnp_success(rsa_decrypt_pkcs1(&global_rng, dec, &dec_size, &enc, key_rsa));
-
-#if defined(DEBUG_PRINT)
-    tmp = hex_encode(ctext, ctext_size);
-    printf("C = 0x%s\n", tmp);
-    free(tmp);
-    tmp = hex_encode(decrypted, decrypted_size);
-    printf("PD = 0x%s\n", tmp);
-    free(tmp);
-#endif
-
     test_value_equal("RSA 1024 decrypt", "616263", dec, 3);
     assert_int_equal(dec_size, 3);
 }
@@ -282,7 +251,7 @@ TEST_F(rnp_tests, ecdsa_signverify_success)
       {PGP_CURVE_NIST_P_256, 32}, {PGP_CURVE_NIST_P_384, 48}, {PGP_CURVE_NIST_P_521, 64}};
 
     for (size_t i = 0; i < ARRAY_SIZE(curves); i++) {
-        // Generate test data. Mainly to make valgrind not to complain about unitialized data
+        // Generate test data. Mainly to make valgrind not to complain about uninitialized data
         assert_true(rng_get_data(&global_rng, message, sizeof(message)));
 
         pgp_ec_signature_t         sig = {{{0}}};
@@ -662,7 +631,7 @@ TEST_F(rnp_tests, s2k_iteration_tuning)
 
     // fprintf(stderr, "%d %d\n", iters_10, iters_100);
     // Test roughly linear cost, often skeyed by clock idle
-    assert_true(static_cast<double>(iters_100) / iters_10 > 6);
+    assert_greater_than(static_cast<double>(iters_100) / iters_10, 6);
 
     // Should not crash for unknown hash algorithm
     assert_int_equal(pgp_s2k_compute_iters(PGP_HASH_UNKNOWN, 1000, TRIAL_MSEC), 0);

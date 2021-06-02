@@ -80,6 +80,17 @@ typedef uint32_t rnp_result_t;
 #define RNP_LOAD_SAVE_SINGLE (1U << 9)
 
 /**
+ * Flags for the rnp_key_remove_signatures
+ */
+
+#define RNP_KEY_SIGNATURE_INVALID (1U << 0)
+#define RNP_KEY_SIGNATURE_UNKNOWN_KEY (1U << 1)
+#define RNP_KEY_SIGNATURE_NON_SELF_SIG (1U << 2)
+
+#define RNP_KEY_SIGNATURE_KEEP (0U)
+#define RNP_KEY_SIGNATURE_REMOVE (1U)
+
+/**
  * Flags for output structure creation.
  */
 #define RNP_OUTPUT_FILE_OVERWRITE (1U << 0)
@@ -187,10 +198,10 @@ typedef struct rnp_symenc_handle_st *      rnp_symenc_handle_t;
  * @brief Callback, used to read data from the source.
  *
  * @param app_ctx custom parameter, passed back to the function.
- * @param buf on successfull call data should be put here. Cannot be NULL,
+ * @param buf on successful call data should be put here. Cannot be NULL,
  *            and must be capable to store at least len bytes.
  * @param len number of bytes to read.
- * @param read on successfull call number of read bytes must be put here.
+ * @param read on successful call number of read bytes must be put here.
  * @return true on success (including EOF condition), or false on read error.
  *         EOF case is indicated by zero bytes read on non-zero read call.
  */
@@ -208,7 +219,7 @@ typedef void rnp_input_closer_t(void *app_ctx);
  * @param app_ctx custom parameter, passed back to the function.
  * @param buf buffer with data, cannot be NULL.
  * @param len number of bytes to write.
- * @return true if call was successfull and all data is written, or false otherwise.
+ * @return true if call was successful and all data is written, or false otherwise.
  */
 typedef bool rnp_output_writer_t(void *app_ctx, const void *buf, size_t len);
 
@@ -236,7 +247,7 @@ typedef void rnp_output_closer_t(void *app_ctx, bool discard);
  *         - "add userid": add userid to the encrypted secret key
  *         - "sign": sign data
  *         - "decrypt": decrypt data using the encrypted secret key
- *         - "unlock": temporary unlock secret key (decrypting it's fields), so it may be used
+ *         - "unlock": temporary unlock secret key (decrypting its fields), so it may be used
  *           later without need to decrypt
  *         - "protect": encrypt secret key fields
  *         - "unprotect": decrypt secret key fields, leaving those in a raw format
@@ -279,6 +290,24 @@ typedef void (*rnp_get_key_cb)(rnp_ffi_t   ffi,
                                const char *identifier_type,
                                const char *identifier,
                                bool        secret);
+
+/**
+ * @brief callback used to report back signatures from the function
+ *        rnp_key_remove_signatures(). This may be used to implement custom signature filtering
+ *        code or record information about the signatures which are removed.
+ * @param ffi
+ * @param app_ctx custom context, provided by application.
+ * @param sig signature handle to retrieve information about the signature. Callback must not
+ *            call rnp_signature_handle_destroy() on it.
+ * @param action action which will be performed on the signature. Currently defined are
+ *               RNP_KEY_SIGNATURE_KEEP an RNP_KEY_SIGNATURE_REMOVE.
+ *               Callback may overwrite this value.
+ *
+ */
+typedef void (*rnp_key_signatures_cb)(rnp_ffi_t              ffi,
+                                      void *                 app_ctx,
+                                      rnp_signature_handle_t sig,
+                                      uint32_t *             action);
 
 /** create the top-level object used for interacting with the library
  *
@@ -363,14 +392,8 @@ RNP_API rnp_result_t rnp_calculate_iterations(const char *hash,
 
 /** Check whether rnp supports specific feature (algorithm, elliptic curve, whatever else).
  *
- * @param type string with the feature type:
- *             - 'symmetric algorithm'
- *             - 'aead algorithm'
- *             - 'protection mode'
- *             - 'public key algorithm'
- *             - 'hash algorithm'
- *             - 'compression algorithm'
- *             - 'elliptic curve'
+ * @param type string with the feature type. See RNP_FEATURE_* defines for the supported
+ * values.
  * @param name value of the feature to check whether it is supported.
  * @param supported will contain true or false depending whether feature is supported or not.
  * @return RNP_SUCCESS on success or any other value on error.
@@ -379,9 +402,9 @@ RNP_API rnp_result_t rnp_supports_feature(const char *type, const char *name, bo
 
 /** Get the JSON with array of supported rnp feature values (algorithms, curves, etc) by type.
  *
- * @param type type of the feature. See rnp_supports_feature() function for possible values.
- * @param result after successfull execution will contain the JSON with supported feature
- * values. You must destroy it using the rnp_buffer_destroy() function.
+ * @param type type of the feature. See RNP_FEATURE_* defines for the supported values.
+ * @param result after successful execution will contain the JSON with supported feature
+ *        values. You must destroy it using the rnp_buffer_destroy() function.
  * @return RNP_SUCCESS on success or any other value on error.
  */
 RNP_API rnp_result_t rnp_supported_features(const char *type, char **result);
@@ -436,11 +459,11 @@ RNP_API rnp_result_t rnp_unload_keys(rnp_ffi_t ffi, uint32_t flags);
  *              then import process will skip unrecognized or bad keys/signatures instead of
  *              failing the whole operation.
  *              If flag RNP_LOAD_SAVE_SINGLE is set, then only first key will be loaded (subkey
- *              or primary key with it's subkeys). In case RNP_LOAD_SAVE_PERMISSIVE and
+ *              or primary key with its subkeys). In case RNP_LOAD_SAVE_PERMISSIVE and
  *              erroneous first key on the stream RNP_SUCCESS will be returned, but results
  *              will include an empty array. Also RNP_ERROR_EOF will be returned if the last
  *              key was read.
- * @param results if not NULL then after the successfull execution will contain JSON with
+ * @param results if not NULL then after the successful execution will contain JSON with
  *                information about new and updated keys. You must free it using the
  *                rnp_buffer_destroy() function.
  * @return RNP_SUCCESS on success
@@ -457,7 +480,7 @@ RNP_API rnp_result_t rnp_import_keys(rnp_ffi_t   ffi,
  *  @param ffi
  *  @param input source to read from. Cannot be NULL.
  *  @param flags additional import flags, currently must be 0.
- *  @param results if not NULL then after the successfull execution will contain JSON with
+ *  @param results if not NULL then after the successful execution will contain JSON with
  *                 information about the updated keys. You must free it using the
  *                 rnp_buffer_destroy() function.
  *  @return RNP_SUCCESS on success, or any other value on error.
@@ -840,7 +863,7 @@ RNP_API rnp_result_t rnp_op_generate_set_pref_keyserver(rnp_op_generate_t op,
  */
 RNP_API rnp_result_t rnp_op_generate_execute(rnp_op_generate_t op);
 
-/** Get the generated key's handle. Should be called only after successfull execution of
+/** Get the generated key's handle. Should be called only after successful execution of
  *  rnp_op_generate_execute().
  *
  * @param op pointer to opaque key generation context.
@@ -933,11 +956,44 @@ RNP_API rnp_result_t rnp_key_revoke(rnp_key_handle_t key,
  *  Note: you need to call rnp_save_keys() to write updated keyring(s) out.
  *        Other handles of the same key should not be used after this call.
  * @param key pointer to the key handle.
- * @param flags see RNP_KEY_REMOVE_* constants. Flag RNP_REMOVE_SUBKEYS will work only for
- *              primary key, and remove all of it's subkeys as well.
+ * @param flags see RNP_KEY_REMOVE_* constants. Flag RNP_KEY_REMOVE_SUBKEYS will work only for
+ *              primary key, and remove all of its subkeys as well.
  * @return RNP_SUCCESS or error code if failed.
  */
 RNP_API rnp_result_t rnp_key_remove(rnp_key_handle_t key, uint32_t flags);
+
+/**
+ * @brief Remove unneeded signatures from the key, it's userids and subkeys if any.
+ *        May be called on subkey handle as well.
+ *        Note: you'll need to call rnp_save_keys() to write updated keyring(s) out.
+ *        Any signature handles related to this key, it's uids or subkeys should not be used
+ *        after this call.
+ *
+ * @param key key handle, cannot be NULL.
+ * @param flags flags, controlling which signatures to remove. Signature will be removed if it
+ *              matches at least one of these flags.
+ *              Currently following signature matching flags are defined:
+ *              - RNP_KEY_SIGNATURE_INVALID : signature is invalid and was never valid. Note,
+ *                  that this will not remove invalid signature if there is no signer's public
+ *                  key in the keyring.
+ *              - RNP_KEY_SIGNATURE_UNKNOWN_KEY : signature is made by the key which is not
+ *                  known/available.
+ *              - RNP_KEY_SIGNATURE_NON_SELF_SIG : signature is not a self-signature (i.e. made
+ *                  by the key itself or corresponding primary key).
+ *
+ *             Note: if RNP_KEY_SIGNATURE_NON_SELF_SIG is not specified then function will
+ *             attempt to validate all the signatures, and look up for the signer's public key
+ *             via keyring/key provider.
+ *
+ * @param sigcb callback, used to record information about the removed signatures, or further
+ *              filter out the signatures. May be NULL.
+ * @param app_ctx context information, passed to sigcb. May be NULL.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_key_remove_signatures(rnp_key_handle_t      key,
+                                               uint32_t              flags,
+                                               rnp_key_signatures_cb sigcb,
+                                               void *                app_ctx);
 
 /** guess contents of the OpenPGP data stream.
  *
@@ -989,7 +1045,7 @@ RNP_API rnp_result_t rnp_key_get_primary_uid(rnp_key_handle_t key, char **uid);
  */
 RNP_API rnp_result_t rnp_key_get_uid_count(rnp_key_handle_t key, size_t *count);
 
-/** Get key's user id by it's index.
+/** Get key's user id by its index.
  *
  * @param key key handle.
  * @param idx zero-based index of the userid.
@@ -999,7 +1055,7 @@ RNP_API rnp_result_t rnp_key_get_uid_count(rnp_key_handle_t key, size_t *count);
  */
 RNP_API rnp_result_t rnp_key_get_uid_at(rnp_key_handle_t key, size_t idx, char **uid);
 
-/** Get key's user id handle by it's index.
+/** Get key's user id handle by its index.
  *  Note: user id handle may become invalid once corresponding user id or key is removed.
  *
  * @param key key handle
@@ -1062,7 +1118,7 @@ RNP_API rnp_result_t rnp_uid_is_valid(rnp_uid_handle_t uid, bool *valid);
  */
 RNP_API rnp_result_t rnp_key_get_signature_count(rnp_key_handle_t key, size_t *count);
 
-/** Get key's signature, based on it's index.
+/** Get key's signature, based on its index.
  *  Note: see the rnp_key_get_signature_count() description for the details.
  *
  * @param key key handle
@@ -1094,7 +1150,7 @@ RNP_API rnp_result_t rnp_key_get_revocation_signature(rnp_key_handle_t        ke
  */
 RNP_API rnp_result_t rnp_uid_get_signature_count(rnp_uid_handle_t uid, size_t *count);
 
-/** Get user id's signature, based on it's index.
+/** Get user id's signature, based on its index.
  *
  * @param uid uid handle.
  * @param idx zero-based signature index.
@@ -1128,7 +1184,7 @@ RNP_API rnp_result_t rnp_uid_get_signature_at(rnp_uid_handle_t        uid,
  *             - 'certification revocation' : certification revocation signature
  *             - 'timestamp' : timestamp signature
  *             - 'third-party' : third party confirmation signature
- *             - 'uknown: 0..255' : unknown signature with it's type specified as number
+ *             - 'uknown: 0..255' : unknown signature with its type specified as number
  *
  * @return RNP_SUCCESS or error code if failed.
  */
@@ -1196,7 +1252,7 @@ RNP_API rnp_result_t rnp_signature_get_signer(rnp_signature_handle_t sig,
  *
  *         Please also note that other error codes may be returned because of wrong
  *         function call (included, but not limited to):
- *         RNP_ERROR_NULL_POINTER: sig as well as some of it's fields are NULL
+ *         RNP_ERROR_NULL_POINTER: sig as well as some of its fields are NULL
  *         RNP_ERROR_BAD_PARAMETERS: invalid parameter value (unsupported flag, etc).
  */
 RNP_API rnp_result_t rnp_signature_is_valid(rnp_signature_handle_t sig, uint32_t flags);
@@ -1213,6 +1269,18 @@ RNP_API rnp_result_t rnp_signature_is_valid(rnp_signature_handle_t sig, uint32_t
 RNP_API rnp_result_t rnp_signature_packet_to_json(rnp_signature_handle_t sig,
                                                   uint32_t               flags,
                                                   char **                json);
+
+/**
+ * @brief Remove a signature.
+ *
+ * @param key key handle, cannot be NULL.
+ * @param sig signature handle, cannot be NULL. Must be obtained via the key handle or one of
+ *            its userids. You still need to call rnp_signature_handle_destroy afterwards to
+ *            destroy handle itself. All other handles of the same signature, if any, should
+ *            not be used after the call is made.
+ * @return RNP_SUCCESS if signature was successfully deleted, or any other value on error.
+ */
+RNP_API rnp_result_t rnp_signature_remove(rnp_key_handle_t key, rnp_signature_handle_t sig);
 
 /** Free signature handle.
  *
@@ -1239,6 +1307,17 @@ RNP_API rnp_result_t rnp_uid_is_revoked(rnp_uid_handle_t uid, bool *result);
 RNP_API rnp_result_t rnp_uid_get_revocation_signature(rnp_uid_handle_t        uid,
                                                       rnp_signature_handle_t *sig);
 
+/**
+ * @brief Remove userid with all of its signatures from the key
+ *
+ * @param key key handle, cannot be NULL and must own the uid.
+ * @param uid uid handle, cannot be NULL. Still must be destroyed afterwards via the
+ *            rnp_uid_handle_destroy(). All other handles pointing to the same uid will
+ *            become invalid and should not be used.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_uid_remove(rnp_key_handle_t key, rnp_uid_handle_t uid);
+
 /** Destroy previously allocated user id handle.
  *
  * @param uid user id handle.
@@ -1254,7 +1333,7 @@ RNP_API rnp_result_t rnp_uid_handle_destroy(rnp_uid_handle_t uid);
  */
 RNP_API rnp_result_t rnp_key_get_subkey_count(rnp_key_handle_t key, size_t *count);
 
-/** Get the handle of one of the key's subkeys, using it's index in the list.
+/** Get the handle of one of the key's subkeys, using its index in the list.
  *
  * @param key handle of the primary key.
  * @param idx zero-based index of the subkey.
@@ -1434,13 +1513,17 @@ RNP_API rnp_result_t rnp_key_is_valid(rnp_key_handle_t key, bool *result);
  * @brief Get the timestamp till which key can be considered as valid.
  *        Note: this will take into account not only key's expiration, but revocations as well.
  *        For the subkey primary key's validity time will be also checked.
+ *        While in OpenPGP key creation and expiration times are 32-bit, their sum may overflow
+ *        32 bits, so rnp_key_valid_till64 function should be used.
+ *        In case of 32 bit overflow result will be set to the UINT32_MAX - 1.
  * @param key key's handle.
  * @param result on success timestamp will be stored here. If key doesn't expire then maximum
- *               value will be stored here. If key was never valid then zero value will be
- * stored here.
+ *               value (UINT32_MAX or UINT64_MAX) will be stored here. If key was never valid
+ *               then zero value will be stored here.
  * @return RNP_SUCCESS or error code on failure.
  */
 RNP_API rnp_result_t rnp_key_valid_till(rnp_key_handle_t key, uint32_t *result);
+RNP_API rnp_result_t rnp_key_valid_till64(rnp_key_handle_t key, uint64_t *result);
 
 /**
  * @brief Check whether key is revoked.
@@ -1602,8 +1685,6 @@ RNP_API rnp_result_t rnp_key_lock(rnp_key_handle_t key);
  *  @param key
  *  @param password the password to unlock the key. If NULL, the password
  *         provider will be used.
- *  @param result pointer to hold the result. This will be set to true if
- *         the key is currently locked, or false otherwise. Must not be NULL.
  *  @return RNP_SUCCESS on success, or any other value on error
  **/
 RNP_API rnp_result_t rnp_key_unlock(rnp_key_handle_t key, const char *password);
@@ -1659,9 +1740,40 @@ RNP_API rnp_result_t rnp_key_protect(rnp_key_handle_t handle,
  **/
 RNP_API rnp_result_t rnp_key_unprotect(rnp_key_handle_t key, const char *password);
 
+/**
+ * @brief Check whether key is primary key.
+ *
+ * @param key key handle, cannot be NULL.
+ * @param result true or false will be stored here on success.
+ * @return RNP_SUCCESS on success, or any other value on error.
+ */
 RNP_API rnp_result_t rnp_key_is_primary(rnp_key_handle_t key, bool *result);
+
+/**
+ * @brief Check whether key is subkey.
+ *
+ * @param key key handle, cannot be NULL.
+ * @param result true or false will be stored here on success.
+ * @return RNP_SUCCESS on success, or any other value on error.
+ */
 RNP_API rnp_result_t rnp_key_is_sub(rnp_key_handle_t key, bool *result);
+
+/**
+ * @brief Check whether key has secret part.
+ *
+ * @param key key handle, cannot be NULL.
+ * @param result true will be stored here on success, or false otherwise.
+ * @return RNP_SUCCESS on success, or any other value on error.
+ */
 RNP_API rnp_result_t rnp_key_have_secret(rnp_key_handle_t key, bool *result);
+
+/**
+ * @brief Check whether key has public part. Generally all keys would have public part.
+ *
+ * @param key key handle, cannot be NULL.
+ * @param result true will be stored here on success, or false otherwise.
+ * @return RNP_SUCCESS on success, or any other value on error.
+ */
 RNP_API rnp_result_t rnp_key_have_public(rnp_key_handle_t key, bool *result);
 
 /** Get the information about key packets in JSON string.
@@ -1906,7 +2018,7 @@ RNP_API rnp_result_t rnp_op_verify_execute(rnp_op_verify_t op);
  */
 RNP_API rnp_result_t rnp_op_verify_get_signature_count(rnp_op_verify_t op, size_t *count);
 
-/** @brief Get single signature information based on it's index.
+/** @brief Get single signature information based on its index.
  *  @param op opaque verification context. Must be initialized and have execute() called on it.
  *  @param sig opaque signature context data will be stored here on success.
  *  @return RNP_SUCCESS if call succeeded.
@@ -2585,6 +2697,21 @@ RNP_API rnp_result_t rnp_output_armor_set_line_length(rnp_output_t output, size_
 
 #endif
 
+/**
+ * Feature strings.
+ */
+#ifndef RNP_FEATURE_SYMM_ALG
+
+#define RNP_FEATURE_SYMM_ALG "symmetric algorithm"
+#define RNP_FEATURE_AEAD_ALG "aead algorithm"
+#define RNP_FEATURE_PROT_MODE "protection mode"
+#define RNP_FEATURE_PK_ALG "public key algorithm"
+#define RNP_FEATURE_HASH_ALG "hash algorithm"
+#define RNP_FEATURE_COMP_ALG "compression algorithm"
+#define RNP_FEATURE_CURVE "elliptic curve"
+
+#endif
+
 /** Algorithm Strings
  */
 #ifndef RNP_ALGNAME_PLAINTEXT
@@ -2623,7 +2750,7 @@ RNP_API rnp_result_t rnp_output_armor_set_line_length(rnp_output_t output, size_
 
 /* SHA1 is not considered secured anymore and SHOULD NOT be used to create messages (as per
  * Appendix C of RFC 4880-bis-02). SHA2 MUST be implemented.
- * Let's pre-empt this by specifying SHA256 - gpg interoperates just fine with SHA256 - agc,
+ * Let's preempt this by specifying SHA256 - gpg interoperates just fine with SHA256 - agc,
  * 20090522
  */
 #define DEFAULT_HASH_ALG RNP_ALGNAME_SHA256

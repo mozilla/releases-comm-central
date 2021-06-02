@@ -28,17 +28,8 @@
 #include <stdlib.h>
 #include "mpi.h"
 #include "hash.h"
-
-bool
-to_buf(buf_t *b, const uint8_t *in, size_t len)
-{
-    if (b->len < len) {
-        return false;
-    }
-    memcpy(b->pbuf, in, len);
-    b->len = len;
-    return true;
-}
+#include "mem.h"
+#include "utils.h"
 
 bignum_t *
 mpi2bn(const pgp_mpi_t *val)
@@ -92,28 +83,6 @@ void
 mpi2mem(const pgp_mpi_t *val, void *mem)
 {
     memcpy(mem, val->mpi, val->len);
-}
-
-bool
-hex2mpi(pgp_mpi_t *val, const char *hex)
-{
-    const size_t hex_len = strlen(hex);
-    size_t       buf_len = hex_len / 2;
-    bool         ok;
-
-    uint8_t *buf = NULL;
-
-    buf = (uint8_t *) malloc(buf_len);
-
-    if (buf == NULL) {
-        return false;
-    }
-
-    rnp_hex_decode(hex, buf, buf_len);
-
-    ok = mem2mpi(val, buf, buf_len);
-    free(buf);
-    return ok;
 }
 
 char *
@@ -184,6 +153,6 @@ mpi_hash(const pgp_mpi_t *val, pgp_hash_t *hash)
 void
 mpi_forget(pgp_mpi_t *val)
 {
-    pgp_forget(val, sizeof(*val));
+    secure_clear(val, sizeof(*val));
     val->len = 0;
 }

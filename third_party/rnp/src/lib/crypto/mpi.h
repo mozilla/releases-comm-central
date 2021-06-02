@@ -44,24 +44,11 @@ typedef struct pgp_mpi_t {
     size_t  len;
 } pgp_mpi_t;
 
-/*
- * Data structure for storing pointer to the buffer together with
- * it's length. Value of 'len' depends on context in which it is used.
- */
-typedef struct buf_t {
-    uint8_t *pbuf;
-    size_t   len;
-} buf_t;
-
-bool to_buf(buf_t *b, const uint8_t *in, size_t len);
-
 bignum_t *mpi2bn(const pgp_mpi_t *val);
 
 bool bn2mpi(bignum_t *bn, pgp_mpi_t *val);
 
 bool mem2mpi(pgp_mpi_t *val, const void *mem, size_t len);
-
-bool hex2mpi(pgp_mpi_t *val, const char *hex);
 
 void mpi2mem(const pgp_mpi_t *val, void *mem);
 

@@ -105,7 +105,10 @@ typedef struct pgp_subsig_t {
     pgp_subsig_t() = delete;
     pgp_subsig_t(const pgp_signature_t &sig);
 
+    bool validated() const;
     bool valid() const;
+    /** @brief Returns true if signature is certification */
+    bool is_cert() const;
 } pgp_subsig_t;
 
 typedef std::unordered_map<pgp_sig_id_t, pgp_subsig_t> pgp_sig_map_t;
@@ -129,6 +132,8 @@ typedef struct pgp_userid_t {
     bool                has_sig(const pgp_sig_id_t &id) const;
     void                add_sig(const pgp_sig_id_t &sig);
     void                replace_sig(const pgp_sig_id_t &id, const pgp_sig_id_t &newsig);
+    bool                del_sig(const pgp_sig_id_t &id);
+    void                clear_sigs();
 } pgp_userid_t;
 
 #define PGP_UID_NONE ((uint32_t) -1)
@@ -162,7 +167,11 @@ struct pgp_key_t {
     pgp_subsig_t *latest_uid_selfcert(uint32_t uid);
     void          validate_primary(rnp_key_store_t &keyring);
     void          merge_validity(const pgp_validity_t &src);
-    uint32_t      valid_till_common(bool expiry) const;
+    uint64_t      valid_till_common(bool expiry) const;
+    /** @brief helper function: write secret key data to the rawpkt, encrypting with password
+     */
+    bool write_sec_rawpkt(pgp_key_pkt_t &seckey, const std::string &password);
+    bool write_sec_pgp(pgp_dest_t &dst, pgp_key_pkt_t &seckey, const std::string &password);
 
   public:
     pgp_key_store_format_t format{}; /* the format of the key in packets[0] */
@@ -172,6 +181,8 @@ struct pgp_key_t {
     pgp_key_t(const pgp_key_t &src, bool pubonly = false);
     pgp_key_t(const pgp_transferable_key_t &src);
     pgp_key_t(const pgp_transferable_subkey_t &src, pgp_key_t *primary);
+    pgp_key_t &operator=(const pgp_key_t &) = default;
+    pgp_key_t &operator=(pgp_key_t &&) = default;
 
     size_t              sig_count() const;
     pgp_subsig_t &      get_sig(size_t idx);
@@ -181,6 +192,8 @@ struct pgp_key_t {
     pgp_subsig_t &      get_sig(const pgp_sig_id_t &id);
     const pgp_subsig_t &get_sig(const pgp_sig_id_t &id) const;
     pgp_subsig_t &      add_sig(const pgp_signature_t &sig, size_t uid = PGP_UID_NONE);
+    bool                del_sig(const pgp_sig_id_t &sigid);
+    size_t              del_sigs(const std::vector<pgp_sig_id_t> &sigs);
     size_t              keysig_count() const;
     pgp_subsig_t &      get_keysig(size_t idx);
     size_t              uid_count() const;
@@ -188,6 +201,7 @@ struct pgp_key_t {
     const pgp_userid_t &get_uid(size_t idx) const;
     pgp_userid_t &      add_uid(const pgp_transferable_userid_t &uid);
     bool                has_uid(const std::string &uid) const;
+    void                del_uid(size_t idx);
     bool                has_primary_uid() const;
     uint32_t            get_primary_uid() const;
     bool                revoked() const;
@@ -223,15 +237,15 @@ struct pgp_key_t {
      *  Note: Key locking does not apply to unprotected keys.
      */
     bool is_locked() const;
-    /** @brief check if a key is currently protected, i.e. it's secret data is encrypted */
+    /** @brief check if a key is currently protected, i.e. its secret data is encrypted */
     bool is_protected() const;
 
     bool valid() const;
     bool validated() const;
     /** @brief return time till which primary key is considered to be valid */
-    uint32_t valid_till() const;
+    uint64_t valid_till() const;
     /** @brief return time till which subkey is considered to be valid */
-    uint32_t valid_till(const pgp_key_t &primary) const;
+    uint64_t valid_till(const pgp_key_t &primary) const;
 
     /** @brief Get key's id */
     const pgp_key_id_t &keyid() const;
@@ -270,7 +284,7 @@ struct pgp_key_t {
     const pgp_rawpacket_t &rawpkt() const;
     void                   set_rawpkt(const pgp_rawpacket_t &src);
 
-    /** @brief Unlock a key, i.e. decrypt it's secret data so it can be used for
+    /** @brief Unlock a key, i.e. decrypt its secret data so it can be used for
      *signing/decryption. Note: Key locking does not apply to unprotected keys.
      *
      *  @param pass_provider the password provider that may be used
@@ -285,14 +299,12 @@ struct pgp_key_t {
      *  @return true if the key was locked, false otherwise
      **/
     bool lock();
-    /** @brief Add protection to an unlocked key, i.e. encrypt it's secret data with specified
-     * parameters. */
-    bool add_protection(pgp_key_store_format_t             format,
-                        const rnp_key_protection_params_t &protection,
-                        const pgp_password_provider_t &    password_provider);
-    /** @brief Add protection to a key */
-    bool protect(pgp_key_pkt_t &                    decrypted_seckey,
-                 pgp_key_store_format_t             format,
+    /** @brief Add protection to an unlocked key, i.e. encrypt its secret data with specified
+     *         parameters. */
+    bool protect(const rnp_key_protection_params_t &protection,
+                 const pgp_password_provider_t &    password_provider);
+    /** @brief Add/change protection of a key */
+    bool protect(pgp_key_pkt_t &                    decrypted,
                  const rnp_key_protection_params_t &protection,
                  const std::string &                new_password);
     /** @brief Remove protection from a key, i.e. leave secret fields unencrypted */
@@ -320,15 +332,17 @@ struct pgp_key_t {
     bool write_autocrypt(pgp_dest_t &dst, pgp_key_t &sub, uint32_t uid);
 
     /**
-     * @brief Get the latest valid self-signature with information about the primary key,
-     * containing the specified subpacket. It could be userid certification or direct-key
-     * signature.
+     * @brief Get the latest valid self-signature with information about the primary key for
+     *        the specified uid (including the special cases). It could be userid certification
+     *        or direct-key signature.
      *
-     * @param subpkt subpacket type. Pass PGP_SIG_SUBPKT_UNKNOWN to return just latest
-     * signature.
+     * @param uid uid for which latest self-signature should be returned,
+     *            PGP_UID_NONE for direct-key signature,
+     *            PGP_UID_PRIMARY for any primary key,
+     *            PGP_UID_ANY for any uid.
      * @return pointer to signature object or NULL if failed/not found.
      */
-    pgp_subsig_t *latest_selfsig(pgp_sig_subpacket_type_t subpkt = PGP_SIG_SUBPKT_UNKNOWN);
+    pgp_subsig_t *latest_selfsig(uint32_t uid);
 
     /**
      * @brief Get the latest valid subkey binding. Should be called on subkey.
@@ -338,6 +352,34 @@ struct pgp_key_t {
      */
     pgp_subsig_t *latest_binding(bool validated = true);
 
+    /** @brief Returns true if signature is produced by the key itself. */
+    bool is_signer(const pgp_subsig_t &sig) const;
+
+    /** @brief Returns true if key is expired according to sig. */
+    bool is_expired(const pgp_subsig_t &sig) const;
+
+    /** @brief Check whether signature is key's self certification. */
+    bool is_self_cert(const pgp_subsig_t &sig) const;
+
+    /** @brief Check whether signature is key's direct-key self-signature */
+    bool is_direct_self(const pgp_subsig_t &sig) const;
+
+    /** @brief Check whether signature is key's/subkey's revocation */
+    bool is_revocation(const pgp_subsig_t &sig) const;
+
+    /** @brief Check whether signature is userid revocation */
+    bool is_uid_revocation(const pgp_subsig_t &sig) const;
+
+    /** @brief Check whether signature is subkey binding */
+    bool is_binding(const pgp_subsig_t &sig) const;
+
+    /**
+     * @brief Validate key's signature, assuming that 'this' is a signing key.
+     *
+     * @param key key or subkey to which signature belongs.
+     * @param sig signature to validate.
+     */
+    void validate_sig(const pgp_key_t &key, pgp_subsig_t &sig) const;
     void validate_self_signatures();
     void validate_self_signatures(pgp_key_t &primary);
     void validate(rnp_key_store_t &keyring);
@@ -377,23 +419,10 @@ pgp_key_t *pgp_sig_get_signer(const pgp_subsig_t &sig,
                               pgp_key_provider_t *prov);
 
 /**
- * @brief Validate key's signature.
- *
- * @param key key (primary or subkey) which signature belongs to.
- * @param signer signing key/subkey.
- * @param primary primary key when it is applicable (for the subkey binding signature, or NULL.
- * @param sig signature to validate.
- */
-void pgp_key_validate_signature(pgp_key_t &   key,
-                                pgp_key_t &   signer,
-                                pgp_key_t *   primary,
-                                pgp_subsig_t &sig);
-
-/**
- * @brief Get the key's subkey by it's index
+ * @brief Get the key's subkey by its index
  *
  * @param key primary key
- * @param store key store wich will be searched for subkeys
+ * @param store key store which will be searched for subkeys
  * @param idx index of the subkey
  * @return pointer to the subkey or NULL if subkey not found
  */

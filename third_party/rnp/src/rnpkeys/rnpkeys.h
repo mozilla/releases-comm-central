@@ -8,6 +8,7 @@
 #include "uniwin.h"
 #endif
 #include "../rnp/fficli.h"
+#include "logging.h"
 
 #define DEFAULT_RSA_NUMBITS 2048
 
@@ -21,6 +22,7 @@ typedef enum {
     CMD_GENERATE_KEY,
     CMD_EXPORT_REV,
     CMD_REVOKE_KEY,
+    CMD_REMOVE_KEY,
     CMD_VERSION,
     CMD_HELP,
 
@@ -53,10 +55,10 @@ typedef enum {
 } optdefs_t;
 
 bool rnp_cmd(cli_rnp_t *rnp, optdefs_t cmd, const char *f);
-bool setoption(rnp_cfg_t *cfg, optdefs_t *cmd, int val, const char *arg);
+bool setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg);
 void print_praise(void);
 void print_usage(const char *usagemsg);
-bool parse_option(rnp_cfg_t *cfg, optdefs_t *cmd, const char *s);
+bool parse_option(rnp_cfg &cfg, optdefs_t *cmd, const char *s);
 
 /**
  * @brief Initializes rnpkeys. Function allocates memory dynamically for
@@ -66,6 +68,6 @@ bool parse_option(rnp_cfg_t *cfg, optdefs_t *cmd, const char *s);
  * @param cfg configuration with settings from command line
  * @return true on success, or false otherwise.
  */
-bool rnpkeys_init(cli_rnp_t *rnp, const rnp_cfg_t *cfg);
+bool rnpkeys_init(cli_rnp_t *rnp, const rnp_cfg &cfg);
 
 #endif /* _rnpkeys_ */

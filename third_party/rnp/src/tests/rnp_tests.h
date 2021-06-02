@@ -333,6 +333,12 @@ void test_ffi_sig_validity(void **state);
 
 void test_ffi_get_signature_type(void **state);
 
+void test_ffi_remove_signature(void **state);
+
+void test_ffi_remove_signatures(void **state);
+
+void test_ffi_remove_uid(void **state);
+
 void test_rnp_mkstemp(void **state);
 
 void test_dsa_roundtrip(void **state);
@@ -360,6 +366,10 @@ void test_stream_key_encrypt(void **state);
 void test_stream_key_signatures(void **state);
 
 void test_stream_dumper(void **state);
+
+void test_y2k38(void **state);
+
+void test_stream_dumper_y2k38(void **state);
 
 void test_stream_z(void **state);
 
@@ -444,6 +454,7 @@ void test_fuzz_verify_detached(void **state);
 #define assert_string_equal(a, b) EXPECT_STREQ((a), (b))
 #define assert_int_equal(a, b) EXPECT_EQ((a), (b))
 #define assert_int_not_equal(a, b) EXPECT_NE((a), (b))
+#define assert_greater_than(a, b) EXPECT_GT((a), (b))
 #define assert_non_null(a) EXPECT_NE((a), nullptr)
 #define assert_null(a) EXPECT_EQ((a), nullptr)
 #define assert_rnp_success(a) EXPECT_EQ((a), RNP_SUCCESS)

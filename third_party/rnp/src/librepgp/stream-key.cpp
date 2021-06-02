@@ -46,6 +46,7 @@
 #include "pgp-key.h"
 #include "crypto.h"
 #include "crypto/signatures.h"
+#include "crypto/mem.h"
 #include "../librekey/key_store_pgp.h"
 #include <set>
 #include <algorithm>
@@ -941,20 +942,14 @@ write_pgp_keys(pgp_key_sequence_t &keys, pgp_dest_t *dst, bool armor)
 rnp_result_t
 write_pgp_key(pgp_transferable_key_t &key, pgp_dest_t *dst, bool armor)
 {
-    pgp_key_sequence_t keys;
-
     try {
-        keys.keys.emplace_back();
+        pgp_key_sequence_t keys;
+        keys.keys.push_back(key);
+        return write_pgp_keys(keys, dst, armor);
     } catch (const std::exception &e) {
         RNP_LOG("%s", e.what());
         return RNP_ERROR_OUT_OF_MEMORY;
     }
-    /* temporary solution to not implement copy constructor */
-    pgp_transferable_key_t &front = keys.keys.front();
-    memcpy(&front, &key, sizeof(key));
-    rnp_result_t res = write_pgp_keys(keys, dst, armor);
-    memset(&front, 0, sizeof(front));
-    return res;
 }
 
 static rnp_result_t
@@ -1091,7 +1086,7 @@ parse_secret_key_mpis(pgp_key_pkt_t &key, const uint8_t *mpis, size_t len)
             }
             break;
         default:
-            RNP_LOG("uknown pk alg : %d", (int) key.alg);
+            RNP_LOG("unknown pk alg : %d", (int) key.alg);
             return RNP_ERROR_BAD_PARAMETERS;
         }
 
@@ -1110,12 +1105,6 @@ parse_secret_key_mpis(pgp_key_pkt_t &key, const uint8_t *mpis, size_t len)
 rnp_result_t
 decrypt_secret_key(pgp_key_pkt_t *key, const char *password)
 {
-    size_t       keysize;
-    uint8_t      keybuf[PGP_MAX_KEY_SIZE];
-    uint8_t *    decdata = NULL;
-    pgp_crypt_t  crypt;
-    rnp_result_t ret = RNP_ERROR_GENERIC;
-
     if (!key) {
         return RNP_ERROR_NULL_POINTER;
     }
@@ -1144,55 +1133,51 @@ decrypt_secret_key(pgp_key_pkt_t *key, const char *password)
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
-    keysize = pgp_key_size(key->sec_protection.symm_alg);
-    if (!keysize || !pgp_s2k_derive_key(&key->sec_protection.s2k, password, keybuf, keysize)) {
+    rnp::secure_array<uint8_t, PGP_MAX_KEY_SIZE> keybuf;
+    size_t keysize = pgp_key_size(key->sec_protection.symm_alg);
+    if (!keysize ||
+        !pgp_s2k_derive_key(&key->sec_protection.s2k, password, keybuf.data(), keysize)) {
         RNP_LOG("failed to derive key");
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
-    if (!(decdata = (uint8_t *) malloc(key->sec_len))) {
-        RNP_LOG("allocation failed");
-        ret = RNP_ERROR_OUT_OF_MEMORY;
-        goto finish;
-    }
-
-    if (!pgp_cipher_cfb_start(
-          &crypt, key->sec_protection.symm_alg, keybuf, key->sec_protection.iv)) {
-        RNP_LOG("failed to start cfb decryption");
-        ret = RNP_ERROR_DECRYPT_FAILED;
-        goto finish;
-    }
-
-    switch (key->version) {
-    case PGP_V3:
-        if (!is_rsa_key_alg(key->alg)) {
-            RNP_LOG("non-RSA v3 key");
-            ret = RNP_ERROR_BAD_PARAMETERS;
-            break;
+    try {
+        rnp::secure_vector<uint8_t> decdata(key->sec_len);
+        pgp_crypt_t                 crypt;
+        if (!pgp_cipher_cfb_start(
+              &crypt, key->sec_protection.symm_alg, keybuf.data(), key->sec_protection.iv)) {
+            RNP_LOG("failed to start cfb decryption");
+            return RNP_ERROR_DECRYPT_FAILED;
         }
-        ret = decrypt_secret_key_v3(&crypt, decdata, key->sec_data, key->sec_len);
-        break;
-    case PGP_V4:
-        pgp_cipher_cfb_decrypt(&crypt, decdata, key->sec_data, key->sec_len);
-        ret = RNP_SUCCESS;
-        break;
-    default:
-        ret = RNP_ERROR_BAD_PARAMETERS;
-    }
 
-    pgp_cipher_cfb_finish(&crypt);
-    if (ret) {
-        goto finish;
-    }
+        rnp_result_t ret = RNP_ERROR_GENERIC;
+        switch (key->version) {
+        case PGP_V3:
+            if (!is_rsa_key_alg(key->alg)) {
+                RNP_LOG("non-RSA v3 key");
+                ret = RNP_ERROR_BAD_PARAMETERS;
+                break;
+            }
+            ret = decrypt_secret_key_v3(&crypt, decdata.data(), key->sec_data, key->sec_len);
+            break;
+        case PGP_V4:
+            pgp_cipher_cfb_decrypt(&crypt, decdata.data(), key->sec_data, key->sec_len);
+            ret = RNP_SUCCESS;
+            break;
+        default:
+            ret = RNP_ERROR_BAD_PARAMETERS;
+        }
 
-    ret = parse_secret_key_mpis(*key, decdata, key->sec_len);
-finish:
-    pgp_forget(keybuf, sizeof(keybuf));
-    if (decdata) {
-        pgp_forget(decdata, key->sec_len);
-        free(decdata);
+        pgp_cipher_cfb_finish(&crypt);
+        if (ret) {
+            return ret;
+        }
+
+        return parse_secret_key_mpis(*key, decdata.data(), key->sec_len);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_GENERIC;
     }
-    return ret;
 }
 
 static void
@@ -1222,7 +1207,7 @@ write_secret_key_mpis(pgp_packet_body_t &body, pgp_key_pkt_t &key)
         body.add(key.material.eg.x);
         break;
     default:
-        RNP_LOG("uknown pk alg : %d", (int) key.alg);
+        RNP_LOG("unknown pk alg : %d", (int) key.alg);
         throw rnp::rnp_exception(RNP_ERROR_BAD_PARAMETERS);
     }
 
@@ -1271,6 +1256,7 @@ encrypt_secret_key(pgp_key_pkt_t *key, const char *password, rng_t *rng)
 
         /* check whether data is not encrypted */
         if (key->sec_protection.s2k.usage == PGP_S2KU_NONE) {
+            secure_clear(key->sec_data, key->sec_len);
             free(key->sec_data);
             key->sec_data = (uint8_t *) malloc(body.size());
             if (!key->sec_data) {
@@ -1313,22 +1299,21 @@ encrypt_secret_key(pgp_key_pkt_t *key, const char *password, rng_t *rng)
             }
         }
         /* derive key */
-        uint8_t keybuf[PGP_MAX_KEY_SIZE];
-        if (!pgp_s2k_derive_key(&key->sec_protection.s2k, password, keybuf, keysize)) {
+        rnp::secure_array<uint8_t, PGP_MAX_KEY_SIZE> keybuf;
+        if (!pgp_s2k_derive_key(&key->sec_protection.s2k, password, keybuf.data(), keysize)) {
             RNP_LOG("failed to derive key");
             return RNP_ERROR_BAD_PARAMETERS;
         }
         /* encrypt sec data */
         pgp_crypt_t crypt;
         if (!pgp_cipher_cfb_start(
-              &crypt, key->sec_protection.symm_alg, keybuf, key->sec_protection.iv)) {
+              &crypt, key->sec_protection.symm_alg, keybuf.data(), key->sec_protection.iv)) {
             RNP_LOG("failed to start cfb encryption");
-            pgp_forget(keybuf, sizeof(keybuf));
             return RNP_ERROR_DECRYPT_FAILED;
         }
-        pgp_forget(keybuf, sizeof(keybuf));
         pgp_cipher_cfb_encrypt(&crypt, body.data(), body.data(), body.size());
         pgp_cipher_cfb_finish(&crypt);
+        secure_clear(key->sec_data, key->sec_len);
         free(key->sec_data);
         key->sec_data = (uint8_t *) malloc(body.size());
         if (!key->sec_data) {
@@ -1580,10 +1565,12 @@ pgp_key_pkt_t::operator=(pgp_key_pkt_t &&src)
     src.hashed_data = NULL;
     material = src.material;
     forget_secret_key_fields(&src.material);
-    sec_len = src.sec_len;
+    secure_clear(sec_data, sec_len);
     free(sec_data);
+    sec_len = src.sec_len;
     sec_data = src.sec_data;
     src.sec_data = NULL;
+    src.sec_len = 0;
     sec_protection = src.sec_protection;
     return *this;
 }
@@ -1610,9 +1597,10 @@ pgp_key_pkt_t::operator=(const pgp_key_pkt_t &src)
         memcpy(hashed_data, src.hashed_data, hashed_len);
     }
     material = src.material;
-    sec_len = src.sec_len;
+    secure_clear(sec_data, sec_len);
     free(sec_data);
     sec_data = NULL;
+    sec_len = src.sec_len;
     if (src.sec_data) {
         sec_data = (uint8_t *) malloc(sec_len);
         if (!sec_data) {
@@ -1630,6 +1618,7 @@ pgp_key_pkt_t::~pgp_key_pkt_t()
 {
     forget_secret_key_fields(&material);
     free(hashed_data);
+    secure_clear(sec_data, sec_len);
     free(sec_data);
 }
 
@@ -1922,7 +1911,7 @@ pgp_key_pkt_t::fill_hashed_data()
 bool
 pgp_key_pkt_t::equals(const pgp_key_pkt_t &key, bool pubonly) const noexcept
 {
-    /* check tag. We allow public/secret key comparision here */
+    /* check tag. We allow public/secret key comparison here */
     if (pubonly) {
         if (is_subkey_pkt(tag) && !is_subkey_pkt(key.tag)) {
             return false;

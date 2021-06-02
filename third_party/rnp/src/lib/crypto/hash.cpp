@@ -75,7 +75,6 @@
 
 #include <stdio.h>
 #include <memory>
-#include <rnp/rnp_sdk.h>
 #include <botan/hash.h>
 #include "hash.h"
 #include "types.h"
@@ -95,7 +94,6 @@ static const struct hash_alg_map_t {
                     {PGP_HASH_SHA512, "SHA512", "SHA-512", 64},
                     {PGP_HASH_SHA224, "SHA224", "SHA-224", 28},
                     {PGP_HASH_SM3, "SM3", "SM3", 32},
-                    {PGP_HASH_CRC24, "CRC24", "CRC24", 3},
                     {PGP_HASH_SHA3_256, "SHA3-256", "SHA-3(256)", 32},
                     {PGP_HASH_SHA3_512, "SHA3-512", "SHA-3(512)", 64}};
 /**
@@ -147,18 +145,10 @@ pgp_str_to_hash_alg(const char *hash)
     return PGP_HASH_UNKNOWN;
 }
 
-/**
-\ingroup Core_Hashes
-\brief Setup hash for given hash algorithm
-\param hash Hash to set up
-\param alg Hash algorithm to use
-*/
-bool
-pgp_hash_create(pgp_hash_t *hash, pgp_hash_alg_t alg)
+static bool
+botan_hash_create(pgp_hash_t *hash, const char *hash_name)
 {
-    const char *hash_name = pgp_hash_name_botan(alg);
-
-    if (hash_name == NULL) {
+    if (!hash_name) {
         return false;
     }
 
@@ -179,8 +169,35 @@ pgp_hash_create(pgp_hash_t *hash, pgp_hash_alg_t alg)
         return false;
     }
 
-    hash->_alg = alg;
     hash->handle = hash_fn.release();
+    return true;
+}
+
+/**
+\ingroup Core_Hashes
+\brief Setup hash for given hash algorithm
+\param hash Hash to set up
+\param alg Hash algorithm to use
+*/
+bool
+pgp_hash_create(pgp_hash_t *hash, pgp_hash_alg_t alg)
+{
+    if (!botan_hash_create(hash, pgp_hash_name_botan(alg))) {
+        return false;
+    }
+
+    hash->_alg = alg;
+    return true;
+}
+
+bool
+pgp_hash_create_crc24(pgp_hash_t *hash)
+{
+    if (!botan_hash_create(hash, "CRC24")) {
+        return false;
+    }
+
+    hash->_alg = PGP_HASH_UNKNOWN;
     return true;
 }
 
@@ -210,24 +227,6 @@ pgp_hash_copy(pgp_hash_t *dst, const pgp_hash_t *src)
     dst->_alg = src->_alg;
     dst->handle = handle.release();
     return true;
-}
-
-/**
-\ingroup Core_Hashes
-\brief Add to the hash
-\param hash Hash to add to
-\param n Int to add
-\param length Length of int in bytes
-*/
-void
-pgp_hash_add_int(pgp_hash_t *hash, unsigned n, size_t length)
-{
-    uint8_t c;
-
-    while (length--) {
-        c = n >> (length * 8);
-        pgp_hash_add(hash, &c, 1);
-    }
 }
 
 int
@@ -279,18 +278,6 @@ pgp_hash_alg_t
 pgp_hash_alg_type(const pgp_hash_t *hash)
 {
     return hash->_alg;
-}
-
-/**
-\ingroup HighLevel_Supported
-\brief Is this Hash Algorithm supported?
-\param hash_alg Hash Algorithm to check
-\return 1 if supported; else 0
-*/
-unsigned
-pgp_is_hash_alg_supported(const pgp_hash_alg_t *hash_alg)
-{
-    return pgp_hash_name_botan(*hash_alg) != NULL;
 }
 
 size_t

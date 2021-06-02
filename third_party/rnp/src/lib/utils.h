@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2021 [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,50 +29,7 @@
 #include <stdio.h>
 #include "types.h"
 #include <limits.h>
-#include <rnp/rnp_export.h>
-
-#define RNP_MSG(msg) (void) fprintf(stdout, msg);
-
-// TODO: It is currently necessary to mark this with RNP_API, but this should
-// be removed at some point since it is not part of the public API.
-RNP_API bool rnp_log_switch();
-void         set_rnp_log_switch(int8_t);
-
-#define RNP_LOG_FD(fd, ...)                                                  \
-    do {                                                                     \
-        if (!rnp_log_switch())                                               \
-            break;                                                           \
-        (void) fprintf((fd), "[%s() %s:%d] ", __func__, __FILE__, __LINE__); \
-        (void) fprintf((fd), __VA_ARGS__);                                   \
-        (void) fprintf((fd), "\n");                                          \
-    } while (0)
-
-#define RNP_LOG(...) RNP_LOG_FD(stderr, __VA_ARGS__)
-
-#define RNP_LOG_KEY(msg, key)                                                          \
-    do {                                                                               \
-        if (!(key)) {                                                                  \
-            RNP_LOG(msg, "(null)");                                                    \
-            break;                                                                     \
-        }                                                                              \
-        char                keyid[PGP_KEY_ID_SIZE * 2 + 1] = {0};                      \
-        const pgp_key_id_t &id = key->keyid();                                         \
-        rnp_hex_encode(id.data(), id.size(), keyid, sizeof(keyid), RNP_HEX_LOWERCASE); \
-        RNP_LOG(msg, keyid);                                                           \
-    } while (0)
-
-#define RNP_LOG_KEY_PKT(msg, key)                                                     \
-    do {                                                                              \
-        pgp_key_id_t keyid = {};                                                      \
-        if (pgp_keyid(keyid, (key))) {                                                \
-            RNP_LOG(msg, "unknown");                                                  \
-            break;                                                                    \
-        };                                                                            \
-        char keyidhex[PGP_KEY_ID_SIZE * 2 + 1] = {0};                                 \
-        rnp_hex_encode(                                                               \
-          keyid.data(), keyid.size(), keyidhex, sizeof(keyidhex), RNP_HEX_LOWERCASE); \
-        RNP_LOG(msg, keyidhex);                                                       \
-    } while (0)
+#include "logging.h"
 
 #define RNP_DLOG(...)                    \
     if (rnp_get_debug(__FILE__)) {       \
@@ -132,31 +89,15 @@ void         set_rnp_log_switch(int8_t);
         }                                                                       \
     } while (0)
 
-/* Formating helpers */
-#define PRItime "ll"
-
-#ifdef _WIN32
-#define PRIsize "I"
-#else
-#define PRIsize "z"
-#endif
-
-/* TODO: Review usage of this variable */
-#define RNP_BUFSIZ 8192
-
-/* for silencing unused parameter warnings */
-#define RNP_USED(x) /*LINTED*/ (void) &(x)
-
 #ifndef RNP_CONST_TO_VOID_PTR
 #define RNP_CONST_TO_VOID_PTR(a) (reinterpret_cast<void *>(const_cast<char *>(a)))
 #endif
 
-int rnp_mkdir(const char *path);
-#ifdef _WIN32
-#define RNP_MKDIR(pathname, mode) rnp_mkdir(pathname)
-#else
-#define RNP_MKDIR(pathname, mode) mkdir(pathname, mode)
-#endif
+int rnp_strcasecmp(const char *, const char *);
+
+char *rnp_strhexdump_upper(char *dest, const uint8_t *src, size_t length, const char *sep);
+
+char *rnp_strlwr(char *s);
 
 /* debugging helpers*/
 void hexdump(FILE *, const char *, const uint8_t *, size_t);
@@ -168,9 +109,6 @@ bool rnp_set_debug(const char *);
 bool rnp_get_debug(const char *);
 void rnp_clear_debug();
 
-/* environment variable name */
-static const char RNP_LOG_CONSOLE[] = "RNP_LOG_CONSOLE";
-
 /* Portable way to convert bits to bytes */
 
 #define BITS_TO_BYTES(b) (((b) + (CHAR_BIT - 1)) / CHAR_BIT)
@@ -178,7 +116,7 @@ static const char RNP_LOG_CONSOLE[] = "RNP_LOG_CONSOLE";
 /* Load little-endian 32-bit from y to x in portable fashion */
 
 inline void
-LOAD32LE(uint32_t &x, uint8_t y[4])
+LOAD32LE(uint32_t &x, const uint8_t y[4])
 {
     x = (static_cast<uint32_t>(y[3]) << 24) | (static_cast<uint32_t>(y[2]) << 16) |
         (static_cast<uint32_t>(y[1]) << 8) | (static_cast<uint32_t>(y[0]) << 0);

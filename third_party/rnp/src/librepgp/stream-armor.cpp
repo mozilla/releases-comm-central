@@ -38,11 +38,13 @@
 #include "stream-def.h"
 #include "stream-armor.h"
 #include "stream-packet.h"
+#include "str-utils.h"
 #include "crypto/hash.h"
 #include "types.h"
 #include "utils.h"
 
 #define ARMORED_BLOCK_SIZE (4096)
+#define ARMORED_PEEK_BUF_SIZE 1024
 #define ARMORED_MIN_LINE_LENGTH (16)
 #define ARMORED_MAX_LINE_LENGTH (76)
 
@@ -61,6 +63,7 @@ typedef struct pgp_source_armored_param_t {
     unsigned brestlen;   /* number of bytes in brest */
     bool     eofb64;     /* end of base64 stream reached */
     uint8_t  readcrc[3]; /* crc-24 from the armored data */
+    bool     has_crc;    /* message contains CRC line */
     pgp_hash_t crc_ctx;  /* CTX used to calculate CRC */
 } pgp_source_armored_param_t;
 
@@ -153,6 +156,8 @@ armor_read_crc(pgp_source_t *src)
     param->readcrc[0] = (dec[0] << 2) | ((dec[1] >> 4) & 0x0F);
     param->readcrc[1] = (dec[1] << 4) | ((dec[2] >> 2) & 0x0F);
     param->readcrc[2] = (dec[2] << 6) | dec[3];
+
+    param->has_crc = true;
 
     src_skip(param->readsrc, 5);
     return src_skip_eol(param->readsrc);
@@ -328,8 +333,7 @@ armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
 
             /* reading crc */
             if (!armor_read_crc(src)) {
-                RNP_LOG("wrong crc line");
-                return false;
+                RNP_LOG("Warning: missing or malformed CRC line");
             }
             /* reading armor trailing line */
             if (!armor_read_trailer(src)) {
@@ -383,9 +387,8 @@ armored_src_read(pgp_source_t *src, void *buf, size_t len, size_t *readres)
             return false;
         }
 
-        if (memcmp(param->readcrc, crc_fin, 3)) {
-            RNP_LOG("CRC mismatch");
-            return false;
+        if (param->has_crc && memcmp(param->readcrc, crc_fin, 3)) {
+            RNP_LOG("Warning: CRC mismatch");
         }
     } else {
         /* few bytes which do not fit to 4 boundary */
@@ -563,7 +566,7 @@ rnp_armored_get_type(pgp_source_t *src)
         return guessed;
     }
 
-    char        hdr[128];
+    char        hdr[ARMORED_PEEK_BUF_SIZE];
     const char *armhdr;
     size_t      armhdrlen;
     size_t      read;
@@ -581,7 +584,7 @@ rnp_armored_get_type(pgp_source_t *src)
 static bool
 armor_parse_header(pgp_source_t *src)
 {
-    char                        hdr[128];
+    char                        hdr[ARMORED_PEEK_BUF_SIZE];
     const char *                armhdr;
     size_t                      armhdrlen;
     size_t                      read;
@@ -625,7 +628,7 @@ armor_parse_header(pgp_source_t *src)
 static bool
 armor_skip_line(pgp_source_t *src)
 {
-    char header[1024] = {0};
+    char header[ARMORED_PEEK_BUF_SIZE] = {0};
     do {
         size_t hdrlen = 0;
         bool   res = src_peek_line(src, header, sizeof(header), &hdrlen);
@@ -642,7 +645,7 @@ static bool
 armor_parse_headers(pgp_source_t *src)
 {
     pgp_source_armored_param_t *param = (pgp_source_armored_param_t *) src->param;
-    char                        header[1024] = {0};
+    char                        header[ARMORED_PEEK_BUF_SIZE] = {0};
 
     do {
         size_t hdrlen = 0;
@@ -657,6 +660,9 @@ armor_parse_headers(pgp_source_t *src)
             header[hdrlen] = '\0';
         } else if (hdrlen) {
             src_skip(param->readsrc, hdrlen);
+            if (rnp_is_blank_line(header, hdrlen)) {
+                return src_skip_eol(param->readsrc);
+            }
         } else {
             /* empty line - end of the headers */
             return src_skip_eol(param->readsrc);
@@ -708,7 +714,7 @@ init_armored_src(pgp_source_t *src, pgp_source_t *readsrc)
     param = (pgp_source_armored_param_t *) src->param;
     param->readsrc = readsrc;
 
-    if (!pgp_hash_create(&param->crc_ctx, PGP_HASH_CRC24)) {
+    if (!pgp_hash_create_crc24(&param->crc_ctx)) {
         RNP_LOG("Internal error");
         return RNP_ERROR_GENERIC;
     }
@@ -992,7 +998,7 @@ init_armored_dst(pgp_dest_t *dst, pgp_dest_t *writedst, pgp_armored_msg_t msgtyp
     dst->writeb = 0;
     dst->clen = 0;
 
-    if (!pgp_hash_create(&param->crc_ctx, PGP_HASH_CRC24)) {
+    if (!pgp_hash_create_crc24(&param->crc_ctx)) {
         RNP_LOG("Internal error");
         return RNP_ERROR_GENERIC;
     }
@@ -1043,7 +1049,7 @@ armored_dst_set_line_length(pgp_dest_t *dst, size_t llen)
 bool
 is_armored_source(pgp_source_t *src)
 {
-    uint8_t buf[128];
+    uint8_t buf[ARMORED_PEEK_BUF_SIZE];
     size_t  read = 0;
 
     if (!src_peek(src, buf, sizeof(buf), &read) || (read < strlen(ST_ARMOR_BEGIN) + 1)) {
@@ -1056,7 +1062,7 @@ is_armored_source(pgp_source_t *src)
 bool
 is_cleartext_source(pgp_source_t *src)
 {
-    uint8_t buf[128];
+    uint8_t buf[ARMORED_PEEK_BUF_SIZE];
     size_t  read = 0;
 
     if (!src_peek(src, buf, sizeof(buf), &read) || (read < strlen(ST_CLEAR_BEGIN))) {
@@ -1071,32 +1077,11 @@ rnp_dearmor_source(pgp_source_t *src, pgp_dest_t *dst)
 {
     rnp_result_t res = RNP_ERROR_BAD_FORMAT;
     pgp_source_t armorsrc = {0};
-    uint8_t      readbuf[sizeof(ST_CLEAR_BEGIN)];
-    size_t       read;
 
-    if (!src_peek(src, readbuf, strlen(ST_CLEAR_BEGIN), &read) ||
-        (read < strlen(ST_ARMOR_BEGIN))) {
-        RNP_LOG("can't read enough data from source");
-        return RNP_ERROR_READ;
-    }
-
-    /* Trying armored or cleartext data */
-    readbuf[read] = 0;
-    if (strstr((char *) readbuf, ST_ARMOR_BEGIN)) {
-        /* checking whether it is cleartext */
-        if (strstr((char *) readbuf, ST_CLEAR_BEGIN)) {
-            RNP_LOG("source is cleartext, not armored");
-            return RNP_ERROR_BAD_FORMAT;
-        }
-
-        /* initializing armored message */
-        res = init_armored_src(&armorsrc, src);
-        if (res) {
-            return res;
-        }
-    } else {
-        RNP_LOG("source is not armored data");
-        return RNP_ERROR_BAD_FORMAT;
+    /* initializing armored message */
+    res = init_armored_src(&armorsrc, src);
+    if (res) {
+        return res;
     }
     /* Reading data from armored source and writing it to the output */
     res = dst_write_src(&armorsrc, dst);

@@ -30,8 +30,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include "list.h"
-#include "rnp/rnp.h"
+#include <unordered_map>
 
 /* cfg variables known by rnp */
 #define CFG_OVERWRITE "overwrite" /* overwrite output file if it is already exist or fail */
@@ -76,7 +75,7 @@
 #define CFG_AEAD "aead"                 /* if nonzero then AEAD enryption mode, int */
 #define CFG_AEAD_CHUNK "aead_chunk"     /* AEAD chunk size bits, int from 0 to 56 */
 #define CFG_KEYSTORE_DISABLED \
-    "disable_keystore"              /* indicates wether keystore must be initialized */
+    "disable_keystore"              /* indicates whether keystore must be initialized */
 #define CFG_FORCE "force"           /* force command to succeed operation */
 #define CFG_SECRET "secret"         /* indicates operation on secret key */
 #define CFG_WITH_SIGS "with-sigs"   /* list keys with signatures */
@@ -109,187 +108,62 @@
 
 /* rnp CLI config : contains all the system-dependent and specified by the user configuration
  * options */
-typedef struct rnp_cfg_t {
-    list vals;
-} rnp_cfg_t;
+class rnp_cfg_val;
 
-typedef struct rnp_cfg_val_t rnp_cfg_val_t;
+class rnp_cfg {
+  private:
+    std::unordered_map<std::string, rnp_cfg_val *> vals_;
+    std::string                                    empty_str_;
 
-/** @brief initialize rnp_cfg structure internals. When structure is not needed anymore
- *         it should be freed via rnp_cfg_free function call
- *  @param cfg allocated rnp_cfg_t structure
- **/
-void rnp_cfg_init(rnp_cfg_t *cfg);
-
-/** @brief load default settings to the rnp_cfg_t structure
- *  @param cfg allocated and initialized rnp_cfg_t structure
- **/
-void rnp_cfg_load_defaults(rnp_cfg_t *cfg);
-
-/** @brief set string value for the key in config
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *  @param val value, which will be set
- *
- *  @return true if operation succeeds or false otherwise
- **/
-bool rnp_cfg_setstr(rnp_cfg_t *cfg, const char *key, const char *val);
-
-/** @brief set integer value for the key in config
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *  @param val value, which will be set
- *
- *  @return true if operation succeeds or false otherwise
- **/
-bool rnp_cfg_setint(rnp_cfg_t *cfg, const char *key, int val);
-
-/** @brief set boolean value for the key in config
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *  @param val value, which will be set
- *
- *  @return true if operation succeeds or false otherwise
- **/
-bool rnp_cfg_setbool(rnp_cfg_t *cfg, const char *key, bool val);
-
-/** @brief add string item to the list value
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *  @param val value, which will be appended to the list
- *
- *  @return true if operation succeeds or false otherwise
- **/
-bool rnp_cfg_addstr(rnp_cfg_t *cfg, const char *key, const char *str);
-
-/** @brief unset value for the key in config, deleting it
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *
- *  @return true if value was found and deleted or false otherwise
- **/
-bool rnp_cfg_unset(rnp_cfg_t *cfg, const char *key);
-
-/** @brief return true if key is set in the configuration
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *
- *  @return if the key exists within the configuration or not
- **/
-bool rnp_cfg_hasval(const rnp_cfg_t *cfg, const char *key);
-
-/** @brief return string value for the key if there is one
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *
- *  @return stored string if item is found and has string value or NULL otherwise
- **/
-const char *rnp_cfg_getstr(const rnp_cfg_t *cfg, const char *key);
-
-/** @brief return C++ string value for the key if there is one
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *
- *  @return stored string if item is found and has string value or empty string otherwise
- **/
-std::string rnp_cfg_getstring(const rnp_cfg_t *cfg, const std::string &key);
-
-/** @brief return integer value for the key if there is one
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *
- *  @return integer value or 0 if there is no value or it is non-integer
- **/
-int rnp_cfg_getint(const rnp_cfg_t *cfg, const char *key);
-
-/** @brief return boolean value for the key if there is one
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *
- *  @return true if 'true', 'True', or non-zero integer is stored in value, false otherwise
- **/
-bool rnp_cfg_getbool(const rnp_cfg_t *cfg, const char *key);
-
-/** @brief return list value for the key if there is one. Each list's element contains
- *  rnp_cfg_val_t element with the corresponding value. List may be modified.
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *
- *  @return pointer to the list on success or NULL if value was not found or has other type
- **/
-list *rnp_cfg_getlist(rnp_cfg_t *cfg, const char *key);
-
-/** @brief returns a string at index of list value for the key
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *  @param index zero based index of the string
- *
- *  @return string or an empty string if value was not found
- **/
-std::string rnp_cfg_getlist_string(const rnp_cfg_t *cfg, const std::string &key, size_t index);
-
-/** @brief copy string values as char * from the list to destination
- *  @param cfg rnp config, must be allocated and initialized
- *  @param dst pointer to the list structure, where strings will be stored
- *  @param key must be null-terminated string
- *
- *  @return true on success or false otherwise
- **/
-bool rnp_cfg_copylist_str(const rnp_cfg_t *cfg, list *dst, const char *key);
-
-/** @brief copy string values to destination vector of the strings
- *  @param cfg rnp config, must be allocated and initialized
- *  @param dst vector where strings will be stored
- *  @param key string with key name
- *
- *  @return true on success or false otherwise
- **/
-bool rnp_cfg_copylist_string(const rnp_cfg_t *         cfg,
-                             std::vector<std::string> &dst,
-                             const std::string &       key);
-
-/** @brief free the memory allocated in rnp_cfg_t
- *  @param cfg rnp config, must be allocated and initialized
- **/
-void rnp_cfg_free(rnp_cfg_t *cfg);
-
-/** @brief get the string value from rnp_cfg_val_t record
- *  @param val pointer to the value of rnp_cfg_val_t type, may be NULL
- *  @return pointer to the NULL-terminated string if value has string, or NULL otherwise
- */
-const char *rnp_cfg_val_getstr(rnp_cfg_val_t *val);
-
-/** @brief return integer value for the key if there is one, or default value otherwise
- *  @param cfg rnp config, must be allocated and initialized
- *  @param key must be null-terminated string
- *  @param def default value
- *
- *  @return integer value or def if there is no value or it is non-integer
- **/
-int rnp_cfg_getint_default(const rnp_cfg_t *cfg, const char *key, int def);
-
-/** @brief Copies or overrides configuration
- *  @param dst resulting configuration object
- *  @param src vals in dst will be overriden (if key exist) or coppied (if not)
- *         from this object
- *
- *  @pre   dst is correctly initialized and not NULL
- *  @return true on success or false otherwise
- *
- **/
-bool rnp_cfg_copy(rnp_cfg_t *dst, const rnp_cfg_t *src);
-
-/** @brief Return the desired hash algorithm.
- *  @param cfg [in] rnp config, must be allocated and initialized
- *  @return desired hash algorithm, or default value if not set by user
- */
-const char *rnp_cfg_gethashalg(const rnp_cfg_t *cfg);
-
-/** @brief Get number of password tries according to defaults and value, stored in cfg
- *  @param cfg allocated and initalized config
- *  @return number of password tries or INFINITE_ATTEMPTS
- */
-int rnp_cfg_get_pswdtries(const rnp_cfg_t *cfg);
+  public:
+    /** @brief load default settings */
+    void load_defaults();
+    /** @brief set string value for the key in config */
+    void set_str(const std::string &key, const std::string &val);
+    void set_str(const std::string &key, const char *val);
+    /** @brief set int value for the key in config */
+    void set_int(const std::string &key, int val);
+    /** @brief set bool value for the key in config */
+    void set_bool(const std::string &key, bool val);
+    /** @brief remove key and corresponding value from the config */
+    void unset(const std::string &key);
+    /** @brief add string item to the list value */
+    void add_str(const std::string &key, const std::string &val);
+    /** @brief check whether config has value for the key */
+    bool has(const std::string &key) const;
+    /** @brief get string value from the config. If it is absent then empty string will be
+     *         returned */
+    const std::string &get_str(const std::string &key) const;
+    /** @brief get C string value from the config. Will return 0 instead of empty string if
+     * value is absent. */
+    const char *get_cstr(const std::string &key) const;
+    /** @brief get int value from the config. If it is absent then def will be returned */
+    int get_int(const std::string &key, int def = 0) const;
+    /** @brief get bool value from the config. If it is absent then false will be returned */
+    bool get_bool(const std::string &key) const;
+    /** @brief get number of items in the string list value. If it is absent then 0 will be
+     *         returned. */
+    size_t get_count(const std::string &key) const;
+    /** @brief get string from the list value at the corresponding position. If there is no
+     *         corresponding value or index too large then empty string will be returned. */
+    const std::string &get_str(const std::string &key, size_t idx) const;
+    /** @brief get all strings from the list value */
+    std::vector<std::string> get_list(const std::string &key) const;
+    /** @brief get number of the password tries */
+    int get_pswdtries() const;
+    /** @brief get hash algorithm */
+    const std::string get_hashalg() const;
+    /** @brief copy or override a configuration.
+     *  @param src vals will be overridden (if key exist) or copied (if not) from this object
+     */
+    void copy(const rnp_cfg &src);
+    void clear();
+    /* delete unneeded operators */
+    rnp_cfg &operator=(const rnp_cfg &src) = delete;
+    rnp_cfg &operator=(const rnp_cfg &&src) = delete;
+    /** @brief destructor */
+    ~rnp_cfg();
+};
 
 /* rnp CLI helper functions */
 
@@ -301,7 +175,7 @@ int rnp_cfg_get_pswdtries(const rnp_cfg_t *cfg);
  *  - 60000 : number of seconds
  *
  *  @param s [in] NULL-terminated string with the date
- *  @param t [out] On successfull return result will be placed here
+ *  @param t [out] On successful return result will be placed here
  *  @return expiration time in seconds
  */
 uint64_t get_expiration(const char *s);

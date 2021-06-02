@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2021, [Ribose Inc](https://www.ribose.com).
  * Copyright (c) 2009 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
@@ -59,7 +59,6 @@
 #include <type_traits>
 
 #include <rnp/rnp_def.h>
-#include "list.h"
 #include "crypto/common.h"
 
 /* SHA1 Hash Size */
@@ -67,6 +66,12 @@
 
 /* Maximum length of the packet header */
 #define PGP_MAX_HEADER_SIZE 6
+
+/* Maximum supported userid length */
+#define MAX_ID_LENGTH 128
+
+/* Maximum supported password length */
+#define MAX_PASSWORD_LENGTH 256
 
 /** pgp_map_t
  */
@@ -79,14 +84,6 @@ typedef struct {
     uint8_t     mask;
     const char *string;
 } pgp_bit_map_t;
-
-typedef struct pgp_crypt_t pgp_crypt_t;
-
-/** pgp_hash_t */
-typedef struct pgp_hash_t pgp_hash_t;
-
-/** Revocation Reason type */
-typedef uint8_t pgp_ss_rr_code_t;
 
 /** pgp_fingerprint_t */
 typedef struct pgp_fingerprint_t {
@@ -103,7 +100,7 @@ template <> struct hash<pgp_fingerprint_t> {
     std::size_t
     operator()(pgp_fingerprint_t const &fp) const noexcept
     {
-        /* since fingerprint value is hash itself, we may use it's low bytes */
+        /* since fingerprint value is hash itself, we may use its low bytes */
         size_t res = 0;
         static_assert(sizeof(fp.fingerprint) == PGP_FINGERPRINT_SIZE,
                       "pgp_fingerprint_t size mismatch");
@@ -117,7 +114,7 @@ template <> struct hash<pgp_sig_id_t> {
     std::size_t
     operator()(pgp_sig_id_t const &sigid) const noexcept
     {
-        /* since signature id value is hash itself, we may use it's low bytes */
+        /* since signature id value is hash itself, we may use its low bytes */
         size_t res = 0;
         static_assert(std::tuple_size<pgp_sig_id_t>::value >= sizeof(res),
                       "pgp_sig_id_t size mismatch");
