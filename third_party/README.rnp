@@ -33,12 +33,14 @@ CMakeLists.txt
 CMakeSettings.json
 
 
-The following files were added to the source's root by MZLA Technologies:
-Makefile.in
+The following files were added or modified by MZLA Technologies to integrate
+with mozbuild:
 moz.build
 module.ver
 rnp.symbols
-
+src/lib/config.h.in
+src/lib/rnp/rnp_export.h
+src/version.h
 
 Modifications were made to RNP to disable obsolete ciphers. See bug 1641720.
 The changes are reapplied when update_rnp.sh is run from
