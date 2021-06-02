@@ -84,12 +84,14 @@ rnp_key_lock
 rnp_key_packets_to_json
 rnp_key_protect
 rnp_key_remove
+rnp_key_remove_signatures
 rnp_key_revoke
 rnp_key_set_expiration
 rnp_key_to_json
 rnp_key_unlock
 rnp_key_unprotect
 rnp_key_valid_till
+rnp_key_valid_till64
 rnp_load_keys
 rnp_locate_key
 rnp_op_encrypt_add_password
@@ -195,6 +197,7 @@ rnp_signature_get_type
 rnp_signature_handle_destroy
 rnp_signature_is_valid
 rnp_signature_packet_to_json
+rnp_signature_remove
 rnp_supported_features
 rnp_supports_feature
 rnp_symenc_get_aead_alg
@@ -211,6 +214,7 @@ rnp_uid_handle_destroy
 rnp_uid_is_primary
 rnp_uid_is_revoked
 rnp_uid_is_valid
+rnp_uid_remove
 rnp_unload_keys
 rnp_version
 rnp_version_commit_timestamp

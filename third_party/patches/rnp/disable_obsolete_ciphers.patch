@@ -1,7 +1,7 @@
 diff --git a/third_party/rnp/src/lib/crypto/signatures.cpp b/third_party/rnp/src/lib/crypto/signatures.cpp
 --- a/third_party/rnp/src/lib/crypto/signatures.cpp
 +++ b/third_party/rnp/src/lib/crypto/signatures.cpp
-@@ -188,29 +188,90 @@ signature_calculate(pgp_signature_t *   
+@@ -188,29 +188,89 @@ signature_calculate(pgp_signature_t *   
          sig->write_material(material);
          return RNP_SUCCESS;
      } catch (const std::exception &e) {
@@ -25,7 +25,6 @@ diff --git a/third_party/rnp/src/lib/crypto/signatures.cpp b/third_party/rnp/src
 +
 +        case PGP_HASH_MD5:
 +        case PGP_HASH_SM3:
-+        case PGP_HASH_CRC24:
 +        case PGP_HASH_UNKNOWN:
 +        default:
 +            return false;

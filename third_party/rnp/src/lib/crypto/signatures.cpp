@@ -208,7 +208,6 @@ static bool is_hash_alg_allowed_in_sig(const pgp_hash_alg_t hash_alg)
 
         case PGP_HASH_MD5:
         case PGP_HASH_SM3:
-        case PGP_HASH_CRC24:
         case PGP_HASH_UNKNOWN:
         default:
             return false;
