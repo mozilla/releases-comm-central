@@ -1845,6 +1845,25 @@
       };
     }
 
+    /**
+     * Indicates whether the address of this pill is for a mail list.
+     * @type {boolean}
+     */
+    isMailList = false;
+
+    /**
+     * If this pill is for a mail list, this provides the URI.
+     * @type {?string}
+     */
+    listURI = null;
+
+    /**
+     * If this pill is for a mail list, this provides the total count of
+     * its addreses.
+     * @type {number}
+     */
+    listAddressCount = 0;
+
     connectedCallback() {
       if (this.hasChildNodes() || this.delayConnectedCallback()) {
         return;
@@ -2143,12 +2162,22 @@
         this.fullAddress,
         LazyModules.MimeParser.HEADER_ADDRESS
       );
-      let isMailingList =
-        listNames.length > 0 &&
-        MailServices.ab.mailListNameExists(listNames[0].name);
+
+      if (listNames.length > 0) {
+        let mailList = MailServices.ab.getMailListFromName(listNames[0].name);
+        this.isMailList = !!mailList;
+        if (this.isMailList) {
+          this.listURI = mailList.URI;
+          this.listAddressCount = mailList.childCards.length;
+        } else {
+          this.listURI = "";
+          this.listAddressCount = 0;
+        }
+      }
+
       let isNewsgroup = this.emailInput.classList.contains("news-input");
 
-      if (!isValid && !isMailingList && !isNewsgroup) {
+      if (!isValid && !this.isMailList && !isNewsgroup) {
         this.classList.add("invalid-address");
         this.setAttribute(
           "tooltiptext",
@@ -2168,9 +2197,9 @@
       this.pillIndicator.hidden = true;
 
       // Check if the address is not in the Address Book only if it's not a
-      // mailing list.
+      // mail list.
       if (
-        !isMailingList &&
+        !this.isMailList &&
         !LazyModules.DisplayNameUtils.getCardForEmail(this.emailAddress)?.card
       ) {
         this.setAttribute(

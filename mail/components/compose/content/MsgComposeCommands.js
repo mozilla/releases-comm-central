@@ -5139,7 +5139,13 @@ function checkPublicRecipientsLimit() {
     "mail.compose.warn_public_recipients.threshold"
   );
 
-  let publicAddressPillsCount = getPublicAddressPills().length;
+  let publicAddressPills = getPublicAddressPills();
+  let publicAddressPillsCount = publicAddressPills.reduce(
+    (total, pill) =>
+      pill.isMailList ? total + pill.listAddressCount : total + 1,
+    0
+  );
+
   if (publicAddressPillsCount < recipLimit) {
     if (notification) {
       gComposeNotification.removeNotification(notification);

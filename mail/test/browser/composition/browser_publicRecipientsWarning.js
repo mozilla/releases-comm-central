@@ -9,12 +9,16 @@
 
 "use strict";
 
-const {
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
+var {
   close_compose_window,
   open_compose_new_mail,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-const { close_window } = ChromeUtils.import(
+var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -480,4 +484,48 @@ add_task(async function testWarningNotShownAfterDismissal() {
     "public recipients warning did not appear after dismissal"
   );
   close_compose_window(cwc);
+});
+
+/**
+ * Tests that the individual addresses of a mailing list are considered.
+ */
+add_task(async function testMailingListMembersCounted() {
+  let book = MailServices.ab.getDirectoryFromId(
+    MailServices.ab.newAddressBook("Mochitest", null, 101)
+  );
+  let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
+    Ci.nsIAbDirectory
+  );
+  list.isMailList = true;
+  list.dirName = "Test List";
+  list = book.addMailList(list);
+
+  for (let i = 0; i < publicRecipientLimit; i++) {
+    let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+      Ci.nsIAbCard
+    );
+    card.primaryEmail = `test${i}@example`;
+    list.addCard(card);
+  }
+  list.editMailListToDatabase(null);
+
+  let cwc = open_compose_new_mail();
+  setup_msg_contents(cwc, "Test List", "Testing mailing lists", "");
+  let notification = cwc.window.document.getElementById(
+    "warnPublicRecipientsNotification"
+  );
+  Assert.ok(notification, "public recipients warning appeared");
+
+  let div = notification.shadowRoot.querySelector(
+    `[data-l10n-id="many-public-recipients-info"]`
+  );
+  let args = JSON.parse(div.dataset.l10nArgs);
+  Assert.equal(
+    args.count,
+    publicRecipientLimit,
+    "total count equals all addresses plus list expanded"
+  );
+
+  close_compose_window(cwc);
+  MailServices.ab.deleteAddressBook(book.URI);
 });
