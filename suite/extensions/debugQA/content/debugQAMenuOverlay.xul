@@ -117,10 +117,6 @@
                       oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test12.html');"/>
             <menuitem label="#13 DHTML"
                       oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test13.html');"/>
-            <menuitem label="#14 XML Sorting"
-                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test14.html');"/>
-            <menuitem label="#15 XML IRS"
-                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test15.html');"/>
             <menuitem label="#16 Gfx Widgets"
                       oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test16.html');"/>
           </menupopup>
