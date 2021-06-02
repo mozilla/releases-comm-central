@@ -33,9 +33,6 @@ let {
 let { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
-let { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 let cloudType = "default";
 let kInsertNotificationPref =
@@ -121,5 +118,5 @@ add_task(async function test_filelink_ignored() {
     "Count of ignored times must be correct."
   );
   close_compose_window(cwc, true);
-  close_window(cwc);
+  close_compose_window(cwc);
 });

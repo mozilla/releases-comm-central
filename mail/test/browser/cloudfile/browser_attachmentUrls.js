@@ -21,6 +21,7 @@ var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
 var {
   add_cloud_attachments,
   assert_previous_text,
+  close_compose_window,
   get_compose_body,
   open_compose_new_mail,
   open_compose_with_forward,
@@ -43,9 +44,6 @@ var {
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -304,7 +302,7 @@ function subtest_inserts_linebreak_on_empty_compose() {
     "The linebreak should be the first child of the compose body"
   );
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -349,7 +347,7 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
     "The pre should have the moz-signature class"
   );
 
-  close_window(cw);
+  close_compose_window(cw);
 
   Services.prefs.setBoolPref(kHtmlPrefKey, false);
 
@@ -382,7 +380,7 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
     "The div should have the moz-signature class"
   );
 
-  close_window(cw);
+  close_compose_window(cw);
 
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
 });
@@ -415,7 +413,7 @@ function subtest_removing_filelinks_removes_root_node() {
     return result == null;
   }, "Timed out waiting for attachment container to be removed");
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -456,7 +454,7 @@ function subtest_adding_filelinks_to_written_message() {
     "The attachment URL containment node should be preceded by " +
       "two linebreaks"
   );
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -547,7 +545,7 @@ function subtest_adding_filelinks_to_reply_above_plaintext(aText, aWithSig) {
     Assert.equal(textNode.nodeValue, targetText);
   }
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -574,7 +572,7 @@ function subtest_adding_filelinks_to_reply_above(aText) {
 
   Assert.ok(div.classList.contains("moz-cite-prefix"));
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -667,7 +665,7 @@ function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
     "The prefix should have the moz-cite-prefix class"
   );
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -715,7 +713,7 @@ function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
     "The prefix should have the moz-cite-prefix class"
   );
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -780,7 +778,7 @@ function subtest_adding_filelinks_to_forward(aText, aWithSig) {
     Assert.equal(br, mailBody.firstChild);
   }
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -823,7 +821,7 @@ function subtest_converting_filelink_updates_urls() {
     Assert.notEqual(url, newUrl, "The original URL should have been replaced");
   }
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -867,7 +865,7 @@ function subtest_converting_filelink_to_normal_removes_url() {
     throw new Error("Should not have found the cloudAttachmentListRoot");
   }
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -901,7 +899,7 @@ function subtest_filelinks_work_after_manual_removal() {
   add_cloud_attachments(cw, provider);
   [root] = wait_for_attachment_urls(cw, 1);
 
-  close_window(cw);
+  close_compose_window(cw);
 }
 
 /**
@@ -944,5 +942,5 @@ function subtest_insertion_restores_caret_point() {
   // That text should be inserted just above the root attachment URL node.
   assert_previous_text(root.previousSibling, [kTypedIn]);
 
-  close_window(cw);
+  close_compose_window(cw);
 }

@@ -700,7 +700,11 @@ add_task(async function testBody() {
     BrowserTestUtils.promiseAlertDialog("extra1"),
     BrowserTestUtils.domWindowClosed(htmlWindow),
   ];
-  htmlWindow.DoCommandClose();
+  Assert.ok(
+    htmlWindow.ComposeCanClose(),
+    "compose window should be allowed to close"
+  );
+  htmlWindow.close();
   await Promise.all(closePromises);
 
   // Check the plain text message was edited.
@@ -717,7 +721,11 @@ add_task(async function testBody() {
     BrowserTestUtils.promiseAlertDialog("extra1"),
     BrowserTestUtils.domWindowClosed(plainTextWindow),
   ];
-  plainTextWindow.DoCommandClose();
+  Assert.ok(
+    plainTextWindow.ComposeCanClose(),
+    "compose window should be allowed to close"
+  );
+  plainTextWindow.close();
   await Promise.all(closePromises);
 });
 
@@ -986,7 +994,11 @@ add_task(async function testCJK() {
     BrowserTestUtils.promiseAlertDialog("extra1"),
     BrowserTestUtils.domWindowClosed(htmlWindow),
   ];
-  htmlWindow.DoCommandClose();
+  Assert.ok(
+    htmlWindow.ComposeCanClose(),
+    "compose window should be allowed to close"
+  );
+  htmlWindow.close();
   await Promise.all(closePromises);
 
   // Close the plain text message.
@@ -996,6 +1008,10 @@ add_task(async function testCJK() {
     BrowserTestUtils.promiseAlertDialog("extra1"),
     BrowserTestUtils.domWindowClosed(plainTextWindow),
   ];
-  plainTextWindow.DoCommandClose();
+  Assert.ok(
+    plainTextWindow.ComposeCanClose(),
+    "compose window should be allowed to close"
+  );
+  plainTextWindow.close();
   await Promise.all(closePromises);
 });

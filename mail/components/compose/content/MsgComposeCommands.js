@@ -203,7 +203,7 @@ window.addEventListener("load", event => {
   ComposeLoad();
 });
 window.addEventListener("close", event => {
-  if (!DoCommandClose()) {
+  if (!ComposeCanClose()) {
     event.preventDefault();
   }
 });
@@ -874,7 +874,9 @@ var defaultController = {
         return !gWindowLocked;
       },
       doCommand() {
-        DoCommandClose();
+        if (ComposeCanClose()) {
+          window.close();
+        }
       },
     },
 
@@ -2612,20 +2614,6 @@ function MessageComposeOfflineStateChanged(goingOffline) {
   } catch (e) {}
 }
 
-function DoCommandClose() {
-  if (ComposeCanClose()) {
-    // Notify the SendListener that Send has been aborted and Stopped
-    if (gMsgCompose) {
-      gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
-    }
-
-    // This destroys the window for us.
-    MsgComposeCloseWindow();
-  }
-
-  return false;
-}
-
 function DoCommandPrint() {
   let browser = GetCurrentEditorElement();
   browser.contentDocument.title =
@@ -4258,6 +4246,8 @@ function ComposeUnload() {
   gLanguageObserver.disconnect();
 
   if (gMsgCompose) {
+    // Notify the SendListener that Send has been aborted and Stopped
+    gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
     gMsgCompose.UnregisterStateListener(stateListener);
   }
   if (gAutoSaveTimeout) {
@@ -4270,6 +4260,9 @@ function ComposeUnload() {
   ReleaseGlobalVariables();
 
   top.controllers.removeController(SecurityController);
+
+  // This destroys the window for us.
+  MsgComposeCloseWindow();
 }
 
 function setEncSigStatusUI() {

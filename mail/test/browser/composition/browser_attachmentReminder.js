@@ -38,7 +38,6 @@ var {
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 var {
-  close_window,
   plan_for_modal_dialog,
   plan_for_new_window,
   plan_for_window_close,
@@ -540,7 +539,7 @@ add_task(function test_attachment_vs_filelink_reminder() {
   assert_automatic_reminder_state(cwc, false);
 
   click_send_and_handle_send_error(cwc);
-  close_window(cwc);
+  close_compose_window(cwc);
 });
 
 /**
