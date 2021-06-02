@@ -29,6 +29,7 @@ var kVcardFields = [
   // Contact > Internet
   ["PrimaryEmail", "PrimaryEmail"],
   ["SecondEmail", "SecondEmail"],
+  ["PreferMailFormat", "PreferMailFormat"],
   // Contact > Phones
   ["WorkPhone", "WorkPhone"],
   ["HomePhone", "HomePhone"],
@@ -292,7 +293,7 @@ function OnLoadEditCard() {
         document.getElementById(kPhoneticFields[3]).readOnly = true;
 
         // Also disable the mail format popup and allow remote content items.
-        document.getElementById("PreferMailFormatPopup").disabled = true;
+        document.getElementById("PreferMailFormat").disabled = true;
 
         // And the "prefer display name" checkbox
         document.getElementById("preferDisplayName").disabled = true;
@@ -467,6 +468,7 @@ function InitEditCard() {
 
 function NewCardOKButton(event) {
   if (gOkCallback) {
+    // This is the case of editing an identity vCard to attach.
     if (!CheckAndSetCardValues(gEditCard.card, document, true)) {
       event.preventDefault(); // don't close window
       return;
@@ -559,7 +561,7 @@ function GetCardValues(cardproperty, doc) {
   var age = doc.getElementById("Age");
   age.addEventListener("change", calculateYear);
 
-  var popup = document.getElementById("PreferMailFormatPopup");
+  var popup = document.getElementById("PreferMailFormat");
   if (popup) {
     popup.value = cardproperty.getProperty("PreferMailFormat", "");
   }
@@ -653,7 +655,7 @@ function CheckAndSetCardValues(cardproperty, doc, check) {
   cardproperty.setProperty("BirthMonth", birthMonth == -1 ? null : birthMonth);
   cardproperty.setProperty("BirthYear", birthYear);
 
-  var popup = document.getElementById("PreferMailFormatPopup");
+  var popup = document.getElementById("PreferMailFormat");
   if (popup) {
     cardproperty.setProperty("PreferMailFormat", popup.value);
   }

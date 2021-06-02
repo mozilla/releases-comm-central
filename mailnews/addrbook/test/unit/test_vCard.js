@@ -24,7 +24,7 @@ add_task(function testVCardToAbCard() {
         equal(prop.value, expectedProps[prop.name], `expected ${prop.name}`);
         delete expectedProps[prop.name];
       } else if (!propWhitelist.includes(prop.name)) {
-        ok(false, `unexpected ${prop.name}`);
+        ok(false, `card should not have property '${prop.name}'`);
       }
     }
 
@@ -36,6 +36,16 @@ add_task(function testVCardToAbCard() {
   // UID
   check("UID:12345678-1234-1234-1234-123456789012", {
     UID: "12345678-1234-1234-1234-123456789012",
+  });
+
+  // PreferMailFormat
+  check("X-MOZILLA-HTML:true", {
+    PreferMailFormat: Ci.nsIAbPreferMailFormat.html,
+  });
+
+  // PreferMailFormat
+  check("X-MOZILLA-HTML:false", {
+    PreferMailFormat: Ci.nsIAbPreferMailFormat.plaintext,
   });
 
   // Name

@@ -501,21 +501,34 @@ var typeMap = {
   url: singleTextProperty("WebPage1", "url", {}, "url"),
   "x-mozilla-html": {
     *fromAbCard(map) {
-      switch (map.get("PreferMailFormat")) {
+      if (!map.has("PreferMailFormat")) {
+        return;
+      }
+      switch (parseInt(map.get("PreferMailFormat"))) {
         case Ci.nsIAbPreferMailFormat.html:
           yield ["x-mozilla-html", {}, "boolean", true];
           break;
         case Ci.nsIAbPreferMailFormat.plaintext:
           yield ["x-mozilla-html", {}, "boolean", false];
           break;
+        default:
+          console.warn(
+            `Unexpected value for PreferMailFormat: ${map.get(
+              "PreferMailFormat"
+            )}`
+          );
       }
     },
     *toAbCard(value) {
-      if (typeof value != "boolean") {
+      if (value != "true" || value != "false") {
         console.warn(`Unexpected value for x-mozilla-html: ${value}`);
-        return;
       }
-      yield ["PreferMailFormat", value];
+      yield [
+        "PreferMailFormat",
+        value === "true"
+          ? Ci.nsIAbPreferMailFormat.html
+          : Ci.nsIAbPreferMailFormat.plaintext,
+      ];
     },
   },
 };
