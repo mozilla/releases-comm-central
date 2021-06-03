@@ -9,14 +9,14 @@ var { BindRequest, SearchRequest, LDAPResponse } = ChromeUtils.import(
 
 class LDAPClient {
   /**
-   * @param {string} url - The LDAP server url.
+   * @param {string} host - The LDAP server host.
    * @param {number} port - The LDAP server port.
    */
-  constructor(url, port) {
+  constructor(host, port) {
     this.onOpen = () => {};
     this.onError = () => {};
 
-    this._url = url;
+    this._host = host;
     this._port = port;
 
     this._messageId = 1;
@@ -30,7 +30,7 @@ class LDAPClient {
   }
 
   connect() {
-    this._socket = new TCPSocket(this._url, this._port, {
+    this._socket = new TCPSocket(this._host, this._port, {
       binaryType: "arraybuffer",
     });
     this._socket.onopen = this._onOpen;
@@ -52,11 +52,16 @@ class LDAPClient {
   /**
    * Send a search request to the server.
    * @param {string} dn - The name to search.
+   * @param {number} scope - The scope to search.
+   * @param {string} filter - The filter string.
+   * @param {string} attributes - Attributes to include in the search result.
+   * @param {number} timeout - The seconds to wait.
+   * @param {number} limit - Maximum number of entries to return.
    * @param {Function} callback - Callback function when receiving search responses.
    */
-  search(dn, callback) {
+  search(dn, scope, filter, attributes, timeout, limit, callback) {
     this._logger.debug(`Searching ${dn}`);
-    let req = new SearchRequest(dn);
+    let req = new SearchRequest(dn, scope, filter, attributes, timeout, limit);
     this._send(req, callback);
   }
 

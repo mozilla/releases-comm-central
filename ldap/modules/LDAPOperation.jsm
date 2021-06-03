@@ -28,27 +28,35 @@ class LDAPOperation {
   }
 
   searchExt(baseDN, scope, filter, attributes, timeout, limit) {
-    this._client.search(baseDN, res => {
-      if (res.constructor.name == "SearchResultDone") {
-        this._listener.onLDAPMessage({
-          errorCode: res.result.resultCode,
-          type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
-        });
-        return;
+    this._client.search(
+      baseDN,
+      scope,
+      filter,
+      attributes,
+      timeout,
+      limit,
+      res => {
+        if (res.constructor.name == "SearchResultDone") {
+          this._listener.onLDAPMessage({
+            errorCode: res.result.resultCode,
+            type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
+          });
+          return;
+        }
+        if (res.constructor.name == "SearchResultEntry") {
+          this._listener.onLDAPMessage({
+            errorCode: 0,
+            type: Ci.nsILDAPMessage.RES_SEARCH_ENTRY,
+            getAttributes() {
+              return Object.keys(res.result.attributes);
+            },
+            getValues(attr) {
+              return res.result.attributes[attr];
+            },
+          });
+        }
       }
-      if (res.constructor.name == "SearchResultEntry") {
-        this._listener.onLDAPMessage({
-          errorCode: 0,
-          type: Ci.nsILDAPMessage.RES_SEARCH_ENTRY,
-          getAttributes() {
-            return Object.keys(res.result.attributes);
-          },
-          getValues(attr) {
-            return res.result.attributes[attr];
-          },
-        });
-      }
-    });
+    );
   }
 
   abandonExt() {}
