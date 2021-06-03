@@ -51,10 +51,10 @@
   <title>&msgComposeWindow.title;</title>
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="messenger/messengercompose/messengercompose.ftl" />
-  <link rel="localization" href="toolkit/main-window/findbar.ftl" />
-  <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="messenger/menubar.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+  <link rel="localization" href="toolkit/main-window/findbar.ftl" />
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
@@ -82,14 +82,13 @@
 #ifdef MOZ_OPENPGP
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgComposeOverlay.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgComposeHelper.js"></script>
+#endif
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <stringbundle id="bundle_composeMsgs" src="chrome://messenger/locale/messengercompose/composeMsgs.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="brandBundle" src="chrome://branding/locale/brand.properties"/>
-
-#endif
 
 <commandset id="composeCommands">
   <commandset id="msgComposeCommandUpdate"
