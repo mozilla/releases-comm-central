@@ -155,7 +155,15 @@ add_task(async function test_mail_account_setup() {
 
   await subtest_verify_account(mc.tabmail.selectedTab);
 
+  // Close the Account Settings tab.
   mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+
+  // Confirm that we properly updated the folderPaneVisible attribute for the
+  // tabmail when we created the account in the background.
+  Assert.ok(mc.folderDisplay.folderPaneVisible);
+
+  // Confirm that the folder pane is visible.
+  Assert.ok(!mc.e("folderPaneBox").collapsed);
 
   let promptState = gMockPromptService.promptState;
   Assert.equal("confirm", promptState.method);

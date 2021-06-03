@@ -722,6 +722,7 @@ var gMailInit = {
       case "account-created":
       case "account-created-from-provisioner":
         // Successful account creation callback.
+        switchToMailTab();
         // If the gFolderTreeView was never initialized it means we're in a
         // first run scenario and we need to load the full UI.
         if (!gFolderTreeView.isInited) {
@@ -731,17 +732,19 @@ var gMailInit = {
           return;
         }
 
-        // Otherwise we can simply switch to the main tab and be sure the folder
-        // pane is visible.
-        switchToMailTab();
+        // Otherwise we can simply make sure the folder pane is visible.
         updateMailPaneUI();
         break;
 
       case "account-created-in-backend":
         // The user entered the account settings to complete the setup without
-        // completing a successful login process. Therfore let's simply check if
-        // we need to reveal the folder pane without forcing a tab switch or
-        // start loading messages.
+        // completing a successful login process. Initialize the application if
+        // this is the first run.
+        if (!gFolderTreeView.isInited) {
+          loadPostAccountWizard(true);
+        }
+
+        // Make sure the UI is properly updated if necessary.
         updateMailPaneUI();
         break;
 
@@ -790,6 +793,7 @@ var gMailInit = {
     // Load the entire UI only if we already have at least one account available
     // otherwise the verifyExistingAccounts will trigger the account wizard.
     if (verifyExistingAccounts()) {
+      switchToMailTab();
       loadPostAccountWizard();
     }
   },
@@ -949,13 +953,11 @@ function switchToMailTab() {
  * the emailWizard during a first run, or directly from the accountProvisioner
  * in case a user configures a new email account on first run.
  *
- * @param {boolean} isFromProvisioner - True if the method was called from the
- *   New Account Provisioner. This is used to avoid triggering the system
- *   integration dialog since the New Account Provinsioner uses a secondary
- *   success dialog after a new account has been created.
+ * @param {boolean} ignoreSystemIntegration - This is used to avoid triggering
+ *   the system integration for those scenarios where opening a dialog is not
+ *   recommended or necessary.
  */
-async function loadPostAccountWizard(isFromProvisioner) {
-  switchToMailTab();
+async function loadPostAccountWizard(ignoreSystemIntegration) {
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);
 
@@ -984,7 +986,7 @@ async function loadPostAccountWizard(isFromProvisioner) {
   AddToSession();
 
   // Show the system integration dialog only if an existing account was set up.
-  if (!isFromProvisioner) {
+  if (!ignoreSystemIntegration) {
     // Timeout necessary to wait for the emailWizard dialog to close before
     // showing the system integration dialog.
     setTimeout(showSystemIntegrationDialog, 0);

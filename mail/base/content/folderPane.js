@@ -148,6 +148,10 @@ var gFolderTreeView = {
    * @param {string} [aJSONFile] - name of JSON file to load data from.
    */
   async load(aTree, aJSONFile = null) {
+    if (this.isInited) {
+      return;
+    }
+
     this._treeElement = aTree;
     this.messengerBundle = document.getElementById("bundle_messenger");
     this.folderColorStyle = document.getElementById("folderColorsStyle");
