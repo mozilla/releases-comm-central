@@ -1,13 +1,11 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"
 );
-var matrix = {};
-Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
-Services.conversations.initConversations();
+
+loadMatrix();
 
 add_task(function test_getConversationById() {
   const mockAccount = {
@@ -254,6 +252,49 @@ add_task(async function test_joinChat() {
   ok(conversation.checked);
 });
 
+add_task(async function test_getDMRoomIdsForUserId() {
+  const account = getAccount({
+    getRoom(roomId) {
+      if (roomId === "!invalid:example.com") {
+        return null;
+      }
+      return getClientRoom(
+        roomId,
+        {
+          isSpaceRoom() {
+            return roomId === "!space:example.com";
+          },
+          getMyMembership() {
+            return roomId === "!left:example.com" ? "leave" : "join";
+          },
+          getMember(userId) {
+            return {
+              membership: "invite",
+            };
+          },
+        },
+        account._client
+      );
+    },
+  });
+  account._userToRoom = {
+    "@test:example.com": [
+      "!asdf:example.com",
+      "!space:example.com",
+      "!left:example.com",
+      "!invalid:example.com",
+    ],
+  };
+  const invalid = account.getDMRoomIdsForUserId("@nouser:example.com");
+  ok(Array.isArray(invalid));
+  equal(invalid.length, 0);
+
+  const rooms = account.getDMRoomIdsForUserId("@test:example.com");
+  ok(Array.isArray(rooms));
+  equal(rooms.length, 1);
+  equal(rooms[0], "!asdf:example.com");
+});
+
 function mockMatrixRoom(roomId) {
   return {
     getMyMembership() {
@@ -275,6 +316,9 @@ function mockMatrixRoom(roomId) {
     },
     getAvatarUrl() {
       return "";
+    },
+    isSpaceRoom() {
+      return false;
     },
     roomId,
   };

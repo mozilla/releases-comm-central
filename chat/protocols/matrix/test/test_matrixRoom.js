@@ -1,20 +1,30 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { EventType, MsgType } = ChromeUtils.import(
   "resource:///modules/matrix-sdk.jsm"
 );
-var matrix = {};
-Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
-Services.conversations.initConversations();
+
+loadMatrix();
 
 add_task(async function test_initRoom() {
   const roomStub = getRoom(true);
   equal(typeof roomStub._resolveInitializer, "function");
   ok(roomStub._initialized);
-  roomStub._resolveInitializer();
+  await roomStub._initialized;
+  roomStub.forget();
+});
+
+add_task(async function test_initRoom_withSpace() {
+  const roomStub = getRoom(true, "#test:example.com", (target, key) => {
+    if (key === "isSpaceRoom") {
+      return () => true;
+    }
+    return null;
+  });
+  ok(roomStub._initialized);
+  ok(roomStub.left);
   await roomStub._initialized;
   roomStub.forget();
 });
@@ -435,110 +445,6 @@ add_task(function test_setInitialized() {
   ok(roomStub.calledResolve);
   ok(!roomStub.joining);
 });
-
-/**
- * Get a MatrixRoom instance with a mocked client.
- * @param {boolean} isMUC
- * @param {string} [name="#test:example.com"]
- * @param {function} [clientHandler]
- * @returns {MatrixRoom}
- */
-function getRoom(
-  isMUC,
-  name = "#test:example.com",
-  clientHandler = () => undefined,
-  account
-) {
-  if (!account) {
-    account = getAccount(clientHandler);
-  }
-  const room = getClientRoom(name, clientHandler, account._client);
-  const conversation = new matrix.MatrixRoom(account, isMUC, name);
-  conversation.initRoom(room);
-  return conversation;
-}
-
-function getClientRoom(roomId, clientHandler, client) {
-  const room = new Proxy(
-    {
-      roomId,
-      summary: {
-        info: {
-          title: roomId,
-        },
-      },
-      getJoinedMembers() {
-        return [];
-      },
-      getAvatarUrl() {
-        return "";
-      },
-      getLiveTimeline() {
-        return {
-          getState() {
-            return {
-              getStateEvents() {
-                return [];
-              },
-            };
-          },
-        };
-      },
-    },
-    makeProxyHandler(clientHandler)
-  );
-  client._rooms.set(roomId, room);
-  return room;
-}
-
-function getAccount(clientHandler) {
-  const account = new matrix.MatrixAccount(
-    {
-      id: "prpl-matrix",
-    },
-    {
-      logDebugMessage() {},
-    }
-  );
-  account._client = new Proxy(
-    {
-      _rooms: new Map(),
-      credentials: {
-        userId: "@user:example.com",
-      },
-      getHomeserverUrl() {
-        return "https://example.com";
-      },
-      getRoom(roomId) {
-        return this._rooms.get(roomId);
-      },
-      async joinRoom(roomId) {
-        if (!this._rooms.has(roomId)) {
-          getClientRoom(roomId, clientHandler, this);
-        }
-        return this._rooms.get(roomId);
-      },
-    },
-    makeProxyHandler(clientHandler)
-  );
-  return account;
-}
-
-/**
- * @param {function} [clientHandler]
- * @returns {object}
- */
-function makeProxyHandler(clientHandler) {
-  return {
-    get(target, key, receiver) {
-      const value = clientHandler(target, key);
-      if (value) {
-        return value;
-      }
-      return target[key];
-    },
-  };
-}
 
 function waitForNotification(target, expectedTopic) {
   let promise = new Promise(resolve => {

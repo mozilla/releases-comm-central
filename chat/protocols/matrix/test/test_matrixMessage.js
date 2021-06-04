@@ -1,9 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var matrix = {};
-Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
+loadMatrix();
 
 add_task(function test_whenDisplayed() {
   const mockConv = {

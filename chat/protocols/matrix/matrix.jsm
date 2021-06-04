@@ -335,6 +335,16 @@ MatrixRoom.prototype = {
     if (!room) {
       return;
     }
+    if (room.isSpaceRoom()) {
+      this.writeMessage(this._account.userId, _("message.spaceNotSupported"), {
+        system: true,
+        incoming: true,
+        error: true,
+      });
+      this._setInitialized();
+      this.left = true;
+      return;
+    }
     // Store the ID of the room to look up information in the future.
     this._roomId = room.roomId;
 
@@ -1170,7 +1180,7 @@ MatrixAccount.prototype = {
     this._client.on(
       "Room.timeline",
       (event, room, toStartOfTimeline, removed, data) => {
-        if (toStartOfTimeline || this._catchingUp) {
+        if (toStartOfTimeline || this._catchingUp || room.isSpaceRoom()) {
           return;
         }
         let conv = this.roomList.get(room.roomId);
@@ -1185,6 +1195,9 @@ MatrixAccount.prototype = {
     this._client.on("RoomMember.powerLevel", this.updateRoomMember.bind(this));
 
     this._client.on("Room.name", room => {
+      if (room.isSpaceRoom()) {
+        return;
+      }
       // Update the title to the human readable version.
       let conv = this.roomList.get(room.roomId);
       if (
@@ -1204,7 +1217,7 @@ MatrixAccount.prototype = {
      * We will use that part to to make conversations, direct or group.
      */
     this._client.on("Room", room => {
-      if (this._catchingUp) {
+      if (this._catchingUp || room.isSpaceRoom()) {
         return;
       }
       let me = room.getMember(this.userId);
@@ -1304,7 +1317,7 @@ MatrixAccount.prototype = {
   handleCaughtUp() {
     const joinedRooms = this._client
       .getRooms()
-      .filter(room => room.getMyMembership() === "join")
+      .filter(room => room.getMyMembership() === "join" && !room.isSpaceRoom())
       .map(room => room.roomId);
     // Ensure existing conversations are up to date
     for (const [roomId, conv] of this.roomList.entries()) {
@@ -1603,7 +1616,7 @@ MatrixAccount.prototype = {
     }
     return this._userToRoom[userId].filter(roomId => {
       const room = this._client.getRoom(roomId);
-      if (!room) {
+      if (!room || room.isSpaceRoom()) {
         return false;
       }
       const accountMembership = room.getMyMembership() ?? "leave";

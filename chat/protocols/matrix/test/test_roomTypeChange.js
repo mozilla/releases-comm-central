@@ -1,10 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var matrix = {};
-Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
-Services.conversations.initConversations();
+loadMatrix();
 
 function FakeAccount() {
   this.roomList = new Map();
@@ -56,6 +53,9 @@ FakeAccount.prototype = {
       },
       getAvatarUrl() {
         return "";
+      },
+      isSpaceRoom() {
+        return false;
       },
     };
   },
