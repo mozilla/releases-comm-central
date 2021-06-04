@@ -105,3 +105,7 @@ chrome/toolkit/skin/classic/global/icons/arrow-dropdown-12.svg
 chrome/devtools/skin/images/arrow-dropdown-12.svg
 chrome/toolkit/skin/classic/global/icons/check.svg
 chrome/devtools/skin/images/check.svg
+
+# Windows artifact builds hack - bug 1714650
+chrome/remote/content/server/HTTPD.jsm
+components/httpd.js
