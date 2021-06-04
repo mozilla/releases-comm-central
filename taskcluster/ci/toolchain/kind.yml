@@ -74,8 +74,9 @@ reference-jobs:
     - win64-clang-12-2stage
     - win64-dump-syms
     - win64-llvm-symbolizer
-    - win64-nasm
+    - win64-mozmake
     - win64-pdbstr
+    - win64-nasm
     - win64-node
     - win64-rust
     - win64-rust-1.47

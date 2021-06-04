@@ -377,6 +377,7 @@ win64-plain/debug:
             - win64-cbindgen
             - win64-clang
             - win64-libotr
+            - win64-mozmake
             - win64-node
             - win64-nasm
             - win64-rust
@@ -415,6 +416,7 @@ win64-plain/opt:
             - win64-cbindgen
             - win64-clang
             - win64-libotr
+            - win64-mozmake
             - win64-node
             - win64-nasm
             - win64-rust
