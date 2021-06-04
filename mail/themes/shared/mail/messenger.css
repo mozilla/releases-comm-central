@@ -1169,11 +1169,9 @@ label.statusbarpanel {
   list-style-image: url("chrome://messenger/skin/icons/globe-secure.svg");
 }
 
-@media (-moz-proton-doorhangers) {
 :is(panel, menupopup)::part(arrow) {
   display: none;
 }
-} /** END Proton **/
 
 /* Panel toolbarbuttons */
 

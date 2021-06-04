@@ -1039,31 +1039,18 @@ label.extra-recipients-label {
   min-width: 160px;
 }
 
-@media (-moz-proton-doorhangers) {
 #extraRecipientsPanel {
   --arrowpanel-padding: 5px;
 }
-} /** END Proton **/
-
-@media not (-moz-proton-doorhangers) {
-#extraRecipientsPanel {
-  --arrowpanel-padding: 0;
-}
-} /** END not Proton **/
 
 #extraRecipientsPanel label {
   padding: 4px 8px;
   margin: 0;
   width: 100%;
   cursor: pointer;
+  border-radius: var(--toolbarbutton-border-radius);
   transition: background 0.2s;
 }
-
-@media (-moz-proton-doorhangers) {
-#extraRecipientsPanel label {
-  border-radius: var(--toolbarbutton-border-radius);
-}
-} /** END Proton **/
 
 #extraRecipientsPanel label:hover,
 #extraRecipientsPanel label:focus {
