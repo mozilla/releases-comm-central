@@ -115,30 +115,27 @@
 
         monday.day += 7;
       }
+    } else {
+      const FIRST_MONTH = -3;
+      const LAST_MONTH = 12;
 
-      fromDate.value = toDate.value = 0;
-      return;
-    }
+      let first = cal.dtz.now();
+      first.isDate = true;
+      first.day = 1;
+      first.month += FIRST_MONTH;
 
-    const FIRST_MONTH = -3;
-    const LAST_MONTH = 12;
+      for (let i = FIRST_MONTH; i < LAST_MONTH; i++) {
+        let option = document.createElement("option");
+        option.value = i;
+        let monthName = cal.l10n.formatMonth(first.month + 1, "calendar", "monthInYear");
+        option.label = cal.l10n.getCalString("monthInYear", [monthName, first.year]);
+        fromDate.appendChild(option.cloneNode(false));
 
-    let first = cal.dtz.now();
-    first.isDate = true;
-    first.day = first.day - first.weekday + 1;
-    first.month += FIRST_MONTH;
+        option.hidden = i < 0;
+        toDate.appendChild(option);
 
-    for (let i = FIRST_MONTH; i < LAST_MONTH; i++) {
-      let option = document.createElement("option");
-      option.value = i;
-      let monthName = cal.l10n.formatMonth(first.month + 1, "calendar", "monthInYear");
-      option.label = cal.l10n.getCalString("monthInYear", [monthName, first.year]);
-      fromDate.appendChild(option.cloneNode(false));
-
-      option.hidden = i < 0;
-      toDate.appendChild(option);
-
-      first.month++;
+        first.month++;
+      }
     }
 
     fromDate.value = toDate.value = 0;
@@ -152,12 +149,13 @@
   async function updatePreview() {
     let startDate = cal.dtz.now();
     startDate.isDate = true;
-    startDate.day = startDate.day - startDate.weekday + 1;
-    let endDate = startDate.clone();
+    let endDate = cal.dtz.now();
     endDate.isDate = true;
 
     if (layout.value == "weekPlanner") {
+      startDate.day = startDate.day - startDate.weekday + 1;
       startDate.day += parseInt(fromDate.value, 10) * 7;
+      endDate.day = endDate.day - endDate.weekday + 1;
       endDate.day += parseInt(toDate.value, 10) * 7 + 7;
     } else {
       startDate.day = 1;
