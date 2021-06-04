@@ -4408,7 +4408,7 @@ async function updateAriaLabelsOfAddressRow(row) {
 function updateTooltipsOfAddressRow(row) {
   let type = row.querySelector(".address-label-container > label").value;
   let el = row.querySelector(".remove-field-button");
-  document.l10n.setAttributes(el, "remove-address-row-type-label", { type });
+  document.l10n.setAttributes(el, "remove-address-row-button", { type });
 }
 
 /**

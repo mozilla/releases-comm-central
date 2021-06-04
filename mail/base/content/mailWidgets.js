@@ -2572,11 +2572,9 @@
 
       let closeButton = document.createElement("button");
       closeButton.classList.add("remove-field-button", "icon-button");
-      document.l10n.setAttributes(
-        closeButton,
-        "remove-address-row-type-label",
-        { type: recipient.labelId }
-      );
+      document.l10n.setAttributes(closeButton, "remove-address-row-button", {
+        type: recipient.labelId,
+      });
       let closeIcon = document.createElement("img");
       closeIcon.setAttribute("src", "chrome://global/skin/icons/close.svg");
       // Button's title is the accessible name.
