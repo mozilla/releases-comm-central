@@ -38,13 +38,12 @@ arrowscrollbox > .tabmail-tab[selected="true"]:not(:only-child) > .tab-stack >
   display: -moz-box;
 }
 
-.tab-drop-indicator-box {
-  -moz-box-align: center;
-}
-
 .tab-drop-indicator {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  top: 0;
+  /* The z-index needs to be big enough to trump other positioned UI pieces
+     that we want to overlay. The selected tab uses 2. */
+  z-index: 3;
 }
 
 .tab-throbber:not([busy]):not([thinking]),

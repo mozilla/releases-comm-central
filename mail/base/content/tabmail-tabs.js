@@ -206,7 +206,7 @@
 
           if (pixelsToScroll) {
             // Hide Indicator while Scrolling
-            ind.setAttribute("hidden", "true");
+            ind.hidden = true;
             arrowScrollbox.scrollByPixels(pixelsToScroll);
             return;
           }
@@ -257,15 +257,11 @@
           }
         }
 
-        ind.setAttribute("hidden", "false");
+        ind.hidden = false;
 
-        newMargin += ind.clientWidth / 2;
-        if (!ltr) {
-          newMargin *= -1;
-        }
+        newMargin -= ind.clientWidth / 2;
 
-        ind.style.transform = "translate(" + Math.round(newMargin) + "px)";
-        ind.style.marginInlineStart = -ind.clientWidth + "px";
+        ind.style.insetInlineStart = `${Math.round(newMargin)}px`;
       });
 
       this.addEventListener("drop", event => {
@@ -322,7 +318,7 @@
         }
 
         event.stopPropagation();
-        this._tabDropIndicator.setAttribute("hidden", "true");
+        this._tabDropIndicator.hidden = true;
 
         // Is the tab one of our children?
         if (this.tabmail.tabContainer.getIndexOfItem(draggedTab) == -1) {
@@ -417,7 +413,7 @@
       this.addEventListener("dragexit", event => {
         this._dragTime = 0;
 
-        this._tabDropIndicator.setAttribute("hidden", "true");
+        this._tabDropIndicator.hidden = true;
         event.stopPropagation();
       });
     }
