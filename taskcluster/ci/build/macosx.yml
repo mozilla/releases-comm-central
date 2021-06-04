@@ -150,7 +150,6 @@ macosx64-aarch64-shippable/opt:
 macosx64-shippable/opt:
     description: "MacOS Universal"
     attributes:
-        nightly: true
         shippable: true
         enable-build-signing: true
         skip-upload-crashsymbols: true

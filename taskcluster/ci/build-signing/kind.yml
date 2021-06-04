@@ -23,6 +23,5 @@ primary-dependency:
     - build
 
 only-for-attributes:
-    - nightly
     - shippable
     - enable-build-signing

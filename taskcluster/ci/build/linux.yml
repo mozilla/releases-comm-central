@@ -45,7 +45,6 @@ linux64-shippable/opt:
     description: "Linux64 Shippable"
     attributes:
         shippable: true
-        nightly: true
         enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird
@@ -261,7 +260,6 @@ linux-shippable/opt:
     description: "Linux32 Shippable"
     attributes:
         shippable: true
-        nightly: true
         enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird

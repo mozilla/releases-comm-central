@@ -15,7 +15,6 @@ kind-dependencies:
     - repackage-l10n
 
 only-for-attributes:
-    - nightly
     - shippable
 
 only-for-build-platforms:

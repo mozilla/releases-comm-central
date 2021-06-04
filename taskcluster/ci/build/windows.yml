@@ -76,7 +76,6 @@ win32-shippable/opt:
         type: shippable
     attributes:
         shippable: true
-        nightly: true
         enable-build-signing: true
         enable-full-crashsymbols: true
     shipping-phase: build
@@ -241,7 +240,6 @@ win64-shippable/opt:
         type: shippable
     attributes:
         shippable: true
-        nightly: true
         enable-build-signing: true
         enable-full-crashsymbols: true
     shipping-phase: build

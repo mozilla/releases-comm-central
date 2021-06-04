@@ -13,7 +13,6 @@ kind-dependencies:
     - beetmover-repackage
 
 only-for-attributes:
-    - nightly
     - shippable
 
 job-template:
