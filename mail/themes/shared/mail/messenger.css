@@ -1044,6 +1044,47 @@ label.statusbarpanel {
   -moz-box-align: center;
 }
 
+.progressmeter-statusbar {
+  appearance: none;
+  height: 4px;
+  background-color: hsla(0, 0%, 60%, 0.2);
+  border-style: none;
+  border-radius: 2px;
+}
+
+.progressmeter-statusbar::-moz-progress-bar {
+  appearance: none;
+  background-color: var(--primary);
+  border-radius: 2px;
+}
+
+.progressmeter-statusbar:indeterminate::-moz-progress-bar {
+  /* Make a white reflecting animation.
+     Create a gradient with 2 identical pattern, and enlarge the size to 200%.
+     This allows us to animate background-position with percentage. */
+  background-image: linear-gradient(90deg, transparent 0%,
+                                           rgba(255, 255, 255, 0.5) 25%,
+                                           transparent 50%,
+                                           rgba(255, 255, 255, 0.5) 75%,
+                                           transparent 100%);
+  background-size: 200% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .progressmeter-statusbar:indeterminate::-moz-progress-bar {
+    animation: progressSlideX 1.5s linear infinite;
+  }
+
+  @keyframes progressSlideX {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -100% 0;
+    }
+  }
+}
+
 /* online/offline icons */
 
 #offline-status {
@@ -1063,7 +1104,8 @@ label.statusbarpanel {
 #quotaMeter {
   min-width: 8em;
   max-width: 8em;
-  border-color: ThreeDShadow;
+  height: 10px;
+  border: 1px solid var(--chrome-content-separator-color);
 }
 
 #quotaPercentageBar {
@@ -1074,6 +1116,7 @@ label.statusbarpanel {
   appearance: none;
   background-color: #45a1ff;
   opacity: .75;
+  border-radius: 0;
 }
 
 #quotaPanel.alert-warning ::-moz-progress-bar {
@@ -1087,20 +1130,20 @@ label.statusbarpanel {
 
 #quotaLabel {
   text-align: center;
-  margin-top: -1px;
-  margin-bottom: -1px;
-  color: black;
+  margin-block: -1px;
+  font-size: 11px;
 }
 
 /* searchTermOverlay */
+@media (prefers-reduced-motion: no-preference) {
+  #searchTermList > richlistitem[highlight = "true"] {
+    animation: highlight .4s ease-in;
+  }
 
-#searchTermList > richlistitem[highlight = "true"] {
-  animation: highlight .4s ease-in;
-}
-
-@keyframes highlight {
-  from { background-color: Highlight; }
-  to { background-color: transparent; }
+  @keyframes highlight {
+    from { background-color: Highlight; }
+    to { background-color: transparent; }
+  }
 }
 
 #findbar-beforeReplaceSeparator {
