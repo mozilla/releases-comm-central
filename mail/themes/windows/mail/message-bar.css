@@ -8,8 +8,7 @@
   padding-block: 3px;
 }
 
-@media (-moz-proton-contextmenus) {
-@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+@media (-moz-windows-non-native-menus) {
   #reminderBarPopup {
     appearance: none;
     -moz-window-shadow: cliprounded;
@@ -29,4 +28,3 @@
     color: var(--menu-color);
   }
 }
-} /** END not Proton **/

@@ -191,18 +191,17 @@ toolbarbutton.formatting-button {
 
 /* ..... smiley menu ..... */
 
-@media not (-moz-proton-contextmenus) {
-#smilyPopup > menuitem > .menu-text {
-  margin-inline-start: -1.45em !important;
+@media not (-moz-windows-non-native-menus) {
+  #smilyPopup > menuitem > .menu-text {
+    margin-inline-start: -1.45em !important;
+  }
 }
-} /** END not Proton **/
 
-@media (-moz-proton-contextmenus) {
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-#smilyPopup > menuitem {
-  padding-inline-start: 14px;
+@media (-moz-windows-non-native-menus) {
+  #smilyPopup > menuitem {
+    padding-inline-start: 14px;
+  }
 }
-} /** END Proton **/
 
 /* ..... fg/bg color picker ..... */
 

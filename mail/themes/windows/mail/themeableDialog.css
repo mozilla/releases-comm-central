@@ -38,36 +38,24 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 }
 } /** END Proton **/
 
-@media not (-moz-proton-contextmenus) {
-menulist menupopup menu,
-menulist menupopup menuitem,
-button menupopup menu,
-button menupopup menuitem {
-  padding-block: 2px;
-}
-} /** END not Proton **/
+@media not (-moz-windows-non-native-menus) {
+  menulist menupopup menu,
+  menulist menupopup menuitem,
+  button menupopup menu,
+  button menupopup menuitem {
+    padding-block: 2px;
+  }
 
-menu > menupopup > menuitem,
-menu > menupopup > menu {
-  padding-inline: 5px;
-}
-
-@media not (-moz-proton-contextmenus) {
-menulist > menupopup > menuitem > .menu-iconic-left,
-menulist > menupopup > menu > .menu-iconic-left {
-  display: -moz-box;
-}
-} /** END not Proton **/
-
-@media (-moz-proton-contextmenus) {
-@media not (-moz-os-version: windows-win10),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme: 0) {
   menulist > menupopup > menuitem > .menu-iconic-left,
   menulist > menupopup > menu > .menu-iconic-left {
     display: -moz-box;
   }
 }
-} /** END Proton **/
+
+menu > menupopup > menuitem,
+menu > menupopup > menu {
+  padding-inline: 5px;
+}
 
 @media not (-moz-proton) {
 .menu-right {
