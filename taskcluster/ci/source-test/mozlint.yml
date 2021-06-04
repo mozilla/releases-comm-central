@@ -17,8 +17,8 @@ job-defaults:
     run:
         using: mach
         comm-checkout: true
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             # Other misc lint related files.
             - 'python/mozlint/**'
             - 'tools/lint/**'
@@ -35,8 +35,8 @@ codespell:
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**.js'
             - 'comm/**.jsm'
             - 'comm/**.jxs'
@@ -66,8 +66,8 @@ eslint:
             ln -s ../tools/lint/eslint/eslint-plugin-spidermonkey-js node_modules &&
             cd /builds/worker/checkouts/gecko/comm &&
             ../mach lint -f treeherder -l eslint --quiet -f json:/builds/worker/mozlint.json *
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             # Files that are likely audited.
             - 'comm/**/*.js'
             - 'comm/**/*.jsm'
@@ -93,8 +93,8 @@ file-perm:
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**/*.c'
             - 'comm/**/*.cc'
             - 'comm/**/*.cpp'
@@ -127,8 +127,8 @@ file-whitespace:
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**/*.c'
             - 'comm/**/*.cc'
             - 'comm/**/*.cpp'
@@ -145,8 +145,8 @@ fluent-lint:
             lint -l fluent-lint -f treeherder
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**/*.ftl'
             - 'comm/tools/lint/fluent-lint.yml'
             - 'comm/tools/lint/fluent-lint/exclusions.yml'
@@ -163,8 +163,8 @@ license:
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**/*.c'
             - 'comm/**/*.cc'
             - 'comm/**/*.cpp'
@@ -198,8 +198,8 @@ l10n-conflicts:
             lint -W -l l10n -f treeherder
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/calendar/locales/l10n.toml'
             - 'comm/calendar/locales/en-US/**'
             - 'comm/chat/locales/en-US/**'
@@ -222,8 +222,8 @@ localization:
             comm/*
     attributes:
         code-review: false
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/calendar/locales/l10n.toml'
             - 'comm/calendar/locales/en-US/**'
             - 'comm/chat/locales/en-US/**'
@@ -245,8 +245,8 @@ lintpref:
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'modules/libpref/init/all.js'
             - 'modules/libpref/init/StaticPrefList.yaml'
             - 'comm/mail/app/profile/all-thunderbird.js'
@@ -264,8 +264,8 @@ mingw-cap:
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**/*.cpp'
             - 'comm/**/*.cc'
             - 'comm/**/*.c'
@@ -281,8 +281,8 @@ py-black:
               -f json:/builds/worker/mozlint.json
               --config-path=comm/tools/lint
               comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**/*.configure'
             - 'comm/**/*.py'
             - 'comm/**/moz.build'
@@ -298,8 +298,8 @@ py-flake8:
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/taskcluster
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - '**/*.py'
             - '**/.flake8'
             # moz.configure files are also Python files.
@@ -317,8 +317,8 @@ shellcheck:
             -f json:/builds/worker/mozlint.json
             --config-path=comm/tools/lint
             comm/*
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**/*.sh'
 
 yaml:
@@ -333,8 +333,8 @@ yaml:
             comm/mail/config
             comm/taskcluster
             comm/.*.yml
-    when:
-        files-changed:
+    optimization:
+        skip-unless-changed-no-suite:
             - 'comm/**/*.yml'
             - 'comm/**/*.yaml'
             - '**/.ymllint'
