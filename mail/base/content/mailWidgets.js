@@ -2283,20 +2283,7 @@
         });
 
         input.addEventListener("input", event => {
-          // Trigger onRecipientsChanged() for every input text change in order
-          // to properly update the "Send" button and trigger the save as draft
-          // prompt even before the creation of any pill.
-          onRecipientsChanged();
-
-          // Change the min size of the input field on input change only if the
-          // current width is smaller than 80% of its container's width
-          // to prevent overflow.
-          if (
-            input.clientWidth <
-            input.closest(".address-container").clientWidth * 0.8
-          ) {
-            this.resizeInputField(input, input.value.trim().length);
-          }
+          addressInputOnInput(event, false);
         });
       }
 
@@ -2663,6 +2650,9 @@
         // Handle keydown event in other header input (rawInput), which does not
         // have autocomplete and its associated keydown handling.
         input.addEventListener("keydown", otherHeaderInputOnKeyDown);
+        input.addEventListener("input", event => {
+          addressInputOnInput(event, true);
+        });
       }
 
       input.addEventListener("blur", () => {

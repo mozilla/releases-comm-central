@@ -7840,6 +7840,15 @@ function fromKeyPress(event) {
  * @param {Event} event - The DOM Event.
  */
 function subjectKeyPress(event) {
+  if (event.key == "Delete" && event.repeat && gPreventRowDeletionKeysRepeat) {
+    // Prevent repeated Delete keypress event if the flag is set.
+    event.preventDefault();
+    return;
+  }
+  // Enable repeated deletion if any other key is pressed, or if the Delete
+  // keypress event is not repeated, or if the flag is already false.
+  gPreventRowDeletionKeysRepeat = false;
+
   gSubjectChanged = true;
   // Move the focus to the body only if the Enter key is pressed without any
   // modifier, as that would mean the user wants to send the message.

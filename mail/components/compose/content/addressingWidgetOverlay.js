@@ -19,6 +19,13 @@ var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
 // resizes it.
 var kAddressingHeaderHeight;
 
+// Temporarily prevent repeated deletion key events in address rows or subject.
+// Prevent the keyboard shortcut for removing an empty address row (long
+// Backspace or Delete keypress) from affecting another row. Also, when a long
+// deletion keypress has just removed all text or all visible text from a row
+// input, prevent the ongoing keypress from removing the row.
+var gPreventRowDeletionKeysRepeat = false;
+
 /**
  * Convert all the written recipients into string and store them into the
  * msgCompFields array to be printed in the message header.
@@ -571,22 +578,38 @@ function otherHeaderInputOnKeyDown(event) {
 
     case "Backspace":
     case "Delete":
+      if (event.repeat && gPreventRowDeletionKeysRepeat) {
+        // Prevent repeated deletion keydown event if the flag is set.
+        event.preventDefault();
+        break;
+      }
+      // Enable repeated deletion in case of a non-repeated deletion keydown
+      // event, or if the flag is already false.
+      gPreventRowDeletionKeysRepeat = false;
+
       if (
-        event.repeat ||
+        !event.repeat ||
         input.value.trim() ||
         input.selectionStart + input.selectionEnd ||
         input
           .closest(".address-row")
-          .querySelector(".remove-field-button[hidden]")
+          .querySelector(".remove-field-button[hidden]") ||
+        event.altKey
       ) {
-        // Interrupt if repeated keydown from deleting text, input still has
-        // text, or cursor selection is not at position 0 while deleting
-        // whitespace, to allow regular text deletion before we remove the row.
-        // Also interrupt for non-removable rows with hidden [x] button.
+        // Break if it is not a long deletion keypress, input still has text,
+        // or cursor selection is not at position 0 while deleting whitespace,
+        // to allow regular text deletion before we remove the row.
+        // Also break for non-removable rows with hidden [x] button, and if Alt
+        // key is pressed, to avoid interfering with undo shortcut Alt+Backspace.
         break;
       }
-      // If "Backspace" or "Delete" was explicitly pressed on an empty row,
-      // hide it and focus previous or next row respectively.
+      // Prevent event and set flag to prevent further unwarranted deletion in
+      // the adjacent row, which will receive focus while the key is still down.
+      event.preventDefault();
+      gPreventRowDeletionKeysRepeat = true;
+
+      // Hide the address row if it is empty except whitespace, repeated
+      // deletion keydown event occured, and it has an [x] button for removal.
       hideAddressRow(input, event.key == "Backspace" ? "previous" : "next");
       break;
   }
@@ -678,18 +701,34 @@ function addressInputOnBeforeHandleKeyDown(event) {
     case "ArrowLeft":
     case "Backspace":
       if (
-        event.repeat ||
+        event.key == "Backspace" &&
+        event.repeat &&
+        gPreventRowDeletionKeysRepeat
+      ) {
+        // Prevent repeated backspace keydown event if the flag is set.
+        event.preventDefault();
+        break;
+      }
+      // Enable repeated deletion if Home or ArrowLeft were pressed, or if it is
+      // a non-repeated Backspace keydown event, or if the flag is already false.
+      gPreventRowDeletionKeysRepeat = false;
+
+      if (
         input.value.trim() ||
         input.selectionStart + input.selectionEnd ||
         event.altKey
       ) {
+        // Break and allow the key's default behavior if the row has content,
+        // or the cursor is not at position 0, or the Alt modifier is pressed.
         break;
       }
-      // If unrepeated keydown, empty input or whitespace-only, cursor at
-      // position 0, and Alt-key not used (prevent Alt+Backspace from deleting
-      // pills), navigate into pills. We'll sanitize whitespace on blur.
+      // Navigate into pills if there are any, and if the input is empty or
+      // whitespace-only, and the cursor is at position 0, and the Alt key was
+      // not used (prevent undo via Alt+Backspace from deleting pills).
+      // We'll sanitize whitespace on blur.
 
-      // Prevent a pill keypress event when the focus moves on it.
+      // Prevent a pill keypress event when the focus moves on it, or prevent
+      // deletion in previous row after removing current row via long keydown.
       event.preventDefault();
 
       let targetPill = input
@@ -698,40 +737,76 @@ function addressInputOnBeforeHandleKeyDown(event) {
           "mail-address-pill" + (event.key == "Home" ? "" : ":last-of-type")
         );
       if (targetPill) {
+        if (event.repeat) {
+          // Prevent navigating into pills for repeated keydown from the middle
+          // of whitespace.
+          break;
+        }
         input
           .closest("mail-recipients-area")
           .checkKeyboardSelected(event, targetPill);
+        // Prevent removing the current row after deleting the last pill with
+        // repeated deletion keydown.
+        gPreventRowDeletionKeysRepeat = true;
         break;
       }
 
+      // No pill found, so the address row is empty except whitespace.
+      // Check for long Backspace keyboard shortcut to remove the row.
       if (
-        event.key == "Backspace" &&
+        event.key != "Backspace" ||
+        !event.repeat ||
         input
-          .closest(".address-row")
-          .querySelector(".remove-field-button:not([hidden])")
-      ) {
-        // If addressing row has no pills nor text, unrepeated Backspace
-        // keydown, and row has an [x] button, hide row and focus previous row.
-        hideAddressRow(input, "previous");
-      }
-      break;
-
-    case "Delete":
-      if (
-        !event.repeat &&
-        !input.value.trim() &&
-        !(input.selectionStart + input.selectionEnd) &&
-        !input
-          .closest(".address-container")
-          .querySelector("mail-address-pill") &&
-        !input
           .closest(".address-row")
           .querySelector(".remove-field-button[hidden]")
       ) {
-        // If addressing row has no pills nor text, unrepeated Delete keydown,
-        // and row has an [x] button, hide row and focus next available row.
-        hideAddressRow(input, "next");
+        break;
       }
+      // Set flag to prevent further unwarranted deletion in the previous row,
+      // which will receive focus while the key is still down. We have already
+      // prevented the event above.
+      gPreventRowDeletionKeysRepeat = true;
+
+      // Hide the address row if it is empty except whitespace, repeated
+      // Backspace keydown event occured, and it has an [x] button for removal.
+      hideAddressRow(input, "previous");
+      break;
+
+    case "Delete":
+      if (event.repeat && gPreventRowDeletionKeysRepeat) {
+        // Prevent repeated Delete keydown event if the flag is set.
+        event.preventDefault();
+        break;
+      }
+      // Enable repeated deletion in case of a non-repeated Delete keydown event,
+      // or if the flag is already false.
+      gPreventRowDeletionKeysRepeat = false;
+
+      if (
+        !event.repeat ||
+        input.value.trim() ||
+        input.selectionStart + input.selectionEnd ||
+        input
+          .closest(".address-container")
+          .querySelector("mail-address-pill") ||
+        input
+          .closest(".address-row")
+          .querySelector(".remove-field-button[hidden]")
+      ) {
+        // Break and allow the key's default behaviour if the address row has
+        // content, or the cursor is not at position 0, or the row is not
+        // removable.
+        break;
+      }
+      // Prevent the event and set flag to prevent further unwarranted deletion
+      // in the next row, which will receive focus while the key is still down.
+      event.preventDefault();
+      gPreventRowDeletionKeysRepeat = true;
+
+      // Hide the address row if it is empty except whitespace, repeated Delete
+      // keydown event occured, cursor is at position 0, and it has an
+      // [x] button for removal.
+      hideAddressRow(input, "next");
       break;
 
     case "Enter":
@@ -795,6 +870,52 @@ function addressInputOnBeforeHandleKeyDown(event) {
         input.closest("mail-recipients-area").moveFocusToPreviousElement(input);
       }
       break;
+  }
+}
+
+/**
+ * Handle input events for all types of address inputs in the compose window.
+ *
+ * @param {Event} event - A DOM input event.
+ * @param {boolean} rawInput - A flag for plain text inputs created via
+ *   mail.compose.other.header, which do not have autocompletion and pills.
+ */
+function addressInputOnInput(event, rawInput) {
+  let input = event.target;
+
+  if (
+    !input.value ||
+    (!input.value.trim() &&
+      input.selectionStart + input.selectionEnd == 0 &&
+      event.inputType == "deleteContentBackward")
+  ) {
+    // Temporarily disable repeated deletion to prevent premature
+    // removal of the current row if input text has just become empty or
+    // whitespace-only with cursor at position 0 from backwards deletion.
+    gPreventRowDeletionKeysRepeat = true;
+  }
+
+  if (rawInput) {
+    // For raw inputs, we are done.
+    return;
+  }
+  // Now handling only autocomplete inputs.
+
+  // Trigger onRecipientsChanged() for every input text change in order
+  // to properly update the "Send" button and trigger the save as draft
+  // prompt even before the creation of any pill.
+  onRecipientsChanged();
+
+  // Change the min size of the input field on input change only if the
+  // current width is smaller than 80% of its container's width
+  // to prevent overflow.
+  if (
+    input.clientWidth <
+    input.closest(".address-container").clientWidth * 0.8
+  ) {
+    document
+      .getElementById("recipientsContainer")
+      .resizeInputField(input, input.value.trim().length);
   }
 }
 
