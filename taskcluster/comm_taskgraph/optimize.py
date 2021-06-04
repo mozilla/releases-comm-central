@@ -9,8 +9,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 
+from six import text_type
+
 from taskgraph.optimize import (
     register_strategy,
+    Any,
     OptimizationStrategy,
 )
 from taskgraph.optimize.schema import (
@@ -63,4 +66,13 @@ class SkipSuiteOnly(OptimizationStrategy):
         return False
 
 
-thunderbird_optimizations = default_optimizations + ({"skip-suite-only": None},)
+register_strategy(
+    "skip-unless-changed-no-suite", args=("skip-unless-changed", "skip-suite-only")
+)(Any)
+
+optimizations = (
+    {"skip-suite-only": None},
+    {"skip-unless-changed-no-suite": [text_type]},
+)
+
+thunderbird_optimizations = default_optimizations + optimizations
