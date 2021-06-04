@@ -580,60 +580,30 @@ mail-headerfield:focus-visible:not(:hover) {
   margin-inline-end: 3px;
 }
 
-html|span.crypto-label {
+.crypto-label {
   font-weight: 600;
-  margin-inline-end: 5px;
 }
 
-html|button.crypto-button {
+.crypto-button {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
   margin-block: 6px 3px;
   fill: currentColor;
   background-color: transparent;
+  gap: 4px;
 }
 
-#signedHdrIcon,
-#encryptedHdrIcon {
-  list-style-image: none;
-  visibility: visible;
+.crypto-button[hidden] {
+  display: none;
 }
 
-#encryptedHdrIcon:not([hidden="true"]) + #signedHdrIcon:not([hidden="true"]) {
-  margin-inline-start: 3px;
+.crypto-button > auto {
+  flex: 1 0 auto;
 }
 
-#signedHdrIcon[signed="verified"] {
-  list-style-image: url("chrome://messenger/skin/icons/message-signed-verified.svg");
-}
-
-#signedHdrIcon[signed="unverified"] {
-  list-style-image: url("chrome://messenger/skin/icons/message-signed-unverified.svg");
-}
-
-#signedHdrIcon[signed="ok"] {
-  list-style-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
-}
-
-#signedHdrIcon[signed="unknown"] {
-  list-style-image: url("chrome://messenger/skin/icons/message-signed-unknown.svg");
-}
-
-#signedHdrIcon[signed="mismatch"] {
-  list-style-image: url("chrome://messenger/skin/icons/message-signed-mismatch.svg");
-}
-
-#signedHdrIcon[signed="notok"] {
-  list-style-image: url("chrome://messenger/skin/icons/message-signed-mismatch.svg");
-}
-
-#encryptedHdrIcon[encrypted="ok"] {
-  list-style-image: url("chrome://messenger/skin/icons/message-encrypted-ok.svg");
-}
-
-#encryptedHdrIcon[encrypted="notok"] {
-  list-style-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
+.crypto-button > img {
+  flex: 0 0 auto;
 }
 
 /* Encryption security pane */

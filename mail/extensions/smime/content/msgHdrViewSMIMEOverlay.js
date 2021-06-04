@@ -8,11 +8,6 @@
 /* import-globals-from ../../../base/content/mailWindow.js */
 /* import-globals-from ../../../base/content/msgHdrView.js */
 
-var gSignedUINode = null;
-var gEncryptedUINode = null;
-var gCryptoContainer = null;
-var gStatusBar = null;
-
 var gEncryptedURIService = null;
 var gMyLastEncryptedURI = null;
 
@@ -28,6 +23,114 @@ function neckoURLForMessageURI(aMessageURI) {
     .messageServiceFromURI(aMessageURI);
   let neckoURI = msgSvc.getUrlForUri(aMessageURI);
   return neckoURI.spec;
+}
+
+/**
+ * Set the cryptoBox content according to the given encryption states of the
+ * displayed message. null should be passed as a state if the message does not
+ * encrypted or is not signed.
+ *
+ * @param {string|null} tech - The name for the encryption technology in use
+ *   for the message.
+ * @param {"ok"|"notok"|null} encryptedState - The encrypted state of the
+ *   message.
+ * @param {"ok"|"notok"|"verified"|"unverified"|"unknown"|"mismatch"|null}
+ *   signedState - The signed state of the message.
+ */
+function setMessageEncryptionStateButton(tech, encryptedState, signedState) {
+  let container = document.getElementById("cryptoBox");
+  let encryptedIcon = document.getElementById("encryptedHdrIcon");
+  let signedIcon = document.getElementById("signedHdrIcon");
+  let button = document.getElementById("encryptionTechBtn");
+  let buttonText = button.querySelector(".crypto-label");
+
+  let hidden = !tech || (!encryptedState && !signedState);
+  container.collapsed = hidden;
+  button.hidden = hidden;
+  if (hidden) {
+    container.removeAttribute("tech");
+    buttonText.textContent = "";
+  } else {
+    container.setAttribute("tech", tech);
+    buttonText.textContent = tech;
+  }
+
+  if (encryptedState) {
+    encryptedIcon.hidden = false;
+    encryptedIcon.setAttribute(
+      "src",
+      `chrome://messenger/skin/icons/message-encrypted-${encryptedState}.svg`
+    );
+    // Set alt text.
+    document.l10n.setAttributes(
+      encryptedIcon,
+      `openpgp-message-header-encrypted-${encryptedState}-icon`
+    );
+  } else {
+    encryptedIcon.hidden = true;
+    encryptedIcon.removeAttribute("data-l10n-id");
+    encryptedIcon.removeAttribute("alt");
+    encryptedIcon.removeAttribute("src");
+  }
+
+  if (signedState) {
+    if (signedState === "notok") {
+      // Show the same as mismatch.
+      signedState = "mismatch";
+    }
+    signedIcon.hidden = false;
+    signedIcon.setAttribute(
+      "src",
+      `chrome://messenger/skin/icons/message-signed-${signedState}.svg`
+    );
+    // Set alt text.
+    document.l10n.setAttributes(
+      signedIcon,
+      `openpgp-message-header-signed-${signedState}-icon`
+    );
+  } else {
+    signedIcon.hidden = true;
+    signedIcon.removeAttribute("data-l10n-id");
+    signedIcon.removeAttribute("alt");
+    signedIcon.removeAttribute("src");
+  }
+}
+
+function smimeSignedStateToString(signedState) {
+  switch (signedState) {
+    case -1:
+      return null;
+    case Ci.nsICMSMessageErrors.SUCCESS:
+      return "ok";
+    case Ci.nsICMSMessageErrors.VERIFY_NOT_YET_ATTEMPTED:
+      return "unknown";
+    case Ci.nsICMSMessageErrors.VERIFY_CERT_WITHOUT_ADDRESS:
+    case Ci.nsICMSMessageErrors.VERIFY_HEADER_MISMATCH:
+      return "mismatch";
+    default:
+      return "notok";
+  }
+}
+
+function smimeEncryptedStateToString(encryptedState) {
+  switch (encryptedState) {
+    case -1:
+      return null;
+    case Ci.nsICMSMessageErrors.SUCCESS:
+      return "ok";
+    default:
+      return "notok";
+  }
+}
+
+/**
+ * Refresh the cryptoBox content using the global gEncryptionStatus and
+ * gSignatureStatus variables.
+ */
+function refreshSmimeMessageEncryptionStateButton() {
+  let signed = smimeSignedStateToString(gSignatureStatus);
+  let encrypted = smimeEncryptedStateToString(gEncryptionStatus);
+  setMessageEncryptionStateButton("S/MIME", encrypted, signed);
 }
 
 var smimeHeaderSink = {
@@ -81,49 +184,22 @@ var smimeHeaderSink = {
     gSignatureStatus = aSignatureStatus;
     gSignerCert = aSignerCert;
 
-    gCryptoContainer.collapsed = false;
-    gCryptoContainer.setAttribute("tech", "S/MIME");
-    gSignedUINode.hidden = false;
-    document
-      .getElementById("encryptionTechBtn")
-      .querySelector("span").textContent = "S/MIME";
+    refreshSmimeMessageEncryptionStateButton();
 
-    switch (aSignatureStatus) {
-      case Ci.nsICMSMessageErrors.SUCCESS:
-        gSignedUINode.setAttribute("signed", "ok");
-        gStatusBar.setAttribute("signed", "ok");
-        break;
-
-      case Ci.nsICMSMessageErrors.VERIFY_NOT_YET_ATTEMPTED:
-        gSignedUINode.setAttribute("signed", "unknown");
-        gStatusBar.setAttribute("signed", "unknown");
-        this.showSenderIfSigner();
-        break;
-
-      case Ci.nsICMSMessageErrors.VERIFY_CERT_WITHOUT_ADDRESS:
-      case Ci.nsICMSMessageErrors.VERIFY_HEADER_MISMATCH:
-        gSignedUINode.setAttribute("signed", "mismatch");
-        gStatusBar.setAttribute("signed", "mismatch");
-        this.showSenderIfSigner();
-        break;
-
-      default:
-        gSignedUINode.setAttribute("signed", "notok");
-        gStatusBar.setAttribute("signed", "notok");
-        break;
+    let signed = smimeSignedStateToString(aSignatureStatus);
+    if (signed == "unknown" || signed == "mismatch") {
+      this.showSenderIfSigner();
     }
 
-    if (gSignedUINode.getAttribute("signed")) {
-      // For telemetry purposes.
-      window.dispatchEvent(
-        new CustomEvent("secureMsgLoaded", {
-          detail: {
-            key: "signed-smime",
-            data: gSignedUINode.getAttribute("signed"),
-          },
-        })
-      );
-    }
+    // For telemetry purposes.
+    window.dispatchEvent(
+      new CustomEvent("secureMsgLoaded", {
+        detail: {
+          key: "signed-smime",
+          data: signed,
+        },
+      })
+    );
   },
 
   /**
@@ -187,20 +263,7 @@ var smimeHeaderSink = {
     gEncryptionStatus = aEncryptionStatus;
     gEncryptionCert = aRecipientCert;
 
-    gCryptoContainer.collapsed = false;
-    gCryptoContainer.setAttribute("tech", "S/MIME");
-    gEncryptedUINode.hidden = false;
-    document
-      .getElementById("encryptionTechBtn")
-      .querySelector("span").textContent = "S/MIME";
-
-    if (Ci.nsICMSMessageErrors.SUCCESS == aEncryptionStatus) {
-      gEncryptedUINode.setAttribute("encrypted", "ok");
-      gStatusBar.setAttribute("encrypted", "ok");
-    } else {
-      gEncryptedUINode.setAttribute("encrypted", "notok");
-      gStatusBar.setAttribute("encrypted", "notok");
-    }
+    refreshSmimeMessageEncryptionStateButton();
 
     if (gEncryptedURIService) {
       // Remember the message URI and the corresponding necko URI.
@@ -245,17 +308,15 @@ var smimeHeaderSink = {
         break;
     }
 
-    if (gEncryptedUINode.getAttribute("encrypted")) {
-      // For telemetry purposes.
-      window.dispatchEvent(
-        new CustomEvent("secureMsgLoaded", {
-          detail: {
-            key: "encrypted-smime",
-            data: gEncryptedUINode.getAttribute("encrypted"),
-          },
-        })
-      );
-    }
+    // For telemetry purposes.
+    window.dispatchEvent(
+      new CustomEvent("secureMsgLoaded", {
+        detail: {
+          key: "encrypted-smime",
+          data: smimeEncryptedStateToString(aEncryptionStatus),
+        },
+      })
+    );
   },
 
   QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMEHeaderSink"]),
@@ -281,16 +342,7 @@ function onSMIMEStartHeaders() {
   gSignerCert = null;
   gEncryptionCert = null;
 
-  gCryptoContainer.collapsed = true;
-  gCryptoContainer.removeAttribute("tech");
-
-  gSignedUINode.hidden = true;
-  gSignedUINode.removeAttribute("signed");
-  gStatusBar.removeAttribute("signed");
-
-  gEncryptedUINode.hidden = true;
-  gEncryptedUINode.removeAttribute("encrypted");
-  gStatusBar.removeAttribute("encrypted");
+  setMessageEncryptionStateButton(null, null, null);
 
   forgetEncryptedURI();
   hideMessageReadSecurityInfo();
@@ -330,11 +382,6 @@ function msgHdrViewSMIMEOnLoad(event) {
   // on the msgHdrSink used by mail.....
   msgWindow.msgHeaderSink.securityInfo = smimeHeaderSink;
 
-  gSignedUINode = document.getElementById("signedHdrIcon");
-  gEncryptedUINode = document.getElementById("encryptedHdrIcon");
-  gCryptoContainer = document.getElementById("cryptoBox");
-  gStatusBar = document.getElementById("status-bar");
-
   // Add ourself to the list of message display listeners so we get notified
   // when we are about to display a message.
   var listener = {};
@@ -368,23 +415,11 @@ function msgHdrViewSMIMEOnUnload(event) {
 }
 
 function msgHdrViewSMIMEOnMessagePaneHide() {
-  gCryptoContainer.collapsed = true;
-  gSignedUINode.hidden = true;
-  gEncryptedUINode.hidden = true;
+  setMessageEncryptionStateButton(null, null, null);
 }
 
 function msgHdrViewSMIMEOnMessagePaneUnhide() {
-  if (gEncryptionStatus != -1 || gSignatureStatus != -1) {
-    gCryptoContainer.collapsed = false;
-
-    if (gSignatureStatus != -1) {
-      gSignedUINode.hidden = false;
-    }
-
-    if (gEncryptionStatus != -1) {
-      gEncryptedUINode.hidden = false;
-    }
-  }
+  refreshSmimeMessageEncryptionStateButton();
 }
 
 addEventListener("messagepane-loaded", msgHdrViewSMIMEOnLoad, true);

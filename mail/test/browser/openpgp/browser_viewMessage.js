@@ -472,16 +472,6 @@ add_task(async function testUpdateMessageSignature() {
     return true;
   });
 
-  // To ensure we won't miss the attribute change event, set up a
-  // promise to wait for it, before running the actions that trigger it.
-  // Wait for any new attribute value, because a future bug might
-  // set an unexpected attribute.
-  let attributePromise = BrowserTestUtils.waitForAttribute(
-    "signed",
-    mc.window.document.getElementById("signedHdrIcon"),
-    null
-  );
-
   // This will open the key details, the domWindowOpened handler
   // will catch it and execute the changes.
   mc.click(mc.e("viewSignatureKey"));
@@ -490,11 +480,10 @@ add_task(async function testUpdateMessageSignature() {
   await dialogPromise;
 
   // Wait for the signedHdrIcon state to change.
-  await attributePromise;
 
   // Verify the new acceptance level is correct.
-  Assert.ok(
-    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unverified"),
+  await TestUtils.waitForCondition(
+    () => OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unverified"),
     "signed unverified icon should be displayed"
   );
   close_window(mc);

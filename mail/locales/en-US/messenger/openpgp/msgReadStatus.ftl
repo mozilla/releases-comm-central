@@ -43,3 +43,20 @@ openpgp-unknown-key-id = Unknown key
 
 openpgp-other-enc-additional-key-ids = In addition, the message was encrypted to the owners of the following keys:
 openpgp-other-enc-all-key-ids = The message was encrypted to the owners of the following keys:
+
+openpgp-message-header-encrypted-ok-icon =
+    .alt = Decryption successful
+openpgp-message-header-encrypted-notok-icon =
+    .alt = Decryption failed
+
+openpgp-message-header-signed-ok-icon =
+    .alt = Good signature
+# Mismatch icon is used for notok state as well
+openpgp-message-header-signed-mismatch-icon =
+    .alt = Bad signature
+openpgp-message-header-signed-unknown-icon =
+    .alt = Unknown signature status
+openpgp-message-header-signed-verified-icon =
+    .alt = Verified signature
+openpgp-message-header-signed-unverified-icon =
+    .alt = Unverified signature

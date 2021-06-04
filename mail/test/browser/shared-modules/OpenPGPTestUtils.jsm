@@ -74,45 +74,39 @@ const OpenPGPTestUtils = {
   },
 
   /**
-   * Tests whether the signed icon's "signed" attribute matches the provided
-   * state.
+   * Tests whether the signed icon's "src" attribute matches the provided state.
    *
    * @param {HTMLDocument} doc - The document of the message window.
-   * @param {string} state - The state to test for.
+   * @param {"ok"|"unknown"|"verified"|"unverified"|"mismatch"} state - The
+   *   state to test for.
    * @returns {boolean}
    */
   hasSignedIconState(doc, state) {
-    return doc.querySelector(`#signedHdrIcon[signed=${state}]`) != null;
+    return !!doc.querySelector(`#signedHdrIcon[src*=message-signed-${state}]`);
   },
 
   /**
-   * Checks that the signed icon's "signed" attribute has none of the supported
-   * states.
+   * Checks that the signed icon is hidden.
    *
    * @param {HTMLDocument} doc - The document of the message window.
    * @returns {boolean}
    */
   hasNoSignedIconState(doc) {
-    return (
-      !OpenPGPTestUtils.hasSignedIconState(doc, "ok") &&
-      !OpenPGPTestUtils.hasSignedIconState(doc, "notok") &&
-      !OpenPGPTestUtils.hasSignedIconState(doc, "verified") &&
-      !OpenPGPTestUtils.hasSignedIconState(doc, "unverified") &&
-      !OpenPGPTestUtils.hasSignedIconState(doc, "mismatch") &&
-      !OpenPGPTestUtils.hasSignedIconState(doc, "unknown")
-    );
+    return doc.querySelector(`#signedHdrIcon[hidden]`);
   },
 
   /**
-   * Tests whether the encrypted icon's "encrypted" attribute matches the
-   * provided state value.
+   * Tests whether the encrypted icon's "src" attribute matches the provided
+   * state value.
    *
    * @param {HTMLDocument} doc - The document of the message window.
-   * @param {string} state - The state to test for.
+   * @param {"ok"|"notok"} state - The state to test for.
    * @returns {boolean}
    */
   hasEncryptedIconState(doc, state) {
-    return doc.querySelector(`#encryptedHdrIcon[encrypted=${state}]`) != null;
+    return !!doc.querySelector(
+      `#encryptedHdrIcon[src*=message-encrypted-${state}]`
+    );
   },
 
   /**

@@ -82,8 +82,7 @@ function showMessageReadSecurityInfo() {
   }
 
   // S/MIME.
-  let gSignedUINode = document.getElementById("signedHdrIcon");
-  if (gSignedUINode && gSignedUINode.getAttribute("signed") == "unknown") {
+  if (gSignatureStatus === Ci.nsICMSMessageErrors.VERIFY_NOT_YET_ATTEMPTED) {
     showImapSignatureUnknown();
     return;
   }

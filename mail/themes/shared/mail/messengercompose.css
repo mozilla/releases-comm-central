@@ -1269,7 +1269,6 @@ button.remove-field-button:focus {
 }
 
 /* OpenPGP and S/MIME encryption and signature status icons */
-
 #signing-status,
 #encryption-status {
   list-style-image: none;
