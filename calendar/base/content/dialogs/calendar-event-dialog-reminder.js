@@ -192,13 +192,7 @@ function setupMaxReminders() {
       null,
       gReminderNotification.PRIORITY_WARNING_MEDIUM
     );
-
-    if (gReminderNotification.gProton) {
-      notification.closeButton.hidden = true;
-    } else {
-      let closeButton = notification.messageDetails.nextElementSibling;
-      closeButton.setAttribute("hidden", "true");
-    }
+    notification.closeButton.hidden = true;
   } else {
     gReminderNotification.removeAllNotifications();
   }

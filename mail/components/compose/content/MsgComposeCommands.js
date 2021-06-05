@@ -2841,13 +2841,13 @@ function manageAttachmentNotification(aForce = false) {
   // specific keywords to the existing notification instead of creating it
   // from scratch.
   if (notification) {
-    let selector = this.gComposeNotification.gProton
-      ? notification.messageText
-      : notification;
-
-    let msgContainer = selector.querySelector("#attachmentReminderText");
+    let msgContainer = notification.messageText.querySelector(
+      "#attachmentReminderText"
+    );
     msgContainer.setAttribute("value", textValue);
-    let keywordsContainer = selector.querySelector("#attachmentKeywords");
+    let keywordsContainer = notification.messageText.querySelector(
+      "#attachmentKeywords"
+    );
     keywordsContainer.setAttribute("value", keywords);
     return;
   }
@@ -2913,19 +2913,10 @@ function manageAttachmentNotification(aForce = false) {
   );
   notification.setAttribute("id", "attachmentNotificationBox");
 
-  // Variation for Proton UI.
-  if (this.gComposeNotification.gProton) {
-    notification.messageText.appendChild(msg);
-    notification.buttonContainer.lastElementChild.appendChild(
-      remindLaterMenuPopup
-    );
-    return;
-  }
-
-  notification.messageDetails.querySelector("button").before(msg);
-  notification.messageDetails
-    .querySelector("button:last-child")
-    .appendChild(remindLaterMenuPopup);
+  notification.messageText.appendChild(msg);
+  notification.buttonContainer.lastElementChild.appendChild(
+    remindLaterMenuPopup
+  );
 }
 
 /**
@@ -5148,10 +5139,9 @@ function checkPublicRecipientsLimit() {
 
   // Reuse the existing notification since one is shown already.
   if (notification) {
-    let root = this.gComposeNotification.gProton
-      ? notification.messageText
-      : notification;
-    let msgText = root.querySelector(".consider-bcc-notification-text");
+    let msgText = notification.messageText.querySelector(
+      ".consider-bcc-notification-text"
+    );
     msgText.setAttribute(
       "data-l10n-args",
       JSON.stringify({ count: publicAddressPillsCount })
@@ -5211,17 +5201,7 @@ function checkPublicRecipientsLimit() {
     }
   );
   notification.setAttribute("id", "warnPublicRecipientsNotification");
-  // Variation for Proton UI.
-  if (this.gComposeNotification.gProton) {
-    notification.messageText.appendChild(msgText);
-    return;
-  }
-
-  // Ugh, the following isn't perfect... but !gProton may be dropped soon.
-  let msg = document.createElement("div");
-  msg.appendChild(msgText);
-  notification.messageDetails.style.display = "flex";
-  notification.messageDetails.querySelector("button").before(msg);
+  notification.messageText.appendChild(msgText);
 }
 
 /**

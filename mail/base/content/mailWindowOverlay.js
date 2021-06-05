@@ -3351,16 +3351,9 @@ var gMessageNotificationBar = {
         aCanOverride ? buttons : []
       );
 
-      // Update the button differently based on the Proton pref.
-      if (this.msgNotificationBar.gProton) {
-        notification.buttonContainer.firstElementChild.classList.add(
-          "button-menu-list"
-        );
-        return;
-      }
-
-      let button = notification.spacer.nextElementSibling;
-      button.classList.add("button-menu-list");
+      notification.buttonContainer.firstElementChild.classList.add(
+        "button-menu-list"
+      );
     }
   },
 
@@ -3400,16 +3393,9 @@ var gMessageNotificationBar = {
         buttons
       );
 
-      // Update the button differently based on the Proton pref.
-      if (this.msgNotificationBar.gProton) {
-        notification.buttonContainer.firstElementChild.classList.add(
-          "button-menu-list"
-        );
-        return;
-      }
-
-      let button = notification.spacer.nextElementSibling;
-      button.classList.add("button-menu-list");
+      notification.buttonContainer.firstElementChild.classList.add(
+        "button-menu-list"
+      );
     }
   },
 

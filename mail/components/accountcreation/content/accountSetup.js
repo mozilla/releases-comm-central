@@ -792,12 +792,7 @@ var gAccountSetup = {
     notification.setAttribute("align", "center");
 
     // Hide the close button to prevent dismissing the notification.
-    if (this.notificationBox.gProton) {
-      notification.removeAttribute("dismissable");
-    } else {
-      let closeButton = notification.messageDetails.nextElementSibling;
-      closeButton.hidden = true;
-    }
+    notification.removeAttribute("dismissable");
 
     this.ensureVisibleNotification();
   },
@@ -839,12 +834,7 @@ var gAccountSetup = {
     notification.setAttribute("type", "success");
 
     // Hide the close button to prevent dismissing the notification.
-    if (this.notificationBox.gProton) {
-      notification.removeAttribute("dismissable");
-    } else {
-      let closeButton = notification.messageDetails.nextElementSibling;
-      closeButton.hidden = true;
-    }
+    notification.removeAttribute("dismissable");
 
     this.showHelperImage("step3");
 
@@ -891,12 +881,7 @@ var gAccountSetup = {
     );
 
     // Hide the close button to prevent dismissing the notification.
-    if (this.notificationBox.gProton) {
-      notification.removeAttribute("dismissable");
-    } else {
-      let closeButton = notification.messageDetails.nextElementSibling;
-      closeButton.hidden = true;
-    }
+    notification.removeAttribute("dismissable");
 
     this.ensureVisibleNotification();
   },
@@ -1900,12 +1885,7 @@ var gAccountSetup = {
       );
 
       // Hide the close button to prevent dismissing the notification.
-      if (this.notificationBox.gProton) {
-        notification.removeAttribute("dismissable");
-      } else {
-        let closeButton = notification.messageDetails.nextElementSibling;
-        closeButton.hidden = true;
-      }
+      notification.removeAttribute("dismissable");
     }
   },
 
