@@ -21,6 +21,9 @@ jobs-from:
     - windows.yml
 
 job-defaults:
+    optimization:
+        skip-suite-only: null
+
     run:
         mozconfig-variant:
             by-release-type:

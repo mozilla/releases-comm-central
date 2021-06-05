@@ -27,8 +27,6 @@ linux64/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     use-sccache: true
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -75,8 +73,6 @@ linux64-shippable/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     run-on-projects: ['release']
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -117,8 +113,6 @@ linux64/debug:
         mozconfig-variant: debug
         need-xvfb: true
     use-sccache: true
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -164,8 +158,6 @@ linux64-asan/opt:
         need-xvfb: true
     run-on-projects: ['release']
     use-sccache: true
-    optimization:
-        skip-unless-daily-no-suite: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -213,8 +205,6 @@ linux64-aarch64/opt:
         need-xvfb: true
     run-on-projects: ['comm-central']
     use-sccache: true
-    optimization:
-        skip-unless-daily-no-suite: null
     fetches:
         toolchain:
             - linux-aarch64-libotr
@@ -251,8 +241,6 @@ linux/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     use-sccache: true
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -300,8 +288,6 @@ linux-shippable/opt:
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
     run-on-projects: ['release']
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -341,8 +327,6 @@ linux/debug:
         mozconfig-variant: debug
         need-xvfb: true
     use-sccache: true
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils

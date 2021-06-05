@@ -15,8 +15,6 @@ job-defaults:
         config-paths:
             - comm/testing/mozharness/configs
         script: "mozharness/scripts/fx_desktop_build.py"
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils

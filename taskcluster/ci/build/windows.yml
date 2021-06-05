@@ -49,8 +49,6 @@ win32/opt:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     use-sccache: true
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -109,8 +107,6 @@ win32-shippable/opt:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     run-on-projects: ['release']
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -164,8 +160,6 @@ win32/debug:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     use-sccache: true
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -219,8 +213,6 @@ win64/opt:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     use-sccache: true
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -279,8 +271,6 @@ win64-shippable/opt:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     run-on-projects: ['release']
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -334,8 +324,6 @@ win64/debug:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     use-sccache: true
-    optimization:
-        skip-suite-only: null
     fetches:
         toolchain:
             - linux64-binutils
@@ -384,8 +372,6 @@ win64-plain/debug:
             stage_platform: win64
         mozconfig-variant: plain-debug
     run-on-projects: ['comm-central']
-    optimization:
-        skip-unless-daily-no-suite: null
     fetches:
         toolchain:
             - win64-cbindgen
@@ -425,8 +411,6 @@ win64-plain/opt:
             stage_platform: win64
         mozconfig-variant: plain-opt
     run-on-projects: ['comm-central']
-    optimization:
-        skip-unless-daily-no-suite: null
     fetches:
         toolchain:
             - win64-cbindgen
@@ -471,8 +455,6 @@ win64-asan/opt:
         mozconfig-variant: nightly-asan
     run-on-projects: ['release']
     use-sccache: true
-    optimization:
-        skip-unless-daily-no-suite: null
     fetches:
         toolchain:
             - linux64-binutils

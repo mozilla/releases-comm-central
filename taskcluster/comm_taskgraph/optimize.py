@@ -70,30 +70,9 @@ register_strategy(
     "skip-unless-changed-no-suite", args=("skip-unless-changed", "skip-suite-only")
 )(Any)
 
-
-@register_strategy("skip-unless-daily")
-class SkipUnlessDaily(OptimizationStrategy):
-    def should_remove_task(self, task, params, arg):
-        # Only optimize comm-central
-        if params["project"] != "comm-central":
-            return False
-
-        # If running a "Daily" taskgraph, run this task
-        if params["target_tasks_method"] == "nightly_desktop":
-            return False
-
-        return True
-
-
-register_strategy(
-    "skip-unless-daily-no-suite", args=("skip-unless-daily", "skip-suite-only")
-)(Any)
-
 optimizations = (
     {"skip-suite-only": None},
     {"skip-unless-changed-no-suite": [text_type]},
-    {"skip-unless-daily": None},
-    {"skip-unless-daily-no-suite": None},
 )
 
 thunderbird_optimizations = default_optimizations + optimizations

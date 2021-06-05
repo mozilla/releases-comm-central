@@ -144,28 +144,5 @@ def test_suite_files_changed_strategy(params, file_patterns, pushed_files, expec
     assert remove == expected
 
 
-@pytest.mark.parametrize(
-    "project,target_tasks_method,expected",
-    [
-        # comm-central, run on push
-        pytest.param("comm-central", "default", True),
-        # comm-central, daily build
-        pytest.param("comm-central", "nightly_desktop", False),
-        # comm-beta, run on push (mozilla_beta_tasks)
-        pytest.param("comm-beta", "mozilla_beta_tasks", False),
-    ],
-    ids=idfn,
-)
-def test_skip_unless_daily_strategy(params, project, target_tasks_method, expected):
-    params["project"] = project
-    params["target_tasks_method"] = target_tasks_method
-    task = generate_task()
-
-    opt = registry["skip-unless-daily"]
-    remove = opt.should_remove_task(task, params, None)
-
-    assert remove == expected
-
-
 if __name__ == "__main__":
     main()
