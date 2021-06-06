@@ -123,7 +123,7 @@ var calendarViewController = {
     };
 
     // Make sure we are modifying a copy of aOccurrences, otherwise we will
-    // run into race conditions when the view's doDeleteItem removes the
+    // run into race conditions when the view's doRemoveItem removes the
     // array elements while we are iterating through them. While we are at
     // it, filter out any items that have readonly calendars, so that
     // checking for one total item below also works out if all but one item

@@ -1501,7 +1501,7 @@
      *
      * @param {calIItemBase} event    A calendar item.
      */
-    doDeleteItem(event) {
+    doRemoveItem(event) {
       const cols = this.findColumnsForItem(event);
       if (!cols.length) {
         return;
@@ -1535,7 +1535,7 @@
      *
      * @param {calICalendar} calendar    A calendar object.
      */
-    deleteItemsFromCalendar(calendar) {
+    removeItemsFromCalendar(calendar) {
       if (!this.mDateColumns) {
         return;
       }
@@ -1547,7 +1547,7 @@
 
         for (const event of colEvents) {
           if (event.calendar.id == calendar.id) {
-            this.doDeleteItem(event);
+            this.doRemoveItem(event);
           }
         }
       }

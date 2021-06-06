@@ -414,14 +414,25 @@
 
     // End of calIOperationListener methods.
     // calIObserver methods.
+    calendarsInBatch = new Set();
 
-    onStartBatch(aCalendar) {}
+    onStartBatch(aCalendar) {
+      this.calendarsInBatch.add(aCalendar);
+    }
 
-    onEndBatch(aCalendar) {}
+    onEndBatch(aCalendar) {
+      this.calendarsInBatch.delete(aCalendar);
+    }
 
-    onLoad(aCalendar) {}
+    onLoad(aCalendar) {
+      this.getItems(aCalendar);
+    }
 
     onAddItem(aItem) {
+      if (this.calendarsInBatch.has(aItem.calendar)) {
+        return;
+      }
+
       this.setBusyDaysForItem(aItem, true);
     }
 
@@ -430,6 +441,10 @@
     }
 
     onModifyItem(aNewItem, aOldItem) {
+      if (this.calendarsInBatch.has(aNewItem.calendar)) {
+        return;
+      }
+
       this.setBusyDaysForItem(aOldItem, false);
       this.setBusyDaysForItem(aNewItem, true);
     }

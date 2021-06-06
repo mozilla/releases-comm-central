@@ -698,7 +698,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
      *
      * @param {calIItemBase} item    A calendar item.
      */
-    doDeleteItem(item) {
+    doRemoveItem(item) {
       const boxes = this.findDayBoxesForItem(item);
 
       if (!boxes.length) {
@@ -710,7 +710,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       const isNotItem = a => a.hashId != item.hashId;
       this.mSelectedItems = this.mSelectedItems.filter(isNotItem);
 
-      boxes.forEach(box => box.deleteItem(item));
+      boxes.forEach(box => box.removeItem(item));
 
       // If a deleted event was selected, announce that the selection changed.
       if (oldLength != this.mSelectedItems.length) {
@@ -723,7 +723,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
      *
      * @param {calICalendar} calendar    A calendar object.
      */
-    deleteItemsFromCalendar(calendar) {
+    removeItemsFromCalendar(calendar) {
       if (!this.mDateBoxes) {
         return;
       }
@@ -733,7 +733,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
           const item = node.item;
 
           if (item.calendar.id == calendar.id) {
-            box.deleteItem(item);
+            box.removeItem(item);
           }
         }
       }

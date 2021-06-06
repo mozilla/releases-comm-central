@@ -36,14 +36,25 @@
 
     // calIObserver
 
-    onStartBatch() {}
-    onEndBatch() {}
+    calendarsInBatch = new Set();
 
-    onLoad() {
-      this.calView.refresh();
+    onStartBatch(calendar) {
+      this.calendarsInBatch.add(calendar);
+    }
+
+    onEndBatch(calendar) {
+      this.calendarsInBatch.delete(calendar);
+    }
+
+    onLoad(calendar) {
+      this.calView.refresh(calendar);
     }
 
     onAddItem(item) {
+      if (this.calendarsInBatch.has(item.calendar)) {
+        return;
+      }
+
       if (item.isTodo()) {
         if (
           (!item.entryDate && !item.dueDate) ||
@@ -65,6 +76,10 @@
     }
 
     onModifyItem(newItem, oldItem) {
+      if (this.calendarsInBatch.has(newItem.calendar)) {
+        return;
+      }
+
       if (newItem.isTodo() && oldItem.isTodo() && !this.calView.mTasksInView) {
         return;
       }
@@ -72,9 +87,9 @@
         let occs = oldItem.getOccurrencesBetween(this.calView.startDate, this.calView.queryEndDate);
         for (const occ of occs) {
           if (occ.isTodo()) {
-            this.calView.doDeleteItem(occ.QueryInterface(Ci.calITodo));
+            this.calView.doRemoveItem(occ.QueryInterface(Ci.calITodo));
           } else {
-            this.calView.doDeleteItem(occ.QueryInterface(Ci.calIEvent));
+            this.calView.doRemoveItem(occ.QueryInterface(Ci.calIEvent));
           }
         }
       }
@@ -113,9 +128,9 @@
       const occs = item.getOccurrencesBetween(this.calView.startDate, this.calView.queryEndDate);
       for (const occ of occs) {
         if (occ.isTodo()) {
-          this.calView.doDeleteItem(occ.QueryInterface(Ci.calITodo));
+          this.calView.doRemoveItem(occ.QueryInterface(Ci.calITodo));
         } else {
-          this.calView.doDeleteItem(occ.QueryInterface(Ci.calIEvent));
+          this.calView.doRemoveItem(occ.QueryInterface(Ci.calIEvent));
         }
       }
     }
@@ -134,11 +149,11 @@
         // Else fall through.
         case "readOnly":
           // XXXvv We can be smarter about how we handle this stuff.
-          this.calView.refresh();
+          this.calView.refresh(calendar);
           break;
         case "disabled":
           if (value) {
-            this.calView.deleteItemsFromCalendar(calendar);
+            this.calView.removeItemsFromCalendar(calendar);
           } else {
             this.calView.addItemsFromCalendar(calendar);
           }
@@ -189,7 +204,7 @@
 
     onCalendarRemoved(calendar) {
       if (!calendar.getProperty("disabled")) {
-        this.calView.deleteItemsFromCalendar(calendar);
+        this.calView.removeItemsFromCalendar(calendar);
       }
     }
 
@@ -273,6 +288,7 @@
           this.calView.mPendingRefreshJobs.get(this.calId).cancel();
           this.calView.mPendingRefreshJobs.delete(this.calId);
         }
+        this.calView.removeItemsFromCalendar(this.calendar);
       }
 
       // Start our items query. For a disjoint date range we get all the items,
@@ -770,11 +786,12 @@
     /**
      * Refresh the view if it is active and visible, or if refresh is forced.
      *
-     * @param {boolean} [force]    Whether to force a refresh.
+     * @param {calICalendar} [calendar=this.mCalendar]
+     * @param {boolean} [force=false]    Whether to force a refresh.
      */
-    refresh(force) {
+    refresh(calendar = this.mCalendar, force = false) {
       if (this.isVisible() || force) {
-        this.addItemsFromCalendar(this.mCalendar);
+        this.addItemsFromCalendar(calendar);
       }
     }
 
@@ -785,7 +802,7 @@
      * may remain the same when switching to them.
      */
     forceRefresh() {
-      this.refresh(true);
+      this.refresh(undefined, true);
     }
 
     /**
@@ -799,11 +816,11 @@
     }
 
     /**
-     * Delete items from a calendar. Must be implemented in subclasses.
+     * Remove items from a calendar. Must be implemented in subclasses.
      *
      * @param {calICalendar|calICompositeCalendar} calendar    A calendar object.
      */
-    deleteItemsFromCalendar(calendar) {
+    removeItemsFromCalendar(calendar) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
 

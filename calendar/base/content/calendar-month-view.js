@@ -166,7 +166,7 @@
 
     addItem(aItem) {
       if (aItem.hashId in this.mItemHash) {
-        this.deleteItem(aItem);
+        this.removeItem(aItem);
       }
 
       let cssSafeId = cal.view.formatStringForCSSRule(aItem.calendar.id);
@@ -210,7 +210,7 @@
       }
     }
 
-    deleteItem(aItem) {
+    removeItem(aItem) {
       if (aItem.hashId in this.mItemHash) {
         // Delete the list item wrapper.
         let node = this.mItemHash[aItem.hashId].parentNode;

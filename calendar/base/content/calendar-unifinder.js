@@ -135,7 +135,7 @@ var unifinderObserver = {
 
   onCalendarRemoved(aDeletedCalendar) {
     if (!aDeletedCalendar.getProperty("disabled")) {
-      deleteItemsFromCalendar(aDeletedCalendar);
+      removeItemsFromCalendar(aDeletedCalendar);
     }
   },
 
@@ -952,7 +952,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
   );
 }
 
-function deleteItemsFromCalendar(aCalendar) {
+function removeItemsFromCalendar(aCalendar) {
   let filter = unifinderTreeView.mFilter;
   let items = unifinderTreeView.eventArray.filter(item => item.calendar.id == aCalendar.id);
 

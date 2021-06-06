@@ -643,7 +643,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
     },
 
     execute() {
-      if (!(aStart || aEnd || aCalendar)) {
+      if (!(aStart || aEnd || (aCalendar && aCalendar.type != "composite"))) {
         this.agendaListbox.removeListItems();
       }
 
