@@ -19,6 +19,14 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/txttohtmlconv;1",
   "mozITXTToHTMLConv"
 );
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "calendarSortOrder",
+  "calendar.list.sortOrder",
+  null,
+  null,
+  val => (val ? val.split(" ") : [])
+);
 
 /**
  * View and DOM related helper functions
@@ -350,8 +358,19 @@ var calview = {
       return cmp;
     }
 
+    if (a.calendar && b.calendar) {
+      cmp = calendarSortOrder.indexOf(a.calendar.id) - calendarSortOrder.indexOf(b.calendar.id);
+      if (cmp != 0) {
+        return cmp;
+      }
+    }
+
     cmp = (a.title > b.title) - (a.title < b.title);
     return cmp;
+  },
+
+  get calendarSortOrder() {
+    return calendarSortOrder;
   },
 
   /**

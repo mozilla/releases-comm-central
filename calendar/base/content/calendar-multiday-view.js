@@ -71,7 +71,14 @@
       }
 
       let itemBox = document.createXULElement("calendar-editable-item");
-      this.appendChild(itemBox);
+      cal.data.binaryInsertNode(
+        this,
+        itemBox,
+        aItem,
+        cal.view.compareItems,
+        false,
+        node => node.occurrence
+      );
       itemBox.calendarView = this.calendarView;
       itemBox.occurrence = aItem;
       let ctxt =

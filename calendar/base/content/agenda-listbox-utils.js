@@ -322,35 +322,29 @@ agendaListbox.addItem = function(aItem) {
     let period = periods[i];
     let complistItem = period.listItem;
     let visible = complistItem.getCheckbox().checked;
-    if (aItem.startDate.isDate && period.duration == 1 && aItem.duration.days == 1) {
-      if (this.getListItems(aItem, period).length == 0) {
-        this.addItemBefore(aItem, period.listItem.nextElementSibling, period, visible);
-      }
-    } else {
-      do {
-        complistItem = complistItem.nextElementSibling;
-        if (this.isEventListItem(complistItem)) {
-          let compitem = complistItem.occurrence;
-          if (this.isSameEvent(aItem, compitem)) {
-            // The same event occurs on several calendars but we only
-            // display the first one.
-            // TODO: find a way to display this special circumstance
-            break;
-          } else if (this.isBefore(aItem, compitem, period)) {
-            if (this.isSameEvent(aItem, compitem)) {
-              newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
-              break;
-            } else {
-              newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
-              break;
-            }
-          }
-        } else {
-          newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
+    do {
+      complistItem = complistItem.nextElementSibling;
+      if (this.isEventListItem(complistItem)) {
+        let compitem = complistItem.occurrence;
+        if (this.isSameEvent(aItem, compitem)) {
+          // The same event occurs on several calendars but we only
+          // display the first one.
+          // TODO: find a way to display this special circumstance
           break;
+        } else if (this.isBefore(aItem, compitem, period)) {
+          if (this.isSameEvent(aItem, compitem)) {
+            newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
+            break;
+          } else {
+            newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
+            break;
+          }
         }
-      } while (complistItem);
-    }
+      } else {
+        newlistItem = this.addItemBefore(aItem, complistItem, period, visible);
+        break;
+      }
+    } while (complistItem);
   }
   return newlistItem;
 };
@@ -369,6 +363,10 @@ agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
   let itemDateEndDate = itemDate.clone();
   itemDateEndDate.day++;
 
+  let calendarSortOrder = cal.view.calendarSortOrder;
+  let itemCalendarIndex = calendarSortOrder.indexOf(aItem.calendar.id);
+  let compItemCalendarIndex = calendarSortOrder.indexOf(aCompItem.calendar.id);
+
   if (compItemDate.day == itemDate.day) {
     // In the same day the order is:
     // - all-day events (single day);
@@ -377,19 +375,22 @@ agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
     //   time) and intermediate.
     if (itemDate.isDate && aItem.duration.days == 1) {
       // all-day events with duration one day
+      if (compItemDate.isDate && aCompItem.duration.days == 1) {
+        return itemCalendarIndex < compItemCalendarIndex;
+      }
       return true;
     } else if (itemDate.isDate) {
       if (aItem.startDate.compare(itemDate) == 0) {
-        // starting day of an all-day events spannig multiple days
+        // starting day of an all-day events spanning multiple days
         return !compItemDate.isDate || aCompItem.duration.days != 1;
       } else if (aItem.endDate.compare(itemDateEndDate) == 0) {
-        // ending day of an all-day events spannig multiple days
+        // ending day of an all-day events spanning multiple days
         return (
           !compItemDate.isDate ||
           (aCompItem.duration.days != 1 && aCompItem.startDate.compare(compItemDate) != 0)
         );
       }
-      // intermediate day of an all-day events spannig multiple days
+      // intermediate day of an all-day events spanning multiple days
       return !compItemDate.isDate;
     } else if (aCompItem.startDate.isDate) {
       return false;
@@ -402,6 +403,9 @@ agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
     comp = aItem.startDate.compare(aCompItem.startDate);
     if (comp == 0) {
       comp = aItem.endDate.compare(aCompItem.endDate);
+      if (comp == 0) {
+        comp = itemCalendarIndex - compItemCalendarIndex;
+      }
     }
   }
   return comp <= 0;
