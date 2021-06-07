@@ -121,7 +121,8 @@ var abDirTreeObserver = {
    *   anything          -> same place             = Not allowed
    *   anything          -> read only directory    = Not allowed
    *   mailing list      -> mailing list           = Not allowed
-   *   (we currently do not support recursive lists)
+   *     (nested mailing lists are suppported, we could start to allow
+   *     this, but not between address books)
    *   address book card -> different address book = MOVE or COPY
    *   address book card -> mailing list           = COPY only
    *   (cards currently have to exist outside list for list to work correctly)
@@ -208,13 +209,10 @@ var abDirTreeObserver = {
       }
     }
 
-    // The rest of the cases - allow cards for copy or move, but only allow
-    // move of mailing lists if we're not going into another mailing list.
-    if (
-      draggingMailList &&
-      (targetDirectory.isMailList ||
-        dragSession.dragAction == Ci.nsIDragService.DRAGDROP_ACTION_COPY)
-    ) {
+    // The rest of the cases - allow cards for copy or move, but don't allow
+    // dragging mailing lists (at least for now). Dragging to another ab causes
+    // dataloss.
+    if (draggingMailList) {
       return false;
     }
 
