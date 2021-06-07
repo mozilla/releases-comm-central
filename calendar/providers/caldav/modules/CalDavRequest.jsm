@@ -780,6 +780,7 @@ class PropfindResponse extends CalDavSimpleResponse {
       "C:calendar-home-set": href,
       "C:calendar-user-address-set": href,
       "D:current-user-principal": singleHref,
+      "D:current-user-privilege-set": nodeNames.bind(null, ":scope > privilege > *"),
       "D:owner": singleHref,
       "D:supported-report-set": nodeNames.bind(null, ":scope > supported-report > report > *"),
       "D:resourcetype": nodeNames.bind(null, ":scope > *"),

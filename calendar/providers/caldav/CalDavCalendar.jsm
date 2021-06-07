@@ -1494,6 +1494,7 @@ CalDavCalendar.prototype = {
       "D:resourcetype",
       "D:owner",
       "D:current-user-principal",
+      "D:current-user-privilege-set",
       "D:supported-report-set",
       "C:supported-calendar-component-set",
       "CS:getctag",
@@ -1616,6 +1617,17 @@ CalDavCalendar.prototype = {
             this.mDisabled = false;
             this.mReadOnly = false;
           }
+
+          let privs = response.firstProps["D:current-user-privilege-set"];
+          if (privs && privs instanceof Set) {
+            this.readOnly = ![
+              "D:write",
+              "D:write-content",
+              "D:write-properties",
+              "D:all",
+            ].some(priv => privs.has(priv));
+          }
+
           this.setCalHomeSet(true);
           this.checkServerCaps(aChangeLogListener);
         } else if (resourceType.has("D:collection")) {

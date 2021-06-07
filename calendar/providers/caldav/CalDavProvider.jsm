@@ -269,6 +269,7 @@ class CalDavDetector {
       "D:owner",
       "D:displayname",
       "D:current-user-principal",
+      "D:current-user-privilege-set",
       "A:calendar-color",
       "C:calendar-home-set",
     ];
@@ -292,7 +293,7 @@ class CalDavDetector {
 
     if (resourceType.has("C:calendar")) {
       cal.LOG(`[CalDavProvider] ${target.spec} is a calendar`);
-      return [this.handleCalendar(target, resprops["D:displayname"], resprops["A:calendar-color"])];
+      return [this.handleCalendar(target, resprops)];
     } else if (resourceType.has("D:principal")) {
       cal.LOG(`[CalDavProvider] ${target.spec} is a principal, looking at home set`);
       let homeSet = resprops["C:calendar-home-set"];
@@ -376,9 +377,7 @@ class CalDavDetector {
     for (let [href, resprops] of Object.entries(response.data)) {
       if (resprops["D:resourcetype"].has("C:calendar")) {
         let hrefUri = Services.io.newURI(href, null, target);
-        calendars.push(
-          this.handleCalendar(hrefUri, resprops["D:displayname"], resprops["A:calendar-color"])
-        );
+        calendars.push(this.handleCalendar(hrefUri, resprops));
       }
     }
     cal.LOG(`[CalDavProvider] ${target.spec} is a home set, found ${calendars.length} calendars`);
@@ -390,11 +389,13 @@ class CalDavDetector {
    * Set up and return a new caldav calendar object.
    *
    * @param {nsIURI} uri              The location of the calendar.
-   * @param {string} [displayName]    The display name of the calendar.
-   * @param {string} [color]          The color for the calendar.
+   * @param {Set} props               The calendar properties parsed from the
+   *                                  response.
    * @return {calICalendar}           A new calendar.
    */
-  handleCalendar(uri, displayName, color) {
+  handleCalendar(uri, props) {
+    let displayName = props["D:displayname"];
+    let color = props["A:calendar-color"];
     if (!displayName) {
       let fileName = decodeURI(uri.spec)
         .split("/")
@@ -413,6 +414,17 @@ class CalDavDetector {
     calendar.id = cal.getUUID();
     calendar.setProperty("sessionId", this.session.id);
     calendar.wrappedJSObject.session = this.session.toBaseSession();
+
+    // Attempt to discover if the user is allowed to write to this calendar.
+    let privs = props["D:current-user-privilege-set"];
+    if (privs && privs instanceof Set) {
+      calendar.readOnly = ![
+        "D:write",
+        "D:write-content",
+        "D:write-properties",
+        "D:all",
+      ].some(priv => privs.has(priv));
+    }
     return calendar;
   }
 }
