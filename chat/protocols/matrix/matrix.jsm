@@ -1173,7 +1173,21 @@ MatrixAccount.prototype = {
      */
     this._client.on("accountData", event => {
       if (event.getType() == EventType.Direct) {
+        const oldRooms = Object.values(this._userToRoom ?? {}).flat();
         this._userToRoom = event.getContent();
+        // Check type for all conversations that were added or removed from the
+        // m.direct state.
+        const newRooms = Object.values(this._userToRoom ?? {}).flat();
+        for (const roomId of oldRooms) {
+          if (!newRooms.includes(roomId)) {
+            this.roomList.get(roomId)?.checkForUpdate();
+          }
+        }
+        for (const roomId of newRooms) {
+          if (!oldRooms.includes(roomId)) {
+            this.roomList.get(roomId)?.checkForUpdate();
+          }
+        }
       }
     });
 
