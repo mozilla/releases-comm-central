@@ -999,24 +999,10 @@ MatrixAccount.prototype = {
             )
           ) {
             if (usePasswordFlow) {
-              this._client
-                .loginWithPassword(this.name, this.imAccount.password)
-                .then(data => {
-                  // TODO: Check data.errcode to pass more accurate value as the first
-                  // parameter of reportDisconnecting.
-                  if (data.error) {
-                    throw new Error(data.error);
-                  }
-                  this.storeSessionInformation(data);
-                  this.startClient();
-                })
-                .catch(error => {
-                  this.reportDisconnecting(
-                    Ci.prplIAccount.ERROR_OTHER_ERROR,
-                    error.message
-                  );
-                  this.reportDisconnected();
-                });
+              this.loginToClient("m.login.password", {
+                user: this.name,
+                password: this.imAccount.password,
+              });
             } else {
               this.requestAuthorization();
             }
@@ -1039,31 +1025,46 @@ MatrixAccount.prototype = {
   },
 
   /**
+   * Log the client in. Sets the session device display name if configured and
+   * stores the session information on successful login.
+   *
+   * @param {string} loginType - The m.login.* flow to use.
+   * @param {object} loginInfo - Params for the login flow.
+   * @param {boolean} [retry=false] - If we should retry SSO if the error isn't failed auth.
+   */
+  async loginToClient(loginType, loginInfo, retry = false) {
+    try {
+      if (this.getString("deviceDisplayName")) {
+        loginInfo.initial_device_display_name = this.getString(
+          "deviceDisplayName"
+        );
+      }
+      const data = await this._client.login(loginType, loginInfo);
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      this.storeSessionInformation(data);
+      this.startClient();
+    } catch (error) {
+      let errorType = Ci.prplIAccount.ERROR_OTHER_ERROR;
+      if (error.errcode === "M_FORBIDDEN") {
+        errorType = Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED;
+      }
+      this.reportDisconnecting(errorType, error.message);
+      this.reportDisconnected();
+      if (errorType !== Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED && retry) {
+        this.requestAuthorization();
+      }
+    }
+  },
+
+  /**
    * Login to the homeserver using m.login.token.
    *
    * @param {string} token - The auth token received from the SSO flow.
    */
   loginWithToken(token) {
-    this._client
-      .loginWithToken(token)
-      .then(data => {
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        this.storeSessionInformation(data);
-        this.startClient();
-      })
-      .catch(error => {
-        let errorType = Ci.prplIAccount.ERROR_OTHER_ERROR;
-        if (error.errcode === "M_FORBIDDEN") {
-          errorType = Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED;
-        }
-        this.reportDisconnecting(errorType, error.message);
-        this.reportDisconnected();
-        if (errorType !== Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED) {
-          this.requestAuthorization();
-        }
-      });
+    return this.loginToClient("m.login.token", { token }, true);
   },
 
   /**
@@ -2021,6 +2022,12 @@ MatrixProtocol.prototype = {
         return _("options.saveToken");
       },
       default: true,
+    },
+    deviceDisplayName: {
+      get label() {
+        return _("options.deviceDisplayName");
+      },
+      default: "Thunderbird",
     },
   },
 
