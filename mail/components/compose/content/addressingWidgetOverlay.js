@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from MsgComposeCommands.js */
+/* import-globals-from ../../addrbook/content/abCommon.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
@@ -948,22 +949,54 @@ function editAddressPill(element, event) {
 }
 
 /**
+ * Expands all the selected mailing list pills into their composite addresses.
+ *
+ * @param {XULlement} element - The element from which the context menu was
+ *   opened.
+ */
+function expandList(element) {
+  let pill = element.closest("mail-address-pill");
+  if (pill.isMailList) {
+    let addresses = [];
+    for (let currentPill of pill.parentNode.querySelectorAll(
+      "mail-address-pill"
+    )) {
+      if (currentPill == pill) {
+        let dir = MailServices.ab.getDirectory(pill.listURI);
+        if (dir) {
+          for (let card of dir.childCards) {
+            addresses.push(makeMailboxObjectFromCard(card));
+          }
+        }
+      } else {
+        addresses.push(currentPill.fullAddress);
+      }
+    }
+    let row = pill.closest(".address-row");
+    recipientClearPills(row.querySelector(".address-container > input"));
+    awAddRecipientsArray(row.dataset.labelid, addresses, false);
+  }
+}
+
+/**
  * Handle the disabling of context menu items according to the types and count
  * of selected pills.
+ *
+ * @param {Event} event
  */
 function emailAddressPillOnPopupShown() {
   let menu = document.getElementById("emailAddressPillPopup");
-  // Reset previously disabled menuitems.
+  // Reset previously hidden menuitems.
   for (let menuitem of menu.querySelectorAll(
     ".pill-action-move, .pill-action-edit"
   )) {
-    menuitem.disabled = false;
+    menuitem.hidden = false;
   }
 
   let recipientsContainer = document.getElementById("recipientsContainer");
   // If more than one pill is selected, disable the editing item.
   if (recipientsContainer.getAllSelectedPills().length > 1) {
-    menu.querySelector("#editAddressPill").disabled = true;
+    menu.querySelector("#editAddressPill").hidden = true;
   }
 
   // If any Newsgroup or Followup pill is selected, disable all move actions.
@@ -976,7 +1009,7 @@ function emailAddressPillOnPopupShown() {
     )
   ) {
     for (let menuitem of menu.querySelectorAll(".pill-action-move")) {
-      menuitem.disabled = true;
+      menuitem.hidden = true;
     }
     return;
   }
@@ -1001,17 +1034,29 @@ function emailAddressPillOnPopupShown() {
   // All selected pills are of the same type, disable the type's move action.
   switch (selectedType) {
     case "addr_to":
-      menu.querySelector("#moveAddressPillTo").disabled = true;
+      menu.querySelector("#moveAddressPillTo").hidden = true;
       break;
 
     case "addr_cc":
-      menu.querySelector("#moveAddressPillCc").disabled = true;
+      menu.querySelector("#moveAddressPillCc").hidden = true;
       break;
 
     case "addr_bcc":
-      menu.querySelector("#moveAddressPillBcc").disabled = true;
+      menu.querySelector("#moveAddressPillBcc").hidden = true;
       break;
   }
+}
+
+/**
+ * Toggles display of the relevant pill context menu items that are not
+ * dependant on selection.
+ *
+ * @param {Event} event
+ */
+function onPillPopupShowing(event) {
+  // Show the "Expand List" menu item if the node clicked on is a mail list.
+  let pill = event.explicitOriginalTarget.closest("mail-address-pill");
+  document.getElementById("expandList").hidden = !pill || !pill.isMailList;
 }
 
 /**

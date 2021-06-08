@@ -73,6 +73,7 @@
   <script defer="defer" src="chrome://messenger/content/addressbook/abDragDrop.js"></script>
   <script defer="defer" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abCommon.js"></script>
   <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
 #ifdef XP_MACOSX
   <script defer="defer" src="chrome://global/content/macWindowMenu.js"></script>
@@ -756,7 +757,9 @@
            onpopupshowing="OnShowDictionaryMenu(event.target);">
 </menupopup>
 
-<menupopup id="emailAddressPillPopup" class="emailAddressPopup">
+<menupopup id="emailAddressPillPopup" 
+           class="emailAddressPopup"
+           onpopupshowing="onPillPopupShowing(event);">
   <menuitem id="editAddressPill"
             class="pill-action-edit"
             data-l10n-id="pill-action-edit"
@@ -784,6 +787,11 @@
             class="pill-action-move"
             data-l10n-id="pill-action-move-bcc"
             oncommand="moveSelectedPillsOnCommand('addr_bcc')"/>
+  <menuseparator/>
+  <menuitem id="expandList"
+            data-l10n-id="pill-action-expand-list"
+            hidden="true"
+            oncommand="expandList(document.popupNode)"/>
 </menupopup>
 
   <toolbox id="compose-toolbox"

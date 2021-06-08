@@ -45,6 +45,10 @@ pill-action-move-bcc =
     .label = Move to Bcc
     .accesskey = B
 
+pill-action-expand-list =
+    .label = Expand List
+    .accesskey = x
+
 # Attachment widget
 
 ctrl-cmd-shift-pretty-prefix = {
