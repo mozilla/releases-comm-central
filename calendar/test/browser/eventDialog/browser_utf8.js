@@ -45,7 +45,11 @@ add_task(async function testUTF8() {
     // Check values.
     Assert.equal(iframeDocument.getElementById("item-title").value, UTF8STRING);
     Assert.equal(iframeDocument.getElementById("item-location").value, UTF8STRING);
-    Assert.equal(iframeDocument.getElementById("item-description").value, UTF8STRING);
+    // The trailing spaces confuse innerText, so we'll do this longhand
+    let editorEl = iframeDocument.getElementById("item-description");
+    let editor = editorEl.getEditor(editorEl.contentWindow);
+    let description = editor.outputToString("text/plain", 0);
+    Assert.equal(description, UTF8STRING);
     Assert.ok(
       iframeDocument
         .getElementById("item-categories")

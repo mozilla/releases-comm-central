@@ -220,7 +220,7 @@ toolbarbutton.formatting-button {
 
 /* ..... smiley menu ..... */
 
-#smilyPopup > menuitem > .menu-text {
+#smileyPopup > menuitem > .menu-text {
   margin-inline-start: 1px !important;
 }
 

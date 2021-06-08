@@ -43,8 +43,6 @@
 <!ENTITY event.attendees.disallowcounter.tooltip     "Indicates that you will not accept counterproposals">
 
 <!-- Keyboard Shortcuts -->
-<!ENTITY event.dialog.new.event.key2              "I">
-<!ENTITY event.dialog.new.task.key2               "D">
 <!ENTITY event.dialog.new.message.key2            "N">
 <!ENTITY event.dialog.close.key                   "W">
 <!ENTITY event.dialog.save.key                    "S">

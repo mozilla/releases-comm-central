@@ -208,7 +208,7 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
       hasHeader = true;
     }
 
-    let description = toDoItem.getProperty("DESCRIPTION");
+    let description = toDoItem.descriptionText;
     if (description) {
       // display wrapped description lines like body of message below headers
       if (hasHeader) {
@@ -276,7 +276,7 @@ function getPreviewForEvent(aEvent, aIsTooltip = true) {
       boxAppendLabeledText(vbox, "tooltipOrganizer", organizer);
     }
 
-    let description = event.getProperty("DESCRIPTION");
+    let description = event.descriptionText;
     if (description) {
       boxAppendBodySeparator(vbox);
       // display wrapped description lines, like body of message below headers
@@ -299,9 +299,8 @@ function boxAppendBodySeparator(vbox) {
 }
 
 /**
- * PRIVATE: Append description to box for body text. Rendered as HTML because
- * some clients put HTML tags into the DESCRIPTION property. Indentation
- * and line breaks are preserved.
+ * PRIVATE: Append description to box for body text. Rendered as HTML.
+ * Indentation and line breaks are preserved.
  *
  * @param {Node} box              Box to which to append the body.
  * @param {string} textString     Text of the body.

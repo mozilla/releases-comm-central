@@ -97,6 +97,26 @@ interface calIItemBase : nsISupports
   // event title
   attribute AUTF8String title;
 
+  /**
+   * The event's description in plain text.
+   *
+   * Setting this will reset descriptionHTML.
+   */
+  attribute AUTF8String descriptionText;
+
+  /**
+   * The event's description, as HTML.
+   *
+   * The text content MUST match descriptionText but the HTML can contain
+   * formatting, links etc.
+   *
+   * Getter: If HTML was not set, the plain text will be upconverted to HTML.
+   *
+   * Setter: Setting HTML data will set descriptionText to the
+   * downconverted pretty-printed plain text.
+   */
+  attribute AUTF8String descriptionHTML;
+
   // event priority
   attribute short priority;
   attribute AUTF8String privacy;

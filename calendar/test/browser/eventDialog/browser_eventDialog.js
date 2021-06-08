@@ -238,7 +238,8 @@ add_task(async function testOpenExistingEventDialog() {
         EVENTLOCATION
       );
       Assert.equal(
-        event.window.document.querySelector("calendar-item-summary .item-description").textContent,
+        event.window.document.querySelector("calendar-item-summary .item-description")
+          .contentDocument.body.innerText,
         EVENTDESCRIPTION
       );
       EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);

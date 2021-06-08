@@ -21,10 +21,14 @@
     <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
     <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
     <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
+    <!ENTITY % messengercomposeDTD SYSTEM "chrome://messenger/locale/messengercompose/messengercompose.dtd" >
+    <!ENTITY % editorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/editorOverlay.dtd">
     %brandDTD;
     %globalDTD;
     %calendarDTD;
     %eventDialogDTD;
+    %messengercomposeDTD;
+    %editorOverlayDTD;
 ]>
 
 <!-- Vbox id is changed during execution to allow different treatment.
@@ -38,6 +42,7 @@
 
   <linkset>
     <html:link rel="localization" href="calendar/calendar-editable-item.ftl"/>
+    <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
   </linkset>
 
   <!-- JavaScript includes -->
@@ -50,6 +55,9 @@
   <script src="chrome://calendar/content/calendar-statusbar.js"/>
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/widgets/datetimepickers.js"/>
+  <script src="chrome://messenger/content/messengercompose/editor.js"/>
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/ComposerCommands.js"/>
 
   <commandset id="">
     <command id="cmd_recurrence"
@@ -82,6 +90,43 @@
              disable-on-readonly="true"
              oncommand="applyValues('original')"/>
   </commandset>
+
+  <!-- style related commands that update on creation, and on selection change -->
+  <!-- not using commandupdater directly, as it has to listen to the parent -->
+  <commandset id="styleMenuItems"
+              oncommandupdate="goUpdateComposerMenuItems(this)">
+    <command id="cmd_renderedHTMLEnabler" disabled="true"/>
+    <command id="cmd_bold" state="false" oncommand="doStyleUICommand('cmd_bold')" disabled="true"/>
+    <command id="cmd_italic" state="false" oncommand="doStyleUICommand('cmd_italic')" disabled="true"/>
+    <command id="cmd_underline" state="false" oncommand="doStyleUICommand('cmd_underline')" disabled="true"/>
+
+    <command id="cmd_ul" state="false" oncommand="doStyleUICommand('cmd_ul')" disabled="true"/>
+    <command id="cmd_ol" state="false" oncommand="doStyleUICommand('cmd_ol')" disabled="true"/>
+
+    <command id="cmd_indent" oncommand="goDoCommand('cmd_indent')" disabled="true"/>
+    <command id="cmd_outdent" oncommand="goDoCommand('cmd_outdent')" disabled="true"/>
+
+    <command id="cmd_align" state="" disabled="true"/>
+  </commandset>
+
+  <keyset id="editorKeys">
+    <key id="boldkb" key="&styleBoldCmd.key;" observes="cmd_bold" modifiers="accel"/>
+    <key id="italickb" key="&styleItalicCmd.key;" observes="cmd_italic" modifiers="accel"/>
+    <key id="underlinekb" key="&styleUnderlineCmd.key;" observes="cmd_underline" modifiers="accel"/>
+    <key id="increaseindentkb" key="&increaseIndent.key;" observes="cmd_indent" modifiers="accel"/>
+    <key id="decreaseindentkb" key="&decreaseIndent.key;" observes="cmd_outdent" modifiers="accel"/>
+  </keyset>
+
+  <menupopup id="editorContext" onpopupshowing="goUpdateGlobalEditMenuItems(true);">
+    <menuitem data-l10n-id="text-action-undo" command="cmd_undo"/>
+    <menuseparator/>
+    <menuitem data-l10n-id="text-action-cut" command="cmd_cut"/>
+    <menuitem data-l10n-id="text-action-copy" command="cmd_copy"/>
+    <menuitem data-l10n-id="text-action-paste" command="cmd_paste"/>
+    <menuitem data-l10n-id="text-action-delete" command="cmd_item_delete"/>
+    <menuseparator/>
+    <menuitem data-l10n-id="text-action-select-all" command="cmd_selectAll"/>
+  </menupopup>
 
   <!-- Counter information section -->
   <hbox id="counter-proposal-box"
@@ -625,9 +670,149 @@
         </tabs>
         <tabpanels id="event-grid-tabpanels"
                    flex="1">
-          <tabpanel id="event-grid-tabpanel-description">
-            <html:textarea id="item-description"
-                           disable-on-readonly="true"/>
+          <tabpanel id="event-grid-tabpanel-description"
+                    orient="vertical">
+            <toolbox mode="icons">
+              <toolbar id="FormatToolbar"
+                       class="inline-toolbar chromeclass-toolbar themeable-full"
+                       nowindowdrag="true">
+                <toolbarbutton id="paragraphButton"
+                               type="menu"
+                               wantdropmarker="true"
+                               class="formatting-button"
+                               tooltiptext="&ParagraphSelect.tooltip;"
+                               oncommand="goDoCommandParams('cmd_paragraphState', event.target.value);"
+                               observes="cmd_renderedHTMLEnabler">
+                  <menupopup id="paragraphPopup">
+                    <menuitem id="toolbarmenu_bodyText" label="&bodyTextCmd.label;" value=""/>
+                    <menuitem id="toolbarmenu_h1" label="&heading1Cmd.label;" value="h1"/>
+                    <menuitem id="toolbarmenu_h2" label="&heading2Cmd.label;" value="h2"/>
+                    <menuitem id="toolbarmenu_h3" label="&heading3Cmd.label;" value="h3"/>
+                    <menuitem id="toolbarmenu_h4" label="&heading4Cmd.label;" value="h4"/>
+                    <menuitem id="toolbarmenu_h5" label="&heading5Cmd.label;" value="h5"/>
+                    <menuitem id="toolbarmenu_h6" label="&heading6Cmd.label;" value="h6"/>
+                    <menuitem id="toolbarmenu_pre" label="&paragraphPreformatCmd.label;" value="pre"/>
+                  </menupopup>
+                </toolbarbutton>
+                <toolbarseparator class="toolbarseparator-standard"/>
+                <toolbarbutton id="boldButton"
+                               class="formatting-button"
+                               tooltiptext="&boldToolbarCmd.tooltip;"
+                               type="checkbox"
+                               autoCheck="false"
+                               observes="cmd_bold"/>
+                <toolbarbutton id="italicButton"
+                               class="formatting-button"
+                               tooltiptext="&italicToolbarCmd.tooltip;"
+                               type="checkbox"
+                               autoCheck="false"
+                               observes="cmd_italic"/>
+                <toolbarbutton id="underlineButton"
+                               class="formatting-button"
+                               tooltiptext="&underlineToolbarCmd.tooltip;"
+                               type="checkbox"
+                               autoCheck="false"
+                               observes="cmd_underline"/>
+                <toolbarseparator class="toolbarseparator-standard"/>
+                <toolbarbutton id="ulButton"
+                               class="formatting-button"
+                               tooltiptext="&bulletListToolbarCmd.tooltip;"
+                               type="radio"
+                               group="lists"
+                               autoCheck="false"
+                               observes="cmd_ul"/>
+                <toolbarbutton id="olButton"
+                               class="formatting-button"
+                               tooltiptext="&numberListToolbarCmd.tooltip;"
+                               type="radio"
+                               group="lists"
+                               autoCheck="false"
+                               observes="cmd_ol"/>
+                <toolbarbutton id="outdentButton"
+                               class="formatting-button"
+                               tooltiptext="&outdentToolbarCmd.tooltip;"
+                               observes="cmd_outdent"/>
+                <toolbarbutton id="indentButton"
+                               class="formatting-button"
+                               tooltiptext="&indentToolbarCmd.tooltip;"
+                               observes="cmd_indent"/>
+                <toolbarseparator class="toolbarseparator-standard"/>
+                <toolbarbutton id="AlignPopupButton"
+                               type="menu"
+                               wantdropmarker="true"
+                               class="formatting-button"
+                               tooltiptext="&AlignPopupButton.tooltip;"
+                               observes="cmd_align">
+                  <menupopup id="AlignPopup">
+                    <menuitem id="AlignLeftItem" class="menuitem-iconic" label="&alignLeft.label;"
+                              oncommand="doStatefulCommand('cmd_align', 'left')"
+                              tooltiptext="&alignLeftButton.tooltip;"    />
+                    <menuitem id="AlignCenterItem" class="menuitem-iconic" label="&alignCenter.label;"
+                              oncommand="doStatefulCommand('cmd_align', 'center')"
+                              tooltiptext="&alignCenterButton.tooltip;"  />
+                    <menuitem id="AlignRightItem" class="menuitem-iconic" label="&alignRight.label;"
+                              oncommand="doStatefulCommand('cmd_align', 'right')"
+                              tooltiptext="&alignRightButton.tooltip;"   />
+                    <menuitem id="AlignJustifyItem" class="menuitem-iconic" label="&alignJustify.label;"
+                              oncommand="doStatefulCommand('cmd_align', 'justify')"
+                              tooltiptext="&alignJustifyButton.tooltip;" />
+                  </menupopup>
+                </toolbarbutton>
+                <toolbarbutton id="linkButton"
+                               class="formatting-button"
+                               tooltiptext="&linkToolbarCmd.label;"
+                               oncommand="insertLink();"
+                               observes="cmd_renderedHTMLEnabler"/>
+                <toolbarbutton id="smileButtonMenu"
+                               type="menu"
+                               wantdropmarker="true"
+                               class="formatting-button"
+                               tooltiptext="&SmileButton.tooltip;"
+                               observes="cmd_renderedHTMLEnabler">
+                  <menupopup id="smileyPopup">
+                    <menuitem id="smileySmile" label="&#128513; &smiley1Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128513;')"/>
+                    <menuitem id="smileyFrown" label="&#128577; &smiley2Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128577;')"/>
+                    <menuitem id="smileyWink" label="&#128521; &smiley3Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128521;')"/>
+                    <menuitem id="smileyTongue" label="&#128539; &smiley4Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128539;')"/>
+                    <menuitem id="smileyLaughing" label="&#128514; &smiley5Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128514;')"/>
+                    <menuitem id="smileyEmbarassed" label="&#128517; &smiley6Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128517;')"/>
+                    <menuitem id="smileyUndecided" label="&#128533; &smiley7Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128533;')"/>
+                    <menuitem id="smileySurprise" label="&#128558; &smiley8Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128558;')"/>
+                    <menuitem id="smileyKiss" label="&#128536; &smiley9Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128536;')"/>
+                    <menuitem id="smileyYell" label="&#128544; &smiley10Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128544;')"/>
+                    <menuitem id="smileyCool" label="&#128526; &smiley11Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128526;')"/>
+                    <menuitem id="smileyMoney" label="&#129297; &smiley12Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#129297;')"/>
+                    <menuitem id="smileyFoot" label="&#128556; &smiley13Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128556;')"/>
+                    <menuitem id="smileyInnocent" label="&#128519; &smiley14Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128519;')"/>
+                    <menuitem id="smileyCry" label="&#128557; &smiley15Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128557;')"/>
+                    <menuitem id="smileySealed" label="&#128567; &smiley16Cmd.label;"
+                              oncommand="goDoCommandParams('cmd_smiley', '&#128567;')"/>
+                  </menupopup>
+                </toolbarbutton>
+              </toolbar>
+            </toolbox>
+            <editor id="item-description"
+                    type="content"
+                    primary="true"
+                    editortype="html"
+                    oncontextmenu="openEditorContextMenu(event);"
+                    disable-on-readonly="true"
+                    flex="1"/>
           </tabpanel>
           <tabpanel id="event-grid-tabpanel-attachments">
             <vbox flex="1">

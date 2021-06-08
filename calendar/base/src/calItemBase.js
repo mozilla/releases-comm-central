@@ -15,6 +15,20 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gParserUtils",
+  "@mozilla.org/parserutils;1",
+  "nsIParserUtils"
+);
+
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gTextToHtmlConverter",
+  "@mozilla.org/txttohtmlconv;1",
+  "mozITXTToHTMLConv"
+);
+
 /**
  * calItemBase prototype definition
  *
@@ -369,6 +383,63 @@ calItemBase.prototype = {
   get stampTime() {
     this.ensureNotDirty();
     return this.getProperty("DTSTAMP");
+  },
+
+  // attribute AUTF8string descriptionText;
+  get descriptionText() {
+    return this.getProperty("DESCRIPTION");
+  },
+
+  set descriptionText(text) {
+    this.setProperty("DESCRIPTION", text);
+    if (text) {
+      this.setPropertyParameter("DESCRIPTION", "ALTREP", null);
+    } // else: property parameter deleted by setProperty(..., null)
+  },
+
+  // attribute AUTF8string descriptionHTML;
+  get descriptionHTML() {
+    let altrep = this.getPropertyParameter("DESCRIPTION", "ALTREP");
+    if (altrep?.startsWith("data:text/html,")) {
+      try {
+        return decodeURIComponent(altrep.slice("data:text/html,".length));
+      } catch (ex) {
+        console.error(ex);
+      }
+    }
+    // Fallback: Upconvert the plaintext
+    let description = this.getProperty("DESCRIPTION");
+    if (!description) {
+      return null;
+    }
+    let mode = Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs;
+    description = gTextToHtmlConverter.scanTXT(description, mode);
+    return description.replace(/\r?\n/g, "<br>");
+  },
+
+  set descriptionHTML(html) {
+    if (html) {
+      // Using the same mode as the HTML description editor
+      // in lightning-item-iframe.js
+      let mode =
+        Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
+        Ci.nsIDocumentEncoder.OutputWrap |
+        Ci.nsIDocumentEncoder.OutputLFLineBreak |
+        Ci.nsIDocumentEncoder.OutputNoScriptContent |
+        Ci.nsIDocumentEncoder.OutputNoFramesContent |
+        Ci.nsIDocumentEncoder.OutputBodyOnly;
+      let text = gParserUtils.convertToPlainText(html, mode, 80);
+      this.setProperty("DESCRIPTION", text);
+      if (text) {
+        this.setPropertyParameter(
+          "DESCRIPTION",
+          "ALTREP",
+          "data:text/html," + encodeURIComponent(html)
+        );
+      } // else: can't set a property parameter if the property is empty
+    } else {
+      this.deleteProperty("DESCRIPTION");
+    }
   },
 
   // readonly attribute nsIJSEnumerator properties;

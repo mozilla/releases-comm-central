@@ -173,7 +173,7 @@ ltn.invitation = {
     let doc = cal.xml.parseFile("chrome://calendar/content/lightning-invitation.xhtml");
     let formatter = cal.dtz.formatter;
 
-    let field = function(aField, aContentText, aConvert) {
+    let field = function(aField, aContentText, aConvert, aContentHTML) {
       let descr = doc.getElementById("imipHtml-" + aField + "-descr");
       if (descr) {
         let labelText = cal.l10n.getLtnString("imipHtml." + aField);
@@ -183,7 +183,7 @@ ltn.invitation = {
         let content = doc.getElementById("imipHtml-" + aField + "-content");
         doc.getElementById("imipHtml-" + aField + "-row").hidden = false;
         if (aConvert) {
-          let docFragment = cal.view.textToHtmlDocumentFragment(aContentText, doc);
+          let docFragment = cal.view.textToHtmlDocumentFragment(aContentText, doc, aContentHTML);
           content.appendChild(docFragment);
         } else {
           content.textContent = aContentText;
@@ -279,10 +279,10 @@ ltn.invitation = {
     field("comment", aEvent.getProperty("COMMENT"), true);
 
     // DESCRIPTION field
-    let eventDescription = (aEvent.getProperty("DESCRIPTION") || "")
+    let eventDescription = (aEvent.descriptionText || "")
       /* Remove the useless "Outlookism" squiggle. */
       .replace("*~*~*~*~*~*~*~*~*~*", "");
-    field("description", eventDescription, true);
+    field("description", eventDescription, true, aEvent.descriptionHTML);
 
     // URL
     field("url", aEvent.getProperty("URL"), true);
@@ -295,7 +295,7 @@ ltn.invitation = {
         links.push(attachment.uri.spec);
       }
     }
-    field("attachments", links.join("<br>"), true);
+    field("attachments", links.join("\n"), true);
 
     // ATTENDEE and ORGANIZER fields
     let organizerCell = doc.getElementById("imipHtml-organizer-cell");

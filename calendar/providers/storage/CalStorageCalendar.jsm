@@ -1173,7 +1173,6 @@ CalStorageCalendar.prototype = {
             AND cal_id = :cal_id
             AND recurrence_id IS NULL`
       );
-
       this.mSelectPropertiesForItemWithRecurrenceId = this.mDB.createAsyncStatement(
         `SELECT * FROM cal_properties
           WHERE item_id = :item_id
@@ -1183,6 +1182,25 @@ CalStorageCalendar.prototype = {
       );
       this.mSelectAllProperties = this.mDB.createAsyncStatement(
         `SELECT item_id, key, value FROM cal_properties
+          WHERE cal_id = :cal_id
+            AND recurrence_id IS NULL`
+      );
+
+      this.mSelectParametersForItem = this.mDB.createAsyncStatement(
+        `SELECT * FROM cal_parameters
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL`
+      );
+      this.mSelectParametersForItemWithRecurrenceId = this.mDB.createAsyncStatement(
+        `SELECT * FROM cal_parameters
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id = :recurrence_id
+            AND recurrence_id_tz = :recurrence_id_tz`
+      );
+      this.mSelectAllParameters = this.mDB.createAsyncStatement(
+        `SELECT item_id, key1, key2, value FROM cal_parameters
           WHERE cal_id = :cal_id
             AND recurrence_id IS NULL`
       );
@@ -1296,6 +1314,10 @@ CalStorageCalendar.prototype = {
         `INSERT INTO cal_properties (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value)
          VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value)`
       );
+      this.mInsertParameter = this.mDB.createAsyncStatement(
+        `INSERT INTO cal_parameters (cal_id, item_id, recurrence_id, recurrence_id_tz, key1, key2, value)
+         VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key1, :key2, :value)`
+      );
       this.mInsertAttendee = this.mDB.createAsyncStatement(
         `INSERT INTO cal_attendees
            (cal_id, item_id, recurrence_id, recurrence_id_tz, icalString)
@@ -1356,6 +1378,9 @@ CalStorageCalendar.prototype = {
       this.mDeleteProperties = this.mDB.createAsyncStatement(
         "DELETE FROM cal_properties WHERE item_id = :item_id AND cal_id = :cal_id"
       );
+      this.mDeleteParameters = this.mDB.createAsyncStatement(
+        "DELETE FROM cal_parameters WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
       this.mDeleteRecurrence = this.mDB.createAsyncStatement(
         "DELETE FROM cal_recurrence WHERE item_id = :item_id AND cal_id = :cal_id"
       );
@@ -1376,6 +1401,7 @@ CalStorageCalendar.prototype = {
       let extrasTables = [
         "cal_attendees",
         "cal_properties",
+        "cal_parameters",
         "cal_recurrence",
         "cal_attachments",
         "cal_metadata",
@@ -1447,6 +1473,9 @@ CalStorageCalendar.prototype = {
       if (this.mDeleteProperties) {
         this.mDeleteProperties.finalize();
       }
+      if (this.mDeleteParameters) {
+        this.mDeleteParameters.finalize();
+      }
       if (this.mDeleteRecurrence) {
         this.mDeleteRecurrence.finalize();
       }
@@ -1479,6 +1508,9 @@ CalStorageCalendar.prototype = {
       }
       if (this.mInsertProperty) {
         this.mInsertProperty.finalize();
+      }
+      if (this.mInsertParameter) {
+        this.mInsertParameter.finalize();
       }
       if (this.mInsertRecurrence) {
         this.mInsertRecurrence.finalize();
@@ -1548,6 +1580,15 @@ CalStorageCalendar.prototype = {
       }
       if (this.mSelectAllProperties) {
         this.mSelectAllProperties.finalize();
+      }
+      if (this.mSelectParametersForItem) {
+        this.mSelectParametersForItem.finalize();
+      }
+      if (this.mSelectParametersForItemWithRecurrenceId) {
+        this.mSelectParametersForItemWithRecurrenceId.finalize();
+      }
+      if (this.mSelectAllParameters) {
+        this.mSelectAllParameters.finalize();
       }
       if (this.mSelectRecurrenceForItem) {
         this.mSelectRecurrenceForItem.finalize();
@@ -1748,9 +1789,23 @@ CalStorageCalendar.prototype = {
           break;
         }
         default:
-          item.setProperty(name, row.getResultByName("value"));
+          let value = row.getResultByName("value");
+          item.setProperty(name, value);
           break;
       }
+    });
+
+    this.prepareStatement(this.mSelectAllParameters);
+    await this.executeAsync(this.mSelectAllParameters, row => {
+      let item = itemsMap.get(row.getResultByName("item_id"));
+      if (!item) {
+        return;
+      }
+
+      let prop = row.getResultByName("key1");
+      let param = row.getResultByName("key2");
+      let value = row.getResultByName("value");
+      item.setPropertyParameter(prop, param, value);
     });
 
     this.prepareStatement(this.mSelectAllRecurrences);
@@ -1819,6 +1874,7 @@ CalStorageCalendar.prototype = {
     });
 
     for (let item of itemsMap.values()) {
+      this.fixGoogleCalendarDescriptionIfNeeded(item);
       item.makeImmutable();
       this.mItemCache.set(item.id, item);
     }
@@ -1949,11 +2005,15 @@ CalStorageCalendar.prototype = {
 
     if (flags & CAL_ITEM_FLAG.HAS_PROPERTIES) {
       let selectItem = null;
+      let selectParam = null;
       if (item.recurrenceId == null) {
         selectItem = this.mSelectPropertiesForItem;
+        selectParam = this.mSelectParametersForItem;
       } else {
         selectItem = this.mSelectPropertiesForItemWithRecurrenceId;
         this.setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
+        selectParam = this.mSelectParametersForItemWithRecurrenceId;
+        this.setDateParamHelper(selectParam, "recurrence_id", item.recurrenceId);
       }
 
       try {
@@ -1971,9 +2031,19 @@ CalStorageCalendar.prototype = {
               break;
             }
             default:
-              item.setProperty(name, row.getResultByName("value"));
+              let value = row.getResultByName("value");
+              item.setProperty(name, value);
               break;
           }
+        });
+
+        this.prepareStatement(selectParam);
+        selectParam.params.item_id = item.id;
+        await this.executeAsync(selectParam, row => {
+          let prop = row.getResultByName("key1");
+          let param = row.getResultByName("key2");
+          let value = row.getResultByName("value");
+          item.setPropertyParameter(prop, param, value);
         });
       } catch (e) {
         this.logError(
@@ -2106,6 +2176,7 @@ CalStorageCalendar.prototype = {
       }
     }
 
+    this.fixGoogleCalendarDescriptionIfNeeded(item);
     // Restore the saved modification time
     item.setProperty("LAST-MODIFIED", savedLastModifiedTime);
   },
@@ -2167,6 +2238,22 @@ CalStorageCalendar.prototype = {
     }
 
     return item;
+  },
+
+  //
+  // for items that were cached or stored in previous versions,
+  // put Google's HTML description in the right place
+  //
+  fixGoogleCalendarDescriptionIfNeeded(item) {
+    if (item.id.endsWith("@google.com")) {
+      let description = item.getProperty("DESCRIPTION");
+      if (description) {
+        let altrep = item.getPropertyParameter("DESCRIPTION", "ALTREP");
+        if (!altrep) {
+          cal.view.fixGoogleCalendarDescription(item);
+        }
+      }
+    }
   },
 
   //
@@ -2345,6 +2432,32 @@ CalStorageCalendar.prototype = {
     array.addParams(params);
   },
 
+  prepareParameter(stmts, item, propName, paramName, propValue) {
+    let array = this.prepareAsyncStatement(stmts, this.mInsertParameter);
+    let params = this.prepareAsyncParams(array);
+    params.bindByName("key1", propName);
+    params.bindByName("key2", paramName);
+    let wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
+    if (wPropValue) {
+      params.bindByName("value", wPropValue.nativeTime);
+    } else {
+      try {
+        params.bindByName("value", propValue);
+      } catch (e) {
+        // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
+        // case pval is something complex (i.e not a string or
+        // number). Swallow this error, leaving the value empty.
+        if (e.result != Cr.NS_ERROR_ILLEGAL_VALUE) {
+          throw e;
+        }
+        params.bindByName("value", null);
+      }
+    }
+    params.bindByName("item_id", item.id);
+    this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
+    array.addParams(params);
+  },
+
   prepareProperties(stmts, item, olditem) {
     let ret = 0;
     for (let [name, value] of item.properties) {
@@ -2353,6 +2466,13 @@ CalStorageCalendar.prototype = {
         continue;
       }
       this.prepareProperty(stmts, item, name, value);
+      // Overridden parameters still enumerate even if their value is now empty.
+      if (item.hasProperty(name)) {
+        for (let param of item.getParameterNames(name)) {
+          value = item.getPropertyParameter(name, param);
+          this.prepareParameter(stmts, item, name, param, value);
+        }
+      }
     }
 
     let cats = item.getCategories();

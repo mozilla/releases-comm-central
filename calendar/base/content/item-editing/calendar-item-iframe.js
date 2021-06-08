@@ -16,6 +16,8 @@
 
 /* global MozElements */
 
+/* import-globals-from ../../../../mail/components/compose/content/editor.js */
+/* import-globals-from ../../../../mail/components/compose/content/editorUtilities.js */
 /* import-globals-from ../calendar-ui-utils.js */
 /* import-globals-from ../dialogs/calendar-dialog-utils.js */
 /* globals gTimezonesEnabled */ // Set by calendar-item-panel.js.
@@ -80,6 +82,21 @@ XPCOMUtils.defineLazyGetter(this, "gEventNotification", () => {
     document.getElementById("event-dialog-notifications").append(element);
   });
 });
+
+var eventDialogRequestObserver = {
+  observe(aSubject, aTopic, aData) {
+    if (
+      aTopic == "http-on-modify-request" &&
+      aSubject instanceof Ci.nsIChannel &&
+      aSubject.loadInfo &&
+      aSubject.loadInfo.loadingDocument &&
+      aSubject.loadInfo.loadingDocument ==
+        document.getElementById("item-description").contentDocument
+    ) {
+      aSubject.cancel(Cr.NS_ERROR_ABORT);
+    }
+  },
+};
 
 var eventDialogQuitObserver = {
   observe(aSubject, aTopic, aData) {
@@ -393,6 +410,9 @@ function onLoad() {
   // application is closed.
   Services.obs.addObserver(eventDialogQuitObserver, "quit-application-requested");
 
+  // This stops the editor from loading remote HTTP(S) content.
+  Services.obs.addObserver(eventDialogRequestObserver, "http-on-modify-request");
+
   // Normally, Enter closes a <dialog>. We want this to rather on Ctrl+Enter.
   // Stopping event propagation doesn't seem to work, so just overwrite the
   // function that does this.
@@ -414,12 +434,20 @@ function onLoad() {
 
   cal.view.colorTracker.registerWindow(window);
 
+  top.document.commandDispatcher.addCommandUpdater(
+    document.getElementById("styleMenuItems"),
+    "style",
+    "*"
+  );
+  EditorSharedStartup();
+
   onLoad.hasLoaded = true;
 }
 // Set a variable to allow or prevent actions before the dialog is done loading.
 onLoad.hasLoaded = false;
 
 function onEventDialogUnload() {
+  Services.obs.removeObserver(eventDialogRequestObserver, "http-on-modify-request");
   Services.obs.removeObserver(eventDialogQuitObserver, "quit-application-requested");
   eventDialogCalendarObserver.cancel();
 }
@@ -595,7 +623,24 @@ function loadDialog(aItem) {
   updateItemURL(showLink, itemUrl);
 
   // Description
-  document.getElementById("item-description").value = aItem.getProperty("DESCRIPTION");
+  if (aItem.descriptionText) {
+    let editorElement = document.getElementById("item-description");
+    let editor = editorElement.getHTMLEditor(editorElement.contentWindow);
+    let docFragment = cal.view.textToHtmlDocumentFragment(
+      aItem.descriptionText,
+      editorElement.contentDocument,
+      aItem.descriptionHTML
+    );
+    editor.flags =
+      editor.eEditorMailMask | editor.eEditorNoCSSMask | editor.eEditorAllowInteraction;
+    editor.enableUndo(false);
+    editor.forceCompositionEnd();
+    editor.rootElement.replaceChildren(docFragment);
+    // This reinitialises the editor after we replaced its contents.
+    editor.insertText("");
+    editor.resetModificationCount();
+    editor.enableUndo(true);
+  }
 
   if (aItem.isTodo()) {
     // Task completed date
@@ -1484,7 +1529,19 @@ function saveDialog(item) {
   }
 
   // Description
-  cal.item.setItemProperty(item, "DESCRIPTION", document.getElementById("item-description").value);
+  let editorElement = document.getElementById("item-description");
+  let editor = editorElement.getHTMLEditor(editorElement.contentWindow);
+  if (editor.documentModified) {
+    // Using the same mode as the HTML downconverter in calItemBase.js
+    let mode =
+      Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
+      Ci.nsIDocumentEncoder.OutputWrap |
+      Ci.nsIDocumentEncoder.OutputLFLineBreak |
+      Ci.nsIDocumentEncoder.OutputNoScriptContent |
+      Ci.nsIDocumentEncoder.OutputNoFramesContent |
+      Ci.nsIDocumentEncoder.OutputBodyOnly;
+    item.descriptionHTML = editor.outputToString("text/html", mode);
+  }
 
   // Event Status
   if (item.isEvent()) {
@@ -3917,18 +3974,7 @@ function updateCapabilities() {
  */
 function isItemChanged() {
   let newItem = saveItem();
-  let oldItem = window.calendarItem.clone();
-
-  // we need to guide the description text through the text-field since
-  // newlines are getting converted which would indicate changes to the
-  // text.
-  document.getElementById("item-description").value = oldItem.getProperty("DESCRIPTION");
-  cal.item.setItemProperty(
-    oldItem,
-    "DESCRIPTION",
-    document.getElementById("item-description").value
-  );
-  document.getElementById("item-description").value = newItem.getProperty("DESCRIPTION");
+  let oldItem = window.calendarItem;
 
   if (newItem.calendar.id == oldItem.calendar.id && cal.item.compareContent(newItem, oldItem)) {
     return false;
@@ -4204,4 +4250,48 @@ function applyValues(aType) {
       }
     }
   });
+}
+
+/**
+ * Opens the context menu for the editor element.
+ * *
+ * Since its content is, well, content, its contextmenu event is
+ * eaten by the context menu actor before the element's default
+ * context menu processing. Since we know that the editor runs
+ * in the parent process, we can just listen directly to the event.
+ */
+function openEditorContextMenu(event) {
+  let popup = document.getElementById("editorContext");
+  popup.openPopupAtScreen(event.screenX, event.screenY, true, event);
+  event.preventDefault();
+}
+
+// Thunderbird's dialog is mail-centric, but we just want a lightweight prompt.
+function insertLink() {
+  let href = { value: "" };
+  let editor = GetCurrentEditor();
+  let existingLink = editor.getSelectedElement("href");
+  if (existingLink) {
+    editor.selectElement(existingLink);
+    href.value = existingLink.getAttribute("href");
+  }
+  let text = GetSelectionAsText().trim() || href.value || GetString("EmptyHREFError");
+  let title = GetString("Link");
+  if (Services.prompt.prompt(window, title, text, href, null, {})) {
+    if (!href.value) {
+      // Remove the link
+      EditorRemoveTextProperty("href", "");
+    } else if (editor.selection.isCollapsed) {
+      // Insert a link with its href as the text
+      let link = editor.createElementWithDefaults("a");
+      link.setAttribute("href", href.value);
+      link.textContent = href.value;
+      editor.insertElementAtSelection(link, false);
+    } else {
+      // Change the href of the selection
+      let link = editor.createElementWithDefaults("a");
+      link.setAttribute("href", href.value);
+      editor.insertLinkAroundSelection(link);
+    }
+  }
 }

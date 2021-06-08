@@ -21,7 +21,7 @@ function getIcs(aAsArray = false) {
   // we use an unfolded ics blueprint here to make replacing of properties easier
   let item = [
     "BEGIN:VCALENDAR",
-    "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN",
+    "PRODID:-//Google Inc//Google Calendar V1.0//EN",
     "VERSION:2.0",
     "METHOD:REQUEST",
     "BEGIN:VTIMEZONE",
@@ -268,7 +268,7 @@ add_task(async function createInvitationOverlay_test() {
       expected: {
         node: "imipHtml-description-content",
         value:
-          'Check <a xmlns="http://www.w3.org/1999/xhtml" href="http://example.com">example.com</a>  \u2014 only 3 €',
+          'Check <a xmlns="http://www.w3.org/1999/xhtml" href="http://example.com">example.com</a>\u00a0\u00a0\u2014 only 3 €',
       },
     },
     {

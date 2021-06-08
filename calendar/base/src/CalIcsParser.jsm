@@ -62,8 +62,9 @@ CalIcsParser.prototype = {
         }
       }
 
+      let isGCal = /^-\/\/Google Inc\/\/Google Calendar /.test(calComp.prodid);
       for (let subComp of cal.iterate.icalSubcomponent(calComp)) {
-        state.submit(subComp);
+        state.submit(subComp, isGCal);
       }
       calComp = rootComp.getNextSubcomponent("VCALENDAR");
     }
@@ -258,8 +259,9 @@ parserState.prototype = {
    * Submit processing of a subcomponent to the event queue
    *
    * @param subComp       The component to process
+   * @param isGCal        If this is a Google Calendar invitation
    */
-  submit(subComp) {
+  submit(subComp, isGCal) {
     let self = this;
     let runner = {
       run() {
@@ -268,6 +270,9 @@ parserState.prototype = {
           case "VEVENT":
             item = new CalEvent();
             item.icalComponent = subComp;
+            if (isGCal) {
+              cal.view.fixGoogleCalendarDescription(item);
+            }
             self.checkTimezone(item, item.startDate);
             self.checkTimezone(item, item.endDate);
             break;

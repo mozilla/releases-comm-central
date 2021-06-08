@@ -79,7 +79,7 @@ add_task(async function testDropMozMessage() {
     "the message subject was used as the event title"
   );
   Assert.equal(
-    iframeDoc.querySelector("#item-description").value,
+    iframeDoc.querySelector("#item-description").contentDocument.body.innerText,
     body,
     "the message body was used as the event description"
   );
@@ -181,7 +181,10 @@ add_task(async function testPlainTextICSDrop() {
   Assert.equal(endTime.getUTCMonth(), 2);
   Assert.equal(endTime.getUTCDate(), 25);
 
-  Assert.equal(iframeDoc.querySelector("#item-description").value, "Parking is not available.");
+  Assert.equal(
+    iframeDoc.querySelector("#item-description").contentDocument.body.innerText,
+    "Parking is not available."
+  );
   await BrowserTestUtils.closeWindow(eventWindow);
 });
 
@@ -217,7 +220,10 @@ add_task(async function testICSFileDrop() {
   Assert.equal(endTime.getUTCMonth(), 2);
   Assert.equal(endTime.getUTCDate(), 25);
 
-  Assert.equal(iframeDoc.querySelector("#item-description").value, "Parking is not available.");
+  Assert.equal(
+    iframeDoc.querySelector("#item-description").contentDocument.body.innerText,
+    "Parking is not available."
+  );
   await BrowserTestUtils.closeWindow(eventWindow);
 });
 

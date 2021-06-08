@@ -934,7 +934,7 @@ calendar-event-box[gripBars="both"]:not([readonly="true"]):hover calendar-event-
 
 .tooltipBody {
   font-weight: normal;
-  white-space: pre-wrap;
+  white-space: normal;
   overflow-wrap: anywhere;
   margin: 0pt;
 }

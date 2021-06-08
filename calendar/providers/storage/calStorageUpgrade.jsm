@@ -84,7 +84,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 // The current database version. Be sure to increment this when you create a new
 // updater.
-var DB_SCHEMA_VERSION = 22;
+var DB_SCHEMA_VERSION = 23;
 
 var EXPORTED_SYMBOLS = [
   "DB_SCHEMA_VERSION",
@@ -1868,6 +1868,34 @@ upgrade.v22 = function(db, version) {
     );
 
     setDbVersionAndCommit(db, 22);
+  } catch (e) {
+    throw reportErrorAndRollback(db, e);
+  }
+  return tbl;
+};
+
+upgrade.v23 = function(db, version) {
+  let tbl = upgrade.v22(version < 22 && db, version);
+  LOGdb(db, "Storage: Upgrading to v23");
+  beginTransaction(db);
+  try {
+    addTable(
+      tbl,
+      "cal_parameters",
+      {
+        cal_id: "TEXT",
+        item_id: "TEXT",
+        recurrence_id: "INTEGER",
+        recurrence_id_tz: "TEXT",
+        key1: "TEXT",
+        key2: "TEXT",
+        value: "BLOB",
+      },
+      db
+    );
+    let allIds = ["cal_id", "item_id", "recurrence_id", "recurrence_id_tz"];
+    createIndex(tbl, "cal_parameters", allIds, db);
+    setDbVersionAndCommit(db, 23);
   } catch (e) {
     throw reportErrorAndRollback(db, e);
   }

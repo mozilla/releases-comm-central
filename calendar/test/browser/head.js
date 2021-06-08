@@ -107,6 +107,7 @@ async function _openNewCalendarItemTab(tabMode) {
   is(itemTabs.length, previousTabCount + 1, `new ${tabMode} tab is open`);
   is(tabmail.selectedTab, newTab, `new ${tabMode} tab is selected`);
 
+  await BrowserTestUtils.browserLoaded(newTab.iframe);
   await new Promise(resolve => setTimeout(resolve));
   return newTab.panel.id;
 }

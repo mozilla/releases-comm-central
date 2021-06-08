@@ -152,8 +152,10 @@
                    class="header"/>
             <separator class="groove" flex="1"/>
           </hbox>
-          <hbox class="item-description"
-                flex="1"/>
+          <iframe class="item-description"
+                  type="content"
+                  flex="1">
+          </iframe>
         </box>
 
         <!-- URL link -->
@@ -479,9 +481,9 @@
         this.updateStatus(status, isToDoItem);
       }
 
-      let description = item.getProperty("DESCRIPTION")?.trim();
-      if (description) {
-        this.updateDescription(description);
+      let descriptionText = item.descriptionText?.trim();
+      if (descriptionText) {
+        this.updateDescription(descriptionText, item.descriptionHTML);
       }
 
       let attachments = item.getAttachments();
@@ -635,23 +637,36 @@
     }
 
     /**
-     * Update the description part of the UI. Some clients put HTML tags
-     * in the DESCRIPTION property so we render it as HTML. (In the iCalendar
-     * spec DESCRIPTION is plain text.)
+     * Update the description part of the UI.
      *
-     * @param {string} description - The value of the DESCRIPTION property.
+     * @param {string} descriptionText - The value of the DESCRIPTION property.
+     * @param {string} descriptionHTML - HTML description if available.
      */
-    updateDescription(description) {
-      let docFragment = cal.view.textToHtmlDocumentFragment(description, document);
+    updateDescription(descriptionText, descriptionHTML) {
+      this.querySelector(".item-description-box").removeAttribute("hidden");
+      let itemDescription = this.querySelector(".item-description");
+      let docFragment = cal.view.textToHtmlDocumentFragment(
+        descriptionText,
+        itemDescription.contentDocument,
+        descriptionHTML
+      );
 
       // Make any links open in the user's default browser, not in Thunderbird.
       for (let anchor of docFragment.querySelectorAll("a")) {
-        anchor.setAttribute("onclick", "launchBrowser(this.getAttribute('href'), event)");
+        anchor.addEventListener("click", function(event) {
+          event.preventDefault();
+          if (event.isTrusted) {
+            launchBrowser(anchor.getAttribute("href"), event);
+          }
+        });
       }
 
-      this.querySelector(".item-description-box").removeAttribute("hidden");
-      let itemDescription = this.querySelector(".item-description");
-      itemDescription.appendChild(docFragment);
+      itemDescription.contentDocument.body.appendChild(docFragment);
+
+      let link = itemDescription.contentDocument.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "chrome://global/skin/global.css";
+      itemDescription.contentDocument.head.appendChild(link);
     }
 
     /**

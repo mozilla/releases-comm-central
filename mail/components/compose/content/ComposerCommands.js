@@ -198,7 +198,7 @@ function GetComposerCommandTable() {
  */
 function goUpdateCommandState(command) {
   try {
-    var controller = top.document.commandDispatcher.getControllerForCommand(
+    var controller = document.commandDispatcher.getControllerForCommand(
       command
     );
     if (!(controller instanceof Ci.nsICommandController)) {
@@ -299,7 +299,7 @@ function goDoCommandParams(command, paramValue) {
   try {
     let params = newCommandParams();
     params.setStringValue("state_attribute", paramValue);
-    let controller = top.document.commandDispatcher.getControllerForCommand(
+    let controller = document.commandDispatcher.getControllerForCommand(
       command
     );
     if (controller && controller.isCommandEnabled(command)) {
@@ -322,7 +322,7 @@ function goDoCommandParams(command, paramValue) {
  * @param {boolean} desiredState - State to set for the command.
  */
 function pokeStyleUI(uiID, desiredState) {
-  let commandNode = top.document.getElementById(uiID);
+  let commandNode = document.getElementById(uiID);
   let uiState = commandNode.getAttribute("state") == "true";
   if (desiredState != uiState) {
     commandNode.setAttribute("state", desiredState ? "true" : "false");
@@ -383,10 +383,12 @@ let gCommandMap = new Map([
  * @param {string} cmdStr - The id of the command.
  */
 function doStyleUICommand(cmdStr) {
-  top.document
-    .querySelector("editor")
-    .contentDocument.execCommand(gCommandMap.get(cmdStr), false, null);
-  let commandNode = top.document.getElementById(cmdStr);
+  GetCurrentEditorElement().contentDocument.execCommand(
+    gCommandMap.get(cmdStr),
+    false,
+    null
+  );
+  let commandNode = document.getElementById(cmdStr);
   let newState = commandNode.getAttribute("state") != "true";
   pokeStyleUI(cmdStr, newState);
 }
@@ -476,15 +478,15 @@ function doStatefulCommand(commandID, newState, updateUI) {
         command = "justifyFull";
         break;
     }
-    top.document
-      .querySelector("editor")
-      .contentDocument.execCommand(command, false, null);
+    GetCurrentEditorElement().contentDocument.execCommand(command, false, null);
   } else if (commandID == "cmd_fontFace" && newState == "") {
     goDoCommandParams(commandID, newState);
   } else {
-    top.document
-      .querySelector("editor")
-      .contentDocument.execCommand(gCommandMap.get(commandID), false, newState);
+    GetCurrentEditorElement().contentDocument.execCommand(
+      gCommandMap.get(commandID),
+      false,
+      newState
+    );
   }
 
   if (updateUI) {

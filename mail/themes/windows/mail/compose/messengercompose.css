@@ -192,13 +192,13 @@ toolbarbutton.formatting-button {
 /* ..... smiley menu ..... */
 
 @media not (-moz-windows-non-native-menus) {
-  #smilyPopup > menuitem > .menu-text {
+  #smileyPopup > menuitem > .menu-text {
     margin-inline-start: -1.45em !important;
   }
 }
 
 @media (-moz-windows-non-native-menus) {
-  #smilyPopup > menuitem {
+  #smileyPopup > menuitem {
     padding-inline-start: 14px;
   }
 }

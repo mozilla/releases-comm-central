@@ -311,14 +311,97 @@ label.label {
   padding: 0px 9px;
 }
 
-#event-grid-tabpanel-description {
-  display: flex;
+#FormatToolbar {
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
-#event-grid-tabpanel-description > #item-description {
-  width: 100%;
-  box-sizing: border-box;
+#boldButton {
+  list-style-image: url("chrome://messenger/skin/icons/bold.svg");
+}
+
+#italicButton {
+  list-style-image: url("chrome://messenger/skin/icons/italics.svg");
+}
+
+#underlineButton {
+  list-style-image: url("chrome://messenger/skin/icons/underline.svg");
+}
+
+#linkButton {
+  list-style-image: url("chrome://messenger/skin/icons/link.svg");
+}
+
+#ulButton {
+  list-style-image: url("chrome://messenger/skin/icons/bullet-list.svg");
+}
+
+#olButton {
+  list-style-image: url("chrome://messenger/skin/icons/number-list.svg");
+}
+
+#outdentButton {
+  list-style-image: url("chrome://messenger/skin/icons/outdent.svg");
+}
+
+#indentButton {
+  list-style-image: url("chrome://messenger/skin/icons/indent.svg");
+}
+
+#AlignPopupButton {
+  list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
+}
+
+#AlignPopupButton > dropmarker {
+  list-style-image: none;
+}
+
+#AlignPopup > menuitem {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#AlignLeftItem, #AlignPopupButton[state="left"] {
+  list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
+}
+
+#AlignCenterItem, #AlignPopupButton[state="center"] {
+  list-style-image: url("chrome://messenger/skin/icons/center-align.svg");
+}
+
+#AlignRightItem, #AlignPopupButton[state="right"] {
+  list-style-image: url("chrome://messenger/skin/icons/right-align.svg");
+}
+
+#AlignJustifyItem, #AlignPopupButton[state="justify"] {
+  list-style-image: url("chrome://messenger/skin/icons/justify.svg");
+}
+
+#paragraphButton {
+  list-style-image: url("chrome://messenger/skin/icons/size.svg");
+}
+
+#paragraphButton > dropmarker {
+  list-style-image: none;
+}
+
+#smileButtonMenu {
+  list-style-image: url("chrome://messenger/skin/icons/smiley.svg");
+}
+
+#smileButtonMenu > dropmarker {
+  list-style-image: none;
+}
+
+.formatting-button[disabled="true"] > .toolbarbutton-icon,
+.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker {
+  opacity: 0.4;
+}
+
+#item-description {
   min-height: 7em;
+  border: 1px solid var(--field-border-color);
+  border-radius: 2px;
   margin: 2px 4px;
 }
 
@@ -506,16 +589,9 @@ label.label {
 #calendar-event-summary-dialog .item-description,
 #calendar-task-summary-dialog .item-description,
 #calendar-ics-file-dialog .item-description {
-  background: var(--field-background-color);
   border: 1px solid var(--field-border-color);
-  box-sizing: border-box;
   margin: 2px 4px 0;
   min-height: 10em;
-  min-width: 1px;
-  overflow: auto;
-  overflow-wrap: anywhere;
-  user-select: text;
-  width: 100%;
 }
 
 #calendar-summary-dialog .item-description a,
