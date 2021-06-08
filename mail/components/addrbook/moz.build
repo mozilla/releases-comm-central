@@ -6,6 +6,8 @@
 JAR_MANIFESTS += ["jar.mn"]
 
 BROWSER_CHROME_MANIFESTS += [
+    "test/browser/browser-jsm.ini",
     "test/browser/browser.ini",
+    "test/browser/new/browser-jsm.ini",
     "test/browser/new/browser.ini",
 ]

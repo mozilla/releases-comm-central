@@ -65,6 +65,7 @@ class LDAPOperation {
       limit,
       res => {
         if (res.constructor.name == "SearchResultDone") {
+          this._messageId = null;
           this._listener.onLDAPMessage({
             errorCode: res.result.resultCode,
             type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
@@ -88,7 +89,9 @@ class LDAPOperation {
   }
 
   abandonExt() {
-    this._client.abandon(this._messageId);
+    if (this._messageId) {
+      this._client.abandon(this._messageId);
+    }
   }
 }
 

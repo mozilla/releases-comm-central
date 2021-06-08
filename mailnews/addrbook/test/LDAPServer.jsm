@@ -22,6 +22,7 @@ var LDAPServer = {
   BindRequest: 0x60,
   UnbindRequest: 0x42,
   SearchRequest: 0x63,
+  AbandonRequest: 0x50,
 
   serverSocket: null,
 
@@ -89,11 +90,15 @@ var LDAPServer = {
     if (expectedOperation) {
       let actualOperation = data[index + 1];
 
-      // Unbind requests can happen at any point, when an nsLDAPConnection is
-      // destroyed. This is unpredictable, and irrelevant for testing. Ignore.
-      if (actualOperation == LDAPServer.UnbindRequest) {
+      // Unbind and abandon requests can happen at any point, when an
+      // nsLDAPConnection is destroyed. This is unpredictable, and irrelevant
+      // for testing. Ignore.
+      if (
+        actualOperation == LDAPServer.UnbindRequest ||
+        actualOperation == LDAPServer.AbandonRequest
+      ) {
         if (PRINT_DEBUG) {
-          console.log("Ignoring unbind request");
+          console.log("Ignoring unbind or abandon request");
         }
         return this.read(expectedOperation);
       }
