@@ -231,11 +231,12 @@ class SaslBindRunnable : public OpRunnable {
 NS_IMETHODIMP
 nsLDAPOperation::SaslBind(const nsACString& service,
                           const nsACString& mechanism,
-                          nsIAuthModule* authModule) {
+                          const nsACString& authModuleType) {
   nsresult rv;
   nsAutoCString bindName;
 
-  mAuthModule = authModule;
+  mAuthModule =
+      nsIAuthModule::CreateInstance(PromiseFlatCString(authModuleType).get());
   mMechanism.Assign(mechanism);
 
   rv = mConnection->GetBindName(bindName);

@@ -8,7 +8,6 @@
 #include "nsIWindowMediator.h"
 #include "mozIDOMWindow.h"
 #include "nsIAuthPrompt.h"
-#include "nsIAuthModule.h"
 #include "nsIStringBundle.h"
 #include "nsILDAPMessage.h"
 #include "nsILDAPErrors.h"
@@ -234,10 +233,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit() {
 
     service.InsertLiteral("ldap@", 0);
 
-    nsCOMPtr<nsIAuthModule> authModule =
-        nsIAuthModule::CreateInstance("sasl-gssapi");
-
-    rv = mOperation->SaslBind(service, mSaslMechanism, authModule);
+    rv = mOperation->SaslBind(service, mSaslMechanism, "sasl-gssapi"_ns);
     if (NS_FAILED(rv)) {
       NS_ERROR(
           "nsAbLDAPMessageBase::OnLDAPInit(): "

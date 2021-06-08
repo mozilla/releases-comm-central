@@ -103,13 +103,13 @@ interface nsILDAPOperation : nsISupports
     /**
      * Asynchronously perform a SASL bind against the LDAP server
      *
-     * @param service    the host name of the service being connected to
-     * @param mechanism  the name of the SASL mechanism in use
-     * @param authModule the nsIAuthModule to be used to perform the operation
+     * @param service        the host name of the service being connected to
+     * @param mechanism      the name of the SASL mechanism in use
+     * @param authModuleType the type of auth module to be used to perform the operation
      *
      */
     void saslBind(in ACString service, in ACString mechanism,
-                  in nsIAuthModule authModule);
+                  in ACString authModuleType);
 
     /**
      * Continue a SASL bind operation

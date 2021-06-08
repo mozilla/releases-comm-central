@@ -95,12 +95,10 @@ class LDAPReplicationService {
     }
 
     // Handle GSSAPI now.
-    // FIXME saslBind expects nsIAuthModule, but nsIAuthModule can't be used in
-    // JS. Should be fixed when nsILDAPOperation is implemented in JS.
     this._operation.saslBind(
       `ldap@${this._directory.lDAPURL.host}`,
       "GSSAPI",
-      Cc["@mozilla.org/mail/auth-module;1"].createInstance(Ci.nsIMailAuthModule)
+      "sasl-gssapi"
     );
   }
 
