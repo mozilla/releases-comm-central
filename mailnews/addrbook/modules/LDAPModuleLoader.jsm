@@ -48,6 +48,11 @@ var ldapJSModules = [
     "{dbe204e8-ae09-11eb-b4c8-a7e4b3e6e82e}",
     "@mozilla.org/addressbook/ldap-replication-service;1",
   ],
+  [
+    "LDAPService",
+    "{e8b59b32-f83f-4d5f-8eb5-e3c1e5de0d47}",
+    "@mozilla.org/network/ldap-service;1",
+  ],
 ];
 
 LDAPModuleLoader.prototype = {
