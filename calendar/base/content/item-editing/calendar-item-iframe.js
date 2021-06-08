@@ -2173,7 +2173,7 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
   let image = listItem.querySelector("img");
   listItem.attachCloudFileAccount = cloudFileAccount;
   image.setAttribute("src", "chrome://global/skin/icons/loading.png");
-  cloudFileAccount.uploadFile(file).then(
+  cloudFileAccount.uploadFile(file, attachment.name).then(
     upload => {
       delete gAttachMap[attachment.hashId];
       attachment.uri = Services.io.newURI(upload.url);

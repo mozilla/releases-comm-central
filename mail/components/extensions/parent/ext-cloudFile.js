@@ -93,7 +93,7 @@ class CloudFileAccount {
     return this.extension.manifest.cloud_file.new_account_url;
   }
 
-  async uploadFile(file) {
+  async uploadFile(file, name = file.leafName) {
     let id = this._nextId++;
     let upload = {
       id,
@@ -109,14 +109,14 @@ class CloudFileAccount {
         let blob = await File.createFromNsIFile(file);
         results = await this.extension.emit("uploadFile", this, {
           id,
-          name: file.leafName,
+          name,
           data: blob,
         });
       } else {
         let buffer = await promiseFileRead(file);
         results = await this.extension.emit("uploadFile", this, {
           id,
-          name: file.leafName,
+          name,
           data: buffer,
         });
       }

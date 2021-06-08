@@ -2134,7 +2134,7 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
   let upload;
   let statusCode = Cr.NS_OK;
   try {
-    upload = await cloudFileAccount.uploadFile(file);
+    upload = await cloudFileAccount.uploadFile(file, attachment.name);
   } catch (ex) {
     statusCode = ex;
   }
