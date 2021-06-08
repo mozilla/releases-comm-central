@@ -422,7 +422,9 @@ function onAccept(event) {
       // dialog gets updated
       window.opener.gUpdate = true;
       window.arguments[0].newDirectoryUID = theDirectory.UID;
-      window.arguments[0].newDirectoryURI = theDirectory.URI;
+      if ("onNewDirectory" in window.arguments[0]) {
+        window.arguments[0].onNewDirectory(theDirectory);
+      }
     } else {
       let addressBookBundle = document.getElementById("bundle_addressBook");
 

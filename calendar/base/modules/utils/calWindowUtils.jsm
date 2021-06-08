@@ -25,7 +25,7 @@ var calwindow = {
     window.openDialog(
       "chrome://calendar/content/calendar-creation.xhtml",
       "caEditServer",
-      "modal,chrome,titlebar,resizable,centerscreen",
+      "chrome,titlebar,resizable,centerscreen",
       aCallback
     );
   },

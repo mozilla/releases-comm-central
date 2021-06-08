@@ -91,7 +91,9 @@ function abNameOKButton(event) {
     );
     let directory = MailServices.ab.getDirectoryFromId(dirPrefId);
     window.arguments[0].newDirectoryUID = directory.UID;
-    window.arguments[0].newDirectoryURI = directory.URI;
+    if ("onNewDirectory" in window.arguments[0]) {
+      window.arguments[0].onNewDirectory(directory);
+    }
   }
 }
 

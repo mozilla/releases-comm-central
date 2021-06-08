@@ -177,7 +177,9 @@ window.addEventListener("dialogaccept", event => {
     if (checkbox.checked) {
       let book = checkbox._book.create();
       window.arguments[0].newDirectoryUID = book.UID;
-      window.arguments[0].newDirectoryURI = book.URI;
+      if ("onNewDirectory" in window.arguments[0]) {
+        window.arguments[0].onNewDirectory(book);
+      }
     }
   }
 });

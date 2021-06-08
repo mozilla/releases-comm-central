@@ -236,18 +236,19 @@ function SendCommandToResultsPane(command) {
 }
 
 function AbShowNewDirectoryDialog(url) {
-  let params = {};
+  let params = {
+    onNewDirectory(newDirectory) {
+      gDirectoryTreeView.selection.select(
+        gDirectoryTreeView.getIndexForId(newDirectory.URI)
+      );
+    },
+  };
   window.browsingContext.topChromeWindow.openDialog(
     url,
     "",
-    "chrome,modal,resizable=no,centerscreen",
+    "chrome,resizable=no,centerscreen",
     params
   );
-  if (params.newDirectoryURI) {
-    gDirectoryTreeView.selection.select(
-      gDirectoryTreeView.getIndexForId(params.newDirectoryURI)
-    );
-  }
 }
 
 function AbNewLDAPDirectory() {
