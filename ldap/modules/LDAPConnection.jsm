@@ -4,13 +4,11 @@
 
 const EXPORTED_SYMBOLS = ["LDAPConnection"];
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+ChromeUtils.defineModuleGetter(
+  this,
+  "LDAPClient",
+  "resource:///modules/LDAPClient.jsm"
 );
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  LDAPClient: "resource:///modules/LDAPClient.jsm",
-});
 
 /**
  * A module to manage LDAP connection.
@@ -25,7 +23,7 @@ class LDAPConnection {
   }
 
   init(url, bindName, listener, closure, version) {
-    this.client = new LDAPClient(url.host, url.port);
+    this.client = new LDAPClient(url.host, url.port, url.scheme == "ldaps");
     this._url = url;
     this._bindName = bindName;
     this.client.onOpen = () => {

@@ -3,21 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const EXPORTED_SYMBOLS = ["LDAPClient"];
-var { BindRequest, SearchRequest, LDAPResponse } = ChromeUtils.import(
-  "resource:///modules/LDAPMessage.jsm"
-);
+var {
+  AbandonRequest,
+  BindRequest,
+  SearchRequest,
+  LDAPResponse,
+} = ChromeUtils.import("resource:///modules/LDAPMessage.jsm");
 
 class LDAPClient {
   /**
    * @param {string} host - The LDAP server host.
    * @param {number} port - The LDAP server port.
+   * @param {boolean} useSecureTransport - Whether to use TLS connection.
    */
-  constructor(host, port) {
+  constructor(host, port, useSecureTransport) {
     this.onOpen = () => {};
     this.onError = () => {};
 
     this._host = host;
     this._port = port;
+    this._useSecureTransport = useSecureTransport;
 
     this._messageId = 1;
     this._callbackMap = new Map();
@@ -32,21 +37,55 @@ class LDAPClient {
   connect() {
     this._socket = new TCPSocket(this._host, this._port, {
       binaryType: "arraybuffer",
+      useSecureTransport: this._useSecureTransport,
     });
     this._socket.onopen = this._onOpen;
     this._socket.onerror = this._onError;
   }
 
   /**
-   * Send a bind request to the server.
+   * Send a simple bind request to the server.
    * @param {string} dn - The name to bind.
    * @param {string} password - The password.
    * @param {Function} callback - Callback function when receiving BindResponse.
+   * @returns {number} The id of the sent request.
    */
   bind(dn = "", password = "", callback) {
     this._logger.debug(`Binding ${dn}`);
     let req = new BindRequest(dn, password);
-    this._send(req, callback);
+    return this._send(req, callback);
+  }
+
+  /**
+   * Send a SASL bind request to the server.
+   * @param {string} service - The service host name to bind.
+   * @param {string} mechanism - The SASL mechanism to use, e.g. GSSAPI.
+   * @param {string} authModuleType - The auth module type, @see nsIMailAuthModule.
+   * @param {string} serverCredentials - The challenge token returned from the
+   *   server, or emtpy string for the first request, must be used to generate a
+   *   new request token.
+   * @param {Function} callback - Callback function when receiving BindResponse.
+   * @returns {number} The id of the sent request.
+   */
+  saslBind(service, mechanism, authModuleType, serverCredentials, callback) {
+    this._logger.debug(`Binding ${service} using ${mechanism}`);
+    if (!this._authModule || this._authModuleType != authModuleType) {
+      this._authModuleType = authModuleType;
+      this._authModule = Cc["@mozilla.org/mail/auth-module;1"].createInstance(
+        Ci.nsIMailAuthModule
+      );
+      this._authModule.init(
+        authModuleType,
+        service,
+        0, // nsIAuthModule::REQ_DEFAULT
+        null, // domain
+        null, // username
+        null // password
+      );
+    }
+    let credentials = this._authModule.getNextToken(serverCredentials);
+    let req = new BindRequest("", "", { mechanism, credentials });
+    return this._send(req, callback);
   }
 
   /**
@@ -58,11 +97,22 @@ class LDAPClient {
    * @param {number} timeout - The seconds to wait.
    * @param {number} limit - Maximum number of entries to return.
    * @param {Function} callback - Callback function when receiving search responses.
+   * @returns {number} The id of the sent request.
    */
   search(dn, scope, filter, attributes, timeout, limit, callback) {
     this._logger.debug(`Searching ${dn}`);
     let req = new SearchRequest(dn, scope, filter, attributes, timeout, limit);
-    this._send(req, callback);
+    return this._send(req, callback);
+  }
+
+  /**
+   * Send an abandon request to the server.
+   * @param {number} messageId - The id of the message to abandon.
+   */
+  abandon(messageId) {
+    this._logger.debug(`Abandoning ${messageId}`);
+    let req = new AbandonRequest(messageId);
+    this._send(req);
   }
 
   /**
@@ -120,12 +170,14 @@ class LDAPClient {
    * Send a message to the server.
    * @param {LDAPMessage} msg - The message to send.
    * @param {Function} callback - Callback function when receiving server responses.
+   * @returns {number} The id of the sent message.
    */
   _send(msg, callback) {
     if (callback) {
       this._callbackMap.set(this._messageId, callback);
     }
     this._logger.debug(`C: [${this._messageId}] ${msg.constructor.name}`);
-    this._socket.send(msg.toBER(this._messageId++));
+    this._socket.send(msg.toBER(this._messageId));
+    return this._messageId++;
   }
 }

@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["BindRequest", "SearchRequest", "LDAPResponse"];
+const EXPORTED_SYMBOLS = [
+  "AbandonRequest",
+  "BindRequest",
+  "SearchRequest",
+  "LDAPResponse",
+];
 
 var {
   asn1js: { asn1js },
@@ -64,9 +69,31 @@ class BindRequest extends LDAPMessage {
   /**
    * @param {string} dn - The name to bind.
    * @param {string} password - The password.
+   * @param {Object} sasl - The SASL configs.
+   * @param {string} sasl.mechanism - The SASL mechanism e.g. sasl-gssapi.
+   * @param {string} sasl.credentials - The credential token for the request.
    */
-  constructor(dn, password) {
+  constructor(dn, password, sasl) {
     super();
+    let authBlock;
+    if (sasl) {
+      authBlock = new asn1js.Constructed({
+        idBlock: this._getContextId(this.AUTH_SASL),
+        value: [
+          new asn1js.OctetString({
+            valueHex: new TextEncoder().encode(sasl.mechanism),
+          }),
+          new asn1js.OctetString({
+            valueHex: new TextEncoder().encode(sasl.credentials),
+          }),
+        ],
+      });
+    } else {
+      authBlock = new asn1js.Primitive({
+        idBlock: this._getContextId(this.AUTH_SIMPLE),
+        valueHex: new TextEncoder().encode(password),
+      });
+    }
     this.protocolOp = new asn1js.Constructed({
       // [APPLICATION 0]
       idBlock: this._getApplicationId(BindRequest.APPLICATION),
@@ -78,11 +105,7 @@ class BindRequest extends LDAPMessage {
           valueHex: new TextEncoder().encode(dn),
         }),
         // authentication
-        new asn1js.Primitive({
-          // Context-specific [0]
-          idBlock: this._getContextId(this.AUTH_SIMPLE),
-          valueHex: new TextEncoder().encode(password),
-        }),
+        authBlock,
       ],
     });
   }
@@ -335,6 +358,19 @@ class SearchRequest extends LDAPMessage {
   }
 }
 
+class AbandonRequest extends LDAPMessage {
+  /**
+   * @param {string} messageId - The messageId to abandon.
+   */
+  constructor(messageId) {
+    super();
+    this.protocolOp = new asn1js.Integer({ value: messageId });
+    // [APPLICATION 16]
+    this.protocolOp.idBlock.tagClass = 2;
+    this.protocolOp.idBlock.tagNumber = 16;
+  }
+}
+
 class LDAPResult {
   /**
    * @param {number} resultCode - The result code.
@@ -432,6 +468,16 @@ class LDAPResponse extends LDAPMessage {
 
 class BindResponse extends LDAPResponse {
   static APPLICATION = 1;
+
+  parse() {
+    super.parse();
+    let serverSaslCredsBlock = this.protocolOp.valueBlock.value[3];
+    if (serverSaslCredsBlock) {
+      this.result.serverSaslCreds = new TextDecoder().decode(
+        serverSaslCredsBlock.valueBlock.valueHex
+      );
+    }
+  }
 }
 
 class SearchResultEntry extends LDAPResponse {

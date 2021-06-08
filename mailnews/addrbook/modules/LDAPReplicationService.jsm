@@ -22,9 +22,6 @@ class LDAPReplicationService {
 
   /**
    * @see nsIAbLDAPReplicationService
-   *
-   * FIXME This crashes when ldap server is down, but should be fixed when
-   * nsILDAPConnection and nsILDAPOperation are implemented in JS.
    */
   startReplication(directory, progressListener) {
     this._directory = directory;

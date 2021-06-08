@@ -19,16 +19,44 @@ class LDAPOperation {
   }
 
   simpleBind(password) {
-    this._client.bind(this._connection.bindName, password, res => {
-      this._listener.onLDAPMessage({
-        errorCode: res.result.resultCode,
-        type: Ci.nsILDAPMessage.RES_BIND,
-      });
-    });
+    this._messageId = this._client.bind(
+      this._connection.bindName,
+      password,
+      res => {
+        this._listener.onLDAPMessage({
+          errorCode: res.result.resultCode,
+          type: Ci.nsILDAPMessage.RES_BIND,
+        });
+      }
+    );
+  }
+
+  saslBind(service, mechanism, authModuleType, serverCredentials = "") {
+    this._client.saslBind(
+      service,
+      mechanism,
+      authModuleType,
+      serverCredentials,
+      res => {
+        if (res.result.resultCode == Ci.nsILDAPErrors.SASL_BIND_IN_PROGRESS) {
+          this.saslBind(
+            service,
+            mechanism,
+            authModuleType,
+            res.result.serverSaslCreds
+          );
+        } else if (res.result.resultCode == Ci.nsILDAPErrors.SUCCESS) {
+          this._listener.onLDAPMessage({
+            errorCode: res.result.resultCode,
+            type: Ci.nsILDAPMessage.RES_BIND,
+          });
+        }
+      }
+    );
   }
 
   searchExt(baseDN, scope, filter, attributes, timeout, limit) {
-    this._client.search(
+    this._messageId = this._client.search(
       baseDN,
       scope,
       filter,
@@ -59,7 +87,9 @@ class LDAPOperation {
     );
   }
 
-  abandonExt() {}
+  abandonExt() {
+    this._client.abandon(this._messageId);
+  }
 }
 
 LDAPOperation.prototype.classID = Components.ID(
