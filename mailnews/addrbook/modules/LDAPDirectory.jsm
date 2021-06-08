@@ -15,6 +15,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   FileUtils: "resource://gre/modules/FileUtils.jsm",
   QueryStringToExpression: "resource:///modules/QueryStringToExpression.jsm",
   Services: "resource://gre/modules/Services.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
 });
 
 /**
@@ -42,8 +43,16 @@ class LDAPDirectory extends AddrBookDirectory {
     super.init(uri);
   }
 
+  get readOnly() {
+    return true;
+  }
+
   get isRemote() {
     return true;
+  }
+
+  get isSecure() {
+    return this.lDAPURL.scheme == "ldaps";
   }
 
   get propertiesChromeURI() {
@@ -99,8 +108,12 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   get lDAPURL() {
-    let uri = this.getStringValue("uri");
-    return Services.io.newURI(uri || `ldap://${this._uri.slice(22)}`);
+    let uri = this.getStringValue("uri") || `ldap://${this._uri.slice(22)}`;
+    return Services.io.newURI(uri).QueryInterface(Ci.nsILDAPURL);
+  }
+
+  set lDAPURL(uri) {
+    this.setStringValue("uri", uri.spec);
   }
 
   get childCards() {
@@ -133,6 +146,10 @@ class LDAPDirectory extends AddrBookDirectory {
     return this._replicationDB;
   }
 
+  getCardFromProperty(property, value, caseSensitive) {
+    return null;
+  }
+
   search(queryString, listener) {
     if (Services.io.offline) {
       this.replicationDB.search(queryString, listener);
@@ -158,6 +175,41 @@ class LDAPDirectory extends AddrBookDirectory {
 
   stopSearch() {
     this._query.stopQuery(this._queryContext);
+  }
+
+  useForAutocomplete(identityKey) {
+    // If we're online, then don't allow search during local autocomplete - must
+    // use the separate LDAP autocomplete session due to the current interfaces
+    let useDirectory = Services.prefs.getBoolPref(
+      "ldap_2.autoComplete.useDirectory",
+      false
+    );
+    if (!Services.io.offline || (!useDirectory && !identityKey)) {
+      return false;
+    }
+
+    let prefName = "";
+    if (identityKey) {
+      // If we have an identity string, try and find out the required directory
+      // server.
+      let identity = MailServices.accounts.getIdentity(identityKey);
+      if (identity.overrideGlobalPref) {
+        prefName = identity.directoryServer;
+      }
+      if (!prefName && !useDirectory) {
+        return false;
+      }
+    }
+    if (!prefName) {
+      prefName = Services.prefs.getCharPref(
+        "ldap_2.autoComplete.directoryServer"
+      );
+    }
+    if (prefName == this.dirPrefId) {
+      return this.replicationFile.exists();
+    }
+
+    return false;
   }
 }
 
