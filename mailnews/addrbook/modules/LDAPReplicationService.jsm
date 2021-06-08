@@ -5,20 +5,20 @@
 
 const EXPORTED_SYMBOLS = ["LDAPReplicationService"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { LDAPListenerBase } = ChromeUtils.import(
+  "resource:///modules/LDAPListenerBase.jsm"
+);
 
 /**
  * A service to replicate a LDAP directory to a local SQLite db.
  * @implements {nsIAbLDAPReplicationService}
  * @implements {nsILDAPMessageListener}
  */
-class LDAPReplicationService {
+class LDAPReplicationService extends LDAPListenerBase {
   QueryInterface = ChromeUtils.generateQI([
     "nsIAbLDAPReplicationService",
     "nsILDAPMessageListener",
   ]);
-
-  _requestNum = 0;
 
   /**
    * @see nsIAbLDAPReplicationService
@@ -62,46 +62,6 @@ class LDAPReplicationService {
   /**
    * @see nsILDAPMessageListener
    */
-  onLDAPInit() {
-    let outPassword = {};
-    if (this._directory.authDn && this._directory.saslMechanism != "GSSAPI") {
-      // If authDn is set, we're expected to use it to get a password.
-      let bundle = Services.strings.createBundle(
-        "chrome://mozldap/locale/ldap.properties"
-      );
-
-      let authPrompt = Services.ww.getNewAuthPrompter(
-        Services.wm.getMostRecentWindow(null)
-      );
-      authPrompt.promptPassword(
-        bundle.GetStringFromName("authPromptTitle"),
-        bundle.formatStringFromName("authPromptText", [
-          this._directory.lDAPURL.host,
-        ]),
-        this._directory.lDAPURL.spec,
-        Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
-        outPassword
-      );
-    }
-    this._operation.init(this._connection, this, null);
-    this._operation.requestNum = ++this._requestNum;
-
-    if (this._directory.saslMechanism != "GSSAPI") {
-      this._operation.simpleBind(outPassword.value);
-      return;
-    }
-
-    // Handle GSSAPI now.
-    this._operation.saslBind(
-      `ldap@${this._directory.lDAPURL.host}`,
-      "GSSAPI",
-      "sasl-gssapi"
-    );
-  }
-
-  /**
-   * @see nsILDAPMessageListener
-   */
   onLDAPMessage(msg) {
     switch (msg.type) {
       case Ci.nsILDAPMessage.RES_BIND:
@@ -126,37 +86,12 @@ class LDAPReplicationService {
   }
 
   /**
-   * Handler of nsILDAPMessage.RES_BIND message.
-   * @param {nsILDAPMessage} msg - The received LDAP message.
+   * @see LDAPListenerBase
    */
-  _onLDAPBind(msg) {
-    let errCode = msg.errorCode;
-    if (
-      errCode == Ci.nsILDAPErrors.INAPPROPRIATE_AUTH ||
-      errCode == Ci.nsILDAPErrors.INVALID_CREDENTIALS
-    ) {
-      // Login failed, remove any existing login(s).
-      let ldapUrl = this._directory.lDAPURL;
-      let logins = Services.logins.findLogins(
-        ldapUrl.prePath,
-        "",
-        ldapUrl.spec
-      );
-      for (let login of logins) {
-        Services.logins.removeLogin(login);
-      }
-      // Trigger the auth prompt.
-      this.onLDAPInit();
-      return;
-    }
-    if (errCode != Ci.nsILDAPErrors.SUCCESS) {
-      this.done(false);
-      return;
-    }
+  _actionOnBindSuccess() {
     this._openABForReplicationDir();
     let ldapUrl = this._directory.lDAPURL;
     this._operation.init(this._connection, this, null);
-    this._operation.requestNum = ++this._requestNum;
     this._listener.onStateChange(
       null,
       null,
@@ -171,6 +106,13 @@ class LDAPReplicationService {
       0,
       0
     );
+  }
+
+  /**
+   * @see LDAPListenerBase
+   */
+  _actionOnBindFailure() {
+    this._done(false);
   }
 
   /**

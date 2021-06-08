@@ -11,6 +11,8 @@ EXTRA_JS_MODULES += [
     "CardDAVDirectory.jsm",
     "CardDAVUtils.jsm",
     "LDAPDirectory.jsm",
+    "LDAPDirectoryQuery.jsm",
+    "LDAPListenerBase.jsm",
     "LDAPModuleLoader.jsm",
     "LDAPReplicationService.jsm",
     "QueryStringToExpression.jsm",

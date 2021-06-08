@@ -164,12 +164,15 @@ class SearchRequest extends LDAPMessage {
         this._convertFilterToBlock(filter),
         // attributes
         new asn1js.Sequence({
-          value: attributes.split(",").map(
-            attr =>
-              new asn1js.OctetString({
-                valueHex: new TextEncoder().encode(attr),
-              })
-          ),
+          value: attributes
+            .split(",")
+            .filter(Boolean)
+            .map(
+              attr =>
+                new asn1js.OctetString({
+                  valueHex: new TextEncoder().encode(attr),
+                })
+            ),
         }),
       ],
     });

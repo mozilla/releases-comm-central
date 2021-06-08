@@ -39,6 +39,11 @@ var ldapJSModules = [
     "@mozilla.org/addressbook/directory;1?type=moz-abldapdirectory",
   ],
   [
+    "LDAPDirectoryQuery",
+    "{5ad5d311-1a50-43db-a03c-63d45f443903}",
+    "@mozilla.org/addressbook/ldap-directory-query;1",
+  ],
+  [
     "LDAPReplicationService",
     "{dbe204e8-ae09-11eb-b4c8-a7e4b3e6e82e}",
     "@mozilla.org/addressbook/ldap-replication-service;1",
