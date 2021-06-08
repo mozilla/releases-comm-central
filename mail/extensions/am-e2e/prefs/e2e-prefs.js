@@ -244,6 +244,7 @@ pref("mail.identity.default.defaultEncryptionPolicy", 0);
 pref("mail.identity.default.openPgpUrlName", "");
 pref("mail.identity.default.pgpMimeMode", true);
 pref("mail.identity.default.attachPgpKey", true);
+pref("mail.identity.default.autoEncryptDrafts", true);
 pref("mail.identity.default.protectSubject", true);
 pref("mail.identity.default.warnWeakReply", false);
 

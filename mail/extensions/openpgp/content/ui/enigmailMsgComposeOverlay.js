@@ -1446,10 +1446,13 @@ Enigmail.msg = {
   async saveDraftMessage(senderKeyIsGnuPG) {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: saveDraftMessage()\n");
 
-    // If we have an encryption key, then always save drafts encrypted,
-    // as a precaution. This is independent from the final decision
-    // of sending the message encrypted or not.
-    let doEncrypt = Enigmail.msg.isEnigmailEnabledForIdentity();
+    // If we have an encryption key configured, then encrypt saved
+    // drafts by default, as a precaution. This is independent from the
+    // final decision of sending the message encrypted or not.
+    // However, we allow the user to disable encrypted drafts.
+    let doEncrypt =
+      Enigmail.msg.isEnigmailEnabledForIdentity() &&
+      gCurrentIdentity.getBoolAttribute("autoEncryptDrafts");
 
     this.setDraftStatus(doEncrypt);
 
