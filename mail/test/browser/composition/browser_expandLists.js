@@ -43,7 +43,7 @@ async function testListExpansion(win, target, addresses) {
   await shownPromise;
 
   let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(menuItem, {}, win);
+  menu.activateItem(menuItem);
   await hiddenPromise;
 
   let expected = [];
