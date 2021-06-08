@@ -202,6 +202,12 @@ function imAccount(aKey, aName, aPrplId) {
   }
 
   Services.logins.initializationPromise.then(() => {
+    // If protocol is falsy remove() was called on this instance while waiting
+    // for the promise to resolve. Since the instance was disposed there is
+    // nothing to do.
+    if (!this.protocol) {
+      return;
+    }
     // Try to convert old passwords stored in the preferences.
     // Don't try too hard if the user has canceled a master password prompt:
     // we don't want to display several of these prompts at startup.
