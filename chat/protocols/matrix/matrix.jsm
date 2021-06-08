@@ -945,6 +945,25 @@ MatrixAccount.prototype = {
     let dbName = "chat:matrix:" + this.imAccount.id;
     this._baseURL = this.getString("server") + ":" + this.getInt("port");
 
+    let deviceId = this.prefs.getStringPref("deviceId", "") || undefined;
+    let accessToken = this.prefs.getStringPref("accessToken", "") || undefined;
+    // Make sure accessToken saved as deviceId is disposed of.
+    if (deviceId && deviceId === accessToken) {
+      // Revoke accessToken stored in deviceId
+      const tempClient = MatrixSDK.createClient({
+        useAuthorizationHeader: true,
+        baseUrl: this._baseURL,
+        accessToken: deviceId,
+      });
+      if (tempClient.isLoggedIn()) {
+        tempClient.logout();
+      }
+      this.prefs.clearUserPref("deviceId");
+      this.prefs.clearUserPref("accessToken");
+      deviceId = undefined;
+      accessToken = undefined;
+    }
+
     const opts = {
       useAuthorizationHeader: true,
       baseUrl: this._baseURL,
@@ -952,8 +971,8 @@ MatrixAccount.prototype = {
         indexedDB,
         dbName,
       }),
-      deviceId: this.prefs.getStringPref("deviceId", "") || undefined,
-      accessToken: this.prefs.getStringPref("accessToken", "") || undefined,
+      deviceId,
+      accessToken,
       userId: this.prefs.getStringPref("userId", "") || undefined,
       timelineSupport: true,
     };
@@ -1090,7 +1109,7 @@ MatrixAccount.prototype = {
     if (this.getBool("saveToken")) {
       this.prefs.setStringPref("accessToken", data.access_token);
     }
-    this.prefs.setStringPref("deviceId", data.access_token);
+    this.prefs.setStringPref("deviceId", data.device_id);
     this.prefs.setStringPref("userId", data.user_id);
   },
 
