@@ -5,6 +5,9 @@
 let { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
+let { PromiseUtils } = ChromeUtils.import(
+  "resource://gre/modules/PromiseUtils.jsm"
+);
 
 const TEST_DOMAIN = "http://example.org";
 const TEST_IP = "http://127.0.0.1:8888";
@@ -28,15 +31,96 @@ let links = new Map([
   ["#other-domain", `http://mochi.test:8888${TEST_PATH}`],
 ]);
 
+/** @implements {nsIWebProgressListener} */
+let webProgressListener = {
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
+
+  _browser: null,
+  _deferred: null,
+
+  onStateChange(webProgress, request, stateFlags, status) {
+    if (
+      !(stateFlags & Ci.nsIWebProgressListener.STATE_STOP) ||
+      this._browser?.currentURI.spec == "about:blank"
+    ) {
+      return;
+    }
+
+    if (this._deferred) {
+      let deferred = this._deferred;
+      let url = this._browser.currentURI.spec;
+      this.cancelPromise();
+
+      deferred.resolve(url);
+    } else {
+      this.cancelPromise();
+      Assert.ok(false, "unexpected state change");
+    }
+  },
+
+  onLocationChange(webProgress, request, location, flags) {
+    if (!(flags & Ci.nsIWebProgressListener.LOCATION_CHANGE_HASHCHANGE)) {
+      return;
+    }
+
+    if (this._deferred) {
+      let deferred = this._deferred;
+      let url = this._browser.currentURI.spec;
+      this.cancelPromise();
+
+      deferred.resolve(url);
+    } else {
+      this.cancelPromise();
+      Assert.ok(false, "unexpected location change");
+    }
+  },
+
+  promiseEvent(browser) {
+    this._browser = browser;
+    browser.webProgress.addProgressListener(
+      this,
+      Ci.nsIWebProgress.NOTIFY_STATE_ALL | Ci.nsIWebProgress.NOTIFY_LOCATION
+    );
+
+    this._deferred = PromiseUtils.defer();
+    return this._deferred.promise;
+  },
+
+  cancelPromise() {
+    this._deferred = null;
+    this._browser.removeProgressListener(this);
+    this._browser = null;
+  },
+};
+
 /** @implements {nsIExternalProtocolService} */
 let mockExternalProtocolService = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-  _loadedURLs: [],
+
+  _deferred: null,
+
   loadURI(aURI, aWindowContext) {
-    this._loadedURLs.push(aURI.spec);
+    if (this._deferred) {
+      let deferred = this._deferred;
+      this._deferred = null;
+
+      deferred.resolve(aURI.spec);
+    } else {
+      this.cancelPromise();
+      Assert.ok(false, "unexpected call to external protocol service");
+    }
   },
-  urlLoaded(aURL) {
-    return this._loadedURLs.includes(aURL);
+
+  promiseEvent() {
+    this._deferred = PromiseUtils.defer();
+    return this._deferred.promise;
+  },
+
+  cancelPromise() {
+    this._deferred = null;
   },
 };
 
@@ -68,96 +152,43 @@ async function clickOnLink(
     browser.currentURI?.spec == "about:blank"
   ) {
     await BrowserTestUtils.browserLoaded(browser);
+
+    // Clear the event queue.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 250));
   }
-  mockExternalProtocolService._loadedURLs.length = 0;
   Assert.equal(
     browser.currentURI?.spec,
     pageURL,
     "original URL should be loaded"
   );
 
-  let listener = {
-    QueryInterface: ChromeUtils.generateQI(["nsISupportsWeakReference"]),
-
-    _locationChanges: [],
-    onLocationChange(webProgress, request, location) {
-      this._locationChanges.push(location);
-    },
-  };
-  browser.addProgressListener(
-    listener,
-    Ci.nsIWebProgress.NOTIFY_STATE_ALL | Ci.nsIWebProgress.NOTIFY_LOCATION
-  );
+  let webProgressPromise = webProgressListener.promiseEvent(browser);
+  let externalProtocolPromise = mockExternalProtocolService.promiseEvent();
 
   info(`clicking on ${selector}`);
   await BrowserTestUtils.synthesizeMouseAtCenter(selector, {}, browser);
-  // Responding to the click probably won't happen immediately. Let's hang
-  // around and see what happens.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(r => setTimeout(r, 250));
-  if (
-    listener._locationChanges.length == 0 &&
-    mockExternalProtocolService._loadedURLs.length == 0
-  ) {
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(r => setTimeout(r, 500));
-  }
-  // If a load does start and is still happening after the 750ms, wait until
-  // it finishes before continuing.
-  if (browser.webProgress?.isLoadingDocument) {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
+
+  await Promise.any([webProgressPromise, externalProtocolPromise]);
 
   if (shouldLoadInternally) {
     Assert.equal(
-      listener._locationChanges.length,
-      1,
-      "location should have changed"
-    );
-    Assert.equal(
-      listener._locationChanges[0].spec,
+      await webProgressPromise,
       url,
       `${url} should load internally`
     );
-    Assert.ok(
-      !mockExternalProtocolService.urlLoaded(url),
-      `${url} should not load externally`
-    );
+    mockExternalProtocolService.cancelPromise();
   } else {
     Assert.equal(
-      listener._locationChanges.length,
-      0,
-      "location should not have changed"
-    );
-    if (url != pageURL) {
-      Assert.equal(
-        browser.currentURI?.spec,
-        pageURL,
-        `${url} should not load internally`
-      );
-    }
-    Assert.ok(
-      mockExternalProtocolService.urlLoaded(url),
+      await externalProtocolPromise,
+      url,
       `${url} should load externally`
     );
+    webProgressListener.cancelPromise();
   }
 
-  browser.removeProgressListener(listener);
-
   if (browser.currentURI?.spec != pageURL) {
-    let promise = new Promise(resolve => {
-      let event = selector == "#this-hash" ? "hashchange" : "pageshow";
-      let unregister = BrowserTestUtils.addContentEventListener(
-        browser,
-        event,
-        () => {
-          unregister();
-          resolve();
-        },
-        { capture: true }
-      );
-    });
-
+    let promise = webProgressListener.promiseEvent(browser);
     browser.browsingContext.goBack();
     await promise;
     Assert.equal(browser.currentURI?.spec, pageURL, "should have gone back");
