@@ -8,10 +8,22 @@
   --lwt-additional-images: none;
   --lwt-background-alignment: right top;
   --lwt-background-tiling: no-repeat;
-
   --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
   --toolbar-color: var(--toolbar-non-lwt-textcolor);
+  --autocomplete-box-padding: 3px;
+  --autocomplete-item-padding: 3px;
+  --autocomplete-item-radius: var(--toolbarbutton-border-radius);
+}
+
+:root[uidensity="compact"] {
+  --autocomplete-box-padding: 0;
+  --autocomplete-item-padding: 0;
+  --autocomplete-item-radius: 0;
+}
+
+:root[uidensity="touch"] {
+  --autocomplete-item-padding: 8px 3px;
 }
 
 #sidebar-box .sidebar-header {
@@ -110,6 +122,15 @@
   appearance: none;
   border-top: 1px solid var(--arrowpanel-color);
   opacity: 0.5;
+}
+
+.autocomplete-richlistbox {
+  padding: var(--autocomplete-box-padding);
+}
+
+.autocomplete-richlistitem {
+  padding: var(--autocomplete-item-padding);
+  border-radius: var(--autocomplete-item-radius);
 }
 
 /* Rules to help integrate WebExtension buttons */
