@@ -72,7 +72,7 @@ add_task(async function testFccReply() {
   // Copy a test mail into the Inbox.
   let file = do_get_file("data/message1.eml"); // mail to reply to
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     localAccountUtils.inboxFolder,
     null,

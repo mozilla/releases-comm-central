@@ -97,7 +97,7 @@ function* test_moveMessageToTargetFolder() {
   Assert.ok(msgHdr !== null);
 
   // Now move this message to the target folder.
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     IMAPPump.inbox,
     [msgHdr],
     gTargetFolder,

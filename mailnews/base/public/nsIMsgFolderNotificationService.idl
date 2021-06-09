@@ -11,6 +11,13 @@ interface nsIMsgFolderListener;
 
 typedef unsigned long msgFolderListenerFlag;
 
+
+/**
+ * nsIMsgFolderNotificationService provides a central point for sending out
+ * notifications related to folders.
+ * nsIMsgFolderListeners are registered with the service along with flags to
+ * indicate which kinds of notifications are of interest.
+ */
 [scriptable, uuid(e54a592c-2f23-4771-9670-bdb9d4f5dbbd)]
 interface nsIMsgFolderNotificationService : nsISupports {
   /**

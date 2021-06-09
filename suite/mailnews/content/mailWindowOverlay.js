@@ -950,7 +950,7 @@ function MsgDeleteMessage(aReallyDelete)
 function MsgCopyMessage(aDestFolder) {
   if (gMessageDisplay.isDummy) {
     let file = window.arguments[0].QueryInterface(Ci.nsIFileURL).file;
-    MailServices.copy.CopyFileMessage(file, aDestFolder, null, false,
+    MailServices.copy.copyFileMessage(file, aDestFolder, null, false,
                                       Ci.nsMsgMessageFlags.Read,
                                       "", null, msgWindow);
   }
@@ -1253,7 +1253,7 @@ BatchMessageMover.prototype =
 
       // If the source folder doesn't support deleting messages, we
       // make archive a copy, not a move.
-      MailServices.copy.CopyMessages(srcFolder, moveArray, dstFolder,
+      MailServices.copy.copyMessages(srcFolder, moveArray, dstFolder,
                                      srcFolder.canDeleteMessages, this,
                                      msgWindow, true);
       return; // continues with OnStopCopy
@@ -1281,7 +1281,7 @@ BatchMessageMover.prototype =
   },
 
   // This also implements nsIMsgCopyServiceListener, but we only care
-  // about the OnStopCopy (CopyMessages callback).
+  // about the OnStopCopy (copyMessages callback).
   OnStartCopy: function()
   {
   },

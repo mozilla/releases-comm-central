@@ -93,7 +93,7 @@ function test_references_header_parsing(aMsgHdr) {
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
   do_test_pending();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     anyOldMessage,
     localAccountUtils.inboxFolder,
     null,

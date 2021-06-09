@@ -80,7 +80,7 @@ function run_test() {
   let bugmail1 = do_get_file("../../../data/bugmail1");
   do_test_pending();
 
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     bugmail1,
     localAccountUtils.inboxFolder,
     null,

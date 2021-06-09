@@ -138,7 +138,7 @@ var tests = [
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     gMovedMsgId = msgHdr.messageId;
     IMAPPump.inbox.compact(asyncUrlListener, gDummyMsgWindow);
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       gIMAPTrashFolder,
       [msgHdr],
       IMAPPump.inbox,

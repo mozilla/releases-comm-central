@@ -95,7 +95,7 @@ function* markMessageAsGood() {
    *  gets moved back to the junk folder again. We'll test that we
    *  are now preventing that.
    */
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     gJunkFolder, // srcFolder
     [msgHdr], // messages
     IMAPPump.inbox, // dstFolder

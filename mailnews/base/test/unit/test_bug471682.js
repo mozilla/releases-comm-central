@@ -33,7 +33,7 @@ function run_test() {
 
   do_test_pending();
   // step 1: copy a message into the local inbox
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     bugmail1,
     localAccountUtils.inboxFolder,
     null,
@@ -59,7 +59,7 @@ var step2 = {
   OnStopCopy(aStatus) {
     Assert.notEqual(gHdr, null);
     // copy the message into the subfolder
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       localAccountUtils.inboxFolder,
       [gHdr],
       gSubfolder,
@@ -86,7 +86,7 @@ var step3 = {
 
 // step 4: start a second copy
 function step4() {
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     localAccountUtils.inboxFolder,
     [gHdr],
     gSubfolder,

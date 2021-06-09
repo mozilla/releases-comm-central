@@ -27,8 +27,8 @@ function run_test() {
   // Get messageCount messages into the local filestore.
   do_test_pending();
 
-  // function setupVirtualFolder() continues the testing after CopyFileMessage.
-  MailServices.copy.CopyFileMessage(
+  // function setupVirtualFolder() continues the testing after copyFileMessage.
+  MailServices.copy.copyFileMessage(
     bugmail1,
     localAccountUtils.inboxFolder,
     null,
@@ -51,7 +51,7 @@ var copyListener = {
   SetMessageId(aMessageId) {},
   OnStopCopy(aStatus) {
     if (--messageCount) {
-      MailServices.copy.CopyFileMessage(
+      MailServices.copy.copyFileMessage(
         bugmail1,
         localAccountUtils.inboxFolder,
         null,

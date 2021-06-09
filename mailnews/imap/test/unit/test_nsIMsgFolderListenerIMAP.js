@@ -86,7 +86,7 @@ function copyFileMessage(file, messageId, destFolder) {
     [MailServices.mfn.msgsClassified, [messageId], false, false],
   ];
   destFolder.updateFolder(null);
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     destFolder,
     null,
@@ -181,7 +181,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder) {
     false,
     false,
   ]);
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     srcFolder,
     messages,
     destFolder,

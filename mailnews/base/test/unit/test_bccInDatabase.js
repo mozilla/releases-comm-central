@@ -30,7 +30,7 @@ function run_test() {
   // Get a message into the local filestore.
   var draft = do_get_file("../../../data/draft1");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     draft,
     localAccountUtils.inboxFolder,
     null,

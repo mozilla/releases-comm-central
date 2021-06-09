@@ -227,7 +227,7 @@ function DropOnFolderTree(aRow, aOrientation)
     Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
     // ### ugh, so this won't work with cross-folder views. We would
     // really need to partition the messages by folder.
-    MailServices.copy.CopyMessages(sourceFolder, array, targetFolder, isMove,
+    MailServices.copy.copyMessages(sourceFolder, array, targetFolder, isMove,
                                    null, msgWindow, true);
   }
   else if (types.includes("application/x-moz-file"))
@@ -237,7 +237,7 @@ function DropOnFolderTree(aRow, aOrientation)
       let extFile = dt.mozGetDataAt("application/x-moz-file", i)
                       .QueryInterface(Ci.nsIFile);
       if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
-        MailServices.copy.CopyFileMessage(extFile, targetFolder, null, false,
+        MailServices.copy.copyFileMessage(extFile, targetFolder, null, false,
                                           1, "", null, msgWindow);
     }
   }
@@ -392,7 +392,7 @@ function DropOnThreadPane(aEvent)
 
     extFile = extFile.QueryInterface(Ci.nsIFile);
     if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
-      MailServices.copy.CopyFileMessage(extFile, gMsgFolderSelected, null,
+      MailServices.copy.copyFileMessage(extFile, gMsgFolderSelected, null,
                                         false, 1, "", null, msgWindow);
   }
 }

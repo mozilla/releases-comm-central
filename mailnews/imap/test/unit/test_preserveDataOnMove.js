@@ -63,7 +63,7 @@ function* loadImapMessage() {
 // move the message to a subfolder
 function* moveMessageToSubfolder() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     IMAPPump.inbox, // srcFolder
     [msgHdr], // messages
     gSubfolder, // dstFolder

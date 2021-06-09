@@ -24,7 +24,7 @@ var tests = [startCopy, startMime, startDetach, testDetach];
 function* startCopy() {
   // Get a message into the local filestore.
   let mailFile = do_get_file("../../../data/multipartmalt-detach");
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     mailFile,
     localAccountUtils.inboxFolder,
     null,

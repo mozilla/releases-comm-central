@@ -57,7 +57,7 @@ var copyListener = {
     let fileName = Files.shift();
     if (fileName) {
       let file = do_get_file(fileName);
-      MailServices.copy.CopyFileMessage(
+      MailServices.copy.copyFileMessage(
         file,
         localAccountUtils.inboxFolder,
         null,

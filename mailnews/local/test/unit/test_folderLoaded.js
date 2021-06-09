@@ -39,7 +39,7 @@ var tests = [
     localAccountUtils.rootFolder.createSubfolder("target", null);
     gTargetFolder = localAccountUtils.rootFolder.getChildNamed("target");
 
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       gMsgFile1,
       gTargetFolder,
       null,
@@ -51,7 +51,7 @@ var tests = [
     );
     yield false;
 
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       gMsgFile2,
       gTargetFolder,
       null,

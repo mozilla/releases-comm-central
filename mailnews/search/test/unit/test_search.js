@@ -582,7 +582,7 @@ function run_test() {
   // the testing after the copy.
   var bugmail12 = do_get_file("../../../data/bugmail12");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     bugmail12,
     localAccountUtils.inboxFolder,
     null,

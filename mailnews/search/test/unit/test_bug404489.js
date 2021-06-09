@@ -79,7 +79,7 @@ function run_test() {
   // Get a message into the local filestore. function continue_test() continues the testing after the copy.
   do_test_pending();
   var file = do_get_file(fileName);
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     localAccountUtils.inboxFolder,
     null,

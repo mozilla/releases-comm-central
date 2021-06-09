@@ -643,7 +643,7 @@ let gFolderTreeView = {
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
       // ### ugh, so this won't work with cross-folder views. We would
       // really need to partition the messages by folder.
-      cs.CopyMessages(sourceFolder, array, targetFolder, isMove, null,
+      cs.copyMessages(sourceFolder, array, targetFolder, isMove, null,
                       msgWindow, true);
     }
     else if (feedUri) {
@@ -658,7 +658,7 @@ let gFolderTreeView = {
         if (extFile.isFile()) {
           let len = extFile.leafName.length;
           if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml"))
-            cs.CopyFileMessage(extFile, targetFolder, null, false, 1, "", null,
+            cs.copyFileMessage(extFile, targetFolder, null, false, 1, "", null,
                                msgWindow);
         }
       }

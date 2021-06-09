@@ -43,7 +43,7 @@ var gCopyListener = {
 
 /**
  * copyFileMessageInLocalFolder
- * A utility wrapper of nsIMsgCopyService.CopyFileMessage to copy a message
+ * A utility wrapper of nsIMsgCopyService.copyFileMessage to copy a message
  * into local inbox folder.
  *
  * @param aMessageFile     An instance of nsIFile to copy.
@@ -67,7 +67,7 @@ function copyFileMessageInLocalFolder(
 
   gCopyListener.callbackFunction = aCallback;
   // Copy a message into the local folder
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     aMessageFile,
     localAccountUtils.inboxFolder,
     null,

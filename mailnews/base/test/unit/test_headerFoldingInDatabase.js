@@ -31,7 +31,7 @@ function run_test() {
   // Get a message into the local filestore.
   var message = do_get_file("../../../data/badly-folded-headers.eml");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     message,
     localAccountUtils.inboxFolder,
     null,

@@ -468,7 +468,7 @@ function msgHdrsModifyRaw(aMsgHdrs, aTransformer) {
 
     let { msgHdr, tempFile } = obj;
 
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       tempFile,
       msgHdr.folder,
       null,

@@ -518,7 +518,7 @@ var EnigmailFixExchangeMsg = {
       },
     };
 
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       fileSpec,
       this.destFolder,
       null,

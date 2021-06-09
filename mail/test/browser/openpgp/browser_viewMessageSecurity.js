@@ -113,7 +113,7 @@ add_task(async function testSmimeOpenPgpSelection() {
 
   // Add the fetched OpenPGP message to the inbox folder.
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     openPgpFile,
     gInbox,
     null,
@@ -179,7 +179,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
 
   // Add the broken OpenPGP message to the inbox folder.
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     brokenFile,
     gInbox,
     null,

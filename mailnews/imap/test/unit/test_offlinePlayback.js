@@ -57,7 +57,7 @@ var tests = [
     msgHdr1.folder.markMessagesFlagged(headers1, true);
     msgHdr2.folder.markMessagesFlagged(headers2, true);
     let promiseCopyListener1 = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       IMAPPump.inbox,
       headers1,
       gSecondFolder,
@@ -67,7 +67,7 @@ var tests = [
       true
     );
     let promiseCopyListener2 = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       IMAPPump.inbox,
       headers2,
       gThirdFolder,
@@ -78,7 +78,7 @@ var tests = [
     );
     var file = do_get_file("../../../data/bugmail10");
     let promiseCopyListener3 = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       file,
       IMAPPump.inbox,
       null,

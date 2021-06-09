@@ -104,7 +104,7 @@ var urlListener = {
 };
 
 function copyFileMessage(file, destFolder, isDraftOrTemplate) {
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     destFolder,
     null,

@@ -23,7 +23,7 @@ var tests = [startCopy, startMime, startDetach, testDetach];
 function* startCopy() {
   // Get a message into the local filestore.
   var mailFile = do_get_file("../../../data/external-attach-test");
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     mailFile,
     localAccountUtils.inboxFolder,
     null,

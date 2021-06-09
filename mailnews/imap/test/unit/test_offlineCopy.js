@@ -8,7 +8,7 @@
 
 /**
  * This test checks pseudo-offline message copies (which is triggered
- * by allowUndo == true in CopyMessages).
+ * by allowUndo == true in copyMessages).
  */
 
 var { PromiseTestUtils } = ChromeUtils.import(
@@ -91,7 +91,7 @@ var tests = [
   },
   async function copyMessagesToInbox() {
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       gMsgFile3,
       IMAPPump.inbox,
       null,
@@ -104,7 +104,7 @@ var tests = [
     await promiseCopyListener.promise;
 
     promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       gMsgFile4,
       IMAPPump.inbox,
       null,
@@ -154,7 +154,7 @@ var tests = [
     let db = IMAPPump.inbox.msgDatabase;
     let msg1 = db.getMsgHdrForMessageID(gMsgId1);
     // this is sync, I believe?
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       IMAPPump.inbox,
       [msg1],
       gFolder1,
@@ -167,7 +167,7 @@ var tests = [
     // two messages originally created from file copies (like in Send)
     let msg3 = db.getMsgHdrForMessageID(gMsg3Id);
     Assert.ok(msg3 instanceof Ci.nsIMsgDBHdr);
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       IMAPPump.inbox,
       [msg3],
       gFolder1,
@@ -183,7 +183,7 @@ var tests = [
     // because bug 790912 created messages with correct storeToken but messageOffset=0,
     //  these messages may not copy correctly. Make sure that they do, as fixed in bug 790912
     msg4.messageOffset = 0;
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       IMAPPump.inbox,
       [msg4],
       gFolder1,
@@ -241,7 +241,7 @@ var tests = [
     let messages = [...db.EnumerateMessages()];
     Assert.ok(messages.length > 0);
     // this is sync, I believe?
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       IMAPPump.inbox,
       messages,
       gFolder1,

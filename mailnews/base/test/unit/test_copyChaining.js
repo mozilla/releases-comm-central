@@ -37,7 +37,7 @@ var gTestArray = [
 function CopyNextMessage() {
   if (gMessages.length > 0) {
     let msgHdr = gMessages.shift();
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       gCopySource,
       [msgHdr],
       gCopyDest,

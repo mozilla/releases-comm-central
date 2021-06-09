@@ -55,7 +55,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
     [MailServices.mfn.msgAdded, gHdrsReceived],
     [MailServices.mfn.msgsClassified, gHdrsReceived, false, false],
   ];
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     destFolder,
     null,
@@ -75,7 +75,7 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
   gExpectedEvents = [
     [MailServices.mfn.msgsMoveCopyCompleted, isMove, items, destFolder, true],
   ];
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     srcFolder,
     items,
     destFolder,

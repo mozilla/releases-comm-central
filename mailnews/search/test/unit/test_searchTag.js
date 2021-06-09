@@ -458,7 +458,7 @@ function run_test() {
   // Get a message into the local filestore. function testKeywordSearch() continues the testing after the copy.
   var bugmail1 = do_get_file("../../../data/bugmail1");
   do_test_pending();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     bugmail1,
     localAccountUtils.inboxFolder,
     null,

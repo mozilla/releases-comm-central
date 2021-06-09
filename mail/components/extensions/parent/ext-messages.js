@@ -137,7 +137,7 @@ this.messages = class extends ExtensionAPI {
         let messages = [...sourceSet];
         promises.push(
           new Promise((resolve, reject) => {
-            MailServices.copy.CopyMessages(
+            MailServices.copy.copyMessages(
               sourceFolder,
               messages,
               destinationFolder,

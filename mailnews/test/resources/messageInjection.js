@@ -980,7 +980,7 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
           );
         }
 
-        MailServices.copy.CopyMessages(
+        MailServices.copy.copyMessages(
           folder,
           msgs,
           realDestFolder,

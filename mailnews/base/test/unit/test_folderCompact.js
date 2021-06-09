@@ -78,7 +78,7 @@ var urlListenerWrap = {
 
 function copyFileMessage(file, destFolder, isDraftOrTemplate) {
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     destFolder,
     null,
@@ -93,7 +93,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
 
 function copyMessages(items, isMove, srcFolder, destFolder) {
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     srcFolder,
     items,
     destFolder,

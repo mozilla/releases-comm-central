@@ -32,7 +32,7 @@ function test_enumerator_cleanup() {
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
   do_test_pending();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     anyOldMessage,
     localAccountUtils.inboxFolder,
     null,

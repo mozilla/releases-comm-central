@@ -262,7 +262,7 @@ MessageArchiver.prototype = {
     if (dstFolder != srcFolder) {
       // If the source folder doesn't support deleting messages, we
       // make archive a copy, not a move.
-      MailServices.copy.CopyMessages(
+      MailServices.copy.copyMessages(
         srcFolder,
         moveArray,
         dstFolder,

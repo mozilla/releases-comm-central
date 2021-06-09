@@ -631,7 +631,7 @@ add_task(async function copy_messages() {
   for (let msg of gMessages) {
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
 
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       do_get_file(smimeDataDirectory + msg.filename),
       gInbox,
       null,

@@ -50,7 +50,7 @@ var tests = [
   function* getLocalMessage1() {
     dump("getLocalMessage\n");
     var file = do_get_file("../../../data/bugmail1");
-    gCopyService.CopyFileMessage(
+    gCopyService.copyFileMessage(
       file,
       localAccountUtils.inboxFolder,
       null,
@@ -66,7 +66,7 @@ var tests = [
     gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
     dump("getLocalMessage\n");
     var file = do_get_file("../../../data/draft1");
-    gCopyService.CopyFileMessage(
+    gCopyService.copyFileMessage(
       file,
       localAccountUtils.inboxFolder,
       null,
@@ -81,7 +81,7 @@ var tests = [
   function* copyMessages() {
     gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
-    gCopyService.CopyMessages(
+    gCopyService.copyMessages(
       localAccountUtils.inboxFolder,
       gMessages,
       folder1,
@@ -94,7 +94,7 @@ var tests = [
   },
   function* moveMessages() {
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
-    gCopyService.CopyMessages(
+    gCopyService.copyMessages(
       localAccountUtils.inboxFolder,
       gMessages,
       folder2,

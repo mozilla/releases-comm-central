@@ -921,7 +921,7 @@ CryptMessageIntoFolder.prototype = {
         }
       } catch (ex) {}
 
-      MailServices.copy.CopyFileMessage(
+      MailServices.copy.copyFileMessage(
         fileSpec,
         MailUtils.getExistingFolder(self.destFolder),
         null,

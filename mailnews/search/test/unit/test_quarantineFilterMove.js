@@ -75,7 +75,7 @@ var gTestArray = [
     let firstMsgHdr = msgs[0];
     let secondMsgHdr = msgs[1];
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-    MailServices.copy.CopyMessages(
+    MailServices.copy.copyMessages(
       gMoveFolder,
       [firstMsgHdr, secondMsgHdr],
       gMoveFolder2,

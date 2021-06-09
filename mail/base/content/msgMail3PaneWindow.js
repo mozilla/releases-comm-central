@@ -2074,7 +2074,7 @@ function ThreadPaneOnDrop(aEvent) {
     if (extFile.isFile()) {
       let len = extFile.leafName.length;
       if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
-        MailServices.copy.CopyFileMessage(
+        MailServices.copy.copyFileMessage(
           extFile,
           gFolderDisplay.displayedFolder,
           null,

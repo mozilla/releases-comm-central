@@ -51,7 +51,7 @@ async function doMove() {
   );
   IMAPPump.server._test = true;
   let listener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     IMAPPump.inbox,
     [msg],
     gFolder1,

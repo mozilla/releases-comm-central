@@ -58,7 +58,7 @@ add_task(async function runPump() {
 
   // Copy messages to that folder.
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     inbox,
     messages,
     testFolder,

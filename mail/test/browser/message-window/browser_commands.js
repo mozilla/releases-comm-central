@@ -37,7 +37,7 @@ add_task(async function test_copy_eml_message() {
   // context menu.
   be_in_folder(folder1);
   let message = select_click_row(0);
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     folder1,
     [message],
     folder2,

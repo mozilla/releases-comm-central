@@ -60,7 +60,7 @@ add_task(async function testInvitationIdentityPrompt() {
   be_in_folder(gInbox);
 
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     new FileUtils.File(getTestFilePath("data/meet-meeting-invite.eml")),
     gInbox,
     null,

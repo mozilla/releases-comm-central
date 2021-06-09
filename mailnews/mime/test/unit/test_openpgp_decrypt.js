@@ -288,7 +288,7 @@ add_task(async function setUp() {
   for (let test of tests) {
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
 
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       do_get_file(`${browserEMLDir}${test.filename}`),
       gInbox,
       null,

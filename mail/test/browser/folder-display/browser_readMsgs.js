@@ -35,7 +35,7 @@ add_task(async function testMarkedAsRead() {
   Assert.ok(file.exists(), "test data file should exist");
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile into the Inbox.
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     folder,
     null,

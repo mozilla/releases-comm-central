@@ -120,7 +120,7 @@ function* doMoves() {
     count++;
   }
   // this will add dummy headers with keys > 0xffffff80
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     gIMAPInbox,
     headers1,
     gFolder1,
@@ -148,11 +148,11 @@ function* doMoves() {
     }
     count++;
   }
-  // Check that CopyMessages will handle having a high highwater mark.
+  // Check that copyMessages will handle having a high highwater mark.
   // It will thrown an exception if it can't.
   let msgHdr = gFolder1.msgDatabase.CreateNewHdr(0xfffffffd);
   gFolder1.msgDatabase.AddNewHdrToDB(msgHdr, false);
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     gIMAPInbox,
     headers1,
     gFolder1,

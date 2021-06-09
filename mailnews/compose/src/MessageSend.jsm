@@ -276,7 +276,7 @@ MessageSend.prototype = {
       this._smtpRequest = null;
     }
     if (this._msgCopy) {
-      MailServices.copy.NotifyCompletion(
+      MailServices.copy.notifyCompletion(
         this._copyFile,
         this._msgCopy.dstFolder,
         Cr.NS_ERROR_ABORT

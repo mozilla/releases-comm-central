@@ -97,7 +97,7 @@ function* moveMessageToTargetFolder() {
 
   // This should cause the move to be done as an offline imap operation
   // that's played back immediately.
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     IMAPPump.inbox,
     [msgHdr],
     gTargetFolder,

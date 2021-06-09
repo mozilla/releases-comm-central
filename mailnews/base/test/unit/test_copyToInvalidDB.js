@@ -60,7 +60,7 @@ function* actually_run_test() {
 
   let msgHdr = mailTestUtils.firstMsgHdr(gTestFolder);
   gMsgId1 = msgHdr.messageId;
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     gTestFolder,
     [msgHdr],
     gTestFolder2,

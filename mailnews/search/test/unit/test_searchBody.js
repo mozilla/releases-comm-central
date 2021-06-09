@@ -206,7 +206,7 @@ var copyListener = {
     var fileName = Files.shift();
     if (fileName) {
       var file = fixFile(do_get_file(fileName));
-      MailServices.copy.CopyFileMessage(
+      MailServices.copy.copyFileMessage(
         file,
         localAccountUtils.inboxFolder,
         null,

@@ -65,7 +65,7 @@ function* move_messages() {
   let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(
     IMAPPump.mailbox.uidnext - 1
   );
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     IMAPPump.inbox,
     [msg],
     localAccountUtils.inboxFolder,

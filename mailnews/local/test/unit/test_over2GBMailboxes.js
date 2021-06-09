@@ -86,7 +86,7 @@ function copyMessages() {
   Assert.ok(localInboxSize > gLocalInboxSize);
 
   // Copy the message into the subfolder.
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     localAccountUtils.inboxFolder,
     [getMessageHdr()],
     gLocalTrashFolder,

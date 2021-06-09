@@ -2089,7 +2089,7 @@ function MsgDeleteMessage(reallyDelete, fromToolbar) {
 function MsgCopyMessage(aDestFolder) {
   if (gMessageDisplay.isDummy) {
     let file = window.arguments[0].QueryInterface(Ci.nsIFileURL).file;
-    MailServices.copy.CopyFileMessage(
+    MailServices.copy.copyFileMessage(
       file,
       aDestFolder,
       null,

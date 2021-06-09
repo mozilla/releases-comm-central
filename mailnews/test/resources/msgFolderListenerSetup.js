@@ -43,7 +43,7 @@ var kStatus = {
 kStatus.everythingDone =
   kStatus.notificationsDone | kStatus.onStopCopyDone | kStatus.functionCallDone;
 
-// For CopyFileMessage: this stores the header that was received
+// For copyFileMessage: this stores the header that was received
 var gHdrsReceived = [];
 
 var gMsgHdrs = [];
@@ -220,7 +220,7 @@ var gMFListener = {
 
 // Copy listener, for proceeding after each operation.
 var copyListener = {
-  // For CopyFileMessage: this should be the folder the message is being stored to
+  // For copyFileMessage: this should be the folder the message is being stored to
   mFolderStoredIn: null,
   mMessageId: "",
   OnStartCopy() {},

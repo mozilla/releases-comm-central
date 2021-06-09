@@ -1051,7 +1051,7 @@ var gFolderTreeView = {
       prefBranch.setBoolPref("last_msg_movecopy_was_move", isMove);
       // ### ugh, so this won't work with cross-folder views. We would
       // really need to partition the messages by folder.
-      cs.CopyMessages(
+      cs.copyMessages(
         sourceFolder,
         array,
         targetFolder,
@@ -1072,7 +1072,7 @@ var gFolderTreeView = {
         if (extFile.isFile()) {
           let len = extFile.leafName.length;
           if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
-            cs.CopyFileMessage(
+            cs.copyFileMessage(
               extFile,
               targetFolder,
               null,

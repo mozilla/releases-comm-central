@@ -58,7 +58,7 @@ add_task(async function maildirToMbox() {
 
   // Move messages to mbox test folder.
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     gInboxFolder,
     messages,
     gTestFolder,
@@ -107,7 +107,7 @@ add_task(async function mboxToMaildir() {
 
   // Move messages to inbox folder.
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     gTestFolder,
     messages,
     gInboxFolder,

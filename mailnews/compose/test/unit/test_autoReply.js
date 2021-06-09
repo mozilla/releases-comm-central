@@ -44,7 +44,7 @@ function run_test() {
 add_task(async function copy_gIncomingMailFile() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile into the Inbox.
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     gIncomingMailFile,
     localAccountUtils.inboxFolder,
     null,
@@ -60,7 +60,7 @@ add_task(async function copy_gIncomingMailFile() {
 add_task(async function copy_gIncomingMailFile2() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile2 into the Inbox.
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     gIncomingMailFile2,
     localAccountUtils.inboxFolder,
     null,
@@ -76,7 +76,7 @@ add_task(async function copy_gIncomingMailFile2() {
 add_task(async function copy_gIncomingMailFile3() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gIncomingMailFile3 into the Inbox.
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     gIncomingMailFile3,
     localAccountUtils.inboxFolder,
     null,
@@ -92,7 +92,7 @@ add_task(async function copy_gIncomingMailFile3() {
 add_task(async function copy_gTemplateMailFile() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gTemplateMailFile into the Templates folder.
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     gTemplateMailFile,
     gTemplateFolder,
     null,
@@ -108,7 +108,7 @@ add_task(async function copy_gTemplateMailFile() {
 add_task(async function copy_gTemplateMailFile2() {
   let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   // Copy gTemplateMailFile2 into the Templates folder.
-  MailServices.copy.CopyFileMessage(
+  MailServices.copy.copyFileMessage(
     gTemplateMailFile2,
     gTemplateFolder,
     null,

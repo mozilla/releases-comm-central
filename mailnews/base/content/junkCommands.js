@@ -103,7 +103,7 @@ function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
     }
 
     if (actionParams.junkTargetFolder) {
-      MailServices.copy.CopyMessages(
+      MailServices.copy.copyMessages(
         aFolder,
         aJunkMsgHdrs,
         actionParams.junkTargetFolder,

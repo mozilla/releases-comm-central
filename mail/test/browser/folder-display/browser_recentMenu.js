@@ -78,7 +78,7 @@ add_task(async function test_move_message() {
       this.copyDone = true;
     },
   };
-  MailServices.copy.CopyMessages(
+  MailServices.copy.copyMessages(
     folder1,
     [msgHdr],
     folder2,
