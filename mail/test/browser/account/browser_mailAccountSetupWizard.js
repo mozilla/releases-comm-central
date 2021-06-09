@@ -107,6 +107,12 @@ add_task(async function test_mail_account_setup() {
     "Timeout waiting for error notification to be showed"
   );
 
+  let popOption = tabDocument.getElementById("resultsOption-pop3");
+  let protocolPOPSelected = BrowserTestUtils.waitForCondition(
+    () => !popOption.hidden && popOption.classList.contains("selected"),
+    "Timeout waiting for the POP3 option to be visible and selected"
+  );
+
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
   EventUtils.synthesizeMouseAtCenter(
     tabDocument.getElementById("continueButton"),
@@ -116,6 +122,14 @@ add_task(async function test_mail_account_setup() {
 
   // Wait for the successful notification to show up.
   await notificationShowed;
+
+  // Only the POP protocol should be available, therefore we need to confirm
+  // that the UI is returning only 1 pre-selected protocol.
+  await protocolPOPSelected;
+
+  // Confirm that the IMAP and EXCHANGE options are hidden.
+  Assert.ok(tabDocument.getElementById("resultsOption-imap").hidden);
+  Assert.ok(tabDocument.getElementById("resultsOption-exchange").hidden);
 
   // Register the prompt service to handle the confirm() dialog
   gMockPromptService.register();

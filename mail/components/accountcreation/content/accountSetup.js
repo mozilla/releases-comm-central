@@ -946,24 +946,27 @@ var gAccountSetup = {
       row.hidden = true;
     }
 
-    // Show the matching radio inputs if we have more than one available
-    // protocol for this configuration.
-    if (protocols.length > 1) {
-      // Reveal all the matching protocols.
-      for (let protocol of protocols) {
-        let row = document.getElementById(`resultsOption-${protocol.type}`);
-        row.hidden = false;
-        // Attach the protocol to the radio input for later usage.
-        row.querySelector(`input[type="radio"]`).configIncoming = protocol;
-      }
-
-      // Preselect the default protocol type.
-      let selected = document.getElementById(
-        `resultSelect-${config.incoming.type}`
-      );
-      selected.closest(".content-blocking-category").classList.add("selected");
-      selected.checked = true;
+    // Reveal all the matching protocols.
+    for (let protocol of protocols) {
+      let row = document.getElementById(`resultsOption-${protocol.type}`);
+      row.hidden = false;
+      // Attach the protocol to the radio input for later usage.
+      row.querySelector(`input[type="radio"]`).configIncoming = protocol;
     }
+
+    // Preselect the default protocol type.
+    let selected = document.getElementById(
+      `resultSelect-${config.incoming.type}`
+    );
+    selected.closest(".content-blocking-category").classList.add("selected");
+    selected.checked = true;
+
+    // Update the results area title to match the protocols choice.
+    document.l10n.setAttributes(
+      document.getElementById("resultAreaTitle"),
+      "account-setup-results-area-title",
+      { count: protocols.length }
+    );
 
     // Thunderbird can't handle Exchange server independentely, therefore we
     // need to prompt the user with the isntallation of the Owl add-on.
