@@ -639,19 +639,19 @@ class SmtpClient {
     }
 
     if (!this._nextAuthMethod) {
-      this._onError(new Error("No available auth method."));
+      this._onAuthFailed({ data: "No available auth method." });
       return;
     }
 
     this._authenticating = true;
 
-    let auth = this._nextAuthMethod;
+    this._currentAuthMethod = this._nextAuthMethod;
     this._nextAuthMethod = this._possibleAuthMethods[
-      this._possibleAuthMethods.indexOf(auth) + 1
+      this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
     ];
-    this.logger.debug(`Current auth method: ${auth}`);
+    this.logger.debug(`Current auth method: ${this._currentAuthMethod}`);
 
-    switch (auth) {
+    switch (this._currentAuthMethod) {
       case "LOGIN":
         // LOGIN is a 3 step authentication process
         // C: AUTH LOGIN
@@ -728,15 +728,47 @@ class SmtpClient {
       }
     }
 
-    this._onError(new Error(`Unknown authentication method ${auth}`));
+    this._onAuthFailed({
+      data: `Unknown authentication method ${this._currentAuthMethod}`,
+    });
   }
 
   _onAuthFailed(command) {
     this.logger.error(`Authentication failed: ${command.data}`);
-    if (this._nextAuthMethod && !this._destroyed) {
-      // Try the next auth method.
-      this._authenticateUser();
-      return;
+    if (!this._destroyed) {
+      if (this._nextAuthMethod) {
+        // Try the next auth method.
+        this._authenticateUser();
+        return;
+      } else if (!this._currentAuthMethod) {
+        // No auth method was even tried.
+        let err;
+        if (
+          this._server.authMethod == Ci.nsMsgAuthMethod.passwordEncrypted &&
+          (this._supportedAuthMethods.includes("PLAIN") ||
+            this._supportedAuthMethods.includes("LOGIN"))
+        ) {
+          // Pref has encrypted password, server claims to support plaintext
+          // password.
+          err = [
+            Ci.nsMsgSocketType.alwaysSTARTTLS,
+            Ci.nsMsgSocketType.SSL,
+          ].includes(this._server.socketType)
+            ? MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL
+            : MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL;
+        } else if (
+          this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext &&
+          this._supportedAuthMethods.includes("CRAM-MD5")
+        ) {
+          // Pref has plaintext password, server claims to support encrypted
+          // password.
+          err = MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT;
+        } else {
+          err = MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED;
+        }
+        this._onNsError(err);
+        return;
+      }
     }
 
     // Ask user what to do.
@@ -905,7 +937,7 @@ class SmtpClient {
     // Detect maximum allowed message size
     if ((match = command.data.match(/SIZE (\d+)/i)) && Number(match[1])) {
       const maxAllowedSize = Number(match[1]);
-      this.logger.debug("Maximum allowd message size: " + maxAllowedSize);
+      this.logger.debug("Maximum allowed message size: " + maxAllowedSize);
     }
 
     for (let cap of ["8BITMIME", "SIZE", "SMTPUTF8", "DSN"]) {
