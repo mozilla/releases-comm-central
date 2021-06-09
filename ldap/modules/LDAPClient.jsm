@@ -111,6 +111,7 @@ class LDAPClient {
    */
   abandon(messageId) {
     this._logger.debug(`Abandoning ${messageId}`);
+    this._callbackMap.delete(messageId);
     let req = new AbandonRequest(messageId);
     this._send(req);
   }
@@ -131,9 +132,32 @@ class LDAPClient {
    */
   _onData = event => {
     let data = event.data;
+    if (this._buffer) {
+      // Concatenate left over data from the last event with the new data.
+      let arr = new Uint8Array(this._buffer.byteLength + data.byteLength);
+      arr.set(new Uint8Array(this._buffer));
+      arr.set(new Uint8Array(data), this._buffer.byteLength);
+      data = arr.buffer;
+      this._buffer = null;
+    }
     // The payload can contain multiple messages, parse it to the end.
     while (data.byteLength) {
-      let res = LDAPResponse.fromBER(data);
+      let res;
+      try {
+        res = LDAPResponse.fromBER(data);
+        if (typeof res == "number") {
+          data = data.slice(res);
+          continue;
+        }
+      } catch (e) {
+        if (e.result == Cr.NS_ERROR_CANNOT_CONVERT_DATA) {
+          // The remaining data doesn't form a valid LDAP message, save it for
+          // the next round.
+          this._buffer = data;
+          return;
+        }
+        throw e;
+      }
       this._logger.debug(`S: [${res.messageId}] ${res.constructor.name}`);
       let callback = this._callbackMap.get(res.messageId);
       if (callback) {

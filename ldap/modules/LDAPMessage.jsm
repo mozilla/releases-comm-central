@@ -427,6 +427,12 @@ class LDAPResponse extends LDAPMessage {
    */
   static fromBER(buffer) {
     let decoded = asn1js.fromBER(buffer);
+    if (decoded.offset == -1 || decoded.result.error) {
+      throw Components.Exception(
+        decoded.result.error,
+        Cr.NS_ERROR_CANNOT_CONVERT_DATA
+      );
+    }
     let value = decoded.result.valueBlock.value;
     let protocolOp = value[1];
     if (protocolOp.idBlock.tagClass != this.TAG_CLASS_APPLICATION) {
