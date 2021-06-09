@@ -30,6 +30,14 @@
 // had a lot of cruft in it....
 //////////////////////////////////////////////////////////////////////////////////
 
+// nsMsgMailSession also implements nsIFolderListener, in order to relay
+// notifications to its registered listeners.
+// Calling a method on the MailSession causes that method to be invoked upon
+// all the registered listeners (but not listeners directly attached to
+// folders!)
+// In normal operation, most notifications will originate from the
+// nsIMsgFolder.Notify*() functions, which invoke both folder-local
+// listeners, and the global MailSession-registered ones).
 class nsMsgMailSession : public nsIMsgMailSession, public nsIFolderListener {
  public:
   nsMsgMailSession();

@@ -10,6 +10,15 @@ interface nsIMsgDBHdr;
 
 typedef unsigned long folderListenerNotifyFlagValue;
 
+/**
+ * nsIFolderListener defines callbacks to handle various notifications
+ * about changes in folders.
+ * These listeners can be attached to individual folders, or they
+ * can be registered globally, with nsIMsgMailSession.
+ * These notifications originate from nsIMsgFolder implementations.
+ * (nsIMsgFolder has corresponding methods for generating these
+ * notifications).
+ */
 [scriptable, uuid(f60ee1a2-6d81-422c-958f-d408b1b2daa7)]
 interface nsIFolderListener : nsISupports {
   const folderListenerNotifyFlagValue added = 0x1;

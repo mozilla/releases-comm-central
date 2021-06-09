@@ -9,6 +9,8 @@ var { MailServices } = ChromeUtils.import(
 
 var numListenerFunctions = 8;
 
+// The MailSession also implements nsIFolderListener - used to relay
+// notifications onward to all the registered listeners.
 var gMailSessionNotifier = MailServices.mailSession.QueryInterface(
   Ci.nsIFolderListener
 );

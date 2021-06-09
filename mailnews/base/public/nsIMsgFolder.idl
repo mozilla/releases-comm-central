@@ -705,6 +705,11 @@ interface nsIMsgFolder : nsISupports {
 
   void AddFolderListener(in nsIFolderListener listener);
   void RemoveFolderListener(in nsIFolderListener listener);
+
+  // These notification functions invoke the appropriate nsIFolderListener
+  // method on all the listeners attached to this folder, and _also_
+  // all the nsIFolderListeners registered in the MailSession.
+  // See nsIMsgMailSession AddFolderListener()/RemoveFolderListener().
   void NotifyPropertyChanged(in ACString property,
                              in ACString oldValue,
                              in ACString newValue);
