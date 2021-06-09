@@ -252,7 +252,7 @@ add_task(async () => {
     // Modify the list's name, nick name, and description fields.
     let modifyField = id => {
       id.focus();
-      EventUtils.sendKey("END", mlWindow);
+      EventUtils.sendKey("DOWN", mlWindow);
       EventUtils.sendString(inputs.modification, mlWindow);
     };
     modifyField(listName);
