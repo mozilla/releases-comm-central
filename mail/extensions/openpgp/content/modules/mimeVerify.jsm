@@ -473,10 +473,6 @@ MimeVerify.prototype = {
             manUrl = EnigmailFuncs.getUrlFromUriSpec(
               EnigmailVerify.getManualUri()
             );
-          } else {
-            manUrl = {
-              spec: "enigmail://invalid/message",
-            };
           }
 
           // print a message if not message explicitly decrypted

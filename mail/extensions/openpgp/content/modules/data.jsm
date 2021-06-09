@@ -38,30 +38,6 @@ var EnigmailData = {
     return inStream.read(tmpStream.available());
   },
 
-  extractMessageId(uri) {
-    var messageId = "";
-
-    var matches = uri.match(/^enigmail:message\/(.+)/);
-
-    if (matches && matches.length > 1) {
-      messageId = matches[1];
-    }
-
-    return messageId;
-  },
-
-  extractMimeMessageId(uri) {
-    var messageId = "";
-
-    var matches = uri.match(/^enigmail:mime-message\/(.+)/);
-
-    if (matches && matches.length > 1) {
-      messageId = matches[1];
-    }
-
-    return messageId;
-  },
-
   decodeQuotedPrintable(str) {
     return unescape(
       str.replace(/%/g, "=25").replace(new RegExp("=", "g"), "%")

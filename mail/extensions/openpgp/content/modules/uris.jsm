@@ -13,62 +13,10 @@ ChromeUtils.defineModuleGetter(
   "EnigmailLog",
   "chrome://openpgp/content/modules/log.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "EnigmailData",
-  "chrome://openpgp/content/modules/data.jsm"
-);
 
-const messageIdList = {};
 const encryptedUris = [];
 
 var EnigmailURIs = {
-  createMessageURI(
-    originalUrl,
-    contentType,
-    contentCharset,
-    contentData,
-    persist
-  ) {
-    EnigmailLog.DEBUG(
-      "enigmail.js: Enigmail.createMessageURI: " +
-        originalUrl +
-        ", " +
-        contentType +
-        ", " +
-        contentCharset +
-        "\n"
-    );
-
-    const messageId = "msg" + Math.floor(Math.random() * 1.0e9);
-
-    messageIdList[messageId] = {
-      originalUrl,
-      contentType,
-      contentCharset,
-      contentData,
-      persist,
-    };
-
-    return "enigmail:message/" + messageId;
-  },
-
-  deleteMessageURI(uri) {
-    EnigmailLog.DEBUG("enigmail.js: Enigmail.deleteMessageURI: " + uri + "\n");
-
-    const messageId = EnigmailData.extractMessageId(uri);
-
-    if (!messageId) {
-      return false;
-    }
-
-    return delete messageIdList[messageId];
-  },
-
-  getMessageURI(messageId) {
-    return messageIdList[messageId];
-  },
-
   /*
    * remember the fact a URI is encrypted
    *

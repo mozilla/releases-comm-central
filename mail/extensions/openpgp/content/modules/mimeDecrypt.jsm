@@ -426,10 +426,6 @@ MimeDecryptHandler.prototype = {
             manUrl.value = EnigmailFuncs.getUrlFromUriSpec(
               EnigmailVerify.getManualUri()
             );
-          } else {
-            manUrl.value = {
-              spec: "enigmail://invalid/message",
-            };
           }
 
           // print a message if not message explicitly decrypted

@@ -918,29 +918,13 @@ Enigmail.hdrView = {
           "\n"
       );
 
-      if (!uriSpec || uriSpec.search(/^enigmail:/) === 0) {
-        // we cannot compare if no URI given or if URI is Enigmail-internal;
-        // therefore assuming it's the current message
+      if (!uriSpec) {
+        // We cannot compare if no URI, => assume it's the current message.
         return true;
       }
 
       let msgUriSpec = Enigmail.msg.getCurrentMsgUriSpec();
-
       let currUrl = EnigmailFuncs.getUrlFromUriSpec(msgUriSpec);
-      if (!currUrl) {
-        EnigmailLog.DEBUG(
-          "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.isCurrentMessage: could not determine URL\n"
-        );
-        currUrl = {
-          host: "invalid",
-          path: "/message",
-          scheme: "enigmail",
-          spec: "enigmail://invalid/message",
-          schemeIs(s) {
-            return s === this.scheme;
-          },
-        };
-      }
 
       let currMsgId = EnigmailURIs.msgIdentificationFromUrl(currUrl);
       let gotMsgId = EnigmailURIs.msgIdentificationFromUrl(uri);
@@ -1154,42 +1138,6 @@ Enigmail.hdrView = {
           encToDetails,
           null,
           mimePartNumber
-        );
-      }
-
-      if (uriSpec && uriSpec.search(/^enigmail:message\//) === 0) {
-        let msg = gFolderDisplay.selectedMessage;
-
-        // Interrupt and warn the user that we can't fix a message that was
-        // opened from a local file.
-        if (!msg.folder) {
-          Enigmail.msg.notificationBox.appendNotification(
-            await document.l10n.formatValue("openpgp-broken-exchange-opened"),
-            "brokenExchange",
-            null,
-            Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
-            null
-          );
-          return;
-        }
-
-        let buttons = [
-          {
-            "l10n-id": "openpgp-broken-exchange-repair",
-            popup: null,
-            callback(aNotification, aButton) {
-              Enigmail.msg.fixBuggyExchangeMail();
-              return false; // Close notification.
-            },
-          },
-        ];
-
-        Enigmail.msg.notificationBox.appendNotification(
-          await document.l10n.formatValue("openpgp-broken-exchange-info"),
-          "brokenExchange",
-          null,
-          Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
-          buttons
         );
       }
     },

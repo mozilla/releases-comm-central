@@ -49,8 +49,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
-  EnigmailProtocolHandler:
-    "chrome://openpgp/content/modules/protocolHandler.jsm",
   EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
@@ -76,7 +74,6 @@ Enigmail.getEnigmailSvc = function() {
 };
 
 Enigmail.msg = {
-  createdURIs: [],
   decryptedMessage: null,
   securityInfo: null,
   lastSaveDir: "",
@@ -276,20 +273,6 @@ Enigmail.msg = {
     }
 
     this.setAttachmentReveal(null);
-
-    if (Enigmail.msg.createdURIs.length) {
-      // Cleanup messages belonging to this window (just in case)
-      var enigmailSvc = Enigmail.getEnigmailSvc();
-      if (enigmailSvc) {
-        EnigmailLog.DEBUG(
-          "enigmailMessengerOverlay.js: Cleanup: Deleting messages\n"
-        );
-        for (var index = 0; index < Enigmail.msg.createdURIs.length; index++) {
-          EnigmailURIs.deleteMessageURI(Enigmail.msg.createdURIs[index]);
-        }
-        Enigmail.msg.createdURIs = [];
-      }
-    }
 
     Enigmail.msg.decryptedMessage = null;
     Enigmail.msg.securityInfo = null;
@@ -907,18 +890,11 @@ Enigmail.msg = {
     }
   },
 
-  // display header about reparing buggy MS-Exchange messages
-  buggyMailHeader() {
-    let uriStr = EnigmailURIs.createMessageURI(
-      this.getCurrentMsgUrl(),
-      "message/rfc822",
-      "",
-      "??",
-      false
-    );
-
-    let ph = new EnigmailProtocolHandler();
-    let uri = ph.newURI(uriStr);
+  /**
+   * Display header about reparing buggy MS-Exchange messages.
+   */
+  async buggyMailHeader() {
+    let uri = this.getCurrentMsgUrl();
     Enigmail.hdrView.headerPane.updateSecurityStatus(
       "",
       0,
@@ -932,6 +908,37 @@ Enigmail.msg = {
       uri,
       "",
       "1"
+    );
+
+    // Warn that we can't fix a message that was opened from a local file.
+    if (!gFolderDisplay.selectedMessage.folder) {
+      Enigmail.msg.notificationBox.appendNotification(
+        await document.l10n.formatValue("openpgp-broken-exchange-opened"),
+        "brokenExchange",
+        null,
+        Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
+        null
+      );
+      return;
+    }
+
+    let buttons = [
+      {
+        "l10n-id": "openpgp-broken-exchange-repair",
+        popup: null,
+        callback(notification, button) {
+          Enigmail.msg.fixBuggyExchangeMail();
+          return false; // Close notification.
+        },
+      },
+    ];
+
+    Enigmail.msg.notificationBox.appendNotification(
+      await document.l10n.formatValue("openpgp-broken-exchange-info"),
+      "brokenExchange",
+      null,
+      Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
+      buttons
     );
   },
 
@@ -1958,6 +1965,10 @@ Enigmail.msg = {
     let ct = hdrs.extractHeader("content-type", true);
 
     if (ct && ct.search(/^text\/plain/i) === 0) {
+      /* 
+      // xxx msgText not really used. It used to be put into
+      //  EnigmailURIs.createMessageURI as contentData... but that was also never accessed?
+      // 
       let bi = this.buggyExchangeEmailContent.search(/\r?\n/);
       let boundary = this.buggyExchangeEmailContent.substr(2, bi - 2);
       let startMsg = this.buggyExchangeEmailContent.search(/\r?\n\r?\n/);
@@ -1987,24 +1998,18 @@ Enigmail.msg = {
               "Content-Type: application/octet-stream"
             );
       }
+      */
 
       let enigmailSvc = Enigmail.getEnigmailSvc();
       if (!enigmailSvc) {
         return false;
       }
 
-      let uri = EnigmailURIs.createMessageURI(
-        this.getCurrentMsgUrl(),
-        "message/rfc822",
-        "",
-        msgText,
-        false
-      );
+      let uri = Services.io.newURI(this.getCurrentMsgUrl());
 
       EnigmailVerify.setMsgWindow(msgWindow, null);
       messenger.loadURL(window, uri);
 
-      // Thunderbird
       let atv = document.getElementById("attachmentView");
       if (atv) {
         atv.setAttribute("collapsed", "true");
