@@ -5,7 +5,7 @@
 * Botan is released under the Simplified BSD License (see license.txt)
 */
 
-#include <botan/internal/clmul_cpu.h>
+#include <botan/ghash.h>
 #include <botan/internal/simd_32.h>
 
 #if defined(BOTAN_SIMD_USE_SSE2)
@@ -68,10 +68,16 @@ BOTAN_FORCE_INLINE SIMD_4x32 BOTAN_FUNC_ISA(BOTAN_CLMUL_ISA) clmul(const SIMD_4x
       i2 = mask_lo.andc(i2);
       }
 
-   return SIMD_4x32((__vector unsigned int)__builtin_crypto_vpmsumd(
-                       (__vector unsigned long)i1.raw(),
-                       (__vector unsigned long)i2.raw())
-      );
+   auto i1v = reinterpret_cast<__vector unsigned long long>(i1.raw());
+   auto i2v = reinterpret_cast<__vector unsigned long long>(i2.raw());
+
+#if defined(__clang__)
+   auto rv = __builtin_altivec_crypto_vpmsumd(i1v, i2v);
+#else
+   auto rv = __builtin_crypto_vpmsumd(i1v, i2v);
+#endif
+
+   return SIMD_4x32(reinterpret_cast<__vector unsigned int>(rv));
 #endif
    }
 
@@ -140,7 +146,7 @@ inline SIMD_4x32 BOTAN_FUNC_ISA(BOTAN_CLMUL_ISA)
 }
 
 BOTAN_FUNC_ISA(BOTAN_VPERM_ISA)
-void gcm_clmul_precompute(const uint8_t H_bytes[16], uint64_t H_pow[4*2])
+void GHASH::ghash_precompute_cpu(const uint8_t H_bytes[16], uint64_t H_pow[4*2])
    {
    const SIMD_4x32 H1 = reverse_vector(SIMD_4x32::load_le(H_bytes));
    const SIMD_4x32 H2 = gcm_multiply(H1, H1);
@@ -154,9 +160,9 @@ void gcm_clmul_precompute(const uint8_t H_bytes[16], uint64_t H_pow[4*2])
    }
 
 BOTAN_FUNC_ISA(BOTAN_VPERM_ISA)
-void gcm_multiply_clmul(uint8_t x[16],
-                        const uint64_t H_pow[8],
-                        const uint8_t input[], size_t blocks)
+void GHASH::ghash_multiply_cpu(uint8_t x[16],
+                               const uint64_t H_pow[8],
+                               const uint8_t input[], size_t blocks)
    {
    /*
    * Algorithms 1 and 5 from Intel's CLMUL guide

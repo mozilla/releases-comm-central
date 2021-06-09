@@ -90,6 +90,13 @@ class Version(object):
         if not Version.data:
             root_dir = os.path.dirname(os.path.realpath(__file__))
             Version.data = parse_version_file(os.path.join(root_dir, 'src/build-data/version.txt'))
+
+            suffix = Version.data["release_suffix"]
+            if suffix != "":
+                suffix_re = re.compile('-(alpha|beta|rc)[0-9]+')
+
+                if not suffix_re.match(suffix):
+                    raise Exception("Unexpected version suffix '%s'" % (suffix))
         return Version.data
 
     @staticmethod
@@ -103,6 +110,10 @@ class Version(object):
     @staticmethod
     def patch():
         return Version.get_data()["release_patch"]
+
+    @staticmethod
+    def suffix():
+        return Version.get_data()["release_suffix"]
 
     @staticmethod
     def packed():
@@ -123,7 +134,7 @@ class Version(object):
 
     @staticmethod
     def as_string():
-        return '%d.%d.%d' % (Version.major(), Version.minor(), Version.patch())
+        return '%d.%d.%d%s' % (Version.major(), Version.minor(), Version.patch(), Version.suffix())
 
     @staticmethod
     def vc_rev():
@@ -330,6 +341,9 @@ def process_command_line(args): # pylint: disable=too-many-locals,too-many-state
 
     target_group.add_option('--msvc-runtime', metavar='RT', default=None,
                             help='specify MSVC runtime (MT, MD, MTd, MDd)')
+
+    target_group.add_option('--compiler-cache',
+                            help='specify a compiler cache to use')
 
     target_group.add_option('--with-endian', metavar='ORDER', default=None,
                             help='override byte order guess')
@@ -1977,10 +1991,27 @@ def create_template_vars(source_paths, build_paths, options, modules, cc, arch, 
             return p
         return os.path.join(options.prefix or osinfo.install_root, p)
 
+    def choose_python_exe():
+        exe = sys.executable
+
+        if options.os == 'mingw':  # mingw doesn't handle the backslashes in the absolute path well
+            return exe.replace('\\', '/')
+
+        return exe
+
+    def choose_cxx_exe():
+        cxx = options.compiler_binary or cc.binary_name
+
+        if options.compiler_cache is None:
+            return cxx
+        else:
+            return '%s %s' % (options.compiler_cache, cxx)
+
     variables = {
         'version_major':  Version.major(),
         'version_minor':  Version.minor(),
         'version_patch':  Version.patch(),
+        'version_suffix': Version.suffix(),
         'version_vc_rev': 'unknown' if options.no_store_vc_rev else Version.vc_rev(),
         'abi_rev':        Version.so_rev(),
 
@@ -2074,11 +2105,11 @@ def create_template_vars(source_paths, build_paths, options, modules, cc, arch, 
 
         'mp_bits': choose_mp_bits(),
 
-        'python_exe': os.path.basename(sys.executable),
+        'python_exe': choose_python_exe(),
         'python_version': options.python_version,
         'install_python_module': not options.no_install_python_module,
 
-        'cxx': (options.compiler_binary or cc.binary_name),
+        'cxx': choose_cxx_exe(),
         'cxx_abi_flags': cc.mach_abi_link_flags(options),
         'linker': cc.linker_name or '$(CXX)',
         'make_supports_phony': osinfo.basename != 'windows',
@@ -2106,9 +2137,9 @@ def create_template_vars(source_paths, build_paths, options, modules, cc, arch, 
 
         'visibility_attribute': cc.gen_visibility_attribute(options),
 
-        'lib_link_cmd': cc.so_link_command_for(osinfo.basename, options) + ' ' + external_link_cmd(),
-        'exe_link_cmd': cc.binary_link_command_for(osinfo.basename, options) + ' ' + external_link_cmd(),
-        'post_link_cmd': '',
+        'lib_link_cmd': cc.so_link_command_for(osinfo.basename, options),
+        'exe_link_cmd': cc.binary_link_command_for(osinfo.basename, options),
+        'external_link_cmd': external_link_cmd(),
 
         'ar_command': ar_command(),
         'ar_options': options.ar_options or cc.ar_options or osinfo.ar_options,

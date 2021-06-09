@@ -15,9 +15,6 @@ import tempfile
 import optparse # pylint: disable=deprecated-module
 
 def get_concurrency():
-    """
-    Get default concurrency level of build
-    """
     def_concurrency = 2
 
     try:
@@ -77,8 +74,7 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
     test_cmd = [os.path.join(root_dir, 'botan-test')]
 
     essential_tests = ['block', 'aead', 'hash', 'stream', 'mac', 'modes', 'kdf',
-                       'hmac_drbg', 'hmac_drbg_unit',
-                       'tls', 'ffi',
+                       'hmac_drbg', 'hmac_drbg_unit', 'tls',
                        'rsa_sign', 'rsa_verify', 'dh_kat',
                        'ecc_randomized', 'ecdh_kat', 'ecdsa_sign', 'curve25519_scalar',
                        'cpuid', 'simd_32', 'os_utils', 'util', 'util_dates']
@@ -122,6 +118,7 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
 
     if target == 'coverage':
         flags += ['--with-coverage-info', '--with-debug-info', '--test-mode']
+        test_cmd += ['--skip-tests=tls_stream_integration']
 
     if target == 'valgrind':
         # valgrind in 16.04 has a bug with rdrand handling
@@ -129,6 +126,7 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
         test_prefix = ['valgrind', '--error-exitcode=9', '-v', '--leak-check=full', '--show-reachable=yes']
         # valgrind is single threaded anyway
         test_cmd += ['--test-threads=1']
+        # valgrind is slow
         test_cmd += essential_tests
 
     if target == 'fuzzers':
@@ -297,7 +295,7 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
         else:
             run_test_command = test_prefix + test_cmd
 
-    return flags, run_test_command, make_prefix
+    return flags, run_test_command, make_prefix, install_prefix
 
 def run_cmd(cmd, root_dir):
     """
@@ -316,7 +314,7 @@ def run_cmd(cmd, root_dir):
     cwd = None
 
     redirect_stdout = None
-    if len(cmd) > 3 and cmd[-2] == '>':
+    if len(cmd) >= 3 and cmd[-2] == '>':
         redirect_stdout = open(cmd[-1], 'w')
         cmd = cmd[:-2]
     if len(cmd) > 1 and cmd[0].startswith('indir:'):
@@ -503,6 +501,7 @@ def main(args=None):
             'src/python/botan2.py',
             'src/scripts/ci_build.py',
             'src/scripts/install.py',
+            'src/scripts/ci_check_install.py',
             'src/scripts/dist.py',
             'src/scripts/cleanup.py',
             'src/scripts/check.py',
@@ -524,7 +523,7 @@ def main(args=None):
             cmds.append(['python3', '-m', 'pylint'] + pylint_flags + [py3_flags] + full_paths)
 
     else:
-        config_flags, run_test_command, make_prefix = determine_flags(
+        config_flags, run_test_command, make_prefix, install_prefix = determine_flags(
             target, options.os, options.cpu, options.cc,
             options.cc_bin, options.compiler_cache, root_dir,
             options.pkcs11_lib, options.use_gdb, options.disable_werror,
@@ -608,6 +607,7 @@ def main(args=None):
 
         if target in ['shared', 'static', 'bsi', 'nist']:
             cmds.append(make_cmd + ['install'])
+            cmds.append([py_interp, os.path.join(root_dir, 'src/scripts/ci_check_install.py'), install_prefix])
 
         if target in ['sonar']:
 
@@ -645,7 +645,7 @@ def main(args=None):
 
             if have_prog('codecov'):
                 # If codecov exists assume we are on Travis and report to codecov.io
-                cmds.append(['codecov'])
+                cmds.append(['codecov', '>', 'codecov_stdout.log'])
             else:
                 # Otherwise generate a local HTML report
                 cmds.append(['genhtml', cov_file, '--output-directory', 'lcov-out'])

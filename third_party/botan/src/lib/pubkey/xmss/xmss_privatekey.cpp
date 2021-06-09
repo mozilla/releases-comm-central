@@ -15,10 +15,13 @@
  * Botan is released under the Simplified BSD License (see license.txt)
  **/
 
-#include <botan/xmss_privatekey.h>
+#include <botan/xmss.h>
 #include <botan/internal/xmss_signature_operation.h>
-#include <botan/xmss_common_ops.h>
+#include <botan/internal/xmss_index_registry.h>
+#include <botan/internal/xmss_common_ops.h>
 #include <botan/ber_dec.h>
+#include <botan/der_enc.h>
+#include <iterator>
 
 #if defined(BOTAN_HAS_THREAD_UTILS)
    #include <botan/internal/thread_pool.h>
@@ -110,6 +113,24 @@ XMSS_PrivateKey::XMSS_PrivateKey(
    set_root(tree_hash(0,
                       XMSS_PublicKey::m_xmss_params.tree_height(),
                       adrs));
+   }
+
+
+XMSS_PrivateKey::XMSS_PrivateKey(XMSS_Parameters::xmss_algorithm_t xmss_algo_id,
+                                 size_t idx_leaf,
+                                 const secure_vector<uint8_t>& wots_priv_seed,
+                                 const secure_vector<uint8_t>& prf,
+                                 const secure_vector<uint8_t>& root,
+                                 const secure_vector<uint8_t>& public_seed)
+   : XMSS_PublicKey(xmss_algo_id, root, public_seed),
+     m_wots_priv_key(XMSS_PublicKey::m_xmss_params.ots_oid(),
+                     public_seed,
+                     wots_priv_seed),
+     m_hash(XMSS_PublicKey::m_xmss_params.hash_function_name()),
+     m_prf(prf),
+     m_index_reg(XMSS_Index_Registry::get_instance())
+   {
+   set_unused_leaf_index(idx_leaf);
    }
 
 secure_vector<uint8_t>
@@ -295,16 +316,57 @@ XMSS_PrivateKey::tree_hash_subtree(secure_vector<uint8_t>& result,
    result = nodes[level - 1];
    }
 
+secure_vector<uint8_t> XMSS_PrivateKey::private_key_bits() const
+   {
+   return DER_Encoder().encode(raw_private_key(), OCTET_STRING).get_contents();
+   }
+
 std::shared_ptr<Atomic<size_t>>
 XMSS_PrivateKey::recover_global_leaf_index() const
    {
    BOTAN_ASSERT(m_wots_priv_key.private_seed().size() ==
                 XMSS_PublicKey::m_xmss_params.element_size() &&
                 m_prf.size() == XMSS_PublicKey::m_xmss_params.element_size(),
-                "Trying to retrieve index for partially initialized "
-                "key.");
-   return m_index_reg.get(m_wots_priv_key.private_seed(),
-                          m_prf);
+                "Trying to retrieve index for partially initialized key");
+   return m_index_reg.get(m_wots_priv_key.private_seed(), m_prf);
+   }
+
+void XMSS_PrivateKey::set_unused_leaf_index(size_t idx)
+   {
+   if(idx >= (1ull << XMSS_PublicKey::m_xmss_params.tree_height()))
+      {
+      throw Decoding_Error("XMSS private key leaf index out of bounds");
+      }
+   else
+      {
+      std::atomic<size_t>& index =
+         static_cast<std::atomic<size_t>&>(*recover_global_leaf_index());
+      size_t current = 0;
+
+      do
+         {
+         current = index.load();
+         if(current > idx)
+            { return; }
+         }
+      while(!index.compare_exchange_strong(current, idx));
+      }
+   }
+
+size_t XMSS_PrivateKey::reserve_unused_leaf_index()
+   {
+   size_t idx = (static_cast<std::atomic<size_t>&>(
+                    *recover_global_leaf_index())).fetch_add(1);
+   if(idx >= (1ull << XMSS_PublicKey::m_xmss_params.tree_height()))
+      {
+      throw Decoding_Error("XMSS private key, one time signatures exhaused");
+      }
+   return idx;
+   }
+
+size_t XMSS_PrivateKey::unused_leaf_index() const
+   {
+   return *recover_global_leaf_index();
    }
 
 secure_vector<uint8_t> XMSS_PrivateKey::raw_private_key() const

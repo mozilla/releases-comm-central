@@ -1,6 +1,130 @@
 Release Notes
 ========================================
 
+Version 2.17.3, 2020-12-21
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Change base64, base58, base32, and hex encoding and decoding opearations
+  to run in constant time (GH #2549)
+
+* Fix a build problem on PPC64 building with Clang (GH #2547)
+
+* Fix an install problem introduced in 2.17.2 affecting MSVC 2015
+
+* Fix use of -L flag in linking when configured using ``--with-external-libdir``
+  (GH #2496)
+
+* Fix a build problem on big-endian PowerPC related to VSX instructions
+  in the AES code. (GH #2515)
+
+Version 2.17.2, 2020-11-13
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fix an build problem on ppc64 introduced with certain recent
+  versions of GCC or binutils where using the DARN instruction
+  requires using an appropriate -mcpu flag to enable the instruction
+  in the assembler. (GH #2481 2463)
+
+* Resolve an issue in the modular square root algorithm where a loop
+  to find a quadratic non-residue could, for a carefully chosen
+  composite modulus, not terminte in a timely manner. (GH #2482 #2476)
+
+* Fix a regression in MinGW builds introduced in 2.17.1
+
+Version 2.17.1, 2020-11-07
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fix a build problem that could occur if Python was not in the PATH.
+  This was known to occur on some installations of macOS.
+
+* Re-enable support for the x86 CLMUL instruction on Visual C++, which was
+  accidentally disabled starting in 2.12.0. (GH #2460)
+
+Version 2.17.0, 2020-11-05
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fix a bug in ECDSA which could occur when the group size and hash length
+  differ. In this case, on occasion the generated signature would not be
+  accepted by other ECDSA implementations. This was particularly likely to
+  affect users of 160-bit or 239-bit curves. (GH #2433 #2415)
+
+* Fix a bug in ECDSA verification when the public key was chosen to be
+  a small multiple of the group generator. In that case, verification
+  would fail even if the signature was actually valid. (GH #2425)
+
+* SIV's functionality of supporting multiple associated data inputs has been
+  generalized onto the AEAD_Mode interface. However at the moment SIV is the
+  only AEAD implemented which supports more than one AD. (GH #2440)
+
+* The contents of ASN.1 headers ``asn1_str.h``, ``asn1_time.h``, ``asn1_oid.h``
+  and ``alg_id.h`` have been moved to ``asn1_obj.h``. The header files remain
+  but simply forward the include to ``asn1_obj.h``. These now-empty header files
+  are deprecated, and will be removed in a future major release. (GH #2441)
+
+* The contents of X.509/PKIX headers ``asn1_attribute.h`` ``asn1_alt_name.h``
+  ``name_constraint.h`` ``x509_dn.h`` ``cert_status.h`` and ``key_constraint.h``
+  have been merged into ``pkix_enums.h`` (for enumerations) and ``pkix_types.h``
+  (for all other definitions). The previous header files remain but simply
+  forward the include to the new header containing the definition. These
+  now-empty header files are deprecated, and will be removed in a future major
+  release. (GH #2441)
+
+* A number of other headers including those related to HOTP/TOTP, XMSS,
+  PKCS11, PSK_DB have also been merged. Any now deprecated/empty headers
+  simply include the new header and issue a deprecation warning.
+  (GH #2443 #2446 #2447 2448 #2449)
+
+* Small optimizations in the non-hardware assisted AES key generation
+  code path (GH #2417 #2418)
+
+* Move the GHASH code to a new module in utils, making it possible
+  to build GMAC support without requiring GCM (GH #2416)
+
+* Add more detection logic for AVX-512 features (GH #2430)
+
+* Avoid std::is_pod which is deprecated in C++20 (GH #2429)
+
+* Fix a bug parsing deeply nested cipher names (GH #2426)
+
+* Add support for ``aarch64_be`` target CPU (GH #2422)
+
+* Fix order of linker flags so they are always applied effectively (GH #2420)
+
+* Prevent requesting DER encoding of signatures when the algorithm
+  did not support it (GH #2419)
+
+Version 2.16.0, 2020-10-06
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Now userspace PRNG objects (such as AutoSeeded_RNG and HMAC_DRBG)
+  use an internal lock, which allows safe concurrent use. This however
+  is purely a precaution in case of accidental sharing of such RNG
+  objects; for performance reasons it is always preferable to use
+  a RNG per thread if a userspace RNG is needed. (GH #2399)
+
+* DL_Group and EC_Group objects now track if they were created from a
+  known trusted group (such as P-256 or an IPsec DH parameter).  If
+  so, then verification tests can be relaxed, as compared to
+  parameters which may have been maliciously constructed in order to
+  pass primality checks. (GH #2409)
+
+* RandomNumberGenerator::add_entropy_T assumed its input was a POD
+  type but did not verify this. (GH #2403)
+
+* Support OCSP responders that live on a non-standard port (GH #2401)
+
+* Add support for Solaris sandbox (GH #2385)
+
+* Support suffixes on release numbers for alpha/beta releases (GH #2404)
+
+* Fix a bug in EAX which allowed requesting a 0 length tag, which had
+  the effect of using a full length tag. Instead omit the length field,
+  or request the full tag length explicitly. (GH #2392 #2390)
+
+* Fix a memory leak in GCM where if passed an unsuitable block cipher
+  (eg not 128 bit) it would throw an exception and leak the cipher
+  object. (GH #2392 #2388)
+
 Version 2.15.0, 2020-07-07
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -27,17 +27,17 @@ If you think you have found a security issue, see the `security page
 <https://botan.randombit.net/security.html>`_ for contact information.
 
 The latest release is
-`2.15.0 <https://botan.randombit.net/releases/Botan-2.15.0.tar.xz>`_
-`(sig) <https://botan.randombit.net/releases/Botan-2.15.0.tar.xz.asc>`_,
-released on 2020-07-07.
+`2.17.3 <https://botan.randombit.net/releases/Botan-2.17.3.tar.xz>`_
+`(sig) <https://botan.randombit.net/releases/Botan-2.17.3.tar.xz.asc>`_,
+released on 2020-12-21.
 All releases are signed with a `PGP key <https://botan.randombit.net/pgpkey.txt>`_.
 See the `release notes <https://botan.randombit.net/news.html>`_ for
 what is new. Botan is also available through most
 `distributions <https://github.com/randombit/botan/wiki/Distros>`_
 such as Fedora, Debian, Arch and Homebrew.
 
-.. image:: https://travis-ci.org/randombit/botan.svg?branch=master
-    :target: https://travis-ci.org/randombit/botan
+.. image:: https://api.travis-ci.com/randombit/botan.svg?branch=master
+    :target: https://travis-ci.com/github/randombit/botan
     :alt: Travis CI status
 
 .. image:: https://ci.appveyor.com/api/projects/status/n9f94dljd03j2lce/branch/master?svg=true

@@ -479,8 +479,6 @@ class Speed final : public Command
 
          const std::vector<size_t> buf_sizes = unique_buffer_sizes(get_arg("buf-size"));
 
-         Botan::CPUID::initialize();
-
          for(std::string cpuid_to_clear : Botan::split_on(get_arg("clear-cpuid"), ','))
             {
             auto bits = Botan::CPUID::bit_from_string(cpuid_to_clear);
@@ -1358,7 +1356,7 @@ class Speed final : public Command
                y.randomize(rng(), q_bits);
 
                div_timer->start();
-               Botan::divide(x, y, q1, r1);
+               Botan::vartime_divide(x, y, q1, r1);
                div_timer->stop();
 
                ct_div_timer->start();
@@ -1397,7 +1395,7 @@ class Speed final : public Command
                x.randomize(rng(), n_bits);
 
                div_timer->start();
-               Botan::divide(x, ten, q1, r1);
+               Botan::vartime_divide(x, ten, q1, r1);
                div_timer->stop();
 
                ct_div_timer->start();
@@ -1672,9 +1670,9 @@ class Speed final : public Command
 
             if(dec_timer->under(msec))
                {
-               auto dec_pt = dec_timer->run([&]() { return dec.decrypt(ciphertext); });
+               const auto dec_pt = dec_timer->run([&]() { return dec.decrypt(ciphertext); });
 
-               if(dec_pt != plaintext) // sanity check
+               if(!(dec_pt == plaintext)) // sanity check
                   {
                   error_output() << "Bad roundtrip in PK encrypt/decrypt bench\n";
                   }

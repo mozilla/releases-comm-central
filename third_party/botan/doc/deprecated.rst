@@ -59,9 +59,11 @@ Deprecated Functionality
 This section lists cryptographic functionality which will be removed
 in a future major release.
 
-- Block ciphers CAST-256, GOST 28147, Kasumi, MISTY1, DESX, and XTEA.
+- Block ciphers CAST-256, GOST 28147, Kasumi, MISTY1, DESX, XTEA, Noekeon
 
-- Hash functions GOST 34.11-94 and Tiger
+- Hash functions GOST 34.11-94, Tiger, MD4
+
+- X9.42 KDF
 
 - DLIES
 
@@ -110,90 +112,98 @@ Deprecated Headers
   alternative available. For example instead of using algorithm
   specific interfaces, use X::create to create the object dynamically.
 
-  Algorithm headers (ciphers, modes, etc); just interact via the base class:
-  ``adler32.h``,
+  Block cipher headers (interact using BlockCipher interface):
   ``aes.h``,
   ``aria.h``,
-  ``bcrypt_pbkdf.h``,
-  ``blake2b.h``,
   ``blowfish.h``,
   ``camellia.h``,
   ``cascade.h``,
   ``cast128.h``,
   ``cast256.h``,
-  ``cbc.h``,
-  ``cbc_mac.h``,
-  ``ccm.h``,
-  ``cfb.h``,
-  ``chacha20poly1305.h``,
-  ``chacha.h``,
-  ``cmac.h``,
+  ``des.h``,
+  ``desx.h``,
+  ``gost_28147.h``,
+  ``idea.h``,
+  ``kasumi.h``,
+  ``lion.h``,
+  ``misty1.h``,
+  ``noekeon.h``,
+  ``seed.h``,
+  ``serpent.h``,
+  ``shacal2.h``,
+  ``sm4.h``,
+  ``threefish_512.h``,
+  ``twofish.h``,
+  ``xtea.h``,
+
+  Hash function headers (interact using HashFunction interface):
+  ``adler32.h``,
+  ``blake2b.h``,
   ``comb4p.h``,
   ``crc24.h``,
   ``crc32.h``,
-  ``ctr.h``,
-  ``des.h``,
-  ``desx.h``,
-  ``eax.h``,
-  ``gcm.h``,
-  ``ghash.h``,
-  ``gmac.h``,
-  ``gost_28147.h``,
   ``gost_3411.h``,
-  ``hkdf.h``,
-  ``hmac.h``,
-  ``idea.h``,
-  ``iso9796.h``,
-  ``kasumi.h``,
-  ``kdf1.h``,
-  ``kdf1_iso18033.h``,
-  ``kdf2.h``,
   ``keccak.h``,
-  ``lion.h``,
   ``md4.h``,
   ``md5.h``,
-  ``mdx_hash.h``,
-  ``misty1.h``,
-  ``noekeon.h``,
-  ``ocb.h``,
-  ``ofb.h``,
   ``par_hash.h``,
-  ``pbes2.h``,
-  ``pbkdf1.h``,
-  ``pbkdf2.h``,
-  ``pgp_s2k.h``,
-  ``poly1305.h``,
-  ``prf_tls.h``,
-  ``prf_x942.h``,
-  ``rc4.h``,
   ``rmd160.h``,
-  ``salsa20.h``,
-  ``scrypt.h``,
-  ``seed.h``,
-  ``serpent.h``,
   ``sha160.h``,
   ``sha2_32.h``,
   ``sha2_64.h``,
   ``sha3.h``,
-  ``shacal2.h``,
-  ``shake_cipher.h``,
   ``shake.h``,
-  ``siphash.h``,
-  ``siv.h``,
   ``skein_512.h``,
   ``sm3.h``,
-  ``sm4.h``,
+  ``streebog.h``,
+  ``tiger.h``,
+  ``whrlpool.h``,
+
+  MAC headers:
+  ``cbc_mac.h``,
+  ``cmac.h``,
+  ``gmac.h``,
+  ``hmac.h``,
+  ``poly1305.h``,
+  ``siphash.h``,
+  ``x919_mac.h``,
+
+  Stream cipher headers:
+  ``chacha.h``,
+  ``ctr.h``,
+  ``ofb.h``,
+  ``rc4.h``,
+  ``salsa20.h``,
+
+  Cipher mode headers:
+  ``cbc.h``,
+  ``ccm.h``,
+  ``cfb.h``,
+  ``chacha20poly1305.h``,
+  ``eax.h``,
+  ``gcm.h``,
+  ``ocb.h``,
+  ``shake_cipher.h``,
+  ``siv.h``,
+  ``xts.h``,
+
+  KDF headers:
+  ``hkdf.h``,
+  ``kdf1.h``,
+  ``kdf1_iso18033.h``,
+  ``kdf2.h``,
+  ``prf_tls.h``,
+  ``prf_x942.h``,
   ``sp800_108.h``,
   ``sp800_56a.h``,
   ``sp800_56c.h``,
-  ``streebog.h``,
-  ``threefish_512.h``,
-  ``tiger.h``,
-  ``twofish.h``,
-  ``whrlpool.h``,
-  ``x919_mac.h``,
-  ``xtea.h``,
-  ``xts.h``,
+
+  PBKDF headers:
+  ``bcrypt_pbkdf.h``,
+  ``pbkdf1.h``,
+  ``pbkdf2.h``,
+  ``pgp_s2k.h``,
+  ``scrypt.h``,
 
   Internal implementation headers - seemingly no reason for applications to use:
   ``blinding.h``,
@@ -204,19 +214,24 @@ Deprecated Headers
   ``eme.h``,
   ``eme_pkcs.h``,
   ``eme_raw.h``,
-  ``emsa1.h``,
   ``emsa.h``,
+  ``emsa1.h``,
   ``emsa_pkcs1.h``,
   ``emsa_raw.h``,
   ``emsa_x931.h``,
   ``gf2m_small_m.h``,
+  ``ghash.h``,
+  ``iso9796.h``,
   ``keypair.h``,
+  ``mdx_hash.h``,
   ``mode_pad.h``,
   ``mul128.h``,
   ``oaep.h``,
+  ``pbes2.h``,
   ``polyn_gf2m.h``,
   ``pow_mod.h``,
   ``pssr.h``,
+  ``reducer.h``,
   ``rfc6979.h``,
   ``scan_name.h``,
   ``stream_mode.h``,
@@ -244,6 +259,9 @@ Deprecated Headers
   ``stl_compatibility.h``,
   ``uuid.h``,
 
+  Merged into other headers:
+  ``alg_id.h``, ``asn1_oid.h``, ``asn1_str.h``, and ``asn1_time.h`` - use ``asn1_obj.h``
+
 Other API deprecations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -253,10 +271,11 @@ Other API deprecations
 - Using a default output length for "SHAKE-128" and "SHAKE-256". Instead,
   always specify the desired output length.
 
-- Currently if KDF interface is invoked with a requested output length larger
-  than supported by the KDF, it returns instead a truncated key. In a future
-  major release, instead if KDF is called with a length larger than it supports
-  an exception will be thrown.
+- Currently, for certain KDFs, if KDF interface is invoked with a
+  requested output length larger than supported by the KDF, it returns
+  instead a truncated key. In a future major release, instead if KDF
+  is called with a length larger than it supports an exception will be
+  thrown.
 
 - The TLS constructors taking ``std::function`` for callbacks. Instead
   use the ``TLS::Callbacks`` interface.
