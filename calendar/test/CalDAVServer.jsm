@@ -200,11 +200,11 @@ var CalDAVServer = {
       "d:resourcetype": "<d:collection/><c:calendar/>",
       "d:owner": "/principals/me/",
       "d:current-user-principal": "/principals/me/",
+      "d:current-user-privilege-set": "<d:privilege><d:all/></d:privilege>",
       "d:supported-report-set":
         "<d:supported-report><d:report><c:calendar-multiget/></d:report></d:supported-report>",
       "c:supported-calendar-component-set": "",
       "d:getcontenttype": "text/calendar; charset=utf-8",
-
       "c:calendar-home-set": `<d:href>/calendars/me/</d:href>`,
       "c:calendar-user-address-set": `<d:href preferred="1">mailto:me@invalid</d:href>`,
       "c:schedule-inbox-url": `<d:href>/calendars/me/inbox/</d:href>`,
@@ -297,6 +297,7 @@ var CalDAVServer = {
         case "getetag":
         case "owner":
         case "current-user-principal":
+        case "current-user-privilege-set":
         case "supported-report-set":
         case "displayname":
         case "resourcetype":
