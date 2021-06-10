@@ -12,12 +12,13 @@ const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+Cu.importGlobalProperties(["crypto"]);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.jsm",
   EnigmailKeyserverURIs: "chrome://openpgp/content/modules/keyserverUris.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailRNG: "chrome://openpgp/content/modules/rng.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
 
@@ -40,7 +41,7 @@ function calculateMaxTimeForRefreshInMilliseconds(totalPublicKeys) {
 }
 
 function calculateWaitTimeInMilliseconds(totalPublicKeys) {
-  const randomNumber = EnigmailRNG.generateRandomUint32();
+  const randomNumber = crypto.getRandomValues(new Uint32Array(1));
   const maxTimeForRefresh = calculateMaxTimeForRefreshInMilliseconds(
     totalPublicKeys
   );
@@ -122,7 +123,7 @@ function refreshKeyIfReady(keyserver, readyToRefresh, keyId) {
 }
 
 async function refreshWith(keyserver, timer, readyToRefresh) {
-  const keyId = getRandomKeyId(EnigmailRNG.generateRandomUint32());
+  const keyId = getRandomKeyId(crypto.getRandomValues(new Uint32Array(1)));
   const keyIdsExist = keyId !== null;
   const validKeyserversExist = EnigmailKeyserverURIs.validKeyserversExist();
   const ioService = Services.io;

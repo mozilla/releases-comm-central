@@ -14,9 +14,9 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
-  EnigmailRNG: "chrome://openpgp/content/modules/rng.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
+  MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
 });
 
 var EnigmailMime = {
@@ -24,10 +24,11 @@ var EnigmailMime = {
    * create a string of random characters suitable to use for a boundary in a
    * MIME message following RFC 2045
    *
-   * @return: string of 33 random characters and digits
+   * @return: string to use as MIME boundary
+   * @see {MimeMultiPart._makePartSeparator}
    */
   createBoundary() {
-    return EnigmailRNG.generateRandomString(33);
+    return "------------" + MsgUtils.randomString(24);
   },
 
   /***

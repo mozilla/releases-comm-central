@@ -16,7 +16,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailRNG: "chrome://openpgp/content/modules/rng.jsm",
   EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
@@ -93,84 +92,5 @@ var EnigmailSend = {
     ); // password
 
     return true;
-  },
-
-  /**
-   * Send message (simplified API)
-   *
-   * @param aParams: Object -
-   *    - identity: Object - The identity the user picked to send the message
-   *    - to:       String - The recipients. This is a comma-separated list of
-   *                       valid email addresses that must be escaped already. You probably want to use
-   *                       nsIMsgHeaderParser.MakeFullAddress to deal with names that contain commas.
-   *    - cc (optional) Same remark.
-   *    - bcc (optional) Same remark.
-   *    - returnReceipt (optional) Boolean: ask for a receipt
-   *    - receiptType (optional) Number: default: take from identity
-   *    - requestDsn (optional) Boolean: request a Delivery Status Notification
-   *    - composeSecure (optional) (contains securityInfo for TB < 64)
-   *
-   * @param body: complete message source
-   * @param callbackFunc: function(Boolean) - return true if message was sent successfully
-   *                                           false otherwise
-   *
-   * @return Boolean - true: everything was OK to send the message
-   */
-  simpleSendMessage(aParams, body, callbackFunc) {
-    EnigmailLog.DEBUG("EnigmailSend.simpleSendMessage()\n");
-    let fields = Cc[
-      "@mozilla.org/messengercompose/composefields;1"
-    ].createInstance(Ci.nsIMsgCompFields);
-    let identity = aParams.identity;
-
-    fields.from = identity.email;
-    fields.to = aParams.to;
-    if ("cc" in aParams) {
-      fields.cc = aParams.cc;
-    }
-    if ("bcc" in aParams) {
-      fields.bcc = aParams.bcc;
-    }
-    fields.returnReceipt =
-      "returnReceipt" in aParams
-        ? aParams.returnReceipt
-        : identity.requestReturnReceipt;
-    fields.receiptHeaderType =
-      "receiptType" in aParams
-        ? aParams.receiptType
-        : identity.receiptHeaderType;
-    fields.DSN =
-      "requestDsn" in aParams ? aParams.requestDsn : identity.requestDSN;
-    if ("composeSecure" in aParams) {
-      if ("securityInfo" in fields) {
-        // TB < 64
-        fields.securityInfo = aParams.securityInfo;
-      } else {
-        fields.composeSecure = aParams.composeSecure;
-      }
-    }
-
-    fields.messageId = EnigmailRNG.generateRandomString(27) + "-enigmail";
-    body = "Message-Id: " + fields.messageId + "\r\n" + body;
-
-    let listener = {
-      onStartSending() {},
-      onProgress() {},
-      onStatus() {},
-      onGetDraftFolderURI() {},
-      onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
-        if (callbackFunc) {
-          callbackFunc(true);
-        }
-      },
-      onSendNotPerformed(aMsgID, aStatus) {
-        if (callbackFunc) {
-          callbackFunc(false);
-        }
-      },
-      onTransportSecurityError(msgID, status, secInfo, location) {},
-    };
-
-    return this.sendMessage(body, fields, listener);
   },
 };
