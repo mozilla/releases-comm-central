@@ -10,7 +10,7 @@ const { LDAPDaemon, LDAPHandlerFn } = ChromeUtils.import(
 const { BinaryServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Binaryd.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const nsILDAPSyncQuery = Ci.nsILDAPSyncQuery;
 const LDAPSyncQueryContractID = "@mozilla.org/ldapsyncquery;1";
