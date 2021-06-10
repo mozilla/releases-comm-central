@@ -442,6 +442,60 @@ add_task(async function test_pill_creation_in_all_fields() {
   // Test pill creation for the Bcc input field.
   await assertPillsCreationInField(bccInput);
 
+  // Focus on the Bcc field and hold press the Backspace key.
+  bccInput.focus();
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc.window);
+
+  // All pills should be deleted, but the focus should remain on the Bcc field.
+  Assert.equal(
+    bccInput.closest(".address-container").querySelectorAll("mail-address-pill")
+      .length,
+    0,
+    "All pills in the Bcc field have been removed."
+  );
+  Assert.ok(
+    !bccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    "The Bcc field is still visible"
+  );
+
+  // Press and hold Backspace again.
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc.window);
+
+  // Confirm the Bcc field is closed and the focus moved to the Cc field.
+  Assert.ok(
+    bccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    "The Bcc field was closed"
+  );
+  Assert.equal(ccInput, cwc.window.document.activeElement);
+
+  // Now we're on the Cc field. Press and hold Backspace to delete all pills.
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc.window);
+
+  // All pills should be deleted, but the focus should remain on the Cc field.
+  Assert.equal(
+    ccInput.closest(".address-container").querySelectorAll("mail-address-pill")
+      .length,
+    0,
+    "All pills in the Cc field have been removed."
+  );
+  Assert.ok(
+    !ccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    "The Cc field is still visible"
+  );
+
+  // Press and hold Backspace again.
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc.window);
+
+  // Confirm the Cc field is closed and the focus moved to the To field.
+  Assert.ok(
+    ccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    "The Cc field was closed"
+  );
+  Assert.equal(
+    cwc.window.document.getElementById("toAddrInput"),
+    cwc.window.document.activeElement
+  );
+
   close_compose_window(cwc);
 });
 
