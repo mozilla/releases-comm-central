@@ -44,18 +44,28 @@ var { DefaultMap } = ExtensionUtils;
  */
 function convertMessagePart(part) {
   let partObject = {};
-  for (let key of [
-    "body",
-    "contentType",
-    "headers",
-    "name",
-    "partName",
-    "size",
-  ]) {
+  for (let key of ["body", "contentType", "name", "partName", "size"]) {
     if (key in part) {
       partObject[key] = part[key];
     }
   }
+
+  // Decode headers. This also takes care of headers, which still include
+  // encoded words and need to be RFC 2047 decoded.
+  if ("headers" in part) {
+    partObject.headers = {};
+    for (let header of Object.keys(part.headers)) {
+      partObject.headers[header] = part.headers[header].map(h =>
+        MailServices.mimeConverter.decodeMimeHeader(
+          h,
+          null,
+          false /* override_charset */,
+          true /* eatContinuations */
+        )
+      );
+    }
+  }
+
   if ("parts" in part && Array.isArray(part.parts) && part.parts.length > 0) {
     partObject.parts = part.parts.map(convertMessagePart);
   }

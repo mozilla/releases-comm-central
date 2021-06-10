@@ -4,194 +4,231 @@
 // vim:set ts=2 sw=2 sts=2 et ft=javascript:
 
 const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 
 var EXPORTED_SYMBOLS = ["MimeParser"];
 
 // Emitter helpers, for internal functions later on.
 var ExtractMimeMsgEmitter = {
   getAttachmentName(part) {
-    if (
-      part &&
-      "headers" in part &&
-      part.headers.hasOwnProperty("content-disposition")
-    ) {
-      let c = part.headers["content-disposition"][0];
-      if (c) {
-        return MimeParser.getParameter(c, "filename");
+    if (!part || !part.hasOwnProperty("headers")) {
+      return "";
+    }
+
+    if (part.headers.hasOwnProperty("content-disposition")) {
+      let filename = MimeParser.getParameter(
+        part.headers["content-disposition"][0],
+        "filename"
+      );
+      if (filename) {
+        return filename;
       }
     }
+
+    if (part.headers.hasOwnProperty("content-type")) {
+      let name = MimeParser.getParameter(
+        part.headers["content-type"][0],
+        "name"
+      );
+      if (name) {
+        return name;
+      }
+    }
+
     return "";
   },
 
-  // This implementation differs from EnigmailMime! It does not require the
-  // content-disposition header to start with "attachment", but also treats
-  // "inline" as attachments (just like MsgHdrToMimeMessage).
+  // All parts of content-disposition = "attachment" are returned as attachments.
+  // For content-disposition = "inline", all parts except those with content-type
+  // text/plain, text/html and text/enriched are returned as attachments.
   isAttachment(part) {
-    if (
-      part &&
-      "contentType" in part &&
-      part.contentType.search(/^multipart\//i) === 0
-    ) {
+    if (!part) {
       return false;
     }
 
+    let contentType = part.contentType || "text/plain";
+    if (contentType.search(/^multipart\//i) === 0) {
+      return false;
+    }
+
+    let contentDisposition = "";
     if (
-      part &&
-      "headers" in part &&
-      part.headers.hasOwnProperty("content-disposition")
+      Array.isArray(part.headers["content-disposition"]) &&
+      part.headers["content-disposition"].length > 0
     ) {
-      let c = part.headers["content-disposition"][0];
-      if (c) {
-        return true;
-      }
+      contentDisposition = part.headers["content-disposition"][0];
     }
+
+    if (
+      contentDisposition.search(/^attachment/i) === 0 ||
+      contentType.search(/^text\/plain|^text\/html|^text\/enriched/i) === -1
+    ) {
+      return true;
+    }
+
     return false;
-  },
-
-  createPartObj(partName, headerMap, parent) {
-    let contentType = headerMap.contentType?.type
-      ? headerMap.contentType.type
-      : "";
-
-    // Convert headerMap.
-    let headers = {};
-    for (let [headerName, headerValue] of headerMap._rawHeaders) {
-      // MsgHdrToMimeMessage always returns an array, even for single values.
-      let valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
-      // Decode headers and collapse all remaining whitespaces (e.g. \t).
-      headers[headerName] = valueArray.map(value =>
-        MailServices.mimeConverter
-          .decodeMimeHeader(
-            value,
-            null,
-            false /* override_charset */,
-            true /* eatContinuations */
-          )
-          .replace(/[ \t\r\n]+/g, " ")
-      );
-    }
-
-    return {
-      partName,
-      // No support for encryption.
-      isEncrypted: false,
-      headers,
-      rawHeaderText: headerMap.rawHeaderText,
-      contentType,
-      body: "",
-      parent,
-      size: 0,
-      parts: [],
-    };
   },
 
   /** JSMime API **/
   startMessage() {
-    this.allAttachments = [];
-    this.mimeMsg = null;
-    this.currentPartName = "";
     this.mimeTree = {
+      partName: "",
+      contentType: "message/rfc822",
       parts: [],
       size: 0,
+      headers: {},
+      rawHeaderText: "",
+      allAttachments: [],
+      // No support for encryption.
+      isEncrypted: false,
     };
-    this.currentPart = this.mimeTree;
+    // partsPath is a hierarchical stack of parts from the root to the
+    // current part.
+    this.partsPath = [this.mimeTree];
     this.options = this.options || {};
   },
 
   endMessage() {
-    function removeParent(obj) {
-      for (let prop in obj) {
-        if (prop === "parent") {
-          delete obj[prop];
-        } else if (Array.isArray(prop)) {
-          for (let entry of prop) {
-            removeParent(entry);
-          }
-        } else if (typeof obj[prop] === "object") {
-          removeParent(obj[prop]);
-        }
-      }
-    }
-
-    if (
-      !Array.isArray(this.mimeTree.parts) ||
-      this.mimeTree.parts.length == 0
-    ) {
+    // Prepare the mimeMsg object, which is the final output of the emitter.
+    this.mimeMsg = null;
+    if (this.mimeTree.parts.length == 0) {
       return;
     }
 
-    if (
-      this.options.getMimePart &&
-      this.mimeTree.parts[0].partName == this.options.getMimePart
-    ) {
-      this.mimeMsg = this.mimeTree.parts[0];
-      this.mimeMsg.bodyAsTypedArray = jsmime.mimeutils.stringToTypedArray(
-        this.mimeMsg.body
+    // Check if only a specific mime part has been requested.
+    if (this.options.getMimePart) {
+      if (this.mimeTree.parts[0].partName == this.options.getMimePart) {
+        this.mimeMsg = this.mimeTree.parts[0];
+        this.mimeMsg.bodyAsTypedArray = jsmime.mimeutils.stringToTypedArray(
+          this.mimeMsg.body
+        );
+      }
+      return;
+    }
+
+    this.mimeMsg = this.mimeTree;
+  },
+
+  startPart(partNum, headerMap) {
+    let utf8Encoder = new TextEncoder();
+
+    let contentType = headerMap.contentType?.type
+      ? headerMap.contentType.type
+      : "text/plain";
+
+    let rawHeaderText = headerMap.rawHeaderText;
+
+    let headers = {};
+    for (let [headerName, headerValue] of headerMap._rawHeaders) {
+      // MsgHdrToMimeMessage always returns an array, even for single values.
+      let valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
+      // Return a binary string, to mimic MsgHdrToMimeMessage.
+      headers[headerName] = valueArray.map(value => {
+        let utf8ByteArray = utf8Encoder.encode(value);
+        return String.fromCharCode(...utf8ByteArray);
+      });
+    }
+
+    // Get the most recent part from the hierarchical parts stack, which is the
+    // parent of the new part to by added.
+    let currentPart = this.partsPath[this.partsPath.length - 1];
+
+    // Add a leading 1 to the partNum.
+    let partName = "1" + (partNum !== "" ? "." : "") + partNum;
+    if (partName == "1") {
+      // MsgHdrToMimeMessage differentiates between the message headers and the
+      // headers of the first part. jsmime.js however returns all headers of
+      // the message in the first part.
+
+      // Move rawHeaderText and add the content-* headers back to the new/first
+      // part.
+      currentPart.rawHeaderText = rawHeaderText;
+      rawHeaderText = rawHeaderText
+        .split(/\n(?![ \t])/)
+        .filter(h => h.toLowerCase().startsWith("content-"))
+        .join("\n")
+        .trim();
+
+      // Move all headers and add the content-* headers back to the new/first
+      // part.
+      currentPart.headers = headers;
+      headers = Object.fromEntries(
+        Object.entries(headers).filter(h => h[0].startsWith("content-"))
       );
-      removeParent(this.mimeMsg);
-    } else if (this.mimeTree.parts[0].parent) {
-      // The mimeTree includes a flat parts list at its root and a hierarchical
-      // parts structure at mimeTree.parts[0].parent.
-      this.mimeMsg = this.mimeTree.parts[0].parent;
-      // Prepare top level entry, which represents the entire message. The
-      // mimeTree does not include these information, so we fake them for now.
-      this.mimeMsg.contentType = "message/rfc822";
-      this.mimeMsg.partName = "";
-      this.mimeMsg.headers = this.mimeTree.parts[0].headers;
-      this.mimeMsg.size = this.mimeTree.parts[0].size;
-      this.mimeMsg.allAttachments = this.allAttachments;
+    }
+
+    // Add default content-type header.
+    if (!headers.hasOwnProperty("content-type")) {
+      headers["content-type"] = ["text/plain"];
+    }
+
+    let newPart = {
+      partName,
+      body: "",
+      headers,
+      rawHeaderText,
+      contentType,
+      size: 0,
+      parts: [],
       // No support for encryption.
-      this.mimeMsg.isEncrypted = false;
-      removeParent(this.mimeMsg);
-    }
+      isEncrypted: false,
+    };
+
+    // Add nested new part.
+    currentPart.parts.push(newPart);
+    // Update the newly added part to be current part.
+    this.partsPath.push(newPart);
   },
 
-  startPart(partName, headerMap) {
-    partName = "1" + (partName !== "" ? "." : "") + partName;
-    let newPart = this.createPartObj(partName, headerMap, this.currentPart);
+  endPart(partNum) {
+    let deleteBody = false;
+    // Get the most recent part from the hierarchical parts stack.
+    let currentPart = this.partsPath[this.partsPath.length - 1];
 
-    if (partName.indexOf(this.currentPartName) === 0) {
-      // Found sub-part.
-      this.currentPart.parts.push(newPart);
-    } else {
-      // Found same or higher level.
-      this.currentPart.parts.push(newPart);
-    }
-    this.currentPartName = partName;
-    this.currentPart = newPart;
-  },
-
-  endPart(partName) {
-    let isAttachment = false;
-
-    // Add the attachment name, if needed.
-    if (this.isAttachment(this.currentPart)) {
-      isAttachment = true;
-      this.currentPart.name = this.getAttachmentName(this.currentPart);
-    }
     // Add size.
-    let size = this.currentPart.body.length;
-    this.currentPart.size += size;
-    this.currentPart.parent.size += size;
-    // Remove body.
-    if (
-      (isAttachment && !this.options.includeAttachments) ||
-      this.currentPart.body == ""
-    ) {
-      delete this.currentPart.body;
-    }
-    if (isAttachment) {
-      this.allAttachments.push(this.currentPart);
+    let size = currentPart.body.length;
+    currentPart.size += size;
+
+    if (this.isAttachment(currentPart)) {
+      currentPart.name = this.getAttachmentName(currentPart);
+      if (this.options.includeAttachments) {
+        this.mimeTree.allAttachments.push(currentPart);
+      } else {
+        deleteBody = true;
+      }
     }
 
-    this.currentPart = this.currentPart.parent;
+    if (deleteBody || currentPart.body == "") {
+      delete currentPart.body;
+    }
+
+    // Remove content-disposition and content-transfer-encoding headers.
+    currentPart.headers = Object.fromEntries(
+      Object.entries(currentPart.headers).filter(
+        h =>
+          !["content-disposition", "content-transfer-encoding"].includes(h[0])
+      )
+    );
+
+    // Set the parent of this part to be the new current part.
+    this.partsPath.pop();
+
+    // Add the size of this part to its parent as well.
+    currentPart = this.partsPath[this.partsPath.length - 1];
+    currentPart.size += size;
   },
 
-  deliverPartData(partName, data) {
-    this.currentPart.body += data;
+  /**
+   * The data parameter is either a string or a Uint8Array.
+   */
+  deliverPartData(partNum, data) {
+    // Get the most recent part from the hierarchical parts stack.
+    let currentPart = this.partsPath[this.partsPath.length - 1];
+
+    if (typeof data === "string") {
+      currentPart.body += data;
+    } else {
+      currentPart.body += String.fromCharCode(...data);
+    }
   },
 };
 
@@ -369,6 +406,7 @@ var MimeParser = {
    *  - no support for encryption
    *  - calculated sizes differ slightly
    *  - allAttachments includes the content and not a URL
+   *  - does not eat TABs in headers, if they follow a CRLF
    *
    * The input is any type of input that would be accepted by parseSync.
    *
@@ -394,7 +432,7 @@ var MimeParser = {
         .join("."),
       bodyformat: "decode",
       stripcontinuations: true,
-      strformat: "binarystring",
+      strformat: "unicode",
     });
     return emitter.mimeMsg;
   },

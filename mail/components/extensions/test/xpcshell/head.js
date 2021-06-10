@@ -135,6 +135,11 @@ async function createMessageFromString(folder, message) {
   let fromAddress = message.match(/From: .* <(.*@.*)>/)[0];
   message = `From ${fromAddress}\r\n${message}`;
 
+  // addMessageBatch needs a trailing empty line.
+  if (!message.endsWith("\r\n")) {
+    message = message + "\r\n";
+  }
+
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch([message]);
   folder.callFilterPlugins(null);
@@ -243,7 +248,11 @@ var NNTPServer = {
     let group = folder.name;
     messages.forEach(message => {
       if (typeof message != "string") {
-        message = message.toMessageString() + "\r\n";
+        message = message.toMessageString();
+      }
+      // The NNTP daemon needs a trailing empty line.
+      if (!message.endsWith("\r\n")) {
+        message = message + "\r\n";
       }
       let article = new newsArticle(message);
       article.groups = [group];
