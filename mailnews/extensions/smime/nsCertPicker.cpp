@@ -125,16 +125,6 @@ nsresult FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
     details.Append(char16_t('\n'));
   }
 
-  if (NS_SUCCEEDED(cert->GetKeyUsages(temp1)) && !temp1.IsEmpty()) {
-    details.AppendLiteral("  ");
-    if (NS_SUCCEEDED(mcs->GetSMIMEBundleString(u"CertDumpKeyUsage", info))) {
-      details.Append(info);
-      details.AppendLiteral(": ");
-    }
-    details.Append(temp1);
-    details.Append(char16_t('\n'));
-  }
-
   UniqueCERTCertificate nssCert(cert->GetCert());
   if (!nssCert) {
     return NS_ERROR_FAILURE;
