@@ -72,18 +72,17 @@ nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
   return NS_OK;
 }
 
-nsresult nsMsgQuickSearchDBView::DeleteMessages(nsIMsgWindow* window,
-                                                nsMsgViewIndex* indices,
-                                                int32_t numIndices,
-                                                bool deleteStorage) {
-  for (nsMsgViewIndex i = 0; i < (nsMsgViewIndex)numIndices; i++) {
+nsresult nsMsgQuickSearchDBView::DeleteMessages(
+    nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection,
+    bool deleteStorage) {
+  for (nsMsgViewIndex viewIndex : selection) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    (void)GetMsgHdrForViewIndex(indices[i], getter_AddRefs(msgHdr));
-    if (msgHdr) RememberDeletedMsgHdr(msgHdr);
+    (void)GetMsgHdrForViewIndex(viewIndex, getter_AddRefs(msgHdr));
+    if (msgHdr) {
+      RememberDeletedMsgHdr(msgHdr);
+    }
   }
-
-  return nsMsgDBView::DeleteMessages(window, indices, numIndices,
-                                     deleteStorage);
+  return nsMsgDBView::DeleteMessages(window, selection, deleteStorage);
 }
 
 NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(

@@ -96,11 +96,11 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual nsresult GetDBForViewIndex(nsMsgViewIndex index,
                                      nsIMsgDatabase** db) override;
   virtual nsresult RemoveByIndex(nsMsgViewIndex index) override;
-  virtual nsresult CopyMessages(nsIMsgWindow* window, nsMsgViewIndex* indices,
-                                int32_t numIndices, bool isMove,
-                                nsIMsgFolder* destFolder) override;
-  virtual nsresult DeleteMessages(nsIMsgWindow* window, nsMsgViewIndex* indices,
-                                  int32_t numIndices,
+  virtual nsresult CopyMessages(nsIMsgWindow* window,
+                                nsTArray<nsMsgViewIndex> const& selection,
+                                bool isMove, nsIMsgFolder* destFolder) override;
+  virtual nsresult DeleteMessages(nsIMsgWindow* window,
+                                  nsTArray<nsMsgViewIndex> const& selection,
                                   bool deleteStorage) override;
   virtual void InsertMsgHdrAt(nsMsgViewIndex index, nsIMsgDBHdr* hdr,
                               nsMsgKey msgKey, uint32_t flags,
@@ -114,17 +114,18 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual nsMsgViewIndex FindHdr(nsIMsgDBHdr* msgHdr,
                                  nsMsgViewIndex startIndex = 0,
                                  bool allowDummy = false) override;
-  nsresult GetFoldersAndHdrsForSelection(nsMsgViewIndex* indices,
-                                         int32_t numIndices);
+  nsresult GetFoldersAndHdrsForSelection(
+      nsTArray<nsMsgViewIndex> const& selection);
   nsresult GroupSearchResultsByFolder();
   nsresult PartitionSelectionByFolder(
-      nsMsgViewIndex* indices, int32_t numIndices,
+      nsTArray<nsMsgViewIndex> const& selection,
       mozilla::UniquePtr<nsTArray<uint32_t>[]>& indexArrays,
       int32_t* numArrays);
 
   virtual nsresult ApplyCommandToIndicesWithFolder(
-      nsMsgViewCommandTypeValue command, nsMsgViewIndex* indices,
-      int32_t numIndices, nsIMsgFolder* destFolder) override;
+      nsMsgViewCommandTypeValue command,
+      nsTArray<nsMsgViewIndex> const& selection,
+      nsIMsgFolder* destFolder) override;
   void MoveThreadAt(nsMsgViewIndex threadIndex);
 
   virtual nsresult GetMessageEnumerator(nsIMsgEnumerator** enumerator) override;

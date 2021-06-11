@@ -66,8 +66,8 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
                           nsMsgViewIndex* resultIndex = nullptr) override;
   virtual nsresult OnNewHeader(nsIMsgDBHdr* newHdr, nsMsgKey aParentKey,
                                bool ensureListed) override;
-  virtual nsresult DeleteMessages(nsIMsgWindow* window, nsMsgViewIndex* indices,
-                                  int32_t numIndices,
+  virtual nsresult DeleteMessages(nsIMsgWindow* window,
+                                  nsTArray<nsMsgViewIndex> const& selection,
                                   bool deleteStorage) override;
   virtual nsresult SortThreads(nsMsgViewSortTypeValue sortType,
                                nsMsgViewSortOrderValue sortOrder) override;

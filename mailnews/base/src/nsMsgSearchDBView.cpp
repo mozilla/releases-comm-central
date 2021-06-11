@@ -744,21 +744,16 @@ NS_IMETHODIMP nsMsgSearchDBView::DoCommand(nsMsgViewCommandTypeValue command) {
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
 
-  nsMsgViewIndex* indices = selection.Elements();
-  int32_t numIndices = selection.Length();
-
   // We need to break apart the selection by folders, and then call
   // ApplyCommandToIndices with the command and the indices in the
   // selection that are from that folder.
 
-  mozilla::UniquePtr<nsTArray<uint32_t>[]> indexArrays;
+  mozilla::UniquePtr<nsTArray<nsMsgViewIndex>[]> indexArrays;
   int32_t numArrays;
-  rv = PartitionSelectionByFolder(indices, numIndices, indexArrays, &numArrays);
+  rv = PartitionSelectionByFolder(selection, indexArrays, &numArrays);
   NS_ENSURE_SUCCESS(rv, rv);
   for (int32_t folderIndex = 0; folderIndex < numArrays; folderIndex++) {
-    rv = ApplyCommandToIndices(command,
-                               (indexArrays.get())[folderIndex].Elements(),
-                               indexArrays[folderIndex].Length());
+    rv = ApplyCommandToIndices(command, (indexArrays.get())[folderIndex]);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -813,11 +808,10 @@ nsresult nsMsgSearchDBView::RemoveByIndex(nsMsgViewIndex index) {
   return nsMsgDBView::RemoveByIndex(index);
 }
 
-nsresult nsMsgSearchDBView::DeleteMessages(nsIMsgWindow* window,
-                                           nsMsgViewIndex* indices,
-                                           int32_t numIndices,
-                                           bool deleteStorage) {
-  nsresult rv = GetFoldersAndHdrsForSelection(indices, numIndices);
+nsresult nsMsgSearchDBView::DeleteMessages(
+    nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection,
+    bool deleteStorage) {
+  nsresult rv = GetFoldersAndHdrsForSelection(selection);
   NS_ENSURE_SUCCESS(rv, rv);
   if (mDeleteModel != nsMsgImapDeleteModels::MoveToTrash) deleteStorage = true;
 
@@ -826,13 +820,17 @@ nsresult nsMsgSearchDBView::DeleteMessages(nsIMsgWindow* window,
   // Remember the deleted messages in case the user undoes the delete,
   // and we want to restore the hdr to the view, even if it no
   // longer matches the search criteria.
-  for (nsMsgViewIndex i = 0; i < (nsMsgViewIndex)numIndices; i++) {
+  for (nsMsgViewIndex viewIndex : selection) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    (void)GetMsgHdrForViewIndex(indices[i], getter_AddRefs(msgHdr));
-    if (msgHdr) RememberDeletedMsgHdr(msgHdr);
+    (void)GetMsgHdrForViewIndex(viewIndex, getter_AddRefs(msgHdr));
+    if (msgHdr) {
+      RememberDeletedMsgHdr(msgHdr);
+    }
 
     // If we are deleting rows, save off the view indices.
-    if (m_deletingRows) mIndicesToNoteChange.AppendElement(indices[i]);
+    if (m_deletingRows) {
+      mIndicesToNoteChange.AppendElement(viewIndex);
+    }
   }
   rv = deleteStorage ? ProcessRequestsInAllFolders(window)
                      : ProcessRequestsInOneFolder(window);
@@ -841,27 +839,25 @@ nsresult nsMsgSearchDBView::DeleteMessages(nsIMsgWindow* window,
   return rv;
 }
 
-nsresult nsMsgSearchDBView::CopyMessages(nsIMsgWindow* window,
-                                         nsMsgViewIndex* indices,
-                                         int32_t numIndices, bool isMove,
-                                         nsIMsgFolder* destFolder) {
-  GetFoldersAndHdrsForSelection(indices, numIndices);
+nsresult nsMsgSearchDBView::CopyMessages(
+    nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection,
+    bool isMove, nsIMsgFolder* destFolder) {
+  GetFoldersAndHdrsForSelection(selection);
   return ProcessRequestsInOneFolder(window);
 }
 
 nsresult nsMsgSearchDBView::PartitionSelectionByFolder(
-    nsMsgViewIndex* indices, int32_t numIndices,
-    mozilla::UniquePtr<nsTArray<uint32_t>[]>& indexArrays, int32_t* numArrays) {
-  nsMsgViewIndex i;
-  int32_t folderIndex;
+    nsTArray<nsMsgViewIndex> const& selection,
+    mozilla::UniquePtr<nsTArray<nsMsgViewIndex>[]>& indexArrays,
+    int32_t* numArrays) {
   nsCOMArray<nsIMsgFolder> uniqueFoldersSelected;
   nsTArray<uint32_t> numIndicesSelected;
   mCurIndex = 0;
 
   // Build unique folder list based on headers selected by the user.
-  for (i = 0; i < (nsMsgViewIndex)numIndices; i++) {
-    nsIMsgFolder* curFolder = m_folders[indices[i]];
-    folderIndex = uniqueFoldersSelected.IndexOf(curFolder);
+  for (nsMsgViewIndex viewIndex : selection) {
+    nsIMsgFolder* curFolder = m_folders[viewIndex];
+    int32_t folderIndex = uniqueFoldersSelected.IndexOf(curFolder);
     if (folderIndex < 0) {
       uniqueFoldersSelected.AppendObject(curFolder);
       numIndicesSelected.AppendElement(1);
@@ -871,23 +867,23 @@ nsresult nsMsgSearchDBView::PartitionSelectionByFolder(
   }
 
   int32_t numFolders = uniqueFoldersSelected.Count();
-  indexArrays = mozilla::MakeUnique<nsTArray<uint32_t>[]>(numFolders);
+  indexArrays = mozilla::MakeUnique<nsTArray<nsMsgViewIndex>[]>(numFolders);
   *numArrays = numFolders;
   NS_ENSURE_TRUE(indexArrays, NS_ERROR_OUT_OF_MEMORY);
-  for (folderIndex = 0; folderIndex < numFolders; folderIndex++) {
+  for (int32_t folderIndex = 0; folderIndex < numFolders; folderIndex++) {
     (indexArrays.get())[folderIndex].SetCapacity(
         numIndicesSelected[folderIndex]);
   }
-  for (i = 0; i < (nsMsgViewIndex)numIndices; i++) {
-    nsIMsgFolder* curFolder = m_folders[indices[i]];
+  for (nsMsgViewIndex viewIndex : selection) {
+    nsIMsgFolder* curFolder = m_folders[viewIndex];
     int32_t folderIndex = uniqueFoldersSelected.IndexOf(curFolder);
-    (indexArrays.get())[folderIndex].AppendElement(indices[i]);
+    (indexArrays.get())[folderIndex].AppendElement(viewIndex);
   }
   return NS_OK;
 }
 
 nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
-    nsMsgViewIndex* indices, int32_t numIndices) {
+    nsTArray<nsMsgViewIndex> const& selection) {
   nsresult rv = NS_OK;
   mCurIndex = 0;
   m_uniqueFoldersSelected.Clear();
@@ -896,7 +892,7 @@ nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
   nsCOMPtr<nsIMutableArray> messages(
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(indices, numIndices, messages);
+  rv = GetHeadersFromSelection(selection, messages);
   NS_ENSURE_SUCCESS(rv, rv);
   uint32_t numMsgs;
   messages->GetLength(&numMsgs);
@@ -936,12 +932,12 @@ nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
 }
 
 nsresult nsMsgSearchDBView::ApplyCommandToIndicesWithFolder(
-    nsMsgViewCommandTypeValue command, nsMsgViewIndex* indices,
-    int32_t numIndices, nsIMsgFolder* destFolder) {
+    nsMsgViewCommandTypeValue command,
+    nsTArray<nsMsgViewIndex> const& selection, nsIMsgFolder* destFolder) {
   mCommand = command;
   mDestFolder = destFolder;
-  return nsMsgDBView::ApplyCommandToIndicesWithFolder(command, indices,
-                                                      numIndices, destFolder);
+  return nsMsgDBView::ApplyCommandToIndicesWithFolder(command, selection,
+                                                      destFolder);
 }
 
 // nsIMsgCopyServiceListener methods

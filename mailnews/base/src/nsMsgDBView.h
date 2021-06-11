@@ -293,18 +293,19 @@ class nsMsgDBView : public nsIMsgDBView,
   uint32_t GetSize(void) { return (m_keys.Length()); }
 
   // For commands.
-  virtual nsresult ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
-                                         nsMsgViewIndex* indices,
-                                         int32_t numIndices);
+  virtual nsresult ApplyCommandToIndices(
+      nsMsgViewCommandTypeValue command,
+      nsTArray<nsMsgViewIndex> const& selection);
   virtual nsresult ApplyCommandToIndicesWithFolder(
-      nsMsgViewCommandTypeValue command, nsMsgViewIndex* indices,
-      int32_t numIndices, nsIMsgFolder* destFolder);
-  virtual nsresult CopyMessages(nsIMsgWindow* window, nsMsgViewIndex* indices,
-                                int32_t numIndices, bool isMove,
-                                nsIMsgFolder* destFolder);
-  virtual nsresult DeleteMessages(nsIMsgWindow* window, nsMsgViewIndex* indices,
-                                  int32_t numIndices, bool deleteStorage);
-  nsresult GetHeadersFromSelection(uint32_t* indices, uint32_t numIndices,
+      nsMsgViewCommandTypeValue command,
+      nsTArray<nsMsgViewIndex> const& selection, nsIMsgFolder* destFolder);
+  virtual nsresult CopyMessages(nsIMsgWindow* window,
+                                nsTArray<nsMsgViewIndex> const& selection,
+                                bool isMove, nsIMsgFolder* destFolder);
+  virtual nsresult DeleteMessages(nsIMsgWindow* window,
+                                  nsTArray<nsMsgViewIndex> const& selection,
+                                  bool deleteStorage);
+  nsresult GetHeadersFromSelection(nsTArray<nsMsgViewIndex> const& selection,
                                    nsIMutableArray* messageArray);
   virtual nsresult ListCollapsedChildren(nsMsgViewIndex viewIndex,
                                          nsIMutableArray* messageArray);
@@ -326,15 +327,15 @@ class nsMsgDBView : public nsIMsgDBView,
   virtual void OnExtraFlagChanged(nsMsgViewIndex /*index*/,
                                   uint32_t /*extraFlag*/) {}
   virtual void OnHeaderAddedOrDeleted() {}
-  nsresult ToggleWatched(nsMsgViewIndex* indices, int32_t numIndices);
+  nsresult ToggleWatched(nsTArray<nsMsgViewIndex> const& selection);
   nsresult SetThreadWatched(nsIMsgThread* thread, nsMsgViewIndex index,
                             bool watched);
   nsresult SetThreadIgnored(nsIMsgThread* thread, nsMsgViewIndex threadIndex,
                             bool ignored);
   nsresult SetSubthreadKilled(nsIMsgDBHdr* header, nsMsgViewIndex msgIndex,
                               bool ignored);
-  nsresult DownloadForOffline(nsIMsgWindow* window, nsMsgViewIndex* indices,
-                              int32_t numIndices);
+  nsresult DownloadForOffline(nsIMsgWindow* window,
+                              nsTArray<nsMsgViewIndex> const& selection);
   nsresult DownloadFlaggedForOffline(nsIMsgWindow* window);
   nsMsgViewIndex GetThreadFromMsgIndex(nsMsgViewIndex index,
                                        nsIMsgThread** threadHdr);
@@ -381,13 +382,13 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult MarkThreadRead(nsIMsgThread* threadHdr, nsMsgViewIndex threadIndex,
                           nsTArray<nsMsgKey>& idsMarkedRead, bool bRead);
   bool IsValidIndex(nsMsgViewIndex index);
-  nsresult ToggleIgnored(nsMsgViewIndex* indices, int32_t numIndices,
+  nsresult ToggleIgnored(nsTArray<nsMsgViewIndex> const& selection,
                          nsMsgViewIndex* resultIndex, bool* resultToggleState);
-  nsresult ToggleMessageKilled(nsMsgViewIndex* indices, int32_t numIndices,
+  nsresult ToggleMessageKilled(nsTArray<nsMsgViewIndex> const& selection,
                                nsMsgViewIndex* resultIndex,
                                bool* resultToggleState);
-  bool OfflineMsgSelected(nsMsgViewIndex* indices, int32_t numIndices);
-  bool NonDummyMsgSelected(nsMsgViewIndex* indices, int32_t numIndices);
+  bool OfflineMsgSelected(nsTArray<nsMsgViewIndex> const& selection);
+  bool NonDummyMsgSelected(nsTArray<nsMsgViewIndex> const& selection);
   char16_t* GetString(const char16_t* aStringName);
   nsresult GetPrefLocalizedString(const char* aPrefName, nsString& aResult);
   nsresult AppendKeywordProperties(const nsACString& keywords,

@@ -1090,21 +1090,16 @@ nsMsgDBView::SelectionChangedXPCOM() {
   // not if we are in the middle of deleting rows.
   if (m_deletingRows) return NS_OK;
 
-  uint32_t numSelected = 0;
-
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
-  nsMsgViewIndex* indices = selection.Elements();
-  numSelected = selection.Length();
 
   bool commandsNeedDisablingBecauseOfSelection = false;
 
-  if (indices) {
+  if (!selection.IsEmpty()) {
     if (WeAreOffline())
-      commandsNeedDisablingBecauseOfSelection =
-          !OfflineMsgSelected(indices, numSelected);
+      commandsNeedDisablingBecauseOfSelection = !OfflineMsgSelected(selection);
 
-    if (!NonDummyMsgSelected(indices, numSelected))
+    if (!NonDummyMsgSelected(selection))
       commandsNeedDisablingBecauseOfSelection = true;
   }
 
@@ -1118,8 +1113,9 @@ nsMsgDBView::SelectionChangedXPCOM() {
     // and if so, remember it so GetHeadersFromSelection won't include
     // the messages in collapsed threads.
     if (!selectionSummarized &&
-        (numSelected > 1 ||
-         (numSelected == 1 && m_flags[indices[0]] & nsMsgMessageFlags::Elided &&
+        (selection.Length() > 1 ||
+         (selection.Length() == 1 &&
+          m_flags[selection[0]] & nsMsgMessageFlags::Elided &&
           OperateOnMsgsInCollapsedThreads()))) {
       mSummarizeFailed = true;
     }
@@ -1129,7 +1125,7 @@ nsMsgDBView::SelectionChangedXPCOM() {
   mSelectionSummarized = selectionSummarized;
 
   // If only one item is selected then we want to display a message.
-  if (mTreeSelection && numSelected == 1 && !selectionSummarized) {
+  if (mTreeSelection && selection.Length() == 1 && !selectionSummarized) {
     int32_t startRange;
     int32_t endRange;
     nsresult rv = mTreeSelection->GetRangeAt(0, &startRange, &endRange);
@@ -1146,7 +1142,7 @@ nsMsgDBView::SelectionChangedXPCOM() {
       }
     } else {
       // Selection seems bogus, so set to 0.
-      numSelected = 0;
+      selection.Clear();
     }
   } else {
     // If we have zero or multiple items selected, we shouldn't be displaying
@@ -1178,8 +1174,8 @@ nsMsgDBView::SelectionChangedXPCOM() {
   NavigateStatus(nsMsgNavigationType::forward, &enableGoForward);
   NavigateStatus(nsMsgNavigationType::back, &enableGoBack);
   if (!summaryStateChanged &&
-      (numSelected == mNumSelectedRows ||
-       (numSelected > 1 && mNumSelectedRows > 1)) &&
+      (selection.Length() == mNumSelectedRows ||
+       (selection.Length() > 1 && mNumSelectedRows > 1)) &&
       commandsNeedDisablingBecauseOfSelection ==
           mCommandsNeedDisablingBecauseOfSelection &&
       enableGoForward == mGoForwardEnabled && enableGoBack == mGoBackEnabled) {
@@ -1194,7 +1190,7 @@ nsMsgDBView::SelectionChangedXPCOM() {
       commandsNeedDisablingBecauseOfSelection;
   mGoForwardEnabled = enableGoForward;
   mGoBackEnabled = enableGoBack;
-  mNumSelectedRows = numSelected;
+  mNumSelectedRows = selection.Length();
   return NS_OK;
 }
 
@@ -2008,7 +2004,9 @@ nsMsgDBView::CycleHeader(nsTreeColumn* aCol) {
 
 NS_IMETHODIMP
 nsMsgDBView::CycleCell(int32_t row, nsTreeColumn* col) {
-  if (!IsValidIndex(row)) return NS_MSG_INVALID_DBVIEW_INDEX;
+  if (!IsValidIndex(row)) {
+    return NS_MSG_INVALID_DBVIEW_INDEX;
+  }
 
   const nsAString& colID = col->GetId();
 
@@ -2031,9 +2029,10 @@ nsMsgDBView::CycleCell(int32_t row, nsTreeColumn* col) {
 
   switch (colID.First()) {
     case 'u':
-      if (colID.EqualsLiteral("unreadButtonColHeader"))
+      if (colID.EqualsLiteral("unreadButtonColHeader")) {
         ApplyCommandToIndices(nsMsgViewCommandType::toggleMessageRead,
-                              (nsMsgViewIndex*)&row, 1);
+                              {(nsMsgViewIndex)row});
+      }
       break;
     case 't':
       if (colID.EqualsLiteral("threadCol")) {
@@ -2048,17 +2047,19 @@ nsMsgDBView::CycleCell(int32_t row, nsTreeColumn* col) {
     case 'f':
       if (colID.EqualsLiteral("flaggedCol")) {
         // toggle the flagged status of the element at row.
-        if (m_flags[row] & nsMsgMessageFlags::Marked)
+        if (m_flags[row] & nsMsgMessageFlags::Marked) {
           ApplyCommandToIndices(nsMsgViewCommandType::unflagMessages,
-                                (nsMsgViewIndex*)&row, 1);
-        else
+                                {(nsMsgViewIndex)row});
+        } else {
           ApplyCommandToIndices(nsMsgViewCommandType::flagMessages,
-                                (nsMsgViewIndex*)&row, 1);
+                                {(nsMsgViewIndex)row});
+        }
       }
       break;
     case 'j': {
-      if (!colID.EqualsLiteral("junkStatusCol") || !JunkControlsEnabled(row))
+      if (!colID.EqualsLiteral("junkStatusCol") || !JunkControlsEnabled(row)) {
         return NS_OK;
+      }
 
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
       nsresult rv = GetMsgHdrForViewIndex(row, getter_AddRefs(msgHdr));
@@ -2067,13 +2068,13 @@ nsMsgDBView::CycleCell(int32_t row, nsTreeColumn* col) {
         rv =
             msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
         if (junkScoreStr.IsEmpty() ||
-            (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_HAM_SCORE))
+            (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_HAM_SCORE)) {
           ApplyCommandToIndices(nsMsgViewCommandType::junk,
-                                (nsMsgViewIndex*)&row, 1);
-        else
+                                {(nsMsgViewIndex)row});
+        } else {
           ApplyCommandToIndices(nsMsgViewCommandType::unjunk,
-                                (nsMsgViewIndex*)&row, 1);
-
+                                {(nsMsgViewIndex)row});
+        }
         NS_ASSERTION(NS_SUCCEEDED(rv),
                      "Converting junkScore to integer failed.");
       }
@@ -2338,13 +2339,14 @@ nsMsgDBView::GetSelectedMsgHdrs(nsTArray<RefPtr<nsIMsgDBHdr>>& aResult) {
 
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
-  uint32_t numIndices = selection.Length();
-  if (!numIndices) return NS_OK;
+  if (selection.IsEmpty()) {
+    return NS_OK;
+  }
 
   nsCOMPtr<nsIMutableArray> messages(
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(selection.Elements(), numIndices, messages);
+  rv = GetHeadersFromSelection(selection, messages);
   NS_ENSURE_SUCCESS(rv, rv);
   uint32_t numMsgsSelected;
   messages->GetLength(&numMsgsSelected);
@@ -2366,13 +2368,14 @@ nsMsgDBView::GetURIsForSelection(nsTArray<nsCString>& uris) {
   uris.Clear();
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
-  uint32_t numIndices = selection.Length();
-  if (!numIndices) return NS_OK;
+  if (selection.IsEmpty()) {
+    return NS_OK;
+  }
 
   nsCOMPtr<nsIMutableArray> messages(
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(selection.Elements(), numIndices, messages);
+  rv = GetHeadersFromSelection(selection, messages);
   NS_ENSURE_SUCCESS(rv, rv);
   uint32_t numMsgsSelected;
   messages->GetLength(&numMsgsSelected);
@@ -2416,18 +2419,13 @@ nsMsgDBView::DoCommandWithFolder(nsMsgViewCommandTypeValue command,
   NS_ENSURE_ARG_POINTER(destFolder);
 
   nsMsgViewIndexArray selection;
-
   GetIndicesForSelection(selection);
-
-  nsMsgViewIndex* indices = selection.Elements();
-  int32_t numIndices = selection.Length();
 
   nsresult rv = NS_OK;
   switch (command) {
     case nsMsgViewCommandType::copyMessages:
     case nsMsgViewCommandType::moveMessages:
-      rv = ApplyCommandToIndicesWithFolder(command, indices, numIndices,
-                                           destFolder);
+      rv = ApplyCommandToIndicesWithFolder(command, selection, destFolder);
       NoteChange(0, 0, nsMsgViewNotificationCode::none);
       break;
     default:
@@ -2442,17 +2440,14 @@ nsMsgDBView::DoCommandWithFolder(nsMsgViewCommandTypeValue command,
 NS_IMETHODIMP
 nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
   nsMsgViewIndexArray selection;
-
   GetIndicesForSelection(selection);
 
-  nsMsgViewIndex* indices = selection.Elements();
-  int32_t numIndices = selection.Length();
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
 
   nsresult rv = NS_OK;
   switch (command) {
     case nsMsgViewCommandType::downloadSelectedForOffline:
-      return DownloadForOffline(msgWindow, indices, numIndices);
+      return DownloadForOffline(msgWindow, selection);
     case nsMsgViewCommandType::downloadFlaggedForOffline:
       return DownloadFlaggedForOffline(msgWindow);
     case nsMsgViewCommandType::markMessagesRead:
@@ -2466,7 +2461,7 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
     case nsMsgViewCommandType::markThreadRead:
     case nsMsgViewCommandType::junk:
     case nsMsgViewCommandType::unjunk:
-      rv = ApplyCommandToIndices(command, indices, numIndices);
+      rv = ApplyCommandToIndices(command, selection);
       NoteChange(0, 0, nsMsgViewNotificationCode::none);
       break;
     case nsMsgViewCommandType::selectAll:
@@ -2489,8 +2484,8 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
         mTreeSelection->SetSelectEventsSuppressed(true);
         mTreeSelection->ClearSelection();
         // XXX ExpandAll?
-        nsMsgViewIndex numIndices = GetSize();
-        for (nsMsgViewIndex curIndex = 0; curIndex < numIndices; curIndex++) {
+        uint32_t numIndices = GetSize();
+        for (uint32_t curIndex = 0; curIndex < numIndices; curIndex++) {
           if (m_flags[curIndex] & nsMsgMessageFlags::Marked)
             mTreeSelection->ToggleSelect(curIndex);
         }
@@ -2507,7 +2502,7 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
       }
       break;
     case nsMsgViewCommandType::toggleThreadWatched:
-      rv = ToggleWatched(indices, numIndices);
+      rv = ToggleWatched(selection);
       break;
     case nsMsgViewCommandType::expandAll:
       rv = ExpandAll();
@@ -2561,14 +2556,12 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
   int32_t rangeCount;
   nsMsgViewIndexArray selection;
   GetIndicesForSelection(selection);
-  int32_t numIndices = selection.Length();
-  nsMsgViewIndex* indices = selection.Elements();
   // If range count is non-zero, we have at least one item selected, so we
   // have a selection.
   if (mTreeSelection &&
       NS_SUCCEEDED(mTreeSelection->GetRangeCount(&rangeCount)) &&
       rangeCount > 0) {
-    haveSelection = NonDummyMsgSelected(indices, numIndices);
+    haveSelection = NonDummyMsgSelected(selection);
   } else {
     // If we don't have a tree selection we must be in stand alone mode.
     haveSelection = IsValidIndex(m_currentlyDisplayedViewIndex);
@@ -2620,13 +2613,12 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
       break;
     case nsMsgViewCommandType::junk:
     case nsMsgViewCommandType::unjunk:
-      *selectable_p =
-          haveSelection && numIndices && JunkControlsEnabled(selection[0]);
+      *selectable_p = haveSelection && !selection.IsEmpty() &&
+                      JunkControlsEnabled(selection[0]);
       break;
     case nsMsgViewCommandType::cmdRequiringMsgBody:
       *selectable_p =
-          haveSelection &&
-          (!WeAreOffline() || OfflineMsgSelected(indices, numIndices));
+          haveSelection && (!WeAreOffline() || OfflineMsgSelected(selection));
       break;
     case nsMsgViewCommandType::downloadFlaggedForOffline:
     case nsMsgViewCommandType::markAllRead:
@@ -2690,9 +2682,8 @@ bool nsMsgDBView::OperateOnMsgsInCollapsedThreads() {
   return includeCollapsedMsgs;
 }
 
-nsresult nsMsgDBView::GetHeadersFromSelection(uint32_t* indices,
-                                              uint32_t numIndices,
-                                              nsIMutableArray* messageArray) {
+nsresult nsMsgDBView::GetHeadersFromSelection(
+    nsTArray<nsMsgViewIndex> const& selection, nsIMutableArray* messageArray) {
   nsresult rv = NS_OK;
 
   // Don't include collapsed messages if the front end failed to summarize
@@ -2700,10 +2691,13 @@ nsresult nsMsgDBView::GetHeadersFromSelection(uint32_t* indices,
   bool includeCollapsedMsgs =
       OperateOnMsgsInCollapsedThreads() && !mSummarizeFailed;
 
-  for (uint32_t index = 0;
-       index < (nsMsgViewIndex)numIndices && NS_SUCCEEDED(rv); index++) {
-    nsMsgViewIndex viewIndex = indices[index];
-    if (viewIndex == nsMsgViewIndex_None) continue;
+  for (nsMsgViewIndex viewIndex : selection) {
+    if (NS_FAILED(rv)) {
+      break;
+    }
+    if (viewIndex == nsMsgViewIndex_None) {
+      continue;
+    }
 
     uint32_t viewIndexFlags = m_flags[viewIndex];
     if (viewIndexFlags & MSG_VIEW_FLAG_DUMMY) {
@@ -2732,7 +2726,7 @@ nsresult nsMsgDBView::GetHeadersFromSelection(uint32_t* indices,
 }
 
 nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
-                                   nsMsgViewIndex* indices, int32_t numIndices,
+                                   nsTArray<nsMsgViewIndex> const& selection,
                                    bool isMove, nsIMsgFolder* destFolder) {
   if (m_deletingRows) {
     NS_ASSERTION(false, "Last move did not complete");
@@ -2744,11 +2738,13 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
   nsCOMPtr<nsIMutableArray> messageArray(
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(indices, numIndices, messageArray);
+  rv = GetHeadersFromSelection(selection, messageArray);
   NS_ENSURE_SUCCESS(rv, rv);
 
   m_deletingRows = isMove && mDeleteModel != nsMsgImapDeleteModels::IMAPDelete;
-  if (m_deletingRows) mIndicesToNoteChange.AppendElements(indices, numIndices);
+  if (m_deletingRows) {
+    mIndicesToNoteChange.AppendElements(selection);
+  }
 
   nsCOMPtr<nsIMsgCopyService> copyService =
       do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
@@ -2762,8 +2758,8 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
 }
 
 nsresult nsMsgDBView::ApplyCommandToIndicesWithFolder(
-    nsMsgViewCommandTypeValue command, nsMsgViewIndex* indices,
-    int32_t numIndices, nsIMsgFolder* destFolder) {
+    nsMsgViewCommandTypeValue command,
+    nsTArray<nsMsgViewIndex> const& selection, nsIMsgFolder* destFolder) {
   nsresult rv = NS_OK;
   NS_ENSURE_ARG_POINTER(destFolder);
 
@@ -2773,16 +2769,14 @@ nsresult nsMsgDBView::ApplyCommandToIndicesWithFolder(
       NS_ASSERTION(!(m_folder == destFolder),
                    "The source folder and the destination folder are the same");
       if (m_folder != destFolder)
-        rv = CopyMessages(msgWindow, indices, numIndices, false /* isMove */,
-                          destFolder);
+        rv = CopyMessages(msgWindow, selection, false /* isMove */, destFolder);
 
       break;
     case nsMsgViewCommandType::moveMessages:
       NS_ASSERTION(!(m_folder == destFolder),
                    "The source folder and the destination folder are the same");
       if (m_folder != destFolder)
-        rv = CopyMessages(msgWindow, indices, numIndices, true /* isMove */,
-                          destFolder);
+        rv = CopyMessages(msgWindow, selection, true /* isMove */, destFolder);
 
       break;
     default:
@@ -2794,23 +2788,22 @@ nsresult nsMsgDBView::ApplyCommandToIndicesWithFolder(
   return rv;
 }
 
-nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
-                                            nsMsgViewIndex* indices,
-                                            int32_t numIndices) {
-  NS_ASSERTION(numIndices >= 0,
-               "nsMsgDBView::ApplyCommandToIndices(): numIndices is negative!");
-
-  // Return quietly, just in case/
-  if (numIndices == 0) return NS_OK;
+nsresult nsMsgDBView::ApplyCommandToIndices(
+    nsMsgViewCommandTypeValue command,
+    nsTArray<nsMsgViewIndex> const& selection) {
+  if (selection.IsEmpty()) {
+    // Return quietly, just in case/
+    return NS_OK;
+  }
 
   nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolderForViewIndex(indices[0], getter_AddRefs(folder));
+  nsresult rv = GetFolderForViewIndex(selection[0], getter_AddRefs(folder));
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
   if (command == nsMsgViewCommandType::deleteMsg)
-    return DeleteMessages(msgWindow, indices, numIndices, false);
+    return DeleteMessages(msgWindow, selection, false);
 
   if (command == nsMsgViewCommandType::deleteNoTrash)
-    return DeleteMessages(msgWindow, indices, numIndices, true);
+    return DeleteMessages(msgWindow, selection, true);
 
   nsTArray<nsMsgKey> imapUids;
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
@@ -2842,8 +2835,9 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
   // No sense going through the code that handles messages in collasped threads
   // for mark thread read.
   if (command == nsMsgViewCommandType::markThreadRead) {
-    for (int32_t index = 0; index < numIndices; index++)
-      SetThreadOfMsgReadByIndex(indices[index], imapUids, true);
+    for (nsMsgViewIndex viewIndex : selection) {
+      SetThreadOfMsgReadByIndex(viewIndex, imapUids, true);
+    }
   } else {
     // Turn the selection into an array of msg hdrs. This may include messages
     // in collapsed threads
@@ -2851,7 +2845,7 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
     nsCOMPtr<nsIMutableArray> messageArray(
         do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetHeadersFromSelection(indices, numIndices, messageArray);
+    rv = GetHeadersFromSelection(selection, messageArray);
     NS_ENSURE_SUCCESS(rv, rv);
     messageArray->GetLength(&length);
 
@@ -2995,8 +2989,8 @@ nsresult nsMsgDBView::RemoveByIndex(nsMsgViewIndex index) {
 }
 
 nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
-                                     nsMsgViewIndex* indices,
-                                     int32_t numIndices, bool deleteStorage) {
+                                     nsTArray<nsMsgViewIndex> const& selection,
+                                     bool deleteStorage) {
   if (m_deletingRows) {
     NS_WARNING("Last delete did not complete");
     return NS_OK;
@@ -3006,7 +3000,7 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
   nsCOMPtr<nsIMutableArray> messageArray(
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(indices, numIndices, messageArray);
+  rv = GetHeadersFromSelection(selection, messageArray);
   NS_ENSURE_SUCCESS(rv, rv);
   uint32_t numMsgs;
   messageArray->GetLength(&numMsgs);
@@ -3034,7 +3028,7 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
     }
   }
 
-  if (!activePref && (uint32_t(numIndices) != numMsgs)) {
+  if (!activePref && (selection.Length() != numMsgs)) {
     bool pref = false;
     prefBranch->GetBoolPref(warnCollapsedPref, &pref);
     if (pref) {
@@ -3099,7 +3093,7 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
 
   if (mDeleteModel != nsMsgImapDeleteModels::IMAPDelete) m_deletingRows = true;
 
-  if (m_deletingRows) mIndicesToNoteChange.AppendElements(indices, numIndices);
+  if (m_deletingRows) mIndicesToNoteChange.AppendElements(selection);
 
   nsTArray<RefPtr<nsIMsgDBHdr>> tmp;
   MsgHdrsToTArray(messageArray, tmp);
@@ -3110,13 +3104,12 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
   return rv;
 }
 
-nsresult nsMsgDBView::DownloadForOffline(nsIMsgWindow* window,
-                                         nsMsgViewIndex* indices,
-                                         int32_t numIndices) {
+nsresult nsMsgDBView::DownloadForOffline(
+    nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection) {
   nsresult rv = NS_OK;
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-  for (nsMsgViewIndex index = 0; index < (nsMsgViewIndex)numIndices; index++) {
-    nsMsgKey key = m_keys[indices[index]];
+  for (nsMsgViewIndex viewIndex : selection) {
+    nsMsgKey key = m_keys[viewIndex];
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = m_db->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -6280,9 +6273,10 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
     case nsMsgNavigationType::lastUnreadMessage:
       break;
     case nsMsgNavigationType::nextUnreadThread:
-      if (startIndex != nsMsgViewIndex_None)
-        ApplyCommandToIndices(nsMsgViewCommandType::markThreadRead, &startIndex,
-                              1);
+      if (startIndex != nsMsgViewIndex_None) {
+        ApplyCommandToIndices(nsMsgViewCommandType::markThreadRead,
+                              {startIndex});
+      }
 
       return NavigateFromPos(nsMsgNavigationType::nextUnreadMessage, startIndex,
                              pResultKey, pResultIndex, pThreadIndex, true);
@@ -6290,8 +6284,7 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
       bool resultKilled;
       nsMsgViewIndexArray selection;
       GetIndicesForSelection(selection);
-      ToggleIgnored(selection.Elements(), selection.Length(), &threadIndex,
-                    &resultKilled);
+      ToggleIgnored(selection, &threadIndex, &resultKilled);
       if (resultKilled) {
         return NavigateFromPos(nsMsgNavigationType::nextUnreadThread,
                                threadIndex, pResultKey, pResultIndex,
@@ -6306,8 +6299,7 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
       bool resultKilled;
       nsMsgViewIndexArray selection;
       GetIndicesForSelection(selection);
-      ToggleMessageKilled(selection.Elements(), selection.Length(),
-                          &threadIndex, &resultKilled);
+      ToggleMessageKilled(selection, &threadIndex, &resultKilled);
       if (resultKilled) {
         return NavigateFromPos(nsMsgNavigationType::nextUnreadMessage,
                                threadIndex, pResultKey, pResultIndex,
@@ -6592,14 +6584,14 @@ nsresult nsMsgDBView::SetExtraFlag(nsMsgViewIndex index, uint32_t extraflag) {
   return NS_OK;
 }
 
-nsresult nsMsgDBView::ToggleIgnored(nsMsgViewIndex *indices, int32_t numIndices,
+nsresult nsMsgDBView::ToggleIgnored(nsTArray<nsMsgViewIndex> const& selection,
                                     nsMsgViewIndex *resultIndex,
                                     bool *resultToggleState) {
   nsCOMPtr<nsIMsgThread> thread;
 
   // Ignored state is toggled based on the first selected thread.
   nsMsgViewIndex threadIndex =
-      GetThreadFromMsgIndex(indices[0], getter_AddRefs(thread));
+      GetThreadFromMsgIndex(selection[0], getter_AddRefs(thread));
   uint32_t threadFlags;
   thread->GetFlags(&threadFlags);
   uint32_t ignored = threadFlags & nsMsgMessageFlags::Ignored;
@@ -6607,11 +6599,12 @@ nsresult nsMsgDBView::ToggleIgnored(nsMsgViewIndex *indices, int32_t numIndices,
   // Process threads in reverse order.
   // Otherwise collapsing the threads will invalidate the indices.
   threadIndex = nsMsgViewIndex_None;
+  uint32_t numIndices = selection.Length();
   while (numIndices) {
     numIndices--;
-    if (indices[numIndices] < threadIndex) {
+    if (selection[numIndices] < threadIndex) {
       threadIndex =
-          GetThreadFromMsgIndex(indices[numIndices], getter_AddRefs(thread));
+          GetThreadFromMsgIndex(selection[numIndices], getter_AddRefs(thread));
       thread->GetFlags(&threadFlags);
       if ((threadFlags & nsMsgMessageFlags::Ignored) == ignored)
         SetThreadIgnored(thread, threadIndex, !ignored);
@@ -6625,15 +6618,14 @@ nsresult nsMsgDBView::ToggleIgnored(nsMsgViewIndex *indices, int32_t numIndices,
   return NS_OK;
 }
 
-nsresult nsMsgDBView::ToggleMessageKilled(nsMsgViewIndex *indices,
-                                          int32_t numIndices,
+nsresult nsMsgDBView::ToggleMessageKilled(nsTArray<nsMsgViewIndex> const& selection,
                                           nsMsgViewIndex *resultIndex,
                                           bool *resultToggleState) {
   NS_ENSURE_ARG_POINTER(resultToggleState);
 
   nsCOMPtr<nsIMsgDBHdr> header;
   // Ignored state is toggled based on the first selected message.
-  nsresult rv = GetMsgHdrForViewIndex(indices[0], getter_AddRefs(header));
+  nsresult rv = GetMsgHdrForViewIndex(selection[0], getter_AddRefs(header));
   NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t msgFlags;
@@ -6643,10 +6635,11 @@ nsresult nsMsgDBView::ToggleMessageKilled(nsMsgViewIndex *indices,
   // Process messages in reverse order.
   // Otherwise the indices may be invalidated.
   nsMsgViewIndex msgIndex = nsMsgViewIndex_None;
+  uint32_t numIndices = selection.Length();
   while (numIndices) {
     numIndices--;
-    if (indices[numIndices] < msgIndex) {
-      msgIndex = indices[numIndices];
+    if (selection[numIndices] < msgIndex) {
+      msgIndex = selection[numIndices];
       rv = GetMsgHdrForViewIndex(msgIndex, getter_AddRefs(header));
       NS_ENSURE_SUCCESS(rv, rv);
       header->GetFlags(&msgFlags);
@@ -6684,24 +6677,25 @@ nsMsgViewIndex nsMsgDBView::GetThreadFromMsgIndex(nsMsgViewIndex index,
   return threadIndex;
 }
 
-nsresult nsMsgDBView::ToggleWatched(nsMsgViewIndex *indices,
-                                    int32_t numIndices) {
+nsresult nsMsgDBView::ToggleWatched(nsTArray<nsMsgViewIndex> const& selection) {
+  MOZ_ASSERT(!selection.IsEmpty());
   nsCOMPtr<nsIMsgThread> thread;
 
   // Watched state is toggled based on the first selected thread.
   nsMsgViewIndex threadIndex =
-      GetThreadFromMsgIndex(indices[0], getter_AddRefs(thread));
+      GetThreadFromMsgIndex(selection[0], getter_AddRefs(thread));
   uint32_t threadFlags;
   thread->GetFlags(&threadFlags);
   uint32_t watched = threadFlags & nsMsgMessageFlags::Watched;
 
   // Process threads in reverse order for consistency with ToggleIgnored.
   threadIndex = nsMsgViewIndex_None;
+  uint32_t numIndices = selection.Length();
   while (numIndices) {
     numIndices--;
-    if (indices[numIndices] < threadIndex) {
+    if (selection[numIndices] < threadIndex) {
       threadIndex =
-          GetThreadFromMsgIndex(indices[numIndices], getter_AddRefs(thread));
+          GetThreadFromMsgIndex(selection[numIndices], getter_AddRefs(thread));
       thread->GetFlags(&threadFlags);
       if ((threadFlags & nsMsgMessageFlags::Watched) == watched)
         SetThreadWatched(thread, threadIndex, !watched);
@@ -7029,39 +7023,44 @@ nsMsgDBView::GetDb(nsIMsgDatabase **aDB) {
   return NS_OK;
 }
 
-bool nsMsgDBView::OfflineMsgSelected(nsMsgViewIndex *indices,
-                                     int32_t numIndices) {
+bool nsMsgDBView::OfflineMsgSelected(nsTArray<nsMsgViewIndex> const& selection) {
   nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
-  if (localFolder) return true;
+  if (localFolder) {
+    return true;
+  }
 
-  for (nsMsgViewIndex index = 0; index < (nsMsgViewIndex)numIndices; index++) {
+  for (nsMsgViewIndex viewIndex : selection) {
     // For cross-folder saved searches, we need to check if any message
     // is in a local folder.
     if (!m_folder) {
       nsCOMPtr<nsIMsgFolder> folder;
-      GetFolderForViewIndex(indices[index], getter_AddRefs(folder));
+      GetFolderForViewIndex(viewIndex, getter_AddRefs(folder));
       nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(folder);
-      if (localFolder) return true;
+      if (localFolder) {
+        return true;
+      }
     }
 
-    uint32_t flags = m_flags[indices[index]];
-    if ((flags & nsMsgMessageFlags::Offline)) return true;
+    uint32_t flags = m_flags[viewIndex];
+    if ((flags & nsMsgMessageFlags::Offline)) {
+      return true;
+    }
   }
 
   return false;
 }
 
-bool nsMsgDBView::NonDummyMsgSelected(nsMsgViewIndex *indices,
-                                      int32_t numIndices) {
+bool nsMsgDBView::NonDummyMsgSelected(nsTArray<nsMsgViewIndex> const& selection) {
   bool includeCollapsedMsgs = OperateOnMsgsInCollapsedThreads();
 
-  for (nsMsgViewIndex index = 0; index < (nsMsgViewIndex)numIndices; index++) {
-    uint32_t flags = m_flags[indices[index]];
+  for (nsMsgViewIndex viewIndex : selection) {
+    uint32_t flags = m_flags[viewIndex];
     // We now treat having a collapsed dummy message selected as if
     // the whole group was selected so we can apply commands to the group.
     if (!(flags & MSG_VIEW_FLAG_DUMMY) ||
-        (flags & nsMsgMessageFlags::Elided && includeCollapsedMsgs))
+        (flags & nsMsgMessageFlags::Elided && includeCollapsedMsgs)) {
       return true;
+    }
   }
 
   return false;
