@@ -17,8 +17,7 @@ var LoginInfo = Components.Constructor(
   "init"
 );
 
-// Ideal login info. This is what would be saved if you created a new calendar
-// after the changes.
+// Ideal login info. This is what would be saved if you created a new calendar.
 const ORIGIN = "oauth://mochi.test";
 const SCOPE = "test_scope";
 const USERNAME = "bob@test.invalid";
@@ -133,7 +132,7 @@ add_task(function testAddressBookOAuth_username_validSingle() {
     [ORIGIN, "other_scope", USERNAME, "other_refresh_token"]
   );
   return subtest(dirPrefId, uid);
-}).skip(); // Enable after changes.
+});
 
 /** Valid token stored with username, many scopes. */
 add_task(function testAddressBookOAuth_username_validMultiple() {
@@ -142,4 +141,4 @@ add_task(function testAddressBookOAuth_username_validMultiple() {
   setPref(dirPrefId, "carddav.username", USERNAME);
   setLogins([ORIGIN, "scope test_scope other_scope", USERNAME, VALID_TOKEN]);
   return subtest(dirPrefId, uid);
-}).skip(); // Enable after changes.
+});

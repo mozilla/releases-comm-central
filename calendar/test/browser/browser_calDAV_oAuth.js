@@ -15,7 +15,7 @@ var LoginInfo = Components.Constructor(
   "init"
 );
 
-// Ideal login info. This is what would be saved if you created a new calendar after the changes.
+// Ideal login info. This is what would be saved if you created a new calendar.
 const ORIGIN = "oauth://mochi.test";
 const SCOPE = "test_scope";
 const USERNAME = "bob@test.invalid";
@@ -103,7 +103,7 @@ add_task(function testCalendarOAuth_sessionId_none() {
 add_task(function testCalendarOAuth_username_none() {
   let calendarId = "testCalendarOAuth_username_none";
   setPref(calendarId, "username", USERNAME);
-  return subtest(calendarId, calendarId); // USERNAME after changes.
+  return subtest(calendarId, USERNAME);
 });
 
 // Test making a request when there IS a matching token, but the server rejects it.
@@ -129,7 +129,7 @@ add_task(function testCalendarOAuth_username_expired() {
   let calendarId = "testCalendarOAuth_username_expired";
   setPref(calendarId, "username", USERNAME);
   setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, "expired_token"]);
-  return subtest(calendarId); // USERNAME after changes.
+  return subtest(calendarId, USERNAME);
 }).skip(); // Broken.
 
 // Test making a request with a valid token, using Lightning's client ID and secret.
@@ -154,7 +154,7 @@ add_task(function testCalendarOAuth_username_valid() {
   let calendarId = "testCalendarOAuth_username_valid";
   setPref(calendarId, "username", USERNAME);
   setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, VALID_TOKEN]);
-  return subtest(calendarId); // New token required after changes.
+  return subtest(calendarId, USERNAME);
 });
 
 // Test making a request with a valid token, using Thunderbird's client ID and secret.
@@ -179,7 +179,7 @@ add_task(function testCalendarOAuthTB_username_valid() {
   let calendarId = "testCalendarOAuthTB_username_valid";
   setPref(calendarId, "username", USERNAME);
   setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
-  return subtest(calendarId); // New token required after changes.
+  return subtest(calendarId, USERNAME);
 });
 
 /** Valid token stored with username, exact scope. */
@@ -191,7 +191,7 @@ add_task(function testCalendarOAuthTB_username_validSingle() {
     [ORIGIN, "other_scope", USERNAME, "other_refresh_token"]
   );
   return subtest(calendarId);
-}).skip(); // Enable after changes.
+});
 
 /** Valid token stored with username, many scopes. */
 add_task(function testCalendarOAuthTB_username_validMultiple() {
@@ -199,4 +199,4 @@ add_task(function testCalendarOAuthTB_username_validMultiple() {
   setPref(calendarId, "username", USERNAME);
   setLogins([ORIGIN, "scope test_scope other_scope", USERNAME, VALID_TOKEN]);
   return subtest(calendarId);
-}).skip(); // Enable after changes.
+});

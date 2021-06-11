@@ -39,7 +39,11 @@ OAuth2Module.prototype = {
     );
   },
   initFromABDirectory(aDirectory, aHostname) {
-    this._initPrefs(aDirectory.dirPrefId + ".", aDirectory.UID, aHostname);
+    this._initPrefs(
+      aDirectory.dirPrefId + ".",
+      aDirectory.getStringValue("carddav.username", "") || aDirectory.UID,
+      aHostname
+    );
     if (aHostname == "mochi.test") {
       // I don't know why, but tests refuse to work with a plain HTTP endpoint
       // (the request is redirected to HTTPS, which we're not listening to).
@@ -115,13 +119,12 @@ OAuth2Module.prototype = {
   },
 
   get refreshToken() {
-    let logins = Services.logins.findLogins(
-      this._loginOrigin,
-      null,
-      this._scope
-    );
-    for (let login of logins) {
-      if (login.username == this._username) {
+    for (let login of Services.logins.findLogins(this._loginOrigin, null, "")) {
+      if (
+        login.username == this._username &&
+        (login.httpRealm == this._scope ||
+          login.httpRealm.split(" ").includes(this._scope))
+      ) {
         return login.password;
       }
     }

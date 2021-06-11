@@ -461,9 +461,12 @@ var calauth = {
     let origin = this._ensureOrigin(aOrigin);
 
     try {
-      let logins = Services.logins.findLogins(origin, null, aRealm);
+      let logins = Services.logins.findLogins(origin, null, "");
       for (let loginInfo of logins) {
-        if (loginInfo.username == aUsername) {
+        if (
+          loginInfo.username == aUsername &&
+          (loginInfo.httpRealm == aRealm || loginInfo.httpRealm.split(" ").includes(aRealm))
+        ) {
           aPassword.value = loginInfo.password;
           return true;
         }

@@ -7,16 +7,26 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2Providers"];
 
+// When we add a Google mail account, ask for address book and calendar scopes
+// as well. Then we can add an address book or calendar without asking again.
+//
+// Don't ask for all the scopes when adding an address book or calendar
+// independently of the mail set-up process. If a mail account already exists,
+// we already have a token, and if it doesn't the user is likely to be setting
+// up an address book/calendar without wanting mail.
+const GOOGLE_SCOPES =
+  "https://mail.google.com/ https://www.googleapis.com/auth/carddav https://www.googleapis.com/auth/calendar";
+
 /**
  * Map of hostnames to [issuer, scope].
  */
 var kHostnames = new Map([
-  ["imap.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
-  ["smtp.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
-  ["pop.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
-  ["imap.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
-  ["smtp.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
-  ["pop.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
+  ["imap.googlemail.com", ["accounts.google.com", GOOGLE_SCOPES]],
+  ["smtp.googlemail.com", ["accounts.google.com", GOOGLE_SCOPES]],
+  ["pop.googlemail.com", ["accounts.google.com", GOOGLE_SCOPES]],
+  ["imap.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
+  ["smtp.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
+  ["pop.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
   [
     "www.googleapis.com",
     ["accounts.google.com", "https://www.googleapis.com/auth/carddav"],

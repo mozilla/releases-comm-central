@@ -122,7 +122,7 @@ class CalDavDetector {
    */
   constructor(username, password, savePassword) {
     this.username = username;
-    this.session = new CalDavDetectionSession(cal.getUUID(), username, password, savePassword);
+    this.session = new CalDavDetectionSession(username, password, savePassword);
   }
 
   /**
@@ -412,7 +412,7 @@ class CalDavDetector {
     calendar.setProperty("color", color || cal.view.hashColor(uri.spec));
     calendar.name = displayName;
     calendar.id = cal.getUUID();
-    calendar.setProperty("sessionId", this.session.id);
+    calendar.setProperty("username", this.username);
     calendar.wrappedJSObject.session = this.session.toBaseSession();
 
     // Attempt to discover if the user is allowed to write to this calendar.

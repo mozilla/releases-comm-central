@@ -82,6 +82,7 @@ class CalDavGoogleOAuth extends OAuth2 {
    * Retrieves the refresh token from the password manager. The token is cached.
    */
   get refreshToken() {
+    cal.ASSERT(this.id, `This ${this.constructor.name} object has no id.`);
     if (!this._refreshToken) {
       let pass = { value: null };
       try {
@@ -394,13 +395,12 @@ class CalDavDetectionSession extends CalDavSession {
   /**
    * Create a new caldav detection session.
    *
-   * @param {string} aSessionId       The session id, used in the password manager.
-   * @param {string} aName            The user-readable description of this session.
+   * @param {string} aUserName        The username for the session.
    * @param {string} aPassword        The password for the session.
    * @param {boolean} aSavePassword   Whether to save the password.
    */
-  constructor(aSessionId, aUserName, aPassword, aSavePassword) {
-    super(aSessionId, aUserName);
+  constructor(aUserName, aPassword, aSavePassword) {
+    super(aUserName, aUserName);
     this.password = aPassword;
     this.savePassword = aSavePassword;
   }

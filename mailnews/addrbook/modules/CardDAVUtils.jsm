@@ -329,8 +329,25 @@ var CardDAVUtils = {
         clientId,
         clientSecret
       );
+      oAuth._isNew = true;
       oAuth._loginOrigin = `oauth://${issuer}`;
       oAuth._scope = scope;
+      for (let login of Services.logins.findLogins(
+        oAuth._loginOrigin,
+        null,
+        ""
+      )) {
+        if (
+          login.username == username &&
+          (login.httpRealm == scope ||
+            login.httpRealm.split(" ").includes(scope))
+        ) {
+          oAuth.refreshToken = login.password;
+          oAuth._isNew = false;
+          break;
+        }
+      }
+
       if (username) {
         oAuth.extraAuthParams = [["login_hint", username]];
       }
@@ -454,20 +471,26 @@ var CardDAVUtils = {
           book.setStringValue("carddav.url", this.url);
 
           if (oAuth) {
-            let newLoginInfo = Cc[
-              "@mozilla.org/login-manager/loginInfo;1"
-            ].createInstance(Ci.nsILoginInfo);
-            newLoginInfo.init(
-              oAuth._loginOrigin,
-              null,
-              oAuth._scope,
-              book.UID,
-              oAuth.refreshToken,
-              "",
-              ""
-            );
-            Services.logins.addLogin(newLoginInfo);
+            if (oAuth._isNew) {
+              console.log(`Saving refresh token for ${username}`);
+              let newLoginInfo = Cc[
+                "@mozilla.org/login-manager/loginInfo;1"
+              ].createInstance(Ci.nsILoginInfo);
+              newLoginInfo.init(
+                oAuth._loginOrigin,
+                null,
+                oAuth._scope,
+                username,
+                oAuth.refreshToken,
+                "",
+                ""
+              );
+              Services.logins.addLogin(newLoginInfo);
+              oAuth._isNew = false;
+            }
+            book.setStringValue("carddav.username", username);
           } else if (callbacks.authInfo?.username) {
+            console.log(`Saving login info for ${username}`);
             book.setStringValue(
               "carddav.username",
               callbacks.authInfo.username
