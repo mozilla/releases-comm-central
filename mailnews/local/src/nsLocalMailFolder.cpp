@@ -980,16 +980,23 @@ nsMsgLocalMailFolder::DeleteMessages(
   }
 
   if (!deleteStorage && !isTrashFolder) {
+    // We're moving the messages to trash folder. Start by kicking off a copy.
     nsCOMPtr<nsIMsgFolder> trashFolder;
     rv = GetTrashFolder(getter_AddRefs(trashFolder));
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgCopyService> copyService =
           do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
+      // When the copy completes, DeleteMessages() will be called again to
+      // perform the actual delete.
       return copyService->CopyMessages(this, msgHeaders, trashFolder, true,
                                        listener, msgWindow, allowUndo);
     }
   } else {
+    // Performing an _actual_ delete. There are two ways we got here:
+    // 1) We're deleting messages without moving to trash.
+    // 2) We're in the second phase of a Move (to trash or elsewhere). The
+    //    copy succeeded, and now we need to delete the source messages.
     nsCOMPtr<nsIMsgDatabase> msgDB;
     rv = GetDatabaseWOReparse(getter_AddRefs(msgDB));
     if (NS_SUCCEEDED(rv)) {
@@ -999,25 +1006,28 @@ nsMsgLocalMailFolder::DeleteMessages(
       nsCOMPtr<nsISupports> msgSupport;
       rv = EnableNotifications(allMessageCountNotifications, false);
       if (NS_SUCCEEDED(rv)) {
+        // First, delete the actual messages in the store.
         nsCOMPtr<nsIMsgPluggableStore> msgStore;
         rv = GetMsgStore(getter_AddRefs(msgStore));
         if (NS_SUCCEEDED(rv)) {
+          // Second, remove the message entries from the DB.
           rv = msgStore->DeleteMessages(msgHeaders);
           for (auto hdr : msgHeaders) {
             rv = msgDB->DeleteHeader(hdr, nullptr, false, true);
           }
         }
-      } else if (rv == NS_MSG_FOLDER_BUSY)
+      } else if (rv == NS_MSG_FOLDER_BUSY) {
         ThrowAlertMsg("deletingMsgsFailed", msgWindow);
+      }
 
-      // we are the source folder here for a move or shift delete
-      // enable notifications because that will close the file stream
-      // we've been caching, mark the db as valid, and commit it.
+      // Let everyone know the operation has finished.
+      NotifyFolderEvent(NS_SUCCEEDED(rv) ? kDeleteOrMoveMsgCompleted
+                                         : kDeleteOrMoveMsgFailed);
+      // NOTE: This reenabling also forces immediate recount + notification.
       EnableNotifications(allMessageCountNotifications, true);
-      if (!isMove)
-        NotifyFolderEvent(NS_SUCCEEDED(rv) ? kDeleteOrMoveMsgCompleted
-                                           : kDeleteOrMoveMsgFailed);
-      if (msgWindow && !isMove) AutoCompact(msgWindow);
+      if (msgWindow) {
+        AutoCompact(msgWindow);
+      }
     }
   }
 

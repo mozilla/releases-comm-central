@@ -62,10 +62,10 @@ add_task(async function maildirToMbox() {
     gInboxFolder,
     messages,
     gTestFolder,
-    true,
+    true, // isMove
     promiseCopyListener,
-    null,
-    false
+    null, // window
+    false // allowUndo
   );
   await promiseCopyListener.promise;
 
