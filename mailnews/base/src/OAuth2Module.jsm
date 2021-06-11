@@ -40,6 +40,12 @@ OAuth2Module.prototype = {
   },
   initFromABDirectory(aDirectory, aHostname) {
     this._initPrefs(aDirectory.dirPrefId + ".", aDirectory.UID, aHostname);
+    if (aHostname == "mochi.test") {
+      // I don't know why, but tests refuse to work with a plain HTTP endpoint
+      // (the request is redirected to HTTPS, which we're not listening to).
+      // Just use an HTTPS endpoint.
+      this._oauth.redirectionEndpoint = "https://localhost";
+    }
   },
   _initPrefs(root, aUsername, aHostname) {
     // Load all of the parameters from preferences.

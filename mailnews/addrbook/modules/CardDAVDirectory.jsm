@@ -164,8 +164,7 @@ class CardDAVDirectory extends SQLiteDirectory {
     let uri = serverURI.resolve(path);
 
     if (!("_oAuth" in this)) {
-      let details = OAuth2Providers.getHostnameDetails(serverURI.host);
-      if (details) {
+      if (OAuth2Providers.getHostnameDetails(serverURI.host)) {
         this._oAuth = new OAuth2Module();
         this._oAuth.initFromABDirectory(this, serverURI.host);
       } else {

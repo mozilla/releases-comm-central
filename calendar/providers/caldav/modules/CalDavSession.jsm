@@ -44,15 +44,7 @@ class CalDavGoogleOAuth extends OAuth2 {
     this.origin = "oauth:" + sessionId;
     this.pwMgrId = "Google CalDAV v2";
 
-    // If no token is found for "Google CalDAV v2", this is either a new session (in which case
-    // it should use Thunderbird's credentials) or it's already using Thunderbird's credentials.
-    if (!this.refreshToken) {
-      [this.clientId, this.consumerSecret] = OAuth2Providers.getIssuerDetails(
-        "accounts.google.com"
-      );
-      this.origin = "oauth://accounts.google.com";
-      this.pwMgrId = "https://www.googleapis.com/auth/calendar";
-    }
+    this._maybeUpgrade(name);
 
     this.requestWindowTitle = cal.l10n.getAnyString(
       "global",
@@ -61,6 +53,21 @@ class CalDavGoogleOAuth extends OAuth2 {
       [name]
     );
     this.extraAuthParams = [["login_hint", name]];
+  }
+
+  /**
+   * If no token is found for "Google CalDAV v2", this is either a new session (in which case
+   * it should use Thunderbird's credentials) or it's already using Thunderbird's credentials.
+   * Detect those situations and switch credentials if necessary.
+   */
+  _maybeUpgrade() {
+    if (!this.refreshToken) {
+      [this.clientId, this.consumerSecret] = OAuth2Providers.getIssuerDetails(
+        "accounts.google.com"
+      );
+      this.origin = "oauth://accounts.google.com";
+      this.pwMgrId = "https://www.googleapis.com/auth/calendar";
+    }
   }
 
   /**
@@ -236,6 +243,38 @@ class CalDavGoogleOAuth extends OAuth2 {
 }
 
 /**
+ * A modified version of CalDavGoogleOAuth for testing. This class mimics the
+ * real class as closely as possible.
+ */
+class CalDavTestOAuth extends CalDavGoogleOAuth {
+  constructor(sessionId, name) {
+    super(sessionId, name);
+
+    // Override these values with test values.
+    this.authorizationEndpoint =
+      "http://mochi.test:8888/browser/comm/mailnews/addrbook/test/browser/data/redirect_auto.sjs";
+    this.tokenEndpoint =
+      "http://mochi.test:8888/browser/comm/mailnews/addrbook/test/browser/data/token.sjs";
+    this.scope = "test_scope";
+    this.clientId = "test_client_id";
+    this.consumerSecret = "test_scope";
+
+    // I don't know why, but tests refuse to work with a plain HTTP endpoint
+    // (the request is redirected to HTTPS, which we're not listening to).
+    // Just use an HTTPS endpoint.
+    this.redirectionEndpoint = "https://localhost";
+  }
+
+  _maybeUpgrade() {
+    if (!this.refreshToken) {
+      [this.clientId, this.consumerSecret] = OAuth2Providers.getIssuerDetails("mochi.test");
+      this.origin = "oauth://mochi.test";
+      this.pwMgrId = "test_scope";
+    }
+  }
+}
+
+/**
  * A session for the caldav provider. Two or more calendars can share a session if they have the
  * same auth credentials.
  */
@@ -263,6 +302,7 @@ class CalDavSession {
     // There is only one right now, but for better separation this is ready for more oauth hosts
     this.authAdapters = {
       "apidata.googleusercontent.com": new CalDavGoogleOAuth(aSessionId, aName),
+      "mochi.test": new CalDavTestOAuth(aSessionId, aName),
     };
   }
 

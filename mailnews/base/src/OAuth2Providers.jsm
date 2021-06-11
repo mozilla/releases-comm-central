@@ -50,6 +50,9 @@ var kHostnames = new Map([
       "https://outlook.office365.com/IMAP.AccessAsUser.All https://outlook.office365.com/POP.AccessAsUser.All https://outlook.office365.com/SMTP.Send offline_access",
     ],
   ],
+
+  // For testing purposes.
+  ["mochi.test", ["mochi.test", "test_scope"]],
 ]);
 
 /**
@@ -118,6 +121,17 @@ var kIssuers = new Map([
       // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
       "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
       "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+    ],
+  ],
+
+  // For testing purposes.
+  [
+    "mochi.test",
+    [
+      "test_client_id",
+      "test_secret",
+      "http://mochi.test:8888/browser/comm/mailnews/addrbook/test/browser/data/redirect_auto.sjs",
+      "http://mochi.test:8888/browser/comm/mailnews/addrbook/test/browser/data/token.sjs",
     ],
   ],
 ]);
