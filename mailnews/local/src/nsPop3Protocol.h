@@ -193,6 +193,7 @@ typedef struct _Pop3ConData {
   bool pause_for_read; /* Pause now for next read? */
 
   bool command_succeeded; /* did the last command succeed? */
+  bool command_temp_fail; /* The command respond was -ERR [SYS/TEMP] */
   bool list_done;         /* did we get the complete list of msgIDs? */
   int32_t first_msg;
 

@@ -1158,6 +1158,7 @@ int32_t nsPop3Protocol::WaitForResponse(nsIInputStream* inputStream,
   }
 
   MOZ_LOG(POP3LOGMODULE, LogLevel::Info, (POP3LOG("RECV: %s"), line));
+  m_pop3ConData->command_temp_fail = false;
 
   if (*line == '+') {
     m_pop3ConData->command_succeeded = true;
@@ -1189,6 +1190,10 @@ int32_t nsPop3Protocol::WaitForResponse(nsIInputStream* inputStream,
           m_commandResponse.Find("[IN-USE", true) >= 0 ||
           m_commandResponse.Find("[SYS", true) >= 0)
         SetFlag(POP3_STOPLOGIN);
+
+      if (m_commandResponse.Find("[SYS/TEMP", true) >= 0) {
+        m_pop3ConData->command_temp_fail = true;
+      }
 
       // remove the codes from the response string presented to the user
       int32_t i = m_commandResponse.FindChar(']');
@@ -1420,12 +1425,16 @@ int32_t nsPop3Protocol::CapaResponse(nsIInputStream* inputStream,
   } else if (!PL_strcasecmp(line, "XSENDER")) {
     SetCapFlag(POP3_HAS_XSENDER);
     m_pop3Server->SetPop3CapabilityFlags(m_pop3ConData->capability_flags);
-  } else if (!PL_strcasecmp(line, "RESP-CODES")) {
-    // see RFC 2449, chapter 6.4
+  } else if (!PL_strcasecmp(line, "RESP-CODES") ||
+             !PL_strcasecmp(line, "RESP_CODES")) {
+    // see RFC 2449, chapter 6.4 -- some non-compliant servers use underscore
+    // instead of hyphen so accept underscore too.
     SetCapFlag(POP3_HAS_RESP_CODES);
     m_pop3Server->SetPop3CapabilityFlags(m_pop3ConData->capability_flags);
-  } else if (!PL_strcasecmp(line, "AUTH-RESP-CODE")) {
-    // see RFC 3206, chapter 6
+  } else if (!PL_strcasecmp(line, "AUTH-RESP-CODE") ||
+             !PL_strcasecmp(line, "AUTH_RESP_CODE")) {
+    // see RFC 3206, chapter 6 -- some non-compliant servers use underscore
+    // instead of hyphen so accept underscore too.
     SetCapFlag(POP3_HAS_AUTH_RESP_CODE);
     m_pop3Server->SetPop3CapabilityFlags(m_pop3ConData->capability_flags);
   } else if (!PL_strcasecmp(line, "STLS")) {
@@ -2645,6 +2654,15 @@ int32_t nsPop3Protocol::SendUidlList() {
 
 int32_t nsPop3Protocol::GetUidlList(nsIInputStream* inputStream,
                                     uint32_t length) {
+  if (m_pop3ConData->command_temp_fail) {
+    nsCString hostName;
+    nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_pop3Server);
+    nsresult rv = server->GetRealHostName(hostName);
+    NS_ENSURE_SUCCESS(rv, -1);
+    NS_ConvertASCIItoUTF16 hostNameUnicode(hostName);
+    return Error("pop3TempServerError", hostNameUnicode.get());
+  }
+
   /* check list response
    * This will get called multiple times
    * but it's alright since command_succeeded
