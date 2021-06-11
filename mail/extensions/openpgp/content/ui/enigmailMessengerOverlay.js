@@ -1881,33 +1881,24 @@ Enigmail.msg = {
     );
 
     let msg = gFolderDisplay.messageDisplay.displayedMessage;
-    let p = EnigmailFixExchangeMsg.fixExchangeMessage(msg, this.buggyMailType);
+    EnigmailFixExchangeMsg.fixExchangeMessage(msg, this.buggyMailType)
+      .then(msgKey => {
+        // Display the new message which now has the key msgKey.
+        EnigmailLog.DEBUG(
+          "enigmailMessengerOverlay.js: fixBuggyExchangeMail: _success: msgKey=" +
+            msgKey +
+            "\n"
+        );
+        gFolderDisplay.view.dbView.selectMsgByKey(msgKey);
+      })
+      .catch(async () => {
+        EnigmailDialog.alert(
+          window,
+          await l10n.formatValue("fix-broken-exchange-msg-failed")
+        );
+      });
 
-    p.then(function(msgKey) {
-      // Display message with given msgKey.
-      EnigmailLog.DEBUG(
-        "enigmailMessengerOverlay.js: fixBuggyExchangeMail: _success: msgKey=" +
-          msgKey +
-          "\n"
-      );
-
-      if (msgKey) {
-        let index = gFolderDisplay.view.dbView.findIndexFromKey(msgKey, true);
-        EnigmailLog.DEBUG("  ** index = " + index + "\n");
-
-        setTimeout(function() {
-          gFolderDisplay.view.dbView.selectMsgByKey(msgKey);
-        }, 750);
-      }
-    });
-    p.catch(async function() {
-      EnigmailDialog.alert(
-        window,
-        l10n.formatValueSync("fix-broken-exchange-msg-failed")
-      );
-    });
-
-    // Remove the brokenExchangeProgress notification at the end fo the process.
+    // Remove the brokenExchangeProgress notification at the end of the process.
     this.removeNotification("brokenExchangeProgress");
   },
 
