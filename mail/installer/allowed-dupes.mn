@@ -11,6 +11,8 @@ defaults/settings/main/example.json
 defaults/settings/main/search-default-override-allowlist.json
 defaults/settings/main/url-classifier-skip-urls.json
 
+defaults/settings/main/password-rules.json
+
 # mail
 chrome/chat/content/chat/conv.html
 chrome/classic/skin/classic/messenger/icons/accounts.svg
