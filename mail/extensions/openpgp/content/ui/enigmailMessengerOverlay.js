@@ -525,16 +525,11 @@ Enigmail.msg = {
     Enigmail.msg.messageDecryptDone = true;
     Enigmail.msg.processAfterAttachmentsAndDecrypt();
 
-    // To allow the automated tests to access the messageDecryptDone
-    // state, we set an attribute with value "true".
-    // TODO: Replace with an event based system, but that will require
-    //       to rewrite the message parsing, so that we can reliably
-    //       await the state of all pending processing, in particular
-    //       see the hack in msgDirectCallback which uses setTimeout(0).
-    let cryptoBox = document.getElementById("cryptoBox");
-    if (cryptoBox) {
-      cryptoBox.setAttribute("decryptDone", "true");
-    }
+    document.dispatchEvent(
+      new CustomEvent("openpgpprocessed", {
+        detail: { messageDecryptDone: true },
+      })
+    );
 
     // Show the partial inline encryption reminder only if the decryption action
     // came from a partially inline encrypted message.
@@ -1495,7 +1490,7 @@ Enigmail.msg = {
         // Try to verify signature by accessing raw message text directly
         // (avoid recursion by setting retry parameter to false on callback)
         newSignature = "";
-        Enigmail.msg.msgDirectDecrypt(
+        await Enigmail.msg.msgDirectDecrypt(
           interactive,
           importOnly,
           contentEncoding,
@@ -2189,7 +2184,7 @@ Enigmail.msg = {
     return contentData;
   },
 
-  msgDirectDecrypt(
+  async msgDirectDecrypt(
     interactive,
     importOnly,
     contentEncoding,
@@ -2209,45 +2204,44 @@ Enigmail.msg = {
         signature +
         "\n"
     );
-    var mailNewsUrl = this.getCurrentMsgUrl();
+    let mailNewsUrl = this.getCurrentMsgUrl();
     if (!mailNewsUrl) {
       return;
     }
 
-    var callbackArg = {
-      interactive,
-      importOnly,
-      contentEncoding,
-      charset,
-      messageUrl: mailNewsUrl.spec,
-      msgUriSpec,
-      signature,
-      data: "",
-      head,
-      tail,
-      isAuto,
-      callbackFunction,
+    let PromiseStreamListener = function() {
+      this._promise = new Promise((resolve, reject) => {
+        this._resolve = resolve;
+        this._reject = reject;
+      });
+      this._data = null;
+      this._stream = null;
     };
 
-    var msgSvc = messenger.messageServiceFromURI(msgUriSpec);
-
-    var listener = {
+    PromiseStreamListener.prototype = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
-      onStartRequest() {
+
+      onStartRequest(request) {
         this.data = "";
         this.inStream = Cc[
           "@mozilla.org/scriptableinputstream;1"
         ].createInstance(Ci.nsIScriptableInputStream);
       },
-      onStopRequest() {
-        var start = this.data.indexOf("-----BEGIN PGP");
-        var end = this.data.indexOf("-----END PGP");
+
+      onStopRequest(request, statusCode) {
+        if (statusCode != Cr.NS_OK) {
+          this._reject(`Streaming failed: ${statusCode}`);
+          return;
+        }
+
+        let start = this.data.indexOf("-----BEGIN PGP");
+        let end = this.data.indexOf("-----END PGP");
 
         if (start >= 0 && end > start) {
-          var tStr = this.data.substr(end);
-          var n = tStr.indexOf("\n");
-          var r = tStr.indexOf("\r");
-          var lEnd = -1;
+          let tStr = this.data.substr(end);
+          let n = tStr.indexOf("\n");
+          let r = tStr.indexOf("\r");
+          let lEnd = -1;
           if (n >= 0 && r >= 0) {
             lEnd = Math.min(r, n);
           } else if (r >= 0) {
@@ -2260,78 +2254,70 @@ Enigmail.msg = {
             end += lEnd;
           }
 
-          callbackArg.data = Enigmail.msg.trimIfEncrypted(
+          let data = Enigmail.msg.trimIfEncrypted(
             this.data.substring(start, end + 1)
           );
           EnigmailLog.DEBUG(
-            "enigmailMessengerOverlay.js: data: >" +
-              callbackArg.data.substr(0, 100) +
-              "<\n"
+            "enigmailMessengerOverlay.js: data: >" + data.substr(0, 100) + "<\n"
           );
-          Enigmail.msg.msgDirectCallback(callbackArg);
+
+          let currentMsgURL = Enigmail.msg.getCurrentMsgUrl();
+          let urlSpec = currentMsgURL ? currentMsgURL.spec : "";
+
+          let l = urlSpec.length;
+          if (urlSpec.substr(0, l) != mailNewsUrl.spec.substr(0, l)) {
+            EnigmailLog.ERROR(
+              "enigmailMessengerOverlay.js: Message URL mismatch " +
+                currentMsgURL +
+                " vs. " +
+                urlSpec +
+                "\n"
+            );
+            this._reject(`Msg url mismatch: ${currentMsgURL} vs ${urlSpec}`);
+            return;
+          }
+
+          Enigmail.msg
+            .messageParseCallback(
+              data,
+              contentEncoding,
+              charset,
+              interactive,
+              importOnly,
+              mailNewsUrl.spec,
+              signature,
+              3,
+              head,
+              tail,
+              msgUriSpec,
+              isAuto
+            )
+            .then(() => this._resolve(this.data));
         }
+      },
+
+      onDataAvailable(request, stream, off, count) {
+        this.inStream.init(stream);
+        this.data += this.inStream.read(count);
+      },
+
+      get promise() {
+        return this._promise;
       },
     };
 
-    listener.onDataAvailable = function(req, stream, offset, count) {
-      this.inStream.init(stream);
-      this.data += this.inStream.read(count);
-    };
-
+    let streamListener = new PromiseStreamListener();
+    let msgSvc = messenger.messageServiceFromURI(msgUriSpec);
     msgSvc.streamMessage(
       msgUriSpec,
-      listener,
+      streamListener,
       msgWindow,
       null,
       false,
       null,
       false
     );
-  },
-
-  msgDirectCallback(callbackArg) {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: msgDirectCallback: \n");
-
-    var mailNewsUrl = Enigmail.msg.getCurrentMsgUrl();
-    var urlSpec = mailNewsUrl ? mailNewsUrl.spec : "";
-
-    var l = urlSpec.length;
-
-    if (urlSpec.substr(0, l) != callbackArg.messageUrl.substr(0, l)) {
-      EnigmailLog.ERROR(
-        "enigmailMessengerOverlay.js: msgDirectCallback: Message URL mismatch " +
-          mailNewsUrl.spec +
-          " vs. " +
-          callbackArg.messageUrl +
-          "\n"
-      );
-      return;
-    }
-
-    var msgText = callbackArg.data;
-
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: msgDirectCallback: msgText='" +
-        msgText.substr(0, 100) +
-        "'\n"
-    );
-
-    setTimeout(() => {
-      callbackArg.callbackFunction(
-        msgText,
-        callbackArg.contentEncoding,
-        callbackArg.charset,
-        callbackArg.interactive,
-        callbackArg.importOnly,
-        callbackArg.messageUrl,
-        callbackArg.signature,
-        3,
-        callbackArg.head,
-        callbackArg.tail,
-        callbackArg.msgUriSpec,
-        callbackArg.isAuto
-      );
-    }, 0);
+    await streamListener;
   },
 
   revealAttachments(index) {

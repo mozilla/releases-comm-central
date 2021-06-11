@@ -47,21 +47,23 @@ var aliceAcct;
 var aliceIdentity;
 var initialKeyIdPref = "";
 
-async function waitForOpenPGPDone(doc) {
-  // We must wait until after OpenPGP processing is done.
-  // When testing an PGP/INLINE message, the message will initially
-  // be loaded into the message pane, and in a second step, the
-  // message will be decrypted or verified, the shown text will be
-  // updated, and the OpenPGP status icons will be set.
-  // Initially on loading a message, attribute decryptDone is missing.
-  // Once the OpenPGP code is done processing the message, the
-  // attribute will be set to true.
-
-  await BrowserTestUtils.waitForCondition(
-    () =>
-      doc.getElementById("cryptoBox")?.getAttribute("decryptDone") == "true",
-    "Timeout waiting for decrypt processing completion"
+/**
+ * When testing a scenario that should automatically process the OpenPGP
+ * contents (it's not suppressed e.g. because of a partial content),
+ * then we need to wait for the automatic processing to complete.
+ */
+async function openpgpProcessed() {
+  let [subject] = await TestUtils.topicObserved(
+    "document-element-inserted",
+    document => {
+      return (
+        document.ownerGlobal?.location ==
+        "chrome://messenger/content/messageWindow.xhtml"
+      );
+    }
   );
+
+  return BrowserTestUtils.waitForEvent(subject, "openpgpprocessed");
 }
 
 /**
@@ -497,10 +499,11 @@ add_task(async function testUpdateMessageSignature() {
  * can be correctly verified.
  */
 add_task(async function testOpenSignedInlineWithUTF8() {
+  let opengpgprocessed = openpgpProcessed();
   let mc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/alice-utf.eml"))
   );
-  await waitForOpenPGPDone(mc.window.document);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(mc).includes("£35.00"),
@@ -522,10 +525,11 @@ add_task(async function testOpenSignedInlineWithUTF8() {
  * can be correctly verified.
  */
 add_task(async function testOpenSignedInlineWithLeadingWS() {
+  let opengpgprocessed = openpgpProcessed();
   let mc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/signed-inline-indented.eml"))
   );
-  await waitForOpenPGPDone(mc.window.document);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(mc).includes("indent test with £"),
@@ -547,10 +551,11 @@ add_task(async function testOpenSignedInlineWithLeadingWS() {
  * in the PGP separator line, is trimmed and decrypted.
  */
 add_task(async function testDecryptInlineWithNBSPasQP() {
+  let opengpgprocessed = openpgpProcessed();
   let mc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-inline-nbsp-qp.eml"))
   );
-  await waitForOpenPGPDone(mc.window.document);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(mc).includes("My real name is not Bob."),
@@ -568,10 +573,11 @@ add_task(async function testDecryptInlineWithNBSPasQP() {
  * encoded as qp in the PGP separator line, is trimmed and decrypted.
  */
 add_task(async function testDecryptHtmlWithNBSP() {
+  let opengpgprocessed = openpgpProcessed();
   let mc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-html-nbsp.eml"))
   );
-  await waitForOpenPGPDone(mc.window.document);
+  await opengpgprocessed;
 
   Assert.ok(
     getMsgBodyTxt(mc).includes("My real name is not Bob."),
