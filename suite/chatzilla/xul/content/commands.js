@@ -3740,12 +3740,8 @@ function cmdDoCommand(e)
 {
     if (e.cmdName == "cmd_mozillaPrefs")
     {
-        // open Mozilla/SeaMonkey preferences
-        const PREF_URL = 'chrome://chatzilla/content/pref-irc.xul';
-        if (goPreferences.length == 1) // SeaMonkey 2.x
-            goPreferences('navigator_pane');
-        else // Mozilla, SeaMonkey 1.x, etc.
-            goPreferences('navigator', PREF_URL, 'navigator');
+        // Open SeaMonkey preferences.
+        goPreferences("navigator_pane");
     }
     else if (e.cmdName == "cmd_chatzillaPrefs")
     {

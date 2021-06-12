@@ -3046,16 +3046,7 @@ function cli_installPlugin(name, source)
         {
             var zipReader = newObject("@mozilla.org/libjar/zip-reader;1",
                                       "nsIZipReader");
-            // Gah at changing APIs:
-            if ("init" in zipReader)
-            {
-                zipReader.init(source);
-                zipReader.open();
-            }
-            else
-            {
-                zipReader.open(source);
-            }
+            zipReader.open(source);
 
             // This is set to the base path found on ALL items in the zip file.
             // when we extract, this WILL BE REMOVED from all paths.
