@@ -39,14 +39,3 @@ set_config("MOZ_OPENPGP", openpgp)
 set_define("MOZ_OPENPGP", openpgp)
 
 include("../third_party/openpgp.configure", when="--enable-openpgp")
-
-option(
-    "--enable-calendar",
-    default=False,
-    help="Deprecated. Please remove it from your mozconfig.",
-)
-
-
-@depends_if("--enable-calendar")
-def calendar_deprecated(arg):
-    return True
