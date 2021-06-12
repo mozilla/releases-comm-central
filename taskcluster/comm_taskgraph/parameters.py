@@ -17,6 +17,7 @@ from voluptuous import (
 
 from taskgraph.parameters import extend_parameters_schema
 from taskgraph.util.partials import populate_release_history
+from taskgraph.util.backstop import is_backstop
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,11 @@ PER_PROJECT_PARAMETERS = {
         "release_type": "nightly",
     },
 }
+
+# Backstop defaults
+BACKSTOP_TIME_INTERVAL = 60 * 22  # minutes
+INTEGRATION_PROJECTS = {"comm-central"}
+
 
 # Called at import time when comm_taskgraph:register is called
 extend_parameters_schema(
@@ -42,6 +48,7 @@ extend_parameters_schema(
 
 def get_decision_parameters(graph_config, parameters):
     logger.info("{}.get_decision_parameters called".format(__name__))
+
     # If the target method is nightly, we should build partials. This means
     # knowing what has been released previously.
     # An empty release_history is fine, it just means no partials will be built
@@ -55,3 +62,9 @@ def get_decision_parameters(graph_config, parameters):
         parameters["release_history"] = populate_release_history(
             BALROG_PRODUCT, project
         )
+
+    parameters["backstop"] = is_backstop(
+        parameters,
+        time_interval=BACKSTOP_TIME_INTERVAL,
+        integration_projects=INTEGRATION_PROJECTS,
+    )

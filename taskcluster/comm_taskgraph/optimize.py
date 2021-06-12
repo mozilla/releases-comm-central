@@ -67,11 +67,16 @@ class SkipSuiteOnly(OptimizationStrategy):
 
 
 register_strategy(
+    "skip-unless-backstop-no-suite", args=("skip-unless-backstop", "skip-suite-only")
+)(Any)
+
+register_strategy(
     "skip-unless-changed-no-suite", args=("skip-unless-changed", "skip-suite-only")
 )(Any)
 
 optimizations = (
     {"skip-suite-only": None},
+    {"skip-unless-backstop-no-suite": None},
     {"skip-unless-changed-no-suite": [text_type]},
 )
 
