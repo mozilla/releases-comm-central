@@ -166,7 +166,7 @@ add_task(async function test_address_types() {
 
   remove_NNTP_account();
 
-  // Now the NNTP account is lost, so we should be back to mail only addressees.
+  // Now the NNTP account is lost, so we should be back to mail only addresses.
   be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
   check_mail_address_types();
@@ -408,9 +408,8 @@ add_task(async function test_pill_creation_in_all_fields() {
   // The To field is visible and focused by default when the compose window is
   // first opened.
   // Test pill creation for the To input field.
-  await assertPillsCreationInField(
-    cwc.window.document.getElementById("toAddrInput")
-  );
+  let toInput = cwc.window.document.getElementById("toAddrInput");
+  await assertPillsCreationInField(toInput);
 
   // Click on the Cc recipient label.
   let ccInput = cwc.window.document.getElementById("ccAddrInput");
@@ -466,7 +465,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     bccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
     "The Bcc field was closed"
   );
-  Assert.equal(ccInput, cwc.window.document.activeElement);
+  Assert.equal(cwc.window.document.activeElement, ccInput);
 
   // Now we're on the Cc field. Press and hold Backspace to delete all pills.
   EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc.window);
@@ -491,10 +490,34 @@ add_task(async function test_pill_creation_in_all_fields() {
     ccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
     "The Cc field was closed"
   );
+  Assert.equal(cwc.window.document.activeElement, toInput);
+
+  // Now we're on the To field. Press and hold Backspace to delete all pills.
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc.window);
+
+  // All pills should be deleted, but the focus should remain on the To field.
   Assert.equal(
-    cwc.window.document.getElementById("toAddrInput"),
-    cwc.window.document.activeElement
+    toInput.closest(".address-container").querySelectorAll("mail-address-pill")
+      .length,
+    0,
+    "All pills in the To field have been removed."
   );
+  Assert.ok(
+    !toInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    "The To field is still visible"
+  );
+
+  // Press and hold Backspace again.
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc.window);
+
+  // Long backspace keypress on the To field shouldn't do anything if the field
+  // is empty. Confirm the To field is still visible and the focus stays on the
+  // To field.
+  Assert.ok(
+    !toInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    "The To field is still visible"
+  );
+  Assert.equal(cwc.window.document.activeElement, toInput);
 
   close_compose_window(cwc);
 });
@@ -507,7 +530,7 @@ add_task(async function test_addressing_fields_shortcuts() {
   // The To input field should be empty.
   Assert.equal(addrToInput.value, "");
   // The To input field should be the currently focused element.
-  Assert.equal(addrToInput, cwc.window.document.activeElement);
+  Assert.equal(cwc.window.document.activeElement, addrToInput);
 
   const modifiers =
     AppConstants.platform == "macosx"
@@ -524,7 +547,7 @@ add_task(async function test_addressing_fields_shortcuts() {
   // The Cc addressing row should be visible.
   await ccRowShownPromise;
   // The Cc input field should be currently focused.
-  Assert.equal(addrCcInput, cwc.window.document.activeElement);
+  Assert.equal(cwc.window.document.activeElement, addrCcInput);
 
   let addrBccInput = cwc.window.document.getElementById("bccAddrInput");
   let bccRowShownPromise = BrowserTestUtils.waitForCondition(
@@ -535,22 +558,149 @@ add_task(async function test_addressing_fields_shortcuts() {
   EventUtils.synthesizeKey("B", modifiers, cwc.window);
   await bccRowShownPromise;
   // The Bcc input field should be currently focused.
-  Assert.equal(addrBccInput, cwc.window.document.activeElement);
+  Assert.equal(cwc.window.document.activeElement, addrBccInput);
 
   // Press the Ctrl/Cmd+Shift+T.
   EventUtils.synthesizeKey("T", modifiers, cwc.window);
   // The To input field should be the currently focused element.
-  Assert.equal(addrToInput, cwc.window.document.activeElement);
+  Assert.equal(cwc.window.document.activeElement, addrToInput);
 
   // Press the Ctrl/Cmd+Shift+C.
   EventUtils.synthesizeKey("C", modifiers, cwc.window);
   // The Cc input field should be currently focused.
-  Assert.equal(addrCcInput, cwc.window.document.activeElement);
+  Assert.equal(cwc.window.document.activeElement, addrCcInput);
 
   // Press the Ctrl/Cmd+Shift+B.
   EventUtils.synthesizeKey("B", modifiers, cwc.window);
   // The Bcc input field should be currently focused.
-  Assert.equal(addrBccInput, cwc.window.document.activeElement);
+  Assert.equal(cwc.window.document.activeElement, addrBccInput);
 
   close_compose_window(cwc);
 });
+
+add_task(async function test_pill_deletion_and_focus() {
+  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  let cwc = open_compose_new_mail();
+
+  // When the compose window is opened, the focus should be on the To field.
+  let toInput = cwc.window.document.getElementById("toAddrInput");
+  Assert.equal(cwc.window.document.activeElement, toInput);
+
+  const modifiers =
+    AppConstants.platform == "macosx" ? { accelKey: true } : { ctrlKey: true };
+  const addresses = "person@org, foo@address.valid, invalid, foo@address";
+
+  // Test the To field.
+  test_deletion_and_focus_on_input(cwc, toInput, addresses, modifiers);
+
+  // Reveal and test the Cc field.
+  EventUtils.synthesizeMouseAtCenter(
+    cwc.window.document.getElementById("addr_cc"),
+    {},
+    cwc.window
+  );
+  test_deletion_and_focus_on_input(
+    cwc,
+    cwc.window.document.getElementById("ccAddrInput"),
+    addresses,
+    modifiers
+  );
+
+  // Reveal and test the Bcc field.
+  EventUtils.synthesizeMouseAtCenter(
+    cwc.window.document.getElementById("addr_bcc"),
+    {},
+    cwc.window
+  );
+  test_deletion_and_focus_on_input(
+    cwc,
+    cwc.window.document.getElementById("bccAddrInput"),
+    addresses,
+    modifiers
+  );
+
+  close_compose_window(cwc);
+});
+
+function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
+  // Focus on the input before adding anything to be sure keyboard shortcut are
+  // triggered from the right element.
+  input.focus();
+
+  // Fill the input field with a long of string of comma separated addresses.
+  input.value = addresses;
+
+  // Enter triggers the pill creation.
+  EventUtils.synthesizeKey("VK_RETURN", {}, cwc.window);
+
+  let container = input.closest(".address-container");
+  // We should now have 4 pills.
+  Assert.equal(
+    container.querySelectorAll("mail-address-pill").length,
+    4,
+    "All pills in the field have been created."
+  );
+
+  // One pill should be flagged as invalid.
+  Assert.equal(
+    container.querySelectorAll("mail-address-pill.invalid-address").length,
+    1,
+    "One created pill is invalid."
+  );
+
+  // After pills creation, the same field should be still focused.
+  Assert.equal(cwc.window.document.activeElement, input);
+
+  // Keypress left arrow should focus and select the last created pill.
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc.window);
+  Assert.equal(
+    container.querySelectorAll("mail-address-pill[selected]").length,
+    1,
+    "One pill is currently selected."
+  );
+
+  // Pressing delete should delete the selected pill and move the focus back to
+  // the input.
+  EventUtils.synthesizeKey("KEY_Delete", {}, cwc.window);
+  Assert.equal(
+    container.querySelectorAll("mail-address-pill").length,
+    3,
+    "One pill correctly deleted."
+  );
+  Assert.equal(cwc.window.document.activeElement, input);
+
+  // Keypress left arrow to select the last available pill.
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc.window);
+  Assert.equal(
+    container.querySelectorAll("mail-address-pill[selected]").length,
+    1,
+    "One pill is currently selected."
+  );
+
+  // BackSpace should delete the pill and focus on the previous adjacent pill.
+  EventUtils.synthesizeKey("KEY_Backspace", {}, cwc.window);
+  Assert.equal(
+    container.querySelectorAll("mail-address-pill").length,
+    2,
+    "One pill correctly deleted."
+  );
+  let selectedPill = container.querySelector("mail-address-pill[selected]");
+  Assert.equal(cwc.window.document.activeElement, selectedPill);
+
+  // Pressing CTRL+A should select all pills.
+  EventUtils.synthesizeKey("a", modifiers, cwc.window);
+  Assert.equal(
+    container.querySelectorAll("mail-address-pill[selected]").length,
+    2,
+    "All remaining 2 pills are currently selected."
+  );
+
+  // BackSpace should delete all pills and focus on empty inptu field.
+  EventUtils.synthesizeKey("KEY_Backspace", {}, cwc.window);
+  Assert.equal(
+    container.querySelectorAll("mail-address-pill").length,
+    0,
+    "All pills have been deleted."
+  );
+  Assert.equal(cwc.window.document.activeElement, input);
+}
