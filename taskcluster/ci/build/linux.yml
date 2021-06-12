@@ -146,7 +146,7 @@ linux64-asan/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: "opt asan"
             ASAN_OPTIONS: "detect_leaks=0"
-            MOZ_AUTOMATION_PACKAGE_TESTS: "0"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
         max-run-time: 5400
     run:
         using: mozharness

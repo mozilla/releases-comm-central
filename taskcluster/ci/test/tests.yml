@@ -43,6 +43,7 @@ xpcshell:
             - "--xpcshell-suite=xpcshell"
         requires-signed-builds:
             by-test-platform:
+                windows10-64-asan/opt: false
                 windows.*: true
                 default: false
     fetches:

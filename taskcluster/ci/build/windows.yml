@@ -454,7 +454,7 @@ win64-asan/opt:
         env:
             TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
             PERFHERDER_EXTRA_OPTIONS: "opt asan"
-            MOZ_AUTOMATION_PACKAGE_TESTS: "0"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]

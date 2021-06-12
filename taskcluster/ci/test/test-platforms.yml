@@ -41,6 +41,12 @@ linux64/debug:
         - mochitest-tests
         - xpcshell-tests
 
+linux1804-64-asan/opt:
+    build-platform: linux64-asan/opt
+    test-sets:
+        - mochitest-tests
+        - xpcshell-tests
+
 linux1804-64-tsan/opt:
     build-platform: linux64-tsan/opt
     test-sets:
@@ -98,6 +104,11 @@ windows10-64/debug:
         - marionette-tests
         - mochitest-tests
         - xpcshell-tests
+
+windows10-64-asan/opt:
+    build-platform: win64-asan/opt
+    test-sets:
+        - mochitest-tests
 
 # MacOS X platforms (matching /macosx.*/)
 
