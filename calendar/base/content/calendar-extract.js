@@ -120,7 +120,7 @@ var calendarExtract = {
     item.setProperty("URL", `mid:${message.messageId}`);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);
-    let sel = getMessagePaneBrowser().contentWindow.getSelection();
+    let sel = getMessagePaneBrowser().contentWindow?.getSelection();
     // Thunderbird Conversations might be installed
     if (sel === null) {
       try {
