@@ -41,6 +41,12 @@ linux64/debug:
         - mochitest-tests
         - xpcshell-tests
 
+linux1804-64-tsan/opt:
+    build-platform: linux64-tsan/opt
+    test-sets:
+        - mochitest-tests
+        - xpcshell-tests
+
 # Windows platforms (matching /windows.*/)
 
 # win32

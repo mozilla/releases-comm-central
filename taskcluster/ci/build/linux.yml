@@ -181,6 +181,53 @@ linux64-asan/opt:
             - linux64-sccache
             - linux64-sysroot
 
+linux64-tsan/opt:
+    description: "Linux64 Opt TSAN"
+    index:
+        product: thunderbird
+        job-name: linux64-tsan-opt
+    treeherder:
+        platform: linux64/tsan
+        symbol: Bo
+    worker-type: b-linux
+    worker:
+        env:
+            PERFHERDER_EXTRA_OPTIONS: "opt tsan"
+            LSAN_OPTIONS: "verbosity=1:log_threads=1"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+        max-run-time: 5400
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build]
+        config-paths:
+            - comm/testing/mozharness/configs
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        script: "mozharness/scripts/fx_desktop_build.py"
+        custom-build-variant-cfg: tsan-tc
+        mozconfig-variant: tsan
+        tooltool-downloads: public
+        need-xvfb: true
+    run-on-projects: ['release']
+    use-sccache: true
+    optimization:
+        skip-unless-backstop-no-suite: null
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump-syms
+            - linux64-llvm-symbolizer
+            - linux64-libotr
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-nightly
+            - linux64-rust-size
+            - linux64-sccache
+            - linux64-sysroot
 
 linux64-aarch64/opt:
     description: "Linux64 aarch64 Opt"

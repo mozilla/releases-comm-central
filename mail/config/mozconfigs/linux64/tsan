@@ -1,0 +1,21 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
+. "$topsrcdir/comm/mail/config/mozconfigs/linux64/common-linux64"
+
+# We still need to build with debug symbols
+ac_add_options --disable-debug
+ac_add_options --enable-optimize="-O2 -gline-tables-only"
+
+. $topsrcdir/build/unix/mozconfig.tsan
+ac_add_options --disable-elf-hack
+
+# Need this to prevent name conflicts with the normal nightly build packages
+export MOZ_PKG_SPECIAL=tsan
+
+# Disable telemetry
+ac_add_options MOZ_TELEMETRY_REPORTING=
+
+# rustfmt is currently missing in Rust nightly
+unset RUSTFMT
+
+# Current Rust Nightly has warnings
+ac_add_options --disable-warnings-as-errors
