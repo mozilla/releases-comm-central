@@ -4,11 +4,6 @@
 
 ChromeUtils.defineModuleGetter(
   this,
-  "Gloda",
-  "resource:///modules/gloda/GlodaPublic.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "MailServices",
   "resource:///modules/MailServices.jsm"
 );
@@ -31,6 +26,11 @@ ChromeUtils.defineModuleGetter(
   this,
   "NetUtil",
   "resource://gre/modules/NetUtil.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "jsmime",
+  "resource:///modules/jsmime.jsm"
 );
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
@@ -182,6 +182,34 @@ this.messages = class extends ExtensionAPI {
       }
     }
 
+    async function getMimeMessage(msgHdr) {
+      // Use jsmime based MimeParser to read NNTP messages, which are not
+      // supported by MsgHdrToMimeMessage. No encryption support!
+      if (msgHdr.folder.server.type == "nntp") {
+        try {
+          let raw = await MsgHdrToRawMessage(msgHdr);
+          let mimeMsg = MimeParser.extractMimeMsg(raw, {
+            includeAttachments: false,
+          });
+          return mimeMsg;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      return new Promise(resolve => {
+        MsgHdrToMimeMessage(
+          msgHdr,
+          null,
+          (_msgHdr, mimeMsg) => {
+            resolve(mimeMsg);
+          },
+          true,
+          { examineEncryptedParts: true }
+        );
+      });
+    }
+
     return {
       messages: {
         onNewMailReceived: new EventManager({
@@ -228,33 +256,7 @@ this.messages = class extends ExtensionAPI {
         },
         async getFull(messageId) {
           let msgHdr = messageTracker.getMessage(messageId);
-
-          // Use jsmime based MimeParser to read NNTP messages, which are not
-          // supported by MsgHdrToMimeMessage. No encryption support!
-          if (msgHdr.folder.server.type == "nntp") {
-            let mimeMsg = {};
-            try {
-              let raw = await MsgHdrToRawMessage(msgHdr);
-              mimeMsg = MimeParser.extractMimeMsg(raw, {
-                includeAttachments: false,
-              });
-            } catch (e) {
-              throw new ExtensionError(`Error reading message ${messageId}`);
-            }
-            return convertMessagePart(mimeMsg);
-          }
-
-          let mimeMsg = await new Promise(resolve => {
-            MsgHdrToMimeMessage(
-              msgHdr,
-              null,
-              (_msgHdr, mimeMsg) => {
-                resolve(mimeMsg);
-              },
-              true,
-              { examineEncryptedParts: true }
-            );
-          });
+          let mimeMsg = await getMimeMessage(msgHdr);
           if (!mimeMsg) {
             throw new ExtensionError(`Error reading message ${messageId}`);
           }
@@ -367,99 +369,396 @@ this.messages = class extends ExtensionAPI {
           });
         },
         async query(queryInfo) {
-          let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
+          let composeFields = Cc[
+            "@mozilla.org/messengercompose/composefields;1"
+          ].createInstance(Ci.nsIMsgCompFields);
 
-          if (queryInfo.subject) {
-            query.subjectMatches(queryInfo.subject);
+          const includesContent = (folder, parts, searchTerm) => {
+            if (!parts || parts.length == 0) {
+              return false;
+            }
+            for (let part of parts) {
+              if (
+                coerceBodyToPlaintext(folder, part).includes(searchTerm) ||
+                includesContent(folder, part.parts, searchTerm)
+              ) {
+                return true;
+              }
+            }
+            return false;
+          };
+
+          const coerceBodyToPlaintext = (folder, part) => {
+            if (!part || !part.body) {
+              return "";
+            }
+            if (part.contentType == "text/plain") {
+              return part.body;
+            }
+            // text/enriched gets transformed into HTML by libmime
+            if (
+              part.contentType == "text/html" ||
+              part.contentType == "text/enriched"
+            ) {
+              return folder.convertMsgSnippetToPlainText(part.body);
+            }
+            return "";
+          };
+
+          /**
+           * Prepare name and email properties of the address object returned by
+           * MailServices.headerParser.makeFromDisplayAddress() to be lower case.
+           * Also fix the name being wrongly returned in the email property, if
+           * the address was just a single name.
+           */
+          const prepareAddress = displayAddr => {
+            let email = displayAddr.email?.toLocaleLowerCase();
+            let name = displayAddr.name?.toLocaleLowerCase();
+            if (email && !name && !email.includes("@")) {
+              name = email;
+              email = null;
+            }
+            return { name, email };
+          };
+
+          /**
+           * Check multiple addresses if they match the provided search address.
+           *
+           * @returns A boolean indicating if search was successful.
+           */
+          const searchInMultipleAddresses = (searchAddress, addresses) => {
+            // Return on first positive match.
+            for (let address of addresses) {
+              let nameMatched =
+                searchAddress.name &&
+                address.name &&
+                address.name.includes(searchAddress.name);
+
+              // Check for email match. Name match being required on top, if
+              // specified.
+              if (
+                (nameMatched || !searchAddress.name) &&
+                searchAddress.email &&
+                address.email &&
+                address.email == searchAddress.email
+              ) {
+                return true;
+              }
+
+              // If address match failed, name match may only be true if no
+              // email has been specified.
+              if (!searchAddress.email && nameMatched) {
+                return true;
+              }
+            }
+            return false;
+          };
+
+          /**
+           * Substring match on name and exact match on email. If searchTerm
+           * includes multiple addresses, all of them must match.
+           *
+           * @returns A boolean indicating if search was successful.
+           */
+          const isAddressMatch = (searchTerm, addressObjects) => {
+            let searchAddresses = MailServices.headerParser.makeFromDisplayAddress(
+              searchTerm
+            );
+            if (!searchAddresses || searchAddresses.length == 0) {
+              return false;
+            }
+
+            // Prepare addresses.
+            let addresses = [];
+            for (let addressObject of addressObjects) {
+              let decodedAddressString = addressObject.doRfc2047
+                ? jsmime.headerparser.decodeRFC2047Words(addressObject.addr)
+                : addressObject.addr;
+              for (let address of MailServices.headerParser.makeFromDisplayAddress(
+                decodedAddressString
+              )) {
+                addresses.push(prepareAddress(address));
+              }
+            }
+            if (addresses.length == 0) {
+              return false;
+            }
+
+            let success = false;
+            for (let searchAddress of searchAddresses) {
+              // Exit early if this search was not successfully, but all search
+              // addresses have to be matched.
+              if (
+                !searchInMultipleAddresses(
+                  prepareAddress(searchAddress),
+                  addresses
+                )
+              ) {
+                return false;
+              }
+              success = true;
+            }
+
+            return success;
+          };
+
+          const checkSearchCriteria = async (folder, msg) => {
+            // Check date ranges.
+            if (
+              queryInfo.fromDate !== null &&
+              msg.dateInSeconds * 1000 < queryInfo.fromDate.getTime()
+            ) {
+              return false;
+            }
+            if (
+              queryInfo.toDate !== null &&
+              msg.dateInSeconds * 1000 > queryInfo.toDate.getTime()
+            ) {
+              return false;
+            }
+
+            // Check headerMessageId.
+            if (
+              queryInfo.headerMessageId &&
+              msg.messageId != queryInfo.headerMessageId
+            ) {
+              return false;
+            }
+
+            // Check unread.
+            if (queryInfo.unread !== null && msg.isRead != !queryInfo.unread) {
+              return false;
+            }
+
+            // Check flagged.
+            if (
+              queryInfo.flagged !== null &&
+              msg.isFlagged != queryInfo.flagged
+            ) {
+              return false;
+            }
+
+            // Check subject (substring match).
+            if (
+              queryInfo.subject &&
+              !msg.mime2DecodedSubject.includes(queryInfo.subject)
+            ) {
+              return false;
+            }
+
+            // Check tags.
+            if (requiredTags || forbiddenTags) {
+              let messageTags = msg.getStringProperty("keywords").split(" ");
+              if (requiredTags.length > 0) {
+                if (
+                  queryInfo.tags.mode == "all" &&
+                  !requiredTags.every(tag => messageTags.includes(tag))
+                ) {
+                  return false;
+                }
+                if (
+                  queryInfo.tags.mode == "any" &&
+                  !requiredTags.some(tag => messageTags.includes(tag))
+                ) {
+                  return false;
+                }
+              }
+              if (forbiddenTags.length > 0) {
+                if (
+                  queryInfo.tags.mode == "all" &&
+                  forbiddenTags.every(tag => messageTags.includes(tag))
+                ) {
+                  return false;
+                }
+                if (
+                  queryInfo.tags.mode == "any" &&
+                  forbiddenTags.some(tag => messageTags.includes(tag))
+                ) {
+                  return false;
+                }
+              }
+            }
+
+            // Check toMe (case insensitive email address match).
+            if (queryInfo.toMe !== null) {
+              let recipients = [].concat(
+                composeFields.splitRecipients(msg.recipients, true),
+                composeFields.splitRecipients(msg.ccList, true),
+                composeFields.splitRecipients(msg.bccList, true)
+              );
+
+              if (
+                queryInfo.toMe !=
+                recipients.some(email =>
+                  identities.includes(email.toLocaleLowerCase())
+                )
+              ) {
+                return false;
+              }
+            }
+
+            // Check fromMe (case insensitive email address match).
+            if (queryInfo.fromMe !== null) {
+              let authors = composeFields.splitRecipients(
+                msg.mime2DecodedAuthor,
+                true
+              );
+              if (
+                queryInfo.fromMe !=
+                authors.some(email =>
+                  identities.includes(email.toLocaleLowerCase())
+                )
+              ) {
+                return false;
+              }
+            }
+
+            // Check author.
+            if (
+              queryInfo.author &&
+              !isAddressMatch(queryInfo.author, [
+                { addr: msg.mime2DecodedAuthor, doRfc2047: false },
+              ])
+            ) {
+              return false;
+            }
+
+            // Check recipients.
+            if (
+              queryInfo.recipients &&
+              !isAddressMatch(queryInfo.recipients, [
+                { addr: msg.mime2DecodedRecipients, doRfc2047: false },
+                { addr: msg.ccList, doRfc2047: true },
+                { addr: msg.bccList, doRfc2047: true },
+              ])
+            ) {
+              return false;
+            }
+
+            // Check if fullText is already partially fulfilled.
+            let fullTextBodySearchNeeded = false;
+            if (queryInfo.fullText) {
+              let subjectMatches = msg.mime2DecodedSubject.includes(
+                queryInfo.fullText
+              );
+              let authorMatches = msg.mime2DecodedAuthor.includes(
+                queryInfo.fullText
+              );
+              fullTextBodySearchNeeded = !(subjectMatches || authorMatches);
+            }
+
+            // Check body.
+            if (queryInfo.body || fullTextBodySearchNeeded) {
+              let mimeMsg = await getMimeMessage(msg);
+              if (
+                queryInfo.body &&
+                !includesContent(folder, [mimeMsg], queryInfo.body)
+              ) {
+                return false;
+              }
+              if (
+                fullTextBodySearchNeeded &&
+                !includesContent(folder, [mimeMsg], queryInfo.fullText)
+              ) {
+                return false;
+              }
+            }
+
+            return true;
+          };
+
+          const searchMessages = async (
+            folder,
+            foundMessages,
+            recursiveSearch = false
+          ) => {
+            let messages = null;
+            try {
+              messages = folder.messages;
+            } catch (e) {
+              /* Some folders fail on message query, instead of returning empty */
+            }
+
+            if (messages) {
+              while (messages.hasMoreElements()) {
+                let msg = messages.getNext();
+                if (await checkSearchCriteria(folder, msg)) {
+                  foundMessages.push(msg);
+                }
+              }
+            }
+
+            if (recursiveSearch) {
+              for (let subFolder of folder.subFolders) {
+                await searchMessages(subFolder, foundMessages, true);
+              }
+            }
+          };
+
+          // Prepare case insensitive me filtering.
+          let identities;
+          if (queryInfo.toMe !== null || queryInfo.fromMe !== null) {
+            identities = MailServices.accounts.allIdentities.map(i =>
+              i.email.toLocaleLowerCase()
+            );
           }
-          if (queryInfo.fullText) {
-            query.fulltextMatches(queryInfo.fullText);
+
+          // Prepare tag filtering.
+          let requiredTags;
+          let forbiddenTags;
+          if (queryInfo.tags) {
+            let availableTags = MailServices.tags.getAllTags();
+            requiredTags = availableTags.filter(
+              tag =>
+                tag.key in queryInfo.tags.tags && queryInfo.tags.tags[tag.key]
+            );
+            forbiddenTags = availableTags.filter(
+              tag =>
+                tag.key in queryInfo.tags.tags && !queryInfo.tags.tags[tag.key]
+            );
+            // If non-existing tags have been required, return immediately.
+            if (
+              requiredTags.length === 0 &&
+              Object.values(queryInfo.tags.tags).filter(v => v).length > 0
+            ) {
+              return messageListTracker.startList([], context.extension);
+            }
+            requiredTags = requiredTags.map(tag => tag.key);
+            forbiddenTags = forbiddenTags.map(tag => tag.key);
           }
-          if (queryInfo.body) {
-            query.bodyMatches(queryInfo.body);
-          }
-          if (queryInfo.author) {
-            query.authorMatches(queryInfo.author);
-          }
-          if (queryInfo.recipients) {
-            query.recipientsMatch(queryInfo.recipients);
-          }
-          if (queryInfo.fromMe) {
-            query.fromMe();
-          }
-          if (queryInfo.toMe) {
-            query.toMe();
-          }
-          if (queryInfo.flagged !== null) {
-            query.starred(queryInfo.flagged);
-          }
+
+          // Limit search to a given folder, or search all folders.
+          let foundMessages = [];
           if (queryInfo.folder) {
             if (!context.extension.hasPermission("accountsRead")) {
               throw new ExtensionError(
                 'Querying by folder requires the "accountsRead" permission'
               );
             }
-            let { accountId, path } = queryInfo.folder;
-            let uri = folderPathToURI(accountId, path);
-            let folder = MailServices.folderLookup.getFolderForURL(uri);
-            if (!folder) {
-              throw new ExtensionError(`Folder not found: ${path}`);
-            }
-            query.folder(folder);
-          }
-          if (queryInfo.fromDate || queryInfo.toDate) {
-            query.dateRange([queryInfo.fromDate, queryInfo.toDate]);
-          }
-          if (queryInfo.headerMessageId) {
-            query.headerMessageID(queryInfo.headerMessageId);
-          }
-          let validTags;
-          if (queryInfo.tags) {
-            validTags = MailServices.tags
-              .getAllTags()
-              .filter(
-                tag =>
-                  tag.key in queryInfo.tags.tags && queryInfo.tags.tags[tag.key]
-              );
-            if (validTags.length === 0) {
-              // No messages will match this. Just return immediately.
-              return messageListTracker.startList([], context.extension);
-            }
-            query.tags(...validTags);
-            validTags = validTags.map(tag => tag.key);
-          }
-
-          let collectionArray = await new Promise(resolve => {
-            query.getCollection({
-              onItemsAdded(items, collection) {},
-              onItemsModified(items, collection) {},
-              onItemsRemoved(items, collection) {},
-              onQueryCompleted(collection) {
-                resolve(
-                  collection.items
-                    .map(glodaMsg => glodaMsg.folderMessage)
-                    .filter(Boolean)
-                );
-              },
-            });
-          });
-
-          if (queryInfo.unread !== null) {
-            collectionArray = collectionArray.filter(
-              msg => msg.isRead == !queryInfo.unread
+            let folder = MailServices.folderLookup.getFolderForURL(
+              folderPathToURI(queryInfo.folder.accountId, queryInfo.folder.path)
             );
-          }
-          if (validTags && queryInfo.tags.mode == "all") {
-            collectionArray = collectionArray.filter(msg => {
-              let messageTags = msg.getStringProperty("keywords").split(" ");
-              return validTags.every(tag => messageTags.includes(tag));
-            });
+            if (!folder) {
+              throw new ExtensionError(
+                `Folder not found: ${queryInfo.folder.path}`
+              );
+            }
+            await searchMessages(
+              folder,
+              foundMessages,
+              !!queryInfo.includeSubFolders
+            );
+          } else {
+            for (let account of MailServices.accounts.accounts) {
+              await searchMessages(
+                account.incomingServer.rootFolder,
+                foundMessages,
+                true
+              );
+            }
           }
 
-          return messageListTracker.startList(
-            collectionArray,
-            context.extension
-          );
+          return messageListTracker.startList(foundMessages, context.extension);
         },
         async update(messageId, newProperties) {
           let msgHdr = messageTracker.getMessage(messageId);

@@ -1,0 +1,20 @@
+Message-ID: <alternative.eml@mime.sample>
+Date: Fri, 19 May 2000 00:29:55 -0400
+To: Heinz <mueller@example.com>, Karl <friedrich@example.com>
+From: Doug Sauder <dwsauder@example.com>
+Subject: Default content-types
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="=====================_714967308==_.ALT"
+
+--=====================_714967308==_.ALT
+Content-Transfer-Encoding: quoted-printable
+
+I am TEXT!
+
+--=====================_714967308==_.ALT
+Content-Type: text/html
+
+<html><body>I <b>am</b> HTML!</body></html>
+
+--=====================_714967308==_.ALT--

@@ -102,6 +102,38 @@ function createMessages(folder, makeMessagesArg) {
   }
 
   let messages = createMessages.messageGenerator.makeMessages(makeMessagesArg);
+  return addGeneratedMessages(folder, messages);
+}
+
+class FakeGeneratedMessage {
+  constructor(msg) {
+    this.msg = msg;
+  }
+  toMessageString() {
+    return this.msg;
+  }
+  toMboxString() {
+    // A cheap hack. It works for existing uses but may not work for future uses.
+    let fromAddress = this.msg.match(/From: .* <(.*@.*)>/)[0];
+    let mBoxString = `From ${fromAddress}\r\n${this.msg}`;
+    // Ensure a trailing empty line.
+    if (!mBoxString.endsWith("\r\n")) {
+      mBoxString = mBoxString + "\r\n";
+    }
+    return mBoxString;
+  }
+}
+
+async function createMessageFromFile(folder, path) {
+  let message = await IOUtils.readUTF8(path);
+  return addGeneratedMessages(folder, [new FakeGeneratedMessage(message)]);
+}
+
+async function createMessageFromString(folder, message) {
+  return addGeneratedMessages(folder, [new FakeGeneratedMessage(message)]);
+}
+
+async function addGeneratedMessages(folder, messages) {
   if (folder.server.type == "imap") {
     return IMAPServer.addMessages(folder, messages);
   }
@@ -113,37 +145,6 @@ function createMessages(folder, makeMessagesArg) {
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
   folder.callFilterPlugins(null);
-
-  return Promise.resolve();
-}
-
-async function createMessageFromFile(folder, path) {
-  let message = await IOUtils.readUTF8(path);
-  return createMessageFromString(folder, message);
-}
-
-async function createMessageFromString(folder, message) {
-  if (folder.server.type == "imap") {
-    return IMAPServer.addMessages(folder, [message]);
-  }
-  if (folder.server.type == "nntp") {
-    return NNTPServer.addMessages(folder, [message]);
-  }
-
-  // A cheap hack to make this acceptable to addMessageBatch. It works for
-  // existing uses but may not work for future uses.
-  let fromAddress = message.match(/From: .* <(.*@.*)>/)[0];
-  message = `From ${fromAddress}\r\n${message}`;
-
-  // addMessageBatch needs a trailing empty line.
-  if (!message.endsWith("\r\n")) {
-    message = message + "\r\n";
-  }
-
-  folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  folder.addMessageBatch([message]);
-  folder.callFilterPlugins(null);
-
   return Promise.resolve();
 }
 
