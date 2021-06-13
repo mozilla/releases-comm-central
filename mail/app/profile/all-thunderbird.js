@@ -405,6 +405,7 @@ pref("browser.display.auto_quality_min_font_size", 0);
 
 pref("view_source.syntax_highlight", false);
 
+pref("dom.serviceWorkers.enabled", true);
 
 /////////////////////////////////////////////////////////////////
 // End core all.js pref overrides
