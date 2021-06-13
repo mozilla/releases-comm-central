@@ -82,6 +82,11 @@
   #navigation-toolbox {
     background-color: transparent;
   }
+
+  :root[tabsintitlebar] #mail-menubar,
+  :root[tabsintitlebar]:not([inFullscreen]) #mail-menubar:-moz-window-inactive {
+    color: inherit;
+  }
 }
 
 @media (-moz-os-version: windows-win7),
