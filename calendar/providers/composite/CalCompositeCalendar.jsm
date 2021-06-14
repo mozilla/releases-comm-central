@@ -13,12 +13,9 @@ var calIOperationListener = Ci.calIOperationListener;
 
 function calCompositeCalendarObserverHelper(compCalendar) {
   this.compCalendar = compCalendar;
-  this.pendingLoads = {};
 }
 
 calCompositeCalendarObserverHelper.prototype = {
-  pendingLoads: null,
-
   QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 
   onStartBatch(calendar) {
@@ -30,16 +27,7 @@ calCompositeCalendarObserverHelper.prototype = {
   },
 
   onLoad(calendar) {
-    // avoid unnecessary onLoad events:
-    if (this.pendingLoads[calendar.id]) {
-      // don't forward if caused by composite:
-      delete this.pendingLoads[calendar.id];
-    } else {
-      // any refreshed dependent calendar logically refreshes
-      // this composite calendar, thus we send out an onLoad
-      // for this composite calendar:
-      this.compCalendar.mObservers.notify("onLoad", [calendar]);
-    }
+    this.compCalendar.mObservers.notify("onLoad", [calendar]);
   },
 
   onAddItem(aItem) {
@@ -328,12 +316,10 @@ CalCompositeCalendar.prototype = {
     for (let calendar of this.enabledCalendars) {
       try {
         if (calendar.canRefresh) {
-          this.mObserverHelper.pendingLoads[calendar.id] = true;
           calendar.refresh();
         }
       } catch (e) {
         cal.ASSERT(false, e);
-        delete this.mObserverHelper.pendingLoads[calendar.id];
       }
     }
     // send out a single onLoad for this composite calendar,

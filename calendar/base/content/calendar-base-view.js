@@ -39,19 +39,25 @@
     calendarsInBatch = new Set();
 
     onStartBatch(calendar) {
-      this.calendarsInBatch.add(calendar);
+      if (calendar.type != "composite") {
+        this.calendarsInBatch.add(calendar);
+      }
     }
 
     onEndBatch(calendar) {
-      this.calendarsInBatch.delete(calendar);
+      if (calendar.type != "composite") {
+        this.calendarsInBatch.delete(calendar);
+      }
     }
 
     onLoad(calendar) {
-      this.calView.refresh(calendar);
+      if (calendar.type != "composite") {
+        this.calView.refresh(calendar);
+      }
     }
 
     onAddItem(item) {
-      if (this.calendarsInBatch.has(item.calendar)) {
+      if (item.calendar.type == "composite" || this.calendarsInBatch.has(item.calendar)) {
         return;
       }
 
@@ -76,7 +82,7 @@
     }
 
     onModifyItem(newItem, oldItem) {
-      if (this.calendarsInBatch.has(newItem.calendar)) {
+      if (newItem.calendar.type == "composite" || this.calendarsInBatch.has(newItem.calendar)) {
         return;
       }
 
@@ -283,6 +289,7 @@
         this.calView.mPendingRefreshJobs.clear();
         this.calView.relayout();
       } else {
+        this.calView.mLog.info(`Refreshing calendar ${this.calendar.name} (${this.calendar.id})`);
         this.calId = this.calendar.id;
         if (this.calView.mPendingRefreshJobs.has(this.calId)) {
           this.calView.mPendingRefreshJobs.get(this.calId).cancel();
@@ -524,7 +531,7 @@
       this.mPendingRefreshJobs = new Map();
 
       this.mLog = console.createInstance({
-        prefix: "calendar.baseview",
+        prefix: `calendar.baseview (${this.constructor.name})`,
         maxLogLevel: "Warn",
         maxLogLevelPref: "calendar.baseview.loglevel",
       });

@@ -876,19 +876,29 @@ agendaListbox.calendarObserver.QueryInterface = ChromeUtils.generateQI([
 
 // calIObserver:
 agendaListbox.calendarObserver.onStartBatch = function(calendar) {
-  this.calendarsInBatch.add(calendar);
+  if (calendar.type != "composite") {
+    this.calendarsInBatch.add(calendar);
+  }
 };
 
 agendaListbox.calendarObserver.onEndBatch = function(calendar) {
-  this.calendarsInBatch.delete(calendar);
+  if (calendar.type != "composite") {
+    this.calendarsInBatch.delete(calendar);
+  }
 };
 
 agendaListbox.calendarObserver.onLoad = function(calendar) {
-  this.agendaListbox.refreshCalendarQuery(null, null, calendar);
+  if (calendar.type != "composite") {
+    this.agendaListbox.refreshCalendarQuery(null, null, calendar);
+  }
 };
 
 agendaListbox.calendarObserver.onAddItem = function(item) {
-  if (this.calendarsInBatch.has(item.calendar) || !item.isEvent()) {
+  if (
+    item.calendar.type == "composite" ||
+    this.calendarsInBatch.has(item.calendar) ||
+    !item.isEvent()
+  ) {
     return;
   }
   // get all sub items if it is a recurring item
@@ -928,7 +938,7 @@ agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection)
 };
 
 agendaListbox.calendarObserver.onModifyItem = function(newItem, oldItem) {
-  if (this.calendarsInBatch.has(newItem.calendar)) {
+  if (newItem.calendar.type == "composite" || this.calendarsInBatch.has(newItem.calendar)) {
     return;
   }
 
