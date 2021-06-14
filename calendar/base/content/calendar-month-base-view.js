@@ -499,7 +499,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
             if (j == weekLabelColumnPos) {
               weekLabel.removeAttribute("hidden");
               const weekNumber = cal.getWeekInfoService().getWeekTitle(date);
-              const weekString = cal.l10n.getCalString("abbreviationOfWeek", [weekNumber]);
+              const weekString = cal.l10n.getCalString("multiweekViewWeek", [weekNumber]);
               weekLabel.value = weekString;
             } else {
               weekLabel.hidden = true;

@@ -26,7 +26,6 @@
   --viewMonthOtherBackground: #f3f3f3;
   --viewMonthDayBoxSelectedColor: #616163;
   --viewMonthDayBoxLabelColor: #616163;
-  --viewMonthDayBoxWeekLabel: #aaaaaa;
   --viewMonthDayOtherBackground: #e8e8e8;
   --viewMonthDayOffLabelBackground: #eaf7ca;
   --viewOffTimeBackground: #f0f0f0;
@@ -48,7 +47,6 @@
   --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, Highlight);
   --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
   --viewMonthDayBoxLabelColor: var(--sidebar-text-color, FieldText);
-  --viewMonthDayBoxWeekLabel: var(--sidebar-text-color, FieldText);
   --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
   --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
   --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
@@ -95,7 +93,6 @@
   --viewMonthOtherBackground: ButtonFace;
   --viewMonthDayBoxSelectedColor: Highlight;
   --viewMonthDayBoxLabelColor: WindowText;
-  --viewMonthDayBoxWeekLabel: GrayText;
   --viewMonthDayOtherBackground: ButtonFace;
   --viewMonthDayOffLabelBackground: rgba(0, 0, 0, .1);
   --viewOffTimeBackground: rgba(0, 0, 0, .1);
@@ -764,6 +761,10 @@ calendar-month-day-box {
   overflow-x: hidden;
 }
 
+calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
+  background-color: var(--viewTodayLabelBackground);
+}
+
 .calendar-month-day-box-list {
   display: block;
   margin: 0;
@@ -802,7 +803,6 @@ calendar-month-day-box {
 
 .calendar-month-day-box-date-label[relation="today"] {
   color: var(--viewTodayLabelColor);
-  background-color: var(--viewTodayLabelBackground);
   font-weight: bold;
 }
 
@@ -838,7 +838,8 @@ calendar-month-day-box {
   text-align: left;
   padding-inline-start: 2px;
   font-weight: normal !important;
-  color: var(--viewMonthDayBoxWeekLabel) !important;
+  color: var(--viewMonthDayBoxLabelColor);
+  opacity: 0.6;
 }
 
 .calendar-color-box {
