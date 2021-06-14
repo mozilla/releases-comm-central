@@ -12,9 +12,10 @@ if (!Services.logins.findLogins(ICSServer.origin, null, "test").length) {
   Services.logins.addLogin(loginInfo);
 }
 
-add_task(async function() {
+let calendar;
+add_task(async function setUp() {
   calendarObserver._onLoadPromise = PromiseUtils.defer();
-  let calendar = createCalendar("ics", ICSServer.url, false);
+  calendar = createCalendar("ics", ICSServer.url, false);
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");
 
@@ -23,6 +24,9 @@ add_task(async function() {
     Services.logins.removeAllLogins();
     removeCalendar(calendar);
   });
+});
 
-  return testAlarms(calendar);
+add_task(async function testAlarms() {
+  calendarObserver._batchRequired = true;
+  return runTestAlarms(calendar);
 });

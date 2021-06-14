@@ -7,7 +7,7 @@ registerCleanupFunction(() => {
   removeCalendar(calendar);
 });
 
-add_task(function() {
+add_task(function testAlarms() {
   calendarObserver._batchRequired = false;
-  return testAlarms(calendar);
+  return runTestAlarms(calendar);
 });

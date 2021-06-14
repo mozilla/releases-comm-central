@@ -12,9 +12,10 @@ if (!Services.logins.findLogins(CalDAVServer.origin, null, "test").length) {
   Services.logins.addLogin(loginInfo);
 }
 
-add_task(async function() {
+let calendar;
+add_task(async function setUp() {
   calendarObserver._onLoadPromise = PromiseUtils.defer();
-  let calendar = createCalendar("caldav", CalDAVServer.url, true);
+  calendar = createCalendar("caldav", CalDAVServer.url, true);
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");
 
@@ -23,7 +24,9 @@ add_task(async function() {
     Services.logins.removeAllLogins();
     removeCalendar(calendar);
   });
+});
 
+add_task(async function testAlarms() {
   calendarObserver._batchRequired = true;
-  return testAlarms(calendar);
+  return runTestAlarms(calendar);
 });

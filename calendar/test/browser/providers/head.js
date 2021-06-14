@@ -125,7 +125,7 @@ registerCleanupFunction(async () => {
  *
  * Passing this test requires the active calendar to fire notifications in the correct sequence.
  */
-async function testAlarms() {
+async function runTestAlarms() {
   let today = cal.dtz.now();
   let start = today.clone();
   start.day++;

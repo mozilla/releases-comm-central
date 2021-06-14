@@ -12,9 +12,10 @@ if (!Services.logins.findLogins(CalDAVServer.origin, null, "test").length) {
   Services.logins.addLogin(loginInfo);
 }
 
-add_task(async function() {
+let calendar;
+add_task(async function setUp() {
   calendarObserver._onLoadPromise = PromiseUtils.defer();
-  let calendar = createCalendar("caldav", CalDAVServer.url, false);
+  calendar = createCalendar("caldav", CalDAVServer.url, false);
   // This calendar doesn't seem to wake up until something calls finalizeUpdatedItems.
   // I'm not sure why that is, but for now just wake it up directly.
   calendar.wrappedJSObject.finalizeUpdatedItems(null, calendar.wrappedJSObject.makeUri());
@@ -26,7 +27,9 @@ add_task(async function() {
     Services.logins.removeAllLogins();
     removeCalendar(calendar);
   });
+});
 
+add_task(async function testAlarms() {
   calendarObserver._batchRequired = true;
-  return testAlarms(calendar);
+  return runTestAlarms(calendar);
 });
