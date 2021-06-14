@@ -10,6 +10,7 @@ const EXPORTED_SYMBOLS = [
   "handleOccurrencePrompt",
   "switchToView",
   "goToDate",
+  "goToToday",
   "invokeNewEventDialog",
   "invokeNewTaskDialog",
   "invokeViewingEventDialog",
@@ -180,6 +181,16 @@ function goToDate(controller, year, month, day) {
 
   // Pick day.
   controller.click(getMiniMonthDay(week, weekDay));
+  ensureViewLoaded(controller);
+}
+
+/**
+ * Go to today.
+ *
+ * @param controller    Main window controller
+ */
+function goToToday(controller) {
+  controller.click(controller.window.document.getElementById("today-view-button"));
   ensureViewLoaded(controller);
 }
 

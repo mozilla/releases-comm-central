@@ -33,8 +33,41 @@ add_task(async function setUp() {
   });
 });
 
+async function promiseIdle() {
+  await TestUtils.waitForCondition(
+    () =>
+      calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject.queue.length == 0 &&
+      !calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject.locked
+  );
+  await fetch(`${ICSServer.origin}/ping`);
+}
+
 add_task(async function testAlarms() {
   // Remove the next line when fixed.
   calendarObserver._batchRequired = false;
-  return runTestAlarms(calendar);
+  await runTestAlarms(calendar);
+
+  // Be sure the calendar has finished deleting the event.
+  await promiseIdle();
+}).skip(); // Broken.
+
+add_task(async function testSyncChanges() {
+  await syncChangesTest.setUp();
+
+  ICSServer.putICSInternal(syncChangesTest.part1Item);
+  await syncChangesTest.runPart1();
+
+  ICSServer.putICSInternal(syncChangesTest.part2Item);
+  await syncChangesTest.runPart2();
+
+  ICSServer.putICSInternal(
+    CalendarTestUtils.dedent`
+      BEGIN:VCALENDAR
+      END:VCALENDAR
+      `
+  );
+  await syncChangesTest.runPart3();
+
+  // Be sure the calendar has finished deleting the event.
+  await promiseIdle();
 });

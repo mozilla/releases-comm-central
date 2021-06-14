@@ -10,7 +10,7 @@ var { CalendarTestUtils } = ChromeUtils.import(
 );
 var {
   controller,
-  goToDate,
+  goToToday,
   handleOccurrencePrompt,
   invokeEditingRepeatEventDialog,
   invokeNewEventDialog,
@@ -136,7 +136,7 @@ async function runTestAlarms() {
   repeatUntil.day += 15;
 
   await CalendarTestUtils.setCalendarView(window, "multiweek");
-  goToDate(controller, today.year, today.month + 1, today.day);
+  goToToday(controller);
   Assert.equal(window.unifinderTreeView.rowCount, 0, "unifinder event count");
 
   alarmObserver._alarmCount = 0;
@@ -245,3 +245,106 @@ async function runTestAlarms() {
   );
   Assert.equal(window.unifinderTreeView.rowCount, 0, "unifinder event count");
 }
+
+let syncChangesTest = {
+  async setUp() {
+    if (document.getElementById("today-pane-panel").collapsed) {
+      EventUtils.synthesizeMouseAtCenter(
+        document.getElementById("calendar-status-todaypane-button"),
+        {}
+      );
+    }
+
+    if (document.getElementById("agenda-panel").collapsed) {
+      EventUtils.synthesizeMouseAtCenter(document.getElementById("today-pane-cycler-next"), {});
+    }
+
+    if (document.getElementById("nextweek-header").getAttribute("checked") != "true") {
+      EventUtils.synthesizeMouseAtCenter(document.querySelector("#nextweek-header > checkbox"), {});
+    }
+  },
+
+  get part1Item() {
+    let today = cal.dtz.now();
+    let start = today.clone();
+    start.day += 9 - start.weekday;
+    start.hour = 13;
+    start.minute = start.second = 0;
+    let end = start.clone();
+    end.hour++;
+
+    return CalendarTestUtils.dedent`
+      BEGIN:VCALENDAR
+      BEGIN:VEVENT
+      UID:ad0850e5-8020-4599-86a4-86c90af4e2cd
+      SUMMARY:holy cow, a new item!
+      DTSTART:${start.icalString}
+      DTEND:${end.icalString}
+      END:VEVENT
+      END:VCALENDAR
+      `;
+  },
+
+  async runPart1() {
+    await CalendarTestUtils.setCalendarView(window, "multiweek");
+    goToToday(controller);
+
+    Assert.ok(!CalendarTestUtils.multiweekView.getItemAt(window, 2, 3, 1), "no existing item");
+
+    EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
+    let item = await CalendarTestUtils.multiweekView.waitForItemAt(window, 2, 3, 1);
+    Assert.equal(item.item.title, "holy cow, a new item!");
+
+    let agendaItem = await TestUtils.waitForCondition(() =>
+      document.querySelector(`#nextweek-header + richlistitem[is="agenda-richlistitem"]`)
+    );
+    Assert.equal(agendaItem.occurrence.title, "holy cow, a new item!");
+    Assert.ok(!agendaItem.nextElementSibling);
+  },
+
+  get part2Item() {
+    let today = cal.dtz.now();
+    let start = today.clone();
+    start.day += 10 - start.weekday;
+    start.hour = 9;
+    start.minute = start.second = 0;
+    let end = start.clone();
+    end.hour++;
+
+    return CalendarTestUtils.dedent`
+      BEGIN:VCALENDAR
+      BEGIN:VEVENT
+      UID:ad0850e5-8020-4599-86a4-86c90af4e2cd
+      SUMMARY:a changed item
+      DTSTART:${start.icalString}
+      DTEND:${end.icalString}
+      END:VEVENT
+      END:VCALENDAR
+      `;
+  },
+
+  async runPart2() {
+    Assert.ok(!CalendarTestUtils.multiweekView.getItemAt(window, 2, 4, 1), "no existing item");
+
+    EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
+    await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 3, 1);
+    let item = await CalendarTestUtils.multiweekView.waitForItemAt(window, 2, 4, 1);
+    Assert.equal(item.item.title, "a changed item");
+
+    let agendaItem = await TestUtils.waitForCondition(() =>
+      document.querySelector(`#nextweek-header + richlistitem[is="agenda-richlistitem"]`)
+    );
+    Assert.equal(agendaItem.occurrence.title, "a changed item");
+    Assert.ok(!agendaItem.nextElementSibling);
+  },
+
+  async runPart3() {
+    EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
+    await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 3, 1);
+    await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 4, 1);
+
+    await TestUtils.waitForCondition(
+      () => !document.querySelector(`#nextweek-header + richlistitem[is="agenda-richlistitem"]`)
+    );
+  },
+};

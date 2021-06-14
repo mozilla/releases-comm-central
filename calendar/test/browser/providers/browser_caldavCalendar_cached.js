@@ -20,13 +20,45 @@ add_task(async function setUp() {
   info("calendar set-up complete");
 
   registerCleanupFunction(async () => {
+    // This test has issues cleaning up, and it breaks all the subsequent tests.
+    await new Promise(r => setTimeout(r, 1000)); // eslint-disable-line mozilla/no-arbitrary-setTimeout
     await CalDAVServer.close();
     Services.logins.removeAllLogins();
     removeCalendar(calendar);
   });
 });
 
+async function promiseIdle() {
+  await TestUtils.waitForCondition(() => !calendar.wrappedJSObject.mPendingSync);
+  await fetch(`${CalDAVServer.origin}/ping`);
+}
+
 add_task(async function testAlarms() {
   calendarObserver._batchRequired = true;
-  return runTestAlarms(calendar);
+  await runTestAlarms(calendar);
+
+  // Be sure the calendar has finished deleting the event.
+  await promiseIdle();
+});
+
+add_task(async function testSyncChanges() {
+  await syncChangesTest.setUp();
+
+  CalDAVServer.putItemInternal(
+    "ad0850e5-8020-4599-86a4-86c90af4e2cd.ics",
+    syncChangesTest.part1Item
+  );
+  await syncChangesTest.runPart1();
+
+  CalDAVServer.putItemInternal(
+    "ad0850e5-8020-4599-86a4-86c90af4e2cd.ics",
+    syncChangesTest.part2Item
+  );
+  await syncChangesTest.runPart2();
+
+  CalDAVServer.deleteItemInternal("ad0850e5-8020-4599-86a4-86c90af4e2cd.ics");
+  await syncChangesTest.runPart3();
+
+  // Be sure the calendar has finished all requests.
+  await promiseIdle();
 });

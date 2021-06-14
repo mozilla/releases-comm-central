@@ -69,7 +69,7 @@ async function clearDirectory(directory) {
 async function checkCardsOnServer(expectedCards) {
   // Send a request to the server. When the server responds, we know it has
   // completed all earlier requests.
-  await fetch(`${CardDAVServer.url}/ping`);
+  await fetch(`${CardDAVServer.origin}/ping`);
 
   let actualCards = [...CardDAVServer.cards];
   Assert.equal(actualCards.length, Object.keys(expectedCards).length);
