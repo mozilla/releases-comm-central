@@ -467,6 +467,11 @@ function enter_folder(aFolder) {
   // Drain the event queue prior to doing any work.  It's possible that there's
   //  a pending setTimeout(0) that needs to get fired.
   controller.sleep(0);
+  utils.waitFor(
+    () => mc.folderTreeView._rowMap,
+    "Timeout waiting for folder tree to be ready"
+  );
+
   // if we're already selected, go back to the root...
   if (mc.folderDisplay.displayedFolder == aFolder) {
     enter_folder(aFolder.rootFolder);
