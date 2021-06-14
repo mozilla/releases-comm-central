@@ -14,7 +14,7 @@ var NS_ALERT_TOP = 4;
 var gNumNewMsgsToShowInAlert = 6;
 var gOpenTime = 4000; // total time the alert should stay up once we are done animating.
 
-var gPendingPreviewFetchRequests = 0;
+var gAlertListener = null;
 var gOrigin = 0; // Default value: alert from bottom right.
 var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
@@ -22,69 +22,28 @@ var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
 
 function prefillAlertInfo() {
   // unwrap all the args....
-  // arguments[0] --> The nsIMsgFolder with new mail
-  var rootFolder = window.arguments[0];
+  // arguments[0] --> The real nsIMsgFolder with new mail.
+  // arguments[1] --> The keys of new messages.
+  // arguments[2] --> The nsIObserver to receive window closed event.
+  let [folder, newMsgKeys, listener] = window.arguments;
+  newMsgKeys = newMsgKeys.wrappedJSObject;
+  gAlertListener = listener.QueryInterface(Ci.nsIObserver);
 
   // Generate an account label string based on the root folder.
   var label = document.getElementById("alertTitle");
-  var totalNumNewMessages = rootFolder.getNumNewMessages(true);
+  var totalNumNewMessages = newMsgKeys.length;
   let message = document
     .getElementById("bundle_messenger")
     .getString("newMailAlert_message");
   label.value = PluralForm.get(totalNumNewMessages, message)
-    .replace("#1", rootFolder.prettyName)
+    .replace("#1", folder.server.rootFolder.prettyName)
     .replace("#2", totalNumNewMessages);
 
-  // This is really the root folder and we have to walk through the list to
-  // find the real folder that has new mail in it...:(
+  // <folder-summary> handles rendering of new messages.
   var folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
   folderSummaryInfoEl.maxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
-  for (let folder of rootFolder.descendants) {
-    if (folder.hasNewMessages) {
-      let notify =
-        // Any folder which is an inbox or ...
-        folder.getFlag(Ci.nsMsgFolderFlags.Inbox) ||
-        // any non-special or non-virtual folder. In other words, we don't
-        // notify for Drafts|Trash|SentMail|Templates|Junk|Archive|Queue or virtual.
-        !(
-          folder.flags &
-          (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual)
-        );
-
-      if (notify) {
-        var asyncFetch = {};
-        folderSummaryInfoEl.parseFolder(
-          folder,
-          new urlListener(folder),
-          asyncFetch
-        );
-        if (asyncFetch.value) {
-          gPendingPreviewFetchRequests++;
-        }
-      }
-    }
-  }
+  folderSummaryInfoEl.render(folder, newMsgKeys);
 }
-
-function urlListener(aFolder) {
-  this.mFolder = aFolder;
-}
-
-urlListener.prototype = {
-  OnStartRunningUrl(aUrl) {},
-
-  OnStopRunningUrl(aUrl, aExitCode) {
-    let folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
-    folderSummaryInfoEl.parseFolder(this.mFolder, null, {});
-    gPendingPreviewFetchRequests--;
-
-    // when we are done running all of our urls for fetching the preview text,
-    // start the alert.
-    if (!gPendingPreviewFetchRequests) {
-      showAlert();
-    }
-  },
-};
 
 function onAlertLoad() {
   let dragSession = gDragService.getCurrentSession();
@@ -106,13 +65,9 @@ function doOnAlertLoad() {
   // bogus call to make sure the window is moved offscreen until we are ready for it.
   resizeAlert(true);
 
-  // if we aren't waiting to fetch preview text, then go ahead and
-  // start showing the alert.
-  if (!gPendingPreviewFetchRequests) {
-    // Let the JS thread unwind, to give layout
-    // a chance to recompute the styles and widths for our alert text.
-    setTimeout(showAlert, 0);
-  }
+  // Let the JS thread unwind, to give layout
+  // a chance to recompute the styles and widths for our alert text.
+  setTimeout(showAlert, 0);
 }
 
 // If the user initiated the alert, show it right away, otherwise start opening the alert with
@@ -186,4 +141,5 @@ function fadeOutAlert() {
 
 function closeAlert() {
   window.close();
+  gAlertListener.observe(null, "newmailalert-closed", "");
 }

@@ -37,6 +37,10 @@ class MailNotificationManager {
     this._systemAlertAvailable = true;
     this._unreadChatCount = 0;
     this._unreadMailCount = 0;
+    // @type {Map<nsIMsgFolder, number>} - A map of folder and its last biff time.
+    this._folderBiffTime = new Map();
+    // @type {Set<nsIMsgFolder>} - A set of folders to show alert for.
+    this._pendingFolders = new Set();
 
     this._logger = console.createInstance({
       prefix: "mail.notification",
@@ -76,22 +80,34 @@ class MailNotificationManager {
   }
 
   observe(subject, topic, data) {
-    if (topic == "alertclickcallback") {
-      // Display the associated message when an alert is clicked.
-      let msgHdr = Cc["@mozilla.org/messenger;1"]
-        .getService(Ci.nsIMessenger)
-        .msgHdrFromURI(data);
-      MailUtils.displayMessageInFolderTab(msgHdr);
-    } else if (topic == "unread-im-count-changed") {
-      this._logger.log(`Unread chat count changed to ${this._unreadChatCount}`);
-      this._unreadChatCount = parseInt(data, 10) || 0;
-      this._updateUnreadCount();
-    } else if (topic == "new-directed-incoming-messenger") {
-      this._animateDockIcon();
-    } else if (topic == "window-restored-from-tray") {
-      this._updateUnreadCount();
-    } else if (topic == "profile-before-change") {
-      this._osIntegration?.onExit();
+    switch (topic) {
+      case "alertclickcallback":
+        // Display the associated message when an alert is clicked.
+        let msgHdr = Cc["@mozilla.org/messenger;1"]
+          .getService(Ci.nsIMessenger)
+          .msgHdrFromURI(data);
+        MailUtils.displayMessageInFolderTab(msgHdr);
+        return;
+      case "unread-im-count-changed":
+        this._logger.log(
+          `Unread chat count changed to ${this._unreadChatCount}`
+        );
+        this._unreadChatCount = parseInt(data, 10) || 0;
+        this._updateUnreadCount();
+        return;
+      case "new-directed-incoming-messenger":
+        this._animateDockIcon();
+        return;
+      case "window-restored-from-tray":
+        this._updateUnreadCount();
+        return;
+      case "profile-before-change":
+        this._osIntegration?.onExit();
+        return;
+      case "newmailalert-closed":
+        // newmailalert.xhtml is closed, try to show the next queued folder.
+        this._customizedAlertShown = false;
+        this._showCustomizedAlert();
     }
   }
 
@@ -125,15 +141,17 @@ class MailNotificationManager {
       `OnItemIntPropertyChanged; property=${property}: ${oldValue} => ${newValue}, folder.URI=${folder.URI}`
     );
 
-    if (
-      property == "BiffState" &&
-      newValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail
-    ) {
-      // The folder argument is a root folder.
-      this._fillAlertInfo(folder);
-    } else if (property == "NewMailReceived") {
-      // The folder argument is a real folder.
-      this._fillAlertInfo(folder);
+    switch (property) {
+      case "BiffState":
+        if (newValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail) {
+          // The folder argument is a root folder.
+          this._fillAlertInfo(folder);
+        }
+        break;
+      case "NewMailReceived":
+        // The folder argument is a real folder.
+        this._fillAlertInfo(folder);
+        break;
     }
   }
 
@@ -325,13 +343,67 @@ class MailNotificationManager {
 
     // The use_system_alert pref is false or showAlert somehow failed, use the
     // customized alert window.
+    this._showCustomizedAlert(folder);
+  }
+
+  /**
+   * Show a customized alert window (newmailalert.xhtml), if there is already
+   * one showing, do not show another one, because the newer one will block the
+   * older one. Instead, save the folder and newMsgKeys to this._pendingFolders.
+   * @param {nsIMsgFolder} [folder] - The folder containing new messages.
+   */
+  _showCustomizedAlert(folder) {
+    let newMsgKeys;
+    if (folder) {
+      // Show this folder or queue it.
+      newMsgKeys = folder.msgDatabase
+        .getNewList()
+        .slice(-folder.getNumNewMessages(false));
+      if (this._customizedAlertShown) {
+        this._pendingFolders.add(folder);
+        return;
+      }
+    } else {
+      // Get the next folder from the queue.
+      folder = this._pendingFolders.keys().next().value;
+      if (!folder) {
+        return;
+      }
+      let msgDb = folder.msgDatabase;
+      let lastBiffTime = this._folderBiffTime.get(folder) || 0;
+      newMsgKeys = msgDb.getNewList().filter(key => {
+        // It's possible that after we queued the folder, user has opened the
+        // folder and read some new messages. We compare the timestamp of each
+        // NEW message with the last biff time to make sure only real NEW
+        // messages are alerted.
+        let msgHdr = msgDb.GetMsgHdrForKey(key);
+        return msgHdr.dateInSeconds * 1000 > lastBiffTime;
+      });
+
+      this._pendingFolders.delete(folder);
+    }
+    if (newMsgKeys.length == 0) {
+      // No NEW message in the current folder, try the next queued folder.
+      this._showCustomizedAlert();
+      return;
+    }
+
+    this._folderBiffTime.set(folder, Date.now());
+
+    let args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    args.appendElement(folder);
+    args.appendElement({
+      wrappedJSObject: newMsgKeys,
+    });
+    args.appendElement(this);
     Services.ww.openWindow(
       null,
       "chrome://messenger/content/newmailalert.xhtml",
       "_blank",
       "chrome,dialog=yes,titlebar=no,popup=yes",
-      folder.server.rootFolder
+      args
     );
+    this._customizedAlertShown = true;
   }
 
   async _updateUnreadCount() {
