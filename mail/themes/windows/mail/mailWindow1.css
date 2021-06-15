@@ -546,7 +546,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 
   :root:not(:-moz-lwtheme)
-    treechildren::-moz-tree-cell-text(selected, untagged, unread) {
+    treechildren::-moz-tree-cell-text(selected, untagged, unread, focus) {
     color: HighlightText !important;
   }
 }
