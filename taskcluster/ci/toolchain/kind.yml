@@ -45,11 +45,12 @@ reference-jobs:
     - linux64-rust
     - linux64-rust-1.47
     - linux64-rust-1.51
+    - linux64-rust-dev
     - linux64-rust-cross
     - linux64-rust-macos
     - linux64-rust-macos-beta
     - linux64-rust-macos-1.47
-    - linux64-rust-nightly
+    - linux64-rust-macos-1.51
     - linux64-rust-size
     - linux64-rust-windows-1.47
     - linux64-sccache
@@ -64,7 +65,7 @@ reference-jobs:
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
-    - mingw32-rust-1.47
+    - mingw32-rust-1.51
     - wasi-sysroot
     - wasi-sysroot-11
     - wasi-sysroot-12
