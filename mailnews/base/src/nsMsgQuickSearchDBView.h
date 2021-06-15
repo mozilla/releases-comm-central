@@ -76,7 +76,8 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
   virtual nsresult ExpansionDelta(nsMsgViewIndex index,
                                   int32_t* expansionDelta) override;
   virtual nsresult ListCollapsedChildren(
-      nsMsgViewIndex viewIndex, nsIMutableArray* messageArray) override;
+      nsMsgViewIndex viewIndex,
+      nsTArray<RefPtr<nsIMsgDBHdr>>& messageArray) override;
   virtual nsresult ListIdsInThread(nsIMsgThread* threadHdr,
                                    nsMsgViewIndex startOfThreadViewIndex,
                                    uint32_t* pNumListed) override;

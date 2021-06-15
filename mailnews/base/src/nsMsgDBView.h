@@ -25,7 +25,6 @@
 #include "nsMsgTagService.h"
 #include "nsCOMArray.h"
 #include "nsTArray.h"
-#include "nsIMutableArray.h"
 #include "nsTHashtable.h"
 #include "nsHashKeys.h"
 #include "nsIMsgCustomColumnHandler.h"
@@ -306,9 +305,10 @@ class nsMsgDBView : public nsIMsgDBView,
                                   nsTArray<nsMsgViewIndex> const& selection,
                                   bool deleteStorage);
   nsresult GetHeadersFromSelection(nsTArray<nsMsgViewIndex> const& selection,
-                                   nsIMutableArray* messageArray);
-  virtual nsresult ListCollapsedChildren(nsMsgViewIndex viewIndex,
-                                         nsIMutableArray* messageArray);
+                                   nsTArray<RefPtr<nsIMsgDBHdr>>& hdrs);
+  // ListCollapsedChildren() adds to messageArray (rather than replacing it).
+  virtual nsresult ListCollapsedChildren(
+      nsMsgViewIndex viewIndex, nsTArray<RefPtr<nsIMsgDBHdr>>& messageArray);
 
   nsresult SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
                                nsIMsgDBHdr* aMsgHdr,

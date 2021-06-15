@@ -13,7 +13,6 @@
 #include "nsIMsgHdr.h"
 #include "nsIDBFolderInfo.h"
 #include "nsMsgMessageFlags.h"
-#include "nsIMutableArray.h"
 #include "nsMsgUtils.h"
 
 nsMsgQuickSearchDBView::nsMsgQuickSearchDBView() {
@@ -534,7 +533,7 @@ nsresult nsMsgQuickSearchDBView::SortThreads(
 }
 
 nsresult nsMsgQuickSearchDBView::ListCollapsedChildren(
-    nsMsgViewIndex viewIndex, nsIMutableArray* messageArray) {
+    nsMsgViewIndex viewIndex, nsTArray<RefPtr<nsIMsgDBHdr>>& messageArray) {
   nsCOMPtr<nsIMsgThread> threadHdr;
   nsresult rv = GetThreadContainingIndex(viewIndex, getter_AddRefs(threadHdr));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -555,7 +554,7 @@ nsresult nsMsgQuickSearchDBView::ListCollapsedChildren(
       if (msgKey != rootKey || (GroupViewUsesDummyRow() && rootKeySkipped)) {
         // if this hdr is in the original view, add it to new view.
         if (m_origKeys.BinaryIndexOf(msgKey) != m_origKeys.NoIndex)
-          messageArray->AppendElement(msgHdr);
+          messageArray.AppendElement(msgHdr);
       } else {
         rootKeySkipped = true;
       }

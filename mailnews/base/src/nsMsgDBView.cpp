@@ -31,7 +31,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsTreeColumns.h"
 #include "nsTextFormatter.h"
-#include "nsIMutableArray.h"
 #include "nsIMimeConverter.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIPrompt.h"
@@ -2335,55 +2334,22 @@ nsMsgDBView::GetIndicesForSelection(nsTArray<nsMsgViewIndex>& indices) {
 // Array<nsIMsgDBHdr> getSelectedMsgHdrs();
 NS_IMETHODIMP
 nsMsgDBView::GetSelectedMsgHdrs(nsTArray<RefPtr<nsIMsgDBHdr>>& aResult) {
-  nsresult rv;
-
   nsMsgViewIndexArray selection;
-  GetIndicesForSelection(selection);
-  if (selection.IsEmpty()) {
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsIMutableArray> messages(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(selection, messages);
-  NS_ENSURE_SUCCESS(rv, rv);
-  uint32_t numMsgsSelected;
-  messages->GetLength(&numMsgsSelected);
-
   aResult.Clear();
-  aResult.SetCapacity(numMsgsSelected);
-  for (uint32_t i = 0; i < numMsgsSelected; i++) {
-    nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    aResult.AppendElement(msgHdr.forget());
-  }
-  return NS_OK;
+  nsresult rv = GetIndicesForSelection(selection);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return GetHeadersFromSelection(selection, aResult);
 }
 
 NS_IMETHODIMP
 nsMsgDBView::GetURIsForSelection(nsTArray<nsCString>& uris) {
-  nsresult rv = NS_OK;
-
   uris.Clear();
-  nsMsgViewIndexArray selection;
-  GetIndicesForSelection(selection);
-  if (selection.IsEmpty()) {
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsIMutableArray> messages(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+  AutoTArray<RefPtr<nsIMsgDBHdr>, 1> messages;
+  nsresult rv = GetSelectedMsgHdrs(messages);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(selection, messages);
-  NS_ENSURE_SUCCESS(rv, rv);
-  uint32_t numMsgsSelected;
-  messages->GetLength(&numMsgsSelected);
-  uris.SetCapacity(numMsgsSelected);
-  for (uint32_t i = 0; i < numMsgsSelected; i++) {
+  uris.SetCapacity(messages.Length());
+  for (nsIMsgDBHdr* msgHdr : messages) {
     nsCString tmpUri;
-    nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgFolder> folder;
     nsMsgKey msgKey;
     msgHdr->GetMessageKey(&msgKey);
@@ -2638,8 +2604,8 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
 // of the thread that fit the view (IMO). And when we have threaded
 // cross folder views, we would include all the children of the
 // cross-folder thread.
-nsresult nsMsgDBView::ListCollapsedChildren(nsMsgViewIndex viewIndex,
-                                            nsIMutableArray* messageArray) {
+nsresult nsMsgDBView::ListCollapsedChildren(
+    nsMsgViewIndex viewIndex, nsTArray<RefPtr<nsIMsgDBHdr>>& messageArray) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr<nsIMsgThread> thread;
   GetMsgHdrForViewIndex(viewIndex, getter_AddRefs(msgHdr));
@@ -2655,9 +2621,9 @@ nsresult nsMsgDBView::ListCollapsedChildren(nsMsgViewIndex viewIndex,
   for (uint32_t i = 1; i < numChildren && NS_SUCCEEDED(rv); i++) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = thread->GetChildHdrAt(i, getter_AddRefs(msgHdr));
-    if (!msgHdr) continue;
-
-    rv = messageArray->AppendElement(msgHdr);
+    if (msgHdr) {
+      messageArray.AppendElement(msgHdr);
+    }
   }
 
   return rv;
@@ -2683,7 +2649,10 @@ bool nsMsgDBView::OperateOnMsgsInCollapsedThreads() {
 }
 
 nsresult nsMsgDBView::GetHeadersFromSelection(
-    nsTArray<nsMsgViewIndex> const& selection, nsIMutableArray* messageArray) {
+    nsTArray<nsMsgViewIndex> const& selection,
+    nsTArray<RefPtr<nsIMsgDBHdr>>& hdrs) {
+  hdrs.Clear();
+  hdrs.SetCapacity(selection.Length());  // Best guess.
   nsresult rv = NS_OK;
 
   // Don't include collapsed messages if the front end failed to summarize
@@ -2704,7 +2673,7 @@ nsresult nsMsgDBView::GetHeadersFromSelection(
       // If collapsed dummy header selected, list its children.
       if (includeCollapsedMsgs && viewIndexFlags & nsMsgMessageFlags::Elided &&
           m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)
-        rv = ListCollapsedChildren(viewIndex, messageArray);
+        rv = ListCollapsedChildren(viewIndex, hdrs);
 
       continue;
     }
@@ -2712,12 +2681,11 @@ nsresult nsMsgDBView::GetHeadersFromSelection(
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = GetMsgHdrForViewIndex(viewIndex, getter_AddRefs(msgHdr));
     if (NS_SUCCEEDED(rv) && msgHdr) {
-      rv = messageArray->AppendElement(msgHdr);
-      if (NS_SUCCEEDED(rv) && includeCollapsedMsgs &&
-          viewIndexFlags & nsMsgMessageFlags::Elided &&
+      hdrs.AppendElement(msgHdr);
+      if (includeCollapsedMsgs && viewIndexFlags & nsMsgMessageFlags::Elided &&
           viewIndexFlags & MSG_VIEW_FLAG_HASCHILDREN &&
           m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
-        rv = ListCollapsedChildren(viewIndex, messageArray);
+        rv = ListCollapsedChildren(viewIndex, hdrs);
       }
     }
   }
@@ -2735,10 +2703,9 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
 
   nsresult rv;
   NS_ENSURE_ARG_POINTER(destFolder);
-  nsCOMPtr<nsIMutableArray> messageArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(selection, messageArray);
+
+  AutoTArray<RefPtr<nsIMsgDBHdr>, 1> hdrs;
+  rv = GetHeadersFromSelection(selection, hdrs);
   NS_ENSURE_SUCCESS(rv, rv);
 
   m_deletingRows = isMove && mDeleteModel != nsMsgImapDeleteModels::IMAPDelete;
@@ -2750,9 +2717,7 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
       do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTArray<RefPtr<nsIMsgDBHdr>> tmpHdrs;
-  MsgHdrsToTArray(messageArray, tmpHdrs);
-  return copyService->CopyMessages(m_folder /* source folder */, tmpHdrs,
+  return copyService->CopyMessages(m_folder /* source folder */, hdrs,
                                    destFolder, isMove, nullptr /* listener */,
                                    window, true /* allow Undo */);
 }
@@ -2841,18 +2806,14 @@ nsresult nsMsgDBView::ApplyCommandToIndices(
   } else {
     // Turn the selection into an array of msg hdrs. This may include messages
     // in collapsed threads
-    uint32_t length;
-    nsCOMPtr<nsIMutableArray> messageArray(
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+    AutoTArray<RefPtr<nsIMsgDBHdr>, 1> messages;
+    rv = GetHeadersFromSelection(selection, messages);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetHeadersFromSelection(selection, messageArray);
-    NS_ENSURE_SUCCESS(rv, rv);
-    messageArray->GetLength(&length);
+    uint32_t length = messages.Length();
 
-    if (thisIsImapFolder) imapUids.SetLength(length);
-
-    nsTArray<RefPtr<nsIMsgDBHdr>> messages(length);
-    MsgHdrsToTArray(messageArray, messages);
+    if (thisIsImapFolder) {
+      imapUids.SetLength(length);
+    }
 
     for (uint32_t i = 0; i < length; i++) {
       nsMsgKey msgKey;
@@ -2997,13 +2958,9 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
   }
 
   nsresult rv;
-  nsCOMPtr<nsIMutableArray> messageArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+  AutoTArray<RefPtr<nsIMsgDBHdr>, 1> hdrs;
+  rv = GetHeadersFromSelection(selection, hdrs);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = GetHeadersFromSelection(selection, messageArray);
-  NS_ENSURE_SUCCESS(rv, rv);
-  uint32_t numMsgs;
-  messageArray->GetLength(&numMsgs);
 
   const char* warnCollapsedPref = "mail.warn_on_collapsed_thread_operation";
   const char* warnShiftDelPref = "mail.warn_on_shift_delete";
@@ -3028,7 +2985,7 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
     }
   }
 
-  if (!activePref && (selection.Length() != numMsgs)) {
+  if (!activePref && (selection.Length() != hdrs.Length())) {
     bool pref = false;
     prefBranch->GetBoolPref(warnCollapsedPref, &pref);
     if (pref) {
@@ -3091,15 +3048,19 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
     if (dontAsk) prefBranch->SetBoolPref(activePref, false);
   }
 
-  if (mDeleteModel != nsMsgImapDeleteModels::IMAPDelete) m_deletingRows = true;
+  if (mDeleteModel != nsMsgImapDeleteModels::IMAPDelete) {
+    m_deletingRows = true;
+  }
 
-  if (m_deletingRows) mIndicesToNoteChange.AppendElements(selection);
+  if (m_deletingRows) {
+    mIndicesToNoteChange.AppendElements(selection);
+  }
 
-  nsTArray<RefPtr<nsIMsgDBHdr>> tmp;
-  MsgHdrsToTArray(messageArray, tmp);
-  rv = m_folder->DeleteMessages(tmp, window, deleteStorage, false, nullptr,
+  rv = m_folder->DeleteMessages(hdrs, window, deleteStorage, false, nullptr,
                                 true /* allow Undo */);
-  if (NS_FAILED(rv)) m_deletingRows = false;
+  if (NS_FAILED(rv)) {
+    m_deletingRows = false;
+  }
 
   return rv;
 }
@@ -3116,7 +3077,9 @@ nsresult nsMsgDBView::DownloadForOffline(
     if (msgHdr) {
       uint32_t flags;
       msgHdr->GetFlags(&flags);
-      if (!(flags & nsMsgMessageFlags::Offline)) messages.AppendElement(msgHdr);
+      if (!(flags & nsMsgMessageFlags::Offline)) {
+        messages.AppendElement(msgHdr);
+      }
     }
   }
 
@@ -3139,8 +3102,9 @@ nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow* window) {
         uint32_t flags;
         header->GetFlags(&flags);
         if ((flags & nsMsgMessageFlags::Marked) &&
-            !(flags & nsMsgMessageFlags::Offline))
+            !(flags & nsMsgMessageFlags::Offline)) {
           messages.AppendElement(header);
+        }
       }
     }
   }
@@ -3396,8 +3360,9 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
           if (msgHdr) {
             uint32_t flags;
             msgHdr->GetFlags(&flags);
-            if (!(flags & nsMsgMessageFlags::IMAPDeleted))
+            if (!(flags & nsMsgMessageFlags::IMAPDeleted)) {
               hdrsToDelete.AppendElement(msgHdr);
+            }
           }
         }
 
@@ -4812,7 +4777,9 @@ nsresult nsMsgDBView::ExpandByIndex(nsMsgViewIndex index,
   NS_ENSURE_SUCCESS(rv, rv);
   if (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly) {
     // Keep top level hdr in thread, even though read.
-    if (flags & nsMsgMessageFlags::Read) m_levels.AppendElement(0);
+    if (flags & nsMsgMessageFlags::Read) {
+      m_levels.AppendElement(0);
+    }
 
     rv = ListUnreadIdsInThread(pThread, index, &numExpanded);
   } else {

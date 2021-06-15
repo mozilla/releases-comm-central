@@ -14,8 +14,6 @@
 #include "nsMsgUtils.h"
 #include "nsTreeColumns.h"
 #include "nsIMsgMessageService.h"
-#include "nsArrayUtils.h"
-#include "nsIMutableArray.h"
 #include "nsMsgGroupThread.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -889,23 +887,16 @@ nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
   m_uniqueFoldersSelected.Clear();
   m_hdrsForEachFolder.Clear();
 
-  nsCOMPtr<nsIMutableArray> messages(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  AutoTArray<RefPtr<nsIMsgDBHdr>, 1> messages;
   rv = GetHeadersFromSelection(selection, messages);
   NS_ENSURE_SUCCESS(rv, rv);
-  uint32_t numMsgs;
-  messages->GetLength(&numMsgs);
 
-  uint32_t i;
   // Build unique folder list based on headers selected by the user.
-  for (i = 0; i < numMsgs; i++) {
-    nsCOMPtr<nsIMsgDBHdr> hdr = do_QueryElementAt(messages, i, &rv);
-    if (hdr) {
-      nsCOMPtr<nsIMsgFolder> curFolder;
-      hdr->GetFolder(getter_AddRefs(curFolder));
-      if (m_uniqueFoldersSelected.IndexOf(curFolder) < 0)
-        m_uniqueFoldersSelected.AppendObject(curFolder);
+  for (nsIMsgDBHdr* hdr : messages) {
+    nsCOMPtr<nsIMsgFolder> curFolder;
+    hdr->GetFolder(getter_AddRefs(curFolder));
+    if (m_uniqueFoldersSelected.IndexOf(curFolder) < 0) {
+      m_uniqueFoldersSelected.AppendObject(curFolder);
     }
   }
 
@@ -914,14 +905,11 @@ nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
   for (uint32_t folderIndex = 0; folderIndex < numFolders; folderIndex++) {
     nsIMsgFolder* curFolder = m_uniqueFoldersSelected[folderIndex];
     nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrsForOneFolder;
-    for (i = 0; i < numMsgs; i++) {
-      nsCOMPtr<nsIMsgDBHdr> hdr = do_QueryElementAt(messages, i, &rv);
-      if (hdr) {
-        nsCOMPtr<nsIMsgFolder> msgFolder;
-        hdr->GetFolder(getter_AddRefs(msgFolder));
-        if (NS_SUCCEEDED(rv) && msgFolder && msgFolder == curFolder) {
-          msgHdrsForOneFolder.AppendElement(hdr);
-        }
+    for (nsIMsgDBHdr* hdr : messages) {
+      nsCOMPtr<nsIMsgFolder> msgFolder;
+      hdr->GetFolder(getter_AddRefs(msgFolder));
+      if (NS_SUCCEEDED(rv) && msgFolder && msgFolder == curFolder) {
+        msgHdrsForOneFolder.AppendElement(hdr);
       }
     }
 
