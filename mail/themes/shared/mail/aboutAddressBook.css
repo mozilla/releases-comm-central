@@ -161,20 +161,28 @@ body {
 .bookRow .twisty {
   width: 26px;
   height: 26px;
-  background-position: center center;
-  background-repeat: no-repeat;
 }
 
-.bookRow.children .twisty {
-  background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
+.bookRow:not(.children) .twisty-icon {
+  display: none;
 }
 
-.bookRow.children.collapsed .twisty {
-  background-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
+.bookRow .twisty-icon {
+  margin: 7px;
 }
 
-.bookRow.children.collapsed:-moz-locale-dir(rtl) .twisty {
-  background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+.bookRow.children.collapsed .twisty-icon {
+  transform: rotate(-90deg);
+}
+
+.bookRow.children.collapsed:-moz-locale-dir(rtl) .twisty-icon {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bookRow .twisty-icon {
+    transition: transform 200ms ease;
+  }
 }
 
 .bookRow-icon,
