@@ -43,6 +43,14 @@ const PRESETS = {
   "yahoo.com": null,
 };
 
+// At least one of these ACL privileges must be present to consider an address
+// book writable.
+const writePrivs = ["write", "write-properties", "write-content", "all"];
+
+// At least one of these ACL privileges must be present to consider an address
+// book readable.
+const readPrivs = ["read", "all"];
+
 var CardDAVUtils = {
   _contextMap: new Map(),
 
@@ -308,6 +316,7 @@ var CardDAVUtils = {
           <prop>
             <resourcetype/>
             <displayname/>
+            <current-user-privilege-set/>
           </prop>
         </propfind>`,
     };
@@ -441,6 +450,7 @@ var CardDAVUtils = {
         <prop>
           <resourcetype/>
           <displayname/>
+          <current-user-privilege-set/>
         </prop>
       </propfind>`;
       await tryURL(url.href);
@@ -457,6 +467,23 @@ var CardDAVUtils = {
         continue;
       }
 
+      // If the server provided ACL information, skip address books that we do
+      // not have read privileges to.
+      let privNode = r.querySelector("current-user-privilege-set");
+      let isWritable = false;
+      let isReadable = false;
+      if (privNode) {
+        let privs = Array.from(privNode.querySelectorAll("privilege > *")).map(
+          node => node.localName
+        );
+        let isWritable = writePrivs.some(priv => privs.includes(priv));
+        let isReadable = readPrivs.some(priv => privs.includes(priv));
+
+        if (!isWritable && !isReadable) {
+          continue;
+        }
+      }
+
       foundBooks.push({
         url: new URL(r.querySelector("href").textContent, url),
         name: r.querySelector("displayname").textContent,
@@ -469,6 +496,10 @@ var CardDAVUtils = {
           );
           let book = MailServices.ab.getDirectoryFromId(dirPrefId);
           book.setStringValue("carddav.url", this.url);
+
+          if (!isWritable && isReadable) {
+            book.setBoolValue("readOnly", true);
+          }
 
           if (oAuth) {
             if (oAuth._isNew) {

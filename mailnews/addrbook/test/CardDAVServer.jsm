@@ -350,6 +350,7 @@ var CardDAVServer = {
       "cs:getctag": this.changeCount,
       "d:displayname": isRealDirectory ? "CardDAV Test" : "Not This One",
       "d:resourcetype": "<collection/><card:addressbook/>",
+      "d:current-user-privilege-set": "<d:privilege><d:all/></d:privilege>",
     };
     if (!this.mimicYahoo) {
       propValues["d:sync-token"] = `http://mochi.test/sync/${this.changeCount}`;
@@ -443,6 +444,7 @@ var CardDAVServer = {
           Assert.equal(p.namespaceURI, PREFIX_BINDINGS.cs);
           propNames.push(`cs:${p.localName}`);
           break;
+        case "current-user-privilege-set":
         case "displayname":
         case "getetag":
         case "resourcetype":
