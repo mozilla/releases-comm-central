@@ -48,19 +48,19 @@ interface nsIMsgCopyService : nsISupports {
                     in boolean allowUndo);
 
   /**
-   * Copies or moves existing folders do destination folder.
+   * Copies or moves a folder into an existing destination folder.
    *
-   * @param folders    The array of nsIMsgFolders which will be moved/copied.
+   * @param srcFolder  The nsIMsgFolder which will be moved/copied.
    * @param dstFolder  The destination folder of operation.
    * @param isMove     false for copy operation, true for move operation.
    * @param listener   Listener which receive operation notifications.
    * @param msgWindow  Window for notification callbacks, can be null.
    */
-  void copyFolders(in Array<nsIMsgFolder> folders,
-                   in nsIMsgFolder dstFolder,
-                   in boolean isMove,
-                   in nsIMsgCopyServiceListener listener,
-                   in nsIMsgWindow msgWindow);
+  void copyFolder(in nsIMsgFolder srcFolder,
+                  in nsIMsgFolder dstFolder,
+                  in boolean isMove,
+                  in nsIMsgCopyServiceListener listener,
+                  in nsIMsgWindow msgWindow);
 
   /**
    * Copies message in rfc format from file to folder.

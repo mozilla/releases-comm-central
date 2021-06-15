@@ -985,16 +985,13 @@ var gFolderTreeView = {
     let types = Array.from(dt.mozTypesAt(0));
     if (types.includes("text/x-moz-folder")) {
       for (let i = 0; i < count; i++) {
-        let folders = [];
-        folders.push(
-          dt
-            .mozGetDataAt("text/x-moz-folder", i)
-            .QueryInterface(Ci.nsIMsgFolder)
-        );
-        cs.copyFolders(
-          folders,
+        let folder = dt
+          .mozGetDataAt("text/x-moz-folder", i)
+          .QueryInterface(Ci.nsIMsgFolder);
+        cs.copyFolder(
+          folder,
           targetFolder,
-          folders[0].server == targetFolder.server,
+          folder.server == targetFolder.server,
           null,
           msgWindow
         );

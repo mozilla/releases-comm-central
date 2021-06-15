@@ -384,8 +384,8 @@ function make_empty_folder(aFolderName, aSpecialFlags) {
 // Small helper for moving folder. You have to yield move_folder(f1, f2);
 function move_folder(aSource, aTarget) {
   // we're doing a true move
-  MailServices.copy.copyFolders(
-    [get_nsIMsgFolder(aSource)],
+  MailServices.copy.copyFolder(
+    get_nsIMsgFolder(aSource),
     get_nsIMsgFolder(aTarget),
     true,
     {

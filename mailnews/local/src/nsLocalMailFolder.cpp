@@ -635,8 +635,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
     nsCOMPtr<nsIMsgCopyService> copyService(
         do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv =
-        copyService->CopyFolders({this}, trashFolder, true, nullptr, msgWindow);
+    rv = copyService->CopyFolder(this, trashFolder, true, nullptr, msgWindow);
   }
   return rv;
 }

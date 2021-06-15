@@ -168,9 +168,9 @@ function DropOnFolderTree(aRow, aOrientation)
       let folder = dt.mozGetDataAt("text/x-moz-folder", i);
       try
       {
-        MailServices.copy.copyFolders([folder], targetFolder,
-                                      (folder.server == targetFolder.server),
-                                      null, msgWindow);
+        MailServices.copy.copyFolder(folder, targetFolder,
+                                     (folder.server == targetFolder.server),
+                                     null, msgWindow);
       }
       // Ignore known errors from canceled warning dialogs.
       catch (ex) {

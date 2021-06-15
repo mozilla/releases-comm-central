@@ -26,10 +26,8 @@ var tests = [
   setup,
   function* copyFolder1() {
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
-    let folders = [];
-    folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
-    MailServices.copy.copyFolders(
-      folders,
+    MailServices.copy.copyFolder(
+      gEmptyLocal1,
       IMAPPump.inbox,
       false,
       CopyListener,
@@ -39,10 +37,8 @@ var tests = [
   },
   function* copyFolder2() {
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
-    let folders = [];
-    folders.push(gEmptyLocal2);
-    MailServices.copy.copyFolders(
-      folders,
+    MailServices.copy.copyFolder(
+      gEmptyLocal2,
       IMAPPump.inbox,
       false,
       CopyListener,

@@ -90,11 +90,17 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
   }
 }
 
-function copyFolders(items, isMove, destFolder) {
+function copyFolder(srcFolder, isMove, destFolder) {
   gExpectedEvents = [
-    [MailServices.mfn.folderMoveCopyCompleted, isMove, items, destFolder],
+    [MailServices.mfn.folderMoveCopyCompleted, isMove, [srcFolder], destFolder],
   ];
-  MailServices.copy.copyFolders(items, destFolder, isMove, copyListener, null);
+  MailServices.copy.copyFolder(
+    srcFolder,
+    destFolder,
+    isMove,
+    copyListener,
+    null
+  );
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
@@ -271,13 +277,13 @@ var gTestArray = [
   },
   // Moving/copying folders
   function testCopyFolder1() {
-    copyFolders([gLocalFolder3], false, gLocalFolder2);
+    copyFolder(gLocalFolder3, false, gLocalFolder2);
   },
   function testMoveFolder1() {
-    copyFolders([gLocalFolder3], true, localAccountUtils.inboxFolder);
+    copyFolder(gLocalFolder3, true, localAccountUtils.inboxFolder);
   },
   function testMoveFolder2() {
-    copyFolders([gLocalFolder2], true, localAccountUtils.inboxFolder);
+    copyFolder(gLocalFolder2, true, localAccountUtils.inboxFolder);
   },
   // Folder structure should now be
   // Inbox

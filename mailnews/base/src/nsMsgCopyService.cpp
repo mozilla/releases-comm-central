@@ -464,21 +464,17 @@ done:
 }
 
 NS_IMETHODIMP
-nsMsgCopyService::CopyFolders(const nsTArray<RefPtr<nsIMsgFolder>>& folders,
-                              nsIMsgFolder* dstFolder, bool isMove,
-                              nsIMsgCopyServiceListener* listener,
-                              nsIMsgWindow* window) {
+nsMsgCopyService::CopyFolder(nsIMsgFolder* srcFolder, nsIMsgFolder* dstFolder,
+                             bool isMove, nsIMsgCopyServiceListener* listener,
+                             nsIMsgWindow* window) {
+  NS_ENSURE_ARG_POINTER(srcFolder);
   NS_ENSURE_ARG_POINTER(dstFolder);
   nsCopyRequest* copyRequest;
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> curFolder;
+
   nsCOMPtr<nsISupports> support;
-
-  if (folders.Length() != 1) {
-    return NS_ERROR_INVALID_ARG;  // Can only do one folder (see Bug 1643208).
-  }
-
-  support = do_QueryInterface(folders[0], &rv);
+  support = do_QueryInterface(srcFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   copyRequest = new nsCopyRequest();
@@ -487,7 +483,7 @@ nsMsgCopyService::CopyFolders(const nsTArray<RefPtr<nsIMsgFolder>>& folders,
                          listener, window, false);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  copyRequest->AddNewCopySource(folders[0]);
+  copyRequest->AddNewCopySource(srcFolder);
   return DoCopy(copyRequest);
 }
 
