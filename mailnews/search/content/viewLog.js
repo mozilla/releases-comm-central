@@ -19,7 +19,7 @@ function onLoad() {
   gLogView = document.getElementById("logView");
 
   // for security, disable JS
-  gLogView.docShell.allowJavascript = false;
+  gLogView.browsingContext.allowJavascript = false;
 
   MailE10SUtils.loadURI(gLogView, gFilterList.logURL);
 }

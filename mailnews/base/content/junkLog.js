@@ -13,7 +13,7 @@ var gLogFile;
 
 function onLoad() {
   gLogView = document.getElementById("logView");
-  gLogView.docShell.allowJavascript = false; // for security, disable JS
+  gLogView.browsingContext.allowJavascript = false; // for security, disable JS
 
   gLogView.addEventListener("load", () => {
     addStyling();

@@ -841,7 +841,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
 
   if (!isAllowedContent) {
     // Disable JavaScript on message URLs.
-    rv = docShell->SetAllowJavascript(false);
+    rv = browsingContext->SetAllowJavascript(false);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = browsingContext->SetAllowContentRetargetingOnChildren(false);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -871,7 +871,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     // JavaScript is allowed on non-message URLs.
-    rv = docShell->SetAllowJavascript(true);
+    rv = browsingContext->SetAllowJavascript(true);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = browsingContext->SetAllowContentRetargetingOnChildren(true);
     NS_ENSURE_SUCCESS(rv, rv);
