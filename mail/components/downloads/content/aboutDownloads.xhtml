@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="chrome://global/skin/global.css"?>
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/downloads/aboutDownloads.css" type="text/css"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
   - License, v. 2.0. If a copy of the MPL was not distributed with this
   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE window [
+<?xml-stylesheet href="chrome://global/skin/global.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
+<?xml-stylesheet href="chrome://global/skin/in-content/common.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/downloads/aboutDownloads.css"?>
+
+<!DOCTYPE html [
 <!ENTITY % aboutDownloadsDTD SYSTEM "chrome://messenger/locale/aboutDownloads.dtd">
 %aboutDownloadsDTD;
 ]>
 
-<window id="aboutDownloads"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
-        title="&aboutDownloads.title;"
-        csp="default-src chrome:; object-src 'none'; script-src chrome: 'unsafe-inline'"
-        lightweightthemes="true"
-        onload="DownloadsView.init();">
-  <xhtml:link rel="shortcut icon"
-              href="chrome://messenger/skin/downloads/download.svg"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/downloads/aboutDownloads.js"/>
-
+<html id="aboutDownloads" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false"
+      lightweightthemes="true">
+<head>
+  <title>&aboutDownloads.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/downloads/aboutDownloads.js"></script>
+  <meta http-equiv="Content-Security-Policy" content="default-src chrome:; object-src 'none'; script-src chrome: 'unsafe-inline'" />
+  <link rel="shortcut icon" href="chrome://messenger/skin/downloads/download.svg" />
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <commandset id="msgDownloadCommands"
               commandupdater="true"
               events="focus,select,contextmenu">
@@ -96,4 +97,5 @@
               accesskey="&cmd.clearList.accesskey;"
               tooltiptext="&cmd.clearList.tooltip;"/>
   </menupopup>
-</window>
+</html:body>
+</html>

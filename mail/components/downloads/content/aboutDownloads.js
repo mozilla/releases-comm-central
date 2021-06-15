@@ -19,6 +19,10 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/DownloadUtils.jsm"
 );
 
+window.addEventListener("load", event => {
+  DownloadsView.init();
+});
+
 var DownloadsView = {
   init() {
     window.controllers.insertControllerAt(0, this);

@@ -4,33 +4,49 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#aboutDownloads {
-  background: transparent !important;
+:root {
+  --in-content-button-border-radius: 3px;
+  --in-content-button-vertical-padding: 0;
+  --in-content-button-horizontal-padding: 12px;
+}
+
+@media not (prefers-contrast) {
+  :root {
+    --in-content-button-background: var(--grey-90-a10);
+    --in-content-button-background-hover: var(--grey-90-a20);
+    --in-content-button-background-active: var(--grey-90-a30);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --in-content-button-background: rgba(249, 249, 250, 0.1);
+      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
+      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
+      --in-content-primary-button-background: #45a1ff;
+      --in-content-focus-outline-color: #45a1ff;
+    }
+  }
+}
+
+body {
+  color: var(--in-content-page-color);
+  background: var(--in-content-page-background);
+  text-shadow: none;
 }
 
 #downloadTopBox {
   background-color: var(--toolbar-bgcolor);
   background-image: var(--toolbar-bgimage);
-  color: -moz-DialogText;
   padding: 10px 18px;
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
-#downloadTopBox:-moz-lwtheme {
-  color: var(--lwt-text-color);
-}
-
 #downloadBottomBox {
   padding: 15px 18px;
-  background-color: -moz-Dialog;
 }
 
 #downloadBottomBox:-moz-lwtheme {
   text-shadow: none;
-}
-
-:root:not([lwtheme-image="true"]) #downloadBottomBox {
-  background-color: var(--toolbar-bgcolor);
 }
 
 #msgDownloadsListEmptyDescription {
@@ -48,8 +64,9 @@
   /** The default listbox appearance comes with an unwanted margin. **/
   appearance: none;
   margin: 0;
-  border: 1px solid hsla(0, 0%, 50%, .3);
-  color: -moz-DialogText
+  color: inherit;
+  border: 1px solid var(--in-content-box-border-color);
+  background-color: var(--in-content-box-background);
 }
 
 :root[lwt-tree] #msgDownloadsRichListBox {
@@ -59,6 +76,7 @@
 #msgDownloadsRichListBox > .download {
   min-height: 5em;
   border-bottom: 1px solid hsla(0, 0%, 50%, .3);
+  border-radius: var(--in-content-button-border-radius);
 }
 
 #msgDownloadsRichListBox > .download > vbox {
@@ -68,17 +86,12 @@
 
 #clearDownloads {
   margin-inline-start: 0;
+  font-weight: 400;
 }
 
 #searchBox {
   width: 22em;
   margin-inline-end: 0;
-  padding-inline-start: 5px;
-}
-
-#searchBox html|input {
-  border-style: none;
-  outline: none;
 }
 
 .fileTypeIcon {
@@ -106,21 +119,20 @@
 }
 
 .downloadButton {
-  appearance: none;
   -moz-box-align: center;
   background: transparent !important;
   min-width: 0;
-  min-height: 0;
+  height: unset;
   margin: 0;
   border: none !important;
   outline: none !important;
   color: inherit;
-  padding: 0 18px;
+  padding: 0 12px;
 }
 
 .downloadButton > .button-box {
   appearance: none;
-  padding: 2px !important;
+  padding: 8px !important;
 }
 
 .downloadButton > .button-box > .button-icon {
@@ -136,12 +148,11 @@
 }
 
 .downloadButton:hover > .button-box {
-  background-color: graytext;
-  color: Field;
+  background-color: var(--in-content-button-background-hover);
   border-radius: 50%;
 }
 
 .downloadButton:hover:active > .button-box {
-  background-color: FieldText;
+  background-color: var(--in-content-button-background-active);
 }
 
