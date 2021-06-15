@@ -226,8 +226,8 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   // copy message helper
   nsresult DisplayMoveCopyStatusMsg();
 
-  nsresult CopyMessageTo(nsISupports* message, nsIMsgFolder* dstFolder,
-                         nsIMsgWindow* msgWindow, bool isMove);
+  nsresult CopyMessageTo(nsISupports* message, nsIMsgWindow* msgWindow,
+                         bool isMove);
 
   /**
    * Checks if there's room in the target folder to copy message(s) into.
@@ -239,8 +239,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   // copy multiple messages at a time from this folder
   nsresult CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
-                          nsIMsgWindow* aMsgWindow, nsIMsgFolder* dstFolder,
-                          bool isMove);
+                          nsIMsgWindow* aMsgWindow, bool isMove);
   nsresult InitCopyState(nsISupports* aSupport,
                          nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
                          bool isMove, nsIMsgCopyServiceListener* listener,

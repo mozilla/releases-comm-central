@@ -1427,7 +1427,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     // imap server to do the copy. When source folder is "mailbox", this is not
     // a concern since source messages are in local storage.
     mCopyState->m_copyingMultipleMessages = true;
-    rv = CopyMessagesTo(keyArray, msgWindow, this, isMove);
+    rv = CopyMessagesTo(keyArray, msgWindow, isMove);
     if (NS_FAILED(rv)) {
       NS_ERROR("copy message failed");
       (void)OnCopyCompleted(srcSupport, false);
@@ -1437,7 +1437,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
     // copy. Note: CopyMessageTo() actually handles one or more messages.
     nsIMsgDBHdr* msgSupport = mCopyState->m_messages[0];
     if (msgSupport) {
-      rv = CopyMessageTo(msgSupport, this, msgWindow, isMove);
+      rv = CopyMessageTo(msgSupport, msgWindow, isMove);
       if (NS_FAILED(rv)) {
         NS_ASSERTION(false, "copy message failed");
         (void)OnCopyCompleted(srcSupport, false);
@@ -1452,6 +1452,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   }
   return rv;
 }
+
 // for srcFolder that are on different server than the dstFolder.
 // "this" is the parent of the new dest folder.
 nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
@@ -2199,8 +2200,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
     // CopyMessages() goes here; CopyFileMessage() never gets in here because
     // curCopyIndex will always be less than the mCopyState->m_totalMsgCount
     nsIMsgDBHdr* aSupport = mCopyState->m_messages[mCopyState->m_curCopyIndex];
-    rv = CopyMessageTo(aSupport, this, mCopyState->m_msgWindow,
-                       mCopyState->m_isMove);
+    rv = CopyMessageTo(aSupport, mCopyState->m_msgWindow, mCopyState->m_isMove);
   } else {
     // If we have some headers, then there is a source, so notify
     // itemMoveCopyCompleted. If we don't have any headers already, (eg save as
@@ -2446,7 +2446,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
 
 nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
                                               nsIMsgWindow* aMsgWindow,
-                                              nsIMsgFolder* dstFolder,
                                               bool isMove) {
   if (!mCopyState) return NS_ERROR_OUT_OF_MEMORY;
 
@@ -2456,16 +2455,12 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
       do_CreateInstance(NS_COPYMESSAGESTREAMLISTENER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsICopyMessageListener> copyListener(
-      do_QueryInterface(dstFolder, &rv));
-  NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
-
   nsCOMPtr<nsIMsgFolder> srcFolder(
       do_QueryInterface(mCopyState->m_srcSupport, &rv));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
 
-  rv = copyStreamListener->Init(srcFolder, copyListener, nullptr);
-  if (NS_FAILED(rv)) return rv;
+  rv = copyStreamListener->Init(srcFolder, this, nullptr);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (!mCopyState->m_messageService) {
     nsCString uri;
@@ -2489,7 +2484,9 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
     // is for multiple message copy.
     nsCOMPtr<nsIMsgLocalMailFolder> srcLocalFolder =
         do_QueryInterface(srcFolder);
-    if (srcLocalFolder) StartMessage();
+    if (srcLocalFolder) {
+      StartMessage();
+    }
     nsCOMPtr<nsIURI> dummyNull;
     rv = mCopyState->m_messageService->CopyMessages(
         keyArray, srcFolder, streamListener, isMove, nullptr, aMsgWindow,
@@ -2498,9 +2495,9 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
   return rv;
 }
 
-nsresult nsMsgLocalMailFolder::CopyMessageTo(
-    nsISupports* message, nsIMsgFolder* dstFolder /* dst same as "this" */,
-    nsIMsgWindow* aMsgWindow, bool isMove) {
+nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
+                                             nsIMsgWindow* aMsgWindow,
+                                             bool isMove) {
   if (!mCopyState) return NS_ERROR_OUT_OF_MEMORY;
 
   nsresult rv;
@@ -2519,11 +2516,7 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(
       do_CreateInstance(NS_COPYMESSAGESTREAMLISTENER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsICopyMessageListener> copyListener(
-      do_QueryInterface(dstFolder, &rv));
-  NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
-
-  rv = copyStreamListener->Init(srcFolder, copyListener, nullptr);
+  rv = copyStreamListener->Init(srcFolder, this, nullptr);
   if (NS_FAILED(rv)) return rv;
 
   if (!mCopyState->m_messageService)
