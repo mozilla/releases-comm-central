@@ -26,8 +26,6 @@
   --panel-separator-margin: 4px 8px;
   --arrowpanel-menuitem-border-radius: 3px;
   --appmenu-button-padding: 6px;
-  --panelview-toolbarbutton-hover-bgcolor: var(--arrowpanel-dimmed);
-  --panelview-toolbarbutton-active-bgcolor: var(--arrowpanel-dimmed-further);
 }
 
 /* UI Density customization */
