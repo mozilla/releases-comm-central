@@ -59,6 +59,10 @@ class LDAPDirectory extends AddrBookDirectory {
     return "chrome://messenger/content/addressbook/pref-directory-add.xhtml";
   }
 
+  get dirType() {
+    return Ci.nsIAbManager.LDAP_DIRECTORY_TYPE;
+  }
+
   get replicationFileName() {
     return this.getStringValue("filename");
   }
