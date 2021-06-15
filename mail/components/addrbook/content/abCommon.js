@@ -89,10 +89,18 @@ var DirPaneController = {
         // For contacts and mixed selections, the label is set in
         // ResultsPaneController in abResultsPane.js.
         if (command == "cmd_delete") {
-          goSetMenuValue(
-            command,
-            selectedDir.isMailList ? "valueList" : "valueAddressBook"
-          );
+          if (selectedDir.isMailList) {
+            goSetMenuValue(command, "valueList");
+          } else if (
+            selectedDir.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+          ) {
+            goSetMenuValue(command, "valueCardDAV");
+          } else {
+            goSetMenuValue(command, "valueAddressBook");
+          }
+          document.getElementById(
+            "button-abdelete"
+          ).label = document.getElementById(command).getAttribute("label");
         }
 
         // If it's one of these special ABs, return false to disable deletion.
@@ -223,6 +231,9 @@ var DirPaneController = {
     // on blur events set the menu item texts back to the normal values
     if (event == "blur") {
       goSetMenuValue("cmd_delete", "valueDefault");
+      document.getElementById(
+        "button-abdelete"
+      ).label = document.getElementById("cmd_delete").getAttribute("label");
     }
   },
 };
@@ -302,6 +313,8 @@ function updateDirTreeContext() {
   let selectedDir = getSelectedDirectory();
   let startupItem = document.getElementById("dirTreeContext-startupDir");
   let syncItem = document.getElementById("dirTreeContext-sync");
+  let deleteItem = document.getElementById("dirTreeContext-delete");
+  let removeItem = document.getElementById("dirTreeContext-remove");
 
   if (Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
     let startupURI = Services.prefs.getCharPref(
@@ -312,7 +325,11 @@ function updateDirTreeContext() {
     startupItem.setAttribute("checked", "false");
   }
 
-  syncItem.hidden = selectedDir && selectedDir.dirType != 102;
+  let isCardDAV =
+    selectedDir?.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE;
+  syncItem.hidden = !isCardDAV;
+  deleteItem.hidden = isCardDAV;
+  removeItem.hidden = !isCardDAV;
 }
 
 function abToggleSelectedDirStartup() {
@@ -348,83 +365,43 @@ function abToggleSelectedDirStartup() {
 }
 
 function AbDeleteSelectedDirectory() {
-  let selectedDirURI = getSelectedDirectoryURI();
-  if (!selectedDirURI) {
-    return;
-  }
-
-  AbDeleteDirectory(selectedDirURI);
+  AbDeleteDirectory(getSelectedDirectoryURI());
 }
 
-function AbDeleteDirectory(aURI) {
-  // Determine strings for smart and context-sensitive user prompts
-  // for confirming deletion.
+async function AbDeleteDirectory(aURI) {
   let directory = GetDirectoryFromURI(aURI);
-  let confirmDeleteTitleID;
-  let confirmDeleteTitle;
-  let confirmDeleteMessageID;
-  let confirmDeleteMessage;
-  let brandShortName;
-  let clearCollectionPrefs = false;
-
-  if (directory.isMailList) {
-    // It's a mailing list.
-    confirmDeleteMessageID = "confirmDeleteThisMailingList";
-    confirmDeleteTitleID = "confirmDeleteThisMailingListTitle";
-  } else if (
-    Services.prefs.getCharPref("mail.collect_addressbook") == aURI &&
-    Services.prefs.getBoolPref("mail.collect_email_address_outgoing")
-  ) {
-    // It's a collection address book: let's be clear about the consequences.
-    brandShortName = document
-      .getElementById("bundle_brand")
-      .getString("brandShortName");
-    confirmDeleteMessageID = "confirmDeleteThisCollectionAddressbook";
-    confirmDeleteTitleID = "confirmDeleteThisCollectionAddressbookTitle";
-    clearCollectionPrefs = true;
-  } else if (directory.URI.startsWith(kLdapUrlPrefix)) {
-    // It's an LDAP directory, so we only delete our offline copy.
-    confirmDeleteMessageID = "confirmDeleteThisLDAPDir";
-    confirmDeleteTitleID = "confirmDeleteThisLDAPDirTitle";
-  } else {
-    // It's a normal personal address book: we'll delete its contacts, too.
-    confirmDeleteMessageID = "confirmDeleteThisAddressbook";
-    confirmDeleteTitleID = "confirmDeleteThisAddressbookTitle";
-  }
-
-  // Get the raw strings with placeholders.
-  confirmDeleteTitle = gAddressBookBundle.getString(confirmDeleteTitleID);
-  confirmDeleteMessage = gAddressBookBundle.getString(confirmDeleteMessageID);
-
-  // Substitute placeholders as required.
-  // Replace #1 with the name of the selected address book or mailing list.
-  confirmDeleteMessage = confirmDeleteMessage.replace("#1", directory.dirName);
-  if (brandShortName) {
-    // For a collection address book, replace #2 with the brandShortName.
-    confirmDeleteMessage = confirmDeleteMessage.replace("#2", brandShortName);
-  }
-
-  // Ask for confirmation before deleting
   if (
-    !Services.prompt.confirm(window, confirmDeleteTitle, confirmDeleteMessage)
+    !directory ||
+    ["ldap_2.servers.history", "ldap_2.servers.pab"].includes(
+      directory.dirPrefId
+    )
   ) {
-    // Deletion cancelled by user.
     return;
   }
 
-  // If we're about to delete the collection AB, update the respective prefs.
-  if (clearCollectionPrefs) {
-    Services.prefs.setBoolPref("mail.collect_email_address_outgoing", false);
-
-    // Change the collection AB pref to "Personal Address Book" so that we
-    // don't get a blank item in prefs dialog when collection is re-enabled.
-    Services.prefs.setCharPref(
-      "mail.collect_addressbook",
-      kPersonalAddressbookURI
-    );
+  let action = "delete-book";
+  if (directory.isMailList) {
+    action = "delete-lists";
+  } else if (
+    [
+      Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
+      Ci.nsIAbManager.LDAP_DIRECTORY_TYPE,
+    ].includes(directory.dirType)
+  ) {
+    action = "remove-remote-book";
   }
 
-  MailServices.ab.deleteAddressBook(aURI);
+  let [title, message] = await document.l10n.formatValues([
+    { id: `about-addressbook-confirm-${action}-title`, args: { count: 1 } },
+    {
+      id: `about-addressbook-confirm-${action}`,
+      args: { name: directory.dirName, count: 1 },
+    },
+  ]);
+
+  if (Services.prompt.confirm(window, title, message)) {
+    MailServices.ab.deleteAddressBook(directory.URI);
+  }
 }
 
 function GetParentRow(aTree, aRow) {
@@ -447,102 +424,60 @@ function InitCommonJS() {
   gAddressBookBundle = document.getElementById("bundle_addressBook");
 }
 
-function AbDelete() {
+async function AbDelete() {
   let types = GetSelectedCardTypes();
   if (types == kNothingSelected) {
     return;
   }
 
+  let cards = GetSelectedAbCards();
+
   // Determine strings for smart and context-sensitive user prompts
   // for confirming deletion.
-  let confirmDeleteTitleID;
-  let confirmDeleteTitle;
-  let confirmDeleteMessageID;
-  let confirmDeleteMessage;
-  let itemName;
-  let containingListName;
-  let selectedDir = getSelectedDirectory();
-  let numSelectedItems = gAbView.selection.count;
+  let action, name, list;
+  let selectedDir = gAbView.directory;
 
   switch (types) {
     case kListsAndCards:
-      confirmDeleteMessageID = "confirmDelete2orMoreContactsAndLists";
-      confirmDeleteTitleID = "confirmDelete2orMoreContactsAndListsTitle";
+      action = "delete-mixed";
       break;
     case kSingleListOnly:
-      // Set item name for single mailing list.
-      let theCard = GetSelectedAbCards()[0];
-      itemName = theCard.displayName;
-      confirmDeleteMessageID = "confirmDeleteThisMailingList";
-      confirmDeleteTitleID = "confirmDeleteThisMailingListTitle";
-      break;
     case kMultipleListsOnly:
-      confirmDeleteMessageID = "confirmDelete2orMoreMailingLists";
-      confirmDeleteTitleID = "confirmDelete2orMoreMailingListsTitle";
+      action = "delete-lists";
+      name = cards[0].displayName;
       break;
-    case kCardsOnly:
+    default: {
+      let nameFormatFromPref = Services.prefs.getIntPref(
+        "mail.addr_book.lastnamefirst"
+      );
+      name = cards[0].generateName(nameFormatFromPref);
       if (selectedDir && selectedDir.isMailList) {
-        // Contact(s) in mailing lists will be removed from the list, not deleted.
-        if (numSelectedItems == 1) {
-          confirmDeleteMessageID = "confirmRemoveThisContact";
-          confirmDeleteTitleID = "confirmRemoveThisContactTitle";
-        } else {
-          confirmDeleteMessageID = "confirmRemove2orMoreContacts";
-          confirmDeleteTitleID = "confirmRemove2orMoreContactsTitle";
-        }
-        // For removing contacts from mailing list, set placeholder value
-        containingListName = selectedDir.dirName;
-      } else if (numSelectedItems == 1) {
-        // Contact(s) in address books will be deleted.
-        confirmDeleteMessageID = "confirmDeleteThisContact";
-        confirmDeleteTitleID = "confirmDeleteThisContactTitle";
+        action = "remove-contacts";
+        list = selectedDir.dirName;
       } else {
-        confirmDeleteMessageID = "confirmDelete2orMoreContacts";
-        confirmDeleteTitleID = "confirmDelete2orMoreContactsTitle";
-      }
-      if (numSelectedItems == 1) {
-        // Set item name for single contact.
-        let theCard = GetSelectedAbCards()[0];
-        let nameFormatFromPref = Services.prefs.getIntPref(
-          "mail.addr_book.lastnamefirst"
-        );
-        itemName = theCard.generateName(nameFormatFromPref);
+        action = "delete-contacts";
       }
       break;
+    }
   }
 
-  // Get the raw model strings.
-  // For numSelectedItems == 1, it's simple strings.
-  // For messages with numSelectedItems > 1, it's multi-pluralform string sets.
-  // confirmDeleteMessage has placeholders for some forms.
-  confirmDeleteTitle = gAddressBookBundle.getString(confirmDeleteTitleID);
-  confirmDeleteMessage = gAddressBookBundle.getString(confirmDeleteMessageID);
-
-  // Get plural form where applicable; substitute placeholders as required.
-  if (numSelectedItems == 1) {
-    // If single selected item, substitute itemName.
-    confirmDeleteMessage = confirmDeleteMessage.replace("#1", itemName);
-  } else {
-    // If multiple selected items, get the right plural string from the
-    // localized set, then substitute numSelectedItems.
-    confirmDeleteMessage = PluralForm.get(
-      numSelectedItems,
-      confirmDeleteMessage
-    );
-    confirmDeleteMessage = confirmDeleteMessage.replace("#1", numSelectedItems);
-  }
-  // If contact(s) in a mailing list, substitute containingListName.
-  if (containingListName) {
-    confirmDeleteMessage = confirmDeleteMessage.replace(
-      "#2",
-      containingListName
-    );
-  }
+  let [title, message] = await document.l10n.formatValues([
+    {
+      id: `about-addressbook-confirm-${action}-title`,
+      args: { count: cards.length },
+    },
+    {
+      id: `about-addressbook-confirm-${action}`,
+      args: {
+        count: cards.length,
+        name,
+        list,
+      },
+    },
+  ]);
 
   // Finally, show our smart confirmation message, and act upon it!
-  if (
-    !Services.prompt.confirm(window, confirmDeleteTitle, confirmDeleteMessage)
-  ) {
+  if (!Services.prompt.confirm(window, title, message)) {
     // Deletion cancelled by user.
     return;
   }
@@ -756,7 +691,7 @@ function ChangeDirectoryByURI(uri = kPersonalAddressbookURI) {
 
   // Actively de-selecting if there are any pre-existing selections
   // in the results list.
-  if (gAbView && gAbView.getCardFromRow(0)) {
+  if (gAbView && gAbView.selection && gAbView.getCardFromRow(0)) {
     gAbView.selection.clearSelection();
   } else {
     // The selection changes if we were switching directories.

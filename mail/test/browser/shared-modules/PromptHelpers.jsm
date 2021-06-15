@@ -171,6 +171,12 @@ var gMockPromptService = {
     this._promptCb = aCb;
   },
 
+  promisePrompt() {
+    return new Promise(resolve => {
+      this.onPromptCallback = resolve;
+    });
+  },
+
   fireCb() {
     if (typeof this._promptCb == "function") {
       this._promptCb.call();

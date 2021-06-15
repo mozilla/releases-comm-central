@@ -11,11 +11,12 @@ var { mailTestUtils } = ChromeUtils.import(
  * displayed if they happen outside the current address book.
  */
 add_task(async function test_additions_and_removals() {
-  function deleteRowWithPrompt(row) {
+  async function deleteRowWithPrompt(row) {
     let promptPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
     mailTestUtils.treeClick(EventUtils, abWindow, abContactTree, row, 0, {});
     EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
-    return promptPromise;
+    await promptPromise;
+    await new Promise(r => abWindow.setTimeout(r));
   }
 
   let bookA = createAddressBook("book A");

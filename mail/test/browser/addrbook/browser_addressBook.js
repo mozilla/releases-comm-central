@@ -177,19 +177,13 @@ add_task(function test_persist_collapsed_and_expanded_states() {
 /* Test that if we try to delete a contact, that we are given
  * a confirm prompt.
  */
-add_task(function test_deleting_contact_causes_confirm_prompt() {
+add_task(async function test_deleting_contact_causes_confirm_prompt() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
   // Create a contact that we'll try to delete
   let contact1 = create_contact("test@example.com", "Sammy Jenkis", true);
   let toDelete = [contact1];
-
-  let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/addressbook/addressBook.properties"
-  );
-  let confirmSingle = bundle.GetStringFromName("confirmDeleteThisContact");
-  confirmSingle = confirmSingle.replace("#1", "Sammy Jenkis");
 
   // Add some contacts to the address book
   load_contacts_into_address_book(addrBook1, toDelete);
@@ -203,14 +197,19 @@ add_task(function test_deleting_contact_causes_confirm_prompt() {
 
   // Now attempt to delete the contact
   select_contacts(toDelete);
+  let promptPromise = gMockPromptService.promisePrompt();
   EventUtils.synthesizeKey("VK_DELETE", {}, abController.window);
+  await promptPromise;
 
   let promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
   // Was a confirm displayed?
   Assert.equal("confirm", promptState.method);
   // Was the right message displayed?
-  Assert.equal(confirmSingle, promptState.text);
+  Assert.equal(
+    promptState.text,
+    "Are you sure you want to delete the contact Sammy Jenkis?"
+  );
   // The contact should not have been deleted.
   Assert.equal(abController.window.gAbView.rowCount, totalEntries);
 
@@ -220,14 +219,19 @@ add_task(function test_deleting_contact_causes_confirm_prompt() {
   // the contact is deleted.
   gMockPromptService.returnValue = true;
   select_contacts(toDelete);
+  promptPromise = gMockPromptService.promisePrompt();
   EventUtils.synthesizeKey("VK_DELETE", {}, abController.window);
+  await promptPromise;
 
   promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
   // Was a confirm displayed?
   Assert.equal("confirm", promptState.method);
   // Was the right message displayed?
-  Assert.equal(confirmSingle, promptState.text);
+  Assert.equal(
+    promptState.text,
+    "Are you sure you want to delete the contact Sammy Jenkis?"
+  );
   // The contact should have been deleted.
   Assert.equal(
     abController.window.gAbView.rowCount,
@@ -240,7 +244,7 @@ add_task(function test_deleting_contact_causes_confirm_prompt() {
 /* Test that if we try to delete multiple contacts, that we are give
  * a confirm prompt.
  */
-add_task(function test_deleting_contacts_causes_confirm_prompt() {
+add_task(async function test_deleting_contacts_causes_confirm_prompt() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
@@ -255,14 +259,6 @@ add_task(function test_deleting_contacts_causes_confirm_prompt() {
 
   let toDelete = [contact2, contact3, contact4];
 
-  let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/addressbook/addressBook.properties"
-  );
-  let confirmMultiple = bundle.GetStringFromName(
-    "confirmDelete2orMoreContacts"
-  );
-  confirmMultiple = confirmMultiple.replace(/.*;/, "").replace("#1", "3");
-
   // Add some contacts to the address book
   load_contacts_into_address_book(addrBook1, toDelete);
   select_address_book(addrBook1);
@@ -276,14 +272,19 @@ add_task(function test_deleting_contacts_causes_confirm_prompt() {
 
   // Now attempt to delete the contact
   select_contacts(toDelete);
+  let promptPromise = gMockPromptService.promisePrompt();
   EventUtils.synthesizeKey("VK_DELETE", {}, abController.window);
+  await promptPromise;
 
   let promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
   // Was a confirm displayed?
   Assert.equal("confirm", promptState.method);
   // Was the right message displayed?
-  Assert.equal(confirmMultiple, promptState.text);
+  Assert.equal(
+    promptState.text,
+    "Are you sure you want to delete these 3 contacts?"
+  );
   // The contact should not have been deleted.
   Assert.equal(abController.window.gAbView.rowCount, totalEntries);
 
@@ -293,14 +294,19 @@ add_task(function test_deleting_contacts_causes_confirm_prompt() {
   // the contact is deleted.
   gMockPromptService.returnValue = true;
   select_contacts(toDelete);
+  promptPromise = gMockPromptService.promisePrompt();
   EventUtils.synthesizeKey("VK_DELETE", {}, abController.window);
+  await promptPromise;
 
   promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
   // Was a confirm displayed?
   Assert.equal("confirm", promptState.method);
   // Was the right message displayed?
-  Assert.equal(confirmMultiple, promptState.text);
+  Assert.equal(
+    promptState.text,
+    "Are you sure you want to delete these 3 contacts?"
+  );
   // The contact should have been deleted.
   Assert.equal(
     abController.window.gAbView.rowCount,
@@ -314,7 +320,7 @@ add_task(function test_deleting_contacts_causes_confirm_prompt() {
  * confirmation dialog to be brought up, and that deletion
  * actually works if the user clicks "OK".
  */
-add_task(function test_deleting_mailing_lists() {
+add_task(async function test_deleting_mailing_lists() {
   // Register our Mock Prompt Service
   gMockPromptService.register();
 
@@ -330,13 +336,19 @@ add_task(function test_deleting_mailing_lists() {
   // first.
   gMockPromptService.returnValue = false;
 
+  let promptPromise = gMockPromptService.promisePrompt();
   abController.window.AbDeleteDirectory(addedList.URI);
+  await promptPromise;
 
   let promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
 
   // Test that the confirmation dialog was brought up.
   Assert.equal("confirm", promptState.method);
+  Assert.equal(
+    promptState.text,
+    "Are you sure you want to delete the list Delete Me!?"
+  );
 
   // Ensure that the mailing list was not removed.
   Assert.ok(addrBook1.hasDirectory(addedList));
@@ -345,12 +357,18 @@ add_task(function test_deleting_mailing_lists() {
   gMockPromptService.reset();
   gMockPromptService.returnValue = true;
 
+  promptPromise = gMockPromptService.promisePrompt();
   abController.window.AbDeleteDirectory(addedList.URI);
+  await promptPromise;
 
   // Test that the confirmation dialog was brought up.
   promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
   Assert.equal("confirm", promptState.method);
+  Assert.equal(
+    promptState.text,
+    "Are you sure you want to delete the list Delete Me!?"
+  );
 
   // Ensure that the mailing list was removed.
   Assert.ok(!addrBook1.hasDirectory(addedList));

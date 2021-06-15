@@ -454,7 +454,6 @@ add_task(async () => {
   );
 
   global.booksList.selectedIndex = 2;
-  global.booksList.deleteSelected();
   EventUtils.sendKey("DELETE", global.abWindow);
 
   await Promise.all([mailingListWindowPromise, deletePromise]);

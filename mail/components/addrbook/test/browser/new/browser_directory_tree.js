@@ -405,10 +405,8 @@ add_task(async function test_rename_and_delete() {
   // Attempt to delete the All Address Books entry.
   // Synthesizing the delete key here does not throw immediately.
 
-  Assert.throws(
-    () => {
-      booksList.deleteSelected();
-    },
+  await Assert.rejects(
+    booksList.deleteSelected(),
     /Cannot delete the All Address Books item/,
     "Attempting to delete All Address Books should fail."
   );
@@ -417,10 +415,8 @@ add_task(async function test_rename_and_delete() {
   // Synthesizing the delete key here does not throw immediately.
 
   booksList.selectedIndex = 1;
-  Assert.throws(
-    () => {
-      booksList.deleteSelected();
-    },
+  await Assert.rejects(
+    booksList.deleteSelected(),
     /Refusing to delete a built-in address book/,
     "Attempting to delete Personal Address Book should fail."
   );
@@ -429,10 +425,8 @@ add_task(async function test_rename_and_delete() {
   // Synthesizing the delete key here does not throw immediately.
 
   booksList.selectedIndex = 2;
-  Assert.throws(
-    () => {
-      booksList.deleteSelected();
-    },
+  await Assert.rejects(
+    booksList.deleteSelected(),
     /Refusing to delete a built-in address book/,
     "Attempting to delete Collected Addresses should fail."
   );
@@ -453,6 +447,7 @@ add_task(async function test_context_menu() {
   let propertiesMenuItem = abDocument.getElementById("bookContextProperties");
   let synchronizeMenuItem = abDocument.getElementById("bookContextSynchronize");
   let deleteMenuItem = abDocument.getElementById("bookContextDelete");
+  let removeMenuItem = abDocument.getElementById("bookContextRemove");
 
   Assert.equal(booksList.rowCount, 6);
 
@@ -478,6 +473,7 @@ add_task(async function test_context_menu() {
     Assert.ok(!BrowserTestUtils.is_visible(synchronizeMenuItem));
     Assert.ok(BrowserTestUtils.is_visible(deleteMenuItem));
     Assert.ok(deleteMenuItem.disabled);
+    Assert.ok(!BrowserTestUtils.is_visible(removeMenuItem));
     let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
@@ -492,11 +488,12 @@ add_task(async function test_context_menu() {
   Assert.ok(!propertiesMenuItem.disabled);
   Assert.ok(BrowserTestUtils.is_visible(synchronizeMenuItem));
   Assert.ok(!synchronizeMenuItem.disabled);
-  Assert.ok(BrowserTestUtils.is_visible(deleteMenuItem));
-  Assert.ok(!deleteMenuItem.disabled);
+  Assert.ok(!BrowserTestUtils.is_visible(deleteMenuItem));
+  Assert.ok(BrowserTestUtils.is_visible(removeMenuItem));
+  Assert.ok(!removeMenuItem.disabled);
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   let selectPromise = BrowserTestUtils.waitForEvent(booksList, "select");
-  menu.activateItem(deleteMenuItem);
+  menu.activateItem(removeMenuItem);
   await promptPromise;
   await selectPromise;
   Assert.equal(abDocument.activeElement, booksList);
@@ -513,6 +510,7 @@ add_task(async function test_context_menu() {
     Assert.ok(!BrowserTestUtils.is_visible(synchronizeMenuItem));
     Assert.ok(BrowserTestUtils.is_visible(deleteMenuItem));
     Assert.ok(!deleteMenuItem.disabled);
+    Assert.ok(!BrowserTestUtils.is_visible(removeMenuItem));
     promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
     selectPromise = BrowserTestUtils.waitForEvent(booksList, "select");
     menu.activateItem(deleteMenuItem);

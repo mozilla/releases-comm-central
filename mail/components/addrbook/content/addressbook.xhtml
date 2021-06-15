@@ -38,6 +38,7 @@
 <head>
   <title>&addressbookWindow.title;</title>
   <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
   <link rel="localization" href="messenger/menubar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="toolkit/printing/printUI.ftl" />
@@ -100,11 +101,13 @@
     <command id="cmd_paste" oncommand="goDoCommand('cmd_paste')" disabled="true"/>
     <command id="cmd_delete" oncommand="goDoCommand('cmd_delete')"
              valueAddressBook="&deleteAbCmd.label;"
+             valueCardDAV="&removeAbCmd.label;"
              valueCard="&deleteContactCmd.label;"
              valueCards="&deleteContactsCmd.label;"
              valueList="&deleteListCmd.label;"
              valueLists="&deleteListsCmd.label;"
              valueItems="&deleteItemsCmd.label;"
+             valueDefault="&deleteButton2.label;"
              disabled="true"/>
     <command id="button_delete" oncommand="goDoCommand('button_delete');"/>
     <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')" disabled="true"/>
@@ -212,6 +215,10 @@
   <menuitem id="dirTreeContext-delete"
             label="&deleteButton2.label;"
             accesskey="&deleteButton2.accesskey;"
+            command="button_delete"/>
+  <menuitem id="dirTreeContext-remove"
+            label="&removeButton.label;"
+            accesskey="&removeButton.accesskey;"
             command="button_delete"/>
 </menupopup>
 

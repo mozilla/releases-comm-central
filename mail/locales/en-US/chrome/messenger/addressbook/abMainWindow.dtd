@@ -48,6 +48,7 @@
 <!ENTITY editMenu.accesskey                             "E">
 <!ENTITY deleteCmd.label                                "Delete">
 <!ENTITY deleteAbCmd.label                              "Delete Address Book">
+<!ENTITY removeAbCmd.label                              "Remove Address Book">
 <!ENTITY deleteContactCmd.label                         "Delete Contact">
 <!ENTITY deleteContactsCmd.label                        "Delete Contacts">
 <!ENTITY deleteListCmd.label                            "Delete List">
@@ -132,9 +133,11 @@ because displayed names don't have the comma in between. -->
 <!ENTITY newIM.label                                    "Instant Message">
 <!ENTITY newIM.accesskey                                "I">
 <!ENTITY printButton.label                              "Print…">
-<!ENTITY printButton.accesskey                          "r">
+<!ENTITY printButton.accesskey                          "P">
 <!ENTITY deleteButton2.label                            "Delete">
 <!ENTITY deleteButton2.accesskey                        "D">
+<!ENTITY removeButton.label                             "Remove">
+<!ENTITY removeButton.accesskey                         "R">
 
 <!-- Address Book Toolbar Tooltips -->
 <!ENTITY columnChooser.tooltip                          "Select columns to display">
@@ -147,6 +150,7 @@ because displayed names don't have the comma in between. -->
 <!ENTITY newmsgButton.tooltip                           "Send a mail message">
 <!ENTITY newIM.tooltip                                  "Send an instant message or chat">
 <!ENTITY deleteButton2.tooltip                          "Delete selected item">
+<!ENTITY removeButton.tooltip                           "Remove the selected address book">
 
 <!-- Search Bar -->
 <!ENTITY SearchNameOrEmail.label                        "Name or Email">

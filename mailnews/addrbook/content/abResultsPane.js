@@ -428,13 +428,14 @@ var ResultsPaneController = {
             default:
               labelAttr = numSelected < 2 ? "valueCard" : "valueCards";
           }
-        }
-        document.querySelectorAll(`[command=${command}]`).forEach(e => {
-          e.disabled = !enabled;
-          if (labelAttr && e.hasAttribute(labelAttr)) {
-            e.setAttribute("label", e.getAttribute(labelAttr));
+          goSetMenuValue(command, labelAttr);
+          let deleteButton = document.getElementById("button-abdelete");
+          if (deleteButton) {
+            deleteButton.label = document
+              .getElementById(command)
+              .getAttribute("label");
           }
-        });
+        }
         return enabled;
       }
       case "cmd_print":

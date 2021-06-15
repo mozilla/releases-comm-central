@@ -88,7 +88,7 @@ add_task(function test_sidebar_add_to_compose() {
  * Test that a contact can be deleted from the Contacts sidebar.
  * @see Bug 1619157
  */
-add_task(function test_sidebar_contact_delete() {
+add_task(async function test_sidebar_contact_delete() {
   gMockPromptService.register();
   gMockPromptService.returnValue = Ci.nsIPromptService.BUTTON_TITLE_OK;
 
@@ -118,7 +118,9 @@ add_task(function test_sidebar_contact_delete() {
   );
   click_tree_row(abTree, 0, cwc);
 
+  let promptPromise = gMockPromptService.promisePrompt();
   EventUtils.synthesizeKey("VK_DELETE", {}, cwc.window);
+  await promptPromise;
   Assert.notEqual(
     null,
     gMockPromptService.promptState,

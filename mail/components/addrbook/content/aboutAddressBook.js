@@ -392,7 +392,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   /**
    * Prompt the user and delete the selected address book.
    */
-  deleteSelected() {
+  async deleteSelected() {
     if (this.selectedIndex === 0) {
       throw new Components.Exception(
         "Cannot delete the All Address Books item",
@@ -408,35 +408,37 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       );
     }
 
-    // TODO: Upgrade this code which comes from the old address book.
-    // TODO: Handle removal of the book assigned to collect addresses.
-    let abBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/addressbook/addressBook.properties"
-    );
-
+    let action, name, uri;
     if (row.classList.contains("listRow")) {
-      let book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
-      let list = book.childNodes.find(l => l.UID == row.dataset.uid);
-      let title = abBundle.GetStringFromName(
-        "confirmDeleteThisMailingListTitle"
-      );
-      let message = abBundle.GetStringFromName("confirmDeleteThisMailingList");
-      message = message.replace("#1", list.dirName);
-
-      if (Services.prompt.confirm(window, title, message)) {
-        book.deleteDirectory(list);
-      }
+      action = "delete-lists";
+      name = row._list.dirName;
+      uri = row._list.URI;
     } else {
-      let book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
-      let title = abBundle.GetStringFromName(
-        "confirmDeleteThisAddressbookTitle"
-      );
-      let message = abBundle.GetStringFromName("confirmDeleteThisAddressbook");
-      message = message.replace("#1", book.dirName);
-
-      if (Services.prompt.confirm(window, title, message)) {
-        MailServices.ab.deleteAddressBook(book.URI);
+      if (
+        [
+          Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
+          Ci.nsIAbManager.LDAP_DIRECTORY_TYPE,
+        ].includes(row._book.dirType)
+      ) {
+        action = "remove-remote-book";
+      } else {
+        action = "delete-book";
       }
+
+      name = row._book.dirName;
+      uri = row._book.URI;
+    }
+
+    let [title, message] = await document.l10n.formatValues([
+      { id: `about-addressbook-confirm-${action}-title`, args: { count: 1 } },
+      {
+        id: `about-addressbook-confirm-${action}`,
+        args: { name, count: 1 },
+      },
+    ]);
+
+    if (Services.prompt.confirm(window, title, message)) {
+      MailServices.ab.deleteAddressBook(uri);
     }
   }
 
@@ -563,12 +565,16 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       return;
     }
 
-    document.getElementById(
-      "bookContextDelete"
-    ).disabled = row.classList.contains("noDelete");
-    document.getElementById(
-      "bookContextSynchronize"
-    ).hidden = !row.classList.contains("carddav");
+    let synchronizeItem = document.getElementById("bookContextSynchronize");
+    synchronizeItem.hidden = !row.classList.contains("carddav");
+
+    let deleteItem = document.getElementById("bookContextDelete");
+    deleteItem.disabled = row.classList.contains("noDelete");
+    deleteItem.hidden = row.classList.contains("carddav");
+
+    let removeItem = document.getElementById("bookContextRemove");
+    removeItem.disabled = row.classList.contains("noDelete");
+    removeItem.hidden = !row.classList.contains("carddav");
 
     let popup = document.getElementById("bookContext");
     popup.openPopupAtScreen(event.screenX, event.screenY, true);
@@ -996,7 +1002,7 @@ var cardsPane = {
   /**
    * Prompt the user and delete the selected card(s).
    */
-  deleteSelected() {
+  async deleteSelected() {
     // TODO: Upgrade this code which comes from the old address book.
     let selectedLists = [];
     let selectedContacts = [];
@@ -1016,83 +1022,35 @@ var cardsPane = {
 
     // Determine strings for smart and context-sensitive user prompts
     // for confirming deletion.
-    let title;
-    let message;
-    let itemName;
-    let containingListName;
-    let selectedDir = this.cardsList.directory;
+    let action, name, list;
+    let count = selectedLists.length + selectedContacts.length;
+    let selectedDir = this.cardsList.view.directory;
 
     if (selectedLists.length && selectedContacts.length) {
-      title = "confirmDelete2orMoreContactsAndListsTitle";
-      message = "confirmDelete2orMoreContactsAndLists";
-    } else if (selectedLists.length == 1) {
-      title = "confirmDeleteThisMailingListTitle";
-      message = "confirmDeleteThisMailingList";
-      // Set item name for single mailing list.
-      itemName = selectedLists[0].displayName;
+      action = "delete-mixed";
     } else if (selectedLists.length) {
-      title = "confirmDelete2orMoreMailingListsTitle";
-      message = "confirmDelete2orMoreMailingLists";
+      action = "delete-lists";
+      name = selectedLists[0].displayName;
     } else {
+      let nameFormatFromPref = Services.prefs.getIntPref(
+        "mail.addr_book.lastnamefirst"
+      );
+      name = selectedContacts[0].generateName(nameFormatFromPref);
       if (selectedDir && selectedDir.isMailList) {
-        // Contact(s) in mailing lists will be removed from the list, not deleted.
-        if (selectedContacts.length == 1) {
-          title = "confirmRemoveThisContactTitle";
-          message = "confirmRemoveThisContact";
-        } else {
-          title = "confirmRemove2orMoreContactsTitle";
-          message = "confirmRemove2orMoreContacts";
-        }
-        // For removing contacts from mailing list, set placeholder value
-        containingListName = selectedDir.dirName;
-      } else if (selectedContacts.length == 1) {
-        // Contact(s) in address books will be deleted.
-        title = "confirmDeleteThisContactTitle";
-        message = "confirmDeleteThisContact";
+        action = "remove-contacts";
+        list = selectedDir.dirName;
       } else {
-        title = "confirmDelete2orMoreContactsTitle";
-        message = "confirmDelete2orMoreContacts";
-      }
-      if (selectedContacts.length == 1) {
-        // Set item name for single contact.
-        let nameFormatFromPref = Services.prefs.getIntPref(
-          "mail.addr_book.lastnamefirst"
-        );
-        itemName = selectedContacts[0].generateName(nameFormatFromPref);
+        action = "delete-contacts";
       }
     }
 
-    let abBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/addressbook/addressBook.properties"
-    );
-
-    // Get the raw model strings.
-    // For numSelectedItems == 1, it's simple strings.
-    // For messages with numSelectedItems > 1, it's multi-pluralform string sets.
-    // message has placeholders for some forms.
-    title = abBundle.GetStringFromName(title);
-    message = abBundle.GetStringFromName(message);
-
-    // Get plural form where applicable; substitute placeholders as required.
-    if (itemName) {
-      // If single selected item, substitute itemName.
-      message = message.replace("#1", itemName);
-    } else {
-      // If multiple selected items, get the right plural string from the
-      // localized set, then substitute numSelectedItems.
-      message = PluralForm.get(
-        selectedLists.length + selectedContacts.length,
-        message
-      );
-      message = message.replace(
-        "#1",
-        selectedLists.length + selectedContacts.length
-      );
-    }
-    // If contact(s) in a mailing list, substitute containingListName.
-    if (containingListName) {
-      message = message.replace("#2", containingListName);
-    }
+    let [title, message] = await document.l10n.formatValues([
+      { id: `about-addressbook-confirm-${action}-title`, args: { count } },
+      {
+        id: `about-addressbook-confirm-${action}`,
+        args: { count, name, list },
+      },
+    ]);
 
     // Finally, show our smart confirmation message, and act upon it!
     if (!Services.prompt.confirm(window, title, message)) {

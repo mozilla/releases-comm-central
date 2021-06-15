@@ -38,9 +38,9 @@
         <xul:menupopup>
           <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-address-book"
                         oncommand="createBook();"/>
-          <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-carddav-address-book"
+          <xul:menuitem data-l10n-id="about-addressbook-toolbar-add-carddav-address-book"
                         oncommand="createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);"/>
-          <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-ldap-address-book"
+          <xul:menuitem data-l10n-id="about-addressbook-toolbar-add-ldap-address-book"
                         oncommand="createBook(Ci.nsIAbManager.LDAP_DIRECTORY_TYPE);"/>
         </xul:menupopup>
       </xul:toolbarbutton>
@@ -360,6 +360,9 @@
                 oncommand="booksList.printSelected();"/>
   <xul:menuitem id="bookContextDelete"
                 data-l10n-id="about-addressbook-books-context-delete"
+                oncommand="booksList.deleteSelected();"/>
+  <xul:menuitem id="bookContextRemove"
+                data-l10n-id="about-addressbook-books-context-remove"
                 oncommand="booksList.deleteSelected();"/>
 </xul:menupopup>
 <xul:menupopup id="sortContext" needsgutter="">
