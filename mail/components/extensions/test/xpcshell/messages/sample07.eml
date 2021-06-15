@@ -7,6 +7,9 @@ Mime-Version: 1.0
 Content-Type: multipart/alternative;
 	boundary="=====================_714967308==_.ALT"
 
+This message is in MIME format.  The first part should be readable text,
+while the remaining parts are likely unreadable without MIME-aware tools.
+
 --=====================_714967308==_.ALT
 Content-Transfer-Encoding: quoted-printable
 
