@@ -1512,7 +1512,6 @@ void nsImapProtocol::EstablishServerConnection() {
 #define ESC_CAPABILITY_GREETING_LEN ESC_LENGTH(ESC_CAPABILITY_GREETING)
 
   char* serverResponse = CreateNewLineFromSocket();  // read in the greeting
-
   // record the fact that we've received a greeting for this connection so we
   // don't ever try to do it again..
   if (serverResponse) SetFlag(IMAP_RECEIVED_GREETING);
@@ -1701,12 +1700,25 @@ bool nsImapProtocol::ProcessCurrentURL() {
       (GetServerStateParser().GetIMAPstate() ==
        nsImapServerResponseParser::kNonAuthenticated)) {
     /* if we got here, the server's greeting should not have been PREAUTH */
-    if (GetServerStateParser().GetCapabilityFlag() == kCapabilityUndefined)
+    // If greeting did not contain a capability response and if user has not
+    // configured STARTTLS, request capabilites. If STARTTLS configured,
+    // capabilities will be requested after TLS handshakes are complete.
+    if ((GetServerStateParser().GetCapabilityFlag() == kCapabilityUndefined) &&
+        (m_socketType != nsMsgSocketType::alwaysSTARTTLS)) {
       Capability();
+    }
 
-    if (!(GetServerStateParser().GetCapabilityFlag() &
-          (kIMAP4Capability | kIMAP4rev1Capability | kIMAP4other))) {
-      if (!DeathSignalReceived() && NS_SUCCEEDED(GetConnectionStatus()))
+    // If capability response has yet to occur and STARTTLS is not
+    // configured then drop the connection since this should not happen. Also
+    // drop the connection if capability response has occurred and
+    // the imap version is unacceptable. Show alert only for wrong version.
+    if (((GetServerStateParser().GetCapabilityFlag() == kCapabilityUndefined) &&
+         (m_socketType != nsMsgSocketType::alwaysSTARTTLS)) ||
+        (GetServerStateParser().GetCapabilityFlag() &&
+         !(GetServerStateParser().GetCapabilityFlag() &
+           (kIMAP4Capability | kIMAP4rev1Capability | kIMAP4other)))) {
+      if (!DeathSignalReceived() && NS_SUCCEEDED(GetConnectionStatus()) &&
+          GetServerStateParser().GetCapabilityFlag())
         AlertUserEventUsingName("imapServerNotImap4");
 
       SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
@@ -2501,9 +2513,19 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl* aImapUrl,
   return rv;
 }
 
-// Command tag handling stuff
+// Command tag handling stuff.
+// Zero tag number indicates never used so set it to an initial random number
+// between 1 and 100. Otherwise just increment the uint32_t value unless it
+// rolls to zero then set it to 1. Then convert the tag number to a string for
+// use in IMAP commands.
 void nsImapProtocol::IncrementCommandTagNumber() {
-  sprintf(m_currentServerCommandTag, "%u", ++m_currentServerCommandTagNumber);
+  if (m_currentServerCommandTagNumber == 0) {
+    srand((unsigned)m_lastCheckTime);
+    m_currentServerCommandTagNumber = 1 + (rand() % 100);
+  } else if (++m_currentServerCommandTagNumber == 0) {
+    m_currentServerCommandTagNumber = 1;
+  }
+  sprintf(m_currentServerCommandTag, "%u", m_currentServerCommandTagNumber);
 }
 
 const char* nsImapProtocol::GetServerCommandTag() {
@@ -5411,12 +5433,37 @@ void nsImapProtocol::HandleCurrentUrlError() {
 
 void nsImapProtocol::StartTLS() {
   IncrementCommandTagNumber();
-  nsCString command(GetServerCommandTag());
+  nsCString tag(GetServerCommandTag());
+  nsCString command(tag);
 
   command.AppendLiteral(" STARTTLS" CRLF);
-
   nsresult rv = SendData(command.get());
-  if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
+  bool ok = false;
+  if (NS_SUCCEEDED(rv)) {
+    nsCString expectOkResponse = tag + " OK "_ns;
+    char* serverResponse = nullptr;
+    do {
+      // This reads and discards lines not starting with "<tag> OK " or
+      // "<tag> BAD " and exits when when either are found. Otherwise, this
+      // exits on timeout when all lines in the buffer are read causing
+      // serverResponse to be set null. Usually just "<tag> OK " is present.
+      serverResponse = CreateNewLineFromSocket();
+      ok =
+          serverResponse && !strncasecmp(serverResponse, expectOkResponse.get(),
+                                         expectOkResponse.Length());
+      if (!ok && serverResponse) {
+        // Check for possible BAD response, e.g., server not STARTTLS capable.
+        nsCString expectBadResponse = tag + " BAD "_ns;
+        if (!strncasecmp(serverResponse, expectBadResponse.get(),
+                         expectBadResponse.Length())) {
+          break;
+        }
+      }
+    } while (serverResponse && !ok);
+  }
+  // ok == false implies a "<tag> BAD " response or time out on socket read.
+  // It could also be due to failure on SendData() above.
+  GetServerStateParser().SetCommandFailed(!ok);
 }
 
 void nsImapProtocol::Capability() {
