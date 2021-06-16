@@ -960,7 +960,6 @@ MatrixAccount.prototype = {
   },
   connect() {
     this.reportConnecting();
-    let dbName = "chat:matrix:" + this.imAccount.id;
     this._baseURL = this.getString("server") + ":" + this.getInt("port");
 
     let deviceId = this.prefs.getStringPref("deviceId", "") || undefined;
@@ -982,19 +981,7 @@ MatrixAccount.prototype = {
       accessToken = undefined;
     }
 
-    const opts = {
-      useAuthorizationHeader: true,
-      baseUrl: this._baseURL,
-      store: new MatrixSDK.IndexedDBStore({
-        indexedDB,
-        dbName,
-      }),
-      deviceId,
-      accessToken,
-      userId: this.prefs.getStringPref("userId", "") || undefined,
-      timelineSupport: true,
-    };
-
+    const opts = this.getClientOptions();
     opts.store.startup().then(() => {
       this._client = MatrixSDK.createClient(opts);
       if (this._client.isLoggedIn()) {
@@ -1043,6 +1030,45 @@ MatrixAccount.prototype = {
   },
 
   /**
+   * Builds the options for the |createClient| call to the SDK including all
+   * stores.
+   * @returns {Object}
+   */
+  getClientOptions() {
+    let dbName = "chat:matrix:" + this.imAccount.id;
+
+    // Create a storage principal unique to this account.
+    const accountPrincipal = Services.scriptSecurityManager.createContentPrincipal(
+      Services.io.newURI("https://" + this.imAccount.id + ".matrix.localhost"),
+      {}
+    );
+    const localStorage = Services.domStorageManager.createStorage(
+      Services.appShell.hiddenDOMWindow,
+      accountPrincipal,
+      accountPrincipal,
+      ""
+    );
+
+    return {
+      useAuthorizationHeader: true,
+      baseUrl: this._baseURL,
+      store: new MatrixSDK.IndexedDBStore({
+        indexedDB,
+        dbName,
+      }),
+      sessionStore: new MatrixSDK.WebStorageSessionStore(localStorage),
+      cryptoStore: new MatrixSDK.IndexedDBCryptoStore(
+        indexedDB,
+        dbName + ":crypto"
+      ),
+      deviceId: this.prefs.getStringPref("deviceId", "") || undefined,
+      accessToken: this.prefs.getStringPref("accessToken", "") || undefined,
+      userId: this.prefs.getStringPref("userId", "") || undefined,
+      timelineSupport: true,
+    };
+  },
+
+  /**
    * Log the client in. Sets the session device display name if configured and
    * stores the session information on successful login.
    *
@@ -1062,6 +1088,11 @@ MatrixAccount.prototype = {
         throw new Error(data.error);
       }
       this.storeSessionInformation(data);
+      // Need to create a new client with the device ID set.
+      this._client = MatrixSDK.createClient(this.getClientOptions());
+      if (!this._client.isLoggedIn()) {
+        throw new Error("Client has no access token after login");
+      }
       this.startClient();
     } catch (error) {
       let errorType = Ci.prplIAccount.ERROR_OTHER_ERROR;
@@ -1343,7 +1374,10 @@ MatrixAccount.prototype = {
     //  Room.localEchoUpdated
     //  Room.tags
 
-    this._client.startClient();
+    this._client
+      .initCrypto()
+      .then(() => this._client.startClient())
+      .catch(error => this.ERROR(error));
   },
 
   /**

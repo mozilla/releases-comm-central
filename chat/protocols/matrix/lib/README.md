@@ -3,6 +3,7 @@ at https://github.com/matrix-org/matrix-js-sdk/. Current version is v11.1.0.
 
 The following npm dependencies are included:
 
+* @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages/10 v3.2.3
 * another-json: https://www.npmjs.com/package/another-json/ v0.2.0
 * base-x: https://www.npmjs.com/package/base-x v3.0.8
 * bs58: https://www.npmjs.com/package/bs58 v4.0.1
@@ -112,3 +113,8 @@ Both of these files should be copied to the unhomoglyph directory.
 
 These packages have an alternate implementation in the `../shims` directory and
 thus are not included here.
+
+### Updating olm
+
+The package is published on the Matrix gitlab. To update the library, download
+the latest `.tgz` bundle and replace the files in the `@matrix-org/olm` folder.

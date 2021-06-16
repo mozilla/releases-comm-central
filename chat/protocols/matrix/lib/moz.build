@@ -147,3 +147,8 @@ EXTRA_JS_MODULES.matrix.unhomoglyph += [
     'unhomoglyph/data.json',
     'unhomoglyph/index.js',
 ]
+
+EXTRA_JS_MODULES.matrix.olm += [
+    '@matrix-org/olm/olm.js',
+    '@matrix-org/olm/olm.wasm',
+]

@@ -12,10 +12,13 @@ const {
 const { scriptError } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/base-loader.js"
 );
+
+Cu.importGlobalProperties(["crypto"]);
 
 const EXPORTED_SYMBOLS = [
   "MatrixSDK",
@@ -34,6 +37,27 @@ const EXPORTED_SYMBOLS = [
 // * They're then ordered by source, with the bare name first, then prefixed by
 //   ., then prefixed by .., etc.
 let matrixPath = "resource:///modules/matrix/";
+
+// Load olm library in a browser-like environment. This allows it to load its
+// wasm module, do crypto operations and log errors.
+let olmScope = {
+  get window() {
+    return olmScope;
+  },
+  crypto,
+  XMLHttpRequest,
+  console,
+  location: {
+    href: matrixPath + "olm",
+  },
+  document: {
+    currentScript: {
+      src: matrixPath + "olm/olm.js",
+    },
+  },
+};
+Services.scriptloader.loadSubScript(matrixPath + "olm/olm.js", olmScope);
+
 let loader = Loader({
   paths: {
     // Matrix SDK files.
@@ -155,6 +179,7 @@ let loader = Loader({
       clearInterval,
       setTimeout,
       clearTimeout,
+      Olm: olmScope.Olm,
     },
     console,
     XMLHttpRequest,
