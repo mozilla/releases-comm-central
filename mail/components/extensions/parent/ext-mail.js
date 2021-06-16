@@ -651,7 +651,7 @@ class TabTracker extends TabTrackerBase {
       ].includes(window.document.documentElement.getAttribute("windowtype"))
     ) {
       this.emit("tab-removed", {
-        window,
+        nativeTabInfo: window,
         tabId: this.getId(window),
         windowId: windowTracker.getId(getTabWindow(window)),
         isWindowClosing: true,
