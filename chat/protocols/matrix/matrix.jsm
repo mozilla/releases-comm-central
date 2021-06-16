@@ -44,6 +44,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 // This matches the configuration of the .userIcon class in chat.css, which
 // expects square icons.
 const USER_ICON_SIZE = 48;
+const SERVER_NOTICE_TAG = "m.server_notice";
 
 /**
  * @param {string} who - Message sender ID.
@@ -509,6 +510,13 @@ MatrixRoom.prototype = {
     if (eventType === EventType.RoomMessage) {
       const isOutgoing = event.getSender() == this._account.userId;
       const eventContent = event.getContent();
+      // Only print server notices when we're in a server notice room.
+      if (
+        eventContent.msgtype === "m.server_notice" &&
+        !this?.room.tags[SERVER_NOTICE_TAG]
+      ) {
+        return;
+      }
       //TODO We should prefer the formatted body (when it's html)
       let message = eventContent.body;
       if (eventContent.msgtype === MsgType.Emote) {
@@ -518,7 +526,9 @@ MatrixRoom.prototype = {
       this.writeMessage(event.getSender(), message, {
         outgoing: isOutgoing,
         incoming: !isOutgoing,
-        system: eventContent.msgtype === MsgType.Notice,
+        system: [MsgType.Notice, "m.server_notice"].includes(
+          eventContent.msgtype
+        ),
         time: Math.floor(event.getDate() / 1000),
         _alias: event.sender.name,
         delayed,
@@ -1309,6 +1319,7 @@ MatrixAccount.prototype = {
         if (me.events.member.getContent().is_direct) {
           this.invitedToDM(room);
         } else {
+          //TODO rejecting a server notice room invite will error
           this.getGroupConversation(room.roomId, room.summary.info.title);
         }
       } else if (me && me.membership == "join") {
@@ -1597,8 +1608,8 @@ MatrixAccount.prototype = {
               "Creating room " + roomId + ", since we could not join: " + error
             );
             if (this._pendingRoomAliases.has(roomId)) {
-              conv.forget();
               conv.replaceRoom(this._pendingRoomAliases.get(roomId));
+              conv.forget();
               return null;
             }
             // extract alias from #<alias>:<domain>

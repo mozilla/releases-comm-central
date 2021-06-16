@@ -2,6 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { MatrixProtocol } = ChromeUtils.import("resource:///modules/matrix.jsm");
 var matrix = {};
 function loadMatrix() {
   Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
@@ -46,6 +47,7 @@ function getClientRoom(roomId, clientHandler, client) {
           title: roomId,
         },
       },
+      tags: {},
       getJoinedMembers() {
         return [];
       },
@@ -69,6 +71,32 @@ function getClientRoom(roomId, clientHandler, client) {
       getLastActiveTimestamp() {
         return Date.now();
       },
+      getMyMembership() {
+        return "join";
+      },
+      getAccountData(key) {
+        return null;
+      },
+      getUnfilteredTimelineSet() {
+        return {
+          getLiveTimeline() {
+            return {
+              getEvents() {
+                return [];
+              },
+              getBaseIndex() {
+                return 0;
+              },
+              getNeighbouringTimeline() {
+                return null;
+              },
+              getPaginationToken() {
+                return "";
+              },
+            };
+          },
+        };
+      },
     },
     makeProxyHandler(clientHandler)
   );
@@ -83,13 +111,14 @@ function getClientRoom(roomId, clientHandler, client) {
  */
 function getAccount(clientHandler) {
   const account = new matrix.MatrixAccount(
+    Object.create(MatrixProtocol.prototype),
     {
-      id: "prpl-matrix",
-    },
-    {
-      logDebugMessage() {},
+      logDebugMessage(message) {
+        account._errors.push(message.message);
+      },
     }
   );
+  account._errors = [];
   account._client = new Proxy(
     {
       _rooms: new Map(),
@@ -109,6 +138,19 @@ function getAccount(clientHandler) {
         return this._rooms.get(roomId);
       },
       setAccountData(field, data) {},
+      async createRoom(spec) {
+        const roomId =
+          "!" + spec.name + ":example.com" || "!newroom:example.com";
+        if (!this._rooms.has(roomId)) {
+          getClientRoom(roomId, clientHandler, this);
+        }
+        return {
+          room_id: roomId,
+        };
+      },
+      getRooms() {
+        return Array.from(this._rooms.values());
+      },
     },
     makeProxyHandler(clientHandler)
   );

@@ -93,126 +93,89 @@ add_task(async function test_getGroupConversation() {
   });
 
   let allowedGetRoomIds = new Set(["baz"]);
-  const mockAccount = {
-    getConversationByIdOrAlias(idOrAlias) {
-      if (idOrAlias === "foo") {
-        return "bar";
+  const mockAccount = getAccount({
+    getRoom(roomId) {
+      if (this._rooms.has(roomId)) {
+        return this._rooms.get(roomId);
+      }
+      if (allowedGetRoomIds.has(roomId)) {
+        return getClientRoom("baz", {}, mockAccount._client);
       }
       return null;
     },
-    createRoom(map, id, conv) {
-      this.createdConv = conv;
-      this.createdId = id;
+    async joinRoom(roomId) {
+      if (roomId === "lorem") {
+        allowedGetRoomIds.add(roomId);
+        return getClientRoom(roomId, {}, mockAccount._client);
+      } else if (roomId.endsWith(":example.com")) {
+        const error = new Error("not found");
+        error.errcode = "M_NOT_FOUND";
+        throw error;
+      }
+      throw new Error("Could not join");
     },
-    ERROR(message) {
-      this.lastError = message.toString();
+    getDomain() {
+      return "example.com";
     },
-    LOG() {},
-    _client: {
-      getRoom(roomId) {
-        if (allowedGetRoomIds.has(roomId)) {
-          return mockMatrixRoom("baz");
-        }
-        return null;
-      },
-      async joinRoom(roomId) {
-        if (roomId === "lorem") {
-          return mockMatrixRoom("lorem");
-        } else if (roomId.endsWith(":example.com")) {
-          const error = new Error("not found");
-          error.errcode = "M_NOT_FOUND";
-          throw error;
-        }
-        throw new Error("Could not join");
-      },
-      getDomain() {
-        return "example.com";
-      },
-      getHomeserverUrl() {
-        return "https://example.com";
-      },
-      leave() {
-        mockAccount.left = true;
-      },
+    getHomeserverUrl() {
+      return "https://example.com";
     },
-    roomList: new Map(),
-    _pendingRoomAliases: new Map(),
-    userId: "@test:example.com",
-  };
+    leave() {
+      mockAccount.left = true;
+    },
+  });
+  mockAccount.roomList.set("foo", getRoom(true, "bar", {}, mockAccount));
 
-  equal(
-    matrix.MatrixAccount.prototype.getGroupConversation.call(mockAccount, ""),
-    null
-  );
+  equal(mockAccount.getGroupConversation(""), null);
+  equal(mockAccount.getGroupConversation("foo").name, "bar");
 
-  equal(
-    matrix.MatrixAccount.prototype.getGroupConversation.call(
-      mockAccount,
-      "foo"
-    ),
-    "bar"
-  );
-
-  const existingRoom = matrix.MatrixAccount.prototype.getGroupConversation.call(
-    mockAccount,
-    "baz"
-  );
+  const existingRoom = mockAccount.getGroupConversation("baz");
   strictEqual(existingRoom, mockAccount.roomList.get("baz"));
   ok(!existingRoom.joining);
   existingRoom.close();
 
-  const joinedRoom = matrix.MatrixAccount.prototype.getGroupConversation.call(
-    mockAccount,
-    "lorem"
-  );
+  const joinedRoom = mockAccount.getGroupConversation("lorem");
   ok(joinedRoom.joining);
   allowedGetRoomIds.add("lorem");
   await TestUtils.waitForTick();
-  equal(mockAccount.lastError, undefined);
   strictEqual(joinedRoom, mockAccount.roomList.get("lorem"));
   ok(!joinedRoom.joining);
   joinedRoom.close();
 
-  const createdRoom = matrix.MatrixAccount.prototype.getGroupConversation.call(
-    mockAccount,
-    "#ipsum:example.com"
-  );
+  const createdRoom = mockAccount.getGroupConversation("#ipsum:example.com");
   ok(createdRoom.joining);
+  await createdRoom.waitForRoom();
+  ok(!createdRoom.joining);
+  strictEqual(createdRoom, mockAccount.roomList.get("!ipsum:example.com"));
+  // Wait for catchup to complete.
   await TestUtils.waitForTick();
-  equal(mockAccount.lastError, undefined);
-  strictEqual(createdRoom, mockAccount.createdConv);
-  equal(mockAccount.createdId, "#ipsum:example.com");
   createdRoom.close();
 
-  const roomAlreadyBeingCreated = matrix.MatrixAccount.prototype.getGroupConversation.call(
-    mockAccount,
+  const roomAlreadyBeingCreated = mockAccount.getGroupConversation(
     "#lorem:example.com"
   );
   ok(roomAlreadyBeingCreated.joining);
-  mockAccount._pendingRoomAliases.set("#lorem:example.com", "hi");
-  await TestUtils.waitForTick();
+  mockAccount._pendingRoomAliases.set(
+    "#lorem:example.com",
+    getRoom(true, "hi", {}, mockAccount)
+  );
+  await roomAlreadyBeingCreated.waitForRoom();
   ok(!roomAlreadyBeingCreated.joining);
-  ok(roomAlreadyBeingCreated._replacedBy, "hi");
+  ok(roomAlreadyBeingCreated._replacedBy);
 
-  const missingLocalRoom = matrix.MatrixAccount.prototype.getGroupConversation.call(
-    mockAccount,
+  const missingLocalRoom = mockAccount.getGroupConversation(
     "!ipsum:example.com"
   );
-  ok(missingLocalRoom.joining);
   await TestUtils.waitForTick();
   ok(!missingLocalRoom.joining);
-  equal(mockAccount.lastError, "Error: not found");
   ok(mockAccount.left);
 
   mockAccount.left = false;
-  const unjoinableRemoteRoom = matrix.MatrixAccount.prototype.getGroupConversation.call(
-    mockAccount,
+  const unjoinableRemoteRoom = mockAccount.getGroupConversation(
     "#test:matrix.org"
   );
-  ok(unjoinableRemoteRoom.joining);
   await TestUtils.waitForTick();
   ok(!unjoinableRemoteRoom.joining);
-  equal(mockAccount.lastError, "Error: Could not join");
   ok(mockAccount.left);
 });
 
@@ -323,32 +286,3 @@ add_task(async function test_invitedToDMIn_deny() {
   request.deny();
   ok(leftRoom);
 });
-
-function mockMatrixRoom(roomId) {
-  return {
-    getMyMembership() {
-      return "join";
-    },
-    getJoinedMembers() {
-      return [];
-    },
-    getLiveTimeline() {
-      return {
-        getState() {
-          return {
-            getStateEvents() {
-              return [];
-            },
-          };
-        },
-      };
-    },
-    getAvatarUrl() {
-      return "";
-    },
-    isSpaceRoom() {
-      return false;
-    },
-    roomId,
-  };
-}
