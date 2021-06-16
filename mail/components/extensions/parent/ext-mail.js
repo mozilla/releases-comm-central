@@ -1784,50 +1784,17 @@ var messageListTracker = {
    * Takes an array or enumerator of messages and returns the first chunk.
    * @returns {Object}
    */
-  startList(messageList, extension) {
-    if (Array.isArray(messageList)) {
-      messageList = this._createEnumerator(messageList);
+  startList(messages, extension) {
+    let messageList = this.createList(extension);
+    if (Array.isArray(messages)) {
+      messages = this._createEnumerator(messages);
     }
-    let firstPage = this._getNextPage(messageList);
-    let messageListId = null;
-    if (messageList.hasMoreElements()) {
-      messageListId = uuidGenerator.generateUUID().number.substring(1, 37);
-      let lists = this._contextLists.get(extension);
-      if (!lists) {
-        lists = new Map();
-        this._contextLists.set(extension, lists);
-      }
-      lists.set(messageListId, messageList);
+    while (messages.hasMoreElements()) {
+      let next = messages.getNext();
+      messageList.add(next.QueryInterface(Ci.nsIMsgDBHdr));
     }
-
-    return {
-      id: messageListId,
-      messages: firstPage.map(message => convertMessage(message, extension)),
-    };
-  },
-
-  /**
-   * Returns any subsequent chunk of messages.
-   * @returns {Object}
-   */
-  continueList(messageListId, extension) {
-    let lists = this._contextLists.get(extension);
-    let messageList = lists ? lists.get(messageListId, null) : null;
-    if (!messageList) {
-      throw new ExtensionError(
-        `No message list for id ${messageListId}. Have you reached the end of a list?`
-      );
-    }
-
-    let nextPage = this._getNextPage(messageList);
-    if (!messageList.hasMoreElements()) {
-      lists.delete(messageListId);
-      messageListId = null;
-    }
-    return {
-      id: messageListId,
-      messages: nextPage.map(message => convertMessage(message, extension)),
-    };
+    messageList.done();
+    return this.getNextPage(messageList);
   },
 
   _createEnumerator(array) {
@@ -1842,17 +1809,126 @@ var messageListTracker = {
     };
   },
 
-  _getNextPage(messageList) {
-    let page = [];
-    let i = 0;
-    while (i < gMessagesPerPage && messageList.hasMoreElements()) {
-      let next = messageList.getNext();
-      if (next) {
-        page.push(next.QueryInterface(Ci.nsIMsgDBHdr));
-        i++;
+  /**
+   * Creates and returns a new messageList object.
+   * @returns {Object}
+   */
+  createList(extension) {
+    let messageListId = uuidGenerator.generateUUID().number.substring(1, 37);
+    let messageList = this._createListObject(messageListId, extension);
+    let lists = this._contextLists.get(extension);
+    if (!lists) {
+      lists = new Map();
+      this._contextLists.set(extension, lists);
+    }
+    lists.set(messageListId, messageList);
+    return messageList;
+  },
+
+  /**
+   * Returns the messageList object for a given id.
+   * @returns {Object}
+   */
+  getList(messageListId, extension) {
+    let lists = this._contextLists.get(extension);
+    let messageList = lists ? lists.get(messageListId, null) : null;
+    if (!messageList) {
+      throw new ExtensionError(
+        `No message list for id ${messageListId}. Have you reached the end of a list?`
+      );
+    }
+    return messageList;
+  },
+
+  /**
+   * Returns the first/next message page of the given messageList.
+   * @returns {Object}
+   */
+  async getNextPage(messageList) {
+    let messageListId = messageList.id;
+    let messages = await messageList.getNextPage();
+    if (!messageList.hasMorePages()) {
+      let lists = this._contextLists.get(messageList.extension);
+      if (lists && lists.has(messageListId)) {
+        lists.delete(messageListId);
+      }
+      messageListId = null;
+    }
+    return {
+      id: messageListId,
+      messages,
+    };
+  },
+
+  _createListObject(messageListId, extension) {
+    function getCurrentPage() {
+      return pages.length > 0 ? pages[pages.length - 1] : null;
+    }
+
+    function addPage() {
+      let contents = getCurrentPage();
+      let resolvePage = currentPageResolveCallback;
+
+      pages.push([]);
+      pagePromises.push(
+        new Promise(resolve => {
+          currentPageResolveCallback = resolve;
+        })
+      );
+
+      if (contents && resolvePage) {
+        resolvePage(contents);
       }
     }
-    return page;
+
+    let _messageListId = messageListId;
+    let _extension = extension;
+    let isDone = false;
+    let pages = [];
+    let pagePromises = [];
+    let currentPageResolveCallback = null;
+    let readIndex = 0;
+
+    // Add first page.
+    addPage();
+
+    return {
+      get id() {
+        return _messageListId;
+      },
+      get extension() {
+        return _extension;
+      },
+      add(message) {
+        if (isDone) {
+          return;
+        }
+        if (getCurrentPage().length >= gMessagesPerPage) {
+          addPage();
+        }
+        getCurrentPage().push(convertMessage(message, _extension));
+      },
+      done() {
+        if (isDone) {
+          return;
+        }
+        isDone = true;
+        currentPageResolveCallback(getCurrentPage());
+      },
+      hasMorePages() {
+        return readIndex < pages.length;
+      },
+      async getNextPage() {
+        if (readIndex >= pages.length) {
+          return null;
+        }
+        const pageContent = await pagePromises[readIndex];
+        // Increment readIndex only after pagePromise has resolved, so multiple
+        // calls to getNextPage get the same page.
+        readIndex++;
+        return pageContent;
+      },
+    };
   },
 };
 

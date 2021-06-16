@@ -216,11 +216,12 @@ this.messages = class extends ExtensionAPI {
           context,
           name: "messageDisplay.onNewMailReceived",
           register: fire => {
-            let listener = (event, folder, newMessages) => {
-              fire.async(
-                convertFolder(folder),
-                messageListTracker.startList(newMessages, context.extension)
+            let listener = async (event, folder, newMessages) => {
+              let page = await messageListTracker.startList(
+                newMessages,
+                context.extension
               );
+              fire.async(convertFolder(folder), page);
             };
 
             newMailEventTracker.on("new-mail-received", listener);
@@ -243,10 +244,11 @@ this.messages = class extends ExtensionAPI {
           );
         },
         async continueList(messageListId) {
-          return messageListTracker.continueList(
+          let messageList = messageListTracker.getList(
             messageListId,
             context.extension
           );
+          return messageListTracker.getNextPage(messageList);
         },
         async get(messageId) {
           return convertMessage(
@@ -669,8 +671,8 @@ this.messages = class extends ExtensionAPI {
 
           const searchMessages = async (
             folder,
-            foundMessages,
-            recursiveSearch = false
+            messageList,
+            includeSubFolders = false
           ) => {
             let messages = null;
             try {
@@ -683,16 +685,27 @@ this.messages = class extends ExtensionAPI {
               while (messages.hasMoreElements()) {
                 let msg = messages.getNext();
                 if (await checkSearchCriteria(folder, msg)) {
-                  foundMessages.push(msg);
+                  messageList.add(msg);
                 }
               }
             }
 
-            if (recursiveSearch) {
+            if (includeSubFolders) {
               for (let subFolder of folder.subFolders) {
-                await searchMessages(subFolder, foundMessages, true);
+                await searchMessages(subFolder, messageList, true);
               }
             }
+          };
+
+          const searchFolders = async (
+            folders,
+            messageList,
+            includeSubFolders = false
+          ) => {
+            for (let folder of folders) {
+              await searchMessages(folder, messageList, includeSubFolders);
+            }
+            return messageList.done();
           };
 
           // Prepare case insensitive me filtering.
@@ -716,7 +729,8 @@ this.messages = class extends ExtensionAPI {
               tag =>
                 tag.key in queryInfo.tags.tags && !queryInfo.tags.tags[tag.key]
             );
-            // If non-existing tags have been required, return immediately.
+            // If non-existing tags have been required, return immediately with
+            // an empty message list.
             if (
               requiredTags.length === 0 &&
               Object.values(queryInfo.tags.tags).filter(v => v).length > 0
@@ -728,8 +742,10 @@ this.messages = class extends ExtensionAPI {
           }
 
           // Limit search to a given folder, or search all folders.
-          let foundMessages = [];
+          let folders = [];
+          let includeSubFolders = false;
           if (queryInfo.folder) {
+            includeSubFolders = !!queryInfo.includeSubFolders;
             if (!context.extension.hasPermission("accountsRead")) {
               throw new ExtensionError(
                 'Querying by folder requires the "accountsRead" permission'
@@ -743,22 +759,22 @@ this.messages = class extends ExtensionAPI {
                 `Folder not found: ${queryInfo.folder.path}`
               );
             }
-            await searchMessages(
-              folder,
-              foundMessages,
-              !!queryInfo.includeSubFolders
-            );
+            folders.push(folder);
           } else {
+            includeSubFolders = true;
             for (let account of MailServices.accounts.accounts) {
-              await searchMessages(
-                account.incomingServer.rootFolder,
-                foundMessages,
-                true
-              );
+              folders.push(account.incomingServer.rootFolder);
             }
           }
 
-          return messageListTracker.startList(foundMessages, context.extension);
+          // The searchFolders() function searches the provided folders for
+          // messages matching the query and adds results to the messageList. It
+          // is an asynchronous function, but it is not awaited here. Instead,
+          // messageListTracker.getNextPage() returns a Promise, which will
+          // fulfill after enough messages for a full page have been added.
+          let messageList = messageListTracker.createList(context.extension);
+          searchFolders(folders, messageList, includeSubFolders);
+          return messageListTracker.getNextPage(messageList);
         },
         async update(messageId, newProperties) {
           let msgHdr = messageTracker.getMessage(messageId);
