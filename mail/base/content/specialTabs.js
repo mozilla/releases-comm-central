@@ -151,7 +151,7 @@ tabProgressListener.prototype = {
     ) {
       if (!this.mBlank) {
         this.mTab.title = specialTabs.contentTabType.loadingTabString;
-        this.mTab.security.setAttribute("loading", "true");
+        this.mTab.securityIcon.setLoading(true);
         tabmail.setTabBusy(this.mTab, true);
         tabmail.setTabTitle(this.mTab);
       }
@@ -164,7 +164,7 @@ tabProgressListener.prototype = {
       aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK
     ) {
       this.mBlank = false;
-      this.mTab.security.removeAttribute("loading");
+      this.mTab.securityIcon.setLoading(false);
       tabmail.setTabBusy(this.mTab, false);
       this.mTab.title = this.mTab.browser.contentTitle;
       tabmail.setTabTitle(this.mTab);
@@ -207,13 +207,7 @@ tabProgressListener.prototype = {
         level = "broken";
         break;
     }
-    if (level) {
-      this.mTab.security.setAttribute("level", level);
-      this.mTab.security.hidden = false;
-    } else {
-      this.mTab.security.hidden = true;
-      this.mTab.security.removeAttribute("level");
-    }
+    this.mTab.securityIcon.setSecurityLevel(level);
   },
   onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
     if (this.mProgressListener) {
@@ -605,6 +599,83 @@ var contentTabBaseType = {
   },
 };
 
+/**
+ * Class that wraps the content page loading/security icon.
+ */
+// Ideally, this could be moved into a sub-class for content tabs.
+class SecurityIcon {
+  constructor(icon) {
+    this.icon = icon;
+    this.loading = false;
+    this.securityLevel = "";
+    this.updateIcon();
+  }
+
+  /**
+   * Set whether the page is loading.
+   *
+   * @param {boolean} loading - Whether the page is loading.
+   */
+  setLoading(loading) {
+    if (this.loading !== loading) {
+      this.loading = loading;
+      this.updateIcon();
+    }
+  }
+
+  /**
+   * Set the security level of the page.
+   *
+   * @param {"high"|"broken"|""} - The security level for the page, or empty if
+   *   it is to be ignored.
+   */
+  setSecurityLevel(securityLevel) {
+    if (this.securityLevel !== securityLevel) {
+      this.securityLevel = securityLevel;
+      this.updateIcon();
+    }
+  }
+
+  updateIcon() {
+    let src;
+    let srcSet;
+    let l10nId;
+    let secure = false;
+    if (this.loading) {
+      src = "chrome://global/skin/icons/loading.png";
+      srcSet = "chrome://global/skin/icons/loading@2x.png 2x";
+      l10nId = "content-tab-page-loading-icon";
+    } else {
+      switch (this.securityLevel) {
+        case "high":
+          secure = true;
+          src = "chrome://messenger/skin/icons/connection-secure.svg";
+          l10nId = "content-tab-security-high-icon";
+          break;
+        case "broken":
+          src = "chrome://messenger/skin/icons/connection-insecure.svg";
+          l10nId = "content-tab-security-broken-icon";
+          break;
+      }
+    }
+    if (srcSet) {
+      this.icon.setAttribute("srcset", srcSet);
+    } else {
+      this.icon.removeAttribute("srcset");
+    }
+    if (src) {
+      this.icon.setAttribute("src", src);
+      // Set alt.
+      document.l10n.setAttributes(this.icon, l10nId);
+    } else {
+      this.icon.removeAttribute("src");
+      this.icon.removeAttribute("data-l10n-id");
+      this.icon.removeAttribute("alt");
+    }
+    this.icon.classList.toggle("secure-connection-icon", secure);
+  }
+}
+
 var specialTabs = {
   _kAboutRightsVersion: 1,
   get _protocolSvc() {
@@ -858,7 +929,9 @@ var specialTabs = {
       aTab.forwardButton.addEventListener("command", () =>
         aTab.browser.goForward()
       );
-      aTab.security = aTab.toolbar.querySelector(".contentTabSecurity");
+      aTab.securityIcon = new SecurityIcon(
+        aTab.toolbar.querySelector(".contentTabSecurity")
+      );
       aTab.urlbar = aTab.toolbar.querySelector(".contentTabUrlbar > input");
       aTab.urlbar.value = aArgs.url;
 

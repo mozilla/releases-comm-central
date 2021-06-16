@@ -400,23 +400,16 @@
   width: 16px;
   margin: 2px;
   margin-inline-end: 5px;
-  background-repeat: no-repeat;
-}
-
-.contentTabSecurity[level="high"] {
-  background-image: url("chrome://messenger/skin/icons/connection-secure.svg");
-  -moz-context-properties: fill;
-  fill: #12bc00;
-}
-
-.contentTabSecurity[level="broken"] {
-  background-image: url("chrome://messenger/skin/icons/connection-insecure.svg");
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-.contentTabSecurity[loading="true"] {
-  background-image: url("chrome://global/skin/icons/loading.png");
+.contentTabSecurity.secure-connection-icon {
+  fill: #12bc00;
+}
+
+.contentTabSecurity:not([src]) {
+  display: none;
 }
 
 @media (min-resolution: 1.1dppx) {
