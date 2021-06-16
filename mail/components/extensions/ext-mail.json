@@ -99,6 +99,14 @@
       ["geckoProfiler"]
     ]
   },
+  "identities": {
+    "url": "chrome://messenger/content/parent/ext-identities.js",
+    "schema": "chrome://messenger/content/schemas/identities.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["identities"]
+    ]
+  },
   "identity": {
     "url": "chrome://extensions/content/parent/ext-identity.js",
     "schema": "chrome://extensions/content/schemas/identity.json",

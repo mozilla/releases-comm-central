@@ -1,0 +1,287 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "accountsIdentities"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "identities",
+    "permissions": [
+      "accountsRead"
+    ],
+    "types": [
+      {
+        "id": "MailIdentity",
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "optional": true,
+            "description": "The id of the :ref:`accounts.MailAccount` this identity belongs to. The ``accountId`` property is read-only."
+          },
+          "composeHtml": {
+            "type": "boolean",
+            "optional": true,
+            "description": "If the identity uses HTML as the default compose format."
+          },
+          "email": {
+            "type": "string",
+            "optional": true,
+            "description": "The user's email address as used when messages are sent from this identity."
+          },
+          "id": {
+            "type": "string",
+            "optional": true,
+            "description": "A unique identifier for this identity. The ``id`` property is read-only."
+          },
+          "label": {
+            "type": "string",
+            "optional": true,
+            "description": "A user-defined label for this identity."
+          },
+          "name": {
+            "type": "string",
+            "optional": true,
+            "description": "The user's name as used when messages are sent from this identity."
+          },
+          "replyTo": {
+            "type": "string",
+            "optional": true,
+            "description": "The reply-to email address associated with this identity."
+          },
+          "organization": {
+            "type": "string",
+            "optional": true,
+            "description": "The organization associated with this identity."
+          },
+          "signature": {
+            "type": "string",
+            "optional": true,
+            "description": "The signature of the identity."
+          },
+          "signatureIsPlainText": {
+            "type": "boolean",
+            "optional": true,
+            "description": "If the signature should be interpreted as plain text or as HTML."
+          }
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "list",
+        "type": "function",
+        "description": "Returns the identities of the specified account, or all identities if no account is specified. Do not expect the returned identities to be in any specific order. Use :ref:`identities.getDefault` to get the default identity of an account.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "accountId",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "identities.MailIdentity"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get",
+        "type": "function",
+        "description": "Returns details of the requested identity, or null if it doesn't exist.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "identityId",
+            "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "identities.MailIdentity",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "create",
+        "permissions": [
+          "accountsIdentities"
+        ],
+        "type": "function",
+        "description": "Create a new identity in the specified account.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "accountId",
+            "type": "string"
+          },
+          {
+            "name": "details",
+            "$ref": "identities.MailIdentity"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "identities.MailIdentity"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "delete",
+        "permissions": [
+          "accountsIdentities"
+        ],
+        "type": "function",
+        "description": "Attempts to delete the requested identity. Default identities cannot be deleted.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "identityId",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "update",
+        "permissions": [
+          "accountsIdentities"
+        ],
+        "type": "function",
+        "description": "Updates the details of an identity.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "identityId",
+            "type": "string"
+          },
+          {
+            "name": "details",
+            "$ref": "identities.MailIdentity"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "identities.MailIdentity"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getDefault",
+        "type": "function",
+        "description": "Returns the default identity for the requested account, or null if it is not defined.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "accountId",
+            "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "identities.MailIdentity"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "setDefault",
+        "type": "function",
+        "description": "Sets the default identity for the requested account.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "accountId",
+            "type": "string"
+          },
+          {
+            "name": "identityId",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "name": "onCreated",
+        "type": "function",
+        "description": "Fired when a new identity has been created and added to an account. The event also fires for default identities that are created when a new account is added.",
+        "parameters": [
+          {
+            "name": "identityId",
+            "type": "string"
+          },
+          {
+            "name": "identity",
+            "$ref": "MailIdentity"
+          }
+        ]
+      },
+      {
+        "name": "onDeleted",
+        "type": "function",
+        "description": "Fired when an identity has been removed from an account.",
+        "parameters": [
+          {
+            "name": "identityId",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "onUpdated",
+        "type": "function",
+        "description": "Fired when one or more properties of an identity have been modified. The returned :ref:`identities.MailIdentity` includes only the changed values.",
+        "parameters": [
+          {
+            "name": "identityId",
+            "type": "string"
+          },
+          {
+            "name": "changedValues",
+            "$ref": "MailIdentity"
+          }
+        ]
+      }
+    ]    
+  }
+]

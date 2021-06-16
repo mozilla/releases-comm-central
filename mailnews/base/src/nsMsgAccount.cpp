@@ -18,6 +18,8 @@
 #include "nsMsgAccount.h"
 #include "nsIMsgAccount.h"
 #include "nsIMsgAccountManager.h"
+#include "nsIObserverService.h"
+#include "mozilla/Services.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMemory.h"
 #include "nsComponentManagerUtils.h"
@@ -287,10 +289,17 @@ nsMsgAccount::AddIdentity(nsIMsgIdentity* identity) {
     }
 
     m_prefs->SetCharPref("identities", newIdentityList);
+
+    // now add it to the in-memory list
+    m_identities.AppendElement(identity);
+
+    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+    if (obs) {
+      obs->NotifyObservers(identity, "account-identity-added",
+                           NS_ConvertUTF8toUTF16(key).get());
+    }
   }
 
-  // now add it to the in-memory list
-  m_identities.AppendElement(identity);
   return NS_OK;
 }
 
@@ -303,10 +312,23 @@ nsMsgAccount::RemoveIdentity(nsIMsgIdentity* aIdentity) {
   // At least one identity must stay after the delete.
   NS_ENSURE_TRUE(m_identities.Length() > 1, NS_ERROR_FAILURE);
 
+  nsCString key;
+  nsresult rv = aIdentity->GetKey(key);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   if (!m_identities.RemoveElement(aIdentity)) {
     return NS_ERROR_FAILURE;
   }
-  // clear out the actual pref values associated with the identity
+
+  // Notify before clearing the pref values, so we do not get the superfluous
+  // update notifications.
+  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+  if (obs) {
+    obs->NotifyObservers(nullptr, "account-identity-removed",
+                         NS_ConvertUTF8toUTF16(key).get());
+  }
+
+  // Clear out the actual pref values associated with the identity.
   aIdentity->ClearAllValues();
   return saveIdentitiesPref();
 }

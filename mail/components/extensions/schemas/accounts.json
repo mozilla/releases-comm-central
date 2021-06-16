@@ -48,46 +48,8 @@
             "type": "array",
             "description": "The identities associated with this account. The default identity is listed first, others in no particular order.",
             "items": {
-              "$ref": "accounts.MailIdentity"
+              "$ref": "identities.MailIdentity"
             }
-          }
-        }
-      },
-      {
-        "id": "MailIdentity",
-        "type": "object",
-        "properties": {
-          "accountId": {
-            "type": "string",
-            "description": "The id of the :ref:`accounts.MailAccount` this identity belongs to."
-          },
-          "id": {
-            "type": "string",
-            "description": "A unique identifier for this identity."
-          },
-          "label": {
-            "type": "string",
-            "description": "A user-defined label for this identity."
-          },
-          "name": {
-            "type": "string",
-            "description": "The user's name as used when messages are sent from this identity."
-          },
-          "email": {
-            "type": "string",
-            "description": "The user's email address as used when messages are sent from this identity."
-          },
-          "replyTo": {
-            "type": "string",
-            "description": "The reply-to email address associated with this identity."
-          },
-          "organization": {
-            "type": "string",
-            "description": "The organization associated with this identity."
-          },
-          "composeHtml": {
-            "type": "boolean",
-            "description": "Wether the identity uses HTML as the default compose format."
           }
         }
       }
@@ -161,6 +123,7 @@
         "type": "function",
         "description": "Sets the default identity for an account.",
         "async": true,
+        "deprecated": "This will be removed. Use :ref:`identities.setDefault` instead.",
         "parameters": [
           {
             "name": "accountId",
@@ -177,6 +140,7 @@
         "type": "function",
         "description": "Returns the default identity for an account, or null if it is not defined.",
         "async": "callback",
+        "deprecated": "This will be removed. Use :ref:`identities.getDefault` instead.",
         "parameters": [
           {
             "name": "accountId",
@@ -188,7 +152,7 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "accounts.MailIdentity"
+                "$ref": "identities.MailIdentity"
               }
             ]
           }

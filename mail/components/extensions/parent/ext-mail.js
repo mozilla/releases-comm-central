@@ -1466,7 +1466,9 @@ function convertAccount(account) {
     name: account.incomingServer.prettyName,
     type: account.incomingServer.type,
     folders,
-    identities: account.identities.map(id => convertMailIdentity(account, id)),
+    identities: account.identities.map(identity =>
+      convertMailIdentity(account, identity)
+    ),
   };
 }
 
@@ -1490,6 +1492,8 @@ function convertMailIdentity(account, identity) {
     replyTo: identity.replyTo || "",
     organization: identity.organization || "",
     composeHtml: identity.composeHtml,
+    signature: identity.htmlSigText || "",
+    signatureIsPlainText: !identity.htmlSigFormat,
   };
 }
 
