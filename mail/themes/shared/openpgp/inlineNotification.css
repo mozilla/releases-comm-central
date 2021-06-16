@@ -44,10 +44,6 @@
   background-color: rgba(69, 161, 255, 0.2);
 }
 
-.notification-image-info {
-  list-style-image: url("chrome://messenger/skin/icons/information.svg");
-}
-
 /* error variation */
 
 .inline-notification-container.error-container {
@@ -55,17 +51,9 @@
   color: #410303;
 }
 
-.notification-image-error {
-  list-style-image: url("chrome://global/skin/icons/warning.svg");
-}
-
 /* success variation */
 
 .inline-notification-container.success-container {
   background-color: #c1f7b6;
   color: #043a08;
-}
-
-.notification-image-success {
-  list-style-image: url("chrome://global/skin/icons/check.svg");
 }

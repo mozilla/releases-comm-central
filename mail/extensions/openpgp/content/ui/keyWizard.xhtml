@@ -30,7 +30,9 @@
     <html:div id="wizardOverlay" class="wizard-section overlay hide" hidden="hidden">
       <hbox class="inline-notification-container info-container">
         <hbox class="inline-notification-wrapper">
-          <image class="notification-image notification-image-info"/>
+          <html:img class="notification-image"
+                    src="chrome://messenger/skin/icons/information.svg"
+                    alt="" />
           <description data-l10n-id="openpgp-generate-key-info"/>
         </hbox>
       </hbox>
@@ -69,7 +71,9 @@
     <vbox id="wizardStart" class="wizard-section">
       <hbox class="inline-notification-container info-container">
         <hbox class="inline-notification-wrapper">
-          <image class="notification-image notification-image-info"/>
+          <html:img class="notification-image"
+                    src="chrome://messenger/skin/icons/information.svg"
+                    alt="" />
           <description>
             <html:span class="tail-with-learn-more"
                        data-l10n-id="key-wizard-warning">
@@ -203,7 +207,9 @@
             class="inline-notification-container error-container"
             collapsed="true">
         <hbox class="inline-notification-wrapper">
-          <image class="notification-image notification-image-error"/>
+          <html:img class="notification-image"
+                    src="chrome://global/skin/icons/warning.svg"
+                    alt="" />
           <description id="openPgpWarningDescription"/>
         </hbox>
       </hbox>
@@ -238,7 +244,9 @@
       <vbox id="importKeyListContainer" collapsed="true">
         <hbox class="inline-notification-container success-container">
           <hbox class="inline-notification-wrapper align-center">
-            <image class="notification-image notification-image-success"/>
+            <html:img class="notification-image"
+                      src="chrome://global/skin/icons/check.svg"
+                      alt="" />
             <description id="keyListCount"/>
           </hbox>
         </hbox>
@@ -256,7 +264,9 @@
       <vbox id="importKeyListSuccess" collapsed="true">
         <hbox class="inline-notification-container success-container">
           <hbox class="inline-notification-wrapper align-center">
-            <image class="notification-image notification-image-success"/>
+            <html:img class="notification-image"
+                      src="chrome://global/skin/icons/check.svg"
+                      alt="" />
             <description data-l10n-id="openpgp-import-success"/>
           </hbox>
         </hbox>
@@ -306,7 +316,9 @@
                 class="inline-notification-container info-container"
                 collapsed="true">
             <hbox class="inline-notification-wrapper">
-              <image class="notification-image notification-image-info"/>
+              <html:img class="notification-image"
+                        src="chrome://messenger/skin/icons/information.svg"
+                        alt="" />
               <description data-l10n-id="openpgp-external-key-warning"/>
             </hbox>
           </hbox>

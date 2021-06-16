@@ -331,8 +331,10 @@ async function addImportWarningNotification() {
   let wrapper = document.createXULElement("hbox");
   wrapper.classList.add("inline-notification-wrapper", "align-center");
 
-  let image = document.createXULElement("image");
-  image.classList.add("notification-image", "notification-image-error");
+  let image = document.createElement("img");
+  image.classList.add("notification-image");
+  image.setAttribute("src", "chrome://global/skin/icons/warning.svg");
+  image.setAttribute("alt", "");
 
   let description = document.createXULElement("description");
 
