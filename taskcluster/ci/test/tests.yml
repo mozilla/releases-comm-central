@@ -83,6 +83,7 @@ mochitest-thunderbird:
             default: default
     chunks: 5
     e10s: true
+    python-3: true
     mozharness:
         script: desktop_unittest.py
         mochitest-flavor: browser
