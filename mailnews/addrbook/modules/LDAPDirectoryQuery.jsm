@@ -174,6 +174,7 @@ class LDAPDirectoryQuery extends LDAPListenerBase {
       Ci.nsIAbCard
     );
     this._attrMap.setCardPropertiesFromLDAPMessage(msg, newCard);
+    newCard.directoryUID = this._directory.UID;
     this._listener.onSearchFoundCard(newCard);
   }
 
