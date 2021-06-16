@@ -11,6 +11,9 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/Services.jsm"
 );
 
+/**
+ * @implements {nsILDAPMessageListener}
+ */
 class LDAPListenerBase {
   /**
    * @see nsILDAPMessageListener

@@ -35,6 +35,11 @@ class LDAPClient {
   }
 
   connect() {
+    this._logger.debug(
+      `Connecting to ${this._useSecureTransport ? "ldaps" : "ldap"}://${
+        this._host
+      }:${this._port}`
+    );
     this._socket = new TCPSocket(this._host, this._port, {
       binaryType: "arraybuffer",
       useSecureTransport: this._useSecureTransport,
@@ -50,9 +55,9 @@ class LDAPClient {
    * @param {Function} callback - Callback function when receiving BindResponse.
    * @returns {number} The id of the sent request.
    */
-  bind(dn = "", password = "", callback) {
+  bind(dn, password, callback) {
     this._logger.debug(`Binding ${dn}`);
-    let req = new BindRequest(dn, password);
+    let req = new BindRequest(dn || "", password || "");
     return this._send(req, callback);
   }
 

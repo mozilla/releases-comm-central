@@ -77,9 +77,13 @@ function boolConditionToFilter(attrMap, exp) {
 
 /**
  * @implements {nsIAbDirectoryQuery}
+ * @implements {nsILDAPMessageListener}
  */
 class LDAPDirectoryQuery extends LDAPListenerBase {
-  QueryInterface = ChromeUtils.generateQI(["nsIAbDirectoryQuery"]);
+  QueryInterface = ChromeUtils.generateQI([
+    "nsIAbDirectoryQuery",
+    "nsILDAPMessageListener",
+  ]);
 
   i = 0;
 

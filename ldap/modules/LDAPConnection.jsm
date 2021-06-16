@@ -23,7 +23,13 @@ class LDAPConnection {
   }
 
   init(url, bindName, listener, closure, version) {
-    this.client = new LDAPClient(url.host, url.port, url.scheme == "ldaps");
+    let useSecureTransport = url.scheme == "ldaps";
+    let port = url.port;
+    if (port == -1) {
+      // -1 corresponds to the protocol's default port.
+      port = useSecureTransport ? 636 : 389;
+    }
+    this.client = new LDAPClient(url.host, port, useSecureTransport);
     this._url = url;
     this._bindName = bindName;
     this.client.onOpen = () => {
