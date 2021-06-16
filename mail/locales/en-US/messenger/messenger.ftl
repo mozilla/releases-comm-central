@@ -13,6 +13,7 @@ unread-messages-os-tooltip =
 about-rights-notification-text = { -brand-short-name } is free and open source software, built by a community of thousands from all over the world.
 
 ## Content tabs
+
 content-tab-page-loading-icon =
     .alt = The page is loading
 content-tab-security-high-icon =
