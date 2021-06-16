@@ -63,8 +63,10 @@ def get_decision_parameters(graph_config, parameters):
             BALROG_PRODUCT, project
         )
 
+    del parameters["backstop"]
     parameters["backstop"] = is_backstop(
         parameters,
+        trust_domain="comm",
         time_interval=BACKSTOP_TIME_INTERVAL,
         integration_projects=INTEGRATION_PROJECTS,
     )
