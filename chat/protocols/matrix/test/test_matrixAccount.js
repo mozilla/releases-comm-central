@@ -295,6 +295,35 @@ add_task(async function test_getDMRoomIdsForUserId() {
   equal(rooms[0], "!asdf:example.com");
 });
 
+add_task(async function test_invitedToDMIn_deny() {
+  const dmRoomId = "!test:example.com";
+  let leftRoom = false;
+  const account = getAccount({
+    leave(roomId) {
+      equal(roomId, dmRoomId);
+      leftRoom = true;
+    },
+  });
+  const room = getClientRoom(
+    dmRoomId,
+    {
+      getDMInviter() {
+        return "@other:example.com";
+      },
+    },
+    account._client
+  );
+  const requestObserver = TestUtils.topicObserved(
+    "buddy-authorization-request"
+  );
+  account.invitedToDM(room);
+  const [request] = await requestObserver;
+  request.QueryInterface(Ci.prplIBuddyRequest);
+  equal(request.userName, "@other:example.com");
+  request.deny();
+  ok(leftRoom);
+});
+
 function mockMatrixRoom(roomId) {
   return {
     getMyMembership() {

@@ -66,6 +66,9 @@ function getClientRoom(roomId, clientHandler, client) {
       isSpaceRoom() {
         return false;
       },
+      getLastActiveTimestamp() {
+        return Date.now();
+      },
     },
     makeProxyHandler(clientHandler)
   );
@@ -105,6 +108,7 @@ function getAccount(clientHandler) {
         }
         return this._rooms.get(roomId);
       },
+      setAccountData(field, data) {},
     },
     makeProxyHandler(clientHandler)
   );

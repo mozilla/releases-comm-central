@@ -7,12 +7,9 @@ var EXPORTED_SYMBOLS = ["MatrixProtocol"];
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
-var {
-  XPCOMUtils,
-  EmptyEnumerator,
-  nsSimpleEnumerator,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   GenericAccountPrototype,
@@ -215,6 +212,10 @@ MatrixBuddy.prototype = {
     );
   },
 
+  get canSendMessage() {
+    return true;
+  },
+
   /**
    * Initialize the buddy with a user.
    *
@@ -223,8 +224,7 @@ MatrixBuddy.prototype = {
   setUser(user) {
     this._user = user;
     this._serverAlias = user.displayName;
-    this._statusType = getStatusFromPresence(user);
-    this._statusText = user.presenceStatusMsg ?? "";
+    this.setStatus(getStatusFromPresence(user), user.presenceStatusMsg ?? "");
   },
 
   /**
@@ -251,6 +251,14 @@ MatrixBuddy.prototype = {
     }
     this._account.buddies.delete(this.userName);
     GenericAccountBuddyPrototype.remove.call(this);
+  },
+
+  getTooltipInfo() {
+    return this._account.getBuddyInfo(this.userName);
+  },
+
+  createConversation() {
+    return this._account.getDirectConversation(this.userName);
   },
 };
 
@@ -839,29 +847,39 @@ MatrixRoom.prototype = {
   initRoomDm(room) {
     const dmUserId = room.guessDMUserId();
     if (dmUserId === this._account.userId) {
-      // We are the only member of the room.
-      this._setInitialized();
+      // We are the only member of the room that we know of.
+      // This can sometimes happen when we get a room before all membership
+      // events got synced in.
       return;
     }
     if (!this.buddy) {
-      if (this._account.buddies.has(dmUserId)) {
-        this.buddy = this._account.buddies.get(dmUserId);
-        if (!this.buddy._user) {
-          const user = this._account._client.getUser(dmUserId);
-          this.buddy.setUser(user);
-        }
-        return;
-      }
-      const user = this._account._client.getUser(dmUserId);
-      this.buddy = new MatrixBuddy(
-        this._account,
-        null,
-        Services.tags.defaultTag,
-        user
-      );
-      Services.contacts.accountBuddyAdded(this.buddy);
-      this._account.buddies.set(dmUserId, this.buddy);
+      this.initBuddy(dmUserId);
     }
+  },
+
+  /**
+   * Initialize the buddy for this conversation.
+   *
+   * @param {string} dmUserId - MXID of the user on the other side of this DM.
+   */
+  initBuddy(dmUserId) {
+    if (this._account.buddies.has(dmUserId)) {
+      this.buddy = this._account.buddies.get(dmUserId);
+      if (!this.buddy._user) {
+        const user = this._account._client.getUser(dmUserId);
+        this.buddy.setUser(user);
+      }
+      return;
+    }
+    const user = this._account._client.getUser(dmUserId);
+    this.buddy = new MatrixBuddy(
+      this._account,
+      null,
+      Services.tags.defaultTag,
+      user
+    );
+    Services.contacts.accountBuddyAdded(this.buddy);
+    this._account.buddies.set(dmUserId, this.buddy);
   },
 
   /**
@@ -1258,23 +1276,7 @@ MatrixAccount.prototype = {
       // For now just auto accept the invites by joining the room.
       if (me && me.membership == "invite") {
         if (me.events.member.getContent().is_direct) {
-          let roomMembers = room.getJoinedMembers();
-          // If there is just single user in the room, then set the
-          // room as a DM Room by adding it to dmMap in our user's accountData.
-          if (roomMembers.length == 1) {
-            let interlocutorId = roomMembers[0].userId;
-            this.setDirectRoom(interlocutorId, room.roomId);
-            // For the invited rooms, we will not get the summary info from
-            // the room object created after the joining. So we need to use
-            // the name from the room object here.
-            this.getDirectConversation(
-              interlocutorId,
-              room.roomId,
-              room.summary.info.title
-            );
-          } else {
-            this.getGroupConversation(room.roomId, room.summary.info.title);
-          }
+          this.invitedToDM(room);
         } else {
           this.getGroupConversation(room.roomId, room.summary.info.title);
         }
@@ -1397,6 +1399,37 @@ MatrixAccount.prototype = {
         buddy.remove();
       }
     }
+  },
+
+  /**
+   * A user invited this user to a DM room.
+   *
+   * @param {Room} room - Room we're invited to.
+   */
+  invitedToDM(room) {
+    let userId = room.getDMInviter();
+    this.addBuddyRequest(
+      userId,
+      () => {
+        this.setDirectRoom(userId, room.roomId);
+        // For the invited rooms, we will not get the summary info from
+        // the room object created after the joining. So we need to use
+        // the name from the room object here.
+        const conversation = this.getDirectConversation(
+          userId,
+          room.roomId,
+          room.summary.info.title
+        );
+        if (room.getInvitedAndJoinedMemberCount() !== 2) {
+          conversation.waitForRoom().then((conv) => {
+            conv.checkForUpdate();
+          });
+        }
+      },
+      () => {
+        this._client.leave(room.roomId);
+      }
+    );
   },
 
   /**
@@ -1810,6 +1843,11 @@ MatrixAccount.prototype = {
         })
         .then(room => {
           conv.initRoom(room);
+          // The membership events will sometimes be missing to initialize the
+          // buddy correctly in the normal room init.
+          if (!conv.buddy) {
+            conv.initBuddy(userId);
+          }
         })
         .catch(error => {
           this.ERROR(
@@ -1905,15 +1943,19 @@ MatrixAccount.prototype = {
     return buddy;
   },
 
-  requestBuddyInfo(aUserId) {
+  /**
+   * Get tooltip info for a user.
+   *
+   * @param {string} aUserId - MXID to get tooltip data for.
+   * @returns {Array<prplITooltipInfo>}
+   */
+  getBuddyInfo(aUserId) {
+    if (!this.connected) {
+      return [];
+    }
     let user = this._client.getUser(aUserId);
     if (!user) {
-      Services.obs.notifyObservers(
-        EmptyEnumerator,
-        "user-info-received",
-        aUserId
-      );
-      return;
+      return [];
     }
 
     // Convert timespan in milli-seconds into a human-readable form.
@@ -1969,8 +2011,12 @@ MatrixAccount.prototype = {
       );
     }
 
+    return tooltipInfo;
+  },
+
+  requestBuddyInfo(aUserId) {
     Services.obs.notifyObservers(
-      new nsSimpleEnumerator(tooltipInfo),
+      new nsSimpleEnumerator(this.getBuddyInfo(aUserId)),
       "user-info-received",
       aUserId
     );
