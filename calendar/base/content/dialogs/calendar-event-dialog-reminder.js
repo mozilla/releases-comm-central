@@ -101,7 +101,10 @@ function loadReminders() {
     if (reminders[i].action in allowedActionsMap) {
       // Set up the listitem and add it to the listbox, but only if the
       // action is actually supported by the calendar.
-      listbox.appendChild(setupListItem(null, reminders[i].clone(), args.item));
+      let listitem = setupListItem(null, reminders[i].clone(), args.item);
+      if (listitem) {
+        listbox.appendChild(listitem);
+      }
     }
   }
 
@@ -205,9 +208,29 @@ function setupMaxReminders() {
  *                                   passed, a new listitem will be created.
  * @param aReminder     The calIAlarm to display in this listitem
  * @param aItem         The item the alarm is set up on.
- * @return              The  XUL listitem node showing the passed reminder.
+ * @return              The  XUL listitem node showing the passed reminder, or
+ *   null if no list item should be shown.
  */
 function setupListItem(aListItem, aReminder, aItem) {
+  let src;
+  let l10nId;
+  switch (aReminder.action) {
+    case "DISPLAY":
+      src = "chrome://calendar/skin/shared/icons/alarm.svg";
+      l10nId = "calendar-event-reminder-icon-display";
+      break;
+    case "EMAIL":
+      src = "chrome://calendar/skin/shared/icons/email.svg";
+      l10nId = "calendar-event-reminder-icon-email";
+      break;
+    case "AUDIO":
+      src = "chrome://global/skin/media/audio.svg";
+      l10nId = "calendar-event-reminder-icon-audio";
+      break;
+    default:
+      return null;
+  }
+
   let listitem = aListItem || document.createXULElement("richlistitem");
 
   // Create a random id to be used for accessibility
@@ -226,23 +249,9 @@ function setupListItem(aListItem, aReminder, aItem) {
     image.setAttribute("class", "reminder-icon");
     listitem.appendChild(image);
   }
-  switch (aReminder.action) {
-    case "DISPLAY":
-      image.setAttribute("src", "chrome://calendar/skin/shared/icons/alarm.svg");
-      // Sets alt.
-      document.l10n.setAttributes(image, "calendar-event-reminder-icon-display");
-      break;
-    case "EMAIL":
-      image.setAttribute("src", "chrome://calendar/skin/shared/icons/email.svg");
-      // Sets alt.
-      document.l10n.setAttributes(image, "calendar-event-reminder-icon-email");
-      break;
-    default:
-      image.removeAttribute("src");
-      image.removeAttribute("data-l10n-id");
-      image.setAttribute("alt", "");
-      break;
-  }
+  image.setAttribute("src", src);
+  // Sets alt.
+  document.l10n.setAttributes(image, l10nId);
   image.setAttribute("value", aReminder.action);
 
   let label = listitem.querySelector("label");
@@ -384,7 +393,10 @@ function updateReminder(event) {
     }
   }
 
-  setupListItem(listitem, reminder, window.arguments[0].item);
+  if (!setupListItem(listitem, reminder, window.arguments[0].item)) {
+    // Unexpected since this would mean switching to an unsupported type.
+    listitem.remove();
+  }
 }
 
 /**
@@ -441,6 +453,9 @@ function onNewReminder() {
 
   // Set up the listbox
   let listitem = setupListItem(null, reminder, window.arguments[0].item);
+  if (!listitem) {
+    return;
+  }
   listbox.appendChild(listitem);
   listbox.selectItem(listitem);
 

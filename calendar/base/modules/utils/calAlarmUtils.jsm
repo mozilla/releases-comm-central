@@ -131,73 +131,59 @@ var calalarms = {
   },
 
   /**
-   * Adds reminder images to a given node, making sure only one icon per alarm
-   * action is added.
+   * Removes previous children and adds reminder images to a given container,
+   * making sure only one icon per alarm action is added.
    *
-   * @param aElement    The element to add the images to.
-   * @param aReminders  The set of reminders to add images for.
+   * @param {Element} container - The element to add the images to.
+   * @param {CalAlarm[]} reminderSet - The set of reminders to add images for.
    */
-  addReminderImages(aElement, aReminders) {
-    function setupActionImage(node, reminder) {
-      let document = aElement.ownerDocument;
-      let image = node || document.createElement("img");
-      image.setAttribute("class", "reminder-icon");
-      image.setAttribute("value", reminder.action);
-      switch (reminder.action) {
-        case "DISPLAY":
-          if (aElement.hasAttribute("suppressed")) {
-            image.setAttribute("src", "chrome://calendar/skin/shared/icons/alarm-no.svg");
-            // Sets alt.
-            document.l10n.setAttributes(
-              image,
-              "calendar-editable-item-reminder-icon-suppressed-alarm"
-            );
-            break;
-          }
-          image.setAttribute("src", "chrome://calendar/skin/shared/icons/alarm.svg");
-          // Sets alt.
-          document.l10n.setAttributes(image, "calendar-editable-item-reminder-icon-alarm");
-          break;
-        case "EMAIL":
-          image.setAttribute("src", "chrome://calendar/skin/shared/icons/email.svg");
-          // Sets alt.
-          document.l10n.setAttributes(image, "calendar-editable-item-reminder-icon-email");
-          break;
-        default:
-          image.removeAttribute("src");
-          image.removeAttribute("data-l10n-id");
-          image.setAttribute("alt", "");
-          break;
-      }
-      return image;
+  addReminderImages(container, reminderSet) {
+    while (container.lastChild) {
+      container.lastChild.remove();
     }
 
-    // Fill up the icon box with the alarm icons, show max one icon per
-    // alarm type.
-    let countIconChildren = aElement.children.length;
-    let actionMap = {};
-    let i, offset;
-    for (i = 0, offset = 0; i < aReminders.length; i++) {
-      let reminder = aReminders[i];
-      if (reminder.action in actionMap) {
-        // Only show one icon of each type;
-        offset++;
+    let document = container.ownerDocument;
+    let suppressed = container.hasAttribute("suppressed");
+    let actionSet = [];
+    for (let reminder of reminderSet) {
+      // Up to one icon per action
+      if (actionSet.includes(reminder.action)) {
         continue;
       }
-      actionMap[reminder.action] = true;
+      actionSet.push(reminder.action);
 
-      if (i - offset >= countIconChildren) {
-        // Not enough nodes, append it.
-        aElement.appendChild(setupActionImage(null, reminder));
-      } else {
-        // There is already a node there, change its properties
-        setupActionImage(aElement.children[i - offset], reminder);
+      let src;
+      let l10nId;
+      switch (reminder.action) {
+        case "DISPLAY":
+          if (suppressed) {
+            src = "chrome://calendar/skin/shared/icons/alarm-no.svg";
+            l10nId = "calendar-editable-item-reminder-icon-suppressed-alarm";
+          } else {
+            src = "chrome://calendar/skin/shared/icons/alarm.svg";
+            l10nId = "calendar-editable-item-reminder-icon-alarm";
+          }
+          break;
+        case "EMAIL":
+          src = "chrome://calendar/skin/shared/icons/email.svg";
+          l10nId = "calendar-editable-item-reminder-icon-email";
+          break;
+        case "AUDIO":
+          src = "chrome://global/skin/media/audio.svg";
+          l10nId = "calendar-editable-item-reminder-icon-audio";
+          break;
+        default:
+          // Never create icons for actions we don't handle.
+          continue;
       }
-    }
 
-    // Remove unused image nodes
-    for (i -= offset; i < countIconChildren; i++) {
-      aElement.children[i].remove();
+      let image = document.createElement("img");
+      image.setAttribute("class", "reminder-icon");
+      image.setAttribute("value", reminder.action);
+      image.setAttribute("src", src);
+      // Set alt.
+      document.l10n.setAttributes(image, l10nId);
+      container.appendChild(image);
     }
   },
 };

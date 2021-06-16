@@ -18,6 +18,10 @@
     list-style-image: url(chrome://calendar/skin/shared/icons/email.svg);
 }
 
+.reminder-list-icon[value="AUDIO"] {
+    list-style-image: url(chrome://global/skin/media/audio.svg);
+}
+
 .alarm-icons-box[flashing="true"] > .reminder-icon[value="DISPLAY"] {
     background: red;
     fill: white;
