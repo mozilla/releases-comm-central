@@ -476,7 +476,7 @@ class TabTracker extends TabTrackerBase {
    * @return {Integer}                  The tab's numeric ID
    */
   getBrowserTabId(browser) {
-    let id = this._browsers.get(`${browser.id}#${browser._activeTabId}`);
+    let id = this._browsers.get(`${browser.browserId}#${browser._activeTabId}`);
     if (id) {
       return id;
     }
@@ -488,7 +488,7 @@ class TabTracker extends TabTrackerBase {
 
     if (tab) {
       id = this.getId(tab);
-      this._browsers.set(`${browser.id}#${tab.tabId}`, id);
+      this._browsers.set(`${browser.browserId}#${tab.tabId}`, id);
       return id;
     }
     return -1;
@@ -504,7 +504,7 @@ class TabTracker extends TabTrackerBase {
     this._tabs.set(nativeTabInfo, id);
     let browser = getTabBrowser(nativeTabInfo);
     if (browser) {
-      this._browsers.set(`${browser.id}#${nativeTabInfo.tabId}`, id);
+      this._browsers.set(`${browser.browserId}#${nativeTabInfo.tabId}`, id);
     }
     this._tabIds.set(id, nativeTabInfo);
   }
@@ -521,7 +521,7 @@ class TabTracker extends TabTrackerBase {
       this._tabs.delete(nativeTabInfo);
       if (nativeTabInfo.browser) {
         this._browsers.delete(
-          `${nativeTabInfo.browser.id}#${nativeTabInfo.tabId}`
+          `${nativeTabInfo.browser.browserId}#${nativeTabInfo.tabId}`
         );
       }
       if (this._tabIds.get(id) === nativeTabInfo) {
