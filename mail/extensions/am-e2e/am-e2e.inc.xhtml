@@ -32,12 +32,14 @@
 
           <vbox data-subcategory="openpgp" class="openpgp-container">
             <hbox align="center" class="opengpg-intro-section">
-              <image id="openPgpKey"/>
+              <html:img id="openPgpKey"
+                        src="chrome://messenger/skin/icons/login.svg"
+                        alt="" />
               <vbox flex="1">
                 <description class="description-with-side-element openpgp-description">
                   <html:p id="openPgpDescription"></html:p>
-                  <image id="openPgpStatusImage" class="openpgp-status"
-                         hidden="true"/>
+                  <html:img id="openPgpStatusImage" class="openpgp-status"
+                            alt="" hidden="hidden"/>
                   <html:span id="openPgpSelectionStatus"
                              class="tail-with-learn-more"
                              hidden="hidden"></html:span>

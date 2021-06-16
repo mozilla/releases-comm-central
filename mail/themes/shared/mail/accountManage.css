@@ -387,7 +387,6 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 /* ::::: e2e encryption ::::: */
 
 #openPgpKey {
-  list-style-image: url("chrome://messenger/skin/icons/login.svg");
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 0.5;
@@ -406,21 +405,18 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   margin-block: 0 6px;
 }
 
-.openpgp-status:not([hidden="true"]) {
+.openpgp-status {
   vertical-align: text-top;
-  display: inline-block;
   -moz-context-properties: fill;
   margin-inline-end: 2px;
   width: 16px;
 }
 
-.status-success {
-  list-style-image: url("chrome://global/skin/icons/check.svg");
+.openpgp-status.status-success {
   fill: #12bc00;
 }
 
-.status-error {
-  list-style-image: url("chrome://messenger/skin/icons/stop.svg");
+.openpgp-status.status-error {
   fill: #d70022;
 }
 
@@ -439,9 +435,8 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 .content-blocking-category .checkbox-label-box,
-.extra-information-label image,
-.arrowhead,
-.content-blocking-info-image {
+.extra-information-label > img,
+.arrowhead {
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -560,7 +555,6 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 .expiration-date-icon {
-  display: none;
   vertical-align: text-top;
   -moz-context-properties: fill;
   margin-inline-end: 4px;
@@ -568,10 +562,8 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   width: 16px;
 }
 
-.expiration-date-container.key-is-expiring .expiration-date-icon {
-  display: inline-block;
-  list-style-image: url("chrome://messenger/skin/icons/info.svg");
-  opacity: 0.9;
+.expiration-date-icon:not([src]) {
+  display: none;
 }
 
 .expiration-date-container.key-expired description {
@@ -580,8 +572,6 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 .expiration-date-container.key-expired .expiration-date-icon {
-  display: inline-block;
-  list-style-image: url("chrome://global/skin/icons/warning.svg");
   fill: #FF9400;
 }
 
@@ -606,16 +596,8 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 /* Key info icons */
-.extra-information-label image:not(.button-icon) {
+.extra-information-label > img {
   margin-inline-end: 5px;
-}
-
-.content-blocking-openpgp-fingerprint {
-  list-style-image: url("chrome://messenger/skin/icons/fingerprint.svg");
-}
-
-.content-blocking-openpgp-created {
-  list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
 }
 
 .openpgp-key-details {

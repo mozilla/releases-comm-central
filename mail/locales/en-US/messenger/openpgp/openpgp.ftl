@@ -287,12 +287,8 @@ openpgp-description = { $count ->
    *[other] Thunderbird found { $count } personal OpenPGP keys associated with <b>{ $identity }</b>
 }
 
-#   $count (Number) - the number of configured keys associated with the current identity
 #   $key (String) - the currently selected OpenPGP key
-openpgp-selection-status = { $count ->
-    [0]     Select a valid key to enable the OpenPGP protocol.
-   *[other] Your current configuration uses key ID <b>{ $key }</b>
-}
+openpgp-selection-status-have-key = Your current configuration uses key ID <b>{ $key }</b>
 
 #   $key (String) - the currently selected OpenPGP key
 openpgp-selection-status-error = Your current configuration uses the key <b>{ $key }</b>, which has expired.
@@ -323,14 +319,14 @@ openpgp-radio-key-not-found = This key could not be found! If you want to use it
 #   $key (String) - the expiration date of the OpenPGP key
 openpgp-radio-key-expires = Expires on: { $date }
 
-openpgp-key-expires-image =
-    .tooltiptext = Key is expiring in less than 6 months
-
 #   $key (String) - the expiration date of the OpenPGP key
 openpgp-radio-key-expired = Expired on: { $date }
 
-openpgp-key-expired-image =
-    .tooltiptext = Key expired
+openpgp-key-expires-within-6-months-icon =
+    .title = Key is expiring in less than 6 months
+
+openpgp-key-has-expired-icon =
+    .title = Key expired
 
 openpgp-key-expand-section =
   .tooltiptext = More information

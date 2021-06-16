@@ -813,7 +813,7 @@ async function reloadOpenPgpUI() {
     dateContainer.classList.add("expiration-date-container");
     dateContainer.setAttribute("align", "center");
 
-    let dateIcon = document.createXULElement("image");
+    let dateIcon = document.createElement("img");
     dateIcon.classList.add("expiration-date-icon");
 
     let dateButton = document.createXULElement("button");
@@ -825,37 +825,49 @@ async function reloadOpenPgpUI() {
     dateButton.setAttribute("hidden", "true");
     dateButton.classList.add("button-small");
 
-    let today = new Date();
-    today.setMonth(today.getMonth() + 6);
-
-    // If the key expires in less than 6 months.
-    if (
-      key.expiryTime &&
-      Math.round(Date.parse(today) / 1000) > key.expiryTime
-    ) {
-      dateContainer.classList.add("key-is-expiring");
-      document.l10n.setAttributes(dateIcon, "openpgp-key-expires-image");
-      dateButton.removeAttribute("hidden");
-    }
-
-    let fluentExpireKey = "openpgp-radio-key-expires";
-    // If the key passed its expiration date.
-    if (key.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime) {
-      dateContainer.classList.add("key-expired");
-      fluentExpireKey = "openpgp-radio-key-expired";
-      document.l10n.setAttributes(dateIcon, "openpgp-key-expired-image");
-      dateButton.removeAttribute("hidden");
-
-      // This key is expired, so make it unselectable.
-      radio.setAttribute("disabled", "true");
-    }
-
     let description = document.createXULElement("description");
-    // If the expiryTime == 0 it means the key doesn't expire.
+
     if (key.expiryTime) {
-      document.l10n.setAttributes(description, fluentExpireKey, {
-        date: key.expiry,
-      });
+      if (Math.round(Date.now() / 1000) > key.expiryTime) {
+        // Has expired.
+        dateContainer.classList.add("key-expired");
+        dateIcon.setAttribute("src", "chrome://global/skin/icons/warning.svg");
+        // Sets the title attribute.
+        // The alt attribute is not set because the accessible name is already
+        // set by the title.
+        document.l10n.setAttributes(dateIcon, "openpgp-key-has-expired-icon");
+
+        document.l10n.setAttributes(description, "openpgp-radio-key-expired", {
+          date: key.expiry,
+        });
+
+        dateButton.removeAttribute("hidden");
+        // This key is expired, so make it unselectable.
+        radio.setAttribute("disabled", "true");
+      } else {
+        // If the key expires in less than 6 months.
+        let sixMonths = new Date();
+        sixMonths.setMonth(sixMonths.getMonth() + 6);
+        if (Math.round(Date.parse(sixMonths) / 1000) > key.expiryTime) {
+          dateContainer.classList.add("key-is-expiring");
+          dateIcon.setAttribute(
+            "src",
+            "chrome://messenger/skin/icons/info.svg"
+          );
+          // Sets the title attribute.
+          // The alt attribute is not set because the accessible name is already
+          // set by the title.
+          document.l10n.setAttributes(
+            dateIcon,
+            "openpgp-key-expires-within-6-months-icon"
+          );
+          dateButton.removeAttribute("hidden");
+        }
+
+        document.l10n.setAttributes(description, "openpgp-radio-key-expires", {
+          date: key.expiry,
+        });
+      }
     } else {
       document.l10n.setAttributes(description, "key-does-not-expire");
     }
@@ -875,8 +887,12 @@ async function reloadOpenPgpUI() {
     grid.classList.add("extra-information-label");
 
     // Key fingerprint.
-    let fingerprintImage = document.createXULElement("image");
-    fingerprintImage.classList.add("content-blocking-openpgp-fingerprint");
+    let fingerprintImage = document.createElement("img");
+    fingerprintImage.setAttribute(
+      "src",
+      "chrome://messenger/skin/icons/fingerprint.svg"
+    );
+    fingerprintImage.setAttribute("alt", "");
 
     let fingerprintLabel = document.createXULElement("label");
     document.l10n.setAttributes(
@@ -902,8 +918,12 @@ async function reloadOpenPgpUI() {
     grid.appendChild(fgrInputContainer);
 
     // Key creation date.
-    let createdImage = document.createXULElement("image");
-    createdImage.classList.add("content-blocking-openpgp-created");
+    let createdImage = document.createElement("img");
+    createdImage.setAttribute(
+      "src",
+      "chrome://messenger/skin/shared/preferences/calendar.svg"
+    );
+    createdImage.setAttribute("alt", "");
 
     let createdLabel = document.createXULElement("label");
     document.l10n.setAttributes(
@@ -1201,35 +1221,34 @@ function updateUIForSelectedOpenPgpKey() {
   }
 
   // Reset the image in case of async reload of the list.
+  let statusLabel = document.getElementById("openPgpSelectionStatus");
   let image = document.getElementById("openPgpStatusImage");
   image.classList.remove("status-success", "status-error");
 
-  let key = EnigmailKeyRing.getKeyById(gKeyId, true);
-
   // Check if the currently selected key has expired.
-  if (key && key.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime) {
-    image.classList.add("status-error");
-    document.l10n.setAttributes(
-      document.getElementById("openPgpSelectionStatus"),
-      "openpgp-selection-status-error",
-      {
-        key: `0x${gKeyId}`,
-      }
-    );
-  } else {
-    image.classList.add("status-success");
-    document.l10n.setAttributes(
-      document.getElementById("openPgpSelectionStatus"),
-      "openpgp-selection-status",
-      {
-        count: gKeyId ? 1 : 0,
-        key: `0x${gKeyId}`,
-      }
-    );
+  if (gKeyId) {
+    let key = EnigmailKeyRing.getKeyById(gKeyId, true);
+    if (key?.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime) {
+      image.setAttribute("src", "chrome://messenger/skin/icons/stop.svg");
+      image.classList.add("status-error");
+      document.l10n.setAttributes(
+        statusLabel,
+        "openpgp-selection-status-error",
+        { key: `0x${gKeyId}` }
+      );
+    } else {
+      image.setAttribute("src", "chrome://global/skin/icons/check.svg");
+      image.classList.add("status-success");
+      document.l10n.setAttributes(
+        statusLabel,
+        "openpgp-selection-status-have-key",
+        { key: `0x${gKeyId}` }
+      );
+    }
   }
 
   let hide = !gKeyId;
-  document.getElementById("openPgpSelectionStatus").hidden = hide;
+  statusLabel.hidden = hide;
   document.getElementById("openPgpLearnMore").hidden = hide;
   image.hidden = hide;
 }
