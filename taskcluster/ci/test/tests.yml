@@ -16,14 +16,26 @@ xpcshell:
     description: "xpcshell test run"
     suite: xpcshell
     treeherder-symbol: X(X)
-    run-on-projects: built-projects
+    run-on-projects:
+        by-test-platform:
+            .*-tsan/opt: ['comm-central']
+            default: built-projects
     tier:
         by-test-platform:
+            .*-asan.*: 2
+            .*-tsan.*: 2
             macosx1100.*: 2
             default: default
-    chunks: 4
+    chunks:
+        by-test-platform:
+            .*-tsan/opt: 8
+            default: 4
     instance-size: default
-    max-run-time: 5400
+    max-run-time:
+        by-test-platform:
+            windows.*(-shippable)/opt: 5400
+            .*-tsan/opt: 7200
+            default: 2700
     allow-software-gl-layers: false
     python-3: true
     mozharness:
@@ -74,15 +86,28 @@ mochitest-thunderbird:
         category: mochitest
         name: mochitest-browser-chrome-thunderbird
     treeherder-symbol: M(bct)
-    run-on-projects: built-projects
+    run-on-projects:
+        by-test-platform:
+            .*-tsan/opt: ['comm-central']
+            default: built-projects
     test-manifest-loader: null  # don't load tests in the taskgraph
     loopback-video: true
-    max-run-time: 3600
+    max-run-time:
+        by-test-platform:
+            linux.*64-tsan/opt: 9000
+            default: 3600
     tier:
         by-test-platform:
+            .*-asan.*: 2
+            .*-tsan.*: 2
             macosx1100.*: 2
             default: default
-    chunks: 5
+    chunks:
+        by-test-platform:
+            linux.*64-asan/opt: 16
+            linux.*64-tsan/opt: 15
+            windows10.*-asan/opt: 9
+            default: 5
     e10s: true
     python-3: true
     mozharness:
@@ -100,5 +125,8 @@ mochitest-thunderbird:
                     - unittests/linux_unittest.py
                     - remove_executables.py
                     - unittests/thunderbird_extra.py
-    instance-size: default
+    instance-size:
+        by-test-platform:
+            linux.*64-tsan/opt: xlarge  # runs out of memory on default/m3.large
+            default: default
     allow-software-gl-layers: false
