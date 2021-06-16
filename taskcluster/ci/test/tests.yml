@@ -25,6 +25,7 @@ xpcshell:
     instance-size: default
     max-run-time: 5400
     allow-software-gl-layers: false
+    python-3: true
     mozharness:
         script: desktop_unittest.py
         config:
