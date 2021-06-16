@@ -2119,8 +2119,9 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
   let displayName = cloudFileAccounts.getDisplayName(cloudFileAccount);
   let attachmentItem = gAttachmentBucket.findItemForAttachment(attachment);
   if (attachmentItem) {
-    let itemIcon = attachmentItem.querySelector(".attachmentcell-icon");
-    itemIcon.setAttribute("src", "chrome://global/skin/icons/loading.png");
+    gAttachmentBucket.setAttachmentLoaded(attachmentItem, false);
+    // FIXME: The UI logic should be handled by the attachment list or item
+    // itself.
     attachmentItem.setAttribute(
       "tooltiptext",
       getComposeBundle().getFormattedString("cloudFileUploadingTooltip", [
@@ -2148,6 +2149,8 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
       if (!attachmentItem.originalUrl) {
         attachmentItem.originalUrl = originalUrl;
       }
+      // FIXME: The UI logic should be handled by the attachment list or item
+      // itself.
       attachmentItem.cloudFileUpload = upload;
       attachmentItem.setAttribute(
         "tooltiptext",
@@ -2156,17 +2159,11 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
         ])
       );
       attachmentItem.uploading = false;
-
-      // Set the icon for the attachment.
-      let iconURL = cloudFileAccount.iconURL;
-      let itemIcon = attachmentItem.querySelector(".attachmentcell-icon");
-      if (iconURL) {
-        itemIcon.setAttribute("src", iconURL);
-      } else {
-        // Should we use a generic "cloud" icon here? Or an overlay icon?
-        // I think the provider should provide an icon, end of story.
-        itemIcon.setAttribute("src", "");
-      }
+      gAttachmentBucket.setAttachmentLoaded(
+        attachmentItem,
+        true,
+        cloudFileAccount.iconURL || null
+      );
 
       attachmentItem.dispatchEvent(
         new CustomEvent("attachment-uploaded", {
@@ -2319,7 +2316,8 @@ function attachToCloudRepeat(upload, account) {
   attachment.cloudFileAccountKey = account.accountKey;
 
   AddAttachments([attachment], function(item) {
-    let itemIcon = item.querySelector(".attachmentcell-icon");
+    // FIXME: The UI logic should be handled by the attachment list or item
+    // itself.
     let itemLabel = item.querySelector(".attachmentcell-name");
     item.account = account;
     item.setAttribute("name", upload.leafName);
@@ -2328,14 +2326,7 @@ function attachToCloudRepeat(upload, account) {
       ...upload,
       repeat: true,
     };
-    let iconURL = account.iconURL;
-    if (iconURL) {
-      itemIcon.setAttribute("src", iconURL);
-    } else {
-      // Should we use a generic "cloud" icon here? Or an overlay icon?
-      // I think the provider should provide an icon, end of story.
-      itemIcon.setAttribute("src", "");
-    }
+    gAttachmentBucket.setAttachmentLoaded(item, true, account.iconURL || null);
     item.dispatchEvent(
       new CustomEvent("attachment-uploaded", {
         bubbles: true,

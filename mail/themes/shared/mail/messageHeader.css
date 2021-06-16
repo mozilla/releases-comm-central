@@ -211,7 +211,6 @@
 }
 
 #attachmentIcon {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
   margin-inline-start: 5px;
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;

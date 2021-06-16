@@ -1686,25 +1686,37 @@
       return item;
     }
 
-    invalidateItem(item, name) {
-      let attachment = item.attachment;
-      item.setAttribute("name", name || attachment.name);
-      item
-        .querySelector(".attachmentcell-name")
-        .setAttribute("value", name || attachment.name);
-
-      let size;
-      if (attachment.size != null && attachment.size != -1) {
-        size = this.messenger.formatFileSize(attachment.size);
-      } else {
-        // Use a zero-width space so the size label has the right height.
-        size = "\u200b";
+    /**
+     * Set the attachment icon source.
+     *
+     * @param {MozRichlistitem} item - The attachment item to set the icon of.
+     * @param {string|null} src - The src to set.
+     */
+    setAttachmentIconSrc(item, src) {
+      let icon = item.querySelector(".attachmentcell-icon");
+      if (!src) {
+        icon.classList.add("invalid-src");
+        icon.removeAttribute("src");
+        return;
       }
-      item.setAttribute("size", size);
-      item.querySelector(".attachmentcell-size").setAttribute("value", size);
+      icon.classList.remove("invalid-src");
+      // NOTE: Setting the same value for "src" should still trigger the
+      // reloading of the image, and re-add the invalid-src class if the same
+      // error occurs.
+      icon.setAttribute("src", src);
+    }
 
+    /**
+     * Refresh the attachment icon using the attachment details.
+     *
+     * @param {MozRichlistitem} item - The attachment item to refresh the icon
+     *   for.
+     */
+    refreshAttachmentIcon(item) {
       let src;
-      if (attachment.contentType == "text/x-moz-deleted") {
+      let attachment = item.attachment;
+      let type = attachment.contentType;
+      if (type == "text/x-moz-deleted") {
         src = "chrome://messenger/skin/icons/attachment-deleted.svg";
       } else {
         let iconName = attachment.name;
@@ -1729,16 +1741,72 @@
             iconName = url.fileName;
           }
         }
-        src = `moz-icon://${iconName}?size=16&contentType=${attachment.contentType}`;
+        src = `moz-icon://${iconName}?size=16&contentType=${type}`;
       }
 
-      let icon = item.querySelector(".attachmentcell-icon");
-      icon.classList.remove("invalid-src");
-      // NOTE: Setting the same value for "src" should still trigger the
-      // reloading of the image, and re-add the invalid-src class if the same
-      // error occurs.
-      icon.setAttribute("src", src);
+      this.setAttachmentIconSrc(item, src);
+    }
 
+    /**
+     * Get whether the attachment list is fully loaded.
+     *
+     * @returns {boolean} - Whether all the attachments in the list are fully
+     *   loaded.
+     */
+    isLoaded() {
+      // Not loaded if at least one loading.
+      for (let item of this.querySelectorAll(".attachmentItem")) {
+        if (!item.loaded) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /**
+     * Set the attachment's loaded state.
+     *
+     * @param {MozRichlistitem} item - The attachment item.
+     * @param {boolean} loaded - Whether the attachment is fully loaded.
+     * @param {string} [cloudIcon] - The icon for the cloud provider where the
+     *   attachment was loaded, if any.
+     */
+    setAttachmentLoaded(item, loaded, cloudIcon) {
+      item.loaded = loaded;
+      if (loaded) {
+        if (cloudIcon !== undefined) {
+          this.setAttachmentIconSrc(item, cloudIcon);
+        } else {
+          this.refreshAttachmentIcon(item);
+        }
+      } else {
+        this.setAttachmentIconSrc(
+          item,
+          "chrome://global/skin/icons/loading.png"
+        );
+      }
+    }
+
+    invalidateItem(item, name) {
+      let attachment = item.attachment;
+      item.setAttribute("name", name || attachment.name);
+      item
+        .querySelector(".attachmentcell-name")
+        .setAttribute("value", name || attachment.name);
+
+      let size;
+      if (attachment.size != null && attachment.size != -1) {
+        size = this.messenger.formatFileSize(attachment.size);
+      } else {
+        // Use a zero-width space so the size label has the right height.
+        size = "\u200b";
+      }
+      item.setAttribute("size", size);
+      item.querySelector(".attachmentcell-size").setAttribute("value", size);
+
+      // By default, items are considered loaded.
+      item.loaded = true;
+      this.refreshAttachmentIcon(item);
       return item;
     }
 

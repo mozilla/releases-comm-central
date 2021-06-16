@@ -12,7 +12,9 @@
                                     onclick="event.stopPropagation();"
                                     oncommand="toggleAttachmentList(this.checked, true);"/>
                             <hbox align="center" id="attachmentInfo" flex="1">
-                              <image id="attachmentIcon"/>
+                              <html:img id="attachmentIcon"
+                                        src="chrome://messenger/skin/icons/attach.svg"
+                                        alt="" />
                               <label id="attachmentCount"/>
                               <label id="attachmentName" crop="center" flex="1"
                                      role="button"

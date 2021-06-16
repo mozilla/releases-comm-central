@@ -2498,7 +2498,9 @@ async function displayAttachmentsForExpandedView() {
   var numAttachments = currentAttachments.length;
   var attachmentView = document.getElementById("attachmentView");
   var attachmentSplitter = document.getElementById("attachment-splitter");
-  document.getElementById("attachmentIcon").removeAttribute("src");
+  document
+    .getElementById("attachmentIcon")
+    .setAttribute("src", "chrome://messenger/skin/icons/attach.svg");
 
   if (numAttachments <= 0) {
     attachmentView.collapsed = true;
@@ -2720,18 +2722,17 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
         "src",
         "chrome://global/skin/icons/loading.png"
       );
-      attachmentItem.classList.add("busy");
-      attachmentItem.setAttribute(
-        "image",
-        "chrome://global/skin/icons/loading.png"
-      );
+      attachmentList.setAttachmentLoaded(attachmentItem, false);
       return;
     }
 
     if (attachmentInfo.message != gFolderDisplay.selectedMessage) {
       // The user changed messages while fetching, reset the bar and exit;
       // the listitems are torn down/rebuilt on each message load.
-      attachmentIcon.removeAttribute("src");
+      attachmentIcon.setAttribute(
+        "src",
+        "chrome://messenger/skin/icons/attach.svg"
+      );
       return;
     }
 
@@ -2756,17 +2757,10 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
     }
 
     // The attachment listitem.
-    attachmentItem.classList.remove("busy");
-    attachmentItem.removeAttribute("image");
+    attachmentList.setAttachmentLoaded(attachmentItem, true);
 
-    if (!attachmentItem.hasAttribute("image")) {
-      let icon = attachmentItem.querySelector("image");
-      let attr = "image" + attachmentItem.getAttribute("imagesize");
-      if (icon != null && attachmentItem.hasAttribute(attr)) {
-        icon.setAttribute("src", attachmentItem.getAttribute(attr));
-      }
-    }
-
+    // FIXME: The UI logic for this should be moved to the attachment list or
+    // item itself.
     let sizeLabel = attachmentItem.querySelector(".attachmentcell-size");
     if (attachmentInfo.hasFile) {
       attachmentItem.setAttribute("size", sizeStr);
@@ -2783,11 +2777,11 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
     // The attachmentbar.
     updateSaveAllAttachmentsButton();
     attachmentSize.value = getAttachmentsTotalSizeStr();
-    let attachemtsBusy = attachmentList.querySelectorAll(
-      ".attachmentItem.busy"
-    );
-    if (attachemtsBusy.length == 0) {
-      attachmentIcon.removeAttribute("src");
+    if (attachmentList.isLoaded()) {
+      attachmentIcon.setAttribute(
+        "src",
+        "chrome://messenger/skin/icons/attach.svg"
+      );
     }
 
     // If it's the first one (and there's only one).
