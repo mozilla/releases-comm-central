@@ -1421,7 +1421,7 @@ MatrixAccount.prototype = {
           room.summary.info.title
         );
         if (room.getInvitedAndJoinedMemberCount() !== 2) {
-          conversation.waitForRoom().then((conv) => {
+          conversation.waitForRoom().then(conv => {
             conv.checkForUpdate();
           });
         }
