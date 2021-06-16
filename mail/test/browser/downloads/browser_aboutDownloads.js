@@ -153,8 +153,8 @@ add_task(function test_empty_list() {
   setupTest();
   switch_tab(downloadsTab);
 
-  let empty = content_tab_e(downloadsTab, "msgDownloadsListEmptyDescription");
-  Assert.ok(!empty.hidden, "msgDownloadsListEmptyDescription is not visible");
+  let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
+  Assert.equal(list.children.length, 0, "Downloads list should be empty");
   teardownTest();
 });
 
@@ -333,8 +333,8 @@ add_task(async function test_clear_all_files() {
     "Timeout waiting for clearing all saved attachment files."
   );
 
-  let empty = content_tab_e(downloadsTab, "msgDownloadsListEmptyDescription");
-  Assert.ok(!empty.hidden, "msgDownloadsListEmptyDescription is not visible");
+  let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
+  Assert.equal(list.children.length, 0, "Downloads list should be empty");
   teardownTest();
 });
 
@@ -349,11 +349,6 @@ function teardownTest() {
   mc.waitFor(
     () => downloadsView.count == 0,
     "Timeout waiting for clearing all saved attachment files."
-  );
-  let empty = content_tab_e(downloadsTab, "msgDownloadsListEmptyDescription");
-  mc.waitFor(
-    () => empty.hidden === false,
-    "Timeout waiting for msgDownloadsListEmptyDescription is visible."
   );
 }
 

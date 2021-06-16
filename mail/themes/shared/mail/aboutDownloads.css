@@ -49,28 +49,8 @@ body {
   text-shadow: none;
 }
 
-#msgDownloadsListEmptyDescription {
-  display: none;
-  margin: 1em;
-  text-align: center;
-  color: #888;
-}
-
-#msgDownloadsRichListBox:empty + #msgDownloadsListEmptyDescription {
-  display: -moz-box;
-}
-
 #msgDownloadsRichListBox {
-  /** The default listbox appearance comes with an unwanted margin. **/
-  appearance: none;
-  margin: 0;
-  color: inherit;
-  border: 1px solid var(--in-content-box-border-color);
-  background-color: var(--in-content-box-background);
-}
-
-:root[lwt-tree] #msgDownloadsRichListBox {
-  color: inherit;
+  margin-block: 0;
 }
 
 #msgDownloadsRichListBox > .download {

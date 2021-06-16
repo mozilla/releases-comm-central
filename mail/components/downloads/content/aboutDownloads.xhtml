@@ -63,15 +63,11 @@
   </hbox>
 
   <hbox id="downloadBottomBox" flex="1">
-    <stack flex="1">
-      <richlistbox id="msgDownloadsRichListBox"
-                   flex="1"
-                   seltype="multiple"
-                   context="msgDownloadsContextMenu"
-                   oncontextmenu="DownloadsView.onDownloadContextMenu();"/>
-      <description id="msgDownloadsListEmptyDescription"
-                   value="&aboutDownloads.empty;"/>
-    </stack>
+    <richlistbox id="msgDownloadsRichListBox"
+                 flex="1"
+                 seltype="multiple"
+                 context="msgDownloadsContextMenu"
+                 oncontextmenu="DownloadsView.onDownloadContextMenu();"/>
   </hbox>
 
   <menupopup id="msgDownloadsContextMenu">
