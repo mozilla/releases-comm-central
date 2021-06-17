@@ -318,6 +318,7 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString& aUID) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (m_directoryUID.IsEmpty()) {
+    // This card's not in a directory.
     return NS_OK;
   }
 
@@ -331,6 +332,7 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString& aUID) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!directory) {
+    // This card claims to be in a directory, but we can't find it.
     return NS_OK;
   }
 
@@ -339,8 +341,11 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString& aUID) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (readOnly) {
-    return NS_ERROR_FAILURE;
+    // The directory is read-only.
+    return NS_OK;
   }
+
+  // Save the new UID so we can use it again in the future.
   return directory->ModifyCard(this);
 }
 
