@@ -40,8 +40,9 @@ interface nsIMsgLocalMailFolder : nsISupports {
   nsIMsgDatabase getDatabaseWOReparse();
 
   /*
-   * This will kick off a url to reparse the db if it's out of date.
-   * If aReparseUrlListener is null, folder will use itself as the listener
+   * If the db is out of date, this will return NS_ERROR_NOT_INITIALIZED
+   * and kick off an async url to reparse the messages.
+   * If aReparseUrlListener is null, folder will use itself as the listener.
    */
   nsIMsgDatabase getDatabaseWithReparse(in nsIUrlListener aReparseUrlListener, in nsIMsgWindow aMsgWindow);
   void parseFolder(in nsIMsgWindow aMsgWindow, in nsIUrlListener listener);

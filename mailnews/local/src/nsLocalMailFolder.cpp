@@ -244,8 +244,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWOReparse(
 }
 
 // Makes sure the database is open and exists.  If the database is out of date,
-// then this call will run an async url to reparse the folder. The passed in
-// url listener will get called when the url is done.
+// then this call will return NS_ERROR_NOT_INITIALIZED and run an async url
+// to reparse the folder. The passed in url listener will get called when the
+// url is done.
 NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWithReparse(
     nsIUrlListener* aReparseUrlListener, nsIMsgWindow* aMsgWindow,
     nsIMsgDatabase** aMsgDatabase) {

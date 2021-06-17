@@ -3,81 +3,93 @@
  * or invalid
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageModifier.js */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageModifier.js");
-load("../../../resources/messageInjection.js");
-
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-var gMsg1;
-var gMsgId1;
+const { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
 
-var gTestFolder, gTestFolder2;
+async function setup() {
+  let createSubfolder = async function(parentFolder, name) {
+    let promiseAdded = PromiseTestUtils.promiseFolderAdded(name);
+    parentFolder.createSubfolder(name, null);
+    await promiseAdded;
+    return parentFolder.getChildNamed(name);
+  };
 
-function* setup_globals(aNextFunc) {
-  var messageGenerator = new MessageGenerator();
-  gMsg1 = messageGenerator.makeMessage();
-  let msg2 = messageGenerator.makeMessage({ inReplyTo: gMsg1 });
+  // Create account.
+  MailServices.accounts.createLocalMailAccount();
+  let account = MailServices.accounts.FindAccountForServer(
+    MailServices.accounts.localFoldersServer
+  );
+  let root = account.incomingServer.rootFolder;
 
-  let messages = [];
-  messages = messages.concat([gMsg1, msg2]);
-  let msgSet = new SyntheticMessageSet(messages);
+  // Add a couple of folders containing some test messages.
+  let folder1 = await createSubfolder(root, "test1");
+  folder1.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  gTestFolder = make_empty_folder();
-  gTestFolder2 = make_empty_folder();
-  yield add_sets_to_folders(gTestFolder, [msgSet]);
-  let msg3 = messageGenerator.makeMessage();
-  messages = [msg3];
-  msgSet = new SyntheticMessageSet(messages);
-  yield add_sets_to_folders(gTestFolder2, [msgSet]);
+  let folder2 = await createSubfolder(root, "test2");
+  folder2.QueryInterface(Ci.nsIMsgLocalMailFolder);
+
+  let gen = new MessageGenerator();
+  let msg1 = gen.makeMessage();
+  let msg2 = gen.makeMessage({ inReplyTo: msg1 });
+  folder1.addMessageBatch([msg1, msg2].map(m => m.toMboxString()));
+
+  let msg3 = gen.makeMessage();
+  folder2.addMessage(msg3.toMboxString());
+
+  return [folder1, folder2];
 }
 
-function run_test() {
-  configure_message_injection({ mode: "local" });
-  do_test_pending();
-  async_run({ func: actually_run_test });
-}
+add_task(async function test_copyToInvalidDB() {
+  let [folder1, folder2] = await setup();
 
-function* actually_run_test() {
-  yield async_run({ func: setup_globals });
-  gTestFolder2.msgDatabase.summaryValid = false;
-  gTestFolder2.msgDatabase = null;
-  gTestFolder2.ForceDBClosed();
-  let dbPath = gTestFolder2.filePath;
+  // Sabotage the destination folder database.
+  folder2.msgDatabase.summaryValid = false;
+  folder2.msgDatabase = null;
+  folder2.ForceDBClosed();
+  let dbPath = folder2.filePath;
   dbPath.leafName = dbPath.leafName + ".msf";
   dbPath.remove(false);
-  gTestFolder2.msgDatabase = null;
+  folder2.msgDatabase = null;
 
-  let msgHdr = mailTestUtils.firstMsgHdr(gTestFolder);
-  gMsgId1 = msgHdr.messageId;
+  // Take note of the message we're going to move (first msg in folder1).
+  let msgHdr = Array.from(folder1.msgDatabase.EnumerateMessages())[0];
+  let expectedID = msgHdr.messageId;
+  let expectedMsg = mailTestUtils.loadMessageToString(folder1, msgHdr);
+
+  // Move the message from folder1 to folder2.
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
-    gTestFolder,
+    folder1,
     [msgHdr],
-    gTestFolder2,
-    true,
-    asyncCopyListener,
-    null,
-    false
+    folder2,
+    true, // isMove
+    copyListener,
+    null, // window
+    false // allowUndo
   );
-  yield false;
+  await copyListener.promise;
+
+  // Rebuild the the database.
+  let urlListener = new PromiseTestUtils.PromiseUrlListener();
   try {
-    gTestFolder2.getDatabaseWithReparse(asyncUrlListener, null);
+    folder2.getDatabaseWithReparse(urlListener, null);
   } catch (ex) {
-    Assert.ok(ex.result == Cr.NS_ERROR_NOT_INITIALIZED);
+    // We expect this - it indicates the DB is not valid. But it will have
+    // kicked off an async reparse, so we need to wait for the listener.
+    Assert.equal(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
+    await urlListener.promise;
   }
-  yield false;
-  let msgRestored = gTestFolder2.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-  let msg = mailTestUtils.loadMessageToString(gTestFolder2, msgRestored);
-  Assert.equal(msg, gMsg1.toMboxString());
-  do_test_finished();
-}
+
+  // Check that the message moved over intact.
+  let gotHdr = folder2.msgDatabase.getMsgHdrForMessageID(expectedID);
+  let gotMsg = mailTestUtils.loadMessageToString(folder2, gotHdr);
+  // NOTE: With maildir store, the message seems to gain an extra trailing
+  // "\n" during the copy. See Bug 1716651.
+  // For now, use .trim() as a workaround.
+  Assert.equal(gotMsg.trim(), expectedMsg.trim());
+});
