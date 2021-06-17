@@ -63,12 +63,8 @@ description {
 }
 
 .loading-status {
-  -moz-context-properties: fill;
-  fill: currentColor;
   width: 16px;
   height: 16px;
-  background: url("chrome://global/skin/icons/loading.png") no-repeat;
-  background-size: 16px 16px;
 }
 
 /* Import key list */
