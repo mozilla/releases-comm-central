@@ -360,8 +360,6 @@ agendaListbox.addItem = function(aItem) {
 agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
   let itemDate = this.comparisonDate(aItem, aPeriod);
   let compItemDate = this.comparisonDate(aCompItem, aPeriod);
-  let itemDateEndDate = itemDate.clone();
-  itemDateEndDate.day++;
 
   let calendarSortOrder = cal.view.calendarSortOrder;
   let itemCalendarIndex = calendarSortOrder.indexOf(aItem.calendar.id);
@@ -383,7 +381,11 @@ agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
       if (aItem.startDate.compare(itemDate) == 0) {
         // starting day of an all-day events spanning multiple days
         return !compItemDate.isDate || aCompItem.duration.days != 1;
-      } else if (aItem.endDate.compare(itemDateEndDate) == 0) {
+      }
+
+      let itemDateEndDate = itemDate.clone();
+      itemDateEndDate.day++;
+      if (aItem.endDate.compare(itemDateEndDate) == 0) {
         // ending day of an all-day events spanning multiple days
         return (
           !compItemDate.isDate ||
@@ -446,7 +448,7 @@ agendaListbox.comparisonDate = function(aItem, aPeriod) {
     // it starts before the given period
     return endDateToReturn;
   }
-  return aItem.startDate.clone();
+  return aItem.startDate.getInTimezone(cal.dtz.defaultTimezone);
 };
 
 /**
