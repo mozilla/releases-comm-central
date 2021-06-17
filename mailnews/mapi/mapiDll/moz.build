@@ -8,6 +8,8 @@
 SharedLibrary("mozMapi32")
 USE_STATIC_LIBS = True
 
+LOCAL_INCLUDES += ["../include"]
+
 SOURCES += [
     "MapiDll.cpp",
 ]

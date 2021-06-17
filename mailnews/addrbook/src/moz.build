@@ -32,6 +32,7 @@ if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["MOZ_MAPI_SUPPORT"]:
         "nsAbWinHelper.cpp",
         "nsMapiAddressBook.cpp",
     ]
+    LOCAL_INCLUDES += ["/comm/mailnews/mapi/include"]
 
 if CONFIG["OS_ARCH"] == "Darwin":
     SOURCES += [

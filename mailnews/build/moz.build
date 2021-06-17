@@ -43,6 +43,7 @@ LOCAL_INCLUDES += [
     "../imap/src",
     "../intl",
     "../local/src",
+    "../mapi/include",
     "../mime/emitters",
     "../mime/src",
     "../news/src",

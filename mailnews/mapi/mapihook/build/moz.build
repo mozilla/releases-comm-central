@@ -9,9 +9,30 @@ OS_LIBS += [
     "rpcrt4",
 ]
 
+LOCAL_INCLUDES += ["/comm/mailnews/mapi/include"]
+
 SOURCES += ["!dlldata.c", "!msgMapi_i.c", "!msgMapi_p.c"]
 
-GENERATED_FILES += ["dlldata.c", "msgMapi.h", "msgMapi_i.c", "msgMapi_p.c"]
+GeneratedFile(
+    "dlldata.c",
+    "msgMapi.h",
+    "msgMapi_i.c",
+    "msgMapi_p.c",
+    inputs=["msgMapi.idl"],
+    script="/build/midl.py",
+    entry_point="midl",
+    flags=[
+        "-I",
+        SRCDIR,
+        "-I",
+        TOPSRCDIR + "/comm/mailnews/mapi/include",
+    ],
+)
+
+EXPORTS += [
+    "!msgMapi.h",
+    "!msgMapi_i.c",
+]
 
 for var in ("REGISTER_PROXY_DLL", "UNICODE", "_UNICODE"):
     DEFINES[var] = True

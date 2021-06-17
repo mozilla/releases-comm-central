@@ -12,7 +12,6 @@ job-defaults:
     fetches:
         toolchain:
             - win64-dump-syms
-            - win64-mapiheaders
             - win64-pdbstr
 
 win32/opt:

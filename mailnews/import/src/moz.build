@@ -67,6 +67,7 @@ if CONFIG["OS_ARCH"] == "WINNT":
         ]
 
         SOURCES["rtfDecoder.cpp"].flags += ["-Wno-switch"]
+        LOCAL_INCLUDES += ["/comm/mailnews/mapi/include"]
 
     if CONFIG["CC_TYPE"] in ("msvc", "clang-cl"):
         SOURCES += [

@@ -154,7 +154,6 @@ jobs:
                 - linux64-winchecksec
                 - linux64-wine
                 - win64-libotr
-                - win64-mapiheaders
             fetch:
                 - nsis-3.01-win
                 - upx-3.95-win

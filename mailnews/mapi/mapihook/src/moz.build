@@ -13,6 +13,8 @@ SOURCES += [
     "Registry.cpp",
 ]
 
+LOCAL_INCLUDES += ["/comm/mailnews/mapi/include"]
+
 FINAL_LIBRARY = "xul"
 
 OS_LIBS += [
