@@ -86,11 +86,7 @@ var unifinderObserver = {
   onLoad() {},
 
   onAddItem(aItem) {
-    if (
-      aItem.isEvent() &&
-      !gUnifinderNeedsRefresh &&
-      unifinderTreeView.mFilter.isItemInFilters(aItem)
-    ) {
+    if (aItem.isEvent() && !gUnifinderNeedsRefresh) {
       this.addItemToTree(aItem);
     }
   },
