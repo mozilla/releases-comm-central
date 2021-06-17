@@ -24,6 +24,9 @@ interface nsIMsgFolderCompactor :  nsISupports
    * @param aFolder        The folder to compact
    * @param aOfflineStore  Just compact the offline store?
    * @param aListener      Notified of completion, can be null.
+   *                       OnStartRunningUrl() will not be called.
+   *                       OnStopRunningUrl() will be called upon completion,
+   *                       with a null URL.
    * @param aMsgWindow     Used for progress/status, can be null
    */
   void compact(in nsIMsgFolder aFolder, in boolean aOfflineStore,
@@ -36,6 +39,9 @@ interface nsIMsgFolderCompactor :  nsISupports
    * @param aOfflineFolderArray  Folders whose offline stores we
    *                             should compact, can be empty.
    * @param aListener            Notified of completion, can be null.
+   *                             OnStartRunningUrl() will not be called.
+   *                             OnStopRunningUrl() will be called upon
+   *                             completion, with a null URL.
    * @param aMsgWindow           Used for progress/status, can be null
    */
   void compactFolders(in Array<nsIMsgFolder> aArrayOfFoldersToCompact,

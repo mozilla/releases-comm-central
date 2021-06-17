@@ -524,9 +524,13 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Compact(nsIUrlListener* aListener,
   NS_ENSURE_SUCCESS(rv, rv);
   bool supportsCompaction;
   msgStore->GetSupportsCompaction(&supportsCompaction);
-  if (supportsCompaction)
-    return msgStore->CompactFolder(this, aListener, aMsgWindow);
-  return NS_OK;
+  if (!supportsCompaction) {
+    if (aListener) {
+      aListener->OnStopRunningUrl(nullptr, NS_OK);
+    }
+    return NS_OK;
+  }
+  return msgStore->CompactFolder(this, aListener, aMsgWindow);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIMsgWindow* msgWindow,
