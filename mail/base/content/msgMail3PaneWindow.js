@@ -720,7 +720,6 @@ var gMailInit = {
   _onMessageReceived(event) {
     switch (event.data) {
       case "account-created":
-      case "account-setup-cancelled":
       case "account-created-from-provisioner":
         // Successful account creation callback.
         switchToMailTab();
