@@ -254,7 +254,7 @@ class ICSDetector {
 
     if (resourceType.has("C:calendar") || resprops["D:getcontenttype"] == "text/calendar") {
       cal.LOG(`[calICSProvider] ${target.spec} is a calendar`);
-      return [this.handleCalendar(target, resprops["D:displayname"], resprops["A:calendar-color"])];
+      return [this.handleCalendar(target, resprops)];
     } else if (resourceType.has("D:collection")) {
       return this.handleDirectory(target);
     }
@@ -347,6 +347,14 @@ class ICSDetector {
       if (dirExists || pathToDir == "") {
         let calendar = this.handleCalendar(location);
         if (calendar) {
+          // Check whether we have write permission on the calendar file.
+          // Calling stat on a non-existent file is an error so we check for
+          // it's existence first.
+          let { permissions } = (await IOUtils.exists(fullPath))
+            ? await IOUtils.stat(fullPath)
+            : await IOUtils.stat(pathToDir);
+
+          calendar.readOnly = (permissions ^ 0o200) == 0;
           return [calendar];
         }
       } else {
@@ -366,7 +374,12 @@ class ICSDetector {
    * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
    */
   async handleDirectory(location) {
-    let props = ["D:getcontenttype", "D:displayname", "A:calendar-color"];
+    let props = [
+      "D:getcontenttype",
+      "D:current-user-privilege-set",
+      "D:displayname",
+      "A:calendar-color",
+    ];
     let request = new CalDavPropfindRequest(this.session, null, location, props, 1);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
@@ -380,9 +393,7 @@ class ICSDetector {
       }
 
       let uri = Services.io.newURI(href, null, target);
-      calendars.push(
-        this.handleCalendar(uri, resprops["D:displayname"], resprops["A:calendar-color"])
-      );
+      calendars.push(this.handleCalendar(uri, resprops));
     }
 
     cal.LOG(`[calICSProvider] ${target.spec} is a directory, found ${calendars.length} calendars`);
@@ -394,11 +405,13 @@ class ICSDetector {
    * Set up and return a new ICS calendar object.
    *
    * @param {nsIURI} uri              The location of the calendar.
-   * @param {string} [displayName]    The display name of the calendar.
-   * @param {string} [color]          The color for the calendar.
+   * @param {Set} [props]             For CalDav calendars, these are the props
+   *                                  parsed from the response.
    * @return {calICalendar}           A new calendar.
    */
-  handleCalendar(uri, displayName, color) {
+  handleCalendar(uri, props = new Set()) {
+    let displayName = props["D:displayname"];
+    let color = props["A:calendar-color"];
     if (!displayName) {
       let lastPath =
         uri.filePath
@@ -417,6 +430,18 @@ class ICSDetector {
     calendar.setProperty("color", color || cal.view.hashColor(uri.spec));
     calendar.name = displayName;
     calendar.id = cal.getUUID();
+
+    // Attempt to discover if the user is allowed to write to this calendar.
+    let privs = props["D:current-user-privilege-set"];
+    if (privs && privs instanceof Set) {
+      calendar.readOnly = ![
+        "D:write",
+        "D:write-content",
+        "D:write-properties",
+        "D:all",
+      ].some(priv => privs.has(priv));
+    }
+
     return calendar;
   }
 }
