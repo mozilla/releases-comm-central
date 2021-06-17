@@ -99,6 +99,36 @@ tb.account:
     record_in_processes:
       - 'main'
 
+  size_on_disk:
+    bug_numbers:
+      - 1615983
+    description: How many bytes does each type of folder take on disk.
+    release_channel_collection: opt-out
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+  total_messages:
+    bug_numbers:
+      - 1615983
+    description: How many messages does each type of folder have.
+    release_channel_collection: opt-out
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
 tb.compose:
   format_html:
     bug_numbers:

@@ -1028,6 +1028,7 @@ async function loadPostAccountWizard(ignoreSystemIntegration) {
   Services.tm.idleDispatchToMainThread(() => {
     reportAccountTypes();
     reportAddressBookTypes();
+    reportAccountSizes();
   });
 }
 
@@ -1158,6 +1159,58 @@ function reportAccountTypes() {
   }
   for (let [type, count] of Object.entries(report)) {
     Services.telemetry.keyedScalarSet("tb.account.count", type, count);
+  }
+}
+
+/**
+ * Report size on disk and messages count of each type of folder to telemetry.
+ */
+function reportAccountSizes() {
+  for (let server of MailServices.accounts.allServers) {
+    if (
+      server instanceof Ci.nsIPop3IncomingServer &&
+      server.deferredToAccount
+    ) {
+      // Skip deferred accounts
+      continue;
+    }
+
+    for (let folder of server.rootFolder.descendants) {
+      let key =
+        [
+          "Inbox",
+          "Drafts",
+          "Trash",
+          "SentMail",
+          "Templates",
+          "Junk",
+          "Archive",
+          "Queue",
+        ].find(x => folder.getFlag(Ci.nsMsgFolderFlags[x])) || "Other";
+      let totalMessages = folder.getTotalMessages(false);
+      if (totalMessages > 0) {
+        Services.telemetry.keyedScalarAdd(
+          "tb.account.size_on_disk",
+          key,
+          folder.sizeOnDisk
+        );
+        Services.telemetry.keyedScalarAdd(
+          "tb.account.total_messages",
+          key,
+          folder.getTotalMessages(false)
+        );
+        Services.telemetry.keyedScalarAdd(
+          "tb.account.size_on_disk",
+          "Total",
+          folder.sizeOnDisk
+        );
+        Services.telemetry.keyedScalarAdd(
+          "tb.account.total_messages",
+          "Total",
+          folder.getTotalMessages(false)
+        );
+      }
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-/* global reportAccountTypes */
+/* global reportAccountTypes, reportAccountSizes */
 
 /**
  * Test telemetry related to account.
@@ -14,6 +14,19 @@ let { TelemetryTestUtils } = ChromeUtils.import(
   "resource://testing-common/TelemetryTestUtils.jsm"
 );
 let { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var {
+  add_message_to_folder,
+  create_message,
+  msgGen,
+  get_special_folder,
+  create_folder,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 // Collect all added accounts to be cleaned up at the end.
 let addedAccounts = [];
@@ -86,4 +99,66 @@ add_task(async function test_account_types() {
   for (let account of addedAccounts) {
     MailServices.accounts.removeAccount(account);
   }
+});
+
+/**
+ * Check that we are counting account sizes.
+ */
+add_task(async function test_account_sizes() {
+  Services.telemetry.clearScalars();
+
+  const NUM_INBOX = 3;
+  const NUM_OTHER = 2;
+
+  let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, true, null, false);
+  let other = create_folder("TestAccountSize");
+  for (let i = 0; i < NUM_INBOX; i++) {
+    add_message_to_folder(
+      inbox,
+      msgGen.makeMessage({ body: { body: `test inbox ${i}` } })
+    );
+  }
+  for (let i = 0; i < NUM_OTHER; i++) {
+    add_message_to_folder(
+      other,
+      msgGen.makeMessage({ body: { body: `test other ${i}` } })
+    );
+  }
+
+  reportAccountSizes();
+  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+
+  // Check if we count total messages correctly.
+  Assert.equal(
+    scalars["tb.account.total_messages"].Inbox,
+    NUM_INBOX,
+    "Number of messages in Inbox must be correct"
+  );
+  Assert.equal(
+    scalars["tb.account.total_messages"].Other,
+    NUM_OTHER,
+    "Number of messages in other folders must be correct"
+  );
+  Assert.equal(
+    scalars["tb.account.total_messages"].Total,
+    NUM_INBOX + NUM_OTHER,
+    "Number of messages in all folders must be correct"
+  );
+
+  // Check if we count size on disk correctly.
+  Assert.equal(
+    scalars["tb.account.size_on_disk"].Inbox,
+    873,
+    "Size of Inbox must be correct"
+  );
+  Assert.equal(
+    scalars["tb.account.size_on_disk"].Other,
+    618,
+    "Size of other folders must be correct"
+  );
+  Assert.equal(
+    scalars["tb.account.size_on_disk"].Total,
+    873 + 618,
+    "Size of all folders must be correct"
+  );
 });
