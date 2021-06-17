@@ -1849,6 +1849,8 @@ var gAccountSetup = {
       this._abortable.cancel(new UserCancelledException());
     }
 
+    // Trigger the startup process if the user didn't complete the setup.
+    gMainWindow.postMessage("account-setup-cancelled", "*");
     gAccountSetupLogger.debug("Shutting down email config dialog");
   },
 
