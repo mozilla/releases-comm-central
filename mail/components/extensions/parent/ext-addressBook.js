@@ -596,7 +596,7 @@ this.addressBook = class extends ExtensionAPI {
                       return;
                     }
                     results.push(
-                      addressBookCache.findContactById(contact.UID, book)
+                      addressBookCache._makeContactNode(contact, book.item)
                     );
                   },
                 });
