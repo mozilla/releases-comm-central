@@ -211,8 +211,7 @@
       );
 
       this.classList.add("calendar-task-tree");
-      // TODO: enableColumnDrag="false" does not seem to prevent dragging columns, remove?
-      this.setAttribute("enableColumnDrag", "false");
+      this.setAttribute("enableColumnDrag", "true");
       this.setAttribute("keepcurrentinview", "true");
 
       this.addEventListener("select", event => {
@@ -392,6 +391,12 @@
           this.mTreeView.selectedColumn = col;
         }
       });
+      // Update the ordinal positions of splitters to even numbers, so that
+      // they are in between columns.
+      let splitters = this.getElementsByTagName("splitter");
+      for (let i = 0; i < splitters.length; i++) {
+        splitters[i].style.MozBoxOrdinalGroup = (i + 1) * 2;
+      }
     }
 
     /**
