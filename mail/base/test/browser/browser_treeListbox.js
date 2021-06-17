@@ -308,6 +308,22 @@ async function testExpandCollapse() {
     "row-3-1-2",
   ];
 
+  let listener = {
+    reset() {
+      this.collapsedRow = null;
+      this.expandedRow = null;
+    },
+    handleEvent(event) {
+      if (event.type == "collapsed") {
+        this.collapsedRow = event.target;
+      } else if (event.type == "expanded") {
+        this.expandedRow = event.target;
+      }
+    },
+  };
+  list.addEventListener("collapsed", listener);
+  list.addEventListener("expanded", listener);
+
   Assert.equal(
     list.querySelectorAll("collapsed").length,
     0,
@@ -343,21 +359,23 @@ async function testExpandCollapse() {
 
   // Click the twisties of rows without children.
 
-  function clickTwisty(id, expectChange = true) {
-    info(`clicking the twisty on ${id}`);
+  function performChange(id, expectedChange, changeCallback) {
+    listener.reset();
     let row = doc.getElementById(id);
     let before = row.classList.contains("collapsed");
-    EventUtils.synthesizeMouseAtCenter(
-      row.querySelector(".twisty"),
-      {},
-      content
-    );
-    if (expectChange) {
-      Assert.notEqual(
-        row.classList.contains("collapsed"),
-        before,
-        `${id} state changed`
-      );
+
+    changeCallback(row);
+
+    if (expectedChange == "collapsed") {
+      Assert.ok(!before, `${id} was expanded`);
+      Assert.ok(row.classList.contains("collapsed"), `${id} collapsed`);
+      Assert.equal(listener.collapsedRow, row, `${id} fired 'collapse' event`);
+      Assert.ok(!listener.expandedRow, `${id} did not fire 'expand' event`);
+    } else if (expectedChange == "expanded") {
+      Assert.ok(before, `${id} was collapsed`);
+      Assert.ok(!row.classList.contains("collapsed"), `${id} expanded`);
+      Assert.ok(!listener.collapsedRow, `${id} did not fire 'collapse' event`);
+      Assert.equal(listener.expandedRow, row, `${id} fired 'expand' event`);
     } else {
       Assert.equal(
         row.classList.contains("collapsed"),
@@ -367,10 +385,23 @@ async function testExpandCollapse() {
     }
   }
 
+  function clickTwisty(id, expectedChange) {
+    info(`clicking the twisty on ${id}`);
+    performChange(id, expectedChange, row =>
+      EventUtils.synthesizeMouseAtCenter(
+        row.querySelector(".twisty"),
+        {},
+        content
+      )
+    );
+  }
+
   for (let id of idsWithoutChildren) {
-    clickTwisty(id, false);
+    clickTwisty(id, null);
     Assert.equal(list.querySelector(".selected").id, id);
   }
+
+  checkSelected(7, "row-3-1-2");
 
   // Click the twisties of rows with children.
 
@@ -400,49 +431,271 @@ async function testExpandCollapse() {
 
   // Collapse row 2.
 
-  clickTwisty("row-2");
+  clickTwisty("row-2", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2");
   checkSelected(5, "row-3-1-2");
 
   // Collapse row 3.
 
-  clickTwisty("row-3");
+  clickTwisty("row-3", "collapsed");
   checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(2, "row-3");
 
   // Expand row 2.
 
-  clickTwisty("row-2");
+  clickTwisty("row-2", "expanded");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
   // Expand row 3.
 
-  clickTwisty("row-3");
+  clickTwisty("row-3", "expanded");
   checkRowsAreHidden();
   checkSelected(4, "row-3");
 
   // Collapse row 3-1.
 
-  clickTwisty("row-3-1");
+  clickTwisty("row-3-1", "collapsed");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
   // Collapse row 3.
 
-  clickTwisty("row-3");
+  clickTwisty("row-3", "collapsed");
   checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
   // Expand row 3.
 
-  clickTwisty("row-3");
+  clickTwisty("row-3", "expanded");
   checkRowsAreHidden("row-3-1-1", "row-3-1-2");
   checkSelected(4, "row-3");
 
   // Expand row 3-1.
 
-  clickTwisty("row-3-1");
+  clickTwisty("row-3-1", "expanded");
   checkRowsAreHidden();
   checkSelected(4, "row-3");
+
+  // Test key presses.
+
+  function pressKey(id, key, expectedChange) {
+    info(`pressing ${key}`);
+    performChange(id, expectedChange, row => {
+      EventUtils.synthesizeKey(key, {}, content);
+    });
+  }
+
+  // Row 0 has no children or parent, nothing should happen.
+
+  list.selectedIndex = 0;
+  pressKey("row-1", "VK_LEFT");
+  checkSelected(0, "row-1");
+  pressKey("row-1", "VK_RIGHT");
+  checkSelected(0, "row-1");
+
+  // Collapse row 2.
+
+  list.selectedIndex = 1;
+  pressKey("row-2", "VK_LEFT", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(1, "row-2");
+
+  pressKey("row-2", "VK_LEFT");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(1, "row-2");
+
+  // Collapse row 3.
+
+  list.selectedIndex = 2;
+  pressKey("row-3", "VK_LEFT", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  pressKey("row-3", "VK_LEFT");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  // Expand row 2.
+
+  list.selectedIndex = 1;
+  pressKey("row-2", "VK_RIGHT", "expanded");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(1, "row-2");
+
+  // Expand row 3.
+
+  list.selectedIndex = 4;
+  pressKey("row-3", "VK_RIGHT", "expanded");
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+
+  // Go down the tree to row 3-1-1.
+
+  pressKey("row-3", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  pressKey("row-3-1-1", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  // Collapse row 3-1.
+
+  pressKey("row-3-1-1", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "VK_LEFT", "collapsed");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  // Collapse row 3.
+
+  pressKey("row-3-1", "VK_LEFT");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  pressKey("row-3", "VK_LEFT", "collapsed");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  // Expand row 3.
+
+  pressKey("row-3", "VK_RIGHT", "expanded");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  pressKey("row-3", "VK_RIGHT");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  // Expand row 3-1.
+
+  pressKey("row-3-1", "VK_RIGHT", "expanded");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  pressKey("row-3-1-1", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  // Same again, with a RTL tree.
+
+  info("switching to RTL");
+  doc.documentElement.dir = "rtl";
+
+  // Row 0 has no children or parent, nothing should happen.
+
+  list.selectedIndex = 0;
+  pressKey("row-1", "VK_RIGHT");
+  checkSelected(0, "row-1");
+  pressKey("row-1", "VK_LEFT");
+  checkSelected(0, "row-1");
+
+  // Collapse row 2.
+
+  list.selectedIndex = 1;
+  pressKey("row-2", "VK_RIGHT", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(1, "row-2");
+
+  pressKey("row-2", "VK_RIGHT");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(1, "row-2");
+
+  // Collapse row 3.
+
+  list.selectedIndex = 2;
+  pressKey("row-3", "VK_RIGHT", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  pressKey("row-3", "VK_RIGHT");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  // Expand row 2.
+
+  list.selectedIndex = 1;
+  pressKey("row-2", "VK_LEFT", "expanded");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(1, "row-2");
+
+  // Expand row 3.
+
+  list.selectedIndex = 4;
+  pressKey("row-3", "VK_LEFT", "expanded");
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+
+  // Go down the tree to row 3-1-1.
+
+  pressKey("row-3", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  pressKey("row-3-1-1", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  // Collapse row 3-1.
+
+  pressKey("row-3-1-1", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "VK_RIGHT", "collapsed");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  // Collapse row 3.
+
+  pressKey("row-3-1", "VK_RIGHT");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  pressKey("row-3", "VK_RIGHT", "collapsed");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  // Expand row 3.
+
+  pressKey("row-3", "VK_LEFT", "expanded");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  pressKey("row-3", "VK_LEFT");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  // Expand row 3-1.
+
+  pressKey("row-3-1", "VK_LEFT", "expanded");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  pressKey("row-3-1-1", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  list.removeEventListener("collapsed", listener);
+  list.removeEventListener("expanded", listener);
+  doc.documentElement.dir = null;
 }

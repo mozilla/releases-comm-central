@@ -87,6 +87,11 @@
         ) {
           let rowIndex = this.rows.indexOf(row);
           let didCollapse = row.classList.toggle("collapsed");
+          row.dispatchEvent(
+            new CustomEvent(didCollapse ? "collapsed" : "expanded", {
+              bubbles: true,
+            })
+          );
           if (didCollapse && row.querySelector("ul > li.selected")) {
             // The selected row was hidden. Select the visible ancestor of it.
             this.selectedIndex = rowIndex;
@@ -157,27 +162,34 @@
             this.selectedIndex = i;
             break;
           }
-          case "ArrowLeft": {
-            let selected = this.getRowAtIndex(this.selectedIndex);
-            let parent = selected.parentNode.closest(".children");
-            if (
-              parent &&
-              (!selected.classList.contains("children") ||
-                selected.classList.contains("collapsed"))
-            ) {
-              this.selectedIndex = this.rows.indexOf(parent);
-              break;
-            }
-            if (selected.classList.contains("children")) {
-              selected.classList.toggle("collapsed", true);
-            }
-            break;
-          }
+          case "ArrowLeft":
           case "ArrowRight": {
             let selected = this.getRowAtIndex(this.selectedIndex);
-            if (selected.classList.contains("children")) {
+
+            let isArrowRight = event.key == "ArrowRight";
+            let isRTL = this.matches(":dir(rtl)");
+            if (isArrowRight == isRTL) {
+              let parent = selected.parentNode.closest(".children");
+              if (
+                parent &&
+                (!selected.classList.contains("children") ||
+                  selected.classList.contains("collapsed"))
+              ) {
+                this.selectedIndex = this.rows.indexOf(parent);
+                break;
+              }
+              if (selected.classList.contains("children")) {
+                selected.classList.toggle("collapsed", true);
+                selected.dispatchEvent(
+                  new CustomEvent("collapsed", { bubbles: true })
+                );
+              }
+            } else if (selected.classList.contains("children")) {
               if (selected.classList.contains("collapsed")) {
                 selected.classList.remove("collapsed");
+                selected.dispatchEvent(
+                  new CustomEvent("expanded", { bubbles: true })
+                );
               } else {
                 this.selectedIndex = this.rows.indexOf(
                   selected.querySelector("li")
