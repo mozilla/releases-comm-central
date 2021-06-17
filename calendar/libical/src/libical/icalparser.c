@@ -1028,7 +1028,8 @@ icalcomponent* icalparser_add_line(icalparser* parser,
 
         case ICAL_TRIGGER_PROPERTY:
             /* Accept DATE-TIME */
-            if (value_kind != ICAL_DATETIME_VALUE)
+            if (value_kind != ICAL_DATETIME_VALUE &&
+                value_kind != ICAL_DURATION_VALUE)
                 value_err = illegal_type;
             break;
 
