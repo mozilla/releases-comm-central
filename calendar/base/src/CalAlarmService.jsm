@@ -443,29 +443,6 @@ CalAlarmService.prototype = {
   },
 
   /**
-   * Parse a .notifications.times pref value to an array of seconds. The pref
-   * value is expected to be in the form of "PT1D PT2H PT3M".
-   * @param {string} prefValue - The pref value to the parsed.
-   * @returns {number[]} An array of seconds.
-   */
-  parseNotificationTimeToSeconds(prefValue) {
-    return prefValue
-      .split(" ")
-      .map(entry => {
-        if (!entry.trim()) {
-          return null;
-        }
-        try {
-          return cal.createDuration(entry).inSeconds;
-        } catch (e) {
-          this._logger.error(`Failed to parse ${prefValue}`, e);
-          return null;
-        }
-      })
-      .filter(x => x != null);
-  },
-
-  /**
    * Get the timeouts before notifications are fired for an item.
    * @param {calIItemBase} item - A calendar item instance.
    * @returns {number[]} Timeouts of notifications in milliseconds in ascending order.
@@ -478,24 +455,45 @@ CalAlarmService.prototype = {
     if (!cal.item.checkIfInRange(item, now, until)) {
       return [];
     }
-    let startDate;
-    if (item.isEvent) {
-      startDate = item.startDate;
-    } else {
-      startDate = item.entryDate || item.dueDate;
+    let startDate = item[cal.dtz.startDateProp(item)];
+    let endDate = item[cal.dtz.endDateProp(item)];
+    let timeouts = [];
+    // The calendar level notifications setting overrides the global setting.
+    let prefValue = (item.calendar.getProperty("notifications.times") || gNotificationsTimes).split(
+      ","
+    );
+    for (let entry of prefValue) {
+      entry = entry.trim();
+      if (!entry) {
+        continue;
+      }
+      let [tag, value] = entry.split(":");
+      if (!value) {
+        value = tag;
+        tag = "";
+      }
+      let duration;
+      try {
+        duration = cal.createDuration(value);
+      } catch (e) {
+        this._logger.error(`Failed to parse ${entry}`, e);
+        continue;
+      }
+      let fireDate;
+      if (tag == "END" && endDate) {
+        fireDate = endDate.clone();
+      } else if (startDate) {
+        fireDate = startDate.clone();
+      } else {
+        continue;
+      }
+      fireDate.addDuration(duration);
+      let timeout = fireDate.subtractDate(now).inSeconds * 1000;
+      if (timeout > 0) {
+        timeouts.push(timeout);
+      }
     }
-    return this.parseNotificationTimeToSeconds(
-      // The calendar level notifications setting overrides the global setting.
-      item.calendar.getProperty("notifications.times") || gNotificationsTimes
-    )
-      .map(seconds => {
-        let fireDate = startDate.clone();
-        fireDate.second -= seconds;
-        let timeout = fireDate.subtractDate(now).inSeconds * 1000;
-        return timeout > 0 ? timeout : null;
-      })
-      .filter(x => x != null)
-      .sort((x, y) => x - y);
+    return timeouts.sort((x, y) => x - y);
   },
 
   /**

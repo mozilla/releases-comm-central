@@ -51,9 +51,9 @@ pref("calendar.alarms.todoalarmunit", "minutes");
 pref("calendar.alarms.loglevel", "Warn");
 
 // The default timeouts to show notifications for calendar items. The value
-// should be in the form of "PT1D PT1H PT0M", which means to show three
-// notifications: one at 1 day before, one at 1 hour before, one at 0 minute
-// before the event/task starts.
+// should be in the form of "-PT1D,PT2M,END:-PT3M", which means to show
+// notifications at: 1 day before the start, 2 minutes after the start, 3
+// minutes before the end.
 pref("calendar.notifications.times", "");
 
 // open invitations autorefresh settings

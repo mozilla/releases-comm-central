@@ -504,10 +504,10 @@ function test_modifyItems() {
  * @param {number[]} expected - Expected delays in seconds.
  */
 function matchTimers(timers, expected) {
-  let delays = timers.map(timer => timer.delay);
+  let delays = timers.map(timer => timer.delay / 1000);
   let matched = true;
   for (let i = 0; i < delays.length; i++) {
-    if (Math.abs(delays[i] - expected[i] * 1000) > 1000) {
+    if (Math.abs(delays[i] - expected[i]) > 1) {
       matched = false;
       break;
     }
@@ -534,7 +534,7 @@ function test_notificationTimers() {
     );
 
     // Set the pref to have one notifiaction.
-    Services.prefs.setCharPref("calendar.notifications.times", "PT1H");
+    Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
     oldItem = item.clone();
     date.hour += 1;
     item.startDate = date.clone();
@@ -544,24 +544,28 @@ function test_notificationTimers() {
     matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [3600]);
 
     // Set the pref to have three notifiactions.
-    Services.prefs.setCharPref("calendar.notifications.times", "PT5M PT0M PT30M");
+    Services.prefs.setCharPref("calendar.notifications.times", "END:PT2M,PT0M,END:-PT30M,-PT5M");
     oldItem = item.clone();
     date.hour -= 1;
     item.startDate = date.clone();
+    date.hour += 1;
+    item.endDate = date.clone();
     item.generation++;
     memory.modifyItem(item, oldItem, null);
-    // Should have three notification timers.
+    // Should have four notification timers.
     matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
-      1800, // 30 minutes
       3300, // 55 minutes
       3600, // 60 minutes
+      5400, // 90 minutes, which is 30 minutes before the end (END:-PT30M)
+      7320, // 122 minutes, which is 2 minutes after the end (END:PT2M)
     ]);
 
     alarmObserver.service.removeFiredNotificationTimer(item);
-    // Should have two notification timers.
+    // Should have three notification timers.
     matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
-      3300,
       3600,
+      5400,
+      7320,
     ]);
 
     memory.deleteItem(item, null);
@@ -586,7 +590,7 @@ function test_calendarLevelNotificationTimers() {
     if (!loaded) {
       loaded = true;
       // Set the global pref to have one notifiaction.
-      Services.prefs.setCharPref("calendar.notifications.times", "PT1H");
+      Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
 
       // Add an item.
       let date = cal.dtz.now();
@@ -599,7 +603,7 @@ function test_calendarLevelNotificationTimers() {
         3600,
       ]);
       // Set the calendar level pref to have two notification timers.
-      memory.setProperty("notifications.times", "PT5M PT0M");
+      memory.setProperty("notifications.times", "-PT5M,PT0M");
     }
 
     await TestUtils.waitForCondition(
