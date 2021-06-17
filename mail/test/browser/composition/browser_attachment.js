@@ -932,3 +932,58 @@ add_task(async function test_attachment_reordering() {
 
   close_compose_window(cwc);
 });
+
+add_task(async function test_restore_attachment_pane_height() {
+  let cwc = open_compose_new_mail();
+
+  // Add 9 attachments to open a pane least 2 rows height.
+  let files = [
+    { name: "foo.txt", size: 1234 },
+    { name: "bar.txt", size: 5678 },
+    { name: "baz.txt", size: 9012 },
+    { name: "foo2.txt", size: 1234 },
+    { name: "bar2.txt", size: 5678 },
+    { name: "baz2.txt", size: 9012 },
+    { name: "foo3.txt", size: 1234 },
+    { name: "bar3.txt", size: 5678 },
+    { name: "baz3.txt", size: 9012 },
+  ];
+  for (let i = 0; i < files.length; i++) {
+    add_attachments(cwc, filePrefix + files[i].name, files[i].size);
+  }
+
+  let attachmentsBox = cwc.window.document.getElementById("attachmentsBox");
+  let attachmentsView = cwc.window.document.getElementById("attachmentView");
+
+  // Store the height of the attachment pane and the richlistbox child item.
+  let viewHeight = attachmentsView.getAttribute("height");
+  let richlistboxHeight = attachmentsBox.getAttribute("height");
+
+  let modifiers =
+    AppConstants.platform == "macosx"
+      ? { accelKey: true, shiftKey: true }
+      : { ctrlKey: true, shiftKey: true };
+
+  let collapsedPromise = BrowserTestUtils.waitForCondition(
+    () => attachmentsBox.collapsed,
+    "The attachment pane is collapsed."
+  );
+
+  // Press Ctrl/Cmd+Shift+M to collapse the attachment pane.
+  EventUtils.synthesizeKey("M", modifiers, cwc.window);
+  await collapsedPromise;
+
+  let visiblePromise = BrowserTestUtils.waitForCondition(
+    () => !attachmentsBox.collapsed,
+    "The attachment pane is visible."
+  );
+  // Press Ctrl/Cmd+Shift+M again.
+  EventUtils.synthesizeKey("M", modifiers, cwc.window);
+  await visiblePromise;
+
+  // The height of these elements should have been properly restored.
+  Assert.equal(attachmentsView.getAttribute("height"), viewHeight);
+  Assert.equal(attachmentsBox.getAttribute("height"), richlistboxHeight);
+
+  close_compose_window(cwc);
+});

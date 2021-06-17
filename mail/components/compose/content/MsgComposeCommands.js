@@ -6967,6 +6967,13 @@ function toggleAttachmentPane(aAction = "toggle") {
 
   switch (aAction) {
     case "show": {
+      // Restore the previously resized container height.
+      if (gAttachmentHeight) {
+        document
+          .getElementById("attachmentView")
+          .setAttribute("height", gAttachmentHeight);
+      }
+
       attachmentsBox.collapsed = false;
       attachmentBucketSizer.collapsed = false;
       attachmentBucketSizer.setAttribute("state", "");
@@ -6974,13 +6981,6 @@ function toggleAttachmentPane(aAction = "toggle") {
 
       if (!bucketHasFocus) {
         moveFocusToAttachmentPane();
-      }
-
-      // Restore the previously resized container height.
-      if (gAttachmentHeight) {
-        document
-          .getElementById("attachmentView")
-          .setAttribute("height", gAttachmentHeight);
       }
       break;
     }
