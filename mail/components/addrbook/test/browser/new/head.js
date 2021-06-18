@@ -113,7 +113,7 @@ function createContact(firstName, lastName, displayName) {
   contact.displayName = displayName || `${firstName} ${lastName}`;
   contact.firstName = firstName;
   contact.lastName = lastName;
-  contact.primaryEmail = `${firstName}.${lastName}@invalid`;
+  contact.primaryEmail = `${firstName}.${lastName}@invalid`.toLowerCase();
   return contact;
 }
 

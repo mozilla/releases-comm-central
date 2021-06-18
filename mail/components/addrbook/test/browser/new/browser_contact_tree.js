@@ -2,6 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+function rightClickOnIndex(index) {
+  let abWindow = getAddressBookWindow();
+  let cardsList = abWindow.cardsPane.cardsList;
+  let menu = abWindow.document.getElementById("cardContext");
+
+  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(index),
+    { type: "contextmenu" },
+    abWindow
+  );
+  return shownPromise;
+}
+
 /**
  * Tests that additions and removals are accurately displayed, or not
  * displayed if they happen outside the current address book.
@@ -336,4 +350,304 @@ add_task(async function test_name_column() {
   await closeAddressBookWindow();
 
   await promiseDirectoryRemoved(book.URI);
+});
+
+/**
+ * Tests the context menu compose items.
+ */
+add_task(async function test_context_menu_compose() {
+  MailServices.accounts.createLocalMailAccount();
+  let account = MailServices.accounts.accounts[0];
+  account.addIdentity(MailServices.accounts.createIdentity());
+
+  registerCleanupFunction(async () => {
+    MailServices.accounts.removeAccount(account, true);
+  });
+
+  let book = createAddressBook("Book");
+  let contactA = book.addCard(createContact("Contact", "A"));
+  let contactB = createContact("Contact", "B");
+  contactB.setProperty("SecondEmail", "b.contact@invalid");
+  contactB = book.addCard(contactB);
+  let contactC = createContact("Contact", "C");
+  contactC.primaryEmail = null;
+  contactC.setProperty("SecondEmail", "c.contact@invalid");
+  contactC = book.addCard(contactC);
+  let contactD = createContact("Contact", "D");
+  contactD.primaryEmail = null;
+  contactD = book.addCard(contactD);
+  let list = book.addMailList(createMailingList("List"));
+  list.addCard(contactA);
+  list.addCard(contactB);
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abWindow.cardsPane.cardsList;
+
+  let menu = abDocument.getElementById("cardContext");
+  let writeMenuItem = abDocument.getElementById("cardContextWrite");
+  let writeMenu = abDocument.getElementById("cardContextWriteMenu");
+
+  async function checkComposeWindow(composeWindow, ...expectedAddresses) {
+    await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
+    let composeDocument = composeWindow.document;
+    let toAddrRow = composeDocument.getElementById("addressRowTo");
+
+    let pills = toAddrRow.querySelectorAll("mail-address-pill");
+    Assert.equal(pills.length, expectedAddresses.length);
+    for (let i = 0; i < expectedAddresses.length; i++) {
+      Assert.equal(pills[i].label, expectedAddresses[i]);
+    }
+
+    await Promise.all([
+      BrowserTestUtils.closeWindow(composeWindow),
+      BrowserTestUtils.waitForEvent(window, "activate"),
+    ]);
+  }
+
+  openDirectory(book);
+
+  // Contact A, first and only email address.
+
+  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+
+  await rightClickOnIndex(0);
+  Assert.ok(!writeMenuItem.hidden);
+  Assert.ok(writeMenu.hidden);
+  menu.activateItem(writeMenuItem);
+
+  await checkComposeWindow(
+    await composeWindowPromise,
+    "Contact A <contact.a@invalid>"
+  );
+
+  // Contact B, first email address.
+
+  composeWindowPromise = BrowserTestUtils.domWindowOpened();
+
+  await rightClickOnIndex(1);
+  Assert.ok(writeMenuItem.hidden);
+  Assert.ok(!writeMenu.hidden);
+  let shownPromise = BrowserTestUtils.waitForEvent(writeMenu, "popupshown");
+  writeMenu.openMenu(true);
+  await shownPromise;
+  let subMenuItems = writeMenu.querySelectorAll("menuitem");
+  Assert.equal(subMenuItems.length, 2);
+  Assert.equal(subMenuItems[0].label, "Contact B <contact.b@invalid>");
+  Assert.equal(subMenuItems[1].label, "Contact B <b.contact@invalid>");
+
+  writeMenu.menupopup.activateItem(subMenuItems[0]);
+
+  await checkComposeWindow(
+    await composeWindowPromise,
+    "Contact B <contact.b@invalid>"
+  );
+
+  // Contact B, second email address.
+
+  composeWindowPromise = BrowserTestUtils.domWindowOpened();
+
+  await rightClickOnIndex(1);
+  Assert.ok(writeMenuItem.hidden);
+  Assert.ok(!writeMenu.hidden);
+  shownPromise = BrowserTestUtils.waitForEvent(writeMenu, "popupshown");
+  writeMenu.openMenu(true);
+  await shownPromise;
+  subMenuItems = writeMenu.querySelectorAll("menuitem");
+  Assert.equal(subMenuItems.length, 2);
+  Assert.equal(subMenuItems[0].label, "Contact B <contact.b@invalid>");
+  Assert.equal(subMenuItems[1].label, "Contact B <b.contact@invalid>");
+
+  writeMenu.menupopup.activateItem(subMenuItems[1]);
+
+  await checkComposeWindow(
+    await composeWindowPromise,
+    "Contact B <b.contact@invalid>"
+  );
+
+  // Contact C, second and only email address.
+
+  composeWindowPromise = BrowserTestUtils.domWindowOpened();
+
+  await rightClickOnIndex(2);
+  Assert.ok(!writeMenuItem.hidden);
+  Assert.ok(writeMenu.hidden);
+  menu.activateItem(writeMenuItem);
+
+  await checkComposeWindow(
+    await composeWindowPromise,
+    "Contact C <c.contact@invalid>"
+  );
+
+  // Contact D, no email address.
+
+  await rightClickOnIndex(3);
+  Assert.ok(writeMenuItem.hidden);
+  Assert.ok(writeMenu.hidden);
+  menu.hidePopup();
+
+  // List.
+
+  composeWindowPromise = BrowserTestUtils.domWindowOpened();
+
+  await rightClickOnIndex(4);
+  Assert.ok(!writeMenuItem.hidden);
+  Assert.ok(writeMenu.hidden);
+  menu.activateItem(writeMenuItem);
+
+  await checkComposeWindow(await composeWindowPromise, "List <List>");
+
+  // Contact A and Contact D.
+
+  composeWindowPromise = BrowserTestUtils.domWindowOpened();
+
+  cardsList.selectedIndicies = [0, 3];
+  await rightClickOnIndex(3);
+  Assert.ok(!writeMenuItem.hidden);
+  Assert.ok(writeMenu.hidden);
+  menu.activateItem(writeMenuItem);
+
+  await checkComposeWindow(
+    await composeWindowPromise,
+    "Contact A <contact.a@invalid>"
+  );
+
+  // Contact B and Contact C.
+
+  composeWindowPromise = BrowserTestUtils.domWindowOpened();
+
+  cardsList.selectedIndicies = [1, 2];
+  await rightClickOnIndex(2);
+  Assert.ok(!writeMenuItem.hidden);
+  Assert.ok(writeMenu.hidden);
+  menu.activateItem(writeMenuItem);
+
+  await checkComposeWindow(
+    await composeWindowPromise,
+    "Contact B <contact.b@invalid>",
+    "Contact C <c.contact@invalid>"
+  );
+
+  // Contact B and List.
+
+  composeWindowPromise = BrowserTestUtils.domWindowOpened();
+
+  cardsList.selectedIndicies = [1, 4];
+  await rightClickOnIndex(4);
+  Assert.ok(!writeMenuItem.hidden);
+  Assert.ok(writeMenu.hidden);
+  menu.activateItem(writeMenuItem);
+
+  await checkComposeWindow(
+    await composeWindowPromise,
+    "Contact B <contact.b@invalid>",
+    "List <List>"
+  );
+
+  await closeAddressBookWindow();
+
+  await promiseDirectoryRemoved(book.URI);
+});
+
+/**
+ * Tests the context menu delete items.
+ */
+add_task(async function test_context_menu_delete() {
+  let normalBook = createAddressBook("Normal Book");
+  let normalList = normalBook.addMailList(createMailingList("Normal List"));
+  let normalContact = normalBook.addCard(createContact("Normal", "Contact"));
+  normalList.addCard(normalContact);
+
+  let readOnlyBook = createAddressBook("Read-Only Book");
+  let readOnlyList = readOnlyBook.addMailList(
+    createMailingList("Read-Only List")
+  );
+  let readOnlyContact = readOnlyBook.addCard(
+    createContact("Read-Only", "Contact")
+  );
+  readOnlyList.addCard(readOnlyContact);
+  readOnlyBook.setBoolValue("readOnly", true);
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abWindow.cardsPane.cardsList;
+
+  let menu = abDocument.getElementById("cardContext");
+  let deleteMenuItem = abDocument.getElementById("cardContextDelete");
+  let removeMenuItem = abDocument.getElementById("cardContextRemove");
+
+  async function checkDeleteItems(index, deleteHidden, removeHidden, disabled) {
+    await rightClickOnIndex(index);
+
+    Assert.equal(
+      deleteMenuItem.hidden,
+      deleteHidden,
+      `deleteMenuItem.hidden on index ${index}`
+    );
+    Assert.equal(
+      deleteMenuItem.disabled,
+      disabled,
+      `deleteMenuItem.disabled on index ${index}`
+    );
+    Assert.equal(
+      removeMenuItem.hidden,
+      removeHidden,
+      `removeMenuItem.hidden on index ${index}`
+    );
+    Assert.equal(
+      removeMenuItem.disabled,
+      disabled,
+      `removeMenuItem.disabled on index ${index}`
+    );
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    menu.hidePopup();
+    await hiddenPromise;
+  }
+
+  info("Testing Normal Book");
+  openDirectory(normalBook);
+  await checkDeleteItems(0, false, true, false); // normal contact
+  await checkDeleteItems(1, false, true, false); // normal list
+
+  cardsList.selectedIndicies = [0, 1];
+  await checkDeleteItems(0, false, true, false); // normal contact + normal list
+  await checkDeleteItems(1, false, true, false); // normal contact + normal list
+
+  info("Testing Normal List");
+  openDirectory(normalList);
+  await checkDeleteItems(0, true, false, false); // normal contact
+
+  info("Testing Read-Only Book");
+  openDirectory(readOnlyBook);
+  await checkDeleteItems(0, false, true, true); // read-only contact
+  await checkDeleteItems(1, false, true, true); // read-only list
+
+  info("Testing Read-Only List");
+  openDirectory(readOnlyList);
+  await checkDeleteItems(0, true, false, true); // read-only contact
+
+  info("Testing All Address Books");
+  openAllAddressBooks();
+  await checkDeleteItems(0, false, true, false); // normal contact
+  await checkDeleteItems(1, false, true, false); // normal list
+  await checkDeleteItems(2, false, true, true); // read-only contact
+  await checkDeleteItems(3, false, true, true); // read-only list
+
+  cardsList.selectedIndicies = [0, 1];
+  await checkDeleteItems(1, false, true, false); // normal contact + normal list
+
+  cardsList.selectedIndicies = [0, 2];
+  await checkDeleteItems(2, false, true, true); // normal contact + read-only contact
+
+  cardsList.selectedIndicies = [1, 3];
+  await checkDeleteItems(3, false, true, true); // normal list + read-only list
+
+  cardsList.selectedIndicies = [0, 1, 2, 3];
+  await checkDeleteItems(3, false, true, true); // everything
+
+  await closeAddressBookWindow();
+
+  await promiseDirectoryRemoved(normalBook.URI);
+  await promiseDirectoryRemoved(readOnlyBook.URI);
 });

@@ -405,4 +405,25 @@
                 data-l10n-id="about-addressbook-sort-email-descending"
                 oncommand="cardsPane.sortCards(event);"/>
 </xul:menupopup>
+<xul:menupopup id="cardContext">
+  <xul:menuitem id="cardContextWrite"
+                data-l10n-id="about-addressbook-cards-context-write"
+                oncommand="cardsPane.writeToSelected();"/>
+  <xul:menu id="cardContextWriteMenu"
+            data-l10n-id="about-addressbook-cards-context-write">
+    <xul:menupopup>
+      <!-- Filled dynamically. -->
+    </xul:menupopup>
+  </xul:menu>
+  <xul:menuseparator/>
+  <xul:menuitem id="cardContextPrint"
+                data-l10n-id="about-addressbook-books-context-print"
+                oncommand="cardsPane.printSelected();"/>
+  <xul:menuitem id="cardContextDelete"
+                data-l10n-id="about-addressbook-books-context-delete"
+                oncommand="cardsPane.deleteSelected();"/>
+  <xul:menuitem id="cardContextRemove"
+                data-l10n-id="about-addressbook-books-context-remove"
+                oncommand="cardsPane.deleteSelected();"/>
+</xul:menupopup>
 </html>

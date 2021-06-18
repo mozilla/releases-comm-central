@@ -896,6 +896,7 @@ var cardsPane = {
     this.cardsList.addEventListener("select", this);
     this.cardsList.addEventListener("keypress", this);
     this.cardsList.addEventListener("dragstart", this);
+    this.cardsList.addEventListener("contextmenu", this);
   },
 
   handleEvent(event) {
@@ -914,6 +915,9 @@ var cardsPane = {
         break;
       case "dragstart":
         this._onDragStart(event);
+        break;
+      case "contextmenu":
+        this._onContextMenu(event);
         break;
     }
   },
@@ -1018,6 +1022,51 @@ var cardsPane = {
   },
 
   /**
+   * Start a new message to the given addresses.
+   *
+   * @param {string[]} addresses
+   */
+  writeTo(addresses) {
+    let params = Cc[
+      "@mozilla.org/messengercompose/composeparams;1"
+    ].createInstance(Ci.nsIMsgComposeParams);
+    params.type = Ci.nsIMsgCompType.New;
+    params.format = Ci.nsIMsgCompFormat.Default;
+    params.composeFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
+
+    params.composeFields.to = addresses.join(",");
+    MailServices.compose.OpenComposeWindowWithParams(null, params);
+  },
+
+  /**
+   * Start a new message to the selected contact(s) and/or mailing list(s).
+   */
+  writeToSelected() {
+    let selectedAddresses = [];
+
+    for (let index of this.cardsList.selectedIndicies) {
+      let card = this.cardsList.view.getCardFromRow(index);
+
+      let email;
+      if (card.isMailList) {
+        email = card.getProperty("Notes", "") || card.displayName;
+      } else {
+        email = card.primaryEmail || card.getProperty("SecondEmail", "");
+      }
+
+      if (email) {
+        selectedAddresses.push(
+          MailServices.headerParser.makeMimeAddress(card.displayName, email)
+        );
+      }
+    }
+
+    this.writeTo(selectedAddresses);
+  },
+
+  /**
    * Print delete the selected card(s).
    */
   printSelected() {
@@ -1031,10 +1080,33 @@ var cardsPane = {
     printHandler.printCards(selectedCards);
   },
 
+  _canDeleteSelected() {
+    if (this.cardsList.view.directory?.readOnly) {
+      return false;
+    }
+
+    let seenDirectories = new Set();
+    for (let index of this.cardsList.selectedIndicies) {
+      let { directoryUID } = this.cardsList.view.getCardFromRow(index);
+      if (seenDirectories.has(directoryUID)) {
+        continue;
+      }
+      if (MailServices.ab.getDirectoryFromUID(directoryUID).readOnly) {
+        return false;
+      }
+      seenDirectories.add(directoryUID);
+    }
+    return true;
+  },
+
   /**
    * Prompt the user and delete the selected card(s).
    */
   async deleteSelected() {
+    if (!this._canDeleteSelected()) {
+      return;
+    }
+
     let selectedLists = [];
     let selectedContacts = [];
 
@@ -1091,6 +1163,83 @@ var cardsPane = {
 
     // Delete cards from address books or mailing lists.
     this.cardsList.view.deleteSelectedCards();
+  },
+
+  _onContextMenu(event) {
+    this._showContextMenu(event);
+  },
+
+  _showContextMenu(event) {
+    let row = event.target.closest("ab-card-listrow");
+    if (!row) {
+      return;
+    }
+    if (!this.cardsList.selectedIndicies.includes(row.index)) {
+      this.cardsList.selectedIndex = row.index;
+    }
+
+    this.cardsList.focus();
+
+    let writeMenuItem = document.getElementById("cardContextWrite");
+    let writeMenu = document.getElementById("cardContextWriteMenu");
+    if (this.cardsList.selectedIndicies.length == 1) {
+      let card = this.cardsList.view.getCardFromRow(
+        this.cardsList.selectedIndex
+      );
+      if (card.isMailList) {
+        writeMenuItem.hidden = false;
+        writeMenu.hidden = true;
+      } else {
+        let addresses = [];
+        for (let key of ["PrimaryEmail", "SecondEmail"]) {
+          let address = card.getProperty(key, "");
+          if (address) {
+            addresses.push(address);
+          }
+        }
+
+        if (addresses.length == 0) {
+          writeMenuItem.hidden = writeMenu.hidden = true;
+        } else if (addresses.length == 1) {
+          writeMenuItem.hidden = false;
+          writeMenu.hidden = true;
+        } else {
+          while (writeMenu.menupopup.lastChild) {
+            writeMenu.menupopup.lastChild.remove();
+          }
+
+          for (let address of addresses) {
+            let menuitem = document.createXULElement("menuitem");
+            menuitem.label = MailServices.headerParser.makeMimeAddress(
+              card.displayName,
+              address
+            );
+            menuitem.addEventListener("command", () =>
+              this.writeTo([menuitem.label])
+            );
+            writeMenu.menupopup.appendChild(menuitem);
+          }
+
+          writeMenuItem.hidden = true;
+          writeMenu.hidden = false;
+        }
+      }
+    } else {
+      writeMenuItem.hidden = false;
+      writeMenu.hidden = true;
+    }
+
+    let deleteItem = document.getElementById("cardContextDelete");
+    let removeItem = document.getElementById("cardContextRemove");
+
+    let inMailList = this.cardsList.view.directory?.isMailList;
+    deleteItem.hidden = inMailList;
+    removeItem.hidden = !inMailList;
+    deleteItem.disabled = removeItem.disabled = !this._canDeleteSelected();
+
+    let popup = document.getElementById("cardContext");
+    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    event.preventDefault();
   },
 
   _onCommand() {
