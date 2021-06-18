@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/msgSelectOffline.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
 
@@ -11,6 +12,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         windowtype="mailnews:selectOffline"
         title="&MsgSelect.label;"
+        lightweightthemes="true"
         width="450" height="400"
         persist="width height">
 <dialog id="select-offline">
@@ -19,6 +21,7 @@
 
   <script src="chrome://messenger/content/msgSelectOfflineFolders.js"/>
   <script src="chrome://messenger/content/folderPane.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <html:style id="folderColorsStyle" type="text/css"></html:style>
 

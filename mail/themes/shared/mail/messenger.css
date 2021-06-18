@@ -66,6 +66,8 @@ body {
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-focus-border-color: -moz-accent-color;
   --item-focus-selected-border-color: #0060df;
+  --default: #4f526d;
+  --primary: #0a84ff;
 }
 
 @media not (-moz-proton) {
@@ -150,6 +152,8 @@ body {
 
 :root[lwt-tree-brighttext] {
   --item-focus-selected-border-color: #bebebf;
+  --default: #dcdcdc;
+  --primary: #45b1ff;
 }
 
 @media not (-moz-proton) {
@@ -1044,6 +1048,8 @@ label.statusbarpanel {
   -moz-box-align: center;
 }
 
+#dialog\.progress,
+#shutdown_progressmeter,
 .progressmeter-statusbar {
   appearance: none;
   height: 4px;
@@ -1052,12 +1058,16 @@ label.statusbarpanel {
   border-radius: 2px;
 }
 
+#dialog\.progress::-moz-progress-bar,
+#shutdown_progressmeter::-moz-progress-bar,
 .progressmeter-statusbar::-moz-progress-bar {
   appearance: none;
   background-color: var(--primary);
   border-radius: 2px;
 }
 
+#dialog\.progress:indeterminate::-moz-progress-bar,
+#shutdown_progressmeter:indeterminate::-moz-progress-bar,
 .progressmeter-statusbar:indeterminate::-moz-progress-bar {
   /* Make a white reflecting animation.
      Create a gradient with 2 identical pattern, and enlarge the size to 200%.
@@ -1071,6 +1081,8 @@ label.statusbarpanel {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  #dialog\.progress:indeterminate::-moz-progress-bar,
+  #shutdown_progressmeter:indeterminate::-moz-progress-bar,
   .progressmeter-statusbar:indeterminate::-moz-progress-bar {
     animation: progressSlideX 1.5s linear infinite;
   }
@@ -1318,4 +1330,9 @@ toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
 
 panel[type="arrow"].panel-block-padding::part(content) {
   padding-block: 6px;
+}
+
+/* Used by the import dialog */
+.wizard-box {
+  padding: 20px 44px 10px;
 }

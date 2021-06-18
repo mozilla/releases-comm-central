@@ -3,15 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --default: #4f526d;
-  --primary: #0a84ff;
   --new-focused-folder-color: HighlightText;
   --unread-folder-color: inherit;
-}
-
-:root[lwt-tree-brighttext] {
-  --default: #dcdcdc;
-  --primary: #45b1ff;
 }
 
 /* ::::: Tabmail ::::: */

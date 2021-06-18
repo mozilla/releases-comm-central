@@ -5,14 +5,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
-<?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         style="padding: 20px; width: 350px"
+        lightweightthemes="true"
         onload="onLoad()">
 <dialog buttons="cancel">
   <script src="chrome://messenger/content/shutdownWindow.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
   <stringbundle id="bundle_shutdown" src="chrome://messenger/locale/shutdownWindow.properties"/>
 
   <vbox align="center">

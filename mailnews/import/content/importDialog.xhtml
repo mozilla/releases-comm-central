@@ -3,8 +3,9 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -17,6 +18,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="OnLoadImportDialog()"
         onunload="OnUnloadImportDialog()"
+        lightweightthemes="true"
 #ifdef XP_MACOSX
         style="width: &window.macWidth; !important;"
 #else
@@ -92,7 +94,6 @@
                    hidden="true"/>
           </vbox>
           <richlistbox id="moduleList"
-                       class="theme-listbox"
                        height="200px"
                        onselect="ImportSelectionChanged(); enableAdvance();"/>
         </vbox>

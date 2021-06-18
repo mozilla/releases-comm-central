@@ -3,16 +3,19 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         windowtype="mailnews:synchronizeOffline"
         title="&MsgSynchronize.label;"
+        lightweightthemes="true"
         onload="OnLoad();"
         style="width: 35em;">
 <dialog id="msg-synchronizer">
     <script src="chrome://messenger/content/msgSynchronize.js"/>
+    <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
     <keyset id="keyset"/>
     <label hidden="true" wsm_persist="true" id="server.type"/>

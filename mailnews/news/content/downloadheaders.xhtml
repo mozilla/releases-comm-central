@@ -3,17 +3,20 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/downloadheaders.dtd">
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         style="max-width: 27em;"
         buttonpack="center"
+        lightweightthemes="true"
         onload="OnLoad();">
 
   <stringbundle id="bundle_news" src="chrome://messenger/locale/news.properties"/>
   <script src="chrome://messenger/content/downloadheaders.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <label class="header" style="width: 25em; max-width: 25em;" id="newsgroupLabel" control="downloadGroup"/>
   <description style="width: 25em; max-width: 25em;" id="info" control="downloadGroup"/>
