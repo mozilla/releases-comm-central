@@ -199,7 +199,7 @@ linux64-tsan/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: []
+        actions: [build]
         config-paths:
             - comm/testing/mozharness/configs
         config:
@@ -210,7 +210,7 @@ linux64-tsan/opt:
         mozconfig-variant: tsan
         tooltool-downloads: public
         need-xvfb: true
-    run-on-projects: ['release']
+    run-on-projects: []
     use-sccache: true
     optimization:
         skip-unless-backstop-no-suite: null
