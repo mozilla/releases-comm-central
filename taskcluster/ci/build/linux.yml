@@ -162,7 +162,7 @@ linux64-asan/opt:
         mozconfig-variant: nightly-asan
         tooltool-downloads: public
         need-xvfb: true
-    run-on-projects: ['release']
+    run-on-projects: []
     use-sccache: true
     optimization:
         skip-unless-backstop-no-suite: null
@@ -199,7 +199,7 @@ linux64-tsan/opt:
     run:
         using: mozharness
         comm-checkout: true
-        actions: [build]
+        actions: []
         config-paths:
             - comm/testing/mozharness/configs
         config:
