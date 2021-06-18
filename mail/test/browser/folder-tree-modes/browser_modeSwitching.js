@@ -47,7 +47,7 @@ add_task(function setupModule(module) {
 
   modeList_menu = mc.e("menu_FolderViewsPopup");
   modeList_appmenu = mc.e("appMenu-foldersView");
-  modeList_popupmenu = mc.e("folderListPopup");
+  modeList_popupmenu = mc.e("folderPaneOptionsPopup");
 
   view_menu = mc.e("menu_View");
   view_menupopup = mc.e("menu_View_Popup");
@@ -104,7 +104,7 @@ async function assert_mode_selected(aMode) {
     );
   }
 
-  mc.click(mc.e("buttonFolderList"));
+  mc.click(mc.e("folderPaneOptionsButton"));
   for (let mode of tree.activeModes) {
     Assert.ok(
       modeList_popupmenu
@@ -148,7 +148,7 @@ async function assert_mode_not_selected(mode) {
     !modeList_appmenu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
   );
 
-  mc.click(mc.e("buttonFolderList"));
+  mc.click(mc.e("folderPaneOptionsButton"));
   Assert.ok(
     !modeList_popupmenu
       .querySelector(`[value="${mode}"]`)

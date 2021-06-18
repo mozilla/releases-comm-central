@@ -617,16 +617,16 @@
                     align="center"
                     collapsed="true">
                 <label data-l10n-id="folder-pane-header-label" flex="1"/>
-                <toolbarbutton id="buttonFolderList"
+                <toolbarbutton id="folderPaneOptionsButton"
                                data-l10n-id="folder-pane-toolbar-options-button"
                                class="button-flat button-more"
-                               oncommand="gFolderTreeView._showFolderListPopup(event);"/>
-                <panel id="folderListPopup" type="arrow" orient="vertical"
-                       class="cui-widget-panel panel-no-padding panel-block-padding"
-                       onpopupshowing="gFolderTreeView._initFolderListPopup();"
-                       onkeypress="gFolderTreeView._folderListPopupOnKeyPress(event);"
-                       onclick="gFolderTreeView._folderListPopupOnClick(event);">
-                </panel>
+                               oncommand="gFolderTreeView.folderPaneOptionsButtonOnCommand(event);"
+                               tabindex="0"/>
+                <menupopup id="folderPaneOptionsPopup"
+                           type="arrow" orient="vertical"
+                           class="cui-widget-panel panel-no-padding panel-block-padding"
+                           onpopupshowing="gFolderTreeView.initFolderPaneOptionsPopup();">
+                </menupopup>
               </hbox>
               <tree id="folderTree" class="plain" flex="1"
                     hidecolumnpicker="true" persist="mode" mode="all"

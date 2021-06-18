@@ -826,7 +826,7 @@ html|ul.addon-installed-list {
   background-color: hsla(0, 0%, 100%, .3);
 }
 
-.button-flat:focus:not(:hover) {
+.button-flat:focus-visible:not(:hover) {
   outline: 2px solid Highlight;
 }
 

@@ -476,76 +476,83 @@ var gFolderTreeView = {
       this.toggleCompactMode(false);
     }
 
-    // Update the popup panel.
-    let panel = document.getElementById("folderListPopup");
-    // Interrupt if the panel has never been initialized.
-    if (!panel.childNodes.length) {
+    // Update the menupopup.
+    let popup = document.getElementById("folderPaneOptionsPopup");
+    // Interrupt if the popup has never been initialized.
+    if (!popup.childNodes.length) {
       return;
     }
 
-    panel.querySelector(`[value="${mode}"]`).checked = isActive;
-    panel.querySelector(`[value="${kDefaultMode}"]`).disabled = isDefault;
-    panel.querySelector(`[value="compact"]`).disabled = !hasCompact;
+    if (isActive) {
+      popup.querySelector(`[value="${mode}"]`).setAttribute("checked", "true");
+    } else {
+      popup.querySelector(`[value="${mode}"]`).removeAttribute("checked");
+    }
+
+    popup.querySelector(`[value="${kDefaultMode}"]`).disabled = isDefault;
+    popup.querySelector(`[value="compact"]`).disabled = !hasCompact;
   },
 
   /**
-   * Show the popup panel to toggle different folder views.
+   * Handle click and keypress events of the #folderPaneOptionsButton.
    */
-  _showFolderListPopup(event) {
+  folderPaneOptionsButtonOnCommand(event) {
     document
-      .getElementById("folderListPopup")
+      .getElementById("folderPaneOptionsPopup")
       .openPopup(event.target, "bottomcenter topright", 0, 0, false);
   },
 
-  _initFolderListPopup() {
-    let panel = document.getElementById("folderListPopup");
+  initFolderPaneOptionsPopup() {
+    let popup = document.getElementById("folderPaneOptionsPopup");
 
-    // Interrupt if the panel is already filled with menu items.
-    if (panel.childNodes.length) {
+    // Interrupt if the popup is already filled with menu items.
+    if (popup.childNodes.length) {
       return;
     }
 
     // Loop through all the modes and create the necessary buttons.
     // Available modes: all, unread, favorite, smart, recent.
     for (let mode of this._modeNames) {
-      let label = document.createXULElement("toolbarbutton");
-      label.setAttribute("type", "checkbox");
-      label.setAttribute("value", mode);
-      label.classList.add("subviewbutton", "subviewbutton-iconic");
-      document.l10n.setAttributes(label, `show-${mode}-folders-label`);
+      let modeMenuitem = document.createXULElement("menuitem");
+      modeMenuitem.setAttribute("type", "checkbox");
+      modeMenuitem.setAttribute("value", mode);
+      modeMenuitem.setAttribute("closemenu", "none");
+      modeMenuitem.classList.add("subviewbutton", "subviewbutton-iconic");
+      document.l10n.setAttributes(modeMenuitem, `show-${mode}-folders-label`);
 
       if (this.activeModes.includes(mode)) {
-        label.setAttribute("checked", "true");
+        modeMenuitem.setAttribute("checked", "true");
 
         // Disable the item if is the All Folders and only this mode is active.
         if (mode == kDefaultMode && this.activeModes.length == 1) {
-          label.setAttribute("disabled", "true");
+          modeMenuitem.setAttribute("disabled", "true");
         }
       }
 
-      label.addEventListener("command", event => {
+      modeMenuitem.addEventListener("command", event => {
         // Pass the mode value to the activeModes setter which will take care
         // of adding it or removing it if already in the array.
         this.activeModes = event.target.getAttribute("value");
       });
 
-      panel.appendChild(label);
+      popup.appendChild(modeMenuitem);
     }
 
-    panel.appendChild(document.createXULElement("toolbarseparator"));
+    popup.appendChild(document.createXULElement("toolbarseparator"));
 
     // Create the "Compact View" toggle.
-    let compactLabel = document.createXULElement("toolbarbutton");
-    compactLabel.setAttribute("type", "checkbox");
-    compactLabel.setAttribute("value", "compact");
-    compactLabel.classList.add("subviewbutton", "subviewbutton-iconic");
+    let compactMenuitem = document.createXULElement("menuitem");
+    compactMenuitem.setAttribute("type", "checkbox");
+    compactMenuitem.setAttribute("value", "compact");
+    compactMenuitem.setAttribute("closemenu", "none");
+    compactMenuitem.classList.add("subviewbutton", "subviewbutton-iconic");
     document.l10n.setAttributes(
-      compactLabel,
+      compactMenuitem,
       "folder-toolbar-toggle-folder-compact-view"
     );
 
     if (gFolderTreeController._tree.getAttribute("compact") == "true") {
-      compactLabel.setAttribute("checked", "true");
+      compactMenuitem.setAttribute("checked", "true");
     }
 
     // Disable and uncheck the item if the currently active modes don't have a
@@ -553,36 +560,32 @@ var gFolderTreeView = {
     let hasCompact = this.activeModes.find(
       mode => mode == "favorite" || mode == "unread"
     );
-    compactLabel.disabled = !hasCompact;
+    compactMenuitem.disabled = !hasCompact;
     // Keep the checked alteration inside this condition in order to enable and
     // disable the item without affecting the checked status.
     if (!hasCompact) {
-      compactLabel.checked = false;
+      compactMenuitem.removeAttribute("checked");
     }
 
-    compactLabel.addEventListener("command", event => {
-      this.toggleCompactMode(event.target.checked);
+    compactMenuitem.addEventListener("command", () => {
+      this.toggleCompactMode(compactMenuitem.getAttribute("checked") == "true");
     });
-    panel.appendChild(compactLabel);
+    popup.appendChild(compactMenuitem);
 
     // Create the "Hide Toolbar" toggle.
-    let collapseLabel = document.createXULElement("toolbarbutton");
-    collapseLabel.classList.add("subviewbutton", "subviewbutton-iconic");
+    let hideToolbarMenuitem = document.createXULElement("menuitem");
+    hideToolbarMenuitem.classList.add("subviewbutton", "subviewbutton-iconic");
     document.l10n.setAttributes(
-      collapseLabel,
+      hideToolbarMenuitem,
       "folder-toolbar-hide-toolbar-toolbarbutton"
     );
-    collapseLabel.addEventListener("command", () => {
+    hideToolbarMenuitem.addEventListener("command", () => {
       let toolbar = document.getElementById("folderPaneHeader");
       toolbar.setAttribute("collapsed", "true");
       Services.xulStore.persist(toolbar, "collapsed");
     });
-    panel.appendChild(collapseLabel);
+    popup.appendChild(hideToolbarMenuitem);
   },
-
-  _folderListPopupOnKeyPress(event) {},
-
-  _folderListPopupOnClick(event) {},
 
   /**
    * Pass the menuitem value to the activeModes setter. If the mode is already
@@ -2959,14 +2962,20 @@ var gFolderTreeView = {
       menuItem.toggleAttribute("checked", toggle);
     }
 
-    // Update the popup panel.
-    let panel = document.getElementById("folderListPopup");
-    // Interrupt if the panel has never been initialized.
-    if (!panel.childNodes.length) {
+    // Update the menupopup.
+    let popup = document.getElementById("folderPaneOptionsPopup");
+    // Interrupt if the popup has never been initialized.
+    if (!popup.childNodes.length) {
       return;
     }
 
-    panel.querySelector(`[value="compact"]`).checked = toggle;
+    let compactLabel = popup.querySelector(`[value="compact"]`);
+    if (toggle) {
+      compactLabel.setAttribute("checked", "true");
+      return;
+    }
+
+    compactLabel.removeAttribute("checked");
   },
 };
 
