@@ -736,10 +736,11 @@ var gMailInit = {
         updateMailPaneUI();
         break;
 
+      case "account-setup-cancelled":
       case "account-created-in-backend":
-        // The user entered the account settings to complete the setup without
-        // completing a successful login process. Initialize the application if
-        // this is the first run.
+        // The user entered the account settings to complete the setup or closed
+        // the account setup tab without completing a successful login process.
+        // Initialize the application if this is the first run.
         if (!gFolderTreeView.isInited) {
           loadPostAccountWizard(true);
         }
