@@ -5148,7 +5148,7 @@ function checkPublicRecipientsLimit() {
   let msgText = document.createElement("div");
   msgText.classList.add("consider-bcc-notification-text");
   document.l10n.setAttributes(msgText, "many-public-recipients-info", {
-    count: publicAddressPillsCount
+    count: publicAddressPillsCount,
   });
 
   let bccButton = {
