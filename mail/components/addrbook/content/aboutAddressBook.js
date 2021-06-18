@@ -197,6 +197,8 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.setAttribute("is", "ab-tree-listbox");
 
     this.addEventListener("select", this);
+    this.addEventListener("collapsed", this);
+    this.addEventListener("expanded", this);
     this.addEventListener("keypress", this);
     this.addEventListener("contextmenu", this);
     this.addEventListener("dragover", this);
@@ -216,6 +218,8 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
   destroy() {
     this.removeEventListener("select", this);
+    this.removeEventListener("collapsed", this);
+    this.removeEventListener("expanded", this);
     this.removeEventListener("keypress", this);
     this.removeEventListener("contextmenu", this);
     this.removeEventListener("dragover", this);
@@ -232,6 +236,12 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     switch (event.type) {
       case "select":
         this._onSelect(event);
+        break;
+      case "collapsed":
+        this._onCollapsed(event);
+        break;
+      case "expanded":
+        this._onExpanded(event);
         break;
       case "keypress":
         this._onKeyPress(event);
@@ -255,7 +265,14 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     let row = document
       .getElementById("bookRow")
       .content.firstElementChild.cloneNode(true);
+    row.id = `book-${book.UID}`;
     row.setAttribute("aria-label", book.dirName);
+    if (
+      Services.xulStore.getValue("about:addressbook", row.id, "collapsed") ==
+      "true"
+    ) {
+      row.classList.add("collapsed");
+    }
     if (book.isRemote) {
       row.classList.add("remote");
     }
@@ -284,6 +301,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     let row = document
       .getElementById("listRow")
       .content.firstElementChild.cloneNode(true);
+    row.id = `list-${list.UID}`;
     row.setAttribute("aria-label", list.dirName);
     row.dataset.uid = list.UID;
     row.dataset.book = bookUID;
@@ -465,6 +483,23 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       document.getElementById("toolbarCreateList").disabled =
         book.readOnly || !book.supportsMailingLists;
     }
+  }
+
+  _onCollapsed(event) {
+    Services.xulStore.setValue(
+      "about:addressbook",
+      event.target.id,
+      "collapsed",
+      "true"
+    );
+  }
+
+  _onExpanded(event) {
+    Services.xulStore.removeValue(
+      "about:addressbook",
+      event.target.id,
+      "collapsed"
+    );
   }
 
   _onKeyPress(event) {

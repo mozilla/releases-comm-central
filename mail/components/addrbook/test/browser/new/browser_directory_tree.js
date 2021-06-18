@@ -16,6 +16,9 @@ function rightClickOnIndex(index) {
   return shownPromise;
 }
 
+/**
+ * Tests that additions and removals are accurately displayed.
+ */
 add_task(async function test_additions_and_removals() {
   function checkBooksOrder(...expected) {
     function checkRow(index, { level, open, isList, text, uid }) {
@@ -256,6 +259,9 @@ add_task(async function test_additions_and_removals() {
   );
 });
 
+/**
+ * Tests that renaming or deleting books or lists is reflected in the UI.
+ */
 add_task(async function test_rename_and_delete() {
   let abWindow = await openAddressBookWindow();
 
@@ -451,6 +457,9 @@ add_task(async function test_rename_and_delete() {
   await closeAddressBookWindow();
 });
 
+/**
+ * Tests the context menu of the list.
+ */
 add_task(async function test_context_menu() {
   let book = createAddressBook("Ordinary Book");
   book.addMailList(createMailingList("Ordinary List"));
@@ -554,4 +563,104 @@ add_task(async function test_context_menu() {
   Assert.equal(abDocument.activeElement, booksList);
 
   await closeAddressBookWindow();
+});
+
+/**
+ * Tests that the collapsed state of books survives a reload of the page.
+ */
+add_task(async function test_collapse_expand() {
+  Services.xulStore.removeDocument("about:addressbook");
+
+  let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
+  personalBook.addMailList(createMailingList("Personal List 1"));
+  personalBook.addMailList(createMailingList("Personal List 2"));
+
+  let historyBook = MailServices.ab.getDirectoryFromId(
+    "ldap_2.servers.history"
+  );
+  historyBook.addMailList(createMailingList("History List 1"));
+
+  let book1 = createAddressBook("Book 1");
+  book1.addMailList(createMailingList("Book 1 List 1"));
+  book1.addMailList(createMailingList("Book 1 List 2"));
+
+  let book2 = createAddressBook("Book 2");
+  book2.addMailList(createMailingList("Book 2 List 1"));
+  book2.addMailList(createMailingList("Book 2 List 2"));
+  book2.addMailList(createMailingList("Book 2 List 3"));
+
+  function getRowForBook(book) {
+    return abDocument.getElementById(`book-${book.UID}`);
+  }
+
+  function checkCollapsedState(book, expectedCollapsed) {
+    Assert.equal(
+      getRowForBook(book).classList.contains("collapsed"),
+      expectedCollapsed,
+      `${book.dirName} is ${expectedCollapsed ? "collapsed" : "expanded"}`
+    );
+  }
+
+  function toggleCollapsedState(book) {
+    let twisty = getRowForBook(book).querySelector(".twisty");
+    Assert.ok(
+      BrowserTestUtils.is_visible(twisty),
+      `twisty for ${book.dirName} is visible`
+    );
+    EventUtils.synthesizeMouseAtCenter(twisty, {}, abWindow);
+  }
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  checkCollapsedState(personalBook, false);
+  checkCollapsedState(book1, false);
+  checkCollapsedState(book2, false);
+  checkCollapsedState(historyBook, false);
+
+  toggleCollapsedState(personalBook);
+  toggleCollapsedState(book1);
+
+  info("Closing and re-opening");
+  await closeAddressBookWindow();
+  abWindow = await openAddressBookWindow();
+  abDocument = abWindow.document;
+
+  checkCollapsedState(personalBook, true);
+  checkCollapsedState(book1, true);
+  checkCollapsedState(book2, false);
+  checkCollapsedState(historyBook, false);
+
+  toggleCollapsedState(book1);
+  toggleCollapsedState(book2);
+  toggleCollapsedState(historyBook);
+
+  info("Closing and re-opening");
+  await closeAddressBookWindow();
+  abWindow = await openAddressBookWindow();
+  abDocument = abWindow.document;
+
+  checkCollapsedState(personalBook, true);
+  checkCollapsedState(book1, false);
+  checkCollapsedState(book2, true);
+  checkCollapsedState(historyBook, true);
+
+  toggleCollapsedState(personalBook);
+
+  info("Closing and re-opening");
+  await closeAddressBookWindow();
+  await promiseDirectoryRemoved(book2.URI);
+  abWindow = await openAddressBookWindow();
+  abDocument = abWindow.document;
+
+  checkCollapsedState(personalBook, false);
+  checkCollapsedState(book1, false);
+  checkCollapsedState(historyBook, true);
+
+  await closeAddressBookWindow();
+
+  personalBook.childNodes.forEach(list => personalBook.deleteDirectory(list));
+  historyBook.childNodes.forEach(list => historyBook.deleteDirectory(list));
+  await promiseDirectoryRemoved(book1.URI);
+  Services.xulStore.removeDocument("about:addressbook");
 });
