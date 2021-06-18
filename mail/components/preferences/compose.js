@@ -593,6 +593,8 @@ var gCloudFile = {
     }
     browser.setAttribute("disableglobalhistory", "true");
     browser.setAttribute("messagemanagergroup", "webext-browsers");
+    browser.setAttribute("autocompletepopup", "PopupAutoComplete");
+    browser.setAttribute("selectmenulist", "ContentSelectDropdown");
 
     browser.setAttribute("flex", "1");
     // Allows keeping dialog background color without hoops.

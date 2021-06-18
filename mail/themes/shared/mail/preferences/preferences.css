@@ -587,6 +587,12 @@ checkbox {
   grid-template-columns: auto 1fr 1fr;
 }
 
+#PopupAutoComplete > richlistbox {
+  margin: unset;
+  border: unset;
+  border-radius: unset;
+}
+
 /**
  * Connection dialog
  */
