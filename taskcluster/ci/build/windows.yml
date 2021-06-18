@@ -468,7 +468,7 @@ win64-asan/opt:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
         mozconfig-variant: nightly-asan
-    run-on-projects: []
+    run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
         skip-unless-backstop-no-suite: null

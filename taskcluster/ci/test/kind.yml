@@ -11,6 +11,7 @@ kind-dependencies:
     - toolchain
 
 transforms:
+    - comm_taskgraph.transforms.tests:transforms
     - taskgraph.transforms.tests:transforms
     - taskgraph.transforms.job:transforms
     - taskgraph.transforms.task:transforms
@@ -24,7 +25,13 @@ jobs-from:
 job-defaults:
     webrender: false
     optimization:
-        skip-suite-only: null
+        by-test-platform:
+            .*-tsan/opt:
+                skip-unless-backstop-no-suite: null
+            .*-asan/opt:
+                skip-unless-backstop-no-suite: null
+            default:
+                skip-suite-only: null
     fetches:
         toolchain:
             by-test-platform:

@@ -162,7 +162,7 @@ linux64-asan/opt:
         mozconfig-variant: nightly-asan
         tooltool-downloads: public
         need-xvfb: true
-    run-on-projects: []
+    run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
         skip-unless-backstop-no-suite: null
@@ -210,7 +210,7 @@ linux64-tsan/opt:
         mozconfig-variant: tsan
         tooltool-downloads: public
         need-xvfb: true
-    run-on-projects: []
+    run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
         skip-unless-backstop-no-suite: null

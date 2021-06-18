@@ -17,6 +17,7 @@ xpcshell:
     suite: xpcshell
     treeherder-symbol: X(X)
     run-on-projects: built-projects
+    built-projects-only: true
     tier:
         by-test-platform:
             .*-asan.*: 2
@@ -84,6 +85,7 @@ mochitest-thunderbird:
         name: mochitest-browser-chrome-thunderbird
     treeherder-symbol: M(bct)
     run-on-projects: built-projects
+    built-projects-only: true
     test-manifest-loader: null  # don't load tests in the taskgraph
     loopback-video: true
     max-run-time:
