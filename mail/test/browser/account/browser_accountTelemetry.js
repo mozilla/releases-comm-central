@@ -145,18 +145,22 @@ add_task(async function test_account_sizes() {
     "Number of messages in all folders must be correct"
   );
 
+  // The folder sizes on Windows are not exactly the same with Linux/macOS.
+  function checkSize(actual, expected, message) {
+    Assert.ok(Math.abs(actual - expected) < 10, message);
+  }
   // Check if we count size on disk correctly.
-  Assert.equal(
+  checkSize(
     scalars["tb.account.size_on_disk"].Inbox,
     873,
     "Size of Inbox must be correct"
   );
-  Assert.equal(
+  checkSize(
     scalars["tb.account.size_on_disk"].Other,
     618,
     "Size of other folders must be correct"
   );
-  Assert.equal(
+  checkSize(
     scalars["tb.account.size_on_disk"].Total,
     873 + 618,
     "Size of all folders must be correct"
