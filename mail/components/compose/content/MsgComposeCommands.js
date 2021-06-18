@@ -3728,13 +3728,18 @@ function ComposeStartup(aParams) {
 
   gAutoSaveKickedIn = false;
 
-  // Observe the changes of message recipient rows.
+  // Observe childList changes of `To` and `Cc` address rows to check if we need
+  // to show the public bulk recipients notification according to the threshold.
+  // So far we're only counting recipient pills, not plain text addresses.
   gRecipientObserver = new MutationObserver(function(mutations) {
     if (mutations.some(m => m.type == "childList")) {
       checkPublicRecipientsLimit();
     }
   });
   gRecipientObserver.observe(document.getElementById("toAddrContainer"), {
+    childList: true,
+  });
+  gRecipientObserver.observe(document.getElementById("ccAddrContainer"), {
     childList: true,
   });
 }
@@ -5130,12 +5135,10 @@ function checkPublicRecipientsLimit() {
 
   // Reuse the existing notification since one is shown already.
   if (notification) {
-    let msgText = notification.messageText.querySelector(
-      ".consider-bcc-notification-text"
-    );
-    msgText.setAttribute(
-      "data-l10n-args",
-      JSON.stringify({ count: publicAddressPillsCount })
+    document.l10n.setAttributes(
+      notification.messageText.querySelector(".consider-bcc-notification-text"),
+      "many-public-recipients-info",
+      { count: publicAddressPillsCount }
     );
     return;
   }
@@ -5144,11 +5147,9 @@ function checkPublicRecipientsLimit() {
 
   let msgText = document.createElement("div");
   msgText.classList.add("consider-bcc-notification-text");
-  msgText.setAttribute("data-l10n-id", "many-public-recipients-info");
-  msgText.setAttribute(
-    "data-l10n-args",
-    JSON.stringify({ count: publicAddressPillsCount })
-  );
+  document.l10n.setAttributes(msgText, "many-public-recipients-info", {
+    count: publicAddressPillsCount
+  });
 
   let bccButton = {
     "l10n-id": "many-public-recipients-bcc",
@@ -5589,9 +5590,6 @@ var spellCheckReadyObserver = {
 function onRecipientsChanged(automatic) {
   if (!automatic) {
     gContentChanged = true;
-  }
-  if (gRecipientObserver) {
-    checkPublicRecipientsLimit();
   }
   updateSendCommands(true);
 }
