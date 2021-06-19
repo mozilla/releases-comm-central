@@ -631,10 +631,6 @@ button.icon-button[hidden] {
   display: none;
 }
 
-button > .button-box {
-  padding: 0;
-}
-
 button[type="menu-button"] {
   appearance: none;
 }

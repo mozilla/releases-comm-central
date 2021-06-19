@@ -101,8 +101,7 @@
 }
 
 .im-placeholder-button-box > button > .button-box {
-  padding-right: 10px !important;
-  padding-left: 10px !important;
+  padding-inline: 10px;
 }
 
 #listPaneBox {
@@ -284,11 +283,6 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
 
 .startChatBubble {
   list-style-image: url('chrome://chat/skin/prpl-generic/icon.png');
-}
-
-.startChatBubble > .button-box,
-.closeConversationButton > .button-box {
-  padding: 0;
 }
 
 .closeConversationButton > .button-box > .button-icon {

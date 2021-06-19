@@ -112,7 +112,7 @@ body {
 
 .downloadButton > .button-box {
   appearance: none;
-  padding: 8px !important;
+  padding: 8px;
 }
 
 .downloadButton > .button-box > .button-icon {

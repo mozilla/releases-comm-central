@@ -198,10 +198,6 @@ richlistitem[dragover="up"] {
   border: none;
 }
 
-#statusImageStack > #statusTypeIcon > .button-box {
-  padding-block: 0;
-}
-
 #statusTypeIcon dropmarker {
   display: none;
 }

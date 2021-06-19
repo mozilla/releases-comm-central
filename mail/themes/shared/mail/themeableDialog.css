@@ -196,6 +196,7 @@ button,
 menulist,
 html|input[type="color"] {
   appearance: none;
+  height: 24px;
   /* !important overrides button.css for disabled and default XUL buttons: */
   color: inherit !important;
   border: 1px solid var(--button-border-color); /* needed for high-contrast mode, where it'll show up */
@@ -285,10 +286,6 @@ button > .button-box > dropmarker {
 button[disabled="true"],
 menulist[disabled="true"] {
   opacity: 0.4;
-}
-
-menulist::part(label-box) {
-  padding-block: 3px;
 }
 
 @media (-moz-proton) {
@@ -626,4 +623,10 @@ separator.groove:not([orient="vertical"]) {
 
 :root[lwt-tree-brighttext] .text-link {
   color: #0aa5ff;
+}
+
+.text-link:focus-visible {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: 1px;
+  border-radius: 1px;
 }
