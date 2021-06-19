@@ -28,3 +28,16 @@
 td.data-private {
   background-color: #ff9;
 }
+
+.calendar-table > thead > th:nth-of-type(1) {
+  width: 25%;
+}
+
+.calendar-table + .calendar-table {
+  margin-top: 50px;
+}
+
+.calendar-table caption {
+  margin-bottom: 5px;
+  font-weight: bold;
+}

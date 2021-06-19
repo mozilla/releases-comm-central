@@ -9,3 +9,4 @@ messenger.jar:
 *   content/messenger/about-support/aboutSupport.xhtml         (content/aboutSupport.xhtml)
 % override chrome://global/content/aboutSupport.xhtml chrome://messenger/content/about-support/aboutSupport.xhtml
     content/messenger/about-support/aboutSupport.js            (content/aboutSupport.js)
+    content/messenger/about-support/calendars.js               (content/calendars.js)

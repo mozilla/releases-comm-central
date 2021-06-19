@@ -5,7 +5,8 @@
 /* This file is a copy of mozilla/toolkit/content/aboutSupport.js with
    modifications for TB. */
 
-/* globals AboutSupportPlatform, populateAccountsSection, sendViaEmail */
+/* globals AboutSupportPlatform, populateAccountsSection, sendViaEmail 
+    populateCalendarsSection */
 
 "use strict";
 
@@ -71,6 +72,7 @@ window.addEventListener("load", function onload(event) {
   }
   // added for TB
   populateAccountsSection();
+  populateCalendarsSection();
   document
     .getElementById("check-show-private-data")
     .addEventListener("change", () => onShowPrivateDataChange());

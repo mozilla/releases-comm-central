@@ -34,7 +34,9 @@
     <link rel="localization" href="toolkit/global/processTypes.ftl"/>
 <!-- Added for TB -->
     <link rel="localization" href="messenger/aboutSupportMail.ftl"/>
+    <link rel="localization" href="messenger/aboutSupportCalendar.ftl"/>
     <script src="chrome://messenger/content/about-support/accounts.js"/>
+    <script src="chrome://messenger/content/about-support/calendars.js"/>
     <script src="chrome://messenger/content/about-support/export.js"/>
 <!-- End of TB addition -->
   </head>
@@ -342,6 +344,30 @@
         <tbody id="accounts-tbody">
         </tbody>
       </table>
+
+      <h2 class="major-section" data-l10n-id="calendars-title"></h2>
+
+      <div id="calendar-tables"></div>
+
+      <template id="calendars-table-template">
+        <table class="calendar-table">
+          <caption></caption>
+          <thead>
+            <th data-l10n-id="calendars-table-heading-property"></th>
+            <th data-l10n-id="calendars-table-heading-value"></th>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </template>
+
+      <template id="calendars-table-row-template">
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>
+      </template>
+
 <!-- End of TB addition -->
 
       <!-- - - - - - - - - - - - - - - - - - - - - -->
