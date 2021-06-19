@@ -10,7 +10,7 @@ treechildren::-moz-tree-image(folderNameCol) {
   margin-top: 2px;
 }
 
-@media (prefers-contrast) {
+@media (-moz-windows-default-theme: 0) {
   :root {
     --unread-folder-color: FieldText;
   }
