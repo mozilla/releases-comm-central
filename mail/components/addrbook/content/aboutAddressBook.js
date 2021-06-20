@@ -366,7 +366,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
     let directory = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
     directory = CardDAVDirectory.forFile(directory.fileName);
-    directory.updateAllFromServer();
+    directory.syncWithServer();
   }
 
   /**

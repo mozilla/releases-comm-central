@@ -49,7 +49,25 @@ class CardDAVDirectory extends SQLiteDirectory {
     // Don't do this immediately, as this code runs at start-up and could
     // impact performance if there are lots of changes to process.
     if (this._serverURL && this.getIntValue("carddav.syncinterval", 30) > 0) {
-      this._syncTimer = setTimeout(() => this.updateAllFromServer(), 30000);
+      this._syncTimer = setTimeout(() => this.syncWithServer(), 30000);
+    }
+
+    let uidsToSync = this.getStringValue("carddav.uidsToSync", "");
+    if (uidsToSync) {
+      this._uidsToSync = new Set(uidsToSync.split(" ").filter(Boolean));
+      this.setStringValue("carddav.uidsToSync", "");
+      log.debug(`Retrieved list of cards to sync: ${uidsToSync}`);
+    } else {
+      this._uidsToSync = new Set();
+    }
+
+    let hrefsToRemove = this.getStringValue("carddav.hrefsToRemove", "");
+    if (hrefsToRemove) {
+      this._hrefsToRemove = new Set(hrefsToRemove.split(" ").filter(Boolean));
+      this.setStringValue("carddav.hrefsToRemove", "");
+      log.debug(`Retrieved list of cards to remove: ${hrefsToRemove}`);
+    } else {
+      this._hrefsToRemove = new Set();
     }
   }
   async cleanUp() {
@@ -58,6 +76,17 @@ class CardDAVDirectory extends SQLiteDirectory {
     if (this._syncTimer) {
       clearInterval(this._syncTimer);
       this._syncTimer = null;
+    }
+
+    if (this._uidsToSync.size) {
+      let uidsToSync = [...this._uidsToSync].join(" ");
+      this.setStringValue("carddav.uidsToSync", uidsToSync);
+      log.debug(`Stored list of cards to sync: ${uidsToSync}`);
+    }
+    if (this._hrefsToRemove.size) {
+      let hrefsToRemove = [...this._hrefsToRemove].join(" ");
+      this.setStringValue("carddav.hrefsToRemove", hrefsToRemove);
+      log.debug(`Stored list of cards to remove: ${hrefsToRemove}`);
     }
   }
 
@@ -94,7 +123,15 @@ class CardDAVDirectory extends SQLiteDirectory {
       newProperties.set(name, value);
     }
 
-    let sendSucceeded = await this._sendCardToServer(card);
+    let sendSucceeded;
+    try {
+      sendSucceeded = await this._sendCardToServer(card);
+    } catch (ex) {
+      Cu.reportError(ex);
+      super.modifyCard(card);
+      return;
+    }
+
     if (!sendSucceeded) {
       // _etag and _vCard properties have now been updated. Work out what
       // properties changed on the server, and copy them to `card`, but only
@@ -116,15 +153,27 @@ class CardDAVDirectory extends SQLiteDirectory {
   }
   deleteCards(cards) {
     super.deleteCards(cards);
+    this._deleteCards(cards);
+  }
+  async _deleteCards(cards) {
     for (let card of cards) {
-      this._deleteCardFromServer(card);
+      try {
+        await this._deleteCardFromServer(card);
+      } catch (ex) {
+        Cu.reportError(ex);
+        break;
+      }
+    }
+
+    for (let card of cards) {
+      this._uidsToSync.delete(card.UID);
     }
   }
   dropCard(card, needToCopyCard) {
     // Ideally, we'd not add the card until it was on the server, but we have
     // to return newCard synchronously.
     let newCard = super.dropCard(card, needToCopyCard);
-    this._sendCardToServer(newCard);
+    this._sendCardToServer(newCard).catch(Cu.reportError);
     return newCard;
   }
   addMailList() {
@@ -362,8 +411,17 @@ class CardDAVDirectory extends SQLiteDirectory {
       // TODO 3.0 is the default, should we be able to use other versions?
       requestDetails.body = VCardUtils.abCardToVCard(card, "3.0");
     }
-    console.log(`Sending ${href} to server.`);
-    let response = await this._makeRequest(href, requestDetails);
+
+    let response;
+    try {
+      log.debug(`Sending ${href} to server.`);
+      response = await this._makeRequest(href, requestDetails);
+    } catch (ex) {
+      Services.obs.notifyObservers(this, "addrbook-directory-sync-failed");
+      this._uidsToSync.add(card.UID);
+      throw ex;
+    }
+
     let conflictResponse = [409, 412].includes(response.status);
     if (response.status >= 400 && !conflictResponse) {
       throw Components.Exception(
@@ -417,14 +475,25 @@ class CardDAVDirectory extends SQLiteDirectory {
    *
    * @param {nsIAbCard} card
    */
-  _deleteCardFromServer(card) {
-    let href = card.getProperty("_href", "");
+  async _deleteCardFromServer(cardOrHRef) {
+    let href;
+    if (typeof cardOrHRef == "string") {
+      href = cardOrHRef;
+    } else {
+      href = cardOrHRef.getProperty("_href", "");
+    }
     if (!href) {
-      return Promise.resolve();
+      return;
     }
 
-    console.log(`Removing ${href} from server.`);
-    return this._makeRequest(href, { method: "DELETE" });
+    try {
+      log.debug(`Removing ${href} from server.`);
+      await this._makeRequest(href, { method: "DELETE" });
+    } catch (ex) {
+      Services.obs.notifyObservers(this, "addrbook-directory-sync-failed");
+      this._hrefsToRemove.add(href);
+      throw ex;
+    }
   }
 
   /**
@@ -443,7 +512,7 @@ class CardDAVDirectory extends SQLiteDirectory {
     }
 
     this._syncTimer = setInterval(
-      () => this.updateAllFromServer(false),
+      () => this.syncWithServer(false),
       interval * 60000
     );
   }
@@ -524,7 +593,7 @@ class CardDAVDirectory extends SQLiteDirectory {
    *
    * @param {boolean} shouldResetTimer
    */
-  async updateAllFromServer(shouldResetTimer = true) {
+  async syncWithServer(shouldResetTimer = true) {
     if (this._syncInProgress || !this._serverURL) {
       return;
     }
@@ -533,6 +602,24 @@ class CardDAVDirectory extends SQLiteDirectory {
     this._syncInProgress = true;
 
     try {
+      // First perform all pending removals. We don't want to have deleted cards
+      // reappearing when we sync.
+      for (let href of this._hrefsToRemove) {
+        await this._deleteCardFromServer(href);
+      }
+      this._hrefsToRemove.clear();
+
+      // Now update any cards that were modified while not connected to the server.
+      for (let uid of this._uidsToSync) {
+        let card = this.getCard(uid);
+        // The card may no longer exist. It shouldn't still be listed to send,
+        // but it might be.
+        if (card) {
+          await this._sendCardToServer(card);
+        }
+      }
+      this._uidsToSync.clear();
+
       if (this._syncToken) {
         await this.updateAllFromServerV2();
       } else {

@@ -30,6 +30,7 @@ var CardDAVServer = {
   open(username, password, port = -1) {
     this.server = new HttpServer();
     this.server.start(port);
+    this.port = this.server.identity.primaryPort;
     this.isOpen = true;
 
     this.username = username;
@@ -37,6 +38,11 @@ var CardDAVServer = {
     this.server.registerPathHandler("/ping", this.ping);
 
     this.reset();
+  },
+
+  reopen() {
+    this.server.start(this.port);
+    this.isOpen = true;
   },
 
   reset() {

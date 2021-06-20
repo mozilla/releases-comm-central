@@ -305,7 +305,7 @@ function AbSyncSelectedDirectory() {
     selectedDir.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
   ) {
     selectedDir = CardDAVDirectory.forFile(selectedDir.fileName);
-    selectedDir.updateAllFromServer();
+    selectedDir.syncWithServer();
   }
 }
 

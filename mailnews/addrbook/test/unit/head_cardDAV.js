@@ -71,6 +71,7 @@ async function checkCardsOnServer(expectedCards) {
   // completed all earlier requests.
   await fetch(`${CardDAVServer.origin}/ping`);
 
+  info("Checking cards on server are correct.");
   let actualCards = [...CardDAVServer.cards];
   Assert.equal(actualCards.length, Object.keys(expectedCards).length);
 
