@@ -625,7 +625,7 @@ HostDetector.prototype = {
       );
       Cc["@mozilla.org/security/certoverride;1"]
         .getService(Ci.nsICertOverrideService)
-        .clearValidityOverride(thisTry.hostname, thisTry.port);
+        .clearValidityOverride(thisTry.hostname, thisTry.port, {});
     }
   },
 
@@ -1081,16 +1081,8 @@ SSLErrorHandler.prototype = {
     this._try.targetSite = targetSite;
     Cc["@mozilla.org/security/certoverride;1"]
       .getService(Ci.nsICertOverrideService)
-      .rememberValidityOverride(host, port, cert, flags, true); // temporary override
-    this._log.warn(
-      "!! Overrode bad cert temporarily " +
-        host +
-        " " +
-        port +
-        " flags=" +
-        flags +
-        "\n"
-    );
+      .rememberValidityOverride(host, port, {}, cert, flags, true); // temporary override
+    this._log.warn(`Added temporary override of bad cert for: ${host}:${port}`);
     return true;
   },
 };
