@@ -177,7 +177,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult GetPromptPurgeThreshold(bool* aPrompt);
   nsresult GetPurgeThreshold(int32_t* aThreshold);
   nsresult ApplyRetentionSettings(bool deleteViaFolder);
-  bool VerifyOfflineMessage(nsIMsgDBHdr* msgHdr, nsIInputStream* fileStream);
   MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult AddMarkAllReadUndoAction(
       nsIMsgWindow* msgWindow, nsMsgKey* thoseMarked, uint32_t numMarked);
 
