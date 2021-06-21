@@ -1378,9 +1378,6 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCompose::InitEditor(
   nsIDocShell* docShell = window->GetDocShell();
   NS_ENSURE_TRUE(docShell, NS_ERROR_UNEXPECTED);
 
-  rv = docShell->SetCharset("UTF-8"_ns);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   bool quotingToFollow = false;
   GetQuotingToFollow(&quotingToFollow);
   if (quotingToFollow)

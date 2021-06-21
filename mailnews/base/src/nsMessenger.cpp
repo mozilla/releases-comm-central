@@ -446,7 +446,6 @@ nsresult nsMessenger::CompleteOpenURL() {
 
   // This is to setup the display DocShell as UTF-8 capable...
   mCurrentDisplayCharset = "";
-  mDocShell->SetCharset("UTF-8"_ns);
   SetDisplayCharset("UTF-8"_ns);
 
   // Disable auth and DNS prefetch in all mail docShells.
