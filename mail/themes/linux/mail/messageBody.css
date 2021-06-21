@@ -114,11 +114,8 @@ img[overflowing][shrinktofit] {
 
 .moz-vcard-table {
   margin-top: 10px;
-  border-radius: 5px;
-  border-color: ThreeDLightShadow;
-  border-width: 1px;
-  border-style: solid;
-  background-color: rgba(0, 0, 0, .1);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px hsla(0, 0%, 50%, 0.6);
 }
 
 .moz-vcard-property {
