@@ -4686,47 +4686,14 @@ NS_IMETHODIMP nsMsgDBFolder::ConfirmFolderDeletionForFilter(
 
 NS_IMETHODIMP nsMsgDBFolder::ThrowAlertMsg(const char* msgName,
                                            nsIMsgWindow* msgWindow) {
-  if (!msgWindow) {
-    return NS_OK;
+  nsString alertString;
+  nsresult rv = GetStringWithFolderNameFromBundle(msgName, alertString);
+  if (NS_SUCCEEDED(rv) && !alertString.IsEmpty() && msgWindow) {
+    nsCOMPtr<nsIPrompt> dialog;
+    msgWindow->GetPromptDialog(getter_AddRefs(dialog));
+    if (dialog) dialog->Alert(nullptr, alertString.get());
   }
-
-  nsCOMPtr<nsIStringBundle> bundle;
-  nsresult rv = GetBaseStringBundle(getter_AddRefs(bundle));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Assemble a pretty folder identifier, e.g. "Trash on bob@example.com".
-  nsAutoString ident;
-  nsAutoString folderName;
-  GetName(folderName);
-  nsAutoString serverName;
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  if (NS_SUCCEEDED(GetServer(getter_AddRefs(server)))) {
-    server->GetPrettyName(serverName);
-    bundle->FormatStringFromName("verboseFolderFormat",
-                                 {folderName, serverName}, ident);
-  }
-  if (ident.IsEmpty()) {
-    ident = folderName;  // Fallback, just in case.
-  }
-
-  // Format the actual error message (NOTE: not all error messages use the
-  // params - extra values are just ignored).
-  nsAutoString alertString;
-  rv = bundle->FormatStringFromName(msgName, {ident, kLocalizedBrandShortName},
-                                    alertString);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Include the folder identifier in the alert title for good measure,
-  // because not all the error messages include the folder.
-  nsAutoString title;
-  bundle->FormatStringFromName("folderErrorAlertTitle", {ident}, title);
-
-  nsCOMPtr<nsIPrompt> dialog;
-  rv = msgWindow->GetPromptDialog(getter_AddRefs(dialog));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return dialog->Alert(title.IsEmpty() ? nullptr : title.get(),
-                       alertString.get());
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::AlertFilterChanged(nsIMsgWindow* msgWindow) {
