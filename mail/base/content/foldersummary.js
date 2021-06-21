@@ -252,7 +252,7 @@
      */
     render(folder, msgKeys) {
       let msgDatabase = folder.msgDatabase;
-      for (let msgKey of msgKeys) {
+      for (let msgKey of msgKeys.slice(0, this.maxMsgHdrsInPopup)) {
         let msgBox = MozFolderSummary.createFolderSummaryMessage();
         let msgHdr = msgDatabase.GetMsgHdrForKey(msgKey);
         msgBox.addEventListener("click", event => {
