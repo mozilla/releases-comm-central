@@ -1849,6 +1849,13 @@ var gAccountSetup = {
       this._abortable.cancel(new UserCancelledException());
     }
 
+    // Some tests might close the account setup before it finishes loading,
+    // therefore the gMainWindow might still be null. If that's the case, do an
+    // early return since we don't need to post any message to the main window.
+    if (!gMainWindow) {
+      return;
+    }
+
     // Trigger the startup process if the user didn't complete the setup.
     gMainWindow.postMessage("account-setup-cancelled", "*");
     gAccountSetupLogger.debug("Shutting down email config dialog");
