@@ -70,9 +70,11 @@
           <row align="center">
             <spacer/>
             <label id="lastUpdated"/>
-            <button id="refresh" tabindex="7"
-                label="&refresh.label;" accesskey="&refresh.accesskey;"
-                oncommand="refreshList(); focusSearch()"/>
+            <button id="refresh"
+                    tabindex="7"
+                    label="&refreshNow.label;"
+                    accesskey="&refreshNow.accesskey;"
+                    oncommand="refreshList(); focusSearch();"/>
           </row>
         </rows>
       </grid>
