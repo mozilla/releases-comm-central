@@ -237,7 +237,6 @@
       // Prevent ongoing asynchronous message display from continuing.
       this._messageDisplayPending = false;
 
-      this.docShell.charset = "UTF-8";
       this.addEventListener(
         "load",
         () => {
