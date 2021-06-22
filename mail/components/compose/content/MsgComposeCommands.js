@@ -5110,7 +5110,7 @@ function moveSelectedPillsOnCommand(targetRecipientType) {
 /**
  * Check if there are too many public recipients and offer to send them as BCC.
  */
-function checkPublicRecipientsLimit() {
+async function checkPublicRecipientsLimit() {
   let notification = gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
@@ -5136,7 +5136,7 @@ function checkPublicRecipientsLimit() {
   // Reuse the existing notification since one is shown already.
   if (notification) {
     document.l10n.setAttributes(
-      notification.messageText.querySelector(".consider-bcc-notification-text"),
+      notification.messageText,
       "many-public-recipients-info",
       { count: publicAddressPillsCount }
     );
@@ -5144,13 +5144,6 @@ function checkPublicRecipientsLimit() {
   }
 
   // Construct the notification as we don't have one.
-
-  let msgText = document.createElement("div");
-  msgText.classList.add("consider-bcc-notification-text");
-  document.l10n.setAttributes(msgText, "many-public-recipients-info", {
-    count: publicAddressPillsCount,
-  });
-
   let bccButton = {
     "l10n-id": "many-public-recipients-bcc",
     callback() {
@@ -5181,7 +5174,9 @@ function checkPublicRecipientsLimit() {
   };
 
   notification = gComposeNotification.appendNotification(
-    "",
+    await document.l10n.formatValue("many-public-recipients-info", {
+      count: publicAddressPillsCount,
+    }),
     "warnPublicRecipientsNotification",
     null,
     gComposeNotification.PRIORITY_WARNING_MEDIUM,
@@ -5192,8 +5187,6 @@ function checkPublicRecipientsLimit() {
       }
     }
   );
-  notification.setAttribute("id", "warnPublicRecipientsNotification");
-  notification.messageText.appendChild(msgText);
 }
 
 /**
