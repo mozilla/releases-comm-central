@@ -56,7 +56,7 @@ linux1804-64-tsan/opt:
 # Windows platforms (matching /windows.*/)
 
 # win32
-windows7-32/opt:
+windows7-32-qr/opt:
     build-platform: win32/opt
     test-sets:
         - gtest-tests
@@ -64,7 +64,7 @@ windows7-32/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows7-32-shippable/opt:
+windows7-32-shippable-qr/opt:
     build-platform: win32-shippable/opt
     test-sets:
         - gtest-tests
@@ -72,7 +72,7 @@ windows7-32-shippable/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows7-32/debug:
+windows7-32-qr/debug:
     build-platform: win32/debug
     test-sets:
         - gtest-tests

@@ -22,6 +22,7 @@ jobs-from:
 
 # These apply to all included test yml files listed in jobs-from
 job-defaults:
+    webrender: false
     optimization:
         skip-suite-only: null
     fetches:
