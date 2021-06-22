@@ -30,6 +30,11 @@
   border: 1px solid hsla(0, 0%, 100%, 0.6);
 }
 
+#sanitizeEverythingWarningIcon {
+  width: 48px;
+  height: 48px;
+}
+
 #sanitizeEverythingWarningDescBox {
   padding: 0 16px;
   margin: 0;
