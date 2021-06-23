@@ -54,7 +54,7 @@ xpcshell:
             - "--xpcshell-suite=xpcshell"
         requires-signed-builds:
             by-test-platform:
-                windows10-64-asan/opt: false
+                windows10-64-asan-qr/opt: false
                 windows.*: true
                 default: false
     fetches:
@@ -102,7 +102,7 @@ mochitest-thunderbird:
         by-test-platform:
             linux.*64-asan/opt: 16
             linux.*64-tsan/opt: 15
-            windows10.*-asan/opt: 9
+            windows10-64-asan-qr/opt: 9
             default: 5
     e10s: true
     python-3: true

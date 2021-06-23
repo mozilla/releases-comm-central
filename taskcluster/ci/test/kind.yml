@@ -30,6 +30,8 @@ job-defaults:
                 skip-unless-backstop-no-suite: null
             .*-asan/opt:
                 skip-unless-backstop-no-suite: null
+            .*-asan-qr/opt:
+                skip-unless-backstop-no-suite: null
             default:
                 skip-suite-only: null
     fetches:
