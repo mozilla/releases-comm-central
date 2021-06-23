@@ -41,6 +41,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
 });
 
+/**
+ * Homeserver information in client .well-known payload.
+ * @const {string}
+ */
+const HOMESERVER_WELL_KNOWN = "m.homeserver";
+
 // This matches the configuration of the .userIcon class in chat.css, which
 // expects square icons.
 const USER_ICON_SIZE = 48;
@@ -970,7 +976,16 @@ MatrixAccount.prototype = {
   },
   connect() {
     this.reportConnecting();
-    this._baseURL = this.getString("server") + ":" + this.getInt("port");
+    this.connectClient().catch(error => {
+      this.reportDisconnecting(
+        Ci.prplIAccount.ERROR_OTHER_ERROR,
+        error.message
+      );
+      this.reportDisconnected();
+    });
+  },
+  async connectClient() {
+    this._baseURL = await this.getServer();
 
     let deviceId = this.prefs.getStringPref("deviceId", "") || undefined;
     let accessToken = this.prefs.getStringPref("accessToken", "") || undefined;
@@ -992,51 +1007,93 @@ MatrixAccount.prototype = {
     }
 
     const opts = this.getClientOptions();
-    opts.store.startup().then(() => {
-      this._client = MatrixSDK.createClient(opts);
-      if (this._client.isLoggedIn()) {
-        this.startClient();
-        return;
-      }
-      this._client
-        .loginFlows()
-        .then(({ flows }) => {
-          const usePasswordFlow = Boolean(this.imAccount.password);
-          let wantedFlows = [];
-          if (usePasswordFlow) {
-            wantedFlows.push("m.login.password");
-          } else {
-            wantedFlows.push("m.login.sso", "m.login.token");
-          }
-          if (
-            wantedFlows.every(flowType =>
-              flows.some(flow => flow.type === flowType)
-            )
-          ) {
-            if (usePasswordFlow) {
-              this.loginToClient("m.login.password", {
-                user: this.name,
-                password: this.imAccount.password,
-              });
-            } else {
-              this.requestAuthorization();
-            }
-          } else {
-            this.reportDisconnecting(
-              Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
-              _("connection.error.noSupportedFlow")
-            );
-            this.reportDisconnected();
-          }
-        })
-        .catch(error => {
-          this.reportDisconnecting(
-            Ci.prplIAccount.ERROR_OTHER_ERROR,
-            error.message
-          );
-          this.reportDisconnected();
+
+    await opts.store.startup();
+    this._client = MatrixSDK.createClient(opts);
+    if (this._client.isLoggedIn()) {
+      this.startClient();
+      return;
+    }
+    const { flows } = await this._client.loginFlows();
+    const usePasswordFlow = Boolean(this.imAccount.password);
+    let wantedFlows = [];
+    if (usePasswordFlow) {
+      wantedFlows.push("m.login.password");
+    } else {
+      wantedFlows.push("m.login.sso", "m.login.token");
+    }
+    if (
+      wantedFlows.every(flowType => flows.some(flow => flow.type === flowType))
+    ) {
+      if (usePasswordFlow) {
+        let user = this.name;
+        // extract user localpart in case server is not the canonical one for the matrix ID.
+        if (this.nameIsMXID) {
+          user = this.protocol.splitUsername(user)[0];
+        }
+        await this.loginToClient("m.login.password", {
+          identifier: {
+            type: "m.id.user",
+            user,
+          },
+          password: this.imAccount.password,
         });
-    });
+      } else {
+        this.requestAuthorization();
+      }
+    } else {
+      this.reportDisconnecting(
+        Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
+        _("connection.error.noSupportedFlow")
+      );
+      this.reportDisconnected();
+    }
+  },
+
+  /**
+   * Run autodiscovery to find the matrix server base URL for the account.
+   * For accounts created before the username split was implemented, we will
+   * most likely use the server preference that was set during setup.
+   * All other accounts that have a full MXID as identifier will use the host
+   * from the MXID as start for the auto discovery.
+   *
+   * @returns {string} Matrix server base URL.
+   * @throws {Error} When the autodiscovery failed.
+   */
+  async getServer() {
+    let domain = "https://matrix.org";
+    if (this.nameIsMXID) {
+      domain = this.protocol.splitUsername(this.name)[1];
+    } else if (this.prefs.prefHasUserValue("server")) {
+      // Use legacy server field
+      return (
+        this.prefs.getStringPref("server") +
+        ":" +
+        this.prefs.getIntPref("port", 443)
+      );
+    }
+    const discoveredInfo = await MatrixSDK.AutoDiscovery.findClientConfig(
+      domain
+    );
+    const homeserverResult = discoveredInfo[HOMESERVER_WELL_KNOWN];
+    if (homeserverResult.state === MatrixSDK.AutoDiscovery.PROMPT) {
+      throw new Error(_("connection.error.serverNotFound"));
+    }
+    if (homeserverResult.state !== MatrixSDK.AutoDiscovery.SUCCESS) {
+      throw new Error(homeserverResult.error);
+    }
+    return homeserverResult.base_url;
+  },
+
+  /**
+   * If the |name| property of this account looks like a valid Matrix ID.
+   * @type {boolean}
+   */
+  get nameIsMXID() {
+    return (
+      this.name[0] === this.protocol.usernamePrefix &&
+      this.name.includes(this.protocol.usernameSplits[0].separator)
+    );
   },
 
   /**
@@ -1097,6 +1154,9 @@ MatrixAccount.prototype = {
       if (data.error) {
         throw new Error(data.error);
       }
+      if (data.well_known?.[HOMESERVER_WELL_KNOWN]?.base_url) {
+        this._baseURL = data.well_known[HOMESERVER_WELL_KNOWN].base_url;
+      }
       this.storeSessionInformation(data);
       // Need to create a new client with the device ID set.
       this._client = MatrixSDK.createClient(this.getClientOptions());
@@ -1135,10 +1195,7 @@ MatrixAccount.prototype = {
       InteractiveBrowser.COMPLETION_URL,
       "sso"
     );
-    InteractiveBrowser.waitForRedirect(
-      url,
-      `${this.name} - ${this.getString("server")}`
-    )
+    InteractiveBrowser.waitForRedirect(url, `${this.name} - ${this._baseURL}`)
       .then(resultUrl => {
         let parsedUrl = new URL(resultUrl);
         let rawUrlData = parsedUrl.searchParams;
@@ -1782,7 +1839,8 @@ MatrixAccount.prototype = {
     return true;
   },
   chatRoomFields: {
-    // XXX Does it make sense to split up the server into a separate field?
+    //TODO should split the fields like in account setup, though we would
+    // probably want to keep the type prefix
     roomIdOrAlias: {
       get label() {
         return _("chatRoomField.room");
@@ -2094,20 +2152,18 @@ MatrixProtocol.prototype = {
     return new MatrixAccount(this, aImAccount);
   },
 
+  usernameEmptyText: _("matrix.usernameHint"),
+  usernamePrefix: "@",
+  usernameSplits: [
+    {
+      get label() {
+        return _("options.homeserver");
+      },
+      separator: ":",
+    },
+  ],
+
   options: {
-    // XXX Default to matrix.org once we support connection as guest?
-    server: {
-      get label() {
-        return _("options.connectServer");
-      },
-      default: "https://",
-    },
-    port: {
-      get label() {
-        return _("options.connectPort");
-      },
-      default: 443,
-    },
     saveToken: {
       get label() {
         return _("options.saveToken");
@@ -2125,6 +2181,7 @@ MatrixProtocol.prototype = {
   get chatHasTopic() {
     return true;
   },
+  //TODO this should depend on the server (i.e. if it offers SSO). Should also have noPassword true if there is no password login flow available.
   get passwordOptional() {
     return true;
   },

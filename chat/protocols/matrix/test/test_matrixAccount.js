@@ -286,3 +286,15 @@ add_task(async function test_invitedToDMIn_deny() {
   request.deny();
   ok(leftRoom);
 });
+
+add_task(async function test_nameIsMXID() {
+  const account = getAccount();
+  account.imAccount.name = "@test:example.com";
+  ok(account.nameIsMXID);
+  account.imAccount.name = "@test:example.com:8443";
+  ok(account.nameIsMXID);
+  account.imAccount.name = "test:example.com";
+  ok(!account.nameIsMXID);
+  account.imAccount.name = "test";
+  ok(!account.nameIsMXID);
+});

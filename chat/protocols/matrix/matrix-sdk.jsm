@@ -190,6 +190,7 @@ let loader = Loader({
     // Necessary for interacting with the logging framework.
     scriptError,
     imIDebugMessage: Ci.imIDebugMessage,
+    URL,
   },
 });
 
