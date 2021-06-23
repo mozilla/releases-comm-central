@@ -54,9 +54,11 @@ var gExpectedNewMessages = 0; // The number of messages pushed manually into the
 // See hardcoded value in nsMsgBrkMBoxStore::HasSpaceAvailable().
 function alert(aDialogTitle, aText) {
   // See "/*/locales/en-US/chrome/*/messenger.properties > mailboxTooLarge".
+  // NOTE: This assumes an english-speaking locale.
+  // So it'll fail if that isn't the case. Ugh.
   Assert.ok(
     aText.startsWith(
-      "The folder Inbox is full, and can't hold any more messages."
+      "The folder Inbox on Local Folders is full, and can't hold any more messages."
     )
   );
   gGotAlert = true;
