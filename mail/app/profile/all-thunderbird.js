@@ -177,6 +177,7 @@ pref("security.content.signature.root_hash", "[CONTENT SIGNING DISABLED - see bu
 
 // Show new install UI with permission lists
 pref("extensions.webextPermissionPrompts", true);
+pref("extensions.webextOptionalPermissionPrompts", true);
 
 // 1 = allow "Man In The Middle" (local proxy, web filter, etc.) for certificate
 //     pinning checks.

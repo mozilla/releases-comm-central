@@ -954,13 +954,9 @@ var ExtensionsUI = {
         }
       });
     } else if (topic == "webextension-optional-permission-prompt") {
-      let {
-        browser,
-        name,
-        icon,
-        permissions,
-        resolve,
-      } = subject.wrappedJSObject;
+      let browser = getTopWindow().document.getElementById("tabmail")
+        .selectedBrowser;
+      let { name, icon, permissions, resolve } = subject.wrappedJSObject;
       let strings = this._buildStrings({
         type: "optional",
         addon: { name },
