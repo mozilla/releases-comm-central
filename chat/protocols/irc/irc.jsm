@@ -995,9 +995,9 @@ function ircAccount(aProtocol, aImAccount) {
   this.conversations = new NormalizedMap(this.normalize.bind(this));
 
   // Split the account name into usable parts.
-  let splitter = this.name.lastIndexOf("@");
-  this._accountNickname = this.name.slice(0, splitter);
-  this._server = this.name.slice(splitter + 1);
+  const [accountNickname, server] = this.protocol.splitUsername(this.name);
+  this._accountNickname = accountNickname;
+  this._server = server;
   // To avoid _currentServerName being null, initialize it to the server being
   // connected to. This will also get overridden during the 001 response from
   // the server.
@@ -2361,6 +2361,11 @@ ircProtocol.prototype = {
       defaultValue: "irc.libera.chat",
     },
   ],
+
+  splitUsername(aName) {
+    let splitter = aName.lastIndexOf("@");
+    return [aName.slice(0, splitter), aName.slice(splitter + 1)];
+  },
 
   options: {
     port: {

@@ -108,6 +108,9 @@ UnknownProtocol.prototype = {
   getOptions() {
     return [];
   },
+  get usernamePrefix() {
+    return "";
+  },
   getUsernameSplit() {
     return [];
   },

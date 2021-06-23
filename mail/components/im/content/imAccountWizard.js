@@ -91,16 +91,29 @@ var accountWizard = {
     }
   },
 
+  /**
+   * Builds the full username from the username boxes.
+   *
+   * @returns {string} assembled username
+   */
   getUsername() {
+    let usernameBoxIndex = 0;
+    if (this.proto.usernamePrefix) {
+      usernameBoxIndex = 1;
+    }
     // If the first username input is empty, make sure we return an empty
     // string so that it blocks the 'next' button of the wizard.
-    if (!this.userNameBoxes[0].value) {
+    if (!this.userNameBoxes[usernameBoxIndex].value) {
       return "";
     }
 
     return this.userNameBoxes.reduce((prev, elt) => prev + elt.value, "");
   },
 
+  /**
+   * Check that the username fields generate a new username, and if it is valid
+   * allow advancing the wizard.
+   */
   checkUsername() {
     var wizard = document.querySelector("wizard");
     var name = accountWizard.getUsername();
@@ -114,6 +127,28 @@ var accountWizard = {
     var exists = accountWizard.proto.accountExists(name);
     wizard.canAdvance = !exists;
     duplicateWarning.hidden = !exists;
+  },
+
+  /**
+   * Takes the value of the primary username field and splits it if the value
+   * matches the split field syntax.
+   */
+  splitUsername() {
+    let usernameBoxIndex = 0;
+    if (this.proto.usernamePrefix) {
+      usernameBoxIndex = 1;
+    }
+    let username = this.userNameBoxes[usernameBoxIndex].value;
+    let splitValues = this.proto.splitUsername(username);
+    if (!splitValues.length) {
+      return;
+    }
+    for (const box of this.userNameBoxes) {
+      if (box instanceof Element) {
+        box.value = splitValues.shift();
+      }
+    }
+    this.checkUsername();
   },
 
   selectProtocol() {
@@ -153,11 +188,21 @@ var accountWizard = {
     input.addEventListener("input", event => {
       this.checkUsername();
     });
+    // Only add the split logic to the first input field
+    if (!this.userNameBoxes) {
+      input.addEventListener("blur", event => {
+        this.splitUsername();
+      });
+    }
     grid.appendChild(input);
 
     return input;
   },
 
+  /**
+   * Builds the username input boxes from the username split defined by the
+   * protocol.
+   */
   showUsernamePage() {
     var proto = this.proto.id;
     if ("userNameBoxes" in this && this.userNameProto == proto) {
@@ -191,6 +236,12 @@ var accountWizard = {
     var label = bundle.getString("accountUsername");
     this.userNameBoxes = [this.insertUsernameField("name", label, grid)];
     this.userNameBoxes[0].emptyText = emptyText;
+    let usernameBoxIndex = 0;
+
+    if (this.proto.usernamePrefix) {
+      this.userNameBoxes.unshift({ value: this.proto.usernamePrefix });
+      usernameBoxIndex = 1;
+    }
 
     for (let i = 0; i < splits.length; ++i) {
       this.userNameBoxes.push({ value: splits[i].separator });
@@ -200,7 +251,7 @@ var accountWizard = {
         this.insertUsernameField("username-split-" + i, label, grid, defaultVal)
       );
     }
-    this.userNameBoxes[0].focus();
+    this.userNameBoxes[usernameBoxIndex].focus();
     this.userNameProto = proto;
     this.checkUsername();
   },

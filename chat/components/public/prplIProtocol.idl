@@ -52,9 +52,21 @@ interface prplIProtocol: nsISupports {
   Array<prplIPref> getOptions();
 
   /**
+   * String to put in front of the full account username identifier. Usually
+   * an empty string.
+   */
+  readonly attribute AUTF8String usernamePrefix;
+
+  /**
    * @returns an array of prplIUsernameSplit
    */
   Array<prplIUsernameSplit> getUsernameSplit();
+
+  /**
+   * Split a username into its parts without separators (or prefix).
+   * Returns an empty array if the username can not be split.
+   */
+  Array<AUTF8String> splitUsername(in AUTF8String aName);
 
   /**
    * Descriptive text used in the account wizard to describe the username.

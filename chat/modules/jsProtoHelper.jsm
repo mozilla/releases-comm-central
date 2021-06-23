@@ -1169,11 +1169,47 @@ var GenericProtocolPrototype = {
     }
     return purplePrefs;
   },
+  usernamePrefix: "",
   getUsernameSplit() {
     if (!this.usernameSplits || !this.usernameSplits.length) {
       return [];
     }
     return this.usernameSplits.map(split => new UsernameSplit(split));
+  },
+
+  /**
+   * Protocol agnostic implementation that splits the username by the pattern
+   * defined with |usernamePrefix| and |usernameSplits| on the protocol.
+   * Prefers the first occurence of a separator.
+   *
+   * @param {string} aName - Username to split.
+   * @returns {string[]} Parts of the username or empty array if the username
+   *   doesn't match the splitting format.
+   */
+  splitUsername(aName) {
+    let remainingName = aName;
+    if (this.usernamePrefix) {
+      if (!remainingName.startsWith(this.usernamePrefix)) {
+        return [];
+      }
+      remainingName = remainingName.slice(this.usernamePrefix.length);
+    }
+    if (!this.usernameSplits || !this.usernameSplits.length) {
+      return [remainingName];
+    }
+    const parts = [];
+    for (const split of this.usernameSplits) {
+      if (!remainingName.includes(split.separator)) {
+        return [];
+      }
+      const separatorIndex = remainingName.indexOf(split.separator);
+      parts.push(remainingName.slice(0, separatorIndex));
+      remainingName = remainingName.slice(
+        separatorIndex + split.separator.length
+      );
+    }
+    parts.push(remainingName);
+    return parts;
   },
 
   registerCommands() {
