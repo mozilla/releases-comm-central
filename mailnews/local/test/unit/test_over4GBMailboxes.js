@@ -21,6 +21,12 @@
  * -  CompactListener_compactUnder4GiB
  */
 
+// Need to do this before loading POP3Pump.js
+Services.prefs.setCharPref(
+  "mail.serverDefaultStoreContractID",
+  "@mozilla.org/msgstore/berkeleystore;1"
+);
+
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/MessageGenerator.jsm */
@@ -29,11 +35,6 @@ load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/MessageGenerator.jsm");
 load("../../../resources/POP3pump.js");
-
-Services.prefs.setCharPref(
-  "mail.serverDefaultStoreContractID",
-  "@mozilla.org/msgstore/berkeleystore;1"
-);
 
 // If we're running out of memory parsing the folder, lowering the
 // block size might help, though it will slow the test down and consume
