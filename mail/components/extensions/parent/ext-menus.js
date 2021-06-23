@@ -394,7 +394,7 @@ var gMenuBuilder = {
 
     element.addEventListener(
       "command",
-      event => {
+      async event => {
         if (event.target !== event.currentTarget) {
           return;
         }
@@ -423,7 +423,7 @@ var gMenuBuilder = {
           item.tabManager.addActiveTabPermission(contextData.tab);
         }
 
-        let info = item.getClickInfo(contextData, wasChecked);
+        let info = await item.getClickInfo(contextData, wasChecked);
         info.modifiers = clickModifiersFromEvent(event);
 
         info.button = button;
@@ -660,7 +660,12 @@ function getContextViewType(contextData) {
   return undefined;
 }
 
-function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
+async function addMenuEventInfo(
+  info,
+  contextData,
+  extension,
+  includeSensitiveData
+) {
   info.viewType = getContextViewType(contextData);
   if (contextData.onVideo) {
     info.mediaType = "video";
@@ -705,7 +710,7 @@ function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
   }
 
   if (contextData.selectedMessages && extension.hasPermission("messagesRead")) {
-    info.selectedMessages = messageListTracker.startList(
+    info.selectedMessages = await messageListTracker.startList(
       contextData.selectedMessages,
       extension
     );
@@ -920,7 +925,7 @@ MenuItem.prototype = {
     }
   },
 
-  getClickInfo(contextData, wasChecked) {
+  async getClickInfo(contextData, wasChecked) {
     let info = {
       menuItemId: this.id,
     };
@@ -928,7 +933,7 @@ MenuItem.prototype = {
       info.parentMenuItemId = this.parentId;
     }
 
-    addMenuEventInfo(info, contextData, this.extension, true);
+    await addMenuEventInfo(info, contextData, this.extension, true);
 
     if (this.type === "checkbox" || this.type === "radio") {
       info.checked = this.checked;
@@ -1158,7 +1163,7 @@ this.menus = class extends ExtensionAPI {
           context,
           name: "menus.onShown",
           register: fire => {
-            let listener = (event, menuIds, contextData) => {
+            let listener = async (event, menuIds, contextData) => {
               let info = {
                 menuIds,
                 contexts: Array.from(getMenuContexts(contextData)),
@@ -1191,7 +1196,7 @@ this.menus = class extends ExtensionAPI {
                   "chrome://messenger/content/messengercompose/messengercompose.xhtml" &&
                   extension.hasPermission("compose"));
 
-              addMenuEventInfo(
+              await addMenuEventInfo(
                 info,
                 contextData,
                 extension,
