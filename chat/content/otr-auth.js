@@ -178,6 +178,7 @@ var otrAuth = {
   oninput(e) {
     document
       .getElementById("otrAuthDialog")
+      .querySelector("dialog")
       .getButton("accept").disabled = !e.value;
   },
 

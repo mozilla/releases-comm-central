@@ -18,7 +18,10 @@ var addBuddy = {
       item.setAttribute("class", "menuitem-iconic");
     }
     if (!accountList.itemCount) {
-      document.getElementById("addBuddyDialog").cancelDialog();
+      document
+        .getElementById("addBuddyDialog")
+        .querySelector("dialog")
+        .cancelDialog();
       throw new Error("No connected account!");
     }
     accountList.selectedIndex = 0;

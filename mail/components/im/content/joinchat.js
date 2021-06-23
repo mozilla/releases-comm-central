@@ -21,7 +21,10 @@ var joinChat = {
       item.account = acc;
     }
     if (!accountList.itemCount) {
-      document.getElementById("joinChatDialog").cancelDialog();
+      document
+        .getElementById("joinChatDialog")
+        .querySelector("dialog")
+        .cancelDialog();
       throw new Error("No connected MUC enabled account!");
     }
     accountList.selectedIndex = 0;

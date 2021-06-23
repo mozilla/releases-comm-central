@@ -67,8 +67,10 @@ var otrAddFinger = {
       this.fingerError.hidden = true;
     }
 
-    document.getElementById("otrAddFingerDialog").getButton("accept").disabled =
-      input.value && !input.validity.valid;
+    document
+      .getElementById("otrAddFingerDialog")
+      .querySelector("dialog")
+      .getButton("accept").disabled = input.value && !input.validity.valid;
 
     this.keyCount.value = `${hex.length}/40`;
     input.value = this.addBlankSpace(input.value);
