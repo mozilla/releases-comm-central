@@ -6,11 +6,12 @@
 
 const {
   add_sets_to_folders,
-  delete_message_set,
-  inboxFolder,
   be_in_folder,
   create_folder,
   create_thread,
+  delete_message_set,
+  inboxFolder,
+  mc,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -104,14 +105,16 @@ async function openConversationView(row, col) {
   let item = window.document.querySelector("#mailContext-openConversation");
   let prevTab = window.tabmail.selectedTab;
 
+  let loadedPromise = BrowserTestUtils.waitForEvent(window, "MsgsLoaded");
   await openContextMenu(row, col);
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   menu.activateItem(item);
-  await hiddenPromise;
+  await loadedPromise;
+  mc.sleep(500);
 
-  await TestUtils.waitForCondition(
-    () => window.tabmail.selectedTab != prevTab,
-    "Conversation View tab did not open in time"
+  Assert.notEqual(
+    window.tabmail.selectedTab,
+    prevTab,
+    "Conversation View tab did not open"
   );
 }
 
