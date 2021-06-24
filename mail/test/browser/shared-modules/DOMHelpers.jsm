@@ -18,10 +18,11 @@ const EXPORTED_SYMBOLS = [
   "collapse_panes",
 ];
 
-var folderDisplayHelper = ChromeUtils.import(
+ChromeUtils.defineModuleGetter(
+  this,
+  "mc",
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var mc = folderDisplayHelper.mc;
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 

@@ -1536,7 +1536,7 @@ add_task(async function test_get_new_account_focuses_existing_ap_tab() {
   // If we got here, that means that we weren't blocked by a dialog
   // being opened, which is what we wanted.
   assert_selected_tab(apTab);
-  mc.tabmail.closeTab(apTab);
+  mc.tabmail.closeOtherTabs(mc.tabmail.tabInfo[0]);
 });
 
 /**
