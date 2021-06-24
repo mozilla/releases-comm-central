@@ -663,7 +663,7 @@ var messageHeaderSink = {
         .messageServiceFromURI(uri)
         .messageURIToMsgHdr(uri);
     }
-    if (contentType == "text/x-vcard") {
+    if (contentType == "text/vcard" || contentType == "text/x-vcard") {
       var inlineAttachments = Services.prefs.getBoolPref(
         "mail.inline_attachments"
       );
