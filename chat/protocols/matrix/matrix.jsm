@@ -197,15 +197,12 @@ function getStatusFromPresence(user) {
  * direct conversation rooms.
  *
  * @param {imIAccount} account
- * @param {imIBuddy?} buddy
- * @param {imITag?} tag
- * @param {User} [user]
+ * @param {imIBuddy|null} buddy
+ * @param {imITag|null} tag
+ * @param {string} [userId] - Matrix user ID, only required if no buddy is provided.
  */
-function MatrixBuddy(account, buddy, tag, user) {
-  this._init(account, buddy, tag, user?.userId);
-  if (user) {
-    this.setUser(user);
-  }
+function MatrixBuddy(account, buddy, tag, userId) {
+  this._init(account, buddy, tag, userId);
 }
 
 MatrixBuddy.prototype = {
@@ -554,7 +551,7 @@ MatrixRoom.prototype = {
         this.name
       );
       // Make sure the new room gets the correct conversation type.
-      newConversation.waitForRoom().then(conv => conv.checkForUpdate());
+      newConversation.checkForUpdate();
       this.replaceRoom(newConversation);
       this.forget();
       //TODO link to the old logs based on the |predecessor| field of m.room.create
@@ -685,18 +682,23 @@ MatrixRoom.prototype = {
 
   /**
    * Check if the type of the conversation (MUC or DM) needs to be changed and
-   * if it needs to change, update it.
+   * if it needs to change, update it. If the conv was replaced this will
+   * check for an update on the new conversation.
    *
    * @returns {Promise<void>}
    */
   async checkForUpdate() {
-    if (this._waitingForUpdate) {
+    if (this._waitingForUpdate || this.left) {
       return;
     }
     this._waitingForUpdate = true;
-    await this._initialized;
+    const conv = await this.waitForRoom();
+    if (conv !== this) {
+      await conv.checkForUpdate();
+      return;
+    }
     this._waitingForUpdate = false;
-    if (this._replacedBy) {
+    if (this.left) {
       return;
     }
     const shouldBeMuc = this.expectedToBeMuc();
@@ -892,8 +894,9 @@ MatrixRoom.prototype = {
       this._account,
       null,
       Services.tags.defaultTag,
-      user
+      user.userId
     );
+    this.buddy.setUser(user);
     Services.contacts.accountBuddyAdded(this.buddy);
     this._account.buddies.set(dmUserId, this.buddy);
   },
@@ -1465,7 +1468,7 @@ MatrixAccount.prototype = {
         conv
           .checkForUpdate()
           .then(() => conv.catchup())
-          .catch(error => conv.ERROR(error));
+          .catch(error => this.ERROR(error));
       }
     }
     // Create new conversations
@@ -1489,7 +1492,7 @@ MatrixAccount.prototype = {
         } else {
           conv = this.getGroupConversation(roomId);
         }
-        conv.catchup().catch(error => conv.ERROR(error));
+        conv.catchup().catch(error => this.ERROR(error));
       }
     }
     // Remove orphaned buddies.
@@ -1523,9 +1526,7 @@ MatrixAccount.prototype = {
           room.summary.info.title
         );
         if (room.getInvitedAndJoinedMemberCount() !== 2) {
-          conversation.waitForRoom().then(conv => {
-            conv.checkForUpdate();
-          });
+          conversation.checkForUpdate();
         }
       },
       () => {
@@ -1789,7 +1790,9 @@ MatrixAccount.prototype = {
         return false;
       }
       const accountMembership = room.getMyMembership() ?? "leave";
-      let userMembership = room.getMember(userId)?.membership ?? "leave";
+      // Default to invite, since the invite for the other member may not be in
+      // the room events yet.
+      let userMembership = room.getMember(userId)?.membership ?? "invite";
       // If either party left the room we shouldn't try to rejoin.
       return userMembership !== "leave" && accountMembership !== "leave";
     });
@@ -1880,7 +1883,7 @@ MatrixAccount.prototype = {
       }
       // It can be any type of room so update it according to direct conversation
       // or group conversation.
-      conv.waitForRoom().then(() => conv.checkForUpdate());
+      conv.checkForUpdate();
       return conv;
     }
 
@@ -2038,7 +2041,26 @@ MatrixAccount.prototype = {
   },
 
   addBuddy(aTag, aName) {
-    throw new Error("Adding buddies is not yet supported");
+    if (aName[0] !== this.protocol.usernamePrefix) {
+      this.ERROR("Buddy name must start with @");
+      return;
+    }
+    if (!aName.includes(this.protocol.usernameSplits[0].separator)) {
+      this.ERROR("Buddy name must include :");
+      return;
+    }
+    if (aName == this.userId) {
+      return;
+    }
+    if (this.buddies.has(aName)) {
+      return;
+    }
+    // Prepare buddy for use with the conversation while preserving the tag.
+    const buddy = new MatrixBuddy(this, null, aTag, aName);
+    Services.contacts.accountBuddyAdded(buddy);
+    this.buddies.set(aName, buddy);
+
+    this.getDirectConversation(aName);
   },
   loadBuddy(aBuddy, aTag) {
     const buddy = new MatrixBuddy(this, aBuddy, aTag);
