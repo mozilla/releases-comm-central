@@ -780,17 +780,6 @@ var gMailInit = {
     this.delayedStartupFinished = true;
     Services.obs.notifyObservers(window, "mail-delayed-startup-finished");
 
-    let pService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
-      Ci.nsIToolkitProfileService
-    );
-
-    if (pService.createdAlternateProfile) {
-      // Show on a timeout so the main window has time to open. Otherwise
-      // the dialog would be confusingly showing out of context.
-      _showNewInstallModal();
-      return;
-    }
-
     // Load the entire UI only if we already have at least one account available
     // otherwise the verifyExistingAccounts will trigger the account wizard.
     if (verifyExistingAccounts()) {
@@ -910,31 +899,6 @@ function verifyExistingAccounts() {
   } catch (ex) {
     dump(`Error verifying accounts: ${ex}`);
     return false;
-  }
-}
-
-function _showNewInstallModal() {
-  Services.ww.openWindow(
-    null,
-    "chrome://messenger/content/newInstall.xhtml",
-    "_blank",
-    "chrome,modal,resizable=no,centerscreen",
-    null
-  );
-
-  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  if (mail3PaneWindow) {
-    let tabmail = mail3PaneWindow.document.getElementById("tabmail");
-    let monitor = {
-      onTabTitleChanged() {},
-      onTabSwitched() {},
-      onTabClosing() {
-        verifyOpenAccountHubTab();
-        tabmail.unregisterTabMonitor(monitor);
-      },
-    };
-    tabmail.registerTabMonitor(monitor);
-    tabmail.openTab("contentTab", { url: "about:newinstall" });
   }
 }
 

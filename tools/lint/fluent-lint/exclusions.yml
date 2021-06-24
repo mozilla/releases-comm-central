@@ -24,10 +24,6 @@ ID02:
         - search
         - filter
         - e2e
-        # comm/mail/locales/en-US/messenger/newInstallPage.ftl
-        - title
-        - heading
-        - lost
         # comm/mail/locales/en-US/messenger/otr/am-im-otr.ftl
         - otr-log
         # comm/mail/locales/en-US/messenger/otr/auth.ftl

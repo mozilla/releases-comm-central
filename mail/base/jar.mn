@@ -50,7 +50,6 @@ messenger.jar:
 *   content/messenger/aboutDialog.xhtml             (content/aboutDialog.xhtml)
     content/messenger/aboutDialog.js                (content/aboutDialog.js)
     content/messenger/aboutRights.xhtml             (content/aboutRights.xhtml)
-    content/messenger/newInstallPage.html           (content/newInstallPage.html)
     content/messenger/systemIntegrationDialog.xhtml (content/systemIntegrationDialog.xhtml)
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)
     content/messenger/folderPane.js                 (content/folderPane.js)
@@ -73,8 +72,6 @@ messenger.jar:
     content/messenger/composerOverlay.css           (content/composerOverlay.css)
     content/messenger/threadPane.js                 (content/threadPane.js)
     content/messenger/protovis-r2.6-modded.js       (content/protovis-r2.6-modded.js)
-    content/messenger/newInstall.xhtml              (content/newInstall.xhtml)
-    content/messenger/newInstall.js                 (content/newInstall.js)
 #ifdef XP_MACOSX
     content/messenger/macMessengerMenu.js           (content/macMessengerMenu.js)
 *   content/messenger/hiddenWindowMac.xhtml         (content/hiddenWindowMac.xhtml)
