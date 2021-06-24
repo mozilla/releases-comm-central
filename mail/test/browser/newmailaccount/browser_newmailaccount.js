@@ -475,7 +475,9 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
     tabWindow
   );
   await dialogWindowPromise4;
-});
+}).__skipMe = AppConstants.platform == "macosx";
+// The provisioner window appears modally in macOS, you cannot switch back to
+// the opening window.
 
 /**
  * This function is used by test_flip_flop_from_provisioner_menuitem to switch
