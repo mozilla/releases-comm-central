@@ -11,6 +11,8 @@ Services.conversations.initConversations();
 
 var fakeProto = {
   id: "fake-proto",
+  usernameSplits: irc.ircProtocol.prototype.usernameSplits,
+  splitUsername: irc.ircProtocol.prototype.splitUsername,
 };
 
 function run_test() {

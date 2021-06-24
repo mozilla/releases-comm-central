@@ -11,6 +11,8 @@ var fakeProto = {
   _getOptionDefault(aOption) {
     return this.options[aOption];
   },
+  usernameSplits: irc.ircProtocol.prototype.usernameSplits,
+  splitUsername: irc.ircProtocol.prototype.splitUsername,
 };
 
 function test_tryNewNick() {
