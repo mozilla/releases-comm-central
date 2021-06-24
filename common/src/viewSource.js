@@ -67,7 +67,7 @@ var viewSourceChrome = {
    * Called by clicks on a menuitem to force the character set detection.
    */
   onForceCharacterSet() {
-    gBrowser.characterSet = "_autodetect_all";
+    gBrowser.forceEncodingDetection();
     gBrowser.reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
   },
 
