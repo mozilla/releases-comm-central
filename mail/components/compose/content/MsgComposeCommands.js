@@ -98,6 +98,7 @@ var gCloseWindowAfterSave;
 var gSavedSendNowKey;
 var gSendFormat;
 var gContextMenu;
+var gLastFocusElement = null;
 
 var gAttachmentBucket;
 var gAttachmentCounter;
@@ -209,6 +210,12 @@ window.addEventListener("close", event => {
 });
 window.addEventListener("focus", event => {
   EditorOnFocus();
+});
+
+document.addEventListener("focusin", event => {
+  // Listen for focusin event in composition. gLastFocusElement might well be
+  // null, e.g. when focusin enters a different document like contacts sidebar.
+  gLastFocusElement = event.relatedTarget;
 });
 
 // For WebExtensions.
@@ -5169,6 +5176,24 @@ async function checkPublicRecipientsLimit() {
     callback() {
       gRecipientObserver.disconnect();
       gRecipientObserver = null;
+      // After closing notification with `Keep Recipients Public`, actively
+      // manage focus to prevent weird focus change e.g. to Contacts Sidebar.
+      // If focus was in addressing area before, restore that as the user might
+      // dismiss the notification when it appears while still adding recipients.
+      if (gLastFocusElement?.classList.contains("address-input")) {
+        gLastFocusElement.focus();
+        return false;
+      }
+
+      // Otherwise if there's no subject yet, focus that (ux-error-prevention).
+      let msgSubject = document.getElementById("msgSubject");
+      if (!msgSubject.value) {
+        msgSubject.focus();
+        return false;
+      }
+
+      // Otherwise default to focusing message body.
+      document.getElementById("content-frame").focus();
       return false;
     },
   };
