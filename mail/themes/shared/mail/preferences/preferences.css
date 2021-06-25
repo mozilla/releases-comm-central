@@ -341,7 +341,7 @@ html|input[type="number"]::-moz-number-spin-up {
 
 html|input[type="number"]::-moz-number-spin-down {
   border-radius: 0 0 1px 1px;
-  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }
 
 separator.groove:not([orient="vertical"]) {

@@ -205,7 +205,7 @@ menulist > menupopup:not([position]) {
 }
 
 .down {
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }
 
 .up[disabled="true"],
@@ -246,7 +246,7 @@ treecol[sortDirection="ascending"]:not([hideheader="true"]) > .treecol-sortdirec
 }
 
 treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdirection {
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }
 
 :root[lwt-tree] treechildren::-moz-tree-row(odd) {

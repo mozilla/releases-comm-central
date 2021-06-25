@@ -59,7 +59,7 @@
 
 .otr-button .toolbarbutton-menu-dropmarker {
   appearance: none !important;
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   margin-left: 0;
   margin-right: 0;
   margin-inline-start: 3px;

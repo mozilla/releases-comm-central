@@ -175,7 +175,7 @@ body {
   transform: rotate(-90deg);
 }
 
-.bookRow.children.collapsed:-moz-locale-dir(rtl) .twisty-icon {
+.bookRow.children.collapsed:dir(rtl) .twisty-icon {
   transform: rotate(90deg);
 }
 

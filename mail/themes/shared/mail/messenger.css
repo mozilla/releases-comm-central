@@ -642,7 +642,7 @@ button[type="menu-button"] {
   background-repeat: no-repeat;
   background-position: right;
   background-size: 12px;
-  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -664,7 +664,7 @@ button[type="menu-button"] > .button-box > button {
 
 button > .button-box > dropmarker {
   appearance: none;
-  list-style-image: url(chrome://global/skin/icons/arrow-dropdown-12.svg);
+  list-style-image: url(chrome://global/skin/icons/arrow-down-12.svg);
   -moz-context-properties: fill;
   fill: currentColor;
 }

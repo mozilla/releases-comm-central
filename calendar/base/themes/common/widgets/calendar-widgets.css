@@ -37,7 +37,7 @@ checkbox.treenode-checkbox > .checkbox-check {
   width: 10px;
   height: 10px;
   color: inherit;
-  background-image: url(chrome://global/skin/icons/twisty-expanded.svg);
+  background-image: url(chrome://global/skin/icons/arrow-down-12.svg);
   background-size: contain;
   background-color: transparent !important;
   -moz-context-properties: fill;

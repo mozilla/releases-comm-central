@@ -224,7 +224,7 @@ menulist > menupopup menupopup > menuitem[disabled="true"] {
 menulist > menupopup .menu-right {
   appearance: none;
   -moz-context-properties: fill;
-  list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
   -moz-image-region: auto;
   fill: currentColor;
 }
@@ -471,7 +471,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   min-width: 20px;
   max-height: 20px;
   max-width: 20px;
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   background-color: transparent;
   padding: 3px;
 }
@@ -627,7 +627,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 .openpgp-more-btn .button-menu-dropmarker {
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }
 
 .intro-paragraph {

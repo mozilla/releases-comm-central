@@ -441,8 +441,9 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
   margin: 0;
 }
 
-button.email-action-button:hover {
-  background: none;
+button.email-action-button:hover,
+button.email-action-button:hover:active {
+  background-color: transparent;
 }
 
 button.email-action-button:focus-visible:not(:hover) {
@@ -483,33 +484,13 @@ mail-emailaddress[selected="true"] > .emailDisplayButton .emailStar {
   overflow: hidden;
 }
 
-/* ::::: email address twisty ::::: */
-
-.addresstwisty {
-  padding-inline-end: 0;
-  padding-top: 4px;
-  list-style-image:url("chrome://messenger/skin/icons/arrow/arrow-right-dim.png");
-}
-
-.addresstwisty:hover {
-  list-style-image:url("chrome://messenger/skin/icons/arrow/arrow-right.png");
-}
-
-.addresstwisty[open] {
-  list-style-image:url("chrome://messenger/skin/icons/arrow/arrow-down-dim.png");
-}
-
-.addresstwisty[open]:hover {
-  list-style-image:url("chrome://messenger/skin/icons/arrow/arrow-down.png");
-}
-
-mail-messageids-headerfield .emailActionIconButton {
-  padding-block-start: 1px;
+mail-messageids-headerfield .email-action-button {
   margin-inline: 4px 2px;
 }
 
 .emailToggleHeaderfield {
-  background: url("chrome://global/skin/icons/twisty-collapsed.svg") no-repeat center;
+  margin-block: auto;
+  background: url("chrome://global/skin/icons/arrow-right-12.svg") no-repeat center;
   background-size: contain;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -518,11 +499,17 @@ mail-messageids-headerfield .emailActionIconButton {
 }
 
 .emailToggleHeaderfield:-moz-locale-dir(rtl) {
-  background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+  transform: rotate(180deg);
 }
 
 .emailToggleHeaderfield.open {
-  background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .emailToggleHeaderfield {
+    transition: transform 200ms ease;
+  }
 }
 
 /* ::::: view expand and collapse twisties  ::::: */

@@ -127,7 +127,7 @@ tree.list {
 
 #NextButton,
 #PreviousButton {
-  list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
 }

@@ -339,7 +339,7 @@ button[type="menu-button"] > .button-box > button {
 }
 
 treecol[sortDirection="ascending"]:not([hideheader="true"]) > .treecol-sortdirection {
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }
 
 treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdirection {

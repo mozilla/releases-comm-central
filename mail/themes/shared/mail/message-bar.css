@@ -5,7 +5,7 @@
 :host {
   --info-icon-url: url("chrome://global/skin/icons/info-filled.svg");
   --warn-icon-url: url("chrome://global/skin/icons/warning.svg");
-  --success-icon-url: url("chrome://global/skin/icons/success.svg");
+  --success-icon-url: url("chrome://global/skin/icons/check.svg");
   --error-icon-url: url("chrome://global/skin/icons/error.svg");
   --close-icon-url: url("chrome://global/skin/icons/close.svg");
   --draft-icon-url: url("chrome://messenger/skin/icons/newmsg.svg");
@@ -280,7 +280,7 @@ button.button-menu-list {
   background-repeat: no-repeat;
   background-position: right 4px center;
   background-size: 12px;
-  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -314,7 +314,7 @@ button dropmarker::part(icon) {
 
 button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   appearance: none;
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
   margin-inline-end: -5px;

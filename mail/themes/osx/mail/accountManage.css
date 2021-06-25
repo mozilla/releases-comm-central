@@ -20,7 +20,7 @@ menulist > menupopup .menu-right {
 #accountActionsButton> .button-box > .button-menu-dropmarker {
   appearance: none;
   display: -moz-box;
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
   width: 12px;

@@ -189,7 +189,7 @@ html|input[type="number"]::-moz-number-spin-up {
   border-bottom-style: none;
 }
 html|input[type="number"]::-moz-number-spin-down {
-  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }
 
 button,
@@ -306,7 +306,7 @@ menulist::part(dropmarker) {
   padding: 0;
   border: none;
   background-color: transparent;
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -398,13 +398,13 @@ menulist menupopup > menuitem[disabled="true"] {
 .menu-right {
   appearance: none;
   -moz-context-properties: fill;
-  list-style-image: url("chrome://global/skin/icons/menu-arrow.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-right.svg");
   fill: currentColor;
 }
 
 @media not (-moz-proton) {
 .menu-right {
-  list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
 }
 } /** END not Proton **/
 

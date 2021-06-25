@@ -637,18 +637,24 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   width: 10px;
   height: 10px;
   margin-inline-start: 5px;
-  background: url("chrome://global/skin/icons/twisty-expanded.svg") no-repeat center;
+  background: url("chrome://global/skin/icons/arrow-down-12.svg") no-repeat center;
   background-size: contain;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
 richlistitem[is="chat-group-richlistitem"].closed .twisty {
-  background-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
+  transform: rotate(-90deg);
 }
 
 richlistitem[is="chat-group-richlistitem"].closed:-moz-locale-dir(rtl) .twisty {
-  background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  richlistitem[is="chat-group-richlistitem"] .twisty {
+    transition: transform 200ms ease;
+  }
 }
 
 .prplBuddyIcon {
