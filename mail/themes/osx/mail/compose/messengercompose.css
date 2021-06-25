@@ -347,29 +347,3 @@ toolbarbutton.formatting-button {
   background-image: none;
   background-color: var(--lwt-accent-color);
 }
-
-:root[lwt-tree]
-  #FormatToolbar:not(:-moz-window-inactive):-moz-lwtheme-brighttext >
-  toolbarbutton.formatting-button[checked="true"]:after {
-  content: "";
-  display: -moz-box;
-  width: 29px;
-  height: 20px;
-  margin-top: -1px;
-  margin-inline: -24px -5px;
-  background-color: #888;
-}
-
-:root[lwt-tree] #underlineButton:-moz-locale-dir(rtl):after,
-:root[lwt-tree] #boldButton:-moz-locale-dir(ltr):after,
-:root[lwt-tree] #ulButton:-moz-locale-dir(ltr):after {
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-}
-
-:root[lwt-tree] #underlineButton:-moz-locale-dir(ltr):after,
-:root[lwt-tree] #boldButton:-moz-locale-dir(rtl):after,
-:root[lwt-tree] #ulButton:-moz-locale-dir(rtl):after {
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
-}

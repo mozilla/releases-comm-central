@@ -311,6 +311,11 @@ label.label {
   padding: 0px 9px;
 }
 
+#FormatToolbox {
+  appearance: none;
+  padding-inline: 4px;
+}
+
 #FormatToolbar {
   -moz-context-properties: fill;
   fill: currentColor;
@@ -352,10 +357,6 @@ label.label {
   list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
 }
 
-#AlignPopupButton > dropmarker {
-  list-style-image: none;
-}
-
 #AlignPopup > menuitem {
   -moz-context-properties: fill;
   fill: currentColor;
@@ -378,19 +379,44 @@ label.label {
 }
 
 #paragraphButton {
-  list-style-image: url("chrome://messenger/skin/icons/size.svg");
-}
-
-#paragraphButton > dropmarker {
-  list-style-image: none;
+  list-style-image: url("chrome://messenger/skin/icons/paragraph.svg");
 }
 
 #smileButtonMenu {
   list-style-image: url("chrome://messenger/skin/icons/smiley.svg");
 }
 
-#smileButtonMenu > dropmarker {
-  list-style-image: none;
+.formatting-button {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+  color: inherit;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+}
+
+.formatting-button:not([disabled="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+}
+
+.formatting-button:not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
+  background: var(--toolbarbutton-checked-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+.formatting-button:not([disabled="true"]):is([open="true"],:hover:active) {
+  background: var(--toolbarbutton-active-background) !important;
+}
+
+.formatting-button > .toolbarbutton-menu-dropmarker {
+  list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .formatting-button[disabled="true"] > .toolbarbutton-icon,

@@ -36,3 +36,17 @@
 #percent-complete-textbox {
   padding: 2px;
 }
+
+@media not (-moz-windows-non-native-menus) {
+  #smileyPopup > menuitem > .menu-text,
+  #paragraphPopup > menuitem > .menu-text {
+    margin-inline-start: -1.45em !important;
+  }
+}
+
+@media (-moz-windows-non-native-menus) {
+  #smileyPopup > menuitem,
+  #paragraphPopup > menuitem {
+    padding-inline-start: 14px;
+  }
+}

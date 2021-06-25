@@ -32,3 +32,16 @@
 #percent-complete-textbox {
   padding: 3px;
 }
+
+.formatting-button > .toolbarbutton-menu-dropmarker {
+  appearance: none !important;
+  margin-inline-start: 3px;
+}
+
+#paragraphPopup > menuitem > .menu-text {
+  margin-inline-start: 6px !important;
+}
+
+#smileyPopup > menuitem > .menu-text {
+  margin-inline-start: 1px !important;
+}

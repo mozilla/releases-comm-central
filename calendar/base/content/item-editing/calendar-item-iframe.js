@@ -640,6 +640,11 @@ function loadDialog(aItem) {
     editor.insertText("");
     editor.resetModificationCount();
     editor.enableUndo(true);
+
+    let link = editorElement.contentDocument.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "chrome://messenger/content/messengercompose/EditorContent.css";
+    editorElement.contentDocument.head.appendChild(link);
   }
 
   if (aItem.isTodo()) {

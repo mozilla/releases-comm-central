@@ -665,7 +665,7 @@
 
       let link = itemDescription.contentDocument.createElement("link");
       link.rel = "stylesheet";
-      link.href = "chrome://global/skin/global.css";
+      link.href = "chrome://messenger/content/messengercompose/EditorContent.css";
       itemDescription.contentDocument.head.appendChild(link);
     }
 
