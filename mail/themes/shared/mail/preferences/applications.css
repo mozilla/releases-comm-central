@@ -123,6 +123,14 @@
   padding-block: 0;
 }
 
+#handlersTable tbody > tr:not(:focus-within) .actionsMenu {
+  background-color: transparent;
+}
+
+#handlersTable tbody > tr:not(:is(:hover,:focus-within)) .actionsMenu::part(dropmarker) {
+  display: none;
+}
+
 .actionsMenu:focus-visible {
   outline-offset: -2px;
 }
@@ -131,10 +139,6 @@
   margin-inline: 5px !important;
   height: 16px;
   width: 16px;
-}
-
-.actionsMenu > menupopup > menuitem {
-  padding-inline-start: 12px !important;
 }
 
 .actionsMenu > menupopup > menuitem > .menu-iconic-left {

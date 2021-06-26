@@ -18,3 +18,7 @@
   padding-block: 2px 3px !important;
   padding-inline: 4px 3px !important;
 }
+
+.actionsMenu > menupopup > menuitem {
+  padding-inline-start: 10px;
+}
