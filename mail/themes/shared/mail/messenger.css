@@ -1203,7 +1203,7 @@ label.statusbarpanel {
   outline: 0;
 }
 
-.panelButton:not([disabled],[open],:active):is(:hover,:focus) {
+.panelButton:not([disabled],[open],:active):is(:hover,:focus-visible) {
   background-color: var(--arrowpanel-dimmed);
 }
 
