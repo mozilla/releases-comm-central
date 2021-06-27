@@ -20,7 +20,6 @@ BROWSER_CHROME_MANIFESTS += [
     "folder-widget/browser.ini",
     "global-search-bar/browser.ini",
     "im/browser.ini",
-    "instrumentation/browser.ini",
     "junk-commands/browser.ini",
     "keyboard/browser.ini",
     "message-header/browser.ini",

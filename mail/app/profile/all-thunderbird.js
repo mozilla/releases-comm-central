@@ -552,15 +552,6 @@ pref("mail.compose.big_attachments.insert_notification", true);
 // While false, display information about editing sending identity in compose.
 pref("mail.compose.warned_about_customize_from", false);
 
-// Instrumentation is currently unfinished, do not enable it.
-// Set this to false to prevent instrumentation from happening, e.g., user
-// has opted out, or an enterprise wants to disable it from the get go.
-pref("mail.instrumentation.askUser", true);
-pref("mail.instrumentation.userOptedIn", false);
-pref("mail.instrumentation.postUrl", "https://www.mozilla.org/instrumentation");
-// not sure how this will be formatted - would be nice to make it extensible.
-pref("mail.instrumentation.lastNotificationSent", "");
-
 pref("browser.formfill.enable", true);
 
 // Disable autoplay as we don't handle audio elements in emails very well.

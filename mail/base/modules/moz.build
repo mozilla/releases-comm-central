@@ -12,7 +12,6 @@ EXTRA_JS_MODULES += [
     "GlobalPopupNotifications.jsm",
     "MailConsts.jsm",
     "MailE10SUtils.jsm",
-    "MailInstrumentation.jsm",
     "MailMigrator.jsm",
     "MailUtils.jsm",
     "MailViewManager.jsm",

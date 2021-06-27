@@ -25,9 +25,6 @@
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
-var { MailInstrumentation } = ChromeUtils.import(
-  "resource:///modules/MailInstrumentation.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -631,13 +628,6 @@ var gMailInit = {
     CreateMailWindowGlobals();
     GetMessagePaneWrapper().collapsed = true;
 
-    // This needs to be before we throw up the account wizard on first run.
-    try {
-      MailInstrumentation.init();
-    } catch (ex) {
-      Cu.reportError(ex);
-    }
-
     if (!Services.policies.isAllowed("devtools")) {
       let devtoolsMenu = document.getElementById("devtoolsMenu");
       if (devtoolsMenu) {
@@ -828,12 +818,6 @@ var gMailInit = {
 
     UnloadPanes();
     OnMailWindowUnload();
-
-    try {
-      MailInstrumentation.uninit.bind(MailInstrumentation);
-    } catch (ex) {
-      Cu.reportError(ex);
-    }
   },
 };
 
