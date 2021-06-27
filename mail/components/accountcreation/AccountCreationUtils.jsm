@@ -6,10 +6,19 @@
  * Some common, generic functions
  */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["AccountCreationUtils"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Sanitizer",
+  "resource:///modules/accountcreation/Sanitizer.jsm"
+);
+
+const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { clearInterval, clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 
 // --------------------------
 // Low level, basic functions
@@ -37,14 +46,6 @@ function makeCallback(obj, func) {
  */
 function runAsync(func) {
   return setTimeout(func, 0);
-}
-
-/**
- * @param uriStr {String}
- * @result {nsIURI}
- */
-function makeNSIURI(uriStr) {
-  return Services.io.newURI(uriStr);
 }
 
 /**
@@ -87,38 +88,6 @@ function readURLasUTF8(uri) {
   // TODO this has a numeric error message. We need to ship translations
   // into human language.
 }
-
-/**
- * Takes a string (which is typically the content of a file,
- * e.g. the result returned from readURLUTF8() ), and splits
- * it into lines, and returns an array with one string per line
- *
- * Linebreaks are not contained in the result,,
- * and all of \r\n, (Windows) \r (Mac) and \n (Unix) counts as linebreak.
- *
- * @param content {String} one long string with the whole file
- * @return {Array of String} one string per line (no linebreaks)
- */
-function splitLines(content) {
-  content = content.replace("\r\n", "\n");
-  content = content.replace("\r", "\n");
-  return content.split("\n");
-}
-
-/**
- * Returns only one element for each result of testFunc.
- * First element for each result wins.
- * @param testFunc {Function(arrayElement)}
- * @returns new array {Array}
- */
-Array.prototype.unique = function(testFunc) {
-  return this.reduce((found, nextEl) => {
-    if (!found.some(prevEl => testFunc(prevEl) == testFunc(nextEl))) {
-      found.push(nextEl);
-    }
-    return found;
-  }, []);
-};
 
 /**
  * @param bundleURI {String}   chrome URL to properties file
@@ -534,10 +503,10 @@ NoLongerNeededException.prototype.constructor = NoLongerNeededException;
  */
 function AddonInstaller(args) {
   Abortable.call(this);
-  this._name = sanitize.label(args.name);
-  this._id = sanitize.string(args.id);
-  this._minVersion = sanitize.string(args.minVersion);
-  this._url = sanitize.url(args.xpiURL);
+  this._name = Sanitizer.label(args.name);
+  this._id = Sanitizer.string(args.id);
+  this._minVersion = Sanitizer.string(args.minVersion);
+  this._url = Sanitizer.url(args.xpiURL);
 }
 AddonInstaller.prototype = Object.create(Abortable.prototype);
 AddonInstaller.prototype.constructor = AddonInstaller;
@@ -667,64 +636,40 @@ function deepCopy(org) {
   return result;
 }
 
-if (typeof gAccountSetupLogger == "undefined") {
-  var gAccountSetupLogger = new ConsoleAPI({
-    prefix: "mail.setup",
-    maxLogLevel: "warn",
-    maxLogLevelPref: "mail.setup.loglevel",
-  });
-}
+var gAccountSetupLogger = new ConsoleAPI({
+  prefix: "mail.setup",
+  maxLogLevel: "warn",
+  maxLogLevelPref: "mail.setup.loglevel",
+});
 
 function ddump(text) {
   gAccountSetupLogger.info(text);
 }
 
-function debugObject(obj, name, maxDepth, curDepth) {
-  if (curDepth == undefined) {
-    curDepth = 0;
-  }
-  if (maxDepth != undefined && curDepth > maxDepth) {
-    return "";
-  }
-
-  var result = "";
-  var i = 0;
-  for (let prop in obj) {
-    i++;
-    try {
-      if (typeof obj[prop] == "object") {
-        if (obj[prop] && obj[prop].length != undefined) {
-          result +=
-            name +
-            "." +
-            prop +
-            "=[probably array, length " +
-            obj[prop].length +
-            "]\n";
-        } else {
-          result += name + "." + prop + "=[" + typeof obj[prop] + "]\n";
-        }
-        result += debugObject(
-          obj[prop],
-          name + "." + prop,
-          maxDepth,
-          curDepth + 1
-        );
-      } else if (typeof obj[prop] == "function") {
-        result += name + "." + prop + "=[function]\n";
-      } else {
-        result += name + "." + prop + "=" + obj[prop] + "\n";
-      }
-    } catch (e) {
-      result += name + "." + prop + "-> Exception(" + e + ")\n";
-    }
-  }
-  if (!i) {
-    result += name + " is empty\n";
-  }
-  return result;
-}
-
 function alertPrompt(alertTitle, alertMsg) {
-  Services.prompt.alert(window, alertTitle, alertMsg);
+  Services.prompt.alert(
+    Services.wm.getMostRecentWindow(""),
+    alertTitle,
+    alertMsg
+  );
 }
+
+var AccountCreationUtils = {
+  Abortable,
+  AddonInstaller,
+  alertPrompt,
+  assert,
+  CancelledException,
+  ddump,
+  deepCopy,
+  Exception,
+  gAccountSetupLogger,
+  getStringBundle,
+  NotReached,
+  PriorityOrderAbortable,
+  PromiseAbortable,
+  readURLasUTF8,
+  runAsync,
+  SuccessiveAbortable,
+  TimeoutAbortable,
+};

@@ -3,14 +3,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["verifyConfig"];
 
-var { MailServices } = ChromeUtils.import(
+ChromeUtils.defineModuleGetter(
+  this,
+  "AccountConfig",
+  "resource:///modules/accountcreation/AccountConfig.jsm"
+);
+const { AccountCreationUtils } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+
+const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { OAuth2Providers } = ChromeUtils.import(
+const { OAuth2Providers } = ChromeUtils.import(
   "resource:///modules/OAuth2Providers.jsm"
 );
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const {
+  assert,
+  ddump,
+  Exception,
+  gAccountSetupLogger,
+  getStringBundle,
+} = AccountCreationUtils;
 
 /**
  * This checks a given config, by trying a real connection and login,
@@ -387,12 +405,14 @@ urlListener.prototype = {
       prefetchCert: true,
       location,
     };
-    window.browsingContext.topChromeWindow.openDialog(
-      "chrome://pippki/content/exceptionDialog.xhtml",
-      "exceptionDialog",
-      "chrome,centerscreen,modal",
-      params
-    );
+    Services.wm
+      .getMostRecentWindow("mail:3pane")
+      .browsingContext.topChromeWindow.openDialog(
+        "chrome://pippki/content/exceptionDialog.xhtml",
+        "exceptionDialog",
+        "chrome,centerscreen,modal",
+        params
+      );
     if (!params.exceptionAdded) {
       this._log.debug(`Did not accept exception for ${location}`);
       this._cleanup();

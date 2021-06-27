@@ -3,10 +3,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["CreateInBackend"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import(
+ChromeUtils.defineModuleGetter(
+  this,
+  "AccountConfig",
+  "resource:///modules/accountcreation/AccountConfig.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "AccountCreationUtils",
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
@@ -144,7 +155,7 @@ function createAccountInBackend(config) {
     username,
     config.outgoing.hostname
   );
-  assert(
+  AccountCreationUtils.assert(
     config.outgoing.addThisServer ||
       config.outgoing.useGlobalPreferredServer ||
       config.outgoing.existingServerKey,
@@ -277,7 +288,7 @@ function createAccountInBackend(config) {
   try {
     Services.prefs.savePrefFile(null);
   } catch (ex) {
-    ddump("Could not write out prefs: " + ex);
+    AccountCreationUtils.ddump("Could not write out prefs: " + ex);
   }
   return account;
 }
@@ -313,7 +324,7 @@ function rememberPassword(server, password) {
   } else if (server instanceof Ci.nsISmtpServer) {
     passwordURI = "smtp://" + server.hostname;
   } else {
-    throw new NotReached("Server type not supported");
+    throw new AccountCreationUtils.NotReached("Server type not supported");
   }
 
   let login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
@@ -343,7 +354,7 @@ function rememberPassword(server, password) {
  *     If it's a new server, |null| is returned.
  */
 function checkIncomingServerAlreadyExists(config) {
-  assert(config instanceof AccountConfig);
+  AccountCreationUtils.assert(config instanceof AccountConfig);
   let incoming = config.incoming;
   let existing = MailServices.accounts.findRealServer(
     incoming.username,
@@ -376,7 +387,7 @@ function checkIncomingServerAlreadyExists(config) {
  *     If it's a new server, |null| is returned.
  */
 function checkOutgoingServerAlreadyExists(config) {
-  assert(config instanceof AccountConfig);
+  AccountCreationUtils.assert(config instanceof AccountConfig);
   for (let existingServer of MailServices.smtp.servers) {
     // TODO check username with full email address, too, like for incoming
     if (
@@ -449,13 +460,19 @@ function verifyLocalFoldersAccount(am) {
       try {
         localMailServer = am.localFoldersServer;
       } catch (ex) {
-        ddump(
+        AccountCreationUtils.ddump(
           "Error! we should have found the local mail server " +
             "after we created it."
         );
       }
     }
   } catch (ex) {
-    ddump("Error in verifyLocalFoldersAccount " + ex);
+    AccountCreationUtils.ddump("Error in verifyLocalFoldersAccount " + ex);
   }
 }
+
+var CreateInBackend = {
+  checkIncomingServerAlreadyExists,
+  checkOutgoingServerAlreadyExists,
+  createAccountInBackend,
+};

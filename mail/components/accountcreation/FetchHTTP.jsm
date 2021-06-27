@@ -15,9 +15,28 @@
  * but not for bigger file downloads.
  */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["FetchHTTP", "UserCancelledException"];
 
-var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+const { AccountCreationUtils } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Sanitizer",
+  "resource:///modules/accountcreation/Sanitizer.jsm"
+);
+
+const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+
+const {
+  Abortable,
+  alertPrompt,
+  assert,
+  ddump,
+  Exception,
+  gAccountSetupLogger,
+  getStringBundle,
+} = AccountCreationUtils;
 
 /**
  * Set up a fetch.
@@ -85,7 +104,7 @@ var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
 function FetchHTTP(url, args, successCallback, errorCallback) {
   assert(typeof successCallback == "function", "BUG: successCallback");
   assert(typeof errorCallback == "function", "BUG: errorCallback");
-  this._url = sanitize.string(url);
+  this._url = Sanitizer.string(url);
   if (!args) {
     args = {};
   }
@@ -97,14 +116,14 @@ function FetchHTTP(url, args, successCallback, errorCallback) {
   }
 
   this._args = args;
-  this._args.post = sanitize.boolean(args.post || false); // default false
+  this._args.post = Sanitizer.boolean(args.post || false); // default false
   this._args.allowCache =
-    "allowCache" in args ? sanitize.boolean(args.allowCache) : true; // default true
-  this._args.allowAuthPrompt = sanitize.boolean(args.allowAuthPrompt || false); // default false
-  this._args.requireSecureAuth = sanitize.boolean(
+    "allowCache" in args ? Sanitizer.boolean(args.allowCache) : true; // default true
+  this._args.allowAuthPrompt = Sanitizer.boolean(args.allowAuthPrompt || false); // default false
+  this._args.requireSecureAuth = Sanitizer.boolean(
     args.requireSecureAuth || false
   ); // default false
-  this._args.timeout = sanitize.integer(args.timeout || 5000); // default 5 seconds
+  this._args.timeout = Sanitizer.integer(args.timeout || 5000); // default 5 seconds
   this._successCallback = successCallback;
   this._errorCallback = errorCallback;
   this._logger = gAccountSetupLogger;

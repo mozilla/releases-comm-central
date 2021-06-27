@@ -118,6 +118,7 @@ add_task(async function setupModule(module) {
   // Restrict the user's language to just en-US
   Services.locale.requestedLocales = ["en-US"];
 
+  await Services.search.init();
   gDefaultEngine = Services.search.defaultEngine;
 
   // Add a "bar" search engine that we can switch to be the default.

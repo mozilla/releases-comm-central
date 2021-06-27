@@ -3,14 +3,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["readFromXML"];
 
-var {
-  cleanUpHostName,
-  isLegalHostNameOrIP,
-  kMaxPort,
-  kMinPort,
-} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "AccountConfig",
+  "resource:///modules/accountcreation/AccountConfig.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "AccountCreationUtils",
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Sanitizer",
+  "resource:///modules/accountcreation/Sanitizer.jsm"
+);
 
 /* eslint-disable complexity */
 /**
@@ -41,7 +50,7 @@ function readFromXML(clientConfigXML, subSource) {
     dump(
       `client config xml = ${JSON.stringify(clientConfigXML).substr(0, 50)} \n`
     );
-    let stringBundle = getStringBundle(
+    let stringBundle = AccountCreationUtils.getStringBundle(
       "chrome://messenger/locale/accountCreationModel.properties"
     );
     throw stringBundle.GetStringFromName("no_emailProvider.error");
@@ -52,16 +61,16 @@ function readFromXML(clientConfigXML, subSource) {
   d.source = AccountConfig.kSourceXML;
   d.subSource = `xml-from-${subSource}`;
 
-  d.id = sanitize.hostname(xml["@id"]);
+  d.id = Sanitizer.hostname(xml["@id"]);
   d.displayName = d.id;
   try {
-    d.displayName = sanitize.label(xml.displayName);
+    d.displayName = Sanitizer.label(xml.displayName);
   } catch (e) {
     Cu.reportError(e);
   }
   for (var domain of xml.$domain) {
     try {
-      d.domains.push(sanitize.hostname(domain));
+      d.domains.push(Sanitizer.hostname(domain));
     } catch (e) {
       Cu.reportError(e);
       exception = e;
@@ -78,25 +87,25 @@ function readFromXML(clientConfigXML, subSource) {
     let iO = d.createNewIncoming(); // output (object)
     try {
       // throws if not supported
-      iO.type = sanitize.enum(iX["@type"], [
+      iO.type = Sanitizer.enum(iX["@type"], [
         "pop3",
         "imap",
         "nntp",
         "exchange",
       ]);
-      iO.hostname = sanitize.hostname(iX.hostname);
-      iO.port = sanitize.integerRange(iX.port, kMinPort, kMaxPort);
+      iO.hostname = Sanitizer.hostname(iX.hostname);
+      iO.port = Sanitizer.integerRange(iX.port, 1, 65535);
       // We need a username even for Kerberos, need it even internally.
-      iO.username = sanitize.string(iX.username); // may be a %VARIABLE%
+      iO.username = Sanitizer.string(iX.username); // may be a %VARIABLE%
 
       if ("password" in iX) {
         d.rememberPassword = true;
-        iO.password = sanitize.string(iX.password);
+        iO.password = Sanitizer.string(iX.password);
       }
 
       for (let iXsocketType of array_or_undef(iX.$socketType)) {
         try {
-          iO.socketType = sanitize.translate(iXsocketType, {
+          iO.socketType = Sanitizer.translate(iXsocketType, {
             plain: 1,
             SSL: 2,
             STARTTLS: 3,
@@ -113,7 +122,7 @@ function readFromXML(clientConfigXML, subSource) {
 
       for (let iXauth of array_or_undef(iX.$authentication)) {
         try {
-          iO.auth = sanitize.translate(iXauth, {
+          iO.auth = Sanitizer.translate(iXauth, {
             "password-cleartext": Ci.nsMsgAuthMethod.passwordCleartext,
             // @deprecated TODO remove
             plain: Ci.nsMsgAuthMethod.passwordCleartext,
@@ -137,21 +146,21 @@ function readFromXML(clientConfigXML, subSource) {
       if (iO.type == "exchange") {
         try {
           if ("owaURL" in iX) {
-            iO.owaURL = sanitize.url(iX.owaURL);
+            iO.owaURL = Sanitizer.url(iX.owaURL);
           }
         } catch (e) {
           Cu.reportError(e);
         }
         try {
           if ("ewsURL" in iX) {
-            iO.ewsURL = sanitize.url(iX.ewsURL);
+            iO.ewsURL = Sanitizer.url(iX.ewsURL);
           }
         } catch (e) {
           Cu.reportError(e);
         }
         try {
           if ("easURL" in iX) {
-            iO.easURL = sanitize.url(iX.easURL);
+            iO.easURL = Sanitizer.url(iX.easURL);
           }
         } catch (e) {
           Cu.reportError(e);
@@ -165,12 +174,12 @@ function readFromXML(clientConfigXML, subSource) {
       if (iO.type == "pop3" && "pop3" in iX) {
         try {
           if ("leaveMessagesOnServer" in iX.pop3) {
-            iO.leaveMessagesOnServer = sanitize.boolean(
+            iO.leaveMessagesOnServer = Sanitizer.boolean(
               iX.pop3.leaveMessagesOnServer
             );
           }
           if ("daysToLeaveMessagesOnServer" in iX.pop3) {
-            iO.daysToLeaveMessagesOnServer = sanitize.integer(
+            iO.daysToLeaveMessagesOnServer = Sanitizer.integer(
               iX.pop3.daysToLeaveMessagesOnServer
             );
           }
@@ -179,7 +188,7 @@ function readFromXML(clientConfigXML, subSource) {
         }
         try {
           if ("downloadOnBiff" in iX.pop3) {
-            iO.downloadOnBiff = sanitize.boolean(iX.pop3.downloadOnBiff);
+            iO.downloadOnBiff = Sanitizer.boolean(iX.pop3.downloadOnBiff);
           }
         } catch (e) {
           Cu.reportError(e);
@@ -188,7 +197,7 @@ function readFromXML(clientConfigXML, subSource) {
 
       try {
         if ("useGlobalPreferredServer" in iX) {
-          iO.useGlobalPreferredServer = sanitize.boolean(
+          iO.useGlobalPreferredServer = Sanitizer.boolean(
             iX.useGlobalPreferredServer
           );
         }
@@ -219,17 +228,17 @@ function readFromXML(clientConfigXML, subSource) {
     let oO = d.createNewOutgoing(); // output (object)
     try {
       if (oX["@type"] != "smtp") {
-        let stringBundle = getStringBundle(
+        let stringBundle = AccountCreationUtils.getStringBundle(
           "chrome://messenger/locale/accountCreationModel.properties"
         );
         throw stringBundle.GetStringFromName("outgoing_not_smtp.error");
       }
-      oO.hostname = sanitize.hostname(oX.hostname);
-      oO.port = sanitize.integerRange(oX.port, kMinPort, kMaxPort);
+      oO.hostname = Sanitizer.hostname(oX.hostname);
+      oO.port = Sanitizer.integerRange(oX.port, 1, 65535);
 
       for (let oXsocketType of array_or_undef(oX.$socketType)) {
         try {
-          oO.socketType = sanitize.translate(oXsocketType, {
+          oO.socketType = Sanitizer.translate(oXsocketType, {
             plain: 1,
             SSL: 2,
             STARTTLS: 3,
@@ -246,7 +255,7 @@ function readFromXML(clientConfigXML, subSource) {
 
       for (let oXauth of array_or_undef(oX.$authentication)) {
         try {
-          oO.auth = sanitize.translate(oXauth, {
+          oO.auth = Sanitizer.translate(oXauth, {
             // open relay
             none: Ci.nsMsgAuthMethod.none,
             // inside ISP or corp network
@@ -281,21 +290,21 @@ function readFromXML(clientConfigXML, subSource) {
         oO.auth == Ci.nsMsgAuthMethod.passwordCleartext ||
         oO.auth == Ci.nsMsgAuthMethod.passwordEncrypted
       ) {
-        oO.username = sanitize.string(oX.username);
+        oO.username = Sanitizer.string(oX.username);
       }
 
       if ("password" in oX) {
         d.rememberPassword = true;
-        oO.password = sanitize.string(oX.password);
+        oO.password = Sanitizer.string(oX.password);
       }
 
       try {
         // defaults are in accountConfig.js
         if ("addThisServer" in oX) {
-          oO.addThisServer = sanitize.boolean(oX.addThisServer);
+          oO.addThisServer = Sanitizer.boolean(oX.addThisServer);
         }
         if ("useGlobalPreferredServer" in oX) {
-          oO.useGlobalPreferredServer = sanitize.boolean(
+          oO.useGlobalPreferredServer = Sanitizer.boolean(
             oX.useGlobalPreferredServer
           );
         }
@@ -325,9 +334,9 @@ function readFromXML(clientConfigXML, subSource) {
   for (let inputField of array_or_undef(xml.$inputField)) {
     try {
       let fieldset = {
-        varname: sanitize.alphanumdash(inputField["@key"]).toUpperCase(),
-        displayName: sanitize.label(inputField["@label"]),
-        exampleValue: sanitize.label(inputField.value),
+        varname: Sanitizer.alphanumdash(inputField["@key"]).toUpperCase(),
+        displayName: Sanitizer.label(inputField["@label"]),
+        exampleValue: Sanitizer.label(inputField.value),
       };
       d.inputFields.push(fieldset);
     } catch (e) {

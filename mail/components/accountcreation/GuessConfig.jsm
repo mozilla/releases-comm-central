@@ -3,15 +3,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["GuessConfig"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { AccountCreationUtils } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "AccountConfig",
+  "resource:///modules/accountcreation/AccountConfig.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Sanitizer",
+  "resource:///modules/accountcreation/Sanitizer.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "UserCancelledException",
+  "resource:///modules/accountcreation/FetchHTTP.jsm"
+);
 
-// This is a bit ugly - we set outgoingDone to false
-// when accountSetup.js cancels the outgoing probe because the user picked
-// an outoing server. It does this by poking the probeAbortable object,
-// so we need outgoingDone to have global scope.
-var outgoingDone = false;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+
+const {
+  Abortable,
+  alertPrompt,
+  assert,
+  CancelledException,
+  ddump,
+  deepCopy,
+  Exception,
+  gAccountSetupLogger,
+  getStringBundle,
+  NotReached,
+} = AccountCreationUtils;
 
 /**
  * Try to guess the config, by:
@@ -438,7 +465,7 @@ HostDetector.prototype = {
     if (!hostIsPrecise) {
       hostIsPrecise = false;
     }
-    var protocol = sanitize.translate(
+    var protocol = Sanitizer.translate(
       type,
       { imap: IMAP, pop3: POP, smtp: SMTP },
       UNKNOWN
@@ -1303,3 +1330,17 @@ function doProxy(hostname, resultCallback) {
   }
   proxyService.asyncResolve(uri, proxyFlags, new ProxyResolveCallback());
 }
+
+var GuessConfig = {
+  UNKNOWN,
+  IMAP,
+  POP,
+  SMTP,
+  NONE,
+  TLS,
+  SSL,
+  getHostEntry,
+  getIncomingTryOrder,
+  getOutgoingTryOrder,
+  guessConfig,
+};

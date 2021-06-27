@@ -3,10 +3,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from accountSetup.js */
-var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
+const EXPORTED_SYMBOLS = ["Sanitizer"];
+
+const { AccountCreationUtils } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+
+const { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * This is a generic input validation lib. Use it when you process
@@ -21,7 +27,10 @@ var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
  * they throw exceptions.
  */
 
-var sanitize = {
+// To debug, set mail.setup.loglevel="All" and kDebug = true.
+var kDebug = false;
+
+var Sanitizer = {
   integer(unchecked) {
     if (typeof unchecked == "number" && !isNaN(unchecked)) {
       return unchecked;
@@ -227,14 +236,16 @@ var sanitize = {
 };
 
 function MalformedException(msgID, uncheckedBadValue) {
-  var stringBundle = getStringBundle(
+  var stringBundle = AccountCreationUtils.getStringBundle(
     "chrome://messenger/locale/accountCreationUtil.properties"
   );
   var msg = stringBundle.GetStringFromName(msgID);
   if (typeof kDebug != "undefined" && kDebug) {
     msg += " (bad value: " + uncheckedBadValue + ")";
   }
-  Exception.call(this, msg);
+  AccountCreationUtils.Exception.call(this, msg);
 }
-MalformedException.prototype = Object.create(Exception.prototype);
+MalformedException.prototype = Object.create(
+  AccountCreationUtils.Exception.prototype
+);
 MalformedException.prototype.constructor = MalformedException;

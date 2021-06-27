@@ -20,7 +20,18 @@
  * for values stored.
  */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["AccountConfig"];
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "AccountCreationUtils",
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Sanitizer",
+  "resource:///modules/accountcreation/Sanitizer.jsm"
+);
 
 function AccountConfig() {
   this.incoming = this.createNewIncoming();
@@ -212,7 +223,7 @@ AccountConfig.prototype = {
     // Workaround: deepCopy() fails to preserve base obj (instanceof)
     let result = new AccountConfig();
     for (let prop in this) {
-      result[prop] = deepCopy(this[prop]);
+      result[prop] = AccountCreationUtils.deepCopy(this[prop]);
     }
 
     return result;
@@ -383,17 +394,22 @@ AccountConfig.kSourceExchange = "exchange"; // from Microsoft Exchange AutoDisco
  * @param password {String}
  * The password for the incoming server and (if necessary) the outgoing server
  */
-function replaceVariables(account, realname, emailfull, password) {
-  sanitize.nonemptystring(emailfull);
+AccountConfig.replaceVariables = function(
+  account,
+  realname,
+  emailfull,
+  password
+) {
+  Sanitizer.nonemptystring(emailfull);
   let emailsplit = emailfull.split("@");
-  assert(
+  AccountCreationUtils.assert(
     emailsplit.length == 2,
     "email address not in expected format: must contain exactly one @"
   );
-  let emaillocal = sanitize.nonemptystring(emailsplit[0]);
-  let emaildomain = sanitize.hostname(emailsplit[1]);
-  sanitize.label(realname);
-  sanitize.nonemptystring(realname);
+  let emaillocal = Sanitizer.nonemptystring(emailsplit[0]);
+  let emaildomain = Sanitizer.hostname(emailsplit[1]);
+  Sanitizer.label(realname);
+  Sanitizer.nonemptystring(realname);
 
   let otherVariables = {};
   otherVariables.EMAILADDRESS = emailfull;
@@ -433,7 +449,7 @@ function replaceVariables(account, realname, emailfull, password) {
     otherVariables
   );
   account.displayName = _replaceVariable(account.displayName, otherVariables);
-}
+};
 
 function _replaceVariable(variable, values) {
   let str = variable;

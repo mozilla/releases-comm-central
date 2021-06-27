@@ -154,43 +154,14 @@ TracingListener.prototype = {
   },
 
   onStopRequest(/* nsIRequest */ aRequest, /* int */ aStatusCode) {
-    // Why don't people use JSMs? Sigh...
-    let accountCreationFuncs = {};
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/util.js",
-      accountCreationFuncs
+    const { CreateInBackend } = ChromeUtils.import(
+      "resource:///modules/accountcreation/CreateInBackend.jsm"
     );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/accountConfig.js",
-      accountCreationFuncs
+    const { readFromXML } = ChromeUtils.import(
+      "resource:///modules/accountcreation/readFromXML.jsm"
     );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/accountSetup.js",
-      accountCreationFuncs
-    );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/sanitizeDatatypes.js",
-      accountCreationFuncs
-    );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/fetchhttp.js",
-      accountCreationFuncs
-    );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/readFromXML.js",
-      accountCreationFuncs
-    );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/verifyConfig.js",
-      accountCreationFuncs
-    );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/fetchConfig.js",
-      accountCreationFuncs
-    );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/createInBackend.js",
-      accountCreationFuncs
+    const { AccountConfig } = ChromeUtils.import(
+      "resource:///modules/accountcreation/AccountConfig.jsm"
     );
 
     let tabmail = document.getElementById("tabmail");
@@ -208,15 +179,15 @@ TracingListener.prototype = {
 
       // Attempt to derive email account information
       let domParser = new DOMParser();
-      let accountConfig = accountCreationFuncs.readFromXML(
+      let accountConfig = readFromXML(
         JXON.build(domParser.parseFromString(xml, "text/xml"))
       );
-      accountCreationFuncs.replaceVariables(
+      AccountConfig.replaceVariables(
         accountConfig,
         this.params.realName,
         this.params.email
       );
-      account = accountCreationFuncs.createAccountInBackend(accountConfig);
+      account = CreateInBackend.createAccountInBackend(accountConfig);
       success = true;
     } catch (e) {
       // Something went wrong with account set up. Dump the error out to the

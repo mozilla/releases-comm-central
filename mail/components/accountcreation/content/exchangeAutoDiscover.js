@@ -4,14 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from accountSetup.js */
-/* import-globals-from guessConfig.js */
+
+var { FetchHTTP } = ChromeUtils.import(
+  "resource:///modules/accountcreation/FetchHTTP.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.defineModuleGetter(
-  this,
-  "AddonManager",
-  "resource://gre/modules/AddonManager.jsm"
-);
 
 /**
  * Tries to get a configuration from an MS Exchange server
@@ -61,13 +59,13 @@ function fetchConfigFromExchange(
   // <https://docs.microsoft.com/en-us/previous-versions/office/developer/exchange-server-interoperability-guidance/hh352638(v%3Dexchg.140)>, search for "The Autodiscover service uses one of these four methods"
   let url1 =
     "https://autodiscover." +
-    sanitize.hostname(domain) +
+    Sanitizer.hostname(domain) +
     "/autodiscover/autodiscover.xml";
   let url2 =
-    "https://" + sanitize.hostname(domain) + "/autodiscover/autodiscover.xml";
+    "https://" + Sanitizer.hostname(domain) + "/autodiscover/autodiscover.xml";
   let url3 =
     "http://autodiscover." +
-    sanitize.hostname(domain) +
+    Sanitizer.hostname(domain) +
     "/autodiscover/autodiscover.xml";
   let body = `<?xml version="1.0" encoding="utf-8"?>
     <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006">
@@ -236,7 +234,7 @@ function readAutoDiscoverResponse(
     "RedirectAddr" in autoDiscoverXML.Autodiscover.Response.Account
   ) {
     // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
-    let redirectEmailAddress = sanitize.emailAddress(
+    let redirectEmailAddress = Sanitizer.emailAddress(
       autoDiscoverXML.Autodiscover.Response.Account.RedirectAddr
     );
     let domain = redirectEmailAddress.split("@").pop();
@@ -306,7 +304,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
   for (let protocolX of array_or_undef(xml.$Protocol)) {
     try {
-      let type = sanitize.enum(
+      let type = Sanitizer.enum(
         protocolX.Type,
         ["WEB", "EXHTTP", "EXCH", "EXPR", "POP3", "IMAP", "SMTP"],
         "unknown"
@@ -319,31 +317,31 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           urlsX = protocolX.Internal;
         }
         if (urlsX) {
-          config.incoming.owaURL = sanitize.url(urlsX.OWAUrl.value);
+          config.incoming.owaURL = Sanitizer.url(urlsX.OWAUrl.value);
           if (
             !config.incoming.ewsURL &&
             "Protocol" in urlsX &&
             "ASUrl" in urlsX.Protocol
           ) {
-            config.incoming.ewsURL = sanitize.url(urlsX.Protocol.ASUrl);
+            config.incoming.ewsURL = Sanitizer.url(urlsX.Protocol.ASUrl);
           }
           config.incoming.type = "exchange";
           let parsedURL = new URL(config.incoming.owaURL);
-          config.incoming.hostname = sanitize.hostname(parsedURL.hostname);
+          config.incoming.hostname = Sanitizer.hostname(parsedURL.hostname);
           if (parsedURL.port) {
-            config.incoming.port = sanitize.integer(parsedURL.port);
+            config.incoming.port = Sanitizer.integer(parsedURL.port);
           }
         }
       } else if (type == "EXHTTP" || type == "EXCH") {
-        config.incoming.ewsURL = sanitize.url(protocolX.EwsUrl);
+        config.incoming.ewsURL = Sanitizer.url(protocolX.EwsUrl);
         if (!config.incoming.ewsURL) {
-          config.incoming.ewsURL = sanitize.url(protocolX.ASUrl);
+          config.incoming.ewsURL = Sanitizer.url(protocolX.ASUrl);
         }
         config.incoming.type = "exchange";
         let parsedURL = new URL(config.incoming.ewsURL);
-        config.incoming.hostname = sanitize.hostname(parsedURL.hostname);
+        config.incoming.hostname = Sanitizer.hostname(parsedURL.hostname);
         if (parsedURL.port) {
-          config.incoming.port = sanitize.integer(parsedURL.port);
+          config.incoming.port = Sanitizer.integer(parsedURL.port);
         }
       } else if (type == "POP3" || type == "IMAP" || type == "SMTP") {
         let server;
@@ -353,13 +351,13 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           server = config.createNewIncoming();
         }
 
-        server.type = sanitize.translate(type, {
+        server.type = Sanitizer.translate(type, {
           POP3: "pop3",
           IMAP: "imap",
           SMTP: "smtp",
         });
-        server.hostname = sanitize.hostname(protocolX.Server);
-        server.port = sanitize.integer(protocolX.Port);
+        server.hostname = Sanitizer.hostname(protocolX.Server);
+        server.port = Sanitizer.integer(protocolX.Port);
         server.socketType = 1; // plain
         if (
           "SSL" in protocolX &&
@@ -392,7 +390,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
           server.auth = Ci.nsMsgAuthMethod.secure;
         }
         if ("LoginName" in protocolX) {
-          server.username = sanitize.nonemptystring(protocolX.LoginName);
+          server.username = Sanitizer.nonemptystring(protocolX.LoginName);
         } else {
           server.username = username || "%EMAILADDRESS%";
         }
@@ -541,9 +539,9 @@ function readAddonsJSON(json) {
       let addon = {
         id: addonJSON.id,
         minVersion: addonJSON.minVersion,
-        xpiURL: sanitize.url(addonJSON.xpiURL),
-        websiteURL: sanitize.url(addonJSON.websiteURL),
-        icon32: addonJSON.icon32 ? sanitize.url(addonJSON.icon32) : null,
+        xpiURL: Sanitizer.url(addonJSON.xpiURL),
+        websiteURL: Sanitizer.url(addonJSON.websiteURL),
+        icon32: addonJSON.icon32 ? Sanitizer.url(addonJSON.icon32) : null,
         supportedTypes: [],
       };
       assert(
@@ -559,9 +557,9 @@ function readAddonsJSON(json) {
       for (let typeJSON of ensureArray(addonJSON.accountTypes)) {
         try {
           addon.supportedTypes.push({
-            generalType: sanitize.alphanumdash(typeJSON.generalType),
-            protocolType: sanitize.alphanumdash(typeJSON.protocolType),
-            addonAccountType: sanitize.alphanumdash(typeJSON.addonAccountType),
+            generalType: Sanitizer.alphanumdash(typeJSON.generalType),
+            protocolType: Sanitizer.alphanumdash(typeJSON.protocolType),
+            addonAccountType: Sanitizer.alphanumdash(typeJSON.addonAccountType),
           });
         } catch (e) {
           ddump(e);
@@ -616,7 +614,7 @@ function detectStandardProtocols(config, domain, successCallback) {
     config2.outgoingAlternatives.push(config.outgoing);
   }
 
-  guessConfig(
+  GuessConfig.guessConfig(
     domain,
     function(type, hostname, port, ssl, done, config) {
       gAccountSetupLogger.info(

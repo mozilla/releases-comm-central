@@ -16,26 +16,14 @@
 
 // Globals
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+var { AccountConfig } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountConfig.jsm"
+);
+var { readFromXML } = ChromeUtils.import(
+  "resource:///modules/accountcreation/readFromXML.jsm"
+);
 
-var xmlReader = {};
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/util.js",
-  xmlReader
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/accountConfig.js",
-  xmlReader
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/sanitizeDatatypes.js",
-  xmlReader
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/readFromXML.js",
-  xmlReader
-);
+var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
 
 /*
  * UTILITIES
@@ -159,11 +147,11 @@ function test_readFromXML_config1() {
     "</clientConfig>";
 
   var domParser = new DOMParser();
-  var config = xmlReader.readFromXML(
+  var config = readFromXML(
     JXON.build(domParser.parseFromString(clientConfigXML, "text/xml"))
   );
 
-  Assert.equal(config instanceof xmlReader.AccountConfig, true);
+  Assert.equal(config instanceof AccountConfig, true);
   Assert.equal("example.com", config.id);
   Assert.equal("Example", config.displayName);
   Assert.notEqual(-1, config.domains.indexOf("example.com"));
@@ -229,11 +217,11 @@ function test_replaceVariables() {
     "</clientConfig>";
 
   var domParser = new DOMParser();
-  var config = xmlReader.readFromXML(
+  var config = readFromXML(
     JXON.build(domParser.parseFromString(clientConfigXML, "text/xml"))
   );
 
-  xmlReader.replaceVariables(
+  AccountConfig.replaceVariables(
     config,
     "Yamato Nadeshiko",
     "yamato.nadeshiko@example.com",

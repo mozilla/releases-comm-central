@@ -10,42 +10,22 @@
 
 // Globals
 
+var { AccountConfig } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountConfig.jsm"
+);
+var { FetchConfig } = ChromeUtils.import(
+  "resource:///modules/accountcreation/FetchConfig.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kXMLFile = "example.com.xml";
 var fetchConfigAbortable;
 var copyLocation;
 
-var xmlReader = {
-  setTimeout(func, interval) {
-    do_timeout(interval, func);
-  },
-};
-
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/util.js",
-  xmlReader
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/fetchConfig.js",
-  xmlReader
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/accountConfig.js",
-  xmlReader
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/sanitizeDatatypes.js",
-  xmlReader
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/readFromXML.js",
-  xmlReader
-);
-
 function onTestSuccess(config) {
   // Check that we got the expected config.
-  xmlReader.replaceVariables(
+  AccountConfig.replaceVariables(
     config,
     "Yamato Nadeshiko",
     "yamato.nadeshiko@example.com",
@@ -81,7 +61,7 @@ function run_test() {
   // Now run the actual test
   // Note we keep a global copy of this so that the abortable doesn't get
   // garbage collected before the async operation has finished.
-  fetchConfigAbortable = xmlReader.fetchConfigFromDisk(
+  fetchConfigAbortable = FetchConfig.fromDisk(
     "example.com",
     onTestSuccess,
     onTestFailure

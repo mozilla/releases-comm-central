@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Tests for accountcreation/guessConfig.js
+ * Tests for GuessConfig.jsm
  *
  * Currently tested:
  * - getHostEntry function.
@@ -18,40 +18,26 @@
 
 // Globals
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { GuessConfig } = ChromeUtils.import(
+  "resource:///modules/accountcreation/GuessConfig.jsm"
+);
 
-/* import-globals-from ../../accountcreation/content/util.js */
-/* import-globals-from ../../accountcreation/content/accountConfig.js */
-/* import-globals-from ../../accountcreation/content/sanitizeDatatypes.js */
-/* import-globals-from ../../accountcreation/content/fetchhttp.js */
-/* import-globals-from ../../accountcreation/content/guessConfig.js */
-
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/util.js"
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/accountConfig.js"
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/sanitizeDatatypes.js"
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/fetchhttp.js"
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger/content/accountcreation/guessConfig.js"
-);
+var {
+  UNKNOWN,
+  IMAP,
+  POP,
+  SMTP,
+  NONE,
+  TLS,
+  SSL,
+  getHostEntry,
+  getIncomingTryOrder,
+  getOutgoingTryOrder,
+} = GuessConfig;
 
 /*
  * UTILITIES
  */
-
-function assert(aBeTrue, aWhy) {
-  if (!aBeTrue) {
-    do_throw(aWhy);
-  }
-  Assert.ok(aBeTrue);
-}
 
 function assert_equal(aA, aB, aWhy) {
   if (aA != aB) {

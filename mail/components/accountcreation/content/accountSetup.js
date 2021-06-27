@@ -6,31 +6,45 @@
 /* global MozElements */
 
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
-/* import-globals-from accountConfig.js */
-/* import-globals-from createInBackend.js */
 /* import-globals-from exchangeAutoDiscover.js */
-/* import-globals-from fetchConfig.js */
-/* import-globals-from fetchhttp.js */
-/* import-globals-from guessConfig.js */
-/* import-globals-from readFromXML.js */
-/* import-globals-from sanitizeDatatypes.js */
-/* import-globals-from util.js */
-/* import-globals-from verifyConfig.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { AccountCreationUtils } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
 );
-var { OAuth2Providers } = ChromeUtils.import(
-  "resource:///modules/OAuth2Providers.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AccountConfig: "resource:///modules/accountcreation/AccountConfig.jsm",
+  CreateInBackend: "resource:///modules/accountcreation/CreateInBackend.jsm",
+  FetchConfig: "resource:///modules/accountcreation/FetchConfig.jsm",
+  GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
+  UserCancelledException: "resource:///modules/accountcreation/FetchHTTP.jsm",
+  verifyConfig: "resource:///modules/accountcreation/verifyConfig.jsm",
+
+  MailServices: "resource:///modules/MailServices.jsm",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 var {
-  cleanUpHostName,
-  isLegalHostNameOrIP,
-  kMaxPort,
-  kMinPort,
-} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+  Abortable,
+  AddonInstaller,
+  alertPrompt,
+  assert,
+  CancelledException,
+  ddump,
+  deepCopy,
+  Exception,
+  gAccountSetupLogger,
+  getStringBundle,
+  NotReached,
+  PriorityOrderAbortable,
+  SuccessiveAbortable,
+  TimeoutAbortable,
+} = AccountCreationUtils;
 
 /**
  * This is the dialog opened by menu File | New account | Mail... .
@@ -77,9 +91,6 @@ Things to test (works for me):
     change domain to real one (not in DB), guess succeeds.
     former bug: goes to manual first shortly, then to result
 */
-
-// To debug, set mail.setup.loglevel="All" and kDebug = true.
-var kDebug = false;
 
 // Keep track of the prefers-reduce-motion media query for JS based animations.
 var gReducedMotion;
@@ -187,7 +198,7 @@ var gAccountSetup = {
     this.notificationBox.removeAllNotifications();
   },
 
-  async onLoad() {
+  onLoad() {
     // Bail out if it was already initialized.
     if (this.isInited) {
       return;
@@ -423,7 +434,12 @@ var gAccountSetup = {
   getConcreteConfig() {
     let result = this._currentConfig.copy();
 
-    replaceVariables(result, this._realname, this._email, this._password);
+    AccountConfig.replaceVariables(
+      result,
+      this._realname,
+      this._email,
+      this._password
+    );
     result.rememberPassword =
       document.getElementById("rememberPassword").checked && !!this._password;
 
@@ -559,7 +575,7 @@ var gAccountSetup = {
       call = priority.addCall();
       this.startLoadingState("account-setup-looking-up-disk");
       call.foundMsg = "account-setup-success-settings-disk";
-      fetch = fetchConfigFromDisk(
+      fetch = FetchConfig.fromDisk(
         domain,
         call.successCallback(),
         call.errorCallback()
@@ -569,7 +585,7 @@ var gAccountSetup = {
       call = priority.addCall();
       this.startLoadingState("account-setup-looking-up-isp");
       call.foundMsg = "account-setup-success-settings-isp";
-      fetch = fetchConfigFromISP(
+      fetch = FetchConfig.fromISP(
         domain,
         emailAddress,
         call.successCallback(),
@@ -580,7 +596,7 @@ var gAccountSetup = {
       call = priority.addCall();
       this.startLoadingState("account-setup-looking-up-db");
       call.foundMsg = "account-setup-success-settings-db";
-      fetch = fetchConfigFromDB(
+      fetch = FetchConfig.fromDB(
         domain,
         call.successCallback(),
         call.errorCallback()
@@ -592,7 +608,7 @@ var gAccountSetup = {
       // "account-setup-success-settings-db" is correct.
       // We display the same message for both db and mx cases.
       call.foundMsg = "account-setup-success-settings-db";
-      fetch = fetchConfigForMX(
+      fetch = FetchConfig.forMX(
         domain,
         call.successCallback(),
         call.errorCallback()
@@ -646,7 +662,7 @@ var gAccountSetup = {
   _guessConfig(domain, initialConfig) {
     this.startLoadingState("account-setup-looking-up-settings-guess");
     let self = this;
-    self._abortable = guessConfig(
+    self._abortable = GuessConfig.guessConfig(
       domain,
       function(type, hostname, port, ssl, done, config) {
         // progress
@@ -938,7 +954,12 @@ var gAccountSetup = {
       ["imap", "pop3", "exchange"].includes(protocol.type)
     );
     protocols.unshift(config.incoming);
-    protocols = protocols.unique(protocol => protocol.type);
+    protocols = protocols.reduce((found, nextEl) => {
+      if (!found.some(prevEl => prevEl.type == nextEl.type)) {
+        found.push(nextEl);
+      }
+      return found;
+    }, []);
 
     // Hide all the available options in order to start with a clean slate.
     for (let row of document.querySelectorAll(".content-blocking-category")) {
@@ -1069,7 +1090,7 @@ var gAccountSetup = {
         cert.remove();
       }
 
-      let type = sanitize.translate(server.type, {
+      let type = Sanitizer.translate(server.type, {
         imap: "imap",
         pop3: "pop",
         smtp: "smtp",
@@ -1099,7 +1120,7 @@ var gAccountSetup = {
         container.appendChild(portSpan);
       }
 
-      let ssl = sanitize.translate(server.socketType, {
+      let ssl = Sanitizer.translate(server.socketType, {
         1: "no-encryption",
         2: "ssl",
         3: "starttls",
@@ -1231,23 +1252,23 @@ var gAccountSetup = {
     // Incoming server
     try {
       let inHostnameField = document.getElementById("incomingHostname");
-      config.incoming.hostname = sanitize.hostname(inHostnameField.value);
+      config.incoming.hostname = Sanitizer.hostname(inHostnameField.value);
       inHostnameField.value = config.incoming.hostname;
     } catch (e) {
       gAccountSetupLogger.warn(e);
     }
 
     try {
-      config.incoming.port = sanitize.integerRange(
+      config.incoming.port = Sanitizer.integerRange(
         document.getElementById("incomingPort").value,
-        kMinPort,
-        kMaxPort
+        1,
+        65535
       );
     } catch (e) {
       config.incoming.port = undefined; // incl. default "Auto"
     }
 
-    config.incoming.type = sanitize.translate(
+    config.incoming.type = Sanitizer.translate(
       document.getElementById("incomingProtocol").value,
       {
         1: "imap",
@@ -1256,10 +1277,10 @@ var gAccountSetup = {
         0: null,
       }
     );
-    config.incoming.socketType = sanitize.integer(
+    config.incoming.socketType = Sanitizer.integer(
       document.getElementById("incomingSsl").value
     );
-    config.incoming.auth = sanitize.integer(
+    config.incoming.auth = Sanitizer.integer(
       document.getElementById("incomingAuthMethod").value
     );
     config.incoming.username = document.getElementById(
@@ -1293,26 +1314,26 @@ var gAccountSetup = {
 
     try {
       let input = document.getElementById("outgoingHostname");
-      config.outgoing.hostname = sanitize.hostname(input.value);
+      config.outgoing.hostname = Sanitizer.hostname(input.value);
       input.value = config.outgoing.hostname;
     } catch (e) {
       gAccountSetupLogger.warn(e);
     }
 
     try {
-      config.outgoing.port = sanitize.integerRange(
+      config.outgoing.port = Sanitizer.integerRange(
         document.getElementById("outgoingPort").value,
-        kMinPort,
-        kMaxPort
+        1,
+        65535
       );
     } catch (e) {
       config.outgoing.port = undefined; // incl. default "Auto"
     }
 
-    config.outgoing.socketType = sanitize.integer(
+    config.outgoing.socketType = Sanitizer.integer(
       document.getElementById("outgoingSsl").value
     );
-    config.outgoing.auth = sanitize.integer(
+    config.outgoing.auth = Sanitizer.integer(
       document.getElementById("outgoingAuthMethod").value
     );
 
@@ -1374,19 +1395,19 @@ var gAccountSetup = {
 
     // Incoming server.
     document.getElementById("incomingProtocolExchange").hidden = !isExchange;
-    document.getElementById("incomingProtocol").value = sanitize.translate(
+    document.getElementById("incomingProtocol").value = Sanitizer.translate(
       config.incoming.type,
       { imap: 1, pop3: 2, exchange: 3 },
       1
     );
     document.getElementById("incomingHostname").value =
       config.incoming.hostname;
-    document.getElementById("incomingSsl").value = sanitize.enum(
+    document.getElementById("incomingSsl").value = Sanitizer.enum(
       config.incoming.socketType,
       [0, 1, 2, 3],
       0
     );
-    document.getElementById("incomingAuthMethod").value = sanitize.enum(
+    document.getElementById("incomingAuthMethod").value = Sanitizer.enum(
       config.incoming.auth,
       [0, 3, 4, 5, 6, 10],
       0
@@ -1427,12 +1448,12 @@ var gAccountSetup = {
     // While sameInOutUsernames is true we synchronize values of incoming
     // and outgoing username.
     this.sameInOutUsernames = true;
-    document.getElementById("outgoingSsl").value = sanitize.enum(
+    document.getElementById("outgoingSsl").value = Sanitizer.enum(
       config.outgoing.socketType,
       [0, 1, 2, 3],
       0
     );
-    document.getElementById("outgoingAuthMethod").value = sanitize.enum(
+    document.getElementById("outgoingAuthMethod").value = Sanitizer.enum(
       config.outgoing.auth,
       [0, 1, 3, 4, 5, 6, 10],
       0
@@ -1724,7 +1745,7 @@ var gAccountSetup = {
     assert(this._currentConfig instanceof AccountConfig);
     let configFilledIn = this.getConcreteConfig();
 
-    if (checkIncomingServerAlreadyExists(configFilledIn)) {
+    if (CreateInBackend.checkIncomingServerAlreadyExists(configFilledIn)) {
       let [title, description] = await document.l10n.formatValues([
         "account-setup-creation-error-title",
         "account-setup-error-server-exists",
@@ -1743,7 +1764,7 @@ var gAccountSetup = {
     }
 
     gAccountSetupLogger.debug("creating account in backend");
-    let newAccount = createAccountInBackend(configFilledIn);
+    let newAccount = CreateInBackend.createAccountInBackend(configFilledIn);
 
     window.close();
     gMainWindow.postMessage("account-created-in-backend", "*");
@@ -1768,7 +1789,7 @@ var gAccountSetup = {
     this.switchToMode("manual-edit-testing");
     // if (this._userPickedOutgoingServer) TODO
     let self = this;
-    this._abortable = guessConfig(
+    this._abortable = GuessConfig.guessConfig(
       this._domain,
       function(type, hostname, port, ssl, done, config) {
         // Progress.
@@ -1804,7 +1825,7 @@ var gAccountSetup = {
   _prefillConfig(initialConfig) {
     let emailsplit = this._email.split("@");
     assert(emailsplit.length > 1);
-    let emaillocal = sanitize.nonemptystring(emailsplit[0]);
+    let emaillocal = Sanitizer.nonemptystring(emailsplit[0]);
     initialConfig.incoming.username = emaillocal;
     initialConfig.outgoing.username = emaillocal;
     return initialConfig;
@@ -1905,7 +1926,7 @@ var gAccountSetup = {
   async validateAndFinish(configFilled) {
     let configFilledIn = configFilled || this.getConcreteConfig();
 
-    if (checkIncomingServerAlreadyExists(configFilledIn)) {
+    if (CreateInBackend.checkIncomingServerAlreadyExists(configFilledIn)) {
       let [title, description] = await document.l10n.formatValues([
         "account-setup-creation-error-title",
         "account-setup-error-server-exists",
@@ -1915,7 +1936,9 @@ var gAccountSetup = {
     }
 
     if (configFilledIn.outgoing.addThisServer) {
-      let existingServer = checkOutgoingServerAlreadyExists(configFilledIn);
+      let existingServer = CreateInBackend.checkOutgoingServerAlreadyExists(
+        configFilledIn
+      );
       if (existingServer) {
         configFilledIn.outgoing.addThisServer = false;
         configFilledIn.outgoing.existingServerKey = existingServer.key;
@@ -2018,7 +2041,7 @@ var gAccountSetup = {
 
   finish(concreteConfig) {
     gAccountSetupLogger.debug("creating account in backend");
-    let newAccount = createAccountInBackend(concreteConfig);
+    let newAccount = CreateInBackend.createAccountInBackend(concreteConfig);
 
     // Trigger the first login to download the folder structure and messages.
     newAccount.incomingServer.getNewMessages(

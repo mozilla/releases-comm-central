@@ -3,14 +3,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["FetchConfig"];
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { AccountCreationUtils } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
-var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "FetchHTTP",
+  "resource:///modules/accountcreation/FetchHTTP.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "readFromXML",
+  "resource:///modules/accountcreation/readFromXML.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Sanitizer",
+  "resource:///modules/accountcreation/Sanitizer.jsm"
+);
+
+const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
+const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const {
+  Abortable,
+  ddump,
+  Exception,
+  PriorityOrderAbortable,
+  PromiseAbortable,
+  readURLasUTF8,
+  runAsync,
+  SuccessiveAbortable,
+  TimeoutAbortable,
+} = AccountCreationUtils;
 
 /**
  * Tries to find a configuration for this ISP on the local harddisk, in the
@@ -24,7 +52,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
         // <TB installdir>/isp/example.com.xml
         var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
         configLocation.append("isp");
-        configLocation.append(sanitize.hostname(domain) + ".xml");
+        configLocation.append(Sanitizer.hostname(domain) + ".xml");
 
         if (!configLocation.exists() || !configLocation.isReadable()) {
           errorCallback(new Exception("local file not found"));
@@ -78,10 +106,10 @@ function fetchConfigFromISP(
   }
 
   let conf1 =
-    "autoconfig." + sanitize.hostname(domain) + "/mail/config-v1.1.xml";
+    "autoconfig." + Sanitizer.hostname(domain) + "/mail/config-v1.1.xml";
   // .well-known/ <http://tools.ietf.org/html/draft-nottingham-site-meta-04>
   let conf2 =
-    sanitize.hostname(domain) + "/.well-known/autoconfig/mail/config-v1.1.xml";
+    Sanitizer.hostname(domain) + "/.well-known/autoconfig/mail/config-v1.1.xml";
   // This list is sorted by decreasing priority
   var urls = ["https://" + conf1, "https://" + conf2];
   if (
@@ -135,7 +163,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
     errorCallback(new Exception("no URL for ISP DB configured"));
     return new Abortable();
   }
-  domain = sanitize.hostname(domain);
+  domain = Sanitizer.hostname(domain);
 
   // If we don't specify a place to put the domain, put it at the end.
   if (!url.includes("{{domain}}")) {
@@ -178,7 +206,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
  * Params @see fetchConfigFromISP()
  */
 function fetchConfigForMX(domain, successCallback, errorCallback) {
-  const sanitizedDomain = sanitize.hostname(domain);
+  const sanitizedDomain = Sanitizer.hostname(domain);
   const sucAbortable = new SuccessiveAbortable();
   const time = Date.now();
 
@@ -264,3 +292,10 @@ function getMX(sanitizedDomain, successCallback, errorCallback) {
     errorCallback
   );
 }
+
+var FetchConfig = {
+  forMX: fetchConfigForMX,
+  fromDB: fetchConfigFromDB,
+  fromISP: fetchConfigFromISP,
+  fromDisk: fetchConfigFromDisk,
+};
