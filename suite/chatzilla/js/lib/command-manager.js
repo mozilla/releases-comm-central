@@ -199,8 +199,7 @@ function cmgr_defcmds(cmdary)
  * @param name The |String| name of the command to define.
  * @param func A |Function| to call to handle dispatch of the new command.
  * @param flags Optional. A |Number| indicating any special requirements for the
- *              command. The |CommandManager| only checks for |CMD_NO_HELP|;
- *              flags are stored unchanged.
+ *              command.
  * @param usage Optional. A |String| specifying the arguments to the command. If
  *              not specified, the property string "cmd." + |name| + ".params"
  *              is read from |bundle| or |defaultBundle|.
@@ -214,15 +213,12 @@ function cmdmgr_defcmd(name, func, flags, usage, bundle)
     if (!bundle)
         bundle = this.defaultBundle;
 
-    var helpDefault;
+    var helpDefault = MSG_NO_HELP;
     var labelDefault = name;
     var aliasFor;
 
     if (typeof flags != "number")
         flags = this.defaultFlags;
-
-    if (flags & CMD_NO_HELP)
-        helpDefault = MSG_NO_HELP;
 
     if (typeof usage != "string")
         usage = getMsgFrom(bundle, "cmd." + name + ".params", null, "");

@@ -9,7 +9,6 @@ const CMD_NEED_NET   = 0x02;
 const CMD_NEED_SRV   = 0x04;
 const CMD_NEED_CHAN  = 0x08;
 const CMD_NEED_USER  = 0x10;
-const CMD_NO_HELP    = 0x20;
 
 function initCommands()
 {
@@ -67,11 +66,11 @@ function initCommands()
          ["default-charset",   cmdCharset,                         CMD_CONSOLE],
          ["delete-view",       cmdDeleteView,                      CMD_CONSOLE],
          ["desc",              cmdDesc,                            CMD_CONSOLE],
-         ["disable-plugin",    cmdAblePlugin,                      CMD_CONSOLE],
+         ["disable-plugin",    cmdDisablePlugin,                   CMD_CONSOLE],
          ["disconnect",        cmdDisconnect,       CMD_NEED_SRV | CMD_CONSOLE],
          ["disconnect-all",    cmdDisconnectAll,                   CMD_CONSOLE],
          ["echo",              cmdEcho,                            CMD_CONSOLE],
-         ["enable-plugin",     cmdAblePlugin,                      CMD_CONSOLE],
+         ["enable-plugin",     cmdEnablePlugin,                    CMD_CONSOLE],
          ["eval",              cmdEval,                            CMD_CONSOLE],
          ["evalsilent",        cmdEval,                            CMD_CONSOLE],
          ["except",            cmdBanOrExcept,     CMD_NEED_CHAN | CMD_CONSOLE],
@@ -238,7 +237,7 @@ function initCommands()
     cmdary.stringBundle = client.defaultBundle;
 
     client.commandManager = new CommandManager(client.defaultBundle);
-    client.commandManager.defaultFlags = CMD_NO_HELP | CMD_CONSOLE;
+    client.commandManager.defaultFlags = CMD_CONSOLE;
     client.commandManager.isCommandSatisfied = isCommandSatisfied;
     client.commandManager.defineCommands(cmdary);
 
@@ -793,69 +792,67 @@ function getToggle (toggle, currentState)
  * command definitions from here on down.
  */
 
-function cmdAblePlugin(e)
+function cmdDisablePlugin(e)
 {
-    if (e.command.name == "disable-plugin")
+    if (!e.plugin.enabled)
     {
-        if (!e.plugin.enabled)
-        {
-            display(getMsg(MSG_IS_DISABLED, e.plugin.id));
-            return;
-        }
+        display(getMsg(MSG_IS_DISABLED, e.plugin.id));
+        return;
+    }
 
-        if (e.plugin.API > 0)
-        {
-            if (!e.plugin.disable())
-            {
-                display(getMsg(MSG_CANT_DISABLE, e.plugin.id));
-                return;
-            }
-            e.plugin.prefs["enabled"] = false;
-        }
-        else if (!("disablePlugin" in e.plugin.scope))
+    if (e.plugin.API > 0)
+    {
+        if (!e.plugin.disable())
         {
             display(getMsg(MSG_CANT_DISABLE, e.plugin.id));
             return;
         }
-        else
-        {
-            e.plugin.scope.disablePlugin();
-        }
-
-        display(getMsg(MSG_PLUGIN_DISABLED, e.plugin.id));
-        e.plugin.enabled = false;
+        e.plugin.prefs["enabled"] = false;
+    }
+    else if (!("disablePlugin" in e.plugin.scope))
+    {
+        display(getMsg(MSG_CANT_DISABLE, e.plugin.id));
+        return;
     }
     else
     {
-        if (e.plugin.enabled)
-        {
-            display(getMsg(MSG_IS_ENABLED, e.plugin.id));
-            return;
-        }
+        e.plugin.scope.disablePlugin();
+    }
 
-        if (e.plugin.API > 0)
-        {
-            if (!e.plugin.enable())
-            {
-                display(getMsg(MSG_CANT_ENABLE, e.plugin.id));
-                e.plugin.prefs["enabled"] = false;
-                return;
-            }
-            e.plugin.prefs["enabled"] = true;
-        }
-        else if (!("enablePlugin" in e.plugin.scope))
+    display(getMsg(MSG_PLUGIN_DISABLED, e.plugin.id));
+    e.plugin.enabled = false;
+}
+
+function cmdEnablePlugin(e)
+{
+    if (e.plugin.enabled)
+    {
+        display(getMsg(MSG_IS_ENABLED, e.plugin.id));
+        return;
+    }
+
+    if (e.plugin.API > 0)
+    {
+        if (!e.plugin.enable())
         {
             display(getMsg(MSG_CANT_ENABLE, e.plugin.id));
+            e.plugin.prefs["enabled"] = false;
             return;
         }
-        else
-        {
-            e.plugin.scope.enablePlugin();
-        }
-
-        display(getMsg(MSG_PLUGIN_ENABLED, e.plugin.id));
-        e.plugin.enabled = true;
+        e.plugin.prefs["enabled"] = true;
     }
+    else if (!("enablePlugin" in e.plugin.scope))
+    {
+        display(getMsg(MSG_CANT_ENABLE, e.plugin.id));
+        return;
+    }
+    else
+    {
+        e.plugin.scope.enablePlugin();
+    }
+
+    display(getMsg(MSG_PLUGIN_ENABLED, e.plugin.id));
+    e.plugin.enabled = true;
 }
 
 function cmdBanOrExcept(e)

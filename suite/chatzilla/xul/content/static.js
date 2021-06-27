@@ -3040,6 +3040,7 @@ function cli_installPlugin(name, source)
     display(getMsg(MSG_INSTALL_PLUGIN_INSTALLING, [source.path, dest.path]),
             MT_INFO);
 
+    var ary;
     if (source.path.match(/\.(jar|zip)$/i))
     {
         try
