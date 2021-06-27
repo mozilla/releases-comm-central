@@ -137,7 +137,7 @@ tree.list {
 }
 
 #NextButton[type="row"] {
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }
 
 #NextButton > .button-box > .button-icon,

@@ -173,7 +173,7 @@
   background-color: transparent;
   color: inherit;
   -moz-user-focus: normal;
-  list-style-image: url("chrome://global/skin/icons/twisty-expanded.svg");
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 1;
