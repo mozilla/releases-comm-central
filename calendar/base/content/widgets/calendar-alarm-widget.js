@@ -267,7 +267,7 @@
                     value="1440"
                     oncommand="snoozeItem(event)"/>
           <menuseparator/>
-          <hbox class="snooze-options-box" align="center">
+          <hbox class="snooze-options-box">
             <html:input type="number"
                         class="size3 snooze-value-textbox"
                         oninput="updateUIText()"

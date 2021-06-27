@@ -3,7 +3,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window
 [
@@ -16,14 +17,16 @@
         title="&calendar.error.title;"
         windowtype="Calendar:ErrorPrompt"
         onload="loadErrorPrompt()"
-        persist="screenX screenY"
+        lightweightthemes="true"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         width="500"
-        xmlns:html="http://www.w3.org/1999/xhtml">
+        persist="screenX screenY">
 <dialog buttons="accept">
     <script src="chrome://global/content/globalOverlay.js"/>
     <script src="chrome://global/content/editMenuOverlay.js"/>
     <script src="chrome://calendar/content/calendar-error-prompt.js"/>
+    <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
     <vbox>
         <html:textarea id="general-text" class="plain" readonly="readonly" rows="3"/>

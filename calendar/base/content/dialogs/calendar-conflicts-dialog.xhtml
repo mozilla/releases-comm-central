@@ -3,16 +3,19 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-views.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
 <window id="calendar-conflicts-dialog"
         windowtype="Calendar:Conflicts"
         onload="onLoad()"
         persist="screenX screenY"
+        lightweightthemes="true"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 <dialog>
   <script src="chrome://calendar/content/widgets/mouseoverPreviews.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
   <script><![CDATA[
     var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
     function onLoad() {

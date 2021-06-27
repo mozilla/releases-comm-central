@@ -6,22 +6,16 @@
  *   Event dialog keep duration button
  *-------------------------------------------------------------------*/
 
-#keepduration-button {
-  padding: 3px 6px;
-}
-
 #timezone-endtime {
   margin-inline-start: 15px;
 }
 
 hbox > #link-image-top {
-  margin-top: 1.2em;
-  margin-bottom: -1.2em;
+  margin-block: 1.2em -1.2em;
 }
 
 vbox > #link-image-bottom {
-  margin-top: -1.2em;
-  margin-bottom: 1.2em;
+  margin-block: -1.2em 1.2em;
 }
 
 #percent-complete-textbox {

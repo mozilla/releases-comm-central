@@ -3,10 +3,11 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/content/notification.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-creation.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
 <!-- TODO: messenger.dtd is used for the "Next" button; some relocation is needed. -->
 <!DOCTYPE window [
@@ -21,6 +22,7 @@
         windowtype="Calendar:CreateCalendarDialog"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
+        lightweightthemes="true"
         minheight="380"
         width="500"
         persist="screenX screenY">
@@ -32,6 +34,7 @@
   <script src="chrome://calendar/content/calendar-creation.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/calendar-identity-utils.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <dialog id="calendar-creation-dialog"
           buttons="accept,cancel">

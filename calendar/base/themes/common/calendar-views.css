@@ -845,7 +845,7 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
 .calendar-color-box {
   /* FIXME: Is min-height needed? */
   min-height: 13px;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.01) 50%, rgba(0, 0, 0, 0.05));
+  background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1) 50%, rgba(0, 0, 0, 0.05));
   border: 1px solid transparent;
   border-radius: 2px;
   background-color: var(--item-backcolor);

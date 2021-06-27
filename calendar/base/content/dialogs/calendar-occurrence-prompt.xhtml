@@ -3,14 +3,16 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/shared/calendar-occurrence-prompt.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://calendar/locale/calendar-occurrence-prompt.dtd">
 
 <window id="calendar-occurrence-prompt"
         windowtype="Calendar:OccurrencePrompt"
         onload="onLoad()"
+        lightweightthemes="true"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xhtml2="http://www.w3.org/TR/xhtml2"
         xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"
@@ -79,6 +81,7 @@
           window.sizeToContent();
       }
   ]]></script>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <vbox id="occurrence-prompt-header" pack="center">
     <label id="title-label" crop="end"/>

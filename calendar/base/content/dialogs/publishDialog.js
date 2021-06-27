@@ -28,7 +28,7 @@ function loadCalendarPublishDialog() {
     gPublishObject = {};
   }
   document
-    .getElementById("calendar-publishwindow")
+    .querySelector("dialog")
     .getButton("accept")
     .setAttribute("label", publishButtonLabel);
 
@@ -47,7 +47,7 @@ function onOKCommand(event) {
   // call caller's on OK function
   gOnOkFunction(gPublishObject, progressDialog);
   document
-    .getElementById("calendar-publishwindow")
+    .querySelector("dialog")
     .getButton("accept")
     .setAttribute("label", closeButtonLabel);
   document.removeEventListener("dialogaccept", onOKCommand);
@@ -58,12 +58,12 @@ document.addEventListener("dialogaccept", onOKCommand);
 function checkURLField() {
   if (document.getElementById("publish-remotePath-textbox").value.length == 0) {
     document
-      .getElementById("calendar-publishwindow")
+      .querySelector("dialog")
       .getButton("accept")
       .setAttribute("disabled", "true");
   } else {
     document
-      .getElementById("calendar-publishwindow")
+      .querySelector("dialog")
       .getButton("accept")
       .removeAttribute("disabled");
   }

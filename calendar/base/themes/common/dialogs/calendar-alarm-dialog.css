@@ -70,6 +70,7 @@ richlistitem[is="calendar-alarm-widget-richlistitem"]:not([selected="true"]) .al
 .snooze-popup-button {
     min-width: 0;
     appearance: none;
+    margin-inline-end: 2px;
     -moz-context-properties: fill;
     fill: currentColor;
 }

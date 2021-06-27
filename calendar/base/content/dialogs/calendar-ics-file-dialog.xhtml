@@ -3,20 +3,23 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-alarms.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-attendees.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/searchBox.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/widgets/calendar-item-summary.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-ics-file-dialog.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
 <window id="calendar-ics-file-dialog"
         windowtype="Calendar:ICSFile"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         data-l10n-id="calendar-ics-file-window-2"
+        lightweightthemes="true"
         width="600"
         height="600">
 
@@ -34,6 +37,7 @@
     <script src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
     <script src="chrome://calendar/content/calendar-dialog-utils.js"></script>
     <script src="chrome://calendar/content/calendar-ui-utils.js"></script>
+    <script src="chrome://messenger/content/dialogShadowDom.js"></script>
 
     <vbox id="calendar-ics-file-dialog-options-pane"
           flex="1">
@@ -52,13 +56,14 @@
 
         <hbox id="calendar-ics-file-dialog-filters">
           <search-textbox id="calendar-ics-file-dialog-search-input"
+                          class="themeableSearchBox"
                           flex="1"
                           data-l10n-id="calendar-ics-file-dialog-search-input"
                           data-l10n-attrs="placeholder"
                           oncommand="filterItemSummaries(this.value);"/>
-          <toolbarbutton id="calendar-ics-file-dialog-sort-button"
-                         type="menu"
-                         oncommand="sortItemSummaries(event);">
+          <button id="calendar-ics-file-dialog-sort-button"
+                  type="menu"
+                  oncommand="sortItemSummaries(event);">
             <menupopup id="calendar-ics-file-dialog-sort-popup">
               <menuitem id="calendar-ics-file-dialog-sort-start-ascending"
                         type="radio"
@@ -82,7 +87,7 @@
                         data-l10n-attrs="label"
                         value="title descending"/>
             </menupopup>
-          </toolbarbutton>
+          </button>
         </hbox>
       </vbox>
 

@@ -3,9 +3,10 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <!-- CSS File with all styles specific to the dialog -->
 <?xml-stylesheet href="chrome://calendar/skin/shared/dialogOverlay.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
 <!-- DTD File with all strings specific to the calendar -->
 <!DOCTYPE window [
@@ -13,18 +14,20 @@
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
 ]>
 
-<window title="&calendar.publish.dialog.title;"
+<window id="calendar-publishwindow"
+        title="&calendar.publish.dialog.title;"
         windowtype="Calendar:PublishDialog"
         onload="loadCalendarPublishDialog()"
         persist="screenX screenY"
+        lightweightthemes="true"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-publishwindow"
-        buttons="accept,cancel">
+<dialog buttons="accept,cancel">
 
   <!-- JavaScript includes -->
   <script src="chrome://calendar/content/publishDialog.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <!-- Data used in JavaScript from dtd -->
   <script>

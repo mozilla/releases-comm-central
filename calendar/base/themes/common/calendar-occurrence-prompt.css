@@ -14,9 +14,9 @@
 #occurrence-prompt-header {
   height: 50px;
   padding: 0 15px;
-  border-bottom: 2px groove ThreeDFace;
-  background-color: window;
-  color: windowtext;
+  border: 1px solid var(--field-border-color);
+  background-color: var(--field-background-color);
+  color: var(--field-text-color);
 }
 
 #title-label {
@@ -25,7 +25,6 @@
 
 #accept-buttons-box {
   padding: 0 18px;
-  border-bottom: 2px groove ThreeDFace;
 }
 
 .occurrence-accept-buttons {
@@ -41,7 +40,7 @@
   margin: 0 3px !important;
 }
 
-#accept-occurrence-button {
+#accept-buttons-box {
   -moz-context-properties: fill;
   fill: currentColor;
 }

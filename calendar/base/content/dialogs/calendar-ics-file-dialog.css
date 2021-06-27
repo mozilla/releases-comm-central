@@ -43,13 +43,22 @@
 
 #calendar-ics-file-dialog-sort-button {
   list-style-image: url("chrome://calendar/skin/shared/icons/sort.svg");
-  margin: 2px 4px;
+  min-width: 0;
+  margin-block: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#calendar-ics-file-dialog-sort-button > .button-box > dropmarker {
+  display: none;
 }
 
 #calendar-ics-file-dialog-items-container {
-  border-block: 1px solid #ccc;
-  margin: 0.7em 0;
+  border-block: 1px solid var(--field-border-color);
+  margin-block: 0.7em;
+  margin-inline: -8px -10px;
   padding-block: 0 1.5em;
+  padding-inline: 18px 20px;
   min-height: 200px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -61,8 +70,8 @@
 }
 
 .calendar-ics-file-dialog-item-frame {
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--field-background-color);
+  border: 1px solid var(--field-border-color);
   margin-block: 1.5em 0;
   margin-inline: 6px 5px;
   padding: 0.7em;
@@ -74,6 +83,10 @@
 
 .calendar-caption {
   display: none;
+}
+
+.item-description {
+  padding: 2px;
 }
 
 #calendar-ics-file-dialog-progress-pane,
