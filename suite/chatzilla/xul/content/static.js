@@ -282,9 +282,9 @@ function initStatic()
     client.progressBar = document.getElementById("status-progress-bar");
 
     client.logFile = null;
-    setInterval("onNotifyTimeout()", client.NOTIFY_TIMEOUT);
+    setInterval(onNotifyTimeout, client.NOTIFY_TIMEOUT);
     // Call every minute, will check only the networks necessary.
-    setInterval("onWhoTimeout()", client.AWAY_TIMEOUT);
+    setInterval(onWhoTimeout, client.AWAY_TIMEOUT);
 
     client.awayMsgs = [{ message: MSG_AWAY_DEFAULT }];
     var awayFile = new nsLocalFile(client.prefs["profilePath"]);
