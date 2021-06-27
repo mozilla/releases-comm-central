@@ -2181,7 +2181,7 @@ function cmdGotoURL(e)
 
     try
     {
-        var uri = client.iosvc.newURI(e.url, "UTF-8", null);
+        var uri = Services.io.newURI(e.url, "UTF-8");
     }
     catch (ex)
     {
@@ -4533,7 +4533,11 @@ function cmdInstallPlugin(e)
         case "https":
             try
             {
-                var channel = client.iosvc.newChannel(e.url, "UTF-8", null);
+                var channel = Services.io.newChannel(
+                    e.url, "UTF-8", null, null,
+                    Services.scriptSecurityManager.getSystemPrincipal(), null,
+                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+                    Ci.nsIContentPolicy.TYPE_OTHER);
                 display(getMsg(MSG_INSTALL_PLUGIN_DOWNLOADING, e.url),
                         MT_INFO);
                 channel.asyncOpen(pluginDownloader, { e: e });

@@ -953,59 +953,26 @@ function getSpecialDirectory(name)
 
 function getFileFromURLSpec(url)
 {
-    const nsIFileProtocolHandler = Components.interfaces.nsIFileProtocolHandler;
-
-    var service = getService("@mozilla.org/network/io-service;1",
-                             "nsIIOService");
-
-    /* In sept 2002, bug 166792 moved this method to the nsIFileProtocolHandler
-     * interface, but we need to support older versions too. */
-    if ("getFileFromURLSpec" in service)
-        return service.getFileFromURLSpec(url);
-
-    /* In builds before 2002-08-15, there is no getFileFromURLSpec at all.
-     * Instead, we have nsIIOservice.initFileFromURLSpec(nsIFile, string).
-     */
-    if ("initFileFromURLSpec" in service)
-    {
-        var file = newObject("@mozilla.org/file/local;1", "nsIFile");
-        service.initFileFromURLSpec(file, url);
-        return file;
-    }
-
-    var handler = service.getProtocolHandler("file");
-    handler = handler.QueryInterface(nsIFileProtocolHandler);
+    var handler = Services.io.getProtocolHandler("file")
+                             .QueryInterface(Ci.nsIFileProtocolHandler);
     return handler.getFileFromURLSpec(url);
 }
 
-function getURLSpecFromFile (file)
+function getURLSpecFromFile(file)
 {
     if (!file)
         return null;
 
-    const IOS_CTRID = "@mozilla.org/network/io-service;1";
-    const LOCALFILE_CTRID = "@mozilla.org/file/local;1";
-
-    const nsIIOService = Components.interfaces.nsIIOService;
-    const nsIFile = Components.interfaces.nsIFile;
-
     if (typeof file == "string")
     {
-        var fileObj =
-            Components.classes[LOCALFILE_CTRID].createInstance(nsIFile);
+        let fileObj = Cc["@mozilla.org/file/local;1"]
+                        .createInstance(Ci.nsIFile);
         fileObj.initWithPath(file);
         file = fileObj;
     }
 
-    var service = Components.classes[IOS_CTRID].getService(nsIIOService);
-    /* In sept 2002, bug 166792 moved this method to the nsIFileProtocolHandler
-     * interface, but we need to support older versions too. */
-    if ("getURLSpecFromFile" in service)
-        return service.getURLSpecFromFile(file);
-
-    var nsIFileProtocolHandler = Components.interfaces.nsIFileProtocolHandler;
-    var fileHandler = service.getProtocolHandler("file");
-    fileHandler = fileHandler.QueryInterface(nsIFileProtocolHandler);
+    var fileHandler = Services.io.getProtocolHandler("file")
+                                 .QueryInterface(Ci.nsIFileProtocolHandler);
     return fileHandler.getURLSpecFromFile(file);
 }
 

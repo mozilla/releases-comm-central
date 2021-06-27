@@ -280,10 +280,8 @@ var transferUtils = {
       case "text/x-moz-url":
         return ((aData instanceof Components.interfaces.nsISupportsString) ? aData.toString() : aData).split("\n")[0];
       case "application/x-moz-file":
-        var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                  .getService(Components.interfaces.nsIIOService);
-        var fileHandler = ioService.getProtocolHandler("file")
-                                   .QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+        var fileHandler = Services.io.getProtocolHandler("file")
+                                     .QueryInterface(Ci.nsIFileProtocolHandler);
         return fileHandler.getURLSpecFromFile(aData);
     }
     return null;
@@ -565,10 +563,8 @@ var nsDragAndDrop = {
       aDraggedText = aDraggedText.replace(/^\s*|\s*$/g, '');
 
       var uri;
-      var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                                .getService(Components.interfaces.nsIIOService);
       try {
-        uri = ioService.newURI(aDraggedText, null, null);
+        uri = Services.io.newURI(aDraggedText);
       } catch (e) {
       }
 
@@ -588,7 +584,7 @@ var nsDragAndDrop = {
       // Use "file:///" as the default sourceURI so that drops of file:// URIs
       // are always allowed.
       var principal = sourceDoc ? sourceDoc.nodePrincipal
-                                : secMan.createCodebasePrincipal(ioService.newURI("file:///", null, null), {});
+                                : secMan.createCodebasePrincipal(Services.io.newURI("file:///"), {});
 
       try {
         secMan.checkLoadURIStrWithPrincipal(principal, aDraggedText,

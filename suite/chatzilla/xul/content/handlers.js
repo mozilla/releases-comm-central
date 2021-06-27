@@ -2108,7 +2108,7 @@ function my_netdisconnect (e)
                 break;
 
             case NS_ERROR_ABORT:
-                if (client.iosvc.offline)
+                if (Services.io.offline)
                 {
                     msg = getMsg(MSG_CONNECTION_ABORT_OFFLINE,
                                  [this.getURL(), e.server.getURL()]);

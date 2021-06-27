@@ -195,16 +195,6 @@ function initStatic()
 
     try
     {
-        var io = Components.classes['@mozilla.org/network/io-service;1'];
-        client.iosvc = io.getService(Components.interfaces.nsIIOService);
-    }
-    catch (ex)
-    {
-        dd("IO service failed to initialize: " + ex);
-    }
-
-    try
-    {
         const nsISound = Components.interfaces.nsISound;
         client.sound =
             Components.classes["@mozilla.org/sound;1"].createInstance(nsISound);
@@ -554,12 +544,12 @@ function processStartupScripts()
     client.plugins = new Object();
     var scripts = client.prefs["initialScripts"];
     var basePath = getURLSpecFromFile(client.prefs["profilePath"]);
-    var baseURL = client.iosvc.newURI(basePath, null, null);
+    var baseURL = Services.io.newURI(basePath);
     for (var i = 0; i < scripts.length; ++i)
     {
         try
         {
-            var url = client.iosvc.newURI(scripts[i], null, baseURL);
+            var url = Services.io.newURI(scripts[i], null, baseURL);
             var path = getFileFromURLSpec(url.spec);
         }
         catch(ex)
@@ -735,8 +725,8 @@ function addURLToHistory(url, referer)
 {
     if (client.globalHistory)
     {
-        referer = referer ? client.iosvc.newURI(referer, "UTF-8", null) : null;
-        url = client.iosvc.newURI(url, "UTF-8", null);
+        referer = referer ? Services.io.newURI(referer, "UTF-8") : null;
+        url = Services.io.newURI(url, "UTF-8");
         client.globalHistory.addURI(url, false, true, referer);
     }
 }
@@ -1312,8 +1302,7 @@ function playSound(file)
     {
         try
         {
-            var uri = client.iosvc.newURI(file, null, null);
-            client.sound.play(uri);
+            client.sound.play(Services.io.newURI(file));
         }
         catch (ex)
         {
@@ -2002,27 +1991,15 @@ function updateAlertIcon()
 
 function initOfflineIcon()
 {
-    const IOSVC2_CID = "@mozilla.org/network/io-service;1";
     const PRBool_CID = "@mozilla.org/supports-PRBool;1";
     const OS_CID = "@mozilla.org/observer-service;1";
     const nsISupportsPRBool = Components.interfaces.nsISupportsPRBool;
 
     client.offlineObserver = {
         _element: document.getElementById("offline-status"),
-        _getNewIOSvc: function offline_getNewIOSvc()
-        {
-            try
-            {
-                return getService(IOSVC2_CID, "nsIIOService2");
-            }
-            catch (ex) {}
-
-            // If it failed, it's probably just not there. We don't care.
-            return null;
-        },
         state: function offline_state()
         {
-            return (client.iosvc.offline ? "offline" : "online");
+            return (Services.io.offline ? "offline" : "online");
         },
         observe: function offline_observe(subject, topic, state)
         {
@@ -2051,23 +2028,14 @@ function initOfflineIcon()
         toggleOffline: function offline_toggle()
         {
             // Check whether people are OK with us going offline:
-            if (!client.iosvc.offline && !this.canGoOffline())
+            if (!Services.io.offline && !this.canGoOffline())
                 return;
 
             // Stop automatic management of the offline status, if existing.
-            try
-            {
-                var ioSvc2 = this._getNewIOSvc();
-                if (ioSvc2 && ("manageOfflineStatus" in ioSvc2))
-                    ioSvc2.manageOfflineStatus = false;
-            }
-            catch (ex)
-            {
-                dd("Turning off managed offline status failed!\n" + ex);
-            }
+            Services.io.manageOfflineStatus = false;
 
             // Actually change the offline state.
-            client.iosvc.offline = !client.iosvc.offline;
+            Services.io.offline = !Services.io.offline;
         },
         canGoOffline: function offline_check()
         {
@@ -3072,10 +3040,10 @@ function cli_installPlugin(name, source)
 
     // URLs for initialScripts can be relative (the default is):
     var profilePath = getURLSpecFromFile(client.prefs["profilePath"]);
-    profilePath = client.iosvc.newURI(profilePath, null, null);
+    profilePath = Services.io.newURI(profilePath);
     for (var i = 0; i < destList.length; i++)
     {
-        var destURL = client.iosvc.newURI(destList[i], null, profilePath);
+        var destURL = Services.io.newURI(destList[i], null, profilePath);
         var file = new nsLocalFile(getFileFromURLSpec(destURL.spec).path);
         if (file.exists() && file.isDirectory()) {
             // A directory that exists! We'll take it!

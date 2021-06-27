@@ -236,8 +236,6 @@ function bc_connect(host, port, config, observer)
     // Lets get a transportInfo for this
     var pps = getService("@mozilla.org/network/protocol-proxy-service;1",
                          "nsIProtocolProxyService");
-        var ios = getService("@mozilla.org/network/io-service;1",
-                             "nsIIOService");
 
         /* Force Necko to supply the HTTP proxy info if desired. For none,
          * force no proxy. Other values will get default treatment.
@@ -271,7 +269,7 @@ function bc_connect(host, port, config, observer)
 
         if (uri)
         {
-            uri = ios.newURI(uri, null, null);
+            uri = Services.io.newURI(uri);
             if ("asyncResolve" in pps)
             {
                 pps.asyncResolve(uri, 0, {
