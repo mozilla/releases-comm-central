@@ -6,18 +6,6 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-@media not (-moz-proton) {
-:root {
-  --button-border-radius: 0;
-}
-
-@media (-moz-os-version: windows-win7) {
-  :root {
-    --button-border-radius: 2px;
-  }
-}
-} /** END not Proton **/
-
 html|input {
   padding: 2px 4px;
 }
@@ -29,14 +17,9 @@ html|input[type="number"]::-moz-number-spin-down {
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   padding: 2px 4px;
-}
-
-@media (-moz-proton) {
-menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   margin-block: -1px -2px;
   margin-inline: -6px 4px;
 }
-} /** END Proton **/
 
 @media not (-moz-windows-non-native-menus) {
   menulist menupopup menu,
@@ -57,17 +40,6 @@ menu > menupopup > menu {
   padding-inline: 5px;
 }
 
-@media not (-moz-proton) {
-.menu-right {
-  transform: scale(0.7);
-}
-
-.menu-right:-moz-locale-dir(ltr) {
-  transform: scaleX(-1) scale(0.7);
-}
-} /** END not Proton **/
-
-@media (-moz-proton) {
 .menu-right {
   transform: scale(0.5);
 }
@@ -75,7 +47,6 @@ menu > menupopup > menu {
 .menu-right:-moz-locale-dir(rtl) {
   transform: scaleX(-1) scale(0.5);
 }
-} /** END Proton **/
 
 .radio-label-box {
   margin-inline-start: 0;

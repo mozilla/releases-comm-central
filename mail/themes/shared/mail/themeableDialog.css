@@ -131,13 +131,6 @@ html|textarea {
   margin: 2px 4px;
 }
 
-@media not (-moz-proton) {
-html|input,
-html|textarea {
-  border-radius: 2px;
-}
-} /** END not Proton **/
-
 html|input:not(:focus):hover,
 html|textarea:not(:focus):hover {
   border-color: var(--field-border-hover-color);
@@ -146,15 +139,8 @@ html|textarea:not(:focus):hover {
 html|input:focus,
 html|textarea:focus {
   border-color: var(--highlight-color);
-  outline: none;
-}
-
-@media (-moz-proton) {
-html|input:focus,
-html|textarea:focus {
   outline: 1px solid var(--highlight-color);
 }
-} /** END Proton **/
 
 :root[lwt-tree-brighttext] html|input::selection,
 :root[lwt-tree-brighttext] html|textarea::selection,
@@ -239,22 +225,10 @@ html|input[type="color"] {
   margin-inline-end: 0;
 }
 
-@media not (-moz-proton) {
-button:-moz-focusring,
-menulist:-moz-focusring,
-#resetColor:-moz-focusring,
-html|input[type="color"]:focus {
-  border-color: var(--highlight-color);
-  outline: none;
-}
-} /** END not Proton **/
-
-@media (-moz-proton) {
 button:-moz-focusring {
   outline: 2px solid var(--focus-outline-color);
   outline-offset: var(--focus-outline-offset, -1px);
 }
-} /** END Proton **/
 
 button:not([disabled="true"]):hover,
 menulist:not([disabled="true"],[open="true"]):hover,
@@ -288,12 +262,10 @@ menulist[disabled="true"] {
   opacity: 0.4;
 }
 
-@media (-moz-proton) {
 menulist::part(label-box) {
   font-weight: inherit;
   text-shadow: none;
 }
-} /** END Proton **/
 
 menulist:-moz-focusring::part(label-box),
 menulist:-moz-focusring:not([open="true"])::part(label-box) {
@@ -310,12 +282,6 @@ menulist::part(dropmarker) {
   -moz-context-properties: fill;
   fill: currentColor;
 }
-
-@media (-moz-proton) {
-menulist::part(dropmarker) {
-  width: 16px;
-}
-} /** END Proton **/
 
 menulist::part(dropmarker-icon) {
   width: 12px;
@@ -336,23 +302,10 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   border-end-end-radius: 0;
 }
 
-@media not (-moz-proton) {
-menulist[is="menulist-editable"][editable="true"]::part(text-input) {
-  margin-block: -1px;
-  margin-inline: -1px 4px;
-}
-
-menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
-  border-color: var(--highlight-color);
-}
-} /** END not Proton **/
-
-@media (-moz-proton) {
 menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
   border-color: var(--focus-outline-color);
   outline: 1px solid var(--focus-outline-color);
 }
-} /** END Proton **/
 
 menulist menupopup,
 button[type="menu-button"] menupopup,
@@ -402,12 +355,6 @@ menulist menupopup > menuitem[disabled="true"] {
   fill: currentColor;
 }
 
-@media not (-moz-proton) {
-.menu-right {
-  list-style-image: url("chrome://global/skin/icons/arrow-left-12.svg");
-}
-} /** END not Proton **/
-
 button menupopup menuseparator,
 menulist menupopup menuseparator {
   appearance: none;
@@ -431,36 +378,16 @@ checkbox {
   appearance: none;
 }
 
-@media (-moz-proton) {
 checkbox {
   margin: 2px 4px;
   padding-inline: 4px 2px;
 }
-} /** END Proton **/
 
 radio[disabled="true"],
 checkbox[disabled="true"] {
   color: #999;
 }
 
-@media not (-moz-proton) {
-.radio-check,
-.checkbox-check {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  padding: 1px;
-  border: 1px solid var(--field-border-color);
-  border-radius: var(--button-border-radius);
-  margin: 0;
-  margin-inline-end: 6px;
-  background-color: var(--field-background-color);
-  background-position: center;
-  background-repeat: no-repeat;
-}
-} /** END not Proton **/
-
-@media (-moz-proton) {
 .radio-check {
   appearance: none;
   width: 16px;
@@ -470,7 +397,6 @@ checkbox[disabled="true"] {
   margin-inline-end: 6px;
   background-color: var(--field-background-color);
 }
-} /** END Proton **/
 
 .radio-check {
   border-radius: 50%;
@@ -488,14 +414,6 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
   fill: var(--checkbox-checked-color, -moz-accent-color-foreground);
   background-color: var(--checkbox-checked-bgcolor, -moz-accent-color);
 }
-
-@media not (-moz-proton) {
-checkbox[checked="true"] > .checkbox-check {
-  list-style-image: url("chrome://global/skin/icons/check.svg");
-  -moz-context-properties: fill;
-  fill: var(--highlight-color);
-}
-} /** END not Proton **/
 
 :root[lwt-tree] richlistbox {
   appearance: none;

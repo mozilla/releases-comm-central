@@ -11,13 +11,6 @@
   appearance: none;
 }
 
-@media not (-moz-proton) {
-:host,
-:root {
-  --button-border-radius: 3px;
-}
-} /** END not Proton **/
-
 button > .button-box {
   padding-block: 3px;
 }
@@ -54,14 +47,9 @@ menulist[is="menulist-editable"][editable="true"] {
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   padding: 4px;
-}
-
-@media (-moz-proton) {
-menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   margin-block: -1px;
   margin-inline: -1px 2px;
 }
-} /** END Proton **/
 
 menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
   display: -moz-box;

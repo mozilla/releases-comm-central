@@ -9,13 +9,3 @@
 #titlebarSettings {
   margin-inline-start: 4px;
 }
-
-@media not (-moz-proton) {
-#CustomizeToolbarWindow menulist {
-  background-image: none;
-}
-
-#CustomizeToolbarWindow menulist::part(label-box) {
-  background: none;
-}
-} /** END not Proton **/

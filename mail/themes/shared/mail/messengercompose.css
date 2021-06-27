@@ -594,7 +594,6 @@ menulist::part(description) {
   background: transparent;
 }
 
-@media (-moz-proton) {
 #FormatToolbar > toolbaritem > menulist::part(label-box) {
  text-shadow: none;
 }
@@ -607,7 +606,6 @@ menulist::part(description) {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
 }
-} /** END Proton **/
 
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {
   display: none;
@@ -787,17 +785,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   background-color: transparent;
   transition: border .2s, box-shadow .2s, background-color .2s;
 }
-
-@media not (-moz-proton) {
-#msgIdentity {
-  background-repeat: no-repeat;
-  background-position: calc(100% - 5px);
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-} /** END not Proton **/
 
 /* XUL element needs the full [disabled="true"] attribute. */
 #msgIdentity[disabled="true"] {
@@ -1116,20 +1103,9 @@ button.remove-field-button:focus {
 .address-container[focused="true"] {
   border-color: var(--toolbar-field-focus-border-color);
   background-color: Field;
-  outline: none;
-}
-
-@media (-moz-proton) {
-#msgIdentity:focus,
-#msgIdentity:focus-within,
-#msgIdentity[focused="true"],
-#msgSubject:focus,
-.drag-address-container,
-.address-container[focused="true"] {
   outline: 1px solid var(--toolbar-field-focus-border-color);
   outline-offset: 0;
 }
-} /** END Proton **/
 
 :root[lwt-tree] #msgIdentity:focus-within,
 :root[lwt-tree] #msgIdentity[focused="true"],

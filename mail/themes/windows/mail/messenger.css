@@ -27,18 +27,6 @@
   --splitter-color: ThreeDShadow;
 }
 
-@media not (-moz-proton) {
-:root {
-  --toolbarbutton-border-radius: 0;
-}
-
-@media (-moz-os-version: windows-win7) {
-  :root {
-  --toolbarbutton-border-radius: 2px;
-  }
-}
-} /** END not Proton **/
-
 @media (-moz-windows-default-theme) {
   :root {
     --tabs-border-color: rgba(0,0,0,.3);
@@ -494,33 +482,9 @@ treechildren::-moz-tree-indentation {
   background-image: none;
 }
 
-@media (-moz-proton) {
 menulist {
   padding: 0 5px 1px !important;
 }
-} /** END Proton **/
-
-@media not (-moz-proton),
-       (-moz-os-version: windows-win7),
-       (-moz-os-version: windows-win8) {
-  /* Give menupopup[is="folder-menupopup"] a menu look */
-  menupopup[is="folder-menupopup"] {
-    appearance: auto;
-    -moz-default-appearance: menupopup;
-  }
-
-  menupopup[is="folder-menupopup"] menu[_moz-menuactive="true"],
-  menupopup[is="folder-menupopup"] menuitem[_moz-menuactive="true"] {
-    color: -moz-MenuHoverText;
-    background-color: -moz-MenuHover;
-  }
-
-  menupopup[is="folder-menupopup"] > menu,
-  menupopup[is="folder-menupopup"] > menuitem {
-    appearance: auto !important;
-    -moz-default-appearance: menuitem !important;
-  }
-} /** END not Proton **/
 
 menulist.folderMenuItem::part(label) {
   margin-inline-start: 2px !important;

@@ -33,10 +33,3 @@ menu.subviewbutton > .menu-right {
   margin-inline-end: -4px;
   appearance: none;
 }
-
-@media not (-moz-proton) {
-.PanelUI-subView menuseparator,
-.cui-widget-panelview menuseparator {
-  padding: 0 !important;
-}
-} /** END not Proton **/

@@ -365,12 +365,7 @@ printpreview-pagination:focus-within,
   margin: 0;
   padding: 0;
   overflow-x: auto;
-}
-
-@media (-moz-proton) {
-.dialogBox {
   border-radius: 8px;
-}
 }
 
 .dialogBox[resizable="true"] {

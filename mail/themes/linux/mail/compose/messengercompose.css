@@ -19,64 +19,6 @@
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
-/* ::::: menulists on toolbar ::::: */
-
-@media not (-moz-proton) {
-menulist {
-  appearance: none;
-  min-height: 24px;
-  color: inherit;
-  margin: 1px 4px;
-  padding: 1px 6px;
-  border: 1px solid;
-  border-radius: var(--toolbarbutton-border-radius);
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-  transition: background-color 150ms;
-}
-
-#composeToolbar2 menulist {
-  background: var(--toolbarbutton-hover-background);
-}
-
-#composeToolbar2 menulist:not([disabled="true"],[open="true"]):hover {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  color: inherit;
-}
-
-#FormatToolbar menulist:not([disabled="true"],[open="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-  color: inherit;
-}
-
-#FormatToolbar menulist[open="true"],
-#composeToolbar2 menulist[open="true"] {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
-
-menulist[disabled="true"] {
-  opacity: .6;
-}
-
-menulist::part(label-box) {
-  appearance: none;
-  padding-inline-end: 12px;
-  background-repeat: no-repeat;
-  background-position: right;
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-menulist:-moz-locale-dir(rtl)::part(label-box) {
-  background-position: left;
-}
-} /** END not Proton **/
-
 /* ::::: special toolbar colors ::::: */
 
 #subjectLabel {
@@ -175,18 +117,10 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
   color: inherit;
 }
 
-@media (-moz-proton) {
 #msgIdentity[editable="true"]::part(dropmarker) {
   margin-inline-end: 0;
   width: 16px;
 }
-} /** END Proton **/
-
-@media not (-moz-proton) {
-#msgIdentity[editable="true"]::part(dropmarker) {
-  display: none;
-}
-} /** END not Proton **/
 
 #msgIdentity[open="true"] {
   color: FieldText;

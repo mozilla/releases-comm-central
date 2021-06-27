@@ -306,29 +306,6 @@
   padding-inline-start: 5px;
 }
 
-@media not (-moz-proton) {
-#show-completed-checkbox > .checkbox-check {
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0;
-  stroke-opacity: 0;
-}
-
-#show-completed-checkbox[checked="true"] > .checkbox-check {
-  fill-opacity: 1;
-}
-
-#show-completed-checkbox:hover > .checkbox-check {
-  fill: Highlight;
-  stroke: Highlight;
-}
-} /** END not Proton **/
-
 #agenda-listbox {
   appearance: none;
   -moz-user-focus: normal;

@@ -130,24 +130,11 @@
   outline: none;
 }
 
-@media not (-moz-proton) {
-#msgIdentity::part(dropmarker) {
-  display: none;
-}
-} /** END not Proton **/
-
 @media (prefers-contrast) {
   #msgIdentity::part(label-box) {
     background-color: transparent !important;
     color: inherit !important;
   }
-
-@media not (-moz-proton) {
-  menulist::part(dropmarker-icon) {
-    width: 9px;
-    height: 7px;
-  }
-} /** END not Proton **/
 }
 
 #msgIdentity::part(text-input) {
@@ -257,15 +244,6 @@ toolbar:not(:-moz-lwtheme) {
 
 /* ::::: primary toolbar buttons ::::: */
 
-@media not (-moz-proton) {
-@media (-moz-windows-default-theme) {
-  menulist {
-    appearance: none;
-    margin: 1px 4px;
-    padding: 1px 2px;
-  }
-}
-} /** END not Proton **/
 
 #compose-toolbar-sizer {
   position: relative;
@@ -284,55 +262,6 @@ toolbar:not(:-moz-lwtheme) {
   display: -moz-box;
   margin: 1px 5px;
 }
-
-@media not (-moz-proton) {
-menulist,
-menulist[disabled="true"] {
-  color: inherit;
-  border: 1px solid;
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-  transition-property: background-color, border-color, box-shadow;
-  transition-duration: 150ms;
-}
-
-#composeToolbar2 menulist {
-  background: var(--toolbarbutton-hover-background);
-}
-
-menulist[disabled="true"] {
-  opacity: 0.5;
-}
-
-#composeToolbar2 menulist:not([disabled="true"],[open="true"]):hover {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-}
-
-#FormatToolbar menulist:not([disabled="true"],[open="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-}
-
-#FormatToolbar menulist[open="true"],
-#composeToolbar2 menulist[open="true"] {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
-
-menulist::part(dropmarker) {
-  appearance: none;
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  margin-top: 0;
-}
-
-menulist::part(dropmarker-icon) {
-  width: 9px;
-  height: 7px;
-}
-} /** END not Proton **/
 
 #languageStatusButton {
   height: 22px;
@@ -359,17 +288,6 @@ menulist::part(dropmarker-icon) {
   findbar {
     background-color: #eef3fa;
   }
-
-@media not (-moz-proton) {
-  menulist {
-    border-radius: 2px;
-  }
-
-  menulist[open="true"] {
-    text-shadow: none;
-    transition: none;
-  }
-} /** END not Proton **/
 }
 
 @media (-moz-windows-glass) {

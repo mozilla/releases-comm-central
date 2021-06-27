@@ -26,12 +26,6 @@
   --new-folder-color: blue;
 }
 
-@media not (-moz-proton) {
-:root {
-  --toolbarbutton-border-radius: 3px;
-}
-} /** END not Proton **/
-
 :root:not(:-moz-lwtheme) {
   --tabs-border-color: rgba(0, 0, 0, .2);
   --chrome-content-separator-color: hsl(0, 0%, 68%);
@@ -168,7 +162,6 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   margin-top: 1px;
 }
 
-@media (-moz-proton) {
 menulist {
   padding: 1px 6px;
 }
@@ -176,7 +169,6 @@ menulist {
 menulist > menupopup:not([position]) {
   margin-inline-start: 0;
 }
-} /** END Proton **/
 
 /* :::::: throbber :::::::::: */
 

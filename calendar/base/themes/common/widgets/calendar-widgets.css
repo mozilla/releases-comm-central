@@ -44,13 +44,6 @@ checkbox.treenode-checkbox > .checkbox-check {
   fill: currentColor;
 }
 
-@media not (-moz-proton) {
-checkbox.treenode-checkbox > .checkbox-check {
-  min-width: 10px;
-  min-height: 10px;
-}
-} /** END not Proton **/
-
 checkbox.treenode-checkbox:not([checked="true"]) > .checkbox-check {
   transform: rotate(-90deg);
 }

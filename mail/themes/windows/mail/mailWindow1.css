@@ -552,58 +552,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (-moz-windows-default-theme) {
-@media not (-moz-proton) {
-  menulist,
-  menulist[disabled="true"] {
-    appearance: none;
-    min-height: 24px;
-    color: inherit;
-    margin-top: 4px;
-    margin-bottom: 4px;
-    padding: 0 5px 1px !important;
-    border: 1px solid var(--toolbarbutton-hover-bordercolor);
-    background: var(--toolbarbutton-hover-background);
-    box-shadow: var(--toolbarbutton-hover-boxshadow);
-    transition-property: background-color, border-color, box-shadow;
-    transition-duration: 150ms;
-  }
-
-  menulist[disabled="true"] {
-    opacity: 0.5;
-  }
-
-  menulist:not([disabled="true"],[open="true"]):hover {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-  }
-
-  menulist[open="true"] {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-    box-shadow: var(--toolbarbutton-active-boxshadow);
-  }
-
-  menulist[disabled="true"] {
-    opacity: .6;
-  }
-
-  menulist::part(dropmarker) {
-    appearance: none;
-    -moz-box-align: center;
-    -moz-box-pack: center;
-    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-    -moz-image-region: auto !important;
-    -moz-context-properties: fill;
-    fill: currentColor;
-    margin-top: 0;
-  }
-
-  menulist::part(dropmarker-icon) {
-    width: 9px;
-    height: 7px;
-  }
-} /** END not Proton **/
-
   @media not (-moz-windows-non-native-menus) {
     #viewPickerPopup > menu,
     #viewPickerPopup > menuitem {
@@ -644,17 +592,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       background-color: #d1d1d1;
     }
   }
-
-@media not (-moz-proton) {
-  menulist {
-    border-radius: 2px;
-  }
-
-  menulist[open="true"] {
-    text-shadow: none;
-    transition: none;
-  }
-} /** END not Proton **/
 
   #viewPickerPopup {
     background-color: menu;

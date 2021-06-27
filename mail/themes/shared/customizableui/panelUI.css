@@ -6,26 +6,20 @@
   --menu-panel-width: 22.35em;
   --wide-menu-panel-width: 29em;
   --panel-palette-icon-size: 16px;
-  --panel-separator-margin: 6px 0;
+  --panel-separator-margin: 4px 8px;
 
   /* XXXgijs This is the ugliest bit of code I think I've ever written for Mozilla.
   Basically, the [extra 0.1px in the 1.1px] is there to avoid CSS rounding errors
   causing buttons to wrap. For gory details, refer to
   https://bugzilla.mozilla.org/show_bug.cgi?id=963365#c11 */
   --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
-
+  --arrowpanel-menuitem-border-radius: 3px;
+  --appmenu-button-padding: 6px;
   --appmenu-warning-background-color: #ffefbf;
   --appmenu-warning-background-color-hover: #ffe8a2;
   --appmenu-warning-background-color-active: #ffe38f;
   --appmenu-warning-color: black;
   --appmenu-warning-border-color: hsl(45, 100%, 77%);
-}
-
-@media (-moz-proton) {
-:root {
-  --panel-separator-margin: 4px 8px;
-  --arrowpanel-menuitem-border-radius: 3px;
-  --appmenu-button-padding: 6px;
 }
 
 /* UI Density customization */
@@ -37,7 +31,6 @@
 :root[uidensity="touch"] {
   --appmenu-button-padding: 9px;
 }
-} /** END Proton **/
 
 :root[lwt-popup-brighttext] {
   --appmenu-warning-background-color: hsla(55, 100%, 50%, .1);
@@ -72,19 +65,10 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
 
 /* This section is to anchor all the drop down panels at the same height, shift the
   panel`s top margin according to its positioning and the uidensity of the window. */
-@media not (-moz-proton) {
-#widget-overflow,
-#appMenu-popup {
-  margin-top: -6px;
-}
-} /** END not Proton **/
-
-@media (-moz-proton) {
 #widget-overflow,
 #appMenu-popup {
   margin-top: -4px;
 }
-} /** END Proton **/
 
 .panel-subview-body {
   overflow-y: auto;
@@ -92,12 +76,6 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   -moz-box-flex: 1;
   padding: 8px 0;
 }
-
-@media not (-moz-proton) {
-.panel-subview-body {
-  padding: 6px 0;
-}
-} /** END not Proton **/
 
 .panel-view-body-unscrollable {
   overflow: hidden;
@@ -125,12 +103,6 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   margin-inline: 0 3px;
   padding-inline: 7px;
 }
-
-@media not (-moz-proton) {
-#appmenu-edit-button {
-  margin-inline-start: 0;
-}
-} /** END not Proton **/
 
 #appmenu-edit-button::after {
   margin-inline-start: 0;
@@ -238,20 +210,6 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
   display: none;
 }
 
-@media not (-moz-proton) {
-.subview-subheader,
-panelview .toolbarbutton-1,
-.subviewbutton,
-.widget-overflow-list .toolbarbutton-1 {
-  appearance: none;
-  margin: 0;
-  min-height: 24px;
-  padding: 4px 12px;
-  background-color: transparent;
-}
-} /** END not Proton **/
-
-@media (-moz-proton) {
 .subview-subheader,
 panelview .toolbarbutton-1,
 .subviewbutton,
@@ -264,7 +222,6 @@ panelview .toolbarbutton-1,
   border-radius: var(--arrowpanel-menuitem-border-radius);
   background-color: transparent;
 }
-} /** END Proton **/
 
 .subviewbutton:focus {
   outline: 0;
@@ -356,13 +313,8 @@ panelview .toolbarbutton-1,
 panelmultiview .toolbaritem-combined-buttons > label {
   -moz-box-flex: 1;
   margin: 0;
-}
-
-@media (-moz-proton) {
-panelmultiview .toolbaritem-combined-buttons > label {
   padding-inline-start: 4px;
 }
-} /** END Proton **/
 
 panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
   width: 36px; /* 12px toolbarbutton padding + 16px icon + 8px label padding start */
@@ -378,18 +330,13 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   height: auto;
   margin-inline-start: 18px;
   min-width: auto;
-  padding: 4px 5px;
-}
-
-@media (-moz-proton) {
-.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton {
+  padding-inline: 5px;
   padding-block: var(--appmenu-button-padding);
 }
 
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic {
   padding-inline: var(--appmenu-button-padding);
 }
-} /** END Proton **/
 
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic > .toolbarbutton-text,
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-icon {
@@ -645,7 +592,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   padding: 10px;
 }
 
-@media (-moz-proton) {
 .subviewbutton-back {
   transform: translateY(1px);
   margin: 0 4px;
@@ -659,18 +605,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   width: 12px;
   height: 12px;
 }
-} /** End Proton **/
-
-@media not (-moz-proton) {
-.panel-header > .subviewbutton-back {
-  list-style-image: url("chrome://global/skin/icons/arrow-left.svg");
-  padding: 8px;
-}
-
-.subviewbutton-back:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
-}
-} /** END not Proton **/
 
 .subviewbutton-back > .toolbarbutton-text {
   /* !important to override .cui-widget-panel .toolbarbutton-text

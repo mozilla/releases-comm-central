@@ -128,16 +128,6 @@ toolbar[nowindowdrag="true"] {
   margin-inline-end: 6px;
 }
 
-@media not (-moz-proton) {
-#msgIdentity:focus,
-#msgIdentity:focus-within,
-#msgSubject:focus,
-.address-container[focused="true"] {
-  border-color: -moz-mac-focusring;
-  box-shadow: var(--focus-ring-box-shadow);
-}
-} /** END not Proton **/
-
 .address-label-container {
   padding-top: 7px;
 }
@@ -199,55 +189,6 @@ toolbar[nowindowdrag="true"] {
 #FormatToolbar toolbarseparator {
   background-image: none;
 }
-
-@media not (-moz-proton) {
-#FormatToolbar menulist {
-  appearance: none;
-  min-height: 24px;
-  color: inherit;
-  margin: 0 4px !important;
-  padding: 1px 6px;
-  border: 1px solid;
-  border-radius: var(--toolbarbutton-border-radius);
-  background: transparent;
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  transition: background-color 150ms;
-}
-
-#FormatToolbar menulist:not([disabled="true"],[open="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-  color: inherit;
-}
-
-#FormatToolbar menulist[open="true"] {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
-
-#FormatToolbar menulist[disabled="true"] {
-  opacity: .6;
-}
-
-#FormatToolbar menulist::part(label-box) {
-  appearance: none;
-  padding-inline-end: 12px;
-  background-repeat: no-repeat;
-  background-position: right;
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-#FormatToolbar menulist:-moz-locale-dir(rtl)::part(label-box) {
-  background-position: left;
-}
-
-#FormatToolbar menulist > menupopup {
-  margin-inline-start: 0;
-}
-} /** END not Proton **/
 
 toolbarbutton.formatting-button {
   margin-inline: 1px;

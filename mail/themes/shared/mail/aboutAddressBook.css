@@ -22,12 +22,6 @@
     :root {
       --in-content-categories-background: rgba(249, 249, 250, 0.1);
       --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
-    }
-  }
-
-  @media (-moz-proton) {
-  @media (prefers-color-scheme: dark) {
-    :root {
       --in-content-button-background: rgba(249, 249, 250, 0.1);
       --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
       --in-content-button-background-active: rgba(249, 249, 250, 0.2);
@@ -37,7 +31,6 @@
       --in-content-focus-outline-color: #45a1ff;
     }
   }
-  } /** END Proton **/
 }
 
 button {

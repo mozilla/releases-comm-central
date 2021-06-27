@@ -26,12 +26,6 @@
   --select-focus-text-color: HighlightText;
 }
 
-@media not (-moz-proton) {
-:root {
-  --toolbarbutton-border-radius: 2px;
-}
-} /** END not Proton **/
-
 :root:-moz-lwtheme {
   --panel-separator-color: hsla(210, 4%, 10%, .14);
 }
@@ -250,11 +244,9 @@ toolbar:not(.inline-toolbar,.contentTabToolbar,:-moz-lwtheme) {
   height: 23px;
 }
 
-@media (-moz-proton) {
 menulist {
   padding: 1px 6px !important;
 }
-} /** END Proton **/
 
 /*
  * Override the menulist icon forbidding in menu.css so that we can show

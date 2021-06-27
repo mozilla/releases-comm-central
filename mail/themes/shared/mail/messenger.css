@@ -34,9 +34,9 @@ body {
   --button-primary-hover-bgcolor: color-mix(in srgb, black 10%, -moz-accent-color);
   --button-primary-active-bgcolor: color-mix(in srgb, black 20%, -moz-accent-color);
   --button-primary-color: -moz-accent-color-foreground;
-  --checkbox-border-color: var(--input-border-color);
-  --checkbox-unchecked-bgcolor: var(--button-bgcolor);
-  --checkbox-unchecked-hover-bgcolor: var(--button-hover-bgcolor);
+  --checkbox-border-color: var(--lwt-toolbar-field-border-color, ThreeDDarkShadow);
+  --checkbox-unchecked-bgcolor: var(--lwt-toolbar-field-background-color, Field);
+  --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, -moz-accent-color 4%, var(--checkbox-unchecked-bgcolor));
   --checkbox-unchecked-active-bgcolor: var(--button-active-bgcolor);
   --checkbox-checked-border-color: transparent;
   --checkbox-checked-bgcolor: var(--button-primary-bgcolor);
@@ -53,6 +53,7 @@ body {
   --tab-min-height: 33px;
   --tabs-border-color: rgba(0, 0, 0, .3);
   --tabs-tabbar-border-size: 1px;
+  --toolbarbutton-border-radius: 3px;
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .05);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
@@ -68,21 +69,6 @@ body {
   --item-focus-selected-border-color: #0060df;
   --default: #4f526d;
   --primary: #0a84ff;
-}
-
-@media not (-moz-proton) {
-  :root {
-    --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
-    --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
-  }
-} /** END not Proton **/
-
-@media (-moz-proton) {
-:root {
-  --checkbox-unchecked-bgcolor: var(--lwt-toolbar-field-background-color, Field);
-  --checkbox-border-color: var(--lwt-toolbar-field-border-color, ThreeDDarkShadow);
-  --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, -moz-accent-color 4%, var(--checkbox-unchecked-bgcolor));
-  --toolbarbutton-border-radius: 3px;
 }
 
 @media not (prefers-contrast) {
@@ -104,7 +90,6 @@ body {
     --error-text-color: #c50042;
   }
 }
-} /** END Proton **/
 
 :root:-moz-locale-dir(rtl) {
   direction: rtl;
@@ -155,13 +140,6 @@ body {
   --default: #dcdcdc;
   --primary: #45b1ff;
 }
-
-@media not (-moz-proton) {
-:root[lwt-popup-brighttext] {
-  --arrowpanel-dimmed: rgba(249, 249, 250, .1);
-  --arrowpanel-dimmed-further: rgba(249, 249, 250, .15);
-}
-} /** END not Proton **/
 
 :root[lwt-popup-brighttext] {
   --autocomplete-popup-url-color: #0a84ff;
@@ -549,7 +527,6 @@ description.error {
   padding-inline-start: 4px;
 }
 
-@media (-moz-proton) {
 menulist {
   min-height: 24px;
   margin-block: 4px;
@@ -585,7 +562,6 @@ menulist[disabled="true"] {
 menulist::part(label-box) {
  font-weight: inherit;
 }
-}  /** END Proton **/
 
 /* Buttons */
 
@@ -634,23 +610,6 @@ button.icon-button[hidden] {
 button[type="menu-button"] {
   appearance: none;
 }
-
-@media not (-moz-proton) {
-.button-menu-list > .button-box {
-  appearance: none;
-  padding-inline-end: 14px;
-  background-repeat: no-repeat;
-  background-position: right;
-  background-size: 12px;
-  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-button.button-menu-list:-moz-locale-dir(rtl) > .button-box {
-  background-position: left;
-}
-} /** END not Proton **/
 
 button[type="menu-button"] > .button-box > button {
   appearance: none;
