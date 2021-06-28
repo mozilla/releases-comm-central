@@ -1066,7 +1066,7 @@ var calitip = {
       return null;
     }
 
-    return cal.provider.getImipTransport(item.calendar);
+    return item.calendar.getProperty("itip.transport");
   },
 };
 

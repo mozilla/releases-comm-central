@@ -787,16 +787,20 @@ add_task(function test_getImipTransport() {
   let calendarTransport = new CalItipEmailTransport(account1, identity1);
   event.calendar = {
     getProperty(key) {
-      return key == "imip.identity" ? identity1 : null;
-    },
-    getImipTransport() {
-      return calendarTransport;
+      switch (key) {
+        case "itip.transport":
+          return calendarTransport;
+        case "imip.idenity":
+          return identity1;
+        default:
+          return null;
+      }
     },
   };
 
   Assert.ok(
-    cal.itip.getImipTransport(event) == cal.provider.defaultImipTransport,
-    "returns the default transport when no X-MOZ-INVITED-ATTENDEE property"
+    cal.itip.getImipTransport(event) == calendarTransport,
+    "returns the calendar's transport when no X-MOZ-INVITED-ATTENDEE property"
   );
 
   // With X-MOZ-INVITED-ATTENDEE property.
