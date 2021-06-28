@@ -72,7 +72,7 @@ add_task(async function testEditEditableItem() {
       "editing event dialog opened"
     );
 
-    let iframe = doc.querySelector("#lightning-item-panel-iframe");
+    let iframe = doc.querySelector("#calendar-item-panel-iframe");
     await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
 
     let iframeDoc = iframe.contentDocument;

@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 """
-This script allows updating Lightning's zones.json.
+This script allows updating Calendar's zones.json.
   python update-zones.py --vzic /path/to/tzurl/vzic --tzdata /path/to/latest/tzdata
 
 You can also have the latest tzdata downloaded automatically:

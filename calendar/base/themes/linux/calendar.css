@@ -31,8 +31,8 @@
   padding-bottom: 5px;
 }
 
-/* Lightning sidebar in calendar and task mode */
-#ltnSidebar {
+/* Calendar sidebar background in calendar and task mode. */
+#calSidebar {
   background-color: Field;
 }
 

@@ -811,9 +811,8 @@ var calendarController2 = {
 };
 
 /**
- * Inserts the command controller into the document. On Lightning, also make
- * sure that it is inserted before the conflicting Thunderbird command
- * controller.
+ * Inserts the command controller into the document. Make sure that it is
+ * inserted before the conflicting Thunderbird command controller.
  */
 function injectCalendarCommandController() {
   calendarController.defaultController = document.getElementById("tabmail").tabController;

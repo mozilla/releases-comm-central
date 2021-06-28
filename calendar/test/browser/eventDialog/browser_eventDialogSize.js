@@ -141,7 +141,7 @@ registerCleanupFunction(function teardownModule(module) {
 
 // Check the dialog is resized large enough to hold the iframe.
 function checkLargeEnough(outerWindow, innerWindow) {
-  let iframeNode = outerWindow.document.getElementById("lightning-item-panel-iframe");
+  let iframeNode = outerWindow.document.getElementById("calendar-item-panel-iframe");
   let { scrollWidth, scrollHeight } = innerWindow.document.documentElement;
   controller.waitFor(() => {
     return (

@@ -21,7 +21,7 @@ window[systemcolors] > dialog {
   background-color: transparent;
 }
 
-:root:not([lwt-tree]):-moz-lwtheme #lightning-item-panel-iframe {
+:root:not([lwt-tree]):-moz-lwtheme #calendar-item-panel-iframe {
   background-color: -moz-Dialog;
 }
 #calendar-event-dialog-inner:-moz-lwtheme,

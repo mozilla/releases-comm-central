@@ -58,7 +58,7 @@ add_task(async () => {
 
   let eventWindow = await openEventWindow(calendar);
   let eventDocument = eventWindow.document;
-  let iframeDocument = eventDocument.getElementById("lightning-item-panel-iframe").contentDocument;
+  let iframeDocument = eventDocument.getElementById("calendar-item-panel-iframe").contentDocument;
 
   let eventStartTime = iframeDocument.getElementById("event-starttime");
   eventStartTime.value = times.ONE;
@@ -334,7 +334,7 @@ function openEventWindow(calendar) {
 
     let doc = win.document;
     if (doc.documentURI == "chrome://calendar/content/calendar-event-dialog.xhtml") {
-      let iframe = doc.getElementById("lightning-item-panel-iframe");
+      let iframe = doc.getElementById("calendar-item-panel-iframe");
       await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
       return true;
     }

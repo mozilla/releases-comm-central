@@ -6,28 +6,28 @@
       class="hide-when-calendar-deactivated"
       label="&lightning.menu.eventtask.label;"
       accesskey="&lightning.menu.eventtask.accesskey;">
-  <menupopup id="menu_Event_Task_Popup" onpopupshowing="changeMenuForTask(event); setupDeleteMenuitem('ltnDeleteSelectedCalendar')">
-    <menuitem id="ltnNewEvent2"
+  <menupopup id="menu_Event_Task_Popup" onpopupshowing="changeMenuForTask(event); setupDeleteMenuitem('calDeleteSelectedCalendar')">
+    <menuitem id="calNewEvent2"
               label="&event.new.event;"
               accesskey="&event.new.event.accesskey;"
               key="calendar-new-event-key"
               command="calendar_new_event_command"/>
-    <menuitem id="ltnNewTask2"
+    <menuitem id="calNewTask2"
               label="&event.new.task;"
               accesskey="&event.new.task.accesskey;"
               key="calendar-new-todo-key"
               command="calendar_new_todo_command"/>
     <menuseparator id="before-Calendar-Mode-Section"/>
-    <menuitem id="ltnMenuSwitchToCalendar"
+    <menuitem id="calMenuSwitchToCalendar"
               type="checkbox"
               label="&lightning.toolbar.calendar.label;"
               accesskey="&lightning.toolbar.calendar.accesskey;"
               command="switch2calendar"
               value="calendar"
-              key="openLightningKey"
+              key="openCalendarKey"
               autocheck="false">
     </menuitem>
-    <menuitem id="ltnMenuSwitchToTask"
+    <menuitem id="calMenuSwitchToTask"
               type="checkbox"
               label="&lightning.toolbar.task.label;"
               accesskey="&lightning.toolbar.task.accesskey;"
@@ -36,20 +36,20 @@
               key="openTasksKey"
               autocheck="false">
     </menuitem>
-    <menuseparator id="ltnBeforeCalendarSection"/>
-    <menuitem id="ltnExportCalendar"
+    <menuseparator id="calBeforeCalendarSection"/>
+    <menuitem id="calExportCalendar"
               label="&calendar.export.label;"
               accesskey="&calendar.export.accesskey;"
               command="calendar_export_command"/>
-    <menuitem id="ltnImportCalendar"
+    <menuitem id="calImportCalendar"
               label="&calendar.import.label;"
               accesskey="&calendar.import.accesskey;"
               command="calendar_import_command"/>
-    <menuitem id="ltnPublishCalendar"
+    <menuitem id="calPublishCalendar"
               label="&calendar.publish.label;"
               accesskey="&calendar.publish.accesskey;"
               command="calendar_publish_calendar_command"/>
-    <menuitem id="ltnDeleteSelectedCalendar"
+    <menuitem id="calDeleteSelectedCalendar"
               labeldelete="&calendar.deletecalendar.label;"
               labelremove="&calendar.removecalendar.label;"
               labelunsubscribe="&calendar.unsubscribecalendar.label;"
@@ -57,45 +57,45 @@
               accesskeyremove="&calendar.removecalendar.accesskey;"
               accesskeyunsubscribe="&calendar.unsubscribecalendar.accesskey;"
               command="calendar_delete_calendar_command"/>
-    <menuseparator id="ltnBeforeTaskActions"/>
-    <menuitem id="ltnTaskActionsMarkCompletedMenuitem"
+    <menuseparator id="calBeforeTaskActions"/>
+    <menuitem id="calTaskActionsMarkCompletedMenuitem"
               type="checkbox"
               label="&calendar.context.markcompleted.label;"
               accesskey="&calendar.context.markcompleted.accesskey;"
               command="calendar_toggle_completed_command"/>
-    <menu id="ltnTaskActionsPriorityMenuitem"
+    <menu id="calTaskActionsPriorityMenuitem"
           label="&calendar.context.priority.label;"
           accesskey="&calendar.context.priority.accesskey;"
           command="calendar_general-priority_command">
       <menupopup is="calendar-task-priority-menupopup"/>
     </menu>
-    <menu id="ltnTaskActionsProgressMenuitem"
+    <menu id="calTaskActionsProgressMenuitem"
           label="&calendar.context.progress.label;"
           accesskey="&calendar.context.progress.accesskey;"
           command="calendar_general-progress_command">
       <menupopup is="calendar-task-progress-menupopup"/>
     </menu>
-    <menu id="ltnTaskActionsPostponeMenuitem"
+    <menu id="calTaskActionsPostponeMenuitem"
           label="&calendar.context.postpone.label;"
           accesskey="&calendar.context.postpone.accesskey;"
           command="calendar_general-postpone_command">
-      <menupopup id="ltnTaskActionsPostponeMenuPopup">
-        <menuitem id="ltnTaskActionsPostponeMenu-1hour"
+      <menupopup id="calTaskActionsPostponeMenuPopup">
+        <menuitem id="calTaskActionsPostponeMenu-1hour"
                   label="&calendar.context.postpone.1hour.label;"
                   accesskey="&calendar.context.postpone.1hour.accesskey;"
                   command="calendar_postpone-1hour_command"/>
-        <menuitem id="ltnTaskActionsPostponeMenu-1day"
+        <menuitem id="calTaskActionsPostponeMenu-1day"
                   label="&calendar.context.postpone.1day.label;"
                   accesskey="&calendar.context.postpone.1day.accesskey;"
                   command="calendar_postpone-1day_command"/>
-        <menuitem id="ltnTaskActionsPostponeMenu-1week"
+        <menuitem id="calTaskActionsPostponeMenu-1week"
                   label="&calendar.context.postpone.1week.label;"
                   accesskey="&calendar.context.postpone.1week.accesskey;"
                   command="calendar_postpone-1week_command"/>
       </menupopup>
     </menu>
-    <menuseparator id="ltnBeforeUnifinderSection" />
-    <menuitem id="ltnShowUnifinder"
+    <menuseparator id="calBeforeUnifinderSection" />
+    <menuitem id="calShowUnifinder"
               type="checkbox"
               checked="true"
               label="&showUnifinderCmd.label;"

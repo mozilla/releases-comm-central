@@ -15,7 +15,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  */
 const imipBar = {
   get bar() {
-    return document.querySelector(".lightning-notification-bar");
+    return document.querySelector(".calendar-notification-bar");
   },
   get label() {
     return this.bar.querySelector(".msgNotificationBarText").textContent;
@@ -35,7 +35,7 @@ const imipBar = {
  * This bar lives inside the message window.
  * Its lifetime is the lifetime of the main thunderbird message window.
  */
-var ltnImipBar = {
+var calImipBar = {
   actionFunc: null,
   itipItem: null,
   foundItems: null,
@@ -45,7 +45,7 @@ var ltnImipBar = {
    * Thunderbird Message listener interface, hide the bar before we begin
    */
   onStartHeaders() {
-    ltnImipBar.resetBar();
+    calImipBar.resetBar();
   },
 
   /**
@@ -59,21 +59,21 @@ var ltnImipBar = {
    */
   load() {
     // Add a listener to gMessageListeners defined in msgHdrView.js
-    gMessageListeners.push(ltnImipBar);
+    gMessageListeners.push(calImipBar);
 
     // We need to extend the HideMessageHeaderPane function to also hide the
     // message header pane. Otherwise, the imip bar will still be shown when
     // changing folders.
-    if (!ltnImipBar.tbHideMessageHeaderPane) {
-      ltnImipBar.tbHideMessageHeaderPane = HideMessageHeaderPane;
+    if (!calImipBar.tbHideMessageHeaderPane) {
+      calImipBar.tbHideMessageHeaderPane = HideMessageHeaderPane;
       HideMessageHeaderPane = function(...args) {
-        ltnImipBar.resetBar();
-        ltnImipBar.tbHideMessageHeaderPane(...args);
+        calImipBar.resetBar();
+        calImipBar.tbHideMessageHeaderPane(...args);
       };
     }
 
     // Set up our observers
-    Services.obs.addObserver(ltnImipBar, "onItipItemCreation");
+    Services.obs.addObserver(calImipBar, "onItipItemCreation");
   },
 
   /**
@@ -81,11 +81,11 @@ var ltnImipBar = {
    * NOTE: This function is called without a valid this-context!
    */
   unload() {
-    removeEventListener("messagepane-loaded", ltnImipBar.load, true);
-    removeEventListener("messagepane-unloaded", ltnImipBar.unload, true);
+    removeEventListener("messagepane-loaded", calImipBar.load, true);
+    removeEventListener("messagepane-unloaded", calImipBar.unload, true);
 
-    ltnImipBar.resetBar();
-    Services.obs.removeObserver(ltnImipBar, "onItipItemCreation");
+    calImipBar.resetBar();
+    Services.obs.removeObserver(calImipBar, "onItipItemCreation");
   },
 
   observe(subject, topic, state) {
@@ -100,7 +100,7 @@ var ltnImipBar = {
       try {
         if (!subject) {
           let sinkProps = msgWindow.msgHeaderSink.properties;
-          // This property was set by lightningTextCalendarConverter.js
+          // This property was set by CalMimeConverter.jsm.
           itipItem = sinkProps.getPropertyAsInterface("itipItem", Ci.calIItipItem);
           msgOverlay = sinkProps.getPropertyAsAUTF8String("msgOverlay");
         }
@@ -119,9 +119,9 @@ var ltnImipBar = {
       imipBar.collapsed = false;
       imipBar.label = cal.itip.getMethodText(itipItem.receivedMethod);
 
-      ltnImipBar.msgOverlay = msgOverlay;
+      calImipBar.msgOverlay = msgOverlay;
 
-      cal.itip.processItipItem(itipItem, ltnImipBar.setupOptions);
+      cal.itip.processItipItem(itipItem, calImipBar.setupOptions);
     }
   },
 
@@ -130,21 +130,21 @@ var ltnImipBar = {
    */
   resetBar() {
     imipBar.collapsed = true;
-    ltnImipBar.resetButtons();
+    calImipBar.resetButtons();
 
     // Clear our iMIP/iTIP stuff so it doesn't contain stale information.
-    cal.itip.cleanupItipItem(ltnImipBar.itipItem);
-    ltnImipBar.itipItem = null;
+    cal.itip.cleanupItipItem(calImipBar.itipItem);
+    calImipBar.itipItem = null;
   },
 
   /**
    * Resets all buttons and its menuitems, all buttons are hidden thereafter
    */
   resetButtons() {
-    let buttons = ltnImipBar.getButtons();
+    let buttons = calImipBar.getButtons();
     for (let button of buttons) {
       button.setAttribute("hidden", "true");
-      for (let item of ltnImipBar.getMenuItems(button)) {
+      for (let item of calImipBar.getMenuItems(button)) {
         item.removeAttribute("hidden");
       }
     }
@@ -183,12 +183,12 @@ var ltnImipBar = {
    */
   conformButtonType() {
     // check only needed on visible and not simple buttons
-    let buttons = ltnImipBar
+    let buttons = calImipBar
       .getButtons()
       .filter(aElement => aElement.hasAttribute("type") && !aElement.hidden);
     // change button if appropriate
     for (let button of buttons) {
-      let items = ltnImipBar.getMenuItems(button).filter(aItem => !aItem.hidden);
+      let items = calImipBar.getMenuItems(button).filter(aItem => !aItem.hidden);
       if (button.type == "menu" && items.length == 0) {
         // hide non functional buttons
         button.hidden = true;
@@ -221,9 +221,9 @@ var ltnImipBar = {
     let data = cal.itip.getOptionsText(itipItem, rc, actionFunc, foundItems);
 
     if (Components.isSuccessCode(rc)) {
-      ltnImipBar.itipItem = itipItem;
-      ltnImipBar.actionFunc = actionFunc;
-      ltnImipBar.foundItems = foundItems;
+      calImipBar.itipItem = itipItem;
+      calImipBar.actionFunc = actionFunc;
+      calImipBar.foundItems = foundItems;
     }
 
     // We need this to determine whether this is an outgoing or incoming message because
@@ -249,7 +249,7 @@ var ltnImipBar = {
     // We override the bar label for sent out invitations and in case the event does not exist
     // anymore, we also clear the buttons if any to avoid e.g. accept/decline buttons
     if (isOutgoing(gMessageDisplay.displayedMessage)) {
-      if (ltnImipBar.foundItems && ltnImipBar.foundItems[0]) {
+      if (calImipBar.foundItems && calImipBar.foundItems[0]) {
         data.label = cal.l10n.getLtnString("imipBarSentText");
       } else {
         data = {
@@ -264,7 +264,7 @@ var ltnImipBar = {
 
     imipBar.label = data.label;
     // let's reset all buttons first
-    ltnImipBar.resetButtons();
+    calImipBar.resetButtons();
     // now we update the visible items - buttons are hidden by default
     // apart from that, we need this to adapt the accept button depending on
     // whether three or four button style is present
@@ -275,8 +275,8 @@ var ltnImipBar = {
       document.getElementById(item).removeAttribute("hidden");
     }
     // adjust button style if necessary
-    ltnImipBar.conformButtonType();
-    ltnImipBar.displayModifications();
+    calImipBar.conformButtonType();
+    calImipBar.displayModifications();
   },
 
   /**
@@ -284,23 +284,23 @@ var ltnImipBar = {
    */
   displayModifications() {
     if (
-      !ltnImipBar.msgOverlay ||
+      !calImipBar.msgOverlay ||
       !msgWindow ||
-      !ltnImipBar.foundItems ||
-      !ltnImipBar.foundItems[0] ||
-      !ltnImipBar.itipItem
+      !calImipBar.foundItems ||
+      !calImipBar.foundItems[0] ||
+      !calImipBar.itipItem
     ) {
       return;
     }
 
-    let msgOverlay = ltnImipBar.msgOverlay;
-    let diff = cal.itip.compare(ltnImipBar.itipItem.getItemList()[0], ltnImipBar.foundItems[0]);
+    let msgOverlay = calImipBar.msgOverlay;
+    let diff = cal.itip.compare(calImipBar.itipItem.getItemList()[0], calImipBar.foundItems[0]);
     // displaying changes is only needed if that is enabled, an item already exists and there are
     // differences
     if (diff != 0 && Services.prefs.getBoolPref("calendar.itip.displayInvitationChanges", false)) {
       let foundOverlay = cal.invitation.createInvitationOverlay(
-        ltnImipBar.foundItems[0],
-        ltnImipBar.itipItem
+        calImipBar.foundItems[0],
+        calImipBar.itipItem
       );
       let serializedOverlay = cal.xml.serializeDOM(foundOverlay);
       if (diff == 1) {
@@ -345,7 +345,7 @@ var ltnImipBar = {
         }
         // hide the buttons now, to disable pressing them twice...
         if (aPartStat == aParticipantStatus) {
-          ltnImipBar.resetButtons();
+          calImipBar.resetButtons();
         }
 
         let opListener = {
@@ -364,15 +364,15 @@ var ltnImipBar = {
                 let status = true;
                 if (
                   attendees.length == 1 &&
-                  ltnImipBar.foundItems &&
-                  ltnImipBar.foundItems.length
+                  calImipBar.foundItems &&
+                  calImipBar.foundItems.length
                 ) {
                   // we must return a message with the same sequence number as the
                   // counterproposal - to make it easy, we simply use the received
                   // item and just remove a comment, if any
                   try {
                     let item = aItem.clone();
-                    item.calendar = ltnImipBar.foundItems[0].calendar;
+                    item.calendar = calImipBar.foundItems[0].calendar;
                     item.deleteProperty("COMMENT");
                     // once we have full support to deal with for multiple items
                     // in a received invitation message, we should send this
@@ -418,14 +418,14 @@ var ltnImipBar = {
     }
     if (aParticipantStatus == "X-SHOWDETAILS" || aParticipantStatus == "X-RESCHEDULE") {
       let counterProposal;
-      let items = ltnImipBar.foundItems;
+      let items = calImipBar.foundItems;
       if (items && items.length) {
         let item = items[0].isMutable ? items[0] : items[0].clone();
 
         if (aParticipantStatus == "X-RESCHEDULE") {
           // TODO most of the following should be moved to the actionFunc defined in
           // calItipUtils
-          let proposedItem = ltnImipBar.itipItem.getItemList()[0];
+          let proposedItem = calImipBar.itipItem.getItemList()[0];
           let proposedRID = proposedItem.getProperty("RECURRENCE-ID");
           if (proposedRID) {
             // if this is a counterproposal for a specific occurrence, we use
@@ -435,7 +435,7 @@ var ltnImipBar = {
           let parsedProposal = cal.invitation.parseCounter(proposedItem, item);
           let potentialProposers = cal.itip.getAttendeesBySender(
             proposedItem.getAttendees(),
-            ltnImipBar.itipItem.sender
+            calImipBar.itipItem.sender
           );
           let proposingAttendee = potentialProposers.length == 1 ? potentialProposers[0] : null;
           if (
@@ -454,7 +454,7 @@ var ltnImipBar = {
             };
           } else {
             imipBar.label = cal.l10n.getLtnString("imipBarCounterErrorText");
-            ltnImipBar.resetButtons();
+            calImipBar.resetButtons();
             if (proposingAttendee) {
               cal.LOG(parsedProposal.result.descr);
             } else {
@@ -482,7 +482,7 @@ var ltnImipBar = {
       let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
         Ci.calIDeletedItems
       );
-      let items = ltnImipBar.itipItem.getItemList();
+      let items = calImipBar.itipItem.getItemList();
       if (items && items.length) {
         let delTime = delmgr.getDeletedDate(items[0].id);
         let dialogText = cal.l10n.getLtnString("confirmProcessInvitation");
@@ -494,12 +494,12 @@ var ltnImipBar = {
 
       if (aParticipantStatus == "X-SAVECOPY") {
         // we create and adopt copies of the respective events
-        let saveitems = ltnImipBar.itipItem
+        let saveitems = calImipBar.itipItem
           .getItemList()
           .map(cal.itip.getPublishLikeItemCopy.bind(cal));
         if (saveitems.length > 0) {
           let methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
-          let newItipItem = cal.itip.getModifiedItipItem(ltnImipBar.itipItem, saveitems, methods);
+          let newItipItem = cal.itip.getModifiedItipItem(calImipBar.itipItem, saveitems, methods);
           // control to avoid processing _execAction on later user changes on the item
           let isFirstProcessing = true;
           // setup callback and trigger re-processing
@@ -515,8 +515,8 @@ var ltnImipBar = {
         return false;
       }
       return _execAction(
-        ltnImipBar.actionFunc,
-        ltnImipBar.itipItem,
+        calImipBar.actionFunc,
+        calImipBar.itipItem,
         window,
         aParticipantStatus,
         response
@@ -532,8 +532,8 @@ var ltnImipBar = {
   doNotShowImipBar() {
     Services.prefs.setBoolPref("calendar.itip.showImipBar", false);
     for (let window of Services.ww.getWindowEnumerator()) {
-      if (window.ltnImipBar) {
-        window.ltnImipBar.resetBar();
+      if (window.calImipBar) {
+        window.calImipBar.resetBar();
       }
     }
   },
@@ -568,10 +568,10 @@ var ltnImipBar = {
       let calStartupObserver = {
         observe(subject, topic, data) {
           openCal(mainWindow);
-          Services.obs.removeObserver(calStartupObserver, "lightning-startup-done");
+          Services.obs.removeObserver(calStartupObserver, "calendar-startup-done");
         },
       };
-      Services.obs.addObserver(calStartupObserver, "lightning-startup-done");
+      Services.obs.addObserver(calStartupObserver, "calendar-startup-done");
     }
   },
 };
@@ -579,9 +579,9 @@ var ltnImipBar = {
 {
   let msgHeaderView = document.getElementById("msgHeaderView");
   if (msgHeaderView && msgHeaderView.loaded) {
-    ltnImipBar.load();
+    calImipBar.load();
   } else {
-    addEventListener("messagepane-loaded", ltnImipBar.load, true);
+    addEventListener("messagepane-loaded", calImipBar.load, true);
   }
 }
-addEventListener("messagepane-unloaded", ltnImipBar.unload, true);
+addEventListener("messagepane-unloaded", calImipBar.unload, true);

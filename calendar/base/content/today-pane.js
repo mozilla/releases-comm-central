@@ -104,7 +104,7 @@ var TodayPane = {
 
     // Disable or enable the today pane menuitems that have an attribute
     // name="minidisplay" depending on the visibility of elements.
-    let menupopup = document.getElementById("ltnTodayPaneMenuPopup");
+    let menupopup = document.getElementById("calTodayPaneMenuPopup");
     if (menupopup) {
       for (let child of menupopup.children) {
         if (child.getAttribute("name") == "minidisplay") {

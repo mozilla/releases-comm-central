@@ -146,7 +146,7 @@ async function loadCalendarComponent() {
   taskViewOnLoad();
   taskEdit.onLoad();
 
-  Services.obs.notifyObservers(window, "lightning-startup-done");
+  Services.obs.notifyObservers(window, "calendar-startup-done");
 }
 
 /**
@@ -250,20 +250,20 @@ function setUpCalendarAppMenuButtons() {
  */
 function refreshEventsAndTasksMenu(event) {
   changeMenuForTask(event);
-  setupDeleteMenuitem("appmenu_ltnDeleteSelectedCalendar");
+  setupDeleteMenuitem("appmenu_calDeleteSelectedCalendar");
 
   // Refresh the "disabled" property of the Progress and Priority menu items. Needed because if
   // the menu items (toolbarbuttons) are given a "command" or "observes" attribute that is set to
   // their respective commands, then their "oncommand" attribute is automatically overwritten
   // (because the commands have an oncommand attribute).  And then the sub-menus will not open.
   document.getElementById(
-    "appmenu_ltnTaskActionsPriorityMenuitem"
+    "appmenu_calTaskActionsPriorityMenuitem"
   ).disabled = document
     .getElementById("calendar_general-priority_command")
     .hasAttribute("disabled");
 
   document.getElementById(
-    "appmenu_ltnTaskActionsProgressMenuitem"
+    "appmenu_calTaskActionsProgressMenuitem"
   ).disabled = document
     .getElementById("calendar_general-progress_command")
     .hasAttribute("disabled");
@@ -281,7 +281,7 @@ function setUpCalendarAppMenuItems() {
 
   // Refresh the "View" / "Calendar" / "Calendar Pane" menu when it is shown.
   document
-    .getElementById("appmenu_ltnCalendarPaneView")
+    .getElementById("appmenu_calCalendarPaneView")
     .addEventListener("ViewShowing", initViewCalendarPaneMenu);
 }
 
@@ -471,7 +471,7 @@ function updateTodayPaneButton() {
   todaypane.replaceChild(iconStack, oldImage);
   todaypane.appendChild(iconEnd);
 
-  let calSidebar = document.getElementById("ltnSidebar");
+  let calSidebar = document.getElementById("calSidebar");
   todaypane.setAttribute("checked", !calSidebar.collapsed);
 }
 
@@ -562,11 +562,11 @@ function customizeMailToolbarForTabType() {
  * Initialize the calendar sidebar menu state.
  */
 function initViewCalendarPaneMenu() {
-  let calSidebar = document.getElementById("ltnSidebar");
+  let calSidebar = document.getElementById("calSidebar");
 
-  document.getElementById("ltnViewCalendarPane").checked = !calSidebar.collapsed;
+  document.getElementById("calViewCalendarPane").checked = !calSidebar.collapsed;
 
-  if (document.getElementById("appmenu_ltnViewCalendarPane")) {
-    document.getElementById("appmenu_ltnViewCalendarPane").checked = !calSidebar.collapsed;
+  if (document.getElementById("appmenu_calViewCalendarPane")) {
+    document.getElementById("appmenu_calViewCalendarPane").checked = !calSidebar.collapsed;
   }
 }

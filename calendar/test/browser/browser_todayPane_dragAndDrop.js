@@ -70,7 +70,7 @@ add_task(async function testDropMozMessage() {
     .dispatchEvent(new DragEvent("drop", { dataTransfer }));
 
   let eventWindow = await promise;
-  let iframe = eventWindow.document.querySelector("#lightning-item-panel-iframe");
+  let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
   let iframeDoc = iframe.contentDocument;
 
   Assert.equal(
@@ -123,7 +123,7 @@ add_task(async function testMozAddressDrop() {
     .dispatchEvent(new DragEvent("drop", { dataTransfer }));
 
   let eventWindow = await promise;
-  let iframe = eventWindow.document.querySelector("#lightning-item-panel-iframe");
+  let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
   let iframeWin = iframe.cotnentWindow;
   let iframeDoc = iframe.contentDocument;
 
@@ -167,7 +167,7 @@ add_task(async function testPlainTextICSDrop() {
     .dispatchEvent(new DragEvent("drop", { dataTransfer }));
 
   let eventWindow = await promise;
-  let iframe = eventWindow.document.querySelector("#lightning-item-panel-iframe");
+  let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
   let iframeDoc = iframe.contentDocument;
   Assert.equal(iframeDoc.querySelector("#item-title").value, "An Event");
 
@@ -205,7 +205,7 @@ add_task(async function testICSFileDrop() {
   window.calendarCalendarButtonDNDObserver.onExternalDrop(dataTransfer);
 
   let eventWindow = await promise;
-  let iframe = eventWindow.document.querySelector("#lightning-item-panel-iframe");
+  let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
   let iframeDoc = iframe.contentDocument;
 
   Assert.equal(iframeDoc.querySelector("#item-title").value, "An Event");
@@ -246,7 +246,7 @@ add_task(async function testOtherFileDrop() {
     .dispatchEvent(new DragEvent("drop", { dataTransfer }));
 
   let eventWindow = await promise;
-  let iframe = eventWindow.document.querySelector("#lightning-item-panel-iframe");
+  let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
   let iframeWin = iframe.contentWindow;
   let iframeDoc = iframe.contentDocument;
 

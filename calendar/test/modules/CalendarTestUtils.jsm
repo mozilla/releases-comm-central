@@ -792,7 +792,7 @@ const CalendarTestUtils = {
     button.click();
 
     let dialogWindow = await promise;
-    let iframe = dialogWindow.document.querySelector("#lightning-item-panel-iframe");
+    let iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
     return {
       dialogWindow,
       dialogDocument: dialogWindow.document,
@@ -866,7 +866,7 @@ const CalendarTestUtils = {
       }
 
       if (mode === "edit") {
-        let iframe = win.document.getElementById("lightning-item-panel-iframe");
+        let iframe = win.document.getElementById("calendar-item-panel-iframe");
         await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
       }
       return true;

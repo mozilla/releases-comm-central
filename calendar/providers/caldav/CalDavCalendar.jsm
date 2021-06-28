@@ -2333,7 +2333,7 @@ CalDavCalendar.prototype = {
       }
       if (recipients.length) {
         // We return the imip scheduling status here as any remaining calendar user will be
-        // notified by the server without Lightning receiving a status in the first place.
+        // notified by the server without receiving a status in the first place.
         // We maybe could inspect the scheduling status of those attendees when
         // re-retriving the modified event and try to do imip schedule on any status code
         // other then 1.0, 1.1 or 1.2 - but I leave without that for now.

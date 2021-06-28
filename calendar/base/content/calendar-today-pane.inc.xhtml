@@ -44,14 +44,14 @@
       <calendar-modebox id="today-none-box"
                         mode="mail,calendar,task,chat,calendarEvent,calendarTask"
                         collapsedinmodes="mail,calendar,task,chat,calendarEvent,calendarTask"
-                        refcontrol="ltnTodayPaneDisplayNone"
+                        refcontrol="calTodayPaneDisplayNone"
                         persist="collapsedinmodes"/>
       <calendar-modebox id="today-minimonth-box"
                         pack="center"
                         class="today-subpane"
                         mode="mail,calendar,task,chat,calendarEvent,calendarTask"
                         collapsedinmodes="mail,calendar,task,chat,calendarEvent,calendarTask"
-                        refcontrol="ltnTodayPaneDisplayMinimonth"
+                        refcontrol="calTodayPaneDisplayMinimonth"
                         persist="collapsedinmodes">
         <calendar-minimonth id="today-minimonth"
                             onchange="TodayPane.setDaywithjsDate(this.value);"/>
@@ -59,7 +59,7 @@
       <calendar-modebox id="mini-day-box"
                         mode="mail,calendar,task,chat,calendarEvent,calendarTask"
                         class="today-subpane"
-                        refcontrol="ltnTodayPaneDisplayMiniday"
+                        refcontrol="calTodayPaneDisplayMiniday"
                         collapsedinmodes=""
                         persist="collapsedinmodes"
                         onDOMMouseScroll="TodayPane.advance(event.detail > 0 ? 1 : -1);">

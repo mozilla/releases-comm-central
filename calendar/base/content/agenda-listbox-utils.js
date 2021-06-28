@@ -1114,7 +1114,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
 
 /**
  * Gets a right value for calendar.agendaListbox.soondays preference, avoid
- * erroneous values edited in the lightning.js preference file
+ * erroneous values edited in the calendar.js preference file
  **/
 function getSoondaysPreference() {
   let prefName = "calendar.agendaListbox.soondays";

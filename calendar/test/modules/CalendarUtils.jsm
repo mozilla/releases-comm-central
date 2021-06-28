@@ -24,12 +24,11 @@ const EXPORTED_SYMBOLS = [
   "closeAllEventDialogs",
   "deleteCalendars",
   "createCalendar",
-  "openLightningPrefs",
-  "closeLightningPrefs",
+  "openCalendarPrefs",
+  "closeCalendarPrefs",
   "controller",
 ];
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { MozMillController } = ChromeUtils.import("resource://testing-common/mozmill/controller.jsm");
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
@@ -367,10 +366,10 @@ function waitForItemPanelIframe(eventController) {
   let iframe;
   eventController.waitFor(
     () => {
-      iframe = eventController.window.document.getElementById("lightning-item-panel-iframe");
+      iframe = eventController.window.document.getElementById("calendar-item-panel-iframe");
       return iframe && iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded;
     },
-    "lightning-item-panel-iframe did not load in time",
+    "calendar-item-panel-iframe did not load in time",
     10000
   );
   return iframe;
@@ -460,19 +459,10 @@ function createCalendar(controller, name) {
   return calendar.id;
 }
 
-function openLightningPrefs(aCallback, aParentController) {
-  // Since the Lightning pane is added after load, asking for it with open_pref_tab won't work.
-  // Cheat instead.
-  let tab = open_pref_tab("paneGeneral");
-  let categoryBox = tab.browser.contentDocument.getElementById("pref-category-box");
-  categoryBox.querySelector('radio[pane="paneCalendar"]').click();
-  utils.waitFor(
-    () => tab.browser.contentWindow.gLastCategory.category == "paneCalendar",
-    "Timed out waiting for paneCalendar to load."
-  );
-  aCallback(tab);
+function openCalendarPrefs(aCallback, aParentController) {
+  aCallback(open_pref_tab("paneCalendar"));
 }
 
-function closeLightningPrefs(tab) {
+function closeCalendarPrefs(tab) {
   close_pref_tab(tab);
 }

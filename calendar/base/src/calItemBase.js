@@ -420,7 +420,7 @@ calItemBase.prototype = {
   set descriptionHTML(html) {
     if (html) {
       // Using the same mode as the HTML description editor
-      // in lightning-item-iframe.js
+      // in calendar-item-iframe.js
       let mode =
         Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
         Ci.nsIDocumentEncoder.OutputWrap |

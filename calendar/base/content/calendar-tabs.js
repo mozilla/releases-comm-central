@@ -178,7 +178,7 @@ var calendarItemTabType = {
     // Create a clone to use for this tab. Remove the cloned toolbox
     // and move the original toolbox into its place. There is only
     // one toolbox/toolbar so its settings are the same for all item tabs.
-    let original = document.getElementById("lightningItemPanel").firstElementChild;
+    let original = document.getElementById("calendarItemPanel").firstElementChild;
     let clone = original.cloneNode(true);
 
     clone.querySelector("toolbox").remove();
@@ -194,7 +194,7 @@ var calendarItemTabType = {
     aTab.panel.appendChild(clone);
 
     // Set up the iframe and store the iframe's id.  The iframe's
-    // src is set in onLoadLightningItemPanel() that is called below.
+    // src is set in onLoadCalendarItemPanel() that is called below.
     aTab.iframe = aTab.panel.querySelector("iframe");
     let iframeId = "calendarItemTabIframe" + this.idNumber;
     aTab.iframe.setAttribute("id", iframeId);
@@ -224,7 +224,7 @@ var calendarItemTabType = {
     // activate or de-activate 'Events and Tasks' menu items
     document.commandDispatcher.updateCommands("calendar_commands");
 
-    onLoadLightningItemPanel(iframeId, aArgs.url);
+    onLoadCalendarItemPanel(iframeId, aArgs.url);
 
     this.idNumber += 1;
   },
@@ -245,7 +245,7 @@ var calendarItemTabType = {
       item.setAttribute("collapsed", true);
     }
     // move toolbox to the place where it can be accessed later
-    let to = document.getElementById("lightningItemPanel").firstElementChild;
+    let to = document.getElementById("calendarItemPanel").firstElementChild;
     moveEventToolbox(to);
   },
   /**

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported gLightningPane */
+/* exported gCalendarPane */
 
 /* import-globals-from alarms.js */
 /* import-globals-from categories.js */
@@ -12,7 +12,7 @@
 
 Preferences.add({ id: "calendar.preferences.lightning.selectedTabIndex", type: "int" });
 
-var gLightningPane = {
+var gCalendarPane = {
   init() {
     let elements = document.querySelectorAll("#paneCalendar preference");
     for (let element of elements) {

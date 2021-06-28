@@ -56,7 +56,7 @@ add_task(async function testAttachWebPage() {
   let eventWin = await getEventWin;
 
   // Give the new event a title.
-  let iframe = eventWin.document.querySelector("#lightning-item-panel-iframe");
+  let iframe = eventWin.document.querySelector("#calendar-item-panel-iframe");
   let titleElement = iframe.contentDocument.querySelector("#item-title");
   EventUtils.synthesizeMouseAtCenter(titleElement, {}, iframe.contentWindow);
   EventUtils.sendString("Web Link Event", iframe.contentWindow);
@@ -180,7 +180,7 @@ add_task(async function testAttachProvider() {
   let eventWin = await getEventWin;
 
   // Give the new event a title.
-  let iframe = eventWin.document.querySelector("#lightning-item-panel-iframe");
+  let iframe = eventWin.document.querySelector("#calendar-item-panel-iframe");
   let titleElement = iframe.contentDocument.querySelector("#item-title");
   EventUtils.synthesizeMouseAtCenter(titleElement, {}, iframe.contentWindow);
   EventUtils.sendString("Provider Attachment Event", iframe.contentWindow);
@@ -222,7 +222,7 @@ add_task(async function testAttachProvider() {
   );
 
   // Click on the attachments tab of the event dialog.
-  iframe = eventWin.document.querySelector("#lightning-item-panel-iframe");
+  iframe = eventWin.document.querySelector("#calendar-item-panel-iframe");
   EventUtils.synthesizeMouseAtCenter(
     iframe.contentDocument.querySelector("#event-grid-tab-attachments"),
     {},

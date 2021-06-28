@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoadLightningItemPanel, onCancel, onCommandSave,
+/* exported onLoadCalendarItemPanel, onCancel, onCommandSave,
  *          onCommandDeleteItem, editAttendees, editPrivacy, editPriority,
  *          editStatus, editShowTimeAs, updateShowTimeAs, editToDoStatus,
  *          postponeTask, toggleTimezoneLinks, attachURL,
  *          onCommandViewToolbar, onCommandCustomize, attachFileByAccountKey,
- *          onUnloadLightningItemPanel, openNewEvent, openNewTask,
+ *          onUnloadCalendarItemPanel, openNewEvent, openNewTask,
  *          openNewMessage, openNewCardDialog
  */
 
@@ -155,7 +155,7 @@ window.addEventListener("message", receiveMessage);
 function sendMessage(aMessage, aIframeId) {
   let iframeId = gTabmail
     ? aIframeId || gTabmail.currentTabInfo.iframe.id
-    : "lightning-item-panel-iframe";
+    : "calendar-item-panel-iframe";
   let iframe = document.getElementById(iframeId);
   iframe.contentWindow.postMessage(aMessage, "*");
 }
@@ -201,7 +201,7 @@ function windowCloseListener(aEvent) {
  * @param {string} aIframeId  (optional) Id of the iframe in this tab
  * @param {string} aUrl       (optional) The url to load in the iframe
  */
-function onLoadLightningItemPanel(aIframeId, aUrl) {
+function onLoadCalendarItemPanel(aIframeId, aUrl) {
   let iframe;
   let iframeSrc;
   let dialog = document.querySelector("dialog");
@@ -222,7 +222,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
     iframe = document.createXULElement("iframe");
     iframeSrc = "chrome://calendar/content/calendar-item-iframe.xhtml";
 
-    iframe.setAttribute("id", "lightning-item-panel-iframe");
+    iframe.setAttribute("id", "calendar-item-panel-iframe");
     iframe.setAttribute("flex", "1");
 
     let statusbar = document.getElementById("status-bar");
@@ -328,7 +328,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
  * Unload handler for the outer parent context that contains the iframe.
  * Currently only called for windows and not tabs.
  */
-function onUnloadLightningItemPanel() {
+function onUnloadCalendarItemPanel() {
   if (!gTabmail) {
     // window dialog case
     if (typeof window.ToolbarIconColor !== "undefined") {

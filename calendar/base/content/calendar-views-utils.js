@@ -449,8 +449,7 @@ function minimonthPick(aNewDate) {
 }
 
 /**
- * Provides a neutral way to get the minimonth, regardless of whether we're in
- * Sunbird or Lightning.
+ * Provides a neutral way to get the minimonth.
  *
  * @return          The XUL minimonth element.
  */

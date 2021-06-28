@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// This file contains all of the default preference values for Lightning
+// This file contains all of the default preference values for Calendar.
 
 // Turns on basic calendar logging.
 pref("calendar.debug.log", false);

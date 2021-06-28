@@ -506,7 +506,7 @@ var calauth = {
 
   /**
    * A map which maps usernames to userContextIds, reserving a range
-   * of 20000 - 29999 for userContextIds to be used within lightning.
+   * of 20000 - 29999 for userContextIds to be used within calendar.
    *
    * @param {Number} min        The lower range limit of userContextIds to be
    *                            used.

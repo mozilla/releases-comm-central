@@ -13,7 +13,7 @@ Cc["@mozilla.org/calendar/backend-loader;1"].getService();
 
 // The calendar console instance
 var gCalendarConsole = new ConsoleAPI({
-  prefix: "Lightning",
+  prefix: "Calendar",
   consoleID: "calendar",
   maxLogLevel: Services.prefs.getBoolPref("calendar.debug.log", false) ? "all" : "warn",
 });
@@ -124,7 +124,7 @@ var cal = {
 
   /**
    * Generates the QueryInterface function. This is a replacement for XPCOMUtils.generateQI, which
-   * is being replaced. Unfortunately Lightning's code depends on some of its classes providing
+   * is being replaced. Unfortunately Calendar's code depends on some of its classes providing
    * nsIClassInfo, which causes xpconnect/xpcom to make all methods available, e.g. for an event
    * both calIItemBase and calIEvent.
    *

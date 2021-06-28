@@ -30,7 +30,7 @@ add_task(async function testDefaultAlarms() {
   let expectedEventReminder = alarmString("reminderCustomTitle", [unitString, originStringEvent]);
   let expectedTaskReminder = alarmString("reminderCustomTitle", [unitString, originStringTask]);
 
-  // Configure the lightning preferences.
+  // Configure the preferences.
   let { prefsWindow, prefsDocument } = await openNewPrefsTab("paneCalendar", "defaultsnoozelength");
   await handlePrefTab(prefsWindow, prefsDocument);
 
@@ -43,7 +43,7 @@ add_task(async function testDefaultAlarms() {
   let eventDialogWindow = await eventDialogPromise;
   let eventDialogDocument = eventDialogWindow.document;
 
-  let eventDialogIframe = eventDialogDocument.getElementById("lightning-item-panel-iframe");
+  let eventDialogIframe = eventDialogDocument.getElementById("calendar-item-panel-iframe");
   let iframeWindow = eventDialogIframe.contentWindow;
   if (eventDialogIframe.contentDocument.readyState != "complete") {
     await BrowserTestUtils.waitForEvent(iframeWindow, "load");
@@ -74,7 +74,7 @@ add_task(async function testDefaultAlarms() {
   let taskDialogWindow = await taskDialogPromise;
   let taskDialogDocument = taskDialogWindow.document;
 
-  let taskDialogIframe = taskDialogDocument.getElementById("lightning-item-panel-iframe");
+  let taskDialogIframe = taskDialogDocument.getElementById("calendar-item-panel-iframe");
   iframeWindow = taskDialogIframe.contentWindow;
   if (taskDialogIframe.contentDocument.readyState != "complete") {
     await BrowserTestUtils.waitForEvent(iframeWindow, "load");

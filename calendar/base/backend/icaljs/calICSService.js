@@ -138,7 +138,7 @@ calIcalProperty.prototype = {
     return this.innerObject.getParameter(name.toLowerCase());
   },
   setParameter(name, value) {
-    // Similar problems for setting the value parameter. Lightning code
+    // Similar problems for setting the value parameter. Calendar code
     // expects setting the value parameter to just change the value type
     // and attempt to use the previous value as the new one. To do this in
     // ICAL.js we need to save the value, reset the type and then try to

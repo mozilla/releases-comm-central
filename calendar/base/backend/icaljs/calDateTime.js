@@ -153,7 +153,7 @@ calDateTime.prototype = {
     }
 
     if (a.isDate || b.isDate) {
-      // Lightning expects 20120101 and 20120101T010101 to be equal
+      // Calendar expects 20120101 and 20120101T010101 to be equal
       return a.compareDateOnlyTz(b, a.zone);
     }
     // If both are dates or date-times, then just do the normal compare

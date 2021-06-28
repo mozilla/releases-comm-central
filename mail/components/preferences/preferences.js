@@ -9,7 +9,7 @@
 /* import-globals-from privacy.js */
 /* import-globals-from chat.js */
 /* import-globals-from findInPage.js */
-/* globals gLightningPane */
+/* globals gCalendarPane */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
@@ -120,7 +120,7 @@ function init() {
   register_module("paneGeneral", gGeneralPane);
   register_module("paneCompose", gComposePane);
   register_module("panePrivacy", gPrivacyPane);
-  register_module("paneCalendar", gLightningPane);
+  register_module("paneCalendar", gCalendarPane);
   register_module("paneSearchResults", gSearchResultsPane);
   if (Services.prefs.getBoolPref("mail.chat.enabled")) {
     register_module("paneChat", gChatPane);
