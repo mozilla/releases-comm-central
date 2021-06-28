@@ -5,16 +5,16 @@
 calendar.jar:
 % skin calendar classic/1.0 %skin/classic/calendar/ os=WINNT
 #include ../common/jar.inc.mn
+    skin/classic/calendar/calendar.css                                   (calendar.css)
     skin/classic/calendar/calendar-daypicker.css                         (calendar-daypicker.css)
     skin/classic/calendar/calendar-task-tree.css                         (calendar-task-tree.css)
     skin/classic/calendar/calendar-task-view.css                         (calendar-task-view.css)
+    skin/classic/calendar/calendar-toolbar.css                           (calendar-toolbar.css)
     skin/classic/calendar/calendar-unifinder.css                         (calendar-unifinder.css)
     skin/classic/calendar/calendar-views.css                             (calendar-views.css)
     skin/classic/calendar/calendar-alarm-dialog.css                      (dialogs/calendar-alarm-dialog.css)
     skin/classic/calendar/calendar-event-dialog.css                      (dialogs/calendar-event-dialog.css)
     skin/classic/calendar/calendar-invitations-dialog.css                (dialogs/calendar-invitations-dialog.css)
     skin/classic/calendar/imip.css                                       (imip.css)
-    skin/classic/calendar/lightning.css                                  (lightning.css)
-    skin/classic/calendar/lightning-toolbar.css                          (lightning-toolbar.css)
     skin/classic/calendar/today-pane.css                                 (today-pane.css)
     skin/classic/calendar/widgets/calendar-widgets.css                   (widgets/calendar-widgets.css)

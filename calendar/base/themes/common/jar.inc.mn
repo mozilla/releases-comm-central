@@ -7,6 +7,7 @@
 # be specified once. As a result, the source file paths are relative
 # to the location of the actual manifest.
 
+    skin/classic/calendar/shared/calendar.css                                    (../common/calendar.css)
     skin/classic/calendar/shared/calendar-alarms.css                             (../common/calendar-alarms.css)
     skin/classic/calendar/shared/calendar-attendees.css                          (../common/calendar-attendees.css)
     skin/classic/calendar/shared/calendar-creation.css                           (../common/calendar-creation.css)
@@ -19,6 +20,7 @@
     skin/classic/calendar/shared/calendar-providerUninstall-dialog.css           (../common/calendar-providerUninstall-dialog.css)
     skin/classic/calendar/shared/calendar-task-tree.css                          (../common/calendar-task-tree.css)
     skin/classic/calendar/shared/calendar-task-view.css                          (../common/calendar-task-view.css)
+    skin/classic/calendar/shared/calendar-toolbar.css                            (../common/calendar-toolbar.css)
     skin/classic/calendar/shared/calendar-unifinder.css                          (../common/calendar-unifinder.css)
     skin/classic/calendar/shared/calendar-views.css                              (../common/calendar-views.css)
     skin/classic/calendar/shared/datetimepickers.css                             (../common/datetimepickers.css)
@@ -79,8 +81,6 @@
     skin/classic/calendar/shared/event-grippy-right.png                          (../common/images/event-grippy-right.png)
     skin/classic/calendar/shared/event-grippy-top.png                            (../common/images/event-grippy-top.png)
     skin/classic/calendar/shared/event-start.svg                                 (../common/images/event-start.svg)
-    skin/classic/calendar/shared/lightning.css                                   (../common/lightning.css)
-    skin/classic/calendar/shared/lightning-toolbar.css                           (../common/lightning-toolbar.css)
     skin/classic/calendar/shared/timezone_map.png                                (../common/images/timezone_map.png)
     skin/classic/calendar/shared/timezones.png                                   (../common/images/timezones.png)
     skin/classic/calendar/shared/todayButton-arrow.svg                           (../common/images/todayButton-arrow.svg)
