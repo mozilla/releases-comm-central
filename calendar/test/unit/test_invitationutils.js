@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -15,7 +15,7 @@ function run_test() {
   do_calendar_startup(run_next_test);
 }
 
-// tests for ltnInvitationUtils.jsm
+// tests for calInvitationUtils.jsm
 
 function getIcs(aAsArray = false) {
   // we use an unfolded ics blueprint here to make replacing of properties easier
@@ -181,7 +181,7 @@ add_task(async function getItipHeader_test() {
     if (sender) {
       itipItem.sender = sender.id;
     }
-    equal(ltn.invitation.getItipHeader(itipItem), test.expected, "(test #" + i + ")");
+    equal(cal.invitation.getItipHeader(itipItem), test.expected, "(test #" + i + ")");
   }
 });
 
@@ -474,7 +474,7 @@ add_task(async function createInvitationOverlay_test() {
     itipItem.init(item);
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(item);
-    let dom = ltn.invitation.createInvitationOverlay(parser.getItems()[0], itipItem);
+    let dom = cal.invitation.createInvitationOverlay(parser.getItems()[0], itipItem);
     // we remove line-breaks and leading white spaces here so we can keep expected test results
     // above more comprehensive
     switch (test.expected.node) {
@@ -521,7 +521,7 @@ add_task(async function compareInvitationOverlay_test() {
     itipItem.init(item);
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(item);
-    let dom = ltn.invitation.createInvitationOverlay(parser.getItems()[0], itipItem);
+    let dom = cal.invitation.createInvitationOverlay(parser.getItems()[0], itipItem);
     return cal.xml.serializeDOM(dom);
   }
   let data = [
@@ -626,7 +626,7 @@ add_task(async function compareInvitationOverlay_test() {
   for (let test of data) {
     let dom1 = getDom(test.input.previous);
     let dom2 = getDom(test.input.current);
-    let result = ltn.invitation.compareInvitationOverlay(dom1, dom2);
+    let result = cal.invitation.compareInvitationOverlay(dom1, dom2);
     let dom = cal.xml.parseString(result);
     let id = test.expected.node;
 
@@ -758,7 +758,7 @@ add_task(async function getHeaderSection_test() {
     );
     let messageId = composeUtils.msgGenerateMessageId(identity);
 
-    let header = ltn.invitation.getHeaderSection(
+    let header = cal.invitation.getHeaderSection(
       messageId,
       identity,
       test.input.toList,
@@ -810,7 +810,7 @@ add_task(async function convertFromUnicode_test() {
   for (let test of data) {
     i++;
     equal(
-      ltn.invitation.convertFromUnicode(test.input.charset, test.input.text),
+      cal.invitation.convertFromUnicode(test.input.charset, test.input.text),
       test.expected,
       "(test #" + i + ")"
     );
@@ -843,7 +843,7 @@ add_task(async function encodeUTF8_test() {
   let i = 0;
   for (let test of data) {
     i++;
-    equal(ltn.invitation.encodeUTF8(test.input), test.expected, "(test #" + i + ")");
+    equal(cal.invitation.encodeUTF8(test.input), test.expected, "(test #" + i + ")");
   }
 });
 
@@ -876,7 +876,7 @@ add_task(async function encodeMimeHeader_test() {
   for (let test of data) {
     i++;
     equal(
-      ltn.invitation.encodeMimeHeader(test.input.header, test.input.isEmail),
+      cal.invitation.encodeMimeHeader(test.input.header, test.input.isEmail),
       test.expected,
       "(test #" + i + ")"
     );
@@ -933,7 +933,7 @@ add_task(async function getRfc5322FormattedDate_test() {
     }
     let date = test.date ? new Date(test.date) : null;
     let re = new RegExp(data.expected);
-    ok(re.test(ltn.invitation.getRfc5322FormattedDate(date)), "(test #" + i + ")");
+    ok(re.test(cal.invitation.getRfc5322FormattedDate(date)), "(test #" + i + ")");
   }
   Services.prefs.setStringPref("calendar.timezone.local", timezone);
 });
@@ -1291,7 +1291,7 @@ add_task(async function parseCounter_test() {
     let test = data[i - 1];
     let existingItem = getItem(test.input.existing);
     let proposedItem = getItem(test.input.proposed);
-    let parsed = ltn.invitation.parseCounter(proposedItem, existingItem);
+    let parsed = cal.invitation.parseCounter(proposedItem, existingItem);
 
     equal(parsed.result.type, test.expected.result.type, "(test #" + i + ": result.type)");
     equal(parsed.result.descr, test.expected.result.descr, "(test #" + i + ": result.descr)");

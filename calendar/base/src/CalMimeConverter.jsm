@@ -6,7 +6,6 @@ var EXPORTED_SYMBOLS = ["CalMimeConverter"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
 
 function CalMimeConverter() {
   this.wrappedJSObject = this;
@@ -62,7 +61,7 @@ CalMimeConverter.prototype = {
 
     // msgOverlay needs to be defined irrespectively of the existence of msgWindow to not break
     // printing of invitation emails
-    let dom = ltn.invitation.createInvitationOverlay(event, itipItem);
+    let dom = cal.invitation.createInvitationOverlay(event, itipItem);
     msgOverlay = cal.xml.serializeDOM(dom);
 
     if (msgWindow) {

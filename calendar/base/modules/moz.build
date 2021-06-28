@@ -13,6 +13,7 @@ EXTRA_JS_MODULES.calendar.utils += [
     "utils/calDateTimeFormatter.jsm",
     "utils/calDateTimeUtils.jsm",
     "utils/calEmailUtils.jsm",
+    "utils/calInvitationUtils.jsm",
     "utils/calItemUtils.jsm",
     "utils/calIteratorUtils.jsm",
     "utils/calItipUtils.jsm",
@@ -33,5 +34,4 @@ EXTRA_JS_MODULES.calendar += [
     "calRecurrenceUtils.jsm",
     "calUtils.jsm",
     "Ical.jsm",
-    "ltnInvitationUtils.jsm",
 ]

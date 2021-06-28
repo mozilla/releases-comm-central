@@ -7,7 +7,6 @@ var EXPORTED_SYMBOLS = ["CalItipEmailTransport", "CalItipDefaultEmailTransport"]
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
 
 /**
  * CalItipEmailTransport is used to send iTIP messages via email. Outside
@@ -300,12 +299,12 @@ class CalItipEmailTransport {
       methodProp.value = aItipItem.responseMethod;
       serializer.addProperty(methodProp);
       let calText = serializer.serializeToString();
-      let utf8CalText = ltn.invitation.encodeUTF8(calText);
+      let utf8CalText = cal.invitation.encodeUTF8(calText);
 
       // Home-grown mail composition; I'd love to use nsIMimeEmitter, but it's not clear to me whether
       // it can cope with nested attachments,
       // like multipart/alternative with enclosed text/calendar and text/plain.
-      let mailText = ltn.invitation.getHeaderSection(aMessageId, aIdentity, aToList, aSubject);
+      let mailText = cal.invitation.getHeaderSection(aMessageId, aIdentity, aToList, aSubject);
       mailText +=
         'Content-type: multipart/mixed; boundary="Boundary_(ID_qyG4ZdjoAsiZ+Jo19dCbWQ)"\r\n' +
         "\r\n\r\n" +
@@ -317,7 +316,7 @@ class CalItipEmailTransport {
         "Content-type: text/plain; charset=UTF-8\r\n" +
         "Content-transfer-encoding: 8BIT\r\n" +
         "\r\n" +
-        ltn.invitation.encodeUTF8(aBody) +
+        cal.invitation.encodeUTF8(aBody) +
         "\r\n\r\n\r\n" +
         "--Boundary_(ID_ryU4ZdJoASiZ+Jo21dCbwA)\r\n" +
         "Content-type: text/calendar; method=" +

@@ -443,6 +443,12 @@ XPCOMUtils.defineLazyModuleGetter(
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
+  "invitation",
+  "resource:///modules/calendar/utils/calInvitationUtils.jsm",
+  "calinvitation"
+);
+XPCOMUtils.defineLazyModuleGetter(
+  cal,
   "item",
   "resource:///modules/calendar/utils/calItemUtils.jsm",
   "calitem"

@@ -11,7 +11,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   var { recurrenceStringFromItem } = ChromeUtils.import(
     "resource:///modules/calendar/calRecurrenceUtils.jsm"
@@ -560,7 +559,7 @@
       if (attendees && attendees.length) {
         this.querySelector(".item-attendees").removeAttribute("hidden");
         this.querySelector(".item-attendees-list-container").appendChild(
-          ltn.invitation.createAttendeesList(document, attendees)
+          cal.invitation.createAttendeesList(document, attendees)
         );
       }
     }
@@ -600,7 +599,7 @@
      */
     updateOrganizer(item) {
       this.querySelector(".item-organizer-row").removeAttribute("hidden");
-      let organizerLabel = ltn.invitation.createAttendeeLabel(
+      let organizerLabel = cal.invitation.createAttendeeLabel(
         document,
         item.organizer,
         item.getAttendees()

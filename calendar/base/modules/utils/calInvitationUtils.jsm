@@ -9,10 +9,9 @@ var { recurrenceRule2String } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-const EXPORTED_SYMBOLS = ["ltn"]; /* exported ltn */
-var ltn = {};
+const EXPORTED_SYMBOLS = ["calinvitation"];
 
-ltn.invitation = {
+var calinvitation = {
   /**
    * Returns a header title for an ITIP item depending on the response method
    * @param  {calItipItem}     aItipItem  the itip item to check
@@ -170,7 +169,7 @@ ltn.invitation = {
    */
   createInvitationOverlay(aEvent, aItipItem) {
     // Creates HTML using the Node strings in the properties file
-    let doc = cal.xml.parseFile("chrome://calendar/content/lightning-invitation.xhtml");
+    let doc = cal.xml.parseFile("chrome://calendar/content/invitation-template.xhtml");
     let formatter = cal.dtz.formatter;
 
     let field = function(aField, aContentText, aConvert, aContentHTML) {
@@ -194,7 +193,7 @@ ltn.invitation = {
     // Simple fields
     let headerDescr = doc.getElementById("imipHtml-header");
     if (headerDescr) {
-      headerDescr.textContent = ltn.invitation.getItipHeader(aItipItem);
+      headerDescr.textContent = calinvitation.getItipHeader(aItipItem);
     }
 
     field("summary", aEvent.title, true);
@@ -599,37 +598,37 @@ ltn.invitation = {
     let header =
       "MIME-version: 1.0\r\n" +
       (aIdentity.replyTo
-        ? "Return-path: " + ltn.invitation.encodeMimeHeader(aIdentity.replyTo, true) + "\r\n"
+        ? "Return-path: " + calinvitation.encodeMimeHeader(aIdentity.replyTo, true) + "\r\n"
         : "") +
       "From: " +
-      ltn.invitation.encodeMimeHeader(from, true) +
+      calinvitation.encodeMimeHeader(from, true) +
       "\r\n" +
       (aIdentity.organization
-        ? "Organization: " + ltn.invitation.encodeMimeHeader(aIdentity.organization) + "\r\n"
+        ? "Organization: " + calinvitation.encodeMimeHeader(aIdentity.organization) + "\r\n"
         : "") +
       "Message-ID: " +
       aMessageId +
       "\r\n" +
       "To: " +
-      ltn.invitation.encodeMimeHeader(aToList, true) +
+      calinvitation.encodeMimeHeader(aToList, true) +
       "\r\n" +
       "Date: " +
-      ltn.invitation.getRfc5322FormattedDate() +
+      calinvitation.getRfc5322FormattedDate() +
       "\r\n" +
       "Subject: " +
-      ltn.invitation.encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) +
+      calinvitation.encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) +
       "\r\n";
     let validRecipients;
     if (aIdentity.doCc) {
       validRecipients = cal.email.validateRecipientList(aIdentity.doCcList);
       if (validRecipients != "") {
-        header += "Cc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n";
+        header += "Cc: " + calinvitation.encodeMimeHeader(validRecipients, true) + "\r\n";
       }
     }
     if (aIdentity.doBcc) {
       validRecipients = cal.email.validateRecipientList(aIdentity.doBccList);
       if (validRecipients != "") {
-        header += "Bcc: " + ltn.invitation.encodeMimeHeader(validRecipients, true) + "\r\n";
+        header += "Bcc: " + calinvitation.encodeMimeHeader(validRecipients, true) + "\r\n";
       }
     }
     return header;
@@ -664,7 +663,7 @@ ltn.invitation = {
    * @return {String}         the converted uft-8 encoded string
    */
   encodeUTF8(aText) {
-    return ltn.invitation.convertFromUnicode("UTF-8", aText).replace(/(\r\n)|\n/g, "\r\n");
+    return calinvitation.convertFromUnicode("UTF-8", aText).replace(/(\r\n)|\n/g, "\r\n");
   },
 
   /**

@@ -8,7 +8,6 @@
 /* globals gMessageDisplay, msgWindow */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
@@ -299,18 +298,18 @@ var ltnImipBar = {
     // displaying changes is only needed if that is enabled, an item already exists and there are
     // differences
     if (diff != 0 && Services.prefs.getBoolPref("calendar.itip.displayInvitationChanges", false)) {
-      let foundOverlay = ltn.invitation.createInvitationOverlay(
+      let foundOverlay = cal.invitation.createInvitationOverlay(
         ltnImipBar.foundItems[0],
         ltnImipBar.itipItem
       );
       let serializedOverlay = cal.xml.serializeDOM(foundOverlay);
       if (diff == 1) {
         // this is an update to previously accepted invitation
-        msgOverlay = ltn.invitation.compareInvitationOverlay(serializedOverlay, msgOverlay);
+        msgOverlay = cal.invitation.compareInvitationOverlay(serializedOverlay, msgOverlay);
       } else {
         // this is a copy of a previously sent out invitation or a previous revision of a
         // meanwhile accepted invitation, so we flip comparison order
-        msgOverlay = ltn.invitation.compareInvitationOverlay(msgOverlay, serializedOverlay);
+        msgOverlay = cal.invitation.compareInvitationOverlay(msgOverlay, serializedOverlay);
       }
     }
     msgWindow.displayHTMLInMessagePane("", msgOverlay, false);
@@ -433,7 +432,7 @@ var ltnImipBar = {
             // that to compare with
             item = item.recurrenceInfo.getOccurrenceFor(proposedRID).clone();
           }
-          let parsedProposal = ltn.invitation.parseCounter(proposedItem, item);
+          let parsedProposal = cal.invitation.parseCounter(proposedItem, item);
           let potentialProposers = cal.itip.getAttendeesBySender(
             proposedItem.getAttendees(),
             ltnImipBar.itipItem.sender

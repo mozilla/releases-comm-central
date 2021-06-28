@@ -23,7 +23,6 @@
 /* globals gTimezonesEnabled */ // Set by calendar-item-panel.js.
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {
   recurrenceRule2String,
@@ -3728,7 +3727,7 @@ function updateAttendees() {
         organizerRow.removeChild(existingLabel);
       }
       organizerRow.appendChild(
-        ltn.invitation.createAttendeeLabel(document, window.organizer, window.attendees)
+        cal.invitation.createAttendeeLabel(document, window.organizer, window.attendees)
       );
       organizerRow.hidden = false;
     } else {
@@ -3739,7 +3738,7 @@ function updateAttendees() {
     if (attendeeContainer.firstChild) {
       attendeeContainer.firstChild.remove();
     }
-    attendeeContainer.appendChild(ltn.invitation.createAttendeesList(document, window.attendees));
+    attendeeContainer.appendChild(cal.invitation.createAttendeesList(document, window.attendees));
     for (let label of attendeeContainer.querySelectorAll(".attendee-label")) {
       label.addEventListener("dblclick", attendeeDblClick);
       label.setAttribute("tabindex", "0");
