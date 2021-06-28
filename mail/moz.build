@@ -7,12 +7,14 @@ CONFIGURE_SUBST_FILES += ["installer/Makefile"]
 
 # app is always last as it packages up the built files on mac.
 DIRS += [
-    "base",
-    "locales",
-    "extensions",
-    "themes",
-    "app",
     "../common",
+    "actors",
+    "app",
+    "base",
+    "extensions",
+    "locales",
+    "modules",
+    "themes",
 ]
 
 if CONFIG["MAKENSISU"]:

@@ -62,4 +62,4 @@ mail/components/compose/texzilla/**
 mail/components/compose/composer.js
 
 # exclude MailConstants.jsm because: #filter substitution
-mail/base/modules/MailConstants.jsm
+mail/modules/MailConstants.jsm
