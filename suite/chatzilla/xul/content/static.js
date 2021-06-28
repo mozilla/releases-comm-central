@@ -13,7 +13,6 @@ ChromeUtils.defineModuleGetter(this, "PlacesUtils",
 
 #expand const __cz_version   = "__CHATZILLA_VERSION__";
 const __cz_condition = "green";
-const __cz_locale    = "0.9.92";
 
 var warn;
 var ASSERT;
