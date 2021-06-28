@@ -4,16 +4,6 @@ messenger.jar:
 % content messagebody %content/messagebody/ contentaccessible=yes
 % content messenger %content/messenger/ contentaccessible=yes
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
-#ifndef MOZILLA_OFFICIAL
-% override chrome://browser/content/browser-development-helpers.js chrome://messenger/content/browser-development-helpers.js
-  content/messenger/browser-development-helpers.js (../../common/src/browser-development-helpers.js)
-#endif
-    content/messenger/customizeToolbar.css          (../../common/src/customizeToolbar.css)
-    content/messenger/customizeToolbar.js           (../../common/src/customizeToolbar.js)
-*   content/messenger/customizeToolbar.xhtml        (../../common/src/customizeToolbar.xhtml)
-    content/messenger/viewSource.js                 (../../common/src/viewSource.js)
-*   content/messenger/viewSource.xhtml              (../../common/src/viewSource.xhtml)
-    content/messenger/viewZoomOverlay.js            (../../common/src/viewZoomOverlay.js)
     content/messenger/aboutAddonsExtra.css          (content/aboutAddonsExtra.css)
     content/messenger/aboutAddonsExtra.js           (content/aboutAddonsExtra.js)
     content/messenger/aboutDialog-appUpdater.js     (content/aboutDialog-appUpdater.js)
@@ -27,6 +17,9 @@ messenger.jar:
     content/messenger/composerOverlay.css           (content/composerOverlay.css)
     content/messenger/converterDialog.css           (content/converterDialog.css)
     content/messenger/customElements.js             (content/customElements.js)
+    content/messenger/customizeToolbar.css          (content/customizeToolbar.css)
+    content/messenger/customizeToolbar.js           (content/customizeToolbar.js)
+*   content/messenger/customizeToolbar.xhtml        (content/customizeToolbar.xhtml)
     content/messenger/dialogShadowDom.js            (content/dialogShadowDom.js)
     content/messenger/editContactPanel.js           (content/editContactPanel.js)
     content/messenger/FilterListDialog.js           (content/FilterListDialog.js)
@@ -95,6 +88,9 @@ messenger.jar:
     content/messenger/toolbarIconColor.js           (content/toolbarIconColor.js)
     content/messenger/troubleshootMode.js           (content/troubleshootMode.js)
     content/messenger/troubleshootMode.xhtml        (content/troubleshootMode.xhtml)
+    content/messenger/viewSource.js                 (content/viewSource.js)
+*   content/messenger/viewSource.xhtml              (content/viewSource.xhtml)
+    content/messenger/viewZoomOverlay.js            (content/viewZoomOverlay.js)
     content/messenger/button-menu-button.js         (content/widgets/button-menu-button.js)
     content/messenger/customizable-toolbar.js       (content/widgets/customizable-toolbar.js)
     content/messenger/foldersummary.js              (content/widgets/foldersummary.js)

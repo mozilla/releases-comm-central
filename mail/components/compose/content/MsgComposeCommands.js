@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../../toolkit/content/contentAreaUtils.js */
-/* import-globals-from ../../../../common/src/viewZoomOverlay.js */
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../../base/content/contentAreaClick.js */
@@ -12,6 +11,7 @@
 /* import-globals-from ../../../base/content/nsContextMenu.js */
 /* import-globals-from ../../../base/content/toolbarIconColor.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
+/* import-globals-from ../../../base/content/viewZoomOverlay.js */
 /* import-globals-from addressingWidgetOverlay.js */
 /* import-globals-from ComposerCommands.js */
 /* import-globals-from editor.js */

@@ -33,6 +33,7 @@ SOURCES += [
     "MailNewsDLF.cpp",
     "MailnewsLoadContextInfo.cpp",
     "nsCidProtocolHandler.cpp",
+    "nsCommonModule.cpp",
     "nsCopyMessageStreamListener.cpp",
     "nsImapMoveCoalescer.cpp",
     "nsMailAuthModule.cpp",
@@ -89,12 +90,21 @@ SOURCES += [
 ]
 
 if CONFIG["OS_ARCH"] == "WINNT":
-    SOURCES += ["nsMessengerWinIntegration.cpp"]
-
-if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
-    SOURCES += ["nsMessengerUnixIntegration.cpp"]
+    SOURCES += [
+        "nsMessengerWinIntegration.cpp",
+        # This file cannot be built in unified mode because of name clashes with Windows headers.
+        "nsUserInfoWin.cpp",
+    ]
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+    SOURCES += [
+        "nsMessengerUnixIntegration.cpp",
+        "nsUserInfoUnix.cpp",
+    ]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
-    SOURCES += ["nsMessengerOSXIntegration.mm"]
+    SOURCES += [
+        "nsMessengerOSXIntegration.mm",
+        "nsUserInfoMac.mm",
+    ]
 
 EXTRA_JS_MODULES += [
     "ABQueryUtils.jsm",

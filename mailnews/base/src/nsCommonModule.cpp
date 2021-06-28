@@ -5,7 +5,7 @@
 #include "mozilla/ModuleUtils.h"
 #include "mozilla/TransactionManager.h"
 #include "nsBaseCommandController.h"
-#include "nsCommonBaseCID.h"
+#include "nsMsgBaseCID.h"
 #include "nsSyncStreamListener.h"
 #include "nsUserInfo.h"
 #include "nsXULAppAPI.h"

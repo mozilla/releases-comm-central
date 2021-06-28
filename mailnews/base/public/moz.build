@@ -60,6 +60,7 @@ XPIDL_SOURCES += [
     "nsIStopwatch.idl",
     "nsISubscribableServer.idl",
     "nsIUrlListener.idl",
+    "nsIUserInfo.idl",
     "nsMsgFolderFlags.idl",
     "nsMsgMessageFlags.idl",
 ]

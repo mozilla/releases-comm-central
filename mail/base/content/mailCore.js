@@ -12,9 +12,9 @@
  * to be used by all of the main mail windows?
  */
 
-/* import-globals-from ../../../common/src/customizeToolbar.js */
 /* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
 /* import-globals-from commandglue.js */
+/* import-globals-from customizeToolbar.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
