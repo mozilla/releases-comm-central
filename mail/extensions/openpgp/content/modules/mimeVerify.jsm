@@ -205,7 +205,7 @@ MimeVerify.prototype = {
       let hdr = EnigmailFuncs.getHeaderData(contentTypeLine);
       hdr.boundary = hdr.boundary || "";
       hdr.micalg = hdr.micalg || "";
-      this.boundary = hdr.boundary.replace(/['"]/g, "");
+      this.boundary = hdr.boundary.replace(/^(['"])(.*)(\1)$/, "$2");
     }
   },
 

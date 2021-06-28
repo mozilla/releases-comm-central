@@ -242,7 +242,7 @@ var EnigmailFixExchangeMsg = {
       }
     }
 
-    r.boundary = r.boundary.replace(/^(['"])(.*)(['"])/, "$2");
+    r.boundary = r.boundary.replace(/^(['"])(.*)(\1)$/, "$2");
 
     r.headers +=
       "Content-Type: multipart/encrypted;\r\n" +
