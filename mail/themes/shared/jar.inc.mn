@@ -19,8 +19,8 @@
 
 # Proton icon overrides
 % override chrome://global/skin/icons/add.svg chrome://messenger/skin/overrides/add.svg
+% override chrome://global/skin/icons/arrow-down.svg chrome://messenger/skin/overrides/arrow-down.svg
 % override chrome://global/skin/icons/arrow-down-12.svg chrome://messenger/skin/overrides/arrow-down-12.svg
-% override chrome://global/skin/icons/arrow-down-16.svg chrome://messenger/skin/overrides/arrow-down-16.svg
 % override chrome://global/skin/icons/arrow-left.svg chrome://messenger/skin/overrides/arrow-left.svg
 % override chrome://global/skin/icons/arrow-left-12.svg chrome://messenger/skin/overrides/arrow-left-12.svg
 % override chrome://global/skin/icons/arrow-right.svg chrome://messenger/skin/overrides/arrow-right.svg
@@ -62,8 +62,8 @@
 % override chrome://mozapps/skin/extensions/extensionGeneric.svg chrome://messenger/skin/overrides/category-extensions.svg
 
   skin/classic/messenger/overrides/add.svg                    (../shared/mail/overrides/add.svg)
+  skin/classic/messenger/overrides/arrow-down.svg             (../shared/mail/overrides/arrow-down.svg)
   skin/classic/messenger/overrides/arrow-down-12.svg          (../shared/mail/overrides/arrow-down-12.svg)
-  skin/classic/messenger/overrides/arrow-down-16.svg          (../shared/mail/overrides/arrow-down-16.svg)
   skin/classic/messenger/overrides/arrow-left.svg             (../shared/mail/overrides/arrow-left.svg)
   skin/classic/messenger/overrides/arrow-left-12.svg          (../shared/mail/overrides/arrow-left-12.svg)
   skin/classic/messenger/overrides/arrow-right.svg            (../shared/mail/overrides/arrow-right.svg)
