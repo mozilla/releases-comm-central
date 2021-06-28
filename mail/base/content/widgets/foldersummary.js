@@ -5,9 +5,9 @@
 
 /* global MozElements */
 /* global MozXULElement */
-/* import-globals-from folderDisplay.js */
-/* import-globals-from folderPane.js */
-/* import-globals-from ../../../mailnews/base/content/newmailalert.js */
+/* import-globals-from ../../../../mailnews/base/content/newmailalert.js */
+/* import-globals-from ../folderDisplay.js */
+/* import-globals-from ../folderPane.js */
 
 // Wrap in a block to prevent leaking to window scope.
 {

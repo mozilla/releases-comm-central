@@ -5,7 +5,7 @@
 
 /* global MozXULElement */
 
-/* import-globals-from mailWindow.js */
+/* import-globals-from ../mailWindow.js */
 
 "use strict";
 

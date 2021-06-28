@@ -82,6 +82,8 @@
     }
   }
 
+  customElements.define("facet-date", MozFacetDate);
+
   /**
    * MozFacetResultsMessage shows the search results for the string entered in gloda-searchbox.
    * @extends {HTMLElement}
@@ -220,7 +222,6 @@
     }
   }
 
-  customElements.define("facet-date", MozFacetDate);
   customElements.define("facet-results-message", MozFacetResultsMessage);
 
   class MozFacetBoolean extends HTMLElement {
