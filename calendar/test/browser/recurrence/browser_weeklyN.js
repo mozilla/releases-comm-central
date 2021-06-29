@@ -34,7 +34,7 @@ add_task(async function testWeeklyNRecurrence() {
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // Check day view.

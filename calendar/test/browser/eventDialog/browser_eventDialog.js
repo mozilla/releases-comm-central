@@ -143,7 +143,7 @@ add_task(async function testEventDialog() {
     Assert.equal(attachmentsTab.querySelectorAll("richlistitem").length, 1);
 
     // save
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // Catch and dismiss alarm.
@@ -219,7 +219,7 @@ add_task(async function testOpenExistingEventDialog() {
       location: EVENTLOCATION,
       description: EVENTDESCRIPTION,
     });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
@@ -269,7 +269,7 @@ add_task(async function testEventReminderDisplay() {
       location: EVENTLOCATION,
       description: EVENTDESCRIPTION,
     });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
@@ -297,7 +297,7 @@ add_task(async function testEventReminderDisplay() {
       description: EVENTDESCRIPTION,
       reminder: "1week",
     });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);

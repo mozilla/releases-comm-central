@@ -41,7 +41,7 @@ add_task(async function testEventDialogModificationPrompt() {
 
     // Enter first set of data.
     await setData(eventWindow, iframeWindow, data[0]);
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
   let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
 
@@ -86,7 +86,7 @@ add_task(async function testDescriptionWhitespace() {
     let createbox = dayView.getHourBoxAt(controller.window, 8);
     await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, newlines[i]);
-      saveAndCloseItemDialog(eventWindow);
+      await saveAndCloseItemDialog(eventWindow);
     });
 
     let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);

@@ -33,7 +33,7 @@ add_task(async function testLocalICS() {
   let box = CalendarTestUtils.dayView.getHourBoxAt(controller.window, HOUR);
   await invokeNewEventDialog(controller, box, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: calendarName, calendar: calendarName });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // Assert presence in view.

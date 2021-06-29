@@ -333,12 +333,14 @@ async function setData(dialogWindow, iframeWindow, data) {
  *
  * @param {Window} dialogWindow
  */
-function saveAndCloseItemDialog(dialogWindow) {
+async function saveAndCloseItemDialog(dialogWindow) {
+  let dialogClosing = BrowserTestUtils.domWindowClosed(dialogWindow);
   synthesizeMouseAtCenter(
     dialogWindow.document.getElementById("button-saveandclose"),
     {},
     dialogWindow
   );
+  await dialogClosing;
 }
 
 /**

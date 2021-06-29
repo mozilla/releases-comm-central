@@ -32,7 +32,7 @@ add_task(async function testAnnualRecurrence() {
   let eventBox = dayView.getAllDayHeader(controller.window);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: "yearly" });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   let checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];

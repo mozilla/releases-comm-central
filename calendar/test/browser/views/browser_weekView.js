@@ -62,7 +62,7 @@ add_task(async function testWeekView() {
       calendar: CALENDARNAME,
     });
 
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // If it was created successfully, it can be opened.
@@ -70,7 +70,7 @@ add_task(async function testWeekView() {
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // Check if name was saved.

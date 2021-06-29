@@ -45,7 +45,7 @@ add_task(async function testDailyRecurrence() {
       repeat: "daily",
       repeatuntil: cal.createDateTime("20090320T000000Z"),
     });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // Check day view for 7 days.
@@ -121,7 +121,7 @@ add_task(async function testDailyRecurrence() {
     eventBox,
     async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, { repeat: "every.weekday" });
-      saveAndCloseItemDialog(eventWindow);
+      await saveAndCloseItemDialog(eventWindow);
     },
     true
   );

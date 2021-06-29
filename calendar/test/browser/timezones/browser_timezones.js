@@ -80,7 +80,7 @@ add_task(async function testTimezones2_CreateEvents() {
         timezone: TIMEZONES[i],
       });
 
-      saveAndCloseItemDialog(eventWindow);
+      await saveAndCloseItemDialog(eventWindow);
     });
   }
 });

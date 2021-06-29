@@ -152,7 +152,7 @@ async function runTestAlarms() {
       repeat: "weekly",
     });
 
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
   await BrowserTestUtils.promiseAlertDialog(
     undefined,
@@ -206,7 +206,7 @@ async function runTestAlarms() {
         repeatuntil: repeatUntil,
       });
 
-      saveAndCloseItemDialog(eventWindow);
+      await saveAndCloseItemDialog(eventWindow);
     },
     true
   );

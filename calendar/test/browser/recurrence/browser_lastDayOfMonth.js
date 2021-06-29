@@ -33,7 +33,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // data tuple: [year, month, day, row in month view]

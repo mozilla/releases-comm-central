@@ -71,7 +71,7 @@ add_task(async function setupModule(module) {
       description: DESCRIPTION,
     });
 
-    saveAndCloseItemDialog(taskWindow);
+    await saveAndCloseItemDialog(taskWindow);
   });
 
   Assert.less(taskTreeNode.mTaskArray.length, 2, "Should not have added task");

@@ -37,7 +37,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // Move 5th January occurrence to 6th January.
@@ -48,7 +48,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
       startdate: STARTDATE,
       enddate: STARTDATE,
     });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   goToDate(controller, 2009, 1, 6);
@@ -62,7 +62,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
     eventBox,
     async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, { title: "Event", repeat: changeRecurrence });
-      saveAndCloseItemDialog(eventWindow);
+      await saveAndCloseItemDialog(eventWindow);
     },
     true
   );

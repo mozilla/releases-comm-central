@@ -34,7 +34,7 @@ add_task(async function testUTF8() {
       description: UTF8STRING,
       categories: [UTF8STRING],
     });
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
 
   // open

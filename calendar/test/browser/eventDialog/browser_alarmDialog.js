@@ -55,7 +55,7 @@ add_task(async function testAlarmDialog() {
       alarm.sleep(500);
     });
 
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
   wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
@@ -75,7 +75,7 @@ add_task(async function testAlarmDialog() {
       alarm.sleep(500);
     });
 
-    saveAndCloseItemDialog(eventWindow);
+    await saveAndCloseItemDialog(eventWindow);
   });
   wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
