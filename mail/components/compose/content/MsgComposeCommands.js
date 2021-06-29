@@ -3923,14 +3923,16 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     gAttachMyPublicPGPKey = false;
   }
 
-  // A draft message may be stored encrypted, even if the user hasn't
+  // A draft/template message may be stored encrypted, even if the user hasn't
   // requested encryption for sending. In that scenario, we'd see that
   // the related URI is encrypted and do incorrect decisions.
   // Therefore we skip this automatic processing, and rely on the code
-  // that restores draft flags.
+  // that restores draft flags - see continueComposeOpenWithMimeTree.
 
-  if (!gMsgCompose.compFields.draftId) {
-    // automatic changes after this line
+  if (
+    gMsgCompose.type !== Ci.nsIMsgCompType.Draft &&
+    gMsgCompose.type !== Ci.nsIMsgCompType.Template
+  ) {
     if (
       gEncryptedURIService &&
       gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)

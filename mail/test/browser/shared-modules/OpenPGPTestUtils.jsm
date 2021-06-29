@@ -43,6 +43,7 @@ const OpenPGPTestUtils = {
    * menu item.
    */
   async toggleMessageSigning(win) {
+    // TODO: make this use clickToolbarButtonMenuItem instead
     return clickMenuOption(win, "#menu_securitySign_Menubar");
   },
 
@@ -51,6 +52,7 @@ const OpenPGPTestUtils = {
    * menu item.
    */
   async toggleMessageKeyAttachment(win) {
+    // TODO: make this use clickToolbarButtonMenuItem instead
     return clickMenuOption(win, "#menu_securityMyPublicKey_Menubar");
   },
 
@@ -59,7 +61,14 @@ const OpenPGPTestUtils = {
    * menu item.
    */
   async toggleMessageEncryption(win) {
-    return clickMenuOption(win, "#menu_securityEncryptRequire_Menubar");
+    // Note: doing it through #menu_securityEncryptRequire_Menubar won't work on
+    // mac since the native menu bar can't be clicked.
+    // Use the toolbar button to click Require encryption.
+    await clickToolbarButtonMenuItem(
+      win,
+      "#button-security",
+      "#menu_securityEncryptRequire_Toolbar"
+    );
   },
 
   /**
@@ -229,6 +238,33 @@ const OpenPGPTestUtils = {
     EnigmailKeyRing.clearCache();
   },
 };
+
+/**
+ * Click a toolbar button to make it show the dropdown. Then click one of
+ * the menuitems in that popup.
+ */
+async function clickToolbarButtonMenuItem(
+  win,
+  buttonSelector,
+  menuitemSelector
+) {
+  let menupopup = win.document.querySelector(`${buttonSelector} > menupopup`);
+  let popupshown = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+  let popuphidden = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
+  EventUtils.synthesizeMouseAtCenter(
+    win.document.querySelector(`${buttonSelector} > dropmarker`),
+    {},
+    win
+  );
+  await popupshown;
+
+  EventUtils.synthesizeMouseAtCenter(
+    win.document.querySelector(menuitemSelector),
+    {},
+    win
+  );
+  await popuphidden;
+}
 
 async function clickMenuOption(win, selector) {
   let menu = win.document.querySelector("#optionsMenu");

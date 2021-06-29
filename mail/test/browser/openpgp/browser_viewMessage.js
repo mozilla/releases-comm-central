@@ -44,8 +44,6 @@ function getMsgBodyTxt(mc) {
 }
 
 var aliceAcct;
-var aliceIdentity;
-var initialKeyIdPref = "";
 
 /**
  * When testing a scenario that should automatically process the OpenPGP
@@ -76,7 +74,7 @@ add_task(async function setupTest() {
     "openpgp.example",
     "pop3"
   );
-  aliceIdentity = MailServices.accounts.createIdentity();
+  let aliceIdentity = MailServices.accounts.createIdentity();
   aliceIdentity.email = "alice@openpgp.example";
   aliceAcct.addIdentity(aliceIdentity);
 
@@ -90,7 +88,6 @@ add_task(async function setupTest() {
     )
   );
 
-  initialKeyIdPref = aliceIdentity.getUnicharAttribute("openpgp_key_id");
   aliceIdentity.setUnicharAttribute("openpgp_key_id", id);
 
   // Import and accept the public key for Bob, our verified sender.
@@ -590,7 +587,7 @@ add_task(async function testDecryptHtmlWithNBSP() {
   close_window(mc);
 });
 
-registerCleanupFunction(function tearDown() {
-  aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
-  MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);
+registerCleanupFunction(async function tearDown() {
+  MailServices.accounts.removeAccount(aliceAcct, true);
+  await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
 });

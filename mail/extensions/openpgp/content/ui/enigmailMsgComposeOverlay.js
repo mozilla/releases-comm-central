@@ -601,7 +601,9 @@ Enigmail.msg = {
   continueComposeOpenWithMimeTree(msgUri, msgHdr, mimeMsg) {
     let selectedElement = document.activeElement;
 
-    let msgIsDraft = !!gMsgCompose.compFields.draftId;
+    let msgIsDraft =
+      gMsgCompose.type === Ci.nsIMsgCompType.Draft ||
+      gMsgCompose.type === Ci.nsIMsgCompType.Template;
 
     if (!gSendEncrypted || msgIsDraft) {
       let useEncryptionUnlessWeHaveDraftInfo = false;
