@@ -179,18 +179,23 @@
   fill-opacity: 1;
 }
 
-#attachmentToggle:not([checked="true"]) {
+#attachmentToggle:not([checked="true"]) > .button-box > .button-icon {
   transform: rotate(-90deg);
 }
 
-#attachmentToggle:not([checked="true"]):-moz-locale-dir(rtl) {
+#attachmentToggle:not([checked="true"]):-moz-locale-dir(rtl) >
+  .button-box > .button-icon {
   transform: rotate(90deg);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  #attachmentToggle {
+  #attachmentToggle > .button-box > .button-icon {
     transition: transform 200ms ease;
   }
+}
+
+#attachmentToggle > .button-box > .button-text {
+  display: none;
 }
 
 #attachmentToggle:focus-visible {

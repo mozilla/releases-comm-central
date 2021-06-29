@@ -945,32 +945,33 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
   appearance: none;
   color: inherit;
   background-color: transparent;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  padding-block: 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--sidebar-border-color,
+                                     hsla(0, 0%, 60%, 0.4)) 50%, transparent);
 }
 
 :root[lwt-tree] treecol {
-  border-inline-end: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  border-inline-end: 1px solid color-mix(in srgb, var(--sidebar-border-color,
+                                         hsla(0, 0%, 60%, 0.4)) 50%, transparent);
 }
 
 :root[lwt-tree-brighttext] treecol,
 :root[lwt-tree-brighttext] treecolpicker {
-  border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+  border-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
 }
 
 :root[lwt-tree-brighttext] treecol {
-  border-inline-end-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+  border-inline-end-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
 }
 
 :root[lwt-tree] treecol:hover,
 :root[lwt-tree] treecolpicker:hover {
-  background-color: hsla(0,0%,60%,.4);
+  background-color: hsla(0, 0%, 60%, 0.4);
 }
 
 :root[lwt-tree-brighttext] treecol:hover,
 :root[lwt-tree-brighttext] treecolpicker:hover {
-  background-color: rgba(249,249,250,.2);
+  background-color: rgba(249, 249, 250, 0.2);
 }
 
 .toolbarbutton-1:not(.qfb-tag-button),

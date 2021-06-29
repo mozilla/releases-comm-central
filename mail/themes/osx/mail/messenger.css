@@ -235,6 +235,24 @@ treechildren::-moz-tree-line(selected, focus) {
 
 /* message column icons */
 
+:root:not([lwt-tree]) treecol:not([hideheader="true"]),
+:root:not([lwt-tree]) treecolpicker:not([hideheader="true"]) {
+  appearance: none;
+  color: inherit;
+  background-color: transparent;
+  padding-block: 2px;
+  border-bottom: 1px solid ThreeDShadow;
+}
+
+:root:not([lwt-tree]) treecol {
+  border-inline-end: 1px solid ThreeDShadow;
+}
+
+:root:not([lwt-tree]) treecol:hover:active,
+:root:not([lwt-tree]) treecolpicker:hover:active {
+  background-color: ThreeDFace;
+}
+
 .treecol-sortdirection {
   appearance: none;
   -moz-context-properties: fill;
