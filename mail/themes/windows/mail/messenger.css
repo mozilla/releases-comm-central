@@ -143,13 +143,13 @@
     padding-inline-start: 1em;
   }
 
-  menupopup:not([needsgutter]) menu:not([icon], .menu-iconic),
-  menupopup:not([needsgutter]) menuitem:not([icon], .menuitem-iconic) {
+  menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
+  menupopup:not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
     padding-inline-start: 36px;
   }
 
-  menupopup[needsgutter] .menu-iconic > .menu-iconic-left,
-  menupopup[needsgutter] .menuitem-iconic > .menu-iconic-left {
+  menupopup[needsgutter] > .menu-iconic > .menu-iconic-left,
+  menupopup[needsgutter] > .menuitem-iconic > .menu-iconic-left {
     margin-inline-start: -2px;
   }
 
