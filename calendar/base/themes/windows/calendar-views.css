@@ -6,46 +6,46 @@
 
 /* Navigation controls for the views */
 #calendar-nav-control {
-    background-color: ButtonFace;
-    border-top: 1px solid ThreeDShadow;
-    --calview-tabline-color: #0a84ff;
-    --calview-border-color: ThreeDShadow;
-    --calview-border-bottom-color: ThreeDShadow;
+  background-color: ButtonFace;
+  border-top: 1px solid ThreeDShadow;
+  --calview-tabline-color: #0a84ff;
+  --calview-border-color: ThreeDShadow;
+  --calview-border-bottom-color: ThreeDShadow;
 }
 
 #view-box {
-    background-color: Field;
-    border-width: 0;
-    border-inline-start: 1px;
+  background-color: Field;
+  border-width: 0;
+  border-inline-start: 1px;
 }
 
 .view-header {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 radio.calview[selected="true"] {
-    background-color: Field;
+  background-color: Field;
 }
 
 .navigation-inner-box > hbox {
-    padding-top: 1px;
+  padding-top: 1px;
 }
 
 .navigation-bottombox {
-    background-color: Field;
+  background-color: Field;
 }
 
 .today-navigation-button {
-    padding-top: 0;
+  padding-top: 0;
 }
 
 #calendar-view-box #calendar-view-splitter {
-    border: none;
-    border-bottom: 1px solid var(--splitter-color);
-    min-height: 0;
-    height: 5px;
-    background-color: transparent;
-    margin-top: -5px;
-    position: relative;
-    z-index: 10;
+  border: none;
+  border-bottom: 1px solid var(--splitter-color);
+  min-height: 0;
+  height: 5px;
+  background-color: transparent;
+  margin-top: -5px;
+  position: relative;
+  z-index: 10;
 }

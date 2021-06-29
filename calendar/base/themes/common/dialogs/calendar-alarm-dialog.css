@@ -9,98 +9,98 @@
 
 /* Alarm dialog styles */
 #alarm-richlist {
-    margin: 10px;
-    text-shadow: none;
+  margin: 10px;
+  text-shadow: none;
 }
 
 #alarm-actionbar {
-    min-width: 1px;
-    margin: 0 5px 10px;
+  min-width: 1px;
+  margin: 0 5px 10px;
 }
 
 /* Alarm widget specific styles */
 richlistitem[is="calendar-alarm-widget-richlistitem"] {
-    border-bottom: 1px dotted ThreeDShadow;
-    padding: 6px 7px;
+  border-bottom: 1px dotted ThreeDShadow;
+  padding: 6px 7px;
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] {
-    padding: 0 5px;
+  padding: 0 5px;
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-title-label {
-   font-weight: bold;
+  font-weight: bold;
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-action-buttons {
-    display: -moz-box;
-    color: var(--field-text-color);
+  display: -moz-box;
+  color: var(--field-text-color);
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] > hbox {
-    margin: 5px;
+  margin: 5px;
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-relative-date-label,
 .additional-information-box,
 .alarm-action-buttons {
-    display: none;
+  display: none;
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .additional-information-box,
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-buttons-box {
-    display: -moz-box;
+  display: -moz-box;
 }
 
 .alarm-details-label {
-    color: inherit !important;
-    text-decoration: underline;
+  color: inherit !important;
+  text-decoration: underline;
 }
 
 .alarm-calendar-image {
-    -moz-context-properties: fill;
-    fill: currentColor;
-    margin-top: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin-top: 2px;
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"]:not([selected="true"]) .alarm-calendar-image {
-    display: none;
+  display: none;
 }
 
 .snooze-popup-button {
-    min-width: 0;
-    appearance: none;
-    margin-inline-end: 2px;
-    -moz-context-properties: fill;
-    fill: currentColor;
+  min-width: 0;
+  appearance: none;
+  margin-inline-end: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .snooze-popup-button:hover {
-    background-color: var(--button-hover-bgcolor);
+  background-color: var(--button-hover-bgcolor);
 }
 
 .snooze-popup-ok-button {
-    list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
 }
 
 .snooze-popup-cancel-button {
-    list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
 }
 
 .snooze-popup-button > .button-box > .button-icon {
-    margin: 0;
+  margin: 0;
 }
 
 .snooze-popup-button > .button-box {
-    border: 0;
-    padding: 0;
-    -moz-box-pack: center;
-    -moz-box-align: center;
+  border: 0;
+  padding: 0;
+  -moz-box-pack: center;
+  -moz-box-align: center;
 }
 
 .snooze-popup-button:focus > .button-box {
-    border: 1px dotted ThreeDDarkShadow;
-    padding: 0;
+  border: 1px dotted ThreeDDarkShadow;
+  padding: 0;
 }
 
 :root[lwt-tree] #alarm-snooze-all-popup,

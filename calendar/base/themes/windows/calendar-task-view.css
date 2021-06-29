@@ -5,54 +5,53 @@
 @import url(chrome://calendar/skin/shared/calendar-task-view.css);
 
 #calendar-task-details-container {
-    padding-top: 0;
+  padding-top: 0;
 }
 
 #task-text-filter-field {
-    margin-block: 5px;
+  margin-block: 5px;
 }
 
 #task-text-filter-field .textbox-search-icons {
-    margin-bottom: -1px;
+  margin-bottom: -1px;
 }
 
 /* ::::: task actions toolbar ::::: */
 
 #calendar-add-task-button[disabled="true"] {
-    fill-opacity: 0.4;
+  fill-opacity: 0.4;
 }
 
 #view-task-edit-field,
 #task-text-filter-field {
-    width: 15em;
+  width: 15em;
 }
 
 #calendar-task-box #calendar-task-view-splitter {
-    border-width: 0;
-    border-bottom: 1px solid var(--splitter-color);
-    min-height: 0;
-    height: 5px;
-    background-color: transparent;
-    margin-top: -5px;
-    position: relative;
-    z-index: 10;
+  border-width: 0;
+  border-bottom: 1px solid var(--splitter-color);
+  min-height: 0;
+  height: 5px;
+  background-color: transparent;
+  margin-top: -5px;
+  position: relative;
+  z-index: 10;
 }
 
 #calendar-nav-control {
-    border-top-width: 0;
+  border-top-width: 0;
 }
 
 @media (-moz-windows-default-theme) {
-    #task-addition-box {
-        background-color: #f8f8f8;
-        height: 32px;
-    }
+  #task-addition-box {
+    background-color: #f8f8f8;
+    height: 32px;
+  }
 }
 
-@media (-moz-os-version: windows-vista),
-       (-moz-os-version: windows-win7) {
-    #view-task-edit-field,
-    #task-text-filter-field {
-        margin-block: 4px;
-    }
+@media (-moz-os-version: windows-win7) {
+  #view-task-edit-field,
+  #task-text-filter-field {
+    margin-block: 4px;
+  }
 }

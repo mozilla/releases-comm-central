@@ -5,31 +5,31 @@
 @import url(chrome://calendar/skin/shared/calendar-task-view.css);
 
 #calendar-task-view-splitter {
-    appearance: none;
-    border-bottom: 1px solid var(--splitter-color);
-    /* splitter grip area */
-    height: 5px;
-    /* make only the splitter border visible */
-    margin-top: -5px;
-    /* because of the negative margin needed to make the splitter visible */
-    position: relative;
-    z-index: 10;
+  appearance: none;
+  border-bottom: 1px solid var(--splitter-color);
+  /* splitter grip area */
+  height: 5px;
+  /* make only the splitter border visible */
+  margin-top: -5px;
+  /* because of the negative margin needed to make the splitter visible */
+  position: relative;
+  z-index: 10;
 }
 
 #task-addition-box {
-    height: 37px;
+  height: 37px;
 }
 
 #calendar-task-details-container {
-    padding-top: 1px;
+  padding-top: 1px;
 }
 
 #task-text-filter-field {
-    margin: 5px;
+  margin: 5px;
 }
 
 /* ::::: task actions toolbar ::::: */
 
 #calendar-add-task-button[disabled="true"] {
-    fill-opacity: 0.4;
+  fill-opacity: 0.4;
 }

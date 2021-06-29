@@ -3,70 +3,70 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .invitation-border {
-       border: 3px solid -moz-default-color;
-       margin-inline-start: auto;
-       margin-inline-end: auto;
-       width: -moz-fit-content;
-       height: -moz-fit-content;
+  border: 3px solid -moz-default-color;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+  width: -moz-fit-content;
+  height: -moz-fit-content;
 }
 
 .invitation-table {
-       border-collapse: collapse;
-       width: 40em;
+  border-collapse: collapse;
+  width: 40em;
 }
 
 .invitation-table .header {
-       padding: 3px;
-       color: HighlightText;
-       font-size: 1em;
-       font-weight: bold;
-       background-color: Highlight;
+  padding: 3px;
+  color: HighlightText;
+  font-size: 1em;
+  font-weight: bold;
+  background-color: Highlight;
 }
 
 .invitation-table :is(td, th) {
-       padding: 3px;
-       vertical-align: baseline;
+  padding: 3px;
+  vertical-align: baseline;
 }
 
 .invitation-table td {
-       overflow-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 
 .invitation-table .description {
-       width: 9em;
-       text-align: end;
-       font-weight: normal;
-       border-inline-end: 1px solid hsla(0, 0%, 50%, .2);
-       background-color: hsla(0, 0%, 50%, .2);
+  width: 9em;
+  text-align: end;
+  font-weight: normal;
+  border-inline-end: 1px solid hsla(0, 0%, 50%, .2);
+  background-color: hsla(0, 0%, 50%, .2);
 }
 
 .invitation-table .content {
-       width: 29em;
+  width: 29em;
 }
 
 .invitation-table .added {
-       color: rgb(255, 0, 0);
-       text-decoration-line: none;
+  color: rgb(255, 0, 0);
+  text-decoration-line: none;
 }
 
 .invitation-table .added[systemcolors] {
-       color: currentColor;
-       font-weight: bold;
+  color: currentColor;
+  font-weight: bold;
 }
 
 .invitation-table .modified {
-       color: rgb(255, 0, 0);
-       font-style: italic;
+  color: rgb(255, 0, 0);
+  font-style: italic;
 }
 
 .invitation-table .modified[systemcolors] {
-       color: currentColor;
+  color: currentColor;
 }
 
 .invitation-table .removed {
-       color: rgb(125, 125, 125);
+  color: rgb(125, 125, 125);
 }
 
 .invitation-table .removed[systemcolors] {
-       color: currentColor;
+  color: currentColor;
 }

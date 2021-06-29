@@ -5,19 +5,19 @@
 @import url(chrome://calendar/skin/shared/calendar-views.css);
 
 calendar-event-column {
-    -moz-user-focus: normal;
+  -moz-user-focus: normal;
 }
 
 /** Start time bar **/
 
 .calendar-time-bar-label {
-    margin: 2px 2px;
+  margin: 2px 2px;
 }
 
 calendar-event-box[invitation-status="NEEDS-ACTION"],
 calendar-editable-item[invitation-status="NEEDS-ACTION"],
 calendar-month-day-box-item[invitation-status="NEEDS-ACTION"] {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 calendar-event-box[invitation-status="TENTATIVE"],
@@ -27,7 +27,7 @@ calendar-event-box[status="TENTATIVE"],
 calendar-editable-item[status="TENTATIVE"],
 calendar-month-day-box-item[status="TENTATIVE"],
 richlistitem[is="agenda-richlistitem"][status="TENTATIVE"] {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 calendar-event-box[invitation-status="DECLINED"],
@@ -37,53 +37,53 @@ calendar-event-box[status="CANCELLED"],
 calendar-editable-item[status="CANCELLED"],
 calendar-month-day-box-item[status="CANCELLED"],
 richlistitem[is="agenda-richlistitem"][status="CANCELLED"] {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 /* Navigation controls for the views */
 #calendar-nav-control {
-    background-color: #e8e8e8;
-    --calview-tabline-color: -moz-accent-color;
-    --calview-border-color: #bdbdbd;
-    --calview-border-bottom-color: #d2d2d2;
+  background-color: #e8e8e8;
+  --calview-tabline-color: -moz-accent-color;
+  --calview-border-color: #bdbdbd;
+  --calview-border-bottom-color: #d2d2d2;
 }
 
 #view-box {
-    background-color: white;
-    border-width: 0 0 0 1px;
+  background-color: white;
+  border-width: 0 0 0 1px;
 }
 
 .calview-tabs {
-    -moz-box-align: stretch;
-    padding-left: 0;
-    padding-right: 0;
-    margin-bottom: 0;
-    position: static;
+  -moz-box-align: stretch;
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: 0;
+  position: static;
 }
 
 radio.calview[selected="true"] {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 .view-header {
-    margin-top: 3px;
-    margin-bottom: 1px;
+  margin-top: 3px;
+  margin-bottom: 1px;
 }
 
 .navigation-bottombox {
-    background-color: white;
+  background-color: white;
 }
 
 .view-navigation-button {
-    margin-top: 2px;
+  margin-top: 2px;
 }
 
 .today-navigation-button {
-    margin-top: 2px;
-    padding-top: 2px;
+  margin-top: 2px;
+  padding-top: 2px;
 }
 
 #calendar-nav-control:-moz-window-inactive {
-    background: -moz-mac-chrome-inactive;
-    --calview-border-bottom-color: hsl(0, 0%, 85%);
+  background: -moz-mac-chrome-inactive;
+  --calview-border-bottom-color: hsl(0, 0%, 85%);
 }

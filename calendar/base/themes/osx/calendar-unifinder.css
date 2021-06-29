@@ -6,15 +6,15 @@
 
 /* added for new id ..... search box ..... */
 #unifinder-searchBox {
-    border-bottom: 1px solid #bebebe;
-    height: 30px;
+  border-bottom: 1px solid #bebebe;
+  height: 30px;
 }
 
 .unifinder-closebutton > .toolbarbutton-text {
-    display: none;
+  display: none;
 }
 
 #unifinder-searchBox:-moz-window-inactive {
-    border-bottom-color: hsl(0, 0%, 85%);
-    background-color: -moz-mac-chrome-inactive;
+  border-bottom-color: hsl(0, 0%, 85%);
+  background-color: -moz-mac-chrome-inactive;
 }

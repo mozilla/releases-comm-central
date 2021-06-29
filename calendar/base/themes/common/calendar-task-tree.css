@@ -3,46 +3,46 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .calendar-task-tree {
-    appearance: none;
-    margin: 0;
+  appearance: none;
+  margin: 0;
 }
 
 /* align the treechildren text */
 .calendar-task-tree > treechildren::-moz-tree-cell-text {
-    margin-top: 1px;
-    margin-bottom: 1px;
+  margin-top: 1px;
+  margin-bottom: 1px;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress) {
-    color: green !important;
+  color: green !important;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress) {
-    color: #00bd00 !important;
+  color: #00bd00 !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
-    background-color: green !important;
+  background-color: green !important;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
-    background-color: #00bd00 !important;
+  background-color: #00bd00 !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue) {
-    color: red !important;
+  color: red !important;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue) {
-    color: #ff7a7a !important;
+  color: #ff7a7a !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
-    background-color: red !important;
+  background-color: red !important;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
-    background-color: #ff7a7a !important;
+  background-color: #ff7a7a !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(inprogress, selected, focus),
@@ -53,55 +53,55 @@
 .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus),
 :root[lwt-tree-brighttext] .calendar-task-tree >
   treechildren::-moz-tree-cell-text(overdue, selected, focus) {
-    color: HighlightText !important;
+  color: HighlightText !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(completed) {
-    text-decoration: line-through;
-    font-style: italic;
+  text-decoration: line-through;
+  font-style: italic;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(duetoday) {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .calendar-task-tree-col-priority {
-    -moz-context-properties: fill;
-    fill: currentColor;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority) {
-    margin-inline-start: -2px;
-    -moz-context-properties: fill;
-    fill: transparent;
+  margin-inline-start: -2px;
+  -moz-context-properties: fill;
+  fill: transparent;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
-    list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
-    fill: red;
+  list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
+  fill: red;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree >
   treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
-    fill: #ff7a7a;
+  fill: #ff7a7a;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
-    list-style-image: url(chrome://calendar/skin/shared/icons/low-priority.svg);
-    fill: blue;
+  list-style-image: url(chrome://calendar/skin/shared/icons/low-priority.svg);
+  fill: blue;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree >
   treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
-    fill: #fff;
+  fill: #fff;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected) {
-    fill: currentColor !important;
+  fill: currentColor !important;
 }
 
 treecol.calendar-task-tree-col-percentcomplete {
-    text-align: end;
+  text-align: end;
 }
 
 .calendar-task-tree-col-completed >.treecol-icon,

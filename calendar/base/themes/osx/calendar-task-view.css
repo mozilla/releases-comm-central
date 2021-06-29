@@ -5,34 +5,34 @@
 @import url(chrome://calendar/skin/shared/calendar-task-view.css);
 
 #calendar-task-details-container {
-    background-color: ButtonFace;
-    padding-top: 2px;
+  background-color: ButtonFace;
+  padding-top: 2px;
 }
 
 #task-addition-box {
-    border-bottom-color: #bebebe
+  border-bottom-color: #bebebe
 }
 
 /* Hide the search glass */
 .task-edit-field {
-    margin-block: 0;
-    background-image: none;
-    padding-inline-start: 4px !important;
+  margin-block: 0;
+  background-image: none;
+  padding-inline-start: 4px !important;
 }
 
 #task-addition-box:-moz-window-inactive {
-    border-bottom-color: hsl(0, 0%, 85%);
-    background: -moz-mac-chrome-inactive;
+  border-bottom-color: hsl(0, 0%, 85%);
+  background: -moz-mac-chrome-inactive;
 }
 
 #calendar-task-details-container:-moz-window-inactive {
-    background-color: -moz-mac-chrome-inactive;
+  background-color: -moz-mac-chrome-inactive;
 }
 
 #calendar-add-task-button[disabled="true"] {
-    fill-opacity: .5;
+  fill-opacity: .5;
 }
 
 #calendar-add-task-button > .toolbarbutton-text {
-    margin-inline-start: 0;
+  margin-inline-start: 0;
 }

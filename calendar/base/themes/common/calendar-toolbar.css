@@ -4,51 +4,51 @@
 
 /* Calendar tool bar button */
 #lightning-button-calendar {
-    list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
+  list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
 }
 
 /* Tasks tool bar button */
 #lightning-button-tasks {
-    list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
 }
 
 /* Toolbar buttons */
 #calendar-synchronize-button,
 #task-synchronize-button {
-    list-style-image: url(chrome://calendar/skin/shared/icons/synchronize.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/synchronize.svg);
 }
 
 #extractEventButton,
 #task-newevent-button,
 #calendar-newevent-button {
-    list-style-image: url(chrome://calendar/skin/shared/icons/newevent.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/newevent.svg);
 }
 
 #extractTaskButton,
 #task-newtask-button,
 #calendar-newtask-button {
-    list-style-image: url(chrome://calendar/skin/shared/icons/newtask.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/newtask.svg);
 }
 
 #calendar-edit-button,
 #task-edit-button {
-    list-style-image: url(chrome://calendar/skin/shared/icons/edit.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/edit.svg);
 }
 
 #calendar-delete-button,
 #task-delete-button {
-    list-style-image: url(chrome://messenger/skin/icons/delete.svg);
+  list-style-image: url(chrome://messenger/skin/icons/delete.svg);
 }
 
 #calendar-goto-today-button {
-    list-style-image: url(chrome://calendar/skin/shared/icons/today.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/today.svg);
 }
 
 #calendar-print-button,
 #task-print-button {
-    list-style-image: url(chrome://messenger/skin/icons/print.svg);
+  list-style-image: url(chrome://messenger/skin/icons/print.svg);
 }
 
 #calendar-unifinder-button {
-    list-style-image: url(chrome://calendar/skin/shared/icons/find.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/find.svg);
 }

@@ -5,225 +5,225 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root[lwt-tree-brighttext] #calendar-task-details-container {
-    --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
-    --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
-    --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
-    --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4));
-    --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .7));
-    --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4)) inset;
-    --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .3));
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
+  --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4));
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .7));
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4)) inset;
+  --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .3));
 }
 
 #calendar-task-details-container {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 #calendar-task-details {
-    display: flex;
-    flex-direction: column;
-    min-height: 6ex;
+  display: flex;
+  flex-direction: column;
+  min-height: 6ex;
 }
 
 #calendar-task-details-attachment-row > hbox {
-    padding-inline-start: 0.1em;
+  padding-inline-start: 0.1em;
 }
 
 #calendar-task-details-grid {
-    padding: 1px 2px 0.2em;
-    width: 100%;
+  padding: 1px 2px 0.2em;
+  width: 100%;
 }
 
 #calendar-task-details-title {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 #calendar-task-details-grid > tr > th {
-    display: flex;
-    justify-content: end;
-    font-weight: normal;
-    white-space: nowrap;
+  display: flex;
+  justify-content: end;
+  font-weight: normal;
+  white-space: nowrap;
 }
 
 #calendar-task-details-grid > tr > td {
-    padding-inline-start: 6px;
-    text-align: left;
-    width: 100%;
+  padding-inline-start: 6px;
+  text-align: left;
+  width: 100%;
 }
 
 #calendar-task-details-grid > tr > td > label {
-    margin-inline-start: 0;
+  margin-inline-start: 0;
 }
 
 #other-actions-box {
-    display: flex;
-    justify-content: end;
-    padding-block: 2px 0.3em;
+  display: flex;
+  justify-content: end;
+  padding-block: 2px 0.3em;
 }
 
 #task-addition-box {
-    border-bottom: 1px solid ThreeDShadow;
+  border-bottom: 1px solid ThreeDShadow;
 }
 
 :root[lwt-tree] #task-addition-box {
-    background-color: var(--toolbar-bgcolor);
-    background-image: none;
-    color: var(--toolbar-color);
-    border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  background-color: var(--toolbar-bgcolor);
+  background-image: none;
+  color: var(--toolbar-color);
+  border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
 }
 
 :root[lwt-tree] #calendar-task-details-container {
-    background-color: var(--toolbar-bgcolor);
-    background-image: none;
-    color: var(--toolbar-color);
-    border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  background-color: var(--toolbar-bgcolor);
+  background-image: none;
+  color: var(--toolbar-color);
+  border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
 }
 
 :root[lwt-tree-brighttext] #task-addition-box,
 :root[lwt-tree-brighttext] #calendar-task-details-container {
-    border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+  border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
 }
 
 #calendar-task-details-box {
-    display: block;
+  display: block;
 }
 
 #calendar-task-details-description-wrapper {
-    display: flex;
+  display: flex;
 }
 
 #calendar-task-details-description {
-    width: 100%;
-    box-sizing: border-box;
-    border-width: 0;
-    border-top: 1px solid var(--splitter-color);
-    margin-block: 0;
-    padding-inline: 4px;
-    outline: none;
-    resize: none;
+  width: 100%;
+  box-sizing: border-box;
+  border-width: 0;
+  border-top: 1px solid var(--splitter-color);
+  margin-block: 0;
+  padding-inline: 4px;
+  outline: none;
+  resize: none;
 }
 
 .task-details-name {
-    text-align: right;
-    color: windowtext;
-    opacity: 0.5; /* lower contrast */
+  text-align: right;
+  color: windowtext;
+  opacity: 0.5; /* lower contrast */
 }
 
 #calendar-task-details-grid > .item-date-row > .headline {
-    font-weight: normal;
-    color: windowtext;
-    opacity: 0.5; /* lower contrast */
+  font-weight: normal;
+  color: windowtext;
+  opacity: 0.5; /* lower contrast */
 }
 
 #calendar-task-details-attachment-row {
-    border-top: 1px solid var(--splitter-color);
-    padding-block: 2px;
+  border-top: 1px solid var(--splitter-color);
+  padding-block: 2px;
 }
 
 #calendar-task-details-attachment-rows {
-    max-height: 60px;
+  max-height: 60px;
 }
 
 .task-details-value {
-    text-align: left;
-    color: WindowText;
+  text-align: left;
+  color: WindowText;
 }
 
 :root[lwt-tree] .task-details-name,
 :root[lwt-tree] .task-details-value,
 :root[lwt-tree] #calendar-task-details-grid > .item-date-row > .headline {
-    color: inherit;
+  color: inherit;
 }
 
 #calendar-task-tree {
-    min-height: 98px;
+  min-height: 98px;
 }
 
 #calendar-task-tree-detail {
-    border-top: 1px solid ThreeDShadow;
-    margin: 3px 0;
+  border-top: 1px solid ThreeDShadow;
+  margin: 3px 0;
 }
 
 :root[lwt-tree] #calendar-task-tree-detail {
-    border-top-color: var(--sidebar-border-color);
+  border-top-color: var(--sidebar-border-color);
 }
 
 #view-task-edit-field {
-    margin: 5px;
-    padding-block: 0;
+  margin: 5px;
+  padding-block: 0;
 }
 
 .task-edit-field[readonly="true"] {
-    color: GrayText;
+  color: GrayText;
 }
 
 #unifinder-task-edit-field {
-    margin: 3px;
+  margin: 3px;
 }
 
 #unifinder-todo-tree > .calendar-task-tree {
-    margin-bottom: 3px;
+  margin-bottom: 3px;
 }
 
 /* ::::: task actions toolbar ::::: */
 
 #calendar-add-task-button {
-    appearance: none;
-    -moz-user-focus: normal;
-    border: 1px solid transparent;
-    border-radius: var(--toolbarbutton-border-radius);
-    margin-inline-start: 5px;
-    list-style-image: url(chrome://calendar/skin/shared/icons/newtask.svg);
-    -moz-image-region: rect(0 16px 16px 0);
-    -moz-context-properties: fill, fill-opacity;
-    fill: currentColor;
-    fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+  appearance: none;
+  -moz-user-focus: normal;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+  margin-inline-start: 5px;
+  list-style-image: url(chrome://calendar/skin/shared/icons/newtask.svg);
+  -moz-image-region: rect(0 16px 16px 0);
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 #calendar-add-task-button:not([disabled="true"]):hover {
-    background: var(--toolbarbutton-hover-background);
-    border-color: var(--toolbarbutton-hover-bordercolor);
-    box-shadow: var(--toolbarbutton-hover-boxshadow);
-    color: inherit;
-    outline: none;
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  color: inherit;
+  outline: none;
 }
 
 #calendar-add-task-button:not([disabled="true"]):hover:active {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-    box-shadow: var(--toolbarbutton-active-boxshadow);
-    transition-duration: 10ms;
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  transition-duration: 10ms;
 }
 
 #calendar-add-task-button:focus-visible:not(:hover) {
-    outline: 2px solid var(--focus-outline-color);
-    outline-offset: var(--focus-outline-offset);
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: var(--focus-outline-offset);
 }
 
 #calendar-add-task-button > .toolbarbutton-text {
-    padding-inline-start: 5px;
+  padding-inline-start: 5px;
 }
 
 #task-actions-category {
-    list-style-image: url(chrome://messenger/skin/icons/tag.svg);
+  list-style-image: url(chrome://messenger/skin/icons/tag.svg);
 }
 
 #task-actions-markcompleted {
-    list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
 }
 
 #task-actions-priority {
-    list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
 }
 
 #calendar-delete-task-button {
-    list-style-image: url(chrome://messenger/skin/icons/delete.svg);
+  list-style-image: url(chrome://messenger/skin/icons/delete.svg);
 }
 
 .input-container {
-    display: flex;
-    align-items: stretch;
+  display: flex;
+  align-items: stretch;
 }
 
 .input-container html|input {
-    flex-grow: 1;
+  flex-grow: 1;
 }

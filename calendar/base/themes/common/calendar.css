@@ -10,32 +10,32 @@
 /* ::: new tab buttons ::: */
 #calendar-tab-button,
 #newMsgButton-calendar-menuitem {
-    list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
-    -moz-image-region: auto;
+  list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
+  -moz-image-region: auto;
 }
 
 #task-tab-button,
 #newMsgButton-task-menuitem {
-    list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
-    -moz-image-region: auto;
+  list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
+  -moz-image-region: auto;
 }
 
 /* ::: tab icons ::: */
 .icon-holder[type="calendar"],
 .tabmail-tab[type="calendar"] {
-    list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
-    -moz-image-region: auto;
+  list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
+  -moz-image-region: auto;
 }
 
 .icon-holder[type="tasks"],
 .tabmail-tab[type="tasks"] {
-    list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
-    -moz-image-region: auto;
+  list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
+  -moz-image-region: auto;
 }
 
 :root[lwt-tree] #calSidebar {
-    background-color: var(--sidebar-background-color);
-    color: var(--sidebar-text-color);
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
 }
 
 /* Avoids contributing to the min width when Calendar is not selected. */
@@ -79,11 +79,11 @@
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-    width: 16px;
-    height: 16px;
-    -moz-context-properties: fill, fill-opacity;
-    fill: currentColor;
-    fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-day-text {
@@ -149,48 +149,48 @@
 
 .imipAcceptRecurrencesButton,
 .imipAcceptButton {
-    list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
 }
 
 .imipDeclineCounterButton,
 .imipDeclineRecurrencesButton,
 .imipDeclineButton {
-    list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
 }
 
 .imipTentativeRecurrencesButton,
 .imipTentativeButton {
-    list-style-image: url(chrome://calendar/skin/shared/icons/tentative.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/tentative.svg);
 }
 
 .imipDetailsButton {
-    list-style-image: url(chrome://calendar/skin/shared/icons/find.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/find.svg);
 }
 
 .imipAddButton {
-    list-style-image: url(chrome://calendar/skin/shared/icons/newevent.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/newevent.svg);
 }
 
 .imipRescheduleButton,
 .imipUpdateButton {
-    list-style-image: url(chrome://calendar/skin/shared/icons/synchronize.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/synchronize.svg);
 }
 
 .imipDeleteButton {
-    list-style-image: url(chrome://messenger/skin/icons/delete.svg);
+  list-style-image: url(chrome://messenger/skin/icons/delete.svg);
 }
 
 .imipReconfirmButton {
-    list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
 }
 
 .imipGoToCalendarButton {
-    list-style-image: url(chrome://calendar/skin/shared/icons/icon32.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/icon32.svg);
 }
 
 .imipAcceptLabel {
-    font-weight: bold;
-    font-style: italic;
+  font-weight: bold;
+  font-style: italic;
 }
 
 #calsidebar_splitter,

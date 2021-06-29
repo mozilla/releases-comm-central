@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #provider-name-label {
-    font-weight: bold;
-    margin-inline-start: 3em;
+  font-weight: bold;
+  margin-inline-start: 3em;
 }
 
 #calendar-list richlistitem[selected] {

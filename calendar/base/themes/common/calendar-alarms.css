@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .reminder-details > .alarm-icons-box {
-    width: 15px;
+  width: 15px;
 }
 
 /**
@@ -11,31 +11,31 @@
  */
 .reminder-icon,
 .reminder-list-icon {
-    -moz-context-properties: fill;
-    fill: currentColor;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .reminder-list-icon[value="DISPLAY"] {
-    list-style-image: url(chrome://calendar/skin/shared/icons/alarm.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/alarm.svg);
 }
 
 .reminder-list-icon[value="EMAIL"] {
-    list-style-image: url(chrome://calendar/skin/shared/icons/email.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/email.svg);
 }
 
 .reminder-list-icon[value="AUDIO"] {
-    list-style-image: url(chrome://global/skin/media/audio.svg);
+  list-style-image: url(chrome://global/skin/media/audio.svg);
 }
 
 .alarm-icons-box[flashing="true"] > .reminder-icon[value="DISPLAY"] {
-    background: red;
-    fill: white;
+  background: red;
+  fill: white;
 }
 
 .reminder-details > .alarm-icons-box > .reminder-icon {
-    width: 12px;
-    height: 12px;
-    margin-inline-start: 3px;
+  width: 12px;
+  height: 12px;
+  margin-inline-start: 3px;
 }
 
 /**
@@ -44,22 +44,22 @@
  * dialogs.
  */
 #reminder-listbox {
-    min-height: 100px;
+  min-height: 100px;
 }
 
 #reminder-relative-radio > .radio-label-center-box > .radio-label-box,
 #reminder-absolute-radio > .radio-label-center-box > .radio-label-box {
-    display: none;
+  display: none;
 }
 
 #reminder-actions-menulist > menupopup > menuitem > .menu-iconic-left {
-    display: -moz-box;
+  display: -moz-box;
 }
 
 #reminder-notifications > notification[type="warning"] > hbox > .messageImage {
-    width: 32px;
-    height: 32px;
-    fill: #ffbf00;
+  width: 32px;
+  height: 32px;
+  fill: #ffbf00;
 }
 
 #reminder-notifications {
@@ -68,14 +68,14 @@
 
 #reminder-actions-caption,
 #reminder-details-caption {
-    padding-top: 20px;
+  padding-top: 20px;
 }
 
 #reminder-actions-menulist {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .reminder-icon > .menu-iconic-left > .menu-iconic-icon {
-    width: auto;
-    height: auto;
+  width: auto;
+  height: auto;
 }
