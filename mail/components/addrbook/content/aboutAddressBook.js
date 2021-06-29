@@ -1005,7 +1005,6 @@ var cardsPane = {
    * Prompt the user and delete the selected card(s).
    */
   async deleteSelected() {
-    // TODO: Upgrade this code which comes from the old address book.
     let selectedLists = [];
     let selectedContacts = [];
 
