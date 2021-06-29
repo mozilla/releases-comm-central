@@ -249,7 +249,7 @@ var chatTabType = {
     },
     onTabSwitched(aNewTab, aOldTab) {
       // aNewTab == chat is handled earlier by showTab() below.
-      if (aOldTab.mode.name == "chat") {
+      if (aOldTab?.mode.name == "chat") {
         chatHandler._onTabDeactivated(true);
       }
     },

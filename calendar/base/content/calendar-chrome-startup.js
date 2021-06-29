@@ -127,7 +127,14 @@ async function loadCalendarComponent() {
   filter.value = filter.value || "all";
 
   // Set up mode-switching menu items and mode[v]box elements for the initial mode.
-  changeMode();
+  // At this point no tabs have been restored, so the only reason we wouldn't be
+  // in "mail" mode is if a content tab has opened to display the account set-up.
+  let tabmail = document.getElementById("tabmail");
+  if (tabmail.currentTabInfo.mode.name == "contentTab") {
+    changeMode("special");
+  } else {
+    changeMode("mail");
+  }
 
   // Set up customizeDone handlers for our toolbars.
   let toolbox = document.getElementById("calendar-toolbox");

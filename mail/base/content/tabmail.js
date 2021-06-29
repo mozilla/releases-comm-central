@@ -421,8 +421,9 @@
    *     used in the course of wrapping the object.
    *  The following functions should be provided on the monitor object:
    * * onTabTitleChanged(aTab): Called when the tab's title changes.
-   * * onTabSwitched(aTab, aOldTab): Called when a new tab is made active.  If
-   *     this is the first tab ever, aOldTab will be null, otherwise aOldTab
+   * * onTabSwitched(aTab, aOldTab): Called when a new tab is made active.
+   *     Also called when the monitor is registered if one or more tabs exist.
+   *     If this is the first call, aOldTab will be null, otherwise aOldTab
    *     will be the previously active tab.
    * * onTabOpened(aTab, aIsFirstTab, aWasCurrentTab): Called when a new tab is
    *     opened.  This method is invoked after the tab mode's openTab method
@@ -709,6 +710,9 @@
     registerTabMonitor(aTabMonitor) {
       if (!this.tabMonitors.includes(aTabMonitor)) {
         this.tabMonitors.push(aTabMonitor);
+        if (this.tabInfo.length) {
+          aTabMonitor.onTabSwitched(this.currentTabInfo, null);
+        }
       }
     }
 
