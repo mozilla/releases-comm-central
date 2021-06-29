@@ -9,8 +9,8 @@
 @import url("chrome://messenger/skin/menulist.css");
 
 timepicker-grids {
-  --tpMainColor: #000;
-  --tpMainBackground: #fff;
+  --tpMainColor: -moz-DialogText;
+  --tpMainBackground: -moz-Dialog;
   --tpBorderColor: ThreeDShadow;
   --tpSubColor: -moz-DialogText;
   --tpSubBackground: -moz-Dialog;
