@@ -118,6 +118,7 @@ var EnigmailKeyRing = {
     if (keyId.search(/^0x/) === 0) {
       keyId = keyId.substr(2);
     }
+    keyId = keyId.toUpperCase();
 
     if (!noLoadKeys) {
       this.getAllKeys(); // ensure keylist is loaded;

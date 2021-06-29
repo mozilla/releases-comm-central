@@ -30,15 +30,20 @@ const { MailServices } = ChromeUtils.import(
 const { MockFilePicker } = ChromeUtils.import(
   "resource://specialpowers/MockFilePicker.jsm"
 );
+const { OpenPGPTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+);
 
 var gAccount;
 var gIdentity;
-var initialKeyIdPref = "";
 var gTab;
 var tabDocument;
 var tabWindow;
 
 const EXTERNAL_GNUP_KEY = "123456789ASD";
+
+var gCreatedKeyId;
+var gImportedKeyId;
 
 /**
  * Set up the base account and identity.
@@ -79,11 +84,11 @@ add_task(async function check_clean_keylist() {
   // The OpenPGP Key List container should not be visible.
   Assert.equal(
     tabDocument.getElementById("openPgpKeyList").hidden,
-    1,
+    true,
     "The openPgpKeyList container shouldn't be visible"
   );
 
-  // The OpenPGP Key List radiogroup should only have 1 item.
+  // The OpenPGP Key List radiogroup should only have 1 item (the None).
   Assert.equal(
     tabDocument.getElementById("openPgpKeyListRadio").itemCount,
     1,
@@ -157,11 +162,12 @@ add_task(async function generate_new_key() {
   // The key wizard should automatically assign the newly generated key to the
   // selected identity and close the dialog. Let's wait for that change.
   await TestUtils.waitForCondition(
-    () => gIdentity.getUnicharAttribute("openpgp_key_id") != initialKeyIdPref,
+    () => gIdentity.getUnicharAttribute("openpgp_key_id"),
     "Timeout waiting for the newly generated key to be set"
   );
+  gCreatedKeyId = gIdentity.getUnicharAttribute("openpgp_key_id");
 
-  // The OpenPGP Key List radiogroup should only have 2 items now.
+  // The OpenPGP Key List radiogroup should only have 2 items now (None, and a key).
   Assert.equal(
     tabDocument.getElementById("openPgpKeyListRadio").itemCount,
     2,
@@ -172,7 +178,7 @@ add_task(async function generate_new_key() {
   Assert.equal(
     tabDocument.getElementById("openPgpNone").selected,
     false,
-    "The openPgpNone radio option is not selected"
+    "The openPgpNone radio option should not be selected"
   );
 });
 
@@ -214,6 +220,7 @@ add_task(async function import_secret_key() {
     getRootDirectory(gTestPath) +
       "data/keys/alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
   );
+  gImportedKeyId = "0xf231550c4f47e38e";
   let fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
   let file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
 
@@ -342,15 +349,15 @@ add_task(async function add_external_key() {
   );
 });
 
-registerCleanupFunction(function tearDown() {
+registerCleanupFunction(async function() {
   mc.tabmail.closeTab(gTab);
   gTab = null;
   tabDocument = null;
   tabWindow = null;
 
   Services.prefs.clearUserPref("mail.openpgp.allow_external_gnupg");
-  gIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
-  MailServices.accounts.removeIncomingServer(gAccount.incomingServer, true);
-  MailServices.accounts.removeAccount(gAccount);
+  MailServices.accounts.removeAccount(gAccount, true);
   gAccount = null;
+  await OpenPGPTestUtils.removeKeyById(gCreatedKeyId, true);
+  await OpenPGPTestUtils.removeKeyById(gImportedKeyId, true);
 });
