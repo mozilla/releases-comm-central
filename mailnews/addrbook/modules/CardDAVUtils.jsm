@@ -516,7 +516,11 @@ var CardDAVUtils = {
                 "",
                 ""
               );
-              Services.logins.addLogin(newLoginInfo);
+              try {
+                Services.logins.addLogin(newLoginInfo);
+              } catch (ex) {
+                Cu.reportError(ex);
+              }
               oAuth._isNew = false;
             }
             book.setStringValue("carddav.username", username);
@@ -580,10 +584,14 @@ class NotificationCallbacks {
       return false;
     }
 
+    this.origin = channel.URI.prePath;
+    this.authInfo = authInfo;
+
     if (!this.forcePrompt) {
       if (this.username && this.password) {
         authInfo.username = this.username;
         authInfo.password = this.password;
+        this.shouldSaveAuth = true;
         return true;
       }
 
@@ -618,9 +626,7 @@ class NotificationCallbacks {
     );
     if (returnValue) {
       this.shouldSaveAuth = savePassword.value;
-      this.origin = channel.URI.prePath;
     }
-    this.authInfo = authInfo;
     return returnValue;
   }
   saveAuth() {
