@@ -413,6 +413,16 @@ var ResultsPaneController = {
         }
         enabled = enabled && numSelected > 0;
 
+        if (enabled && !gAbView?.directory) {
+          // Undefined gAbView.directory means "All Address Books" is selected.
+          // Disable the menu/button if any selected card is from a read only
+          // directory.
+          enabled = !GetSelectedAbCards().some(
+            card =>
+              MailServices.ab.getDirectoryFromUID(card.directoryUID).readOnly
+          );
+        }
+
         let labelAttr = null;
         if (command == "cmd_delete") {
           switch (GetSelectedCardTypes()) {
