@@ -12,16 +12,14 @@
         <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
       </linkset>
 
-      <vbox>
-        <description flex="1">
-          <html:p class="intro-paragraph"
-                  data-l10n-id="e2e-intro-description"></html:p>
-          <html:span class="tail-with-learn-more"
-                     data-l10n-id="e2e-intro-description-more"></html:span>
-          <label is="text-link" id="acceptLearnMoreE2E"
-                 href="https://support.mozilla.org/kb/introduction-to-e2e-encryption"
-                 value="&e2eLearnMore.label;"/>
-        </description>
+      <vbox flex="1">
+        <html:p class="intro-paragraph"
+                data-l10n-id="e2e-intro-description"></html:p>
+        <html:span class="tail-with-learn-more"
+                   data-l10n-id="e2e-intro-description-more"></html:span>
+        <label is="text-link" id="acceptLearnMoreE2E"
+               href="https://support.mozilla.org/kb/introduction-to-e2e-encryption"
+               value="&e2eLearnMore.label;"/>
       </vbox>
 
 #ifdef MOZ_OPENPGP
@@ -207,6 +205,30 @@
         <checkbox id="identity_sign_mail" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.sign_mail"
                   label="&signMessage2.label;" accesskey="&signMessage.accesskey;"/>
+
+      </html:fieldset>
+      </html:div>
+
+      <separator/>
+
+      <html:legend data-l10n-id="e2e-advanced-section"/>
+
+      <html:div>
+      <html:fieldset id="encryption_titlebox">
+
+#ifdef MOZ_OPENPGP
+        <checkbox id="identity_attach_key" wsm_persist="true"
+                  prefstring="mail.identity.%identitykey%.attachPgpKey"
+                  data-l10n-id="e2e-attach-key"/>
+
+        <checkbox id="identity_encrypt_subject" wsm_persist="true"
+                  prefstring="mail.identity.%identitykey%.protectSubject"
+                  data-l10n-id="e2e-encrypt-subject"/>
+#endif
+
+        <checkbox id="identity_encrypt_drafts" wsm_persist="true"
+                  prefstring="mail.identity.%identitykey%.autoEncryptDrafts"
+                  data-l10n-id="e2e-encrypt-drafts"/>
 
 #ifdef MOZ_OPENPGP
         <separator/>

@@ -51,6 +51,10 @@ var gTechChoices = null;
 var gSignMessages = null;
 var gRequireEncrypt = null;
 var gDoNotEncrypt = null;
+var gAttachKey = null;
+var gEncryptSubject = null;
+var gEncryptDrafts = null;
+
 var gKeyId = null; // "" will denote selection 'None'.
 var gBundle = null;
 var gBrandBundle;
@@ -79,6 +83,9 @@ async function initE2EEncryption(identity) {
   gSignMessages = document.getElementById("identity_sign_mail");
   gRequireEncrypt = document.getElementById("encrypt_require");
   gDoNotEncrypt = document.getElementById("encrypt_no");
+  gAttachKey = document.getElementById("identity_attach_key");
+  gEncryptSubject = document.getElementById("identity_encrypt_subject");
+  gEncryptDrafts = document.getElementById("identity_encrypt_drafts");
 
   gBundle = document.getElementById("bundle_e2e");
   gBrandBundle = document.getElementById("bundle_brand");
@@ -124,6 +131,9 @@ async function initE2EEncryption(identity) {
     enableEncryptionControls(enableEnc);
 
     gSignMessages.checked = identity.getBoolAttribute("sign_mail");
+    gAttachKey.checked = identity.getBoolAttribute("attachPgpKey");
+    gEncryptSubject.checked = identity.getBoolAttribute("protectSubject");
+    gEncryptDrafts.checked = identity.getBoolAttribute("autoEncryptDrafts");
 
     let enableSig = gSignCertName.value;
     if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
@@ -260,6 +270,10 @@ function saveE2EEncryptionSettings(identity) {
     gSignCertName.displayName || gSignCertName.value
   );
   identity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
+
+  identity.setBoolAttribute("attachPgpKey", gAttachKey.checked);
+  identity.setBoolAttribute("protectSubject", gEncryptSubject.checked);
+  identity.setBoolAttribute("autoEncryptDrafts", gEncryptDrafts.checked);
 }
 
 function alertUser(message) {
