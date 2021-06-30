@@ -7,7 +7,7 @@
 
 /* globals loadEventsFromFile */
 
-var { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
+var { CALENDARNAME, controller, createCalendar, deleteCalendars, goToDate } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
 
@@ -15,6 +15,9 @@ const { MockFilePicker } = ChromeUtils.import("resource://specialpowers/MockFile
 const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci.nsIChromeRegistry);
 
 add_task(async () => {
+  await CalendarTestUtils.setCalendarView(window, "month");
+  goToDate(controller, 2019, 1, 1);
+
   let chromeUrl = Services.io.newURI(getRootDirectory(gTestPath) + "data/import.ics");
   let fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
   let file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
@@ -272,6 +275,8 @@ add_task(async () => {
     cal.createDateTime("20190102T000000")
   );
   is(result.length, 4, "all items that were imported were in fact imported");
+
+  await CalendarTestUtils.monthView.waitForItemAt(window, 1, 3, 4);
 
   for (let item of result) {
     await promiseCalendar.deleteItem(item);

@@ -189,10 +189,6 @@ async function putItemsIntoCal(destCal, aItems, aListener) {
   // Set batch for the undo/redo transaction manager
   startBatchTransaction();
 
-  // And set batch mode on the calendar, to tell the views to not
-  // redraw until all items are imported
-  destCal.startBatch();
-
   let count = 0;
   let total = aItems.length;
 
@@ -213,8 +209,6 @@ async function putItemsIntoCal(destCal, aItems, aListener) {
     count++;
     await callListener("onProgress", count, total);
   }
-
-  destCal.endBatch();
 
   // End transmgr batch
   endBatchTransaction();
