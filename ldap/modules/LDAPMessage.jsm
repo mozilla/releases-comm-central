@@ -278,6 +278,10 @@ class SearchRequest extends LDAPMessage {
         stack.pop();
       }
       if (type == "op") {
+        if (depth == stack.length) {
+          // We are done with the current block, go one level up.
+          stack.pop();
+        }
         // Found a new block, go one level down.
         let parent = stack.slice(-1)[0];
         let curBlock = new asn1js.Constructed({

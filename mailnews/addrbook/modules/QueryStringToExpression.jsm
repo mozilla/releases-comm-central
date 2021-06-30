@@ -39,6 +39,10 @@ var QueryStringToExpression = {
         stack.pop();
       }
       if (type == "op") {
+        if (depth == stack.length) {
+          // We are done with the current exp, go one level up.
+          stack.pop();
+        }
         // Found a new exp, go one level down.
         let parent = stack.slice(-1)[0];
         let exp = this.createBooleanExpression(value);
