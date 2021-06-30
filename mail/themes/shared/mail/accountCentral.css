@@ -237,7 +237,8 @@ aside.settings-btn-container {
 }
 
 .row-container.account-options > .btn-link {
-  margin-inline: 10px 20px;
+  margin-inline: 5px 15px;
+  padding-inline: 5px;
 }
 
 /* Custom buttons style */
