@@ -81,6 +81,11 @@ calIcalProperty::GetValue(nsACString& str) {
       return NS_OK;
     }
 
+    if (icalerrno == ICAL_NO_ERROR) {
+      str.Truncate();
+      return NS_OK;
+    }
+
 #ifdef DEBUG
     fprintf(stderr, "Error getting string value: %d (%s)\n", icalerrno,
             icalerror_strerror(icalerrno));
