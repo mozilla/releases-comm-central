@@ -14,3 +14,8 @@ openpgp-compose-key-status-open-details = Manage keys for selected recipient…
 openpgp-recip-good = ok
 openpgp-recip-missing = no key available
 openpgp-recip-none-accepted = no accepted key
+openpgp-compose-alias-status-direct = { $count ->
+               [one] mapped to an alias key
+               *[other] mapped to {$count} alias keys
+             }
+openpgp-compose-alias-status-error = unusable/unavailable alias key

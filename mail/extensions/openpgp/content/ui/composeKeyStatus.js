@@ -24,7 +24,6 @@ const { PgpSqliteDb2 } = ChromeUtils.import(
 
 var gListBox;
 var gViewButton;
-var gLdapBundle;
 
 var gEmailAddresses = [];
 var gRowToEmail = [];
@@ -62,10 +61,14 @@ async function setListEntries() {
       let aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
       if (!aliasKeys.length) {
         // failure, at least one alias key is unusable/unavailable
-        statusStringDirect = gLdapBundle.getString("33");
+        statusStringDirect = await document.l10n.formatValue(
+          "openpgp-compose-alias-status-error"
+        );
       } else {
-        // use a better string after 78, bug 1679301
-        statusStringDirect = "a -> b";
+        statusStringDirect = await document.l10n.formatValue(
+          "openpgp-compose-alias-status-direct",
+          { count: aliasKeys.length }
+        );
       }
     } else {
       let foundKeys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(
@@ -138,9 +141,6 @@ async function onLoad() {
 
   gListBox = document.getElementById("infolist");
   gViewButton = document.getElementById("detailsButton");
-
-  // Fix as part of bug 1679301
-  gLdapBundle = document.getElementById("bundle_ldap");
 
   var arrLen = {};
   var recList;
