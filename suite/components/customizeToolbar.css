@@ -1,0 +1,107 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+#CustomizeToolbarWindow:-moz-lwtheme[lwtheme-image] {
+  background-image: none !important;
+  text-shadow: none;
+}
+
+#main-box {
+  padding: 8px;
+}
+
+#instructions {
+  font-weight: 600;
+  font-size: 1.2em;
+  margin-block: 5px 10px;
+}
+
+#palette-box {
+  overflow: auto;
+  display: block;
+  min-height: 3em;
+  background-color: hsla(0, 0%, 100%, .3);
+  border: 1px solid hsla(0, 0%, 50%, .4);
+}
+
+:root[lwt-tree] #palette-box {
+  scrollbar-color: rgba(204, 204, 204, .5) rgba(230, 230, 235, .5);
+}
+
+:root[lwt-tree-brighttext] #palette-box {
+  scrollbar-color: rgba(249, 249, 250, .4) rgba(20, 20, 25, .3);
+}
+
+#palette-box > toolbarpaletteitem {
+  padding: 8px 2px;
+  margin: 0 8px;
+}
+
+toolbarpaletteitem {
+  -moz-window-dragging: no-drag;
+  -moz-box-pack: start;
+}
+
+toolbarpaletteitem[place="palette"] {
+  -moz-box-orient: vertical;
+  width: 10em;
+  max-width: 10em;
+  /* icon (16) + margin (9 + 12) + 4 lines of text: */
+  height: calc(39px + 4em);
+  margin-bottom: 5px;
+  margin-inline-end: 24px;
+  overflow: visible;
+  display: inline-block;
+  vertical-align: top;
+}
+
+toolbarpaletteitem[place=palette]::after {
+  content: attr(title);
+  display: block;
+  text-align: center;
+}
+
+toolbarpaletteitem > toolbarbutton,
+toolbarpaletteitem > toolbarseparator,
+toolbarpaletteitem > toolbaritem {
+  /* Prevent children from getting events */
+  pointer-events: none;
+  -moz-box-pack: center;
+  -moz-box-flex: 1;
+}
+
+toolbarpaletteitem[type="separator"][place="palette"] {
+  -moz-box-align: center;
+}
+
+toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
+  background-color: currentColor;
+}
+
+#main-box > box {
+  overflow: hidden;
+}
+
+/* Hide the toolbarbutton label because we replicate it on the wrapper */
+.toolbarbutton-text {
+  display: none;
+}
+
+toolbarbutton > .toolbarbutton-menubutton-dropmarker {
+  display: none;
+}
+
+#buttonBox {
+  margin-block: 5px;
+}
+
+#titlebarSettings > checkbox {
+  margin-inline: 0 15px;
+}
+
+#modelistLabel {
+  margin-top: 2px;
+}

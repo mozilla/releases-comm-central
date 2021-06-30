@@ -16,7 +16,6 @@ DIRS += [
     "modules",
     "themes/classic",
     "themes/modern",
-    "../common",
 ]
 
 if CONFIG['MOZ_IRC']:

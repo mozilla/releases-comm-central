@@ -3,9 +3,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 comm.jar:
-   content/communicator/customizeToolbar.css                        (../../../common/src/customizeToolbar.css)
-   content/communicator/customizeToolbar.js                         (../../../common/src/customizeToolbar.js)
-*  content/communicator/customizeToolbar.xhtml                      (../../../common/src/customizeToolbar.xhtml)
+   content/communicator/customizeToolbar.css                        (../customizeToolbar.css)
+   content/communicator/customizeToolbar.js                         (../customizeToolbar.js)
+*  content/communicator/customizeToolbar.xhtml                      (../customizeToolbar.xhtml)
    content/communicator/bindings/datetimepicker.xml                 (datetimepicker.xml)
    content/communicator/bindings/findbar.xml                        (findbar.xml)
    content/communicator/bindings/general.xml                        (general.xml)
