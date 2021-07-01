@@ -195,6 +195,12 @@ var gEditingDraft;
 var gAttachmentsSize;
 var gNumUploadingAttachments;
 
+// From the user's point-of-view, is spell checking enabled? This value only
+// changes if the user makes the change, it's not affected by the process of
+// sending or saving the message or any other reason the actual state of the
+// spellchecker might change.
+var gSpellCheckingEnabled;
+
 var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
 window.addEventListener("unload", event => {
@@ -387,13 +393,10 @@ function updateEditableFields(aDisable) {
   if (aDisable) {
     gMsgCompose.editor.flags |= Ci.nsIEditor.eEditorReadonlyMask;
   } else {
-    // Setting flags can cause the spell checker to become enabled (yes, even
-    // if eEditorSkipSpellCheck is one of the flags) so remember the state and
-    // restore it after setting flags.
-    let checker = GetCurrentEditor().getInlineSpellChecker(true);
-    let spellCheckWasEnabled = checker.enableRealTimeSpell;
     gMsgCompose.editor.flags &= ~Ci.nsIEditor.eEditorReadonlyMask;
-    checker.enableRealTimeSpell = spellCheckWasEnabled;
+
+    let checker = GetCurrentEditor().getInlineSpellChecker(true);
+    checker.enableRealTimeSpell = gSpellCheckingEnabled;
   }
 
   // Disable all the input fields nad labels.
@@ -1805,7 +1808,6 @@ function openEditorContextMenu(popup) {
     nsContextMenu.contentData.spellInfo,
     nsContextMenu.contentData.actor.manager
   );
-  let checker = GetCurrentEditorSpellChecker();
 
   let canSpell = gSpellChecker.canSpellCheck;
   let showDictionaries = canSpell && gSpellChecker.enabled;
@@ -1816,7 +1818,7 @@ function openEditorContextMenu(popup) {
   document.getElementById("spellCheckEnable").hidden = !canSpell;
   document
     .getElementById("spellCheckEnable")
-    .setAttribute("checked", canSpell && checker?.enableRealTimeSpell);
+    .setAttribute("checked", canSpell && gSpellCheckingEnabled);
 
   document.getElementById("spellCheckAddToDictionary").hidden = !onMisspelling;
   document.getElementById("spellCheckUndoAddToDictionary").hidden = !showUndo;
@@ -5381,9 +5383,8 @@ function MessageFcc(aFolder) {
 function updateOptionsMenu() {
   setSecuritySettings("_Menubar");
 
-  let checker = GetCurrentEditorSpellChecker();
   let menuItem = document.getElementById("menu_inlineSpellCheck");
-  if (checker?.enableRealTimeSpell) {
+  if (gSpellCheckingEnabled) {
     menuItem.setAttribute("checked", "true");
   } else {
     menuItem.removeAttribute("checked");
@@ -5501,8 +5502,7 @@ function OutputFormatMenuSelect(target) {
  * @param {string} aAddressesToAdd - A (comma-separated) recipient(s) string.
  */
 function addRecipientsToIgnoreList(aAddressesToAdd) {
-  let checker = GetCurrentEditorSpellChecker();
-  if (checker?.enableRealTimeSpell) {
+  if (gSpellCheckingEnabled) {
     // break the list of potentially many recipients back into individual names
     let addresses = MailServices.headerParser.parseEncodedHeader(
       aAddressesToAdd
@@ -5589,7 +5589,7 @@ var spellCheckReadyObserver = {
     // the compose together with the speller, so we need to check if they
     // are still valid.
     let checker = GetCurrentEditorSpellChecker();
-    if (gMsgCompose && checker?.enableRealTimeSpell) {
+    if (gMsgCompose && gSpellCheckingEnabled) {
       checker.ignoreWords(this._ignoreWords);
     }
     this._clearPendingWords();
@@ -5725,7 +5725,7 @@ function ComposeChangeLanguage(aLang) {
       spellChecker.SetCurrentDictionary(aLang);
 
       // now check the document over again with the new dictionary
-      if (checker.enableRealTimeSpell) {
+      if (gSpellCheckingEnabled) {
         checker.spellCheckRange(null);
 
         // Also force a recheck of the subject. If for some reason the spell
@@ -9349,8 +9349,7 @@ function updateDocumentLanguage(e) {
 }
 
 function toggleSpellCheckingEnabled() {
-  let checker = GetCurrentEditorSpellChecker();
-  enableInlineSpellCheck(checker && !checker.enableRealTimeSpell);
+  enableInlineSpellCheck(!gSpellCheckingEnabled);
 }
 
 // This function is called either at startup (see InitEditor above), or when
@@ -9361,12 +9360,12 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
   if (!checker) {
     return;
   }
-  if (checker.enableRealTimeSpell != aEnableInlineSpellCheck) {
+  if (gSpellCheckingEnabled != aEnableInlineSpellCheck) {
     // If state of spellchecker is about to change, clear any pending observer.
     spellCheckReadyObserver.removeObserver();
   }
 
-  checker.enableRealTimeSpell = aEnableInlineSpellCheck;
+  gSpellCheckingEnabled = checker.enableRealTimeSpell = aEnableInlineSpellCheck;
   document
     .getElementById("msgSubject")
     .setAttribute("spellcheck", aEnableInlineSpellCheck);

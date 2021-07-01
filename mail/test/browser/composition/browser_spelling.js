@@ -55,6 +55,7 @@ add_task(async function() {
   let subjectEditor = composeDocument.getElementById("msgSubject").editor;
   let editorBrowser = composeWindow.GetCurrentEditorElement();
   let bodyEditor = composeWindow.GetCurrentEditor();
+  let saveButton = composeDocument.getElementById("button-save");
 
   await checkMisspelledWords(subjectEditor, "aluminium");
   await checkMisspelledWords(bodyEditor, "colour", "ochre");
@@ -105,6 +106,19 @@ add_task(async function() {
   await checkMisspelledWords(subjectEditor);
   await checkMisspelledWords(bodyEditor);
 
+  // Save the message. The spell checking state shouldn't change.
+
+  EventUtils.synthesizeMouseAtCenter(saveButton, {}, composeWindow);
+  // Clicking the button sets gWindowLocked to true synchronously, so if
+  // gWindowLocked is false, we know that saving has completed.
+  await TestUtils.waitForCondition(
+    () => !composeWindow.gWindowLocked,
+    "window unlocked after saving"
+  );
+
+  await checkMisspelledWords(subjectEditor);
+  await checkMisspelledWords(bodyEditor);
+
   // Check menu items are displayed correctly.
 
   if (AppConstants.platform != "macosx") {
@@ -138,6 +152,19 @@ add_task(async function() {
   hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
   contextMenu.activateItem(contextMenuEnabled);
   await hiddenPromise;
+
+  await checkMisspelledWords(subjectEditor, "aluminium");
+  await checkMisspelledWords(bodyEditor, "colour", "ochre");
+
+  // Save the message. The spell checking state shouldn't change.
+
+  EventUtils.synthesizeMouseAtCenter(saveButton, {}, composeWindow);
+  // Clicking the button sets gWindowLocked to true synchronously, so if
+  // gWindowLocked is false, we know that saving has completed.
+  await TestUtils.waitForCondition(
+    () => !composeWindow.gWindowLocked,
+    "window unlocked after saving"
+  );
 
   await checkMisspelledWords(subjectEditor, "aluminium");
   await checkMisspelledWords(bodyEditor, "colour", "ochre");
