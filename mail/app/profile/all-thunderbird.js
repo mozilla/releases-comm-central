@@ -384,6 +384,29 @@ pref("network.protocol-handler.warn-external.http", false);
 pref("network.protocol-handler.warn-external.https", false);
 pref("network.protocol-handler.warn-external.ftp", false);
 
+// prevent web pages from registering mailnews protocol handlers
+pref("network.protocol-handler.external.cid", false);
+pref("network.protocol-handler.external.mid", false);
+pref("network.protocol-handler.external.mailto", false);
+pref("network.protocol-handler.external.imap", false);
+pref("network.protocol-handler.external.imap-message", false);
+pref("network.protocol-handler.external.pop", false);
+pref("network.protocol-handler.external.pop3", false);
+pref("network.protocol-handler.external.mailbox", false);
+pref("network.protocol-handler.external.mailbox-message", false);
+pref("network.protocol-handler.external.smtp", false);
+pref("network.protocol-handler.external.smtps", false);
+pref("network.protocol-handler.external.nntp", false);
+pref("network.protocol-handler.external.news", false);
+pref("network.protocol-handler.external.news-message", false);
+pref("network.protocol-handler.external.snews", false);
+pref("network.protocol-handler.external.ldap", false);
+pref("network.protocol-handler.external.ldaps", false);
+pref("network.protocol-handler.external.webcal", false);
+pref("network.protocol-handler.external.webcals", false);
+pref("network.protocol-handler.external.moz-cal-handle-itip", false);
+pref("network.protocol-handler.external.smile", false);
+
 pref("network.hosts.smtp_server",           "mail");
 pref("network.hosts.pop_server",            "mail");
 
