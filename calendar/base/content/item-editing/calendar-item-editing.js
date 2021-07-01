@@ -663,7 +663,8 @@ function doTransaction(aAction, aItem, aCalendar, aOldItem, aListener, aExtRespo
   ensureCalendarVisible(aCalendar);
 
   // Now use the transaction manager to execute the action
-  getTransactionMgr().createAndCommitTxn(
+  let manager = getTransactionMgr();
+  manager.createAndCommitTxn(
     aAction,
     aItem,
     aCalendar,
@@ -671,6 +672,12 @@ function doTransaction(aAction, aItem, aCalendar, aOldItem, aListener, aExtRespo
     aListener ? aListener : null,
     aExtResponse
   );
+
+  // If a batch transaction is active, do not update the menu as
+  // endBatchTransaction() will take care of that.
+  if (manager.wrappedJSObject && manager.wrappedJSObject.batchActive) {
+    return;
+  }
   updateUndoRedoMenu();
 }
 

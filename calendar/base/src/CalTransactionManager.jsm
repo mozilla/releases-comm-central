@@ -6,6 +6,9 @@ var EXPORTED_SYMBOLS = ["CalTransactionManager", "CalTransaction"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+// These commands expect an old and newer copy of the item.
+const updateActions = ["modify", "move"];
+
 function CalTransactionManager() {
   this.wrappedJSObject = this;
   if (!this.transactionManager) {
@@ -18,33 +21,38 @@ function CalTransactionManager() {
 CalTransactionManager.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calITransactionManager"]),
   classID: Components.ID("{1d529847-d292-4222-b066-b8b17a794d62}"),
-
+  batchActive: false,
+  batchTransactions: [],
   transactionManager: null,
   createAndCommitTxn(aAction, aItem, aCalendar, aOldItem, aListener, aExtResponse) {
     let txn = new CalTransaction(aAction, aItem, aCalendar, aOldItem, aListener, aExtResponse);
+    if (this.batchActive) {
+      // nsITransactionManager.peek(Undo|Redo)Stack can return null if a batch
+      // transaction is at the top of the stack. To avoid being mislead by this,
+      // keep track of the members of a batch transaction.
+      this.batchTransactions.push(txn);
+    }
     this.transactionManager.doTransaction(txn);
   },
 
   beginBatch() {
     this.transactionManager.beginBatch(null);
+    this.batchActive = true;
+    this.batchTransactions = [];
   },
 
   endBatch() {
     this.transactionManager.endBatch(false);
+    this.batchActive = false;
   },
 
   checkWritable(transaction) {
-    function checkItem(item) {
-      return (
-        item &&
-        item.calendar &&
-        cal.acl.isCalendarWritable(item.calendar) &&
-        cal.acl.userCanAddItemsToCalendar(item.calendar)
-      );
-    }
-
-    let trans = transaction && transaction.wrappedJSObject;
-    return trans && checkItem(trans.mItem) && checkItem(trans.mOldItem);
+    // If the transaction is null it is possible the last transaction was a
+    // batch transaction. Check the transactions we cached because
+    // nsITransactionManager does not provide a way to query them all.
+    return !transaction && this.batchTransactions.length
+      ? this.batchTransactions.every(transactionCanWrite)
+      : transactionCanWrite(transaction);
   },
 
   undo() {
@@ -199,3 +207,32 @@ CalTransaction.prototype = {
     return false;
   },
 };
+
+/**
+ * Checks whether the calendar of a transaction's item can be written to.
+ *
+ * @param {nsITransaction} transaction - Must be a wrapped CalTransaction.
+ *
+ * @return {boolean}
+ */
+function transactionCanWrite(transaction) {
+  let calTrans = transaction && transaction.wrappedJSObject;
+  if (calTrans && canWrite(calTrans.mItem)) {
+    return updateActions.includes(transaction.mAction) ? canWrite(transaction.mOldItem) : true;
+  }
+  return false;
+}
+
+/**
+ * Checks whether an item's calendar can be written to.
+ *
+ * @param {calIItemBase} item
+ */
+function canWrite(item) {
+  return (
+    item &&
+    item.calendar &&
+    cal.acl.isCalendarWritable(item.calendar) &&
+    cal.acl.userCanAddItemsToCalendar(item.calendar)
+  );
+}
