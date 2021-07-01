@@ -21,7 +21,7 @@ const calTransManager = Cc["@mozilla.org/calendar/transactionmanager;1"].getServ
 
 /**
  * Checks the value of the "disabled" property for items in either the "Edit"
- * menu bar or the app menu. Display of the relevant menu is triggered first so 
+ * menu bar or the app menu. Display of the relevant menu is triggered first so
  * the UI code can update the respective items.
  *
  * @param {XULElement} element - The menu item we want to check, if its id begins
