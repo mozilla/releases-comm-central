@@ -84,9 +84,9 @@ async function testAddUndoRedoEvent(undoId, redoId) {
   EventUtils.synthesizeMouseAtCenter(newBtn, {});
 
   let win = await windowOpened;
-  let iframeWin = win.document.getElementById("lightning-item-panel-iframe").contentWindow;
+  let iframeWin = win.document.getElementById("calendar-item-panel-iframe").contentWindow;
   await CalendarTestUtils.items.setData(win, iframeWin, { title: "A New Event" });
-  CalendarTestUtils.items.saveAndCloseItemDialog(win);
+  await CalendarTestUtils.items.saveAndCloseItemDialog(win);
 
   let eventItem;
   await TestUtils.waitForCondition(() => {
@@ -146,7 +146,7 @@ async function testModifyUndoRedoEvent(undoId, redoId) {
   await CalendarTestUtils.items.setData(dialogWindow, iframeWindow, {
     title: "Modified Event",
   });
-  CalendarTestUtils.items.saveAndCloseItemDialog(dialogWindow);
+  await CalendarTestUtils.items.saveAndCloseItemDialog(dialogWindow);
 
   await TestUtils.waitForCondition(() => {
     eventItem = document.querySelector("calendar-month-day-box-item");

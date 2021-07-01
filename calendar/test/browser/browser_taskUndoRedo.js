@@ -87,12 +87,9 @@ async function taskAddUndoRedoTask(undoId, redoId) {
   EventUtils.synthesizeMouseAtCenter(newBtn, {});
 
   let win = await windowPromise;
-  let iframeWin = win.document.getElementById("lightning-item-panel-iframe").contentWindow;
+  let iframeWin = win.document.getElementById("calendar-item-panel-iframe").contentWindow;
   await CalendarTestUtils.items.setData(win, iframeWin, { title: "New Task" });
-
-  let winClosed = BrowserTestUtils.domWindowClosed(win);
-  CalendarTestUtils.items.saveAndCloseItemDialog(win);
-  await winClosed;
+  await CalendarTestUtils.items.saveAndCloseItemDialog(win);
 
   let tree = window.document.querySelector("#calendar-task-tree");
   let refreshPromise = BrowserTestUtils.waitForEvent(tree, "refresh");
@@ -150,12 +147,9 @@ async function testModifyUndoRedoTask(undoId, redoId) {
   mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 2 });
 
   let win = await windowPromise;
-  let iframeWin = win.document.getElementById("lightning-item-panel-iframe").contentWindow;
+  let iframeWin = win.document.getElementById("calendar-item-panel-iframe").contentWindow;
   await CalendarTestUtils.items.setData(win, iframeWin, { title: "Modified Task" });
-
-  let winClosed = BrowserTestUtils.domWindowClosed(win);
-  CalendarTestUtils.items.saveAndCloseItemDialog(win);
-  await winClosed;
+  await CalendarTestUtils.items.saveAndCloseItemDialog(win);
 
   Assert.equal(tree.getTaskAtRow(0).title, "Modified Task");
   Assert.ok(!(await isDisabled(undo)), `#${undoId} is enabled`);
