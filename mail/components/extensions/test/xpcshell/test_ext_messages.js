@@ -112,6 +112,31 @@ add_task(
   async function test_update() {
     let files = {
       "background.js": async () => {
+        function newUpdatePromise(numberOfEventsToCollapse = 1) {
+          return new Promise(resolve => {
+            let seenEvents = {};
+            const listener = (msg, props) => {
+              if (!seenEvents.hasOwnProperty(msg.id)) {
+                seenEvents[msg.id] = {
+                  counts: 0,
+                  props: {},
+                };
+              }
+
+              seenEvents[msg.id].counts++;
+              for (let prop of Object.keys(props)) {
+                seenEvents[msg.id].props[prop] = props[prop];
+              }
+
+              if (seenEvents[msg.id].counts == numberOfEventsToCollapse) {
+                browser.messages.onUpdated.removeListener(listener);
+                resolve({ msg, props: seenEvents[msg.id].props });
+              }
+            };
+            browser.messages.onUpdated.addListener(listener);
+          });
+        }
+
         let tags = await browser.messages.listTags();
         let [data] = await window.waitForMessage();
         let messageList = await browser.messages.list(data.folder);
@@ -126,30 +151,68 @@ add_task(
         browser.test.assertEq("99@made.up.invalid", message.headerMessageId);
 
         // Test that setting flagged works.
+        let updatePromise = newUpdatePromise();
         await browser.messages.update(message.id, { flagged: true });
+        let updateInfo = await updatePromise;
+        browser.test.assertEq(message.id, updateInfo.msg.id);
+        window.assertDeepEqual({ flagged: true }, updateInfo.props);
         await window.sendMessage("flagged");
 
         // Test that setting read works.
+        updatePromise = newUpdatePromise();
         await browser.messages.update(message.id, { read: true });
+        updateInfo = await updatePromise;
+        browser.test.assertEq(message.id, updateInfo.msg.id);
+        window.assertDeepEqual({ read: true }, updateInfo.props);
         await window.sendMessage("read");
 
         // Test that setting junk works.
+        updatePromise = newUpdatePromise();
         await browser.messages.update(message.id, { junk: true });
+        updateInfo = await updatePromise;
+        browser.test.assertEq(message.id, updateInfo.msg.id);
+        window.assertDeepEqual({ junk: true }, updateInfo.props);
         await window.sendMessage("junk");
 
         // Test that setting one tag works.
+        updatePromise = newUpdatePromise();
         await browser.messages.update(message.id, { tags: [tags[0].key] });
+        updateInfo = await updatePromise;
+        browser.test.assertEq(message.id, updateInfo.msg.id);
+        window.assertDeepEqual({ tags: [tags[0].key] }, updateInfo.props);
         await window.sendMessage("tags1");
 
-        // Test that setting two tags works.
+        // Test that setting two tags works. We get 3 events: one removing tags0,
+        // one adding tags1 and one adding tags2. updatePromise is waiting for
+        // the third one before resolving.
+        updatePromise = newUpdatePromise(3);
         await browser.messages.update(message.id, {
           tags: [tags[1].key, tags[2].key],
         });
+        updateInfo = await updatePromise;
+        browser.test.assertEq(message.id, updateInfo.msg.id);
+        window.assertDeepEqual(
+          { tags: [tags[1].key, tags[2].key] },
+          updateInfo.props
+        );
         await window.sendMessage("tags2");
 
         // Test that unspecified properties aren't changed.
+        let listenerCalls = 0;
+        const listenerFunc = (msg, props) => {
+          listenerCalls++;
+        };
+        browser.messages.onUpdated.addListener(listenerFunc);
         await browser.messages.update(message.id, {});
         await window.sendMessage("empty");
+        // Check if the no-op update call triggered a listener.
+        await new Promise(resolve => setTimeout(resolve));
+        browser.messages.onUpdated.removeListener(listenerFunc);
+        browser.test.assertEq(
+          0,
+          listenerCalls,
+          "Not expecting listener callbacks on no-op updates."
+        );
 
         message = await browser.messages.get(message.id);
         browser.test.assertTrue(message.flagged);
@@ -162,12 +225,23 @@ add_task(
         browser.test.assertEq("99@made.up.invalid", message.headerMessageId);
 
         // Test that clearing properties works.
+        updatePromise = newUpdatePromise(5);
         await browser.messages.update(message.id, {
           flagged: false,
           read: false,
           junk: false,
           tags: [],
         });
+        updateInfo = await updatePromise;
+        window.assertDeepEqual(
+          {
+            flagged: false,
+            read: false,
+            junk: false,
+            tags: [],
+          },
+          updateInfo.props
+        );
         await window.sendMessage("clear");
 
         message = await browser.messages.get(message.id);
@@ -306,6 +380,86 @@ add_task(
           return actualMessages;
         }
 
+        function newMovePromise(numberOfEventsToCollapse = 1) {
+          return new Promise(resolve => {
+            let seenEvents = 0;
+            let seenSrcMsgs = [];
+            let seenDstMsgs = [];
+            const listener = (srcMsgs, dstMsgs) => {
+              seenEvents++;
+              seenSrcMsgs.push(...srcMsgs.messages);
+              seenDstMsgs.push(...dstMsgs.messages);
+              if (seenEvents == numberOfEventsToCollapse) {
+                browser.messages.onMoved.removeListener(listener);
+                resolve({ srcMsgs: seenSrcMsgs, dstMsgs: seenDstMsgs });
+              }
+            };
+            browser.messages.onMoved.addListener(listener);
+          });
+        }
+
+        function newCopyPromise(numberOfEventsToCollapse = 1) {
+          return new Promise(resolve => {
+            let seenEvents = 0;
+            let seenSrcMsgs = [];
+            let seenDstMsgs = [];
+            const listener = (srcMsgs, dstMsgs) => {
+              seenEvents++;
+              seenSrcMsgs.push(...srcMsgs.messages);
+              seenDstMsgs.push(...dstMsgs.messages);
+              if (seenEvents == numberOfEventsToCollapse) {
+                browser.messages.onCopied.removeListener(listener);
+                resolve({ srcMsgs: seenSrcMsgs, dstMsgs: seenDstMsgs });
+              }
+            };
+            browser.messages.onCopied.addListener(listener);
+          });
+        }
+
+        function newDeletePromise(numberOfEventsToCollapse = 1) {
+          return new Promise(resolve => {
+            let seenEvents = 0;
+            let seenMsgs = [];
+            const listener = msgs => {
+              seenEvents++;
+              seenMsgs.push(...msgs.messages);
+              if (seenEvents == numberOfEventsToCollapse) {
+                browser.messages.onDeleted.removeListener(listener);
+                resolve(seenMsgs);
+              }
+            };
+            browser.messages.onDeleted.addListener(listener);
+          });
+        }
+
+        async function checkEventInformation(
+          infoPromise,
+          expected,
+          messages,
+          dstFolder
+        ) {
+          let eventInfo = await infoPromise;
+          browser.test.assertEq(eventInfo.srcMsgs.length, expected.length);
+          browser.test.assertEq(eventInfo.dstMsgs.length, expected.length);
+          for (let msg of expected) {
+            let idx = eventInfo.srcMsgs.findIndex(
+              e => e.id == messages[msg].id
+            );
+            browser.test.assertEq(
+              eventInfo.srcMsgs[idx].subject,
+              messages[msg].subject
+            );
+            browser.test.assertEq(
+              eventInfo.dstMsgs[idx].subject,
+              messages[msg].subject
+            );
+            browser.test.assertEq(
+              eventInfo.dstMsgs[idx].folder.path,
+              dstFolder.path
+            );
+          }
+        }
+
         let [accountId] = await window.waitForMessage();
         let { folders } = await browser.accounts.get(accountId);
         let testFolder1 = folders.find(f => f.name == "test1");
@@ -330,7 +484,14 @@ add_task(
         browser.test.log(JSON.stringify(messages));
 
         // Move one message to another folder.
+        let movePromise = newMovePromise();
         await browser.messages.move([messages.Red.id], testFolder2);
+        await checkEventInformation(
+          movePromise,
+          ["Red"],
+          messages,
+          testFolder2
+        );
         await checkMessagesInFolder(
           ["Green", "Blue", "My", "Happy"],
           testFolder1
@@ -339,7 +500,14 @@ add_task(
         browser.test.log(JSON.stringify(messages)); // 106, 102, 103, 104, 105
 
         // And back again.
+        movePromise = newMovePromise();
         await browser.messages.move([messages.Red.id], testFolder1);
+        await checkEventInformation(
+          movePromise,
+          ["Red"],
+          messages,
+          testFolder1
+        );
         await checkMessagesInFolder(
           ["Red", "Green", "Blue", "My", "Happy"],
           testFolder1
@@ -348,8 +516,15 @@ add_task(
         browser.test.log(JSON.stringify(messages)); // 101, 102, 103, 103, 105
 
         // Move two messages to another folder.
+        movePromise = newMovePromise();
         await browser.messages.move(
           [messages.Green.id, messages.My.id],
+          testFolder2
+        );
+        await checkEventInformation(
+          movePromise,
+          ["Green", "My"],
+          messages,
           testFolder2
         );
         await checkMessagesInFolder(["Red", "Blue", "Happy"], testFolder1);
@@ -357,7 +532,9 @@ add_task(
         browser.test.log(JSON.stringify(messages)); // 101, 107, 103, 108, 105
 
         // Move one back again.
+        movePromise = newMovePromise();
         await browser.messages.move([messages.My.id], testFolder1);
+        await checkEventInformation(movePromise, ["My"], messages, testFolder1);
         await checkMessagesInFolder(
           ["Red", "Blue", "My", "Happy"],
           testFolder1
@@ -365,15 +542,30 @@ add_task(
         await checkMessagesInFolder(["Green"], testFolder2);
         browser.test.log(JSON.stringify(messages)); // 101, 107, 103, 104, 105
 
-        // Move messages from different folders to a third folder.
+        // Move messages from different folders to a third folder. We collapse
+        // the two events (one for each source folder).
+        movePromise = newMovePromise(2);
         await browser.messages.move(
           [messages.Green.id, messages.My.id],
+          testFolder3
+        );
+        await checkEventInformation(
+          movePromise,
+          ["Green", "My"],
+          messages,
           testFolder3
         );
         await checkMessagesInFolder(["Red", "Blue", "Happy"], testFolder1);
         await checkMessagesInFolder([], testFolder2);
         await checkMessagesInFolder(["Green", "My"], testFolder3);
         browser.test.log(JSON.stringify(messages)); // 101, 109, 103, 110, 105
+
+        // The following tests should not trigger move events.
+        let listenerCalls = 0;
+        const listenerFunc = () => {
+          listenerCalls++;
+        };
+        browser.messages.onMoved.addListener(listenerFunc);
 
         // Move a message to the folder it's already in.
         await browser.messages.move([messages.Green.id], testFolder3);
@@ -402,6 +594,10 @@ add_task(
           "something should happen"
         );
 
+        // Check that no move event was triggered.
+        browser.messages.onMoved.removeListener(listenerFunc);
+        browser.test.assertEq(0, listenerCalls);
+
         // Put everything back where it was at the start of the test.
         await browser.messages.move(
           Object.values(messages).map(m => m.id),
@@ -415,7 +611,14 @@ add_task(
         await checkMessagesInFolder([], testFolder3);
 
         // Copy one message to another folder.
+        let copyPromise = newCopyPromise();
         await browser.messages.copy([messages.Happy.id], testFolder2);
+        await checkEventInformation(
+          copyPromise,
+          ["Happy"],
+          messages,
+          testFolder2
+        );
         await checkMessagesInFolder(
           ["Red", "Green", "Blue", "My", "Happy"],
           testFolder1
@@ -432,7 +635,13 @@ add_task(
         browser.test.log(JSON.stringify(messages)); // 101, 102, 103, 104, 105, 111
 
         // Delete the copied message.
+        let deletePromise = newDeletePromise();
         await browser.messages.delete([folder2Messages[0].id], true);
+        // Check if the delete information is correct.
+        let deleteLog = await deletePromise;
+        browser.test.assertEq(1, deleteLog.length);
+        browser.test.assertEq(folder2Messages[0].id, deleteLog[0].id);
+        // Check if the message was deleted.
         await checkMessagesInFolder(
           ["Red", "Green", "Blue", "My", "Happy"],
           testFolder1
@@ -442,8 +651,15 @@ add_task(
         browser.test.log(JSON.stringify(messages)); // 101, 102, 103, 104, 105
 
         // Move a message to the trash.
+        movePromise = newMovePromise();
         browser.test.log("this is the other failing bit");
         await browser.messages.move([messages.Green.id], trashFolder);
+        await checkEventInformation(
+          movePromise,
+          ["Green"],
+          messages,
+          trashFolder
+        );
         await checkMessagesInFolder(
           ["Red", "Blue", "My", "Happy"],
           testFolder1

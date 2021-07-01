@@ -81,39 +81,6 @@ function convertAttachment(attachment) {
   };
 }
 
-/**
- * Listens to the folder notification service for new messages, which are
- * passed to the onNewMailReceived event.
- *
- * @implements {nsIMsgFolderListener}
- */
-let newMailEventTracker = new (class extends EventEmitter {
-  constructor() {
-    super();
-    this.listenerCount = 0;
-  }
-  on(event, listener) {
-    super.on(event, listener);
-
-    if (++this.listenerCount == 1) {
-      MailServices.mfn.addListener(this, MailServices.mfn.msgsClassified);
-    }
-  }
-  off(event, listener) {
-    super.off(event, listener);
-
-    if (--this.listenerCount == 0) {
-      MailServices.mfn.removeListener(this);
-    }
-  }
-
-  msgsClassified(messages, junkProcessed, traitProcessed) {
-    if (messages.length > 0) {
-      this.emit("new-mail-received", messages[0].folder, messages);
-    }
-  }
-})();
-
 this.messages = class extends ExtensionAPI {
   getAPI(context) {
     function collectMessagesInFolders(messageIds) {
@@ -214,7 +181,7 @@ this.messages = class extends ExtensionAPI {
       messages: {
         onNewMailReceived: new EventManager({
           context,
-          name: "messageDisplay.onNewMailReceived",
+          name: "messages.onNewMailReceived",
           register: fire => {
             let listener = async (event, folder, newMessages) => {
               let page = await messageListTracker.startList(
@@ -224,9 +191,84 @@ this.messages = class extends ExtensionAPI {
               fire.async(convertFolder(folder), page);
             };
 
-            newMailEventTracker.on("new-mail-received", listener);
+            messageTracker.on("messages-received", listener);
             return () => {
-              newMailEventTracker.off("new-mail-received", listener);
+              messageTracker.off("messages-received", listener);
+            };
+          },
+        }).api(),
+        onUpdated: new EventManager({
+          context,
+          name: "messageDisplay.onUpdated",
+          register: fire => {
+            let listener = async (event, message, properties) => {
+              fire.async(
+                convertMessage(message, context.extension),
+                properties
+              );
+            };
+            messageTracker.on("message-updated", listener);
+            return () => {
+              messageTracker.off("message-updated", listener);
+            };
+          },
+        }).api(),
+        onMoved: new EventManager({
+          context,
+          name: "messageDisplay.onMoved",
+          register: fire => {
+            let listener = async (event, srcMessages, dstMessages) => {
+              let srcPage = await messageListTracker.startList(
+                srcMessages,
+                context.extension
+              );
+              let dstPage = await messageListTracker.startList(
+                dstMessages,
+                context.extension
+              );
+              fire.async(srcPage, dstPage);
+            };
+            messageTracker.on("messages-moved", listener);
+            return () => {
+              messageTracker.off("messages-moved", listener);
+            };
+          },
+        }).api(),
+        onCopied: new EventManager({
+          context,
+          name: "messageDisplay.onCopied",
+          register: fire => {
+            let listener = async (event, srcMessages, dstMessages) => {
+              let srcPage = await messageListTracker.startList(
+                srcMessages,
+                context.extension
+              );
+              let dstPage = await messageListTracker.startList(
+                dstMessages,
+                context.extension
+              );
+              fire.async(srcPage, dstPage);
+            };
+            messageTracker.on("messages-copied", listener);
+            return () => {
+              messageTracker.off("messages-copied", listener);
+            };
+          },
+        }).api(),
+        onDeleted: new EventManager({
+          context,
+          name: "messageDisplay.onDeleted",
+          register: fire => {
+            let listener = async (event, deletedMessages) => {
+              let deletedPage = await messageListTracker.startList(
+                deletedMessages,
+                context.extension
+              );
+              fire.async(deletedPage);
+            };
+            messageTracker.on("messages-deleted", listener);
+            return () => {
+              messageTracker.off("messages-deleted", listener);
             };
           },
         }).api(),
@@ -794,6 +836,13 @@ this.messages = class extends ExtensionAPI {
               ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
               : Ci.nsIJunkMailPlugin.IS_HAM_SCORE;
             msgHdr.folder.setJunkScoreForMessages(msgs, score);
+            // nsIFolderListener::OnItemEvent is notified about changes through
+            // setJunkScoreForMessages(), but does not provide the actual message.
+            // nsIMsgFolderListener::msgsJunkStatusChanged is notified only by
+            // nsMsgDBView::ApplyCommandToIndices(). Since it only works on
+            // selected messages, we cannot use it here.
+            // Notify msgsJunkStatusChanged() manually.
+            MailServices.mfn.notifyMsgsJunkStatusChanged(msgs);
           }
           if (Array.isArray(newProperties.tags)) {
             let currentTags = msgHdr.getStringProperty("keywords").split(" ");

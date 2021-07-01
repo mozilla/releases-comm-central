@@ -156,6 +156,36 @@
         }
       },
       {
+        "id": "MessageChangeProperties",
+        "type": "object",
+        "description": "Message properties that can be updated by the :ref:`messages.update` and that are monitored by :ref:`messages.onUpdated`.",
+        "properties": {
+          "read": {
+            "type": "boolean",
+            "description": "Message is read.",
+            "optional": true
+          },
+          "junk": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Message is junk."
+          },
+          "flagged": {
+            "type": "boolean",
+            "description": "Message is flagged.",
+            "optional": true
+          },
+          "tags": {
+            "type": "array",
+            "description": "Tags associated with this message. For a list of available tags, call the listTags method.",
+            "optional": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
         "id": "MessageTag",
         "type": "object",
         "properties": {
@@ -226,6 +256,71 @@
       }
     ],
     "events": [
+      {
+        "name": "onUpdated",
+        "type": "function",
+        "description": "Fired when one or more properties of a message have been updated.",
+        "parameters": [
+          {
+            "name": "message",
+            "$ref": "messages.MessageHeader"
+          },
+          {
+            "name": "changedProperties",
+            "$ref": "messages.MessageChangeProperties"
+          }
+        ]
+      },
+      {
+        "name": "onMoved",
+        "type": "function",
+        "description": "Fired when messages have been moved.",
+        "permissions": [
+          "accountsRead"
+        ],
+        "parameters": [
+          {
+            "name": "srcMessages",
+            "$ref": "messages.MessageList"
+          },
+          {
+            "name": "destMessages",
+            "$ref": "messages.MessageList"
+          }
+        ]
+      },
+      {
+        "name": "onCopied",
+        "type": "function",
+        "description": "Fired when messages have been copied.",
+        "permissions": [
+          "accountsRead"
+        ],
+        "parameters": [
+          {
+            "name": "srcMessages",
+            "$ref": "messages.MessageList"
+          },
+          {
+            "name": "destMessages",
+            "$ref": "messages.MessageList"
+          }
+        ]
+      },
+      {
+        "name": "onDeleted",
+        "type": "function",
+        "description": "Fired when messages have been permanently deleted.",
+        "permissions": [
+          "accountsRead"
+        ],
+        "parameters": [
+          {
+            "name": "messages",
+            "$ref": "messages.MessageList"
+          }
+        ]
+      },
       {
         "name": "onNewMailReceived",
         "type": "function",
@@ -430,7 +525,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Marks or unmarks a message as read, flagged, or tagged.",
+        "description": "Marks or unmarks a message as junk, read, flagged, or tagged.",
         "async": true,
         "parameters": [
           {
@@ -440,32 +535,7 @@
           },
           {
             "name": "newProperties",
-            "type": "object",
-            "properties": {
-              "read": {
-                "type": "boolean",
-                "description": "Marks the message as read or unread.",
-                "optional": true
-              },
-              "junk": {
-                "type": "boolean",
-                "optional": true,
-                "description": "Marks the message as junk or not junk."
-              },
-              "flagged": {
-                "type": "boolean",
-                "description": "Marks the message as flagged or unflagged.",
-                "optional": true
-              },
-              "tags": {
-                "type": "array",
-                "description": "Sets the tags on the message. For a list of available tags, call the listTags method.",
-                "optional": true,
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "MessageChangeProperties"
           }
         ]
       },

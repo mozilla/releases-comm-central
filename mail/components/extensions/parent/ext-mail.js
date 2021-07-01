@@ -1678,79 +1678,90 @@ function convertMessage(msgHdr, extension) {
 
 /**
  * A map of numeric identifiers to messages for easy reference.
+ *
+ * @implements {nsIFolderListener}
+ * @implements {nsIMsgFolderListener}
+ * @implements {nsIObserver}
  */
-var messageTracker = {
-  _nextId: 1,
-  _messages: new Map(),
-  _messageIds: new Map(),
-  _observerAdded: false,
+var messageTracker = new (class extends EventEmitter {
+  constructor() {
+    super();
+    this._nextId = 1;
+    this._messages = new Map();
+    this._messageIds = new Map();
+    this._listenerCount = 0;
+    this._pendingKeyChanges = new Map();
+
+    // nsIObserver
+    Services.obs.addObserver(this, "attachment-delete-msgkey-changed");
+    // nsIFolderListener
+    MailServices.mailSession.AddFolderListener(
+      this,
+      Ci.nsIFolderListener.propertyFlagChanged
+    );
+    // nsIMsgFolderListener
+    MailServices.mfn.addListener(
+      this,
+      MailServices.mfn.msgsClassified |
+        MailServices.mfn.msgsJunkStatusChanged |
+        MailServices.mfn.msgsDeleted |
+        MailServices.mfn.msgsMoveCopyCompleted |
+        MailServices.mfn.msgKeyChanged
+    );
+  }
 
   /**
-   * Observer to update message tracker if a message has received a new key due
-   * to attachments being removed, which we do not consider to be a new message.
+   * Maps the provided message identifiers to the given messageTracker id.
    */
-  observe(aSubject, aTopic, aData) {
-    if (aTopic == "attachment-delete-msgkey-changed") {
-      let data = JSON.parse(aData);
-
-      if (data && data.folderURI && data.oldMessageKey && data.newMessageKey) {
-        let oldHash = this.getHash(data.folderURI, data.oldMessageKey);
-        if (this._messageIds.has(oldHash)) {
-          let id = this._messageIds.get(oldHash);
-
-          // Delete tracker entries of old message.
-          this._messageIds.delete(oldHash);
-
-          // Add new tracker entries.
-          let newHash = this.getHash(data.folderURI, data.newMessageKey);
-          this._messageIds.set(newHash, id);
-          this._messages.set(id, {
-            folderURI: data.folderURI,
-            messageKey: data.newMessageKey,
-          });
-        }
-      }
-    }
-  },
+  _set(id, folderURI, messageKey) {
+    let hash = JSON.stringify([folderURI, messageKey]);
+    this._messageIds.set(hash, id);
+    this._messages.set(id, {
+      folderURI,
+      messageKey,
+    });
+  }
 
   /**
-   * Returns an identifier for the the given folder and messageKey, which is
-   * globally unique.
-   * @return {string} Global unique identifier of the message
+   * Lookup the messageTracker id for the given message identifiers, return null
+   * if not known.
    */
-  getHash(folderUri, messageKey) {
-    // Using stringify avoids potential issues with unexpected characters.
-    // This hash could be anything as long as it is unique for each
-    // [folder, message] combination.
-    return JSON.stringify([folderUri, messageKey]);
-  },
-
-  /**
-   * Finds a message in the map or adds it to the map.
-   * @return {int} The identifier of the message
-   */
-  getId(msgHdr) {
-    if (!this._observerAdded) {
-      this._observerAdded = true;
-      Services.obs.addObserver(this, "attachment-delete-msgkey-changed");
-    }
-
-    let hash = this.getHash(msgHdr.folder.URI, msgHdr.messageKey);
+  _get(folderURI, messageKey) {
+    let hash = JSON.stringify([folderURI, messageKey]);
     if (this._messageIds.has(hash)) {
       return this._messageIds.get(hash);
     }
-    let id = this._nextId++;
-    this._messages.set(id, {
-      folderURI: msgHdr.folder.URI,
-      messageKey: msgHdr.messageKey,
-    });
-    this._messageIds.set(hash, id);
-    return id;
-  },
+    return null;
+  }
 
   /**
-   * Retrieves a message from the map. If the message no longer exists,
-   * it is removed from the map.
+   * Removes the provided message identifiers from the messageTracker.
+   */
+  _remove(folderURI, messageKey) {
+    let hash = JSON.stringify([folderURI, messageKey]);
+    let id = this._get(folderURI, messageKey);
+    this._messages.delete(id);
+    this._messageIds.delete(hash);
+  }
+
+  /**
+   * Finds a message in the messageTracker or adds it.
+   * @return {int} The messageTracker id of the message
+   */
+  getId(msgHdr) {
+    let id = this._get(msgHdr.folder.URI, msgHdr.messageKey);
+    if (id) {
+      return id;
+    }
+    id = this._nextId++;
+
+    this._set(id, msgHdr.folder.URI, msgHdr.messageKey);
+    return id;
+  }
+
+  /**
+   * Retrieves a message from the messageTracker. If the message no longer,
+   * exists it is removed from the messageTracker.
    * @return {nsIMsgHdr} The identifier of the message
    */
   getMessage(id) {
@@ -1767,12 +1778,121 @@ var messageTracker = {
       }
     }
 
-    let hash = this.getHash(value.folderURI, value.messageKey);
-    this._messages.delete(id);
-    this._messageIds.delete(hash);
+    this._remove(value.folderURI, value.messageKey);
     return null;
-  },
-};
+  }
+
+  // nsIFolderListener
+
+  OnItemPropertyFlagChanged(item, property, oldFlag, newFlag) {
+    switch (property) {
+      case "Status":
+        if ((oldFlag ^ newFlag) & Ci.nsMsgMessageFlags.Read) {
+          this.emit("message-updated", item, { read: item.isRead });
+        }
+        break;
+      case "Flagged":
+        this.emit("message-updated", item, { flagged: item.isFlagged });
+        break;
+      case "Keywords":
+        {
+          let tags = item.getProperty("keywords");
+          tags = tags ? tags.split(" ") : [];
+          this.emit("message-updated", item, {
+            tags: tags.filter(MailServices.tags.isValidKey),
+          });
+        }
+        break;
+    }
+  }
+
+  // nsIMsgFolderListener
+
+  msgsClassified(newMessages, junkProcessed, traitProcessed) {
+    // Filter out messages, which are moved, but reported as new. Since we log
+    // message movements, we get notified of these and can exclude them.
+    newMessages = newMessages.filter(
+      msgHdr => this._get(msgHdr.folder.URI, msgHdr.messageKey) == null
+    );
+    if (newMessages.length > 0) {
+      this.emit("messages-received", newMessages[0].folder, newMessages);
+    }
+  }
+
+  msgsJunkStatusChanged(aMessages) {
+    for (let msgHdr of aMessages) {
+      let junkScore = parseInt(msgHdr.getProperty("junkscore"), 10) || 0;
+      this.emit("message-updated", msgHdr, {
+        junk: junkScore >= gJunkThreshold,
+      });
+    }
+  }
+
+  msgsDeleted(aDeletedMsgs) {
+    if (aDeletedMsgs.length > 0) {
+      this.emit("messages-deleted", aDeletedMsgs);
+    }
+  }
+
+  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDstFolder, aDstMsgs) {
+    if (aSrcMsgs.length > 0 && aDstMsgs.length > 0) {
+      let emitMsg = aMove ? "messages-moved" : "messages-copied";
+      this.emit(emitMsg, aSrcMsgs, aDstMsgs);
+    }
+  }
+
+  msgKeyChanged(aOldKey, aNewMsgHdr) {
+    // For IMAP messages there is a delayed update of database keys and if those
+    // keys change, the messageTracker needs to update its maps, otherwise wrong
+    // messages will be returned. Key changes are replayed in multi-step swaps.
+    let oldKey = aOldKey;
+    let newKey = aNewMsgHdr.messageKey;
+
+    // Replay pending swaps.
+    while (this._pendingKeyChanges.has(oldKey)) {
+      let next = this._pendingKeyChanges.get(oldKey);
+      this._pendingKeyChanges.delete(oldKey);
+      oldKey = next;
+
+      // Check if we are left with a no-op swap and exit early.
+      if (oldKey == newKey) {
+        this._pendingKeyChanges.delete(oldKey);
+        return;
+      }
+    }
+
+    if (oldKey != newKey) {
+      // New key swap, log the mirror swap as pending.
+      this._pendingKeyChanges.set(newKey, oldKey);
+
+      // Swap tracker entries.
+      let oldId = this._get(aNewMsgHdr.folder.URI, oldKey);
+      let newId = this._get(aNewMsgHdr.folder.URI, newKey);
+      this._set(oldId, aNewMsgHdr.folder.URI, newKey);
+      this._set(newId, aNewMsgHdr.folder.URI, oldKey);
+    }
+  }
+
+  // nsIObserver
+
+  /**
+   * Observer to update message tracker if a message has received a new key due
+   * to attachments being removed, which we do not consider to be a new message.
+   */
+  observe(aSubject, aTopic, aData) {
+    if (aTopic == "attachment-delete-msgkey-changed") {
+      let data = JSON.parse(aData);
+
+      if (data && data.folderURI && data.oldMessageKey && data.newMessageKey) {
+        let id = this._get(data.folderURI, data.oldMessageKey);
+        if (id) {
+          // Replace tracker entries.
+          this._set(id, data.folderURI, data.newMessageKey);
+        }
+      }
+    }
+  }
+})();
 
 /**
  * Tracks lists of messages so that an extension can consume them in chunks.
