@@ -358,8 +358,6 @@ async function execEventDialogCallback(mWController, callback) {
   let iframe = waitForItemPanelIframe(eventController);
 
   await callback(eventWindow, iframe.contentWindow);
-  BrowserTestUtils.windowClosed(mWController.window);
-  Assert.report(false, undefined, undefined, "Event dialog closed");
 }
 
 function waitForItemPanelIframe(eventController) {

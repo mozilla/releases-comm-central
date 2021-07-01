@@ -40,6 +40,21 @@ add_task(async function testAlarmDialog() {
   controller.click(allDayHeader);
 
   // Create a new all-day event tomorrow.
+
+  // Prepare to dismiss the alarm.
+  let alarmPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-alarm-dialog.xhtml",
+    {
+      async callback(alarmWindow) {
+        await new Promise(resolve => alarmWindow.setTimeout(resolve));
+        await new Promise(resolve => alarmWindow.setTimeout(resolve));
+
+        let dismissButton = alarmWindow.document.getElementById("alarm-dismiss-all-button");
+        EventUtils.synthesizeMouseAtCenter(dismissButton, {}, alarmWindow);
+      },
+    }
+  );
   await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       allday: true,
@@ -47,37 +62,38 @@ add_task(async function testAlarmDialog() {
       title: TITLE,
     });
 
-    // Prepare to dismiss the alarm.
-    plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-      let button = alarm.window.document.getElementById("alarm-dismiss-all-button");
-      alarm.click(button);
-      // The dialog will close itself if we wait long enough.
-      alarm.sleep(500);
-    });
-
     await saveAndCloseItemDialog(eventWindow);
   });
-  wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
+  await alarmPromise;
 
   // Change the reminder duration, this resets the alarm.
   let eventBox = await dayView.waitForAllDayItemAt(controller.window, 1);
+
+  // Prepare to snooze the alarm.
+  alarmPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-alarm-dialog.xhtml",
+    {
+      async callback(alarmWindow) {
+        await new Promise(resolve => alarmWindow.setTimeout(resolve));
+        await new Promise(resolve => alarmWindow.setTimeout(resolve));
+
+        let snoozeAllButton = alarmWindow.document.getElementById("alarm-snooze-all-button");
+        let popup = alarmWindow.document.querySelector("#alarm-snooze-all-popup");
+        let menuitems = alarmWindow.document.querySelectorAll("#alarm-snooze-all-popup > menuitem");
+
+        let shownPromise = BrowserTestUtils.waitForEvent(snoozeAllButton, "popupshown");
+        EventUtils.synthesizeMouseAtCenter(snoozeAllButton, {}, alarmWindow);
+        await shownPromise;
+        popup.activateItem(menuitems[5]);
+      },
+    }
+  );
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { reminder: "2days", title: TITLE });
-
-    // Prepare to snooze the alarm.
-    plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-      let snoozeAllButton = alarm.window.document.getElementById("alarm-snooze-all-button");
-      let menuitems = alarm.window.document.querySelectorAll("#alarm-snooze-all-popup > menuitem");
-
-      alarm.click(snoozeAllButton);
-      menuitems[5].click();
-      // The dialog will close itself if we wait long enough.
-      alarm.sleep(500);
-    });
-
     await saveAndCloseItemDialog(eventWindow);
   });
-  wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
+  await alarmPromise;
 
   Assert.ok(true, "Test ran to completion");
 });
