@@ -186,6 +186,12 @@ SmtpService.prototype = {
       runningUrl.errorMessage = errorMessage;
       deliveryListener?.OnStopRunningUrl(runningUrl, nsError);
     };
+
+    outRequest.value = {
+      cancel() {
+        client.close(true);
+      },
+    };
   },
 
   /**

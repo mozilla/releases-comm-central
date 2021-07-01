@@ -164,11 +164,13 @@ class SmtpClient {
 
   /**
    * Closes the connection to the server
+   * @param {boolean} [immediately] - Close the socket without waiting for
+   *   unsent data.
    */
-  close() {
+  close(immediately) {
     this.logger.debug("Closing connection...");
     if (this.socket && this.socket.readyState === "open") {
-      this.socket.close();
+      immediately ? this.socket.closeImmediately() : this.socket.close();
     } else {
       this._destroy();
     }
