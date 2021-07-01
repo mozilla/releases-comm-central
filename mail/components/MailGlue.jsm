@@ -508,6 +508,15 @@ MailGlue.prototype = {
    */
   _scheduleStartupIdleTasks() {
     const idleTasks = [
+      {
+        task() {
+          // This module needs to be loaded so it registers to receive
+          // FormAutoComplete:GetSelectedIndex messages and respond
+          // appropriately, otherwise we get error messages like the one
+          // reported in bug 1635422.
+          ChromeUtils.import("resource://gre/actors/AutoCompleteParent.jsm");
+        },
+      },
       // WebDriver components (Remote Agent and Marionette) need to be
       // initialized as very last step.
       {
