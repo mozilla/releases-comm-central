@@ -51,6 +51,32 @@
           }
         }
       ]
+    },
+    "experiment_test@tests.mozilla.org": {
+      "updates": [
+        {
+          "version": "2.0",
+          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/browser_webext_experiment_permissions.xpi",
+          "applications": {
+            "gecko": {
+              "strict_min_version": "1"
+            }
+          }
+        }
+      ]
+    },
+    "experiment_update@test.mozilla.org": {
+      "updates": [
+        {
+          "version": "2.0",
+          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/browser_webext_experiment_update2.xpi",
+          "applications": {
+            "gecko": {
+              "strict_min_version": "1"
+            }
+          }
+        }
+      ]
     }
   }
 }

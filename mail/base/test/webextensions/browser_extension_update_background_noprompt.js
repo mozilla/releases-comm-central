@@ -14,6 +14,7 @@ AddonTestUtils.hookAMTelemetryEvents();
 
 const ID_PERMS = "update_perms@tests.mozilla.org";
 const ID_ORIGINS = "update_origins@tests.mozilla.org";
+const ID_EXPERIMENT = "experiment_test@tests.mozilla.org";
 
 function getBadgeStatus() {
   let menuButton = document.getElementById("button-appmenu");
@@ -110,4 +111,9 @@ add_task(() =>
 // showing a notification prompt
 add_task(() =>
   testNoPrompt(`${BASE}/browser_webext_update_origins1.xpi`, ID_ORIGINS)
+);
+
+// Test that an Experiment is not prompting for additional permissions.
+add_task(() =>
+  testNoPrompt(`${BASE}/browser_webext_experiment.xpi`, ID_EXPERIMENT)
 );
