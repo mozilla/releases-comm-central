@@ -30,33 +30,35 @@ class nsByteArray {
       m_bufferPos;  // write Pos in m_buffer - where the next byte should go.
 };
 
-class nsMsgLineBufferHandler : public nsByteArray {
+/**
+ * nsMsgLineBuffer breaks up incoming data into lines.
+ * It accepts CRLF, CR or LF line endings.
+ *
+ * Data is fed in via BufferInput(). The virtual HandleLine() will be
+ * invoked for each line. The data passed to HandleLine() is verbatim,
+ * and will include whatever line endings were in the source data.
+ *
+ * Flush() should be called when the data is exhausted, to handle any
+ * leftover bytes in the buffer (e.g. if the data doesn't end with an EOL).
+ */
+class nsMsgLineBuffer : private nsByteArray {
  public:
-  virtual nsresult HandleLine(const char* line, uint32_t line_length) = 0;
-};
-
-class nsMsgLineBuffer : public nsMsgLineBufferHandler {
- public:
-  nsMsgLineBuffer(nsMsgLineBufferHandler* handler, bool convertNewlinesP);
-
+  nsMsgLineBuffer();
   virtual ~nsMsgLineBuffer();
   nsresult BufferInput(const char* net_buffer, int32_t net_buffer_size);
-  // Not sure why anyone cares, by NNTPHost seems to want to know the buf pos.
-  uint32_t GetBufferPos() { return m_bufferPos; }
 
-  virtual nsresult HandleLine(const char* line, uint32_t line_length);
-  // flush last line, though it won't be CRLF terminated.
-  virtual nsresult FlushLastLine();
+  /**
+   * HandleLine should be implemented by derived classes, to handle a line.
+   * The line will have whatever end-of-line characters were present in the
+   * source data (potentially none, if the data ends mid-line).
+   */
+  virtual nsresult HandleLine(const char* line, uint32_t line_length) = 0;
 
- protected:
-  explicit nsMsgLineBuffer(bool convertNewlinesP);
-
-  nsresult ConvertAndSendBuffer();
-  void SetLookingForCRLF(bool b);
-
-  nsMsgLineBufferHandler* m_handler;
-  bool m_convertNewlinesP;
-  bool m_lookingForCRLF;
+  /**
+   * Flush processes any unprocessed data currently in the buffer. Should
+   * be called when the source data is exhausted.
+   */
+  nsresult Flush();
 };
 
 // I'm adding this utility class here for lack of a better place. This utility

@@ -26,7 +26,6 @@
 #include "nsIMsgFilterHitNotify.h"
 #include "nsTArray.h"
 
-class nsByteArray;
 class nsOutputFileStream;
 class nsIMsgFolder;
 
@@ -67,9 +66,9 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   uint64_t m_headerstartpos;
   nsMsgKey m_new_key;  // DB key for the new header.
 
-  nsByteArray m_headers;
+  ::nsByteArray m_headers;
 
-  nsByteArray m_envelope;
+  ::nsByteArray m_envelope;
 
   struct message_header m_message_id;
   struct message_header m_references;
@@ -172,7 +171,7 @@ class nsMsgMailboxParser : public nsIStreamListener,
   // data
   nsString m_folderName;
   nsCString m_inboxUri;
-  nsByteArray m_inputStream;
+  ::nsByteArray m_inputStream;
   int32_t m_obuffer_size;
   char* m_obuffer;
   uint64_t m_graph_progress_total;

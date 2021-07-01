@@ -240,12 +240,10 @@ nsParseMailMessageState::OnJunkScoreChanged(nsIDBChangeListener* instigator) {
   return NS_OK;
 }
 
-nsMsgMailboxParser::nsMsgMailboxParser() : nsMsgLineBuffer(nullptr, false) {
-  Init();
-}
+nsMsgMailboxParser::nsMsgMailboxParser() : nsMsgLineBuffer() { Init(); }
 
 nsMsgMailboxParser::nsMsgMailboxParser(nsIMsgFolder* aFolder)
-    : nsMsgLineBuffer(nullptr, false),
+    : nsMsgLineBuffer(),
       m_parsingDone(false),
       m_startTime(0),
       m_urlInProgress(false) {
@@ -312,8 +310,8 @@ nsresult nsMsgMailboxParser::ProcessMailboxInputStream(nsIInputStream* aIStream,
 }
 
 void nsMsgMailboxParser::DoneParsingFolder(nsresult status) {
-  /* End of file.  Flush out any partial line remaining in the buffer. */
-  FlushLastLine();
+  // End of file. Flush out any data remaining in the buffer.
+  Flush();
   PublishMsgHeader(nullptr);
 
   // only mark the db valid if we've succeeded.

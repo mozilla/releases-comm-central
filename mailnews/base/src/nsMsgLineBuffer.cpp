@@ -55,17 +55,9 @@ nsresult nsByteArray::AppendBuffer(const char* buffer, uint32_t length) {
   return ret;
 }
 
-nsMsgLineBuffer::nsMsgLineBuffer(nsMsgLineBufferHandler* handler,
-                                 bool convertNewlinesP) {
-  MOZ_COUNT_CTOR(nsMsgLineBuffer);
-  m_handler = handler;
-  m_convertNewlinesP = convertNewlinesP;
-  m_lookingForCRLF = true;
-}
+nsMsgLineBuffer::nsMsgLineBuffer() { MOZ_COUNT_CTOR(nsMsgLineBuffer); }
 
 nsMsgLineBuffer::~nsMsgLineBuffer() { MOZ_COUNT_DTOR(nsMsgLineBuffer); }
-
-void nsMsgLineBuffer::SetLookingForCRLF(bool b) { m_lookingForCRLF = b; }
 
 nsresult nsMsgLineBuffer::BufferInput(const char* net_buffer,
                                       int32_t net_buffer_size) {
@@ -75,8 +67,12 @@ nsresult nsMsgLineBuffer::BufferInput(const char* net_buffer,
     /* The last buffer ended with a CR.  The new buffer does not start
        with a LF.  This old buffer should be shipped out and discarded. */
     PR_ASSERT(m_bufferSize > m_bufferPos);
-    if (m_bufferSize <= m_bufferPos) return NS_ERROR_UNEXPECTED;
-    if (NS_FAILED(ConvertAndSendBuffer())) return NS_ERROR_FAILURE;
+    if (m_bufferSize <= m_bufferPos) {
+      return NS_ERROR_UNEXPECTED;
+    }
+    if (NS_FAILED(HandleLine(m_buffer, m_bufferPos))) {
+      return NS_ERROR_FAILURE;
+    }
     m_bufferPos = 0;
   }
   while (net_buffer_size > 0) {
@@ -85,38 +81,27 @@ nsresult nsMsgLineBuffer::BufferInput(const char* net_buffer,
     const char* s;
 
     for (s = net_buffer; s < net_buffer_end; s++) {
-      if (m_lookingForCRLF) {
-        /* Move forward in the buffer until the first newline.
-           Stop when we see CRLF, CR, or LF, or the end of the buffer.
-           *But*, if we see a lone CR at the *very end* of the buffer,
-           treat this as if we had reached the end of the buffer without
-           seeing a line terminator.  This is to catch the case of the
-           buffers splitting a CRLF pair, as in "FOO\r\nBAR\r" "\nBAZ\r\n".
-        */
-        if (*s == '\r' || *s == '\n') {
-          newline = s;
-          if (newline[0] == '\r') {
-            if (s == net_buffer_end - 1) {
-              /* CR at end - wait for the next character. */
-              newline = 0;
-              break;
-            } else if (newline[1] == '\n') {
-              /* CRLF seen; swallow both. */
-              newline++;
-            }
+      /* Move forward in the buffer until the first newline.
+         Stop when we see CRLF, CR, or LF, or the end of the buffer.
+         *But*, if we see a lone CR at the *very end* of the buffer,
+         treat this as if we had reached the end of the buffer without
+         seeing a line terminator.  This is to catch the case of the
+         buffers splitting a CRLF pair, as in "FOO\r\nBAR\r" "\nBAZ\r\n".
+      */
+      if (*s == '\r' || *s == '\n') {
+        newline = s;
+        if (newline[0] == '\r') {
+          if (s == net_buffer_end - 1) {
+            /* CR at end - wait for the next character. */
+            newline = 0;
+            break;
+          } else if (newline[1] == '\n') {
+            /* CRLF seen; swallow both. */
+            newline++;
           }
-          newline++;
-          break;
         }
-      } else {
-        /* if not looking for a CRLF, stop at CR or LF.  (for example, when
-         * parsing the newsrc file).  this fixes #9896, where we'd lose the last
-         * line of anything we'd parse that used CR as the line break. */
-        if (*s == '\r' || *s == '\n') {
-          newline = s;
-          newline++;
-          break;
-        }
+        newline++;
+        break;
       }
     }
 
@@ -142,7 +127,9 @@ nsresult nsMsgLineBuffer::BufferInput(const char* net_buffer,
      */
     if (!newline) return NS_OK;
 
-    if (NS_FAILED(ConvertAndSendBuffer())) return NS_ERROR_FAILURE;
+    if (NS_FAILED(HandleLine(m_buffer, m_bufferPos))) {
+      return NS_ERROR_FAILURE;
+    }
 
     net_buffer_size -= (newline - net_buffer);
     net_buffer = newline;
@@ -151,61 +138,14 @@ nsresult nsMsgLineBuffer::BufferInput(const char* net_buffer,
   return NS_OK;
 }
 
-nsresult nsMsgLineBuffer::HandleLine(const char* line, uint32_t line_length) {
-  NS_ASSERTION(false,
-               "must override this method if you don't provide a handler");
-  return NS_OK;
-}
-
-nsresult nsMsgLineBuffer::ConvertAndSendBuffer() {
-  /* Convert the line terminator to the native form.
-   */
-
-  char* buf = m_buffer;
-  int32_t length = m_bufferPos;
-
-  char* newline;
-
-  PR_ASSERT(buf && length > 0);
-  if (!buf || length <= 0) return NS_ERROR_FAILURE;
-  newline = buf + length;
-
-  PR_ASSERT(newline[-1] == '\r' || newline[-1] == '\n');
-  if (newline[-1] != '\r' && newline[-1] != '\n') return NS_ERROR_FAILURE;
-
-  if (m_convertNewlinesP) {
-#if (MSG_LINEBREAK_LEN == 1)
-    if ((newline - buf) >= 2 && newline[-2] == '\r' && newline[-1] == '\n') {
-      /* CRLF -> CR or LF */
-      buf[length - 2] = MSG_LINEBREAK[0];
-      length--;
-    } else if (newline > buf + 1 && newline[-1] != MSG_LINEBREAK[0]) {
-      /* CR -> LF or LF -> CR */
-      buf[length - 1] = MSG_LINEBREAK[0];
-    }
-#else
-    if (((newline - buf) >= 2 && newline[-2] != '\r') ||
-        ((newline - buf) >= 1 && newline[-1] != '\n')) {
-      /* LF -> CRLF or CR -> CRLF */
-      length++;
-      buf[length - 2] = MSG_LINEBREAK[0];
-      buf[length - 1] = MSG_LINEBREAK[1];
-    }
-#endif
-  }
-  return (m_handler) ? m_handler->HandleLine(buf, length)
-                     : HandleLine(buf, length);
-}
-
 // If there's still some data (non CRLF terminated) flush it out
-nsresult nsMsgLineBuffer::FlushLastLine() {
+nsresult nsMsgLineBuffer::Flush() {
   char* buf = m_buffer + m_bufferPos;
   int32_t length = m_bufferPos - 1;
-  if (length > 0)
-    return (m_handler) ? m_handler->HandleLine(buf, length)
-                       : HandleLine(buf, length);
-  else
-    return NS_OK;
+  if (length > 0) {
+    return HandleLine(buf, length);
+  }
+  return NS_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
