@@ -101,6 +101,7 @@ const EXPORTED_SYMBOLS = [
   "middle_click_on_folder",
   "middle_click_on_row",
   "msgGen",
+  "normalize_for_json",
   "open_folder_in_new_tab",
   "open_folder_in_new_window",
   "open_message_from_file",
@@ -206,6 +207,7 @@ var inboxFolder = null;
 
 // logHelper exports
 var mark_action;
+var normalize_for_json;
 
 // Default size of the main Thunderbird window in which the tests will run.
 var gDefaultWindowWidth = 1024;
@@ -242,6 +244,7 @@ function setupModule() {
     testHelperModule
   );
   mark_action = testHelperModule.mark_action;
+  normalize_for_json = testHelperModule._normalize_for_json;
 
   // Indicate to any fancy helpers (just folderEventLogHelper right now) that
   //  we want them to log extra stuff.
@@ -292,14 +295,6 @@ function setupModule() {
   //  we need.
   mc = windowHelper.wait_for_existing_window("mail:3pane");
   windowHelper.augment_controller(mc);
-
-  // Tell window-helper about the true mark_action function in order to try
-  // and further complicate this horrid seven-dimensional rats' nest.
-  windowHelper.hereIsMarkAction(
-    mark_action,
-    null,
-    testHelperModule._normalize_for_json
-  );
 
   mark_action("fdh", "startup completed", [
     mc.window.msgWindow != null
