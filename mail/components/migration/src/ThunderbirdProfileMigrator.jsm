@@ -93,7 +93,8 @@ class ThunderbirdProfileMigrator {
     return (
       Ci.nsIMailProfileMigrator.ACCOUNT_SETTINGS |
       Ci.nsIMailProfileMigrator.MAILDATA |
-      Ci.nsIMailProfileMigrator.NEWSDATA
+      Ci.nsIMailProfileMigrator.NEWSDATA |
+      Ci.nsIMailProfileMigrator.ADDRESSBOOK_DATA
     );
   }
 
@@ -106,7 +107,7 @@ class ThunderbirdProfileMigrator {
     try {
       await this._importPreferences();
     } catch (e) {
-      throw Components.Exception(e.message, Cr.NS_ERROR_FAILURE);
+      throw Components.Exception(e.message, Cr.NS_ERROR_FAILURE, e.stack);
     }
     Services.obs.notifyObservers(null, "Migration:Ended");
   }
@@ -191,6 +192,17 @@ class ThunderbirdProfileMigrator {
       null,
       "Migration:ItemAfterMigrate",
       Ci.nsIMailProfileMigrator.MAILDATA
+    );
+    Services.obs.notifyObservers(
+      null,
+      "Migration:ItemBeforeMigrate",
+      Ci.nsIMailProfileMigrator.ADDRESS_BOOK
+    );
+    this._importAddressBooks(branchPrefsMap.get(ADDRESS_BOOK));
+    Services.obs.notifyObservers(
+      null,
+      "Migration:ItemAfterMigrate",
+      Ci.nsIMailProfileMigrator.ADDRESS_BOOK
     );
   }
 
@@ -405,5 +417,106 @@ class ThunderbirdProfileMigrator {
         accountKeyMap.get(sourceDefaultAccount)
       );
     }
+  }
+
+  /**
+   * Import address books.
+   * @param {Array<[string, string, number|string|boolean]>} prefs - All source
+   *   prefs in the ADDRESS_BOOK branch.
+   */
+  _importAddressBooks(prefs) {
+    let keyMap = new Map();
+    let branch = Services.prefs.getBranch(ADDRESS_BOOK);
+    for (let [type, name, value] of prefs) {
+      let key = name.split(".")[0];
+      if (["pab", "history"].includes(key)) {
+        continue;
+      }
+      let newKey = keyMap.get(key);
+      if (!newKey) {
+        // For every address book, create a new one to avoid conflicts.
+        let uniqueCount = 0;
+        newKey = key;
+        while (true) {
+          if (!branch.getCharPref(`${newKey}.filename`, "")) {
+            break;
+          }
+          newKey = `${key}${++uniqueCount}`;
+        }
+        keyMap.set(key, newKey);
+      }
+
+      let newName = `${newKey}${name.slice(key.length)}`;
+      branch[`set${type}Pref`](newName, value);
+    }
+
+    this._copyAddressBookDatabases(keyMap);
+  }
+
+  /**
+   * Copy sqlite files from this._sourceProfileDir to the current profile dir.
+   * @param {Map<string, string>} keyMap - A map from the source address
+   *   book key to new address book key.
+   */
+  _copyAddressBookDatabases(keyMap) {
+    // Copy user created address books.
+    for (let key of keyMap.values()) {
+      let branch = Services.prefs.getBranch(`${ADDRESS_BOOK}${key}.`);
+      let filename = branch.getCharPref("filename", "");
+      if (!filename) {
+        continue;
+      }
+      let sourceFile = this._sourceProfileDir.clone();
+      sourceFile.append(filename);
+
+      let targetFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      targetFile.append(sourceFile.leafName);
+      targetFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+      sourceFile.copyTo(targetFile.parent, targetFile.leafName);
+
+      branch.setCharPref("filename", targetFile.leafName);
+    }
+
+    // Copy or import Personal Address Book.
+    this._importAddressBookDatabase("abook.sqlite");
+    // Copy or import Collected Addresses.
+    this._importAddressBookDatabase("history.sqlite");
+  }
+
+  /**
+   * Copy a sqlite file from this._sourceProfileDir to the current profile dir.
+   * @param {string} filename - The name of the sqlite file.
+   */
+  _importAddressBookDatabase(filename) {
+    let sourceFile = this._sourceProfileDir.clone();
+    sourceFile.append(filename);
+    let targetFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    targetFile.append(filename);
+
+    if (!sourceFile.exists()) {
+      return;
+    }
+
+    if (!targetFile.exists()) {
+      sourceFile.copyTo(targetFile.parent);
+      return;
+    }
+
+    let dirId = MailServices.ab.newAddressBook(
+      "tmp",
+      "",
+      Ci.nsIAbManager.JS_DIRECTORY_TYPE
+    );
+    let tmpDirectory = MailServices.ab.getDirectoryFromId(dirId);
+    sourceFile.copyTo(targetFile.parent, tmpDirectory.fileName);
+
+    let targetDirectory = MailServices.ab.getDirectory(
+      `jsaddrbook://${filename}`
+    );
+    for (let card of tmpDirectory.childCards) {
+      targetDirectory.addCard(card);
+    }
+
+    MailServices.ab.deleteAddressBook(tmpDirectory.URI);
   }
 }
