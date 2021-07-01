@@ -313,14 +313,18 @@ var MigrationWizard = {
     }
 
     this._listItems("migratingItems");
-    setTimeout(this.onMigratingMigrate, 0, this);
+    setTimeout(() => this.onMigratingMigrate());
   },
 
-  onMigratingMigrate(aOuter) {
-    aOuter._migrator.migrate(
-      aOuter._itemsFlags,
-      aOuter._autoMigrate,
-      aOuter._selectedProfile
+  async onMigratingMigrate(aOuter) {
+    if (this._source == "thunderbird") {
+      // Ask user for the profile directory location.
+      await this._migrator.wrappedJSObject.getProfileDir(window);
+    }
+    this._migrator.migrate(
+      this._itemsFlags,
+      this._autoMigrate,
+      this._selectedProfile
     );
   },
 
