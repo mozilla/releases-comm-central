@@ -1101,7 +1101,7 @@ BatchMessageMover.prototype =
       this._batches[copyBatchKey].push(msgHdr);
     }
 
-    MailServices.mfn.addListener(this, notificationService.folderAdded);
+    MailServices.mfn.addListener(this, MailServices.mfn.folderAdded);
 
     // Now we launch the code iterating over all message copies, one in turn.
     this.processNextBatch();
