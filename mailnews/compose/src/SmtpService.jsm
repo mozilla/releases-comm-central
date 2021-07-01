@@ -123,7 +123,8 @@ SmtpService.prototype = {
         messageId,
       });
     };
-    client.onready = () => {
+    let socketOnDrain;
+    client.onready = async () => {
       let fstream = Cc[
         "@mozilla.org/network/file-input-stream;1"
       ].createInstance(Ci.nsIFileInputStream);
@@ -135,12 +136,38 @@ SmtpService.prototype = {
       );
       sstream.init(fstream);
 
+      let sentSize = 0;
+      let totalSize = messageFile.fileSize;
+      let progressListener = statusListener?.QueryInterface(
+        Ci.nsIWebProgressListener
+      );
+
       while (sstream.available()) {
-        client.send(sstream.read(16384));
+        let chunk = sstream.read(65536);
+        let canSendMore = client.send(chunk);
+        if (!canSendMore) {
+          // Socket buffer is full, wait for the ondrain event.
+          await new Promise(resolve => (socketOnDrain = resolve));
+        }
+        // In practice, chunks are buffered by TCPSocket, progress reaches 100%
+        // almost immediately.
+        sentSize += chunk.length;
+        progressListener?.onProgressChange(
+          null,
+          null,
+          sentSize,
+          totalSize,
+          sentSize,
+          totalSize
+        );
       }
       sstream.close();
       fstream.close();
       client.end();
+    };
+    client.ondrain = () => {
+      // Socket buffer is empty, safe to continue sending.
+      socketOnDrain();
     };
     client.ondone = exitCode => {
       if (!AppConstants.MOZ_SUITE) {
