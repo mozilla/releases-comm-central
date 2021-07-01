@@ -243,6 +243,7 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
     NS_ENSURE_TRUE(aWin, NS_ERROR_FAILURE);
     nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWin);
     nsIDocShell* rootShell = win->GetDocShell();
+    NS_ENSURE_STATE(rootShell);
     RefPtr<mozilla::dom::Element> el =
         rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
     RefPtr<mozilla::dom::XULFrameElement> frame =
@@ -481,6 +482,7 @@ nsMessenger::OpenURL(const nsACString& aURL) {
 
   nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
   nsIDocShell* rootShell = win->GetDocShell();
+  NS_ENSURE_STATE(rootShell);
   RefPtr<mozilla::dom::Element> el =
       rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
 
