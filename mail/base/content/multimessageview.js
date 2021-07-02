@@ -23,6 +23,7 @@ var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 var { PluralStringFormatter, makeFriendlyDateAgo } = ChromeUtils.import(
   "resource:///modules/TemplateUtils.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
@@ -35,6 +36,8 @@ XPCOMUtils.defineLazyGetter(this, "formatString", function() {
     return formatter.get(...args);
   };
 });
+
+var msgWindow = window.browsingContext.topChromeWindow;
 
 /**
  * A LimitIterator is a utility class that allows limiting the maximum number
@@ -164,8 +167,7 @@ MultiMessageSummary.prototype = {
 
     // Enable/disable the archive button as appropriate.
     let archiveBtn = document.getElementById("hdrArchiveButton");
-    archiveBtn.collapsed = !window.top.gFolderDisplay
-      .canArchiveSelectedMessages;
+    archiveBtn.collapsed = !msgWindow.gFolderDisplay.canArchiveSelectedMessages;
 
     let summarizer = this._summarizers[aType];
     if (!summarizer) {
@@ -271,7 +273,7 @@ MultiMessageSummary.prototype = {
       subjectNode.textContent =
         message.mime2DecodedSubject || formatString("noSubject");
       subjectNode.addEventListener("click", function() {
-        window.top.gFolderDisplay.selectMessages(thread);
+        msgWindow.gFolderDisplay.selectMessages(thread);
       });
       itemHeaderNode.appendChild(subjectNode);
 
@@ -307,8 +309,8 @@ MultiMessageSummary.prototype = {
 
       authorNode.classList.add("primary_header", "link");
       authorNode.addEventListener("click", function() {
-        window.top.gFolderDisplay.selectMessage(message);
-        window.top.document.getElementById("messagepane").focus();
+        msgWindow.gFolderDisplay.selectMessage(message);
+        msgWindow.document.getElementById("messagepane").focus();
       });
       itemHeaderNode.appendChild(authorNode);
     }
@@ -731,7 +733,7 @@ MultipleSelectionSummarizer.prototype = {
     let threads = [];
     let threadMap = {};
     for (let msgHdr of aMessages) {
-      let viewThreadId = window.top.gFolderDisplay.view.dbView.getThreadContainingMsgHdr(
+      let viewThreadId = msgWindow.gFolderDisplay.view.dbView.getThreadContainingMsgHdr(
         msgHdr
       ).threadKey;
       if (!(viewThreadId in threadMap)) {

@@ -39,11 +39,11 @@
           <toolbarbutton id="hdrArchiveButton"
                          class="toolbarbutton-1 msgHeaderView-button hdrArchiveButton"
                          label="&archiveButton.label;"
-                         onclick="if (event.button == 0) window.top.MsgArchiveSelectedMessages(null);" />
+                         onclick="if (event.button == 0) msgWindow.MsgArchiveSelectedMessages(null);" />
           <toolbarbutton id="hdrTrashButton"
                          class="toolbarbutton-1 msgHeaderView-button hdrTrashButton"
                          label="&deleteButton.label;"
-                         onclick="if (event.button == 0) window.top.DefaultController.doCommand('cmd_delete');"/>
+                         onclick="if (event.button == 0) msgWindow.DefaultController.doCommand('cmd_delete');"/>
         </hbox>
       </vbox>
 
