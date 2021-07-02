@@ -30,6 +30,7 @@
   <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <linkset>
+    <html:link rel="localization" href="branding/brand.ftl"/>
     <html:link rel="localization" href="messenger/openpgp/composeKeyStatus.ftl"/>
   </linkset>
 
@@ -52,5 +53,16 @@
             data-l10n-id="openpgp-compose-key-status-open-details"
             oncommand="viewSelectedEmail();"/>
   </hbox>
+
+  <separator class="thin"/>
+
+  <vbox flex="1">
+    <html:span class="tail-with-learn-more"
+               data-l10n-id="openpgp-compose-general-info-alias"></html:span>
+    <label is="text-link" id="openPgpAliasLearnMore"
+       href="https://support.mozilla.org/kb/openpgp-recipient-alias-configuration"
+       data-l10n-id="openpgp-compose-general-info-alias-learn-more"/>
+  </vbox>
+
 </dialog>
 </window>
