@@ -1693,6 +1693,7 @@ var messageTracker = new (class extends EventEmitter {
     this._pendingKeyChanges = new Map();
 
     // nsIObserver
+    Services.obs.addObserver(this, "xpcom-shutdown");
     Services.obs.addObserver(this, "attachment-delete-msgkey-changed");
     // nsIFolderListener
     MailServices.mailSession.AddFolderListener(
@@ -1708,6 +1709,16 @@ var messageTracker = new (class extends EventEmitter {
         MailServices.mfn.msgsMoveCopyCompleted |
         MailServices.mfn.msgKeyChanged
     );
+  }
+
+  cleanup() {
+    // nsIObserver
+    Services.obs.removeObserver(this, "xpcom-shutdown");
+    Services.obs.removeObserver(this, "attachment-delete-msgkey-changed");
+    // nsIFolderListener
+    MailServices.mailSession.RemoveFolderListener(this);
+    // nsIMsgFolderListener
+    MailServices.mfn.removeListener(this);
   }
 
   /**
@@ -1819,8 +1830,8 @@ var messageTracker = new (class extends EventEmitter {
     }
   }
 
-  msgsJunkStatusChanged(aMessages) {
-    for (let msgHdr of aMessages) {
+  msgsJunkStatusChanged(messages) {
+    for (let msgHdr of messages) {
       let junkScore = parseInt(msgHdr.getProperty("junkscore"), 10) || 0;
       this.emit("message-updated", msgHdr, {
         junk: junkScore >= gJunkThreshold,
@@ -1828,25 +1839,24 @@ var messageTracker = new (class extends EventEmitter {
     }
   }
 
-  msgsDeleted(aDeletedMsgs) {
-    if (aDeletedMsgs.length > 0) {
-      this.emit("messages-deleted", aDeletedMsgs);
+  msgsDeleted(deletedMsgs) {
+    if (deletedMsgs.length > 0) {
+      this.emit("messages-deleted", deletedMsgs);
     }
   }
 
-  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDstFolder, aDstMsgs) {
-    if (aSrcMsgs.length > 0 && aDstMsgs.length > 0) {
-      let emitMsg = aMove ? "messages-moved" : "messages-copied";
-      this.emit(emitMsg, aSrcMsgs, aDstMsgs);
+  msgsMoveCopyCompleted(move, srcMsgs, dstFolder, dstMsgs) {
+    if (srcMsgs.length > 0 && dstMsgs.length > 0) {
+      let emitMsg = move ? "messages-moved" : "messages-copied";
+      this.emit(emitMsg, srcMsgs, dstMsgs);
     }
   }
 
-  msgKeyChanged(aOldKey, aNewMsgHdr) {
+  msgKeyChanged(oldKey, newMsgHdr) {
     // For IMAP messages there is a delayed update of database keys and if those
     // keys change, the messageTracker needs to update its maps, otherwise wrong
     // messages will be returned. Key changes are replayed in multi-step swaps.
-    let oldKey = aOldKey;
-    let newKey = aNewMsgHdr.messageKey;
+    let newKey = newMsgHdr.messageKey;
 
     // Replay pending swaps.
     while (this._pendingKeyChanges.has(oldKey)) {
@@ -1866,10 +1876,10 @@ var messageTracker = new (class extends EventEmitter {
       this._pendingKeyChanges.set(newKey, oldKey);
 
       // Swap tracker entries.
-      let oldId = this._get(aNewMsgHdr.folder.URI, oldKey);
-      let newId = this._get(aNewMsgHdr.folder.URI, newKey);
-      this._set(oldId, aNewMsgHdr.folder.URI, newKey);
-      this._set(newId, aNewMsgHdr.folder.URI, oldKey);
+      let oldId = this._get(newMsgHdr.folder.URI, oldKey);
+      let newId = this._get(newMsgHdr.folder.URI, newKey);
+      this._set(oldId, newMsgHdr.folder.URI, newKey);
+      this._set(newId, newMsgHdr.folder.URI, oldKey);
     }
   }
 
@@ -1879,9 +1889,9 @@ var messageTracker = new (class extends EventEmitter {
    * Observer to update message tracker if a message has received a new key due
    * to attachments being removed, which we do not consider to be a new message.
    */
-  observe(aSubject, aTopic, aData) {
-    if (aTopic == "attachment-delete-msgkey-changed") {
-      let data = JSON.parse(aData);
+  observe(subject, topic, data) {
+    if (topic == "attachment-delete-msgkey-changed") {
+      data = JSON.parse(data);
 
       if (data && data.folderURI && data.oldMessageKey && data.newMessageKey) {
         let id = this._get(data.folderURI, data.oldMessageKey);
@@ -1890,6 +1900,8 @@ var messageTracker = new (class extends EventEmitter {
           this._set(id, data.folderURI, data.newMessageKey);
         }
       }
+    } else if (topic == "xpcom-shutdown") {
+      this.cleanup();
     }
   }
 })();
