@@ -30,6 +30,12 @@ const NAMESPACE_STRING = Object.entries(PREFIX_BINDINGS)
   .map(([prefix, url]) => `xmlns:${prefix}="${url}"`)
   .join(" ");
 
+const log = console.createInstance({
+  prefix: "carddav.sync",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "carddav.sync.loglevel",
+});
+
 /**
  * Adds CardDAV sync to SQLiteDirectory.
  */
@@ -356,6 +362,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       // TODO 3.0 is the default, should we be able to use other versions?
       requestDetails.body = VCardUtils.abCardToVCard(card, "3.0");
     }
+    console.log(`Sending ${href} to server.`);
     let response = await this._makeRequest(href, requestDetails);
     let conflictResponse = [409, 412].includes(response.status);
     if (response.status >= 400 && !conflictResponse) {
@@ -416,6 +423,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       return Promise.resolve();
     }
 
+    console.log(`Removing ${href} from server.`);
     return this._makeRequest(href, { method: "DELETE" });
   }
 
@@ -493,7 +501,7 @@ class CardDAVDirectory extends SQLiteDirectory {
           abCard.setProperty("_vCard", vCard);
           abCards.push(abCard);
         } catch (ex) {
-          console.error(`Error parsing: ${vCard}`);
+          log.error(`Error parsing: ${vCard}`);
           Cu.reportError(ex);
         }
       }
@@ -521,6 +529,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       return;
     }
 
+    log.log("Performing sync with server.");
     this._syncInProgress = true;
 
     try {
@@ -529,6 +538,9 @@ class CardDAVDirectory extends SQLiteDirectory {
       } else {
         await this.updateAllFromServerV1();
       }
+    } catch (ex) {
+      log.error("Sync with server failed.");
+      throw ex;
     } finally {
       if (shouldResetTimer) {
         this._scheduleNextSync();
@@ -621,6 +633,7 @@ class CardDAVDirectory extends SQLiteDirectory {
 
     await this._fetchAndStore(hrefsToFetch);
 
+    log.log("Sync with server completed successfully.");
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
   }
 
@@ -751,6 +764,8 @@ class CardDAVDirectory extends SQLiteDirectory {
     await this._fetchAndStore(hrefsToFetch);
 
     this._syncToken = dom.querySelector("sync-token").textContent;
+
+    log.log("Sync with server completed successfully.");
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
   }
 

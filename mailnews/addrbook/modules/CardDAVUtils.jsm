@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["CardDAVUtils", "NotificationCallbacks"];
 
-const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -25,9 +24,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/nss_errors_service;1",
   "nsINSSErrorsService"
 );
-
-const console = new ConsoleAPI();
-console.prefix = "CardDAV setup";
 
 // Use presets only where DNS discovery fails. Set to null to prevent
 // auto-fill completely for a domain.
@@ -266,6 +262,12 @@ var CardDAVUtils = {
    * @returns {foundBook[]} - An array of found address books.
    */
   async detectAddressBooks(username, password, location, forcePrompt = false) {
+    let log = console.createInstance({
+      prefix: "carddav.setup",
+      maxLogLevel: "warn",
+      maxLogLevelPref: "carddav.setup.loglevel",
+    });
+
     // Use a unique context for each attempt, so a prompt is always shown.
     let userContextId = Math.floor(Date.now() / 1000);
 
@@ -278,12 +280,12 @@ var CardDAVUtils = {
           Cr.NS_ERROR_NOT_AVAILABLE
         );
       }
-      console.log(`Using preset URL for ${url}`);
+      log.log(`Using preset URL for ${url}`);
       url = new URL(PRESETS[url.hostname]);
     }
 
     if (url.pathname == "/" && !(url.hostname in PRESETS)) {
-      console.log(`Looking up DNS record for ${url.hostname}`);
+      log.log(`Looking up DNS record for ${url.hostname}`);
       let srvRecords = await DNS.srv(`_carddavs._tcp.${url.hostname}`);
       srvRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
 
@@ -387,12 +389,12 @@ var CardDAVUtils = {
       }
       triedURLs.add(url);
 
-      console.log(`Attempting to connect to ${url}`);
+      log.log(`Attempting to connect to ${url}`);
       response = await CardDAVUtils.makeRequest(url, requestParams);
       if (response.status == 207 && response.dom) {
-        console.log(`${url} ... success`);
+        log.log(`${url} ... success`);
       } else {
-        console.log(
+        log.log(
           `${url} ... response was "${response.status} ${response.statusText}"`
         );
         response = null;
@@ -503,7 +505,7 @@ var CardDAVUtils = {
 
           if (oAuth) {
             if (oAuth._isNew) {
-              console.log(`Saving refresh token for ${username}`);
+              log.log(`Saving refresh token for ${username}`);
               let newLoginInfo = Cc[
                 "@mozilla.org/login-manager/loginInfo;1"
               ].createInstance(Ci.nsILoginInfo);
@@ -525,7 +527,7 @@ var CardDAVUtils = {
             }
             book.setStringValue("carddav.username", username);
           } else if (callbacks.authInfo?.username) {
-            console.log(`Saving login info for ${username}`);
+            log.log(`Saving login info for ${username}`);
             book.setStringValue(
               "carddav.username",
               callbacks.authInfo.username

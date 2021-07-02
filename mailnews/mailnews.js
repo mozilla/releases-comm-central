@@ -216,6 +216,9 @@ pref("mail.addr_book.loglevel", "Warn");
 pref("mail.addr_book.view.startupURI", "moz-abdirectory://?");
 pref("mail.addr_book.view.startupURIisDefault", true);
 
+pref("carddav.setup.loglevel", "Warn");
+pref("carddav.sync.loglevel", "Warn");
+
 // mail.addr_book.quicksearchquery.format is the model query used for:
 // * TB: AB Quick Search and composition's Contact Side Bar
 // * SM: AB Quick Search and composition's Select Addresses dialogue

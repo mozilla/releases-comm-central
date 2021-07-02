@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -12,8 +11,11 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailServices: "resource:///modules/MailServices.jsm",
 });
 
-var console = new ConsoleAPI();
-console.prefix = "CardDAV setup";
+var log = console.createInstance({
+  prefix: "carddav.setup",
+  maxLogLevel: "warn",
+  maxLogLevelPref: "carddav.setup.loglevel",
+});
 
 var oAuth = null;
 var callbacks = null;
@@ -84,7 +86,7 @@ async function check() {
   let username = uiElements.username.value;
 
   if (!uiElements.location.validity.valid && !username.split("@")[1]) {
-    console.error(`Invalid URL: "${uiElements.location.value}"`);
+    log.error(`Invalid URL: "${uiElements.location.value}"`);
     return;
   }
 
@@ -135,7 +137,7 @@ async function check() {
       setStatus();
     }
   } catch (ex) {
-    console.error(ex);
+    log.error(ex);
     if (ex.result == Cr.NS_ERROR_NOT_AVAILABLE) {
       setStatus("error", "carddav-known-incompatible", {
         url: new URL(url).hostname,
