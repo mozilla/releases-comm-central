@@ -205,6 +205,10 @@ pref("extensions.htmlaboutaddons.recommendations.enabled", false);
 // Don't allow content scripts on these web sites
 pref("extensions.webextensions.restrictedDomains", "accounts-static.cdn.mozilla.net,accounts.firefox.com,addons.cdn.mozilla.net,addons.mozilla.org,api.accounts.firefox.com,content.cdn.mozilla.net,discovery.addons.mozilla.org,install.mozilla.org,oauth.accounts.firefox.com,profile.accounts.firefox.com,support.mozilla.org,sync.services.mozilla.com,addons.thunderbird.net");
 
+// Define Thunderbird specific add-on related URLs (not used in toolkit code).
+pref("extensions.canonicalAddonServer.url", "https://addons.thunderbird.net");
+pref("extensions.alternativeAddonSearch.url", "https://extension-finder.thunderbird.net");
+
 pref("lightweightThemes.update.enabled", true);
 
 // Built-in default permissions.

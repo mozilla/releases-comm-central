@@ -19,6 +19,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionData: "resource://gre/modules/Extension.jsm",
 });
 
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "alternativeAddonSearchUrl",
+  "extensions.alternativeAddonSearch.url"
+);
+
 (async function() {
   window.MozXULElement.insertFTLIfNeeded("messenger/aboutAddonsExtra.ftl");
 
@@ -61,18 +67,30 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   // Add logic to detect add-ons using the unsupported legacy API.
   let getMozillaAddonMessageInfo = window.getAddonMessageInfo;
   window.getAddonMessageInfo = async function(addon) {
+    const { name } = addon;
+    const appName = brandBundle.GetStringFromName("brandShortName");
+    const { STATE_SOFTBLOCKED } = Ci.nsIBlocklistService;
     const formatString = (name, args) =>
       extBundle.formatStringFromName(
         `details.notification.${name}`,
         args,
         args.length
       );
-    const { name } = addon;
-    const appName = brandBundle.GetStringFromName("brandShortName");
     let data = new ExtensionData(addon.getResourceURI());
     await data.loadManifest();
-    if (data.manifest.legacy) {
+    if (
+      data.manifest.legacy ||
+      (!addon.isCompatible &&
+        (AddonManager.checkCompatibility ||
+          addon.blocklistState !== STATE_SOFTBLOCKED))
+    ) {
       return {
+        linkText: await document.l10n.formatValue(
+          "add-on-search-alternative-button-label"
+        ),
+        linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
+          addon.id
+        )}&q=${encodeURIComponent(name)}`,
         message: formatString("incompatible", [
           name,
           appName,

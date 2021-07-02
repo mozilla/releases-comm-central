@@ -13,6 +13,17 @@ var { PlacesUtils } = ChromeUtils.import(
   "resource://gre/modules/PlacesUtils.jsm"
 );
 
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "alternativeAddonSearchUrl",
+  "extensions.alternativeAddonSearch.url"
+);
+
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "canonicalAddonServerUrl",
+  "extensions.canonicalAddonServer.url"
+);
 /**
  * Extract the href from the link click event.
  * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,
@@ -236,10 +247,17 @@ function openLinkExternally(url) {
 
 /**
  * Compatibility to Firefox, used for example by devtools to open links. Defer
- * this to the external browser for now, since in most cases this is meant to
- * open an actionable tab.
+ * this to the external browser, if it is not add-on related.
  */
 function openWebLinkIn(url, where, params) {
+  if (
+    (url.startsWith(canonicalAddonServerUrl) && where == "tab") ||
+    (url.startsWith(alternativeAddonSearchUrl) && where == "tab")
+  ) {
+    document.getElementById("tabmail").openTab("contentTab", { url });
+    return;
+  }
+
   if (!params) {
     params = {};
   }
@@ -266,7 +284,8 @@ function openTrustedLinkIn(url, where, aParams) {
 
   if (
     url.startsWith("about:certificate") ||
-    (url.startsWith("https://addons.thunderbird.net") && where == "tab")
+    (url.startsWith(canonicalAddonServerUrl) && where == "tab") ||
+    (url.startsWith(alternativeAddonSearchUrl) && where == "tab")
   ) {
     document.getElementById("tabmail").openTab("contentTab", { url });
     return;
