@@ -373,6 +373,12 @@ function InitMsgWindow() {
     messagepane.docShell.allowAuth = false;
     messagepane.docShell.allowDNSPrefetch = false;
   }
+  let multimessagepane = document.getElementById("multimessage");
+  // The multimessage pane is not available in the standalone message window.
+  if (multimessagepane?.docShell) {
+    multimessagepane.docShell.allowAuth = false;
+    multimessagepane.docShell.allowDNSPrefetch = false;
+  }
   msgWindow.rootDocShell.allowAuth = true;
   msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   // Ensure we don't load xul error pages into the main window

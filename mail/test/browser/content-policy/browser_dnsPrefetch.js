@@ -26,6 +26,7 @@ var {
   mc,
   open_selected_message_in_new_window,
   select_click_row,
+  select_shift_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -92,15 +93,15 @@ function addMsgToFolder(folder) {
   // select the newly created message
   gMsgHdr = select_click_row(gMsgNo);
 
-  if (msgDbHdr != gMsgHdr) {
-    throw new Error(
-      "Selected Message Header is not the same as generated header"
-    );
-  }
+  Assert.equal(
+    msgDbHdr,
+    gMsgHdr,
+    "Should have selected the same message header as the generated header"
+  );
 
   assert_selected_and_displayed(gMsgNo);
 
-  ++gMsgNo;
+  return gMsgNo++;
 }
 
 /**
@@ -130,33 +131,49 @@ function checkComposeWindow(replyType) {
   }
 
   // Check the prefetch in the compose window.
-  if (replyWindow.e("content-frame").docShell.allowDNSPrefetch) {
-    throw new Error(
-      "DNS Prefetch on compose window is not disabled (" + errMsg + ")"
-    );
-  }
+  Assert.ok(
+    !replyWindow.e("content-frame").docShell.allowDNSPrefetch,
+    `Should have disabled DNS prefetch in the compose window (${errMsg})`
+  );
 
   composeHelper.close_compose_window(replyWindow);
 }
 
 add_task(function test_dnsPrefetch_message() {
   // Now we have started up, simply check that DNS prefetch is disabled
-  if (mc.e("messagepane").docShell.allowDNSPrefetch) {
-    throw new Error("DNS Prefetch on messagepane is not disabled at startup");
-  }
+  Assert.ok(
+    !mc.e("messagepane").docShell.allowDNSPrefetch,
+    "Should disable DNS Prefetch on messagepane at startup"
+  );
+  Assert.ok(
+    !mc.e("multimessage").docShell.allowDNSPrefetch,
+    "Should disable DNS Prefetch on multimessage at startup"
+  );
 
   be_in_folder(folder);
 
   assert_nothing_selected();
 
-  addMsgToFolder(folder);
+  let firstMsg = addMsgToFolder(folder);
 
   // Now we've got a message selected, check again.
-  if (mc.e("messagepane").docShell.allowDNSPrefetch) {
-    throw new Error(
-      "DNS Prefetch on messagepane is not disabled after selecting message"
-    );
-  }
+  Assert.ok(
+    !mc.e("messagepane").docShell.allowDNSPrefetch,
+    "Should keep DNS Prefetch disabled on messagepane after selecting message"
+  );
+
+  let secondMsg = addMsgToFolder(folder);
+  select_shift_click_row(firstMsg);
+
+  console.log(firstMsg, secondMsg);
+  assert_selected_and_displayed(firstMsg, secondMsg);
+
+  Assert.ok(
+    !mc.e("multimessage").docShell.allowDNSPrefetch,
+    "Should keep DNS Prefetch disabled on multimessage after selecting message"
+  );
+
+  select_shift_click_row(secondMsg);
 });
 
 add_task(async function test_dnsPrefetch_standaloneMessage() {
@@ -164,11 +181,10 @@ add_task(async function test_dnsPrefetch_standaloneMessage() {
   assert_selected_and_displayed(msgc, gMsgHdr);
 
   // Check the docshell.
-  if (mc.e("messagepane").docShell.allowDNSPrefetch) {
-    throw new Error(
-      "DNS Prefetch on messagepane is not disabled in standalone message window."
-    );
-  }
+  Assert.ok(
+    !mc.e("messagepane").docShell.allowDNSPrefetch,
+    "Should disable DNS Prefetch on messagepane in standalone message window."
+  );
 
   close_message_window(msgc);
 });
