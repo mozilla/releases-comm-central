@@ -1500,21 +1500,26 @@ async function initPanes() {
   OnLoadThreadPane();
   SetupCommandUpdateHandlers();
 
-  let messagePaneBrowser = document.getElementById("messagepane");
-  messagePaneBrowser.addEventListener(
-    "DoZoomEnlargeBy10",
-    () => {
-      ZoomManager.scrollZoomEnlarge(messagePaneBrowser);
-    },
-    true
-  );
-  messagePaneBrowser.addEventListener(
-    "DoZoomReduceBy10",
-    () => {
-      ZoomManager.scrollReduceEnlarge(messagePaneBrowser);
-    },
-    true
-  );
+  for (let browser of ["messagepane", "multimessage"]) {
+    let element = document.getElementById(browser);
+    if (!element) {
+      continue;
+    }
+    element.addEventListener(
+      "DoZoomEnlargeBy10",
+      () => {
+        ZoomManager.scrollZoomEnlarge(element);
+      },
+      true
+    );
+    element.addEventListener(
+      "DoZoomReduceBy10",
+      () => {
+        ZoomManager.scrollReduceEnlarge(element);
+      },
+      true
+    );
+  }
 }
 
 function UnloadPanes() {
