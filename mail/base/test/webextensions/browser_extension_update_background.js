@@ -11,7 +11,6 @@ AddonTestUtils.initMochitest(this);
 const ID = "update2@tests.mozilla.org";
 const ID_ICON = "update_icon2@tests.mozilla.org";
 const ID_PERMS = "update_perms@tests.mozilla.org";
-const ID_EXPERIMENT = "experiment_update@test.mozilla.org";
 const FAKE_INSTALL_TELEMETRY_SOURCE = "fake-install-source";
 
 requestLongerTimeout(2);
@@ -240,7 +239,6 @@ add_task(() =>
     checkDefaultIcon
   )
 );
-
 function checkNonDefaultIcon(icon) {
   // The icon should come from the extension, don't bother with the precise
   // path, just make sure we've got a jar url pointing to the right path
@@ -253,16 +251,6 @@ add_task(() =>
   backgroundUpdateTest(
     `${BASE}/browser_webext_update_icon1.xpi`,
     ID_ICON,
-    checkNonDefaultIcon
-  )
-);
-
-// Check bug 1710359 did not introduce a loophole and a simple WebExtension being
-// upgraded to an Experiment prompts for the permission update.
-add_task(() =>
-  backgroundUpdateTest(
-    `${BASE}/browser_webext_experiment_update1.xpi`,
-    ID_EXPERIMENT,
     checkNonDefaultIcon
   )
 );

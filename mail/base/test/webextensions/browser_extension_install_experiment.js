@@ -67,9 +67,7 @@ async function testExperimentPrompt(filename) {
 
   let result = await installPromise;
   ok(!result, "Installation was cancelled");
-  let addon = await AddonManager.getAddonByID(
-    "experiment_test@tests.mozilla.org"
-  );
+  let addon = await AddonManager.getAddonByID("thisisatest@test.invalid");
   is(addon, null, "Extension is not installed");
 
   let tabmail = document.getElementById("tabmail");
