@@ -109,6 +109,7 @@ var gDisableAttachmentReminder;
 var gComposeType;
 var gLanguageObserver;
 var gRecipientObserver;
+var gBccObserver;
 var gCheckPublicRecipientsTimer;
 var gBodyFromArgs;
 
@@ -272,6 +273,7 @@ function InitializeGlobalVariables() {
   gDisableAttachmentReminder = false;
   gLanguageObserver = null;
   gRecipientObserver = null;
+  gBccObserver = null;
 
   gLastWindowToHaveFocus = null;
   gLastKnownComposeStates = {};
@@ -297,6 +299,7 @@ function ReleaseGlobalVariables() {
   gOriginalMsgURI = null;
   gMessenger = null;
   gRecipientObserver = null;
+  gBccObserver = null;
   gDisableAttachmentReminder = false;
   _gComposeBundle = null;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
@@ -1631,16 +1634,16 @@ function setGlobalEncryptMessage(mode) {
 
   switch (mode) {
     case 0:
-      gSendEncrypted = false;
+      setSendEncrypted(false);
       gOptionalEncryption = false;
       break;
     case 1:
-      gSendEncrypted = true;
+      setSendEncrypted(true);
       enableSig = true;
       gOptionalEncryption = true;
       break;
     case 2:
-      gSendEncrypted = true;
+      setSendEncrypted(true);
       enableSig = true;
       gOptionalEncryption = false;
       break;
@@ -3751,6 +3754,12 @@ function ComposeStartup(aParams) {
   gRecipientObserver.observe(document.getElementById("ccAddrContainer"), {
     childList: true,
   });
+
+  gBccObserver = new MutationObserver(checkEncryptedBccRecipients);
+  gBccObserver.observe(document.getElementById("bccAddrContainer"), {
+    childList: true,
+  });
+  window.addEventListener("sendencryptedchange", checkEncryptedBccRecipients);
 }
 /* eslint-enable complexity */
 
@@ -3856,7 +3865,9 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
 
   if (!prevIdentity) {
     if (configuredOpenPGP || configuredSMIME) {
-      gSendEncrypted = gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0;
+      setSendEncrypted(
+        gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0
+      );
       gSendSigned = gCurrentIdentity.getBoolAttribute("sign_mail");
     }
 
@@ -3891,7 +3902,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
         gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0;
 
       if (newDefaultEncrypted) {
-        gSendEncrypted = true;
+        setSendEncrypted(true);
         gSendEncryptedInitial = gSendEncrypted;
       }
     }
@@ -3943,7 +3954,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     }
 
     if (gIsRelatedToEncryptedOriginal) {
-      gSendEncrypted = true;
+      setSendEncrypted(true);
       gSendSigned = true;
     }
   }
@@ -5228,6 +5239,63 @@ function getPublicAddressPills() {
     ...document.querySelectorAll("#toAddrContainer > mail-address-pill"),
     ...document.querySelectorAll("#ccAddrContainer > mail-address-pill"),
   ];
+}
+
+/**
+ * Check for Bcc recipients in an encrypted message and warn the user.
+ * The warning is not shown if the only Bcc recipient is the sender.
+ */
+async function checkEncryptedBccRecipients() {
+  let notification = gComposeNotification.getNotificationWithValue(
+    "warnEncryptedBccRecipients"
+  );
+  let bccRecipients = [
+    ...document.querySelectorAll("#bccAddrContainer > mail-address-pill"),
+  ];
+  let bccIsSender = bccRecipients.every(
+    pill => pill.emailAddress == gCurrentIdentity.email
+  );
+
+  if (
+    !(gSendEncrypted && gSelectedTechnologyIsPGP) ||
+    !bccRecipients.length ||
+    bccIsSender
+  ) {
+    if (notification) {
+      gComposeNotification.removeNotification(notification);
+    }
+    return;
+  }
+
+  if (notification) {
+    return;
+  }
+
+  let ignoreButton = {
+    "l10n-id": "encrypted-bcc-ignore-button",
+    callback() {
+      gBccObserver.disconnect();
+      gBccObserver = null;
+      window.removeEventListener(
+        "sendencryptedchange",
+        checkEncryptedBccRecipients
+      );
+      return false;
+    },
+  };
+
+  gComposeNotification.appendNotification(
+    await document.l10n.formatValue("encrypted-bcc-warning"),
+    "warnEncryptedBccRecipients",
+    null,
+    gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    [ignoreButton],
+    state => {
+      if (state == "dismissed") {
+        ignoreButton.callback();
+      }
+    }
+  );
 }
 
 function SendMessage() {
@@ -9676,3 +9744,16 @@ function fillMailContextMenu(event) {
   return gContextMenu.shouldDisplay;
 }
 function mailContextOnPopupHiding() {}
+
+/**
+ * Sets the gSendEncrypted global and dispatches an event that can be hooked
+ * into.
+ *
+ * @param {boolean} encrypted - True when encryption is enabled, false otherwise.
+ */
+function setSendEncrypted(encrypted) {
+  gSendEncrypted = encrypted;
+  window.dispatchEvent(
+    new CustomEvent("sendencryptedchange", { detail: { encrypted } })
+  );
+}

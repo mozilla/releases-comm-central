@@ -16,7 +16,7 @@
 /*global gSendEncrypted: true, gOptionalEncryption: true, gSendSigned: true, gSelectedTechnologyIsPGP: true */
 /*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
 /*global setEncSigStatusUI: false, gEncryptedURIService: false */
-
+/* global setSendEncrypted: true */
 /* import-globals-from ../BondOpenPGP.jsm */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -439,11 +439,11 @@ Enigmail.msg = {
         case EnigmailConstants.ENIG_UNDEF:
           break;
         case EnigmailConstants.ENIG_ALWAYS:
-          gSendEncrypted = true;
+          setSendEncrypted(true);
           break;
         case EnigmailConstants.ENIG_NEVER:
         default:
-          gSendEncrypted = false;
+          setSendEncrypted(false);
           break;
       }
       gOptionalEncryption = false;
@@ -648,7 +648,7 @@ Enigmail.msg = {
             EnigmailLog.DEBUG(
               "originalMsgURI=" + gMsgCompose.originalMsgURI + "\n"
             );
-            gSendEncrypted = true;
+            setSendEncrypted(true);
             gSelectedTechnologyIsPGP = true;
             useEncryptionUnlessWeHaveDraftInfo = false;
             usePGPUnlessWeKnowOtherwise = false;
@@ -659,7 +659,7 @@ Enigmail.msg = {
       }
 
       if (useEncryptionUnlessWeHaveDraftInfo) {
-        gSendEncrypted = true;
+        setSendEncrypted(true);
       }
       if (gSendEncrypted && !obtainedDraftFlagsObj.value) {
         gSendSigned = true;
@@ -1754,12 +1754,6 @@ Enigmail.msg = {
           "enigmailMsgComposeOverlay.js: Enigmail.msg.determineMsgRecipients: Self BCC\n"
         );
         this.addRecipients(toAddrList, recList);
-      } else if (sendFlags & EnigmailConstants.SEND_ENCRYPTED) {
-        EnigmailDialog.alert(
-          window,
-          await l10nOpenPGP.formatValue("sending-hidden-rcpt")
-        );
-        return false;
       }
     }
 
@@ -2640,7 +2634,7 @@ Enigmail.msg = {
       // automatic enabling encryption currently depends on
       // adjustSignEncryptAfterIdentityChanged to be always reached
       gIsRelatedToEncryptedOriginal = true;
-      gSendEncrypted = true;
+      setSendEncrypted(gSendEncrypted);
       gSendSigned = true;
       setEncSigStatusUI();
     }
