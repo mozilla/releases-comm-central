@@ -97,13 +97,116 @@
     </menu>
   </dialog>
 
+  <!-- Native HTML dialog for Calendar synchronization. This is a streamlined
+    version of the calendar-properties-dialog.xhtml with fewer properties:
+    - Name
+    - Color
+    - Refresh rate
+    - Read only
+    - Show reminders
+    - Offline support
+    This dialog should be kept synced with the calendar-properties-dialog.xhtml
+    if one of these properties changes.
+  -->
+  <dialog id="calendarDialog" class="account-setup-dialog">
+    <div class="dialog-container vertical">
+      <div class="dialog-container">
+        <img src="chrome://messenger/skin/icons/new-calendar.svg" alt=""
+             class="dialog-header-image small" />
+        <p data-l10n-id="calendar-dialog-title" class="dialog-description"></p>
+      </div>
+
+      <section class="calendar-dialog-form">
+        <label for="calendarName"
+               data-l10n-id="account-setup-calendar-name-label">
+        </label>
+        <div class="input-control">
+          <input id="calendarName" type="text"
+                 autocomplete="off"
+                 class="input-field input-grow"
+                 data-l10n-id="account-setup-calendar-name-input"
+                 required="required" />
+        </div>
+
+        <label for="calendarColor"
+               data-l10n-id="account-setup-calendar-color-label">
+        </label>
+        <div class="input-control">
+          <input id="calendarColor" type="color" />
+        </div>
+
+        <label for="calendaRefresh"
+               data-l10n-id="account-setup-calendar-refresh-label">
+        </label>
+        <div class="input-control">
+          <select id="calendaRefresh" class="input-grow">
+            <option data-l10n-id="account-setup-calendar-refresh-manual"
+                    value="0"></option>
+            <option data-l10n-id="account-setup-calendar-refresh-interval"
+                    data-l10n-args='{ "count": 1 }' value="1"></option>
+            <option data-l10n-id="account-setup-calendar-refresh-interval"
+                    data-l10n-args='{ "count": 5 }' value="5"></option>
+            <option data-l10n-id="account-setup-calendar-refresh-interval"
+                    data-l10n-args='{ "count": 15 }' value="15"></option>
+            <option data-l10n-id="account-setup-calendar-refresh-interval"
+                    data-l10n-args='{ "count": 30 }' value="30"
+                    selected="selected"></option>
+            <option data-l10n-id="account-setup-calendar-refresh-interval"
+                    data-l10n-args='{ "count": 60 }' value="60"></option>
+          </select>
+        </div>
+      </section>
+
+      <section class="indent">
+        <label class="toggle-container-with-text">
+          <input type="checkbox" id="calendarReadOnly" />
+          <span data-l10n-id="account-setup-calendar-read-only"
+                data-l10n-attrs="accesskey">
+          </span>
+        </label>
+
+        <label id="calendarShowRemindersRow" class="toggle-container-with-text">
+          <input type="checkbox" id="calendarShowReminders" checked="checked" />
+          <span data-l10n-id="account-setup-calendar-show-reminders"
+                data-l10n-attrs="accesskey">
+          </span>
+        </label>
+
+        <label class="toggle-container-with-text">
+          <input type="checkbox" id="calendarOfflineSupport" checked="checked" />
+          <span data-l10n-id="account-setup-calendar-offline-support"
+                data-l10n-attrs="accesskey">
+          </span>
+        </label>
+      </section>
+    </div>
+
+    <menu class="dialog-menu-container">
+      <button id="calendarDialogCancelButton"
+              data-l10n-id="calendar-dialog-cancel-button"></button>
+      <button id="calendarDialogConfirmButton"
+              data-l10n-id="calendar-dialog-confirm-button"
+              class="primary"></button>
+    </menu>
+  </dialog>
+
   <header>
-    <h1 data-l10n-id="account-setup-title" class="title"></h1>
-    <p data-l10n-id="account-setup-description" class="description"></p>
+    <h1 id="accountSetupTitle"
+        data-l10n-id="account-setup-title"
+        class="title">
+    </h1>
+    <p id="accountSetupDescription"
+       data-l10n-id="account-setup-description"
+       class="description">
+    </p>
+    <p id="accountSetupDescriptionSecondary"
+       data-l10n-id="account-setup-secondary-description"
+       class="description">
+    </p>
   </header>
 
   <section class="main-container">
-    <aside class="column first-column">
+    <aside id="setupView" class="column first-column">
 
       <form id="form" onsubmit="gAccountSetup.onFormSubmit(event);">
         <!-- Hidden submit field to enable the natural Enter keypress to
@@ -213,7 +316,7 @@
         </div>
       </form>
 
-      <section id="accountSetupNotifications">
+      <section id="accountSetupNotifications" class="account-setup-notifications">
         <!-- Notifications will be lazily loaded here. -->
       </section>
 
@@ -586,7 +689,8 @@
 
       <p id="manualConfigDescription"
          data-l10n-id="account-setup-auto-description"
-         class="autoconfig-note tip-caption">
+         class="autoconfig-note tip-caption"
+         hidden="hidden">
       </p>
 
       <p data-l10n-id="account-setup-privacy-footnote"
@@ -594,8 +698,143 @@
         <a href="https://www.mozilla.org/privacy/thunderbird/"
            data-l10n-name="privacy-policy-link"></a>
       </p>
+    </aside><!-- END first column "setupView"-->
 
-    </aside><!-- END first column-->
+    <aside id="successView" class="column first-column success-column" hidden="hidden">
+      <section class="account-success-block">
+        <img src="chrome://messenger/skin/icons/message-secure.svg"
+             class="account-type-image"
+             alt="" />
+        <aside>
+          <span id="newAccountName" class="account-name"></span>
+          <span id="newAccountEmail" class="account-email"></span>
+        </aside>
+        <span id="newAccountProtocol" class="protocol-type"></span>
+      </section>
+
+      <section class="quick-links">
+        <button id="settingsButton" type="button"
+                data-l10n-id="account-setup-settings-button"
+                class="quick-link">
+        </button>
+        <button id="encryptionButton" type="button"
+                data-l10n-id="account-setup-encryption-button"
+                class="quick-link">
+        </button>
+        <button id="signatureButton" type="button"
+                data-l10n-id="account-setup-signature-button"
+                class="quick-link">
+        </button>
+        <button id="dictionariesButton" type="button"
+                data-l10n-id="account-setup-dictionaries-button"
+                class="quick-link"
+                onclick="openDictionariesTab();">
+        </button>
+      </section>
+
+      <section id="linkedServices">
+        <h3 data-l10n-id="account-setup-linked-services-title"></h3>
+        <p id="linkedServicesDescription" class="tip-caption"></p>
+
+        <section id="syncNotifications" class="account-setup-notifications">
+          <!-- Notifications will be lazily loaded here. -->
+        </section>
+
+        <aside class="services-buttons-container">
+          <section id="linkedAddressBooks"
+                   class="content-blocking-category linked-services-section"
+                   hidden="hidden">
+            <button type="button" class="linked-services-button"
+                    onclick="gAccountSetup.toggleSetupContainer(event);">
+              <aside>
+                <span class="account-name"
+                      data-l10n-id="account-setup-address-books-button">
+                </span>
+                <p id="addressBooksCountDescription"
+                   class="linked-services-description">
+                </p>
+              </aside>
+              <span class="linked-service-dropdown">
+                <img src="chrome://calendar/skin/shared/view-cycler.svg" alt="" />
+              </span>
+            </button>
+
+            <div id="addressBooksSetup" class="linked-services-container"
+                 hidden="hidden">
+              <ul class="linked-services-list"></ul>
+              <button id="addressBooksSetupAll"
+                      data-l10n-id="account-setup-connect-all-address-books"
+                      class="btn-link self-center"
+                      onclick="gAccountSetup.setupAllAddressBooks();"
+                      hidden="hidden">
+              </button>
+            </div>
+          </section>
+
+          <section class="indent">
+            <button id="addressBookCardDAVButton" type="button"
+                    data-l10n-id="account-setup-address-book-carddav-button"
+                    class="quick-link"
+                    onclick="addCardDAVAddressBook();">
+            </button>
+
+            <button id="addressBookLDAPButton" type="button"
+                    data-l10n-id="account-setup-address-book-ldap-button"
+                    class="quick-link"
+                    onclick="addCardDAVAddressBook();">
+            </button>
+          </section>
+
+          <section id="linkedCalendars"
+                   class="content-blocking-category linked-services-section"
+                   hidden="hidden">
+            <button type="button" class="linked-services-button"
+                    onclick="gAccountSetup.toggleSetupContainer(event);">
+              <aside>
+                <span class="account-name"
+                      data-l10n-id="account-setup-calendars-button">
+                </span>
+                <p id="calendarsCountDescription"
+                   class="linked-services-description">
+                </p>
+              </aside>
+              <span class="linked-service-dropdown">
+                <img src="chrome://calendar/skin/shared/view-cycler.svg" alt="" />
+              </span>
+            </button>
+
+            <div id="calendarsSetup" class="linked-services-container"
+                 hidden="hidden">
+              <ul class="linked-services-list"></ul>
+              <button id="calendarsSetupAll"
+                      data-l10n-id="account-setup-connect-all-calendars"
+                      class="btn-link self-center"
+                      onclick="gAccountSetup.setupAllCalendars();"
+                      hidden="hidden">
+              </button>
+            </div>
+          </section>
+
+          <section class="indent">
+            <button id="calendarButton" type="button"
+                    data-l10n-id="account-setup-calendar-button"
+                    class="quick-link"
+                    onclick="showCalendarWizard();">
+            </button>
+          </section>
+
+        </aside>
+      </section>
+
+      <section class="final-buttons-container">
+        <button id="finishButton" type="button"
+                data-l10n-id="account-setup-button-finish"
+                data-l10n-attrs="accesskey"
+                class="primary"
+                onclick="gAccountSetup.onFinish();">
+        </button>
+      </section>
+    </aside><!-- END first column "successView"-->
 
     <aside class="column second-column">
       <article id="step1">
@@ -625,6 +864,16 @@
         <p data-l10n-id="account-setup-selection-error"></p>
         <a href="https://support.mozilla.org/products/thunderbird/emails-thunderbird/set-up-email-thunderbird"
            data-l10n-id="account-setup-documentation-help"></a>
+        - <a href="https://support.mozilla.org/products/thunderbird"
+             data-l10n-id="account-setup-forum-help"></a>
+      </article>
+      <article id="step5" class="tip-caption" hidden="hidden">
+        <img src="chrome://messenger/skin/illustrations/accounts.svg"
+             data-l10n-id="account-setup-step5-image"
+             alt="" />
+        <p data-l10n-id="account-setup-success-help"></p>
+        <a href="https://support.mozilla.org/products/thunderbird/learn-basics-get-started"
+           data-l10n-id="account-setup-getting-started"></a>
         - <a href="https://support.mozilla.org/products/thunderbird"
              data-l10n-id="account-setup-forum-help"></a>
       </article>

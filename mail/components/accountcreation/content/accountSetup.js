@@ -17,16 +17,17 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.jsm",
+  cal: "resource:///modules/calendar/calUtils.jsm",
+  CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
   CreateInBackend: "resource:///modules/accountcreation/CreateInBackend.jsm",
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.jsm",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
-  UserCancelledException: "resource:///modules/accountcreation/FetchHTTP.jsm",
-  verifyConfig: "resource:///modules/accountcreation/verifyConfig.jsm",
-
   MailServices: "resource:///modules/MailServices.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
   Services: "resource://gre/modules/Services.jsm",
+  UserCancelledException: "resource:///modules/accountcreation/FetchHTTP.jsm",
+  verifyConfig: "resource:///modules/accountcreation/verifyConfig.jsm",
 });
 
 var {
@@ -184,6 +185,9 @@ var gAccountSetup = {
   // a server configuration or installing an add-on.
   _abortable: null,
 
+  /**
+   * Initialize the main notification box for the account setup process.
+   */
   get notificationBox() {
     if (!this._notificationBox) {
       this._notificationBox = new MozElements.NotificationBox(element => {
@@ -192,6 +196,20 @@ var gAccountSetup = {
       });
     }
     return this._notificationBox;
+  },
+
+  /**
+   * Initialize the notification box for the calendar and address book sync
+   * process at the end of the account setup.
+   */
+  get syncingBox() {
+    if (!this._syncingBox) {
+      this._syncingBox = new MozElements.NotificationBox(element => {
+        element.setAttribute("notificationside", "bottom");
+        document.getElementById("syncNotifications").append(element);
+      });
+    }
+    return this._syncingBox;
   },
 
   clearNotifications() {
@@ -222,6 +240,7 @@ var gAccountSetup = {
     // to show it to the user), you need to run replaceVariables().
     this._currentConfig = null;
     this._domain = "";
+    this._hostname = "";
     this._email = "";
     this._realname = "";
     if ("@mozilla.org/userinfo;1" in Cc) {
@@ -309,10 +328,21 @@ var gAccountSetup = {
     let createButton = document.getElementById("createButton");
     let reTestButton = document.getElementById("reTestButton");
     let autoconfigDesc = document.getElementById("manualConfigDescription");
+    let setupTitle = document.getElementById("accountSetupTitle");
 
     switch (modename) {
       case "start":
         this.clearNotifications();
+        document.getElementById("setupView").hidden = false;
+        document.getElementById("successView").hidden = true;
+
+        document.l10n.setAttributes(setupTitle, "account-setup-title");
+        setupTitle.classList.remove("success");
+        document.l10n.setAttributes(
+          document.getElementById("accountSetupDescription"),
+          "account-setup-description"
+        );
+
         document.getElementById("resultsArea").hidden = true;
         document.getElementById("manualConfigArea").hidden = true;
         document.getElementById("manualConfigButton").hidden = true;
@@ -404,6 +434,21 @@ var gAccountSetup = {
         createButton.hidden = false;
 
         document.getElementById("incomingProtocol").focus();
+        break;
+      case "success":
+        document.getElementById("setupView").hidden = true;
+        document.getElementById("successView").hidden = false;
+
+        document.l10n.setAttributes(setupTitle, "account-setup-success-title");
+        setupTitle.classList.add("success");
+        document.l10n.setAttributes(
+          document.getElementById("accountSetupDescription"),
+          "account-setup-success-description"
+        );
+        document.l10n.setAttributes(
+          document.getElementById("accountSetupDescriptionSecondary"),
+          "account-setup-success-secondary-description"
+        );
         break;
       default:
         throw new NotReached("Unknown mode requested");
@@ -573,7 +618,7 @@ var gAccountSetup = {
 
     try {
       call = priority.addCall();
-      this.startLoadingState("account-setup-looking-up-disk");
+      this.updateLoadingState("account-setup-looking-up-disk");
       call.foundMsg = "account-setup-success-settings-disk";
       fetch = FetchConfig.fromDisk(
         domain,
@@ -583,7 +628,7 @@ var gAccountSetup = {
       call.setAbortable(fetch);
 
       call = priority.addCall();
-      this.startLoadingState("account-setup-looking-up-isp");
+      this.updateLoadingState("account-setup-looking-up-isp");
       call.foundMsg = "account-setup-success-settings-isp";
       fetch = FetchConfig.fromISP(
         domain,
@@ -594,7 +639,7 @@ var gAccountSetup = {
       call.setAbortable(fetch);
 
       call = priority.addCall();
-      this.startLoadingState("account-setup-looking-up-db");
+      this.updateLoadingState("account-setup-looking-up-db");
       call.foundMsg = "account-setup-success-settings-db";
       fetch = FetchConfig.fromDB(
         domain,
@@ -604,7 +649,7 @@ var gAccountSetup = {
       call.setAbortable(fetch);
 
       call = priority.addCall();
-      this.startLoadingState("account-setup-looking-up-mx");
+      this.updateLoadingState("account-setup-looking-up-mx");
       // "account-setup-success-settings-db" is correct.
       // We display the same message for both db and mx cases.
       call.foundMsg = "account-setup-success-settings-db";
@@ -616,7 +661,7 @@ var gAccountSetup = {
       call.setAbortable(fetch);
 
       call = priority.addCall();
-      this.startLoadingState("account-setup-looking-up-exchange");
+      this.updateLoadingState("account-setup-looking-up-exchange");
       call.foundMsg = "account-setup-success-settings-exchange";
       fetch = fetchConfigFromExchange(
         domain,
@@ -814,6 +859,29 @@ var gAccountSetup = {
   },
 
   /**
+   * Update the text of a currently visible loading notification
+   *
+   * @param {string} stringName - The name of the fluent string that needs to be
+   *   attached to the notification.
+   */
+  async updateLoadingState(stringName) {
+    let notification = this.notificationBox.getNotificationWithValue(
+      "accountSetupLoading"
+    );
+    // If a notification doesn't already exist, create one.
+    if (!notification) {
+      this.startLoadingState(stringName);
+      return;
+    }
+
+    let notificationMessage = await document.l10n.formatValue(stringName);
+    notification.label = notificationMessage;
+    this.ensureVisibleNotification();
+
+    gAccountSetupLogger.debug(`Status msg: ${notificationMessage}`);
+  },
+
+  /**
    * Clear the loading notification and show a successful notification if
    * needed.
    *
@@ -908,11 +976,30 @@ var gAccountSetup = {
    * @param {string} id - The string ID of the element to show.
    */
   showHelperImage(id) {
-    // Loop through all the articles containig helper images and hide them all
-    // except for the matching ID.
-    for (let article of document.querySelectorAll(".second-column article")) {
-      article.hidden = article.id != id;
+    // Hide all currently visible articles containing helper images in the
+    // second column.
+    for (let article of document.querySelectorAll(
+      ".second-column article:not([hidden])"
+    )) {
+      article.hidden = true;
     }
+
+    // Simply show the requested helper image if the user specified a reduced
+    // motion preference.
+    if (gReducedMotion) {
+      document.getElementById(id).hidden = false;
+      return;
+    }
+
+    // Handle a nice cross fade between steps.
+    let stepToShow = document.getElementById(id);
+    // Add the class to let the revealing element start from a proper state.
+    stepToShow.classList.add("hide");
+    stepToShow.hidden = false;
+    // Timeout to animate after the hidden attribute has been removed.
+    setTimeout(() => {
+      stepToShow.classList.remove("hide");
+    });
   },
 
   /**
@@ -1098,7 +1185,12 @@ var gAccountSetup = {
       });
       _addComponent(`account-setup-result-${type}`, "protocol-type");
 
-      let domain = Services.eTLD.getBaseDomainFromHost(server.hostname);
+      let domain = server.hostname;
+      try {
+        domain = Services.eTLD.getBaseDomainFromHost(server.hostname);
+      } catch (ex) {
+        gAccountSetupLogger.warn(ex);
+      }
 
       let hostSpan = document.createElement("span");
       hostSpan.classList.add("host-without-domain");
@@ -1781,11 +1873,15 @@ var gAccountSetup = {
    * The values that the user left empty or on "Auto" will be guessed/probed
    * here. We will also check that the user-provided values work.
    */
-  testManualConfig() {
+  async testManualConfig() {
+    this.clearNotifications();
+    await this.startLoadingState(
+      "account-setup-looking-up-settings-half-manual"
+    );
+
     let newConfig = this.getUserConfig();
     gAccountSetupLogger.debug("manual config to test:\n" + newConfig);
-    this.clearNotifications();
-    this.startLoadingState("account-setup-looking-up-settings-half-manual");
+
     this.switchToMode("manual-edit-testing");
     // if (this._userPickedOutgoingServer) TODO
     let self = this;
@@ -2054,6 +2150,473 @@ var gAccountSetup = {
       this._okCallback();
     }
 
+    this.showSuccessView(newAccount);
+  },
+
+  /**
+   * Toggle the visibility of the list of available services to configure.
+   */
+  toggleSetupContainer(event) {
+    let container = event.target.closest(".linked-services-section");
+    container.classList.toggle("opened");
+    container
+      .querySelector(".linked-services-container")
+      .toggleAttribute("hidden");
+  },
+
+  /**
+   * Update the account setup tab to show a successful final view with quick
+   * links and suggested next steps.
+   *
+   * @param {nsIMsgAccount} account - The newly created account.
+   */
+  async showSuccessView(account) {
+    gAccountSetupLogger.debug("Account creation successful");
+
+    // Populate the account recap info.
+    document.getElementById("newAccountName").textContent = this._realname;
+    document.getElementById("newAccountEmail").textContent = this._email;
+    document.getElementById("newAccountProtocol").textContent =
+      account.incomingServer.type;
+
+    // Store the host domain that will be used to look for CardDAV and CalDAV
+    // services. We do this because we can't safely rely on DNS SRV.
+    this._hostname = account.incomingServer.hostName;
+    try {
+      this._hostname = Services.eTLD.getBaseDomainFromHost(
+        account.incomingServer.hostName
+      );
+    } catch (ex) {
+      gAccountSetupLogger.warn(ex);
+    }
+
+    // Set up even listeners for the quick links.
+    document.getElementById("settingsButton").addEventListener(
+      "click",
+      () => {
+        MsgAccountManager(null, account.incomingServer);
+      },
+      { once: true }
+    );
+
+    // Hide the e2ee button if the current server doesn't support it.
+    let hasEncryption =
+      account.incomingServer.type != "rss" &&
+      account.incomingServer.type != "nntp" &&
+      account.incomingServer.protocolInfo?.canGetMessages;
+    document.getElementById("encryptionButton").hidden = !hasEncryption;
+    if (hasEncryption) {
+      document
+        .getElementById("encryptionButton")
+        .addEventListener("click", () => {
+          MsgAccountManager("am-e2e.xhtml", account.incomingServer);
+        });
+    }
+
+    document.getElementById("signatureButton").addEventListener("click", () => {
+      MsgAccountManager(null, account.incomingServer);
+    });
+
+    // Finally, show the success view.
+    this.switchToMode("success");
+
+    // Initialize the fetching of possible linked services like address books
+    // or calendars.
+    gAccountSetupLogger.debug("Fetching linked address books and calendars");
+
+    let notification = this.syncingBox.appendNotification(
+      await document.l10n.formatValue("account-setup-looking-up-address-books"),
+      "accountSetupLoading",
+      null,
+      this.syncingBox.PRIORITY_INFO_LOW,
+      null
+    );
+    notification.setAttribute("align", "center");
+
+    // Hide the close button to prevent dismissing the notification.
+    notification.removeAttribute("dismissable");
+
+    // Detect linked address books.
+    await this.fetchAddressBooks();
+
+    // Update the notification and start detecting linked calendars.
+    document.l10n.setAttributes(
+      notification.messageText,
+      "account-setup-looking-up-calendars"
+    );
+    await this.fetchCalendars();
+
+    // Update the connected services description if we have at least one address
+    // book or one calendar we can connect to.
+    document.l10n.setAttributes(
+      document.getElementById("linkedServicesDescription"),
+      !this.addressBooks.length && !this.calendars.size
+        ? "account-setup-no-linked-description"
+        : "account-setup-linked-services-description"
+    );
+
+    // Clear the loading notification.
+    this.syncingBox.removeAllNotifications();
+    this.showHelperImage("step5");
+  },
+
+  /**
+   * Fetch any available CardDAV address books.
+   */
+  async fetchAddressBooks() {
+    this.addressBooks = [];
+    try {
+      this.addressBooks = await CardDAVUtils.detectAddressBooks(
+        this._email,
+        this._password,
+        `https://${this._hostname}`,
+        false
+      );
+    } catch (ex) {
+      gAccountSetupLogger.error(ex);
+    }
+
+    let hideAddressBookUI = !this.addressBooks.length;
+    document.getElementById("linkedAddressBooks").hidden = hideAddressBookUI;
+
+    // Clear the UI from any previous list.
+    let abList = document.querySelector(
+      "#addressBooksSetup .linked-services-list"
+    );
+    while (abList.hasChildNodes()) {
+      abList.lastChild.remove();
+    }
+
+    // Interrupt if we don't have anything to show.
+    if (hideAddressBookUI) {
+      return;
+    }
+
+    document.l10n.setAttributes(
+      document.getElementById("addressBooksCountDescription"),
+      "account-setup-found-address-books-description",
+      { count: this.addressBooks.length }
+    );
+
+    // Collect existing carddav address books to compare with the list of
+    // recently fetched ones.
+    let existing = MailServices.ab.directories.map(d =>
+      d.getStringValue("carddav.url", "")
+    );
+
+    // Populate the list of available address books.
+    for (let book of this.addressBooks) {
+      let provider = document.createElement("span");
+      provider.classList.add("protocol-type");
+      provider.textContent = "CardDAV";
+
+      let name = document.createElement("span");
+      name.classList.add("list-item-name");
+      name.textContent = book.name;
+
+      let button = document.createElement("button");
+      button.setAttribute("type", "button");
+
+      if (existing.includes(book.url.href)) {
+        // This address book aready exists for some reason, so disable the
+        // button and mark it as existing.
+        button.classList.add("existing", "small");
+        document.l10n.setAttributes(
+          button,
+          "account-setup-existing-address-book"
+        );
+        button.disabled = true;
+      } else {
+        button.classList.add("small");
+        document.l10n.setAttributes(button, "account-setup-connect-link");
+        button.addEventListener("click", () => {
+          this._setupAddressBook(button, book);
+        });
+      }
+
+      let row = document.createElement("li");
+      row.appendChild(provider);
+      row.appendChild(name);
+      row.appendChild(button);
+      abList.appendChild(row);
+    }
+
+    // Show a "connect all" button if we have more than one address book.
+    document.getElementById("addressBooksSetupAll").hidden =
+      this.addressBooks.length <= 1;
+  },
+
+  /**
+   * Connect to the selected address book.
+   *
+   * @param {HTMLElement} button - The clicked button in the list.
+   * @param {foundBook} book - The address book to configure.
+   */
+  _setupAddressBook(button, book) {
+    book.create();
+
+    // Update the button to reflect the creation of the new address book.
+    button.classList.add("existing");
+    document.l10n.setAttributes(button, "account-setup-existing-address-book");
+    button.disabled = true;
+
+    // Check if we have any address book left to set up and hide the
+    // "Connect all" button if not.
+    document.getElementById(
+      "addressBooksSetupAll"
+    ).hidden = !document.querySelectorAll(
+      "#addressBooksSetup .linked-services-list button:not(.existing)"
+    ).length;
+  },
+
+  /**
+   * Loop through all available address books found and click the connect
+   * button to trigger the method attached to the onclick listener.
+   */
+  setupAllAddressBooks() {
+    for (let button of document.querySelectorAll(
+      "#addressBooksSetup .linked-services-list button"
+    )) {
+      button.click();
+    }
+  },
+
+  /**
+   * Fetch any available CalDAV calendars.
+   */
+  async fetchCalendars() {
+    this.calendars = {};
+    try {
+      this.calendars = await cal.provider.detection.detect(
+        this._email,
+        this._password,
+        `https://${this._hostname}`,
+        document.getElementById("rememberPassword").checked,
+        [],
+        {}
+      );
+    } catch (ex) {
+      gAccountSetupLogger.error(ex);
+    }
+
+    let hideCalendarUI = !this.calendars.size;
+    document.getElementById("linkedCalendars").hidden = hideCalendarUI;
+
+    // Clear the UI from any previous list.
+    let calList = document.querySelector(
+      "#calendarsSetup .linked-services-list"
+    );
+    while (calList.hasChildNodes()) {
+      calList.lastChild.remove();
+    }
+
+    // Interrupt if we don't have anything to show.
+    if (hideCalendarUI) {
+      return;
+    }
+
+    // Collect existing calendars to compare with the list of recently fetched
+    // ones.
+    let existing = new Set(
+      cal
+        .getCalendarManager()
+        .getCalendars({})
+        .map(calendar => calendar.uri.spec)
+    );
+
+    let calendarsCount = 0;
+
+    // Populate the list of available calendars.
+    for (let [provider, calendars] of this.calendars.entries()) {
+      for (let calendar of calendars) {
+        let cal_provider = document.createElement("span");
+        cal_provider.classList.add("protocol-type");
+        cal_provider.textContent = provider;
+
+        let cal_name = document.createElement("span");
+        cal_name.classList.add("list-item-name");
+        cal_name.textContent = calendar.name;
+
+        let button = document.createElement("button");
+        button.setAttribute("type", "button");
+
+        if (existing.has(calendar.uri.spec)) {
+          // This calendar aready exists for some reason, so disable the button
+          // and mark it as existing.
+          button.classList.add("existing", "small");
+          document.l10n.setAttributes(
+            button,
+            "account-setup-existing-calendar"
+          );
+          button.disabled = true;
+        } else {
+          button.classList.add("small");
+          document.l10n.setAttributes(button, "account-setup-connect-link");
+          button.addEventListener("click", () => {
+            // If the button has a specific data attribute it means we want to
+            // set up the calendar directly without opening the dialog.
+            if (button.hasAttribute("data-setup-calendar")) {
+              this._setupCalendar(button, calendar);
+              return;
+            }
+
+            this._showCalendarDialog(button, calendar);
+          });
+        }
+
+        let row = document.createElement("li");
+        row.appendChild(cal_provider);
+        row.appendChild(cal_name);
+        row.appendChild(button);
+        calList.appendChild(row);
+
+        calendarsCount++;
+      }
+    }
+
+    document.l10n.setAttributes(
+      document.getElementById("calendarsCountDescription"),
+      "account-setup-found-calendars-description",
+      { count: calendarsCount }
+    );
+
+    // Show a "connect all" button if we have more than one calendar.
+    document.getElementById("calendarsSetupAll").hidden = calendarsCount <= 1;
+  },
+
+  /**
+   * Show the dialog to connect the selected calendar. This native HTML dialog
+   * is a streamlined version of the calendar-properties-dialog.xhtml. The two
+   * dialogs should kept in sync if a property of the calendar changes that
+   * requires updating any field.
+   *
+   * @param {HTMLElement} button - The clicked button in the list.
+   * @param {calICalendar} calendar - The calendar to configure.
+   */
+  _showCalendarDialog(button, calendar) {
+    let dialog = document.getElementById("calendarDialog");
+
+    // Update the calendar info in the dialog.
+    let nameInput = document.getElementById("calendarName");
+    nameInput.value = calendar.name;
+
+    // Some servers provide colors as an 8-character hex string, which the color
+    // picker can't handle. Strip the alpha component.
+    let color = calendar.getProperty("color");
+    let alpha = color?.match(/^(#[0-9A-Fa-f]{6})[0-9A-Fa-f]{2}$/);
+    if (alpha) {
+      calendar.setProperty("color", alpha[1]);
+      color = alpha[1];
+    }
+    let colorInput = document.getElementById("calendarColor");
+    colorInput.value = color || "#A8C2E1";
+
+    let readOnlyCheckbox = document.getElementById("calendarReadOnly");
+    readOnlyCheckbox.checked = calendar.readOnly;
+
+    // Hide the "Show reminders" checkbox if the calendar doesn't support it.
+    document.getElementById("calendarShowRemindersRow").hidden =
+      calendar.getProperty("capabilities.alarms.popup.supported") === false;
+    let remindersCheckbox = document.getElementById("calendarShowReminders");
+    remindersCheckbox.checked = !calendar.getProperty("suppressAlarms");
+
+    // Hide the "Offline support" if the calendar doesn't support it.
+    let offlineCheckbox = document.getElementById("calendarOfflineSupport");
+    let canCache = calendar.getProperty("cache.supported") !== false;
+    let alwaysCache = calendar.getProperty("cache.always");
+    if (!canCache || alwaysCache) {
+      offlineCheckbox.hidden = true;
+      offlineCheckbox.disabled = true;
+    }
+    offlineCheckbox.checked =
+      alwaysCache || (canCache && calendar.getProperty("cache.enabled"));
+
+    // Set up the "Refresh calendar" menulist.
+    let calendarRefresh = document.getElementById("calendaRefresh");
+    calendarRefresh.disabled = !calendar.canRefresh;
+    calendarRefresh.value = calendar.getProperty("refreshInterval") || 30;
+
+    // Set up the dialog's action buttons.
+    document.getElementById("calendarDialogConfirmButton").addEventListener(
+      "click",
+      () => {
+        // Update the attributes of the calendar in case the user changed some
+        // values.
+        calendar.name = nameInput.value;
+        calendar.setProperty("color", colorInput.value);
+        if (calendar.canRefresh) {
+          calendar.setProperty("refreshInterval", calendarRefresh.value);
+        }
+
+        calendar.readOnly = readOnlyCheckbox.checked;
+        calendar.setProperty("suppressAlarms", !remindersCheckbox.checked);
+        if (!alwaysCache) {
+          calendar.setProperty("cache.enabled", offlineCheckbox.checked);
+        }
+
+        this._setupCalendar(button, calendar);
+        dialog.close();
+      },
+      { once: true }
+    );
+
+    document.getElementById("calendarDialogCancelButton").addEventListener(
+      "click",
+      () => {
+        dialog.close();
+      },
+      { once: true }
+    );
+
+    dialog.showModal();
+  },
+
+  /**
+   * Connect to the selected calendar.
+   *
+   * @param {HTMLElement} button - The clicked button in the list.
+   * @param {calICalendar} calendar - The calendar to configure.
+   */
+  _setupCalendar(button, calendar) {
+    cal.getCalendarManager().registerCalendar(calendar);
+
+    // Update the button to reflect the creation of the new calendar.
+    button.classList.add("existing");
+    document.l10n.setAttributes(button, "account-setup-existing-calendar");
+    button.disabled = true;
+
+    // Check if we have any calendar left to set up and hide the "Connect all"
+    // button if not.
+    document.getElementById(
+      "calendarsSetupAll"
+    ).hidden = !document.querySelectorAll(
+      "#calendarsSetup .linked-services-list button:not(.existing)"
+    ).length;
+  },
+
+  /**
+   * Loop through all available calendars found and click the connect
+   * button to trigger the method attached to the onclick listener.
+   */
+  setupAllCalendars() {
+    for (let button of document.querySelectorAll(
+      "#calendarsSetup .linked-services-list button:not(.existing)"
+    )) {
+      // Set the attribute to skip the opening of the properties dialog.
+      button.setAttribute("data-setup-calendar", true);
+      button.click();
+    }
+  },
+
+  /**
+   * Called from the very final view of the account setup, when the user decides
+   * to close the wizard.
+   */
+  onFinish() {
+    // Send the message to the mail tab in case the UI didn't load during the
+    // previous setup callback.
+    gMainWindow.postMessage("account-setup-closed", "*");
+    // Close this tab.
     window.close();
   },
 };
@@ -2275,3 +2838,20 @@ var gSecurityWarningDialog = {
     this._okCallback();
   },
 };
+
+/**
+ * Helper method to open the dictionaries list in a new tab.
+ */
+function openDictionariesTab() {
+  let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  let tabmail = mailWindow.document.getElementById("tabmail");
+
+  let url = Services.urlFormatter.formatURLPref(
+    "spellchecker.dictionaries.download.url"
+  );
+
+  // Open the dictionaries URL.
+  tabmail.openTab("contentTab", {
+    url,
+  });
+}

@@ -8,8 +8,15 @@ account-setup-tab-title = Account Setup
 
 account-setup-title = Set Up Your Existing Email Address
 
-account-setup-description = To use your current email address fill in your credentials.<br/>
-    { -brand-product-name } will automatically search for a working and recommended server configuration.
+account-setup-description = To use your current email address fill in your credentials.
+
+account-setup-secondary-description = { -brand-product-name } will automatically search for a working and recommended server configuration.
+
+account-setup-success-title = Account successfully created
+
+account-setup-success-description = You can now use this account with { -brand-short-name }.
+
+account-setup-success-secondary-description = You can improve the experience by connecting related services and configuring advanced account settings.
 
 ## Form fields
 
@@ -140,15 +147,22 @@ account-setup-step3-image =
 account-setup-step4-image =
     .title = Connection error
 
+account-setup-step5-image =
+    .title = Account created
+
 account-setup-privacy-footnote = Your credentials will be used according to our <a data-l10n-name="privacy-policy-link">privacy policy</a> and will only be stored locally on your computer.
 
 account-setup-selection-help = Not sure what to select?
 
 account-setup-selection-error = Need help?
 
+account-setup-success-help = Not sure about your next steps?
+
 account-setup-documentation-help = Setup documentation
 
 account-setup-forum-help = Support forum
+
+account-setup-getting-started = Getting started
 
 ## Results area
 
@@ -307,3 +321,100 @@ account-setup-addon-install-title = Install
 account-setup-addon-install-intro = A third-party add-on can allow you to access your email account on this server:
 
 account-setup-addon-no-protocol = This email server unfortunately does not support open protocols. { account-setup-addon-install-intro }
+
+## Success view
+
+account-setup-settings-button = Account settings
+
+account-setup-encryption-button = End-to-end encryption
+
+account-setup-signature-button = Add a signature
+
+account-setup-dictionaries-button = Download dictionaries
+
+account-setup-address-book-carddav-button = Connect to a CardDAV address book
+
+account-setup-address-book-ldap-button = Connect to an LDAP address book
+
+account-setup-calendar-button = Connect to a remote calendar
+
+account-setup-linked-services-title = Connect your linked services
+
+account-setup-linked-services-description = { -brand-short-name } detected other services linked to your email account.
+
+account-setup-no-linked-description = Setup other services to get the most out of your { -brand-short-name } experience.
+
+# Variables:
+# $count (Number) - The number of address books found during autoconfig.
+account-setup-found-address-books-description =
+    { $count ->
+        [one] { -brand-short-name } found one address book linked to your email account.
+        *[other] { -brand-short-name } found { $count } address books linked to your email account.
+    }
+
+# Variables:
+# $count (Number) - The number of calendars found during autoconfig.
+account-setup-found-calendars-description =
+    { $count ->
+        [one] { -brand-short-name } found one calendar linked to your email account.
+        *[other] { -brand-short-name } found { $count } calendars linked to your email account.
+    }
+
+account-setup-button-finish = Finish
+    .accesskey = F
+
+account-setup-looking-up-address-books = Looking up address books…
+
+account-setup-looking-up-calendars = Looking up calendars…
+
+account-setup-address-books-button = Address Books
+
+account-setup-calendars-button = Calendars
+
+account-setup-connect-link = Connect
+
+account-setup-existing-address-book = Connected
+    .title = Address book already connected
+
+account-setup-existing-calendar = Connected
+    .title = Calendar already connected
+
+account-setup-connect-all-calendars = Connect all calendars
+
+account-setup-connect-all-address-books = Connect all address books
+
+## Calendar synchronization dialog
+
+calendar-dialog-title = Connect calendar
+
+calendar-dialog-cancel-button = Cancel
+    .accesskey = C
+
+calendar-dialog-confirm-button = Connect
+    .accesskey = n
+
+account-setup-calendar-name-label = Name
+
+account-setup-calendar-name-input =
+    .placeholder = My calendar
+
+account-setup-calendar-color-label = Color
+
+account-setup-calendar-refresh-label = Refresh
+
+account-setup-calendar-refresh-manual = Manually
+
+account-setup-calendar-refresh-interval =
+    { $count ->
+        [one] Every minute
+        *[other] Every { $count } minutes
+    }
+
+account-setup-calendar-read-only = Read only
+    .accesskey = R
+
+account-setup-calendar-show-reminders = Show reminders
+    .accesskey = S
+
+account-setup-calendar-offline-support = Offline support
+    .accesskey = O

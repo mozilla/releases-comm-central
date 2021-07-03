@@ -256,6 +256,31 @@ function AddAddressBook() {
   );
 }
 
+function addCardDAVAddressBook() {
+  window.browsingContext.topChromeWindow.openDialog(
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
+    "",
+    "chrome,resizable=no,centerscreen"
+  );
+}
+
+function addLDAPAddressBook() {
+  window.browsingContext.topChromeWindow.openDialog(
+    "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
+    "",
+    "chrome,resizable=no,centerscreen"
+  );
+}
+
+function showCalendarWizard() {
+  window.browsingContext.topChromeWindow.openDialog(
+    "chrome://calendar/content/calendar-creation.xhtml",
+    "caEditServer",
+    "chrome,titlebar,resizable,centerscreen",
+    {}
+  );
+}
+
 /**
  * Opens the account settings window on the specified account
  * and page of settings. If the window is already open it is only focused.

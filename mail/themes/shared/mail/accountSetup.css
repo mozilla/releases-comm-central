@@ -30,6 +30,7 @@ body {
   -moz-box-orient: vertical;
   -moz-box-flex: 1;
   overflow: auto;
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 header {
@@ -40,8 +41,26 @@ header {
   font-size: 2.2rem;
 }
 
+.title.success {
+  padding-inline-start: 24px;
+  background: url("chrome://global/skin/icons/check.svg") 0 center no-repeat;
+  background-size: 22px;
+  -moz-context-properties: fill;
+  fill: #12bc00;
+}
+
+.title.success:dir(rtl) {
+  background-position-x: right;
+}
+
 .description {
   line-height: 1.45em;
+  margin-block-end: 0;
+}
+
+.description + .description {
+  margin-block-start: 0;
+  margin-block-end: 1em;
 }
 
 .main-container {
@@ -78,6 +97,17 @@ header {
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .second-column article {
+    transition: opacity .3s ease, transform .3s ease;
+  }
+
+  .second-column article.hide {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
 .second-column article p {
   max-width: 40rem;
   padding-inline: 4rem;
@@ -88,8 +118,9 @@ header {
   flex-direction: column;
 }
 
-#form label {
-  font-size: 1rem;
+#form label,
+#calendarDialog label {
+  font-size: 0.9em;
   line-height: 1em;
   margin-block-end: 3px;
 }
@@ -148,7 +179,7 @@ input:user-invalid ~ .icon-warning {
   color: var(--in-content-link-color) !important;
   border-style: none;
   padding: 0 3px;
-  font-size: 0.9rem;
+  font-size: 0.75em;
   font-weight: 600;
   cursor: pointer;
   min-height: auto;
@@ -194,13 +225,13 @@ input:user-invalid ~ .icon-warning {
   border-radius: 3px;
 }
 
-#accountSetupNotifications {
+.account-setup-notifications {
   display: flex;
   flex-direction: column;
   margin-inline: -4px;
 }
 
-#accountSetupNotifications .notificationbox-stack {
+.account-setup-notifications .notificationbox-stack {
   margin-block-end: 15px;
 }
 
@@ -315,6 +346,10 @@ input:user-invalid ~ .icon-warning {
   height: 32px;
 }
 
+.dialog-header-image.small {
+  height: 16px;
+}
+
 .dialog-description {
   margin-block: 0.2em;
   line-height: 1.4em;
@@ -404,7 +439,7 @@ input:user-invalid ~ .icon-warning {
   background-color: var(--in-content-primary-button-background);
   border-radius: var(--in-content-button-border-radius);
   padding: 2px 6px;
-  font-size: 0.85rem;
+  font-size: 0.7em;
   text-transform: uppercase;
   color: var(--in-content-primary-button-text-color);
 }
@@ -442,7 +477,7 @@ input:user-invalid ~ .icon-warning {
 }
 
 .option-label {
-  font-size: 1rem;
+  font-size: 0.85em;
   line-height: 1em;
   font-weight: 500;
 }
@@ -472,22 +507,22 @@ input:user-invalid ~ .icon-warning {
   display: flex;
   align-items: center;
   padding-block: 0;
-  background-color: transparent !important;
-  appearance: none;
   white-space: nowrap;
   overflow: hidden;
 }
 
-.result-host-info > .protocol-type {
+.protocol-type {
   display: inline-block;
   text-transform: uppercase;
   padding: 1px 4px;
   font-size: 0.8rem;
-  margin-inline-end: 5px;
   font-weight: bold;
   border-radius: 2px;
   background-color: var(--in-content-primary-button-background);
   color: var(--in-content-primary-button-text-color);
+}
+.result-host-info > .protocol-type {
+  margin-inline-end: 5px;
 }
 
 .result-host-info > span {
@@ -514,7 +549,7 @@ input:user-invalid ~ .icon-warning {
   border-radius: 2px;
   line-height: 1rem;
   background-color: var(--red-70);
-  color: var(--btn-bg-hover);
+  color: var(--in-content-primary-button-text-color);
 }
 
 .cert-status.insecure {
@@ -552,4 +587,265 @@ input:user-invalid ~ .icon-warning {
 input[disabled],
 select[disabled] {
   opacity: 0.5;
+}
+
+/* Success view */
+
+.success-column:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+}
+
+.account-success-block {
+  display: grid;
+  grid-template-columns: min-content 1fr min-content;
+  align-items: center;
+  color: inherit;
+  background-color: var(--in-content-box-background);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+  column-gap: 6px;
+  padding: 3px 9px;
+  border-radius: 3px;
+  min-height: 39px;
+  line-height: 1em;
+}
+
+.linked-services-button {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  appearance: none;
+  margin: 0;
+  padding-inline: 0;
+  width: 100%;
+}
+
+button.linked-services-button:hover {
+  background-color: transparent;
+  color: var(--in-content-accent-color);
+  cursor: pointer;
+}
+
+button.linked-services-button:hover:active {
+  background-color: transparent;
+}
+
+.linked-services-button > aside {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  flex: 1;
+  padding: 3px;
+}
+
+.linked-services-description {
+  font-size: 0.9em;
+  margin-block: 0;
+  text-align: start;
+  color: var(--in-content-deemphasized-text);
+}
+
+.account-name {
+  font-size: 0.9em;
+  margin-block-end: 3px;
+  font-weight: 500;
+}
+
+.account-email {
+  font-size: 0.9em;
+  color: var(--in-content-link-color);
+  font-weight: 500;
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  margin: 12px 21px 27px;
+}
+
+.quick-link {
+  appearance: none;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  border: none;
+  padding: 6px;
+  padding-inline-start: 27px;
+  margin: 6px 3px;
+  line-height: 1em;
+  background-position: 3px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  background-color: transparent;
+  min-height: auto;
+  border-radius: 0;
+  cursor: pointer;
+  text-align: start;
+}
+
+.quick-link:dir(rtl) {
+  background-position-x: right 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .quick-link {
+    transition: color .2s ease;
+  }
+}
+
+button.quick-link:hover,
+button.quick-link:hover:active {
+  background-color: transparent;
+  color: var(--in-content-link-color);
+}
+
+#settingsButton {
+  background-image: url("chrome://global/skin/icons/settings.svg");
+}
+
+#signatureButton {
+  background-image: url("chrome://messenger/skin/icons/newmsg.svg");
+}
+
+#encryptionButton {
+  background-image: url("chrome://messenger/skin/icons/encryption-key.svg");
+}
+
+#dictionariesButton {
+  background-image: url("chrome://messenger/skin/icons/file.svg");
+}
+
+#addressBookCardDAVButton,
+#addressBookLDAPButton {
+  background-image: url("chrome://messenger/skin/icons/new-addressbook.svg");
+  align-self: start;
+}
+
+#calendarButton {
+  background-image: url("chrome://messenger/skin/icons/new-calendar.svg");
+  align-self: start;
+}
+
+#linkedServices h3 {
+  font-size: 1.6rem;
+  font-weight: 300;
+  margin-bottom: 0;
+}
+
+#linkedServices p.tip-caption {
+  margin-top: 9px;
+  margin-bottom: 0;
+}
+
+.services-buttons-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.linked-services-container:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  margin-block-start: 6px;
+}
+
+.linked-services-section {
+  margin-top: 18px;
+}
+
+.linked-services-list {
+  list-style: none;
+  padding-inline: 0;
+  margin-block: 0;
+}
+
+.linked-services-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline-start: 4px;
+  border-radius: 3px;
+}
+
+.linked-services-list li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.list-item-name {
+  flex: 1;
+  padding-inline: 6px;
+}
+
+.self-center {
+  align-self: center;
+}
+
+.final-buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-block: 18px 12px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .linked-service-dropdown {
+    transition: transform .2s ease;
+  }
+}
+
+.opened .linked-service-dropdown {
+  transform: rotate(90deg);
+}
+
+.linked-service-dropdown:dir(rtl) {
+  transform: rotate(180deg);
+}
+
+.linked-service-dropdown img {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+button.existing {
+  background: url("chrome://global/skin/icons/check.svg") 0 center no-repeat;
+  background-size: 16px;
+  -moz-context-properties: fill;
+  fill: #12bc00;
+  opacity: 1;
+  padding-inline-start: 18px;
+}
+
+button.existing:dir(rtl) {
+  background-position-x: right;
+}
+
+#calendarDialog {
+  width: 100%;
+}
+
+.calendar-dialog-form {
+  display: grid;
+  grid-template-columns: max-content auto;
+  align-items: center;
+  row-gap: 3px;
+  column-gap: 3px;
+  margin-block-end: 21px;
+}
+
+.input-grow {
+  flex: 1;
+}
+
+#calendarDialog .calendar-dialog-form label,
+.calendar-dialog-form .input-control {
+  margin-block-end: 0;
+}
+
+.calendar-dialog-form select,
+.calendar-dialog-form input[type="color"] {
+  margin-inline: 4px;
 }

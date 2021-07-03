@@ -710,33 +710,26 @@ var gMailInit = {
   _onMessageReceived(event) {
     switch (event.data) {
       case "account-created":
+      case "account-setup-cancelled":
+      case "account-created-in-backend":
       case "account-created-from-provisioner":
-        // Successful account creation callback.
-        switchToMailTab();
         // If the gFolderTreeView was never initialized it means we're in a
         // first run scenario and we need to load the full UI.
         if (!gFolderTreeView.isInited) {
-          loadPostAccountWizard(
-            event.data == "account-created-from-provisioner"
-          );
-          return;
+          loadPostAccountWizard();
         }
 
-        // Otherwise we can simply make sure the folder pane is visible.
+        // Always update the mail UI to guarantee all the panes are visible even
+        // if the mail tab is not the currently active tab.
         updateMailPaneUI();
         break;
 
-      case "account-setup-cancelled":
-      case "account-created-in-backend":
-        // The user entered the account settings to complete the setup or closed
-        // the account setup tab without completing a successful login process.
-        // Initialize the application if this is the first run.
-        if (!gFolderTreeView.isInited) {
-          loadPostAccountWizard(true);
-        }
-
-        // Make sure the UI is properly updated if necessary.
-        updateMailPaneUI();
+      case "account-setup-closed":
+        // The user closed the account setup after a successful run. Make sure
+        // to focus on the primary mail tab.
+        switchToMailTab();
+        // Trigger the integration dialog if necessary.
+        showSystemIntegrationDialog();
         break;
 
       default:
@@ -901,12 +894,8 @@ function switchToMailTab() {
  * Trigger the initialization of the entire UI. Called after the okCallback of
  * the emailWizard during a first run, or directly from the accountProvisioner
  * in case a user configures a new email account on first run.
- *
- * @param {boolean} ignoreSystemIntegration - This is used to avoid triggering
- *   the system integration for those scenarios where opening a dialog is not
- *   recommended or necessary.
  */
-async function loadPostAccountWizard(ignoreSystemIntegration) {
+async function loadPostAccountWizard() {
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);
 
@@ -933,13 +922,6 @@ async function loadPostAccountWizard(ignoreSystemIntegration) {
   // Add to session before trying to load the start folder otherwise the
   // listeners aren't set up correctly.
   AddToSession();
-
-  // Show the system integration dialog only if an existing account was set up.
-  if (!ignoreSystemIntegration) {
-    // Timeout necessary to wait for the emailWizard dialog to close before
-    // showing the system integration dialog.
-    setTimeout(showSystemIntegrationDialog, 0);
-  }
 
   // Check if Thunderbird was launched in safe mode.
   if (Services.appinfo.inSafeMode) {

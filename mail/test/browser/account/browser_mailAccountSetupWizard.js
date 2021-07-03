@@ -27,6 +27,9 @@ let { TelemetryTestUtils } = ChromeUtils.import(
 var { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
+var { nsMailServer } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Maild.jsm"
+);
 
 var originalAlertsServiceCID;
 // We need a mock alerts service to capture notification events when loading the
@@ -45,6 +48,83 @@ var user = {
   outgoingHost: "testout.example.com",
 };
 var outgoingShortName = "Example Två";
+
+var imapUser = {
+  name: "John Doe",
+  email: "john.doe@example-imap.com",
+  password: "abc12345",
+  incomingHost: "testin.example-imap.com",
+  outgoingHost: "testout.example-imap.com",
+};
+
+var IMAPServer = {
+  open() {
+    const {
+      imapDaemon,
+      imapMessage,
+      IMAP_RFC2195_extension,
+      IMAP_RFC3501_handler,
+      mixinExtension,
+    } = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+    const { nsMailServer } = ChromeUtils.import(
+      "resource://testing-common/mailnews/Maild.jsm"
+    );
+    IMAPServer.imapMessage = imapMessage;
+
+    this.daemon = new imapDaemon();
+    this.server = new nsMailServer(daemon => {
+      let handler = new IMAP_RFC3501_handler(daemon);
+      mixinExtension(handler, IMAP_RFC2195_extension);
+
+      handler.kUsername = "john.doe@example-imap.com";
+      handler.kPassword = "abc12345";
+      handler.kAuthRequired = true;
+      handler.kAuthSchemes = ["PLAIN"];
+      return handler;
+    }, this.daemon);
+    this.server.start(1993);
+    info(`IMAP server started on port ${this.server.port}`);
+
+    // registerCleanupFunction(() => this.close());
+  },
+  close() {
+    this.server.stop();
+  },
+  get port() {
+    return this.server.port;
+  },
+};
+
+var SMTPServer = {
+  open() {
+    const { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
+      "resource://testing-common/mailnews/Smtpd.jsm"
+    );
+    const { nsMailServer } = ChromeUtils.import(
+      "resource://testing-common/mailnews/Maild.jsm"
+    );
+
+    this.daemon = new smtpDaemon();
+    this.server = new nsMailServer(daemon => {
+      let handler = new SMTP_RFC2821_handler(daemon);
+      handler.kUsername = "john.doe@example-imap.com";
+      handler.kPassword = "abc12345";
+      handler.kAuthRequired = true;
+      handler.kAuthSchemes = ["PLAIN"];
+      return handler;
+    }, this.daemon);
+    this.server.start(1587);
+    info(`SMTP server started on port ${this.server.port}`);
+
+    // registerCleanupFunction(() => this.close());
+  },
+  close() {
+    this.server.stop();
+  },
+  get port() {
+    return this.server.port;
+  },
+};
 
 const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
@@ -167,7 +247,7 @@ add_task(async function test_mail_account_setup() {
   // Settings tab to open before running other sub tests.
   await tabChanged;
 
-  await subtest_verify_account(mc.tabmail.selectedTab);
+  await subtest_verify_account(mc.tabmail.selectedTab, user);
 
   // Close the Account Settings tab.
   mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
@@ -187,7 +267,7 @@ add_task(async function test_mail_account_setup() {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
 
-async function subtest_verify_account(tab) {
+async function subtest_verify_account(tab, user) {
   await BrowserTestUtils.waitForCondition(
     () => tab.browser.contentWindow.currentAccount != null,
     "Timeout waiting for current account to become non-null"
@@ -232,13 +312,7 @@ async function subtest_verify_account(tab) {
       Assert.equal(
         config[i].actual,
         config[i].expected,
-        "Configured " +
-          i +
-          " is " +
-          config[i].actual +
-          ". It should be " +
-          config[i].expected +
-          "."
+        `Configured ${i} is ${config[i].actual}. It should be ${config[i].expected}.`
       );
     }
   } finally {
@@ -437,6 +511,188 @@ async function remember_password_test(aPrefValue) {
     tab.browser.contentWindow
   );
 }
+
+/**
+ * Test the full account setup with an IMAP account, verifying the correct info
+ * in the final page.
+ */
+add_task(async function test_full_account_setup() {
+  // Initialize the fake IMAP and SMTP server to simulate a real account login.
+  IMAPServer.open();
+  SMTPServer.open();
+
+  // Set the pref to load a local autoconfig file.
+  let url =
+    "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
+  Services.prefs.setCharPref(PREF_NAME, url);
+
+  let tab = await openAccountSetup();
+  let tabDocument = tab.browser.contentWindow.document;
+
+  // The focus should be on the "realname" input by default, so let's fill it.
+  input_value(mc, imapUser.name);
+  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  input_value(mc, imapUser.email);
+  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  input_value(mc, imapUser.password);
+
+  let notificationBox = tab.browser.contentWindow.gAccountSetup.notificationBox;
+
+  let notificationShowed = BrowserTestUtils.waitForCondition(
+    () =>
+      notificationBox.getNotificationWithValue("accountSetupSuccess") != null,
+    "Timeout waiting for error notification to be showed"
+  );
+
+  let imapOption = tabDocument.getElementById("resultsOption-imap");
+  let protocolIMAPSelected = BrowserTestUtils.waitForCondition(
+    () => !imapOption.hidden && imapOption.classList.contains("selected"),
+    "Timeout waiting for the IMAP option to be visible and selected"
+  );
+
+  // Since we're focused inside a form, pressing "Enter" should submit it.
+  EventUtils.synthesizeKey("VK_RETURN", {}, mc.window);
+
+  // Wait for the successful notification to show up.
+  await notificationShowed;
+
+  // Confirm the IMAP protocol is visible and selected.
+  await protocolIMAPSelected;
+
+  let finalViewShowed = BrowserTestUtils.waitForCondition(
+    () => !tabDocument.getElementById("successView").hidden,
+    "Timeout waiting for the final page to be visible"
+  );
+
+  let insecureDialogShowed = BrowserTestUtils.waitForCondition(
+    () => tabDocument.getElementById("insecureDialog").open,
+    "Timeout waiting for the #insecureDialog to be visible"
+  );
+
+  // Press "Enter" again to proceed with the account creation.
+  EventUtils.synthesizeKey("VK_RETURN", {}, mc.window);
+
+  // Since we're using plain authentication in the mock IMAP server, the
+  // insecure warning dialog should appear. Let's wait for it.
+  await insecureDialogShowed;
+
+  // Click the acknowledge checkbox and confirm the insecure dialog.
+  let acknowledgeCheckbox = tabDocument.getElementById("acknowledgeWarning");
+  acknowledgeCheckbox.scrollIntoView();
+
+  EventUtils.synthesizeMouseAtCenter(
+    acknowledgeCheckbox,
+    {},
+    tab.browser.contentWindow
+  );
+
+  // Prepare to handle the linked services notification.
+  let syncingBox = tab.browser.contentWindow.gAccountSetup.syncingBox;
+
+  let syncingNotificationShowed = BrowserTestUtils.waitForCondition(
+    () => syncingBox.getNotificationWithValue("accountSetupLoading") != null,
+    "Timeout waiting for the syncing notification to be removed"
+  );
+
+  let syncingNotificationRemoved = BrowserTestUtils.waitForCondition(
+    () => !syncingBox.getNotificationWithValue("accountSetupLoading"),
+    "Timeout waiting for the syncing notification to be removed"
+  );
+
+  // Since we used an insecure IMAP server, the "Add security exception" dialog
+  // should show up, so we need to deal with it.
+  let dialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
+    await BrowserTestUtils.waitForEvent(win, "load");
+
+    if (
+      win.document.documentURI !=
+      "chrome://pippki/content/exceptionDialog.xhtml"
+    ) {
+      return false;
+    }
+
+    if (Services.focus.activeWindow != win) {
+      await BrowserTestUtils.waitForEvent(win, "focus");
+    }
+
+    let closedPromise = BrowserTestUtils.domWindowClosed(win);
+    win.document.documentElement
+      .querySelector("dialog")
+      .getButton("extra1")
+      .click();
+    await closedPromise;
+    return true;
+  });
+
+  let confirmButton = tabDocument.getElementById("insecureConfirmButton");
+  confirmButton.scrollIntoView();
+
+  // Close the insecure dialog.
+  EventUtils.synthesizeMouseAtCenter(
+    confirmButton,
+    {},
+    tab.browser.contentWindow
+  );
+
+  // Wait for the add security exception dialog to show up and get accepted.
+  await dialogPromise;
+
+  // The final page should be visible.
+  await finalViewShowed;
+
+  // The tab shouldn't change even if we created a new account.
+  Assert.equal(tab, mc.tabmail.selectedTab);
+
+  // Assert the UI is properly filled with the new account info.
+  Assert.equal(
+    tabDocument.getElementById("newAccountName").textContent,
+    imapUser.name
+  );
+  Assert.equal(
+    tabDocument.getElementById("newAccountEmail").textContent,
+    imapUser.email
+  );
+  Assert.equal(
+    tabDocument.getElementById("newAccountProtocol").textContent,
+    "imap"
+  );
+
+  // The fetching of connected address books and calendars should start.
+  await syncingNotificationShowed;
+
+  // Wait for the fetching of address books and calendars to end.
+  await syncingNotificationRemoved;
+
+  let tabChanged = BrowserTestUtils.waitForCondition(
+    () => mc.tabmail.selectedTab != tab,
+    "Timeout waiting for the currently active tab to change"
+  );
+
+  let finishButton = tabDocument.getElementById("finishButton");
+  finishButton.focus();
+  finishButton.scrollIntoView();
+
+  // Close the wizard.
+  EventUtils.synthesizeMouseAtCenter(
+    finishButton,
+    {},
+    tab.browser.contentWindow
+  );
+
+  await tabChanged;
+
+  // Confirm the mail 3 pane is the currently selected tab.
+  Assert.equal(
+    mc.tabmail.selectedTab.mode.type,
+    "folder",
+    "The currently selected tab is the primary Mail tab"
+  );
+
+  // Restore the original pref.
+  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+  IMAPServer.close();
+  SMTPServer.close();
+}).skip(); // WIP
 
 registerCleanupFunction(function teardownModule(module) {
   MockRegistrar.unregister(originalAlertsServiceCID);

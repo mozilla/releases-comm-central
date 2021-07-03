@@ -224,6 +224,8 @@
   skin/classic/messenger/icons/move-right.svg                 (../shared/mail/icons/move-right.svg)
   skin/classic/messenger/icons/move-together.svg              (../shared/mail/icons/move-together.svg)
   skin/classic/messenger/icons/navigation.svg                 (../shared/mail/icons/navigation.svg)
+  skin/classic/messenger/icons/new-addressbook.svg            (../shared/mail/icons/new-addressbook.svg)
+  skin/classic/messenger/icons/new-calendar.svg               (../shared/mail/icons/new-calendar.svg)
   skin/classic/messenger/icons/new-key.svg                    (../shared/mail/icons/new-key.svg)
   skin/classic/messenger/icons/newmail.svg                    (../shared/mail/icons/newmail.svg)
   skin/classic/messenger/icons/newmsg.svg                     (../shared/mail/icons/newmsg.svg)
