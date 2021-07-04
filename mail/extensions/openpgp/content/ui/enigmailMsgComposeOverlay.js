@@ -1729,32 +1729,11 @@ Enigmail.msg = {
       this.addRecipients(toAddrList, recList);
     }
 
-    // special handling of bcc:
-    // - note: bcc and encryption is a problem
-    // - but bcc to the sender is fine
+    // We allow sending to BCC recipients, we assume the user interface
+    // has warned the user that there is no privacy of BCC recipients.
     if (msgCompFields.bcc.length > 0) {
       recList = splitRecipients(msgCompFields.bcc, true, arrLen);
-
-      var bccLC = "";
-      try {
-        bccLC = EnigmailFuncs.stripEmail(msgCompFields.bcc).toLowerCase();
-      } catch (ex) {}
-      EnigmailLog.DEBUG(
-        "enigmailMsgComposeOverlay.js: Enigmail.msg.determineMsgRecipients: BCC: " +
-          bccLC +
-          "\n"
-      );
-
-      // It's equal, if self's email address is the only entry in BCC.
-      var selfBCC =
-        gCurrentIdentity.email && gCurrentIdentity.email.toLowerCase() == bccLC;
-
-      if (selfBCC) {
-        EnigmailLog.DEBUG(
-          "enigmailMsgComposeOverlay.js: Enigmail.msg.determineMsgRecipients: Self BCC\n"
-        );
-        this.addRecipients(toAddrList, recList);
-      }
+      this.addRecipients(bccAddrList, recList);
     }
 
     if (newsgroups) {

@@ -2441,35 +2441,21 @@ var RNP = {
       // have already checked that alias keys are available and usable
       // for encryption, so we fail if a problem is found.
 
-      for (let id in args.to) {
-        let toEmail = args.to[id].toLowerCase();
-        let aliasKeys = args.aliasKeys.get(
-          this.getEmailWithoutBrackets(toEmail)
-        );
-        if (aliasKeys) {
-          if (!this.addAliasKeys(aliasKeys, op)) {
+      for (let rcpList of [args.to, args.bcc]) {
+        for (let rcpEmail of rcpList) {
+          rcpEmail = rcpEmail.toLowerCase();
+          let aliasKeys = args.aliasKeys.get(
+            this.getEmailWithoutBrackets(rcpEmail)
+          );
+          if (aliasKeys) {
+            if (!this.addAliasKeys(aliasKeys, op)) {
+              resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+              return null;
+            }
+          } else if (!(await this.addEncryptionKeyForEmail(rcpEmail, op))) {
             resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
             return null;
           }
-        } else if (!(await this.addEncryptionKeyForEmail(toEmail, op))) {
-          resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
-          return null;
-        }
-      }
-
-      for (let id in args.bcc) {
-        let bccEmail = args.bcc[id].toLowerCase();
-        let aliasKeys = args.aliasKeys.get(
-          this.getEmailWithoutBrackets(bccEmail)
-        );
-        if (aliasKeys) {
-          if (!this.addAliasKeys(aliasKeys, op)) {
-            resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
-            return null;
-          }
-        } else if (!(await this.addEncryptionKeyForEmail(bccEmail, op))) {
-          resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
-          return null;
         }
       }
 
