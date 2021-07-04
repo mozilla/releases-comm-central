@@ -405,7 +405,30 @@ function insertQuote (matchText, containerTag)
 
 function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
 {
-    var type = "error";
+    let smilies = {
+        "face-alien": "\uD83D\uDC7D",
+        "face-lol": "\uD83D\uDE02",
+        "face-laugh": "\uD83D\uDE04",
+        "face-evil": "\uD83D\uDE08",
+        "face-wink": "\uD83D\uDE09",
+        "face-smile": "\uD83D\uDE0A",
+        "face-cool": "\uD83D\uDE0E",
+        "face-neutral": "\uD83D\uDE10",
+        "face-thinking": "\uD83D\uDE14",
+        "face-confused": "\uD83D\uDE15",
+        "face-tongue": "\uD83D\uDE1B",
+        "face-angry": "\uD83D\uDE20",
+        "face-cry": "\uD83D\uDE22",
+        "face-surprised": "\uD83D\uDE2D",
+        "face-eek": "\uD83D\uDE31",
+        "face-red": "\uD83D\uDE33",
+        "face-dizzy": "\uD83D\uDE35",
+        "face-sad": "\uD83D\uDE41",
+        "face-rolleyes": "\uD83D\uDE44",
+        "face-rofl": "\uD83E\uDD23",
+    };
+
+    let type;
 
     if (emoticon.search(/\>[-^v]?\)/) != -1)
         type = "face-alien";
@@ -417,10 +440,8 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
         type = "face-cool";
     else if (emoticon.search(/[=:;][~'][-^v]?\(/) != -1)
         type = "face-cry";
-    else if (emoticon.search(/o[._]O/) != -1)
+    else if (emoticon.search(/o[._]O|O[._]o/) != -1)
         type = "face-dizzy";
-    else if (emoticon.search(/O[._]o/) != -1)
-        type = "face-dizzy-back";
     else if (emoticon.search(/o[._]o|O[._]O/) != -1)
         type = "face-eek";
     else if (emoticon.search(/\>[=:;][-^v]?D/) != -1)
@@ -432,9 +453,9 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
     else if (emoticon.search(/\([-^v]?D|[xX][-^v]?D/) != -1)
         type = "face-rofl";
     else if (emoticon.search(/[=:;][-^v]?\|/) != -1)
-        type = "face-normal";
+        type = "face-neutral";
     else if (emoticon.search(/[=:;][-^v]?\?/) != -1)
-        type = "face-question";
+        type = "face-thinking";
     else if (emoticon.search(/[=:;]"[)\]]/) != -1)
         type = "face-red";
     else if (emoticon.search(/9[._]9/) != -1)
@@ -450,8 +471,8 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
     else if (emoticon.search(/;[-^v]?[)\]]/) != -1)
         type = "face-wink";
 
-    if (type == "error")
-    {
+    let glyph = smilies[type];
+    if (!glyph) {
         // We didn't actually match anything, so it'll be a too-generic match
         // from the munger RegExp.
         mungerEntry.enabled = false;
@@ -460,27 +481,21 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
         return;
     }
 
-    var span = document.createElementNS(XHTML_NS, "html:span");
+    // Add spaces to beginning / end where appropriate.
+    if (emoticon.search(/^\s/) != -1)
+        glyph = " " + glyph;
+    if (emoticon.search(/\s$/) != -1)
+        glyph = glyph + " ";
 
-    /* create a span to hold the emoticon text */
-    span.setAttribute ("class", "chatzilla-emote-txt");
-    span.setAttribute ("type", type);
-    span.appendChild (document.createTextNode (emoticon));
-    containerTag.appendChild (span);
-
-    /* create an empty span after the text.  this span will have an image added
-     * after it with a chatzilla-emote:after css rule. using
-     * chatzilla-emote-txt:after is not good enough because it does not allow us
-     * to turn off the emoticon text, but keep the image.  ie.
-     * chatzilla-emote-txt { display: none; } turns off
-     * chatzilla-emote-txt:after as well.*/
-    span = document.createElementNS(XHTML_NS, "html:span");
-    span.setAttribute("class", "chatzilla-emote");
-    span.setAttribute("type", type);
+    // Create a span to hold the emoticon.
+    let span = document.createElementNS(XHTML_NS, "html:span");
+    span.appendChild(document.createTextNode(glyph));
+    span.setAttribute("class", "chatzilla-emote-txt");
+    // Add the title attribute (to show the original text in a tooltip) in case
+    // the replacement was done incorrectly.
     span.setAttribute("title", emoticon);
-    span.setAttribute("role", "image");
+    span.setAttribute("type", type);
     containerTag.appendChild(span);
-
 }
 
 function mircChangeColor (colorInfo, containerTag, data)
