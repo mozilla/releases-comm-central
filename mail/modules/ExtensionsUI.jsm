@@ -18,6 +18,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AMTelemetry: "resource://gre/modules/AddonManager.jsm",
   AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.jsm",
   ExtensionData: "resource://gre/modules/Extension.jsm",
+  ExtensionParent: "resource://gre/modules/ExtensionParent.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
@@ -861,10 +862,16 @@ var ExtensionsUI = {
         }
       }
 
-      // If this is an update with no promptable permissions, just apply it
-      if (info.type == "update" && !strings.msgs.length) {
-        info.resolve();
-        return;
+      // If this is an update with no promptable permissions, just apply it. Skip
+      // prompts also, if this add-on already has full access via experiment_apis.
+      if (info.type == "update") {
+        let extension = ExtensionParent.GlobalManager.getExtension(
+          info.addon.id
+        );
+        if (!strings.msgs.length || extension.manifest.experiment_apis) {
+          info.resolve();
+          return;
+        }
       }
 
       let histkey;
@@ -929,8 +936,10 @@ var ExtensionsUI = {
       info.type = "update";
       let strings = this._buildStrings(info);
 
-      // If we don't prompt for any new permissions, just apply it
-      if (!strings.msgs.length) {
+      // If we don't prompt for any new permissions, just apply it. Skip prompts
+      // also, if this add-on already has full access via experiment_apis.
+      let extension = ExtensionParent.GlobalManager.getExtension(info.addon.id);
+      if (!strings.msgs.length || extension.manifest.experiment_apis) {
         info.resolve();
         return;
       }
