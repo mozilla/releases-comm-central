@@ -647,7 +647,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 .button-appmenu[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
   height: 12px;
   margin-inline-end: -5px !important;
-  background: url(chrome://messenger/skin/icons//warning-12.svg) center no-repeat transparent;
+  background: url(chrome://messenger/skin/icons/warning-12.svg) center no-repeat transparent;
   box-shadow: none;
   border-radius: 0;
   -moz-context-properties: fill, stroke;
