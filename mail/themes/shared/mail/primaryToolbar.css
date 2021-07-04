@@ -137,6 +137,10 @@
   margin-inline: 4px;
 }
 
+.button-appmenu[badge-status="addon-alert"] {
+  list-style-image: url("chrome://messenger/skin/icons/appbutton-badged.svg");
+}
+
 #button-chat[unreadMessages="true"] {
   fill: var(--toolbarbutton-icon-fill-attention);
   stroke-opacity: 0.5;

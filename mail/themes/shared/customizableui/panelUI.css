@@ -642,22 +642,14 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .button-appmenu[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-  height: 13px;
-  background: url(chrome://global/skin/icons/warning.svg) center / contain no-repeat transparent;
+  height: 12px;
+  margin-inline-end: -5px !important;
+  background: url(chrome://messenger/skin/icons//warning-12.svg) center no-repeat transparent;
   box-shadow: none;
   border-radius: 0;
-  /* Use the included fallbacks defined in the SVG file instead of inheriting from .toolbarbutton-1. */
-  -moz-context-properties: none;
-}
-
-.button-appmenu[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge:-moz-window-inactive {
-  filter: grayscale(100%);
-}
-
-#nav-bar[brighttext] .button-appmenu[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
   -moz-context-properties: fill, stroke;
-  fill: #FFE900;
-  stroke: transparent;
+  fill: #eed003;
+  stroke: #f68a16;
 }
 
 .addon-banner-item::after {

@@ -136,6 +136,7 @@
   skin/classic/messenger/icons/app-update-badge.svg           (../shared/mail/icons/app-update-badge.svg)
 #endif
   skin/classic/messenger/icons/appbutton.svg                  (../shared/mail/icons/appbutton.svg)
+  skin/classic/messenger/icons/appbutton-badged.svg           (../shared/mail/icons/appbutton-badged.svg)
   skin/classic/messenger/icons/archive.svg                    (../shared/mail/icons/archive.svg)
   skin/classic/messenger/icons/arrow-dropdown.svg             (../shared/mail/icons/arrow-dropdown.svg)
   skin/classic/messenger/icons/attach.svg                     (../shared/mail/icons/attach.svg)
@@ -302,6 +303,7 @@
   skin/classic/messenger/icons/userIcon.svg                   (../shared/mail/icons/userIcon.svg)
   skin/classic/messenger/icons/visible.svg                    (../shared/mail/icons/visible.svg)
   skin/classic/messenger/icons/waiting.svg                    (../shared/mail/icons/waiting.svg)
+  skin/classic/messenger/icons/warning-12.svg                 (../shared/mail/icons/warning-12.svg)
   skin/classic/messenger/icons/zoomout.svg                    (../shared/mail/icons/zoomout.svg)
   skin/classic/messenger/shared/aboutDownloads.css            (../shared/mail/aboutDownloads.css)
   skin/classic/messenger/shared/abContactsPanel.css           (../shared/mail/abContactsPanel.css)
