@@ -22,6 +22,10 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 }
 
 @media not (-moz-windows-non-native-menus) {
+  menulist > menupopup {
+    --panel-background: transparent;
+  }
+
   menulist menupopup menu,
   menulist menupopup menuitem,
   button menupopup menu,
@@ -33,6 +37,10 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   menulist > menupopup > menu > .menu-iconic-left {
     display: -moz-box;
   }
+
+  menupopup::part(content) {
+    border-width: 0;
+  }
 }
 
 menu > menupopup > menuitem,
@@ -41,11 +49,11 @@ menu > menupopup > menu {
 }
 
 .menu-right {
-  transform: scale(0.5);
+  height: 12px;
 }
 
 .menu-right:-moz-locale-dir(rtl) {
-  transform: scaleX(-1) scale(0.5);
+  transform: scaleX(-1);
 }
 
 .radio-label-box {

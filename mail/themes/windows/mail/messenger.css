@@ -139,7 +139,7 @@
   }
 
   menulist > menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
-  menulist > menupopup:not([needsgutter]) > menuitem:not([icon], .menu-iconic) {
+  menulist > menupopup:not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
     padding-inline-start: 1em;
   }
 
@@ -422,14 +422,14 @@ treechildren::-moz-tree-indentation {
   }
 
   @media (-moz-os-version: windows-win7) {
-    treechildren::-moz-tree-row(selected),
-    treechildren::-moz-tree-row(dropOn),
-    treechildren::-moz-tree-row(hover) {
-      background-image: linear-gradient(rgba(255,255,255,.7), transparent);
+    :root:not([lwt-tree]) treechildren::-moz-tree-row(selected),
+    :root:not([lwt-tree]) treechildren::-moz-tree-row(dropOn),
+    :root:not([lwt-tree]) treechildren::-moz-tree-row(hover) {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.7), transparent);
     }
 
-    treechildren::-moz-tree-row(tagged, selected, focus) {
-      background-image: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.5));
+    :root:not([lwt-tree]) treechildren::-moz-tree-row(tagged, selected, focus) {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
     }
 
     treechildren::-moz-tree-row {

@@ -358,7 +358,7 @@ menulist menupopup > menuitem[disabled="true"] {
 button menupopup menuseparator,
 menulist menupopup menuseparator {
   appearance: none;
-  margin: 0;
+  margin: 2px 0;
   padding: 0;
   border-top: 1px solid var(--box-border-color);
   border-bottom: none;
