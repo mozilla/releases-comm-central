@@ -69,7 +69,6 @@ td {
   -moz-box-align: center;
   background-color: transparent;
   border: 1px transparent solid;
-  color: -moz-DialogText;
 }
 
 #network-calendar-list > richlistitem > checkbox > .checkbox-label-box {
