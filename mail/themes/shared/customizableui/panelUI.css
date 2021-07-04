@@ -34,9 +34,10 @@
 
 :root[lwt-popup-brighttext] {
   --appmenu-warning-background-color: hsla(55, 100%, 50%, .1);
-  --appmenu-warning-backgound-color-hover: hsla(55, 100%, 50%, .15);
-  --appmenu-warning-background-color-active: hsla(55, 100%, 50%, .2);
+  --appmenu-warning-background-color-hover: hsla(55, 100%, 50%, .2);
+  --appmenu-warning-background-color-active: hsla(55, 100%, 50%, .3);
   --appmenu-warning-color: #f9f9fa;
+  --appmenu-warning-border-color: hsla(55, 100%, 50%, .3);
 }
 
 panelview:not([visible]) {
@@ -237,6 +238,7 @@ panelview .toolbarbutton-1,
   padding-inline-start: 24px; /* This is 16px for the icon + 8px for the padding as defined below. */
 }
 
+.addon-banner-item > .toolbarbutton-text,
 .subviewbutton-iconic > .toolbarbutton-text,
 .subviewbutton[image] > .toolbarbutton-text,
 .subviewbutton[targetURI] > .toolbarbutton-text,
@@ -246,6 +248,7 @@ panelview .toolbarbutton-1,
   padding-inline-start: 8px; /* See '.subviewbutton-iconic > .toolbarbutton-text' rule above. */
 }
 
+.addon-banner-item > .toolbarbutton-icon,
 .subviewbutton-iconic > .toolbarbutton-icon {
   width: 16px;
   height: 16px;
@@ -656,21 +659,31 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   content: "";
   width: 16px;
   height: 16px;
-  margin-inline: 10px 12px;
+  margin-inline: 10px 0;
   display: -moz-box;
+  background: url(chrome://global/skin/icons/warning.svg) no-repeat center;
+}
+
+:root[lwt-popup-brighttext] .addon-banner-item::after {
+  -moz-context-properties: fill;
+  fill: #ffe900;
 }
 
 .addon-banner-item {
-  background-color: var(--appmenu-warning-background-color);
-  color: var(--appmenu-warning-color);
-  /* Force border to override `.addon-banner-item` selector below */
-  border-top: 1px solid var(--appmenu-warning-border-color) !important;
-  display: flex;
-  flex: 1 1 0%;
-  width: calc(var(--menu-panel-width) + 30px);
-  padding-inline-start: 15px;
-  border-inline-start-style: none;
+  appearance: none;
+  font-weight: 600;
+  margin: 0 8px 4px;
+  padding-inline: 8px;
+  padding-block: var(--appmenu-button-padding);
   -moz-image-region: rect(0, 16px, 16px, 0);
+  box-sizing: border-box;
+  box-shadow: none;
+  color: var(--appmenu-warning-color);
+  background-color: var(--appmenu-warning-background-color);
+  border-top: 1px solid var(--appmenu-warning-border-color);
+  border-inline: 1px solid var(--appmenu-warning-border-color);
+  border-radius: var(--arrowpanel-menuitem-border-radius);
+  transition: background-color;
 }
 
 .addon-banner-item:last-child {
@@ -684,61 +697,4 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .addon-banner-item:hover:active {
   background-color: var(--appmenu-warning-background-color-active);
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item {
-  /* override `.addon-banner-item` border-top !important defined above */
-  border: 0 !important;
-}
-
-.addon-banner-item > .toolbarbutton-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.addon-banner-item::after {
-  background: url(chrome://global/skin/icons/warning.svg) no-repeat center;
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item::after {
-  -moz-context-properties: fill, stroke;
-  fill: #FFE900;
-  stroke: transparent;
-}
-
-.addon-banner-item {
-  margin: 0;
-  padding: 11px 0;
-  box-sizing: border-box;
-  min-height: 40px;
-  appearance: none;
-  box-shadow: none;
-  border: none;
-  border-radius: 0;
-  transition: background-color;
-  -moz-box-orient: horizontal;
-}
-
-#appMenu-addon-banners > .addon-banner-item {
-  padding-inline-start: 12px;
-}
-
-.addon-banner-item > .toolbarbutton-text {
-  margin: 0;
-  padding: 0 6px;
-  text-align: start;
-}
-
-.addon-banner-item > .toolbarbutton-icon {
-  margin-inline-end: 0;
-}
-
-.addon-banner-item {
-  flex: 1;
-  padding-inline-start: 15px;
-  border-inline-start-style: none;
-}
-
-.addon-banner-item > .toolbarbutton-text {
-  padding-inline-start: 8px; /* See '.subviewbutton-iconic > .toolbarbutton-text' rule above. */
 }
