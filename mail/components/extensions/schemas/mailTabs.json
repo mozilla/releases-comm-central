@@ -17,6 +17,7 @@
           },
           "sortType": {
             "type": "string",
+            "description": "Note: ``sortType`` and ``sortOrder`` depend on each other, so both should be present, or neither.",
             "optional": true,
             "enum": [
               "none",
@@ -43,6 +44,7 @@
           },
           "sortOrder": {
             "type": "string",
+            "description": "Note: ``sortType`` and ``sortOrder`` depend on each other, so both should be present, or neither.",
             "optional": true,
             "enum": [
               "none",
