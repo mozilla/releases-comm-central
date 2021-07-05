@@ -11,7 +11,7 @@ const { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/Brows
 const { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
 const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 const { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

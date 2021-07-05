@@ -8,7 +8,7 @@
  */
 
 var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
 add_task(async function() {

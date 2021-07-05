@@ -15,13 +15,13 @@ var {
   findEventsInNode,
   viewForward,
   viewBack,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
 var { dayView } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
 ).CalendarTestUtils;
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

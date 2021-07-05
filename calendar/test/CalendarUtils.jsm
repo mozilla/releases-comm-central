@@ -33,7 +33,7 @@ var { MozMillController } = ChromeUtils.import("resource://testing-common/mozmil
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/PrefTabHelpers.jsm"

@@ -13,15 +13,15 @@ var {
   invokeEditingEventDialog,
   switchToView,
   ensureViewLoaded,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 const { dayView } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
 ).CalendarTestUtils;
 
 const TITLE1 = "Day View Event";

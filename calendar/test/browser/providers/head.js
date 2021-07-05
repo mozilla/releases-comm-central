@@ -6,7 +6,7 @@ SimpleTest.requestCompleteLog();
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 var {
   controller,
@@ -14,10 +14,10 @@ var {
   handleOccurrencePrompt,
   invokeEditingRepeatEventDialog,
   invokeNewEventDialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

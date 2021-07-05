@@ -7,7 +7,7 @@
  * selectCalendarEventTab, selectCalendarTaskTab, selectFolderTab */
 
 var { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarUtils.jsm"
+  "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 
 // Test that today pane is visible/collapsed correctly for various tab types.

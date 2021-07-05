@@ -7,7 +7,7 @@
 /* globals openOptionsDialog, openAddonsMgr */
 
 const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
 async function openTasksTab() {

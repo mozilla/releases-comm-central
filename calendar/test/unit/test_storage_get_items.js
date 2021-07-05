@@ -7,7 +7,7 @@
  */
 
 const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 const { CalTodo } = ChromeUtils.import("resource:///modules/CalTodo.jsm");

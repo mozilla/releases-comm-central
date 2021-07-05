@@ -10,12 +10,12 @@ var {
   createCalendar,
   deleteCalendars,
   execEventDialogCallback,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
 const TITLE = "Task";

@@ -12,10 +12,10 @@ var {
   handleOccurrencePrompt,
   invokeNewEventDialog,
   switchToView,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
 var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;

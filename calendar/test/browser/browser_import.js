@@ -8,7 +8,7 @@
 /* globals loadEventsFromFile */
 
 var { CALENDARNAME, controller, createCalendar, deleteCalendars, goToDate } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarUtils.jsm"
+  "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 
 const { MockFilePicker } = ChromeUtils.import("resource://specialpowers/MockFilePicker.jsm");
