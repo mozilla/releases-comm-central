@@ -13,7 +13,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 var log = console.createInstance({
   prefix: "carddav.setup",
-  maxLogLevel: "warn",
+  maxLogLevel: "Warn",
   maxLogLevelPref: "carddav.setup.loglevel",
 });
 

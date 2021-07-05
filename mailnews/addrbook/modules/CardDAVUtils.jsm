@@ -264,7 +264,7 @@ var CardDAVUtils = {
   async detectAddressBooks(username, password, location, forcePrompt = false) {
     let log = console.createInstance({
       prefix: "carddav.setup",
-      maxLogLevel: "warn",
+      maxLogLevel: "Warn",
       maxLogLevelPref: "carddav.setup.loglevel",
     });
 
