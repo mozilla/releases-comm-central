@@ -501,7 +501,7 @@ calendar-header-container[weekend="true"][selected="true"],
 }
 
 calendar-event-box {
-  border: 1px solid transparent;
+  margin: 1px;
   /* Be the containing block for the child calendar-event-gripbar elements. */
   display: block;
   position: relative;
