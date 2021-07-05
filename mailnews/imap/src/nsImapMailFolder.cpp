@@ -341,6 +341,7 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
   return rv;
 }
 
+// Creates a new child nsIMsgFolder locally, with no IMAP traffic.
 nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name,
                                                 nsIFile* dbPath,
                                                 nsIMsgFolder** child,
@@ -418,6 +419,8 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString& name,
   return NS_OK;
 }
 
+// Create child nsIMsgFolders by scanning the filesystem to find .msf files.
+// No IMAP traffic.
 nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgIncomingServer> server;
@@ -428,6 +431,7 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
   rv = path->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // For each .msf file in the directory...
   bool hasMore = false;
   while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) &&
          hasMore) {
@@ -438,6 +442,8 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
     nsAutoString currentFolderNameStr;    // online name
     nsAutoString currentFolderDBNameStr;  // possibly munged name
     currentFolderPath->GetLeafName(currentFolderNameStr);
+    // Skip if not an .msf file.
+    // (NOTE: nsShouldIgnoreFile() strips the trailing ".msf" here)
     if (nsShouldIgnoreFile(currentFolderNameStr)) continue;
 
     // OK, here we need to get the online name from the folder cache if we can.
@@ -7039,19 +7045,24 @@ nsImapFolderCopyState::nsImapFolderCopyState(
   m_msgWindow = msgWindow;
   m_copySrvcListener = listener;
   m_childIndex = -1;
+  // NOTE: The nsImapMailFolder doesn't keep a reference to us, so we're
+  // relying on our use as a listener by nsImapService and nsMsgCopyService
+  // to keep our refcount from zeroing!
+  // Might be safer to add a kungfudeathgrip on ourselves for the duration
+  // of the operation? Would need to make sure we catch all error conditions.
 }
 
 nsImapFolderCopyState::~nsImapFolderCopyState() {}
 
 nsresult nsImapFolderCopyState::StartNextCopy() {
   nsresult rv;
-  // first make sure dest folder exists.
+  // Create the destination folder (our OnStopRunningUrl() will be called
+  // when done).
   nsCOMPtr<nsIImapService> imapService =
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsString folderName;
   m_curSrcFolder->GetName(folderName);
-
   return imapService->EnsureFolderExists(m_curDestParent, folderName,
                                          m_msgWindow, this, nullptr);
 }
@@ -7091,6 +7102,8 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
 
       switch (imapAction) {
         case nsIImapUrl::nsImapEnsureExistsFolder: {
+          // Our EnsureFolderExists() call has completed successfully,
+          // so our dest folder is ready.
           nsCOMPtr<nsIMsgFolder> newMsgFolder;
           nsString folderName;
           nsCString utfLeafName;
@@ -7105,16 +7118,18 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           } else {
             CopyUTF16toMUTF7(folderName, utfLeafName);
           }
+          // Create the nsIMsgFolder object which represents the folder on
+          // the IMAP server.
           rv = m_curDestParent->FindSubFolder(utfLeafName,
                                               getter_AddRefs(newMsgFolder));
           NS_ENSURE_SUCCESS(rv, rv);
-          // save the first new folder so we can send a notification to the
+          // Save the first new folder so we can send a notification to the
           // copy service when this whole process is done.
           if (!m_newDestFolder)
             m_newDestFolder =
                 static_cast<nsImapMailFolder*>(newMsgFolder.get());
 
-          // check if the source folder has children. If it does, list them
+          // Check if the source folder has children. If it does, list them
           // into m_srcChildFolders, and set m_destParents for the
           // corresponding indexes to the newly created folder.
           nsTArray<RefPtr<nsIMsgFolder>> subFolders;
@@ -7129,6 +7144,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
             ++childIndex;
           }
 
+          // Now kick off a copy (or move) of messages to the new folder.
           nsCOMPtr<nsIMsgEnumerator> enumerator;
           rv = m_curSrcFolder->GetMessages(getter_AddRefs(enumerator));
           nsTArray<RefPtr<nsIMsgDBHdr>> msgArray;
@@ -7136,6 +7152,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
 
           if (enumerator) rv = enumerator->HasMoreElements(&hasMore);
 
+          // Early-out for empty folder.
           if (!hasMore) return AdvanceToNextFolder(NS_OK);
 
           while (NS_SUCCEEDED(rv) && hasMore) {
@@ -7298,6 +7315,8 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
     }
   } else  // copying folder (should only be across server?)
   {
+    // NOTE: the copystate object must hold itself in existence until complete,
+    // as we're not keeping hold of it here.
     RefPtr<nsImapFolderCopyState> folderCopier = new nsImapFolderCopyState(
         this, srcFolder, isMoveFolder, msgWindow, listener);
     return folderCopier->StartNextCopy();
