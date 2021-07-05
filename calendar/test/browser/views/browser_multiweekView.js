@@ -44,7 +44,7 @@ add_task(async function setupModule(module) {
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
   let hour = new Date().getUTCHours(); // Remember time at click.
   let eventBox = multiweekView.getDayBox(controller.window, 1, 5);
-  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     // Check that the start time is correct.
     // Next full hour except last hour hour of the day.
     let nextHour = hour == 23 ? hour : (hour + 1) % 24;
@@ -70,7 +70,7 @@ add_task(async function setupModule(module) {
 
   // If it was created successfully, it can be opened.
   eventBox = await multiweekView.waitForItemAt(controller.window, 1, 5, 1);
-  await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeEditingEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
     await saveAndCloseItemDialog(eventWindow);

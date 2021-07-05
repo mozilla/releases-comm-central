@@ -29,7 +29,6 @@ const EXPORTED_SYMBOLS = [
   "controller",
 ];
 
-var { MozMillController } = ChromeUtils.import("resource://testing-common/mozmill/controller.jsm");
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
@@ -45,6 +44,7 @@ var {
   wait_for_existing_window,
   wait_for_modal_dialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -208,21 +208,21 @@ function goToToday(controller) {
  * NOTE: This function will timeout if the "clickBox" opens an existing event,
  * use the other invoke*EventDialog() functions for existing events instead.
  *
- * @param {MozMillController}   mWController - The main window controller.
- * @param {Element|null} clickBox            - The optional box to click on.
- * @param {EventDialogCallback} callback     - The function to execute while
- *                                             the event dialog is open.
+ * @param {Window} window                - The main window.
+ * @param {Element|null} clickBox        - The optional box to click on.
+ * @param {EventDialogCallback} callback - The function to execute while the
+ *                                         event dialog is open.
  */
-async function invokeNewEventDialog(mWController, clickBox, callback) {
+async function invokeNewEventDialog(window, clickBox, callback) {
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
   if (clickBox) {
-    doubleClickOptionalEventBox(mWController, clickBox);
+    doubleClickOptionalEventBox(window, clickBox);
   } else {
-    mWController.mainMenu.click("#calendar-new-event-menuitem");
+    window.document.getElementById("calendar-new-event-menuitem").click();
   }
   await eventWindowPromise;
   Assert.report(false, undefined, undefined, "New event dialog opened");
-  await execEventDialogCallback(mWController, callback);
+  await execEventDialogCallback(callback);
 }
 
 /**
@@ -232,28 +232,27 @@ async function invokeNewEventDialog(mWController, clickBox, callback) {
  * NOTE: This function will timeout if the "clickBox" opens an existing task,
  * use the other invoke*EventDialog() functions for existing tasks instead.
  *
- * @param {MozMillController}   mWController - The main window controller.
- * @param {Element|null} clickBox            - The optional box to click on.
- * @param {EventDialogCallback} callback     - The function to execute while
- *                                             the task dialog is open.
+ * @param {Window} window                - The main window.
+ * @param {Element|null} clickBox        - The optional box to click on.
+ * @param {EventDialogCallback} callback - The function to execute while the
+ *                                         task dialog is open.
  */
-async function invokeNewTaskDialog(mWController, clickBox, callback) {
+async function invokeNewTaskDialog(window, clickBox, callback) {
   let taskWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
   if (clickBox) {
-    doubleClickOptionalEventBox(mWController, clickBox);
+    doubleClickOptionalEventBox(window, clickBox);
   } else {
-    mWController.mainMenu.click("#calendar-new-task-menuitem");
+    window.document.getElementById("calendar-new-task-menuitem").click();
   }
   await taskWindowPromise;
   Assert.report(false, undefined, undefined, "New task dialog opened");
-  await execEventDialogCallback(mWController, callback);
+  await execEventDialogCallback(callback);
 }
 
 /**
  * This callback should close the dialog when finished.
  * @callback EventSummaryDialogCallback
- * @param {MozMillController} eventController - The controller for the event
- *                                              window.
+ * @param {Window} window - The event summary window.
  * @returns {Promise}
  */
 
@@ -264,21 +263,18 @@ async function invokeNewTaskDialog(mWController, clickBox, callback) {
  * NOTE: This function will timeout if the "clickBox" opens a new event
  * instead of an existing one.
  *
- * @param {MozMillController} mWController      - The main window controller.
+ * @param {Window} window                       - The main window.
  * @param {Element|null} clickBox               - The optional box to click on.
  * @param {EventSummaryDialogCallback} callback - The function to execute while
  *                                                the event summary dialog is
  *                                                open.
  */
-async function invokeViewingEventDialog(mWController, clickBox, callback) {
+async function invokeViewingEventDialog(window, clickBox, callback) {
   let summaryWindowPromise = CalendarTestUtils.waitForEventDialog();
-  doubleClickOptionalEventBox(mWController, clickBox);
+  doubleClickOptionalEventBox(window, clickBox);
   let summaryWindow = await summaryWindowPromise;
   Assert.report(false, undefined, undefined, "Summary dialog opened");
-  let summaryController = new MozMillController(summaryWindow);
-  summaryController.sleep(MID_SLEEP);
-
-  await callback(summaryController);
+  await callback(summaryWindow);
   await BrowserTestUtils.windowClosed(summaryWindow);
   Assert.report(false, undefined, undefined, "Summary dialog closed");
 }
@@ -290,22 +286,23 @@ async function invokeViewingEventDialog(mWController, clickBox, callback) {
  * NOTE: This function will timeout if the "clickBox" opens a new event instead
  * of an existing one.
  *
- * @param {MozMillController} mWController - The main window controller.
- * @param {Element|null} clickBox          - The box to click on.
- * @param {EventDialogCallback} callback   - The function to execute while
- *                                           the event dialog is open.
+ * @param {Window} window                - The main window.
+ * @param {Element|null} clickBox        - The box to click on.
+ * @param {EventDialogCallback} callback - The function to execute while the
+ *                                         event dialog is open.
  */
-async function invokeEditingEventDialog(mWController, clickBox, callback) {
+async function invokeEditingEventDialog(window, clickBox, callback) {
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog();
-  doubleClickOptionalEventBox(mWController, clickBox);
+  doubleClickOptionalEventBox(window, clickBox);
   let eventWindow = await eventWindowPromise;
   Assert.report(false, undefined, undefined, "Edit event dialog opened");
-  let eventController = new MozMillController(eventWindow);
-  eventController.sleep(MID_SLEEP);
-
-  let dialog = eventController.window.document.querySelector("dialog");
-  eventController.click(dialog.getButton("accept"));
-  await execEventDialogCallback(mWController, callback);
+  await new Promise(resolve => eventWindow.setTimeout(resolve, 500));
+  EventUtils.synthesizeMouseAtCenter(
+    eventWindow.document.querySelector("dialog").getButton("accept"),
+    {},
+    eventWindow
+  );
+  await execEventDialogCallback(callback);
 }
 
 /**
@@ -315,62 +312,53 @@ async function invokeEditingEventDialog(mWController, clickBox, callback) {
  * NOTE: This function will timeout if the "clickBox" opens a new event instead
  * of an existing one.
  *
- * @param {MozMillController} mWController - The main window controller.
- * @param {Element|null} clickBox          - The box to click on.
- * @param {EventDialogCallback} callback   - The function to execute while
- *                                           the event dialog is open.
- * @param {boolean} [editAll=false]        - If true, will edit all
- *                                           occurrences of the event.
+ * @param {Window} window                - The main window.
+ * @param {Element|null} clickBox        - The box to click on.
+ * @param {EventDialogCallback} callback - The function to execute while the
+ *                                         event dialog is open.
+ * @param {boolean} [editAll=false]      - If true, will edit all occurrences of
+ *                                         the event.
  */
-async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, editAll = false) {
+async function invokeEditingRepeatEventDialog(window, clickBox, callback, editAll = false) {
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog();
-  doubleClickOptionalEventBox(mWController, clickBox);
+  doubleClickOptionalEventBox(window, clickBox);
   let eventWindow = await eventWindowPromise;
   Assert.report(false, undefined, undefined, "Repeating event dialog opened");
-  let eventController = new MozMillController(eventWindow);
-  eventController.sleep(MID_SLEEP);
+  await new Promise(resolve => eventWindow.setTimeout(resolve, 500));
+
+  let editButton = eventWindow.document.getElementById("calendar-summary-dialog-edit-menu-button");
+  let popup = eventWindow.document.getElementById("edit-button-context-menu");
+  let shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, eventWindow);
+  await shownPromise;
 
   let target = editAll
     ? "edit-button-context-menu-all-occurrences"
     : "edit-button-context-menu-this-occurrence";
-  let editButton = eventController.window.document.getElementById(target);
+  popup.activateItem(eventWindow.document.getElementById(target));
 
-  eventController.click(editButton);
-  await BrowserTestUtils.windowClosed(eventWindow);
   Assert.report(false, undefined, undefined, "Repeating event dialog closed");
-  await execEventDialogCallback(mWController, callback);
+  await execEventDialogCallback(callback);
 }
 
-function doubleClickOptionalEventBox(mWController, clickBox) {
+function doubleClickOptionalEventBox(window, clickBox) {
   if (clickBox) {
-    mWController.doubleClick(clickBox, 1, 1);
+    clickBox.scrollIntoView();
+    EventUtils.synthesizeMouse(clickBox, 1, 1, { clickCount: 2 }, window);
   }
 }
 
-async function execEventDialogCallback(mWController, callback) {
+async function execEventDialogCallback(callback) {
   let eventWindow = Services.wm.getMostRecentWindow(EVENT_DIALOG_NAME);
 
   if (!eventWindow) {
     eventWindow = await CalendarTestUtils.waitForEventDialog("edit");
   }
 
-  let eventController = new MozMillController(eventWindow);
-  let iframe = waitForItemPanelIframe(eventController);
+  let iframe = eventWindow.document.getElementById("calendar-item-panel-iframe");
+  await TestUtils.waitForCondition(() => iframe.contentWindow.onLoad?.hasLoaded);
 
   await callback(eventWindow, iframe.contentWindow);
-}
-
-function waitForItemPanelIframe(eventController) {
-  let iframe;
-  eventController.waitFor(
-    () => {
-      iframe = eventController.window.document.getElementById("calendar-item-panel-iframe");
-      return iframe && iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded;
-    },
-    "calendar-item-panel-iframe did not load in time",
-    10000
-  );
-  return iframe;
 }
 
 /**

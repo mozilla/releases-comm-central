@@ -43,7 +43,7 @@ add_task(async function testDayView() {
 
   // Create event at 8 AM.
   let eventBox = dayView.getHourBoxAt(controller.window, 8);
-  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     // Check that the start time is correct.
     let someDate = cal.createDateTime();
     someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.floating);
@@ -67,7 +67,7 @@ add_task(async function testDayView() {
 
   // If it was created successfully, it can be opened.
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
-  await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeEditingEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
     await saveAndCloseItemDialog(eventWindow);

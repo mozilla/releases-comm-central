@@ -35,14 +35,14 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
     await saveAndCloseItemDialog(eventWindow);
   });
 
   // Move 5th January occurrence to 6th January.
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
-  await invokeEditingRepeatEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeEditingRepeatEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: TITLE,
       startdate: STARTDATE,
@@ -58,7 +58,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   goToDate(controller, 2009, 1, 7);
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   await invokeEditingRepeatEventDialog(
-    controller,
+    window,
     eventBox,
     async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, { title: "Event", repeat: changeRecurrence });

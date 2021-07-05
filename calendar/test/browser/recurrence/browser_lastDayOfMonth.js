@@ -31,7 +31,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
 
   // Create monthly recurring event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
     await saveAndCloseItemDialog(eventWindow);
   });

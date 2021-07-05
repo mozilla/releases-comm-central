@@ -75,7 +75,7 @@ add_task(async function testEventDialog() {
   // Create new event on first day in view.
   controller.click(monthView.getDayBox(controller.window, 1, 1));
 
-  await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, null, async (eventWindow, iframeWindow) => {
     let eventDocument = eventWindow.document;
     let iframeDocument = iframeWindow.document;
 
@@ -213,7 +213,7 @@ add_task(async function testOpenExistingEventDialog() {
   let createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create a new event.
-  await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, createBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
@@ -226,7 +226,7 @@ add_task(async function testOpenExistingEventDialog() {
 
   // Open the event in the summary dialog, it will fail if otherwise.
   await invokeViewingEventDialog(
-    controller,
+    window,
     eventBox,
     async event => {
       Assert.equal(
@@ -263,7 +263,7 @@ add_task(async function testEventReminderDisplay() {
   let createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create an event without a reminder.
-  await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, createBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
@@ -275,7 +275,7 @@ add_task(async function testEventReminderDisplay() {
   let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   await invokeViewingEventDialog(
-    controller,
+    window,
     eventBox,
     async event => {
       let doc = event.window.document;
@@ -290,7 +290,7 @@ add_task(async function testEventReminderDisplay() {
   createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create an event with a reminder.
-  await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, createBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
@@ -302,7 +302,7 @@ add_task(async function testEventReminderDisplay() {
 
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   await invokeViewingEventDialog(
-    controller,
+    window,
     eventBox,
     async event => {
       let doc = event.window.document;
@@ -354,7 +354,7 @@ add_task(async function testEventReminderDisplay() {
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   await invokeViewingEventDialog(
-    controller,
+    window,
     eventBox,
     async event => {
       let doc = event.window.document;
@@ -382,7 +382,7 @@ add_task(async function testCtrlEnterShortcut() {
   goToDate(controller, 2020, 9, 1);
 
   let createBox = dayView.getHourBoxAt(controller.window, 8);
-  await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, createBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,

@@ -39,7 +39,7 @@ add_task(async function testDailyRecurrence() {
 
   // Create daily event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: TITLE,
       repeat: "daily",
@@ -117,7 +117,7 @@ add_task(async function testDailyRecurrence() {
 
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   await invokeEditingRepeatEventDialog(
-    controller,
+    window,
     eventBox,
     async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, { repeat: "every.weekday" });

@@ -26,7 +26,7 @@ add_task(async function testUTF8() {
 
   // Create new event.
   let eventBox = CalendarTestUtils.dayView.getHourBoxAt(controller.window, 8);
-  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     // Fill in name, location, description.
     await setData(eventWindow, iframeWindow, {
       title: UTF8STRING,
@@ -39,7 +39,7 @@ add_task(async function testUTF8() {
 
   // open
   eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(controller.window, 1);
-  await invokeEditingEventDialog(controller, eventBox, (eventWindow, iframeWindow) => {
+  await invokeEditingEventDialog(window, eventBox, (eventWindow, iframeWindow) => {
     let iframeDocument = iframeWindow.document;
 
     // Check values.

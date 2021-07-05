@@ -30,7 +30,7 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Create biweekly event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: "bi.weekly" });
     await saveAndCloseItemDialog(eventWindow);
   });

@@ -161,7 +161,7 @@ async function runTestAlarms() {
       },
     }
   );
-  await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, null, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: "test event",
       startdate: start,
@@ -197,7 +197,7 @@ async function runTestAlarms() {
   Assert.ok(!!eventBox.item.parentItem.alarmLastAck);
 
   await invokeEditingRepeatEventDialog(
-    controller,
+    window,
     eventBox,
     async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, {

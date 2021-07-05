@@ -34,7 +34,7 @@ add_task(async function testEventDialogModificationPrompt() {
   let createbox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create new event.
-  await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, createbox, async (eventWindow, iframeWindow) => {
     let categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
     data[0].categories.push(categories[0]);
     data[1].categories.push(categories[1], categories[2]);
@@ -46,7 +46,7 @@ add_task(async function testEventDialogModificationPrompt() {
   let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   // Open, but change nothing.
-  await invokeEditingEventDialog(controller, eventbox, (eventWindow, iframeWindow) => {
+  await invokeEditingEventDialog(window, eventbox, (eventWindow, iframeWindow) => {
     // Escape the event window, there should be no prompt to save event.
     cancelItemDialog(eventWindow);
     // Wait to see if the prompt appears.
@@ -55,7 +55,7 @@ add_task(async function testEventDialogModificationPrompt() {
 
   eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
   // Open, change all values then revert the changes.
-  await invokeEditingEventDialog(controller, eventbox, async (eventWindow, iframeWindow) => {
+  await invokeEditingEventDialog(window, eventbox, async (eventWindow, iframeWindow) => {
     // Change all values.
     await setData(eventWindow, iframeWindow, data[1]);
 
@@ -84,7 +84,7 @@ add_task(async function testDescriptionWhitespace() {
   for (let i = 0; i < newlines.length; i++) {
     // test set i
     let createbox = dayView.getHourBoxAt(controller.window, 8);
-    await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
+    await invokeNewEventDialog(window, createbox, async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, newlines[i]);
       await saveAndCloseItemDialog(eventWindow);
     });
@@ -92,7 +92,7 @@ add_task(async function testDescriptionWhitespace() {
     let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
 
     // Open and close.
-    await invokeEditingEventDialog(controller, eventbox, async (eventWindow, iframeWindow) => {
+    await invokeEditingEventDialog(window, eventbox, async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, newlines[i]);
       cancelItemDialog(eventWindow);
       // Wait to see if the prompt appears.

@@ -61,7 +61,7 @@ add_task(async function setupModule(module) {
   controller.doubleClick(treeChildren, 50, 0);
 
   await eventWindowPromise;
-  await execEventDialogCallback(controller, async (taskWindow, iframeWindow) => {
+  await execEventDialogCallback(async (taskWindow, iframeWindow) => {
     // Verify calendar.
     Assert.equal(iframeWindow.document.getElementById("item-calendar").value, CALENDARNAME);
 

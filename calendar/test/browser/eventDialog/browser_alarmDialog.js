@@ -55,7 +55,7 @@ add_task(async function testAlarmDialog() {
       },
     }
   );
-  await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, null, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       allday: true,
       reminder: "1day",
@@ -89,7 +89,7 @@ add_task(async function testAlarmDialog() {
       },
     }
   );
-  await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeEditingEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { reminder: "2days", title: TITLE });
     await saveAndCloseItemDialog(eventWindow);
   });

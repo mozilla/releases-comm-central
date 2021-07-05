@@ -25,7 +25,7 @@ add_task(function setupModule(module) {
 });
 
 add_task(async function testEventDialog() {
-  await invokeNewEventDialog(controller, null, (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, null, (eventWindow, iframeWindow) => {
     checkLargeEnough(eventWindow, iframeWindow);
 
     // Much larger than necessary.
@@ -38,7 +38,7 @@ add_task(async function testEventDialog() {
   checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
-  await invokeNewEventDialog(controller, null, (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, null, (eventWindow, iframeWindow) => {
     let eventDocEl = eventWindow.document.documentElement;
 
     checkWithinTolerance(eventWindow.outerWidth, 650, LARGE_TOLERANCE);
@@ -65,7 +65,7 @@ add_task(async function testEventDialog() {
     cancelItemDialog(eventWindow);
   });
 
-  await invokeNewEventDialog(controller, null, (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, null, (eventWindow, iframeWindow) => {
     checkLargeEnough(eventWindow, iframeWindow);
 
     // Much larger than necessary.
@@ -80,7 +80,7 @@ add_task(async function testEventDialog() {
 });
 
 add_task(async function testTaskDialog() {
-  await invokeNewTaskDialog(controller, null, (taskWindow, iframeWindow) => {
+  await invokeNewTaskDialog(window, null, (taskWindow, iframeWindow) => {
     checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
     checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
@@ -96,7 +96,7 @@ add_task(async function testTaskDialog() {
   checkWithinTolerance(getPersistedValue("width"), 680, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 700, LARGE_TOLERANCE);
 
-  await invokeNewTaskDialog(controller, null, (taskWindow, iframeWindow) => {
+  await invokeNewTaskDialog(window, null, (taskWindow, iframeWindow) => {
     let taskDocEl = taskWindow.document.documentElement;
 
     checkWithinTolerance(taskWindow.outerWidth, 680, LARGE_TOLERANCE);
@@ -123,7 +123,7 @@ add_task(async function testTaskDialog() {
     cancelItemDialog(taskWindow);
   });
 
-  await invokeNewTaskDialog(controller, null, (taskWindow, iframeWindow) => {
+  await invokeNewTaskDialog(window, null, (taskWindow, iframeWindow) => {
     checkLargeEnough(taskWindow, iframeWindow);
 
     // Much larger than necessary.

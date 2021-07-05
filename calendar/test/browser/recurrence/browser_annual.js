@@ -30,7 +30,7 @@ add_task(async function testAnnualRecurrence() {
 
   // Create yearly recurring all-day event.
   let eventBox = dayView.getAllDayHeader(controller.window);
-  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: "yearly" });
     await saveAndCloseItemDialog(eventWindow);
   });
