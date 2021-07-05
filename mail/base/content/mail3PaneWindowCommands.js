@@ -527,9 +527,8 @@ var DefaultController = {
           return true;
         }
 
-        // Otherwise, only allow searching if we're showing the message pane
-        // and have more than one message selected.
-        return !IsMessagePaneCollapsed() && gFolderDisplay.selectedCount == 1;
+        // Otherwise, only allow searching if we're showing the message pane.
+        return !IsMessagePaneCollapsed();
       case "cmd_search":
         return MailServices.accounts.accounts.length > 0;
       case "cmd_selectAll":

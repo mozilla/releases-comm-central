@@ -65,17 +65,20 @@ MessageDisplayWidget.prototype = {
       .singleMessageDisplay;
     document.getElementById("multimessage").hidden = this.singleMessageDisplay;
 
+    let messagePaneName = this.singleMessageDisplay
+      ? "messagepane"
+      : "multimessage";
+
+    let findToolbar = document.getElementById("FindToolbar");
+    findToolbar.browser = document.getElementById(messagePaneName);
+
     // If the message pane is currently focused, make sure we have the
     // currently-visible content window (single- or multi-message) focused.
     if (
       this.folderDisplay.focusedPane ==
       document.getElementById("messagepanebox")
     ) {
-      if (this.singleMessageDisplay) {
-        document.getElementById("messagepane").focus();
-      } else {
-        document.getElementById("multimessage").focus();
-      }
+      document.getElementById(messagePaneName).focus();
     }
   },
 
@@ -152,6 +155,19 @@ MessageDisplayWidget.prototype = {
     window.dispatchEvent(new CustomEvent("MsgsLoaded"));
     this.messageLoading = false;
     this.messageLoaded = true;
+
+    // This is an echo of what is done in `OnMsgParsed`, but for multiple
+    // messages.
+    // browser doesn't do this, but I thought it could be a useful thing to test out...
+    // If the find bar is visible and we just loaded a new message, re-run
+    // the find command. This means the new message will get highlighted and
+    // we'll scroll to the first word in the message that matches the find text.
+    if (!this.singleMessageDisplay) {
+      let findBar = document.getElementById("FindToolbar");
+      if (!findBar.hidden) {
+        findBar.onFindAgainCommand(false);
+      }
+    }
   },
 
   clearDisplay() {
