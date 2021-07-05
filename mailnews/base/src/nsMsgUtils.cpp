@@ -53,14 +53,11 @@
 #include "nsIProtocolProxyCallback.h"
 #include "nsICancelable.h"
 #include "nsIMsgDatabase.h"
-#include "nsIMutableArray.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsArrayUtils.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgWindow.h"
 #include "nsIWindowWatcher.h"
 #include "nsIPrompt.h"
-#include "nsIArray.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsTextFormatter.h"
 #include "nsIStreamListener.h"
@@ -69,7 +66,6 @@
 #include "nsIParserUtils.h"
 #include "nsICharsetConverterManager.h"
 #include "nsIDocumentEncoder.h"
-#include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
 #include "locale.h"
 #include "nsStringStream.h"
@@ -1836,18 +1832,4 @@ void MsgRemoveQueryPart(nsCString& aSpec) {
   if (ind != kNotFound) aSpec.SetLength(ind);
   ind = aSpec.Find("/;");
   if (ind != kNotFound) aSpec.SetLength(ind);
-}
-
-void MsgHdrsToTArray(nsIArray* messages, nsTArray<RefPtr<nsIMsgDBHdr>>& out) {
-  if (!messages) {
-    out.Clear();
-    return;
-  }
-  uint32_t count;
-  messages->GetLength(&count);
-  out.Clear();
-  out.SetCapacity(count);
-  for (uint32_t i = 0; i < count; ++i) {
-    out.AppendElement(do_QueryElementAt(messages, i));
-  }
 }

@@ -14,7 +14,6 @@
 #include "nsTArray.h"
 #include "nsInterfaceRequestorAgg.h"
 #include "nsILoadGroup.h"
-#include "nsIArray.h"
 #include "nsINetUtil.h"
 #include "nsIRequest.h"
 #include "nsILoadInfo.h"
@@ -31,7 +30,6 @@ class nsIUrlListener;
 class nsIOutputStream;
 class nsIInputStream;
 class nsIMsgDatabase;
-class nsIMutableArray;
 class nsIProxyInfo;
 class nsIMsgWindow;
 class nsIStreamListener;
@@ -397,13 +395,6 @@ void MsgRemoveQueryPart(nsCString& aSpec);
 NS_MSG_BASE
 void MsgLogToConsole4(const nsAString& aErrorText, const nsAString& aFilename,
                       uint32_t aLine, uint32_t flags);
-
-/**
- * Stopgap helper for removal of nsIArray usage (Bug 1583030).
- * Copy an nsIArray of nsIMsgDBHdrs into an nsTArray.
- * TODO: Delete this function when we can!
- */
-void MsgHdrsToTArray(nsIArray* messages, nsTArray<RefPtr<nsIMsgDBHdr>>& out);
 
 // Macro with filename and line number
 #define MSG_LOG_TO_CONSOLE(_text, _flag)                  \
