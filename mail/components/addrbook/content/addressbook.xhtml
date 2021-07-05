@@ -108,6 +108,8 @@
              valueLists="&deleteListsCmd.label;"
              valueItems="&deleteItemsCmd.label;"
              valueDefault="&deleteButton2.label;"
+             accesskeyCardDAV="&removeAbCmd.accesskey;"
+             accesskeyDefault="&deleteAbCmd.accesskey;"
              disabled="true"/>
     <command id="button_delete" oncommand="goDoCommand('button_delete');"/>
     <command id="cmd_selectAll" oncommand="goDoCommand('cmd_selectAll')" disabled="true"/>
@@ -637,7 +639,8 @@
       <toolbarbutton class="toolbarbutton-1" id="button-abdelete"
                      label="&deleteButton2.label;"
                      disabled="true"
-                     tooltiptext="&deleteButton2.tooltip;"
+                     tooltipCardDAV="&removeButton.tooltip;"
+                     tooltipDefault="&deleteButton2.tooltip;"
                      command="button_delete"/>
       <toolbaritem id="search-container"
                    title="&searchItem.title;"
@@ -678,7 +681,6 @@
             onselect="DirPaneSelectionChange(); document.commandDispatcher.updateCommands('addrbook-select');"
             ondblclick="DirPaneDoubleClick(event);"
             onclick="DirPaneClick(event);"
-            onblur="goOnEvent(this, 'blur')"
             editable="true">
 
         <treecols>

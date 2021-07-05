@@ -90,17 +90,14 @@ var DirPaneController = {
         // ResultsPaneController in abResultsPane.js.
         if (command == "cmd_delete") {
           if (selectedDir.isMailList) {
-            goSetMenuValue(command, "valueList");
+            updateDeleteControls("valueList");
           } else if (
             selectedDir.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
           ) {
-            goSetMenuValue(command, "valueCardDAV");
+            updateDeleteControls("valueCardDAV", "accesskeyCardDAV");
           } else {
-            goSetMenuValue(command, "valueAddressBook");
+            updateDeleteControls("valueAddressBook");
           }
-          document.getElementById(
-            "button-abdelete"
-          ).label = document.getElementById(command).getAttribute("label");
         }
 
         // If it's one of these special ABs, return false to disable deletion.
@@ -226,16 +223,6 @@ var DirPaneController = {
         break;
     }
   },
-
-  onEvent(event) {
-    // on blur events set the menu item texts back to the normal values
-    if (event == "blur") {
-      goSetMenuValue("cmd_delete", "valueDefault");
-      document.getElementById(
-        "button-abdelete"
-      ).label = document.getElementById("cmd_delete").getAttribute("label");
-    }
-  },
 };
 
 function SendCommandToResultsPane(command) {
@@ -330,6 +317,29 @@ function updateDirTreeContext() {
   syncItem.hidden = !isCardDAV;
   deleteItem.hidden = isCardDAV;
   removeItem.hidden = !isCardDAV;
+}
+
+function updateDeleteControls(
+  labelAttribute,
+  accessKeyAttribute = "accesskeyDefault"
+) {
+  goSetMenuValue("cmd_delete", labelAttribute);
+  goSetAccessKey("cmd_delete", accessKeyAttribute);
+
+  // The toolbar button doesn't update itself from the command. Do that now.
+  let button = document.getElementById("button-abdelete");
+  if (!button) {
+    return;
+  }
+
+  let command = document.getElementById("cmd_delete");
+  button.label = command.getAttribute("label");
+  button.setAttribute(
+    "tooltiptext",
+    button.getAttribute(
+      labelAttribute == "valueCardDAV" ? "tooltipCardDAV" : "tooltipDefault"
+    )
+  );
 }
 
 function abToggleSelectedDirStartup() {

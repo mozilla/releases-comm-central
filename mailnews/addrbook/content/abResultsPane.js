@@ -25,7 +25,7 @@
  * goSetMenuValue()
  *   Core function in globalOverlay.js
  */
-/* globals getSelectedDirectoryURI, AbResultsPaneDoubleClick, AbEditCard, goSetMenuValue */
+/* globals getSelectedDirectoryURI, AbResultsPaneDoubleClick, AbEditCard, updateDeleteControls */
 
 // List/card selections in the results pane.
 var kNothingSelected = 0;
@@ -423,28 +423,22 @@ var ResultsPaneController = {
           );
         }
 
-        let labelAttr = null;
         if (command == "cmd_delete") {
           switch (GetSelectedCardTypes()) {
             case kSingleListOnly:
-              labelAttr = "valueList";
+              updateDeleteControls("valueList");
               break;
             case kMultipleListsOnly:
-              labelAttr = "valueLists";
+              updateDeleteControls("valueLists");
               break;
             case kListsAndCards:
-              labelAttr = "valueItems";
+              updateDeleteControls("valueItems");
               break;
             case kCardsOnly:
             default:
-              labelAttr = numSelected < 2 ? "valueCard" : "valueCards";
-          }
-          goSetMenuValue(command, labelAttr);
-          let deleteButton = document.getElementById("button-abdelete");
-          if (deleteButton) {
-            deleteButton.label = document
-              .getElementById(command)
-              .getAttribute("label");
+              updateDeleteControls(
+                numSelected < 2 ? "valueCard" : "valueCards"
+              );
           }
         }
         return enabled;
@@ -528,13 +522,6 @@ var ResultsPaneController = {
       case "cmd_newCard":
         AbNewCard();
         break;
-    }
-  },
-
-  onEvent(event) {
-    // on blur events set the menu item texts back to the normal values
-    if (event == "blur") {
-      goSetMenuValue("cmd_delete", "valueDefault");
     }
   },
 };

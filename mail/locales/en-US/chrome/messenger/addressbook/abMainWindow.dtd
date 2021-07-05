@@ -48,7 +48,9 @@
 <!ENTITY editMenu.accesskey                             "E">
 <!ENTITY deleteCmd.label                                "Delete">
 <!ENTITY deleteAbCmd.label                              "Delete Address Book">
+<!ENTITY deleteAbCmd.accesskey                          "D">
 <!ENTITY removeAbCmd.label                              "Remove Address Book">
+<!ENTITY removeAbCmd.accesskey                          "d">
 <!ENTITY deleteContactCmd.label                         "Delete Contact">
 <!ENTITY deleteContactsCmd.label                        "Delete Contacts">
 <!ENTITY deleteListCmd.label                            "Delete List">
