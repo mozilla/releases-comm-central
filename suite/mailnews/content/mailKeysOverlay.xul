@@ -28,8 +28,7 @@
          key="&markAsReadCmd.key;"
          oncommand="goDoCommand('cmd_markAsRead');"/>
     <key id="key_markAsUnread"
-         key="&markAsUnreadCmd.key;"
-         modifiers="shift"
+         key="&markAsUnreadCmd2.key;"
          oncommand="goDoCommand('cmd_markAsUnread');"/>
     <key id="key_toggleFlagged" key="&markFlaggedCmd.key;"
          oncommand="goDoCommand('cmd_markAsFlagged');"/>
