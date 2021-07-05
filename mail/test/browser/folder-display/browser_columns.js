@@ -24,10 +24,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  plan_for_observable_event,
-  wait_for_observable_event,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // needed to zero inter-folder processing delay
@@ -430,8 +426,11 @@ add_task(async function test_reset_to_inbox() {
 });
 
 async function _apply_to_folder_common(aChildrenToo, folder) {
+  let notificatonPromise;
   if (aChildrenToo) {
-    plan_for_observable_event("msg-folder-columns-propagated");
+    notificatonPromise = TestUtils.topicObserved(
+      "msg-folder-columns-propagated"
+    );
   }
 
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
@@ -448,8 +447,8 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
   ]);
   await dialogPromise;
 
-  if (aChildrenToo) {
-    wait_for_observable_event("msg-folder-columns-propagated");
+  if (notificatonPromise) {
+    await notificatonPromise;
   }
 }
 

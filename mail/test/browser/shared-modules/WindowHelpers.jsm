@@ -17,8 +17,6 @@ const EXPORTED_SYMBOLS = [
   "wait_for_window_focused",
   "wait_for_browser_load",
   "wait_for_frame_load",
-  "plan_for_observable_event",
-  "wait_for_observable_event",
   "resize_to",
   "augment_controller",
 ];
@@ -816,48 +814,6 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
     return augment_controller(new controller.MozMillController(contentWindow));
   }
   return null;
-}
-
-var observationWaitFuncs = {};
-var observationSaw = {};
-/**
- * Plan for a notification to be sent via the observer service.
- *
- * @param aTopic The topic that will be sent via the observer service.
- */
-function plan_for_observable_event(aTopic) {
-  mark_action("fdh", "plan_for_observable_event", [aTopic]);
-  observationSaw[aTopic] = false;
-  let waiter = (observationWaitFuncs[aTopic] = {
-    observe() {
-      mark_action("winhelp", "observed event", [aTopic]);
-      observationSaw[aTopic] = true;
-    },
-  });
-  Services.obs.addObserver(waiter, aTopic);
-}
-
-/**
- * Wait for a notification (previously planned for via
- *  |plan_for_observable_event|) to fire.
- *
- * @param aTopic The topic sent via the observer service.
- */
-function wait_for_observable_event(aTopic) {
-  mark_action("fdh", "wait_for_observable_event", [aTopic]);
-  try {
-    function areWeThereYet() {
-      return observationSaw[aTopic];
-    }
-    utils.waitFor(
-      areWeThereYet,
-      "Timed out waiting for notification: " + aTopic
-    );
-  } finally {
-    Services.obs.removeObserver(observationWaitFuncs[aTopic], aTopic);
-    delete observationWaitFuncs[aTopic];
-    delete observationSaw[aTopic];
-  }
 }
 
 /**
