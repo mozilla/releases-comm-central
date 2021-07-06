@@ -164,6 +164,6 @@ tabmail > tabbox > tabpanels {
   padding-right: 10px;
 }
 
-.contentTabUrlbar > .input-inline {
+.contentTabUrlbarInput {
   background-image: none;
 }

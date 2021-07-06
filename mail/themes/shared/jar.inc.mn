@@ -235,6 +235,7 @@
   skin/classic/messenger/icons/nextmsg.svg                    (../shared/mail/icons/nextmsg.svg)
   skin/classic/messenger/icons/nextunread.svg                 (../shared/mail/icons/nextunread.svg)
   skin/classic/messenger/icons/notloading.png                 (../shared/mail/icons/notloading.png)
+  skin/classic/messenger/icons/notloading@2x.png              (../shared/mail/icons/notloading@2x.png)
   skin/classic/messenger/icons/number-list.svg                (../shared/mail/icons/number-list.svg)
   skin/classic/messenger/icons/offline.svg                    (../shared/mail/icons/offline.svg)
   skin/classic/messenger/icons/online.svg                     (../shared/mail/icons/online.svg)

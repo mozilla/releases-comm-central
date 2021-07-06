@@ -932,7 +932,7 @@ var specialTabs = {
       aTab.securityIcon = new SecurityIcon(
         aTab.toolbar.querySelector(".contentTabSecurity")
       );
-      aTab.urlbar = aTab.toolbar.querySelector(".contentTabUrlbar > input");
+      aTab.urlbar = aTab.toolbar.querySelector(".contentTabUrlInput");
       aTab.urlbar.value = aArgs.url;
 
       // As we're opening this tab, showTab may not get called, so set

@@ -949,11 +949,16 @@ toolbarpaletteitem toolbarbutton {
 
 #throbber-box {
   margin: 0 3px;
+  /* Allow image to be center aligned vertically (when in the toolbar) or
+   * horizontally (when in the customize toolbar dialog). */
+  display: grid;
 }
 
 #throbber-box img {
   width: 16px;
   height: 16px;
+  align-self: center;
+  justify-self: center;
 }
 
 #throbber-box:not([busy="true"]) .animated-throbber-icon {

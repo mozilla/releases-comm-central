@@ -387,21 +387,31 @@
   display: none;
 }
 
-/* Both rules are needed to work properly when re-activating the window */
-.contentTabUrlbar:-moz-window-inactive,
-.contentTabUrlbar:-moz-window-inactive::selection {
-  background-color: transparent;
-  color: inherit;
+.contentTabAddress {
+  display: flex;
+  align-items: center;
+}
+
+.contentTabAddress > .contentTabSecurity {
+  flex: 0 0 auto;
+}
+
+.contentTabAddress > .contentTabUrlInput {
+  flex: 1 1 auto;
 }
 
 .contentTabSecurity {
-  position: relative;
   height: 16px;
   width: 16px;
-  margin: 2px;
-  margin-inline-end: 5px;
   -moz-context-properties: fill;
   fill: currentColor;
+  /* Position within the input. */
+  position: relative;
+  /* Make sure we take up no width in the flow. */
+  margin-inline-end: -16px;
+  /* Move within the input. Input has a margin of 3px and border of 1px, so this
+   * is 5px within. */
+  left: 9px;
 }
 
 .contentTabSecurity.secure-connection-icon {
@@ -412,28 +422,20 @@
   display: none;
 }
 
+.contentTabSecurity[src] + .contentTabUrlInput {
+  /* 5px before the icon + 16px width + 4px after. */
+  padding-inline-start: 25px;
+}
+
+.contentTabSecurity:not([src]) + .contentTabUrlInput {
+  padding-inline-start: 4px;
+}
+
 @media (min-resolution: 1.1dppx) {
   #security-button[loading="true"] {
     background-image: url("chrome://global/skin/icons/loading@2x.png");
     background-size: 16px;
   }
-}
-
-.contentTabAddress {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-.contentTabUrlbar {
-  max-width: 100%;
-}
-
-.contentTabSecurity:not([hidden="true"]) + .contentTabUrlbar {
-  margin-inline-start: -30px;
-}
-
-.contentTabSecurity:not([hidden="true"]) + .contentTabUrlbar > .input-inline {
-  padding-inline-start: 25px;
 }
 
 .nav-button {
