@@ -32,7 +32,7 @@ add_task(async function testMinimonthsFillAvailableSpaceOnResize() {
   let targetDate = cal.createDateTime("20201201T000001Z");
   window.goToDate(targetDate);
 
-  let newEventBtn = window.document.querySelector("#calendar-newevent-button");
+  let newEventBtn = document.querySelector("#calendar-newevent-button");
   let getEventWin = CalendarTestUtils.waitForEventDialog("edit");
   EventUtils.synthesizeMouseAtCenter(newEventBtn, {});
 

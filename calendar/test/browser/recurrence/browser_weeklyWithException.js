@@ -30,13 +30,13 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await goToDate(window, 2009, 1, 5);
 
   // Create weekly recurring event.
-  let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
+  let eventBox = dayView.getHourBoxAt(window, HOUR);
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
   await saveAndCloseItemDialog(dialogWindow);
 
   // Move 5th January occurrence to 6th January.
-  ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrenceAt(controller.window, 1));
+  ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrenceAt(window, 1));
   await setData(dialogWindow, iframeWindow, {
     title: TITLE,
     startdate: STARTDATE,
@@ -45,11 +45,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await saveAndCloseItemDialog(dialogWindow);
 
   await goToDate(window, 2009, 1, 6);
-  await dayView.waitForEventBoxAt(controller.window, 1);
+  await dayView.waitForEventBoxAt(window, 1);
 
   // Change recurrence rule.
   await goToDate(window, 2009, 1, 7);
-  ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrencesAt(controller.window, 1));
+  ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrencesAt(window, 1));
   await setData(dialogWindow, iframeWindow, {
     title: "Event",
     repeat: changeRecurrence,
@@ -61,117 +61,117 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await CalendarTestUtils.setCalendarView(window, "day");
 
   await goToDate(window, 2009, 1, 5);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
 
   await CalendarTestUtils.calendarViewForward(window, 1);
 
   // Assert exactly two.
-  Assert.ok(await dayView.waitForEventBoxAt(controller.window, 1));
-  Assert.ok(await dayView.waitForEventBoxAt(controller.window, 2));
+  Assert.ok(await dayView.waitForEventBoxAt(window, 1));
+  Assert.ok(await dayView.waitForEventBoxAt(window, 2));
 
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForEventBoxAt(controller.window, 1);
+  await dayView.waitForEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForEventBoxAt(controller.window, 1);
+  await dayView.waitForEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
 
   // next week
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForEventBoxAt(controller.window, 1);
+  await dayView.waitForEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForEventBoxAt(controller.window, 1);
+  await dayView.waitForEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForEventBoxAt(controller.window, 1);
+  await dayView.waitForEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForEventBoxAt(controller.window, 1);
+  await dayView.waitForEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
 
   // week view
   await CalendarTestUtils.setCalendarView(window, "week");
   await goToDate(window, 2009, 1, 5);
 
   // Assert exactly two on Tuesday.
-  Assert.ok(await weekView.waitForEventBoxAt(controller.window, 3, 1));
-  Assert.ok(await weekView.waitForEventBoxAt(controller.window, 3, 2));
+  Assert.ok(await weekView.waitForEventBoxAt(window, 3, 1));
+  Assert.ok(await weekView.waitForEventBoxAt(window, 3, 2));
 
   // Wait for the last occurrence because this appears last.
-  await weekView.waitForEventBoxAt(controller.window, 6, 1);
-  Assert.ok(!weekView.getEventBoxAt(controller.window, 1, 1));
-  Assert.ok(!weekView.getEventBoxAt(controller.window, 2, 1));
-  Assert.ok(weekView.getEventBoxAt(controller.window, 4, 1));
-  Assert.ok(!weekView.getEventBoxAt(controller.window, 5, 1));
-  Assert.ok(!weekView.getEventBoxAt(controller.window, 7, 1));
+  await weekView.waitForEventBoxAt(window, 6, 1);
+  Assert.ok(!weekView.getEventBoxAt(window, 1, 1));
+  Assert.ok(!weekView.getEventBoxAt(window, 2, 1));
+  Assert.ok(weekView.getEventBoxAt(window, 4, 1));
+  Assert.ok(!weekView.getEventBoxAt(window, 5, 1));
+  Assert.ok(!weekView.getEventBoxAt(window, 7, 1));
 
   await CalendarTestUtils.calendarViewForward(window, 1);
-  await weekView.waitForEventBoxAt(controller.window, 6, 1);
-  Assert.ok(!weekView.getEventBoxAt(controller.window, 1, 1));
-  Assert.ok(weekView.getEventBoxAt(controller.window, 2, 1));
-  Assert.ok(weekView.getEventBoxAt(controller.window, 3, 1));
-  Assert.ok(weekView.getEventBoxAt(controller.window, 4, 1));
-  Assert.ok(!weekView.getEventBoxAt(controller.window, 5, 1));
-  Assert.ok(!weekView.getEventBoxAt(controller.window, 7, 1));
+  await weekView.waitForEventBoxAt(window, 6, 1);
+  Assert.ok(!weekView.getEventBoxAt(window, 1, 1));
+  Assert.ok(weekView.getEventBoxAt(window, 2, 1));
+  Assert.ok(weekView.getEventBoxAt(window, 3, 1));
+  Assert.ok(weekView.getEventBoxAt(window, 4, 1));
+  Assert.ok(!weekView.getEventBoxAt(window, 5, 1));
+  Assert.ok(!weekView.getEventBoxAt(window, 7, 1));
 
   // multiweek view
   await CalendarTestUtils.setCalendarView(window, "multiweek");
   await goToDate(window, 2009, 1, 5);
   // Wait for the first items, then check the ones not to be present.
   // Assert exactly two.
-  await multiweekView.waitForItemAt(controller.window, 1, 3, 1, 1);
-  Assert.ok(multiweekView.getItemAt(controller.window, 1, 3, 2, 1));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 3, 3, 1));
+  await multiweekView.waitForItemAt(window, 1, 3, 1, 1);
+  Assert.ok(multiweekView.getItemAt(window, 1, 3, 2, 1));
+  Assert.ok(!multiweekView.getItemAt(window, 1, 3, 3, 1));
   // Then check no item on the 5th.
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 2, 1));
-  Assert.ok(multiweekView.getItemAt(controller.window, 1, 4, 1));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 5, 1));
-  Assert.ok(multiweekView.getItemAt(controller.window, 1, 6, 1));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7, 1));
+  Assert.ok(!multiweekView.getItemAt(window, 1, 2, 1));
+  Assert.ok(multiweekView.getItemAt(window, 1, 4, 1));
+  Assert.ok(!multiweekView.getItemAt(window, 1, 5, 1));
+  Assert.ok(multiweekView.getItemAt(window, 1, 6, 1));
+  Assert.ok(!multiweekView.getItemAt(window, 1, 7, 1));
 
-  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 1, 1));
-  Assert.ok(multiweekView.getItemAt(controller.window, 2, 2, 1));
-  Assert.ok(multiweekView.getItemAt(controller.window, 2, 3, 1));
-  Assert.ok(multiweekView.getItemAt(controller.window, 2, 4, 1));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 5, 1));
-  Assert.ok(multiweekView.getItemAt(controller.window, 2, 6, 1));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 7, 1));
+  Assert.ok(!multiweekView.getItemAt(window, 2, 1, 1));
+  Assert.ok(multiweekView.getItemAt(window, 2, 2, 1));
+  Assert.ok(multiweekView.getItemAt(window, 2, 3, 1));
+  Assert.ok(multiweekView.getItemAt(window, 2, 4, 1));
+  Assert.ok(!multiweekView.getItemAt(window, 2, 5, 1));
+  Assert.ok(multiweekView.getItemAt(window, 2, 6, 1));
+  Assert.ok(!multiweekView.getItemAt(window, 2, 7, 1));
 
   // month view
   await CalendarTestUtils.setCalendarView(window, "month");
   // Wait for the first items, then check the ones not to be present.
   // Assert exactly two.
   // start on the second week
-  await monthView.waitForItemAt(controller.window, 2, 3, 1);
-  Assert.ok(monthView.getItemAt(controller.window, 2, 3, 2));
-  Assert.ok(!monthView.getItemAt(controller.window, 2, 3, 3));
+  await monthView.waitForItemAt(window, 2, 3, 1);
+  Assert.ok(monthView.getItemAt(window, 2, 3, 2));
+  Assert.ok(!monthView.getItemAt(window, 2, 3, 3));
   // Then check no item on the 5th.
-  Assert.ok(!monthView.getItemAt(controller.window, 2, 2, 1));
-  Assert.ok(monthView.getItemAt(controller.window, 2, 4, 1));
-  Assert.ok(!monthView.getItemAt(controller.window, 2, 5, 1));
-  Assert.ok(monthView.getItemAt(controller.window, 2, 6, 1));
-  Assert.ok(!monthView.getItemAt(controller.window, 2, 7, 1));
+  Assert.ok(!monthView.getItemAt(window, 2, 2, 1));
+  Assert.ok(monthView.getItemAt(window, 2, 4, 1));
+  Assert.ok(!monthView.getItemAt(window, 2, 5, 1));
+  Assert.ok(monthView.getItemAt(window, 2, 6, 1));
+  Assert.ok(!monthView.getItemAt(window, 2, 7, 1));
 
-  Assert.ok(!monthView.getItemAt(controller.window, 3, 1, 1));
-  Assert.ok(monthView.getItemAt(controller.window, 3, 2, 1));
-  Assert.ok(monthView.getItemAt(controller.window, 3, 3, 1));
-  Assert.ok(monthView.getItemAt(controller.window, 3, 4, 1));
-  Assert.ok(!monthView.getItemAt(controller.window, 3, 5, 1));
-  Assert.ok(monthView.getItemAt(controller.window, 3, 6, 1));
-  Assert.ok(!monthView.getItemAt(controller.window, 3, 7, 1));
+  Assert.ok(!monthView.getItemAt(window, 3, 1, 1));
+  Assert.ok(monthView.getItemAt(window, 3, 2, 1));
+  Assert.ok(monthView.getItemAt(window, 3, 3, 1));
+  Assert.ok(monthView.getItemAt(window, 3, 4, 1));
+  Assert.ok(!monthView.getItemAt(window, 3, 5, 1));
+  Assert.ok(monthView.getItemAt(window, 3, 6, 1));
+  Assert.ok(!monthView.getItemAt(window, 3, 7, 1));
 
   // Delete event.
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 12);
-  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
+  eventBox = await dayView.waitForEventBoxAt(window, 1);
   controller.click(eventBox);
   handleOccurrencePrompt(controller, eventBox, "delete", true);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

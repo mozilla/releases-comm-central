@@ -153,7 +153,7 @@ function getPersistedValue(which) {
 }
 
 function checkWithinTolerance(value, expected, tolerance = 1) {
-  if (controller.window.devicePixelRatio == 1) {
+  if (window.devicePixelRatio == 1) {
     Assert.equal(value, expected);
     return;
   }

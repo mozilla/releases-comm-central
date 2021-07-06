@@ -45,8 +45,8 @@ add_task(async function testTaskDeletion() {
   await calendar.addItem(task2);
   await openTasksTab();
 
-  let tree = window.document.querySelector("#calendar-task-tree");
-  let radio = window.document.querySelector("#opt_next7days_filter");
+  let tree = document.querySelector("#calendar-task-tree");
+  let radio = document.querySelector("#opt_next7days_filter");
   let waitForRefresh = BrowserTestUtils.waitForEvent(tree, "refresh");
   EventUtils.synthesizeMouseAtCenter(radio, {});
   tree.refresh();
@@ -63,7 +63,7 @@ add_task(async function testTaskDeletion() {
   await new Promise(r => setTimeout(r));
 
   await TestUtils.waitForCondition(() => {
-    tree = window.document.querySelector("#calendar-task-tree");
+    tree = document.querySelector("#calendar-task-tree");
     return tree.view.rowCount == 1;
   }, `task view displays ${tree.view.rowCount} tasks instead of 1`);
 
@@ -100,8 +100,8 @@ add_task(async function testRecurringTaskDeletion() {
 
   await openTasksTab();
 
-  let tree = window.document.querySelector("#calendar-task-tree");
-  let radio = window.document.querySelector("#opt_next7days_filter");
+  let tree = document.querySelector("#calendar-task-tree");
+  let radio = document.querySelector("#opt_next7days_filter");
   let waitForRefresh = BrowserTestUtils.waitForEvent(tree, "refresh");
   EventUtils.synthesizeMouseAtCenter(radio, {});
   tree.refresh();
@@ -131,7 +131,7 @@ add_task(async function testRecurringTaskDeletion() {
   await new Promise(r => setTimeout(r));
 
   await TestUtils.waitForCondition(() => {
-    tree = window.document.querySelector("#calendar-task-tree");
+    tree = document.querySelector("#calendar-task-tree");
     return tree.view.rowCount == 3;
   }, `task view displays ${tree.view.rowCount} tasks instead of 3`);
 
@@ -180,7 +180,7 @@ add_task(async function testRecurringTaskDeletion() {
   await new Promise(r => setTimeout(r));
 
   await TestUtils.waitForCondition(() => {
-    tree = window.document.querySelector("#calendar-task-tree");
+    tree = document.querySelector("#calendar-task-tree");
     return tree.view.rowCount == 1;
   }, `task view displays ${tree.view.rowCount} tasks instead of 1`);
 

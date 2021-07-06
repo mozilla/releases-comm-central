@@ -29,7 +29,7 @@ add_task(async function testWeeklyUntilRecurrence() {
   await goToDate(window, 2009, 1, 5); // Monday
 
   // Create weekly recurring event.
-  let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
+  let eventBox = dayView.getHourBoxAt(window, HOUR);
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
   await saveAndCloseItemDialog(dialogWindow);
@@ -37,63 +37,63 @@ add_task(async function testWeeklyUntilRecurrence() {
   // Check day view.
   for (let week = 0; week < 3; week++) {
     // Monday
-    await dayView.waitForEventBoxAt(controller.window, 1);
+    await dayView.waitForEventBoxAt(window, 1);
     await CalendarTestUtils.calendarViewForward(window, 2);
 
     // Wednesday
-    await dayView.waitForEventBoxAt(controller.window, 1);
+    await dayView.waitForEventBoxAt(window, 1);
     await CalendarTestUtils.calendarViewForward(window, 2);
 
     // Friday
-    await dayView.waitForEventBoxAt(controller.window, 1);
+    await dayView.waitForEventBoxAt(window, 1);
     await CalendarTestUtils.calendarViewForward(window, 3);
   }
 
   // Monday, last occurrence
-  await dayView.waitForEventBoxAt(controller.window, 1);
+  await dayView.waitForEventBoxAt(window, 1);
   await CalendarTestUtils.calendarViewForward(window, 2);
 
   // Wednesday
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
 
   // Check week view.
   await CalendarTestUtils.setCalendarView(window, "week");
   await goToDate(window, 2009, 1, 5);
   for (let week = 0; week < 3; week++) {
     // Monday
-    await weekView.waitForEventBoxAt(controller.window, 2, 1);
+    await weekView.waitForEventBoxAt(window, 2, 1);
 
     // Wednesday
-    await weekView.waitForEventBoxAt(controller.window, 4, 1);
+    await weekView.waitForEventBoxAt(window, 4, 1);
 
     // Friday
-    await weekView.waitForEventBoxAt(controller.window, 6, 1);
+    await weekView.waitForEventBoxAt(window, 6, 1);
 
     await CalendarTestUtils.calendarViewForward(window, 1);
   }
 
   // Monday, last occurrence
-  await weekView.waitForEventBoxAt(controller.window, 2, 1);
+  await weekView.waitForEventBoxAt(window, 2, 1);
   // Wednesday
-  await weekView.waitForNoEventBoxAt(controller.window, 4, 1);
+  await weekView.waitForNoEventBoxAt(window, 4, 1);
 
   // Check multiweek view.
   await CalendarTestUtils.setCalendarView(window, "multiweek");
   await goToDate(window, 2009, 1, 5);
   for (let week = 1; week < 4; week++) {
     // Monday
-    await multiweekView.waitForItemAt(controller.window, week, 2, 1);
+    await multiweekView.waitForItemAt(window, week, 2, 1);
     // Wednesday
-    await multiweekView.waitForItemAt(controller.window, week, 4, 1);
+    await multiweekView.waitForItemAt(window, week, 4, 1);
     // Friday
-    await multiweekView.waitForItemAt(controller.window, week, 6, 1);
+    await multiweekView.waitForItemAt(window, week, 6, 1);
   }
 
   // Monday, last occurrence
-  await multiweekView.waitForItemAt(controller.window, 4, 2, 1);
+  await multiweekView.waitForItemAt(window, 4, 2, 1);
 
   // Wednesday
-  await multiweekView.waitForNoItemAt(controller.window, 4, 4, 1);
+  await multiweekView.waitForNoItemAt(window, 4, 4, 1);
 
   // Check month view.
   await CalendarTestUtils.setCalendarView(window, "month");
@@ -101,24 +101,24 @@ add_task(async function testWeeklyUntilRecurrence() {
   // starts on week 2 in month-view
   for (let week = 2; week < 5; week++) {
     // Monday
-    await monthView.waitForItemAt(controller.window, week, 2, 1);
+    await monthView.waitForItemAt(window, week, 2, 1);
     // Wednesday
-    await monthView.waitForItemAt(controller.window, week, 4, 1);
+    await monthView.waitForItemAt(window, week, 4, 1);
     // Friday
-    await monthView.waitForItemAt(controller.window, week, 6, 1);
+    await monthView.waitForItemAt(window, week, 6, 1);
   }
 
   // Monday, last occurrence
-  await monthView.waitForItemAt(controller.window, 5, 2, 1);
+  await monthView.waitForItemAt(window, 5, 2, 1);
 
   // Wednesday
-  await monthView.waitForNoItemAt(controller.window, 5, 4, 1);
+  await monthView.waitForNoItemAt(window, 5, 4, 1);
 
   // Delete event.
-  let box = monthView.getItemAt(controller.window, 2, 2, 1);
+  let box = monthView.getItemAt(window, 2, 2, 1);
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
-  await monthView.waitForNoItemAt(controller.window, 2, 2, 1);
+  await monthView.waitForNoItemAt(window, 2, 2, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

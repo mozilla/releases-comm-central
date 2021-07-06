@@ -31,7 +31,7 @@ add_task(async function testMonthView() {
 
   // Verify date.
   await TestUtils.waitForCondition(() => {
-    let dateLabel = controller.window.document.querySelector(
+    let dateLabel = document.querySelector(
       '#month-view td[selected="true"] > calendar-month-day-box'
     );
     return dateLabel && dateLabel.mDate.icalString == "20090101";
@@ -40,7 +40,7 @@ add_task(async function testMonthView() {
   // Create event.
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
   let hour = new Date().getUTCHours(); // Remember time at click.
-  let eventBox = CalendarTestUtils.monthView.getDayBox(controller.window, 1, 5);
+  let eventBox = CalendarTestUtils.monthView.getDayBox(window, 1, 5);
   let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
     window,
     eventBox
@@ -69,12 +69,7 @@ add_task(async function testMonthView() {
   await saveAndCloseItemDialog(dialogWindow);
 
   // If it was created successfully, it can be opened.
-  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.monthView.editItemAt(
-    controller.window,
-    1,
-    5,
-    1
-  ));
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.monthView.editItemAt(window, 1, 5, 1));
   // Change title and save changes.
   await setData(dialogWindow, iframeWindow, { title: TITLE2 });
   await saveAndCloseItemDialog(dialogWindow);
@@ -82,7 +77,7 @@ add_task(async function testMonthView() {
   // Check if name was saved.
   let eventName;
   await TestUtils.waitForCondition(() => {
-    eventBox = CalendarTestUtils.monthView.getItemAt(controller.window, 1, 5, 1);
+    eventBox = CalendarTestUtils.monthView.getItemAt(window, 1, 5, 1);
     if (!eventBox) {
       return false;
     }
@@ -95,8 +90,8 @@ add_task(async function testMonthView() {
   // Delete event.
   controller.click(eventBox);
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await CalendarTestUtils.monthView.waitForNoItemAt(controller.window, 1, 5, 1);
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await CalendarTestUtils.monthView.waitForNoItemAt(window, 1, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

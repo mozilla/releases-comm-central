@@ -31,14 +31,12 @@ add_task(async function testDayView() {
 
   // Verify date in view.
   await TestUtils.waitForCondition(() => {
-    let dateLabel = controller.window.document.querySelector(
-      "#day-view .labeldaybox calendar-day-label"
-    );
+    let dateLabel = document.querySelector("#day-view .labeldaybox calendar-day-label");
     return dateLabel && dateLabel.mDate.icalString == "20090101";
   }, "Inspecting the date");
 
   // Create event at 8 AM.
-  let eventBox = CalendarTestUtils.dayView.getHourBoxAt(controller.window, 8);
+  let eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, 8);
   let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
     window,
     eventBox
@@ -65,17 +63,14 @@ add_task(async function testDayView() {
   await saveAndCloseItemDialog(dialogWindow);
 
   // If it was created successfully, it can be opened.
-  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.dayView.editEventAt(
-    controller.window,
-    1
-  ));
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.dayView.editEventAt(window, 1));
   await setData(dialogWindow, iframeWindow, { title: TITLE2 });
   await saveAndCloseItemDialog(dialogWindow);
 
   await CalendarTestUtils.ensureViewLoaded(window);
 
   // Check if name was saved.
-  eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(controller.window, 1);
+  eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
   let eventName = eventBox.querySelector(".event-name-label");
 
   Assert.ok(eventName);
@@ -84,8 +79,8 @@ add_task(async function testDayView() {
   // Delete event
   controller.click(eventBox);
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await CalendarTestUtils.dayView.waitForNoEventBoxAt(controller.window, 1);
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await CalendarTestUtils.dayView.waitForNoEventBoxAt(window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

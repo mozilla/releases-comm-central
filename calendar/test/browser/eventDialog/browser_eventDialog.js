@@ -46,7 +46,7 @@ add_task(async function testEventDialog() {
 
   // Open month view.
   await CalendarTestUtils.setCalendarView(window, "month");
-  firstDay = controller.window.currentView().startDay;
+  firstDay = window.currentView().startDay;
   dump(`First day in view is: ${firstDay.year}-${firstDay.month + 1}-${firstDay.day}\n`);
 
   // Setup start- & endTime.
@@ -69,7 +69,7 @@ add_task(async function testEventDialog() {
   let endTime = cal.dtz.formatter.formatTime(nextHour);
 
   // Create new event on first day in view.
-  controller.click(monthView.getDayBox(controller.window, 1, 1));
+  controller.click(monthView.getDayBox(window, 1, 1));
 
   let {
     dialogWindow,
@@ -156,45 +156,45 @@ add_task(async function testEventDialog() {
   // Verify event and alarm icon visible until endDate (3 full rows) and check tooltip.
   for (let row = 1; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      await monthView.waitForItemAt(controller.window, row, col, 1);
+      await monthView.waitForItemAt(window, row, col, 1);
       checkMonthAlarmIcon(controller, row, col);
       checkTooltip(row, col, startTime, endTime);
     }
   }
-  Assert.ok(!monthView.getItemAt(controller.window, 4, 1, 1));
+  Assert.ok(!monthView.getItemAt(window, 4, 1, 1));
 
   // Delete and verify deleted 6th col in row 1.
-  controller.click(monthView.getItemAt(controller.window, 1, 6, 1));
-  let elemToDelete = controller.window.document.getElementById("month-view");
+  controller.click(monthView.getItemAt(window, 1, 6, 1));
+  let elemToDelete = document.getElementById("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", false);
 
-  await monthView.waitForNoItemAt(controller.window, 1, 6, 1);
+  await monthView.waitForNoItemAt(window, 1, 6, 1);
 
   // Verify all others still exist.
   for (let col = 1; col <= 5; col++) {
-    Assert.ok(monthView.getItemAt(controller.window, 1, col, 1));
+    Assert.ok(monthView.getItemAt(window, 1, col, 1));
   }
-  Assert.ok(monthView.getItemAt(controller.window, 1, 7, 1));
+  Assert.ok(monthView.getItemAt(window, 1, 7, 1));
 
   for (let row = 2; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      Assert.ok(monthView.getItemAt(controller.window, row, col, 1));
+      Assert.ok(monthView.getItemAt(window, row, col, 1));
     }
   }
 
   // Delete series by deleting last item in row 1 and confirming to delete all.
-  controller.click(monthView.getItemAt(controller.window, 1, 7, 1));
-  elemToDelete = controller.window.document.getElementById("month-view");
+  controller.click(monthView.getItemAt(window, 1, 7, 1));
+  elemToDelete = document.getElementById("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", true);
 
   // Verify all deleted.
-  await monthView.waitForNoItemAt(controller.window, 1, 5, 1);
-  await monthView.waitForNoItemAt(controller.window, 1, 6, 1);
-  await monthView.waitForNoItemAt(controller.window, 1, 7, 1);
+  await monthView.waitForNoItemAt(window, 1, 5, 1);
+  await monthView.waitForNoItemAt(window, 1, 6, 1);
+  await monthView.waitForNoItemAt(window, 1, 7, 1);
 
   for (let row = 2; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      await monthView.waitForNoItemAt(controller.window, row, col, 1);
+      await monthView.waitForNoItemAt(window, row, col, 1);
     }
   }
 
@@ -208,7 +208,7 @@ add_task(async function testOpenExistingEventDialog() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
 
-  let createBox = dayView.getHourBoxAt(controller.window, 8);
+  let createBox = dayView.getHourBoxAt(window, 8);
 
   // Create a new event.
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
@@ -219,7 +219,7 @@ add_task(async function testOpenExistingEventDialog() {
   });
   await saveAndCloseItemDialog(dialogWindow);
 
-  let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
+  let eventBox = await dayView.waitForEventBoxAt(window, 1);
 
   // Open the event in the summary dialog, it will fail if otherwise.
   let eventWin = await CalendarTestUtils.viewItem(window, eventBox);
@@ -239,8 +239,8 @@ add_task(async function testOpenExistingEventDialog() {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWin);
 
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await dayView.waitForNoEventBoxAt(window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });
@@ -251,7 +251,7 @@ add_task(async function testEventReminderDisplay() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2020, 1, 1);
 
-  let createBox = dayView.getHourBoxAt(controller.window, 8);
+  let createBox = dayView.getHourBoxAt(window, 8);
 
   // Create an event without a reminder.
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
@@ -262,7 +262,7 @@ add_task(async function testEventReminderDisplay() {
   });
   await saveAndCloseItemDialog(dialogWindow);
 
-  let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
+  let eventBox = await dayView.waitForEventBoxAt(window, 1);
 
   let eventWindow = await CalendarTestUtils.viewItem(window, eventBox);
   let doc = eventWindow.document;
@@ -271,7 +271,7 @@ add_task(async function testEventReminderDisplay() {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
 
   await goToDate(window, 2020, 2, 1);
-  createBox = dayView.getHourBoxAt(controller.window, 8);
+  createBox = dayView.getHourBoxAt(window, 8);
 
   // Create an event with a reminder.
   ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox));
@@ -283,7 +283,7 @@ add_task(async function testEventReminderDisplay() {
   });
   await saveAndCloseItemDialog(dialogWindow);
 
-  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
+  eventBox = await dayView.waitForEventBoxAt(window, 1);
   eventWindow = await CalendarTestUtils.viewItem(window, eventBox);
   doc = eventWindow.document;
   row = doc.querySelector(".reminder-row");
@@ -328,7 +328,7 @@ add_task(async function testEventReminderDisplay() {
   let calendarProxy = cal.async.promisifyCalendar(calendar);
   let calendarEvent = await calendarProxy.addItem(new CalEvent(icalString));
   await goToDate(window, 2020, 3, 1);
-  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
+  eventBox = await dayView.waitForEventBoxAt(window, 1);
 
   eventWindow = await CalendarTestUtils.viewItem(window, eventBox);
   doc = eventWindow.document;
@@ -340,7 +340,7 @@ add_task(async function testEventReminderDisplay() {
 
   // Delete directly, as using the UI causes a prompt to appear.
   calendarProxy.deleteItem(calendarEvent);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  await dayView.waitForNoEventBoxAt(window, 1);
 });
 
 /**
@@ -352,7 +352,7 @@ add_task(async function testCtrlEnterShortcut() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2020, 9, 1);
 
-  let createBox = dayView.getHourBoxAt(controller.window, 8);
+  let createBox = dayView.getHourBoxAt(window, 8);
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
   await setData(dialogWindow, iframeWindow, {
     title: EVENTTITLE,
@@ -369,18 +369,18 @@ add_task(async function testCtrlEnterShortcut() {
   let events = document.querySelectorAll("calendar-month-day-box-item");
   Assert.equal(events.length, 1, "event was created once");
 
-  if (Services.focus.activeWindow != controller.window) {
-    await BrowserTestUtils.waitForEvent(controller.window, "focus");
+  if (Services.focus.activeWindow != window) {
+    await BrowserTestUtils.waitForEvent(window, "focus");
   }
 
   events[0].focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
 });
 
 function checkTooltip(row, col, startTime, endTime) {
-  let item = monthView.getItemAt(controller.window, row, col, 1);
+  let item = monthView.getItemAt(window, row, col, 1);
 
-  let toolTipNode = window.document.getElementById("itemTooltip");
+  let toolTipNode = document.getElementById("itemTooltip");
   toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item });
 
   function getDescription(index) {

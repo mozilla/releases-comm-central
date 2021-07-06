@@ -65,9 +65,7 @@ add_task(async function testDropMozMessage() {
 
   let promise = CalendarTestUtils.waitForEventDialog("edit");
   await ensureTodayPane();
-  window.document
-    .querySelector("#agenda-listbox")
-    .dispatchEvent(new DragEvent("drop", { dataTransfer }));
+  document.querySelector("#agenda-listbox").dispatchEvent(new DragEvent("drop", { dataTransfer }));
 
   let eventWindow = await promise;
   let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
@@ -118,9 +116,7 @@ add_task(async function testMozAddressDrop() {
 
   let promise = CalendarTestUtils.waitForEventDialog("edit");
   await ensureTodayPane();
-  window.document
-    .querySelector("#agenda-listbox")
-    .dispatchEvent(new DragEvent("drop", { dataTransfer }));
+  document.querySelector("#agenda-listbox").dispatchEvent(new DragEvent("drop", { dataTransfer }));
 
   let eventWindow = await promise;
   let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
@@ -162,9 +158,7 @@ add_task(async function testPlainTextICSDrop() {
 
   let promise = CalendarTestUtils.waitForEventDialog("edit");
   await ensureTodayPane();
-  window.document
-    .querySelector("#agenda-listbox")
-    .dispatchEvent(new DragEvent("drop", { dataTransfer }));
+  document.querySelector("#agenda-listbox").dispatchEvent(new DragEvent("drop", { dataTransfer }));
 
   let eventWindow = await promise;
   let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");
@@ -241,9 +235,7 @@ add_task(async function testOtherFileDrop() {
 
   let promise = CalendarTestUtils.waitForEventDialog("edit");
   await ensureTodayPane();
-  window.document
-    .querySelector("#agenda-listbox")
-    .dispatchEvent(new DragEvent("drop", { dataTransfer }));
+  document.querySelector("#agenda-listbox").dispatchEvent(new DragEvent("drop", { dataTransfer }));
 
   let eventWindow = await promise;
   let iframe = eventWindow.document.querySelector("#calendar-item-panel-iframe");

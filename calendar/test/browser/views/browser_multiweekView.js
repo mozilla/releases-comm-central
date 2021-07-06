@@ -31,7 +31,7 @@ add_task(async function setupModule(module) {
 
   // Verify date.
   await TestUtils.waitForCondition(() => {
-    let dateLabel = controller.window.document.querySelector(
+    let dateLabel = document.querySelector(
       '#multiweek-view td[selected="true"] > calendar-month-day-box'
     );
     return dateLabel && dateLabel.mDate.icalString == "20090101";
@@ -40,7 +40,7 @@ add_task(async function setupModule(module) {
   // Create event.
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
   let hour = new Date().getUTCHours(); // Remember time at click.
-  let eventBox = CalendarTestUtils.multiweekView.getDayBox(controller.window, 1, 5);
+  let eventBox = CalendarTestUtils.multiweekView.getDayBox(window, 1, 5);
   let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
     window,
     eventBox
@@ -70,7 +70,7 @@ add_task(async function setupModule(module) {
 
   // If it was created successfully, it can be opened.
   ({ dialogWindow, iframeWindow } = await CalendarTestUtils.multiweekView.editItemAt(
-    controller.window,
+    window,
     1,
     5,
     1
@@ -81,7 +81,7 @@ add_task(async function setupModule(module) {
 
   // Check if name was saved.
   await TestUtils.waitForCondition(() => {
-    eventBox = CalendarTestUtils.multiweekView.getItemAt(controller.window, 1, 5, 1);
+    eventBox = CalendarTestUtils.multiweekView.getItemAt(window, 1, 5, 1);
     if (eventBox === null) {
       return false;
     }
@@ -92,8 +92,8 @@ add_task(async function setupModule(module) {
   // Delete event.
   controller.click(eventBox);
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await CalendarTestUtils.multiweekView.waitForNoItemAt(controller.window, 1, 5, 1);
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 1, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

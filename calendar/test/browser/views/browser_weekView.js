@@ -31,15 +31,13 @@ add_task(async function testWeekView() {
 
   // Verify date.
   await TestUtils.waitForCondition(() => {
-    let dateLabel = controller.window.document.querySelector(
-      "#week-view calendar-header-container[selected=true]"
-    );
+    let dateLabel = document.querySelector("#week-view calendar-header-container[selected=true]");
     return dateLabel && dateLabel.mDate.icalString == "20090101";
   }, "Inspecting the date");
 
   // Create event at 8 AM.
   // Thursday of 2009-01-01 is 4th with default settings.
-  let eventBox = CalendarTestUtils.weekView.getHourBoxAt(controller.window, 5, 8);
+  let eventBox = CalendarTestUtils.weekView.getHourBoxAt(window, 5, 8);
   let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
     window,
     eventBox
@@ -66,11 +64,7 @@ add_task(async function testWeekView() {
   await saveAndCloseItemDialog(dialogWindow);
 
   // If it was created successfully, it can be opened.
-  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.weekView.editEventAt(
-    controller.window,
-    5,
-    1
-  ));
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.weekView.editEventAt(window, 5, 1));
   // Change title and save changes.
   await setData(dialogWindow, iframeWindow, { title: TITLE2 });
   await saveAndCloseItemDialog(dialogWindow);
@@ -78,7 +72,7 @@ add_task(async function testWeekView() {
   // Check if name was saved.
   let eventName;
   await TestUtils.waitForCondition(() => {
-    eventBox = CalendarTestUtils.weekView.getEventBoxAt(controller.window, 5, 1);
+    eventBox = CalendarTestUtils.weekView.getEventBoxAt(window, 5, 1);
     if (!eventBox) {
       return false;
     }
@@ -91,8 +85,8 @@ add_task(async function testWeekView() {
   // Delete event.
   controller.click(eventBox);
   eventBox.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await CalendarTestUtils.weekView.waitForNoEventBoxAt(controller.window, 5, 1);
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await CalendarTestUtils.weekView.waitForNoEventBoxAt(window, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

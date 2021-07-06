@@ -30,13 +30,13 @@ add_task(async function testLocalICS() {
   await createCalendarUsingDialog(calendarName, { network: {} });
 
   // Create new event.
-  let box = CalendarTestUtils.dayView.getHourBoxAt(controller.window, HOUR);
+  let box = CalendarTestUtils.dayView.getHourBoxAt(window, HOUR);
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, box);
   await setData(dialogWindow, iframeWindow, { title: calendarName, calendar: calendarName });
   await saveAndCloseItemDialog(dialogWindow);
 
   // Assert presence in view.
-  await CalendarTestUtils.dayView.waitForEventBoxAt(controller.window, 1);
+  await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
   // Verify in file.
   let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(

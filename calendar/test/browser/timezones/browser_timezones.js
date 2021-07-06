@@ -164,7 +164,7 @@ add_task(async function testTimezones3_checkStJohns() {
       [11, 30],
     ],
   ];
-  controller.click(controller.window.document.getElementById("calendar-tab-button"));
+  controller.click(document.getElementById("calendar-tab-button"));
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -257,7 +257,7 @@ add_task(async function testTimezones4_checkCaracas() {
       [11, 0],
     ],
   ];
-  controller.click(controller.window.document.getElementById("calendar-tab-button"));
+  controller.click(document.getElementById("calendar-tab-button"));
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -348,7 +348,7 @@ add_task(async function testTimezones5_checkPhoenix() {
       [8, 0],
     ],
   ];
-  controller.click(controller.window.document.getElementById("calendar-tab-button"));
+  controller.click(document.getElementById("calendar-tab-button"));
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -439,7 +439,7 @@ add_task(async function testTimezones6_checkLosAngeles() {
       [7, 0],
     ],
   ];
-  controller.click(controller.window.document.getElementById("calendar-tab-button"));
+  controller.click(document.getElementById("calendar-tab-button"));
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -530,7 +530,7 @@ add_task(async function testTimezones7_checkBuenosAires() {
       [12, 0],
     ],
   ];
-  controller.click(controller.window.document.getElementById("calendar-tab-button"));
+  controller.click(document.getElementById("calendar-tab-button"));
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -621,7 +621,7 @@ add_task(async function testTimezones8_checkParis() {
       [16, 0],
     ],
   ];
-  controller.click(controller.window.document.getElementById("calendar-tab-button"));
+  controller.click(document.getElementById("calendar-tab-button"));
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -712,7 +712,7 @@ add_task(async function testTimezones9_checkKathmandu() {
       [20, 45],
     ],
   ];
-  controller.click(controller.window.document.getElementById("calendar-tab-button"));
+  controller.click(document.getElementById("calendar-tab-button"));
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -803,7 +803,7 @@ add_task(async function testTimezones10_checkAdelaide() {
       [1, 30, +1],
     ],
   ];
-  controller.click(controller.window.document.getElementById("calendar-tab-button"));
+  controller.click(document.getElementById("calendar-tab-button"));
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -832,7 +832,7 @@ async function verify(dates, timezones, times) {
     for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
       let [correctHour, minutes, day] = selectedTime[tzIdx];
 
-      let timeNode = window.document.querySelector(
+      let timeNode = document.querySelector(
         `#day-view .timebarboxstack > .topbox > box:nth-of-type(${correctHour + 1})`
       );
       Assert.ok(timeNode);
@@ -848,7 +848,7 @@ async function verify(dates, timezones, times) {
         await CalendarTestUtils.calendarViewBackward(window, 1);
       }
 
-      eventNodes = Array.from(CalendarTestUtils.dayView.getEventBoxes(controller.window));
+      eventNodes = Array.from(CalendarTestUtils.dayView.getEventBoxes(window));
       eventNodes = eventNodes
         .filter(node => node.mOccurrence.title == timezones[tzIdx])
         .map(node => node.getBoundingClientRect().y);

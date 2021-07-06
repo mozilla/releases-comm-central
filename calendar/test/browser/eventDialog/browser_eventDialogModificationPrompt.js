@@ -28,7 +28,7 @@ add_task(async function testEventDialogModificationPrompt() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
-  let createbox = dayView.getHourBoxAt(controller.window, 8);
+  let createbox = dayView.getHourBoxAt(window, 8);
 
   // Create new event.
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createbox);
@@ -40,7 +40,7 @@ add_task(async function testEventDialogModificationPrompt() {
   await setData(dialogWindow, iframeWindow, data[0]);
   await saveAndCloseItemDialog(dialogWindow);
 
-  let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
+  let eventbox = await dayView.waitForEventBoxAt(window, 1);
 
   // Open, but change nothing.
   ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItem(window, eventbox));
@@ -49,7 +49,7 @@ add_task(async function testEventDialogModificationPrompt() {
   // Wait to see if the prompt appears.
   controller.sleep(2000);
 
-  eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
+  eventbox = await dayView.waitForEventBoxAt(window, 1);
   // Open, change all values then revert the changes.
   ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItem(window, eventbox));
   // Change all values.
@@ -64,13 +64,13 @@ add_task(async function testEventDialogModificationPrompt() {
   controller.sleep(2000);
 
   // Delete event.
-  controller.window.document.getElementById("day-view").focus();
-  if (controller.window.currentView().getSelectedItems().length == 0) {
+  document.getElementById("day-view").focus();
+  if (window.currentView().getSelectedItems().length == 0) {
     controller.click(eventbox);
   }
   Assert.equal(eventbox.isEditing, false, "event is not being edited");
-  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await dayView.waitForNoEventBoxAt(controller.window, 1);
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await dayView.waitForNoEventBoxAt(window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });
@@ -78,12 +78,12 @@ add_task(async function testEventDialogModificationPrompt() {
 add_task(async function testDescriptionWhitespace() {
   for (let i = 0; i < newlines.length; i++) {
     // test set i
-    let createbox = dayView.getHourBoxAt(controller.window, 8);
+    let createbox = dayView.getHourBoxAt(window, 8);
     let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createbox);
     await setData(dialogWindow, iframeWindow, newlines[i]);
     await saveAndCloseItemDialog(dialogWindow);
 
-    let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
+    let eventbox = await dayView.waitForEventBoxAt(window, 1);
 
     // Open and close.
     ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItem(window, eventbox));
@@ -93,12 +93,12 @@ add_task(async function testDescriptionWhitespace() {
     controller.sleep(2000);
 
     // Delete it.
-    controller.window.document.getElementById("day-view").focus();
-    if (controller.window.currentView().getSelectedItems().length == 0) {
+    document.getElementById("day-view").focus();
+    if (window.currentView().getSelectedItems().length == 0) {
       controller.click(eventbox);
     }
     Assert.equal(eventbox.isEditing, false, "event is not being edited");
-    EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
+    EventUtils.synthesizeKey("VK_DELETE", {}, window);
     await dayView.waitForNoEventBoxAt(window, 1);
   }
 

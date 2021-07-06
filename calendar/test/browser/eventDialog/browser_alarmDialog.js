@@ -31,7 +31,7 @@ add_task(async function testAlarmDialog() {
   await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
   await CalendarTestUtils.calendarViewForward(window, 1);
 
-  let allDayHeader = dayView.getAllDayHeader(controller.window);
+  let allDayHeader = dayView.getAllDayHeader(window);
   Assert.ok(allDayHeader);
   controller.click(allDayHeader);
 
@@ -61,7 +61,7 @@ add_task(async function testAlarmDialog() {
   await alarmPromise;
 
   // Change the reminder duration, this resets the alarm.
-  let eventBox = await dayView.waitForAllDayItemAt(controller.window, 1);
+  let eventBox = await dayView.waitForAllDayItemAt(window, 1);
 
   // Prepare to snooze the alarm.
   alarmPromise = BrowserTestUtils.promiseAlertDialog(

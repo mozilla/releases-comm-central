@@ -91,7 +91,7 @@ async function taskAddUndoRedoTask(undoId, redoId) {
   await CalendarTestUtils.items.setData(win, iframeWin, { title: "New Task" });
   await CalendarTestUtils.items.saveAndCloseItemDialog(win);
 
-  let tree = window.document.querySelector("#calendar-task-tree");
+  let tree = document.querySelector("#calendar-task-tree");
   let refreshPromise = BrowserTestUtils.waitForEvent(tree, "refresh");
   tree.refresh();
   await refreshPromise;
@@ -138,7 +138,7 @@ async function testModifyUndoRedoTask(undoId, redoId) {
   task.entryDate = cal.dtz.now();
   await calendar.addItem(task);
 
-  let tree = window.document.querySelector("#calendar-task-tree");
+  let tree = document.querySelector("#calendar-task-tree");
   let refreshPromise = BrowserTestUtils.waitForEvent(tree, "refresh");
   tree.refresh();
   await refreshPromise;
@@ -195,7 +195,7 @@ async function testDeleteUndoRedoTask(undoId, redoId) {
   task.entryDate = cal.dtz.now();
   await calendar.addItem(task);
 
-  let tree = window.document.querySelector("#calendar-task-tree");
+  let tree = document.querySelector("#calendar-task-tree");
   let refreshPromise = BrowserTestUtils.waitForEvent(tree, "refresh");
   tree.refresh();
   await refreshPromise;
