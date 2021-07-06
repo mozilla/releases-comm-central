@@ -7,6 +7,7 @@ reference-base-path: taskcluster/ci
 
 kind-dependencies:
     - fetch
+    - packages
 
 reference-jobs:
     - linux32-sysroot
