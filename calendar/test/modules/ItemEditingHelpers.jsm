@@ -9,14 +9,15 @@ const EXPORTED_SYMBOLS = [
   "setData",
 ];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 function sleep(window, time = 0) {
   return new Promise(resolve => window.setTimeout(resolve, time));
@@ -341,6 +342,7 @@ async function saveAndCloseItemDialog(dialogWindow) {
     dialogWindow
   );
   await dialogClosing;
+  await new Promise(resolve => setTimeout(resolve));
 }
 
 /**

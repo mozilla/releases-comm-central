@@ -141,20 +141,7 @@ async function runTestAlarms() {
 
   alarmObserver._alarmCount = 0;
 
-  await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      title: "test event",
-      startdate: start,
-      starttime: start,
-      enddate: end,
-      endtime: end,
-      reminder: "2days",
-      repeat: "weekly",
-    });
-
-    await saveAndCloseItemDialog(eventWindow);
-  });
-  await BrowserTestUtils.promiseAlertDialog(
+  let alarmDialogPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://calendar/content/calendar-alarm-dialog.xhtml",
     {
@@ -174,7 +161,20 @@ async function runTestAlarms() {
       },
     }
   );
-  Services.focus.focusedWindow = window;
+  await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, {
+      title: "test event",
+      startdate: start,
+      starttime: start,
+      enddate: end,
+      endtime: end,
+      reminder: "2days",
+      repeat: "weekly",
+    });
+
+    await saveAndCloseItemDialog(eventWindow);
+  });
+  await alarmDialogPromise;
   info("Alarm dialog closed");
 
   await new Promise(r => setTimeout(r, 2000));
