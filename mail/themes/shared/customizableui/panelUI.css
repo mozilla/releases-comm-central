@@ -651,8 +651,8 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   box-shadow: none;
   border-radius: 0;
   -moz-context-properties: fill, stroke;
-  fill: #eed003;
-  stroke: #f68a16;
+  fill: #ffec41;
+  stroke: #d76e00;
 }
 
 .addon-banner-item::after {
