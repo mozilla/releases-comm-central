@@ -542,6 +542,10 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
   }
 
+  :root[sizemode=maximized][tabsintitlebar] #LW-background-box:-moz-lwtheme {
+    top: 8px;
+  }
+
   :root:not([lwt-tree]) #folderTree {
     background-color: #fafafa;
   }
@@ -577,6 +581,10 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 @media (-moz-windows-default-theme: 0) {
   #viewPickerPopup > menu > .menu-text {
     padding-inline-start: 0 !important;
+  }
+
+  :root[sizemode=maximized][tabsintitlebar] #LW-background-box:-moz-lwtheme {
+    top: 4px;
   }
 }
 
