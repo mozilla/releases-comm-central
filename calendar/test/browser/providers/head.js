@@ -204,7 +204,7 @@ async function runTestAlarms() {
 
   Services.focus.focusedWindow = window;
 
-  controller.sleep(2000);
+  await new Promise(resolve => setTimeout(resolve, 2000));
   Assert.equal(
     [...Services.wm.getEnumerator("Calendar:AlarmWindow")].length,
     0,

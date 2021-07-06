@@ -29,7 +29,8 @@ add_task(async function setupModule(module) {
 
   // Open task view.
   controller.click(document.getElementById("task-tab-button"));
-  controller.sleep(MID_SLEEP);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
   // Make sure that testing calendar is selected.
   let calList = document.querySelector(`#calendar-list > [calendar-id="${CALENDARID}"]`);
@@ -46,7 +47,10 @@ add_task(async function setupModule(module) {
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
   // Verify added.
-  controller.waitFor(() => taskTreeNode.mTaskArray.length == 1, "Added Task did not appear");
+  await TestUtils.waitForCondition(
+    () => taskTreeNode.mTaskArray.length == 1,
+    "Added Task did not appear"
+  );
 
   // Last added task is automatically selected so verify detail window data.
   Assert.equal(document.getElementById("calendar-task-details-title").textContent, TITLE);
@@ -88,14 +92,16 @@ add_task(async function setupModule(module) {
 
   // Set high priority and verify it in detail pane.
   controller.click(document.getElementById("task-actions-priority"));
-  controller.sleep(MID_SLEEP);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
   let priorityMenu = document.querySelector(
     "#task-actions-priority-menupopup > .priority-1-menuitem"
   );
   Assert.ok(priorityMenu);
   controller.click(priorityMenu);
-  controller.sleep(MID_SLEEP);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
   Assert.ok(!document.getElementById("calendar-task-details-priority-high").hasAttribute("hidden"));
 
@@ -122,14 +128,18 @@ add_task(async function setupModule(module) {
 
   // Mark completed, verify.
   controller.click(document.getElementById("task-actions-markcompleted"));
-  controller.sleep(MID_SLEEP);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
   toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
   Assert.equal(getTooltipDescription(4), "Completed");
 
   // Delete task and verify.
   controller.click(document.getElementById("calendar-delete-task-button"));
-  controller.waitFor(() => taskTreeNode.mTaskArray.length == 0, "Task did not delete");
+  await TestUtils.waitForCondition(
+    () => taskTreeNode.mTaskArray.length == 0,
+    "Task did not delete"
+  );
 
   let tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);

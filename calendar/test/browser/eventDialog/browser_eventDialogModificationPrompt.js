@@ -47,7 +47,8 @@ add_task(async function testEventDialogModificationPrompt() {
   // Escape the event window, there should be no prompt to save event.
   cancelItemDialog(dialogWindow);
   // Wait to see if the prompt appears.
-  controller.sleep(2000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 2000));
 
   eventbox = await dayView.waitForEventBoxAt(window, 1);
   // Open, change all values then revert the changes.
@@ -61,7 +62,8 @@ add_task(async function testEventDialogModificationPrompt() {
   // Escape the event window, there should be no prompt to save event.
   cancelItemDialog(dialogWindow);
   // Wait to see if the prompt appears.
-  controller.sleep(2000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 2000));
 
   // Delete event.
   document.getElementById("day-view").focus();
@@ -90,7 +92,8 @@ add_task(async function testDescriptionWhitespace() {
     await setData(dialogWindow, iframeWindow, newlines[i]);
     cancelItemDialog(dialogWindow);
     // Wait to see if the prompt appears.
-    controller.sleep(2000);
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Delete it.
     document.getElementById("day-view").focus();

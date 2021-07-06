@@ -24,7 +24,7 @@ add_task(function setupModule(module) {
 
 add_task(async function testEventDialog() {
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window);
-  checkLargeEnough(dialogWindow, iframeWindow);
+  await checkLargeEnough(dialogWindow, iframeWindow);
 
   // Much larger than necessary.
   dialogWindow.resizeTo(650, 690);
@@ -40,11 +40,11 @@ add_task(async function testEventDialog() {
 
   checkWithinTolerance(dialogWindow.outerWidth, 650, LARGE_TOLERANCE);
   checkWithinTolerance(dialogWindow.outerHeight, 690, LARGE_TOLERANCE);
-  checkLargeEnough(dialogWindow, iframeWindow);
+  await checkLargeEnough(dialogWindow, iframeWindow);
 
   // Much smaller than necessary.
   dialogWindow.resizeTo(350, 400);
-  checkLargeEnough(dialogWindow, iframeWindow);
+  await checkLargeEnough(dialogWindow, iframeWindow);
   Assert.less(dialogWindow.outerWidth, 650, "dialog shrank");
   Assert.less(dialogWindow.outerHeight, 690, "dialog shrank");
   Assert.greater(dialogWindow.outerWidth, 350, "requested size not reached");
@@ -62,7 +62,7 @@ add_task(async function testEventDialog() {
   cancelItemDialog(dialogWindow);
 
   ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window));
-  checkLargeEnough(dialogWindow, iframeWindow);
+  await checkLargeEnough(dialogWindow, iframeWindow);
 
   // Much larger than necessary.
   dialogWindow.resizeTo(650, 690);
@@ -79,7 +79,7 @@ add_task(async function testTaskDialog() {
   checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
-  checkLargeEnough(dialogWindow, iframeWindow);
+  await checkLargeEnough(dialogWindow, iframeWindow);
 
   // Much larger than necessary.
   dialogWindow.resizeTo(680, 700);
@@ -95,11 +95,11 @@ add_task(async function testTaskDialog() {
 
   checkWithinTolerance(dialogWindow.outerWidth, 680, LARGE_TOLERANCE);
   checkWithinTolerance(dialogWindow.outerHeight, 700, LARGE_TOLERANCE);
-  checkLargeEnough(dialogWindow, iframeWindow);
+  await checkLargeEnough(dialogWindow, iframeWindow);
 
   // Much smaller than necessary.
   dialogWindow.resizeTo(350, 400);
-  checkLargeEnough(dialogWindow, iframeWindow);
+  await checkLargeEnough(dialogWindow, iframeWindow);
   Assert.less(dialogWindow.outerWidth, 680, "dialog shrank");
   Assert.less(dialogWindow.outerHeight, 700, "dialog shrank");
   Assert.greater(dialogWindow.outerWidth, 350, "minimum size not reached");
@@ -117,7 +117,7 @@ add_task(async function testTaskDialog() {
   cancelItemDialog(dialogWindow);
 
   ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editNewTask(window));
-  checkLargeEnough(dialogWindow, iframeWindow);
+  await checkLargeEnough(dialogWindow, iframeWindow);
 
   // Much larger than necessary.
   dialogWindow.resizeTo(680, 700);
@@ -132,10 +132,11 @@ registerCleanupFunction(function teardownModule(module) {
 });
 
 // Check the dialog is resized large enough to hold the iframe.
-function checkLargeEnough(outerWindow, innerWindow) {
+async function checkLargeEnough(outerWindow, innerWindow) {
   let iframeNode = outerWindow.document.getElementById("calendar-item-panel-iframe");
   let { scrollWidth, scrollHeight } = innerWindow.document.documentElement;
-  controller.waitFor(() => {
+  await new Promise(resolve => outerWindow.setTimeout(resolve));
+  await TestUtils.waitForCondition(() => {
     return (
       iframeNode.clientWidth + SMALL_TOLERANCE >= scrollWidth &&
       iframeNode.clientHeight + SMALL_TOLERANCE >= scrollHeight

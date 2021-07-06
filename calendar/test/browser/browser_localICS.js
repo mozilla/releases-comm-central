@@ -47,7 +47,7 @@ add_task(async function testLocalICS() {
   );
 
   // Wait a moment until file is written.
-  controller.waitFor(() => calendarFile.exists());
+  await TestUtils.waitForCondition(() => calendarFile.exists());
 
   // Read the calendar file and check for the summary.
   fstream.init(calendarFile, -1, 0, 0);

@@ -126,7 +126,7 @@ add_task(async function testEventDialog() {
   Assert.ok(!iframeDocument.getElementById("notify-attendees-checkbox").checked);
 
   // Verify private label visible.
-  controller.waitFor(
+  await TestUtils.waitForCondition(
     () => !dialogDocument.getElementById("status-privacy-private-box").hasAttribute("collapsed")
   );
   dialogDocument.getElementById("event-privacy-menupopup").hidePopup();
@@ -364,7 +364,8 @@ add_task(async function testCtrlEnterShortcut() {
   await CalendarTestUtils.setCalendarView(window, "month");
 
   // Give the event boxes enough time to appear before checking for duplicates.
-  controller.sleep(2000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 2000));
 
   let events = document.querySelectorAll("calendar-month-day-box-item");
   Assert.equal(events.length, 1, "event was created once");
