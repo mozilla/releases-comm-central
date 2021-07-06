@@ -24,7 +24,7 @@ var { dayView } = CalendarTestUtils;
 
 // Test that closing an event dialog with no changes does not prompt for save.
 add_task(async function testEventDialogModificationPrompt() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -109,7 +109,7 @@ add_task(async function testDescriptionWhitespace() {
 });
 
 registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });
 

@@ -25,7 +25,7 @@ const PERCENTCOMPLETE = "50";
 // Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
 // checked.
 add_task(async function setupModule(module) {
-  let CALENDARID = createCalendar(controller, CALENDARNAME);
+  let CALENDARID = createCalendar(window, CALENDARNAME);
 
   // Open task view.
   EventUtils.synthesizeMouseAtCenter(document.getElementById("task-tab-button"), {}, window);
@@ -156,6 +156,6 @@ add_task(async function setupModule(module) {
 });
 
 registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

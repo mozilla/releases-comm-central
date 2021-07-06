@@ -31,7 +31,7 @@ const HOUR = 8;
 const TITLE = "Event";
 
 add_task(async function testDailyRecurrence() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -164,6 +164,6 @@ add_task(async function testDailyRecurrence() {
 });
 
 registerCleanupFunction(function teardownModule() {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

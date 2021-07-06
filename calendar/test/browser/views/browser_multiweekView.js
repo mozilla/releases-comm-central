@@ -25,7 +25,7 @@ const TITLE2 = "Multiweek View Event Changed";
 const DESC = "Multiweek View Event Description";
 
 add_task(async function setupModule(module) {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "multiweek");
   await goToDate(window, 2009, 1, 1);
 
@@ -99,6 +99,6 @@ add_task(async function setupModule(module) {
 });
 
 registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

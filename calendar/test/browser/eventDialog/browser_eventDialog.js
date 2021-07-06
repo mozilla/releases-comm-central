@@ -38,9 +38,9 @@ var { dayView, monthView } = CalendarTestUtils;
 add_task(async function testEventDialog() {
   let now = new Date();
 
-  createCalendar(controller, CALENDARNAME);
   // Since from other tests we may be elsewhere, make sure we start today.
   await CalendarTestUtils.setCalendarView(window, "day");
+  createCalendar(window, CALENDARNAME);
   await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
   await CalendarTestUtils.calendarViewBackward(window, 1);
 
@@ -204,7 +204,7 @@ add_task(async function testEventDialog() {
 add_task(async function testOpenExistingEventDialog() {
   let now = new Date();
 
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
 
@@ -246,7 +246,7 @@ add_task(async function testOpenExistingEventDialog() {
 });
 
 add_task(async function testEventReminderDisplay() {
-  let calId = createCalendar(controller, CALENDARNAME);
+  let calId = createCalendar(window, CALENDARNAME);
 
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2020, 1, 1);
@@ -348,7 +348,7 @@ add_task(async function testEventReminderDisplay() {
  * This only happens in the dialog window. See bug 1668478.
  */
 add_task(async function testCtrlEnterShortcut() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2020, 9, 1);
 
@@ -407,6 +407,6 @@ function checkTooltip(row, col, startTime, endTime) {
 }
 
 registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

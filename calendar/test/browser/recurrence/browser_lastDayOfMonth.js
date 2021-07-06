@@ -24,7 +24,7 @@ var { setCalendarView, dayView, weekView, multiweekView, monthView } = CalendarT
 const HOUR = 8;
 
 add_task(async function testLastDayOfMonthRecurrence() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await setCalendarView(window, "day");
   await goToDate(window, 2008, 1, 31); // Start with a leap year.
 
@@ -111,6 +111,6 @@ async function setRecurrence(recurrenceWindow) {
 }
 
 registerCleanupFunction(function teardownModule() {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

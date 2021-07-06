@@ -24,7 +24,7 @@ const ENDDATE = cal.createDateTime("20090126T000000Z"); // Last Monday in month.
 const HOUR = 8;
 
 add_task(async function testWeeklyUntilRecurrence() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 5); // Monday
 
@@ -179,6 +179,6 @@ async function setRecurrence(recurrenceWindow) {
 }
 
 registerCleanupFunction(function teardownModule() {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

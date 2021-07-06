@@ -15,7 +15,7 @@ var UTF8STRING = " 💣 💥  ☣  ";
 
 add_task(async function testUTF8() {
   Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
-  createCalendar(controller, UTF8STRING);
+  createCalendar(window, UTF8STRING);
   await CalendarTestUtils.setCalendarView(window, "day");
 
   // Create new event.
@@ -56,7 +56,7 @@ add_task(async function testUTF8() {
 Assert.ok(true, "Test ran to completion");
 
 registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, UTF8STRING);
+  deleteCalendars(window, UTF8STRING);
   Services.prefs.clearUserPref("calendar.categories.names");
   closeAllEventDialogs();
 });

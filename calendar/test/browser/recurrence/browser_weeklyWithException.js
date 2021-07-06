@@ -25,7 +25,7 @@ const STARTDATE = cal.createDateTime("20090106T000000Z");
 const TITLE = "Event";
 
 add_task(async function testWeeklyWithExceptionRecurrence() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 5);
 
@@ -249,6 +249,6 @@ async function changeRecurrence(recurrenceWindow) {
 }
 
 registerCleanupFunction(function teardownModule() {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

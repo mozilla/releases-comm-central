@@ -11,8 +11,11 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
-var calendarId = createCalendar(controller, CALENDARNAME);
-var calendar = cal.async.promisifyCalendar(cal.getCalendarManager().getCalendarById(calendarId));
+var calendar = CalendarTestUtils.createProxyCalendar(CALENDARNAME);
+registerCleanupFunction(() => {
+  Services.prefs.clearUserPref("calendar.week.start");
+  CalendarTestUtils.removeProxyCalendar(calendar);
+});
 
 let formatter = cal.dtz.formatter;
 let startTime = formatter.formatTime(cal.createDateTime("20190403T123400"));
@@ -532,9 +535,4 @@ add_task(async function testOutsideMonthView() {
 
   await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
-});
-
-registerCleanupFunction(() => {
-  Services.prefs.clearUserPref("calendar.week.start");
-  deleteCalendars(controller, CALENDARNAME);
 });

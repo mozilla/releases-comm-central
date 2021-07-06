@@ -23,7 +23,7 @@ var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 const HOUR = 8;
 
 add_task(async function testWeeklyNRecurrence() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 5);
 
@@ -145,6 +145,6 @@ async function setRecurrence(recurrenceWindow) {
 }
 
 registerCleanupFunction(function teardownModule() {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

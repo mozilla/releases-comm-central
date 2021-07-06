@@ -26,7 +26,7 @@ add_task(async () => {
   MockFilePicker.setFiles([file]);
   MockFilePicker.returnValue = MockFilePicker.returnCancel;
 
-  let calendarId = createCalendar(controller, CALENDARNAME);
+  let calendarId = createCalendar(window, CALENDARNAME);
   let calendar = cal.getCalendarManager().getCalendarById(calendarId);
 
   let cancelReturn = await loadEventsFromFile();

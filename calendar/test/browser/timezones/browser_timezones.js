@@ -45,7 +45,7 @@ var TIMEZONES = [
 ];
 
 add_task(async function testTimezones2_CreateEvents() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -870,5 +870,5 @@ async function verify(dates, timezones, times) {
 }
 
 registerCleanupFunction(() => {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
 });

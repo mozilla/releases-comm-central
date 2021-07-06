@@ -19,7 +19,7 @@ const SMALL_TOLERANCE = 5;
 const LARGE_TOLERANCE = 10;
 
 add_task(function setupModule(module) {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
 });
 
 add_task(async function testEventDialog() {
@@ -127,7 +127,7 @@ add_task(async function testTaskDialog() {
 });
 
 registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });
 

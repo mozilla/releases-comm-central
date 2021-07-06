@@ -22,7 +22,7 @@ const STARTYEAR = 1950;
 const EPOCH = 1970;
 
 add_task(async function testAnnualRecurrence() {
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, STARTYEAR, 1, 1);
 
@@ -67,6 +67,6 @@ add_task(async function testAnnualRecurrence() {
 });
 
 registerCleanupFunction(function teardownModule() {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

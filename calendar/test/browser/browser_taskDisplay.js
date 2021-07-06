@@ -12,8 +12,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
-var calendarId = createCalendar(controller, CALENDARNAME);
-var calendar = cal.async.promisifyCalendar(cal.getCalendarManager().getCalendarById(calendarId));
+var calendar = CalendarTestUtils.createProxyCalendar(CALENDARNAME);
+registerCleanupFunction(() => {
+  CalendarTestUtils.removeProxyCalendar(calendar);
+});
 
 let tree = document.getElementById("calendar-task-tree");
 
@@ -265,8 +267,4 @@ add_task(async () => {
     await calendar.deleteItem(task);
   }
   await setFilterGroup("throughcurrent");
-});
-
-registerCleanupFunction(() => {
-  deleteCalendars(controller, CALENDARNAME);
 });

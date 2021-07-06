@@ -188,11 +188,11 @@ function closeAllEventDialogs() {
 /**
  * Deletes all calendars with given name.
  *
- * @param controller    Mozmill window controller
- * @param name          calendar name
+ * @param {Window} window - Main window.
+ * @param {string} name - Calendar name.
  */
-function deleteCalendars(controller, name) {
-  let manager = controller.window.cal.getCalendarManager();
+function deleteCalendars(window, name) {
+  let manager = window.cal.getCalendarManager();
 
   for (let calendar of manager.getCalendars()) {
     if (calendar.name == name) {
@@ -204,19 +204,21 @@ function deleteCalendars(controller, name) {
 /**
  * Creates local calendar with given name and select it in calendars list.
  *
- * @param controller    Mozmill window controller
- * @param name          calendar name
+ * @param {Window} window - Main window.
+ * @param {string} name - Calendar name.
  */
-function createCalendar(controller, name) {
-  let manager = controller.window.cal.getCalendarManager();
+function createCalendar(window, name) {
+  let manager = window.cal.getCalendarManager();
 
   let url = Services.io.newURI("moz-storage-calendar://");
   let calendar = manager.createCalendar("storage", url);
   calendar.name = name;
   manager.registerCalendar(calendar);
 
-  controller.click(
-    controller.window.document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`)
+  EventUtils.synthesizeMouseAtCenter(
+    window.document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`),
+    {},
+    window
   );
   return calendar.id;
 }

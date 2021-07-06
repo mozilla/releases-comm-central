@@ -26,7 +26,7 @@ add_task(async function testAlarmDialog() {
 
   const TITLE = "Event";
 
-  createCalendar(controller, CALENDARNAME);
+  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
   await CalendarTestUtils.calendarViewForward(window, 1);
@@ -92,6 +92,6 @@ add_task(async function testAlarmDialog() {
 });
 
 registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, CALENDARNAME);
+  deleteCalendars(window, CALENDARNAME);
   closeAllEventDialogs();
 });

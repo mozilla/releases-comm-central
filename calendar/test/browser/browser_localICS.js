@@ -61,5 +61,5 @@ add_task(async function testLocalICS() {
 });
 
 registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, calendarName);
+  deleteCalendars(window, calendarName);
 });
