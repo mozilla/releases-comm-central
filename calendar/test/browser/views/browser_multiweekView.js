@@ -90,7 +90,7 @@ add_task(async function setupModule(module) {
   }, "Wait for the new title");
 
   // Delete event.
-  controller.click(eventBox);
+  EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
   await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 1, 5, 1);

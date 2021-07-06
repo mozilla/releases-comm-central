@@ -116,7 +116,7 @@ add_task(async function testWeeklyUntilRecurrence() {
 
   // Delete event.
   let box = monthView.getItemAt(window, 2, 2, 1);
-  controller.click(box);
+  EventUtils.synthesizeMouseAtCenter(box, {}, window);
   handleOccurrencePrompt(controller, box, "delete", true);
   await monthView.waitForNoItemAt(window, 2, 2, 1);
 

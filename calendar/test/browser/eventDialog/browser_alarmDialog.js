@@ -33,7 +33,7 @@ add_task(async function testAlarmDialog() {
 
   let allDayHeader = dayView.getAllDayHeader(window);
   Assert.ok(allDayHeader);
-  controller.click(allDayHeader);
+  EventUtils.synthesizeMouseAtCenter(allDayHeader, {}, window);
 
   // Create a new all-day event tomorrow.
 

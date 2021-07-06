@@ -77,7 +77,7 @@ add_task(async function testDayView() {
   Assert.equal(eventName.textContent, TITLE2);
 
   // Delete event
-  controller.click(eventBox);
+  EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
   await CalendarTestUtils.dayView.waitForNoEventBoxAt(window, 1);

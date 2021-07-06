@@ -164,7 +164,7 @@ add_task(async function testTimezones3_checkStJohns() {
       [11, 30],
     ],
   ];
-  controller.click(document.getElementById("calendar-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -257,7 +257,7 @@ add_task(async function testTimezones4_checkCaracas() {
       [11, 0],
     ],
   ];
-  controller.click(document.getElementById("calendar-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -348,7 +348,7 @@ add_task(async function testTimezones5_checkPhoenix() {
       [8, 0],
     ],
   ];
-  controller.click(document.getElementById("calendar-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -439,7 +439,7 @@ add_task(async function testTimezones6_checkLosAngeles() {
       [7, 0],
     ],
   ];
-  controller.click(document.getElementById("calendar-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -530,7 +530,7 @@ add_task(async function testTimezones7_checkBuenosAires() {
       [12, 0],
     ],
   ];
-  controller.click(document.getElementById("calendar-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -621,7 +621,7 @@ add_task(async function testTimezones8_checkParis() {
       [16, 0],
     ],
   ];
-  controller.click(document.getElementById("calendar-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -712,7 +712,7 @@ add_task(async function testTimezones9_checkKathmandu() {
       [20, 45],
     ],
   ];
-  controller.click(document.getElementById("calendar-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 
@@ -803,7 +803,7 @@ add_task(async function testTimezones10_checkAdelaide() {
       [1, 30, +1],
     ],
   ];
-  controller.click(document.getElementById("calendar-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 1);
 

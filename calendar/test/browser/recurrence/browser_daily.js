@@ -94,7 +94,7 @@ add_task(async function testDailyRecurrence() {
 
   // Delete 3rd January occurrence.
   let saturday = await monthView.waitForItemAt(window, 1, 7, 1);
-  controller.click(saturday);
+  EventUtils.synthesizeMouseAtCenter(saturday, {}, window);
   handleOccurrencePrompt(controller, saturday, "delete", false);
 
   // Verify in all views.
@@ -156,7 +156,7 @@ add_task(async function testDailyRecurrence() {
 
   // Delete event.
   let day = monthView.getItemAt(window, 1, 5, 1);
-  controller.click(day);
+  EventUtils.synthesizeMouseAtCenter(day, {}, window);
   handleOccurrencePrompt(controller, day, "delete", true);
   await monthView.waitForNoItemAt(window, 1, 5, 1);
 

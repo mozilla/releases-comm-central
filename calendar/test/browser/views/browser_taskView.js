@@ -28,22 +28,22 @@ add_task(async function setupModule(module) {
   let CALENDARID = createCalendar(controller, CALENDARNAME);
 
   // Open task view.
-  controller.click(document.getElementById("task-tab-button"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("task-tab-button"), {}, window);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
   // Make sure that testing calendar is selected.
   let calList = document.querySelector(`#calendar-list > [calendar-id="${CALENDARID}"]`);
   Assert.ok(calList);
-  controller.click(calList);
+  EventUtils.synthesizeMouseAtCenter(calList, {}, window);
 
   let taskTreeNode = document.getElementById("calendar-task-tree");
   Assert.equal(taskTreeNode.mTaskArray.length, 0);
 
   // Add task.
   let taskInput = document.getElementById("view-task-edit-field");
-  controller.type(taskInput, TITLE);
   taskInput.focus();
+  EventUtils.sendString(TITLE, window);
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
   // Verify added.
@@ -61,7 +61,7 @@ add_task(async function setupModule(module) {
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
   let treeChildren = document.querySelector("#calendar-task-tree .calendar-task-treechildren");
   Assert.ok(treeChildren);
-  controller.doubleClick(treeChildren, 50, 0);
+  EventUtils.synthesizeMouse(treeChildren, 50, 0, { clickCount: 2 }, window);
 
   await eventWindowPromise;
   await execEventDialogCallback(async (taskWindow, iframeWindow) => {
@@ -91,7 +91,7 @@ add_task(async function setupModule(module) {
   taskTreeNode.getTaskAtRow(0).calendar.setProperty("capabilities.priority.supported", true);
 
   // Set high priority and verify it in detail pane.
-  controller.click(document.getElementById("task-actions-priority"));
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("task-actions-priority"), {}, window);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
@@ -99,7 +99,7 @@ add_task(async function setupModule(module) {
     "#task-actions-priority-menupopup > .priority-1-menuitem"
   );
   Assert.ok(priorityMenu);
-  controller.click(priorityMenu);
+  EventUtils.synthesizeMouseAtCenter(priorityMenu, {}, window);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
@@ -127,7 +127,11 @@ add_task(async function setupModule(module) {
   Assert.equal(getTooltipDescription(5), PERCENTCOMPLETE + "%");
 
   // Mark completed, verify.
-  controller.click(document.getElementById("task-actions-markcompleted"));
+  EventUtils.synthesizeMouseAtCenter(
+    document.getElementById("task-actions-markcompleted"),
+    {},
+    window
+  );
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
@@ -135,7 +139,11 @@ add_task(async function setupModule(module) {
   Assert.equal(getTooltipDescription(4), "Completed");
 
   // Delete task and verify.
-  controller.click(document.getElementById("calendar-delete-task-button"));
+  EventUtils.synthesizeMouseAtCenter(
+    document.getElementById("calendar-delete-task-button"),
+    {},
+    window
+  );
   await TestUtils.waitForCondition(
     () => taskTreeNode.mTaskArray.length == 0,
     "Task did not delete"

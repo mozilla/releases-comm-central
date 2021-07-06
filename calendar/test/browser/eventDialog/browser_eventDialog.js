@@ -69,7 +69,7 @@ add_task(async function testEventDialog() {
   let endTime = cal.dtz.formatter.formatTime(nextHour);
 
   // Create new event on first day in view.
-  controller.click(monthView.getDayBox(window, 1, 1));
+  EventUtils.synthesizeMouseAtCenter(monthView.getDayBox(window, 1, 1), {}, window);
 
   let {
     dialogWindow,
@@ -164,7 +164,7 @@ add_task(async function testEventDialog() {
   Assert.ok(!monthView.getItemAt(window, 4, 1, 1));
 
   // Delete and verify deleted 6th col in row 1.
-  controller.click(monthView.getItemAt(window, 1, 6, 1));
+  EventUtils.synthesizeMouseAtCenter(monthView.getItemAt(window, 1, 6, 1), {}, window);
   let elemToDelete = document.getElementById("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", false);
 
@@ -183,7 +183,7 @@ add_task(async function testEventDialog() {
   }
 
   // Delete series by deleting last item in row 1 and confirming to delete all.
-  controller.click(monthView.getItemAt(window, 1, 7, 1));
+  EventUtils.synthesizeMouseAtCenter(monthView.getItemAt(window, 1, 7, 1), {}, window);
   elemToDelete = document.getElementById("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", true);
 

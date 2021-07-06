@@ -169,7 +169,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await goToDate(window, 2009, 1, 12);
   eventBox = await dayView.waitForEventBoxAt(window, 1);
-  controller.click(eventBox);
+  EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   handleOccurrencePrompt(controller, eventBox, "delete", true);
   await dayView.waitForNoEventBoxAt(window, 1);
 

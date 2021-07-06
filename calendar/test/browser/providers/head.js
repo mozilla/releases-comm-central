@@ -221,7 +221,7 @@ async function runTestAlarms() {
   );
   Assert.ok(!!eventBox.item.parentItem.alarmLastAck);
 
-  controller.click(eventBox);
+  EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
   window.calendarController.onSelectionChanged({ detail: window.currentView().getSelectedItems() });
   handleOccurrencePrompt(controller, window.currentView(), "delete", true);

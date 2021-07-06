@@ -83,7 +83,7 @@ add_task(async function testWeekView() {
   Assert.equal(eventName, TITLE2);
 
   // Delete event.
-  controller.click(eventBox);
+  EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
   await CalendarTestUtils.weekView.waitForNoEventBoxAt(window, 5, 1);

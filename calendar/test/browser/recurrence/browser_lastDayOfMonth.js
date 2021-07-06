@@ -81,7 +81,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
   await goToDate(window, checkingData[0][0], checkingData[0][1], checkingData[0][2]);
   await setCalendarView(window, "day");
   let box = await dayView.waitForEventBoxAt(window, 1);
-  controller.click(box);
+  EventUtils.synthesizeMouseAtCenter(box, {}, window);
   handleOccurrencePrompt(controller, box, "delete", true);
   await dayView.waitForNoEventBoxAt(window, 1);
 

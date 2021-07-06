@@ -59,7 +59,7 @@ add_task(async function testAnnualRecurrence() {
   await goToDate(window, checkYears[0], 1, 1);
   await CalendarTestUtils.setCalendarView(window, "day");
   const box = await dayView.waitForAllDayItemAt(window, 1);
-  controller.click(box);
+  EventUtils.synthesizeMouseAtCenter(box, {}, window);
   handleOccurrencePrompt(controller, box, "delete", true);
   await TestUtils.waitForCondition(() => !dayView.getAllDayItemAt(window, 1), "No all-day events");
 

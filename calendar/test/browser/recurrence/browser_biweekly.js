@@ -78,7 +78,7 @@ add_task(async function testBiweeklyRecurrence() {
   Assert.ok(box);
 
   // Delete event.
-  controller.click(box);
+  EventUtils.synthesizeMouseAtCenter(box, {}, window);
   handleOccurrencePrompt(controller, box, "delete", true);
 
   await monthView.waitForNoItemAt(window, 4, 7, 1);

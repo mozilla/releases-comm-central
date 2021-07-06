@@ -88,7 +88,7 @@ add_task(async function testMonthView() {
   Assert.equal(eventName, TITLE2);
 
   // Delete event.
-  controller.click(eventBox);
+  EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
   await CalendarTestUtils.monthView.waitForNoItemAt(window, 1, 5, 1);

@@ -68,7 +68,7 @@ add_task(async function testEventDialogModificationPrompt() {
   // Delete event.
   document.getElementById("day-view").focus();
   if (window.currentView().getSelectedItems().length == 0) {
-    controller.click(eventbox);
+    EventUtils.synthesizeMouseAtCenter(eventbox, {}, window);
   }
   Assert.equal(eventbox.isEditing, false, "event is not being edited");
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
@@ -98,7 +98,7 @@ add_task(async function testDescriptionWhitespace() {
     // Delete it.
     document.getElementById("day-view").focus();
     if (window.currentView().getSelectedItems().length == 0) {
-      controller.click(eventbox);
+      EventUtils.synthesizeMouseAtCenter(eventbox, {}, window);
     }
     Assert.equal(eventbox.isEditing, false, "event is not being edited");
     EventUtils.synthesizeKey("VK_DELETE", {}, window);
