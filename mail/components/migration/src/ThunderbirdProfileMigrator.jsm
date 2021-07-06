@@ -25,6 +25,7 @@ const MAIL_ACCOUNT = "mail.account.";
 const IM_ACCOUNT = "messenger.account.";
 const SMTP_SERVER = "mail.smtpserver.";
 const ADDRESS_BOOK = "ldap_2.servers.";
+const LDAP_AUTO_COMPLETE = "ldap_2.autoComplete.";
 
 // Prefs (branches) that we do not want to copy directly.
 const IGNORE_PREFS = [
@@ -42,6 +43,21 @@ const IGNORE_PREFS = [
   "print.",
   "services.",
   "toolkit.telemetry.",
+];
+
+// When importing from a zip file, ignoring these folders.
+const IGNORE_DIRS = [
+  "chrome_debugger_profile",
+  "crashes",
+  "datareporting",
+  "extensions",
+  "extension-store",
+  "logs",
+  "minidumps",
+  "saved-telemetry-pings",
+  "security_state",
+  "storage",
+  "xulstore",
 ];
 
 /**
@@ -96,17 +112,59 @@ class ThunderbirdProfileMigrator {
     );
     filePicker.init(
       window,
-      await l10n.formatValue("import-select-profile-dir"),
-      filePicker.modeGetFolder
+      await l10n.formatValue("import-select-profile-dir-or-zip"),
+      filePicker.modeOpen
     );
-    filePicker.appendFilters(filePicker.filterAll);
-    this._sourceProfileDir = await new Promise(resolve => {
+    filePicker.appendFilter("", "*.zip");
+    this._sourceProfileDir = await new Promise((resolve, reject) => {
       filePicker.open(rv => {
         if (rv != Ci.nsIFilePicker.returnOK || !filePicker.file) {
-          resolve(null);
+          reject();
           return;
         }
-        resolve(filePicker.file);
+        if (filePicker.file.isDirectory()) {
+          resolve(filePicker.file);
+        } else {
+          this._importingFromZip = true;
+          // Extract the zip file to a tmp dir.
+          let targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+          targetDir.append("tmp-profile");
+          targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+          let ZipReader = Components.Constructor(
+            "@mozilla.org/libjar/zip-reader;1",
+            "nsIZipReader",
+            "open"
+          );
+          let zip = ZipReader(filePicker.file);
+          for (let entry of zip.findEntries(null)) {
+            let parts = entry.split("/");
+            if (IGNORE_DIRS.includes(parts[1])) {
+              continue;
+            }
+            // Folders can not be unzipped recursively, have to iterate and
+            // extract all file entires one by one.
+            let target = targetDir.clone();
+            for (let part of parts.slice(1)) {
+              // Drop the root folder name in the zip file.
+              target.append(part);
+            }
+            if (!target.parent.exists()) {
+              target.parent.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+            }
+            try {
+              zip.extract(entry, target);
+            } catch (e) {
+              if (
+                e.result != Cr.NS_ERROR_FILE_DIR_NOT_EMPTY &&
+                !(target.exists() && target.isDirectory())
+              ) {
+                throw e;
+              }
+            }
+          }
+          // Use the tmp dir as source profile dir.
+          resolve(targetDir);
+        }
       });
     });
   }
@@ -129,8 +187,10 @@ class ThunderbirdProfileMigrator {
     Services.obs.notifyObservers(null, "Migration:Started");
     try {
       await this._importPreferences();
-    } catch (e) {
-      throw Components.Exception(e.message, Cr.NS_ERROR_FAILURE, e.stack);
+    } finally {
+      if (this._importingFromZip) {
+        this._sourceProfileDir.remove(true);
+      }
     }
     Services.obs.notifyObservers(null, "Migration:Ended");
   }
@@ -152,6 +212,7 @@ class ThunderbirdProfileMigrator {
     ]);
     let defaultAccount;
     let defaultSmtpServer;
+    let ldapAutoComplete = {};
     let otherPrefs = [];
 
     let sourcePrefsFile = this._sourceProfileDir.clone();
@@ -171,6 +232,10 @@ class ThunderbirdProfileMigrator {
       }
       if (name == "mail.smtp.defaultserver") {
         defaultSmtpServer = value;
+        return;
+      }
+      if (name.startsWith(LDAP_AUTO_COMPLETE)) {
+        ldapAutoComplete[name.slice(LDAP_AUTO_COMPLETE.length)] = value;
         return;
       }
       if (IGNORE_PREFS.some(ignore => name.startsWith(ignore))) {
@@ -240,7 +305,10 @@ class ThunderbirdProfileMigrator {
       "Migration:ItemBeforeMigrate",
       Ci.nsIMailProfileMigrator.ADDRESS_BOOK
     );
-    this._importAddressBooks(branchPrefsMap.get(ADDRESS_BOOK));
+    this._importAddressBooks(
+      branchPrefsMap.get(ADDRESS_BOOK),
+      ldapAutoComplete
+    );
     Services.obs.notifyObservers(
       null,
       "Migration:ItemAfterMigrate",
@@ -404,10 +472,6 @@ class ThunderbirdProfileMigrator {
     }
 
     for (let [type, name, value] of prefs) {
-      if (name.endsWith(".directory-rel") || name.endsWith(".file-rel")) {
-        // Will be created when first needed.
-        continue;
-      }
       let key = name.split(".")[0];
       let newServerKey = incomingServerKeyMap.get(key);
       if (!newServerKey) {
@@ -436,7 +500,13 @@ class ThunderbirdProfileMigrator {
       let branch = Services.prefs.getBranch(`${MAIL_SERVER}${key}.`);
       let type = branch.getCharPref("type");
       let hostname = branch.getCharPref("hostname");
-      let directory = branch.getCharPref("directory", "");
+      // Use .directory-rel instead of .directory because .directory is an
+      // absolute path which may not exists.
+      let directoryRel = branch.getCharPref("directory-rel", "");
+      if (!directoryRel.startsWith("[ProfD]")) {
+        continue;
+      }
+      directoryRel = directoryRel.slice("[ProfD]".length);
 
       let targetDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
       if (type == "imap") {
@@ -455,25 +525,35 @@ class ThunderbirdProfileMigrator {
       // Remove the folder so that nsIFile.copyTo doesn't copy into targetDir.
       targetDir.remove(false);
 
-      let sourceDir = Cc["@mozilla.org/file/local;1"].createInstance(
-        Ci.nsIFile
-      );
-      sourceDir.initWithPath(directory);
+      let sourceDir = this._sourceProfileDir.clone();
+      for (let part of directoryRel.split("/")) {
+        sourceDir.append(part);
+      }
       sourceDir.copyTo(targetDir.parent, targetDir.leafName);
       branch.setCharPref("directory", targetDir.path);
+      // .directory-rel may be outdated, it will be created when first needed.
+      branch.clearUserPref("directory-rel");
 
       if (type == "nntp") {
-        // Copy the newsrc.file for NNTP server.
-        let sourceNewsrc = Cc["@mozilla.org/file/local;1"].createInstance(
-          Ci.nsIFile
-        );
-        sourceNewsrc.initWithPath(branch.getCharPref("newsrc.file"));
+        // Use .file-rel instead of .file because .file is an absolute path
+        // which may not exists.
+        let fileRel = branch.getCharPref("newsrc.file-rel", "");
+        if (!fileRel.startsWith("[ProfD]")) {
+          continue;
+        }
+        fileRel = fileRel.slice("[ProfD]".length);
+        let sourceNewsrc = this._sourceProfileDir.clone();
+        for (let part of fileRel.split("/")) {
+          sourceNewsrc.append(part);
+        }
         let targetNewsrc = Services.dirsvc.get("ProfD", Ci.nsIFile);
         targetNewsrc.append("News");
         targetNewsrc.append(`newsrc-${hostname}`);
         targetNewsrc.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
         sourceNewsrc.copyTo(targetNewsrc.parent, targetNewsrc.leafName);
         branch.setCharPref("newsrc.file", targetNewsrc.path);
+        // .file-rel may be outdated, it will be created when first needed.
+        branch.clearUserPref("newsrc.file-rel");
       }
     }
   }
@@ -545,8 +625,11 @@ class ThunderbirdProfileMigrator {
   /**
    * Import address books.
    * @param {PrefItem[]} prefs - All source prefs in the ADDRESS_BOOK branch.
+   * @param {Object} ldapAutoComplete - Pref values of LDAP_AUTO_COMPLETE branch.
+   * @param {boolean} ldapAutoComplete.useDirectory
+   * @param {string} ldapAutoComplete.directoryServer
    */
-  _importAddressBooks(prefs) {
+  _importAddressBooks(prefs, ldapAutoComplete) {
     let keyMap = new Map();
     let branch = Services.prefs.getBranch(ADDRESS_BOOK);
     for (let [type, name, value] of prefs) {
@@ -570,6 +653,23 @@ class ThunderbirdProfileMigrator {
 
       let newName = `${newKey}${name.slice(key.length)}`;
       branch[`set${type}Pref`](newName, value);
+    }
+
+    // Transform the value of ldap_2.autoComplete.directoryServer if needed.
+    if (
+      ldapAutoComplete.useDirectory &&
+      ldapAutoComplete.directoryServer &&
+      !Services.prefs.getBoolPref(`${LDAP_AUTO_COMPLETE}useDirectory`, false)
+    ) {
+      let key = ldapAutoComplete.directoryServer.split("/").slice(-1)[0];
+      let newKey = keyMap.get(key);
+      if (newKey) {
+        Services.prefs.setBoolPref(`${LDAP_AUTO_COMPLETE}useDirectory`, true);
+        Services.prefs.setCharPref(
+          `${LDAP_AUTO_COMPLETE}directoryServer`,
+          `ldap_2.servers.${newKey}`
+        );
+      }
     }
 
     this._copyAddressBookDatabases(keyMap);
