@@ -16,7 +16,7 @@ const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci
 
 add_task(async () => {
   await CalendarTestUtils.setCalendarView(window, "month");
-  goToDate(controller, 2019, 1, 1);
+  await goToDate(window, 2019, 1, 1);
 
   let chromeUrl = Services.io.newURI(getRootDirectory(gTestPath) + "data/import.ics");
   let fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);

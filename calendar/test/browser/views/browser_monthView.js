@@ -9,7 +9,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -27,8 +26,8 @@ const DESC = "Month View Event Description";
 
 add_task(async function testMonthView() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "month");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "month");
+  await goToDate(window, 2009, 1, 1);
 
   // Verify date.
   await TestUtils.waitForCondition(() => {

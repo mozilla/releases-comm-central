@@ -9,16 +9,12 @@ var {
   createCalendar,
   controller,
   deleteCalendars,
-  switchToView,
   goToDate,
   findEventsInNode,
-  viewForward,
-  viewBack,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
-
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
@@ -50,7 +46,8 @@ var TIMEZONES = [
 
 add_task(async function testTimezones2_CreateEvents() {
   createCalendar(controller, CALENDARNAME);
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
   // Create weekly recurring events in all TIMEZONES.
   let times = [
@@ -83,7 +80,7 @@ add_task(async function testTimezones2_CreateEvents() {
   }
 });
 
-add_task(function testTimezones3_checkStJohns() {
+add_task(async function testTimezones3_checkStJohns() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/St_Johns");
   let times = [
     [
@@ -168,13 +165,13 @@ add_task(function testTimezones3_checkStJohns() {
     ],
   ];
   controller.click(controller.window.document.getElementById("calendar-tab-button"));
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
-  verify(DATES, TIMEZONES, times);
+  await verify(DATES, TIMEZONES, times);
 });
 
-add_task(function testTimezones4_checkCaracas() {
+add_task(async function testTimezones4_checkCaracas() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/Caracas");
   // This is actually incorrect. Venezuela shifted clocks forward 30 minutes
   // in 2016, but our code doesn't handle historical timezones.
@@ -261,13 +258,13 @@ add_task(function testTimezones4_checkCaracas() {
     ],
   ];
   controller.click(controller.window.document.getElementById("calendar-tab-button"));
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
-  verify(DATES, TIMEZONES, times);
+  await verify(DATES, TIMEZONES, times);
 });
 
-add_task(function testTimezones5_checkPhoenix() {
+add_task(async function testTimezones5_checkPhoenix() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/Phoenix");
   let times = [
     [
@@ -352,13 +349,13 @@ add_task(function testTimezones5_checkPhoenix() {
     ],
   ];
   controller.click(controller.window.document.getElementById("calendar-tab-button"));
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
-  verify(DATES, TIMEZONES, times);
+  await verify(DATES, TIMEZONES, times);
 });
 
-add_task(function testTimezones6_checkLosAngeles() {
+add_task(async function testTimezones6_checkLosAngeles() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/Los_Angeles");
   let times = [
     [
@@ -443,13 +440,13 @@ add_task(function testTimezones6_checkLosAngeles() {
     ],
   ];
   controller.click(controller.window.document.getElementById("calendar-tab-button"));
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
-  verify(DATES, TIMEZONES, times);
+  await verify(DATES, TIMEZONES, times);
 });
 
-add_task(function testTimezones7_checkBuenosAires() {
+add_task(async function testTimezones7_checkBuenosAires() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/Argentina/Buenos_Aires");
   let times = [
     [
@@ -534,13 +531,13 @@ add_task(function testTimezones7_checkBuenosAires() {
     ],
   ];
   controller.click(controller.window.document.getElementById("calendar-tab-button"));
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
-  verify(DATES, TIMEZONES, times);
+  await verify(DATES, TIMEZONES, times);
 });
 
-add_task(function testTimezones8_checkParis() {
+add_task(async function testTimezones8_checkParis() {
   Services.prefs.setStringPref("calendar.timezone.local", "Europe/Paris");
   let times = [
     [
@@ -625,13 +622,13 @@ add_task(function testTimezones8_checkParis() {
     ],
   ];
   controller.click(controller.window.document.getElementById("calendar-tab-button"));
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
-  verify(DATES, TIMEZONES, times);
+  await verify(DATES, TIMEZONES, times);
 });
 
-add_task(function testTimezones9_checkKathmandu() {
+add_task(async function testTimezones9_checkKathmandu() {
   Services.prefs.setStringPref("calendar.timezone.local", "Asia/Kathmandu");
   let times = [
     [
@@ -716,13 +713,13 @@ add_task(function testTimezones9_checkKathmandu() {
     ],
   ];
   controller.click(controller.window.document.getElementById("calendar-tab-button"));
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
-  verify(DATES, TIMEZONES, times);
+  await verify(DATES, TIMEZONES, times);
 });
 
-add_task(function testTimezones10_checkAdelaide() {
+add_task(async function testTimezones10_checkAdelaide() {
   Services.prefs.setStringPref("calendar.timezone.local", "Australia/Adelaide");
   let times = [
     [
@@ -807,13 +804,13 @@ add_task(function testTimezones10_checkAdelaide() {
     ],
   ];
   controller.click(controller.window.document.getElementById("calendar-tab-button"));
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
-  verify(DATES, TIMEZONES, times);
+  await verify(DATES, TIMEZONES, times);
 });
 
-function verify(dates, timezones, times) {
+async function verify(dates, timezones, times) {
   function* datetimes() {
     for (let idx = 0; idx < dates.length; idx++) {
       yield [dates[idx][0], dates[idx][1], dates[idx][2], times[idx]];
@@ -829,7 +826,7 @@ function verify(dates, timezones, times) {
   */
 
   for (let [selectedYear, selectedMonth, selectedDay, selectedTime] of datetimes()) {
-    goToDate(controller, selectedYear, selectedMonth, selectedDay);
+    await goToDate(window, selectedYear, selectedMonth, selectedDay);
 
     // Find event with timezone tz.
     for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
@@ -846,9 +843,9 @@ function verify(dates, timezones, times) {
 
       // following day
       if (day == 1) {
-        viewForward(controller, 1);
+        await CalendarTestUtils.calendarViewForward(window, 1);
       } else if (day == -1) {
-        viewBack(controller, 1);
+        await CalendarTestUtils.calendarViewBackward(window, 1);
       }
 
       eventNodes = Array.from(CalendarTestUtils.dayView.getEventBoxes(controller.window));
@@ -860,11 +857,11 @@ function verify(dates, timezones, times) {
       dump(eventNodes.join(", ") + "\n");
 
       if (day != undefined && day == 1) {
-        viewBack(controller, 1);
+        await CalendarTestUtils.calendarViewBackward(window, 1);
       }
 
       if (day != undefined && day == -1) {
-        viewForward(controller, 1);
+        await CalendarTestUtils.calendarViewForward(window, 1);
       }
 
       Assert.ok(eventNodes.some(node => Math.abs(timeY - node) < allowedDifference));

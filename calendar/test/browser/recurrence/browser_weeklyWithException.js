@@ -10,8 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  switchToView,
-  viewForward,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -28,8 +26,8 @@ const TITLE = "Event";
 
 add_task(async function testWeeklyWithExceptionRecurrence() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 5);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 5);
 
   // Create weekly recurring event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
@@ -46,11 +44,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   });
   await saveAndCloseItemDialog(dialogWindow);
 
-  goToDate(controller, 2009, 1, 6);
+  await goToDate(window, 2009, 1, 6);
   await dayView.waitForEventBoxAt(controller.window, 1);
 
   // Change recurrence rule.
-  goToDate(controller, 2009, 1, 7);
+  await goToDate(window, 2009, 1, 7);
   ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrencesAt(controller.window, 1));
   await setData(dialogWindow, iframeWindow, {
     title: "Event",
@@ -60,45 +58,45 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Check two weeks.
   // day view
-  switchToView(controller, "day");
+  await CalendarTestUtils.setCalendarView(window, "day");
 
-  goToDate(controller, 2009, 1, 5);
+  await goToDate(window, 2009, 1, 5);
   await dayView.waitForNoEventBoxAt(controller.window, 1);
 
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
 
   // Assert exactly two.
   Assert.ok(await dayView.waitForEventBoxAt(controller.window, 1));
   Assert.ok(await dayView.waitForEventBoxAt(controller.window, 2));
 
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForNoEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForNoEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   // next week
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForNoEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   // week view
-  switchToView(controller, "week");
-  goToDate(controller, 2009, 1, 5);
+  await CalendarTestUtils.setCalendarView(window, "week");
+  await goToDate(window, 2009, 1, 5);
 
   // Assert exactly two on Tuesday.
   Assert.ok(await weekView.waitForEventBoxAt(controller.window, 3, 1));
@@ -112,7 +110,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(!weekView.getEventBoxAt(controller.window, 5, 1));
   Assert.ok(!weekView.getEventBoxAt(controller.window, 7, 1));
 
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
   await weekView.waitForEventBoxAt(controller.window, 6, 1);
   Assert.ok(!weekView.getEventBoxAt(controller.window, 1, 1));
   Assert.ok(weekView.getEventBoxAt(controller.window, 2, 1));
@@ -122,8 +120,8 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(!weekView.getEventBoxAt(controller.window, 7, 1));
 
   // multiweek view
-  switchToView(controller, "multiweek");
-  goToDate(controller, 2009, 1, 5);
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+  await goToDate(window, 2009, 1, 5);
   // Wait for the first items, then check the ones not to be present.
   // Assert exactly two.
   await multiweekView.waitForItemAt(controller.window, 1, 3, 1, 1);
@@ -145,7 +143,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(!multiweekView.getItemAt(controller.window, 2, 7, 1));
 
   // month view
-  switchToView(controller, "month");
+  await CalendarTestUtils.setCalendarView(window, "month");
   // Wait for the first items, then check the ones not to be present.
   // Assert exactly two.
   // start on the second week
@@ -168,8 +166,8 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(!monthView.getItemAt(controller.window, 3, 7, 1));
 
   // Delete event.
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 12);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 12);
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   controller.click(eventBox);
   handleOccurrencePrompt(controller, eventBox, "delete", true);

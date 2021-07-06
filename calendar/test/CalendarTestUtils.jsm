@@ -706,6 +706,17 @@ const CalendarTestUtils = {
   },
 
   /**
+   * Make sure the current view has finished loading.
+   *
+   * @param {Window} win
+   */
+  async ensureViewLoaded(win) {
+    await TestUtils.waitForCondition(() => win.currentView().mPendingRefreshJobs.size == 0);
+    // After the queue is empty the view needs a moment to settle.
+    await new Promise(resolve => win.setTimeout(resolve, 200));
+  },
+
+  /**
    * Ensures the calendar view is in the specified mode.
    *
    * @param {Window} win
@@ -718,7 +729,7 @@ const CalendarTestUtils = {
     EventUtils.synthesizeMouseAtCenter(viewTabButton, { clickCount: 1 }, win);
     Assert.equal(win.currentView().id, `${viewName}-view`);
 
-    await new Promise(resolve => win.setTimeout(resolve));
+    await CalendarTestUtils.ensureViewLoaded(win);
   },
 
   /**
@@ -732,6 +743,7 @@ const CalendarTestUtils = {
     for (let i = 0; i < n; i++) {
       await clickAndWait(win, viewForwardButton);
     }
+    await CalendarTestUtils.ensureViewLoaded(win);
   },
 
   /**
@@ -745,6 +757,7 @@ const CalendarTestUtils = {
     for (let i = 0; i < n; i++) {
       await clickAndWait(win, viewBackwardButton);
     }
+    await CalendarTestUtils.ensureViewLoaded(win);
   },
 
   /**

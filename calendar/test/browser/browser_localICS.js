@@ -26,7 +26,7 @@ var calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
 calendarFile.append(calendarName + ".ics");
 
 add_task(async function testLocalICS() {
-  await CalendarTestUtils.setCalendarView(controller.window, "day");
+  await CalendarTestUtils.setCalendarView(window, "day");
   await createCalendarUsingDialog(calendarName, { network: {} });
 
   // Create new event.

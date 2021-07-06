@@ -10,8 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  switchToView,
-  viewForward,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -27,8 +25,8 @@ const HOUR = 8;
 
 add_task(async function testWeeklyUntilRecurrence() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 5); // Monday
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 5); // Monday
 
   // Create weekly recurring event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
@@ -40,27 +38,27 @@ add_task(async function testWeeklyUntilRecurrence() {
   for (let week = 0; week < 3; week++) {
     // Monday
     await dayView.waitForEventBoxAt(controller.window, 1);
-    viewForward(controller, 2);
+    await CalendarTestUtils.calendarViewForward(window, 2);
 
     // Wednesday
     await dayView.waitForEventBoxAt(controller.window, 1);
-    viewForward(controller, 2);
+    await CalendarTestUtils.calendarViewForward(window, 2);
 
     // Friday
     await dayView.waitForEventBoxAt(controller.window, 1);
-    viewForward(controller, 3);
+    await CalendarTestUtils.calendarViewForward(window, 3);
   }
 
   // Monday, last occurrence
   await dayView.waitForEventBoxAt(controller.window, 1);
-  viewForward(controller, 2);
+  await CalendarTestUtils.calendarViewForward(window, 2);
 
   // Wednesday
   await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   // Check week view.
-  switchToView(controller, "week");
-  goToDate(controller, 2009, 1, 5);
+  await CalendarTestUtils.setCalendarView(window, "week");
+  await goToDate(window, 2009, 1, 5);
   for (let week = 0; week < 3; week++) {
     // Monday
     await weekView.waitForEventBoxAt(controller.window, 2, 1);
@@ -71,7 +69,7 @@ add_task(async function testWeeklyUntilRecurrence() {
     // Friday
     await weekView.waitForEventBoxAt(controller.window, 6, 1);
 
-    viewForward(controller, 1);
+    await CalendarTestUtils.calendarViewForward(window, 1);
   }
 
   // Monday, last occurrence
@@ -80,8 +78,8 @@ add_task(async function testWeeklyUntilRecurrence() {
   await weekView.waitForNoEventBoxAt(controller.window, 4, 1);
 
   // Check multiweek view.
-  switchToView(controller, "multiweek");
-  goToDate(controller, 2009, 1, 5);
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+  await goToDate(window, 2009, 1, 5);
   for (let week = 1; week < 4; week++) {
     // Monday
     await multiweekView.waitForItemAt(controller.window, week, 2, 1);
@@ -98,8 +96,8 @@ add_task(async function testWeeklyUntilRecurrence() {
   await multiweekView.waitForNoItemAt(controller.window, 4, 4, 1);
 
   // Check month view.
-  switchToView(controller, "month");
-  goToDate(controller, 2009, 1, 5);
+  await CalendarTestUtils.setCalendarView(window, "month");
+  await goToDate(window, 2009, 1, 5);
   // starts on week 2 in month-view
   for (let week = 2; week < 5; week++) {
     // Monday

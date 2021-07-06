@@ -25,8 +25,8 @@ const HOUR = 8;
 
 add_task(async function testLastDayOfMonthRecurrence() {
   createCalendar(controller, CALENDARNAME);
-  await setCalendarView(controller.window, "day");
-  goToDate(controller, 2008, 1, 31); // Start with a leap year.
+  await setCalendarView(window, "day");
+  await goToDate(window, 2008, 1, 31); // Start with a leap year.
 
   // Create monthly recurring event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
@@ -58,28 +58,28 @@ add_task(async function testLastDayOfMonthRecurrence() {
     let date = new Date(Date.UTC(y, m - 1, d));
     let column = date.getUTCDay() + 1;
 
-    goToDate(controller, y, m, d);
+    await goToDate(window, y, m, d);
 
     // day view
-    await setCalendarView(controller.window, "day");
+    await setCalendarView(window, "day");
     await dayView.waitForEventBoxAt(controller.window, 1);
 
     // week view
-    await setCalendarView(controller.window, "week");
+    await setCalendarView(window, "week");
     await weekView.waitForEventBoxAt(controller.window, column, 1);
 
     // multiweek view
-    await setCalendarView(controller.window, "multiweek");
+    await setCalendarView(window, "multiweek");
     await multiweekView.waitForItemAt(controller.window, 1, column, 1);
 
     // month view
-    await setCalendarView(controller.window, "month");
+    await setCalendarView(window, "month");
     await monthView.waitForItemAt(controller.window, correctRow, column, 1);
   }
 
   // Delete event.
-  goToDate(controller, checkingData[0][0], checkingData[0][1], checkingData[0][2]);
-  await setCalendarView(controller.window, "day");
+  await goToDate(window, checkingData[0][0], checkingData[0][1], checkingData[0][2]);
+  await setCalendarView(window, "day");
   let box = await dayView.waitForEventBoxAt(controller.window, 1);
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);

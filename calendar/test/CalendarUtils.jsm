@@ -8,14 +8,10 @@ const EXPORTED_SYMBOLS = [
   "TIMEOUT_MODAL_DIALOG",
   "CALENDARNAME",
   "handleOccurrencePrompt",
-  "switchToView",
   "goToDate",
   "goToToday",
   "execEventDialogCallback",
-  "ensureViewLoaded",
   "checkMonthAlarmIcon",
-  "viewForward",
-  "viewBack",
   "closeAllEventDialogs",
   "deleteCalendars",
   "createCalendar",
@@ -25,9 +21,6 @@ const EXPORTED_SYMBOLS = [
 ];
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
-);
 var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/PrefTabHelpers.jsm"
 );
@@ -42,6 +35,12 @@ var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm"
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+ChromeUtils.defineModuleGetter(
+  this,
+  "CalendarTestUtils",
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+);
+
 var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;
 var TIMEOUT_MODAL_DIALOG = 30000;
@@ -49,28 +48,7 @@ var CALENDARNAME = "Mozmill";
 var EVENT_DIALOG_NAME = "Calendar:EventDialog";
 var EVENT_SUMMARY_DIALOG_NAME = "Calendar:EventSummaryDialog";
 
-var controller;
-
-function setupModule() {
-  // For our tests, we assume that Sunday is start of week.
-  Services.prefs.setIntPref("calendar.week.start", 0);
-
-  // We are in calendarTests, so we make sure, calendar-tab with day-view is displayed.
-  controller = wait_for_existing_window("mail:3pane");
-  switchToView(controller, "day");
-}
-setupModule();
-
-/**
- * Make sure, the current view has finished loading.
- *
- * @param controller        Mozmill window controller
- */
-function ensureViewLoaded(controller) {
-  controller.waitFor(() => controller.window.currentView().mPendingRefreshJobs.size == 0);
-  // After the queue is empty the view needs a moment to settle.
-  controller.sleep(200);
-}
+var controller = wait_for_existing_window("mail:3pane");
 
 /**
  * Open and click the appropriate button on the recurrence-Prompt Dialog.
@@ -111,55 +89,38 @@ function handleOccurrencePrompt(controller, element, mode, selectParent) {
 }
 
 /**
- * Switch to a view and make sure it's displayed.
- *
- * @param controller        Mozmill window controller
- * @param view              day, week, multiweek or month
- */
-function switchToView(controller, view) {
-  let tabButton = controller.window.document.getElementById("calendar-tab-button");
-  controller.click(tabButton);
-
-  let button = controller.window.document.getElementById(`calendar-${view}-view-button`);
-  controller.click(button);
-
-  ensureViewLoaded(controller);
-}
-
-/**
  * Go to a specific date using minimonth.
  *
- * @param controller    Main window controller
+ * @param window        Main window
  * @param year          Four-digit year
  * @param month         1-based index of a month
  * @param day           1-based index of a day
  */
-function goToDate(controller, year, month, day) {
-  let miniMonth = controller.window.document.getElementById("calMinimonth");
+async function goToDate(window, year, month, day) {
+  let miniMonth = window.document.getElementById("calMinimonth");
 
   let activeYear = miniMonth.querySelector(".minimonth-year-name").value;
 
   let activeMonth = miniMonth.querySelector(".minimonth-month-name").getAttribute("monthIndex");
 
-  function doScroll(name, difference, sleepTime) {
+  async function doScroll(name, difference, sleepTime) {
     if (difference === 0) {
       return;
     }
     let query = `.${name}s-${difference > 0 ? "back" : "forward"}-button`;
-    let scrollArrow;
-    controller.waitFor(() => {
-      scrollArrow = miniMonth.querySelector(query);
-      return scrollArrow;
-    }, `Query for scroll: ${query}`);
+    let scrollArrow = await TestUtils.waitForCondition(
+      () => miniMonth.querySelector(query),
+      `Query for scroll: ${query}`
+    );
 
     for (let i = 0; i < Math.abs(difference); i++) {
       scrollArrow.doCommand();
-      controller.sleep(sleepTime);
+      await new Promise(resolve => window.setTimeout(resolve, sleepTime));
     }
   }
 
-  doScroll("year", activeYear - year, 10);
-  doScroll("month", activeMonth - (month - 1), 25);
+  await doScroll("year", activeYear - year, 10);
+  await doScroll("month", activeMonth - (month - 1), 25);
 
   function getMiniMonthDay(week, day) {
     return miniMonth.querySelector(
@@ -173,18 +134,22 @@ function goToDate(controller, year, month, day) {
   let week = Math.floor((positionOfFirst + day - 1) / 7) + 1;
 
   // Pick day.
-  controller.click(getMiniMonthDay(week, weekDay));
-  ensureViewLoaded(controller);
+  EventUtils.synthesizeMouseAtCenter(getMiniMonthDay(week, weekDay), {}, window);
+  await CalendarTestUtils.ensureViewLoaded(window);
 }
 
 /**
  * Go to today.
  *
- * @param controller    Main window controller
+ * @param window - Main window
  */
-function goToToday(controller) {
-  controller.click(controller.window.document.getElementById("today-view-button"));
-  ensureViewLoaded(controller);
+async function goToToday(window) {
+  EventUtils.synthesizeMouseAtCenter(
+    window.document.getElementById("today-view-button"),
+    {},
+    window
+  );
+  await CalendarTestUtils.ensureViewLoaded(window);
 }
 
 async function execEventDialogCallback(callback) {
@@ -209,34 +174,6 @@ async function execEventDialogCallback(callback) {
 function checkMonthAlarmIcon(controller, week, day) {
   let dayBox = CalendarTestUtils.monthView.getItemAt(controller.window, week, day, 1);
   Assert.ok(dayBox.querySelector(".alarm-icons-box > .reminder-icon"));
-}
-
-/**
- * Moves the view n times forward.
- *
- * @param controller    Mozmill window controller
- * @param n             How many times next button in view is clicked.
- */
-function viewForward(controller, n) {
-  for (let i = 0; i < n; i++) {
-    controller.click(controller.window.document.getElementById("next-view-button"));
-    controller.sleep(SHORT_SLEEP);
-  }
-  ensureViewLoaded(controller);
-}
-
-/**
- * Moves the view n times back.
- *
- * @param controller    Mozmill window controller
- * @param n             How many times previous button in view is clicked.
- */
-function viewBack(controller, n) {
-  for (let i = 0; i < n; i++) {
-    controller.click(controller.window.document.getElementById("previous-view-button"));
-    controller.sleep(SHORT_SLEEP);
-  }
-  ensureViewLoaded(controller);
 }
 
 /**

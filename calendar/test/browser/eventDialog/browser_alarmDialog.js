@@ -10,8 +10,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  switchToView,
-  viewForward,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -29,9 +27,9 @@ add_task(async function testAlarmDialog() {
   const TITLE = "Event";
 
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
-  goToDate(controller, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
-  viewForward(controller, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
+  await CalendarTestUtils.calendarViewForward(window, 1);
 
   let allDayHeader = dayView.getAllDayHeader(controller.window);
   Assert.ok(allDayHeader);

@@ -9,8 +9,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  switchToView,
-  ensureViewLoaded,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -28,8 +26,8 @@ const DESC = "Day View Event Description";
 
 add_task(async function testDayView() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
   // Verify date in view.
   await TestUtils.waitForCondition(() => {
@@ -74,7 +72,7 @@ add_task(async function testDayView() {
   await setData(dialogWindow, iframeWindow, { title: TITLE2 });
   await saveAndCloseItemDialog(dialogWindow);
 
-  ensureViewLoaded(controller);
+  await CalendarTestUtils.ensureViewLoaded(window);
 
   // Check if name was saved.
   eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(controller.window, 1);

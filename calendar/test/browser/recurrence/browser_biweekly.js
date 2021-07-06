@@ -10,8 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  switchToView,
-  viewForward,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -24,8 +22,8 @@ const HOUR = 8;
 
 add_task(async function testBiweeklyRecurrence() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 31);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 31);
 
   // Create biweekly event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
@@ -34,44 +32,44 @@ add_task(async function testBiweeklyRecurrence() {
   await saveAndCloseItemDialog(dialogWindow);
 
   // Check day view.
-  switchToView(controller, "day");
+  await CalendarTestUtils.setCalendarView(window, "day");
   for (let i = 0; i < 4; i++) {
     await dayView.waitForEventBoxAt(controller.window, 1);
-    viewForward(controller, 14);
+    await CalendarTestUtils.calendarViewForward(window, 14);
   }
 
   // Check week view.
-  switchToView(controller, "week");
-  goToDate(controller, 2009, 1, 31);
+  await CalendarTestUtils.setCalendarView(window, "week");
+  await goToDate(window, 2009, 1, 31);
 
   for (let i = 0; i < 4; i++) {
     await weekView.waitForEventBoxAt(controller.window, 7, 1);
-    viewForward(controller, 2);
+    await CalendarTestUtils.calendarViewForward(window, 2);
   }
 
   // Check multiweek view.
-  switchToView(controller, "multiweek");
-  goToDate(controller, 2009, 1, 31);
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+  await goToDate(window, 2009, 1, 31);
 
   // Always two occurrences in view, 1st and 3rd or 2nd and 4th week.
   for (let i = 0; i < 5; i++) {
     await multiweekView.waitForItemAt(controller.window, (i % 2) + 1, 7, 1);
     Assert.ok(multiweekView.getItemAt(controller.window, (i % 2) + 3, 7, 1));
-    viewForward(controller, 1);
+    await CalendarTestUtils.calendarViewForward(window, 1);
   }
 
   // Check month view.
-  switchToView(controller, "month");
-  goToDate(controller, 2009, 1, 31);
+  await CalendarTestUtils.setCalendarView(window, "month");
+  await goToDate(window, 2009, 1, 31);
 
   // January
   await monthView.waitForItemAt(controller.window, 5, 7, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
 
   // February
   await monthView.waitForItemAt(controller.window, 2, 7, 1);
   Assert.ok(monthView.getItemAt(controller.window, 4, 7, 1));
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
 
   // March
   await monthView.waitForItemAt(controller.window, 2, 7, 1);

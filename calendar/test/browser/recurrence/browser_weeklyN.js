@@ -10,8 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  switchToView,
-  viewForward,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -26,8 +24,8 @@ const HOUR = 8;
 
 add_task(async function testWeeklyNRecurrence() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 5);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 5);
 
   // Create weekly recurring event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
@@ -39,18 +37,18 @@ add_task(async function testWeeklyNRecurrence() {
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 0; i < 4; i++) {
     await dayView.waitForEventBoxAt(controller.window, 1);
-    viewForward(controller, 1);
+    await CalendarTestUtils.calendarViewForward(window, 1);
   }
 
   // Not Friday.
   await dayView.waitForNoEventBoxAt(controller.window, 1);
-  viewForward(controller, 1);
+  await CalendarTestUtils.calendarViewForward(window, 1);
 
   // Not Saturday as only 4 occurrences are set.
   await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   // Check week view.
-  switchToView(controller, "week");
+  await CalendarTestUtils.setCalendarView(window, "week");
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
@@ -61,7 +59,7 @@ add_task(async function testWeeklyNRecurrence() {
   await weekView.waitForNoEventBoxAt(controller.window, 7, 1);
 
   // Check multiweek view.
-  switchToView(controller, "multiweek");
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
@@ -72,7 +70,7 @@ add_task(async function testWeeklyNRecurrence() {
   Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7, 1));
 
   // Check month view.
-  switchToView(controller, "month");
+  await CalendarTestUtils.setCalendarView(window, "month");
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {

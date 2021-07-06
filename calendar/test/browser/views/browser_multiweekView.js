@@ -9,7 +9,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -27,8 +26,8 @@ const DESC = "Multiweek View Event Description";
 
 add_task(async function setupModule(module) {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "multiweek");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+  await goToDate(window, 2009, 1, 1);
 
   // Verify date.
   await TestUtils.waitForCondition(() => {

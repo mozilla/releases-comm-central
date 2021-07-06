@@ -10,7 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -24,8 +23,8 @@ const EPOCH = 1970;
 
 add_task(async function testAnnualRecurrence() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
-  goToDate(controller, STARTYEAR, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, STARTYEAR, 1, 1);
 
   // Create yearly recurring all-day event.
   let eventBox = dayView.getAllDayHeader(controller.window);
@@ -35,30 +34,30 @@ add_task(async function testAnnualRecurrence() {
 
   let checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];
   for (let year of checkYears) {
-    goToDate(controller, year, 1, 1);
+    await goToDate(window, year, 1, 1);
     let date = new Date(Date.UTC(year, 0, 1));
     let column = date.getUTCDay() + 1;
 
     // day view
-    switchToView(controller, "day");
+    await CalendarTestUtils.setCalendarView(window, "day");
     await dayView.waitForAllDayItemAt(controller.window, 1);
 
     // week view
-    switchToView(controller, "week");
+    await CalendarTestUtils.setCalendarView(window, "week");
     await weekView.waitForAllDayItemAt(controller.window, column, 1);
 
     // multiweek view
-    switchToView(controller, "multiweek");
+    await CalendarTestUtils.setCalendarView(window, "multiweek");
     await multiweekView.waitForItemAt(controller.window, 1, column, 1);
 
     // month view
-    switchToView(controller, "month");
+    await CalendarTestUtils.setCalendarView(window, "month");
     await monthView.waitForItemAt(controller.window, 1, column, 1);
   }
 
   // Delete event.
-  goToDate(controller, checkYears[0], 1, 1);
-  switchToView(controller, "day");
+  await goToDate(window, checkYears[0], 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
   const box = await dayView.waitForAllDayItemAt(controller.window, 1);
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);

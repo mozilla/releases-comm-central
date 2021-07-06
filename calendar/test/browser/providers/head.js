@@ -132,7 +132,7 @@ async function runTestAlarms() {
   repeatUntil.day += 15;
 
   await CalendarTestUtils.setCalendarView(window, "multiweek");
-  goToToday(controller);
+  await goToToday(window);
   Assert.equal(window.unifinderTreeView.rowCount, 0, "unifinder event count");
 
   alarmObserver._alarmCount = 0;
@@ -276,7 +276,7 @@ let syncChangesTest = {
 
   async runPart1() {
     await CalendarTestUtils.setCalendarView(window, "multiweek");
-    goToToday(controller);
+    await goToToday(window);
 
     Assert.ok(!CalendarTestUtils.multiweekView.getItemAt(window, 2, 3, 1), "no existing item");
 

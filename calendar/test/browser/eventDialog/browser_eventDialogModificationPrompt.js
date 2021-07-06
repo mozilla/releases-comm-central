@@ -11,7 +11,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -26,8 +25,8 @@ var { dayView } = CalendarTestUtils;
 // Test that closing an event dialog with no changes does not prompt for save.
 add_task(async function testEventDialogModificationPrompt() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
-  goToDate(controller, 2009, 1, 1);
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await goToDate(window, 2009, 1, 1);
 
   let createbox = dayView.getHourBoxAt(controller.window, 8);
 
