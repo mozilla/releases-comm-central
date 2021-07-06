@@ -4,12 +4,10 @@
 
 var {
   CALENDARNAME,
-  closeAllEventDialogs,
-  controller,
   createCalendar,
   deleteCalendars,
   goToDate,
-  handleOccurrencePrompt,
+  handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { menulistSelect } = ChromeUtils.import(
@@ -82,7 +80,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
   await setCalendarView(window, "day");
   let box = await dayView.waitForEventBoxAt(window, 1);
   EventUtils.synthesizeMouseAtCenter(box, {}, window);
-  handleOccurrencePrompt(controller, box, "delete", true);
+  await handleDeleteOccurrencePrompt(window, box, true);
   await dayView.waitForNoEventBoxAt(window, 1);
 
   Assert.ok(true, "Test ran to completion");
@@ -112,5 +110,4 @@ async function setRecurrence(recurrenceWindow) {
 
 registerCleanupFunction(function teardownModule() {
   deleteCalendars(window, CALENDARNAME);
-  closeAllEventDialogs();
 });

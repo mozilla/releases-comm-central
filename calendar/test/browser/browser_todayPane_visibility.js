@@ -6,7 +6,7 @@
  * openNewCalendarTaskTab, openPreferencesTab, openTasksTab,
  * selectCalendarEventTab, selectCalendarTaskTab, selectFolderTab */
 
-var { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
+var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 

@@ -5,8 +5,6 @@
 var {
   CALENDARNAME,
   TIMEOUT_MODAL_DIALOG,
-  closeAllEventDialogs,
-  controller,
   createCalendar,
   deleteCalendars,
   goToDate,
@@ -14,9 +12,6 @@ var {
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
-);
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { dayView } = CalendarTestUtils;
@@ -93,5 +88,4 @@ add_task(async function testAlarmDialog() {
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(window, CALENDARNAME);
-  closeAllEventDialogs();
 });

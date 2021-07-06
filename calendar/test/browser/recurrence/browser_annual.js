@@ -4,12 +4,10 @@
 
 var {
   CALENDARNAME,
-  closeAllEventDialogs,
-  controller,
   createCalendar,
   deleteCalendars,
   goToDate,
-  handleOccurrencePrompt,
+  handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -60,7 +58,7 @@ add_task(async function testAnnualRecurrence() {
   await CalendarTestUtils.setCalendarView(window, "day");
   const box = await dayView.waitForAllDayItemAt(window, 1);
   EventUtils.synthesizeMouseAtCenter(box, {}, window);
-  handleOccurrencePrompt(controller, box, "delete", true);
+  await handleDeleteOccurrencePrompt(window, box, true);
   await TestUtils.waitForCondition(() => !dayView.getAllDayItemAt(window, 1), "No all-day events");
 
   Assert.ok(true, "Test ran to completion");
@@ -68,5 +66,4 @@ add_task(async function testAnnualRecurrence() {
 
 registerCleanupFunction(function teardownModule() {
   deleteCalendars(window, CALENDARNAME);
-  closeAllEventDialogs();
 });

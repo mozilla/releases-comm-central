@@ -5,8 +5,6 @@
 var {
   MID_SLEEP,
   CALENDARNAME,
-  closeAllEventDialogs,
-  controller,
   createCalendar,
   deleteCalendars,
   execEventDialogCallback,
@@ -157,5 +155,4 @@ add_task(async function setupModule(module) {
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(window, CALENDARNAME);
-  closeAllEventDialogs();
 });

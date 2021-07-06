@@ -7,7 +7,6 @@ requestLongerTimeout(3);
 var {
   CALENDARNAME,
   createCalendar,
-  controller,
   deleteCalendars,
   goToDate,
   findEventsInNode,
@@ -62,7 +61,7 @@ add_task(async function testTimezones2_CreateEvents() {
   ];
   let time = cal.createDateTime();
   for (let i = 0; i < TIMEZONES.length; i++) {
-    let eventBox = CalendarTestUtils.dayView.getHourBoxAt(controller.window, i + 11);
+    let eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, i + 11);
     let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
     time.hour = times[i][0];
     time.minute = times[i][1];

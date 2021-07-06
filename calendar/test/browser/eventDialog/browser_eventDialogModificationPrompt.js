@@ -4,14 +4,9 @@
 
 requestLongerTimeout(2);
 
-var {
-  CALENDARNAME,
-  closeAllEventDialogs,
-  controller,
-  createCalendar,
-  deleteCalendars,
-  goToDate,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { CALENDARNAME, createCalendar, deleteCalendars, goToDate } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -110,7 +105,6 @@ add_task(async function testDescriptionWhitespace() {
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(window, CALENDARNAME);
-  closeAllEventDialogs();
 });
 
 function setupData() {

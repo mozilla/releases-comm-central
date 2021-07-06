@@ -6,18 +6,13 @@ var {
   CALENDARNAME,
   TIMEOUT_MODAL_DIALOG,
   checkMonthAlarmIcon,
-  closeAllEventDialogs,
-  controller,
   createCalendar,
   deleteCalendars,
   goToDate,
-  handleOccurrencePrompt,
+  handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
-);
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -141,23 +136,28 @@ add_task(async function testEventDialog() {
   let attachmentsTab = iframeDocument.getElementById("event-grid-tabpanel-attachments");
   Assert.equal(attachmentsTab.querySelectorAll("richlistitem").length, 1);
 
+  let alarmPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://calendar/content/calendar-alarm-dialog.xhtml",
+    {
+      callback(alarmWindow) {
+        let dismissAllButton = alarmWindow.document.getElementById("alarm-dismiss-all-button");
+        EventUtils.synthesizeMouseAtCenter(dismissAllButton, {}, alarmWindow);
+      },
+    }
+  );
+
   // save
   await saveAndCloseItemDialog(dialogWindow);
 
   // Catch and dismiss alarm.
-  plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-    let dismissAllButton = alarm.window.document.getElementById("alarm-dismiss-all-button");
-    alarm.click(dismissAllButton);
-    // The dialog will close itself if we wait long enough.
-    alarm.sleep(500);
-  });
-  wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
+  await alarmPromise;
 
   // Verify event and alarm icon visible until endDate (3 full rows) and check tooltip.
   for (let row = 1; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
       await monthView.waitForItemAt(window, row, col, 1);
-      checkMonthAlarmIcon(controller, row, col);
+      checkMonthAlarmIcon(window, row, col);
       checkTooltip(row, col, startTime, endTime);
     }
   }
@@ -166,7 +166,7 @@ add_task(async function testEventDialog() {
   // Delete and verify deleted 6th col in row 1.
   EventUtils.synthesizeMouseAtCenter(monthView.getItemAt(window, 1, 6, 1), {}, window);
   let elemToDelete = document.getElementById("month-view");
-  handleOccurrencePrompt(controller, elemToDelete, "delete", false);
+  await handleDeleteOccurrencePrompt(window, elemToDelete, false);
 
   await monthView.waitForNoItemAt(window, 1, 6, 1);
 
@@ -185,7 +185,7 @@ add_task(async function testEventDialog() {
   // Delete series by deleting last item in row 1 and confirming to delete all.
   EventUtils.synthesizeMouseAtCenter(monthView.getItemAt(window, 1, 7, 1), {}, window);
   elemToDelete = document.getElementById("month-view");
-  handleOccurrencePrompt(controller, elemToDelete, "delete", true);
+  await handleDeleteOccurrencePrompt(window, elemToDelete, true);
 
   // Verify all deleted.
   await monthView.waitForNoItemAt(window, 1, 5, 1);
@@ -408,5 +408,4 @@ function checkTooltip(row, col, startTime, endTime) {
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(window, CALENDARNAME);
-  closeAllEventDialogs();
 });

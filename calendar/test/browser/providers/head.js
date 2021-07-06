@@ -8,9 +8,10 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
-var { controller, goToToday, handleOccurrencePrompt } = ChromeUtils.import(
+var { goToToday, handleDeleteOccurrencePrompt } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
+
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -224,7 +225,7 @@ async function runTestAlarms() {
   EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   eventBox.focus();
   window.calendarController.onSelectionChanged({ detail: window.currentView().getSelectedItems() });
-  handleOccurrencePrompt(controller, window.currentView(), "delete", true);
+  await handleDeleteOccurrencePrompt(window, window.currentView(), true);
 
   await CalendarTestUtils.multiweekView.waitForNoItemAt(
     window,

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { closeAllEventDialogs, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
+var { createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -58,5 +58,4 @@ Assert.ok(true, "Test ran to completion");
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(window, UTF8STRING);
   Services.prefs.clearUserPref("calendar.categories.names");
-  closeAllEventDialogs();
 });

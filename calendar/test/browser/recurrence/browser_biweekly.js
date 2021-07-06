@@ -4,12 +4,10 @@
 
 var {
   CALENDARNAME,
-  closeAllEventDialogs,
-  controller,
   createCalendar,
   deleteCalendars,
   goToDate,
-  handleOccurrencePrompt,
+  handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -79,7 +77,7 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Delete event.
   EventUtils.synthesizeMouseAtCenter(box, {}, window);
-  handleOccurrencePrompt(controller, box, "delete", true);
+  await handleDeleteOccurrencePrompt(window, box, true);
 
   await monthView.waitForNoItemAt(window, 4, 7, 1);
 
@@ -88,5 +86,4 @@ add_task(async function testBiweeklyRecurrence() {
 
 registerCleanupFunction(function teardownModule() {
   deleteCalendars(window, CALENDARNAME);
-  closeAllEventDialogs();
 });

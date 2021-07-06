@@ -7,7 +7,7 @@
 
 /* globals loadEventsFromFile */
 
-var { CALENDARNAME, controller, createCalendar, deleteCalendars, goToDate } = ChromeUtils.import(
+var { CALENDARNAME, createCalendar, deleteCalendars, goToDate } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 

@@ -7,7 +7,7 @@ const EXPORTED_SYMBOLS = [
   "MID_SLEEP",
   "TIMEOUT_MODAL_DIALOG",
   "CALENDARNAME",
-  "handleOccurrencePrompt",
+  "handleDeleteOccurrencePrompt",
   "goToDate",
   "goToToday",
   "execEventDialogCallback",
@@ -15,23 +15,16 @@ const EXPORTED_SYMBOLS = [
   "closeAllEventDialogs",
   "deleteCalendars",
   "createCalendar",
-  "openCalendarPrefs",
-  "closeCalendarPrefs",
-  "controller",
 ];
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
-  "resource://testing-common/mozmill/PrefTabHelpers.jsm"
-);
+var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 var EventUtils = ChromeUtils.import("resource://testing-common/mozmill/EventUtils.jsm");
-var {
-  close_window,
-  plan_for_modal_dialog,
-  wait_for_existing_window,
-  wait_for_modal_dialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
+
+// This still needs to load for some tests to pass. I'm not sure exactly why,
+// but this file loads a bunch of other things and one of them must be used.
+ChromeUtils.import("resource://testing-common/mozmill/FolderDisplayHelpers.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -46,46 +39,34 @@ var MID_SLEEP = 500;
 var TIMEOUT_MODAL_DIALOG = 30000;
 var CALENDARNAME = "Mozmill";
 var EVENT_DIALOG_NAME = "Calendar:EventDialog";
-var EVENT_SUMMARY_DIALOG_NAME = "Calendar:EventSummaryDialog";
-
-var controller = wait_for_existing_window("mail:3pane");
 
 /**
- * Open and click the appropriate button on the recurrence-Prompt Dialog.
+ * Delete one or all occurrences using the prompt.
  *
- * @param controller      Mozmill window controller
- * @param element         Element which will open the dialog.
- * @param mode            Action to exec on element (delete OR modify).
- * @param selectParent    true if all occurrences should be deleted.
+ * @param {Window} window - Main window.
+ * @param {Element} element - Element which will open the dialog.
+ * @param {boolean} selectParent - true if all occurrences should be deleted.
  */
-function handleOccurrencePrompt(controller, element, mode, selectParent) {
-  let handleOccurrenceDialog = dController => {
-    let buttonId;
-    if (selectParent) {
-      buttonId = "accept-parent-button";
-    } else {
-      buttonId = "accept-occurrence-button";
+async function handleDeleteOccurrencePrompt(window, element, selectParent) {
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://calendar/content/calendar-occurrence-prompt.xhtml",
+    {
+      callback(dialogWindow) {
+        let buttonId;
+        if (selectParent) {
+          buttonId = "accept-parent-button";
+        } else {
+          buttonId = "accept-occurrence-button";
+        }
+        let acceptButton = dialogWindow.document.getElementById(buttonId);
+        EventUtils.synthesizeMouseAtCenter(acceptButton, {}, dialogWindow);
+      },
     }
-    let acceptButton = dController.window.document.getElementById(buttonId);
-    dController.click(acceptButton);
-  };
-  let handleSummaryDialog = dController => {
-    let dialog = dController.window.document.querySelector("dialog");
-    let editButton = dialog.getButton("accept");
-    plan_for_modal_dialog("Calendar:OccurrencePrompt", handleOccurrenceDialog);
-    dController.click(editButton);
-    wait_for_modal_dialog("Calendar:OccurrencePrompt", TIMEOUT_MODAL_DIALOG);
-  };
-  if (mode == "delete") {
-    plan_for_modal_dialog("Calendar:OccurrencePrompt", handleOccurrenceDialog);
+  );
 
-    EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-    wait_for_modal_dialog("Calendar:OccurrencePrompt", TIMEOUT_MODAL_DIALOG);
-  } else if (mode == "modify") {
-    plan_for_modal_dialog(EVENT_SUMMARY_DIALOG_NAME, handleSummaryDialog);
-    controller.doubleClick(element);
-    wait_for_modal_dialog(EVENT_SUMMARY_DIALOG_NAME, TIMEOUT_MODAL_DIALOG);
-  }
+  EventUtils.synthesizeKey("VK_DELETE", {}, window);
+  await dialogPromise;
 }
 
 /**
@@ -168,21 +149,13 @@ async function execEventDialogCallback(callback) {
 /**
  * Checks if Alarm-Icon is shown on a given Event-Box.
  *
- * @param week - Week to check between 1-6
- * @param day  - Day to check between 1-7
+ * @param {Window} window - Main window.
+ * @param {number} week - Week to check between 1-6.
+ * @param {number} day - Day to check between 1-7.
  */
-function checkMonthAlarmIcon(controller, week, day) {
-  let dayBox = CalendarTestUtils.monthView.getItemAt(controller.window, week, day, 1);
+function checkMonthAlarmIcon(window, week, day) {
+  let dayBox = CalendarTestUtils.monthView.getItemAt(window, week, day, 1);
   Assert.ok(dayBox.querySelector(".alarm-icons-box > .reminder-icon"));
-}
-
-/**
- * Closes all EventDialogs that may remain open after a failed test
- */
-function closeAllEventDialogs() {
-  for (let win of Services.wm.getEnumerator("Calendar:EventDialog")) {
-    close_window(win);
-  }
 }
 
 /**
@@ -221,12 +194,4 @@ function createCalendar(window, name) {
     window
   );
   return calendar.id;
-}
-
-function openCalendarPrefs(aCallback, aParentController) {
-  aCallback(open_pref_tab("paneCalendar"));
-}
-
-function closeCalendarPrefs(tab) {
-  close_pref_tab(tab);
 }

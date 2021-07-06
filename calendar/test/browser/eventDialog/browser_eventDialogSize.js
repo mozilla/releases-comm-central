@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  CALENDARNAME,
-  closeAllEventDialogs,
-  controller,
-  createCalendar,
-  deleteCalendars,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 var { cancelItemDialog } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -128,7 +124,6 @@ add_task(async function testTaskDialog() {
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(window, CALENDARNAME);
-  closeAllEventDialogs();
 });
 
 // Check the dialog is resized large enough to hold the iframe.

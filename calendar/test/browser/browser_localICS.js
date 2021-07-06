@@ -4,14 +4,11 @@
 
 /* globals createCalendarUsingDialog */
 
-var { controller, deleteCalendars } = ChromeUtils.import(
+var { deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
-);
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
