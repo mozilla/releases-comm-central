@@ -9,8 +9,6 @@ kind-dependencies:
     - packages
 
 reference-jobs:
-    - debian8-amd64-build
-    - debian8-base
     - debian8-i386-packages
     - debian8-i386-raw
     - debian8-packages
@@ -19,7 +17,6 @@ reference-jobs:
     - debian10-base
     - debian10-packages
     - debian10-raw
-    - deb8-toolchain-build
     - deb10-toolchain-build
     - fetch
     - funsize-update-generator
