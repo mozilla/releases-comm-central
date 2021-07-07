@@ -189,6 +189,7 @@ function isDefaultIcon(icon) {
  *        The message to be emitted as part of the actual test.
  */
 function checkPermissionString(string, key, param, msg) {
+  console.log(key);
   let localizedString = param
     ? gBrowserBundle.formatStringFromName(key, [param])
     : gBrowserBundle.GetStringFromName(key);
@@ -387,7 +388,7 @@ async function testInstallMethod(installFn, telemetryBase) {
         ["webextPerms.description.nativeMessaging"],
         // The below permissions are deliberately in this order as permissions
         // are sorted alphabetically by the permission string to match AMO.
-        ["webextPerms.description.accountsRead"],
+        ["webextPerms.description.accountsRead2"],
         ["webextPerms.description.tabs"],
       ]);
     } else if (filename == NO_PERMS_XPI) {

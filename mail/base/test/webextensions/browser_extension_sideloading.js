@@ -152,7 +152,7 @@ add_task(async function test_sideloading() {
     /\/foo-icon\.png$/,
     [
       ["webextPerms.hostDescription.allUrls"],
-      ["webextPerms.description.accountsRead"],
+      ["webextPerms.description.accountsRead2"],
     ],
     kSideloaded
   );
