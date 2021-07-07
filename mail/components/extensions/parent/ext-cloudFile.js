@@ -93,7 +93,22 @@ class CloudFileAccount {
     return this.extension.manifest.cloud_file.new_account_url;
   }
 
-  async uploadFile(file, name = file.leafName) {
+  /**
+   * Initiate a WebExtension cloudFile upload by preparing a CloudFile object &
+   * and triggering an onFileUpload event.
+   *
+   * @param {Object} window Window object of the window, where the upload has
+   *                        been initiated. Must be null, if the window is not
+   *                        supported by the WebExtension windows/tabs API.
+   *                        Currently, this should only be set by the compose
+   *                        window.
+   * @param {nsIFile} file File to be uploaded.
+   * @param {String} [name] Name of the file after it has been uploaded. Defaults
+   *                        to the original filename of the uploaded file.
+   * @returns {Object} Information about the uploaded file: id, leafName, path &
+   *                   size.
+   */
+  async uploadFile(window, file, name = file.leafName) {
     let id = this._nextId++;
     let upload = {
       id,
@@ -111,6 +126,7 @@ class CloudFileAccount {
           id,
           name,
           data: blob,
+          tab: window,
         });
       } else {
         let buffer = await promiseFileRead(file);
@@ -118,6 +134,7 @@ class CloudFileAccount {
           id,
           name,
           data: buffer,
+          tab: window,
         });
       }
     } catch (ex) {
@@ -152,7 +169,18 @@ class CloudFileAccount {
     return this._uploads.get(uploadId).url;
   }
 
-  cancelFileUpload(file) {
+  /**
+   * Cancel a WebExtension cloudFile upload by triggering an onFileUploadAbort
+   * event.
+   *
+   * @param {Object} window Window object of the window, where the upload has
+   *                        been initiated. Must be null, if the window is not
+   *                        supported by the WebExtension windows/tabs API.
+   *                        Currently, this should only be set by the compose
+   *                        window.
+   * @param {nsIFile} file File to be uploaded.
+   */
+  cancelFileUpload(window, file) {
     let path = file.path;
     let uploadId = -1;
     for (let upload of this._uploads.values()) {
@@ -162,7 +190,7 @@ class CloudFileAccount {
       }
     }
     if (uploadId != -1) {
-      this.extension.emit("uploadAbort", this, { id: uploadId });
+      this.extension.emit("uploadAbort", this, { id: uploadId, tab: window });
     }
   }
 
@@ -172,12 +200,23 @@ class CloudFileAccount {
     });
   }
 
-  async deleteFile(uploadId) {
+  /**
+   * Delete a WebExtension cloudFile upload by triggering an onFileDeleted event.
+   *
+   * @param {Object} window Window object of the window, where the upload has
+   *                        been initiated. Must be null, if the window is not
+   *                        supported by the WebExtension windows/tabs API.
+   *                        Currently, this should only be set by the compose
+   *                        window.
+   * @param {Integer} uploadId Id of the uploaded file.
+   */
+  async deleteFile(window, uploadId) {
     let results;
     try {
       if (this._uploads.has(uploadId)) {
         results = await this.extension.emit("deleteFile", this, {
           id: uploadId,
+          tab: window,
         });
       }
       this._uploads.delete(uploadId);
@@ -247,15 +286,19 @@ this.cloudFile = class extends ExtensionAPI {
 
   getAPI(context) {
     let self = this;
+    let { extension } = context;
+    let { tabManager } = extension;
+
     return {
       cloudFile: {
         onFileUpload: new EventManager({
           context,
           name: "cloudFile.onFileUpload",
           register: fire => {
-            let listener = (event, account, { id, name, data }) => {
+            let listener = (event, account, { id, name, data, tab }) => {
+              tab = tab ? tabManager.convert(tab) : null;
               account = convertCloudFileAccount(account);
-              return fire.async(account, { id, name, data });
+              return fire.async(account, { id, name, data }, tab);
             };
 
             context.extension.on("uploadFile", listener);
@@ -269,9 +312,10 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileUploadAbort",
           register: fire => {
-            let listener = (event, account, { id }) => {
+            let listener = (event, account, { id, tab }) => {
+              tab = tab ? tabManager.convert(tab) : null;
               account = convertCloudFileAccount(account);
-              return fire.async(account, id);
+              return fire.async(account, id, tab);
             };
 
             context.extension.on("uploadAbort", listener);
@@ -285,9 +329,10 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileDeleted",
           register: fire => {
-            let listener = (event, account, { id }) => {
+            let listener = (event, account, { id, tab }) => {
+              tab = tab ? tabManager.convert(tab) : null;
               account = convertCloudFileAccount(account);
-              return fire.async(account, id);
+              return fire.async(account, id, tab);
             };
 
             context.extension.on("deleteFile", listener);

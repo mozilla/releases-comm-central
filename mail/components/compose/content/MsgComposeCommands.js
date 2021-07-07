@@ -1388,7 +1388,7 @@ var attachmentBucketController = {
         for (let item of gAttachmentBucket.selectedItems) {
           if (item && item.uploading) {
             let file = fileHandler.getFileFromURLSpec(item.attachment.url);
-            item.cloudFileAccount.cancelFileUpload(file);
+            item.cloudFileAccount.cancelFileUpload(window, file);
           }
         }
       },
@@ -2147,7 +2147,7 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
   let upload;
   let statusCode = Cr.NS_OK;
   try {
-    upload = await cloudFileAccount.uploadFile(file, attachment.name);
+    upload = await cloudFileAccount.uploadFile(window, file, attachment.name);
   } catch (ex) {
     statusCode = ex;
   }
@@ -2287,7 +2287,7 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
 
 async function deleteCloudAttachment(attachment, id, cloudFileAccount) {
   try {
-    await cloudFileAccount.deleteFile(id);
+    await cloudFileAccount.deleteFile(window, id);
   } catch (ex) {
     let bundle = getComposeBundle();
     let displayName = cloudFileAccounts.getDisplayName(cloudFileAccount);
@@ -6676,7 +6676,7 @@ function RemoveAttachments(items) {
       }
       if (item.uploading) {
         let file = fileHandler.getFileFromURLSpec(originalUrl);
-        item.cloudFileAccount.cancelFileUpload(file);
+        item.cloudFileAccount.cancelFileUpload(window, file);
       } else {
         deleteCloudAttachment(
           item.attachment,

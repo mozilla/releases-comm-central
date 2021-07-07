@@ -310,7 +310,7 @@ add_task(function test_no_offer_on_conversion() {
   // Override uploadFile to succeed instantaneously so that we don't have
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
-  provider.uploadFile = function(aFile) {
+  provider.uploadFile = function(window, aFile) {
     return Promise.resolve({
       id: 1,
     });
@@ -355,7 +355,7 @@ add_task(function test_offer_then_upload_notifications() {
   // Override uploadFile to succeed instantaneously so that we don't have
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
-  provider.uploadFile = function(aFile) {
+  provider.uploadFile = function(window, aFile) {
     return Promise.resolve({
       id: 1,
     });

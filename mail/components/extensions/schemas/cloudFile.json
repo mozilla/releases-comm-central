@@ -72,6 +72,11 @@
             "name": "fileInfo",
             "$ref": "CloudFile",
             "description": "The file to upload"
+          },
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab",
+            "description": "The tab where the upload was initiated. Currently only available for the message composer."
           }
         ],
         "returns": {
@@ -104,6 +109,11 @@
             "name": "fileId",
             "minimum": 1,
             "description": "An identifier for this file"
+          },
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab",
+            "description": "The tab where the upload was initiated. Currently only available for the message composer."
           }
         ]
       },
@@ -122,6 +132,11 @@
             "name": "fileId",
             "minimum": 1,
             "description": "An identifier for this file"
+          },
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab",
+            "description": "The tab where the upload was initiated. Currently only available for the message composer."
           }
         ]
       },

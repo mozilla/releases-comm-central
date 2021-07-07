@@ -71,7 +71,7 @@ MockCloudfileAccount.prototype = {
     this.accountKey = aAccountKey;
   },
 
-  uploadFile(aFile) {
+  uploadFile(window, aFile) {
     return new Promise((resolve, reject) => {
       gMockCloudfileManager.inProgressUploads.add({
         resolve,
@@ -90,11 +90,11 @@ MockCloudfileAccount.prototype = {
     return `http://www.example.com/${this.accountKey}/${aFile.leafName}`;
   },
 
-  cancelFileUpload(aUploadId) {
+  cancelFileUpload(window, aUploadId) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
-  deleteFile(aUploadId) {
+  deleteFile(window, aUploadId) {
     return new Promise(resolve => fdh.mc.window.setTimeout(resolve));
   },
 

@@ -2234,7 +2234,8 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
   let image = listItem.querySelector("img");
   listItem.attachCloudFileAccount = cloudFileAccount;
   image.setAttribute("src", "chrome://global/skin/icons/loading.png");
-  cloudFileAccount.uploadFile(file, attachment.name).then(
+  // WebExtension APIs do not support calendar tabs.
+  cloudFileAccount.uploadFile(null, file, attachment.name).then(
     upload => {
       delete gAttachMap[attachment.hashId];
       attachment.uri = Services.io.newURI(upload.url);
@@ -2358,15 +2359,18 @@ function deleteAttachment() {
 
   if (item.attachCloudFileAccount && item.attachCloudFileUpload) {
     try {
-      item.attachCloudFileAccount.deleteFile(item.attachCloudFileUpload.id).catch(statusCode => {
-        // TODO With a notification bar, we could actually show this error.
-        cal.ERROR(
-          "[calendar-event-dialog] Deleting cloud attachment " +
-            "failed, file will remain on server. " +
-            " Status code: " +
-            statusCode
-        );
-      });
+      // WebExtension APIs do not support calendar tabs.
+      item.attachCloudFileAccount
+        .deleteFile(null, item.attachCloudFileUpload.id)
+        .catch(statusCode => {
+          // TODO With a notification bar, we could actually show this error.
+          cal.ERROR(
+            "[calendar-event-dialog] Deleting cloud attachment " +
+              "failed, file will remain on server. " +
+              " Status code: " +
+              statusCode
+          );
+        });
     } catch (e) {
       cal.ERROR(
         "[calendar-event-dialog] Deleting cloud attachment " +

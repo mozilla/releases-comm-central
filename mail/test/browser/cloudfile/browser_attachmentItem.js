@@ -71,7 +71,7 @@ add_task(async function test_upload_cancel_repeat() {
   // so that we're perpetually uploading...
   let promise;
   let started;
-  provider.uploadFile = function(aFile) {
+  provider.uploadFile = function(window, aFile) {
     return new Promise((resolve, reject) => {
       promise = { resolve, reject };
       started = true;
@@ -110,7 +110,7 @@ add_task(async function test_upload_multiple_and_cancel() {
   let cw = open_compose_new_mail();
 
   let promise;
-  provider.uploadFile = function(aFile) {
+  provider.uploadFile = function(window, aFile) {
     return new Promise((resolve, reject) => {
       promise = { resolve, reject };
     });
@@ -147,7 +147,7 @@ async function assert_can_cancel_upload(
 
   // Override the provider's cancelFileUpload function.  We can do this because
   // it's assumed that the provider is a MockCloudfileAccount.
-  aProvider.cancelFileUpload = function(aFileToCancel) {
+  aProvider.cancelFileUpload = function(window, aFileToCancel) {
     if (aTargetFile.equals(aFileToCancel)) {
       aPromise.reject(cloudFileAccounts.constants.uploadCancelled);
       cancelled = true;
