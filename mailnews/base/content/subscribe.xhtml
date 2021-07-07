@@ -11,7 +11,8 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/subscribe.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window id="subscribeWindow"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&subscribeDialog.title;"
         style="width: 44em; height: 33em;"
@@ -20,7 +21,7 @@
         onunload="SubscribeOnUnload()"
         lightweightthemes="true"
         windowtype="mailnews:subscribe">
-<dialog id="subscribeWindow">
+<dialog>
   <stringbundle id="bundle_subscribe" src="chrome://messenger/locale/subscribe.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 

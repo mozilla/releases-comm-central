@@ -8,14 +8,15 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/viewLog.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window id="viewLogWindow"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="onLoad();"
         title="&viewLog.title;"
         windowtype="mailnews:filterlog"
         persist="screenX screenY width height"
         style="width: 40em; height: 25em;">
-<dialog id="viewLogWindow"
-        buttons="accept"
+<dialog buttons="accept"
         buttonlabelaccept="&closeLog.label;"
         buttonaccesskeyaccept="&closeLog.accesskey;">
   <script src="chrome://messenger/content/viewLog.js"/>

@@ -169,7 +169,7 @@ function create_simple_filter() {
     let filterActions = fec.e("filterActionList");
     let firstAction = filterActions.getItemAtIndex(0);
     firstAction.setAttribute("value", "markasflagged");
-    fec.e("FilterEditor").acceptDialog();
+    fec.window.document.querySelector("dialog").acceptDialog();
   }
 
   // Let's open the filter editor.

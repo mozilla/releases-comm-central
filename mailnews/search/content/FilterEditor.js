@@ -204,7 +204,7 @@ function filterEditorOnLoad() {
 function onEnterInSearchTerm(event) {
   if (event.ctrlKey || (Services.appinfo.OS == "Darwin" && event.metaKey)) {
     // If accel key (Ctrl on Win/Linux, Cmd on Mac) was held too, accept the dialog.
-    document.getElementById("FilterEditor").acceptDialog();
+    document.querySelector("dialog").acceptDialog();
   } else {
     // If only plain Enter was pressed, add a new rule line.
     onMore(event);

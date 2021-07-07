@@ -16,7 +16,8 @@
   %searchTermDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window id="FilterEditor"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&window.title;"
         style="&filterEditorDialog.dimensions;"
@@ -24,8 +25,7 @@
         persist="width height screenX screenY"
         lightweightthemes="true"
         onload="filterEditorOnLoad();">
-<dialog id="FilterEditor"
-        buttons="accept,cancel">
+<dialog buttons="accept,cancel">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
   <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>

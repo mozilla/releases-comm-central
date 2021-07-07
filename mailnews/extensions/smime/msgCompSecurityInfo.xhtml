@@ -9,15 +9,15 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
 
-<window title="&title.label;"
+<window id="msgCompSecurityInfo"
+        title="&title.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 50em;"
         persist="width height"
         lightweightthemes="true"
         onload="onLoad();">
-<dialog id="msgCompSecurityInfo"
-        buttons="accept">
+<dialog buttons="accept">
   <script src="chrome://messenger-smime/content/msgCompSecurityInfo.js"/>
   <script><![CDATA[
       function resizeColumns() {

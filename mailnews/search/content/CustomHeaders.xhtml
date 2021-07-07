@@ -10,14 +10,14 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/CustomHeaders.dtd">
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window id="customHeaderDialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="onLoad();"
         style="width: 30em; height: 25em;"
         persist="width height screenX screenY"
         title="&window.title;">
-<dialog id="customHeadersDialog"
-        buttons="accept,cancel,extra1,extra2">
+<dialog buttons="accept,cancel,extra1,extra2">
   <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
   <stringbundle id="bundle_custom" src="chrome://messenger/locale/custom.properties"/>
 

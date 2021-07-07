@@ -10,14 +10,16 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/virtualFolderListDialog.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window id="searchFolderWindow"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&virtualFolderListTitle.title;"
         windowtype="mailnews:virtualFolderList"
         style="width: 27em; height: 25em;"
         persist="width height screenX screenY"
         lightweightthemes="true"
         onload="gSelectVirtual.load();">
-<dialog id="searchFolderWindow">
+<dialog>
   <script src="chrome://messenger/content/virtualFolderListEdit.js"/>
   <script src="chrome://messenger/content/folderPane.js"/>
   <script src="chrome://messenger/content/dialogShadowDom.js"/>
