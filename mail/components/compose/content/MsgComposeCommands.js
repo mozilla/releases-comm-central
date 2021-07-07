@@ -7879,50 +7879,26 @@ function setupAutocompleteInput(input) {
   };
 }
 
+/**
+ * Handle the keypress event of the From field.
+ *
+ * @param {Event} event - A DOM keypress event on #msgIdentity.
+ */
 function fromKeyPress(event) {
-  if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
-    document.getElementById("toAddrInput").focus();
-  }
-
-  // Interrupt if it's not a Tab event or the shift key was pressed.
-  if (event.key != "Tab" || event.shiftKey) {
-    return;
-  }
-
-  // If extra labels are available, let the focus move normally.
-  if (
+  if (event.key == "Enter") {
+    // Move the focus to the first available address input.
     document
-      .getElementById("addressingWidgetLabels")
-      .querySelectorAll(`label:not([collapsed="true"])`).length > 0
-  ) {
-    return;
+      .querySelector(
+        "#recipientsContainer .address-row:not(.hidden) .address-input[recipienttype]"
+      )
+      .focus();
   }
-
-  // If the extra recipients label is visible, let the focus move normally.
-  if (!document.getElementById("extraRecipientsLabel").collapsed) {
-    return;
-  }
-
-  event.preventDefault();
-
-  let row = document
-    .getElementById("recipientsContainer")
-    .querySelector(".address-row:not(.hidden)");
-
-  // Move focus on the close label if not collapsed.
-  if (!row.querySelector(".remove-field-button").hidden) {
-    row.querySelector(".remove-field-button").focus();
-    return;
-  }
-
-  // Focus on the autocomplete input field.
-  row.querySelector(`input[is="autocomplete-input"][recipienttype]`).focus();
 }
 
 /**
- * Handle the keypress event of the subject line.
+ * Handle the keypress event of the subject input.
  *
- * @param {Event} event - The DOM Event.
+ * @param {Event} event - A DOM keypress event on #msgSubject.
  */
 function subjectKeyPress(event) {
   if (event.key == "Delete" && event.repeat && gPreventRowDeletionKeysRepeat) {
