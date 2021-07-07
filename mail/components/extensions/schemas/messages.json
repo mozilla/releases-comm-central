@@ -9,7 +9,8 @@
             "type": "string",
             "enum": [
               "messagesMove",
-              "messagesRead"
+              "messagesRead",
+              "messagesDelete"
             ]
           }
         ]
@@ -594,10 +595,10 @@
       {
         "name": "delete",
         "type": "function",
-        "description": "Deletes messages, or moves them to the trash folder.",
+        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). The ``skipTrash`` parameter allows immediate permanent deletion, bypassing the trash folder.\n**Note**: Consider using :ref:`messages.move` to manually move messages to the account's trash folder, instead of requesting the overly powerful permission to actually delete messages. The account's trash folder can be extracted as follows: <literalinclude>includes/messages/getTrash.js<lang>JavaScript</lang></literalinclude>",
         "async": true,
         "permissions": [
-          "messagesMove"
+          "messagesDelete"
         ],
         "parameters": [
           {
@@ -612,7 +613,7 @@
           {
             "name": "skipTrash",
             "type": "boolean",
-            "description": "If true, the message will be permanently deleted without warning the user. If false or not specified, it will be moved to the trash folder.",
+            "description": "If true, the message will be deleted permanently, regardless of the account's deletion behavior settings.",
             "optional": true
           }
         ]

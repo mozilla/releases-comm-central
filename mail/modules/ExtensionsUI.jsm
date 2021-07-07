@@ -1018,8 +1018,21 @@ var ExtensionsUI = {
     let bundle = Services.strings.createBundle(ADDONS_PROPERTIES);
     let info2 = Object.assign({ appName: brandShortName }, info);
 
+    const getKeyForPermission = perm => {
+      // Map permission names to permission description keys. If a description has
+      // been updated, it needs a non-canonical mapping.
+      switch (perm) {
+        case "accountsRead":
+        case "messagesMove":
+          return `webextPerms.description.${perm}2`;
+        default:
+          return `webextPerms.description.${perm}`;
+      }
+    };
+
     let strings = ExtensionData.formatPermissionStrings(info2, bundle, {
       collapseOrigins: true,
+      getKeyForPermission,
     });
     strings.addonName = info.addon.name;
     strings.learnMore = addonsBundle.GetStringFromName(

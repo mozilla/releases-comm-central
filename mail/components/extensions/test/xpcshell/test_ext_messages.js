@@ -10,6 +10,9 @@ var { ExtensionTestUtils } = ChromeUtils.import(
 var { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"
 );
+var { ExtensionsUI } = ChromeUtils.import(
+  "resource:///modules/ExtensionsUI.jsm"
+);
 
 let account, rootFolder, subFolders;
 add_task(
@@ -24,6 +27,7 @@ add_task(
       test1: await createSubfolder(rootFolder, "test1"),
       test2: await createSubfolder(rootFolder, "test2"),
       test3: await createSubfolder(rootFolder, "test3"),
+      test4: await createSubfolder(rootFolder, "test4"),
       trash: rootFolder.getChildNamed("Trash"),
     };
     await createMessages(subFolders.trash, 99);
@@ -34,8 +38,30 @@ add_task(
       [[...subFolders.test0.messages][0]],
       "testkeyword"
     );
+    await createMessages(subFolders.test4, 1);
   }
 );
+
+add_task(async function non_canonical_permission_description_mapping() {
+  let { msgs } = ExtensionsUI._buildStrings({
+    addon: { name: "FakeExtension" },
+    permissions: {
+      origins: [],
+      permissions: ["accountsRead", "messagesMove"],
+    },
+  });
+  equal(2, msgs.length, "Correct amount of descriptions");
+  equal(
+    "See your mail accounts, their identities and their folders",
+    msgs[0],
+    "Correct description for accountsRead"
+  );
+  equal(
+    "Copy or move your email messages (including moving them to the trash folder)",
+    msgs[1],
+    "Correct description for messagesMove"
+  );
+});
 
 add_task(
   {
@@ -683,7 +709,12 @@ add_task(
       files,
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
-        permissions: ["accountsRead", "messagesMove", "messagesRead"],
+        permissions: [
+          "accountsRead",
+          "messagesMove",
+          "messagesRead",
+          "messagesDelete",
+        ],
       },
     });
 
@@ -695,7 +726,47 @@ add_task(
     await extension.unload();
 
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
-    cleanUpAccount(account);
+  }
+);
+
+add_task(
+  {
+    skip_if: () => IS_NNTP,
+  },
+  async function test_delete_without_permission() {
+    let files = {
+      "background.js": async () => {
+        let [accountId] = await window.waitForMessage();
+        let { folders } = await browser.accounts.get(accountId);
+        let testFolder4 = folders.find(f => f.name == "test4");
+
+        let { messages: folder4Messages } = await browser.messages.list(
+          testFolder4
+        );
+
+        // Try to delete a message.
+        await browser.test.assertThrows(
+          () => browser.messages.delete([folder4Messages[0].id], true),
+          `browser.messages.delete is not a function`,
+          "Should reject deleting without proper permission"
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesMove", "messagesRead"],
+      },
+    });
+
+    await extension.startup();
+    extension.sendMessage(account.key);
+    await extension.awaitFinish("finished");
+    await extension.unload();
   }
 );
 
@@ -780,6 +851,4 @@ add_task({ skip_if: () => IS_IMAP || IS_NNTP }, async function test_archive() {
   extension.sendMessage(account2.key);
   await extension.awaitFinish("finished");
   await extension.unload();
-
-  cleanUpAccount(account2);
 });
