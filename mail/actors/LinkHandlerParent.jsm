@@ -7,7 +7,7 @@
 
 const EXPORTED_SYMBOLS = ["LinkHandlerParent", "StrictLinkHandlerParent"];
 
-const { XPCOMUtils } = ChromeUtils.import(
+var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
