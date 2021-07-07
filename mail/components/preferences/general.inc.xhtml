@@ -965,12 +965,17 @@
                     data-l10n-id="offline-compact-folder"
                     aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"
                     preference="mail.prompt_purge_threshhold"
-                    oncommand="gGeneralPane.updateCompactOptions(this.checked);"/>
+                    oncommand="gGeneralPane.updateCompactOptions();"/>
           <html:input id="offlineCompactFolderMin" type="number" class="size4"
                       min="1" max="2048" value="200"
                       preference="mail.purge_threshhold_mb"
                       aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>
           <label id="compactFolderMB" data-l10n-id="compact-folder-size" value=""/>
+      </hbox>
+      <hbox align="center" class="indent">
+        <checkbox id="offlineCompactFolderAutomatically"
+                  data-l10n-id="offline-compact-folder-automatically"
+                  preference="mail.purge.ask"/>
       </hbox>
     </html:fieldset>
     </html:div>

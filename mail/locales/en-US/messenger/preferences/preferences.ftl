@@ -320,6 +320,10 @@ offline-compact-folder =
     .label = Compact all folders when it will save over
     .accesskey = a
 
+offline-compact-folder-automatically =
+    .label = Ask every time before compacting
+    .accesskey = b
+
 compact-folder-size =
     .value = MB in total
 

@@ -81,6 +81,7 @@ Preferences.addAll([
   { id: "mail.openMessageBehavior", type: "int" },
   { id: "mail.close_message_window.on_delete", type: "bool" },
   { id: "mail.prompt_purge_threshhold", type: "bool" },
+  { id: "mail.purge.ask", type: "bool" },
   { id: "mail.purge_threshhold_mb", type: "int" },
   { id: "browser.cache.disk.capacity", type: "int" },
   { id: "browser.cache.disk.smart_size.enabled", inverted: true, type: "bool" },
@@ -1415,9 +1416,14 @@ var gGeneralPane = {
   },
 
   updateCompactOptions() {
-    document.getElementById("offlineCompactFolderMin").disabled =
+    let disabled =
       !Preferences.get("mail.prompt_purge_threshhold").value ||
       Preferences.get("mail.purge_threshhold_mb").locked;
+
+    document.getElementById("offlineCompactFolderMin").disabled = disabled;
+    document.getElementById(
+      "offlineCompactFolderAutomatically"
+    ).disabled = disabled;
   },
 
   /**

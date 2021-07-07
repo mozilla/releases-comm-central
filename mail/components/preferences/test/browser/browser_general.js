@@ -197,7 +197,10 @@ add_task(async () => {
     {
       checkboxID: "offlineCompactFolder",
       pref: "mail.prompt_purge_threshhold",
-      enabledElements: ["#offlineCompactFolderMin"],
+      enabledElements: [
+        "#offlineCompactFolderMin",
+        "#offlineCompactFolderAutomatically",
+      ],
     }
   );
 });
