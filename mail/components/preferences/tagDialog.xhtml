@@ -4,16 +4,13 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         data-l10n-id="tag-dialog-window"
-        lightweightthemes="true"
         style="min-width: 25em;"
         onload="onLoad();">
 <dialog>
@@ -23,7 +20,6 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/newTagDialog.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-#include tagDialog.inc.xhtml
+#include ../../base/content/tagDialog.inc.xhtml
 </dialog>
 </window>

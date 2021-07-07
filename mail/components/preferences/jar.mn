@@ -48,3 +48,4 @@ messenger.jar:
     content/messenger/preferences/passwordManager.xhtml
     content/messenger/preferences/permissions.js
     content/messenger/preferences/permissions.xhtml
+*   content/messenger/preferences/tagDialog.xhtml

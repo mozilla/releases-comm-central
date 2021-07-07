@@ -1223,7 +1223,7 @@ var gGeneralPane = {
         okCallback: editTagCallback,
       };
       gSubDialog.open(
-        "chrome://messenger/content/newTagDialog.xhtml",
+        "chrome://messenger/content/preferences/tagDialog.xhtml",
         { features: "resizable=no" },
         args
       );
@@ -1233,7 +1233,7 @@ var gGeneralPane = {
   addTag() {
     var args = { result: "", okCallback: addTagCallback };
     gSubDialog.open(
-      "chrome://messenger/content/newTagDialog.xhtml",
+      "chrome://messenger/content/preferences/tagDialog.xhtml",
       { features: "resizable=no" },
       args
     );

@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/shared/input-fields.css" type="text/css" ?>
 <?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % mailViewDTD SYSTEM "chrome://messenger/locale/mailViewSetup.dtd">
@@ -15,6 +16,7 @@
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
+        lightweightthemes="true"
         onload="mailViewOnLoad();"
         onunload="mailViewOnUnLoad();"
         windowtype="mailnews:mailview"
@@ -32,6 +34,7 @@
   <script src="chrome://messenger/content/searchTerm.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/dateFormat.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <vbox flex="1">
     <separator class="thin"/>

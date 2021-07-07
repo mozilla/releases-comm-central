@@ -7,17 +7,20 @@
 #else
 <?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 #endif
-<?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/fieldMapImport.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/fieldMapImport.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        lightweightthemes="true"
         title="&fieldMapImport.title;"
         style="&fieldMapImport.size;"
         onload="OnLoadFieldMapImport();">
 <dialog buttons="accept,cancel">
   <script src="chrome://messenger/content/fieldMapImport.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
   <script><![CDATA[
       function resizeColumns() {
         let list = document.getElementById("fieldList");
@@ -54,7 +57,6 @@
   <!-- field list -->
   <hbox flex="1">
     <richlistbox id="fieldList"
-                 class="theme-listbox"
                  flex="1"
                  onselect="disableMoveButtons();">
       <treecols>
