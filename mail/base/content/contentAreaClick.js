@@ -12,7 +12,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PlacesUtils } = ChromeUtils.import(
   "resource://gre/modules/PlacesUtils.jsm"
 );
-
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 XPCOMUtils.defineLazyPreferenceGetter(
   this,
   "alternativeAddonSearchUrl",
