@@ -9,10 +9,8 @@
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-#ifndef MOZ_SUITE
 <!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
 %baseMenuOverlayDTD;
-#endif
 <!ENTITY % sourceDTD SYSTEM "chrome://messenger/locale/viewSource.dtd" >
 %sourceDTD;
 <!ENTITY % editMenuDTD SYSTEM "chrome://global/locale/editMenuOverlay.dtd" >
@@ -40,9 +38,7 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/contentAreaUtils.js"/>
   <script src="chrome://global/content/printUtils.js"/>
-#ifndef MOZ_SUITE
   <script src="chrome://messenger/content/mailCore.js"/>
-#endif
   <script src="chrome://messenger/content/viewSource.js"/>
   <script src="chrome://messenger/content/viewZoomOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -68,11 +64,6 @@
   <command id="cmd_reload" oncommand="viewSourceChrome.reload();"/>
   <command id="cmd_goToLine" oncommand="viewSourceChrome.promptAndGoToLine();"/>
   <command id="cmd_wrapLongLines" oncommand="viewSourceChrome.toggleWrapping();"/>
-#ifdef MOZ_SUITE
-  <command id="cmd_highlightSyntax" oncommand="viewSourceChrome.toggleSyntaxHighlighting();"/>
-  <command id="Browser:Back" oncommand="viewSourceChrome.goBack()" class="viewSourceNavigation"/>
-  <command id="Browser:Forward" oncommand="viewSourceChrome.goForward()" class="viewSourceNavigation"/>
-#endif
   <command id="cmd_textZoomReduce" oncommand="ZoomManager.reduce();"/>
   <command id="cmd_textZoomEnlarge" oncommand="ZoomManager.enlarge();"/>
   <command id="cmd_textZoomReset" oncommand="ZoomManager.reset();"/>
@@ -118,7 +109,6 @@
     <key id="goBackKb2" key="&goBackCmd.commandKey;" command="Browser:Back" modifiers="accel"/>
     <key id="goForwardKb2" key="&goForwardCmd.commandKey;" command="Browser:Forward" modifiers="accel"/>
 #endif
-#ifndef MOZ_SUITE
     <key id="key_openHelp"
          oncommand="openSupportURL();"
 #ifdef XP_MACOSX
@@ -127,41 +117,15 @@
 #else
          keycode="&productHelp.commandkey;"/>
 #endif
-#endif
-
   </keyset>
 
   <tooltip id="aHTMLTooltip" page="true"/>
 
   <menupopup id="viewSourceContextMenu">
-#ifdef MOZ_SUITE
-    <menuitem id="context-back"
-              label="&backCmd.label;"
-              accesskey="&backCmd.accesskey;"
-              command="Browser:Back"
-              observes="viewSourceNavigation"/>
-    <menuitem id="context-forward"
-              label="&forwardCmd.label;"
-              accesskey="&forwardCmd.accesskey;"
-              command="Browser:Forward"
-              observes="viewSourceNavigation"/>
-    <menuseparator observes="viewSourceNavigation"/>
-#endif
     <menuitem id="cMenu_copy"
               data-l10n-id="text-action-copy"
               command="cmd_copy"/>
     <menuseparator/>
-#ifdef MOZ_SUITE
-    <menuitem id="context-copyLink"
-              label="&copyLinkCmd.label;"
-              accesskey="&copyLinkCmd.accesskey;"
-              oncommand="viewSourceChrome.onContextMenuCopyLinkOrEmail();"/>
-    <menuitem id="context-copyEmail"
-              label="&copyEmailCmd.label;"
-              accesskey="&copyEmailCmd.accesskey;"
-              oncommand="viewSourceChrome.onContextMenuCopyLinkOrEmail();"/>
-    <menuseparator/>
-#endif
     <menuitem id="cMenu_selectAll"
               data-l10n-id="text-action-select-all"
               command="cmd_selectAll"/>
@@ -252,13 +216,8 @@
           <menuseparator/>
           <menuitem id="menu_wrapLongLines" type="checkbox" command="cmd_wrapLongLines"
                     label="&menu_wrapLongLines.title;" accesskey="&menu_wrapLongLines.accesskey;"/>
-#ifdef MOZ_SUITE
-          <menuitem type="checkbox" id="menu_highlightSyntax" command="cmd_highlightSyntax"
-                    label="&menu_highlightSyntax.label;" accesskey="&menu_highlightSyntax.accesskey;"/>
-#endif
         </menupopup>
       </menu>
-#ifndef MOZ_SUITE
       <menu id="helpMenu"
 #ifdef XP_WIN
             label="&helpMenuWin.label;" accesskey="&helpMenuWin.accesskey;">
@@ -275,7 +234,6 @@
                     oncommand="openSupportURL();"/>
         </menupopup>
       </menu>
-#endif
     </menubar>
     </toolbar>
   </toolbox>
@@ -295,9 +253,7 @@
              src="about:blank"
              flex="1"
              primary="true"
-#ifndef MOZ_SUITE
              disableglobalhistory="true"
-#endif
              context="viewSourceContextMenu"
              showcaret="true"
              tooltip="aHTMLTooltip"
