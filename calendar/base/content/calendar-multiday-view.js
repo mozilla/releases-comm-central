@@ -1940,6 +1940,15 @@
       // to calculate the size of the scrollbar.
       let scrollboxChildrenSize = 0;
       for (const child of this.scrollbox.children) {
+        let computedStyle = window.getComputedStyle(child);
+        if (this.getAttribute("orient") == "vertical") {
+          // We expect that the margins are only set in px
+          scrollboxChildrenSize += parseFloat(computedStyle.marginLeft);
+          scrollboxChildrenSize += parseFloat(computedStyle.marginRight);
+        } else {
+          scrollboxChildrenSize += parseFloat(computedStyle.marginTop);
+          scrollboxChildrenSize += parseFloat(computedStyle.marginBottom);
+        }
         scrollboxChildrenSize += child.getBoundingClientRect()[widthOrHeight];
       }
       const scrollboxSize = this.scrollbox.getBoundingClientRect()[widthOrHeight];
