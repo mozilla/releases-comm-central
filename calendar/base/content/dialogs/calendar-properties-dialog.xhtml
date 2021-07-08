@@ -35,9 +35,11 @@
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
   <script src="chrome://calendar/content/calendar-properties-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/calendar-identity-utils.js"/>
+  <script src="chrome://calendar/content/widgets/calendar-notifications-setting.js"/>
   <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <description id="force-disabled-description" hidden="true">&calendarproperties.forceDisabled.label;</description>
@@ -184,5 +186,19 @@
       </html:td>
     </html:tr>
   </html:table>
+
+  <separator/>
+  <vbox id="calendar-notifications">
+    <label id="calendar-notifications-title"
+           value="&lightning.calendarproperties.notifications.label;"
+           disable-with-calendar="true"/>
+    <calendar-notifications-setting id="calendar-notifications-setting"
+                                    disable-with-calendar="true"/>
+    <hbox id="global-notifications-row">
+      <button label="&lightning.calendarproperties.globalNotifications.label;"
+              oncommand="showGlobalNotificationsPref();"></button>
+    </hbox>
+  </vbox>
+  <separator/>
 </dialog>
 </window>

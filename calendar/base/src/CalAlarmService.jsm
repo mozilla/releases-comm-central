@@ -9,13 +9,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyPreferenceGetter(
-  this,
-  "gNotificationsTimes",
-  "calendar.notifications.times",
-  ""
-);
-
 var kHoursBetweenUpdates = 6;
 
 function nowUTC() {
@@ -40,6 +33,14 @@ function CalAlarmService() {
   this.mTimerMap = {};
   this.mNotificationTimerMap = {};
   this.mObservers = new cal.data.ListenerSet(Ci.calIAlarmServiceObserver);
+
+  XPCOMUtils.defineLazyPreferenceGetter(
+    this,
+    "gNotificationsTimes",
+    "calendar.notifications.times",
+    "",
+    () => this.initAlarms(cal.getCalendarManager().getCalendars())
+  );
 
   this.calendarObserver = {
     QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
@@ -459,9 +460,9 @@ CalAlarmService.prototype = {
     let endDate = item[cal.dtz.endDateProp(item)];
     let timeouts = [];
     // The calendar level notifications setting overrides the global setting.
-    let prefValue = (item.calendar.getProperty("notifications.times") || gNotificationsTimes).split(
-      ","
-    );
+    let prefValue = (
+      item.calendar.getProperty("notifications.times") || this.gNotificationsTimes
+    ).split(",");
     for (let entry of prefValue) {
       entry = entry.trim();
       if (!entry) {

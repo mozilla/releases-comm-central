@@ -7,6 +7,7 @@
 /* import-globals-from alarms.js */
 /* import-globals-from categories.js */
 /* import-globals-from general.js */
+/* import-globals-from notifications.js */
 /* import-globals-from views.js */
 /* globals Preferences */
 
@@ -20,6 +21,7 @@ var gCalendarPane = {
     }
     gCalendarGeneralPane.init();
     gAlarmsPane.init();
+    gNotificationsPane.init();
     gCategoriesPane.init();
     gViewsPane.init();
   },

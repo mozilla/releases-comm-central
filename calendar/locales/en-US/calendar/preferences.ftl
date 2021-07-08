@@ -4,6 +4,7 @@
 
 calendar-title = Calendar
 calendar-title-reminder = Reminders
+calendar-title-notification = Notifications
 calendar-title-category = Categories
 
 dateformat-label =
@@ -224,6 +225,8 @@ event-alarm-time-label =
 task-alarm-time-label =
     .value = Default time a reminder is set before a task:
     .accesskey = o
+
+calendar-notifications-customize-label = Notifications can be customized for each calendar in the calendar’s properties window.
 
 category-new-label = New Category
 

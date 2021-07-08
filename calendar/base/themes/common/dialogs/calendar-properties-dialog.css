@@ -27,6 +27,10 @@
   width: 100%;
 }
 
+#calendar-properties-table html|input[type="number"].size3 {
+  width: calc(3ch + 55px);
+}
+
 #calendar-email-identity-row > td,
 #calendar-refreshInterval-row > td {
   display: flex;
@@ -35,4 +39,47 @@
 #calendar-refreshInterval-menulist,
 #email-identity-menulist {
   flex: 1;
+}
+
+#calendar-notifications {
+  margin-inline-start: 24px;
+}
+
+#calendar-notifications-title {
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+calendar-notifications-setting {
+  display: flex;
+  flex-direction: column;
+}
+
+calendar-notifications-setting .add-button {
+  list-style-image: url(chrome://global/skin/icons/add.svg);
+  fill: currentColor;
+  -moz-context-properties: fill;
+}
+
+calendar-notifications-setting .add-button .button-icon {
+  margin-inline-end: 6px;
+}
+
+calendar-notifications-setting .remove-button {
+  width: 26px;
+  min-width: 0;
+  padding: 0 4px;
+  list-style-image: url(chrome://global/skin/icons/delete.svg);
+  fill: currentColor;
+  background: none;
+  border: none;
+  -moz-context-properties: fill;
+}
+
+calendar-notifications-setting .calendar-notifications-row:last-child {
+  margin-bottom: 20px;
+}
+
+#global-notifications-row {
+  width: 100%;
 }

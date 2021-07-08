@@ -31,6 +31,20 @@
 
 #include alarms.inc.xhtml
 
+    <hbox id="calendarNotificationCategory"
+          class="subcategory"
+          data-category="paneCalendar">
+      <html:h1 data-l10n-id="calendar-title-notification"></html:h1>
+    </hbox>
+
+    <html:div data-category="paneCalendar">
+      <html:fieldset data-category="paneCalendar">
+        <calendar-notifications-setting id="calendar-notifications-setting"/>
+        <label data-l10n-id="calendar-notifications-customize-label"
+               class="indent tip-caption"></label>
+      </html:fieldset>
+    </html:div>
+
     <hbox id="calendarCategoriesCategory"
           class="subcategory"
           data-category="paneCalendar">

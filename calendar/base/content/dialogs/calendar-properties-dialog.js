@@ -4,6 +4,7 @@
 
 /* exported onLoad */
 
+/* import-globals-from ../../../../mail/base/content/utilityOverlay.js */
 /* import-globals-from ../calendar-ui-utils.js */
 /* import-globals-from calendar-identity-utils.js */
 
@@ -107,6 +108,9 @@ function onLoad() {
     document.getElementById("calendar-name").focus();
   }
 
+  let notificationsSetting = document.getElementById("calendar-notifications-setting");
+  notificationsSetting.value = gCalendar.getProperty("notifications.times");
+
   sizeToContent();
 }
 
@@ -155,6 +159,11 @@ function onAcceptDialog() {
     );
     gCalendar.deleteProperty("auto-enabled");
   }
+
+  gCalendar.setProperty(
+    "notifications.times",
+    document.getElementById("calendar-notifications-setting").value
+  );
 }
 // When this event fires, onAcceptDialog might not be the function defined
 // above, so call it indirectly.
@@ -238,4 +247,11 @@ function initRefreshInterval() {
       menulist.selectedItem = menuitem;
     }
   }
+}
+
+/**
+ * Open the Preferences tab with global notifications setting.
+ */
+function showGlobalNotificationsPref() {
+  openPreferencesTab("paneCalendar", "calendarNotificationCategory");
 }

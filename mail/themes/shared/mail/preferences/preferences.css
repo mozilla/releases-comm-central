@@ -606,6 +606,32 @@ checkbox {
   height: 20px;
 }
 
+calendar-notifications-setting {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 9px;
+}
+
+calendar-notifications-setting .add-button {
+  list-style-image: url(chrome://global/skin/icons/add.svg);
+  fill: currentColor;
+  -moz-context-properties: fill;
+}
+
+calendar-notifications-setting .add-button .button-icon {
+  margin-inline-end: 6px;
+}
+
+calendar-notifications-setting .remove-button {
+  width: 32px;
+  min-width: 0;
+  list-style-image: url(chrome://global/skin/icons/delete.svg);
+  fill: currentColor;
+  background: none;
+  -moz-context-properties: fill;
+  --in-content-button-horizontal-padding: 0;
+}
+
 /**
  * End connection dialog
  */
