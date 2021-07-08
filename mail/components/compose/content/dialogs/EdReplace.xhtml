@@ -12,14 +12,14 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorReplace.dtd">
 
-<window title="&replaceDialog.title;"
+<window id="replaceDlg"
+        title="&replaceDialog.title;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         persist="screenX screenY"
         lightweightthemes="true"
         onload="onLoad()">
-<dialog id="replaceDlg"
-        buttons="cancel">
+<dialog buttons="cancel">
 
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>

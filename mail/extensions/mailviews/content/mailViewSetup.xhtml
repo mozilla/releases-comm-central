@@ -14,7 +14,8 @@
   %searchTermDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window id="mailViewSetupDialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         lightweightthemes="true"
         onload="mailViewOnLoad();"
@@ -23,9 +24,7 @@
         title="&mailViewSetupTitle.label;"
         style="width: 52em; height: 22em;"
         persist="screenX screenY width height">
-<dialog id="mailViewSetupDialog"
-        buttons="accept,cancel"
-        buttonalign="end">
+<dialog buttons="accept,cancel">
 
   <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
 
