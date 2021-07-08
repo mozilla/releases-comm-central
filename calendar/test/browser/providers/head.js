@@ -327,6 +327,8 @@ let syncChangesTest = {
     Assert.ok(!CalendarTestUtils.multiweekView.getItemAt(window, 2, 4, 1), "no existing item");
 
     EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 3, 1);
     let item = await CalendarTestUtils.multiweekView.waitForItemAt(window, 2, 4, 1);
     Assert.equal(item.item.title, "a changed item");
