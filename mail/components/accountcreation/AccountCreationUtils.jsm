@@ -14,6 +14,9 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
 
+const { AddonManager } = ChromeUtils.import(
+  "resource://gre/modules/AddonManager.jsm"
+);
 const { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { clearInterval, clearTimeout, setTimeout } = ChromeUtils.import(
