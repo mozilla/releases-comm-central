@@ -237,6 +237,10 @@ class CalDavDetector {
    * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
    */
   async attemptGoogleOauth(location) {
+    if (!this.username) {
+      return null;
+    }
+
     let usesGoogleOAuth = cal.provider.detection.googleOAuthDomains.has(location.host);
 
     if (!usesGoogleOAuth) {
