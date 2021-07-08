@@ -1612,8 +1612,12 @@ function convertFolder(folder, accountId) {
 function traverseSubfolders(folder, accountId) {
   let f = convertFolder(folder, accountId);
   f.subFolders = [];
-  for (let subFolder of folder.subFolders) {
-    f.subFolders.push(traverseSubfolders(subFolder, accountId || f.accountId));
+  if (folder.hasSubFolders) {
+    for (let subFolder of folder.subFolders) {
+      f.subFolders.push(
+        traverseSubfolders(subFolder, accountId || f.accountId)
+      );
+    }
   }
   return f;
 }
