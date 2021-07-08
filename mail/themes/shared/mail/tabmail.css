@@ -411,7 +411,7 @@
   margin-inline-end: -16px;
   /* Move within the input. Input has a margin of 3px and border of 1px, so this
    * is 5px within. */
-  left: 9px;
+  inset-inline-start: 9px;
 }
 
 .contentTabSecurity.secure-connection-icon {
