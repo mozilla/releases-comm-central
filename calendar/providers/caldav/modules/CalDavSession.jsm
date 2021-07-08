@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-
-var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OAuth2Providers", "resource:///modules/OAuth2Providers.jsm");
 
@@ -283,6 +282,12 @@ class CalDavSession {
   QueryInterface = ChromeUtils.generateQI(["nsIInterfaceRequestor"]);
 
   /**
+   * Dictionary of hostname => auth adapter. Before a request is made to a hostname
+   * in the dictionary, the auth adapter will be called to modify the request.
+   */
+  authAdapters = {};
+
+  /**
    * Constant returned by |completeRequest| when the request should be restarted
    * @return {Number}    The constant
    */
@@ -300,11 +305,17 @@ class CalDavSession {
     this.id = aSessionId;
     this.name = aName;
 
-    // There is only one right now, but for better separation this is ready for more oauth hosts
-    this.authAdapters = {
-      "apidata.googleusercontent.com": new CalDavGoogleOAuth(aSessionId, aName),
-      "mochi.test": new CalDavTestOAuth(aSessionId, aName),
-    };
+    // Only create an auth adapter if we're going to use it.
+    XPCOMUtils.defineLazyGetter(
+      this.authAdapters,
+      "apidata.googleusercontent.com",
+      () => new CalDavGoogleOAuth(aSessionId, aName)
+    );
+    XPCOMUtils.defineLazyGetter(
+      this.authAdapters,
+      "mochi.test",
+      () => new CalDavTestOAuth(aSessionId, aName)
+    );
   }
 
   /**
