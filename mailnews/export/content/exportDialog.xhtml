@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        data-l10n-id="export-dialog-window"
+        lightweightthemes="true"
+        width="500">
+  <dialog buttons="accept,cancel" style="min-height: 12em"
+          data-l10n-id="export-dialog"
+          data-l10n-attrs="buttonlabelaccept">
+    <html:link rel="localization" href="branding/brand.ftl" />
+    <html:link rel="localization" href="messenger/exportDialog.ftl"/>
+    <script src="chrome://messenger/content/exportDialog.js"/>
+
+    <description data-l10n-id="export-dialog-desc1"></description>
+    <description data-l10n-id="export-dialog-desc2"></description>
+
+    <separator/>
+    <vbox id="progressBar" hidden="true">
+      <html:progress id="progress" value="0" max="100" style="flex:1;"/>
+      <label id="progressStatus" crop="center"/>
+    </vbox>
+
+  </dialog>
+</window>

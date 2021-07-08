@@ -105,6 +105,8 @@ messenger.jar:
     content/messenger/messengercompose/askSendFormat.xhtml                     (compose/content/askSendFormat.xhtml)
     content/messenger/messengercompose/sendProgress.xhtml                      (compose/content/sendProgress.xhtml)
     content/messenger/messengercompose/sendProgress.js                         (compose/content/sendProgress.js)
+    content/messenger/exportDialog.js                                          (export/content/exportDialog.js)
+    content/messenger/exportDialog.xhtml                                       (export/content/exportDialog.xhtml)
     content/messenger/importDialog.js                                          (import/content/importDialog.js)
 *   content/messenger/importDialog.xhtml                                       (import/content/importDialog.xhtml)
 *   content/messenger/fieldMapImport.xhtml                                     (import/content/fieldMapImport.xhtml)
