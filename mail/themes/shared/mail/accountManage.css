@@ -56,6 +56,14 @@ fieldset:last-of-type {
   border-bottom-style: none;
 }
 
+#accounttree > treechildren::-moz-tree-row {
+  border-block-start: 1px transparent solid;
+}
+
+#accounttree > treechildren::-moz-tree-row(dragover) {
+  border-block-start: 1px highlight solid;
+}
+
 /* Styles for the Account Actions button */
 
 #accountActionsButton {

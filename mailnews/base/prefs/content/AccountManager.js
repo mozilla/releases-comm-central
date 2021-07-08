@@ -1807,32 +1807,51 @@ var gAccountTree = {
 
     let accountTree = document.getElementById("accounttree");
 
+    function findDropItem(event) {
+      let row = accountTree.getRowAt(event.clientX, event.clientY);
+      let length = 0;
+      for (let childElement of mainTree.children) {
+        if (childElement.getAttribute("open") == "true") {
+          length += childElement.querySelectorAll("treerow").length;
+        } else {
+          length++;
+        }
+        if (length > row) {
+          return childElement;
+        }
+      }
+      return null;
+    }
+
     // By default, data/elements cannot be dropped in other elements.
     // To allow a drop, we must prevent the default handling of the element.
     accountTree.addEventListener("dragover", event => {
       event.preventDefault();
+      for (let childElement of mainTree.children) {
+        childElement.querySelector("treerow").removeAttribute("properties");
+      }
+
+      let dropItem = findDropItem(event);
+      if (dropItem) {
+        dropItem
+          .querySelector("treerow")
+          .setAttribute("properties", "dragover");
+      }
     });
 
     accountTree.addEventListener("drop", event => {
-      let row = accountTree.getRowAt(event.clientX, event.clientY);
       let dragId = event.dataTransfer.getData("text/account");
       if (!dragId) {
         return;
       }
-      let dropId = null;
-      let length = 0;
-      for (let childElement of mainTree.children) {
-        length += childElement.querySelectorAll("treerow").length;
-        if (length > row) {
-          dropId = childElement.getAttribute("id");
-          break;
+
+      let dropItem = findDropItem(event);
+      if (dropItem) {
+        if (dragId != dropItem.getAttribute("id")) {
+          let dragItem = mainTree.querySelector("#" + dragId);
+          mainTree.insertBefore(dragItem, dropItem);
+          accountReordered();
         }
-      }
-      if (dropId && dragId != dropId) {
-        let dragitem = mainTree.querySelector("#" + dragId);
-        let dropItem = mainTree.querySelector("#" + dropId);
-        mainTree.insertBefore(dragitem, dropItem);
-        accountReordered();
       }
     });
 
@@ -1841,6 +1860,12 @@ var gAccountTree = {
         event.dataTransfer.effectAllowed = "move";
         event.dataTransfer.dropEffect = "move";
         event.dataTransfer.setData("text/account", getCurrentAccount().key);
+      }
+    });
+
+    mainTree.addEventListener("dragend", event => {
+      for (let childElement of mainTree.children) {
+        childElement.querySelector("treerow").removeAttribute("properties");
       }
     });
 
