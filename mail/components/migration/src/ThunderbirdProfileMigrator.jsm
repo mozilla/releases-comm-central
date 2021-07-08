@@ -26,12 +26,14 @@ const IM_ACCOUNT = "messenger.account.";
 const SMTP_SERVER = "mail.smtpserver.";
 const ADDRESS_BOOK = "ldap_2.servers.";
 const LDAP_AUTO_COMPLETE = "ldap_2.autoComplete.";
+const CALENDAR = "calendar.registry.";
 
 // Prefs (branches) that we do not want to copy directly.
 const IGNORE_PREFS = [
   "app.update.",
   "browser.",
-  "calendar.", // calendars need special handling
+  "calendar.list.sortOrder",
+  "calendar.timezone",
   "devtools.",
   "extensions.",
   "mail.accountmanager.",
@@ -209,6 +211,7 @@ class ThunderbirdProfileMigrator {
       [IM_ACCOUNT, []],
       [SMTP_SERVER, []],
       [ADDRESS_BOOK, []],
+      [CALENDAR, []],
     ]);
     let defaultAccount;
     let defaultSmtpServer;
@@ -321,6 +324,7 @@ class ThunderbirdProfileMigrator {
     );
     this._importPasswords();
     this._importOtherPrefs(otherPrefs);
+    this._importCalendars(branchPrefsMap.get(CALENDAR));
     Services.obs.notifyObservers(
       null,
       "Migration:ItemAfterMigrate",
@@ -774,6 +778,21 @@ class ThunderbirdProfileMigrator {
       if (!Services.prefs.prefHasUserValue(name)) {
         Services.prefs[`set${type}Pref`](name, value);
       }
+    }
+  }
+
+  /**
+   * Import calendars.
+   *
+   * For storage calendars, we need to import everything from the source
+   * local.sqlite to the target local.sqlite, which is not implemented yet, see
+   * bug 1719582.
+   * @param {PrefItem[]} prefs - All source prefs in the CALENDAR branch.
+   */
+  _importCalendars(prefs) {
+    let branch = Services.prefs.getBranch(CALENDAR);
+    for (let [type, name, value] of prefs) {
+      branch[`set${type}Pref`](name, value);
     }
   }
 }
