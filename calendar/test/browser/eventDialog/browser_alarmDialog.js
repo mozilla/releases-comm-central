@@ -47,8 +47,7 @@ add_task(async function testAlarmDialog() {
     "chrome://calendar/content/calendar-alarm-dialog.xhtml",
     {
       async callback(alarmWindow) {
-        await new Promise(resolve => alarmWindow.setTimeout(resolve));
-        await new Promise(resolve => alarmWindow.setTimeout(resolve));
+        await new Promise(resolve => alarmWindow.setTimeout(resolve, 500));
 
         let dismissButton = alarmWindow.document.getElementById("alarm-dismiss-all-button");
         EventUtils.synthesizeMouseAtCenter(dismissButton, {}, alarmWindow);
@@ -75,8 +74,7 @@ add_task(async function testAlarmDialog() {
     "chrome://calendar/content/calendar-alarm-dialog.xhtml",
     {
       async callback(alarmWindow) {
-        await new Promise(resolve => alarmWindow.setTimeout(resolve));
-        await new Promise(resolve => alarmWindow.setTimeout(resolve));
+        await new Promise(resolve => alarmWindow.setTimeout(resolve, 500));
 
         let snoozeAllButton = alarmWindow.document.getElementById("alarm-snooze-all-button");
         let popup = alarmWindow.document.querySelector("#alarm-snooze-all-popup");
