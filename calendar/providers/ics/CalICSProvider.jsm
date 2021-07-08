@@ -276,13 +276,14 @@ class ICSDetector {
     // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
 
-    // The content type may be e.g. "text/calendar; charset=UTF-8" so use 'string.includes'.
-    if (response.ok && response.getHeader("Content-Type").includes("text/calendar")) {
-      let target = response.uri;
-      cal.LOG(
-        `[calICSProvider] ${target.spec} has content type text/calendar (via ${method} request)`
-      );
-      return [this.handleCalendar(target)];
+    // The content type header may include a charset, so use 'string.includes'.
+    if (response.ok) {
+      let header = response.getHeader("Content-Type");
+      if (header.includes("text/calendar") || header.includes("application/ics")) {
+        let target = response.uri;
+        cal.LOG(`[calICSProvider] ${target.spec} has valid content type (via ${method} request)`);
+        return [this.handleCalendar(target)];
+      }
     }
     return null;
   }
