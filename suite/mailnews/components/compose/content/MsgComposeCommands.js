@@ -1974,7 +1974,7 @@ function updateSendLock() {
   function isValidListName(aInput) {
     let listNames = MimeParser.parseHeaderField(aInput,
                                                 MimeParser.HEADER_ADDRESS);
-    return listNames > 0 &&
+    return listNames.length > 0 &&
            MailServices.ab.mailListNameExists(listNames[0].name);
   }
 
