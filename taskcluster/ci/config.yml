@@ -13,6 +13,8 @@ treeherder:
         'Deb8-32': 'Packages for Debian 8 32-bits'
         'Deb10': 'Packages for Debian 10'
         'Fetch': 'Fetch and store content'
+        'Ub18': 'Packages for Ubuntu 18.04'
+        'Ub20': 'Packages for Ubuntu 20.04'
         'I': 'Docker Image Builds'
         'TL': 'Toolchain builds for Linux 64-bits'
         'TM': 'Toolchain builds for OSX'

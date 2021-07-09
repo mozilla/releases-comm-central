@@ -12,3 +12,9 @@ jobs:
     - deb10-mercurial
     - deb10-mmdebstrap
     - deb10-python-zstandard
+    - ub18-32-libc6
+    - ub18-libc6
+    - ub18-mercurial
+    - ub18-python-zstandard
+    - ub20-mercurial
+    - ub20-python-zstandard
