@@ -571,12 +571,17 @@ menulist::part(description) {
   width: 28px;
 }
 
+.aw-firstColBox,
 .addressingWidgetItem,
 #identityLabel-box {
   flex-shrink: 0;
 }
 
 /* :::: Format toolbar :::: */
+
+#FormatToolbar {
+  display: flex;
+}
 
 /*
  * Removed from global.css in bug 1484949. It's needed so the formatting
@@ -586,23 +591,33 @@ menulist::part(description) {
   -moz-user-focus: ignore !important;
 }
 
-#FormatToolbar > toolbaritem > menulist {
+#ParagraphSelect {
+  flex-shrink: 0.1;
+  min-width: 7em;
+}
+
+#FontFaceSelect {
+  flex-shrink: 2;
+  min-width: 7em;
+}
+
+#FormatToolbar > menulist {
   margin-block: 1px;
 }
 
-#FormatToolbar > toolbaritem > menulist:not(:hover) {
+#FormatToolbar > menulist:not(:hover) {
   background: transparent;
 }
 
-#FormatToolbar > toolbaritem > menulist::part(label-box) {
+#FormatToolbar > menulist::part(label-box) {
  text-shadow: none;
 }
 
-#FormatToolbar menulist:not([disabled="true"],[open="true"]):hover {
+#FormatToolbar > menulist:not([disabled="true"],[open="true"]):hover {
   background: var(--toolbarbutton-hover-background);
 }
 
-#FormatToolbar menulist[open="true"] {
+#FormatToolbar > menulist[open="true"] {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
 }
