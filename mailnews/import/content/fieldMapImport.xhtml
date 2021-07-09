@@ -15,67 +15,72 @@
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         lightweightthemes="true"
-        title="&fieldMapImport.title;"
+        data-l10n-id="import-ab-csv-window"
         style="&fieldMapImport.size;"
         onload="OnLoadFieldMapImport();">
-<dialog buttons="accept,cancel">
-  <script src="chrome://messenger/content/fieldMapImport.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-  <script><![CDATA[
-      function resizeColumns() {
-        let list = document.getElementById("fieldList");
-        let cols = list.getElementsByTagName("treecol");
-        list.style.setProperty("--column1width", cols[0].getBoundingClientRect().width + "px");
-        list.style.setProperty("--column2width", cols[1].getBoundingClientRect().width + "px");
-      }
-      addEventListener("load", resizeColumns, { once: true });
-      addEventListener("resize", resizeColumns);
-  ]]></script>
+  <linkset>
+    <html:link rel="localization"
+               href="messenger/addressbook/fieldMapImport.ftl"/>
+  </linkset>
 
-  <hbox align="center">
-    <label value="&fieldMapImport.recordNumber;"/>
-    <label id="recordNumber"/>
-    <spacer flex="1"/>
-    <button id="previous" oncommand="Browse(-1);"
-            label="&fieldMapImport.previous.label;"
-            accesskey="&fieldMapImport.previous.accesskey;"/>
-    <button id="next" oncommand="Browse(1);"
-            label="&fieldMapImport.next.label;"
-            accesskey="&fieldMapImport.next.accesskey;"/>
-  </hbox>
+  <dialog buttons="accept,cancel"
+          data-l10n-id="import-ab-csv-dialog"
+          data-l10n-attrs="buttonlabelaccept,buttonaccesskeyaccept">
+    <script src="chrome://messenger/content/fieldMapImport.js"/>
+    <script><![CDATA[
+        function resizeColumns() {
+          let list = document.getElementById("fieldList");
+          let cols = list.getElementsByTagName("treecol");
+          list.style.setProperty("--column1width", cols[0].getBoundingClientRect().width + "px");
+          list.style.setProperty("--column2width", cols[1].getBoundingClientRect().width + "px");
+        }
+        addEventListener("load", resizeColumns, { once: true });
+        addEventListener("resize", resizeColumns);
+    ]]></script>
 
-  <hbox align="center">
-    <checkbox id="skipFirstRecord"
-              label="&fieldMapImport.skipFirstRecord.label;"
-              accesskey="&fieldMapImport.skipFirstRecord.accessKey;"/>
-  </hbox>
-
-  <separator class="thin"/>
-  <label control="fieldList">&fieldMapImport.text;</label>
-  <separator class="thin"/>
-
-  <!-- field list -->
-  <hbox flex="1">
-    <richlistbox id="fieldList"
-                 flex="1"
-                 onselect="disableMoveButtons();">
-      <treecols>
-        <treecol flex="3"/>
-        <treecol flex="7" id="fieldNameHeader" label="&fieldMapImport.fieldListTitle;"/>
-        <treecol flex="13" id="sampleDataHeader" label="&fieldMapImport.dataTitle;"/>
-      </treecols>
-    </richlistbox>
-
-    <vbox>
+    <hbox align="center">
+      <label id="labelRecordNumber"/>
       <spacer flex="1"/>
-      <button id="upButton" class="up" label="&fieldMapImport.up.label;"
-              accesskey="&fieldMapImport.up.accesskey;"
-              oncommand="moveItem(true);"/>
-      <button id="downButton" class="down" label="&fieldMapImport.down.label;"
-              accesskey="&fieldMapImport.down.accesskey;"
-              oncommand="moveItem(false);"/>
-      <spacer flex="1"/>
-    </vbox>
-  </hbox>
-</dialog>
+      <button id="previous" oncommand="nextPreviousOnCommand(event);"
+              label="&fieldMapImport.previous.label;"
+              accesskey="&fieldMapImport.previous.accesskey;"/>
+      <button id="next" oncommand="nextPreviousOnCommand(event);"
+              label="&fieldMapImport.next.label;"
+              accesskey="&fieldMapImport.next.accesskey;"/>
+    </hbox>
+
+    <hbox align="center">
+      <checkbox id="skipFirstRecord"
+                label="&fieldMapImport.skipFirstRecord.label;"
+                accesskey="&fieldMapImport.skipFirstRecord.accessKey;"/>
+    </hbox>
+
+    <separator class="thin"/>
+    <label control="fieldList">&fieldMapImport.text;</label>
+    <separator class="thin"/>
+
+    <!-- field list -->
+    <hbox flex="1">
+      <richlistbox id="fieldList"
+                   flex="1"
+                   onselect="disableMoveButtons();">
+        <treecols>
+          <treecol flex="3"/>
+          <treecol flex="7" id="fieldNameHeader" label="&fieldMapImport.fieldListTitle;"/>
+          <treecol flex="13" id="sampleDataHeader" label="&fieldMapImport.dataTitle;"/>
+        </treecols>
+      </richlistbox>
+
+      <vbox>
+        <spacer flex="1"/>
+        <button id="upButton" class="up" label="&fieldMapImport.up.label;"
+                accesskey="&fieldMapImport.up.accesskey;"
+                oncommand="moveItem(true);"/>
+        <button id="downButton" class="down" label="&fieldMapImport.down.label;"
+                accesskey="&fieldMapImport.down.accesskey;"
+                oncommand="moveItem(false);"/>
+        <spacer flex="1"/>
+      </vbox>
+    </hbox>
+  </dialog>
 </window>

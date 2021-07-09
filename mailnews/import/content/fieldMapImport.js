@@ -4,7 +4,7 @@
 
 var importService;
 var fieldMap = null;
-var recordNum = 0;
+var gRecordNum = 0;
 var addInterface = null;
 var dialogResult = null;
 var gPreviousButton;
@@ -44,7 +44,7 @@ function OnLoadFieldMapImport() {
   gSkipFirstRecordButton.checked = top.fieldMap.skipFirstRecord;
 
   ListFields();
-  Browse(1);
+  browseDataPreview(1);
   gListbox.selectedItem = gListbox.getItemAtIndex(0);
   disableMoveButtons();
 }
@@ -185,17 +185,38 @@ function FetchSampleData(num) {
   return true;
 }
 
-function Browse(step) {
-  recordNum += step;
-  if (FetchSampleData(recordNum - 1)) {
-    document
-      .getElementById("recordNumber")
-      .setAttribute("value", "" + recordNum);
+/**
+ * Handle the command event of #next and #previous buttons.
+ *
+ * @param {Event} event - The command event of #next or #previous button.
+ */
+function nextPreviousOnCommand(event) {
+  browseDataPreview(event.target.id == "next" ? 1 : -1);
+}
+
+/**
+ * Browse the import data preview by moving to the next or previous record.
+ * Also handle the disabled status of the #next and #previous buttons at the
+ * first or last record.
+ *
+ * @param {integer} step - How many records to move forwards or backwards.
+ *   Used by the #next and #previous buttons with step of 1 or -1.
+ */
+function browseDataPreview(step) {
+  gRecordNum += step;
+  if (FetchSampleData(gRecordNum - 1)) {
+    document.l10n.setAttributes(
+      document.getElementById("labelRecordNumber"),
+      "import-ab-csv-preview-record-number",
+      {
+        recordNumber: gRecordNum,
+      }
+    );
   }
 
-  gPreviousButton.disabled = recordNum == 1;
+  gPreviousButton.disabled = gRecordNum == 1;
   gNextButton.disabled =
-    addInterface.GetData("sampleData-" + recordNum) == null;
+    addInterface.GetData("sampleData-" + gRecordNum) == null;
 }
 
 function FieldImportOKButton() {
