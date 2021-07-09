@@ -533,6 +533,14 @@ var stateListener = {
       loadHTMLMsgPrefs();
     }
     AdjustFocus();
+
+    // Normally, enigmailMsgComposeOverlay does this, which is the last registered
+    // NotifyComposeBodyReady() stateListener. But if OpenPGP is not enabled, it
+    // needs to be done here.
+    if (!BondOpenPGP.isEnabled()) {
+      window.composeEditorReady = true;
+      window.dispatchEvent(new CustomEvent("compose-editor-ready"));
+    }
   },
 
   NotifyComposeBodyReadyNew() {
