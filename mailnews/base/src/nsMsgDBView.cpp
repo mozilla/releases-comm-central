@@ -48,6 +48,8 @@
 #include "mozilla/dom/DataTransfer.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsTArray.h"
+#include "mozilla/intl/OSPreferences.h"
+#include "mozilla/intl/LocaleService.h"
 
 using namespace mozilla::mailnews;
 nsrefcnt nsMsgDBView::gInstanceCount = 0;
@@ -63,12 +65,9 @@ char16_t* nsMsgDBView::kForwardedString = nullptr;
 char16_t* nsMsgDBView::kRedirectedString = nullptr;
 char16_t* nsMsgDBView::kNewString = nullptr;
 
-mozilla::nsDateFormatSelector nsMsgDBView::m_dateFormatDefault =
-    mozilla::kDateFormatShort;
-mozilla::nsDateFormatSelector nsMsgDBView::m_dateFormatThisWeek =
-    mozilla::kDateFormatShort;
-mozilla::nsDateFormatSelector nsMsgDBView::m_dateFormatToday =
-    mozilla::kDateFormatNone;
+nsDateFormatSelectorComm nsMsgDBView::m_dateFormatDefault = kDateFormatShort;
+nsDateFormatSelectorComm nsMsgDBView::m_dateFormatThisWeek = kDateFormatShort;
+nsDateFormatSelectorComm nsMsgDBView::m_dateFormatToday = kDateFormatNone;
 
 static const uint32_t kMaxNumSortColumns = 2;
 
@@ -552,6 +551,7 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr* aHdr, nsAString& aDateString,
   }
 
   if (!rcvDate || rcvDateSecs == 0) rv = aHdr->GetDate(&dateOfMsg);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   PRTime currentTime = PR_Now();
   PRExplodedTime explodedCurrentTime;
@@ -563,7 +563,7 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr* aHdr, nsAString& aDateString,
   // If the message is from the last week, show the day of the week
   // (Mon 3:15 pm). In all other cases, show the full date (03/19/01 3:15 pm).
 
-  mozilla::nsDateFormatSelector dateFormat = m_dateFormatDefault;
+  nsDateFormatSelectorComm dateFormat = m_dateFormatDefault;
   if (explodedCurrentTime.tm_year == explodedMsgTime.tm_year &&
       explodedCurrentTime.tm_month == explodedMsgTime.tm_month &&
       explodedCurrentTime.tm_mday == explodedMsgTime.tm_mday) {
@@ -593,9 +593,51 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr* aHdr, nsAString& aDateString,
     if (dateOfMsgLocal >= mostRecentWeek) dateFormat = m_dateFormatThisWeek;
   }
 
-  if (NS_SUCCEEDED(rv))
+  if (dateFormat != kDateFormatWeekday) {
     rv = mozilla::DateTimeFormat::FormatPRTime(
-        dateFormat, mozilla::kTimeFormatShort, dateOfMsg, aDateString);
+        static_cast<mozilla::nsDateFormatSelector>(dateFormat),
+        mozilla::kTimeFormatShort, dateOfMsg, aDateString);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    // We want weekday + time.
+    nsAutoString timeString;
+    nsAutoString weekdayString;
+    rv = mozilla::DateTimeFormat::FormatPRTime(mozilla::kDateFormatNone,
+                                               mozilla::kTimeFormatShort,
+                                               dateOfMsg, timeString);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = mozilla::DateTimeFormat::FormatDateTime(
+        &explodedMsgTime, mozilla::DateTimeFormat::Skeleton::E, weekdayString);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Note that this `static` value will need revisiting once M-C
+    // can switch locales without a restart of the application.
+    // For now, it's a cheap cache to avoid getting locale and
+    // connector pattern all the time.
+    static nsString connectorPattern;
+    if (connectorPattern.IsEmpty()) {
+      nsAutoCString locale;
+      AutoTArray<nsCString, 10> regionalPrefsLocales;
+      mozilla::intl::LocaleService::GetInstance()->GetRegionalPrefsLocales(
+          regionalPrefsLocales);
+      locale.Assign(regionalPrefsLocales[0]);
+      nsAutoCString str;
+      mozilla::intl::OSPreferences::GetInstance()->GetDateTimeConnectorPattern(
+          locale, str);
+      connectorPattern = NS_ConvertUTF8toUTF16(str);
+    }
+
+    nsAutoString pattern(connectorPattern);
+    int32_t ind = pattern.Find(u"{1}"_ns);
+    if (ind != kNotFound) {
+      pattern.Replace(ind, 3, weekdayString);
+    }
+    ind = pattern.Find(u"{0}"_ns);
+    if (ind != kNotFound) {
+      pattern.Replace(ind, 3, timeString);
+    }
+    aDateString = pattern;
+  }
 
   return rv;
 }
@@ -7306,24 +7348,27 @@ nsMsgDBView::FindIndexOfMsgHdr(nsIMsgDBHdr *aMsgHdr, bool aExpand,
 
 static void getDateFormatPref(nsIPrefBranch *_prefBranch,
                               const char *_prefLocalName,
-                              mozilla::nsDateFormatSelector &_format) {
+                              nsDateFormatSelectorComm &_format) {
   // Read.
   int32_t nFormatSetting(0);
   nsresult result = _prefBranch->GetIntPref(_prefLocalName, &nFormatSetting);
   if (NS_SUCCEEDED(result)) {
     // Translate.
-    mozilla::nsDateFormatSelector res;
-    res = static_cast<mozilla::nsDateFormatSelector>(nFormatSetting);
+    nsDateFormatSelectorComm res;
+    res = static_cast<nsDateFormatSelectorComm>(nFormatSetting);
     // Transfer if valid.
-    if (res >= mozilla::kDateFormatNone && res <= mozilla::kDateFormatShort)
+    if (res >= kDateFormatNone && res <= kDateFormatShort)
+      _format = res;
+    // M-C doesn't support the following any more, so hand-roll it.
+    else if (res == kDateFormatWeekday)
       _format = res;
   }
 }
 
 nsresult nsMsgDBView::InitDisplayFormats() {
-  m_dateFormatDefault = mozilla::kDateFormatShort;
-  m_dateFormatThisWeek = mozilla::kDateFormatShort;
-  m_dateFormatToday = mozilla::kDateFormatNone;
+  m_dateFormatDefault = kDateFormatShort;
+  m_dateFormatThisWeek = kDateFormatShort;
+  m_dateFormatToday = kDateFormatNone;
 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIPrefService> prefs =

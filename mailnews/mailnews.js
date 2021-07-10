@@ -30,6 +30,16 @@ pref("mail.suppress_content_language", false);
 //    fingerprinting of small clock offsets.
 pref("mail.sanitize_date_header", false);
 
+// This determines the date/time format in the thread pane.
+// 0: (Short) Time only
+// 1: Long date and (short) time
+// 2: Short date and (short) time
+// 3: Unused, used to be Year/month and time, no very useful.
+// 4: Weekday and (short) time. Some people prefer this for "thisweek".
+pref("mail.ui.display.dateformat.default", 2);
+pref("mail.ui.display.dateformat.thisweek", 2);
+pref("mail.ui.display.dateformat.today", 0);
+
 // hidden pref for controlling if the user agent string
 // is displayed in the message pane or not...
 pref("mailnews.headers.showUserAgent", false);

@@ -40,6 +40,14 @@ static_assert(nsMsgViewIndex(nsMsgViewIndexArray::NoIndex) ==
 
 enum eFieldType { kCollationKey, kU32 };
 
+enum nsDateFormatSelectorComm : long {
+  kDateFormatNone = mozilla::kDateFormatNone,
+  kDateFormatLong = mozilla::kDateFormatLong,
+  kDateFormatShort = mozilla::kDateFormatShort,
+  kDateFormatUnused = 3,
+  kDateFormatWeekday = 4
+};
+
 // This is used in an nsTArray<> to keep track of a multi-column sort.
 class MsgViewSortColumnInfo {
  public:
@@ -518,9 +526,9 @@ class nsMsgDBView : public nsIMsgDBView,
   static nsresult InitDisplayFormats();
 
  private:
-  static mozilla::nsDateFormatSelector m_dateFormatDefault;
-  static mozilla::nsDateFormatSelector m_dateFormatThisWeek;
-  static mozilla::nsDateFormatSelector m_dateFormatToday;
+  static nsDateFormatSelectorComm m_dateFormatDefault;
+  static nsDateFormatSelectorComm m_dateFormatThisWeek;
+  static nsDateFormatSelectorComm m_dateFormatToday;
   bool ServerSupportsFilterAfterTheFact();
 
   nsresult PerformActionsOnJunkMsgs(bool msgsAreJunk);
