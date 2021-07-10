@@ -150,7 +150,7 @@ account-setup-step4-image =
 account-setup-step5-image =
     .title = Account created
 
-account-setup-privacy-footnote = Your credentials will be used according to our <a data-l10n-name="privacy-policy-link">privacy policy</a> and will only be stored locally on your computer.
+account-setup-privacy-footnote2 = Your credentials will only be stored locally on your computer.
 
 account-setup-selection-help = Not sure what to select?
 
@@ -161,6 +161,8 @@ account-setup-success-help = Not sure about your next steps?
 account-setup-documentation-help = Setup documentation
 
 account-setup-forum-help = Support forum
+
+account-setup-privacy-help = Privacy policy
 
 account-setup-getting-started = Getting started
 
@@ -187,7 +189,7 @@ account-setup-result-pop-description = Keep your folders and emails on your comp
 # Note: Exchange is the name of a product.
 account-setup-result-exchange = Exchange
 
-account-setup-result-exchange-description = Microsoft Exchange Server
+account-setup-result-exchange-description = Connect to the Microsoft Exchange server
 
 account-setup-incoming-title = Incoming
 

@@ -618,7 +618,9 @@ var gAccountSetup = {
 
     try {
       call = priority.addCall();
-      this.updateLoadingState("account-setup-looking-up-disk");
+      gAccountSetupLogger.debug(
+        "Looking up configuration: Thunderbird installation…"
+      );
       call.foundMsg = "account-setup-success-settings-disk";
       fetch = FetchConfig.fromDisk(
         domain,
@@ -628,7 +630,7 @@ var gAccountSetup = {
       call.setAbortable(fetch);
 
       call = priority.addCall();
-      this.updateLoadingState("account-setup-looking-up-isp");
+      gAccountSetupLogger.debug("Looking up configuration: Email provider…");
       call.foundMsg = "account-setup-success-settings-isp";
       fetch = FetchConfig.fromISP(
         domain,
@@ -639,7 +641,9 @@ var gAccountSetup = {
       call.setAbortable(fetch);
 
       call = priority.addCall();
-      this.updateLoadingState("account-setup-looking-up-db");
+      gAccountSetupLogger.debug(
+        "Looking up configuration: Thunderbird installation…"
+      );
       call.foundMsg = "account-setup-success-settings-db";
       fetch = FetchConfig.fromDB(
         domain,
@@ -649,7 +653,9 @@ var gAccountSetup = {
       call.setAbortable(fetch);
 
       call = priority.addCall();
-      this.updateLoadingState("account-setup-looking-up-mx");
+      gAccountSetupLogger.debug(
+        "Looking up configuration: Incoming mail domain…"
+      );
       // "account-setup-success-settings-db" is correct.
       // We display the same message for both db and mx cases.
       call.foundMsg = "account-setup-success-settings-db";
@@ -661,7 +667,7 @@ var gAccountSetup = {
       call.setAbortable(fetch);
 
       call = priority.addCall();
-      this.updateLoadingState("account-setup-looking-up-exchange");
+      gAccountSetupLogger.debug("Looking up configuration: Exchange server…");
       call.foundMsg = "account-setup-success-settings-exchange";
       fetch = fetchConfigFromExchange(
         domain,

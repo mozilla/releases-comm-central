@@ -599,31 +599,6 @@ add_task(async function test_full_account_setup() {
     "Timeout waiting for the syncing notification to be removed"
   );
 
-  // Since we used an insecure IMAP server, the "Add security exception" dialog
-  // should show up, so we need to deal with it.
-  let dialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
-    await BrowserTestUtils.waitForEvent(win, "load");
-
-    if (
-      win.document.documentURI !=
-      "chrome://pippki/content/exceptionDialog.xhtml"
-    ) {
-      return false;
-    }
-
-    if (Services.focus.activeWindow != win) {
-      await BrowserTestUtils.waitForEvent(win, "focus");
-    }
-
-    let closedPromise = BrowserTestUtils.domWindowClosed(win);
-    win.document.documentElement
-      .querySelector("dialog")
-      .getButton("extra1")
-      .click();
-    await closedPromise;
-    return true;
-  });
-
   let confirmButton = tabDocument.getElementById("insecureConfirmButton");
   confirmButton.scrollIntoView();
 
@@ -633,9 +608,6 @@ add_task(async function test_full_account_setup() {
     {},
     tab.browser.contentWindow
   );
-
-  // Wait for the add security exception dialog to show up and get accepted.
-  await dialogPromise;
 
   // The final page should be visible.
   await finalViewShowed;
@@ -692,7 +664,7 @@ add_task(async function test_full_account_setup() {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
   IMAPServer.close();
   SMTPServer.close();
-}).skip(); // WIP
+});
 
 registerCleanupFunction(function teardownModule(module) {
   MockRegistrar.unregister(originalAlertsServiceCID);
