@@ -115,9 +115,8 @@ function initMenus()
         items:
         [
          ["join"],
-         // Planned future menu items, not implemented yet.
-         //["-"],
-         //["manage-networks"],
+         ["-"],
+         ["edit-networks"],
          ["-"],
          [">popup:views"],
          [">popup:nickname"],

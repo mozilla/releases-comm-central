@@ -70,6 +70,7 @@ function initCommands()
          ["disconnect",        cmdDisconnect,       CMD_NEED_SRV | CMD_CONSOLE],
          ["disconnect-all",    cmdDisconnectAll,                   CMD_CONSOLE],
          ["echo",              cmdEcho,                            CMD_CONSOLE],
+         ["edit-networks",     cmdEditNetworks,                    CMD_CONSOLE],
          ["enable-plugin",     cmdEnablePlugin,                    CMD_CONSOLE],
          ["eval",              cmdEval,                            CMD_CONSOLE],
          ["evalsilent",        cmdEval,                            CMD_CONSOLE],
@@ -1349,9 +1350,23 @@ function cmdNetworks(e)
             wrapper.appendChild(document.createTextNode(MSG_COMMASP));
     }
 
-    wrapper.appendChild(document.createTextNode(MSG_NETWORKS_HEADB));
+    // Display an "Edit" link.
+    var spanb = document.createElementNS(XHTML_NS, "html:span");
 
+    client.munger.getRule(".inline-buttons").enabled = true;
+    var msg = getMsg(MSG_NETWORKS_HEADB2, "edit-networks");
+    client.munger.munge(msg, spanb, getObjectDetails(client.currentObject));
+    client.munger.getRule(".inline-buttons").enabled = false;
+
+    wrapper.appendChild(spanb);
     display(wrapper, MT_INFO);
+}
+
+function cmdEditNetworks(e)
+{
+    toOpenWindowByType("irc:chatzilla:networks",
+                       "chrome://chatzilla/content/networks-edit.xul",
+                       "chrome,resizable,dialog", client);
 }
 
 function cmdServer(e)

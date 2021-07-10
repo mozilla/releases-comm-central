@@ -14,5 +14,7 @@
   locale/@AB_CD@/chatzilla/chatzilla.properties  (%chrome/chatzilla.properties)
   locale/@AB_CD@/chatzilla/config.dtd            (%chrome/config.dtd)
   locale/@AB_CD@/chatzilla/channels.dtd          (%chrome/channels.dtd)
+  locale/@AB_CD@/chatzilla/networks.dtd          (%chrome/networks.dtd)
+  locale/@AB_CD@/chatzilla/networks.properties   (%chrome/networks.properties)
   locale/@AB_CD@/chatzilla/about.dtd             (%chrome/about.dtd)
   locale/@AB_CD@/chatzilla/install-plugin.dtd    (%chrome/install-plugin.dtd)
