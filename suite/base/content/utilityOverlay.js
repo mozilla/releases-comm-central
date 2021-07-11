@@ -1457,6 +1457,7 @@ function openLinkIn(url, where, params)
   var aRelatedToCurrent     = params.relatedToCurrent;
   var aAllowMixedContent    = params.allowMixedContent;
   var aInBackground         = params.inBackground;
+  var aAvoidBrowserFocus    = params.avoidBrowserFocus;
   var aDisallowInheritPrincipal = params.disallowInheritPrincipal;
   var aInitiatingDoc = params.initiatingDoc ? params.initiatingDoc : document;
   var aIsPrivate            = params.private;
@@ -1564,6 +1565,11 @@ function openLinkIn(url, where, params)
                     Services.prefs.getBoolPref("browser.tabs.loadInBackground");
   }
 
+  if (aAvoidBrowserFocus == null) {
+    aAvoidBrowserFocus =
+      Services.prefs.getBoolPref("browser.tabs.avoidBrowserFocus", false);
+  }
+
   // reuse the browser if its current tab is empty
   if (isBrowserEmpty(w.getBrowser()))
     where = "current";
@@ -1592,7 +1598,9 @@ function openLinkIn(url, where, params)
       postData: aPostData,
       userContextId: aUserContextId
     });
-    w.content.focus();
+    if (!aAvoidBrowserFocus) {
+      w.content.focus();
+    }
     break;
 
   case "tabfocused":
@@ -1619,6 +1627,8 @@ function openLinkIn(url, where, params)
               });
     if (!loadInBackground) {
       browser.selectedTab = tab;
+    }
+    if (!aAvoidBrowserFocus) {
       w.content.focus();
     }
 

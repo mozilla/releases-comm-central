@@ -9,6 +9,10 @@
 <!ENTITY autoHide.accesskey2 "e">
 <!ENTITY background.label "Switch to new tabs opened from links">
 <!ENTITY background.accesskey "S">
+<!ENTITY diverted.label "Switch to new tabs opened from diverted links">
+<!ENTITY diverted.accesskey "a">
+<!ENTITY browserFocus.label "Focus browser window for links opened in tabs from other applications">
+<!ENTITY browserFocus.accesskey "F">
 <!ENTITY warnOnClose.label "Warn me when closing a window with multiple tabs">
 <!ENTITY warnOnClose.accesskey "W">
 <!ENTITY relatedAfterCurrent.label "Open related tabs after current tab">
