@@ -1248,8 +1248,7 @@ BatchMessageMover.prototype =
     if (dstFolder != srcFolder)
     {
       // Make sure the target folder is visible in the folder tree.
-      let folderTree = document.getElementById("folderTree");
-      EnsureFolderIndex(folderTree.builderView, dstFolder);
+      EnsureFolderIndex(gFolderTreeView, dstFolder);
 
       // If the source folder doesn't support deleting messages, we
       // make archive a copy, not a move.

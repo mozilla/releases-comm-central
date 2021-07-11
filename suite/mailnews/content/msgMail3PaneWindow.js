@@ -1176,6 +1176,24 @@ function SetNextMessageAfterDelete()
     gNextMessageViewIndexAfterDelete = treeSelection.currentIndex;
 }
 
+function EnsureFolderIndex(treeView, msgFolder) {
+  // Try to get the index of the folder in the tree.
+  let index = treeView.getIndexOfFolder(msgFolder);
+  if (!index) {
+    // If we couldn't find the folder, open the parents.
+    let folder = msgFolder;
+    while (!index && folder) {
+      folder = folder.parent;
+      index = EnsureFolderIndex(treeView, folder);
+    }
+    if (index) {
+      treeView.toggleOpenState(index);
+      index = treeView.getIndexOfFolder(msgFolder);
+    }
+  }
+  return index;
+}
+
 function SelectMsgFolder(msgFolder) {
   gFolderTreeView.selectFolder(msgFolder);
 }
