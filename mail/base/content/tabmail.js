@@ -1903,15 +1903,17 @@
       tab.busy = aBusy;
     }
 
-    onTabContextMenuShowing(aTabNode) {
+    onTabContextMenuShowing(event) {
+      let tabContextMenu = document.getElementById("tabContextMenu");
+      let tabNode = tabContextMenu.triggerNode?.closest("tab");
+
       // this happens when the user did not actually-click on a tab but
       // instead on the strip behind it.
-      if (aTabNode.localName != "tab") {
+      if (!tabNode || tabNode.localName != "tab") {
         return false;
       }
 
-      let tabContextMenu = document.getElementById("tabContextMenu");
-      let tab = this._getTabContextForTabbyThing(aTabNode, true)[1];
+      let tab = this._getTabContextForTabbyThing(tabNode, true)[1];
       // by default "close other tabs" is disabled...
       tabContextMenu
         .querySelector(`[anonid="closeOtherTabs"]`)
