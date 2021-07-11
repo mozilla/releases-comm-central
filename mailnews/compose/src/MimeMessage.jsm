@@ -421,8 +421,10 @@ class MimeMessage {
       return null;
     }
 
-    if (this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft &&
-       !this._userIdentity.getBoolAttribute("autoEncryptDrafts")) {
+    if (
+      this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft &&
+      !this._userIdentity.getBoolAttribute("autoEncryptDrafts")
+    ) {
       return null;
     }
 
