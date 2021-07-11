@@ -1031,6 +1031,14 @@ nsresult nsMsgComposeAndSend::BeginCryptoEncapsulation() {
 
   if (secureCompose) {
     bool requiresEncryptionWork = false;
+
+    bool encryptDraft = true;
+    mUserIdentity->GetBoolAttribute("autoEncryptDrafts", &encryptDraft);
+    if (m_deliver_mode != nsMsgSaveAsDraft || encryptDraft) {
+      secureCompose->RequiresCryptoEncapsulation(mUserIdentity, mCompFields,
+                                                 &requiresEncryptionWork);
+    }
+
     secureCompose->RequiresCryptoEncapsulation(mUserIdentity, mCompFields,
                                                &requiresEncryptionWork);
     if (requiresEncryptionWork) {

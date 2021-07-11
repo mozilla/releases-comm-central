@@ -420,6 +420,12 @@ class MimeMessage {
     if (!secureCompose) {
       return null;
     }
+
+    if (this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft &&
+       !this._userIdentity.getBoolAttribute("autoEncryptDrafts")) {
+      return null;
+    }
+
     if (
       !secureCompose.requiresCryptoEncapsulation(
         this._userIdentity,
