@@ -206,9 +206,9 @@ def git_clone(git, repo, dest, watchman):
         # We're guaranteed to have `git-cinnabar` installed now.
         # Configure git per the git-cinnabar requirements.
         cmd = [
-                git,
-                "clone",
-            ]
+            git,
+            "clone",
+        ]
         if repo == "mozilla-unified":
             cmd += [
                 "-b",
