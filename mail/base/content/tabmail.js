@@ -623,9 +623,7 @@
     }
 
     createTooltip(event) {
-      let tab = document.tooltipNode
-        ? document.tooltipNode.closest("tab")
-        : null;
+      let tab = event.target.triggerNode?.closest("tab");
       if (!tab) {
         event.preventDefault();
         return;

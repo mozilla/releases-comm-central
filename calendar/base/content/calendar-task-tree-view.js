@@ -445,7 +445,7 @@ class CalendarTaskTreeView {
   onKeyPress(event) {
     switch (event.key) {
       case "Delete": {
-        document.popupNode = this.tree;
+        event.target.triggerNode = this.tree;
         document.getElementById("calendar_delete_todo_command").doCommand();
         event.preventDefault();
         event.stopPropagation();

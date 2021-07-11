@@ -348,24 +348,24 @@
   <tooltip id="attachmentListTooltip"/>
 
   <menupopup id="newsgroupPopup" position="after_start" class="newsgroupPopup"
-             onpopupshowing="setupNewsgroupPopup(document.popupNode); goUpdateCommand('cmd_createFilterFromPopup')"
-             onpopuphiding="hideEmailNewsPopup(document.popupNode);">
+             onpopupshowing="setupNewsgroupPopup(event.target.triggerNode); goUpdateCommand('cmd_createFilterFromPopup')"
+             onpopuphiding="hideEmailNewsPopup(event.target.triggerNode);">
       <menuitem id="newsgroupPlaceHolder"
                 disabled="true"/>
       <menuseparator/>
       <menuitem id="sendMessageToNewsgroupItem" label="&SendMessageTo.label;"
                 accesskey="&SendMessageTo.accesskey;"
-                oncommand="SendMailToNode(document.popupNode, event)"/>
+                oncommand="SendMailToNode(this.parentNode.triggerNode, event)"/>
       <menuitem id="copyNewsgroupNameItem" label="&CopyNewsgroupName.label;"
                 accesskey="&CopyNewsgroupName.accesskey;"
-                oncommand="CopyEmailNewsAddress(document.popupNode)"/>
+                oncommand="CopyEmailNewsAddress(this.parentNode.triggerNode)"/>
       <menuitem id="copyNewsgroupURLItem" label="&CopyNewsgroupURL.label;"
                 accesskey="&CopyNewsgroupURL.accesskey;"
-                oncommand="CopyNewsgroupURL(document.popupNode)"/>
+                oncommand="CopyNewsgroupURL(this.parentNode.triggerNode)"/>
       <menuseparator id="subscribeToNewsgroupSeparator"/>
       <menuitem id="subscribeToNewsgroupItem" label="&SubscribeToNewsgroup.label;"
                 accesskey="&SubscribeToNewsgroup.accesskey;"
-                oncommand="SubscribeToNewsgroup(document.popupNode)"/>
+                oncommand="SubscribeToNewsgroup(this.parentNode.triggerNode)"/>
   </menupopup>
 
   <menupopup id="pageContextMenu"
@@ -389,26 +389,26 @@
   -->
 
   <menupopup id="tabContextMenu"
-                 onpopupshowing="return document.getElementById('tabmail').onTabContextMenuShowing(document.popupNode);">
+             onpopupshowing="return document.getElementById('tabmail').onTabContextMenuShowing(event.target.triggerNode?.closest('tab'));">
     <menuitem label="&moveToNewWindow.label;"
-                  accesskey="&moveToNewWindow.accesskey;"
-                  anonid="openTabInWindow"
-                  oncommand="document.getElementById('tabmail').replaceTabWithWindow(document.popupNode);"/>
+              accesskey="&moveToNewWindow.accesskey;"
+              anonid="openTabInWindow"
+              oncommand="document.getElementById('tabmail').replaceTabWithWindow(this.parentNode.triggerNode);"/>
     <menuseparator />
     <menuitem label="&closeOtherTabsCmd2.label;"
-                  accesskey="&closeOtherTabsCmd2.accesskey;"
-                  anonid="closeOtherTabs"
-                  oncommand="document.getElementById('tabmail').closeOtherTabs(document.popupNode);"/>
+              accesskey="&closeOtherTabsCmd2.accesskey;"
+              anonid="closeOtherTabs"
+              oncommand="document.getElementById('tabmail').closeOtherTabs(this.parentNode.triggerNode);"/>
     <menuseparator />
     <menu label="&recentlyClosedTabsCmd.label;"
-              accesskey="&recentlyClosedTabsCmd.accesskey;"
-              anonid="recentlyClosedTabs" >
+          accesskey="&recentlyClosedTabsCmd.accesskey;"
+          anonid="recentlyClosedTabs" >
       <menupopup onpopupshowing="return InitRecentlyClosedTabsPopup(this);" />
     </menu>
     <menuitem label="&closeTabCmd2.label;"
-                  accesskey="&closeTabCmd2.accesskey;"
-                  anonid="closeTab"
-                  oncommand="document.getElementById('tabmail').closeTab(document.popupNode);"/>
+              accesskey="&closeTabCmd2.accesskey;"
+              anonid="closeTab"
+              oncommand="document.getElementById('tabmail').closeTab(this.parentNode.triggerNode);"/>
   </menupopup>
 
   <tooltip id="tabmail-tabs-tooltip" onpopupshowing="document.getElementById('tabmail').createTooltip(event);"/>

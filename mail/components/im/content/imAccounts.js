@@ -446,8 +446,8 @@ var gAccountManager = {
       }
     }
   },
-  onContextMenuShowing() {
-    let targetElt = document.popupNode.closest(
+  onContextMenuShowing(event) {
+    let targetElt = event.target.triggerNode.closest(
       'richlistitem[is="chat-account-richlistitem"]'
     );
     document.querySelectorAll(".im-context-account-item").forEach(e => {

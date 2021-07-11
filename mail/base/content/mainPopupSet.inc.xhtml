@@ -4,40 +4,40 @@
 
 #ifndef BROWSER_POPUPS_ONLY
   <menupopup id="emailAddressPopup" position="after_start" class="emailAddressPopup"
-             onpopupshowing="setupEmailAddressPopup(document.popupNode); goUpdateCommand('cmd_createFilterFromPopup')"
-             onpopuphiding="hideEmailNewsPopup(document.popupNode);">
+             onpopupshowing="setupEmailAddressPopup(event.target.triggerNode); goUpdateCommand('cmd_createFilterFromPopup')"
+             onpopuphiding="hideEmailNewsPopup(event.target.triggerNode);">
     <menuitem id="emailAddressPlaceHolder"
               disabled="true"/>
     <menuseparator/>
     <menuitem id="addToAddressBookItem"
               label="&AddDirectlyToAddressBook.label;"
               accesskey="&AddDirectlyToAddressBook.accesskey;"
-              oncommand="AddContact(document.popupNode)"/>
+              oncommand="AddContact(this.parentNode.triggerNode)"/>
     <menuitem id="editContactItem" label="&EditContact1.label;" hidden="true"
               accesskey="&EditContact1.accesskey;"
-              oncommand="EditContact(document.popupNode)"/>
+              oncommand="EditContact(this.parentNode.triggerNode)"/>
     <menuitem id="viewContactItem" label="&ViewContact.label;" hidden="true"
               accesskey="&ViewContact.accesskey;"
-              oncommand="EditContact(document.popupNode)"/>
+              oncommand="EditContact(this.parentNode.triggerNode)"/>
     <menuitem id="sendMailToItem" label="&SendMessageTo.label;"
               accesskey="&SendMessageTo.accesskey;"
-              oncommand="SendMailToNode(document.popupNode, event)"/>
+              oncommand="SendMailToNode(this.parentNode.triggerNode, event)"/>
     <menuitem id="copyEmailAddressItem" label="&CopyEmailAddress.label;"
               accesskey="&CopyEmailAddress.accesskey;"
-              oncommand="CopyEmailNewsAddress(document.popupNode)"/>
+              oncommand="CopyEmailNewsAddress(this.parentNode.triggerNode)"/>
     <menuitem id="copyNameAndEmailAddressItem" label="&CopyNameAndEmailAddress.label;"
               accesskey="&CopyNameAndEmailAddress.accesskey;"
-              oncommand="CopyEmailNewsAddress(document.popupNode, true)"/>
+              oncommand="CopyEmailNewsAddress(this.parentNode.triggerNode, true)"/>
 #ifdef MOZ_OPENPGP
     <menuseparator class="openpgp-item"/>
     <menuitem id="searchKeysOpenPGP" data-l10n-id="openpgp-search-keys-openpgp"
               class="openpgp-item"
-              oncommand="Enigmail.msg.searchKeysOnInternet(document.popupNode)"/>
+              oncommand="Enigmail.msg.searchKeysOnInternet(this.parentNode.triggerNode)"/>
 #endif
     <menuseparator/>
     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(document.popupNode, gMessageDisplay.displayedMessage)"
+              oncommand="CreateFilter(this.parentNode.triggerNode, gMessageDisplay.displayedMessage)"
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
 
@@ -47,11 +47,11 @@
               oncommand="Cc['@mozilla.org/widget/clipboardhelper;1']
                            .getService(Ci.nsIClipboardHelper)
                            .copyString(window.getSelection().isCollapsed ?
-                             document.popupNode.textContent :
+                             this.parentNode.triggerNode.textContent :
                              window.getSelection().toString());"/>
     <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(document.popupNode, gMessageDisplay.displayedMessage)"
+              oncommand="CreateFilter(this.parentNode.triggerNode, gMessageDisplay.displayedMessage)"
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
 #endif

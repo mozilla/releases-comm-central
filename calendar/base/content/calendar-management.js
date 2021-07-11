@@ -560,11 +560,11 @@ function calendarListSetupContextMenu(event) {
   let calendar;
   let composite = cal.view.getCompositeCalendar(window);
 
-  if (document.popupNode.matches("checkbox.calendar-displayed")) {
+  if (event.target.triggerNode.matches("checkbox.calendar-displayed")) {
     return;
   }
 
-  let item = document.popupNode.closest("richlistitem");
+  let item = event.target.triggerNode.closest("richlistitem");
   if (item) {
     let calendarId = item.getAttribute("calendar-id");
     calendar = cal.getCalendarManager().getCalendarById(calendarId);

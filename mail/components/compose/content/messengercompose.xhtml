@@ -763,7 +763,7 @@
   <menuitem id="editAddressPill"
             class="pill-action-edit"
             data-l10n-id="pill-action-edit"
-            oncommand="editAddressPill(document.popupNode, event)"/>
+            oncommand="editAddressPill(this.parentNode.triggerNode, event)"/>
   <menuitem id="menu_delete"
             data-l10n-id="text-action-delete"
             oncommand="deleteSelectedPillsOnCommand()"/>
@@ -791,7 +791,7 @@
   <menuitem id="expandList"
             data-l10n-id="pill-action-expand-list"
             hidden="true"
-            oncommand="expandList(document.popupNode)"/>
+            oncommand="expandList(this.parentNode.triggerNode)"/>
 </menupopup>
 
   <toolbox id="compose-toolbox"

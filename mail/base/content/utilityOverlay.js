@@ -49,13 +49,8 @@ function goUpdatePasteMenuItems() {
 }
 
 function goCopyImage() {
-  let img = document.popupNode;
-  if (/^(https?|data):/i.test(img.src)) {
-    goDoCommand("cmd_copyImage");
-    return;
-  }
-  // A mailbox/imap URL then... copy only data then since the HTML data is
-  // not that useful for pasting when the image won't be resolved.
+  // Always copy the image data. It doesn't make sense to insert an image
+  // as a http(s) reference since the recipient might block it.
   let param = Cu.createCommandParams();
   param.setLongValue("imageCopy", Ci.nsIContentViewerEdit.COPY_IMAGE_DATA);
   document.commandDispatcher

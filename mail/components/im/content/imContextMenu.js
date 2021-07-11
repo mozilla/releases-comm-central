@@ -51,7 +51,7 @@ imContextMenu.prototype = {
     this.menu = aPopup;
 
     // Get contextual info.
-    let node = document.popupNode;
+    let node = aPopup.triggerNode;
     this.setTarget(node);
 
     let actions = [];

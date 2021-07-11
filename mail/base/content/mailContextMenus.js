@@ -67,7 +67,7 @@ function mailContextOnPopupHiding(aEvent) {
 }
 
 function fillMailContextMenu(event) {
-  let target = document.popupNode;
+  let target = event.target.triggerNode;
   if (target?.localName == "treecol") {
     let treeColPicker = target.parentNode.querySelector("treecolpicker");
     let popup = treeColPicker.querySelector(`menupopup[anonid="popup"]`);
@@ -261,7 +261,7 @@ function folderPaneOnPopupHiding() {
 
 /* eslint-disable complexity */
 function fillFolderPaneContextMenu(aEvent) {
-  let target = document.popupNode;
+  let target = aEvent.target.triggerNode;
   // If a column header was clicked, show the column picker.
   if (target.localName == "treecol") {
     let treeColPicker = target.parentNode.querySelector("treecolpicker");

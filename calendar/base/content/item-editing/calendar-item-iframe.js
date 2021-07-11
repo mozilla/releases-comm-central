@@ -2487,7 +2487,7 @@ function attachmentDblClick(aEvent) {
  * @param aEvent     The DOM event caused by the clicking.
  */
 function attachmentClick(aEvent) {
-  let item = document.popupNode;
+  let item = aEvent.target.triggerNode;
   while (item && item.localName != "richlistbox" && item.localName != "richlistitem") {
     item = item.parentNode;
   }

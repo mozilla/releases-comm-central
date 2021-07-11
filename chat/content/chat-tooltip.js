@@ -83,7 +83,7 @@
       }
 
       // No tooltip for elements that have already been removed.
-      if (!document.tooltipNode.parentNode) {
+      if (!this.triggerNode.parentNode) {
         return false;
       }
 
@@ -94,7 +94,7 @@
 
       // We have a few cases that have special behavior. These are richlistitems
       // and have tooltip="<myid>".
-      let item = document.tooltipNode.closest(
+      let item = this.triggerNode.closest(
         `[tooltip="${this.id}"] richlistitem`
       );
 
@@ -124,7 +124,7 @@
 
       // Tooltips are also used for the chat content, where we need to do
       // some more general checks.
-      let elt = document.tooltipNode;
+      let elt = this.triggerNode;
       let classList = elt.classList;
       if (
         classList.contains("ib-nick") ||
@@ -381,7 +381,7 @@
       this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
 
       // Add encryption status.
-      if (document.tooltipNode.classList.contains("message-encrypted")) {
+      if (this.triggerNode.classList.contains("message-encrypted")) {
         this.addRow(
           this.bundle.GetStringFromName("otr.tag"),
           this.bundle.GetStringFromName("message.status")
