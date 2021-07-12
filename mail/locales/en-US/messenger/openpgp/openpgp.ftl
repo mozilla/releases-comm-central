@@ -669,6 +669,13 @@ possibly-pgp-mime = Possibly PGP/MIME encrypted or signed message; use ‘Decryp
 cannot-send-sig-because-no-own-key = Cannot digitally sign this message, because you haven’t yet configured end-to-end encryption for <{ $key }>
 cannot-send-enc-because-no-own-key = Cannot send this message encrypted, because you haven’t yet configured end-to-end encryption for <{ $key }>
 
+compose-menu-attach-key =
+    .label = Attach My Public Key
+    .accesskey = A
+compose-menu-encrypt-subject =
+    .label = Subject Encryption
+    .accesskey = b
+
 # Strings used in decryption.jsm
 do-import-multiple =
     Import the following keys?

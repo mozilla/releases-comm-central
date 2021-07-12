@@ -18,9 +18,6 @@
 <!ENTITY menu_securitySign.label "Digitally Sign This Message">
 <!ENTITY menu_securitySign.accesskey "M">
 
-<!ENTITY menu_securityAttachMyKey.label "Attach My Public Key">
-<!ENTITY menu_securityAttachMyKey.accesskey "A">
-
 <!ENTITY menu_securityTech.label "Encryption Technology">
 <!ENTITY menu_securityTech.accesskey "T">
 
