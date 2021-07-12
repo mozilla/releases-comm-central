@@ -18,11 +18,6 @@ ChromeUtils.defineModuleGetter(
   "Sanitizer",
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "UserCancelledException",
-  "resource:///modules/accountcreation/FetchHTTP.jsm"
-);
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
@@ -38,6 +33,7 @@ const {
   gAccountSetupLogger,
   getStringBundle,
   NotReached,
+  UserCancelledException,
 } = AccountCreationUtils;
 
 /**

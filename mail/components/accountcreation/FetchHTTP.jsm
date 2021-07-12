@@ -15,7 +15,7 @@
  * but not for bigger file downloads.
  */
 
-const EXPORTED_SYMBOLS = ["FetchHTTP", "UserCancelledException"];
+const EXPORTED_SYMBOLS = ["FetchHTTP"];
 
 const { AccountCreationUtils } = ChromeUtils.import(
   "resource:///modules/accountcreation/AccountCreationUtils.jsm"
@@ -36,6 +36,7 @@ const {
   Exception,
   gAccountSetupLogger,
   getStringBundle,
+  UserCancelledException,
 } = AccountCreationUtils;
 
 /**
@@ -385,23 +386,6 @@ FetchHTTP.prototype = {
     this._finishedCallback = finishedCallback;
   },
 };
-
-function CancelledException(msg) {
-  Exception.call(this, msg);
-}
-CancelledException.prototype = Object.create(Exception.prototype);
-CancelledException.prototype.constructor = CancelledException;
-
-function UserCancelledException(msg) {
-  // The user knows they cancelled so I don't see a need
-  // for a message to that effect.
-  if (!msg) {
-    msg = "User cancelled";
-  }
-  CancelledException.call(this, msg);
-}
-UserCancelledException.prototype = Object.create(CancelledException.prototype);
-UserCancelledException.prototype.constructor = UserCancelledException;
 
 function ServerException(msg, code, uri) {
   Exception.call(this, msg);

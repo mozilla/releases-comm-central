@@ -149,6 +149,17 @@ function CancelledException(msg) {
 CancelledException.prototype = Object.create(Exception.prototype);
 CancelledException.prototype.constructor = CancelledException;
 
+function UserCancelledException(msg) {
+  // The user knows they cancelled so I don't see a need
+  // for a message to that effect.
+  if (!msg) {
+    msg = "User cancelled";
+  }
+  CancelledException.call(this, msg);
+}
+UserCancelledException.prototype = Object.create(CancelledException.prototype);
+UserCancelledException.prototype.constructor = UserCancelledException;
+
 /**
  * Utility implementation, for waiting for a promise to resolve,
  * but allowing its result to be cancelled.
@@ -675,4 +686,5 @@ var AccountCreationUtils = {
   runAsync,
   SuccessiveAbortable,
   TimeoutAbortable,
+  UserCancelledException,
 };

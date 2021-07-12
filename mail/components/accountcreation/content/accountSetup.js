@@ -26,7 +26,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
   Services: "resource://gre/modules/Services.jsm",
-  UserCancelledException: "resource:///modules/accountcreation/FetchHTTP.jsm",
   verifyConfig: "resource:///modules/accountcreation/verifyConfig.jsm",
 });
 
@@ -45,6 +44,7 @@ var {
   PriorityOrderAbortable,
   SuccessiveAbortable,
   TimeoutAbortable,
+  UserCancelledException,
 } = AccountCreationUtils;
 
 /**
