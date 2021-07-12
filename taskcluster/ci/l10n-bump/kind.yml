@@ -23,7 +23,7 @@ job-defaults:
                 default: false
         source-repo:
             by-release-type:
-                release: https://hg.mozilla.org/releases/comm-esr78
+                release: https://hg.mozilla.org/releases/comm-esr91
                 beta: https://hg.mozilla.org/releases/comm-beta
                 default: https://hg.mozilla.org/comm-central
         l10n-bump-info:

@@ -33,7 +33,7 @@ jobs:
                     production:
                         by-release-type:
                             beta: [43]
-                            release: [906]
+                            release: [17646]
                             default: []
                     staging:
                         by-release-type:
