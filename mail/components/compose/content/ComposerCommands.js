@@ -326,30 +326,26 @@ function pokeStyleUI(uiID, desiredState) {
   let uiState = commandNode.getAttribute("state") == "true";
   if (desiredState != uiState) {
     commandNode.setAttribute("state", desiredState ? "true" : "false");
+    let buttonId;
     switch (uiID) {
-      case "cmd_bold": {
-        onButtonUpdate(document.getElementById("boldButton"), "cmd_bold");
+      case "cmd_bold":
+        buttonId = "boldButton";
         break;
-      }
-      case "cmd_italic": {
-        onButtonUpdate(document.getElementById("italicButton"), "cmd_italic");
+      case "cmd_italic":
+        buttonId = "italicButton";
         break;
-      }
-      case "cmd_underline": {
-        onButtonUpdate(
-          document.getElementById("underlineButton"),
-          "cmd_underline"
-        );
+      case "cmd_underline":
+        buttonId = "underlineButton";
         break;
-      }
-      case "cmd_ul": {
-        onButtonUpdate(document.getElementById("ulButton"), "cmd_ul");
+      case "cmd_ul":
+        buttonId = "ulButton";
         break;
-      }
-      case "cmd_ol": {
-        onButtonUpdate(document.getElementById("olButton"), "cmd_ol");
+      case "cmd_ol":
+        buttonId = "olButton";
         break;
-      }
+    }
+    if (buttonId) {
+      document.getElementById(buttonId).checked = desiredState;
     }
   }
 }
@@ -367,7 +363,6 @@ let gCommandMap = new Map([
   ["cmd_ul", "InsertUnorderedList"],
   ["cmd_ol", "InsertOrderedList"],
   ["cmd_fontFace", "fontName"],
-  // ["cmd_paragraphState", "formatBlock"],
 
   // This are currently implemented with the help of
   // color selection dialog box in the editor.js.
@@ -410,21 +405,19 @@ function stringToTypedArray(buffer) {
  * @param {nsICommandParams} cmdParams - Command parameters object.
  */
 function pokeMultiStateUI(uiID, cmdParams) {
-  let isMixed = cmdParams.getBooleanValue("state_mixed");
   let desiredAttrib;
-  if (isMixed) {
+  if (cmdParams.getBooleanValue("state_mixed")) {
     desiredAttrib = "mixed";
+  } else if (
+    cmdParams.getValueType("state_attribute") == Ci.nsICommandParams.eStringType
+  ) {
+    desiredAttrib = cmdParams.getCStringValue("state_attribute");
+    // Decode UTF-8, for example for font names in Japanese.
+    desiredAttrib = new TextDecoder("UTF-8").decode(
+      stringToTypedArray(desiredAttrib)
+    );
   } else {
-    let valuetype = cmdParams.getValueType("state_attribute");
-    if (valuetype == Ci.nsICommandParams.eStringType) {
-      desiredAttrib = cmdParams.getCStringValue("state_attribute");
-      // Decode UTF-8, for example for font names in Japanese.
-      desiredAttrib = new TextDecoder("UTF-8").decode(
-        stringToTypedArray(desiredAttrib)
-      );
-    } else {
-      desiredAttrib = cmdParams.getStringValue("state_attribute");
-    }
+    desiredAttrib = cmdParams.getStringValue("state_attribute");
   }
 
   let commandNode = document.getElementById(uiID);

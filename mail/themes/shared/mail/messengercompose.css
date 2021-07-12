@@ -1185,6 +1185,10 @@ button.remove-field-button:focus {
   list-style-image: url("chrome://messenger/skin/icons/bullet-list.svg");
 }
 
+#removeStylingButton {
+  list-style-image: url("chrome://messenger/skin/icons/remove-text-styling.svg");
+}
+
 #olButton {
   list-style-image: url("chrome://messenger/skin/icons/number-list.svg");
 }

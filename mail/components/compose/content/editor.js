@@ -479,6 +479,12 @@ function onParagraphFormatChange() {
   }
 }
 
+function editorRemoveTextStyling() {
+  GetCurrentEditor().document.execCommand("removeFormat", false, null);
+  // After removing the formatting, update the full styling command set.
+  window.updateCommands("style");
+}
+
 /**
  * Selects the current font face in the menulist.
  */
@@ -1851,13 +1857,6 @@ function initFontStyleMenu(menuPopup) {
       menuItem.setAttribute("checked", theStyle);
     }
   }
-}
-
-// --------------------------------------------------------------------
-function onButtonUpdate(button, commmandID) {
-  var commandNode = document.getElementById(commmandID);
-  var state = commandNode.getAttribute("state");
-  button.checked = state == "true";
 }
 
 // -----------------------------------------------------------------------------------

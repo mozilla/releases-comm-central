@@ -181,3 +181,10 @@ compose-missing-identity-warning = A unique identity matching the From address w
 encrypted-bcc-warning = When sending an encrypted message, recipients in Bcc are not fully hidden. All recipients may be able to identify them.
 
 encrypted-bcc-ignore-button = Understood
+
+## Editing
+
+# Tools
+
+compose-tool-button-remove-text-styling =
+  .tooltiptext = Remove Text Styling

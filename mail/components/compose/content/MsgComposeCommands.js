@@ -1518,6 +1518,7 @@ function updateComposeItems() {
       goUpdateCommand("cmd_bold");
       goUpdateCommand("cmd_italic");
       goUpdateCommand("cmd_underline");
+      goUpdateCommand("cmd_removeStyles");
       goUpdateCommand("cmd_ul");
       goUpdateCommand("cmd_ol");
       goUpdateCommand("cmd_indent");

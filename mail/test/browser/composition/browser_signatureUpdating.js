@@ -61,6 +61,8 @@ add_task(function setupModule(module) {
 registerCleanupFunction(function teardownModule(module) {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
   Services.prefs.clearUserPref("mail.identity.id1.compose_html");
+  Services.prefs.clearUserPref("mail.identity.id1.htmlSigText");
+  Services.prefs.clearUserPref("mail.identity.id2.htmlSigText");
   Services.prefs.clearUserPref(
     "mail.identity.id1.suppress_signature_separator"
   );
