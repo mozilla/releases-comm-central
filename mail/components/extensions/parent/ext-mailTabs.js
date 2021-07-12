@@ -46,6 +46,7 @@ function convertMailTab(tab, context) {
     active: tab.active,
     sortType: null,
     sortOrder: null,
+    viewType: null,
     layout: LAYOUTS[gDynamicPaneConfig],
     folderPaneVisible: null,
     messagePaneVisible: null,
@@ -70,7 +71,16 @@ function convertMailTab(tab, context) {
     mailTabObject.sortOrder = SORT_ORDER_MAP.get(
       folderDisplay.view.primarySortOrder
     );
+
+    if (folderDisplay.view.showGroupedBySort) {
+      mailTabObject.viewType = "groupedBySortType";
+    } else if (folderDisplay.view.showThreaded) {
+      mailTabObject.viewType = "groupedByThread";
+    } else {
+      mailTabObject.viewType = "normal";
+    }
   }
+
   if (context.extension.hasPermission("accountsRead")) {
     mailTabObject.displayedFolder = convertFolder(
       folderDisplay.displayedFolder
@@ -202,6 +212,7 @@ this.mailTabs = class extends ExtensionAPI {
             messagePaneVisible,
             sortOrder,
             sortType,
+            viewType,
           } = args;
 
           if (displayedFolder && extension.hasPermission("accountsRead")) {
@@ -238,6 +249,19 @@ this.mailTabs = class extends ExtensionAPI {
                 Ci.nsMsgViewSortOrder[sortOrder]
               );
             }
+          }
+
+          switch (viewType) {
+            case "groupedBySortType":
+              nativeTab.folderDisplay.view.showGroupedBySort = true;
+              break;
+            case "groupedByThread":
+              nativeTab.folderDisplay.view.showThreaded = true;
+              break;
+            case "normal":
+              nativeTab.folderDisplay.view.showThreaded = false;
+              nativeTab.folderDisplay.view.showGroupedBySort = false;
+              break;
           }
 
           // Layout applies to all folder tabs.

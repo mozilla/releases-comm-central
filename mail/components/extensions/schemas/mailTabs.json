@@ -52,6 +52,15 @@
               "descending"
             ]
           },
+          "viewType": {
+            "type": "string",
+            "optional": true,
+            "enum": [
+              "normal",
+              "groupedByThread",
+              "groupedBySortType"
+            ]
+          },
           "layout": {
             "type": "string",
             "enum": [
@@ -254,6 +263,15 @@
                   "none",
                   "ascending",
                   "descending"
+                ]
+              },
+              "viewType": {
+                "type": "string",
+                "optional": true,
+                "enum": [
+                  "normal",
+                  "groupedByThread",
+                  "groupedBySortType"
                 ]
               },
               "layout": {
