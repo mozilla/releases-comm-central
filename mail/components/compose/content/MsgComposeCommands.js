@@ -1877,8 +1877,11 @@ function openEditorContextMenu(popup) {
 
   // The rest of this block sends menu information to WebExtensions.
 
-  // `popup.triggerNode` can be null if the user right-clicked onto text.
-  let target = document.elementFromPoint(popup.screenX, popup.screenY);
+  let editor = GetCurrentEditorElement();
+  let target = editor.contentDocument.elementFromPoint(
+    popup.screenX - editor.screenX,
+    popup.screenY - editor.screenY
+  );
 
   let selectionInfo = SelectionUtils.getSelectionDetails(window);
   let isContentSelected = !selectionInfo.docSelectionIsCollapsed;
