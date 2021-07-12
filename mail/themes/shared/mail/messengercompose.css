@@ -579,7 +579,7 @@ menulist::part(description) {
 
 /* :::: Format toolbar :::: */
 
-#FormatToolbar {
+#FormatToolbar:not([hidden="true"]) {
   display: flex;
 }
 
