@@ -146,3 +146,9 @@ caret-browsing-prompt-check-text = Do not ask again.
 repair-text-encoding-button =
   .label = Repair Text Encoding
   .tooltiptext = Guess correct text encoding from message content
+
+## no-reply handling
+
+no-reply-title = Reply Not Supported
+no-reply-message = The reply address ({ $email }) does not appear to be a monitored address. Messages to this address will likely not be read by anyone.
+no-reply-reply-anyway-button = Reply Anyway

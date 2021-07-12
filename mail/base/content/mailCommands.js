@@ -46,7 +46,7 @@ function GetMsgKeyFromURI(uri) {
  * @param folder nsIMsgFolder      Folder where the original message is stored
  * @param messageArray             Array of messages to process, often only holding one element.
  */
-function ComposeMessage(type, format, folder, messageArray) {
+async function ComposeMessage(type, format, folder, messageArray) {
   function findDeliveredToIdentityEmail(hdr) {
     // This function reads from currentHeaderData, which is only useful if we're
     // looking at the currently-displayed message. Otherwise, just return
@@ -231,6 +231,59 @@ function ComposeMessage(type, format, folder, messageArray) {
       for (var i = 0; i < messageArray.length; ++i) {
         var messageUri = messageArray[i];
         hdr = messenger.msgHdrFromURI(messageUri);
+
+        if (
+          [
+            Ci.nsIMsgCompType.Reply,
+            Ci.nsIMsgCompType.ReplyAll,
+            Ci.nsIMsgCompType.ReplyToSender,
+            Ci.nsIMsgCompType.ReplyToGroup,
+            Ci.nsIMsgCompType.ReplyToSenderAndGroup,
+            Ci.nsIMsgCompType.ReplyWithTemplate,
+            Ci.nsIMsgCompType.ReplyToList,
+          ].includes(type)
+        ) {
+          let from = hdr.getStringProperty("replyTo") || hdr.author;
+          let fromAddrs = MailServices.headerParser.parseEncodedHeader(
+            from,
+            null
+          );
+          let email = fromAddrs[0]?.email;
+          if (
+            /^(.*[._-])?(do[._-]?not|no)[._-]?reply([._-].*)?@/i.test(email)
+          ) {
+            let [
+              title,
+              message,
+              replyAnywayButton,
+            ] = await document.l10n.formatValues([
+              { id: "no-reply-title" },
+              { id: "no-reply-message", args: { email } },
+              { id: "no-reply-reply-anyway-button" },
+            ]);
+
+            let buttonFlags =
+              Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_0 +
+              Ci.nsIPrompt.BUTTON_TITLE_IS_STRING * Ci.nsIPrompt.BUTTON_POS_1;
+
+            if (
+              !Services.prompt.confirmEx(
+                window,
+                title,
+                message,
+                buttonFlags,
+                null, // cancel
+                replyAnywayButton,
+                null,
+                null,
+                {}
+              )
+            ) {
+              continue;
+            }
+          }
+        }
+
         if (FeedUtils.isFeedMessage(hdr)) {
           // Do not use the header derived identity for feeds, pass on only a
           // possible server identity from above.
