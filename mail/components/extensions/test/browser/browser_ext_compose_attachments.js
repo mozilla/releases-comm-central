@@ -232,3 +232,65 @@ add_task(async function() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+add_task(async function test_without_permission() {
+  let files = {
+    "background.js": async () => {
+      // Try to use onAttachmentAdded.
+      await browser.test.assertThrows(
+        () => browser.compose.onAttachmentAdded.addListener(),
+        `can't access property "addListener", browser.compose.onAttachmentAdded is undefined`,
+        "Should reject listener without proper permission"
+      );
+
+      // Try to use onAttachmentRemoved.
+      await browser.test.assertThrows(
+        () => browser.compose.onAttachmentRemoved.addListener(),
+        `can't access property "addListener", browser.compose.onAttachmentRemoved is undefined`,
+        "Should reject listener without proper permission"
+      );
+
+      // Try to use listAttachments.
+      await browser.test.assertThrows(
+        () => browser.compose.listAttachments(),
+        `browser.compose.listAttachments is not a function`,
+        "Should reject function without proper permission"
+      );
+
+      // Try to use addAttachment.
+      await browser.test.assertThrows(
+        () => browser.compose.addAttachment(),
+        `browser.compose.addAttachment is not a function`,
+        "Should reject function without proper permission"
+      );
+
+      // Try to use updateAttachment.
+      await browser.test.assertThrows(
+        () => browser.compose.updateAttachment(),
+        `browser.compose.updateAttachment is not a function`,
+        "Should reject function without proper permission"
+      );
+
+      // Try to use removeAttachment.
+      await browser.test.assertThrows(
+        () => browser.compose.removeAttachment(),
+        `browser.compose.removeAttachment is not a function`,
+        "Should reject function without proper permission"
+      );
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: [],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

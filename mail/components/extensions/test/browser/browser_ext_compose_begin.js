@@ -948,7 +948,7 @@ add_task(async function testAttachments() {
       browser.test.notifyPass();
     },
     manifest: {
-      permissions: ["accountsRead", "messagesRead"],
+      permissions: ["compose", "accountsRead", "messagesRead"],
     },
   });
 

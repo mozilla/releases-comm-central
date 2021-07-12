@@ -243,6 +243,9 @@
         "name": "onAttachmentAdded",
         "type": "function",
         "description": "Fired when an attachment is added to a message being composed.",
+        "permissions": [
+          "compose"
+        ],
         "parameters": [
           {
             "name": "tab",
@@ -258,6 +261,9 @@
         "name": "onAttachmentRemoved",
         "type": "function",
         "description": "Fired when an attachment is removed from a message being composed.",
+        "permissions": [
+          "compose"
+        ],
         "parameters": [
           {
             "name": "tab",
@@ -465,6 +471,9 @@
         "name": "listAttachments",
         "type": "function",
         "description": "Lists all of the attachments of the message being composed in the specified tab.",
+        "permissions": [
+          "compose"
+        ],
         "async": true,
         "parameters": [
           {
@@ -477,6 +486,9 @@
         "name": "addAttachment",
         "type": "function",
         "description": "Adds an attachment to the message being composed in the specified tab.",
+        "permissions": [
+          "compose"
+        ],
         "async": true,
         "parameters": [
           {
@@ -505,6 +517,9 @@
         "name": "updateAttachment",
         "type": "function",
         "description": "Renames and/or replaces the contents of an attachment to the message being composed in the specified tab.",
+        "permissions": [
+          "compose"
+        ],
         "async": true,
         "parameters": [
           {
@@ -538,6 +553,9 @@
         "name": "removeAttachment",
         "type": "function",
         "description": "Removes an attachment from the message being composed in the specified tab.",
+        "permissions": [
+          "compose"
+        ],
         "async": true,
         "parameters": [
           {
