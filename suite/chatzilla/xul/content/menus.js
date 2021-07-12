@@ -45,6 +45,7 @@ function initMenus()
             params = client.menuManager.cx;
         params.sourceWindow = window;
         params.source = "menu";
+        params.shiftKey = event.shiftKey;
 
         dispatch(commandName, params, true);
 

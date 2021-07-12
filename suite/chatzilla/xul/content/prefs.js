@@ -145,7 +145,6 @@ function initPrefs()
          ["initialScripts",     ["scripts/"], "startup.initialScripts"],
          ["initialURLs",        [],       "startup.initialURLs"],
          ["inputSpellcheck",     true,    "global"],
-         ["link.focus",         true,     "global.links"],
          ["log",                false,
                                           ".log"],
          ["logFile.channel",    "$(network)/channels/$(channel).$y-$m-$d.log",

@@ -86,7 +86,6 @@ function initCommands()
          ["goto-url",          cmdGotoURL,                                   0],
          ["goto-url-newwin",   cmdGotoURL,                                   0],
          ["goto-url-newtab",   cmdGotoURL,                                   0],
-         ["goto-url-external", cmdGotoURL,                                   0],
          ["help",              cmdHelp,                            CMD_CONSOLE],
          ["hide-view",         cmdHideView,                        CMD_CONSOLE],
          ["idle-away",         cmdAway,                                      0],
@@ -2142,8 +2141,6 @@ function cmdGotoStartup(e)
 
 function cmdGotoURL(e)
 {
-    const EXT_PROTO_SVC = "@mozilla.org/uriloader/external-protocol-service;1";
-
     if (/^ircs?:/.test(e.url))
     {
         gotoIRCURL(e.url);
@@ -2184,70 +2181,29 @@ function cmdGotoURL(e)
         return;
     }
 
-    if ((e.command.name == "goto-url-external"))
-    {
-        const extProtoSvc = getService(EXT_PROTO_SVC,
-                                       "nsIExternalProtocolService");
-        extProtoSvc.loadUrl(uri);
-        dispatch("focus-input");
-        return;
-    }
-
     var browserWin = getWindowByType("navigator:browser");
     var location = browserWin ? browserWin.gBrowser.currentURI.spec : null;
     var action = e.command.name;
+    let where = "current";
 
     // We don't want to replace ChatZilla running in a tab.
     if ((action == "goto-url-newwin") ||
-        ((action == "goto-url-newtab") && !browserWin) ||
-        ((action == "goto-url") && !browserWin) ||
-        ((action == "goto-url") && browserWin &&
-         (location.indexOf("chrome://chatzilla/content/") == 0)))
+        ((action == "goto-url") && location &&
+         location.startsWith("chrome://chatzilla/content/")))
     {
-        try
-        {
-            if (typeof openUILinkIn == "function")
-                openUILinkIn(e.url, "window");
-            else
-                openTopWin(e.url);
-        }
-        catch (ex)
-        {
-            dd(formatException(ex));
-        }
-        dispatch("focus-input");
-        return;
-    }
-
-    if (client.prefs["link.focus"])
-    {
-        try
-        {
-            browserWin.focus();
-        }
-        catch (ex)
-        {
-            dd(formatException(ex));
-        }
+        where = "window";
     }
 
     if (action == "goto-url-newtab")
     {
-        try
-        {
-            browserWin.openUILinkIn(e.url, "tab");
-        }
-        catch (ex)
-        {
-            dd(formatException(ex));
-        }
-        dispatch("focus-input");
-        return;
+        where = e.shiftKey ? "tabshifted" : "tab";
     }
 
     try
     {
-        location.href = e.url;
+        let loadInBackground =
+            Services.prefs.getBoolPref("browser.tabs.loadDivertedInBackground");
+        openLinkIn(e.url, where, { inBackground: loadInBackground });
     }
     catch (ex)
     {
@@ -4573,5 +4529,6 @@ function cmdWebSearch(e)
                                     .getSubmission(e.selectedText);
     let newTabPref = Services.prefs.getBoolPref("browser.search.opentabforcontextsearch");
     dispatch(newTabPref ? "goto-url-newtab" : "goto-url-newwin",
-             {url: submission.uri.asciiSpec});
+             {url: submission.uri.asciiSpec,
+              shiftKey: e.shiftKey});
 }

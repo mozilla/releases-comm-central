@@ -194,6 +194,7 @@ function onMessageViewClick(e)
 
     var cx = getMessagesContext(null, e.target);
     cx.source = "mouse";
+    cx.shiftKey = e.shiftKey;
     var command = getEventCommand(e);
     if (!client.commandManager.isCommandSatisfied(cx, command))
         return false;
