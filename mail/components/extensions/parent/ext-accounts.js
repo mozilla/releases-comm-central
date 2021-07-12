@@ -12,23 +12,23 @@ this.accounts = class extends ExtensionAPI {
   getAPI(context) {
     return {
       accounts: {
-        async list() {
+        async list(includeFolders) {
           let accounts = [];
           for (let account of MailServices.accounts.accounts) {
-            account = convertAccount(account);
+            account = convertAccount(account, includeFolders);
             if (account) {
               accounts.push(account);
             }
           }
           return accounts;
         },
-        async get(accountId) {
+        async get(accountId, includeFolders) {
           let account = MailServices.accounts.getAccount(accountId);
-          return convertAccount(account);
+          return convertAccount(account, includeFolders);
         },
-        async getDefault() {
+        async getDefault(includeFolders) {
           let account = MailServices.accounts.defaultAccount;
-          return convertAccount(account);
+          return convertAccount(account, includeFolders);
         },
         async getDefaultIdentity(accountId) {
           let account = MailServices.accounts.getAccount(accountId);

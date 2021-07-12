@@ -47,6 +47,12 @@ add_task(async function test_accounts() {
         result1[0]
       );
 
+      // Test that excluding folders works.
+      let result1WithOutFolders = await browser.accounts.list(false);
+      for (let account of result1WithOutFolders) {
+        browser.test.assertEq(null, account.folders, "Folders not included");
+      }
+
       let [account2Id, account2Name] = await window.sendMessage(
         "create account 2"
       );
@@ -74,6 +80,19 @@ add_task(async function test_accounts() {
       window.assertDeepEqual(result1[0], result3);
       let result4 = await browser.accounts.get(account2Id);
       window.assertDeepEqual(result2[0], result4);
+
+      let result3WithoutFolders = await browser.accounts.get(account1Id, false);
+      browser.test.assertEq(
+        null,
+        result3WithoutFolders.folders,
+        "Folders not included"
+      );
+      let result4WithoutFolders = await browser.accounts.get(account2Id, false);
+      browser.test.assertEq(
+        null,
+        result4WithoutFolders.folders,
+        "Folders not included"
+      );
 
       await window.sendMessage("create folders");
       let result5 = await browser.accounts.get(account1Id);

@@ -23,6 +23,7 @@
     "types": [
       {
         "id": "MailAccount",
+        "description": "An object describing a mail account, as returned for example by the :ref:`accounts.list` and :ref:`accounts.get` methods. The ``folders`` property is only included if requested.",
         "type": "object",
         "properties": {
           "id": {
@@ -39,7 +40,8 @@
           },
           "folders": {
             "type": "array",
-            "description": "The folders for this account.",
+            "optional": true,
+            "description": "The folders for this account are only included if requested.",
             "items": {
               "$ref": "folders.MailFolder"
             }
@@ -61,6 +63,13 @@
         "description": "Returns all mail accounts.",
         "async": "callback",
         "parameters": [
+          {
+            "name": "includeFolders",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should included their account's folders. Defaults to ``true``.",
+            "optional": true,
+            "default": true,
+            "type": "boolean"
+          },
           {
             "type": "function",
             "name": "callback",
@@ -87,6 +96,13 @@
             "type": "string"
           },
           {
+            "name": "includeFolders",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to ``true``.",
+            "optional": true,
+            "default": true,
+            "type": "boolean"
+          },
+          {
             "type": "function",
             "name": "callback",
             "optional": true,
@@ -105,6 +121,13 @@
         "description": "Returns the default account, or null if it is not defined.",
         "async": "callback",
         "parameters": [
+          {
+            "name": "includeFolders",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to ``true``.",
+            "optional": true,
+            "default": true,
+            "type": "boolean"
+          },
           {
             "type": "function",
             "name": "callback",

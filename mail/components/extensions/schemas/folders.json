@@ -17,14 +17,11 @@
   },
   {
     "namespace": "folders",
-    "permissions": [
-      "accountsFolders"
-    ],
     "types": [
       {
         "id": "MailFolder",
         "type": "object",
-        "description": "A folder object, as returned by the <var>list</var> and <var>get</var> methods. Use the accountId and path properties to refer to a folder.",
+        "description": "An object describing a mail folder, as returned for example by the :ref:`folders.getParentFolders` or :ref:`folders.getSubFolders` methods, or part of a :ref:`accounts.MailAccount` object, which is returned for example by the :ref:`accounts.list` and :ref:`accounts.get` methods. The ``subFolders`` property is only included if requested.",
         "properties": {
           "accountId": {
             "type": "string",
@@ -37,10 +34,11 @@
           },
           "path": {
             "type": "string",
-            "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is."
+            "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is. Use :ref:`folders.getParentFolders` or :ref:`folders.getSubFolders` to obtain hierarchy information."
           },
           "subFolders": {
             "type": "array",
+            "description": "Subfolders are only included if requested.",
             "items": {
               "$ref": "MailFolder"
             },
@@ -59,13 +57,26 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new subfolder of <code>parentFolder</code>.",
+        "permissions": [
+          "accountsFolders"
+        ],
+        "description": "Creates a new subfolder in the specified folder or at the root of the specified account.",
         "async": true,
         "parameters": [
           {
-            "name": "parentFolder",
-            "$ref": "folders.MailFolder"
-          }, {
+            "name": "parentFolderOrAccount",
+            "choices": [
+              {
+                "name": "folder",
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "name": "account",
+                "$ref": "accounts.MailAccount"
+              }
+            ]
+          },
+          {
             "name": "childName",
             "type": "string"
           }
@@ -74,6 +85,9 @@
       {
         "name": "rename",
         "type": "function",
+        "permissions": [
+          "accountsFolders"
+        ],
         "description": "Renames a folder.",
         "async": true,
         "parameters": [
@@ -88,6 +102,9 @@
       },
       {
         "name": "delete",
+        "permissions": [
+          "accountsFolders"
+        ],
         "type": "function",
         "description": "Deletes a folder.",
         "async": true,
@@ -95,6 +112,85 @@
           {
             "name": "folder",
             "$ref": "folders.MailFolder"
+          }
+        ]
+      },
+      {
+        "name": "getParentFolders",
+        "type": "function",
+        "permissions": [
+          "accountsRead"
+        ],
+        "description": "Get all parent folders as a flat ordered array. The first array entry is the direct parent.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "includeSubFolders",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders . Defaults to ``false``.",
+            "optional": true,
+            "default": false,
+            "type": "boolean"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getSubFolders",
+        "type": "function",
+        "permissions": [
+          "accountsRead"
+        ],
+        "description": "Get the subfolders of the specified folder or account.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderOrAccount",
+            "choices": [
+              {
+                "name": "folder",
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "name": "account",
+                "$ref": "accounts.MailAccount"
+              }
+            ]
+          },
+          {
+            "name": "includeSubFolders",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders . Defaults to ``true``.",
+            "optional": true,
+            "default": true,
+            "type": "boolean"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                }
+              }
+            ]
           }
         ]
       }

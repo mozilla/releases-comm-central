@@ -1445,7 +1445,7 @@ class WindowManager extends WindowManagerBase {
  * @param {nsIMsgAccount} account
  * @return {Object}
  */
-function convertAccount(account) {
+function convertAccount(account, includeFolders = true) {
   if (!account) {
     return null;
   }
@@ -1456,10 +1456,11 @@ function convertAccount(account) {
     return null;
   }
 
-  let folders = traverseSubfolders(
-    account.incomingServer.rootFolder,
-    account.key
-  ).subFolders;
+  let folders = null;
+  if (includeFolders) {
+    folders = traverseSubfolders(account.incomingServer.rootFolder, account.key)
+      .subFolders;
+  }
 
   return {
     id: account.key,
