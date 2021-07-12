@@ -226,8 +226,7 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   nsresult AppendMsgFromStream(nsIInputStream* fileStream, nsIMsgDBHdr* aHdr,
                                uint32_t length, nsIMsgFolder* destFolder);
 
-  virtual void ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow,
-                            uint64_t msgOffset);
+  void ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow);
   nsresult ApplyForwardAndReplyFilter(nsIMsgWindow* msgWindow);
   virtual void OnNewMessage(nsIMsgWindow* msgWindow) override;
 
@@ -262,9 +261,6 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   uint32_t m_ibuffer_fp;
   char* m_ibuffer;
   uint32_t m_ibuffer_size;
-  // used for applying move filters, because in the case of using a temporary
-  // download file, the offset/key in the msg hdr is not right.
-  uint64_t m_curHdrOffset;
 
   // we have to apply the reply/forward filters in a second pass, after
   // msg quarantining and moving to other local folders, so we remember the

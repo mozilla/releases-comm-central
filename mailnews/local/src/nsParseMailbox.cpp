@@ -1657,10 +1657,6 @@ int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
       m_newMsgHdr->OrFlags(nsMsgMessageFlags::New, &newFlags);
 
     if (!m_disableFilters) {
-      uint64_t msgOffset;
-      (void)m_newMsgHdr->GetMessageOffset(&msgOffset);
-      m_curHdrOffset = msgOffset;
-
       nsCOMPtr<nsIMsgIncomingServer> server;
       nsresult rv = m_rootFolder->GetServer(getter_AddRefs(server));
       NS_ENSURE_SUCCESS(rv, 0);
@@ -1722,7 +1718,7 @@ int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
         }
       }
 
-      ApplyFilters(&moved, msgWindow, msgOffset);
+      ApplyFilters(&moved, msgWindow);
     }
     if (!moved) {
       if (m_mailDB) {
@@ -1771,10 +1767,8 @@ nsresult nsParseNewMailState::GetTrashFolder(nsIMsgFolder** pTrashFolder) {
   return rv;
 }
 
-void nsParseNewMailState::ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow,
-                                       uint64_t msgOffset) {
+void nsParseNewMailState::ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow) {
   m_msgMovedByFilter = m_msgCopiedByFilter = false;
-  m_curHdrOffset = msgOffset;
 
   if (!m_disableFilters) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr = m_newMsgHdr;
@@ -1786,10 +1780,11 @@ void nsParseNewMailState::ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow,
       if (downloadFolder) downloadFolder->GetURI(m_inboxUri);
       char* headers = m_headers.GetBuffer();
       uint32_t headersSize = m_headers.GetBufferPos();
+      nsAutoCString tok;
+      msgHdr->GetStringProperty("storeToken", getter_Copies(tok));
       if (m_filterList) {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-                ("(Local) Running filters on 1 message at offset %" PRIu64,
-                 msgOffset));
+                ("(Local) Running filters on 1 message (%s)", tok.get()));
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                 ("(Local) Using filters from the original account"));
         (void)m_filterList->ApplyFiltersToHdr(
@@ -1798,8 +1793,7 @@ void nsParseNewMailState::ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow,
       }
       if (!m_msgMovedByFilter && m_deferredToServerFilterList) {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-                ("(Local) Running filters on 1 message at offset %" PRIu64,
-                 msgOffset));
+                ("(Local) Running filters on 1 message (%s)", tok.get()));
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                 ("(Local) Using filters from the deferred to account"));
         (void)m_deferredToServerFilterList->ApplyFiltersToHdr(
