@@ -189,7 +189,8 @@ account-setup-result-pop-description = Keep your folders and emails on your comp
 # Note: Exchange is the name of a product.
 account-setup-result-exchange = Exchange
 
-account-setup-result-exchange-description = Connect to the Microsoft Exchange server
+# Note: Exchange, Office365 are the name of products.
+account-setup-result-exchange2-description = Use the Microsoft Exchange server or Office365 cloud services
 
 account-setup-incoming-title = Incoming
 
