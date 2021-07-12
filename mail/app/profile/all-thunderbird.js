@@ -832,16 +832,14 @@ pref("devtools.toolbox.splitconsoleEnabled", false);
 pref("devtools.toolbox.splitconsoleHeight", 100);
 pref("devtools.toolbox.tabsOrder", "");
 
-// The fission pref for enabling the "Omniscient Browser Toolbox", which will
+// The fission pref for enabling the "Multiprocess Browser Toolbox", which will
 // make it possible to debug anything in Firefox (See Bug 1570639 for more
 // information).
-// ⚠ This is a work in progress. Expect weirdness when the pref is enabled. ⚠
+#if defined(NIGHTLY_BUILD)
+pref("devtools.browsertoolbox.fission", true);
+#else
 pref("devtools.browsertoolbox.fission", false);
-
-// The fission pref for enabling Fission frame debugging directly from the
-// regular web/content toolbox.
-// ⚠ This is a work in progress. Expect weirdness when the pref is enabled. ⚠
-pref("devtools.contenttoolbox.fission", false);
+#endif
 
 // Toolbox Button preferences
 pref("devtools.command-button-pick.enabled", true);
@@ -877,8 +875,6 @@ pref("devtools.inspector.imagePreviewTooltipSize", 300);
 pref("devtools.inspector.showUserAgentStyles", false);
 // Show native anonymous content and user agent shadow roots
 pref("devtools.inspector.showAllAnonymousContent", false);
-// Enable the new Rules View
-pref("devtools.inspector.new-rulesview.enabled", false);
 // Enable the inline CSS compatiblity warning in inspector rule view
 pref("devtools.inspector.ruleview.inline-compatibility-warning.enabled", false);
 // Enable the compatibility tool in the inspector.
@@ -898,10 +894,6 @@ pref("devtools.gridinspector.showGridLineNumbers", false);
 pref("devtools.gridinspector.showInfiniteLines", false);
 // Max number of grid highlighters that can be displayed
 pref("devtools.gridinspector.maxHighlighters", 3);
-
-// Compatibility preferences
-// Stringified array of target browsers that users investigate.
-pref("devtools.inspector.compatibility.target-browsers", "");
 
 // Whether or not the box model panel is opened in the layout view
 pref("devtools.layout.boxmodel.opened", true);
@@ -1039,28 +1031,6 @@ pref("devtools.netmonitor.audits.slow", 500);
 // Disable the EventSource Inspector.
 pref("devtools.netmonitor.features.serverSentEvents", false);
 
-// Save request/response bodies yes/no.
-pref("devtools.netmonitor.saveRequestAndResponseBodies", true);
-
-// The default Network monitor HAR export setting
-pref("devtools.netmonitor.har.defaultLogDir", "");
-pref("devtools.netmonitor.har.defaultFileName", "%hostname_Archive [%date]");
-pref("devtools.netmonitor.har.jsonp", false);
-pref("devtools.netmonitor.har.jsonpCallback", "");
-pref("devtools.netmonitor.har.includeResponseBodies", true);
-pref("devtools.netmonitor.har.compress", false);
-pref("devtools.netmonitor.har.forceExport", false);
-pref("devtools.netmonitor.har.pageLoadedTimeout", 1500);
-pref("devtools.netmonitor.har.enableAutoExportToFile", false);
-
-pref("devtools.netmonitor.features.webSockets", true);
-
-// netmonitor audit
-pref("devtools.netmonitor.audits.slow", 500);
-
-// Disable the EventSource Inspector.
-pref("devtools.netmonitor.features.serverSentEvents", false);
-
 // Enable the Storage Inspector
 pref("devtools.storage.enabled", true);
 
@@ -1099,6 +1069,9 @@ pref("devtools.webconsole.input.autocomplete",true);
 #else
   pref("devtools.webconsole.input.context", false);
 #endif
+
+// Show context selector in console input, in the content toolbox
+pref("devtools.contenttoolbox.webconsole.input.context", false);
 
 // Set to true to eagerly show the results of webconsole terminal evaluations
 // when they don't have side effects.
@@ -1248,9 +1221,8 @@ pref("devtools.debugger.features.async-live-stacks", false);
 // about:devtools-toolbox tabs unusable by mistake.
 pref("devtools.popup.disable_autohide", false);
 
-// Part of the Overflow Debugging project
-// Here's the meta bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1529280
-pref("devtools.overflow.debugging.enabled", false);
+// Enable overflow debugging in the inspector.
+pref("devtools.overflow.debugging.enabled", true);
 
 // Telemetry settings.
 
