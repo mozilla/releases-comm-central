@@ -2364,6 +2364,9 @@ ircProtocol.prototype = {
 
   splitUsername(aName) {
     let splitter = aName.lastIndexOf("@");
+    if (splitter === -1) {
+      return [];
+    }
     return [aName.slice(0, splitter), aName.slice(splitter + 1)];
   },
 
