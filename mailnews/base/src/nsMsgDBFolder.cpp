@@ -20,6 +20,7 @@
 #include "nsNativeCharsetUtils.h"
 #include "nsIChannel.h"
 #include "nsITransport.h"
+#include "nsIWindowWatcher.h"
 #include "nsIMsgFolderCompactor.h"
 #include "nsIDocShell.h"
 #include "nsIMsgWindow.h"
@@ -1747,40 +1748,33 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
           nsCOMPtr<nsIStringBundle> bundle;
           rv = GetBaseStringBundle(getter_AddRefs(bundle));
           NS_ENSURE_SUCCESS(rv, rv);
-          nsString dialogTitle;
-          nsString confirmString;
-          nsString checkboxText;
-          nsString buttonCompactNowText;
+
           nsAutoString compactSize;
           FormatFileSize(totalExpungedBytes, true, compactSize);
-          AutoTArray<nsString, 2> params = {compactSize,
-                                            kLocalizedBrandShortName};
-          rv = bundle->GetStringFromName("autoCompactAllFoldersTitle",
-                                         dialogTitle);
-          NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->FormatStringFromName("autoCompactAllFoldersMsg", params,
-                                            confirmString);
-          NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName("autoCompactNeverAskCheckbox",
-                                         checkboxText);
-          NS_ENSURE_SUCCESS(rv, rv);
-          rv = bundle->GetStringFromName("proceedButton", buttonCompactNowText);
-          NS_ENSURE_SUCCESS(rv, rv);
+
           bool neverAsk = false;  // "Do not ask..." - unchecked by default.
           int32_t buttonPressed = 0;
 
-          nsCOMPtr<nsIPrompt> dialog;
-          rv = aWindow->GetPromptDialog(getter_AddRefs(dialog));
+          nsCOMPtr<nsIWindowWatcher> ww(
+              do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+          nsCOMPtr<nsIWritablePropertyBag2> props(
+              do_CreateInstance("@mozilla.org/hash-property-bag;1"));
+          props->SetPropertyAsAString(u"compactSize"_ns, compactSize);
+          nsCOMPtr<mozIDOMWindowProxy> migrateWizard;
+          rv = ww->OpenWindow(
+              nullptr,
+              "chrome://messenger/content/compactFoldersDialog.xhtml"_ns,
+              "_blank"_ns, "chrome,dialog,modal,centerscreen"_ns, props,
+              getter_AddRefs(migrateWizard));
           NS_ENSURE_SUCCESS(rv, rv);
 
-          const uint32_t buttonFlags =
-              (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
-              (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1);
-          rv = dialog->ConfirmEx(dialogTitle.get(), confirmString.get(),
-                                 buttonFlags, buttonCompactNowText.get(),
-                                 nullptr, nullptr, checkboxText.get(),
-                                 &neverAsk, &buttonPressed);
+          rv = props->GetPropertyAsBool(u"checked"_ns, &neverAsk);
           NS_ENSURE_SUCCESS(rv, rv);
+
+          rv =
+              props->GetPropertyAsInt32(u"buttonNumClicked"_ns, &buttonPressed);
+          NS_ENSURE_SUCCESS(rv, rv);
+
           if (buttonPressed == 0) {
             okToCompact = true;
             if (neverAsk)  // [X] Remove deletions automatically and do not ask

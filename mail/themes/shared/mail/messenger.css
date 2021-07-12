@@ -1298,3 +1298,13 @@ panel[type="arrow"].panel-block-padding::part(content) {
 .wizard-box {
   padding: 20px 44px 10px;
 }
+
+.image-container > html|img {
+  width: 32px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.text-container description {
+  margin-block-end: 1em;
+}

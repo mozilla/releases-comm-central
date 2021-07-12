@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
+
+<!DOCTYPE window>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        data-l10n-id="compact-dialog-window"
+        data-l10n-attrs="style"
+        role="alert"
+        lightweightthemes="true"
+        onunload="compactDialogOnUnload();">
+<dialog id="folderCompactDialog"
+        buttons="accept,cancel,extra1"
+        data-l10n-id="compact-dialog"
+        data-l10n-attrs="buttonlabelaccept, buttonlabelcancel, buttonlabelextra1">
+
+  <linkset>
+    <html:link rel="localization" href="branding/brand.ftl"/>
+    <html:link rel="localization" href="messenger/compactFoldersDialog.ftl"/>
+  </linkset>
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://messenger/content/compactFoldersDialog.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+
+  <hbox>
+    <vbox class="image-container">
+      <html:img src="chrome://global/skin/icons/help.svg" alt="" />
+    </vbox>
+
+    <vbox flex="1" class="text-container">
+      <description id="compactFoldersText"/>
+      <checkbox id="neverAskCheckbox"
+                data-l10n-id="compact-dialog-never-ask-checkbox"/>
+    </vbox>
+  </hbox>
+
+</dialog>
+</window>

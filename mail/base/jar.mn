@@ -14,6 +14,8 @@ messenger.jar:
     content/messenger/browserRequest.js             (content/browserRequest.js)
     content/messenger/browserRequest.xhtml          (content/browserRequest.xhtml)
     content/messenger/commandglue.js                (content/commandglue.js)
+    content/messenger/compactFoldersDialog.js       (content/compactFoldersDialog.js)
+    content/messenger/compactFoldersDialog.xhtml    (content/compactFoldersDialog.xhtml)
     content/messenger/composerOverlay.css           (content/composerOverlay.css)
     content/messenger/converterDialog.css           (content/converterDialog.css)
     content/messenger/customElements.js             (content/customElements.js)
