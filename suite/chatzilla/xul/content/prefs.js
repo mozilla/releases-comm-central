@@ -51,9 +51,6 @@ function initPrefs()
     var logDefault = client.prefManager.logPath.clone();
     logDefault.append(escapeFileName("client.log"));
 
-    var gotos = ["goto-url-newtab", "goto-url-newwin",
-                 "goto-url-newtab", "goto-url-newtab"];
-
     // Set up default nickname, if possible.
     var defaultNick = DEFAULT_NICK;
     var en = getService("@mozilla.org/process/environment;1", "nsIEnvironment");
@@ -160,10 +157,6 @@ function initPrefs()
          ["logFileName",        makeLogNameClient,
                                           "hidden"],
          ["logFolder",          getURLSpecFromFile(logPath.path), ".log"],
-         ["messages.click",     gotos[0],   "global.links"],
-         ["messages.ctrlClick", gotos[1],   "global.links"],
-         ["messages.metaClick", gotos[2],   "global.links"],
-         ["messages.middleClick", gotos[3], "global.links"],
          ["motif.current",      "chrome://chatzilla/skin/output-light.css",
                                           "appearance.motif"],
          ["motif.dark",         "chrome://chatzilla/skin/output-dark.css",

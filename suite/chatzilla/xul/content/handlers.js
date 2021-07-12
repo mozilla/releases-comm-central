@@ -244,14 +244,16 @@ function onMessageViewContextMenu(e)
 
 function getEventCommand(e)
 {
-    if (e.which == 2)
-        return client.prefs["messages.middleClick"];
-    if (e.metaKey || e.altKey)
-        return client.prefs["messages.metaClick"];
-    if (e.ctrlKey)
-        return client.prefs["messages.ctrlClick"];
+    let where = Services.prefs.getIntPref("browser.link.open_newwindow");
+    if ((where != 3) && ((e.which == 2) || e.ctrlKey) &&
+        Services.prefs.getBoolPref("browser.tabs.opentabfor.middleclick", true))
+        where = 3;
 
-    return client.prefs["messages.click"];
+    if (where == 2)
+        return "goto-url-newwin";
+    if (where == 3)
+        return "goto-url-newtab";
+    return "goto-url";
 }
 
 function onMouseOver (e)
