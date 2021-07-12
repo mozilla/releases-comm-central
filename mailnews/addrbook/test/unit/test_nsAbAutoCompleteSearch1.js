@@ -79,7 +79,7 @@ var lists = [
   { search: "li", expected: [6, 7, 8, 0, 1, 2, 3, 4, 5, 10] },
   { search: "lis", expected: [6, 7] },
   { search: "list", expected: [6] },
-  { search: "t", expected: [6, 7, 8, 9, 0, 1, 4, 5] },
+  { search: "t", expected: [6, 7, 8, 9, 5, 0, 1, 4] },
   { search: "te", expected: [7, 8, 9, 5] },
   { search: "tes", expected: [8, 9, 5] },
   { search: "test", expected: [9, 5] },

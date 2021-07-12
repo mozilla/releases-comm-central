@@ -509,11 +509,16 @@ AbAutoCompleteSearch.prototype = {
     // results that have already been notified.
     result._searchResults.sort(function(a, b) {
       // Order by 1) descending score, then 2) descending popularity,
-      // then 3) primary email before secondary for the same card, then
-      // 4) by emails sorted alphabetically.
+      // then 3) any emails that actually match the search string,
+      // 4) primary email before secondary for the same card, then
+      // 5) by emails sorted alphabetically.
       return (
         b.score - a.score ||
         b.popularity - a.popularity ||
+        (b.emailToUse.includes(aSearchString) &&
+        !a.emailToUse.includes(aSearchString)
+          ? 1
+          : 0) ||
         (a.card == b.card && a.isPrimaryEmail ? -1 : 0) ||
         a.value.localeCompare(b.value)
       );
