@@ -436,9 +436,6 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
   // lose the messages. See bug 62480
   if (!m_outFileStream) return NS_ERROR_OUT_OF_MEMORY;
 
-  nsCOMPtr<nsISeekableStream> seekableOutStream =
-      do_QueryInterface(m_outFileStream);
-
   // create a new mail parser
   if (!m_newMailParser) m_newMailParser = new nsParseNewMailState;
   NS_ENSURE_TRUE(m_newMailParser, NS_ERROR_OUT_OF_MEMORY);
@@ -459,41 +456,6 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
   }
 
   if (closure) *closure = (void*)this;
-
-#ifdef DEBUG
-  // Debugging, see bug 1116055.
-  int64_t first_pre_seek_pos;
-  nsresult rv3 = seekableOutStream->Tell(&first_pre_seek_pos);
-#endif
-
-  // XXX Handle error such as network error for remote file system.
-  seekableOutStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
-
-#ifdef DEBUG
-  // Debugging, see bug 1116055.
-  int64_t first_post_seek_pos;
-  nsresult rv4 = seekableOutStream->Tell(&first_post_seek_pos);
-  if (NS_SUCCEEDED(rv3) && NS_SUCCEEDED(rv4)) {
-    if (first_pre_seek_pos != first_post_seek_pos) {
-      nsString folderName;
-      if (m_folder) m_folder->GetPrettyName(folderName);
-      if (!folderName.IsEmpty()) {
-        fprintf(stderr,
-                "(seekdebug) Seek was necessary in IncorporateBegin() for "
-                "folder %s.\n",
-                NS_ConvertUTF16toUTF8(folderName).get());
-      } else {
-        fprintf(stderr,
-                "(seekdebug) Seek was necessary in IncorporateBegin().\n");
-      }
-      fprintf(stderr,
-              "(seekdebug) first_pre_seek_pos = 0x%016llx, "
-              "first_post_seek_pos=0x%016llx\n",
-              (unsigned long long)first_pre_seek_pos,
-              (unsigned long long)first_post_seek_pos);
-    }
-  }
-#endif
 
   nsCString outputString(GetDummyEnvelope());
   rv = WriteLineToMailbox(outputString);
@@ -619,54 +581,56 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
     nsCOMPtr<nsISeekableStream> seekableOutStream =
         do_QueryInterface(m_outFileStream);
 
-    int64_t before_seek_pos;
-    nsresult rv2 = seekableOutStream->Tell(&before_seek_pos);
-    MOZ_ASSERT(NS_SUCCEEDED(rv2),
-               "seekableOutStream->Tell(&before_seek_pos) failed");
+    if (seekableOutStream) {
+      int64_t before_seek_pos;
+      nsresult rv2 = seekableOutStream->Tell(&before_seek_pos);
+      MOZ_ASSERT(NS_SUCCEEDED(rv2),
+                 "seekableOutStream->Tell(&before_seek_pos) failed");
 
-    // XXX Handle error such as network error for remote file system.
-    seekableOutStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
+      // XXX Handle error such as network error for remote file system.
+      seekableOutStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
 
-    int64_t after_seek_pos;
-    nsresult rv3 = seekableOutStream->Tell(&after_seek_pos);
-    MOZ_ASSERT(NS_SUCCEEDED(rv3),
-               "seekableOutStream->Tell(&after_seek_pos) failed");
+      int64_t after_seek_pos;
+      nsresult rv3 = seekableOutStream->Tell(&after_seek_pos);
+      MOZ_ASSERT(NS_SUCCEEDED(rv3),
+                 "seekableOutStream->Tell(&after_seek_pos) failed");
 
-    if (NS_SUCCEEDED(rv2) && NS_SUCCEEDED(rv3)) {
-      if (before_seek_pos != after_seek_pos) {
-        nsString folderName;
-        if (m_folder) m_folder->GetPrettyName(folderName);
-        // This merits a console message, it's poor man's telemetry.
-        MsgLogToConsole4(
-            u"Unexpected file position change detected"_ns +
-                (folderName.IsEmpty() ? EmptyString() : u" in folder "_ns) +
-                (folderName.IsEmpty() ? EmptyString() : folderName) +
-                u". "
-                "If you can reliably reproduce this, please report the "
-                "steps you used to dev-apps-thunderbird@lists.mozilla.org "
-                "or to bug 1308335 at bugzilla.mozilla.org. "
-                "Resolving this problem will allow speeding up message "
-                "downloads."_ns,
-            NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__,
-            nsIScriptError::errorFlag);
+      if (NS_SUCCEEDED(rv2) && NS_SUCCEEDED(rv3)) {
+        if (before_seek_pos != after_seek_pos) {
+          nsString folderName;
+          if (m_folder) m_folder->GetPrettyName(folderName);
+          // This merits a console message, it's poor man's telemetry.
+          MsgLogToConsole4(
+              u"Unexpected file position change detected"_ns +
+                  (folderName.IsEmpty() ? EmptyString() : u" in folder "_ns) +
+                  (folderName.IsEmpty() ? EmptyString() : folderName) +
+                  u". "
+                  "If you can reliably reproduce this, please report the "
+                  "steps you used to dev-apps-thunderbird@lists.mozilla.org "
+                  "or to bug 1308335 at bugzilla.mozilla.org. "
+                  "Resolving this problem will allow speeding up message "
+                  "downloads."_ns,
+              NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__,
+              nsIScriptError::errorFlag);
 #  ifdef DEBUG
-        // Debugging, see bug 1116055.
-        if (!folderName.IsEmpty()) {
+          // Debugging, see bug 1116055.
+          if (!folderName.IsEmpty()) {
+            fprintf(stderr,
+                    "(seekdebug) WriteLineToMailbox() detected an unexpected "
+                    "file position change in folder %s.\n",
+                    NS_ConvertUTF16toUTF8(folderName).get());
+          } else {
+            fprintf(stderr,
+                    "(seekdebug) WriteLineToMailbox() detected an unexpected "
+                    "file position change.\n");
+          }
           fprintf(stderr,
-                  "(seekdebug) WriteLineToMailbox() detected an unexpected "
-                  "file position change in folder %s.\n",
-                  NS_ConvertUTF16toUTF8(folderName).get());
-        } else {
-          fprintf(stderr,
-                  "(seekdebug) WriteLineToMailbox() detected an unexpected "
-                  "file position change.\n");
-        }
-        fprintf(
-            stderr,
-            "(seekdebug) before_seek_pos=0x%016llx, after_seek_pos=0x%016llx\n",
-            (long long unsigned int)before_seek_pos,
-            (long long unsigned int)after_seek_pos);
+                  "(seekdebug) before_seek_pos=0x%016llx, "
+                  "after_seek_pos=0x%016llx\n",
+                  (long long unsigned int)before_seek_pos,
+                  (long long unsigned int)after_seek_pos);
 #  endif
+        }
       }
     }
 #endif
