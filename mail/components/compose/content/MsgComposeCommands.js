@@ -1879,8 +1879,8 @@ function openEditorContextMenu(popup) {
 
   let editor = GetCurrentEditorElement();
   let target = editor.contentDocument.elementFromPoint(
-    popup.screenX - editor.screenX,
-    popup.screenY - editor.screenY
+    editor._contextX,
+    editor._contextY
   );
 
   let selectionInfo = SelectionUtils.getSelectionDetails(window);
