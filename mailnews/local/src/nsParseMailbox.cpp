@@ -1068,6 +1068,9 @@ nsresult nsParseMailMessageState::ParseHeaders() {
   return NS_OK;
 }
 
+// Try and glean a sender and/or timestamp from the "From " line, to use
+// as last-ditch fallbacks if the message is missing "From"/"Sender" or
+// "Date" headers.
 nsresult nsParseMailMessageState::ParseEnvelope(const char* line,
                                                 uint32_t line_size) {
   const char* end;

@@ -47,14 +47,22 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsParseMailMessageState();
 
   void Init(uint64_t fileposition);
-  virtual nsresult ParseFolderLine(const char* line, uint32_t lineLength);
-  virtual nsresult StartNewEnvelope(const char* line, uint32_t lineLength);
+  nsresult ParseFolderLine(const char* line, uint32_t lineLength);
+  nsresult StartNewEnvelope(const char* line, uint32_t lineLength);
   nsresult ParseHeaders();
   nsresult FinalizeHeaders();
   nsresult ParseEnvelope(const char* line, uint32_t line_size);
   nsresult InternSubject(struct message_header* header);
 
+  // Returns true if line looks like an mbox "From " line.
   static bool IsEnvelopeLine(const char* buf, int32_t buf_size);
+
+  // Helpers for dealing with multi-value headers.
+  struct message_header* GetNextHeaderInAggregate(
+      nsTArray<struct message_header*>& list);
+  void GetAggregateHeader(nsTArray<struct message_header*>& list,
+                          struct message_header*);
+  void ClearAggregateHeader(nsTArray<struct message_header*>& list);
 
   nsCOMPtr<nsIMsgDBHdr> m_newMsgHdr; /* current message header we're building */
   nsCOMPtr<nsIMsgDatabase> m_mailDB;
@@ -62,14 +70,23 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
 
   nsMailboxParseState m_state;
   int64_t m_position;
+  // The start of the "From " line (the line before the start of the message).
   uint64_t m_envelope_pos;
+  // The start of the message headers (immediately follows "From " line).
   uint64_t m_headerstartpos;
   nsMsgKey m_new_key;  // DB key for the new header.
 
-  ::nsByteArray m_headers;
-
+  // The "From " line, if any.
   ::nsByteArray m_envelope;
 
+  // These two point into the m_envelope buffer.
+  struct message_header m_envelope_from;
+  struct message_header m_envelope_date;
+
+  // The raw header data.
+  ::nsByteArray m_headers;
+
+  // These all point into the m_headers buffer.
   struct message_header m_message_id;
   struct message_header m_references;
   struct message_header m_date;
@@ -89,17 +106,11 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   // Support for having multiple To or Cc header lines in a message
   nsTArray<struct message_header*> m_toList;
   nsTArray<struct message_header*> m_ccList;
-  struct message_header* GetNextHeaderInAggregate(
-      nsTArray<struct message_header*>& list);
-  void GetAggregateHeader(nsTArray<struct message_header*>& list,
-                          struct message_header*);
-  void ClearAggregateHeader(nsTArray<struct message_header*>& list);
 
-  struct message_header m_envelope_from;
-  struct message_header m_envelope_date;
   struct message_header m_priority;
   struct message_header m_account_key;
   struct message_header m_keywords;
+
   // Mdn support
   struct message_header m_mdn_original_recipient;
   struct message_header m_return_path;
