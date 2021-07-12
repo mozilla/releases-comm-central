@@ -9,7 +9,6 @@ var {
   createCalendar,
   controller,
   deleteCalendars,
-  invokeNewEventDialog,
   switchToView,
   goToDate,
   findEventsInNode,
@@ -20,9 +19,9 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
-var { dayView } = ChromeUtils.import(
+var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
-).CalendarTestUtils;
+);
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -66,22 +65,21 @@ add_task(async function testTimezones2_CreateEvents() {
   ];
   let time = cal.createDateTime();
   for (let i = 0; i < TIMEZONES.length; i++) {
-    let eventBox = dayView.getHourBoxAt(controller.window, i + 11);
-    await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-      time.hour = times[i][0];
-      time.minute = times[i][1];
+    let eventBox = CalendarTestUtils.dayView.getHourBoxAt(controller.window, i + 11);
+    let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+    time.hour = times[i][0];
+    time.minute = times[i][1];
 
-      // Set event data.
-      await setData(eventWindow, iframeWindow, {
-        title: TIMEZONES[i],
-        repeat: "weekly",
-        repeatuntil: cal.createDateTime("20091231T000000Z"),
-        starttime: time,
-        timezone: TIMEZONES[i],
-      });
-
-      await saveAndCloseItemDialog(eventWindow);
+    // Set event data.
+    await setData(dialogWindow, iframeWindow, {
+      title: TIMEZONES[i],
+      repeat: "weekly",
+      repeatuntil: cal.createDateTime("20091231T000000Z"),
+      starttime: time,
+      timezone: TIMEZONES[i],
     });
+
+    await saveAndCloseItemDialog(dialogWindow);
   }
 });
 
@@ -853,7 +851,7 @@ function verify(dates, timezones, times) {
         viewBack(controller, 1);
       }
 
-      eventNodes = Array.from(dayView.getEventBoxes(controller.window));
+      eventNodes = Array.from(CalendarTestUtils.dayView.getEventBoxes(controller.window));
       eventNodes = eventNodes
         .filter(node => node.mOccurrence.title == timezones[tzIdx])
         .map(node => node.getBoundingClientRect().y);

@@ -12,8 +12,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  invokeNewEventDialog,
-  invokeViewingEventDialog,
   switchToView,
   viewBack,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
@@ -75,76 +73,78 @@ add_task(async function testEventDialog() {
   // Create new event on first day in view.
   controller.click(monthView.getDayBox(controller.window, 1, 1));
 
-  await invokeNewEventDialog(window, null, async (eventWindow, iframeWindow) => {
-    let eventDocument = eventWindow.document;
-    let iframeDocument = iframeWindow.document;
+  let {
+    dialogWindow,
+    iframeWindow,
+    dialogDocument,
+    iframeDocument,
+  } = await CalendarTestUtils.editNewEvent(window);
 
-    // First check all standard-values are set correctly.
-    let startPicker = iframeDocument.getElementById("event-starttime");
-    Assert.equal(startPicker._timepicker._inputField.value, startTime);
+  // First check all standard-values are set correctly.
+  let startPicker = iframeDocument.getElementById("event-starttime");
+  Assert.equal(startPicker._timepicker._inputField.value, startTime);
 
-    // Check selected calendar.
-    Assert.equal(iframeDocument.getElementById("item-calendar").value, CALENDARNAME);
+  // Check selected calendar.
+  Assert.equal(iframeDocument.getElementById("item-calendar").value, CALENDARNAME);
 
-    // Check standard title.
-    let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
-    Assert.equal(iframeDocument.getElementById("item-title").placeholder, defTitle);
+  // Check standard title.
+  let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
+  Assert.equal(iframeDocument.getElementById("item-title").placeholder, defTitle);
 
-    // Prepare category.
-    let categories = cal.l10n.getAnyString("calendar", "categories", "categories2");
-    // Pick 4th value in a comma-separated list.
-    let category = categories.split(",")[4];
-    // Calculate date to repeat until.
-    let untildate = firstDay.clone();
-    untildate.addDuration(cal.createDuration("P20D"));
+  // Prepare category.
+  let categories = cal.l10n.getAnyString("calendar", "categories", "categories2");
+  // Pick 4th value in a comma-separated list.
+  let category = categories.split(",")[4];
+  // Calculate date to repeat until.
+  let untildate = firstDay.clone();
+  untildate.addDuration(cal.createDuration("P20D"));
 
-    // Fill in the rest of the values.
-    await setData(eventWindow, iframeWindow, {
-      title: EVENTTITLE,
-      location: EVENTLOCATION,
-      description: EVENTDESCRIPTION,
-      categories: [category],
-      repeat: "daily",
-      repeatuntil: untildate,
-      reminder: "5minutes",
-      privacy: "private",
-      attachment: { add: EVENTURL },
-      attendees: { add: EVENTATTENDEE },
-    });
-
-    // Verify attendee added.
-    EventUtils.synthesizeMouseAtCenter(
-      iframeDocument.getElementById("event-grid-tab-attendees"),
-      {},
-      eventWindow
-    );
-
-    let attendeesTab = iframeDocument.getElementById("event-grid-tabpanel-attendees");
-    let attendeeName = attendeesTab.querySelector(".attendee-list .attendee-name");
-
-    Assert.ok(attendeeName);
-    Assert.equal(attendeeName.textContent, EVENTATTENDEE);
-    Assert.ok(!iframeDocument.getElementById("notify-attendees-checkbox").checked);
-
-    // Verify private label visible.
-    controller.waitFor(
-      () => !eventDocument.getElementById("status-privacy-private-box").hasAttribute("collapsed")
-    );
-    eventDocument.getElementById("event-privacy-menupopup").hidePopup();
-
-    // Add attachment and verify added.
-    EventUtils.synthesizeMouseAtCenter(
-      iframeDocument.getElementById("event-grid-tab-attachments"),
-      {},
-      iframeWindow
-    );
-
-    let attachmentsTab = iframeDocument.getElementById("event-grid-tabpanel-attachments");
-    Assert.equal(attachmentsTab.querySelectorAll("richlistitem").length, 1);
-
-    // save
-    await saveAndCloseItemDialog(eventWindow);
+  // Fill in the rest of the values.
+  await setData(dialogWindow, iframeWindow, {
+    title: EVENTTITLE,
+    location: EVENTLOCATION,
+    description: EVENTDESCRIPTION,
+    categories: [category],
+    repeat: "daily",
+    repeatuntil: untildate,
+    reminder: "5minutes",
+    privacy: "private",
+    attachment: { add: EVENTURL },
+    attendees: { add: EVENTATTENDEE },
   });
+
+  // Verify attendee added.
+  EventUtils.synthesizeMouseAtCenter(
+    iframeDocument.getElementById("event-grid-tab-attendees"),
+    {},
+    dialogWindow
+  );
+
+  let attendeesTab = iframeDocument.getElementById("event-grid-tabpanel-attendees");
+  let attendeeName = attendeesTab.querySelector(".attendee-list .attendee-name");
+
+  Assert.ok(attendeeName);
+  Assert.equal(attendeeName.textContent, EVENTATTENDEE);
+  Assert.ok(!iframeDocument.getElementById("notify-attendees-checkbox").checked);
+
+  // Verify private label visible.
+  controller.waitFor(
+    () => !dialogDocument.getElementById("status-privacy-private-box").hasAttribute("collapsed")
+  );
+  dialogDocument.getElementById("event-privacy-menupopup").hidePopup();
+
+  // Add attachment and verify added.
+  EventUtils.synthesizeMouseAtCenter(
+    iframeDocument.getElementById("event-grid-tab-attachments"),
+    {},
+    iframeWindow
+  );
+
+  let attachmentsTab = iframeDocument.getElementById("event-grid-tabpanel-attachments");
+  Assert.equal(attachmentsTab.querySelectorAll("richlistitem").length, 1);
+
+  // save
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Catch and dismiss alarm.
   plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
@@ -213,39 +213,32 @@ add_task(async function testOpenExistingEventDialog() {
   let createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create a new event.
-  await invokeNewEventDialog(window, createBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      title: EVENTTITLE,
-      location: EVENTLOCATION,
-      description: EVENTDESCRIPTION,
-    });
-    await saveAndCloseItemDialog(eventWindow);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
+  await setData(dialogWindow, iframeWindow, {
+    title: EVENTTITLE,
+    location: EVENTLOCATION,
+    description: EVENTDESCRIPTION,
   });
+  await saveAndCloseItemDialog(dialogWindow);
 
   let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   // Open the event in the summary dialog, it will fail if otherwise.
-  await invokeViewingEventDialog(
-    window,
-    eventBox,
-    async event => {
-      Assert.equal(
-        event.window.document.querySelector("calendar-item-summary .item-title").textContent,
-        EVENTTITLE
-      );
-      Assert.equal(
-        event.window.document.querySelector("calendar-item-summary .item-location").textContent,
-        EVENTLOCATION
-      );
-      Assert.equal(
-        event.window.document.querySelector("calendar-item-summary .item-description")
-          .contentDocument.body.innerText,
-        EVENTDESCRIPTION
-      );
-      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
-    },
-    "view"
+  let eventWin = await CalendarTestUtils.viewItem(window, eventBox);
+  Assert.equal(
+    eventWin.document.querySelector("calendar-item-summary .item-title").textContent,
+    EVENTTITLE
   );
+  Assert.equal(
+    eventWin.document.querySelector("calendar-item-summary .item-location").textContent,
+    EVENTLOCATION
+  );
+  Assert.equal(
+    eventWin.document.querySelector("calendar-item-summary .item-description").contentDocument.body
+      .innerText,
+    EVENTDESCRIPTION
+  );
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWin);
 
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
@@ -263,59 +256,45 @@ add_task(async function testEventReminderDisplay() {
   let createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create an event without a reminder.
-  await invokeNewEventDialog(window, createBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      title: EVENTTITLE,
-      location: EVENTLOCATION,
-      description: EVENTDESCRIPTION,
-    });
-    await saveAndCloseItemDialog(eventWindow);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
+  await setData(dialogWindow, iframeWindow, {
+    title: EVENTTITLE,
+    location: EVENTLOCATION,
+    description: EVENTDESCRIPTION,
   });
+  await saveAndCloseItemDialog(dialogWindow);
 
   let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
 
-  await invokeViewingEventDialog(
-    window,
-    eventBox,
-    async event => {
-      let doc = event.window.document;
-      let row = doc.querySelector(".reminder-row");
-      Assert.ok(row.hidden, "reminder dropdown is not displayed");
-      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
-    },
-    "view"
-  );
+  let eventWindow = await CalendarTestUtils.viewItem(window, eventBox);
+  let doc = eventWindow.document;
+  let row = doc.querySelector(".reminder-row");
+  Assert.ok(row.hidden, "reminder dropdown is not displayed");
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
 
   goToDate(controller, 2020, 2, 1);
   createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create an event with a reminder.
-  await invokeNewEventDialog(window, createBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      title: EVENTTITLE,
-      location: EVENTLOCATION,
-      description: EVENTDESCRIPTION,
-      reminder: "1week",
-    });
-    await saveAndCloseItemDialog(eventWindow);
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox));
+  await setData(dialogWindow, iframeWindow, {
+    title: EVENTTITLE,
+    location: EVENTLOCATION,
+    description: EVENTDESCRIPTION,
+    reminder: "1week",
   });
+  await saveAndCloseItemDialog(dialogWindow);
 
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
-  await invokeViewingEventDialog(
-    window,
-    eventBox,
-    async event => {
-      let doc = event.window.document;
-      let row = doc.querySelector(".reminder-row");
+  eventWindow = await CalendarTestUtils.viewItem(window, eventBox);
+  doc = eventWindow.document;
+  row = doc.querySelector(".reminder-row");
 
-      Assert.ok(
-        row.textContent.includes("7 days before"),
-        "the details are shown when a reminder is set"
-      );
-      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
-    },
-    "view"
+  Assert.ok(
+    row.textContent.includes("7 days before"),
+    "the details are shown when a reminder is set"
   );
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
 
   // This is done so that calItemBase#isInvitation returns true.
   let calendar = cal.getCalendarManager().getCalendarById(calId);
@@ -353,19 +332,13 @@ add_task(async function testEventReminderDisplay() {
   goToDate(controller, 2020, 3, 1);
   eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
 
-  await invokeViewingEventDialog(
-    window,
-    eventBox,
-    async event => {
-      let doc = event.window.document;
-      let row = doc.querySelector(".reminder-row");
+  eventWindow = await CalendarTestUtils.viewItem(window, eventBox);
+  doc = eventWindow.document;
+  row = doc.querySelector(".reminder-row");
 
-      Assert.ok(!row.hidden, "reminder row is displayed");
-      Assert.ok(row.querySelector("menulist") != null, "reminder dropdown is available");
-      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
-    },
-    "view"
-  );
+  Assert.ok(!row.hidden, "reminder row is displayed");
+  Assert.ok(row.querySelector("menulist") != null, "reminder dropdown is available");
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
 
   // Delete directly, as using the UI causes a prompt to appear.
   calendarProxy.deleteItem(calendarEvent);
@@ -382,14 +355,13 @@ add_task(async function testCtrlEnterShortcut() {
   goToDate(controller, 2020, 9, 1);
 
   let createBox = dayView.getHourBoxAt(controller.window, 8);
-  await invokeNewEventDialog(window, createBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      title: EVENTTITLE,
-      location: EVENTLOCATION,
-      description: EVENTDESCRIPTION,
-    });
-    EventUtils.synthesizeKey("VK_RETURN", { ctrlKey: true }, eventWindow);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
+  await setData(dialogWindow, iframeWindow, {
+    title: EVENTTITLE,
+    location: EVENTLOCATION,
+    description: EVENTDESCRIPTION,
   });
+  EventUtils.synthesizeKey("VK_RETURN", { ctrlKey: true }, dialogWindow);
 
   switchToView(controller, "month");
 

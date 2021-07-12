@@ -7,8 +7,6 @@ var {
   controller,
   createCalendar,
   deleteCalendars,
-  invokeNewEventDialog,
-  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -26,42 +24,40 @@ add_task(async function testUTF8() {
 
   // Create new event.
   let eventBox = CalendarTestUtils.dayView.getHourBoxAt(controller.window, 8);
-  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    // Fill in name, location, description.
-    await setData(eventWindow, iframeWindow, {
-      title: UTF8STRING,
-      location: UTF8STRING,
-      description: UTF8STRING,
-      categories: [UTF8STRING],
-    });
-    await saveAndCloseItemDialog(eventWindow);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  // Fill in name, location, description.
+  await setData(dialogWindow, iframeWindow, {
+    title: UTF8STRING,
+    location: UTF8STRING,
+    description: UTF8STRING,
+    categories: [UTF8STRING],
   });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // open
-  eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(controller.window, 1);
-  await invokeEditingEventDialog(window, eventBox, (eventWindow, iframeWindow) => {
-    let iframeDocument = iframeWindow.document;
+  let { dialogWindow: dlgWindow, iframeDocument } = await CalendarTestUtils.dayView.editEventAt(
+    controller.window,
+    1
+  );
+  // Check values.
+  Assert.equal(iframeDocument.getElementById("item-title").value, UTF8STRING);
+  Assert.equal(iframeDocument.getElementById("item-location").value, UTF8STRING);
+  // The trailing spaces confuse innerText, so we'll do this longhand
+  let editorEl = iframeDocument.getElementById("item-description");
+  let editor = editorEl.getEditor(editorEl.contentWindow);
+  let description = editor.outputToString("text/plain", 0);
+  Assert.equal(description, UTF8STRING);
+  Assert.ok(
+    iframeDocument
+      .getElementById("item-categories")
+      .querySelector(`menuitem[label="${UTF8STRING}"][checked]`)
+  );
 
-    // Check values.
-    Assert.equal(iframeDocument.getElementById("item-title").value, UTF8STRING);
-    Assert.equal(iframeDocument.getElementById("item-location").value, UTF8STRING);
-    // The trailing spaces confuse innerText, so we'll do this longhand
-    let editorEl = iframeDocument.getElementById("item-description");
-    let editor = editorEl.getEditor(editorEl.contentWindow);
-    let description = editor.outputToString("text/plain", 0);
-    Assert.equal(description, UTF8STRING);
-    Assert.ok(
-      iframeDocument
-        .getElementById("item-categories")
-        .querySelector(`menuitem[label="${UTF8STRING}"][checked]`)
-    );
-
-    // Escape the event window.
-    cancelItemDialog(eventWindow);
-  });
-
-  Assert.ok(true, "Test ran to completion");
+  // Escape the event window.
+  cancelItemDialog(dlgWindow);
 });
+
+Assert.ok(true, "Test ran to completion");
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(controller, UTF8STRING);

@@ -10,7 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  invokeNewEventDialog,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { menulistSelect } = ChromeUtils.import(
@@ -31,10 +30,9 @@ add_task(async function testLastDayOfMonthRecurrence() {
 
   // Create monthly recurring event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
-    await saveAndCloseItemDialog(eventWindow);
-  });
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  await setData(dialogWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // data tuple: [year, month, day, row in month view]
   // note: Month starts here with 1 for January.

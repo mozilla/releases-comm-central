@@ -10,8 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  invokeNewEventDialog,
-  invokeEditingRepeatEventDialog,
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
@@ -35,37 +33,30 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
-    await saveAndCloseItemDialog(eventWindow);
-  });
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  await setData(dialogWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Move 5th January occurrence to 6th January.
-  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
-  await invokeEditingRepeatEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      title: TITLE,
-      startdate: STARTDATE,
-      enddate: STARTDATE,
-    });
-    await saveAndCloseItemDialog(eventWindow);
+  ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrenceAt(controller.window, 1));
+  await setData(dialogWindow, iframeWindow, {
+    title: TITLE,
+    startdate: STARTDATE,
+    enddate: STARTDATE,
   });
+  await saveAndCloseItemDialog(dialogWindow);
 
   goToDate(controller, 2009, 1, 6);
   await dayView.waitForEventBoxAt(controller.window, 1);
 
   // Change recurrence rule.
   goToDate(controller, 2009, 1, 7);
-  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
-  await invokeEditingRepeatEventDialog(
-    window,
-    eventBox,
-    async (eventWindow, iframeWindow) => {
-      await setData(eventWindow, iframeWindow, { title: "Event", repeat: changeRecurrence });
-      await saveAndCloseItemDialog(eventWindow);
-    },
-    true
-  );
+  ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrencesAt(controller.window, 1));
+  await setData(dialogWindow, iframeWindow, {
+    title: "Event",
+    repeat: changeRecurrence,
+  });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Check two weeks.
   // day view

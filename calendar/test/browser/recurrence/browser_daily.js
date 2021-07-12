@@ -10,8 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  invokeNewEventDialog,
-  invokeEditingRepeatEventDialog,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -39,14 +37,13 @@ add_task(async function testDailyRecurrence() {
 
   // Create daily event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      title: TITLE,
-      repeat: "daily",
-      repeatuntil: cal.createDateTime("20090320T000000Z"),
-    });
-    await saveAndCloseItemDialog(eventWindow);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  await setData(dialogWindow, iframeWindow, {
+    title: TITLE,
+    repeat: "daily",
+    repeatuntil: cal.createDateTime("20090320T000000Z"),
   });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Check day view for 7 days.
   for (let day = 1; day <= 7; day++) {
@@ -115,16 +112,9 @@ add_task(async function testDailyRecurrence() {
   // Go to previous day to edit event to occur only on weekdays.
   await calendarViewBackward(controller.window, 1);
 
-  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
-  await invokeEditingRepeatEventDialog(
-    window,
-    eventBox,
-    async (eventWindow, iframeWindow) => {
-      await setData(eventWindow, iframeWindow, { repeat: "every.weekday" });
-      await saveAndCloseItemDialog(eventWindow);
-    },
-    true
-  );
+  ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrencesAt(controller.window, 1));
+  await setData(dialogWindow, iframeWindow, { repeat: "every.weekday" });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Check day view for 7 days.
   let dates = [

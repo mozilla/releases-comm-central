@@ -74,8 +74,8 @@ class CalendarDayViewTestUtils {
   }
 
   /**
-   * Provides the element located at the specified hour, which can be double
-   * clicked to create a new event at the specified hour.
+   * Provides the .calendar-event-column-linebox element for the specified hour.
+   * This element can be double clicked to create a new event at that hour.
    *
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} hour - Must be between 0-23.
@@ -257,9 +257,8 @@ class CalendarWeekViewTestUtils {
   }
 
   /**
-   * Provides the .multiday-column-bg-box element located at the specified
-   * hour, which can be double clicked to create a new event at the specified
-   * hour.
+   * Provides the .calendar-event-column-linebox element for the specified hour.
+   * This element can be double clicked to create a new event at that hour.
    *
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} day - Day of the week, between 1-7.
@@ -783,6 +782,54 @@ const CalendarTestUtils = {
     let promise = this.waitForEventDialog("view");
     EventUtils.synthesizeMouseAtCenter(item, { clickCount: 2 }, win);
     return promise;
+  },
+
+  async _editNewItem(win, target, type) {
+    let dialogPromise = CalendarTestUtils.waitForEventDialog("edit");
+
+    if (target) {
+      target.scrollIntoView();
+      EventUtils.synthesizeMouse(target, 1, 1, { clickCount: 2 }, win);
+    } else {
+      EventUtils.synthesizeMouseAtCenter(
+        win.document.getElementById(`calendar-new${type}-button`),
+        {},
+        win
+      );
+    }
+
+    let dialogWindow = await dialogPromise;
+    let iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
+    Assert.report(false, undefined, undefined, "New event dialog opened");
+    return {
+      dialogWindow,
+      dialogDocument: dialogWindow.document,
+      iframeWindow: iframe.contentWindow,
+      iframeDocument: iframe.contentDocument,
+    };
+  },
+
+  /**
+   * Opens the dialog for editing a new event. An optional day/week view
+   * hour box or multiweek/month view calendar-month-day-box can be specified
+   * to simulate creation of the event at that target.
+   *
+   * @param {Window} win - The window containing the calendar.
+   * @param {XULElement?} target - The <spacer> or <calendar-month-day-box>
+   *                               to click on, if not specified, the new event
+   *                               button is used.
+   */
+  async editNewEvent(win, target) {
+    return this._editNewItem(win, target, "event");
+  },
+
+  /**
+   * Opens the dialog for editing a new task.
+   *
+   * @param {Window} win - The window containing the task tree.
+   */
+  async editNewTask(win) {
+    return this._editNewItem(win, null, "task");
   },
 
   async _editItem(win, item, selector) {

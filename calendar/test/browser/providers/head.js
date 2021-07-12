@@ -8,13 +8,9 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
-var {
-  controller,
-  goToToday,
-  handleOccurrencePrompt,
-  invokeEditingRepeatEventDialog,
-  invokeNewEventDialog,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { controller, goToToday, handleOccurrencePrompt } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -161,19 +157,18 @@ async function runTestAlarms() {
       },
     }
   );
-  await invokeNewEventDialog(window, null, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      title: "test event",
-      startdate: start,
-      starttime: start,
-      enddate: end,
-      endtime: end,
-      reminder: "2days",
-      repeat: "weekly",
-    });
-
-    await saveAndCloseItemDialog(eventWindow);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window);
+  await setData(dialogWindow, iframeWindow, {
+    title: "test event",
+    startdate: start,
+    starttime: start,
+    enddate: end,
+    endtime: end,
+    reminder: "2days",
+    repeat: "weekly",
   });
+
+  await saveAndCloseItemDialog(dialogWindow);
   await alarmDialogPromise;
   info("Alarm dialog closed");
 
@@ -196,20 +191,14 @@ async function runTestAlarms() {
   );
   Assert.ok(!!eventBox.item.parentItem.alarmLastAck);
 
-  await invokeEditingRepeatEventDialog(
-    window,
-    eventBox,
-    async (eventWindow, iframeWindow) => {
-      await setData(eventWindow, iframeWindow, {
-        title: "modified test event",
-        repeat: "weekly",
-        repeatuntil: repeatUntil,
-      });
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItemOccurrences(window, eventBox));
+  await setData(dialogWindow, iframeWindow, {
+    title: "modified test event",
+    repeat: "weekly",
+    repeatuntil: repeatUntil,
+  });
 
-      await saveAndCloseItemDialog(eventWindow);
-    },
-    true
-  );
+  await saveAndCloseItemDialog(dialogWindow);
 
   Assert.equal(window.unifinderTreeView.rowCount, 1, "unifinder event count");
 

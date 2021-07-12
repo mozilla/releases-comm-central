@@ -4,7 +4,7 @@
 
 /* globals createCalendarUsingDialog */
 
-var { controller, deleteCalendars, invokeNewEventDialog } = ChromeUtils.import(
+var { controller, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -31,10 +31,9 @@ add_task(async function testLocalICS() {
 
   // Create new event.
   let box = CalendarTestUtils.dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(window, box, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, { title: calendarName, calendar: calendarName });
-    await saveAndCloseItemDialog(eventWindow);
-  });
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, box);
+  await setData(dialogWindow, iframeWindow, { title: calendarName, calendar: calendarName });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Assert presence in view.
   await CalendarTestUtils.dayView.waitForEventBoxAt(controller.window, 1);

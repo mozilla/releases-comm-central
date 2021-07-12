@@ -9,8 +9,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  invokeNewEventDialog,
-  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -19,9 +17,9 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-const { weekView } = ChromeUtils.import(
+const { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
-).CalendarTestUtils;
+);
 
 var TITLE1 = "Week View Event";
 var TITLE2 = "Week View Event Changed";
@@ -42,54 +40,60 @@ add_task(async function testWeekView() {
 
   // Create event at 8 AM.
   // Thursday of 2009-01-01 is 4th with default settings.
-  let eventBox = weekView.getHourBoxAt(controller.window, 5, 8);
-  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    // Check that the start time is correct.
-    let someDate = cal.createDateTime();
-    someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.floating);
+  let eventBox = CalendarTestUtils.weekView.getHourBoxAt(controller.window, 5, 8);
+  let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
+    window,
+    eventBox
+  );
 
-    let startPicker = iframeWindow.document.getElementById("event-starttime");
-    Assert.equal(startPicker._timepicker._inputField.value, cal.dtz.formatter.formatTime(someDate));
-    Assert.equal(
-      startPicker._datepicker._inputField.value,
-      cal.dtz.formatter.formatDateShort(someDate)
-    );
+  // Check that the start time is correct.
+  let someDate = cal.createDateTime();
+  someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.floating);
 
-    // Fill in title, description and calendar.
-    await setData(eventWindow, iframeWindow, {
-      title: TITLE1,
-      description: DESC,
-      calendar: CALENDARNAME,
-    });
+  let startPicker = iframeDocument.getElementById("event-starttime");
+  Assert.equal(startPicker._timepicker._inputField.value, cal.dtz.formatter.formatTime(someDate));
+  Assert.equal(
+    startPicker._datepicker._inputField.value,
+    cal.dtz.formatter.formatDateShort(someDate)
+  );
 
-    await saveAndCloseItemDialog(eventWindow);
+  // Fill in title, description and calendar.
+  await setData(dialogWindow, iframeWindow, {
+    title: TITLE1,
+    description: DESC,
+    calendar: CALENDARNAME,
   });
+
+  await saveAndCloseItemDialog(dialogWindow);
 
   // If it was created successfully, it can be opened.
-  eventBox = await weekView.waitForEventBoxAt(controller.window, 5, 1);
-  await invokeEditingEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    // Change title and save changes.
-    await setData(eventWindow, iframeWindow, { title: TITLE2 });
-    await saveAndCloseItemDialog(eventWindow);
-  });
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.weekView.editEventAt(
+    controller.window,
+    5,
+    1
+  ));
+  // Change title and save changes.
+  await setData(dialogWindow, iframeWindow, { title: TITLE2 });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Check if name was saved.
-  eventBox = await TestUtils.waitForCondition(() => {
-    let newEventBox = weekView.getEventBoxAt(controller.window, 5, 1);
-    if (newEventBox && newEventBox != eventBox) {
-      return newEventBox;
+  let eventName;
+  await TestUtils.waitForCondition(() => {
+    eventBox = CalendarTestUtils.weekView.getEventBoxAt(controller.window, 5, 1);
+    if (!eventBox) {
+      return false;
     }
-    return false;
-  });
-  let eventName = eventBox.querySelector(".event-name-label");
-  Assert.ok(eventName);
-  Assert.equal(eventName.textContent, TITLE2);
+    eventName = eventBox.querySelector(".event-name-label").textContent;
+    return eventName == TITLE2;
+  }, "event name did not update in time");
+
+  Assert.equal(eventName, TITLE2);
 
   // Delete event.
   controller.click(eventBox);
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await weekView.waitForNoEventBoxAt(controller.window, 5, 1);
+  await CalendarTestUtils.weekView.waitForNoEventBoxAt(controller.window, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

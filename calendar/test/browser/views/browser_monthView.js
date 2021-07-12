@@ -9,8 +9,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  invokeNewEventDialog,
-  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -19,9 +17,9 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-const { monthView } = ChromeUtils.import(
+const { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
-).CalendarTestUtils;
+);
 
 const TITLE1 = "Month View Event";
 const TITLE2 = "Month View Event Changed";
@@ -43,56 +41,63 @@ add_task(async function testMonthView() {
   // Create event.
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
   let hour = new Date().getUTCHours(); // Remember time at click.
-  let eventBox = monthView.getDayBox(controller.window, 1, 5);
-  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    // Check that the start time is correct.
-    // Next full hour except last hour hour of the day.
-    let nextHour = hour == 23 ? hour : (hour + 1) % 24;
-    let someDate = cal.dtz.now();
-    someDate.resetTo(2009, 0, 1, nextHour, 0, 0, cal.dtz.floating);
+  let eventBox = CalendarTestUtils.monthView.getDayBox(controller.window, 1, 5);
+  let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
+    window,
+    eventBox
+  );
 
-    let startPicker = iframeWindow.document.getElementById("event-starttime");
-    Assert.equal(startPicker._timepicker._inputField.value, cal.dtz.formatter.formatTime(someDate));
-    Assert.equal(
-      startPicker._datepicker._inputField.value,
-      cal.dtz.formatter.formatDateShort(someDate)
-    );
+  // Check that the start time is correct.
+  // Next full hour except last hour hour of the day.
+  let nextHour = hour == 23 ? hour : (hour + 1) % 24;
+  let someDate = cal.dtz.now();
+  someDate.resetTo(2009, 0, 1, nextHour, 0, 0, cal.dtz.floating);
 
-    // Fill in title, description and calendar.
-    await setData(eventWindow, iframeWindow, {
-      title: TITLE1,
-      description: DESC,
-      calendar: CALENDARNAME,
-    });
+  let startPicker = iframeDocument.getElementById("event-starttime");
+  Assert.equal(startPicker._timepicker._inputField.value, cal.dtz.formatter.formatTime(someDate));
+  Assert.equal(
+    startPicker._datepicker._inputField.value,
+    cal.dtz.formatter.formatDateShort(someDate)
+  );
 
-    await saveAndCloseItemDialog(eventWindow);
+  // Fill in title, description and calendar.
+  await setData(dialogWindow, iframeWindow, {
+    title: TITLE1,
+    description: DESC,
+    calendar: CALENDARNAME,
   });
+
+  await saveAndCloseItemDialog(dialogWindow);
 
   // If it was created successfully, it can be opened.
-  eventBox = await monthView.waitForItemAt(controller.window, 1, 5, 1);
-  await invokeEditingEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    // Change title and save changes.
-    await setData(eventWindow, iframeWindow, { title: TITLE2 });
-    await saveAndCloseItemDialog(eventWindow);
-  });
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.monthView.editItemAt(
+    controller.window,
+    1,
+    5,
+    1
+  ));
+  // Change title and save changes.
+  await setData(dialogWindow, iframeWindow, { title: TITLE2 });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Check if name was saved.
-  eventBox = await TestUtils.waitForCondition(() => {
-    let newEventBox = monthView.getItemAt(controller.window, 1, 5, 1);
-    if (newEventBox && newEventBox != eventBox) {
-      return newEventBox;
+  let eventName;
+  await TestUtils.waitForCondition(() => {
+    eventBox = CalendarTestUtils.monthView.getItemAt(controller.window, 1, 5, 1);
+    if (!eventBox) {
+      return false;
     }
-    return false;
-  });
-  let eventName = eventBox.querySelector(".event-name-label");
-  Assert.ok(eventName);
-  Assert.equal(eventName.textContent, TITLE2);
+    eventName = eventBox.querySelector(".event-name-label").textContent;
+    return eventName == TITLE2;
+  }, "event name did not update in time");
+
+  Assert.equal(eventName, TITLE2);
 
   // Delete event.
   controller.click(eventBox);
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await monthView.waitForNoItemAt(controller.window, 1, 5, 1);
+  await CalendarTestUtils.monthView.waitForNoItemAt(controller.window, 1, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

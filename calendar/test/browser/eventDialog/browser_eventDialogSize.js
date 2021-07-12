@@ -8,8 +8,6 @@ var {
   controller,
   createCalendar,
   deleteCalendars,
-  invokeNewEventDialog,
-  invokeNewTaskDialog,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { cancelItemDialog } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -25,113 +23,107 @@ add_task(function setupModule(module) {
 });
 
 add_task(async function testEventDialog() {
-  await invokeNewEventDialog(window, null, (eventWindow, iframeWindow) => {
-    checkLargeEnough(eventWindow, iframeWindow);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window);
+  checkLargeEnough(dialogWindow, iframeWindow);
 
-    // Much larger than necessary.
-    eventWindow.resizeTo(650, 690);
-    checkWithinTolerance(eventWindow.outerWidth, 650);
-    checkWithinTolerance(eventWindow.outerHeight, 690);
-    cancelItemDialog(eventWindow);
-  });
+  // Much larger than necessary.
+  dialogWindow.resizeTo(650, 690);
+  checkWithinTolerance(dialogWindow.outerWidth, 650);
+  checkWithinTolerance(dialogWindow.outerHeight, 690);
+  cancelItemDialog(dialogWindow);
 
   checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
-  await invokeNewEventDialog(window, null, (eventWindow, iframeWindow) => {
-    let eventDocEl = eventWindow.document.documentElement;
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window));
+  let eventDocEl = dialogWindow.document.documentElement;
 
-    checkWithinTolerance(eventWindow.outerWidth, 650, LARGE_TOLERANCE);
-    checkWithinTolerance(eventWindow.outerHeight, 690, LARGE_TOLERANCE);
-    checkLargeEnough(eventWindow, iframeWindow);
+  checkWithinTolerance(dialogWindow.outerWidth, 650, LARGE_TOLERANCE);
+  checkWithinTolerance(dialogWindow.outerHeight, 690, LARGE_TOLERANCE);
+  checkLargeEnough(dialogWindow, iframeWindow);
 
-    // Much smaller than necessary.
-    eventWindow.resizeTo(350, 400);
-    checkLargeEnough(eventWindow, iframeWindow);
-    Assert.less(eventWindow.outerWidth, 650, "dialog shrank");
-    Assert.less(eventWindow.outerHeight, 690, "dialog shrank");
-    Assert.greater(eventWindow.outerWidth, 350, "requested size not reached");
-    Assert.greater(eventWindow.outerHeight, 400, "requested size not reached");
-    Assert.equal(
-      eventDocEl.getAttribute("minwidth"),
-      eventDocEl.getAttribute("width"),
-      "minimum width attribute set"
-    );
-    Assert.equal(
-      eventDocEl.getAttribute("minheight"),
-      eventDocEl.getAttribute("height"),
-      "minimum height attribute set"
-    );
-    cancelItemDialog(eventWindow);
-  });
+  // Much smaller than necessary.
+  dialogWindow.resizeTo(350, 400);
+  checkLargeEnough(dialogWindow, iframeWindow);
+  Assert.less(dialogWindow.outerWidth, 650, "dialog shrank");
+  Assert.less(dialogWindow.outerHeight, 690, "dialog shrank");
+  Assert.greater(dialogWindow.outerWidth, 350, "requested size not reached");
+  Assert.greater(dialogWindow.outerHeight, 400, "requested size not reached");
+  Assert.equal(
+    eventDocEl.getAttribute("minwidth"),
+    eventDocEl.getAttribute("width"),
+    "minimum width attribute set"
+  );
+  Assert.equal(
+    eventDocEl.getAttribute("minheight"),
+    eventDocEl.getAttribute("height"),
+    "minimum height attribute set"
+  );
+  cancelItemDialog(dialogWindow);
 
-  await invokeNewEventDialog(window, null, (eventWindow, iframeWindow) => {
-    checkLargeEnough(eventWindow, iframeWindow);
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window));
+  checkLargeEnough(dialogWindow, iframeWindow);
 
-    // Much larger than necessary.
-    eventWindow.resizeTo(650, 690);
-    checkWithinTolerance(eventWindow.outerWidth, 650);
-    checkWithinTolerance(eventWindow.outerHeight, 690);
-    cancelItemDialog(eventWindow);
-  });
+  // Much larger than necessary.
+  dialogWindow.resizeTo(650, 690);
+  checkWithinTolerance(dialogWindow.outerWidth, 650);
+  checkWithinTolerance(dialogWindow.outerHeight, 690);
+  cancelItemDialog(dialogWindow);
 
   checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 });
 
 add_task(async function testTaskDialog() {
-  await invokeNewTaskDialog(window, null, (taskWindow, iframeWindow) => {
-    checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
-    checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewTask(window);
+  checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
-    checkLargeEnough(taskWindow, iframeWindow);
+  checkLargeEnough(dialogWindow, iframeWindow);
 
-    // Much larger than necessary.
-    taskWindow.resizeTo(680, 700);
-    checkWithinTolerance(taskWindow.outerWidth, 680);
-    checkWithinTolerance(taskWindow.outerHeight, 700);
-    cancelItemDialog(taskWindow);
-  });
+  // Much larger than necessary.
+  dialogWindow.resizeTo(680, 700);
+  checkWithinTolerance(dialogWindow.outerWidth, 680);
+  checkWithinTolerance(dialogWindow.outerHeight, 700);
+  cancelItemDialog(dialogWindow);
 
   checkWithinTolerance(getPersistedValue("width"), 680, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 700, LARGE_TOLERANCE);
 
-  await invokeNewTaskDialog(window, null, (taskWindow, iframeWindow) => {
-    let taskDocEl = taskWindow.document.documentElement;
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editNewTask(window));
+  let taskDocEl = dialogWindow.document.documentElement;
 
-    checkWithinTolerance(taskWindow.outerWidth, 680, LARGE_TOLERANCE);
-    checkWithinTolerance(taskWindow.outerHeight, 700, LARGE_TOLERANCE);
-    checkLargeEnough(taskWindow, iframeWindow);
+  checkWithinTolerance(dialogWindow.outerWidth, 680, LARGE_TOLERANCE);
+  checkWithinTolerance(dialogWindow.outerHeight, 700, LARGE_TOLERANCE);
+  checkLargeEnough(dialogWindow, iframeWindow);
 
-    // Much smaller than necessary.
-    taskWindow.resizeTo(350, 400);
-    checkLargeEnough(taskWindow, iframeWindow);
-    Assert.less(taskWindow.outerWidth, 680, "dialog shrank");
-    Assert.less(taskWindow.outerHeight, 700, "dialog shrank");
-    Assert.greater(taskWindow.outerWidth, 350, "minimum size not reached");
-    Assert.greater(taskWindow.outerHeight, 400, "minimum size not reached");
-    Assert.equal(
-      taskDocEl.getAttribute("minwidth"),
-      taskDocEl.getAttribute("width"),
-      "minimum width attribute set"
-    );
-    Assert.equal(
-      taskDocEl.getAttribute("minheight"),
-      taskDocEl.getAttribute("height"),
-      "minimum height attribute set"
-    );
-    cancelItemDialog(taskWindow);
-  });
+  // Much smaller than necessary.
+  dialogWindow.resizeTo(350, 400);
+  checkLargeEnough(dialogWindow, iframeWindow);
+  Assert.less(dialogWindow.outerWidth, 680, "dialog shrank");
+  Assert.less(dialogWindow.outerHeight, 700, "dialog shrank");
+  Assert.greater(dialogWindow.outerWidth, 350, "minimum size not reached");
+  Assert.greater(dialogWindow.outerHeight, 400, "minimum size not reached");
+  Assert.equal(
+    taskDocEl.getAttribute("minwidth"),
+    taskDocEl.getAttribute("width"),
+    "minimum width attribute set"
+  );
+  Assert.equal(
+    taskDocEl.getAttribute("minheight"),
+    taskDocEl.getAttribute("height"),
+    "minimum height attribute set"
+  );
+  cancelItemDialog(dialogWindow);
 
-  await invokeNewTaskDialog(window, null, (taskWindow, iframeWindow) => {
-    checkLargeEnough(taskWindow, iframeWindow);
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editNewTask(window));
+  checkLargeEnough(dialogWindow, iframeWindow);
 
-    // Much larger than necessary.
-    taskWindow.resizeTo(680, 700);
-    checkWithinTolerance(taskWindow.outerWidth, 680);
-    checkWithinTolerance(taskWindow.outerHeight, 700);
-    cancelItemDialog(taskWindow);
-  });
+  // Much larger than necessary.
+  dialogWindow.resizeTo(680, 700);
+  checkWithinTolerance(dialogWindow.outerWidth, 680);
+  checkWithinTolerance(dialogWindow.outerHeight, 700);
+  cancelItemDialog(dialogWindow);
 });
 
 registerCleanupFunction(function teardownModule(module) {

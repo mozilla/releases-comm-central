@@ -11,8 +11,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  invokeNewEventDialog,
-  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -34,39 +32,37 @@ add_task(async function testEventDialogModificationPrompt() {
   let createbox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create new event.
-  await invokeNewEventDialog(window, createbox, async (eventWindow, iframeWindow) => {
-    let categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
-    data[0].categories.push(categories[0]);
-    data[1].categories.push(categories[1], categories[2]);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createbox);
+  let categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
+  data[0].categories.push(categories[0]);
+  data[1].categories.push(categories[1], categories[2]);
 
-    // Enter first set of data.
-    await setData(eventWindow, iframeWindow, data[0]);
-    await saveAndCloseItemDialog(eventWindow);
-  });
+  // Enter first set of data.
+  await setData(dialogWindow, iframeWindow, data[0]);
+  await saveAndCloseItemDialog(dialogWindow);
+
   let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   // Open, but change nothing.
-  await invokeEditingEventDialog(window, eventbox, (eventWindow, iframeWindow) => {
-    // Escape the event window, there should be no prompt to save event.
-    cancelItemDialog(eventWindow);
-    // Wait to see if the prompt appears.
-    controller.sleep(2000);
-  });
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItem(window, eventbox));
+  // Escape the event window, there should be no prompt to save event.
+  cancelItemDialog(dialogWindow);
+  // Wait to see if the prompt appears.
+  controller.sleep(2000);
 
   eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
   // Open, change all values then revert the changes.
-  await invokeEditingEventDialog(window, eventbox, async (eventWindow, iframeWindow) => {
-    // Change all values.
-    await setData(eventWindow, iframeWindow, data[1]);
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItem(window, eventbox));
+  // Change all values.
+  await setData(dialogWindow, iframeWindow, data[1]);
 
-    // Edit all values back to original.
-    await setData(eventWindow, iframeWindow, data[0]);
+  // Edit all values back to original.
+  await setData(dialogWindow, iframeWindow, data[0]);
 
-    // Escape the event window, there should be no prompt to save event.
-    cancelItemDialog(eventWindow);
-    // Wait to see if the prompt appears.
-    controller.sleep(2000);
-  });
+  // Escape the event window, there should be no prompt to save event.
+  cancelItemDialog(dialogWindow);
+  // Wait to see if the prompt appears.
+  controller.sleep(2000);
 
   // Delete event.
   controller.window.document.getElementById("day-view").focus();
@@ -84,20 +80,18 @@ add_task(async function testDescriptionWhitespace() {
   for (let i = 0; i < newlines.length; i++) {
     // test set i
     let createbox = dayView.getHourBoxAt(controller.window, 8);
-    await invokeNewEventDialog(window, createbox, async (eventWindow, iframeWindow) => {
-      await setData(eventWindow, iframeWindow, newlines[i]);
-      await saveAndCloseItemDialog(eventWindow);
-    });
+    let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createbox);
+    await setData(dialogWindow, iframeWindow, newlines[i]);
+    await saveAndCloseItemDialog(dialogWindow);
 
     let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
 
     // Open and close.
-    await invokeEditingEventDialog(window, eventbox, async (eventWindow, iframeWindow) => {
-      await setData(eventWindow, iframeWindow, newlines[i]);
-      cancelItemDialog(eventWindow);
-      // Wait to see if the prompt appears.
-      controller.sleep(2000);
-    });
+    ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItem(window, eventbox));
+    await setData(dialogWindow, iframeWindow, newlines[i]);
+    cancelItemDialog(dialogWindow);
+    // Wait to see if the prompt appears.
+    controller.sleep(2000);
 
     // Delete it.
     controller.window.document.getElementById("day-view").focus();

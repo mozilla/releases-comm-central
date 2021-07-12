@@ -10,7 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  invokeNewEventDialog,
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
@@ -30,10 +29,9 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Create biweekly event.
   let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
-  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, { title: "Event", repeat: "bi.weekly" });
-    await saveAndCloseItemDialog(eventWindow);
-  });
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  await setData(dialogWindow, iframeWindow, { title: "Event", repeat: "bi.weekly" });
+  await saveAndCloseItemDialog(dialogWindow);
 
   // Check day view.
   switchToView(controller, "day");

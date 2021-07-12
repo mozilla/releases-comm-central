@@ -11,11 +11,6 @@ const EXPORTED_SYMBOLS = [
   "switchToView",
   "goToDate",
   "goToToday",
-  "invokeNewEventDialog",
-  "invokeNewTaskDialog",
-  "invokeViewingEventDialog",
-  "invokeEditingEventDialog",
-  "invokeEditingRepeatEventDialog",
   "execEventDialogCallback",
   "ensureViewLoaded",
   "checkMonthAlarmIcon",
@@ -30,7 +25,6 @@ const EXPORTED_SYMBOLS = [
 ];
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
@@ -191,161 +185,6 @@ function goToDate(controller, year, month, day) {
 function goToToday(controller) {
   controller.click(controller.window.document.getElementById("today-view-button"));
   ensureViewLoaded(controller);
-}
-
-/**
- * This callback should close the dialog when finished.
- * @callback EventDialogCallback
- * @param {Window} dialogWindow - Item dialog outer window.
- * @param {Window} iframeWindow - Item dialog inner iframe.
- * @returns {Promise}
- */
-
-/**
- * Opens a new event dialog by clicking on the (optional) box and executing the
- * callback function.
- *
- * NOTE: This function will timeout if the "clickBox" opens an existing event,
- * use the other invoke*EventDialog() functions for existing events instead.
- *
- * @param {Window} window                - The main window.
- * @param {Element|null} clickBox        - The optional box to click on.
- * @param {EventDialogCallback} callback - The function to execute while the
- *                                         event dialog is open.
- */
-async function invokeNewEventDialog(window, clickBox, callback) {
-  let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
-  if (clickBox) {
-    doubleClickOptionalEventBox(window, clickBox);
-  } else {
-    window.document.getElementById("calendar-new-event-menuitem").click();
-  }
-  await eventWindowPromise;
-  Assert.report(false, undefined, undefined, "New event dialog opened");
-  await execEventDialogCallback(callback);
-}
-
-/**
- * Opens a new task dialog by clicking on the (optional) box and executing the
- * callback function.
- *
- * NOTE: This function will timeout if the "clickBox" opens an existing task,
- * use the other invoke*EventDialog() functions for existing tasks instead.
- *
- * @param {Window} window                - The main window.
- * @param {Element|null} clickBox        - The optional box to click on.
- * @param {EventDialogCallback} callback - The function to execute while the
- *                                         task dialog is open.
- */
-async function invokeNewTaskDialog(window, clickBox, callback) {
-  let taskWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
-  if (clickBox) {
-    doubleClickOptionalEventBox(window, clickBox);
-  } else {
-    window.document.getElementById("calendar-new-task-menuitem").click();
-  }
-  await taskWindowPromise;
-  Assert.report(false, undefined, undefined, "New task dialog opened");
-  await execEventDialogCallback(callback);
-}
-
-/**
- * This callback should close the dialog when finished.
- * @callback EventSummaryDialogCallback
- * @param {Window} window - The event summary window.
- * @returns {Promise}
- */
-
-/**
- * Opens an existing event in the event summary dialog by clicking on the
- * (optional) box and executing the callback function.
- *
- * NOTE: This function will timeout if the "clickBox" opens a new event
- * instead of an existing one.
- *
- * @param {Window} window                       - The main window.
- * @param {Element|null} clickBox               - The optional box to click on.
- * @param {EventSummaryDialogCallback} callback - The function to execute while
- *                                                the event summary dialog is
- *                                                open.
- */
-async function invokeViewingEventDialog(window, clickBox, callback) {
-  let summaryWindowPromise = CalendarTestUtils.waitForEventDialog();
-  doubleClickOptionalEventBox(window, clickBox);
-  let summaryWindow = await summaryWindowPromise;
-  Assert.report(false, undefined, undefined, "Summary dialog opened");
-  await callback(summaryWindow);
-  await BrowserTestUtils.windowClosed(summaryWindow);
-  Assert.report(false, undefined, undefined, "Summary dialog closed");
-}
-
-/**
- * Opens an existing event for editing in the event dialog by clicking on the
- * (optional) box and executing the callback function.
- *
- * NOTE: This function will timeout if the "clickBox" opens a new event instead
- * of an existing one.
- *
- * @param {Window} window                - The main window.
- * @param {Element|null} clickBox        - The box to click on.
- * @param {EventDialogCallback} callback - The function to execute while the
- *                                         event dialog is open.
- */
-async function invokeEditingEventDialog(window, clickBox, callback) {
-  let eventWindowPromise = CalendarTestUtils.waitForEventDialog();
-  doubleClickOptionalEventBox(window, clickBox);
-  let eventWindow = await eventWindowPromise;
-  Assert.report(false, undefined, undefined, "Edit event dialog opened");
-  await new Promise(resolve => eventWindow.setTimeout(resolve, 500));
-  EventUtils.synthesizeMouseAtCenter(
-    eventWindow.document.querySelector("dialog").getButton("accept"),
-    {},
-    eventWindow
-  );
-  await execEventDialogCallback(callback);
-}
-
-/**
- * Opens an existing, repeating event for editing in the event dialog by
- * clicking on the (optional) box and executing the callback function.
- *
- * NOTE: This function will timeout if the "clickBox" opens a new event instead
- * of an existing one.
- *
- * @param {Window} window                - The main window.
- * @param {Element|null} clickBox        - The box to click on.
- * @param {EventDialogCallback} callback - The function to execute while the
- *                                         event dialog is open.
- * @param {boolean} [editAll=false]      - If true, will edit all occurrences of
- *                                         the event.
- */
-async function invokeEditingRepeatEventDialog(window, clickBox, callback, editAll = false) {
-  let eventWindowPromise = CalendarTestUtils.waitForEventDialog();
-  doubleClickOptionalEventBox(window, clickBox);
-  let eventWindow = await eventWindowPromise;
-  Assert.report(false, undefined, undefined, "Repeating event dialog opened");
-  await new Promise(resolve => eventWindow.setTimeout(resolve, 500));
-
-  let editButton = eventWindow.document.getElementById("calendar-summary-dialog-edit-menu-button");
-  let popup = eventWindow.document.getElementById("edit-button-context-menu");
-  let shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(editButton, {}, eventWindow);
-  await shownPromise;
-
-  let target = editAll
-    ? "edit-button-context-menu-all-occurrences"
-    : "edit-button-context-menu-this-occurrence";
-  popup.activateItem(eventWindow.document.getElementById(target));
-
-  Assert.report(false, undefined, undefined, "Repeating event dialog closed");
-  await execEventDialogCallback(callback);
-}
-
-function doubleClickOptionalEventBox(window, clickBox) {
-  if (clickBox) {
-    clickBox.scrollIntoView();
-    EventUtils.synthesizeMouse(clickBox, 1, 1, { clickCount: 2 }, window);
-  }
 }
 
 async function execEventDialogCallback(callback) {

@@ -10,8 +10,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  invokeNewEventDialog,
-  invokeEditingEventDialog,
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
@@ -54,15 +52,14 @@ add_task(async function testAlarmDialog() {
       },
     }
   );
-  await invokeNewEventDialog(window, null, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, {
-      allday: true,
-      reminder: "1day",
-      title: TITLE,
-    });
-
-    await saveAndCloseItemDialog(eventWindow);
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window);
+  await setData(dialogWindow, iframeWindow, {
+    allday: true,
+    reminder: "1day",
+    title: TITLE,
   });
+
+  await saveAndCloseItemDialog(dialogWindow);
   await alarmPromise;
 
   // Change the reminder duration, this resets the alarm.
@@ -87,10 +84,10 @@ add_task(async function testAlarmDialog() {
       },
     }
   );
-  await invokeEditingEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, { reminder: "2days", title: TITLE });
-    await saveAndCloseItemDialog(eventWindow);
-  });
+
+  ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItem(window, eventBox));
+  await setData(dialogWindow, iframeWindow, { reminder: "2days", title: TITLE });
+  await saveAndCloseItemDialog(dialogWindow);
   await alarmPromise;
 
   Assert.ok(true, "Test ran to completion");

@@ -10,7 +10,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  invokeNewEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
@@ -30,10 +29,9 @@ add_task(async function testAnnualRecurrence() {
 
   // Create yearly recurring all-day event.
   let eventBox = dayView.getAllDayHeader(controller.window);
-  await invokeNewEventDialog(window, eventBox, async (eventWindow, iframeWindow) => {
-    await setData(eventWindow, iframeWindow, { title: "Event", repeat: "yearly" });
-    await saveAndCloseItemDialog(eventWindow);
-  });
+  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  await setData(dialogWindow, iframeWindow, { title: "Event", repeat: "yearly" });
+  await saveAndCloseItemDialog(dialogWindow);
 
   let checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];
   for (let year of checkYears) {
