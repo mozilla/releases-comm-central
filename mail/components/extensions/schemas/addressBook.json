@@ -419,9 +419,48 @@
             "description": "The id of the address book to search. If not specified, all address books are searched."
           },
           {
-            "name": "searchString",
-            "type": "string",
-            "description": "One or more space-separated terms to search for."
+            "name": "queryInfo",
+            "choices": [
+              {
+                "type": "string",
+                "description": "One or more space-separated terms to search for."
+              },
+              {
+                "type": "object",
+                "optional": true,
+                "properties": {
+                  "searchString": {
+                    "type": "string",
+                    "optional": true,
+                    "description": "One or more space-separated terms to search for."
+                  },
+                  "includeLocal": {
+                    "type": "boolean",
+                    "optional": true,
+                    "default": true,
+                    "description": "Whether to include results from local address books. Defaults to true."
+                  },
+                  "includeRemote": {
+                    "type": "boolean",
+                    "optional": true,
+                    "default": true,
+                    "description": "Whether to include results from remote address books. Defaults to true."
+                  },
+                  "includeReadOnly": {
+                    "type": "boolean",
+                    "optional": true,
+                    "default": true,
+                    "description": "Whether to include results from read-only address books. Defaults to true."
+                  },
+                  "includeReadWrite": {
+                    "type": "boolean",
+                    "optional": true,
+                    "default": true,
+                    "description": "Whether to include results from read-write address books. Defaults to true."
+                  }
+                }
+              }
+            ]
           }
         ],
         "description": "Gets all contacts matching <code>searchString</code> in the address book with the id <code>parentId</code>."

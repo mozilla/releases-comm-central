@@ -675,12 +675,25 @@ this.addressBook = class extends ExtensionAPI {
             false
           );
         },
-        async quickSearch(parentId, searchString) {
+        async quickSearch(parentId, queryInfo) {
           const {
             getSearchTokens,
             getModelQuery,
             generateQueryURI,
           } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+
+          let searchString;
+          if (typeof queryInfo == "string") {
+            searchString = queryInfo;
+            queryInfo = {
+              includeRemote: true,
+              includeLocal: true,
+              includeReadOnly: true,
+              includeReadWrite: true,
+            };
+          } else {
+            searchString = queryInfo.searchString;
+          }
 
           let searchWords = getSearchTokens(searchString);
           if (searchWords.length == 0) {
@@ -701,6 +714,14 @@ this.addressBook = class extends ExtensionAPI {
           let results = [];
           let promises = [];
           for (let book of booksToSearch) {
+            if (
+              (book.item.isRemote && !queryInfo.includeRemote) ||
+              (!book.item.isRemote && !queryInfo.includeLocal) ||
+              (book.item.readOnly && !queryInfo.includeReadOnly) ||
+              (!book.item.readOnly && !queryInfo.includeReadWrite)
+            ) {
+              continue;
+            }
             promises.push(
               new Promise(resolve => {
                 book.item.search(searchQuery, searchString, {
