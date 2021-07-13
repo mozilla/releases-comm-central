@@ -39,6 +39,10 @@ job-defaults:
             by-release-level:
                 staging: "https://stage.balrog.nonprod.cloudops.mozgcp.net"
                 production: "https://aus5.mozilla.org"
+        override-certs:
+            by-release-level:
+                staging: dep
+                production: null
         include-version:
             by-release-type:
                 beta: beta

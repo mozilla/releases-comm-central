@@ -39,7 +39,7 @@ jobs:
             channel-names:
                 by-release-type:
                     beta: ["beta", "beta-localtest", "beta-cdntest"]
-                    release: ["release", "release-localtest", "release-cdntest"]
+                    release: ["release", "release-localtest", "release-cdntest", "release-localtest-next", "release-cdntest-next"]
                     default: []
             rules-to-update:
                 by-release-type:
