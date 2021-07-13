@@ -239,14 +239,14 @@ add_task(async function test_without_permission() {
       // Try to use onAttachmentAdded.
       await browser.test.assertThrows(
         () => browser.compose.onAttachmentAdded.addListener(),
-        `can't access property "addListener", browser.compose.onAttachmentAdded is undefined`,
+        /browser\.compose\.onAttachmentAdded is undefined/,
         "Should reject listener without proper permission"
       );
 
       // Try to use onAttachmentRemoved.
       await browser.test.assertThrows(
         () => browser.compose.onAttachmentRemoved.addListener(),
-        `can't access property "addListener", browser.compose.onAttachmentRemoved is undefined`,
+        /browser\.compose\.onAttachmentRemoved is undefined/,
         "Should reject listener without proper permission"
       );
 
