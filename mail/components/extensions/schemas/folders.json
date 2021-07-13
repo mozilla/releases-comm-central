@@ -67,11 +67,9 @@
             "name": "parentFolderOrAccount",
             "choices": [
               {
-                "name": "folder",
                 "$ref": "folders.MailFolder"
               },
               {
-                "name": "account",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -163,11 +161,9 @@
             "name": "folderOrAccount",
             "choices": [
               {
-                "name": "folder",
                 "$ref": "folders.MailFolder"
               },
               {
-                "name": "account",
                 "$ref": "accounts.MailAccount"
               }
             ]
