@@ -1839,11 +1839,13 @@ function openEditorContextMenu(popup) {
   // Suggestion list.
   document.getElementById("spellCheckSuggestionsSeparator").hidden =
     !onMisspelling && !showUndo;
+  let separator = document.getElementById("spellCheckAddSep");
+  separator.hidden = !onMisspelling;
   if (onMisspelling) {
     let addMenuItem = document.getElementById("spellCheckAddToDictionary");
     let suggestionCount = gSpellChecker.addSuggestionsToMenu(
       addMenuItem.parentNode,
-      addMenuItem,
+      separator,
       5
     );
     document.getElementById("spellCheckNoSuggestions").hidden =
