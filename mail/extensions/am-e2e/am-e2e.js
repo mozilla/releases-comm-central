@@ -452,6 +452,9 @@ function enableEncryptionControls(do_enable) {
   if (!do_enable) {
     gEncryptionChoices.value = 0;
   }
+  // If we have a certificate or key configured that allows encryption,
+  // then we are able to encrypt drafts, too.
+  gEncryptDrafts.disabled = !do_enable;
 }
 
 function enableSigningControls(do_enable) {
@@ -1075,6 +1078,9 @@ async function reloadOpenPgpUI() {
   updateTechPref();
   enableSelectButtons();
   updateUIForSelectedOpenPgpKey();
+
+  gAttachKey.disabled = !gKeyId;
+  gEncryptSubject.disabled = !gKeyId;
 }
 
 /**
