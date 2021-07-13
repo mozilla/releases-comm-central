@@ -8,7 +8,6 @@
 
 :root {
   --in-content-button-border-radius: 3px;
-  --in-content-button-vertical-padding: 0;
 }
 
 @media not (prefers-contrast) {
@@ -36,14 +35,17 @@
 }
 
 button {
-  --in-content-button-horizontal-padding: 12px;
+  padding: 0 12px;
 }
 
 menulist {
-  --in-content-button-horizontal-padding: 6px;
+  padding: 0 6px;
 }
 
-html|input:is([type="email"],[type="number"],[type="text"],[type="password"],[type="url"]),
+button,
+menulist,
+html|select,
+html|input:is([type="email"],[type="number"],[type="color"],[type="text"],[type="password"],[type="url"]),
 html|textarea,
 search-textbox {
   border-radius: var(--in-content-button-border-radius);

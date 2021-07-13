@@ -4,11 +4,6 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-:root > * {
-  --in-content-button-border-radius: 3px;
-  --in-content-button-vertical-padding: 0;
-}
-
 @media not (prefers-contrast) {
   @media not (prefers-color-scheme: dark) {
     :root > * {
@@ -115,8 +110,7 @@ html|input[type="number"] {
 
 button,
 menulist {
-  --in-content-button-horizontal-padding: 8px;
-  --in-content-button-vertical-padding: 0;
+  padding: 0 8px;
 }
 
 /* Create a separate rule to unset these styles on .tree-input instead of

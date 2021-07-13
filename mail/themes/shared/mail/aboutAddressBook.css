@@ -6,7 +6,6 @@
 
 :root {
   --in-content-button-border-radius: 3px;
-  --in-content-button-vertical-padding: 0;
 }
 
 @media not (prefers-contrast) {
@@ -34,7 +33,8 @@
 }
 
 button {
-  --in-content-button-horizontal-padding: 12px;
+  padding: 0 12px;
+  border-radius: var(--in-content-button-border-radius);
 }
 
 :root {
@@ -379,6 +379,7 @@ ab-card-listrow:hover {
   line-height: 2;
   padding-block: 0;
   padding-inline: 9px 24px;
+  border-radius: var(--in-content-button-border-radius);
 }
 
 .editGrid select:not([size], [multiple]) {

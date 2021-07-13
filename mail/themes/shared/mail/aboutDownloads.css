@@ -4,12 +4,6 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-:root {
-  --in-content-button-border-radius: 3px;
-  --in-content-button-vertical-padding: 0;
-  --in-content-button-horizontal-padding: 12px;
-}
-
 @media not (prefers-contrast) {
   :root {
     --in-content-button-background: var(--grey-90-a10);
@@ -56,7 +50,7 @@ body {
 #msgDownloadsRichListBox > .download {
   min-height: 5em;
   border-bottom: 1px solid hsla(0, 0%, 50%, .3);
-  border-radius: var(--in-content-button-border-radius);
+  border-radius: 3px;
 }
 
 #msgDownloadsRichListBox > .download > vbox {
@@ -66,6 +60,8 @@ body {
 
 #clearDownloads {
   margin-inline-start: 0;
+  padding: 0 12px;
+  border-radius: 3px;
   font-weight: 400;
 }
 

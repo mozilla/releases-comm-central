@@ -14,8 +14,6 @@
   --remotecontent-icon-url: url("chrome://messenger/skin/icons/remote-blocked.svg");
   --icon-size: 16px;
   --close-icon-size: 32px;
-
-  --in-content-button-border-radius: 3px;
   --in-content-button-color: #0c0c0d;
   --in-content-button-border: #c2c2c3;
   --in-content-button-background: #e2e2e3;
@@ -264,6 +262,7 @@
 
 .notification-button {
   border: 1px solid var(--in-content-button-border);
+  border-radius: 3px;
   color: var(--in-content-button-color) !important;
 }
 
