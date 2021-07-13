@@ -427,7 +427,6 @@
               },
               {
                 "type": "object",
-                "optional": true,
                 "properties": {
                   "searchString": {
                     "type": "string",
