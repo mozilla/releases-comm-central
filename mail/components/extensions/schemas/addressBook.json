@@ -54,6 +54,11 @@
             "optional": true,
             "description": "Indicates if the object is read-only."
           },
+          "remote": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Indicates if the address book is accessed via remote look-up."
+          },
           "name": {
             "type": "string"
           },
@@ -329,6 +334,11 @@
             "optional": true,
             "description": "Indicates if the object is read-only."
           },
+          "remote": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Indicates if the object came from a remote address book."
+          },
           "properties": {
             "$ref": "ContactProperties"
           }
@@ -555,6 +565,11 @@
             "type": "boolean",
             "optional": true,
             "description": "Indicates if the object is read-only."
+          },
+          "remote": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Indicates if the object came from a remote address book."
           },
           "name": {
             "type": "string"

@@ -81,27 +81,28 @@ add_task(async function test_addressBooks() {
       let list = await browser.addressBooks.list();
       browser.test.assertEq(2, list.length);
       for (let b of list) {
-        browser.test.assertEq(4, Object.keys(b).length);
+        browser.test.assertEq(5, Object.keys(b).length);
         browser.test.assertEq(36, b.id.length);
         browser.test.assertEq("addressBook", b.type);
         browser.test.assertTrue("name" in b);
         browser.test.assertFalse(b.readOnly);
+        browser.test.assertFalse(b.remote);
       }
 
       let completeList = await browser.addressBooks.list(true);
       browser.test.assertEq(2, completeList.length);
       for (let b of completeList) {
-        browser.test.assertEq(6, Object.keys(b).length);
+        browser.test.assertEq(7, Object.keys(b).length);
       }
 
       firstBookId = list[0].id;
       secondBookId = list[1].id;
 
       let firstBook = await browser.addressBooks.get(firstBookId);
-      browser.test.assertEq(4, Object.keys(firstBook).length);
+      browser.test.assertEq(5, Object.keys(firstBook).length);
 
       let secondBook = await browser.addressBooks.get(secondBookId, true);
-      browser.test.assertEq(6, Object.keys(secondBook).length);
+      browser.test.assertEq(7, Object.keys(secondBook).length);
       browser.test.assertTrue(Array.isArray(secondBook.contacts));
       browser.test.assertEq(0, secondBook.contacts.length);
       browser.test.assertTrue(Array.isArray(secondBook.mailingLists));
@@ -204,11 +205,12 @@ add_task(async function test_addressBooks() {
       );
 
       let newContact = await browser.contacts.get(newContactId);
-      browser.test.assertEq(5, Object.keys(newContact).length);
+      browser.test.assertEq(6, Object.keys(newContact).length);
       browser.test.assertEq(newContactId, newContact.id);
       browser.test.assertEq(firstBookId, newContact.parentId);
       browser.test.assertEq("contact", newContact.type);
       browser.test.assertEq(false, newContact.readOnly);
+      browser.test.assertEq(false, newContact.remote);
       browser.test.assertEq(3, Object.keys(newContact.properties).length);
       browser.test.assertEq("0", newContact.properties.PreferMailFormat);
       browser.test.assertEq("first", newContact.properties.FirstName);
@@ -310,7 +312,7 @@ add_task(async function test_addressBooks() {
       );
 
       let newAddressList = await browser.mailingLists.get(newMailingListId);
-      browser.test.assertEq(7, Object.keys(newAddressList).length);
+      browser.test.assertEq(8, Object.keys(newAddressList).length);
       browser.test.assertEq(newMailingListId, newAddressList.id);
       browser.test.assertEq(firstBookId, newAddressList.parentId);
       browser.test.assertEq("mailingList", newAddressList.type);
@@ -318,6 +320,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("", newAddressList.nickName);
       browser.test.assertEq("", newAddressList.description);
       browser.test.assertEq(false, newAddressList.readOnly);
+      browser.test.assertEq(false, newAddressList.remote);
 
       // Test that a valid name is ensured for an existing mail list
       await browser.test.assertRejects(

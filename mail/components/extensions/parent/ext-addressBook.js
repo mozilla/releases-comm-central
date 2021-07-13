@@ -282,6 +282,7 @@ var addressBookCache = new (class extends EventEmitter {
       case "addressBook":
         copy.name = node.item.dirName;
         copy.readOnly = node.item.readOnly;
+        copy.remote = node.item.isRemote;
         break;
       case "contact": {
         copy.properties = {};
@@ -309,6 +310,7 @@ var addressBookCache = new (class extends EventEmitter {
           parentNode = this.findMailingListById(node.parentId);
         }
         copy.readOnly = parentNode.item.readOnly;
+        copy.remote = parentNode.item.isRemote;
         break;
       }
       case "mailingList":
@@ -317,6 +319,7 @@ var addressBookCache = new (class extends EventEmitter {
         copy.description = node.item.description;
         let parentNode = this.findAddressBookById(node.parentId);
         copy.readOnly = parentNode.item.readOnly;
+        copy.remote = parentNode.item.isRemote;
         break;
     }
 
