@@ -176,6 +176,7 @@
 }
 
 .close {
+  color: inherit !important; /* Override common.css */
   background-image: var(--close-icon-url);
   background-repeat: no-repeat;
   background-position: center center;
