@@ -169,7 +169,7 @@ function confirmExchange(domain, okCallback, cancelCallback) {
 
   let abortable = new Abortable();
   abortable.cancel = ex => {
-    close();
+    dialog.close();
     cancelCallback(ex);
   };
   return abortable;
