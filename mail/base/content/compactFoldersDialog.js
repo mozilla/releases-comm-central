@@ -6,11 +6,12 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var propBag, args;
 
-document.addEventListener("DOMContentLoaded", function() {
-  compactDialogOnLoad();
-});
+document.addEventListener("DOMContentLoaded", compactDialogOnDOMContentLoaded);
+// Bug 1720540: Call sizeToContent only after the entire window has been loaded,
+// including the shadow DOM and the updated fluent strings.
+window.addEventListener("load", sizeToContent());
 
-function compactDialogOnLoad() {
+function compactDialogOnDOMContentLoaded() {
   propBag = window.arguments[0]
     .QueryInterface(Ci.nsIWritablePropertyBag2)
     .QueryInterface(Ci.nsIWritablePropertyBag);
@@ -21,11 +22,11 @@ function compactDialogOnLoad() {
     args[prop.name] = prop.value;
   }
 
-  document.l10n.setAttributes(
-    document.getElementById("compactFoldersText"),
-    "compact-dialog-message",
-    { data: args.compactSize }
-  );
+  // We're deliberately adding the data-l10n-args attribute synchronously to
+  // avoid race issues for window.sizeToContent later on.
+  document
+    .getElementById("compactFoldersText")
+    .setAttribute("data-l10n-args", JSON.stringify({ data: args.compactSize }));
 
   document.addEventListener("dialogaccept", function() {
     args.buttonNumClicked = 0;
@@ -45,12 +46,6 @@ function compactDialogOnLoad() {
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(uri);
   });
-
-  // Resize the window to the content after an arbitrary waiting for all the
-  // content to load.
-  setTimeout(() => {
-    sizeToContent();
-  }, 80);
 }
 
 function compactDialogOnUnload() {
