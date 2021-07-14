@@ -823,7 +823,11 @@ nsMimeBaseEmitter::WriteHTMLHeaders(const nsACString& name) {
 nsresult nsMimeBaseEmitter::DumpSubjectFromDate() {
   mHTMLHeaders.AppendLiteral(
       "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
-      "class=\"header-part1\">");
+      "class=\"header-part1");
+  if (mDocHeader) {
+    mHTMLHeaders.AppendLiteral(" main-header");
+  }
+  mHTMLHeaders.AppendLiteral("\">");
 
   // This is the envelope information
   OutputGenericHeader(HEADER_SUBJECT);
@@ -852,7 +856,11 @@ nsresult nsMimeBaseEmitter::DumpToCC() {
   if (toField || ccField || bccField || newsgroupField) {
     mHTMLHeaders.AppendLiteral(
         "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
-        "class=\"header-part2\">");
+        "class=\"header-part2");
+    if (mDocHeader) {
+      mHTMLHeaders.AppendLiteral(" main-header");
+    }
+    mHTMLHeaders.AppendLiteral("\">");
 
     if (toField) WriteHeaderFieldHTML(HEADER_TO, toField);
     if (ccField) WriteHeaderFieldHTML(HEADER_CC, ccField);
@@ -871,7 +879,11 @@ nsresult nsMimeBaseEmitter::DumpRestOfHeaders() {
 
   mHTMLHeaders.AppendLiteral(
       "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
-      "class=\"header-part3\">");
+      "class=\"header-part3");
+  if (mDocHeader) {
+    mHTMLHeaders.AppendLiteral(" main-header");
+  }
+  mHTMLHeaders.AppendLiteral("\">");
 
   for (size_t i = 0; i < array->Length(); i++) {
     headerInfoType* headerInfo = array->ElementAt(i);

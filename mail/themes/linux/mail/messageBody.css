@@ -18,30 +18,25 @@ mailattachcount {
 /* :::: message header ::::: */
 
 @media screen {
-  .header-part1,
-  .header-part2,
-  .header-part3,
-  .headerdisplayname,
-  :is(.header-part1, .header-part2, .header-part3) + br {
+  .main-header,
+  .main-header + br {
     display: none;
   }
 }
 
-@media print {
-  .header-part1 {
-    background-color: #EFEFEF;
-  }
+.header-part1 {
+  background-color: #EFEFEF;
+}
 
-  .header-part2,
-  .header-part3 {
-    background-color: #DEDEDE;
-  }
+.header-part2,
+.header-part3 {
+  background-color: #DEDEDE;
+}
 
-  .headerdisplayname {
-    display: inline;
-    font-weight: bold;
-    white-space: pre;
-  }
+.headerdisplayname {
+  display: inline;
+  font-weight: bold;
+  white-space: pre;
 }
 
 /* ::::: message text, incl. quotes ::::: */
