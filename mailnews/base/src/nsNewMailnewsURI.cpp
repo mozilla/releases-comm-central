@@ -47,7 +47,16 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     return nsMailboxService::NewURI(aSpec, aCharset, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("imap") || scheme.EqualsLiteral("imap-message")) {
-    return nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
+    if (NS_IsMainThread()) {
+      return nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
+    }
+    // Creating IMAP URIs off the main tread can lead to crashes.
+    // Seems to happen when viewing PDFs.
+    auto NewURI = [&aSpec, &aCharset, &aBaseURI, aURI, &rv ]() -> auto {
+      rv = nsImapService::NewURI(aSpec, aCharset, aBaseURI, aURI);
+    };
+    nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
+    mozilla::SyncRunnable::DispatchToThread(mozilla::GetMainThreadEventTarget(),
   }
   if (scheme.EqualsLiteral("smtp") || scheme.EqualsLiteral("smtps")) {
     return nsSmtpService::NewSmtpURI(aSpec, aCharset, aBaseURI, aURI);
