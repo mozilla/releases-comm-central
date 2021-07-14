@@ -81,6 +81,12 @@ windows7-32-qr/debug:
         - xpcshell-tests
 
 # win64
+windows10-64/opt:
+    build-platform: win64/opt
+    test-sets:
+        - mochitest-tests
+        - xpcshell-tests
+
 windows10-64-qr/opt:
     build-platform: win64/opt
     test-sets:
