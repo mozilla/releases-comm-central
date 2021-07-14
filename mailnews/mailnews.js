@@ -330,6 +330,10 @@ pref("mailnews.reply_quoting_selection.multi_word", true);
 pref("mailnews.smtp.jsmodule", false);
 pref("mailnews.smtp.loglevel", "Warn");
 
+// If true, NntpService.jsm is used. Otherwise, nsNntpService.cpp is used.
+pref("mailnews.nntp.jsmodule", false);
+pref("mailnews.nntp.loglevel", "Warn");
+
 pref("mail.operate_on_msgs_in_collapsed_threads", false);
 pref("mail.warn_on_collapsed_thread_operation", true);
 pref("mail.warn_on_shift_delete", true);

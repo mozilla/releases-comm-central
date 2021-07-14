@@ -20,6 +20,8 @@ SOURCES += [
 
 EXTRA_JS_MODULES += [
     "NewsAutoCompleteSearch.jsm",
+    "NntpModuleLoader.jsm",
+    "NntpService.jsm",
 ]
 
 XPCOM_MANIFESTS += [
