@@ -151,21 +151,17 @@ async function startExtension(browser_style) {
 }
 
 add_task(async () => {
-  let weTransfer = await AddonManager.getAddonByID(
-    "wetransfer@extensions.thunderbird.net"
-  );
-  if (!weTransfer) {
-    // WeTransfer isn't registered in artifact builds because the wrong
-    // built_in_addons.json is used. For the purposes of this test, pretend
-    // that it is registered.
-    cloudFileAccounts.registerProvider("WeTransfer-Test", {
-      displayName: "WeTransfer",
-      type: "ext-wetransfer@extensions.thunderbird.net",
-    });
-    registerCleanupFunction(() => {
-      cloudFileAccounts.unregisterProvider("WeTransfer-Test");
-    });
-  }
+  // Register a fake provider representing a built-in provider. We don't
+  // currently ship any built-in providers, but if we did, we should check
+  // if they are present before doing this. Built-in providers can be
+  // problematic for artifact builds.
+  cloudFileAccounts.registerProvider("Fake-Test", {
+    displayName: "XYZ Fake",
+    type: "ext-fake@extensions.thunderbird.net",
+  });
+  registerCleanupFunction(() => {
+    cloudFileAccounts.unregisterProvider("Fake-Test");
+  });
 });
 
 let accountIsConfigured = false;
@@ -234,7 +230,7 @@ add_task(async function addRemoveAccounts() {
   is(buttonList.childElementCount, 1);
   is(
     buttonList.children[0].getAttribute("value"),
-    "ext-wetransfer@extensions.thunderbird.net"
+    "ext-fake@extensions.thunderbird.net"
   );
 
   let menuButton = prefsDocument.getElementById("addCloudFileAccount");
@@ -242,7 +238,7 @@ add_task(async function addRemoveAccounts() {
   is(menuButton.itemCount, 1);
   is(
     menuButton.getItemAtIndex(0).getAttribute("value"),
-    "ext-wetransfer@extensions.thunderbird.net"
+    "ext-fake@extensions.thunderbird.net"
   );
 
   let removeButton = prefsDocument.getElementById("removeCloudFileAccount");
@@ -267,7 +263,7 @@ add_task(async function addRemoveAccounts() {
   is(buttonList.childElementCount, 2);
   is(
     buttonList.children[0].getAttribute("value"),
-    "ext-wetransfer@extensions.thunderbird.net"
+    "ext-fake@extensions.thunderbird.net"
   );
   is(buttonList.children[1].getAttribute("value"), "ext-cloudfile@mochitest");
   is(
@@ -278,7 +274,7 @@ add_task(async function addRemoveAccounts() {
   is(menuButton.itemCount, 2);
   is(
     menuButton.getItemAtIndex(0).getAttribute("value"),
-    "ext-wetransfer@extensions.thunderbird.net"
+    "ext-fake@extensions.thunderbird.net"
   );
   is(
     menuButton.getItemAtIndex(1).getAttribute("value"),
@@ -450,12 +446,12 @@ add_task(async function addRemoveAccounts() {
   is(buttonList.childElementCount, 1);
   is(
     buttonList.children[0].getAttribute("value"),
-    "ext-wetransfer@extensions.thunderbird.net"
+    "ext-fake@extensions.thunderbird.net"
   );
   is(menuButton.itemCount, 1);
   is(
     menuButton.getItemAtIndex(0).getAttribute("value"),
-    "ext-wetransfer@extensions.thunderbird.net"
+    "ext-fake@extensions.thunderbird.net"
   );
   is(accountList.itemCount, 0);
   ok(!cloudFileDefaultPanel.hidden);
@@ -474,14 +470,14 @@ add_task(async function addRemoveAccounts() {
   is(buttonList.childElementCount, 2);
   is(
     buttonList.children[0].getAttribute("value"),
-    "ext-wetransfer@extensions.thunderbird.net"
+    "ext-fake@extensions.thunderbird.net"
   );
   is(buttonList.children[1].getAttribute("value"), "ext-cloudfile@mochitest");
 
   is(menuButton.itemCount, 2);
   is(
     menuButton.getItemAtIndex(0).getAttribute("value"),
-    "ext-wetransfer@extensions.thunderbird.net"
+    "ext-fake@extensions.thunderbird.net"
   );
   is(
     menuButton.getItemAtIndex(1).getAttribute("value"),
