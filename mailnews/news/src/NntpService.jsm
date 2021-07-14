@@ -4,6 +4,14 @@
 
 const EXPORTED_SYMBOLS = ["NntpService"];
 
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  NntpClient: "resource:///modules/NntpClient.jsm",
+});
+
 /**
  * Set the mailnews.nntp.jsmodule pref to true to use this module.
  *
@@ -12,7 +20,14 @@ const EXPORTED_SYMBOLS = ["NntpService"];
 class NntpService {
   QueryInterface = ChromeUtils.generateQI(["nsINntpService"]);
 
-  getNewNews(server, uri, getOld, urlListener, msgWindow) {}
+  getNewNews(server, uri, getOld, urlListener, msgWindow) {
+    let client = new NntpClient(server, uri);
+    client.connect();
+
+    client.onOpen = () => {
+      client.getNewNews(getOld, urlListener, msgWindow);
+    };
+  }
 }
 
 NntpService.prototype.classID = Components.ID(
