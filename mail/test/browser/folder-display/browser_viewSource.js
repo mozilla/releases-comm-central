@@ -41,9 +41,6 @@ addToFolder("UTF-8 header/ISO-8859-1 body", "UTF-8", contentLatin1);
 addToFolder("UTF-8 header/UTF-8 body", "UTF-8", contentUTF8);
 
 be_in_folder(folder);
-// The very first load displays differently from all subsequent loads. Load a
-// message to get this out of the way. Bug 1718119.
-select_click_row(1);
 
 /** Header matches the body. Should be readable in both places. */
 add_task(async function latin1Header_with_latin1Body() {

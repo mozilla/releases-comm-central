@@ -310,7 +310,8 @@ NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
 
 nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString& name) {
   if (mDocHeader && (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer)) {
-    UtilityWriteCRLF("<html>");
+    // Start with a UTF-8 BOM so this can't be mistaken for another charset.
+    UtilityWriteCRLF("\xEF\xBB\xBF<html>");
     UtilityWriteCRLF("<head>");
 
     const char* val = GetHeaderValue(HEADER_SUBJECT);  // do not free this value
