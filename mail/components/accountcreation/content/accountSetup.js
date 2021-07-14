@@ -1099,67 +1099,71 @@ var gAccountSetup = {
       container.querySelector(".protocol-type").hidden = true;
 
       (async () => {
-        for (let addon of config.addons) {
-          let installer = new AddonInstaller(addon);
-          addon.isInstalled = await installer.isInstalled();
-        }
-
-        let addonInfoArea = document.getElementById("installAddonInfo");
-        let installedAddon = config.addons.find(addon => addon.isInstalled);
-
-        // The needed add-on is already installed, no need to show anything.
-        if (installedAddon) {
-          config.incoming.addonAccountType =
-            installedAddon.useType.addonAccountType;
-          addonInfoArea.hidden = true;
-          return;
-        }
-
-        addonInfoArea.hidden = false;
-
-        document.l10n.setAttributes(
-          document.getElementById("resultAddonIntro"),
-          !config.incomingAlternatives.find(alt =>
-            ["imap", "pop3"].includes(alt.type)
-          )
-            ? "account-setup-addon-install-intro"
-            : "account-setup-addon-no-protocol"
-        );
-
-        for (let addon of config.addons) {
-          // Creates and addon install section.
-          // <div><img/><a></a><button></button></div>
-          let container = document.createElement("div");
-          container.classList.add("addon-container");
-
-          let img = document.createElement("img");
-          img.alt = "";
-          img.classList.add("icon");
-          if (addon.icon32) {
-            img.setAttribute("src", addon.icon32);
+        try {
+          for (let addon of config.addons) {
+            let installer = new AddonInstaller(addon);
+            addon.isInstalled = await installer.isInstalled();
           }
 
-          let link = document.createElement("a");
-          link.classList.add("link");
-          link.setAttribute("href", addon.websiteURL);
-          link.textContent = addon.description;
+          let addonInfoArea = document.getElementById("installAddonInfo");
+          let installedAddon = config.addons.find(addon => addon.isInstalled);
 
-          let button = document.createElement("button");
+          // The needed add-on is already installed, no need to show anything.
+          if (installedAddon) {
+            config.incoming.addonAccountType =
+              installedAddon.useType.addonAccountType;
+            addonInfoArea.hidden = true;
+            return;
+          }
+
+          addonInfoArea.hidden = false;
+
           document.l10n.setAttributes(
-            button,
-            "account-setup-addon-install-title"
+            document.getElementById("resultAddonIntro"),
+            !config.incomingAlternatives.find(alt =>
+              ["imap", "pop3"].includes(alt.type)
+            )
+              ? "account-setup-addon-install-intro"
+              : "account-setup-addon-no-protocol"
           );
-          button.addEventListener("click", () => {
-            gAccountSetup.addonInstall(addon);
-          });
 
-          container.appendChild(img);
-          container.appendChild(link);
-          container.appendChild(button);
+          for (let addon of config.addons) {
+            // Creates and addon install section.
+            // <div><img/><a></a><button></button></div>
+            let container = document.createElement("div");
+            container.classList.add("addon-container");
 
-          addonsInstallRows.appendChild(container);
+            let img = document.createElement("img");
+            img.alt = "";
+            img.classList.add("icon");
+            if (addon.icon32) {
+              img.setAttribute("src", addon.icon32);
+            }
+
+            let link = document.createElement("a");
+            link.classList.add("link");
+            link.setAttribute("href", addon.websiteURL);
+            link.textContent = addon.description;
+
+            let button = document.createElement("button");
+            document.l10n.setAttributes(
+              button,
+              "account-setup-addon-install-title"
+            );
+            button.addEventListener("click", () => {
+              gAccountSetup.addonInstall(addon);
+            });
+
+            container.appendChild(img);
+            container.appendChild(link);
+            container.appendChild(button);
+
+            addonsInstallRows.appendChild(container);
+          }
+          document.getElementById("createButton").disabled = true;
+        } catch (e) {
+          this.showErrorNotification(e, true);
         }
-        document.getElementById("createButton").disabled = true;
       })();
       return;
     }
