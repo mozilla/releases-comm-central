@@ -603,7 +603,6 @@ var gAccountSetup = {
       },
       function(e, allErrors) {
         // all failed
-        self._abortable = null;
         if (e instanceof CancelledException) {
           self.onStartOver();
           return;
