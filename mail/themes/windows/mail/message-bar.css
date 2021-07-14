@@ -12,7 +12,7 @@
   #reminderBarPopup {
     appearance: none;
     -moz-window-shadow: cliprounded;
-    background-color: transparent;
+    background-color: var(--menu-background-color);
     border-color: transparent;
     border-radius: 3px;
     color: var(--menu-color);

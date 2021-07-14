@@ -290,16 +290,21 @@ button:-moz-locale-dir(rtl).button-menu-list {
 
 button.notification-button[type="menu-button"] {
   margin-inline: 6px;
+  padding-block: 0;
+  padding-inline-start: 0;
 }
 
 button[type="menu-button"] > .button-box > button {
-  margin-block: -5px;
-  margin-inline: -11px 2px;
-  min-height: auto;
+  margin-block: 0;
+  margin-inline: 0 2px;
+  min-height: 22px;
+  border-start-start-radius: 2px;
+  border-start-end-radius: 2px;
   border-start-end-radius: 0;
   border-end-end-radius: 0;
   padding-block: 2px;
   font-weight: inherit;
+  border-width: 0;
   border-inline-end: 1px solid var(--in-content-button-border);
 }
 
@@ -317,6 +322,8 @@ button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   -moz-context-properties: fill;
   fill: currentColor;
   margin-inline-end: -5px;
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
 }
 
 .close {

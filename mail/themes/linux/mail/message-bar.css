@@ -7,3 +7,7 @@
 .notification-button.small {
   padding-block: 2px;
 }
+
+#reminderBarPopup {
+  background-color: Menu;
+}
