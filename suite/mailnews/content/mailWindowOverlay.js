@@ -342,7 +342,8 @@ function InitMessageMenu()
   var msgFolder = GetLoadedMsgFolder();
   if(moveMenu)
   {
-      var enableMenuItem = aMessage && msgFolder && msgFolder.canDeleteMessages;
+      var enableMenuItem = !isNews && aMessage &&
+                           msgFolder && msgFolder.canDeleteMessages;
       moveMenu.setAttribute("disabled", !enableMenuItem);
   }
 
@@ -1250,11 +1251,13 @@ BatchMessageMover.prototype =
       // Make sure the target folder is visible in the folder tree.
       EnsureFolderIndex(gFolderTreeView, dstFolder);
 
+      let isNews = srcFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
+
       // If the source folder doesn't support deleting messages, we
       // make archive a copy, not a move.
       MailServices.copy.copyMessages(srcFolder, moveArray, dstFolder,
-                                     srcFolder.canDeleteMessages, this,
-                                     msgWindow, true);
+                                     srcFolder.canDeleteMessages && !isNews,
+                                     this, msgWindow, true);
       return; // continues with OnStopCopy
     }
     return this.processNextBatch();
