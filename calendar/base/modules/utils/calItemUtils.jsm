@@ -591,7 +591,6 @@ var calitem = {
    */
   setStaticProps(aIcalComponent) {
     // Throw for an invalid parameter
-    aIcalComponent = cal.wrapInstance(aIcalComponent, Ci.calIIcalComponent);
     if (!aIcalComponent) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }

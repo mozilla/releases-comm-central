@@ -476,11 +476,7 @@ CalCalendarManager.prototype = {
 
     // For deleting, we also call the deleteCalendar method from the provider.
     if (removeModes.has("delete") && (mode & cICM.REMOVE_NO_DELETE) == 0) {
-      let wrappedCalendar = cal.wrapInstance(calendar, Ci.calICalendarProvider);
-      if (!wrappedCalendar) {
-        throw new Components.Exception("Calendar is missing a provider implementation for delete");
-      }
-
+      let wrappedCalendar = calendar.QueryInterface(Ci.calICalendarProvider);
       wrappedCalendar.deleteCalendar(calendar, null);
     }
   },

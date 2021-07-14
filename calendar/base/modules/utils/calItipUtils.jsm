@@ -40,9 +40,8 @@ var calitip = {
   getSequence(aItem) {
     let seq = null;
 
-    let wrappedItem = cal.wrapInstance(aItem, Ci.calIAttendee);
-    if (wrappedItem) {
-      seq = wrappedItem.getProperty("RECEIVED-SEQUENCE");
+    if (calitip.isAttendee(aItem)) {
+      seq = aItem.getProperty("RECEIVED-SEQUENCE");
     } else if (aItem) {
       // Unless the below is standardized, we store the last original
       // REQUEST/PUBLISH SEQUENCE in X-MOZ-RECEIVED-SEQUENCE to test against it
@@ -76,9 +75,8 @@ var calitip = {
   getStamp(aItem) {
     let dtstamp = null;
 
-    let wrappedItem = cal.wrapInstance(aItem, Ci.calIAttendee);
-    if (wrappedItem) {
-      let stamp = wrappedItem.getProperty("RECEIVED-DTSTAMP");
+    if (calitip.isAttendee(aItem)) {
+      let stamp = aItem.getProperty("RECEIVED-DTSTAMP");
       if (stamp) {
         dtstamp = cal.createDateTime(stamp);
       }
@@ -914,6 +912,19 @@ var calitip = {
   },
 
   /**
+   * Tests whether the passed object is a calIAttendee instance. This function
+   * takes into consideration that the object may be be unwrapped and thus a
+   * CalAttendee instance
+   *
+   * @param {Object} val              The object to test.
+   *
+   * @return {boolean}
+   */
+  isAttendee(val) {
+    return val && (val instanceof Ci.calIAttendee || val instanceof CalAttendee);
+  },
+
+  /**
    * Shortcut function to check whether an item is an invitation copy.
    *
    * @param {calIItemBase} aItem      The item to check for an invitation.
@@ -937,8 +948,7 @@ var calitip = {
    *                                                or TENTATIVE
    */
   isOpenInvitation(aItem) {
-    let wrappedItem = cal.wrapInstance(aItem, Ci.calIAttendee);
-    if (!wrappedItem) {
+    if (!calitip.isAttendee(aItem)) {
       aItem = calitip.getInvitedAttendee(aItem);
     }
     if (aItem) {
@@ -1077,15 +1087,15 @@ var calitip = {
  * @param {calIItipItem} itipItemItem           The received iTIP item
  */
 function setReceivedInfo(item, itipItemItem) {
-  let wrappedItem = cal.wrapInstance(item, Ci.calIAttendee);
+  let isAttendee = calitip.isAttendee(item);
   item.setProperty(
-    wrappedItem ? "RECEIVED-SEQUENCE" : "X-MOZ-RECEIVED-SEQUENCE",
+    isAttendee ? "RECEIVED-SEQUENCE" : "X-MOZ-RECEIVED-SEQUENCE",
     String(calitip.getSequence(itipItemItem))
   );
   let dtstamp = calitip.getStamp(itipItemItem);
   if (dtstamp) {
     item.setProperty(
-      wrappedItem ? "RECEIVED-DTSTAMP" : "X-MOZ-RECEIVED-DTSTAMP",
+      isAttendee ? "RECEIVED-DTSTAMP" : "X-MOZ-RECEIVED-DTSTAMP",
       dtstamp.getInTimezone(cal.dtz.UTC).icalString
     );
   }
