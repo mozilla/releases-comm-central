@@ -700,9 +700,9 @@ var gAccountSetup = {
       );
       call.setAbortable(fetch);
     } catch (e) {
+      this.onStop();
       // e.g. when entering an invalid domain like "c@c.-com"
       this.showErrorNotification(e, true);
-      this.onStop();
     }
   },
 
