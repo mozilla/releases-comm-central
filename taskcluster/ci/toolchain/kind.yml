@@ -10,9 +10,7 @@ kind-dependencies:
     - packages
 
 reference-jobs:
-    - linux32-sysroot
     - linux64-aarch64-compiler-rt-12
-    - linux64-aarch64-sysroot
     - linux64-binutils
     - linux64-cbindgen
     - linux64-cctools-port-clang-11
@@ -55,7 +53,6 @@ reference-jobs:
     - linux64-rust-size
     - linux64-rust-windows-1.47
     - linux64-sccache
-    - linux64-sysroot
     - linux64-toolchain-sysroot
     - linux64-upx
     - linux64-winchecksec
@@ -67,6 +64,9 @@ reference-jobs:
     - macosx64-minidump-stackwalk
     - macosx64-node
     - mingw32-rust-1.51
+    - sysroot-aarch64-linux-gnu
+    - sysroot-i686-linux-gnu
+    - sysroot-x86_64-linux-gnu
     - wasi-sysroot
     - wasi-sysroot-11
     - wasi-sysroot-12
