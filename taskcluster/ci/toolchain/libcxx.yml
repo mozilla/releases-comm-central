@@ -28,4 +28,4 @@ linux64-clang-lib32cxx:
             - linux64-binutils
             - linux64-clang-12
             - linux64-gcc-7  # Use what linux64-clang uses
-            - linux32-sysroot
+            - sysroot-i686-linux-gnu

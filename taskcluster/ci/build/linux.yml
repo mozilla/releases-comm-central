@@ -41,7 +41,7 @@ linux64/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
-            - linux64-sysroot
+            - sysroot-x86_64-linux-gnu
 
 linux64-shippable/opt:
     description: "Linux64 Shippable"
@@ -88,7 +88,7 @@ linux64-shippable/opt:
             - linux64-node
             - linux64-rust
             - linux64-rust-size
-            - linux64-sysroot
+            - sysroot-x86_64-linux-gnu
 
 linux64/debug:
     description: "Linux64 Debug"
@@ -131,7 +131,7 @@ linux64/debug:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
-            - linux64-sysroot
+            - sysroot-x86_64-linux-gnu
 
 linux64-asan/opt:
     description: "Linux64 Opt ASAN"
@@ -179,7 +179,7 @@ linux64-asan/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
-            - linux64-sysroot
+            - sysroot-x86_64-linux-gnu
 
 linux64-tsan/opt:
     description: "Linux64 Opt TSAN"
@@ -227,7 +227,7 @@ linux64-tsan/opt:
             - linux64-rust-dev
             - linux64-rust-size
             - linux64-sccache
-            - linux64-sysroot
+            - sysroot-x86_64-linux-gnu
 
 linux64-aarch64/opt:
     description: "Linux64 aarch64 Opt"
@@ -265,7 +265,6 @@ linux64-aarch64/opt:
     fetches:
         toolchain:
             - linux-aarch64-libotr
-            - linux64-aarch64-sysroot
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang-aarch64-cross
@@ -274,6 +273,7 @@ linux64-aarch64/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - sysroot-aarch64-linux-gnu
 
 linux/opt:
     description: "Linux32 Opt"
@@ -313,7 +313,7 @@ linux/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
-            - linux32-sysroot
+            - sysroot-i686-linux-gnu
 
 linux-shippable/opt:
     description: "Linux32 Shippable"
@@ -361,7 +361,7 @@ linux-shippable/opt:
             - linux64-node
             - linux64-rust
             - linux64-rust-size
-            - linux32-sysroot
+            - sysroot-i686-linux-gnu
 
 linux/debug:
     description: "Linux32 Debug"
@@ -403,4 +403,4 @@ linux/debug:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
-            - linux32-sysroot
+            - sysroot-i686-linux-gnu
