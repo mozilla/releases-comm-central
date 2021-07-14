@@ -29,7 +29,7 @@ reference-jobs:
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
     - linux64-clang-win-cross
-    - linux64-dump-syms
+    - linux64-dump_syms
     - linux64-fix-stacks
     - linux64-gcc
     - linux64-gcc-7
@@ -76,7 +76,7 @@ reference-jobs:
     - win64-cbindgen
     - win64-clang
     - win64-clang-12-2stage
-    - win64-dump-syms
+    - win64-dump_syms
     - win64-llvm-symbolizer
     - win64-mozmake
     - win64-pdbstr

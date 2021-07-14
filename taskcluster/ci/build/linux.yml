@@ -34,7 +34,7 @@ linux64/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux64-libotr
             - linux64-nasm
             - linux64-node
@@ -82,7 +82,7 @@ linux64-shippable/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux64-libotr
             - linux64-nasm
             - linux64-node
@@ -124,7 +124,7 @@ linux64/debug:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux64-libotr
             - linux64-nasm
             - linux64-node
@@ -171,7 +171,7 @@ linux64-asan/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux64-llvm-symbolizer
             - linux64-libotr
             - linux64-nasm
@@ -219,7 +219,7 @@ linux64-tsan/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux64-llvm-symbolizer
             - linux64-libotr
             - linux64-nasm
@@ -269,7 +269,7 @@ linux64-aarch64/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang-aarch64-cross
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux64-node
             - linux64-rust
             - linux64-rust-size
@@ -306,7 +306,7 @@ linux/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-clang-lib32cxx
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux32-libotr
             - linux64-nasm
             - linux64-node
@@ -355,7 +355,7 @@ linux-shippable/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-clang-lib32cxx
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux32-libotr
             - linux64-nasm
             - linux64-node
@@ -396,7 +396,7 @@ linux/debug:
             - linux64-cbindgen
             - linux64-clang
             - linux64-clang-lib32cxx
-            - linux64-dump-syms
+            - linux64-dump_syms
             - linux32-libotr
             - linux64-nasm
             - linux64-node
