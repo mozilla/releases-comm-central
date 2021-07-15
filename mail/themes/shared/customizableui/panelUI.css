@@ -211,6 +211,10 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
   display: none;
 }
 
+menuitem.subviewbutton {
+  appearance: none !important;
+}
+
 .subview-subheader,
 panelview .toolbarbutton-1,
 .subviewbutton,
@@ -229,8 +233,11 @@ panelview .toolbarbutton-1,
 }
 
 .subviewbutton[disabled="true"],
-.subviewbutton[checked="true"][disabled="true"] {
+.subviewbutton[disabled="true"]:hover,
+.subviewbutton[checked="true"][disabled="true"],
+.subviewbutton[checked="true"][disabled="true"]:hover {
   color: var(--panel-description-color);
+  background-color: transparent;
 }
 
 .subviewbutton > .toolbarbutton-text {

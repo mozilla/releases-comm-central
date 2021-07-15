@@ -4,10 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/customizableui/panelUI.css");
 
-menuitem.subviewbutton {
-  appearance: none !important;
-}
-
 .subviewradio > .radio-label-box {
   appearance: none;
 }

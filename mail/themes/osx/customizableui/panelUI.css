@@ -12,20 +12,20 @@
   display: none;
 }
 
-.subviewbutton.download {
-  padding-inline-start: 14px;
-}
-
 panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
-  width: 42px; /* 18px toolbarbutton padding + 16px icon + 8px label padding start */
+  /* 8px + 18px toolbarbutton margin start/padding + 16px icon + 4px label padding start */
+  width: 46px;
 }
 
-.subviewbutton:not([image],[targetURI],.bookmark-item) > .menu-iconic-left {
-  display: none;
+menuitem.subviewbutton-iconic > .menu-iconic-left > .menu-iconic-icon {
+  width: 16px;
 }
 
-/* Override OSX-specific toolkit styles for the bookmarks panel */
-menu.subviewbutton > .menu-right {
+menuitem.subviewbutton > .menu-text {
+  margin-inline-start: 16px !important;
+}
+
+menuitem.subviewbutton > .menu-right {
   margin-inline-end: -4px;
   appearance: none;
 }

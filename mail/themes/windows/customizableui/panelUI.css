@@ -34,3 +34,35 @@ menuitem.subviewbutton[disabled]:not(.menuitem-iconic) {
     color: HighlightText;
   }
 }
+
+@media (-moz-windows-non-native-menus: 0) {
+  menupopup[type="arrow"] {
+    appearance: none;
+    -moz-window-shadow: cliprounded;
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+  }
+
+  menuitem.subviewbutton[type="checkbox"] > .menu-iconic-left {
+    appearance: none;
+  }
+
+  menuitem.subviewbutton > .menu-text {
+    appearance: none;
+  }
+
+  menuitem.subviewbutton-iconic > .menu-iconic-left > .menu-iconic-icon {
+    display: block;
+  }
+
+  menupopup[type="arrow"]::part(content) {
+    /* Prevent contained items from drawing over the border-radius. */
+    overflow: clip;
+    padding: 8px 0;
+    color: var(--arrowpanel-color);
+    background: var(--arrowpanel-background);
+    border-radius: var(--arrowpanel-border-radius);
+    border: 1px solid var(--arrowpanel-border-color);
+  }
+}
