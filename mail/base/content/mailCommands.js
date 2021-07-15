@@ -263,17 +263,18 @@ async function ComposeMessage(type, format, folder, messageArray) {
             ]);
 
             let buttonFlags =
-              Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_0 +
-              Ci.nsIPrompt.BUTTON_TITLE_IS_STRING * Ci.nsIPrompt.BUTTON_POS_1;
+              Ci.nsIPrompt.BUTTON_TITLE_IS_STRING * Ci.nsIPrompt.BUTTON_POS_0 +
+              Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_1 +
+              Ci.nsIPrompt.BUTTON_POS_1_DEFAULT;
 
             if (
-              !Services.prompt.confirmEx(
+              Services.prompt.confirmEx(
                 window,
                 title,
                 message,
                 buttonFlags,
-                null, // cancel
                 replyAnywayButton,
+                null, // cancel
                 null,
                 null,
                 {}
