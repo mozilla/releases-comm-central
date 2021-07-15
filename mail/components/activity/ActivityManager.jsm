@@ -79,7 +79,13 @@ ActivityManager.prototype = {
   },
 
   removeActivity(aID) {
-    let activity = this.getActivity(aID);
+    let activity;
+    try {
+      activity = this.getActivity(aID);
+    } catch (e) {
+      this.log.error("Exception: " + e);
+      throw e;
+    }
 
     // make sure that the activity is not in-progress state
     if (

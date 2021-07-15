@@ -253,6 +253,8 @@ var autosyncModule = {
             // that we add activities into the activity manager in
             // onDownloadStarted notification rather than onFolderAddedIntoQ.
             // This is an expected side effect.
+            // Log a warning, but do not throw an error.
+            this.log.warn("onFolderRemovedFromQ: " + e);
           }
 
           // remove the folder/syncItem association from the table
