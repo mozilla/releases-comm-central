@@ -7,6 +7,7 @@ var EXPORTED_SYMBOLS = ["MessengerContentHandler"];
 
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -380,6 +381,29 @@ MailDefaultHandler.prototype = {
         let file = cmdLine.resolveFile(uri);
         // No point in trying to open a file if it doesn't exist or is empty
         if (file.exists() && file.fileSize > 0) {
+          // Read this eml and extract its headers to check for X-Unsent.
+          let fstream = null;
+          let headers = new Map();
+          try {
+            fstream = Cc[
+              "@mozilla.org/network/file-input-stream;1"
+            ].createInstance(Ci.nsIFileInputStream);
+            fstream.init(file, -1, 0, 0);
+            let data = NetUtil.readInputStreamToString(
+              fstream,
+              fstream.available()
+            );
+            headers = MimeParser.extractHeaders(data);
+          } catch (e) {
+            // Ignore errors on reading the eml or extracting its headers. The
+            // test for the X-Unsent header below will fail and the message
+            // window will take care of any error handling.
+          } finally {
+            if (fstream) {
+              fstream.close();
+            }
+          }
+
           // Get the URL for this file
           let fileURL = Services.io
             .newFileURI(file)
@@ -389,13 +413,42 @@ MailDefaultHandler.prototype = {
             .setQuery("type=application/x-message-display")
             .finalize();
 
-          Services.ww.openWindow(
-            null,
-            "chrome://messenger/content/messageWindow.xhtml",
-            "_blank",
-            "all,chrome,dialog=no,status,toolbar",
-            fileURL
-          );
+          if (headers.get("X-Unsent") == "1") {
+            let win = Services.wm.getMostRecentWindow("mail:3pane");
+            if (!win) {
+              let argstring = Cc[
+                "@mozilla.org/supports-string;1"
+              ].createInstance(Ci.nsISupportsString);
+              Services.ww.openWindow(
+                null,
+                "chrome://messenger/content/messenger.xhtml",
+                "_blank",
+                "chrome,dialog=no,all",
+                argstring
+              );
+            }
+            let msgWindow = Cc[
+              "@mozilla.org/messenger/msgwindow;1"
+            ].createInstance(Ci.nsIMsgWindow);
+            MailServices.compose.OpenComposeWindow(
+              null,
+              {},
+              fileURL.spec,
+              Ci.nsIMsgCompType.Draft,
+              Ci.nsIMsgCompFormat.Default,
+              null,
+              headers.get("from"),
+              msgWindow
+            );
+          } else {
+            Services.ww.openWindow(
+              null,
+              "chrome://messenger/content/messageWindow.xhtml",
+              "_blank",
+              "all,chrome,dialog=no,status,toolbar",
+              fileURL
+            );
+          }
           cmdLine.preventDefault = true;
         } else {
           let bundle = Services.strings.createBundle(

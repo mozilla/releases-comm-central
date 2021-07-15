@@ -24,6 +24,7 @@ var { GlodaSyntheticView } = ChromeUtils.import(
 );
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -2430,19 +2431,61 @@ function MsgOpenFromFile() {
     if (rv != nsIFilePicker.returnOK || !fp.file) {
       return;
     }
-    let uri = fp.fileURL.QueryInterface(Ci.nsIURL);
-    uri = uri
-      .mutate()
-      .setQuery("type=application/x-message-display")
-      .finalize();
+    MsgOpenEMLFile(fp.file, fp.fileURL);
+  });
+}
 
+/**
+ * Open the given .eml file.
+ */
+function MsgOpenEMLFile(aFile, aURL) {
+  let url = aURL
+    .mutate()
+    .setQuery("type=application/x-message-display")
+    .finalize();
+
+  let fstream = null;
+  let headers = new Map();
+  // Read this eml and extract its headers to check for X-Unsent.
+  try {
+    fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+      Ci.nsIFileInputStream
+    );
+    fstream.init(aFile, -1, 0, 0);
+    let data = NetUtil.readInputStreamToString(fstream, fstream.available());
+    headers = MimeParser.extractHeaders(data);
+  } catch (e) {
+    // Ignore errors on reading the eml or extracting its headers. The test for
+    // the X-Unsent header below will fail and the message window will take care
+    // of any error handling.
+  } finally {
+    if (fstream) {
+      fstream.close();
+    }
+  }
+
+  if (headers.get("X-Unsent") == "1") {
+    let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+      Ci.nsIMsgWindow
+    );
+    MailServices.compose.OpenComposeWindow(
+      null,
+      {},
+      url.spec,
+      Ci.nsIMsgCompType.Draft,
+      Ci.nsIMsgCompFormat.Default,
+      null,
+      headers.get("from"),
+      msgWindow
+    );
+  } else {
     window.openDialog(
       "chrome://messenger/content/messageWindow.xhtml",
       "_blank",
       "all,chrome,dialog=no,status,toolbar",
-      uri
+      url
     );
-  });
+  }
 }
 
 function MsgOpenNewWindowForMessage(aMsgHdr) {
