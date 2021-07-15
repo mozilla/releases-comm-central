@@ -3,6 +3,12 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 !macro PostUpdate
+  ; PostUpdate is called from both session 0 and from the user session
+  ; for service updates, make sure that we only register with the user session
+  ; Otherwise ApplicationID::Set can fail intermittently with a file in use error.
+  System::Call "kernel32::GetCurrentProcessId() i.r0"
+  System::Call "kernel32::ProcessIdToSessionId(i $0, *i ${NSIS_MAX_STRLEN} r9)"
+
   ${CreateShortcutsLog}
 
   ; Remove registry entries for non-existent apps and for apps that point to our
@@ -16,26 +22,21 @@
   ; setup the application model id registration value
   ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
 
-  ; Win7 taskbar and start menu link maintenance
-  Call FixShortcutAppModelIDs
-
   ; Upgrade the copies of the MAPI DLL's
   ${UpgradeMapiDLLs}
 
   ClearErrors
   WriteRegStr HKLM "Software\Mozilla" "${BrandShortName}InstallerTest" "Write Test"
   ${If} ${Errors}
-    StrCpy $TmpVal "HKCU" ; used primarily for logging
+    StrCpy $TmpVal "HKCU"
   ${Else}
     SetShellVarContext all    ; Set SHCTX to all users (e.g. HKLM)
     DeleteRegValue HKLM "Software\Mozilla" "${BrandShortName}InstallerTest"
-    StrCpy $TmpVal "HKLM" ; used primarily for logging
+    StrCpy $TmpVal "HKLM"
     ${RegCleanMain} "Software\Mozilla"
     ${RegCleanUninstall}
     ${UpdateProtocolHandlers}
-
-    ; Win7 taskbar and start menu link maintenance
-    Call FixShortcutAppModelIDs
+    ${SetAppLSPCategories} ${LSP_CATEGORIES}
 
     ; Only update the Clients\Mail registry key values if they don't exist or
     ; this installation is the same as the one set in those keys.
@@ -74,27 +75,30 @@
     ${EndIf}
   ${EndIf}
 
-  ; Migrate the application's Start Menu directory to a single shortcut in the
-  ; root of the Start Menu Programs directory.
-  ${MigrateStartMenuShortcut}
-
-  ; Update lastwritetime of the Start Menu shortcut to clear the tile cache.
-  ; Do this for both shell contexts in case the user has shortcuts in multiple
-  ; locations, then restore the previous context at the end.
-  ${If} ${AtLeastWin8}
-    SetShellVarContext all
-    ${TouchStartMenuShortcut}
-    SetShellVarContext current
-    ${TouchStartMenuShortcut}
-    ${If} $TmpVal == "HKLM"
-      SetShellVarContext all
-    ${ElseIf} $TmpVal == "HKCU"
-      SetShellVarContext current
-    ${EndIf}
-  ${EndIf}
-
   ; Adds a pinned Task Bar shortcut (see MigrateTaskBarShortcut for details).
   ${MigrateTaskBarShortcut}
+
+  ; Update the name/icon/AppModelID of our shortcuts as needed, then update the
+  ; lastwritetime of the Start Menu shortcut to clear the tile icon cache.
+  ; Do this for both shell contexts in case the user has shortcuts in multiple
+  ; locations, then restore the previous context at the end.
+  SetShellVarContext all
+  ${UpdateShortcutsBranding}
+  ${If} ${AtLeastWin8}
+    ${TouchStartMenuShortcut}
+  ${EndIf}
+  Call FixShortcutAppModelIDs
+  SetShellVarContext current
+  ${UpdateShortcutsBranding}
+  ${If} ${AtLeastWin8}
+    ${TouchStartMenuShortcut}
+  ${EndIf}
+  Call FixShortcutAppModelIDs
+  ${If} $TmpVal == "HKLM"
+    SetShellVarContext all
+  ${ElseIf} $TmpVal == "HKCU"
+    SetShellVarContext current
+  ${EndIf}
 
   ${RemoveDeprecatedKeys}
   ${Set32to64DidMigrateReg}
@@ -105,6 +109,8 @@
   ; Remove files that may be left behind by the application in the
   ; VirtualStore directory.
   ${CleanVirtualStore}
+
+  RmDir /r /REBOOTOK "$INSTDIR\${TO_BE_DELETED}"
 
   ; Register AccessibleHandler.dll with COM (this requires write access to HKLM)
   ${RegisterAccessibleHandler}
@@ -163,7 +169,7 @@
 !define PostUpdate "!insertmacro PostUpdate"
 
 ; Update the last modified time on the Start Menu shortcut, so that its icon
-; gets refreshed. Should be called on Win8+ after MigrateStartMenuShortcut.
+; gets refreshed. Should be called on Win8+ after UpdateShortcutBranding.
 !macro TouchStartMenuShortcut
   ${If} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
     FileOpen $0 "$SMPROGRAMS\${BrandFullName}.lnk" a
@@ -329,6 +335,51 @@
   ${EndUnless}
 !macroend
 !define ShowShortcuts "!insertmacro ShowShortcuts"
+
+; Update the branding name on all shortcuts our installer created
+; to convert from BrandFullName (which is what we used to name shortcuts)
+; to BrandShortName (which is what we now name shortcuts). We only rename
+; desktop and start menu shortcuts, because touching taskbar pins often
+; (but inconsistently) triggers various broken behaviors in the shell.
+; This assumes SHCTX is set correctly.
+!macro UpdateShortcutsBranding
+  ${UpdateOneShortcutBranding} "STARTMENU" "$SMPROGRAMS"
+  ${UpdateOneShortcutBranding} "DESKTOP" "$DESKTOP"
+!macroend
+!define UpdateShortcutsBranding "!insertmacro UpdateShortcutsBranding"
+
+!macro UpdateOneShortcutBranding LOG_SECTION SHORTCUT_DIR
+  ; Only try to rename the shortcuts found in the shortcuts log, to avoid
+  ; blowing away a name that the user created.
+  ${GetLongPath} "$INSTDIR\uninstall\${SHORTCUTS_LOG}" $R9
+  ${If} ${FileExists} "$R9"
+    ClearErrors
+    ; The shortcuts log contains a numbered list of entries for each section,
+    ; but we never actually create more than one.
+    ReadINIStr $R8 "$R9" "${LOG_SECTION}" "Shortcut0"
+    ${IfNot} ${Errors}
+      ${If} ${FileExists} "${SHORTCUT_DIR}\$R8"
+        ShellLink::GetShortCutTarget "${SHORTCUT_DIR}\$R8"
+        Pop $R7
+        ${GetLongPath} "$R7" $R7
+        ${If} $R7 == "$INSTDIR\${FileMainEXE}"
+        ${AndIf} $R8 != "${BrandShortName}.lnk"
+        ${AndIfNot} ${FileExists} "${SHORTCUT_DIR}\${BrandShortName}.lnk"
+          ClearErrors
+          Rename "${SHORTCUT_DIR}\$R8" "${SHORTCUT_DIR}\${BrandShortName}.lnk"
+          ${IfNot} ${Errors}
+            ; Update the shortcut log manually instead of calling LogShortcut
+            ; because it would add a Shortcut1 entry, and we really do want to
+            ; overwrite the existing entry 0, since we just renamed the file.
+            WriteINIStr "$R9" "${LOG_SECTION}" "Shortcut0" \
+                        "${BrandShortName}.lnk"
+          ${EndIf}
+        ${EndIf}
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
+!macroend
+!define UpdateOneShortcutBranding "!insertmacro UpdateOneShortcutBranding"
 
 !macro SetHandlersMail
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
@@ -963,19 +1014,51 @@
     ${If} ${Errors}
       ClearErrors
       WriteIniStr "$0" "TASKBAR" "Migrated" "true"
+      WriteRegDWORD HKCU \
+        "Software\Mozilla\${AppName}\Installer\$AppUserModelID" \
+        "WasPinnedToTaskbar" 1
       ${If} ${AtLeastWin7}
-        ; No need to check the default on Win8 and later
-        ${If} ${AtMostWin2008R2}
-          ; Check if the Thunderbird is the mailto handler for this user
-          SetShellVarContext current ; Set SHCTX to the current user
-          ${IsHandlerForInstallDir} "mailto" $R9
-          ${If} $TmpVal == "HKLM"
-            SetShellVarContext all ; Set SHCTX to all users
+        ; If we didn't run the stub installer, AddTaskbarSC will be empty.
+        ; We determine whether to pin based on whether we're the default
+        ; browser, or if we're on win8 or later, we always pin.
+        ${If} $AddTaskbarSC == ""
+          ; No need to check the default on Win8 and later
+          ${If} ${AtMostWin2008R2}
+            ; Check if the Thunderbird is the mailto handler for this user
+            SetShellVarContext current ; Set SHCTX to the current user
+            ${IsHandlerForInstallDir} "mailto" $R9
+            ${If} $TmpVal == "HKLM"
+              SetShellVarContext all ; Set SHCTX to all users
+            ${EndIf}
           ${EndIf}
-        ${EndIf}
-        ${If} "$R9" == "true"
-        ${OrIf} ${AtLeastWin8}
+          ${If} "$R9" == "true"
+          ${OrIf} ${AtLeastWin8}
+            ${PinToTaskBar}
+          ${EndIf}
+        ${ElseIf} $AddTaskbarSC == "1"
           ${PinToTaskBar}
+        ${EndIf}
+      ${EndIf}
+    ${ElseIf} ${AtLeastWin10}
+      ${GetInstallerRegistryPref} "Software\Mozilla\${AppName}" \
+        "installer.taskbarpin.win10.enabled" $2
+      ${If} $2 == "true"
+        ; On Windows 10, we may have previously tried to make a taskbar pin
+        ; and failed because the API we tried to use was blocked by the OS.
+        ; We have an option that works in more cases now, so we're going to try
+        ; again, but also record that we've done so by writing a particular
+        ; registry value, so that we don't continue to do this repeatedly.
+        ClearErrors
+        ReadRegDWORD $2 HKCU \
+            "Software\Mozilla\${AppName}\Installer\$AppUserModelID" \
+            "WasPinnedToTaskbar"
+        ${If} ${Errors}
+          WriteRegDWORD HKCU \
+            "Software\Mozilla\${AppName}\Installer\$AppUserModelID" \
+            "WasPinnedToTaskbar" 1
+          ${If} $AddTaskbarSC != "0"
+            ${PinToTaskBar}
+          ${EndIf}
         ${EndIf}
       ${EndIf}
     ${EndIf}
@@ -1074,56 +1157,6 @@
   ${EndIf}
 !macroend
 !define PinToTaskBar "!insertmacro PinToTaskBar"
-
-; Adds a shortcut to the root of the Start Menu Programs directory if the
-; application's Start Menu Programs directory exists with a shortcut pointing to
-; this installation directory. This will also remove the old shortcuts and the
-; application's Start Menu Programs directory by calling the RemoveStartMenuDir
-; macro.
-!macro MigrateStartMenuShortcut
-  ${GetShortcutsLogPath} $0
-  ${If} ${FileExists} "$0"
-    ClearErrors
-    ReadINIStr $5 "$0" "SMPROGRAMS" "RelativePathToDir"
-    ${Unless} ${Errors}
-      ClearErrors
-      ReadINIStr $1 "$0" "STARTMENU" "Shortcut0"
-      ${If} ${Errors}
-        ; The STARTMENU ini section doesn't exist.
-        ${LogStartMenuShortcut} "${BrandFullName}.lnk"
-        ${GetLongPath} "$SMPROGRAMS" $2
-        ${GetLongPath} "$2\$5" $1
-        ${If} "$1" != ""
-          ClearErrors
-          ReadINIStr $3 "$0" "SMPROGRAMS" "Shortcut0"
-          ${Unless} ${Errors}
-            ${If} ${FileExists} "$1\$3"
-              ShellLink::GetShortCutTarget "$1\$3"
-              Pop $4
-              ${If} "$INSTDIR\${FileMainEXE}" == "$4"
-                CreateShortCut "$SMPROGRAMS\${BrandFullName}.lnk" \
-                               "$INSTDIR\${FileMainEXE}"
-                ${If} ${FileExists} "$SMPROGRAMS\${BrandFullName}.lnk"
-                  ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\${BrandFullName}.lnk" \
-                                                         "$INSTDIR"
-                  ${If} ${AtLeastWin7}
-                  ${AndIf} "$AppUserModelID" != ""
-                    ApplicationID::Set "$SMPROGRAMS\${BrandFullName}.lnk" \
-                                       "$AppUserModelID" "true"
-                  ${EndIf}
-                ${EndIf}
-              ${EndIf}
-            ${EndIf}
-          ${EndUnless}
-        ${EndIf}
-      ${EndIf}
-      ; Remove the application's Start Menu Programs directory, shortcuts, and
-      ; ini section.
-      ${RemoveStartMenuDir}
-    ${EndUnless}
-  ${EndIf}
-!macroend
-!define MigrateStartMenuShortcut "!insertmacro MigrateStartMenuShortcut"
 
 ; Removes the application's start menu directory along with its shortcuts if
 ; they exist and if they exist creates a start menu shortcut in the root of the
