@@ -868,7 +868,10 @@ var ExtensionsUI = {
         let extension = ExtensionParent.GlobalManager.getExtension(
           info.addon.id
         );
-        if (!strings.msgs.length || extension.manifest.experiment_apis) {
+        if (
+          !strings.msgs.length ||
+          (extension && extension.manifest.experiment_apis)
+        ) {
           info.resolve();
           return;
         }
@@ -939,7 +942,10 @@ var ExtensionsUI = {
       // If we don't prompt for any new permissions, just apply it. Skip prompts
       // also, if this add-on already has full access via experiment_apis.
       let extension = ExtensionParent.GlobalManager.getExtension(info.addon.id);
-      if (!strings.msgs.length || extension.manifest.experiment_apis) {
+      if (
+        !strings.msgs.length ||
+        (extension && extension.manifest.experiment_apis)
+      ) {
         info.resolve();
         return;
       }
