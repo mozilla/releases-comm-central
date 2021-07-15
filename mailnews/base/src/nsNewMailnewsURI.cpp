@@ -57,6 +57,7 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     };
     nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
     mozilla::SyncRunnable::DispatchToThread(mozilla::GetMainThreadEventTarget(),
+                                            task);
   }
   if (scheme.EqualsLiteral("smtp") || scheme.EqualsLiteral("smtps")) {
     return nsSmtpService::NewSmtpURI(aSpec, aCharset, aBaseURI, aURI);
