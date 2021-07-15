@@ -579,13 +579,13 @@ button {
   box-shadow: none;
 }
 
-button:not([disabled="true"]):hover {
+button:is(:not([disabled="true"],[disabled="disabled"])):hover {
   border-color: var(--button-border-color);
   background-color: var(--button-hover-bgcolor);
 }
 
-button:not([disabled="true"])[open="true"],
-button:not([disabled="true"]):hover:active {
+button:is(:not([disabled="true"],[disabled="disabled"]))[open="true"],
+button:is(:not([disabled="true"],[disabled="disabled"])):hover:active {
   border-color: var(--button-border-color);
   background-color: var(--button-active-bgcolor);
 }
