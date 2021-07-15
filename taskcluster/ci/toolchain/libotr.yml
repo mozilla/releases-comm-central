@@ -27,7 +27,7 @@ linux32-libotr:
         toolchain:
             - linux64-clang
             - linux64-binutils
-            - sysroot-i686-linux-gnu
+            - linux64-toolchain-sysroot
 
 linux64-libotr:
     treeherder:
@@ -38,7 +38,7 @@ linux64-libotr:
         toolchain:
             - linux64-clang
             - linux64-binutils
-            - sysroot-x86_64-linux-gnu
+            - linux64-toolchain-sysroot
 
 linux-aarch64-libotr:
     treeherder:
@@ -50,7 +50,7 @@ linux-aarch64-libotr:
         toolchain:
             - linux64-clang-aarch64-cross
             - linux64-binutils
-            - sysroot-aarch64-linux-gnu
+            - linux64-toolchain-sysroot
 
 macosx64-x64-libotr:
     treeherder:
