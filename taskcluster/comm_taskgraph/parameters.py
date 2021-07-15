@@ -32,7 +32,7 @@ PER_PROJECT_PARAMETERS = {
         "target_tasks_method": "try_tasks",
     },
     "comm-central": {
-        "target_tasks_method": "default",
+        "target_tasks_method": "comm_central_tasks",
         "release_type": "nightly",
     },
     "comm-beta": {
