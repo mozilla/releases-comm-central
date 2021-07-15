@@ -571,7 +571,7 @@ function customizeMailToolbarForTabType() {
 function initViewCalendarPaneMenu() {
   let calSidebar = document.getElementById("calSidebar");
 
-  document.getElementById("calViewCalendarPane").checked = !calSidebar.collapsed;
+  document.getElementById("calViewCalendarPane").setAttribute("checked", !calSidebar.collapsed);
 
   if (document.getElementById("appmenu_calViewCalendarPane")) {
     document.getElementById("appmenu_calViewCalendarPane").checked = !calSidebar.collapsed;
