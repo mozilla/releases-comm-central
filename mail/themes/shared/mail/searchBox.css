@@ -77,13 +77,33 @@
   border-color: var(--toolbar-field-focus-border-color);
 }
 
-:root[lwt-selection] .gloda-search::selection,
-:root[lwt-selection] #searchBox .textbox-input:-moz-lwtheme::selection,
-:root[lwt-selection] #peopleSearchInput .textbox-input:-moz-lwtheme::selection,
-:root[lwt-selection] .themeableSearchBox .textbox-input:-moz-lwtheme::selection,
-:root[lwt-selection] .remote-gloda-search .textbox-input:-moz-lwtheme::selection {
-  background-color: var(--lwt-toolbar-field-highlight, Highlight);
-  color: var(--lwt-toolbar-field-highlight-text, HighlightText);
+.gloda-search:-moz-lwtheme::selection,
+#searchBox .textbox-input:-moz-lwtheme::selection,
+#peopleSearchInput .textbox-input:-moz-lwtheme::selection,
+.themeableSearchBox .textbox-input:-moz-lwtheme::selection,
+.remote-gloda-search .textbox-input:-moz-lwtheme::selection {
+  background-color: var(--lwt-toolbar-field-highlight, -moz-system-color(text-select-background, light));
+  color: var(--lwt-toolbar-field-highlight-text, -moz-system-color(text-select-foreground, light));
+}
+
+:root[lwt-toolbar-field-focus-brighttext] .gloda-search:focus::selection,
+:root[lwt-toolbar-field-focus-brighttext] #searchBox[focused="true"] .textbox-input::selection,
+:root[lwt-toolbar-field-focus-brighttext] #peopleSearchInput[focused="true"] .textbox-input::selection,
+:root[lwt-toolbar-field-focus-brighttext] .themeableSearchBox:focus .textbox-input::selection,
+:root[lwt-toolbar-field-focus-brighttext] .themeableSearchBox[focused="true"] .textbox-input::selection,
+:root[lwt-toolbar-field-focus-brighttext] .remote-gloda-search[focused="true"] .textbox-input::selection {
+  background-color: var(--lwt-toolbar-field-highlight, -moz-system-color(text-select-background, dark));
+  color: var(--lwt-toolbar-field-highlight-text, -moz-system-color(text-select-foreground, dark));
+}
+
+:root[lwt-toolbar-field-brighttext] .gloda-search:not(:focus)::selection,
+:root[lwt-toolbar-field-brighttext] #searchBox:not([focused="true"]) .textbox-input::selection,
+:root[lwt-toolbar-field-brighttext] #peopleSearchInput:not([focused="true"]) .textbox-input::selection,
+:root[lwt-toolbar-field-brighttext] .themeableSearchBox:not(:focus) .textbox-input::selection,
+:root[lwt-toolbar-field-brighttext] .themeableSearchBox:not([focused="true"]) .textbox-input::selection,
+:root[lwt-toolbar-field-brighttext] .remote-gloda-search:not([focused="true"]) .textbox-input::selection {
+  background-color: var(--lwt-toolbar-field-highlight, -moz-system-color(text-select-background-disabled, dark));
+  color: var(--lwt-toolbar-field-highlight-text, -moz-system-color(text-select-foreground, dark));
 }
 
 #PopupGlodaAutocomplete {
