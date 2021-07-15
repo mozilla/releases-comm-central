@@ -17,7 +17,11 @@ var systemOS = Services.appinfo.OS.toLowerCase();
 var abi = ctypes.default_abi;
 
 // Default libary paths to look for on macOS
-const ADDITIONAL_LIB_PATHS = ["/usr/local/lib", "/opt/local/lib"];
+const ADDITIONAL_LIB_PATHS = [
+  "/usr/local/lib",
+  "/opt/local/lib",
+  "/opt/homebrew/lib",
+];
 
 // Open libgpgme. Determine the path to the chrome directory and look for it
 // there first. If not, fallback to searching the standard locations.
