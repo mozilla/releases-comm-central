@@ -46,8 +46,6 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
  protected:
   virtual ~nsAbLDAPDirectory();
 
-  nsresult StopSearch();
-
   int32_t mContext;
   nsCOMPtr<nsIAbDirectoryQuery> mDirectoryQuery;
 };

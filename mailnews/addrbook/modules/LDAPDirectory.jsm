@@ -159,13 +159,10 @@ class LDAPDirectory extends AddrBookDirectory {
       this.replicationDB.search(queryString, searchString, listener);
       return;
     }
-    if (!this._query) {
-      this._query = Cc[
-        "@mozilla.org/addressbook/ldap-directory-query;1"
-      ].createInstance(Ci.nsIAbDirectoryQuery);
-    }
+    this._query = Cc[
+      "@mozilla.org/addressbook/ldap-directory-query;1"
+    ].createInstance(Ci.nsIAbDirectoryQuery);
 
-    this.stopSearch();
     let args = Cc[
       "@mozilla.org/addressbook/directory/query-arguments;1"
     ].createInstance(Ci.nsIAbDirectoryQueryArguments);
@@ -174,11 +171,7 @@ class LDAPDirectory extends AddrBookDirectory {
     args.typeSpecificArg = this.attributeMap;
 
     let maxHits = this.getIntValue("maxHits", 100);
-    this._queryContext = this._query.doQuery(this, args, listener, maxHits, 0);
-  }
-
-  stopSearch() {
-    this._query.stopQuery(this._queryContext);
+    this._query.doQuery(this, args, listener, maxHits, 0);
   }
 
   useForAutocomplete(identityKey) {

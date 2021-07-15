@@ -245,9 +245,6 @@ NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
     return directory->Search(query, searchString, listener);
   }
 
-  rv = StopSearch();
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIAbDirectoryQueryArguments> arguments =
       do_CreateInstance(NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -283,13 +280,6 @@ NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
   // Perform the query.
   return mDirectoryQuery->DoQuery(this, arguments, listener, maxHits, 0,
                                   &mContext);
-}
-
-nsresult nsAbLDAPDirectory::StopSearch() {
-  if (mDirectoryQuery) {
-    return mDirectoryQuery->StopQuery(mContext);
-  }
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbLDAPDirectory::GetSupportsMailingLists(
