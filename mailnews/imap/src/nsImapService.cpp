@@ -43,7 +43,6 @@
 #include "nsMsgI18N.h"
 #include "nsIOutputStream.h"
 #include "nsIInputStream.h"
-#include "nsISeekableStream.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIMsgParseMailMsgState.h"
 #include "nsMsgLocalCID.h"
@@ -1895,7 +1894,7 @@ nsresult nsImapService::OfflineAppendFromFile(
           nsIMsgOfflineImapOperation::kAppendDraft);  // ### do we care if it's
                                                       // a template?
       op->SetDestinationFolderURI(destFolderUri.get());
-      nsCOMPtr<nsIOutputStream> offlineStore;
+      nsCOMPtr<nsIOutputStream> outputStream;
       nsCOMPtr<nsIMsgPluggableStore> msgStore;
       nsCOMPtr<nsIMsgIncomingServer> dstServer;
       nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
@@ -1906,18 +1905,9 @@ nsresult nsImapService::OfflineAppendFromFile(
       rv = destDB->CreateNewHdr(fakeKey, getter_AddRefs(newMsgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = aDstFolder->GetOfflineStoreOutputStream(
-          newMsgHdr, getter_AddRefs(offlineStore));
+          newMsgHdr, getter_AddRefs(outputStream));
 
-      if (NS_SUCCEEDED(rv) && offlineStore) {
-        int64_t curOfflineStorePos = 0;
-        nsCOMPtr<nsISeekableStream> seekable = do_QueryInterface(offlineStore);
-        if (seekable)
-          seekable->Tell(&curOfflineStorePos);
-        else {
-          NS_ERROR("needs to be a random store!");
-          return NS_ERROR_FAILURE;
-        }
-
+      if (NS_SUCCEEDED(rv) && outputStream) {
         nsCOMPtr<nsIInputStream> inputStream;
         nsCOMPtr<nsIMsgParseMailMsgState> msgParser =
             do_CreateInstance(NS_PARSEMAILMSGSTATE_CONTRACTID, &rv);
@@ -1949,33 +1939,28 @@ nsresult nsImapService::OfflineAppendFromFile(
                 inputStream, numBytesInLine, needMoreData);
             if (newLine) {
               msgParser->ParseAFolderLine(newLine, numBytesInLine);
-              rv = offlineStore->Write(newLine, numBytesInLine, &bytesWritten);
+              rv = outputStream->Write(newLine, numBytesInLine, &bytesWritten);
               free(newLine);
             }
           } while (newLine);
           msgParser->FinishHeader();
 
-          nsCOMPtr<nsIMsgDBHdr> fakeHdr;
-          msgParser->GetNewMsgHdr(getter_AddRefs(fakeHdr));
-          if (fakeHdr) {
-            if (NS_SUCCEEDED(rv) && fakeHdr) {
-              uint32_t resultFlags;
-              fakeHdr->SetMessageOffset(curOfflineStorePos);
-              fakeHdr->OrFlags(
-                  nsMsgMessageFlags::Offline | nsMsgMessageFlags::Read,
-                  &resultFlags);
-              fakeHdr->SetOfflineMessageSize(fileSize);
-              destDB->AddNewHdrToDB(fakeHdr, true /* notify */);
-              aDstFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
-              if (msgStore) msgStore->FinishNewMessage(offlineStore, fakeHdr);
-            }
+          if (NS_SUCCEEDED(rv)) {
+            uint32_t resultFlags;
+            newMsgHdr->OrFlags(
+                nsMsgMessageFlags::Offline | nsMsgMessageFlags::Read,
+                &resultFlags);
+            newMsgHdr->SetOfflineMessageSize(fileSize);
+            destDB->AddNewHdrToDB(newMsgHdr, true /* notify */);
+            aDstFolder->SetFlag(nsMsgFolderFlags::OfflineEvents);
+            if (msgStore) msgStore->FinishNewMessage(outputStream, newMsgHdr);
           }
           // tell the listener we're done.
           inputStream->Close();
           inputStream = nullptr;
           aListener->OnStopRunningUrl(aUrl, NS_OK);
         }
-        offlineStore->Close();
+        outputStream->Close();
       }
     }
   }
