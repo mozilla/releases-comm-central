@@ -2376,7 +2376,8 @@ FolderDisplayWidget.prototype = {
     for (let i = 0; i < selectedMessages.length; ++i) {
       if (
         selectedMessages[i].folder &&
-        !selectedMessages[i].folder.canDeleteMessages
+        (!selectedMessages[i].folder.canDeleteMessages ||
+         (selectedMessages[i].folder.flags & Ci.nsMsgFolderFlags.Newsgroup))
       ) {
         return false;
       }

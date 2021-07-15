@@ -1040,7 +1040,8 @@ var gFolderTreeView = {
           .getService(Ci.nsIDragService)
           .getCurrentSession().dragAction ==
         Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
-      if (!sourceFolder.canDeleteMessages) {
+      let isNews = sourceFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
+      if (!sourceFolder.canDeleteMessages || isNews) {
         isMove = false;
       }
 

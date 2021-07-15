@@ -260,13 +260,14 @@ MessageArchiver.prototype = {
     }
 
     if (dstFolder != srcFolder) {
+      let isNews = srcFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
       // If the source folder doesn't support deleting messages, we
       // make archive a copy, not a move.
       MailServices.copy.copyMessages(
         srcFolder,
         moveArray,
         dstFolder,
-        srcFolder.canDeleteMessages,
+        srcFolder.canDeleteMessages && !isNews,
         this,
         this.msgWindow,
         true
