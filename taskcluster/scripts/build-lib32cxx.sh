@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-set -x -E -v
+set -x -eE -v
 
 # This script is for building libc++.a (linux32)
 
@@ -40,7 +40,7 @@ build() {
   local base_cmake_args="-G Ninja
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=$PKGDIR/lib32-libc++
-    -DCMAKE_SYSROOT=$MOZ_FETCHES_DIR/sysroot
+    -DCMAKE_SYSROOT=$MOZ_FETCHES_DIR/sysroot-i686-linux-gnu
     -DLLVM_LIBDIR_SUFFIX=32
     -DLLVM_LINK_LLVM_DYLIB=ON
     -DLLVM_ENABLE_RTTI=ON

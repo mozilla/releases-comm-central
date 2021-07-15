@@ -8,8 +8,8 @@ set -x -eE -v
 _TARGET_OS="$1"
 
 # Environment variables that are set by Taskcluster.
-GECKO_PATH=${GECKO_PATH:-"/builds/worker/checkouts/gecko"}
-MOZ_FETCHES_DIR=${MOZ_FETCHES_DIR:-"/builds/worker/workspace/fetches"}
+GECKO_PATH=${GECKO_PATH:-"/builds/worker/workspace/build/src"}
+MOZ_FETCHES_DIR=${MOZ_FETCHES_DIR:-"/builds/worker/fetches"}
 UPLOAD_DIR=${UPLOAD_DIR:-"/builds/worker/artifacts"}
 WORKSPACE=${WORKSPACE:-"${HOME}/workspace"}
 
@@ -154,7 +154,7 @@ function build_libotr() {
             "${CC}" -shared ${LDFLAGS} -Wl,-soname -Wl,libotr.so \
               .libs/*.o \
               -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
-              --sysroot="${MOZ_FETCHES_DIR}/sysroot" \
+              --sysroot="${MOZ_FETCHES_DIR}/${SYSROOT}" \
               -Wl,-soname -Wl,libotr.so -o libotr.so
             cp libotr.so "${_PREFIX}/lib"
             ;;
@@ -272,20 +272,20 @@ case "${_TARGET_OS}" in
         done
         export PATH
 
+        SYSROOT="sysroot-i686-linux-gnu"
         export _TARGET_TRIPLE="i686-pc-linux"
         export CC="i686-linux-gnu-clang"
-        export CFLAGS=" --sysroot=${MOZ_FETCHES_DIR}/sysroot"
-        export CCASFLAGS=" --sysroot=${MOZ_FETCHES_DIR}/sysroot"
-        export LDFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
+        export CFLAGS=" --sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
+        export CCASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
+        export LDFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse -fuse-ld=lld"
 
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
         export NM=llvm-nm
-        export LD=ld.lld
         export STRIP=llvm-strip
 
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
         _CONF_STATIC="--enable-static --disable-shared"
         _TARGET_LIBS="lib/libotr.so"
         ;;
@@ -295,18 +295,19 @@ case "${_TARGET_OS}" in
         done
         export PATH
 
+        SYSROOT="sysroot-x86_64-linux-gnu"
         export _TARGET_TRIPLE="x86_64-pc-linux"
         export CC="clang"
-        export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
-        export CASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
+        export CASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
+        export LDFLAGS="-fuse-ld=lld"
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
         export NM=llvm-nm
-        export LD=ld.lld
         export STRIP=llvm-strip
 
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
         _CONF_STATIC="--enable-static --disable-shared"
         _TARGET_LIBS="lib/libotr.so"
         ;;
@@ -316,20 +317,20 @@ case "${_TARGET_OS}" in
         done
         export PATH
 
+        SYSROOT="sysroot-aarch64-linux-gnu"
         export _TARGET_TRIPLE="aarch64-pc-linux"
         export CC="aarch64-linux-gnu-clang"
-        export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
-        export CCASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
-        export LDFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
+        export CCASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
+        export LDFLAGS="-fuse-ld=lld"
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
         export NM=llvm-nm
         export OBJDUMP=llvm-objdump
-        export LD=ld.lld
         export STRIP=llvm-strip
 
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/${SYSROOT}"
         _CONF_STATIC="--enable-static --disable-shared"
         _TARGET_LIBS="lib/libotr.so"
         ;;
