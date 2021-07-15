@@ -74,7 +74,22 @@ def get_decision_parameters(graph_config, parameters):
     project = parameters["project"]
 
     if project in PER_PROJECT_PARAMETERS:
-        parameters.update(PER_PROJECT_PARAMETERS[project])
+        # Upstream will set target_tasks_method to "default" when nothing is set
+        if parameters["target_tasks_method"] == "default":
+            del parameters["target_tasks_method"]
+
+        # If running from .cron.yml, do not overwrite existing parameters
+        update_parameters = [
+            (_k, _v)
+            for _k, _v in PER_PROJECT_PARAMETERS[project].items()
+            if _k not in parameters
+        ]
+        parameters.update(update_parameters)
+    else:
+        # Projects without a target_tasks_method should not exist for Thunderbird CI
+        raise Exception(
+            "No target_tasks_method is defined for project {}.".format(project)
+        )
 
     parameters.setdefault("release_history", dict())
     if "nightly" in parameters.get("target_tasks_method", ""):
