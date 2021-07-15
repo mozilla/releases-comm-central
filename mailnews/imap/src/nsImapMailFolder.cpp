@@ -4184,9 +4184,6 @@ nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
   } while (nextLine && *nextLine);
 
   if (m_tempMessageStream) {
-    nsCOMPtr<nsISeekableStream> seekable(
-        do_QueryInterface(m_tempMessageStream));
-    if (seekable) seekable->Seek(PR_SEEK_END, 0);
     rv = m_tempMessageStream->Write(adoptedMessageLine,
                                     PL_strlen(adoptedMessageLine), &count);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -6332,11 +6329,8 @@ nsresult nsImapMailFolder::CopyOfflineMsgBody(nsIMsgFolder* srcFolder,
                                               nsIMsgDBHdr* origHdr,
                                               nsIInputStream* inputStream,
                                               nsIOutputStream* outputStream) {
-  nsresult rv;
-  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(outputStream, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = NS_OK;
   uint64_t messageOffset;
-  uint32_t messageSize;
   origHdr->GetMessageOffset(&messageOffset);
   if (!messageOffset) {
     // Some offline stores may contain a bug where the storeToken is set but
@@ -6355,15 +6349,13 @@ nsresult nsImapMailFolder::CopyOfflineMsgBody(nsIMsgFolder* srcFolder,
       }
     }
   }
+  uint32_t messageSize;
   origHdr->GetOfflineMessageSize(&messageSize);
   if (!messageSize) {
     nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(srcFolder);
     if (localFolder)  // can just use regular message size
       origHdr->GetMessageSize(&messageSize);
   }
-  int64_t tellPos;
-  seekable->Tell(&tellPos);
-  destHdr->SetMessageOffset(tellPos);
   nsCOMPtr<nsISeekableStream> seekStream = do_QueryInterface(inputStream);
   NS_ASSERTION(seekStream, "non seekable stream - can't read from offline msg");
   if (seekStream) {
