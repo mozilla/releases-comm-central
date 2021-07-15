@@ -24,6 +24,8 @@ const IGNORE_PATHS = [
   "logs",
   "lock",
   "minidumps",
+  "parent.lock",
+  "shader-cache",
   "saved-telemetry-pings",
   "security_state",
   "storage",
@@ -31,6 +33,12 @@ const IGNORE_PATHS = [
 ];
 
 var zipW;
+
+var logger = console.createInstance({
+  prefix: "mail.export",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mail.export.loglevel",
+});
 
 document.addEventListener("dialogaccept", async event => {
   if (zipW) {
@@ -100,6 +108,7 @@ async function exportCurrentProfile(targetFile) {
   progressElement.max = zipEntryMap.size;
   let i = 0;
   for (let [path, file] of zipEntryMap) {
+    logger.debug("Adding entry file:", path);
     zipW.addEntryFile(
       path,
       0, // no compression, bigger file but much faster
@@ -127,6 +136,7 @@ async function exportCurrentProfile(targetFile) {
  */
 async function collectFilesToZip(zipEntryMap, rootPath, folder) {
   let entries = await IOUtils.getChildren(folder.path);
+  let separator = Services.appinfo.OS == "WINNT" ? "\\" : "/";
   for (let entry of entries) {
     let file = nsFile(entry);
     if (file.isDirectory()) {
@@ -135,11 +145,12 @@ async function collectFilesToZip(zipEntryMap, rootPath, folder) {
       // We don't want to include the rootPath part in the zip file.
       let path = entry.slice(rootPath.length + 1);
       // path now looks like this: profile-default/lock.
-      let parts = path.split("/");
+      let parts = path.split(separator);
       if (IGNORE_PATHS.includes(parts[1])) {
         continue;
       }
-      zipEntryMap.set(path, file);
+      // Path separator inside a zip file is always "/".
+      zipEntryMap.set(parts.join("/"), file);
     }
   }
 }

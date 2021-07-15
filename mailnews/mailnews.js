@@ -1132,3 +1132,6 @@ pref("mail.jsaccount.loglevel", "Warn");
 pref("mailnews.oauth.loglevel", "Warn");
 
 pref("test.loghelper.loglevel", "Warn");
+
+pref("mail.import.loglevel", "Warn");
+pref("mail.export.loglevel", "Warn");

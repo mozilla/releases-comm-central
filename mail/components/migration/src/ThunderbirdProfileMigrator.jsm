@@ -91,6 +91,12 @@ class ThunderbirdProfileMigrator {
     return this;
   }
 
+  _logger = console.createInstance({
+    prefix: "mail.import",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mail.import.loglevel",
+  });
+
   get sourceExists() {
     return true;
   }
@@ -114,7 +120,7 @@ class ThunderbirdProfileMigrator {
     );
     filePicker.init(
       window,
-      await l10n.formatValue("import-select-profile-dir-or-zip"),
+      await l10n.formatValue("import-select-profile-zip"),
       filePicker.modeOpen
     );
     filePicker.appendFilter("", "*.zip");
@@ -154,14 +160,10 @@ class ThunderbirdProfileMigrator {
               target.parent.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
             }
             try {
+              this._logger.debug(`Extracting ${entry} to ${target.path}`);
               zip.extract(entry, target);
             } catch (e) {
-              if (
-                e.result != Cr.NS_ERROR_FILE_DIR_NOT_EMPTY &&
-                !(target.exists() && target.isDirectory())
-              ) {
-                throw e;
-              }
+              this._logger.error(e);
             }
           }
           // Use the tmp dir as source profile dir.
@@ -191,7 +193,7 @@ class ThunderbirdProfileMigrator {
       await this._importPreferences();
     } finally {
       if (this._importingFromZip) {
-        this._sourceProfileDir.remove(true);
+        IOUtils.remove(this._sourceProfileDir.path, { recursive: true });
       }
     }
     Services.obs.notifyObservers(null, "Migration:Ended");
@@ -533,7 +535,12 @@ class ThunderbirdProfileMigrator {
       for (let part of directoryRel.split("/")) {
         sourceDir.append(part);
       }
-      sourceDir.copyTo(targetDir.parent, targetDir.leafName);
+      if (type != "imap" || Services.appinfo.OS != "WINNT") {
+        // For some reasons, if mail folders are copied on Windows,
+        // `errorGettingDB` is thrown after imported and restarted. IMAP folders
+        // will be downloaded automatically, better than a broken account.
+        sourceDir.copyTo(targetDir.parent, targetDir.leafName);
+      }
       branch.setCharPref("directory", targetDir.path);
       // .directory-rel may be outdated, it will be created when first needed.
       branch.clearUserPref("directory-rel");
