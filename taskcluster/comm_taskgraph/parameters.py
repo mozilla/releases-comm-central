@@ -82,7 +82,7 @@ def get_decision_parameters(graph_config, parameters):
         update_parameters = [
             (_k, _v)
             for _k, _v in PER_PROJECT_PARAMETERS[project].items()
-            if _k not in parameters
+            if _k not in parameters or not parameters[_k]
         ]
         parameters.update(update_parameters)
     else:
