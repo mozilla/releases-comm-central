@@ -313,6 +313,9 @@
    *  that case, the tab type should probably only have a single mode unless
    *  there are a number of similar modes that can gain from code sharing.
    *
+   * If you're adding a new tab type, please update TabmailTab.type in
+   *  mail/components/extensions/parent/ext-mail.js.
+   *
    * The tab type definition should include the following attributes:
    * * name: The name of the tab-type, mainly to aid in debugging.
    * * panelId or perTabPanel: If using a single tab panel, the id of the

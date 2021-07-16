@@ -115,6 +115,7 @@ add_task(async () => {
       browser.test.assertEq(1, initialTabs.length);
       browser.test.assertEq(0, initialTabs[0].index);
       browser.test.assertTrue(initialTabs[0].mailTab);
+      browser.test.assertEq("mail", initialTabs[0].type);
       let [{ id: initialTab, windowId: initialWindow }] = initialTabs;
 
       browser.test.log("Add a first content tab and wait for it to load.");
@@ -125,9 +126,14 @@ add_task(async () => {
         windowId: initialWindow,
         active: true,
         mailTab: false,
+        type: "content",
       });
       browser.test.assertTrue(contentTab1 != initialTab);
       await listener.pageLoad(contentTab1);
+      browser.test.assertEq(
+        "content",
+        (await browser.tabs.get(contentTab1)).type
+      );
 
       browser.test.log("Add a second content tab and wait for it to load.");
 
@@ -137,9 +143,14 @@ add_task(async () => {
         windowId: initialWindow,
         active: true,
         mailTab: false,
+        type: "content",
       });
       browser.test.assertTrue(![initialTab, contentTab1].includes(contentTab2));
       await listener.pageLoad(contentTab2);
+      browser.test.assertEq(
+        "content",
+        (await browser.tabs.get(contentTab2)).type
+      );
 
       browser.test.log("Add the calendar tab.");
 
@@ -149,6 +160,7 @@ add_task(async () => {
         windowId: initialWindow,
         active: true,
         mailTab: false,
+        type: "calendar",
       });
       browser.test.assertTrue(
         ![initialTab, contentTab1, contentTab2].includes(calendarTab)
@@ -162,6 +174,7 @@ add_task(async () => {
         windowId: initialWindow,
         active: true,
         mailTab: false,
+        type: "tasks",
       });
       browser.test.assertTrue(
         ![initialTab, contentTab1, contentTab2, calendarTab].includes(taskTab)
@@ -175,6 +188,7 @@ add_task(async () => {
         windowId: initialWindow,
         active: true,
         mailTab: true,
+        type: "mail",
       });
       browser.test.assertTrue(
         ![initialTab, contentTab1, contentTab2, calendarTab, taskTab].includes(
@@ -199,6 +213,7 @@ add_task(async () => {
         windowId: initialWindow,
         active: true,
         mailTab: false,
+        type: "messageDisplay",
       });
       browser.test.assertTrue(
         ![
@@ -222,6 +237,7 @@ add_task(async () => {
         windowId: initialWindow,
         active: false,
         mailTab: false,
+        type: "messageDisplay",
       });
       browser.test.assertTrue(
         ![

@@ -807,7 +807,7 @@ this.compose = class extends ExtensionAPI {
         },
         async listAttachments(tabId) {
           let tab = tabManager.get(tabId);
-          if (!tab.isComposeTab) {
+          if (tab.type != "messageCompose") {
             throw new ExtensionError(`Invalid compose tab: ${tabId}`);
           }
           let bucket = tab.nativeTab.document.getElementById(
@@ -823,7 +823,7 @@ this.compose = class extends ExtensionAPI {
         },
         async addAttachment(tabId, data) {
           let tab = tabManager.get(tabId);
-          if (!tab.isComposeTab) {
+          if (tab.type != "messageCompose") {
             throw new ExtensionError(`Invalid compose tab: ${tabId}`);
           }
 
@@ -840,7 +840,7 @@ this.compose = class extends ExtensionAPI {
         },
         async updateAttachment(tabId, attachmentId, data) {
           let tab = tabManager.get(tabId);
-          if (!tab.isComposeTab) {
+          if (tab.type != "messageCompose") {
             throw new ExtensionError(`Invalid compose tab: ${tabId}`);
           }
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
@@ -868,7 +868,7 @@ this.compose = class extends ExtensionAPI {
         },
         async removeAttachment(tabId, attachmentId) {
           let tab = tabManager.get(tabId);
-          if (!tab.isComposeTab) {
+          if (tab.type != "messageCompose") {
             throw new ExtensionError(`Invalid compose tab: ${tabId}`);
           }
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {

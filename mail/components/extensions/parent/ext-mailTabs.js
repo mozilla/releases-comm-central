@@ -155,7 +155,7 @@ this.mailTabs = class extends ExtensionAPI {
         tabId = tab.id;
       }
 
-      if (tab && tab.isMailTab) {
+      if (tab && tab.type == "mail") {
         return tab;
       }
       throw new ExtensionError(`Invalid mail tab ID: ${tabId}`);
