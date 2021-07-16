@@ -4,6 +4,10 @@
 
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+var { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalAttachment: "resource:///modules/CalAttachment.jsm",
@@ -27,6 +31,10 @@ function really_run_test() {
   test_alarm();
   test_isEvent();
   test_isTodo();
+  test_recurring_event_properties();
+  test_recurring_todo_properties();
+  test_recurring_event_exception_properties();
+  test_recurring_todo_exception_properties();
 }
 
 function test_aclmanager() {
@@ -301,4 +309,157 @@ function test_isTodo() {
 
   Assert.ok(todo.isTodo(), "isTodo() returns true for todos");
   Assert.ok(!event.isTodo(), "isTodo() returns false for events");
+}
+
+/**
+ * Function for testing that the "properties" property of each supplied
+ * calItemBase occurrence includes those inherited from the parent.
+ *
+ * @param {calItemBase[]} items  - A list of item occurrences to test.
+ * @param {calItemBase} parent   - The item to use as the parent.
+ * @param {object} [overrides]   - A set of key value pairs than can be passed
+ *                                 to indicate what to expect for some properties.
+ */
+function doPropertiesTest(items, parent, overrides = {}) {
+  let skippedProps = ["DTSTART", "DTEND"];
+  let toString = value =>
+    value && value instanceof Ci.calIDateTime ? value.icalString : value && value.toString();
+
+  for (let item of items) {
+    info(`Testing occurrence with recurrenceId="${item.recurrenceId.icalString}...`);
+
+    let parentProperties = new Map(parent.properties);
+    let itemProperties = new Map(item.properties);
+    for (let [name, value] of parentProperties.entries()) {
+      if (!skippedProps.includes(name)) {
+        if (overrides[name]) {
+          Assert.equal(
+            toString(itemProperties.get(name)),
+            toString(overrides[name]),
+            `"${name}" value is value expected by overrides`
+          );
+        } else {
+          Assert.equal(
+            toString(itemProperties.get(name)),
+            toString(value),
+            `"${name}" value is same as parent`
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Test the "properties" property of a recurring CalEvent inherits parent
+ * properties properly.
+ */
+function test_recurring_event_properties() {
+  let event = new CalEvent(CalendarTestUtils.dedent`
+      BEGIN:VEVENT
+      DTSTAMP:20210716T000000Z
+      UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
+      SUMMARY:Parent Event
+      CATEGORIES:Business
+      LOCATION: Mochitest
+      DTSTART:20210716T000000Z
+      DTEND:20210716T110000Z
+      RRULE:FREQ=DAILY;UNTIL=20210719T110000Z
+      DESCRIPTION:This is the main event.
+      END:VEVENT
+    `);
+  let occurrences = event.recurrenceInfo.getOccurrences(
+    cal.createDateTime("20210701"),
+    cal.createDateTime("20210731"),
+    Infinity
+  );
+  doPropertiesTest(occurrences, event.parentItem);
+}
+
+/**
+ * Test the "properties" property of a recurring CalEvent exception inherits
+ * parent properties properly.
+ */
+function test_recurring_event_exception_properties() {
+  let event = new CalEvent(CalendarTestUtils.dedent`
+      BEGIN:VEVENT
+      DTSTAMP:20210716T000000Z
+      UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
+      SUMMARY:Parent Event
+      CATEGORIES:Business
+      LOCATION: Mochitest
+      DTSTART:20210716T000000Z
+      DTEND:20210716T110000Z
+      RRULE:FREQ=DAILY;UNTIL=20210719T110000Z
+      DESCRIPTION:This is the main event.
+      END:VEVENT
+    `);
+  let occurrences = event.recurrenceInfo.getOccurrences(
+    cal.createDateTime("20210701"),
+    cal.createDateTime("20210731"),
+    Infinity
+  );
+  let target = occurrences[0].clone();
+  let newDescription = "This is an exception.";
+  target.setProperty("DESCRIPTION", newDescription);
+  event.parentItem.recurrenceInfo.modifyException(target);
+  target = event.parentItem.recurrenceInfo.getExceptionFor(target.recurrenceId);
+  Assert.ok(target);
+  doPropertiesTest([target], event.parentItem, { DESCRIPTION: newDescription });
+}
+
+/**
+ * Test the "properties" property of a recurring CalTodo inherits parent
+ * properties properly.
+ */
+function test_recurring_todo_properties() {
+  let task = new CalTodo(CalendarTestUtils.dedent`
+      BEGIN:VTODO
+      DTSTAMP:20210716T225440Z
+      UID:673e125d-fe6b-465d-8a38-9c9373ca9705
+      SUMMARY:Main Task
+      RRULE:FREQ=DAILY;UNTIL=20210719T230000Z
+      DTSTART;TZID=America/Port_of_Spain:20210716T190000
+      PERCENT-COMPLETE:0
+      LOCATION:Mochitest
+      DESCRIPTION:This is the main task.
+      END:VTODO
+    `);
+  let occurrences = task.recurrenceInfo.getOccurrences(
+    cal.createDateTime("20210701"),
+    cal.createDateTime("20210731"),
+    Infinity
+  );
+  doPropertiesTest(occurrences, task.parentItem);
+}
+
+/**
+ * Test the "properties" property of a recurring CalTodo exception inherits
+ * parent properties properly.
+ */
+function test_recurring_todo_exception_properties() {
+  let task = new CalTodo(CalendarTestUtils.dedent`
+      BEGIN:VTODO
+      DTSTAMP:20210716T225440Z
+      UID:673e125d-fe6b-465d-8a38-9c9373ca9705
+      SUMMARY:Main Task
+      RRULE:FREQ=DAILY;UNTIL=20210719T230000Z
+      DTSTART;TZID=America/Port_of_Spain:20210716T190000
+      PERCENT-COMPLETE:0
+      LOCATION:Mochitest
+      DESCRIPTION:This is the main task.
+      END:VTODO
+    `);
+  let occurrences = task.recurrenceInfo.getOccurrences(
+    cal.createDateTime("20210701"),
+    cal.createDateTime("20210731"),
+    Infinity
+  );
+  let target = occurrences[0].clone();
+  let newDescription = "This is an exception.";
+  target.setProperty("DESCRIPTION", newDescription);
+  task.parentItem.recurrenceInfo.modifyException(target);
+  target = task.parentItem.recurrenceInfo.getExceptionFor(target.recurrenceId);
+  Assert.ok(target);
+  doPropertiesTest([target], task.parentItem, { DESCRIPTION: newDescription });
 }

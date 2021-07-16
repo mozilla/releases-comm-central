@@ -1138,8 +1138,6 @@ makeMemberAttrProperty(calItemBase, "CLASS", "privacy");
 makeMemberAttrProperty(calItemBase, "STATUS", "status");
 makeMemberAttrProperty(calItemBase, "ALARMTIME", "alarmTime");
 
-makeMemberAttr(calItemBase, "mProperties", "properties", null);
-
 /**
  * Adds a member attribute to the given prototype.
  *
