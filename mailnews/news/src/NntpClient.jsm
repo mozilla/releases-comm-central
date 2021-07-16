@@ -5,6 +5,9 @@
 const EXPORTED_SYMBOLS = ["NntpClient"];
 
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
+var { NntpNewsGroup } = ChromeUtils.import(
+  "resource:///modules/NntpNewsGroup.jsm"
+);
 
 /**
  * A structure to represent a response received from the server. A response can
@@ -32,7 +35,8 @@ class NntpClient {
     this._server = server;
     let matches = /.+:\/\/(.+)\/(.+)/.exec(uri);
     this._host = matches[1];
-    this._group = matches[2];
+    this._groupName = matches[2];
+    this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
 
     this._logger = console.createInstance({
       prefix: "mailnews.nntp",
@@ -115,6 +119,8 @@ class NntpClient {
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
   getNewNews(getOld, urlListener, msgWindow) {
+    this._newsGroup.getOldMessages = getOld;
+    this._msgWindow = msgWindow;
     this._nextAction = this._actionModeReader;
   }
 
@@ -130,7 +136,7 @@ class NntpClient {
    * Send `GROUP` request to the server.
    */
   _actionGroup() {
-    this._sendString(`GROUP ${this._group}`);
+    this._sendString(`GROUP ${this._groupName}`);
     this._nextAction = this._actionXOver;
   }
 
@@ -138,11 +144,18 @@ class NntpClient {
    * Send `XOVER` request to the server.
    */
   _actionXOver(res) {
-    let [, , high] = res.statusText.split(" ");
-    // TODO figure out the range, which depends on the folder state and user
-    // settings.
-    this._sendString(`XOVER ${high - 10}-${high}`);
-    this._nextAction = this._actionXOverResponse;
+    let [, low, high] = res.statusText.split(" ");
+    let [start, end] = this._newsGroup.getArticlesRangeToFetch(
+      this._msgWindow,
+      Number(low),
+      Number(high)
+    );
+    if (start && end) {
+      this._sendString(`XOVER ${start}-${end}`);
+      this._nextAction = this._actionXOverResponse;
+    } else {
+      this._nextAction = null;
+    }
   }
 
   /**
