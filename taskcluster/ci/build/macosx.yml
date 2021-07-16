@@ -31,6 +31,7 @@ job-defaults:
             - linux64-node
             - linux64-rust-macos
             - linux64-rust-size
+            - sysroot-x86_64-linux-gnu
 
 macosx64/debug:
     description: "MacOS X x64 Cross-compile"

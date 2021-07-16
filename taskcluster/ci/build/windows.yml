@@ -64,6 +64,7 @@ win32/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-x86_64-linux-gnu
             - win32-libotr
         fetch:
             - nsis-3.01-win
@@ -123,6 +124,7 @@ win32-shippable/opt:
             - linux64-rust-size
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-x86_64-linux-gnu
             - win32-libotr
         fetch:
             - nsis-3.01-win
@@ -179,6 +181,7 @@ win32/debug:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-x86_64-linux-gnu
             - win32-libotr
         fetch:
             - nsis-3.01-win
@@ -234,6 +237,7 @@ win64/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
             - nsis-3.01-win
@@ -293,6 +297,7 @@ win64-shippable/opt:
             - linux64-rust-size
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
             - nsis-3.01-win
@@ -349,6 +354,7 @@ win64/debug:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
             - nsis-3.01-win
@@ -486,6 +492,7 @@ win64-asan/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
         fetch:
