@@ -770,6 +770,55 @@ add_task(
   }
 );
 
+add_task(
+  {
+    skip_if: () => IS_NNTP,
+  },
+  async function test_move_anc_copy_without_permission() {
+    let files = {
+      "background.js": async () => {
+        let [accountId] = await window.waitForMessage();
+        let { folders } = await browser.accounts.get(accountId);
+        let testFolder4 = folders.find(f => f.name == "test4");
+        let testFolder3 = folders.find(f => f.name == "test3");
+
+        let { messages: folder4Messages } = await browser.messages.list(
+          testFolder4
+        );
+
+        // Try to move a message.
+        await browser.test.assertRejects(
+          browser.messages.move([folder4Messages[0].id], testFolder3),
+          `Using messages.move() requires the "accountsRead" and the "messagesMove" permission`,
+          "Should reject move without proper permission"
+        );
+
+        // Try to copy a message.
+        await browser.test.assertRejects(
+          browser.messages.copy([folder4Messages[0].id], testFolder3),
+          `Using messages.copy() requires the "accountsRead" and the "messagesMove" permission`,
+          "Should reject copy without proper permission"
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["messagesRead", "accountsRead"],
+      },
+    });
+
+    await extension.startup();
+    extension.sendMessage(account.key);
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
 // The IMAP fakeserver just can't handle this.
 add_task({ skip_if: () => IS_IMAP || IS_NNTP }, async function test_archive() {
   let account2 = createAccount();

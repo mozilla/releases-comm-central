@@ -100,6 +100,16 @@ this.messages = class extends ExtensionAPI {
     }
 
     async function moveOrCopyMessages(messageIds, { accountId, path }, isMove) {
+      if (
+        !context.extension.hasPermission("accountsRead") ||
+        !context.extension.hasPermission("messagesMove")
+      ) {
+        throw new ExtensionError(
+          `Using messages.${
+            isMove ? "move" : "copy"
+          }() requires the "accountsRead" and the "messagesMove" permission`
+        );
+      }
       let destinationURI = folderPathToURI(accountId, path);
       let destinationFolder = MailServices.folderLookup.getFolderForURL(
         destinationURI
