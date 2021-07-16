@@ -88,6 +88,10 @@ OfflineStartup.prototype = {
       var button1Text = bundle.GetStringFromName("workOffline");
       var checkVal = { value: 0 };
 
+      // Set Offline to true by default to prevent new mail checking at startup before
+      // the user answers the following question.
+      Services.io.manageOfflineStatus = false;
+      Services.io.offline = true;
       var result = Services.prompt.confirmEx(
         null,
         title,
