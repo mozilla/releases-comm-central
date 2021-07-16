@@ -196,9 +196,28 @@ appUpdater.prototype = {
     return Services.policies && !Services.policies.isAllowed("appUpdate");
   },
 
+  // true if updating is disabled because we're running in an app package.
+  // This is distinct from updateDisabledByPolicy because we need to avoid
+  // messages being shown to the user about an "administrator" handling
+  // updates; packaged apps may be getting updated by an administrator or they
+  // may not be, and we don't have a good way to tell the difference from here,
+  // so we err to the side of less confusion for unmanaged users.
+  get updateDisabledByPackage() {
+    try {
+      return Services.sysinfo.getProperty("hasWinPackageId");
+    } catch (_ex) {
+      // The hasWinPackageId property doesn't exist; assume it would be false.
+    }
+    return false;
+  },
+
   // true when updating in background is enabled.
   get updateStagingEnabled() {
-    return !this.updateDisabledByPolicy && this.aus.canStageUpdates;
+    return (
+      !this.updateDisabledByPolicy &&
+      !this.updateDisabledByPackage &&
+      this.aus.canStageUpdates
+    );
   },
 
   /**

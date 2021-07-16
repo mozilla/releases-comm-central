@@ -38,6 +38,16 @@ XPCOMUtils.defineLazyServiceGetters(this, {
   gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
 });
 
+XPCOMUtils.defineLazyGetter(this, "gHasWinPackageId", () => {
+  let hasWinPackageId = false;
+  try {
+    hasWinPackageId = Services.sysinfo.getProperty("hasWinPackageId");
+  } catch (_ex) {
+    // The hasWinPackageId property doesn't exist; assume it would be false.
+  }
+  return hasWinPackageId;
+});
+
 const TYPE_PDF = "application/pdf";
 
 const PREF_PDFJS_DISABLED = "pdfjs.disabled";
@@ -305,7 +315,19 @@ var gGeneralPane = {
       gAppUpdater = new appUpdater(); // eslint-disable-line no-global-assign
       let updateDisabled =
         Services.policies && !Services.policies.isAllowed("appUpdate");
-      if (updateDisabled || UpdateUtils.appUpdateAutoSettingIsLocked()) {
+      if (gHasWinPackageId) {
+        // When we're running inside an app package, there's no point in
+        // displaying any update content here, and it would get confusing if we
+        // did, because our updater is not enabled.
+        // We can't rely on the hidden attribute for the toplevel elements,
+        // because of the pane hiding/showing code interfering.
+        document
+          .getElementById("updatesCategory")
+          .setAttribute("style", "display: none !important");
+        document
+          .getElementById("updateApp")
+          .setAttribute("style", "display: none !important");
+      } else if (updateDisabled || UpdateUtils.appUpdateAutoSettingIsLocked()) {
         document.getElementById("updateAllowDescription").hidden = true;
         document.getElementById("updateSettingsContainer").hidden = true;
         if (updateDisabled && AppConstants.MOZ_MAINTENANCE_SERVICE) {
@@ -1451,7 +1473,8 @@ var gGeneralPane = {
   async updateReadPrefs() {
     if (
       AppConstants.MOZ_UPDATER &&
-      (!Services.policies || Services.policies.isAllowed("appUpdate"))
+      (!Services.policies || Services.policies.isAllowed("appUpdate")) &&
+      !gHasWinPackageId
     ) {
       let radiogroup = document.getElementById("updateRadioGroup");
       radiogroup.disabled = true;
@@ -1471,7 +1494,8 @@ var gGeneralPane = {
   async updateWritePrefs() {
     if (
       AppConstants.MOZ_UPDATER &&
-      (!Services.policies || Services.policies.isAllowed("appUpdate"))
+      (!Services.policies || Services.policies.isAllowed("appUpdate")) &&
+      !gHasWinPackageId
     ) {
       let radiogroup = document.getElementById("updateRadioGroup");
       let updateAutoValue = radiogroup.value == "true";
