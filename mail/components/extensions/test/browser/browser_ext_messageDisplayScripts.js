@@ -321,7 +321,7 @@ add_task(async function testRegister() {
           ],
         });
 
-        await window.waitForMessage();
+        await window.sendMessage();
 
         await registeredScript.unregister();
 
@@ -344,26 +344,20 @@ add_task(async function testRegister() {
   window.gFolderDisplay.selectViewIndex(5);
   await BrowserTestUtils.browserLoaded(messagePane);
 
-  let scriptsAddedPromise = BrowserTestUtils.waitForEvent(
-    window,
-    "extension-scripts-added"
-  );
   extension.startup();
+  await extension.awaitMessage();
 
   // Check a message that was already loaded.
-  await scriptsAddedPromise;
   await checkMessageBody(
     {
-      backgroundColor: "rgb(0, 128, 0)",
-      color: "rgb(255, 255, 255)",
-      foo: "bar",
-      textContent: "Hey look, the script ran!",
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      textContent: "",
     },
     messages[5]
   );
 
   // Load a new message and check it is modified.
-  scriptsAddedPromise = BrowserTestUtils.waitForEvent(
+  let scriptsAddedPromise = BrowserTestUtils.waitForEvent(
     window,
     "extension-scripts-added"
   );
@@ -452,6 +446,7 @@ add_task(async function testRegister() {
   // Unregister.
   extension.sendMessage();
   await extension.awaitFinish("finished");
+  await extension.unload();
 
   // Check the CSS is unloaded from the message in a tab.
   await checkMessageBody(
@@ -498,8 +493,6 @@ add_task(async function testRegister() {
   );
 
   await BrowserTestUtils.closeWindow(newWindow);
-
-  await extension.unload();
 });
 
 /** Tests content_scripts in the manifest do not affect message display. */

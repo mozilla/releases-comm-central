@@ -303,13 +303,10 @@ add_task(async function testRegisterBeforeCompose() {
           ],
         });
 
-        let tab = await browser.compose.beginNew();
+        await browser.compose.beginNew();
         await window.sendMessage();
 
         await registeredScript.unregister();
-        await window.sendMessage();
-
-        await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
       "test.css": "body { background-color: green; }",
@@ -338,17 +335,25 @@ add_task(async function testRegisterBeforeCompose() {
   );
   extension.sendMessage();
 
-  await extension.awaitMessage();
+  await extension.awaitFinish("finished");
+  await checkComposeBody({
+    backgroundColor: "rgb(0, 128, 0)",
+    color: "rgb(255, 255, 255)",
+    foo: "bar",
+    textContent: "Hey look, the script ran!",
+  });
+
+  await extension.unload();
   await checkComposeBody({
     backgroundColor: "rgba(0, 0, 0, 0)",
     color: "rgb(0, 0, 0)",
     foo: "bar",
     textContent: "Hey look, the script ran!",
   });
-  extension.sendMessage();
 
-  await extension.awaitFinish("finished");
-  await extension.unload();
+  await BrowserTestUtils.closeWindow(
+    Services.wm.getMostRecentWindow("msgcompose")
+  );
 });
 
 /**
@@ -401,23 +406,16 @@ add_task(async function testRegisterDuringCompose() {
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody(
-    {
-      backgroundColor: "rgb(0, 128, 0)",
-      color: "rgb(255, 255, 255)",
-      foo: "bar",
-      textContent: "Hey look, the script ran!",
-    },
-    true
-  );
+  await checkComposeBody({
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    textContent: "",
+  });
   extension.sendMessage();
 
   await extension.awaitMessage();
   await checkComposeBody({
     backgroundColor: "rgba(0, 0, 0, 0)",
-    color: "rgb(0, 0, 0)",
-    foo: "bar",
-    textContent: "Hey look, the script ran!",
+    textContent: "",
   });
   extension.sendMessage();
 

@@ -26,7 +26,7 @@ ExtensionSupport.registerWindowListener("ext-composeScripts", {
       window.addEventListener("compose-editor-ready", resolve, { once: true })
     );
     for (let script of scripts) {
-      script.addToWindow(window, "compose");
+      script.executeInWindow(window, "compose");
     }
   },
 });
@@ -39,7 +39,7 @@ ExtensionSupport.registerWindowListener("ext-messageDisplayScripts", {
   onLoadWindow(window) {
     window.addEventListener("MsgLoaded", () => {
       for (let script of scripts) {
-        script.addToWindow(window, "messageDisplay");
+        script.executeInWindow(window, "messageDisplay");
       }
     });
   },
@@ -67,18 +67,6 @@ class ExtensionScriptParent {
     this.options = this._convertOptions(details);
     context.callOnClose(this);
 
-    if (this.type == "compose") {
-      for (let window of Services.wm.getEnumerator("msgcompose")) {
-        this.addToWindow(window, "compose");
-      }
-    } else {
-      for (let window of Services.wm.getEnumerator("mail:3pane")) {
-        this.addToWindow(window, "messageDisplay");
-      }
-      for (let window of Services.wm.getEnumerator("mail:messageWindow")) {
-        this.addToWindow(window, "messageDisplay");
-      }
-    }
     scripts.add(this);
   }
 
@@ -92,18 +80,6 @@ class ExtensionScriptParent {
     }
 
     scripts.delete(this);
-    if (this.type == "compose") {
-      for (let window of Services.wm.getEnumerator("msgcompose")) {
-        this.removeFromWindow(window);
-      }
-    } else {
-      for (let window of Services.wm.getEnumerator("mail:3pane")) {
-        this.removeFromWindow(window);
-      }
-      for (let window of Services.wm.getEnumerator("mail:messageWindow")) {
-        this.removeFromWindow(window);
-      }
-    }
 
     this.destroyed = true;
     this.context.forgetOnClose(this);
@@ -138,7 +114,7 @@ class ExtensionScriptParent {
     return options;
   }
 
-  async addToWindow(window, type) {
+  async executeInWindow(window, type) {
     if (this.type != type) {
       return;
     }
@@ -163,14 +139,6 @@ class ExtensionScriptParent {
       await activeTab.executeScript(this.context, js);
     }
     window.dispatchEvent(new window.CustomEvent("extension-scripts-added"));
-  }
-
-  removeFromWindow(window) {
-    let { activeTab } = this.extension.windowManager.wrapWindow(window);
-
-    for (let css of this.options.css) {
-      activeTab.removeCSS(this.context, css);
-    }
   }
 }
 
