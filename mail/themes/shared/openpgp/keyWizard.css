@@ -50,6 +50,10 @@ description {
   z-index: 1;
 }
 
+#keySize {
+  width: 6em;
+}
+
 #importLoading {
   display: flex;
   flex-direction: column;
