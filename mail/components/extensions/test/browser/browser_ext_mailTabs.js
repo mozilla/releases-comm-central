@@ -41,90 +41,78 @@ add_task(async function test_update() {
 
     let [accountId] = await window.waitForMessage();
     let { folders } = await browser.accounts.get(accountId);
-    let state = {
-      sortType: null,
-      sortOrder: null,
-      viewType: null,
-      layout: "standard",
-      folderPaneVisible: null,
-      messagePaneVisible: null,
-      displayedFolder: {
-        accountId,
-        name: `${accountId}user on localhost`,
-        path: "/",
-      },
-    };
-    await checkCurrent(state);
-    await window.sendMessage("checkRealLayout", state);
-    await window.sendMessage("checkRealView", state);
 
     await browser.mailTabs.update({ displayedFolder: folders[0] });
-    state.sortType = "date";
-    state.sortOrder = "ascending";
-    state.viewType = "normal";
-    state.folderPaneVisible = false;
-    state.messagePaneVisible = true;
-    state.displayedFolder = folders[0];
-    delete state.displayedFolder.subFolders;
-    await checkCurrent(state);
-    await window.sendMessage("checkRealLayout", state);
-    await window.sendMessage("checkRealSort", state);
-    await window.sendMessage("checkRealView", state);
+    let expected = {
+      sortType: "date",
+      sortOrder: "ascending",
+      viewType: "ungrouped",
+      layout: "standard",
+      folderPaneVisible: false,
+      messagePaneVisible: true,
+      displayedFolder: folders[0],
+    };
+    delete expected.displayedFolder.subFolders;
 
-    state.sortOrder = "descending";
+    await checkCurrent(expected);
+    await window.sendMessage("checkRealLayout", expected);
+    await window.sendMessage("checkRealSort", expected);
+    await window.sendMessage("checkRealView", expected);
+
+    expected.sortOrder = "descending";
     for (let value of ["date", "subject", "author"]) {
       await browser.mailTabs.update({
         sortType: value,
         sortOrder: "descending",
       });
-      state.sortType = value;
-      await window.sendMessage("checkRealSort", state);
-      await window.sendMessage("checkRealView", state);
+      expected.sortType = value;
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
     }
-    state.sortOrder = "ascending";
+    expected.sortOrder = "ascending";
     for (let value of ["author", "subject", "date"]) {
       await browser.mailTabs.update({
         sortType: value,
         sortOrder: "ascending",
       });
-      state.sortType = value;
-      await window.sendMessage("checkRealSort", state);
-      await window.sendMessage("checkRealView", state);
+      expected.sortType = value;
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
     }
 
     for (let key of ["folderPaneVisible", "messagePaneVisible"]) {
       for (let value of [false, true]) {
         await browser.mailTabs.update({ [key]: value });
-        state[key] = value;
-        await checkCurrent(state);
-        await window.sendMessage("checkRealLayout", state);
-        await window.sendMessage("checkRealView", state);
+        expected[key] = value;
+        await checkCurrent(expected);
+        await window.sendMessage("checkRealLayout", expected);
+        await window.sendMessage("checkRealView", expected);
       }
     }
     for (let value of ["wide", "vertical", "standard"]) {
       await browser.mailTabs.update({ layout: value });
-      state.layout = value;
-      await checkCurrent(state);
-      await window.sendMessage("checkRealLayout", state);
-      await window.sendMessage("checkRealView", state);
+      expected.layout = value;
+      await checkCurrent(expected);
+      await window.sendMessage("checkRealLayout", expected);
+      await window.sendMessage("checkRealView", expected);
     }
 
     // Test all possible switch combination.
     for (let viewType of [
-      "normal",
+      "ungrouped",
       "groupedByThread",
-      "normal",
+      "ungrouped",
       "groupedBySortType",
       "groupedByThread",
       "groupedBySortType",
-      "normal",
+      "ungrouped",
     ]) {
       await browser.mailTabs.update({ viewType });
-      state.viewType = viewType;
-      await checkCurrent(state);
-      await window.sendMessage("checkRealLayout", state);
-      await window.sendMessage("checkRealSort", state);
-      await window.sendMessage("checkRealView", state);
+      expected.viewType = viewType;
+      await checkCurrent(expected);
+      await window.sendMessage("checkRealLayout", expected);
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
     }
 
     let selectedMessages = await browser.mailTabs.getSelectedMessages();
@@ -170,18 +158,17 @@ add_task(async function test_update() {
       groupedBySortType: {
         showGroupedBySort: true,
         showThreaded: false,
+        showUnthreaded: false,
       },
       groupedByThread: {
         showGroupedBySort: false,
         showThreaded: true,
+        showUnthreaded: false,
       },
-      normal: {
+      ungrouped: {
         showGroupedBySort: false,
         showThreaded: false,
-      },
-      null: {
-        showGroupedBySort: false,
-        showThreaded: 0,
+        showUnthreaded: true,
       },
     };
     let view = window.gFolderDisplay.view;
@@ -189,6 +176,11 @@ add_task(async function test_update() {
       view.showThreaded,
       viewTypes[expected.viewType].showThreaded,
       `Correct value for showThreaded for viewType <${expected.viewType}>`
+    );
+    Assert.equal(
+      view.showUnthreaded,
+      viewTypes[expected.viewType].showUnthreaded,
+      `Correct value for showUnthreaded for viewType <${expected.viewType}>`
     );
     Assert.equal(
       view.showGroupedBySort,

@@ -1766,8 +1766,8 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if we are grouped-by-sort, false if not.  If we are not
-   *     grouped by sort, then we are either threaded or unthreaded; check
+   * @returns {boolean} true if we are grouped-by-sort, false if not.  If we are
+   *     not grouped-by-sort, then we are either threaded or unthreaded; check
    *     the showThreaded property to find out which of those it is.
    */
   get showGroupedBySort() {
@@ -1823,13 +1823,13 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if we are in threaded display (as opposed to grouped or
-   *     unthreaded.)
+   * @returns {boolean} true if we are in threaded mode (as opposed to unthreaded
+   *     or grouped-by-sort).
    */
   get showThreaded() {
-    return (
+    return Boolean(
       this._viewFlags & Ci.nsMsgViewFlagsType.kThreadedDisplay &&
-      !(this._viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort)
+        !(this._viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort)
     );
   },
   /**
@@ -1856,8 +1856,8 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @return true if we are in unthreaded mode (which means not threaded and
-   *     not grouped by sort).
+   * @returns {boolean} true if we are in unthreaded mode (which means not
+   *     threaded and not grouped-by-sort).
    */
   get showUnthreaded() {
     return Boolean(
@@ -1870,7 +1870,7 @@ DBViewWrapper.prototype = {
   },
   /**
    * Set to true to put us in unthreaded mode (which means not threaded and
-   *  not grouped by sort).
+   *  not grouped-by-sort).
    */
   set showUnthreaded(aShowUnthreaded) {
     if (this.showUnthreaded != aShowUnthreaded) {

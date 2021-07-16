@@ -77,7 +77,7 @@ function convertMailTab(tab, context) {
     } else if (folderDisplay.view.showThreaded) {
       mailTabObject.viewType = "groupedByThread";
     } else {
-      mailTabObject.viewType = "normal";
+      mailTabObject.viewType = "ungrouped";
     }
   }
 
@@ -258,9 +258,8 @@ this.mailTabs = class extends ExtensionAPI {
             case "groupedByThread":
               nativeTab.folderDisplay.view.showThreaded = true;
               break;
-            case "normal":
-              nativeTab.folderDisplay.view.showThreaded = false;
-              nativeTab.folderDisplay.view.showGroupedBySort = false;
+            case "ungrouped":
+              nativeTab.folderDisplay.view.showUnthreaded = true;
               break;
           }
 

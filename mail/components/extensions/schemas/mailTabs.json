@@ -56,7 +56,7 @@
             "type": "string",
             "optional": true,
             "enum": [
-              "normal",
+              "ungrouped",
               "groupedByThread",
               "groupedBySortType"
             ]
@@ -269,7 +269,7 @@
                 "type": "string",
                 "optional": true,
                 "enum": [
-                  "normal",
+                  "ungrouped",
                   "groupedByThread",
                   "groupedBySortType"
                 ]
