@@ -17,6 +17,6 @@ which is based on an initial import of Enigmail Add-on code.
   Kai Engert, Patrick Brunschwig, Magnus Melin
 
 - Prior to enabling this code, all code must be enabled for
-  eslint and must be fully reviewd, as tracked in:
+  eslint and must be fully reviewed, as tracked in:
   - https://bugzilla.mozilla.org/show_bug.cgi?id=1595319
   - https://bugzilla.mozilla.org/show_bug.cgi?id=1595325
