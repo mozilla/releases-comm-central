@@ -9,6 +9,18 @@
 :host,
 :root {
   appearance: none;
+  --popup-item-hover-text: HighlightText;
+  --popup-item-hover: Highlight;
+}
+
+:root[lwt-default-theme-in-dark-mode] {
+  --popup-item-hover: Highlight;
+}
+
+@media (-moz-mac-big-sur-theme) {
+  :root:not([lwt-default-theme-in-dark-mode]) {
+    --popup-item-hover: color-mix(in srgb, white 25%, -moz-accent-color);
+  }
 }
 
 button > .button-box {
@@ -64,14 +76,15 @@ menulist > menupopup:not([position]) {
   margin-top: 0;
 }
 
+menulist menupopup,
+button[type="menu-button"] menupopup,
+menupopup[is="folder-menupopup"] {
+  appearance: auto;
+}
+
 .menu-right {
   -moz-image-region: auto;
   margin-top: 3px;
-  transform: scale(0.7);
-}
-
-.menu-right:-moz-locale-dir(rtl) {
-  transform: scaleX(-1) scale(0.7);
 }
 
 tabbox {

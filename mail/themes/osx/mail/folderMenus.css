@@ -8,11 +8,6 @@
 
 @import url("chrome://messenger/skin/shared/folderMenus.css");
 
-.folderMenuItem > .menu-right {
-  width: 9px;
-  height: 10px;
-}
-
 @media (min-resolution: 2dppx) {
   .folderMenuItem > .menu-iconic-left > .menu-iconic,
   .folderMenuItem::part(icon) {

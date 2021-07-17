@@ -12,10 +12,6 @@
   display: none;
 }
 
-.subviewbutton {
-  padding-inline-start: 18px;
-}
-
 .subviewbutton.download {
   padding-inline-start: 14px;
 }

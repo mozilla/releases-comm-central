@@ -170,6 +170,63 @@ menulist > menupopup:not([position]) {
   margin-inline-start: 0;
 }
 
+menulist > menupopup menu,
+menulist > menupopup menuitem,
+toolbarbutton > menupopup menu,
+toolbarbutton > menupopup menuitem {
+  appearance: none !important;
+  padding-block: 4px !important;
+}
+
+@media (-moz-mac-big-sur-theme) {
+  menulist > menupopup menu,
+  menulist > menupopup menuitem,
+  toolbarbutton > menupopup menu,
+  toolbarbutton > menupopup menuitem {
+    margin-inline:5px;
+    border-radius: 4px;
+  }
+
+  :root:not([lwt-default-theme-in-dark-mode]) menulist >
+     menupopup menu[_moz-menuactive="true"],
+  :root:not([lwt-default-theme-in-dark-mode]) menulist >
+     menupopup menuitem[_moz-menuactive="true"],
+  :root:not([lwt-default-theme-in-dark-mode]) toolbarbutton >
+     menupopup menu[_moz-menuactive="true"],
+  :root:not([lwt-default-theme-in-dark-mode]) toolbarbutton >
+     menupopup menuitem[_moz-menuactive="true"] {
+    background-color: color-mix(in srgb, white 25%, -moz-accent-color);
+  }
+}
+
+menupopup menu[disabled="true"][_moz-menuactive="true"],
+menupopup menuitem[disabled="true"][_moz-menuactive="true"] {
+  background-color: transparent !important;
+}
+
+menulist > menupopup menu .menu-right,
+toolbarbutton > menupopup menu .menu-right {
+  appearance: none;
+  list-style-image: url(chrome://global/skin/icons/arrow-right-12.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+menulist > menupopup menu .menu-right:-moz-locale-dir(rtl),
+toolbarbutton > menupopup menu .menu-right:-moz-locale-dir(rtl) {
+  list-style-image: url(chrome://global/skin/icons/arrow-left-12.svg);
+}
+
+toolbarbutton > menupopup menuitem[checked="true"]::before,
+toolbarbutton > menupopup menuitem[selected="true"]::before {
+  content: '\2713'; /* a checkmark */
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+  width: 15px;
+  margin-inline-start: -15px;
+}
+
 /* :::::: throbber :::::::::: */
 
 #throbber-box {

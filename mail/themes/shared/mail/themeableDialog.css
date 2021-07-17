@@ -355,6 +355,10 @@ menulist menupopup > menuitem[disabled="true"] {
   fill: currentColor;
 }
 
+.menu-right:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/icons/arrow-left.svg");
+}
+
 button menupopup menuseparator,
 menulist menupopup menuseparator {
   appearance: none;

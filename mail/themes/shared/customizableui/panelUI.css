@@ -281,7 +281,7 @@ panelview .toolbarbutton-1,
 
 .PanelUI-subView .subviewbutton-nav::after {
   -moz-context-properties: fill, fill-opacity;
-  content: url("chrome://global/skin/icons/arrow-right.svg");
+  content: url("chrome://global/skin/icons/arrow-right-12.svg");
   fill: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
@@ -507,7 +507,7 @@ toolbaritem[overflowedItem=true],
 .widget-overflow-list .subviewbutton-nav::after {
   margin-inline-start: 10px;
   -moz-context-properties: fill, fill-opacity;
-  content: url("chrome://global/skin/icons/arrow-right.svg");
+  content: url("chrome://global/skin/icons/arrow-right-12.svg");
   fill: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
