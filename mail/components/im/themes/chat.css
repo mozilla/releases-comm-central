@@ -76,28 +76,23 @@
   /* override forms.css */
   font: inherit;
   min-height: 30px;
-  color: FieldText;
-  border: 1px solid FieldText;
-  border-radius: 2px;
-  background-color: Field;
+  color: inherit;
+  border: 1px solid var(--button-border-color);
+  border-radius: var(--toolbarbutton-border-radius);
+  background-color: var(--button-bgcolor);
 }
 
-.im-placeholder-button-box> button:hover {
-  color: -moz-ButtonHoverText;
-  background-color: -moz-ButtonHoverFace;
+.im-placeholder-button-box > button:hover {
+  background-color: var(--button-hover-bgcolor);
 }
 
-:root[lwt-tree-brighttext] .im-placeholder-button-box > button {
-  color: var(--sidebar-text-color);
-  border-color: var(--sidebar-text-color);
-  background-color: var(--sidebar-background-color);
+.im-placeholder-button-box > button:hover:active {
+  background-color: var(--button-active-bgcolor);
 }
 
-:root[lwt-tree-brighttext] .im-placeholder-button-box> button:hover {
-  color: var(--sidebar-text-color);
-  background-color: var(--sidebar-background-color);
-  background-image: linear-gradient(rgba(249, 249, 250, 0.1),
-                                    rgba(249, 249, 250, 0.1));
+.im-placeholder-button-box > button:focus-visible {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: var(--focus-outline-offset);
 }
 
 .im-placeholder-button-box > button > .button-box {
