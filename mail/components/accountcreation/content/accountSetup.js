@@ -1755,11 +1755,10 @@ var gAccountSetup = {
   },
 
   onChangedOutAuth(event) {
-    let selected = event.target.selectedIndex;
-    if (selected) {
-      document.getElementById("outgoingUsername").disabled =
-        event.target[selected].id == "out-authMethod-no";
-    }
+    // Disable the outgoing username field if the "No Authentication" option is
+    // selected.
+    document.getElementById("outgoingUsername").disabled =
+      event.target.selectedOptions[0].id == "outNoAuth";
     this.onChangedManualEdit();
   },
 

@@ -402,6 +402,46 @@ add_task(async function test_bad_password_uses_old_settings() {
     "Timeout waiting for the manual edit area to become visible"
   );
 
+  let outgoingAuthSelect = tabDocument.getElementById("outgoingAuthMethod");
+  let noAuthOption = outgoingAuthSelect.querySelector(`option[id="outNoAuth"]`);
+  let outgoingOptions = outgoingAuthSelect.getElementsByTagName("option");
+
+  // Change the outgoing authentication method to "No Authentication".
+  EventUtils.synthesizeMouseAtCenter(
+    outgoingAuthSelect,
+    { type: "mousedown" },
+    tab.browser.contentWindow
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    noAuthOption,
+    { type: "mouseup" },
+    tab.browser.contentWindow
+  );
+
+  // Confirm that the outgoing username field is disabled.
+  await BrowserTestUtils.waitForCondition(
+    () => tabDocument.getElementById("outgoingUsername").disabled,
+    "Timeout waiting for the outgoing username field to be disabled"
+  );
+
+  // Revert the outgoing authentication method to "Normal Password".
+  EventUtils.synthesizeMouseAtCenter(
+    outgoingAuthSelect,
+    { type: "mousedown" },
+    tab.browser.contentWindow
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    outgoingOptions[2],
+    { type: "mouseup" },
+    tab.browser.contentWindow
+  );
+
+  // Confirm that the outgoing username field is enabled.
+  await BrowserTestUtils.waitForCondition(
+    () => !tabDocument.getElementById("outgoingUsername").disabled,
+    "Timeout waiting for the outgoing username field to be enabled"
+  );
+
   let notificationRemoved = BrowserTestUtils.waitForCondition(
     () => notificationBox.getNotificationWithValue("accountSetupError") == null,
     "Timeout waiting for error notification to be removed"
