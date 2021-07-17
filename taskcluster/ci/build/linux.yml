@@ -265,7 +265,6 @@ linux64-aarch64/opt:
     fetches:
         toolchain:
             - linux-aarch64-libotr
-            - sysroot-aarch64-linux-gnu
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang-aarch64-cross
@@ -274,6 +273,8 @@ linux64-aarch64/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - sysroot-aarch64-linux-gnu
+            - sysroot-x86_64-linux-gnu
 
 linux/opt:
     description: "Linux32 Opt"
