@@ -34,7 +34,6 @@
     skin/classic/calendar/shared/calendar-properties-dialog.css                  (../common/dialogs/calendar-properties-dialog.css)
     skin/classic/calendar/shared/calendar-timezone-highlighter.css               (../common/dialogs/calendar-timezone-highlighter.css)
     skin/classic/calendar/shared/calendar-event-dialog-attendees.png             (../common/dialogs/images/calendar-event-dialog-attendees.png)
-    skin/classic/calendar/shared/calendar-invitations-dialog-button-images.png   (../common/dialogs/images/calendar-invitations-dialog-button-images.png)
     skin/classic/calendar/shared/calendar-invitations-dialog-list-images.png     (../common/dialogs/images/calendar-invitations-dialog-list-images.png)
     skin/classic/calendar/shared/chain-lock.svg                                  (../common/dialogs/images/chain-lock.svg)
     skin/classic/calendar/shared/chain-unlock.svg                                (../common/dialogs/images/chain-unlock.svg)

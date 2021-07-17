@@ -11,27 +11,21 @@
   opacity: 0.5;
 }
 
+#updating-box {
+  background-color: var(--field-background-color);
+  color: var(--field-text-color);
+  border: 1px solid var(--field-border-color);
+}
+
 #invitations-listbox {
-  background-color: Field;
-  color: FieldText;
-  border: 1px solid #7F9DB9;
   display: flex;
   flex-direction: column;
 }
 
 richlistitem[is="calendar-invitations-richlistitem"] {
-  padding-top: 6px;
-  padding-bottom: 6px;
-  padding-inline-start: 7px;
-  padding-inline-end: 7px;
+  padding: 6px 7px;
   min-height: 25px;
-  border-bottom: 1px dotted #C0C0C0;
-}
-
-richlistitem[is="calendar-invitations-richlistitem"][selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
-  border-bottom: 1px dotted #7F9DB9;
+  border-bottom: 1px dotted #808080;
 }
 
 .calendar-invitations-richlistitem-title {
@@ -66,19 +60,25 @@ richlistitem[is="calendar-invitations-richlistitem"][selected="true"] .calendar-
   visibility: visible;
 }
 
-.calendar-invitations-richlistitem-button .button-icon {
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-inline-start: 0px;
-  margin-inline-end: 5px;
+.calendar-invitations-richlistitem-button > .button-icon {
+  margin-block: 0;
+  margin-inline: 0 5px;
+  border-radius: 3px;
+  fill: white;
 }
 
 .calendar-invitations-richlistitem-accept-button {
-  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-button-images.png");
-  -moz-image-region: rect(0px 16px 16px 0px);
+  list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
+}
+
+.calendar-invitations-richlistitem-accept-button > .button-icon {
+  background-color: #579e24;
 }
 
 .calendar-invitations-richlistitem-decline-button {
-  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-button-images.png");
-  -moz-image-region: rect(0px 32px 16px 16px);
+  list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
+}
+
+.calendar-invitations-richlistitem-decline-button > .button-icon {
+  background-color: #fb0000;
 }
