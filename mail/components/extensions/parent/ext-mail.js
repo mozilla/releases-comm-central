@@ -1703,13 +1703,13 @@ var messageTracker = new (class extends EventEmitter {
     // nsIFolderListener
     MailServices.mailSession.AddFolderListener(
       this,
-      Ci.nsIFolderListener.propertyFlagChanged
+      Ci.nsIFolderListener.propertyFlagChanged |
+        Ci.nsIFolderListener.intPropertyChanged
     );
     // nsIMsgFolderListener
     MailServices.mfn.addListener(
       this,
-      MailServices.mfn.msgsClassified |
-        MailServices.mfn.msgsJunkStatusChanged |
+      MailServices.mfn.msgsJunkStatusChanged |
         MailServices.mfn.msgsDeleted |
         MailServices.mfn.msgsMoveCopyCompleted |
         MailServices.mfn.msgKeyChanged
@@ -1822,18 +1822,61 @@ var messageTracker = new (class extends EventEmitter {
     }
   }
 
-  // nsIMsgFolderListener
-
-  msgsClassified(newMessages, junkProcessed, traitProcessed) {
-    // Filter out messages, which are moved, but reported as new. Since we log
-    // message movements, we get notified of these and can exclude them.
-    newMessages = newMessages.filter(
-      msgHdr => this._get(msgHdr.folder.URI, msgHdr.messageKey) == null
-    );
-    if (newMessages.length > 0) {
-      this.emit("messages-received", newMessages[0].folder, newMessages);
+  OnItemIntPropertyChanged(folder, property, oldValue, newValue) {
+    switch (property) {
+      case "BiffState":
+        if (newValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail) {
+          // The folder argument is a root folder.
+          this.findNewMessages(folder);
+        }
+        break;
+      case "NewMailReceived":
+        // The folder argument is a real folder.
+        this.findNewMessages(folder);
+        break;
     }
   }
+
+  /**
+   * Finds the first folder with new messages in the specified changedFolder and
+   * returns those.
+   *
+   * @see MailNotificationManager._getFirstRealFolderWithNewMail()
+   */
+  findNewMessages(changedFolder) {
+    let folders = changedFolder.descendants;
+    folders.unshift(changedFolder);
+    let folder = folders.find(f => {
+      let flags = f.flags;
+      if (
+        !(flags & Ci.nsMsgFolderFlags.Inbox) &&
+        flags & (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual)
+      ) {
+        // Do not notify if the folder is not Inbox but one of
+        // Drafts|Trash|SentMail|Templates|Junk|Archive|Queue or Virtual.
+        return false;
+      }
+      return f.getNumNewMessages(false) > 0;
+    });
+
+    if (!folder) {
+      return;
+    }
+
+    let numNewMessages = folder.getNumNewMessages(false);
+    let msgDb = folder.msgDatabase;
+    let newMsgKeys = msgDb.getNewList().slice(-numNewMessages);
+    if (newMsgKeys.length == 0) {
+      return;
+    }
+    this.emit(
+      "messages-received",
+      newMsgKeys[0].folder,
+      newMsgKeys.map(key => msgDb.GetMsgHdrForKey(key))
+    );
+  }
+
+  // nsIMsgFolderListener
 
   msgsJunkStatusChanged(messages) {
     for (let msgHdr of messages) {

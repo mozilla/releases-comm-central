@@ -21,14 +21,25 @@ add_task(async function() {
 
   await extension.startup();
 
-  await createMessages(inbox, 1);
-  let inboxMessages = [...inbox.messages];
+  // Create a new message.
 
+  await createMessages(inbox, 1);
+  inbox.hasNewMessages = true;
+  inbox.setNumNewMessages(1);
+  inbox.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
+
+  let inboxMessages = [...inbox.messages];
   let newMessages = await extension.awaitMessage("newMessages");
   equal(newMessages.length, 1);
   equal(newMessages[0].subject, inboxMessages[0].subject);
 
+  // Create 2 more new messages.
+
   await createMessages(inbox, 2);
+  inbox.hasNewMessages = true;
+  inbox.setNumNewMessages(2);
+  inbox.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
+
   inboxMessages = [...inbox.messages];
   newMessages = await extension.awaitMessage("newMessages");
   equal(newMessages.length, 2);
