@@ -66,47 +66,18 @@
 }
 
 #imip-view-toolbar {
-  color: -moz-dialogText;
+  --imip-button-color: WindowText;
+  --imip-button-background: ButtonFace;
 }
 
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-  border-color: var(--toolbarbutton-active-bordercolor);
-  background-image: linear-gradient(-moz-dialog, -moz-dialog);
+@media (-moz-windows-compositor) and (-moz-windows-default-theme) {
+  #imip-view-toolbar {
+    --imip-button-background: #f8f8f8;
+  }
 }
 
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not(:active):hover,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:is(:hover,[open="true"]) >
-  .toolbarbutton-menubutton-button,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:hover >
-  .toolbarbutton-menubutton-dropmarker {
-  background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)),
-                    linear-gradient(-moz-dialog, -moz-dialog);
-}
-
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):hover:active,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[type="menu-button"] >
-  .toolbarbutton-menubutton-button:hover:active,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[open="true"] >
-  .toolbarbutton-menubutton-dropmarker {
-  background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)),
-                    linear-gradient(-moz-dialog, -moz-dialog);
-}
-
-menupopup[anonid="years-popup"] .scrollbutton-up,
-menupopup[anonid="years-popup"] .scrollbutton-down {
-  appearance: none;
-  border: 1px solid transparent;
-  padding: 1px;
-}
-
-menupopup[anonid="years-popup"] .scrollbutton-up:not([disabled="true"]):hover,
-menupopup[anonid="years-popup"] .scrollbutton-down:not([disabled="true"]):hover {
-  margin: 1px;
-  border: 1px inset ThreeDFace;
-  padding-top: 2px;
-  padding-bottom: 1px;
-  padding-inline-start: 2px;
-  padding-inline-end: 1px;
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
+  #imip-view-toolbar {
+    --imip-button-background: rgb(233, 239, 245);
+  }
 }

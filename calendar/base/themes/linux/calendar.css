@@ -60,38 +60,6 @@
 }
 
 #imip-view-toolbar {
-  color: -moz-dialogText;
-}
-
-/* ::: imip button icons ::: */
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button {
-  background-color: -moz-dialog;
-}
-
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-  background-color: transparent;
-}
-
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not(:active):hover,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:is(:hover,[open="true"]) >
-  .toolbarbutton-menubutton-button,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:hover >
-  .toolbarbutton-menubutton-dropmarker {
-  background: -moz-dialog linear-gradient(rgba(255, 255, 255, .5), transparent);
-}
-
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):hover:active,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[type="menu-button"] >
-  .toolbarbutton-menubutton-button:hover:active,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[open="true"] >
-  .toolbarbutton-menubutton-dropmarker {
-  background: rgb(154, 154, 154) linear-gradient(rgba(255, 255, 255, .7), rgba(255, 255, 255, .4));
-}
-
-menupopup[anonid="years-popup"] .scrollbutton-up,
-menupopup[anonid="years-popup"] .scrollbutton-down {
-  appearance: none;
-  border: 1px solid ThreeDShadow;
-  padding: 0;
+  --imip-button-color: WindowText;
+  --imip-button-background: AppWorkspace;
 }

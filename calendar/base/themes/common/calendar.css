@@ -124,19 +124,51 @@
   box-shadow: 0 1px 2px rgba(58, 57, 68, 0.3);
 }
 
+:root[lwt-tree] #imip-view-toolbar {
+  --imip-button-color: var(--toolbar-color);
+  --imip-button-background: var(--toolbar-bgcolor);
+  color: var(--lwt-text-color);
+}
+
 #imip-bar > img {
   -moz-context-properties: fill;
   fill: currentColor;
   width: 20px;
 }
 
-.imipMoreButton > .toolbarbutton-icon {
-  display: none;
+#imip-view-toolbar > .toolbarbutton-1[type="menu-button"] {
+  border-radius: var(--toolbarbutton-border-radius);
 }
 
-/* Write button */
-#newMsgButton-mail-menuitem {
-  list-style-image: url(chrome://messenger/skin/icons/newmsg.svg);
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
+  border-color: var(--toolbarbutton-header-bordercolor);
+  background-image: linear-gradient(var(--imip-button-background), var(--imip-button-background));
+}
+
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not(:active):hover,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:is(:hover,[open="true"]) >
+  .toolbarbutton-menubutton-button,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:hover >
+  .toolbarbutton-menubutton-dropmarker {
+  background-image: linear-gradient(var(--toolbarbutton-hover-background),
+                                    var(--toolbarbutton-hover-background)),
+                    linear-gradient(var(--imip-button-background), var(--imip-button-background));
+}
+
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):hover:active,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[type="menu-button"] >
+  .toolbarbutton-menubutton-button:hover:active,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[open="true"] >
+  .toolbarbutton-menubutton-dropmarker {
+  background-image: linear-gradient(var(--toolbarbutton-active-background),
+                                    var(--toolbarbutton-active-background)),
+                    linear-gradient(var(--imip-button-background), var(--imip-button-background));
+}
+
+.imipMoreButton > .toolbarbutton-icon {
+  display: none;
 }
 
 .imipAcceptRecurrencesButton,
