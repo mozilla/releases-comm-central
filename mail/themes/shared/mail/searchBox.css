@@ -34,12 +34,12 @@
 }
 
 .themeableSearchBox[disabled] {
-  border-color: hsla(240, 5%, 5%, .1) !important;
+  border-color: hsla(240, 5%, 5%, 0.1) !important;
 }
 
 .searchBox:hover,
 .themeableSearchBox:not([disabled]):hover {
-  box-shadow: 0 1px 6px rgba(0, 0, 0, .1);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
 }
 
 .gloda-search:focus,
@@ -52,7 +52,7 @@
 
 .searchBox:-moz-lwtheme-brighttext:hover,
 .themeableSearchBox:-moz-lwtheme-brighttext:not([disabled]):hover {
-  box-shadow: 0 1px 3px rgba(255, 255, 255, .25);
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.25);
 }
 
 /* special treatment because these boxes are on themable toolbars */
@@ -61,9 +61,10 @@
 #peopleSearchInput:-moz-lwtheme,
 .themeableSearchBox:-moz-lwtheme,
 .remote-gloda-search:-moz-lwtheme {
-  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
+  background-color: var(--lwt-toolbar-field-background-color,
+                        hsla(0, 0%, 100%, 0.8));
   color: var(--lwt-toolbar-field-color, black);
-  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240, 5%, 5%, 0.25));
 }
 
 .gloda-search:-moz-lwtheme:focus,
@@ -72,8 +73,10 @@
 #peopleSearchInput:-moz-lwtheme[focused="true"],
 .themeableSearchBox:-moz-lwtheme[focused="true"],
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
-  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
-  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
+  background-color: var(--lwt-toolbar-field-focus,
+                    var(--lwt-toolbar-field-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color,
+         var(--lwt-toolbar-field-color, black));
   border-color: var(--toolbar-field-focus-border-color);
 }
 
@@ -82,28 +85,56 @@
 #peopleSearchInput .textbox-input:-moz-lwtheme::selection,
 .themeableSearchBox .textbox-input:-moz-lwtheme::selection,
 .remote-gloda-search .textbox-input:-moz-lwtheme::selection {
-  background-color: var(--lwt-toolbar-field-highlight, -moz-system-color(text-select-background, light));
-  color: var(--lwt-toolbar-field-highlight-text, -moz-system-color(text-select-foreground, light));
+  background-color: var(--lwt-toolbar-field-highlight,
+                        -moz-system-color(text-select-background, light));
+  color: var(--lwt-toolbar-field-highlight-text,
+             -moz-system-color(text-select-foreground, light));
+}
+
+.gloda-search:not(:focus)::selection,
+#searchBox:not([focused="true"]) .textbox-input::selection,
+#peopleSearchInput:not([focused="true"]) .textbox-input::selection,
+.themeableSearchBox:not(:focus) .textbox-input::selection,
+.themeableSearchBox:not([focused="true"]) .textbox-input::selection,
+.remote-gloda-search:not([focused="true"]) .textbox-input::selection {
+  background-color: var(--lwt-toolbar-field-highlight,
+                        -moz-system-color(text-select-background-disabled,
+                        light));
 }
 
 :root[lwt-toolbar-field-focus-brighttext] .gloda-search:focus::selection,
-:root[lwt-toolbar-field-focus-brighttext] #searchBox[focused="true"] .textbox-input::selection,
-:root[lwt-toolbar-field-focus-brighttext] #peopleSearchInput[focused="true"] .textbox-input::selection,
-:root[lwt-toolbar-field-focus-brighttext] .themeableSearchBox:focus .textbox-input::selection,
-:root[lwt-toolbar-field-focus-brighttext] .themeableSearchBox[focused="true"] .textbox-input::selection,
-:root[lwt-toolbar-field-focus-brighttext] .remote-gloda-search[focused="true"] .textbox-input::selection {
-  background-color: var(--lwt-toolbar-field-highlight, -moz-system-color(text-select-background, dark));
-  color: var(--lwt-toolbar-field-highlight-text, -moz-system-color(text-select-foreground, dark));
+:root[lwt-toolbar-field-focus-brighttext]
+  #searchBox[focused="true"] .textbox-input::selection,
+:root[lwt-toolbar-field-focus-brighttext]
+  #peopleSearchInput[focused="true"] .textbox-input::selection,
+:root[lwt-toolbar-field-focus-brighttext]
+  .themeableSearchBox:focus .textbox-input::selection,
+:root[lwt-toolbar-field-focus-brighttext]
+  .themeableSearchBox[focused="true"] .textbox-input::selection,
+:root[lwt-toolbar-field-focus-brighttext]
+  .remote-gloda-search[focused="true"] .textbox-input::selection {
+  background-color: var(--lwt-toolbar-field-highlight,
+                        -moz-system-color(text-select-background, dark));
+  color: var(--lwt-toolbar-field-highlight-text,
+             -moz-system-color(text-select-foreground, dark));
 }
 
 :root[lwt-toolbar-field-brighttext] .gloda-search:not(:focus)::selection,
-:root[lwt-toolbar-field-brighttext] #searchBox:not([focused="true"]) .textbox-input::selection,
-:root[lwt-toolbar-field-brighttext] #peopleSearchInput:not([focused="true"]) .textbox-input::selection,
-:root[lwt-toolbar-field-brighttext] .themeableSearchBox:not(:focus) .textbox-input::selection,
-:root[lwt-toolbar-field-brighttext] .themeableSearchBox:not([focused="true"]) .textbox-input::selection,
-:root[lwt-toolbar-field-brighttext] .remote-gloda-search:not([focused="true"]) .textbox-input::selection {
-  background-color: var(--lwt-toolbar-field-highlight, -moz-system-color(text-select-background-disabled, dark));
-  color: var(--lwt-toolbar-field-highlight-text, -moz-system-color(text-select-foreground, dark));
+:root[lwt-toolbar-field-brighttext]
+  #searchBox:not([focused="true"]) .textbox-input::selection,
+:root[lwt-toolbar-field-brighttext]
+  #peopleSearchInput:not([focused="true"]) .textbox-input::selection,
+:root[lwt-toolbar-field-brighttext]
+  .themeableSearchBox:not(:focus) .textbox-input::selection,
+:root[lwt-toolbar-field-brighttext]
+  .themeableSearchBox:not([focused="true"]) .textbox-input::selection,
+:root[lwt-toolbar-field-brighttext]
+  .remote-gloda-search:not([focused="true"]) .textbox-input::selection {
+  background-color: var(--lwt-toolbar-field-highlight,
+                        -moz-system-color(text-select-background-disabled,
+                        dark));
+  color: var(--lwt-toolbar-field-highlight-text,
+             -moz-system-color(text-select-foreground, dark));
 }
 
 #PopupGlodaAutocomplete {
@@ -136,7 +167,7 @@
 }
 
 .autocomplete-richlistitem[type^="gloda-"]:hover {
-  background-color: hsla(0,0%,80%,.3);
+  background-color: hsla(0, 0%, 80%, 0.3);
 }
 
 .autocomplete-richlistitem[type^="gloda-"][selected] {
