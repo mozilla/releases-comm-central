@@ -607,7 +607,6 @@ function getPluginById(id)
     return client.plugins[id] || null;
 }
 
-
 function getPluginByURL(url)
 {
     for (var k in client.plugins)
@@ -620,6 +619,49 @@ function getPluginByURL(url)
     return null;
 }
 
+function disablePlugin(plugin, destroy)
+{
+    if (!plugin.enabled)
+    {
+        display(getMsg(MSG_IS_DISABLED, plugin.id));
+        return true;
+    }
+
+    if (plugin.API > 0)
+    {
+        if (!plugin.disable())
+        {
+            display(getMsg(MSG_CANT_DISABLE, plugin.id));
+            return false;
+        }
+
+        if (destroy)
+        {
+            client.prefManager.removeObserver(plugin.prefManager);
+            plugin.prefManager.destroy();
+        }
+        else
+        {
+            plugin.prefs["enabled"] = false;
+        }
+    }
+    else if ("disablePlugin" in plugin.scope)
+    {
+        plugin.scope.disablePlugin();
+    }
+    else
+    {
+        display(getMsg(MSG_CANT_DISABLE, plugin.id));
+        return false;
+    }
+
+    display(getMsg(MSG_PLUGIN_DISABLED, plugin.id));
+    if (!destroy)
+    {
+        plugin.enabled = false;
+    }
+    return true;
+}
 
 function processStartupAutoperform()
 {
@@ -3224,6 +3266,21 @@ function cli_installPlugin(name, source)
     {
         display(MSG_INSTALL_PLUGIN_ERR_FORMAT, MT_ERROR);
     }
+}
+
+client.uninstallPlugin =
+function cli_uninstallPlugin(plugin)
+{
+    if (!disablePlugin(plugin, true))
+        return;
+    delete client.plugins[plugin.id];
+    let file = getFileFromURLSpec(plugin.cwd);
+    if (file.exists() && file.isDirectory())
+    {
+        // Delete the directory and contents.
+        file.remove(true);
+    }
+    display(getMsg(MSG_PLUGIN_UNINSTALLED, plugin.id));
 }
 
 function syncOutputFrame(obj, nesting)

@@ -167,6 +167,7 @@ function initCommands()
          ["unignore",          cmdIgnore,           CMD_NEED_NET | CMD_CONSOLE],
          ["unban",             cmdBanOrExcept,     CMD_NEED_CHAN | CMD_CONSOLE],
          ["unexcept",          cmdBanOrExcept,     CMD_NEED_CHAN | CMD_CONSOLE],
+         ["uninstall-plugin",  cmdUninstallPlugin,                 CMD_CONSOLE],
          ["unstalk",           cmdUnstalk,                         CMD_CONSOLE],
          ["urls",              cmdURLs,                            CMD_CONSOLE],
          ["user",              cmdUser,                            CMD_CONSOLE],
@@ -795,33 +796,7 @@ function getToggle (toggle, currentState)
 
 function cmdDisablePlugin(e)
 {
-    if (!e.plugin.enabled)
-    {
-        display(getMsg(MSG_IS_DISABLED, e.plugin.id));
-        return;
-    }
-
-    if (e.plugin.API > 0)
-    {
-        if (!e.plugin.disable())
-        {
-            display(getMsg(MSG_CANT_DISABLE, e.plugin.id));
-            return;
-        }
-        e.plugin.prefs["enabled"] = false;
-    }
-    else if (!("disablePlugin" in e.plugin.scope))
-    {
-        display(getMsg(MSG_CANT_DISABLE, e.plugin.id));
-        return;
-    }
-    else
-    {
-        e.plugin.scope.disablePlugin();
-    }
-
-    display(getMsg(MSG_PLUGIN_DISABLED, e.plugin.id));
-    e.plugin.enabled = false;
+    disablePlugin(e.plugin, false);
 }
 
 function cmdEnablePlugin(e)
@@ -2509,44 +2484,6 @@ function cmdReload(e)
 
 function cmdLoad(e)
 {
-    var ex;
-    var plugin;
-
-    function removeOldPlugin(url)
-    {
-        var oldPlugin;
-
-        var oldPlugin = getPluginByURL(url);
-        if (!oldPlugin)
-            return;
-
-        if (oldPlugin.enabled)
-        {
-            if (oldPlugin.API > 0)
-            {
-                if (!oldPlugin.disable())
-                {
-                    display(getMsg(MSG_CANT_DISABLE, oldPlugin.id));
-                    display(getMsg(MSG_ERR_SCRIPTLOAD, e.url));
-                    return null;
-                }
-                client.prefManager.removeObserver(oldPlugin.prefManager);
-                oldPlugin.prefManager.destroy();
-            }
-            else if ("disablePlugin" in oldPlugin.scope)
-            {
-                oldPlugin.scope.disablePlugin();
-            }
-            else
-            {
-                display(getMsg(MSG_CANT_DISABLE, oldPlugin.id));
-                display(getMsg(MSG_ERR_SCRIPTLOAD, e.url));
-                return null;
-            }
-            display(getMsg(MSG_PLUGIN_DISABLED, oldPlugin.id));
-        }
-    }
-
     if (!e.scope)
         e.scope = new Object();
 
@@ -2558,14 +2495,19 @@ function cmdLoad(e)
 
     }
 
-    plugin = e.scope.plugin;
+    var plugin = e.scope.plugin;
     plugin.scope = e.scope;
 
     try
     {
         var rvStr;
         var rv = rvStr = client.load(e.url, e.scope);
-        removeOldPlugin(e.url);
+        let oldPlugin = getPluginByURL(e.url);
+        if (oldPlugin && !disablePlugin(oldPlugin, true))
+        {
+            display(getMsg(MSG_ERR_SCRIPTLOAD, e.url));
+            return null;
+        }
 
         if ("init" in plugin)
         {
@@ -4559,6 +4501,14 @@ function cmdInstallPlugin(e)
 
         default:
             display(MSG_INSTALL_PLUGIN_ERR_PROTOCOL, MT_ERROR);
+    }
+}
+
+function cmdUninstallPlugin(e)
+{
+    if (e.plugin)
+    {
+        client.uninstallPlugin(e.plugin);
     }
 }
 
