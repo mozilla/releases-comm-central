@@ -506,7 +506,7 @@ Enigmail.msg = {
       case CT.ForwardInline:
       case CT.ForwardAsAttachment:
         prefix =
-          Services.prefs.getCharPref("mail.forward_subject_prefix") + ": ";
+          Services.prefs.getStringPref("mail.forward_subject_prefix") + ": ";
         break;
       case CT.Draft:
         isReply = Boolean(flags & Ci.nsMsgMessageFlags.HasRe);
