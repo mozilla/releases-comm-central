@@ -195,6 +195,12 @@ function contentAreaClick(aEvent) {
     return true;
   }
 
+  // Add-on names in the Add-On Manager are links, but we don't want to do
+  // anything with them.
+  if (uri.schemeIs("addons")) {
+    return true;
+  }
+
   // Now we're here, we know this should be loaded in an external browser, so
   // prevent the default action so we don't try and load it here.
   aEvent.preventDefault();
