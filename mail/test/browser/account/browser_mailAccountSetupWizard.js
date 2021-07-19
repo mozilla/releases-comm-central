@@ -403,6 +403,9 @@ add_task(async function test_bad_password_uses_old_settings() {
   );
 
   let outgoingAuthSelect = tabDocument.getElementById("outgoingAuthMethod");
+  // Make sure the select field is inside the viewport.
+  outgoingAuthSelect.scrollIntoView();
+
   let noAuthOption = outgoingAuthSelect.querySelector(`option[id="outNoAuth"]`);
   let outgoingOptions = outgoingAuthSelect.getElementsByTagName("option");
 
