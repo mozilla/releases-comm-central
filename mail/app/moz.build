@@ -33,6 +33,11 @@ if CONFIG["OS_ARCH"] == "WINNT":
     RCINCLUDE = "splash.rc"
     DEFINES["MOZ_THUNDERBIRD"] = True
 
+    # Don't build thunderbird.exe with CETCOMPAT, because we need to be able to
+    # only enable it for processes that are not using JIT in xul.dll.
+
+    LINK_FLAGS["CETCOMPAT"] = []
+
 if CONFIG["MOZ_SANDBOX"] and CONFIG["OS_ARCH"] == "WINNT":
     # For sandbox includes and the include dependencies those have
     LOCAL_INCLUDES += [
