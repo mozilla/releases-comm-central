@@ -34,6 +34,14 @@ class MsgKeySet {
   }
 
   /**
+   * Add a value to the set.
+   * @param {number} value - The value to add.
+   */
+  add(value) {
+    this.addRange(value, value);
+  }
+
+  /**
    * Add a range to the set.
    * @param {number} low - The smallest value of the range.
    * @param {number} high - The largest value of the range.
@@ -79,6 +87,16 @@ class MsgKeySet {
       }
     }
     return [low, high];
+  }
+
+  /**
+   * Get the string representation of the key set.
+   * @returns {string}
+   */
+  toString() {
+    return this._ranges
+      .map(([start, end]) => (start == end ? start : `${start}-${end}`))
+      .join(",");
   }
 
   /**

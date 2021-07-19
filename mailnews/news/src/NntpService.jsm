@@ -27,6 +27,7 @@ class NntpService {
     client.onOpen = () => {
       client.getNewNews(getOld, urlListener, msgWindow);
     };
+    return client.runningUri;
   }
 }
 

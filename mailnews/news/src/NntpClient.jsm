@@ -5,6 +5,7 @@
 const EXPORTED_SYMBOLS = ["NntpClient"];
 
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { NntpNewsGroup } = ChromeUtils.import(
   "resource:///modules/NntpNewsGroup.jsm"
 );
@@ -36,7 +37,11 @@ class NntpClient {
     let matches = /.+:\/\/(.+)\/(.+)/.exec(uri);
     this._host = matches[1];
     this._groupName = matches[2];
+    this._newsFolder = this._server.findGroup(this._groupName);
     this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
+    this.runningUri = Services.io
+      .newURI(uri)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
 
     this._logger = console.createInstance({
       prefix: "mailnews.nntp",
@@ -49,6 +54,7 @@ class NntpClient {
    * Initiate a connection to the server
    */
   connect() {
+    this._urlListener?.OnStartRunningUrl(this.runningUri);
     let port = this._server.port;
     let useSecureTransport = this._server.isSecure;
     this._logger.debug(
@@ -90,6 +96,21 @@ class NntpClient {
   };
 
   /**
+   * The error event handler.
+   * @param {TCPSocketErrorEvent} event - The error event.
+   */
+  _onError = event => {
+    this._logger.error(event);
+  };
+
+  /**
+   * The close event handler.
+   */
+  _onClose = () => {
+    this._logger.debug("Connection closed.");
+  };
+
+  /**
    * Parse the server response.
    * @param {string} str - Response received from the server.
    * @returns {NntpResponse}
@@ -120,7 +141,9 @@ class NntpClient {
    */
   getNewNews(getOld, urlListener, msgWindow) {
     this._newsGroup.getOldMessages = getOld;
+    this._urlListener = urlListener;
     this._msgWindow = msgWindow;
+    this.runningUri.updatingFolder = true;
     this._nextAction = this._actionModeReader;
   }
 
@@ -144,7 +167,8 @@ class NntpClient {
    * Send `XOVER` request to the server.
    */
   _actionXOver(res) {
-    let [, low, high] = res.statusText.split(" ");
+    let [count, low, high] = res.statusText.split(" ");
+    this._newsFolder.updateSummaryFromNNTPInfo(low, high, count);
     let [start, end] = this._newsGroup.getArticlesRangeToFetch(
       this._msgWindow,
       Number(low),
@@ -154,7 +178,7 @@ class NntpClient {
       this._sendString(`XOVER ${start}-${end}`);
       this._nextAction = this._actionXOverResponse;
     } else {
-      this._nextAction = null;
+      this._actionDone();
     }
   }
 
@@ -187,35 +211,23 @@ class NntpClient {
       }
       if (data == ".\r\n") {
         // Finished reading XOVER response.
-        this._nextAction = null;
+        this._newsGroup.finishProcessingXOver();
+        this._actionDone();
         break;
       }
-      let parts = data.slice(0, index).split("\t");
-      if (parts.length >= 8) {
-        let [
-          articleNumber,
-          subject,
-          from,
-          date,
-          messageId,
-          references,
-          bytes,
-          lines,
-          ...extra
-        ] = parts;
-        this._logger.debug({
-          articleNumber,
-          subject,
-          from,
-          date,
-          messageId,
-          references,
-          bytes,
-          lines,
-          extra,
-        });
-      }
+      this._newsGroup.processXOverLine(data.slice(0, index));
       data = data.slice(index + 2);
     }
+  }
+
+  /**
+   * Close the connection and do necessary cleanup.
+   */
+  _actionDone() {
+    this._newsGroup.cleanUp();
+    this._newsFolder.OnStopRunningUrl(this.runningUri, 0);
+    this._urlListener?.OnStopRunningUrl(this.runningUri, 0);
+    this._socket.close();
+    this._nextAction = null;
   }
 }
