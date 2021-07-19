@@ -618,6 +618,7 @@ select[disabled] {
   margin: 0;
   padding-inline: 0;
   width: 100%;
+  height: auto;
 }
 
 button.linked-services-button:hover {
@@ -628,6 +629,7 @@ button.linked-services-button:hover {
 
 button.linked-services-button:hover:active {
   background-color: transparent;
+  border-color: transparent;
 }
 
 .linked-services-button > aside {
@@ -772,6 +774,11 @@ button.quick-link:hover:active {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 600;
+}
+
+.linked-services-list button.small {
+  line-height: 0.9em;
+  padding-block: 0;
 }
 
 .list-item-name {

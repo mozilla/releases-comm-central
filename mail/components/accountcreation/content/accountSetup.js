@@ -926,12 +926,6 @@ var gAccountSetup = {
     notification.removeAttribute("dismissable");
 
     this.showHelperImage("step3");
-
-    // Scroll down to the buttons only if we're not inside the manual config in
-    // order to avoid scrolling past the notification for small screens.
-    if (document.getElementById("manualConfigArea").hidden) {
-      this.ensureVisibleButtons();
-    }
   },
 
   /**
@@ -1012,7 +1006,9 @@ var gAccountSetup = {
    * button is above the fold.
    */
   ensureVisibleButtons() {
-    document.getElementById("createButton").scrollIntoView({
+    // We use the #footDescription element to ensure the buttons are properly
+    // scrolled above the fold.
+    document.getElementById("footDescription").scrollIntoView({
       behavior: gReducedMotion ? "auto" : "smooth",
       block: "end",
       inline: "nearest",
