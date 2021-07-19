@@ -120,12 +120,7 @@ function createCalendar(window, name) {
   let url = Services.io.newURI("moz-storage-calendar://");
   let calendar = manager.createCalendar("storage", url);
   calendar.name = name;
+  calendar.setProperty("calendar-main-default", true);
   manager.registerCalendar(calendar);
-
-  EventUtils.synthesizeMouseAtCenter(
-    window.document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`),
-    {},
-    window
-  );
   return calendar.id;
 }

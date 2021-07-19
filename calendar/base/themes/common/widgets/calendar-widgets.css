@@ -157,54 +157,69 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
  * but are otherwise independent:
  *
  * - calendar-providerUninstall-dialog.xhtml
- * - messenger-overlay-sidebar.xhtml
+ * - calendar-tab-panels.inc.xhtml
  *
  * Please be careful when changing the following CSS.
  */
 
+#calendar-list-inner-pane {
+  display: flex;
+  flex-direction: column;
+}
+
 #calendar-list-inner-pane > #calendar-list {
-  appearance: none;
+  display: block;
+  list-style: none;
   margin: 0;
-  border-style: none;
-  background-color: transparent;
-  color: inherit;
+  padding: 0;
+  flex: 1;
 }
 
-#calendar-list > richlistitem {
-  -moz-box-align: center;
+#calendar-list > li {
+  display: flex;
   border: 1px transparent solid;
+  padding-block: 2px;
+  padding-inline-start: 14px;
+  align-items: center;
+  transition: opacity 250ms;
 }
 
-#calendar-list > richlistitem[drop-on="top"] {
-  border-top-color: highlight;
+#calendar-list > li.selected {
+  background-color: -moz-cellhighlight;
+  color: -moz-cellhighlighttext;
 }
 
-#calendar-list > richlistitem[drop-on="bottom"] {
-  border-bottom-color: highlight;
+#calendar-list:focus-within > li.selected {
+  background-color: highlight;
+  color: highlighttext;
 }
 
-:root[lwt-tree] #calendar-list > richlistitem[selected] {
+#calendar-list > li.dragging {
+  opacity: 0.75;
+}
+
+:root[lwt-tree] #calendar-list > li.selected {
   border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
   background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
-:root[lwt-tree] #calendar-list:focus > richlistitem[selected] {
+:root[lwt-tree] #calendar-list:focus > li.selected {
   border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
-:root[lwt-tree-brighttext] #calendar-list > richlistitem[selected] {
+:root[lwt-tree-brighttext] #calendar-list > li.selected {
   border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
   background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }
 
-:root[lwt-tree-brighttext] #calendar-list:focus > richlistitem[selected] {
+:root[lwt-tree-brighttext] #calendar-list:focus > li.selected {
   border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
-button.calendar-enable-button {
+#calendar-list > li > button.calendar-enable-button {
   color: #fff !important;
   background: #6b80a4;
   padding: 1px 4px;
@@ -216,17 +231,17 @@ button.calendar-enable-button {
   height: auto;
 }
 
-button.calendar-enable-button:hover,
-button.calendar-enable-button:focus,
-button.calendar-enable-button:active {
+#calendar-list > li > button.calendar-enable-button:hover,
+#calendar-list > li > button.calendar-enable-button:focus,
+#calendar-list > li > button.calendar-enable-button:active {
   background: #2c4c82;
 }
 
-checkbox.calendar-displayed {
+#calendar-list > li > .calendar-displayed {
   margin-block: 0;
 }
 
-checkbox.calendar-displayed > .checkbox-check {
+#calendar-list > li > .calendar-displayed {
   appearance: none;
   background-image: url("chrome://messenger/skin/icons/hidden.svg");
   color: inherit;
@@ -236,41 +251,41 @@ checkbox.calendar-displayed > .checkbox-check {
   -moz-context-properties: fill;
   fill: currentColor;
   transition: opacity .2s ease;
+  width: 16px;
+  height: 16px;
 }
 
-checkbox.calendar-displayed:hover > .checkbox-check,
-checkbox.calendar-displayed:focus > .checkbox-check {
+#calendar-list > li > .calendar-displayed:hover,
+#calendar-list > li > .calendar-displayed:focus {
   opacity: 0.9 !important;
 }
 
-#calendar-list > richlistitem > checkbox[checked="true"] > .checkbox-check {
+#calendar-list > li > .calendar-displayed:checked {
   background-image: url("chrome://messenger/skin/icons/visible.svg");
   opacity: 0;
 }
 
-#calendar-list > richlistitem:hover > checkbox[checked="true"] > .checkbox-check {
+#calendar-list > li:hover > .calendar-displayed:checked {
   opacity: 0.7;
 }
 
-#calendar-list > richlistitem > checkbox > .checkbox-label-box {
-  display: none;
-}
-
-#calendar-list > richlistitem > .calendar-color {
+#calendar-list > li > .calendar-color {
   width: 10px;
   height: 10px;
   border-radius: 5px;
+  box-sizing: border-box;
 }
 
-#calendar-list > richlistitem > .calendar-name {
-  -moz-box-flex: 1;
+#calendar-list > li > .calendar-name {
+  flex: 1;
+  margin: 2px 4px;
 }
 
-#calendar-list > richlistitem[calendar-disabled]:not([selected="true"]) > .calendar-name {
+#calendar-list > li[calendar-disabled]:not(.selected) > .calendar-name {
   color: #808080;
 }
 
-#calendar-list > richlistitem > .calendar-readstatus {
+#calendar-list > li > .calendar-readstatus {
   width: 16px;
   height: 16px;
   margin: 0 2px;
@@ -279,6 +294,6 @@ checkbox.calendar-displayed:focus > .checkbox-check {
   opacity: 0.7;
 }
 
-.calendar-readstatus:not([src]) {
+#calendar-list > li > .calendar-readstatus:not([src]) {
   visibility: hidden;
 }

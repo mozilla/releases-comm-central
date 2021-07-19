@@ -35,7 +35,7 @@ async function withMockPromptService(response, callback) {
 add_task(async () => {
   function checkProperties(index, expected) {
     let calendarList = document.getElementById("calendar-list");
-    let item = calendarList.itemChildren[index];
+    let item = calendarList.rows[index];
     let colorImage = item.querySelector(".calendar-color");
     for (let [key, expectedValue] of Object.entries(expected)) {
       switch (key) {
@@ -56,7 +56,7 @@ add_task(async () => {
           }
           break;
         case "name":
-          Assert.equal(item.querySelector(".calendar-name").value, expectedValue);
+          Assert.equal(item.querySelector(".calendar-name").textContent, expectedValue);
           break;
       }
     }
@@ -64,10 +64,10 @@ add_task(async () => {
 
   function checkDisplayed(...expected) {
     let calendarList = document.getElementById("calendar-list");
-    Assert.ok(calendarList.itemCount > Math.max(...expected));
-    for (let i = 0; i < calendarList.itemCount; i++) {
+    Assert.ok(calendarList.rowCount > Math.max(...expected));
+    for (let i = 0; i < calendarList.rowCount; i++) {
       Assert.equal(
-        calendarList.itemChildren[i].querySelector("checkbox").checked,
+        calendarList.rows[i].querySelector(".calendar-displayed").checked,
         expected.includes(i)
       );
     }
@@ -93,7 +93,7 @@ add_task(async () => {
   // Check the default calendar.
   let calendars = manager.getCalendars();
   Assert.equal(calendars.length, 1);
-  Assert.equal(calendarList.itemCount, 1);
+  Assert.equal(calendarList.rowCount, 1);
   checkProperties(0, {
     color: "rgb(168, 194, 225)",
     name: "Home",
@@ -120,7 +120,7 @@ add_task(async () => {
   }
 
   Assert.equal(manager.getCalendars().length, 4);
-  Assert.equal(calendarList.itemCount, 4);
+  Assert.equal(calendarList.rowCount, 4);
 
   for (let i = 1; i <= 3; i++) {
     checkProperties(i, {
@@ -135,9 +135,9 @@ add_task(async () => {
   // Test the context menu.
 
   await new Promise(resolve => setTimeout(resolve));
-  EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], {});
+  EventUtils.synthesizeMouseAtCenter(calendarList.rows[1], {});
   await new Promise(resolve => setTimeout(resolve));
-  await calendarListContextMenu(calendarList.itemChildren[1]);
+  await calendarListContextMenu(calendarList.rows[1]);
   await new Promise(resolve => setTimeout(resolve));
   Assert.equal(
     document.getElementById("list-calendars-context-togglevisible").label,
@@ -150,42 +150,36 @@ add_task(async () => {
   contextMenu.hidePopup();
 
   Assert.equal(document.activeElement, calendarList);
-  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[1]);
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[1]);
 
   // Test show/hide.
   // TODO: Check events on calendars are hidden/shown.
 
-  EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[2].querySelector("checkbox"), {});
+  EventUtils.synthesizeMouseAtCenter(calendarList.rows[2].querySelector(".calendar-displayed"), {});
   Assert.equal(document.activeElement, calendarList);
-  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[2]);
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[2]);
   Assert.equal(composite.getCalendarById(calendars[2].id), null);
   checkDisplayed(0, 1, 3);
 
   composite.removeCalendar(calendars[1]);
   checkDisplayed(0, 3);
 
-  await calendarListContextMenu(
-    calendarList.itemChildren[3],
-    "list-calendars-context-togglevisible"
-  );
+  await calendarListContextMenu(calendarList.rows[3], "list-calendars-context-togglevisible");
   checkDisplayed(0);
 
-  EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[2].querySelector("checkbox"), {});
+  EventUtils.synthesizeMouseAtCenter(calendarList.rows[2].querySelector(".calendar-displayed"), {});
   Assert.equal(composite.getCalendarById(calendars[2].id), calendars[2]);
   Assert.equal(document.activeElement, calendarList);
-  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[2]);
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[2]);
   checkDisplayed(0, 2);
 
   composite.addCalendar(calendars[1]);
   checkDisplayed(0, 1, 2);
 
-  await calendarListContextMenu(
-    calendarList.itemChildren[3],
-    "list-calendars-context-togglevisible"
-  );
+  await calendarListContextMenu(calendarList.rows[3], "list-calendars-context-togglevisible");
   checkDisplayed(0, 1, 2, 3);
 
-  await calendarListContextMenu(calendarList.itemChildren[1], "list-calendars-context-showonly");
+  await calendarListContextMenu(calendarList.rows[1], "list-calendars-context-showonly");
   checkDisplayed(1);
 
   await calendarListContextMenu(calendarList, "list-calendars-context-showall");
@@ -212,11 +206,11 @@ add_task(async () => {
       },
     }
   );
-  EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], { clickCount: 2 });
+  EventUtils.synthesizeMouseAtCenter(calendarList.rows[1], { clickCount: 2 });
   await dialogPromise;
 
   Assert.equal(document.activeElement, calendarList);
-  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[1]);
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[1]);
   checkProperties(1, {
     color: "rgb(0, 153, 0)",
     name: "A New Calendar!",
@@ -240,11 +234,11 @@ add_task(async () => {
       },
     }
   );
-  calendarListContextMenu(calendarList.itemChildren[1], "list-calendars-context-edit");
+  calendarListContextMenu(calendarList.rows[1], "list-calendars-context-edit");
   await dialogPromise;
 
   Assert.equal(document.activeElement, calendarList);
-  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[1]);
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[1]);
   checkProperties(1, {
     color: "rgb(0, 153, 0)",
     name: "Mochitest 1",
@@ -266,11 +260,11 @@ add_task(async () => {
       },
     }
   );
-  calendarListContextMenu(calendarList.itemChildren[3], "list-calendars-context-edit");
+  calendarListContextMenu(calendarList.rows[3], "list-calendars-context-edit");
   await dialogPromise;
 
   Assert.equal(document.activeElement, calendarList);
-  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[1]);
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[1]);
   checkProperties(1, { disabled: true });
 
   calendars[1].setProperty("disabled", false);
@@ -284,42 +278,43 @@ add_task(async () => {
   await new Promise(resolve => window.setTimeout(resolve));
 
   let [result, dataTransfer] = EventUtils.synthesizeDragOver(
-    calendarList.itemChildren[3],
-    calendarList.itemChildren[0],
+    calendarList.rows[3],
+    calendarList.rows[0],
     undefined,
     undefined,
     undefined,
     undefined,
     {
-      screenY: calendarList.itemChildren[0].getBoundingClientRect().top + 1,
+      screenY: calendarList.rows[0].getBoundingClientRect().top + 1,
     }
   );
   await new Promise(resolve => setTimeout(resolve));
 
-  EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, calendarList.itemChildren[0]);
+  EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, calendarList.rows[0]);
+  EventUtils.sendDragEvent({ type: "dragend" }, calendarList.rows[0]);
   dragSession.endDragSession(true);
   await new Promise(resolve => setTimeout(resolve));
 
   checkSortOrder(3, 0, 1, 2);
 
   Assert.equal(document.activeElement, calendarList);
-  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[0]);
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[0]);
 
   // Test deleting calendars.
 
   // Delete a calendar by unregistering it.
   manager.unregisterCalendar(calendars[3]);
   Assert.equal(manager.getCalendars().length, 3);
-  Assert.equal(calendarList.itemCount, 3);
+  Assert.equal(calendarList.rowCount, 3);
   checkSortOrder(0, 1, 2);
 
   // Start to remove a calendar. Cancel the prompt.
-  EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], {});
+  EventUtils.synthesizeMouseAtCenter(calendarList.rows[1], {});
   await withMockPromptService(1, () => {
     EventUtils.synthesizeKey("VK_DELETE");
   });
   Assert.equal(manager.getCalendars().length, 3, "three calendars left in the manager");
-  Assert.equal(calendarList.itemCount, 3, "three calendars left in the list");
+  Assert.equal(calendarList.rowCount, 3, "three calendars left in the list");
   checkSortOrder(0, 1, 2);
 
   // Remove a calendar with the keyboard.
@@ -327,20 +322,20 @@ add_task(async () => {
     EventUtils.synthesizeKey("VK_DELETE");
   });
   Assert.equal(manager.getCalendars().length, 2, "two calendars left in the manager");
-  Assert.equal(calendarList.itemCount, 2, "two calendars left in the list");
+  Assert.equal(calendarList.rowCount, 2, "two calendars left in the list");
   checkSortOrder(0, 2);
 
   // Remove a calendar with the context menu.
   await withMockPromptService(0, async () => {
-    EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], {});
-    await calendarListContextMenu(calendarList.itemChildren[1], "list-calendars-context-delete");
+    EventUtils.synthesizeMouseAtCenter(calendarList.rows[1], {});
+    await calendarListContextMenu(calendarList.rows[1], "list-calendars-context-delete");
   });
 
   Assert.equal(manager.getCalendars().length, 1, "one calendar left in the manager");
-  Assert.equal(calendarList.itemCount, 1, "one calendar left in the list");
+  Assert.equal(calendarList.rowCount, 1, "one calendar left in the list");
   checkSortOrder(0);
 
   Assert.equal(composite.defaultCalendar.id, calendars[0].id, "default calendar id check");
-  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[0]);
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[0]);
   await CalendarTestUtils.closeCalendarTab(window);
 });

@@ -16,6 +16,7 @@ add_task(async function testDefaultAlarms() {
   let manager = cal.getCalendarManager();
   let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   calendar.name = "Mochitest";
+  calendar.setProperty("calendar-main-default", true);
   manager.registerCalendar(calendar);
 
   registerCleanupFunction(async () => {

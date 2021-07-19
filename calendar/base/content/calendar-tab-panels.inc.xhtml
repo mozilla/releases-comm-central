@@ -190,12 +190,24 @@
           <calendar-modevbox id="calendar-list-inner-pane"
                              flex="1"
                              mode="calendar,task"
-                             refcontrol="calendar-list-header">
-            <richlistbox id="calendar-list" flex="1" context="list-calendars-context-menu"/>
+                             refcontrol="calendar-list-header"
+                             context="list-calendars-context-menu">
+            <html:ol id="calendar-list" is="orderable-tree-listbox"></html:ol>
+            <template id="calendar-list-item" xmlns="http://www.w3.org/1999/xhtml">
+              <li draggable="true" role="option">
+                <div class="calendar-color"></div>
+                <div class="calendar-name"></div>
+                <img class="calendar-readstatus" src="chrome://calendar/skin/shared/icons/locked.svg" />
+                <button class="calendar-enable-button"></button>
+                <input type="checkbox" class="calendar-displayed" />
+              </li>
+            </template>
           </calendar-modevbox>
         </calendar-modevbox>
       </vbox>
     </vbox>
+
+    <script src="chrome://messenger/content/tree-listbox.js"/>
 
     <splitter id="calsidebar_splitter"
               collapse="before"
