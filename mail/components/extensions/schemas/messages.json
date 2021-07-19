@@ -281,11 +281,11 @@
         ],
         "parameters": [
           {
-            "name": "srcMessages",
+            "name": "originalMessages",
             "$ref": "messages.MessageList"
           },
           {
-            "name": "destMessages",
+            "name": "movedMessages",
             "$ref": "messages.MessageList"
           }
         ]
@@ -299,11 +299,11 @@
         ],
         "parameters": [
           {
-            "name": "srcMessages",
+            "name": "originalMessages",
             "$ref": "messages.MessageList"
           },
           {
-            "name": "destMessages",
+            "name": "copiedMessages",
             "$ref": "messages.MessageList"
           }
         ]

@@ -17,6 +17,9 @@
   },
   {
     "namespace": "folders",
+    "permissions": [
+      "accountsRead"
+    ],
     "types": [
       {
         "id": "MailFolder",
@@ -51,6 +54,28 @@
             "enum": ["inbox", "drafts", "sent", "trash", "templates", "archives", "junk", "outbox"]
           }
         }
+      },
+      {
+        "id": "MailFolderInfo",
+        "type": "object",
+        "description": "An object containing additional information about a mail folder.",
+        "properties": {
+          "favorite": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder is a favorite folder."
+          },
+          "totalMessageCount": {
+            "type": "integer",
+            "optional": true,
+            "description": "Number of messages in this folder."
+          },
+          "unreadMessageCount": {
+            "type": "integer",
+            "optional": true,
+            "description": "Number of unread messages in this folder."
+          }
+        }
       }
     ],
     "functions": [
@@ -61,10 +86,10 @@
           "accountsFolders"
         ],
         "description": "Creates a new subfolder in the specified folder or at the root of the specified account.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
-            "name": "parentFolderOrAccount",
+            "name": "parent",
             "choices": [
               {
                 "$ref": "folders.MailFolder"
@@ -77,6 +102,16 @@
           {
             "name": "childName",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
           }
         ]
       },
@@ -87,21 +122,105 @@
           "accountsFolders"
         ],
         "description": "Renames a folder.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "folder",
             "$ref": "folders.MailFolder"
-          }, {
+          },
+          {
             "name": "newName",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "move",
+        "type": "function",
+        "permissions": [
+          "accountsFolders"
+        ],
+        "description": "Moves the given ``sourceFolder`` into the given ``destination``. Throws if the destination already contains a folder with the name of the source folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "sourceFolder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "destination",
+            "choices": [
+              {
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "accounts.MailAccount"
+              }
+            ]
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "copy",
+        "type": "function",
+        "permissions": [
+          "accountsFolders"
+        ],
+        "description": "Copies the given ``sourceFolder`` into the given ``destination``.  Throws if the destination already contains a folder with the name of the source folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "sourceFolder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "destination",
+            "choices": [
+              {
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "$ref": "accounts.MailAccount"
+              }
+            ]
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
           }
         ]
       },
       {
         "name": "delete",
         "permissions": [
-          "accountsFolders"
+          "accountsFolders",
+          "messagesDelete"
         ],
         "type": "function",
         "description": "Deletes a folder.",
@@ -114,11 +233,30 @@
         ]
       },
       {
+        "name": "getFolderInfo",
+        "type": "function",
+        "description": "Get additional information about a mail folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolderInfo"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "getParentFolders",
         "type": "function",
-        "permissions": [
-          "accountsRead"
-        ],
         "description": "Get all parent folders as a flat ordered array. The first array entry is the direct parent.",
         "async": "callback",
         "parameters": [
@@ -151,9 +289,6 @@
       {
         "name": "getSubFolders",
         "type": "function",
-        "permissions": [
-          "accountsRead"
-        ],
         "description": "Get the subfolders of the specified folder or account.",
         "async": "callback",
         "parameters": [
@@ -187,6 +322,90 @@
                 }
               }
             ]
+          }
+        ]
+      }
+    ],
+    "events": [
+      {
+        "name": "onCreated",
+        "type": "function",
+        "description": "Fired when a folder has been created.",
+        "parameters": [
+          {
+            "name": "createdFolder",
+            "$ref": "folders.MailFolder"
+          }
+        ]
+      },
+      {
+        "name": "onRenamed",
+        "type": "function",
+        "description": "Fired when a folder has been renamed.",
+        "parameters": [
+          {
+            "name": "originalFolder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "renamedFolder",
+            "$ref": "folders.MailFolder"
+          }
+        ]
+      },
+      {
+        "name": "onMoved",
+        "type": "function",
+        "description": "Fired when a folder has been moved.",
+        "parameters": [
+          {
+            "name": "originalFolder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "movedFolder",
+            "$ref": "folders.MailFolder"
+          }
+        ]
+      },
+      {
+        "name": "onCopied",
+        "type": "function",
+        "description": "Fired when a folder has been copied.",
+        "parameters": [
+          {
+            "name": "originalFolder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "copiedFolder",
+            "$ref": "folders.MailFolder"
+          }
+        ]
+      },
+      {
+        "name": "onDeleted",
+        "type": "function",
+        "description": "Fired when a folder has been deleted.",
+        "parameters": [
+          {
+            "name": "deletedFolder",
+            "$ref": "folders.MailFolder"
+          }
+        ]
+      },
+      {
+        "name": "onFolderInfoChanged",
+        "type": "function",
+        "description": "Fired when certain information of a folder have changed. Bursts of message count changes are collapsed to a single event.",
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "folderInfo",
+            "$ref": "folders.MailFolderInfo"
           }
         ]
       }
