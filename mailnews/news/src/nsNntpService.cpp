@@ -1198,6 +1198,9 @@ NS_IMETHODIMP nsNntpService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       spec.Find("type=application/pdf") < 0) {
     rv = channel->SetContentDisposition(nsIChannel::DISPOSITION_ATTACHMENT);
     NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    rv = channel->SetContentDisposition(nsIChannel::DISPOSITION_INLINE);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   channel.forget(_retval);
