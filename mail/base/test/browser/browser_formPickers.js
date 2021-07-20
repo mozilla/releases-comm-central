@@ -227,14 +227,13 @@ add_task(async function testExtensionBrowserAction() {
 
   await extension.startup();
 
-  let browserPromise = awaitExtensionPanel(extension, window);
   let actionButton = document.getElementById(
     "formpickers_mochi_test-browserAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {});
 
-  let browser = await browserPromise;
-  let panel = document.getElementById("formpickers_mochi_test-panel");
+  let panel = document.getElementById("webextension-remote-preload-panel");
+  let browser = panel.querySelector("browser");
   // The panel needs some time to decide how big it's going to be.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -280,14 +279,15 @@ add_task(async function testExtensionComposeAction() {
 
   await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
 
-  let browserPromise = awaitExtensionPanel(extension, composeWindow);
   let actionButton = composeDocument.getElementById(
     "formpickers_mochi_test-composeAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, composeWindow);
 
-  let browser = await browserPromise;
-  let panel = composeDocument.getElementById("formpickers_mochi_test-panel");
+  let panel = composeDocument.getElementById(
+    "webextension-remote-preload-panel"
+  );
+  let browser = panel.querySelector("browser");
   // The panel needs some time to decide how big it's going to be.
   await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
   await checkABrowser(browser);
@@ -326,14 +326,15 @@ add_task(async function testExtensionMessageDisplayAction() {
 
   await new Promise(resolve => messageWindow.setTimeout(resolve, 500));
 
-  let browserPromise = awaitExtensionPanel(extension, messageWindow);
   let actionButton = messageDocument.getElementById(
     "formpickers_mochi_test-messageDisplayAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, messageWindow);
 
-  let browser = await browserPromise;
-  let panel = messageDocument.getElementById("formpickers_mochi_test-panel");
+  let panel = messageDocument.getElementById(
+    "webextension-remote-preload-panel"
+  );
+  let browser = panel.querySelector("browser");
   // The panel needs some time to decide how big it's going to be.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
