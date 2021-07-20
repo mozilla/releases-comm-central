@@ -552,6 +552,9 @@ calItemBase.prototype = {
   getParameterNames(aPropName) {
     let propName = aPropName.toUpperCase();
     if (!(propName in this.mPropertyParams)) {
+      if (this.mIsProxy) {
+        return this.mParentItem.getParameterNames(aPropName);
+      }
       throw new Error("Property " + aPropName + " not set");
     }
     return Object.keys(this.mPropertyParams[propName]);
@@ -1137,8 +1140,6 @@ makeMemberAttrProperty(calItemBase, "PRIORITY", "priority");
 makeMemberAttrProperty(calItemBase, "CLASS", "privacy");
 makeMemberAttrProperty(calItemBase, "STATUS", "status");
 makeMemberAttrProperty(calItemBase, "ALARMTIME", "alarmTime");
-
-makeMemberAttr(calItemBase, "mProperties", "properties", null);
 
 /**
  * Adds a member attribute to the given prototype.

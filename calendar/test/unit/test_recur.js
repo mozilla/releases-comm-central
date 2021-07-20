@@ -1338,12 +1338,12 @@ function test_icalComponent() {
   equal(occurrence.getProperty("DURATION"), duration, "occurrence has correct DURATION");
   equal(Boolean(occurrence.getProperty("DTEND")), true, "occurrence has DTEND");
 
-  ok(!occurrence.icalComponent.duration, "occurrence icalComponent does not have DURATION");
+  ok(occurrence.icalComponent.duration, "occurrence icalComponent has DURATION");
 
   // Changing the end date causes the duration to be set to null.
   occurrence.endDate = createDate(2002, 4, 3);
 
   equal(occurrence.getProperty("DURATION"), null, "occurrence DURATION has been set to null");
 
-  ok(!occurrence.icalComponent.duration, "occurrence icalComponent still does not have DURATION");
+  ok(!occurrence.icalComponent.duration, "occurrence icalComponent does not have DURATION");
 }
