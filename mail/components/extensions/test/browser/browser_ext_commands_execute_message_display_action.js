@@ -117,12 +117,10 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
   if (options.withPopup) {
     await extension.awaitFinish("execute-message-display-action-popup-opened");
 
-    let popup = messageWindow.document.getElementById(
-      makeWidgetId(extension.id) + "-panel"
-    );
-    let hidden = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-    popup.hidePopup();
-    await hidden;
+    if (!getBrowserActionPopup(extension, messageWindow)) {
+      await awaitExtensionPanel(extension, messageWindow);
+    }
+    await closeBrowserAction(extension, messageWindow);
   } else {
     await extension.awaitFinish(
       "execute-message-display-action-on-clicked-fired"

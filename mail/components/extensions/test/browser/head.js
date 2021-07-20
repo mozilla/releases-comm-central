@@ -215,6 +215,16 @@ function getPanelForNode(node) {
   return node;
 }
 
+function awaitBrowserLoaded(browser) {
+  if (
+    browser.ownerGlobal.document.readyState === "complete" &&
+    browser.currentURI.spec !== "about:blank"
+  ) {
+    return Promise.resolve();
+  }
+  return BrowserTestUtils.browserLoaded(browser);
+}
+
 var awaitExtensionPanel = async function(
   extension,
   win = window,
@@ -229,14 +239,14 @@ var awaitExtensionPanel = async function(
 
   await Promise.all([
     promisePopupShown(getPanelForNode(browser)),
-    awaitLoad && BrowserTestUtils.browserLoaded(browser),
+    awaitLoad && awaitBrowserLoaded(browser),
   ]);
 
   return browser;
 };
 
 function getBrowserActionPopup(extension, win = window) {
-  return window.document.getElementById(makeWidgetId(extension.id) + "-panel");
+  return win.document.getElementById("webextension-remote-preload-panel");
 }
 
 function closeBrowserAction(extension, win = window) {

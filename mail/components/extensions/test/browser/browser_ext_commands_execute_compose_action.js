@@ -113,12 +113,10 @@ async function testExecuteComposeActionWithOptions(options = {}) {
   if (options.withPopup) {
     await extension.awaitFinish("execute-compose-action-popup-opened");
 
-    let popup = composeWindow.document.getElementById(
-      makeWidgetId(extension.id) + "-panel"
-    );
-    let hidden = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-    popup.hidePopup();
-    await hidden;
+    if (!getBrowserActionPopup(extension, composeWindow)) {
+      await awaitExtensionPanel(extension, composeWindow);
+    }
+    await closeBrowserAction(extension, composeWindow);
   } else {
     await extension.awaitFinish("execute-compose-action-on-clicked-fired");
   }
