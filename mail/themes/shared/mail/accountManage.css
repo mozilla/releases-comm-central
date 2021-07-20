@@ -68,13 +68,8 @@ fieldset:last-of-type {
 
 #accountActionsButton {
   margin-inline: 0;
-  background-color: var(--in-content-button-background-hover);
   border-end-end-radius: 0;
   border-start-end-radius: 0;
-}
-
-#accountActionsButton:hover {
-  background-color: var(--in-content-button-background-active);
 }
 
 #accountActionsDropdown {
@@ -85,9 +80,11 @@ fieldset:last-of-type {
 .openpgp-more-btn > menupopup {
   appearance: none;
   font-size: 1em;
-  border: 1px solid var(--in-content-box-border-color);
-  border-radius: 2px;
-  background-color: var(--in-content-box-background);
+  --panel-border-color: var(--in-content-box-border-color);
+  --panel-border-radius: 2px;
+  --panel-background: var(--in-content-box-background);
+  --panel-color: var(--in-content-text-color);
+  --panel-padding: 0;
 }
 
 #accountActionsDropdown > menuitem,
@@ -100,7 +97,7 @@ fieldset:last-of-type {
 
 #accountActionsDropdown > menuitem:not([disabled="true"])[_moz-menuactive="true"],
 .openpgp-more-btn > menupopup > menuitem[_moz-menuactive="true"] {
-  color: var(--in-content-text-color);
+  color: var(--in-content-item-hover-text);
   background-color: var(--in-content-item-hover);
 }
 
