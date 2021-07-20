@@ -13,8 +13,6 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/DeferredTask.jsm"
 );
 
-const NOTIFICATION_COLLAPSE_TIME = 200;
-
 function findIdentityAndAccount(identityId) {
   for (let account of MailServices.accounts.accounts) {
     for (let identity of account.identities) {

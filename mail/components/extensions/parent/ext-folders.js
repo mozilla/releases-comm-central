@@ -13,8 +13,6 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/DeferredTask.jsm"
 );
 
-const NOTIFICATION_COLLAPSE_TIME = 200;
-
 /**
  * Tracks folder events.
  *
