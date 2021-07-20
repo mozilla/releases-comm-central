@@ -5673,7 +5673,7 @@ var spellCheckReadyObserver = {
     // the compose together with the speller, so we need to check if they
     // are still valid.
     let checker = GetCurrentEditorSpellChecker();
-    if (gMsgCompose && gSpellCheckingEnabled) {
+    if (gMsgCompose && checker?.enableRealTimeSpell) {
       checker.ignoreWords(this._ignoreWords);
     }
     this._clearPendingWords();
