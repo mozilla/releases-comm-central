@@ -633,6 +633,7 @@ calendar-notifications-setting .add-button .button-icon {
 calendar-notifications-setting .remove-button {
   width: 32px;
   min-width: 0;
+  padding: 0;
   list-style-image: url(chrome://global/skin/icons/delete.svg);
   fill: currentColor;
   background: none;
