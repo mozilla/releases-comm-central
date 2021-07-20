@@ -74,13 +74,22 @@ class LDAPOperation {
         }
         if (res.constructor.name == "SearchResultEntry") {
           this._listener.onLDAPMessage({
+            QueryInterface: ChromeUtils.generateQI(["nsILDAPMessage"]),
             errorCode: 0,
             type: Ci.nsILDAPMessage.RES_SEARCH_ENTRY,
             getAttributes() {
               return Object.keys(res.result.attributes);
             },
             getValues(attr) {
-              return res.result.attributes[attr];
+              return res.result.attributes[attr].map(v =>
+                new TextDecoder().decode(v)
+              );
+            },
+            getBinaryValues(attr) {
+              return res.result.attributes[attr].map(v => ({
+                // @see nsILDAPBERValue
+                get: () => new Uint8Array(v),
+              }));
             },
           });
         }

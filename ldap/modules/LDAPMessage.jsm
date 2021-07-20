@@ -503,9 +503,7 @@ class SearchResultEntry extends LDAPResponse {
     for (let attr of value[1].valueBlock.value) {
       let attrValue = attr.valueBlock.value;
       let type = new TextDecoder().decode(attrValue[0].valueBlock.valueHex);
-      let vals = attrValue[1].valueBlock.value.map(v =>
-        new TextDecoder().decode(v.valueBlock.valueHex)
-      );
+      let vals = attrValue[1].valueBlock.value.map(v => v.valueBlock.valueHex);
       attributes[type] = vals;
     }
     this.result = { objectName, attributes };
