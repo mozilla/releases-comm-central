@@ -3,10 +3,3 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url(chrome://calendar/skin/shared/dialogs/calendar-invitations-dialog.css);
-
-.calendar-invitations-richlistitem-button {
-  /* Workaround for making the checked button actually look checked */
-  appearance: auto;
-  -moz-default-appearance: tab;
-  min-height: 20px;
-}

@@ -43,6 +43,11 @@
   visibility: collapse;
 }
 
+/* Invitations link in status bar */
+#calendar-invitations-label {
+  margin-block: 3px;
+}
+
 /* Today pane button in status bar */
 #calendar-status-todaypane-button,
 #calendar-status-todaypane-button[checked="true"] {

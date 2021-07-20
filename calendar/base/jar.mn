@@ -60,7 +60,6 @@ calendar.jar:
     content/calendar-ics-file-dialog.js                         (content/dialogs/calendar-ics-file-dialog.js)
     content/calendar-ics-file-dialog.css                        (content/dialogs/calendar-ics-file-dialog.css)
     content/calendar-identity-utils.js                          (content/dialogs/calendar-identity-utils.js)
-    content/calendar-invitations-dialog.css                     (content/dialogs/calendar-invitations-dialog.css)
     content/calendar-invitations-dialog.js                      (content/dialogs/calendar-invitations-dialog.js)
     content/calendar-invitations-dialog.xhtml                   (content/dialogs/calendar-invitations-dialog.xhtml)
     content/calendar-itip-identity-dialog.xhtml                 (content/dialogs/calendar-itip-identity-dialog.xhtml)

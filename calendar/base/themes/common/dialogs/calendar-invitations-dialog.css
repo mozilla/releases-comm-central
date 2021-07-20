@@ -60,25 +60,19 @@ richlistitem[is="calendar-invitations-richlistitem"][selected="true"] .calendar-
   visibility: visible;
 }
 
-.calendar-invitations-richlistitem-button > .button-icon {
+.calendar-invitations-richlistitem-button .button-icon {
   margin-block: 0;
   margin-inline: 0 5px;
   border-radius: 3px;
-  fill: white;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 .calendar-invitations-richlistitem-accept-button {
   list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
 }
 
-.calendar-invitations-richlistitem-accept-button > .button-icon {
-  background-color: #579e24;
-}
-
 .calendar-invitations-richlistitem-decline-button {
   list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
-}
-
-.calendar-invitations-richlistitem-decline-button > .button-icon {
-  background-color: #fb0000;
 }
