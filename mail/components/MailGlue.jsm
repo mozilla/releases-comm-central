@@ -69,12 +69,12 @@ let JSWINDOWACTORS = {
     ],
   },
 
-  LinkHandler: {
+  LinkClickHandler: {
     parent: {
-      moduleURI: "resource:///actors/LinkHandlerParent.jsm",
+      moduleURI: "resource:///actors/LinkClickHandlerParent.jsm",
     },
     child: {
-      moduleURI: "resource:///actors/LinkHandlerChild.jsm",
+      moduleURI: "resource:///actors/LinkClickHandlerChild.jsm",
       events: {
         click: {},
       },
@@ -128,12 +128,12 @@ let JSWINDOWACTORS = {
     allFrames: true,
   },
 
-  StrictLinkHandler: {
+  StrictLinkClickHandler: {
     parent: {
-      moduleURI: "resource:///actors/LinkHandlerParent.jsm",
+      moduleURI: "resource:///actors/LinkClickHandlerParent.jsm",
     },
     child: {
-      moduleURI: "resource:///actors/LinkHandlerChild.jsm",
+      moduleURI: "resource:///actors/LinkClickHandlerChild.jsm",
       events: {
         click: {},
       },

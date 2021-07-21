@@ -5,7 +5,10 @@
 
 "use strict";
 
-const EXPORTED_SYMBOLS = ["LinkHandlerParent", "StrictLinkHandlerParent"];
+const EXPORTED_SYMBOLS = [
+  "LinkClickHandlerParent",
+  "StrictLinkClickHandlerParent",
+];
 
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -17,10 +20,10 @@ XPCOMUtils.defineLazyScriptGetter(
   "chrome://communicator/content/contentAreaClick.js"
 );
 
-class LinkHandlerParent extends JSWindowActorParent {
+class LinkClickHandlerParent extends JSWindowActorParent {
   receiveMessage({ data }) {
     openLinkExternally(data);
   }
 }
 
-class StrictLinkHandlerParent extends LinkHandlerParent {}
+class StrictLinkClickHandlerParent extends LinkClickHandlerParent {}

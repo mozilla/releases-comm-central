@@ -5,7 +5,10 @@
 
 "use strict";
 
-const EXPORTED_SYMBOLS = ["LinkHandlerChild", "StrictLinkHandlerChild"];
+const EXPORTED_SYMBOLS = [
+  "LinkClickHandlerChild",
+  "StrictLinkClickHandlerChild",
+];
 
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -72,7 +75,7 @@ function hRefForClickEvent(aEvent) {
  *
  * This actor applies to browsers in the "single-site" message manager group.
  */
-class LinkHandlerChild extends JSWindowActorChild {
+class LinkClickHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
     // Don't handle events that:
     //   a) are in the parent process (handled by onclick),
@@ -137,7 +140,7 @@ class LinkHandlerChild extends JSWindowActorChild {
  *
  * This actor applies to browsers in the "single-page" message manager group.
  */
-class StrictLinkHandlerChild extends JSWindowActorChild {
+class StrictLinkClickHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
     // Don't handle events that:
     //   a) are in the parent process (handled by onclick),
