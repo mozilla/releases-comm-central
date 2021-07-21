@@ -7,3 +7,7 @@
 richlistitem .account-buttons {
   margin-inline-start: 35px;
 }
+
+#statusTypeIcon .button-box {
+  padding: 0;
+}
