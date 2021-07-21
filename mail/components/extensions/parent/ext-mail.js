@@ -805,10 +805,11 @@ class Tab extends TabBase {
     }
   }
 
-  /** Overrides the matches function to enable querying for 3-pane tabs. */
+  /** Overrides the matches function to enable querying for tab types. */
   matches(queryInfo, context) {
     let result = super.matches(queryInfo, context);
-    return result && (!queryInfo.mailTab || this.type == "mail");
+    let type = queryInfo.mailTab ? "mail" : queryInfo.type;
+    return result && (!type || this.type == type);
   }
 
   /** Adds the mailTab property and removes some useless properties from a tab object. */
