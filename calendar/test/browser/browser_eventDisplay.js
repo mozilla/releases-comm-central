@@ -13,15 +13,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 var calendar = CalendarTestUtils.createProxyCalendar(CALENDARNAME);
 registerCleanupFunction(() => {
-  Services.prefs.clearUserPref("calendar.week.start");
   CalendarTestUtils.removeProxyCalendar(calendar);
 });
 
 let formatter = cal.dtz.formatter;
 let startTime = formatter.formatTime(cal.createDateTime("20190403T123400"));
 let endTime = formatter.formatTime(cal.createDateTime("20190403T234500"));
-
-Services.prefs.setIntPref("calendar.week.start", 1);
 
 /**
  * Test an event that occurs within one day, in the day view.
@@ -121,8 +118,8 @@ add_task(async function testOutsideDayView() {
 add_task(async function testInsideWeekView() {
   let event = new CalEvent();
   event.title = "Test Event";
-  event.startDate = cal.createDateTime("20190102T123400");
-  event.endDate = cal.createDateTime("20190104T234500");
+  event.startDate = cal.createDateTime("20190101T123400");
+  event.endDate = cal.createDateTime("20190103T234500");
   event = await calendar.addItem(event);
 
   await CalendarTestUtils.setCalendarView(window, "week");
@@ -169,8 +166,8 @@ add_task(async function testInsideWeekView() {
 add_task(async function testOutsideWeekView() {
   let event = new CalEvent();
   event.title = "Test Event";
-  event.startDate = cal.createDateTime("20190403T123400");
-  event.endDate = cal.createDateTime("20190419T234500");
+  event.startDate = cal.createDateTime("20190402T123400");
+  event.endDate = cal.createDateTime("20190418T234500");
   event = await calendar.addItem(event);
 
   await CalendarTestUtils.setCalendarView(window, "week");
@@ -252,8 +249,8 @@ add_task(async function testOutsideWeekView() {
 add_task(async function testInsideMultiweekView() {
   let event = new CalEvent();
   event.title = "Test Event";
-  event.startDate = cal.createDateTime("20190403T123400");
-  event.endDate = cal.createDateTime("20190420T234500");
+  event.startDate = cal.createDateTime("20190402T123400");
+  event.endDate = cal.createDateTime("20190419T234500");
   event = await calendar.addItem(event);
 
   await CalendarTestUtils.setCalendarView(window, "multiweek");
@@ -306,8 +303,8 @@ add_task(async function testInsideMultiweekView() {
 add_task(async function testOutsideMultiweekView() {
   let event = new CalEvent();
   event.title = "Test Event";
-  event.startDate = cal.createDateTime("20190403T123400");
-  event.endDate = cal.createDateTime("20190508T234500");
+  event.startDate = cal.createDateTime("20190402T123400");
+  event.endDate = cal.createDateTime("20190507T234500");
   event = await calendar.addItem(event);
 
   await CalendarTestUtils.setCalendarView(window, "multiweek");
@@ -395,8 +392,8 @@ add_task(async function testOutsideMultiweekView() {
 add_task(async function testInsideMonthView() {
   let event = new CalEvent();
   event.title = "Test Event";
-  event.startDate = cal.createDateTime("20190703T123400");
-  event.endDate = cal.createDateTime("20190720T234500");
+  event.startDate = cal.createDateTime("20190702T123400");
+  event.endDate = cal.createDateTime("20190719T234500");
   event = await calendar.addItem(event);
 
   await CalendarTestUtils.setCalendarView(window, "month");
@@ -450,8 +447,8 @@ add_task(async function testInsideMonthView() {
 add_task(async function testOutsideMonthView() {
   let event = new CalEvent();
   event.title = "Test Event";
-  event.startDate = cal.createDateTime("20190321T123400");
-  event.endDate = cal.createDateTime("20190508T234500");
+  event.startDate = cal.createDateTime("20190320T123400");
+  event.endDate = cal.createDateTime("20190507T234500");
   event = await calendar.addItem(event);
 
   await CalendarTestUtils.setCalendarView(window, "month");

@@ -165,15 +165,17 @@ add_task(async function testPlainTextICSDrop() {
   let iframeDoc = iframe.contentDocument;
   Assert.equal(iframeDoc.querySelector("#item-title").value, "An Event");
 
-  let startTime = iframeDoc.querySelector("#event-starttime").value;
-  Assert.equal(startTime.getUTCFullYear(), 2021);
-  Assert.equal(startTime.getUTCMonth(), 2);
-  Assert.equal(startTime.getUTCDate(), 25);
+  let startTime = iframeDoc.querySelector("#event-starttime");
+  Assert.equal(
+    startTime._datepicker._inputBoxValue,
+    cal.dtz.formatter.formatDateShort(cal.createDateTime("20210325T110000Z"))
+  );
 
-  let endTime = iframeDoc.querySelector("#event-endtime").value;
-  Assert.equal(endTime.getUTCFullYear(), 2021);
-  Assert.equal(endTime.getUTCMonth(), 2);
-  Assert.equal(endTime.getUTCDate(), 25);
+  let endTime = iframeDoc.querySelector("#event-endtime");
+  Assert.equal(
+    endTime._datepicker._inputBoxValue,
+    cal.dtz.formatter.formatDateShort(cal.createDateTime("20210325T120000Z"))
+  );
 
   Assert.equal(
     iframeDoc.querySelector("#item-description").contentDocument.body.innerText,
@@ -204,15 +206,17 @@ add_task(async function testICSFileDrop() {
 
   Assert.equal(iframeDoc.querySelector("#item-title").value, "An Event");
 
-  let startTime = iframeDoc.querySelector("#event-starttime").value;
-  Assert.equal(startTime.getUTCFullYear(), 2021);
-  Assert.equal(startTime.getUTCMonth(), 2);
-  Assert.equal(startTime.getUTCDate(), 25);
+  let startTime = iframeDoc.querySelector("#event-starttime");
+  Assert.equal(
+    startTime._datepicker._inputBoxValue,
+    cal.dtz.formatter.formatDateShort(cal.createDateTime("20210325T110000Z"))
+  );
 
-  let endTime = iframeDoc.querySelector("#event-endtime").value;
-  Assert.equal(endTime.getUTCFullYear(), 2021);
-  Assert.equal(endTime.getUTCMonth(), 2);
-  Assert.equal(endTime.getUTCDate(), 25);
+  let endTime = iframeDoc.querySelector("#event-endtime");
+  Assert.equal(
+    endTime._datepicker._inputBoxValue,
+    cal.dtz.formatter.formatDateShort(cal.createDateTime("20210325T120000Z"))
+  );
 
   Assert.equal(
     iframeDoc.querySelector("#item-description").contentDocument.body.innerText,

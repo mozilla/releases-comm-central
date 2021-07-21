@@ -116,6 +116,7 @@ function CalAlarmService() {
       // there may still be dangling items (-> alarm dialog),
       // dismissing those alarms may write data...
       this.alarmService.unobserveCalendar(aCalendar);
+      delete this.alarmService.mLoadedCalendars[aCalendar.id];
     },
     onCalendarDeleting(aCalendar) {
       this.alarmService.unobserveCalendar(aCalendar);
