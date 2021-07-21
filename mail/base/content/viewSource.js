@@ -7,6 +7,18 @@
 /* globals gViewSourceUtils, internalSave */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyScriptGetter(
+  this,
+  "PrintUtils",
+  "chrome://messenger/content/printUtils.js"
+);
+
+// Needed for printing.
+window.browserDOMWindow = window.opener.browserDOMWindow;
 
 var gBrowser;
 addEventListener("load", () => {
@@ -79,58 +91,6 @@ var viewSourceChrome = {
       Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_PROXY |
         Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE
     );
-  },
-};
-
-/**
- * PrintUtils uses this to make Print Preview work.
- */
-var PrintPreviewListener = {
-  _ppBrowser: null,
-
-  getPrintPreviewBrowser() {
-    if (!this._ppBrowser) {
-      this._ppBrowser = document.createXULElement("browser");
-      this._ppBrowser.setAttribute("flex", "1");
-      this._ppBrowser.setAttribute("type", "content");
-    }
-
-    if (gBrowser.isRemoteBrowser) {
-      this._ppBrowser.setAttribute("remote", "true");
-    } else {
-      this._ppBrowser.removeAttribute("remote");
-    }
-
-    let findBar = document.getElementById("FindToolbar");
-    document
-      .getElementById("appcontent")
-      .insertBefore(this._ppBrowser, findBar);
-
-    return this._ppBrowser;
-  },
-
-  getSourceBrowser() {
-    return gBrowser;
-  },
-
-  getNavToolbox() {
-    return document.getElementById("toolbar-placeholder");
-  },
-
-  onEnter() {
-    let toolbox = document.getElementById("viewSource-toolbox");
-    toolbox.hidden = true;
-    gBrowser.collapsed = true;
-  },
-
-  onExit() {
-    this._ppBrowser.remove();
-    gBrowser.collapsed = false;
-    document.getElementById("viewSource-toolbox").hidden = false;
-  },
-
-  activateBrowser(browser) {
-    browser.docShellIsActive = true;
   },
 };
 
