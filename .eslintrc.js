@@ -24,6 +24,8 @@ const xpcshellTestPaths = [
 const browserTestPaths = [
   "**/test*/**/browser/",
   "mail/base/test/performance/",
+  "mail/base/test/webextensions/",
+  "mail/test/static/",
 ];
 
 module.exports = {
