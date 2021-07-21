@@ -10,13 +10,24 @@ add_task(async function() {
   let account = createAccount();
   let inbox = await createSubfolder(account.incomingServer.rootFolder, "test1");
 
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
+  let files = {
+    "background.js": async () => {
       browser.messages.onNewMailReceived.addListener((folder, messageList) => {
+        window.assertDeepEqual(
+          { accountId: "account1", name: "test1", path: "/test1" },
+          folder
+        );
         browser.test.sendMessage("newMessages", messageList.messages);
       });
     },
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   await extension.startup();

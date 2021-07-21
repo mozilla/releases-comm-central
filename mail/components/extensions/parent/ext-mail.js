@@ -1915,7 +1915,7 @@ var messageTracker = new (class extends EventEmitter {
     }
     this.emit(
       "messages-received",
-      newMsgKeys[0].folder,
+      folder,
       newMsgKeys.map(key => msgDb.GetMsgHdrForKey(key))
     );
   }
