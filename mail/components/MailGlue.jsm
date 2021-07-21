@@ -83,6 +83,26 @@ let JSWINDOWACTORS = {
     allFrames: true,
   },
 
+  LinkHandler: {
+    parent: {
+      moduleURI: "resource:///actors/LinkHandlerParent.jsm",
+    },
+    child: {
+      moduleURI: "resource:///actors/LinkHandlerChild.jsm",
+      events: {
+        DOMHeadElementParsed: {},
+        DOMLinkAdded: {},
+        DOMLinkChanged: {},
+        pageshow: {},
+        // The `pagehide` event is only used to clean up state which will not be
+        // present if the actor hasn't been created.
+        pagehide: { createActor: false },
+      },
+    },
+
+    messageManagerGroups: ["browsers", "single-site", "single-page"],
+  },
+
   // As in ActorManagerParent.jsm, but with single-site and single-page
   // message manager groups added.
   LoginManager: {

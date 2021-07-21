@@ -175,7 +175,11 @@ tabProgressListener.prototype = {
 
       // If we've finished loading, and we've not had an icon loaded from a
       // link element, then we try using the default icon for the site.
-      if (aWebProgress.isTopLevel && !this.mBrowser.mIconURL) {
+      if (
+        this.mBrowser.remoteType == null &&
+        aWebProgress.isTopLevel &&
+        !this.mBrowser.mIconURL
+      ) {
         specialTabs.useDefaultIcon(this.mTab);
       }
     }
@@ -236,6 +240,10 @@ tabProgressListener.prototype = {
   ]),
 };
 
+/**
+ * Handles tab icons for parent process browsers. The DOMLinkAdded event won't
+ * fire for child process browsers, that is handled by LinkHandlerParent.
+ */
 var DOMLinkHandler = {
   handleEvent(event) {
     switch (event.type) {

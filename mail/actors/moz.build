@@ -3,11 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+EXTRA_JS_MODULES += [
+    "../../../browser/modules/FaviconLoader.jsm",
+]
+
 FINAL_TARGET_FILES.actors += [
     "../../../browser/actors/ContextMenuChild.jsm",
+    "../../../browser/actors/LinkHandlerChild.jsm",
     "ContextMenuParent.jsm",
     "LinkClickHandlerChild.jsm",
     "LinkClickHandlerParent.jsm",
+    "LinkHandlerParent.jsm",
     "PromptParent.jsm",
     "VCardChild.jsm",
     "VCardParent.jsm",
