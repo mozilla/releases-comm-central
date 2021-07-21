@@ -38,10 +38,6 @@
   z-index: 10;
 }
 
-#calendar-nav-control {
-  border-top-width: 0;
-}
-
 @media (-moz-windows-default-theme) {
   #task-addition-box {
     background-color: #f8f8f8;
