@@ -175,11 +175,7 @@ tabProgressListener.prototype = {
 
       // If we've finished loading, and we've not had an icon loaded from a
       // link element, then we try using the default icon for the site.
-      if (
-        this.mBrowser.remoteType == null &&
-        aWebProgress.isTopLevel &&
-        !this.mBrowser.mIconURL
-      ) {
+      if (aWebProgress.isTopLevel && !this.mBrowser.mIconURL) {
         specialTabs.useDefaultIcon(this.mTab);
       }
     }

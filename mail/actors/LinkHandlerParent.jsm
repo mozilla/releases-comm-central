@@ -56,6 +56,9 @@ class LinkHandlerParent extends JSWindowActorParent {
     }
 
     if (canUseForTab) {
+      // Set this property on the browser to stop specialTabs.useDefaultIcon
+      // overwriting it.
+      browser.mIconURL = iconURL;
       gTabmail.setTabIcon(tab, iconURL);
     }
   }
