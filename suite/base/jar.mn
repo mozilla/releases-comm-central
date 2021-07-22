@@ -6,6 +6,7 @@
 
 comm.jar:
 % content communicator %content/communicator/ contentaccessible=yes
+% override chrome://browser/content/utilityOverlay.js chrome://communicator/content/utilityOverlay.js
 % override chrome://global/content/license.html chrome://communicator/content/license.html
 % override chrome://global/content/netError.xhtml chrome://communicator/content/certError.xhtml
 % overlay chrome://global/content/viewSource.xul chrome://communicator/content/viewSourceOverlay.xul
