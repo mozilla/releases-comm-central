@@ -149,6 +149,7 @@ function menu_new_init() {
     document.getElementById("cmd_newFolder").getAttribute("disabled") != "true";
   ShowMenuItem("menu_newFolder", showNew);
   ShowMenuItem("menu_newVirtualFolder", showNew);
+  ShowMenuItem("newAccountPopupMenuSeparator", showNew);
 
   EnableMenuItem(
     "menu_newFolder",
