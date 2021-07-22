@@ -29,6 +29,16 @@ const POLICIES_TESTS = [
    * },
    */
 
+  // POLICY: RememberPasswords
+  {
+    policies: { OfferToSaveLogins: false },
+    lockedPrefs: { "signon.rememberSignons": false },
+  },
+  {
+    policies: { OfferToSaveLogins: true },
+    lockedPrefs: { "signon.rememberSignons": true },
+  },
+
   // POLICY: DisableSecurityBypass
   {
     policies: {
@@ -41,6 +51,12 @@ const POLICIES_TESTS = [
       "security.certerror.hideAddException": true,
       "browser.safebrowsing.allowOverride": false,
     },
+  },
+
+  // POLICY: DisableBuiltinPDFViewer
+  {
+    policies: { DisableBuiltinPDFViewer: true },
+    lockedPrefs: { "pdfjs.disabled": true },
   },
 
   // POLICY: Authentication
@@ -140,6 +156,39 @@ const POLICIES_TESTS = [
     },
   },
 
+  // POLICY: DNSOverHTTPS Locked
+  {
+    policies: {
+      DNSOverHTTPS: {
+        Enabled: true,
+        ProviderURL: "http://example.com/provider",
+        ExcludedDomains: ["example.com", "example.org"],
+        Locked: true,
+      },
+    },
+    lockedPrefs: {
+      "network.trr.mode": 2,
+      "network.trr.uri": "http://example.com/provider",
+      "network.trr.excluded-domains": "example.com,example.org",
+    },
+  },
+
+  // POLICY: DNSOverHTTPS Unlocked
+  {
+    policies: {
+      DNSOverHTTPS: {
+        Enabled: false,
+        ProviderURL: "http://example.com/provider",
+        ExcludedDomains: ["example.com", "example.org"],
+      },
+    },
+    unlockedPrefs: {
+      "network.trr.mode": 5,
+      "network.trr.uri": "http://example.com/provider",
+      "network.trr.excluded-domains": "example.com,example.org",
+    },
+  },
+
   // POLICY: SSLVersionMin/SSLVersionMax (1)
   {
     policies: {
@@ -174,6 +223,17 @@ const POLICIES_TESTS = [
     },
   },
 
+  // POLICY: NetworkPrediction
+  {
+    policies: {
+      NetworkPrediction: false,
+    },
+    lockedPrefs: {
+      "network.dns.disablePrefetch": true,
+      "network.dns.disablePrefetchFromHTTPS": true,
+    },
+  },
+
   // POLICY: ExtensionUpdate
   {
     policies: {
@@ -181,6 +241,94 @@ const POLICIES_TESTS = [
     },
     lockedPrefs: {
       "extensions.update.enabled": false,
+    },
+  },
+
+  // POLICY: OfferToSaveLoginsDefault
+  {
+    policies: {
+      OfferToSaveLoginsDefault: false,
+    },
+    unlockedPrefs: {
+      "signon.rememberSignons": false,
+    },
+  },
+
+  // POLICY: PDFjs
+
+  {
+    policies: {
+      PDFjs: {
+        Enabled: false,
+        EnablePermissions: true,
+      },
+    },
+    lockedPrefs: {
+      "pdfjs.disabled": true,
+      "pdfjs.enablePermissions": true,
+    },
+  },
+
+  // POLICY: DisabledCiphers
+  {
+    policies: {
+      DisabledCiphers: {
+        TLS_DHE_RSA_WITH_AES_128_CBC_SHA: false,
+        TLS_DHE_RSA_WITH_AES_256_CBC_SHA: false,
+        TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA: false,
+        TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: false,
+        TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: false,
+        TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: false,
+        TLS_RSA_WITH_AES_128_CBC_SHA: false,
+        TLS_RSA_WITH_AES_256_CBC_SHA: false,
+        TLS_RSA_WITH_3DES_EDE_CBC_SHA: false,
+        TLS_RSA_WITH_AES_128_GCM_SHA256: false,
+        TLS_RSA_WITH_AES_256_GCM_SHA384: false,
+      },
+    },
+    lockedPrefs: {
+      "security.ssl3.dhe_rsa_aes_128_sha": true,
+      "security.ssl3.dhe_rsa_aes_256_sha": true,
+      "security.ssl3.ecdhe_rsa_aes_128_sha": true,
+      "security.ssl3.ecdhe_rsa_aes_256_sha": true,
+      "security.ssl3.ecdhe_rsa_aes_128_gcm_sha256": true,
+      "security.ssl3.ecdhe_ecdsa_aes_128_gcm_sha256": true,
+      "security.ssl3.rsa_aes_128_sha": true,
+      "security.ssl3.rsa_aes_256_sha": true,
+      "security.ssl3.rsa_des_ede3_sha": true,
+      "security.ssl3.rsa_aes_128_gcm_sha256": true,
+      "security.ssl3.rsa_aes_256_gcm_sha384": true,
+    },
+  },
+
+  {
+    policies: {
+      DisabledCiphers: {
+        TLS_DHE_RSA_WITH_AES_128_CBC_SHA: true,
+        TLS_DHE_RSA_WITH_AES_256_CBC_SHA: true,
+        TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA: true,
+        TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: true,
+        TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: true,
+        TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: true,
+        TLS_RSA_WITH_AES_128_CBC_SHA: true,
+        TLS_RSA_WITH_AES_256_CBC_SHA: true,
+        TLS_RSA_WITH_3DES_EDE_CBC_SHA: true,
+        TLS_RSA_WITH_AES_128_GCM_SHA256: true,
+        TLS_RSA_WITH_AES_256_GCM_SHA384: true,
+      },
+    },
+    lockedPrefs: {
+      "security.ssl3.dhe_rsa_aes_128_sha": false,
+      "security.ssl3.dhe_rsa_aes_256_sha": false,
+      "security.ssl3.ecdhe_rsa_aes_128_sha": false,
+      "security.ssl3.ecdhe_rsa_aes_256_sha": false,
+      "security.ssl3.ecdhe_rsa_aes_128_gcm_sha256": false,
+      "security.ssl3.ecdhe_ecdsa_aes_128_gcm_sha256": false,
+      "security.ssl3.rsa_aes_128_sha": false,
+      "security.ssl3.rsa_aes_256_sha": false,
+      "security.ssl3.rsa_des_ede3_sha": false,
+      "security.ssl3.rsa_aes_128_gcm_sha256": false,
+      "security.ssl3.rsa_aes_256_gcm_sha384": false,
     },
   },
 ];

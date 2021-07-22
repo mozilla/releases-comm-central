@@ -79,6 +79,10 @@
       }
     },
 
+    "BackgroundAppUpdate": {
+      "type": "boolean"
+    },
+
     "BlockAboutAddons": {
       "type": "boolean"
     },
@@ -160,6 +164,10 @@
       "type": "boolean"
     },
 
+    "DisableBuiltinPDFViewer": {
+      "type": "boolean"
+    },
+
     "DisabledCiphers": {
       "type": "object",
       "properties": {
@@ -188,6 +196,12 @@
           "type": "boolean"
         },
         "TLS_RSA_WITH_3DES_EDE_CBC_SHA": {
+          "type": "boolean"
+        },
+        "TLS_RSA_WITH_AES_128_GCM_SHA256": {
+          "type": "boolean"
+        },
+        "TLS_RSA_WITH_AES_256_GCM_SHA384": {
           "type": "boolean"
         }
       }
@@ -228,6 +242,27 @@
 
     "DisableTelemetry": {
       "type": "boolean"
+    },
+
+    "DNSOverHTTPS": {
+      "type": "object",
+      "properties": {
+        "Enabled": {
+          "type": "boolean"
+        },
+        "ProviderURL": {
+          "type": "URLorEmpty"
+        },
+        "ExcludedDomains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Locked": {
+          "type": "boolean"
+        }
+      }
     },
 
     "DownloadDirectory": {
@@ -306,6 +341,9 @@
             },
             "blocked_install_message": {
               "type": "string"
+            },
+            "updates_disabled": {
+              "type": "boolean"
             }
           }
         }
@@ -314,6 +352,46 @@
 
     "ExtensionUpdate": {
       "type": "boolean"
+    },
+
+    "Handlers": {
+      "type": ["JSON", "object"],
+      "patternProperties": {
+        "^(mimeTypes|extensions|schemes)$": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": ["saveToDisk", "useHelperApp", "useSystemDefault"]
+                },
+                "ask": {
+                  "type": "boolean"
+                },
+                "handlers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "uriTemplate": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
 
     "HardwareAcceleration": {
@@ -336,93 +414,58 @@
       }
     },
 
+    "ManualAppUpdateOnly": {
+        "type": "boolean"
+    },
+
+    "NetworkPrediction": {
+      "type": "boolean"
+    },
+
+    "OfferToSaveLogins": {
+      "type": "boolean"
+    },
+
+    "OfferToSaveLoginsDefault": {
+      "type": "boolean"
+    },
+
     "PasswordManagerEnabled": {
       "type": "boolean"
     },
 
-    "Preferences": {
+    "PDFjs": {
       "type": "object",
       "properties": {
-        "accessibility.force_disabled": {
-          "type": "number",
-          "enum": [-1, 0, 1]
-        },
-        "browser.cache.disk.enable": {
+        "Enabled": {
           "type": "boolean"
         },
-        "browser.safebrowsing.phishing.enabled": {
+        "EnablePermissions": {
           "type": "boolean"
-        },
-        "browser.safebrowsing.malware.enabled": {
-          "type": "boolean"
-        },
-        "browser.search.update": {
-          "type": "boolean"
-        },
-        "browser.cache.disk.parent_directory": {
-          "type": "string"
-        },
-        "datareporting.policy.dataSubmissionPolicyBypassNotification": {
-          "type": "boolean"
-        },
-        "dom.allow_scripts_to_close_windows": {
-          "type": "boolean"
-        },
-        "dom.disable_window_flip": {
-          "type": "boolean"
-        },
-        "dom.disable_window_move_resize": {
-          "type": "boolean"
-        },
-        "dom.event.contextmenu.enabled": {
-          "type": "boolean"
-        },
-        "dom.keyboardevent.keypress.hack.dispatch_non_printable_keys.addl": {
-          "type": "string"
-        },
-        "dom.keyboardevent.keypress.hack.use_legacy_keycode_and_charcode.addl": {
-          "type": "string"
-        },
-        "extensions.blocklist.enabled": {
-          "type": "boolean"
-        },
-        "geo.enabled": {
-          "type": "boolean"
-        },
-        "intl.accept_languages": {
-          "type": "string"
-        },
-        "network.dns.disableIPv6": {
-          "type": "boolean"
-        },
-        "network.IDN_show_punycode": {
-          "type": "boolean"
-        },
-        "places.history.enabled": {
-          "type": "boolean"
-        },
-        "print.save_print_settings": {
-          "type": "boolean"
-        },
-        "security.default_personal_cert": {
-          "type": "string"
-        },
-        "security.mixed_content.block_active_content": {
-          "type": "boolean"
-        },
-        "security.osclientcerts.autoload": {
-          "type": "boolean"
-        },
-        "security.ssl.errorReporting.enabled": {
-          "type": "boolean"
-        },
-        "security.tls.hello_downgrade_check": {
-          "type": "boolean"
-        },
-        "widget.content.gtk-theme-override": {
-          "type": "string"
         }
       }
+    },
+
+    "Preferences": {
+      "type": ["JSON", "object"],
+      "patternProperties": {
+        "^.*$": {
+          "type": ["number", "boolean", "string", "object"],
+          "properties": {
+            "Value": {
+              "type": ["number", "boolean", "string"]
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["default", "locked", "user", "clear"]
+            }
+          }
+        }
+      }
+    },
+
+    "PrimaryPassword": {
+      "type": "boolean"
     },
 
     "PromptForDownloadLocation": {

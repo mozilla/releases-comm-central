@@ -315,9 +315,14 @@ var gPrivacyPane = {
   _initMasterPasswordUI() {
     var noMP = !LoginHelper.isMasterPasswordSet();
 
-    document.getElementById("changeMasterPassword").disabled = noMP;
+    var button = document.getElementById("changeMasterPassword");
+    button.disabled = noMP;
 
-    document.getElementById("useMasterPassword").checked = !noMP;
+    var checkbox = document.getElementById("useMasterPassword");
+    checkbox.checked = !noMP;
+    checkbox.disabled =
+      (noMP && !Services.policies.isAllowed("createMasterPassword")) ||
+      (!noMP && !Services.policies.isAllowed("removeMasterPassword"));
   },
 
   /**

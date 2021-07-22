@@ -17,6 +17,8 @@ policy-AppUpdateURL = Set custom app update URL.
 
 policy-Authentication = Configure integrated authentication for websites that support it.
 
+policy-BackgroundAppUpdate2 = Enable or disable the background updater.
+
 policy-BlockAboutAddons = Block access to the Add-ons Manager (about:addons).
 
 policy-BlockAboutConfig = Block access to the about:config page.
@@ -30,6 +32,8 @@ policy-CaptivePortal = Enable or disable captive portal support.
 policy-CertificatesDescription = Add certificates or use built-in certificates.
 
 policy-Cookies = Allow or deny websites to set cookies.
+
+policy-DisableBuiltinPDFViewer = Disable PDF.js, the built-in PDF viewer in { -brand-short-name }.
 
 policy-DisabledCiphers = Disable ciphers.
 
@@ -84,6 +88,8 @@ policy-ExtensionSettings = Manage all aspects of extension installation.
 
 policy-ExtensionUpdate = Enable or disable automatic extension updates.
 
+policy-Handlers = Configure default application handlers.
+
 policy-HardwareAcceleration = If false, turn off hardware acceleration.
 
 policy-InstallAddonsPermission = Allow certain websites to install add-ons.
@@ -99,6 +105,8 @@ policy-LegacySameSiteCookieBehaviorEnabledForDomainList = Revert to legacy SameS
 ##
 
 policy-LocalFileLinks = Allow specific websites to link to local files.
+
+policy-ManualAppUpdateOnly = Allow manual updates only and do not notify the user about updates.
 
 policy-NetworkPrediction = Enable or disable network prediction (DNS prefetching).
 
@@ -118,6 +126,8 @@ policy-PDFjs = Disable or configure PDF.js, the built-in PDF viewer in { -brand-
 policy-Permissions2 = Configure permissions for camera, microphone, location, notifications, and autoplay.
 
 policy-Preferences = Set and lock the value for a subset of preferences.
+
+policy-PrimaryPassword = Require or prevent using a Primary Password.
 
 policy-PromptForDownloadLocation = Ask where to save files when downloading.
 
