@@ -504,7 +504,8 @@ class SearchResultEntry extends LDAPResponse {
       let attrValue = attr.valueBlock.value;
       let type = new TextDecoder().decode(attrValue[0].valueBlock.valueHex);
       let vals = attrValue[1].valueBlock.value.map(v => v.valueBlock.valueHex);
-      attributes[type] = vals;
+      // AbLDAPAttributeMap.jsm expects lowercased attribute name.
+      attributes[type.toLowerCase()] = vals;
     }
     this.result = { objectName, attributes };
   }
