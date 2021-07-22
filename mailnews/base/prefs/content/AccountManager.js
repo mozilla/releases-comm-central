@@ -1809,6 +1809,11 @@ var gAccountTree = {
 
     function findDropItem(event) {
       let row = accountTree.getRowAt(event.clientX, event.clientY);
+      if (row == -1) {
+        // The mouse pointer is beyond the end of the list.
+        return null;
+      }
+
       let length = 0;
       for (let childElement of mainTree.children) {
         if (childElement.getAttribute("open") == "true") {
