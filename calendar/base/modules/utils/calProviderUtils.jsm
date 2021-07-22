@@ -21,19 +21,26 @@ var calprovider = {
   /**
    * Prepare HTTP channel with standard request headers and upload data/content-type if needed.
    *
-   * @param {nsIURI} aUri                             The channel URI, only used for a new channel.
-   * @param {nsIInputStream|String} aUploadData       Data to be uploaded, if any. If a string,
-   *                                                    it will be converted to an nsIInputStream.
-   * @param {String} aContentType                     Value for Content-Type header, if any.
-   * @param {nsIInterfaceRequestor} aNotificationCallbacks    Typically a CalDavRequestBase which
-   *                                                            implements nsIInterfaceRequestor
-   *                                                            and nsIChannelEventSink, and
-   *                                                            provides access to the calICalendar
-   *                                                            associated with the channel.
-   * @param {nsIChannel} [aExisting]                  An existing channel to modify (optional).
-   * @return {nsIChannel}                             The prepared channel.
+   * @param {nsIURI} aUri - The channel URI, only used for a new channel.
+   * @param {nsIInputStream|String} aUploadData - Data to be uploaded, if any. If a string,
+   *   it will be converted to an nsIInputStream.
+   * @param {String} aContentType - Value for Content-Type header, if any.
+   * @param {nsIInterfaceRequestor} aNotificationCallbacks - Typically a CalDavRequestBase which
+   *   implements nsIInterfaceRequestor and nsIChannelEventSink, and provides access to the
+   *   calICalendar associated with the channel.
+   * @param {nsIChannel} [aExistingChannel] - An existing channel to modify (optional).
+   * @param {boolean} [aForceNewAuth=false] - If true, use a new user context to avoid cached
+   *   authentication (see code comments). Optional, ignored if aExistingChannel is passed.
+   * @return {nsIChannel} - The prepared channel.
    */
-  prepHttpChannel(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting = null) {
+  prepHttpChannel(
+    aUri,
+    aUploadData,
+    aContentType,
+    aNotificationCallbacks,
+    aExistingChannel = null,
+    aForceNewAuth = false
+  ) {
     let originAttributes = {};
 
     // The current nsIHttpChannel implementation separates connections only
@@ -47,30 +54,37 @@ var calprovider = {
     // different containers. It is therefore sufficient to add individual
     // userContextIds per username.
 
-    let calendar;
-    try {
-      // Use a try/catch because there may not be a calICalendar interface.
-      // For example, when there is no calendar associated with a request,
-      // as in calendar detection.
-      calendar = aNotificationCallbacks.getInterface(Ci.calICalendar);
-    } catch (e) {
-      if (e.result != Cr.NS_ERROR_NO_INTERFACE) {
-        throw e;
-      }
-    }
-    if (calendar && calendar.getProperty("capabilities.username.supported") === true) {
+    if (aForceNewAuth) {
+      // A random "username" that won't be the same as any existing one.
+      // The value is not used for any other reason, so a UUID will do.
       originAttributes.userContextId = cal.auth.containerMap.getUserContextIdForUsername(
-        calendar.getProperty("username")
+        cal.getUUID()
       );
+    } else if (!aExistingChannel) {
+      try {
+        // Use a try/catch because there may not be a calICalendar interface.
+        // For example, when there is no calendar associated with a request,
+        // as in calendar detection.
+        let calendar = aNotificationCallbacks.getInterface(Ci.calICalendar);
+        if (calendar && calendar.getProperty("capabilities.username.supported") === true) {
+          originAttributes.userContextId = cal.auth.containerMap.getUserContextIdForUsername(
+            calendar.getProperty("username")
+          );
+        }
+      } catch (e) {
+        if (e.result != Cr.NS_ERROR_NO_INTERFACE) {
+          throw e;
+        }
+      }
     }
 
     // We cannot use a system principal here since the connection setup will fail if
     // same-site cookie protection is enabled in TB and server-side.
-    let principal = aExisting
+    let principal = aExistingChannel
       ? null
       : Services.scriptSecurityManager.createContentPrincipal(aUri, originAttributes);
     let channel =
-      aExisting ||
+      aExistingChannel ||
       Services.io.newChannelFromURI(
         aUri,
         null,

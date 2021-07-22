@@ -403,6 +403,8 @@ class CalDavDetectionSession extends CalDavSession {
     Ci.nsIInterfaceRequestor,
   ]);
 
+  isDetectionSession = true;
+
   /**
    * Create a new caldav detection session.
    *
@@ -453,6 +455,10 @@ class CalDavDetectionSession extends CalDavSession {
    * @see {nsIAuthPrompt2}
    */
   promptAuth(aChannel, aLevel, aAuthInfo) {
+    if (!this.password) {
+      return false;
+    }
+
     if ((aAuthInfo.flags & aAuthInfo.PREVIOUS_FAILED) == 0) {
       aAuthInfo.username = this.name;
       aAuthInfo.password = this.password;

@@ -84,7 +84,14 @@ class CalDavRequestBase {
    * Resets the channel for this request
    */
   reset() {
-    this.channel = cal.provider.prepHttpChannel(this.uri, this.uploadData, this.contentType, this);
+    this.channel = cal.provider.prepHttpChannel(
+      this.uri,
+      this.uploadData,
+      this.contentType,
+      this,
+      null,
+      this.session.isDetectionSession
+    );
   }
 
   /**

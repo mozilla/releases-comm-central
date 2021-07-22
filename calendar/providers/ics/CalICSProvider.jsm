@@ -118,6 +118,8 @@ class ICSDetectionSession {
     Ci.nsIInterfaceRequestor,
   ]);
 
+  isDetectionSession = true;
+
   /**
    * Create a new ICS detection session.
    *
@@ -180,6 +182,10 @@ class ICSDetectionSession {
    * @see {nsIAuthPrompt2}
    */
   promptAuth(aChannel, aLevel, aAuthInfo) {
+    if (!this.password) {
+      return false;
+    }
+
     if ((aAuthInfo.flags & aAuthInfo.PREVIOUS_FAILED) == 0) {
       aAuthInfo.username = this.name;
       aAuthInfo.password = this.password;
