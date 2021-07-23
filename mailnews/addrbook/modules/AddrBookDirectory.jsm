@@ -296,15 +296,15 @@ class AddrBookDirectory {
           if (name == "IsMailList" && condition == "=") {
             return card.isMailList == (value == "true");
           }
-
-          if (!properties.has(name)) {
+          let cardValue = properties.get(name);
+          if (!cardValue) {
             return condition == "!ex";
           }
           if (condition == "ex") {
             return true;
           }
 
-          let cardValue = properties.get(name).toLowerCase();
+          cardValue = cardValue.toLowerCase();
           switch (condition) {
             case "=":
               return cardValue == value;
