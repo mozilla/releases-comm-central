@@ -49,12 +49,21 @@ add_task(function testVCardToAbCard() {
   });
 
   // Name
+  check("N:Last;First", { FirstName: "First", LastName: "Last" });
+  check("N:Last;First;;;", { FirstName: "First", LastName: "Last" });
   check("N:Last;First;Middle;Prefix;Suffix", {
     FirstName: "First",
     LastName: "Last",
     AdditionalNames: "Middle",
     NamePrefix: "Prefix",
     NameSuffix: "Suffix",
+  });
+  check("N:Stevenson;John;Philip,Paul;Dr.;Jr.,M.D.,A.C.P.", {
+    FirstName: "John",
+    LastName: "Stevenson",
+    AdditionalNames: "Philip Paul",
+    NamePrefix: "Dr.",
+    NameSuffix: "Jr. M.D. A.C.P.",
   });
 
   // Address

@@ -424,7 +424,10 @@ function multiTextProperty(abPropNames, vPropName, vPropParams = {}) {
         for (let abPropName of abPropNames) {
           let valuePart = value.shift();
           if (abPropName && valuePart) {
-            yield [abPropName, valuePart];
+            yield [
+              abPropName,
+              Array.isArray(valuePart) ? valuePart.join(" ") : valuePart,
+            ];
           }
         }
       } else if (typeof value == "string") {
