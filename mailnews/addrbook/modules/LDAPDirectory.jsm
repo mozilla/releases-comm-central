@@ -104,6 +104,14 @@ class LDAPDirectory extends AddrBookDirectory {
     this.setStringValue("auth.dn", value);
   }
 
+  get maxHits() {
+    return this.getIntValue("maxHits", 100);
+  }
+
+  set maxHits(value) {
+    this.setIntValue("maxHits", value);
+  }
+
   get attributeMap() {
     let mapSvc = Cc[
       "@mozilla.org/addressbook/ldap-attribute-map-service;1"
@@ -170,8 +178,7 @@ class LDAPDirectory extends AddrBookDirectory {
     args.querySubDirectories = true;
     args.typeSpecificArg = this.attributeMap;
 
-    let maxHits = this.getIntValue("maxHits", 100);
-    this._query.doQuery(this, args, listener, maxHits, 0);
+    this._query.doQuery(this, args, listener, this.maxHits, 0);
   }
 
   useForAutocomplete(identityKey) {

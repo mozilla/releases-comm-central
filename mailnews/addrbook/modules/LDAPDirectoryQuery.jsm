@@ -96,6 +96,15 @@ class LDAPDirectoryQuery extends LDAPListenerBase {
     this._limit = limit;
     this._timeout = timeout;
 
+    let urlFilter = this._directory.lDAPURL.filter;
+    // If urlFilter is empty or the default "(objectclass=*)", do nothing.
+    if (urlFilter && urlFilter != "(objectclass=*)") {
+      if (!urlFilter.startsWith("(")) {
+        urlFilter = `(${urlFilter})`;
+      }
+      this._filter = `(&${urlFilter}${this._filter})`;
+    }
+
     this._connection = Cc[
       "@mozilla.org/network/ldap-connection;1"
     ].createInstance(Ci.nsILDAPConnection);
