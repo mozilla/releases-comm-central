@@ -193,7 +193,11 @@ class LDAPDirectoryQuery extends LDAPListenerBase {
    */
   _onLDAPSearchResult(msg) {
     this._onSearchFinished(
-      msg.errorCode == Ci.nsILDAPErrors.SUCCESS ? Cr.NS_OK : Cr.NS_ERROR_FAILURE
+      [Ci.nsILDAPErrors.SUCCESS, Ci.nsILDAPErrors.SIZELIMIT_EXCEEDED].includes(
+        msg.errorCode
+      )
+        ? Cr.NS_OK
+        : Cr.NS_ERROR_FAILURE
     );
   }
 
