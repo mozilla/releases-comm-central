@@ -169,7 +169,8 @@ var calinvitation = {
    */
   createInvitationOverlay(aEvent, aItipItem) {
     // Creates HTML using the Node strings in the properties file
-    let doc = cal.xml.parseFile("chrome://calendar/content/invitation-template.xhtml");
+    const parser = new DOMParser();
+    let doc = parser.parseFromString(calinvitation.htmlTemplate, "text/html");
     let formatter = cal.dtz.formatter;
 
     let field = function(aField, aContentText, aConvert, aContentHTML) {
@@ -771,4 +772,91 @@ var calinvitation = {
     }
     return { result: status, differences: diff };
   },
+
+  /**
+   * The HTML template used to format invitations for display.
+   * This used to be in a separate file (invitation-template.xhtml) and should
+   * probably be moved back there. But loading on-the-fly was causing a nasty
+   * C++ reentrancy issue (see Bug 1679299).
+   */
+  htmlTemplate: `<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="chrome://messagebody/skin/imip.css"/>
+    <link rel="stylesheet" href="chrome://messagebody/skin/calendar-attendees.css"/>
+  </head>
+  <body>
+    <div class="invitation-border">
+      <table class="invitation-table">
+        <caption id="imipHtml-header" class="header"></caption>
+        <tr id="imipHtml-summary-row" hidden="hidden">
+          <th id="imipHtml-summary-descr" class="description" scope="row"></th>
+          <td id="imipHtml-summary-content" class="content"></td>
+        </tr>
+        <tr id="imipHtml-location-row" hidden="hidden">
+          <th id="imipHtml-location-descr" class="description" scope="row"></th>
+          <td id="imipHtml-location-content" class="content"></td>
+        </tr>
+        <tr id="imipHtml-when-row" hidden="hidden">
+          <th id="imipHtml-when-descr" class="description" scope="row"></th>
+          <td id="imipHtml-when-content" class="content"></td>
+        </tr>
+        <tr id="imipHtml-canceledOccurrences-row" hidden="hidden">
+          <th id="imipHtml-canceledOccurrences-descr"
+              class="description"
+              scope="row">
+          </th>
+          <td id="imipHtml-canceledOccurrences-content" class="content"></td>
+        </tr>
+        <tr id="imipHtml-modifiedOccurrences-row" hidden="hidden">
+          <th id="imipHtml-modifiedOccurrences-descr"
+              class="description"
+              scope="row">
+          </th>
+          <td id="imipHtml-modifiedOccurrences-content" class="content"></td>
+        </tr>
+        <tr id="imipHtml-organizer-row" hidden="hidden">
+          <th id="imipHtml-organizer-descr"
+              class="description"
+              scope="row">
+          </th>
+          <td id="imipHtml-organizer-cell" class="content"></td>
+        </tr>
+        <tr id="imipHtml-description-row" hidden="hidden">
+          <th id="imipHtml-description-descr"
+              class="description"
+              scope="row">
+          </th>
+          <td id="imipHtml-description-content" class="content"></td>
+        </tr>
+        <tr id="imipHtml-attachments-row" hidden="hidden">
+          <th id="imipHtml-attachments-descr"
+              class="description"
+              scope="row"></th>
+          <td id="imipHtml-attachments-content" class="content"></td>
+        </tr>
+        <tr id="imipHtml-comment-row" hidden="hidden">
+          <th id="imipHtml-comment-descr" class="description" scope="row"></th>
+          <td id="imipHtml-comment-content" class="content"></td>
+        </tr>
+        <tr id="imipHtml-attendees-row" hidden="hidden">
+          <th id="imipHtml-attendees-descr"
+              class="description"
+              scope="row">
+          </th>
+          <td id="imipHtml-attendees-cell" class="content"></td>
+        </tr>
+        <tr id="imipHtml-url-row" hidden="hidden">
+          <th id="imipHtml-url-descr" class="description" scope="row"></th>
+          <td id="imipHtml-url-content" class="content"></td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
+`,
 };

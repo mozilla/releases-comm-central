@@ -82,7 +82,6 @@ calendar.jar:
     content/publishDialog.xhtml                                 (content/dialogs/publishDialog.xhtml)
     content/imip-bar.js                                         (content/imip-bar.js)
     content/import-export.js                                    (content/import-export.js)
-    content/invitation-template.xhtml                           (content/invitation-template.xhtml)
     content/calendar-item-editing.js                            (content/item-editing/calendar-item-editing.js)
     content/calendar-item-panel.js                              (content/item-editing/calendar-item-panel.js)
     content/calendar-item-iframe.xhtml                          (content/item-editing/calendar-item-iframe.xhtml)
