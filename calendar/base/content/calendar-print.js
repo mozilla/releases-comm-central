@@ -180,7 +180,7 @@
     }
 
     await cal.print.draw(
-      PrintEventHandler.previewBrowser.contentDocument,
+      PrintEventHandler.printPreviewEl.querySelector("browser").contentDocument,
       layout.value,
       startDate,
       endDate,

@@ -563,13 +563,17 @@ let weekPlannerView = {
 
 Services.obs.addObserver(
   {
-    observe(subDialogWindow) {
+    async observe(subDialogWindow) {
       if (!subDialogWindow.location.href.startsWith("chrome://global/content/print.html?")) {
         return;
       }
 
+      await new Promise(resolve =>
+        subDialogWindow.document.addEventListener("print-settings", resolve, { once: true })
+      );
+
       if (
-        subDialogWindow.PrintEventHandler.originalSourceCurrentURI !=
+        subDialogWindow.PrintEventHandler.activeCurrentURI !=
         "chrome://calendar/content/printing-template.html"
       ) {
         return;
