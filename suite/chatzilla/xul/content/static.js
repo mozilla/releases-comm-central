@@ -1814,10 +1814,12 @@ function gotoIRCURL(url, e)
     }
 
     // We should only prompt for a password if we're not connected.
-    if ((network.state == NET_OFFLINE) && url.needpass && !url.pass)
+    if (network.state == NET_OFFLINE)
     {
-        url.pass = promptPassword(getMsg(MSG_HOST_PASSWORD,
-                                         network.unicodeName));
+        url.pass = client.tryToGetLogin(network.getURL(), "serv", "*",
+                                        url.pass, url.needpass,
+                                        getMsg(MSG_HOST_PASSWORD,
+                                               network.getURL()));
     }
 
     // Adjust secure setting for temporary networks (so user can override).
@@ -5042,6 +5044,68 @@ function cli_wantToQuit(reason, deliberate)
         display(MSG_CLOSING);
         client.quit(reason);
     }
+}
+
+client.promptToSaveLogin =
+function cli_promptToSaveLogin(url, type, username, password)
+{
+    var name = "";
+    switch (type)
+    {
+        case "nick":
+        case "oper":
+            name = username;
+            break;
+        case "serv":
+        case "chan":
+            name = url;
+            username = "*";
+            break;
+        default:
+            display(getMsg(MSG_LOGIN_ERR_UNKNOWN_TYPE, type), MT_ERROR);
+            return;
+    }
+
+    const buttons = [MSG_LOGIN_SAVE, MSG_LOGIN_DONT];
+    var checkState = { value: true };
+    var rv = confirmEx(getMsg(MSG_LOGIN_CONFIRM, name), buttons, 0,
+                       MSG_LOGIN_PROMPT, checkState);
+    if (rv == 0)
+    {
+        client.prefs["login.promptToSave"] = checkState.value;
+
+        var updated = addOrUpdateLogin(url, type, username, password);
+        if (updated) {
+            display(getMsg(MSG_LOGIN_UPDATED, name), MT_INFO);
+        } else {
+            display(getMsg(MSG_LOGIN_ADDED, name), MT_INFO);
+        }
+    }
+}
+
+client.tryToGetLogin =
+function cli_tryToGetLogin(url, type, username, existing, needpass,
+                           promptstring)
+{
+    // Password is optional. If it is not given, we look for a saved password
+    // first. If there isn't one, we potentially use a safe prompt.
+    var info = getLogin(url, type, username);
+    var stored = (info && info.password) ? info.password : "";
+    var promptToSave = false;
+    if (!existing && stored) {
+        existing = stored;
+    } else if (!existing && needpass) {
+        existing = promptPassword(promptstring, "");
+        if (existing)
+            promptToSave = true;
+    } else if (existing && stored != existing) {
+        promptToSave = true;
+    }
+
+    if (promptToSave && client.prefs["login.promptToSave"])
+        client.promptToSaveLogin(url, type, username, existing);
+
+    return existing;
 }
 
 /* gets a tab-complete match for the line of text specified by |line|.

@@ -88,6 +88,7 @@ function initCommands()
          ["goto-url-newtab",   cmdGotoURL,                                   0],
          ["help",              cmdHelp,                            CMD_CONSOLE],
          ["hide-view",         cmdHideView,                        CMD_CONSOLE],
+         ["identify",          cmdIdentify,         CMD_NEED_SRV | CMD_CONSOLE],
          ["idle-away",         cmdAway,                                      0],
          ["idle-back",         cmdAway,                                      0],
          ["ignore",            cmdIgnore,           CMD_NEED_NET | CMD_CONSOLE],
@@ -2288,6 +2289,7 @@ function cmdJoin(e)
         chan = e.channelToJoin;
     }
 
+    e.key = client.tryToGetLogin(chan.getURL(), "chan", "*", e.key, false, "");
     chan.join(e.key);
 
     /* !-channels are "safe" channels, and get a server-generated prefix. For
@@ -2868,9 +2870,8 @@ function cmdOpenAtStartup(e)
 
 function cmdOper(e)
 {
-    // Password is optional, if it is not given, we use a safe prompt.
-    if (!e.password)
-        e.password = promptPassword(MSG_NEED_OPER_PASSWORD, "");
+    e.password = client.tryToGetLogin(e.server.getURL(), "oper", e.opername,
+                                      e.password, true, MSG_NEED_OPER_PASSWORD);
 
     if (!e.password)
         return;
@@ -3742,6 +3743,18 @@ function cmdJumpToAnchor(e)
 
     dispatch("set-current-view", {view: e.channel});
     e.channel.scrollToElement(row, "center");
+}
+
+function cmdIdentify(e)
+{
+    e.password = client.tryToGetLogin(e.server.parent.getURL(), "nick",
+                                      e.server.me.name, e.password, true,
+                                      MSG_NEED_IDENTIFY_PASSWORD);
+    if (!e.password)
+        return;
+
+    e.server.sendData("NS IDENTIFY " + fromUnicode(e.password, e.server) +
+                      "\n");
 }
 
 function cmdIgnore(e)

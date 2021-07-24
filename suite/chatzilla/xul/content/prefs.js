@@ -157,6 +157,7 @@ function initPrefs()
          ["logFileName",        makeLogNameClient,
                                           "hidden"],
          ["logFolder",          getURLSpecFromFile(logPath.path), ".log"],
+         ["login.promptToSave", true,       "global.security"],
          ["motif.current",      "chrome://chatzilla/skin/output-light.css",
                                           "appearance.motif"],
          ["motif.dark",         "chrome://chatzilla/skin/output-dark.css",
