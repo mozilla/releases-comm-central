@@ -169,8 +169,7 @@ var calinvitation = {
    */
   createInvitationOverlay(aEvent, aItipItem) {
     // Creates HTML using the Node strings in the properties file
-    const parser = new DOMParser();
-    let doc = parser.parseFromString(calinvitation.htmlTemplate, "text/html");
+    let doc = cal.xml.parseString(calinvitation.htmlTemplate);
     let formatter = cal.dtz.formatter;
 
     let field = function(aField, aContentText, aConvert, aContentHTML) {
