@@ -14,78 +14,10 @@
     <!-- Menu for testing. -->
     <menu id="debugMenu" accesskey="U" label="Debug" insertbefore="menu_Help">
       <menupopup id="menu_Debug_Popup">
-        <menu label="Verification">
-          <menupopup>
-            <menu label="Images and Media">
-              <menupopup>
-                <menuitem label="GIF Images"
-                          oncommand="openQAUrl('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_imagemap.html');"/>
-                <menuitem label="PNG Images"
-                          oncommand="openQAUrl('http://www.libpng.org/pub/png/png-MagnoliaAlpha.html');"/>
-              </menupopup>
-            </menu>
-            <menu label="General Page Rendering">
-              <menupopup>
-                <menuitem label="Larger page"
-                          oncommand="openQAUrl('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_html_mix3.html');"/>
-                <menuitem label="Smaller page"
-                          oncommand="openQAUrl('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_link.html');"/>
-              </menupopup>
-            </menu>
-            <menu label="Safe Browsing">
-              <menupopup>
-                <menuitem label="How does built-in Phishing and Malware Protection work?"
-                          oncommand="openQAUrl('https://support.mozilla.org/kb/how-does-phishing-and-malware-protection-work');"/>
-                <menuitem label="Deceptive Site!"
-                          oncommand="openQAUrl('https://itisatrap.org/firefox/its-a-trap.html');"/>
-                <menuitem label="Reported Attack Page!"
-                          oncommand="openQAUrl('https://itisatrap.org/firefox/its-an-attack.html');"/>
-                <menuitem label="Reported Unwanted Software Page!"
-                          oncommand="openQAUrl('https://itisatrap.org/firefox/unwanted.html');"/>
-                <menuitem label="Potentially Harmful Site!"
-                          oncommand="openQAUrl('https://itisatrap.org/firefox/harmful.html');"/>
-              </menupopup>
-            </menu>
-            <menu label="Permissions/Security">
-              <menupopup>
-                <menuitem label="SSL Server Test"
-                          oncommand="openQAUrl('https://www.ssllabs.com/ssltest/');"/>
-                <menuitem label="SSL/TLS Client Capabilities"
-                          oncommand="openQAUrl('https://www.ssllabs.com/ssltest/viewMyClient.html');"/>
-                <menuitem label="SSL Client Testing"
-                          oncommand="openQAUrl('https://badssl.com/');"/>
-              </menupopup>
-            </menu>
-            <menu label="Popular Sites">
-              <menupopup>
-              <menuitem label="SeaMonkey"
-                        oncommand="openQAUrl('https://www.seamonkey-project.org');"/>
-              <menuitem label="Thunderbird"
-                        oncommand="openQAUrl('https://www.thunderbird.net');"/>
-              <menuitem label="Youtube"
-                        oncommand="openQAUrl('https://www.youtube.com');"/>
-              <menuitem label="Yahoo"
-                        oncommand="openQAUrl('https://www.yahoo.com');"/>
-              <menuitem label="The Register"
-                        oncommand="openQAUrl('https://www.theregister.co.uk');"/>
-              <menuitem label="reddit"
-                        oncommand="openQAUrl('https://www.reddit.com');"/>
-              <menuitem label="Hotwired"
-                        oncommand="openQAUrl('https://www.wired.com');"/>
-              <menuitem label="CNN"
-                        oncommand="openQAUrl('https://www.cnn.com');"/>
-              <menuitem label="USA Today"
-                        oncommand="openQAUrl('https://www.usatoday.com');"/>
-              <menuitem label="Disney"
-                        oncommand="openQAUrl('https://www.disney.com');"/>
-              <menuitem label="Microsoft"
-                        oncommand="openQAUrl('https://www.microsoft.com');"/>
-              <menuitem label="Warner Bros."
-                        oncommand="openQAUrl('https://www.warnerbros.com');"/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </menu>
+        <menuitem label="Verification"
+                  oncommand="openQAUrl('https://www.seamonkey-project.org/dev/qa-verification');"/>
+
+        <menuseparator/>
 
         <menu label="Viewer Demos">
           <menupopup>
@@ -169,9 +101,11 @@
     <menu id="qaMenu" accesskey="Q" label="QA" insertbefore="menu_Help">
       <menupopup id="qaMenuPopup">
         <menuitem label="Getting Involved"
-                  oncommand="openQAUrl('https://www.seamonkey-project.org/start/');"/>
+                  oncommand="openQAUrl('https://www.seamonkey-project.org/dev/get-involved');"/>
         <menuitem label="SeaMonkey QA"
                   oncommand="openQAUrl('https://wiki.mozilla.org/SeaMonkey:QA');"/>
+        <menuitem label="Useful Sites"
+                  oncommand="openQAUrl('https://www.seamonkey-project.org/dev/useful-sites');"/>
 
         <menuseparator/>
 
@@ -205,8 +139,8 @@
 
         <menuseparator/>
 
-        <menuitem label="Latest Builds"
-                  oncommand="openQAUrl('https://archive.mozilla.org/pub/seamonkey/nightly/latest-comm-central-trunk/');"/>
+        <menuitem label="Nightly Builds"
+                  oncommand="openQAUrl('https://www.seamonkey-project.org/dev/nightly');"/>
       </menupopup>
     </menu>
   </menubar>
