@@ -34,15 +34,18 @@ var kMsgForwardAsAttachment = 0;
 
 var gMessengerBundle;
 var gOfflineManager;
-var gMarkViewedMessageAsReadTimer = null; // if the user has configured the app to mark a message as read if it is viewed for more than n seconds
+// Timer to mark read, if the user has configured the app to mark a message as
+// read if it is viewed for more than n seconds.
+var gMarkViewedMessageAsReadTimer = null;
 
-var gDisallow_classes_no_html = 1; /* the user preference,
-     if HTML is not allowed. I assume, that the user could have set this to a
-     value > 1 in his prefs.js or user.js, but that the value will not
-     change during runtime other than through the MsgBody*() functions below.*/
+// The user preference, if HTML is not allowed. Assume, that the user could have
+// set this to a value > 1 in their prefs.js or user.js, but that the value will
+// not change during runtime other than through the MsgBody*() functions below.
+var gDisallow_classes_no_html = 1;
 
-// Disable the File | New | Account... menu item if the account preference is locked.
-// Two other affected areas are the account central and the account manager dialogs.
+// Disable the File | New | Account... menu item if the account preference is
+// locked. Two other affected areas are the account central and the account
+// manager dialogs.
 function menu_new_init()
 {
   let folders = GetSelectedMsgFolders();
@@ -140,21 +143,10 @@ function view_init()
   if (folderPane_menuitem && !folderPane_menuitem.hidden)
     folderPane_menuitem.setAttribute("checked", !IsFolderPaneCollapsed());
 
-  var sort_menuitem = document.getElementById("viewSortMenu");
-  if (sort_menuitem)
-    sort_menuitem.setAttribute("disabled", gAccountCentralLoaded);
-
-  var view_menuitem = document.getElementById("viewMessageViewMenu");
-  if (view_menuitem)
-    view_menuitem.setAttribute("disabled", gAccountCentralLoaded);
-
-  var threads_menuitem = document.getElementById("viewMessagesMenu");
-  if (threads_menuitem)
-    threads_menuitem.setAttribute("disabled", gAccountCentralLoaded);
-
-  var charset_menuitem = document.getElementById("charsetMenu");
-  if (charset_menuitem)
-    charset_menuitem.setAttribute("disabled", !gMessageDisplay.displayedMessage);
+  document.getElementById("viewSortMenu").disabled = gAccountCentralLoaded;
+  document.getElementById("viewMessageViewMenu").disabled = gAccountCentralLoaded;
+  document.getElementById("viewMessagesMenu").disabled = gAccountCentralLoaded;
+  document.getElementById("charsetMenu").disabled = !gMessageDisplay.displayedMessage;
 
   // Initialize the Message Body menuitem
   let isFeed = gFolderDisplay &&
@@ -179,7 +171,8 @@ function view_init()
 
   // Initialize the Display Attachments Inline menu.
   var viewAttachmentInline = Services.prefs.getBoolPref("mail.inline_attachments");
-  document.getElementById("viewAttachmentsInlineMenuitem").setAttribute("checked", viewAttachmentInline ? "true" : "false");
+  document.getElementById("viewAttachmentsInlineMenuitem")
+          .setAttribute("checked", viewAttachmentInline);
 
   document.commandDispatcher.updateCommands('create-menu-view');
 }
@@ -202,45 +195,65 @@ function setSortByMenuItemCheckState(id, value)
 
 function InitViewSortByMenu()
 {
-    var sortType = gDBView.sortType;
+  var sortType = gDBView.sortType;
 
-    setSortByMenuItemCheckState("sortByDateMenuitem", (sortType == nsMsgViewSortType.byDate));
-    setSortByMenuItemCheckState("sortByReceivedMenuitem", (sortType == nsMsgViewSortType.byReceived));
-    setSortByMenuItemCheckState("sortByFlagMenuitem", (sortType == nsMsgViewSortType.byFlagged));
-    setSortByMenuItemCheckState("sortByOrderReceivedMenuitem", (sortType == nsMsgViewSortType.byId));
-    setSortByMenuItemCheckState("sortByPriorityMenuitem", (sortType == nsMsgViewSortType.byPriority));
-    setSortByMenuItemCheckState("sortBySizeMenuitem", (sortType == nsMsgViewSortType.bySize));
-    setSortByMenuItemCheckState("sortByStatusMenuitem", (sortType == nsMsgViewSortType.byStatus));
-    setSortByMenuItemCheckState("sortBySubjectMenuitem", (sortType == nsMsgViewSortType.bySubject));
-    setSortByMenuItemCheckState("sortByUnreadMenuitem", (sortType == nsMsgViewSortType.byUnread));
-    setSortByMenuItemCheckState("sortByTagsMenuitem", (sortType == nsMsgViewSortType.byTags));
-    setSortByMenuItemCheckState("sortByJunkStatusMenuitem", (sortType == nsMsgViewSortType.byJunkStatus));
-    setSortByMenuItemCheckState("sortByFromMenuitem", (sortType == nsMsgViewSortType.byAuthor));
-    setSortByMenuItemCheckState("sortByRecipientMenuitem", (sortType == nsMsgViewSortType.byRecipient));
-    setSortByMenuItemCheckState("sortByAttachmentsMenuitem", (sortType == nsMsgViewSortType.byAttachments));
+  setSortByMenuItemCheckState("sortByDateMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byDate);
+  setSortByMenuItemCheckState("sortByReceivedMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byReceived);
+  setSortByMenuItemCheckState("sortByFlagMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byFlagged);
+  setSortByMenuItemCheckState("sortByOrderReceivedMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byId);
+  setSortByMenuItemCheckState("sortByPriorityMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byPriority);
+  setSortByMenuItemCheckState("sortBySizeMenuitem",
+                              sortType == Ci.nsMsgViewSortType.bySize);
+  setSortByMenuItemCheckState("sortByStatusMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byStatus);
+  setSortByMenuItemCheckState("sortBySubjectMenuitem",
+                              sortType == Ci.nsMsgViewSortType.bySubject);
+  setSortByMenuItemCheckState("sortByUnreadMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byUnread);
+  setSortByMenuItemCheckState("sortByTagsMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byTags);
+  setSortByMenuItemCheckState("sortByJunkStatusMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byJunkStatus);
+  setSortByMenuItemCheckState("sortByFromMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byAuthor);
+  setSortByMenuItemCheckState("sortByRecipientMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byRecipient);
+  setSortByMenuItemCheckState("sortByAttachmentsMenuitem",
+                              sortType == Ci.nsMsgViewSortType.byAttachments);
 
-    var sortOrder = gDBView.sortOrder;
-    var sortTypeSupportsGrouping = (sortType == nsMsgViewSortType.byAuthor
-        || sortType == nsMsgViewSortType.byDate || sortType == nsMsgViewSortType.byReceived || sortType == nsMsgViewSortType.byPriority
-        || sortType == nsMsgViewSortType.bySubject || sortType == nsMsgViewSortType.byTags
-        || sortType == nsMsgViewSortType.byRecipient|| sortType == nsMsgViewSortType.byFlagged
-        || sortType == nsMsgViewSortType.byAttachments);
+  var sortOrder = gDBView.sortOrder;
+  var sortTypeSupportsGrouping = (sortType == Ci.nsMsgViewSortType.byAuthor ||
+      sortType == Ci.nsMsgViewSortType.byDate ||
+      sortType == Ci.nsMsgViewSortType.byReceived ||
+      sortType == Ci.nsMsgViewSortType.byPriority ||
+      sortType == Ci.nsMsgViewSortType.bySubject ||
+      sortType == Ci.nsMsgViewSortType.byTags ||
+      sortType == Ci.nsMsgViewSortType.byRecipient ||
+      sortType == Ci.nsMsgViewSortType.byFlagged ||
+      sortType == Ci.nsMsgViewSortType.byAttachments);
 
-    setSortByMenuItemCheckState("sortAscending", (sortOrder == nsMsgViewSortOrder.ascending));
-    setSortByMenuItemCheckState("sortDescending", (sortOrder == nsMsgViewSortOrder.descending));
+  setSortByMenuItemCheckState("sortAscending",
+                              sortOrder == Ci.nsMsgViewSortOrder.ascending);
+  setSortByMenuItemCheckState("sortDescending",
+                              sortOrder == Ci.nsMsgViewSortOrder.descending);
 
-    var grouped = ((gDBView.viewFlags & nsMsgViewFlagsType.kGroupBySort) != 0);
-    var threaded = ((gDBView.viewFlags & nsMsgViewFlagsType.kThreadedDisplay) != 0 && !grouped);
-    var sortThreadedMenuItem = document.getElementById("sortThreaded");
-    var sortUnthreadedMenuItem = document.getElementById("sortUnthreaded");
+  var grouped = ((gDBView.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort) != 0);
+  var threaded = ((gDBView.viewFlags & Ci.nsMsgViewFlagsType.kThreadedDisplay) != 0 && !grouped);
+  var sortThreadedMenuItem = document.getElementById("sortThreaded");
+  var sortUnthreadedMenuItem = document.getElementById("sortUnthreaded");
 
-    sortThreadedMenuItem.setAttribute("checked", threaded);
-    sortUnthreadedMenuItem.setAttribute("checked", !threaded && !grouped);
+  sortThreadedMenuItem.setAttribute("checked", threaded);
+  sortUnthreadedMenuItem.setAttribute("checked", !threaded && !grouped);
 
-    var groupBySortOrderMenuItem = document.getElementById("groupBySort");
+  var groupBySortOrderMenuItem = document.getElementById("groupBySort");
 
-    groupBySortOrderMenuItem.setAttribute("disabled", !sortTypeSupportsGrouping);
-    groupBySortOrderMenuItem.setAttribute("checked", grouped);
+  groupBySortOrderMenuItem.setAttribute("disabled", !sortTypeSupportsGrouping);
+  groupBySortOrderMenuItem.setAttribute("checked", grouped);
 }
 
 function InitViewMessagesMenu()
@@ -248,119 +261,68 @@ function InitViewMessagesMenu()
   var viewFlags = gDBView ? gDBView.viewFlags : 0;
   var viewType = gDBView ? gDBView.viewType : 0;
 
-  var allMenuItem = document.getElementById("viewAllMessagesMenuItem");
-  if (allMenuItem)
-    allMenuItem.setAttribute("checked",  (viewFlags & nsMsgViewFlagsType.kUnreadOnly) == 0 && (viewType == nsMsgViewType.eShowAllThreads));
+  document.getElementById("viewAllMessagesMenuItem").setAttribute("checked",
+    (viewFlags & Ci.nsMsgViewFlagsType.kUnreadOnly) == 0 &&
+    (viewType == Ci.nsMsgViewType.eShowAllThreads));
 
-  var unreadMenuItem = document.getElementById("viewUnreadMessagesMenuItem");
-  if (unreadMenuItem)
-    unreadMenuItem.setAttribute("checked", (viewFlags & nsMsgViewFlagsType.kUnreadOnly) != 0);
+  document.getElementById("viewUnreadMessagesMenuItem").setAttribute("checked",
+    (viewFlags & Ci.nsMsgViewFlagsType.kUnreadOnly) != 0);
 
-  var theadsWithUnreadMenuItem = document.getElementById("viewThreadsWithUnreadMenuItem");
-  if (theadsWithUnreadMenuItem)
-    theadsWithUnreadMenuItem.setAttribute("checked", viewType == nsMsgViewType.eShowThreadsWithUnread);
+  document.getElementById("viewThreadsWithUnreadMenuItem").setAttribute("checked",
+    viewType == Ci.nsMsgViewType.eShowThreadsWithUnread);
 
-  var watchedTheadsWithUnreadMenuItem = document.getElementById("viewWatchedThreadsWithUnreadMenuItem");
-  if (watchedTheadsWithUnreadMenuItem)
-    watchedTheadsWithUnreadMenuItem.setAttribute("checked", viewType == nsMsgViewType.eShowWatchedThreadsWithUnread);
+  document.getElementById("viewWatchedThreadsWithUnreadMenuItem").setAttribute("checked",
+    viewType == Ci.nsMsgViewType.eShowWatchedThreadsWithUnread);
 
-  var ignoredTheadsMenuItem = document.getElementById("viewIgnoredThreadsMenuItem");
-  if (ignoredTheadsMenuItem)
-    ignoredTheadsMenuItem.setAttribute("checked", (viewFlags & nsMsgViewFlagsType.kShowIgnored) != 0);
+  document.getElementById("viewIgnoredThreadsMenuItem").setAttribute("checked",
+    (viewFlags & Ci.nsMsgViewFlagsType.kShowIgnored) != 0);
 }
 
 function InitMessageMenu()
 {
-  var aMessage = gFolderDisplay.selectedMessage;
+  var selectedMsg = gFolderDisplay.selectedMessage;
   var isNews = gFolderDisplay.selectedMessageIsNews;
   var isFeed = gFolderDisplay.selectedMessageIsFeed;
 
   // We show Reply to Newsgroups only for news messages.
-  var replyNewsgroupMenuItem = document.getElementById("replyNewsgroupMainMenu");
-  if(replyNewsgroupMenuItem)
-  {
-      replyNewsgroupMenuItem.setAttribute("hidden", isNews ? "" : "true");
-  }
+  document.getElementById("replyNewsgroupMainMenu").hidden = !isNews;
 
   // We show Reply to List only for list posts.
-  var replyListMenuItem = document.getElementById("replyListMainMenu");
-  if (replyListMenuItem)
-    replyListMenuItem.hidden = isNews || !IsListPost();
+  document.getElementById("replyListMainMenu").hidden = isNews || !IsListPost();
 
-  //For mail messages we say reply. For news we say ReplyToSender.
-  var replyMenuItem = document.getElementById("replyMainMenu");
-  if(replyMenuItem)
-  {
-      replyMenuItem.setAttribute("hidden", !isNews ? "" : "true");
-  }
+  // For mail messages we say reply. For news we say ReplyToSender.
+  document.getElementById("replyMainMenu").hidden = isNews;
+  document.getElementById("replySenderMainMenu").hidden = !isNews;
 
-  var replySenderMenuItem = document.getElementById("replySenderMainMenu");
-  if(replySenderMenuItem)
-  {
-      replySenderMenuItem.setAttribute("hidden", isNews ? "" : "true");
-  }
-
-  //We show Reply to Sender and Newsgroup only for news messages.
-  var replySenderAndNewsgroupMenuItem = document.getElementById("replySenderAndNewsgroupMainMenu");
-  if (replySenderAndNewsgroupMenuItem)
-    replySenderAndNewsgroupMenuItem.hidden = !isNews;
+  // We show Reply to Sender and Newsgroup only for news messages.
+  document.getElementById("replySenderAndNewsgroupMainMenu").hidden = !isNews;
 
   // For mail messages we say reply all. For news we say ReplyToAllRecipients.
-  var replyAllMenuItem = document.getElementById("replyallMainMenu");
-  if (replyAllMenuItem)
-    replyAllMenuItem.hidden = isNews;
+  document.getElementById("replyallMainMenu").hidden = isNews;
+  document.getElementById("replyAllRecipientsMainMenu").hidden = !isNews;
 
-  var replyAllRecipientsMenuItem = document.getElementById("replyAllRecipientsMainMenu");
-  if (replyAllRecipientsMenuItem)
-    replyAllRecipientsMenuItem.hidden = !isNews;
-
-  // We only show Ignore Thread and Watch Thread menu itmes for news.
-  var threadMenuSeparator = document.getElementById("threadItemsSeparator");
-  if (threadMenuSeparator) {
-      threadMenuSeparator.setAttribute("hidden", isNews ? "" : "true");
-  }
-  var killThreadMenuItem = document.getElementById("killThread");
-  if (killThreadMenuItem) {
-      killThreadMenuItem.setAttribute("hidden", isNews ? "" : "true");
-  }
-  var killSubthreadMenuItem = document.getElementById("killSubthread");
-  if (killSubthreadMenuItem) {
-      killSubthreadMenuItem.setAttribute("hidden", isNews ? "" : "true");
-  }
-  var watchThreadMenuItem = document.getElementById("watchThread");
-  if (watchThreadMenuItem) {
-      watchThreadMenuItem.setAttribute("hidden", isNews ? "" : "true");
-  }
-  var cancelMenuItem = document.getElementById("menu_cancel");
-  if (cancelMenuItem) {
-      cancelMenuItem.setAttribute("hidden", isNews ? "" : "true");
-  }
+  // We only show Ignore Thread and Watch Thread menu items for news.
+  document.getElementById("threadItemsSeparator").hidden = !isNews;
+  document.getElementById("killThread").hidden = !isNews;
+  document.getElementById("killSubthread").hidden = !isNews;
+  document.getElementById("watchThread").hidden = !isNews;
+  document.getElementById("menu_cancel").hidden = !isNews;
 
   // Disable the Move and Copy menus if there are no messages selected.
   // Disable the Move menu if we can't delete messages from the folder.
-  var moveMenu = document.getElementById("moveMenu");
   var msgFolder = GetLoadedMsgFolder();
-  if(moveMenu)
-  {
-      var enableMenuItem = !isNews && aMessage &&
-                           msgFolder && msgFolder.canDeleteMessages;
-      moveMenu.setAttribute("disabled", !enableMenuItem);
-  }
+  var enableMenuItem = !isNews && selectedMsg &&
+                        msgFolder && msgFolder.canDeleteMessages;
+  document.getElementById("moveMenu").disabled = !enableMenuItem;
 
-  var copyMenu = document.getElementById("copyMenu");
-  var canCopy = aMessage && (!gMessageDisplay.isDummy ||
-                             window.arguments[0].scheme == "file");
-  if (copyMenu)
-      copyMenu.setAttribute("disabled", !canCopy);
+  // Also disable copy when no folder is loaded (like for .eml files).
+  var canCopy = selectedMsg && (!gMessageDisplay.isDummy ||
+                                window.arguments[0].scheme == "file");
+  document.getElementById("copyMenu").disabled = !canCopy;
 
   // Disable the Forward as/Tag menu items if no message is selected.
-  var forwardAsMenu = document.getElementById("forwardAsMenu");
-  if(forwardAsMenu)
-      forwardAsMenu.setAttribute("disabled", !aMessage);
-
-  var tagMenu = document.getElementById("tagMenu");
-  if(tagMenu)
-      tagMenu.setAttribute("disabled", !aMessage);
+  document.getElementById("forwardAsMenu").disabled = !selectedMsg;
+  document.getElementById("tagMenu").disabled = !selectedMsg;
 
   // Initialize the Open Message menuitem
   var winType = document.documentElement.getAttribute('windowtype');
@@ -378,9 +340,7 @@ function InitMessageMenu()
     openRssMenu.hidden = true;
 
   // Disable the Mark menu when we're not in a folder.
-  var markMenu = document.getElementById("markMenu");
-  if(markMenu)
-      markMenu.setAttribute("disabled", !msgFolder);
+  document.getElementById("markMenu").disabled = !msgFolder;
 
   document.commandDispatcher.updateCommands('create-menu-message');
 }
@@ -834,27 +794,22 @@ function getMsgToolbarMenu_init()
 
 function GetFirstSelectedMsgFolder()
 {
-    var result = null;
-    var selectedFolders = GetSelectedMsgFolders();
-    if (selectedFolders.length > 0) {
-        result = selectedFolders[0];
-    }
-
-    return result;
+  var selectedFolders = GetSelectedMsgFolders();
+  return (selectedFolders.length > 0) ? selectedFolders[0] : null;
 }
 
 function GetInboxFolder(server)
 {
-    try {
-        var rootMsgFolder = server.rootMsgFolder;
+  try {
+    var rootMsgFolder = server.rootMsgFolder;
 
-        //now find Inbox
-        return rootMsgFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-    }
-    catch (ex) {
-        dump(ex + "\n");
-    }
-    return null;
+    // Now find Inbox.
+    return rootMsgFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  }
+  catch (ex) {
+    dump(ex + "\n");
+  }
+  return null;
 }
 
 function GetMessagesForInboxOnServer(server)
@@ -916,7 +871,7 @@ function MsgGetNextNMessages()
 {
   if (DoGetNewMailWhenOffline()) {
     var folder = GetFirstSelectedMsgFolder();
-    if(folder)
+    if (folder)
       GetNextNMessages(folder);
   }
 }
@@ -1351,9 +1306,9 @@ function MsgForwardMessage(event)
   // 1 (forward as quoted) is obsolete, so we treat is as forward inline
   // since that is more like forward as quoted then forward as attachment
   if (forwardType == kMsgForwardAsAttachment)
-      MsgForwardAsAttachment(event);
+    MsgForwardAsAttachment(event);
   else
-      MsgForwardAsInline(event);
+    MsgForwardAsInline(event);
 }
 
 function MsgForwardAsAttachment(event)
@@ -1465,28 +1420,27 @@ function MsgSaveAsTemplate()
 
 function MsgOpenFromFile()
 {
-  const nsIFilePicker = Ci.nsIFilePicker;
   var fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(nsIFilePicker);
+             .createInstance(Ci.nsIFilePicker);
 
   var filterLabel = gMessengerBundle.getString("EMLFiles");
   var windowTitle = gMessengerBundle.getString("OpenEMLFiles");
 
-  fp.init(window, windowTitle, nsIFilePicker.modeOpen);
+  fp.init(window, windowTitle, Ci.nsIFilePicker.modeOpen);
   fp.appendFilter(filterLabel, "*.eml; *.msg");
 
   // Default or last filter is "All Files".
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   fp.open(rv => {
-    if (rv != nsIFilePicker.returnOK || !fp.file) {
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
       return;
     }
     let uri = fp.fileURL.QueryInterface(Ci.nsIURL);
     uri.query = "type=application/x-message-display";
 
     window.openDialog("chrome://messenger/content/messageWindow.xul", "_blank",
-                    "all,chrome,dialog=no,status,toolbar", uri);
+                      "all,chrome,dialog=no,status,toolbar", uri);
   });
 }
 
@@ -1967,21 +1921,9 @@ function SelectFolder(folderUri) {
 
 function IsMailFolderSelected()
 {
-    var selectedFolders = GetSelectedMsgFolders();
-    var numFolders = selectedFolders.length;
-    if(numFolders !=1)
-        return false;
-
-    var folder = selectedFolders[0];
-    if (!folder)
-        return false;
-
-    var server = folder.server;
-    var serverType = server.type;
-
-    if((serverType == "nntp"))
-        return false;
-    else return true;
+  var selectedFolders = GetSelectedMsgFolders();
+  var folder = selectedFolders.length ? selectedFolders[0] : null;
+  return folder && folder.server.type != "nntp";
 }
 
 function IsGetNewMessagesEnabled()
@@ -1997,31 +1939,22 @@ function IsGetNewMessagesEnabled()
 
 function IsGetNextNMessagesEnabled()
 {
-    var selectedFolders = GetSelectedMsgFolders();
-    var numFolders = selectedFolders.length;
-    if(numFolders !=1)
-        return false;
+  var selectedFolders = GetSelectedMsgFolders();
+  var folder = selectedFolders.length ? selectedFolders[0] : null;
 
-    var folder = selectedFolders[0];
-    if (!folder)
-        return false;
+  var menuItem = document.getElementById("menu_getnextnmsg");
+  if (folder && !folder.isServer &&
+      folder.server instanceof Ci.nsINntpIncomingServer) {
+    var menuLabel = PluralForm.get(folder.server.maxArticles,
+      gMessengerBundle.getString("getNextNewsMessages"))
+                              .replace("#1", folder.server.maxArticles);
+    menuItem.setAttribute("label", menuLabel);
+    menuItem.removeAttribute("hidden");
+    return true;
+  }
 
-    var server = folder.server;
-    var serverType = server.type;
-
-    var menuItem = document.getElementById("menu_getnextnmsg");
-    if ((serverType == "nntp") && !folder.isServer) {
-        var newsServer = server.QueryInterface(Ci.nsINntpIncomingServer);
-        var menuLabel = PluralForm.get(newsServer.maxArticles,
-          gMessengerBundle.getString("getNextNewsMessages"))
-                                  .replace("#1", newsServer.maxArticles);
-        menuItem.setAttribute("label",menuLabel);
-        menuItem.removeAttribute("hidden");
-        return true;
-    }
-
-    menuItem.setAttribute("hidden","true");
-    return false;
+  menuItem.setAttribute("hidden", "true");
+  return false;
 }
 
 function SetUpToolbarButtons(uri)
@@ -2244,25 +2177,22 @@ function GetNewMsgs(server, folder) {
 
 function SendUnsentMessages()
 {
-  var msgSendlater = Cc["@mozilla.org/messengercompose/sendlater;1"]
-               .getService(Ci.nsIMsgSendLater);
-  var allIdentities, numMessages, msgFolder;
+  let msgSendlater = Cc["@mozilla.org/messengercompose/sendlater;1"]
+                       .getService(Ci.nsIMsgSendLater);
 
-  if (accountManager) {
-    allIdentities = accountManager.allIdentities;
-    for (let currentIdentity of allIdentities) {
-      msgFolder = msgSendlater.getUnsentMessagesFolder(currentIdentity);
-      if(msgFolder) {
-        numMessages = msgFolder.getTotalMessages(false /* include subfolders */);
-        if(numMessages > 0) {
-          msgSendlater.statusFeedback = statusFeedback;
-          msgSendlater.sendUnsentMessages(currentIdentity);
-          // right now, all identities point to the same unsent messages
-          // folder, so to avoid sending multiple copies of the
-          // unsent messages, we only call messenger.SendUnsentMessages() once
-          // see bug #89150 for details
-          break;
-        }
+  let allIdentities = MailServices.accounts.allIdentities;
+  for (let currentIdentity of allIdentities) {
+    let msgFolder = msgSendlater.getUnsentMessagesFolder(currentIdentity);
+    if(msgFolder) {
+      let numMessages = msgFolder.getTotalMessages(false /* include subfolders */);
+      if (numMessages > 0) {
+        msgSendlater.statusFeedback = statusFeedback;
+        msgSendlater.sendUnsentMessages(currentIdentity);
+        // Right now, all identities point to the same unsent messages
+        // folder, so to avoid sending multiple copies of the
+        // unsent messages, we only call messenger.SendUnsentMessages() once
+        // see bug #89150 for details
+        break;
       }
     }
   }
@@ -2270,67 +2200,52 @@ function SendUnsentMessages()
 
 function CommandUpdate_UndoRedo()
 {
-    ShowMenuItem("menu_undo", true);
-    EnableMenuItem("menu_undo", SetupUndoRedoCommand("cmd_undo"));
-    ShowMenuItem("menu_redo", true);
-    EnableMenuItem("menu_redo", SetupUndoRedoCommand("cmd_redo"));
+  EnableMenuItem("menu_undo", SetupUndoRedoCommand("cmd_undo"));
+  EnableMenuItem("menu_redo", SetupUndoRedoCommand("cmd_redo"));
 }
 
 function SetupUndoRedoCommand(command)
 {
-    var loadedFolder = GetLoadedMsgFolder();
+  // If we have selected a server, and are viewing account central
+  // there is no loaded folder.
+  var loadedFolder = GetLoadedMsgFolder();
+  if (!loadedFolder || !loadedFolder.server.canUndoDeleteOnServer)
+    return false;
 
-    // if we have selected a server, and are viewing account central
-    // there is no loaded folder
-    if (!loadedFolder)
-      return false;
+  var canUndoOrRedo = false;
+  var txnType = 0;
 
-    var server = loadedFolder.server;
-    if (!(server.canUndoDeleteOnServer))
-      return false;
+  if (command == "cmd_undo") {
+    canUndoOrRedo = messenger.canUndo();
+    txnType = messenger.getUndoTransactionType();
+  } else {
+    canUndoOrRedo = messenger.canRedo();
+    txnType = messenger.getRedoTransactionType();
+  }
 
-    var canUndoOrRedo = false;
-    var txnType = 0;
-
-    if (command == "cmd_undo")
-    {
-        canUndoOrRedo = messenger.canUndo();
-        txnType = messenger.getUndoTransactionType();
+  if (canUndoOrRedo) {
+    switch (txnType) {
+      default:
+      case Ci.nsIMessenger.eUnknown:
+        goSetMenuValue(command, "valueDefault");
+        break;
+      case Ci.nsIMessenger.eDeleteMsg:
+        goSetMenuValue(command, "valueDeleteMsg");
+        break;
+      case Ci.nsIMessenger.eMoveMsg:
+        goSetMenuValue(command, "valueMoveMsg");
+        break;
+      case Ci.nsIMessenger.eCopyMsg:
+        goSetMenuValue(command, "valueCopyMsg");
+        break;
+      case Ci.nsIMessenger.eMarkAllMsg:
+        goSetMenuValue(command, "valueUnmarkAllMsgs");
+        break;
     }
-    else
-    {
-        canUndoOrRedo = messenger.canRedo();
-        txnType = messenger.getRedoTransactionType();
-    }
-
-    if (canUndoOrRedo)
-    {
-        const nsIMessenger = Ci.nsIMessenger;
-        switch (txnType)
-        {
-        default:
-        case nsIMessenger.eUnknown:
-            goSetMenuValue(command, 'valueDefault');
-            break;
-        case nsIMessenger.eDeleteMsg:
-            goSetMenuValue(command, 'valueDeleteMsg');
-            break;
-        case nsIMessenger.eMoveMsg:
-            goSetMenuValue(command, 'valueMoveMsg');
-            break;
-        case nsIMessenger.eCopyMsg:
-            goSetMenuValue(command, 'valueCopyMsg');
-            break;
-        case nsIMessenger.eMarkAllMsg:
-            goSetMenuValue(command, 'valueUnmarkAllMsgs');
-            break;
-        }
-    }
-    else
-    {
-        goSetMenuValue(command, 'valueDefault');
-    }
-    return canUndoOrRedo;
+  } else {
+    goSetMenuValue(command, "valueDefault");
+  }
+  return canUndoOrRedo;
 }
 
 function HandleJunkStatusChanged(folder)
@@ -2338,7 +2253,8 @@ function HandleJunkStatusChanged(folder)
   // This might be the stand alone window, open to a message that was
   // and attachment (or on disk), in which case, we want to ignore it.
   var loadedMessage = GetLoadedMessage();
-  if (!loadedMessage || /type=application\/x-message-display/.test(loadedMessage) ||
+  if (!loadedMessage ||
+      /type=application\/x-message-display/.test(loadedMessage) ||
       !IsCurrentLoadedFolder(folder))
     return;
 
