@@ -181,4 +181,20 @@ XPCOMUtils.defineLazyPreferenceGetter(
       this.render();
     }
   };
+
+  await customElements.whenDefined("recommended-addon-card");
+  RecommendedAddonCard.prototype._setCardContent =
+    RecommendedAddonCard.prototype.setCardContent;
+  RecommendedAddonCard.prototype.setCardContent = function(card, addon) {
+    this._setCardContent(card, addon);
+    card.addEventListener("click", event => {
+      if (event.target.matches("a[href]") || event.target.matches("button")) {
+        return;
+      }
+      windowRoot.ownerGlobal.openTrustedLinkIn(
+        card.querySelector(".disco-addon-author a").href,
+        "tab"
+      );
+    });
+  };
 })();

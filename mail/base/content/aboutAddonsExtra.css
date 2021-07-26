@@ -66,3 +66,8 @@ addon-options panel-item[action="preferences"] {
   display: flex;
   justify-content: flex-end;
 }
+
+recommended-addon-card .addon.card:hover {
+  box-shadow: var(--card-shadow-hover);
+  cursor: pointer;
+}
