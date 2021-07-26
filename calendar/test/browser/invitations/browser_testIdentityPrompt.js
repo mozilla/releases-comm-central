@@ -108,7 +108,12 @@ add_task(async function testInvitationIdentityPrompt() {
     },
   });
 
-  EventUtils.synthesizeMouseAtCenter(document.getElementById("imipAcceptButton"), {});
+  let acceptButton = document.getElementById("imipAcceptButton");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.is_visible(acceptButton),
+    "waiting for accept button to become visible"
+  );
+  EventUtils.synthesizeMouseAtCenter(acceptButton, {});
   await dialogPromise;
 
   let events;
