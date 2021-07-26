@@ -47,11 +47,12 @@
                 "default": false
               },
               "default_area": {
-                "description": "Currently unused.",
+                "description": "Defines the location the browserAction will appear. The default location is ``maintoolbar``.",
                 "type": "string",
+                "enum": ["maintoolbar", "tabstoolbar"],
                 "optional": true
               }
-            },
+          },
             "optional": true
           }
         }

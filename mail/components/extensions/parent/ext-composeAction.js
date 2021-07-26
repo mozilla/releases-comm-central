@@ -37,13 +37,40 @@ this.composeAction = class extends ToolbarButtonAPI {
       "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     ];
 
-    let format =
+    let isFormatToolbar =
       extension.manifest.compose_action.default_area == "formattoolbar";
-    this.toolboxId = format ? "FormatToolbox" : "compose-toolbox";
-    this.toolbarId = format ? "FormatToolbar" : "composeToolbar2";
+    this.toolboxId = isFormatToolbar ? "FormatToolbox" : "compose-toolbox";
+    this.toolbarId = isFormatToolbar ? "FormatToolbar" : "composeToolbar2";
 
-    if (format) {
+    if (isFormatToolbar) {
       this.paint = this.paintFormatToolbar;
+    }
+  }
+
+  static onUninstall(extensionId) {
+    let widgetId = makeWidgetId(extensionId);
+    let id = `${widgetId}-composeAction-toolbarbutton`;
+    let windowURL =
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml";
+
+    // Check all possible toolbars and remove the toolbarbutton if found.
+    // Sadly we have to hardcode these values here, as the add-on is already
+    // shutdown when onUninstall is called.
+    let toolbars = ["composeToolbar2", "FormatToolbar"];
+    for (let toolbar of toolbars) {
+      let currentSet = Services.xulStore
+        .getValue(windowURL, toolbar, "currentset")
+        .split(",");
+
+      let newSet = currentSet.filter(e => e != id);
+      if (newSet.length < currentSet.length) {
+        Services.xulStore.setValue(
+          windowURL,
+          toolbar,
+          "currentset",
+          newSet.join(",")
+        );
+      }
     }
   }
 
@@ -57,6 +84,7 @@ this.composeAction = class extends ToolbarButtonAPI {
         const trigger = menu.triggerNode;
         const node = window.document.getElementById(this.id);
         const contexts = [
+          "format-toolbar-context-menu",
           "toolbar-context-menu",
           "customizationPanelItemContextMenu",
         ];
@@ -74,6 +102,17 @@ this.composeAction = class extends ToolbarButtonAPI {
     }
   }
 
+  makeButton(window) {
+    let button = super.makeButton(window);
+    if (this.toolbarId == "FormatToolbar") {
+      button.classList.add("formatting-button");
+      // The format toolbar has no associated context menu. Add one directly to
+      // this button.
+      button.setAttribute("context", "format-toolbar-context-menu");
+    }
+    return button;
+  }
+
   paintFormatToolbar(window) {
     let { document } = window;
     if (document.getElementById(this.id)) {
@@ -87,29 +126,9 @@ this.composeAction = class extends ToolbarButtonAPI {
       before = before.previousElementSibling;
     }
     toolbar.insertBefore(button, before.nextElementSibling);
-  }
 
-  static onUninstall(extensionId) {
-    let widgetId = makeWidgetId(extensionId);
-    let id = `${widgetId}-composeAction-toolbarbutton`;
-
-    let windowURL =
-      "chrome://messenger/content/messengercompose/messengercompose.xhtml";
-    let currentSet = Services.xulStore.getValue(
-      windowURL,
-      "composeToolbar2",
-      "currentset"
-    );
-    currentSet = currentSet.split(",");
-    let index = currentSet.indexOf(id);
-    if (index >= 0) {
-      currentSet.splice(index, 1);
-      Services.xulStore.setValue(
-        windowURL,
-        "composeToolbar2",
-        "currentset",
-        currentSet.join(",")
-      );
+    if (this.extension.hasPermission("menus")) {
+      document.addEventListener("popupshowing", this);
     }
   }
 };

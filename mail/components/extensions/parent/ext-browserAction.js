@@ -30,6 +30,20 @@ this.browserAction = class extends ToolbarButtonAPI {
     windowTracker.removeListener("TabSelect", this);
   }
 
+  constructor(extension) {
+    super(extension, global);
+    this.manifest_name = "browser_action";
+    this.manifestName = "browserAction";
+    this.windowURLs = ["chrome://messenger/content/messenger.xhtml"];
+
+    let isTabsToolbar =
+      extension.manifest.browser_action.default_area == "tabstoolbar";
+    this.toolboxId = isTabsToolbar ? "navigation-toolbox" : "mail-toolbox";
+    this.toolbarId = isTabsToolbar ? "tabbar-toolbar" : "mail-bar3";
+
+    windowTracker.addListener("TabSelect", this);
+  }
+
   static onUninstall(extensionId) {
     let widgetId = makeWidgetId(extensionId);
     let id = `${widgetId}-browserAction-toolbarbutton`;
@@ -53,17 +67,6 @@ this.browserAction = class extends ToolbarButtonAPI {
         );
       }
     }
-  }
-
-  constructor(extension) {
-    super(extension, global);
-    this.manifest_name = "browser_action";
-    this.manifestName = "browserAction";
-    this.windowURLs = ["chrome://messenger/content/messenger.xhtml"];
-    this.toolboxId = "mail-toolbox";
-    this.toolbarId = "mail-bar3";
-
-    windowTracker.addListener("TabSelect", this);
   }
 
   handleEvent(event) {

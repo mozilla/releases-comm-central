@@ -204,63 +204,65 @@ async function checkClickedEvent(extension, expectedInfo, expectedTab) {
   Assert.equal(tab.mailTab, expectedTab.mailTab, "tab is mailTab");
 }
 
-function createExtension(...permissions) {
-  return ExtensionTestUtils.loadExtension({
-    async background() {
-      for (let context of [
-        "audio",
-        "browser_action",
-        "compose_action",
-        "message_display_action",
-        "editable",
-        "frame",
-        "image",
-        "link",
-        "page",
-        "password",
-        "selection",
-        "tab",
-        "video",
-        "message_list",
-        "folder_pane",
-        "compose_attachments",
-        "tools_menu",
-      ]) {
-        browser.menus.create({
-          id: context,
-          title: context,
-          contexts: [context],
+function getExtensionDetails(...permissions) {
+  return {
+    files: {
+      "background.js": async () => {
+        for (let context of [
+          "audio",
+          "browser_action",
+          "compose_action",
+          "message_display_action",
+          "editable",
+          "frame",
+          "image",
+          "link",
+          "page",
+          "password",
+          "selection",
+          "tab",
+          "video",
+          "message_list",
+          "folder_pane",
+          "compose_attachments",
+          "tools_menu",
+        ]) {
+          browser.menus.create({
+            id: context,
+            title: context,
+            contexts: [context],
+          });
+        }
+
+        browser.menus.onShown.addListener((...args) => {
+          // Test the getFile function here, we can't pass it to sendMessage.
+          if ("attachments" in args[0]) {
+            for (let attachment of args[0].attachments) {
+              browser.test.assertEq(
+                "function",
+                typeof attachment.getFile,
+                "attachment has a getFile function"
+              );
+            }
+          }
+          browser.test.sendMessage("onShown", args);
         });
-      }
 
-      browser.menus.onShown.addListener((...args) => {
-        // Test the getFile function here, we can't pass it to sendMessage.
-        if ("attachments" in args[0]) {
-          for (let attachment of args[0].attachments) {
-            browser.test.assertEq(
-              "function",
-              typeof attachment.getFile,
-              "attachment has a getFile function"
-            );
+        browser.menus.onClicked.addListener((...args) => {
+          // Test the getFile function here, we can't pass it to sendMessage.
+          if ("attachments" in args[0]) {
+            for (let attachment of args[0].attachments) {
+              browser.test.assertEq(
+                "function",
+                typeof attachment.getFile,
+                "attachment has a getFile function"
+              );
+            }
           }
-        }
-        browser.test.sendMessage("onShown", args);
-      });
-
-      browser.menus.onClicked.addListener((...args) => {
-        // Test the getFile function here, we can't pass it to sendMessage.
-        if ("attachments" in args[0]) {
-          for (let attachment of args[0].attachments) {
-            browser.test.assertEq(
-              "function",
-              typeof attachment.getFile,
-              "attachment has a getFile function"
-            );
-          }
-        }
-        browser.test.sendMessage("onClicked", args);
-      });
-      browser.test.sendMessage("menus-created");
+          browser.test.sendMessage("onClicked", args);
+        });
+        browser.test.sendMessage("menus-created");
+      },
     },
     manifest: {
       applications: {
@@ -277,11 +279,11 @@ function createExtension(...permissions) {
       message_display_action: {
         default_title: "This is a test",
       },
-
+      background: { scripts: ["background.js"] },
       permissions: [...permissions, "menus"],
     },
     useAddonManager: "temporary",
-  });
+  };
 }
 
 add_task(async function set_up() {
@@ -309,7 +311,8 @@ add_task(async function set_up() {
 });
 
 async function subtest_tools_menu(testWindow, expectedInfo, expectedTab) {
-  let extension = createExtension();
+  let extensionDetails = getExtensionDetails();
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -389,7 +392,8 @@ add_task(async function test_addressbook_tools_menu() {
 }).__skipMe = AppConstants.platform == "macosx";
 
 async function subtest_folder_pane(...permissions) {
-  let extension = createExtension(...permissions);
+  let extensionDetails = getExtensionDetails(...permissions);
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -451,7 +455,8 @@ async function subtest_message_panes(...permissions) {
     window.MsgToggleMessagePane();
   }
 
-  let extension = createExtension(...permissions);
+  let extensionDetails = getExtensionDetails(...permissions);
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -566,7 +571,8 @@ add_task(async function test_tab() {
     );
   }
 
-  let extension = createExtension();
+  let extensionDetails = getExtensionDetails();
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -859,7 +865,8 @@ add_task(async function test_content() {
   window.loadStartPage();
   await loadPromise;
 
-  let extension = createExtension("<all_urls>");
+  let extensionDetails = getExtensionDetails("<all_urls>");
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -880,7 +887,8 @@ add_task(async function test_content_tab() {
   let tab = window.openContentTab(`${URL_BASE}/content.html`);
   await BrowserTestUtils.browserLoaded(tab.browser);
 
-  let extension = createExtension("<all_urls>");
+  let extensionDetails = getExtensionDetails("<all_urls>");
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -920,7 +928,8 @@ add_task(async function test_content_window() {
     );
   }
 
-  let extension = createExtension("<all_urls>");
+  let extensionDetails = getExtensionDetails("<all_urls>");
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -938,7 +947,8 @@ add_task(async function test_content_window() {
 });
 
 async function subtest_compose(...permissions) {
-  let extension = createExtension(...permissions);
+  let extensionDetails = getExtensionDetails(...permissions);
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -1156,7 +1166,12 @@ async function subtest_action_menu(
     tabmail.closeTab(managerTab);
   }
 
-  let extension = createExtension();
+  let extensionDetails = getExtensionDetails();
+  if (target.area) {
+    extensionDetails.manifest[target.context].default_area = target.area;
+  }
+
+  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -1204,6 +1219,23 @@ add_task(async function test_browser_action_menu() {
       elementId: "menus_mochi_test-browserAction-toolbarbutton",
       context: "browser_action",
       nonActionButtonElementId: "button-chat",
+    },
+    {
+      pageUrl: "about:blank",
+      menuItemId: "browser_action",
+    },
+    { active: true, index: 0, mailTab: true }
+  );
+});
+
+add_task(async function test_browser_action_menu_tabstoolbar() {
+  await subtest_action_menu(
+    window,
+    {
+      menuId: "toolbar-context-menu",
+      elementId: "menus_mochi_test-browserAction-toolbarbutton",
+      context: "browser_action",
+      area: "tabstoolbar",
     },
     {
       pageUrl: "about:blank",
@@ -1264,6 +1296,26 @@ add_task(async function test_compose_action_menu() {
       elementId: "menus_mochi_test-composeAction-toolbarbutton",
       context: "compose_action",
       nonActionButtonElementId: "button-attach",
+    },
+    {
+      pageUrl: "about:blank?compose",
+      menuItemId: "compose_action",
+    },
+    { active: true, index: 0, mailTab: false }
+  );
+  await BrowserTestUtils.closeWindow(testWindow);
+});
+
+add_task(async function test_compose_action_menu_formattoolbar() {
+  let testWindow = await openComposeWindow(gAccount);
+  await focusWindow(testWindow);
+  await subtest_action_menu(
+    testWindow,
+    {
+      menuId: "format-toolbar-context-menu",
+      elementId: "menus_mochi_test-composeAction-toolbarbutton",
+      context: "compose_action",
+      area: "formattoolbar",
     },
     {
       pageUrl: "about:blank?compose",
