@@ -365,7 +365,7 @@ function onSMIMEBeforeShowHeaderPane() {
     "sender" in gExpandedHeaderView &&
     !Services.prefs.getBoolPref("mailnews.headers.showSender")
   ) {
-    gExpandedHeaderView.sender.enclosingRow.collapsed = true;
+    gExpandedHeaderView.sender.enclosingRow.hidden = true;
     delete gExpandedHeaderView.sender;
   }
 }
