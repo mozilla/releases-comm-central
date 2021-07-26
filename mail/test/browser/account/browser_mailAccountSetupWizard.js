@@ -85,7 +85,7 @@ var IMAPServer = {
     this.server.start(1993);
     info(`IMAP server started on port ${this.server.port}`);
 
-    // registerCleanupFunction(() => this.close());
+    registerCleanupFunction(() => this.close());
   },
   close() {
     this.server.stop();
@@ -116,7 +116,7 @@ var SMTPServer = {
     this.server.start(1587);
     info(`SMTP server started on port ${this.server.port}`);
 
-    // registerCleanupFunction(() => this.close());
+    registerCleanupFunction(() => this.close());
   },
   close() {
     this.server.stop();
@@ -705,6 +705,11 @@ add_task(async function test_full_account_setup() {
 
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+
+  // Wait for Thunderbird to connect to the server and check for messages.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 1000));
+
   IMAPServer.close();
   SMTPServer.close();
 });
