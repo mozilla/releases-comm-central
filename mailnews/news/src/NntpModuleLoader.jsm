@@ -22,11 +22,23 @@ function NntpModuleLoader() {
 }
 
 var nntpJSModules = [
-  // moduleName, interfaceId, contractId
+  // moduleName, interfaceId, contractId, moduleFileName
   [
     "NntpService",
     "{b13db263-a219-4168-aeaf-8266f001087e}",
     "@mozilla.org/messenger/nntpservice;1",
+  ],
+  [
+    "NewsProtocolHandler",
+    "{24220ecd-cb05-4676-8a47-fa1da7b86e6e}",
+    "@mozilla.org/network/protocol;1?name=news",
+    "NntpProtocolHandler",
+  ],
+  [
+    "SnewsProtocolHandler",
+    "{1895016d-5302-46a9-b3f5-9c47694d9eca}",
+    "@mozilla.org/network/protocol;1?name=snews",
+    "NntpProtocolHandler",
   ],
 ];
 
@@ -43,10 +55,16 @@ NntpModuleLoader.prototype = {
         Ci.nsIComponentRegistrar
       );
 
-      for (let [moduleName, interfaceId, contractId] of nntpJSModules) {
+      for (let [
+        moduleName,
+        interfaceId,
+        contractId,
+        fileName,
+      ] of nntpJSModules) {
+        fileName = fileName || moduleName;
         // Load a module.
-        let scope = ChromeUtils.import(`resource:///modules/${moduleName}.jsm`);
-        scope.NSGetFactory = ComponentUtils.generateNSGetFactory([
+        let scope = ChromeUtils.import(`resource:///modules/${fileName}.jsm`);
+        let NSGetFactory = ComponentUtils.generateNSGetFactory([
           scope[moduleName],
         ]);
 
@@ -56,7 +74,7 @@ NntpModuleLoader.prototype = {
           classId,
           "",
           contractId,
-          lazyFactoryFor(scope, classId)
+          lazyFactoryFor(NSGetFactory, classId)
         );
       }
 
@@ -67,14 +85,14 @@ NntpModuleLoader.prototype = {
   },
 };
 
-function lazyFactoryFor(backendScope, classID) {
+function lazyFactoryFor(NSGetFactory, classID) {
   return {
     createInstance(aOuter, aIID) {
-      let realFactory = backendScope.NSGetFactory(classID);
+      let realFactory = NSGetFactory(classID);
       return realFactory.createInstance(aOuter, aIID);
     },
     lockFactory(lock) {
-      let realFactory = backendScope.NSGetFactory(classID);
+      let realFactory = NSGetFactory(classID);
       return realFactory.lockFactory(lock);
     },
   };

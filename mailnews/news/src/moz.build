@@ -20,9 +20,11 @@ SOURCES += [
 
 EXTRA_JS_MODULES += [
     "NewsAutoCompleteSearch.jsm",
+    "NntpChannel.jsm",
     "NntpClient.jsm",
     "NntpModuleLoader.jsm",
     "NntpNewsGroup.jsm",
+    "NntpProtocolHandler.jsm",
     "NntpService.jsm",
 ]
 
