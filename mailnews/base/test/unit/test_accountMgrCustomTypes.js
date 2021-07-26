@@ -34,7 +34,7 @@ function run_test() {
 
   Services.prefs.setCharPref(
     "mail.accountmanager.accounts",
-    "account1,account2"
+    "account2,account1"
   );
   Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account1");
 
@@ -43,8 +43,6 @@ function run_test() {
   Assert.equal(MailServices.accounts.accounts.length, 1);
 
   // But it is really there.
-  // Here all the accounts are local but the first account will behave as
-  // an actual local account and will be kept last always.
   Assert.equal(
     Services.prefs.getCharPref("mail.accountmanager.accounts"),
     "account2,account1"

@@ -1071,7 +1071,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
     if (serverAccount) continue;
 
     if (NS_FAILED(
-            createKeyedAccount(accountsArray[i], getter_AddRefs(account))) ||
+            createKeyedAccount(accountsArray[i], true, getter_AddRefs(account))) ||
         !account) {
       NS_WARNING("unexpected entry in account list; prefs corrupt?");
       continue;
@@ -1534,6 +1534,7 @@ nsMsgAccountManager::WriteToFolderCache(nsIMsgFolderCache* folderCache) {
 }
 
 nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
+                                                 bool forcePositionToEnd,
                                                  nsIMsgAccount** aAccount) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccount> account = do_CreateInstance(kMsgAccountCID, &rv);
@@ -1542,36 +1543,39 @@ nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
   account->SetKey(key);
 
   nsCString localFoldersAccountKey;
-  nsCOMPtr<nsIMsgIncomingServer> localFoldersServer;
-  rv = GetLocalFoldersServer(getter_AddRefs(localFoldersServer));
-  if (NS_SUCCEEDED(rv)) {
-    for (auto account : m_accounts) {
-      nsCOMPtr<nsIMsgIncomingServer> server;
-      rv = account->GetIncomingServer(getter_AddRefs(server));
-      if (NS_SUCCEEDED(rv) && server == localFoldersServer) {
-        account->GetKey(localFoldersAccountKey);
-        break;
-      }
-    }
-  }
-
-  // Extracting the account key of the last mail acoount.
   nsCString lastFolderAccountKey;
-  for (int32_t index = m_accounts.Length() - 1; index >= 0; index--) {
-    nsCOMPtr<nsIMsgIncomingServer> server;
-    rv = m_accounts[index]->GetIncomingServer(getter_AddRefs(server));
-    if (NS_SUCCEEDED(rv) && server) {
-      nsCString accountType;
-      rv = server->GetType(accountType);
-      if (NS_SUCCEEDED(rv) && !accountType.EqualsLiteral("im")) {
-        m_accounts[index]->GetKey(lastFolderAccountKey);
-        break;
+  if (!forcePositionToEnd) {
+    nsCOMPtr<nsIMsgIncomingServer> localFoldersServer;
+    rv = GetLocalFoldersServer(getter_AddRefs(localFoldersServer));
+    if (NS_SUCCEEDED(rv)) {
+      for (auto account : m_accounts) {
+        nsCOMPtr<nsIMsgIncomingServer> server;
+        rv = account->GetIncomingServer(getter_AddRefs(server));
+        if (NS_SUCCEEDED(rv) && server == localFoldersServer) {
+          account->GetKey(localFoldersAccountKey);
+          break;
+        }
+      }
+    }
+
+    // Extracting the account key of the last mail acoount.
+    for (int32_t index = m_accounts.Length() - 1; index >= 0; index--) {
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      rv = m_accounts[index]->GetIncomingServer(getter_AddRefs(server));
+      if (NS_SUCCEEDED(rv) && server) {
+        nsCString accountType;
+        rv = server->GetType(accountType);
+        if (NS_SUCCEEDED(rv) && !accountType.EqualsLiteral("im")) {
+          m_accounts[index]->GetKey(lastFolderAccountKey);
+          break;
+        }
       }
     }
   }
 
-  if (!localFoldersAccountKey.IsEmpty() && !lastFolderAccountKey.IsEmpty() &&
+  if (!forcePositionToEnd && !localFoldersAccountKey.IsEmpty() && !lastFolderAccountKey.IsEmpty() &&
       lastFolderAccountKey == localFoldersAccountKey) {
+    // Insert account before Local Folders if that is the last account.
     m_accounts.InsertElementAt(m_accounts.Length() - 1, account);
   } else {
     m_accounts.AppendElement(account);
@@ -1598,7 +1602,7 @@ nsMsgAccountManager::CreateAccount(nsIMsgAccount** _retval) {
   nsAutoCString key;
   GetUniqueAccountKey(key);
 
-  return createKeyedAccount(key, _retval);
+  return createKeyedAccount(key, false, _retval);
 }
 
 NS_IMETHODIMP

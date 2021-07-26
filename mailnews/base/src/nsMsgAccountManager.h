@@ -127,7 +127,7 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   nsCString m_lastFolderURIForPath;
 
   /* internal creation routines - updates m_identities and m_incomingServers */
-  nsresult createKeyedAccount(const nsCString& key, nsIMsgAccount** _retval);
+  nsresult createKeyedAccount(const nsCString& key, bool forcePositionToEnd, nsIMsgAccount** _retval);
   nsresult createKeyedServer(const nsACString& key, const nsACString& username,
                              const nsACString& password, const nsACString& type,
                              nsIMsgIncomingServer** _retval);

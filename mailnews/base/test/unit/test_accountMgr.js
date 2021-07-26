@@ -50,7 +50,7 @@ function run_test() {
 
   Services.prefs.setCharPref(
     "mail.accountmanager.accounts",
-    "account1,account2,account4,account5,account5,account6"
+    "account4,account5,account5,account6,account1,account2"
   );
   // Set the default account to one we're going to get rid of. The account
   // manager should recover relatively gracefully.
