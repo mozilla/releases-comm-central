@@ -622,9 +622,14 @@ function loadDialog(aItem) {
   updateItemURL(showLink, itemUrl);
 
   // Description
+  let editorElement = document.getElementById("item-description");
+  let editor = editorElement.getHTMLEditor(editorElement.contentWindow);
+  let link = editorElement.contentDocument.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "chrome://messenger/content/messengercompose/EditorContent.css";
+  editorElement.contentDocument.head.appendChild(link);
+
   if (aItem.descriptionText) {
-    let editorElement = document.getElementById("item-description");
-    let editor = editorElement.getHTMLEditor(editorElement.contentWindow);
     let docFragment = cal.view.textToHtmlDocumentFragment(
       aItem.descriptionText,
       editorElement.contentDocument,
@@ -637,14 +642,10 @@ function loadDialog(aItem) {
     editor.rootElement.replaceChildren(docFragment);
     // This reinitialises the editor after we replaced its contents.
     editor.insertText("");
-    editor.resetModificationCount();
     editor.enableUndo(true);
-
-    let link = editorElement.contentDocument.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "chrome://messenger/content/messengercompose/EditorContent.css";
-    editorElement.contentDocument.head.appendChild(link);
   }
+
+  editor.resetModificationCount();
 
   if (aItem.isTodo()) {
     // Task completed date
