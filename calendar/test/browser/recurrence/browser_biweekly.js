@@ -6,7 +6,6 @@ var {
   CALENDARNAME,
   createCalendar,
   deleteCalendars,
-  goToDate,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
@@ -21,7 +20,7 @@ const HOUR = 8;
 add_task(async function testBiweeklyRecurrence() {
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 31);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 31);
 
   // Create biweekly event.
   let eventBox = dayView.getHourBoxAt(window, HOUR);
@@ -38,7 +37,7 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Check week view.
   await CalendarTestUtils.setCalendarView(window, "week");
-  await goToDate(window, 2009, 1, 31);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 31);
 
   for (let i = 0; i < 4; i++) {
     await weekView.waitForEventBoxAt(window, 7, 1);
@@ -47,7 +46,7 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Check multiweek view.
   await CalendarTestUtils.setCalendarView(window, "multiweek");
-  await goToDate(window, 2009, 1, 31);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 31);
 
   // Always two occurrences in view, 1st and 3rd or 2nd and 4th week.
   for (let i = 0; i < 5; i++) {
@@ -58,7 +57,7 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Check month view.
   await CalendarTestUtils.setCalendarView(window, "month");
-  await goToDate(window, 2009, 1, 31);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 31);
 
   // January
   await monthView.waitForItemAt(window, 5, 7, 1);

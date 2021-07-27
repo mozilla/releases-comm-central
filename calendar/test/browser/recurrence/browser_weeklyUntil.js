@@ -6,7 +6,6 @@ var {
   CALENDARNAME,
   createCalendar,
   deleteCalendars,
-  goToDate,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
@@ -24,7 +23,7 @@ const HOUR = 8;
 add_task(async function testWeeklyUntilRecurrence() {
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 5); // Monday
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5); // Monday
 
   // Create weekly recurring event.
   let eventBox = dayView.getHourBoxAt(window, HOUR);
@@ -56,7 +55,7 @@ add_task(async function testWeeklyUntilRecurrence() {
 
   // Check week view.
   await CalendarTestUtils.setCalendarView(window, "week");
-  await goToDate(window, 2009, 1, 5);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5);
   for (let week = 0; week < 3; week++) {
     // Monday
     await weekView.waitForEventBoxAt(window, 2, 1);
@@ -77,7 +76,7 @@ add_task(async function testWeeklyUntilRecurrence() {
 
   // Check multiweek view.
   await CalendarTestUtils.setCalendarView(window, "multiweek");
-  await goToDate(window, 2009, 1, 5);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5);
   for (let week = 1; week < 4; week++) {
     // Monday
     await multiweekView.waitForItemAt(window, week, 2, 1);
@@ -95,7 +94,7 @@ add_task(async function testWeeklyUntilRecurrence() {
 
   // Check month view.
   await CalendarTestUtils.setCalendarView(window, "month");
-  await goToDate(window, 2009, 1, 5);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5);
   // starts on week 2 in month-view
   for (let week = 2; week < 5; week++) {
     // Monday

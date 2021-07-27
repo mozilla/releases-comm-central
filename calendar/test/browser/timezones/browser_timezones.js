@@ -4,13 +4,9 @@
 
 requestLongerTimeout(3);
 
-var {
-  CALENDARNAME,
-  createCalendar,
-  deleteCalendars,
-  goToDate,
-  findEventsInNode,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { CALENDARNAME, createCalendar, deleteCalendars, findEventsInNode } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -46,7 +42,7 @@ var TIMEZONES = [
 add_task(async function testTimezones2_CreateEvents() {
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   // Create weekly recurring events in all TIMEZONES.
   let times = [
@@ -165,7 +161,7 @@ add_task(async function testTimezones3_checkStJohns() {
   ];
   EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   await verify(DATES, TIMEZONES, times);
 });
@@ -258,7 +254,7 @@ add_task(async function testTimezones4_checkCaracas() {
   ];
   EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   await verify(DATES, TIMEZONES, times);
 });
@@ -349,7 +345,7 @@ add_task(async function testTimezones5_checkPhoenix() {
   ];
   EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   await verify(DATES, TIMEZONES, times);
 });
@@ -440,7 +436,7 @@ add_task(async function testTimezones6_checkLosAngeles() {
   ];
   EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   await verify(DATES, TIMEZONES, times);
 });
@@ -531,7 +527,7 @@ add_task(async function testTimezones7_checkBuenosAires() {
   ];
   EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   await verify(DATES, TIMEZONES, times);
 });
@@ -622,7 +618,7 @@ add_task(async function testTimezones8_checkParis() {
   ];
   EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   await verify(DATES, TIMEZONES, times);
 });
@@ -713,7 +709,7 @@ add_task(async function testTimezones9_checkKathmandu() {
   ];
   EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   await verify(DATES, TIMEZONES, times);
 });
@@ -804,7 +800,7 @@ add_task(async function testTimezones10_checkAdelaide() {
   ];
   EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-tab-button"), {}, window);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   await verify(DATES, TIMEZONES, times);
 });
@@ -825,7 +821,7 @@ async function verify(dates, timezones, times) {
   */
 
   for (let [selectedYear, selectedMonth, selectedDay, selectedTime] of datetimes()) {
-    await goToDate(window, selectedYear, selectedMonth, selectedDay);
+    await CalendarTestUtils.goToDate(window, selectedYear, selectedMonth, selectedDay);
 
     // Find event with timezone tz.
     for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {

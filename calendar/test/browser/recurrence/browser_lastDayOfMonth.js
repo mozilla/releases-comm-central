@@ -6,7 +6,6 @@ var {
   CALENDARNAME,
   createCalendar,
   deleteCalendars,
-  goToDate,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
@@ -24,7 +23,7 @@ const HOUR = 8;
 add_task(async function testLastDayOfMonthRecurrence() {
   createCalendar(window, CALENDARNAME);
   await setCalendarView(window, "day");
-  await goToDate(window, 2008, 1, 31); // Start with a leap year.
+  await CalendarTestUtils.goToDate(window, 2008, 1, 31); // Start with a leap year.
 
   // Create monthly recurring event.
   let eventBox = dayView.getHourBoxAt(window, HOUR);
@@ -56,7 +55,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
     let date = new Date(Date.UTC(y, m - 1, d));
     let column = date.getUTCDay() + 1;
 
-    await goToDate(window, y, m, d);
+    await CalendarTestUtils.goToDate(window, y, m, d);
 
     // day view
     await setCalendarView(window, "day");
@@ -76,7 +75,12 @@ add_task(async function testLastDayOfMonthRecurrence() {
   }
 
   // Delete event.
-  await goToDate(window, checkingData[0][0], checkingData[0][1], checkingData[0][2]);
+  await CalendarTestUtils.goToDate(
+    window,
+    checkingData[0][0],
+    checkingData[0][1],
+    checkingData[0][2]
+  );
   await setCalendarView(window, "day");
   let box = await dayView.waitForEventBoxAt(window, 1);
   EventUtils.synthesizeMouseAtCenter(box, {}, window);

@@ -4,7 +4,7 @@
 
 requestLongerTimeout(2);
 
-var { CALENDARNAME, createCalendar, deleteCalendars, goToDate } = ChromeUtils.import(
+var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -21,7 +21,7 @@ var { dayView } = CalendarTestUtils;
 add_task(async function testEventDialogModificationPrompt() {
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   let createbox = dayView.getHourBoxAt(window, 8);
 

@@ -8,7 +8,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
-var { goToToday, handleDeleteOccurrencePrompt } = ChromeUtils.import(
+var { handleDeleteOccurrencePrompt } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 
@@ -133,7 +133,7 @@ async function runTestAlarms() {
   repeatUntil.day += 15;
 
   await CalendarTestUtils.setCalendarView(window, "multiweek");
-  await goToToday(window);
+  await CalendarTestUtils.goToToday(window);
   Assert.equal(window.unifinderTreeView.rowCount, 0, "unifinder event count");
 
   alarmObserver._alarmCount = 0;
@@ -277,7 +277,7 @@ let syncChangesTest = {
 
   async runPart1() {
     await CalendarTestUtils.setCalendarView(window, "multiweek");
-    await goToToday(window);
+    await CalendarTestUtils.goToToday(window);
 
     Assert.ok(!CalendarTestUtils.multiweekView.getItemAt(window, 2, 3, 1), "no existing item");
 

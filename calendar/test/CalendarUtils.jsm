@@ -8,8 +8,6 @@ const EXPORTED_SYMBOLS = [
   "TIMEOUT_MODAL_DIALOG",
   "CALENDARNAME",
   "handleDeleteOccurrencePrompt",
-  "goToDate",
-  "goToToday",
   "execEventDialogCallback",
   "checkMonthAlarmIcon",
   "closeAllEventDialogs",
@@ -67,70 +65,6 @@ async function handleDeleteOccurrencePrompt(window, element, selectParent) {
 
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
   await dialogPromise;
-}
-
-/**
- * Go to a specific date using minimonth.
- *
- * @param window        Main window
- * @param year          Four-digit year
- * @param month         1-based index of a month
- * @param day           1-based index of a day
- */
-async function goToDate(window, year, month, day) {
-  let miniMonth = window.document.getElementById("calMinimonth");
-
-  let activeYear = miniMonth.querySelector(".minimonth-year-name").value;
-
-  let activeMonth = miniMonth.querySelector(".minimonth-month-name").getAttribute("monthIndex");
-
-  async function doScroll(name, difference, sleepTime) {
-    if (difference === 0) {
-      return;
-    }
-    let query = `.${name}s-${difference > 0 ? "back" : "forward"}-button`;
-    let scrollArrow = await TestUtils.waitForCondition(
-      () => miniMonth.querySelector(query),
-      `Query for scroll: ${query}`
-    );
-
-    for (let i = 0; i < Math.abs(difference); i++) {
-      scrollArrow.doCommand();
-      await new Promise(resolve => window.setTimeout(resolve, sleepTime));
-    }
-  }
-
-  await doScroll("year", activeYear - year, 10);
-  await doScroll("month", activeMonth - (month - 1), 25);
-
-  function getMiniMonthDay(week, day) {
-    return miniMonth.querySelector(
-      `.minimonth-cal-box > tr.minimonth-row-body:nth-of-type(${week + 1}) > ` +
-        `td.minimonth-day:nth-of-type(${day})`
-    );
-  }
-
-  let positionOfFirst = 7 - getMiniMonthDay(1, 7).textContent;
-  let weekDay = ((positionOfFirst + day - 1) % 7) + 1;
-  let week = Math.floor((positionOfFirst + day - 1) / 7) + 1;
-
-  // Pick day.
-  EventUtils.synthesizeMouseAtCenter(getMiniMonthDay(week, weekDay), {}, window);
-  await CalendarTestUtils.ensureViewLoaded(window);
-}
-
-/**
- * Go to today.
- *
- * @param window - Main window
- */
-async function goToToday(window) {
-  EventUtils.synthesizeMouseAtCenter(
-    window.document.getElementById("today-view-button"),
-    {},
-    window
-  );
-  await CalendarTestUtils.ensureViewLoaded(window);
 }
 
 async function execEventDialogCallback(callback) {

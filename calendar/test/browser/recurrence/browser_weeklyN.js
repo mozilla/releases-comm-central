@@ -6,7 +6,6 @@ var {
   CALENDARNAME,
   createCalendar,
   deleteCalendars,
-  goToDate,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
@@ -23,7 +22,7 @@ const HOUR = 8;
 add_task(async function testWeeklyNRecurrence() {
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 5);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5);
 
   // Create weekly recurring event.
   let eventBox = dayView.getHourBoxAt(window, HOUR);

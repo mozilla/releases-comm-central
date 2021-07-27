@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  CALENDARNAME,
-  TIMEOUT_MODAL_DIALOG,
-  createCalendar,
-  deleteCalendars,
-  goToDate,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { CALENDARNAME, TIMEOUT_MODAL_DIALOG, createCalendar, deleteCalendars } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -23,7 +19,12 @@ add_task(async function testAlarmDialog() {
 
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
+  await CalendarTestUtils.goToDate(
+    window,
+    now.getUTCFullYear(),
+    now.getUTCMonth() + 1,
+    now.getUTCDate()
+  );
   await CalendarTestUtils.calendarViewForward(window, 1);
 
   let allDayHeader = dayView.getAllDayHeader(window);

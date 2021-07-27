@@ -7,7 +7,7 @@
 
 /* globals loadEventsFromFile */
 
-var { CALENDARNAME, createCalendar, deleteCalendars, goToDate } = ChromeUtils.import(
+var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 
@@ -16,7 +16,7 @@ const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci
 
 add_task(async () => {
   await CalendarTestUtils.setCalendarView(window, "month");
-  await goToDate(window, 2019, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2019, 1, 1);
 
   let chromeUrl = Services.io.newURI(getRootDirectory(gTestPath) + "data/import.ics");
   let fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);

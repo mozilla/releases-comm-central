@@ -6,7 +6,6 @@ var {
   CALENDARNAME,
   createCalendar,
   deleteCalendars,
-  goToDate,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
@@ -25,7 +24,7 @@ const TITLE = "Event";
 add_task(async function testWeeklyWithExceptionRecurrence() {
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 5);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5);
 
   // Create weekly recurring event.
   let eventBox = dayView.getHourBoxAt(window, HOUR);
@@ -42,11 +41,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   });
   await saveAndCloseItemDialog(dialogWindow);
 
-  await goToDate(window, 2009, 1, 6);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 6);
   await dayView.waitForEventBoxAt(window, 1);
 
   // Change recurrence rule.
-  await goToDate(window, 2009, 1, 7);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 7);
   ({ dialogWindow, iframeWindow } = await dayView.editEventOccurrencesAt(window, 1));
   await setData(dialogWindow, iframeWindow, {
     title: "Event",
@@ -58,7 +57,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   // day view
   await CalendarTestUtils.setCalendarView(window, "day");
 
-  await goToDate(window, 2009, 1, 5);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5);
   await dayView.waitForNoEventBoxAt(window, 1);
 
   await CalendarTestUtils.calendarViewForward(window, 1);
@@ -94,7 +93,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // week view
   await CalendarTestUtils.setCalendarView(window, "week");
-  await goToDate(window, 2009, 1, 5);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5);
 
   // Assert exactly two on Tuesday.
   Assert.ok(await weekView.waitForEventBoxAt(window, 3, 1));
@@ -119,7 +118,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // multiweek view
   await CalendarTestUtils.setCalendarView(window, "multiweek");
-  await goToDate(window, 2009, 1, 5);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 5);
   // Wait for the first items, then check the ones not to be present.
   // Assert exactly two.
   await multiweekView.waitForItemAt(window, 1, 3, 1, 1);
@@ -165,7 +164,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Delete event.
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2009, 1, 12);
+  await CalendarTestUtils.goToDate(window, 2009, 1, 12);
   eventBox = await dayView.waitForEventBoxAt(window, 1);
   EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);
   await handleDeleteOccurrencePrompt(window, eventBox, true);

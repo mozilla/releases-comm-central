@@ -6,7 +6,6 @@ var {
   CALENDARNAME,
   createCalendar,
   deleteCalendars,
-  goToDate,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 
@@ -22,7 +21,7 @@ const EPOCH = 1970;
 add_task(async function testAnnualRecurrence() {
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, STARTYEAR, 1, 1);
+  await CalendarTestUtils.goToDate(window, STARTYEAR, 1, 1);
 
   // Create yearly recurring all-day event.
   let eventBox = dayView.getAllDayHeader(window);
@@ -32,7 +31,7 @@ add_task(async function testAnnualRecurrence() {
 
   let checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];
   for (let year of checkYears) {
-    await goToDate(window, year, 1, 1);
+    await CalendarTestUtils.goToDate(window, year, 1, 1);
     let date = new Date(Date.UTC(year, 0, 1));
     let column = date.getUTCDay() + 1;
 
@@ -54,7 +53,7 @@ add_task(async function testAnnualRecurrence() {
   }
 
   // Delete event.
-  await goToDate(window, checkYears[0], 1, 1);
+  await CalendarTestUtils.goToDate(window, checkYears[0], 1, 1);
   await CalendarTestUtils.setCalendarView(window, "day");
   const box = await dayView.waitForAllDayItemAt(window, 1);
   EventUtils.synthesizeMouseAtCenter(box, {}, window);

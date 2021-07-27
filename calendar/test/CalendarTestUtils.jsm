@@ -932,4 +932,64 @@ const CalendarTestUtils = {
       return true;
     });
   },
+
+  /**
+   * Go to a specific date using the minimonth.
+   *
+   * @param {Window} win - Main window
+   * @param {number} year - Four-digit year
+   * @param {number} month - 1-based index of a month
+   * @param {number} day - 1-based index of a day
+   */
+  async goToDate(win, year, month, day) {
+    let miniMonth = win.document.getElementById("calMinimonth");
+
+    let activeYear = miniMonth.querySelector(".minimonth-year-name").value;
+
+    let activeMonth = miniMonth.querySelector(".minimonth-month-name").getAttribute("monthIndex");
+
+    async function doScroll(name, difference, sleepTime) {
+      if (difference === 0) {
+        return;
+      }
+      let query = `.${name}s-${difference > 0 ? "back" : "forward"}-button`;
+      let scrollArrow = await TestUtils.waitForCondition(
+        () => miniMonth.querySelector(query),
+        `Query for scroll: ${query}`
+      );
+
+      for (let i = 0; i < Math.abs(difference); i++) {
+        scrollArrow.doCommand();
+        await new Promise(resolve => win.setTimeout(resolve, sleepTime));
+      }
+    }
+
+    await doScroll("year", activeYear - year, 10);
+    await doScroll("month", activeMonth - (month - 1), 25);
+
+    function getMiniMonthDay(week, day) {
+      return miniMonth.querySelector(
+        `.minimonth-cal-box > tr.minimonth-row-body:nth-of-type(${week + 1}) > ` +
+          `td.minimonth-day:nth-of-type(${day})`
+      );
+    }
+
+    let positionOfFirst = 7 - getMiniMonthDay(1, 7).textContent;
+    let weekDay = ((positionOfFirst + day - 1) % 7) + 1;
+    let week = Math.floor((positionOfFirst + day - 1) / 7) + 1;
+
+    // Pick day.
+    EventUtils.synthesizeMouseAtCenter(getMiniMonthDay(week, weekDay), {}, win);
+    await CalendarTestUtils.ensureViewLoaded(win);
+  },
+
+  /**
+   * Go to today.
+   *
+   * @param {Window} window - Main window
+   */
+  async goToToday(win) {
+    EventUtils.synthesizeMouseAtCenter(win.document.getElementById("today-view-button"), {}, win);
+    await CalendarTestUtils.ensureViewLoaded(win);
+  },
 };

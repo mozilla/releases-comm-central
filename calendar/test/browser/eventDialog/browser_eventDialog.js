@@ -8,7 +8,6 @@ var {
   checkMonthAlarmIcon,
   createCalendar,
   deleteCalendars,
-  goToDate,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -36,7 +35,12 @@ add_task(async function testEventDialog() {
   // Since from other tests we may be elsewhere, make sure we start today.
   await CalendarTestUtils.setCalendarView(window, "day");
   createCalendar(window, CALENDARNAME);
-  await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
+  await CalendarTestUtils.goToDate(
+    window,
+    now.getUTCFullYear(),
+    now.getUTCMonth() + 1,
+    now.getUTCDate()
+  );
   await CalendarTestUtils.calendarViewBackward(window, 1);
 
   // Open month view.
@@ -206,7 +210,12 @@ add_task(async function testOpenExistingEventDialog() {
 
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
+  await CalendarTestUtils.goToDate(
+    window,
+    now.getUTCFullYear(),
+    now.getUTCMonth() + 1,
+    now.getUTCDate()
+  );
 
   let createBox = dayView.getHourBoxAt(window, 8);
 
@@ -249,7 +258,7 @@ add_task(async function testEventReminderDisplay() {
   let calId = createCalendar(window, CALENDARNAME);
 
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2020, 1, 1);
+  await CalendarTestUtils.goToDate(window, 2020, 1, 1);
 
   let createBox = dayView.getHourBoxAt(window, 8);
 
@@ -270,7 +279,7 @@ add_task(async function testEventReminderDisplay() {
   Assert.ok(row.hidden, "reminder dropdown is not displayed");
   EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
 
-  await goToDate(window, 2020, 2, 1);
+  await CalendarTestUtils.goToDate(window, 2020, 2, 1);
   createBox = dayView.getHourBoxAt(window, 8);
 
   // Create an event with a reminder.
@@ -327,7 +336,7 @@ add_task(async function testEventReminderDisplay() {
 
   let calendarProxy = cal.async.promisifyCalendar(calendar);
   let calendarEvent = await calendarProxy.addItem(new CalEvent(icalString));
-  await goToDate(window, 2020, 3, 1);
+  await CalendarTestUtils.goToDate(window, 2020, 3, 1);
   eventBox = await dayView.waitForEventBoxAt(window, 1);
 
   eventWindow = await CalendarTestUtils.viewItem(window, eventBox);
@@ -350,7 +359,7 @@ add_task(async function testEventReminderDisplay() {
 add_task(async function testCtrlEnterShortcut() {
   createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
-  await goToDate(window, 2020, 9, 1);
+  await CalendarTestUtils.goToDate(window, 2020, 9, 1);
 
   let createBox = dayView.getHourBoxAt(window, 8);
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
