@@ -875,16 +875,22 @@ function setAccountLabel(aAccountKey, aAccountNode, aLabel) {
 
 /**
  * Notify the UI to rebuild the account tree.
+ *
+ * @param {boolean} [reloadAccountManager=true] - When set to false, the
+ *   account manager for the current window is not reloaded.
  */
-function rebuildAccountTree() {
+function rebuildAccountTree(reloadAccountManager = true) {
+  const mostRecent3Pane = Services.wm.getMostRecentWindow("mail:3pane");
   for (let win of Services.wm.getEnumerator("mail:3pane")) {
     win.gFolderTreeView._rebuild();
-    let tabmail = win.document.getElementById("tabmail");
-    for (let tabInfo of tabmail.tabInfo) {
-      let tab = tabmail.getTabForBrowser(tabInfo.browser);
-      if (tab && tab.urlbar && tab.urlbar.value == "about:accountsettings") {
-        tab.browser.reload();
-        return;
+    if (reloadAccountManager || win !== mostRecent3Pane) {
+      let tabmail = win.document.getElementById("tabmail");
+      for (let tabInfo of tabmail.tabInfo) {
+        let tab = tabmail.getTabForBrowser(tabInfo.browser);
+        if (tab && tab.urlbar && tab.urlbar.value == "about:accountsettings") {
+          tab.browser.reload();
+          break;
+        }
       }
     }
   }
@@ -1740,7 +1746,7 @@ function accountReordered() {
   }
 
   MailServices.accounts.reorderAccounts(accountIds);
-  rebuildAccountTree();
+  rebuildAccountTree(false);
 }
 
 var gAccountTree = {
@@ -1828,6 +1834,21 @@ var gAccountTree = {
       return null;
     }
 
+    function getElementIndex(treeItem) {
+      let index = 0;
+      for (let childElement of mainTree.children) {
+        if (childElement === treeItem) {
+          return index;
+        }
+        if (childElement.getAttribute("open") == "true") {
+          index += childElement.querySelectorAll("treerow").length;
+        } else {
+          index++;
+        }
+      }
+      return -1;
+    }
+
     // By default, data/elements cannot be dropped in other elements.
     // To allow a drop, we must prevent the default handling of the element.
     accountTree.addEventListener("dragover", event => {
@@ -1855,6 +1876,8 @@ var gAccountTree = {
         if (dragId != dropItem.getAttribute("id")) {
           let dragItem = mainTree.querySelector("#" + dragId);
           mainTree.insertBefore(dragItem, dropItem);
+          accountTree.view.selection.clearSelection();
+          accountTree.view.selection.select(getElementIndex(dragItem));
           accountReordered();
         }
       }
@@ -1885,8 +1908,10 @@ var gAccountTree = {
             treeItem.nextElementSibling != mainTree.lastElementChild
           ) {
             mainTree.insertBefore(treeItem.nextElementSibling, treeItem);
+            accountTree.view.selection.clearSelection();
+            accountTree.view.selection.select(getElementIndex(treeItem));
+            accountReordered();
           }
-          accountReordered();
         } else if (
           event.code == "ArrowUp" &&
           event.altKey &&
@@ -1895,8 +1920,10 @@ var gAccountTree = {
           let treeItem = mainTree.querySelector("#" + getCurrentAccount().key);
           if (treeItem && treeItem.previousElementSibling) {
             mainTree.insertBefore(treeItem, treeItem.previousElementSibling);
+            accountTree.view.selection.clearSelection();
+            accountTree.view.selection.select(getElementIndex(treeItem));
+            accountReordered();
           }
-          accountReordered();
         }
       },
       true

@@ -86,8 +86,6 @@ function subtest_check_account_order(tab) {
   );
   Assert.notEqual(curAccountList.join(), prevAccountList.join());
 
-  accountRow = get_account_tree_row(gPopAccount.key, null, tab);
-  click_account_tree_row(tab, accountRow);
   // Moving the account down, back to the starting position.
   EventUtils.synthesizeKey("VK_DOWN", { altKey: true });
   mc.sleep(0);
