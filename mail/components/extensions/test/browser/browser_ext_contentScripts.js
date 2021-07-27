@@ -44,7 +44,7 @@ add_task(async function testInsertRemoveCSS() {
   });
 
   let tab = window.openContentTab(CONTENT_PAGE);
-  await BrowserTestUtils.browserLoaded(tab.browser);
+  await BrowserTestUtils.browserLoaded(tab.browser, false, CONTENT_PAGE);
 
   await extension.startup();
 
@@ -110,7 +110,7 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
   });
 
   let tab = window.openContentTab(CONTENT_PAGE);
-  await BrowserTestUtils.browserLoaded(tab.browser);
+  await BrowserTestUtils.browserLoaded(tab.browser, false, CONTENT_PAGE);
 
   await extension.startup();
 
@@ -149,7 +149,7 @@ add_task(async function testExecuteScript() {
   });
 
   let tab = window.openContentTab(CONTENT_PAGE);
-  await BrowserTestUtils.browserLoaded(tab.browser);
+  await BrowserTestUtils.browserLoaded(tab.browser, false, CONTENT_PAGE);
 
   await extension.startup();
 
@@ -212,7 +212,7 @@ add_task(async function testExecuteScriptNoPermissions() {
   });
 
   let tab = window.openContentTab(CONTENT_PAGE);
-  await BrowserTestUtils.browserLoaded(tab.browser);
+  await BrowserTestUtils.browserLoaded(tab.browser, false, CONTENT_PAGE);
 
   await extension.startup();
 
@@ -246,7 +246,7 @@ add_task(async function testExecuteScriptAlias() {
   });
 
   let tab = window.openContentTab(CONTENT_PAGE);
-  await BrowserTestUtils.browserLoaded(tab.browser);
+  await BrowserTestUtils.browserLoaded(tab.browser, false, CONTENT_PAGE);
 
   await extension.startup();
 
@@ -296,7 +296,11 @@ add_task(async function testRegister() {
 
   // Tab 1: loads before the script is registered.
   let tab1 = window.openContentTab(CONTENT_PAGE + "?tab1");
-  await BrowserTestUtils.browserLoaded(tab1.browser);
+  await BrowserTestUtils.browserLoaded(
+    tab1.browser,
+    false,
+    CONTENT_PAGE + "?tab1"
+  );
 
   await extension.startup();
 
@@ -305,7 +309,11 @@ add_task(async function testRegister() {
 
   // Tab 2: loads after the script is registered.
   let tab2 = window.openContentTab(CONTENT_PAGE + "?tab2");
-  await BrowserTestUtils.browserLoaded(tab2.browser);
+  await BrowserTestUtils.browserLoaded(
+    tab2.browser,
+    false,
+    CONTENT_PAGE + "?tab2"
+  );
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 128, 0)",
     color: "rgb(255, 255, 255)",
@@ -325,7 +333,11 @@ add_task(async function testRegister() {
 
   // Tab 3: loads after the script is unregistered.
   let tab3 = window.openContentTab(CONTENT_PAGE + "?tab3");
-  await BrowserTestUtils.browserLoaded(tab3.browser);
+  await BrowserTestUtils.browserLoaded(
+    tab3.browser,
+    false,
+    CONTENT_PAGE + "?tab3"
+  );
   await checkContent(tab3.browser, UNCHANGED_VALUES);
 
   extension.sendMessage();
@@ -355,14 +367,11 @@ add_task(async function testManifest() {
       },
     },
     manifest: {
-      permissions: ["*://mochi.test/*"],
       content_scripts: [
         {
           matches: ["<all_urls>"],
           css: ["test.css"],
           js: ["test.js"],
-          match_about_blank: true,
-          match_origin_as_fallback: true,
         },
       ],
     },
@@ -370,18 +379,28 @@ add_task(async function testManifest() {
 
   // Tab 1: loads before the script is registered.
   let tab1 = window.openContentTab(CONTENT_PAGE + "?tab1");
-  await BrowserTestUtils.browserLoaded(tab1.browser);
+  await BrowserTestUtils.browserLoaded(
+    tab1.browser,
+    false,
+    CONTENT_PAGE + "?tab1"
+  );
 
-  // match_origin_as_fallback is not implemented yet. Bug 1475831.
-  ExtensionTestUtils.failOnSchemaWarnings(false);
+  // Despite the fact we've just waited for the page to load, sometimes the
+  // content script mechanism gets triggered anyway. Wait a moment.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 1000));
+
   await extension.startup();
-  ExtensionTestUtils.failOnSchemaWarnings(true);
 
   await checkContent(tab1.browser, UNCHANGED_VALUES);
 
   // Tab 2: loads after the script is registered.
   let tab2 = window.openContentTab(CONTENT_PAGE + "?tab2");
-  await BrowserTestUtils.browserLoaded(tab2.browser);
+  await BrowserTestUtils.browserLoaded(
+    tab2.browser,
+    false,
+    CONTENT_PAGE + "?tab2"
+  );
 
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 255, 0)",
@@ -400,7 +419,7 @@ add_task(async function testManifest() {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
 
-/** Tests content_scripts in the manifest without permission do nothing. */
+/** Tests content_scripts match patterns in the manifest. */
 add_task(async function testManifestNoPermissions() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -410,27 +429,20 @@ add_task(async function testManifestNoPermissions() {
       },
     },
     manifest: {
-      permissions: [],
       content_scripts: [
         {
-          matches: ["<all_urls>"],
+          matches: ["*://example.org/*"],
           css: ["test.css"],
           js: ["test.js"],
-          match_about_blank: true,
-          match_origin_as_fallback: true,
         },
       ],
     },
   });
 
-  let tab = window.openContentTab(CONTENT_PAGE);
-  await BrowserTestUtils.browserLoaded(tab.browser);
-
-  // match_origin_as_fallback is not implemented yet. Bug 1475831.
-  ExtensionTestUtils.failOnSchemaWarnings(false);
   await extension.startup();
-  ExtensionTestUtils.failOnSchemaWarnings(true);
 
+  let tab = window.openContentTab(CONTENT_PAGE);
+  await BrowserTestUtils.browserLoaded(tab.browser, false, CONTENT_PAGE);
   await checkContent(tab.browser, UNCHANGED_VALUES);
 
   await extension.unload();
