@@ -106,7 +106,7 @@ function register_module(categoryName, categoryObject) {
         // Asks Preferences to update the attribute value of the entire
         // document again (this can be simplified if we could seperate the
         // preferences of each pane.)
-        Preferences.updateAllElements();
+        Preferences.queueUpdateOfAllElements();
       }
       categoryObject.init();
       this.inited = true;
