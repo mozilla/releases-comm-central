@@ -86,11 +86,17 @@ function subtest_check_account_open_state(tab, wishedState) {
 
   // See if the account row is in the wished open state.
   let accountTree = content_tab_e(tab, "accounttree");
-  Assert.equal(accountRow, accountTree.view.selection.currentIndex);
-  Assert.equal(accountTree.view.isContainerOpen(accountRow), wishedState);
+  Assert.equal(accountRow, accountTree.selectedIndex);
+  Assert.equal(
+    !accountTree.rows[accountRow].classList.contains("collapsed"),
+    wishedState
+  );
 
-  accountTree.view.toggleOpenState(accountRow);
-  Assert.equal(accountTree.view.isContainerOpen(accountRow), !wishedState);
+  accountTree.rows[accountRow].classList.toggle("collapsed");
+  Assert.equal(
+    accountTree.rows[accountRow].classList.contains("collapsed"),
+    wishedState
+  );
 
   // Whatever the open state of the account was, selecting one of its subpanes
   // must open it.
@@ -98,13 +104,18 @@ function subtest_check_account_open_state(tab, wishedState) {
     gPopAccount.incomingServer,
     "am-junk.xhtml"
   );
-  Assert.ok(accountTree.view.isContainerOpen(accountRow));
+  Assert.ok(!accountTree.rows[accountRow].classList.contains("collapsed"));
 
   // Set the proper state again for continuation of the test.
-  accountTree.view
-    .getItemAtIndex(accountRow)
-    .setAttribute("open", !wishedState);
-  Assert.equal(accountTree.view.isContainerOpen(accountRow), !wishedState);
+  if (wishedState) {
+    accountTree.collapseRowAtIndex(accountRow);
+  } else {
+    accountTree.expandRowAtIndex(accountRow);
+  }
+  Assert.equal(
+    accountTree.rows[accountRow].classList.contains("collapsed"),
+    wishedState
+  );
 }
 
 /**
@@ -132,28 +143,21 @@ function subtest_check_default_account_highlight(tab) {
   click_account_tree_row(tab, accountRow);
 
   let accountTree = content_tab_e(tab, "accounttree");
-  Assert.equal(accountRow, accountTree.view.selection.currentIndex);
-  let cell = accountTree.view.getItemAtIndex(accountRow).firstElementChild
-    .firstElementChild;
-  Assert.equal(cell.tagName, "treecell");
+  Assert.equal(accountRow, accountTree.selectedIndex);
 
   // We can't read the computed style of the tree cell directly, so at least see
   // if the isDefaultServer-true property is set on it. Hopefully the proper style
   // is attached to this property.
-  let propArray = accountTree.view
-    .getCellProperties(accountRow, accountTree.columns.getColumnAt(0))
-    .split(" ");
-  Assert.ok(propArray.includes("isDefaultServer-true"));
+  Assert.ok(accountTree.rows[accountRow].classList.contains("isDefaultServer"));
 
   // Now select another account that is not default.
   accountRow = get_account_tree_row(gPopAccount.key, null, tab);
   click_account_tree_row(tab, accountRow);
 
   // There should isDefaultServer-true on its tree cell.
-  propArray = accountTree.view
-    .getCellProperties(accountRow, accountTree.columns.getColumnAt(0))
-    .split(" ");
-  Assert.ok(!propArray.includes("isDefaultServer-true"));
+  Assert.ok(
+    !accountTree.rows[accountRow].classList.contains("isDefaultServer")
+  );
 }
 /**
  * Bug 58713.
@@ -175,11 +179,11 @@ add_task(async function test_selection_after_account_deletion() {
  */
 function subtest_check_selection_after_account_deletion(tab) {
   let accountList = [];
-  let accountTreeNode = content_tab_e(tab, "account-tree-children");
+  let accountTree = content_tab_e(tab, "accounttree");
   // Build the list of accounts in the account tree (order is important).
-  for (let i = 0; i < accountTreeNode.children.length; i++) {
-    if ("_account" in accountTreeNode.children[i]) {
-      let curAccount = accountTreeNode.children[i]._account;
+  for (let row of accountTree.children) {
+    if ("_account" in row) {
+      let curAccount = row._account;
       if (!accountList.includes(curAccount)) {
         accountList.push(curAccount);
       }
@@ -196,10 +200,9 @@ function subtest_check_selection_after_account_deletion(tab) {
   Assert.equal(MailServices.accounts.allServers.length, gOriginalAccountCount);
 
   // See if the currently selected account is the one next in the account list.
-  let accountTree = content_tab_e(tab, "accounttree");
-  let accountRow = accountTree.view.selection.currentIndex;
+  let accountRow = accountTree.selectedIndex;
   Assert.equal(
-    accountTree.view.getItemAtIndex(accountRow)._account,
+    accountTree.rows[accountRow]._account,
     accountList[accountIndex + 1]
   );
 }

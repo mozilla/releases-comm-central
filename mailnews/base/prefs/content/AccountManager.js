@@ -183,49 +183,39 @@ function onUnload() {
 }
 
 function selectServer(server, selectPageId) {
-  let childrenNode = document.getElementById("account-tree-children");
+  let accountTree = document.getElementById("accounttree");
 
   // Default to showing the first account.
-  let accountNode = childrenNode.firstElementChild;
+  let accountRow = accountTree.rows[0];
 
   // Find the tree-node for the account we want to select
   if (server) {
-    for (let i = 0; i < childrenNode.children.length; i++) {
-      let account = childrenNode.children[i]._account;
+    for (let row of accountTree.children) {
+      let account = row._account;
       if (account && server == account.incomingServer) {
-        accountNode = childrenNode.children[i];
+        accountRow = row;
         // Make sure all the panes of the account to be selected are shown.
-        accountNode.setAttribute("open", "true");
+        accountRow.classList.remove("collapsed");
         break;
       }
     }
   }
 
-  let pageToSelect = accountNode;
+  let pageToSelect = accountRow;
 
   if (selectPageId) {
     // Find the page that also corresponds to this server.
-    // It either is the accountNode itself...
-    let pageId = accountNode.getAttribute("PageTag");
+    // It either is the accountRow itself...
+    let pageId = accountRow.getAttribute("PageTag");
     if (pageId != selectPageId) {
       // ... or one of its children.
-      pageToSelect = accountNode.querySelector(
+      pageToSelect = accountRow.querySelector(
         '[PageTag="' + selectPageId + '"]'
       );
     }
   }
 
-  let accountTree = document.getElementById("accounttree");
-  let index = accountTree.view.getIndexOfItem(pageToSelect);
-  accountTree.view.selection.select(index);
-  accountTree.ensureRowIsVisible(index);
-
-  let lastItem = accountNode.lastElementChild.lastElementChild;
-  if (lastItem.localName == "treeitem") {
-    index = accountTree.view.getIndexOfItem(lastItem);
-  }
-
-  accountTree.ensureRowIsVisible(index);
+  accountTree.selectedIndex = accountTree.rows.indexOf(pageToSelect);
 }
 
 function replaceWithDefaultSmtpServer(deletedSmtpServerKey) {
@@ -822,55 +812,15 @@ function markDefaultServer(newDefault, oldDefault) {
     return;
   }
 
-  let accountTree = document.getElementById("account-tree-children");
-  for (let accountNode of accountTree.children) {
-    if (newDefault && newDefault == accountNode._account) {
-      let props = accountNode.firstElementChild.firstElementChild.getAttribute(
-        "properties"
-      );
-      accountNode.firstElementChild.firstElementChild.setAttribute(
-        "properties",
-        props + " isDefaultServer-true"
-      );
+  let accountTree = document.getElementById("accounttree");
+  for (let accountRow of accountTree.children) {
+    if (newDefault && newDefault == accountRow._account) {
+      accountRow.classList.add("isDefaultServer");
     }
-    if (oldDefault && oldDefault == accountNode._account) {
-      let props = accountNode.firstElementChild.firstElementChild.getAttribute(
-        "properties"
-      );
-      props = props.replace(/isDefaultServer-true/, "");
-      accountNode.firstElementChild.firstElementChild.setAttribute(
-        "properties",
-        props
-      );
+    if (oldDefault && oldDefault == accountRow._account) {
+      accountRow.classList.remove("isDefaultServer");
     }
   }
-}
-
-/**
- * Sets the name of the account rowitem in the tree pane.
- *
- * @param aAccountKey   the key of the account to change
- * @param aAccountNode  the node on which to change the label
- * @param aLabel        the value of the label to set
- */
-function setAccountLabel(aAccountKey, aAccountNode, aLabel) {
-  if (!aAccountNode) {
-    // We can't use the current tree selection to determine the current account,
-    // because this function may be called when the selection
-    // is already on another tree item (account) than the one we want to change.
-    // So find the proper node using the account key.
-    let accountTree = document.getElementById("account-tree-children");
-    for (let accountNode of accountTree.children) {
-      if (
-        "_account" in accountNode &&
-        accountNode._account.key == aAccountKey
-      ) {
-        aAccountNode = accountNode.firstElementChild.firstElementChild;
-        break;
-      }
-    }
-  }
-  aAccountNode.setAttribute("label", aLabel);
 }
 
 /**
@@ -880,19 +830,8 @@ function setAccountLabel(aAccountKey, aAccountNode, aLabel) {
  *   account manager for the current window is not reloaded.
  */
 function rebuildAccountTree(reloadAccountManager = true) {
-  const mostRecent3Pane = Services.wm.getMostRecentWindow("mail:3pane");
   for (let win of Services.wm.getEnumerator("mail:3pane")) {
     win.gFolderTreeView._rebuild();
-    if (reloadAccountManager || win !== mostRecent3Pane) {
-      let tabmail = win.document.getElementById("tabmail");
-      for (let tabInfo of tabmail.tabInfo) {
-        let tab = tabmail.getTabForBrowser(tabInfo.browser);
-        if (tab && tab.urlbar && tab.urlbar.value == "about:accountsettings") {
-          tab.browser.reload();
-          break;
-        }
-      }
-    }
   }
 }
 
@@ -908,13 +847,7 @@ function onSetDefault(event) {
   let previousDefault = MailServices.accounts.defaultAccount;
   MailServices.accounts.defaultAccount = currentAccount;
   markDefaultServer(currentAccount, previousDefault);
-  let accountList = allAccountsSorted(false);
-  let accountKeyList = accountList
-    .map(account => account.key)
-    .filter(key => key != currentAccount.key);
-  accountKeyList.unshift(currentAccount.key);
-  MailServices.accounts.reorderAccounts(accountKeyList);
-  rebuildAccountTree();
+
   // Update gloda's myContact with the new default account's default identity.
   Gloda._initMyIdentities();
 
@@ -934,11 +867,11 @@ function onRemoveAccount(event) {
   }
 
   let serverList = [];
-  let accountTreeNode = document.getElementById("account-tree-children");
+  let accountTree = document.getElementById("accounttree");
   // build the list of servers in the account tree (order is important)
-  for (let i = 0; i < accountTreeNode.children.length; i++) {
-    if ("_account" in accountTreeNode.children[i]) {
-      let curServer = accountTreeNode.children[i]._account.incomingServer;
+  for (let row of accountTree.children) {
+    if ("_account" in row) {
+      let curServer = row._account.incomingServer;
       if (!serverList.includes(curServer)) {
         serverList.push(curServer);
       }
@@ -1163,7 +1096,7 @@ function updateItems(
   let canSetDefault = false;
   let canDelete = false;
 
-  if (account && tree.view.selection.count >= 1) {
+  if (account && tree.selectedIndex >= 0) {
     // Only try to check properties if there was anything selected in the tree
     // and it belongs to an account.
     // Otherwise we have either selected a SMTP server, or there is some
@@ -1232,11 +1165,11 @@ function onAccountTreeSelect(pageId, account) {
 
   let changeView = pageId && account;
   if (!changeView) {
-    if (tree.view.selection.count < 1) {
+    if (tree.selectedIndex < 0) {
       return false;
     }
 
-    let node = tree.view.getItemAtIndex(tree.currentIndex);
+    let node = tree.rows[tree.selectedIndex];
     account = "_account" in node ? node._account : null;
 
     pageId = node.getAttribute("PageTag");
@@ -1710,22 +1643,57 @@ function getValueArrayFor(account) {
   return accountArray[serverId];
 }
 
-function accountReordered() {
-  let accountIds = [];
-  for (let account of document.getElementById("account-tree-children")
-    .children) {
-    if (account.hasAttribute("id")) {
-      accountIds.push(account.getAttribute("id"));
-    }
+/**
+ * Sets the name of the account rowitem in the tree pane.
+ *
+ * @param aAccountKey   the key of the account to change
+ * @param aLabel        the value of the label to set
+ */
+function setAccountLabel(aAccountKey, aLabel) {
+  let row = document.getElementById(aAccountKey);
+  if (row) {
+    row.querySelector(".name").textContent = aLabel;
   }
-
-  MailServices.accounts.reorderAccounts(accountIds);
   rebuildAccountTree(false);
 }
 
 var gAccountTree = {
   load() {
     this._build();
+
+    let mainTree = document.getElementById("accounttree");
+    mainTree.__defineGetter__("_orderableChildren", function() {
+      let rows = [...this.children];
+      rows.pop();
+      return rows;
+    });
+    mainTree.addEventListener("ordering", event => {
+      if (!event.detail || event.detail.id == "smtp") {
+        event.preventDefault();
+      }
+    });
+    mainTree.addEventListener("ordered", event => {
+      let accountKeyList = Array.from(mainTree.children, row => row.id);
+      accountKeyList.pop(); // Remove SMTP.
+      MailServices.accounts.reorderAccounts(accountKeyList);
+      rebuildAccountTree();
+    });
+    mainTree.addEventListener("expanded", event => {
+      this._dataStore.setValue(
+        document.documentURI,
+        event.target.id,
+        "open",
+        "true"
+      );
+    });
+    mainTree.addEventListener("collapsed", event => {
+      this._dataStore.setValue(
+        document.documentURI,
+        event.target.id,
+        "open",
+        "false"
+      );
+    });
 
     MailServices.accounts.addIncomingServerListener(this);
   },
@@ -1779,129 +1747,11 @@ var gAccountTree = {
 
     let accounts = allAccountsSorted(false);
 
-    let mainTree = document.getElementById("account-tree-children");
+    let mainTree = document.getElementById("accounttree");
     // Clear off all children...
     while (mainTree.hasChildNodes()) {
       mainTree.lastChild.remove();
     }
-
-    let accountTree = document.getElementById("accounttree");
-
-    function findDropItem(event) {
-      let row = accountTree.getRowAt(event.clientX, event.clientY);
-      if (row == -1) {
-        // The mouse pointer is beyond the end of the list.
-        return null;
-      }
-
-      let length = 0;
-      for (let childElement of mainTree.children) {
-        if (childElement.getAttribute("open") == "true") {
-          length += childElement.querySelectorAll("treerow").length;
-        } else {
-          length++;
-        }
-        if (length > row) {
-          return childElement;
-        }
-      }
-      return null;
-    }
-
-    function getElementIndex(treeItem) {
-      let index = 0;
-      for (let childElement of mainTree.children) {
-        if (childElement === treeItem) {
-          return index;
-        }
-        if (childElement.getAttribute("open") == "true") {
-          index += childElement.querySelectorAll("treerow").length;
-        } else {
-          index++;
-        }
-      }
-      return -1;
-    }
-
-    // By default, data/elements cannot be dropped in other elements.
-    // To allow a drop, we must prevent the default handling of the element.
-    accountTree.addEventListener("dragover", event => {
-      event.preventDefault();
-      for (let childElement of mainTree.children) {
-        childElement.querySelector("treerow").removeAttribute("properties");
-      }
-
-      let dropItem = findDropItem(event);
-      if (dropItem) {
-        dropItem
-          .querySelector("treerow")
-          .setAttribute("properties", "dragover");
-      }
-    });
-
-    accountTree.addEventListener("drop", event => {
-      let dragId = event.dataTransfer.getData("text/account");
-      if (!dragId) {
-        return;
-      }
-
-      let dropItem = findDropItem(event);
-      if (dropItem) {
-        if (dragId != dropItem.getAttribute("id")) {
-          let dragItem = mainTree.querySelector("#" + dragId);
-          mainTree.insertBefore(dragItem, dropItem);
-          accountTree.view.selection.clearSelection();
-          accountTree.view.selection.select(getElementIndex(dragItem));
-          accountReordered();
-        }
-      }
-    });
-
-    mainTree.addEventListener("dragstart", event => {
-      if (getCurrentAccount()) {
-        event.dataTransfer.effectAllowed = "move";
-        event.dataTransfer.dropEffect = "move";
-        event.dataTransfer.setData("text/account", getCurrentAccount().key);
-      }
-    });
-
-    mainTree.addEventListener("dragend", event => {
-      for (let childElement of mainTree.children) {
-        childElement.querySelector("treerow").removeAttribute("properties");
-      }
-    });
-
-    accountTree.addEventListener(
-      "keydown",
-      event => {
-        if (event.code == "ArrowDown" && event.altKey && getCurrentAccount()) {
-          let treeItem = mainTree.querySelector("#" + getCurrentAccount().key);
-          if (
-            treeItem &&
-            treeItem.nextElementSibling &&
-            treeItem.nextElementSibling != mainTree.lastElementChild
-          ) {
-            mainTree.insertBefore(treeItem.nextElementSibling, treeItem);
-            accountTree.view.selection.clearSelection();
-            accountTree.view.selection.select(getElementIndex(treeItem));
-            accountReordered();
-          }
-        } else if (
-          event.code == "ArrowUp" &&
-          event.altKey &&
-          getCurrentAccount()
-        ) {
-          let treeItem = mainTree.querySelector("#" + getCurrentAccount().key);
-          if (treeItem && treeItem.previousElementSibling) {
-            mainTree.insertBefore(treeItem, treeItem.previousElementSibling);
-            accountTree.view.selection.clearSelection();
-            accountTree.view.selection.select(getElementIndex(treeItem));
-            accountReordered();
-          }
-        }
-      },
-      true
-    );
 
     for (let account of accounts) {
       let accountName = null;
@@ -1994,53 +1844,49 @@ var gAccountTree = {
       }
 
       // Create the top level tree-item.
-      let treeitem = document.createXULElement("treeitem");
+      let treeitem = document
+        .getElementById("accountTreeItem")
+        .content.firstElementChild.cloneNode(true);
       mainTree.appendChild(treeitem);
-      let treerow = document.createXULElement("treerow");
-      treeitem.appendChild(treerow);
-      let treecell = document.createXULElement("treecell");
-      treerow.appendChild(treecell);
-      treecell.setAttribute("label", accountName);
+      treeitem.querySelector(".name").textContent = accountName;
       treeitem.setAttribute("PageTag", amChrome);
       // Add icons based on account type.
       if (server) {
-        treecell.setAttribute(
-          "properties",
-          "folderNameCol isServer-true serverType-" + server.type
-        );
+        treeitem.classList.add("serverType-" + server.type);
+        if (server.isSecure) {
+          treeitem.classList.add("isSecure");
+        }
         // For IM accounts, we can try to fetch a protocol specific icon.
         if (server.type == "im") {
-          treecell.setAttribute(
-            "src",
+          treeitem.querySelector(".icon").style.backgroundImage =
+            "url(" +
             ChatIcons.getProtocolIconURI(
               server.wrappedJSObject.imAccount.protocol
-            )
-          );
+            ) +
+            ")";
           treeitem.id = accountKey;
         }
       }
 
       if (panelsToKeep.length > 0) {
-        var treekids = document.createXULElement("treechildren");
-        treeitem.appendChild(treekids);
+        let treekids = treeitem.querySelector("ul");
         for (let panel of panelsToKeep) {
-          var kidtreeitem = document.createXULElement("treeitem");
+          let kidtreeitem = document.createElement("li");
           treekids.appendChild(kidtreeitem);
-          var kidtreerow = document.createXULElement("treerow");
+          let kidtreerow = document.createElement("div");
           kidtreeitem.appendChild(kidtreerow);
-          var kidtreecell = document.createXULElement("treecell");
+          let kidtreecell = document.createElement("span");
           kidtreerow.appendChild(kidtreecell);
-          setAccountLabel(null, kidtreecell, panel.string);
+          kidtreecell.textContent = panel.string;
           kidtreeitem.setAttribute("PageTag", panel.src);
           kidtreeitem._account = account;
+          kidtreeitem.id = `${accountKey}/${panel.src}`;
         }
-        treeitem.setAttribute("container", "true");
         treeitem.id = accountKey;
         // Load the 'open' state of the account from XULStore.json.
-        treeitem.setAttribute("open", this._getAccountOpenState(accountKey));
-        // Let the XULStore.json automatically save the 'open' state of the
-        // account when it is changed.
-        treeitem.setAttribute("persist", "open");
+        if (this._getAccountOpenState(accountKey) != "true") {
+          treeitem.classList.add("collapsed");
+        }
       }
       treeitem._account = account;
     }
@@ -2048,18 +1894,14 @@ var gAccountTree = {
     markDefaultServer(MailServices.accounts.defaultAccount, null);
 
     // Now add the outgoing server node.
-    let treeitem = document.createXULElement("treeitem");
+    let treeitem = document
+      .getElementById("accountTreeItem")
+      .content.firstElementChild.cloneNode(true);
     mainTree.appendChild(treeitem);
-    let treerow = document.createXULElement("treerow");
-    treeitem.appendChild(treerow);
-    let treecell = document.createXULElement("treecell");
-    treerow.appendChild(treecell);
-    treecell.setAttribute("label", getString("prefPanel-smtp"));
+    treeitem.id = "smtp";
+    treeitem.querySelector(".name").textContent = getString("prefPanel-smtp");
     treeitem.setAttribute("PageTag", "am-smtp.xhtml");
-    treecell.setAttribute(
-      "properties",
-      "folderNameCol isServer-true serverType-smtp"
-    );
+    treeitem.classList.add("serverType-smtp");
 
     // If a new server was created, select the server after rebuild of the tree.
     if (newServer) {

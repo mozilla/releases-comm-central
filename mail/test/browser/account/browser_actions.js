@@ -162,7 +162,7 @@ add_task(async function test_account_actions() {
   });
   // SMTP server row: can't be removed, can't be default.
   await open_advanced_settings(async function(tab) {
-    await subtest_check_account_actions(tab, null, false, false, true);
+    await subtest_check_account_actions(tab, "smtp", false, false, true);
   });
 
   // on the IMAP account, disable Delete Account menu item

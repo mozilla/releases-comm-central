@@ -85,8 +85,7 @@ function click_account_tree_row(tab, rowIndex) {
   );
 
   let tree = content_tab_e(tab, "accounttree");
-
-  fdh.click_tree_row(tree, rowIndex, mc);
+  tree.selectedIndex = rowIndex;
 
   utils.waitFor(
     () => tab.browser.contentWindow.pendingAccount == null,
@@ -97,7 +96,7 @@ function click_account_tree_row(tab, rowIndex) {
   wh.wait_for_frame_load(
     content_tab_e(tab, "contentFrame"),
     tab.browser.contentWindow.pageURL(
-      tree.view.getItemAtIndex(rowIndex).getAttribute("PageTag")
+      tree.rows[rowIndex].getAttribute("PageTag")
     )
   );
 }
@@ -117,49 +116,14 @@ function click_account_tree_row(tab, rowIndex) {
  *                   click_account_tree_row has a useful context.
  */
 function get_account_tree_row(accountKey, paneId, tab) {
-  let rowIndex = 0;
-  let accountTreeNode = content_tab_e(tab, "account-tree-children");
-
-  for (let i = 0; i < accountTreeNode.children.length; i++) {
-    if ("_account" in accountTreeNode.children[i]) {
-      let accountHead = accountTreeNode.children[i];
-      if (accountKey == accountHead._account.key) {
-        // If this is the wanted account, find the wanted settings pane.
-        let accountBlock = accountHead.querySelectorAll("[PageTag]");
-        // A null paneId means the main pane.
-        if (!paneId) {
-          return rowIndex;
-        }
-
-        // Otherwise find the pane in the children.
-        for (let j = 0; j < accountBlock.length; j++) {
-          if (accountBlock[j].getAttribute("PageTag") == paneId) {
-            return rowIndex + j + 1;
-          }
-        }
-
-        // The pane was not found.
-        dump(
-          "The treerow for pane " +
-            paneId +
-            " of account " +
-            accountKey +
-            " was not found!\n"
-        );
-        return -1;
-      }
-      // If this is not the wanted account, skip all of its settings panes.
-      rowIndex += accountHead.querySelectorAll("[PageTag]").length;
-    } else if (accountKey == null) {
-      // A row without _account should be the SMTP server.
-      return rowIndex;
-    }
-    rowIndex++;
+  let accountTree = content_tab_e(tab, "accounttree");
+  let row;
+  if (accountKey && paneId) {
+    row = accountTree.querySelector(`#${accountKey} [PageTag="${paneId}"]`);
+  } else if (accountKey) {
+    row = accountTree.querySelector(`#${accountKey}`);
   }
-
-  // The account was not found.
-  dump("The treerow for account " + accountKey + " was not found!\n");
-  return -1;
+  return accountTree.rows.indexOf(row);
 }
 
 /**
@@ -176,7 +140,7 @@ function remove_account(
   removeAccount = true,
   removeData = false
 ) {
-  let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
+  let accountRow = get_account_tree_row(account.key, null, tab);
   click_account_tree_row(tab, accountRow);
 
   account = null;

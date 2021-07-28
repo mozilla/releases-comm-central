@@ -33,17 +33,29 @@
 <script src="chrome://messenger/content/am-prefs.js"/>
 <script src="chrome://messenger/content/AccountManager.js"/>
 <script src="chrome://messenger/content/amUtils.js"/>
+<script src="chrome://messenger/content/tree-listbox.js"/>
 
   <stack id="preferences-stack" flex="1">
   <hbox flex="1">
-    <vbox id="accountTreeBox">
-      <tree id="accounttree" flex="1" onselect="onAccountTreeSelect(null, null);"
-            seltype="single" hidecolumnpicker="true" style="&accountTree.width;">
-        <treecols>
-          <treecol id="AccountCol" flex="1" primary="true" hideheader="true"/>
-        </treecols>
-        <treechildren id="account-tree-children"/>
-      </tree>
+    <html:div id="accountTreeBox">
+      <html:ol is="orderable-tree-listbox" id="accounttree"
+               flex="1"
+               style="&accountTree.width;"
+               onselect="onAccountTreeSelect(null, null);">
+      </html:ol>
+      <template id="accountTreeItem" xmlns="http://www.w3.org/1999/xhtml">
+        <li role="option">
+          <div draggable="true">
+            <div class="twisty">
+              <img class="twisty-icon" alt=""
+                   src="chrome://global/skin/icons/arrow-down-12.svg" />
+            </div>
+            <div class="icon"></div>
+            <span class="name"></span>
+          </div>
+          <ul></ul>
+        </li>
+      </template>
 
       <button id="accountActionsButton" type="menu"
               label="&accountActionsButton.label;"
@@ -104,7 +116,7 @@
                  flex="1"/>
         </label>
       </vbox>
-    </vbox>
+    </html:div>
     <iframe id="contentFrame" name="contentFrame" flex="1"/>
   </hbox>
   <stack id="dialogStack" hidden="true"/>

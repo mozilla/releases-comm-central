@@ -36,10 +36,14 @@ fieldset:last-of-type {
 }
 
 #accountTreeBox {
-  background-image: linear-gradient(to left, transparent, transparent 3px,
-                    var(--in-content-categories-background) 3px);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
   padding-top: 28px;
   padding-inline: 28px 4px;
+  background-image: linear-gradient(to left, transparent, transparent 3px,
+                    var(--in-content-categories-background) 3px);
 }
 
 #accountTreeBox:-moz-locale-dir(rtl) {
@@ -47,21 +51,139 @@ fieldset:last-of-type {
                     var(--in-content-categories-background) 3px);
 }
 
+/* Account list */
+
 #accounttree {
+  line-height: 30px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+#accounttree, #accounttree ul {
   background-color: transparent;
   border-style: none;
+  padding: 0;
+  list-style: none;
 }
 
-#accounttree > treecols {
-  border-bottom-style: none;
+#accounttree li {
+  transition: opacity 250ms;
 }
 
-#accounttree > treechildren::-moz-tree-row {
-  border-block-start: 1px transparent solid;
+#accounttree li > div {
+  display: flex;
+  align-items: center;
+  -moz-context-properties: fill;
+  border-radius: var(--in-content-button-border-radius);
+  fill: currentColor;
 }
 
-#accounttree > treechildren::-moz-tree-row(dragover) {
-  border-block-start: 1px highlight solid;
+#accounttree li.selected > div {
+  background-color: var(--in-content-button-background);
+}
+
+#accounttree li > div:hover {
+  background-color: var(--in-content-item-hover);
+}
+
+#accounttree:focus li.selected > div {
+  background-color: var(--in-content-item-selected);
+  color: var(--in-content-item-selected-text);
+}
+
+#accounttree li .twisty {
+  width: 26px;
+  height: 26px;
+}
+
+#accounttree li:not(.children) .twisty-icon {
+  display: none;
+}
+
+#accounttree li .twisty-icon {
+  margin: 7px;
+}
+
+#accounttree li.children.collapsed .twisty-icon {
+  transform: rotate(-90deg);
+}
+
+#accounttree li.children.collapsed:dir(rtl) .twisty-icon {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  li .twisty-icon {
+    transition: transform 200ms ease;
+  }
+}
+
+#accounttree li div.icon {
+  width: 16px;
+  height: 16px;
+  background-image: url("chrome://messenger/skin/icons/message.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+#accounttree li.serverType-imap.isSecure div.icon,
+#accounttree li.serverType-pop3.isSecure div.icon {
+  background-image: url("chrome://messenger/skin/icons/message-secure.svg");
+}
+
+#accounttree li.serverType-feeds div.icon,
+#accounttree li.serverType-rss div.icon {
+  list-style-image: url("chrome://messenger/skin/icons/feeds.svg");
+}
+
+#accounttree li.serverType-im div.icon {
+  background-image: url("chrome://chat/skin/chat.svg");
+}
+
+#accounttree li.serverType-news div.icon {
+  background-image: url("chrome://messenger/skin/icons/newsgroup.svg");
+}
+
+#accounttree li.serverType-nntp div.icon {
+  background-image: url("chrome://messenger/skin/icons/globe.svg");
+}
+
+#accounttree li.serverType-nntp.isSecure div.icon {
+  background-image: url("chrome://messenger/skin/icons/globe-secure.svg");
+}
+
+#accounttree li.serverType-none div.icon {
+  background-image: url("chrome://messenger/skin/icons/folder-local.svg");
+}
+
+#accounttree li.serverType-smtp div.icon {
+  background-image: url("chrome://messenger/skin/icons/outbox.svg");
+}
+
+#accounttree li .name {
+  flex: 1;
+  margin-inline: 7px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  font-weight: bold;
+}
+
+#accounttree li.isDefaultServer .name {
+  text-decoration: underline;
+}
+
+#accounttree ul > li > div {
+  padding-inline-start: 51px;
+}
+
+#accounttree li ul:empty,
+#accounttree li.collapsed ul {
+  display: none;
+}
+
+#accounttree li.dragging {
+  opacity: 0.75;
 }
 
 /* Styles for the Account Actions button */
@@ -238,39 +360,6 @@ menulist > menupopup menupopup menuseparator {
 richlistitem[default="true"],
 #identitiesList > richlistitem:first-child {
   font-weight: bold;
-}
-
-#accounttree > treechildren::-moz-tree-twisty {
-  color: var(--in-content-page-color);
-}
-
-#accounttree > treechildren::-moz-tree-row(selected) {
-  background-color: var(--in-content-accent-color);
-}
-
-#accounttree > treechildren::-moz-tree-image(selected),
-#accounttree > treechildren::-moz-tree-twisty(selected) {
-  fill: var(--in-content-primary-button-text-color) !important;
-}
-
-#accounttree > treechildren::-moz-tree-cell-text(selected) {
-  color: var(--in-content-primary-button-text-color);
-}
-
-treechildren::-moz-tree-cell-text(isDefaultServer-true) {
-  text-decoration: underline;
-}
-
-treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-smtp) {
-  list-style-image: url("chrome://messenger/skin/icons/outbox.svg");
-}
-
-treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
-  list-style-image: url("chrome://chat/skin/chat.svg");
-}
-
-#accounttree treechildren::-moz-tree-indentation {
-  width: 1ch;
 }
 
 .label-inline {
