@@ -897,12 +897,9 @@ function categoryTextboxKeypress(event) {
       event.target.blur();
       event.preventDefault();
 
-      let code = event.key == "ArrowUp" ? KeyboardEvent.DOM_VK_UP : KeyboardEvent.DOM_VK_DOWN;
-      let keyEvent = document.createEvent("KeyboardEvent");
-      keyEvent.initKeyEvent("keydown", true, true, null, false, false, false, false, code, 0);
-      categoryPopup.dispatchEvent(keyEvent);
-      keyEvent.initKeyEvent("keyup", true, true, null, false, false, false, false, code, 0);
-      categoryPopup.dispatchEvent(keyEvent);
+      let keyCode = event.key == "ArrowUp" ? KeyboardEvent.DOM_VK_UP : KeyboardEvent.DOM_VK_DOWN;
+      categoryPopup.dispatchEvent(new KeyboardEvent("keydown", { keyCode }));
+      categoryPopup.dispatchEvent(new KeyboardEvent("keyup", { keyCode }));
       return;
     }
     case "Escape":

@@ -647,19 +647,7 @@
           (event.keyCode == KeyEvent.DOM_VK_PAGE_UP ||
             event.keyCode == KeyEvent.DOM_VK_PAGE_DOWN))
       ) {
-        let newEvent = document.createEvent("KeyboardEvent");
-        newEvent.initKeyEvent(
-          "keypress",
-          event.bubbles,
-          event.cancelable,
-          null,
-          event.ctrlKey,
-          event.altKey,
-          event.shiftKey,
-          event.metaKey,
-          event.keyCode,
-          event.charCode
-        );
+        let newEvent = new KeyboardEvent("keypress", event);
         event.preventDefault();
         event.stopPropagation();
         // Keyboard events must be sent to the focused element for bubbling to work.
