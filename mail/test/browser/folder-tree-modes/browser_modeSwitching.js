@@ -30,6 +30,7 @@ var view_menu;
 var view_menupopup;
 var appmenu_button;
 var appmenu_mainView;
+var appmenu_popup;
 var menu_state;
 
 add_task(function setupModule(module) {
@@ -53,6 +54,7 @@ add_task(function setupModule(module) {
   view_menupopup = mc.e("menu_View_Popup");
   appmenu_button = mc.window.document.getElementById("button-appmenu");
   appmenu_mainView = mc.e("appMenu-mainView");
+  appmenu_popup = mc.e("appMenu-popup");
 
   tree = mc.folderTreeView;
 
@@ -89,13 +91,12 @@ async function assert_mode_selected(aMode) {
     }
     mc.close_popup_sequence(popuplist);
   }
-  EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
 
+  EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
   mc.click_through_appmenu([
     { id: "appmenu_View" },
     { id: "appmenu_FolderViews" },
   ]);
-
   for (let mode of tree.activeModes) {
     Assert.ok(
       modeList_appmenu
@@ -103,8 +104,14 @@ async function assert_mode_selected(aMode) {
         .hasAttribute("checked")
     );
   }
+  appmenu_popup.hidePopup();
 
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    modeList_popupmenu,
+    "popupshown"
+  );
   mc.click(mc.e("folderPaneOptionsButton"));
+  await shownPromise;
   for (let mode of tree.activeModes) {
     Assert.ok(
       modeList_popupmenu
@@ -112,6 +119,7 @@ async function assert_mode_selected(aMode) {
         .hasAttribute("checked")
     );
   }
+  modeList_popupmenu.hidePopup();
 }
 
 /**
@@ -138,22 +146,27 @@ async function assert_mode_not_selected(mode) {
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
-
   mc.click_through_appmenu([
     { id: "appmenu_View" },
     { id: "appmenu_FolderViews" },
   ]);
-
   Assert.ok(
     !modeList_appmenu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
   );
+  appmenu_popup.hidePopup();
 
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    modeList_popupmenu,
+    "popupshown"
+  );
   mc.click(mc.e("folderPaneOptionsButton"));
+  await shownPromise;
   Assert.ok(
     !modeList_popupmenu
       .querySelector(`[value="${mode}"]`)
       .hasAttribute("checked")
   );
+  modeList_popupmenu.hidePopup();
 }
 
 /**
@@ -163,11 +176,11 @@ async function assert_mode_not_selected(mode) {
  */
 function select_mode_in_menu(mode) {
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
-
   mc.click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
     { value: mode }
   );
+  appmenu_popup.hidePopup();
 }
 
 /**
