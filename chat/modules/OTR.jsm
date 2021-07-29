@@ -368,18 +368,6 @@ var OTR = {
     return data;
   },
 
-  getTrustLevel(context) {
-    let level = OTR.trust(context);
-    if (level === OTR.trustState.TRUST_PRIVATE) {
-      return OTR.trustState.TRUST_PRIVATE;
-    } else if (level === OTR.trustState.TRUST_UNVERIFIED) {
-      return OTR.trustState.TRUST_UNVERIFIED;
-    } else if (level === OTR.trustState.TRUST_FINISHED) {
-      return OTR.trustState.TRUST_FINISHED;
-    }
-    return OTR.trustState.TRUST_NOT_PRIVATE;
-  },
-
   // Fetch list of known fingerprints, either for the given account,
   // or for all accounts, if parameter is null.
   knownFingerprints(forAccount) {
@@ -1317,7 +1305,7 @@ var OTR = {
     // This is our chance to prevent both outgoing and incoming OTR
     // messages from being logged here.
     if (im.originalMessage.startsWith("?OTR")) {
-      im.encrypted = true;
+      im.otrEncrypted = true;
     }
 
     if (im.outgoing) {

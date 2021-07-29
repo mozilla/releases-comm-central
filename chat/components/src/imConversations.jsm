@@ -36,7 +36,7 @@ imMessage.prototype = {
   cancelled: false,
   color: "",
   _displayMessage: null,
-  encrypted: false,
+  otrEncrypted: false,
 
   get displayMessage() {
     // Explicitly test for null so that blank messages don't fall back to
@@ -118,7 +118,7 @@ imMessage.prototype = {
     return this.prplMessage.noCollapse;
   },
   get isEncrypted() {
-    return this.prplMessage.isEncrypted;
+    return this.prplMessage.isEncrypted || this.otrEncrypted;
   },
   get originalMessage() {
     return this.prplMessage.originalMessage;

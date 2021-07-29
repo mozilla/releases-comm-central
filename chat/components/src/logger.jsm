@@ -988,7 +988,7 @@ Logger.prototype = {
         break;
       case "new-text":
         let excludeBecauseEncrypted = false;
-        if (aSubject.encrypted) {
+        if (aSubject.isEncrypted) {
           excludeBecauseEncrypted = !Services.prefs.getBoolPref(
             "messenger.account." +
               aSubject.conversation.account.id +

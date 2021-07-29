@@ -383,7 +383,7 @@
       // Add encryption status.
       if (this.triggerNode.classList.contains("message-encrypted")) {
         this.addRow(
-          this.bundle.GetStringFromName("otr.tag"),
+          this.bundle.GetStringFromName("encryption.tag"),
           this.bundle.GetStringFromName("message.status")
         );
       }

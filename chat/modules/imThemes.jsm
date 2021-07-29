@@ -511,15 +511,15 @@ var messageReplacements = {
     // Fallback to the theme's default icons.
     return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.svg";
   },
-  senderScreenName: aMsg => formatSender(aMsg.who, aMsg.encrypted),
-  sender: aMsg => formatSender(aMsg.alias || aMsg.who, aMsg.encrypted),
+  senderScreenName: aMsg => formatSender(aMsg.who, aMsg.isEncrypted),
+  sender: aMsg => formatSender(aMsg.alias || aMsg.who, aMsg.isEncrypted),
   senderColor: aMsg => aMsg.color,
   senderStatusIcon: aMsg => getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
   messageDirection: aMsg => "ltr",
   // no theme actually use this, don't bother making sure this is the real
   // serverside alias
   senderDisplayName: aMsg =>
-    formatSender(aMsg.alias || aMsg.who, aMsg.encrypted),
+    formatSender(aMsg.alias || aMsg.who, aMsg.isEncrypted),
   service: aMsg => aMsg.conversation.account.protocol.name,
   textbackgroundcolor: (aMsg, aFormat) => "transparent", // FIXME?
   __proto__: statusMessageReplacements,

@@ -110,6 +110,6 @@ interface imIMessage: prplIMessage {
   attribute AUTF8String displayMessage;
 
   // The related incoming or outgoing message is transmitted
-  // with encryption.
-  attribute boolean encrypted;
+  // with encryption through OTR.
+  attribute boolean otrEncrypted;
 };
