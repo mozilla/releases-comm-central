@@ -68,27 +68,28 @@
                           hidden="hidden"/>
             </html:div>
           </html:div>
-          <hbox class="otr-container themeable-brighttext"
+          <hbox class="encryption-container themeable-brighttext"
                 align="middle"
                 hidden="true">
-            <label class="otr-label"
+            <label class="encryption-label"
                    crop="end"
                    data-l10n-id="state-label"
                    flex="1"/>
-            <toolbarbutton id="otrButton"
+            <toolbarbutton id="chatEncryptionButton"
                            mode="dialog"
-                           class="otr-button"
+                           class="encryption-button"
                            type="menu"
                            wantdropmarker="true"
                            label="Insecure"
                            data-l10n-id="start-tooltip">
-              <menupopup class="otr-menu-popup">
+              <menupopup class="encryption-menu-popup">
                 <menuitem class="otr-start" data-l10n-id="start-label"
                           oncommand='this.closest("chat-conversation-info").onOtrStartClicked();'/>
                 <menuitem class="otr-end" data-l10n-id="end-label"
                           oncommand='this.closest("chat-conversation-info").onOtrEndClicked();'/>
                 <menuitem class="otr-auth" data-l10n-id="auth-label"
                           oncommand='this.closest("chat-conversation-info").onOtrAuthClicked();'/>
+                <menuitem class="protocol-encrypt" data-l10n-id="start-label"/>
               </menupopup>
             </toolbarbutton>
           </hbox>
@@ -102,9 +103,16 @@
 
       this.topic.addEventListener("click", this.startEditTopic.bind(this));
 
+      this.querySelector(".protocol-encrypt").addEventListener("click", () =>
+        this.initializeEncryption()
+      );
+
+      let encryptionButton = this.querySelector(".encryption-button");
+      encryptionButton.addEventListener(
+        "command",
+        this.encryptionButtonClicked
+      );
       if (Services.prefs.getBoolPref("chat.otr.enable")) {
-        let otrButton = this.querySelector(".otr-button");
-        otrButton.addEventListener("command", this.otrButtonClicked);
         OTRUI.setNotificationBox(gOtrNotification);
       }
       this.initializeAttributeInheritance();
@@ -192,10 +200,10 @@
       topicInput.select();
     }
 
-    otrButtonClicked(aEvent) {
+    encryptionButtonClicked(aEvent) {
       aEvent.preventDefault();
-      let otrMenu = this.querySelector(".otr-menu-popup");
-      otrMenu.openPopup(otrMenu.parentNode, "after_start");
+      let encryptionMenu = this.querySelector(".encryption-menu-popup");
+      encryptionMenu.openPopup(encryptionMenu.parentNode, "after_start");
     }
 
     onOtrStartClicked() {
@@ -227,6 +235,12 @@
       let uiConv = convBinding._conv;
       let conv = uiConv.target;
       OTRUI.openAuth(window, conv.normalizedName, "start", uiConv);
+    }
+
+    initializeEncryption() {
+      const convBinding = this.getSelectedPanel();
+      const uiConv = convBinding._conv;
+      uiConv.initializeEncryption();
     }
 
     getSelectedPanel() {

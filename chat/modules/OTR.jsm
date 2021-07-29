@@ -1157,6 +1157,19 @@ var OTR = {
         }
         this.addConversation(aObject);
         break;
+      case "update-conv-encryption": {
+        // Disable OTR encryption when the chat protocol initiates encryption
+        // for the conversation.
+        const context = this.getContext(aObject);
+        const trust = this.trust(context);
+        if (
+          trust === this.trustState.TRUST_NOT_PRIVATE ||
+          trust === this.trustState.TRUST_PRIVATE
+        ) {
+          this.disconnect(aObject, false);
+        }
+        break;
+      }
     }
   },
 

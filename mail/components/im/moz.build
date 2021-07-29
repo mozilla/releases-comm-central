@@ -6,6 +6,7 @@
 EXTRA_JS_MODULES += [
     "IMIncomingServer.jsm",
     "IMProtocolInfo.jsm",
+    "modules/ChatEncryption.jsm",
     "modules/chatHandler.jsm",
     "modules/chatIcons.jsm",
     "modules/chatNotifications.jsm",

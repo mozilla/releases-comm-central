@@ -41,6 +41,12 @@
     constructor() {
       super();
 
+      ChromeUtils.defineModuleGetter(
+        this,
+        "ChatEncryption",
+        "resource:///modules/ChatEncryption.jsm"
+      );
+
       this.observer = {
         // @see {nsIObserver}
         observe: (subject, topic, data) => {
@@ -138,6 +144,11 @@
             case "chat-update-topic":
               if (this._isConversationSelected) {
                 this.updateTopic();
+              }
+              break;
+            case "update-conv-encryption":
+              if (this._isConversationSelected) {
+                this.ChatEncryption.updateEncryptionButton(document, this.conv);
               }
               break;
           }

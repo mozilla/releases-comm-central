@@ -2,69 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-.otr-container {
-  border-top: 1px solid var(--splitter-color);
-  min-height: 32px;
-  padding: 4px;
-}
-
-.otr-label {
-  font-weight: 600;
-}
-
-.otr-not-private > image {
-  list-style-image: url("chrome://messenger/skin/icons/connection-insecure.svg");
-}
-
-.otr-unverified > image {
-  list-style-image: url("chrome://messenger/skin/icons/connection-mixed.svg");
-}
-
-.otr-finished > image {
-  list-style-image: url("chrome://chat/skin/otr-connection-finished.svg");
-}
-
-.otr-private > image {
-  list-style-image: url("chrome://chat/skin/otr-connection-encrypted.svg");
-}
-
-.otr-button {
-  appearance: none !important;
-  padding: 1px !important;
-  border: 1px solid var(--toolbarbutton-hover-bordercolor);
-  border-radius: var(--toolbarbutton-border-radius);
-  background: var(--toolbarbutton-hover-background) !important;
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-  transition-property: background-color, border-color, box-shadow;
-  transition-duration: 150ms;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-.otr-button:not([disabled="true"]):not([open="true"]):hover {
-  background: var(--toolbarbutton-active-background) !important;
-  border-color: var(--toolbarbutton-active-bordercolor);
-}
-
-.otr-button[open="true"] {
-  background: var(--toolbarbutton-active-background) !important;
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
-
-.otr-button > image {
-  margin-inline-end: 3px !important;
-  width: 14px;
-}
-
-.otr-button .toolbarbutton-menu-dropmarker {
-  appearance: none !important;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  margin-left: 0;
-  margin-right: 0;
-  margin-inline-start: 3px;
-}
-
 /* otr botificationbox tweaks */
 
 #otr-notification-box notification[type="warning"] {

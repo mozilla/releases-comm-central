@@ -337,6 +337,12 @@ var OTRUI = {
     }
   },
 
+  /**
+   * Hide the encryption state container and any pending notifications.
+   *
+   * @param {Element} otrContainer
+   * @param {Context} [context]
+   */
   noOtrPossible(otrContainer, context) {
     otrContainer.hidden = true;
 
@@ -360,6 +366,8 @@ var OTRUI = {
   },
 
   /*
+   * These states are only relevant if OTR is the only encryption available for
+   * the conversation. Protocol provided encryption takes priority.
    *  possible states:
    *    tab isn't a 1:1, isChat == true
    *      then OTR isn't possible, hide the button
@@ -372,13 +380,25 @@ var OTRUI = {
    *        set the state based on the OTR library state
    */
 
+  /**
+   * Store a reference to the document, as well as the current conversation.
+   *
+   * @param {Element} aObject - conversation-browser instance (most importantly, has a _conv field)
+   */
   addButton(aObject) {
     this.globalDoc = aObject.ownerDocument;
     let _conv = aObject._conv;
     OTRUI.visibleConv = _conv;
-    OTRUI.setMsgState(_conv, null, this.globalDoc, true);
+    if (
+      _conv.encryptionState === Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED
+    ) {
+      OTRUI.setMsgState(_conv, null, this.globalDoc, true);
+    }
   },
 
+  /**
+   * Hide the encryption state information for the current conversation.
+   */
   hideOTRButton() {
     if (!OTR.libLoaded) {
       return;
@@ -387,11 +407,22 @@ var OTRUI = {
       return;
     }
     OTRUI.visibleConv = null;
-    let otrContainer = this.globalDoc.querySelector(".otr-container");
+    let otrContainer = this.globalDoc.querySelector(".encryption-container");
     OTRUI.noOtrPossible(otrContainer);
   },
 
+  /**
+   * Sets the visible conversation of the OTR UI state and ensures
+   * the encryption state button is set up correctly.
+   *
+   * @param {prplIConversation} _conv
+   */
   updateOTRButton(_conv) {
+    if (
+      _conv.encryptionState !== Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED
+    ) {
+      return;
+    }
     if (!OTR.libLoaded) {
       return;
     }
@@ -414,7 +445,14 @@ var OTRUI = {
     }
   },
 
-  // set msg state on toolbar button
+  /**
+   * Set encryption state on selector for conversation.
+   *
+   * @param {prplIConversation} _conv - Must match the visibile conversation.
+   * @param {Context} [context] - The OTR context for the conversation.
+   * @param {DOMDocument} doc
+   * @param {boolean} [addSystemMessage] - If a system message with the conversation security.
+   */
   setMsgState(_conv, context, doc, addSystemMessage) {
     if (!this.visibleConv) {
       return;
@@ -423,8 +461,8 @@ var OTRUI = {
       return;
     }
 
-    let otrContainer = doc.querySelector(".otr-container");
-    let otrButton = doc.querySelector(".otr-button");
+    let otrContainer = doc.querySelector(".encryption-container");
+    let otrButton = doc.querySelector(".encryption-button");
     if (_conv != null && _conv.isChat) {
       OTRUI.noOtrPossible(otrContainer, context);
       return;
@@ -440,6 +478,12 @@ var OTRUI = {
     try {
       let uiConv = OTR.getUIConvFromContext(context);
       if (uiConv != null && !(uiConv === this.visibleConv)) {
+        return;
+      }
+      if (
+        uiConv.encryptionState === Ci.prplIConversation.ENCRYPTION_ENABLED ||
+        uiConv.encryptionState === Ci.prplIConversation.ENCRYPTION_TRUSTED
+      ) {
         return;
       }
 
@@ -473,7 +517,7 @@ var OTRUI = {
       _strArgs("state-" + trust.class, { name: context.username })
     );
     otrButton.setAttribute("label", _str("state-" + trust.class + "-label"));
-    otrButton.className = "otr-button otr-" + trust.class;
+    otrButton.className = "encryption-button encryption-" + trust.class;
     otrStart.setAttribute("label", trust.startLabel);
     otrStart.setAttribute("disabled", trust.disableStart);
     otrEnd.setAttribute("disabled", trust.disableEnd);
@@ -928,13 +972,13 @@ var OTRUI = {
     OTRUI.addButton(binding);
   },
 
+  /**
+   * Restore the conversation to a state before OTR knew about it.
+   *
+   * @param {Element} binding - conversation-browser instance.
+   */
   resetConv(binding) {
     OTR.removeConversation(binding._conv);
-    let otrButton = this.globalDoc.querySelector(".otr-button");
-    if (!otrButton) {
-      return;
-    }
-    otrButton.remove();
   },
 
   destroy() {

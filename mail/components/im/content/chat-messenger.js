@@ -24,12 +24,16 @@ var { InlineSpellChecker } = ChromeUtils.import(
 );
 
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "ChatEncryption",
+  "resource:///modules/ChatEncryption.jsm"
+);
 
 var gChatSpellChecker;
 var gRangeParent;
 var gRangeOffset;
 
-var gOtrEnabled = false;
 var gBuddyListContextMenu = null;
 
 function openChatContextMenu(popup) {
@@ -148,7 +152,7 @@ function buddyListContextMenu(aXulMenu) {
   // - The target's status is not currently offline or unknown.
   // - The target can send messages.
   if (
-    gOtrEnabled &&
+    ChatEncryption.otrEnabled &&
     this.target.contact &&
     this.target.contact.statusType != Ci.imIStatusInfo.STATUS_UNKNOWN &&
     this.target.contact.statusType != Ci.imIStatusInfo.STATUS_OFFLINE &&
@@ -791,8 +795,9 @@ var chatHandler = {
       document.getElementById("logTree").view.selection.clearSelection();
       if (item.conv.isChat) {
         item.convView.updateTopic();
-      } else if (gOtrEnabled) {
-        OTRUI.updateOTRButton(item.conv);
+      }
+      if (ChatEncryption.hasEncryptionActions(item.conv)) {
+        ChatEncryption.updateEncryptionButton(document, item.conv);
       }
       item.convView.focus();
     } else if (
@@ -863,9 +868,7 @@ var chatHandler = {
       document.getElementById("noConvScreen").hidden = false;
       this.updateTitle();
       this.observedContact = null;
-      if (gOtrEnabled) {
-        OTRUI.hideOTRButton();
-      }
+      ChatEncryption.hideEncryptionButton(document);
       return;
     }
 
@@ -877,9 +880,8 @@ var chatHandler = {
       let cti = document.getElementById("conv-top-info");
       cti.clear();
       this.observedContact = null;
-      if (gOtrEnabled) {
-        OTRUI.hideOTRButton();
-      }
+      // Always hide encryption options for search conv
+      ChatEncryption.hideEncryptionButton(document);
 
       let path = "logs/" + item.log.path;
       path = PathUtils.join(
@@ -945,8 +947,8 @@ var chatHandler = {
       item.convView.updateConvStatus();
       item.update();
 
-      if (gOtrEnabled) {
-        OTRUI.updateOTRButton(item.conv);
+      if (ChatEncryption.hasEncryptionActions(item.conv)) {
+        ChatEncryption.updateEncryptionButton(document, item.conv);
       }
 
       imServices.logs.getLogsForConversation(item.conv, true).then(aLogs => {
@@ -974,9 +976,7 @@ var chatHandler = {
       item.localName == "richlistitem" &&
       item.getAttribute("is") == "chat-contact-richlistitem"
     ) {
-      if (gOtrEnabled) {
-        OTRUI.hideOTRButton();
-      }
+      ChatEncryption.hideEncryptionButton(document);
       let contact = item.contact;
       if (
         this.observedContact &&
@@ -1668,9 +1668,7 @@ var chatHandler = {
       this._addObserver("chat-core-initialized");
     }
 
-    gOtrEnabled = Services.prefs.getBoolPref("chat.otr.enable");
-
-    if (gOtrEnabled) {
+    if (ChatEncryption.otrEnabled) {
       new Promise(resolve => {
         if (Services.core.initialized) {
           resolve();

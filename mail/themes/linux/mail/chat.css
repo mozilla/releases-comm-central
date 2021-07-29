@@ -102,6 +102,6 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   visibility: visible;
 }
 
-.otr-button:hover {
+.encryption-button:hover {
   color: inherit;
 }

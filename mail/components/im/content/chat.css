@@ -114,3 +114,66 @@ toolbar[mode="text"] .badgeButton-badge {
 #participantCount {
   background: transparent;
 }
+
+/* encryption status selector */
+
+.encryption-container {
+  border-top: 1px solid var(--splitter-color);
+  min-height: 32px;
+  padding: 4px;
+}
+
+.encryption-label {
+  font-weight: 600;
+}
+
+.encryption-not-private > image {
+  list-style-image: url("chrome://messenger/skin/icons/connection-insecure.svg");
+}
+
+.encryption-unverified > image {
+  list-style-image: url("chrome://messenger/skin/icons/connection-mixed.svg");
+}
+
+.encryption-finished > image {
+  list-style-image: url("chrome://chat/skin/otr-connection-finished.svg");
+}
+
+.encryption-private > image {
+  list-style-image: url("chrome://chat/skin/otr-connection-encrypted.svg");
+}
+
+.encryption-button {
+  appearance: none !important;
+  padding: 1px !important;
+  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  border-radius: var(--toolbarbutton-border-radius);
+  background: var(--toolbarbutton-hover-background) !important;
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.encryption-button:not([disabled="true"]):not([open="true"]):hover {
+  background: var(--toolbarbutton-active-background) !important;
+  border-color: var(--toolbarbutton-active-bordercolor);
+}
+
+.encryption-button[open="true"] {
+  background: var(--toolbarbutton-active-background) !important;
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+.encryption-button > image {
+  margin-inline-end: 3px !important;
+  width: 14px;
+}
+
+.encryption-button .toolbarbutton-menu-dropmarker {
+  appearance: none !important;
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  margin-inline: 3px 0;
+}
