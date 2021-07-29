@@ -239,6 +239,9 @@ add_task(async function test_addEventTombstone() {
     getDate() {
       return new Date();
     },
+    isEncrypted() {
+      return false;
+    },
   };
   const conversation = getRoom(true);
   const newText = waitForNotification(conversation, "new-text");
@@ -277,6 +280,9 @@ function makeEvent(sender, content = {}, redacted = false) {
     },
     getId() {
       return 0;
+    },
+    isEncrypted() {
+      return false;
     },
   };
 }

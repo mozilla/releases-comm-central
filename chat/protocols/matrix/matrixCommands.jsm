@@ -7,9 +7,7 @@ this.EXPORTED_SYMBOLS = ["commands"];
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { EventType, MsgType } = ChromeUtils.import(
-  "resource:///modules/matrix-sdk.jsm"
-);
+var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
@@ -433,13 +431,9 @@ var commands = [
     get helpString() {
       return _("command.me", "me");
     },
-    run: clientCommand("sendEvent", 1, {
+    run: clientCommand("sendEmoteMessage", 1, {
       formatParams(conv, [message]) {
-        const content = {
-          body: message,
-          msgtype: MsgType.Emote,
-        };
-        return [conv._roomId, EventType.RoomMessage, content];
+        return [conv._roomId, message];
       },
     }),
   },

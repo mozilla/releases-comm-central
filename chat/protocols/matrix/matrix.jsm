@@ -327,15 +327,9 @@ MatrixRoom.prototype = {
    * @param {string} msg - Message to send.
    */
   sendMsg(msg) {
-    let content = {
-      body: msg,
-      msgtype: MsgType.Text,
-    };
-    this._account._client
-      .sendEvent(this._roomId, EventType.RoomMessage, content, "")
-      .catch(error => {
-        this._account.ERROR("Failed to send message to: " + this._roomId);
-      });
+    this._account._client.sendTextMessage(this._roomId, msg).catch(error => {
+      this._account.ERROR("Failed to send message to: " + this._roomId);
+    });
   },
 
   /**
@@ -510,7 +504,17 @@ MatrixRoom.prototype = {
       return;
     }
     const eventType = event.getType();
-    if (eventType === EventType.RoomMessage) {
+    if (
+      eventType === EventType.RoomMessage ||
+      eventType === EventType.RoomMessageEncrypted
+    ) {
+      if (event.isEncrypted()) {
+        const clearContent = event.getClearContent();
+        if (!clearContent) {
+          this.ERROR("Missing decrypted event content for " + event.getId());
+          return;
+        }
+      }
       const isOutgoing = event.getSender() == this._account.userId;
       const eventContent = event.getContent();
       // Only print server notices when we're in a server notice room.
@@ -529,13 +533,24 @@ MatrixRoom.prototype = {
       this.writeMessage(event.getSender(), message, {
         outgoing: isOutgoing,
         incoming: !isOutgoing,
-        system: [MsgType.Notice, "m.server_notice"].includes(
+        system: [MsgType.Notice, "m.server_notice", "m.bad.encrypted"].includes(
           eventContent.msgtype
         ),
         time: Math.floor(event.getDate() / 1000),
         _alias: event.sender.name,
         delayed,
         event,
+        isEncrypted: event.isEncrypted(),
+      });
+    } else if (eventType === EventType.RoomEncryption) {
+      this.notifyObservers(this, "update-conv-encryption");
+      this.writeMessage(event.getSender(), _("message.encryptionStart"), {
+        system: true,
+        time: Math.floor(event.getDate() / 1000),
+        _alias: event.sender.name,
+        delayed,
+        event,
+        isEncrypted: event.isEncrypted(),
       });
     } else if (eventType == EventType.RoomTopic) {
       this.setTopic(event.getContent().topic, event.getSender());
@@ -545,6 +560,8 @@ MatrixRoom.prototype = {
         system: true,
         incoming: true,
         time: Math.floor(event.getDate() / 1000),
+        event,
+        isEncrypted: event.isEncrypted(),
       });
       let newConversation = this._account.getGroupConversation(
         event.getContent().replacement_room,
@@ -572,6 +589,7 @@ MatrixRoom.prototype = {
         _alias: event.sender.name,
         delayed,
         event,
+        isEncrypted: event.isEncrypted(),
       });
     }
     this._mostRecentEventId = event.getId();
@@ -921,6 +939,35 @@ MatrixRoom.prototype = {
 
   updateTyping: GenericConvIMPrototype.updateTyping,
   typingState: Ci.prplIConvIM.NOT_TYPING,
+
+  get encryptionState() {
+    if (
+      !this._account._client.isCryptoEnabled() ||
+      !this.room.currentState.mayClientSendStateEvent(
+        EventType.RoomEncryption,
+        this._account._client
+      )
+    ) {
+      return Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED;
+    }
+    if (!this._account._client.isRoomEncrypted(this._roomId)) {
+      return Ci.prplIConversation.ENCRYPTION_AVAILABLE;
+    }
+    if (this.room.hasUnverifiedDevices()) {
+      return Ci.prplIConversation.ENCRYPTION_ENABLED;
+    }
+    return Ci.prplIConversation.ENCRYPTION_TRUSTED;
+  },
+  initializeEncryption() {
+    if (this._account._client.isRoomEncrypted(this._roomId)) {
+      return;
+    }
+    this._account._client.sendStateEvent(
+      this._roomId,
+      EventType.RoomEncryption,
+      { algorithm: "m.megolm.v1.aes-sha2" }
+    );
+  },
 };
 
 /*
@@ -1336,6 +1383,11 @@ MatrixAccount.prototype = {
         if (toStartOfTimeline || this._catchingUp || room.isSpaceRoom()) {
           return;
         }
+        // Encrypted events are handled through separate SDK event to wait for
+        // decryption
+        if (event.isEncrypted()) {
+          return;
+        }
         let conv = this.roomList.get(room.roomId);
         if (!conv) {
           return;
@@ -1343,6 +1395,17 @@ MatrixAccount.prototype = {
         conv.addEvent(event);
       }
     );
+    this._client.on("Event.decrypted", (event, error) => {
+      if (error) {
+        this.ERROR(error);
+        return;
+      }
+      let conv = this.roomList.get(event.getRoomId());
+      if (!conv) {
+        return;
+      }
+      conv.addEvent(event);
+    });
     // Update the chat participant information.
     this._client.on("RoomMember.name", this.updateRoomMember.bind(this));
     this._client.on("RoomMember.powerLevel", this.updateRoomMember.bind(this));
@@ -2205,6 +2268,9 @@ MatrixProtocol.prototype = {
   },
   //TODO this should depend on the server (i.e. if it offers SSO). Should also have noPassword true if there is no password login flow available.
   get passwordOptional() {
+    return true;
+  },
+  get canEncrypt() {
     return true;
   },
 };
