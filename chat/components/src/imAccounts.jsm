@@ -139,6 +139,9 @@ UnknownProtocol.prototype = {
   get slashCommandsNative() {
     return false;
   },
+  get canEncrypt() {
+    return false;
+  },
 };
 
 // An unknown prplIAccount.

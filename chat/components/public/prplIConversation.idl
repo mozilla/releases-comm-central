@@ -49,6 +49,38 @@ interface prplIConversation: nsISupports {
   readonly attribute AUTF8String convIconFilename;
 
   /**
+   * The user can not enable encryption for this room (another participant may
+   * be able to enable encryption however)
+   */
+  const short ENCRYPTION_NOT_SUPPORTED = 0;
+  /**
+   * Encryption can be initialized in this conversation.
+   */
+  const short ENCRYPTION_AVAILABLE = 1;
+  /**
+   * New messages in this conversation are end-to-end encrypted.
+   */
+  const short ENCRYPTION_ENABLED = 2;
+  /**
+   * Indicates that the encryption with the other side should be trusted, for
+   * example because the user has verified their public keys. Implies
+   * ENCRYPTION_ENABLED.
+   */
+  const short ENCRYPTION_TRUSTED = 3;
+
+  /**
+   * State of encryption for this conversation, as available via the protocol.
+   * update-conv-encryption is observed when this changes.
+   */
+  readonly attribute short encryptionState;
+
+  /**
+   * When encryptionState is ENCRYPTION_AVAILABLE this tries to initialize
+   * encryption for all new messages in the conversation.
+   */
+  void initializeEncryption();
+
+  /**
    * Send a message in the conversation
    */
   void sendMsg(in AUTF8String aMsg);

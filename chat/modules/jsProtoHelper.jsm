@@ -720,6 +720,13 @@ var GenericConversationPrototype = {
     this._convIconFilename = aNewFilename;
     this.notifyObservers(this, "update-conv-icon");
   },
+
+  get encryptionState() {
+    return Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED;
+  },
+  initializeEncryption() {
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  },
 };
 
 var GenericConvIMPrototype = {
@@ -1250,6 +1257,9 @@ var GenericProtocolPrototype = {
     return false;
   },
   get slashCommandsNative() {
+    return false;
+  },
+  get canEncrypt() {
     return false;
   },
 

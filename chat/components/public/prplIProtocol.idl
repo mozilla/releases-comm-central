@@ -107,6 +107,12 @@ interface prplIProtocol: nsISupports {
   readonly attribute boolean slashCommandsNative;
 
   /**
+   * True if the protocol can provide end-to-end message encryption in
+   * conversations.
+   */
+  readonly attribute boolean canEncrypt;
+
+  /**
    * Get the protocol specific part of an already initialized
    * imIAccount instance.
    */
