@@ -80,13 +80,20 @@ class LDAPOperation {
             getAttributes() {
               return Object.keys(res.result.attributes);
             },
+            // Find the matching attribute name while ignoring the case.
+            _getAttribute(attr) {
+              attr = attr.toLowerCase();
+              return this.getAttributes().find(x => x.toLowerCase() == attr);
+            },
             getValues(attr) {
-              return res.result.attributes[attr].map(v =>
+              attr = this._getAttribute(attr);
+              return res.result.attributes[attr]?.map(v =>
                 new TextDecoder().decode(v)
               );
             },
             getBinaryValues(attr) {
-              return res.result.attributes[attr].map(v => ({
+              attr = this._getAttribute(attr);
+              return res.result.attributes[attr]?.map(v => ({
                 // @see nsILDAPBERValue
                 get: () => new Uint8Array(v),
               }));

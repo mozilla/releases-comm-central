@@ -90,11 +90,7 @@ class PromiseSearchListener extends PromiseListener {
       this._resolve(this._results); // All done.
     }
     if (Ci.nsILDAPMessage.RES_SEARCH_ENTRY == message.type) {
-      let ent = {};
-      for (let attr of message.getAttributes()) {
-        ent[attr] = message.getValues(attr);
-      }
-      this._results.push(ent);
+      this._results.push(message);
     }
   }
 }
@@ -154,6 +150,7 @@ add_task(async function test_basic_query() {
 
   // Make sure we got the contacts we expected (just use cn for comparing):
   const holmesCNs = ["Eurus Holmes", "Mycroft Holmes", "Sherlock Holmes"];
+  const holmesGivenNames = ["Eurus", "Mycroft", "Sherlock"];
   const nonHolmesCNs = [
     "Greg Lestrade",
     "Irene Adler",
@@ -163,9 +160,20 @@ add_task(async function test_basic_query() {
     "Molly Hooper",
     "Mrs Hudson",
   ];
-  let cns = matches.map(ent => ent.cn[0].toString());
+  let cns = matches.map(ent => ent.getValues("cn")[0]);
   cns.sort();
   Assert.deepEqual(cns, holmesCNs);
+
+  // Test getValues is case insensitive about the attribute name.
+  let givenNames = matches.map(ent => ent.getValues("givenname")[0]);
+  givenNames.sort();
+  Assert.deepEqual(givenNames, holmesGivenNames);
+  givenNames = matches.map(ent => ent.getValues("givenName")[0]);
+  givenNames.sort();
+  Assert.deepEqual(givenNames, holmesGivenNames);
+  givenNames = matches.map(ent => ent.getValues("GIVENNAME")[0]);
+  givenNames.sort();
+  Assert.deepEqual(givenNames, holmesGivenNames);
 
   // Sanity check: make sure the non-Holmes contacts were excluded.
   nonHolmesCNs.forEach(cn => Assert.ok(!cns.includes(cn)));
