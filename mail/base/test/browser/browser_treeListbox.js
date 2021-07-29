@@ -90,7 +90,7 @@ async function subtestKeyboard() {
     Assert.equal(
       !!selectHandler.seenEvent,
       expectEvent,
-      `'select' event ${expectEvent ? "fired" : "did not fire"} as expected`
+      `'select' event ${expectEvent ? "fired" : "did not fire"}`
     );
   }
 
@@ -101,7 +101,7 @@ async function subtestKeyboard() {
       Assert.deepEqual(
         selectHandler.selectedAtEvent,
         expectedIndex,
-        "selectedIndex were correct at the last 'select' event"
+        "selectedIndex was correct at the last 'select' event"
       );
     }
 
@@ -358,6 +358,20 @@ async function subtestExpandCollapse() {
   };
   list.addEventListener("collapsed", listener);
   list.addEventListener("expanded", listener);
+
+  let selectHandler = {
+    seenEvent: null,
+    selectedAtEvent: null,
+
+    reset() {
+      this.seenEvent = null;
+      this.selectedAtEvent = null;
+    },
+    handleEvent(event) {
+      this.seenEvent = event;
+      this.selectedAtEvent = list.selectedIndex;
+    },
+  };
 
   Assert.equal(
     list.querySelectorAll("collapsed").length,
@@ -730,8 +744,100 @@ async function subtestExpandCollapse() {
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
+  // Use the class methods for expanding and collapsing.
+
+  selectHandler.reset();
+  list.addEventListener("select", selectHandler);
+  listener.reset();
+
+  list.collapseRowAtIndex(6); // No children, no effect.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.ok(!listener.collapsedRow, "'collapsed' event did not fire");
+
+  list.expandRowAtIndex(6); // No children, no effect.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.ok(!listener.expandedRow, "'expanded' event did not fire");
+
+  list.collapseRowAtIndex(1); // Item with children that aren't selected.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.equal(
+    listener.collapsedRow.id,
+    "row-2",
+    "row-2 fired 'collapsed' event"
+  );
+  listener.reset();
+
+  list.expandRowAtIndex(1); // Item with children that aren't selected.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.equal(
+    listener.expandedRow.id,
+    "row-2",
+    "row-2 fired 'expanded' event"
+  );
+  listener.reset();
+
+  list.collapseRowAtIndex(5); // Item with children that are selected.
+  Assert.ok(selectHandler.seenEvent, "'select' event fired");
+  Assert.equal(
+    selectHandler.selectedAtEvent,
+    5,
+    "selectedIndex was correct when 'select' event fired"
+  );
+  Assert.equal(
+    listener.collapsedRow.id,
+    "row-3-1",
+    "row-3-1 fired 'collapsed' event"
+  );
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+  selectHandler.reset();
+  listener.reset();
+
+  list.expandRowAtIndex(5); // Selected item with children.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.equal(
+    listener.expandedRow.id,
+    "row-3-1",
+    "row-3-1 fired 'expanded' event"
+  );
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+  listener.reset();
+
+  list.selectedIndex = 7;
+  selectHandler.reset();
+
+  list.collapseRowAtIndex(4); // Item with grandchildren that are selected.
+  Assert.ok(selectHandler.seenEvent, "'select' event fired");
+  Assert.equal(
+    selectHandler.selectedAtEvent,
+    4,
+    "selectedIndex was correct when 'select' event fired"
+  );
+  Assert.equal(
+    listener.collapsedRow.id,
+    "row-3",
+    "row-3 fired 'collapsed' event"
+  );
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+  selectHandler.reset();
+  listener.reset();
+
+  list.expandRowAtIndex(4); // Selected item with grandchildren.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.equal(
+    listener.expandedRow.id,
+    "row-3",
+    "row-3 fired 'expanded' event"
+  );
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+  listener.reset();
+
   list.removeEventListener("collapsed", listener);
   list.removeEventListener("expanded", listener);
+  list.removeEventListener("select", selectHandler);
   doc.documentElement.dir = null;
 }
 

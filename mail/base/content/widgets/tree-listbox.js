@@ -85,11 +85,6 @@
         ) {
           let rowIndex = this.rows.indexOf(row);
           let didCollapse = row.classList.toggle("collapsed");
-          row.dispatchEvent(
-            new CustomEvent(didCollapse ? "collapsed" : "expanded", {
-              bubbles: true,
-            })
-          );
           if (didCollapse && row.querySelector(":is(ol, ul) > li.selected")) {
             // The selected row was hidden. Select the visible ancestor of it.
             this.selectedIndex = rowIndex;
@@ -101,6 +96,11 @@
               this.querySelector("li.selected")
             );
           }
+          row.dispatchEvent(
+            new CustomEvent(didCollapse ? "collapsed" : "expanded", {
+              bubbles: true,
+            })
+          );
           return;
         }
 
@@ -177,17 +177,11 @@
                 break;
               }
               if (selected.classList.contains("children")) {
-                selected.classList.toggle("collapsed", true);
-                selected.dispatchEvent(
-                  new CustomEvent("collapsed", { bubbles: true })
-                );
+                this.collapseRowAtIndex(this.selectedIndex);
               }
             } else if (selected.classList.contains("children")) {
               if (selected.classList.contains("collapsed")) {
-                selected.classList.remove("collapsed");
-                selected.dispatchEvent(
-                  new CustomEvent("expanded", { bubbles: true })
-                );
+                this.expandRowAtIndex(this.selectedIndex);
               } else {
                 this.selectedIndex = this.rows.indexOf(
                   selected.querySelector("li")
@@ -410,6 +404,44 @@
         this._selectedIndex = index;
         if (current != row) {
           this.dispatchEvent(new CustomEvent("select"));
+        }
+      }
+
+      /**
+       * Collapses the row at `index` if it can be collapsed. If the selected
+       * row is a descendant of the collapsing row, selection is moved to the
+       * collapsing row.
+       *
+       * @param {integer} index
+       */
+      collapseRowAtIndex(index) {
+        let row = this.getRowAtIndex(index);
+        if (row.querySelector(".selected")) {
+          this.selectedIndex = index;
+        }
+
+        if (
+          row.classList.contains("children") &&
+          !row.classList.contains("collapsed")
+        ) {
+          row.classList.add("collapsed");
+          row.dispatchEvent(new CustomEvent("collapsed", { bubbles: true }));
+        }
+      }
+
+      /**
+       * Expands the row at `index` if it can be expanded.
+       *
+       * @param {integer} index
+       */
+      expandRowAtIndex(index) {
+        let row = this.getRowAtIndex(index);
+        if (
+          row.classList.contains("children") &&
+          row.classList.contains("collapsed")
+        ) {
+          row.classList.remove("collapsed");
+          row.dispatchEvent(new CustomEvent("expanded", { bubbles: true }));
         }
       }
     };
