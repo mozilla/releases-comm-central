@@ -2,27 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#aboutDialogContainer {
-  background-image: url("chrome://branding/content/about-background.png");
+#clientBox {
+  background-color: var(--client-box-background);
+  color: var(--client-box-color);
+}
+
+#leftBox {
+  background-image: url("chrome://branding/content/about-logo.svg");
   background-repeat: no-repeat;
-  background-color: #ce5c00;
-  color: #fff;
-}
-
-.text-link {
-  color: #33f !important;
-}
-
-.bottom-link {
-  color: #fff !important;
+  /* min-width and min-height create room for the logo */
+  min-width: 210px;
+  min-height: 210px;
+  margin-top: 20px;
+  margin-inline-start: 30px;
 }
 
 #rightBox {
-  /* this margin prevents text from overlapping the egg image */
-  margin-left: 280px;
-  margin-right: 20px;
+  margin-inline: 30px;
 }
 
-#bottomBox {
-  background-color: rgba(0,0,0,.7);
+#updateDeck > hbox > label:not([class="text-link"]) {
+  opacity: 0.6;
+}
+
+#trademark {
+  font-size: xx-small;
+  text-align: center;
+  opacity: 0.6;
+  margin-block: 10px;
 }

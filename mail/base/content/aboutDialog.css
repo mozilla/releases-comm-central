@@ -2,6 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:root {
+  --dialog-background: #fefefe;
+  --client-box-color: #222;
+  --client-box-background: #f7f7f7;
+  --link-color: -moz-nativehyperlinktext;
+  --link-decoration: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --dialog-background: #222;
+    --client-box-color: #f7f7f7;
+    --client-box-background: #444;
+    --link-color: #f7f7f7;
+    --link-decoration: underline;
+  }
+}
+
 #aboutDialog {
   width: 620px;
   /* Set an explicit line-height to avoid discrepancies in 'auto' spacing
@@ -10,12 +28,20 @@
   line-height: 1.5;
 }
 
+#aboutDialogContainer {
+  background-color: var(--dialog-background);
+  /* Needed to hide a 1px line on macOS. */
+  margin-bottom: -1px;
+}
+
 #rightBox {
   background-image: url("chrome://branding/content/about-wordmark.svg");
   background-repeat: no-repeat;
   /* padding-top creates room for the wordmark */
   padding-top: 38px;
   margin-top: 20px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #rightBox:-moz-locale-dir(rtl) {
@@ -71,14 +97,23 @@
 .trademark-label,
 .text-link,
 .text-link:focus {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 .bottom-link,
 .bottom-link:focus {
   text-align: center;
   margin: 0 40px;
+}
+
+.text-link:not(:hover) {
+  color: var(--link-color);
+  text-decoration: var(--link-decoration);
+}
+
+.text-link:hover {
+  color: var(--link-color);
 }
 
 #currentChannel {
