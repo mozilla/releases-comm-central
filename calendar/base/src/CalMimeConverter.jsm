@@ -39,11 +39,9 @@ CalMimeConverter.prototype = {
       return "";
     }
 
-    let itipItem = null;
-    let msgOverlay = "";
     let msgWindow = null;
 
-    itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
+    let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
     itipItem.init(data);
 
     // this.uri is the message URL that we are processing.
@@ -62,12 +60,11 @@ CalMimeConverter.prototype = {
     // msgOverlay needs to be defined irrespectively of the existence of msgWindow to not break
     // printing of invitation emails
     let dom = cal.invitation.createInvitationOverlay(event, itipItem);
-    msgOverlay = cal.xml.serializeDOM(dom);
+    let msgOverlay = cal.xml.serializeDOM(dom);
 
     if (msgWindow) {
       let sinkProps = msgWindow.msgHeaderSink.properties;
       sinkProps.setPropertyAsInterface("itipItem", itipItem);
-      sinkProps.setPropertyAsAUTF8String("msgOverlay", msgOverlay);
 
       // Notify the observer that the itipItem is available
       Services.obs.notifyObservers(null, "onItipItemCreation");

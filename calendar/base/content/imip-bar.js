@@ -39,7 +39,7 @@ var calImipBar = {
   actionFunc: null,
   itipItem: null,
   foundItems: null,
-  msgOverlay: null,
+  loadingItipItem: null,
 
   /**
    * Thunderbird Message listener interface, hide the bar before we begin
@@ -94,22 +94,21 @@ var calImipBar = {
         // Do not show the imip bar if the user has opted out of seeing it.
         return;
       }
-
+      // NOTE: Itip item is *about* to be loaded into the #messagepane when this
+      // callback is triggered by CalMimeConverter.convertToHTML.
       let itipItem = null;
-      let msgOverlay = null;
       try {
         if (!subject) {
           let sinkProps = msgWindow.msgHeaderSink.properties;
           // This property was set by CalMimeConverter.jsm.
           itipItem = sinkProps.getPropertyAsInterface("itipItem", Ci.calIItipItem);
-          msgOverlay = sinkProps.getPropertyAsAUTF8String("msgOverlay");
         }
       } catch (e) {
         // This will throw on every message viewed that doesn't have the
         // itipItem property set on it. So we eat the errors and move on.
         // XXX TODO: Only swallow the errors we need to. Throw all others.
       }
-      if (!itipItem || !msgOverlay || !gMessageDisplay.displayedMessage) {
+      if (!itipItem || !gMessageDisplay.displayedMessage) {
         return;
       }
 
@@ -119,9 +118,39 @@ var calImipBar = {
       imipBar.collapsed = false;
       imipBar.label = cal.itip.getMethodText(itipItem.receivedMethod);
 
-      calImipBar.msgOverlay = msgOverlay;
-
+      // This is triggered by CalMimeConverter.convertToHTML, so we know that
+      // the message is not yet loaded with the invite. Keep track of this for
+      // displayModifications.
+      calImipBar.overlayLoaded = false;
+      document
+        .getElementById("messagepane")
+        .addEventListener("DOMContentLoaded", () => (calImipBar.overlayLoaded = true), {
+          once: true,
+        });
+      // NOTE: processItipItem may call setupOptions asynchronously because the
+      // getItem method it triggers is async for *some* calendars. In theory,
+      // this could complete after a different item has been loaded, so we
+      // record the loading item now, and early exit setupOptions if the loading
+      // item has since changed.
+      // NOTE: loadingItipItem is reset on changing messages in resetBar.
+      calImipBar.loadingItipItem = itipItem;
       cal.itip.processItipItem(itipItem, calImipBar.setupOptions);
+
+      // NOTE: At this point we essentially have two parallel async operations:
+      // 1. Load the CalMimeConverter.convertToHTML into the #messagepane and
+      //    then set overlayLoaded to true.
+      // 2. Find a corresponding event through processItipItem and then call
+      //    setupOptions. Note that processItipItem may be instantaneous for
+      //    some calendars.
+      //
+      // In the mean time, if we switch messages, then loadingItipItem will be
+      // set to some other value: either another item, or null by resetBar.
+      //
+      // Once setupOptions is called, if the message has since changed we do
+      // nothing and exit. Otherwise, if we found a corresponding item in the
+      // calendar, we proceed to displayModifications. If overlayLoaded is true
+      // we update the #messagepane immediately, otherwise we update it on
+      // DOMContentLoaded, which has not yet happened.
     }
   },
 
@@ -135,6 +164,7 @@ var calImipBar = {
     // Clear our iMIP/iTIP stuff so it doesn't contain stale information.
     cal.itip.cleanupItipItem(calImipBar.itipItem);
     calImipBar.itipItem = null;
+    calImipBar.loadingItipItem = null;
   },
 
   /**
@@ -218,6 +248,11 @@ var calImipBar = {
    *                      in subscribed calendars
    */
   setupOptions(itipItem, rc, actionFunc, foundItems) {
+    if (itipItem !== calImipBar.loadingItipItem) {
+      // The given itipItem refers to an earlier displayed message.
+      return;
+    }
+
     let data = cal.itip.getOptionsText(itipItem, rc, actionFunc, foundItems);
 
     if (Components.isSuccessCode(rc)) {
@@ -276,43 +311,65 @@ var calImipBar = {
     }
     // adjust button style if necessary
     calImipBar.conformButtonType();
+
     calImipBar.displayModifications();
   },
 
   /**
-   * Displays changes in case of invitation updates in invitation overlay
+   * Displays changes in case of invitation updates in invitation overlay.
+   *
+   * NOTE: This should only be called if the invitation is already loaded in the
+   * #messagepane, in which case calImipBar.overlayLoaded should be set to true,
+   * or is guaranteed to be loaded next in #messagepane.
    */
   displayModifications() {
     if (
-      !calImipBar.msgOverlay ||
-      !msgWindow ||
       !calImipBar.foundItems ||
       !calImipBar.foundItems[0] ||
-      !calImipBar.itipItem
+      !calImipBar.itipItem ||
+      !Services.prefs.getBoolPref("calendar.itip.displayInvitationChanges", false)
     ) {
       return;
     }
 
-    let msgOverlay = calImipBar.msgOverlay;
-    let diff = cal.itip.compare(calImipBar.itipItem.getItemList()[0], calImipBar.foundItems[0]);
-    // displaying changes is only needed if that is enabled, an item already exists and there are
-    // differences
-    if (diff != 0 && Services.prefs.getBoolPref("calendar.itip.displayInvitationChanges", false)) {
-      let foundOverlay = cal.invitation.createInvitationOverlay(
-        calImipBar.foundItems[0],
-        calImipBar.itipItem
-      );
-      let serializedOverlay = cal.xml.serializeDOM(foundOverlay);
+    let itipItem = calImipBar.itipItem;
+    let foundEvent = calImipBar.foundItems[0];
+    let currentEvent = itipItem.getItemList()[0];
+    let diff = cal.itip.compare(currentEvent, foundEvent);
+    if (diff != 0) {
+      let newEvent;
+      let oldEvent;
+
       if (diff == 1) {
-        // this is an update to previously accepted invitation
-        msgOverlay = cal.invitation.compareInvitationOverlay(serializedOverlay, msgOverlay);
+        // This is an update to previously accepted invitation.
+        oldEvent = foundEvent;
+        newEvent = currentEvent;
       } else {
-        // this is a copy of a previously sent out invitation or a previous revision of a
-        // meanwhile accepted invitation, so we flip comparison order
-        msgOverlay = cal.invitation.compareInvitationOverlay(msgOverlay, serializedOverlay);
+        // This is a copy of a previously sent out invitation or a previous
+        // revision of a meanwhile accepted invitation, so we flip the order.
+        oldEvent = currentEvent;
+        newEvent = foundEvent;
+      }
+
+      let browser = document.getElementById("messagepane");
+      let doUpdate = () =>
+        cal.invitation.updateInvitationOverlay(
+          browser.contentDocument,
+          newEvent,
+          itipItem,
+          oldEvent
+        );
+      if (calImipBar.overlayLoaded) {
+        // Document is already loaded.
+        doUpdate();
+      } else {
+        // The event is not yet shown. This can happen if setupOptions is called
+        // before CalMimeConverter.convertToHTML has finished, or the
+        // corresponding HTML string has not yet been loaded.
+        // Wait until the event is shown, then immediately update it.
+        browser.addEventListener("DOMContentLoaded", doUpdate, { once: true });
       }
     }
-    msgWindow.displayHTMLInMessagePane("", msgOverlay, false);
   },
 
   /**

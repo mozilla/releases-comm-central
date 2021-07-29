@@ -49,7 +49,7 @@
   text-decoration-line: none;
 }
 
-.invitation-table .added[systemcolors] {
+body[systemcolors] .invitation-table .added {
   color: currentColor;
   font-weight: bold;
 }
@@ -59,7 +59,7 @@
   font-style: italic;
 }
 
-.invitation-table .modified[systemcolors] {
+body[systemcolors] .invitation-table .modified {
   color: currentColor;
 }
 
@@ -67,6 +67,6 @@
   color: rgb(125, 125, 125);
 }
 
-.invitation-table .removed[systemcolors] {
+body[systemcolors] .invitation-table .removed {
   color: currentColor;
 }
