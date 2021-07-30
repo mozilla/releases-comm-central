@@ -5,7 +5,7 @@
 var EXPORTED_SYMBOLS = ["CalStartupService"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { FileSource, L10nRegistry } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
+var { L10nRegistry } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 
 /**
  * Helper function to asynchronously call a certain method on the objects passed
@@ -67,7 +67,7 @@ CalStartupService.prototype = {
     let locales = {
       startup(aCompleteListener) {
         let packaged = Services.locale.packagedLocales;
-        let fileSrc = new FileSource(
+        let fileSrc = new L10nFileSource(
           "calendar",
           packaged,
           "resource:///chrome/{locale}/locale/{locale}/calendar/"
