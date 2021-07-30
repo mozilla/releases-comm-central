@@ -29,6 +29,11 @@ add_task(async () => {
   let calendarId = createCalendar(window, CALENDARNAME);
   let calendar = cal.getCalendarManager().getCalendarById(calendarId);
 
+  registerCleanupFunction(() => {
+    deleteCalendars(window, CALENDARNAME);
+    MockFilePicker.cleanup();
+  });
+
   let cancelReturn = await loadEventsFromFile();
   ok(!cancelReturn, "loadEventsFromFile returns false on cancel");
 
@@ -281,6 +286,4 @@ add_task(async () => {
   for (let item of result) {
     await promiseCalendar.deleteItem(item);
   }
-
-  MockFilePicker.cleanup();
 });
