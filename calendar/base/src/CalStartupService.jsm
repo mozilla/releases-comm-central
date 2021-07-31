@@ -5,7 +5,6 @@
 var EXPORTED_SYMBOLS = ["CalStartupService"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { L10nRegistry } = ChromeUtils.import("resource://gre/modules/L10nRegistry.jsm");
 
 /**
  * Helper function to asynchronously call a certain method on the objects passed
@@ -72,7 +71,7 @@ CalStartupService.prototype = {
           packaged,
           "resource:///chrome/{locale}/locale/{locale}/calendar/"
         );
-        L10nRegistry.registerSources([fileSrc]);
+        L10nRegistry.getInstance().registerSources([fileSrc]);
         aCompleteListener.onResult(null, Cr.NS_OK);
       },
       shutdown(aCompleteListener) {

@@ -21,9 +21,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { L10nRegistry } = ChromeUtils.import(
-  "resource://gre/modules/L10nRegistry.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { UpdateUtils } = ChromeUtils.import(
   "resource://gre/modules/UpdateUtils.jsm"
@@ -1007,7 +1004,7 @@ var gGeneralPane = {
       ])
     );
     function generateBundles(resourceIds) {
-      return L10nRegistry.generateBundles(locales, resourceIds);
+      return L10nRegistry.getInstance().generateBundles(locales, resourceIds);
     }
     return new Localization(
       ["messenger/preferences/preferences.ftl", "branding/brand.ftl"],
