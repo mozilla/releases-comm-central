@@ -7918,12 +7918,22 @@ function subjectKeyPress(event) {
   // keypress event is not repeated, or if the flag is already false.
   gPreventRowDeletionKeysRepeat = false;
 
-  gSubjectChanged = true;
   // Move the focus to the body only if the Enter key is pressed without any
   // modifier, as that would mean the user wants to send the message.
   if (event.key == "Enter" && !event.ctrlKey && !event.metaKey) {
     SetMsgBodyFrameFocus();
   }
+}
+
+/**
+ * Handle the input event of the subject input element.
+ *
+ * @param {Event} event - A DOM input event on #msgSubject.
+ */
+function msgSubjectOnInput(event) {
+  gSubjectChanged = true;
+  gContentChanged = true;
+  SetComposeWindowTitle();
 }
 
 // Content types supported in the envelopeDragObserver.
@@ -8976,7 +8986,7 @@ var gAttachmentNotifier = {
     // are ways of changing its value without key presses.
     document
       .getElementById("msgSubject")
-      .addEventListener("input", this.subjectObserver, true);
+      .addEventListener("input", this.subjectInputObserver, true);
 
     // We could have been opened with a draft message already containing
     // some keywords, so run the checker once to pick them up.
@@ -8985,7 +8995,7 @@ var gAttachmentNotifier = {
 
   // Timer based function triggered by the inputEventListener
   // for the subject field.
-  subjectObserver() {
+  subjectInputObserver() {
     gAttachmentNotifier.timer.cancel();
     gAttachmentNotifier.timer.initWithCallback(
       gAttachmentNotifier.event,
@@ -9103,7 +9113,9 @@ var gAttachmentNotifier = {
     }
 
     // Prepend the subject to see if the subject contains any attachment
-    // keywords too, after making sure that the subject has changed.
+    // keywords too, after making sure that the subject has changed
+    // or after reopening a draft. For reply, redirect and forward,
+    // only check when the input was changed by the user.
     let subject = document.getElementById("msgSubject").value;
     if (
       subject &&
