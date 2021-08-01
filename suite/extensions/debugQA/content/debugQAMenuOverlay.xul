@@ -124,6 +124,10 @@
                   oncommand="openQAUrl('https://hg.mozilla.org/comm-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-central Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/mozilla-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
+        <menuitem label="Recent comm-esr91 Checkins"
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr91/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
+        <menuitem label="Recent mozilla-esr91 Checkins"
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr91/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent comm-esr78 Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr78/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-esr78 Checkins"
@@ -139,8 +143,11 @@
 
         <menuseparator/>
 
-        <menuitem label="Nightly Builds"
-                  oncommand="openQAUrl('https://www.seamonkey-project.org/dev/nightly');"/>
+        <menuitem label="Daily unofficial 2.57 Builds"
+                  oncommand="openQAUrl('https://www.wg9s.com/comm-257/');"/>
+        <menuitem label="Daily unofficial 2.53 Builds"
+                  oncommand="openQAUrl('https://www.wg9s.com/comm-253/');"/>
+
       </menupopup>
     </menu>
   </menubar>
