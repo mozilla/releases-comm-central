@@ -147,7 +147,7 @@ var TodayPane = {
     tree.setAttribute("filterValue", filter);
 
     document
-      .querySelectorAll('menuitem[command="calendar_task_filter_todaypane_command"][type="radio"]')
+      .querySelectorAll("#task-context-menu-filter-todaypane-popup > menuitem")
       .forEach(item => {
         if (item.getAttribute("value") == filter) {
           item.setAttribute("checked", "true");

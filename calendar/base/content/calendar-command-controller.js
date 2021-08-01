@@ -79,7 +79,6 @@ var calendarController = {
     "calendar_month-view_command",
 
     "calendar_task_filter_command",
-    "calendar_task_filter_todaypane_command",
     "calendar_reload_remote_calendars",
     "calendar_show_unifinder_command",
     "calendar_toggle_completed_command",
