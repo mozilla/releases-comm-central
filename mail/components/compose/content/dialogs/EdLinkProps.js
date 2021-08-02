@@ -240,7 +240,7 @@ function ValidateData() {
   if (href) {
     // Set the HREF directly on the editor document's anchor node
     //  or on the newly-created node if insertNew is true
-    globalElement.setAttribute("href", encodeURI(decodeURI(href)));
+    globalElement.setAttribute("href", href);
   } else if (insertNew) {
     // We must have a URL to insert a new link
     // NOTE: We accept an empty HREF on existing link to indicate removing the link
