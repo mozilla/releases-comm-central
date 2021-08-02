@@ -5,13 +5,15 @@
 basepath = "../../.."
 
 locales = [
-    "ca",
     "cs",
     "de",
+    "el",
     "en-GB",
+    "es-AR",
     "es-ES",
     "fi",
     "fr",
+    "hu",
     "it",
     "ja",
     "ja-JP-mac",
@@ -20,9 +22,10 @@ locales = [
     "pt-BR",
     "pt-PT",
     "ru",
-    "si",
     "sk",
     "sv-SE",
+    "zh-CN",
+    "zh-TW",
 ]
 
 [env]
