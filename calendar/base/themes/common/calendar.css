@@ -119,8 +119,11 @@
 /* iMIP notification bar */
 .calendar-notification-bar {
   background-color: #baeeff;
-  color: #000;
   padding: 3px;
+}
+
+:root[lwt-tree-brighttext] .calendar-notification-bar {
+  background-color: #464cb9;
 }
 
 .calendar-notification-bar {
@@ -130,9 +133,7 @@
 }
 
 :root[lwt-tree] #imip-view-toolbar {
-  --imip-button-color: var(--toolbar-color);
   --imip-button-background: var(--toolbar-bgcolor);
-  color: var(--lwt-text-color);
 }
 
 #imip-bar > img {
