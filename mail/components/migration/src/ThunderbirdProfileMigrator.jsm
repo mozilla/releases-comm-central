@@ -215,6 +215,7 @@ class ThunderbirdProfileMigrator {
       [ADDRESS_BOOK, []],
       [CALENDAR, []],
     ]);
+    let accounts;
     let defaultAccount;
     let defaultSmtpServer;
     let ldapAutoComplete = {};
@@ -230,6 +231,10 @@ class ThunderbirdProfileMigrator {
           branchPrefs.push([type, name.slice(branchName.length), value]);
           return;
         }
+      }
+      if (name == "mail.accountmanager.accounts") {
+        accounts = value;
+        return;
       }
       if (name == "mail.accountmanager.defaultaccount") {
         defaultAccount = value;
@@ -287,6 +292,7 @@ class ThunderbirdProfileMigrator {
     // mail.account.accountN.{identities, server} depends on previous steps.
     this._importAccounts(
       branchPrefsMap.get(MAIL_ACCOUNT),
+      accounts,
       defaultAccount,
       identityKeyMap,
       incomingServerKeyMap
@@ -589,6 +595,8 @@ class ThunderbirdProfileMigrator {
   /**
    * Import mail accounts.
    * @param {PrefItem[]} prefs - All source prefs in the MAIL_ACCOUNT branch.
+   * @param {string} sourceAccounts - The value of mail.accountmanager.accounts
+   *   in the source profile.
    * @param {string} sourceDefaultAccount - The value of
    *   mail.accountmanager.defaultaccount in the source profile.
    * @param {IdentityKeyMap} identityKeyMap - A map from the source identity key
@@ -598,6 +606,7 @@ class ThunderbirdProfileMigrator {
    */
   _importAccounts(
     prefs,
+    sourceAccounts,
     sourceDefaultAccount,
     identityKeyMap,
     incomingServerKeyMap
@@ -627,15 +636,19 @@ class ThunderbirdProfileMigrator {
     }
 
     // Append newly create accounts to mail.accountmanager.accounts.
-    let accounts = Services.prefs.getCharPref(
-      "mail.accountmanager.accounts",
-      ""
-    );
-    if (accounts && accountKeyMap.size) {
-      accounts += ",";
+    let accounts = Services.prefs
+      .getCharPref("mail.accountmanager.accounts", "")
+      .split(",");
+    if (accounts.length == 1 && accounts[0] == "") {
+      accounts.length = 0;
     }
-    accounts += [...accountKeyMap.values()].join(",");
-    Services.prefs.setCharPref("mail.accountmanager.accounts", accounts);
+    for (let sourceAccountKey of sourceAccounts.split(",")) {
+      accounts.push(accountKeyMap.get(sourceAccountKey));
+    }
+    Services.prefs.setCharPref(
+      "mail.accountmanager.accounts",
+      accounts.join(",")
+    );
 
     // Set defaultaccount if it doesn't already exist.
     let defaultAccount = Services.prefs.getCharPref(
