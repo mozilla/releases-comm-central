@@ -480,11 +480,13 @@ class ThunderbirdProfileMigrator {
       // Since updating prefs.js is batched, getUniqueServerKey may return the
       // previous key.
       let key = MailServices.accounts.getUniqueServerKey();
-      if (incomingServerKeyMap.has(key)) {
-        return new Promise(resolve =>
-          // As a workaround, delay 500ms and try again.
-          setTimeout(() => resolve(_getUniqueIncomingServerKey()), 500)
-        );
+      for (let existingKey of incomingServerKeyMap.values()) {
+        if (existingKey == key) {
+          return new Promise(resolve =>
+            // As a workaround, delay 500ms and try again.
+            setTimeout(() => resolve(_getUniqueIncomingServerKey()), 500)
+          );
+        }
       }
       return key;
     }
