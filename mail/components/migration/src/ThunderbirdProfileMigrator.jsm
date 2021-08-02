@@ -264,6 +264,8 @@ class ThunderbirdProfileMigrator {
       "Migration:ItemBeforeMigrate",
       Ci.nsIMailProfileMigrator.ACCOUNT_SETTINGS
     );
+    await new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
+
     // Import SMTP servers first, the importing order is important.
     let smtpServerKeyMap = this._importSmtpServers(
       branchPrefsMap.get(SMTP_SERVER),
@@ -294,22 +296,28 @@ class ThunderbirdProfileMigrator {
       "Migration:ItemAfterMigrate",
       Ci.nsIMailProfileMigrator.ACCOUNT_SETTINGS
     );
+    Services.obs.notifyObservers(null, "Migration:Progress", "25");
     Services.obs.notifyObservers(
       null,
       "Migration:ItemBeforeMigrate",
       Ci.nsIMailProfileMigrator.MAILDATA
     );
+    await new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
+
     this._copyMailFolders(incomingServerKeyMap);
     Services.obs.notifyObservers(
       null,
       "Migration:ItemAfterMigrate",
       Ci.nsIMailProfileMigrator.MAILDATA
     );
+    Services.obs.notifyObservers(null, "Migration:Progress", "50");
     Services.obs.notifyObservers(
       null,
       "Migration:ItemBeforeMigrate",
       Ci.nsIMailProfileMigrator.ADDRESS_BOOK
     );
+    await new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
+
     this._importAddressBooks(
       branchPrefsMap.get(ADDRESS_BOOK),
       ldapAutoComplete
@@ -319,11 +327,14 @@ class ThunderbirdProfileMigrator {
       "Migration:ItemAfterMigrate",
       Ci.nsIMailProfileMigrator.ADDRESS_BOOK
     );
+    Services.obs.notifyObservers(null, "Migration:Progress", "75");
     Services.obs.notifyObservers(
       null,
       "Migration:ItemBeforeMigrate",
       Ci.nsIMailProfileMigrator.SETTINGS
     );
+    await new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
+
     this._importPasswords();
     this._importOtherPrefs(otherPrefs);
     this._importCalendars(branchPrefsMap.get(CALENDAR));
@@ -332,6 +343,7 @@ class ThunderbirdProfileMigrator {
       "Migration:ItemAfterMigrate",
       Ci.nsIMailProfileMigrator.SETTINGS
     );
+    Services.obs.notifyObservers(null, "Migration:Progress", "100");
   }
 
   /**
