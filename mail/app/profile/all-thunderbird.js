@@ -176,7 +176,6 @@ pref("services.settings.default_bucket", "thunderbird");
 pref("security.content.signature.root_hash", "[CONTENT SIGNING DISABLED - see bug 1612380]");
 
 // Show new install UI with permission lists
-pref("extensions.webextPermissionPrompts", true);
 pref("extensions.webextOptionalPermissionPrompts", true);
 
 // 1 = allow "Man In The Middle" (local proxy, web filter, etc.) for certificate
