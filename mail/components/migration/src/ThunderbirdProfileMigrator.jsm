@@ -549,7 +549,10 @@ class ThunderbirdProfileMigrator {
       for (let part of directoryRel.split("/")) {
         sourceDir.append(part);
       }
-      if (type != "imap" || Services.appinfo.OS != "WINNT") {
+      if (
+        sourceDir.exists() &&
+        (type != "imap" || Services.appinfo.OS != "WINNT")
+      ) {
         // For some reasons, if mail folders are copied on Windows,
         // `errorGettingDB` is thrown after imported and restarted. IMAP folders
         // will be downloaded automatically, better than a broken account.
