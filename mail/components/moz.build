@@ -39,6 +39,7 @@ EXTRA_JS_MODULES += [
     "AppIdleManager.jsm",
     "MailGlue.jsm",
     "MessengerContentHandler.jsm",
+    "MidProtocolHandler.jsm",
 ]
 
 XPCOM_MANIFESTS += [

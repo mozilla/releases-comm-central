@@ -103,3 +103,12 @@ chrome/devtools/skin/images/check.svg
 # Windows artifact builds hack - bug 1714650
 chrome/remote/content/server/HTTPD.jsm
 components/httpd.js
+
+# Bug 1723628 - Empty files to stop the tests crashing
+chrome/messenger/skin/classic/messenger/messages/mail/Footer.html
+chrome/messenger/skin/classic/messenger/messages/mail/Header.html
+chrome/messenger/skin/classic/messenger/messages/mail/Incoming/NextContext.html
+chrome/messenger/skin/classic/messenger/messages/mail/Outgoing/Content.html
+chrome/messenger/skin/classic/messenger/messages/mail/Outgoing/Context.html
+chrome/messenger/skin/classic/messenger/messages/mail/Outgoing/NextContent.html
+chrome/messenger/skin/classic/messenger/messages/mail/Outgoing/NextContext.html
