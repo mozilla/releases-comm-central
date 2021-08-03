@@ -28,7 +28,7 @@ const startupPhases = {
   "before profile selection": {
     allowlist: {
       modules: new Set([
-        "resource://gre/modules/MailGlue.jsm",
+        "resource:///modules/MailGlue.jsm",
         "resource://gre/modules/AppConstants.jsm",
         "resource://gre/modules/ComponentUtils.jsm",
         "resource://gre/modules/CustomElementsListener.jsm",
