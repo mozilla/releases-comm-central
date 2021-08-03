@@ -9,6 +9,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  MailServices: "resource:///modules/MailServices.jsm",
   NntpClient: "resource:///modules/NntpClient.jsm",
 });
 
@@ -21,7 +22,9 @@ class NntpChannel {
   QueryInterface = ChromeUtils.generateQI(["nsIChannel", "nsIRequest"]);
 
   constructor(uri) {
-    this._uri = uri;
+    // nsIChannel attributes.
+    this.originalURI = uri;
+    this.URI = uri;
   }
 
   /**
@@ -35,7 +38,15 @@ class NntpChannel {
    * @see nsIChannel
    */
   get contentType() {
-    return "message/rfc822";
+    return this._contentType || "message/rfc822";
+  }
+
+  set contentType(value) {
+    this._contentType = value;
+  }
+
+  get isDocument() {
+    return true;
   }
 
   open() {
@@ -46,9 +57,43 @@ class NntpChannel {
   }
 
   asyncOpen(listener) {
-    throw Components.Exception(
-      "asyncOpen not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
+    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+    pipe.init(true, true, 0, 0);
+    let inputStream = pipe.inputStream;
+    let outputStream = pipe.outputStream;
+
+    let server = MailServices.accounts
+      .findServerByURI(this.URI, false)
+      .QueryInterface(Ci.nsINntpIncomingServer);
+    let client = new NntpClient(server, this.URI.spec);
+    client.connect();
+    client.onOpen = () => {
+      client.getArticle();
+      if (this.loadGroup) {
+        this.loadGroup.addRequest(this, null);
+      }
+      let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+        Ci.nsIStreamConverterService
+      );
+      listener = converter.asyncConvertData(
+        "message/rfc822",
+        "*/*",
+        listener,
+        this
+      );
+      listener.onStartRequest(this);
+    };
+
+    client.onData = data => {
+      outputStream.write(data, data.length);
+      listener.onDataAvailable(null, inputStream, 0, data.length);
+    };
+
+    client.onDone = () => {
+      listener.onStopRequest(null, Cr.NS_OK);
+      if (this.loadGroup) {
+        this.loadGroup.removeRequest(this, null, Cr.NS_OK);
+      }
+    };
   }
 }

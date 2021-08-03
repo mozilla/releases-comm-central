@@ -32,11 +32,25 @@ class NntpClient {
   constructor(server, uri) {
     this.onOpen = () => {};
     this.onError = () => {};
+    this.onData = () => {};
+    this.onDone = () => {};
 
     this._server = server;
-    let matches = /.+:\/\/(.+)\/(.+)/.exec(uri);
+
+    // Two forms of the uri:
+    // - news://news.mozilla.org/mozilla.accessibility
+    // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
+    let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)/.exec(uri);
     this._host = matches[1];
-    this._groupName = matches[2];
+    this._port = matches[2] || this._server.port;
+    let url = new URL(uri);
+    if (url.searchParams.get("group")) {
+      this._groupName = url.searchParams.get("group");
+      this._articleNumber = url.searchParams.get("key");
+    } else {
+      this._groupName = matches[3];
+    }
+
     this._newsFolder = this._server.findGroup(this._groupName);
     this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
     this.runningUri = Services.io
@@ -55,14 +69,13 @@ class NntpClient {
    */
   connect() {
     this._urlListener?.OnStartRunningUrl(this.runningUri);
-    let port = this._server.port;
     let useSecureTransport = this._server.isSecure;
     this._logger.debug(
-      `Connecting to ${useSecureTransport ? "snews" : "news"}://${
-        this._host
-      }:${port}`
+      `Connecting to ${useSecureTransport ? "snews" : "news"}://${this._host}:${
+        this._port
+      }`
     );
-    this._socket = new TCPSocket(this._host, port, {
+    this._socket = new TCPSocket(this._host, this._port, {
       binaryType: "arraybuffer",
       useSecureTransport,
     });
@@ -145,6 +158,15 @@ class NntpClient {
     this._msgWindow = msgWindow;
     this.runningUri.updatingFolder = true;
     this._nextAction = this._actionModeReader;
+    this._firstCommand = this._actionXOver;
+  }
+
+  /**
+   * Get a single article.
+   */
+  getArticle() {
+    this._nextAction = this._actionModeReader;
+    this._firstCommand = this._actionArticle;
   }
 
   /**
@@ -160,7 +182,7 @@ class NntpClient {
    */
   _actionGroup() {
     this._sendString(`GROUP ${this._groupName}`);
-    this._nextAction = this._actionXOver;
+    this._nextAction = this._firstCommand;
   }
 
   /**
@@ -221,9 +243,36 @@ class NntpClient {
   }
 
   /**
+   * Send `ARTICLE` request to the server.
+   */
+  _actionArticle() {
+    this._sendString(`ARTICLE ${this._articleNumber}`);
+    this._nextAction = this._actionReadArticle;
+  }
+
+  /**
+   * Handle ARTICLE response.
+   * @param {NntpResponse} res - ARTICLE response received from the server.
+   */
+  _actionReadArticle({ data }) {
+    let ended = false;
+    if (data == ".\r\n" || data.endsWith("\r\n.\r\n")) {
+      ended = true;
+      data = data.slice(0, -3);
+    }
+    if (data) {
+      this.onData(data);
+    }
+    if (ended) {
+      this._actionDone();
+    }
+  }
+
+  /**
    * Close the connection and do necessary cleanup.
    */
   _actionDone() {
+    this.onDone();
     this._newsGroup.cleanUp();
     this._newsFolder.OnStopRunningUrl(this.runningUri, 0);
     this._urlListener?.OnStopRunningUrl(this.runningUri, 0);
