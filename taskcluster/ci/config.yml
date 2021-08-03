@@ -99,6 +99,12 @@ merge-automation:
                 - - .gecko_rev.yml
                   - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-central"
                   - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-beta"
+                - - suite/config/version.txt
+                  - a1
+                  - ''
+                - - suite/config/version_display.txt
+                  - a1
+                  - b1
             merge-old-head: true
             base-tag: 'BETA_{major_version}_BASE'
             end-tag: 'BETA_{major_version}_END'
