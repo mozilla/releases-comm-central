@@ -96,6 +96,9 @@ merge-automation:
                 - - mail/config/mozconfigs/l10n-common
                   - ac_add_options --with-branding=comm/mail/branding/nightly
                   - ac_add_options --enable-official-branding
+                - - .gecko_rev.yml
+                  - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/mozilla-central"
+                  - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-beta"
             merge-old-head: true
             base-tag: 'BETA_{major_version}_BASE'
             end-tag: 'BETA_{major_version}_END'
