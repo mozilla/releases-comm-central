@@ -143,7 +143,7 @@ var calinvitation = {
     icon.classList.add("itip-icon");
     icon.setAttribute("partstat", partstat);
     icon.setAttribute("usertype", userType);
-    icon.setAttribute("role", role);
+    icon.setAttribute("attendeerole", role);
     attendeeLabel.appendChild(icon);
 
     let text = doc.createElement("div");

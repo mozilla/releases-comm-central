@@ -553,7 +553,7 @@ add_task(async function createInvitationOverlay_test() {
               "Attendee 1 <attendee1@example.net> is an optional " +
               "participant. Attendee 1 still needs to reply.",
             icon: {
-              role: "OPT-PARTICIPANT",
+              attendeerole: "OPT-PARTICIPANT",
               usertype: "INDIVIDUAL",
               partstat: "NEEDS-ACTION",
             },
@@ -564,7 +564,7 @@ add_task(async function createInvitationOverlay_test() {
               "attendee2@example.net (group) is a non-participant. " +
               "attendee2@example.net has confirmed attendance.",
             icon: {
-              role: "NON-PARTICIPANT",
+              attendeerole: "NON-PARTICIPANT",
               usertype: "GROUP",
               partstat: "ACCEPTED",
             },
@@ -576,7 +576,7 @@ add_task(async function createInvitationOverlay_test() {
               "participant. attendee3@example.net has confirmed attendance " +
               "tentatively.",
             icon: {
-              role: "REQ-PARTICIPANT",
+              attendeerole: "REQ-PARTICIPANT",
               usertype: "RESOURCE",
               partstat: "TENTATIVE",
             },
@@ -587,7 +587,7 @@ add_task(async function createInvitationOverlay_test() {
               "attendee4@example.net (room) is an optional participant. " +
               "attendee4@example.net has declined attendance.",
             icon: {
-              role: "OPT-PARTICIPANT",
+              attendeerole: "OPT-PARTICIPANT",
               usertype: "ROOM",
               partstat: "DECLINED",
             },
@@ -599,7 +599,7 @@ add_task(async function createInvitationOverlay_test() {
               "attendee5@example.net has delegated attendance to " +
               "attendee4@example.net.",
             icon: {
-              role: "OPT-PARTICIPANT",
+              attendeerole: "OPT-PARTICIPANT",
               usertype: "UNKNOWN",
               partstat: "DELEGATED",
             },
@@ -610,7 +610,7 @@ add_task(async function createInvitationOverlay_test() {
               "attendee6@example.net is a required participant. " +
               "attendee6@example.net still needs to reply.",
             icon: {
-              role: "REQ-PARTICIPANT",
+              attendeerole: "REQ-PARTICIPANT",
               usertype: "INDIVIDUAL",
               partstat: "NEEDS-ACTION",
             },
@@ -621,7 +621,7 @@ add_task(async function createInvitationOverlay_test() {
               "attendee7@example.net is a required participant. " +
               "attendee7@example.net still needs to reply.",
             icon: {
-              role: "REQ-PARTICIPANT",
+              attendeerole: "REQ-PARTICIPANT",
               usertype: "INDIVIDUAL",
               partstat: "NEEDS-ACTION",
             },
@@ -635,7 +635,7 @@ add_task(async function createInvitationOverlay_test() {
         organizer: {
           params: {
             partstat: "ACCEPTED",
-            role: "CHAIR",
+            attendeerole: "CHAIR",
             cutype: "INDIVIDUAL",
             cn: '"The Organizer"',
           },
@@ -650,7 +650,7 @@ add_task(async function createInvitationOverlay_test() {
             "The Organizer <organizer@example.net> chairs the event. " +
             "The Organizer has confirmed attendance.",
           icon: {
-            role: "CHAIR",
+            attendeerole: "CHAIR",
             usertype: "INDIVIDUAL",
             partstat: "ACCEPTED",
           },

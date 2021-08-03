@@ -544,7 +544,7 @@ function setLeftAndWidth(element, startTime, endTime) {
         "src",
         "chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
       );
-      this.roleIcon.setAttribute("role", "REQ-PARTICIPANT");
+      this.roleIcon.setAttribute("attendeerole", "REQ-PARTICIPANT");
       this._updateTooltip(this.roleIcon);
       this.roleIcon.addEventListener("click", this);
 
@@ -586,7 +586,7 @@ function setLeftAndWidth(element, startTime, endTime) {
         attendee.commonName = address.name;
       }
       attendee.isOrganizer = this.isOrganizer;
-      attendee.role = this.roleIcon.getAttribute("role");
+      attendee.role = this.roleIcon.getAttribute("attendeerole");
       let userType = this.userTypeIcon.getAttribute("usertype");
       attendee.userType = userType == "INDIVIDUAL" ? null : userType; // INDIVIDUAL is the default
 
@@ -602,7 +602,7 @@ function setLeftAndWidth(element, startTime, endTime) {
         this.value = value.id.replace(/^mailto:/, "");
       }
       this.isOrganizer = value.isOrganizer;
-      this.roleIcon.setAttribute("role", value.role);
+      this.roleIcon.setAttribute("attendeerole", value.role);
       this._updateTooltip(this.roleIcon);
       this.userTypeIcon.setAttribute("usertype", value.userType || "INDIVIDUAL");
       this._updateTooltip(this.userTypeIcon);
@@ -744,8 +744,8 @@ function setLeftAndWidth(element, startTime, endTime) {
 
         let target = event.target;
         if (target == this.roleIcon) {
-          let nextValue = cycle(EventAttendee.roleCycle, target.getAttribute("role"));
-          target.setAttribute("role", nextValue);
+          let nextValue = cycle(EventAttendee.roleCycle, target.getAttribute("attendeerole"));
+          target.setAttribute("attendeerole", nextValue);
           this._updateTooltip(target);
         } else if (target == this.userTypeIcon) {
           if (!this.isOrganizer) {
@@ -759,7 +759,7 @@ function setLeftAndWidth(element, startTime, endTime) {
     _updateTooltip(targetIcon) {
       let tooltip;
       if (targetIcon == this.roleIcon) {
-        let role = targetIcon.getAttribute("role");
+        let role = targetIcon.getAttribute("attendeerole");
         const roleMap = {
           "REQ-PARTICIPANT": "required",
           "OPT-PARTICIPANT": "optional",
