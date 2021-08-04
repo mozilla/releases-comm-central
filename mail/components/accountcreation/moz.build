@@ -9,6 +9,7 @@ EXTRA_JS_MODULES.accountcreation += [
     "AccountConfig.jsm",
     "AccountCreationUtils.jsm",
     "CreateInBackend.jsm",
+    "ExchangeAutoDiscover.jsm",
     "FetchConfig.jsm",
     "FetchHTTP.jsm",
     "GuessConfig.jsm",

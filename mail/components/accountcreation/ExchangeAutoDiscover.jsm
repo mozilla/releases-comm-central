@@ -3,13 +3,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from accountSetup.js */
+const EXPORTED_SYMBOLS = ["fetchConfigFromExchange", "getAddonsList"];
 
-var { FetchHTTP } = ChromeUtils.import(
-  "resource:///modules/accountcreation/FetchHTTP.jsm"
+var { AccountCreationUtils } = ChromeUtils.import(
+  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AccountConfig: "resource:///modules/accountcreation/AccountConfig.jsm",
+  FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.jsm",
+  GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+});
+
+var {
+  Abortable,
+  assert,
+  ddump,
+  deepCopy,
+  Exception,
+  gAccountSetupLogger,
+  getStringBundle,
+  PriorityOrderAbortable,
+  SuccessiveAbortable,
+  TimeoutAbortable,
+} = AccountCreationUtils;
 
 /**
  * Tries to get a configuration from an MS Exchange server
@@ -25,6 +48,8 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * @param {string} username - (Optional) The user's login name.
  *         If null, email address will be used.
  * @param {string} password - The user's password for that email address
+ * @param {Function(domain, okCallback, cancelCallback)} confirmCallback - A
+ *        callback that will be called to confirm redirection to another domain.
  * @param {Function(config {AccountConfig})} successCallback - A callback that
  *         will be called when we could retrieve a configuration.
  *         The AccountConfig object will be passed in as first parameter.
@@ -40,6 +65,7 @@ function fetchConfigFromExchange(
   emailAddress,
   username,
   password,
+  confirmCallback,
   successCallback,
   errorCallback
 ) {
@@ -99,6 +125,7 @@ function fetchConfigFromExchange(
       emailAddress,
       username,
       password,
+      confirmCallback,
       config => {
         config.subSource = `exchange-from-${call.foundMsg}`;
         return detectStandardProtocols(config, domain, successCallback);
@@ -179,7 +206,7 @@ function fetchConfigFromExchange(
       call3ErrorCallback(new Exception("Redirected"));
       dialogSuccessive.current = new TimeoutAbortable(
         setTimeout(() => {
-          dialogSuccessive.current = confirmExchange(
+          dialogSuccessive.current = confirmCallback(
             redirectDomain,
             () => {
               // User agreed.
@@ -221,6 +248,7 @@ function readAutoDiscoverResponse(
   emailAddress,
   username,
   password,
+  confirmCallback,
   successCallback,
   errorCallback
 ) {
@@ -248,6 +276,7 @@ function readAutoDiscoverResponse(
       // not the redirected address (if not already overridden).
       username || emailAddress,
       password,
+      confirmCallback,
       successCallback,
       errorCallback
     );

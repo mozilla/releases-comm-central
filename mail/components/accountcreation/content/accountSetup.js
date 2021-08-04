@@ -6,10 +6,11 @@
 /* global MozElements */
 
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
-/* import-globals-from exchangeAutoDiscover.js */
-
 var { AccountCreationUtils } = ChromeUtils.import(
   "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+);
+var { fetchConfigFromExchange, getAddonsList } = ChromeUtils.import(
+  "resource:///modules/accountcreation/ExchangeAutoDiscover.jsm"
 );
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -673,6 +674,7 @@ var gAccountSetup = {
         emailAddress,
         this._exchangeUsername,
         this._password,
+        confirmExchange,
         call.successCallback(),
         (e, allErrors) => {
           // Must call error callback in any case to stop the discover mode.

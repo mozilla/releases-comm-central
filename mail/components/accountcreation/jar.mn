@@ -5,4 +5,3 @@
 messenger.jar:
   content/messenger/accountcreation/accountSetup.js       (content/accountSetup.js)
   content/messenger/accountcreation/accountSetup.xhtml    (content/accountSetup.xhtml)
-  content/messenger/accountcreation/exchangeAutoDiscover.js        (content/exchangeAutoDiscover.js)
