@@ -25,6 +25,7 @@ chatzilla.jar:
 	content/chatzilla/lib/js/file-utils.js       (js/lib/file-utils.js)
 	content/chatzilla/lib/js/dcc.js              (js/lib/dcc.js) 
 	content/chatzilla/lib/js/json-serializer.js  (js/lib/json-serializer.js)
+	content/chatzilla/lib/js/sts.js              (js/lib/sts.js)
 	content/chatzilla/lib/js/text-serializer.js  (js/lib/text-serializer.js)
 	content/chatzilla/lib/js/text-logger.js      (js/lib/text-logger.js)
 	content/chatzilla/lib/js/chatzilla-protocol-script.js (js/lib/chatzilla-protocol-script.js)

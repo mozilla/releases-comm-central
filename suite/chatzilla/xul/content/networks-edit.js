@@ -15,6 +15,7 @@ function CIRCDCCUser() {}
 function CIRCDCCChat() {}
 function CIRCDCCFile() {}
 function CIRCDCCFileTransfer() {}
+function CIRCSTS() {}
 
 // Actual network window itself.
 var gNetworkWindow = {

@@ -322,7 +322,7 @@ function bc_connect(host, port, config, observer)
         else
         {
             this._transport = this._sockService.
-                              createTransport(null, 0, host, port, proxyInfo);
+                              createTransport(["starttls"], 1, host, port, proxyInfo);
         }
         if (!this._transport)
             throw ("Error creating transport.");
@@ -352,6 +352,17 @@ function bc_connect(host, port, config, observer)
 
     return true;
 
+}
+
+CBSConnection.prototype.startTLS =
+function bc_starttls()
+{
+    if (!this.isConnected || !this._transport.securityInfo)
+        return;
+
+    var secInfo = this._transport.securityInfo;
+    var sockControl = secInfo.QueryInterface(Ci.nsISSLSocketControl);
+    sockControl.StartTLS();
 }
 
 CBSConnection.prototype.listen =
@@ -553,6 +564,8 @@ function bc_getsecuritystate()
         // Get the actual SSL Status
         let sslSp = this._transport.securityInfo
                                    .QueryInterface(Ci.nsISSLStatusProvider);
+        if (!sslSp.SSLStatus)
+            return STATE_IS_BROKEN;
         let sslStatus = sslSp.SSLStatus.QueryInterface(Ci.nsISSLStatus);
         // Store appropriate status
         if (!("keyLength" in sslStatus) || !sslStatus.keyLength)
@@ -577,6 +590,8 @@ function bc_getcertificate()
     // Get the actual SSL Status
     let sslSp = this._transport.securityInfo
                                .QueryInterface(Ci.nsISSLStatusProvider);
+    if (!sslSp.SSLStatus)
+        return null;
     let sslStatus = sslSp.SSLStatus.QueryInterface(Ci.nsISSLStatus);
 
     // return the certificate

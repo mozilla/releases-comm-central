@@ -28,7 +28,7 @@ const JSIRCV3_SUPPORTED_CAPS = [
     "multi-prefix",
     "sasl",
     //"server-time",
-    //"tls",
+    "tls",
     "userhost-in-names",
 ];
 
@@ -110,6 +110,8 @@ CIRCNetwork.prototype.INITIAL_NICK = "js-irc";
 CIRCNetwork.prototype.INITIAL_NAME = "INITIAL_NAME";
 CIRCNetwork.prototype.INITIAL_DESC = "INITIAL_DESC";
 CIRCNetwork.prototype.USE_SASL = false;
+CIRCNetwork.prototype.UPGRADE_INSECURE = false;
+CIRCNetwork.prototype.STS_MODULE = null;
 /* set INITIAL_CHANNEL to "" if you don't want a primary channel */
 CIRCNetwork.prototype.INITIAL_CHANNEL = "#jsbot";
 CIRCNetwork.prototype.INITIAL_UMODE = "+iw";
@@ -385,6 +387,39 @@ function net_doconnect(e)
     {
         this.nextHost = 1;
         host = 0;
+    }
+
+    // If STS is enabled, check the cache for a secure port to connect to.
+    if (this.STS_MODULE.ENABLED && !this.serverList[host].isSecure)
+    {
+        var newPort = this.STS_MODULE.getUpgradePolicy(this.serverList[host].hostname);
+        if (newPort)
+        {
+            // If we're a temporary network, just change the server prior to connecting.
+            if (this.temporary)
+            {
+                this.serverList[host].port = newPort;
+                this.serverList[host].isSecure = true;
+            }
+            // Otherwise, find or create a server with the specified host and port.
+            else
+            {
+                var hostname = this.serverList[host].hostname;
+                var matches = this.serverList.filter(function(s) {
+                    return  s.hostname == hostname && s.port == newPort;
+                });
+                if (matches.length > 0)
+                {
+                    host = arrayIndexOf(this.serverList, matches[0]);
+                }
+                else
+                {
+                    this.addServer(hostname, newPort, true,
+                                    this.serverList[host].password);
+                    host = this.serverList.length - 1;
+                }
+            }
+        }
     }
 
     if (this.serverList[host].isSecure || !this.requireSecurity)
@@ -1134,6 +1169,12 @@ function serv_disconnect(e)
     {
         this.channels[c].users = new Object();
         this.channels[c].active = false;
+    }
+
+    if (this.isStartTLS)
+    {
+        this.isSecure = false;
+        delete this.isStartTLS;
     }
 
     this.connection = null;
@@ -2122,6 +2163,24 @@ function my_cap (e)
         //Only request capabilities we support if we are connecting.
         if (this.pendingCapNegotiation)
         {
+            // If we have an STS upgrade policy, immediately disconnect
+            // and reconnect on the secure port.
+            if (this.parent.STS_MODULE.ENABLED && ("sts" in this.caps) && !this.isSecure)
+            {
+                var policy = this.parent.STS_MODULE.parseParameters(this.capvals["sts"]);
+                if (policy && policy.port)
+                {
+                    e.stsUpgradePort = policy.port;
+                    e.destObject = this.parent;
+                    e.set = "network";
+                    return false;
+                }
+            }
+
+            // Request STARTTLS if we are configured to do so.
+            if (!this.isSecure && ("tls" in this.caps) && this.parent.UPGRADE_INSECURE)
+                this.sendData("STARTTLS\n");
+
             var caps_req = JSIRCV3_SUPPORTED_CAPS.filter(i => (i in this.caps));
 
             // Don't send requests for these caps.
@@ -2255,10 +2314,15 @@ function my_cap (e)
     {
         // A capability is no longer available.
         var caps = e.params[3].split(/\s+/);
+        var caps_nodel = ["sts"];
         for (var i = 0; i < caps.length; i++)
         {
             var cap = caps[i].split(/=(.+)/)[0];
             cap = cap.trim();
+
+            if (arrayContains(caps_nodel, cap))
+                continue;
+
             this.caps[cap] = null;
         }
     }
@@ -2292,6 +2356,28 @@ function cap_on900(e)
         // Update our list of SASL mechanics.
         this.capvals["sasl"] = e.params[2];
     }
+
+    e.destObject = this.parent;
+    e.set = "network";
+}
+
+/* STARTTLS responses */
+CIRCServer.prototype.on670 = /* Success */
+function cap_on670(e)
+{
+    this.caps["tls"] = true;
+    e.server.connection.startTLS();
+    e.server.isSecure = true;
+    e.server.isStartTLS = true;
+
+    e.destObject = this.parent;
+    e.set = "network";
+}
+
+CIRCServer.prototype.on691 = /* Failure */
+function cap_on691(e)
+{
+    this.caps["tls"] = false;
 
     e.destObject = this.parent;
     e.set = "network";

@@ -35,6 +35,7 @@
     <script src="chrome://chatzilla/content/lib/js/dcc.js"/>
     <script src="chrome://chatzilla/content/lib/js/ident.js"/>
     <script src="chrome://chatzilla/content/lib/js/json-serializer.js"/>
+    <script src="chrome://chatzilla/content/lib/js/sts.js"/>
     <script src="chrome://chatzilla/content/lib/js/text-serializer.js"/>
     <script src="chrome://chatzilla/content/lib/js/text-logger.js"/>
     <script src="chrome://chatzilla/content/lib/xul/munger.js"/>

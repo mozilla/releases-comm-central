@@ -24,6 +24,7 @@ function CIRCDCC() {}
 function CIRCDCCUser() {}
 function CIRCDCCChat() {}
 function CIRCDCCFileTransfer() {}
+function CIRCSTS() {}
 
 function getObjectDetails(obj)
 {

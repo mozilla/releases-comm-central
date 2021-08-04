@@ -1083,6 +1083,8 @@ CIRCNetwork.prototype.on375 = /* start of MOTD */
 CIRCNetwork.prototype.on372 = /* MOTD line */
 CIRCNetwork.prototype.on376 = /* end of MOTD */
 CIRCNetwork.prototype.on422 = /* no MOTD */
+CIRCNetwork.prototype.on670 = /* STARTTLS Success */
+CIRCNetwork.prototype.on691 = /* STARTTLS Failure */
 CIRCNetwork.prototype.on902 = /* SASL Nick locked */
 CIRCNetwork.prototype.on903 = /* SASL Auth success */
 CIRCNetwork.prototype.on904 = /* SASL Auth failed */
@@ -2261,8 +2263,21 @@ function my_netdisconnect (e)
         client.getConnectionCount() == 0)
         window.close();
 
+    // Renew the STS policy.
+    if (e.server.isSecure && ("sts" in e.server.caps) && client.sts.ENABLED)
+    {
+        var policy = client.sts.parseParameters(e.server.capvals["sts"]);
+        client.sts.setPolicy(e.server.hostname, e.server.port, policy.duration);
+    }
+
     if (("reconnect" in this) && this.reconnect)
     {
+        if ("stsUpgradePort" in this)
+        {
+            e.server.port = this.stsUpgradePort;
+            e.server.isSecure = true;
+            delete this.stsUpgradePort;
+        }
         this.connect(this.requireSecurity);
         delete this.reconnect;
     }
@@ -2363,6 +2378,16 @@ function my_cap(e)
 {
     if (e.params[2] == "LS")
     {
+        // Handle the STS upgrade policy if we have one.
+        if (e.server.pendingCapNegotiation && e.stsUpgradePort)
+        {
+            this.display(getMsg(MSG_STS_UPGRADE, e.stsUpgradePort));
+            this.reconnect = true;
+            this.stsUpgradePort = e.stsUpgradePort;
+            this.quit(MSG_RECONNECTING);
+            return true;
+        }
+
         // Don't show the raw message until we've registered.
         if (this.state == NET_ONLINE)
         {
@@ -2380,6 +2405,13 @@ function my_cap(e)
                 listCaps.sort();
                 this.display(getMsg(MSG_SUPPORTS_CAPS, listCaps.join(MSG_COMMASP)));
             }
+        }
+
+        // Update the STS duration policy.
+        if (e.server.isSecure && ("sts" in e.server.caps) && client.sts.ENABLED)
+        {
+            var policy = client.sts.parseParameters(e.server.capvals["sts"]);
+            client.sts.setPolicy(e.server.hostname, e.server.port, policy.duration);
         }
     }
     else if (e.params[2] == "LIST")
@@ -2408,6 +2440,27 @@ function my_cap(e)
     else if (e.params[2] == "NAK")
     {
         this.display(getMsg(MSG_CAPS_ERROR, e.caps.join(", ")));
+    }
+    else if (e.params[2] == "NEW")
+    {
+        // Handle a new STS policy
+        if (client.sts.ENABLED && (arrayContains(e.newcaps, "sts")))
+        {
+            var policy = client.sts.parseParameters(e.server.capvals["sts"]);
+            if (!e.server.isSecure && policy.port)
+            {
+                // Inform the user of the new upgrade policy and
+                // offer an option to reconnect.
+                client.munger.getRule(".inline-buttons").enabled = true;
+                this.display(getMsg(MSG_STS_UPGRADE_NEW, [this.unicodeName, "reconnect"]));
+                client.munger.getRule(".inline-buttons").enabled = false;
+            }
+            else if (e.server.isSecure && policy.duration)
+            {
+                // Renew the policy's duration.
+                client.sts.setPolicy(e.server.hostname, e.server.port, policy.duration);
+            }
+        }
     }
     return true;
 }

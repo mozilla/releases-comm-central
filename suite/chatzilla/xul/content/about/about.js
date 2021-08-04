@@ -14,6 +14,7 @@ function CIRCDCCUser() {}
 function CIRCDCCChat() {}
 function CIRCDCCFile() {}
 function CIRCDCCFileTransfer() {}
+function CIRCSTS() {}
 
 // Our friend from messages.js:
 function getMsg(msgName, params, deflt)
