@@ -1003,13 +1003,11 @@ var gGeneralPane = {
         Services.locale.lastFallbackLocale,
       ])
     );
-    function generateBundles(resourceIds) {
-      return L10nRegistry.getInstance().generateBundles(locales, resourceIds);
-    }
     return new Localization(
       ["messenger/preferences/preferences.ftl", "branding/brand.ftl"],
       false,
-      { generateBundles }
+      undefined,
+      locales
     );
   },
 

@@ -18,7 +18,15 @@ add_task(async function test_defaultdownload() {
   });
 
   window.openPreferencesTab("paneGeneral");
-  await BrowserTestUtils.browserLoaded(window.gPrefTab.browser);
+  await BrowserTestUtils.browserLoaded(
+    window.gPrefTab.browser,
+    undefined,
+    url => url.startsWith("about:preferences")
+  );
+  let { contentDocument } = window.gPrefTab.browser;
+  await TestUtils.waitForCondition(() =>
+    contentDocument.getElementById("alwaysAsk")
+  );
   await new Promise(resolve =>
     window.gPrefTab.browser.contentWindow.setTimeout(resolve)
   );
@@ -67,7 +75,15 @@ add_task(async function test_download() {
   });
 
   window.openPreferencesTab("paneGeneral");
-  await BrowserTestUtils.browserLoaded(window.gPrefTab.browser);
+  await BrowserTestUtils.browserLoaded(
+    window.gPrefTab.browser,
+    undefined,
+    url => url.startsWith("about:preferences")
+  );
+  let { contentDocument } = window.gPrefTab.browser;
+  await TestUtils.waitForCondition(() =>
+    contentDocument.getElementById("alwaysAsk")
+  );
   await new Promise(resolve =>
     window.gPrefTab.browser.contentWindow.setTimeout(resolve)
   );

@@ -269,8 +269,10 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(bookRow.querySelector(".bookRow-name").textContent, "New Book");
   Assert.equal(bookRow.getAttribute("aria-label"), "New Book");
 
-  await new Promise(r => abWindow.requestAnimationFrame(r)); // L10n.
-  Assert.equal(searchInput.placeholder, "Search New Book");
+  await TestUtils.waitForCondition(
+    () => searchInput.placeholder == "Search New Book",
+    "search placeholder updated"
+  );
 
   // Rename the book.
 
@@ -308,8 +310,10 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(bookRow.querySelector(".bookRow-name").textContent, "Old Book");
   Assert.equal(bookRow.getAttribute("aria-label"), "Old Book");
 
-  await new Promise(r => abWindow.requestAnimationFrame(r)); // L10n.
-  Assert.equal(searchInput.placeholder, "Search Old Book");
+  await TestUtils.waitForCondition(
+    () => searchInput.placeholder == "Search Old Book",
+    "search placeholder updated"
+  );
 
   // Create a list.
 
@@ -327,8 +331,10 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(listRow.querySelector(".listRow-name").textContent, "New List");
   Assert.equal(listRow.getAttribute("aria-label"), "New List");
 
-  await new Promise(r => abWindow.requestAnimationFrame(r)); // L10n.
-  Assert.equal(searchInput.placeholder, "Search New List");
+  await TestUtils.waitForCondition(
+    () => searchInput.placeholder == "Search New List",
+    "search placeholder updated"
+  );
 
   // Rename the list.
 
@@ -362,8 +368,10 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(listRow.querySelector(".listRow-name").textContent, "Old List");
   Assert.equal(listRow.getAttribute("aria-label"), "Old List");
 
-  await new Promise(r => abWindow.requestAnimationFrame(r)); // L10n.
-  Assert.equal(searchInput.placeholder, "Search Old List");
+  await TestUtils.waitForCondition(
+    () => searchInput.placeholder == "Search Old List",
+    "search placeholder updated"
+  );
 
   // Delete the list.
 

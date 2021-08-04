@@ -18,9 +18,15 @@ add_task(async function test_policy_masterpassword_set() {
   LoginTestUtils.masterPassword.enable();
 
   window.openPreferencesTab("panePrivacy");
-  await BrowserTestUtils.browserLoaded(window.gPrefTab.browser);
-  let { contentDocument, contentWindow } = window.gPrefTab.browser;
-  await new Promise(resolve => contentWindow.setTimeout(resolve));
+  await BrowserTestUtils.browserLoaded(
+    window.gPrefTab.browser,
+    undefined,
+    url => url.startsWith("about:preferences")
+  );
+  let { contentDocument } = window.gPrefTab.browser;
+  await TestUtils.waitForCondition(() =>
+    contentDocument.getElementById("useMasterPassword")
+  );
 
   is(
     contentDocument.getElementById("useMasterPassword").disabled,

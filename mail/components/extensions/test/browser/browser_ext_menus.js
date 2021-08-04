@@ -1099,17 +1099,6 @@ async function subtest_action_menu(
       .createBundle("chrome://branding/locale/brand.properties")
       .GetStringFromName("brandShorterName");
 
-    let { prompt } = Services;
-    let promptService = {
-      _response: 1,
-      QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
-      confirmEx(...args) {
-        promptService._confirmExArgs = args;
-        return promptService._response;
-      },
-    };
-    Services.prompt = promptService;
-
     info(
       `Choosing 'Remove Extension' in ${menu.id} should show confirm dialog.`
     );
@@ -1122,17 +1111,27 @@ async function subtest_action_menu(
     menu.activateItem(removeExtension);
     await hiddenPromise;
 
-    // Check if the correct add-on is being removed.
-    is(promptService._confirmExArgs[1], `Remove ${name}?`);
-    if (!Services.prefs.getBoolPref("prompts.windowPromptSubDialog", false)) {
-      is(
-        promptService._confirmExArgs[2],
-        `Remove ${name} as well as its configuration and data from ${brand}?`
-      );
-    }
-    is(promptService._confirmExArgs[4], "Remove");
-
-    Services.prompt = prompt;
+    await BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+      async callback(promptWindow) {
+        await new Promise(r => promptWindow.setTimeout(r));
+        let promptDocument = promptWindow.document;
+        // Check if the correct add-on is being removed.
+        is(promptDocument.title, `Remove ${name}?`);
+        if (
+          !Services.prefs.getBoolPref("prompts.windowPromptSubDialog", false)
+        ) {
+          is(
+            promptDocument.getElementById("infoBody").textContent,
+            `Remove ${name} as well as its configuration and data from ${brand}?`
+          );
+        }
+        let acceptButton = promptDocument
+          .querySelector("dialog")
+          .getButton("accept");
+        is(acceptButton.label, "Remove");
+        EventUtils.synthesizeMouseAtCenter(acceptButton, {}, promptWindow);
+      },
+    });
   }
 
   async function testContextMenuManageExtension(extension, menu, element) {

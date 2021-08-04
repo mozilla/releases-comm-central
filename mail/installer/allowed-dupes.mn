@@ -19,6 +19,7 @@ chrome/classic/skin/classic/messenger/icons/new-mail-alert.png
 chrome/classic/skin/classic/messenger/icons/spelling.svg
 chrome/classic/skin/classic/messenger/icons/connection-insecure.svg
 chrome/classic/skin/classic/messenger/icons/message-encrypted-notok.svg
+chrome/messenger/content/branding/icon32.png
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/branding/icon64.png
 chrome/messenger/content/branding/icon128.png
@@ -30,6 +31,7 @@ chrome/messenger/skin/classic/messenger/messages/mail/Incoming/buddy_icon.svg
 chrome/messenger/skin/classic/messenger/messages/mail/Outgoing/buddy_icon.svg
 chrome/devtools/modules/devtools/client/themes/splitters.css
 chrome/devtools/skin/splitters.css
+chrome/icons/default/default32.png
 chrome/icons/default/default48.png
 chrome/icons/default/default64.png
 chrome/icons/default/default128.png

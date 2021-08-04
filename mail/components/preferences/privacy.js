@@ -21,12 +21,6 @@ ChromeUtils.defineModuleGetter(
   "OSKeyStore",
   "resource://gre/modules/OSKeyStore.jsm"
 );
-XPCOMUtils.defineLazyGetter(this, "L10n", () => {
-  return new Localization([
-    "branding/brand.ftl",
-    "messenger/preferences/preferences.ftl",
-  ]);
-});
 
 const PREF_UPLOAD_ENABLED = "datareporting.healthreport.uploadEnabled";
 
@@ -383,7 +377,7 @@ var gPrivacyPane = {
     ) {
       let messageId =
         "primary-password-os-auth-dialog-message-" + AppConstants.platform;
-      let [messageText, captionText] = await L10n.formatMessages([
+      let [messageText, captionText] = await document.l10n.formatMessages([
         {
           id: messageId,
         },

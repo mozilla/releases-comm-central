@@ -29,12 +29,6 @@ ChromeUtils.defineModuleGetter(
   "OSKeyStore",
   "resource://gre/modules/OSKeyStore.jsm"
 );
-XPCOMUtils.defineLazyGetter(this, "L10n", () => {
-  return new Localization([
-    "branding/brand.ftl",
-    "messenger/preferences/passwordManager.ftl",
-  ]);
-});
 
 // Default value for signon table sorting
 let lastSignonSortColumn = "origin";
@@ -791,7 +785,7 @@ async function masterPasswordLogin(noPasswordCallback) {
         // See preferences.ftl for more information.
         messageId += "-macosx";
       }
-      let [messageText, captionText] = await L10n.formatMessages([
+      let [messageText, captionText] = await document.l10n.formatMessages([
         {
           id: messageId,
         },

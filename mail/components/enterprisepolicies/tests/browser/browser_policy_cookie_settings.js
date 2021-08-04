@@ -124,9 +124,15 @@ async function test_cookie_settings({
   );
 
   window.openPreferencesTab("panePrivacy");
-  await BrowserTestUtils.browserLoaded(window.gPrefTab.browser);
-  let { contentDocument, contentWindow } = window.gPrefTab.browser;
-  await new Promise(resolve => contentWindow.setTimeout(resolve));
+  await BrowserTestUtils.browserLoaded(
+    window.gPrefTab.browser,
+    undefined,
+    url => url.startsWith("about:preferences")
+  );
+  let { contentDocument } = window.gPrefTab.browser;
+  await TestUtils.waitForCondition(() =>
+    contentDocument.getElementById("acceptCookies")
+  );
   let expectControlsDisabled = !cookiesEnabled || cookieJarSettingsLocked;
 
   for (let id of ["acceptCookies", "showCookiesButton"]) {
