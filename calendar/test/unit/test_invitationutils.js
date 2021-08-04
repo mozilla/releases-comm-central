@@ -635,7 +635,7 @@ add_task(async function createInvitationOverlay_test() {
         organizer: {
           params: {
             partstat: "ACCEPTED",
-            attendeerole: "CHAIR",
+            role: "CHAIR",
             cutype: "INDIVIDUAL",
             cn: '"The Organizer"',
           },
