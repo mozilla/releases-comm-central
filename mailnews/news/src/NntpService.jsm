@@ -9,6 +9,8 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  Services: "resource://gre/modules/Services.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
   NntpClient: "resource:///modules/NntpClient.jsm",
 });
 
@@ -20,6 +22,66 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 class NntpService {
   QueryInterface = ChromeUtils.generateQI(["nsINntpService"]);
 
+  generateNewsHeaderValsForPosting(
+    newsgroupsList,
+    outNewsgroupsHeader,
+    outNewsHostHeader
+  ) {
+    let groups = newsgroupsList.split(",");
+    outNewsgroupsHeader.value = newsgroupsList;
+    let hosts = groups.map(name => this._findHostFromGroupName(name));
+    hosts = [...new Set(hosts)];
+    let host = hosts[0];
+    if (!host) {
+      throw Components.Exception("Host not found", Cr.NS_ERROR_ILLEGAL_VALUE);
+    }
+    if (hosts.length > 1) {
+      throw Components.Exception(
+        `Cross posting not allowed, hosts=${hosts.join(",")}`,
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
+    outNewsHostHeader.value = host;
+  }
+
+  postMessage(messageFile, groupNames, accountKey, urlListener, msgWindow) {
+    let server = MailServices.accounts.getAccount(accountKey).incomingServer;
+    let uri = `news://${server.hostName}/`;
+    let client = new NntpClient(server, uri);
+    client.connect();
+
+    let runningUrl = Services.io.newURI(uri);
+
+    client.onOpen = () => {
+      client.post();
+      urlListener?.OnStartRunningUrl(runningUrl, Cr.NS_OK);
+    };
+
+    client.onReadyToPost = () => {
+      let fstream = Cc[
+        "@mozilla.org/network/file-input-stream;1"
+      ].createInstance(Ci.nsIFileInputStream);
+      // PR_RDONLY
+      fstream.init(messageFile, 0x01, 0, 0);
+      let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
+      sstream.init(fstream);
+
+      while (sstream.available()) {
+        let chunk = sstream.readBytes(65536);
+        client.send(chunk);
+      }
+      sstream.close();
+      fstream.close();
+      client.sendEnd();
+    };
+
+    client.onDone = () => {
+      urlListener?.OnStopRunningUrl(runningUrl, Cr.NS_OK);
+    };
+  }
+
   getNewNews(server, uri, getOld, urlListener, msgWindow) {
     let client = new NntpClient(server, uri);
     client.connect();
@@ -28,6 +90,23 @@ class NntpService {
       client.getNewNews(getOld, urlListener, msgWindow);
     };
     return client.runningUri;
+  }
+
+  /**
+   * Find the hostname of a NNTP server from a group name.
+   * @param {string} groupName - The group name.
+   * @returns {string} The corresponding server host.
+   */
+  _findHostFromGroupName(groupName) {
+    for (let server of MailServices.accounts.allServers) {
+      if (
+        server instanceof Ci.nsINntpIncomingServer &&
+        server.containsNewsgroup(groupName)
+      ) {
+        return server.hostName;
+      }
+    }
+    return "";
   }
 }
 

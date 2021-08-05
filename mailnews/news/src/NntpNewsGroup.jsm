@@ -186,7 +186,12 @@ class NntpNewsGroup {
         );
       }
       if (this._addHdrToDB) {
-        this._db.AddNewHdrToDB(msgHdr, true);
+        try {
+          this._db.AddNewHdrToDB(msgHdr, true);
+        } catch (e) {
+          // In some cases the msgHdr is already in db.
+          continue;
+        }
         MailServices.mfn.notifyMsgAdded(msgHdr);
         this._folder.orProcessingFlags(
           msgHdr.messageKey,

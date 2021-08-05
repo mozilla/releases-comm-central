@@ -40,7 +40,7 @@ class NntpClient {
     // Two forms of the uri:
     // - news://news.mozilla.org/mozilla.accessibility
     // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
-    let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)/.exec(uri);
+    let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
     this._host = matches[1];
     this._port = matches[2] || this._server.port;
     let url = new URL(uri);
@@ -138,12 +138,28 @@ class NntpClient {
   }
 
   /**
+   * Send a command to the socket.
+   * @param {string} str - The command string to send.
+   */
+  _sendCommand(str) {
+    this.send(str + "\r\n");
+  }
+
+  /**
    * Send a string to the socket.
    * @param {string} str - The string to send.
    */
-  _sendString(str) {
+  send(str) {
     this._logger.debug(`C: ${str}`);
-    this._socket.send(CommonUtils.byteStringToArrayBuffer(str + "\r\n").buffer);
+    this._socket.send(CommonUtils.byteStringToArrayBuffer(str).buffer);
+  }
+
+  /**
+   * Send a single dot line to end the data block.
+   */
+  sendEnd() {
+    this.send("\r\n.\r\n");
+    this._nextAction = this._actionDone;
   }
 
   /**
@@ -170,10 +186,18 @@ class NntpClient {
   }
 
   /**
+   * Send `POST` request to the server.
+   */
+  post() {
+    this._sendCommand("POST");
+    this._nextAction = this._actionHandlePost;
+  }
+
+  /**
    * Send `MODE READER` request to the server.
    */
   _actionModeReader() {
-    this._sendString("MODE READER");
+    this._sendCommand("MODE READER");
     this._nextAction = this._actionGroup;
   }
 
@@ -181,7 +205,7 @@ class NntpClient {
    * Send `GROUP` request to the server.
    */
   _actionGroup() {
-    this._sendString(`GROUP ${this._groupName}`);
+    this._sendCommand(`GROUP ${this._groupName}`);
     this._nextAction = this._firstCommand;
   }
 
@@ -197,7 +221,7 @@ class NntpClient {
       Number(high)
     );
     if (start && end) {
-      this._sendString(`XOVER ${start}-${end}`);
+      this._sendCommand(`XOVER ${start}-${end}`);
       this._nextAction = this._actionXOverResponse;
     } else {
       this._actionDone();
@@ -246,7 +270,7 @@ class NntpClient {
    * Send `ARTICLE` request to the server.
    */
   _actionArticle() {
-    this._sendString(`ARTICLE ${this._articleNumber}`);
+    this._sendCommand(`ARTICLE ${this._articleNumber}`);
     this._nextAction = this._actionReadArticle;
   }
 
@@ -269,12 +293,22 @@ class NntpClient {
   }
 
   /**
+   * Handle POST response.
+   * @param {NntpResponse} res - POST response received from the server.
+   */
+  _actionHandlePost({ status }) {
+    if (status == 340) {
+      this.onReadyToPost();
+    }
+  }
+
+  /**
    * Close the connection and do necessary cleanup.
    */
   _actionDone() {
     this.onDone();
     this._newsGroup.cleanUp();
-    this._newsFolder.OnStopRunningUrl(this.runningUri, 0);
+    this._newsFolder?.OnStopRunningUrl(this.runningUri, 0);
     this._urlListener?.OnStopRunningUrl(this.runningUri, 0);
     this._socket.close();
     this._nextAction = null;
