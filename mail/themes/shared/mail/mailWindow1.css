@@ -98,29 +98,6 @@ treechildren::-moz-tree-cell-text(dummy) {
   color: var(--lwt-text-color);
 }
 
-:root[lwt-tree] #qfb-qs-textbox {
-  background-color: var(--lwt-toolbar-field-background-color, hsla(0, 0%, 100%, .8));
-  color: var(--lwt-toolbar-field-color, black);
-}
-
-:root[lwt-tree] #qfb-qs-textbox:not([focused="true"]) {
-  border-color: var(--lwt-toolbar-field-border-color, hsla(240, 5%, 5%, .25));
-}
-
-:root[lwt-tree] #qfb-qs-textbox:hover {
-  background-color: var(--lwt-toolbar-field-background-color, white);
-}
-
-:root[lwt-tree-brighttext] #qfb-qs-textbox:hover {
-  box-shadow: 0 1px 3px rgba(255, 255, 255, .15);
-}
-
-:root[lwt-tree] #qfb-qs-textbox[focused="true"] {
-  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
-  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
-  border-color: var(--toolbar-field-focus-border-color);
-}
-
 /* virtual folder list dialog */
 
 :root[windowtype="mailnews:virtualFolderList"]:not(:-moz-lwtheme) {

@@ -19,6 +19,9 @@
 .searchBox,
 .themeableSearchBox {
   appearance: none;
+  color: FieldText;
+  background-color: Field;
+  border: 1px solid;
   border-radius: var(--toolbarbutton-border-radius);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   outline: none;
@@ -42,6 +45,21 @@
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
 }
 
+.searchBox:-moz-lwtheme-brighttext:hover,
+:root[lwt-tree-brighttext] .themeableSearchBox:not([disabled]):hover {
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.25);
+}
+
+/* special treatment because these boxes are on themable toolbars */
+.gloda-search:-moz-lwtheme,
+.remote-gloda-search:-moz-lwtheme,
+:root[lwt-tree] .themeableSearchBox,
+#peopleSearchInput:not([focused="true"]):-moz-lwtheme {
+  color: var(--toolbar-field-color);
+  background-color: var(--toolbar-field-background-color);
+  border-color: var(--toolbar-field-border-color);
+}
+
 .gloda-search:focus,
 .searchBox[focused="true"],
 .themeableSearchBox:not([disabled="true"]):focus,
@@ -50,38 +68,16 @@
   outline: 1px solid var(--toolbar-field-focus-border-color);
 }
 
-.searchBox:-moz-lwtheme-brighttext:hover,
-.themeableSearchBox:-moz-lwtheme-brighttext:not([disabled]):hover {
-  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.25);
-}
-
-/* special treatment because these boxes are on themable toolbars */
-.gloda-search:-moz-lwtheme,
-#searchBox:-moz-lwtheme,
-#peopleSearchInput:-moz-lwtheme,
-.themeableSearchBox:-moz-lwtheme,
-.remote-gloda-search:-moz-lwtheme {
-  background-color: var(--lwt-toolbar-field-background-color,
-                        hsla(0, 0%, 100%, 0.8));
-  color: var(--lwt-toolbar-field-color, black);
-  border-color: var(--lwt-toolbar-field-border-color, hsla(240, 5%, 5%, 0.25));
-}
-
 .gloda-search:-moz-lwtheme:focus,
-.themeableSearchBox:-moz-lwtheme:focus,
-#searchBox:-moz-lwtheme[focused="true"],
+:root[lwt-tree] .themeableSearchBox:focus,
+:root[lwt-tree] .themeableSearchBox[focused="true"],
 #peopleSearchInput:-moz-lwtheme[focused="true"],
-.themeableSearchBox:-moz-lwtheme[focused="true"],
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
-  background-color: var(--lwt-toolbar-field-focus,
-                    var(--lwt-toolbar-field-background-color, white));
-  color: var(--lwt-toolbar-field-focus-color,
-         var(--lwt-toolbar-field-color, black));
-  border-color: var(--toolbar-field-focus-border-color);
+  color: var(--toolbar-field-focus-color);
+  background-color: var(--toolbar-field-focus-background-color);
 }
 
 .gloda-search:-moz-lwtheme::selection,
-#searchBox .textbox-input:-moz-lwtheme::selection,
 #peopleSearchInput .textbox-input:-moz-lwtheme::selection,
 .themeableSearchBox .textbox-input:-moz-lwtheme::selection,
 .remote-gloda-search .textbox-input:-moz-lwtheme::selection {
@@ -92,7 +88,6 @@
 }
 
 .gloda-search:not(:focus)::selection,
-#searchBox:not([focused="true"]) .textbox-input::selection,
 #peopleSearchInput:not([focused="true"]) .textbox-input::selection,
 .themeableSearchBox:not(:focus) .textbox-input::selection,
 .themeableSearchBox:not([focused="true"]) .textbox-input::selection,
@@ -103,8 +98,6 @@
 }
 
 :root[lwt-toolbar-field-focus-brighttext] .gloda-search:focus::selection,
-:root[lwt-toolbar-field-focus-brighttext]
-  #searchBox[focused="true"] .textbox-input::selection,
 :root[lwt-toolbar-field-focus-brighttext]
   #peopleSearchInput[focused="true"] .textbox-input::selection,
 :root[lwt-toolbar-field-focus-brighttext]
@@ -120,8 +113,6 @@
 }
 
 :root[lwt-toolbar-field-brighttext] .gloda-search:not(:focus)::selection,
-:root[lwt-toolbar-field-brighttext]
-  #searchBox:not([focused="true"]) .textbox-input::selection,
 :root[lwt-toolbar-field-brighttext]
   #peopleSearchInput:not([focused="true"]) .textbox-input::selection,
 :root[lwt-toolbar-field-brighttext]

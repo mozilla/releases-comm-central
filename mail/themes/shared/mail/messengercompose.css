@@ -759,7 +759,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 /* :::: attachment notification :::: */
 
 #compose-notification-bottom > .notificationbox-stack {
-  background-color: var(--lwt-toolbar-field-focus);
+  background-color: var(--toolbar-field-focus-background-color);
 }
 
 #attachmentReminderText {
@@ -1126,8 +1126,8 @@ button.remove-field-button:focus {
 :root[lwt-tree] #msgIdentity[focused="true"],
 :root[lwt-tree] #msgSubject:focus,
 :root[lwt-tree] .address-container[focused="true"] {
-  color: var(--lwt-toolbar-field-focus-color, black);
-  background-color: var(--lwt-toolbar-field-focus, white);
+  color: var(--toolbar-field-focus-color);
+  background-color: var(--toolbar-field-focus-background-color);
 }
 
 :root[lwt-tree-brighttext] #msgIdentity:focus,

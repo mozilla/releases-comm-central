@@ -117,29 +117,6 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   padding-bottom: 3px;
 }
 
-#chat-status-selector:not(:-moz-lwtheme):hover > vbox > .statusMessageToolbarItem,
-#chat-status-selector:not(:-moz-lwtheme) > vbox > .statusMessageToolbarItem[editing],
-.statusMessageToolbarItem:not(:-moz-lwtheme):focus {
-  border-color: #aaa;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5),
-              0 1px 0 rgba(255, 255, 255, 0.5) inset;
-}
-
-#chat-status-selector:not(:-moz-lwtheme) > vbox > .statusMessageToolbarItem[editing] {
-  border-color: #888;
-}
-
-#chat-status-selector:-moz-lwtheme:hover > vbox > .statusMessageToolbarItem,
-.statusMessageToolbarItem:-moz-lwtheme:focus,
-#chat-status-selector:-moz-lwtheme > vbox > .statusMessageToolbarItem[editing] {
-  text-shadow: none;
-}
-
-#chat-status-selector:-moz-lwtheme > vbox > .statusMessageToolbarItem[editing] {
-  box-shadow: 0 0 0 1px var(--toolbar-field-focus-border-color) inset,
-              0 0 0 1px var(--toolbar-field-focus-border-color);
-}
-
 /* Adaptation of #folderpane_splitter */
 #listSplitter,
 #contextSplitter {

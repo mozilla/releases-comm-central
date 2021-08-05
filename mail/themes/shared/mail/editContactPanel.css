@@ -47,8 +47,10 @@
 html|input.editContactTextbox {
   appearance: none;
   cursor: text;
+  color: var(--toolbar-field-focus-color);
+  background-color: var(--toolbar-field-focus-background-color);
+  border: 1px solid var(--toolbar-field-border-color);
   border-radius: var(--toolbarbutton-border-radius);
-  border: 1px solid rgba(0, 0, 0, 0.3);
   padding: 3px 8px;
   width: 20em;
 }
@@ -64,15 +66,6 @@ html|input.editContactTextbox[readonly] {
   box-shadow: none;
   color: inherit;
   outline: none !important;
-}
-
-:root[lwt-tree] html|input.editContactTextbox {
-  background-color: var(--lwt-toolbar-field-background-color);
-  color: var(--lwt-toolbar-field-color);
-}
-
-:root[lwt-tree] html|input.editContactTextbox:not([readonly],:focus) {
-  border-color: var(--panel-separator-color);
 }
 
 #contactMoveDisabledText {

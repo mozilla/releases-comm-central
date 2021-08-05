@@ -92,7 +92,6 @@
   margin: 0 1px;
   margin-inline-start: -2px;
   padding: 3px 3px 4px;
-  border-radius: 2px;
 }
 
 #listSplitter,
@@ -131,18 +130,6 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
     padding-inline: 2px;
   }
 
-  #chat-status-selector:not(:-moz-lwtheme):hover > vbox > .statusMessageToolbarItem,
-  .statusMessageToolbarItem:not(:-moz-lwtheme):focus {
-    border-color: hsla(210, 54%, 20%, .25) hsla(210, 54%, 20%, .27)
-                  hsla(210, 54%, 20%, .3);
-  }
-
-  #chat-status-selector:not(:-moz-lwtheme) > vbox > .statusMessageToolbarItem[editing] {
-    border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
-                  hsla(206, 100%, 50%, .65);
-    background-color: Field;
-  }
-
   #nicklist > richlistitem[selected] > label,
   #nicklist:focus > richlistitem[inactive][selected] > label {
     color: -moz-dialogtext !important;
@@ -173,12 +160,5 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   :root:not([lwt-tree]) #listPaneBox {
     background-color: #fafafa;
-  }
-}
-
-@media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
-       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  .statusMessageToolbarItem {
-    border-radius: 0;
   }
 }

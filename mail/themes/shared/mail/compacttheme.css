@@ -12,7 +12,6 @@
   --toolbar-non-lwt-bgcolor: var(--toolbar-bgcolor);
   --toolbar-non-lwt-textcolor: var(--lwt-text-color);
   --toolbar-non-lwt-bgimage: none;
-  --lwt-toolbar-field-border-color: hsla(240,5%,5%,.25);
   --new-focused-folder-color: var(--sidebar-highlight-text-color);
 }
 

@@ -487,7 +487,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 
 :root[lwt-tree] .conv-textbox {
   background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
-  color: var(--lwt-toolbar-field-color, black);
+  color: var(--toolbar-field-color);
 }
 
 .conv-counter {
@@ -676,38 +676,31 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   margin-inline-start: -1px;
   padding: 3px 5px 4px;
   border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
   background-clip: padding-box;
 }
 
 #chat-status-selector:hover > vbox > .statusMessageToolbarItem,
 .statusMessageToolbarItem:focus {
-  border-color: ThreeDShadow;
+  color: var(--toolbar-field-color);
+  background-color: var(--toolbar-field-background-color);
+  border-color: var(--toolbar-field-border-color);
 }
 
-#chat-status-selector:-moz-lwtheme:hover > vbox > .statusMessageToolbarItem,
+#chat-status-selector > vbox > .statusMessageToolbarItem[editing],
 .statusMessageToolbarItem:-moz-lwtheme:focus {
-  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
-  color: var(--lwt-toolbar-field-color, black);
-  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
+  appearance: none;
+  padding-inline-start: 4px;
+  padding-inline-end: 4px;
+  color: var(--toolbar-field-color);
+  background-color: var(--toolbar-field-focus-background-color);
+  border-color: var(--toolbar-field-focus-border-color);
+  outline: 1px solid var(--toolbar-field-focus-border-color);
 }
 
 .statusMessageToolbarItem[statusType="offline"],
 .statusMessageToolbarItem[disabled] {
   border: none;
-}
-
-#chat-status-selector > vbox > .statusMessageToolbarItem[editing] {
-  appearance: none;
-  padding-inline-start: 4px;
-  padding-inline-end: 4px;
-  border-color: ThreeDShadow;
-  background-color: Field;
-}
-
-#chat-status-selector:-moz-lwtheme > vbox > .statusMessageToolbarItem[editing] {
-  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
-  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
-  border-color: var(--toolbar-field-focus-border-color);
 }
 
 .tabmail-tab[type="chat"] {

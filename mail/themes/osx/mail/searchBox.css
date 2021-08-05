@@ -13,8 +13,8 @@
 
 .searchBox,
 .themeableSearchBox {
+  border-color: hsla(240, 5%, 5%, 0.25);
   margin-block: 3px 2px;
-  border: 1px solid hsla(240, 5%, 5%, 0.25);
   font: icon;
   padding: 1px 4px;
 }

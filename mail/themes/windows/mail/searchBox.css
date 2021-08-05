@@ -27,19 +27,11 @@
 
 .searchBox,
 .themeableSearchBox {
-  border: 1px solid hsla(240, 5%, 5%, 0.25);
+  border-color: hsla(240, 5%, 5%, 0.25);
   padding-block: 0;
   padding-inline: 4px 2px;
   margin-block: 2px;
   width: 25em;
-}
-
-@media (prefers-contrast) {
-  .gloda-search:not(:-moz-lwtheme),
-  .searchBox:not(:-moz-lwtheme),
-  .themeableSearchBox:not(:-moz-lwtheme) {
-    border-color: ThreeDShadow;
-  }
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {

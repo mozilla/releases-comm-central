@@ -34,8 +34,8 @@ body {
   --button-primary-hover-bgcolor: color-mix(in srgb, black 10%, -moz-accent-color);
   --button-primary-active-bgcolor: color-mix(in srgb, black 20%, -moz-accent-color);
   --button-primary-color: -moz-accent-color-foreground;
-  --checkbox-border-color: var(--lwt-toolbar-field-border-color, ThreeDDarkShadow);
-  --checkbox-unchecked-bgcolor: var(--lwt-toolbar-field-background-color, Field);
+  --checkbox-border-color: var(--toolbar-field-border-color);
+  --checkbox-unchecked-bgcolor: var(--toolbar-field-background-color);
   --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, -moz-accent-color 4%, var(--checkbox-unchecked-bgcolor));
   --checkbox-unchecked-active-bgcolor: var(--button-active-bgcolor);
   --checkbox-checked-border-color: transparent;
@@ -66,6 +66,8 @@ body {
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-focus-border-color: -moz-accent-color;
+  --toolbar-field-highlight: Highlight;
+  --toolbar-field-highlight-color: HighlightText;
   --item-focus-selected-border-color: #0060df;
   --default: #4f526d;
   --primary: #0a84ff;
@@ -88,6 +90,8 @@ body {
     --arrowpanel-dimmed-further: color-mix(in srgb, currentColor 20%, transparent);
     --arrowpanel-dimmed-even-further: color-mix(in srgb, currentColor 27%, transparent);
     --error-text-color: #c50042;
+    --toolbar-field-background-color: rgb(250, 250, 254);
+    --toolbar-field-color: rgb(21, 20, 26);
   }
 }
 
@@ -127,6 +131,8 @@ body {
   --toolbar-bgimage: none;
   --toolbarbutton-icon-fill-opacity: 1;
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
+  --toolbar-field-background-color: hsla(0, 0%, 100%, 0.8);
+  --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
 }
 
 :root[lwt-tree] {
@@ -170,7 +176,7 @@ body {
 
   /* composer header fields bottom border */
   --composer-header-border-color: rgb(127, 127, 128);
-  --lwt-toolbar-field-border-color: #5f5f6d !important;
+  --toolbar-field-border-color: #5f5f6d !important;
   --unread-folder-color: var(--sidebar-text-color);
 }
 
@@ -293,11 +299,11 @@ treechildren::-moz-tree-twisty(selected, focus) {
 
 :root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme {
   background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
-  color: var(--lwt-toolbar-field-color, black);
+  color: var(--toolbar-field-color);
 }
 
 :root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:not([focused="true"]):-moz-lwtheme {
-  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
+  border-color: var(--toolbar-field-border-color);
 }
 
 :root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme:hover {
@@ -309,8 +315,8 @@ treechildren::-moz-tree-twisty(selected, focus) {
 }
 
 :root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme[focused="true"] {
-  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
-  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
+  background-color: var(--toolbar-field-focus-background-color);
+  color: var(--toolbar-field-focus-color);
   border-color: var(--toolbar-field-focus-border-color);
 }
 
@@ -980,8 +986,8 @@ toolbarpaletteitem toolbarbutton {
 
 :root[lwt-tree] .statuspanel-label {
   background-color: var(--lwt-toolbar-field-background-color);
-  color: var(--lwt-toolbar-field-color, -moz-dialogText);
-  border-color: var(--lwt-toolbar-field-border-color);
+  color: var(--toolbar-field-color);
+  border-color: var(--toolbar-field-border-color);
 }
 
 /* Status bar */
