@@ -39,6 +39,9 @@
         const newMenuItem = document.createXULElement("menuitem");
         newMenuItem.setAttribute("label", taginfo.tag);
         newMenuItem.setAttribute("value", taginfo.key);
+        if (taginfo.color) {
+          newMenuItem.setAttribute("style", `color: ${taginfo.color};`);
+        }
         menuPopup.appendChild(newMenuItem);
       }
 
