@@ -297,7 +297,7 @@ add_task(function test_open_attachment() {
   let fileHandler = Services.io
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
-  let url = fileHandler.getURLSpecFromFile(file);
+  let url = fileHandler.getURLSpecFromActualFile(file);
   let size = file.fileSize;
 
   add_attachments(cwc, url, size);

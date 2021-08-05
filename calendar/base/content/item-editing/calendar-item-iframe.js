@@ -2160,7 +2160,7 @@ function attachFile(cloudProvider) {
       let fileHandler = Services.io
         .getProtocolHandler("file")
         .QueryInterface(Ci.nsIFileProtocolHandler);
-      let uriSpec = fileHandler.getURLSpecFromFile(file);
+      let uriSpec = fileHandler.getURLSpecFromActualFile(file);
 
       if (!(uriSpec in gAttachMap)) {
         // If the attachment hasn't been added, then set the last display

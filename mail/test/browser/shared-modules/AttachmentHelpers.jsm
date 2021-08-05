@@ -148,7 +148,7 @@ function create_detached_attachment(file, type) {
   let fileHandler = Services.io
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
-  let url = fileHandler.getURLSpecFromFile(file);
+  let url = fileHandler.getURLSpecFromActualFile(file);
   let filename = file.leafName;
 
   let str =

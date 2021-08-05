@@ -649,7 +649,7 @@ function PromptForSaveLocation(
       if (rv != nsIFilePicker.returnCancel && fp.file) {
         // Allow OK and replace.
         // reset urlstring to new save location
-        dialogResult.resultingURIString = fileHandler.getURLSpecFromFile(
+        dialogResult.resultingURIString = fileHandler.getURLSpecFromActualFile(
           fp.file
         );
         dialogResult.resultingLocalFile = fp.file;

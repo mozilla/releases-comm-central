@@ -91,7 +91,7 @@ add_task(function test_basic_multipart_related() {
   let fileHandler = Services.io
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
-  let fileURL = fileHandler.getURLSpecFromFile(file);
+  let fileURL = fileHandler.getURLSpecFromActualFile(file);
 
   // Add a simple image to our dialog
   plan_for_modal_dialog("Mail:image", function(dialog) {

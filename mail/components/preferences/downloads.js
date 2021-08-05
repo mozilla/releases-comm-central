@@ -113,7 +113,7 @@ var gDownloadDirSection = {
       let urlSpec = Services.io
         .getProtocolHandler("file")
         .QueryInterface(Ci.nsIFileProtocolHandler)
-        .getURLSpecFromFile(downloadDir);
+        .getURLSpecFromDir(downloadDir);
 
       downloadFolder.style.backgroundImage =
         "url(moz-icon://" + urlSpec + "?size=16)";

@@ -97,7 +97,7 @@ add_task(async function test_paste_file_urls() {
       tmpFile.initWithPath(dest);
       Assert.ok(tmpFile.exists(), "tmpFile's not there at " + dest);
 
-      tmpFileURL = fileHandler.getURLSpecFromFile(tmpFile);
+      tmpFileURL = fileHandler.getURLSpecFromActualFile(tmpFile);
       putHTMLOnClipboard(
         "<img id='bad-img' src='file://foo/non-existent' alt='bad' /> and " +
           "<img id='tmp-img' src='" +

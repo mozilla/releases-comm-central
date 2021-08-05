@@ -1890,7 +1890,7 @@ var gGeneralPane = {
     let urlSpec = Services.io
       .getProtocolHandler("file")
       .QueryInterface(Ci.nsIFileProtocolHandler)
-      .getURLSpecFromFile(aFile);
+      .getURLSpecFromActualFile(aFile);
 
     return "moz-icon://" + urlSpec + "?size=16";
   },

@@ -1283,7 +1283,7 @@ var filePhotoHandler = {
       let photoSpec = Services.io
         .getProtocolHandler("file")
         .QueryInterface(Ci.nsIFileProtocolHandler)
-        .getURLSpecFromFile(photoFile);
+        .getURLSpecFromActualFile(photoFile);
       photoElem.style.backgroundImage =
         "url(moz-icon://" + photoSpec + "?size=16)";
       photoElem.value = photoFile.leafName;

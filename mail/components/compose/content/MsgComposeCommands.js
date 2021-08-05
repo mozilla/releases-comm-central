@@ -6317,7 +6317,7 @@ function FileToAttachment(file) {
     "@mozilla.org/messengercompose/attachment;1"
   ].createInstance(Ci.nsIMsgAttachment);
 
-  attachment.url = fileHandler.getURLSpecFromFile(file);
+  attachment.url = fileHandler.getURLSpecFromActualFile(file);
   attachment.size = file.fileSize;
   return attachment;
 }
@@ -8206,7 +8206,7 @@ var envelopeDragObserver = {
             data = Services.io
               .getProtocolHandler("file")
               .QueryInterface(Ci.nsIFileProtocolHandler)
-              .getURLSpecFromFile(data);
+              .getURLSpecFromActualFile(data);
             isValidAttachment = true;
           } catch (e) {
             Cu.reportError(

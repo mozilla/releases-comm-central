@@ -552,7 +552,7 @@ MailDefaultHandler.prototype = {
         try {
           // Unescape the URI so that we work with clients that escape spaces.
           localFile.initWithPath(unescape(uri));
-          attachment.url = fileHandler.getURLSpecFromFile(localFile);
+          attachment.url = fileHandler.getURLSpecFromActualFile(localFile);
           composeFields.addAttachment(attachment);
 
           msgParams.type = Ci.nsIMsgCompType.New;
