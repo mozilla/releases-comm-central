@@ -172,10 +172,8 @@
 
           if (!this.hasAttribute("dropbox") || this.getAttribute("dropbox") == "false") {
             // As it turned out it was not possible to remove the remaining dropshadows
-            // at the "dragleave" or "dragexit" event, majorly because it was not reliably
-            // fired. As the dragndropcontainer may be anonymous it is further on not
-            // possible to remove the dropshadows by something like
-            // "document.getElementsByAttribute('dropbox').removeDropShadows();";
+            // at the "dragleave" event, majorly because it was not reliably
+            // fired.
             // So we have to remove them at the currentView(). The restriction of course is
             // that these containers so far may not be used for drag and drop from/to e.g.
             // the today-pane.

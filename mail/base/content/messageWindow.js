@@ -349,7 +349,7 @@ let messagepaneObserver = {
     event.preventDefault();
   },
 
-  onDragExit(event) {
+  onDragLeave(event) {
     let messagepanebox = document.getElementById("messagepanebox");
     messagepanebox.removeAttribute("dragover");
   },

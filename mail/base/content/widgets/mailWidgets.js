@@ -2420,16 +2420,16 @@
           .classList.add("drag-address-container");
       });
 
-      this.addEventListener("dragexit", event => {
+      this.addEventListener("dragleave", event => {
         if (!event.dataTransfer.getData("text/pills")) {
           return;
         }
-        // If dragexit from pill, remove its drop indicator style.
+        // If dragleave from pill, remove its drop indicator style.
         event.target
           .closest("mail-address-pill")
           ?.classList.remove("drop-indicator");
 
-        // If dragexit from address row, remove the indicator style of its
+        // If dragleave from address row, remove the indicator style of its
         // address container.
         event.target
           .closest(".address-row")

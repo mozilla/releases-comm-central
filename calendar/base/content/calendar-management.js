@@ -322,7 +322,7 @@ function loadCalendarManager() {
       }
     }
   });
-  calendarList.addEventListener("dragexit", event => {
+  calendarList.addEventListener("dragleave", event => {
     if (event.target != calendarList) {
       return;
     }

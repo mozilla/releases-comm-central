@@ -410,7 +410,7 @@
         this.tabmail.replaceTabWithWindow(draggedTab);
       });
 
-      this.addEventListener("dragexit", event => {
+      this.addEventListener("dragleave", event => {
         this._dragTime = 0;
 
         this._tabDropIndicator.hidden = true;

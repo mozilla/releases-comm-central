@@ -39,7 +39,7 @@ function InitWithToolbox(aToolbox) {
   for (let i = 0; i < elts.length; i++) {
     elts[i].addEventListener("dragstart", onToolbarDragStart, true);
     elts[i].addEventListener("dragover", onToolbarDragOver, true);
-    elts[i].addEventListener("dragexit", onToolbarDragExit, true);
+    elts[i].addEventListener("dragleave", onToolbarDragLeave, true);
     elts[i].addEventListener("drop", onToolbarDrop, true);
   }
 
@@ -131,7 +131,7 @@ function removeToolboxListeners() {
   for (let i = 0; i < elts.length; i++) {
     elts[i].removeEventListener("dragstart", onToolbarDragStart, true);
     elts[i].removeEventListener("dragover", onToolbarDragOver, true);
-    elts[i].removeEventListener("dragexit", onToolbarDragExit, true);
+    elts[i].removeEventListener("dragleave", onToolbarDragLeave, true);
     elts[i].removeEventListener("drop", onToolbarDrop, true);
   }
 }
@@ -603,7 +603,7 @@ function isToolbarItem(aElt) {
 
 // Drag and Drop observers
 
-function onToolbarDragExit(aEvent) {
+function onToolbarDragLeave(aEvent) {
   if (isUnwantedDragEvent(aEvent)) {
     return;
   }
@@ -842,8 +842,8 @@ function isUnwantedDragEvent(aEvent) {
     }
   } catch (ex) {}
 
-  /* Discard drag events that originated from a separate window to
-     prevent content->chrome privilege escalations. */
+  // Discard drag events that originated from a separate window to
+  // prevent content->chrome privilege escalations.
   let mozSourceNode = aEvent.dataTransfer.mozSourceNode;
   // mozSourceNode is null in the dragStart event handler or if
   // the drag event originated in an external application.
