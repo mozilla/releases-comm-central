@@ -706,13 +706,15 @@ add_task(async function accountListOverflow() {
 
   let count = 0;
   do {
+    let readyPromise = extension.awaitMessage("management-ui-ready");
     EventUtils.synthesizeMouseAtCenter(
       buttonList.children[0],
       { clickCount: 1 },
       prefsWindow
     );
-    await new Promise(resolve => setTimeout(resolve));
-    await extension.awaitMessage("management-ui-ready");
+    await readyPromise;
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 100));
     if (buttonList.hidden) {
       break;
     }
