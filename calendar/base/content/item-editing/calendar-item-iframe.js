@@ -127,14 +127,13 @@ var eventDialogCalendarObserver = {
       // The item has been modified outside the dialog. We only need to
       // prompt if there have been local changes also.
       if (isItemChanged()) {
-        let promptService = Ci.nsIPromptService;
         let promptTitle = cal.l10n.getCalString("modifyConflictPromptTitle");
         let promptMessage = cal.l10n.getCalString("modifyConflictPromptMessage");
         let promptButton1 = cal.l10n.getCalString("modifyConflictPromptButton1");
         let promptButton2 = cal.l10n.getCalString("modifyConflictPromptButton2");
         let flags =
-          promptService.BUTTON_TITLE_IS_STRING * promptService.BUTTON_POS_0 +
-          promptService.BUTTON_TITLE_IS_STRING * promptService.BUTTON_POS_1;
+          Ci.nsIPromptService.BUTTON_TITLE_IS_STRING * Ci.nsIPromptService.BUTTON_POS_0 +
+          Ci.nsIPromptService.BUTTON_TITLE_IS_STRING * Ci.nsIPromptService.BUTTON_POS_1;
 
         let choice = Services.prompt.confirmEx(
           window,
@@ -484,8 +483,6 @@ function onCommandCancel() {
     gTabmail.switchToTab(gTabInfoObject);
   }
 
-  let promptService = Ci.nsIPromptService;
-
   let promptTitle = cal.l10n.getCalString(
     window.calendarItem.isEvent() ? "askSaveTitleEvent" : "askSaveTitleTask"
   );
@@ -494,9 +491,9 @@ function onCommandCancel() {
   );
 
   let flags =
-    promptService.BUTTON_TITLE_SAVE * promptService.BUTTON_POS_0 +
-    promptService.BUTTON_TITLE_CANCEL * promptService.BUTTON_POS_1 +
-    promptService.BUTTON_TITLE_DONT_SAVE * promptService.BUTTON_POS_2;
+    Ci.nsIPromptService.BUTTON_TITLE_SAVE * Ci.nsIPromptService.BUTTON_POS_0 +
+    Ci.nsIPromptService.BUTTON_TITLE_CANCEL * Ci.nsIPromptService.BUTTON_POS_1 +
+    Ci.nsIPromptService.BUTTON_TITLE_DONT_SAVE * Ci.nsIPromptService.BUTTON_POS_2;
 
   let choice = Services.prompt.confirmEx(
     null,
