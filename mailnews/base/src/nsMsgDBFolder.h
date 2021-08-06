@@ -149,7 +149,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult CreateFileForDB(const nsAString& userLeafName, nsIFile* baseDir,
                            nsIFile** dbFile);
 
-  nsresult GetFolderCacheKey(nsIFile** aFile, bool createDBIfMissing = false);
+  nsresult GetFolderCacheKey(nsIFile** aFile);
   nsresult GetFolderCacheElemFromFile(nsIFile* file,
                                       nsIMsgFolderCacheElement** cacheElement);
   nsresult AddDirectorySeparator(nsIFile* path);

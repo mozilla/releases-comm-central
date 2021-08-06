@@ -563,11 +563,28 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
   // don't need to reload from cache if we've already read from cache,
   // and, we might get stale info, so don't do it.
   if (!mInitializedFromCache) {
+    // Create the .msf file if missing - see bug #244217.
+    // Seems clear that this hack should be removed, but not clear if
+    // if anything is relying on it. So leaving it here for now.
+    {
+      bool isServer = false;
+      GetIsServer(&isServer);
+      if (!isServer) {
+        nsCOMPtr<nsIFile> dbPath;
+        nsresult rv = GetSummaryFile(getter_AddRefs(dbPath));
+        NS_ENSURE_SUCCESS(rv, rv);
+        bool exists;
+        if (NS_SUCCEEDED(dbPath->Exists(&exists)) && !exists) {
+          rv = dbPath->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
+          NS_ENSURE_SUCCESS(rv, rv);
+        }
+      }
+    }
+
     // This path is not used to open a file. Instead, it's used as a key into
     // the foldercache.
     nsCOMPtr<nsIFile> dbPath;
-    result =
-        GetFolderCacheKey(getter_AddRefs(dbPath), true /* createDBIfMissing */);
+    result = GetFolderCacheKey(getter_AddRefs(dbPath));
     if (dbPath) {
       nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
       result = GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
@@ -1217,40 +1234,21 @@ NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(
   return rv;
 }
 
-nsresult nsMsgDBFolder::GetFolderCacheKey(
-    nsIFile** aFile, bool createDBIfMissing /* = false */) {
+nsresult nsMsgDBFolder::GetFolderCacheKey(nsIFile** aFile) {
   nsresult rv;
-  nsCOMPtr<nsIFile> path;
-  rv = GetFilePath(getter_AddRefs(path));
+  bool isServer = false;
+  GetIsServer(&isServer);
 
-  // now we put a new file  in aFile, because we're going to change it.
-  nsCOMPtr<nsIFile> dbPath = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (dbPath) {
-    dbPath->InitWithFile(path);
-    // if not a server, we need to convert to a db Path with .msf on the end
-    bool isServer = false;
-    GetIsServer(&isServer);
-
-    // if it's a server, we don't need the .msf appended to the name
-    if (!isServer) {
-      nsCOMPtr<nsIFile> summaryName;
-      rv = GetSummaryFileLocation(dbPath, getter_AddRefs(summaryName));
-      dbPath->InitWithFile(summaryName);
-
-      // create the .msf file
-      // see bug #244217 for details
-      bool exists;
-      if (createDBIfMissing && NS_SUCCEEDED(dbPath->Exists(&exists)) &&
-          !exists) {
-        rv = dbPath->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
-    }
+  // if it's a server, we don't need the .msf appended to the name
+  nsCOMPtr<nsIFile> dbPath;
+  if (isServer) {
+    rv = GetFilePath(getter_AddRefs(dbPath));
+  } else {
+    rv = GetSummaryFile(getter_AddRefs(dbPath));
   }
+  NS_ENSURE_SUCCESS(rv, rv);
   dbPath.forget(aFile);
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsMsgDBFolder::FlushToFolderCache() {
