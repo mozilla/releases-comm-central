@@ -121,7 +121,7 @@
                       hidden="true"
                       align="center"
                       disable-on-readonly="true">
-                  <html:img class="attachment-icon"
+                  <html:img class="attachment-icon invisible-on-broken"
                             alt="" />
                   <label class="text-link item-attachment-cell-label"
                          crop="end"

@@ -1632,9 +1632,8 @@
       iconContainer.setAttribute("align", "center");
       let icon = this.ownerDocument.createElement("img");
       icon.setAttribute("alt", "");
-      icon.classList.add("attachmentcell-icon");
-      // Hide if invalid.
-      icon.addEventListener("error", () => icon.classList.add("invalid-src"));
+      // Allow the src to be invalid.
+      icon.classList.add("attachmentcell-icon", "invisible-on-broken");
       iconContainer.appendChild(icon);
 
       let textContainer = this.ownerDocument.createXULElement("hbox");
@@ -1694,15 +1693,6 @@
      */
     setAttachmentIconSrc(item, src) {
       let icon = item.querySelector(".attachmentcell-icon");
-      if (!src) {
-        icon.classList.add("invalid-src");
-        icon.removeAttribute("src");
-        return;
-      }
-      icon.classList.remove("invalid-src");
-      // NOTE: Setting the same value for "src" should still trigger the
-      // reloading of the image, and re-add the invalid-src class if the same
-      // error occurs.
       icon.setAttribute("src", src);
     }
 

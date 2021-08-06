@@ -250,9 +250,10 @@ DownloadItem.prototype = {
     element.classList.add("download");
     element.setAttribute("align", "center");
 
-    let image = document.createXULElement("image");
-    image.setAttribute("validate", "always");
-    image.classList.add("fileTypeIcon");
+    let image = document.createElement("img");
+    image.setAttribute("alt", "");
+    // Allow the given src to be invalid.
+    image.classList.add("fileTypeIcon", "invisible-on-broken");
 
     let vbox = document.createXULElement("vbox");
     vbox.setAttribute("pack", "center");

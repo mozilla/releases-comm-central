@@ -2281,6 +2281,8 @@ function addAttachment(attachment, cloudFileAccount) {
     let listItem = document.createXULElement("richlistitem");
     let image = document.createElement("img");
     image.setAttribute("alt", "");
+    // Allow the moz-icon src to be invalid.
+    image.classList.add("invisible-on-broken");
     listItem.appendChild(image);
     let label = document.createXULElement("label");
     label.setAttribute("value", makePrettyName(attachment.uri));

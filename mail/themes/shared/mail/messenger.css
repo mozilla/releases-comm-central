@@ -635,6 +635,10 @@ button > .button-box > dropmarker {
   fill: currentColor;
 }
 
+img.invisible-on-broken:-moz-broken {
+  visibility: hidden;
+}
+
 .popup-notification-button {
   height: auto;
   border-style: none;
