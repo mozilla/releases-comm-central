@@ -131,10 +131,6 @@ fieldset:last-of-type {
   margin-inline-start: 0;
 }
 
-.preferences-icon {
-  background-image: url("chrome://global/skin/icons/settings.svg");
-}
-
 #archiveHierarchyButton,
 #globalJunkPrefsLink {
   margin-inline-end: 8px;

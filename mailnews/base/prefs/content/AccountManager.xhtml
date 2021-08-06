@@ -91,7 +91,8 @@
       <vbox class="sidebar-footer-list">
         <label is="text-link" id="prefsButton" class="sidebar-footer-link"
                onclick="openOptionsDialog();">
-          <image class="sidebar-footer-icon preferences-icon"/>
+          <html:img class="sidebar-footer-icon"
+                    src="chrome://global/skin/icons/settings.svg" alt="" />
           <label class="sidebar-footer-label"
                  data-l10n-id="open-preferences-sidebar-button"
                  flex="1"/>
@@ -99,7 +100,9 @@
 
         <label is="text-link" id="addonsButton" class="sidebar-footer-link"
                onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
-          <image class="sidebar-footer-icon addons-icon"/>
+          <html:img class="sidebar-footer-icon"
+                    src="chrome://mozapps/skin/extensions/extension.svg"
+                    alt="" />
           <label class="sidebar-footer-label"
                  data-l10n-id="open-addons-sidebar-button"
                  flex="1"/>

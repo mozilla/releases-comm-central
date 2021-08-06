@@ -100,7 +100,9 @@
                         value="paneGeneral"
                         data-l10n-id="category-general"
                         align="center">
-            <image class="category-icon"/>
+            <html:img class="category-icon"
+                      src="chrome://messenger/skin/shared/preferences/general.svg"
+                      alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-general-title"/>
           </richlistitem>
 
@@ -109,7 +111,8 @@
                         value="paneCompose"
                         data-l10n-id="category-compose"
                         align="center">
-            <image class="category-icon"/>
+            <html:img class="category-icon"
+                      src="chrome://messenger/skin/icons/newmsg.svg" alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-compose-title"/>
           </richlistitem>
 
@@ -118,7 +121,9 @@
                         value="panePrivacy"
                         data-l10n-id="category-privacy"
                         align="center">
-            <image class="category-icon"/>
+            <html:img class="category-icon"
+                      src="chrome://messenger/skin/shared/preferences/privacy-security.svg"
+                      alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-privacy-title"/>
           </richlistitem>
 
@@ -127,7 +132,9 @@
                         value="paneChat"
                         data-l10n-id="category-chat"
                         align="center">
-            <image class="category-icon"/>
+            <html:img class="category-icon"
+                      src="chrome://messenger/skin/shared/preferences/chat.svg"
+                      alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-chat-title"/>
           </richlistitem>
 
@@ -136,7 +143,9 @@
                         value="paneCalendar"
                         data-l10n-id="category-calendar"
                         align="center">
-            <image class="category-icon"/>
+            <html:img class="category-icon"
+                      src="chrome://messenger/skin/shared/preferences/calendar.svg"
+                      alt="" />
             <label class="category-name" flex="1" data-l10n-id="pane-calendar-title"/>
           </richlistitem>
         </richlistbox>
@@ -146,13 +155,17 @@
         <vbox class="sidebar-footer-list">
           <label is="text-link" id="accountButton" class="sidebar-footer-link"
                  onclick="MsgAccountManager(null);">
-            <image class="sidebar-footer-icon account-icon"/>
+            <html:img class="sidebar-footer-icon account-icon"
+                      src="chrome://messenger/skin/icons/sidebar-left.svg"
+                      alt="" />
             <label data-l10n-id="account-button" class="sidebar-footer-label" flex="1"/>
           </label>
 
           <label is="text-link" id="addonsButton" class="sidebar-footer-link"
                  onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
-            <image class="sidebar-footer-icon addons-icon"/>
+            <html:img class="sidebar-footer-icon"
+                      src="chrome://mozapps/skin/extensions/extension.svg"
+                      alt="" />
             <label class="sidebar-footer-label"
                    data-l10n-id="open-addons-sidebar-button"
                    flex="1"/>

@@ -255,33 +255,6 @@ tabpanel > hbox > description {
   }
 }
 
-#category-general > .category-icon {
-  list-style-image: url("chrome://messenger/skin/shared/preferences/general.svg");
-}
-
-#category-privacy > .category-icon {
-  list-style-image: url("chrome://messenger/skin/shared/preferences/privacy-security.svg");
-}
-
-#category-compose > .category-icon {
-  list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
-}
-
-#category-chat > .category-icon {
-  list-style-image: url("chrome://messenger/skin/shared/preferences/chat.svg");
-}
-
-#category-calendar > .category-icon {
-  list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
-}
-
-.account-icon {
-  list-style-image: url("chrome://messenger/skin/icons/sidebar-left.svg");
-  width: 14px;
-  height: 14px;
-  margin-inline-start: 15px;
-}
-
 html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
   padding-block: initial;
   min-height: 30px; /* it should be 32px but input doesn't include the border */
