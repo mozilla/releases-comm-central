@@ -185,8 +185,10 @@ class SearchRequest extends LDAPMessage {
    */
   _parseFilterValue(filter) {
     for (let cond of [">=", "<=", "~=", "="]) {
-      let [k, v] = filter.split(cond);
-      if (k && v) {
+      let index = filter.indexOf(cond);
+      if (index > 0) {
+        let k = filter.slice(0, index);
+        let v = filter.slice(index + cond.length);
         let filterId = {
           ">=": this.FILTER_GREATER_OR_EQUAL,
           "<=": this.FILTER_LESS_OR_EQUAL,
