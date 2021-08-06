@@ -218,7 +218,7 @@
       <constructor>
         <![CDATA[
           window.controllers.insertControllerAt(0, this);
-          const kAutoHide = "browser.tabs.autoHide";
+          const kAutoHide = "mail.tabs.autoHide";
           this.mAutoHide = Services.prefs.getBoolPref(kAutoHide);
           Services.prefs.addObserver(kAutoHide, this);
         ]]>
@@ -226,7 +226,7 @@
 
       <destructor>
         <![CDATA[
-          Services.prefs.removeObserver("browser.tabs.autoHide", this);
+          Services.prefs.removeObserver("mail.tabs.autoHide", this);
           window.controllers.removeController(this);
         ]]>
       </destructor>
@@ -788,7 +788,7 @@
         <parameter name="aData"/>
         <body>
           <![CDATA[
-            const kAutoHide = "browser.tabs.autoHide";
+            const kAutoHide = "mail.tabs.autoHide";
             if (aTopic == "nsPref:changed" && aData == kAutoHide)
               this.mAutoHide = Services.prefs.getBoolPref(kAutoHide);
           ]]>

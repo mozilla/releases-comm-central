@@ -8,6 +8,8 @@
 <!ENTITY confirmMove.accesskey            "C">
 <!ENTITY preserveThreading.label          "Preserve threading when sorting messages">
 <!ENTITY preserveThreading.accesskey      "v">
+<!ENTITY mailAutoHide.label               "Hide the mail tab bar when only one tab is open">
+<!ENTITY mailAutoHide.accesskey           "b">
 <!ENTITY loadInBackground.label           "Switch to new tabs when opened">
 <!ENTITY loadInBackground.accesskey       "t">
 <!ENTITY mailBiffOnNewWindow.label        "Only check for new mail after opening Mail &amp; Newsgroups">
