@@ -1083,6 +1083,13 @@ CIRCNetwork.prototype.on375 = /* start of MOTD */
 CIRCNetwork.prototype.on372 = /* MOTD line */
 CIRCNetwork.prototype.on376 = /* end of MOTD */
 CIRCNetwork.prototype.on422 = /* no MOTD */
+CIRCNetwork.prototype.on902 = /* SASL Nick locked */
+CIRCNetwork.prototype.on903 = /* SASL Auth success */
+CIRCNetwork.prototype.on904 = /* SASL Auth failed */
+CIRCNetwork.prototype.on905 = /* SASL Command too long */
+CIRCNetwork.prototype.on906 = /* SASL Aborted */
+CIRCNetwork.prototype.on907 = /* SASL Already authenticated */
+CIRCNetwork.prototype.on908 = /* SASL Mechanisms */
 function my_showtonet (e)
 {
     var p = (3 in e.params) ? e.params[2] + " " : "";
@@ -2392,6 +2399,36 @@ function my_cap(e)
         this.display(getMsg(MSG_CAPS_ERROR, e.caps.join(", ")));
     }
     return true;
+}
+
+/* SASL authentication start */
+CIRCNetwork.prototype.onSASLStart =
+function my_saslstart(e)
+{
+    if (!e.mechs || e.mechs.indexOf("plain") !== -1)
+        e.server.sendData("AUTHENTICATE PLAIN\n");
+}
+
+/* SASL authentication response */
+CIRCNetwork.prototype.onAuthenticate =
+function my_auth(e)
+{
+    if (e.params[1] !== "+")
+        return;
+
+    var username = e.server.me.encodedName;
+    var password = client.tryToGetLogin(e.server.parent.getURL(), "sasl",
+                                        e.server.me.name, null, true,
+                                        getMsg(MSG_SASL_PASSWORD, username));
+    if (!password)
+    {
+        // Abort authentication.
+        e.server.sendAuthAbort();
+        return;
+    }
+
+    var auth = username + '\0' + username + '\0' + password;
+    e.server.sendAuthResponse(auth);
 }
 
 /* user away status */

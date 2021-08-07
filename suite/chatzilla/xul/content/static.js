@@ -1816,6 +1816,7 @@ function gotoIRCURL(url, e)
     // We should only prompt for a password if we're not connected.
     if (network.state == NET_OFFLINE)
     {
+        // Check for a network password.
         url.pass = client.tryToGetLogin(network.getURL(), "serv", "*",
                                         url.pass, url.needpass,
                                         getMsg(MSG_HOST_PASSWORD,
@@ -5054,6 +5055,7 @@ function cli_promptToSaveLogin(url, type, username, password)
     {
         case "nick":
         case "oper":
+        case "sasl":
             name = username;
             break;
         case "serv":

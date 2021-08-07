@@ -26,7 +26,7 @@ const JSIRCV3_SUPPORTED_CAPS = [
     //"metadata",
     //"monitor",
     "multi-prefix",
-    //"sasl",
+    "sasl",
     //"server-time",
     //"tls",
     "userhost-in-names",
@@ -109,6 +109,7 @@ function CIRCNetwork (name, serverList, eventPump, temporary)
 CIRCNetwork.prototype.INITIAL_NICK = "js-irc";
 CIRCNetwork.prototype.INITIAL_NAME = "INITIAL_NAME";
 CIRCNetwork.prototype.INITIAL_DESC = "INITIAL_DESC";
+CIRCNetwork.prototype.USE_SASL = false;
 /* set INITIAL_CHANNEL to "" if you don't want a primary channel */
 CIRCNetwork.prototype.INITIAL_CHANNEL = "#jsbot";
 CIRCNetwork.prototype.INITIAL_UMODE = "+iw";
@@ -827,6 +828,37 @@ function serv_logout(reason)
     this.connection.sendData("QUIT :" +
                              fromUnicode(reason, this.parent) + "\n");
     this.connection.disconnect();
+}
+
+CIRCServer.prototype.sendAuthResponse =
+function serv_authresponse(resp)
+{
+    // Encode the response and break into 400-byte parts.
+    var resp = btoa(resp);
+    var part = null;
+    var n = 0;
+    do
+    {
+        part = resp.substring(0, 400);
+        n = part.length;
+        resp = resp.substring(400);
+
+        this.sendData("AUTHENTICATE " + part + '\n');
+    }
+    while (resp.length > 0);
+
+    // Send empty auth response if last part was exactly 400 bytes long.
+    if (n == 400)
+    {
+        this.sendData("AUTHENTICATE +\n");
+    }
+}
+
+CIRCServer.prototype.sendAuthAbort =
+function serv_authabort()
+{
+    // Abort an in-progress SASL authentication.
+    this.sendData("AUTHENTICATE *\n");
 }
 
 CIRCServer.prototype.addTarget =
@@ -2089,6 +2121,15 @@ function my_cap (e)
         if (this.pendingCapNegotiation)
         {
             var caps_req = JSIRCV3_SUPPORTED_CAPS.filter(i => (i in this.caps));
+
+            // Don't send requests for these caps.
+            let caps_noreq = ["tls", "sts"];
+
+            if (!this.parent.USE_SASL)
+                caps_noreq.push("sasl");
+
+            caps_req = caps_req.filter(i => caps_noreq.indexOf(i) === -1);
+
             if (caps_req.length > 0)
             {
                 caps_req = caps_req.join(" ");
@@ -2138,6 +2179,20 @@ function my_cap (e)
             this.caps[cap] = enabled;
         }
 
+        // Try SASL authentication if we are configured to do so.
+        if (caps.indexOf("sasl") != -1)
+        {
+            var ev = new CEvent("server", "sasl-start", this, "onSASLStart");
+            ev.server = this;
+            if (this.capvals["sasl"])
+                ev.mechs = this.capvals["sasl"].toLowerCase().split(/,/);
+            ev.destObject = this.parent;
+            this.parent.eventPump.routeEvent(ev);
+
+            if (this.pendingCapNegotiation)
+                return true;
+        }
+
         if (this.pendingCapNegotiation)
         {
             e.server.sendData("CAP END\n");
@@ -2170,6 +2225,32 @@ function my_cap (e)
     else
     {
         dd("Unknown CAP reply " + e.params[2]);
+    }
+
+    e.destObject = this.parent;
+    e.set = "network";
+}
+
+/* SASL authentication responses */
+CIRCServer.prototype.on902 = /* Nick locked */
+CIRCServer.prototype.on903 = /* Auth success */
+CIRCServer.prototype.on904 = /* Auth failed */
+CIRCServer.prototype.on905 = /* Command too long */
+CIRCServer.prototype.on906 = /* Aborted */
+CIRCServer.prototype.on907 = /* Already authenticated */
+CIRCServer.prototype.on908 = /* Mechanisms */
+function cap_on900(e)
+{
+    if (this.pendingCapNegotiation)
+    {
+        delete this.pendingCapNegotiation;
+        this.sendData("CAP END\n");
+    }
+
+    if (e.code == "908")
+    {
+        // Update our list of SASL mechanics.
+        this.capvals["sasl"] = e.params[2];
     }
 
     e.destObject = this.parent;

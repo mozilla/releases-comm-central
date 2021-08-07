@@ -193,6 +193,7 @@ function initPrefs()
                                           "hidden"],
          ["proxy.typeOverride", "",       ".connect"],
          ["reconnect",          true,     ".connect"],
+         ["sasl.plain.enabled", false,    ".ident"],
          ["showModeSymbols",    false,    "appearance.userlist"],
          ["sortUsersByMode",    true,     "appearance.userlist"],
          // Chat  == "Activity" activity.
@@ -236,6 +237,7 @@ function initPrefs()
     CIRCNetwork.prototype.INITIAL_UMODE = client.prefs["usermode"];
     CIRCNetwork.prototype.MAX_MESSAGES  = client.prefs["networkMaxLines"];
     CIRCNetwork.prototype.PROXY_TYPE_OVERRIDE = client.prefs["proxy.typeOverride"];
+    CIRCNetwork.prototype.USE_SASL      = client.prefs["sasl.plain.enabled"];
     CIRCChannel.prototype.MAX_MESSAGES  = client.prefs["channelMaxLines"];
     CIRCUser.prototype.MAX_MESSAGES     = client.prefs["userMaxLines"];
     CIRCDCCChat.prototype.MAX_MESSAGES  = client.prefs["dccUserMaxLines"];
@@ -420,6 +422,7 @@ function getNetworkPrefManager(network)
          ["outputWindowURL",  defer, "hidden"],
          ["proxy.typeOverride", defer, ".connect"],
          ["reconnect",        defer, ".connect"],
+         ["sasl.plain.enabled",  defer, ".ident"],
          ["sound.channel.chat",  defer, ".soundEvts"],
          ["sound.channel.event", defer, ".soundEvts"],
          ["sound.channel.stalk", defer, ".soundEvts"],
@@ -460,6 +463,10 @@ function getNetworkPrefManager(network)
     value = prefManager.prefs["proxy.typeOverride"];
     if (value != CIRCNetwork.prototype.PROXY_TYPE_OVERRIDE)
         network.PROXY_TYPE_OVERRIDE = value;
+
+    value = prefManager.prefs["sasl.plain.enabled"];
+    if (value != CIRCNetwork.prototype.USE_SASL)
+        network.USE_SASL = value;
 
     network.stayingPower  = prefManager.prefs["reconnect"];
     network.MAX_CONNECT_ATTEMPTS = prefManager.prefs["connectTries"];
@@ -720,6 +727,10 @@ function onPrefChanged(prefName, newValue, oldValue)
                 setListMode("graphic");
             break;
 
+        case "sasl.plain.enabled":
+            CIRCNetwork.prototype.USE_SASL = newValue;
+            break;
+
         case "nickname":
             CIRCNetwork.prototype.INITIAL_NICK = newValue;
             break;
@@ -917,6 +928,10 @@ function onNetworkPrefChanged(network, prefName, newValue, oldValue)
 
         case "connectTries":
             network.MAX_CONNECT_ATTEMPTS = newValue;
+            break;
+
+        case "sasl.plain.enabled":
+            network.USE_SASL = newValue;
             break;
     }
 }
