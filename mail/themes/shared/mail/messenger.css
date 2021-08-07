@@ -297,29 +297,6 @@ treechildren::-moz-tree-twisty(selected, focus) {
   --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
 }
 
-:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme {
-  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
-  color: var(--toolbar-field-color);
-}
-
-:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:not([focused="true"]):-moz-lwtheme {
-  border-color: var(--toolbar-field-border-color);
-}
-
-:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme:hover {
-  background-color: var(--lwt-toolbar-field-background-color, white);
-}
-
-:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme-brighttext:hover {
-  box-shadow: 0 1px 3px rgba(255,255,255,.15);
-}
-
-:root[lwt-default-theme-in-dark-mode] #qfb-qs-textbox:-moz-lwtheme[focused="true"] {
-  background-color: var(--toolbar-field-focus-background-color);
-  color: var(--toolbar-field-focus-color);
-  border-color: var(--toolbar-field-focus-border-color);
-}
-
 /* toolbarbutton */
 
 .toolbarbutton-1 {
