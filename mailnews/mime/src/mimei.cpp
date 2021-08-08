@@ -1578,7 +1578,8 @@ int MimeObject_write(MimeObject* obj, const char* output, int32_t length,
   if (!obj->output_p) return 0;
 
   // if we're stripping attachments, check if any parent is not being output
-  if (obj->options->format_out == nsMimeOutput::nsMimeMessageAttach) {
+  if (obj->options &&
+      obj->options->format_out == nsMimeOutput::nsMimeMessageAttach) {
     // if true, mime generates a separator in html - we don't want that.
     user_visible_p = false;
 
@@ -1586,7 +1587,7 @@ int MimeObject_write(MimeObject* obj, const char* output, int32_t length,
       if (!parent->output_p) return 0;
     }
   }
-  if (!obj->options->state->first_data_written_p) {
+  if (obj->options && !obj->options->state->first_data_written_p) {
     int status = MimeObject_output_init(obj, 0);
     if (status < 0) return status;
     NS_ASSERTION(obj->options->state->first_data_written_p,
