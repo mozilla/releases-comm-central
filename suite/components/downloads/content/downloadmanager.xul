@@ -34,6 +34,8 @@
   <script src="chrome://global/content/contentAreaUtils.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
 
+  <broadcaster id="Communicator:WorkMode"/>
+
   <stringbundleset id="stringbundleset">
     <stringbundle id="dmBundle"
                   src="chrome://communicator/locale/downloads/downloadmanager.properties"/>
