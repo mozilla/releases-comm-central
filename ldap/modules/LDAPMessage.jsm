@@ -416,10 +416,10 @@ class LDAPResponse extends LDAPMessage {
    */
   static _getResponseClassFromTagNumber(tagNumber) {
     return [
-      BindResponse,
       SearchResultEntry,
       SearchResultDone,
       SearchResultReference,
+      BindResponse,
       ExtendedResponse,
     ].find(x => x.APPLICATION == tagNumber);
   }

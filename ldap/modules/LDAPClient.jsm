@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const EXPORTED_SYMBOLS = ["LDAPClient"];
+
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var {
   AbandonRequest,
   BindRequest,
@@ -32,6 +34,8 @@ class LDAPClient {
       maxLogLevel: "Warn",
       maxLogLevelPref: "mailnews.ldap.loglevel",
     });
+
+    this._dataEventsQueue = [];
   }
 
   connect() {
@@ -132,10 +136,16 @@ class LDAPClient {
   };
 
   /**
-   * The data event handler.
+   * The data event handler. Server may send multiple data events after a
+   * search, we want to handle them asynchonosly and in sequence.
    * @param {TCPSocketEvent} event - The data event.
    */
-  _onData = event => {
+  _onData = async event => {
+    if (this._processingData) {
+      this._dataEventsQueue.push(event);
+      return;
+    }
+    this._processingData = true;
     let data = event.data;
     if (this._buffer) {
       // Concatenate left over data from the last event with the new data.
@@ -145,8 +155,10 @@ class LDAPClient {
       data = arr.buffer;
       this._buffer = null;
     }
+    let i = 0;
     // The payload can contain multiple messages, parse it to the end.
     while (data.byteLength) {
+      i++;
       let res;
       try {
         res = LDAPResponse.fromBER(data);
@@ -159,6 +171,7 @@ class LDAPClient {
           // The remaining data doesn't form a valid LDAP message, save it for
           // the next round.
           this._buffer = data;
+          this._handleNextDataEvent();
           return;
         }
         throw e;
@@ -176,8 +189,24 @@ class LDAPClient {
         }
       }
       data = data.slice(res.byteLength);
+      if (i % 10 == 0) {
+        // Prevent blocking the main thread for too long.
+        await new Promise(resolve => setTimeout(resolve));
+      }
     }
+    this._handleNextDataEvent();
   };
+
+  /**
+   * Process a queued data event, if there is any.
+   */
+  _handleNextDataEvent() {
+    this._processingData = false;
+    let next = this._dataEventsQueue.shift();
+    if (next) {
+      this._onData(next);
+    }
+  }
 
   /**
    * The close event handler.

@@ -124,11 +124,7 @@ class LDAPReplicationService extends LDAPListenerBase {
       Ci.nsIAbCard
     );
     this._attrMap.setCardPropertiesFromLDAPMessage(msg, newCard);
-    let tmpCard = this._replicationDB.addCard(newCard);
-    if (msg.dn) {
-      tmpCard.setPropertyAsAUTF8String("_DN", msg.dn);
-    }
-    this._replicationDB.modifyCard(tmpCard);
+    this._replicationDB.addCard(newCard);
     this._count++;
     if (this._count % 10 == 0) {
       // inform the listener every 10 entries

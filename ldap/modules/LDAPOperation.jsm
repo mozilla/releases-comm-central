@@ -64,14 +64,6 @@ class LDAPOperation {
       timeout,
       limit,
       res => {
-        if (res.constructor.name == "SearchResultDone") {
-          this._messageId = null;
-          this._listener.onLDAPMessage({
-            errorCode: res.result.resultCode,
-            type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
-          });
-          return;
-        }
         if (res.constructor.name == "SearchResultEntry") {
           this._listener.onLDAPMessage({
             QueryInterface: ChromeUtils.generateQI(["nsILDAPMessage"]),
@@ -98,6 +90,12 @@ class LDAPOperation {
                 get: () => new Uint8Array(v),
               }));
             },
+          });
+        } else if (res.constructor.name == "SearchResultDone") {
+          this._messageId = null;
+          this._listener.onLDAPMessage({
+            errorCode: res.result.resultCode,
+            type: Ci.nsILDAPMessage.RES_SEARCH_RESULT,
           });
         }
       }
