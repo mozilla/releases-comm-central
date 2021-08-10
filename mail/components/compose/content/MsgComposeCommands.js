@@ -749,17 +749,18 @@ var gSendListener = {
 // all progress notifications are done through the nsIWebProgressListener implementation...
 var progressListener = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+    let progressMeter = document.getElementById("compose-progressmeter");
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
-      document.getElementById("compose-progressmeter").removeAttribute("value");
-      document.getElementById("statusbar-progresspanel").collapsed = false;
+      progressMeter.hidden = false;
+      progressMeter.removeAttribute("value");
     }
 
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       gSendOperationInProgress = false;
       gSaveOperationInProgress = false;
-      document.getElementById("compose-progressmeter").value = 0;
-      document.getElementById("statusbar-progresspanel").collapsed = true;
-      document.getElementById("statusText").setAttribute("value", "");
+      progressMeter.hidden = true;
+      progressMeter.value = 0;
+      document.getElementById("statusText").textContent = "";
     }
   },
 
@@ -797,7 +798,7 @@ var progressListener = {
     try {
       let statusText = document.getElementById("statusText");
       if (statusText) {
-        statusText.setAttribute("value", aMessage);
+        statusText.textContent = aMessage;
       }
     } catch (ex) {}
   },
@@ -4291,21 +4292,13 @@ function ComposeUnload() {
 }
 
 function setEncSigStatusUI() {
-  document
-    .getElementById("signing-status")
-    .classList.toggle("signing-msg", gSendSigned);
-  document
-    .getElementById("encryption-status")
-    .classList.toggle("encrypting-msg", gSendEncrypted);
-
   if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    let techStatus = top.document.getElementById("encryption-tech");
-    if (gSelectedTechnologyIsPGP) {
-      techStatus.value = "OpenPGP";
-    } else {
-      techStatus.value = "S/MIME";
-    }
-    techStatus.collapsed = !gSendSigned && !gSendEncrypted;
+    document.getElementById("signing-status").hidden = !gSendSigned;
+    document.getElementById("encryption-status").hidden = !gSendEncrypted;
+
+    let tech = document.getElementById("encryption-tech");
+    tech.textContent = gSelectedTechnologyIsPGP ? "OpenPGP" : "S/MIME";
+    tech.hidden = !gSendSigned && !gSendEncrypted;
   }
 }
 
@@ -5790,6 +5783,18 @@ function OnShowDictionaryMenu(aTarget) {
   }
 }
 
+function languageMenuListOpened() {
+  document
+    .getElementById("languageStatusButton")
+    .setAttribute("aria-expanded", "true");
+}
+
+function languageMenuListClosed() {
+  document
+    .getElementById("languageStatusButton")
+    .setAttribute("aria-expanded", "false");
+}
+
 /**
  * Change the language of the composition and if we are using inline
  * spell check, recheck the message with the new dictionary.
@@ -5847,9 +5852,8 @@ async function updateLanguageInStatusBar() {
 
   InitLanguageMenu();
   let languageMenuList = document.getElementById("languageMenuList");
-  let spellCheckStatusPanel = document.getElementById("spellCheckStatusPanel");
   let languageStatusButton = document.getElementById("languageStatusButton");
-  if (!languageMenuList || !spellCheckStatusPanel || !languageStatusButton) {
+  if (!languageMenuList || !languageStatusButton) {
     return;
   }
 
@@ -5858,15 +5862,15 @@ async function updateLanguageInStatusBar() {
 
   // No status display, if there is only one or no spelling dictionary available.
   if (item == languageMenuList.lastElementChild) {
-    spellCheckStatusPanel.collapsed = true;
-    languageStatusButton.label = "";
+    languageStatusButton.hidden = true;
+    languageStatusButton.textContent = "";
     return;
   }
 
-  spellCheckStatusPanel.collapsed = false;
+  languageStatusButton.hidden = false;
   while (item) {
     if (item.getAttribute("value") == language) {
-      languageStatusButton.label = item.getAttribute("label");
+      languageStatusButton.textContent = item.getAttribute("label");
       break;
     }
     item = item.nextElementSibling;
@@ -8622,6 +8626,7 @@ function WhichElementHasFocus() {
       currentNode == document.getElementById("extraRecipientsLabel") ||
       currentNode == document.getElementById("addr_bcc") ||
       currentNode == document.getElementById("addr_cc") ||
+      currentNode == document.getElementById("status-bar") ||
       currentNode == sidebarDocumentGetElementById("abContactsPanel")
     ) {
       return currentNode;
@@ -8667,20 +8672,27 @@ function SwitchElementFocus(event) {
         SetFocusOnPreviousAvailableElement(focusedElement);
         break;
       case document.getElementById("msgIdentity"):
+        if (!sidebar_is_hidden() && focusContactsSidebarSearchInput()) {
+          return;
+        }
+      // Fallthrough!
+      case sidebarDocumentGetElementById("abContactsPanel"):
+        let statusBarButtons = document.querySelectorAll(
+          "#status-bar button:not([hidden])"
+        );
+        if (statusBarButtons.length) {
+          // Since focus is backwards, focus last button.
+          statusBarButtons[statusBarButtons.length - 1].focus();
+          return;
+        }
+      // Fallthrough!
+      case document.getElementById("status-bar"):
         // Focus attachment bucket if visible.
         if (!document.getElementById("attachmentsBox").collapsed) {
           gAttachmentBucket.focus();
           return;
         }
-        // Focus the search input of contacts side bar if that's available,
-        // otherwise focus message body.
-        if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
-          SetMsgBodyFrameFocus();
-        }
-        break;
-      case sidebarDocumentGetElementById("abContactsPanel"):
-        SetMsgBodyFrameFocus();
-        break;
+      // Fallthrough!
       case gAttachmentBucket:
         SetMsgBodyFrameFocus();
         break;
@@ -8726,15 +8738,24 @@ function SwitchElementFocus(event) {
         gAttachmentBucket.focus();
         return;
       }
+    // Fallthrough!
+    case gAttachmentBucket:
+      let statusBarButton = document.querySelector(
+        "#status-bar button:not([hidden])"
+      );
+      if (statusBarButton) {
+        // Since focus is forwards, focus the first button.
+        statusBarButton.focus();
+        return;
+      }
+    // Fallthrough!
+    case document.getElementById("status-bar"):
       // Focus the search input of contacts side bar if that's available,
       // otherwise focus "From" selector.
-      if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
-        SetMsgIdentityElementFocus();
+      if (!sidebar_is_hidden() && focusContactsSidebarSearchInput()) {
+        return;
       }
-      break;
-    case gAttachmentBucket:
-      SetMsgIdentityElementFocus();
-      break;
+    // Fallthrough!
     case sidebarDocumentGetElementById("abContactsPanel"):
       SetMsgIdentityElementFocus();
       break;

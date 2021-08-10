@@ -420,10 +420,6 @@ button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   --tabs-border-color: hsla(0,0%,60%,.4);
 }
 
-.statusbarpanel-iconic {
-  padding: 0;
-}
-
 /* Status panel */
 
 .statuspanel-label {

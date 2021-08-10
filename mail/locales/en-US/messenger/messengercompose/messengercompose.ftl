@@ -120,6 +120,13 @@ button-return-receipt =
     .label = Receipt
     .tooltiptext = Request a return receipt for this message
 
+# Encryption
+
+message-to-be-signed-icon =
+    .alt = Sign message
+message-to-be-encrypted-icon =
+    .alt = Encrypt message
+
 # Addressing Area
 
 to-compose-address-row-label =

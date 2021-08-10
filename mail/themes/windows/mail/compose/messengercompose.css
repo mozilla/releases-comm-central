@@ -263,10 +263,6 @@ toolbar:not(:-moz-lwtheme) {
   margin: 1px 5px;
 }
 
-#languageStatusButton {
-  height: 22px;
-}
-
 /* ::::: address book sidebar ::::: */
 
 #sidebar {

@@ -376,10 +376,6 @@ treechildren::-moz-tree-cell-text {
   appearance: none;
 }
 
-.statusbarpanel-iconic {
-  padding: 0 1px;
-}
-
 /* Status panel */
 
 .statuspanel-label {

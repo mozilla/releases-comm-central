@@ -610,10 +610,6 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
   }
 }
 
-.statusbarpanel-iconic {
-  padding: 0 1px;
-}
-
 /* Status panel */
 
 .statuspanel-label {

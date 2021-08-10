@@ -778,12 +778,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   list-style-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
-#signing-status,
-#encryption-status {
-  display: flex;
-  align-items: center;
-}
-
 #identityLabel,
 .address-label-container label {
   margin-inline-end: 6px;
@@ -1271,30 +1265,58 @@ button.remove-field-button:focus {
   display: none;
 }
 
+.statusbar {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.statusbar > :not(#statusText) {
+  flex: 0 0 auto;
+}
+
+.statusbar > #statusText {
+  flex: 1 1 auto;
+}
+
+#statusText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-inline: 4px;
+}
+
+#compose-progressmeter {
+  margin-inline: 4px;
+}
+
 /* OpenPGP and S/MIME encryption and signature status icons */
+#encryption-tech {
+  margin-inline: 6px 2px;
+}
+
 #signing-status,
 #encryption-status {
-  list-style-image: none;
-  visibility: collapse;
+  /* NOTE: either the signing-status or encryption-status may be the last icon
+   * in this part of the status bar. Here, we treat both as if they are the last
+   * icon and give them a wider margin. But below, we shrink the starting margin
+   * for the second icon if the first icon is shown. */
+  margin-inline-end: 4px;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-#signing-status.signing-msg {
-  list-style-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
-  visibility: visible;
+#signing-status:not([hidden]) + #encryption-status {
+  margin-inline-start: -2px;
 }
 
-#encryption-status.encrypting-msg {
-  list-style-image: url("chrome://messenger/skin/icons/connection-secure.svg");
-  visibility: visible;
+/* Language selector */
+button.icon-button#languageStatusButton {
+  margin-inline-start: 4px;
+  padding: 2px 4px;
 }
 
-#languageStatusButton {
-  margin-block: 1px;
-  padding-block: 0;
-}
-
-#languageStatusButton > .toolbarbutton-icon {
-  display: none;
+button#languageStatusButton:focus-visible {
+  /* Provide some inset for the outline. */
+  outline-offset: -1px;
 }

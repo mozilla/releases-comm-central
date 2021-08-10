@@ -770,7 +770,9 @@
 
 <menupopup id="languageMenuList"
            oncommand="ChangeLanguage(event);"
-           onpopupshowing="OnShowDictionaryMenu(event.target);">
+           onpopupshowing="OnShowDictionaryMenu(event.target);"
+           onpopupshown="languageMenuListOpened();"
+           onpopuphidden="languageMenuListClosed();">
 </menupopup>
 
 <menupopup id="emailAddressPillPopup"
@@ -2521,39 +2523,34 @@
     <!-- notificationbox will be added here lazily. -->
   </vbox>
 
-  <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
-    <label id="statusText" class="statusbarpanel" flex="1" crop="end"/>
-    <hbox id="statusbar-progresspanel"
-          class="statusbarpanel statusbarpanel-progress"
-          collapsed="true">
-      <html:progress id="compose-progressmeter" class="progressmeter-statusbar"
-                     value="0" max="100"/>
-    </hbox>
+  <html:div id="status-bar" class="statusbar" role="status">
+    <html:div id="statusText"></html:div>
+    <html:progress id="compose-progressmeter"
+                   class="progressmeter-statusbar"
+                   value="0" max="100"
+                   hidden="hidden">
+    </html:progress>
 #ifdef MOZ_OPENPGP
-    <label id="encryption-tech" class="statusbarpanel"/>
+    <html:span id="encryption-tech" hidden="hidden"></html:span>
+    <html:img id="signing-status"
+              data-l10n-id="message-to-be-signed-icon"
+              src="chrome://messenger/skin/icons/message-signed-ok.svg"
+              hidden="hidden" />
+    <html:img id="encryption-status"
+              data-l10n-id="message-to-be-encrypted-icon"
+              src="chrome://messenger/skin/icons/connection-secure.svg"
+              hidden="hidden" />
 #endif
-    <hbox id="signing-status"
-          class="statusbarpanel statusbarpanel-iconic"
-          collapsed="true"
-          oncommand="showMessageComposeSecurityStatus();">
-      <image/>
-    </hbox>
-    <hbox id="encryption-status"
-          class="statusbarpanel statusbarpanel-iconic"
-          collapsed="true"
-          oncommand="showMessageComposeSecurityStatus();">
-      <image/>
-    </hbox>
-    <hbox id="spellCheckStatusPanel" class="statusbarpanel">
-      <toolbarbutton id="languageStatusButton"
-                     class="toolbarbutton-1 themeable-full"
-                     tooltiptext="&languageStatusButton.tooltip;"
-                     oncommand="showPopupById('languageMenuList',
-                                              'languageStatusButton',
-                                              'before_start');">
-      </toolbarbutton>
-    </hbox>
-  </hbox>
+    <html:button id="languageStatusButton"
+                 class="icon-button"
+                 aria-expanded="false"
+                 aria-haspopup="menu"
+                 aria-controls="languageMenuList"
+                 title="&languageStatusButton.tooltip;"
+                 onclick="showPopupById('languageMenuList', 'languageStatusButton', 'before_start');"
+                 hidden="hidden">
+    </html:button>
+  </html:div>
 
 #include ../../../base/content/tabDialogs.inc.xhtml
 </html:body>
