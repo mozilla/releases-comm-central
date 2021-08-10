@@ -282,10 +282,10 @@ facet-boolean-filtered[checked="true"]:not([disabled]) > .facet-checkbox-bubble 
 .facet-checkbox-count:empty {
   display: none;
 }
-.facet-checkbox-count:before {
+.facet-checkbox-count::before {
   content: "(";
 }
-.facet-checkbox-count:after {
+.facet-checkbox-count::after {
   content: ")";
 }
 
@@ -532,10 +532,10 @@ html[dir="rtl"] .bar-link {
   padding-inline-start: 1ex;
 }
 
-.message-attachment:after {
+.message-attachment::after {
   content: ", ";
 }
-.message-attachment:last-child:after {
+.message-attachment:last-child::after {
   content: "";
 }
 

@@ -105,7 +105,7 @@ p.action {
   font-style: italic;
 }
 
-p.action:before {
+p.action::before {
   content: "*** ";
 }
 
@@ -186,7 +186,7 @@ p *:any-link img {
   background-image: url('Bitmaps/plus-hover.png');
 }
 
-.hide-children > .eventToggle:after {
+.hide-children > .eventToggle::after {
   content: "\2026"; /* &hellip; */
   color: hsl(0, 0%, 60%);
 }

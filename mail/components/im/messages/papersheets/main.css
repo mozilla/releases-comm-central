@@ -34,7 +34,7 @@ div.context+div.event {
   background: -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.05) 15px, rgba(255, 255, 240, 1) 15px, rgba(255, 255, 240, 1));
 }
 
-div.context:not(:hover)>p {
+div.context:not(:hover) > p {
   opacity: 0.55;
 }
 
@@ -42,7 +42,7 @@ div.messages-group:last-child {
   padding-bottom: 10px;
 }
 
-div.messages-group>hr {
+div.messages-group > hr {
   margin: 3px 50px 0px 20px;
   background-color: rgba(0, 0, 0, 0.05);
   height: 1px;
@@ -80,23 +80,23 @@ span.pseudo {
   display: block;
 }
 
-p.outgoing>span.pseudo {
+p.outgoing > span.pseudo {
   color: rgb(80,80,200);
 }
 
-p.incoming>span.pseudo {
+p.incoming > span.pseudo {
   color: rgb(200,80,80);
 }
 
-p.nick>span.message-style {
+p.nick > span.message-style {
   font-weight: bold;
 }
 
-p.action>span.message-style {
+p.action > span.message-style {
   font-style: italic;
 }
 
-p.action>span.message-style:before {
+p.action > span.message-style::before {
   content: "*** ";
 }
 
@@ -106,7 +106,7 @@ p.event {
   background: url('Bitmaps/information.png') no-repeat top left;
 }
 
-p.event>span.message-style {
+p.event > span.message-style {
   color: rgba(0, 0, 0, 0.4);
 }
 
@@ -163,7 +163,7 @@ p *:any-link img {
   background-image: url('Bitmaps/plus.png');
 }
 
-.hide-children > p.event:first-of-type > .message-style:after {
+.hide-children > p.event:first-of-type > .message-style::after {
   content: "[\2026]"; /* &hellip; */
   margin-left: 1em;
   color: #5a7ac6;

@@ -56,15 +56,15 @@ p.event-messages:hover {
   display: block;
 }
 
-.nick>.message-style {
+.nick > .message-style {
   font-weight: bold;
 }
 
-.action>.message-style {
+.action > .message-style {
   font-style: italic;
 }
 
-.action>.message-style:before {
+.action > .message-style::before {
   content: "*** ";
 }
 

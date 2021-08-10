@@ -112,18 +112,18 @@
   border-radius: 4px;
 }
 
-.enigmailCaptionbox>h1 {
+.enigmailCaptionbox > h1 {
   font: 1em normal;
   margin: -1em -0.5em 0;
   border-radius: 4px;
 }
 
-.enigmailCaptionbox>h1>span {
+.enigmailCaptionbox > h1 > span {
   float: left;
   border-radius: 4px;
 }
 
-.enigmailCaptionbox>h1:before {
+.enigmailCaptionbox > h1::before {
   border-top: 2px groove threedface;
   content: ' ';
   float: left;
@@ -132,7 +132,7 @@
   border-radius: 4px;
 }
 
-.enigmailCaptionbox>h1:after {
+.enigmailCaptionbox > h1::after {
   border-top: 2px groove threedface;
   content: ' ';
   display: block;

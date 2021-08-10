@@ -52,81 +52,81 @@
 }
 
 /* smile */
-.moz-smiley-s1:before {
+.moz-smiley-s1::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-smile.png");
 }
 
 /* frown */
-.moz-smiley-s2:before {
+.moz-smiley-s2::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-frown.png");
 }
 
 /* wink */
-.moz-smiley-s3:before {
+.moz-smiley-s3::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-wink.png");
 }
 
 /* tongue */
-.moz-smiley-s4:before {
+.moz-smiley-s4::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-tongue-out.png");
 }
 
 /* laughing */
-.moz-smiley-s5:before {
+.moz-smiley-s5::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-laughing.png");
 }
 
 /* embarrassed */
-.moz-smiley-s6:before {
+.moz-smiley-s6::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-embarassed.png");
 }
 
 /* undecided */
-.moz-smiley-s7:before {
+.moz-smiley-s7::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-undecided.png");
 }
 
 /* surprise */
-.moz-smiley-s8:before {
+.moz-smiley-s8::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-surprised.png");
 }
 
 /* kiss */
-.moz-smiley-s9:before {
+.moz-smiley-s9::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-kiss.png");
 }
 
 /* yell */
-.moz-smiley-s10:before {
+.moz-smiley-s10::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-yell.png");
 }
 
 /* cool */
-.moz-smiley-s11:before {
+.moz-smiley-s11::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-cool.png");
 }
 
 /* money */
-.moz-smiley-s12:before {
+.moz-smiley-s12::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-money-mouth.png");
 }
 
 /* foot */
-.moz-smiley-s13:before {
+.moz-smiley-s13::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-foot-in-mouth.png");
 }
 
 /* innocent */
-.moz-smiley-s14:before {
+.moz-smiley-s14::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-innocent.png");
 }
 
 /* cry */
-.moz-smiley-s15:before {
+.moz-smiley-s15::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-cry.png");
 }
 
 /* sealed */
-.moz-smiley-s16:before {
+.moz-smiley-s16::before {
   content: url("chrome://communicator/skin/icons/smileys/smiley-sealed.png");
 }

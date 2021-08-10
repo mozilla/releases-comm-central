@@ -106,8 +106,8 @@ body {
 
 #accountLogo[type="rss"],
 #setupFeeds::before,
-#rssSubscriptionButton:before,
-#nntpSubscriptionButton:before {
+#rssSubscriptionButton::before,
+#nntpSubscriptionButton::before {
   background-image: url("chrome://messenger/skin/icons/feeds.svg");
 }
 
@@ -411,8 +411,8 @@ aside.settings-btn-container {
   cursor: pointer;
 }
 
-.btn-link:before,
-.resource-link:before {
+.btn-link::before,
+.resource-link::before {
   position: relative;
   display: inline-block;
   content: '';
@@ -433,42 +433,42 @@ aside.settings-btn-container {
   outline: 1px dotted Highlight;
 }
 
-#featuresLink:before {
+#featuresLink::before {
   background-image: url("chrome://messenger/skin/icons/highlights.svg");
 }
 
-#supportLink:before {
+#supportLink::before {
   background-image: url("chrome://messenger/skin/icons/help.svg");
 }
 
-#involvedLink:before {
+#involvedLink::before {
   background-image: url("chrome://messenger/skin/icons/globe.svg");
 }
 
-#developerLink:before {
+#developerLink::before {
   background-image: url("chrome://messenger/skin/icons/developer.svg");
 }
 
-#settingsButton:before {
+#settingsButton::before {
   background-image: url("chrome://global/skin/icons/settings.svg");
 }
 
-#readButton:before {
+#readButton::before {
   background-image: url("chrome://messenger/skin/icons/inbox.svg");
 }
 
-#composeButton:before {
+#composeButton::before {
   background-image: url("chrome://messenger/skin/icons/newmsg.svg");
 }
 
-#searchButton:before {
+#searchButton::before {
   background-image: url("chrome://global/skin/icons/search-glass.svg");
 }
 
-#filterButton:before {
+#filterButton::before {
   background-image: url("chrome://messenger/skin/icons/filter.svg");
 }
 
-#e2eButton:before {
+#e2eButton::before {
   background-image: url("chrome://messenger/skin/icons/encryption-key.svg");
 }
