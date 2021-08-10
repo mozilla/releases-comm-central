@@ -394,8 +394,7 @@ var gCloudFile = {
   _onAccountConfigured(event, account) {
     for (let item of this._list.children) {
       if (item.value == account.accountKey) {
-        item.querySelector(".configuredWarning").hidden =
-          account.configured;
+        item.querySelector(".configuredWarning").hidden = account.configured;
       }
     }
   },
