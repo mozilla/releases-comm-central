@@ -30,8 +30,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMemory.h"
-#include "nsICollation.h"
-#include "nsCollationCID.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsMsgDatabaseEnumerators.h"
@@ -39,6 +37,7 @@
 #include "nsIWeakReferenceUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
+#include "mozilla/intl/LocaleService.h"
 
 using namespace mozilla::mailnews;
 using namespace mozilla;
@@ -63,6 +62,60 @@ static const nsMsgKey kForceReparseKey = 0xfffffff0;
 LazyLogModule DBLog("MsgDB");
 
 PRTime nsMsgDatabase::gLastUseTime;
+
+/**
+ * mozilla::intl APIs require sizeable buffers. This class abstracts over
+ * the nsTArray.
+ */
+class nsTArrayU8Buffer {
+ public:
+  using CharType = uint8_t;
+
+  // Do not allow copy or move. Move could be added in the future if needed.
+  nsTArrayU8Buffer(const nsTArrayU8Buffer&) = delete;
+  nsTArrayU8Buffer& operator=(const nsTArrayU8Buffer&) = delete;
+
+  explicit nsTArrayU8Buffer(nsTArray<CharType>& aArray) : mArray(aArray) {}
+
+  /**
+   * Ensures the buffer has enough space to accommodate |size| elements.
+   */
+  [[nodiscard]] bool reserve(size_t size) {
+    mArray.SetCapacity(size);
+    // nsTArray::SetCapacity returns void, return true to keep the API the same
+    // as the other Buffer implementations.
+    return true;
+  }
+
+  /**
+   * Returns the raw data inside the buffer.
+   */
+  CharType* data() { return mArray.Elements(); }
+
+  /**
+   * Returns the count of elements written into the buffer.
+   */
+  size_t length() const { return mArray.Length(); }
+
+  /**
+   * Returns the buffer's overall capacity.
+   */
+  size_t capacity() const { return mArray.Capacity(); }
+
+  /**
+   * Resizes the buffer to the given amount of written elements.
+   */
+  void written(size_t amount) {
+    MOZ_ASSERT(amount <= mArray.Capacity());
+    // This sets |mArray|'s internal size so that it matches how much was
+    // written. This is necessary because the write happens across FFI
+    // boundaries.
+    mArray.SetLengthAndRetainStorage(amount);
+  }
+
+ private:
+  nsTArray<CharType>& mArray;
+};
 
 NS_IMPL_ISUPPORTS(nsMsgDBService, nsIMsgDBService)
 
@@ -2858,16 +2911,28 @@ nsresult nsMsgDatabase::RowCellColumnToAddressCollationKey(
 }
 
 nsresult nsMsgDatabase::GetCollationKeyGenerator() {
-  nsresult err = NS_OK;
   if (!m_collationKeyGenerator) {
-    nsCOMPtr<nsICollationFactory> f =
-        do_CreateInstance(NS_COLLATIONFACTORY_CONTRACTID, &err);
-    if (NS_SUCCEEDED(err) && f) {
-      // get a collation interface instance
-      err = f->CreateCollation(getter_AddRefs(m_collationKeyGenerator));
+    auto result = mozilla::intl::LocaleService::TryCreateComponent<Collator>();
+    if (result.isErr()) {
+      NS_WARNING("Could not create mozilla::intl::Collation.");
+      return NS_ERROR_FAILURE;
+    }
+
+    m_collationKeyGenerator = result.unwrap();
+
+    // Sort in a case-insensitive way, where "base" letters are considered
+    // equal, e.g: a = á, a = A, a ≠ b.
+    Collator::Options options{};
+    options.sensitivity = Collator::Sensitivity::Base;
+    auto optResult = m_collationKeyGenerator->SetOptions(options);
+
+    if (optResult.isErr()) {
+      NS_WARNING("Could not configure the mozilla::intl::Collation.");
+      m_collationKeyGenerator = nullptr;
+      return NS_ERROR_FAILURE;
     }
   }
-  return err;
+  return NS_OK;
 }
 
 nsresult nsMsgDatabase::RowCellColumnToCollationKey(nsIMdbRow* row,
@@ -2903,22 +2968,23 @@ nsMsgDatabase::CompareCollationKeys(const nsTArray<uint8_t>& key1,
   NS_ENSURE_SUCCESS(rv, rv);
   if (!m_collationKeyGenerator) return NS_ERROR_FAILURE;
 
-  rv = m_collationKeyGenerator->CompareRawSortKey(key1, key2, result);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return rv;
+  *result = m_collationKeyGenerator->CompareSortKeys(key1, key2);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgDatabase::CreateCollationKey(const nsAString& sourceString,
-                                  nsTArray<uint8_t>& result) {
+                                  nsTArray<uint8_t>& key) {
   nsresult err = GetCollationKeyGenerator();
   NS_ENSURE_SUCCESS(err, err);
   if (!m_collationKeyGenerator) return NS_ERROR_FAILURE;
 
-  err = m_collationKeyGenerator->AllocateRawSortKey(
-      nsICollation::kCollationCaseInSensitive, sourceString, result);
-  NS_ENSURE_SUCCESS(err, err);
-  return err;
+  nsTArrayU8Buffer buffer(key);
+
+  auto result = m_collationKeyGenerator->GetSortKey(sourceString, buffer);
+  NS_ENSURE_TRUE(result.isOk(), NS_ERROR_FAILURE);
+
+  return NS_OK;
 }
 
 nsresult nsMsgDatabase::RowCellColumnToUInt32(nsIMdbRow* hdrRow,

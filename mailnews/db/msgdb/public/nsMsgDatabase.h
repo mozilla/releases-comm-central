@@ -17,13 +17,15 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFolder.h"
 #include "nsDBFolderInfo.h"
-#include "nsICollation.h"
+#include "mozilla/intl/Collator.h"
 #include "nsIMimeConverter.h"
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
 #include "PLDHashTable.h"
 #include "nsTArray.h"
 #include "nsTObserverArray.h"
+
+using mozilla::intl::Collator;
 
 class nsMsgThread;
 class nsMsgDatabase;
@@ -262,7 +264,7 @@ class nsMsgDatabase : public nsIMsgDatabase {
   virtual nsresult RemoveHeaderFromThread(nsMsgHdr* msgHdr);
   virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr* msgHdr);
 
-  nsCOMPtr<nsICollation> m_collationKeyGenerator;
+  mozilla::UniquePtr<mozilla::intl::Collator> m_collationKeyGenerator = nullptr;
   nsCOMPtr<nsIMimeConverter> m_mimeConverter;
   nsCOMPtr<nsIMsgRetentionSettings> m_retentionSettings;
   nsCOMPtr<nsIMsgDownloadSettings> m_downloadSettings;

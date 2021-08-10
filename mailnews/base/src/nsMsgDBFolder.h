@@ -30,6 +30,7 @@
 #include "nsMsgKeySet.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFilterPlugin.h"
+#include "mozilla/intl/Collator.h"
 
 // We declare strings for folder properties and events.
 // Properties:
@@ -67,8 +68,9 @@ extern const nsLiteralCString kFolderLoaded;
 extern const nsLiteralCString kNumNewBiffMessages;
 extern const nsLiteralCString kRenameCompleted;
 
+using mozilla::intl::Collator;
+
 class nsIMsgFolderCacheElement;
-class nsICollation;
 class nsMsgKeySetU;
 
 class nsMsgFolderService final : public nsIMsgFolderService {
@@ -288,7 +290,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
 
   static nsString kLocalizedBrandShortName;
 
-  static nsICollation* gCollationKeyGenerator;
+  static mozilla::UniquePtr<mozilla::intl::Collator> gCollationKeyGenerator;
   static bool gInitializeStringsDone;
 
   // store of keys that have a processing flag set

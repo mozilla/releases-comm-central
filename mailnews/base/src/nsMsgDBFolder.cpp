@@ -27,7 +27,6 @@
 #include "nsIPrompt.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
-#include "nsCollationCID.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
 #include "nsIAbDirectory.h"
@@ -88,6 +87,60 @@ static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
 
 const char* kUseServerRetentionProp = "useServerRetention";
 
+/**
+ * mozilla::intl APIs require sizeable buffers. This class abstracts over
+ * the nsTArray.
+ */
+class nsTArrayU8Buffer {
+ public:
+  using CharType = uint8_t;
+
+  // Do not allow copy or move. Move could be added in the future if needed.
+  nsTArrayU8Buffer(const nsTArrayU8Buffer&) = delete;
+  nsTArrayU8Buffer& operator=(const nsTArrayU8Buffer&) = delete;
+
+  explicit nsTArrayU8Buffer(nsTArray<CharType>& aArray) : mArray(aArray) {}
+
+  /**
+   * Ensures the buffer has enough space to accommodate |size| elements.
+   */
+  [[nodiscard]] bool reserve(size_t size) {
+    mArray.SetCapacity(size);
+    // nsTArray::SetCapacity returns void, return true to keep the API the same
+    // as the other Buffer implementations.
+    return true;
+  }
+
+  /**
+   * Returns the raw data inside the buffer.
+   */
+  CharType* data() { return mArray.Elements(); }
+
+  /**
+   * Returns the count of elements written into the buffer.
+   */
+  size_t length() const { return mArray.Length(); }
+
+  /**
+   * Returns the buffer's overall capacity.
+   */
+  size_t capacity() const { return mArray.Capacity(); }
+
+  /**
+   * Resizes the buffer to the given amount of written elements.
+   */
+  void written(size_t amount) {
+    MOZ_ASSERT(amount <= mArray.Capacity());
+    // This sets |mArray|'s internal size so that it matches how much was
+    // written. This is necessary because the write happens across FFI
+    // boundaries.
+    mArray.SetLengthAndRetainStorage(amount);
+  }
+
+ private:
+  nsTArray<CharType>& mArray;
+};
+
 NS_IMPL_ISUPPORTS(nsMsgFolderService, nsIMsgFolderService)
 
 // This method serves the only purpose to re-initialize the
@@ -103,7 +156,8 @@ NS_IMETHODIMP nsMsgFolderService::InitializeFolderStrings() {
   return NS_OK;
 }
 
-nsICollation* nsMsgDBFolder::gCollationKeyGenerator = nullptr;
+mozilla::UniquePtr<mozilla::intl::Collator>
+    nsMsgDBFolder::gCollationKeyGenerator = nullptr;
 
 nsString nsMsgDBFolder::kLocalizedInboxName;
 nsString nsMsgDBFolder::kLocalizedTrashName;
@@ -218,7 +272,7 @@ nsMsgDBFolder::~nsMsgDBFolder(void) {
     delete mProcessingFlag[i].keys;
 
   if (--mInstanceCount == 0) {
-    NS_IF_RELEASE(gCollationKeyGenerator);
+    nsMsgDBFolder::gCollationKeyGenerator = nullptr;
   }
   // shutdown but don't shutdown children.
   Shutdown(false);
@@ -2668,13 +2722,28 @@ nsresult nsMsgDBFolder::initializeStrings() {
 }
 
 nsresult nsMsgDBFolder::createCollationKeyGenerator() {
-  nsresult rv = NS_OK;
+  if (!gCollationKeyGenerator) {
+    auto result = mozilla::intl::LocaleService::TryCreateComponent<Collator>();
+    if (result.isErr()) {
+      NS_WARNING("Could not create mozilla::intl::Collation.");
+      return NS_ERROR_FAILURE;
+    }
 
-  nsCOMPtr<nsICollationFactory> factory =
-      do_CreateInstance(NS_COLLATIONFACTORY_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+    gCollationKeyGenerator = result.unwrap();
 
-  return factory->CreateCollation(&gCollationKeyGenerator);
+    // Sort in a case-insensitive way, where "base" letters are considered
+    // equal, e.g: a = á, a = A, a ≠ b.
+    Collator::Options options{};
+    options.sensitivity = Collator::Sensitivity::Base;
+    auto optResult = gCollationKeyGenerator->SetOptions(options);
+
+    if (optResult.isErr()) {
+      NS_WARNING("Could not configure the mozilla::intl::Collation.");
+      gCollationKeyGenerator = nullptr;
+      return NS_ERROR_FAILURE;
+    }
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -4833,8 +4902,13 @@ nsresult nsMsgDBFolder::BuildFolderSortKey(nsIMsgFolder* aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   orderString.Append(folderName);
   NS_ENSURE_TRUE(gCollationKeyGenerator, NS_ERROR_NULL_POINTER);
-  return gCollationKeyGenerator->AllocateRawSortKey(
-      nsICollation::kCollationCaseInSensitive, orderString, aKey);
+
+  nsTArrayU8Buffer buffer(aKey);
+
+  auto result = gCollationKeyGenerator->GetSortKey(orderString, buffer);
+  NS_ENSURE_TRUE(result.isOk(), NS_ERROR_FAILURE);
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CompareSortKeys(nsIMsgFolder* aFolder,
@@ -4845,7 +4919,7 @@ NS_IMETHODIMP nsMsgDBFolder::CompareSortKeys(nsIMsgFolder* aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   rv = BuildFolderSortKey(aFolder, sortKey2);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = gCollationKeyGenerator->CompareRawSortKey(sortKey1, sortKey2, sortOrder);
+  *sortOrder = gCollationKeyGenerator->CompareSortKeys(sortKey1, sortKey2);
   return rv;
 }
 
