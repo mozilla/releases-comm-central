@@ -925,9 +925,16 @@ Enigmail.hdrView = {
 
       let msgUriSpec = Enigmail.msg.getCurrentMsgUriSpec();
       let currUrl = EnigmailFuncs.getUrlFromUriSpec(msgUriSpec);
+      if (!currUrl) {
+        return false;
+      }
 
       let currMsgId = EnigmailURIs.msgIdentificationFromUrl(currUrl);
       let gotMsgId = EnigmailURIs.msgIdentificationFromUrl(uri);
+
+      if (!gotMsgId) {
+        return false;
+      }
 
       EnigmailLog.DEBUG(
         "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.isCurrentMessage: url=" +
