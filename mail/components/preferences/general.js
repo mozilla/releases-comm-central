@@ -1982,16 +1982,12 @@ let gHandlerRowFragment = MozXULElement.parseXULToFragment(`
   <html:tr>
     <html:td class="typeCell">
       <html:div class="typeLabel">
-        <image class="typeIcon" width="16" height="16"
-               src="moz-icon://goat?size=16"/>
-        <label class="typeDescription"
-               crop="end"/>
+        <html:img class="typeIcon" alt=""/>
+        <label class="typeDescription" crop="end"/>
       </html:div>
     </html:td>
     <html:td class="actionCell">
-      <menulist class="actionsMenu"
-                crop="end"
-                selectedIndex="1">
+      <menulist class="actionsMenu" crop="end" selectedIndex="1">
         <menupopup/>
       </menulist>
     </html:td>
@@ -2024,11 +2020,10 @@ class HandlerRow {
       "value",
       this.handlerInfoWrapper.typeDescription
     );
-    // FIXME: Control only works when clicking the XUL label. Would be improved
-    // if the icon was part of the label and it could expand to the full width
-    // and height of the cell. This is possible with an HTML label, but the XUL
-    // menulist is not a labelable element, so the "for" attribute would not
-    // work until the menulist is also converted to a labelable HTML.
+    // NOTE: Control only works for a XUL <label>. Using a HTML <label> and the
+    // corresponding "for" attribute would not currently work with the XUL
+    // <menulist> because a XUL <menulist> is technically not a labelable
+    // element, as required for the html:label "for" attribute.
     typeDescription.setAttribute("control", id);
     // Spoof the HTML label "for" attribute focus behaviour on the whole cell.
     this.node

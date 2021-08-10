@@ -394,7 +394,7 @@ var gCloudFile = {
   _onAccountConfigured(event, account) {
     for (let item of this._list.children) {
       if (item.value == account.accountKey) {
-        item.querySelector("image.configuredWarning").hidden =
+        item.querySelector(".configuredWarning").hidden =
           account.configured;
       }
     }
@@ -451,17 +451,16 @@ var gCloudFile = {
 
   makeRichListItemForAccount(aAccount) {
     let rli = document.createXULElement("richlistitem");
-    rli.value = aAccount.accountKey;
     rli.setAttribute("align", "center");
     rli.classList.add("cloudfileAccount", "input-container");
     rli.setAttribute("value", aAccount.accountKey);
 
+    let icon = document.createElement("img");
+    icon.classList.add("typeIcon");
     if (aAccount.iconURL) {
-      rli.style.listStyleImage = "url('" + aAccount.iconURL + "')";
+      icon.setAttribute("src", aAccount.iconURL);
     }
-
-    let icon = document.createXULElement("image");
-    icon.setAttribute("class", "typeIcon");
+    icon.setAttribute("alt", "");
     rli.appendChild(icon);
 
     let label = document.createXULElement("label");
@@ -481,11 +480,12 @@ var gCloudFile = {
     input.addEventListener("keypress", this);
     rli.appendChild(input);
 
-    let warningIcon = document.createXULElement("image");
+    let warningIcon = document.createElement("img");
     warningIcon.setAttribute("class", "configuredWarning typeIcon");
     warningIcon.setAttribute("src", "chrome://global/skin/icons/warning.svg");
+    // "title" provides the accessible name, not "alt".
     warningIcon.setAttribute(
-      "tooltiptext",
+      "title",
       this._strings.GetStringFromName("notConfiguredYet")
     );
     if (aAccount.configured) {

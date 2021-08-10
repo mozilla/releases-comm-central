@@ -321,11 +321,11 @@ add_task(async function addRemoveAccounts() {
   let accountListItem = accountList.selectedItem;
   is(accountListItem.getAttribute("value"), accountKey);
   is(
-    accountListItem.style.listStyleImage,
-    `url("chrome://messenger/content/extension.svg")`
+    accountListItem.querySelector(".typeIcon:not(.configuredWarning)").src,
+    "chrome://messenger/content/extension.svg"
   );
   is(accountListItem.querySelector("label").value, "Mochitest");
-  is(accountListItem.querySelector("image.configuredWarning").hidden, false);
+  is(accountListItem.querySelector(".configuredWarning").hidden, false);
 
   ok(cloudFileDefaultPanel.hidden);
   is(browserWrapper.childElementCount, 1);
@@ -430,7 +430,7 @@ add_task(async function addRemoveAccounts() {
 
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
-  is(accountListItem.querySelector("image.configuredWarning").hidden, true);
+  is(accountListItem.querySelector(".configuredWarning").hidden, true);
   is(cloudFileAccounts.accounts.length, 1);
   is(cloudFileAccounts.configuredAccounts.length, 1);
 

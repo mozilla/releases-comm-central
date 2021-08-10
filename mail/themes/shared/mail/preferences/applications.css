@@ -109,9 +109,22 @@
   align-items: center;
 }
 
-.typeIcon {
-  margin-inline: 10px 9px;
+.typeLabel > .typeIcon {
   flex: 0 0 auto;
+}
+
+.typeLabel > .typeDescription {
+  flex: 1 1 auto;
+}
+
+.typeIcon {
+  width: 16px;
+  height: 16px;
+  margin-inline: 10px 9px;
+}
+
+.typeIcon:not([src]) {
+  visibility: hidden;
 }
 
 .actionsMenu {
@@ -190,11 +203,6 @@
 
 .cloudfileAccount {
   padding: 4px;
-}
-
-.cloudfileAccount .typeIcon {
-  height: 16px;
-  width: 16px;
 }
 
 .cloudfileAccount > label {
