@@ -3,11 +3,18 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 richlistitem {
+  display: flex;
+  align-items: center;
   padding: 4px 8px;
 }
 
-richlistitem > image {
+richlistitem > label {
+  flex: 1 1 auto;
+}
+
+richlistitem > img {
+  flex: 0 0 auto;
   margin-inline-end: 8px;
-  width: 16px;
-  height: 16px;
+  width: 32px;
+  height: 32px;
 }

@@ -9,8 +9,9 @@ function cloudfileDialogOnLoad() {
   let listItems = listBox.itemChildren;
   for (let i = 0; i < listItems.length; i++) {
     listItems[i].setAttribute("align", "center");
-    let image = document.createXULElement("image");
-    image.src = icons[i];
+    let image = document.createElement("img");
+    image.setAttribute("src", icons[i]);
+    image.setAttribute("alt", "");
     listItems[i].insertBefore(image, listItems[i].firstElementChild);
   }
 }
