@@ -10,10 +10,6 @@ var wpl = Ci.nsIWebProgressListener;
 
 var reporterListener = {
   _isBusy: false,
-  get securityButton() {
-    delete this.securityButton;
-    return (this.securityButton = document.getElementById("security-button"));
-  },
 
   QueryInterface: ChromeUtils.generateQI([
     "nsIWebProgressListener",
@@ -41,7 +37,7 @@ var reporterListener = {
     /* in nsIRequest*/ aRequest,
     /* in nsIURI*/ aLocation
   ) {
-    document.getElementById("headerMessage").textContent = aLocation.spec;
+    document.getElementById("headerMessage").value = aLocation.spec;
   },
 
   onStatusChange(
@@ -58,28 +54,33 @@ var reporterListener = {
   ) {
     const wpl_security_bits =
       wpl.STATE_IS_SECURE | wpl.STATE_IS_BROKEN | wpl.STATE_IS_INSECURE;
-    var browser = document.getElementById("requestFrame");
-    var level;
 
+    let icon = document.getElementById("security-icon");
     switch (aState & wpl_security_bits) {
       case wpl.STATE_IS_SECURE:
-        level = "high";
+        icon.setAttribute(
+          "src",
+          "chrome://messenger/skin/icons/connection-secure.svg"
+        );
+        // Set alt.
+        document.l10n.setAttributes(icon, "content-tab-security-high-icon");
+        icon.classList.add("secure-connection-icon");
         break;
       case wpl.STATE_IS_BROKEN:
-        level = "broken";
+        icon.setAttribute(
+          "src",
+          "chrome://messenger/skin/icons/connection-insecure.svg"
+        );
+        document.l10n.setAttributes(icon, "content-tab-security-broken-icon");
+        icon.classList.remove("secure-connection-icon");
+        break;
+      default:
+        icon.removeAttribute("src");
+        icon.removeAttribute("data-l10n-id");
+        icon.removeAttribute("alt");
+        icon.classList.remove("secure-connection-icon");
         break;
     }
-    if (level) {
-      this.securityButton.setAttribute("level", level);
-      this.securityButton.hidden = false;
-    } else {
-      this.securityButton.hidden = true;
-      this.securityButton.removeAttribute("level");
-    }
-    this.securityButton.setAttribute(
-      "tooltiptext",
-      browser.securityUI.tooltipText
-    );
   },
 
   onContentBlockingEvent(
@@ -101,17 +102,15 @@ function reportUserClosed() {
 
 function loadRequestedUrl() {
   let request = window.arguments[0].wrappedJSObject;
-  document.getElementById("headerMessage").textContent = request.promptText;
-  if (request.iconURI != "") {
-    document.getElementById("headerImage").src = request.iconURI;
-  }
 
   var browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
   var url = request.url;
-  if (url != "") {
+  if (url == "") {
+    document.getElementById("headerMessage").value = request.promptText;
+  } else {
     MailE10SUtils.loadURI(browser, url);
-    document.getElementById("headerMessage").textContent = url;
+    document.getElementById("headerMessage").value = url;
   }
   request.loaded(window, browser.webProgress);
 }

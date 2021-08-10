@@ -5,6 +5,9 @@
  -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/tabmail.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/browserRequest.css" type="text/css"?>
 
 <!DOCTYPE window>
@@ -18,17 +21,23 @@
         height="500"
         orient="vertical">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/browserRequest.js"/>
+
+  <html:link rel="localization" href="messenger/messenger.ftl"/>
 
   <keyset id="mainKeyset">
     <key id="key_close" key="w" modifiers="accel" oncommand="cancelRequest()"/>
     <key id="key_close2"  keycode="VK_ESCAPE" oncommand="cancelRequest()"/>
   </keyset>
-  <hbox id="header">
-  <hbox id="addressbox" flex="1" disabled="true">
-    <image id="security-button"/>
-    <description id="headerMessage"/>
-  </hbox>
-  </hbox>
+
+  <!-- Use the same styling and semantics as content tabs. -->
+  <html:div id="header" class="contentTabAddress">
+    <html:img id="security-icon" class="contentTabSecurity" />
+    <html:input id="headerMessage" class="contentTabUrlInput themeableSearchBox"
+                readonly="readonly">
+    </html:input>
+  </html:div>
   <browser type="content" src="about:blank" id="requestFrame" flex="1"/>
 </window>

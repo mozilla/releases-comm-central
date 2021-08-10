@@ -431,13 +431,6 @@
   padding-inline-start: 4px;
 }
 
-@media (min-resolution: 1.1dppx) {
-  #security-button[loading="true"] {
-    background-image: url("chrome://global/skin/icons/loading@2x.png");
-    background-size: 16px;
-  }
-}
-
 .nav-button {
   appearance: none;
   list-style-image: url(chrome://messenger/skin/icons/navigation.svg);

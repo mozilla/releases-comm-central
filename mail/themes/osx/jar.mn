@@ -22,7 +22,6 @@ classic.jar:
   skin/classic/messenger/operator.png                            (../../components/im/themes/operator.png)
   skin/classic/messenger/half-operator.png                       (../../components/im/themes/half-operator.png)
   skin/classic/messenger/voice.png                               (../../components/im/themes/voice.png)
-  skin/classic/messenger/browserRequest.css                      (mail/browserRequest.css)
   skin/classic/messenger/compacttheme.css                        (mail/compacttheme.css)
   skin/classic/messenger/customizeToolbar.css                    (mail/customizeToolbar.css)
   skin/classic/messenger/menulist.css                            (mail/menulist.css)
