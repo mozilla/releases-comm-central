@@ -918,8 +918,6 @@ function onSetDefault(event) {
   // Update gloda's myContact with the new default account's default identity.
   Gloda._initMyIdentities();
 
-  // This is only needed on Seamonkey which has this button.
-  setEnabled(document.getElementById("setDefaultButton"), false);
   gAccountTree.load();
 }
 
@@ -1131,24 +1129,6 @@ function saveAccount(accountValues, account) {
 }
 
 /**
- * Set enabled/disabled state for account actions buttons.
- * Called by all apps, but if the buttons do not exist, exits early.
- */
-function updateButtons(tree, account) {
-  let addAccountButton = document.getElementById("addAccountButton");
-  let removeButton = document.getElementById("removeButton");
-  let setDefaultButton = document.getElementById("setDefaultButton");
-
-  if (!addAccountButton && !removeButton && !setDefaultButton) {
-    // Thunderbird isn't using these.
-    return;
-  }
-
-  updateItems(tree, account, addAccountButton, setDefaultButton, removeButton);
-  updateBlockedItems([addAccountButton, setDefaultButton, removeButton], false);
-}
-
-/**
  * Set enabled/disabled state for the actions in the Account Actions menu.
  * Called only by Thunderbird.
  */
@@ -1208,8 +1188,6 @@ function updateItems(
 
 /**
  * Disable buttons/menu items if their control preference is locked.
- * SeaMonkey: Not currently handled by WSM or the main loop yet
- * since these buttons aren't under the IFRAME.
  *
  * @param aItems       an array or NodeList of elements to be checked
  * @param aMustBeTrue  if true then the pref must be boolean and set to true
@@ -1331,10 +1309,6 @@ function onAccountTreeSelect(pageId, account) {
   } else if (changeAccount) {
     // same page, different server
     restorePage(pageId, account);
-  }
-
-  if (changeAccount) {
-    updateButtons(tree, account);
   }
 
   return true;

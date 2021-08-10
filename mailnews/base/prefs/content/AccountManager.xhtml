@@ -32,9 +32,6 @@
 <script src="chrome://messenger/content/accountUtils.js"/>
 <script src="chrome://messenger/content/am-prefs.js"/>
 <script src="chrome://messenger/content/AccountManager.js"/>
-#ifdef MOZ_SUITE
-<script src="chrome://messenger/content/am-help.js"/>
-#endif
 <script src="chrome://messenger/content/amUtils.js"/>
 
   <stack id="preferences-stack" flex="1">
@@ -48,7 +45,6 @@
         <treechildren id="account-tree-children"/>
       </tree>
 
-#ifdef MOZ_THUNDERBIRD
       <button id="accountActionsButton" type="menu"
               label="&accountActionsButton.label;"
               accesskey="&accountActionsButton.accesskey;">
@@ -108,17 +104,6 @@
                  flex="1"/>
         </label>
       </vbox>
-#else
-      <button label="&addAccountButton.label;" oncommand="onAddAccount(event);" id="addAccountButton"
-              prefstring="mail.disable_new_account_addition"
-              accesskey="&addAccountButton.accesskey;"/>
-      <button label="&setDefaultButton.label;" oncommand="onSetDefault(event);" disabled="true" id="setDefaultButton"
-              prefstring="mail.disable_button.set_default_account"
-              accesskey="&setDefaultButton.accesskey;"/>
-      <button disabled="true" label="&removeButton.label;" oncommand="onRemoveAccount(event);" id="removeButton"
-              prefstring="mail.disable_button.delete_account"
-              accesskey="&removeButton.accesskey;"/>
-#endif
     </vbox>
     <iframe id="contentFrame" name="contentFrame" flex="1"/>
   </hbox>

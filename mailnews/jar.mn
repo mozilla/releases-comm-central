@@ -19,13 +19,10 @@ messenger.jar:
     content/messenger/addressbook/abView.js                                    (addrbook/content/abView.js)
     content/messenger/addressbook/map-list.js                                  (addrbook/content/map-list.js)
     content/messagebody/addressbook/print.css                                  (addrbook/content/print.css)
-*   content/messenger/AccountManager.xhtml                                     (base/prefs/content/AccountManager.xhtml)
+    content/messenger/AccountManager.xhtml                                     (base/prefs/content/AccountManager.xhtml)
     content/messenger/AccountManager.js                                        (base/prefs/content/AccountManager.js)
     content/messenger/am-main.xhtml                                            (base/prefs/content/am-main.xhtml)
     content/messenger/am-main.js                                               (base/prefs/content/am-main.js)
-#ifdef MOZ_SUITE
-    content/messenger/am-help.js                                               (base/prefs/content/am-help.js)
-#endif
     content/messenger/am-server.xhtml                                          (base/prefs/content/am-server.xhtml)
     content/messenger/am-serverwithnoidentities.xhtml                          (base/prefs/content/am-serverwithnoidentities.xhtml)
     content/messenger/am-serverwithnoidentities.js                             (base/prefs/content/am-serverwithnoidentities.js)
