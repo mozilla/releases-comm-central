@@ -10,22 +10,10 @@
   color: var(--text-color);
 }
 
-#carddav-statusArea #statusImageBefore {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  width: 16px;
-  height: 16px;
-  background-size: 16px 16px;
-}
-
 #carddav-statusArea[status=error] {
   background-color: #FFE900;
   border-color: #F2D00F;
   color: -moz-DialogText;
-}
-
-#carddav-statusArea[status=error] #statusImageBefore {
-  list-style-image: url("chrome://global/skin/icons/warning.svg");
 }
 
 #carddav-statusArea[status=loading] {
@@ -33,15 +21,32 @@
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-#carddav-statusArea[status=loading] #statusImageBefore {
-  background: url("chrome://global/skin/icons/loading.png") no-repeat;
+#carddav-statusContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* center align */
+  max-width: max-content;
+  margin-inline: auto;
 }
 
-@media (min-resolution: 1.1dppx) {
-  #carddav-statusArea[status=loading] #statusImageBefore {
-    background-image: url("chrome://global/skin/icons/loading@2x.png");
-    background-size: 16px 16px;
-  }
+#carddav-statusContainer > #carddav-statusImage {
+  flex: 0 0 auto;
+}
+
+#carddav-statusContainer > #carddav-statusMessage {
+  flex: 1 1 auto;
+}
+
+#carddav-statusImage {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  width: 16px;
+  height: 16px;
+}
+
+#carddav-statusImage:not([src]) {
+  display: none;
 }
 
 #carddav-properties-table {

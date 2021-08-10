@@ -53,19 +53,15 @@
     </html:div>
   </html:div>
 
-  <vbox id="carddav-statusArea"
-        align="center"
-        pack="center">
-    <hbox align="center"
-          pack="center">
-      <image id="statusImageBefore"/>
-      <description id="carddav-statusMessage"
-                   flex="1">&#160;</description>
-        <!-- Include 160 = nbsp, to make the element occupy the
-            full height, for at least one line. With a normal space,
-            it does not have sufficient height. -->
-    </hbox>
-  </vbox>
+  <html:div id="carddav-statusArea">
+    <html:div id="carddav-statusContainer">
+      <html:img id="carddav-statusImage" alt="" />
+      <html:span id="carddav-statusMessage">&#160;</html:span>
+      <!-- Include 160 = nbsp, to make the element occupy the
+           full height, for at least one line. With a normal space,
+           it does not have sufficient height. -->
+    </html:div>
+  </html:div>
 
   <vbox id="carddav-resultsArea"
         hidden="true">

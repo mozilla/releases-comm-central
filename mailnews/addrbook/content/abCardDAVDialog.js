@@ -29,6 +29,7 @@ window.addEventListener(
       "username",
       "location",
       "statusArea",
+      "statusImage",
       "statusMessage",
       "resultsArea",
       "availableBooks",
@@ -151,6 +152,30 @@ async function check() {
 function setStatus(status, message, args) {
   uiElements.username.disabled = status == "loading";
   uiElements.location.disabled = status == "loading";
+
+  switch (status) {
+    case "loading":
+      uiElements.statusImage.setAttribute(
+        "src",
+        "chrome://global/skin/icons/loading.png"
+      );
+      uiElements.statusImage.setAttribute(
+        "srcset",
+        "chrome://global/skin/icons/loading@2x.png 2x"
+      );
+      break;
+    case "error":
+      uiElements.statusImage.setAttribute(
+        "src",
+        "chrome://global/skin/icons/warning.svg"
+      );
+      uiElements.statusImage.removeAttribute("srcset");
+      break;
+    default:
+      uiElements.statusImage.removeAttribute("src");
+      uiElements.statusImage.removeAttribute("srcset");
+      break;
+  }
 
   if (status) {
     uiElements.statusArea.setAttribute("status", status);
