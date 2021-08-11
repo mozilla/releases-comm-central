@@ -127,9 +127,6 @@ function build_libotr() {
     autoconf
     automake
 
-    # CFLAGS="${CFLAGS_otr} ${CFLAGS}"
-    # LDFLAGS="${LDFLAGS_otr} ${LDFLAGS}"
-
     ./configure ${_CONFIGURE_FLAGS} --enable-shared --with-pic \
         --with-libgcrypt-prefix="${_PREFIX}"
 
@@ -143,7 +140,7 @@ function build_libotr() {
     case "${_TARGET_OS}" in
         win*)
             cd src
-            "${CC}" -shared -Wl,-no-undefined ${LDFLAGS} -o libotr.dll \
+            "${CC}" -static-libgcc -shared -Wl,-no-undefined ${LDFLAGS} -o libotr.dll \
                 *.o \
                 -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
                 -L"${_LIBDIR}" -lws2_32 -lssp
