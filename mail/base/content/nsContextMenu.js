@@ -274,15 +274,17 @@ class nsContextMenu {
 
     this.csp = E10SUtils.deserializeCSP(context.csp);
 
-    if (this.contentData) {
-      this.browser = this.contentData.browser;
-      if (this.browser && this.browser.currentURI.spec == "about:blank") {
-        this.shouldDisplay = false;
-        return;
-      }
-      this.selectionInfo = this.contentData.selectionInfo;
-      this.actor = this.contentData.actor;
+    if (!this.contentData) {
+      return;
     }
+
+    this.browser = this.contentData.browser;
+    if (this.browser && this.browser.currentURI.spec == "about:blank") {
+      this.shouldDisplay = false;
+      return;
+    }
+    this.selectionInfo = this.contentData.selectionInfo;
+    this.actor = this.contentData.actor;
 
     this.textSelected = this.selectionInfo?.text;
     this.isTextSelected = !!this.textSelected?.length;
@@ -292,6 +294,10 @@ class nsContextMenu {
         this.contentData.spellInfo,
         this.actor.manager
       );
+    }
+
+    if (this.contentData.spellInfo) {
+      this.spellSuggestions = this.contentData.spellInfo.spellSuggestions;
     }
 
     if (context.shouldInitInlineSpellCheckerUIWithChildren) {
@@ -357,7 +363,7 @@ class nsContextMenu {
       let suggestionCount = gSpellChecker.addSuggestionsToMenu(
         addMenuItem.parentNode,
         addMenuItem,
-        5
+        this.spellSuggestions
       );
       this.showItem("mailContext-spell-no-suggestions", suggestionCount == 0);
     } else {

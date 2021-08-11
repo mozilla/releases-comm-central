@@ -1847,7 +1847,7 @@ function openEditorContextMenu(popup) {
     let suggestionCount = gSpellChecker.addSuggestionsToMenu(
       addMenuItem.parentNode,
       separator,
-      5
+      nsContextMenu.contentData.spellInfo.spellSuggestions
     );
     document.getElementById("spellCheckNoSuggestions").hidden =
       !suggestionCount == 0;
