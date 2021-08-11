@@ -25,6 +25,7 @@
 }
 
 #alertImageBox {
+  display: block;
   padding: 4px;
   background-image: linear-gradient(rgba(255, 255, 255, .6),
                                     rgba(255, 255, 255, .6));
@@ -32,15 +33,8 @@
 }
 
 #alertImage {
-  list-style-image: url("chrome://branding/content/icon64.png");
-}
-
-@media (min-resolution: 1.1dppx) {
-  #alertImage {
-    list-style-image: url("chrome://branding/content/icon128.png");
-    width: 64px;
-    height: 64px;
-  }
+  width: 64px;
+  height: 64px;
 }
 
 #alertTextBox {
