@@ -361,7 +361,11 @@
   }
 
   .drop-attachment-box {
-    transition: color 120ms ease, border-color 120ms ease;
+    transition: color 120ms ease, background-color 120ms ease, border 120ms ease;
+  }
+
+  .drop-attachment-box span {
+    transition: background-color 120ms ease;
   }
 }
 
@@ -415,25 +419,33 @@
   -moz-context-properties: fill;
   fill: currentColor;
   background-size: contain;
-  padding-inline-start: 21px;
+  padding-inline: 25px 6px;
+  border-radius: 99px;
+  background-color: rgba(255, 255, 255, 0.85);
+  background-position: 6px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+}
+
+.drop-attachment-box span:-moz-locale-dir(rtl) {
+  background-position-x: right 6px;
 }
 
 .drop-attachment-box .drop-as-attachment {
-  background: url("chrome://messenger/skin/icons/attach.svg") left center no-repeat;
+  background-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
 .drop-attachment-box .drop-inline {
-  background: url("chrome://messenger/skin/icons/image.svg") left center no-repeat;
-}
-
-.drop-attachment-box .drop-as-attachment:-moz-locale-dir(rtl),
-.drop-attachment-box .drop-inline:-moz-locale-dir(rtl) {
-  background-position-x: right;
+  background-image: url("chrome://messenger/skin/icons/image.svg");
 }
 
 :root[lwt-tree-brighttext] .drop-attachment-box:not(.hover) {
-  color: #999;
+  color: rgb(200, 200, 200);
   border-color: #999;
+}
+
+:root[lwt-tree-brighttext] .drop-attachment-box:not(.hover) span {
+  background-color: rgba(0, 0, 0, 0.85);
 }
 
 .drop-attachment-box.hidden {
@@ -441,8 +453,19 @@
 }
 
 .drop-attachment-box.hover {
+  border-color: transparent;
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+:root[lwt-tree-brighttext] .drop-attachment-box.hover {
+  background-color: #111;
   color: #fff;
   border-color: #fff;
+  border-style: solid;
+}
+
+.drop-attachment-box.hover span {
+  background-color: transparent;
 }
 
 .add-attachment-label {
