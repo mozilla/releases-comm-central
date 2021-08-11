@@ -473,7 +473,8 @@ static nsMsgAttachmentData* mime_draft_process_attachments(
     else
       tmpFile = mdd->attachments[attachmentsIndex++];
 
-    if (tmpFile->m_type.LowerCaseEqualsLiteral("text/x-vcard"))
+    if (tmpFile->m_type.LowerCaseEqualsLiteral("text/vcard") ||
+        tmpFile->m_type.LowerCaseEqualsLiteral("text/x-vcard"))
       tmp->m_realName = tmpFile->m_description;
 
     if (tmpFile->m_origUrl) {

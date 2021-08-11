@@ -150,7 +150,7 @@ add_task(async function test_drag() {
   let transferUnicode = dataTransfer.getData("text/unicode");
   Assert.equal(transferUnicode, "contact 1 <contact.1@invalid>");
 
-  let transferVCard = dataTransfer.getData("text/x-vcard");
+  let transferVCard = dataTransfer.getData("text/vcard");
   Assert.stringContains(transferVCard, `\r\nUID:${contact1.UID}\r\n`);
 
   dragService.endDragSession(true);
@@ -178,7 +178,7 @@ add_task(async function test_drag() {
     "contact 1 <contact.1@invalid>,contact 2 <contact.2@invalid>,contact 3 <contact.3@invalid>"
   );
 
-  transferVCard = dataTransfer.getData("text/x-vcard");
+  transferVCard = dataTransfer.getData("text/vcard");
   Assert.stringContains(transferVCard, `\r\nUID:${contact1.UID}\r\n`);
 
   dragService.endDragSession(true);

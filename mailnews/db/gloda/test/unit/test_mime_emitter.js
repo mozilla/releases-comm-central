@@ -125,7 +125,7 @@ var partRelImage = new SyntheticPartLeaf(relImage.body, relImage);
 
 var tachVCard = {
   filename: "bob.vcf",
-  contentType: "text/x-vcard",
+  contentType: "text/vcard",
   encoding: "7bit",
   body: "begin:vcard\nfn:Bob\nend:vcard\n",
 };

@@ -137,7 +137,7 @@ var messages = [
       { body: textAttachment, filename: "ubik.txt", format: "" },
       {
         body: vcardAttachment,
-        contentType: "text/x-vcard",
+        contentType: "text/vcard",
         filename: "ubik.vcf",
         encoding: "base64",
         format: "",

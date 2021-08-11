@@ -568,7 +568,7 @@ char* mime_generate_attachment_headers(
           (PL_strcasecmp(type, TEXT_ENRICHED) == 0) ||
           (PL_strcasecmp(type, TEXT_VCARD) == 0) ||
           (PL_strcasecmp(type, APPLICATION_DIRECTORY) ==
-           0) || /* text/x-vcard synonym */
+           0) || /* text/vcard synonym */
           (PL_strcasecmp(type, TEXT_CSS) == 0) ||
           (PL_strcasecmp(type, TEXT_JSSS) == 0)) ||
          (PL_strcasecmp(encoding, ENCODING_BASE64) != 0)) &&
@@ -679,7 +679,7 @@ char* mime_generate_attachment_headers(
     else if (!PL_strcasecmp(type, APPLICATION_OCTET_STREAM) ||
              !PL_strcasecmp(type, TEXT_VCARD) ||
              !PL_strcasecmp(type,
-                            APPLICATION_DIRECTORY)) /* text/x-vcard synonym */
+                            APPLICATION_DIRECTORY)) /* text/vcard synonym */
       buf.AppendLiteral("attachment");
     else
       buf.AppendLiteral("inline");

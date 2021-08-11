@@ -1140,14 +1140,14 @@ var cardsPane = {
         // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
         // Don't break drag-and-drop if that happens.
         let vCard = card.translateTo("vcard");
-        event.dataTransfer.setData("text/x-vcard", decodeURIComponent(vCard));
+        event.dataTransfer.setData("text/vcard", decodeURIComponent(vCard));
         event.dataTransfer.setData(
           "application/x-moz-file-promise-dest-filename",
           card.displayName + ".vcf"
         );
         event.dataTransfer.setData(
           "application/x-moz-file-promise-url",
-          "data:text/x-vcard," + vCard
+          "data:text/vcard," + vCard
         );
         event.dataTransfer.setData(
           "application/x-moz-file-promise",
@@ -1173,7 +1173,7 @@ var cardsPane = {
     getFlavorData(aTransferable, aFlavor, aData) {
       if (aFlavor == "application/x-moz-file-promise") {
         let primitive = {};
-        aTransferable.getTransferData("text/x-vcard", primitive);
+        aTransferable.getTransferData("text/vcard", primitive);
         let vCard = primitive.value.QueryInterface(Ci.nsISupportsString).data;
         aTransferable.getTransferData(
           "application/x-moz-file-promise-dest-filename",

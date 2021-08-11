@@ -437,7 +437,8 @@ static int MimeMultipart_create_child(MimeObject* obj) {
         !mime_typep(body, (MimeObjectClass*)&mimeMultipartClass) &&
         !((mime_typep(body, (MimeObjectClass*)&mimeExternalObjectClass) ||
            mime_typep(body, (MimeObjectClass*)&mimeSuppressedCryptoClass)) &&
-          !strcmp(body->content_type, "text/x-vcard"))) {
+          (!strcmp(body->content_type, "text/vcard") ||
+           !strcmp(body->content_type, "text/x-vcard")))) {
       status = obj->options->decompose_file_init_fn(
           obj->options->stream_closure, mult->hdrs);
       if (status < 0) return status;
@@ -525,7 +526,8 @@ static int MimeMultipart_close_child(MimeObject* object) {
             !mime_typep(kid, (MimeObjectClass *)&mimeMultipartClass) &&
             !((mime_typep(kid, (MimeObjectClass *)&mimeExternalObjectClass) ||
                mime_typep(kid, (MimeObjectClass *)&mimeSuppressedCryptoClass)) &&
-              !strcmp(kid->content_type, "text/x-vcard"))) {
+              (!strcmp(kid->content_type, "text/vcard") ||
+               !strcmp(kid->content_type, "text/x-vcard")))) {
           status = object->options->decompose_file_close_fn(
               object->options->stream_closure);
           if (status < 0) return status;
@@ -568,7 +570,8 @@ static int MimeMultipart_parse_child_line(MimeObject* obj, const char* line,
         !mime_typep(kid, (MimeObjectClass*)&mimeMultipartClass) &&
         !((mime_typep(kid, (MimeObjectClass*)&mimeExternalObjectClass) ||
            mime_typep(kid, (MimeObjectClass*)&mimeSuppressedCryptoClass)) &&
-          !strcmp(kid->content_type, "text/x-vcard")))
+          (!strcmp(kid->content_type, "text/vcard") ||
+           !strcmp(kid->content_type, "text/x-vcard"))))
       return obj->options->decompose_file_output_fn(
           line, length, obj->options->stream_closure);
   }

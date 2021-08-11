@@ -441,7 +441,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
 #endif
 
     if (types_of_classes_to_disallow > 0 &&
-        !PL_strncasecmp(content_type, "text/x-vcard", 12))
+        (!PL_strncasecmp(content_type, "text/vcard", 10) ||
+         !PL_strncasecmp(content_type, "text/x-vcard", 12)))
     /* Use a little hack to prevent some dangerous plugins, which ship
        with Mozilla, to run.
        For the truly user-installed plugins, we rely on the judgement

@@ -371,7 +371,7 @@ nsresult nsMsgAttachmentHandler::PickEncoding(nsIMsgSend* mime_delivery_state) {
                        m_type.LowerCaseEqualsLiteral(TEXT_ENRICHED) ||
                        m_type.LowerCaseEqualsLiteral(TEXT_VCARD) ||
                        m_type.LowerCaseEqualsLiteral(
-                           APPLICATION_DIRECTORY) || /* text/x-vcard synonym */
+                           APPLICATION_DIRECTORY) || /* text/vcard synonym */
                        m_type.LowerCaseEqualsLiteral(TEXT_CSS) ||
                        m_type.LowerCaseEqualsLiteral(TEXT_JSSS))) {
       needsB64 = true;

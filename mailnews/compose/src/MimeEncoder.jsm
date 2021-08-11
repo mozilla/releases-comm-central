@@ -131,7 +131,7 @@ class MimeEncoder {
         this._charset &&
         isCharsetMultiByte &&
         (this._contentType.startsWith("text") ||
-          // text/x-vcard synonym
+          // text/vcard synonym
           this._contentType == "application/directory")
       ) {
         needsB64 = true;

@@ -14,7 +14,7 @@ Content-Type: text/plain; charset=UTF-8
 has an attached vcf which has invalid data (null)
 
 --------------B16B2089EF5F4ADD84A4E66F
-Content-Type: text/x-vcard;
+Content-Type: text/vcard;
  name="contentisnull.vcf"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;

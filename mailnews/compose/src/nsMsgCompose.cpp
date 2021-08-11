@@ -1177,7 +1177,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
 
     if (NS_SUCCEEDED(rv) && !escapedVCard.IsEmpty()) {
       nsCString vCardUrl;
-      vCardUrl = "data:text/x-vcard;charset=utf-8;base64,";
+      vCardUrl = "data:text/vcard;charset=utf-8;base64,";
       nsCString unescapedData;
       MsgUnescapeString(escapedVCard, 0, unescapedData);
       char* result = PL_Base64Encode(unescapedData.get(), 0, nullptr);
