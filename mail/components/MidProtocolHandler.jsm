@@ -1,8 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 const EXPORTED_SYMBOLS = ["MidProtocolHandler"];
 
@@ -12,44 +10,37 @@ const EXPORTED_SYMBOLS = ["MidProtocolHandler"];
  * @implements {nsIProtocolHandler}
  */
 class MidProtocolHandler {
-  classDescription = "MID Protocol Handler";
-  classID = Components.ID("{d512ddac-a2c1-11eb-bcbc-0242ac130002}");
-  contractID = "@mozilla.org/network/protocol;1?name=mid";
   QueryInterface = ChromeUtils.generateQI([Ci.nsIProtocolHandler]);
 
   scheme = "mid";
+  allowPort = false;
   defaultPort = -1;
   protocolFlags =
     Ci.nsIProtocolHandler.URI_NORELATIVE |
-    Ci.nsIProtocolHandler.URI_NOAUTH |
-    Ci.nsIProtocolHandler.URI_IS_UI_RESOURCE |
-    Ci.nsIProtocolHandler.URI_IS_LOCAL_RESOURCE;
+    Ci.nsIProtocolHandler.ALLOWS_PROXY |
+    Ci.nsIProtocolHandler.URI_LOADABLE_BY_ANYONE |
+    Ci.nsIProtocolHandler.URI_NON_PERSISTABLE |
+    Ci.nsIProtocolHandler.URI_DOES_NOT_RETURN_DATA |
+    Ci.nsIProtocolHandler.URI_FORBIDS_COOKIE_ACCESS;
 
   newChannel(uri, loadInfo) {
-    let id = uri.spec.replace(/^mid:/, "");
-    let hdr = MailUtils.getMsgHdrForMsgId(id);
+    // Create an empty pipe to get an inputStream.
+    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+    pipe.init(true, true, 0, 0);
+    pipe.outputStream.close();
 
-    if (!hdr) {
-      throw new Components.Exception(
-        `Message not found: ${id}`,
-        Cr.NS_ERROR_FILE_NOT_FOUND
-      );
-    }
+    // Create a channel so that we can set contentType onto it.
+    let streamChannel = Cc[
+      "@mozilla.org/network/input-stream-channel;1"
+    ].createInstance(Ci.nsIInputStreamChannel);
+    streamChannel.setURI(uri);
+    streamChannel.contentStream = pipe.inputStream;
 
-    let msgUri = Cc["@mozilla.org/network/simple-uri;1"].createInstance(
-      Ci.nsIURI
-    );
-    msgUri = msgUri
-      .mutate()
-      .setSpec(hdr.folder.getUriForMsg(hdr))
-      .finalize();
-
-    let channel = Services.io.newChannelFromURIWithLoadInfo(msgUri, loadInfo);
-    channel.originalURI = msgUri;
-    return msgUri;
-  }
-
-  allowPort() {
-    return false;
+    let channel = streamChannel.QueryInterface(Ci.nsIChannel);
+    // With this set, a nsIContentHandler instance will take over to actually
+    // load the mid url.
+    channel.contentType = "application/x-mid";
+    channel.loadInfo = loadInfo;
+    return channel;
   }
 }

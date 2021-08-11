@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["MessengerContentHandler"];
+var EXPORTED_SYMBOLS = ["MessengerContentHandler", "MidContentHandler"];
 
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -664,3 +664,23 @@ MessengerContentHandler.prototype = {
 };
 
 var gMessengerContentHandler = new MailDefaultHandler();
+
+/**
+ * Combined with MidProtocolHandler, this handler opens a message from a mid
+ * url.
+ * @implements {nsIContentHandler}
+ */
+class MidContentHandler {
+  QueryInterface = ChromeUtils.generateQI(["nsIContentHandler"]);
+
+  handleContent(contentType, windowContext, request) {
+    if (!request.URI.schemeIs("mid")) {
+      throw Components.Exception(
+        `Expecting a mid uri but got ${request.URI.spec}`,
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
+    let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+    MailUtils.openMessageByMessageId(request.URI.spec.slice(4));
+  }
+}

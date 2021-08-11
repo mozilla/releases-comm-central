@@ -364,6 +364,7 @@ pref("network.http.speculative-parallel-limit", 0);
 // list in nsMsgContentPolicy::IsExposedProtocol.
 pref("network.protocol-handler.expose-all", false);
 pref("network.protocol-handler.expose.mailto", true);
+pref("network.protocol-handler.expose.mid", true);
 pref("network.protocol-handler.expose.news", true);
 pref("network.protocol-handler.expose.snews", true);
 pref("network.protocol-handler.expose.nntp", true);
