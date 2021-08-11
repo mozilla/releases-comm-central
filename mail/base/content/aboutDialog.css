@@ -20,6 +20,16 @@
   }
 }
 
+@media (prefers-contrast) {
+  :root {
+    --dialog-background: -moz-Dialog;
+    --client-box-color: -moz-DialogText;
+    --client-box-background: -moz-Dialog;
+    --link-color: -moz-nativehyperlinktext;
+    --link-decoration: inherit;
+  }
+}
+
 #aboutDialog {
   width: 620px;
   /* Set an explicit line-height to avoid discrepancies in 'auto' spacing
