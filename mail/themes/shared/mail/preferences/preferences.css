@@ -428,10 +428,31 @@ checkbox {
   padding: 3px;
   margin-block: 4px;
   width: 100%;
+  display: flex;
 }
 
-#dataDescriptionBox {
-  line-height: 1.3em;
+#telemetry-container[hidden] {
+  display: none;
+}
+
+#telemetryInfoIcon {
+  flex: 0 0 auto;
+  align-self: start;
+  width: 16px;
+  height: 16px;
+  padding: 2px;
+}
+
+#telemetryDisabledDescription {
+  flex: 1 1 auto;
+  align-self: start;
+  line-height: 1.3;
+  margin-inline-start: 6px;
+}
+
+#telemetryDataDeletionLearnMore {
+  flex: 0 0 auto;
+  align-self: center;
 }
 
 #submitHealthReportBox {
