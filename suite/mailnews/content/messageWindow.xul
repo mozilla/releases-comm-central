@@ -71,7 +71,6 @@
     <broadcaster id="mailDisableKeys" disabled="true"/>
     <!-- File Menu -->
     <broadcaster id="Communicator:WorkMode"/>
-    <!-- Edit Menu -->
   </broadcasterset>
 
   <broadcasterset id="mainBroadcasterSet"/>

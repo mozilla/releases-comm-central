@@ -101,7 +101,6 @@
   </commandset>
 
 <broadcasterset id="abBroadcasters">
-  <!-- Edit Menu -->
   <broadcaster id="Communicator:WorkMode"/>
 </broadcasterset>
 
