@@ -714,7 +714,7 @@ add_task(async function accountListOverflow() {
     );
     await readyPromise;
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 500));
     if (buttonList.hidden) {
       break;
     }
