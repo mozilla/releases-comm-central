@@ -340,6 +340,29 @@ var MailUtils = {
   },
 
   /**
+   * Open a message from a message id.
+   * @param {string} msgId - The message id string without the brackets.
+   */
+  openMessageByMessageId(msgId) {
+    let msgHdr = this.getMsgHdrForMsgId(msgId);
+    if (msgHdr) {
+      this.displayMessage(msgHdr);
+      return;
+    }
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+    let errorTitle = bundle.GetStringFromName(
+      "errorOpenMessageForMessageIdTitle"
+    );
+    let errorMessage = bundle.formatStringFromName(
+      "errorOpenMessageForMessageIdMessage",
+      [msgId]
+    );
+    Services.prompt.alert(null, errorTitle, errorMessage);
+  },
+
+  /**
    * The number of milliseconds to wait between loading of folders in
    * |setStringPropertyOnFolderAndDescendents|.  We wait at all because
    * opening msf databases is a potentially expensive synchronous operation that

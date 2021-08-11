@@ -30,6 +30,12 @@ function launchBrowser(url, event) {
     return;
   }
 
+  if (/^mid:/i.test(url)) {
+    let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+    MailUtils.openMessageByMessageId(url.slice(4));
+    return;
+  }
+
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)
     .loadURI(Services.io.newURI(url));

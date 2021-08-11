@@ -144,26 +144,6 @@ function openURI(uri) {
   loader.openURI(channel, true, listener);
 }
 
-function openMessageByMessageId(msgId) {
-  let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-  let msgHdr = MailUtils.getMsgHdrForMsgId(msgId);
-  if (msgHdr) {
-    MailUtils.displayMessage(msgHdr);
-    return;
-  }
-  let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/messenger.properties"
-  );
-  let errorTitle = bundle.GetStringFromName(
-    "errorOpenMessageForMessageIdTitle"
-  );
-  let errorMessage = bundle.formatStringFromName(
-    "errorOpenMessageForMessageIdMessage",
-    [msgId]
-  );
-  Services.prompt.alert(null, errorTitle, errorMessage);
-}
-
 function MailDefaultHandler() {}
 
 MailDefaultHandler.prototype = {
@@ -530,7 +510,10 @@ MailDefaultHandler.prototype = {
           Services.io.newURI(uri)
         );
       } else if (/^mid:/i.test(uri)) {
-        openMessageByMessageId(uri.slice(4));
+        let { MailUtils } = ChromeUtils.import(
+          "resource:///modules/MailUtils.jsm"
+        );
+        MailUtils.openMessageByMessageId(uri.slice(4));
       } else {
         // This must be a regular filename. Use it to create a new message with attachment.
         let msgParams = Cc[
