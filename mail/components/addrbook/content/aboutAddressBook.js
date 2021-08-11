@@ -600,8 +600,6 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     observe(subject, topic, data) {
       subject.QueryInterface(Ci.nsIAbDirectory);
 
-      // Remember what was selected.
-      let selectedUID = this.getRowAtIndex(this.selectedIndex).dataset.uid;
       switch (topic) {
         case "addrbook-directory-created": {
           let row = this._createBookRow(subject);
@@ -643,7 +641,9 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
             row.querySelector("li.selected")
           ) {
             // Select "All Address Books".
-            selectedUID = null;
+            setTimeout(() => {
+              this.selectedIndex = 0;
+            });
           }
           break;
         }
@@ -671,18 +671,11 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
           let listRow = childList.querySelector(`[data-uid="${subject.UID}"]`);
           listRow.remove();
           if (childList.childElementCount == 0) {
-            childList.remove();
-          }
-          if (listRow.classList.contains("selected")) {
-            // Select the containing book.
-            selectedUID = data;
+            setTimeout(() => childList.remove());
           }
           break;
         }
       }
-      // Restore the right selected index, which might've changed by rows
-      // being added or removed.
-      this.selectedIndex = this.getIndexForUID(selectedUID);
     },
   };
 }

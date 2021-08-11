@@ -16,18 +16,16 @@
    *
    * List items can provide their own twisty element, which will operate when
    * clicked on if given the class name "twisty".
-   *
-   * Note that behaviour is undefined if there are no rows. This may need to
-   * be fixed in future but no current use case ever has no rows.
    */
   class TreeListbox extends HTMLUListElement {
     /**
-     * The index of the selected row. This should always have a value between
-     * 0 and `rowCount - 1`. It is set to 0 in `connectedCallback`.
+     * The index of the selected row. If there are no rows, the value is -1.
+     * Otherwise, should always have a value between 0 and `rowCount - 1`.
+     * It is set to 0 in `connectedCallback` if there are rows.
      *
      * @type {integer}
      */
-    _selectedIndex;
+    _selectedIndex = -1;
 
     connectedCallback() {
       if (this.hasConnected) {
@@ -60,6 +58,7 @@
         for (let i = 0; i < descendants.length - 1; i++) {
           let row = descendants[i];
           row.setAttribute("role", "option");
+          row.classList.remove("selected");
           if (i + 1 < descendants.length && row.contains(descendants[i + 1])) {
             row.classList.add("children");
           }
@@ -67,9 +66,9 @@
       }
       initRows(this);
 
-      // There should always be a selected item. How this works for lists
-      // without any items is at this stage undefined.
-      this.selectedIndex = 0;
+      if (this.querySelector("li")) {
+        this.selectedIndex = 0;
+      }
 
       this.addEventListener("click", event => {
         if (event.button !== 0) {
@@ -210,23 +209,82 @@
           let ancestor = mutation.target.closest("li");
 
           for (let node of mutation.addedNodes) {
-            if (node.localName == "li") {
-              initRows(node);
-              if (ancestor) {
-                ancestor.classList.add("children");
-              }
+            if (node.nodeType != Node.ELEMENT_NODE || node.localName != "li") {
+              continue;
+            }
+
+            node.classList.remove("selected");
+            initRows(node);
+            if (ancestor) {
+              ancestor.classList.add("children");
+            }
+
+            if (this._selectedIndex == -1) {
+              // There were no rows before this one was added. Select it.
+              this.selectedIndex = 0;
+            } else if (this._selectedIndex >= this.rows.indexOf(node)) {
+              // The selected row is further down the list than the inserted
+              // row. Update the selected index.
+              this._selectedIndex += 1 + node.querySelectorAll("li").length;
             }
           }
 
-          if (!ancestor) {
-            continue;
-          }
-
           for (let node of mutation.removedNodes) {
+            if (node.nodeType != Node.ELEMENT_NODE) {
+              continue;
+            }
+
             if (
-              node.localName == "ul" ||
-              (node.localName == "li" && !mutation.target.querySelector("li"))
+              node.classList.contains("selected") ||
+              node.querySelector(".selected")
             ) {
+              // The selected row was removed from the tree. We need to find a
+              // new row to select.
+              if (ancestor) {
+                // An ancestor remains in the tree. Select it.
+                this.selectedIndex = this.rows.indexOf(ancestor);
+              } else {
+                let previousRow = mutation.previousSibling;
+                if (previousRow && previousRow.nodeType != Node.ELEMENT_NODE) {
+                  previousRow = previousRow.previousElementSibling;
+                }
+                if (previousRow) {
+                  // There is a previous sibling. Select it.
+                  this.selectedIndex = this.rows.indexOf(previousRow);
+                } else if (this.childElementCount) {
+                  // There is a next sibling. Select it.
+                  this._selectedIndex = -1; // Force the setter to do something.
+                  this.selectedIndex = 0;
+                } else {
+                  // There's nothing left. Clear the selection.
+                  this._selectedIndex = -1;
+                  this.dispatchEvent(new CustomEvent("select"));
+                }
+              }
+            } else {
+              let selectedRow = this.querySelector(".selected");
+              if (
+                selectedRow &&
+                mutation.previousSibling &&
+                mutation.previousSibling.compareDocumentPosition(selectedRow) &
+                  Node.DOCUMENT_POSITION_FOLLOWING
+              ) {
+                // The selected row is further down the list than the removed
+                // row. Update the selected index.
+                if (node.localName == "li") {
+                  this._selectedIndex--;
+                }
+                this._selectedIndex -= node.querySelectorAll("li").length;
+              }
+            }
+
+            if (
+              ancestor &&
+              (node.localName == "ul" ||
+                (node.localName == "li" &&
+                  !mutation.target.querySelector("li")))
+            ) {
+              // There's no rows left under `ancestor`.
               ancestor.classList.remove("children");
               ancestor.classList.remove("collapsed");
             }
@@ -292,8 +350,9 @@
     }
 
     /**
-     * The index of the selected row. This should always have a value between
-     * 0 and `rowCount - 1`. It is set to 0 in `connectedCallback`.
+     * The index of the selected row. If there are no rows, the value is -1.
+     * Otherwise, should always have a value between 0 and `rowCount - 1`.
+     * It is set to 0 in `connectedCallback` if there are rows.
      *
      * @type {integer}
      */
@@ -314,6 +373,14 @@
       }
 
       let row = this.getRowAtIndex(index);
+      if (!row) {
+        if (this._selectedIndex != -1) {
+          this._selectedIndex = -1;
+          this.dispatchEvent(new CustomEvent("select"));
+        }
+        return;
+      }
+
       row.classList.add("selected");
       row.setAttribute("aria-selected", true);
       this.setAttribute("aria-activedescendant", row.id);

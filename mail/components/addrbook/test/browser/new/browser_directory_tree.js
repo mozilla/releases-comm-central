@@ -97,6 +97,7 @@ add_task(async function test_additions_and_removals() {
   // Add some lists, *not* using the UI, and check that we don't move to them.
 
   let list1 = newBook1.addMailList(createMailingList("New Book 1 - List 1"));
+  await new Promise(r => abWindow.setTimeout(r));
   checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -107,6 +108,7 @@ add_task(async function test_additions_and_removals() {
   );
 
   let list3 = newBook1.addMailList(createMailingList("New Book 1 - List 3"));
+  await new Promise(r => abWindow.setTimeout(r));
   checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -118,6 +120,7 @@ add_task(async function test_additions_and_removals() {
   );
 
   let list0 = newBook1.addMailList(createMailingList("New Book 1 - List 0"));
+  await new Promise(r => abWindow.setTimeout(r));
   checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -130,6 +133,7 @@ add_task(async function test_additions_and_removals() {
   );
 
   let list2 = newBook1.addMailList(createMailingList("New Book 1 - List 2"));
+  await new Promise(r => abWindow.setTimeout(r));
   checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -195,6 +199,7 @@ add_task(async function test_additions_and_removals() {
   // Delete a list that isn't displayed, and check that we don't move.
 
   newBook1.deleteDirectory(list3);
+  await new Promise(r => abWindow.setTimeout(r));
   checkDirectoryDisplayed(list5);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -211,6 +216,7 @@ add_task(async function test_additions_and_removals() {
   // Delete the displayed list, and check that we return to the parent book.
 
   newBook2.deleteDirectory(list5);
+  await new Promise(r => abWindow.setTimeout(r));
   checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -226,6 +232,7 @@ add_task(async function test_additions_and_removals() {
   // Delete the displayed book, and check that we return to "All Address Books".
 
   await promiseDirectoryRemoved(newBook2.URI);
+  await new Promise(r => abWindow.setTimeout(r));
   checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -241,6 +248,7 @@ add_task(async function test_additions_and_removals() {
 
   openDirectory(list1);
   await promiseDirectoryRemoved(newBook1.URI);
+  await new Promise(r => abWindow.setTimeout(r));
   checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -381,6 +389,7 @@ add_task(async function test_rename_and_delete() {
   await promptPromise;
   await selectPromise;
   Assert.equal(newBook.childNodes.length, 0, "list was actually deleted");
+  await new Promise(r => abWindow.setTimeout(r));
 
   Assert.equal(booksList.rowCount, 4);
   Assert.equal(booksList.getIndexForUID(newBook.UID), 2);

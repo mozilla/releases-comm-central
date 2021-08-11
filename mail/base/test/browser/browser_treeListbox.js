@@ -7,26 +7,42 @@ registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
 
-add_task(async function() {
+async function withTab(callback) {
   let tab = tabmail.openTab("contentTab", {
     url:
       "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeListbox.xhtml",
   });
-
   await BrowserTestUtils.browserLoaded(tab.browser);
-  tab.browser.focus();
 
-  await SpecialPowers.spawn(tab.browser, [], testKeyboard);
-  await SpecialPowers.spawn(tab.browser, [], testMutation);
-  await SpecialPowers.spawn(tab.browser, [], testExpandCollapse);
+  tab.browser.focus();
+  await SpecialPowers.spawn(tab.browser, [], callback);
 
   tabmail.closeTab(tab);
+}
+
+add_task(async function testKeyboard() {
+  await withTab(subtestKeyboard);
+});
+add_task(async function testMutation() {
+  await withTab(subtestMutation);
+});
+add_task(async function testExpandCollapse() {
+  await withTab(subtestExpandCollapse);
+});
+add_task(async function testSelectOnRemoval1() {
+  await withTab(subtestSelectOnRemoval1);
+});
+add_task(async function testSelectOnRemoval2() {
+  await withTab(subtestSelectOnRemoval2);
+});
+add_task(async function testSelectOnRemoval3() {
+  await withTab(subtestSelectOnRemoval3);
 });
 
 /**
  * Tests keyboard navigation up and down the list.
  */
-async function testKeyboard() {
+async function subtestKeyboard() {
   let doc = content.document;
 
   let list = doc.querySelector(`ul[is="tree-listbox"]`);
@@ -151,7 +167,7 @@ async function testKeyboard() {
  * mutation observer so the tree is not updated immediately, but at the end of
  * the event loop.
  */
-async function testMutation() {
+async function subtestMutation() {
   let doc = content.document;
   let list = doc.querySelector(`ul[is="tree-listbox"]`);
   let idsWithChildren = ["row-2", "row-3", "row-3-1"];
@@ -200,6 +216,7 @@ async function testMutation() {
   await new Promise(r => content.setTimeout(r));
   checkHasClass("new-row", false);
   newRow.remove();
+  await new Promise(r => content.setTimeout(r));
 
   // Add and remove a single row to rows with existing children.
 
@@ -281,13 +298,31 @@ async function testMutation() {
   checkHasClass("added-row-1-1", false);
   checkHasClass("added-row-2", false);
   newRow.remove();
+  await new Promise(r => content.setTimeout(r));
+
+  // Add a new row without children to the middle of the list. Selection should
+  // be maintained.
+
+  list.selectedIndex = 5; // row-3-1
+
+  info("adding new row to middle of list");
+  newRow = template.content.cloneNode(true).firstElementChild;
+  list.insertBefore(newRow, list.querySelector("#row-3"));
+  await new Promise(r => content.setTimeout(r));
+  Assert.equal(list.selectedIndex, 9, "row-3-1 is still selected");
+
+  newRow.remove();
+  await new Promise(r => content.setTimeout(r));
+  Assert.equal(list.selectedIndex, 5, "row-3-1 is still selected");
+
+  list.selectedIndex = 0;
 }
 
 /**
  * Checks that expanding and collapsing works. Twisties in the test file are
  * styled as coloured squares: red for collapsed, green for expanded.
  */
-async function testExpandCollapse() {
+async function subtestExpandCollapse() {
   let doc = content.document;
   let list = doc.querySelector(`ul[is="tree-listbox"]`);
   let allIds = [
@@ -698,4 +733,188 @@ async function testExpandCollapse() {
   list.removeEventListener("collapsed", listener);
   list.removeEventListener("expanded", listener);
   doc.documentElement.dir = null;
+}
+
+/**
+ * Tests what happens to selection when a row is removed.
+ */
+async function subtestSelectOnRemoval1() {
+  let doc = content.document;
+  let list = doc.querySelector(`ul[is="tree-listbox"]`);
+
+  let selectPromise;
+  function promiseSelectEvent() {
+    selectPromise = new Promise(resolve =>
+      list.addEventListener("select", () => resolve(list.selectedIndex), {
+        once: true,
+      })
+    );
+  }
+
+  // Delete a row that is selected, and not at the top level. Selection should
+  // move to the parent row.
+
+  list.selectedIndex = 2; // row-2-1
+
+  promiseSelectEvent();
+  list.querySelector("#row-2-1").remove();
+  Assert.equal(await selectPromise, 1, "selection moved to the parent row");
+
+  // Delete a row that is selected, and at the top level. Selection should move
+  // to the previous top-level row.
+
+  promiseSelectEvent();
+  list.querySelector("#row-2").remove();
+  Assert.equal(
+    await selectPromise,
+    0,
+    "selection moved to the previous top-level row"
+  );
+
+  // Delete a row that is selected, and at the top level. There is no previous
+  // sibling, so selection should move to the first top-level row.
+  // There should be a select event even though the index didn't change.
+
+  promiseSelectEvent();
+  list.querySelector("#row-1").remove();
+  Assert.equal(
+    await selectPromise,
+    0,
+    "selection moved to the first top-level row"
+  );
+
+  // Delete a row that isn't selected. Nothing should happen.
+
+  list.selectedIndex = 2; // row-3-1-1
+
+  list.querySelector("#row-3-1-2").remove();
+  await new Promise(resolve => content.setTimeout(resolve));
+  Assert.equal(list.selectedIndex, 2, "selection did not change");
+
+  // Delete a row that is an ancestor of the selected row. Selection should
+  // move to the nearest remaining ancestor.
+
+  list.selectedIndex = 2; // row-3-1-1
+
+  promiseSelectEvent();
+  let rowToReplace = list.querySelector("#row-3-1");
+  rowToReplace.remove();
+  Assert.equal(
+    await selectPromise,
+    0,
+    "selection moved to the nearest remaining ancestor"
+  );
+
+  // Delete the last remaining row. The selected index should be -1.
+
+  promiseSelectEvent();
+  list.querySelector("#row-3").remove();
+  Assert.equal(await selectPromise, -1, "selection was cleared");
+
+  // Add back a row. One of the row's children was selected, this should be
+  // removed and the selection set to the top-level row.
+
+  promiseSelectEvent();
+  list.appendChild(rowToReplace);
+  Assert.equal(await selectPromise, 0, "selection set to the added row");
+  Assert.ok(list.querySelector("#row-3-1-1", "child of the added row exists"));
+  Assert.ok(
+    !list.querySelector("#row-3-1-1").classList.contains("selected"),
+    "child of the added row is not selected"
+  );
+}
+
+/**
+ * Tests what happens to selection when a row is removed.
+ */
+async function subtestSelectOnRemoval2() {
+  let doc = content.document;
+  let list = doc.querySelector(`ul[is="tree-listbox"]`);
+
+  let selectPromise;
+  function promiseSelectEvent() {
+    selectPromise = new Promise(resolve =>
+      list.addEventListener("select", () => resolve(list.selectedIndex), {
+        once: true,
+      })
+    );
+  }
+
+  // Delete the top-level row containing the selection. Selection should move
+  // to the previous top-level row.
+
+  list.selectedIndex = 7; // row-3-1-2
+
+  promiseSelectEvent();
+  list.querySelector("#row-3").remove();
+  Assert.equal(
+    await selectPromise,
+    1, // row-2
+    "selection moved to the previous top-level row"
+  );
+
+  // Delete the top-level row containing the selection. Selection should move
+  // to the previous top-level row.
+
+  list.selectedIndex = 3; // row-2-2
+
+  promiseSelectEvent();
+  list.querySelector("#row-2").remove();
+  Assert.equal(
+    await selectPromise,
+    0, // row-1
+    "selection moved to the previous top-level row"
+  );
+}
+
+/**
+ * Tests what happens to selection when elements above it are removed.
+ */
+async function subtestSelectOnRemoval3() {
+  let doc = content.document;
+  let list = doc.querySelector(`ul[is="tree-listbox"]`);
+
+  // Delete a row.
+
+  list.selectedIndex = 6; // row-3-1-1
+
+  list.querySelector("#row-2-1").remove();
+  await new Promise(r => content.setTimeout(r));
+  Assert.deepEqual(
+    list.rows.map(r => r.id),
+    ["row-1", "row-2", "row-2-2", "row-3", "row-3-1", "row-3-1-1", "row-3-1-2"]
+  );
+  Assert.equal(
+    list.selectedIndex,
+    5, // row-3-1-1
+    "selection moved to the previous top-level row"
+  );
+
+  // Delete an element that isn't a row.
+
+  list.querySelector("#row-2 div").remove();
+  await new Promise(r => content.setTimeout(r));
+  Assert.deepEqual(
+    list.rows.map(r => r.id),
+    ["row-1", "row-2", "row-2-2", "row-3", "row-3-1", "row-3-1-1", "row-3-1-2"]
+  );
+  Assert.equal(
+    list.selectedIndex,
+    5, // row-3-1-1
+    "selection moved to the previous top-level row"
+  );
+
+  // Delete an element that contains a row.
+
+  list.querySelector("#row-2 ul").remove();
+  await new Promise(r => content.setTimeout(r));
+  Assert.deepEqual(
+    list.rows.map(r => r.id),
+    ["row-1", "row-2", "row-3", "row-3-1", "row-3-1-1", "row-3-1-2"]
+  );
+  Assert.equal(
+    list.selectedIndex,
+    4, // row-3-1-1
+    "selection moved to the previous top-level row"
+  );
 }
