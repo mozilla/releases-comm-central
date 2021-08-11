@@ -32,7 +32,7 @@ class LinkHandlerParent extends JSWindowActorParent {
 
   setIconFromLink(gTabmail, browser, { canUseForTab, iconURL }) {
     let tab = gTabmail.getTabForBrowser(browser);
-    if (!tab) {
+    if (tab?.mode?.type != "content") {
       return;
     }
 
