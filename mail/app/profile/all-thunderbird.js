@@ -1304,6 +1304,10 @@ pref("mail.activity.loglevel", "Warn");
 // The number of public recipients before we offer BCC addressing.
 pref("mail.compose.warn_public_recipients.threshold", 15);
 
+// Indicates whether to show an alert before send if no action taken while the
+// too many public recipients notification is shown.
+pref("mail.compose.warn_public_recipients.aggressive", false);
+
 // Temporary pref while both Address Book UIs exist.
 // Set to false for addressbook.xhtml in a window, or true for
 // about:addressbook in a tab.

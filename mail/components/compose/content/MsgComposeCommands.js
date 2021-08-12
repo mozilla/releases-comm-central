@@ -57,6 +57,13 @@ XPCOMUtils.defineLazyGetter(
   () => new Localization(["messenger/messengercompose/messengercompose.ftl"])
 );
 
+XPCOMUtils.defineLazyGetter(
+  this,
+  "l10nComposeSync",
+  () =>
+    new Localization(["messenger/messengercompose/messengercompose.ftl"], true)
+);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   SelectionUtils: "resource://gre/modules/SelectionUtils.jsm",
@@ -4740,6 +4747,56 @@ function GenericSendMessage(msgType) {
       }
     }
 
+    // Aggressive many public recipients prompt.
+    let publicRecipientCount = getPublicAddressPillsCount();
+    if (
+      Services.prefs.getBoolPref(
+        "mail.compose.warn_public_recipients.aggressive"
+      ) &&
+      publicRecipientCount >=
+        Services.prefs.getIntPref(
+          "mail.compose.warn_public_recipients.threshold"
+        )
+    ) {
+      let flags =
+        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+        Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
+      let [title, msg, cancel, send] = l10nComposeSync.formatValuesSync([
+        "many-public-recipients-prompt-title",
+        {
+          id: "many-public-recipients-prompt-msg",
+          args: { count: getPublicAddressPillsCount() },
+        },
+        "many-public-recipients-prompt-cancel",
+        "many-public-recipients-prompt-send",
+      ]);
+      let willCancel = Services.prompt.confirmEx(
+        window,
+        title,
+        msg,
+        flags,
+        send,
+        cancel,
+        null,
+        null,
+        { value: 0 }
+      );
+
+      if (willCancel) {
+        if (!gRecipientObserver) {
+          // Re-create this observer as it is destroyed when the user dismisses
+          // the warning.
+          gRecipientObserver = new MutationObserver(function(mutations) {
+            if (mutations.some(m => m.type == "childList")) {
+              checkPublicRecipientsLimit();
+            }
+          });
+        }
+        checkPublicRecipientsLimit();
+        return;
+      }
+    }
+
     // Check if the user tries to send a message to a newsgroup through a mail
     // account.
     var currentAccountKey = getCurrentAccountKey();
@@ -5190,12 +5247,7 @@ async function checkPublicRecipientsLimit() {
     "mail.compose.warn_public_recipients.threshold"
   );
 
-  let publicAddressPills = getPublicAddressPills();
-  let publicAddressPillsCount = publicAddressPills.reduce(
-    (total, pill) =>
-      pill.isMailList ? total + pill.listAddressCount : total + 1,
-    0
-  );
+  let publicAddressPillsCount = getPublicAddressPillsCount();
 
   if (publicAddressPillsCount < recipLimit) {
     if (notification) {
@@ -5208,7 +5260,7 @@ async function checkPublicRecipientsLimit() {
   if (notification) {
     document.l10n.setAttributes(
       notification.messageText,
-      "many-public-recipients-info",
+      "many-public-recipients-notice",
       { count: publicAddressPillsCount }
     );
     return;
@@ -5263,7 +5315,7 @@ async function checkPublicRecipientsLimit() {
   };
 
   notification = gComposeNotification.appendNotification(
-    await document.l10n.formatValue("many-public-recipients-info", {
+    await document.l10n.formatValue("many-public-recipients-notice", {
       count: publicAddressPillsCount,
     }),
     "warnPublicRecipientsNotification",
@@ -5288,6 +5340,19 @@ function getPublicAddressPills() {
     ...document.querySelectorAll("#toAddrContainer > mail-address-pill"),
     ...document.querySelectorAll("#ccAddrContainer > mail-address-pill"),
   ];
+}
+
+/**
+ * Gets the count of all the address pills in the "To" and "Cc" fields. This
+ * takes mailing lists into consideration as well.
+ */
+function getPublicAddressPillsCount() {
+  let pills = getPublicAddressPills();
+  return pills.reduce(
+    (total, pill) =>
+      pill.isMailList ? total + pill.listAddressCount : total + 1,
+    0
+  );
 }
 
 /**
