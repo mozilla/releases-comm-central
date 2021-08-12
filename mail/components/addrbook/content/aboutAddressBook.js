@@ -206,9 +206,9 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       this.appendChild(this._createBookRow(book));
     }
 
-    this.observer.observe = this.observer.observe.bind(this);
-    for (let topic of this.observer._notifications) {
-      Services.obs.addObserver(this.observer, topic, true);
+    this._abObserver.observe = this._abObserver.observe.bind(this);
+    for (let topic of this._abObserver._notifications) {
+      Services.obs.addObserver(this._abObserver, topic, true);
     }
 
     window.addEventListener("unload", this);
@@ -221,12 +221,14 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     this.removeEventListener("dragover", this);
     this.removeEventListener("drop", this);
 
-    for (let topic of this.observer._notifications) {
-      Services.obs.removeObserver(this.observer, topic);
+    for (let topic of this._abObserver._notifications) {
+      Services.obs.removeObserver(this._abObserver, topic);
     }
   }
 
   handleEvent(event) {
+    super.handleEvent(event);
+
     switch (event.type) {
       case "select":
         this._onSelect(event);
@@ -581,7 +583,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     event.preventDefault();
   }
 
-  observer = {
+  _abObserver = {
     QueryInterface: ChromeUtils.generateQI([
       "nsIObserver",
       "nsISupportsWeakReference",
