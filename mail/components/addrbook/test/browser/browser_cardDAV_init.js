@@ -215,7 +215,7 @@ add_task(function testNoWellKnown() {
     {
       url: "/",
       password: "alice",
-      expectedStatus: "",
+      expectedStatus: null,
       expectedBooks: DEFAULT_BOOKS,
     }
   );
@@ -240,7 +240,7 @@ add_task(function testBadPassword() {
     {
       url: "/",
       password: "alice",
-      expectedStatus: "",
+      expectedStatus: null,
       expectedBooks: DEFAULT_BOOKS,
     }
   );
@@ -251,7 +251,7 @@ add_task(function testDirectLink() {
   return wrappedTest(null, {
     url: "/addressbooks/me/test/",
     password: "alice",
-    expectedStatus: "",
+    expectedStatus: null,
     expectedBooks: [DEFAULT_BOOKS[1]],
   });
 });
@@ -267,7 +267,7 @@ add_task(function testEmailGoodPreset() {
     {
       username: "alice@test.invalid",
       password: "alice",
-      expectedStatus: "",
+      expectedStatus: null,
       expectedBooks: DEFAULT_BOOKS,
     }
   );
@@ -302,7 +302,7 @@ add_task(async function testEveryThingOK() {
         await attemptInit(dialogWindow, {
           url: CardDAVServer.origin,
           password: "alice",
-          expectedStatus: "",
+          expectedStatus: null,
           expectedBooks: DEFAULT_BOOKS,
         });
 
@@ -385,7 +385,7 @@ add_task(async function testEveryThingOKAgain() {
         await attemptInit(dialogWindow, {
           url: CardDAVServer.origin,
           password: "alice",
-          expectedStatus: "",
+          expectedStatus: null,
           expectedBooks: [DEFAULT_BOOKS[0]],
         });
 
@@ -463,7 +463,7 @@ add_task(async function testNoSavePassword() {
           url: CardDAVServer.origin,
           password: "alice",
           savePassword: false,
-          expectedStatus: "",
+          expectedStatus: null,
           expectedBooks: DEFAULT_BOOKS,
         });
 
