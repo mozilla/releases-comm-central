@@ -419,7 +419,7 @@ input:user-invalid ~ .icon-warning {
 
 #manualConfigArea select {
   padding-inline-start: 9px;
-  margin-block: 0;
+  padding-block: 0;
 }
 
 #manualConfigArea select:not([size], [multiple]) {
