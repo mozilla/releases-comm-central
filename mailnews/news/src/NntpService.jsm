@@ -22,6 +22,15 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 class NntpService {
   QueryInterface = ChromeUtils.generateQI(["nsINntpService"]);
 
+  get cacheStorage() {
+    if (!this._cacheStorage) {
+      this._cacheStorage = Services.cache2.memoryCacheStorage(
+        Services.loadContextInfo.custom(false, {})
+      );
+    }
+    return this._cacheStorage;
+  }
+
   generateNewsHeaderValsForPosting(
     newsgroupsList,
     outNewsgroupsHeader,
