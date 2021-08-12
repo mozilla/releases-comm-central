@@ -112,6 +112,8 @@ async function initE2EEncryption(identity) {
 
     gRequireEncrypt.disabled = true;
     gDoNotEncrypt.disabled = true;
+    gEncryptSubject.disabled = true;
+    gEncryptDrafts.disabled = true;
     gSignMessages.disabled = true;
     gSignMessages.checked = false;
     gEncryptionChoices.value = 0;

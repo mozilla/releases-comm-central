@@ -15,7 +15,7 @@
 /*global Sendlater3Composing: false, gCurrentIdentity: false, showMessageComposeSecurityStatus: false */
 /*global gSendEncrypted: true, gOptionalEncryption: true, gSendSigned: true, gSelectedTechnologyIsPGP: true */
 /*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
-/*global setEncSigStatusUI: false, gEncryptedURIService: false */
+/*global gEncryptSubject: true, setEncSigStatusUI: false, gEncryptedURIService: false */
 /* global setSendEncrypted: true */
 /* import-globals-from ../BondOpenPGP.jsm */
 
@@ -1257,10 +1257,7 @@ Enigmail.msg = {
 
     draftStatus += gAttachMyPublicPGPKey ? "1" : "0";
 
-    draftStatus +=
-      doEncrypt && gCurrentIdentity.getBoolAttribute("protectSubject")
-        ? "1"
-        : "0";
+    draftStatus += doEncrypt && gEncryptSubject ? "1" : "0";
 
     this.setAdditionalHeader("X-Enigmail-Draft-Status", draftStatus);
   },
@@ -1477,7 +1474,7 @@ Enigmail.msg = {
       EnigmailConstants.SEND_ENCRYPT_TO_SELF |
       EnigmailConstants.SAVE_MESSAGE;
 
-    if (gCurrentIdentity.getBoolAttribute("protectSubject")) {
+    if (gEncryptSubject) {
       sendFlags |= EnigmailConstants.ENCRYPT_SUBJECT;
     }
     if (senderKeyIsGnuPG) {
@@ -1636,7 +1633,7 @@ Enigmail.msg = {
       f |= EnigmailConstants.SEND_TWO_MIME_LAYERS;
     }
 
-    if (gCurrentIdentity.getBoolAttribute("protectSubject")) {
+    if (gEncryptSubject) {
       f |= EnigmailConstants.ENCRYPT_SUBJECT;
     }
 

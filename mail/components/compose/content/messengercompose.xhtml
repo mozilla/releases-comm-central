@@ -1791,12 +1791,24 @@
                     oncommand="onSecurityChoice(event.target.value);"/>
 
 #ifdef MOZ_OPENPGP
-        <menuseparator id="myPublicKeySeparator_Menubar" class="openpgp-item"/>
-        <menuitem id="menu_securityMyPublicKey_Menubar" class="openpgp-item"
-                  type="checkbox"
-                  data-l10n-id="compose-menu-attach-key"
-                  value="mykey"
-                  oncommand="onSecurityChoice(event.target.value);"/>
+        <menuseparator id="sepOpenPGP_Menubar"
+                       class="openpgp-item"/>
+
+        <menu id="menu_OpenPGPOptions_Menubar" class="openpgp-item"
+              label="OpenPGP">
+          <menupopup id="button_OpenPGPOptions_Menubar">
+            <menuitem id="menu_securityMyPublicKey_Menubar" class="openpgp-item"
+                      type="checkbox"
+                      data-l10n-id="compose-menu-attach-key"
+                      value="mykey"
+                      oncommand="onSecurityChoice(event.target.value);"/>
+            <menuitem id="menu_securityEncryptSubject_Menubar" class="openpgp-item"
+                      type="checkbox"
+                      data-l10n-id="compose-menu-encrypt-subject"
+                      value="encsub"
+                      oncommand="onSecurityChoice(event.target.value);"/>
+          </menupopup>
+        </menu>
 #endif
         </menupopup>
       </menu>
@@ -1949,13 +1961,23 @@
                   value="sig"/>
 
 #ifdef MOZ_OPENPGP
-        <menuseparator id="myPublicKeySeparator_Toolbar"
+        <menuseparator id="sepOpenPGP_Toolbar"
                        class="openpgp-item"/>
-        <menuitem id="menu_securityMyPublicKey_Toolbar"
-                  class="openpgp-item"
-                  type="checkbox"
-                  data-l10n-id="compose-menu-attach-key"
-                  value="mykey"/>
+        <menu id="menu_OpenPGPOptions_Toolbar" class="openpgp-item"
+              label="OpenPGP">
+          <menupopup id="button_OpenPGPOptions_Toolbar">
+            <menuitem id="menu_securityMyPublicKey_Toolbar"
+                      class="openpgp-item"
+                      type="checkbox"
+                      data-l10n-id="compose-menu-attach-key"
+                      value="mykey"/>
+            <menuitem id="menu_securityEncryptSubject_Toolbar"
+                      class="openpgp-item"
+                      type="checkbox"
+                      data-l10n-id="compose-menu-encrypt-subject"
+                      value="encsub"/>
+          </menupopup>
+        </menu>
 #endif
 
         <menuseparator id="statusInfoSeparator"/>
