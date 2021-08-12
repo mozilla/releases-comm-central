@@ -325,6 +325,8 @@ void test_ffi_detached_cleartext_signed_input(void **state);
 
 void test_ffi_key_export_autocrypt(void **state);
 
+void test_ffi_key_default_subkey(void **);
+
 void test_ffi_decrypt_edge_cases(void **state);
 
 void test_ffi_key_get_protection_info(void **state);
@@ -340,6 +342,8 @@ void test_ffi_remove_signatures(void **state);
 void test_ffi_remove_uid(void **state);
 
 void test_rnp_mkstemp(void **state);
+
+void test_rnp_access(void **state);
 
 void test_dsa_roundtrip(void **state);
 
@@ -390,6 +394,8 @@ void test_stream_825_dearmor_blank_line(void **state);
 void test_stream_dearmor_edge_cases(void **state);
 
 void test_cli_rnpkeys(void **state);
+
+void test_cli_rnpkeys_genkey(void **state);
 
 void test_cli_rnpkeys_unicode(void **state);
 

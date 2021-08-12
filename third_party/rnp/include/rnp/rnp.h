@@ -97,6 +97,11 @@ typedef uint32_t rnp_result_t;
 #define RNP_OUTPUT_FILE_RANDOM (1U << 1)
 
 /**
+ * Flags for default key selection.
+ */
+#define RNP_KEY_SUBKEYS_ONLY (1U << 0)
+
+/**
  * User id type
  */
 #define RNP_USER_ID (1U)
@@ -995,13 +1000,15 @@ RNP_API rnp_result_t rnp_key_remove_signatures(rnp_key_handle_t      key,
                                                rnp_key_signatures_cb sigcb,
                                                void *                app_ctx);
 
-/** guess contents of the OpenPGP data stream.
- *
+/**
+ * @brief Guess contents of the OpenPGP data stream.
+ *        Note: This call just peeks data from the stream, so stream is still usable for
+ *              the further processing.
  * @param input stream with data. Must be opened and cannot be NULL.
  * @param contents string with guessed data format will be stored here.
  *                 Possible values: 'message', 'public key', 'secret key', 'signature',
- * 'unknown'. May be used as type in rnp_enarmor() function. Must be deallocated with
- * rnp_buffer_destroy() call.
+ *                 'unknown'. May be used as type in rnp_enarmor() function. Must be
+ *                 deallocated with rnp_buffer_destroy() call.
  * @return RNP_SUCCESS on success, or any other value on error.
  */
 RNP_API rnp_result_t rnp_guess_contents(rnp_input_t input, char **contents);
@@ -1097,8 +1104,11 @@ RNP_API rnp_result_t rnp_uid_get_data(rnp_uid_handle_t uid, void **data, size_t 
  */
 RNP_API rnp_result_t rnp_uid_is_primary(rnp_uid_handle_t uid, bool *primary);
 
-/** Get userid validity status. Userid is considered as valid if it has at least one
- *  valid, non-expired self-certification.
+/** Get userid validity status. Userid is considered as valid if key itself is valid, and
+ *  userid has at least one valid, non-expired self-certification.
+ *  Note: - userid still may be valid even if a primary key is invalid - expired, revoked, etc.
+ *        - up to the RNP version 0.15.1 uid was not considered as valid if it's latest
+ *          self-signature has key expiration in the past.
  *
  * @param uid user id handle.
  * @param valid validity status will be stored here on success.
@@ -1345,6 +1355,28 @@ RNP_API rnp_result_t rnp_key_get_subkey_at(rnp_key_handle_t  key,
                                            size_t            idx,
                                            rnp_key_handle_t *subkey);
 
+/** Get default key for specified usage. Accepts primary key
+ *  and returns one of its subkeys suitable for desired usage.
+ *  May return the same primary key if it is suitable for requested
+ *  usage and flag RNP_KEY_SUBKEYS_ONLY is not set.
+ *
+ *  @param primary_key handle of the primary key.
+ *  @param usage desired key usage i.e. "sign", "certify", etc,
+ *               see rnp_op_generate_add_usage() function description for all possible values.
+ *  @param flags possible values:  RNP_KEY_SUBKEYS_ONLY - select only subkeys,
+ *               otherwise if flags is 0, primary key can be returned if
+ *               it is suitable for specified usage.
+ *  @param default_key on success resulting key handle will be stored here, otherwise it
+ *                     will contain NULL value. You must free this handle after use with
+ *                     rnp_key_handle_destroy().
+ *  @return RNP_SUCCESS on success, RNP_ERROR_KEY_NOT_FOUND if no key with desired usage
+ *          was found or any other error code.
+ */
+RNP_API rnp_result_t rnp_key_get_default_key(rnp_key_handle_t  primary_key,
+                                             const char *      usage,
+                                             uint32_t          flags,
+                                             rnp_key_handle_t *default_key);
+
 /** Get the key's algorithm.
  *
  * @param key key handle
@@ -1385,7 +1417,8 @@ RNP_API rnp_result_t rnp_key_get_curve(rnp_key_handle_t key, char **curve);
  *  @param key the key to add - must be a secret key
  *  @param uid the UID to add
  *  @param hash name of the hash function to use for the uid binding
- *         signature (eg "SHA256")
+ *         signature (eg "SHA256"). If NULL, default hash algorithm
+ *         will be used.
  *  @param expiration time when this user id expires
  *  @param key_flags usage flags, see section 5.2.3.21 of RFC 4880
  *         or just provide zero to indicate no special handling.
@@ -2458,6 +2491,14 @@ RNP_API rnp_result_t rnp_op_encrypt_create(rnp_op_encrypt_t *op,
                                            rnp_input_t       input,
                                            rnp_output_t      output);
 
+/**
+ * @brief Add recipient's public key to encrypting context.
+ *
+ * @param op opaque encrypting context. Must be allocated and initialized.
+ * @param key public key, used for encryption. Key is not checked for
+ *        validity or expiration.
+ * @return RNP_SUCCESS if operation succeeds or error code otherwise.
+ */
 RNP_API rnp_result_t rnp_op_encrypt_add_recipient(rnp_op_encrypt_t op, rnp_key_handle_t key);
 
 /**

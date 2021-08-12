@@ -2460,12 +2460,17 @@ TEST_F(rnp_tests, test_ffi_key_generate_protection)
 
 TEST_F(rnp_tests, test_ffi_add_userid)
 {
-    rnp_ffi_t ffi = NULL;
-    char *    json = NULL;
-    char *    results = NULL;
-    size_t    count = 0;
+    rnp_ffi_t              ffi = NULL;
+    char *                 json = NULL;
+    char *                 results = NULL;
+    size_t                 count = 0;
+    rnp_uid_handle_t       uid;
+    rnp_signature_handle_t sig;
+    char *                 hash_alg_name = NULL;
 
     const char *new_userid = "my new userid <user@example.com>";
+    const char *default_hash_userid = "default hash <user@example.com";
+    const char *ripemd_hash_userid = "ripemd160 <user@example.com";
 
     // setup FFI
     assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
@@ -2507,11 +2512,27 @@ TEST_F(rnp_tests, test_ffi_add_userid)
     // actually add the userid
     assert_rnp_success(
       rnp_ffi_set_pass_provider(ffi, ffi_string_password_provider, (void *) "pass"));
+    // add with default hash algorithm
+    assert_rnp_success(
+      rnp_key_add_uid(key_handle, default_hash_userid, NULL, 2147317200, 0, false));
+    // check if default hash was used
+    assert_rnp_success(rnp_key_get_uid_handle_at(key_handle, 1, &uid));
+    assert_rnp_success(rnp_uid_get_signature_at(uid, 0, &sig));
+    assert_rnp_success(rnp_signature_get_hash_alg(sig, &hash_alg_name));
+    assert_int_equal(strcasecmp(hash_alg_name, DEFAULT_HASH_ALG), 0);
+    rnp_buffer_destroy(hash_alg_name);
+    hash_alg_name = NULL;
+    assert_rnp_success(rnp_signature_handle_destroy(sig));
+    assert_rnp_success(rnp_uid_handle_destroy(uid));
+
     assert_int_equal(
       RNP_SUCCESS, rnp_key_add_uid(key_handle, new_userid, "SHA256", 2147317200, 0x00, false));
 
+    assert_rnp_success(
+      rnp_key_add_uid(key_handle, ripemd_hash_userid, "RIPEMD160", 2147317200, 0, false));
+
     assert_rnp_success(rnp_key_get_uid_count(key_handle, &count));
-    assert_int_equal(2, count);
+    assert_int_equal(4, count);
 
     rnp_key_handle_t key_handle2 = NULL;
     assert_rnp_success(rnp_locate_key(ffi, "userid", new_userid, &key_handle2));
@@ -6633,6 +6654,13 @@ TEST_F(rnp_tests, test_ffi_rnp_guess_contents)
     assert_string_equal(msgt, "message");
     rnp_buffer_destroy(msgt);
     rnp_input_destroy(input);
+
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.wrong-armor.asc"));
+    assert_rnp_success(rnp_guess_contents(input, &msgt));
+    assert_string_equal(msgt, "unknown");
+    rnp_buffer_destroy(msgt);
+    rnp_input_destroy(input);
 }
 
 TEST_F(rnp_tests, test_ffi_literal_filename)
@@ -7250,6 +7278,52 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     verify = NULL;
     assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
     assert_rnp_failure(rnp_op_verify_execute(verify));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* signed message with key which is now expired */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    import_pub_keys(ffi, "data/test_messages/expired_signing_key-pub.asc");
+    rnp_key_handle_t key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "30FC0D776915BA44", &key));
+    uint64_t till = 0;
+    assert_rnp_success(rnp_key_valid_till64(key, &till));
+    assert_int_equal(till, 1623424417);
+    assert_rnp_success(rnp_key_handle_destroy(key));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed-expired-key"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    verify = NULL;
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_SUCCESS));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* signed message with subkey which is now expired */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    import_pub_keys(ffi, "data/test_messages/expired_signing_sub-pub.asc");
+    key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "D93A47FD93191FD1", &key));
+    till = 0;
+    assert_rnp_success(rnp_key_valid_till64(key, &till));
+    assert_int_equal(till, 1623933507);
+    assert_rnp_success(rnp_key_handle_destroy(key));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.signed-expired-sub"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    verify = NULL;
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(verify));
+    sigcount = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
+    assert_int_equal(sigcount, 1);
+    assert_true(check_signature(verify, 0, RNP_SUCCESS));
     rnp_op_verify_destroy(verify);
     rnp_input_destroy(input);
     rnp_output_destroy(output);
@@ -8268,9 +8342,11 @@ TEST_F(rnp_tests, test_ffi_key_set_expiry)
     assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
     assert_true(import_pub_keys(ffi, "data/test_key_validity/alice-sign-sub-exp-pub.asc"));
     assert_true(import_sec_keys(ffi, "data/test_key_validity/alice-sign-sub-exp-sec.asc"));
-    /* Alice key is not searchable by userid since it is expired */
+    /* Alice key is searchable by userid since self-sig is not expired, and it just marks key
+     * as expired */
     assert_rnp_success(rnp_locate_key(ffi, "userid", "Alice <alice@rnp>", &key));
-    assert_null(key);
+    assert_non_null(key);
+    assert_rnp_success(rnp_key_handle_destroy(key));
     assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669FFDE3C", &key));
     assert_non_null(key);
     assert_rnp_success(rnp_locate_key(ffi, "keyid", "22F3A217C0E439CB", &sub));
@@ -9842,7 +9918,7 @@ TEST_F(rnp_tests, test_ffi_key_export_autocrypt)
     /* export key without specifying subkey */
     assert_rnp_success(rnp_key_export_autocrypt(key, NULL, "key0-uid2", output, 0));
     assert_true(
-      check_key_autocrypt(output, "7bc6709b15c23a4a", "1ed63ee56fadc34d", "key0-uid2"));
+      check_key_autocrypt(output, "7bc6709b15c23a4a", "8a05b89fad5aded1", "key0-uid2"));
     rnp_output_destroy(output);
 
     /* remove first subkey and export again */
@@ -9853,6 +9929,20 @@ TEST_F(rnp_tests, test_ffi_key_export_autocrypt)
     assert_rnp_success(rnp_key_export_autocrypt(key, NULL, "key0-uid0", output, 0));
     assert_true(
       check_key_autocrypt(output, "7bc6709b15c23a4a", "8a05b89fad5aded1", "key0-uid0"));
+    rnp_output_destroy(output);
+    rnp_key_handle_destroy(key);
+
+    /* primary key with encrypting capability, make sure subkey is exported */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_true(import_pub_keys(ffi, "data/test_key_validity/encrypting-primary.pgp"));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "92091b7b76c50017", &key));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_key_export_autocrypt(
+      key, NULL, "encrypting primary <encrypting_primary@rnp>", output, 0));
+    assert_true(check_key_autocrypt(output,
+                                    "92091b7b76c50017",
+                                    "c2e243e872c1fe50",
+                                    "encrypting primary <encrypting_primary@rnp>"));
     rnp_output_destroy(output);
     rnp_key_handle_destroy(key);
 
@@ -9919,6 +10009,72 @@ TEST_F(rnp_tests, test_ffi_key_export_autocrypt)
     rnp_output_destroy(output);
     rnp_key_handle_destroy(key);
 
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_ffi_key_default_subkey)
+{
+    rnp_ffi_t        ffi = NULL;
+    rnp_key_handle_t primary = NULL;
+    rnp_key_handle_t def_key = NULL;
+    char *           keyid = NULL;
+
+    test_ffi_init(&ffi);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "7bc6709b15c23a4a", &primary));
+
+    /* bad parameters */
+    assert_rnp_failure(rnp_key_get_default_key(NULL, NULL, 0, NULL));
+    assert_rnp_failure(rnp_key_get_default_key(primary, NULL, 0, NULL));
+    assert_rnp_failure(rnp_key_get_default_key(primary, "nonexistentusage", 0, &def_key));
+    assert_rnp_failure(rnp_key_get_default_key(primary, "sign", UINT32_MAX, &def_key));
+    assert_rnp_failure(rnp_key_get_default_key(primary, "sign", 0, NULL));
+
+    assert_rnp_success(
+      rnp_key_get_default_key(primary, "encrypt", RNP_KEY_SUBKEYS_ONLY, &def_key));
+    assert_rnp_success(rnp_key_get_keyid(def_key, &keyid));
+    assert_string_equal(keyid, "8A05B89FAD5ADED1");
+    rnp_buffer_destroy(keyid);
+    rnp_key_handle_destroy(def_key);
+
+    /* no signing subkey */
+    assert_int_equal(RNP_ERROR_NO_SUITABLE_KEY,
+                     rnp_key_get_default_key(primary, "sign", RNP_KEY_SUBKEYS_ONLY, &def_key));
+    assert_null(def_key);
+
+    /* primary key returned as a default one */
+    assert_rnp_success(rnp_key_get_default_key(primary, "sign", 0, &def_key));
+    assert_rnp_success(rnp_key_get_keyid(def_key, &keyid));
+    assert_string_equal(keyid, "7BC6709B15C23A4A");
+    rnp_buffer_destroy(keyid);
+    rnp_key_handle_destroy(def_key);
+
+    assert_rnp_success(rnp_key_get_default_key(primary, "certify", 0, &def_key));
+    assert_rnp_success(rnp_key_get_keyid(def_key, &keyid));
+    assert_string_equal(keyid, "7BC6709B15C23A4A");
+    rnp_buffer_destroy(keyid);
+    rnp_key_handle_destroy(def_key);
+
+    rnp_key_handle_destroy(primary);
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+
+    /* primary key with encrypting capability */
+    assert_true(import_pub_keys(ffi, "data/test_key_validity/encrypting-primary.pgp"));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "92091b7b76c50017", &primary));
+
+    assert_rnp_success(rnp_key_get_default_key(primary, "encrypt", 0, &def_key));
+    assert_rnp_success(rnp_key_get_keyid(def_key, &keyid));
+    assert_string_equal(keyid, "92091B7B76C50017");
+    rnp_buffer_destroy(keyid);
+    rnp_key_handle_destroy(def_key);
+
+    assert_rnp_success(
+      rnp_key_get_default_key(primary, "encrypt", RNP_KEY_SUBKEYS_ONLY, &def_key));
+    assert_rnp_success(rnp_key_get_keyid(def_key, &keyid));
+    assert_string_equal(keyid, "C2E243E872C1FE50");
+    rnp_buffer_destroy(keyid);
+    rnp_key_handle_destroy(def_key);
+
+    rnp_key_handle_destroy(primary);
     rnp_ffi_destroy(ffi);
 }
 
