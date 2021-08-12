@@ -409,6 +409,7 @@
   skin/classic/messenger/openpgp/twisty-open.png              (../shared/openpgp/twisty-open.png)
   skin/classic/messenger/openpgp/warning-16.png               (../shared/openpgp/warning-16.png)
   skin/classic/messenger/openpgp/openPgpComposeStatus.css     (../shared/openpgp/openPgpComposeStatus.css)
+  skin/classic/messenger/smime/msgCompSecurityInfo.css        (../shared/smime/msgCompSecurityInfo.css)
 
 # Illustrations
   skin/classic/messenger/illustrations/accounts.svg           (../shared/mail/illustrations/accounts.svg)
