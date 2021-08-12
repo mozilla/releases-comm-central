@@ -32,10 +32,9 @@ nsresult nsLDAPURL::Init(uint32_t aUrlType, int32_t aDefaultPort,
   nsresult rv;
   nsCOMPtr<nsIURI> base(aBaseURI);
   rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-           .Apply(NS_MutatorMethod(&nsIStandardURLMutator::Init,
-                                   nsIStandardURL::URLTYPE_STANDARD,
-                                   aDefaultPort, PromiseFlatCString(aSpec),
-                                   aOriginCharset, base, nullptr))
+           .Apply(&nsIStandardURLMutator::Init,
+                  nsIStandardURL::URLTYPE_STANDARD, aDefaultPort,
+                  PromiseFlatCString(aSpec), aOriginCharset, aBaseURI, nullptr)
            .Finalize(mBaseURL);
   NS_ENSURE_SUCCESS(rv, rv);
 

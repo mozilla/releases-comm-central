@@ -1739,9 +1739,8 @@ nsresult nsMsgComposeAndSend::AddCompFieldLocalAttachments() {
           if (NS_SUCCEEDED(rv) && mimeFinder) {
             nsCOMPtr<nsIURL> fileUrl;
             rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-                     .Apply(NS_MutatorMethod(&nsIURLMutator::SetFileName,
-                                             m_attachments[newLoc]->m_realName,
-                                             nullptr))
+                     .Apply(&nsIURLMutator::SetFileName,
+                            m_attachments[newLoc]->m_realName, nullptr)
                      .Finalize(fileUrl);
             if (NS_SUCCEEDED(rv)) {
               nsAutoCString fileExt;

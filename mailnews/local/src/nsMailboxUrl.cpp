@@ -166,10 +166,9 @@ nsresult nsMailboxUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
   } else {
     // The URL is more like a file URL without a hostname.
     rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .Apply(NS_MutatorMethod(&nsIStandardURLMutator::Init,
-                                     nsIStandardURL::URLTYPE_NO_AUTHORITY, -1,
-                                     PromiseFlatCString(aSpec), nullptr,
-                                     nullptr, nullptr))
+             .Apply(&nsIStandardURLMutator::Init,
+                    nsIStandardURL::URLTYPE_NO_AUTHORITY, -1,
+                    PromiseFlatCString(aSpec), nullptr, nullptr, nullptr)
              .Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
   }
