@@ -2554,7 +2554,6 @@ function MsgDisplayMessageInFolderTab(aMsgHdr) {
 }
 
 function MsgJunk() {
-  MsgJunkMailInfo(true);
   JunkSelectedMessages(!SelectedMessagesAreJunk());
 }
 
@@ -3312,7 +3311,9 @@ var gMessageNotificationBar = {
         accessKey: this.stringBundle.getString("junkBarInfoButtonKey"),
         popup: null,
         callback(aNotification, aButton) {
-          MsgJunkMailInfo(false);
+          openContentTab(
+            "https://support.mozilla.org/kb/thunderbird-and-junk-spam-messages"
+          );
           return true; // keep notification open
         },
       },
@@ -4021,34 +4022,6 @@ function MsgSearchMessages(aFolder) {
         gFolderTreeView.getSelectedFolders()[0],
     }
   );
-}
-
-function MsgJunkMailInfo(aCheckFirstUse) {
-  if (aCheckFirstUse) {
-    if (!Services.prefs.getBoolPref("mailnews.ui.junk.firstuse")) {
-      return;
-    }
-    Services.prefs.setBoolPref("mailnews.ui.junk.firstuse", false);
-
-    // check to see if this is an existing profile where the user has started using
-    // the junk mail feature already
-    if (MailServices.junk.userHasClassified) {
-      return;
-    }
-  }
-
-  var desiredWindow = Services.wm.getMostRecentWindow("mailnews:junkmailinfo");
-
-  if (desiredWindow) {
-    desiredWindow.focus();
-  } else {
-    window.openDialog(
-      "chrome://messenger/content/junkMailInfo.xhtml",
-      "mailnews:junkmailinfo",
-      "centerscreen,resizable=no,titlebar,chrome,modal",
-      null
-    );
-  }
 }
 
 function MsgSearchAddresses() {

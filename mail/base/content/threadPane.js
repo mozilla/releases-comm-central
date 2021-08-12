@@ -74,8 +74,6 @@ function ThreadPaneOnClick(event) {
     treeCellInfo.childElt != "twisty"
   ) {
     ThreadPaneDoubleClick();
-  } else if (treeCellInfo.col.id == "junkStatusCol") {
-    MsgJunkMailInfo(true);
   } else if (
     treeCellInfo.col.id == "threadCol" &&
     !event.shiftKey &&

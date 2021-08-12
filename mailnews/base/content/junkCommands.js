@@ -17,12 +17,11 @@
  *
  *   messenger
  *   gDBView
- *   MsgJunkMailInfo(aCheckFirstUse)
  *   msgWindow
  */
 
 /* globals ClearMessagePane, gDBView, gFolderDisplay, MarkSelectedMessagesRead, messenger,
-   MsgJunkMailInfo, msgWindow, nsMsgViewIndex_None */
+   msgWindow, nsMsgViewIndex_None */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -287,8 +286,6 @@ function analyzeMessagesForJunk() {
  * @param aAll: true to filter all messages, else filter selection
  */
 function processFolderForJunk(aAll) {
-  MsgJunkMailInfo(true);
-
   let indices;
   if (aAll) {
     // need to expand all threads, so we analyze everything
@@ -356,8 +353,6 @@ function processFolderForJunk(aAll) {
 }
 
 function JunkSelectedMessages(setAsJunk) {
-  MsgJunkMailInfo(true);
-
   // When the user explicitly marks a message as junk, we can mark it as read,
   // too. This is independent of the "markAsReadOnSpam" pref, which applies
   // only to automatically-classified messages.
@@ -383,8 +378,6 @@ function JunkSelectedMessages(setAsJunk) {
  * @returns The number of messages deleted.
  */
 function deleteJunkInFolder() {
-  MsgJunkMailInfo(true);
-
   // use direct folder commands if possible so we don't mess with the selection
   let selectedFolder = gFolderDisplay.displayedFolder;
   if (!selectedFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
