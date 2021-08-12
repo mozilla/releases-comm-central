@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title>Test for the orderable-tree-listbox custom element</title>
+  <style>
+    :focus {
+      outline: 3px blue solid;
+    }
+    html {
+      height: 100%;
+    }
+    body {
+      height: 100%;
+      display: flex;
+      margin: 0;
+    }
+    #list {
+      overflow-y: auto;
+      white-space: nowrap;
+      margin: 1em;
+      border: 1px solid black;
+      width: 400px;
+      outline: none;
+    }
+    @media not (prefers-reduced-motion) {
+      #list {
+        scroll-behavior: smooth;
+      }
+    }
+    ol, ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    li > div {
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      line-height: 24px;
+    }
+    li.selected > div {
+      color: white;
+      background-color: blue;
+    }
+    li > ul > li > div {
+      padding-inline-start: calc(1em + 8px);
+    }
+    li.collapsed > ul {
+      display: none;
+    }
+    div.twisty {
+      width: 1em;
+      height: 1em;
+      margin-inline-end: 4px;
+    }
+    li.children > div > div.twisty {
+      background-color: green;
+    }
+    li.children.collapsed > div > div.twisty {
+      background-color: red;
+    }
+
+    #list > li {
+      transition: opacity 250ms;
+    }
+    #list > li.dragging {
+      opacity: 0.75;
+    }
+  </style>
+  <!-- This script is used for the automated test. -->
+  <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
+  <!-- This script is used when this file is loaded in a browser. -->
+  <script defer="defer" src="../../../content/widgets/tree-listbox.js"></script>
+</head>
+<body>
+  <ol id="list" is="orderable-tree-listbox">
+    <li id="row-1">
+      <div draggable="true">
+        <div class="twisty"></div>
+        Item 1
+      </div>
+    </li>
+    <li id="row-2">
+      <div draggable="true">
+        <div class="twisty"></div>
+        Item 2
+      </div>
+      <ul>
+        <li id="row-2-1">
+          <div>
+            <div class="twisty"></div>
+            First child
+          </div>
+        </li>
+        <li id="row-2-2">
+          <div>
+            <div class="twisty"></div>
+            Second child
+          </div>
+        </li>
+      </ul>
+    </li>
+    <li id="row-3">
+      <div draggable="true">
+        <div class="twisty"></div>
+        Item 3
+      </div>
+      <ul>
+        <li id="row-3-1">
+          <div>
+            <div class="twisty"></div>
+            First child
+          </div>
+        </li>
+        <li id="row-3-2">
+          <div>
+            <div class="twisty"></div>
+            Second child
+          </div>
+        </li>
+        <li id="row-3-3">
+          <div>
+            <div class="twisty"></div>
+            Third child
+          </div>
+        </li>
+      </ul>
+    </li>
+    <li id="row-4">
+      <div draggable="true">
+        <div class="twisty"></div>
+        Item 4
+      </div>
+    </li>
+    <li id="row-5">
+      <div draggable="true">
+        <div class="twisty"></div>
+        Item 5
+      </div>
+      <ul>
+        <li id="row-5-1">
+          <div>
+            <div class="twisty"></div>
+            First child
+          </div>
+        </li>
+        <li id="row-5-2">
+          <div>
+            <div class="twisty"></div>
+            Second child
+          </div>
+        </li>
+      </ul>
+    </li>
+  </ol>
+
+  <div id="marker" style="position: absolute; left: 500px; border-top: 1px red solid;"></div>
+  <script>
+    function moveMarker(event) {
+      let marker = document.getElementById("marker");
+      marker.style.top = `${event.clientY}px`;
+      marker.textContent = `${event.type} event here`;
+    }
+
+    document.addEventListener("dragstart", moveMarker);
+    document.addEventListener("dragover", moveMarker);
+    document.addEventListener("drop", moveMarker);
+  </script>
+</body>
+</html>
