@@ -146,14 +146,9 @@
   }
 
 //
-// nsMsgSend
+// nsIMsgSend
 //
 #define NS_MSGSEND_CONTRACTID "@mozilla.org/messengercompose/send;1"
-
-#define NS_MSGSEND_CID                                                       \
-  { /* 935284E0-C5D8-11d2-8297-000000000000 */                               \
-    0x935284e0, 0xc5d8, 0x11d2, { 0x82, 0x97, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } \
-  }
 
 //
 // nsMsgSendLater

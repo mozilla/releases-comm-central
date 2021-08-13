@@ -23,7 +23,6 @@ const nsMsgKey_None = 0xffffffff;
 
 /**
  * A module to manage sending processes.
- * Set `user_pref("mailnews.send.jsmodule", true);` to use this module.
  *
  * @implements {nsIMsgSend}
  */

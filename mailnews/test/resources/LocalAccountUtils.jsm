@@ -196,7 +196,6 @@ var localAccountUtils = {
 };
 
 // Somehow profile-after-change is not triggered in xpcshell tests, here we
-// manually run the getService, so that correct smtp and send modules are loaded
+// manually run the getService, so that correct smtp modules are loaded
 // according to the pref values.
-Cc["@mozilla.org/messengercompose/send-module-loader;1"].getService();
 Cc["@mozilla.org/messengercompose/smtp-module-loader;1"].getService();

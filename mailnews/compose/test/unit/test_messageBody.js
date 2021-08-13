@@ -90,9 +90,6 @@ add_task(async function testQP() {
  * Test QP is not used together with format=flowed.
  */
 add_task(async function testNoQPWithFormatFlowed() {
-  if (!Services.prefs.getBoolPref("mailnews.send.jsmodule")) {
-    return;
-  }
   // Together with fields.forceMsgEncoding, force quote-printable encoding.
   Services.prefs.setBoolPref("mail.strictly_mime", true);
 

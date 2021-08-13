@@ -65,10 +65,6 @@ add_task(async function test_invalid_data_uri() {
  * with $2, $1 should be discarded to prevent duplicated links.
  */
 add_task(async function test_freeTextLink() {
-  if (!Services.prefs.getBoolPref("mailnews.send.jsmodule")) {
-    // This doesn't work for nsMsgSend.cpp.
-    return;
-  }
   let cwc = open_compose_new_mail();
   setup_msg_contents(cwc, "someone@example.com", "Test free text link", "");
 
