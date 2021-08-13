@@ -182,7 +182,7 @@ class RNPCryptoAPI extends CryptoAPI {
    */
 
   async extractSecretKey(keyId, minimalKey) {
-    throw new Error("Not implemented");
+    throw new Error("extractSecretKey not implemented");
   }
 
   /**
@@ -193,7 +193,7 @@ class RNPCryptoAPI extends CryptoAPI {
    */
 
   async getFileName(byteData) {
-    throw new Error("Not implemented");
+    throw new Error("getFileName not implemented");
   }
 
   /**
@@ -208,7 +208,7 @@ class RNPCryptoAPI extends CryptoAPI {
    */
 
   async verifyAttachment(filePath, sigPath) {
-    throw new Error("Not implemented");
+    throw new Error("verifyAttachment not implemented");
   }
 
   /**
@@ -238,6 +238,8 @@ class RNPCryptoAPI extends CryptoAPI {
    *
    * Use Promise.catch to handle failed decryption.
    * retObj.errorMsg will be an error message in this case.
+   *   XXX: it's not... ^^^ This should be changed to always reject
+   *     by throwing an Error (subclass?) for failures to decrypt.
    */
 
   async decrypt(encrypted, options) {

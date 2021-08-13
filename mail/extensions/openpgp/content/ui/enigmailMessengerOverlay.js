@@ -2748,12 +2748,11 @@ Enigmail.msg = {
           );
         }
       } else {
-        EnigmailDialog.info(
-          window,
-          (await document.l10n.formatValue("failed-decrypt")) +
-            "\n\n" +
-            errorMsgObj.value
-        );
+        let msg = await document.l10n.formatValue("failed-decrypt");
+        if (errorMsgObj.errorMsg) {
+          msg += "\n\n" + errorMsgObj.errorMsg;
+        }
+        EnigmailDialog.info(window, msg);
         exitStatus = false;
       }
     }

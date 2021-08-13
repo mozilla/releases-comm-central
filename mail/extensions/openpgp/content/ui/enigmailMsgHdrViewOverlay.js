@@ -725,12 +725,10 @@ Enigmail.hdrView = {
         verifyMenu
       );
     } else {
-      //openMenu.setAttribute("disabled", true); /* global openMenu: false */
-      //saveMenu.setAttribute("disabled", true); /* global saveMenu: false */
-      decryptOpenMenu.setAttribute("disabled", true);
-      decryptSaveMenu.setAttribute("disabled", true);
-      importMenu.setAttribute("disabled", true);
-      verifyMenu.setAttribute("disabled", true);
+      decryptOpenMenu.hidden = true;
+      decryptSaveMenu.hidden = true;
+      importMenu.hidden = true;
+      verifyMenu.hidden = true;
     }
   },
 
@@ -741,11 +739,12 @@ Enigmail.hdrView = {
     importMenu,
     verifyMenu
   ) {
-    if (attachment.contentType.search(/^application\/pgp-keys/i) === 0) {
-      importMenu.removeAttribute("disabled");
-      decryptOpenMenu.setAttribute("disabled", true);
-      decryptSaveMenu.setAttribute("disabled", true);
-      verifyMenu.setAttribute("disabled", true);
+    if (/^application\/pgp-keys/i.test(attachment.contentType)) {
+      importMenu.hidden = false;
+
+      decryptOpenMenu.hidden = true;
+      decryptSaveMenu.hidden = true;
+      verifyMenu.hidden = true;
     } else if (Enigmail.msg.checkEncryptedAttach(attachment)) {
       if (
         (typeof attachment.name !== "undefined" &&
@@ -753,12 +752,12 @@ Enigmail.hdrView = {
         (typeof attachment.displayName !== "undefined" &&
           attachment.displayName.match(/\.asc\.(gpg|pgp)$/i))
       ) {
-        importMenu.removeAttribute("disabled");
+        importMenu.hidden = false;
       } else {
-        importMenu.setAttribute("disabled", true);
+        importMenu.hidden = true;
       }
-      decryptOpenMenu.removeAttribute("disabled");
-      decryptSaveMenu.removeAttribute("disabled");
+      decryptOpenMenu.hidden = false;
+      decryptSaveMenu.hidden = false;
       if (
         EnigmailMsgRead.checkSignedAttachment(
           attachment,
@@ -766,9 +765,9 @@ Enigmail.hdrView = {
           currentAttachments
         )
       ) {
-        verifyMenu.removeAttribute("disabled");
+        verifyMenu.hidden = false;
       } else {
-        verifyMenu.setAttribute("disabled", true);
+        verifyMenu.hidden = true;
       }
       if (typeof attachment.displayName == "undefined") {
         if (!attachment.name) {
@@ -784,15 +783,16 @@ Enigmail.hdrView = {
         currentAttachments
       )
     ) {
-      importMenu.setAttribute("disabled", true);
-      decryptOpenMenu.setAttribute("disabled", true);
-      decryptSaveMenu.setAttribute("disabled", true);
-      verifyMenu.removeAttribute("disabled");
+      importMenu.hidden = true;
+      decryptOpenMenu.hidden = true;
+      decryptSaveMenu.hidden = true;
+
+      verifyMenu.hidden = false;
     } else {
-      importMenu.setAttribute("disabled", true);
-      decryptOpenMenu.setAttribute("disabled", true);
-      decryptSaveMenu.setAttribute("disabled", true);
-      verifyMenu.setAttribute("disabled", true);
+      importMenu.hidden = true;
+      decryptOpenMenu.hidden = true;
+      decryptSaveMenu.hidden = true;
+      verifyMenu.hidden = true;
     }
   },
 
