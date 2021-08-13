@@ -44,7 +44,6 @@ classic.jar:
   skin/classic/messenger/editContactPanel.css                    (mail/editContactPanel.css)
   skin/classic/messenger/quickFilterBar.css                      (mail/quickFilterBar.css)
   skin/classic/messenger/activity/activity.css                   (mail/activity/activity.css)
-  skin/classic/messenger/activity/buttons.png                    (mail/activity/buttons.png)
   skin/classic/messenger/activity/defaultProcessIcon.png         (mail/activity/defaultProcessIcon.png)
   skin/classic/messenger/activity/defaultEventIcon.png           (mail/activity/defaultEventIcon.png)
   skin/classic/messenger/activity/error.png                      (mail/activity/error.png)

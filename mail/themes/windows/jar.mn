@@ -45,7 +45,6 @@ classic.jar:
   skin/classic/messenger/quickFilterBar.css                   (mail/quickFilterBar.css)
   skin/classic/messenger/activity/activity.css                (mail/activity/activity.css)
   skin/classic/messenger/activity/addItemIcon.png             (mail/activity/addItemIcon.png)
-  skin/classic/messenger/activity/buttons.png                 (mail/activity/buttons.png)
   skin/classic/messenger/activity/compactMailIcon.png         (mail/activity/compactMailIcon.png)
   skin/classic/messenger/activity/copyMailIcon.png            (mail/activity/copyMailIcon.png)
   skin/classic/messenger/activity/defaultEventIcon.png        (mail/activity/defaultEventIcon.png)

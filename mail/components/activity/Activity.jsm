@@ -56,7 +56,7 @@ Activity.prototype = {
 
 function ActivityProcess() {
   Activity.call(this);
-  this.bindingName = "activity-process-richlistitem";
+  this.bindingName = "activity-process-item";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
 }
 
@@ -238,7 +238,7 @@ ActivityProcess.prototype = {
 
 function ActivityEvent() {
   Activity.call(this);
-  this.bindingName = "activity-event-richlistitem";
+  this.bindingName = "activity-event-item";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
 }
 
@@ -282,7 +282,7 @@ ActivityEvent.prototype = {
 
 function ActivityWarning() {
   Activity.call(this);
-  this.bindingName = "activity-warning-richlistitem";
+  this.bindingName = "activity-warning-item";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
 }
 

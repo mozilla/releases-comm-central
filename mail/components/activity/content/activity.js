@@ -20,19 +20,14 @@ var activityObject = {
   _ignoreNotifications: false,
   _groupCache: new Map(),
 
-  selectAll() {
-    this._activitiesView.selectAll();
-  },
-
   // Utility Functions for Activity element management
 
   /**
    * Creates the proper element for the given activity
    */
   createActivityWidget(type) {
-    let builtInName = type.bindingName;
-    let element = document.createXULElement("richlistitem", {
-      is: builtInName,
+    let element = document.createElement("li", {
+      is: type.bindingName,
     });
 
     if (element) {
@@ -108,8 +103,8 @@ var activityObject = {
         );
         // create a group if it's not already created.
         if (!group) {
-          group = document.createXULElement("richlistitem", {
-            is: "activity-group-richlistitem",
+          group = document.createElement("li", {
+            is: "activity-group-item",
           });
           this._activityLogger.info("created group element");
           // Set the context type and object of the newly created group
@@ -128,7 +123,7 @@ var activityObject = {
 
       if (group) {
         // get the inner list element of the group
-        let groupView = group.querySelector(".activitygroupbox");
+        let groupView = group.querySelector(".activitygroup-list");
         groupView.appendChild(actElement);
       } else {
         this.placeActivityElement(actElement);
@@ -146,36 +141,15 @@ var activityObject = {
    */
   removeActivityElement(aID) {
     this._activityLogger.info("removing Activity ID: " + aID);
-    let activities = this._activitiesView.children;
-    for (let i = 0; i < activities.length; i++) {
-      let item = activities[i];
-      if (!item) {
-        this._activityLogger.debug("returning as empty");
-        return;
-      }
+    let item = this._activitiesView.querySelector(`[actID="${aID}"]`);
 
-      if (!item.isGroup) {
-        this._activityLogger.debug("is not a group, ");
-        if (item.getAttribute("actID") == aID) {
-          item.detachFromActivity();
-          item.remove();
-          break;
-        }
-      } else {
-        let actElement = item.querySelector(`[actID="${aID}"]`);
-        if (actElement) {
-          let groupView = document.querySelector(".activitygroupbox");
-          actElement.detachFromActivity();
-          actElement.remove();
-
-          // if the group becomes empty after the removal,
-          // get rid of the group as well
-          if (groupView.getRowCount() == 0) {
-            this._groupCache.delete(item.contextType + ":" + item.contextObj);
-            item.remove();
-          }
-          break;
-        }
+    if (item) {
+      let group = item.closest(".activitygroup");
+      item.remove();
+      if (group && !group.querySelector(".activityitem")) {
+        // Empty group is removed.
+        this._groupCache.delete(group.contextType + ":" + group.contextObj);
+        group.remove();
       }
     }
   },
@@ -232,54 +206,14 @@ var activityObject = {
     // everything.
     activityManager.cleanUp();
 
-    let activities = this._activitiesView.children;
-    for (let i = activities.length - 1; i >= 0; i--) {
-      let item = activities[i];
-      if (!item.isGroup) {
-        item.detachFromActivity();
-      } else {
-        item.querySelectorAll("[actID]").forEach(elem => {
-          elem.detachFromActivity();
-          elem.remove();
-        });
-      }
+    while (this._activitiesView.lastChild) {
+      this._activitiesView.lastChild.remove();
     }
-
-    let empty = this._activitiesView.cloneNode(false);
-    this._activitiesView.parentNode.replaceChild(empty, this._activitiesView);
-    this._activitiesView = empty;
 
     this._groupCache.clear();
     this.rebuild();
     this._ignoreNotifications = false;
     this._activitiesView.focus();
-  },
-
-  processKeyEvent(event) {
-    switch (event.keyCode) {
-      case event.DOM_VK_RIGHT:
-        if (event.target.tagName == "richlistbox") {
-          let richlistbox = event.target.selectedItem.processes;
-          if (richlistbox.tagName == "xul:richlistbox") {
-            richlistbox.focus();
-            richlistbox.selectItem(richlistbox.getItemAtIndex(0));
-          }
-        }
-        break;
-      case event.DOM_VK_LEFT:
-        if (
-          event.target.tagName == "richlistitem" &&
-          event.target.getAttribute("is") === "activity-group-richlistitem"
-        ) {
-          var parent = event.target.parentNode;
-          if (parent.tagName == "richlistbox") {
-            event.target.processes.clearSelection();
-            parent.selectItem(event.target);
-            parent.focus();
-          }
-        }
-        break;
-    }
   },
 };
 
@@ -300,3 +234,6 @@ activityObject.ActivityMgrListener.prototype = {
     }
   },
 };
+
+window.addEventListener("load", () => activityObject.startup());
+window.addEventListener("unload", () => activityObject.shutdown());

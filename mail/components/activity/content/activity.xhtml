@@ -12,90 +12,51 @@
 #endif
 
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/activity/activity.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % activityManagerDTD SYSTEM "chrome://messenger/locale/activity.dtd">
 %activityManagerDTD;
-<!ENTITY % editMenuOverlayDTD SYSTEM
-"chrome://global/locale/editMenuOverlay.dtd">
-%editMenuOverlayDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        id="activityManager" windowtype="Activity:Manager"
-        orient="vertical" title="&activity.title;"
-        statictitle="&activity.title;"
-        width="&window.width2;" height="&window.height;"
-        screenX="10" screenY="10"
-        persist="width height screenX screenY sizemode"
-        lightweightthemes="true"
-        onload="activityObject.startup();"
-        onunload="activityObject.shutdown();"
-        onclose="return closeWindow(false);">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      id="activityManager" windowtype="Activity:Manager"
+      width="&window.width2;" height="&window.height;"
+      screenX="10" screenY="10"
+      persist="width height screenX screenY sizemode"
+      lightweightthemes="true">
+<head>
+  <title>&activity.title;</title>
 
-  <linkset>
-    <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-  </linkset>
-
-  <script src="chrome://messenger/content/activity.js"/>
-  <script src="chrome://messenger/content/activity-widgets.js"/>
-  <script src="chrome://global/content/contentAreaUtils.js"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-
-  <stringbundle id="brandStrings" src="chrome://branding/locale/brand.properties"/>
-
-  <!-- Use this commandset for command which do not depend on focus or
-       selection -->
-  <commandset id="generalCommands">
-    <command id="cmd_selectAllActivities"
-             oncommand="activityObject.selectAll();"/>
-    <command id="cmd_clearList" oncommand="activityObject.clearActivityList();"/>
-  </commandset>
-
-  <keyset id="activityKeys">
-    <key id="key_removeFromList"  keycode="VK_DELETE"
-         oncommand="performCommand('cmd_removeFromList');"/>
-#ifdef XP_MACOSX
-    <key id="key_removeFromList2" keycode="VK_BACK"
-         oncommand="performCommand('cmd_removeFromList');"/>
-#endif
-    <key id="key_close" key="&cmd.close.commandkey;"
-         oncommand="closeWindow(true);" modifiers="accel"/>
+  <script defer="defer" src="chrome://messenger/content/activity.js"></script>
+  <script defer="defer" src="chrome://messenger/content/activity-widgets.js"></script>
+</head>
+<body>
+  <xul:keyset id="activityKeys">
+    <xul:key id="key_close" key="&cmd.close.commandkey;"
+             oncommand="window.close();" modifiers="accel"/>
 #ifdef XP_GNOME
-    <key id="key_close2" key="&cmd.close2Unix.commandkey;"
-         oncommand="closeWindow(true);" modifiers="accel"/>
+    <xul:key id="key_close2" key="&cmd.close2Unix.commandkey;"
+             oncommand="window.close();" modifiers="accel"/>
 #else
-    <key id="key_close2" key="&cmd.close2.commandkey;"
-         oncommand="closeWindow(true);" modifiers="accel"/>
+    <xul:key id="key_close2" key="&cmd.close2.commandkey;"
+             oncommand="window.close();" modifiers="accel"/>
 #endif
-    <key keycode="VK_ESCAPE" oncommand="closeWindow(true);"/>
+    <xul:key keycode="VK_ESCAPE" oncommand="window.close();"/>
+  </xul:keyset>
 
-    <key id="key_selectAllActivities"
-         data-l10n-id="text-action-select-all-shortcut"
-         modifiers="accel"
-         command="cmd_selectAllActivities"/>
-  </keyset>
-
-  <vbox id="contextMenuPalette" hidden="true">
-    <menuitem id="menuitem_selectAll"
-              data-l10n-id="text-action-select-all"
-              command="cmd_selectAllActivities"/>
-  </vbox>
-
-
-  <richlistbox id="activityView" class="activityview" seltype="multiple"
-               flex="1" onkeypress="activityObject.processKeyEvent(event)">
-  </richlistbox>
-
-  <hbox id="search">
-    <button id="clearListButton" command="cmd_clearList"
-            label="&cmd.clearList.label;"
+  <div id="activityContainer">
+    <ul id="activityView" class="activityview"></ul>
+    <button id="clearListButton"
+            onclick="activityObject.clearActivityList();"
             accesskey="&cmd.clearList.accesskey;"
-            tooltiptext="&cmd.clearList.tooltip;"/>
-    <spacer flex="1"/>
-  </hbox>
-
-</window>
+            title="&cmd.clearList.tooltip;">
+        &cmd.clearList.label;
+    </button>
+  </div>
+</body>
+</html>

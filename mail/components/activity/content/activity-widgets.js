@@ -4,7 +4,7 @@
 
 "use strict";
 
-/* global MozXULElement, MozElements, activityManager */
+/* global MozXULElement, activityManager */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -14,58 +14,86 @@
   const { makeFriendlyDateAgo } = ChromeUtils.import(
     "resource:///modules/TemplateUtils.jsm"
   );
+
+  let activityStrings = Services.strings.createBundle(
+    "chrome://messenger/locale/activity.properties"
+  );
+
   /**
-   * The MozActivityBaseRichlistItem widget is the base class for all the
-   * activity item. It initializes activity details: i.e. id, status,
-   * icon, name, progress, date etc. for the activity widgets.
+   * The ActivityItemBase widget is the base class for all the activity item.
+   * It initializes activity details: i.e. id, status, icon, name, progress,
+   * date etc. for the activity widgets.
    *
    * @abstract
-   * @extends {MozElements.MozRichlistitem}
+   * @extends HTMLLIElement
    */
-  class MozActivityBaseRichlistItem extends MozElements.MozRichlistitem {
+  class ActivityItemBase extends HTMLLIElement {
     connectedCallback() {
-      if (this.delayConnectedCallback()) {
-        return;
-      }
-      // fetch the activity and set the base attributes
-      this.log = console.createInstance({
-        prefix: "mail.activity",
-        maxLogLevel: "Warn",
-        maxLogLevelPref: "mail.activity.loglevel",
-      });
-      let actID = this.getAttribute("actID");
-      this._activity = activityManager.getActivity(actID);
-      this.setAttribute("iconclass", this._activity.iconClass);
+      if (!this.hasChildNodes()) {
+        // fetch the activity and set the base attributes
+        this.log = console.createInstance({
+          prefix: "mail.activity",
+          maxLogLevel: "Warn",
+          maxLogLevelPref: "mail.activity.loglevel",
+        });
+        let actID = this.getAttribute("actID");
+        this._activity = activityManager.getActivity(actID);
+        this._activity.QueryInterface(this.constructor.activityInterface);
 
-      this.text = {
-        paused: "paused2",
-        canceled: "canceled",
-        failed: "failed",
-        waitingforinput: "waitingForInput",
-        waitingforretry: "waitingForRetry",
-      };
+        // Construct the children.
+        this.classList.add("activityitem");
 
-      // convert strings to those in the string bundle
-      let sb = Services.strings.createBundle(
-        "chrome://messenger/locale/activity.properties"
-      );
-      let getStr = string => sb.GetStringFromName(string);
-      for (let [name, value] of Object.entries(this.text)) {
-        this.text[name] =
-          typeof value == "string" ? getStr(value) : value.map(getStr);
+        let icon = document.createElement("img");
+        let iconName = this._activity.iconClass;
+        if (iconName) {
+          iconName = `chrome://messenger/skin/activity/${iconName}Icon.png`;
+        } else {
+          iconName = this.constructor.defaultIconSrc;
+        }
+        icon.setAttribute("src", iconName);
+        this.appendChild(icon);
+
+        let display = document.createElement("span");
+        display.classList.add("displayText");
+        this.appendChild(display);
+
+        if (this.isEvent || this.isWarning) {
+          let time = document.createElement("time");
+          time.classList.add("dateTime");
+          this.appendChild(time);
+        }
+
+        if (this.isProcess) {
+          let progress = document.createElement("progress");
+          progress.setAttribute("value", "0");
+          progress.setAttribute("max", "100");
+          progress.classList.add("progressmeter");
+          this.appendChild(progress);
+        }
+
+        let statusText = document.createElement("span");
+        statusText.setAttribute("role", "note");
+        statusText.classList.add("statusText");
+        this.appendChild(statusText);
       }
+      // (Re-)Attach the listener.
+      this.attachToActivity();
+    }
+
+    disconnectedCallback() {
+      this.detachFromActivity();
     }
 
     get isProcess() {
-      return this._activity && this._activity instanceof Ci.nsIActivityProcess;
+      return this.constructor.activityInterface == Ci.nsIActivityProcess;
     }
 
     get isEvent() {
-      return this._activity && this._activity instanceof Ci.nsIActivityEvent;
+      return this.constructor.activityInterface == Ci.nsIActivityEvent;
     }
 
     get isWarning() {
-      return this._activity && this._activity instanceof Ci.nsIActivityWarning;
+      return this.constructor.activityInterface == Ci.nsIActivityWarning;
     }
 
     get isGroup() {
@@ -76,369 +104,203 @@
       return this._activity;
     }
 
-    setVisibility(className, visible) {
-      this.querySelector(className).setAttribute("hidden", !visible);
-    }
-
-    formatTimeTip(time) {
-      const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-        dateStyle: "long",
-        timeStyle: "short",
-      });
-
-      // Get the end time to display
-      let end = new Date(parseInt(time));
-
-      // Set the tooltip to be the full date and time
-      return dateTimeFormatter.format(end);
-    }
-
     detachFromActivity() {
-      this._activity.removeListener(this.activityListener);
+      if (this.activityListener) {
+        this._activity.removeListener(this.activityListener);
+      }
     }
 
-    disconnectedCallback() {
-      this.detachFromActivity();
+    attachToActivity() {
+      if (this.activityListener) {
+        this._activity.addListener(this.activityListener);
+      }
+    }
+
+    static _dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
+      dateStyle: "long",
+      timeStyle: "short",
+    });
+
+    /**
+     * The time the activity occurred.
+     * @type {number} - The time in milliseconds since the epoch.
+     */
+    set dateTime(time) {
+      let element = this.querySelector(".dateTime");
+      if (!element) {
+        return;
+      }
+      time = new Date(parseInt(time));
+
+      element.setAttribute("datetime", time.toISOString());
+      element.textContent = makeFriendlyDateAgo(time);
+      element.setAttribute(
+        "title",
+        this.constructor._dateTimeFormatter.format(time)
+      );
+    }
+
+    /**
+     * The text that describes additional information to the user.
+     * @type {string}
+     */
+    set statusText(val) {
+      this.querySelector(".statusText").textContent = val;
+    }
+
+    get statusText() {
+      return this.querySelector(".statusText").textContent;
+    }
+
+    /**
+     * The text that describes the activity to the user.
+     * @type {string}
+     */
+    set displayText(val) {
+      this.querySelector(".displayText").textContent = val;
+    }
+
+    get displayText() {
+      return this.querySelector(".displayText").textContent;
     }
   }
-
-  MozXULElement.implementCustomInterface(MozActivityBaseRichlistItem, [
-    Ci.nsIDOMXULSelectControlItemElement,
-  ]);
 
   /**
    * The MozActivityEvent widget displays information about events (like
    * deleting or moving the message): e.g image, name, date and description.
    * It is typically used in Activity Manager window.
    *
-   * @extends MozActivityBase
+   * @extends ActivityItemBase
    */
-  class MozActivityEventRichlistItem extends MozActivityBaseRichlistItem {
-    static get inheritedAttributes() {
-      return {
-        ".eventIconBox > image": "class=iconclass",
-        ".displayText": "value=displayText,tooltiptext=displayTextTip",
-        ".dateTime": "value=completionTime,tooltiptext=completionTimeTip",
-        ".statusText": "value=statusText,tooltiptext=statusTextTip",
-      };
-    }
+  class ActivityEventItem extends ActivityItemBase {
+    static defaultIconSrc =
+      "chrome://messenger/skin/activity/defaultEventIcon.png";
+    static activityInterface = Ci.nsIActivityEvent;
 
     connectedCallback() {
       super.connectedCallback();
-      if (this.delayConnectedCallback() || this.hasChildNodes()) {
-        return;
-      }
-      this.setAttribute("is", "activity-event-richlistitem");
+      this.setAttribute("is", "activity-event-item");
 
-      this.activityListener = {
-        onHandlerChanged: activity => {
-          // update handler button's visibility
-          this.setVisibility(".undo", this.canUndo);
-        },
-        QueryInterface: ChromeUtils.generateQI(["nsIActivityListener"]),
-      };
-
-      this._activity.addListener(this.activityListener);
-      this.appendChild(
-        MozXULElement.parseXULToFragment(
-          `
-          <hbox flex="1">
-            <vbox pack="center" class="eventIconBox">
-              <image></image>
-            </vbox>
-            <vbox pack="start" flex="1">
-              <hbox align="center" flex="1">
-                <label crop="center" flex="1" class="displayText"></label>
-                <label class="dateTime"></label>
-              </hbox>
-              <hbox align="center" flex="1">
-                <label crop="end" flex="1" class="statusText"></label>
-                <button class="undo mini-button"
-                        tooltiptext="&cmd.undo.label;" cmd="cmd_undo"
-                        ondblclick="event.stopPropagation();"
-                        oncommand="activity.undoHandler.undo(activity);">
-                </button>
-              </hbox>
-            </vbox>
-          </hbox>
-          `,
-          ["chrome://messenger/locale/activity.dtd"]
-        )
-      );
-
-      this.setAttribute("class", "activityitem");
-
-      this._activity.QueryInterface(Ci.nsIActivityEvent);
-
-      this.displayText = this._activity.displayText;
-      this.statusText = this._activity.statusText;
-      this.completionTime = this._activity.completionTime;
-      this.setVisibility(".undo", this._activity.undoHandler);
-
-      this.initializeAttributeInheritance();
-    }
-
-    set displayText(val) {
-      this.setAttribute("displayText", val);
-    }
-
-    get displayText() {
-      return this.getAttribute("displayText");
-    }
-
-    set statusText(val) {
-      this.setAttribute("statusText", val);
-    }
-
-    get statusText() {
-      return this.getAttribute("statusText");
-    }
-
-    set completionTime(val) {
-      this.setAttribute(
-        "completionTime",
-        makeFriendlyDateAgo(new Date(parseInt(val)))
-      );
-      this.setAttribute("completionTimeTip", this.formatTimeTip(val));
-    }
-
-    get completionTime() {
-      return this.getAttribute("completionTime");
-    }
-
-    get canUndo() {
-      return this._activity.undoHandler != null;
+      this.displayText = this.activity.displayText;
+      this.statusText = this.activity.statusText;
+      this.dateTime = this.activity.completionTime;
     }
   }
 
-  customElements.define(
-    "activity-event-richlistitem",
-    MozActivityEventRichlistItem,
-    {
-      extends: "richlistitem",
-    }
-  );
+  customElements.define("activity-event-item", ActivityEventItem, {
+    extends: "li",
+  });
 
   /**
-   * The MozActivityGroupRichlistItem widget displays information about the activities of
+   * The ActivityGroupItem widget displays information about the activities of
    * the group: e.g. name of the group, list of the activities with their name,
    * progress and icon. It is shown in Activity Manager window. It gets removed
    * when there is no activities from the group.
    *
-   * @extends {MozElements.MozRichlistitem}
+   * @extends HTMLLIElement
    */
-  class MozActivityGroupRichlistItem extends MozElements.MozRichlistitem {
-    static get inheritedAttributes() {
-      return {
-        ".contextDisplayText":
-          "value=contextDisplayText,tooltiptext=contextDisplayTextTip",
-      };
-    }
+  class ActivityGroupItem extends HTMLLIElement {
     constructor() {
       super();
 
-      this.appendChild(
-        MozXULElement.parseXULToFragment(`
-          <vbox flex="1">
-            <hbox>
-              <vbox pack="start">
-                <label crop="left" class="contextDisplayText"></label>
-              </vbox>
-            </hbox>
-            <vbox pack="center">
-              <richlistbox class="activitygroupbox activityview"
-                           seltype="multiple"
-                           flex="1"></richlistbox>
-            </vbox>
-          </vbox>
-        `)
-      );
+      let heading = document.createElement("h2");
+      heading.classList.add("contextDisplayText");
+      this.appendChild(heading);
 
-      this.setAttribute("is", "activity-group-richlistitem");
-      this.contextType = "";
+      let list = document.createElement("ul");
+      list.classList.add("activitygroup-list", "activityview");
+      this.appendChild(list);
 
-      this.contextObj = null;
+      this.classList.add("activitygroup");
+      this.setAttribute("is", "activity-group-item");
     }
 
-    connectedCallback() {
-      this.initializeAttributeInheritance();
+    /**
+     * The text heading for the group, as seen by the user.
+     * @type {string}
+     */
+    set contextDisplayText(val) {
+      this.querySelector(".contextDisplayText").textContent = val;
+    }
+
+    get contextDisplayText() {
+      return this.querySelctor(".contextDisplayText").textContent;
     }
 
     get isGroup() {
       return true;
     }
-
-    get processes() {
-      return this.querySelector(".activitygroupbox");
-    }
-
-    retry() {
-      let processes = activityManager.getProcessesByContext(
-        this.contextType,
-        this.contextObj
-      );
-      for (let process of processes) {
-        if (process.retryHandler) {
-          process.retryHandler.retry(process);
-        }
-      }
-    }
   }
 
-  MozXULElement.implementCustomInterface(MozActivityGroupRichlistItem, [
-    Ci.nsIDOMXULSelectControlItemElement,
-  ]);
-
-  customElements.define(
-    "activity-group-richlistitem",
-    MozActivityGroupRichlistItem,
-    {
-      extends: "richlistitem",
-    }
-  );
+  customElements.define("activity-group-item", ActivityGroupItem, {
+    extends: "li",
+  });
 
   /**
-   * The MozActivityProcessRichlistItem widget displays information about the internal
+   * The ActivityProcessItem widget displays information about the internal
    * process : e.g image, progress, name, date and description.
    * It is typically used in Activity Manager window.
    *
-   * @extends MozActivityBaseRichlistItem
+   * @extends ActivityItemBase
    */
-  class MozActivityProcessRichlistItem extends MozActivityBaseRichlistItem {
-    static get inheritedAttributes() {
-      return {
-        ".processIconBox > image": "class=iconclass",
-        ".displayText": "value=displayText,tooltiptext=displayTextTip",
-        ".progressmeter": "value=progress",
-        ".statusText": "value=statusText,tooltiptext=statusTextTip",
-      };
-    }
+  class ActivityProcessItem extends ActivityItemBase {
+    static defaultIconSrc =
+      "chrome://messenger/skin/activity/deafultProcessIcon.png";
+    static activityInterface = Ci.nsIActivityProcess;
+    static textMap = {
+      paused: activityStrings.GetStringFromName("paused2"),
+      canceled: activityStrings.GetStringFromName("canceled"),
+      failed: activityStrings.GetStringFromName("failed"),
+      waitingforinput: activityStrings.GetStringFromName("waitingForInput"),
+      waitingforretry: activityStrings.GetStringFromName("waitingForRetry"),
+    };
 
-    connectedCallback() {
-      super.connectedCallback();
-      if (this.delayConnectedCallback() || this.hasChildNodes()) {
-        return;
-      }
-
-      this.setAttribute("is", "activity-process-richlistitem");
-
-      this.appendChild(
-        MozXULElement.parseXULToFragment(
-          `
-          <hbox flex="1" class="activityContentBox">
-            <vbox pack="center" class="processIconBox">
-              <image></image>
-            </vbox>
-            <vbox flex="1">
-              <label crop="center" flex="2" class="displayText"></label>
-              <hbox>
-                <vbox flex="1">
-                  <html:progress value="0"
-                                 max="100"
-                                 flex="1"
-                                 class="progressmeter"></html:progress>
-                </vbox>
-                <button class="resume mini-button"
-                        tooltiptext="&cmd.resume.label;"
-                        cmd="cmd_resume"
-                        ondblclick="event.stopPropagation();"
-                        oncommand="activity.pauseHandler.resume(activity);">
-                </button>
-                <button class="pause mini-button"
-                        tooltiptext="&cmd.pause.label;"
-                        cmd="cmd_pause"
-                        ondblclick="event.stopPropagation();"
-                        oncommand="activity.pauseHandler.pause(activity);">
-                </button>
-                <button class="retry mini-button"
-                        tooltiptext="&cmd.retry.label;"
-                        cmd="cmd_retry"
-                        ondblclick="event.stopPropagation();"
-                        oncommand="activity.retryHandler.retry(activity);">
-                </button>
-                <button class="cancel mini-button"
-                        tooltiptext="&cmd.cancel.label;"
-                        cmd="cmd_cancel"
-                        ondblclick="event.stopPropagation();"
-                        oncommand="activity.cancelHandler.cancel(activity);">
-                </button>
-              </hbox>
-              <label flex="1" crop="right" class="statusText"></label>
-              <spacer flex="1"></spacer>
-            </vbox>
-          </hbox>
-          `,
-          ["chrome://messenger/locale/activity.dtd"]
-        )
-      );
-
-      this._activity.QueryInterface(Ci.nsIActivityProcess);
+    constructor() {
+      super();
 
       this.activityListener = {
         onStateChanged: (activity, oldState) => {
           // change the view of the element according to the new state
           // default states for each item
-          let hideCancelBut = true;
-          let hideRetryBut = true;
-          let hidePauseBut = true;
-          let hideResumeBut = true;
           let hideProgressMeter = false;
-          let displayText = this.displayText;
           let statusText = this.statusText;
 
-          switch (this._activity.state) {
+          switch (this.activity.state) {
             case Ci.nsIActivityProcess.STATE_INPROGRESS:
-              hideCancelBut = !this.canCancel;
-              hidePauseBut = !this.canPause;
-              // status text is empty
               statusText = "";
               break;
             case Ci.nsIActivityProcess.STATE_COMPLETED:
-              // all buttons and progress meter are hidden
               hideProgressMeter = true;
-              // status text is empty
               statusText = "";
               break;
             case Ci.nsIActivityProcess.STATE_CANCELED:
-              // all buttons and progress meter are hidden
               hideProgressMeter = true;
-              statusText = this.text.canceled;
+              statusText = this.constructor.textMap.canceled;
               break;
             case Ci.nsIActivityProcess.STATE_PAUSED:
-              hideCancelBut = !this.canCancel;
-              hideResumeBut = !this.canPause;
-              statusText = this.text.paused;
+              statusText = this.constructor.textMap.paused;
               break;
             case Ci.nsIActivityProcess.STATE_WAITINGFORINPUT:
-              hideCancelBut = !this.canCancel;
-              hideProgressMeter = true;
-              statusText = this.text.waitingforinput;
+              statusText = this.constructor.textMap.waitingforinput;
               break;
             case Ci.nsIActivityProcess.STATE_WAITINGFORRETRY:
-              hideCancelBut = !this.canCancel;
-              hideRetryBut = !this.canRetry;
               hideProgressMeter = true;
-              statusText = this.text.waitingforretry;
+              statusText = this.constructor.textMap.waitingforretry;
               break;
           }
 
-          // Set the button visibility
-          this.setVisibility(".cancel", !hideCancelBut);
-          this.setVisibility(".retry", !hideRetryBut);
-          this.setVisibility(".pause", !hidePauseBut);
-          this.setVisibility(".resume", !hideResumeBut);
-          this.setVisibility(".progressmeter", !hideProgressMeter);
+          // Set the visibility
+          let meter = this.querySelector(".progressmeter");
+          meter.hidden = hideProgressMeter;
 
           // Ensure progress meter not active when hidden
           if (hideProgressMeter) {
-            let meter = document.querySelector(".progressmeter");
             meter.value = 0;
           }
 
           // Update Status text and Display Text Areas
           // In some states we need to modify Display Text area of
           // the process (e.g. Failure).
-          this.displayText = displayText;
           this.statusText = statusText;
         },
         onProgressChanged: (
@@ -456,227 +318,65 @@
           }
           this.statusText = statusText;
         },
-        onHandlerChanged: activity => {
-          // update handler buttons' visibilities
-          let hideCancelBut = !this.canCancel;
-          let hidePauseBut = !this.canPause;
-          let hideRetryBut = !this.canRetry;
-          let hideResumeBut =
-            !this.canPause ||
-            this._activity.state == Ci.nsIActivityProcess.STATE_PAUSED;
-
-          this.setVisibility(".cancel", !hideCancelBut);
-          this.setVisibility(".retry", !hideRetryBut);
-          if (hidePauseBut) {
-            this.setVisibility(".pause", !hidePauseBut);
-            this.setVisibility(".resume", !hideResumeBut);
-          } else {
-            this.setVisibility(".pause", this.paused);
-            this.setVisibility(".resume", !this.paused);
-          }
-        },
-        QueryInterface: ChromeUtils.generateQI(["nsIActivityListener"]),
-      };
-
-      this._activity.addListener(this.activityListener);
-
-      this.setAttribute("class", "activityitem");
-
-      this.displayText = this._activity.displayText;
-      // make sure that custom element reflects the latest state of the process
-      this.activityListener.onStateChanged(
-        this._activity.state,
-        Ci.nsIActivityProcess.STATE_NOTSTARTED
-      );
-      this.activityListener.onProgressChanged(
-        this._activity,
-        this._activity.lastStatusText,
-        this._activity.workUnitComplete,
-        this._activity.totalWorkUnits
-      );
-
-      this.initializeAttributeInheritance();
-    }
-
-    set displayText(val) {
-      this.setAttribute("displayText", val);
-    }
-
-    get displayText() {
-      return this.getAttribute("displayText");
-    }
-
-    set statusText(val) {
-      this.setAttribute("statusText", val);
-    }
-
-    get statusText() {
-      return this.getAttribute("statusText");
-    }
-
-    get inProgress() {
-      return this._activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS;
-    }
-
-    get isRemovable() {
-      return (
-        this._activity.state == Ci.nsIActivityProcess.STATE_COMPLETED ||
-        this._activity.state == Ci.nsIActivityProcess.STATE_CANCELED
-      );
-    }
-
-    get canCancel() {
-      return this._activity.cancelHandler != null;
-    }
-
-    get canPause() {
-      return this._activity.pauseHandler != null;
-    }
-
-    get canRetry() {
-      return this._activity.retryHandler != null;
-    }
-
-    get paused() {
-      return (
-        parseInt(this.getAttribute("state")) ==
-        Ci.nsIActivityProcess.STATE_PAUSED
-      );
-    }
-
-    get waitingforinput() {
-      return (
-        parseInt(this.getAttribute("state")) ==
-        Ci.nsIActivityProcess.STATE_WAITINGFORINPUT
-      );
-    }
-
-    get waitingforretry() {
-      return (
-        parseInt(this.getAttribute("state")) ==
-        Ci.nsIActivityProcess.STATE_WAITINGFORRETRY
-      );
-    }
-  }
-
-  customElements.define(
-    "activity-process-richlistitem",
-    MozActivityProcessRichlistItem,
-    {
-      extends: "richlistitem",
-    }
-  );
-
-  /**
-   * The MozActivityWarningRichlistItem widget displays information about
-   * warnings : e.g image, name, date and description.
-   * It is typically used in Activity Manager window.
-   *
-   * @extends MozActivityBaseRichlistItem
-   */
-  class MozActivityWarningRichlistItem extends MozActivityBaseRichlistItem {
-    static get inheritedAttributes() {
-      return {
-        ".displayText": "value=displayText,tooltiptext=displayTextTip",
-        ".dateTimeTip": "value=dateTime,tooltiptext=dateTimeTip",
-        ".statusText": "value=recoveryTipText,tooltiptext=recoveryTipTextTip",
       };
     }
 
     connectedCallback() {
       super.connectedCallback();
-      if (this.delayConnectedCallback() || this.hasChildNodes()) {
-        return;
-      }
-      this.setAttribute("is", "activity-warning-richlistitem");
+      this.setAttribute("is", "activity-process-item");
 
-      this.activityListener = {
-        onHandlerChanged: activity => {
-          // update handler button's visibility
-          this.setVisibility(".recover", this.canRecover);
-        },
-        QueryInterface: ChromeUtils.generateQI(["nsIActivityListener"]),
-      };
-
-      this._activity.addListener(this.activityListener);
-
-      this.appendChild(
-        MozXULElement.parseXULToFragment(
-          `
-          <hbox flex="1">
-            <vbox pack="center" class="warningIconBox">
-              <image></image>
-            </vbox>
-            <vbox pack="start" flex="1">
-              <hbox align="center" flex="1">
-                <label crop="center" flex="1" class="displayText"></label>
-                <label class="dateTime"></label>
-                <button class="recover mini-button"
-                        tooltiptext="&cmd.recover.label;"
-                        cmd="cmd_recover"
-                        ondblclick="event.stopPropagation();"
-                        oncommand="activity.recoveryHandler.recover(activity);">
-                </button>
-              </hbox>
-              <hbox align="center" flex="1">
-                <label crop="end" flex="1" class="statusText"></label>
-              </hbox>
-            </vbox>
-          </hbox>
-          `,
-          ["chrome://messenger/locale/activity.dtd"]
-        )
+      this.displayText = this.activity.displayText;
+      // make sure that custom element reflects the latest state of the process
+      this.activityListener.onStateChanged(
+        this.activity.state,
+        Ci.nsIActivityProcess.STATE_NOTSTARTED
       );
-
-      this.setAttribute("class", "activityitem");
-
-      this._activity.QueryInterface(Ci.nsIActivityWarning);
-
-      this.displayText = this._activity.displayText;
-      this.dateTime = this._activity.time;
-      this.recoveryTipText = this._activity.recoveryTipText;
-      this.setVisibility(".recover", this._activity.recoveryHandler);
-
-      this.initializeAttributeInheritance();
-    }
-
-    set displayText(val) {
-      this.setAttribute("displayText", val);
-    }
-
-    get displayText() {
-      return this.getAttribute("displayText");
-    }
-
-    set recoveryTipText(val) {
-      this.setAttribute("recoveryTipText", val);
-    }
-
-    get recoveryTipText() {
-      return this.getAttribute("recoveryTipText");
-    }
-
-    set dateTime(val) {
-      this.setAttribute(
-        "dateTime",
-        makeFriendlyDateAgo(new Date(parseInt(val)))
+      this.activityListener.onProgressChanged(
+        this.activity,
+        this.activity.lastStatusText,
+        this.activity.workUnitComplete,
+        this.activity.totalWorkUnits
       );
     }
 
-    get dateTime() {
-      return this.getAttribute("dateTime");
+    get inProgress() {
+      return this.activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS;
     }
 
-    get canRecover() {
-      return this._activity.recoveryHandler != null;
+    get isRemovable() {
+      return (
+        this.activity.state == Ci.nsIActivityProcess.STATE_COMPLETED ||
+        this.activity.state == Ci.nsIActivityProcess.STATE_CANCELED
+      );
     }
   }
 
-  customElements.define(
-    "activity-warning-richlistitem",
-    MozActivityWarningRichlistItem,
-    {
-      extends: "richlistitem",
+  customElements.define("activity-process-item", ActivityProcessItem, {
+    extends: "li",
+  });
+
+  /**
+   * The ActivityWarningItem widget displays information about
+   * warnings : e.g image, name, date and description.
+   * It is typically used in Activity Manager window.
+   *
+   * @extends ActivityItemBase
+   */
+  class ActivityWarningItem extends ActivityItemBase {
+    static defaultIconSrc = "chrome://messenger/skin/activity/warning.png";
+    static activityInterface = Ci.nsIActivityWarning;
+
+    connectedCallback() {
+      super.connectedCallback();
+      this.setAttribute("is", "activity-warning-item");
+
+      this.displayText = this.activity.displayText;
+      this.dateTime = this.activity.time;
+      this.statusText = this.activity.recoveryTipText;
     }
-  );
+  }
+
+  customElements.define("activity-warning-item", ActivityWarningItem, {
+    extends: "li",
+  });
 }
