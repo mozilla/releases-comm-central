@@ -16,6 +16,20 @@ var { allAccountsSorted } = ChromeUtils.import(
 var MailstoreConverter = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
 );
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
+// Set platform dependent icon src.
+window.addEventListener("DOMContentLoaded", () => {
+  let src =
+    AppConstants.platform == "linux"
+      ? "moz-icon://stock/gtk-dialog-warning?size=dialog"
+      : "chrome://global/skin/icons/warning-large.png";
+  for (let img of document.querySelectorAll(".infoIcon")) {
+    img.setAttribute("src", src);
+  }
+});
 
 var log = console.createInstance({
   prefix: "mail.mailstoreconverter",
@@ -209,14 +223,14 @@ function startContinue(aSelectedStoreType, aResponse) {
   document.getElementById("progress").addEventListener("progress", function(e) {
     document.getElementById("progress").value = e.detail;
     document.getElementById(
-      "progressPrcnt"
+      "progressPercent"
     ).textContent = bundle.formatStringFromName("converterDialog.percentDone", [
       e.detail,
     ]);
   });
 
-  document.getElementById("warning").setAttribute("hidden", "hidden");
-  document.getElementById("progressDiv").removeAttribute("hidden");
+  document.getElementById("warningArea").hidden = true;
+  document.getElementById("progressArea").hidden = false;
 
   // Storing original prefs and root folder path
   // to revert changes in case of error.
@@ -243,9 +257,9 @@ function startContinue(aSelectedStoreType, aResponse) {
    */
   function promiseRejected(aReason) {
     log.error("Conversion to '" + aSelectedStoreType + "' failed: " + aReason);
-    document.getElementById("messageSpan").style.display = "none";
+    document.getElementById("messageSpan").hidden = true;
 
-    document.getElementById("errorSpan").style.display = "block";
+    document.getElementById("errorSpan").hidden = false;
     gResponse.newRootFolder = null;
 
     // Revert prefs.
@@ -282,10 +296,10 @@ function startContinue(aSelectedStoreType, aResponse) {
     }
 
     Services.io.offline = gOriginalOffline;
-    document.getElementById("cancel").style.display = "none";
-    document.getElementById("finish").style.display = "inline-block";
-    document.getElementById("messageSpan").style.display = "none";
-    document.getElementById("completeSpan").style.display = "block";
+    document.getElementById("cancel").hidden = true;
+    document.getElementById("finish").hidden = false;
+    document.getElementById("messageSpan").hidden = true;
+    document.getElementById("completeSpan").hidden = false;
   }
 
   /**

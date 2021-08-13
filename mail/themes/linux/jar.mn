@@ -90,7 +90,6 @@ classic.jar:
   skin/classic/messenger/newmailaccount/success-compose.png   (mail/newmailaccount/success-compose.png)
   skin/classic/messenger/newmailaccount/success-signature.png (mail/newmailaccount/success-signature.png)
   skin/classic/messenger/newmailaccount/search.png            (mail/newmailaccount/search.png)
-  skin/classic/messenger/converterDialog.css                  (mail/converterDialog.css)
 % skin communicator classic/1.0 %skin/classic/communicator/
   skin/classic/communicator/icons/smileys/smiley-smile.png    (mail/icons/smiley-smile.png)
   skin/classic/communicator/icons/smileys/smiley-frown.png    (mail/icons/smiley-frown.png)

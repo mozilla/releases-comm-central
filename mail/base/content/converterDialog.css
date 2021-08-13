@@ -14,38 +14,44 @@ body {
   max-width: 50em;
 }
 
-#warning:not([hidden="hidden"]),
-#progressDiv:not([hidden="hidden"]) {
-  display: flex;
-  flex-wrap: wrap;
+.convert-area {
+  display: grid;
+  grid-template: "icon text text" auto
+                 "icon progress-bar progress-percent" auto
+                 "buttons buttons buttons" 1fr / auto 70% 1fr;
+  gap: 10px 15px;
 }
 
-.iconContainer {
-  flex: 1;
-  max-width: 70px;
-  height: 60px;
+.convert-area[hidden] {
+  display: none;
 }
 
 .infoIcon {
-  max-width: 48px;
-  max-height: 48px;
-  margin: 3px 5px 4px;
-  display: block;
-  height: 100%;
+  width: 48px;
+  height: 48px;
+  grid-area: icon;
+  align-self: start;
 }
 
-#warningSpan,
-#progressSpan {
-  flex: 1;
-  margin-left: 15px;
-  margin-right: 15px;
+p {
+  margin: 0;
+  /* Only one paragraph should be displayed at any given time. */
+  grid-area: text;
+  align-self: start;
 }
 
 .controls {
-  width: 100%;
-  text-align: end;
+  grid-area: buttons;
+  align-self: end;
+  justify-self: end;
 }
 
 #progress {
-  width: 80%;
+  grid-area: progress-bar;
+  align-self: center;
+}
+
+#progressPercent {
+  grid-area: progress-percent;
+  align-self: center;
 }
