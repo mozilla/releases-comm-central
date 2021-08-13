@@ -1022,13 +1022,6 @@ GlodaIdentity.prototype = {
     }
     return (this.abCard && true) || false;
   },
-
-  pictureURL(aSize) {
-    if (this.inAddressBook) {
-      // XXX should get the photo if we have it.
-    }
-    return "";
-  },
 };
 
 /**

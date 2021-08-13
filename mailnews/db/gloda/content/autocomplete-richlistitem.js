@@ -230,7 +230,6 @@
       this.setAttribute("is", "gloda-contact-chunk-richlistitem");
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-          <image class="ac-type-picture"></image>
           <vbox>
             <hbox>
               <hbox class="ac-title"
@@ -249,7 +248,6 @@
               </hbox>
               <label class="ac-ellipsis-after ac-url-text"
                      hidden="true"></label>
-              <image class="ac-type-icon"></image>
             </hbox>
           </vbox>
         `)
@@ -271,15 +269,11 @@
       this._identityOverflowEllipsis.value = ellipsis;
       this._nameOverflowEllipsis.value = ellipsis;
 
-      this._typeImage = this.querySelector(".ac-type-icon");
-
       this._identityBox = this.querySelector(".ac-url");
       this._identity = this.querySelector("description.ac-url-text");
 
       this._nameBox = this.querySelector(".ac-title");
       this._name = this.querySelector("description.ac-comment");
-
-      this._picture = this.querySelector(".ac-type-picture");
 
       this._adjustAcItem();
 
@@ -299,9 +293,6 @@
       }
 
       let identity = contact.identities[0];
-
-      // I guess we should get the picture size from CSS or something?
-      this._picture.src = identity.pictureURL(32);
 
       // Emphasize the matching search terms for the description.
       this._setUpDescription(this._name, contact.name);
@@ -515,7 +506,6 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(`
           <hbox class="gloda-single-identity">
-            <image class="picture"></image>
             <vbox>
               <hbox>
                 <hbox class="ac-title"
@@ -535,7 +525,6 @@
                 </hbox>
                 <label class="ac-ellipsis-after ac-url-text"
                        hidden="true"></label>
-                <image class="ac-type-icon"></image>
               </hbox>
             </vbox>
           </hbox>
@@ -558,15 +547,11 @@
       this._identityOverflowEllipsis.value = ellipsis;
       this._nameOverflowEllipsis.value = ellipsis;
 
-      this._typeImage = this.querySelector(".ac-type-icon");
-
       this._identityBox = this.querySelector(".ac-url");
       this._identity = this.querySelector("description.ac-url-text");
 
       this._nameBox = this.querySelector(".ac-title");
       this._name = this.querySelector("description.ac-comment");
-
-      this._picture = this.querySelector(".picture");
 
       this._adjustAcItem();
 
@@ -584,9 +569,6 @@
       if (identity == null) {
         return;
       }
-
-      // I guess we should get the picture size from CSS or something?
-      this._picture.src = identity.pictureURL(32);
 
       // Emphasize the matching search terms for the description.
       this._setUpDescription(this._name, identity.contact.name);
