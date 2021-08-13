@@ -335,19 +335,33 @@
 }
 
 .drop-attachment-overlay {
+  --overlay-color: #fff;
+  --overlay-backround: rgba(0, 0, 0, 0.5);
+  --drop-attachment-box-color: #222;
+  --drop-attachment-box-border-color: rgba(255, 255, 255, 0.85);
+  --drop-attachment-box-background-hover: rgba(255, 255, 255, 0.5);
+  --drop-attachment-box-border-color-hover: #fff;
+  --drop-attachment-title-background: rgba(255, 255, 255, 0.85);
+}
+
+:root[lwt-tree-brighttext] .drop-attachment-overlay {
+  --drop-attachment-box-color: #cbcbcb;
+  --drop-attachment-box-border-color: #999;
+  --drop-attachment-box-background-hover: rgba(0, 0, 0, 0.5);
+  --drop-attachment-box-border-color-hover: #fff;
+  --drop-attachment-title-background: rgba(0, 0, 0, 0.85);
+}
+
+.drop-attachment-overlay {
   pointer-events: none;
   position: fixed;
   z-index: 12; /* above the attachment bucket splitter */
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  background-color: var(--overlay-backround);
+  color: var(--overlay-color);
   inset: 0;
   padding: 30px;
   display: none;
   justify-content: space-around;
-}
-
-:root[lwt-tree-brighttext] .drop-attachment-overlay {
-  background-color: rgba(0, 0, 0, 0.75);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -401,9 +415,9 @@
   pointer-events: auto;
   font-size: 1.4rem;
   font-weight: 600;
-  color: #222;
+  color: var(--drop-attachment-box-color);
   border-radius: 15px;
-  border: 4px dashed #222;
+  border: 4px dashed var(--drop-attachment-box-border-color);
   flex: 1;
   display: flex;
   align-items: center;
@@ -420,8 +434,8 @@
   fill: currentColor;
   background-size: contain;
   padding-inline: 25px 6px;
-  border-radius: 99px;
-  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 3px;
+  background-color: var(--drop-attachment-title-background);
   background-position: 6px center;
   background-repeat: no-repeat;
   background-size: 16px;
@@ -439,29 +453,14 @@
   background-image: url("chrome://messenger/skin/icons/image.svg");
 }
 
-:root[lwt-tree-brighttext] .drop-attachment-box:not(.hover) {
-  color: rgb(200, 200, 200);
-  border-color: #999;
-}
-
-:root[lwt-tree-brighttext] .drop-attachment-box:not(.hover) span {
-  background-color: rgba(0, 0, 0, 0.85);
-}
-
 .drop-attachment-box.hidden {
   display: none;
 }
 
 .drop-attachment-box.hover {
-  border-color: transparent;
-  background-color: rgba(255, 255, 255, 0.85);
-}
-
-:root[lwt-tree-brighttext] .drop-attachment-box.hover {
-  background-color: #111;
-  color: #fff;
-  border-color: #fff;
+  border-color: var(--drop-attachment-box-border-color-hover);
   border-style: solid;
+  background-color: var(--drop-attachment-box-background-hover);
 }
 
 .drop-attachment-box.hover span {
