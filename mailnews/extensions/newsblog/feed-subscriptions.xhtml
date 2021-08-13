@@ -11,36 +11,31 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
     %feedDTD;
   <!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd">
     %newsblogDTD;
 ]>
 
-<window id="subscriptionsDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        flex="1"
-        title="&feedSubscriptions.label;"
-        windowtype="Mail:News-BlogSubscriptions"
-        persist="width height screenX screenY sizemode"
-        onload="FeedSubscriptions.onLoad();"
-        onclose="return FeedSubscriptions.onClose();"
-        onkeypress="FeedSubscriptions.onKeyPress(event);"
-        lightweightthemes="true"
-        onmousedown="FeedSubscriptions.onMouseDown(event);">
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/specialTabs.js"/>
-  <script src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-  <linkset>
-    <html:link rel="localization" href="security/certificates/certManager.ftl"/>
-  </linkset>
-
+<html id="feedSubscriptions" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false"
+      windowtype="Mail:News-BlogSubscriptions"
+      persist="width height screenX screenY sizemode"
+      lightweightthemes="true">
+<head>
+  <title>&feedSubscriptions.label;</title>
+  <link rel="localization" href="security/certificates/certManager.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/specialTabs.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/feed-subscriptions.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog id="subscriptionsDialog" buttons="accept" buttonlabelaccept="&button.close.label;">
   <keyset id="extensionsKeys">
     <key id="key_close"
          key="&cmd.close.commandKey;"
@@ -256,13 +251,9 @@
                 accesskey="&button.exportOPML.accesskey;"
                 tooltiptext="&button.exportOPML.tooltip;"
                 oncommand="FeedSubscriptions.exportOPML(event);"/>
-
-        <spacer flex="1"/>
-
-        <button id="close"
-                label="&button.close.label;"
-                oncommand="if (FeedSubscriptions.onClose()) window.close();"/>
       </hbox>
     </hbox>
   </vbox>
-</window>
+</dialog>
+</html:body>
+</html>

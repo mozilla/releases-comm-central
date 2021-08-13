@@ -3,12 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #subscriptionsDialog {
-  width: 40em;
-  height: 30em;
-}
-
-#contentPane {
-  margin: 10px;
+  width: 60em;
+  height: 40em;
 }
 
 #rssSubscriptionsList > treechildren::-moz-tree-image {
