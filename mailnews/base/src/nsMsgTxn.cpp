@@ -201,7 +201,8 @@ NS_IMETHODIMP nsMsgTxn::GetIsTransient(bool* aIsTransient) {
 }
 
 NS_IMETHODIMP nsMsgTxn::Merge(nsITransaction* aTransaction, bool* aDidMerge) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *aDidMerge = false;
+  return NS_OK;
 }
 
 nsresult nsMsgTxn::GetMsgWindow(nsIMsgWindow** msgWindow) {
