@@ -66,10 +66,10 @@ reference-jobs:
     - mingw32-rust-1.51
     - sysroot-aarch64-linux-gnu
     - sysroot-i686-linux-gnu
+    - sysroot-wasm32-wasi
     - sysroot-x86_64-linux-gnu
-    - wasi-sysroot
-    - wasi-sysroot-11
-    - wasi-sysroot-12
+    - wasm32-wasi-compiler-rt
+    - wasm32-wasi-compiler-rt-12
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
