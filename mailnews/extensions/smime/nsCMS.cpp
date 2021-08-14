@@ -257,7 +257,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
   {
-    UniqueCERTCertList builtChain;
+    nsTArray<nsTArray<uint8_t>> builtChain;
     mozilla::pkix::Result result = certVerifier->VerifyCert(
         si->cert, certificateUsageEmailSigner, Now(), nullptr /*XXX pinarg*/,
         nullptr /*hostname*/, builtChain,

@@ -797,7 +797,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
       CERT_GetDefaultCertDB(), SEC_CERT_NICKNAMES_USER, ctx);
   CERT_FreeNicknames(result_unused);
 
-  UniqueCERTCertList builtChain;
+  nsTArray<nsTArray<uint8_t>> builtChain;
   if (!mEncryptionCertDBKey.IsEmpty()) {
     res = certdb->FindCertByDBKey(mEncryptionCertDBKey,
                                   getter_AddRefs(mSelfEncryptionCert));
@@ -1111,7 +1111,7 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
   // search for a valid certificate
   for (node = CERT_LIST_HEAD(certlist); !CERT_LIST_END(node, certlist);
        node = CERT_LIST_NEXT(node)) {
-    UniqueCERTCertList unusedCertChain;
+    nsTArray<nsTArray<uint8_t>> unusedCertChain;
     mozilla::pkix::Result result = certVerifier->VerifyCert(
         node->cert, certificateUsageEmailRecipient, mozilla::pkix::Now(),
         nullptr /*XXX pinarg*/, nullptr /*hostname*/, unusedCertChain,

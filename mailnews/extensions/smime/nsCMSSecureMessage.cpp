@@ -65,7 +65,7 @@ nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
-  UniqueCERTCertList unusedBuiltChain;
+  nsTArray<nsTArray<uint8_t>> unusedBuiltChain;
   if (certVerifier->VerifyCert(aCert->GetCert(), aUsage, mozilla::pkix::Now(),
                                nullptr, nullptr, unusedBuiltChain,
                                CertVerifier::FLAG_LOCAL_ONLY) ==
