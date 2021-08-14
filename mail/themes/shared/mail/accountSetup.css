@@ -233,6 +233,7 @@ input:user-invalid ~ .icon-warning {
 
 .account-setup-notifications .notificationbox-stack {
   margin-block-end: 15px;
+  background-color: transparent;
 }
 
 /* Results area */
@@ -321,11 +322,13 @@ input:user-invalid ~ .icon-warning {
   max-width: 500px;
   border-radius: 6px;
   border: none;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
   box-shadow: 0 2px 6px -5px #000;
 }
 
 .account-setup-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .dialog-container {
@@ -608,6 +611,12 @@ select[disabled] {
   border-radius: 3px;
   min-height: 39px;
   line-height: 1em;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.account-type-image {
+  color: var(--in-content-link-color);
 }
 
 .linked-services-button {
