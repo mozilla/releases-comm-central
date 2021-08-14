@@ -118,16 +118,11 @@ VirtualFolderWrapper.prototype = {
    *     search over.
    */
   get searchFolders() {
-    let virtualFolderUris = this.dbFolderInfo
+    return this.dbFolderInfo
       .getCharProperty("searchFolderUri")
-      .split("|");
-    let folders = [];
-    for (let folderURI of virtualFolderUris) {
-      if (folderURI) {
-        folders.push(MailUtils.getExistingFolder(folderURI));
-      }
-    }
-    return folders;
+      .split("|")
+      .map(uri => MailUtils.getExistingFolder(uri))
+      .filter(Boolean);
   },
   /**
    * Set the search folders that back this virtual folder.
