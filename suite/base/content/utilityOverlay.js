@@ -1617,6 +1617,7 @@ function openLinkIn(url, where, params)
                 referrerPolicy: aReferrerPolicy,
                 charset: aCharset,
                 postData: aPostData,
+                ownerTab: loadInBackground ? null : browser.selectedTab,
                 allowThirdPartyFixup: aAllowThirdPartyFixup,
                 relatedToCurrent: aRelatedToCurrent,
                 allowMixedContent: aAllowMixedContent,

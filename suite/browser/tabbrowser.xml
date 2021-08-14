@@ -1157,6 +1157,17 @@
               this.finder.mListeners.forEach(l => this.mCurrentBrowser.finder.removeResultListener(l));
             }
 
+            let oldTab = this.mCurrentTab;
+
+            // Preview mode should not reset the owner.
+            if (!this._previewMode && !oldTab.selected)
+              oldTab.owner = null;
+
+            let lastRelatedTab = this.mLastRelatedIndex ? this.tabs[this.mLastRelatedIndex] : null;
+            if (lastRelatedTab && !lastRelatedTab.selected) {
+              lastRelatedTab.owner = null;
+            }
+
             newBrowser.setAttribute("primary", "true");
             this.mCurrentBrowser = newBrowser;
             this.mCurrentTab = this.selectedTab;
@@ -1450,6 +1461,9 @@
                 !params.inBackground :
                 !Services.prefs.getBoolPref("browser.tabs.loadInBackground");
 
+            if (params.focusNewTab)
+              params.ownerTab = this.selectedTab;
+
             return this.addTab(aURI, params);
          ]]>
         </body>
@@ -1561,6 +1575,7 @@
             var aTriggeringPrincipal;
             var aReferrerPolicy;
             var aFromExternal;
+            var aOwner;
             var aRelatedToCurrent;
             var aAllowMixedContent;
             var aNoReferrer;
@@ -1577,6 +1592,7 @@
               aReferrerPolicy       = params.referrerPolicy;
               aCharset              = params.charset;
               aPostData             = params.postData;
+              aOwner                = params.ownerTab;
               aFocusNewTab          = params.focusNewTab;
               aAllowThirdPartyFixup = params.allowThirdPartyFixup;
               aFromExternal         = params.fromExternal;
@@ -1587,6 +1603,10 @@
               aOriginPrincipal      = params.originPrincipal;
               aOpener               = params.opener;
             }
+
+            // If we're adding tabs, we're past interrupt mode, ditch the owner.
+            if (this.mCurrentTab.owner)
+              this.mCurrentTab.owner = null;
 
             this._browsers = null; // invalidate cache
 
@@ -1655,6 +1675,10 @@
 
             Services.prefs.setBoolPref("browser.tabs.forceHide", false);
 
+            // If this new tab is owned by another, assert that relationship.
+            if (aOwner)
+              t.owner = aOwner;
+
             // wire up a progress listener for the new browser object.
             var position = this.tabs.length - 1;
             var tabListener = this.mTabProgressListener(t, b, blank);
@@ -1704,6 +1728,10 @@
                 Services.prefs.getBoolPref("browser.tabs.insertRelatedAfterCurrent")) {
               var lastRelatedIndex = this.mLastRelatedIndex ||
                                      this.tabContainer.selectedIndex;
+              if (this.mLastRelatedIndex)
+                this.tabs[this.mLastRelatedIndex].owner = null;
+              else
+                t.owner = this.selectedTab;
               this.moveTabTo(t, ++lastRelatedIndex);
               this.mLastRelatedIndex = lastRelatedIndex;
             }
@@ -2042,6 +2070,13 @@
             // We are no longer the primary content area
             oldBrowser.removeAttribute("primary");
 
+            // Remove this tab as the owner of any other tabs, since it's going away.
+            for (let tab of this.tabs) {
+              if ("owner" in tab && tab.owner == aTab)
+                // |tab| is a child of the tab we're removing, make it an orphan.
+                tab.owner = null;
+            }
+
             // Now select the new tab before nuking the old one.
             var currentIndex = this.tabContainer.selectedIndex;
 
@@ -2062,13 +2097,20 @@
             // tab container.
             this._browsers = null;
 
-            // Clean up before/afterselected attributes before removing the tab
+            let owner = ("owner" in aTab) ? aTab.owner : null;
+
+            // Clean up before/after selected attributes before removing the
+            // tab.
             aTab._selected = false;
             aTab.remove();
 
             // When the current tab is removed select a new tab
             // and fire select events on tabpanels and tabs
-            if (this.mPreviousTab && (aTab == this.mCurrentTab))
+            if (owner && !owner.hidden && !owner.closing &&
+                Services.prefs.getBoolPref("browser.tabs.selectOwnerOnClose")) {
+              this.selectedTab = owner;
+            }
+            else if (this.mPreviousTab && (aTab == this.mCurrentTab))
               this.selectedTab = this.mPreviousTab;
             else {
               this.tabContainer.selectedIndex = newIndex;
