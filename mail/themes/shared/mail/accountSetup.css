@@ -856,3 +856,20 @@ button.existing:dir(rtl) {
 .calendar-dialog-form input[type="color"] {
   margin-inline: 4px;
 }
+
+.calendar-dialog-form select {
+  padding-inline-start: 9px;
+  padding-block: 0;
+}
+
+.calendar-dialog-form select:not([size], [multiple]) {
+  background-position-x: right 10px;
+}
+
+.calendar-dialog-form select:not([size], [multiple]):dir(rtl) {
+  background-position-x: left 10px;
+}
+
+.calendar-dialog-form select > option {
+  padding-inline-start: 11px;
+}
