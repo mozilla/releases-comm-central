@@ -243,12 +243,23 @@ async function ComposeMessage(type, format, folder, messageArray) {
             Ci.nsIMsgCompType.ReplyToList,
           ].includes(type)
         ) {
-          let from = hdr.getStringProperty("replyTo") || hdr.author;
+          let replyTo = hdr.getStringProperty("replyTo");
+          let from = replyTo || hdr.author;
           let fromAddrs = MailServices.headerParser.parseEncodedHeader(
             from,
             null
           );
           let email = fromAddrs[0]?.email;
+          if (type == msgComposeType.ReplyToList) {
+            // ReplyToList is only enabled for current message (if at all), so
+            // using currentHeaderData is ok.
+            // List-Post value is of the format <mailto:list@example.com>
+            let listPost = currentHeaderData["list-post"]?.headerValue;
+            if (listPost) {
+              email = listPost.replace(/.*<mailto:(.+)>.*/, "$1");
+            }
+          }
+
           if (
             /^(.*[._-])?(do[._-]?not|no)[._-]?reply([._-].*)?@/i.test(email)
           ) {
