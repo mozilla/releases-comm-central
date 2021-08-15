@@ -5542,16 +5542,15 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps* aFolderProps) {
     nsString uniOwner;
     GetFolderOwnerUserName(owner);
     if (owner.IsEmpty()) {
-      rv = IMAPGetStringByName(folderTypeStringID, getter_Copies(uniOwner));
+      IMAPGetStringByName(folderTypeStringID, getter_Copies(uniOwner));
       // Another user's folder, for which we couldn't find an owner name
       NS_ASSERTION(false, "couldn't get owner name for other user's folder");
     } else {
-      // is this right? It doesn't leak, does it?
       CopyUTF8toUTF16(owner, uniOwner);
     }
     AutoTArray<nsString, 1> params = {uniOwner};
-    rv = bundle->FormatStringFromName("imapOtherUsersFolderTypeDescription",
-                                      params, folderTypeDesc);
+    bundle->FormatStringFromName("imapOtherUsersFolderTypeDescription", params,
+                                 folderTypeDesc);
   } else if (GetFolderACL()->GetIsFolderShared()) {
     folderTypeStringID = "imapPersonalSharedFolderTypeName";
     folderTypeDescStringID = "imapPersonalSharedFolderTypeDescription";
@@ -5564,8 +5563,7 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps* aFolderProps) {
   if (NS_SUCCEEDED(rv)) aFolderProps->SetFolderType(folderType);
 
   if (folderTypeDesc.IsEmpty() && folderTypeDescStringID)
-    rv = IMAPGetStringByName(folderTypeDescStringID,
-                             getter_Copies(folderTypeDesc));
+    IMAPGetStringByName(folderTypeDescStringID, getter_Copies(folderTypeDesc));
   if (!folderTypeDesc.IsEmpty())
     aFolderProps->SetFolderTypeDescription(folderTypeDesc);
 
