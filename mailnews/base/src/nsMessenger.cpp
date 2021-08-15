@@ -1905,7 +1905,7 @@ void nsMessenger::GetString(const nsString& aStringName, nsString& aValue) {
   nsresult rv;
   aValue.Truncate();
 
-  if (!mStringBundle) rv = InitStringBundle();
+  if (!mStringBundle) InitStringBundle();
 
   if (mStringBundle)
     rv = mStringBundle->GetStringFromName(
