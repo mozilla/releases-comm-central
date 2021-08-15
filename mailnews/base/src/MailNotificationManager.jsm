@@ -412,7 +412,10 @@ class MailNotificationManager {
     );
     let count = this._unreadMailCount + this._unreadChatCount;
     let tooltip = "";
-    if (AppConstants.platform == "win") {
+    if (
+      AppConstants.platform == "win" &&
+      Services.prefs.getBoolPref("mail.biff.show_badge", true)
+    ) {
       if (count > 0) {
         tooltip = await l10n.formatValue("unread-messages-os-tooltip", {
           count,

@@ -860,6 +860,7 @@ pref("mail.biff.play_sound.type", 0);
 pref("mail.biff.play_sound.url", "");
 pref("mail.biff.show_alert", true);
 #ifdef XP_WIN
+pref("mail.biff.show_badge", true);
 pref("mail.biff.show_tray_icon", true);
 pref("mail.biff.use_system_alert", false);
 #elifdef XP_MACOSX
