@@ -6204,6 +6204,8 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
         rv = SendData(")" CRLF);
       else
         rv = SendData(CRLF);
+      if (NS_FAILED(rv)) goto done;
+
       ParseIMAPandCheckForNewMail(command.get());
 
       nsImapAction imapAction;
