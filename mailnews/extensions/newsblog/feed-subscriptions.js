@@ -67,15 +67,11 @@ var FeedSubscriptions = {
     FeedUtils.CANCEL_REQUESTED = false;
 
     if (this.mMainWin) {
-      this.mMainWin.FeedFolderNotificationService = MailServices.mfn;
-      this.mMainWin.FeedFolderNotificationService.addListener(
-        this.FolderListener,
-        this.FOLDER_ACTIONS
-      );
+      MailServices.mfn.addListener(this.FolderListener, this.FOLDER_ACTIONS);
     }
   },
 
-  onClose() {
+  onDialogAccept() {
     let dismissDialog = true;
 
     // If we are in the middle of subscribing to a feed, inform the user that
@@ -103,11 +99,10 @@ var FeedSubscriptions = {
     if (dismissDialog) {
       FeedUtils.CANCEL_REQUESTED = this.mActionMode == this.kSubscribeMode;
       if (this.mMainWin) {
-        this.mMainWin.FeedFolderNotificationService.removeListener(
+        MailServices.mfn.removeListener(
           this.FolderListener,
           this.FOLDER_ACTIONS
         );
-        delete this.mMainWin.FeedFolderNotificationService;
       }
     }
 
@@ -3132,8 +3127,8 @@ var FeedSubscriptions = {
 window.addEventListener("load", event => {
   FeedSubscriptions.onLoad();
 });
-window.addEventListener("close", event => {
-  if (!FeedSubscriptions.onClose()) {
+window.addEventListener("dialogaccept", event => {
+  if (!FeedSubscriptions.onDialogAccept()) {
     event.preventDefault();
   }
 });

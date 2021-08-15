@@ -107,7 +107,7 @@ add_task(async () => {
         await hiddenPromise;
 
         EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("close"),
+          dialogDocument.querySelector("dialog").getButton("accept"),
           {},
           dialogWindow
         );
