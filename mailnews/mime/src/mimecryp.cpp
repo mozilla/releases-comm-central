@@ -366,7 +366,8 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
   }
 
   if (enc->part_buffer) {
-    MimePartBufferRead(enc->part_buffer, DebugOut, 0);
+    status = MimePartBufferRead(enc->part_buffer, DebugOut, 0);
+    if (status < 0) return status;
   }
 #endif
 
