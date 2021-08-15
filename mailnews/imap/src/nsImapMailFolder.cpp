@@ -6525,7 +6525,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             nsCOMPtr<nsIMsgOfflineImapOperation> originalOp;
             rv = GetClearedOriginalOp(sourceOp, getter_AddRefs(originalOp),
                                       getter_AddRefs(originalDB));
-            if (originalOp) {
+            if (NS_SUCCEEDED(rv) && originalOp) {
               nsCString srcFolderURI;
               srcFolder->GetURI(srcFolderURI);
               sourceOp->GetSourceFolderURI(getter_Copies(originalSrcFolderURI));
