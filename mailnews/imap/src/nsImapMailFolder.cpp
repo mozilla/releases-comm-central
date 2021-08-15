@@ -1514,7 +1514,10 @@ NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName,
   nsCOMPtr<nsIFile> dirFile;
 
   int32_t count = mSubFolders.Count();
-  if (count > 0) rv = CreateDirectoryForFolder(getter_AddRefs(dirFile));
+  if (count > 0) {
+    rv = CreateDirectoryForFolder(getter_AddRefs(dirFile));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   nsCOMPtr<nsIFile> oldSummaryFile;
   rv = GetSummaryFileLocation(oldPathFile, getter_AddRefs(oldSummaryFile));
