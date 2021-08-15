@@ -1349,6 +1349,7 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
   // instead of -compose.
   if (found == -1) {
     rv = aCmdLine->FindFlag(u"url"_ns, false, &found);
+    NS_ENSURE_SUCCESS(rv, rv);
     // we don't want to consume the argument for -url unless we're sure it is a
     // mailto url and we'll figure that out shortly.
     composeShouldHandle = false;
