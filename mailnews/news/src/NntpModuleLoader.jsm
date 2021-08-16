@@ -29,6 +29,11 @@ var nntpJSModules = [
     "@mozilla.org/messenger/nntpservice;1",
   ],
   [
+    "NntpMessageService",
+    "{9cefbe67-5966-4f8a-b7b0-cedd60a02c8e}",
+    "@mozilla.org/messenger/messageservice;1?type=news-message",
+  ],
+  [
     "NewsProtocolHandler",
     "{24220ecd-cb05-4676-8a47-fa1da7b86e6e}",
     "@mozilla.org/network/protocol;1?name=news",
