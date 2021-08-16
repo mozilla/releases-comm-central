@@ -450,6 +450,7 @@ var CardDAVServer = {
           Assert.equal(p.namespaceURI, PREFIX_BINDINGS.cs);
           propNames.push(`cs:${p.localName}`);
           break;
+        case "current-user-principal":
         case "current-user-privilege-set":
         case "displayname":
         case "getetag":

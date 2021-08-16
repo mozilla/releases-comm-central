@@ -318,6 +318,7 @@ var CardDAVUtils = {
           <prop>
             <resourcetype/>
             <displayname/>
+            <current-user-principal/>
             <current-user-privilege-set/>
           </prop>
         </propfind>`,
@@ -404,7 +405,10 @@ var CardDAVUtils = {
     if (url.pathname != "/") {
       // This might be the full URL of an address book.
       await tryURL(url.href);
-      if (!response?.dom?.querySelector("resourcetype addressbook")) {
+      if (
+        !response?.dom?.querySelector("resourcetype addressbook") &&
+        !response?.dom?.querySelector("current-user-principal href")
+      ) {
         response = null;
       }
     }
@@ -430,12 +434,19 @@ var CardDAVUtils = {
     }
 
     if (!response.dom.querySelector("resourcetype addressbook")) {
+      let userPrincipal = response.dom.querySelector(
+        "current-user-principal href"
+      );
+      if (!userPrincipal) {
+        // We've run out of ideas.
+        throw new Components.Exception(
+          "Address book discovery failed",
+          Cr.NS_ERROR_FAILURE
+        );
+      }
       // Steps two and three of auto-discovery. If the entered URL did point
       // to an address book, we won't get here.
-      url = new URL(
-        response.dom.querySelector("current-user-principal href").textContent,
-        url
-      );
+      url = new URL(userPrincipal.textContent, url);
       requestParams.body = `<propfind xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
         <prop>
           <card:addressbook-home-set/>
