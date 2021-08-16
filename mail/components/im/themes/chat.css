@@ -485,9 +485,28 @@ richlistitem:not([selected]) .protoIconDimmed {
   transition-delay: 0s, 0s, 150ms;
 }
 
+.conv-textbox {
+  appearance: none;
+  margin: 0;
+  /* margin-inline-end so the borders show up on all sides. */
+  margin-inline-end: 1px;
+  padding: 2px;
+  box-sizing: content-box;
+  border: 2px solid transparent;
+}
+
 :root[lwt-tree] .conv-textbox {
-  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
+  background-color: var(--toolbar-field-background-color);
   color: var(--toolbar-field-color);
+}
+
+.conv-textbox:focus-visible {
+  border-color: var(--toolbar-field-focus-border-color);
+  outline-style: none;
+}
+
+.conv-textbox[invalidInput="true"] {
+  border-color: red;
 }
 
 .conv-counter {

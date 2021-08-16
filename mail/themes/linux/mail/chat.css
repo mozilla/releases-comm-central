@@ -38,18 +38,6 @@
   border: none;
 }
 
-.conv-textbox {
-  appearance: none;
-  margin: 0;
-  padding: 2px;
-  box-sizing: content-box;
-  border: 1px solid transparent;
-}
-
-.conv-textbox[invalidInput="true"] {
-  border-color: red;
-}
-
 .conv-textbox > .textbox-input-box {
   background: inherit;
 }

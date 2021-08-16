@@ -25,19 +25,6 @@
   background: var(--imbox-selected-background-color);
 }
 
-.conv-textbox {
-  appearance: none;
-  /* Right/left margins so the borders show up on all sides. */
-  margin: 0 1px;
-  padding: 2px;
-  box-sizing: content-box;
-  border: 1px solid transparent;
-}
-
-.conv-textbox[invalidInput="true"] {
-  border-color: red;
-}
-
 .conv-textbox > .textbox-input-box {
   background: inherit;
 }
