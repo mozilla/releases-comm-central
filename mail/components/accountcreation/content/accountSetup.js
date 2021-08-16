@@ -147,23 +147,15 @@ function confirmExchange(domain, okCallback, cancelCallback) {
     { domain }
   );
 
-  document.getElementById("exchangeDialogConfirmButton").addEventListener(
-    "click",
-    () => {
-      dialog.close();
-      okCallback();
-    },
-    { once: true }
-  );
+  document.getElementById("exchangeDialogConfirmButton").onclick = () => {
+    dialog.close();
+    okCallback();
+  };
 
-  document.getElementById("exchangeDialogCancelButton").addEventListener(
-    "click",
-    () => {
-      dialog.close();
-      cancelCallback(new UserCancelledException());
-    },
-    { once: true }
-  );
+  document.getElementById("exchangeDialogCancelButton").onclick = () => {
+    dialog.close();
+    cancelCallback(new UserCancelledException());
+  };
 
   // Show the dialog.
   dialog.showModal();
@@ -2543,36 +2535,28 @@ var gAccountSetup = {
     calendarRefresh.value = calendar.getProperty("refreshInterval") || 30;
 
     // Set up the dialog's action buttons.
-    document.getElementById("calendarDialogConfirmButton").addEventListener(
-      "click",
-      () => {
-        // Update the attributes of the calendar in case the user changed some
-        // values.
-        calendar.name = nameInput.value;
-        calendar.setProperty("color", colorInput.value);
-        if (calendar.canRefresh) {
-          calendar.setProperty("refreshInterval", calendarRefresh.value);
-        }
+    document.getElementById("calendarDialogConfirmButton").onclick = () => {
+      // Update the attributes of the calendar in case the user changed some
+      // values.
+      calendar.name = nameInput.value;
+      calendar.setProperty("color", colorInput.value);
+      if (calendar.canRefresh) {
+        calendar.setProperty("refreshInterval", calendarRefresh.value);
+      }
 
-        calendar.readOnly = readOnlyCheckbox.checked;
-        calendar.setProperty("suppressAlarms", !remindersCheckbox.checked);
-        if (!alwaysCache) {
-          calendar.setProperty("cache.enabled", offlineCheckbox.checked);
-        }
+      calendar.readOnly = readOnlyCheckbox.checked;
+      calendar.setProperty("suppressAlarms", !remindersCheckbox.checked);
+      if (!alwaysCache) {
+        calendar.setProperty("cache.enabled", offlineCheckbox.checked);
+      }
 
-        this._setupCalendar(button, calendar);
-        dialog.close();
-      },
-      { once: true }
-    );
+      this._setupCalendar(button, calendar);
+      dialog.close();
+    };
 
-    document.getElementById("calendarDialogCancelButton").addEventListener(
-      "click",
-      () => {
-        dialog.close();
-      },
-      { once: true }
-    );
+    document.getElementById("calendarDialogCancelButton").onclick = () => {
+      dialog.close();
+    };
 
     dialog.showModal();
   },
