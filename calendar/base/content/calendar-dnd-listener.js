@@ -464,7 +464,6 @@ var calendarTaskButtonDNDObserver;
       inputStream.init(localFileInstance, MODE_RDONLY, parseInt("0444", 8), {});
 
       try {
-        // XXX support csv
         let importer = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(Ci.calIImporter);
         let items = importer.importFromStream(inputStream);
         this.onDropItems(items);

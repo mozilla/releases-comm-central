@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals addMenuItem, getItemsFromFile, putItemsIntoCal,
+/* globals addMenuItem, getItemsFromIcsFile, putItemsIntoCal,
            sortCalendarArray */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -52,17 +52,17 @@ async function onWindowLoad() {
   Services.tm.dispatchToMainThread(async () => {
     let startTime = Date.now();
 
-    getItemsFromFile(gModel.file).forEach((item, index) => {
+    getItemsFromIcsFile(gModel.file).forEach((item, index) => {
       gModel.itemsToImport.set(index, item);
     });
     if (gModel.itemsToImport.size == 0) {
       // No items to import, close the window. An error dialog has already been
-      // shown by `getItemsFromFile`.
+      // shown by `getItemsFromIcsFile`.
       window.close();
       return;
     }
 
-    // We know that if `getItemsFromFile` took a long time, then `setUpItemSummaries` will also
+    // We know that if `getItemsFromIcsFile` took a long time, then `setUpItemSummaries` will also
     // take a long time. Show a loading message so the user knows something is happening.
     let loadingMessage = document.getElementById("calendar-ics-file-dialog-items-loading-message");
     if (Date.now() - startTime > 150) {

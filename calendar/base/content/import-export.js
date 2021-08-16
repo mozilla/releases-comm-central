@@ -86,33 +86,17 @@ function pickFileToImport() {
 }
 
 /**
- * Given a file, return the contractId for an importer for the file type.
- *
- * @param {nsIFile} file - A file.
- * @return {string} A contract ID.
- */
-function getContractIdForImportingFile(file) {
-  let fileNameLower = file.leafName.toLowerCase();
-  let contractId = "@mozilla.org/calendar/import;1?type=";
-
-  if (fileNameLower.endsWith(".ics")) {
-    return contractId + "ics";
-  } else if (fileNameLower.endsWith(".csv")) {
-    return contractId + "csv";
-  }
-  throw new Error("No importer for this type of file: " + file.leafName);
-}
-
-/**
- * Given a file (e.g. an ICS or CSV file), return an array of calendar items
- * parsed from it.
+ * Given an ICS file, return an array of calendar items parsed from it.
  *
  * @param {nsIFile} file - File to get items from.
  * @return {calIItemBase[]} Array of calendar items.
  */
-function getItemsFromFile(file) {
-  let contractId = getContractIdForImportingFile(file);
-  let importer = Cc[contractId].getService(Ci.calIImporter);
+function getItemsFromIcsFile(file) {
+  if (!file.leafName.toLowerCase().endsWith(".ics")) {
+    throw new Error("No importer for this type of file: " + file.leafName);
+  }
+
+  let importer = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(Ci.calIImporter);
 
   let inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
     Ci.nsIFileInputStream
