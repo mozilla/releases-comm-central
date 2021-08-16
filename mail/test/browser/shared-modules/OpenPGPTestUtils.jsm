@@ -43,8 +43,9 @@ const OpenPGPTestUtils = {
    * menu item.
    */
   async toggleMessageSigning(win) {
-    // TODO: make this use clickToolbarButtonMenuItem instead
-    return clickMenuOption(win, "#menu_securitySign_Menubar");
+    return clickToolbarButtonMenuItem(win, "#button-security", [
+      "#menu_securitySign_Toolbar",
+    ]);
   },
 
   /**
@@ -52,8 +53,10 @@ const OpenPGPTestUtils = {
    * menu item.
    */
   async toggleMessageKeyAttachment(win) {
-    // TODO: make this use clickToolbarButtonMenuItem instead
-    return clickMenuOption(win, "#menu_securityMyPublicKey_Menubar");
+    return clickToolbarButtonMenuItem(win, "#button-security", [
+      "#menu_OpenPGPOptions_Toolbar",
+      "#menu_securityMyPublicKey_Toolbar",
+    ]);
   },
 
   /**
@@ -64,11 +67,9 @@ const OpenPGPTestUtils = {
     // Note: doing it through #menu_securityEncryptRequire_Menubar won't work on
     // mac since the native menu bar can't be clicked.
     // Use the toolbar button to click Require encryption.
-    await clickToolbarButtonMenuItem(
-      win,
-      "#button-security",
-      "#menu_securityEncryptRequire_Toolbar"
-    );
+    await clickToolbarButtonMenuItem(win, "#button-security", [
+      "#menu_securityEncryptRequire_Toolbar",
+    ]);
   },
 
   /**
@@ -246,11 +247,10 @@ const OpenPGPTestUtils = {
 async function clickToolbarButtonMenuItem(
   win,
   buttonSelector,
-  menuitemSelector
+  menuitemSelectors
 ) {
   let menupopup = win.document.querySelector(`${buttonSelector} > menupopup`);
   let popupshown = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
-  let popuphidden = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
   EventUtils.synthesizeMouseAtCenter(
     win.document.querySelector(`${buttonSelector} > dropmarker`),
     {},
@@ -258,25 +258,12 @@ async function clickToolbarButtonMenuItem(
   );
   await popupshown;
 
-  EventUtils.synthesizeMouseAtCenter(
-    win.document.querySelector(menuitemSelector),
-    {},
-    win
-  );
+  if (menuitemSelectors.length > 1) {
+    let submenuSelector = menuitemSelectors.shift();
+    menupopup.querySelector(submenuSelector).openMenu(true);
+  }
+
+  let popuphidden = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
+  menupopup.activateItem(win.document.querySelector(menuitemSelectors[0]));
   await popuphidden;
-}
-
-async function clickMenuOption(win, selector) {
-  let menu = win.document.querySelector("#optionsMenu");
-  let waitForShown = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(menu, {}, win);
-  await waitForShown;
-
-  let waitForClose = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(
-    win.document.querySelector(selector),
-    {},
-    win
-  );
-  await waitForClose;
 }
