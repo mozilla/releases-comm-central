@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
-);
 var { cancelItemDialog } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -14,8 +11,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const SMALL_TOLERANCE = 5;
 const LARGE_TOLERANCE = 10;
 
-add_task(function setupModule(module) {
-  createCalendar(window, CALENDARNAME);
+let calendar = CalendarTestUtils.createProxyCalendar();
+registerCleanupFunction(() => {
+  CalendarTestUtils.removeProxyCalendar(calendar);
 });
 
 add_task(async function testEventDialog() {
@@ -120,10 +118,6 @@ add_task(async function testTaskDialog() {
   checkWithinTolerance(dialogWindow.outerWidth, 680);
   checkWithinTolerance(dialogWindow.outerHeight, 700);
   cancelItemDialog(dialogWindow);
-});
-
-registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(window, CALENDARNAME);
 });
 
 // Check the dialog is resized large enough to hold the iframe.

@@ -6,23 +6,16 @@ const EXPORTED_SYMBOLS = [
   "SHORT_SLEEP",
   "MID_SLEEP",
   "TIMEOUT_MODAL_DIALOG",
-  "CALENDARNAME",
   "handleDeleteOccurrencePrompt",
   "execEventDialogCallback",
   "checkMonthAlarmIcon",
   "closeAllEventDialogs",
-  "deleteCalendars",
-  "createCalendar",
 ];
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 var EventUtils = ChromeUtils.import("resource://testing-common/mozmill/EventUtils.jsm");
 var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
-
-// This still needs to load for some tests to pass. I'm not sure exactly why,
-// but this file loads a bunch of other things and one of them must be used.
-ChromeUtils.import("resource://testing-common/mozmill/FolderDisplayHelpers.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -35,7 +28,6 @@ ChromeUtils.defineModuleGetter(
 var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;
 var TIMEOUT_MODAL_DIALOG = 30000;
-var CALENDARNAME = "Mozmill";
 var EVENT_DIALOG_NAME = "Calendar:EventDialog";
 
 /**
@@ -90,37 +82,4 @@ async function execEventDialogCallback(callback) {
 function checkMonthAlarmIcon(window, week, day) {
   let dayBox = CalendarTestUtils.monthView.getItemAt(window, week, day, 1);
   Assert.ok(dayBox.querySelector(".alarm-icons-box > .reminder-icon"));
-}
-
-/**
- * Deletes all calendars with given name.
- *
- * @param {Window} window - Main window.
- * @param {string} name - Calendar name.
- */
-function deleteCalendars(window, name) {
-  let manager = window.cal.getCalendarManager();
-
-  for (let calendar of manager.getCalendars()) {
-    if (calendar.name == name) {
-      manager.removeCalendar(calendar);
-    }
-  }
-}
-
-/**
- * Creates local calendar with given name and select it in calendars list.
- *
- * @param {Window} window - Main window.
- * @param {string} name - Calendar name.
- */
-function createCalendar(window, name) {
-  let manager = window.cal.getCalendarManager();
-
-  let url = Services.io.newURI("moz-storage-calendar://");
-  let calendar = manager.createCalendar("storage", url);
-  calendar.name = name;
-  calendar.setProperty("calendar-main-default", true);
-  manager.registerCalendar(calendar);
-  return calendar.id;
 }

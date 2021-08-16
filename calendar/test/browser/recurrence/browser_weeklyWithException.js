@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  CALENDARNAME,
-  createCalendar,
-  deleteCalendars,
-  handleDeleteOccurrencePrompt,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { handleDeleteOccurrencePrompt } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 
 var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -22,7 +19,11 @@ const STARTDATE = cal.createDateTime("20090106T000000Z");
 const TITLE = "Event";
 
 add_task(async function testWeeklyWithExceptionRecurrence() {
-  createCalendar(window, CALENDARNAME);
+  let calendar = CalendarTestUtils.createProxyCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(calendar);
+  });
+
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2009, 1, 5);
 
@@ -244,7 +245,3 @@ async function changeRecurrence(recurrenceWindow) {
     recurrenceWindow
   );
 }
-
-registerCleanupFunction(function teardownModule() {
-  deleteCalendars(window, CALENDARNAME);
-});

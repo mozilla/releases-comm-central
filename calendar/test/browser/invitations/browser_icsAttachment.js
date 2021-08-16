@@ -9,7 +9,6 @@
 var { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 /**
  * Set TB as default calendar app.
@@ -25,9 +24,8 @@ add_task(function setupModule() {
  */
 add_task(async function test_ics_attachment() {
   let file = new FileUtils.File(getTestFilePath("data/message-containing-event.eml"));
-  let mc = await open_message_from_file(file);
-  mc.click(mc.e("button-openAllAttachments"));
-  await BrowserTestUtils.promiseAlertDialog(
+  let { window: msgWindow } = await open_message_from_file(file);
+  let promise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://mozapps/content/downloads/unknownContentType.xhtml",
     {
@@ -65,6 +63,12 @@ add_task(async function test_ics_attachment() {
       },
     }
   );
+  EventUtils.synthesizeMouseAtCenter(
+    msgWindow.document.getElementById("attachmentName"),
+    {},
+    msgWindow
+  );
+  await promise;
 
-  close_window(mc);
+  await BrowserTestUtils.closeWindow(msgWindow);
 });

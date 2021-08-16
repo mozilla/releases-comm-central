@@ -3,11 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {
-  CALENDARNAME,
   TIMEOUT_MODAL_DIALOG,
   checkMonthAlarmIcon,
-  createCalendar,
-  deleteCalendars,
   handleDeleteOccurrencePrompt,
 } = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -29,12 +26,18 @@ var firstDay;
 
 var { dayView, monthView } = CalendarTestUtils;
 
+let calendar = CalendarTestUtils.createProxyCalendar();
+// This is done so that calItemBase#isInvitation returns true.
+calendar.proxyTarget.setProperty("organizerId", "mailto:pillow@example.com");
+registerCleanupFunction(() => {
+  CalendarTestUtils.removeProxyCalendar(calendar);
+});
+
 add_task(async function testEventDialog() {
   let now = new Date();
 
   // Since from other tests we may be elsewhere, make sure we start today.
   await CalendarTestUtils.setCalendarView(window, "day");
-  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.goToDate(
     window,
     now.getUTCFullYear(),
@@ -82,7 +85,7 @@ add_task(async function testEventDialog() {
   Assert.equal(startPicker._timepicker._inputField.value, startTime);
 
   // Check selected calendar.
-  Assert.equal(iframeDocument.getElementById("item-calendar").value, CALENDARNAME);
+  Assert.equal(iframeDocument.getElementById("item-calendar").value, "Test");
 
   // Check standard title.
   let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
@@ -201,14 +204,11 @@ add_task(async function testEventDialog() {
       await monthView.waitForNoItemAt(window, row, col, 1);
     }
   }
-
-  Assert.ok(true, "Test ran to completion");
 });
 
 add_task(async function testOpenExistingEventDialog() {
   let now = new Date();
 
-  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(
     window,
@@ -250,13 +250,9 @@ add_task(async function testOpenExistingEventDialog() {
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
   await dayView.waitForNoEventBoxAt(window, 1);
-
-  Assert.ok(true, "Test ran to completion");
 });
 
 add_task(async function testEventReminderDisplay() {
-  let calId = createCalendar(window, CALENDARNAME);
-
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2020, 1, 1);
 
@@ -302,10 +298,6 @@ add_task(async function testEventReminderDisplay() {
     "the details are shown when a reminder is set"
   );
   EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
-
-  // This is done so that calItemBase#isInvitation returns true.
-  let calendar = cal.getCalendarManager().getCalendarById(calId);
-  calendar.setProperty("organizerId", "mailto:pillow@example.com");
 
   // Create an invitation.
   let icalString =
@@ -357,7 +349,6 @@ add_task(async function testEventReminderDisplay() {
  * This only happens in the dialog window. See bug 1668478.
  */
 add_task(async function testCtrlEnterShortcut() {
-  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2020, 9, 1);
 
@@ -414,7 +405,3 @@ function checkTooltip(row, col, startTime, endTime) {
   // This could be on the next day if it is 00:00.
   Assert.ok(dateTime.endsWith(endTime));
 }
-
-registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(window, CALENDARNAME);
-});

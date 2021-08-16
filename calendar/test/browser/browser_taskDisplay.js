@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
-);
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -12,7 +9,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
-var calendar = CalendarTestUtils.createProxyCalendar(CALENDARNAME);
+var calendar = CalendarTestUtils.createProxyCalendar();
 registerCleanupFunction(() => {
   CalendarTestUtils.removeProxyCalendar(calendar);
 });

@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  CALENDARNAME,
-  createCalendar,
-  deleteCalendars,
-  handleDeleteOccurrencePrompt,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { handleDeleteOccurrencePrompt } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -19,7 +16,11 @@ const STARTYEAR = 1950;
 const EPOCH = 1970;
 
 add_task(async function testAnnualRecurrence() {
-  createCalendar(window, CALENDARNAME);
+  let calendar = CalendarTestUtils.createProxyCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(calendar);
+  });
+
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, STARTYEAR, 1, 1);
 
@@ -61,8 +62,4 @@ add_task(async function testAnnualRecurrence() {
   await TestUtils.waitForCondition(() => !dayView.getAllDayItemAt(window, 1), "No all-day events");
 
   Assert.ok(true, "Test ran to completion");
-});
-
-registerCleanupFunction(function teardownModule() {
-  deleteCalendars(window, CALENDARNAME);
 });

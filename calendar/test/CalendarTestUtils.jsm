@@ -655,20 +655,21 @@ const CalendarTestUtils = {
   },
 
   /**
-   * Creates and registers a new calendar with the calendar manager. The value
-   * returned is actually a Proxy with the CRUD calendar methods adapted to use
-   * promises.
+   * Creates and registers a new calendar with the calendar manager. The
+   * created calendar will be set as the default calendar. The value returned
+   * is a Proxy with the CRUD calendar methods adapted to use Promises.
    *
    * @param {string} - name
    * @param {string} - type
    *
    * @returns {Proxy}
    */
-  createProxyCalendar(name, type = "storage") {
+  createProxyCalendar(name = "Test", type = "storage") {
     let manager = cal.getCalendarManager();
     let calendar = manager.createCalendar(type, Services.io.newURI(`moz-${type}-calendar://`));
 
     calendar.name = name;
+    calendar.setProperty("calendar-main-default", true);
     manager.registerCalendar(calendar);
     return cal.async.promisifyCalendar(calendar);
   },

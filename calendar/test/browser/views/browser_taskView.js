@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  MID_SLEEP,
-  CALENDARNAME,
-  createCalendar,
-  deleteCalendars,
-  execEventDialogCallback,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { MID_SLEEP, execEventDialogCallback } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
@@ -20,10 +16,11 @@ const TITLE = "Task";
 const DESCRIPTION = "1. Do A\n2. Do B";
 const PERCENTCOMPLETE = "50";
 
-// Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
-// checked.
 add_task(async function setupModule(module) {
-  let CALENDARID = createCalendar(window, CALENDARNAME);
+  let calendar = CalendarTestUtils.createProxyCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(calendar);
+  });
 
   // Open task view.
   EventUtils.synthesizeMouseAtCenter(document.getElementById("task-tab-button"), {}, window);
@@ -31,7 +28,7 @@ add_task(async function setupModule(module) {
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
   // Make sure that testing calendar is selected.
-  let calList = document.querySelector(`#calendar-list > [calendar-id="${CALENDARID}"]`);
+  let calList = document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`);
   Assert.ok(calList);
   EventUtils.synthesizeMouseAtCenter(calList, {}, window);
 
@@ -64,7 +61,7 @@ add_task(async function setupModule(module) {
   await eventWindowPromise;
   await execEventDialogCallback(async (taskWindow, iframeWindow) => {
     // Verify calendar.
-    Assert.equal(iframeWindow.document.getElementById("item-calendar").value, CALENDARNAME);
+    Assert.equal(iframeWindow.document.getElementById("item-calendar").value, "Test");
 
     await setData(taskWindow, iframeWindow, {
       status: "needs-action",
@@ -116,7 +113,7 @@ add_task(async function setupModule(module) {
   // Name
   Assert.equal(getTooltipDescription(1), TITLE);
   // Calendar
-  Assert.equal(getTooltipDescription(2), CALENDARNAME);
+  Assert.equal(getTooltipDescription(2), "Test");
   // Priority
   Assert.equal(getTooltipDescription(3), "High");
   // Status
@@ -151,8 +148,4 @@ add_task(async function setupModule(module) {
   tabmail.closeTab(tabmail.currentTabInfo);
 
   Assert.ok(true, "Test ran to completion");
-});
-
-registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(window, CALENDARNAME);
 });

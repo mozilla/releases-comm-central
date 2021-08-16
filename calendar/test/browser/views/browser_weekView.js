@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
-);
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -20,7 +17,11 @@ var TITLE2 = "Week View Event Changed";
 var DESC = "Week View Event Description";
 
 add_task(async function testWeekView() {
-  createCalendar(window, CALENDARNAME);
+  let calendar = CalendarTestUtils.createProxyCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(calendar);
+  });
+
   await CalendarTestUtils.setCalendarView(window, "week");
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
@@ -53,7 +54,7 @@ add_task(async function testWeekView() {
   await setData(dialogWindow, iframeWindow, {
     title: TITLE1,
     description: DESC,
-    calendar: CALENDARNAME,
+    calendar: "Test",
   });
 
   await saveAndCloseItemDialog(dialogWindow);
@@ -84,8 +85,4 @@ add_task(async function testWeekView() {
   await CalendarTestUtils.weekView.waitForNoEventBoxAt(window, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
-});
-
-registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(window, CALENDARNAME);
 });

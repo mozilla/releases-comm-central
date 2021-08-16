@@ -4,7 +4,7 @@
 
 requestLongerTimeout(3);
 
-var { CALENDARNAME, createCalendar, deleteCalendars, findEventsInNode } = ChromeUtils.import(
+var { findEventsInNode } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -40,7 +40,11 @@ var TIMEZONES = [
 ];
 
 add_task(async function testTimezones2_CreateEvents() {
-  createCalendar(window, CALENDARNAME);
+  let calendar = CalendarTestUtils.createProxyCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(calendar);
+  });
+
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
@@ -863,7 +867,3 @@ async function verify(dates, timezones, times) {
     }
   }
 }
-
-registerCleanupFunction(() => {
-  deleteCalendars(window, CALENDARNAME);
-});

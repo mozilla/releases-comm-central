@@ -7,10 +7,6 @@
 
 /* globals loadEventsFromFile */
 
-var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
-);
-
 const { MockFilePicker } = ChromeUtils.import("resource://specialpowers/MockFilePicker.jsm");
 const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci.nsIChromeRegistry);
 
@@ -26,11 +22,10 @@ add_task(async () => {
   MockFilePicker.setFiles([file]);
   MockFilePicker.returnValue = MockFilePicker.returnCancel;
 
-  let calendarId = createCalendar(window, CALENDARNAME);
-  let calendar = cal.getCalendarManager().getCalendarById(calendarId);
+  let calendar = CalendarTestUtils.createProxyCalendar();
 
   registerCleanupFunction(() => {
-    deleteCalendars(window, CALENDARNAME);
+    CalendarTestUtils.removeProxyCalendar(calendar);
     MockFilePicker.cleanup();
   });
 
@@ -72,7 +67,7 @@ add_task(async () => {
         // 0 is the Home calendar.
         calendarMenu.selectedIndex = 1;
         let calendarMenuItems = calendarMenu.querySelectorAll("menuitem");
-        is(calendarMenu.value, "Mozmill", "correct calendar name is selected");
+        is(calendarMenu.value, "Test", "correct calendar name is selected");
         Assert.equal(calendarMenuItems.length, 1, "exactly one calendar is in the calendars menu");
         is(calendarMenuItems[0].selected, true, "calendar menu item is selected");
 

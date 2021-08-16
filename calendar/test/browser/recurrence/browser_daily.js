@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  CALENDARNAME,
-  createCalendar,
-  deleteCalendars,
-  handleDeleteOccurrencePrompt,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { handleDeleteOccurrencePrompt } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
@@ -28,7 +25,11 @@ const HOUR = 8;
 const TITLE = "Event";
 
 add_task(async function testDailyRecurrence() {
-  createCalendar(window, CALENDARNAME);
+  let calendar = CalendarTestUtils.createProxyCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(calendar);
+  });
+
   await setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
@@ -158,8 +159,4 @@ add_task(async function testDailyRecurrence() {
   await monthView.waitForNoItemAt(window, 1, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
-});
-
-registerCleanupFunction(function teardownModule() {
-  deleteCalendars(window, CALENDARNAME);
 });

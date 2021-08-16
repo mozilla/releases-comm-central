@@ -4,9 +4,6 @@
 
 /* globals createCalendarUsingDialog */
 
-var { deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
-);
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -57,6 +54,12 @@ add_task(async function testLocalICS() {
   Assert.ok(str.value.includes("SUMMARY:" + calendarName));
 });
 
-registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(window, calendarName);
+registerCleanupFunction(() => {
+  let manager = window.cal.getCalendarManager();
+
+  for (let calendar of manager.getCalendars()) {
+    if (calendar.name == calendarName) {
+      manager.removeCalendar(calendar);
+    }
+  }
 });

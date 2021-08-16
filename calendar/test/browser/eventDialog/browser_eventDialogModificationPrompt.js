@@ -4,9 +4,6 @@
 
 requestLongerTimeout(2);
 
-var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
-);
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -17,9 +14,15 @@ var { data, newlines } = setupData();
 
 var { dayView } = CalendarTestUtils;
 
+let calendar = CalendarTestUtils.createProxyCalendar();
+// This is done so that calItemBase#isInvitation returns true.
+calendar.proxyTarget.setProperty("organizerId", "mailto:pillow@example.com");
+registerCleanupFunction(() => {
+  CalendarTestUtils.removeProxyCalendar(calendar);
+});
+
 // Test that closing an event dialog with no changes does not prompt for save.
 add_task(async function testEventDialogModificationPrompt() {
-  createCalendar(window, CALENDARNAME);
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
@@ -68,8 +71,6 @@ add_task(async function testEventDialogModificationPrompt() {
   Assert.equal(eventbox.isEditing, false, "event is not being edited");
   EventUtils.synthesizeKey("VK_DELETE", {}, window);
   await dayView.waitForNoEventBoxAt(window, 1);
-
-  Assert.ok(true, "Test ran to completion");
 });
 
 add_task(async function testDescriptionWhitespace() {
@@ -99,12 +100,6 @@ add_task(async function testDescriptionWhitespace() {
     EventUtils.synthesizeKey("VK_DELETE", {}, window);
     await dayView.waitForNoEventBoxAt(window, 1);
   }
-
-  Assert.ok(true, "Test ran to completion");
-});
-
-registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(window, CALENDARNAME);
 });
 
 function setupData() {

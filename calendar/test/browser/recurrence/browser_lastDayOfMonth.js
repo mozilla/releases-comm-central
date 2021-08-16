@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  CALENDARNAME,
-  createCalendar,
-  deleteCalendars,
-  handleDeleteOccurrencePrompt,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { handleDeleteOccurrencePrompt } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarUtils.jsm"
+);
 
 var { menulistSelect } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
@@ -21,7 +18,11 @@ var { setCalendarView, dayView, weekView, multiweekView, monthView } = CalendarT
 const HOUR = 8;
 
 add_task(async function testLastDayOfMonthRecurrence() {
-  createCalendar(window, CALENDARNAME);
+  let calendar = CalendarTestUtils.createProxyCalendar();
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(calendar);
+  });
+
   await setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2008, 1, 31); // Start with a leap year.
 
@@ -111,7 +112,3 @@ async function setRecurrence(recurrenceWindow) {
     recurrenceWindow
   );
 }
-
-registerCleanupFunction(function teardownModule() {
-  deleteCalendars(window, CALENDARNAME);
-});

@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { createCalendar, deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
-);
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -14,8 +11,14 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var UTF8STRING = " 💣 💥  ☣  ";
 
 add_task(async function testUTF8() {
+  let calendar = CalendarTestUtils.createProxyCalendar();
   Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
-  createCalendar(window, UTF8STRING);
+
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(calendar);
+    Services.prefs.clearUserPref("calendar.categories.names");
+  });
+
   await CalendarTestUtils.setCalendarView(window, "day");
 
   // Create new event.
@@ -51,11 +54,4 @@ add_task(async function testUTF8() {
 
   // Escape the event window.
   cancelItemDialog(dlgWindow);
-});
-
-Assert.ok(true, "Test ran to completion");
-
-registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(window, UTF8STRING);
-  Services.prefs.clearUserPref("calendar.categories.names");
 });
