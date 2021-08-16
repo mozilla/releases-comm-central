@@ -1895,8 +1895,8 @@ var gAccountSetup = {
         // Success.
         self._abortable = null;
         self._fillManualEditFields(config);
-        self.switchToMode("manual-edit-complete");
         self.stopLoadingState("account-setup-success-half-manual");
+        self.validateManualEditComplete();
       },
       function(e, config) {
         // guessConfig failed.
