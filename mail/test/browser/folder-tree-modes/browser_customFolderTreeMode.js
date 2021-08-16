@@ -101,7 +101,7 @@ add_task(function test_switch_to_test_mode() {
  * Open a new 3-pane window while the custom mode is selected, and make sure
  * that the mode displayed in the new window is the custom mode.
  */
-add_task(function test_open_new_window_with_custom_mode() {
+add_task(async function test_open_new_window_with_custom_mode() {
   // Our selection may get lost while changing modes, and be_in_folder is
   // not sufficient to ensure actual selection.
   mc.folderTreeView.selectFolder(gInbox);
@@ -110,6 +110,7 @@ add_task(function test_open_new_window_with_custom_mode() {
   mc.window.MsgOpenNewWindowForFolder(null, -1);
   let mc2 = wait_for_new_window("mail:3pane");
 
+  await TestUtils.waitForCondition(() => mc2.folderTreeView.isInited);
   assert_folder_mode(kTestModeID, mc2);
   assert_folder_visible(gInbox, mc2);
 
