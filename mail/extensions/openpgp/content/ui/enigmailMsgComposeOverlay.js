@@ -859,14 +859,9 @@ Enigmail.msg = {
     keyAttachment.temporary = true;
     keyAttachment.contentType = "application/pgp-keys";
 
-    // add attachment to msg
+    // Add attachment to msg, the attachment pane will be shown automatically.
     this.addAttachment(keyAttachment);
 
-    // XXX TODO: ChangeAttachmentBucketVisibility() doesn't exist.
-    try {
-      // TB only
-      ChangeAttachmentBucketVisibility(false);
-    } catch (ex) {}
     gContentChanged = true;
     return keyAttachment;
   },
@@ -880,34 +875,27 @@ Enigmail.msg = {
       "enigmailMsgComposeOverlay.js: Enigmail.msg.removeAttachedKey: \n"
     );
 
-    var bucketList = document.getElementById("attachmentBucket");
-    var node = bucketList.firstChild;
+    let bucketList = document.getElementById("attachmentBucket");
+    let node = bucketList.firstElementChild;
 
-    if (
-      bucketList &&
-      bucketList.hasChildNodes() &&
-      this.attachOwnKeyObj.attachedObj
-    ) {
-      // undo attaching own key
+    if (bucketList.itemCount && this.attachOwnKeyObj.attachedObj) {
+      // Undo attaching own key.
       while (node) {
         if (node.attachment.url == this.attachOwnKeyObj.attachedObj.url) {
           node = bucketList.removeChild(node);
-          // Let's release the attachment object held by the node else it won't go away until the window is destroyed
+          // Let's release the attachment object held by the node else it won't
+          // go away until the window is destroyed.
           node.attachment = null;
           this.attachOwnKeyObj.attachedObj = null;
           this.attachOwnKeyObj.attachedKey = null;
-          node = null; // exit loop
+          node = null; // exit loop.
         } else {
           node = node.nextSibling;
         }
       }
-      if (!bucketList.hasChildNodes()) {
-        // XXX TODO: ChangeAttachmentBucketVisibility() doesn't exist.
-        try {
-          // TB only
-          ChangeAttachmentBucketVisibility(true);
-        } catch (ex) {}
-      }
+
+      // Update the visibility of the attachment pane.
+      UpdateAttachmentBucket(bucketList.itemCount);
     }
   },
 
