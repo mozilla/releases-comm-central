@@ -291,7 +291,8 @@ var CardDAVUtils = {
       srvRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
 
       if (srvRecords[0]) {
-        url = new URL(`https://${srvRecords[0].host}`);
+        url = new URL(`https://${srvRecords[0].host}:${srvRecords[0].port}`);
+        log.log(`Found a DNS SRV record pointing to ${url.host}`);
 
         let txtRecords = await DNS.txt(domain);
         txtRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
@@ -301,6 +302,7 @@ var CardDAVUtils = {
 
         if (txtRecords[0]) {
           url.pathname = txtRecords[0].data.substr(5);
+          log.log(`Found a DNS TXT record pointing to ${url.href}`);
         }
       }
     }
