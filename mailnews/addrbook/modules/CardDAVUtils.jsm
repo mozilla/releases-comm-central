@@ -286,13 +286,14 @@ var CardDAVUtils = {
 
     if (url.pathname == "/" && !(url.hostname in PRESETS)) {
       log.log(`Looking up DNS record for ${url.hostname}`);
-      let srvRecords = await DNS.srv(`_carddavs._tcp.${url.hostname}`);
+      let domain = `_carddavs._tcp.${url.hostname}`;
+      let srvRecords = await DNS.srv(domain);
       srvRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
 
       if (srvRecords[0]) {
         url = new URL(`https://${srvRecords[0].host}`);
 
-        let txtRecords = await DNS.txt(`_carddavs._tcp.${srvRecords[0].host}`);
+        let txtRecords = await DNS.txt(domain);
         txtRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
         txtRecords = txtRecords.filter(result =>
           result.data.startsWith("path=")
