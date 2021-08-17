@@ -22,3 +22,19 @@ add_task(async function test_passwordmgr_change() {
   Services.logins.setLoginSavingEnabled("smtp://localhost", false);
   equal(server.password, "", "Password should be cleared.");
 });
+
+/**
+ * Test getter/setter of attributes.
+ */
+add_task(async function test_attributes() {
+  // Create an nsISmtpServer instance and set a password.
+  let server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
+    Ci.nsISmtpServer
+  );
+
+  server.description = "アイウ";
+  equal(server.description, "アイウ", "Description should be correctly set.");
+
+  server.hostname = "サービス.jp";
+  equal(server.hostname, "サービス.jp", "Hostname should be correctly set.");
+});

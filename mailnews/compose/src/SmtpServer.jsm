@@ -50,15 +50,15 @@ SmtpServer.prototype = {
   },
 
   get description() {
-    return this._prefs.getCharPref("description", "");
+    return this._prefs.getStringPref("description", "");
   },
 
   set description(value) {
-    this._setCharPref("description", value);
+    this._prefs.setStringPref("description", value);
   },
 
   get hostname() {
-    return this._prefs.getCharPref("hostname", "");
+    return this._prefs.getStringPref("hostname", "");
   },
 
   set hostname(value) {
@@ -67,7 +67,7 @@ SmtpServer.prototype = {
       // host.
       this.forgetPassword();
     }
-    this._setCharPref("hostname", value);
+    this._prefs.setStringPref("hostname", value);
   },
 
   get port() {
