@@ -399,10 +399,10 @@ function dateProperty(abCardPrefix, vPropName) {
       yield [vPropName, {}, "date", dateValue.toString()];
     },
     *toAbCard(value) {
-      let dateValue = new Date(value);
-      yield [`${abCardPrefix}Year`, String(dateValue.getFullYear())];
-      yield [`${abCardPrefix}Month`, String(dateValue.getMonth() + 1)];
-      yield [`${abCardPrefix}Day`, String(dateValue.getDate())];
+      let dateValue = ICAL.VCardTime.fromDateAndOrTimeString(value);
+      yield [`${abCardPrefix}Year`, String(dateValue.year)];
+      yield [`${abCardPrefix}Month`, String(dateValue.month)];
+      yield [`${abCardPrefix}Day`, String(dateValue.day)];
     },
   };
 }
