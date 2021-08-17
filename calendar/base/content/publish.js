@@ -155,9 +155,6 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
     case "https":
       channel = channel.QueryInterface(Ci.nsIHttpChannel);
       break;
-    case "ftp":
-      channel = channel.QueryInterface(Ci.nsIFTPChannel);
-      break;
     case "file":
       channel = channel.QueryInterface(Ci.nsIFileChannel);
       break;
