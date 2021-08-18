@@ -267,6 +267,7 @@
         `)
       );
       this.mOccurrence = null;
+      this.setAttribute("tooltip", "itemTooltip");
       this.initializeAttributeInheritance();
     }
     setOccurrence(aItem, aPeriod) {
