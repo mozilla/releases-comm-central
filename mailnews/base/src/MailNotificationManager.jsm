@@ -407,6 +407,14 @@ class MailNotificationManager {
   }
 
   async _updateUnreadCount() {
+    if (this._updatingUnreadCount) {
+      // _updateUnreadCount can be triggered faster than we finish rendering the
+      // badge. When that happens, set a flag and return.
+      this._pendingUpdate = true;
+      return;
+    }
+    this._updatingUnreadCount = true;
+
     this._logger.debug(
       `Update unreadMailCount=${this._unreadMailCount}, unreadChatCount=${this._unreadChatCount}`
     );
@@ -421,9 +429,18 @@ class MailNotificationManager {
           count,
         });
       }
-      WinUnreadBadge.updateUnreadCount(count, tooltip);
+      await WinUnreadBadge.updateUnreadCount(count, tooltip);
     }
     this._osIntegration?.updateUnreadCount(count, tooltip);
+
+    this._updatingUnreadCount = false;
+    if (this._pendingUpdate) {
+      // There was at least one _updateUnreadCount call while we were rendering
+      // the badge. Render one more time will ensure the badge reflects the
+      // current state.
+      this._pendingUpdate = false;
+      this._updateUnreadCount();
+    }
   }
 
   _animateDockIcon() {
