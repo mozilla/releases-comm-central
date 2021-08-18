@@ -4,7 +4,7 @@
 
 :root {
   --dialog-background: #fefefe;
-  --client-box-color: #222;
+  --dialog-box-color: #222;
   --client-box-background: #f7f7f7;
   --link-color: -moz-nativehyperlinktext;
   --link-decoration: inherit;
@@ -13,7 +13,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --dialog-background: #222;
-    --client-box-color: #f7f7f7;
+    --dialog-box-color: #f7f7f7;
     --client-box-background: #444;
     --link-color: #f7f7f7;
     --link-decoration: underline;
@@ -23,7 +23,7 @@
 @media (prefers-contrast) {
   :root {
     --dialog-background: -moz-Dialog;
-    --client-box-color: -moz-DialogText;
+    --dialog-box-color: -moz-DialogText;
     --client-box-background: -moz-Dialog;
     --link-color: -moz-nativehyperlinktext;
     --link-decoration: inherit;
@@ -39,6 +39,7 @@
 }
 
 #aboutDialogContainer {
+  color: var(--dialog-box-color);
   background-color: var(--dialog-background);
   /* Needed to hide a 1px line on macOS. */
   margin-bottom: -1px;

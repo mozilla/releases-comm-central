@@ -4,7 +4,6 @@
 
 #clientBox {
   background-color: var(--client-box-background);
-  color: var(--client-box-color);
 }
 
 #leftBox {
