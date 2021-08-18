@@ -25,6 +25,8 @@ class nsMailtoUrl : public nsIMailtoUrl, public nsIURI {
   NS_DECL_NSIMAILTOURL
 
   nsMailtoUrl();
+  static nsresult NewMailtoURI(const nsACString& aSpec, nsIURI* aBaseURI,
+                               nsIURI** _retval);
 
  protected:
   virtual nsresult Clone(nsIURI** _retval);
@@ -109,6 +111,8 @@ class nsSmtpUrl : public nsISmtpUrl, public nsMsgMailNewsUrl {
 
   // nsSmtpUrl
   nsSmtpUrl();
+  static nsresult NewSmtpURI(const nsACString& aSpec, nsIURI* aBaseURI,
+                             nsIURI** _retval);
 
  protected:
   virtual ~nsSmtpUrl();

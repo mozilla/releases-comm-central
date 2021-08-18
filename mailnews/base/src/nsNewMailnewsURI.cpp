@@ -16,7 +16,7 @@
 
 #include "../../local/src/nsPop3Service.h"
 #include "../../local/src/nsMailboxService.h"
-#include "../../compose/src/nsSmtpService.h"
+#include "../../compose/src/nsSmtpUrl.h"
 #include "../../../ldap/xpcom/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
 #include "../../news/src/nsNntpService.h"
@@ -60,10 +60,10 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
                                             task);
   }
   if (scheme.EqualsLiteral("smtp") || scheme.EqualsLiteral("smtps")) {
-    return nsSmtpService::NewSmtpURI(aSpec, aCharset, aBaseURI, aURI);
+    return nsSmtpUrl::NewSmtpURI(aSpec, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("mailto")) {
-    return nsSmtpService::NewMailtoURI(aSpec, aCharset, aBaseURI, aURI);
+    return nsMailtoUrl::NewMailtoURI(aSpec, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
     return nsPop3Service::NewURI(aSpec, aCharset, aBaseURI, aURI);

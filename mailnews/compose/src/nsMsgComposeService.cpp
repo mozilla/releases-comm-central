@@ -50,7 +50,7 @@
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"
-#include "nsSmtpService.h"
+#include "nsSmtpUrl.h"
 #include "mozilla/NullPrincipal.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
@@ -480,8 +480,7 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
     aURI->GetSpec(spec);
 
     nsCOMPtr<nsIURI> url;
-    rv = nsSmtpService::NewMailtoURI(spec, nullptr, nullptr,
-                                     getter_AddRefs(url));
+    rv = nsMailtoUrl::NewMailtoURI(spec, nullptr, getter_AddRefs(url));
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMailtoUrl> aMailtoUrl = do_QueryInterface(url, &rv);
 

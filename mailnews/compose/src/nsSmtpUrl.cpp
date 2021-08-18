@@ -562,6 +562,18 @@ nsMailtoUrl::Mutate(nsIURIMutator** aMutator) {
   return NS_OK;
 }
 
+nsresult nsMailtoUrl::NewMailtoURI(const nsACString& aSpec, nsIURI* aBaseURI,
+                                   nsIURI** _retval) {
+  nsresult rv;
+
+  nsCOMPtr<nsIURI> mailtoUrl;
+  rv = NS_MutateURI(new Mutator()).SetSpec(aSpec).Finalize(mailtoUrl);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mailtoUrl.forget(_retval);
+  return NS_OK;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // smtp url definition
 /////////////////////////////////////////////////////////////////////////////////////
@@ -720,4 +732,25 @@ nsSmtpUrl::GetSmtpServer(nsISmtpServer** aSmtpServer) {
   NS_ENSURE_TRUE(m_smtpServer, NS_ERROR_NULL_POINTER);
   NS_ADDREF(*aSmtpServer = m_smtpServer);
   return NS_OK;
+}
+
+nsresult nsSmtpUrl::NewSmtpURI(const nsACString& aSpec, nsIURI* aBaseURI,
+                               nsIURI** _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = 0;
+  nsresult rv;
+  nsCOMPtr<nsIMsgMailNewsUrl> aSmtpUri = new nsSmtpUrl();
+  if (aBaseURI) {
+    nsAutoCString newSpec;
+    rv = aBaseURI->Resolve(aSpec, newSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = aSmtpUri->SetSpecInternal(newSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    rv = aSmtpUri->SetSpecInternal(aSpec);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  aSmtpUri.forget(_retval);
+
+  return rv;
 }

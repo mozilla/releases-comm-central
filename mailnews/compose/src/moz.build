@@ -29,9 +29,6 @@ SOURCES += [
     "nsMsgSendLater.cpp",
     "nsMsgSendPart.cpp",
     "nsMsgSendReport.cpp",
-    "nsSmtpProtocol.cpp",
-    "nsSmtpServer.cpp",
-    "nsSmtpService.cpp",
     "nsSmtpUrl.cpp",
     "nsURLFetcher.cpp",
 ]
