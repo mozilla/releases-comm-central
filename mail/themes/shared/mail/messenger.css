@@ -982,7 +982,7 @@ toolbarpaletteitem toolbarbutton {
 /* Status panel */
 
 :root[lwt-tree] .statuspanel-label {
-  background-color: var(--lwt-toolbar-field-background-color);
+  background-color: var(--toolbar-field-background-color);
   color: var(--toolbar-field-color);
   border-color: var(--toolbar-field-border-color);
 }

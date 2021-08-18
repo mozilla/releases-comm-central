@@ -864,7 +864,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 :root[lwt-tree] #msgSubject,
 :root[lwt-tree] .address-container {
-  background-color: var(--lwt-toolbar-field-background-color);
+  background-color: var(--toolbar-field-background-color);
   color: var(--lwt-text-color);
 }
 
@@ -971,7 +971,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 }
 
 :root[lwt-tree] .pill-indicator {
-  stroke: var(--lwt-toolbar-field-background-color);
+  stroke: var(--toolbar-field-background-color);
 }
 
 #MsgHeadersToolbar[brighttext] .address-pill:not(.editing) {
@@ -1123,7 +1123,7 @@ button.remove-field-button:focus {
 }
 
 :root[lwt-tree] #msgIdentity:hover {
-  background-color: var(--lwt-toolbar-field-background-color);
+  background-color: var(--toolbar-field-background-color);
 }
 
 #msgIdentity:focus,
@@ -1151,7 +1151,7 @@ button.remove-field-button:focus {
 :root[lwt-tree-brighttext] #msgIdentity[focused="true"],
 :root[lwt-tree-brighttext] #msgSubject:focus,
 :root[lwt-tree-brighttext] .address-container[focused="true"] {
-  background-color: var(--lwt-toolbar-field-background-color);
+  background-color: var(--toolbar-field-background-color);
 }
 
 .address-pill::before {
