@@ -17,7 +17,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 /**
- * Set `user_pref("mailnews.smtp.jsmodule", true);` to use this module.
+ * The SMTP service.
  *
  * @implements {nsISmtpService}
  */

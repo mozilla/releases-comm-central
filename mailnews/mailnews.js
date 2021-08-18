@@ -326,8 +326,6 @@ pref("mailnews.reply_quoting_selection", true);
 pref("mailnews.reply_quoting_selection.only_if_chars", "");
 pref("mailnews.reply_quoting_selection.multi_word", true);
 
-// If true, SmtpService.jsm will be used. Otherwise, nsSmtpService.cpp will be used.
-pref("mailnews.smtp.jsmodule", false);
 pref("mailnews.smtp.loglevel", "Warn");
 
 // If true, NntpService.jsm is used. Otherwise, nsNntpService.cpp is used.

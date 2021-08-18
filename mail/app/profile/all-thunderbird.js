@@ -324,8 +324,6 @@ pref("mail.default_html_action", 3);
 
 pref("mailnews.send.loglevel", "Warn");
 
-pref("mailnews.smtp.jsmodule", true);
-
 pref("mailnews.ldap.jsmodule", true);
 
 /////////////////////////////////////////////////////////////////

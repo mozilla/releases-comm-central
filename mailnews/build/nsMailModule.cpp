@@ -136,8 +136,6 @@
 
 #include "nsMsgSendLater.h"
 #include "nsSmtpUrl.h"
-#include "nsISmtpService.h"
-#include "nsSmtpService.h"
 #include "nsMsgComposeService.h"
 #include "nsMsgComposeContentHandler.h"
 #include "nsMsgCompose.h"
@@ -146,7 +144,6 @@
 #include "nsMsgAttachment.h"
 #include "nsMsgQuote.h"
 #include "nsURLFetcher.h"
-#include "nsSmtpServer.h"
 #include "nsMsgCompUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -428,8 +425,6 @@ NS_DEFINE_NAMED_CID(NS_BAYESIANFILTER_CID);
 ////////////////////////////////////////////////////////////////////////////////
 // compose factories
 ////////////////////////////////////////////////////////////////////////////////
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsSmtpService)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSmtpServer, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCompose)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeParams)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgComposeSendListener)
@@ -459,8 +454,6 @@ NS_DEFINE_NAMED_CID(NS_MSGATTACHMENT_CID);
 NS_DEFINE_NAMED_CID(NS_MSGATTACHMENTDATA_CID);
 NS_DEFINE_NAMED_CID(NS_MSGATTACHEDFILE_CID);
 NS_DEFINE_NAMED_CID(NS_MSGSENDLATER_CID);
-NS_DEFINE_NAMED_CID(NS_SMTPSERVICE_CID);
-NS_DEFINE_NAMED_CID(NS_SMTPSERVER_CID);
 NS_DEFINE_NAMED_CID(NS_SMTPURL_CID);
 NS_DEFINE_NAMED_CID(NS_MAILTOURL_CID);
 NS_DEFINE_NAMED_CID(NS_MSGQUOTE_CID);
@@ -783,8 +776,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_MSGATTACHMENTDATA_CID, false, NULL, nsMsgAttachmentDataConstructor},
     {&kNS_MSGATTACHEDFILE_CID, false, NULL, nsMsgAttachedFileConstructor},
     {&kNS_MSGSENDLATER_CID, false, NULL, nsMsgSendLaterConstructor},
-    {&kNS_SMTPSERVICE_CID, false, NULL, nsSmtpServiceConstructor},
-    {&kNS_SMTPSERVER_CID, false, NULL, nsSmtpServerConstructor},
     {&kNS_SMTPURL_CID, false, NULL, nsSmtpUrlConstructor},
     {&kNS_MAILTOURL_CID, false, NULL, nsMailtoUrlConstructor},
     {&kNS_MSGQUOTE_CID, false, NULL, nsMsgQuoteConstructor},
@@ -977,9 +968,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_MSGATTACHMENTDATA_CONTRACTID, &kNS_MSGATTACHMENTDATA_CID},
     {NS_MSGATTACHEDFILE_CONTRACTID, &kNS_MSGATTACHEDFILE_CID},
     {NS_MSGSENDLATER_CONTRACTID, &kNS_MSGSENDLATER_CID},
-    {NS_SMTPSERVICE_CONTRACTID, &kNS_SMTPSERVICE_CID},
-    {NS_MAILTOHANDLER_CONTRACTID, &kNS_SMTPSERVICE_CID},
-    {NS_SMTPSERVER_CONTRACTID, &kNS_SMTPSERVER_CID},
     {NS_SMTPURL_CONTRACTID, &kNS_SMTPURL_CID},
     {NS_MAILTOURL_CONTRACTID, &kNS_MAILTOURL_CID},
     {NS_MSGQUOTE_CONTRACTID, &kNS_MSGQUOTE_CID},
