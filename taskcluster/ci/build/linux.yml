@@ -41,6 +41,7 @@ linux64/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64-shippable/opt:
@@ -88,6 +89,7 @@ linux64-shippable/opt:
             - linux64-node
             - linux64-rust
             - linux64-rust-size
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64/debug:
@@ -131,6 +133,7 @@ linux64/debug:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64-asan/opt:
@@ -179,6 +182,7 @@ linux64-asan/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64-tsan/opt:
@@ -227,6 +231,7 @@ linux64-tsan/opt:
             - linux64-rust-dev
             - linux64-rust-size
             - linux64-sccache
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux64-aarch64/opt:
@@ -274,6 +279,7 @@ linux64-aarch64/opt:
             - linux64-rust-size
             - linux64-sccache
             - sysroot-aarch64-linux-gnu
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux/opt:
@@ -315,6 +321,7 @@ linux/opt:
             - linux64-rust-size
             - linux64-sccache
             - sysroot-i686-linux-gnu
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux-shippable/opt:
@@ -364,6 +371,7 @@ linux-shippable/opt:
             - linux64-rust
             - linux64-rust-size
             - sysroot-i686-linux-gnu
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
 linux/debug:
@@ -407,4 +415,5 @@ linux/debug:
             - linux64-rust-size
             - linux64-sccache
             - sysroot-i686-linux-gnu
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
