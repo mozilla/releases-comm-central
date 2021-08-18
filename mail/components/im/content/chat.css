@@ -59,30 +59,24 @@ toolbar[mode="text"] #button-chat {
 }
 
 .badgeButton-badge {
-  display: none;
   background-color: red;
   border: 1px solid white;
-  border-radius: 12px;
+  border-radius: 1em;
   box-shadow: 1px 1px 1px black;
   color: white;
-  font: 8px Helvetica, Verdana, Tahoma;
-  height: 11px;
-  min-width: 11px;
+  font: xx-small Helvetica, Verdana, Tahoma;
+  height: -moz-fit-content;
+  min-width: 1em;
   text-align: center;
-  margin-top: -1px;
+  margin-top: -4px;
   margin-inline-start: 5px;
   margin-inline-end: 0;
-  margin-bottom: 5px;
-  padding: 0 2px;
+  padding-inline: 1px;
+  padding-block: 1px 0;
 }
 
 toolbar[mode="text"] .badgeButton-badge {
   margin: 0;
-  margin-bottom: 3px;
-}
-
-#button-chat[showingBadge="true"] > stack > .badgeButton-badge {
-  display: block;
 }
 
 .badgeButton-badgeLabel {

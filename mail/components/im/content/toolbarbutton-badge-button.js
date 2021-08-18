@@ -12,15 +12,14 @@
    * The MozBadgebutton widget is used to display a chat toolbar button in
    * the main Toolbox in the messenger window. It displays icon and label
    * for the button. It also shows a badge on top of the chat icon with a number.
-   * That number is the count of unread messages in the chat. It also gets
-   * filled blue when there are any unread messages.
+   * That number is the count of unread messages in the chat.
    *
    * @extends MozToolbarbutton
    */
   class MozBadgebutton extends customElements.get("toolbarbutton") {
     static get inheritedAttributes() {
       return {
-        ".toolbarbutton-icon": "validate,src=image,label",
+        ".toolbarbutton-icon": "src=image",
         ".toolbarbutton-text": "value=label,accesskey,crop",
       };
     }
@@ -32,12 +31,8 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(`
           <stack>
-            <hbox>
-              <image class="toolbarbutton-icon"></image>
-            </hbox>
-            <box class="badgeButton-badge">
-              <label class="badgeButton-badgeLabel"></label>
-            </box>
+            <html:img class="toolbarbutton-icon" alt="" />
+            <html:span class="badgeButton-badge" hidden="hidden"></html:span>
           </stack>
           <label class="toolbarbutton-text" crop="right" flex="1"></label>
         `)
@@ -47,24 +42,15 @@
       this.initializeAttributeInheritance();
     }
 
-    set badgeCount(val) {
-      this._setBadgeCount(val);
+    set badgeCount(count) {
+      this._badgeCount = count;
+      let badge = this.querySelector(".badgeButton-badge");
+      badge.textContent = count;
+      badge.hidden = count == 0;
     }
 
     get badgeCount() {
       return this._badgeCount;
-    }
-
-    _setBadgeCount(aNewCount) {
-      this._badgeCount = aNewCount;
-      let badge = this.querySelector(".badgeButton-badgeLabel");
-      badge.value = this._badgeCount;
-
-      if (this._badgeCount > 0) {
-        this.setAttribute("showingBadge", "true");
-      } else {
-        this.removeAttribute("showingBadge");
-      }
     }
   }
 

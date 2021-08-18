@@ -335,6 +335,12 @@ toolbox:not([mode="full"]) .toolbarbutton-menubutton-button {
   -moz-box-orient: horizontal;
 }
 
+/* Replicate the xul.css rule for when toolbar button icons are html:img instead
+ * of xul:image. */
+toolbar[mode="text"] .toolbarbutton-icon {
+  display: none;
+}
+
 toolbar[mode="full"] .toolbarbutton-1:not([hideWebExtensionLabel="true"]) {
   min-width: 55px;
 }
@@ -431,11 +437,21 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton
 }
 
 .toolbarbutton-1 .toolbarbutton-icon {
+  /* NOTE: At the moment, these rule can be applied to either xul:image elements
+   * (the plain toolbarbutton elements, defined in mozilla) or html:img
+   * elements (custom extensions in comm).
+   * The icon content is meant to be 16px by 16px, but xul:image sizing is
+   * essentially always border-box, and a content-box value would be ignored. We
+   * include this explicit border-box value for buttons that use a html:img
+   * icon.
+   * If all such icons become html:img elements, then it will be safe to use the
+   * default content-box sizing. */
+  box-sizing: border-box;
+  padding: 1px;
   width: 18px;
   height: 18px;
 }
 
-.toolbarbutton-1 .toolbarbutton-icon,
 .toolbarbutton-menubutton-button > .toolbarbutton-icon {
   padding: 1px;
 }

@@ -108,7 +108,6 @@
 #button-chat {
   -moz-context-properties: fill, fill-opacity, stroke-opacity;
   stroke-opacity: 0;
-  list-style-image: url("chrome://messenger/skin/icons/chat.svg");
 }
 
 #button-nextMsg {
