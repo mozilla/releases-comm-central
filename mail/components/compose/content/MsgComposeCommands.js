@@ -408,8 +408,12 @@ function updateEditableFields(aDisable) {
   } else {
     gMsgCompose.editor.flags &= ~Ci.nsIEditor.eEditorReadonlyMask;
 
-    let checker = GetCurrentEditor().getInlineSpellChecker(true);
-    checker.enableRealTimeSpell = gSpellCheckingEnabled;
+    try {
+      let checker = GetCurrentEditor().getInlineSpellChecker(true);
+      checker.enableRealTimeSpell = gSpellCheckingEnabled;
+    } catch (ex) {
+      // An error will be thrown if there are no dictionaries. Just ignore it.
+    }
   }
 
   // Disable all the input fields nad labels.
