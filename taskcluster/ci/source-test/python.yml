@@ -7,7 +7,7 @@ job-defaults:
     always-target: true
     worker-type: t-linux-xlarge-source
     worker:
-        docker-image: {in-tree: "debian10-amd64-build"}
+        docker-image: {in-tree: "lint"}
         max-run-time: 3600
         env:
             MOZCONFIG: comm/mail/config/mozconfigs/linux64/source

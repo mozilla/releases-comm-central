@@ -5,4 +5,4 @@
 
 tb-debian-mingw:
     symbol: I(tb-mingw)
-    parent: debian10-amd64-build
+    parent: debian11-amd64-build
