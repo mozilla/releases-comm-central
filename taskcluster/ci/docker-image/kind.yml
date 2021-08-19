@@ -13,7 +13,6 @@ reference-jobs:
     - debian8-i386-raw
     - debian8-packages
     - debian8-raw
-    - deb10-toolchain-build
     - debian10-amd64-build
     - debian10-base
     - debian10-packages
