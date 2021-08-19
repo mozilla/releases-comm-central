@@ -83,6 +83,7 @@ const { clearTimeout, requestIdleCallback, setTimeout } = ChromeUtils.import(
 var NS_ERROR_MODULE_NETWORK = 2152398848;
 var NS_ERROR_NET_TIMEOUT = NS_ERROR_MODULE_NETWORK + 14;
 var NS_ERROR_NET_RESET = NS_ERROR_MODULE_NETWORK + 20;
+var NS_ERROR_UNKNOWN_HOST = NS_ERROR_MODULE_NETWORK + 30;
 
 var ScriptableInputStream = Components.Constructor(
   "@mozilla.org/scriptableinputstream;1",
@@ -455,7 +456,9 @@ var Socket = {
       return;
     }
     this.disconnected = true;
-    if (aStatus == NS_ERROR_NET_RESET) {
+    // If the host cannot be resolved, reset the connection to attempt to
+    // reconnect.
+    if (aStatus == NS_ERROR_NET_RESET || aStatus == NS_ERROR_UNKNOWN_HOST) {
       this.onConnectionReset();
     } else if (aStatus == NS_ERROR_NET_TIMEOUT) {
       this.onConnectionTimedOut();
