@@ -621,10 +621,18 @@ function loadDialog(aItem) {
   // Description
   let editorElement = document.getElementById("item-description");
   let editor = editorElement.getHTMLEditor(editorElement.contentWindow);
+
   let link = editorElement.contentDocument.createElement("link");
   link.rel = "stylesheet";
   link.href = "chrome://messenger/content/messengercompose/EditorContent.css";
   editorElement.contentDocument.head.appendChild(link);
+
+  try {
+    let checker = editor.getInlineSpellChecker(true);
+    checker.enableRealTimeSpell = Services.prefs.getBoolPref("mail.spellcheck.inline", true);
+  } catch (ex) {
+    // No dictionaries.
+  }
 
   if (aItem.descriptionText) {
     let docFragment = cal.view.textToHtmlDocumentFragment(
