@@ -39,12 +39,12 @@ add_task(function testVCardToAbCard() {
   });
 
   // PreferMailFormat
-  check("X-MOZILLA-HTML:true", {
+  check("X-MOZILLA-HTML;VALUE=BOOLEAN:TRUE", {
     PreferMailFormat: Ci.nsIAbPreferMailFormat.html,
   });
 
   // PreferMailFormat
-  check("X-MOZILLA-HTML:false", {
+  check("X-MOZILLA-HTML;VALUE=BOOLEAN:FALSE", {
     PreferMailFormat: Ci.nsIAbPreferMailFormat.plaintext,
   });
 

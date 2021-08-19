@@ -507,7 +507,7 @@ var typeMap = {
       if (!map.has("PreferMailFormat")) {
         return;
       }
-      switch (parseInt(map.get("PreferMailFormat"))) {
+      switch (parseInt(map.get("PreferMailFormat"), 10)) {
         case Ci.nsIAbPreferMailFormat.html:
           yield ["x-mozilla-html", {}, "boolean", true];
           break;
@@ -523,12 +523,13 @@ var typeMap = {
       }
     },
     *toAbCard(value) {
-      if (value != "true" || value != "false") {
+      if (typeof value != "boolean") {
         console.warn(`Unexpected value for x-mozilla-html: ${value}`);
+        return;
       }
       yield [
         "PreferMailFormat",
-        value === "true"
+        value
           ? Ci.nsIAbPreferMailFormat.html
           : Ci.nsIAbPreferMailFormat.plaintext,
       ];
