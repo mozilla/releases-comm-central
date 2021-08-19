@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title>Test for the pane-splitter custom element</title>
+  <style>
+    hr[is="pane-splitter"] {
+      margin: 0 -3px;
+      border: none;
+      z-index: 1;
+      cursor: ew-resize;
+      opacity: .4;
+      background-color: red;
+    }
+
+    #splitter3,
+    #splitter4 {
+      margin: -3px 0;
+      cursor: ns-resize;
+    }
+
+    #horizontal-before {
+      display: grid;
+      grid-template-columns: var(--splitter1-width) 0 auto;
+      width: 500px;
+      height: 100px;
+      --splitter1-width: 200px;
+      margin: 1em;
+    }
+
+    #horizontal-after {
+      display: grid;
+      grid-template-columns: auto 0 var(--splitter2-width);
+      width: 500px;
+      height: 100px;
+      --splitter2-width: 200px;
+      margin: 1em;
+    }
+
+    #vertical-before {
+      display: inline-grid;
+      grid-template-rows: var(--splitter3-height) 0 auto;
+      width: 100px;
+      height: 500px;
+      --splitter3-height: 200px;
+      margin: 1em;
+    }
+
+    #vertical-after {
+      display: inline-grid;
+      grid-template-rows: auto 0 var(--splitter4-height);
+      width: 100px;
+      height: 500px;
+      --splitter4-height: 200px;
+      margin: 1em;
+    }
+
+    .resized {
+      background-color: lightblue;
+    }
+
+    .fill {
+      background-color: lightslategrey;
+    }
+  </style>
+  <!-- This stylesheet is used for the automated test. -->
+  <script src="chrome://messenger/content/pane-splitter.js"></script>
+  <!-- This stylesheet is used when this file is loaded in a browser. -->
+  <script src="../../../content/widgets/pane-splitter.js"></script>
+  <script>
+    function moveMarker(event) {
+      let markerX = document.getElementById("markerX");
+      markerX.style.left = `${event.clientX}px`;
+      markerX.textContent = `${event.type} event here`;
+
+      let markerY = document.getElementById("markerY");
+      markerY.style.top = `${event.clientY}px`;
+      markerY.textContent = `${event.type} event here`;
+    }
+
+    document.addEventListener("mousedown", moveMarker);
+    document.addEventListener("mousemove", moveMarker);
+    document.addEventListener("mouseup", moveMarker);
+  </script>
+</head>
+<body>
+  <div id="horizontal-before">
+    <div class="resized"></div>
+    <hr is="pane-splitter" id="splitter1" />
+    <div class="fill"></div>
+  </div>
+
+  <div id="horizontal-after">
+    <div class="fill"></div>
+    <hr is="pane-splitter" id="splitter2" after="after" />
+    <div class="resized"></div>
+  </div>
+
+  <div style="display: flex;">
+    <div id="vertical-before">
+      <div class="resized"></div>
+      <hr is="pane-splitter" id="splitter3" />
+      <div class="fill"></div>
+    </div>
+
+    <div id="vertical-after">
+      <div class="fill"></div>
+      <hr is="pane-splitter" id="splitter4" after="after" />
+      <div class="resized"></div>
+    </div>
+  </div>
+
+  <div id="markerX" style="position: absolute; top: 0px; border-left: 1px red solid;"></div>
+  <div id="markerY" style="position: absolute; left: 550px; border-top: 1px red solid;"></div>
+</body>
+</html>
