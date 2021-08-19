@@ -255,7 +255,7 @@
               "path": {
                 "choices": [
                   { "type": "string" },
-                  {"$ref": "IconPath" }
+                  { "$ref": "manifest.IconPath" }
                 ],
                 "optional": true,
                 "description": "Either a relative image path defining a single icon used for all sizes or an IconPathDictionary object defining dedicated icons for different sizes."
