@@ -1058,7 +1058,7 @@ MatrixAccount.prototype = {
 
     const opts = this.getClientOptions();
 
-    await opts.store.startup();
+    await Promise.all([opts.store.startup(), opts.cryptoStore.startup()]);
     this._client = MatrixSDK.createClient(opts);
     if (this._client.isLoggedIn()) {
       this.startClient();
