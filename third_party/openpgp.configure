@@ -239,6 +239,12 @@ with only_when("--enable-compile-environment"):
             "HAVE_STRDUP", check_symbol_exists("strdup", "string.h", when=have_string_h)
         )
 
+    @depends("MOZ_AUTOMATION")
+    def use_libcxx(automation):
+        return automation
+
+    set_config("MZLA_USE_LIBCXX", True, when=target_is_linux & use_libcxx)
+
 
 @depends(c_compiler, target, when=compile_environment)
 @checking("for clang_rt.builtins path", lambda x: x if x is None else x.clang_rt_lib)
