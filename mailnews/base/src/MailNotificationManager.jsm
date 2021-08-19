@@ -208,9 +208,8 @@ class MailNotificationManager {
    */
   _getFirstRealFolderWithNewMail(changedFolder) {
     let folders = changedFolder.descendants;
-    if (folders.length == 0) {
-      folders = [changedFolder];
-    }
+    folders.unshift(changedFolder);
+
     for (let folder of folders) {
       let flags = folder.flags;
       if (
