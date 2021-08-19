@@ -394,7 +394,7 @@ var MailUtils = {
    * fashion; we invoke a callback when we have completed our work.
    *
    * Using this function will write the value into the folder cache
-   * (panacea.dat) as well as the folder itself.  Hopefully you want this; if
+   * as well as the folder itself.  Hopefully you want this; if
    * you do not, keep in mind that the only way to avoid that is to retrieve
    * the nsIMsgDatabase and then the nsIDbFolderInfo.  You would want to avoid
    * that as much as possible because once those are exposed to you, XPConnect

@@ -8,14 +8,23 @@
 
 #include "nsIMsgFolderCache.h"
 #include "nsIFile.h"
-#include "nsIMsgFolderCacheElement.h"
-#include "nsInterfaceHashtable.h"
-#include "nsCOMPtr.h"
-#include "mdb.h"
+#include "nsITimer.h"
 
+namespace Json {
+class Value;
+};
+
+/**
+ * nsMsgFolderCache implements the folder cache, which stores values which
+ * might be slow for the folder to calculate.
+ * It persists the cache data by dumping it out to a .json file when changes
+ * are made. To avoid huge numbers of writes, this autosaving is deferred -
+ * when a cached value is changed, it'll wait a minute or so before
+ * writing, to collect any other changes that occur during that time.
+ * If any changes are outstanding at destruction time, it'll perform an
+ * immediate save then.
+ */
 class nsMsgFolderCache : public nsIMsgFolderCache {
-  using PathString = mozilla::PathString;
-
  public:
   friend class nsMsgFolderCacheElement;
 
@@ -27,28 +36,25 @@ class nsMsgFolderCache : public nsIMsgFolderCache {
  protected:
   virtual ~nsMsgFolderCache();
 
-  nsresult GetMDBFactory(nsIMdbFactory** aMdbFactory);
-  nsresult AddCacheElement(const nsACString& key, nsIMdbRow* row,
-                           nsIMsgFolderCacheElement** result);
-  nsresult RowCellColumnToCharPtr(nsIMdbRow* hdrRow, mdb_token columnToken,
-                                  nsACString& resultPtr);
-  nsresult InitMDBInfo();
-  nsresult InitNewDB();
-  nsresult InitExistingDB();
-  nsresult OpenMDB(const PathString& dbName, bool create);
-  nsIMdbEnv* GetEnv() { return m_mdbEnv; }
-  nsIMdbStore* GetStore() { return m_mdbStore; }
-  nsInterfaceHashtable<nsCStringHashKey, nsIMsgFolderCacheElement>
-      m_cacheElements;
-  // mdb stuff
-  nsIMdbEnv* m_mdbEnv;  // to be used in all the db calls.
-  nsIMdbStore* m_mdbStore;
-  nsIMdbTable* m_mdbAllFoldersTable;
-  mdb_token m_folderRowScopeToken;
-  mdb_token m_folderTableKindToken;
-  nsCOMPtr<nsIMdbFactory> mMdbFactory;
+  nsresult LoadFolderCache(nsIFile* jsonFile);
+  nsresult SaveFolderCache(nsIFile* jsonFile);
+  // Flag that a save is required. It'll be deferred by kAutoSaveDelayMs.
+  void SetModified();
+  static constexpr uint32_t kSaveDelayMs = 1000 * 60 * 1;  // 1 minute.
+  static void doSave(nsITimer*, void* closure);
 
-  struct mdbOid m_allFoldersTableOID;
+  // Path to the JSON file backing the cache.
+  nsCOMPtr<nsIFile> mCacheFile;
+
+  // This is our data store. Kept as a Json::Value for ease of saving, but
+  // it's actually not a bad format for access (it's basically a std::map).
+  // Using a pointer to allow forward declaration. The json headers aren't
+  // in the include path for other modules, so we don't want to expose them
+  // here.
+  Json::Value* mRoot;
+
+  bool mSavePending;
+  nsCOMPtr<nsITimer> mSaveTimer;
 };
 
 #endif

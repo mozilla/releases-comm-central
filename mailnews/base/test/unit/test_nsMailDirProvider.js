@@ -11,7 +11,8 @@ function run_test() {
     { key: "MailD", value: "Mail" },
     { key: "IMapMD", value: "ImapMail" },
     { key: "NewsD", value: "News" },
-    { key: "MFCaF", value: "panacea.dat" },
+    { key: "MLFCaF", value: "panacea.dat" }, // Legacy folder cache.
+    { key: "MFCaF", value: "folderCache.json" },
   ];
 
   items.forEach(function(item) {

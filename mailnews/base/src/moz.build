@@ -53,7 +53,6 @@ SOURCES += [
     "nsMsgEnumerator.cpp",
     "nsMsgFileStream.cpp",
     "nsMsgFolderCache.cpp",
-    "nsMsgFolderCacheElement.cpp",
     "nsMsgFolderCompactor.cpp",
     "nsMsgFolderNotificationService.cpp",
     "nsMsgGroupThread.cpp",
@@ -132,9 +131,15 @@ EXTRA_JS_MODULES += [
     "VirtualFolderWrapper.jsm",
     "WinUnreadBadge.jsm",
 ]
+
+USE_LIBS += [
+    "jsoncpp",
+]
+
 LOCAL_INCLUDES += [
     "/%s/dom/base" % CONFIG["mozreltopsrcdir"],
     "/%s/netwerk/base" % CONFIG["mozreltopsrcdir"],
+    "/%s/toolkit/components/jsoncpp/include" % CONFIG["mozreltopsrcdir"],
 ]
 
 include("/ipc/chromium/chromium-config.mozbuild")

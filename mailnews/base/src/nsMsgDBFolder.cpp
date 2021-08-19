@@ -1272,13 +1272,13 @@ NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
   nsresult rv = NS_OK;
 
-  element->GetInt32Property("flags", (int32_t*)&mFlags);
-  element->GetInt32Property("totalMsgs", &mNumTotalMessages);
-  element->GetInt32Property("totalUnreadMsgs", &mNumUnreadMessages);
-  element->GetInt32Property("pendingUnreadMsgs", &mNumPendingUnreadMessages);
-  element->GetInt32Property("pendingMsgs", &mNumPendingTotalMessages);
-  element->GetInt64Property("expungedBytes", &mExpungedBytes);
-  element->GetInt64Property("folderSize", &mFolderSize);
+  element->GetCachedUInt32("flags", &mFlags);
+  element->GetCachedInt32("totalMsgs", &mNumTotalMessages);
+  element->GetCachedInt32("totalUnreadMsgs", &mNumUnreadMessages);
+  element->GetCachedInt32("pendingUnreadMsgs", &mNumPendingUnreadMessages);
+  element->GetCachedInt32("pendingMsgs", &mNumPendingTotalMessages);
+  element->GetCachedInt64("expungedBytes", &mExpungedBytes);
+  element->GetCachedInt64("folderSize", &mFolderSize);
 
 #ifdef DEBUG_bienvenu1
   nsCString uri;
@@ -1355,13 +1355,13 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
   nsresult rv = NS_OK;
 
-  element->SetInt32Property("flags", (int32_t)mFlags);
-  element->SetInt32Property("totalMsgs", mNumTotalMessages);
-  element->SetInt32Property("totalUnreadMsgs", mNumUnreadMessages);
-  element->SetInt32Property("pendingUnreadMsgs", mNumPendingUnreadMessages);
-  element->SetInt32Property("pendingMsgs", mNumPendingTotalMessages);
-  element->SetInt64Property("expungedBytes", mExpungedBytes);
-  element->SetInt64Property("folderSize", mFolderSize);
+  element->SetCachedUInt32("flags", mFlags);
+  element->SetCachedInt32("totalMsgs", mNumTotalMessages);
+  element->SetCachedInt32("totalUnreadMsgs", mNumUnreadMessages);
+  element->SetCachedInt32("pendingUnreadMsgs", mNumPendingUnreadMessages);
+  element->SetCachedInt32("pendingMsgs", mNumPendingTotalMessages);
+  element->SetCachedInt64("expungedBytes", mExpungedBytes);
+  element->SetCachedInt64("folderSize", mFolderSize);
 
 #ifdef DEBUG_bienvenu1
   nsCString uri;
@@ -2024,7 +2024,7 @@ nsMsgDBFolder::GetStringProperty(const char* propertyName,
     nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
     rv = GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
     if (cacheElement)  // try to get from cache
-      rv = cacheElement->GetStringProperty(propertyName, propertyValue);
+      rv = cacheElement->GetCachedString(propertyName, propertyValue);
     if (NS_FAILED(rv))  // if failed, then try to get from db
     {
       nsCOMPtr<nsIDBFolderInfo> folderInfo;
@@ -2050,7 +2050,7 @@ nsMsgDBFolder::SetStringProperty(const char* propertyName,
     nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
     GetFolderCacheElemFromFile(dbPath, getter_AddRefs(cacheElement));
     if (cacheElement)  // try to set in the cache
-      cacheElement->SetStringProperty(propertyName, propertyValue);
+      cacheElement->SetCachedString(propertyName, propertyValue);
   }
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   nsCOMPtr<nsIMsgDatabase> db;

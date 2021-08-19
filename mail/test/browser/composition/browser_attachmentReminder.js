@@ -251,10 +251,10 @@ add_task(function test_attachment_reminder_with_attachment() {
 
   // Add an attachment.
   let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-  file.append("panacea.dat");
+  file.append("prefs.js");
   Assert.ok(
     file.exists(),
-    "The required file panacea.dat was not found in the profile."
+    "The required file prefs.js was not found in the profile."
   );
   let attachments = [cwc.window.FileToAttachment(file)];
   cwc.window.AddAttachments(attachments);
@@ -530,7 +530,7 @@ add_task(function test_attachment_vs_filelink_reminder() {
   let kOfferThreshold = "mail.compose.big_attachments.threshold_kb";
   let maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
   let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-  file.append("panacea.dat");
+  file.append("prefs.js");
   add_attachments(cwc, Services.io.newFileURI(file).spec, maxSize);
 
   // The filelink attachment proposal should be up but not the attachment

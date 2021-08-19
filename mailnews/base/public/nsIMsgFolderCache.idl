@@ -8,13 +8,40 @@
 interface nsIFile;
 interface nsIMsgFolderCacheElement;
 
+/**
+ * nsIMsgFolderCache is a store of values which might be slow for the folder
+ * to calculate. For example: the number of unread messages.
+ * The account manager holds the cache, and each folder manipulates its cached
+ * properties via nsIMsgFolderCacheElement.
+ */
 [scriptable, uuid(78C2B6A2-E29F-44de-9543-10DBB51E245C)]
 interface nsIMsgFolderCache : nsISupports
 {
-  void Init(in nsIFile aFile);
-  nsIMsgFolderCacheElement GetCacheElement(in ACString key, in boolean createIfMissing);
-  void clear();
-  void close();
-  void commit(in boolean compress);
+  /**
+   * Set up the cache, loading/saving to cacheFile.
+   * If a new-style cacheFile isn't found, it looks for an old panacea.dat,
+   * specified by legacyFile and migrates it to the new format.
+   * Neither file has to exist - it'll just start up with an empty cache.
+   * nsMsgFolderCache (the only implementation) will autosave to cacheFile
+   * when changes are made.
+   *
+   * @param cacheFile   File to persist the cache data (folderCache.json).
+   * @param legacyFile  Old panacea.dat file to check for and migrate, if
+   *                    cacheFile doesn't exist.
+   */
+  void init(in nsIFile cacheFile, in nsIFile legacyFile);
+
+  /**
+   * Return an nsIMsgFolderCacheElement for a given folder.
+   * Unless createIfMissing is set, a missing entry will cause failure.
+   */
+  nsIMsgFolderCacheElement getCacheElement(in ACString key, in boolean createIfMissing);
   void removeElement(in ACString key);
+
+  /**
+   * Write immediately to cacheFile if any data has been changed.
+   * This happens in the cache dtor anyway, and is exposed here purely for
+   * unit testing (so tests don't have to wait for JS garbage collection).
+   */
+  void flush();
 };

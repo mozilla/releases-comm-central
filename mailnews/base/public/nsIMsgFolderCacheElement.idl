@@ -5,14 +5,26 @@
 
 #include "nsISupports.idl"
 
+/**
+ * Interface for a folder to get/set its values in the foldercache.
+ */
 [scriptable, uuid(c7392b12-f68a-46b2-af5e-d47350bb17c3)]
 interface nsIMsgFolderCacheElement : nsISupports
 {
-  attribute ACString key;
-  AUTF8String getStringProperty(in string propertyName);
-  long getInt32Property(in string propertyName);
-  long long getInt64Property(in string propertyName);
-  void setStringProperty(in string propertyName, in AUTF8String propertyValue);
-  void setInt32Property(in string propertyName, in long propertyValue);
-  void setInt64Property(in string propertyName, in long long propertyValue);
+  readonly attribute ACString key;
+  // Notes on the getCached...() functions:
+  // - They will fail if the property doesn't exist. That is, they'll
+  //   throw an exception in JS, or return an NS_ERROR_* code in C++.
+  // - On the C++ side there is legacy code which calls these functions
+  //   without checking the error code and relies on the return value
+  //   remaining unchanged if the function fails.
+  AUTF8String getCachedString(in string propertyName);
+  long getCachedInt32(in string propertyName);
+  unsigned long getCachedUInt32(in string propertyName);
+  long long getCachedInt64(in string propertyName);
+
+  void setCachedString(in string propertyName, in AUTF8String propertyValue);
+  void setCachedInt32(in string propertyName, in long propertyValue);
+  void setCachedUInt32(in string propertyName, in unsigned long propertyValue);
+  void setCachedInt64(in string propertyName, in long long propertyValue);
 };

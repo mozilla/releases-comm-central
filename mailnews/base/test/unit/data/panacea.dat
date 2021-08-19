@@ -1,0 +1,70 @@
+// <!-- <mdb:mork:z v="1.4"/> -->
+< <(a=c)> // (f=iso-8859-1)
+  (8A=boxFlags)(8B=hierDelim)(8C=onlineName)(8D=aclFlags)(8E=serverTotal)
+  (8F=serverUnseen)(90=serverRecent)(91=indexingPriority)(92=folderName)
+  (93=applyIncomingFilters.empty)(94=applyIncomingFilters)(95=MRUTime)
+  (96=dobayes.mailnews@mozilla.org#junk.empty)
+  (97=dobayes.mailnews@mozilla.org#junk)(98=nextUID)
+  (99=lastSyncTimeInSec)(9A=useServerRetention)(9B=MRMTime)
+  (80=ns:msg:db:row:scope:folders:all)(81=ns:msg:db:table:kind:folders)
+  (82=key)(83=flags)(84=totalMsgs)(85=totalUnreadMsgs)
+  (86=pendingUnreadMsgs)(87=pendingMsgs)(88=expungedBytes)(89=folderSize)>
+
+<(80
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/INBOX.msf)(A6=88083014)(AA=2)(A8=1)(81=0)(B8=2d10)(BB=597a)
+  (A7=200040)(9D=2e)(84=INBOX)(BA=1628202593)(B5=1628202592)(86
+    =/foo/bar/profile-default/Mail/Loc\
+al Folders/Trash.msf)(87=104)(88=Trash)(AB=1628202569)(89
+    =/foo/bar/profile-default/Mail/Loc\
+al Folders/Unsent Messages.msf)(8A=804)(8C=Outbox)(AC=1628202570)(8D
+    =/foo/bar/profile-default/Mail/Loc\
+al Folders)(8E=1c)(8F=ffffffff)(82=ffffffffffffffff)(90=Local Folders)
+  (91
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/Drafts.msf)(83=5e)(92=Drafts)(93
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/Templates.msf)(94=Templates)(95
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/Sent.msf)(96=Sent)(97
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/Archives.msf)(98=Archives)(9A
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/Trash.msf)(9B=82114)(9C=40050)(9E
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/blah.msf)(A0=8082014)(AF=2e60)(A1=40040)(9F=blah)(AE
+    =1628202572)(B0=3)(A2
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/foo.msf)(B9=a362d3)(A3=foo)(B2=4)(B1=1628202573)(B4=5)
+  (A4
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost/Junk.msf)(A5=Junk)(BC
+    =/foo/bar/profile-default/ImapMail\
+/imap.localhost)(BD=)>
+{1:^80 {(k^81:c)(s=9)} 
+  [1(^82^80)(^83^A6)(^84=2)(^85=1)(^86=0)(^87=0)(^88^B8)(^89^BB)(^8A^A7)
+    (^8B=2e)(^8C^84)(^8D=0)(^8E=2)(^8F=0)(^90=0)(^95^BA)(^98=2)(^99=0)
+    (^9B^B5)]
+  [2(^82^86)(^83^87)(^84=0)(^85=0)(^86=0)(^87=0)(^88=0)(^89=0)(^92^88)
+    (^95^AB)(^9A=1)]
+  [3(^82^89)(^83^8A)(^84=0)(^85=0)(^86=0)(^87=0)(^88=0)(^89=0)(^92^8C)
+    (^95^AC)(^9A=1)]
+  [4(^82^8D)(^83=1c)(^84^8F)(^85^8F)(^86=0)(^87=0)(^88=0)(^89^82)(^92^90)]
+  [5(^82^91)(^83=0)(^84=0)(^85=0)(^86=0)(^87=0)(^88=0)(^89^82)(^8A=0)
+    (^8B=5e)(^8C^92)(^8D=0)(^8E=0)(^8F=0)(^90=0)]
+  [6(^82^93)(^83=0)(^84=0)(^85=0)(^86=0)(^87=0)(^88=0)(^89^82)(^8A=0)
+    (^8B=5e)(^8C^94)(^8D=0)(^8E=0)(^8F=0)(^90=0)]
+  [7(^82^95)(^83=0)(^84=0)(^85=0)(^86=0)(^87=0)(^88=0)(^89^82)(^8A=0)
+    (^8B=5e)(^8C^96)(^8D=0)(^8E=0)(^8F=0)(^90=0)]
+  [8(^82^97)(^83=0)(^84=0)(^85=0)(^86=0)(^87=0)(^88=0)(^89^82)(^8A=0)
+    (^8B=5e)(^8C^98)(^8D=0)(^8E=0)(^8F=0)(^90=0)]
+  [9(^82^9A)(^83^9B)(^84=0)(^85=0)(^86=0)(^87=0)(^88=0)(^89^82)(^8A^9C)
+    (^8B=2e)(^8C^88)(^8D=0)(^8E=0)(^8F=0)(^90=0)]
+  [A(^82^9E)(^83^A0)(^84=2)(^85=0)(^86=0)(^87=0)(^88=0)(^89^AF)(^8A^A1)
+    (^8B=2e)(^8C^9F)(^8D=0)(^8E=2)(^8F=0)(^90=0)(^95^AE)(^98=3)(^99=0)]
+  [B(^82^A2)(^83^A0)(^84=3)(^85=0)(^86=0)(^87=0)(^88^B8)(^89^B9)(^8A^A1)
+    (^8B=2e)(^8C^A3)(^8D=0)(^8E=4)(^8F=0)(^90=0)(^95^B1)(^98=5)(^99=0)]
+  [C(^82^A4)(^83=0)(^84=0)(^85=0)(^86=0)(^87=0)(^88=0)(^89^82)(^8A=0)
+    (^8B=5e)(^8C^A5)(^8D=0)(^8E=0)(^8F=0)(^90=0)]
+  [D(^82^BC)(^83=0)(^84^8F)(^85^8F)(^86=0)(^87=0)(^88=0)(^89^82)(^8A=0)
+    (^8B=5e)(^8C=)(^8D=0)(^8E=0)(^8F=0)(^90=0)]}

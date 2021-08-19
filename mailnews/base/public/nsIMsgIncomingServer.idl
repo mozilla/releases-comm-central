@@ -273,7 +273,7 @@ interface nsIMsgIncomingServer : nsISupports {
   /* this gets called when the server is expanded in the folder pane */
   void performExpand(in nsIMsgWindow aMsgWindow);
 
-  /* Write out all known folder data to panacea.dat */
+  /* Write out all known folder data to folderCache */
   void writeToFolderCache(in nsIMsgFolderCache folderCache);
 
   /* close any server connections */

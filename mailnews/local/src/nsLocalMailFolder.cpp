@@ -888,7 +888,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::ReadFromFolderCacheElem(
   nsresult rv = nsMsgDBFolder::ReadFromFolderCacheElem(element);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString utf8Name;
-  rv = element->GetStringProperty("folderName", utf8Name);
+  rv = element->GetCachedString("folderName", utf8Name);
   NS_ENSURE_SUCCESS(rv, rv);
   CopyUTF8toUTF16(utf8Name, mName);
   return rv;
@@ -898,7 +898,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
   NS_ENSURE_ARG_POINTER(element);
   nsMsgDBFolder::WriteToFolderCacheElem(element);
-  return element->SetStringProperty("folderName", NS_ConvertUTF16toUTF8(mName));
+  return element->SetCachedString("folderName", NS_ConvertUTF16toUTF8(mName));
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::GetDeletable(bool* deletable) {

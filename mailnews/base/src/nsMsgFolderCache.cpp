@@ -4,332 +4,554 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
-#include "nsIMsgAccountManager.h"
-#include "nsMsgFolderCacheElement.h"
 #include "nsMsgFolderCache.h"
+#include "nsIMsgFolderCacheElement.h"
+#include "nsNetUtil.h"
+#include "nsStreamUtils.h"
+#include "nsIOutputStream.h"
+#include "nsIInputStream.h"
+#include "nsISafeOutputStream.h"
+#include "prprf.h"
+#include "mozilla/Logging.h"
+// Mork-related includes.
 #include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
-#include "nsMsgBaseCID.h"
-#include "nsServiceManagerUtils.h"
+#include "mdb.h"
+// Includes for jsoncpp.
+#include "json/json.h"
+#include <string>
 
-const char* kFoldersScope =
-    "ns:msg:db:row:scope:folders:all";  // scope for all folders table
-const char* kFoldersTableKind = "ns:msg:db:table:kind:folders";
+using namespace mozilla;
 
-nsMsgFolderCache::nsMsgFolderCache() {
-  m_mdbEnv = nullptr;
-  m_mdbStore = nullptr;
-  m_mdbAllFoldersTable = nullptr;
-}
+static LazyLogModule sFolderCacheLog("MsgFolderCache");
 
-// should this, could this be an nsCOMPtr ?
-static nsIMdbFactory* gMDBFactory = nullptr;
+// Helper functions for migration of legacy pancea.dat files.
+static nsresult importFromMork(PathString const& dbName, Json::Value& root);
+static nsresult convertTable(nsIMdbEnv* env, nsIMdbStore* store,
+                             nsIMdbTable* table, Json::Value& root);
+static void applyEntry(nsCString const& name, nsCString const& val,
+                       Json::Value& obj);
 
-nsMsgFolderCache::~nsMsgFolderCache() {
-  // Make sure the folder cache elements are released before we
-  // release our m_mdb objects.
-  m_cacheElements.Clear();
-  if (m_mdbAllFoldersTable) m_mdbAllFoldersTable->Release();
-  if (m_mdbStore) m_mdbStore->Release();
-  NS_IF_RELEASE(gMDBFactory);
-  if (m_mdbEnv) m_mdbEnv->Release();
-}
+/*
+ * nsMsgFolderCacheElement
+ * Folders are given this to let them manipulate their cache data.
+ */
+class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement {
+ public:
+  nsMsgFolderCacheElement(nsMsgFolderCache* owner, nsACString const& key)
+      : mOwner(owner), mKey(key) {}
+  nsMsgFolderCacheElement() = delete;
+
+  NS_DECL_ISUPPORTS
+  NS_IMETHOD GetKey(nsACString& key) override {
+    key = mKey;
+    return NS_OK;
+  }
+
+  NS_IMETHOD GetCachedString(const char* name, nsACString& _retval) override {
+    Json::Value& o = Obj()[name];
+    if (!o.isNull() && o.isConvertibleTo(Json::stringValue)) {
+      _retval = o.asString().c_str();
+      return NS_OK;
+    }
+    // Leave _retval unchanged if an error occurs.
+    return NS_ERROR_FAILURE;
+  }
+
+  NS_IMETHOD GetCachedInt32(const char* name, int32_t* _retval) override {
+    Json::Value& o = Obj()[name];
+    if (o.isNumeric() && o.isConvertibleTo(Json::intValue)) {
+      *_retval = o.asInt();
+      return NS_OK;
+    }
+    // Leave _retval unchanged if an error occurs.
+    return NS_ERROR_FAILURE;
+  }
+
+  NS_IMETHOD GetCachedUInt32(const char* name, uint32_t* _retval) override {
+    Json::Value& o = Obj()[name];
+    if (o.isNumeric() && o.isConvertibleTo(Json::uintValue)) {
+      *_retval = o.asUInt();
+      return NS_OK;
+    }
+    // Leave _retval unchanged if an error occurs.
+    return NS_ERROR_FAILURE;
+  }
+
+  NS_IMETHOD GetCachedInt64(const char* name, int64_t* _retval) override {
+    Json::Value& o = Obj()[name];
+    if (o.isNumeric()) {
+      *_retval = o.asInt64();
+      return NS_OK;
+    }
+    // Leave _retval unchanged if an error occurs.
+    return NS_ERROR_FAILURE;
+  }
+
+  NS_IMETHOD SetCachedString(const char* name,
+                             const nsACString& value) override {
+    if (Obj()[name] != PromiseFlatCString(value).get()) {
+      Obj()[name] = PromiseFlatCString(value).get();
+      mOwner->SetModified();
+    }
+    return NS_OK;
+  }
+
+  NS_IMETHOD SetCachedInt32(const char* name, int32_t value) override {
+    if (Obj()[name] != value) {
+      Obj()[name] = value;
+      mOwner->SetModified();
+    }
+    return NS_OK;
+  }
+
+  NS_IMETHOD SetCachedUInt32(const char* name, uint32_t value) override {
+    if (Obj()[name] != value) {
+      Obj()[name] = value;
+      mOwner->SetModified();
+    }
+    return NS_OK;
+  }
+  NS_IMETHOD SetCachedInt64(const char* name, int64_t value) override {
+    if (Obj()[name] != value) {
+      Obj()[name] = value;
+      mOwner->SetModified();
+    }
+    return NS_OK;
+  }
+
+ protected:
+  virtual ~nsMsgFolderCacheElement() {}
+  RefPtr<nsMsgFolderCache> mOwner;
+  nsAutoCString mKey;
+
+  // Helper to get the Json object for this nsFolderCacheElement,
+  // creating it if it doesn't already exist.
+  Json::Value& Obj() {
+    Json::Value& root = *mOwner->mRoot;
+    // This will create an empty object if it doesn't already exist.
+    Json::Value& v = root[mKey.get()];
+    if (v.isObject()) {
+      return v;
+    }
+    // uhoh... either the folder entry doesn't exist (expected) or
+    // the json file wasn't the structure we were expecting.
+    // We _really_ don't want jsoncpp to be throwing exceptions, so in either
+    // case we'll create a fresh new empty object there.
+    root[mKey.get()] = Json::Value(Json::objectValue);
+    return root[mKey.get()];
+  }
+};
+
+NS_IMPL_ISUPPORTS(nsMsgFolderCacheElement, nsIMsgFolderCacheElement)
+
+/*
+ * nsMsgFolderCache implementation
+ */
 
 NS_IMPL_ISUPPORTS(nsMsgFolderCache, nsIMsgFolderCache)
 
-nsresult nsMsgFolderCache::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
-  if (!mMdbFactory) {
-    nsresult rv;
-    nsCOMPtr<nsIMdbFactoryService> mdbFactoryService =
-        do_GetService(NS_MORK_CONTRACTID, &rv);
-    if (NS_SUCCEEDED(rv) && mdbFactoryService) {
-      rv = mdbFactoryService->GetMdbFactory(getter_AddRefs(mMdbFactory));
-      NS_ENSURE_SUCCESS(rv, rv);
-      if (!mMdbFactory) return NS_ERROR_FAILURE;
+// mRoot dynamically allocated here to avoid exposing Json in header file.
+nsMsgFolderCache::nsMsgFolderCache()
+    : mRoot(new Json::Value(Json::objectValue)),
+      mSavePending(false),
+      mSaveTimer(NS_NewTimer()) {}
+
+NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* cacheFile, nsIFile* legacyFile) {
+  mCacheFile = cacheFile;
+  // Is there a JSON file to load?
+  bool exists;
+  nsresult rv = cacheFile->Exists(&exists);
+  if (NS_SUCCEEDED(rv) && exists) {
+    rv = LoadFolderCache(cacheFile);
+    if (NS_FAILED(rv)) {
+      MOZ_LOG(sFolderCacheLog, LogLevel::Error,
+              ("Failed to load %s (code 0x%x)",
+               cacheFile->HumanReadablePath().get(), rv));
+    }
+    // Ignore error. If load fails, we'll just start off with empty cache.
+    return NS_OK;
+  }
+
+  MOZ_LOG(sFolderCacheLog, LogLevel::Debug, ("No cache file found."));
+
+  // No sign of new-style JSON file. Maybe there's an old panacea.dat we can
+  // migrate?
+  rv = legacyFile->Exists(&exists);
+  if (NS_SUCCEEDED(rv) && exists) {
+    MOZ_LOG(sFolderCacheLog, LogLevel::Debug,
+            ("Found %s. Attempting migration.",
+             legacyFile->HumanReadablePath().get()));
+    Json::Value root(Json::objectValue);
+    rv = importFromMork(legacyFile->NativePath(), root);
+    if (NS_SUCCEEDED(rv)) {
+      *mRoot = root;
+      MOZ_LOG(sFolderCacheLog, LogLevel::Debug,
+              ("Migration: Legacy cache imported"));
+      // Migrate it to JSON.
+      rv = SaveFolderCache(cacheFile);
+      if (NS_SUCCEEDED(rv)) {
+        // We're done with the legacy panacea.dat - remove it.
+        legacyFile->Remove(false);
+      } else {
+        MOZ_LOG(sFolderCacheLog, LogLevel::Error,
+                ("Migration: save failed (code 0x%x)", rv));
+      }
+    } else {
+      MOZ_LOG(sFolderCacheLog, LogLevel::Error,
+              ("Migration: import failed (code 0x%x)", rv));
     }
   }
-  NS_ADDREF(*aMdbFactory = mMdbFactory);
+  // Never fails.
   return NS_OK;
 }
 
-// initialize the various tokens and tables in our db's env
-nsresult nsMsgFolderCache::InitMDBInfo() {
-  nsresult err = NS_OK;
-  if (GetStore()) {
-    err = GetStore()->StringToToken(GetEnv(), kFoldersScope,
-                                    &m_folderRowScopeToken);
-    if (NS_SUCCEEDED(err)) {
-      err = GetStore()->StringToToken(GetEnv(), kFoldersTableKind,
-                                      &m_folderTableKindToken);
-      if (NS_SUCCEEDED(err)) {
-        // The table of all message hdrs will have table id 1.
-        m_allFoldersTableOID.mOid_Scope = m_folderRowScopeToken;
-        m_allFoldersTableOID.mOid_Id = 1;
-      }
-    }
-  }
-  return err;
+nsMsgFolderCache::~nsMsgFolderCache() {
+  Flush();
+  delete mRoot;
 }
 
-// set up empty tables, dbFolderInfo, etc.
-nsresult nsMsgFolderCache::InitNewDB() {
-  nsresult err = InitMDBInfo();
-  if (NS_SUCCEEDED(err)) {
-    nsIMdbStore* store = GetStore();
-    // create the unique table for the dbFolderInfo.
-    // TODO: this error assignment is suspicious and never checked.
-    (void)store->NewTable(GetEnv(), m_folderRowScopeToken,
-                          m_folderTableKindToken, false, nullptr,
-                          &m_mdbAllFoldersTable);
+NS_IMETHODIMP nsMsgFolderCache::Flush() {
+  if (mSavePending) {
+    mSaveTimer->Cancel();
+    mSavePending = false;
+    MOZ_LOG(sFolderCacheLog, LogLevel::Debug, ("Forced save."));
+    nsresult rv = SaveFolderCache(mCacheFile);
+    if (NS_FAILED(rv)) {
+      MOZ_LOG(sFolderCacheLog, LogLevel::Error,
+              ("Failed to write to %s (code 0x%x)",
+               mCacheFile->HumanReadablePath().get(), rv));
+    }
   }
-  return err;
+  return NS_OK;
 }
 
-nsresult nsMsgFolderCache::InitExistingDB() {
-  nsresult err = InitMDBInfo();
-  if (NS_FAILED(err)) return err;
+// Read the cache data from inFile.
+// It's atomic - if a failure occurs, the cache data will be left unchanged.
+nsresult nsMsgFolderCache::LoadFolderCache(nsIFile* inFile) {
+  MOZ_LOG(sFolderCacheLog, LogLevel::Debug,
+          ("Loading %s", inFile->HumanReadablePath().get()));
 
-  err = GetStore()->GetTable(GetEnv(), &m_allFoldersTableOID,
-                             &m_mdbAllFoldersTable);
-  if (NS_SUCCEEDED(err) && m_mdbAllFoldersTable) {
-    nsIMdbTableRowCursor* rowCursor = nullptr;
-    err = m_mdbAllFoldersTable->GetTableRowCursor(GetEnv(), -1, &rowCursor);
-    if (NS_SUCCEEDED(err) && rowCursor) {
-      // iterate over the table rows and create nsMsgFolderCacheElements for
-      // each.
-      while (true) {
-        nsresult rv;
-        nsIMdbRow* hdrRow;
-        mdb_pos rowPos;
+  nsCOMPtr<nsIInputStream> inStream;
+  nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inStream), inFile);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-        rv = rowCursor->NextRow(GetEnv(), &hdrRow, &rowPos);
-        if (NS_FAILED(rv) || !hdrRow) break;
-
-        rv = AddCacheElement(EmptyCString(), hdrRow, nullptr);
-        hdrRow->Release();
-        if (NS_FAILED(rv)) return rv;
-      }
-      rowCursor->Release();
-    }
-  } else
-    err = NS_ERROR_FAILURE;
-
-  return err;
-}
-
-nsresult nsMsgFolderCache::OpenMDB(const PathString& dbName, bool exists) {
-  nsCOMPtr<nsIMdbFactory> mdbFactory;
-  nsresult ret = GetMDBFactory(getter_AddRefs(mdbFactory));
-  NS_ENSURE_SUCCESS(ret, ret);
-
-  ret = mdbFactory->MakeEnv(nullptr, &m_mdbEnv);
-  if (NS_SUCCEEDED(ret)) {
-    nsIMdbThumb* thumb = nullptr;
-    nsIMdbHeap* dbHeap = nullptr;
-
-    if (m_mdbEnv) m_mdbEnv->SetAutoClear(true);
-    if (exists) {
-      mdbOpenPolicy inOpenPolicy;
-      mdb_bool canOpen;
-      mdbYarn outFormatVersion;
-
-      nsIMdbFile* oldFile = nullptr;
-      ret = mdbFactory->OpenOldFile(
-          m_mdbEnv, dbHeap, dbName.get(),
-          mdbBool_kFalse,  // not readonly, we want modifiable
-          &oldFile);
-      if (oldFile) {
-        if (NS_SUCCEEDED(ret)) {
-          ret = mdbFactory->CanOpenFilePort(m_mdbEnv,
-                                            oldFile,  // file to investigate
-                                            &canOpen, &outFormatVersion);
-          if (NS_SUCCEEDED(ret) && canOpen) {
-            inOpenPolicy.mOpenPolicy_ScopePlan.mScopeStringSet_Count = 0;
-            inOpenPolicy.mOpenPolicy_MinMemory = 0;
-            inOpenPolicy.mOpenPolicy_MaxLazy = 0;
-
-            ret = mdbFactory->OpenFileStore(m_mdbEnv, NULL, oldFile,
-                                            &inOpenPolicy, &thumb);
-          } else
-            ret = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
-        }
-        NS_RELEASE(oldFile);  // always release our file ref, store has own
-      }
-    }
-    if (NS_SUCCEEDED(ret) && thumb) {
-      mdb_count outTotal;        // total somethings to do in operation
-      mdb_count outCurrent;      // subportion of total completed so far
-      mdb_bool outDone = false;  // is operation finished?
-      mdb_bool outBroken;        // is operation irreparably dead and broken?
-      do {
-        ret = thumb->DoMore(m_mdbEnv, &outTotal, &outCurrent, &outDone,
-                            &outBroken);
-        if (NS_FAILED(ret)) {
-          outDone = true;
-          break;
-        }
-      } while (NS_SUCCEEDED(ret) && !outBroken && !outDone);
-      // m_mdbEnv->ClearErrors(); // ### temporary...
-      if (NS_SUCCEEDED(ret) && outDone) {
-        ret = mdbFactory->ThumbToOpenStore(m_mdbEnv, thumb, &m_mdbStore);
-        if (NS_SUCCEEDED(ret) && m_mdbStore) ret = InitExistingDB();
-      }
-#ifdef DEBUG_bienvenu1
-      DumpContents();
-#endif
-    } else {  // ### need error code saying why open file store failed
-      nsIMdbFile* newFile = 0;
-      ret = mdbFactory->CreateNewFile(m_mdbEnv, dbHeap, dbName.get(), &newFile);
-      if (newFile) {
-        if (NS_SUCCEEDED(ret)) {
-          mdbOpenPolicy inOpenPolicy;
-
-          inOpenPolicy.mOpenPolicy_ScopePlan.mScopeStringSet_Count = 0;
-          inOpenPolicy.mOpenPolicy_MinMemory = 0;
-          inOpenPolicy.mOpenPolicy_MaxLazy = 0;
-
-          ret = mdbFactory->CreateNewFileStore(m_mdbEnv, dbHeap, newFile,
-                                               &inOpenPolicy, &m_mdbStore);
-          if (NS_SUCCEEDED(ret)) ret = InitNewDB();
-        }
-        NS_RELEASE(newFile);  // always release our file ref, store has own
-      }
-    }
-    NS_IF_RELEASE(thumb);
+  nsCString data;
+  rv = NS_ConsumeStream(inStream, UINT32_MAX, data);
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(sFolderCacheLog, LogLevel::Error, ("Read failed."));
+    return rv;
   }
 
-  return ret;
+  Json::Value root;
+  Json::CharReaderBuilder builder;
+  std::unique_ptr<Json::CharReader> const reader(builder.newCharReader());
+  if (!reader->parse(data.BeginReading(), data.EndReading(), &root, nullptr)) {
+    MOZ_LOG(sFolderCacheLog, LogLevel::Error, ("Error parsing JSON"));
+    return NS_ERROR_FAILURE;  // parsing failed.
+  }
+  if (!root.isObject()) {
+    MOZ_LOG(sFolderCacheLog, LogLevel::Error, ("JSON root is not an object"));
+    return NS_ERROR_FAILURE;  // bad format.
+  }
+  *mRoot = root;
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* aFile) {
-  NS_ENSURE_ARG_POINTER(aFile);
+// Write the cache data to outFile.
+nsresult nsMsgFolderCache::SaveFolderCache(nsIFile* outFile) {
+  MOZ_LOG(sFolderCacheLog, LogLevel::Debug,
+          ("Save to %s", outFile->HumanReadablePath().get()));
 
-  bool exists;
-  aFile->Exists(&exists);
+  // Serialise the data.
+  Json::StreamWriterBuilder b;
+  //  b["indentation"] = "";
+  std::string out = Json::writeString(b, *mRoot);
 
-  PathString dbPath = aFile->NativePath();
-  // ### evil cast until MDB supports file streams.
-  nsresult rv = OpenMDB(dbPath, exists);
-  // if this fails and panacea.dat exists, try blowing away the db and
-  // recreating it
-  if (NS_FAILED(rv) && exists) {
-    if (m_mdbStore) m_mdbStore->Release();
-    aFile->Remove(false);
-    rv = OpenMDB(dbPath, false);
+  // Safe stream, writes to a tempfile first then moves into proper place when
+  // Finish() is called. Could use NS_NewAtomicFileOutputStream, but seems hard
+  // to justify a full filesystem flush).
+  nsCOMPtr<nsIOutputStream> outputStream;
+  nsresult rv =
+      NS_NewSafeLocalFileOutputStream(getter_AddRefs(outputStream), outFile,
+                                      PR_CREATE_FILE | PR_TRUNCATE | PR_WRONLY);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  const char* ptr = out.data();
+  uint32_t remaining = out.length();
+  while (remaining > 0) {
+    uint32_t written = 0;
+    rv = outputStream->Write(ptr, remaining, &written);
+    NS_ENSURE_SUCCESS(rv, rv);
+    remaining -= written;
+    ptr += written;
   }
-  return rv;
+  nsCOMPtr<nsISafeOutputStream> safeStream = do_QueryInterface(outputStream);
+  MOZ_ASSERT(safeStream);
+  rv = safeStream->Finish();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFolderCache::GetCacheElement(
     const nsACString& pathKey, bool createIfMissing,
     nsIMsgFolderCacheElement** result) {
-  NS_ENSURE_ARG_POINTER(result);
-  NS_ENSURE_TRUE(!pathKey.IsEmpty(), NS_ERROR_FAILURE);
-
-  nsCOMPtr<nsIMsgFolderCacheElement> folderCacheEl;
-  m_cacheElements.Get(pathKey, getter_AddRefs(folderCacheEl));
-  folderCacheEl.forget(result);
-
-  if (*result)
+  nsAutoCString key(pathKey);
+  if (mRoot->isMember(key.get()) || createIfMissing) {
+    nsCOMPtr<nsIMsgFolderCacheElement> element =
+        new nsMsgFolderCacheElement(this, pathKey);
+    element.forget(result);
     return NS_OK;
-  else if (createIfMissing) {
-    nsIMdbRow* hdrRow;
-
-    if (GetStore()) {
-      nsresult err = GetStore()->NewRow(
-          GetEnv(), m_folderRowScopeToken,  // row scope for row ids
-          &hdrRow);
-      if (NS_SUCCEEDED(err) && hdrRow) {
-        m_mdbAllFoldersTable->AddRow(GetEnv(), hdrRow);
-        nsresult ret = AddCacheElement(pathKey, hdrRow, result);
-        if (*result) (*result)->SetStringProperty("key", pathKey);
-        hdrRow->Release();
-        return ret;
-      }
-    }
   }
   return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP nsMsgFolderCache::RemoveElement(const nsACString& key) {
-  nsCOMPtr<nsIMsgFolderCacheElement> folderCacheEl;
-  m_cacheElements.Get(key, getter_AddRefs(folderCacheEl));
-  if (!folderCacheEl) return NS_ERROR_FAILURE;
-  nsMsgFolderCacheElement* element = static_cast<nsMsgFolderCacheElement*>(
-      static_cast<nsISupports*>(folderCacheEl.get()));  // why the double cast??
-  m_mdbAllFoldersTable->CutRow(GetEnv(), element->m_mdbRow);
-  m_cacheElements.Remove(key);
+  mRoot->removeMember(PromiseFlatCString(key).get());
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFolderCache::Clear() {
-  m_cacheElements.Clear();
-  if (m_mdbAllFoldersTable) m_mdbAllFoldersTable->CutAllRows(GetEnv());
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgFolderCache::Close() { return Commit(true); }
-
-NS_IMETHODIMP nsMsgFolderCache::Commit(bool compress) {
-  nsresult ret = NS_OK;
-  nsIMdbThumb* commitThumb = nullptr;
-  if (m_mdbStore) {
-    if (compress)
-      ret = m_mdbStore->CompressCommit(GetEnv(), &commitThumb);
-    else
-      ret = m_mdbStore->LargeCommit(GetEnv(), &commitThumb);
+void nsMsgFolderCache::SetModified() {
+  if (mSavePending) {
+    return;
   }
-
-  if (commitThumb) {
-    mdb_count outTotal = 0;      // total somethings to do in operation
-    mdb_count outCurrent = 0;    // subportion of total completed so far
-    mdb_bool outDone = false;    // is operation finished?
-    mdb_bool outBroken = false;  // is operation irreparably dead and broken?
-    while (!outDone && !outBroken && NS_SUCCEEDED(ret))
-      ret = commitThumb->DoMore(GetEnv(), &outTotal, &outCurrent, &outDone,
-                                &outBroken);
-    NS_IF_RELEASE(commitThumb);
+  nsresult rv = mSaveTimer->InitWithNamedFuncCallback(
+      doSave, (void*)this, kSaveDelayMs, nsITimer::TYPE_ONE_SHOT,
+      "msgFolderCache::doSave");
+  if (NS_SUCCEEDED(rv)) {
+    MOZ_LOG(sFolderCacheLog, LogLevel::Debug,
+            ("AutoSave in %ds", kSaveDelayMs / 1000));
+    mSavePending = true;
   }
-  // ### do something with error, but clear it now because mork errors out on
-  // commits.
-  if (GetEnv()) GetEnv()->ClearErrors();
-  return ret;
 }
 
-nsresult nsMsgFolderCache::AddCacheElement(const nsACString& key,
-                                           nsIMdbRow* row,
-                                           nsIMsgFolderCacheElement** result) {
-  nsMsgFolderCacheElement* cacheElement = new nsMsgFolderCacheElement;
-  NS_ENSURE_TRUE(cacheElement, NS_ERROR_OUT_OF_MEMORY);
-  nsCOMPtr<nsIMsgFolderCacheElement> folderCacheEl = cacheElement;
-
-  cacheElement->SetMDBRow(row);
-  cacheElement->SetOwningCache(this);
-  nsCString hashStrKey(key);
-  // if caller didn't pass in key, try to get it from row.
-  if (key.IsEmpty()) folderCacheEl->GetStringProperty("key", hashStrKey);
-  folderCacheEl->SetKey(hashStrKey);
-  m_cacheElements.InsertOrUpdate(hashStrKey, folderCacheEl);
-  if (result) folderCacheEl.forget(result);
-  return NS_OK;
+// static
+void nsMsgFolderCache::doSave(nsITimer*, void* closure) {
+  MOZ_LOG(sFolderCacheLog, LogLevel::Debug, ("AutoSave"));
+  nsMsgFolderCache* that = static_cast<nsMsgFolderCache*>(closure);
+  nsresult rv = that->SaveFolderCache(that->mCacheFile);
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(sFolderCacheLog, LogLevel::Error,
+            ("Failed writing %s (code 0x%x)",
+             that->mCacheFile->HumanReadablePath().get(), rv));
+  }
+  that->mSavePending = false;
 }
 
-nsresult nsMsgFolderCache::RowCellColumnToCharPtr(nsIMdbRow* hdrRow,
-                                                  mdb_token columnToken,
-                                                  nsACString& resultStr) {
-  nsresult err = NS_OK;
-  nsIMdbCell* hdrCell;
-  if (hdrRow)  // ### probably should be an error if hdrRow is NULL...
-  {
-    err = hdrRow->GetCell(GetEnv(), columnToken, &hdrCell);
-    if (NS_SUCCEEDED(err) && hdrCell) {
-      struct mdbYarn yarn;
-      hdrCell->AliasYarn(GetEnv(), &yarn);
-      resultStr.Assign((const char*)yarn.mYarn_Buf, yarn.mYarn_Fill);
-      // Ensure the string is null terminated.
-      resultStr.SetLength(yarn.mYarn_Fill);
-      hdrCell->Release();  // always release ref
+// Helper to apply a legacy property to the new JSON format.
+static void applyEntry(nsCString const& name, nsCString const& val,
+                       Json::Value& obj) {
+  // The old mork version stored all numbers as hex, so we need to convert
+  // them into proper Json numeric types. But there's no type info in the
+  // database so we just have to know which values to convert.
+  // We can find a list of all the numeric values by grepping the codebase
+  // for GetCacheInt32/GetCachedInt64. We treat everything else as a string.
+  // It's much harder to get a definitive list of possible keys for strings,
+  // because nsIMsgFolderCache is also used to cache nsDBFolderInfo data -
+  // see nsMsgDBFolder::GetStringProperty().
+
+  // One of the Int32 properties?
+  if (name.EqualsLiteral("hierDelim") ||
+      name.EqualsLiteral("lastSyncTimeInSec") ||
+      name.EqualsLiteral("nextUID") || name.EqualsLiteral("pendingMsgs") ||
+      name.EqualsLiteral("pendingUnreadMsgs") ||
+      name.EqualsLiteral("serverRecent") || name.EqualsLiteral("serverTotal") ||
+      name.EqualsLiteral("serverUnseen") || name.EqualsLiteral("totalMsgs") ||
+      name.EqualsLiteral("totalUnreadMsgs")) {
+    if (val.IsEmpty()) {
+      return;
     }
+    int32_t i32;
+    if (PR_sscanf(val.get(), "%x", &i32) != 1) {
+      return;
+    }
+    obj[name.get()] = i32;
+    return;
   }
-  return err;
+
+  // Flags were int32. But the upper bit can be set, meaning we'll get
+  // annoying negative values, which isn't what we want. Not so much of an
+  // issue with legacy pancea.dat as it was all hex strings anyway. But let's
+  // fix it up as we go to JSON.
+  if (name.EqualsLiteral("aclFlags") || name.EqualsLiteral("boxFlags") ||
+      name.EqualsLiteral("flags")) {
+    uint32_t u32;
+    if (PR_sscanf(val.get(), "%x", &u32) != 1) {
+      return;
+    }
+    obj[name.get()] = u32;
+    return;
+  }
+
+  // One of the Int64 properties?
+  if (name.EqualsLiteral("expungedBytes") || name.EqualsLiteral("folderSize")) {
+    if (val.IsEmpty()) {
+      return;
+    }
+    int64_t i64;
+    if (PR_sscanf(val.get(), "%llx", &i64) != 1) {
+      return;
+    }
+    obj[name.get()] = i64;
+    return;
+  }
+
+  // Assume anything else is a string.
+  obj[name.get()] = val.get();
+}
+
+// Import an old panacea.dat mork file, converting it into our JSON form.
+// The flow of this is taken from the old implementation. There are a couple
+// of steps that may not be strictly required, but have been left in anyway
+// on the grounds that it works.
+static nsresult importFromMork(PathString const& dbName, Json::Value& root) {
+  nsresult rv;
+  nsCOMPtr<nsIMdbFactoryService> factoryService =
+      do_GetService(NS_MORK_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMdbFactory> factory;
+  rv = factoryService->GetMdbFactory(getter_AddRefs(factory));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMdbEnv> env;
+  rv = factory->MakeEnv(nullptr, getter_AddRefs(env));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  env->SetAutoClear(true);
+  nsCOMPtr<nsIMdbFile> dbFile;
+  rv = factory->OpenOldFile(env,
+                            nullptr,  // Use default heap alloc fns.
+                            dbName.get(),
+                            mdbBool_kTrue,  // Frozen (read only).
+                            getter_AddRefs(dbFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Unsure if we actually need this...
+  mdb_bool canOpen;
+  mdbYarn outFormatVersion;
+  rv = factory->CanOpenFilePort(env, dbFile, &canOpen, &outFormatVersion);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!canOpen) {
+    return NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
+  }
+
+  mdbOpenPolicy inOpenPolicy;
+  inOpenPolicy.mOpenPolicy_ScopePlan.mScopeStringSet_Count = 0;
+  inOpenPolicy.mOpenPolicy_MinMemory = 0;
+  inOpenPolicy.mOpenPolicy_MaxLazy = 0;
+
+  nsCOMPtr<nsIMdbThumb> thumb;
+  rv = factory->OpenFileStore(env,
+                              nullptr,  // Use default heap alloc fns.
+                              dbFile, &inOpenPolicy, getter_AddRefs(thumb));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Unsure what this is doing. Applying appended-but-unapplied writes?
+  {
+    mdb_count outTotal;    // total somethings to do in operation
+    mdb_count outCurrent;  // subportion of total completed so far
+    mdb_bool outDone;      // is operation finished?
+    mdb_bool outBroken;    // is operation irreparably dead and broken?
+    do {
+      rv = thumb->DoMore(env, &outTotal, &outCurrent, &outDone, &outBroken);
+      NS_ENSURE_SUCCESS(rv, rv);
+    } while (!outBroken && !outDone);
+  }
+
+  // Finally, open the store.
+  nsCOMPtr<nsIMdbStore> store;
+  rv = factory->ThumbToOpenStore(env, thumb, getter_AddRefs(store));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Resolve some tokens we'll need.
+  const char* kFoldersScope = "ns:msg:db:row:scope:folders:all";
+  mdb_token folderRowScopeToken;
+  rv = store->StringToToken(env, kFoldersScope, &folderRowScopeToken);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Find the table. Only one, and we assume id=1. Eek! But original code
+  // did this too...
+  mdbOid allFoldersTableOID{folderRowScopeToken, 1};
+  nsCOMPtr<nsIMdbTable> allFoldersTable;
+  rv = store->GetTable(env, &allFoldersTableOID,
+                       getter_AddRefs(allFoldersTable));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = convertTable(env, store, allFoldersTable, root);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return NS_OK;
+}
+
+// The legacy panacea.dat mork db has a single table, with a row per
+// folder. This function reads it in and writes it into our Json::Value
+// object.
+static nsresult convertTable(nsIMdbEnv* env, nsIMdbStore* store,
+                             nsIMdbTable* table, Json::Value& root) {
+  MOZ_ASSERT(root.isObject());
+  nsresult rv;
+  nsCOMPtr<nsIMdbTableRowCursor> rowCursor;
+  rv = table->GetTableRowCursor(env, -1, getter_AddRefs(rowCursor));
+  NS_ENSURE_SUCCESS(rv, rv);
+  // For each row in the table...
+  while (true) {
+    nsCOMPtr<nsIMdbRow> row;
+    mdb_pos pos;
+    rv = rowCursor->NextRow(env, getter_AddRefs(row), &pos);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!row) {
+      break;  // That's all the rows done.
+    }
+
+    nsCOMPtr<nsIMdbRowCellCursor> cellCursor;
+    rv = row->GetRowCellCursor(env, -1, getter_AddRefs(cellCursor));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    Json::Value obj(Json::objectValue);
+    // For each cell in the row...
+    nsAutoCString rowKey;
+    while (true) {
+      nsCOMPtr<nsIMdbCell> cell;
+      mdb_column column;
+      rv = cellCursor->NextCell(env, getter_AddRefs(cell), &column, nullptr);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (!cell) {
+        break;  // No more cells.
+      }
+
+      // Get the column name
+      nsAutoCString colName;
+      {
+        char buf[100];
+        mdbYarn colYarn{buf, 0, sizeof(buf), 0, 0, nullptr};
+        // Get the column of the cell
+        nsresult rv = store->TokenToString(env, column, &colYarn);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        colName.Assign((const char*)colYarn.mYarn_Buf, colYarn.mYarn_Fill);
+      }
+      // Get the value
+      nsAutoCString colValue;
+      {
+        mdbYarn yarn;
+        cell->AliasYarn(env, &yarn);
+        colValue.Assign((const char*)yarn.mYarn_Buf, yarn.mYarn_Fill);
+      }
+      if (colName.EqualsLiteral("key")) {
+        rowKey = colValue;
+      } else {
+        applyEntry(colName, colValue, obj);
+      }
+    }
+    if (rowKey.IsEmpty()) {
+      continue;
+    }
+
+    MOZ_LOG(sFolderCacheLog, LogLevel::Debug,
+            ("Migration: migrated key '%s' (%d properties)", rowKey.get(),
+             (int)obj.size()));
+    root[rowKey.get()] = obj;
+  }
+  return NS_OK;
 }

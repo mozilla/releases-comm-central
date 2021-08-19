@@ -489,8 +489,7 @@ interface nsIMsgFolder : nsISupports {
   void getNewMessages(in nsIMsgWindow aWindow, in nsIUrlListener aListener);
 
   /**
-   * write out summary data for this folder
-   * to the given folder cache (i.e. panacea.dat)
+   * Write out summary data for this folder to the given folder cache.
    */
   void writeToFolderCache(in nsIMsgFolderCache folderCache, in boolean deep);
 

@@ -20,7 +20,6 @@
 #define MAIL_DIR_50_NAME "Mail"
 #define IMAP_MAIL_DIR_50_NAME "ImapMail"
 #define NEWS_DIR_50_NAME "News"
-#define MSG_FOLDER_CACHE_DIR_50_NAME "panacea.dat"
 
 nsresult nsMailDirProvider::EnsureDirectory(nsIFile* aDirectory) {
   bool exists;
@@ -44,17 +43,21 @@ nsMailDirProvider::GetFile(const char* aKey, bool* aPersist,
   const char* leafName = nullptr;
   bool isDirectory = true;
 
-  if (!strcmp(aKey, NS_APP_MAIL_50_DIR))
+  if (!strcmp(aKey, NS_APP_MAIL_50_DIR)) {
     leafName = MAIL_DIR_50_NAME;
-  else if (!strcmp(aKey, NS_APP_IMAP_MAIL_50_DIR))
+  } else if (!strcmp(aKey, NS_APP_IMAP_MAIL_50_DIR)) {
     leafName = IMAP_MAIL_DIR_50_NAME;
-  else if (!strcmp(aKey, NS_APP_NEWS_50_DIR))
+  } else if (!strcmp(aKey, NS_APP_NEWS_50_DIR)) {
     leafName = NEWS_DIR_50_NAME;
-  else if (!strcmp(aKey, NS_APP_MESSENGER_FOLDER_CACHE_50_FILE)) {
+  } else if (!strcmp(aKey, NS_APP_MESSENGER_FOLDER_CACHE_50_FILE)) {
     isDirectory = false;
-    leafName = MSG_FOLDER_CACHE_DIR_50_NAME;
-  } else
+    leafName = "folderCache.json";
+  } else if (!strcmp(aKey, NS_APP_MESSENGER_LEGACY_FOLDER_CACHE_50_FILE)) {
+    isDirectory = false;
+    leafName = "panacea.dat";
+  } else {
     return NS_ERROR_FAILURE;
+  }
 
   nsCOMPtr<nsIFile> parentDir;
   nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,

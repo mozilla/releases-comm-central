@@ -2227,13 +2227,14 @@ var GlodaDatastore = {
 
     let folderID = this._nextFolderId++;
 
-    // if there's an indexingPriority stored on the folder, just use that
-    let indexingPriority;
-    let stringPrio = aFolder.getStringProperty("indexingPriority");
-    if (stringPrio.length) {
-      indexingPriority = parseInt(stringPrio);
-    } else {
-      // Otherwise, fall back to the default for folders of this type.
+    // If there's an indexingPriority stored on the folder, just use that.
+    // Otherwise, fall back to the default for folders of this type.
+    let indexingPriority = NaN;
+    try {
+      let pri = aFolder.getStringProperty("indexingPriority"); // Might throw.
+      indexingPriority = parseInt(pri); // Might return NaN.
+    } catch (ex) {}
+    if (isNaN(indexingPriority)) {
       indexingPriority = this.getDefaultIndexingPriority(aFolder);
     }
 

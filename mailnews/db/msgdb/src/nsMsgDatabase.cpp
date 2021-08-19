@@ -35,6 +35,7 @@
 #include "nsMsgDatabaseEnumerators.h"
 #include "nsIMemoryReporter.h"
 #include "nsIWeakReferenceUtils.h"
+#include "nsMailDirServiceDefs.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/mailnews/Services.h"
 #include "mozilla/intl/LocaleService.h"
@@ -1463,12 +1464,11 @@ NS_IMETHODIMP nsMsgDatabase::Commit(nsMsgDBCommit commitType) {
         m_dbFolderInfo->GetNumUnreadMessages(&unreadMessages);
         m_dbFolderInfo->GetImapUnreadPendingMessages(&pendingUnreadMessages);
         m_dbFolderInfo->GetImapTotalPendingMessages(&pendingMessages);
-        cacheElement->SetInt32Property("totalMsgs", totalMessages);
-        cacheElement->SetInt32Property("totalUnreadMsgs", unreadMessages);
-        cacheElement->SetInt32Property("pendingMsgs", pendingMessages);
-        cacheElement->SetInt32Property("pendingUnreadMsgs",
-                                       pendingUnreadMessages);
-        folderCache->Commit(false);
+        cacheElement->SetCachedInt32("totalMsgs", totalMessages);
+        cacheElement->SetCachedInt32("totalUnreadMsgs", unreadMessages);
+        cacheElement->SetCachedInt32("pendingMsgs", pendingMessages);
+        cacheElement->SetCachedInt32("pendingUnreadMsgs",
+                                     pendingUnreadMessages);
       }
     }
   }

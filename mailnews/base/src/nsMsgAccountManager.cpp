@@ -32,6 +32,7 @@
 #include "nscore.h"
 #include "prprf.h"
 #include "nsIMsgFolderCache.h"
+#include "nsMsgFolderCache.h"
 #include "nsMsgUtils.h"
 #include "nsMsgDBFolder.h"
 #include "nsIFile.h"
@@ -90,7 +91,6 @@
   "mail.accountmanager.appendaccounts"
 
 static NS_DEFINE_CID(kMsgAccountCID, NS_MSGACCOUNT_CID);
-static NS_DEFINE_CID(kMsgFolderCacheCID, NS_MSGFOLDERCACHE_CID);
 
 #define SEARCH_FOLDER_FLAG "searchFolderFlag"
 #define SEARCH_FOLDER_FLAG_LEN (sizeof(SEARCH_FOLDER_FLAG) - 1)
@@ -812,21 +812,25 @@ void nsMsgAccountManager::LogoutOfServer(nsIMsgIncomingServer* aServer) {
 NS_IMETHODIMP nsMsgAccountManager::GetFolderCache(
     nsIMsgFolderCache** aFolderCache) {
   NS_ENSURE_ARG_POINTER(aFolderCache);
-  nsresult rv = NS_OK;
 
-  if (!m_msgFolderCache) {
-    m_msgFolderCache = do_CreateInstance(kMsgFolderCacheCID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIFile> cacheFile;
-    rv = NS_GetSpecialDirectory(NS_APP_MESSENGER_FOLDER_CACHE_50_FILE,
-                                getter_AddRefs(cacheFile));
-    NS_ENSURE_SUCCESS(rv, rv);
-    m_msgFolderCache->Init(cacheFile);
+  if (m_msgFolderCache) {
+    NS_IF_ADDREF(*aFolderCache = m_msgFolderCache);
+    return NS_OK;
   }
 
+  // Create the foldercache.
+  nsCOMPtr<nsIFile> cacheFile;
+  nsresult rv = NS_GetSpecialDirectory(NS_APP_MESSENGER_FOLDER_CACHE_50_FILE,
+                                       getter_AddRefs(cacheFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIFile> legacyFile;
+  rv = NS_GetSpecialDirectory(NS_APP_MESSENGER_LEGACY_FOLDER_CACHE_50_FILE,
+                              getter_AddRefs(legacyFile));
+  NS_ENSURE_SUCCESS(rv, rv);
+  m_msgFolderCache = new nsMsgFolderCache();
+  m_msgFolderCache->Init(cacheFile, legacyFile);
   NS_IF_ADDREF(*aFolderCache = m_msgFolderCache);
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -1070,8 +1074,8 @@ nsresult nsMsgAccountManager::LoadAccounts() {
     // If we have an existing account with the same server, ignore this account
     if (serverAccount) continue;
 
-    if (NS_FAILED(
-            createKeyedAccount(accountsArray[i], true, getter_AddRefs(account))) ||
+    if (NS_FAILED(createKeyedAccount(accountsArray[i], true,
+                                     getter_AddRefs(account))) ||
         !account) {
       NS_WARNING("unexpected entry in account list; prefs corrupt?");
       continue;
@@ -1530,7 +1534,7 @@ nsMsgAccountManager::WriteToFolderCache(nsIMsgFolderCache* folderCache) {
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     iter.Data()->WriteToFolderCache(folderCache);
   }
-  return folderCache ? folderCache->Close() : NS_ERROR_FAILURE;
+  return NS_OK;
 }
 
 nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
@@ -1573,7 +1577,8 @@ nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
     }
   }
 
-  if (!forcePositionToEnd && !localFoldersAccountKey.IsEmpty() && !lastFolderAccountKey.IsEmpty() &&
+  if (!forcePositionToEnd && !localFoldersAccountKey.IsEmpty() &&
+      !lastFolderAccountKey.IsEmpty() &&
       lastFolderAccountKey == localFoldersAccountKey) {
     // Insert account before Local Folders if that is the last account.
     m_accounts.InsertElementAt(m_accounts.Length() - 1, account);

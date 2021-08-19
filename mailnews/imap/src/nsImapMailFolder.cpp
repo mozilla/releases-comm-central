@@ -467,18 +467,18 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
         nsCString onlineFullUtfName;
 
         uint32_t folderFlags;
-        rv = cacheElement->GetInt32Property("flags", (int32_t*)&folderFlags);
+        rv = cacheElement->GetCachedUInt32("flags", &folderFlags);
         if (NS_SUCCEEDED(rv) &&
             folderFlags & nsMsgFolderFlags::Virtual)  // ignore virtual folders
           continue;
         int32_t hierarchyDelimiter;
-        rv = cacheElement->GetInt32Property("hierDelim", &hierarchyDelimiter);
+        rv = cacheElement->GetCachedInt32("hierDelim", &hierarchyDelimiter);
         if (NS_SUCCEEDED(rv) &&
             hierarchyDelimiter == kOnlineHierarchySeparatorUnknown) {
           currentFolderPath->Remove(false);
           continue;  // blow away .msf files for folders with unknown delimiter.
         }
-        rv = cacheElement->GetStringProperty("onlineName", onlineFullUtfName);
+        rv = cacheElement->GetCachedString("onlineName", onlineFullUtfName);
         if (NS_SUCCEEDED(rv) && !onlineFullUtfName.IsEmpty()) {
           CopyFolderNameToUTF16(onlineFullUtfName, currentFolderNameStr);
           char delimiter = 0;
@@ -1732,24 +1732,23 @@ NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
   int32_t hierarchyDelimiter = kOnlineHierarchySeparatorUnknown;
   nsCString onlineName;
 
-  element->GetInt32Property("boxFlags", &m_boxFlags);
-  if (NS_SUCCEEDED(
-          element->GetInt32Property("hierDelim", &hierarchyDelimiter)) &&
+  element->GetCachedUInt32("boxFlags", (uint32_t*)&m_boxFlags);
+  if (NS_SUCCEEDED(element->GetCachedInt32("hierDelim", &hierarchyDelimiter)) &&
       hierarchyDelimiter != kOnlineHierarchySeparatorUnknown)
     m_hierarchyDelimiter = (char)hierarchyDelimiter;
-  rv = element->GetStringProperty("onlineName", onlineName);
+  rv = element->GetCachedString("onlineName", onlineName);
   if (NS_SUCCEEDED(rv) && !onlineName.IsEmpty())
     m_onlineFolderName.Assign(onlineName);
 
   m_aclFlags = kAclInvalid;  // init to invalid value.
-  element->GetInt32Property("aclFlags", (int32_t*)&m_aclFlags);
-  element->GetInt32Property("serverTotal", &m_numServerTotalMessages);
-  element->GetInt32Property("serverUnseen", &m_numServerUnseenMessages);
-  element->GetInt32Property("serverRecent", &m_numServerRecentMessages);
-  element->GetInt32Property("nextUID", &m_nextUID);
+  element->GetCachedUInt32("aclFlags", &m_aclFlags);
+  element->GetCachedInt32("serverTotal", &m_numServerTotalMessages);
+  element->GetCachedInt32("serverUnseen", &m_numServerUnseenMessages);
+  element->GetCachedInt32("serverRecent", &m_numServerRecentMessages);
+  element->GetCachedInt32("nextUID", &m_nextUID);
   int32_t lastSyncTimeInSec;
-  if (NS_FAILED(element->GetInt32Property("lastSyncTimeInSec",
-                                          (int32_t*)&lastSyncTimeInSec)))
+  if (NS_FAILED(element->GetCachedInt32("lastSyncTimeInSec",
+                                        (int32_t*)&lastSyncTimeInSec)))
     lastSyncTimeInSec = 0U;
 
   // make sure that auto-sync state object is created
@@ -1762,23 +1761,23 @@ NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
 NS_IMETHODIMP nsImapMailFolder::WriteToFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
   nsresult rv = nsMsgDBFolder::WriteToFolderCacheElem(element);
-  element->SetInt32Property("boxFlags", m_boxFlags);
-  element->SetInt32Property("hierDelim", (int32_t)m_hierarchyDelimiter);
-  element->SetStringProperty("onlineName", m_onlineFolderName);
-  element->SetInt32Property("aclFlags", (int32_t)m_aclFlags);
-  element->SetInt32Property("serverTotal", m_numServerTotalMessages);
-  element->SetInt32Property("serverUnseen", m_numServerUnseenMessages);
-  element->SetInt32Property("serverRecent", m_numServerRecentMessages);
+  element->SetCachedUInt32("boxFlags", (uint32_t)m_boxFlags);
+  element->SetCachedInt32("hierDelim", (int32_t)m_hierarchyDelimiter);
+  element->SetCachedString("onlineName", m_onlineFolderName);
+  element->SetCachedUInt32("aclFlags", m_aclFlags);
+  element->SetCachedInt32("serverTotal", m_numServerTotalMessages);
+  element->SetCachedInt32("serverUnseen", m_numServerUnseenMessages);
+  element->SetCachedInt32("serverRecent", m_numServerRecentMessages);
   if (m_nextUID != (int32_t)nsMsgKey_None)
-    element->SetInt32Property("nextUID", m_nextUID);
+    element->SetCachedInt32("nextUID", m_nextUID);
 
   // store folder's last sync time
   if (m_autoSyncStateObj) {
     PRTime lastSyncTime;
     m_autoSyncStateObj->GetLastSyncTime(&lastSyncTime);
     // store in sec
-    element->SetInt32Property("lastSyncTimeInSec",
-                              (int32_t)(lastSyncTime / PR_USEC_PER_SEC));
+    element->SetCachedInt32("lastSyncTimeInSec",
+                            (int32_t)(lastSyncTime / PR_USEC_PER_SEC));
   }
 
   return rv;
