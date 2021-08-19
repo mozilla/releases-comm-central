@@ -132,9 +132,20 @@ class NntpChannel {
   asyncOpen(listener) {
     this._listener = listener;
     try {
+      let uri = this.URI;
+      if (this.URI.spec.includes("?")) {
+        // A full news url may look like
+        // news://<host>:119/<Msg-ID>?group=<name>&key=<key>&header=quotebody.
+        // Remove any query strings to keep the cache key stable.
+        uri = uri
+          .mutate()
+          .setQuery("")
+          .finalize();
+      }
+
       // Check if a memory cache is available for the current URI.
       MailServices.nntp.cacheStorage.asyncOpenURI(
-        this.URI,
+        uri,
         "",
         Ci.nsICacheStorage.OPEN_NORMALLY,
         this

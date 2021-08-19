@@ -41,16 +41,29 @@ class NntpMessageService {
     );
   }
 
+  getUrlForUri(messageURI, msgWindow) {
+    let uri = Services.io
+      .newURI(this._createMessageIdUrl(messageURI))
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    uri.msgWindow = msgWindow;
+    return uri;
+  }
+
+  messageURIToMsgHdr(uri) {
+    let [folder, key] = this._decomposeNewsMessageURI(uri);
+    return folder.GetMessageHeader(key);
+  }
+
   /**
-   * Create a news:// url from a news-message:// url.
-   * @param {string} messageURI - The news-message:// url.
-   * @returns {string} The news:// url.
+   * Parse a message uri to folder and message key.
+   * @param {string} uri - The news-message:// url to parse.
+   * @returns {[nsIMsgFolder, string]} - The folder and message key.
    */
-  _createMessageIdUrl(messageURI) {
-    let matches = /news-message:\/\/([^:]+)\/(.+)#(\d+)/.exec(messageURI);
+  _decomposeNewsMessageURI(uri) {
+    let matches = /news-message:\/\/([^:]+)\/(.+)#(\d+)/.exec(uri);
     if (!matches) {
       throw Components.Exception(
-        `Failed to parse message url: ${messageURI}`,
+        `Failed to parse message url: ${uri}`,
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
@@ -59,9 +72,20 @@ class NntpMessageService {
       .FindServer("", host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
     let folder = server.findGroup(groupName);
+    return [folder, key];
+  }
+
+  /**
+   * Create a news:// url from a news-message:// url.
+   * @param {string} messageURI - The news-message:// url.
+   * @returns {string} The news:// url.
+   */
+  _createMessageIdUrl(messageURI) {
+    let [folder, key] = this._decomposeNewsMessageURI(messageURI);
+    let host = folder.rootFolder.URI;
     let messageId = folder.getMessageIdForKey(key);
-    let url = new URL(`news://${host}/${encodeURIComponent(messageId)}`);
-    url.searchParams.set("group", groupName);
+    let url = new URL(`${host}/${encodeURIComponent(messageId)}`);
+    url.searchParams.set("group", folder.name);
     url.searchParams.set("key", key);
     return url.toString();
   }

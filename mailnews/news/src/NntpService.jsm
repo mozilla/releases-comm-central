@@ -78,7 +78,7 @@ class NntpService {
       sstream.init(fstream);
 
       while (sstream.available()) {
-        let chunk = sstream.readBytes(65536);
+        let chunk = sstream.read(65536);
         client.send(chunk);
       }
       sstream.close();
