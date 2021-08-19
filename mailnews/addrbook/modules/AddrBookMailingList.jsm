@@ -29,6 +29,15 @@ AddrBookMailingList.prototype = {
       QueryInterface: ChromeUtils.generateQI(["nsIAbDirectory"]),
       classID: Components.ID("{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"),
 
+      get readOnly() {
+        return self._parent._readOnly;
+      },
+      get isRemote() {
+        return self._parent.isRemote;
+      },
+      get isSecure() {
+        return self._parent.isSecure;
+      },
       get propertiesChromeURI() {
         return "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml";
       },
@@ -190,6 +199,13 @@ AddrBookMailingList.prototype = {
         listener.onSearchFinished(Cr.NS_OK, true, null, "");
       },
       addCard(card) {
+        if (this.readOnly) {
+          throw new Components.Exception(
+            "Directory is read-only",
+            Cr.NS_ERROR_FAILURE
+          );
+        }
+
         if (!card.primaryEmail) {
           return card;
         }
@@ -211,6 +227,13 @@ AddrBookMailingList.prototype = {
         return card;
       },
       deleteCards(cards) {
+        if (this.readOnly) {
+          throw new Components.Exception(
+            "Directory is read-only",
+            Cr.NS_ERROR_FAILURE
+          );
+        }
+
         let deleteCardStatement = self._parent._dbConnection.createStatement(
           "DELETE FROM list_cards WHERE list = :list AND card = :card"
         );
@@ -230,6 +253,13 @@ AddrBookMailingList.prototype = {
         deleteCardStatement.finalize();
       },
       dropCard(card, needToCopyCard) {
+        if (this.readOnly) {
+          throw new Components.Exception(
+            "Directory is read-only",
+            Cr.NS_ERROR_FAILURE
+          );
+        }
+
         if (needToCopyCard) {
           card = self._parent.dropCard(card, true);
         }
@@ -241,6 +271,13 @@ AddrBookMailingList.prototype = {
         );
       },
       editMailListToDatabase(listCard) {
+        if (this.readOnly) {
+          throw new Components.Exception(
+            "Directory is read-only",
+            Cr.NS_ERROR_FAILURE
+          );
+        }
+
         // Check if the new name is empty.
         if (!self._name) {
           throw new Components.Exception(
