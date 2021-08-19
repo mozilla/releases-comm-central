@@ -7,7 +7,9 @@ job-defaults:
     always-target: true
     worker-type: t-linux-xlarge-source
     worker:
-        docker-image: {in-tree: "lint"}
+        # A build image instead of the lint image m-c uses, because of the
+        # comm-checkout requirement.
+        docker-image: {in-tree: "debian11-amd64-build"}
         max-run-time: 3600
         env:
             MOZCONFIG: comm/mail/config/mozconfigs/linux64/source
