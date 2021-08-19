@@ -796,9 +796,7 @@ var chatHandler = {
       if (item.conv.isChat) {
         item.convView.updateTopic();
       }
-      if (ChatEncryption.hasEncryptionActions(item.conv)) {
-        ChatEncryption.updateEncryptionButton(document, item.conv);
-      }
+      ChatEncryption.updateEncryptionButton(document, item.conv);
       item.convView.focus();
     } else if (
       item.localName == "richlistitem" &&
@@ -947,9 +945,7 @@ var chatHandler = {
       item.convView.updateConvStatus();
       item.update();
 
-      if (ChatEncryption.hasEncryptionActions(item.conv)) {
-        ChatEncryption.updateEncryptionButton(document, item.conv);
-      }
+      ChatEncryption.updateEncryptionButton(document, item.conv);
 
       imServices.logs.getLogsForConversation(item.conv, true).then(aLogs => {
         if (contactlistbox.selectedItem != item) {

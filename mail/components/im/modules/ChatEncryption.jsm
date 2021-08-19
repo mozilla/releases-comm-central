@@ -93,9 +93,9 @@ const ChatEncryption = {
         _str("state-" + trustStringLevel + "-label")
       );
       otrButton.className = "encryption-button encryption-" + trustStringLevel;
-    } else if (OTRUI.enabled) {
+    } else if (!conversation.isChat && OTRUI.enabled) {
       OTRUI.updateOTRButton(conversation);
-      document.querySelector(".encryption-init").hidden = true;
+      document.querySelector(".protocol-encrypt").hidden = true;
     } else {
       this.hideEncryptionButton(document);
     }
