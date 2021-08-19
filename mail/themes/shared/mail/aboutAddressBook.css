@@ -273,12 +273,40 @@ body {
 }
 
 ab-card-listrow {
+  height: 36px;
   margin-inline: 6px;
   border-radius: var(--in-content-button-border-radius);
+  padding-block: 5px;
+  padding-inline: 38px 8px;
+
+  background-image: url("chrome://messenger/skin/icons/contact.svg");
+  background-repeat: no-repeat;
+  background-position: 15px center;
+}
+
+ab-card-listrow.MailList {
+  background-image: url("chrome://messenger/skin/icons/ablist.svg");
+}
+
+ab-card-listrow:dir(rtl) {
+  background-position-x: right 15px;
 }
 
 ab-card-listrow:hover {
   background-color: var(--in-content-item-hover);
+}
+
+ab-card-listrow > div.name {
+  line-height: 18px;
+}
+
+ab-card-listrow > div.address {
+  line-height: 18px;
+  font-size: 13.333px;
+}
+
+ab-card-listrow:not(.selected) > div.address {
+  color: var(--in-content-deemphasized-text);
 }
 
 /* Details pane */

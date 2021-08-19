@@ -836,61 +836,18 @@ customElements.define("ab-card-search-input", AbCardSearchInput, {
 class AbCardListrow extends customElements.get("tree-view-listrow") {
   static ROW_HEIGHT = 46;
 
-  static styles = `
-    :host {
-      height: 36px;
-      padding-block: 5px;
-      padding-inline: 38px 8px;
-
-      background-image: url("chrome://messenger/skin/icons/contact.svg");
-      background-repeat: no-repeat;
-      background-position: 15px center;
-    }
-    :host(:dir(rtl)) {
-      background-position-x: right 15px;
-    }
-    :host(.MailList) {
-      background-image: url("chrome://messenger/skin/icons/ablist.svg");
-    }
-    div.name {
-      line-height: 18px;
-    }
-    div.address {
-      line-height: 18px;
-      font-size: 13.333px;
-      color: var(--in-content-deemphasized-text);
-    }
-    :host(.selected) div.address {
-      color: unset;
-    }
-  `;
-
-  static get fragment() {
-    if (!this.hasOwnProperty("_fragment")) {
-      this._fragment = document.createDocumentFragment();
-      this._fragment
-        .appendChild(document.createElement("div"))
-        .classList.add("name");
-      this._fragment
-        .appendChild(document.createElement("div"))
-        .classList.add("address");
-    }
-    return document.importNode(this._fragment, true);
-  }
-
-  constructor() {
-    super();
-    this.name = this.shadowRoot.querySelector(".name");
-    this.address = this.shadowRoot.querySelector(".address");
-  }
-
   connectedCallback() {
     if (this.hasConnected) {
       return;
     }
 
     super.connectedCallback();
+
     this.setAttribute("draggable", "true");
+    this.name = this.appendChild(document.createElement("div"));
+    this.name.classList.add("name");
+    this.address = this.appendChild(document.createElement("div"));
+    this.address.classList.add("address");
   }
 
   get index() {

@@ -11,7 +11,30 @@
     #testList {
       height: 630px;
       scroll-behavior: unset;
-      --in-content-button-background: #0a84ff;
+      --in-content-button-background: rgba(12, 12, 13, 0.1);
+      --in-content-focus-outline-color: #45a1ff;
+      --in-content-item-selected-text: highlighttext;
+      --in-content-item-selected: highlight;
+    }
+
+    test-listrow {
+      height: 36px;
+      padding: 7px;
+      display: flex;
+      align-items: center;
+    }
+
+    test-listrow div.d1 {
+      flex: 1;
+    }
+
+    test-listrow div.d1 > div.d2 {
+      line-height: 18px;
+    }
+
+    test-listrow div.d1 > div.d3 {
+      line-height: 18px;
+      font-size: 13.333px;
     }
   </style>
   <!-- This script is used for the automated test. -->

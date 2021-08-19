@@ -1344,37 +1344,6 @@
      */
     static ROW_HEIGHT = 50;
 
-    /**
-     * CSS to apply to this row.
-     *
-     * @type {string}
-     */
-    static styles = "";
-
-    /**
-     * The inner HTML for this row. Construct it using DOM methods or from a
-     * template. Performance is important here.
-     *
-     * @type {HTMLDocumentFragment}
-     */
-    static get fragment() {
-      if (!this.hasOwnProperty("_fragment")) {
-        this._fragment = document.createDocumentFragment();
-      }
-      return document.importNode(this._fragment, true);
-    }
-
-    constructor() {
-      super();
-
-      this.attachShadow({ mode: "open" });
-      let style = document.createElement("style");
-      style.textContent = this.constructor.styles;
-      this.shadowRoot.appendChild(style);
-
-      this.shadowRoot.appendChild(this.constructor.fragment);
-    }
-
     connectedCallback() {
       if (this.hasConnected) {
         return;
