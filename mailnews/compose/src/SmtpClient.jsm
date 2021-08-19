@@ -245,12 +245,17 @@ class SmtpClient {
       cmd += " BODY=8BITMIME";
     }
     if (this._capabilities.includes("SMTPUTF8")) {
-      cmd += " SMTPUTF8";
+      // Should not send SMTPUTF8 if all ascii, see RFC6531.
+      // eslint-disable-next-line no-control-regex
+      let ascii = /^[\x00-\x7F]+$/;
+      if ([envelope.from, ...envelope.to].some(x => !ascii.test(x))) {
+        cmd += " SMTPUTF8";
+      }
     }
     if (this._capabilities.includes("SIZE")) {
       cmd += ` SIZE=${this._envelope.size}`;
     }
-    if (this._capabilities.includes("DSN")) {
+    if (this._capabilities.includes("DSN") && this._envelope.requestDSN) {
       let ret = Services.prefs.getBoolPref("mail.dsn.ret_full_on")
         ? "FULL"
         : "HDRS";
