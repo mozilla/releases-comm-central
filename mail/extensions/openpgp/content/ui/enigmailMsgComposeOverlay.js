@@ -17,6 +17,7 @@
 /*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
 /*global gEncryptSubject: true, setEncSigStatusUI: false, gEncryptedURIService: false */
 /* global setSendEncrypted: true */
+/* global gAttachmentBucket: true */
 /* import-globals-from ../BondOpenPGP.jsm */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -859,8 +860,13 @@ Enigmail.msg = {
     keyAttachment.temporary = true;
     keyAttachment.contentType = "application/pgp-keys";
 
-    // Add attachment to msg, the attachment pane will be shown automatically.
-    this.addAttachment(keyAttachment);
+    if (
+      !gAttachmentBucket.itemChildren.find(
+        item => item.attachment.name == keyAttachment.name
+      )
+    ) {
+      this.addAttachment(keyAttachment);
+    }
 
     gContentChanged = true;
     return keyAttachment;
