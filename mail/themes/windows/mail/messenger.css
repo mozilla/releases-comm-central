@@ -455,8 +455,8 @@ treechildren::-moz-tree-indentation {
     background-color: transparent;
   }
 
-  :root:not(:-moz-lwtheme) tree:not(#threadTree) > treechildren::-moz-tree-row(selected),
-  :root:not(:-moz-lwtheme) #threadTree > treechildren::-moz-tree-row(untagged, selected) {
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(selected) {
+    border-color: transparent;
     background-color: -moz-cellhighlight;
   }
 
