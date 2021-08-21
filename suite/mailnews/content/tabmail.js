@@ -212,10 +212,16 @@ var gMailNewsTabsType =
       // the current selection on the new view.
       let msgHdr = aTabInfo.hdr;
       let msgId  = aTabInfo.selectedMsgId;
+      aTabInfo.hdr = null;
+      aTabInfo.selectedMsgId = null;
+      aTabInfo.dbView = null;
       let folder = MailUtils.getFolderForURI(aTabInfo.uriToOpen);
       gFolderTreeView.selectFolder(folder);
       gCurrentFolderToReroot = null;
       delete aTabInfo.uriToOpen; // destroy after use!
+      // Store the folder that is being opened.
+      aTabInfo.msgSelectedFolder = folder;
+
       // restore our message data
       aTabInfo.hdr = msgHdr;
       aTabInfo.selectedMsgId = msgId;
@@ -224,24 +230,29 @@ var gMailNewsTabsType =
       UpdateMailToolbar("new tab");
     }
 
-    // restore layout if present
-    ShowThreadPane();
-    // Some modes (e.g. new message tabs) need to initially hide the splitters,
-    // this is marked by aTabInfo.clearSplitter=true.
-    let clearSplitter = "clearSplitter" in aTabInfo && aTabInfo.clearSplitter;
-    if (clearSplitter)
-    {
-      aTabInfo.messageSplitter.collapsible = true;
-      aTabInfo.folderSplitter.collapsible  = true;
-      delete aTabInfo.clearSplitter;
+    // Do not bother with Thread and Message panes if at server level.
+    if (!aTabInfo.msgSelectedFolder.isServer) {
+      // Restore the layout if present.
+      ShowThreadPane();
+      // Some modes (e.g. new message tabs) need to initially hide the
+      // splitters, this is marked by aTabInfo.clearSplitter=true.
+      let clearSplitter = "clearSplitter" in aTabInfo && aTabInfo.clearSplitter;
+      if (clearSplitter) {
+        aTabInfo.messageSplitter.collapsible = true;
+        aTabInfo.folderSplitter.collapsible = true;
+        delete aTabInfo.clearSplitter;
+      }
+      SetSplitterState(GetThreadAndMessagePaneSplitter(),
+                       aTabInfo.messageSplitter);
+      SetSplitterState(GetFolderPaneSplitter(),
+                       aTabInfo.folderSplitter);
+      this._updatePaneLayout(aTabInfo);
+      ClearMessagePane();
+      // Force the header pane twisty state restoration by toggling from the
+      // opposite.
+      if (gCollapsedHeaderViewMode != aTabInfo.headerViewMode)
+        ToggleHeaderView();
     }
-    SetSplitterState(GetThreadAndMessagePaneSplitter(), aTabInfo.messageSplitter);
-    SetSplitterState(GetFolderPaneSplitter(),           aTabInfo.folderSplitter);
-    this._updatePaneLayout(aTabInfo);
-    ClearMessagePane();
-    // force header pane twisty state restoration by toggling from the opposite
-    if (gCollapsedHeaderViewMode != aTabInfo.headerViewMode)
-      ToggleHeaderView();
 
     // restore globals
     messenger = aTabInfo.messenger;
