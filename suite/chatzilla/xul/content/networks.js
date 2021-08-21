@@ -140,7 +140,8 @@ function networksToNetworkList()
         if (net.temporary)
             continue;
 
-        let listNet = { name: name, displayName: name, servers: [] };
+        let listNet = { name: net.canonicalName, displayName: net.unicodeName,
+                        servers: [] };
 
         // Populate server list (no merging here).
         for (let i = 0; i < net.serverList.length; i++)
@@ -150,7 +151,7 @@ function networksToNetworkList()
                              isSecure: serv.isSecure };
             listNet.servers.push(listServ);
         }
-        networkList[name] = listNet;
+        networkList[net.canonicalName] = listNet;
     }
 
     return networkList;
@@ -164,11 +165,11 @@ function networksSyncFromList(networkList)
         let listNet = networkList[name];
 
         // Create new network object if necessary.
-        if (!(name in client.networks))
+        if (!client.getNetwork(name))
             client.addNetwork(name, []);
 
         // Get network object and make sure server list is empty.
-        let net = client.networks[name];
+        let net = client.getNetwork(name);
         net.clearServerList();
 
         // Update server list.
@@ -179,7 +180,7 @@ function networksSyncFromList(networkList)
                 listServ.isSecure = false;
 
             // NOTE: this must match the name given by CIRCServer.
-            var servName = listServ.hostname + ":" + listServ.port;
+            let servName = ":" + listServ.hostname + ":" + listServ.port;
 
             if (!(servName in net.servers))
             {
@@ -196,10 +197,11 @@ function networksSyncFromList(networkList)
     for (let name in client.networks)
     {
         // Skip temporary networks, as they don't matter.
-        if (client.networks[name].temporary)
+        let net = client.networks[name];
+        if (net.temporary)
             continue;
-        if (!(name in networkList))
-            client.removeNetwork(name);
+        if (!(net.canonicalName in networkList))
+            client.removeNetwork(net.canonicalName);
     }
 }
 

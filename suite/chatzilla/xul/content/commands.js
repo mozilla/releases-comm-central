@@ -1365,11 +1365,11 @@ function cmdTestDisplay(e)
     {
         var me = e.server.me;
         var sampleUser = {TYPE: "IRCUser",
-                          encodedName: "ircmonkey", canonicalName: "ircmonkey",
+                          encodedName: "ircmonkey", collectionKey: ":ircmonkey",
                           unicodeName: "IRCMonkey", viewName: "IRCMonkey",
                           host: "", name: "IRCMonkey"};
         var sampleChannel = {TYPE: "IRCChannel",
-                             encodedName: "#mojo", canonicalName: "#mojo",
+                             encodedName: "#mojo", collectionKey: ":#mojo",
                              unicodeName: "#Mojo", viewName: "#Mojo",
                              name: "#Mojo"};
 
@@ -1418,13 +1418,13 @@ function cmdTestDisplay(e)
 
 function cmdNetwork(e)
 {
-    if (!(e.networkName in client.networks))
+    let network = client.getNetwork(e.networkName);
+
+    if (!network)
     {
         display (getMsg(MSG_ERR_UNKNOWN_NETWORK, e.networkName), MT_ERROR);
         return;
     }
-
-    var network = client.networks[e.networkName];
 
     dispatch("create-tab-for-view", { view: network });
     dispatch("set-current-view", { view: network });
@@ -1435,16 +1435,15 @@ function cmdNetworks(e)
     var wrapper = newInlineText(MSG_NETWORKS_HEADA);
 
     var netnames = keys(client.networks).sort();
-    var lastname = netnames[netnames.length - 1];
 
-    for (var n in netnames)
+    for (let i = 0; i < netnames.length; i++)
     {
-        var net = client.networks[netnames[n]];
+        let net = client.networks[netnames[i]];
         /* Test for an all-SSL network */
         var isSecure = true;
-        for (var s in client.networks[netnames[n]].serverList)
+        for (let s in net.serverList)
         {
-            if (!client.networks[netnames[n]].serverList[s].isSecure)
+            if (!net.serverList[s].isSecure)
             {
                 isSecure = false;
                 break;
@@ -1457,7 +1456,7 @@ function cmdNetworks(e)
         };
         wrapper.appendChild(newInlineText(linkData, "chatzilla-link", "a"));
 
-        if (netnames[n] != lastname)
+        if (i < netnames.length - 1)
             wrapper.appendChild(document.createTextNode(", "));
     }
 

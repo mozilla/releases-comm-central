@@ -868,7 +868,7 @@ function onPrefChanged(prefName, newValue, oldValue)
 
 function onNetworkPrefChanged(network, prefName, newValue, oldValue)
 {
-    if (network != client.networks[network.canonicalName])
+    if (network != client.networks[network.collectionKey])
     {
         /* this is a stale observer, remove it */
         network.prefManager.destroy();
@@ -974,9 +974,9 @@ function onChannelPrefChanged(channel, prefName, newValue, oldValue)
 {
     var network = channel.parent.parent;
 
-    if (network != client.networks[network.canonicalName] ||
+    if (network != client.networks[network.collectionKey] ||
         channel.parent != network.primServ ||
-        channel != network.primServ.channels[channel.canonicalName])
+        channel != network.primServ.channels[channel.collectionKey])
     {
         /* this is a stale observer, remove it */
         channel.prefManager.destroy();
@@ -1043,9 +1043,9 @@ function onUserPrefChanged(user, prefName, newValue, oldValue)
 {
     var network = user.parent.parent;
 
-    if (network != client.networks[network.canonicalName] ||
+    if (network != client.networks[network.collectionKey] ||
         user.parent != network.primServ ||
-        user != network.primServ.users[user.canonicalName])
+        user != network.primServ.users[user.collectionKey])
     {
         /* this is a stale observer, remove it */
         user.prefManager.destroy();

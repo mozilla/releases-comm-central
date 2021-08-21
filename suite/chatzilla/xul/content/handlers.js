@@ -743,7 +743,7 @@ function onNotifyTimeout()
         if (net.isConnected()) {
             if ((net.prefs["notifyList"].length > 0) &&
                 (!net.primServ.supports["monitor"])) {
-                var isonList = client.networks[n].prefs["notifyList"];
+                let isonList = net.prefs["notifyList"];
                 net.primServ.sendData ("ISON " + isonList.join(" ") + "\n");
             } else {
                 /* Just send a ping to see if we're alive. */
@@ -1727,11 +1727,11 @@ function my_401(e)
     else
         user = new CIRCUser(e.server, null, e.params[2]);
 
-    if (user && this.whoisList && (user.canonicalName in this.whoisList))
+    if (user && this.whoisList && (user.collectionKey in this.whoisList))
     {
         // If this is from a /whois, send a /whowas and don't display anything.
         this.primServ.whowas(user.unicodeName, 1);
-        this.whoisList[user.canonicalName] = false;
+        this.whoisList[user.collectionKey] = false;
         return;
     }
 
@@ -1833,11 +1833,11 @@ function my_352 (e)
         for (var c in e.server.channels)
         {
             var chan = e.server.channels[c];
-            if (chan.active && (e.user.canonicalName in chan.users))
+            if (chan.active && (e.user.collectionKey in chan.users))
             {
                 if (!(c in this.whoUpdates))
                     this.whoUpdates[c] = new Array();
-                this.whoUpdates[c].push(chan.users[e.user.canonicalName]);
+                this.whoUpdates[c].push(chan.users[e.user.collectionKey]);
             }
         }
     }
@@ -1877,11 +1877,11 @@ function my_354(e)
         for (var c in e.server.channels)
         {
             var chan = e.server.channels[c];
-            if (chan.active && (e.user.canonicalName in chan.users))
+            if (chan.active && (e.user.collectionKey in chan.users))
             {
                 if (!(c in this.whoUpdates))
                     this.whoUpdates[c] = new Array();
-                this.whoUpdates[c].push(chan.users[e.user.canonicalName]);
+                this.whoUpdates[c].push(chan.users[e.user.collectionKey]);
             }
         }
     }
@@ -2717,11 +2717,11 @@ function my_away(e)
     for (var c in e.server.channels)
     {
         var chan = e.server.channels[c];
-        if (chan.active && (e.user.canonicalName in chan.users))
+        if (chan.active && (e.user.collectionKey in chan.users))
         {
-            var index = chan.users[e.user.canonicalName].chanListEntry.childIndex;
+            let index = chan.users[e.user.collectionKey].chanListEntry.childIndex;
             userlist.treeBoxObject.invalidateRow(index);
-            e.server.channels[c].updateUsers([e.user.canonicalName]);
+            e.server.channels[c].updateUsers([e.user.collectionKey]);
         }
     }
 }
