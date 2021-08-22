@@ -38,7 +38,6 @@ if CONFIG["MOZ_STDCXX_COMPAT"]:
 
     DEFINES["_GLIBCXX_USE_CXX11_ABI"] = 0
     CXXFLAGS += ["-stdlib=libc++"]
-    LDFLAGS += ["-nostdlib++"]
     OS_LIBS += [static_libdir, "-l:libc++.a", "-l:libc++abi.a"]
 
 
