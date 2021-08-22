@@ -551,7 +551,7 @@ function dispatch(text, e, isInteractive, flags)
             /* more than one match, show the list */
             var str = "";
             for (i in ary)
-                str += (str) ? MSG_COMMASP + ary[i].name : ary[i].name;
+                str += (str) ? ", " + ary[i].name : ary[i].name;
             display(getMsg(MSG_ERR_AMBIGCOMMAND,
                            [e.commandText, ary.length, str]), MT_ERROR);
     }
@@ -1457,7 +1457,7 @@ function cmdNetworks(e)
         wrapper.appendChild(newInlineText(linkData, "chatzilla-link", "a"));
 
         if (netnames[n] != lastname)
-            wrapper.appendChild(document.createTextNode(MSG_COMMASP));
+            wrapper.appendChild(document.createTextNode(", "));
     }
 
     // Display an "Edit" link.
@@ -1889,7 +1889,7 @@ function cmdCommands(e)
     display(MSG_COMMANDS_HEADER);
 
     var matchResult = client.commandManager.listNames(e.pattern, CMD_CONSOLE);
-    matchResult = matchResult.join(MSG_COMMASP);
+    matchResult = matchResult.join(", ");
 
     if (e.pattern)
         display(getMsg(MSG_MATCHING_COMMANDS, [e.pattern, matchResult]));
@@ -3399,7 +3399,7 @@ function cmdStalk(e)
             }
 
             list.sort(alphabetize);
-            display(getMsg(MSG_STALK_LIST, list.join(MSG_COMMASP)));
+            display(getMsg(MSG_STALK_LIST, list.join(", ")));
         }
         return;
     }
@@ -3764,17 +3764,17 @@ function cmdSupports(e)
 
     if ("channelTypes" in server)
         display(getMsg(MSG_SUPPORTS_CHANTYPES,
-                       server.channelTypes.join(MSG_COMMASP)));
+                       server.channelTypes.join(", ")));
     if ("channelModes" in server)
     {
         display(getMsg(MSG_SUPPORTS_CHANMODESA,
-                       server.channelModes.a.join(MSG_COMMASP)));
+                       server.channelModes.a.join(", ")));
         display(getMsg(MSG_SUPPORTS_CHANMODESB,
-                       server.channelModes.b.join(MSG_COMMASP)));
+                       server.channelModes.b.join(", ")));
         display(getMsg(MSG_SUPPORTS_CHANMODESC,
-                       server.channelModes.c.join(MSG_COMMASP)));
+                       server.channelModes.c.join(", ")));
         display(getMsg(MSG_SUPPORTS_CHANMODESD,
-                       server.channelModes.d.join(MSG_COMMASP)));
+                       server.channelModes.d.join(", ")));
     }
 
     if ("userModes" in server)
@@ -3787,7 +3787,7 @@ function cmdSupports(e)
                                                       server.userModes[m].symbol
                                                     ]));
         }
-        display(getMsg(MSG_SUPPORTS_USERMODES, list.join(MSG_COMMASP)));
+        display(getMsg(MSG_SUPPORTS_USERMODES, list.join(", ")));
     }
 
     var listB1 = new Array();
@@ -3810,9 +3810,9 @@ function cmdSupports(e)
     listB1.sort();
     listB2.sort();
     listN.sort();
-    display(getMsg(MSG_SUPPORTS_FLAGSON, listB1.join(MSG_COMMASP)));
-    display(getMsg(MSG_SUPPORTS_FLAGSOFF, listB2.join(MSG_COMMASP)));
-    display(getMsg(MSG_SUPPORTS_MISCOPTIONS, listN.join(MSG_COMMASP)));
+    display(getMsg(MSG_SUPPORTS_FLAGSON, listB1.join(", ")));
+    display(getMsg(MSG_SUPPORTS_FLAGSOFF, listB2.join(", ")));
+    display(getMsg(MSG_SUPPORTS_MISCOPTIONS, listN.join(", ")));
 
     var listCaps = new Array();
     var listCapsEnabled = new Array();
@@ -3826,8 +3826,8 @@ function cmdSupports(e)
     {
         listCaps.sort();
         listCapsEnabled.sort();
-        display(getMsg(MSG_SUPPORTS_CAPS, listCaps.join(MSG_COMMASP)));
-        display(getMsg(MSG_SUPPORTS_CAPSON, listCapsEnabled.join(MSG_COMMASP)));
+        display(getMsg(MSG_SUPPORTS_CAPS, listCaps.join(", ")));
+        display(getMsg(MSG_SUPPORTS_CAPSON, listCapsEnabled.join(", ")));
     }
 }
 

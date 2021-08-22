@@ -507,7 +507,7 @@ function onTabCompleteRequest (e)
                 /* then list possible completions, */
                 display(getMsg(MSG_FMT_MATCHLIST,
                                [matches.length, word,
-                                matches.sort().join(MSG_COMMASP)]));
+                                matches.sort().join(", ")]));
             }
             else
             {
@@ -2523,7 +2523,7 @@ function my_cap(e)
             if (listCaps.length > 0)
             {
                 listCaps.sort();
-                this.display(getMsg(MSG_SUPPORTS_CAPS, listCaps.join(MSG_COMMASP)));
+                this.display(getMsg(MSG_SUPPORTS_CAPS, listCaps.join(", ")));
             }
         }
 
@@ -2547,7 +2547,8 @@ function my_cap(e)
         if (listCapsEnabled.length > 0)
         {
             listCapsEnabled.sort();
-            this.display(getMsg(MSG_SUPPORTS_CAPSON, listCapsEnabled.join(MSG_COMMASP)));
+            this.display(getMsg(MSG_SUPPORTS_CAPSON,
+                                listCapsEnabled.join(", ")));
         }
     }
     else if (e.params[2] == "ACK")

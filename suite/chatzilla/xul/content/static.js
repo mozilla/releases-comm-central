@@ -2359,7 +2359,7 @@ function updateTitle (obj)
                        (Number(i) + 1) + "!" : (Number(i) + 1));
         if (actl.length > 0)
             tstring = getMsg(MSG_TITLE_ACTIVITY,
-                             [tstring, actl.join (MSG_COMMASP)]);
+                             [tstring, actl.join (", ")]);
     }
 
     document.title = tstring;
