@@ -2615,20 +2615,20 @@ QuotingOutputStreamListener::SetMimeHeaders(nsIMimeHeaders* headers) {
 
 MOZ_CAN_RUN_SCRIPT nsresult QuotingOutputStreamListener::InsertToCompose(
     nsIEditor* aEditor, bool aHTMLEditor) {
-  // First, get the nsIEditor interface for future use
+  NS_ENSURE_ARG(aEditor);
   nsCOMPtr<nsINode> nodeInserted;
 
   TranslateLineEnding(mMsgBody);
 
   // Now, insert it into the editor...
-  if (aEditor) aEditor->EnableUndo(true);
+  aEditor->EnableUndo(true);
 
   nsCOMPtr<nsIMsgCompose> compose = do_QueryReferent(mWeakComposeObj);
   if (!mMsgBody.IsEmpty() && compose) {
     compose->SetInsertingQuotedContent(true);
     if (!mCitePrefix.IsEmpty()) {
       if (!aHTMLEditor) mCitePrefix.AppendLiteral("\n");
-      if (aEditor) aEditor->InsertText(mCitePrefix);
+      aEditor->InsertText(mCitePrefix);
     }
 
     RefPtr<mozilla::HTMLEditor> htmlEditor = aEditor->AsHTMLEditor();
@@ -2643,37 +2643,33 @@ MOZ_CAN_RUN_SCRIPT nsresult QuotingOutputStreamListener::InsertToCompose(
     compose->SetInsertingQuotedContent(false);
   }
 
-  if (aEditor) {
-    if (aEditor) {
-      RefPtr<Selection> selection;
-      nsCOMPtr<nsINode> parent;
-      int32_t offset;
-      nsresult rv;
+  RefPtr<Selection> selection;
+  nsCOMPtr<nsINode> parent;
+  int32_t offset;
+  nsresult rv;
 
-      // get parent and offset of mailcite
-      rv = GetNodeLocation(nodeInserted, address_of(parent), &offset);
-      NS_ENSURE_SUCCESS(rv, rv);
+  // get parent and offset of mailcite
+  rv = GetNodeLocation(nodeInserted, address_of(parent), &offset);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      // get selection
-      aEditor->GetSelection(getter_AddRefs(selection));
-      if (selection) {
-        // place selection after mailcite
-        selection->CollapseInLimiter(parent, offset + 1);
-        // insert a break at current selection
-        aEditor->InsertLineBreak();
-        selection->CollapseInLimiter(parent, offset + 1);
-      }
-      nsCOMPtr<nsISelectionController> selCon;
-      aEditor->GetSelectionController(getter_AddRefs(selCon));
-
-      if (selCon)
-        // After ScrollSelectionIntoView(), the pending notifications might be
-        // flushed and PresShell/PresContext/Frames may be dead. See bug 418470.
-        selCon->ScrollSelectionIntoView(
-            nsISelectionController::SELECTION_NORMAL,
-            nsISelectionController::SELECTION_ANCHOR_REGION, true);
-    }
+  // get selection
+  aEditor->GetSelection(getter_AddRefs(selection));
+  if (selection) {
+    // place selection after mailcite
+    selection->CollapseInLimiter(parent, offset + 1);
+    // insert a break at current selection
+    aEditor->InsertLineBreak();
+    selection->CollapseInLimiter(parent, offset + 1);
   }
+  nsCOMPtr<nsISelectionController> selCon;
+  aEditor->GetSelectionController(getter_AddRefs(selCon));
+
+  if (selCon)
+    // After ScrollSelectionIntoView(), the pending notifications might be
+    // flushed and PresShell/PresContext/Frames may be dead. See bug 418470.
+    selCon->ScrollSelectionIntoView(
+        nsISelectionController::SELECTION_NORMAL,
+        nsISelectionController::SELECTION_ANCHOR_REGION, true);
 
   return NS_OK;
 }
