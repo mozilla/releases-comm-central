@@ -835,6 +835,7 @@ class GetParentRunnable : public mozilla::Runnable {
 GetParentRunnable::GetParentRunnable(nsIMsgFolder* aFolder,
                                      nsIMsgFolder** aParent)
     : mozilla::Runnable("GetParentRunnable"),
+      mResult(NS_OK),
       m_folder(aFolder),
       m_parent(aParent) {}
 
