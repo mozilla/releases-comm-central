@@ -471,34 +471,25 @@ function SubscribeOKCallback(changeTable) {
 }
 
 function SaveAsFile(uris) {
-  if (uris.length == 1) {
-    let uri = uris[0];
+  let filenames = [];
+
+  for (let uri of uris) {
     let msgHdr = messenger.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
-    let name = msgHdr.mime2DecodedSubject;
-    if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
-      name = name ? "Re: " + name : "Re: ";
-    }
+    let nameBase = GenerateFilenameFromMsgHdr(msgHdr);
+    let name = GenerateValidFilename(nameBase, ".eml");
 
-    let filename = GenerateValidFilename(name, ".eml");
-    messenger.saveAs(uri, true, null, filename);
+    let number = 2;
+    while (filenames.includes(name)) {
+      // should be unlikely
+      name = GenerateValidFilename(nameBase + "-" + number, ".eml");
+      number++;
+    }
+    filenames.push(name);
+  }
+
+  if (uris.length == 1) {
+    messenger.saveAs(uris[0], true, null, filenames[0]);
   } else {
-    let filenames = [];
-    for (let i = 0; i < uris.length; i++) {
-      let msgHdr = messenger
-        .messageServiceFromURI(uris[i])
-        .messageURIToMsgHdr(uris[i]);
-
-      let nameBase = GenerateFilenameFromMsgHdr(msgHdr);
-      let name = GenerateValidFilename(nameBase, ".eml");
-
-      let number = 2;
-      while (filenames.includes(name)) {
-        // should be unlikely
-        name = GenerateValidFilename(nameBase + "-" + number, ".eml");
-        number++;
-      }
-      filenames.push(name);
-    }
     messenger.saveMessages(filenames, uris);
   }
 }
