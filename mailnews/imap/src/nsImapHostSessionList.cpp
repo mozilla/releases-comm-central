@@ -30,6 +30,7 @@ nsIMAPHostInfo::nsIMAPHostInfo(const char* serverKey,
 #else
   fHaveWeEverDiscoveredFolders = false;  // try this, see what bad happens
 #endif
+  fDiscoveryForHostInProgress = false;
   fCanonicalOnlineSubDir = NULL;
   fNamespaceList = nsImapNamespaceList::CreatensImapNamespaceList();
   fUsingSubscription = true;
@@ -292,6 +293,27 @@ NS_IMETHODIMP nsImapHostSessionList::SetHaveWeEverDiscoveredFoldersForHost(
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fHaveWeEverDiscoveredFolders = discovered;
+  PR_ExitMonitor(gCachedHostInfoMonitor);
+  return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
+}
+
+NS_IMETHODIMP nsImapHostSessionList::GetDiscoveryForHostInProgress(
+    const char* serverKey, bool& result) {
+  PR_EnterMonitor(gCachedHostInfoMonitor);
+  nsIMAPHostInfo* host = FindHost(serverKey);
+  if (host)
+    result = host->fDiscoveryForHostInProgress;
+  else
+    result = false;
+  PR_ExitMonitor(gCachedHostInfoMonitor);
+  return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
+}
+
+NS_IMETHODIMP nsImapHostSessionList::SetDiscoveryForHostInProgress(
+    const char* serverKey, bool inProgress) {
+  PR_EnterMonitor(gCachedHostInfoMonitor);
+  nsIMAPHostInfo* host = FindHost(serverKey);
+  if (host) host->fDiscoveryForHostInProgress = inProgress;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
