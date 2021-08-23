@@ -68,6 +68,10 @@ function setAttributeOnChildrenOrTheirCommands(aAttribute, aValue, aElement) {
  * @param aEvent    The popupshowing event of the opening menu.
  */
 function changeContextMenuForTask(aEvent) {
+  if (aEvent.target.id !== "taskitem-context-menu") {
+    return;
+  }
+
   handleTaskContextMenuStateChange(aEvent);
 
   const treeNodeId = aEvent.target.triggerNode.closest(".calendar-task-tree").id;
@@ -122,6 +126,10 @@ function changeContextMenuForTask(aEvent) {
  * @param aEvent    The popupshowing or popuphiding event of the menu.
  */
 function handleTaskContextMenuStateChange(aEvent) {
+  if (aEvent.target.id !== "taskitem-context-menu") {
+    return;
+  }
+
   let tree = aEvent.target.triggerNode.closest(".calendar-task-tree");
 
   if (tree) {
