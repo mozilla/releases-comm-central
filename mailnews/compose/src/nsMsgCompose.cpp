@@ -1331,8 +1331,7 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
       // Set it to null to be sure we won't use it anymore.
       m_editor = nullptr;
     }
-    nsIBaseWindow* window = m_baseWindow;
-    m_baseWindow = nullptr;
+    nsCOMPtr<nsIBaseWindow> window = m_baseWindow.forget();
     rv = window->Destroy();
   }
 
