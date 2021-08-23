@@ -908,6 +908,7 @@ GenerateUniqueSubfolderNameRunnable::GenerateUniqueSubfolderNameRunnable(
     nsIMsgFolder* aFolder, const nsAString& aPrefix, nsIMsgFolder* aOtherFolder,
     nsAString& aName)
     : mozilla::Runnable("GenerateUniqueSubfolderNameRunnable"),
+      mResult(NS_OK),
       m_folder(aFolder),
       m_prefix(aPrefix),
       m_otherFolder(aOtherFolder),
