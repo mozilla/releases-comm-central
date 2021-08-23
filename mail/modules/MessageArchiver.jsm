@@ -21,11 +21,22 @@ function MessageArchiver() {
   this.oncomplete = null;
 }
 
+// Bad things happen if you have multiple archivers running on the same
+// messages (See Bug 1705824). We could probably make this more fine
+// grained, and maintain a list of messages/folders already queued up...
+// but that'd get complex quick, so let's keep things simple for now and
+// only allow one active archiver.
+let gIsArchiving = false;
+
 MessageArchiver.prototype = {
   archiveMessages(aMsgHdrs) {
     if (!aMsgHdrs.length) {
       return;
     }
+    if (gIsArchiving) {
+      throw new Error("Can only have one MessageArchiver running at once");
+    }
+    gIsArchiving = true;
 
     if (this.folderDisplay) {
       this.folderDisplay.hintMassMoveStarting();
@@ -115,6 +126,7 @@ MessageArchiver.prototype = {
       this.filterBatch();
       return;
     }
+    // All done!
     this._batches = null;
     if (this.folderDisplay) {
       this.folderDisplay.hintMassMoveCompleted();
@@ -124,6 +136,7 @@ MessageArchiver.prototype = {
     if (typeof this.oncomplete == "function") {
       this.oncomplete();
     }
+    gIsArchiving = false;
   },
 
   filterBatch() {
