@@ -945,6 +945,7 @@ class CreateSubfolderRunnable : public mozilla::Runnable {
 CreateSubfolderRunnable::CreateSubfolderRunnable(nsIMsgFolder* aFolder,
                                                  const nsAString& aName)
     : mozilla::Runnable("CreateSubfolderRunnable"),
+      mResult(NS_OK),
       m_folder(aFolder),
       m_name(aName) {}
 
