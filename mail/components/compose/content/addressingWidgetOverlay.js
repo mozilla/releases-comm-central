@@ -200,16 +200,13 @@ function updateUIforNNTPAccount() {
   // Hide the closing label.
   newsContainer.querySelector(".remove-field-button").hidden = true;
 
-  // Reorder `mail-label` menu items.
-  let panel = document.getElementById("extraRecipientsPanel");
-  for (let label of document.querySelectorAll(".mail-label")) {
-    panel.appendChild(label);
+  // Prefer showing the buttons for news-show-row-menuitem items.
+  for (let item of document.querySelectorAll(".news-show-row-menuitem")) {
+    showAddressRowMenuItemSetPreferButton(item, true);
   }
 
-  // Reorder `news-label` menu items.
-  let extraRecipients = document.querySelector(".address-extra-recipients");
-  for (let label of document.querySelectorAll(".news-label")) {
-    extraRecipients.prepend(label);
+  for (let item of document.querySelectorAll(".mail-show-row-menuitem")) {
+    showAddressRowMenuItemSetPreferButton(item, false);
   }
 }
 
@@ -239,18 +236,13 @@ function updateUIforMailAccount() {
   // Show the closing label.
   newsContainer.querySelector(".remove-field-button").hidden = false;
 
-  // Reorder `mail-label` menu items.
-  let panel = document.getElementById("extraRecipientsPanel");
-  for (let label of document.querySelectorAll(".news-label")) {
-    panel.appendChild(label);
+  // Prefer showing the buttons for mail-show-row-menuitem items.
+  for (let item of document.querySelectorAll(".mail-show-row-menuitem")) {
+    showAddressRowMenuItemSetPreferButton(item, true);
   }
 
-  // Reorder `news-label` menu items.
-  let extraRecipients = document.getElementById(
-    "addressingWidgetSwappableLabels"
-  );
-  for (let label of document.querySelectorAll(".mail-label")) {
-    extraRecipients.appendChild(label);
+  for (let item of document.querySelectorAll(".news-show-row-menuitem")) {
+    showAddressRowMenuItemSetPreferButton(item, false);
   }
 }
 
@@ -1053,7 +1045,7 @@ function emailAddressPillOnPopupShown() {
 
 /**
  * Toggles display of the relevant pill context menu items that are not
- * dependant on selection.
+ * dependent on selection.
  *
  * @param {Event} event
  */
@@ -1061,49 +1053,6 @@ function onPillPopupShowing(event) {
   // Show the "Expand List" menu item if the node clicked on is a mail list.
   let pill = event.explicitOriginalTarget.closest("mail-address-pill");
   document.getElementById("expandList").hidden = !pill || !pill.isMailList;
-}
-
-/**
- * Handle the keypress event on the recipient labels for keyboard navigation and
- * to show the container row of a hidden recipient field (Cc, Bcc, etc.).
- *
- * @param {Event} event - The DOM keypress event.
- * @param {string} rowID - The ID of the container to reveal on Enter.
- */
-function showAddressRowKeyPress(event, rowID) {
-  switch (event.key) {
-    case "Enter":
-      showAndFocusAddressRow(rowID);
-      break;
-    case "ArrowUp":
-    case "ArrowDown":
-    case "ArrowRight":
-    case "ArrowLeft":
-      let label = event.target;
-      // Convert nodelist into an array to tame the beast and use .indexOf().
-      let focusable = [
-        ...label.parentElement.querySelectorAll(
-          ".recipient-label:not([collapsed='true'])"
-        ),
-      ];
-      let lastIndex = focusable.length - 1;
-      // Bail out if there's only one item left, so nowhere to go with focus.
-      if (lastIndex == 0) {
-        break;
-      }
-      // Move focus inside the panel focus ring.
-      let index = focusable.indexOf(label);
-      let newIndex;
-      if (event.key == "ArrowDown" || event.key == "ArrowRight") {
-        newIndex = index == lastIndex ? 0 : ++index;
-      } else {
-        newIndex = index == 0 ? lastIndex : --index;
-      }
-      focusable[newIndex].focus();
-      // Prevent the keys from being handled again by our listeners on the panel.
-      event.stopPropagation();
-      break;
-  }
 }
 
 /**
@@ -1128,21 +1077,84 @@ function showAndFocusAddressRow(rowId) {
  * @return {boolean} - Whether the visibility was set.
  */
 function addressRowSetVisibility(row, show) {
-  let label = document.getElementById(row.dataset.recipienttype);
-  if (show && label.hasAttribute("disabled")) {
+  let menuItem = document.getElementById(row.dataset.showSelfMenuitem);
+  if (show && menuItem.hasAttribute("disabled")) {
     return false;
   }
 
-  // Show/hide the row and hide/show the label.
+  // Show/hide the row and hide/show the menuitem or button
   row.classList.toggle("hidden", !show);
-  if (show) {
-    label.setAttribute("collapsed", "true");
+  showAddressRowMenuItemSetVisibility(menuItem, !show);
+  return true;
+}
+
+/**
+ * Set the visibility of a menu item that shows an address row.
+ *
+ * @param {Element} menuItem - The menu item.
+ * @param {boolean} [show=true] - Whether to show the item or hide it.
+ */
+function showAddressRowMenuItemSetVisibility(menuItem, show) {
+  let buttonId = menuItem.dataset.buttonId;
+  let button = buttonId && document.getElementById(buttonId);
+  if (button && menuItem.dataset.preferButton == "true") {
+    button.hidden = !show;
+    // Make sure the menuItem is never shown.
+    menuItem.hidden = true;
   } else {
-    label.removeAttribute("collapsed");
+    menuItem.hidden = !show;
+    if (button) {
+      button.hidden = true;
+    }
   }
 
-  updateRecipientsPanelVisibility();
-  return true;
+  updateRecipientsVisibility();
+}
+
+/**
+ * Set whether a menu item that shows an address row should prefer being
+ * displayed as the button specified by its "data-button-id" attribute, if it
+ * has one.
+ *
+ * @param {Element} menuItem - The menu item.
+ * @param {boolean} preferButton - Whether to prefer showing the button rather
+ *   than the menu item.
+ */
+function showAddressRowMenuItemSetPreferButton(menuItem, preferButton) {
+  let buttonId = menuItem.dataset.buttonId;
+  if (!buttonId || menuItem.dataset.preferButton == String(preferButton)) {
+    return;
+  }
+  let button = document.getElementById(buttonId);
+
+  menuItem.dataset.preferButton = preferButton;
+  if (preferButton) {
+    button.hidden = menuItem.hidden;
+    menuItem.hidden = true;
+  } else {
+    menuItem.hidden = button.hidden;
+    button.hidden = true;
+  }
+
+  updateRecipientsVisibility();
+}
+
+/**
+ * Hide or show the menu button for the extra recipients based on the current
+ * hidden status of menuitems and buttons.
+ */
+function updateRecipientsVisibility() {
+  document.getElementById(
+    "extraAddressRowsMenuButton"
+  ).hidden = !document.querySelector("#extraAddressRowsMenu > :not([hidden])");
+
+  let buttonbox = document.getElementById("extraAddressRowsArea");
+  // Toggle the class to show/hide the pseudo element separator
+  // of the msgIdentity field.
+  buttonbox.classList.toggle(
+    "addressingWidget-separator",
+    !!buttonbox.querySelector("button:not([hidden])")
+  );
 }
 
 /**
@@ -1312,106 +1324,24 @@ function setDefaultHeaderMinHeight() {
   header.style.minHeight = `${header.clientHeight}px`;
 }
 
-/**
- * Handle keypress event on a label inside #extraRecipientsPanel.
- *
- * @param {event} event - The DOM keypress event on the label.
- */
-function extraRecipientsLabelOnKeyPress(event) {
-  switch (event.key) {
-    case "Enter":
-    case "ArrowRight":
-    case "ArrowDown":
-      // Open the extra recipients panel.
-      showExtraRecipients(event);
-      break;
-    case "ArrowLeft":
-    case "ArrowUp":
-      // Allow navigating away from focused extraRecipientsLabel using cursor
-      // keys.
-      let focusable = event.currentTarget.parentElement.querySelectorAll(
-        '.recipient-label:not([collapsed="true"],.extra-recipients-label)'
-      );
-      let focusEl = focusable[focusable.length - 1];
-      if (focusEl) {
-        focusEl.focus();
-      }
-      break;
-  }
-}
-
-/**
- * Show the #extraRecipientsPanel.
- *
- * @param {Event} event - The DOM event.
- */
-function showExtraRecipients(event) {
-  if (event.currentTarget.hasAttribute("disabled")) {
-    return;
-  }
-
-  let panel = document.getElementById("extraRecipientsPanel");
-  // If panel was opened with keyboard, focus first recipient label;
-  // otherwise focus the panel [tabindex=0] to enable keyboard navigation.
-  panel.addEventListener(
-    "popupshown",
-    () => {
-      (event.type == "keypress"
-        ? panel.querySelector('.recipient-label:not([collapsed="true"])')
-        : panel
-      ).focus();
-    },
-    { once: true }
-  );
-  panel.openPopup(event.target, "after_end", -8, 0, true);
-}
-
-/**
- * Handle keypress event on #extraRecipientsPanel.
- *
- * @param {event} event - The DOM keypress event on the panel.
- */
-function extraRecipientsPanelOnKeyPress(event) {
-  switch (event.key) {
-    case "Enter":
-      event.currentTarget.hidePopup();
-      break;
-
-    // Ensure access to panel focus ring after *click* on extraRecipientsLabel.
-    case "ArrowDown":
-      // Focus first focusable recipient label.
-      event.currentTarget
-        .querySelector('.recipient-label:not([collapsed="true"])')
-        .focus();
-      break;
-    case "ArrowUp":
-      // Focus last focusable recipient label.
-      let focusable = event.currentTarget.querySelectorAll(
-        '.recipient-label:not([collapsed="true"])'
-      );
-      focusable[focusable.length - 1].focus();
-      break;
-  }
-}
-
-/**
- * Hide or show the panel and overflow button for the extra recipients
- * based on the currently available labels.
- */
-function updateRecipientsPanelVisibility() {
-  document.getElementById("extraRecipientsLabel").collapsed =
-    document
-      .getElementById("extraRecipientsPanel")
-      .querySelectorAll('label:not([collapsed="true"])').length == 0;
-
-  // Toggle the class to show/hide the pseudo element separator
-  // of the msgIdentity field.
+function extraAddressRowsMenuOpened() {
   document
-    .getElementById("addressingWidgetLabelBox")
-    .classList.toggle(
-      "addressingWidget-separator",
-      document
-        .getElementById("addressingWidgetLabels")
-        .querySelector('label:not([collapsed="true"])')
-    );
+    .getElementById("extraAddressRowsMenuButton")
+    .setAttribute("aria-expanded", "true");
+}
+
+function extraAddressRowsMenuClosed() {
+  document
+    .getElementById("extraAddressRowsMenuButton")
+    .setAttribute("aria-expanded", "false");
+}
+
+/**
+ * Show the menu for extra address rows (extraAddressRowsMenu).
+ */
+function openExtraAddressRowsMenu() {
+  let button = document.getElementById("extraAddressRowsMenuButton");
+  let menu = document.getElementById("extraAddressRowsMenu");
+  // NOTE: menu handlers handle the aria-expanded state of the button.
+  menu.openPopup(button, "after_end", 8, 0, true);
 }

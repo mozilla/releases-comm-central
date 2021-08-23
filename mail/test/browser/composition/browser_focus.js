@@ -37,9 +37,9 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
   let attachmentElement = controller.e("attachmentBucket");
   let editorElement = controller.e("content-frame");
   let identityElement = controller.e("msgIdentity");
-  let extraRecipientsLabel = controller.e("extraRecipientsLabel");
-  let bccLabel = controller.e("addr_bcc");
-  let ccLabel = controller.e("addr_cc");
+  let extraAddressRowsMenuButton = controller.e("extraAddressRowsMenuButton");
+  let bccButton = controller.e("addr_bccShowAddressRowButton");
+  let ccButton = controller.e("addr_ccShowAddressRowButton");
 
   let key = ctrlTab ? "VK_TAB" : "VK_F6";
 
@@ -76,17 +76,17 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
   // Handle possible interaction with the Extra Recipients labels.
   if (ctrlTab) {
     Assert.equal(
-      extraRecipientsLabel,
+      extraAddressRowsMenuButton,
       controller.window.WhichElementHasFocus()
     );
 
     // From Extra Recipients to Bcc.
     EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
-    Assert.equal(bccLabel, controller.window.WhichElementHasFocus());
+    Assert.equal(bccButton, controller.window.WhichElementHasFocus());
 
     // From Bcc to Cc.
     EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
-    Assert.equal(ccLabel, controller.window.WhichElementHasFocus());
+    Assert.equal(ccButton, controller.window.WhichElementHasFocus());
 
     EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
   }

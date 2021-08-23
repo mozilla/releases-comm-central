@@ -121,7 +121,8 @@ panelview:not([mainview]) .toolbarbutton-text,
 }
 
 .cui-widget-panel {
-  --arrowpanel-padding: 4px 0;
+  /* Complement the .subviewbutton margin. */
+  --arrowpanel-padding: 8px 0;
 }
 
 #appMenu-popup panelview,

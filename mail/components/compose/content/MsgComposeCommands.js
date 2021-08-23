@@ -4076,7 +4076,7 @@ function ComposeLoad() {
   });
 
   if (otherHeaders) {
-    let extraRecipientsPanel = document.getElementById("extraRecipientsPanel");
+    let extraAddressRowsMenu = document.getElementById("extraAddressRowsMenu");
     let recipientsContainer = document.getElementById("recipientsContainer");
 
     let existingTypes = Array.from(
@@ -4097,13 +4097,14 @@ function ComposeLoad() {
         labelId: `${header}AddrLabel`,
         containerId: `${header}AddrContainer`,
         inputId: `${header}AddrInput`,
+        showRowMenuItemId: `${header}ShowAddressRowMenuItem`,
         type: header,
       };
 
-      extraRecipientsPanel.appendChild(createRecipientLabel(header));
-      recipientsContainer.appendChild(
-        recipientsContainer.buildRecipientRow(recipient, true)
-      );
+      let newEls = recipientsContainer.buildRecipientRow(recipient, true);
+
+      recipientsContainer.appendChild(newEls.row);
+      extraAddressRowsMenu.appendChild(newEls.showRowMenuItem);
     }
   }
 
@@ -4176,36 +4177,48 @@ function setComposeLabelsAndMenuItems() {
   // To field.
   document.l10n.setAttributes(
     document.getElementById("menu_showToField"),
-    "to-compose-show-address-row-menuitem",
+    "show-to-row-main-menuitem",
     { key: SHOW_TO_KEY }
   );
   document.l10n.setAttributes(
-    document.getElementById("addr_to"),
-    "to-compose-show-address-row-label",
+    document.getElementById("addr_toShowAddressRowMenuItem"),
+    "show-to-row-extra-menuitem"
+  );
+  document.l10n.setAttributes(
+    document.getElementById("addr_toShowAddressRowButton"),
+    "show-to-row-button",
     { key: SHOW_TO_KEY }
   );
 
   // Cc field.
   document.l10n.setAttributes(
     document.getElementById("menu_showCcField"),
-    "cc-compose-show-address-row-menuitem",
+    "show-cc-row-main-menuitem",
     { key: SHOW_CC_KEY }
   );
   document.l10n.setAttributes(
-    document.getElementById("addr_cc"),
-    "cc-compose-show-address-row-label",
-    { key: SHOW_CC_KEY }
+    document.getElementById("addr_ccShowAddressRowMenuItem"),
+    "show-cc-row-extra-menuitem"
+  );
+  document.l10n.setAttributes(
+    document.getElementById("addr_ccShowAddressRowButton"),
+    "show-cc-row-button",
+    { key: SHOW_TO_KEY }
   );
 
   // Bcc field.
   document.l10n.setAttributes(
     document.getElementById("menu_showBccField"),
-    "bcc-compose-show-address-row-menuitem",
+    "show-bcc-row-main-menuitem",
     { key: SHOW_BCC_KEY }
   );
   document.l10n.setAttributes(
-    document.getElementById("addr_bcc"),
-    "bcc-compose-show-address-row-label",
+    document.getElementById("addr_bccShowAddressRowMenuItem"),
+    "show-bcc-row-extra-menuitem"
+  );
+  document.l10n.setAttributes(
+    document.getElementById("addr_bccShowAddressRowButton"),
+    "show-bcc-row-button",
     { key: SHOW_BCC_KEY }
   );
 }
@@ -4467,34 +4480,6 @@ function updateTooltipsOfAddressRow(row) {
   let type = row.querySelector(".address-label-container > label").value;
   let el = row.querySelector(".remove-field-button");
   document.l10n.setAttributes(el, "remove-address-row-button", { type });
-}
-
-/**
- * Create a custom recipient label to add in the compose window.
- *
- * @param {string} labelID - The unique identifier of the custom email header.
- * @returns {Element} The newly created label.
- */
-function createRecipientLabel(labelID) {
-  let label = document.createXULElement("label");
-  label.setAttribute("id", labelID);
-  label.classList.add("recipient-label");
-  label.setAttribute("role", "button");
-  label.setAttribute("disableonsend", true);
-  label.setAttribute("value", labelID);
-
-  label.addEventListener("click", () => {
-    showAndFocusAddressRow(`addressRow${labelID}`);
-  });
-  label.addEventListener("keypress", event => {
-    showAddressRowKeyPress(event, `addressRow${labelID}`);
-  });
-  label.setAttribute("control", `${labelID}AddrInput`);
-
-  // Necessary to allow focus via TAB key or cursor keys.
-  label.setAttribute("tabindex", 0);
-
-  return label;
 }
 
 function onSendSMIME() {
@@ -5169,7 +5154,7 @@ function pillifyRecipients() {
  *
  *  @param {Event} - The DOM dragover event on a recipient disclosure label.
  */
-function recipientLabelOnDragover(event) {
+function showAddressRowButtonOnDragover(event) {
   // Prevent dragover event's default action (which resets the current drag
   // operation to "none").
   event.preventDefault();
@@ -5180,7 +5165,7 @@ function recipientLabelOnDragover(event) {
  *
  *  @param {Event} - The DOM drop event on a recipient disclosure label.
  */
-function recipientLabelOnDrop(event) {
+function showAddressRowButtonOnDrop(event) {
   if (event.dataTransfer.types.includes("text/pills")) {
     // If the dragged data includes the type "text/pills", we believe that
     // the user is dragging our own pills, so we try to move the selected pills
@@ -7662,16 +7647,16 @@ function DetermineConvertibility() {
  *   as the sending account.
  */
 function hideIrrelevantAddressingOptions(accountKey, prevKey) {
-  let hideNews = true;
+  let showNews = false;
   for (let account of MailServices.accounts.accounts) {
     if (account.incomingServer.type == "nntp") {
-      hideNews = false;
+      showNews = true;
     }
   }
   // If there is no News (NNTP) account existing then
-  // hide the Newsgroup and Followup-To recipient type in all the menulists.
-  for (let item of document.querySelectorAll(".news-label")) {
-    item.collapsed = hideNews;
+  // hide the Newsgroup and Followup-To recipient type menuitems.
+  for (let item of document.querySelectorAll(".news-show-row-menuitem")) {
+    showAddressRowMenuItemSetVisibility(item, showNews);
   }
 
   let account = MailServices.accounts.getAccount(accountKey);
@@ -7687,8 +7672,6 @@ function hideIrrelevantAddressingOptions(accountKey, prevKey) {
   if (accountType != "nntp" && prevKey != "") {
     updateUIforMailAccount();
   }
-
-  updateRecipientsPanelVisibility();
 }
 
 function LoadIdentity(startup) {
@@ -8713,9 +8696,9 @@ function WhichElementHasFocus() {
       currentNode == document.getElementById("followupAddrInput") ||
       currentNode == document.getElementById("msgSubject") ||
       currentNode == document.getElementById("attachmentBucket") ||
-      currentNode == document.getElementById("extraRecipientsLabel") ||
-      currentNode == document.getElementById("addr_bcc") ||
-      currentNode == document.getElementById("addr_cc") ||
+      currentNode == document.getElementById("extraAddressRowsMenuButton") ||
+      currentNode == document.getElementById("addr_bccShowAddressRowButton") ||
+      currentNode == document.getElementById("addr_ccShowAddressRowButton") ||
       currentNode == document.getElementById("status-bar") ||
       currentNode == sidebarDocumentGetElementById("abContactsPanel")
     ) {

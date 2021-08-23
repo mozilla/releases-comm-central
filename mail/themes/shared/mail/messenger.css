@@ -563,6 +563,16 @@ menulist::part(label-box) {
  font-weight: inherit;
 }
 
+menupopup.no-accel-menupopup .menu-accel-container {
+  display: none;
+}
+
+/* NOTE: the menuitem children must be constructed with the menuitem-iconic
+ * class so that this rule can hide the icon container. */
+menupopup.no-icon-menupopup .menu-iconic-left {
+  display: none;
+}
+
 /* Buttons */
 
 button {

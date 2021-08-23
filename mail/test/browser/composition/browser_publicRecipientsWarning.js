@@ -62,7 +62,7 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_cc"),
+    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -115,7 +115,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_cc"),
+    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -264,7 +264,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_cc"),
+    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -339,7 +339,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_cc"),
+    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -420,7 +420,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_cc"),
+    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
     {},
     cwc.window
   );

@@ -1917,7 +1917,7 @@
 
     /**
      * If this pill is for a mail list, this provides the total count of
-     * its addreses.
+     * its addresses.
      * @type {number}
      */
     listAddressCount = 0;
@@ -2346,20 +2346,21 @@
       }
 
       // Force the focus on the first available input field if Tab is
-      // pressed on the extraRecipientsLabel label.
+      // pressed on the extraAddressRowsMenuButton label.
       document
-        .getElementById("extraRecipientsLabel")
+        .getElementById("extraAddressRowsMenuButton")
         .addEventListener("keypress", event => {
           if (event.key == "Tab" && !event.shiftKey) {
             event.preventDefault();
             let row = this.querySelector(".address-row:not(.hidden)");
-            // If the close label is collapsed, focus on the input field.
-            if (row.querySelector(".remove-field-button").hidden) {
+            let removeFieldButton = row.querySelector(".remove-field-button");
+            // If the close button is hidden, focus on the input field.
+            if (removeFieldButton.hidden) {
               row.querySelector(".address-row-input").focus();
               return;
             }
-            // Focus on the close label.
-            row.querySelector(".remove-field-button").focus();
+            // Focus on the close button.
+            removeFieldButton.focus();
           }
         });
 
@@ -2596,11 +2597,13 @@
     }
 
     /**
-     * Create a new recipient row container with a row input.
+     * Create a new address row and a menuitem for revealing it.
      *
      * @param {Object} recipient - An object for various element attributes.
      * @param {boolean} rawInput - A flag to disable pills and autocompletion.
-     * @return {Element} - The newly created recipient row.
+     * @return {Object} - The newly created elements.
+     * @property {Element} row - The address row.
+     * @property {Element} showRowMenuItem - The menu item that shows the row.
      */
     // NOTE: This is currently never called with rawInput = false, so it may be
     // out of date if used.
@@ -2720,7 +2723,20 @@
       inputContainer.appendChild(input);
       row.appendChild(inputContainer);
 
-      return row;
+      // Create the menuitem that shows the row on selection.
+      let showRowMenuItem = document.createXULElement("menuitem");
+      showRowMenuItem.classList.add("subviewbutton", "menuitem-iconic");
+      showRowMenuItem.setAttribute("id", recipient.showRowMenuItemId);
+      showRowMenuItem.setAttribute("disableonsend", true);
+      showRowMenuItem.setAttribute("label", recipient.type);
+
+      showRowMenuItem.addEventListener("command", () =>
+        showAndFocusAddressRow(row.id)
+      );
+
+      row.dataset.showSelfMenuitem = showRowMenuItem.id;
+
+      return { row, showRowMenuItem };
     }
 
     /**
@@ -3314,21 +3330,18 @@
         }
         previousRow = previousRow.previousElementSibling;
       }
-      // Move the focus on the extra recipients label if not collapsed
-      if (!document.querySelector(".extra-recipients-label").collapsed) {
-        document.querySelector(".extra-recipients-label").focus();
+      // Move the focus on the previous button: either the
+      // extraAddressRowsMenuButton, or one of "<type>ShowAddressRowButton".
+      let buttons = document.querySelectorAll(
+        "#extraAddressRowsArea button:not([hidden])"
+      );
+      if (buttons.length) {
+        // Select the last available label.
+        buttons[buttons.length - 1].focus();
         return;
       }
       // Move the focus on the msgIdentity if no extra recipients are available.
-      let labels = document
-        .querySelector(".address-extra-recipients")
-        .querySelectorAll(`label:not([collapsed="true"])`);
-      if (labels.length == 0) {
-        document.getElementById("msgIdentity").focus();
-        return;
-      }
-      // Select the last available label.
-      labels[labels.length - 1].focus();
+      document.getElementById("msgIdentity").focus();
     }
   }
 

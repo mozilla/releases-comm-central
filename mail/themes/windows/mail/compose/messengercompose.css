@@ -110,11 +110,6 @@
     .address-pill:not([selected],.editing):hover .pill-indicator {
     fill: Highlight;
   }
-
-  #extraRecipientsPanel label:hover,
-  #extraRecipientsPanel label:focus {
-    color: HighlightText;
-  }
 }
 
 #identityLabel-box {

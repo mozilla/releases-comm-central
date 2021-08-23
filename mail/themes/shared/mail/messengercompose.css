@@ -825,7 +825,20 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   background-position: 5px;
 }
 
-#addressingWidgetLabelBox.addressingWidget-separator::before {
+#extraAddressRowsArea {
+  /* Contains the main recipient buttons, plus the button to reveal the
+   * overflow. */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-inline-end: 6px;
+}
+
+#extraAddressRowsArea > * {
+  flex: 0 0 auto;
+}
+
+#extraAddressRowsArea.addressingWidget-separator::before {
   display: block;
   content: '';
   width: 1px;
@@ -1034,74 +1047,57 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   display: flex;
 }
 
-.address-extra-recipients label {
-  border-radius: var(--toolbarbutton-border-radius);
-  padding: 2px 4px;
-  margin-block: 0;
-  margin-inline: 12px 6px;
-  transition: color 0.2s;
-  line-height: 1;
+.recipient-button {
+  white-space: nowrap;
+  text-align: start;
 }
 
-.address-extra-recipients label:not([collapsed]) + label {
-  margin-inline-start: 5px;
-}
-
-.overflow-icon {
-  appearance: none;
-  -moz-context-properties: fill, fill-opacity;
-  list-style-image: url(chrome://messenger/skin/icons/overflow.svg);
-  color: inherit !important;
-  fill: currentColor;
-  fill-opacity: 1;
-  width: 15px;
-}
-
-label.extra-recipients-label {
-  width: 16px;
-  height: 16px;
-  margin-inline: 6px;
-}
-
-.address-extra-recipients label:hover {
-  cursor: pointer;
-  background: var(--toolbarbutton-hover-background);
-}
-
-.extra-recipients-label image {
-  display: inline;
-  vertical-align: middle;
-}
-
-#extraRecipientsPanel {
+#extraAddressRowsMenu {
   min-width: 160px;
 }
 
-#extraRecipientsPanel {
-  --arrowpanel-padding: 5px;
+.overflow-icon {
+  width: 16px;
+  height: 16px;
+  color: inherit;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 1;
 }
 
-#extraRecipientsPanel label {
-  padding: 4px 8px;
-  margin: 0;
-  width: 100%;
-  cursor: pointer;
-  border-radius: var(--toolbarbutton-border-radius);
-  transition: background 0.2s;
+.overflow-icon:-moz-locale-dir(rtl) {
+  transform: scaleX(-1);
 }
 
-#extraRecipientsPanel label:hover,
-#extraRecipientsPanel label:focus {
-  background-color: var(--arrowpanel-dimmed);
+button#extraAddressRowsMenuButton[aria-expanded="true"] {
+  /* Show as toggled on when the overflow is expanded. */
+  background: var(--toolbarbutton-active-background);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
 }
 
-#extraRecipientsPanel label:hover:active {
-  background-color: var(--arrowpanel-dimmed-further);
+/* Overwrite some button.icon-button styling rules. */
+button.icon-button:is(
+  #extraAddressRowsMenuButton,
+  .remove-field-button,
+  .recipient-button
+) {
+  border-radius: 3px;
 }
 
-button.icon-button.remove-field-button {
+button.icon-button:is(#extraAddressRowsMenuButton, .remove-field-button) {
   padding: 2px;
-  border-radius: 4px;
+}
+
+button.icon-button.recipient-button {
+  padding: 2px 4px;
+}
+
+button.icon-button:is(
+  #extraAddressRowsMenuButton,
+  .remove-field-button,
+  .recipient-button
+):focus-visible {
+  outline: 2px solid var(--focus-outline-color);
 }
 
 .remove-field-button > img {
@@ -1109,11 +1105,6 @@ button.icon-button.remove-field-button {
   fill: currentColor;
   width: 16px;
   height: 16px;
-}
-
-.address-extra-recipients label:focus,
-button.remove-field-button:focus {
-  outline: 2px solid var(--focus-outline-color);
 }
 
 #msgIdentity:hover {

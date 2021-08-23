@@ -47,27 +47,73 @@ add_task(function setupModule(module) {
 /**
  * Check if the address type items are in the wished state.
  *
- * @param aItemsEnabled  List of item values that should be enabled (uncollapsed).
+ * @param {Window} win - The window to search in.
+ * @param {string[]} itemsEnabled - List of item values that should be visible.
  */
-function check_address_types_state(aItemsEnabled) {
-  let addr_types = document.querySelectorAll("label.recipient-label");
-  for (let item of addr_types) {
-    Assert.ok(item.collapsed != aItemsEnabled.includes(item.id));
+function check_address_types_state(win, itemsEnabled) {
+  for (let item of win.document.querySelectorAll(
+    "#extraAddressRowsMenu > menuitem"
+  )) {
+    let buttonId = item.dataset.buttonId;
+    let showRowEl;
+    if (buttonId) {
+      let button = win.document.getElementById(buttonId);
+      if (item.dataset.preferButton == "true") {
+        showRowEl = button;
+        Assert.ok(item.hidden, `${item.id} menuitem should be hidden`);
+      } else {
+        showRowEl = item;
+        Assert.ok(button.hidden, `${button.id} button should be hidden`);
+      }
+    } else {
+      showRowEl = item;
+    }
+
+    let type = item.id.replace(/ShowAddressRowMenuItem$/, "");
+
+    let expectShown = itemsEnabled.includes(type);
+    let row = win.document.querySelector(
+      `.address-row[data-recipienttype="${type}"]`
+    );
+    if (expectShown) {
+      // Either the row or the element that shows it should be visible, but not
+      // both.
+      if (row.classList.contains("hidden")) {
+        Assert.ok(
+          !showRowEl.hidden,
+          `${showRowEl.id} should be visible when the row is hidden`
+        );
+      } else {
+        Assert.ok(
+          showRowEl.hidden,
+          `${showRowEl.id} should be hidden when the row is visible`
+        );
+      }
+    } else {
+      // Both the row and the element that shows it should be hidden.
+      Assert.ok(row.classList.contains("hidden"), `${row.id} should be hidden`);
+      Assert.ok(showRowEl.hidden, `${showRowEl.id} should be hidden`);
+    }
   }
 }
 
 /**
  * With only a POP3 account, no News related address types should be enabled.
  */
-function check_mail_address_types() {
-  check_address_types_state(["addr_to", "addr_cc", "addr_reply", "addr_bcc"]);
+function check_mail_address_types(win) {
+  check_address_types_state(win, [
+    "addr_to",
+    "addr_cc",
+    "addr_reply",
+    "addr_bcc",
+  ]);
 }
 
 /**
  * With a NNTP account, all address types should be enabled.
  */
-function check_nntp_address_types() {
-  check_address_types_state([
+function check_nntp_address_types(win) {
+  check_address_types_state(win, [
     "addr_to",
     "addr_cc",
     "addr_reply",
@@ -128,7 +174,7 @@ add_task(async function test_address_types() {
   // Open compose window on the existing POP3 account.
   be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
-  check_mail_address_types();
+  check_mail_address_types(cwc.window);
   close_compose_window(cwc);
 
   add_NNTP_account();
@@ -137,7 +183,7 @@ add_task(async function test_address_types() {
   // regardless of which account is used of composing (bug 922614).
   be_in_folder(accountNNTP.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
-  check_nntp_address_types();
+  check_nntp_address_types(cwc.window);
   check_collapsed_pop_recipient(cwc);
   close_compose_window(cwc);
 
@@ -145,14 +191,14 @@ add_task(async function test_address_types() {
   // inside compose window.
   be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
-  check_nntp_address_types();
+  check_nntp_address_types(cwc.window);
 
   let NNTPidentity = accountNNTP.defaultIdentity.key;
   cwc.click(cwc.e("msgIdentity"));
   await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: NNTPidentity },
   ]);
-  check_nntp_address_types();
+  check_nntp_address_types(cwc.window);
 
   // Switch back to the POP3 account.
   let POP3identity = accountPOP3.defaultIdentity.key;
@@ -160,7 +206,7 @@ add_task(async function test_address_types() {
   await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: POP3identity },
   ]);
-  check_nntp_address_types();
+  check_nntp_address_types(cwc.window);
 
   close_compose_window(cwc);
 
@@ -169,7 +215,7 @@ add_task(async function test_address_types() {
   // Now the NNTP account is lost, so we should be back to mail only addresses.
   be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
-  check_mail_address_types();
+  check_mail_address_types(cwc.window);
   close_compose_window(cwc);
 });
 
@@ -414,7 +460,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   // Click on the Cc recipient label.
   let ccInput = cwc.window.document.getElementById("ccAddrInput");
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_cc"),
+    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -429,7 +475,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   // Click on the Bcc recipient label.
   let bccInput = cwc.window.document.getElementById("bccAddrInput");
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bcc"),
+    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -595,7 +641,7 @@ add_task(async function test_pill_deletion_and_focus() {
 
   // Reveal and test the Cc field.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_cc"),
+    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -608,7 +654,7 @@ add_task(async function test_pill_deletion_and_focus() {
 
   // Reveal and test the Bcc field.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bcc"),
+    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
     {},
     cwc.window
   );

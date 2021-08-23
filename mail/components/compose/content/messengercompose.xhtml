@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messengercompose/messengercompose.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/customizableui/panelUI.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
@@ -569,26 +570,48 @@
                  command="cmd_sortAttachmentsToggle"/>
 </panel>
 
-<panel id="extraRecipientsPanel" type="arrow" orient="vertical"
-       tabindex="0"
-       onkeypress="extraRecipientsPanelOnKeyPress(event);"
-       onclick="this.hidePopup();">
-  <label id="addr_reply" value="&replyAddr2.label;" role="button"
-         class="recipient-label"
-         onclick="showAndFocusAddressRow('addressRowReply')"
-         onkeypress="showAddressRowKeyPress(event, 'addressRowReply')"
-         control="replyAddrInput"/>
-  <label id="addr_newsgroups" value="&newsgroupsAddr2.label;" role="button"
-         class="news-label news-primary-label recipient-label"
-         onclick="showAndFocusAddressRow('addressRowNewsgroups')"
-         onkeypress="showAddressRowKeyPress(event, 'addressRowNewsgroups')"
-         control="newsgroupsAddrInput"/>
-  <label id="addr_followup" value="&followupAddr2.label;" role="button"
-         class="news-label recipient-label"
-         onclick="showAndFocusAddressRow('addressRowFollowup')"
-         onkeypress="showAddressRowKeyPress(event, 'addressRowFollowup')"
-         control="followupAddrInput"/>
-</panel>
+<menupopup id="extraAddressRowsMenu" type="arrow"
+           class="no-icon-menupopup no-accel-menupopup cui-widget-panel panel-no-padding panel-block-padding"
+           onpopupshown="extraAddressRowsMenuOpened();"
+           onpopuphidden="extraAddressRowsMenuClosed();">
+  <!-- Default set up is for a mail account, where we prefer showing the
+     - buttons, rather than the menu items, for the mail rows.
+     - For the news rows, we prefer the menu items over the buttons. -->
+  <menuitem id="addr_replyShowAddressRowMenuItem"
+            class="subviewbutton menuitem-iconic"
+            oncommand="showAndFocusAddressRow('addressRowReply')"
+            label="&replyAddr2.label;"/>
+  <menuitem id="addr_toShowAddressRowMenuItem" disableonsend="true"
+            class="mail-show-row-menuitem subviewbutton menuitem-iconic"
+            oncommand="showAndFocusAddressRow('addressRowTo')"
+            hidden="true"
+            data-button-id="addr_toShowAddressRowButton"
+            data-prefer-button="true"/>
+  <menuitem id="addr_ccShowAddressRowMenuItem" disableonsend="true"
+            class="mail-show-row-menuitem subviewbutton menuitem-iconic"
+            oncommand="showAndFocusAddressRow('addressRowCc')"
+            hidden="true"
+            data-button-id="addr_ccShowAddressRowButton"
+            data-prefer-button="true"/>
+  <menuitem id="addr_bccShowAddressRowMenuItem" disableonsend="true"
+            class="mail-show-row-menuitem subviewbutton menuitem-iconic"
+            oncommand="showAndFocusAddressRow('addressRowBcc')"
+            hidden="true"
+            data-button-id="addr_bccShowAddressRowButton"
+            data-prefer-button="true"/>
+  <menuitem id="addr_newsgroupsShowAddressRowMenuItem"
+            class="news-show-row-menuitem subviewbutton menuitem-iconic"
+            oncommand="showAndFocusAddressRow('addressRowNewsgroups')"
+            data-button-id="addr_newsgroupsShowAddressRowButton"
+            label="&newsgroupsAddr2.label;"
+            data-prefer-button="false"/>
+  <menuitem id="addr_followupShowAddressRowMenuItem"
+            class="news-show-row-menuitem subviewbutton menuitem-iconic"
+            oncommand="showAndFocusAddressRow('addressRowFollowup')"
+            data-button-id="addr_followupShowAddressRowButton"
+            label="&followupAddr2.label;"
+            data-prefer-button="false"/>
+</menupopup>
 
 <menupopup id="msgComposeContext"
            onpopupshowing="if (event.target != this) { return true; } openEditorContextMenu(this);"
@@ -2137,58 +2160,78 @@
                   <menupopup id="msgIdentityPopup"/>
                 </menulist>
 
-                <hbox id="addressingWidgetLabelBox" class="addressingWidgetItem"
-                      flex="1" align="center">
-                  <hbox id="addressingWidgetLabels" class="address-extra-recipients"
-                        flex="1" align="center">
-                    <hbox id="addressingWidgetSwappableLabels">
-                      <label id="addr_to" role="button"
-                             disableonsend="true"
-                             class="mail-primary-label mail-label recipient-label"
-                             data-address-row="addressRowTo"
-                             onclick="showAndFocusAddressRow('addressRowTo')"
-                             ondrop="recipientLabelOnDrop(event);"
-                             ondragover="recipientLabelOnDragover(event);"
-                             onkeypress="showAddressRowKeyPress(event, 'addressRowTo')"
-                             control="toAddrInput"
-                             collapsed="true"/>
-                      <label id="addr_cc" role="button"
-                             disableonsend="true"
-                             class="mail-label recipient-label"
-                             data-address-row="addressRowCc"
-                             onclick="showAndFocusAddressRow('addressRowCc')"
-                             ondrop="recipientLabelOnDrop(event);"
-                             ondragover="recipientLabelOnDragover(event);"
-                             onkeypress="showAddressRowKeyPress(event, 'addressRowCc')"
-                             control="ccAddrInput"/>
-                      <label id="addr_bcc" role="button"
-                             disableonsend="true"
-                             class="mail-label recipient-label"
-                             data-address-row="addressRowBcc"
-                             onclick="showAndFocusAddressRow('addressRowBcc')"
-                             ondrop="recipientLabelOnDrop(event);"
-                             ondragover="recipientLabelOnDragover(event);"
-                             onkeypress="showAddressRowKeyPress(event, 'addressRowBcc')"
-                             control="bccAddrInput"/>
-                    </hbox>
-                    <label id="extraRecipientsLabel" role="button"
-                           disableonsend="true"
-                           class="extra-recipients-label recipient-label"
-                           onclick="showExtraRecipients(event);"
-                           tooltiptext="&extraRecipients.tooltip;"
-                           onkeypress="extraRecipientsLabelOnKeyPress(event);">
-                      <image class="overflow-icon"/>
-                    </label>
-
-                  </hbox>
-                </hbox>
+                <html:div id="extraAddressRowsArea">
+                  <!-- NOTE: We use the icon-button class on the
+                    - recipient-button buttons, even though they will not
+                    - contain icons. We just want the same styling to be
+                    - consistent with the remove-field-button and the
+                    - extraAddressRowsMenuButton. -->
+                  <!-- Default set up is for a mail account, where we prefer
+                    - showing the buttons, rather than the menu items, for
+                    - the mail rows.
+                    - The To field is already shown, so the button is hidden.
+                    - For the news rows, we prefer the menu items over the
+                    - buttons, so we hide them. -->
+                  <html:button id="addr_toShowAddressRowButton"
+                               disableonsend="true"
+                               class="recipient-button icon-button"
+                               data-address-row="addressRowTo"
+                               onclick="showAndFocusAddressRow('addressRowTo');"
+                               ondrop="showAddressRowButtonOnDrop(event);"
+                               ondragover="showAddressRowButtonOnDragover(event);"
+                               hidden="hidden">
+                  </html:button>
+                  <html:button id="addr_ccShowAddressRowButton"
+                               disableonsend="true"
+                               class="recipient-button icon-button"
+                               data-address-row="addressRowCc"
+                               onclick="showAndFocusAddressRow('addressRowCc');"
+                               ondrop="showAddressRowButtonOnDrop(event);"
+                               ondragover="showAddressRowButtonOnDragover(event);">
+                  </html:button>
+                  <html:button id="addr_bccShowAddressRowButton"
+                               disableonsend="true"
+                               class="recipient-button icon-button"
+                               data-address-row="addressRowBcc"
+                               onclick="showAndFocusAddressRow('addressRowBcc');"
+                               ondrop="showAddressRowButtonOnDrop(event);"
+                               ondragover="showAddressRowButtonOnDragover(event);">
+                  </html:button>
+                  <html:button id="addr_newsgroupsShowAddressRowButton"
+                               class="recipient-button icon-button"
+                               hidden="hidden"
+                               onclick="showAndFocusAddressRow('addressRowNewsgroups')">
+                    &newsgroupsAddr2.label;
+                  </html:button>
+                  <html:button id="addr_followupShowAddressRowButton"
+                               class="recipient-button icon-button"
+                               hidden="hidden"
+                               onclick="showAndFocusAddressRow('addressRowFollowup')">
+                    &followupAddr2.label;
+                  </html:button>
+                  <html:button id="extraAddressRowsMenuButton"
+                               data-l10n-id="extra-address-rows-menu-button"
+                               aria-expanded="false"
+                               aria-haspopup="menu"
+                               aria-controls="extraAddressRowsMenu"
+                               disableonsend="true"
+                               class="icon-button"
+                               onclick="openExtraAddressRowsMenu();">
+                    <!-- NOTE: button title should provide the accessibility
+                       - context. -->
+                    <html:img class="overflow-icon"
+                              src="chrome://messenger/skin/icons/overflow.svg"
+                              alt="" />
+                  </html:button>
+                </html:div>
               </hbox>
 
               <mail-recipients-area id="recipientsContainer" orient="vertical"
                                     class="recipients-container" flex="1">
                 <hbox id="addressRowReply"
                       class="address-row hidden"
-                      data-recipienttype="addr_reply">
+                      data-recipienttype="addr_reply"
+                      data-show-self-menuitem="addr_replyShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2225,7 +2268,8 @@
 
                 <hbox id="addressRowTo"
                       class="address-row"
-                      data-recipienttype="addr_to">
+                      data-recipienttype="addr_to"
+                      data-show-self-menuitem="addr_toShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);"
@@ -2237,7 +2281,7 @@
                   <hbox class="address-label-container" align="top" pack="end"
                         style="&headersSpace2.style;">
                     <label id="toAddrLabel"
-                           data-l10n-id="to-compose-address-row-label"
+                           data-l10n-id="to-address-row-label"
                            control="toAddrInput"/>
                   </hbox>
                   <hbox id="toAddrContainer" flex="1" align="center"
@@ -2264,7 +2308,8 @@
 
                 <hbox id="addressRowCc"
                       class="address-row hidden"
-                      data-recipienttype="addr_cc">
+                      data-recipienttype="addr_cc"
+                      data-show-self-menuitem="addr_ccShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2275,7 +2320,7 @@
                   <hbox class="address-label-container" align="top" pack="end"
                         style="&headersSpace2.style;">
                     <label id="ccAddrLabel"
-                           data-l10n-id="cc-compose-address-row-label"
+                           data-l10n-id="cc-address-row-label"
                            control="ccAddrInput"/>
                   </hbox>
                   <hbox id="ccAddrContainer" flex="1" align="center"
@@ -2302,7 +2347,8 @@
 
                 <hbox id="addressRowBcc"
                       class="address-row hidden"
-                      data-recipienttype="addr_bcc">
+                      data-recipienttype="addr_bcc"
+                      data-show-self-menuitem="addr_bccShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2313,7 +2359,7 @@
                   <hbox class="address-label-container" align="top" pack="end"
                         style="&headersSpace2.style;">
                     <label id="bccAddrLabel"
-                           data-l10n-id="bcc-compose-address-row-label"
+                           data-l10n-id="bcc-address-row-label"
                            control="bccAddrInput"/>
                   </hbox>
                   <hbox id="bccAddrContainer" flex="1" align="center"
@@ -2340,7 +2386,8 @@
 
                 <hbox id="addressRowNewsgroups"
                       class="address-row hidden"
-                      data-recipienttype="addr_newsgroups">
+                      data-recipienttype="addr_newsgroups"
+                      data-show-self-menuitem="addr_newsgroupsShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2377,7 +2424,8 @@
 
                 <hbox id="addressRowFollowup"
                       class="address-row hidden"
-                      data-recipienttype="addr_followup">
+                      data-recipienttype="addr_followup"
+                      data-show-self-menuitem="addr_followupShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">

@@ -74,7 +74,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
   await OpenPGPTestUtils.toggleMessageEncryption(cwc.window);
   Assert.ok(cwc.window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bcc"),
+    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -107,7 +107,7 @@ add_task(async function testNotificationDismissal() {
   await OpenPGPTestUtils.toggleMessageEncryption(cwc.window);
   Assert.ok(cwc.window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bcc"),
+    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -172,7 +172,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
   let cwc = open_compose_new_mail();
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bcc"),
+    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
     {},
     cwc.window
   );
@@ -208,7 +208,7 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
   let cwc = open_compose_new_mail();
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bcc"),
+    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
     {},
     cwc.window
   );

@@ -88,7 +88,8 @@ function check_send_commands_state(aCwc, aEnabled) {
  */
 add_task(async function test_send_enabled_manual_address() {
   let cwc = open_compose_new_mail(); // compose controller
-  let panel = cwc.e("extraRecipientsPanel"); // extra recipients panel
+  let menu = cwc.e("extraAddressRowsMenu"); // extra recipients menu
+  let menuButton = cwc.e("extraAddressRowsMenuButton");
 
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
@@ -99,9 +100,9 @@ add_task(async function test_send_enabled_manual_address() {
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
   clear_recipients(cwc);
-  cwc.click(cwc.e("extraRecipientsLabel"));
-  await wait_for_popup_to_open(panel);
-  cwc.click(cwc.e("addr_reply"));
+  cwc.click(menuButton);
+  await wait_for_popup_to_open(menu);
+  menu.activateItem(cwc.e("addr_replyShowAddressRowMenuItem"));
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
   check_send_commands_state(cwc, false);
 
@@ -114,7 +115,7 @@ add_task(async function test_send_enabled_manual_address() {
   setup_msg_contents(cwc, " recipient@", "", "");
   check_send_commands_state(cwc, false);
 
-  cwc.click(cwc.e("addr_cc"));
+  cwc.click(cwc.e("addr_ccShowAddressRowButton"));
   check_send_commands_state(cwc, false);
 
   // Select the newly generated pill.
@@ -155,15 +156,12 @@ add_task(async function test_send_enabled_manual_address() {
   clear_recipients(cwc);
   check_send_commands_state(cwc, false);
 
-  // Show the extraRecipientsLabel in order to trigger the opening og the
-  // extraRecipientsPanel.
-  cwc.e("extraRecipientsLabel").removeAttribute("collapsed");
-  cwc.click(cwc.e("extraRecipientsLabel"));
-  await wait_for_popup_to_open(panel);
+  // Hack to reveal the newsgroup button.
+  let newsgroupsButton = cwc.e("addr_newsgroupsShowAddressRowButton");
+  newsgroupsButton.hidden = false;
+  cwc.click(newsgroupsButton);
 
   // - some string as a newsgroup
-  cwc.e("addr_newsgroups").removeAttribute("collapsed");
-  cwc.click(cwc.e("addr_newsgroups"));
   setup_msg_contents(cwc, "newsgroup ", "", "", "newsgroupsAddrInput");
   check_send_commands_state(cwc, true);
 
