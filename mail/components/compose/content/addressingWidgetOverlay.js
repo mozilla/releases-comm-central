@@ -88,17 +88,18 @@ function setAddressRowFromCompField(
   multi,
   forceShow = false
 ) {
-  let input = document.querySelector(`#${rowId} .address-row-input`);
-  recipientClearPills(input);
+  let row = document.getElementById(rowId);
+  addressRowClearPills(row);
 
   let value = multi
     ? MailServices.headerParser.parseEncodedHeaderW(headerValue).join(", ")
     : headerValue;
 
   if (value || forceShow) {
-    showAndFocusAddressRow(rowId);
+    addressRowSetVisibility(row, true);
   }
   if (value) {
+    let input = row.querySelector(".address-row-input");
     input.value = value;
     recipientAddPills(input, true);
   }
@@ -307,8 +308,7 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
     !container.querySelector(`mail-address-pill`) &&
     !container.querySelector(`input[is="autocomplete-input"]`).value
   ) {
-    addressRow.classList.add("hidden");
-    document.getElementById(recipientType).removeAttribute("collapsed");
+    addressRowSetVisibility(addressRow, false);
   }
 
   updateAriaLabelsOfAddressRow(addressRow);
@@ -327,8 +327,10 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
     return;
   }
 
-  awAddRecipientsArray(
-    recipientType,
+  addressRowAddRecipientsArray(
+    document.querySelector(
+      `.address-row[data-recipienttype="${recipientType}"]`
+    ),
     msgCompFields.splitRecipients(recipientsList, false)
   );
 }
@@ -337,40 +339,39 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
  * Adds a batch of new recipient pill matching recipientType and drops in the
  * array of addresses.
  *
- * @param {string} aRecipientType - Type of recipient, e.g. "addr_to".
+ * @param {Element} row - The row to add the addresses to.
  * @param {string[]} aAddressArray - Recipient addresses (strings) to add.
  * @param {boolean=false} select - If the newly generated pills should be
  *   selected.
  */
-function awAddRecipientsArray(aRecipientType, aAddressArray, select = false) {
-  let label = document.getElementById(aRecipientType);
+function addressRowAddRecipientsArray(row, aAddressArray, select = false) {
   let addresses = MailServices.headerParser.makeFromDisplayAddress(
     aAddressArray
   );
-  let element = document.getElementById(label.getAttribute("control"));
 
-  if (label && element.closest(".address-row").classList.contains("hidden")) {
-    label.click();
+  if (row.classList.contains("hidden")) {
+    showAndFocusAddressRow(row.id, true);
   }
 
   let recipientArea = document.getElementById("recipientsContainer");
+  let input = row.querySelector(".address-row-input");
   for (let address of addresses) {
-    let pill = recipientArea.createRecipientPill(element, address);
+    let pill = recipientArea.createRecipientPill(input, address);
     if (select) {
       pill.setAttribute("selected", "selected");
     }
   }
 
-  element
-    .closest(".address-container")
+  row
+    .querySelector(".address-container")
     .classList.add("addressing-field-edited");
 
   // Add the recipients to our spell check ignore list.
   addRecipientsToIgnoreList(aAddressArray.join(", "));
   calculateHeaderHeight();
-  updateAriaLabelsOfAddressRow(element.closest(".address-row"));
+  updateAriaLabelsOfAddressRow(row);
 
-  if (element.id != "replyAddrInput") {
+  if (row.id != "addressRowReply") {
     onRecipientsChanged();
   }
 }
@@ -394,7 +395,7 @@ function DropRecipient(target, recipient) {
     return;
   }
 
-  awAddRecipientsArray(row.dataset.recipienttype, [recipient]);
+  addressRowAddRecipientsArray(row, [recipient]);
 }
 
 /**
@@ -490,8 +491,11 @@ function otherHeaderInputOnKeyDown(event) {
       gPreventRowDeletionKeysRepeat = true;
 
       // Hide the address row if it is empty except whitespace, repeated
-      // deletion keydown event occured, and it has an [x] button for removal.
-      hideAddressRow(input, event.key == "Backspace" ? "previous" : "next");
+      // deletion keydown event occurred, and it has an [x] button for removal.
+      hideAddressRowFromWithin(
+        input,
+        event.key == "Backspace" ? "previous" : "next"
+      );
       break;
   }
 }
@@ -649,8 +653,8 @@ function addressInputOnBeforeHandleKeyDown(event) {
       gPreventRowDeletionKeysRepeat = true;
 
       // Hide the address row if it is empty except whitespace, repeated
-      // Backspace keydown event occured, and it has an [x] button for removal.
-      hideAddressRow(input, "previous");
+      // Backspace keydown event occurred, and it has an [x] button for removal.
+      hideAddressRowFromWithin(input, "previous");
       break;
 
     case "Delete":
@@ -685,9 +689,9 @@ function addressInputOnBeforeHandleKeyDown(event) {
       gPreventRowDeletionKeysRepeat = true;
 
       // Hide the address row if it is empty except whitespace, repeated Delete
-      // keydown event occured, cursor is at position 0, and it has an
+      // keydown event occurred, cursor is at position 0, and it has an
       // [x] button for removal.
-      hideAddressRow(input, "next");
+      hideAddressRowFromWithin(input, "next");
       break;
 
     case "Enter":
@@ -852,15 +856,15 @@ function recipientAddPills(input, automatic = false) {
 /**
  * Remove all <mail-address-pill> elements from the containing address row.
  *
- * @param {Element} input - The address input element in the container to clear.
+ * @param {Element} row - The address row to clear.
  */
-function recipientClearPills(input) {
-  for (let pill of input
-    .closest(".address-container")
-    .querySelectorAll("mail-address-pill")) {
+function addressRowClearPills(row) {
+  for (let pill of row.querySelectorAll(
+    ".address-container mail-address-pill"
+  )) {
     pill.remove();
   }
-  updateAriaLabelsOfAddressRow(input.closest(".address-row"));
+  updateAriaLabelsOfAddressRow(row);
 }
 
 /**
@@ -975,8 +979,8 @@ function expandList(element) {
       }
     }
     let row = pill.closest(".address-row");
-    recipientClearPills(row.querySelector(".address-container > input"));
-    awAddRecipientsArray(row.dataset.recipienttype, addresses, false);
+    addressRowClearPills(row);
+    addressRowAddRecipientsArray(row, addresses, false);
   }
 }
 
@@ -1110,17 +1114,35 @@ function showAddressRowKeyPress(event, rowID) {
  */
 function showAndFocusAddressRow(rowId) {
   let row = document.getElementById(rowId);
+  if (addressRowSetVisibility(row, true)) {
+    row.querySelector(".address-row-input").focus();
+  }
+}
+
+/**
+ * Set the visibility of an address row (Cc, Bcc, etc.).
+ *
+ * @param {Element} row - The address row.
+ * @param {boolean} [show=true] - Whether to show the row or hide it.
+ *
+ * @return {boolean} - Whether the visibility was set.
+ */
+function addressRowSetVisibility(row, show) {
   let label = document.getElementById(row.dataset.recipienttype);
-  if (label.hasAttribute("disabled")) {
-    return;
+  if (show && label.hasAttribute("disabled")) {
+    return false;
   }
 
-  row.classList.remove("hidden");
-  label.setAttribute("collapsed", "true");
-  // Focus the row input.
-  row.querySelector(".address-row-input").focus();
+  // Show/hide the row and hide/show the label.
+  row.classList.toggle("hidden", !show);
+  if (show) {
+    label.setAttribute("collapsed", "true");
+  } else {
+    label.removeAttribute("collapsed");
+  }
 
   updateRecipientsPanelVisibility();
+  return true;
 }
 
 /**
@@ -1134,7 +1156,7 @@ function showAndFocusAddressRow(rowId) {
  *   hiding the address row: try to focus the input of an available next sibling
  *   row (for [x] or DEL) or previous sibling row (for BACKSPACE).
  */
-function hideAddressRow(element, focusType = "next") {
+function hideAddressRowFromWithin(element, focusType = "next") {
   let addressRow = element.closest(".address-row");
 
   // Prevent address row removal when sending (disable-on-send).
@@ -1194,16 +1216,12 @@ function hideAddressRow(element, focusType = "next") {
   let input = addressRow.querySelector(".address-row-input");
   input.value = "";
 
-  addressRow.classList.add("hidden");
-  document
-    .getElementById(addressRow.dataset.recipienttype)
-    .removeAttribute("collapsed");
+  addressRowSetVisibility(addressRow, false);
 
   // Update the Send button only if the content was previously changed.
   if (isEdited) {
     onRecipientsChanged(true);
   }
-  updateRecipientsPanelVisibility();
   updateAriaLabelsOfAddressRow(addressRow);
 
   // Move focus to the next focusable address input field.
@@ -1232,7 +1250,7 @@ function hideAddressRow(element, focusType = "next") {
  * @param {Event} event - The DOM click event.
  */
 function closeLabelOnClick(event) {
-  hideAddressRow(event.target);
+  hideAddressRowFromWithin(event.target);
 }
 
 /**

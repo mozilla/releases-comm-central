@@ -104,14 +104,19 @@ function contactsListOnClick(aEvent) {
 /**
  * Appends the currently selected cards as new recipients in the composed message.
  *
- * @param aRecipientType  Type of recipient, e.g. "addr_to".
+ * @param recipientType  Type of recipient, e.g. "addr_to".
  */
-function addSelectedAddresses(aRecipientType) {
+function addSelectedAddresses(recipientType) {
   var cards = GetSelectedAbCards();
 
   // Turn each card into a properly formatted address.
   let addresses = cards.map(makeMailboxObjectFromCard).filter(addr => addr);
-  parent.awAddRecipientsArray(aRecipientType, addresses);
+  parent.addressRowAddRecipientsArray(
+    parent.document.querySelector(
+      `.address-row[data-recipienttype="${recipientType}"]`
+    ),
+    addresses
+  );
 }
 
 function AddressBookMenuListChange(aValue) {

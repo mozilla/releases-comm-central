@@ -5189,9 +5189,7 @@ function recipientLabelOnDrop(event) {
     // pills (so "text/pills" was generated elsewhere), moveSelectedPills() will
     // bail out and we'll do nothing.
     let row = document.getElementById(event.target.dataset.addressRow);
-    document
-      .getElementById("recipientsContainer")
-      .moveSelectedPills(row.dataset.recipienttype);
+    document.getElementById("recipientsContainer").moveSelectedPills(row);
   }
 }
 
@@ -5219,13 +5217,12 @@ function deleteSelectedPillsOnCommand() {
 /**
  * Command handler: Move the selected pills to another address row.
  *
- * @param {string} targetRecipientType - The target recipient type,
- *   e.g. "addr_to".
+ * @param {string} rowId - The id of the address row to move to.
  */
-function moveSelectedPillsOnCommand(targetRecipientType) {
+function moveSelectedPillsOnCommand(rowId) {
   document
     .getElementById("recipientsContainer")
-    .moveSelectedPills(targetRecipientType);
+    .moveSelectedPills(document.getElementById(rowId));
 }
 
 /**
@@ -5268,14 +5265,13 @@ async function checkPublicRecipientsLimit() {
         pill => pill.fullAddress
       );
 
-      recipientClearPills(document.querySelector("#toAddrInput"));
-      recipientClearPills(document.querySelector("#ccAddrInput"));
+      addressRowClearPills(document.getElementById("addressRowTo"));
+      addressRowClearPills(document.getElementById("addressRowCc"));
       // Add previously public address pills to Bcc address row and select them.
-      awAddRecipientsArray("addr_bcc", publicAddresses, true);
+      let bccRow = document.getElementById("addressRowBcc");
+      addressRowAddRecipientsArray(bccRow, publicAddresses, true);
       // Focus last added pill to prevent sticky selection with focus elsewhere.
-      document
-        .querySelector("#bccAddrContainer mail-address-pill:last-of-type")
-        .focus();
+      bccRow.querySelector("mail-address-pill:last-of-type").focus();
       return false;
     },
   };
@@ -7866,8 +7862,7 @@ function LoadIdentity(startup) {
     ) {
       // Current identity doesn't need CC row shown, but previous identity did.
       // Hide CC row if it's empty.
-      addressRowCc.classList.add("hidden");
-      document.getElementById("addr_cc").removeAttribute("collapsed");
+      addressRowSetVisibility(addressRowCc, false);
     }
 
     let addressRowBcc = document.getElementById("addressRowBcc");
@@ -7880,8 +7875,7 @@ function LoadIdentity(startup) {
     ) {
       // Current identity doesn't need BCC row shown, but previous identity did.
       // Hide BCC row if it's empty.
-      addressRowBcc.classList.add("hidden");
-      document.getElementById("addr_bcc").removeAttribute("collapsed");
+      addressRowSetVisibility(addressRowBcc, false);
     }
 
     adjustSignEncryptAfterIdentityChanged(prevIdentity);

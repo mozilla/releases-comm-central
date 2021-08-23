@@ -2583,10 +2583,9 @@
 
       // Create pills for all the combined addresses.
       let row = addressContainer.closest(".address-row");
-      let recipientType = row.dataset.recipienttype;
       for (let address of combinedAddresses) {
-        awAddRecipientsArray(
-          recipientType,
+        addressRowAddRecipientsArray(
+          row,
           [address],
           selectedAddresses.includes(address)
         );
@@ -3116,10 +3115,9 @@
     /**
      * Move the selected email address pills to another address row.
      *
-     * @param {string} targetFieldType - The target recipient type,
-     *   e.g. "addr_to".
+     * @param {Element} row - The address row to move the pills to.
      */
-    moveSelectedPills(targetFieldType) {
+    moveSelectedPills(row) {
       // Store all the selected addresses inside an array.
       let selectedAddresses = [...this.getAllSelectedPills()].map(
         pill => pill.fullAddress
@@ -3135,7 +3133,7 @@
 
       // Create new address pills inside the target address row and
       // maintain the current selection.
-      awAddRecipientsArray(targetFieldType, selectedAddresses, true);
+      addressRowAddRecipientsArray(row, selectedAddresses, true);
 
       // Move focus to the last selected pill.
       let selectedPills = this.getAllSelectedPills();
