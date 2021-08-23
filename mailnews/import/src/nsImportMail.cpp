@@ -868,6 +868,7 @@ ContainsChildNamedRunnable::ContainsChildNamedRunnable(nsIMsgFolder* aFolder,
                                                        const nsAString& aName,
                                                        bool* aResult)
     : mozilla::Runnable("ContainsChildNamedRunnable"),
+      mResult(NS_OK),
       m_folder(aFolder),
       m_name(aName),
       m_result(aResult) {}
