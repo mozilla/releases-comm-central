@@ -29,11 +29,6 @@
 }
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  #menubar-items > #mail-menubar > menu {
-    appearance: none;
-    border-style: none;
-  }
-
   #menubar-items > #mail-menubar > menu[disabled="true"] {
     background-color: transparent;
   }
@@ -218,13 +213,6 @@
   }
 }
 
-@media (-moz-windows-default-theme: 0) {
-  #messengerWindow[tabsintitlebar] #mail-menubar > menu {
-    appearance: none;
-    color: inherit;
-  }
-}
-
 @media (-moz-windows-compositor) and (-moz-windows-default-theme) {
   #navigation-toolbox:not(:-moz-lwtheme),
   #tabs-toolbar {
@@ -314,20 +302,6 @@
 
     #messengerWindow #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
       color: InactiveCaptionText;
-    }
-  }
-}
-
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  @media (-moz-windows-default-theme: 0) {
-    #messengerWindow:not([tabsintitlebar]) #mail-menubar >
-      menu:not(:-moz-lwtheme) {
-      color: inherit;
-    }
-
-    #messengerWindow:not([tabsintitlebar]) #mail-menubar > menu {
-      appearance: none;
     }
   }
 }

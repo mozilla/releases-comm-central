@@ -159,6 +159,20 @@
   }
 }
 
+@media (-moz-windows-default-theme: 0),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+  #menubar-items > #mail-menubar > menu {
+    appearance: none;
+    color: inherit;
+  }
+}
+
+@media (-moz-windows-default-theme: 0) {
+  #menubar-items > #mail-menubar > menu[_moz-menuactive="true"] {
+    color: -moz-MenuHoverText;
+  }
+}
+
 #tabbar-toolbar[customizing="true"] {
   min-width: 24px;
 }
