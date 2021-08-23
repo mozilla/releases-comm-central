@@ -802,6 +802,7 @@ GetChildNamedRunnable::GetChildNamedRunnable(nsIMsgFolder* aFolder,
                                              const nsAString& aName,
                                              nsIMsgFolder** aChild)
     : mozilla::Runnable("GetChildNamedRunnable"),
+      mResult(NS_OK),
       m_folder(aFolder),
       m_name(aName),
       m_child(aChild) {}
