@@ -4075,35 +4075,43 @@ function ComposeLoad() {
     }
   });
 
+  if (otherHeaders) {
+    let extraRecipientsPanel = document.getElementById("extraRecipientsPanel");
+    let recipientsContainer = document.getElementById("recipientsContainer");
+
+    let existingTypes = Array.from(
+      document.querySelectorAll(".address-row"),
+      row => row.dataset.recipienttype
+    );
+
+    for (let header of otherHeaders.split(",")) {
+      header = header.trim();
+      if (!header || existingTypes.includes(header)) {
+        continue;
+      }
+      existingTypes.push(header);
+
+      header = header.trim();
+      let recipient = {
+        rowId: `addressRow${header}`,
+        labelId: `${header}AddrLabel`,
+        containerId: `${header}AddrContainer`,
+        inputId: `${header}AddrInput`,
+        type: header,
+      };
+
+      extraRecipientsPanel.appendChild(createRecipientLabel(header));
+      recipientsContainer.appendChild(
+        recipientsContainer.buildRecipientRow(recipient, true)
+      );
+    }
+  }
+
   try {
     SetupCommandUpdateHandlers();
     // This will do migration, or create a new account if we need to.
-    // We also want to open the account wizard if no identities are found
-    let state = verifyAccounts(WizCallback, true);
-
-    if (otherHeaders) {
-      let extraRecipientsPanel = document.getElementById(
-        "extraRecipientsPanel"
-      );
-      let recipientsContainer = document.getElementById("recipientsContainer");
-
-      for (let header of otherHeaders.split(",")) {
-        header = header.trim();
-        let recipient = {
-          rowId: `addressRow${header}`,
-          labelId: `${header}AddrLabel`,
-          containerId: `${header}AddrContainer`,
-          inputId: `${header}AddrInput`,
-          type: header,
-        };
-
-        extraRecipientsPanel.appendChild(createRecipientLabel(header));
-        recipientsContainer.appendChild(
-          recipientsContainer.buildRecipientRow(recipient, true)
-        );
-      }
-    }
-    if (state) {
+    // We also want to open the account wizard if no identities are found.
+    if (verifyAccounts(WizCallback, true)) {
       ComposeStartup(null);
     }
   } catch (ex) {
