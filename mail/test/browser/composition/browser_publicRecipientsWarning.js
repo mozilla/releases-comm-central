@@ -70,7 +70,7 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
   Assert.ok(
     !cwc.window.document
       .getElementById("ccAddrInput")
-      .closest(".addressingWidgetItem")
+      .closest(".address-row")
       .classList.contains("hidden"),
     "The Cc field is visible"
   );
@@ -123,7 +123,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
   Assert.ok(
     !cwc.window.document
       .getElementById("ccAddrInput")
-      .closest(".addressingWidgetItem")
+      .closest(".address-row")
       .classList.contains("hidden"),
     "The Cc field is visible"
   );
@@ -272,7 +272,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
   Assert.ok(
     !cwc.window.document
       .getElementById("ccAddrInput")
-      .closest(".addressingWidgetItem")
+      .closest(".address-row")
       .classList.contains("hidden"),
     "The Cc field is visible"
   );
@@ -347,7 +347,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
   Assert.ok(
     !cwc.window.document
       .getElementById("ccAddrInput")
-      .closest(".addressingWidgetItem")
+      .closest(".address-row")
       .classList.contains("hidden"),
     "The Cc field is visible"
   );
@@ -428,7 +428,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
   Assert.ok(
     !cwc.window.document
       .getElementById("ccAddrInput")
-      .closest(".addressingWidgetItem")
+      .closest(".address-row")
       .classList.contains("hidden"),
     "The Cc field is visible"
   );

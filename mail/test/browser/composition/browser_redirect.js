@@ -80,16 +80,12 @@ function checkAddresses(win, expectedFields) {
 
   let obtainedFields = [];
   for (let row of rows) {
-    let addrTextbox = row.querySelector(
-      `input[is="autocomplete-input"][recipienttype]`
-    );
-
     let addresses = [];
     for (let pill of row.querySelectorAll("mail-address-pill")) {
       addresses.push(pill.fullAddress);
     }
 
-    obtainedFields[addrTextbox.getAttribute("recipienttype")] = addresses;
+    obtainedFields[row.dataset.recipienttype] = addresses;
   }
 
   // Check what we expect is there.
@@ -135,9 +131,7 @@ function checkAddresses(win, expectedFields) {
   // Check if the input "aria-label" attribute was properly updated.
   for (let row of rows) {
     let addrLabel = row.querySelector(".address-label-container > label").value;
-    let addrTextbox = row.querySelector(
-      `input[is="autocomplete-input"][recipienttype]`
-    );
+    let addrTextbox = row.querySelector(".address-row-input");
     let ariaLabel = addrTextbox.getAttribute("aria-label");
     let pillCount = row.querySelectorAll("mail-address-pill").length;
 

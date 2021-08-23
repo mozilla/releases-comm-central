@@ -33,9 +33,7 @@ add_task(async function test_customHeaders() {
 
   // Set values to custom headers.
   let cwc = open_compose_new_mail();
-  let inputs = cwc.window.document.querySelectorAll(
-    ".address-row[data-labeltype=addr_other] input"
-  );
+  let inputs = cwc.window.document.querySelectorAll(".address-row-raw input");
   inputs[0].value = "Test äöü";
   inputs[1].value = "Test 😃";
   inputs[2].value = "moderator@tinderbox.com";

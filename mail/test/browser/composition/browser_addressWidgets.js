@@ -420,7 +420,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   );
   // The Cc field should now be visible.
   Assert.ok(
-    !ccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    !ccInput.closest(".address-row").classList.contains("hidden"),
     "The Cc field is visible"
   );
   // Test pill creation for the Cc input field.
@@ -435,7 +435,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   );
   // The Bcc field should now be visible.
   Assert.ok(
-    !bccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    !bccInput.closest(".address-row").classList.contains("hidden"),
     "The Bcc field is visible"
   );
   // Test pill creation for the Bcc input field.
@@ -453,7 +453,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     "All pills in the Bcc field have been removed."
   );
   Assert.ok(
-    !bccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    !bccInput.closest(".address-row").classList.contains("hidden"),
     "The Bcc field is still visible"
   );
 
@@ -462,7 +462,7 @@ add_task(async function test_pill_creation_in_all_fields() {
 
   // Confirm the Bcc field is closed and the focus moved to the Cc field.
   Assert.ok(
-    bccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    bccInput.closest(".address-row").classList.contains("hidden"),
     "The Bcc field was closed"
   );
   Assert.equal(cwc.window.document.activeElement, ccInput);
@@ -478,7 +478,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     "All pills in the Cc field have been removed."
   );
   Assert.ok(
-    !ccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    !ccInput.closest(".address-row").classList.contains("hidden"),
     "The Cc field is still visible"
   );
 
@@ -487,7 +487,7 @@ add_task(async function test_pill_creation_in_all_fields() {
 
   // Confirm the Cc field is closed and the focus moved to the To field.
   Assert.ok(
-    ccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    ccInput.closest(".address-row").classList.contains("hidden"),
     "The Cc field was closed"
   );
   Assert.equal(cwc.window.document.activeElement, toInput);
@@ -503,7 +503,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     "All pills in the To field have been removed."
   );
   Assert.ok(
-    !toInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    !toInput.closest(".address-row").classList.contains("hidden"),
     "The To field is still visible"
   );
 
@@ -514,7 +514,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   // is empty. Confirm the To field is still visible and the focus stays on the
   // To field.
   Assert.ok(
-    !toInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    !toInput.closest(".address-row").classList.contains("hidden"),
     "The To field is still visible"
   );
   Assert.equal(cwc.window.document.activeElement, toInput);

@@ -39,75 +39,35 @@ function Recipients2CompFields(msgCompFields) {
     );
   }
 
-  let addrTo = "";
-  let addrCc = "";
-  let addrBcc = "";
-  let addrReply = "";
-  let addrNg = "";
-  let addrFollow = "";
-  let to_Sep = "";
-  let cc_Sep = "";
-  let bcc_Sep = "";
-  let reply_Sep = "";
-  let ng_Sep = "";
-  let follow_Sep = "";
-
-  for (let pill of document.getElementsByTagName("mail-address-pill")) {
-    let fieldValue = pill.fullAddress;
-    let headerParser = MailServices.headerParser;
-    let recipient = headerParser
-      .makeFromDisplayAddress(fieldValue)
-      .map(fullValue =>
-        headerParser.makeMimeAddress(fullValue.name, fullValue.email)
-      )
-      .join(", ");
-
-    // Each pill knows from which recipient they were generated
-    // (addr_to, addrs_bcc, etc.).
-    let recipientType = pill.getAttribute("recipienttype");
-    switch (recipientType) {
-      case "addr_to":
-        addrTo += to_Sep + recipient;
-        to_Sep = ",";
-        break;
-      case "addr_cc":
-        addrCc += cc_Sep + recipient;
-        cc_Sep = ",";
-        break;
-      case "addr_bcc":
-        addrBcc += bcc_Sep + recipient;
-        bcc_Sep = ",";
-        break;
-      case "addr_reply":
-        addrReply += reply_Sep + recipient;
-        reply_Sep = ",";
-        break;
-      case "addr_newsgroups":
-        addrNg += ng_Sep + recipient;
-        ng_Sep = ",";
-        break;
-      case "addr_followup":
-        addrFollow += follow_Sep + recipient;
-        follow_Sep = ",";
-        break;
-    }
-  }
-
-  for (let otherHeaderRow of document.querySelectorAll(
-    ".address-row[data-labeltype=addr_other]"
-  )) {
-    let headerValue = otherHeaderRow.querySelector("input").value.trim();
+  for (let row of document.querySelectorAll(".address-row-raw")) {
+    let recipientType = row.dataset.recipienttype;
+    let headerValue = row.querySelector(".address-row-input").value.trim();
     if (headerValue) {
-      msgCompFields.setRawHeader(otherHeaderRow.dataset.labelid, headerValue);
+      msgCompFields.setRawHeader(recipientType, headerValue);
     }
   }
 
-  msgCompFields.to = addrTo;
-  msgCompFields.cc = addrCc;
-  msgCompFields.bcc = addrBcc;
-  msgCompFields.replyTo = addrReply;
-  msgCompFields.newsgroups = addrNg;
-  msgCompFields.followupTo = addrFollow;
+  let headerParser = MailServices.headerParser;
+  let getRecipientList = recipientType =>
+    Array.from(
+      document.querySelectorAll(
+        `.address-row[data-recipienttype="${recipientType}"] mail-address-pill`
+      ),
+      pill => {
+        // Expect each pill to contain exactly one address.
+        let { name, email } = headerParser.makeFromDisplayAddress(
+          pill.fullAddress
+        )[0];
+        return headerParser.makeMimeAddress(name, email);
+      }
+    ).join(",");
+
+  msgCompFields.to = getRecipientList("addr_to");
+  msgCompFields.cc = getRecipientList("addr_cc");
+  msgCompFields.bcc = getRecipientList("addr_bcc");
+  msgCompFields.replyTo = getRecipientList("addr_reply");
+  msgCompFields.newsgroups = getRecipientList("addr_newsgroups");
+  msgCompFields.followupTo = getRecipientList("addr_followup");
 }
 
 /**
@@ -441,45 +401,6 @@ function awAddRecipientsArray(aRecipientType, aAddressArray, select = false) {
   }
 }
 
-function DragOverAddressingWidget(event) {
-  let dragSession = (dragSession = gDragService.getCurrentSession());
-
-  if (dragSession.isDataFlavorSupported("text/x-moz-address")) {
-    dragSession.canDrop = true;
-  }
-}
-
-function DropOnAddressingWidget(event) {
-  let dragSession = gDragService.getCurrentSession();
-
-  let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
-    Ci.nsITransferable
-  );
-  trans.init(getLoadContext());
-  trans.addDataFlavor("text/x-moz-address");
-
-  for (let i = 0; i < dragSession.numDropItems; ++i) {
-    dragSession.getData(trans, i);
-    let dataObj = {};
-    let bestFlavor = {};
-    trans.getAnyTransferData(bestFlavor, dataObj);
-    if (dataObj) {
-      dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
-    }
-    if (!dataObj) {
-      continue;
-    }
-
-    // pull the address out of the data object
-    let address = dataObj.data.substring(0, dataObj.length);
-    if (!address) {
-      continue;
-    }
-
-    DropRecipient(event.target, address);
-  }
-}
-
 /**
  * Find the autocomplete input when an address is dropped in the compose header.
  *
@@ -487,33 +408,19 @@ function DropOnAddressingWidget(event) {
  * @param {string} recipient - The email address dragged by the user.
  */
 function DropRecipient(target, recipient) {
-  let input;
-
-  if (target.tagName == "label" && target.hasAttribute("control")) {
-    input = document.getElementById(target.getAttribute("control"));
+  let row;
+  if (target.classList.contains("address-row")) {
+    row = target;
+  } else if (target.dataset.addressRow) {
+    row = document.getElementById(target.dataset.addressRow);
   } else {
-    let container = target.classList.contains("address-row")
-      ? target
-      : target.closest("hbox.address-row");
-
-    if (!container) {
-      return;
-    }
-    input = container.querySelector(
-      `.address-container > input[is="autocomplete-input"]`
-    );
+    row = target.closest(".address-row");
   }
-
-  if (!input || !input.hasAttribute("is")) {
+  if (!row || row.classList.contains("address-row-raw")) {
     return;
   }
 
-  let recipientType =
-    input.getAttribute("recipienttype") != "addr_other"
-      ? input.getAttribute("recipienttype")
-      : input.getAttribute("aria-labelledby");
-
-  awAddRecipientsArray(recipientType, [recipient]);
+  awAddRecipientsArray(row.dataset.recipienttype, [recipient]);
 }
 
 /**
@@ -1095,7 +1002,7 @@ function expandList(element) {
     }
     let row = pill.closest(".address-row");
     recipientClearPills(row.querySelector(".address-container > input"));
-    awAddRecipientsArray(row.dataset.labelid, addresses, false);
+    awAddRecipientsArray(row.dataset.recipienttype, addresses, false);
   }
 }
 
@@ -1123,10 +1030,8 @@ function emailAddressPillOnPopupShown() {
   // If any Newsgroup or Followup pill is selected, disable all move actions.
   if (
     recipientsContainer.querySelector(
-      `mail-address-pill[recipienttype="addr_newsgroups"][selected]`
-    ) ||
-    recipientsContainer.querySelector(
-      `mail-address-pill[recipienttype="addr_followup"][selected]`
+      ":is(#addressRowNewsgroups, #addressRowFollowup) " +
+        "mail-address-pill[selected]"
     )
   ) {
     for (let menuitem of menu.querySelectorAll(".pill-action-move")) {
@@ -1149,7 +1054,7 @@ function emailAddressPillOnPopupShown() {
     if (selectedType) {
       return;
     }
-    selectedType = selectedPill.rowInput.getAttribute("recipienttype");
+    selectedType = row.dataset.recipienttype;
   }
 
   // All selected pills are of the same type, disable the type's move action.
@@ -1238,7 +1143,7 @@ function showAddressRow(label, rowID) {
   container.classList.remove("hidden");
   label.setAttribute("collapsed", "true");
   // Focus the row input.
-  container.querySelector(".address-input[recipienttype]").focus();
+  container.querySelector(".address-row-input").focus();
 
   updateRecipientsPanelVisibility();
 }
@@ -1256,7 +1161,6 @@ function showAddressRow(label, rowID) {
  */
 function hideAddressRow(element, focusType = "next") {
   let addressRow = element.closest(".address-row");
-  let labelID = addressRow.dataset.labelid;
 
   // Prevent address row removal when sending (disable-on-send).
   if (
@@ -1312,11 +1216,13 @@ function hideAddressRow(element, focusType = "next") {
   }
 
   // Reset the original input.
-  let input = addressRow.querySelector(`.address-input[recipienttype]`);
+  let input = addressRow.querySelector(".address-row-input");
   input.value = "";
 
   addressRow.classList.add("hidden");
-  document.getElementById(labelID).removeAttribute("collapsed");
+  document
+    .getElementById(addressRow.dataset.recipienttype)
+    .removeAttribute("collapsed");
 
   // Update the Send button only if the content was previously changed.
   if (isEdited) {
@@ -1332,7 +1238,7 @@ function hideAddressRow(element, focusType = "next") {
       : getPreviousSibling(addressRow, ".address-row:not(.hidden)");
 
   if (addressRowSibling) {
-    addressRowSibling.querySelector(`.address-input[recipienttype]`).focus();
+    addressRowSibling.querySelector(".address-row-input").focus();
     return;
   }
   // Otherwise move focus to the subject field or to the first available input.
@@ -1340,7 +1246,7 @@ function hideAddressRow(element, focusType = "next") {
     focusType == "next"
       ? document.getElementById("msgSubject")
       : getNextSibling(addressRow, ".address-row:not(.hidden)").querySelector(
-          ".address-input[recipienttype]"
+          ".address-row-input"
         );
   fallbackFocusElement.focus();
 }

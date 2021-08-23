@@ -2145,6 +2145,7 @@
                       <label id="addr_to" role="button"
                              disableonsend="true"
                              class="mail-primary-label mail-label recipient-label"
+                             data-address-row="addressRowTo"
                              onclick="showAddressRow(this, 'addressRowTo')"
                              ondrop="recipientLabelOnDrop(event);"
                              ondragover="recipientLabelOnDragover(event);"
@@ -2154,6 +2155,7 @@
                       <label id="addr_cc" role="button"
                              disableonsend="true"
                              class="mail-label recipient-label"
+                             data-address-row="addressRowCc"
                              onclick="showAddressRow(this, 'addressRowCc')"
                              ondrop="recipientLabelOnDrop(event);"
                              ondragover="recipientLabelOnDragover(event);"
@@ -2162,6 +2164,7 @@
                       <label id="addr_bcc" role="button"
                              disableonsend="true"
                              class="mail-label recipient-label"
+                             data-address-row="addressRowBcc"
                              onclick="showAddressRow(this, 'addressRowBcc')"
                              ondrop="recipientLabelOnDrop(event);"
                              ondragover="recipientLabelOnDragover(event);"
@@ -2184,8 +2187,8 @@
               <mail-recipients-area id="recipientsContainer" orient="vertical"
                                     class="recipients-container" flex="1">
                 <hbox id="addressRowReply"
-                      class="addressingWidgetItem address-row hidden"
-                      data-labelid="addr_reply">
+                      class="address-row hidden"
+                      data-recipienttype="addr_reply">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2203,7 +2206,7 @@
                         onclick="focusAddressInput(event);">
                     <html:input is="autocomplete-input" id="replyAddrInput"
                                 type="text"
-                                class="plain address-input mail-input"
+                                class="plain address-input address-row-input mail-input"
                                 disableonsend="true"
                                 autocompletesearch="mydomain addrbook ldap news"
                                 autocompletesearchparam="{}"
@@ -2216,14 +2219,13 @@
                                 ignoreblurwhilesearching="true"
                                 onfocus="addressInputOnFocus(this);"
                                 onblur="addressInputOnBlur(this);"
-                                recipienttype="addr_reply"
                                 size="1"/>
                   </hbox>
                 </hbox>
 
                 <hbox id="addressRowTo"
-                      class="addressingWidgetItem address-row"
-                      data-labelid="addr_to">
+                      class="address-row"
+                      data-recipienttype="addr_to">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);"
@@ -2243,7 +2245,7 @@
                         onclick="focusAddressInput(event);">
                     <html:input is="autocomplete-input" id="toAddrInput"
                                 type="text"
-                                class="plain address-input mail-input mail-primary-input"
+                                class="plain address-input address-row-input mail-input mail-primary-input"
                                 disableonsend="true"
                                 autocompletesearch="mydomain addrbook ldap news"
                                 autocompletesearchparam="{}"
@@ -2256,14 +2258,13 @@
                                 ignoreblurwhilesearching="true"
                                 onfocus="addressInputOnFocus(this);"
                                 onblur="addressInputOnBlur(this);"
-                                recipienttype="addr_to"
                                 size="1"/>
                   </hbox>
                 </hbox>
 
                 <hbox id="addressRowCc"
-                      class="addressingWidgetItem address-row hidden"
-                      data-labelid="addr_cc">
+                      class="address-row hidden"
+                      data-recipienttype="addr_cc">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2282,7 +2283,7 @@
                         onclick="focusAddressInput(event);">
                     <html:input is="autocomplete-input" id="ccAddrInput"
                                 type="text"
-                                class="plain address-input mail-input"
+                                class="plain address-input address-row-input mail-input"
                                 disableonsend="true"
                                 autocompletesearch="mydomain addrbook ldap news"
                                 autocompletesearchparam="{}"
@@ -2295,14 +2296,13 @@
                                 ignoreblurwhilesearching="true"
                                 onfocus="addressInputOnFocus(this);"
                                 onblur="addressInputOnBlur(this);"
-                                recipienttype="addr_cc"
                                 size="1"/>
                   </hbox>
                 </hbox>
 
                 <hbox id="addressRowBcc"
-                      class="addressingWidgetItem address-row hidden"
-                      data-labelid="addr_bcc">
+                      class="address-row hidden"
+                      data-recipienttype="addr_bcc">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2321,7 +2321,7 @@
                         onclick="focusAddressInput(event);">
                     <html:input is="autocomplete-input" id="bccAddrInput"
                                 type="text"
-                                class="plain address-input mail-input"
+                                class="plain address-input address-row-input mail-input"
                                 disableonsend="true"
                                 autocompletesearch="mydomain addrbook ldap news"
                                 autocompletesearchparam="{}"
@@ -2334,14 +2334,13 @@
                                 ignoreblurwhilesearching="true"
                                 onfocus="addressInputOnFocus(this);"
                                 onblur="addressInputOnBlur(this);"
-                                recipienttype="addr_bcc"
                                 size="1"/>
                   </hbox>
                 </hbox>
 
                 <hbox id="addressRowNewsgroups"
-                      class="addressingWidgetItem address-row hidden"
-                      data-labelid="addr_newsgroups">
+                      class="address-row hidden"
+                      data-recipienttype="addr_newsgroups">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2359,7 +2358,7 @@
                         onclick="focusAddressInput(event);">
                     <html:input is="autocomplete-input" id="newsgroupsAddrInput"
                                 type="text"
-                                class="plain address-input news-input news-primary-input"
+                                class="plain address-input address-row-input news-input news-primary-input"
                                 disableonsend="true"
                                 autocompletesearch="mydomain addrbook ldap news"
                                 autocompletesearchparam="{}"
@@ -2372,14 +2371,13 @@
                                 ignoreblurwhilesearching="true"
                                 onfocus="addressInputOnFocus(this);"
                                 onblur="addressInputOnBlur(this);"
-                                recipienttype="addr_newsgroups"
                                 size="1"/>
                   </hbox>
                 </hbox>
 
                 <hbox id="addressRowFollowup"
-                      class="addressingWidgetItem address-row hidden"
-                      data-labelid="addr_followup">
+                      class="address-row hidden"
+                      data-recipienttype="addr_followup">
                   <hbox class="aw-firstColBox">
                     <html:button class="remove-field-button icon-button"
                                  onclick="closeLabelOnClick(event);">
@@ -2397,7 +2395,7 @@
                         onclick="focusAddressInput(event);">
                     <html:input is="autocomplete-input" id="followupAddrInput"
                                 type="text"
-                                class="plain address-input news-input"
+                                class="plain address-input address-row-input news-input"
                                 disableonsend="true"
                                 autocompletesearch="mydomain addrbook ldap news"
                                 autocompletesearchparam="{}"
@@ -2410,7 +2408,6 @@
                                 ignoreblurwhilesearching="true"
                                 onfocus="addressInputOnFocus(this);"
                                 onblur="addressInputOnBlur(this);"
-                                recipienttype="addr_followup"
                                 size="1"/>
                   </hbox>
                 </hbox>

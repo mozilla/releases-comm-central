@@ -2023,7 +2023,7 @@
      */
     get rowInput() {
       return this.closest(".address-container").querySelector(
-        `input[is="autocomplete-input"][recipienttype]`
+        ".address-row-input"
       );
     }
 
@@ -2355,9 +2355,7 @@
             let row = this.querySelector(".address-row:not(.hidden)");
             // If the close label is collapsed, focus on the input field.
             if (row.querySelector(".remove-field-button").hidden) {
-              row
-                .querySelector(`input[is="autocomplete-input"][recipienttype]`)
-                .focus();
+              row.querySelector(".address-row-input").focus();
               return;
             }
             // Focus on the close label.
@@ -2581,9 +2579,8 @@
       }
 
       // Create pills for all the combined addresses.
-      let recipientType = addressContainer
-        .querySelector(".address-input[recipienttype]")
-        .getAttribute("recipienttype");
+      let row = addressContainer.closest(".address-row");
+      let recipientType = row.dataset.recipienttype;
       for (let address of combinedAddresses) {
         awAddRecipientsArray(
           recipientType,
@@ -2603,12 +2600,13 @@
      * @param {boolean} rawInput - A flag to disable pills and autocompletion.
      * @return {Element} - The newly created recipient row.
      */
+    // NOTE: This is currently never called with rawInput = false, so it may be
+    // out of date if used.
     buildRecipientRow(recipient, rawInput = false) {
       let row = document.createXULElement("hbox");
-      row.setAttribute("id", recipient.row);
-      row.classList.add("addressingWidgetItem", "address-row");
-      row.setAttribute("data-labelid", recipient.labelId);
-      row.setAttribute("data-labeltype", recipient.type);
+      row.setAttribute("id", recipient.rowId);
+      row.classList.add("address-row");
+      row.dataset.recipienttype = recipient.type;
 
       let firstCol = document.createXULElement("hbox");
       firstCol.classList.add("aw-firstColBox");
@@ -2618,7 +2616,7 @@
       let closeButton = document.createElement("button");
       closeButton.classList.add("remove-field-button", "icon-button");
       document.l10n.setAttributes(closeButton, "remove-address-row-button", {
-        type: recipient.labelId,
+        type: recipient.type,
       });
       let closeIcon = document.createElement("img");
       closeIcon.setAttribute("src", "chrome://global/skin/icons/close.svg");
@@ -2643,16 +2641,16 @@
       );
 
       let label = document.createXULElement("label");
-      label.setAttribute("id", recipient.label);
-      label.setAttribute("value", recipient.labelId);
-      label.setAttribute("control", recipient.id);
+      label.setAttribute("id", recipient.labelId);
+      label.setAttribute("value", recipient.type);
+      label.setAttribute("control", recipient.inputId);
       label.setAttribute("flex", 1);
       label.setAttribute("crop", "end");
       labelContainer.appendChild(label);
       row.appendChild(labelContainer);
 
       let inputContainer = document.createXULElement("hbox");
-      inputContainer.setAttribute("id", recipient.container);
+      inputContainer.setAttribute("id", recipient.containerId);
       inputContainer.setAttribute("flex", 1);
       inputContainer.setAttribute("align", "center");
       inputContainer.classList.add(
@@ -2671,15 +2669,11 @@
               is: "autocomplete-input",
             }
       );
-      input.setAttribute("id", recipient.id);
-      input.setAttribute("recipienttype", recipient.type);
+      input.setAttribute("id", recipient.inputId);
       input.setAttribute("size", 1);
       input.setAttribute("type", "text");
       input.setAttribute("disableonsend", true);
-      input.classList.add("plain", "address-input");
-      if (recipient.class) {
-        input.classList.add(recipient.class);
-      }
+      input.classList.add("plain", "address-input", "address-row-input");
 
       if (!rawInput) {
         // Regular autocomplete address input, not other header with raw input.
@@ -2707,6 +2701,7 @@
       } else {
         // Handle keydown event in other header input (rawInput), which does not
         // have autocomplete and its associated keydown handling.
+        row.classList.add("address-row-raw");
         input.addEventListener("keydown", otherHeaderInputOnKeyDown);
         input.addEventListener("input", event => {
           addressInputOnInput(event, true);
@@ -2741,7 +2736,6 @@
       pill.emailAddress = address.email || "";
       pill.fullAddress = address.toString();
       pill.displayName = address.name || "";
-      pill.setAttribute("recipienttype", element.getAttribute("recipienttype"));
 
       pill.addEventListener("click", event => {
         if (pill.hasAttribute("disabled")) {
@@ -2812,12 +2806,16 @@
 
       // The emailInput attribute is accessible only after the pill has been
       // appended to the DOM.
-      let classes = element.getAttribute("class").split(" ");
-      var fixedClassed = classes.filter(value => {
-        return value != "mail-primary-input" && value != "news-primary-input";
-      });
-      for (let css of fixedClassed) {
-        pill.emailInput.classList.add(css);
+      let excludedClasses = [
+        "mail-primary-input",
+        "news-primary-input",
+        "address-row-input",
+      ];
+      for (let cssClass of element.classList) {
+        if (excludedClasses.includes(cssClass)) {
+          continue;
+        }
+        pill.emailInput.classList.add(cssClass);
       }
       pill.emailInput.setAttribute(
         "aria-labelledby",
@@ -2828,7 +2826,7 @@
       let params = JSON.parse(
         pill.emailInput.getAttribute("autocompletesearchparam")
       );
-      params.type = element.getAttribute("recipienttype");
+      params.type = element.closest(".address-row").dataset.recipienttype;
       pill.emailInput.setAttribute(
         "autocompletesearchparam",
         JSON.stringify(params)
@@ -3310,9 +3308,7 @@
       let previousRow = row.previousElementSibling;
       while (previousRow) {
         if (!previousRow.classList.contains("hidden")) {
-          previousRow
-            .querySelector(`input[is="autocomplete-input"][recipienttype]`)
-            .focus();
+          previousRow.querySelector(".address-row-input").focus();
           return;
         }
         previousRow = previousRow.previousElementSibling;

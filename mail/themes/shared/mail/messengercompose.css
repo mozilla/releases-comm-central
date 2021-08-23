@@ -594,7 +594,6 @@ menulist::part(description) {
 }
 
 .aw-firstColBox,
-.addressingWidgetItem,
 #identityLabel-box {
   flex-shrink: 0;
 }

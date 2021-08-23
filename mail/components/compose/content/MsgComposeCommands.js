@@ -4090,13 +4090,11 @@ function ComposeLoad() {
       for (let header of otherHeaders.split(",")) {
         header = header.trim();
         let recipient = {
-          id: `${header}AddrInput`,
-          row: `addressRow${header}`,
-          label: `${header}AddrLabel`,
-          labelId: header,
-          container: `${header}AddrContainer`,
-          class: "",
-          type: "addr_other",
+          rowId: `addressRow${header}`,
+          labelId: `${header}AddrLabel`,
+          containerId: `${header}AddrContainer`,
+          inputId: `${header}AddrInput`,
+          type: header,
         };
 
         extraRecipientsPanel.appendChild(createRecipientLabel(header));
@@ -4131,9 +4129,7 @@ function ComposeLoad() {
   updateAttachmentPane();
   updateAriaLabelsAndTooltipsOfAllAddressRows();
 
-  for (let input of document.querySelectorAll(
-    ".address-input[recipienttype]"
-  )) {
+  for (let input of document.querySelectorAll(".address-row-input")) {
     input.onBeforeHandleKeyDown = event =>
       addressInputOnBeforeHandleKeyDown(event);
   }
@@ -4436,16 +4432,11 @@ async function updateAriaLabelsAndTooltipsOfAllAddressRows() {
  * @param {Element} row - The address row.
  */
 async function updateAriaLabelsOfAddressRow(row) {
-  // Get the input of a normal address row with pills, or null if custom header.
-  // Use [is="autocomplete-input"] to prevent selecting a custom header input.
-  // Use [recipienttype] to prevent selecting an input for editing a pill.
-  let input = row.querySelector(
-    `input[is="autocomplete-input"][recipienttype]`
-  );
   // Bail out for custom header input where pills are disabled.
-  if (!input) {
+  if (row.classList.contains("address-row-raw")) {
     return;
   }
+  let input = row.querySelector(".address-row-input");
 
   let type = row.querySelector(".address-label-container > label").value;
   let pills = row.querySelectorAll("mail-address-pill");
@@ -5028,8 +5019,7 @@ function isValidNewsAddress(address) {
 function focusAddressInput(event) {
   let container = event.target;
   if (container.classList.contains("address-container")) {
-    // Focus the row input with recipienttype attribute, i.e. not a pill input.
-    container.querySelector(".address-input[recipienttype]").focus();
+    container.querySelector(".address-row-input").focus();
   }
 }
 
@@ -5082,7 +5072,7 @@ function updateSendLock() {
 
   // Check the non pillified input text inside the autocomplete input fields.
   for (let input of document.querySelectorAll(
-    `.address-row:not(.hidden) input[is="autocomplete-input"][recipienttype]`
+    ".address-row:not(.hidden):not(.address-row-raw) .address-row-input"
   )) {
     let inputValueTrim = input.value.trim();
     // If there's no text in the input, proceed with next input.
@@ -5166,11 +5156,11 @@ function CheckValidEmailAddress(aMsgCompFields) {
  */
 function pillifyRecipients() {
   for (let input of document.querySelectorAll(
-    `.address-row:not(.hidden) input[is="autocomplete-input"][recipienttype]`
+    ".address-row:not(.hidden):not(.address-row-raw) .address-row-input"
   )) {
     // If we find a leftover string in the input field, create a pill. If the
     // newly created pill is not a valid address, the sending will stop.
-    if (input?.value.trim()) {
+    if (input.value.trim()) {
       recipientAddPills(input);
     }
   }
@@ -5200,9 +5190,10 @@ function recipientLabelOnDrop(event) {
     // etc.), which will also show the row if needed. If there are no selected
     // pills (so "text/pills" was generated elsewhere), moveSelectedPills() will
     // bail out and we'll do nothing.
+    let row = document.getElementById(event.target.dataset.addressRow);
     document
       .getElementById("recipientsContainer")
-      .moveSelectedPills(event.target.id);
+      .moveSelectedPills(row.dataset.recipienttype);
   }
 }
 
@@ -6140,9 +6131,7 @@ function AdjustFocus() {
 
   // Focus on the recipient input field if no pills are present.
   if (element.querySelectorAll("mail-address-pill").length == 0) {
-    element
-      .querySelector(`input[is="autocomplete-input"][recipienttype]`)
-      .focus();
+    element.querySelector(".address-row-input").focus();
     return;
   }
 
@@ -7983,7 +7972,7 @@ function MakeFromFieldEditable(ignoreWarning) {
  */
 function setupAutocompleteInput(input) {
   let params = JSON.parse(input.getAttribute("autocompletesearchparam"));
-  params.type = input.getAttribute("recipienttype");
+  params.type = input.closest(".address-row").dataset.recipienttype;
   input.setAttribute("autocompletesearchparam", JSON.stringify(params));
 
   // This method overrides the autocomplete binding's openPopup (essentially
@@ -8010,7 +7999,7 @@ function fromKeyPress(event) {
     // Move the focus to the first available address input.
     document
       .querySelector(
-        "#recipientsContainer .address-row:not(.hidden) .address-input[recipienttype]"
+        "#recipientsContainer .address-row:not(.hidden) .address-row-input"
       )
       .focus();
   }
@@ -8825,9 +8814,7 @@ function SwitchElementFocus(event) {
       // Move the focus on the first available recipient field.
       document
         .getElementById("recipientsContainer")
-        .querySelector(
-          ".address-row:not(.hidden) .address-input[recipienttype]"
-        )
+        .querySelector(".address-row:not(.hidden) .address-row-input")
         .focus();
       break;
     case document.getElementById("toAddrInput"):
@@ -8888,7 +8875,7 @@ function SetFocusOnPreviousAvailableElement(element) {
 
     // If the last available address-row child is not hidden, grab the focus.
     if (!element.classList.contains("hidden")) {
-      element.querySelector(".address-input[recipienttype]").focus();
+      element.querySelector(".address-row-input").focus();
       return;
     }
   }
@@ -8898,7 +8885,7 @@ function SetFocusOnPreviousAvailableElement(element) {
   let previousRow = element.closest(".address-row").previousElementSibling;
   while (previousRow) {
     if (!previousRow.classList.contains("hidden")) {
-      previousRow.querySelector(".address-input[recipienttype]").focus();
+      previousRow.querySelector(".address-row-input").focus();
       return;
     }
     previousRow = previousRow.previousElementSibling;
@@ -8920,7 +8907,7 @@ function SetFocusOnNextAvailableElement(element) {
   let nextRow = element.closest(".address-row").nextElementSibling;
   while (nextRow) {
     if (!nextRow.classList.contains("hidden")) {
-      nextRow.querySelector(".address-input[recipienttype]").focus();
+      nextRow.querySelector(".address-row-input").focus();
       return;
     }
     nextRow = nextRow.nextElementSibling;
