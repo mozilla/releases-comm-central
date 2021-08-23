@@ -745,85 +745,113 @@
       </hbox>
       <vbox id="updateBox">
         <stack id="updateDeck" orient="vertical">
-          <hbox id="checkForUpdates" align="center">
-            <spacer flex="1"/>
-            <button is="highlightable-button" id="checkForUpdatesButton"
-                    align="start"
-                    label="&update.checkForUpdatesButton.label;"
-                    accesskey="&update.checkForUpdatesButton.accesskey;"
-                    oncommand="gAppUpdater.checkForUpdates();"/>
-          </hbox>
-          <hbox id="downloadAndInstall" align="center">
-            <spacer flex="1"/>
-            <button is="highlightable-button" id="downloadAndInstallButton"
-                    oncommand="gAppUpdater.startDownload();"/>
-                    <!-- label and accesskey will be filled by JS -->
-          </hbox>
-          <hbox id="apply" align="center">
-            <spacer flex="1"/>
-            <button is="highlightable-button" id="updateButton"
-                    label="&update.updateButton.label3;"
-                    accesskey="&update.updateButton.accesskey;"
-                    oncommand="gAppUpdater.buttonRestartAfterDownload();"/>
-          </hbox>
-          <hbox id="checkingForUpdates" align="center">
-            <image class="update-throbber"/><label>&update.checkingForUpdates;</label>
-            <spacer flex="1"/>
-            <button is="highlightable-button"
-                    label="&update.checkForUpdatesButton.label;"
-                    accesskey="&update.checkForUpdatesButton.accesskey;"
-                    disabled="true"/>
-          </hbox>
-          <hbox id="downloading" align="center">
-            <image class="update-throbber"/><label>&update.downloading.start;</label>
-            <label id="downloadStatus"/><label>&update.downloading.end;</label>
-          </hbox>
-          <hbox id="applying" align="center">
-            <image class="update-throbber"/><label>&update.applying;</label>
-          </hbox>
-         <hbox id="downloadFailed" align="center">
-            <label>&update.failed.start;</label>
-            <label is="text-link" id="failedLink">&update.failed.linkText;</label>
-            <label>&update.failed.end;</label>
-            <spacer flex="1"/>
-            <button is="highlightable-button"
-                    label="&update.checkForUpdatesButton.label;"
-                    accesskey="&update.checkForUpdatesButton.accesskey;"
-                    oncommand="gAppUpdater.checkForUpdates();"/>
-          </hbox>
-          <hbox id="policyDisabled" align="center">
-            <label>&update.adminDisabled;</label>
-          </hbox>
-          <hbox id="noUpdatesFound" align="center">
-            <label>&update.noUpdatesFound;</label>
-            <spacer flex="1"/>
-            <button is="highlightable-button"
-                    label="&update.checkForUpdatesButton.label;"
-                    accesskey="&update.checkForUpdatesButton.accesskey;"
-                    oncommand="gAppUpdater.checkForUpdates();"/>
-          </hbox>
-          <hbox id="otherInstanceHandlingUpdates" align="center">
-            <label>&update.otherInstanceHandlingUpdates;</label>
-          </hbox>
-          <hbox id="manualUpdate" align="center">
-            <label>&update.manual.start;</label><label is="text-link" id="manualLink">
-              &update.manual.linkText;
-            </label>
-            <label>&update.manual.end;</label>
-            <spacer flex="1"/>
-            <button is="highlightable-button"
-                    label="&update.checkForUpdatesButton.label;"
-                    accesskey="&update.checkForUpdatesButton.accesskey;"
-                    disabled="true"/>
-          </hbox>
-          <hbox id="unsupportedSystem" align="center">
-            <label>&update.unsupported.start;</label>
-            <label is="text-link" id="unsupportedLink">&update.unsupported.linkText;</label>
-            <label>&update.unsupported.end;</label>
-          </hbox>
-          <hbox id="restarting" align="center">
-            <image class="update-throbber"/><label>&update.restarting;</label>
-          </hbox>
+          <html:div id="checkForUpdates" class="update-deck-container">
+            <html:button id="checkForUpdatesButton"
+                         accesskey="&update.checkForUpdatesButton.accesskey;"
+                         onclick="gAppUpdater.checkForUpdates();">
+              &update.checkForUpdatesButton.label;
+            </html:button>
+          </html:div>
+          <html:div id="downloadAndInstall" class="update-deck-container">
+            <html:button id="downloadAndInstallButton"
+                         onclick="gAppUpdater.startDownload();">
+            </html:button>
+          </html:div>
+          <html:div id="apply" class="update-deck-container">
+            <html:button id="updateButton"
+                         accesskey="&update.updateButton.accesskey;"
+                         onclick="gAppUpdater.buttonRestartAfterDownload();">
+              &update.updateButton.label3;
+            </html:button>
+          </html:div>
+          <html:div id="checkingForUpdates" class="update-deck-container">
+            <html:img class="update-throbber" alt=""
+                      src="chrome://global/skin/icons/loading.png"
+                      srcset="chrome://global/skin/icons/loading@2x.png 2x" />
+            <html:span>&update.checkingForUpdates;</html:span>
+            <!-- Button is only used for presentation in reference to the actual
+               - button that triggered this action, which would now be
+               - invisible -->
+            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+                         disabled="true">
+              &update.checkForUpdatesButton.label;
+            </html:button>
+          </html:div>
+          <html:div id="downloading" class="update-deck-container">
+            <html:img class="update-throbber" alt=""
+                      src="chrome://global/skin/icons/loading.png"
+                      srcset="chrome://global/skin/icons/loading@2x.png 2x" />
+            <!-- Group within a single span to center align with icon. -->
+            <html:span>
+              <html:span>&update.downloading.start;</html:span>
+              <html:span id="downloadStatus"></html:span>
+              <html:span>&update.downloading.end;</html:span>
+            </html:span>
+          </html:div>
+          <html:div id="applying" class="update-deck-container">
+            <html:img class="update-throbber" alt=""
+                      src="chrome://global/skin/icons/loading.png"
+                      srcset="chrome://global/skin/icons/loading@2x.png 2x" />
+            <html:span>&update.applying;</html:span>
+          </html:div>
+          <html:div id="downloadFailed" class="update-deck-container">
+            <!-- Outer span ensures whitespace between the plain text and
+               - the link. Otherwise, this would be suppressed by the
+               - update-deck-container's display: flex. -->
+            <html:span>
+              <html:span>&update.failed.start;</html:span>
+              <html:a id="failedLink" class="text-link download-link">
+                &update.failed.linkText;
+              </html:a>
+              <html:span>&update.failed.end;</html:span>
+            </html:span>
+            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+                         onclick="gAppUpdater.checkForUpdates();">
+              &update.checkForUpdatesButton.label;
+            </html:button>
+          </html:div>
+          <html:div id="policyDisabled" class="update-deck-container">
+            <html:span>&update.adminDisabled;</html:span>
+          </html:div>
+          <html:div id="noUpdatesFound" class="update-deck-container">
+            <html:span>&update.noUpdatesFound;</html:span>
+            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+                         onclick="gAppUpdater.checkForUpdates();">
+              &update.checkForUpdatesButton.label;
+            </html:button>
+          </html:div>
+          <html:div id="otherInstanceHandlingUpdates"
+                    class="update-deck-container">
+            <html:span>&update.otherInstanceHandlingUpdates;</html:span>
+          </html:div>
+          <html:div id="manualUpdate" class="update-deck-container">
+            <html:span>
+              <html:span>&update.manual.start;</html:span>
+              <html:a id="manualLink" class="text-link download-link">
+                &update.manual.linkText;
+              </html:a>
+              <html:span>&update.manual.end;</html:span>
+            </html:span>
+            <html:button accesskey="&update.checkForUpdatesButton.accesskey;"
+                         onclick="gAppUpdater.checkForUpdates();">
+              &update.checkForUpdatesButton.label;
+            </html:button>
+          </html:div>
+          <html:div id="unsupportedSystem" class="update-deck-container">
+            <html:span>
+              <html:span>&update.unsupported.start;</html:span>
+              <html:a id="unsupportedLink" class="text-link download-link">
+                &update.unsupported.linkText;
+              </html:a>
+              <html:span>&update.unsupported.end;</html:span>
+            </html:span>
+          </html:div>
+          <html:div id="restarting" class="update-deck-container">
+            <html:img class="update-throbber" alt=""
+                      src="chrome://global/skin/icons/loading.png"
+                      srcset="chrome://global/skin/icons/loading@2x.png 2x" />
+            <html:span>&update.restarting;</html:span>
+          </html:div>
         </stack>
       </vbox>
       <separator/>

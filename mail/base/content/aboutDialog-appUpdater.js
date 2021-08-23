@@ -64,12 +64,8 @@ function appUpdater(options = {}) {
   );
 
   let manualURL = Services.urlFormatter.formatURLPref("app.update.url.manual");
-  document
-    .getElementById("manualLink")
-    .setAttribute("onclick", 'openLink("' + manualURL + '");');
-  document
-    .getElementById("failedLink")
-    .setAttribute("onclick", 'openLink("' + manualURL + '");');
+  document.getElementById("manualLink").href = manualURL;
+  document.getElementById("failedLink").href = manualURL;
 
   if (this.updateDisabledByPolicy) {
     this.selectPanel("policyDisabled");
@@ -241,7 +237,7 @@ appUpdater.prototype = {
           let day = buildID.slice(6, 8);
           updateVersion += ` (${year}-${month}-${day})`;
         }
-        button.label = this.bundle.formatStringFromName(
+        button.textContent = this.bundle.formatStringFromName(
           "update.downloadAndInstallButton.label",
           [updateVersion]
         );
@@ -342,7 +338,7 @@ appUpdater.prototype = {
         if (gAppUpdater.update.detailsURL) {
           unsupportedLink.href = gAppUpdater.update.detailsURL;
         } else {
-          unsupportedLink.setAttribute("hidden", true);
+          unsupportedLink.hidden = true;
         }
 
         gAppUpdater.selectPanel("unsupportedSystem");
@@ -412,7 +408,7 @@ appUpdater.prototype = {
    */
   setupDownloadingUI() {
     this.downloadStatus = document.getElementById("downloadStatus");
-    this.downloadStatus.value = DownloadUtils.getTransferTotal(
+    this.downloadStatus.textContent = DownloadUtils.getTransferTotal(
       0,
       this.update.selectedPatch.size
     );
@@ -478,7 +474,7 @@ appUpdater.prototype = {
    * See nsIProgressEventSink.idl
    */
   onProgress(aRequest, aProgress, aProgressMax) {
-    this.downloadStatus.value = DownloadUtils.getTransferTotal(
+    this.downloadStatus.textContent = DownloadUtils.getTransferTotal(
       aProgress,
       aProgressMax
     );
@@ -530,3 +526,15 @@ appUpdater.prototype = {
     "nsIRequestObserver",
   ]),
 };
+
+window.addEventListener("load", () => {
+  for (let link of document.querySelectorAll(".download-link")) {
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      let messenger =
+        window.messenger ||
+        Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+      messenger.launchExternalURL(event.target.href);
+    });
+  }
+});

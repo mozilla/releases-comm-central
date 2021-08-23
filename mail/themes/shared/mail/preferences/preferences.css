@@ -376,21 +376,28 @@ checkbox {
   white-space: nowrap;
 }
 
-#updateDeck > *:not(.selected) {
+.update-deck-container {
+  display: flex;
+  align-items: center;
+}
+
+.update-deck-container > * {
+  flex: 0 0 auto;
+}
+
+.update-deck-container:not(.selected) {
   visibility: hidden;
+}
+
+.update-deck-container > button {
+  /* Align the button at the end. */
+  margin-inline-start: auto;
 }
 
 .update-throbber {
   width: 16px;
-  min-height: 16px;
+  height: 16px;
   margin-inline: 6px 4px;
-  list-style-image: url("chrome://global/skin/icons/loading.png");
-}
-
-@media (min-resolution: 1.1dppx) {
-  .update-throbber {
-    list-style-image: url("chrome://global/skin/icons/loading@2x.png");
-  }
 }
 
 .updateSettingCrossUserWarningContainer {

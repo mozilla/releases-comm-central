@@ -84,25 +84,31 @@
   padding-inline-start: 0;
 }
 
-#updateDeck > *:not(.selected) {
+.update-deck-container {
+  display: flex;
+  align-items: center;
+}
+
+.update-deck-container > * {
+  flex: 0 0 auto;
+}
+
+.update-deck-container:not(.selected) {
   visibility: hidden;
 }
 
-#updateButton,
-#updateDeck > hbox > label {
-  margin-inline-start: 0;
-  padding-inline-start: 0;
+.update-deck-container span {
+  font-style: italic;
 }
 
-#updateDeck > hbox > label:not([class="text-link"]) {
-  font-style:italic;
+.update-deck-container span > a {
+  font-style: normal;
 }
 
 .update-throbber {
   width: 16px;
-  min-height: 16px;
+  height: 16px;
   margin-inline-end: 3px;
-  list-style-image: url("chrome://global/skin/icons/loading.png");
 }
 
 .trademark-label,
@@ -118,13 +124,12 @@
   margin: 0 40px;
 }
 
-.text-link:not(:hover) {
+.text-link {
   color: var(--link-color);
-  text-decoration: var(--link-decoration);
 }
 
-.text-link:hover {
-  color: var(--link-color);
+.text-link:not(:hover) {
+  text-decoration: var(--link-decoration);
 }
 
 #currentChannel {
