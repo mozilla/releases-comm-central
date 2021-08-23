@@ -82,8 +82,13 @@ CalCompositeCalendar.prototype = {
   get prefChromeOverlay() {
     return null;
   },
+
   get displayName() {
     return cal.l10n.getCalString("compositeName");
+  },
+
+  get shortName() {
+    return this.displayName();
   },
 
   createCalendar() {

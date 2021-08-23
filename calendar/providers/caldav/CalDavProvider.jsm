@@ -28,6 +28,10 @@ var CalDavProvider = {
     return cal.l10n.getCalString("caldavName");
   },
 
+  get shortName() {
+    return "CalDAV";
+  },
+
   createCalendar(aName, aUri, aListener) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },

@@ -28,6 +28,10 @@ var CalICSProvider = {
     return cal.l10n.getCalString("icsName");
   },
 
+  get shortName() {
+    return "ICS";
+  },
+
   createCalendar(aName, aUri, aListener) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },

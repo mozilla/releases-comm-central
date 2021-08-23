@@ -79,6 +79,10 @@ CalStorageCalendar.prototype = {
     return cal.l10n.getCalString("storageName");
   },
 
+  get shortName() {
+    return "SQLite";
+  },
+
   createCalendar() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },

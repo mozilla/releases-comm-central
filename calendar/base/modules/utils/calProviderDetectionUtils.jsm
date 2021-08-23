@@ -134,8 +134,8 @@ var calproviderdetection = {
           aExtraProperties
         );
         return detectionResult.then(
-          result => ({ type: provider.type, status: Cr.NS_OK, detail: result }),
-          failure => ({ type: provider.type, status: Cr.NS_ERROR_FAILURE, detail: failure })
+          result => ({ provider, status: Cr.NS_OK, detail: result }),
+          failure => ({ provider, status: Cr.NS_ERROR_FAILURE, detail: failure })
         );
       })
     );
@@ -144,10 +144,10 @@ var calproviderdetection = {
     let lastError;
     let results = new Map(
       resolutions.reduce((res, resolution) => {
-        let { type, status, detail } = resolution.value || resolution.reason;
+        let { provider, status, detail } = resolution.value || resolution.reason;
 
         if (Components.isSuccessCode(status) && detail && detail.length) {
-          res.push([type, detail]);
+          res.push([provider, detail]);
         } else {
           failCount++;
           if (detail instanceof DetectionError) {

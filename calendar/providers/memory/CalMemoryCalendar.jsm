@@ -60,6 +60,10 @@ CalMemoryCalendar.prototype = {
     return cal.l10n.getCalString("memoryName");
   },
 
+  get shortName() {
+    return this.displayName();
+  },
+
   createCalendar() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },

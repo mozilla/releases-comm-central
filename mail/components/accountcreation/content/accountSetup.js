@@ -2429,7 +2429,7 @@ var gAccountSetup = {
       for (let calendar of calendars) {
         let cal_provider = document.createElement("span");
         cal_provider.classList.add("protocol-type");
-        cal_provider.textContent = provider;
+        cal_provider.textContent = provider.shortName;
 
         let cal_name = document.createElement("span");
         cal_name.classList.add("list-item-name");

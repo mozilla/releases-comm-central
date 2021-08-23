@@ -30,6 +30,14 @@ interface calICalendarProvider : nsISupports
   readonly attribute AUTF8String displayName;
 
   /**
+   * The way to refer to this provider in the UI when needing to display a short
+   * label to describe the type (eg "CalDAV", "ICS", etc.). This is different
+   * from the type attribute as it's not meant to be used as unique identifier
+   * but only as a shorter non-localized label.
+   */
+  readonly attribute AUTF8String shortName;
+
+  /**
    * Create a new empty calendar. This will typically create a new empty
    * file, and then call getCalendar()
    *

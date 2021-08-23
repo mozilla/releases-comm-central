@@ -688,6 +688,7 @@ function onDetectionSuccess(providerMap) {
       .map(calendar => calendar.uri.spec)
   );
 
+  let calendarsMap = new Map();
   for (let [provider, calendars] of providerMap.entries()) {
     let newCalendars = calendars.map(calendar => {
       let newCalendar = prepareNetworkCalendar(calendar);
@@ -697,19 +698,19 @@ function onDetectionSuccess(providerMap) {
       return newCalendar;
     });
 
-    providerMap.set(provider, newCalendars);
+    calendarsMap.set(provider.type, newCalendars);
   }
 
-  if (!providerMap.size) {
+  if (!calendarsMap.size) {
     selectNetworkStatus("notfound");
     return;
   }
 
   // Update the panel with the results from the provider map.
-  setSingleProvider(providerMap.size <= 1);
-  findCalendars.lastResult = providerMap;
+  setSingleProvider(calendarsMap.size <= 1);
+  findCalendars.lastResult = calendarsMap;
 
-  let selectedItem = fillProviders([...providerMap.keys()]);
+  let selectedItem = fillProviders([...calendarsMap.keys()]);
   selectProvider(selectedItem.value);
 
   // Select the panel and validate the fields.

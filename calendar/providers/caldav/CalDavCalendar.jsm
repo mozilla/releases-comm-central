@@ -154,6 +154,10 @@ CalDavCalendar.prototype = {
     return cal.l10n.getCalString("caldavName");
   },
 
+  get shortName() {
+    return "CalDAV";
+  },
+
   createCalendar() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
