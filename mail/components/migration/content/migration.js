@@ -69,6 +69,10 @@ var MigrationWizard = {
     let donePage = document.getElementById("done");
     donePage.addEventListener("pageshow", this.onDonePageShow.bind(this));
 
+    let failedPage = document.getElementById("failed");
+    failedPage.addEventListener("pageshow", () => (this._failed = true));
+    failedPage.addEventListener("pagerewound", () => (this._failed = false));
+
     Services.obs.addObserver(this, "Migration:Started");
     Services.obs.addObserver(this, "Migration:ItemBeforeMigrate");
     Services.obs.addObserver(this, "Migration:ItemAfterMigrate");
@@ -114,7 +118,7 @@ var MigrationWizard = {
     Services.obs.removeObserver(this, "Migration:Progress");
 
     // Imported accounts don't show up without restarting.
-    if (this._wiz.onLastPage) {
+    if (this._wiz.onLastPage && !this._failed) {
       MailUtils.restartApplication();
     }
   },
@@ -129,7 +133,8 @@ var MigrationWizard = {
     for (let childNode of group.children) {
       let suffix = childNode.id;
       if (suffix != "nothing") {
-        var contractID = kProfileMigratorContractIDPrefix + suffix;
+        var contractID =
+          kProfileMigratorContractIDPrefix + suffix.split("-")[0];
         var migrator = Cc[contractID].createInstance(kIMig);
         if (!migrator.sourceExists) {
           childNode.hidden = true;
@@ -174,7 +179,8 @@ var MigrationWizard = {
 
     if (!this._migrator || newSource != this._source) {
       // Create the migrator for the selected source.
-      var contractID = kProfileMigratorContractIDPrefix + newSource;
+      var contractID =
+        kProfileMigratorContractIDPrefix + newSource.split("-")[0];
       this._migrator = Cc[contractID].createInstance(kIMig);
 
       this._itemsFlags = kIMig.ALL;
@@ -261,7 +267,7 @@ var MigrationWizard = {
         checkbox.id = itemID;
         checkbox.setAttribute(
           "label",
-          bundle.getString(itemID + "_" + this._source)
+          bundle.getString(itemID + "_" + this._source.split("-")[0])
         );
         dataSources.appendChild(checkbox);
         if (!this._itemsFlags || this._itemsFlags & itemID) {
@@ -298,7 +304,7 @@ var MigrationWizard = {
   },
 
   // 4 - Migrating
-  onMigratingPageShow() {
+  async onMigratingPageShow() {
     this._wiz.getButton("cancel").disabled = true;
     this._wiz.canRewind = false;
     this._wiz.canAdvance = false;
@@ -313,13 +319,54 @@ var MigrationWizard = {
     }
 
     this._listItems("migratingItems");
-    setTimeout(() => this.onMigratingMigrate());
+    try {
+      await this.onMigratingMigrate();
+    } catch (e) {
+      switch (e.message) {
+        case "file-picker-cancelled":
+          this._wiz.canRewind = true;
+          this._wiz.rewind();
+          this._wiz.canAdvance = true;
+          return;
+        case "zip-file-too-big":
+          this._wiz.canRewind = true;
+          this._wiz.rewind();
+          this._wiz.canAdvance = true;
+          let [
+            zipFileTooBigTitle,
+            zipFileTooBigMessage,
+          ] = await document.l10n.formatValues([
+            "zip-file-too-big-title",
+            "zip-file-too-big-message",
+          ]);
+          Services.prompt.alert(
+            window,
+            zipFileTooBigTitle,
+            zipFileTooBigMessage
+          );
+          document.getElementById(
+            "importSourceGroup"
+          ).selectedItem = document.getElementById("thunderbird-dir");
+          return;
+        default:
+          document.getElementById("failed-message-default").hidden = e.message;
+          document.getElementById("failed-message").hidden = !e.message;
+          document.getElementById("failed-message").textContent =
+            e.message || "";
+          this._wiz.canAdvance = true;
+          this._wiz.advance("failed");
+          throw e;
+      }
+    }
   },
 
   async onMigratingMigrate(aOuter) {
-    if (this._source == "thunderbird") {
+    let [source, type] = this._source.split("-");
+    if (source == "thunderbird") {
       // Ask user for the profile directory location.
-      await this._migrator.wrappedJSObject.getProfileDir(window);
+      await this._migrator.wrappedJSObject.getProfileDir(window, type);
+      await this._migrator.wrappedJSObject.asyncMigrate();
+      return;
     }
     this._migrator.migrate(
       this._itemsFlags,
@@ -343,7 +390,7 @@ var MigrationWizard = {
         try {
           label.setAttribute(
             "value",
-            "- " + bundle.getString(itemID + "_" + this._source)
+            "- " + bundle.getString(itemID + "_" + this._source.split("-")[0])
           );
           items.appendChild(label);
         } catch (e) {
@@ -401,15 +448,10 @@ var MigrationWizard = {
     this._listItems("doneItems");
   },
 
-  onBack() {
-    if (this._wiz.onFirstPage) {
-      if (window.arguments[3]) {
-        window.arguments[3].closeMigration = false;
-      }
-      this._wiz.cancel();
-    } else {
-      this._wiz.rewind();
-    }
+  onBack(event) {
+    this._wiz.goTo("importSource");
+    this._wiz.canRewind = false;
+    event.preventDefault();
   },
 
   onCancel() {

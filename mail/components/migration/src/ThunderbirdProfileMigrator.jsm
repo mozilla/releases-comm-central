@@ -8,7 +8,6 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -114,63 +113,78 @@ class ThunderbirdProfileMigrator {
    * profile dir. But in this class, we always ask user for the profile
    * location.
    */
-  async getProfileDir(window) {
+  async getProfileDir(window, type) {
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    filePicker.init(
-      window,
-      await l10n.formatValue("import-select-profile-zip"),
-      filePicker.modeOpen
-    );
-    filePicker.appendFilter("", "*.zip");
-    this._sourceProfileDir = await new Promise((resolve, reject) => {
+    let [filePickerTitleZip, filePickerTitleDir] = await l10n.formatValues([
+      "import-select-profile-zip",
+      "import-select-profile-dir",
+    ]);
+    switch (type) {
+      case "zip":
+        filePicker.init(window, filePickerTitleZip, filePicker.modeOpen);
+        filePicker.appendFilter("", "*.zip");
+        break;
+      case "dir":
+        filePicker.init(window, filePickerTitleDir, filePicker.modeGetFolder);
+        break;
+      default:
+        throw new Error(`Unsupported type: ${type}`);
+    }
+    let selectedFile = await new Promise((resolve, reject) => {
       filePicker.open(rv => {
         if (rv != Ci.nsIFilePicker.returnOK || !filePicker.file) {
-          reject();
+          reject(new Error("file-picker-cancelled"));
           return;
         }
-        if (filePicker.file.isDirectory()) {
-          resolve(filePicker.file);
-        } else {
-          this._importingFromZip = true;
-          // Extract the zip file to a tmp dir.
-          let targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
-          targetDir.append("tmp-profile");
-          targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-          let ZipReader = Components.Constructor(
-            "@mozilla.org/libjar/zip-reader;1",
-            "nsIZipReader",
-            "open"
-          );
-          let zip = ZipReader(filePicker.file);
-          for (let entry of zip.findEntries(null)) {
-            let parts = entry.split("/");
-            if (IGNORE_DIRS.includes(parts[1])) {
-              continue;
-            }
-            // Folders can not be unzipped recursively, have to iterate and
-            // extract all file entires one by one.
-            let target = targetDir.clone();
-            for (let part of parts.slice(1)) {
-              // Drop the root folder name in the zip file.
-              target.append(part);
-            }
-            if (!target.parent.exists()) {
-              target.parent.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-            }
-            try {
-              this._logger.debug(`Extracting ${entry} to ${target.path}`);
-              zip.extract(entry, target);
-            } catch (e) {
-              this._logger.error(e);
-            }
-          }
-          // Use the tmp dir as source profile dir.
-          resolve(targetDir);
-        }
+        resolve(filePicker.file);
       });
     });
+    if (selectedFile.isDirectory()) {
+      this._sourceProfileDir = selectedFile;
+    } else {
+      if (selectedFile.fileSize > 2147483647) {
+        // nsIZipReader only supports zip file less than 2GB.
+        // throw new Error(zipFileTooBigMessage);
+        throw new Error("zip-file-too-big");
+      }
+      this._importingFromZip = true;
+      // Extract the zip file to a tmp dir.
+      let targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+      targetDir.append("tmp-profile");
+      targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+      let ZipReader = Components.Constructor(
+        "@mozilla.org/libjar/zip-reader;1",
+        "nsIZipReader",
+        "open"
+      );
+      let zip = ZipReader(filePicker.file);
+      for (let entry of zip.findEntries(null)) {
+        let parts = entry.split("/");
+        if (IGNORE_DIRS.includes(parts[1]) || entry.endsWith("/")) {
+          continue;
+        }
+        // Folders can not be unzipped recursively, have to iterate and
+        // extract all file entires one by one.
+        let target = targetDir.clone();
+        for (let part of parts.slice(1)) {
+          // Drop the root folder name in the zip file.
+          target.append(part);
+        }
+        if (!target.parent.exists()) {
+          target.parent.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+        }
+        try {
+          this._logger.debug(`Extracting ${entry} to ${target.path}`);
+          zip.extract(entry, target);
+        } catch (e) {
+          this._logger.error(e);
+        }
+      }
+      // Use the tmp dir as source profile dir.
+      this._sourceProfileDir = targetDir;
+    }
   }
 
   getMigrateData() {
@@ -184,10 +198,10 @@ class ThunderbirdProfileMigrator {
   }
 
   migrate(items, startup, profile) {
-    this._migrate();
+    throw new Error("migrate not implemented");
   }
 
-  async _migrate() {
+  async asyncMigrate() {
     Services.obs.notifyObservers(null, "Migration:Started");
     try {
       await this._importPreferences();
@@ -310,7 +324,7 @@ class ThunderbirdProfileMigrator {
     );
     await new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
 
-    this._copyMailFolders(incomingServerKeyMap);
+    await this._copyMailFolders(incomingServerKeyMap);
     Services.obs.notifyObservers(
       null,
       "Migration:ItemAfterMigrate",
@@ -370,6 +384,9 @@ class ThunderbirdProfileMigrator {
         let server = MailServices.smtp.createServer();
         newServerKey = server.key;
         smtpServerKeyMap.set(key, newServerKey);
+        this._logger.debug(
+          `Mapping SMTP server from ${key} to ${newServerKey}`
+        );
       }
 
       let newName = `${newServerKey}${name.slice(key.length)}`;
@@ -409,6 +426,7 @@ class ThunderbirdProfileMigrator {
         let identity = MailServices.accounts.createIdentity();
         newIdentityKey = identity.key;
         identityKeyMap.set(key, newIdentityKey);
+        this._logger.debug(`Mapping identity from ${key} to ${newIdentityKey}`);
       }
 
       let newName = `${newIdentityKey}${name.slice(key.length)}`;
@@ -433,15 +451,10 @@ class ThunderbirdProfileMigrator {
     let branch = Services.prefs.getBranch(IM_ACCOUNT);
 
     let lastKey = 1;
-    async function _getUniqueAccountKey() {
-      // Since updating prefs.js is batched, getUniqueAccountKey may return the
-      // previous key.
+    function _getUniqueAccountKey() {
       let key = `account${lastKey++}`;
       if (Services.prefs.getCharPref(`messenger.account.${key}.name`, "")) {
-        return new Promise(resolve =>
-          // As a workaround, delay 500ms and try again.
-          setTimeout(() => resolve(_getUniqueAccountKey()), 500)
-        );
+        return _getUniqueAccountKey();
       }
       return key;
     }
@@ -451,8 +464,11 @@ class ThunderbirdProfileMigrator {
       let newAccountKey = imAccountKeyMap.get(key);
       if (!newAccountKey) {
         // For every account, create a new one to avoid conflicts.
-        newAccountKey = await _getUniqueAccountKey();
+        newAccountKey = _getUniqueAccountKey();
         imAccountKeyMap.set(key, newAccountKey);
+        this._logger.debug(
+          `Mapping IM account from ${key} to ${newAccountKey}`
+        );
       }
 
       let newName = `${newAccountKey}${name.slice(key.length)}`;
@@ -482,17 +498,11 @@ class ThunderbirdProfileMigrator {
     let incomingServerKeyMap = new Map();
     let branch = Services.prefs.getBranch(MAIL_SERVER);
 
-    async function _getUniqueIncomingServerKey() {
-      // Since updating prefs.js is batched, getUniqueServerKey may return the
-      // previous key.
-      let key = MailServices.accounts.getUniqueServerKey();
-      for (let existingKey of incomingServerKeyMap.values()) {
-        if (existingKey == key) {
-          return new Promise(resolve =>
-            // As a workaround, delay 500ms and try again.
-            setTimeout(() => resolve(_getUniqueIncomingServerKey()), 500)
-          );
-        }
+    let lastKey = 1;
+    function _getUniqueIncomingServerKey() {
+      let key = `server${lastKey++}`;
+      if (branch.getCharPref(`${key}.type`, "")) {
+        return _getUniqueIncomingServerKey();
       }
       return key;
     }
@@ -502,8 +512,9 @@ class ThunderbirdProfileMigrator {
       let newServerKey = incomingServerKeyMap.get(key);
       if (!newServerKey) {
         // For every incoming server, create a new one to avoid conflicts.
-        newServerKey = await _getUniqueIncomingServerKey();
+        newServerKey = _getUniqueIncomingServerKey();
         incomingServerKeyMap.set(key, newServerKey);
+        this._logger.debug(`Mapping server from ${key} to ${newServerKey}`);
       }
 
       let newName = `${newServerKey}${name.slice(key.length)}`;
@@ -521,11 +532,18 @@ class ThunderbirdProfileMigrator {
    * @param {PrefKeyMap} incomingServerKeyMap - A map from the source server key
    *   to new server key.
    */
-  _copyMailFolders(incomingServerKeyMap) {
+  async _copyMailFolders(incomingServerKeyMap) {
     for (let key of incomingServerKeyMap.values()) {
       let branch = Services.prefs.getBranch(`${MAIL_SERVER}${key}.`);
-      let type = branch.getCharPref("type");
-      let hostname = branch.getCharPref("hostname");
+      if (!branch) {
+        continue;
+      }
+      let type = branch.getCharPref("type", "");
+      let hostname = branch.getCharPref("hostname", "");
+      if (!type || !hostname) {
+        continue;
+      }
+
       // Use .directory-rel instead of .directory because .directory is an
       // absolute path which may not exists.
       let directoryRel = branch.getCharPref("directory-rel", "");
@@ -562,6 +580,7 @@ class ThunderbirdProfileMigrator {
         // For some reasons, if mail folders are copied on Windows,
         // `errorGettingDB` is thrown after imported and restarted. IMAP folders
         // will be downloaded automatically, better than a broken account.
+        this._logger.debug(`Copying ${sourceDir.path} to ${targetDir.path}`);
         sourceDir.copyTo(targetDir.parent, targetDir.leafName);
       }
       branch.setCharPref("directory", targetDir.path);
@@ -584,6 +603,9 @@ class ThunderbirdProfileMigrator {
         targetNewsrc.append("News");
         targetNewsrc.append(`newsrc-${hostname}`);
         targetNewsrc.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+        this._logger.debug(
+          `Copying ${sourceNewsrc.path} to ${targetNewsrc.path}`
+        );
         sourceNewsrc.copyTo(targetNewsrc.parent, targetNewsrc.leafName);
         branch.setCharPref("newsrc.file", targetNewsrc.path);
         // .file-rel may be outdated, it will be created when first needed.
@@ -642,13 +664,15 @@ class ThunderbirdProfileMigrator {
     if (accounts.length == 1 && accounts[0] == "") {
       accounts.length = 0;
     }
-    for (let sourceAccountKey of sourceAccounts.split(",")) {
-      accounts.push(accountKeyMap.get(sourceAccountKey));
+    if (sourceAccounts) {
+      for (let sourceAccountKey of sourceAccounts.split(",")) {
+        accounts.push(accountKeyMap.get(sourceAccountKey));
+      }
+      Services.prefs.setCharPref(
+        "mail.accountmanager.accounts",
+        accounts.join(",")
+      );
     }
-    Services.prefs.setCharPref(
-      "mail.accountmanager.accounts",
-      accounts.join(",")
-    );
 
     // Set defaultaccount if it doesn't already exist.
     let defaultAccount = Services.prefs.getCharPref(
@@ -731,10 +755,17 @@ class ThunderbirdProfileMigrator {
       }
       let sourceFile = this._sourceProfileDir.clone();
       sourceFile.append(filename);
+      if (!sourceFile.exists()) {
+        this._logger.debug(
+          `Ignoring non-existing address boook file ${sourceFile.path}`
+        );
+        continue;
+      }
 
       let targetFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       targetFile.append(sourceFile.leafName);
       targetFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+      this._logger.debug(`Copying ${sourceFile.path} to ${targetFile.path}`);
       sourceFile.copyTo(targetFile.parent, targetFile.leafName);
 
       branch.setCharPref("filename", targetFile.leafName);
