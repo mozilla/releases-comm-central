@@ -884,15 +884,6 @@ nsImapIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
   rv =
       imapService->DiscoverAllFolders(rootMsgFolder, this, aMsgWindow, nullptr);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIImapHostSessionList> hostSessionList =
-      do_GetService(kCImapHostSessionListCID, &rv);
-  if (NS_SUCCEEDED(rv)) {
-    nsAutoCString serverKey;
-    rv = GetKey(serverKey);
-    if (!serverKey.IsEmpty())
-      hostSessionList->SetDiscoveryForHostInProgress(serverKey.get(), true);
-  }
   return rv;
 }
 

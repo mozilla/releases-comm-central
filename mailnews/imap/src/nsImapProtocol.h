@@ -609,6 +609,7 @@ class nsImapProtocol : public nsIImapProtocol,
   void OnMoveFolderHierarchy(const char* aSourceMailbox);
   void DeleteFolderAndMsgs(const char* aSourceMailbox);
   void RemoveMsgsAndExpunge();
+  void FindMailboxesIfNecessary();
   void CreateMailbox(const char* mailboxName);
   void DeleteMailbox(const char* mailboxName);
   void RenameMailbox(const char* existingName, const char* newName);

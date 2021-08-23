@@ -1847,6 +1847,8 @@ bool nsImapProtocol::ProcessCurrentURL() {
     if (GetServerStateParser().GetCapabilityFlag() & kHasLanguageCapability)
       Language();
 
+    if (m_runningUrl) FindMailboxesIfNecessary();
+
     nsImapState imapState = nsIImapUrl::ImapStatusNone;
     if (m_runningUrl) m_runningUrl->GetRequiredImapState(&imapState);
 
@@ -1896,11 +1898,6 @@ bool nsImapProtocol::ProcessCurrentURL() {
           IMAP, LogLevel::Debug,
           ("URL failed with code 0x%" PRIx32 " (%s)", static_cast<uint32_t>(rv),
            mailnewsurl->GetSpecOrDefault().get()));
-      // If discovery URL fails, clear the in-progress flag.
-      if (m_imapAction == nsIImapUrl::nsImapDiscoverAllBoxesUrl) {
-        m_hostSessionList->SetDiscoveryForHostInProgress(GetImapServerKey(),
-                                                         false);
-      }
     }
     // Inform any nsIUrlListeners that the URL has finished. This will invoke
     // nsIUrlListener.onStopRunningUrl().
@@ -7152,6 +7149,24 @@ void nsImapProtocol::OnMoveFolderHierarchy(const char* sourceMailbox) {
     HandleMemoryFailure();
 }
 
+void nsImapProtocol::FindMailboxesIfNecessary() {
+  // biff should not discover mailboxes
+  bool foundMailboxesAlready = false;
+  nsImapAction imapAction;
+
+  // need to do this for every connection in order to see folders.
+  (void)m_runningUrl->GetImapAction(&imapAction);
+  nsresult rv = m_hostSessionList->GetHaveWeEverDiscoveredFoldersForHost(
+      GetImapServerKey(), foundMailboxesAlready);
+  if (NS_SUCCEEDED(rv) && !foundMailboxesAlready &&
+      (imapAction != nsIImapUrl::nsImapBiff) &&
+      (imapAction != nsIImapUrl::nsImapVerifylogon) &&
+      (imapAction != nsIImapUrl::nsImapDiscoverAllBoxesUrl) &&
+      (imapAction != nsIImapUrl::nsImapUpgradeToSubscription) &&
+      !GetSubscribingNow())
+    DiscoverMailboxList();
+}
+
 void nsImapProtocol::DiscoverAllAndSubscribedBoxes() {
   // used for subscribe pane
   // iterate through all namespaces
@@ -7467,11 +7482,9 @@ void nsImapProtocol::MailboxDiscoveryFinished() {
     }  // if trash folder doesn't exist
     m_hostSessionList->SetHaveWeEverDiscoveredFoldersForHost(GetImapServerKey(),
                                                              true);
+
     // notify front end that folder discovery is complete....
     if (m_imapServerSink) m_imapServerSink->DiscoveryDone();
-
-    // Clear the discovery in progress flag.
-    m_hostSessionList->SetDiscoveryForHostInProgress(GetImapServerKey(), false);
   }
 }
 

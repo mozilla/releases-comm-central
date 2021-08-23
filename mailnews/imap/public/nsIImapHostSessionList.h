@@ -73,10 +73,6 @@ class nsIImapHostSessionList : public nsISupports {
                                                    bool discovered) = 0;
   NS_IMETHOD GetHaveWeEverDiscoveredFoldersForHost(const char* serverKey,
                                                    bool& result) = 0;
-  NS_IMETHOD SetDiscoveryForHostInProgress(const char* serverKey,
-                                           bool inProgress) = 0;
-  NS_IMETHOD GetDiscoveryForHostInProgress(const char* serverKey,
-                                           bool& result) = 0;
 
   // Trash Folder
   NS_IMETHOD SetOnlineTrashFolderExistsForHost(const char* serverKey,

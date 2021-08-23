@@ -799,34 +799,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
       m_urlListener = aUrlListener;
     }
 
-    /* Do a discovery in its own url if needed. */
-    nsCOMPtr<nsIImapHostSessionList> hostSession =
-        do_GetService(kCImapHostSessionList, &rv);
-    if (NS_SUCCEEDED(rv) && hostSession) {
-      bool foundMailboxesAlready = false;
-      nsCString serverKey;
-      GetServerKey(serverKey);
-      hostSession->GetHaveWeEverDiscoveredFoldersForHost(serverKey.get(),
-                                                         foundMailboxesAlready);
-      bool discoveryInProgress;
-      if (!foundMailboxesAlready) {
-        discoveryInProgress = false;
-        // See if discovery in progress and not yet finished.
-        hostSession->GetDiscoveryForHostInProgress(serverKey.get(),
-                                                   discoveryInProgress);
-      }
-      if (!foundMailboxesAlready && !discoveryInProgress) {
-        nsCOMPtr<nsIMsgFolder> rootFolder;
-        rv = GetRootFolder(getter_AddRefs(rootFolder));
-        if (NS_SUCCEEDED(rv) && rootFolder) {
-          rv = imapService->DiscoverAllFolders(rootFolder, this, aMsgWindow,
-                                               nullptr);
-          if (NS_SUCCEEDED(rv))
-            hostSession->SetDiscoveryForHostInProgress(serverKey.get(), true);
-        }
-      }
-    }
-
     // Allow IMAP folder auto-compact to occur when online or offline.
     if (aMsgWindow) AutoCompact(aMsgWindow);
 
