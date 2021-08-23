@@ -349,7 +349,11 @@ var autosyncModule = {
             ]
           );
 
-          process.setProgress(msg, numOfMessages, totalPending);
+          process.setProgress(
+            msg,
+            syncItem.totalDownloaded,
+            syncItem.pendingMsgCount
+          );
 
           let serverInfo = this._syncInfoPerServer.get(
             syncItem.syncFolder.server
