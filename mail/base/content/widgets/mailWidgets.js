@@ -2444,8 +2444,11 @@
 
         // Pills have been dropped ("text/pills").
         let targetAddressRow = event.target.closest(".address-row");
-        // Return if pills have been dropped outside an address row (edge cases).
-        if (!targetAddressRow) {
+        // Return if pills have been dropped outside an address row.
+        if (
+          !targetAddressRow ||
+          targetAddressRow.classList.contains("address-row-raw")
+        ) {
           return;
         }
 
