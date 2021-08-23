@@ -110,10 +110,9 @@ add_task(async function testExpandListsOnTo() {
  */
 add_task(async function testExpandListsOnCc() {
   let cwc = open_compose_new_mail();
-  let label = cwc.window.document.getElementById("addr_cc");
   let addresses = "start@example,Test List,end@example";
 
-  cwc.window.showAddressRow(label, "addressRowCc");
+  cwc.window.showAndFocusAddressRow("addressRowCc");
   setup_msg_contents(cwc, addresses, "Expand Cc Test", "", "ccAddrInput");
   await testListExpansion(cwc.window, "ccAddrContainer", addresses);
   close_compose_window(cwc);
@@ -124,10 +123,9 @@ add_task(async function testExpandListsOnCc() {
  */
 add_task(async function testExpandListsOnBcc() {
   let cwc = open_compose_new_mail();
-  let label = cwc.window.document.getElementById("addr_bcc");
   let addresses = "start@example,Test List,end@example";
 
-  cwc.window.showAddressRow(label, "addressRowBcc");
+  cwc.window.showAndFocusAddressRow("addressRowBcc");
   setup_msg_contents(cwc, addresses, "Expand Bcc Test", "", "bccAddrInput");
   await testListExpansion(cwc.window, "bccAddrContainer", addresses);
   close_compose_window(cwc);

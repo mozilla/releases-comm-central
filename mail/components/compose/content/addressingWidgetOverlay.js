@@ -87,10 +87,7 @@ function CompFields2Recipients(msgCompFields) {
         msgCompFields.replyTo
       );
       if (msgReplyTo.length) {
-        showAddressRow(
-          document.getElementById("addr_reply"),
-          "addressRowReply"
-        );
+        showAndFocusAddressRow("addressRowReply");
         input.value = msgReplyTo.join(", ");
         recipientAddPills(input, true);
       }
@@ -105,7 +102,7 @@ function CompFields2Recipients(msgCompFields) {
       );
       if (msgTo.length) {
         if (input.closest(".address-row").classList.contains("hidden")) {
-          showAddressRow(document.getElementById("addr_to"), "addressRowTo");
+          showAndFocusAddressRow("addressRowTo");
         }
         input.value = msgTo.join(", ");
         recipientAddPills(input, true);
@@ -121,7 +118,7 @@ function CompFields2Recipients(msgCompFields) {
       );
       // Show Cc field if we have Cc recipients or if doCc pref is checked.
       if (msgCC.length || gCurrentIdentity.doCc) {
-        showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
+        showAndFocusAddressRow("addressRowCc");
       }
       if (msgCC.length) {
         input.value = msgCC.join(", ");
@@ -138,7 +135,7 @@ function CompFields2Recipients(msgCompFields) {
       );
       // Show Bcc field if we have Bcc recipients or if doBcc pref is checked.
       if (msgBCC.length || gCurrentIdentity.doBcc) {
-        showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
+        showAndFocusAddressRow("addressRowBcc");
       }
       if (msgBCC.length) {
         input.value = msgBCC.join(", ");
@@ -151,10 +148,7 @@ function CompFields2Recipients(msgCompFields) {
       recipientClearPills(input);
 
       if (msgCompFields.newsgroups) {
-        showAddressRow(
-          document.getElementById("addr_newsgroups"),
-          "addressRowNewsgroups"
-        );
+        showAndFocusAddressRow("addressRowNewsgroups");
         input.value = msgCompFields.newsgroups;
         recipientAddPills(input, true);
       }
@@ -168,10 +162,7 @@ function CompFields2Recipients(msgCompFields) {
         msgCompFields.followupTo
       );
       if (msgFollowupTo.length) {
-        showAddressRow(
-          document.getElementById("addr_followup"),
-          "addressRowFollowup"
-        );
+        showAndFocusAddressRow("addressRowFollowup");
         input.value = msgFollowupTo.join(", ");
         recipientAddPills(input, true);
       }
@@ -212,13 +203,7 @@ function updateUIforNNTPAccount() {
   let newsContainer = document
     .querySelector(".news-primary-input")
     .closest(".address-row");
-  if (newsContainer.classList.contains("hidden")) {
-    document.querySelector(".news-primary-label").click();
-  } else {
-    document
-      .querySelector(".news-primary-label")
-      .setAttribute("collapsed", "true");
-  }
+  showAndFocusAddressRow(newsContainer.id);
 
   // Hide the closing label.
   newsContainer.querySelector(".remove-field-button").hidden = true;
@@ -246,9 +231,7 @@ function updateUIforMailAccount() {
   let mailContainer = document
     .querySelector(".mail-primary-input")
     .closest(".address-row");
-  if (mailContainer.classList.contains("hidden")) {
-    document.querySelector(".mail-primary-label").click();
-  }
+  showAndFocusAddressRow(mailContainer.id);
 
   // Hide the closing label.
   mailContainer.querySelector(".remove-field-button").hidden = true;
@@ -1095,7 +1078,7 @@ function onPillPopupShowing(event) {
 function showAddressRowKeyPress(event, rowID) {
   switch (event.key) {
     case "Enter":
-      showAddressRow(event.target, rowID);
+      showAndFocusAddressRow(rowID);
       break;
     case "ArrowUp":
     case "ArrowDown":
@@ -1129,21 +1112,22 @@ function showAddressRowKeyPress(event, rowID) {
 }
 
 /**
- * Show the container row of an hidden recipient (Cc, Bcc, etc.).
+ * Show the specified address row and focus its input. If showing the address
+ * row is disabled, the focus is not changed.
  *
- * @param {XULElement} label - The clicked label to hide.
- * @param {string} rowID - The ID of the container to reveal.
+ * @param {string} rowId - The id of the row to show.
  */
-function showAddressRow(label, rowID) {
+function showAndFocusAddressRow(rowId) {
+  let row = document.getElementById(rowId);
+  let label = document.getElementById(row.dataset.recipienttype);
   if (label.hasAttribute("disabled")) {
     return;
   }
 
-  let container = document.getElementById(rowID);
-  container.classList.remove("hidden");
+  row.classList.remove("hidden");
   label.setAttribute("collapsed", "true");
   // Focus the row input.
-  container.querySelector(".address-row-input").focus();
+  row.querySelector(".address-row-input").focus();
 
   updateRecipientsPanelVisibility();
 }

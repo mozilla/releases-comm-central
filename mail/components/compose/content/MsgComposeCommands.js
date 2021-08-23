@@ -4249,17 +4249,17 @@ async function setKeyboardShortcuts() {
       case SHOW_TO_KEY.toLowerCase():
         // Ctrl/Cmd+Shift+T.
         event.preventDefault();
-        showAddressRow(document.getElementById("addr_to"), "addressRowTo");
+        showAndFocusAddressRow("addressRowTo");
         break;
       case SHOW_CC_KEY.toLowerCase():
         // Ctrl/Cmd+Shift+C.
         event.preventDefault();
-        showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
+        showAndFocusAddressRow("addressRowCc");
         break;
       case SHOW_BCC_KEY.toLowerCase():
         // Ctrl/Cmd+Shift+B.
         event.preventDefault();
-        showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
+        showAndFocusAddressRow("addressRowBcc");
         break;
     }
   });
@@ -4276,16 +4276,6 @@ async function setKeyboardShortcuts() {
       envelopeDragObserver.onDragLeave(event);
     }
   });
-}
-
-/**
- * Helper function used by View menu items of the primary addressing fields.
- *
- * @param {string} labelID - The ID of the label to hide.
- * @param {string} rowID - The ID of the address row to reveal.
- */
-function menuShowAddressRowOnCommand(labelID, rowID) {
-  showAddressRow(document.getElementById(labelID), rowID);
 }
 
 function ComposeUnload() {
@@ -4494,7 +4484,7 @@ function createRecipientLabel(labelID) {
   label.setAttribute("value", labelID);
 
   label.addEventListener("click", () => {
-    showAddressRow(label, `addressRow${labelID}`);
+    showAndFocusAddressRow(`addressRow${labelID}`);
   });
   label.addEventListener("keypress", event => {
     showAddressRowKeyPress(event, `addressRow${labelID}`);
@@ -7869,7 +7859,7 @@ function LoadIdentity(startup) {
     let addressRowCc = document.getElementById("addressRowCc");
     if (gCurrentIdentity.doCc) {
       // Per identity's doCc pref, show CC row, even if empty.
-      showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
+      showAndFocusAddressRow("addressRowCc");
     } else if (
       prevIdentity.doCc &&
       !addressRowCc.querySelector("mail-address-pill")
@@ -7883,7 +7873,7 @@ function LoadIdentity(startup) {
     let addressRowBcc = document.getElementById("addressRowBcc");
     if (gCurrentIdentity.doBcc) {
       // Per identity's doBcc pref, show BCC row, even if empty.
-      showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
+      showAndFocusAddressRow("addressRowBcc");
     } else if (
       prevIdentity.doBcc &&
       !addressRowBcc.querySelector("mail-address-pill")

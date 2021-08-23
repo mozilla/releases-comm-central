@@ -575,17 +575,17 @@
        onclick="this.hidePopup();">
   <label id="addr_reply" value="&replyAddr2.label;" role="button"
          class="recipient-label"
-         onclick="showAddressRow(this, 'addressRowReply')"
+         onclick="showAndFocusAddressRow('addressRowReply')"
          onkeypress="showAddressRowKeyPress(event, 'addressRowReply')"
          control="replyAddrInput"/>
   <label id="addr_newsgroups" value="&newsgroupsAddr2.label;" role="button"
          class="news-label news-primary-label recipient-label"
-         onclick="showAddressRow(this, 'addressRowNewsgroups')"
+         onclick="showAndFocusAddressRow('addressRowNewsgroups')"
          onkeypress="showAddressRowKeyPress(event, 'addressRowNewsgroups')"
          control="newsgroupsAddrInput"/>
   <label id="addr_followup" value="&followupAddr2.label;" role="button"
          class="news-label recipient-label"
-         onclick="showAddressRow(this, 'addressRowFollowup')"
+         onclick="showAndFocusAddressRow('addressRowFollowup')"
          onkeypress="showAddressRowKeyPress(event, 'addressRowFollowup')"
          control="followupAddrInput"/>
 </panel>
@@ -1073,13 +1073,13 @@
           <menuseparator id="viewMenuBeforeShowToFieldSeparator"/>
           <menuitem id="menu_showToField"
                     data-l10n-attrs="acceltext"
-                    oncommand="menuShowAddressRowOnCommand('addr_to', 'addressRowTo')"/>
+                    oncommand="showAndFocusAddressRow('addressRowTo')"/>
           <menuitem id="menu_showCcField"
                     data-l10n-attrs="acceltext"
-                    oncommand="menuShowAddressRowOnCommand('addr_cc', 'addressRowCc')"/>
+                    oncommand="showAndFocusAddressRow('addressRowCc')"/>
           <menuitem id="menu_showBccField"
                     data-l10n-attrs="acceltext"
-                    oncommand="menuShowAddressRowOnCommand('addr_bcc', 'addressRowBcc')"/>
+                    oncommand="showAndFocusAddressRow('addressRowBcc')"/>
           <menuseparator id="viewMenuBeforeAddressSidebarSeparator"/>
           <menuitem id="menu_AddressSidebar"
                     label="&addressSidebar.label;" accesskey="&addressSidebar.accesskey;"
@@ -2146,7 +2146,7 @@
                              disableonsend="true"
                              class="mail-primary-label mail-label recipient-label"
                              data-address-row="addressRowTo"
-                             onclick="showAddressRow(this, 'addressRowTo')"
+                             onclick="showAndFocusAddressRow('addressRowTo')"
                              ondrop="recipientLabelOnDrop(event);"
                              ondragover="recipientLabelOnDragover(event);"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowTo')"
@@ -2156,7 +2156,7 @@
                              disableonsend="true"
                              class="mail-label recipient-label"
                              data-address-row="addressRowCc"
-                             onclick="showAddressRow(this, 'addressRowCc')"
+                             onclick="showAndFocusAddressRow('addressRowCc')"
                              ondrop="recipientLabelOnDrop(event);"
                              ondragover="recipientLabelOnDragover(event);"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowCc')"
@@ -2165,7 +2165,7 @@
                              disableonsend="true"
                              class="mail-label recipient-label"
                              data-address-row="addressRowBcc"
-                             onclick="showAddressRow(this, 'addressRowBcc')"
+                             onclick="showAndFocusAddressRow('addressRowBcc')"
                              ondrop="recipientLabelOnDrop(event);"
                              ondragover="recipientLabelOnDragover(event);"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowBcc')"
