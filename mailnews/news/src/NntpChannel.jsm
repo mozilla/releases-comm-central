@@ -27,8 +27,9 @@ class NntpChannel {
 
   /**
    * @param {nsIURI} uri - The uri to construct the channel from.
+   * @param {nsILoadInfo} loadInfo - The loadInfo associated with the channel.
    */
-  constructor(uri) {
+  constructor(uri, loadInfo) {
     this._server = MailServices.accounts
       .findServerByURI(uri, false)
       .QueryInterface(Ci.nsINntpIncomingServer);
@@ -44,6 +45,8 @@ class NntpChannel {
     // nsIChannel attributes.
     this.originalURI = uri;
     this.URI = uri;
+    this.loadInfo = loadInfo;
+    this.contentLength = 0;
   }
 
   /**
@@ -98,6 +101,7 @@ class NntpChannel {
         }
       },
       onDataAvailable: (request, stream, offset, count) => {
+        this.contentLength += count;
         this._listener.onDataAvailable(null, stream, offset, count);
       },
     });
@@ -131,6 +135,17 @@ class NntpChannel {
 
   asyncOpen(listener) {
     this._listener = listener;
+    if (this.URI.spec.includes("?part=") || this.URI.spec.includes("&part=")) {
+      let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+        Ci.nsIStreamConverterService
+      );
+      this._listener = converter.asyncConvertData(
+        "message/rfc822",
+        "*/*",
+        listener,
+        this
+      );
+    }
     try {
       let uri = this.URI;
       if (this.URI.spec.includes("?")) {

@@ -28,9 +28,18 @@ function makeProtocolHandler(scheme, defaultPort, cid) {
       Ci.nsIProtocolHandler.ORIGIN_IS_FULL_SPEC,
 
     newChannel(uri, loadInfo) {
-      let channel = new NntpChannel(uri);
-      channel.loadInfo = loadInfo;
-      channel.contentDisposition = Ci.nsIChannel.DISPOSITION_INLINE;
+      let channel = new NntpChannel(uri, loadInfo);
+      let spec = uri.spec;
+      if (
+        spec.includes("part=") &&
+        !spec.includes("type=message/rfc822") &&
+        !spec.includes("type=application/x-message-display") &&
+        !spec.includes("type=application/pdf")
+      ) {
+        channel.contentDisposition = Ci.nsIChannel.DISPOSITION_ATTACHMENT;
+      } else {
+        channel.contentDisposition = Ci.nsIChannel.DISPOSITION_INLINE;
+      }
       return channel;
     },
 
