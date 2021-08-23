@@ -17,16 +17,7 @@ function run_test() {
 
 // tests for calInvitationUtils.jsm
 
-// Make sure that the Europe/Berlin timezone and long datetime format is set
-// and to use the app locale to avoid test failures when running locally on
-// an OS with a regional setting other than en-US.
-//
-// NOTE: If your OS is in English but not US English this will not switch it
-// to en-US. But the test is still known to work with en-GB.
-// If it doesn't work, try `export LC_TIME=en_US.UTF-8` before running the
-// test. Or you can update the test time regular expressions to also include
-// your English locale.
-Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", false);
+// Make sure that the Europe/Berlin timezone and long datetime format is set.
 Services.prefs.setIntPref("calendar.date.format", 0);
 Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
 

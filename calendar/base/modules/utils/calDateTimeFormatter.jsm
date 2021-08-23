@@ -355,7 +355,13 @@ function inTimezone(aDate, aOptions) {
       formatter = formatCache.get(cacheKey);
     } else {
       try {
-        formatter = new Services.intl.DateTimeFormat(undefined, optionsWithTimezone);
+        if (Services.appinfo.name === "xpcshell") {
+          // Use en-US when running in a test to make the result independent of
+          // the locale of the test machine.
+          formatter = new Services.intl.DateTimeFormat("en-US", optionsWithTimezone);
+        } else {
+          formatter = new Services.intl.DateTimeFormat(undefined, optionsWithTimezone);
+        }
         formatCache.set(cacheKey, formatter);
       } catch (ex) {
         // Non-IANA timezones throw a RangeError.
@@ -369,7 +375,13 @@ function inTimezone(aDate, aOptions) {
     if (formatCache.has(cacheKey)) {
       formatter = formatCache.get(cacheKey);
     } else {
-      formatter = new Services.intl.DateTimeFormat(undefined, aOptions);
+      if (Services.appinfo.name === "xpcshell") {
+        // Use en-US when running in a test to make the result independent of
+        // the locale of the test machine.
+        formatter = new Services.intl.DateTimeFormat("en-US", aOptions);
+      } else {
+        formatter = new Services.intl.DateTimeFormat(undefined, aOptions);
+      }
       formatCache.set(cacheKey, formatter);
     }
   }
