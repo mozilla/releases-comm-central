@@ -24,9 +24,6 @@ function really_run_test() {
 }
 
 function test_recentzones() {
-  let oldDefaultTz = Services.prefs.getStringPref("calendar.timezone.local", "");
-  Services.prefs.setStringPref("calendar.timezone.local", "floating");
-
   equal(cal.dtz.getRecentTimezones().length, 0);
   equal(cal.dtz.getRecentTimezones(true).length, 0);
 
@@ -54,8 +51,6 @@ function test_recentzones() {
   cal.dtz.saveRecentTimezone("Unknown");
   equal(cal.dtz.getRecentTimezones().length, 3);
   equal(cal.dtz.getRecentTimezones(true).length, 2);
-
-  Services.prefs.setStringPref("calendar.timezone.local", oldDefaultTz);
 }
 
 function test_formatcss() {
