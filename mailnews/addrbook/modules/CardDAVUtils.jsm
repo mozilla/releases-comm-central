@@ -492,8 +492,9 @@ var CardDAVUtils = {
         let privs = Array.from(privNode.querySelectorAll("privilege > *")).map(
           node => node.localName
         );
-        let isWritable = writePrivs.some(priv => privs.includes(priv));
-        let isReadable = readPrivs.some(priv => privs.includes(priv));
+
+        isWritable = writePrivs.some(priv => privs.includes(priv));
+        isReadable = readPrivs.some(priv => privs.includes(priv));
 
         if (!isWritable && !isReadable) {
           continue;
