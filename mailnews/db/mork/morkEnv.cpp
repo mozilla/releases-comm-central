@@ -236,9 +236,11 @@ mork_u1 morkEnv::HexToByte(mork_ch inFirstHex, mork_ch inSecondHex) {
   return (mork_u1)((hi << 4) | lo);
 }
 
-mork_size morkEnv::TokenAsHex(void* outBuf, mork_token inToken)
 // TokenAsHex() is the same as sprintf(outBuf, "%lX", (long) inToken);
-{
+// Writes up to 32 hex digits, plus a NUL-terminator. So outBuf must
+// be at least 33 bytes.
+// Return value is number of characters written, excluding the NUL.
+mork_size morkEnv::TokenAsHex(void* outBuf, mork_token inToken) {
   static const char morkEnv_kHexDigits[] = "0123456789ABCDEF";
   char* p = (char*)outBuf;
   char* end = p + 32;  // write no more than 32 digits for safety

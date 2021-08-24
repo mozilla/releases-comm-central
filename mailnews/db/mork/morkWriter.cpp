@@ -708,15 +708,16 @@ mork_bool morkWriter::StartGroup(morkEnv* ev) {
   mWriter_GroupBufFill = 0;
   // ev->TokenAsHex(mWriter_GroupBuf, groupID);
   if (idFill < morkWriter_kGroupBufSize) {
+    // TokenAsHex appends a '\0', but it's not included in idFill count.
     MORK_MEMCPY(mWriter_GroupBuf, p, idFill + 1);
     mWriter_GroupBufFill = idFill;
-  } else
-    *mWriter_GroupBuf = 0;
+  } else {
+    *mWriter_GroupBuf = '\0';
+  }
 
   p += idFill;
   *p++ = '{';
   *p++ = '@';
-  *p = 0;
 
   stream->PutLineBreak(ev);
 
