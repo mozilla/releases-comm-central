@@ -368,7 +368,6 @@ var DefaultController = {
       case "cmd_editTemplateMsg":
       case "cmd_openMessage":
       case "button_print":
-      case "cmd_print":
       case "cmd_viewPageSource":
       case "cmd_reload":
       case "cmd_applyFiltersToSelection":
@@ -417,6 +416,14 @@ var DefaultController = {
           return true;
         }
         return false;
+      case "cmd_print":
+        // We can't print messages unless they're being displayed, so enable
+        // printing only if exactly one message is selected and it is the
+        // message being displayed.
+        return (
+          gFolderDisplay.selectedCount == 1 &&
+          gFolderDisplay.selectedMessage == gMessageDisplay.displayedMessage
+        );
       case "cmd_newMessage":
         return CanComposeMessages();
       case "cmd_viewAllHeader":
