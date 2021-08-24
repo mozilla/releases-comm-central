@@ -354,7 +354,6 @@
 @RESPATH@/components/calCachedCalendar.js
 @RESPATH@/components/calDateTime.js
 @RESPATH@/components/calDuration.js
-@RESPATH@/components/calFilter.js
 @RESPATH@/components/calICSService.js
 @RESPATH@/components/calICSService-worker.js
 @RESPATH@/components/calItemBase.js

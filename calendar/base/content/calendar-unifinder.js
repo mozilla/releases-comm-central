@@ -7,8 +7,8 @@
  */
 
 /* import-globals-from ../../../mail/base/content/utilityOverlay.js */
-/* import-globals-from ../src/calFilter.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
+/* import-globals-from widgets/calendar-filter.js */
 /* import-globals-from widgets/mouseoverPreviews.js */
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-views-utils.js */

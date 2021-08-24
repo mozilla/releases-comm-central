@@ -43,7 +43,6 @@ XPCOM_MANIFESTS += [
 # These files go in components so they can be packaged correctly.
 FINAL_TARGET_FILES.components += [
     "calCachedCalendar.js",
-    "calFilter.js",
     "calItemBase.js",
     "calTimezone.js",
 ]

@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../content/calendar-views-utils.js */
+/* import-globals-from ../calendar-views-utils.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
@@ -177,6 +178,7 @@ function calFilter() {
 calFilter.prototype = {
   mStartDate: null,
   mEndDate: null,
+  mItemType: Ci.calICalendar.ITEM_FILTER_TYPE_ALL,
   mSelectedDate: null,
   mFilterText: "",
   mDefinedFilters: {},
@@ -397,7 +399,7 @@ calFilter.prototype = {
    *                            specified by mStartDate and mEndDate, false otherwise.
    */
   dateRangeFilter(aItem) {
-    return cal.item.checkIfInRange(aItem, this.mStartDate, this.mEndDate);
+    return !!cal.item.checkIfInRange(aItem, this.mStartDate, this.mEndDate);
   },
 
   /**
@@ -478,6 +480,24 @@ calFilter.prototype = {
     }
 
     return result;
+  },
+
+  /**
+   * Checks if the item matches the expected item type.
+   *
+   * @param {calIItemBase} aItem - The item to check.
+   * @return {boolean} - True if the item matches the item type, false otherwise.
+   */
+  itemTypeFilter(aItem) {
+    switch (this.mItemType) {
+      case Ci.calICalendar.ITEM_FILTER_TYPE_TODO:
+        return aItem.isTodo();
+      case Ci.calICalendar.ITEM_FILTER_TYPE_EVENT:
+        return aItem.isEvent();
+      case Ci.calICalendar.ITEM_FILTER_TYPE_ALL:
+        return true;
+    }
+    return false;
   },
 
   /**
@@ -610,6 +630,21 @@ calFilter.prototype = {
    */
   set endDate(aEndDate) {
     this.mEndDate = aEndDate;
+  },
+
+  /**
+   * Gets the current item type filter.
+   */
+  get itemType() {
+    return this.mItemType;
+  },
+
+  /**
+   * One of the calICalendar.ITEM_FILTER_TYPE constants. Only items of this type
+   * will pass the filter.
+   */
+  set itemType(aItemType) {
+    this.mItemType = aItemType;
   },
 
   /**
@@ -747,7 +782,7 @@ calFilter.prototype = {
     }
 
     return aItems.filter(function(aItem) {
-      let result = this.propertyFilter(aItem) && this.textFilter(aItem);
+      let result = this.isItemInFilters(aItem);
 
       if (aCallback && typeof aCallback == "function") {
         aCallback(aItem, result, this.mFilterProperties, this);
@@ -765,7 +800,7 @@ calFilter.prototype = {
    *                            false otherwise.
    */
   isItemInFilters(aItem) {
-    return this.propertyFilter(aItem) && this.textFilter(aItem);
+    return this.itemTypeFilter(aItem) && this.propertyFilter(aItem) && this.textFilter(aItem);
   },
 
   /**
@@ -868,12 +903,10 @@ calFilter.prototype = {
    * This function is asynchronous, and returns results to a calIOperationListener object.
    *
    * @param aCalendar           The calendar to get items from.
-   * @param aItemType           The type of items to get, as defined by the calICalendar
-   *                            interface ITEM_FILTER_TYPE_XXX constants.
    * @param aListener           The calIOperationListener object to return results to.
    * @return                    the calIOperation handle to track the operation.
    */
-  getItems(aCalendar, aItemType, aListener) {
+  getItems(aCalendar, aListener) {
     if (!this.mFilterProperties) {
       return null;
     }
@@ -908,18 +941,20 @@ calFilter.prototype = {
     };
 
     // build the filter argument for calICalendar.getItems() from the filter properties
-    let filter = aItemType || aCalendar.FILTER_TYPE_ALL;
-    if (
-      !props.status ||
-      props.status & (props.FILTER_STATUS_COMPLETED_TODAY | props.FILTER_STATUS_COMPLETED_BEFORE)
-    ) {
-      filter |= aCalendar.ITEM_FILTER_COMPLETED_YES;
-    }
-    if (
-      !props.status ||
-      props.status & (props.FILTER_STATUS_INCOMPLETE | props.FILTER_STATUS_IN_PROGRESS)
-    ) {
-      filter |= aCalendar.ITEM_FILTER_COMPLETED_NO;
+    let filter = this.mItemType;
+    if (filter & Ci.calICalendar.ITEM_FILTER_TYPE_TODO) {
+      if (
+        !props.status ||
+        props.status & (props.FILTER_STATUS_COMPLETED_TODAY | props.FILTER_STATUS_COMPLETED_BEFORE)
+      ) {
+        filter |= aCalendar.ITEM_FILTER_COMPLETED_YES;
+      }
+      if (
+        !props.status ||
+        props.status & (props.FILTER_STATUS_INCOMPLETE | props.FILTER_STATUS_IN_PROGRESS)
+      ) {
+        filter |= aCalendar.ITEM_FILTER_COMPLETED_NO;
+      }
     }
 
     let startDate = this.startDate;
@@ -937,3 +972,207 @@ calFilter.prototype = {
     return aCalendar.getItems(filter, 0, startDate, endDate, listener);
   },
 };
+
+/**
+ * A mixin to use as a base class for calendar widgets.
+ *
+ * With startDate, endDate, and itemType set this mixin will inform the widget
+ * of any calendar item within the range that needs to be added to, or removed
+ * from, the UI. Widgets should implement clearItems, addItems, removeItems,
+ * and removeItemsFromCalendar to receive this information.
+ *
+ * To update the display (e.g. if the user wants to display a different month),
+ * just set the new date values and call refresh().
+ *
+ * This mixin handles disabled and/or hidden calendars, so you don't have to.
+ */
+let CalFilterMixin = Base =>
+  class extends Base {
+    /**
+     * @type calFilter
+     */
+    _filter = null;
+
+    constructor(...args) {
+      super(...args);
+
+      this._filter = new calFilter();
+      this._filter.itemType = 0;
+    }
+
+    /**
+     * The start of the filter range. Can be either a date or a datetime.
+     *
+     * @type calIDateTime
+     */
+    get startDate() {
+      return this._filter.startDate;
+    }
+
+    set startDate(value) {
+      this._filter.startDate = value;
+    }
+
+    /**
+     * The end of the filter range. Can be either a date or a datetime.
+     * If it is a date, the filter won't include items on that date, so use the
+     * day after the last day to be displayed.
+     *
+     * @type calIDateTime
+     */
+    get endDate() {
+      return this._filter.endDate;
+    }
+
+    set endDate(value) {
+      this._filter.endDate = value;
+    }
+
+    /**
+     * One of the calICalendar.ITEM_FILTER_TYPE constants.
+     *
+     * Set this to a value to begin notification of item changes in calendars.
+     * Set it to 0 to stop notifications.
+     *
+     * @type number
+     */
+    get itemType() {
+      return this._filter.itemType;
+    }
+
+    set itemType(value) {
+      this._filter.itemType = value;
+      this._calendarObserver.self = this;
+      if (value) {
+        cal.getCalendarManager().addCalendarObserver(this._calendarObserver);
+      } else {
+        cal.getCalendarManager().removeCalendarObserver(this._calendarObserver);
+      }
+    }
+
+    /**
+     * Clears the display and adds items that match the filter from all enabled
+     * and visible calendars.
+     *
+     * @return {Promise} A promise resolved when all calendars have refreshed.
+     */
+    async refresh() {
+      this.clearItems();
+      let promises = [];
+      for (let calendar of cal.getCalendarManager().getCalendars()) {
+        promises.push(this._refreshCalendar(calendar));
+      }
+      return Promise.all(promises);
+    }
+
+    /**
+     * Adds items that match the filter from a specific calendar. Does NOT
+     * remove existing items first, use removeItemsFromCalendar for that.
+     *
+     * @param {calICalendar} calendar
+     * @return {Promise} A promise resolved when this calendar has refreshed.
+     */
+    async _refreshCalendar(calendar) {
+      if (calendar.getProperty("disabled") || !calendar.getProperty("calendar-main-in-composite")) {
+        return Promise.resolve();
+      }
+
+      let deferred = PromiseUtils.defer();
+
+      let listener = {
+        onGetResult: (calendar, status, itemType, detail, items) => {
+          if (items.length) {
+            this.addItems(items);
+          }
+        },
+        onOperationComplete: (calendar, status, operationType, id, detail) => {
+          if (Components.isSuccessCode(status)) {
+            deferred.resolve();
+          } else {
+            deferred.reject(new Components.Exception(detail, status));
+          }
+        },
+      };
+      this._filter.getItems(calendar, listener);
+
+      return deferred.promise;
+    }
+
+    /**
+     * Implement this method to remove all items from the UI.
+     */
+    clearItems() {}
+
+    /**
+     * Implement this method to add items to the UI.
+     *
+     * @param {calIItemBase[]} items
+     */
+    addItems(items) {}
+
+    /**
+     * Implement this method to remove  items from the UI.
+     *
+     * @param {calIItemBase[]} items
+     */
+    removeItems(items) {}
+
+    /**
+     * Implement this method to remove all items from a specific calendar from
+     * the UI.
+     *
+     * @param {string} calendarId
+     */
+    removeItemsFromCalendar(calendarId) {}
+
+    // calIObserver
+    _calendarObserver = {
+      QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
+
+      onStartBatch(calendar) {},
+      onEndBatch(calendar) {},
+      onLoad(calendar) {},
+      onAddItem(item) {
+        let occurrences = this.self._filter.getOccurrences(item);
+        if (occurrences.length) {
+          this.self.addItems(occurrences);
+        }
+      },
+      onModifyItem(newItem, oldItem) {
+        // Ideally we'd calculate the intersection between oldOccurrences and
+        // newOccurrences, then call a modifyItems function, but it proved
+        // unreliable in some situations, so instead we remove and replace
+        // the occurrences.
+
+        let oldOccurrences = this.self._filter.getOccurrences(oldItem);
+        if (oldOccurrences.length) {
+          this.self.removeItems(oldOccurrences);
+        }
+
+        let newOccurrences = this.self._filter.getOccurrences(newItem);
+        if (newOccurrences.length) {
+          this.self.addItems(newOccurrences);
+        }
+      },
+      onDeleteItem(deletedItem) {
+        this.self.removeItems(this.self._filter.getOccurrences(deletedItem));
+      },
+      onError(calendar, errNo, message) {},
+      onPropertyChanged(calendar, name, newValue, oldValue) {
+        if (!["calendar-main-in-composite", "disabled"].includes(name)) {
+          return;
+        }
+
+        if (
+          (name == "disabled" && newValue) ||
+          (name == "calendar-main-in-composite" && !newValue)
+        ) {
+          this.self.removeItemsFromCalendar(calendar.id);
+          return;
+        }
+
+        this.self._refreshCalendar(calendar);
+      },
+      onPropertyDeleting(calendar, name) {},
+    };
+  };

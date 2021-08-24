@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../src/calFilter.js */
-/* import-globals-from agenda-listbox.js */
+/* import-globals-from widgets/calendar-filter.js */
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-dnd-listener.js */
 /* import-globals-from calendar-task-tree-view.js */
@@ -274,6 +273,7 @@
 
       // Set up the tree filter.
       this.mFilter = new calFilter();
+      this.mFilter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_TODO;
 
       this.restoreColumnState();
 
@@ -505,11 +505,7 @@
           this.calendar = calendar;
           this.items = [];
 
-          let operation = this.tree.mFilter.getItems(
-            calendar,
-            calendar.ITEM_FILTER_TYPE_TODO,
-            this
-          );
+          let operation = this.tree.mFilter.getItems(calendar, this);
           if (operation && operation.isPending) {
             this.operation = operation;
             this.tree.mPendingRefreshJobs[calendar.id] = this;

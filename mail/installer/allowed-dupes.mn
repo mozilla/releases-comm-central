@@ -39,8 +39,6 @@ chrome/icons/default/default64.png
 chrome/icons/default/default128.png
 
 # calendar
-components/calFilter.js
-chrome/calendar/content/calFilter.js
 components/calUtils.js
 chrome/calendar/content/calUtils.js
 

@@ -101,6 +101,7 @@ calendar.jar:
     content/today-pane.js                                       (content/today-pane.js)
     content/widgets/calendar-alarm-widget.js                    (content/widgets/calendar-alarm-widget.js)
     content/widgets/calendar-dnd-widgets.js                     (content/widgets/calendar-dnd-widgets.js)
+    content/widgets/calendar-filter.js                          (content/widgets/calendar-filter.js)
     content/widgets/calendar-item-summary.js                    (content/widgets/calendar-item-summary.js)
     content/widgets/calendar-item-summary.css                   (content/widgets/calendar-item-summary.css)
     content/widgets/calendar-minimonth.js                       (content/widgets/calendar-minimonth.js)
@@ -109,4 +110,3 @@ calendar.jar:
     content/widgets/datetimepickers.js                          (content/widgets/datetimepickers.js)
     content/widgets/mouseoverPreviews.js                        (content/widgets/mouseoverPreviews.js)
     content/calApplicationUtils.js                              (src/calApplicationUtils.js)
-    content/calFilter.js                                        (src/calFilter.js)
