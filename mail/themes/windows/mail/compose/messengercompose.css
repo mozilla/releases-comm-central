@@ -270,12 +270,6 @@ toolbar:not(:-moz-lwtheme) {
   z-index: 10;
 }
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  findbar {
-    background-color: #eef3fa;
-  }
-}
-
 @media (-moz-windows-glass) {
   #compose-toolbox:not(:-moz-lwtheme) {
     color: black;

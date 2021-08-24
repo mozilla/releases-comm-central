@@ -455,20 +455,6 @@ button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   background-image: linear-gradient(transparent 40px, -moz-dialog 40px);
 }
 
-findbar {
-  background: linear-gradient(#e8e8e8, #d0d0d0) repeat-x;
-  border-top: 1px solid #888;
-  color: -moz-DialogText;
-  text-shadow: none;
-}
-
-:root:not([lwtheme-image]) findbar:-moz-lwtheme {
-  background-color: var(--lwt-accent-color);
-  background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor));
-  border-top-color: var(--chrome-content-separator-color);
-  color: var(--toolbar-color);
-}
-
 .contentTabAddress * {
   text-shadow: none;
 }
