@@ -121,6 +121,19 @@ var gStreamListener = {
     }
     Assert.equal(regex.exec(this.contents), null);
 
+    // Check the attachments' filenames are listed for printing.
+    regex = /<td class="mimeAttachmentFile">(.*?)<\/td>/gi;
+
+    for (let attachment of messages[this.index].attachments) {
+      let match = regex.exec(this.contents);
+      Assert.notEqual(match, null);
+      Assert.equal(
+        match[1],
+        attachment.expectedFilename || attachment.filename
+      );
+    }
+    Assert.equal(regex.exec(this.contents), null);
+
     this.index++;
     async_driver();
   },

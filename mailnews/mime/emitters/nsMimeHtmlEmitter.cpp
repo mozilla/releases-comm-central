@@ -370,10 +370,8 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
         unicodeHeaderValue.get(), uriString, aIsExternalAttachment);
 
     mSkipAttachment = false;
-  } else if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput ||
-             mFormat == nsMimeOutput::nsMimeMessageBodyDisplay) {
-    // then we need to deal with the attachments in the body by inserting
-    // them into a table..
+
+    // List the attachments for printing.
     rv = StartAttachmentInBody(name, contentType, url);
   } else {
     // If we don't need or cannot broadcast attachment info, just ignore it
@@ -385,10 +383,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
 }
 
 // Attachment handling routines
-// Ok, we are changing the way we handle these now...It used to be that we
-// output HTML to make a clickable link, etc... but now, this should just be
-// informational and only show up during printing
-// XXX should they also show up during quoting?
+
 nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
     const nsACString& name, const char* contentType, const char* url) {
   mSkipAttachment = false;
@@ -407,8 +402,10 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
     return NS_OK;
   }
 
+  // Add the list of attachments. This is only visible when printing.
+
   if (mFirst) {
-    UtilityWrite("<br><fieldset class=\"mimeAttachmentHeader\">");
+    UtilityWrite("<fieldset class=\"mimeAttachmentHeader print-only\">");
     if (!name.IsEmpty()) {
       nsresult rv;
 
@@ -425,7 +422,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
       nsString attachmentsHeader;
       bundle->GetStringFromName("attachmentsPrintHeader", attachmentsHeader);
 
-      UtilityWrite("<legend class=\"mimeAttachmentHeaderName\">");
+      UtilityWrite("<legend class=\"mimeAttachmentHeaderName print-only\">");
       nsCString escapedName;
       nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(attachmentsHeader),
                           escapedName);
@@ -433,14 +430,16 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
       UtilityWrite("</legend>");
     }
     UtilityWrite("</fieldset>");
-    UtilityWrite("<div class=\"mimeAttachmentWrap\">");
+    UtilityWrite("<div class=\"mimeAttachmentWrap print-only\">");
     UtilityWrite("<table class=\"mimeAttachmentTable\">");
   }
 
   UtilityWrite("<tr>");
 
   UtilityWrite("<td class=\"mimeAttachmentFile\">");
-  UtilityWrite(name);
+  nsCString escapedName;
+  nsAppendEscapedHTML(name, escapedName);
+  UtilityWrite(escapedName.get());
   UtilityWrite("</td>");
 
   mFirst = false;
