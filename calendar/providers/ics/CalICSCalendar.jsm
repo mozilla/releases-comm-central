@@ -37,26 +37,17 @@ function CalICSCalendar() {
 }
 var calICSCalendarClassID = Components.ID("{f8438bff-a3c9-4ed5-b23f-2663b5469abf}");
 var calICSCalendarInterfaces = [
-  Ci.calICalendarProvider,
-  Ci.calICalendar,
-  Ci.calISchedulingSupport,
-  Ci.nsIStreamListener,
-  Ci.nsIStreamLoaderObserver,
-  Ci.nsIChannelEventSink,
-  Ci.nsIInterfaceRequestor,
+  "calICalendar",
+  "calISchedulingSupport",
+  "nsIChannelEventSink",
+  "nsIInterfaceRequestor",
+  "nsIStreamListener",
+  "nsIStreamLoaderObserver",
 ];
 CalICSCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
   classID: calICSCalendarClassID,
-  QueryInterface: cal.generateQI([
-    "calICalendarProvider",
-    "calICalendar",
-    "calISchedulingSupport",
-    "nsIStreamListener",
-    "nsIStreamLoaderObserver",
-    "nsIChannelEventSink",
-    "nsIInterfaceRequestor",
-  ]),
+  QueryInterface: cal.generateQI(calICSCalendarInterfaces),
   classInfo: cal.generateCI({
     classID: calICSCalendarClassID,
     contractID: "@mozilla.org/calendar/calendar;1?type=ics",
@@ -75,29 +66,6 @@ CalICSCalendar.prototype = {
     this.mMemoryCalendar.superCalendar = this;
     this.mObserver = new calICSObserver(this);
     this.mMemoryCalendar.addObserver(this.mObserver); // XXX Not removed
-  },
-
-  //
-  // calICalendarProvider interface
-  //
-  get prefChromeOverlay() {
-    return null;
-  },
-
-  get displayName() {
-    return cal.l10n.getCalString("icsName");
-  },
-
-  get shortName() {
-    return "ICS";
-  },
-
-  createCalendar() {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
-  deleteCalendar(_cal, listener) {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   //

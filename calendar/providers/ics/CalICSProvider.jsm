@@ -20,6 +20,8 @@ var { CalDavGenericRequest, CalDavPropfindRequest } = ChromeUtils.import(
  * @implements {calICalendarProvider}
  */
 var CalICSProvider = {
+  QueryInterface: cal.generateQI(["calICalendarProvider"]),
+
   get type() {
     return "ics";
   },
@@ -32,16 +34,8 @@ var CalICSProvider = {
     return "ICS";
   },
 
-  createCalendar(aName, aUri, aListener) {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
   deleteCalendar(aCalendar, aListener) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
-  getCalendar(aUri) {
-    return cal.getCalendarManager().createCalendar("ics", aUri);
   },
 
   async detectCalendars(

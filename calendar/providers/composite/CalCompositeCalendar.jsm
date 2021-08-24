@@ -67,38 +67,10 @@ function CalCompositeCalendar() {
 }
 
 var calCompositeCalendarClassID = Components.ID("{aeff788d-63b0-4996-91fb-40a7654c6224}");
-var calCompositeCalendarInterfaces = [
-  "calICalendarProvider",
-  "calICalendar",
-  "calICompositeCalendar",
-];
+var calCompositeCalendarInterfaces = ["calICalendar", "calICompositeCalendar"];
 CalCompositeCalendar.prototype = {
   classID: calCompositeCalendarClassID,
   QueryInterface: ChromeUtils.generateQI(calCompositeCalendarInterfaces),
-
-  //
-  // calICalendarProvider interface
-  //
-  get prefChromeOverlay() {
-    return null;
-  },
-
-  get displayName() {
-    return cal.l10n.getCalString("compositeName");
-  },
-
-  get shortName() {
-    return this.displayName();
-  },
-
-  createCalendar() {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
-  deleteCalendar(calendar, listener) {
-    // You shouldn't be able to delete from the composite calendar.
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
 
   //
   // calICompositeCalendar interface

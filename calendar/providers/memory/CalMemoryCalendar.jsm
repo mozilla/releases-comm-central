@@ -14,22 +14,16 @@ function CalMemoryCalendar() {
 }
 var calMemoryCalendarClassID = Components.ID("{bda0dd7f-0a2f-4fcf-ba08-5517e6fbf133}");
 var calMemoryCalendarInterfaces = [
-  Ci.calICalendar,
-  Ci.calISchedulingSupport,
-  Ci.calIOfflineStorage,
-  Ci.calISyncWriteCalendar,
-  Ci.calICalendarProvider,
+  "calICalendar",
+  "calISchedulingSupport",
+  "calIOfflineStorage",
+  "calISyncWriteCalendar",
+  "calICalendarProvider",
 ];
 CalMemoryCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
   classID: calMemoryCalendarClassID,
-  QueryInterface: cal.generateQI([
-    "calICalendar",
-    "calISchedulingSupport",
-    "calIOfflineStorage",
-    "calISyncWriteCalendar",
-    "calICalendarProvider",
-  ]),
+  QueryInterface: cal.generateQI(calMemoryCalendarInterfaces),
   classInfo: cal.generateCI({
     classID: calMemoryCalendarClassID,
     contractID: "@mozilla.org/calendar/calendar;1?type=memory",
@@ -52,9 +46,6 @@ CalMemoryCalendar.prototype = {
   //
   // calICalendarProvider interface
   //
-  get prefChromeOverlay() {
-    return null;
-  },
 
   get displayName() {
     return cal.l10n.getCalString("memoryName");
@@ -62,10 +53,6 @@ CalMemoryCalendar.prototype = {
 
   get shortName() {
     return this.displayName();
-  },
-
-  createCalendar() {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   deleteCalendar(calendar, listener) {
@@ -78,6 +65,13 @@ CalMemoryCalendar.prototype = {
     } catch (ex) {
       // Don't bail out if the listener fails
     }
+  },
+
+  detectCalendars() {
+    throw Components.Exception(
+      "CalMemoryCalendar does not implement detectCalendars",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
   },
 
   mRelaxedMode: undefined,

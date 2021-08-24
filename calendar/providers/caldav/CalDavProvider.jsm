@@ -20,6 +20,8 @@ var { CalDavDetectionSession } = ChromeUtils.import("resource:///modules/caldav/
  * @implements {calICalendarProvider}
  */
 var CalDavProvider = {
+  QueryInterface: cal.generateQI(["calICalendarProvider"]),
+
   get type() {
     return "caldav";
   },
@@ -32,16 +34,8 @@ var CalDavProvider = {
     return "CalDAV";
   },
 
-  createCalendar(aName, aUri, aListener) {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
   deleteCalendar(aCalendar, aListener) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
-  getCalendar(aUri) {
-    return cal.getCalendarManager().createCalendar("caldav", aUri);
   },
 
   async detectCalendars(

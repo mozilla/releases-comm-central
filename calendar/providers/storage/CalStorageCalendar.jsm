@@ -35,22 +35,16 @@ function CalStorageCalendar() {
 }
 var calStorageCalendarClassID = Components.ID("{b3eaa1c4-5dfe-4c0a-b62a-b3a514218461}");
 var calStorageCalendarInterfaces = [
-  Ci.calICalendar,
-  Ci.calICalendarProvider,
-  Ci.calIOfflineStorage,
-  Ci.calISchedulingSupport,
-  Ci.calISyncWriteCalendar,
+  "calICalendar",
+  "calICalendarProvider",
+  "calIOfflineStorage",
+  "calISchedulingSupport",
+  "calISyncWriteCalendar",
 ];
 CalStorageCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
   classID: calStorageCalendarClassID,
-  QueryInterface: cal.generateQI([
-    "calICalendar",
-    "calICalendarProvider",
-    "calIOfflineStorage",
-    "calISchedulingSupport",
-    "calISyncWriteCalendar",
-  ]),
+  QueryInterface: cal.generateQI(calStorageCalendarInterfaces),
   classInfo: cal.generateCI({
     classID: calStorageCalendarClassID,
     contractID: "@mozilla.org/calendar/calendar;1?type=storage",
@@ -71,9 +65,6 @@ CalStorageCalendar.prototype = {
   //
   // calICalendarProvider interface
   //
-  get prefChromeOverlay() {
-    return null;
-  },
 
   get displayName() {
     return cal.l10n.getCalString("storageName");
@@ -81,10 +72,6 @@ CalStorageCalendar.prototype = {
 
   get shortName() {
     return "SQLite";
-  },
-
-  createCalendar() {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   async deleteCalendar(aCalendar, listener) {
@@ -116,6 +103,13 @@ CalStorageCalendar.prototype = {
     } catch (ex) {
       this.logError("error calling listener.onDeleteCalendar", ex);
     }
+  },
+
+  detectCalendars() {
+    throw Components.Exception(
+      "calStorageCalendar does not implement detectCalendars",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
   },
 
   mRelaxedMode: undefined,

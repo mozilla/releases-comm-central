@@ -65,27 +65,18 @@ var CALDAV_DELETE_ITEM = "delete";
 
 var calDavCalendarClassID = Components.ID("{a35fc6ea-3d92-11d9-89f9-00045ace3b8d}");
 var calDavCalendarInterfaces = [
-  Ci.nsIInterfaceRequestor,
-  Ci.calIFreeBusyProvider,
-  Ci.calIItipTransport,
-  Ci.calISchedulingSupport,
-  Ci.calICalendar,
-  Ci.calIChangeLog,
-  Ci.calICalDavCalendar,
+  "calICalDavCalendar",
+  "calICalendar",
+  "calIChangeLog",
+  "calIFreeBusyProvider",
+  "calIItipTransport",
+  "calISchedulingSupport",
+  "nsIInterfaceRequestor",
 ];
 CalDavCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
   classID: calDavCalendarClassID,
-  QueryInterface: cal.generateQI([
-    "calICalendarProvider",
-    "nsIInterfaceRequestor",
-    "calIFreeBusyProvider",
-    "calIItipTransport",
-    "calISchedulingSupport",
-    "calICalendar",
-    "calIChangeLog",
-    "calICalDavCalendar",
-  ]),
+  QueryInterface: cal.generateQI(calDavCalendarInterfaces),
   classInfo: cal.generateCI({
     classID: calDavCalendarClassID,
     contractID: "@mozilla.org/calendar/calendar;1?type=caldav",
@@ -141,29 +132,6 @@ CalDavCalendar.prototype = {
         this.name
       );
     }
-  },
-
-  //
-  // calICalendarProvider interface
-  //
-  get prefChromeOverlay() {
-    return null;
-  },
-
-  get displayName() {
-    return cal.l10n.getCalString("caldavName");
-  },
-
-  get shortName() {
-    return "CalDAV";
-  },
-
-  createCalendar() {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
-  deleteCalendar(_cal, listener) {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   // calIChangeLog interface
