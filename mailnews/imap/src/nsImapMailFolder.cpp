@@ -308,6 +308,7 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
   rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_FAILURE);
 
+  // Ensure the containing dir exists.
   nsCOMPtr<nsIFile> path;
   rv = CreateDirectoryForFolder(getter_AddRefs(path));
   NS_ENSURE_SUCCESS(rv, rv);

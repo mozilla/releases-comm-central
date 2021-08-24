@@ -3568,55 +3568,57 @@ nsresult nsMsgDBFolder::AddDirectorySeparator(nsIFile* path) {
   return path->SetLeafName(leafName);
 }
 
-/* Finds the directory associated with this folder.  That is if the path is
+/* Finds the subdirectory associated with this folder.  That is if the path is
    c:\Inbox, it will return c:\Inbox.sbd if it succeeds.  If that path doesn't
    currently exist then it will create it. Path is strictly an out parameter.
   */
 nsresult nsMsgDBFolder::CreateDirectoryForFolder(nsIFile** resultFile) {
-  nsresult rv = NS_OK;
-
   nsCOMPtr<nsIFile> path;
-  rv = GetFilePath(getter_AddRefs(path));
-  if (NS_FAILED(rv)) return rv;
-
-  bool pathIsDirectory = false;
-  path->IsDirectory(&pathIsDirectory);
+  nsresult rv = GetFilePath(getter_AddRefs(path));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   bool isServer;
-  GetIsServer(&isServer);
-
-  // Make sure this is REALLY the parent for subdirectories
-  if (pathIsDirectory && !isServer) {
-    nsAutoString leafName;
-    path->GetLeafName(leafName);
-    nsAutoString ext;
-    int32_t idx = leafName.RFindChar('.');
-    if (idx != -1) ext = Substring(leafName, idx);
-    if (!ext.EqualsLiteral(
-            FOLDER_SUFFIX8))  // No overload for char16_t available.
-      pathIsDirectory = false;
-  }
-
-  if (!pathIsDirectory) {
-    // If the current path isn't a directory, add directory separator
-    // and test it out.
-    rv = AddDirectorySeparator(path);
-    if (NS_FAILED(rv)) return rv;
-
-    // If that doesn't exist, then we have to create this directory
-    pathIsDirectory = false;
-    path->IsDirectory(&pathIsDirectory);
-    if (!pathIsDirectory) {
-      bool pathExists;
-      path->Exists(&pathExists);
-      // If for some reason there's a file with the directory separator
-      // then we are going to fail.
-      rv = pathExists ? NS_MSG_COULD_NOT_CREATE_DIRECTORY
-                      : path->Create(nsIFile::DIRECTORY_TYPE, 0700);
+  rv = GetIsServer(&isServer);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (isServer) {
+    bool isDir;
+    rv = path->IsDirectory(&isDir);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!isDir) {
+      return NS_ERROR_FAILURE;
     }
+
+    // Server dir doesn't have .sbd suffix. It should already exist.
+    path.forget(resultFile);
+    return NS_OK;
   }
-  if (NS_SUCCEEDED(rv)) path.forget(resultFile);
-  return rv;
+
+  // Append .sbd suffix.
+  rv = AddDirectorySeparator(path);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Already exists?
+  bool exists;
+  rv = path->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (exists) {
+    bool isDir;
+    rv = path->IsDirectory(&isDir);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!isDir) {
+      // Uhoh. Not the dir we were expecting!
+      return NS_MSG_COULD_NOT_CREATE_DIRECTORY;
+    }
+    // Already been created.
+    path.forget(resultFile);
+    return NS_OK;
+  }
+
+  // Need to create it.
+  rv = path->Create(nsIFile::DIRECTORY_TYPE, 0700);
+  NS_ENSURE_SUCCESS(rv, rv);
+  path.forget(resultFile);
+  return NS_OK;
 }
 
 /* Finds the backup directory associated with this folder, stored on the temp
