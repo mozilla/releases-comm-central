@@ -58,21 +58,21 @@
   <command id="calendar_month-view_command" oncommand="goDoCommand('calendar_month-view_command')"/>
   <command id="calendar_task_category_command"/>
   <command id="calendar_toggle_completed_command" oncommand="toggleCompleted(event)"/>
-  <command id="calendar_percentComplete-0_command" oncommand="contextChangeTaskProgress(event, 0)"/>
-  <command id="calendar_percentComplete-25_command" oncommand="contextChangeTaskProgress(event, 25)"/>
-  <command id="calendar_percentComplete-50_command" oncommand="contextChangeTaskProgress(event, 50)"/>
-  <command id="calendar_percentComplete-75_command" oncommand="contextChangeTaskProgress(event, 75)"/>
-  <command id="calendar_percentComplete-100_command" oncommand="contextChangeTaskProgress(event, 100)"/>
-  <command id="calendar_priority-0_command" oncommand="contextChangeTaskPriority(event, 0)"/>
-  <command id="calendar_priority-9_command" oncommand="contextChangeTaskPriority(event, 9)"/>
-  <command id="calendar_priority-5_command" oncommand="contextChangeTaskPriority(event, 5)"/>
-  <command id="calendar_priority-1_command" oncommand="contextChangeTaskPriority(event, 1)"/>
+  <command id="calendar_percentComplete-0_command" oncommand="contextChangeTaskProgress(0)"/>
+  <command id="calendar_percentComplete-25_command" oncommand="contextChangeTaskProgress(25)"/>
+  <command id="calendar_percentComplete-50_command" oncommand="contextChangeTaskProgress(50)"/>
+  <command id="calendar_percentComplete-75_command" oncommand="contextChangeTaskProgress(75)"/>
+  <command id="calendar_percentComplete-100_command" oncommand="contextChangeTaskProgress(100)"/>
+  <command id="calendar_priority-0_command" oncommand="contextChangeTaskPriority(0)"/>
+  <command id="calendar_priority-9_command" oncommand="contextChangeTaskPriority(9)"/>
+  <command id="calendar_priority-5_command" oncommand="contextChangeTaskPriority(5)"/>
+  <command id="calendar_priority-1_command" oncommand="contextChangeTaskPriority(1)"/>
   <command id="calendar_general-priority_command" oncommand="goDoCommand('calendar_general-priority_command')"/>
   <command id="calendar_general-progress_command" oncommand="goDoCommand('calendar_general-progress_command')"/>
   <command id="calendar_general-postpone_command"/>
-  <command id="calendar_postpone-1hour_command" oncommand="contextPostponeTask(event, 'PT1H')"/>
-  <command id="calendar_postpone-1day_command" oncommand="contextPostponeTask(event, 'P1D')"/>
-  <command id="calendar_postpone-1week_command" oncommand="contextPostponeTask(event, 'P1W')"/>
+  <command id="calendar_postpone-1hour_command" oncommand="contextPostponeTask('PT1H')"/>
+  <command id="calendar_postpone-1day_command" oncommand="contextPostponeTask('P1D')"/>
+  <command id="calendar_postpone-1week_command" oncommand="contextPostponeTask('P1W')"/>
   <command id="calendar_toggle_orientation_command" persist="checked" oncommand="goDoCommand('calendar_toggle_orientation_command')"/>
   <command id="calendar_toggle_workdays_only_command" persist="checked" oncommand="goDoCommand('calendar_toggle_workdays_only_command')"/>
   <command id="calendar_toggle_tasks_in_view_command" persist="checked" oncommand="toggleTasksInView()"/>

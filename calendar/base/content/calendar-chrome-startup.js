@@ -255,8 +255,8 @@ function setUpCalendarAppMenuButtons() {
 /**
  * Event listener used to refresh the "Events and Tasks" menu/view in the appmenu.
  */
-function refreshEventsAndTasksMenu(event) {
-  changeMenuForTask(event);
+function refreshEventsAndTasksMenu() {
+  changeMenuForTask();
   setupDeleteMenuitem("appmenu_calDeleteSelectedCalendar");
 
   // Refresh the "disabled" property of the Progress and Priority menu items. Needed because if
