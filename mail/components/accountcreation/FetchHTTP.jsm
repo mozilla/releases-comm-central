@@ -313,7 +313,6 @@ FetchHTTP.prototype = {
         } catch (e) {
           // In case .statusText throws (it's marked as [Throws] in the webidl),
           // continue with empty errorStr.
-          console.error(e);
         }
         if (!errorStr) {
           // If we can't resolve the hostname in DNS etc., .statusText is empty.
@@ -330,7 +329,6 @@ FetchHTTP.prototype = {
         try {
           this._successCallback(this.result);
         } catch (e) {
-          Cu.reportError(e);
           e.stack = this._callStack;
           this._error(e);
         }
@@ -352,7 +350,6 @@ FetchHTTP.prototype = {
       }
     } catch (e) {
       // error in our fetchhttp._response() code
-      Cu.reportError(e);
       this._error(e);
     }
   },
