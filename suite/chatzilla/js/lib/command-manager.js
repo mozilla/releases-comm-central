@@ -524,7 +524,7 @@ function cmgr_unhook (commandName, id, before)
  * @param flags Optional. Flags to logically AND with commands.
  */
 CommandManager.prototype.list =
-function cmgr_list (partialName, flags)
+function cmgr_list(partialName, flags, exact)
 {
     /* returns array of command objects which look like |partialName|, or
      * all commands if |partialName| is not specified */
@@ -545,30 +545,19 @@ function cmgr_list (partialName, flags)
     var ary = new Array();
     var commandNames = keys(this.commands);
 
-    /* A command named "eval" wouldn't show up in the result of keys() because
-     * eval is not-enumerable, even if overwritten, in Mozilla 1.0. */
-    if (objectContains(this.commands, "eval") && !arrayContains(commandNames, "eval"))
-        commandNames.push("eval");
-
-    for (var i in commandNames)
+    for (var name of commandNames)
     {
-        var name = commandNames[i];
-        if (!flags || (this.commands[name].flags & flags))
+        let command = this.commands[name];
+        if ((!flags || (command.flags & flags)) &&
+            (!partialName || command.name.startsWith(partialName)))
         {
-            if (!partialName ||
-                this.commands[name].name.indexOf(partialName) == 0)
+            if (exact && partialName &&
+                partialName.length == command.name.length)
             {
-                if (partialName &&
-                    partialName.length == this.commands[name].name.length)
-                {
-                    /* exact match */
-                    return [this.commands[name]];
-                }
-                else
-                {
-                    ary.push (this.commands[name]);
-                }
+                /* exact match */
+                return [command];
             }
+            ary.push(command);
         }
     }
 
@@ -585,7 +574,7 @@ function cmgr_list (partialName, flags)
 CommandManager.prototype.listNames =
 function cmgr_listnames (partialName, flags)
 {
-    var cmds = this.list(partialName, flags);
+    var cmds = this.list(partialName, flags, false);
     var cmdNames = new Array();
 
     for (var c in cmds)

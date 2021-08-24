@@ -480,7 +480,7 @@ function dispatch(text, e, isInteractive, flags)
         e.inputData = stringTrim(ary[2]);
 
     /* list matching commands */
-    ary = client.commandManager.list(e.commandText, flags);
+    ary = client.commandManager.list(e.commandText, flags, true);
     var rv = null;
     var i;
 
@@ -1333,7 +1333,7 @@ function cmdHelp(e)
         return;
     }
 
-    var ary = client.commandManager.list(e.pattern, CMD_CONSOLE);
+    var ary = client.commandManager.list(e.pattern, CMD_CONSOLE, true);
 
     if (ary.length == 0)
     {
