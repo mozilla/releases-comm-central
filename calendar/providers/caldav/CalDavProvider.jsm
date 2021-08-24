@@ -364,7 +364,12 @@ class CalDavDetector {
    * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
    */
   async handleHomeSet(location) {
-    let props = ["D:resourcetype", "D:displayname", "A:calendar-color"];
+    let props = [
+      "D:resourcetype",
+      "D:displayname",
+      "D:current-user-privilege-set",
+      "A:calendar-color",
+    ];
     let request = new CalDavPropfindRequest(this.session, null, location, props, 1);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
