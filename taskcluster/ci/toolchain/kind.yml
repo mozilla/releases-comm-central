@@ -97,4 +97,3 @@ transforms:
 jobs-from:
     - libotr.yml
     - macosx-sdk.yml
-    - misc.yml
