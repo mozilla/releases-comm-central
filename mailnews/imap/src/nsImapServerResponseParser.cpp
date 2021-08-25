@@ -2127,15 +2127,16 @@ void nsImapServerResponseParser::namespace_data() {
             SetSyntaxError(true);
           }
           if (ContinueParse()) {
-            // add code to parse the TRANSLATE attribute if it is present....
+            // Add code to parse the TRANSLATE attribute if it is present....
             // we'll also need to expand the name space code to take in the
             // translated prefix name.
 
-            nsImapNamespace* newNamespace = new nsImapNamespace(
-                namespaceType, namespacePrefix, namespaceDelimiter, false);
-            // add it to a temporary list in the host
-            if (newNamespace && fHostSessionList)
+            // Add it to a temporary list in the host.
+            if (fHostSessionList) {
+              nsImapNamespace* newNamespace = new nsImapNamespace(
+                  namespaceType, namespacePrefix, namespaceDelimiter, false);
               fHostSessionList->AddNewNamespaceForHost(serverKey, newNamespace);
+            }
 
             skip_to_close_paren();  // Ignore any extension data
 
