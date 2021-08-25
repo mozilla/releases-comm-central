@@ -89,9 +89,6 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         CONFIG["COMPILER_RT_BUILTIN_LIB"],
     ]
 
-if CONFIG["MOZ_STDCXX_COMPAT"]:
-    OS_LIBS += CONFIG["REALTIME_LIBS"]
-
 SYMBOLS_FILE = "rnp.symbols"
 
 

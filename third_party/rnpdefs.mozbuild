@@ -28,18 +28,9 @@ if CONFIG["CC_TYPE"] == "clang-cl":
     ]
     USE_STATIC_LIBS = True
 
-# MOZ_STDCXX_COMPAT should only be set for Taskcluster builds targeting Linux.
-# The below changes those builds to statically link to LLVM's libc++ statically
-# to circumvent the issues with undesired libstdc++ symbols that keep popping up
 if CONFIG["MOZ_STDCXX_COMPAT"]:
-    static_libdir = {"i686": "-L{}/../lib32", "x86_64": "-L{}"}[
-        CONFIG["TARGET_CPU"]
-    ].format(CONFIG["MOZ_LIBCLANG_PATH"])
-
+    # Use pre-GCC-5 strings abi
     DEFINES["_GLIBCXX_USE_CXX11_ABI"] = 0
-    CXXFLAGS += ["-stdlib=libc++"]
-    OS_LIBS += [static_libdir, "-l:libc++.a", "-l:libc++abi.a"]
-
 
 if CONFIG["OS_ARCH"] == "Linux":
     CFLAGS += ["-fPIC"]
