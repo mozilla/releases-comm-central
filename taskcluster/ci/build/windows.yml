@@ -237,6 +237,7 @@ win64/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
@@ -297,6 +298,7 @@ win64-shippable/opt:
             - linux64-rust-size
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
@@ -354,6 +356,7 @@ win64/debug:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
@@ -393,6 +396,7 @@ win64-plain/debug:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
+            - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
             - win64-libotr
@@ -434,6 +438,7 @@ win64-plain/opt:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
+            - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
             - win64-libotr
@@ -492,6 +497,7 @@ win64-asan/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
