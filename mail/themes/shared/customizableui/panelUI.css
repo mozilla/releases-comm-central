@@ -14,6 +14,7 @@
   https://bugzilla.mozilla.org/show_bug.cgi?id=963365#c11 */
   --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
   --arrowpanel-menuitem-border-radius: 3px;
+  --appmenu-button-margin: 0 8px;
   --appmenu-button-padding: 6px;
   --appmenu-warning-background-color: #ffefbf;
   --appmenu-warning-background-color-hover: #ffe8a2;
@@ -22,10 +23,20 @@
   --appmenu-warning-border-color: hsl(45, 100%, 77%);
 }
 
+.cui-widget-panel {
+  /* Complement the .subviewbutton margin. */
+  --arrowpanel-padding: 8px 0;
+}
+
 /* UI Density customization */
 
 :root[uidensity="compact"] {
+  --appmenu-button-margin: 0 4px;
   --appmenu-button-padding: 3px;
+}
+
+:root[uidensity="compact"] .cui-widget-panel {
+  --arrowpanel-padding: 4px 0;
 }
 
 :root[uidensity="touch"] {
@@ -75,7 +86,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   overflow-y: auto;
   overflow-x: hidden;
   -moz-box-flex: 1;
-  padding: 8px 0;
+  padding: var(--arrowpanel-padding);
 }
 
 .panel-view-body-unscrollable {
@@ -118,11 +129,6 @@ panelview:not([mainview]) .toolbarbutton-text,
 #overflowMenu-customize-button > .toolbarbutton-text {
   text-align: start;
   display: -moz-box;
-}
-
-.cui-widget-panel {
-  /* Complement the .subviewbutton margin. */
-  --arrowpanel-padding: 8px 0;
 }
 
 #appMenu-popup panelview,
@@ -221,7 +227,7 @@ panelview .toolbarbutton-1,
 .subviewbutton,
 .widget-overflow-list .toolbarbutton-1 {
   appearance: none;
-  margin: 0 8px;
+  margin: var(--appmenu-button-margin);
   min-height: 24px;
   padding-inline: 8px;
   padding-block: var(--appmenu-button-padding);
