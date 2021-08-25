@@ -1142,7 +1142,7 @@ MessageSend.prototype = {
       let url;
       let name;
       let mozDoNotSend = element.getAttribute("moz-do-not-send");
-      if (mozDoNotSend && mozDoNotSend.toLowerCase() != "false") {
+      if (mozDoNotSend && mozDoNotSend != "false") {
         // Only empty or moz-do-not-send="false" may be accepted later.
         continue;
       }
@@ -1165,8 +1165,12 @@ MessageSend.prototype = {
       // sending as a cid: part instead of original URL.
       if (/^https?:\/\//i.test(url)) {
         acceptObject =
-          isImage &&
-          Services.prefs.getBoolPref("mail.compose.attach_http_images", false);
+          (isImage &&
+            Services.prefs.getBoolPref(
+              "mail.compose.attach_http_images",
+              false
+            )) ||
+          mozDoNotSend == "false";
       }
       if (/^(data|news|snews|nntp):/i.test(url)) {
         acceptObject = true;
