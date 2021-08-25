@@ -64,12 +64,11 @@
 
     <!-- Spellchecking menu items -->
     <menuitem id="spellCheckNoSuggestions"
-              label="&spellNoSuggestions.label;"
+              data-l10n-id="text-action-spell-no-suggestions"
               disabled="true"/>
     <menuseparator id="spellCheckAddSep" />
     <menuitem id="spellCheckAddToDictionary"
-              label="&spellAddToDictionary.label;"
-              accesskey="&spellAddToDictionary.accesskey;"
+              data-l10n-id="text-action-spell-add-to-dictionary"
               oncommand="gChatSpellChecker.addToDictionary();"/>
     <menuseparator id="spellCheckSuggestionsSeparator"/>
 
@@ -83,13 +82,11 @@
     <!-- Spellchecking general menu items (enable, add dictionaries...) -->
     <menuseparator id="spellCheckSeparator"/>
     <menuitem id="spellCheckEnable"
-              label="&spellCheckToggle.label;"
+              data-l10n-id="text-action-spell-check-toggle"
               type="checkbox"
-              accesskey="&spellCheckToggle.accesskey;"
               oncommand="enableInlineSpellCheck(!gChatSpellChecker.enabled);"/>
     <menu id="spellCheckDictionaries"
-          label="&spellDictionaries.label;"
-          accesskey="&spellDictionaries.accesskey;">
+          data-l10n-id="text-action-spell-dictionaries">
       <menupopup id="spellCheckDictionariesMenu">
         <menuseparator id="spellCheckLanguageSeparator"/>
         <menuitem id="spellCheckAddDictionaries"

@@ -62,14 +62,12 @@
     <!-- Spellchecking suggestions -->
     <menuitem id="mailContext-spell-no-suggestions"
               disabled="true"
-              label="&spellNoSuggestions.label;"/>
+              data-l10n-id="text-action-spell-no-suggestions"/>
     <menuitem id="mailContext-spell-add-to-dictionary"
-              label="&spellAddToDictionary.label;"
-              accesskey="&spellAddToDictionary.accesskey;"
+              data-l10n-id="text-action-spell-add-to-dictionary"
               oncommand="gSpellChecker.addToDictionary();"/>
     <menuitem id="mailContext-spell-undo-add-to-dictionary"
-              label="&spellUndoAddToDictionary.label;"
-              accesskey="&spellUndoAddToDictionary.accesskey;"
+              data-l10n-id="text-action-spell-undo-add-to-dictionary"
               oncommand="gSpellChecker.undoAddToDictionary();" />
     <menuseparator id="mailContext-spell-suggestions-separator"/>
 
@@ -117,17 +115,15 @@
     <!-- Spellchecking general menu items (enable, add dictionaries...) -->
     <menuseparator id="mailContext-spell-separator"/>
     <menuitem id="mailContext-spell-check-enabled"
-              label="&spellCheckToggle.label;"
+              data-l10n-id="text-action-spell-check-toggle"
               type="checkbox"
-              accesskey="&spellCheckToggle.accesskey;"
               oncommand="gSpellChecker.toggleEnabled();"/>
     <menuitem id="mailContext-spell-add-dictionaries-main"
               label="&spellAddDictionaries.label;"
               accesskey="&spellAddDictionaries.accesskey;"
               oncommand="gContextMenu.addDictionaries();"/>
     <menu id="mailContext-spell-dictionaries"
-          label="&spellDictionaries.label;"
-          accesskey="&spellDictionaries.accesskey;">
+          data-l10n-id="text-action-spell-dictionaries">
         <menupopup id="mailContext-spell-dictionaries-menu">
             <menuseparator id="mailContext-spell-language-separator"/>
             <menuitem id="mailContext-spell-add-dictionaries"

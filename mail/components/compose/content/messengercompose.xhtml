@@ -619,16 +619,14 @@
 
   <!-- Spellchecking menu items -->
   <menuitem id="spellCheckNoSuggestions"
-            label="&spellNoSuggestions.label;"
+            data-l10n-id="text-action-spell-no-suggestions"
             disabled="true"/>
   <menuseparator id="spellCheckAddSep" />
   <menuitem id="spellCheckAddToDictionary"
-            label="&spellAddToDictionary.label;"
-            accesskey="&spellAddToDictionary.accesskey;"
+            data-l10n-id="text-action-spell-add-to-dictionary"
             oncommand="gSpellChecker.addToDictionary();"/>
   <menuitem id="spellCheckUndoAddToDictionary"
-            label="&spellUndoAddToDictionary.label;"
-            accesskey="&spellUndoAddToDictionary.accesskey;"
+            data-l10n-id="text-action-spell-undo-add-to-dictionary"
             oncommand="gSpellChecker.undoAddToDictionary();" />
   <menuitem id="spellCheckIgnoreWord" label="&spellCheckIgnoreWord.label;"
             accesskey="&spellCheckIgnoreWord.accesskey;"
@@ -648,17 +646,15 @@
   <!-- Spellchecking general menu items (enable, add dictionaries...) -->
   <menuseparator id="spellCheckSeparator"/>
   <menuitem id="spellCheckEnable"
-            label="&spellCheckToggle.label;"
+            data-l10n-id="text-action-spell-check-toggle"
             type="checkbox"
-            accesskey="&spellCheckToggle.accesskey;"
             oncommand="toggleSpellCheckingEnabled();"/>
   <menuitem id="spellCheckAddDictionariesMain"
             label="&spellAddDictionaries.label;"
             accesskey="&spellAddDictionaries.accesskey;"
             oncommand="openDictionaryList();"/>
   <menu id="spellCheckDictionaries"
-        label="&spellDictionaries.label;"
-        accesskey="&spellDictionaries.accesskey;">
+        data-l10n-id="text-action-spell-dictionaries">
     <menupopup id="spellCheckDictionariesMenu">
       <menuseparator id="spellCheckLanguageSeparator"/>
       <menuitem id="spellCheckAddDictionaries"
