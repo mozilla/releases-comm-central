@@ -786,6 +786,33 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
         do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
+    /* Do a discovery in its own url if needed. Do before SELECT url. */
+    nsCOMPtr<nsIImapHostSessionList> hostSession =
+        do_GetService(kCImapHostSessionList, &rv);
+    if (NS_SUCCEEDED(rv) && hostSession) {
+      bool foundMailboxesAlready = false;
+      nsCString serverKey;
+      GetServerKey(serverKey);
+      hostSession->GetHaveWeEverDiscoveredFoldersForHost(serverKey.get(),
+                                                         foundMailboxesAlready);
+      if (!foundMailboxesAlready) {
+        bool discoveryInProgress = false;
+        // See if discovery in progress and not yet finished.
+        hostSession->GetDiscoveryForHostInProgress(serverKey.get(),
+                                                   discoveryInProgress);
+        if (!discoveryInProgress) {
+          nsCOMPtr<nsIMsgFolder> rootFolder;
+          rv = GetRootFolder(getter_AddRefs(rootFolder));
+          if (NS_SUCCEEDED(rv) && rootFolder) {
+            rv = imapService->DiscoverAllFolders(rootFolder, this, aMsgWindow,
+                                                 nullptr);
+            if (NS_SUCCEEDED(rv))
+              hostSession->SetDiscoveryForHostInProgress(serverKey.get(), true);
+          }
+        }
+      }
+    }
+
     nsCOMPtr<nsIURI> url;
     rv = imapService->SelectFolder(this, m_urlListener, aMsgWindow,
                                    getter_AddRefs(url));

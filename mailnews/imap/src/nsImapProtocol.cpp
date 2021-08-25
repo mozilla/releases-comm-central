@@ -1847,7 +1847,12 @@ bool nsImapProtocol::ProcessCurrentURL() {
     if (GetServerStateParser().GetCapabilityFlag() & kHasLanguageCapability)
       Language();
 
-    if (m_runningUrl) FindMailboxesIfNecessary();
+    if (m_runningUrl) {
+      bool foundMailboxesAlready = false;
+      m_hostSessionList->GetHaveWeEverDiscoveredFoldersForHost(
+          GetImapServerKey(), foundMailboxesAlready);
+      if (!foundMailboxesAlready) FindMailboxesIfNecessary();
+    }
 
     nsImapState imapState = nsIImapUrl::ImapStatusNone;
     if (m_runningUrl) m_runningUrl->GetRequiredImapState(&imapState);
@@ -1898,6 +1903,11 @@ bool nsImapProtocol::ProcessCurrentURL() {
           IMAP, LogLevel::Debug,
           ("URL failed with code 0x%" PRIx32 " (%s)", static_cast<uint32_t>(rv),
            mailnewsurl->GetSpecOrDefault().get()));
+      // If discovery URL fails, clear the in-progress flag.
+      if (m_imapAction == nsIImapUrl::nsImapDiscoverAllBoxesUrl) {
+        m_hostSessionList->SetDiscoveryForHostInProgress(GetImapServerKey(),
+                                                         false);
+      }
     }
     // Inform any nsIUrlListeners that the URL has finished. This will invoke
     // nsIUrlListener.onStopRunningUrl().
@@ -7149,22 +7159,29 @@ void nsImapProtocol::OnMoveFolderHierarchy(const char* sourceMailbox) {
     HandleMemoryFailure();
 }
 
+// This is called to do mailbox discovery if discovery not already complete
+// for the "host" (i.e., server or account). Discovery still only occurs if
+// the imap action is appropriate and if discovery is not in progress due to
+// a running "discoverallboxes" URL.
 void nsImapProtocol::FindMailboxesIfNecessary() {
   // biff should not discover mailboxes
-  bool foundMailboxesAlready = false;
   nsImapAction imapAction;
-
-  // need to do this for every connection in order to see folders.
   (void)m_runningUrl->GetImapAction(&imapAction);
-  nsresult rv = m_hostSessionList->GetHaveWeEverDiscoveredFoldersForHost(
-      GetImapServerKey(), foundMailboxesAlready);
-  if (NS_SUCCEEDED(rv) && !foundMailboxesAlready &&
-      (imapAction != nsIImapUrl::nsImapBiff) &&
+  if ((imapAction != nsIImapUrl::nsImapBiff) &&
       (imapAction != nsIImapUrl::nsImapVerifylogon) &&
       (imapAction != nsIImapUrl::nsImapDiscoverAllBoxesUrl) &&
       (imapAction != nsIImapUrl::nsImapUpgradeToSubscription) &&
-      !GetSubscribingNow())
-    DiscoverMailboxList();
+      !GetSubscribingNow()) {
+    // If discovery in progress, don't kick-off another discovery.
+    bool discoveryInProgress = false;
+    m_hostSessionList->GetDiscoveryForHostInProgress(GetImapServerKey(),
+                                                     discoveryInProgress);
+    if (!discoveryInProgress) {
+      m_hostSessionList->SetDiscoveryForHostInProgress(GetImapServerKey(),
+                                                       true);
+      DiscoverMailboxList();
+    }
+  }
 }
 
 void nsImapProtocol::DiscoverAllAndSubscribedBoxes() {
@@ -7482,9 +7499,11 @@ void nsImapProtocol::MailboxDiscoveryFinished() {
     }  // if trash folder doesn't exist
     m_hostSessionList->SetHaveWeEverDiscoveredFoldersForHost(GetImapServerKey(),
                                                              true);
-
     // notify front end that folder discovery is complete....
     if (m_imapServerSink) m_imapServerSink->DiscoveryDone();
+
+    // Clear the discovery in progress flag.
+    m_hostSessionList->SetDiscoveryForHostInProgress(GetImapServerKey(), false);
   }
 }
 
