@@ -39,6 +39,7 @@ classic.jar:
   skin/classic/messenger/filterDialog.css                     (mail/filterDialog.css)
   skin/classic/messenger/multimessageview.css                 (mail/multimessageview.css)
   skin/classic/messenger/glodaFacetView.css                   (mail/glodaFacetView.css)
+  skin/classic/messenger/panelUI.css                          (mail/panelUI.css)
   skin/classic/messenger/tabmail.css                          (mail/tabmail.css)
   skin/classic/messenger/themeableDialog.css                  (mail/themeableDialog.css)
   skin/classic/messenger/editContactPanel.css                 (mail/editContactPanel.css)
@@ -62,7 +63,6 @@ classic.jar:
   skin/classic/messenger/addressbook/cardDialog.css           (mail/addrbook/cardDialog.css)
   skin/classic/messenger/messengercompose/messengercompose.css (mail/compose/messengercompose.css)
   skin/classic/messenger/downloads/aboutDownloads.css         (mail/downloads/aboutDownloads.css)
-  skin/classic/messenger/customizableui/panelUI.css           (customizableui/panelUI.css)
   skin/classic/messenger/openpgp/enigmail.css                 (openpgp/enigmail.css)
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
   skin/classic/messenger-newsblog/feed-subscriptions.css      (mail/newsblog/feed-subscriptions.css)

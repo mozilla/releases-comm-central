@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/shared/customizableui/panelUI.css");
+@import url("chrome://messenger/skin/shared/panelUI.css");
 
 .panel-subview-body {
   scrollbar-color: color-mix(in srgb, currentColor 26%, transparent) transparent;
