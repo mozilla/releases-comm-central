@@ -9011,18 +9011,21 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry* entry, bool aNew,
     MOZ_LOG(IMAPCache, LogLevel::Debug,
             ("OnCacheEntryAvailable(): Get part from entire message=%s",
              mTryingToReadPart ? "true" : "false"));
-    nsAutoCString key;
-    if (entry) entry->GetKey(key);
-    MOZ_LOG(IMAPCache, LogLevel::Debug,
-            ("OnCacheEntryAvailable(): Cache entry key = |%s|", key.get()));
+    if (NS_SUCCEEDED(status)) {
+      nsAutoCString key;
+      entry->GetKey(key);
+      MOZ_LOG(IMAPCache, LogLevel::Debug,
+              ("OnCacheEntryAvailable(): Cache entry key = |%s|", key.get()));
+    }
   }
-  nsresult rv = NS_OK;
 
   // make sure we didn't close the channel before the async call back came in...
   // hmmm....if we had write access and we canceled this mock channel then I
   // wonder if we should be invalidating the cache entry before kicking out...
   if (mChannelClosed) {
-    entry->AsyncDoom(nullptr);
+    if (NS_SUCCEEDED(status)) {
+      entry->AsyncDoom(nullptr);
+    }
     return NS_OK;
   }
 
@@ -9045,6 +9048,7 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry* entry, bool aNew,
       break;
     }
 
+    nsresult rv = NS_OK;
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url, &rv);
     mailnewsUrl->SetMemCacheEntry(entry);
 
