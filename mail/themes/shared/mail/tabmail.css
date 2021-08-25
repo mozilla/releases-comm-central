@@ -64,14 +64,23 @@
 }
 
 .tab-content {
-  padding-inline-end: 9px;
-  padding-inline-start: 9px;
+  padding-inline: 9px;
+  display: flex;
+  align-items: center;
+}
+
+.tab-content > :is(.tab-throbber, .tab-icon-image, .tab-close-button) {
+  flex: 0 0 auto;
+}
+
+.tab-content > .tab-label-container {
+  flex: 1 1 auto;
 }
 
 .tab-throbber,
 .tab-icon-image,
-.tab-close-button {
-  margin-top: 1px;
+button.tab-close-button {
+  margin-block: 1px 0;
 }
 
 .tab-throbber,
@@ -90,13 +99,17 @@
   line-height: 1.7em;
 }
 
-.tab-content > .tab-close-button {
-  margin-inline-start: 1px;
-  margin-inline-end: -2px;
+button.tab-close-button {
+  margin-inline: 1px -2px;
   padding: 2px;
+}
+
+.tab-close-icon {
+  width: 16px;
+  height: 16px;
   -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-  -moz-image-region: auto;
 }
 
 .tabmail-tab:not([selected],:-moz-lwtheme) {
@@ -130,8 +143,7 @@
 
 :root[extradragspace] .tab-background,
 :root:not([tabsintitlebar]) .tab-background,
-#mail-toolbar-menubar2[toolbarname]:not([autohide=true]) ~ #tabs-toolbar > #tabmail-tabs >
-  .tabmail-tab > .tab-stack > .tab-background {
+#mail-toolbar-menubar2[toolbarname]:not([autohide=true]) ~ #tabs-toolbar > #tabmail-tabs .tab-background {
   border-top-style: solid;
 }
 
@@ -152,7 +164,7 @@
  */
 
 /* Lightweight theme on tabs */
-.tabmail-tab > .tab-stack > .tab-background[selected=true]:-moz-lwtheme {
+.tabmail-tab .tab-background[selected=true]:-moz-lwtheme {
   background-attachment: scroll, scroll, fixed;
   background-color: transparent;
   background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent),
@@ -166,11 +178,20 @@
 
 /* Tab hover */
 
-.tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
+.tabmail-tab:hover .tab-background:not([selected=true]) {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-#tabs-toolbar[brighttext] .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
+/* Adjust button hover color relative to the darker background. */
+#tabs-toolbar:not([brighttext]) button.tab-close-button:not([selected=true]):hover {
+  background-color: color-mix(in srgb, black 10%, var(--button-hover-bgcolor));
+}
+
+#tabs-toolbar:not([brighttext]) button.tab-close-button:not([selected=true]):hover:active {
+  background-color: color-mix(in srgb, black 10%, var(--button-active-bgcolor));
+}
+
+#tabs-toolbar[brighttext] .tabmail-tab:hover .tab-background:not([selected=true]) {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
@@ -181,14 +202,13 @@
               opacity 250ms var(--animation-easing-function);
 }
 
-.tabmail-tab:hover > .tab-stack > .tab-background > .tab-line:not([selected=true]) {
+.tabmail-tab:hover .tab-line:not([selected=true]) {
   background-color: rgba(0, 0, 0, 0.2);
   opacity: 1;
   transform: none;
 }
 
-#tabs-toolbar[brighttext] .tabmail-tab:hover > .tab-stack > .tab-background >
-  .tab-line:not([selected=true]) {
+#tabs-toolbar[brighttext] .tabmail-tab:hover .tab-line:not([selected=true]) {
   background-color: rgba(255, 255, 255, 0.2);
 }
 

@@ -625,27 +625,6 @@
       return this.getBrowserForSelectedTab();
     }
 
-    createTooltip(event) {
-      let tab = event.target.triggerNode?.closest("tab");
-      if (!tab) {
-        event.preventDefault();
-        return;
-      }
-
-      event.stopPropagation();
-      if (tab.localName != "tab" || this.tabContainer.draggedTab) {
-        event.preventDefault();
-        return;
-      }
-
-      event.target.setAttribute(
-        "label",
-        tab.mOverCloseButton
-          ? tab.firstElementChild.getAttribute("closetabtext")
-          : tab.getAttribute("label")
-      );
-    }
-
     registerTabType(aTabType) {
       if (aTabType.name in this.tabTypes) {
         return;

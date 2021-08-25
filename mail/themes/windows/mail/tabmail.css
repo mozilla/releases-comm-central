@@ -31,11 +31,11 @@ tabpanels {
 }
 
 /* tabmail-tab focus ring */
-.tabmail-tab > .tab-stack > .tab-content > .tab-label-container {
+.tabmail-tab .tab-label-container {
   border: 1px dotted transparent;
 }
 
-.tabmail-tab:focus > .tab-stack > .tab-content > .tab-label-container {
+.tabmail-tab:focus .tab-label-container {
   border-color: -moz-DialogText;
 }
 

@@ -18,24 +18,9 @@
   white-space: nowrap;
 }
 
-.tab-close-button {
+#tabmail-tabs .tabmail-tab:first-child .tab-close-button,
+#tabmail-tabs[closebuttons="activetab"] .tabmail-tab:not([selected="true"]) .tab-close-button {
   display: none;
-}
-
-#tabmail-tabs > arrowscrollbox > .tabmail-tab:first-child > .tab-stack > .tab-content >
-.tab-close-button {
-  visibility: collapse;
-}
-
-#tabmail-tabs:not([closebuttons="noclose"],[closebuttons="closeatend"]) >
-arrowscrollbox > .tabmail-tab[selected="true"]:not(:only-child) > .tab-stack >
-.tab-content > .tab-close-button {
-  display: -moz-box;
-}
-
-#tabmail-tabs[closebuttons="alltabs"] > arrowscrollbox >
-.tabmail-tab:not(:only-child) > .tab-stack > .tab-content > .tab-close-button {
-  display: -moz-box;
 }
 
 .tab-drop-indicator {

@@ -20,7 +20,7 @@
       return {
         ".tab-background": "pinned,selected,titlechanged",
         ".tab-line": "selected=visuallyselected",
-        ".tab-content": "pinned,selected,titlechanged",
+        ".tab-content": "pinned,selected,titlechanged,title=label",
         ".tab-throbber": "fadein,pinned,busy,progress,selected",
         ".tab-icon-image": "validate,src=image,src,fadein,pinned,selected",
         ".tab-label-container": "pinned,selected=visuallyselected",
@@ -38,11 +38,11 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-          <stack class="tab-stack" flex="1" closetabtext="&closeTab.label;">
+          <stack class="tab-stack" flex="1">
             <vbox class="tab-background">
               <hbox class="tab-line"></hbox>
             </vbox>
-            <hbox class="tab-content" align="center">
+            <html:div class="tab-content">
               <hbox class="tab-throbber" role="presentation"></hbox>
               <image class="tab-icon-image" role="presentation"></image>
               <hbox class="tab-label-container"
@@ -51,20 +51,18 @@
                     flex="1">
                 <label class="tab-text tab-label" role="presentation"></label>
               </hbox>
-              <image class="tab-close-button close-icon"/>
-            </hbox>
+              <html:button class="plain-button tab-close-button"
+                           title="&closeTab.label;">
+                <!-- Button title should provide the accessible context. -->
+                <html:img class="tab-close-icon" alt=""
+                          src="chrome://global/skin/icons/close.svg" />
+              </html:button>
+            </html:div>
           </stack>
           `,
           ["chrome://messenger/locale/tabmail.dtd"]
         )
       );
-
-      this.addEventListener("mouseover", event => {
-        document.tab = this;
-        if (event.target.classList.contains("tab-close-button")) {
-          this.mOverCloseButton = true;
-        }
-      });
 
       this.addEventListener(
         "dragstart",
@@ -82,81 +80,9 @@
         true
       );
 
-      this.addEventListener("mouseout", event => {
-        document.tab = null;
-        if (event.target.classList.contains("tab-close-button")) {
-          this.mOverCloseButton = false;
-        }
-      });
-
-      this.addEventListener(
-        "mousedown",
-        event => {
-          if (event.button != 0) {
-            return;
-          }
-
-          if (this.mOverCloseButton) {
-            event.stopPropagation();
-          }
-        },
-        true
+      this.querySelector(".tab-close-button").addEventListener("click", () =>
+        document.getElementById("tabmail").removeTabByNode(this)
       );
-
-      this.addEventListener("click", event => {
-        if (event.button != 0) {
-          return;
-        }
-        if (!event.target.classList.contains("tab-close-button")) {
-          return;
-        }
-
-        let tabbedBrowser = document.getElementById("tabmail");
-        if (this.localName == "tab") {
-          // The only sequence in which a second click event (i.e. dblclik)
-          // can be dispatched on an in-tab close button is when it is shown
-          // after the first click (i.e. the first click event was dispatched
-          // on the tab). This happens when we show the close button only on
-          // the active tab. (bug 352021)
-          // The only sequence in which a third click event can be dispatched
-          // on an in-tab close button is when the tab was opened with a
-          // double click on the tabbar. (bug 378344)
-          // In both cases, it is most likely that the close button area has
-          // been accidentally clicked, therefore we do not close the tab.
-          if (event.detail > 1) {
-            return;
-          }
-
-          tabbedBrowser.removeTabByNode(this);
-          tabbedBrowser._blockDblClick = true;
-          let tabContainer = tabbedBrowser.tabContainer;
-
-          // XXXmano hack (see bug 343628):
-          // Since we're removing the event target, if the user
-          // double-clicks this button, the dblclick event will be dispatched
-          // with the tabbar as its event target (and explicit/originalTarget),
-          // which treats that as a mouse gesture for opening a new tab.
-          // In this context, we're manually blocking the dblclick event
-          // (see onTabBarDblClick).
-          let clickedOnce = false;
-          let enableDblClick = function enableDblClick(event) {
-            let target = event.target;
-            if (target.classList.contains("tab-close-button")) {
-              target._ignoredClick = true;
-            }
-            if (!clickedOnce) {
-              clickedOnce = true;
-              return;
-            }
-            tabContainer._blockDblClick = false;
-            tabContainer.removeEventListener("click", enableDblClick, true);
-          };
-          tabContainer.addEventListener("click", enableDblClick, true);
-        } else {
-          // "tabs"
-          tabbedBrowser.removeCurrentTab();
-        }
-      });
 
       this.addEventListener(
         "contextmenu",
@@ -177,8 +103,6 @@
         },
         true
       );
-
-      this.mOverCloseButton = false;
 
       this.setAttribute("context", "tabContextMenu");
 
