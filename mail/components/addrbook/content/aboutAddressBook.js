@@ -39,6 +39,39 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
 var booksList;
 
 window.addEventListener("load", () => {
+  document
+    .getElementById("toolbarCreateBook")
+    .addEventListener("command", event => {
+      let type = event.target.value || "JS_DIRECTORY_TYPE";
+      createBook(Ci.nsIAbManager[type]);
+    });
+  document
+    .getElementById("toolbarCreateContact")
+    .addEventListener("command", event => createContact());
+  document
+    .getElementById("toolbarCreateList")
+    .addEventListener("command", event => createList());
+
+  document.getElementById("bookContext").addEventListener("command", event => {
+    switch (event.target.id) {
+      case "bookContextProperties":
+        booksList.showPropertiesOfSelected();
+        break;
+      case "bookContextSynchronize":
+        booksList.synchronizeSelected();
+        break;
+      case "bookContextPrint":
+        booksList.printSelected();
+        break;
+      case "bookContextDelete":
+        booksList.deleteSelected();
+        break;
+      case "bookContextRemove":
+        booksList.deleteSelected();
+        break;
+    }
+  });
+
   booksList = document.getElementById("books");
   cardsPane.init();
   detailsPane.init();
@@ -889,14 +922,18 @@ var cardsPane = {
   init() {
     this.searchInput = document.getElementById("searchInput");
     this.sortButton = document.getElementById("sortButton");
+    this.sortContext = document.getElementById("sortContext");
     this.cardsList = document.getElementById("cards");
+    this.cardContext = document.getElementById("cardContext");
 
     this.searchInput.addEventListener("command", this);
     this.sortButton.addEventListener("click", this);
+    this.sortContext.addEventListener("command", this);
     this.cardsList.addEventListener("select", this);
     this.cardsList.addEventListener("keypress", this);
     this.cardsList.addEventListener("dragstart", this);
     this.cardsList.addEventListener("contextmenu", this);
+    this.cardContext.addEventListener("command", this);
   },
 
   handleEvent(event) {
@@ -1005,9 +1042,12 @@ var cardsPane = {
    *
    * @param {integer} format - One of the nsIAbCard.GENERATE_* constants.
    */
-  setNameFormat(format) {
+  setNameFormat(event) {
     // ABView will detect this change and update automatically.
-    Services.prefs.setIntPref("mail.addr_book.lastnamefirst", format);
+    Services.prefs.setIntPref(
+      "mail.addr_book.lastnamefirst",
+      event.target.value
+    );
   },
 
   /**
@@ -1237,20 +1277,44 @@ var cardsPane = {
     removeItem.hidden = !inMailList;
     deleteItem.disabled = removeItem.disabled = !this._canDeleteSelected();
 
-    let popup = document.getElementById("cardContext");
-    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    this.cardContext.openPopupAtScreen(event.screenX, event.screenY, true);
     event.preventDefault();
   },
 
-  _onCommand() {
-    this.cardsList.view = new ABView(
-      this.cardsList.view.directory,
-      this.getQuery(),
-      this.searchInput.value,
-      undefined,
-      this.cardsList.view.sortColumn,
-      this.cardsList.view.sortDirection
-    );
+  _onCommand(event) {
+    if (event.target == this.searchInput) {
+      this.cardsList.view = new ABView(
+        this.cardsList.view.directory,
+        this.getQuery(),
+        this.searchInput.value,
+        undefined,
+        this.cardsList.view.sortColumn,
+        this.cardsList.view.sortDirection
+      );
+      return;
+    }
+
+    switch (event.target.id) {
+      case "cardContextWrite":
+        this.writeToSelected();
+        return;
+      case "cardContextPrint":
+        this.printSelected();
+        return;
+      case "cardContextDelete":
+        this.deleteSelected();
+        return;
+      case "cardContextRemove":
+        this.deleteSelected();
+        return;
+    }
+
+    if (event.target.getAttribute("name") == "format") {
+      this.setNameFormat(event);
+    }
+    if (event.target.getAttribute("name") == "sort") {
+      this.sortCards(event);
+    }
   },
 
   _onClick(event) {
@@ -1432,14 +1496,22 @@ var detailsPane = {
   init() {
     this.container = document.getElementById("detailsPane");
     this.editButton = document.getElementById("editButton");
+    this.cancelEditButton = document.getElementById("cancelEditButton");
+    this.saveEditButton = document.getElementById("saveEditButton");
     this.photo = document.getElementById("photo");
 
+    this.editButton.addEventListener("click", this);
+    this.cancelEditButton.addEventListener("click", this);
+    this.saveEditButton.addEventListener("click", this);
     this.photo.addEventListener("dragover", this);
     this.photo.addEventListener("drop", this);
   },
 
   handleEvent(event) {
     switch (event.type) {
+      case "click":
+        this._onClick(event);
+        break;
       case "dragover":
         this._onDragOver(event);
         break;
@@ -1615,6 +1687,20 @@ var detailsPane = {
       book.modifyCard(card);
     }
     this.displayContact(card);
+  },
+
+  _onClick(event) {
+    switch (event.target.id) {
+      case "editButton":
+        this.editCurrentContact();
+        break;
+      case "cancelEditButton":
+        this.displayContact(this.currentCard);
+        break;
+      case "saveEditButton":
+        this.saveCurrentContact();
+        break;
+    }
   },
 
   _onDragOver(event) {

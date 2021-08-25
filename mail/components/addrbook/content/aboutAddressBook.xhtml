@@ -10,6 +10,8 @@
 <head>
   <meta charset="utf-8" />
   <title data-l10n-id="about-addressbook-title"></title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome:; style-src chrome: 'unsafe-inline'; object-src 'none'" />
 
   <link rel="stylesheet" href="chrome://global/skin/global.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
@@ -33,25 +35,21 @@
     <xul:toolbar class="chromeclass-toolbar contentTabToolbar themeable-full" mode="full">
       <xul:toolbarbutton id="toolbarCreateBook" is="toolbarbutton-menu-button" type="menu-button"
                          class="toolbarbutton-1"
-                         data-l10n-id="about-addressbook-toolbar-new-address-book"
-                         oncommand="if (!event.target.closest('menuitem')) { createBook(); }">
+                         data-l10n-id="about-addressbook-toolbar-new-address-book">
         <xul:menupopup>
-          <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-address-book"
-                        oncommand="createBook();"/>
-          <xul:menuitem data-l10n-id="about-addressbook-toolbar-add-carddav-address-book"
-                        oncommand="createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);"/>
-          <xul:menuitem data-l10n-id="about-addressbook-toolbar-add-ldap-address-book"
-                        oncommand="createBook(Ci.nsIAbManager.LDAP_DIRECTORY_TYPE);"/>
+          <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-address-book"/>
+          <xul:menuitem value="CARDDAV_DIRECTORY_TYPE"
+                        data-l10n-id="about-addressbook-toolbar-add-carddav-address-book"/>
+          <xul:menuitem value="LDAP_DIRECTORY_TYPE"
+                        data-l10n-id="about-addressbook-toolbar-add-ldap-address-book"/>
         </xul:menupopup>
       </xul:toolbarbutton>
       <xul:toolbarbutton id="toolbarCreateContact"
                          class="toolbarbutton-1"
-                         data-l10n-id="about-addressbook-toolbar-new-contact"
-                         oncommand="createContact();"/>
+                         data-l10n-id="about-addressbook-toolbar-new-contact"/>
       <xul:toolbarbutton id="toolbarCreateList"
                          class="toolbarbutton-1"
-                         data-l10n-id="about-addressbook-toolbar-new-list"
-                         oncommand="createList();"/>
+                         data-l10n-id="about-addressbook-toolbar-new-list"/>
     </xul:toolbar>
   </xul:toolbox>
   <div id="booksPane">
@@ -105,16 +103,13 @@
       <h1></h1>
       <button id="editButton"
               class="view"
-              data-l10n-id="about-addressbook-begin-edit-contact-button"
-              onclick="detailsPane.editCurrentContact();"></button>
+              data-l10n-id="about-addressbook-begin-edit-contact-button"></button>
       <button id="cancelEditButton"
               class="edit"
-              data-l10n-id="about-addressbook-cancel-edit-contact-button"
-              onclick="detailsPane.displayContact(detailsPane.currentCard);"></button>
+              data-l10n-id="about-addressbook-cancel-edit-contact-button"></button>
       <button id="saveEditButton"
               class="edit"
-              data-l10n-id="about-addressbook-save-edit-contact-button"
-              onclick="detailsPane.saveCurrentContact();"></button>
+              data-l10n-id="about-addressbook-save-edit-contact-button"></button>
       <div id="photo"></div>
     </div>
 
@@ -350,65 +345,52 @@
 </body>
 <xul:menupopup id="bookContext">
   <xul:menuitem id="bookContextProperties"
-                data-l10n-id="about-addressbook-books-context-properties"
-                oncommand="booksList.showPropertiesOfSelected();"/>
+                data-l10n-id="about-addressbook-books-context-properties"/>
   <xul:menuitem id="bookContextSynchronize"
-                data-l10n-id="about-addressbook-books-context-synchronize"
-                oncommand="booksList.synchronizeSelected();"/>
+                data-l10n-id="about-addressbook-books-context-synchronize"/>
   <xul:menuitem id="bookContextPrint"
-                data-l10n-id="about-addressbook-books-context-print"
-                oncommand="booksList.printSelected();"/>
+                data-l10n-id="about-addressbook-books-context-print"/>
   <xul:menuitem id="bookContextDelete"
-                data-l10n-id="about-addressbook-books-context-delete"
-                oncommand="booksList.deleteSelected();"/>
+                data-l10n-id="about-addressbook-books-context-delete"/>
   <xul:menuitem id="bookContextRemove"
-                data-l10n-id="about-addressbook-books-context-remove"
-                oncommand="booksList.deleteSelected();"/>
+                data-l10n-id="about-addressbook-books-context-remove"/>
 </xul:menupopup>
 <xul:menupopup id="sortContext" needsgutter="">
   <xul:menuitem type="radio"
                 name="format"
                 value="0"
                 checked="true"
-                data-l10n-id="about-addressbook-name-format-display"
-                oncommand="cardsPane.setNameFormat(this.value);"/>
+                data-l10n-id="about-addressbook-name-format-display"/>
   <xul:menuitem type="radio"
                 name="format"
                 value="2"
-                data-l10n-id="about-addressbook-name-format-firstlast"
-                oncommand="cardsPane.setNameFormat(this.value);"/>
+                data-l10n-id="about-addressbook-name-format-firstlast"/>
   <xul:menuitem type="radio"
                 name="format"
                 value="1"
-                data-l10n-id="about-addressbook-name-format-lastfirst"
-                oncommand="cardsPane.setNameFormat(this.value);"/>
+                data-l10n-id="about-addressbook-name-format-lastfirst"/>
   <xul:menuseparator/>
   <xul:menuitem type="radio"
                 name="sort"
                 value="GeneratedName ascending"
                 checked="true"
-                data-l10n-id="about-addressbook-sort-name-ascending"
-                oncommand="cardsPane.sortCards(event);"/>
+                data-l10n-id="about-addressbook-sort-name-ascending"/>
   <xul:menuitem type="radio"
                 name="sort"
                 value="GeneratedName descending"
-                data-l10n-id="about-addressbook-sort-name-descending"
-                oncommand="cardsPane.sortCards(event);"/>
+                data-l10n-id="about-addressbook-sort-name-descending"/>
   <xul:menuitem type="radio"
                 name="sort"
                 value="PrimaryEmail ascending"
-                data-l10n-id="about-addressbook-sort-email-ascending"
-                oncommand="cardsPane.sortCards(event);"/>
+                data-l10n-id="about-addressbook-sort-email-ascending"/>
   <xul:menuitem type="radio"
                 name="sort"
                 value="PrimaryEmail descending"
-                data-l10n-id="about-addressbook-sort-email-descending"
-                oncommand="cardsPane.sortCards(event);"/>
+                data-l10n-id="about-addressbook-sort-email-descending"/>
 </xul:menupopup>
 <xul:menupopup id="cardContext">
   <xul:menuitem id="cardContextWrite"
-                data-l10n-id="about-addressbook-cards-context-write"
-                oncommand="cardsPane.writeToSelected();"/>
+                data-l10n-id="about-addressbook-cards-context-write"/>
   <xul:menu id="cardContextWriteMenu"
             data-l10n-id="about-addressbook-cards-context-write">
     <xul:menupopup>
@@ -417,13 +399,10 @@
   </xul:menu>
   <xul:menuseparator/>
   <xul:menuitem id="cardContextPrint"
-                data-l10n-id="about-addressbook-books-context-print"
-                oncommand="cardsPane.printSelected();"/>
+                data-l10n-id="about-addressbook-books-context-print"/>
   <xul:menuitem id="cardContextDelete"
-                data-l10n-id="about-addressbook-books-context-delete"
-                oncommand="cardsPane.deleteSelected();"/>
+                data-l10n-id="about-addressbook-books-context-delete"/>
   <xul:menuitem id="cardContextRemove"
-                data-l10n-id="about-addressbook-books-context-remove"
-                oncommand="cardsPane.deleteSelected();"/>
+                data-l10n-id="about-addressbook-books-context-remove"/>
 </xul:menupopup>
 </html>
