@@ -21,6 +21,7 @@
 #include "nsMsgMailNewsUrl.h"
 #include "nsWeakReference.h"
 #include "msgIJaUrl.h"
+#include "nsProxyRelease.h"
 
 namespace mozilla {
 namespace mailnews {
@@ -108,7 +109,9 @@ class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
   };
 
  private:
-  virtual ~JaCppUrlDelegator() {}
+  virtual ~JaCppUrlDelegator() {
+    NS_ReleaseOnMainThread("JaCppUrlDelegator::mDelegateList", mDelegateList.forget());
+  }
 
   // Interfaces that may be overridden by JS.
   nsCOMPtr<nsIMsgMessageUrl> mJsIMsgMessageUrl;
