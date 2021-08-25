@@ -43,15 +43,18 @@ NS_IMPL_ISUPPORTS0(nsImapBodyShell)
 
 nsImapBodyShell::nsImapBodyShell(nsImapProtocol* protocolConnection,
                                  nsIMAPBodypartMessage* message, uint32_t UID,
-                                 uint32_t UIDValidity, const char* folderName) {
-  m_isValid = false;
-  m_isBeingGenerated = false;
-  m_cached = false;
-  m_gotAttachmentPref = false;
-  m_generatingWholeMessage = false;
-  m_generatingPart = nullptr;
-  m_protocolConnection = protocolConnection;
-  m_message = message;
+                                 uint32_t UIDValidity, const char* folderName)
+    : m_message(message),
+      m_isValid(false),
+      m_protocolConnection(protocolConnection),
+      m_folderName(nullptr),
+      m_generatingPart(nullptr),
+      m_isBeingGenerated(false),
+      m_gotAttachmentPref(false),
+      m_showAttachmentsInline(false),
+      m_cached(false),
+      m_generatingWholeMessage(false),
+      m_contentModified(IMAP_ContentModifiedType::IMAP_CONTENT_NOT_MODIFIED) {
   NS_ASSERTION(m_protocolConnection, "non null connection");
   if (!m_protocolConnection) return;
   m_UID = "";
@@ -59,8 +62,6 @@ nsImapBodyShell::nsImapBodyShell(nsImapProtocol* protocolConnection,
   m_UID_validity = m_UID;
   m_UID_validity.AppendInt(UIDValidity);
   m_folderName = folderName ? NS_xstrdup(folderName) : nullptr;
-  m_showAttachmentsInline = false;
-  m_contentModified = IMAP_ContentModifiedType::IMAP_CONTENT_NOT_MODIFIED;
 
   SetContentModified(GetShowAttachmentsInline()
                          ? IMAP_CONTENT_MODIFIED_VIEW_INLINE
