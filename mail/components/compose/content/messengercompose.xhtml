@@ -2157,11 +2157,6 @@
                 </menulist>
 
                 <html:div id="extraAddressRowsArea">
-                  <!-- NOTE: We use the icon-button class on the
-                    - recipient-button buttons, even though they will not
-                    - contain icons. We just want the same styling to be
-                    - consistent with the remove-field-button and the
-                    - extraAddressRowsMenuButton. -->
                   <!-- Default set up is for a mail account, where we prefer
                     - showing the buttons, rather than the menu items, for
                     - the mail rows.
@@ -2170,7 +2165,7 @@
                     - buttons, so we hide them. -->
                   <html:button id="addr_toShowAddressRowButton"
                                disableonsend="true"
-                               class="recipient-button icon-button"
+                               class="recipient-button plain-button"
                                data-address-row="addressRowTo"
                                onclick="showAndFocusAddressRow('addressRowTo');"
                                ondrop="showAddressRowButtonOnDrop(event);"
@@ -2179,7 +2174,7 @@
                   </html:button>
                   <html:button id="addr_ccShowAddressRowButton"
                                disableonsend="true"
-                               class="recipient-button icon-button"
+                               class="recipient-button plain-button"
                                data-address-row="addressRowCc"
                                onclick="showAndFocusAddressRow('addressRowCc');"
                                ondrop="showAddressRowButtonOnDrop(event);"
@@ -2187,20 +2182,20 @@
                   </html:button>
                   <html:button id="addr_bccShowAddressRowButton"
                                disableonsend="true"
-                               class="recipient-button icon-button"
+                               class="recipient-button plain-button"
                                data-address-row="addressRowBcc"
                                onclick="showAndFocusAddressRow('addressRowBcc');"
                                ondrop="showAddressRowButtonOnDrop(event);"
                                ondragover="showAddressRowButtonOnDragover(event);">
                   </html:button>
                   <html:button id="addr_newsgroupsShowAddressRowButton"
-                               class="recipient-button icon-button"
+                               class="recipient-button plain-button"
                                hidden="hidden"
                                onclick="showAndFocusAddressRow('addressRowNewsgroups')">
                     &newsgroupsAddr2.label;
                   </html:button>
                   <html:button id="addr_followupShowAddressRowButton"
-                               class="recipient-button icon-button"
+                               class="recipient-button plain-button"
                                hidden="hidden"
                                onclick="showAndFocusAddressRow('addressRowFollowup')">
                     &followupAddr2.label;
@@ -2211,7 +2206,7 @@
                                aria-haspopup="menu"
                                aria-controls="extraAddressRowsMenu"
                                disableonsend="true"
-                               class="icon-button"
+                               class="plain-button"
                                onclick="openExtraAddressRowsMenu();">
                     <!-- NOTE: button title should provide the accessibility
                        - context. -->
@@ -2229,7 +2224,7 @@
                       data-recipienttype="addr_reply"
                       data-show-self-menuitem="addr_replyShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button icon-button"
+                    <html:button class="remove-field-button plain-button"
                                  onclick="closeLabelOnClick(event);">
                       <html:img src="chrome://global/skin/icons/close.svg"
                                 alt="" />
@@ -2267,7 +2262,7 @@
                       data-recipienttype="addr_to"
                       data-show-self-menuitem="addr_toShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button icon-button"
+                    <html:button class="remove-field-button plain-button"
                                  onclick="closeLabelOnClick(event);"
                                  hidden="hidden">
                       <html:img src="chrome://global/skin/icons/close.svg"
@@ -2307,7 +2302,7 @@
                       data-recipienttype="addr_cc"
                       data-show-self-menuitem="addr_ccShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button icon-button"
+                    <html:button class="remove-field-button plain-button"
                                  onclick="closeLabelOnClick(event);">
                       <html:img src="chrome://global/skin/icons/close.svg"
                                 alt="" />
@@ -2346,7 +2341,7 @@
                       data-recipienttype="addr_bcc"
                       data-show-self-menuitem="addr_bccShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button icon-button"
+                    <html:button class="remove-field-button plain-button"
                                  onclick="closeLabelOnClick(event);">
                       <html:img src="chrome://global/skin/icons/close.svg"
                                 alt="" />
@@ -2385,7 +2380,7 @@
                       data-recipienttype="addr_newsgroups"
                       data-show-self-menuitem="addr_newsgroupsShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button icon-button"
+                    <html:button class="remove-field-button plain-button"
                                  onclick="closeLabelOnClick(event);">
                       <html:img src="chrome://global/skin/icons/close.svg"
                                 alt="" />
@@ -2423,7 +2418,7 @@
                       data-recipienttype="addr_followup"
                       data-show-self-menuitem="addr_followupShowAddressRowMenuItem">
                   <hbox class="aw-firstColBox">
-                    <html:button class="remove-field-button icon-button"
+                    <html:button class="remove-field-button plain-button"
                                  onclick="closeLabelOnClick(event);">
                       <html:img src="chrome://global/skin/icons/close.svg"
                                 alt="" />
@@ -2605,7 +2600,7 @@
               hidden="hidden" />
 #endif
     <html:button id="languageStatusButton"
-                 class="icon-button"
+                 class="plain-button"
                  aria-expanded="false"
                  aria-haspopup="menu"
                  aria-controls="languageMenuList"

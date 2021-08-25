@@ -283,7 +283,7 @@
       this.showFullMessageIds = false;
 
       this.toggleButton = document.createElement("button");
-      this.toggleButton.classList.add("icon-button", "email-action-button");
+      this.toggleButton.classList.add("plain-button", "email-action-button");
       // FIXME: Is the twisty icon the best representation since toggling the
       // twisty icon does not expand hidden content vertically?
       // A list of <details> elements may be more appropriate to capture this,
@@ -421,7 +421,7 @@
       // tooltip is not currently accessible to keyboard users and doesn't
       // appear as a node in the accessibility tree.
       this.starButton = document.createElement("button");
-      this.starButton.classList.add("icon-button", "email-action-button");
+      this.starButton.classList.add("plain-button", "email-action-button");
       this.starButton.setAttribute("contextmenu", "emailAddressPopup");
       this.starIcon = document.createElement("img");
       this.starIcon.classList.add("emailStar");
@@ -2619,7 +2619,7 @@
       row.classList.add("hidden");
 
       let closeButton = document.createElement("button");
-      closeButton.classList.add("remove-field-button", "icon-button");
+      closeButton.classList.add("remove-field-button", "plain-button");
       document.l10n.setAttributes(closeButton, "remove-address-row-button", {
         type: recipient.type,
       });

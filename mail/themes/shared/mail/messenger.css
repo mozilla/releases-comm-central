@@ -601,21 +601,19 @@ xul|button:is(:not([disabled="true"]))[open="true"] {
   background-color: var(--button-active-bgcolor);
 }
 
-/* For buttons that only contain a single img. */
-button.icon-button {
-  /* grid display ensures the button only takes up the same room as the
-   * contained icon. */
+/* For buttons that wraps its content with no outline or background.
+ * NOTE: the hover background will still appear on hover. */
+button.plain-button {
+  /* grid display ensures the button only takes up the same room as its
+   * content. */
   display: inline grid;
   height: -moz-fit-content;
   min-width: -moz-fit-content;
-  margin: 0;
-  padding: 0;
   border: none;
-  border-radius: 0;
   background: none;
 }
 
-button.icon-button[hidden] {
+button.plain-button[hidden] {
   display: none;
 }
 

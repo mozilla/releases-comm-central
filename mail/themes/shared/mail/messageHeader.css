@@ -440,6 +440,12 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
   margin: 0;
 }
 
+button.email-action-button {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+}
+
 button.email-action-button:hover,
 button.email-action-button:hover:active {
   background-color: transparent;
@@ -449,7 +455,7 @@ button.email-action-button:focus-visible:not(:hover) {
   outline: 1px solid var(--focus-outline-color);
 }
 
-mail-emailaddress button.icon-button.email-action-button {
+mail-emailaddress button.email-action-button {
   margin-inline-start: 2px;
 }
 
@@ -483,7 +489,7 @@ mail-emailaddress[selected="true"] > .emailDisplayButton .emailStar {
   overflow: hidden;
 }
 
-mail-messageids-headerfield .email-action-button {
+mail-messageids-headerfield button.email-action-button {
   margin-inline: 4px 2px;
 }
 

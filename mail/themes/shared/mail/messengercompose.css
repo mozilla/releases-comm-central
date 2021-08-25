@@ -1075,24 +1075,17 @@ button#extraAddressRowsMenuButton[aria-expanded="true"] {
   box-shadow: var(--toolbarbutton-active-boxshadow);
 }
 
-/* Overwrite some button.icon-button styling rules. */
-button.icon-button:is(
-  #extraAddressRowsMenuButton,
-  .remove-field-button,
-  .recipient-button
-) {
-  border-radius: 3px;
-}
-
-button.icon-button:is(#extraAddressRowsMenuButton, .remove-field-button) {
+button:is(#extraAddressRowsMenuButton, .remove-field-button) {
   padding: 2px;
+  margin: 0;
 }
 
-button.icon-button.recipient-button {
+button.recipient-button {
   padding: 2px 4px;
+  margin: 0;
 }
 
-button.icon-button:is(
+button:is(
   #extraAddressRowsMenuButton,
   .remove-field-button,
   .recipient-button
@@ -1323,12 +1316,14 @@ button.icon-button:is(
 }
 
 /* Language selector */
-button.icon-button#languageStatusButton {
-  margin-inline-start: 4px;
+#languageStatusButton {
+  margin-block: 0;
+  margin-inline: 4px 0;
   padding: 2px 4px;
+  border-radius: 0;
 }
 
-button#languageStatusButton:focus-visible {
+#languageStatusButton:focus-visible {
   /* Provide some inset for the outline. */
   outline-offset: -1px;
 }
