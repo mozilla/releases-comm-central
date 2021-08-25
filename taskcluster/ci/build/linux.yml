@@ -312,7 +312,6 @@ linux/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
-            - linux64-clang-lib32cxx
             - linux64-dump_syms
             - linux32-libotr
             - linux64-nasm
@@ -363,7 +362,6 @@ linux-shippable/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
-            - linux64-clang-lib32cxx
             - linux64-dump_syms
             - linux32-libotr
             - linux64-nasm
@@ -406,7 +404,6 @@ linux/debug:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
-            - linux64-clang-lib32cxx
             - linux64-dump_syms
             - linux32-libotr
             - linux64-nasm
