@@ -3214,19 +3214,7 @@ function onCommandSave(aIsClosing) {
 function onCommandDeleteItem() {
   // only ask for confirmation, if the User changed anything on a new item or we modify an existing item
   if (isItemChanged() || window.mode != "new") {
-    let promptTitle = "";
-    let promptMessage = "";
-
-    if (window.calendarItem.isEvent()) {
-      promptTitle = cal.l10n.getCalString("deleteEventLabel");
-      promptMessage = cal.l10n.getCalString("deleteEventMessage");
-    } else if (window.calendarItem.isTodo()) {
-      promptTitle = cal.l10n.getCalString("deleteTaskLabel");
-      promptMessage = cal.l10n.getCalString("deleteTaskMessage");
-    }
-
-    let answerDelete = Services.prompt.confirm(null, promptTitle, promptMessage);
-    if (!answerDelete) {
+    if (!cal.window.promptDeleteItems(window.calendarItem, true)) {
       return;
     }
   }

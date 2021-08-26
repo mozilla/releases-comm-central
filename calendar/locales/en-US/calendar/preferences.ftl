@@ -163,6 +163,10 @@ edit-intab-label =
     .label = Edit events and tasks in a tab instead of in a dialog window.
     .accesskey = t
 
+prompt-delete-label =
+    .label = Prompt before deleting events and tasks.
+    .accesskey = V
+
 accessibility-legend = Accessibility
 
 accessibility-colors-label =

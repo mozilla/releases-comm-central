@@ -166,3 +166,6 @@ pref("calendar.icaljs", true);
 #else
 pref("calendar.icaljs", false);
 #endif
+
+// Enables the prompt when deleting from the item views or trees.
+pref("calendar.item.promptDelete", true);

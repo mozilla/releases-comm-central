@@ -105,6 +105,9 @@ var calendarViewController = {
    * @see calICalendarViewController
    */
   deleteOccurrences(occurrencesArg, useParentItems, doNotConfirm, extResponseArg = null) {
+    if (!cal.window.promptDeleteItems(occurrencesArg)) {
+      return;
+    }
     startBatchTransaction();
     let recurringItems = {};
     let extResponse = extResponseArg || { responseMode: Ci.calIItipItem.USER };

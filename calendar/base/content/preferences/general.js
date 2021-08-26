@@ -22,6 +22,7 @@ Preferences.addAll([
   { id: "calendar.view.useSystemColors", type: "bool" },
   { id: "calendar.agendaListbox.soondays", type: "int" },
   { id: "calendar.item.editInTab", type: "bool" },
+  { id: "calendar.item.promptDelete", type: "bool" },
 ]);
 
 /**
