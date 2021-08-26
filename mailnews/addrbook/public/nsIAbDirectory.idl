@@ -122,7 +122,7 @@ interface nsIAbDirectory : nsISupports {
   /**
    * Returns the nsIAbDirectory for a mailing list with the specified name.
    */
-  nsIAbDirectory getMailListFromName(in wstring aName);
+  nsIAbDirectory getMailListFromName(in AString aName);
 
   /**
    * The chrome URI to use for bringing up a dialog to edit this directory.
@@ -219,7 +219,7 @@ interface nsIAbDirectory : nsISupports {
   boolean hasDirectory(in nsIAbDirectory dir);
 
   // Check if directory contains a mailinglist by name
-  boolean hasMailListWithName(in wstring aName);
+  boolean hasMailListWithName(in AString aName);
 
   /**
    * Adds a card to the database.

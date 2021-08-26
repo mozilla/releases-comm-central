@@ -279,8 +279,7 @@ nsAbDirProperty::HasDirectory(nsIAbDirectory* dir, bool* hasDir) {
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::HasMailListWithName(const char16_t* aName, bool* aHasList) {
-  NS_ENSURE_ARG_POINTER(aName);
+nsAbDirProperty::HasMailListWithName(const nsAString& aName, bool* aHasList) {
   NS_ENSURE_ARG_POINTER(aHasList);
 
   *aHasList = false;
@@ -342,9 +341,8 @@ NS_IMETHODIMP nsAbDirProperty::GetCardsFromProperty(
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::GetMailListFromName(const char16_t* aName,
+nsAbDirProperty::GetMailListFromName(const nsAString& aName,
                                      nsIAbDirectory** aResult) {
-  NS_ENSURE_ARG_POINTER(aName);
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = nullptr;

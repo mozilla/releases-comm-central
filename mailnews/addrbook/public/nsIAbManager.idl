@@ -93,7 +93,7 @@ interface nsIAbManager : nsISupports
    *
    * @return            True if the name exists.
    */
-  boolean mailListNameExists(in wstring name);
+  boolean mailListNameExists(in AString name);
 
   /**
    * Finds out if the directory name already exists.
@@ -102,7 +102,7 @@ interface nsIAbManager : nsISupports
    *
    * @return            True if a directory called name already exists.
    */
-  boolean directoryNameExists(in wstring name);
+  boolean directoryNameExists(in AString name);
 
   /**
    * Returns an address book card for the specified email address if found, in
@@ -129,5 +129,5 @@ interface nsIAbManager : nsISupports
    * @param aName       The name of the list.
    * @return            The found AB directory.
    */
-  nsIAbDirectory getMailListFromName(in ACString aName);
+  nsIAbDirectory getMailListFromName(in AString aName);
 };
