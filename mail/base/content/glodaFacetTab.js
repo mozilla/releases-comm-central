@@ -4,6 +4,9 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { FacetDriver } = ChromeUtils.import("resource:///modules/gloda/Facet.jsm");
+var { GlodaMsgSearcher } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaMsgSearcher.jsm"
+);
 
 var glodaFacetTabType = {
   name: "glodaFacet",
@@ -19,8 +22,14 @@ var glodaFacetTabType = {
     },
   },
   openTab(aTab, aArgs) {
+    // If aArgs is omitted, default to a blank user search.
+    if (!aArgs) {
+      aArgs = { searcher: new GlodaMsgSearcher(null, "") };
+    }
     // we have no browser until our XUL document loads
     aTab.browser = null;
+
+    aTab.tabNode.setIcon("chrome://global/skin/icons/search-glass.svg");
 
     // First clone the page and set up the basics.
     let clone = document

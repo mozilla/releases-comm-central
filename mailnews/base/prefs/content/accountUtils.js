@@ -328,18 +328,7 @@ function MsgAccountManager(selectPage, aServer) {
     browser.contentDocument.documentElement.selectPage = selectPage;
     browser.contentDocument.getElementById("accounttree").focus();
   };
-  tabmail.openTab("contentTab", {
-    url: "about:accountsettings",
-    onLoad,
-  });
-
-  for (let tabInfo of tabmail.tabInfo) {
-    let tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsettings") {
-      tab.tabNode.setAttribute("type", "accountManager");
-      break;
-    }
-  }
+  tabmail.openTab("contentTab", { url: "about:accountsettings", onLoad });
 }
 
 function loadInboxForNewAccount() {
@@ -471,18 +460,7 @@ function openAccountSetupTab() {
     }
   }
 
-  tabmail.openTab("contentTab", {
-    url: "about:accountsetup",
-  });
-
-  // Loop through all the available tabs again to update the type attribute.
-  for (let tabInfo of tabmail.tabInfo) {
-    let tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsetup") {
-      tab.tabNode.setAttribute("type", "accountSetup");
-      break;
-    }
-  }
+  tabmail.openTab("contentTab", { url: "about:accountsetup" });
 }
 
 /**

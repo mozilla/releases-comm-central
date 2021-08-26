@@ -32,7 +32,6 @@
   margin: 0 !important;
   margin-inline-end: 1px !important;
   padding: 0 !important;
-  list-style-image: url("chrome://messenger/skin/icons/file-item.svg");
 }
 
 /* The selected tab should appear above adjacent tabs and the highlight
@@ -40,27 +39,6 @@
 .tabmail-tab[selected=true] {
   position: relative;
   z-index: 2;
-}
-
-.tabmail-tab[type="message"] {
-  list-style-image: url("chrome://messenger/skin/icons/message.svg");
-  -moz-image-region: auto;
-}
-
-.tabmail-tab[type="accountManager"] {
-  list-style-image: url("chrome://messenger/skin/icons/sidebar-left.svg");
-}
-
-.tabmail-tab[type="preferencesTab"] {
-  list-style-image: url("chrome://global/skin/icons/settings.svg");
-}
-
-.tabmail-tab[type="glodaSearch"] {
-  list-style-image: url("chrome://global/skin/icons/search-glass.svg");
-}
-
-.tabmail-tab[type="accountSetup"] {
-  list-style-image: url("chrome://messenger/skin/icons/globe.svg");
 }
 
 .tab-content {
@@ -90,6 +68,10 @@ button.tab-close-button {
   margin-inline-end: 6px;
   -moz-context-properties: fill;
   fill: currentColor;
+}
+
+.tab-icon-image:not([src]) {
+  visibility: hidden;
 }
 
 .tab-label {

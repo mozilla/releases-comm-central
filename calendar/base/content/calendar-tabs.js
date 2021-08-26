@@ -76,6 +76,7 @@ var calendarTabType = {
       type: "calendar",
       maxTabs: 1,
       openTab(aTab, aArgs) {
+        aTab.tabNode.setIcon("chrome://messenger/skin/shared/preferences/calendar.svg");
         gLastShownCalendarView.get();
         aTab.title = aArgs.title;
       },
@@ -110,6 +111,7 @@ var calendarTabType = {
       type: "tasks",
       maxTabs: 1,
       openTab(aTab, aArgs) {
+        aTab.tabNode.setIcon("chrome://calendar/skin/shared/icons/task-tab.svg");
         aTab.title = aArgs.title;
       },
       showTab(tab) {},
@@ -204,8 +206,10 @@ var calendarItemTabType = {
     let strName;
     if (aTab.mode.type == "calendarEvent") {
       strName = aArgs.calendarEvent.title ? "editEventDialog" : "newEventDialog";
+      aTab.tabNode.setIcon("chrome://calendar/skin/shared/icons/event.svg");
     } else if (aTab.mode.type == "calendarTask") {
       strName = aArgs.calendarEvent.title ? "editTaskDialog" : "newTaskDialog";
+      aTab.tabNode.setIcon("chrome://calendar/skin/shared/icons/task.svg");
     } else {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }

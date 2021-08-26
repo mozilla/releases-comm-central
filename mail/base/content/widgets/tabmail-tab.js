@@ -22,7 +22,7 @@
         ".tab-line": "selected=visuallyselected",
         ".tab-content": "pinned,selected,titlechanged,title=label",
         ".tab-throbber": "fadein,pinned,busy,progress,selected",
-        ".tab-icon-image": "validate,src=image,src,fadein,pinned,selected",
+        ".tab-icon-image": "validate,fadein,pinned,selected",
         ".tab-label-container": "pinned,selected=visuallyselected",
         ".tab-text": "text=label,accesskey,fadein,pinned,selected",
         ".tab-close-button": "fadein,pinned,selected=visuallyselected",
@@ -44,7 +44,7 @@
             </vbox>
             <html:div class="tab-content">
               <hbox class="tab-throbber" role="presentation"></hbox>
-              <image class="tab-icon-image" role="presentation"></image>
+              <html:img class="tab-icon-image" alt="" />
               <hbox class="tab-label-container"
                     onoverflow="this.setAttribute('textoverflow', 'true');"
                     onunderflow="this.removeAttribute('textoverflow');"
@@ -121,6 +121,51 @@
       let tabmail = document.getElementById("tabmail");
       let tab = tabmail._getTabContextForTabbyThing(this, false)[1];
       return tab.mode;
+    }
+
+    /**
+     * Set the displayed icon for the tab.
+     *
+     * If a fallback source if given, it will be used instead if the given icon
+     * source is missing or loads with an error.
+     *
+     * If both sources are null, then the icon will become invisible.
+     *
+     * @param {string|null} iconSrc - The icon source to display in the tab, or
+     *   null to just use the fallback source.
+     * @param {?string} [fallbackSrc] - The fallback source to display if the
+     *   iconSrc is missing or broken.
+     */
+    setIcon(iconSrc, fallbackSrc) {
+      let icon = this.querySelector(".tab-icon-image");
+      if (!fallbackSrc) {
+        if (iconSrc) {
+          icon.setAttribute("src", iconSrc);
+        } else {
+          icon.removeAttribute("src");
+        }
+        return;
+      }
+      if (!iconSrc) {
+        icon.setAttribute("src", fallbackSrc);
+        return;
+      }
+      if (iconSrc == icon.getAttribute("src")) {
+        return;
+      }
+
+      // Set the tab image, and use the fallback if an error occurs.
+      // Set up a one time listener for either error or load.
+      let listener = event => {
+        icon.removeEventListener("error", listener);
+        icon.removeEventListener("load", listener);
+        if (event.type == "error") {
+          icon.setAttribute("src", fallbackSrc);
+        }
+      };
+      icon.addEventListener("error", listener);
+      icon.addEventListener("load", listener);
+      icon.setAttribute("src", iconSrc);
     }
   }
 

@@ -722,12 +722,8 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   border: none;
 }
 
-.tabmail-tab[type="chat"] {
-  list-style-image: url("chrome://messenger/skin/icons/chat.svg");
-}
-
 .alltabs-item[style*="chat.svg"],
-.tabmail-tab[type="chat"] > .tab-stack > .tab-content > .tab-icon-image {
+.tabmail-tab[type="chat"] .tab-icon-image {
   -moz-context-properties: fill, stroke-opacity;
   stroke-opacity: 0;
   fill: currentColor;

@@ -20,19 +20,6 @@
   -moz-image-region: auto;
 }
 
-/* ::: tab icons ::: */
-.icon-holder[type="calendar"],
-.tabmail-tab[type="calendar"] {
-  list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
-  -moz-image-region: auto;
-}
-
-.icon-holder[type="tasks"],
-.tabmail-tab[type="tasks"] {
-  list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
-  -moz-image-region: auto;
-}
-
 :root[lwt-tree] #calSidebar {
   background-color: var(--sidebar-background-color);
   color: var(--sidebar-text-color);

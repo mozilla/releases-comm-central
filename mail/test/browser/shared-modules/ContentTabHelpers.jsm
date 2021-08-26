@@ -290,7 +290,7 @@ function content_tab_e(aTab, aId) {
  * Assert that the given content tab has the given URL loaded as a favicon.
  */
 function assert_content_tab_has_favicon(aTab, aURL) {
-  Assert.equal(aTab.browser.mIconURL, aURL, "Checking tab favicon");
+  Assert.equal(aTab.favIconUrl, aURL, "Checking tab favicon");
 }
 
 /**

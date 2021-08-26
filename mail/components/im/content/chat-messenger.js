@@ -300,6 +300,7 @@ var chatTabType = {
     }
   },
   openTab(aTab, aArgs) {
+    aTab.tabNode.setIcon("chrome://messenger/skin/icons/chat.svg");
     if (!this.hasBeenOpened) {
       if (chatHandler.ChatCore && chatHandler.ChatCore.initialized) {
         let convs = imServices.conversations.getUIConversations();
@@ -322,7 +323,6 @@ var chatTabType = {
     window.addEventListener("activate", chatTabType._onWindowActivated);
 
     gChatTab = aTab;
-    aTab.tabNode.setAttribute("type", "chat");
     this._handleArgs(aArgs);
     this.showTab(aTab);
     chatHandler.updateTitle();

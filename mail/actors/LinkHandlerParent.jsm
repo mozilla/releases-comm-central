@@ -9,29 +9,26 @@ const EXPORTED_SYMBOLS = ["LinkHandlerParent"];
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 class LinkHandlerParent extends JSWindowActorParent {
-  receiveMessage(aMsg) {
+  receiveMessage(msg) {
     let browser = this.browsingContext.top.embedderElement;
     if (!browser) {
       return;
     }
 
-    let win = browser.ownerGlobal;
-
-    let gTabmail = win.document.getElementById("tabmail");
-
-    switch (aMsg.name) {
+    switch (msg.name) {
       case "Link:SetIcon":
-        if (!gTabmail) {
-          return;
-        }
-
-        this.setIconFromLink(gTabmail, browser, aMsg.data);
+        this.setIconFromLink(browser, msg.data.iconURL, msg.data.canUseForTab);
         break;
     }
   }
 
-  setIconFromLink(gTabmail, browser, { canUseForTab, iconURL }) {
-    let tab = gTabmail.getTabForBrowser(browser);
+  setIconFromLink(browser, iconURL, canUseForTab) {
+    let tabmail = browser.ownerDocument.getElementById("tabmail");
+    if (!tabmail) {
+      return;
+    }
+
+    let tab = tabmail.getTabForBrowser(browser);
     if (tab?.mode?.type != "contentTab") {
       return;
     }
@@ -56,10 +53,11 @@ class LinkHandlerParent extends JSWindowActorParent {
     }
 
     if (canUseForTab) {
-      // Set this property on the browser to stop specialTabs.useDefaultIcon
-      // overwriting it.
-      browser.mIconURL = iconURL;
-      gTabmail.setTabIcon(tab, iconURL);
+      tabmail.setTabFavIcon(
+        tab,
+        iconURL,
+        "chrome://messenger/skin/icons/file-item.svg"
+      );
     }
   }
 }

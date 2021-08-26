@@ -69,6 +69,8 @@ var preferencesTabType = {
       throw new Error("url must be specified");
     }
 
+    aTab.tabNode.setIcon("chrome://global/skin/icons/settings.svg");
+
     // First clone the page and set up the basics.
     let clone = document
       .getElementById("preferencesTab")

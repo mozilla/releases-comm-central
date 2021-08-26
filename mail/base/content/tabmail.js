@@ -15,9 +15,6 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
-  const { GlodaMsgSearcher } = ChromeUtils.import(
-    "resource:///modules/gloda/GlodaMsgSearcher.jsm"
-  );
 
   /**
    * The MozTabmailAlltabsMenuPopup widget is used as a menupopup to list all the
@@ -252,9 +249,6 @@
    *     node (tabmail-tab bound element.) Instead of calling this method,
    *     you can also just poke at tabmail.tabContainer and its selectedIndex
    *     and selectedItem properties.
-   * * setTabIcon(aTabNodeorInfo, aIcon): Sets the tab icon to the specified
-   *     url or removes the icon if no url is specified. Note that this may
-   *     override css-provided images.
    * * replaceTabWithWindow(aTab):
    *     Detaches a tab from this tabbar to new window. The argument "aTab" is
    *     required and can be a tab index, a tab info object or a tabs's
@@ -840,14 +834,8 @@
           return null;
         }
 
-        // For "glodaFacet" tab mode, if aArgs is omitted,
-        // default to a blank user search.
-        if (aTabModeName == "glodaFacet" && !aArgs) {
-          aArgs = { searcher: new GlodaMsgSearcher(null, "") };
-        }
-
         // Do this so that we don't generate strict warnings
-        let background = "background" in aArgs && aArgs.background;
+        let background = aArgs?.background;
         // If the mode wants us to, we should switch to an existing tab
         // rather than open a new one. We shouldn't switch to the tab if
         // we're opening it in the background, though.
@@ -874,6 +862,7 @@
           canClose: true,
           thinking: false,
           beforeTabOpen: true,
+          favIconUrl: null,
           _ext: {},
         };
 
@@ -895,12 +884,10 @@
         }
 
         let oldTab = (this._mostRecentTabInfo = this.currentTabInfo);
-        let disregardOpener =
-          "disregardOpener" in aArgs && aArgs.disregardOpener;
         // If we're not disregarding the opening, hold a reference to opener
         // so that if the new tab is closed without switching, we can switch
         // back to the opener tab.
-        if (disregardOpener) {
+        if (aArgs?.disregardOpener) {
           this.mLastTabOpener = null;
         } else {
           this.mLastTabOpener = oldTab;
@@ -1782,7 +1769,7 @@
           let evt = new CustomEvent("TabAttrModified", {
             bubbles: true,
             cancelable: false,
-            detail: { changed: ["label"], tabInfo: tab },
+            detail: { change: "title", tabInfo: tab },
           });
           tabNode.dispatchEvent(evt);
         }
@@ -1790,29 +1777,37 @@
     }
 
     /**
-     * Sets the tab icon to the specified url, or removes the icon if no
-     * url is specified. Note that this may override css provided images.
+     * Set the favIconUrl for the given tab and display it as the tab's icon.
+     * If the given favicon is missing or loads with an error, a fallback icon
+     * will be displayed instead.
+     *
+     * Note that the new favIconUrl is reported to the extension API's
+     * tabs.onUpdated.
+     *
+     * @param {Object} tabInfo - The tabInfo object for the tab.
+     * @param {string|null} favIconUrl - The favIconUrl to set for the given
+     *   tab.
+     * @param {string} fallbackSrc - The fallback icon src to display in case
+     *   of missing or broken favicons.
      */
-    setTabIcon(aTabNodeOrInfo, aIcon) {
-      let [iTab, tab] = this._getTabContextForTabbyThing(aTabNodeOrInfo, true);
-      if (tab) {
-        let tabNode = this.tabContainer.allTabs[iTab];
-        let oldIcon = tabNode.getAttribute("image");
-        if (oldIcon != aIcon && !tab.beforeTabOpen) {
-          let evt = new CustomEvent("TabAttrModified", {
-            bubbles: true,
-            cancelable: false,
-            detail: { changed: ["image"], tabInfo: tab },
-          });
-          tabNode.dispatchEvent(evt);
-        }
-
-        if (aIcon) {
-          tabNode.setAttribute("image", aIcon);
-        } else {
-          tabNode.removeAttribute("image");
-        }
+    setTabFavIcon(tabInfo, favIconUrl, fallbackSrc) {
+      let prevUrl = tabInfo.favIconUrl;
+      // The favIconUrl value is used by the TabmailTab _favIconUrl getter,
+      // which is used by the tab wrapper in the TabAttrModified callback.
+      tabInfo.favIconUrl = favIconUrl;
+      // NOTE: we always report the given favIconUrl, rather than the icon that
+      // is used in the tab. In particular, if the favIconUrl is null, we pass
+      // null rather than the fallbackIcon that is displayed.
+      if (favIconUrl != prevUrl && !tabInfo.beforeTabOpen) {
+        let evt = new CustomEvent("TabAttrModified", {
+          bubbles: true,
+          cancelable: false,
+          detail: { change: "favIconUrl", tabInfo },
+        });
+        tabInfo.tabNode.dispatchEvent(evt);
       }
+
+      tabInfo.tabNode.setIcon(favIconUrl, fallbackSrc);
     }
 
     /**

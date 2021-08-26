@@ -1064,7 +1064,7 @@ class TabmailTab extends Tab {
 
   /** Returns the favIcon, without permission checks. */
   get _favIconUrl() {
-    return this.browser?.mIconURL;
+    return this.nativeTab.favIconUrl;
   }
 
   /** Returns the tabmail element for the tab. */
@@ -1084,10 +1084,10 @@ class TabmailTab extends Tab {
 
   /** Returns the title of the tab, without permission checks. */
   get _title() {
-    let [, , tabNode] = this.tabmail._getTabContextForTabbyThing(
-      this.nativeTab
-    );
-    return tabNode.getAttribute("label");
+    // Do we want to be using this.nativeTab.title instead? The difference is
+    // that the tabNode label may use defaultTabTitle instead, but do we want to
+    // send this out?
+    return this.nativeTab.tabNode.getAttribute("label");
   }
 
   /** Returns the native window object of the tab. */
@@ -1684,7 +1684,7 @@ class FolderManager {
 }
 
 /**
- * Converts an nsIMsgHdr to a simle object for use in messages.
+ * Converts an nsIMsgHdr to a simple object for use in messages.
  * This function WILL change as the API develops.
  * @return {Object}
  */

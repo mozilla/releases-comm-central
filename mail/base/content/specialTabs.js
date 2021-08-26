@@ -99,7 +99,7 @@ tabProgressListener.prototype = {
         aWebProgress.isLoadingDocument &&
         !(aWebProgress.loadType & Ci.nsIDocShell.LOAD_CMD_PUSHSTATE)
       ) {
-        this.mBrowser.mIconURL = null;
+        this.mTab.favIconUrl = null;
       }
 
       var location = aLocationURI ? aLocationURI.spec : "";
@@ -175,8 +175,8 @@ tabProgressListener.prototype = {
 
       // If we've finished loading, and we've not had an icon loaded from a
       // link element, then we try using the default icon for the site.
-      if (aWebProgress.isTopLevel && !this.mBrowser.mIconURL) {
-        specialTabs.useDefaultIcon(this.mTab);
+      if (aWebProgress.isTopLevel && !this.mTab.favIconUrl) {
+        specialTabs.useDefaultFavIcon(this.mTab);
       }
     }
   },
@@ -329,7 +329,7 @@ var DOMLinkHandler = {
 
       // Just set the url on the browser and we'll display the actual icon
       // when we finish loading the page.
-      specialTabs.setTabIcon(tab, link.href);
+      specialTabs.setFavIcon(tab, link.href);
     }
   },
 };
@@ -959,10 +959,6 @@ var specialTabs = {
         aTab.browser.setAttribute("messagemanagergroup", "single-site");
       }
 
-      // Set this attribute so that when favicons fail to load, we remove the
-      // image attribute and just show the default tab icon.
-      aTab.tabNode.setAttribute("onerror", "this.removeAttribute('image');");
-
       aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
 
       // Now initialise the find bar.
@@ -1059,23 +1055,10 @@ var specialTabs = {
         url: aPersistedState.tabURI,
       });
 
-      switch (aPersistedState.tabURI) {
-        case "about:addons":
-          // Also in `openAddonsMgr` in mailCore.js.
-          tab.browser.droppedLinkHandler = event =>
-            tab.browser.contentWindow.gDragDrop.onDrop(event);
-          break;
-
-        case "about:accountsettings":
-          tab.tabNode.setAttribute("type", "accountManager");
-          break;
-
-        case "about:accountsetup":
-          tab.tabNode.setAttribute("type", "accountSetup");
-          break;
-
-        default:
-          break;
+      if (aPersistedState.tabURI == "about:addons") {
+        // Also in `openAddonsMgr` in mailCore.js.
+        tab.browser.droppedLinkHandler = event =>
+          tab.browser.contentWindow.gDragDrop.onDrop(event);
       }
     },
   },
@@ -1329,7 +1312,7 @@ var specialTabs = {
    * Tries to use the default favicon for a webpage for the specified tab.
    * We'll use the site's favicon.ico if prefs allow us to.
    */
-  useDefaultIcon(aTab) {
+  useDefaultFavIcon(aTab) {
     // Use documentURI in the check for shouldLoadFavIcon so that we do the
     // right thing with about:-style error pages.
     let docURIObject = aTab.browser.documentURI;
@@ -1338,18 +1321,18 @@ var specialTabs = {
       icon = docURIObject.prePath + "/favicon.ico";
     }
 
-    specialTabs.setTabIcon(aTab, icon);
+    this.setFavIcon(aTab, icon);
   },
 
   /**
    * This sets the specified tab to load and display the given icon for the
    * page shown in the browser. It is assumed that the preferences have already
-   * been checked before calling this function apprioriately.
+   * been checked before calling this function appropriately.
    *
    * @param aTab  The tab to set the icon for.
    * @param aIcon A string based URL of the icon to try and load.
    */
-  setTabIcon(aTab, aIcon) {
+  setFavIcon(aTab, aIcon) {
     if (aIcon && this.mFaviconService) {
       this.mFaviconService.setAndFetchFaviconForPage(
         aTab.browser.currentURI,
@@ -1360,10 +1343,12 @@ var specialTabs = {
         aTab.browser.contentPrincipal
       );
     }
-
-    // Save this off so we know about it later,
-    aTab.browser.mIconURL = aIcon;
-    // and display the new icon.
-    document.getElementById("tabmail").setTabIcon(aTab, aIcon);
+    document
+      .getElementById("tabmail")
+      .setTabFavIcon(
+        aTab,
+        aIcon,
+        "chrome://messenger/skin/icons/file-item.svg"
+      );
   },
 };

@@ -29,7 +29,7 @@ var { MsgHdrToMimeMessage } = ChromeUtils.import(
  *  likely involving the fact that prior to the introduction of this
  *  abstraction, everything was always stored in global objects.  For the 3.0
  *  release cycle we considered avoiding this 'multiplexed' style of operation
- *  but decided against moving to making each tab be indepdendent because of
+ *  but decided against moving to making each tab be independent because of
  *  presumed complexity.
  *
  * The tab info objects (as tabmail's currentTabInfo/tabInfo fields contain)
@@ -300,49 +300,101 @@ var mailTabType = {
 
         // Update the appropriate attributes on the tab.
         let specialFolderStr = getSpecialFolderString(folder);
-        aTabNode.setAttribute("SpecialFolder", specialFolderStr);
-        aTabNode.setAttribute("ServerType", folder.server.type);
-        aTabNode.setAttribute("IsServer", folder.isServer);
-        aTabNode.setAttribute("IsSecure", folder.server.isSecure);
         let feedUrls = FeedUtils.getFeedUrlsInFolder(folder);
-        aTabNode.setAttribute("IsFeedFolder", !!feedUrls);
 
-        // Set the favicon for feed folders.
-        aTabNode.removeAttribute("image");
         if (
-          folder.server.type != "rss" ||
-          folder.isServer ||
-          !feedUrls ||
-          specialFolderStr != "none"
+          folder.server.type == "rss" &&
+          !folder.isServer &&
+          feedUrls &&
+          specialFolderStr == "none"
         ) {
-          return;
-        }
-
-        let favicon = gFolderTreeView.getFolderCacheProperty(folder, "favicon");
-        if (favicon) {
-          aTabNode.setAttribute("image", favicon);
-          return;
-        }
-
-        if (favicon == null) {
+          // NOTE: The rss feed favicon is not currently exposed to the
+          // WebExtension tabs API. To do so, use MozTabmail setTabFavIcon
+          // method instead.
+          let fallbackIcon = "chrome://messenger/skin/icons/feeds-folder.svg";
+          let icon = gFolderTreeView.getFolderCacheProperty(folder, "favicon");
+          if (icon !== null) {
+            aTabNode.setIcon(icon, fallbackIcon);
+            return;
+          }
           // If we have a background tab, or the first tab on startup, the
           // favicon is unlikely to be cached yet.
-          let callback = iconUrl => {
-            if (iconUrl) {
-              aTabNode.setAttribute("image", iconUrl);
-            } else {
-              aTabNode.removeAttribute("image");
-            }
+          FeedUtils.getFavicon(folder, null, null, window, favicon => {
+            aTabNode.setIcon(favicon, fallbackIcon);
 
             // Cache it for folderpane.
-            gFolderTreeView.setFolderCacheProperty(folder, "favicon", iconUrl);
+            gFolderTreeView.setFolderCacheProperty(folder, "favicon", favicon);
             gFolderTreeView.clearFolderCacheProperty(folder, "properties");
             let row = gFolderTreeView.getIndexOfFolder(folder);
             gFolderTreeView._tree.invalidateRow(row);
-          };
-
-          FeedUtils.getFavicon(folder, null, favicon, window, callback);
+          });
+          return;
         }
+
+        let iconName;
+        if (feedUrls) {
+          iconName = "feeds-folder.svg";
+        } else if (folder.isServer) {
+          switch (folder.server.type) {
+            case "nntp":
+              iconName = folder.server.isSecure
+                ? "globe-secure.svg"
+                : "globe.svg";
+              break;
+            case "imap":
+            case "pop":
+              iconName = folder.server.isSecure
+                ? "message-secure.svg"
+                : "message.svg";
+              break;
+            case "none":
+              iconName = "folder-local.svg";
+              break;
+            case "rss":
+              iconName = "feeds.svg";
+              break;
+            default:
+              iconName = "message.svg";
+              break;
+          }
+        } else if (folder.server.type == "nntp") {
+          iconName = "newsgroup.svg";
+        } else {
+          switch (specialFolderStr) {
+            case "Virtual":
+              iconName = "search-folder.svg";
+              break;
+            case "Junk":
+              iconName = "junk.svg";
+              break;
+            case "Templates":
+              iconName = "template.svg";
+              break;
+            case "Archive":
+              iconName = "archive.svg";
+              break;
+            case "Trash":
+              iconName = "delete.svg";
+              break;
+            case "Drafts":
+              iconName = "file-item.svg";
+              break;
+            case "Outbox":
+              iconName = "outbox.svg";
+              break;
+            case "Sent":
+              iconName = "sent.svg";
+              break;
+            case "Inbox":
+              iconName = "inbox.svg";
+              break;
+            default:
+              iconName = "folder.svg";
+              break;
+          }
+        }
+
+        aTabNode.setIcon(`chrome://messenger/skin/icons/${iconName}`);
       },
       getBrowser(aTab) {
         // If we are currently a thread summary, we want to select the multi
@@ -366,6 +418,7 @@ var mailTabType = {
         message: true,
       },
       openTab(aTab, aArgs) {
+        aTab.tabNode.setIcon("chrome://messenger/skin/icons/file-item.svg");
         this.openTab(aTab, false, new MessageTabDisplayWidget(), false);
 
         let viewWrapperToClone =
@@ -448,35 +501,24 @@ var mailTabType = {
         // Set the favicon for feed messages.
         if (
           aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg &&
-          !aTab.tabNode.hasAttribute("IsFeedMessage")
+          Services.prefs.getBoolPref("browser.chrome.site_icons") &&
+          Services.prefs.getBoolPref("browser.chrome.favicons")
         ) {
-          aTab.tabNode.setAttribute("IsFeedMessage", true);
-          if (
-            !Services.prefs.getBoolPref("browser.chrome.site_icons") ||
-            !Services.prefs.getBoolPref("browser.chrome.favicons")
-          ) {
-            return;
-          }
-
           MsgHdrToMimeMessage(
             aMsgHdr,
             null,
-            function(aMsgHdr, aMimeMsg, tabNode) {
-              if (
-                aMimeMsg &&
-                aMimeMsg.headers["content-base"] &&
-                aMimeMsg.headers["content-base"][0]
-              ) {
-                let callback = iconUrl => {
-                  if (iconUrl) {
-                    aTab.tabNode.setAttribute("image", iconUrl);
-                  } else {
-                    aTab.tabNode.removeAttribute("image");
-                  }
-                };
-
-                let url = aMimeMsg.headers["content-base"][0];
-                FeedUtils.getFavicon(null, url, null, window, callback);
+            function(msgHdr, mimeMsg) {
+              let url = mimeMsg?.headers["content-base"]?.[0];
+              if (url) {
+                // NOTE: The rss feed favicon is not currently exposed to the
+                // WebExtension tabs API. To do so, use MozTabmail setTabFavIcon
+                // method instead.
+                FeedUtils.getFavicon(null, url, null, window, iconUrl =>
+                  aTab.tabNode.setIcon(
+                    iconUrl,
+                    "chrome://messenger/skin/icons/feeds-folder.svg"
+                  )
+                );
               }
             },
             false,
@@ -525,6 +567,7 @@ var mailTabType = {
       openTab(aTab, aArgs) {
         aTab.glodaSynView = new GlodaSyntheticView(aArgs);
         aTab.title = aArgs.title;
+        aTab.tabNode.setIcon("chrome://global/skin/icons/search-glass.svg");
 
         this.openTab(aTab, false, new MessagePaneDisplayWidget(), false);
         aTab.folderDisplay.show(aTab.glodaSynView);
