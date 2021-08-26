@@ -6,36 +6,40 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % accountManagerDTD SYSTEM "chrome://messenger/locale/AccountManager.dtd">
   %accountManagerDTD;
   <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
   %utilityDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&accountManagerTitle.label;"
-        csp="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: https: data:; style-src chrome: data: 'unsafe-inline'; object-src 'none'"
-        onload="onLoad(event);"
-        onunload="onUnload();">
-<stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-<stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title>&accountManagerTitle.label;</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: https: data:; style-src chrome: data: 'unsafe-inline'; object-src 'none'" />
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/accountManager.ftl" />
+  <link rel="icon" href="chrome://messenger/skin/icons/sidebar-left.svg" />
+  <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+  <script defer="defer" src="chrome://messenger/content/AccountManager.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { onLoad(event); });
+    window.addEventListener("unload", event => { onUnload(); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<html:link rel="icon" href="chrome://messenger/skin/icons/sidebar-left.svg" />
-
-<linkset>
-  <html:link rel="localization" href="branding/brand.ftl"/>
-  <html:link rel="localization" href="messenger/accountManager.ftl"/>
-</linkset>
-
-<script src="chrome://messenger/content/mailCore.js"/>
-<script src="chrome://communicator/content/utilityOverlay.js"/>
-<script src="chrome://messenger/content/accountUtils.js"/>
-<script src="chrome://messenger/content/am-prefs.js"/>
-<script src="chrome://messenger/content/AccountManager.js"/>
-<script src="chrome://messenger/content/amUtils.js"/>
-<script src="chrome://messenger/content/tree-listbox.js"/>
+  <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
+  <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
 
   <stack id="preferences-stack" flex="1">
   <hbox flex="1">
@@ -142,5 +146,6 @@
                disablehistory="true"/>
     </vbox>
   </vbox>
-</stack>
-</window>
+  </stack>
+</html:body>
+</html>

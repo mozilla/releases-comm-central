@@ -4,8 +4,7 @@
 
 @import url("chrome://messenger/skin/shared/accountManage.css");
 
-window > vbox,
-#accountTreeBox {
+window > vbox {
   font-size: 1.11em;
 }
 
