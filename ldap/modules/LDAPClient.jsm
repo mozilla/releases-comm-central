@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["LDAPClient"];
 
+var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var {
   AbandonRequest,
@@ -70,9 +71,9 @@ class LDAPClient {
    * @param {string} service - The service host name to bind.
    * @param {string} mechanism - The SASL mechanism to use, e.g. GSSAPI.
    * @param {string} authModuleType - The auth module type, @see nsIMailAuthModule.
-   * @param {string} serverCredentials - The challenge token returned from the
-   *   server, or emtpy string for the first request, must be used to generate a
-   *   new request token.
+   * @param {ArrayBuffer} serverCredentials - The challenge token returned from
+   *   the server, which must be used to generate a new request token. Or
+   *   undefined for the first request.
    * @param {Function} callback - Callback function when receiving BindResponse.
    * @returns {number} The id of the sent request.
    */
@@ -92,7 +93,18 @@ class LDAPClient {
         null // password
       );
     }
-    let credentials = this._authModule.getNextToken(serverCredentials);
+    // getNextToken expects a base64 string.
+    let token = this._authModule.getNextToken(
+      serverCredentials
+        ? btoa(
+            CommonUtils.arrayBufferToByteString(
+              new Uint8Array(serverCredentials)
+            )
+          )
+        : ""
+    );
+    // token is a base64 string, convert it to Uint8Array.
+    let credentials = CommonUtils.byteStringToArrayBuffer(atob(token));
     let req = new BindRequest("", "", { mechanism, credentials });
     return this._send(req, callback);
   }
@@ -109,7 +121,7 @@ class LDAPClient {
    * @returns {number} The id of the sent request.
    */
   search(dn, scope, filter, attributes, timeout, limit, callback) {
-    this._logger.debug(`Searching ${dn}`);
+    this._logger.debug(`Searching dn="${dn}" filter="${filter}"`);
     let req = new SearchRequest(dn, scope, filter, attributes, timeout, limit);
     return this._send(req, callback);
   }
@@ -176,7 +188,12 @@ class LDAPClient {
         }
         throw e;
       }
-      this._logger.debug(`S: [${res.messageId}] ${res.constructor.name}`);
+      this._logger.debug(
+        `S: [${res.messageId}] ${res.constructor.name}`,
+        res.result.resultCode >= 0
+          ? `resultCode=${res.result.resultCode} message="${res.result.diagnosticMessage}"`
+          : ""
+      );
       let callback = this._callbackMap.get(res.messageId);
       if (callback) {
         callback(res);

@@ -71,7 +71,7 @@ class BindRequest extends LDAPMessage {
    * @param {string} password - The password.
    * @param {Object} sasl - The SASL configs.
    * @param {string} sasl.mechanism - The SASL mechanism e.g. sasl-gssapi.
-   * @param {string} sasl.credentials - The credential token for the request.
+   * @param {Uint8Array} sasl.credentials - The credential token for the request.
    */
   constructor(dn, password, sasl) {
     super();
@@ -84,7 +84,7 @@ class BindRequest extends LDAPMessage {
             valueHex: new TextEncoder().encode(sasl.mechanism),
           }),
           new asn1js.OctetString({
-            valueHex: new TextEncoder().encode(sasl.credentials),
+            valueHex: sasl.credentials,
           }),
         ],
       });
@@ -488,9 +488,7 @@ class BindResponse extends LDAPResponse {
     super.parse();
     let serverSaslCredsBlock = this.protocolOp.valueBlock.value[3];
     if (serverSaslCredsBlock) {
-      this.result.serverSaslCreds = new TextDecoder().decode(
-        serverSaslCredsBlock.valueBlock.valueHex
-      );
+      this.result.serverSaslCreds = serverSaslCredsBlock.valueBlock.valueHex;
     }
   }
 }

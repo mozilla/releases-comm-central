@@ -31,7 +31,7 @@ class LDAPOperation {
     );
   }
 
-  saslBind(service, mechanism, authModuleType, serverCredentials = "") {
+  saslBind(service, mechanism, authModuleType, serverCredentials) {
     this._client.saslBind(
       service,
       mechanism,
