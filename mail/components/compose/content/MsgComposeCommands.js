@@ -2927,7 +2927,7 @@ function manageAttachmentNotification(aForce = false) {
   msgKeywords.setAttribute("flex", "1000");
   msgKeywords.setAttribute("value", keywords);
   let addButton = {
-    "l10n-id": "add-attachment-notification-reminder",
+    "l10n-id": "add-attachment-notification-reminder2",
     callback(aNotificationBar, aButton) {
       goDoCommand("cmd_attachFile");
       return true; // keep notification open (the state machine will decide on it later)
