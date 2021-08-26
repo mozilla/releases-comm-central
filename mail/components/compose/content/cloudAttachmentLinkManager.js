@@ -338,6 +338,9 @@ var gCloudAttachmentLinkManager = {
       root.appendChild(footer);
 
       editor.insertElementAtSelection(root, false);
+      if (!root.previousSibling || root.previousSibling.localName == "span") {
+        root.parentNode.insertBefore(editor.document.createElement("br"), root);
+      }
     } else {
       let root = editor.createElementWithDefaults("div");
       root.id = "cloudAttachmentListRoot";
@@ -352,6 +355,9 @@ var gCloudAttachmentLinkManager = {
       root.appendChild(list);
 
       editor.insertElementAtSelection(root, false);
+      if (!root.previousSibling || root.previousSibling.localName == "span") {
+        root.parentNode.insertBefore(editor.document.createElement("br"), root);
+      }
     }
 
     selection.collapse(originalAnchor, originalOffset);
