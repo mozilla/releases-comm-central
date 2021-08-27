@@ -52,6 +52,11 @@ var nntpJSModules = [
     "@mozilla.org/network/protocol;1?name=snews",
     "NntpProtocolHandler",
   ],
+  [
+    "NntpIncomingServer",
+    "{dc4ad42f-bc98-4193-a469-0cfa95ed9bcb}",
+    "@mozilla.org/messenger/server;1?type=nntp",
+  ],
 ];
 
 NntpModuleLoader.prototype = {

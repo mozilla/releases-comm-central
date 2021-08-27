@@ -22,6 +22,7 @@ EXTRA_JS_MODULES += [
     "NewsAutoCompleteSearch.jsm",
     "NntpChannel.jsm",
     "NntpClient.jsm",
+    "NntpIncomingServer.jsm",
     "NntpMessageService.jsm",
     "NntpModuleLoader.jsm",
     "NntpNewsGroup.jsm",

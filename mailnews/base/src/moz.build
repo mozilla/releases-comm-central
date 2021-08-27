@@ -123,6 +123,7 @@ EXTRA_JS_MODULES += [
     "mailstoreConverter.jsm",
     "MsgAsyncPrompter.jsm",
     "MsgDBCacheManager.jsm",
+    "MsgIncomingServer.jsm",
     "MsgKeySet.jsm",
     "OAuth2.jsm",
     "OAuth2Module.jsm",
