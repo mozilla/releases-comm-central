@@ -307,6 +307,21 @@ exchange-dialog-confirm-button = Login
 
 exchange-dialog-cancel-button = Cancel
 
+## Dismiss account creation dialog
+
+exit-dialog-title = No Email Account Configured
+
+exit-dialog-description = Are you sure you want to cancel the setup process? { -brand-short-name } can still be used without an email account, but many features will not be available.
+
+account-setup-no-account-checkbox = Use { -brand-short-name } without an email account
+    .accesskey = U
+
+exit-dialog-cancel-button = Continue Setup
+    .accesskey = C
+
+exit-dialog-confirm-button = Exit Setup
+    .accesskey = E
+
 ## Alert dialogs
 
 account-setup-creation-error-title = Error Creating Account

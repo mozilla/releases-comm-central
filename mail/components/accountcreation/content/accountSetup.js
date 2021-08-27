@@ -1956,23 +1956,73 @@ var gAccountSetup = {
   // Finish & dialog close functions
 
   onCancel() {
-    window.close();
-  },
-
-  onUnload() {
-    if (this._abortable) {
-      this._abortable.cancel(new UserCancelledException());
-    }
-
     // Some tests might close the account setup before it finishes loading,
     // therefore the gMainWindow might still be null. If that's the case, do an
-    // early return since we don't need to post any message to the main window.
+    // early return since we don't need to run any condition.
     if (!gMainWindow) {
+      window.close();
       return;
     }
 
-    // Trigger the startup process if the user didn't complete the setup.
-    gMainWindow.postMessage("account-setup-cancelled", "*");
+    // Ask for confirmation if the user never set Thunderbrid to be used without
+    // an email account, and no account has been configured.
+    if (
+      !Services.prefs.getBoolPref("app.use_without_mail_account", false) &&
+      !MailServices.accounts.accounts.length
+    ) {
+      // Abort any possible process before showing the confirmation dialog.
+      this.checkIfAbortable();
+      this.confirmExitDialog();
+      return;
+    }
+
+    window.close();
+  },
+
+  /**
+   * Ask for confirmation when the account setup is dismissed and the user
+   * doesn't have any configured account.
+   */
+  confirmExitDialog() {
+    let dialog = document.getElementById("confirmExitDialog");
+
+    document.getElementById("exitDialogConfirmButton").onclick = () => {
+      // Update the pref only if the checkbox was checked since it's FALSE by
+      // default. We won't expose this checkbox in the UI anymore afterward.
+      if (document.getElementById("useWithoutAccount").checked) {
+        Services.prefs.setBoolPref("app.use_without_mail_account", true);
+      }
+
+      dialog.close();
+      window.close();
+    };
+
+    document.getElementById("exitDialogCancelButton").onclick = () => {
+      dialog.close();
+    };
+
+    dialog.showModal();
+  },
+
+  /**
+   * Disable the exit dialog button if the user checks the "Use without an email
+   * account" checkbox.
+   *
+   * @param {DOMEvent} event - The checkbox change event.
+   */
+  toggleExitDialogButton(event) {
+    document.getElementById("exitDialogCancelButton").disabled =
+      event.target.checked;
+  },
+
+  checkIfAbortable() {
+    if (this._abortable) {
+      this._abortable.cancel(new UserCancelledException());
+    }
+  },
+
+  onUnload() {
+    this.checkIfAbortable();
     gAccountSetupLogger.debug("Shutting down email config dialog");
   },
 

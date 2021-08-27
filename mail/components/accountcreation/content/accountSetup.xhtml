@@ -27,6 +27,38 @@
 </head>
 
 <body>
+  <!-- Native HTML dialog used for setup cancel confirmation. -->
+  <dialog id="confirmExitDialog" class="account-setup-dialog">
+    <div class="dialog-container vertical">
+      <h2 class="dialog-title">
+        <img src="chrome://messenger/skin/icons/info.svg" alt=""
+             class="dialog-header-image" />
+        <span data-l10n-id="exit-dialog-title"></span>
+      </h2>
+
+      <div class="dialog-container">
+        <p data-l10n-id="exit-dialog-description"
+           class="dialog-description indent"></p>
+      </div>
+
+      <label class="toggle-container-with-text indent">
+        <input id="useWithoutAccount" type="checkbox"
+               onchange="gAccountSetup.toggleExitDialogButton(event);" />
+        <span data-l10n-id="account-setup-no-account-checkbox"
+              data-l10n-attrs="accesskey">
+        </span>
+      </label>
+    </div>
+
+    <menu class="dialog-menu-container">
+      <button id="exitDialogConfirmButton"
+              data-l10n-id="exit-dialog-confirm-button"></button>
+      <button id="exitDialogCancelButton"
+              data-l10n-id="exit-dialog-cancel-button"
+              class="primary"></button>
+    </menu>
+  </dialog>
+
   <!-- Native HTML dialog used for Exchange confirmation. -->
   <dialog id="exchangeDialog" class="account-setup-dialog">
     <div class="dialog-container">
@@ -77,7 +109,7 @@
     <menu class="dialog-menu-container two-columns">
       <aside>
         <label class="toggle-container-with-text">
-          <input type="checkbox" id="acknowledgeWarning"
+          <input id="acknowledgeWarning" type="checkbox"
                  onchange="gSecurityWarningDialog.toggleAcknowledge();">
           </input>
           <span data-l10n-id="account-setup-insecure-server-checkbox"
@@ -160,21 +192,21 @@
 
       <section class="indent">
         <label class="toggle-container-with-text">
-          <input type="checkbox" id="calendarReadOnly" />
+          <input id="calendarReadOnly" type="checkbox" />
           <span data-l10n-id="account-setup-calendar-read-only"
                 data-l10n-attrs="accesskey">
           </span>
         </label>
 
         <label id="calendarShowRemindersRow" class="toggle-container-with-text">
-          <input type="checkbox" id="calendarShowReminders" checked="checked" />
+          <input id="calendarShowReminders" type="checkbox" checked="checked" />
           <span data-l10n-id="account-setup-calendar-show-reminders"
                 data-l10n-attrs="accesskey">
           </span>
         </label>
 
         <label class="toggle-container-with-text">
-          <input type="checkbox" id="calendarOfflineSupport" checked="checked" />
+          <input id="calendarOfflineSupport" type="checkbox" checked="checked" />
           <span data-l10n-id="account-setup-calendar-offline-support"
                 data-l10n-attrs="accesskey">
           </span>
@@ -289,7 +321,7 @@
 
         <div class="remember-button-container">
           <label class="toggle-container-with-text">
-            <input type="checkbox" id="rememberPassword" checked="checked" />
+            <input id="rememberPassword" type="checkbox" checked="checked" />
             <span data-l10n-id="account-setup-remember-password"
                   data-l10n-attrs="accesskey">
             </span>
@@ -328,7 +360,7 @@
         <!-- IMAP -->
         <div id="resultsOption-imap" class="content-blocking-category">
           <label class="toggle-container-with-text">
-            <input type="radio" id="resultSelect-imap"
+            <input id="resultSelect-imap" type="radio"
                    value="imap"
                    name="resultsServerType"
                    onchange="gAccountSetup.onResultServerTypeChanged();" />
@@ -361,7 +393,7 @@
         <!-- POP3 -->
         <div id="resultsOption-pop3" class="content-blocking-category">
           <label class="toggle-container-with-text">
-            <input type="radio" id="resultSelect-pop3"
+            <input id="resultSelect-pop3" type="radio"
                    value="pop3"
                    name="resultsServerType"
                    onchange="gAccountSetup.onResultServerTypeChanged();" />
@@ -394,7 +426,7 @@
         <!-- EXCHANGE -->
         <div id="resultsOption-exchange" class="content-blocking-category">
           <label class="toggle-container-with-text">
-            <input type="radio" id="resultSelect-exchange"
+            <input id="resultSelect-exchange" type="radio"
                    value="exchange"
                    name="resultsServerType"
                    onchange="gAccountSetup.onResultServerTypeChanged();" />
@@ -457,11 +489,11 @@
             </label>
             <div class="input-control">
               <input id="incomingHostname"
-                    type="text"
-                    placeholder="mail.example.com"
-                    onblur="gAccountSetup.onBlurHostname();"
-                    oninput="gAccountSetup.manualConfigChanged();"
-                    class="host uri-element input-field" />
+                     type="text"
+                     placeholder="mail.example.com"
+                     onblur="gAccountSetup.onBlurHostname();"
+                     oninput="gAccountSetup.manualConfigChanged();"
+                     class="host uri-element input-field" />
             </div>
           </aside>
 

@@ -710,7 +710,6 @@ var gMailInit = {
   _onMessageReceived(event) {
     switch (event.data) {
       case "account-created":
-      case "account-setup-cancelled":
       case "account-created-in-backend":
       case "account-created-from-provisioner":
         // If the gFolderTreeView was never initialized it means we're in a
@@ -763,12 +762,62 @@ var gMailInit = {
     this.delayedStartupFinished = true;
     Services.obs.notifyObservers(window, "mail-delayed-startup-finished");
 
-    // Load the entire UI only if we already have at least one account available
-    // otherwise the verifyExistingAccounts will trigger the account wizard.
-    if (verifyExistingAccounts()) {
-      switchToMailTab();
-      loadPostAccountWizard();
+    this._loadComponentsAtStartup();
+  },
+
+  /**
+   * Load all the necessary components to make Thunderbird usable before
+   * checking for existing accounts.
+   */
+  async _loadComponentsAtStartup() {
+    // Check if Thunderbird was launched in safe mode.
+    if (Services.appinfo.inSafeMode) {
+      let safeMode = document.getElementById("helpTroubleshootMode");
+      document.l10n.setAttributes(safeMode, "menu-help-exit-troubleshoot-mode");
+
+      let appSafeMode = document.getElementById("appmenu_troubleshootMode");
+      document.l10n.setAttributes(
+        appSafeMode,
+        "appmenu-help-exit-troubleshoot-mode"
+      );
     }
+
+    // Initialize the customizeDone method on the customizeable toolbar.
+    let toolbox = document.getElementById("mail-toolbox");
+    toolbox.customizeDone = function(aEvent) {
+      MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar");
+    };
+
+    // The calendar component needs to be loaded before restoring any tabs.
+    await loadCalendarComponent();
+
+    // Don't trigger the existing account verification if the user wants to use
+    // Thunderbird without an email account.
+    if (!Services.prefs.getBoolPref("app.use_without_mail_account", false)) {
+      // Load the Mail UI only if we already have at least one account configured
+      // otherwise the verifyExistingAccounts will trigger the account wizard.
+      if (verifyExistingAccounts()) {
+        switchToMailTab();
+        await loadPostAccountWizard();
+      }
+    } else {
+      // Run the tabs restore method here since we're skipping the loading of
+      // the Mail UI which would have take care of this to properly handle
+      // opened folders or messages in tabs.
+      await atStartupRestoreTabs(false);
+    }
+
+    // All core modal dialogs are done, the user can now interact with the
+    // 3-pane window. We need to notify this even if the user didn't setup any
+    // mail account in order to trigger all the other areas of the application.
+    Services.obs.notifyObservers(window, "mail-startup-done");
+
+    // Idle dispatch the telemetry reports.
+    Services.tm.idleDispatchToMainThread(() => {
+      reportAccountTypes();
+      reportAddressBookTypes();
+      reportAccountSizes();
+    });
   },
 
   /**
@@ -923,44 +972,15 @@ async function loadPostAccountWizard() {
   // listeners aren't set up correctly.
   AddToSession();
 
-  // Check if Thunderbird was launched in safe mode.
-  if (Services.appinfo.inSafeMode) {
-    let safeMode = document.getElementById("helpTroubleshootMode");
-    document.l10n.setAttributes(safeMode, "menu-help-exit-troubleshoot-mode");
-
-    let appSafeMode = document.getElementById("appmenu_troubleshootMode");
-    document.l10n.setAttributes(
-      appSafeMode,
-      "appmenu-help-exit-troubleshoot-mode"
-    );
-  }
-
   // Load the message header pane.
   OnLoadMsgHeaderPane();
 
   // Set focus to the Thread Pane the first time the window is opened.
   SetFocusThreadPane();
 
-  // Initialize the customizeDone method on the customizeable toolbar.
-  let toolbox = document.getElementById("mail-toolbox");
-  toolbox.customizeDone = function(aEvent) {
-    MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar");
-  };
-
   // Restore the previous folder selection before shutdown, or select the first
   // inbox folder of a newly created account.
   selectFirstFolder();
-
-  // All core modal dialogs are done, the user can now interact with the 3-pane
-  // window.
-  Services.obs.notifyObservers(window, "mail-startup-done");
-
-  // Idle dispatch the telemetry reports.
-  Services.tm.idleDispatchToMainThread(() => {
-    reportAccountTypes();
-    reportAddressBookTypes();
-    reportAccountSizes();
-  });
 }
 
 /**
@@ -1233,20 +1253,14 @@ function getWindowStateForSessionPersistence() {
 }
 
 /**
- * Attempt to restore our tab states.  This should only be called by
- * |loadStartFolder| or |loadStartMsgHdr|.
+ * Attempt to restore the previous tab states.
  *
- * @param aDontRestoreFirstTab If this is true, the first tab will not be
- *                             restored, and will continue to retain focus at
- *                             the end. This is needed if the window was opened
- *                             with a folder or a message as an argument.
- *
+ * @param {boolean} aDontRestoreFirstTab - If this is true, the first tab will
+ *   not be restored, and will continue to retain focus at the end. This is
+ *   needed if the window was opened with a folder or a message as an argument.
  * @return true if the restoration was successful, false otherwise.
  */
 async function atStartupRestoreTabs(aDontRestoreFirstTab) {
-  // The calendar component needs to be loaded before restoring any calendar tabs.
-  await loadCalendarComponent();
-
   let state = await SessionStoreManager.loadingWindow(window);
   if (state) {
     let tabsState = state.tabs;

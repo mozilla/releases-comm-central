@@ -331,6 +331,13 @@ input:user-invalid ~ .icon-warning {
   background: rgba(0, 0, 0, 0.5);
 }
 
+.dialog-title {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  margin-block: 0px 9px;
+}
+
 .dialog-container {
   display: flex;
   align-items: center;

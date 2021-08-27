@@ -108,6 +108,10 @@ pref("app.support.baseURL", "https://support.thunderbird.net/%APP%/%VERSION%/%OS
 // Base url for web-based feedback pages.
 pref("app.feedback.baseURL", "https://input.mozilla.org/%LOCALE%/feedback/%APP%/%VERSION%/");
 
+// Allows using Thundebird without a configured email account, blocking the
+// account setup prompt at startup.
+pref("app.use_without_mail_account", false);
+
 // Show error messages in error console.
 pref("javascript.options.showInConsole", true);
 

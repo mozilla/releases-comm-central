@@ -1687,6 +1687,15 @@ FolderDisplayWidget.prototype = {
    * in |this._folderPaneVisible|.
    */
   get folderPaneVisible() {
+    // Early return if the user wants to use Thunderbird without an email
+    // account and no account is configured.
+    if (
+      Services.prefs.getBoolPref("app.use_without_mail_account", false) &&
+      !MailServices.accounts.accounts.length
+    ) {
+      return false;
+    }
+
     if (this._active) {
       let folderPaneBox = document.getElementById("folderPaneBox");
       if (folderPaneBox) {

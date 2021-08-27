@@ -735,20 +735,17 @@ var mailTabType = {
     }
 
     // -- folder pane
+    let splitter = document.getElementById("folderpane_splitter");
     // collapse the splitter when not legal
-    document.getElementById(
-      "folderpane_splitter"
-    ).collapsed = !aLegalStates.folder;
+    splitter.collapsed = !aLegalStates.folder;
     // collapse the folder pane when not visible
     document.getElementById("folderPaneBox").collapsed =
       !aLegalStates.folder || !aVisibleStates.folder;
     // let the splitter know as well
-    document
-      .getElementById("folderpane_splitter")
-      .setAttribute(
-        "state",
-        !aLegalStates.folder || !aVisibleStates.folder ? "collapsed" : "open"
-      );
+    splitter.setAttribute(
+      "state",
+      !aLegalStates.folder || !aVisibleStates.folder ? "collapsed" : "open"
+    );
     try {
       // The folder-location-toolbar should be hidden if the folder
       // pane is illegal. Otherwise we shouldn't touch it
