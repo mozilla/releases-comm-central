@@ -154,6 +154,27 @@ header {
   margin-inline: -26px 10px;
 }
 
+.form-toggle-button {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0 4px;
+  margin-inline: -30px 6px;
+  min-width: auto;
+  min-height: auto;
+  margin-block: 0;
+  line-height: 0;
+}
+
+.form-toggle-button:hover,
+.form-toggle-button:active {
+  background-color: transparent !important;
+}
+
+.form-toggle-button .form-icon {
+  margin-inline: 0;
+}
+
 .icon-warning {
   display: none;
   color: var(--orange-50);

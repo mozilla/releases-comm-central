@@ -246,6 +246,7 @@ var gAccountSetup = {
     }
 
     this._password = "";
+    // Keep track of the state of the password field, if password or clear text.
     this._showPassword = false;
     // This is used only for Exchange AutoDiscover and only if needed.
     this._exchangeUsername = "";
@@ -525,34 +526,73 @@ var gAccountSetup = {
   onInputPassword() {
     this._password = document.getElementById("password").value;
     this.onStartOver();
+
+    // Show the password toggle button only if the field is not empty.
+    let toggleButton = document.getElementById("passwordToggleButton");
+    toggleButton.hidden = !this._password;
+
+    if (!this._password) {
+      // Always reset the field to the proper type.
+      this.hidePassword();
+    }
   },
 
   /**
    * Toggle the type of the password field between password and text to allow
    * users reading their own password.
    */
-  passwordToggle() {
-    // Don't toggle anything if the user didn't write anything yet.
-    if (!this._password) {
+  passwordToggle(event) {
+    // Prevent the form submission if the user presses Enter.
+    event.preventDefault();
+
+    // The password field is in plain text, change it back to the proper type.
+    if (this._showPassword) {
+      this.hidePassword();
       return;
     }
 
-    let passwordField = document.getElementById("password");
+    // Change the password field to plain text to make the text visible.
+    this.showPassword();
+  },
+
+  /**
+   * Convert the password field into a plain text field allowing users and
+   * assistive technologies to read the typed text.
+   */
+  showPassword() {
+    document.getElementById("password").type = "text";
+    document.l10n.setAttributes(
+      document.getElementById("passwordToggleButton"),
+      "account-setup-password-toggle-hide"
+    );
+
     let toggleImage = document.getElementById("passwordInfo");
-    // If the type is password, change it to a plain text.
-    if (passwordField.type == "password") {
-      this._showPassword = true;
-      passwordField.type = "text";
-      toggleImage.src = "chrome://messenger/skin/icons/visible.svg";
-      toggleImage.classList.add("password-toggled");
+    toggleImage.src = "chrome://messenger/skin/icons/visible.svg";
+    toggleImage.classList.add("password-toggled");
+
+    this._showPassword = true;
+  },
+
+  /**
+   * Convert the password field back to its default password type.
+   */
+  hidePassword() {
+    // No need to reset anything if the password was never shown.
+    if (!this._showPassword) {
       return;
     }
 
-    // Otherwise, change it back to a password field.
-    this._showPassword = false;
-    passwordField.type = "password";
+    document.getElementById("password").type = "password";
+    document.l10n.setAttributes(
+      document.getElementById("passwordToggleButton"),
+      "account-setup-password-toggle-show"
+    );
+
+    let toggleImage = document.getElementById("passwordInfo");
     toggleImage.src = "chrome://messenger/skin/icons/hidden.svg";
     toggleImage.classList.remove("password-toggled");
+
+    this._showPassword = false;
   },
 
   /**
