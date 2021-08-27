@@ -560,12 +560,12 @@ function openContentTab(aUrl, aWhere, aHandlerRegExp)
 
 function AllowOpenTabOnMiddleClick()
 {
-  return Services.prefs.getBoolPref("browser.tabs.opentabfor.middleclick");
+  return Services.prefs.getBoolPref("mail.tabs.opentabfor.middleclick");
 }
 
 function AllowOpenTabOnDoubleClick()
 {
-  return Services.prefs.getBoolPref("browser.tabs.opentabfor.doubleclick");
+  return Services.prefs.getBoolPref("mail.tabs.opentabfor.doubleclick");
 }
 
 //

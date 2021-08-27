@@ -19,6 +19,8 @@ var { mailServices } =
   ChromeUtils.import("resource:///modules/mailServices.js");
 var { MailUtils } =
   ChromeUtils.import("resource:///modules/MailUtils.js");
+var { AppConstants } =
+  ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { Services } =
   ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -258,6 +260,17 @@ let gFolderTreeView = {
 
     // Don't let the double-click toggle the open state of the folder here.
     aEvent.stopPropagation();
+  },
+
+  onKeyPress(event) {
+    if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
+      if ((AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey) &&
+          AllowOpenTabOnMiddleClick()) {
+        FolderPaneContextMenuNewTab(event);
+        let folderTree = document.getElementById("folderTree");
+        RestoreSelectionWithoutContentLoad(folderTree);
+      }
+    }
   },
 
   getFolderAtCoords: function ftv_getFolderAtCoords(aX, aY) {

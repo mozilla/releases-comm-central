@@ -31,6 +31,7 @@
         ondragover="gFolderTreeView._onDragOver(event);"
         ondrop="gFolderTreeView._onDragDrop(event);"
         ondblclick="gFolderTreeView.onDoubleClick(event);"
+        onkeypress="gFolderTreeView.onKeyPress(event);"
         onselect="FolderPaneSelectionChange();">
     <treecols id="folderPaneCols">
       <treecol id="folderNameCol"

@@ -31,13 +31,21 @@
       <preference id="mail.tabs.loadInBackground"
                   name="mail.tabs.loadInBackground"
                   inverted="true" type="bool"/>
+      <preference id="mail.biff.on_new_window"
+                  name="mail.biff.on_new_window"
+                  type="bool"
+                  inverted="true"/>
+      <preference id="mail.tabs.opentabfor.middleclick"
+                  name="mail.tabs.opentabfor.middleclick"
+                  type="bool"/>
+      <preference id="mail.tabs.opentabfor.doubleclick"
+                  name="mail.tabs.opentabfor.doubleclick"
+                  type="bool"/>
       <preference id="mailnews.start_page.enabled"
                   onchange="this.parentNode.parentNode.startPageCheck();"
                   name="mailnews.start_page.enabled" type="bool"/>
       <preference id="mailnews.start_page.url"
                   name="mailnews.start_page.url" type="wstring"/>
-      <preference id="mail.biff.on_new_window"
-                  name="mail.biff.on_new_window" inverted="true" type="bool"/>
     </preferences>
 
     <groupbox>
@@ -81,6 +89,28 @@
                   label="&mailBiffOnNewWindow.label;"
                   accesskey="&mailBiffOnNewWindow.accesskey;"
                   preference="mail.biff.on_new_window"/>
+      </hbox>
+    </groupbox>
+
+    <groupbox id="mailOpenTabFor" align="start">
+      <caption label="&mailOpenTabsFor.label;"/>
+      <hbox align="center">
+        <checkbox id="mailMiddleClick"
+#ifndef XP_MACOSX
+                  label="&mailMiddleClick.label;"
+                  accesskey="&mailMiddleClick.accesskey;"
+#else
+                  label="&mailMiddleClickMac.label;"
+                  accesskey="&mailMiddleClickMac.accesskey;"
+#endif
+                  preference="mail.tabs.opentabfor.middleclick"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="mailDoubleClick"
+                  label="&mailDoubleClick.label;"
+                  accesskey="&mailDoubleClick.accesskey;"
+                  preference="mail.tabs.opentabfor.doubleclick"/>
       </hbox>
     </groupbox>
 

@@ -12,6 +12,13 @@
 <!ENTITY mailAutoHide.accesskey           "b">
 <!ENTITY loadInBackground.label           "Switch to new tabs when opened">
 <!ENTITY loadInBackground.accesskey       "t">
+<!ENTITY mailOpenTabsFor.label            "Open tabs instead of windows for">
+<!ENTITY mailMiddleClick.label            "Middle-click or Ctrl+Enter on a message or a folder">
+<!ENTITY mailMiddleClick.accesskey        "M">
+<!ENTITY mailMiddleClickMac.label         "Middle-click or &#8984;+Return on a message or a folder">
+<!ENTITY mailMiddleClickMac.accesskey     "M">
+<!ENTITY mailDoubleClick.label            "Double-click on a message">
+<!ENTITY mailDoubleClick.accesskey        "k">
 <!ENTITY mailBiffOnNewWindow.label        "Only check for new mail after opening Mail &amp; Newsgroups">
 <!ENTITY mailBiffOnNewWindow.accesskey    "O">
 

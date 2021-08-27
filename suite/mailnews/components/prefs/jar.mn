@@ -4,7 +4,7 @@
 
 messenger.jar:
     content/messenger/mailPrefsOverlay.xul                                     (content/mailPrefsOverlay.xul)
-    content/messenger/pref-mailnews.xul                                        (content/pref-mailnews.xul)
+*   content/messenger/pref-mailnews.xul                                        (content/pref-mailnews.xul)
     content/messenger/pref-mailnews.js                                         (content/pref-mailnews.js)
     content/messenger/pref-notifications.xul                                   (content/pref-notifications.xul)
     content/messenger/pref-notifications.js                                    (content/pref-notifications.js)

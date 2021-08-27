@@ -215,7 +215,6 @@ pref("browser.bookmarks.editDialog.firstEditField", "namePicker");
 // Tabbed browser
 pref("browser.tabs.loadDivertedInBackground", false);
 pref("browser.tabs.loadInBackground", true);
-pref("browser.tabs.opentabfor.doubleclick", false);
 pref("browser.tabs.opentabfor.middleclick", true);
 pref("browser.tabs.opentabfor.urlbar", true);
 pref("browser.tabs.tooltippreview.enable", true);
@@ -355,6 +354,13 @@ pref("mail.tabs.autoHide", false);
 // If messages or folders are opened using the context menu or a middle click,
 // should we open them in the foreground or in the background?
 pref("mail.tabs.loadInBackground", true);
+
+// If messages are opened in a tab or a window on a double-click.
+pref("mail.tabs.opentabfor.doubleclick", false);
+
+// If messages or folders are opened in a tab or a window on a middle-click (or
+// equivalent).
+pref("mail.tabs.opentabfor.middleclick", true);
 
 // Force the unit shown for the size of all folders.
 // If empty, the unit is determined automatically for each folder.
