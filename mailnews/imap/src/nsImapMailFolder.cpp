@@ -333,9 +333,9 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
   mSubFolders.AppendObject(folder);
   folder.forget(aChild);
 
+  // New child needs to inherit hierarchyDelimiter.
   nsCOMPtr<nsIMsgImapMailFolder> imapChild = do_QueryInterface(*aChild);
   if (imapChild) {
-    imapChild->SetOnlineName(NS_ConvertUTF16toUTF8(aName));
     imapChild->SetHierarchyDelimiter(m_hierarchyDelimiter);
   }
   NotifyItemAdded(*aChild);

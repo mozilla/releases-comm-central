@@ -169,6 +169,11 @@ interface nsIMsgImapMailFolder : nsISupports {
   attribute boolean explicitlyVerify;
   attribute char hierarchyDelimiter;
   attribute long boxFlags;
+  /**
+   * onlineName is the IMAP name of the mailbox that this folder represents.
+   * It's a path with components separated by hierarchyDelimiter.
+   * For example, "INBOX/bar/wibble", "INBOX.bar.wibble", etc...
+   */
   attribute ACString onlineName;
   attribute boolean isNamespace;
   readonly attribute boolean canOpenFolder;
