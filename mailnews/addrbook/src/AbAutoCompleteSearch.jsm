@@ -576,6 +576,7 @@ AbAutoCompleteSearch.prototype = {
             result.searchResult = searches.size
               ? ACR.RESULT_SUCCESS_ONGOING
               : ACR.RESULT_SUCCESS;
+            result.defaultIndex = 0;
           } else {
             result.searchResult = searches.size
               ? ACR.RESULT_NOMATCH_ONGOING
