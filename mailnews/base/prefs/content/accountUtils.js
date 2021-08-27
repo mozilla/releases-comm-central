@@ -455,6 +455,11 @@ function openAccountSetupTab() {
   for (let tabInfo of tabmail.tabInfo) {
     let tab = tabmail.getTabForBrowser(tabInfo.browser);
     if (tab && tab.urlbar && tab.urlbar.value == "about:accountsetup") {
+      let accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
+      // Reset the entire UI only if the previously opened setup was completed.
+      if (accountSetup._currentModename == "success") {
+        accountSetup.resetSetup();
+      }
       tabmail.switchToTab(tabInfo);
       return;
     }

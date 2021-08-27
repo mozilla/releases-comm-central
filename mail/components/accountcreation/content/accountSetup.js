@@ -458,6 +458,17 @@ var gAccountSetup = {
   },
 
   /**
+   * Reset the form and the entire UI of the account setup.
+   */
+  resetSetup() {
+    document.getElementById("form").reset();
+    document.getElementById("realname").focus();
+    // Call onStartOver only after resetting the form in order to properly
+    // update the form buttons.
+    this.onStartOver();
+  },
+
+  /**
    * Start from beginning with possibly new email address.
    */
   onStartOver() {
