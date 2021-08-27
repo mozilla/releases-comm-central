@@ -24,7 +24,7 @@ class MsgIncomingServer {
   constructor() {
     // nsIMsgIncomingServer attributes that map directly to pref values.
     [
-      ["Char", "username", "userName"],
+      ["Unichar", "username", "userName"],
       ["Char", "type"],
       ["Char", "clientid"],
       ["Int", "authMethod"],
@@ -66,7 +66,7 @@ class MsgIncomingServer {
   }
 
   get hostName() {
-    let hostname = this.getCharValue("hostname");
+    let hostname = this.getUnicharValue("hostname");
     if (hostname.includes(":")) {
       // Reformat the hostname if it contains a port number.
       this.hostName = hostname;
@@ -80,7 +80,7 @@ class MsgIncomingServer {
     if (port) {
       this.port = Number(port);
     }
-    this.setCharValue("hostname", host);
+    this.setUnicharValue("hostname", host);
   }
 
   get port() {

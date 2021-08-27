@@ -50,12 +50,12 @@ interface nsIMsgIncomingServer : nsISupports {
   /**
    * hostname of the server
    */
-  attribute ACString hostName;
+  attribute AUTF8String hostName;
 
   /**
    * real hostname of the server (if server name is changed it's stored here)
    */
-  attribute ACString realHostName;
+  attribute AUTF8String realHostName;
 
   /* port of the server */
   attribute long port;
@@ -63,12 +63,12 @@ interface nsIMsgIncomingServer : nsISupports {
   /**
    * userid to log into the server
    */
-  attribute ACString username;
+  attribute AUTF8String username;
 
   /**
    * real username of the server (if username is changed it's stored here)
    */
-  attribute ACString realUsername;
+  attribute AUTF8String realUsername;
 
   /**
    * protocol type, i.e. "pop3", "imap", "nntp", "none", etc
@@ -110,7 +110,7 @@ interface nsIMsgIncomingServer : nsISupports {
   readonly attribute ACString localDatabaseType;
 
   // Perform specific tasks (reset flags, remove files, etc) for account user/server name changes.
-  void onUserOrHostNameChanged(in ACString oldName, in ACString newName,
+  void onUserOrHostNameChanged(in AUTF8String oldName, in AUTF8String newName,
                                in bool hostnameChanged);
 
   /// cleartext utf16 version of the password
