@@ -29,10 +29,10 @@ function* setup() {
   );
   rootFolder.hierarchyDelimiter = "/";
   IMAPPump.inbox.hierarchyDelimiter = "/";
-  rootFolder.addSubfolder("folder1");
-  rootFolder.addSubfolder("folder1/sub1");
-  rootFolder.addSubfolder("folder1/sub1/sub2");
-  gSub3 = rootFolder.addSubfolder("folder1/sub1/sub2/sub3");
+  let folder1 = rootFolder.addSubfolder("folder1");
+  let sub1 = folder1.addSubfolder("sub1");
+  let sub2 = sub1.addSubfolder("sub2");
+  gSub3 = sub2.addSubfolder("sub3");
   IMAPPump.server.performTest("LIST");
 
   do_timeout(1000, async_driver);
