@@ -4875,19 +4875,21 @@ function addHistory (source, obj, mergeData)
         while (thisMessageCol && !(thisMessageCol.className == "msg-data"))
             thisMessageCol = thisMessageCol.nextSibling;
 
-        var ci = findPreviousColumnInfo(source.messages);
-        var nickColumns = ci.nickColumns;
-        var rowExtents = ci.extents;
-        var nickColumnCount = nickColumns.length;
+        let columnInfo = findPreviousColumnInfo(source.messages);
+        let nickColumns = columnInfo.nickColumns;
+        let rowExtents = columnInfo.extents;
+        let nickColumnCount = nickColumns.length;
 
-        var lastRowSpan, sameNick, sameDest, haveSameType, needSameType;
-        var isAction, collapseActions;
-        if (nickColumnCount == 0) // No message to collapse to.
-        {
-            sameNick = sameDest = needSameType = haveSameType = false;
-            lastRowSpan = 0;
-        }
-        else // 1 or more messages, check for doubles
+        let lastRowSpan = 0;
+        let sameNick = false;
+        let samePrefix = false;
+        let sameDest = false;
+        let haveSameType = false;
+        let isAction = false;
+        let collapseActions;
+        let needSameType = false;
+        // 1 or messages, check for doubles.
+        if (nickColumnCount > 0)
         {
             var lastRow = nickColumns[nickColumnCount - 1].parentNode;
             // What was the span last time?
@@ -4923,7 +4925,7 @@ function addHistory (source, obj, mergeData)
             (!isAction || collapseActions))
         {
             obj = inobj;
-            if (ci.nested)
+            if (columnInfo.nested)
                 appendTo = source.messages.firstChild.lastChild.firstChild.firstChild.firstChild;
 
             if (obj.getAttribute("important"))
