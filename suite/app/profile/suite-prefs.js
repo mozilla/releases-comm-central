@@ -1105,6 +1105,14 @@ pref("security.sandbox.content.tempDirSuffix", "");
 // Url shown when you type moz://a
 pref("toolkit.mozprotocol.url", "http://www.seamonkey-project.org/");
 
+// Serif fonts look dated. Switch those language families to sans-serif where it
+// makes sense, see bug 1727982. See all.js for other font families preferences.
+pref("font.default", "sans-serif");
+pref("font.default.x-unicode", "sans-serif");
+pref("font.default.x-western", "sans-serif");
+pref("font.default.x-cyrillic", "sans-serif");
+pref("font.default.el", "sans-serif");
+
 // Toolbox preferences
 pref("devtools.toolbox.footer.height", 250);
 pref("devtools.toolbox.sidebar.width", 500);
