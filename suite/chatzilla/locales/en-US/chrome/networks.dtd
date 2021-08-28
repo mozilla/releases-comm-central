@@ -4,6 +4,8 @@
 
 <!-- Used in networks-edit dialog -->
 <!ENTITY networksEditDialog.title     "Networks Editor">
+<!-- LOCALIZATION NOTE
+     - width should be 62ch + length of longest serverList*.label -->
 <!ENTITY networksEditDialog.size      "width: 75ch; height: 28em;">
 
 <!ENTITY restoreButton.label          "Restore Defaults">
