@@ -154,7 +154,7 @@ function verifyAccounts(wizardCallback, needsIdentity, wizardOpen) {
       }
 
       // we didn't create the MsgAccountWizard - we need to verify that local folders exists.
-      if (!localFoldersExists) {
+      if (!localFoldersExists && requireLocalFoldersAccount()) {
         MailServices.accounts.createLocalMailAccount();
       }
     }
@@ -169,6 +169,18 @@ function verifyAccounts(wizardCallback, needsIdentity, wizardOpen) {
     dump("error verifying accounts " + ex + "\n");
     return false;
   }
+}
+
+/**
+ * Check that an account exists which requires Local Folders.
+ *
+ * @returns {Boolean} - true if at least 1 account exists that requires
+ *                      Local Folders, else false.
+ */
+function requireLocalFoldersAccount() {
+  return MailServices.accounts.accounts.some(account =>
+    ["imap", "pop3", "nntp"].includes(account.incomingServer?.type)
+  );
 }
 
 // we do this from a timer because if this is called from the onload=

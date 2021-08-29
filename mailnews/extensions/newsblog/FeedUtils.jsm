@@ -168,17 +168,6 @@ var FeedUtils = {
     // deletes will throw until restart creates it.
     server.msgStore.discoverSubFolders(server.rootMsgFolder, false);
 
-    // Create "Local Folders" if none exist yet as it's guaranteed that
-    // those exist when any account exists.
-    let localFolders;
-    try {
-      localFolders = MailServices.accounts.localFoldersServer;
-    } catch (ex) {}
-
-    if (!localFolders) {
-      MailServices.accounts.createLocalMailAccount();
-    }
-
     // Save new accounts in case of a crash.
     try {
       MailServices.accounts.saveAccountInfo();
@@ -936,7 +925,7 @@ var FeedUtils = {
     this[aFolder.server.serverURI][aUrl].status[aProperty] = aValue;
 
     let win = Services.wm.getMostRecentWindow("mail:3pane");
-    if (win && "gFolderTreeView" in win) {
+    if (win?.gFolderTreeView?.isInited) {
       if (aFolder.isServer) {
         win.gFolderTreeView._tree.invalidate();
       } else {

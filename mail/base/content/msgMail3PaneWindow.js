@@ -917,7 +917,7 @@ function verifyExistingAccounts() {
 
     // We didn't trigger the account configuration wizard, so we need to verify
     // that local folders exists.
-    if (!localFoldersExists) {
+    if (!localFoldersExists && requireLocalFoldersAccount()) {
       MailServices.accounts.createLocalMailAccount();
     }
 

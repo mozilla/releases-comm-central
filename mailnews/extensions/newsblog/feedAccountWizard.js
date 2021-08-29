@@ -38,12 +38,23 @@ var FeedAccountWizard = {
   onFinish() {
     let account = FeedUtils.createRssAccount(this.accountName);
     if ("gFolderTreeView" in window.opener.top) {
-      // Opened from 3pane File->New or Appmenu New Message, or
-      // Account Central link.
-      window.opener.top.updateMailPaneUI();
-      window.opener.top.gFolderTreeView.selectFolder(
-        account.incomingServer.rootMsgFolder
-      );
+      // Opened from 3pane File->New or Appmenu New, or Account Central.
+      let firstAccount = !window.opener.top.gFolderTreeView.isInited;
+      let rootMsgFolder = account.incomingServer.rootMsgFolder;
+
+      // Set the account folder to select if this is the only (folderpane) one.
+      if (firstAccount) {
+        window.opener.top.arguments[0] = rootMsgFolder.URI;
+      }
+
+      // Post a message to the main window at the end of a successful account
+      // setup.
+      window.opener.top.postMessage("account-created", "*");
+
+      // Select the account folder.
+      if (!firstAccount) {
+        window.opener.top.gFolderTreeView.selectFolder(rootMsgFolder);
+      }
     } else if ("selectServer" in window.opener) {
       // Opened from Account Settings.
       window.opener.selectServer(account.incomingServer);
