@@ -42,6 +42,9 @@
                   oncommand="UpdatePref(this);">
           <menupopup>
             <menuitem label="&FallbackCharset.auto;"        value=""/>
+            <menuitem label="&FallbackCharset.unicode;"     value="UTF-8"/>
+            <menuitem label="&FallbackCharset.other;"       value="windows-1252"/>
+            <menuseparator/>
             <menuitem label="&FallbackCharset.arabic;"      value="windows-1256"/>
             <menuitem label="&FallbackCharset.baltic;"      value="windows-1257"/>
             <menuitem label="&FallbackCharset.ceiso;"       value="ISO-8859-2"/>
@@ -56,7 +59,6 @@
             <menuitem label="&FallbackCharset.thai;"        value="windows-874"/>
             <menuitem label="&FallbackCharset.turkish;"     value="windows-1254"/>
             <menuitem label="&FallbackCharset.vietnamese;"  value="windows-1258"/>
-            <menuitem label="&FallbackCharset.other;"       value="windows-1252"/>
           </menupopup>
         </menulist>
       </hbox>
@@ -80,6 +82,9 @@
                   oncommand="UpdatePref(this);">
           <menupopup>
             <menuitem label="&FallbackCharset.auto;"        value=""/>
+            <menuitem label="&FallbackCharset.unicode;"     value="UTF-8"/>
+            <menuitem label="&FallbackCharset.other;"       value="windows-1252"/>
+            <menuseparator/>
             <menuitem label="&FallbackCharset.arabic;"      value="windows-1256"/>
             <menuitem label="&FallbackCharset.baltic;"      value="windows-1257"/>
             <menuitem label="&FallbackCharset.ceiso;"       value="ISO-8859-2"/>
@@ -94,7 +99,6 @@
             <menuitem label="&FallbackCharset.thai;"        value="windows-874"/>
             <menuitem label="&FallbackCharset.turkish;"     value="windows-1254"/>
             <menuitem label="&FallbackCharset.vietnamese;"  value="windows-1258"/>
-            <menuitem label="&FallbackCharset.other;"       value="windows-1252"/>
           </menupopup>
         </menulist>
       </hbox>

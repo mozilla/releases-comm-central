@@ -34,6 +34,9 @@
 <!-- LOCALIZATION NOTE (FallbackCharset.turkish):
      Translate "Turkish" as an adjective for an encoding, not as the name of the language. -->
 <!ENTITY FallbackCharset.turkish      "Turkish">
+<!-- LOCALIZATION NOTE (FallbackCharset.unicode):
+     Only used for mail and news default text encoding and not for browser locale fallback. -->
+<!ENTITY FallbackCharset.unicode      "Unicode (UTF-8)">
 <!-- LOCALIZATION NOTE (FallbackCharset.vietnamese):
      Translate "Vietnamese" as an adjective for an encoding, not as the name of the language. -->
 <!ENTITY FallbackCharset.vietnamese   "Vietnamese">
