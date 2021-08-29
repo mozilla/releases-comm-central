@@ -47,7 +47,7 @@ nsImapBodyShell::nsImapBodyShell(nsImapProtocol* protocolConnection,
     : m_message(message),
       m_isValid(false),
       m_protocolConnection(protocolConnection),
-      m_folderName(nullptr),
+      m_folderName(folderName),
       m_generatingPart(nullptr),
       m_isBeingGenerated(false),
       m_gotAttachmentPref(false),
@@ -61,7 +61,6 @@ nsImapBodyShell::nsImapBodyShell(nsImapProtocol* protocolConnection,
   m_UID.AppendInt(UID);
   m_UID_validity = m_UID;
   m_UID_validity.AppendInt(UIDValidity);
-  m_folderName = folderName ? NS_xstrdup(folderName) : nullptr;
 
   SetContentModified(GetShowAttachmentsInline()
                          ? IMAP_CONTENT_MODIFIED_VIEW_INLINE
@@ -73,7 +72,6 @@ nsImapBodyShell::nsImapBodyShell(nsImapProtocol* protocolConnection,
 nsImapBodyShell::~nsImapBodyShell() {
   delete m_message;
   m_prefetchQueue.Clear();
-  PR_Free(m_folderName);
 }
 
 void nsImapBodyShell::SetIsValid(bool valid) { m_isValid = valid; }
@@ -1111,7 +1109,8 @@ bool nsImapBodyShellCache::AddShellToCache(nsImapBodyShell* shell) {
 }
 
 nsImapBodyShell* nsImapBodyShellCache::FindShellForUID(
-    nsCString& UID, const char* mailboxName, IMAP_ContentModifiedType modType) {
+    nsACString const& UID, nsACString const& mailboxName,
+    IMAP_ContentModifiedType modType) {
   RefPtr<nsImapBodyShell> foundShell;
   m_shellHash.Get(UID, getter_AddRefs(foundShell));
   if (!foundShell) return nullptr;
@@ -1123,7 +1122,7 @@ nsImapBodyShell* nsImapBodyShellCache::FindShellForUID(
   if (modType != foundShell->GetContentModified()) return nullptr;
 
   // mailbox names must match also.
-  if (PL_strcmp(mailboxName, foundShell->GetFolderName())) return nullptr;
+  if (!mailboxName.Equals(foundShell->GetFolderName())) return nullptr;
 
   // adjust the LRU stuff. This defeats the performance gain of the hash if
   // it actually is found since this is linear.

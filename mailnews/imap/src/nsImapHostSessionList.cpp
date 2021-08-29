@@ -620,9 +620,11 @@ NS_IMETHODIMP nsImapHostSessionList::FindShellInCacheForHost(
 
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo* host = FindHost(serverKey);
-  if (host && host->fShellCache)
+  if (host && host->fShellCache) {
+    nsAutoCString mailboxNameString(mailboxName);
     NS_IF_ADDREF(*shell = host->fShellCache->FindShellForUID(
-                     uidString, mailboxName, modType));
+                     uidString, mailboxNameString, modType));
+  }
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }

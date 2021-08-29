@@ -288,7 +288,7 @@ class nsImapBodyShell : public nsISupports {
   bool DeathSignalReceived();
   nsCString& GetUID() { return m_UID; }
   nsCString& GetUID_validity() { return m_UID_validity; }
-  const char* GetFolderName() { return m_folderName; }
+  nsCString const& GetFolderName() const { return m_folderName; }
   char* GetGeneratingPart() { return m_generatingPart; }
   // Returns true if this is in the process of being generated,
   // so we don't re-enter
@@ -313,7 +313,7 @@ class nsImapBodyShell : public nsISupports {
   nsImapProtocol* m_protocolConnection;  // Connection, for filling in parts
   nsCString m_UID;                       // UID of this message
   nsCString m_UID_validity;  // appended UID and UID-validity of this message
-  char* m_folderName;        // folder that contains this message
+  nsCString m_folderName;    // folder that contains this message
   char* m_generatingPart;  // If a specific part is being generated, this is it.
                            // Otherwise, NULL.
   bool m_isBeingGenerated;   // true if this body shell is in the process of
@@ -351,7 +351,8 @@ class nsImapBodyShellCache {
   // another entry based on scheme in EjectEntry().
   bool AddShellToCache(nsImapBodyShell* shell);
   // Looks up a shell in the cache given the message's UID.
-  nsImapBodyShell* FindShellForUID(nsCString& UID, const char* mailboxName,
+  nsImapBodyShell* FindShellForUID(nsACString const& UID,
+                                   nsACString const& mailboxName,
                                    IMAP_ContentModifiedType modType);
   void Clear();
 
