@@ -31,7 +31,7 @@
 }
 
 #aboutDialog {
-  width: 620px;
+  width: 670px;
   /* Set an explicit line-height to avoid discrepancies in 'auto' spacing
      across screens with different device DPI, which may cause font metrics
      to round differently. */
@@ -51,6 +51,7 @@
   /* padding-top creates room for the wordmark */
   padding-top: 38px;
   margin-top: 20px;
+  margin-inline: 30px;
   -moz-context-properties: fill;
   fill: currentColor;
 }

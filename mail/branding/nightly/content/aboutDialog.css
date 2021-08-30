@@ -17,7 +17,7 @@
 }
 
 #rightBox {
-  margin-inline: 30px;
+  background-size: 333px auto;
 }
 
 #updateDeck > hbox > label:not([class="text-link"]) {
