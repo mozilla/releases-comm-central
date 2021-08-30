@@ -401,6 +401,26 @@ NS_IMETHODIMP nsAbCardProperty::SetPrimaryEmail(const nsAString& aString) {
   return SetPropertyAsAString(kPriEmailProperty, aString);
 }
 
+NS_IMETHODIMP nsAbCardProperty::GetEmailAddresses(
+    nsTArray<nsString>& aEmailAddresses) {
+  aEmailAddresses.Clear();
+
+  nsresult rv;
+  nsString emailAddress;
+
+  rv = GetPropertyAsAString(kPriEmailProperty, emailAddress);
+  if (rv != NS_ERROR_NOT_AVAILABLE && !emailAddress.IsEmpty()) {
+    aEmailAddresses.AppendElement(emailAddress);
+  }
+
+  rv = GetPropertyAsAString(k2ndEmailProperty, emailAddress);
+  if (rv != NS_ERROR_NOT_AVAILABLE && !emailAddress.IsEmpty()) {
+    aEmailAddresses.AppendElement(emailAddress);
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsAbCardProperty::HasEmailAddress(const nsACString& aEmailAddress,
                                                 bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);

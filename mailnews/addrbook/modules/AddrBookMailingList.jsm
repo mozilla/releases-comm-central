@@ -353,6 +353,10 @@ AddrBookMailingList.prototype = {
       get primaryEmail() {
         return "";
       },
+      get emailAddresses() {
+        // NOT the members of this list.
+        return [];
+      },
 
       generateName(generateFormat) {
         return self._name;

@@ -140,6 +140,24 @@ function subtest(card) {
   Assert.equal(card.generatePhoneticName(false), kLNValue);
   Assert.equal(card.generatePhoneticName(true), kLNValue);
 
+  // Test - emailAddresses
+
+  card.deleteProperty("PrimaryEmail");
+  card.deleteProperty("SecondEmail");
+  Assert.deepEqual(card.emailAddresses, []);
+
+  card.primaryEmail = kEmailValue;
+  Assert.deepEqual(card.emailAddresses, [kEmailValue]);
+
+  card.setProperty("SecondEmail", kEmailValue2);
+  Assert.deepEqual(card.emailAddresses, [kEmailValue, kEmailValue2]);
+
+  card.primaryEmail = "";
+  Assert.deepEqual(card.emailAddresses, [kEmailValue2]);
+
+  card.deleteProperty("SecondEmail");
+  Assert.deepEqual(card.emailAddresses, []);
+
   // Test - hasEmailAddress
 
   card.deleteProperty("PrimaryEmail");

@@ -213,6 +213,11 @@ interface nsIAbCard : nsISupports {
   /** @} */
 
   /**
+   * All email addresses associated with this card, in order of preference.
+   */
+  readonly attribute Array<AString> emailAddresses;
+
+  /**
    * Determines whether or not a card has the supplied email address in either
    * of its PrimaryEmail or SecondEmail attributes.
    *

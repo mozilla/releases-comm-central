@@ -122,6 +122,21 @@ AddrBookCard.prototype = {
   get mailListURI() {
     return "";
   },
+  get emailAddresses() {
+    let addresses = [];
+
+    let primary = this.getProperty("PrimaryEmail", "");
+    if (primary) {
+      addresses.push(primary);
+    }
+
+    let secondary = this.getProperty("SecondEmail", "");
+    if (secondary) {
+      addresses.push(secondary);
+    }
+
+    return addresses;
+  },
 
   getProperty(name, defaultValue) {
     if (this._properties.has(name)) {
