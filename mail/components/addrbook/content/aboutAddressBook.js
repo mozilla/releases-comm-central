@@ -883,6 +883,30 @@ var cardsPane = {
     this.cardsList = document.getElementById("cards");
     this.cardContext = document.getElementById("cardContext");
 
+    let nameFormat = Services.prefs.getIntPref(
+      "mail.addr_book.lastnamefirst",
+      0
+    );
+    this.sortContext
+      .querySelector(`[name="format"][value="${nameFormat}"]`)
+      ?.setAttribute("checked", "true");
+
+    let sortColumn = Services.xulStore.getValue(
+      "about:addressbook",
+      "cards",
+      "sortColumn"
+    );
+    let sortDirection = Services.xulStore.getValue(
+      "about:addressbook",
+      "cards",
+      "sortDirection"
+    );
+    if (sortColumn && sortDirection) {
+      this.sortContext
+        .querySelector(`[name="sort"][value="${sortColumn} ${sortDirection}"]`)
+        ?.setAttribute("checked", "true");
+    }
+
     this.searchInput.addEventListener("command", this);
     this.sortButton.addEventListener("click", this);
     this.sortContext.addEventListener("command", this);
@@ -953,11 +977,15 @@ var cardsPane = {
         "about-addressbook-search-all"
       );
     }
-    let sortColumn = "GeneratedName";
-    let sortDirection = "ascending";
-    if (this.cardsList.view) {
-      ({ sortColumn, sortDirection } = this.cardsList.view);
-    }
+    let sortColumn =
+      Services.xulStore.getValue("about:addressbook", "cards", "sortColumn") ||
+      "GeneratedName";
+    let sortDirection =
+      Services.xulStore.getValue(
+        "about:addressbook",
+        "cards",
+        "sortDirection"
+      ) || "ascending";
     this.cardsList.view = new ABView(
       book,
       this.getQuery(),
@@ -1015,7 +1043,19 @@ var cardsPane = {
   sortCards(event) {
     let [column, direction] = event.target.value.split(" ");
     this.cardsList.view.sortBy(column, direction);
-    // TODO: Persist sort column and direction.
+
+    Services.xulStore.setValue(
+      "about:addressbook",
+      "cards",
+      "sortColumn",
+      column
+    );
+    Services.xulStore.setValue(
+      "about:addressbook",
+      "cards",
+      "sortDirection",
+      direction
+    );
   },
 
   /**

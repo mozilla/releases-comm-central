@@ -108,9 +108,11 @@ ABView.prototype = {
     return this._rowMap.findIndex(row => row.id == uid);
   },
   sortBy(sortColumn, sortDirection, resort) {
+    let selectionExists = false;
     if (this.tree) {
-      // Remember what was selected.
       let { selectedIndicies, currentIndex } = this.tree;
+      selectionExists = selectedIndicies.length;
+      // Remember what was selected.
       for (let i = 0; i < this._rowMap.length; i++) {
         this._rowMap[i].wasSelected = selectedIndicies.includes(i);
         this._rowMap[i].wasCurrent = currentIndex == i;
@@ -137,17 +139,23 @@ ABView.prototype = {
     // Restore what was selected.
     if (this.tree) {
       this.tree.invalidate();
-      for (let i = 0; i < this._rowMap.length; i++) {
-        this.tree.toggleSelectionAtIndex(i, this._rowMap[i].wasSelected, true);
-      }
-      // Can't do this until updating the selection is finished.
-      for (let i = 0; i < this._rowMap.length; i++) {
-        if (this._rowMap[i].wasCurrent) {
-          this.tree.currentIndex = i;
-          break;
+      if (selectionExists) {
+        for (let i = 0; i < this._rowMap.length; i++) {
+          this.tree.toggleSelectionAtIndex(
+            i,
+            this._rowMap[i].wasSelected,
+            true
+          );
         }
+        // Can't do this until updating the selection is finished.
+        for (let i = 0; i < this._rowMap.length; i++) {
+          if (this._rowMap[i].wasCurrent) {
+            this.tree.currentIndex = i;
+            break;
+          }
+        }
+        this.selectionChanged();
       }
-      this.selectionChanged();
     }
     this.sortColumn = sortColumn;
     this.sortDirection = sortDirection;

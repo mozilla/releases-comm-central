@@ -353,6 +353,70 @@ add_task(async function test_name_column() {
 });
 
 /**
+ * Tests that sort order and name format survive closing and reopening.
+ */
+add_task(async function test_persistence() {
+  let book = createAddressBook("book");
+  book.addCard(createContact("alpha", "tango", "kilo"));
+  book.addCard(createContact("bravo", "zulu", "quebec"));
+  book.addCard(createContact("charlie", "mike", "whiskey"));
+  book.addCard(createContact("delta", "foxtrot", "sierra"));
+  book.addCard(createContact("echo", "november", "uniform"));
+
+  Services.xulStore.removeDocument("about:addressbook");
+  Services.prefs.clearUserPref("mail.addr_book.lastnamefirst");
+
+  await openAddressBookWindow();
+  checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
+
+  info("sorting by GeneratedName, descending");
+  await showSortMenu("sort", "GeneratedName descending");
+  checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
+
+  await closeAddressBookWindow();
+  info("address book closed, reopening");
+  await openAddressBookWindow();
+  checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
+
+  info("sorting by PrimaryEmail, ascending");
+  await showSortMenu("sort", "PrimaryEmail ascending");
+  checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
+
+  await closeAddressBookWindow();
+  info("address book closed, reopening");
+  await openAddressBookWindow();
+  checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
+
+  info("setting name format to first last");
+  await showSortMenu("format", Ci.nsIAbCard.GENERATE_FIRST_LAST_ORDER);
+  checkNamesListed(
+    "alpha tango",
+    "bravo zulu",
+    "charlie mike",
+    "delta foxtrot",
+    "echo november"
+  );
+
+  await closeAddressBookWindow();
+  info("address book closed, reopening");
+  await openAddressBookWindow();
+  checkNamesListed(
+    "alpha tango",
+    "bravo zulu",
+    "charlie mike",
+    "delta foxtrot",
+    "echo november"
+  );
+
+  await closeAddressBookWindow();
+
+  Services.xulStore.removeDocument("about:addressbook");
+  Services.prefs.clearUserPref("mail.addr_book.lastnamefirst");
+
+  await promiseDirectoryRemoved(book.URI);
+});
+
+/**
  * Tests the context menu compose items.
  */
 add_task(async function test_context_menu_compose() {
