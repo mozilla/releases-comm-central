@@ -2,8 +2,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!ENTITY  pref.masterpass.title                  "Master Passwords">
-
 <!ENTITY  changepassword.caption                 "Change Master Password">
 <!ENTITY  changepassword.text                    "Your master password protects sensitive information such as web passwords and certificates.">
 <!ENTITY  changepassword.button                  "Change Password…">
@@ -11,5 +9,5 @@
 
 <!ENTITY  resetpassword.caption                  "Reset Master Password">
 <!ENTITY  resetpassword.text                     "If you reset your master password, all of your stored web and e-mail passwords, form data, personal certificates, and private keys will be lost.">
-<!ENTITY  resetpassword.button                   "Reset Password">
-<!ENTITY  resetpassword.accesskey                "R">
+<!ENTITY  resetpassword2.button                  "Reset Password">
+<!ENTITY  resetpassword2.accesskey               "P">

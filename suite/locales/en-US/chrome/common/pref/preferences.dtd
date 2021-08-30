@@ -38,7 +38,6 @@
 <!ENTITY images.label "Images">
 <!ENTITY popups.label "Popup Windows">
 <!ENTITY passwords.label "Passwords">
-<!ENTITY masterpass.label "Master Passwords">
 <!ENTITY ssltls.label "SSL/TLS">
 <!ENTITY certs.label "Certificates">
 

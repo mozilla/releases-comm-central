@@ -5,7 +5,7 @@
 pippki.jar:
    content/pippki/pref-certs.js             (content/prefs/pref-certs.js)
    content/pippki/pref-certs.xul            (content/prefs/pref-certs.xul)
-   content/pippki/pref-masterpass.js        (content/prefs/pref-masterpass.js)
-   content/pippki/pref-masterpass.xul       (content/prefs/pref-masterpass.xul)
+   content/pippki/pref-passwords.js         (content/prefs/pref-passwords.js)
+   content/pippki/pref-passwords.xul        (content/prefs/pref-passwords.xul)
    content/pippki/pref-ssl.js               (content/prefs/pref-ssl.js)
    content/pippki/pref-ssl.xul              (content/prefs/pref-ssl.xul)

@@ -53,7 +53,6 @@ comm.jar:
    content/communicator/pref/pref-navigator.xul                     (content/pref-navigator.xul)
    content/communicator/pref/pref-offlineapps.js                    (content/pref-offlineapps.js)
    content/communicator/pref/pref-offlineapps.xul                   (content/pref-offlineapps.xul)
-   content/communicator/pref/pref-passwords.xul                     (content/pref-passwords.xul)
    content/communicator/pref/pref-popups.js                         (content/pref-popups.js)
    content/communicator/pref/pref-popups.xul                        (content/pref-popups.xul)
    content/communicator/pref/pref-privatedata.js                    (content/pref-privatedata.js)
