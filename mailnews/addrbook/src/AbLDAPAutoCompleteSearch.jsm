@@ -116,12 +116,12 @@ AbLDAPAutoCompleteSearch.prototype = {
     });
   },
 
-  _addToResult(card, emailProperty) {
+  _addToResult(card, address) {
     let mbox = this._parser.makeMailboxObject(
       card.displayName,
       card.isMailList
         ? card.getProperty("Notes", "") || card.displayName
-        : card.getProperty(emailProperty, "")
+        : address
     );
     if (!mbox.email) {
       return;
@@ -342,8 +342,9 @@ AbLDAPAutoCompleteSearch.prototype = {
       return;
     }
 
-    this._addToResult(aCard, "PrimaryEmail");
-    this._addToResult(aCard, "SecondEmail");
+    for (let emailAddress of aCard.emailAddresses) {
+      this._addToResult(aCard, emailAddress);
+    }
 
     /* XXX autocomplete doesn't expect you to rearrange while searching
     if (this._result.matchCount) {

@@ -299,10 +299,9 @@ function ResultsPaneSelectionChanged() {
   let toolbarButton = document.getElementById("button-newmessage");
 
   let selectedCards = GetSelectedAbCards();
-  if (selectedCards.length == 1) {
-    let first = selectedCards[0].primaryEmail;
-    let second = selectedCards[0].getProperty("SecondEmail", "");
-    if (first && second) {
+  if (selectedCards.length == 1 && !selectedCards[0].isMailList) {
+    let addresses = selectedCards[0].emailAddresses;
+    if (addresses.length > 1) {
       // Set the menus and toolbar button to display a list of addresses.
       contextSingle.hidden = true;
       contextMultiple.hidden = false;
@@ -320,7 +319,7 @@ function ResultsPaneSelectionChanged() {
         toolbarButton.menupopup.lastChild.remove();
       }
 
-      for (let address of [first, second]) {
+      for (let address of addresses) {
         let callAbNewMessage = function(event) {
           AbNewMessage(
             MailServices.headerParser.makeMimeAddress(

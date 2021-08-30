@@ -1050,7 +1050,7 @@ var cardsPane = {
       if (card.isMailList) {
         email = card.getProperty("Notes", "") || card.displayName;
       } else {
-        email = card.primaryEmail || card.getProperty("SecondEmail", "");
+        email = card.emailAddresses[0];
       }
 
       if (email) {
@@ -1187,13 +1187,7 @@ var cardsPane = {
         writeMenuItem.hidden = false;
         writeMenu.hidden = true;
       } else {
-        let addresses = [];
-        for (let key of ["PrimaryEmail", "SecondEmail"]) {
-          let address = card.getProperty(key, "");
-          if (address) {
-            addresses.push(address);
-          }
-        }
+        let addresses = card.emailAddresses;
 
         if (addresses.length == 0) {
           writeMenuItem.hidden = writeMenu.hidden = true;
@@ -1309,7 +1303,7 @@ var cardsPane = {
         let directory = MailServices.ab.getDirectory(card.mailListURI);
         email = directory.description || card.displayName;
       } else {
-        email = card.primaryEmail || card.getProperty("SecondEmail", "");
+        email = card.emailAddresses[0];
       }
       return MailServices.headerParser.makeMimeAddress(card.displayName, email);
     }

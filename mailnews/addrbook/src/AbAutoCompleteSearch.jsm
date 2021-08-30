@@ -224,28 +224,17 @@ AbAutoCompleteSearch.prototype = {
           if (card.isMailList) {
             this._addToResult(commentColumn, directory, card, "", true, result);
           } else {
-            let email = card.primaryEmail;
-            if (email) {
+            let first = true;
+            for (let emailAddress of card.emailAddresses) {
               this._addToResult(
                 commentColumn,
                 directory,
                 card,
-                email,
-                true,
+                emailAddress,
+                first,
                 result
               );
-            }
-
-            email = card.getProperty("SecondEmail", "");
-            if (email) {
-              this._addToResult(
-                commentColumn,
-                directory,
-                card,
-                email,
-                false,
-                result
-              );
+              first = false;
             }
           }
         },

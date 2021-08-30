@@ -293,12 +293,8 @@ function MigrateABRemoteContentSettings() {
           continue;
         }
 
-        if (card.primaryEmail) {
-          migrateAddress(card.primaryEmail);
-        }
-
-        if (card.getProperty("SecondEmail", "")) {
-          migrateAddress(card.getProperty("SecondEmail", ""));
+        for (let emailAddress of card.emailAddresses) {
+          migrateAddress(emailAddress);
         }
       }
     } catch (e) {

@@ -824,7 +824,7 @@ function makeMimeAddressFromCard(card) {
     let directory = GetDirectoryFromURI(card.mailListURI);
     email = directory.description || card.displayName;
   } else {
-    email = card.primaryEmail || card.getProperty("SecondEmail", "");
+    email = card.emailAddresses[0];
   }
   return MailServices.headerParser.makeMimeAddress(card.displayName, email);
 }
