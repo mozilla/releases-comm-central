@@ -143,10 +143,21 @@ async function setUpItemSummaries() {
   let items = [...gModel.itemsToImport];
   let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
 
-  // Sort the items, chronologically first, then alphabetically.
+  // Sort the items, chronologically first, tasks without a date to the end,
+  // then alphabetically.
   let collator = new Intl.Collator(undefined, { numeric: true });
   items.sort(([, a], [, b]) => {
-    return a.startDate.nativeTime - b.startDate.nativeTime || collator.compare(a.title, b.title);
+    let aStartDate =
+      a.startDate?.nativeTime ||
+      a.entryDate?.nativeTime ||
+      a.dueDate?.nativeTime ||
+      Number.MAX_SAFE_INTEGER;
+    let bStartDate =
+      b.startDate?.nativeTime ||
+      b.entryDate?.nativeTime ||
+      b.dueDate?.nativeTime ||
+      Number.MAX_SAFE_INTEGER;
+    return aStartDate - bStartDate || collator.compare(a.title, b.title);
   });
 
   let [eventButtonText, taskButtonText] = await document.l10n.formatValues([
