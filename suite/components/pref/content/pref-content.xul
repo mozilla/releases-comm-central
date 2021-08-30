@@ -46,9 +46,6 @@
                   name="layers.acceleration.disabled"
                   type="bool" inverted="true"
                   onchange="updateHardwareAcceleration(this.value);"/>
-      <preference id="accessibility.blockautorefresh"
-                  name="accessibility.blockautorefresh"
-                  type="bool"/>
     </preferences>
 
     <description>&pref.content.description;</description>
@@ -128,10 +125,6 @@
                 label="&allowHWAccel.label;"
                 accesskey="&allowHWAccel.accesskey;"
                 preference="layers.acceleration.disabled"/>
-      <checkbox id="blockAutoRefresh"
-                label="&blockAutoRefresh.label;"
-                accesskey="&blockAutoRefresh.accesskey;"
-                preference="accessibility.blockautorefresh"/>
     </vbox>
 
   </prefpane>

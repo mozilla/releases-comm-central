@@ -39,6 +39,10 @@
       <preference id="browser.safebrowsing.phishing.enabled"
                   name="browser.safebrowsing.phishing.enabled"
                   type="bool"/>
+
+      <preference id="accessibility.blockautorefresh"
+                  name="accessibility.blockautorefresh"
+                  type="bool"/>
     </preferences>
 
     <!-- User Tracking -->
@@ -93,5 +97,12 @@
                 accesskey="&blockWebForgeries.accesskey;"
                 preference="browser.safebrowsing.phishing.enabled"/>
     </groupbox>
+
+    <vbox class="box-padded" align="start">
+      <checkbox id="blockAutoRefresh"
+                label="&blockAutoRefresh.label;"
+                accesskey="&blockAutoRefresh.accesskey;"
+                preference="accessibility.blockautorefresh"/>
+    </vbox>
   </prefpane>
 </overlay>

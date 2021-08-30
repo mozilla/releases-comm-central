@@ -37,3 +37,6 @@
 
 <!ENTITY blockWebForgeries.label          "Block reported web forgeries (Phishing)">
 <!ENTITY blockWebForgeries.accesskey      "P">
+
+<!ENTITY blockAutoRefresh.label           "Warn me when websites try to redirect or reload the page">
+<!ENTITY blockAutoRefresh.accesskey       "a">

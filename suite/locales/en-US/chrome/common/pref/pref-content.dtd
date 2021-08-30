@@ -37,5 +37,3 @@
 
 <!ENTITY allowHWAccel.label                     "Use hardware acceleration when available">
 <!ENTITY allowHWAccel.accesskey                 "e">
-<!ENTITY blockAutoRefresh.label                 "Warn me when websites try to redirect or reload the page">
-<!ENTITY blockAutoRefresh.accesskey             "W">
