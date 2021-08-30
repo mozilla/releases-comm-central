@@ -248,9 +248,6 @@ function Startup()
   gDefaultHomePage = CanonifyURLList(GetHomePagePref(0).defaultValue);
   SetHomePageValue(homePageGroup);
   UpdateHomePageButtons();
-
-  // platform integration
-  InitPlatformIntegration();
 }
 
 function SwitchPage(aIndex)
@@ -262,55 +259,4 @@ function WriteConcurrentTabs()
 {
   var val = document.getElementById("maxConcurrentTabsGroup").value;
   return val > 0 ? document.getElementById("maxConcurrentTabs").value : val;
-}
-
-// platform integration
-
-function ApplySetAsDefaultBrowser()
-{
-  ShellService.setDefaultClient(false, false, Ci.nsIShellService.BROWSER);
-  ShellService.shouldBeDefaultClientFor |= Ci.nsIShellService.BROWSER;
-}
-
-function IsDefaultBrowser()
-{
-  return ShellService.isDefaultClient(false, Ci.nsIShellService.BROWSER);
-}
-
-function InitPlatformIntegration()
-{
-  if (ShellService) try {
-    var desc = document.getElementById("defaultBrowserDesc");
-    if (IsDefaultBrowser())
-      desc.textContent = desc.getAttribute("desc1");
-    else {
-      desc.textContent = desc.getAttribute("desc0");
-      document.getElementById("defaultBrowserButton").disabled = false;
-    }
-
-    document.getElementById("defaultBrowserGroup").hidden = false;
-  } catch (e) {
-  }
-}
-
-function SetAsDefaultBrowser()
-{
-  var desc = document.getElementById("defaultBrowserDesc");
-
-  if (document.documentElement.instantApply)
-  {
-    if (IsDefaultBrowser())
-      desc.textContent = desc.getAttribute("desc1");
-    else {
-      desc.textContent = desc.getAttribute("desc3");
-      ApplySetAsDefaultBrowser();
-    }
-  }
-  else
-  {
-    // register OK handler for the capturing phase
-    desc.textContent = desc.getAttribute("desc2");
-    window.addEventListener("dialogaccept", this.ApplySetAsDefaultBrowser, true);
-    document.getElementById("defaultBrowserButton").disabled = true;
-  }
 }

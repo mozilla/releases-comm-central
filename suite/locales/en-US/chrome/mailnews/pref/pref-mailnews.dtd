@@ -15,20 +15,6 @@
 <!ENTITY mailBiffOnNewWindow.label        "Only check for new mail after opening Mail &amp; Newsgroups">
 <!ENTITY mailBiffOnNewWindow.accesskey    "O">
 
-<!ENTITY defaultMailSettings.description  "Make &brandShortName; the default application for:">
-<!ENTITY setDefaultMail.label             "Mail">
-<!ENTITY setDefaultMail.accesskey         "M">
-<!ENTITY setDefaultNews.label             "News">
-<!ENTITY setDefaultNews.accesskey         "N">
-<!ENTITY setDefaultFeed.label             "Feeds">
-<!ENTITY setDefaultFeed.accesskey         "e">
-
-<!ENTITY useInternalSettings.description  "Use &brandShortName; Mail &amp; News when opening browser links for:">
-<!ENTITY useInternalMail.label            "Mail (mailto:)">
-<!ENTITY useInternalMail.accesskey        "a">
-<!ENTITY useInternalNews.label            "News (news:, snews:, nntp:)">
-<!ENTITY useInternalNews.accesskey        "s">
-
 <!ENTITY messengerStartPage.caption       "Mail Start Page">
 <!ENTITY enableStartPage.label            "When Mail launches, show the Start Page in the message area">
 <!ENTITY enableStartPage.accesskey        "W">

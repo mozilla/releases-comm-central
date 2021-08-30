@@ -8,8 +8,6 @@
 <?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 
 <!DOCTYPE overlay [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-%brandDTD;
 <!ENTITY % prefMailnewsDTD SYSTEM "chrome://messenger/locale/pref-mailnews.dtd">
 %prefMailnewsDTD;
 ]>
@@ -40,24 +38,6 @@
                   name="mailnews.start_page.url" type="wstring"/>
       <preference id="mail.biff.on_new_window"
                   name="mail.biff.on_new_window" inverted="true" type="bool"/>
-      <preference id="network.protocol-handler.external.mailto"
-                  name="network.protocol-handler.external.mailto"
-                  inverted="true" type="bool"/>
-      <preference id="network.protocol-handler.external.news"
-                  name="network.protocol-handler.external.news"
-                  inverted="true" type="bool"/>
-      <preference id="network.protocol-handler.external.snews"
-                  name="network.protocol-handler.external.snews"
-                  inverted="true" type="bool"/>
-      <preference id="network.protocol-handler.external.nntp"
-                  name="network.protocol-handler.external.nntp"
-                  inverted="true" type="bool"/>
-      <preference id="system.windows.lock_ui.defaultMailClient" readonly="true"
-                  name="system.windows.lock_ui.defaultMailClient" type="bool"/>
-      <preference id="system.windows.lock_ui.defaultNewsClient" readonly="true"
-                  name="system.windows.lock_ui.defaultNewsClient" type="bool"/>
-      <preference id="system.windows.lock_ui.defaultFeedClient" readonly="true"
-                  name="system.windows.lock_ui.defaultFeedClient" type="bool"/>
     </preferences>
 
     <groupbox>
@@ -101,44 +81,6 @@
                   label="&mailBiffOnNewWindow.label;"
                   accesskey="&mailBiffOnNewWindow.accesskey;"
                   preference="mail.biff.on_new_window"/>
-      </hbox>
-
-      <vbox id="defaultMailPrefs" hidden="true">
-        <separator class="thin"/>
-
-        <description>&defaultMailSettings.description;</description>
-        <hbox class="indent" align="center">
-          <button id="setDefaultMail"
-                  accesskey="&setDefaultMail.accesskey;"
-                  label="&setDefaultMail.label;"
-                  oncommand="onSetDefault(this, 'MAIL');"
-                  preference="system.windows.lock_ui.defaultMailClient"/>
-          <button id="setDefaultNews"
-                  accesskey="&setDefaultNews.accesskey;"
-                  label="&setDefaultNews.label;"
-                  oncommand="onSetDefault(this, 'NEWS');"
-                  preference="system.windows.lock_ui.defaultNewsClient"/>
-          <button id="setDefaultRss"
-                  accesskey="&setDefaultFeed.accesskey;"
-                  label="&setDefaultFeed.label;"
-                  oncommand="onSetDefault(this, 'RSS');"
-                  preference="system.windows.lock_ui.defaultFeedClient"/>
-        </hbox>
-      </vbox>
-
-      <separator class="thin"/>
-
-      <description>&useInternalSettings.description;</description>
-      <hbox class="indent" align="center">
-        <checkbox id="useInternalMail"
-                  label="&useInternalMail.label;"
-                  accesskey="&useInternalMail.accesskey;"
-                  preference="network.protocol-handler.external.mailto"/>
-        <checkbox id="useInternalNews"
-                  label="&useInternalNews.label;"
-                  accesskey="&useInternalNews.accesskey;"
-                  oncommand="onNewsChange(this.checked);"
-                  preference="network.protocol-handler.external.news"/>
       </hbox>
     </groupbox>
 

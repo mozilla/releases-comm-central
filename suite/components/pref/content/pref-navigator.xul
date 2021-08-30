@@ -5,7 +5,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE overlay [
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd"> %brandDTD;
   <!ENTITY % navigatorDTD SYSTEM "chrome://communicator/locale/pref/pref-navigator.dtd"> %navigatorDTD;
 ]>
 
@@ -30,9 +29,6 @@
       <preference id="browser.startup.homepage.count"
                   name="browser.startup.homepage.count"
                   type="int"/>
-      <preference id="pref.browser.disable_button.default_browser"
-                  name="pref.browser.disable_button.default_browser"
-                  type="bool"/>
       <preference id="browser.sessionstore.max_concurrent_tabs"
                   name="browser.sessionstore.max_concurrent_tabs"
                   type="int"/>
@@ -50,12 +46,15 @@
                   type="bool"/>
     </preferences>
 
-    <hbox id="pref-nav-platform-extensions">
+    <hbox>
       <!-- navigator startup / new window / new tab behaviour -->
       <groupbox flex="1">
         <caption align="center">
-          <label value="&navRadio.label;" accesskey="&navRadio.accesskey;" control="selectDisplayOn"/>
-          <menulist id="selectDisplayOn" oncommand="SwitchPage(this.selectedIndex);">
+          <label value="&navRadio.label;"
+                 accesskey="&navRadio.accesskey;"
+                 control="selectDisplayOn"/>
+          <menulist id="selectDisplayOn"
+                    oncommand="SwitchPage(this.selectedIndex);">
             <menupopup>
               <menuitem label="&navStartPageMenu.label;"/>
               <menuitem label="&newWinPageMenu.label;"/>
@@ -78,7 +77,8 @@
                    label="&restoreSessionRadio.label;"
                    accesskey="&restoreSessionRadio.accesskey;"/>
           </radiogroup>
-          <radiogroup id="newWinPage" preference="browser.windows.loadOnNewWindow">
+          <radiogroup id="newWinPage"
+                      preference="browser.windows.loadOnNewWindow">
             <radio value="0"
                    label="&blankPageRadio.label;"
                    accesskey="&blankPageRadio.accesskey;"/>
@@ -101,28 +101,6 @@
                    accesskey="&lastPageRadio.accesskey;"/>
           </radiogroup>
         </deck>
-      </groupbox>
-
-      <!-- default browser settings are shown only if supported by the platform -->
-      <groupbox id="defaultBrowserGroup" flex="1000" align="center" hidden="true">
-        <caption label="&defaultBrowserGroup.label;"/>
-        <!-- We have four use cases, identified by their index:
-             0: not already the default => button enabled
-             1: already the default => button disabled
-             2: user pushed button => button disabled with different text
-             3: user pushed button (instant apply) => different text
-        -->
-        <description id="defaultBrowserDesc"
-                     desc0="&makeDefaultText;"
-                     desc1="&alreadyDefaultText;"
-                     desc2="&defaultPendingText;"
-                     desc3="&wasMadeDefaultText;"/>
-        <button id="defaultBrowserButton"
-                label="&defaultBrowserButton.label;"
-                accesskey="&defaultBrowserButton.accesskey;"
-                oncommand="SetAsDefaultBrowser()"
-                disabled="true"
-                preference="pref.browser.disable_button.default_browser"/>
       </groupbox>
     </hbox>
 

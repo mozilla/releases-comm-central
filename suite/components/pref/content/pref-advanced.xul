@@ -18,6 +18,38 @@
       <preference id="shell.checkDefaultClient"
                   name="shell.checkDefaultClient"
                   type="bool"/>
+      <preference id="pref.browser.disable_button.default_browser"
+                  name="pref.browser.disable_button.default_browser"
+                  type="bool"
+                  readonly="true"/>
+      <preference id="system.windows.lock_ui.defaultMailClient"
+                  name="system.windows.lock_ui.defaultMailClient"
+                  type="bool"
+                  readonly="true"/>
+      <preference id="system.windows.lock_ui.defaultNewsClient"
+                  name="system.windows.lock_ui.defaultNewsClient"
+                  type="bool"
+                  readonly="true"/>
+      <preference id="system.windows.lock_ui.defaultFeedClient"
+                  name="system.windows.lock_ui.defaultFeedClient"
+                  type="bool"
+                  readonly="true"/>
+      <preference id="network.protocol-handler.external.mailto"
+                  name="network.protocol-handler.external.mailto"
+                  type="bool"
+                  inverted="true"/>
+      <preference id="network.protocol-handler.external.news"
+                  name="network.protocol-handler.external.news"
+                  type="bool"
+                  inverted="true"/>
+      <preference id="network.protocol-handler.external.snews"
+                  name="network.protocol-handler.external.snews"
+                  type="bool"
+                  inverted="true"/>
+      <preference id="network.protocol-handler.external.nntp"
+                  name="network.protocol-handler.external.nntp"
+                  type="bool"
+                  inverted="true"/>
       <preference id="print.use_native_print_dialog"
                   name="print.use_native_print_dialog"
                   type="bool"/>
@@ -39,12 +71,54 @@
                   type="int"/>
     </preferences>
 
-    <groupbox id="checkDefault" hidden="true">
+    <groupbox id="defaultClientGroup" hidden="true">
       <caption label="&prefCheckDefault.caption;"/>
       <checkbox id="checkDefaultClient"
                 label="&prefCheckDefaultClient.label;"
                 accesskey="&prefCheckDefaultClient.accesskey;"
                 preference="shell.checkDefaultClient"/>
+      <vbox>
+        <separator class="thin"/>
+
+        <description>&defaultClientFor.description;</description>
+        <hbox class="indent" align="center">
+          <button id="setDefaultBrowser"
+                  label="&setDefaultBrowser.label;"
+                  accesskey="&setDefaultBrowser.accesskey;"
+                  oncommand="onSetDefault(this, 'BROWSER');"
+                  preference="pref.browser.disable_button.default_browser"/>
+          <button id="setDefaultMail"
+                  label="&setDefaultMail.label;"
+                  accesskey="&setDefaultMail.accesskey;"
+                  oncommand="onSetDefault(this, 'MAIL');"
+                  preference="system.windows.lock_ui.defaultMailClient"/>
+          <button id="setDefaultNews"
+                  label="&setDefaultNews.label;"
+                  accesskey="&setDefaultNews.accesskey;"
+                  oncommand="onSetDefault(this, 'NEWS');"
+                  preference="system.windows.lock_ui.defaultNewsClient"/>
+          <button id="setDefaultRss"
+                  label="&setDefaultFeed.label;"
+                  accesskey="&setDefaultFeed.accesskey;"
+                  oncommand="onSetDefault(this, 'RSS');"
+                  preference="system.windows.lock_ui.defaultFeedClient"/>
+        </hbox>
+      </vbox>
+
+      <separator class="thin"/>
+
+      <description>&useInternalSettings.description;</description>
+      <hbox class="indent" align="center">
+        <checkbox id="useInternalMail"
+                  label="&useInternalMail.label;"
+                  accesskey="&useInternalMail.accesskey;"
+                  preference="network.protocol-handler.external.mailto"/>
+        <checkbox id="useInternalNews"
+                  label="&useInternalNews.label;"
+                  accesskey="&useInternalNews.accesskey;"
+                  oncommand="onNewsChange(this.checked);"
+                  preference="network.protocol-handler.external.news"/>
+      </hbox>
     </groupbox>
 
     <groupbox id="printing">
