@@ -616,14 +616,12 @@ NS_IMETHODIMP nsImapHostSessionList::AddShellToCacheForHost(
 NS_IMETHODIMP nsImapHostSessionList::FindShellInCacheForHost(
     const char* serverKey, const char* mailboxName, const char* UID,
     IMAP_ContentModifiedType modType, nsImapBodyShell** shell) {
-  nsCString uidString(UID);
-
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo* host = FindHost(serverKey);
   if (host && host->fShellCache) {
-    nsAutoCString mailboxNameString(mailboxName);
     NS_IF_ADDREF(*shell = host->fShellCache->FindShellForUID(
-                     uidString, mailboxNameString, modType));
+                     nsDependentCString(UID), nsDependentCString(mailboxName),
+                     modType));
   }
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
