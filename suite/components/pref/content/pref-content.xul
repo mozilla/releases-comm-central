@@ -15,12 +15,6 @@
             script="chrome://communicator/content/pref/pref-content.js">
 
     <preferences id="content_preferences">
-      <preference id="browser.chrome.site_icons"
-                  name="browser.chrome.site_icons"
-                  type="bool"/>
-      <preference id="browser.chrome.favicons"
-                  name="browser.chrome.favicons"
-                  type="bool"/>
       <preference id="general.autoScroll"
                   name="general.autoScroll"
                   type="bool"/>
@@ -39,6 +33,9 @@
       <preference id="browser.zoom.siteSpecific"
                   name="browser.zoom.siteSpecific"
                   type="bool"/>
+      <preference id="browser.zoom.showZoomStatusPanel"
+                  name="browser.zoom.showZoomStatusPanel"
+                  type="bool"/>
       <preference id="browser.enable_automatic_image_resizing"
                   name="browser.enable_automatic_image_resizing"
                   type="bool"/>
@@ -52,25 +49,9 @@
       <preference id="accessibility.blockautorefresh"
                   name="accessibility.blockautorefresh"
                   type="bool"/>
-      <preference id="browser.zoom.showZoomStatusPanel"
-                  name="browser.zoom.showZoomStatusPanel"
-                  type="bool"/>
     </preferences>
 
     <description>&pref.content.description;</description>
-
-    <groupbox id="siteIconPreferences" align="start">
-      <caption label="&siteIcons.label;"/>
-
-      <checkbox id="useSiteIcons"
-                label="&useSiteIcons.label;"
-                accesskey="&useSiteIcons.accesskey;"
-                preference="browser.chrome.site_icons"/>
-      <checkbox id="useFavIcons"
-                label="&useFavIcons2.label;"
-                accesskey="&useFavIcons2.accesskey;"
-                preference="browser.chrome.favicons"/>
-    </groupbox>
 
     <groupbox id="scrollingGroup" align="start">
       <caption label="&scrolling.label;"/>
@@ -122,6 +103,7 @@
                 preference="browser.zoom.siteSpecific"/>
       <checkbox id="showZoomStatusPanel"
                 label="&showZoomStatusPanel.label;"
+                accesskey="&showZoomStatusPanel.accesskey;"
                 preference="browser.zoom.showZoomStatusPanel"/>
       <checkbox id="enableAutomaticImageResizing"
                 label="&enableAutomaticImageResizing.label;"
