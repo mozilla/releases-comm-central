@@ -120,6 +120,9 @@ function open_about_support() {
     "Regional prefs section didn't load."
   );
 
+  // Wait an additional half-second for some more localisation caused by
+  // runtime changes to the page.
+  mc.sleep(500);
   return tab;
 }
 
