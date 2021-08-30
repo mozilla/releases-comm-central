@@ -780,6 +780,24 @@
         </body>
       </method>
 
+      <method name="_getTabForContentWindow">
+        <parameter name="aWindow"/>
+        <body>
+          <![CDATA[
+            return null;
+          ]]>
+        </body>
+      </method>
+
+      <method name="getBrowserIndexForDocument">
+        <parameter name="aDocument"/>
+        <body>
+          <![CDATA[
+            return -1;
+          ]]>
+        </body>
+      </method>
+
       <!-- nsIObserver implementation -->
 
       <method name="observe">
