@@ -23,8 +23,8 @@ const {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 const {
-  assert_notification_displayed,
   get_notification_button,
+  wait_for_notification_to_show,
   wait_for_notification_to_stop,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
@@ -195,7 +195,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
   select_click_row(0);
 
   // Assert the "corrupted by MS-Exchange" notification is visible.
-  assert_notification_displayed(mc, notificationBox, notificationValue, true);
+  wait_for_notification_to_show(mc, notificationBox, notificationValue);
 
   // Click on the "repair" button.
   let repairButton = get_notification_button(
