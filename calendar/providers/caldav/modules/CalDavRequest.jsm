@@ -587,6 +587,7 @@ class CalDavItemRequest extends CalDavRequestBase {
    *                                                    If-Match is set to the etag.
    */
   constructor(aSession, aCalendar, aUri, aItem, aEtag = null) {
+    aItem = fixGoogleDescription(aItem, aUri);
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
@@ -949,6 +950,7 @@ class CalDavOutboxRequest extends CalDavRequestBase {
    * @param {calIItemBase} aItem                      The item to send
    */
   constructor(aSession, aCalendar, aUri, aOrganizer, aRecipients, aResponseMethod, aItem) {
+    aItem = fixGoogleDescription(aItem, aUri);
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
@@ -1167,4 +1169,16 @@ class FreeBusyResponse extends CalDavSimpleResponse {
   get firstRecipient() {
     return Object.values(this.data)[0];
   }
+}
+
+function fixGoogleDescription(aItem, aUri) {
+  if (aUri.spec.startsWith("https://apidata.googleusercontent.com/caldav/")) {
+    // Move the HTML to the DESCRIPTION field, because that's where
+    // Google puts HTML, which is a ICS spec violation. :-(
+    aItem = aItem.clone();
+    aItem.descriptionText = aItem.descriptionHTML;
+    // Mark items mangled by us for Google, so one can later revert it.
+    aItem.setProperty("X-MOZ-GOOGLE-HTML-DESCRIPTION", true);
+  }
+  return aItem;
 }
