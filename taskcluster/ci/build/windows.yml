@@ -32,7 +32,7 @@ win32/opt:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
@@ -46,7 +46,7 @@ win32/opt:
             mozconfig_platform: win32
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.9.6"
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -92,7 +92,7 @@ win32-shippable/opt:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
@@ -107,7 +107,7 @@ win32-shippable/opt:
             mozconfig_platform: win32
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.9.6"
     run-on-projects: ['release']
     optimization:
         skip-suite-only: null
@@ -148,7 +148,7 @@ win32/debug:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
@@ -163,7 +163,7 @@ win32/debug:
             mozconfig_platform: win32
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.9.6"
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -205,7 +205,7 @@ win64/opt:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
@@ -219,7 +219,7 @@ win64/opt:
             mozconfig_platform: win64
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.9.6"
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -266,7 +266,7 @@ win64-shippable/opt:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
@@ -281,7 +281,7 @@ win64-shippable/opt:
             mozconfig_platform: win64
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.9.6"
     run-on-projects: ['release']
     optimization:
         skip-suite-only: null
@@ -323,7 +323,7 @@ win64/debug:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
@@ -338,7 +338,7 @@ win64/debug:
             mozconfig_platform: win64
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.9.6"
     use-sccache: true
     optimization:
         skip-suite-only: null
@@ -378,7 +378,7 @@ win64-plain/debug:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: plain
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -420,7 +420,7 @@ win64-plain/opt:
         max-run-time: 7200
         env:
             PERFHERDER_EXTRA_OPTIONS: plain
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -462,7 +462,7 @@ win64-asan/opt:
         docker-image: {in-tree: debian11-amd64-build}
         max-run-time: 7200
         env:
-            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.8.manifest"
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/vs2017-15.9.manifest"
             PERFHERDER_EXTRA_OPTIONS: "opt asan"
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
@@ -477,7 +477,7 @@ win64-asan/opt:
             mozconfig_platform: win64
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.9.6"
         mozconfig-variant: nightly-asan
     run-on-projects: ['comm-central']
     use-sccache: true
