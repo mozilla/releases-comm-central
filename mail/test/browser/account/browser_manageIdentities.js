@@ -223,16 +223,15 @@ async function test_identity_idx(idx) {
       "chrome://openpgp/content/ui/keyDetailsDlg.xhtml"
     );
     info(`Will open key details dialog for key 0x${keyId}`);
-    EventUtils.synthesizeMouseAtCenter(
-      identityWin.document.querySelector(
-        `#openPgpOption${keyId} button.arrowhead`
-      ),
-      {},
-      identityWin
+    let arrowHead = identityWin.document.querySelector(
+      `#openPgpOption${keyId} button.arrowhead`
     );
+    arrowHead.scrollIntoView(); // Test window is small on CI...
+    EventUtils.synthesizeMouseAtCenter(arrowHead, {}, identityWin);
     let propsButton = identityWin.document.querySelector(
       `#openPgpOption${keyId} button.openpgp-props-btn`
     );
+    Assert.ok(BrowserTestUtils.is_visible(propsButton));
     propsButton.scrollIntoView(); // Test window is small on CI...
     EventUtils.synthesizeMouseAtCenter(propsButton, {}, identityWin);
     let keyDetailsDialog = await keyDetailsDialogLoaded;
