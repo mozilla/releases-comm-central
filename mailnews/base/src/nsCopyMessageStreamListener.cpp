@@ -17,34 +17,6 @@
 NS_IMPL_ISUPPORTS(nsCopyMessageStreamListener, nsIStreamListener,
                   nsIRequestObserver, nsICopyMessageStreamListener)
 
-static nsresult GetMessage(nsIURI* aURL, nsIMsgDBHdr** message) {
-  NS_ENSURE_ARG_POINTER(message);
-
-  nsCOMPtr<nsIMsgMessageUrl> uriURL;
-  nsresult rv;
-
-  // Need to get message we are about to copy
-  uriURL = do_QueryInterface(aURL, &rv);
-  if (NS_FAILED(rv)) return rv;
-
-  // get the uri.  first try and use the original message spec
-  // if that fails, use the spec of nsIURI that we're called with
-  nsCString uri;
-  rv = uriURL->GetOriginalSpec(getter_Copies(uri));
-  if (NS_FAILED(rv) || uri.IsEmpty()) {
-    rv = uriURL->GetUri(uri);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  nsCOMPtr<nsIMsgMessageService> msgMessageService;
-  rv = GetMessageServiceFromURI(uri, getter_AddRefs(msgMessageService));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!msgMessageService) return NS_ERROR_FAILURE;
-
-  rv = msgMessageService->MessageURIToMsgHdr(uri, message);
-  return rv;
-}
-
 nsCopyMessageStreamListener::nsCopyMessageStreamListener() {}
 
 nsCopyMessageStreamListener::~nsCopyMessageStreamListener() {
@@ -79,7 +51,6 @@ NS_IMETHODIMP nsCopyMessageStreamListener::OnDataAvailable(
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest* request) {
-  nsCOMPtr<nsIMsgDBHdr> message;
   nsresult rv = NS_OK;
   nsCOMPtr<nsIURI> uri;
 
@@ -89,8 +60,7 @@ NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest* request) {
   NS_WARNING_ASSERTION(NS_SUCCEEDED(rv),
                        "error QI nsIRequest to nsIChannel failed");
   if (NS_SUCCEEDED(rv)) rv = channel->GetURI(getter_AddRefs(uri));
-  if (NS_SUCCEEDED(rv)) rv = GetMessage(uri, getter_AddRefs(message));
-  if (NS_SUCCEEDED(rv)) rv = mDestination->BeginCopy(message);
+  if (NS_SUCCEEDED(rv)) rv = mDestination->BeginCopy();
 
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;

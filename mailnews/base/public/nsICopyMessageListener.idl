@@ -15,7 +15,7 @@ interface nsIInputStream;
 
 interface nsICopyMessageListener :  nsISupports
 {
-  void beginCopy(in nsIMsgDBHdr message);
+  void beginCopy();
   void startMessage();
   void copyData(in nsIInputStream aIStream, in long aLength);
   void endMessage(in nsMsgKey key);

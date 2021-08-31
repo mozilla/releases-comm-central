@@ -2919,7 +2919,7 @@ NS_IMETHODIMP nsImapMailFolder::AbortHeaderParseStream(
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr* message) {
+NS_IMETHODIMP nsImapMailFolder::BeginCopy() {
   NS_ENSURE_TRUE(m_copyState, NS_ERROR_NULL_POINTER);
   nsresult rv;
   if (m_copyState->m_tmpFile)  // leftover file spec nuke it

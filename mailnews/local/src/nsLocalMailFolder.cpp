@@ -1673,7 +1673,7 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
     }
 
     mCopyState->m_wholeMsgInStream = true;
-    if (NS_SUCCEEDED(rv)) rv = BeginCopy(nullptr);
+    if (NS_SUCCEEDED(rv)) rv = BeginCopy();
 
     if (NS_SUCCEEDED(rv)) rv = CopyData(inputStream, (int32_t)fileSize);
 
@@ -1835,7 +1835,7 @@ nsresult nsMsgLocalMailFolder::InitCopyMsgHdrAndFileStream() {
 }
 
 // nsICopyMessageListener
-NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy(nsIMsgDBHdr* message) {
+NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy() {
   if (!mCopyState) return NS_ERROR_NULL_POINTER;
 
   nsresult rv;
