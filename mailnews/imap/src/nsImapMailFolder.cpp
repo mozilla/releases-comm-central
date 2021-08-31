@@ -10,6 +10,7 @@
 #include "nsImapMailFolder.h"
 #include "nsIImapService.h"
 #include "nsIFile.h"
+#include "nsAnonymousTemporaryFile.h"
 #include "nsIUrlListener.h"
 #include "nsCOMPtr.h"
 #include "nsMsgDBCID.h"
@@ -2933,40 +2934,13 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr* message) {
     m_copyState->m_tmpFile = nullptr;
   }
 
-  rv = GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR, "nscpmsg.txt",
-                                       getter_AddRefs(m_copyState->m_tmpFile));
-  if (NS_FAILED(rv))
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info,
-            ("couldn't find nscpmsg.txt:%" PRIx32, static_cast<uint32_t>(rv)));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // create a unique file, since multiple copies may be open on multiple folders
-  rv = m_copyState->m_tmpFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
+  rv = NS_OpenAnonymousTemporaryNsIFile(getter_AddRefs(m_copyState->m_tmpFile));
   if (NS_FAILED(rv)) {
     MOZ_LOG(IMAP, mozilla::LogLevel::Info,
-            ("couldn't create temp nscpmsg.txt:%" PRIx32,
-             static_cast<uint32_t>(rv)));
-    // Last ditch attempt to create a temp file, because virus checker might
-    // be locking the previous temp file, and CreateUnique fails if the file
-    // is locked. Use the message key to make a unique name.
-    if (message) {
-      nsCString tmpFileName("nscpmsg-");
-      nsMsgKey msgKey;
-      message->GetMessageKey(&msgKey);
-      tmpFileName.AppendInt(msgKey);
-      tmpFileName.AppendLiteral(".txt");
-      m_copyState->m_tmpFile->SetNativeLeafName(tmpFileName);
-      rv = m_copyState->m_tmpFile->CreateUnique(nsIFile::NORMAL_FILE_TYPE,
-                                                00600);
-      if (NS_FAILED(rv)) {
-        MOZ_LOG(IMAP, mozilla::LogLevel::Info,
-                ("couldn't create temp nscpmsg.txt: %" PRIx32,
-                 static_cast<uint32_t>(rv)));
-        OnCopyCompleted(m_copyState->m_srcSupport, rv);
-        return rv;
-      }
-    }
+            ("Couldn't create temp file: %" PRIx32, static_cast<uint32_t>(rv)));
+    OnCopyCompleted(m_copyState->m_srcSupport, rv);
   }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIOutputStream> fileOutputStream;
   rv = MsgNewBufferedFileOutputStream(
