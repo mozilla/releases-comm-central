@@ -919,7 +919,7 @@
       <rdf:Seq>
         <rdf:li><rdf:Description ID="types_of_private_data" nc:name="Types of Private Data" nc:link="using_priv_help.xhtml#types_of_private_data"/> </rdf:li>
         <rdf:li><rdf:Description ID="privatedata_prefs" nc:name="Private Data Preferences" nc:link="using_priv_help.xhtml#private_data_prefs"/> </rdf:li>
-        <rdf:li><rdf:Description ID="clear_private_data_now" nc:name="Clear Private Data Now" nc:link="using_priv_help.xhtml#clear_private_data_now"/> </rdf:li>
+        <rdf:li><rdf:Description ID="clear_private_data_now" nc:name="Clear Private Data Dialog" nc:link="using_priv_help.xhtml#clear_private_data_now"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>
   </rdf:Description>
