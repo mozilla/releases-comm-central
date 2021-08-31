@@ -498,12 +498,10 @@ nsMsgCopyService::CopyFileMessage(nsIFile* file, nsIMsgFolder* dstFolder,
   nsCopyRequest* copyRequest;
   nsCopySource* copySource = nullptr;
   nsCOMPtr<nsISupports> fileSupport;
-  nsCOMPtr<nsITransactionManager> txnMgr;
 
   NS_ENSURE_ARG_POINTER(file);
   NS_ENSURE_ARG_POINTER(dstFolder);
 
-  if (window) window->GetTransactionManager(getter_AddRefs(txnMgr));
   copyRequest = new nsCopyRequest();
   if (!copyRequest) return rv;
   fileSupport = do_QueryInterface(file, &rv);
