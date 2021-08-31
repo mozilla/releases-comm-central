@@ -388,7 +388,7 @@
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="new-message-arrival"></html:legend>
-#ifdef XP_MACOSX
+#if defined(XP_MACOSX) || defined(XP_WIN)
       <hbox align="center">
         <description flex="1" data-l10n-id="change-dock-icon"/>
         <hbox>

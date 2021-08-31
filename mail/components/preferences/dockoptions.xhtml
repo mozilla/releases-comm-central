@@ -20,9 +20,16 @@
       <html:link rel="localization" href="messenger/preferences/dock-options.ftl"/>
     </linkset>
     <hbox orient="vertical">
+#ifdef XP_MACOSX
       <checkbox id="newMailNotificationBounce"
                 data-l10n-id="bounce-system-dock-icon"
                 preference="mail.biff.animate_dock_icon"/>
+#endif
+#ifdef XP_WIN
+      <checkbox id="newMailBadge"
+                data-l10n-id="dock-options-show-badge"
+                preference="mail.biff.show_badge"/>
+#endif
       <separator class="thin"/>
       <html:div>
       <html:fieldset>
@@ -31,7 +38,7 @@
         <separator class="thin"/>
         <label data-l10n-id="dock-icon-show-label"/>
         <radiogroup id="dockCount"
-                    preference="mail.biff.use_new_count_in_mac_dock"
+                    preference="mail.biff.use_new_count_in_badge"
                     class="indent" orient="vertical">
           <radio id="dockCountAll" value="false"
                  data-l10n-id="count-unread-messages-radio"/>
@@ -41,8 +48,10 @@
         </vbox>
       </html:fieldset>
       </html:div>
+#ifdef XP_MACOSX
       <separator/>
       <description class="bold" data-l10n-id="notification-settings-info"/>
+#endif
     </hbox>
 
     <script src="chrome://global/content/preferencesBindings.js"/>

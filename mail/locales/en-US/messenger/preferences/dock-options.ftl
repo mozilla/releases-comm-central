@@ -6,6 +6,10 @@ dock-options-window-dialog =
     .title = App icon options
     .style = width: 35em;
 
+dock-options-show-badge =
+    .label = Show badge icon
+    .accesskey = b
+
 bounce-system-dock-icon =
     .label = Animate the app icon when a new message arrives
     .accesskey = i

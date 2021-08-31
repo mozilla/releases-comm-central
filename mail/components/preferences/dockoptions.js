@@ -6,5 +6,6 @@
 
 Preferences.addAll([
   { id: "mail.biff.animate_dock_icon", type: "bool" },
-  { id: "mail.biff.use_new_count_in_mac_dock", type: "bool" },
+  { id: "mail.biff.show_badge", type: "bool" },
+  { id: "mail.biff.use_new_count_in_badge", type: "bool" },
 ]);

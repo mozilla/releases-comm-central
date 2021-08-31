@@ -76,6 +76,7 @@ class MailNotificationManager {
     }
     if (AppConstants.platform == "win") {
       Services.obs.addObserver(this, "window-restored-from-tray");
+      Services.prefs.addObserver("mail.biff.show_badge", this);
     }
   }
 
@@ -108,6 +109,11 @@ class MailNotificationManager {
         // newmailalert.xhtml is closed, try to show the next queued folder.
         this._customizedAlertShown = false;
         this._showCustomizedAlert();
+        return;
+      case "nsPref:changed":
+        if (data == "mail.biff.show_badge") {
+          this._updateUnreadCount();
+        }
     }
   }
 
@@ -419,10 +425,10 @@ class MailNotificationManager {
     );
     let count = this._unreadMailCount + this._unreadChatCount;
     let tooltip = "";
-    if (
-      AppConstants.platform == "win" &&
-      Services.prefs.getBoolPref("mail.biff.show_badge", true)
-    ) {
+    if (AppConstants.platform == "win") {
+      if (!Services.prefs.getBoolPref("mail.biff.show_badge", true)) {
+        count = 0;
+      }
       if (count > 0) {
         tooltip = await l10n.formatValue("unread-messages-os-tooltip", {
           count,

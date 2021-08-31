@@ -127,7 +127,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 28;
+    const UI_VERSION = 29;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -592,6 +592,20 @@ var MailMigrator = {
             newFontSize = "3";
         }
         Services.prefs.setCharPref("msgcompose.font_size", newFontSize);
+      }
+
+      // Migrate mail.biff.use_new_count_in_mac_dock to
+      // mail.biff.use_new_count_in_badge.
+      if (currentUIVersion < 29) {
+        if (
+          Services.prefs.getBoolPref(
+            "mail.biff.use_new_count_in_mac_dock",
+            false
+          )
+        ) {
+          Services.prefs.setBoolPref("mail.biff.use_new_count_in_badge", true);
+          Services.prefs.clearUserPref("mail.biff.use_new_count_in_mac_dock");
+        }
       }
 
       // Update the migration version.

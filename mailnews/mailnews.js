@@ -876,10 +876,13 @@ pref("mail.biff.on_new_window", true);
 #endif
 
 #ifdef XP_MACOSX
-// If true, the number used in the Mac OS X dock notification will be the
-// the number of "new" messages, as per the classic Thunderbird definition.
-// Defaults to false, which notifies about the number of unread messages.
-pref("mail.biff.use_new_count_in_mac_dock", false);
+// If true, the number shown in the badge will be the the number of "new"
+// messages, as per the classic Thunderbird definition. Defaults to false, which
+// notifies about the number of unread messages.
+pref("mail.biff.use_new_count_in_badge", false);
+#endif
+#ifdef XP_WIN
+pref("mail.biff.use_new_count_in_badge", true);
 #endif
 
 // For feed account serverType=rss sound on biff; if true, mail.biff.play_sound.* settings are used.

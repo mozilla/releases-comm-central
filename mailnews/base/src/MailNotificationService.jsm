@@ -21,19 +21,7 @@ var { MailServices } = ChromeUtils.import(
 var NMNS = Ci.mozINewMailNotificationService;
 
 var countInboxesPref = "mail.notification.count.inbox_only";
-// Old name for pref
-var countNewMessagesPref = "mail.biff.use_new_count_in_mac_dock";
-// When we go cross-platform we should migrate to
-// const countNewMessagesPref = "mail.notification.count.new";
-
-// Helper function to retrieve a boolean preference with a default
-function getBoolPref(pref, defaultValue) {
-  try {
-    return Services.prefs.getBoolPref(pref);
-  } catch (e) {
-    return defaultValue;
-  }
-}
+var countNewMessagesPref = "mail.biff.use_new_count_in_badge";
 
 // constructor
 function NewMailNotificationService() {
@@ -65,7 +53,7 @@ NewMailNotificationService.prototype = {
   _log: null,
 
   get countNew() {
-    return getBoolPref(countNewMessagesPref, false);
+    return Services.prefs.getBoolPref(countNewMessagesPref, false);
   },
 
   observe(aSubject, aTopic, aData) {
