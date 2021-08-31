@@ -116,7 +116,7 @@ interface nsINntpIncomingServer : nsISupports {
 
     /* used for the subscribe dialog.
        name is encoded in |charset|  (attribute declared above) */
-    [noscript] void addNewsgroupToList(in string name);
+    void addNewsgroupToList(in string name);
 
     attribute boolean supportsExtensions;
     void addExtension(in string extension);

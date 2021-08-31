@@ -101,6 +101,33 @@ class NntpService {
     return client.runningUri;
   }
 
+  getListOfGroupsOnServer(server, msgWindow, getOnlyNew) {
+    let client = new NntpClient(server);
+    client.connect();
+
+    client.onOpen = () => {
+      client.getListOfGroups();
+    };
+
+    let leftoverData;
+    client.onData = data => {
+      if (leftoverData) {
+        data = leftoverData + data;
+        leftoverData = null;
+      }
+      while (data) {
+        let index = data.indexOf("\r\n");
+        if (index == -1) {
+          // Not enough data, save it for the next round.
+          leftoverData = data;
+          break;
+        }
+        server.addNewsgroupToList(data.slice(0, index).split(" ")[0]);
+        data = data.slice(index + 2);
+      }
+    };
+  }
+
   /**
    * Find the hostname of a NNTP server from a group name.
    * @param {string} groupName - The group name.

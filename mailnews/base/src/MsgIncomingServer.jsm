@@ -170,6 +170,10 @@ class MsgIncomingServer {
     return this._rootFolder;
   }
 
+  get rootMsgFolder() {
+    return this.rootFolder;
+  }
+
   getCharValue(prefName) {
     return this._prefs.getCharPref(prefName, "");
   }

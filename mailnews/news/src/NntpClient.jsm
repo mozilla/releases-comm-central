@@ -37,22 +37,28 @@ class NntpClient {
 
     this._server = server;
 
+    // TODO: NntpClient should not manipulate folder/group directly, use the
+    // onData callback instead.
     // Two forms of the uri:
     // - news://news.mozilla.org/mozilla.accessibility
     // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
-    let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
-    this._host = matches[1];
-    this._port = matches[2] || this._server.port;
-    let url = new URL(uri);
-    if (url.searchParams.get("group")) {
-      this._groupName = url.searchParams.get("group");
-      this._articleNumber = url.searchParams.get("key");
+    if (uri) {
+      let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
+      this._host = matches[1];
+      this._port = matches[2] || this._server.port;
+      let url = new URL(uri);
+      if (url.searchParams.get("group")) {
+        this._groupName = url.searchParams.get("group");
+        this._articleNumber = url.searchParams.get("key");
+      } else {
+        this._groupName = matches[3];
+      }
+      this._newsFolder = this._server.findGroup(this._groupName);
+      this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
     } else {
-      this._groupName = matches[3];
+      uri = server.serverURI;
     }
 
-    this._newsFolder = this._server.findGroup(this._groupName);
-    this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
     this.runningUri = Services.io
       .newURI(uri)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -71,11 +77,11 @@ class NntpClient {
     this._urlListener?.OnStartRunningUrl(this.runningUri);
     let useSecureTransport = this._server.isSecure;
     this._logger.debug(
-      `Connecting to ${useSecureTransport ? "snews" : "news"}://${this._host}:${
-        this._port
-      }`
+      `Connecting to ${useSecureTransport ? "snews" : "news"}://${
+        this._server.hostName
+      }:${this._server.port}`
     );
-    this._socket = new TCPSocket(this._host, this._port, {
+    this._socket = new TCPSocket(this._server.hostName, this._server.port, {
       binaryType: "arraybuffer",
       useSecureTransport,
     });
@@ -160,6 +166,15 @@ class NntpClient {
   sendEnd() {
     this.send("\r\n.\r\n");
     this._nextAction = this._actionDone;
+  }
+
+  /**
+   * Send a LIST command to get all the groups in the current server.
+   */
+  getListOfGroups() {
+    this._sendCommand("LIST");
+    this._nextAction = this._actionReadData;
+    this._urlListener = this._server.QueryInterface(Ci.nsIUrlListener);
   }
 
   /**
@@ -271,14 +286,14 @@ class NntpClient {
    */
   _actionArticle() {
     this._sendCommand(`ARTICLE ${this._articleNumber}`);
-    this._nextAction = this._actionReadArticle;
+    this._nextAction = this._actionReadData;
   }
 
   /**
-   * Handle ARTICLE response.
+   * Handle multi-line data blocks response, e.g. ARTICLE/LIST response.
    * @param {NntpResponse} res - ARTICLE response received from the server.
    */
-  _actionReadArticle({ data }) {
+  _actionReadData({ data }) {
     let ended = false;
     if (data == ".\r\n" || data.endsWith("\r\n.\r\n")) {
       ended = true;
@@ -307,7 +322,7 @@ class NntpClient {
    */
   _actionDone() {
     this.onDone();
-    this._newsGroup.cleanUp();
+    this._newsGroup?.cleanUp();
     this._newsFolder?.OnStopRunningUrl(this.runningUri, 0);
     this._urlListener?.OnStopRunningUrl(this.runningUri, 0);
     this._socket.close();
