@@ -166,6 +166,10 @@ nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
   aWindow->SetVisibility(false);
   sHiddenWindows.AppendElement(aWindow);
 
+  nsresult rv;
+  rv = CreateIconWindow();
+  NS_ENSURE_SUCCESS(rv, rv);
+
   if (!mTrayIconShown) {
     auto idi = IDI_APPLICATION;
     if (sUnreadCount > 0) {
