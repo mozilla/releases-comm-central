@@ -6,20 +6,18 @@ var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 
 var otrAddFinger = {
-  async onload() {
+  onload() {
     let args = window.arguments[0].wrappedJSObject;
 
     this.fingerWarning = document.getElementById("fingerWarning");
     this.fingerError = document.getElementById("fingerError");
     this.keyCount = document.getElementById("keyCount");
 
-    let [description, warningTooltip] = await document.l10n.formatValues([
-      { id: "otr-add-finger-description", args: { name: args.screenname } },
-      { id: "otr-add-finger-tooltip-error" },
-    ]);
-
-    document.getElementById("otrDescription").textContent = description;
-    this.fingerWarning.setAttribute("tooltiptext", warningTooltip);
+    document.l10n.setAttributes(
+      document.getElementById("otrDescription"),
+      "otr-add-finger-description",
+      { name: args.screenname }
+    );
 
     document.addEventListener("dialogaccept", event => {
       let hex = document.getElementById("fingerprint").value;
