@@ -215,8 +215,6 @@
 @RESPATH@/chrome/browser.manifest
 @RESPATH@/chrome/comm@JAREXT@
 @RESPATH@/chrome/comm.manifest
-@RESPATH@/chrome/recording.manifest
-@RESPATH@/chrome/recording/*
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
 
