@@ -228,11 +228,15 @@ static int MimeMultipartAlternative_flush_children(MimeObject* obj,
   }
 
   if (do_flush) {
-    int32_t i;
-    for (i = 0; i < malt->pending_parts; i++) {
+    for (int32_t i = 0; i < malt->pending_parts; i++) {
+      MimeHeaders* hdrs = malt->buffered_hdrs[i];
+      char* ct =
+          (hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, true, false) : 0);
+      bool display_part =
+          (i == 0) || (ct && !PL_strncasecmp(ct, "text/calendar", 13));
       MimeMultipartAlternative_display_cached_part(obj, malt->buffered_hdrs[i],
                                                    malt->part_buffers[i],
-                                                   do_display && (i == 0));
+                                                   do_display && display_part);
       MimeHeaders_free(malt->buffered_hdrs[i]);
       MimePartBufferDestroy(malt->part_buffers[i]);
     }
@@ -416,21 +420,18 @@ static priority_t MimeMultipartAlternative_prioritize_part(
       return PRIORITY_TEXT_PLAIN;
     }
 
-    if (!PL_strncasecmp(text_type, "calendar", 8) && prefer_plaintext) {
-      /*
-       * text/calendar receives an equally high priority so an invitation
-       * shows even in plaintext mode.
-       */
-      return PRIORITY_HIGHEST;
-    }
-
     /* Need to white-list all text/... types that are or could be implemented.
      */
     if (!PL_strncasecmp(text_type, "html", 4) ||
         !PL_strncasecmp(text_type, "enriched", 8) ||
         !PL_strncasecmp(text_type, "richtext", 8) ||
-        !PL_strncasecmp(text_type, "calendar", 8) ||
         !PL_strncasecmp(text_type, "rtf", 3)) {
+      return PRIORITY_HIGH;
+    }
+
+    if (!PL_strncasecmp(text_type, "calendar", 8)) {
+      // Prioritise text/calendar below text/html, etc. since we always show
+      // it anyway.
       return PRIORITY_NORMAL;
     }
 

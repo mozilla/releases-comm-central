@@ -122,11 +122,28 @@ var calImipBar = {
       // the message is not yet loaded with the invite. Keep track of this for
       // displayModifications.
       calImipBar.overlayLoaded = false;
-      document
-        .getElementById("messagepane")
-        .addEventListener("DOMContentLoaded", () => (calImipBar.overlayLoaded = true), {
+      document.getElementById("messagepane").addEventListener(
+        "DOMContentLoaded",
+        () => {
+          calImipBar.overlayLoaded = true;
+
+          let doc = document.getElementById("messagepane").contentDocument;
+          let details = doc.getElementById("imipHTMLDetails");
+          let msgbody = doc.querySelector("div.moz-text-html");
+          if (!msgbody) {
+            // No html part. Open up the imip details then.
+            details.setAttribute("open", "open");
+          } else {
+            // Move the generated meeting details first (but keep it collapsed).
+            // Probably the HTML representation is better, and can contain
+            // important notes.
+            msgbody.prepend(details);
+          }
+        },
+        {
           once: true,
-        });
+        }
+      );
       // NOTE: processItipItem may call setupOptions asynchronously because the
       // getItem method it triggers is async for *some* calendars. In theory,
       // this could complete after a different item has been loaded, so we
