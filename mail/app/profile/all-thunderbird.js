@@ -186,6 +186,10 @@ pref("extensions.webextOptionalPermissionPrompts", true);
 //     pinning checks.
 pref("security.cert_pinning.enforcement_level", 1);
 
+// Whether to use client certificates stored in OS certificate storage.
+// This does not work for S/MIME. See bug 1726442.
+pref("security.osclientcerts.autoload", false);
+
 // Symmetric (can be overridden by individual extensions) update preferences.
 // e.g.
 //  extensions.{GUID}.update.enabled
