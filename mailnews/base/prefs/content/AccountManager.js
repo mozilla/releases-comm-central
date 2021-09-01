@@ -1652,6 +1652,7 @@ function getValueArrayFor(account) {
 function setAccountLabel(aAccountKey, aLabel) {
   let row = document.getElementById(aAccountKey);
   if (row) {
+    row.setAttribute("aria-label", aLabel);
     row.querySelector(".name").textContent = aLabel;
   }
   rebuildAccountTree(false);
@@ -1848,6 +1849,7 @@ var gAccountTree = {
         .getElementById("accountTreeItem")
         .content.firstElementChild.cloneNode(true);
       mainTree.appendChild(treeitem);
+      treeitem.setAttribute("aria-label", accountName);
       treeitem.querySelector(".name").textContent = accountName;
       treeitem.setAttribute("PageTag", amChrome);
       // Add icons based on account type.

@@ -23,7 +23,7 @@ function onInit() {
  * @param {Event} event - Blur event from the pretty name input.
  */
 function serverPrettyNameOnBlur(event) {
-  parent.setAccountLabel(gAccount.key, null, event.target.value);
+  parent.setAccountLabel(gAccount.key, event.target.value);
   setAccountTitle();
 }
 
