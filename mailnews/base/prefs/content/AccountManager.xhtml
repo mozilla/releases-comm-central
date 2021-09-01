@@ -4,7 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/accountManager.css" type="text/css"?>
 
 <!DOCTYPE html [
   <!ENTITY % accountManagerDTD SYSTEM "chrome://messenger/locale/AccountManager.dtd">
@@ -37,93 +37,90 @@
   </script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
-
-  <stack id="preferences-stack" flex="1">
-  <hbox flex="1">
-    <html:div id="accountTreeBox">
-      <html:ol is="orderable-tree-listbox" id="accounttree"
-               flex="1"
-               style="&accountTree.width;"
-               onselect="onAccountTreeSelect(null, null);">
-      </html:ol>
-      <template id="accountTreeItem" xmlns="http://www.w3.org/1999/xhtml">
-        <li role="option">
-          <div draggable="true">
-            <div class="twisty">
-              <img class="twisty-icon" alt=""
-                   src="chrome://global/skin/icons/arrow-down-12.svg" />
-            </div>
-            <div class="icon"></div>
-            <span class="name"></span>
+  <html:aside id="accountTreeBox">
+    <html:ol is="orderable-tree-listbox" id="accounttree"
+             flex="1"
+             onselect="onAccountTreeSelect(null, null);">
+    </html:ol>
+    <template id="accountTreeItem" xmlns="http://www.w3.org/1999/xhtml">
+      <li role="option">
+        <div draggable="true">
+          <div class="twisty">
+            <img class="twisty-icon" alt=""
+                 src="chrome://global/skin/icons/arrow-down-12.svg" />
           </div>
-          <ul></ul>
-        </li>
-      </template>
+          <div class="icon"></div>
+          <span class="name"></span>
+        </div>
+        <ul></ul>
+      </li>
+    </template>
 
-      <button id="accountActionsButton" type="menu"
-              label="&accountActionsButton.label;"
-              accesskey="&accountActionsButton.accesskey;">
-        <menupopup id="accountActionsDropdown"
-                   onpopupshowing="initAccountActionsButtons(this);">
-          <menuitem id="accountActionsAddMailAccount"
-                    label="&addMailAccountButton.label;"
-                    accesskey="&addMailAccountButton.accesskey;"
-                    prefstring="mail.disable_new_account_addition"
-                    oncommand="openAccountSetupTab();"/>
-          <menuitem id="accountActionsAddIMAccount"
-                    label="&addIMAccountButton.label;"
-                    accesskey="&addIMAccountButton.accesskey;"
-                    prefstring="mail.disable_new_account_addition"
-                    oncommand="AddIMAccount(event); event.stopPropagation();"/>
-          <menuitem id="accountActionsAddFeedAccount"
-                    label="&addFeedAccountButton.label;"
-                    accesskey="&addFeedAccountButton.accesskey;"
-                    prefstring="mail.disable_new_account_addition"
-                    oncommand="AddFeedAccount(event); event.stopPropagation();"/>
-          <menuitem id="accountActionsAddOtherAccount"
-                    data-l10n-id="account-action-add-newsgroup-account"
-                    prefstring="mail.disable_new_account_addition"
-                    oncommand="openNewsgroupAccountWizard(); event.stopPropagation();"/>
-          <menuseparator id="accountActionsDropdownSep1"/>
-          <menuitem id="accountActionsDropdownSetDefault"
-                    label="&setDefaultButton.label;"
-                    accesskey="&setDefaultButton.accesskey;"
-                    prefstring="mail.disable_button.set_default_account"
-                    oncommand="onSetDefault(event); event.stopPropagation();"/>
-          <menuitem id="accountActionsDropdownRemove"
-                    label="&removeButton.label;"
-                    accesskey="&removeButton.accesskey;"
-                    prefstring="mail.disable_button.delete_account"
-                    oncommand="onRemoveAccount(event); event.stopPropagation();"/>
-        </menupopup>
-      </button>
+    <button id="accountActionsButton" type="menu"
+            label="&accountActionsButton.label;"
+            accesskey="&accountActionsButton.accesskey;">
+      <menupopup id="accountActionsDropdown"
+                 onpopupshowing="initAccountActionsButtons(this);">
+        <menuitem id="accountActionsAddMailAccount"
+                  label="&addMailAccountButton.label;"
+                  accesskey="&addMailAccountButton.accesskey;"
+                  prefstring="mail.disable_new_account_addition"
+                  oncommand="openAccountSetupTab();"/>
+        <menuitem id="accountActionsAddIMAccount"
+                  label="&addIMAccountButton.label;"
+                  accesskey="&addIMAccountButton.accesskey;"
+                  prefstring="mail.disable_new_account_addition"
+                  oncommand="AddIMAccount(event); event.stopPropagation();"/>
+        <menuitem id="accountActionsAddFeedAccount"
+                  label="&addFeedAccountButton.label;"
+                  accesskey="&addFeedAccountButton.accesskey;"
+                  prefstring="mail.disable_new_account_addition"
+                  oncommand="AddFeedAccount(event); event.stopPropagation();"/>
+        <menuitem id="accountActionsAddOtherAccount"
+                  data-l10n-id="account-action-add-newsgroup-account"
+                  prefstring="mail.disable_new_account_addition"
+                  oncommand="openNewsgroupAccountWizard(); event.stopPropagation();"/>
+        <menuseparator id="accountActionsDropdownSep1"/>
+        <menuitem id="accountActionsDropdownSetDefault"
+                  label="&setDefaultButton.label;"
+                  accesskey="&setDefaultButton.accesskey;"
+                  prefstring="mail.disable_button.set_default_account"
+                  oncommand="onSetDefault(event); event.stopPropagation();"/>
+        <menuitem id="accountActionsDropdownRemove"
+                  label="&removeButton.label;"
+                  accesskey="&removeButton.accesskey;"
+                  prefstring="mail.disable_button.delete_account"
+                  oncommand="onRemoveAccount(event); event.stopPropagation();"/>
+      </menupopup>
+    </button>
 
-      <vbox class="sidebar-footer-list">
-        <label is="text-link" id="prefsButton" class="sidebar-footer-link"
-               onclick="openOptionsDialog();">
-          <html:img class="sidebar-footer-icon"
-                    src="chrome://global/skin/icons/settings.svg" alt="" />
-          <label class="sidebar-footer-label"
-                 data-l10n-id="open-preferences-sidebar-button"
-                 flex="1"/>
-        </label>
+    <vbox class="sidebar-footer-list">
+      <label is="text-link" id="prefsButton" class="sidebar-footer-link"
+             onclick="openOptionsDialog();">
+        <html:img class="sidebar-footer-icon"
+                  src="chrome://global/skin/icons/settings.svg" alt="" />
+        <label class="sidebar-footer-label"
+               data-l10n-id="open-preferences-sidebar-button"
+               flex="1"/>
+      </label>
 
-        <label is="text-link" id="addonsButton" class="sidebar-footer-link"
-               onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
-          <html:img class="sidebar-footer-icon"
-                    src="chrome://mozapps/skin/extensions/extension.svg"
-                    alt="" />
-          <label class="sidebar-footer-label"
-                 data-l10n-id="open-addons-sidebar-button"
-                 flex="1"/>
-        </label>
-      </vbox>
-    </html:div>
-    <iframe id="contentFrame" name="contentFrame" flex="1"/>
-  </hbox>
+      <label is="text-link" id="addonsButton" class="sidebar-footer-link"
+             onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
+        <html:img class="sidebar-footer-icon"
+                  src="chrome://mozapps/skin/extensions/extension.svg"
+                  alt="" />
+        <label class="sidebar-footer-label"
+               data-l10n-id="open-addons-sidebar-button"
+               flex="1"/>
+      </label>
+    </vbox>
+  </html:aside>
+  <html:aside>
+    <iframe id="contentFrame" name="contentFrame" />
+  </html:aside>
+
   <stack id="dialogStack" hidden="true"/>
   <vbox id="dialogTemplate"
         class="dialogOverlay"
@@ -145,6 +142,5 @@
                disablehistory="true"/>
     </vbox>
   </vbox>
-  </stack>
 </html:body>
 </html>

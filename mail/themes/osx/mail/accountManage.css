@@ -15,13 +15,3 @@ description {
 menulist > menupopup .menu-right {
   margin-inline: 0;
 }
-
-#accountActionsButton> .button-box > .button-menu-dropmarker {
-  appearance: none;
-  display: -moz-box;
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  width: 12px;
-  height: 12px;
-}

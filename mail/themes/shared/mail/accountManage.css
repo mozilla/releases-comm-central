@@ -36,171 +36,6 @@ fieldset:last-of-type {
   margin-bottom: 0;
 }
 
-#accountTreeBox {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  box-sizing: border-box;
-  padding-top: 28px;
-  padding-inline: 28px 4px;
-  background-image: linear-gradient(to left, transparent, transparent 3px,
-                    var(--in-content-categories-background) 3px);
-}
-
-#accountTreeBox:-moz-locale-dir(rtl) {
-  background-image: linear-gradient(to right, transparent, transparent 3px,
-                    var(--in-content-categories-background) 3px);
-}
-
-/* Account list */
-
-#accounttree {
-  line-height: 30px;
-  flex-grow: 1;
-  overflow-y: auto;
-}
-
-#accounttree, #accounttree ul {
-  background-color: transparent;
-  border-style: none;
-  padding: 0;
-  list-style: none;
-}
-
-#accounttree li {
-  transition: opacity 250ms;
-}
-
-#accounttree li > div {
-  display: flex;
-  align-items: center;
-  -moz-context-properties: fill;
-  border-radius: var(--in-content-button-border-radius);
-  fill: currentColor;
-}
-
-#accounttree li.selected > div {
-  background-color: var(--in-content-button-background);
-}
-
-#accounttree li > div:hover {
-  background-color: var(--in-content-item-hover);
-  color: var(--in-content-item-hover-text);
-}
-
-#accounttree:focus li.selected > div {
-  background-color: var(--in-content-item-selected);
-  color: var(--in-content-item-selected-text);
-}
-
-#accounttree li .twisty {
-  width: 26px;
-  height: 26px;
-}
-
-#accounttree li:not(.children) .twisty-icon {
-  display: none;
-}
-
-#accounttree li .twisty-icon {
-  margin: 7px;
-}
-
-#accounttree li.children.collapsed .twisty-icon {
-  transform: rotate(-90deg);
-}
-
-#accounttree li.children.collapsed:dir(rtl) .twisty-icon {
-  transform: rotate(90deg);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  li .twisty-icon {
-    transition: transform 200ms ease;
-  }
-}
-
-#accounttree li div.icon {
-  width: 16px;
-  height: 16px;
-  background-image: url("chrome://messenger/skin/icons/message.svg");
-  background-position: center center;
-  background-repeat: no-repeat;
-}
-
-#accounttree li.serverType-imap.isSecure div.icon,
-#accounttree li.serverType-pop3.isSecure div.icon {
-  background-image: url("chrome://messenger/skin/icons/message-secure.svg");
-}
-
-#accounttree li.serverType-feeds div.icon,
-#accounttree li.serverType-rss div.icon {
-  list-style-image: url("chrome://messenger/skin/icons/feeds.svg");
-}
-
-#accounttree li.serverType-im div.icon {
-  background-image: url("chrome://chat/skin/chat.svg");
-}
-
-#accounttree li.serverType-news div.icon {
-  background-image: url("chrome://messenger/skin/icons/newsgroup.svg");
-}
-
-#accounttree li.serverType-nntp div.icon {
-  background-image: url("chrome://messenger/skin/icons/globe.svg");
-}
-
-#accounttree li.serverType-nntp.isSecure div.icon {
-  background-image: url("chrome://messenger/skin/icons/globe-secure.svg");
-}
-
-#accounttree li.serverType-none div.icon {
-  background-image: url("chrome://messenger/skin/icons/folder-local.svg");
-}
-
-#accounttree li.serverType-smtp div.icon {
-  background-image: url("chrome://messenger/skin/icons/outbox.svg");
-}
-
-#accounttree li .name {
-  flex: 1;
-  margin-inline: 7px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  font-weight: bold;
-}
-
-#accounttree li.isDefaultServer .name {
-  text-decoration: underline;
-}
-
-#accounttree ul > li > div {
-  padding-inline-start: 51px;
-}
-
-#accounttree li ul:empty,
-#accounttree li.collapsed ul {
-  display: none;
-}
-
-#accounttree li.dragging {
-  opacity: 0.75;
-}
-
-/* Styles for the Account Actions button */
-
-#accountActionsButton {
-  margin-inline: 0;
-  border-end-end-radius: 0;
-  border-start-end-radius: 0;
-}
-
-#accountActionsDropdown {
-  min-width: 32ch;
-}
-
-#accountActionsDropdown,
 .openpgp-more-btn > menupopup {
   appearance: none;
   font-size: 1em;
@@ -211,7 +46,6 @@ fieldset:last-of-type {
   --panel-padding: 0;
 }
 
-#accountActionsDropdown > menuitem,
 .openpgp-more-btn > menupopup > menuitem {
   appearance: none;
   color: var(--in-content-text-color);
@@ -219,40 +53,22 @@ fieldset:last-of-type {
   padding-inline: 10px 30px;
 }
 
-#accountActionsDropdown > menuitem:not([disabled="true"])[_moz-menuactive="true"],
 .openpgp-more-btn > menupopup > menuitem[_moz-menuactive="true"] {
   color: var(--in-content-item-hover-text);
   background-color: var(--in-content-item-hover);
 }
 
-#accountActionsDropdown > menuitem:not([disabled="true"])[selected="true"],
 .openpgp-more-btn > menupopup > menuitem[selected="true"] {
   color: var(--in-content-item-selected-text);
   background-color: var(--in-content-item-selected);
 }
 
-#accountActionsDropdown > menuitem[disabled="true"] {
-  color: #999;
-  /* override the [_moz-menuactive="true"] background color from
-     global/menu.css */
-  background-color: transparent;
-}
-
-#accountActionsDropdown > menuseparator,
 .openpgp-more-btn > menupopup > menuseparator {
   appearance: none;
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--in-content-box-border-color);
   border-bottom: none;
-}
-
-.sidebar-footer-list {
-  margin-top: 24px;
-}
-
-.sidebar-footer-list > .text-link {
-  margin-inline-start: 0;
 }
 
 #archiveHierarchyButton,
