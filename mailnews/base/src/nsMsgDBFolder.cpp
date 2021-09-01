@@ -614,9 +614,29 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
   // we might need while we're here
   nsresult result = NS_OK;
 
-  // If we reload the cache we might get stale info, so don't do it.
+  // don't need to reload from cache if we've already read from cache,
+  // and, we might get stale info, so don't do it.
   if (!mInitializedFromCache) {
-    // Path is used as a key into the foldercache.
+    // Create the .msf file if missing - see bug #244217.
+    // Seems clear that this hack should be removed, but not clear if
+    // if anything is relying on it. So leaving it here for now.
+    {
+      bool isServer = false;
+      GetIsServer(&isServer);
+      if (!isServer) {
+        nsCOMPtr<nsIFile> dbPath;
+        nsresult rv = GetSummaryFile(getter_AddRefs(dbPath));
+        NS_ENSURE_SUCCESS(rv, rv);
+        bool exists;
+        if (NS_SUCCEEDED(dbPath->Exists(&exists)) && !exists) {
+          rv = dbPath->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
+          NS_ENSURE_SUCCESS(rv, rv);
+        }
+      }
+    }
+
+    // This path is not used to open a file. Instead, it's used as a key into
+    // the foldercache.
     nsCOMPtr<nsIFile> dbPath;
     result = GetFolderCacheKey(getter_AddRefs(dbPath));
     if (dbPath) {
