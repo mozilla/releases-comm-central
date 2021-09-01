@@ -75,6 +75,7 @@ window.addEventListener("load", () => {
   booksList = document.getElementById("books");
   cardsPane.init();
   detailsPane.init();
+  uiDensity.init();
 
   if (
     Services.prefs.getComplexValue(
@@ -93,6 +94,10 @@ window.addEventListener("load", () => {
   }
 
   cardsPane.cardsList.focus();
+});
+
+window.addEventListener("unload", () => {
+  uiDensity.uninit();
 });
 
 /**
@@ -1241,6 +1246,7 @@ var cardsPane = {
 
           for (let address of addresses) {
             let menuitem = document.createXULElement("menuitem");
+            menuitem.classList.add("subviewbutton");
             menuitem.label = MailServices.headerParser.makeMimeAddress(
               card.displayName,
               address
@@ -1309,8 +1315,7 @@ var cardsPane = {
   },
 
   _onClick(event) {
-    let popup = document.getElementById("sortContext");
-    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    this.sortContext.openPopup(this.sortButton, { triggerEvent: event });
     event.preventDefault();
   },
 
@@ -1812,6 +1817,42 @@ var printHandler = {
       let topWindow = window.browsingContext.topChromeWindow;
       topWindow.PrintUtils.startPrintWindow(this._browser.browsingContext, {});
       this._browser.webProgress.removeProgressListener(this);
+    }
+  },
+};
+
+// UI Density
+
+var uiDensity = {
+  MODE_COMPACT: 0,
+  MODE_NORMAL: 1,
+  MODE_TOUCH: 2,
+  uiDensityPref: "mail.uidensity",
+
+  init() {
+    this.update();
+    Services.prefs.addObserver(this.uiDensityPref, this);
+  },
+
+  uninit() {
+    Services.prefs.removeObserver(this.uiDensityPref, this);
+  },
+
+  observe(subject, topic, pref) {
+    this.update();
+  },
+
+  update() {
+    switch (Services.prefs.getIntPref(this.uiDensityPref)) {
+      case this.MODE_COMPACT:
+        document.documentElement.setAttribute("uidensity", "compact");
+        break;
+      case this.MODE_TOUCH:
+        document.documentElement.setAttribute("uidensity", "touch");
+        break;
+      default:
+        document.documentElement.removeAttribute("uidensity");
+        break;
     }
   },
 };
