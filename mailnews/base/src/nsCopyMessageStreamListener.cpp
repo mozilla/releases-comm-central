@@ -11,6 +11,7 @@
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
 #include "nsIChannel.h"
+#include "nsIURI.h"
 #include "netCore.h"
 
 NS_IMPL_ISUPPORTS(nsCopyMessageStreamListener, nsIStreamListener,
@@ -51,11 +52,9 @@ nsCopyMessageStreamListener::~nsCopyMessageStreamListener() {
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::Init(
-    nsIMsgFolder* srcFolder, nsICopyMessageListener* destination,
-    nsISupports* listenerData) {
+    nsIMsgFolder* srcFolder, nsICopyMessageListener* destination) {
   mSrcFolder = srcFolder;
   mDestination = destination;
-  mListenerData = listenerData;
   return NS_OK;
 }
 

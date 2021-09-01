@@ -7412,7 +7412,7 @@ nsresult nsImapMailFolder::CopyStreamMessage(
     MOZ_LOG(IMAP, mozilla::LogLevel::Info,
             ("CopyStreaMessage failed with null m_copyState->m_srcSupport"));
   if (NS_FAILED(rv)) return rv;
-  rv = copyStreamListener->Init(srcFolder, copyListener, nullptr);
+  rv = copyStreamListener->Init(srcFolder, copyListener);
   if (NS_FAILED(rv))
     MOZ_LOG(IMAP, mozilla::LogLevel::Info,
             ("CopyStreaMessage failed in copyStreamListener->Init"));

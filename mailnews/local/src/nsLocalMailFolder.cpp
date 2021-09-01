@@ -2464,7 +2464,7 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
       do_QueryInterface(mCopyState->m_srcSupport, &rv));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
 
-  rv = copyStreamListener->Init(srcFolder, this, nullptr);
+  rv = copyStreamListener->Init(srcFolder, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!mCopyState->m_messageService) {
@@ -2521,7 +2521,7 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
       do_CreateInstance(NS_COPYMESSAGESTREAMLISTENER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = copyStreamListener->Init(srcFolder, this, nullptr);
+  rv = copyStreamListener->Init(srcFolder, this);
   if (NS_FAILED(rv)) return rv;
 
   if (!mCopyState->m_messageService)

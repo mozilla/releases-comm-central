@@ -1088,8 +1088,7 @@ nsresult nsOfflineStoreCompactState::FinishCompact() {
 
 NS_IMETHODIMP
 nsFolderCompactState::Init(nsIMsgFolder* srcFolder,
-                           nsICopyMessageListener* destination,
-                           nsISupports* listenerData) {
+                           nsICopyMessageListener* destination) {
   return NS_OK;
 }
 
