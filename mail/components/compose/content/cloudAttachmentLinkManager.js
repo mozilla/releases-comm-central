@@ -421,6 +421,7 @@ var gCloudAttachmentLinkManager = {
       paperclip.style.cssFloat = "left";
       paperclip.style.width = "24px";
       paperclip.style.height = "24px";
+      paperclip.alt = "";
       paperclip.src =
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABVUlEQVR42mNgGChgbGzMqm9slqFnbHZLz8TsPwoGioHkQGrItgBsOLrBaFjfxCydbAvgLjc2zQNymZCkmPRMzfOhllwj3wKoK9EMB4PQ0FBmJHmgWtM1eqZmS8m1gEHXxGyLnon5WlzyyGyyLMBmwKgFoxYMPgv+gdjq1ta8YL6elRhU/i+1LDgAYuuamidC+Q1geVOzzVSxQN/EPAnKvwLM0cFA+hOYb2TmRIkFH0CaDExNDbS1HXgwim1o2QMKNvIsMDafCtW4DOwLMzM1YJl0ChxUxqaNQCFGsDqgRRB1ppdIssDQ3FwLqPE7ermvY2ysDK8zEEH3RdfYWIPkIlvX1DQaasAvfVPTGBQ5E3MvoPhXiAPMYympFxoQ4W7eA/IBKIhASRRiuOkUiutnoGuzYQYi4b/AOCmjWiMAGFz2QEO3gwwGunoXiE+T1oa5uTkfKeoBW+cLhPF1+Q8AAAAASUVORK5CYII=";
       node.appendChild(paperclip);
@@ -446,6 +447,7 @@ var gCloudAttachmentLinkManager = {
 
       if (provider.iconURL) {
         let providerIcon = aDocument.createElement("img");
+        providerIcon.alt = "";
         providerIcon.style.marginRight = "5px";
         providerIcon.style.maxWidth = "24px";
         providerIcon.style.maxHeight = "24px";

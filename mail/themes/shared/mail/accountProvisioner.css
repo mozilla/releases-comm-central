@@ -99,12 +99,14 @@ input[type="submit"][disabled="true"], input[type="submit"][disabled="true"]:hov
 }
 
 #providers .icon {
-  margin-left: 5px;
-  margin-right: 5px;
-  min-width: 16px;
-  max-width: 16px;
-  max-height: 16px;
+  margin-inline: 5px;
+  width: 16px;
+  height: 16px;
   vertical-align: middle;
+}
+
+#providers .icon:not([src]) {
+  visibility: hidden;
 }
 
 #providers .provider {

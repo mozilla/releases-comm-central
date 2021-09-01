@@ -1658,23 +1658,21 @@
       textContainer.appendChild(spacer);
       textContainer.appendChild(sizeLabel);
 
-      let dropIndicatorBefore = document.createElement("img");
-      dropIndicatorBefore.setAttribute(
-        "src",
-        "chrome://messenger/skin/icons/tab-drag-indicator.svg"
-      );
-      dropIndicatorBefore.classList.add("attach-drop-indicator", "before");
-      let dropIndicatorAfter = document.createElement("img");
-      dropIndicatorAfter.setAttribute(
-        "src",
-        "chrome://messenger/skin/icons/tab-drag-indicator.svg"
-      );
-      dropIndicatorAfter.classList.add("attach-drop-indicator", "after");
+      let makeDropIndicator = placementClass => {
+        let img = document.createElement("img");
+        img.setAttribute(
+          "src",
+          "chrome://messenger/skin/icons/tab-drag-indicator.svg"
+        );
+        img.setAttribute("alt", "");
+        img.classList.add("attach-drop-indicator", placementClass);
+        return img;
+      };
 
-      itemContainer.appendChild(dropIndicatorBefore);
+      itemContainer.appendChild(makeDropIndicator("before"));
       itemContainer.appendChild(iconContainer);
       itemContainer.appendChild(textContainer);
-      itemContainer.appendChild(dropIndicatorAfter);
+      itemContainer.appendChild(makeDropIndicator("after"));
       item.appendChild(itemContainer);
 
       item.setAttribute("context", this.getAttribute("itemcontext"));

@@ -21,6 +21,7 @@
   <link rel="stylesheet"
         type="text/css"
         href="chrome://messenger/skin/newmailaccount/accountProvisioner.css" />
+  <link rel="localization" href="messenger/accountProvisioner.ftl" />
 
   <script src="chrome://communicator/content/utilityOverlay.js">
   </script>
@@ -55,7 +56,8 @@
         <div id="notifications">
 
           <img class="spinner"
-               src="chrome://messenger/skin/newmailaccount/spinner.gif"/>
+               data-l10n-id="provisioner-searching-icon"
+               src="chrome://messenger/skin/newmailaccount/spinner.gif" />
 
           <div id="cannotConnectMessage" class="error"></div>
 
@@ -106,25 +108,28 @@
     <div id="success-message">&successful.successMessage;</div>
 
     <div id="search_engine_wrap">
-      <img src="chrome://messenger/skin/newmailaccount/search.png"/>
+      <img src="chrome://messenger/skin/newmailaccount/search.png" alt="" />
       <input type="checkbox" id="search_engine_check" />
       <span id="search_engine_desc"></span>
     </div>
 
     <div id="success-compose">
-      <img src="chrome://messenger/skin/newmailaccount/success-compose.png"/>
+      <img src="chrome://messenger/skin/newmailaccount/success-compose.png"
+           alt="" />
       <h4>&successful.write;</h4>
       &successful.write.desc;
     </div>
 
     <div id="success-addons">
-      <img src="chrome://messenger/skin/newmailaccount/success-addons.png"/>
+      <img src="chrome://messenger/skin/newmailaccount/success-addons.png"
+           alt="" />
       <h4>&successful.customize;</h4>
       &successful.customize.desc;
     </div>
 
     <div id="success-signature">
-      <img src="chrome://messenger/skin/newmailaccount/success-signature.png"/>
+      <img src="chrome://messenger/skin/newmailaccount/success-signature.png"
+           alt="" />
       <h4>&successful.attach;</h4>
       &successful.attach.desc;
     </div>

@@ -728,6 +728,7 @@ var EmailAccountProvisioner = {
         // Note this favicon must be fetched, which takes a noticeable
         // time the first time it happens.
         icon.setAttribute("src", provider.icon);
+        icon.setAttribute("alt", "");
       }
 
       let labelSpan = document.createElement("label");

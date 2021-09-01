@@ -51,6 +51,7 @@
           iconName = this.constructor.defaultIconSrc;
         }
         icon.setAttribute("src", iconName);
+        icon.setAttribute("alt", "");
         this.appendChild(icon);
 
         let display = document.createElement("span");
