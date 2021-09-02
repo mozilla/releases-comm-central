@@ -148,6 +148,11 @@ nsMsgNewsFolder::AddNewsgroup(const nsACString& name, const nsACString& setStr,
   nsCOMPtr<nsIMsgNewsFolder> newsFolder(do_QueryInterface(folder, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Ensure any containing .sdb dir exists.
+  nsCOMPtr<nsIFile> path;
+  rv = CreateDirectoryForFolder(getter_AddRefs(path));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // cache this for when we open the db
   rv = newsFolder->SetReadSetFromStr(setStr);
 
