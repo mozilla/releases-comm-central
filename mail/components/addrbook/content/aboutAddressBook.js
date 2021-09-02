@@ -8,6 +8,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -35,6 +36,8 @@ XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
     },
   });
 });
+
+UIDensity.registerWindow(window);
 
 var booksList;
 
@@ -75,7 +78,6 @@ window.addEventListener("load", () => {
   booksList = document.getElementById("books");
   cardsPane.init();
   detailsPane.init();
-  uiDensity.init();
 
   if (
     Services.prefs.getComplexValue(
@@ -94,10 +96,6 @@ window.addEventListener("load", () => {
   }
 
   cardsPane.cardsList.focus();
-});
-
-window.addEventListener("unload", () => {
-  uiDensity.uninit();
 });
 
 /**
@@ -1817,42 +1815,6 @@ var printHandler = {
       let topWindow = window.browsingContext.topChromeWindow;
       topWindow.PrintUtils.startPrintWindow(this._browser.browsingContext, {});
       this._browser.webProgress.removeProgressListener(this);
-    }
-  },
-};
-
-// UI Density
-
-var uiDensity = {
-  MODE_COMPACT: 0,
-  MODE_NORMAL: 1,
-  MODE_TOUCH: 2,
-  uiDensityPref: "mail.uidensity",
-
-  init() {
-    this.update();
-    Services.prefs.addObserver(this.uiDensityPref, this);
-  },
-
-  uninit() {
-    Services.prefs.removeObserver(this.uiDensityPref, this);
-  },
-
-  observe(subject, topic, pref) {
-    this.update();
-  },
-
-  update() {
-    switch (Services.prefs.getIntPref(this.uiDensityPref)) {
-      case this.MODE_COMPACT:
-        document.documentElement.setAttribute("uidensity", "compact");
-        break;
-      case this.MODE_TOUCH:
-        document.documentElement.setAttribute("uidensity", "touch");
-        break;
-      default:
-        document.documentElement.removeAttribute("uidensity");
-        break;
     }
   },
 };

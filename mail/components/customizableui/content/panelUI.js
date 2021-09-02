@@ -13,7 +13,7 @@
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
   updateEditUIVisibility UpdateFullZoomMenu
-  gFolderTreeView initUiDensityAppMenu gDensityPreviewer
+  gFolderTreeView initUiDensityAppMenu
    */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -32,6 +32,7 @@ var { ShortcutUtils } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -1091,7 +1092,7 @@ const PanelUI = {
       item.removeAttribute("checked");
     }
     // Update the UI density.
-    gDensityPreviewer.setUIDensity(event.originalTarget.mode);
+    UIDensity.setMode(event.originalTarget.mode);
   },
 };
 

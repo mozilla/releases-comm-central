@@ -22,6 +22,7 @@ var { MailServices } = ChromeUtils.import(
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -46,93 +47,7 @@ var accountManager;
 
 var gContextMenu;
 
-// Updates the UI density between normal, touch, and compact mode based on the
-// uidensity pref.
-var gUIDensity = {
-  MODE_COMPACT: 0,
-  MODE_NORMAL: 1,
-  MODE_TOUCH: 2,
-  uiDensityPref: "mail.uidensity",
-
-  init() {
-    this.update();
-    Services.prefs.addObserver(this.uiDensityPref, this);
-    Services.ww.registerNotification(this);
-  },
-
-  uninit() {
-    Services.prefs.removeObserver(this.uiDensityPref, this);
-    Services.ww.unregisterNotification(this);
-  },
-
-  observe(subject, topic, pref) {
-    switch (topic) {
-      case "nsPref:changed":
-        this.update();
-        break;
-
-      case "domwindowopened":
-        this.updateNewWindow(subject);
-        break;
-
-      default:
-        break;
-    }
-  },
-
-  getCurrentDensity() {
-    return Services.prefs.getIntPref(this.uiDensityPref);
-  },
-
-  update(mode) {
-    if (mode == null) {
-      mode = this.getCurrentDensity();
-    }
-
-    // Loop through all the opened windows to include also dialogs.
-    for (let win of Services.ww.getWindowEnumerator()) {
-      this._applyDensity(win.document.documentElement, mode);
-    }
-  },
-
-  /**
-   * Update the density attribute of a newly opened window.
-   *
-   * @param {Window} win - The newly opened window.
-   */
-  updateNewWindow(win) {
-    win.addEventListener(
-      "load",
-      event => {
-        this._applyDensity(
-          event.target.documentElement,
-          this.getCurrentDensity()
-        );
-      },
-      { once: true }
-    );
-  },
-
-  /**
-   * Private method to apply the correct density mode.
-   *
-   * @param {Document} doc - The document receiving the density attribute.
-   * @param {integer} mode - The mode to apply.
-   */
-  _applyDensity(doc, mode) {
-    switch (mode) {
-      case this.MODE_COMPACT:
-        doc.setAttribute("uidensity", "compact");
-        break;
-      case this.MODE_TOUCH:
-        doc.setAttribute("uidensity", "touch");
-        break;
-      default:
-        doc.removeAttribute("uidensity");
-        break;
-    }
-  },
-};
+UIDensity.registerWindow(window);
 
 /**
  * Called by messageWindow.xhtml:onunload,  the 'single message display window'.

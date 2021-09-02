@@ -25,6 +25,7 @@ EXTRA_JS_MODULES += [
     "TagUtils.jsm",
     "TBDistCustomizer.jsm",
     "ThemeVariableMap.jsm",
+    "UIDensity.jsm",
 ]
 
 EXTRA_JS_MODULES.sessionstore += [

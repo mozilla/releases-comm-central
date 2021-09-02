@@ -93,22 +93,6 @@ var gMarkViewedMessageAsReadTimer = null;
 // change during runtime other than through the MsgBody*() functions below.
 var gDisallow_classes_no_html = 1;
 
-// Used to preview the changes in the UI density when the user hovers or focuses
-// on a density menu item.
-var gDensityPreviewer = {
-  updateUIDensity(mode) {
-    gUIDensity.update(mode);
-  },
-
-  resetUIDensity() {
-    gUIDensity.update();
-  },
-
-  setUIDensity(mode) {
-    Services.prefs.setIntPref(gUIDensity.uiDensityPref, mode);
-  },
-};
-
 /**
  * Disable the new account menu item if the account preference is locked.
  * The other affected areas are the account central, the account manager
@@ -432,12 +416,12 @@ function initUiDensityMenu(event) {
   event.stopImmediatePropagation();
 
   // Apply the correct mode attribute to the various items.
-  document.getElementById("uiDensityCompact").mode = gUIDensity.MODE_COMPACT;
-  document.getElementById("uiDensityNormal").mode = gUIDensity.MODE_NORMAL;
-  document.getElementById("uiDensityTouch").mode = gUIDensity.MODE_TOUCH;
+  document.getElementById("uiDensityCompact").mode = UIDensity.MODE_COMPACT;
+  document.getElementById("uiDensityNormal").mode = UIDensity.MODE_NORMAL;
+  document.getElementById("uiDensityTouch").mode = UIDensity.MODE_TOUCH;
 
   // Fetch the currently active identity.
-  let currentDensity = gUIDensity.getCurrentDensity();
+  let currentDensity = UIDensity.prefValue;
 
   for (let item of event.target.querySelectorAll("menuitem")) {
     if (item.mode == currentDensity) {
@@ -454,14 +438,13 @@ function initUiDensityAppMenu(event) {
 
   // Apply the correct mode attribute to the various items.
   document.getElementById("appmenu_uiDensityCompact").mode =
-    gUIDensity.MODE_COMPACT;
+    UIDensity.MODE_COMPACT;
   document.getElementById("appmenu_uiDensityNormal").mode =
-    gUIDensity.MODE_NORMAL;
-  document.getElementById("appmenu_uiDensityTouch").mode =
-    gUIDensity.MODE_TOUCH;
+    UIDensity.MODE_NORMAL;
+  document.getElementById("appmenu_uiDensityTouch").mode = UIDensity.MODE_TOUCH;
 
   // Fetch the currently active identity.
-  let currentDensity = gUIDensity.getCurrentDensity();
+  let currentDensity = UIDensity.prefValue;
 
   for (let item of event.originalTarget.querySelectorAll("toolbarbutton")) {
     if (item.mode == currentDensity) {

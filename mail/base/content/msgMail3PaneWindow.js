@@ -754,7 +754,6 @@ var gMailInit = {
     initOpenPGPIfEnabled();
 
     PanelUI.init();
-    gUIDensity.init();
     gExtensionsNotifications.init();
 
     Services.search.init();
@@ -849,7 +848,6 @@ var gMailInit = {
       gRightMouseButtonSavedSelection = null;
     }
 
-    gUIDensity.uninit();
     SessionStoreManager.unloadingWindow(window);
     TabsInTitlebar.uninit();
     ToolbarIconColor.uninit();
