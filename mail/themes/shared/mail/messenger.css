@@ -1137,15 +1137,13 @@ label.statusbarpanel {
   height: 16px;
 }
 
-findbar,
-#findbar-close-container {
+findbar {
   background-color: var(--toolbar-non-lwt-bgcolor);
   color: var(--toolbar-non-lwt-textcolor);
   text-shadow: none;
 }
 
-:root:not([lwtheme-image]) findbar:-moz-lwtheme,
-:root:not([lwtheme-image]) #findbar-close-container:-moz-lwtheme {
+:root:not([lwtheme-image]) findbar:-moz-lwtheme {
   background-color: var(--lwt-accent-color);
   background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor));
   border-top-color: var(--chrome-content-separator-color);
