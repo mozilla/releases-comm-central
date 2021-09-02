@@ -84,6 +84,7 @@ fieldset:last-of-type {
 
 #accounttree li > div:hover {
   background-color: var(--in-content-item-hover);
+  color: var(--in-content-item-hover-text);
 }
 
 #accounttree:focus li.selected > div {
