@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title data-l10n-id="migration-progress-header"></title>
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/migration.ftl" />
+  <link rel="stylesheet" href="chrome://global/skin/global.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/migrationProgress.css" />
+  <script defer="defer" src="chrome://messenger/content/migrationProgress.js"></script>
+</head>
+<body>
+  <img src="chrome://branding/content/icon256.png" width="256" height="256" alt="" />
+  <h1 data-l10n-id="migration-progress-header"></h1>
+  <ol id="tasks"></ol>
+  <progress value="0"></progress>
+  <template id="taskItem">
+    <li>
+      <div class="task-icon"></div>
+      <span class="task-name"></span>
+    </li>
+  </template>
+</body>
+</html>

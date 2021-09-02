@@ -9,19 +9,20 @@
  * out into a module makes unit testing much easier.
  */
 
-var EXPORTED_SYMBOLS = ["MailMigrator"];
+var EXPORTED_SYMBOLS = ["MailMigrator", "MigrationTasks"];
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { migrateMailnews } = ChromeUtils.import(
-  "resource:///modules/MailnewsMigrator.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-const { compareAccounts } = ChromeUtils.import(
-  "resource:///modules/folderUtils.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  compareAccounts: "resource:///modules/folderUtils.jsm",
+  EventEmitter: "resource://gre/modules/EventEmitter.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  migrateMailnews: "resource:///modules/MailnewsMigrator.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+});
 
 var MailMigrator = {
   /**
@@ -127,7 +128,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 30;
+    const UI_VERSION = 31;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -613,6 +614,43 @@ var MailMigrator = {
         Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
       }
 
+      // From this point onwards, migration tasks are not run immediately, but
+      // added to the MigrationTasks object then run at the end.
+      //
+      // See the documentation on MigrationTask and MigrationTasks for how to
+      // add a task.
+
+      // Test the slow migration UI.
+      if (currentUIVersion < 31 && new Date() < new Date(2021, 10, 15)) {
+        MigrationTasks.addSimpleTask(
+          "migration-task-test-fast",
+          () => new Promise(r => setTimeout(r, 50))
+        );
+        MigrationTasks.addSimpleTask(
+          "migration-task-test-slow",
+          () => new Promise(r => setTimeout(r, 2500))
+        );
+        MigrationTasks.addComplexTask(
+          new (class extends MigrationTask {
+            doAThing() {
+              return new Promise(resolve => setTimeout(resolve, 500));
+            }
+          })("migration-task-test-progress", async function() {
+            for (let i = 0; i < 10; i++) {
+              this.subTasks.push(
+                new MigrationTask(undefined, () => this.doAThing())
+              );
+            }
+          })
+        );
+        MigrationTasks.addSimpleTask(
+          "migration-task-test-fast",
+          () => new Promise(r => setTimeout(r, 500))
+        );
+      }
+
+      MigrationTasks.runTasks();
+
       // Update the migration version.
       Services.prefs.setIntPref(UI_VERSION_PREF, UI_VERSION);
     } catch (e) {
@@ -933,3 +971,171 @@ var MailMigrator = {
     this._migrateRSS();
   },
 };
+
+/**
+ * Controls migration tasks, including (if the migration is taking a while)
+ * presenting the user with a pop-up window showing the current status.
+ */
+var MigrationTasks = {
+  _finished: false,
+  _progressWindow: null,
+  _start: null,
+  _tasks: [],
+  _waitThreshold: 1000,
+
+  /**
+   * Adds a simple task to be completed.
+   *
+   * @param {string} [fluentID] - The name of this task. If specified, a string
+   *   for this name MUST be in migration.ftl. If not specified, this task
+   *   won't appear in the list of migration tasks.
+   * @param {Function} action
+   */
+  addSimpleTask(fluentID, action) {
+    this._tasks.push(new MigrationTask(fluentID, action));
+  },
+
+  /**
+   * Adds a task to be completed. Subclasses of MigrationTask are allowed,
+   * allowing more complex tasks than `addSimpleTask`.
+   *
+   * @param {MigrationTask} task
+   */
+  addComplexTask(task) {
+    if (!(task instanceof MigrationTask)) {
+      throw new Error("Task is not a MigrationTask");
+    }
+    this._tasks.push(task);
+  },
+
+  /**
+   * Runs the tasks in sequence.
+   */
+  async _runTasksInternal() {
+    this._start = Date.now();
+
+    // Do not optimise this for-loop. More tasks could be added.
+    for (let t = 0; t < this._tasks.length; t++) {
+      let task = this._tasks[t];
+      task.status = "running";
+
+      await task.action();
+
+      for (let i = 0; i < task.subTasks.length; i++) {
+        task.emit("progress", i, task.subTasks.length);
+        let subTask = task.subTasks[i];
+        subTask.status = "running";
+
+        await subTask.action();
+        subTask.status = "finished";
+      }
+      if (task.subTasks.length) {
+        task.emit("progress", task.subTasks.length, task.subTasks.length);
+        // Pause long enough for the user to see the progress bar at 100%.
+        await new Promise(resolve => setTimeout(resolve, 150));
+      }
+
+      task.status = "finished";
+    }
+
+    this._tasks.length = 0;
+    this._finished = true;
+  },
+
+  /**
+   * Runs the migration tasks. Controls the opening and closing of the pop-up.
+   */
+  runTasks() {
+    this._runTasksInternal();
+
+    Services.tm.spinEventLoopUntil("MigrationTasks", () => {
+      if (this._finished) {
+        return true;
+      }
+
+      if (
+        !this._progressWindow &&
+        Date.now() - this._start > this._waitThreshold
+      ) {
+        this._progressWindow = Services.ww.openWindow(
+          null,
+          "chrome://messenger/content/migrationProgress.xhtml",
+          "_blank",
+          "centerscreen,width=640",
+          Services.ww
+        );
+        this.addSimpleTask(undefined, async () => {
+          await new Promise(r => setTimeout(r, 1000));
+          this._progressWindow.close();
+        });
+      }
+
+      return false;
+    });
+
+    delete this._progressWindow;
+  },
+
+  /**
+   * @type MigrationTask[]
+   */
+  get tasks() {
+    return this._tasks;
+  },
+};
+
+/**
+ * A single task to be completed.
+ */
+class MigrationTask {
+  /**
+   * The name of this task. If specified, a string for this name MUST be in
+   * migration.ftl. If not specified, this task won't appear in the list of
+   * migration tasks.
+   *
+   * @type string
+   */
+  fluentID = null;
+
+  /**
+   * Smaller tasks for this task. If there are sub-tasks, a progress bar will
+   * be displayed to the user, showing how many sub-tasks are complete.
+   *
+   * @note A sub-task may not have sub-sub-tasks.
+   *
+   * @type MigrationTask[]
+   */
+  subTasks = [];
+
+  /**
+   * Current status of the task. Either "pending", "running" or "finished".
+   *
+   * @type string
+   */
+  _status = "pending";
+
+  /**
+   * @param {string} [fluentID]
+   * @param {Function} action
+   */
+  constructor(fluentID, action) {
+    this.fluentID = fluentID;
+    this.action = action;
+    EventEmitter.decorate(this);
+  }
+
+  /**
+   * Current status of the task. Either "pending", "running" or "finished".
+   * Emits a "status-change" notification on change.
+   *
+   * @type string
+   */
+  get status() {
+    return this._status;
+  }
+
+  set status(value) {
+    this._status = value;
+    this.emit("status-change", value);
+  }
+}

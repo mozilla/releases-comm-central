@@ -118,6 +118,7 @@
   skin/classic/messenger/imRichlistbox.css                    (../shared/mail/imRichlistbox.css)
   skin/classic/messenger/joinchat.css                         (../shared/mail/joinchat.css)
   skin/classic/messenger/messageQuotes.css                    (../shared/mail/messageQuotes.css)
+  skin/classic/messenger/migrationProgress.css                (../shared/mail/migrationProgress.css)
   skin/classic/messenger/msgSelectOffline.css                 (../shared/mail/msgSelectOffline.css)
 #ifndef XP_MACOSX
   skin/classic/messenger/newmailalert.css                     (../shared/mail/newmailalert.css)

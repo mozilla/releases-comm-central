@@ -58,6 +58,8 @@ messenger.jar:
 #ifdef XP_WIN
     content/messenger/minimizeToTray.js             (content/minimizeToTray.js)
 #endif
+    content/messenger/migrationProgress.js          (content/migrationProgress.js)
+    content/messenger/migrationProgress.xhtml       (content/migrationProgress.xhtml)
     content/messenger/msgHdrView.js                 (content/msgHdrView.js)
     content/messenger/msgMail3PaneWindow.js         (content/msgMail3PaneWindow.js)
     content/messenger/msgSecurityPane.js            (content/msgSecurityPane.js)

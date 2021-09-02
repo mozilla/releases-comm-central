@@ -1,0 +1,111 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  /* Override "dialog" as it results in a transparent background om macOS.  */
+  -moz-default-appearance: none;
+}
+
+body {
+  margin: 0;
+  padding: 1em;
+  padding-inline-end: calc(256px - 2em);
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  font: message-box;
+  font-size: 15px;
+}
+
+img {
+  position: absolute;
+  inset-inline-end: -3em;
+  bottom: -3em;
+  opacity: .66;
+}
+
+h1 {
+  font-weight: normal;
+  font-size: 1.5em;
+  margin-block: 0;
+}
+
+ol {
+  width: 25em;
+  line-height: 24px;
+  list-style: none;
+  padding-inline: 8px;
+}
+
+li {
+  display: flex;
+  align-items: center;
+}
+
+.task-icon {
+  margin-inline-end: 8px;
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.running {
+  font-weight: bold;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .running .task-icon {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .running .task-icon::before {
+    content: "";
+    position: absolute;
+    background-image: url("chrome://messenger/skin/icons/loading.svg");
+    width: 480px;
+    height: 100%;
+    animation: tab-throbber-animation 1.05s steps(30) infinite;
+  }
+
+  .running .task-icon:dir(rtl)::before {
+    animation-name: tab-throbber-animation-rtl;
+  }
+
+  @keyframes tab-throbber-animation {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes tab-throbber-animation-rtl {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+  }
+}
+
+.finished .task-icon {
+  background-image: url("chrome://global/skin/icons/check.svg");
+}
+
+progress {
+  appearance: none;
+  height: 4px;
+  background-color: hsla(0, 0%, 60%, 0.2);
+  border-style: none;
+  border-radius: 2px;
+}
+
+::-moz-progress-bar {
+  background: linear-gradient(90deg, #2094d2, #236ac2, #393c96, #236ac2, #2094d2, #236ac2, #393c96, #236ac2, #2094d2);
+  background-size: 1200px 100%;
+  animation: progress-animation 5s linear infinite;
+}
+
+@keyframes progress-animation {
+  0% { background-position: 0; }
+  100% { background-position: 1200px; }
+}
