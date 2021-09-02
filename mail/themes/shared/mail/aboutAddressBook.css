@@ -204,9 +204,14 @@ body {
   overflow-x: hidden;
 }
 
-.bookRow-children:empty,
-.bookRow.collapsed > .bookRow-children {
-  display: none;
+.bookRow > ul {
+  overflow: hidden;
+  height: auto;
+}
+
+.bookRow > ul:empty,
+.bookRow.collapsed > ul {
+  height: 0;
 }
 
 .listRow-container {

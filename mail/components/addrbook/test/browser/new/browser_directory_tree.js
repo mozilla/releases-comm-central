@@ -35,11 +35,23 @@ add_task(async function test_additions_and_removals() {
       }
 
       let childList = row.querySelector("ul");
-      if (open === undefined) {
-        Assert.ok(!childList || BrowserTestUtils.is_hidden(childList));
-      } else {
-        Assert.equal(row.classList.contains("collapsed"), !open);
-        Assert.equal(BrowserTestUtils.is_visible(childList), open);
+      // NOTE: We're not explicitly handling open === false because no test
+      // needed it.
+      if (open) {
+        // Ancestor shouldn't have the collapsed class and the UL child list
+        // should be expanded and visible.
+        Assert.ok(!row.classList.contains("collapsed"));
+        Assert.greater(childList.clientHeight, 0);
+      } else if (childList) {
+        if (row.classList.contains("collapsed")) {
+          // If we have a UL child list and the ancestor element has a collapsed
+          // class, the child list shouldn't be visible.
+          Assert.equal(childList.clientHeight, 0);
+        } else if (childList.childNodes.length) {
+          // If the ancestor doesn't have the collapsed class, and the UL child
+          // list has at least one child node, the child list should be visible.
+          Assert.greater(childList.clientHeight, 0);
+        }
       }
 
       Assert.equal(row.classList.contains("listRow"), isList);

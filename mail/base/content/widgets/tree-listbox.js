@@ -3,6 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 {
+  // Animation variables for expanding and collapsing child lists.
+  const ANIMATION_DURATION = 200;
+  const ANIMATION_EASING = "ease";
+
   /**
    * Provides keyboard and mouse interaction to a (possibly nested) list.
    * It is intended for lists with a small number (up to 1000?) of items.
@@ -101,6 +105,14 @@
               bubbles: true,
             })
           );
+
+          if (didCollapse) {
+            // The row was collapsed.
+            this._animateCollapseRow(row);
+          } else {
+            // The row was revealed.
+            this._animateExpandRow(row);
+          }
           return;
         }
 
@@ -307,6 +319,23 @@
             row.classList.add("children");
           }
         }
+
+        // Don't add any inline style if we don't need to animate.
+        if (matchMedia("(prefers-reduced-motion)").matches) {
+          return;
+        }
+
+        // Add the height attribute to the inline style of a child list in order
+        // to override the CSS declaration and guarantee a smooth transition
+        // unaffected by the addition or removal of the `.collapsed` class.
+        if (ancestor.matches("li.collapsed > :is(ol, ul)")) {
+          ancestor.style.height = "0";
+        }
+        for (let childList of ancestor.querySelectorAll(
+          "li.collapsed > :is(ol, ul)"
+        )) {
+          childList.style.height = "0";
+        }
       }
 
       /**
@@ -426,6 +455,7 @@
         ) {
           row.classList.add("collapsed");
           row.dispatchEvent(new CustomEvent("collapsed", { bubbles: true }));
+          this._animateCollapseRow(row);
         }
       }
 
@@ -442,7 +472,62 @@
         ) {
           row.classList.remove("collapsed");
           row.dispatchEvent(new CustomEvent("expanded", { bubbles: true }));
+          this._animateExpandRow(row);
         }
+      }
+
+      /**
+       * Animate the collapsing of a row containing child items.
+       *
+       * @param {HTMLLIElement} row - The parent row element.
+       */
+      _animateCollapseRow(row) {
+        if (matchMedia("(prefers-reduced-motion)").matches) {
+          return;
+        }
+
+        let childList = row.querySelector(":is(ol, ul)");
+        let childListHeight = childList.scrollHeight;
+
+        let animation = childList.animate(
+          [{ height: `${childListHeight}px` }, { height: "0" }],
+          {
+            duration: ANIMATION_DURATION,
+            easing: ANIMATION_EASING,
+            fill: "both",
+          }
+        );
+        animation.onfinish = () => {
+          childList.style.height = "0";
+          animation.cancel();
+        };
+      }
+
+      /**
+       * Animate the revealing of a row containing child items.
+       *
+       * @param {HTMLLIElement} row - The parent row element.
+       */
+      _animateExpandRow(row) {
+        if (matchMedia("(prefers-reduced-motion)").matches) {
+          return;
+        }
+
+        let childList = row.querySelector(":is(ol, ul)");
+        let childListHeight = childList.scrollHeight;
+
+        let animation = childList.animate(
+          [{ height: "0" }, { height: `${childListHeight}px` }],
+          {
+            duration: ANIMATION_DURATION,
+            easing: ANIMATION_EASING,
+            fill: "both",
+          }
+        );
+        animation.onfinish = () => {
+          childList.style.height = null;
+          animation.cancel();
+        };
       }
     };
 
