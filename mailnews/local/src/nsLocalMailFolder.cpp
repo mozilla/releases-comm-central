@@ -1193,8 +1193,6 @@ nsresult nsMsgLocalMailFolder::InitCopyState(
   mCopyState->m_dataBufferSize = COPY_BUFFER_SIZE;
   mCopyState->m_destDB = msgDB;
 
-  // Before we continue we should verify that there is enough diskspace.
-  // XXX How do we do this?
   nsresult rv;
   mCopyState->m_srcSupport = do_QueryInterface(aSupport, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
