@@ -8,7 +8,6 @@
 
 #include "nsICopyMessageStreamListener.h"
 #include "nsIStreamListener.h"
-#include "nsIMsgFolder.h"
 #include "nsICopyMessageListener.h"
 #include "nsCOMPtr.h"
 
@@ -24,9 +23,7 @@ class nsCopyMessageStreamListener : public nsIStreamListener,
 
  protected:
   virtual ~nsCopyMessageStreamListener();
-
   nsCOMPtr<nsICopyMessageListener> mDestination;
-  nsCOMPtr<nsIMsgFolder> mSrcFolder;
 };
 
 #endif

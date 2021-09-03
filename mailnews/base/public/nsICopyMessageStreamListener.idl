@@ -4,14 +4,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsIMsgFolder.idl"
 #include "nsICopyMessageListener.idl"
 
 [scriptable, uuid(7741DAEC-2125-11d3-8A90-0060B0FC04D2)]
 
 interface nsICopyMessageStreamListener: nsISupports
 {
-  void Init(in nsIMsgFolder srcFolder, in nsICopyMessageListener destination);
+  void Init(in nsICopyMessageListener destination);
   void StartMessage();
   void EndMessage(in nsMsgKey key);
   void EndCopy(in nsISupports url, in nsresult aStatus);

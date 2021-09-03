@@ -5,14 +5,9 @@
 
 #include "nsCopyMessageStreamListener.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMailboxUrl.h"
-#include "nsIMsgHdr.h"
 #include "nsIMsgImapMailFolder.h"
-#include "nsIMsgMessageService.h"
-#include "nsMsgUtils.h"
 #include "nsIChannel.h"
 #include "nsIURI.h"
-#include "netCore.h"
 
 NS_IMPL_ISUPPORTS(nsCopyMessageStreamListener, nsIStreamListener,
                   nsIRequestObserver, nsICopyMessageStreamListener)
@@ -24,8 +19,7 @@ nsCopyMessageStreamListener::~nsCopyMessageStreamListener() {
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::Init(
-    nsIMsgFolder* srcFolder, nsICopyMessageListener* destination) {
-  mSrcFolder = srcFolder;
+    nsICopyMessageListener* destination) {
   mDestination = destination;
   return NS_OK;
 }
