@@ -9,7 +9,7 @@
 }
 
 .invitation-details[open] > summary {
-  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 .invitation-border {
@@ -23,14 +23,6 @@
 .invitation-table {
   border-collapse: collapse;
   width: 40em;
-}
-
-.invitation-table .header {
-  padding: 3px;
-  color: HighlightText;
-  font-size: 1em;
-  font-weight: bold;
-  background-color: Highlight;
 }
 
 .invitation-table :is(td, th) {
