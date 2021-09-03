@@ -14,6 +14,7 @@ var { MsgIncomingServer } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
+  Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
 });
 
@@ -39,12 +40,17 @@ class NntpIncomingServer extends MsgIncomingServer {
   constructor() {
     super();
 
+    this._subscribed = new Set();
+
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "news";
     this.localDatabaseType = "news";
 
     // nsISubscribableServer attributes.
     this.supportsSubscribeSearch = true;
+
+    // nsINntpIncomingServer attributes.
+    this.newsrcHasChanged = false;
   }
 
   /**
@@ -87,6 +93,7 @@ class NntpIncomingServer extends MsgIncomingServer {
     if (!this._hostInfoLoaded) {
       this._saveHostInfo();
     }
+    this.updateSubscribed();
   }
 
   addTo(name, addAsSubscribed, subscribale, changeIfExists) {
@@ -97,6 +104,59 @@ class NntpIncomingServer extends MsgIncomingServer {
       subscribale,
       changeIfExists
     );
+  }
+
+  subscribe(name) {
+    this.subscribeToNewsgroup(name);
+  }
+
+  unsubscribe(name) {
+    this.rootMsgFolder.propagateDelete(
+      this.rootMsgFolder.getChildNamed(name),
+      true, // delete storage
+      null
+    );
+    this.newsrcHasChanged = true;
+  }
+
+  commitSubscribeChanges() {
+    this.newsrcHasChanged = true;
+    this.writeNewsrcFile();
+  }
+
+  setAsSubscribed(path) {
+    this._tmpSubscribed.add(path);
+    this._subscribable.setAsSubscribed(path);
+  }
+
+  updateSubscribed() {
+    // this._tmpSubscribed = new Set(this._subscribed);
+    this._tmpSubscribed = new Set();
+    this._subscribed.forEach(path => this.setAsSubscribed(path));
+  }
+
+  setState(path, state) {
+    let changed = this._subscribable.setState(path, state);
+    if (changed) {
+      if (state) {
+        this._tmpSubscribed.add(path);
+      } else {
+        this._tmpSubscribed.delete(path);
+      }
+    }
+    return changed;
+  }
+
+  hasChildren(path) {
+    return this._subscribable.hasChildren(path);
+  }
+
+  isSubscribed(path) {
+    return this._subscribable.isSubscribed(path);
+  }
+
+  isSubscribable(path) {
+    return this._subscribable.isSubscribable(path);
   }
 
   setSearchValue(value) {
@@ -117,13 +177,27 @@ class NntpIncomingServer extends MsgIncomingServer {
     return this._searchResult.length;
   }
 
+  isContainer(index) {
+    return false;
+  }
+
   getCellProperties(row, col) {
-    if (col.id == "subscribedColumn2") {
-      // TODO: return "subscribed-true" if subscribed
+    if (
+      col.id == "subscribedColumn2" &&
+      this._tmpSubscribed.has(this._searchResult[row])
+    ) {
+      return "subscribed-true";
     }
     if (col.id == "nameColumn2") {
       // Show the news folder icon in the search view.
       return "serverType-nntp";
+    }
+    return "";
+  }
+
+  getCellValue(row, col) {
+    if (col.id == "nameColumn2") {
+      return this._searchResult[row];
     }
     return "";
   }
@@ -146,10 +220,76 @@ class NntpIncomingServer extends MsgIncomingServer {
     this.stopPopulating(this._msgWindow);
   }
 
+  /** @see nsIMsgIncomingServer */
+  performExpand(msgWindow) {
+    if (!Services.prefs.getBoolPref("news.update_unread_on_expand", false)) {
+      return;
+    }
+
+    for (let folder of this.rootFolder.subFolders) {
+      folder.getNewMessages(msgWindow, null);
+    }
+  }
+
   /** @see nsINntpIncomingServer */
+  get newsrcFilePath() {
+    if (!this._newsrcFilePath) {
+      this._newsrcFilePath = this.getFileValue(
+        "newsrc.file-rel",
+        "newsrc.file"
+      );
+    }
+    return this._newsrcFilePath;
+  }
+
+  set newsrcFilePath(value) {
+    this._newsrcFilePath = value;
+    if (!this._newsrcFilePath.exists) {
+      this._newsrcFilePath.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+    }
+    this.setFileValue("newsrc.file-rel", "newsrc.file", this._newsrcFilePath);
+  }
+
   addNewsgroupToList(name) {
     this.addTo(name, false, true, true);
   }
+
+  addNewsgroup(name) {
+    this._subscribed.add(name);
+  }
+
+  removeNewsgroup(name) {
+    this._subscribed.delete(name);
+  }
+
+  containsNewsgroup(name) {
+    return this._subscribed.has(name);
+  }
+
+  subscribeToNewsgroup(name) {
+    if (this.containsNewsgroup(name)) {
+      return;
+    }
+    this.rootMsgFolder.createSubfolder(name, null);
+  }
+
+  writeNewsrcFile() {
+    let newsFolder = this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder);
+    let lines = [];
+    for (let folder of newsFolder.subFolders) {
+      folder = folder.QueryInterface(Ci.nsIMsgNewsFolder);
+      if (folder.newsrcLine) {
+        lines.push(folder.newsrcLine);
+      }
+    }
+    IOUtils.writeUTF8(this.newsrcFilePath.path, lines.join(""));
+  }
+
+  findGroup(name) {
+    return this.rootMsgFolder.findSubFolder(name);
+  }
+
+  _lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
 
   /**
    * startPopulating as an async function.
@@ -167,6 +307,7 @@ class NntpIncomingServer extends MsgIncomingServer {
         return;
       }
     }
+    this._hostInfoChanged = true;
     MailServices.nntp.getListOfGroupsOnServer(this, msgWindow, getOnlyNew);
   }
 
@@ -183,8 +324,7 @@ class NntpIncomingServer extends MsgIncomingServer {
     }
     let content = await IOUtils.readUTF8(this._hostInfoFile.path);
     let groupLine = false;
-    let separator = AppConstants.platform == "win" ? "\r\n" : "\n";
-    for (let line of content.split(separator)) {
+    for (let line of content.split(this._lineSeparator)) {
       if (groupLine) {
         this.addNewsgroupToList(line);
       } else if (line == "begingroups") {
@@ -198,7 +338,10 @@ class NntpIncomingServer extends MsgIncomingServer {
    * Save this._groups to hostinfo.dat.
    */
   async _saveHostInfo() {
-    let separator = AppConstants.platform == "win" ? "\r\n" : "\n";
+    if (!this._hostInfoChanged) {
+      return;
+    }
+
     let lines = [
       "# News host information file.",
       "# This is a generated file!  Do not edit.",
@@ -213,7 +356,7 @@ class NntpIncomingServer extends MsgIncomingServer {
     ];
     await IOUtils.writeUTF8(
       this._hostInfoFile.path,
-      lines.join(separator) + separator
+      lines.join(this._lineSeparator) + this._lineSeparator
     );
   }
 }

@@ -63,6 +63,7 @@ class MsgIncomingServer {
   set key(key) {
     this._key = key;
     this._prefs = Services.prefs.getBranch(`mail.server.${key}.`);
+    this._defaultPrefs = Services.prefs.getBranch("mail.server.default.");
   }
 
   get hostName() {
@@ -106,13 +107,18 @@ class MsgIncomingServer {
   }
 
   get socketType() {
-    return this._prefs.getIntPref(
-      "socketType",
+    try {
+      return this._prefs.getIntPref("socketType");
+    } catch (e) {
       // socketType is set to default value. Look at isSecure setting.
-      this._prefs.getBoolPref("isSecure", false)
-        ? Ci.nsMsgSocketType.SSL
-        : Ci.nsMsgSocketType.plain
-    );
+      if (this._prefs.getBoolPref("isSecure", false)) {
+        return Ci.nsMsgSocketType.SSL;
+      }
+      return this._defaultPrefs.getIntPref(
+        "socketType",
+        Ci.nsMsgSocketType.plain
+      );
+    }
   }
 
   get serverURI() {
@@ -174,44 +180,89 @@ class MsgIncomingServer {
     return this.rootFolder;
   }
 
+  get msgStore() {
+    if (!this._msgStore) {
+      let contractId = this.getCharValue("storeContractID");
+      if (!contractId) {
+        contractId = "@mozilla.org/msgstore/berkeleystore;1";
+        this.setCharValue("storeContractID", contractId);
+      }
+
+      // After someone starts using the pluggable store, we can no longer
+      // change the value.
+      this.setBoolValue("canChangeStoreType", false);
+
+      this._msgStore = Cc[contractId].createInstance(Ci.nsIMsgPluggableStore);
+    }
+    return this._msgStore;
+  }
+
   getCharValue(prefName) {
-    return this._prefs.getCharPref(prefName, "");
+    try {
+      return this._prefs.getCharPref(prefName);
+    } catch (e) {
+      return this._defaultPrefs.getCharPref(prefName, "");
+    }
   }
 
   setCharValue(prefName, value) {
-    if (!value) {
+    let defaultValue = this._defaultPrefs.getCharPref(prefName, "");
+    if (!value || value == defaultValue) {
       this._prefs.clearUserPref(prefName);
-      return;
+    } else {
+      this._prefs.setCharPref(prefName, value);
     }
-    this._prefs.setCharPref(prefName, value);
   }
 
   getUnicharValue(prefName) {
-    return this._prefs.getStringPref(prefName, "");
+    try {
+      return this._prefs.getStringPref(prefName);
+    } catch (e) {
+      return this._defaultPrefs.getStringPref(prefName, "");
+    }
   }
 
   setUnicharValue(prefName, value) {
-    if (!value) {
+    let defaultValue = this._defaultPrefs.getStringPref(prefName, "");
+    if (!value || value == defaultValue) {
       this._prefs.clearUserPref(prefName);
-      return;
+    } else {
+      this._prefs.setStringPref(prefName, value);
     }
-    this._prefs.setStringPref(prefName, value);
   }
 
   getIntValue(prefName) {
-    return this._prefs.getIntPref(prefName, 0);
+    try {
+      return this._prefs.getIntPref(prefName);
+    } catch (e) {
+      return this._defaultPrefs.getIntPref(prefName, 0);
+    }
   }
 
   setIntValue(prefName, value) {
-    this._prefs.setIntPref(prefName, value);
+    let defaultValue = this._defaultPrefs.getIntPref(prefName, value - 1);
+    if (defaultValue == value) {
+      this._prefs.clearUserPref(prefName);
+    } else {
+      this._prefs.setIntPref(prefName, value);
+    }
   }
 
   getBoolValue(prefName) {
-    return this._prefs.getBoolPref(prefName, false);
+    try {
+      return this._prefs.getBoolPref(prefName);
+    } catch (e) {
+      return this._defaultPrefs.getBoolPref(prefName, false);
+    }
   }
 
   setBoolValue(prefName, value) {
-    this._prefs.setBoolPref(prefName, value);
+    let defaultValue = this._defaultPrefs.getBoolPref(prefName, !value);
+    if (defaultValue == value) {
+      this._prefs.clearUserPref(prefName);
+    } else {
+      this._prefs.setBoolPref(prefName, value);
+    }
   }
 
   getFileValue(relPrefName, absPrefName) {
