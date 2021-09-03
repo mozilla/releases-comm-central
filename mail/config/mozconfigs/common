@@ -1,6 +1,3 @@
 ac_add_options --enable-application=comm/mail
 
-# Disable enforcing that add-ons are signed by the trusted root.
-MOZ_REQUIRE_SIGNING=
-
 . "$topsrcdir/build/mozconfig.common.override"
