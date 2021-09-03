@@ -8,7 +8,6 @@
  */
 
 "use strict";
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -16,10 +15,21 @@ var { MailServices } = ChromeUtils.import(
 var {
   close_compose_window,
   open_compose_new_mail,
+  open_compose_with_reply_to_all,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+var {
+  add_message_to_folder,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
 let publicRecipientLimit = Services.prefs.getIntPref(
@@ -27,6 +37,66 @@ let publicRecipientLimit = Services.prefs.getIntPref(
 );
 
 requestLongerTimeout(5);
+
+/**
+ * Test we only show one warning when "To" recipients goes over the limit
+ * for a reply all.
+ */
+add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
+  // Now set up an account with some identities.
+  let acctMgr = MailServices.accounts;
+  let account = acctMgr.createAccount();
+  account.incomingServer = acctMgr.createIncomingServer(
+    "nobody",
+    "BCC Reply Testing",
+    "pop3"
+  );
+
+  let folder = account.incomingServer.rootFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .createLocalSubfolder("Msgs4Reply");
+
+  let identity = acctMgr.createIdentity();
+  identity.email = "bcc@example.com";
+  account.addIdentity(identity);
+
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeAccount(account, true);
+  });
+
+  let i = 1;
+  let msg0 = create_message({
+    from: "Homer <homer@example.com>",
+    to: "test@example.org,"
+      .repeat(publicRecipientLimit + 100)
+      .replace(/test@/g, () => `test${i++}@`),
+    cc: "Lisa <lisa@example.com>",
+    subject: "msg over the limit for bulk warning",
+  });
+  add_message_to_folder(folder, msg0);
+
+  be_in_folder(folder);
+  let msg = select_click_row(0);
+  assert_selected_and_displayed(mc, msg);
+  let cwc = open_compose_with_reply_to_all();
+
+  Assert.ok(
+    !!cwc.window.gComposeNotification.getNotificationWithValue(
+      "warnPublicRecipientsNotification"
+    ),
+    `warning shown when "To" recipients >= ${publicRecipientLimit}`
+  );
+
+  Assert.equal(
+    1,
+    cwc.window.document.querySelectorAll(
+      `notification-message[value="warnPublicRecipientsNotification"]`
+    ).length,
+    "should have exactly one notification about it"
+  );
+
+  close_compose_window(cwc);
+});
 
 /**
  * Test the warning displays when the "To" recipients list hits the limit.
@@ -45,7 +115,7 @@ add_task(async function testWarningShowsWhenToFieldHitsLimit() {
   );
 
   Assert.ok(
-    cwc.window.gComposeNotification.getNotificationWithValue(
+    !!cwc.window.gComposeNotification.getNotificationWithValue(
       "warnPublicRecipientsNotification"
     ),
     `warning shown when "To" recipients >= ${publicRecipientLimit}`
@@ -87,7 +157,7 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
   );
 
   Assert.ok(
-    cwc.window.gComposeNotification.getNotificationWithValue(
+    !!cwc.window.gComposeNotification.getNotificationWithValue(
       "warnPublicRecipientsNotification"
     ),
     `warning shown when "Cc" recipients >= ${publicRecipientLimit}`
@@ -131,7 +201,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
   setup_msg_contents(cwc, "test@example.org", "", "", "ccAddrInput");
 
   Assert.ok(
-    cwc.window.gComposeNotification.getNotificationWithValue(
+    !!cwc.window.gComposeNotification.getNotificationWithValue(
       "warnPublicRecipientsNotification"
     ),
     `warning shown when "To" and "Cc" recipients >= ${publicRecipientLimit}`
@@ -293,7 +363,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
     "warnPublicRecipientsNotification"
   );
 
-  Assert.ok(notification, "public recipients warning appeared");
+  Assert.ok(!!notification, "public recipients warning appeared");
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
@@ -440,7 +510,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
     "warnPublicRecipientsNotification"
   );
 
-  Assert.ok(notification, "public recipients warning appeared");
+  Assert.ok(!!notification, "public recipients warning appeared");
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
@@ -504,7 +574,7 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
     "warnPublicRecipientsNotification"
   );
 
-  Assert.ok(notification, "public recipients warning appeared");
+  Assert.ok(!!notification, "public recipients warning appeared");
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
@@ -561,7 +631,7 @@ add_task(async function testWarningNotShownAfterDismissal() {
     "warnPublicRecipientsNotification"
   );
 
-  Assert.ok(notification, "public recipients warning appeared");
+  Assert.ok(!!notification, "public recipients warning appeared");
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
@@ -627,7 +697,7 @@ add_task(async function testMailingListMembersCounted() {
   let notification = cwc.window.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
-  Assert.ok(notification, "public recipients warning appeared");
+  Assert.ok(!!notification, "public recipients warning appeared");
 
   Assert.equal(
     notification.messageText.textContent,

@@ -1496,13 +1496,13 @@ function UpdateExtraAddressProcessing(
       if (aItem instanceof Ci.nsIAbDirectory) {
         // If we don't have a match, search again for updates (e.g. a interface
         // to an existing book may just have been added).
-        if (!aDocumentNode.cardDetails.card) {
+        if (aDocumentNode && !aDocumentNode.cardDetails.card) {
           UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
         }
       } else if (aItem instanceof Ci.nsIAbCard) {
         // If we don't have a card, does this new one match?
         if (
-          !aDocumentNode.cardDetails?.card &&
+          !aDocumentNode?.cardDetails?.card &&
           !aItem.isMailList &&
           aItem.hasEmailAddress(aAddressData.emailAddress)
         ) {
@@ -1534,7 +1534,7 @@ function UpdateExtraAddressProcessing(
       }
       break;
     case "directoryRemoved":
-      if (aDocumentNode.cardDetails.book == aItem) {
+      if (aDocumentNode?.cardDetails.book == aItem) {
         UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
       }
       break;
