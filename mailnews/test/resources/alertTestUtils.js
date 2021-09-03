@@ -33,10 +33,19 @@
  * do_throw().
  */
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+var LoginInfo = Components.Constructor(
+  "@mozilla.org/login-manager/loginInfo;1",
+  "nsILoginInfo",
+  "init"
+);
 
 // Wrapper to the nsIPrompt interface.
 // This allows the send code to attempt to display errors to the user without
@@ -247,17 +256,10 @@ var alertUtilsPromptService = {
     return 0;
   },
 
-  prompt(aParent, aDialogTitle, aText, aValue, aCheckMsg, aCheckState) {
+  prompt(aParent, aDialogTitle, aText, aValue) {
     if (typeof promptPS == "function") {
       // eslint-disable-next-line no-undef
-      return promptPS(
-        aParent,
-        aDialogTitle,
-        aText,
-        aValue,
-        aCheckMsg,
-        aCheckState
-      );
+      return promptPS(aParent, aDialogTitle, aText, aValue);
     }
 
     do_throw("promptPS unexpectedly called: " + aText + "\n");
@@ -269,9 +271,7 @@ var alertUtilsPromptService = {
     aDialogTitle,
     aText,
     aUsername,
-    aPassword,
-    aCheckMsg,
-    aCheckState
+    aPassword
   ) {
     if (typeof promptUsernameAndPasswordPS == "function") {
       // eslint-disable-next-line no-undef
@@ -280,9 +280,7 @@ var alertUtilsPromptService = {
         aDialogTitle,
         aText,
         aUsername,
-        aPassword,
-        aCheckMsg,
-        aCheckState
+        aPassword
       );
     }
 
@@ -292,24 +290,10 @@ var alertUtilsPromptService = {
     return false;
   },
 
-  promptPassword(
-    aParent,
-    aDialogTitle,
-    aText,
-    aPassword,
-    aCheckMsg,
-    aCheckState
-  ) {
+  promptPassword(aParent, aDialogTitle, aText, aPassword) {
     if (typeof promptPasswordPS == "function") {
       // eslint-disable-next-line no-undef
-      return promptPasswordPS(
-        aParent,
-        aDialogTitle,
-        aText,
-        aPassword,
-        aCheckMsg,
-        aCheckState
-      );
+      return promptPasswordPS(aParent, aDialogTitle, aText, aPassword);
     }
 
     do_throw("promptPasswordPS unexpectedly called: " + aText + "\n");
@@ -368,13 +352,139 @@ function registerAlertTestUtils() {
   Services.prompt = alertUtilsPromptService;
 }
 
-// Dummy message window that ensures we get prompted for logins.
+// Dummy message window that ensures we get prompted for logins. Calls
+// promptPasswordPS/promptUsernameAndPasswordPS directly, rather than through
+// the prompt service, because the function signature changed and no longer
+// allows a "save password" check box. We also avoid the prompt service
+// interface in the real msgWindow.
 
 var gDummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
 gDummyMsgWindow instanceof Ci.nsIMsgWindowTest;
-gDummyMsgWindow.setAuthPrompt(
-  Cc["@mozilla.org/login-manager/authprompter;1"].getService(Ci.nsIAuthPrompt)
-);
+gDummyMsgWindow.setAuthPrompt({
+  QueryInterface: ChromeUtils.generateQI(["nsIAuthPrompt"]),
+
+  _getFormattedOrigin(aURI) {
+    let uri;
+    if (aURI instanceof Ci.nsIURI) {
+      uri = aURI;
+    } else {
+      uri = Services.io.newURI(aURI);
+    }
+
+    return uri.scheme + "://" + uri.displayHostPort;
+  },
+
+  _getRealmInfo(aRealmString) {
+    var httpRealm = /^.+ \(.+\)$/;
+    if (httpRealm.test(aRealmString)) {
+      return [null, null, null];
+    }
+
+    var uri = Services.io.newURI(aRealmString);
+    var pathname = "";
+
+    if (uri.pathQueryRef != "/") {
+      pathname = uri.pathQueryRef;
+    }
+
+    var formattedOrigin = this._getFormattedOrigin(uri);
+
+    return [formattedOrigin, formattedOrigin + pathname, uri.username];
+  },
+
+  promptUsernameAndPassword(
+    aDialogTitle,
+    aText,
+    aPasswordRealm,
+    aSavePassword,
+    aUsername,
+    aPassword
+  ) {
+    var checkBox = { value: false };
+    var checkBoxLabel = null;
+    var [origin, realm] = this._getRealmInfo(aPasswordRealm);
+
+    if (typeof promptUsernameAndPasswordPS != "function") {
+      throw new Error(
+        "promptUsernameAndPasswordPS unexpectedly called: " + aText + "\n"
+      );
+    }
+
+    // eslint-disable-next-line no-undef
+    var ok = promptUsernameAndPasswordPS(
+      this._chromeWindow,
+      aDialogTitle,
+      aText,
+      aUsername,
+      aPassword,
+      checkBoxLabel,
+      checkBox
+    );
+
+    if (!ok || !checkBox.value || !origin) {
+      return ok;
+    }
+
+    if (!aPassword.value) {
+      return ok;
+    }
+
+    let newLogin = new LoginInfo(
+      origin,
+      null,
+      realm,
+      aUsername.value,
+      aPassword.value
+    );
+    Services.logins.addLogin(newLogin);
+
+    return ok;
+  },
+
+  promptPassword(
+    aDialogTitle,
+    aText,
+    aPasswordRealm,
+    aSavePassword,
+    aPassword
+  ) {
+    var checkBox = { value: false };
+    var checkBoxLabel = null;
+    var [origin, realm, username] = this._getRealmInfo(aPasswordRealm);
+
+    username = decodeURIComponent(username);
+
+    if (typeof promptPasswordPS != "function") {
+      throw new Error("promptPasswordPS unexpectedly called: " + aText + "\n");
+    }
+
+    // eslint-disable-next-line no-undef
+    var ok = promptPasswordPS(
+      this._chromeWindow,
+      aDialogTitle,
+      aText,
+      aPassword,
+      checkBoxLabel,
+      checkBox
+    );
+
+    if (ok && checkBox.value && origin && aPassword.value) {
+      let newLogin = new LoginInfo(
+        origin,
+        null,
+        realm,
+        username,
+        aPassword.value
+      );
+
+      Services.logins.addLogin(newLogin);
+    }
+
+    return ok;
+  },
+});
 gDummyMsgWindow.setPromptDialog(alertUtilsPrompts);
+// Set MailServices.mailSession.topmostMsgWindow to gDummyMsgWindow.
+MailServices.mailSession.AddMsgWindow(gDummyMsgWindow);

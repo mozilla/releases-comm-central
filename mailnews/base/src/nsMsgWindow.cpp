@@ -195,25 +195,12 @@ NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell** aDocShell) {
 NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt** aAuthPrompt) {
   NS_ENSURE_ARG_POINTER(aAuthPrompt);
 
-  // testing only
-  if (mAuthPrompt) {
-    NS_ADDREF(*aAuthPrompt = mAuthPrompt);
-    return NS_OK;
+  if (!mAuthPrompt) {
+    mAuthPrompt = do_GetService("@mozilla.org/messenger/msgAuthPrompt;1");
   }
 
-  if (!mRootDocShellWeak) return NS_ERROR_FAILURE;
-
-  nsresult rv;
-  nsCOMPtr<nsIDocShell> docShell(
-      do_QueryReferent(mRootDocShellWeak.get(), &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIAuthPrompt> prompt = do_GetInterface(docShell, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  prompt.forget(aAuthPrompt);
-
-  return rv;
+  NS_ADDREF(*aAuthPrompt = mAuthPrompt);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::SetAuthPrompt(nsIAuthPrompt* aAuthPrompt) {
