@@ -511,12 +511,6 @@ nsParseMailMessageState::~nsParseMailMessageState() {
   delete[] m_customDBHeaderValues;
 }
 
-void nsParseMailMessageState::Init(uint64_t fileposition) {
-  m_state = nsIMsgParseMailMsgState::ParseBodyState;
-  m_position = fileposition;
-  m_newMsgHdr = nullptr;
-}
-
 NS_IMETHODIMP nsParseMailMessageState::Clear() {
   m_message_id.length = 0;
   m_references.length = 0;
@@ -1737,16 +1731,6 @@ int32_t nsParseNewMailState::PublishMsgHeader(nsIMsgWindow* msgWindow) {
     m_newMsgHdr = nullptr;
   }
   return 0;
-}
-
-// We've found the start of the next message, so finish this one off.
-NS_IMETHODIMP nsParseNewMailState::FinishHeader() {
-  if (m_newMsgHdr) {
-    if (m_lastLineBlank) m_body_lines--;
-    m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos - m_lastLineBlank);
-    m_newMsgHdr->SetLineCount(m_body_lines);
-  }
-  return NS_OK;
 }
 
 nsresult nsParseNewMailState::GetTrashFolder(nsIMsgFolder** pTrashFolder) {

@@ -46,7 +46,6 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
 
   nsParseMailMessageState();
 
-  void Init(uint64_t fileposition);
   nsresult ParseFolderLine(const char* line, uint32_t lineLength);
   nsresult StartNewEnvelope(const char* line, uint32_t lineLength);
   nsresult ParseHeaders();
@@ -205,8 +204,6 @@ class nsParseNewMailState : public nsMsgMailboxParser,
  public:
   nsParseNewMailState();
   NS_DECL_ISUPPORTS_INHERITED
-
-  NS_IMETHOD FinishHeader() override;
 
   nsresult Init(nsIMsgFolder* rootFolder, nsIMsgFolder* downloadFolder,
                 nsIMsgWindow* aMsgWindow, nsIMsgDBHdr* aHdr,
