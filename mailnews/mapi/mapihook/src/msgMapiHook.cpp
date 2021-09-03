@@ -178,10 +178,9 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t** aUsername,
       rv = bundle->GetStringFromName("loginTextwithName", loginText);
       if (NS_FAILED(rv) || loginText.IsEmpty()) return false;
 
-      bool dummyValue = false;
-      rv = dlgService->PromptUsernameAndPassword(
-          nullptr, loginTitle.get(), loginText.get(), aUsername, aPassword,
-          nullptr, &dummyValue, &btnResult);
+      rv = dlgService->PromptUsernameAndPassword(nullptr, loginTitle.get(),
+                                                 loginText.get(), aUsername,
+                                                 aPassword, &btnResult);
     } else {
       // nsString loginString;
       nsString loginText;
@@ -190,10 +189,8 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t** aUsername,
           bundle->FormatStringFromName("loginText", userNameStrings, loginText);
       if (NS_FAILED(rv)) return false;
 
-      bool dummyValue = false;
       rv = dlgService->PromptPassword(nullptr, loginTitle.get(),
-                                      loginText.get(), aPassword, nullptr,
-                                      &dummyValue, &btnResult);
+                                      loginText.get(), aPassword, &btnResult);
     }
   }
 
