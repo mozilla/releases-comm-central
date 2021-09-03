@@ -1199,7 +1199,16 @@ class SmtpClient {
     this.logger.debug("Adding recipient...");
     this._envelope.curRecipient = this._envelope.rcptQueue.shift();
     this._currentAction = this._actionRCPT;
-    let cmd = `RCPT TO:<${this._envelope.curRecipient}>`;
+    this._sendCommand(
+      `RCPT TO:<${this._envelope.curRecipient}>${this._getRCPTParameters()}`
+    );
+  }
+
+  /**
+   * Prepare the RCPT params, currently only DSN params. If the server supports
+   * DSN and sender requested DSN, append DSN params to each RCPT TO command.
+   */
+  _getRCPTParameters() {
     if (this._capabilities.includes("DSN") && this._envelope.requestDSN) {
       let notify = [];
       if (Services.prefs.getBoolPref("mail.dsn.request_never_on")) {
@@ -1216,10 +1225,10 @@ class SmtpClient {
         }
       }
       if (notify.length > 0) {
-        cmd += ` NOTIFY=${notify.join(",")}`;
+        return ` NOTIFY=${notify.join(",")}`;
       }
     }
-    this._sendCommand(cmd);
+    return "";
   }
 
   /**
@@ -1243,7 +1252,9 @@ class SmtpClient {
       // Send the next recipient.
       this._envelope.curRecipient = this._envelope.rcptQueue.shift();
       this._currentAction = this._actionRCPT;
-      this._sendCommand(`RCPT TO:<${this._envelope.curRecipient}>`);
+      this._sendCommand(
+        `RCPT TO:<${this._envelope.curRecipient}>${this._getRCPTParameters()}`
+      );
     } else {
       this.logger.debug("RCPT TO done, proceeding with payload");
       this._currentAction = this._actionDATA;
