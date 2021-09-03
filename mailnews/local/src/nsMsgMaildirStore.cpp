@@ -1164,7 +1164,6 @@ nsresult MaildirStoreParser::ParseNextMessage(nsIFile* aFile) {
     aFile->GetFileSize(&fileSize);
     msgParser->SetNewMsgHdr(newMsgHdr);
     msgParser->SetState(nsIMsgParseMailMsgState::ParseHeadersState);
-    msgParser->SetEnvelopePos(0);
     bool needMoreData = false;
     char* newLine = nullptr;
     uint32_t numBytesInLine = 0;

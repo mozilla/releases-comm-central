@@ -565,21 +565,6 @@ NS_IMETHODIMP nsParseMailMessageState::GetState(nsMailboxParseState* aState) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsParseMailMessageState::GetEnvelopePos(uint64_t* aEnvelopePos) {
-  NS_ENSURE_ARG_POINTER(aEnvelopePos);
-
-  *aEnvelopePos = m_envelope_pos;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsParseMailMessageState::SetEnvelopePos(uint64_t aEnvelopePos) {
-  m_envelope_pos = aEnvelopePos;
-  m_position = m_envelope_pos;
-  m_headerstartpos = m_position;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsParseMailMessageState::GetNewMsgHdr(nsIMsgDBHdr** aMsgHeader) {
   NS_ENSURE_ARG_POINTER(aMsgHeader);
   NS_IF_ADDREF(*aMsgHeader = m_newMsgHdr);
@@ -737,7 +722,6 @@ bool nsParseMailMessageState::IsEnvelopeLine(const char* buf,
 // We've found the start of the next message, so finish this one off.
 NS_IMETHODIMP nsParseMailMessageState::FinishHeader() {
   if (m_newMsgHdr) {
-    m_newMsgHdr->SetMessageOffset(m_envelope_pos);
     if (m_lastLineBlank) m_body_lines--;
     m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos - m_lastLineBlank);
     m_newMsgHdr->SetLineCount(m_body_lines);
