@@ -2331,7 +2331,8 @@
         setupAutocompleteInput(input);
 
         input.addEventListener("keypress", event => {
-          if (event.key != "Tab" || !event.shiftKey) {
+          // Ctrl+Shift+Tab is handled by moveFocusToNeighbouringArea.
+          if (event.key != "Tab" || !event.shiftKey || event.ctrlKey) {
             return;
           }
           event.preventDefault();
@@ -2661,7 +2662,7 @@
         "wrap-container",
         "address-container"
       );
-      inputContainer.addEventListener("click", focusAddressInput);
+      inputContainer.addEventListener("click", focusAddressInputOnClick);
 
       // Set up the row input for the row.
       let input = document.createElement(
@@ -2955,11 +2956,15 @@
           break;
 
         case "Tab":
-          event.preventDefault();
           for (let item of this.getSiblingPills(pill)) {
             item.removeAttribute("selected");
           }
-          if (event.shiftKey && !event.ctrlKey) {
+          // Ctrl+Tab is handled by moveFocusToNeighbouringArea.
+          if (event.ctrlKey) {
+            return;
+          }
+          event.preventDefault();
+          if (event.shiftKey) {
             this.moveFocusToPreviousElement(pill);
             return;
           }

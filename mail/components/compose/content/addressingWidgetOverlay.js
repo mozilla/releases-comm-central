@@ -418,6 +418,23 @@ function getLoadContext() {
 }
 
 /**
+ * Focus the next available address row's input. Otherwise, focus the "Subject"
+ * input.
+ *
+ * @param {Element} currentInput - The current input to search from.
+ */
+function focusNextAddressRow(currentInput) {
+  let addressRow = currentInput.closest(".address-row").nextElementSibling;
+  while (addressRow) {
+    if (focusAddressRowInput(addressRow)) {
+      return;
+    }
+    addressRow = addressRow.nextElementSibling;
+  }
+  focusSubjectInput();
+}
+
+/**
  * Handle keydown events for other header input fields in the compose window.
  * Only applies to rows created from mail.compose.other.header pref; no pills.
  * Keep behaviour in sync with addressInputOnBeforeHandleKeyDown().
@@ -447,7 +464,7 @@ function otherHeaderInputOnKeyDown(event) {
       // Enter was pressed: Focus the next available address row or subject.
       // Prevent Enter from firing again on the element we move the focus to.
       event.preventDefault();
-      SetFocusOnNextAvailableElement(input);
+      focusNextAddressRow(input);
       break;
 
     case "Backspace":
@@ -711,7 +728,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // Enter on empty input: Focus the next available address row or subject.
       // Prevent Enter from firing again on the element we move the focus to.
       event.preventDefault();
-      SetFocusOnNextAvailableElement(input);
+      focusNextAddressRow(input);
       break;
 
     case "Tab":
@@ -740,9 +757,9 @@ function addressInputOnBeforeHandleKeyDown(event) {
         }
       }
 
-      // Handle Shift+Tab, but not Ctrl+Shift+Tab for fast focus ring backwards.
-      if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
-        // Prevent Shift+Tab from firing again where we move the focus to.
+      // Handle Shift+Tab, but not Ctrl+Shift+Tab, which is handled by
+      // moveFocusToNeighbouringAreas.
+      if (event.shiftKey && !event.ctrlKey) {
         event.preventDefault();
         input.closest("mail-recipients-area").moveFocusToPreviousElement(input);
       }

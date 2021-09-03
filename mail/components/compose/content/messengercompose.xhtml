@@ -479,12 +479,12 @@
   <key id="key_mail"  key="&messengerCmd.commandkey;" oncommand="toMessengerWindow();" modifiers="accel"/>
 
   <!-- Tab/F6 Keys -->
-  <key keycode="VK_TAB" oncommand="SwitchElementFocus(event);" modifiers="control"/>
-  <key keycode="VK_TAB" oncommand="SwitchElementFocus(event);" modifiers="control,shift"/>
-  <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="control"/>
-  <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="control,shift"/>
-  <key keycode="VK_F6" oncommand="SwitchElementFocus(event);" modifiers="shift"/>
-  <key keycode="VK_F6" oncommand="SwitchElementFocus(event);"/>
+  <key keycode="VK_TAB" oncommand="moveFocusToNeighbouringArea(event);" modifiers="control"/>
+  <key keycode="VK_TAB" oncommand="moveFocusToNeighbouringArea(event);" modifiers="control,shift"/>
+  <key keycode="VK_F6" oncommand="moveFocusToNeighbouringArea(event);" modifiers="control"/>
+  <key keycode="VK_F6" oncommand="moveFocusToNeighbouringArea(event);" modifiers="control,shift"/>
+  <key keycode="VK_F6" oncommand="moveFocusToNeighbouringArea(event);" modifiers="shift"/>
+  <key keycode="VK_F6" oncommand="moveFocusToNeighbouringArea(event);"/>
 
 #ifdef XP_MACOSX
   <!-- Mac Window Menu -->
@@ -2237,7 +2237,7 @@
                   </hbox>
                   <hbox id="replyAddrContainer" flex="1" align="center"
                         class="input-container wrap-container address-container"
-                        onclick="focusAddressInput(event);">
+                        onclick="focusAddressInputOnClick(event);">
                     <html:input is="autocomplete-input" id="replyAddrInput"
                                 type="text"
                                 class="plain address-input address-row-input mail-input"
@@ -2277,7 +2277,7 @@
                   </hbox>
                   <hbox id="toAddrContainer" flex="1" align="center"
                         class="input-container wrap-container address-container"
-                        onclick="focusAddressInput(event);">
+                        onclick="focusAddressInputOnClick(event);">
                     <html:input is="autocomplete-input" id="toAddrInput"
                                 type="text"
                                 class="plain address-input address-row-input mail-input mail-primary-input"
@@ -2316,7 +2316,7 @@
                   </hbox>
                   <hbox id="ccAddrContainer" flex="1" align="center"
                         class="input-container wrap-container address-container"
-                        onclick="focusAddressInput(event);">
+                        onclick="focusAddressInputOnClick(event);">
                     <html:input is="autocomplete-input" id="ccAddrInput"
                                 type="text"
                                 class="plain address-input address-row-input mail-input"
@@ -2355,7 +2355,7 @@
                   </hbox>
                   <hbox id="bccAddrContainer" flex="1" align="center"
                         class="input-container wrap-container address-container"
-                        onclick="focusAddressInput(event);">
+                        onclick="focusAddressInputOnClick(event);">
                     <html:input is="autocomplete-input" id="bccAddrInput"
                                 type="text"
                                 class="plain address-input address-row-input mail-input"
@@ -2393,7 +2393,7 @@
                   </hbox>
                   <hbox id="newsgroupsAddrContainer" flex="1" align="center"
                         class="input-container wrap-container address-container"
-                        onclick="focusAddressInput(event);">
+                        onclick="focusAddressInputOnClick(event);">
                     <html:input is="autocomplete-input" id="newsgroupsAddrInput"
                                 type="text"
                                 class="plain address-input address-row-input news-input news-primary-input"
@@ -2431,7 +2431,7 @@
                   </hbox>
                   <hbox id="followupAddrContainer" flex="1" align="center"
                         class="input-container wrap-container address-container"
-                        onclick="focusAddressInput(event);">
+                        onclick="focusAddressInputOnClick(event);">
                     <html:input is="autocomplete-input" id="followupAddrInput"
                                 type="text"
                                 class="plain address-input address-row-input news-input"

@@ -110,6 +110,28 @@ var gLastFocusElement = null;
 var gAttachmentBucket;
 var gAttachmentCounter;
 var gMsgHeadersToolbarElement;
+/**
+ * typedef {Object} FocusArea
+ * @property {Element} root - The root of a given area of the UI.
+ * @property {moveFocusWithin} focus - A method to move the focus within the
+ *   root.
+ */
+/**
+ * @callback moveFocusWithin
+ *
+ * @param {Element} root - The element to move the focus within.
+ *
+ * @return {boolean} - Whether the focus was successfully moved to within the
+ *   given element.
+ */
+/**
+ * An ordered list of non-intersecting areas we want to jump focus between.
+ * Ordering should be in the same order as tab focus. See
+ * {@link moveFocusToNeighbouringArea}.
+ *
+ * @type {FocusArea[]}
+ */
+var gFocusAreas;
 // TODO: Maybe the following two variables can be combined.
 var gManualAttachmentReminder;
 var gDisableAttachmentReminder;
@@ -1511,7 +1533,7 @@ function CommandUpdate_MsgCompose() {
 }
 
 function findbarFindReplace() {
-  SetMsgBodyFrameFocus();
+  focusMsgBody();
   let findbar = document.getElementById("FindToolbar");
   findbar.close();
   goDoCommand("cmd_findReplace");
@@ -4168,6 +4190,43 @@ function ComposeLoad() {
   setDefaultHeaderMinHeight();
   setComposeLabelsAndMenuItems();
   setKeyboardShortcuts();
+
+  gFocusAreas = [
+    {
+      // #abContactsPanel.
+      // NOTE: If focus is within the browser shadow document, then the
+      // top.document.activeElement points to the browser, which is below
+      // #sidebar-box.
+      root: document.getElementById("sidebar-box"),
+      focus: focusContactsSidebarSearchInput,
+    },
+    {
+      // #msgIdentity, .recipient-button and #extraAddressRowsMenuButton.
+      root: document.getElementById("top-gradient-box"),
+      focus: focusMsgIdentity,
+    },
+    ...Array.from(document.querySelectorAll(".address-row"), row => {
+      return { root: row, focus: focusAddressRowInput };
+    }),
+    {
+      root: document.getElementById("subject-box"),
+      focus: focusSubjectInput,
+    },
+    // "#FormatToolbox" cannot receive focus.
+    {
+      // #content-frame and #FindToolbar
+      root: document.getElementById("appcontent"),
+      focus: focusMsgBody,
+    },
+    {
+      root: document.getElementById("attachmentView"),
+      focus: focusAttachmentBucket,
+    },
+    {
+      root: document.getElementById("status-bar"),
+      focus: focusStatusBar,
+    },
+  ];
 }
 
 /**
@@ -4638,7 +4697,7 @@ function GenericSendMessage(msgType) {
       // We disable spellcheck for the following -subject line, attachment
       // pane, identity and addressing widget therefore we need to explicitly
       // focus on the mail body when we have to do a spellcheck.
-      SetMsgBodyFrameFocus();
+      focusMsgBody();
       window.cancelSendMessage = false;
       window.openDialog(
         "chrome://messenger/content/messengercompose/EdSpellCheck.xhtml",
@@ -4999,7 +5058,7 @@ function isValidNewsAddress(address) {
  *
  * @param {Event} event - the event triggered by the click.
  */
-function focusAddressInput(event) {
+function focusAddressInputOnClick(event) {
   let container = event.target;
   if (container.classList.contains("address-container")) {
     container.querySelector(".address-row-input").focus();
@@ -6122,7 +6181,7 @@ function AdjustFocus() {
   }
 
   // Focus message body.
-  SetMsgBodyFrameFocus();
+  focusMsgBody();
 }
 
 /**
@@ -7171,7 +7230,7 @@ function toggleAttachmentPane(aAction = "toggle") {
     case "hide": {
       // Move the focus to the message body only if the bucket was focused.
       if (bucketHasFocus) {
-        SetMsgBodyFrameFocus();
+        focusMsgBody();
       }
 
       // Save the current bucket height so we can properly restore it.
@@ -7439,7 +7498,7 @@ function attachmentBucketOnKeyPress(event) {
         }
 
         // Move the focus to the message body.
-        SetMsgBodyFrameFocus();
+        focusMsgBody();
         return;
       }
 
@@ -7893,7 +7952,14 @@ function LoadIdentity(startup) {
     );
   }
 
-  SetMsgToRecipientElementFocus();
+  // Try to focus the first available address row. If there are none, focus the
+  // Subject which is always available.
+  for (let row of document.querySelectorAll(".address-row")) {
+    if (focusAddressRowInput(row)) {
+      return;
+    }
+  }
+  focusSubjectInput();
 }
 
 function MakeFromFieldEditable(ignoreWarning) {
@@ -7998,7 +8064,7 @@ function subjectKeyPress(event) {
   // Move the focus to the body only if the Enter key is pressed without any
   // modifier, as that would mean the user wants to send the message.
   if (event.key == "Enter" && !event.ctrlKey && !event.metaKey) {
-    SetMsgBodyFrameFocus();
+    focusMsgBody();
   }
 }
 
@@ -8497,7 +8563,7 @@ var envelopeDragObserver = {
    *   event.
    */
   appendImagesInline(dataTransfer) {
-    SetMsgBodyFrameFocus();
+    focusMsgBody();
     let editor = GetCurrentEditor();
     editor.beginTransaction();
 
@@ -8580,72 +8646,122 @@ function DisplaySaveFolderDlg(folderURI) {
   }
 }
 
-function SetMsgToRecipientElementFocus() {
-  if (!document.getElementById("addressRowTo").classList.contains("hidden")) {
-    document.getElementById("toAddrInput").focus();
-    return;
+/**
+ * Focus the people search input in the contacts side panel.
+ *
+ * Note, this is used as a {@link moveFocusWithin} method.
+ *
+ * @param {Element} sideBarBox - The contacts side panel container.
+ *
+ * @return {boolean} - Whether the peopleSearchInput was focused.
+ */
+function focusContactsSidebarSearchInput(sideBarBox) {
+  if (sideBarBox.hidden) {
+    return false;
   }
-
-  SetFocusOnNextAvailableElement(document.getElementById("toAddrInput"));
-}
-
-function SetMsgIdentityElementFocus() {
-  document.getElementById("msgIdentity").focus();
-}
-
-function SetMsgSubjectElementFocus() {
-  document.getElementById("msgSubject").focus();
+  let input = document
+    .getElementById("sidebar")
+    .contentDocument.getElementById("peopleSearchInput");
+  if (!input) {
+    return false;
+  }
+  input.focus();
+  return true;
 }
 
 /**
- * Focus the people search input in contacts side bar.
+ * Focus the "From" identity input/selector.
  *
- * @return {Boolean} true if peopleSearchInput was found, false otherwise.
+ * Note, this is used as a {@link moveFocusWithin} method.
+ *
+ * @return {true} - Always returns true.
  */
-function focusContactsSidebarSearchInput() {
-  // Caveat: Callers must ensure that contacts side bar is visible.
-  let peopleSearchInput = sidebarDocumentGetElementById(
-    "peopleSearchInput",
-    "abContactsPanel"
-  );
-  if (peopleSearchInput) {
-    peopleSearchInput.focus();
-    return true;
-  }
-  return false;
+function focusMsgIdentity() {
+  document.getElementById("msgIdentity").focus();
+  return true;
 }
 
-function SetMsgBodyFrameFocus() {
+/**
+ * Focus the address row input, provided the row is not hidden.
+ *
+ * Note, this is used as a {@link moveFocusWithin} method.
+ *
+ * @param {Element} row - The address row to focus.
+ *
+ * @return {boolean} - Whether the input was focused.
+ */
+function focusAddressRowInput(row) {
+  if (row.classList.contains("hidden")) {
+    return false;
+  }
+  row.querySelector(".address-row-input").focus();
+  return true;
+}
+
+/**
+ * Focus the "Subject" input.
+ *
+ * Note, this is used as a {@link moveFocusWithin} method.
+ *
+ * @return {true} - Always returns true.
+ */
+function focusSubjectInput() {
+  document.getElementById("msgSubject").focus();
+  return true;
+}
+
+/**
+ * Focus the composed message body.
+ *
+ * Note, this is used as a {@link moveFocusWithin} method.
+ *
+ * @return {true} - Always returns true.
+ */
+function focusMsgBody() {
   // window.content.focus() fails to blur the currently focused element
   document.commandDispatcher.advanceFocusIntoSubtree(
     document.getElementById("appcontent")
   );
+  return true;
 }
 
 /**
- * Get an element by ID in the current sidebar browser document.
+ * Focus the attachment bucket, provided it is not hidden.
  *
- * @param aId {string}       the ID of the element to get
- * @param aWindowId {string} the ID of a <window> in the sidebar <browser>;
- *                           only return the element if the window exists.
- *                           Assuming unique window ids and that there there can
- *                           only ever be one <window> in a <browser>'s src.xhtml
- *                           (documentation is pretty poor), that means that the
- *                           element will only be returned if it is found in the
- *                           same src.xhtml as the window (as opposed to any
- *                           src.xhtml / window currently displayed in the sidebar
- *                           browser).
+ * Note, this is used as a {@link moveFocusWithin} method.
+ *
+ * @param {Element} attachmentView - The attachment container.
+ *
+ * @return {boolean} - Whether the attachment bucket was focused.
  */
-function sidebarDocumentGetElementById(aId, aWindowId) {
-  let sidebarDocument = document.getElementById("sidebar").contentDocument;
-  if (aWindowId) {
-    if (sidebarDocument.getElementById(aWindowId)) {
-      return sidebarDocument.getElementById(aId);
-    }
-    // aWindowId not found
-    return null;
+function focusAttachmentBucket(attachmentView) {
+  if (attachmentView.collapsed) {
+    return false;
   }
-  return sidebarDocument.getElementById(aId);
+  // Attachment bucket parent may also be collapsed.
+  if (document.getElementById("attachmentsBox").collapsed) {
+    return false;
+  }
+  gAttachmentBucket.focus();
+  return true;
+}
+
+/**
+ * Focus the first focusable descendant of the status bar.
+ *
+ * Note, this is used as a {@link moveFocusWithin} method.
+ *
+ * @param {Element} attachmentView - The status bar.
+ *
+ * @return {boolean} - Whether a status bar descendant received focused.
+ */
+function focusStatusBar(statusBar) {
+  let button = statusBar.querySelector("button:not([hidden])");
+  if (!button) {
+    return false;
+  }
+  button.focus();
+  return true;
 }
 
 function GetMsgHeadersToolbarElement() {
@@ -8657,239 +8773,52 @@ function GetMsgHeadersToolbarElement() {
 }
 
 /**
- * Determine which element of the fast-track focus ring has focus.
- * Note that mostly elements of the fast-track focus ring will be returned.
- *
- * @return {HTMLElement | null} An element node of the fast-track focus ring if
- *   the node or one of its descendants has focus, sometimes other focused
- *   elements, otherwise null.
- */
-function WhichElementHasFocus() {
-  // Special-case message body
-  if (document.activeElement == document.getElementById("content-frame")) {
-    return document.getElementById("content-frame");
-  }
-
-  let currentNode = top.document.commandDispatcher.focusedElement;
-
-  // Special-case Contacts Side Bar's peopleSearchInput so that iteration on
-  // currentNode.parentNode doesn't get stuck on Shadow Root of anonymous input.
-  let peopleSearchInput = sidebarDocumentGetElementById(
-    "peopleSearchInput",
-    "abContactsPanel"
-  );
-  if (
-    currentNode.flattenedTreeParentNode &&
-    currentNode.flattenedTreeParentNode == peopleSearchInput
-  ) {
-    currentNode = peopleSearchInput;
-  }
-
-  while (currentNode) {
-    if (
-      currentNode == document.getElementById("msgIdentity") ||
-      currentNode == document.getElementById("toAddrInput") ||
-      currentNode == document.getElementById("ccAddrInput") ||
-      currentNode == document.getElementById("bccAddrInput") ||
-      currentNode == document.getElementById("replyAddrInput") ||
-      currentNode == document.getElementById("newsgroupsAddrInput") ||
-      currentNode == document.getElementById("followupAddrInput") ||
-      currentNode == document.getElementById("msgSubject") ||
-      currentNode == document.getElementById("attachmentBucket") ||
-      currentNode == document.getElementById("extraAddressRowsMenuButton") ||
-      currentNode == document.getElementById("addr_bccShowAddressRowButton") ||
-      currentNode == document.getElementById("addr_ccShowAddressRowButton") ||
-      currentNode == document.getElementById("status-bar") ||
-      currentNode == sidebarDocumentGetElementById("abContactsPanel")
-    ) {
-      return currentNode;
-    }
-    // Iterate parent nodes until we find one that matches.
-    // Applicable for Contacts Sidebar with focus on search input or a contact.
-    currentNode = currentNode.parentNode;
-  }
-
-  return null;
-}
-
-/**
  * Fast-track focus ring: Switch focus between important (not all) elements
- * in the message compose window. Ctrl+[Shift+]Tab | [Shift+]F6 on Windows.
- *
- * The default element to switch to when going in either direction (with or
- * without shift key pressed) is the ToRecipientElement.
+ * in the message compose window in response to Ctrl+[Shift+]Tab or [Shift+]F6.
  *
  * @param {Event} event - A DOM keyboard event of a fast focus ring shortcut key
  */
-function SwitchElementFocus(event) {
-  let focusedElement = WhichElementHasFocus();
+function moveFocusToNeighbouringArea(event) {
+  event.preventDefault();
+  let currentElement = document.activeElement;
 
-  if (!focusedElement) {
-    // None of the pre-defined focus ring elements has focus: This should never
-    // happen with the default installation, but might happen with add-ons.
-    // In that case, default to focusing the address widget as the first element
-    // of the focus ring.
-    SetMsgToRecipientElementFocus();
+  for (let i = 0; i < gFocusAreas.length; i++) {
+    // Go through each area and check if focus is within.
+    let area = gFocusAreas[i];
+    let root = area.root || document.getElementById(area.rootId);
+    if (!root.contains(currentElement)) {
+      continue;
+    }
+    // Focus is within, so we find the neighbouring area to move focus to.
+    let end = i;
+    while (true) {
+      // Get the next neighbour.
+      // NOTE: The focus will loop around.
+      if (event.shiftKey) {
+        // Move focus backward. If the index points to the start of the Array,
+        // we loop back to the end of the Array.
+        i = (i || gFocusAreas.length) - 1;
+      } else {
+        // Move focus forward. If the index points to the end of the Array, we
+        // loop back to the start of the Array.
+        i = (i + 1) % gFocusAreas.length;
+      }
+      if (i == end) {
+        // Full loop around without finding an area to focus.
+        // Unexpected, but we make sure to stop looping.
+        break;
+      }
+      area = gFocusAreas[i];
+      root = area.root || document.getElementById(area.rootId);
+      if (area.focus(root)) {
+        // Successfully moved focus.
+        break;
+      }
+      // Else, try the next neighbour.
+    }
     return;
   }
-
-  if (event && event.shiftKey) {
-    // Backwards focus ring: e.g. Ctrl+Shift+Tab | Shift+F6
-    switch (focusedElement) {
-      case document.getElementById("newsgroupsAddrInput"):
-      case document.getElementById("followupAddrInput"):
-      case document.getElementById("replyAddrInput"):
-      case document.getElementById("bccAddrInput"):
-      case document.getElementById("ccAddrInput"):
-      case document.getElementById("toAddrInput"):
-        SetFocusOnPreviousAvailableElement(focusedElement);
-        break;
-      case document.getElementById("msgIdentity"):
-        if (!sidebar_is_hidden() && focusContactsSidebarSearchInput()) {
-          return;
-        }
-      // Fallthrough!
-      case sidebarDocumentGetElementById("abContactsPanel"):
-        let statusBarButtons = document.querySelectorAll(
-          "#status-bar button:not([hidden])"
-        );
-        if (statusBarButtons.length) {
-          // Since focus is backwards, focus last button.
-          statusBarButtons[statusBarButtons.length - 1].focus();
-          return;
-        }
-      // Fallthrough!
-      case document.getElementById("status-bar"):
-        // Focus attachment bucket if visible.
-        if (!document.getElementById("attachmentsBox").collapsed) {
-          gAttachmentBucket.focus();
-          return;
-        }
-      // Fallthrough!
-      case gAttachmentBucket:
-        SetMsgBodyFrameFocus();
-        break;
-      case document.getElementById("content-frame"): // message body
-        SetMsgSubjectElementFocus();
-        break;
-      case document.getElementById("msgSubject"):
-        SetFocusOnPreviousAvailableElement(focusedElement);
-        break;
-      default:
-        SetMsgToRecipientElementFocus();
-        break;
-    }
-
-    return;
-  }
-
-  // Forwards focus ring: e.g. Ctrl+Tab | F6
-  switch (focusedElement) {
-    case document.getElementById("msgIdentity"):
-      // Move the focus on the first available recipient field.
-      document
-        .getElementById("recipientsContainer")
-        .querySelector(".address-row:not(.hidden) .address-row-input")
-        .focus();
-      break;
-    case document.getElementById("toAddrInput"):
-    case document.getElementById("ccAddrInput"):
-    case document.getElementById("bccAddrInput"):
-    case document.getElementById("replyAddrInput"):
-    case document.getElementById("followupAddrInput"):
-    case document.getElementById("newsgroupsAddrInput"):
-      SetFocusOnNextAvailableElement(focusedElement);
-      break;
-    case document.getElementById("msgSubject"):
-      SetMsgBodyFrameFocus();
-      break;
-    case document.getElementById("content-frame"): // message body
-      // Focus attachment bucket if visible.
-      if (!document.getElementById("attachmentsBox").collapsed) {
-        gAttachmentBucket.focus();
-        return;
-      }
-    // Fallthrough!
-    case gAttachmentBucket:
-      let statusBarButton = document.querySelector(
-        "#status-bar button:not([hidden])"
-      );
-      if (statusBarButton) {
-        // Since focus is forwards, focus the first button.
-        statusBarButton.focus();
-        return;
-      }
-    // Fallthrough!
-    case document.getElementById("status-bar"):
-      // Focus the search input of contacts side bar if that's available,
-      // otherwise focus "From" selector.
-      if (!sidebar_is_hidden() && focusContactsSidebarSearchInput()) {
-        return;
-      }
-    // Fallthrough!
-    case sidebarDocumentGetElementById("abContactsPanel"):
-      SetMsgIdentityElementFocus();
-      break;
-    default:
-      SetMsgToRecipientElementFocus();
-      break;
-  }
-}
-
-/**
- * Find the closest visible previous element in the list of recipients
- * and move the focus on its autocomplete input field.
- *
- * @param {HTMLElement} element - The currently focused element.
- */
-function SetFocusOnPreviousAvailableElement(element) {
-  // If the current element is msgSubject we need to select the last not hidden
-  // row in the mail-recipients-area.
-  if (element == document.getElementById("msgSubject")) {
-    element = document.getElementById("recipientsContainer").lastChild;
-
-    // If the last available address-row child is not hidden, grab the focus.
-    if (!element.classList.contains("hidden")) {
-      element.querySelector(".address-row-input").focus();
-      return;
-    }
-  }
-
-  // If a previous address row is available and not hidden,
-  // focus on the autocomplete input field.
-  let previousRow = element.closest(".address-row").previousElementSibling;
-  while (previousRow) {
-    if (!previousRow.classList.contains("hidden")) {
-      previousRow.querySelector(".address-row-input").focus();
-      return;
-    }
-    previousRow = previousRow.previousElementSibling;
-  }
-
-  // Move the focus on the msgIdentity if no extra recipients are available.
-  SetMsgIdentityElementFocus();
-}
-
-/**
- * Find the closest visible next element in the list of recipients
- * and move the focus on its autocomplete input field.
- *
- * @param {HTMLElement} element - The currently focused element.
- */
-function SetFocusOnNextAvailableElement(element) {
-  // If a next address row is available and not hidden,
-  // focus on the autocomplete input field.
-  let nextRow = element.closest(".address-row").nextElementSibling;
-  while (nextRow) {
-    if (!nextRow.classList.contains("hidden")) {
-      nextRow.querySelector(".address-row-input").focus();
-      return;
-    }
-    nextRow = nextRow.nextElementSibling;
-  }
-
-  // Move the focus on the msgSubject if no extra recipients are available.
-  SetMsgSubjectElementFocus();
+  // Focus is currently outside the gFocusAreas list, so do nothing.
 }
 
 function sidebarCloseButtonOnCommand() {
@@ -8944,7 +8873,7 @@ function toggleAddressPicker(aFocus = true) {
       sidebar.setAttribute("src", url);
     } else if (aFocus) {
       // sidebarUrl already set, so we can focus immediately if applicable.
-      focusContactsSidebarSearchInput();
+      focusContactsSidebarSearchInput(sidebarBox);
     }
     sidebarBox.setAttribute("sidebarVisible", "true");
   } else {
@@ -8981,9 +8910,9 @@ function toggleAddressPicker(aFocus = true) {
     if (focusedElement) {
       focusedElement.focus();
     } else if (!document.getElementById("msgSubject").value) {
-      SetMsgSubjectElementFocus();
+      focusSubjectInput();
     } else {
-      SetMsgBodyFrameFocus();
+      focusMsgBody();
     }
   }
 }
