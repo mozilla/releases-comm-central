@@ -8739,8 +8739,8 @@ NS_IMETHODIMP nsImapMailFolder::HasMsgOffline(nsMsgKey msgKey, bool* _retval) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
-                                                    nsIMsgFolder** aMsgFolder) {
+nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
+                                               nsIMsgFolder** aMsgFolder) {
   // Check if we have the message in the current folder.
   NS_ENSURE_ARG_POINTER(aMsgFolder);
   nsCOMPtr<nsIMsgFolder> subMsgFolder;

@@ -353,17 +353,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD SetFilterList(nsIMsgFilterList* aMsgFilterList) override;
   NS_IMETHOD GetCustomIdentity(nsIMsgIdentity** aIdentity) override;
 
-  /**
-   * This method is used to locate a folder where a msg could be present, not
-   * just the folder where the message first arrives, this method searches for
-   * the existence of msg in all the folders/labels that we retrieve from
-   * X-GM-LABELS also. overrides nsMsgDBFolder::GetOfflineMsgFolder()
-   *  @param msgKey key  of the msg for which we are trying to get the folder;
-   *  @param aMsgFolder  required folder;
-   */
-  NS_IMETHOD GetOfflineMsgFolder(nsMsgKey msgKey,
-                                 nsIMsgFolder** aMsgFolder) override;
-
   NS_IMETHOD GetIncomingServerType(nsACString& serverType) override;
 
   nsresult AddSubfolderWithPath(nsAString& name, nsIFile* dbPath,
@@ -602,5 +591,14 @@ class nsImapMailFolder : public nsMsgDBFolder,
   void DeleteStoreMessages(const nsTArray<nsMsgKey>& aMessages);
   static void DeleteStoreMessages(const nsTArray<nsMsgKey>& aMessages,
                                   nsIMsgFolder* aFolder);
+  /**
+   * This method is used to locate a folder where a msg could be present, not
+   * just the folder where the message first arrives, this method searches for
+   * the existence of msg in all the folders/labels that we retrieve from
+   * X-GM-LABELS also. overrides nsMsgDBFolder::GetOfflineMsgFolder()
+   *  @param msgKey key  of the msg for which we are trying to get the folder;
+   *  @param aMsgFolder  required folder;
+   */
+  nsresult GetOfflineMsgFolder(nsMsgKey msgKey, nsIMsgFolder** aMsgFolder);
 };
 #endif

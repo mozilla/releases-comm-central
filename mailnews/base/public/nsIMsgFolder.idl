@@ -592,14 +592,6 @@ interface nsIMsgFolder : nsISupports {
                                       out unsigned long aSize);
 
   /**
-   * Get the folder where the msg could be present.
-   * @param msgKey  key of the msg for which we are trying to get the folder;
-   * @returns aMsgFolder  required folder;
-   *
-   */
-  nsIMsgFolder GetOfflineMsgFolder(in nsMsgKey msgKey);
-
-  /**
    * Get an offline store output stream for the passed message header.
    *
    * @param aHdr hdr of message to get outputstream for
