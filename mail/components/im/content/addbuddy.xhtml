@@ -7,20 +7,21 @@
 <?xml-stylesheet href="chrome://messenger/skin/imMenulist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/addbuddy.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/addbuddy.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        id="addBuddyDialog"
-        windowtype="Messenger:AddBuddy"
-        title="&addBuddyWindow.title;"
-        onload="addBuddy.onload()">
+<html id="addBuddyDialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title>&addBuddyWindow.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/chat/addbuddy.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel"
         buttondisabledaccept="true">
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/chat/addbuddy.js"/>
 
   <stringbundle id="chatBundle" src="chrome://messenger/locale/chat.properties"/>
   <hbox>
@@ -41,4 +42,5 @@
     </vbox>
   </hbox>
 </dialog>
-</window>
+</html:body>
+</html>

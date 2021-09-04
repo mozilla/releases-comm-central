@@ -47,3 +47,7 @@ var addBuddy = {
 };
 
 document.addEventListener("dialogaccept", addBuddy.create.bind(addBuddy));
+
+window.addEventListener("load", event => {
+  addBuddy.onload();
+});
