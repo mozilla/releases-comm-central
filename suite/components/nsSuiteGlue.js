@@ -411,7 +411,7 @@ SuiteGlue.prototype = {
    * level.
    */
   _migrateUI() {
-    const UI_VERSION = 8;
+    const UI_VERSION = 9;
 
     // If the pref is not set this is a new or pre SeaMonkey 2.49 profile.
     // We can't tell so we just run migration with version 0.
@@ -564,6 +564,32 @@ SuiteGlue.prototype = {
       // clearing data on shutdown because there will no longer be
       // a possible prompt.
       Services.prefs.clearUserPref("privacy.sanitize.sanitizeOnShutdown");
+    }
+
+    // Migrate mail tab options.
+    if (currentUIVersion < 9) {
+      const tabPrefs = [ "autoHide", "opentabfor.doubleclick",
+                         "opentabfor.middleclick" ];
+      for (let pref of tabPrefs) {
+        try {
+          let prefBT = "browser.tabs." + pref;
+
+          // Copy user value otherwise use default.
+          if (Services.prefs.prefHasUserValue(prefBT)) {
+            let prefMT = "mail.tabs." + pref;
+
+            // If it has a value this should never fail.
+            let valueBT = Services.prefs.getBoolPref(prefBT);
+            Services.prefs.setBoolPref(prefMT, valueBT);
+          }
+        } catch (ex) {
+          // Better safe than sorry.
+          Cu.reportError(ex);
+        }
+      }
+
+      // We might bring this back later but currently set to default.
+      Services.prefs.clearUserPref("browser.tabs.opentabfor.doubleclick");
     }
 
     // Update the migration version.
