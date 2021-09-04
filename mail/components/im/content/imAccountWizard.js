@@ -512,3 +512,7 @@ var accountWizard = {
       .loadURI(Services.io.newURI(aURL));
   },
 };
+
+window.addEventListener("load", event => {
+  accountWizard.onload();
+});
