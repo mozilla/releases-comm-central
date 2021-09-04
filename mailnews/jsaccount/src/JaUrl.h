@@ -110,7 +110,8 @@ class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
 
  private:
   virtual ~JaCppUrlDelegator() {
-    NS_ReleaseOnMainThread("JaCppUrlDelegator::mDelegateList", mDelegateList.forget());
+    NS_ReleaseOnMainThread("JaCppUrlDelegator::mDelegateList",
+                           mDelegateList.forget());
   }
 
   // Interfaces that may be overridden by JS.
