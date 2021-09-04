@@ -5,7 +5,6 @@
 #include "nsISupports.idl"
 
 interface nsIVariant;
-interface nsIJSEnumerator;
 
 interface calIAttachment;
 interface calIAttendee;
@@ -153,5 +152,6 @@ interface calIAlarm : nsISupports
     void setProperty(in AUTF8String name, in nsIVariant value);
     void deleteProperty(in AUTF8String name);
 
-    readonly attribute nsIJSEnumerator properties;
+    // Each inner array has two elements: a string and a nsIVariant.
+    readonly attribute Array<Array<jsval> > properties;
 };

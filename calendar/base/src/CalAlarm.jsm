@@ -611,7 +611,7 @@ CalAlarm.prototype = {
   },
 
   get properties() {
-    return this.mProperties.entries();
+    return [...this.mProperties.entries()];
   },
 
   toString(aItem) {

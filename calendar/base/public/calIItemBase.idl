@@ -4,7 +4,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIJSEnumerator;
 interface nsIVariant;
 
 interface calIItemACLEntry;
@@ -204,7 +203,8 @@ interface calIItemBase : nsISupports
 
   // these forward to an internal property bag; implemented here, so we can
   // do access control on set/delete to have control over mutability.
-  readonly attribute nsIJSEnumerator properties;
+  // Each inner array has two elements: a string and a nsIVariant.
+  readonly attribute Array<Array<jsval> > properties;
   boolean hasProperty(in AString name);
 
   /**

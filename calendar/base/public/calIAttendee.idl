@@ -6,7 +6,6 @@
 #include "nsISupports.idl"
 
 interface calIIcalProperty;
-interface nsIJSEnumerator;
 
 [scriptable,uuid(73a074ad-8812-4055-af75-14b509b8c5fe)]
 interface calIAttendee : nsISupports
@@ -57,7 +56,8 @@ interface calIAttendee : nsISupports
    */
   attribute AUTF8String    userType;
 
-  readonly attribute nsIJSEnumerator properties;
+  // Each inner array has two elements: a string and a nsIVariant.
+  readonly attribute Array<Array<jsval> > properties;
 
   // If you use the has/get/set/deleteProperty
   // methods, property names are case-insensitive.

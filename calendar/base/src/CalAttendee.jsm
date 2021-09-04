@@ -163,7 +163,7 @@ CalAttendee.prototype = {
   },
 
   get properties() {
-    return this.mProperties.entries();
+    return [...this.mProperties.entries()];
   },
 
   // The has/get/set/deleteProperty methods are case-insensitive.

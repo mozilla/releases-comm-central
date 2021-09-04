@@ -442,7 +442,8 @@ calItemBase.prototype = {
     }
   },
 
-  // readonly attribute nsIJSEnumerator properties;
+  // Each inner array has two elements: a string and a nsIVariant.
+  // readonly attribute Array<Array<jsval> > properties;
   get properties() {
     let properties = this.mProperties;
     if (this.mIsProxy) {
@@ -456,7 +457,7 @@ calItemBase.prototype = {
       );
     }
 
-    return properties.entries();
+    return [...properties.entries()];
   },
 
   // nsIVariant getProperty(in AString name);
