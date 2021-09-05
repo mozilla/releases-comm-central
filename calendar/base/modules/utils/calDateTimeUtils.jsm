@@ -207,6 +207,10 @@ var caldtz = {
    * @return          The Javascript date equivalent.
    */
   dateTimeToJsDate(cdt) {
+    if (cdt.isDate) {
+      return new Date(cdt.year, cdt.month, cdt.day);
+    }
+
     if (cdt.timezone.isFloating) {
       return new Date(cdt.year, cdt.month, cdt.day, cdt.hour, cdt.minute, cdt.second);
     }

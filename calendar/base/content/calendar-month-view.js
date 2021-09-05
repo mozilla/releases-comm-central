@@ -909,13 +909,8 @@
 
           daybox.setAttribute("class", boxClass);
 
-          daybox.setDate(date);
-          if (date.day == 1 || date.day == date.endOfMonth.day) {
-            daybox.showMonthLabel = true;
-          } else {
-            daybox.showMonthLabel = false;
-          }
           daybox.calendarView = this;
+          daybox.showMonthLabel = date.day == 1 || date.day == date.endOfMonth.day;
           daybox.date = date;
           dateBoxes.push(daybox);
 

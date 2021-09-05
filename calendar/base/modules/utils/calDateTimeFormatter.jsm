@@ -347,7 +347,7 @@ function inTimezone(aDate, aOptions) {
   let formatter;
   let timezone = aDate.timezone;
 
-  if (timezone && (timezone.isUTC || timezone.icalComponent)) {
+  if (!aDate.isDate && timezone && (timezone.isUTC || timezone.icalComponent)) {
     let optionsWithTimezone = { ...aOptions, timeZone: timezone.tzid };
 
     cacheKey = JSON.stringify(optionsWithTimezone);
