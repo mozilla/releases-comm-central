@@ -11,12 +11,33 @@ const { PromptUtils } = ChromeUtils.import(
   "resource://gre/modules/SharedPromptUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 const LoginInfo = Components.Constructor(
   "@mozilla.org/login-manager/loginInfo;1",
   "nsILoginInfo",
   "init"
 );
+
+XPCOMUtils.defineLazyGetter(this, "dialogsBundle", function() {
+  return Services.strings.createBundle(
+    "chrome://global/locale/commonDialogs.properties"
+  );
+});
+
+XPCOMUtils.defineLazyGetter(this, "passwordsBundle", function() {
+  return Services.strings.createBundle(
+    "chrome://passwordmgr/locale/passwordmgr.properties"
+  );
+});
+
+XPCOMUtils.defineLazyGetter(this, "brandFullName", function() {
+  return Services.strings
+    .createBundle("chrome://branding/locale/brand.properties")
+    .GetStringFromName("brandFullName");
+});
 
 function runnablePrompter(asyncPrompter, hashKey) {
   this._asyncPrompter = asyncPrompter;
@@ -175,17 +196,6 @@ MsgAsyncPrompter.prototype = {
 class MsgAuthPrompt {
   QueryInterface = ChromeUtils.generateQI(["nsIAuthPrompt"]);
 
-  __strBundle = null; // String bundle for L10N
-  get _strBundle() {
-    if (!this.__strBundle) {
-      this.__strBundle = Services.strings.createBundle(
-        "chrome://passwordmgr/locale/passwordmgr.properties"
-      );
-    }
-
-    return this.__strBundle;
-  }
-
   _getFormattedOrigin(aURI) {
     let uri;
     if (aURI instanceof Ci.nsIURI) {
@@ -217,9 +227,9 @@ class MsgAuthPrompt {
 
   _getLocalizedString(key, formatArgs) {
     if (formatArgs) {
-      return this._strBundle.formatStringFromName(key, formatArgs);
+      return passwordsBundle.formatStringFromName(key, formatArgs);
     }
-    return this._strBundle.GetStringFromName(key);
+    return passwordsBundle.GetStringFromName(key);
   }
 
   /**
@@ -301,7 +311,7 @@ class MsgAuthPrompt {
       }
     }
 
-    let ok = promptUsernameAndPassword(
+    let ok = nsIPrompt_promptUsernameAndPassword(
       aDialogTitle,
       aText,
       aUsername,
@@ -329,7 +339,6 @@ class MsgAuthPrompt {
   /**
    * If a password is found in the database for the password realm, it is
    * returned straight away without displaying a dialog.
-
    *
    * If a password is not found in the database, the user will be prompted
    * with a dialog with a text field and ok/cancel buttons. If the user
@@ -377,7 +386,7 @@ class MsgAuthPrompt {
       }
     }
 
-    let ok = promptPassword(
+    let ok = nsIPrompt_promptPassword(
       aDialogTitle,
       aText,
       aPassword,
@@ -399,6 +408,90 @@ class MsgAuthPrompt {
 
     return ok;
   }
+
+  /**
+   * Implements nsIPrompt.promptPassword as it was before the check box option
+   * was removed.
+   *
+   * Puts up a dialog with a password field and an optional, labelled checkbox.
+   *
+   * @param {string} dialogTitle
+   *        Text to appear in the title of the dialog.
+   * @param {string} text
+   *        Text to appear in the body of the dialog.
+   * @param {object} password
+   *        Contains the default value for the password field when this method
+   *        is called (null value is ok).  Upon return, if the user pressed OK,
+   *        then this parameter contains a newly allocated string value.
+   *        Otherwise, the parameter's value is unmodified.
+   * @param {string} checkMsg
+   *        Text to appear with the checkbox.  If null, check box will not be shown.
+   * @param {object} checkValue
+   *        Contains the initial checked state of the checkbox when this method
+   *        is called and the final checked state after this method returns.
+   *
+   * @return true for OK, false for Cancel.
+   */
+  promptPassword2(dialogTitle, text, password, checkMsg, checkValue) {
+    return nsIPrompt_promptPassword(
+      dialogTitle,
+      text,
+      password,
+      checkMsg,
+      checkValue
+    );
+  }
+
+  /**
+   * Requests a username and a password. Implementations will commonly show a
+   * dialog with a username and password field, depending on flags also a
+   * domain field.
+   *
+   * @param {nsIChannel} channel
+   *        The channel that requires authentication.
+   * @param {number} level
+   *        One of the level constants from nsIAuthPrompt2. See there for
+   *        descriptions of the levels.
+   * @param {object} authInfo
+   *        Authentication information object. The implementation should fill in
+   *        this object with the information entered by the user before
+   *        returning.
+   * @param {string} checkMsg
+   *        Text to appear with the checkbox.  If null, check box will not be shown.
+   * @param {object} checkValue
+   *        Contains the initial checked state of the checkbox when this method
+   *        is called and the final checked state after this method returns.
+   *
+   * @return true for OK, false for Cancel.
+   */
+  promptAuth(channel, level, authInfo, checkboxLabel, checkValue) {
+    let title = dialogsBundle.formatStringFromName(
+      "PromptUsernameAndPassword3",
+      [brandFullName]
+    );
+    let text = dialogsBundle.formatStringFromName("EnterUserPasswordFor2", [
+      `${channel.URI.scheme}://${channel.URI.host}`,
+    ]);
+
+    let username = { value: authInfo.username || "" };
+    let password = { value: authInfo.password || "" };
+
+    let ok = nsIPrompt_promptUsernameAndPassword(
+      title,
+      text,
+      username,
+      password,
+      checkboxLabel,
+      checkValue
+    );
+
+    if (ok) {
+      authInfo.username = username.value;
+      authInfo.password = password.value;
+    }
+
+    return ok;
+  }
 }
 
 /**
@@ -406,7 +499,7 @@ class MsgAuthPrompt {
  * box option was removed.
  *
  * Puts up a dialog with an edit field, a password field, and an optional,
- * labeled checkbox.
+ * labelled checkbox.
  *
  * @param {string} dialogTitle
  *        Text to appear in the title of the dialog.
@@ -430,7 +523,7 @@ class MsgAuthPrompt {
  *
  * @return true for OK, false for Cancel.
  */
-function promptUsernameAndPassword(
+function nsIPrompt_promptUsernameAndPassword(
   dialogTitle,
   text,
   username,
@@ -438,6 +531,13 @@ function promptUsernameAndPassword(
   checkMsg,
   checkValue
 ) {
+  if (!dialogTitle) {
+    dialogTitle = dialogsBundle.formatStringFromName(
+      "PromptUsernameAndPassword3",
+      [brandFullName]
+    );
+  }
+
   let args = {
     promptType: "promptUserAndPass",
     title: dialogTitle,
@@ -474,7 +574,7 @@ function promptUsernameAndPassword(
  * Implements nsIPrompt.promptPassword as it was before the check box option
  * was removed.
  *
- * Puts up a dialog with a password field and an optional, labeled checkbox.
+ * Puts up a dialog with a password field and an optional, labelled checkbox.
  *
  * @param {string} dialogTitle
  *        Text to appear in the title of the dialog.
@@ -493,7 +593,20 @@ function promptUsernameAndPassword(
  *
  * @return true for OK, false for Cancel.
  */
-function promptPassword(dialogTitle, text, password, checkMsg, checkValue) {
+function nsIPrompt_promptPassword(
+  dialogTitle,
+  text,
+  password,
+  checkMsg,
+  checkValue
+) {
+  if (!dialogTitle) {
+    dialogTitle = dialogsBundle.formatStringFromName(
+      "PromptUsernameAndPassword3",
+      [brandFullName]
+    );
+  }
+
   let args = {
     promptType: "promptPassword",
     title: dialogTitle,

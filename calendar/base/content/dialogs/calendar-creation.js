@@ -7,6 +7,8 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+ChromeUtils.defineModuleGetter(this, "MsgAuthPrompt", "resource:///modules/MsgAsyncPrompter.jsm");
+
 /* exported checkRequired, fillLocationPlaceholder, selectProvider, updateNoCredentials, */
 
 /* import-globals-from calendar-identity-utils.js */
@@ -755,8 +757,7 @@ function findCalendarsWithPassword(location) {
   let password = { value: "" };
   let savePassword = { value: 1 };
 
-  let okWasClicked = Services.prompt.promptPassword(
-    window,
+  let okWasClicked = new MsgAuthPrompt().promptPassword2(
     null,
     cal.l10n.getAnyString("messenger-mapi", "mapi", "loginText", [location]),
     password,

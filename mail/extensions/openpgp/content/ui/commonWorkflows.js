@@ -31,9 +31,7 @@ var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
  * resultFlags.canceled is set to true if the user clicked cancel
  */
 function passphrasePromptCallback(win, keyId, resultFlags) {
-  let p = {};
-  p.value = "";
-  let dummy = {};
+  let password = { value: "" };
   if (
     !Services.prompt.promptPassword(
       win,
@@ -41,9 +39,7 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
       l10n.formatValueSync("passphrase-prompt", {
         key: keyId,
       }),
-      p,
-      null,
-      dummy
+      password
     )
   ) {
     resultFlags.canceled = true;
@@ -51,7 +47,7 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
   }
 
   resultFlags.canceled = false;
-  return p.value;
+  return password.value;
 }
 
 // Return the first block of the wanted type (skip blocks of wrong type)

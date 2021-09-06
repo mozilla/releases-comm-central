@@ -3,9 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
+XPCOMUtils.defineLazyModuleGetters(this, {
+  cal: "resource:///modules/calendar/calUtils.jsm",
+  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+});
 
 /*
  * Authentication tools and prompts, mostly for providers
@@ -229,8 +233,7 @@ var calauth = {
         savePasswordLabel = cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword");
       }
       let savePassword = {};
-      let returnValue = Services.prompt.promptAuth(
-        null,
+      let returnValue = new MsgAuthPrompt().promptAuth(
         aChannel,
         aLevel,
         aAuthInfo,
@@ -351,7 +354,7 @@ var calauth = {
       throw new Components.Exception("", Cr.NS_ERROR_XPC_NEED_OUT_OBJECT);
     }
 
-    let prompter = Services.ww.getNewPrompter(null);
+    let prompter = new MsgAuthPrompt();
 
     // Only show the save password box if we are supposed to.
     let savepassword = null;

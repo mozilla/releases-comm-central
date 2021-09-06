@@ -14,6 +14,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
+  MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -633,8 +634,8 @@ class NotificationCallbacks {
         .GetStringFromName("rememberPassword");
       savePassword.value = true;
     }
-    let returnValue = Services.prompt.promptAuth(
-      Services.wm.getMostRecentWindow(""),
+
+    let returnValue = new MsgAuthPrompt().promptAuth(
       channel,
       level,
       authInfo,
