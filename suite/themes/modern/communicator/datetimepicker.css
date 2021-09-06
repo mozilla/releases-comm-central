@@ -11,22 +11,32 @@
 
 datepicker, timepicker {
   margin: 2px 4px;
-  font: inherit;
+  padding: 0;
+  border: none;
+  background: none;
   cursor: default;
 }
 
 .datetimepicker-input-box {
+  -moz-appearance: textfield;
+  cursor: text;
+  margin-inline-end: 2px;
   border: 1px solid #5D616E;
+  padding: 2px 0 3px 0;
+  padding-inline-start: 4px;
+  padding-inline-end: 2px;
   padding: 1px;
-  background-color: #FFFFFF;
+  background-color: #C7D0D9;
   color: #000000;
 }
 
-html|*.datetimepicker-input {
+.datetimepicker-input-subbox {
   text-align: right;
   width: 1.6em;
-  padding: 0;
-  margin: 0;
+}
+
+html|*.datetimepicker-input {
+  text-align: end;
 }
 
 .datetimepicker-separator {
@@ -40,51 +50,80 @@ html|*.datetimepicker-input {
 datepicker[readonly="true"],
 timepicker[readonly="true"] {
   background-color: #C7D0D9;
+  color: -moz-DialogText;
 }
 
 datepicker[disabled="true"],
 timepicker[disabled="true"] {
+  cursor: default;
   background-color: #C7D0D9;
-  color: #999999;
-  cursor: default !important;
-} 
+  color: GrayText;
+}
+
+.datepicker-mainbox {
+  margin: 2px 4px;
+  border: 2px solid;
+  -moz-border-top-colors: #BEC3D3 #5D616E;
+  -moz-border-right-colors: #F8FAFE #5D616E;
+  -moz-border-bottom-colors: #F8FAFE #5D616E;
+  -moz-border-left-colors: #BEC3D3 #5D616E;
+  background-color: #C7D0D9;
+  color: #000000;
+}
+
+.datepicker-popupgrid > .datepicker-mainbox {
+  margin: 0;
+  border: none;
+}
 
 .datepicker-gridlabel, .datepicker-weeklabel {
-  margin: 0;
   text-align: center;
 }
 
 .datepicker-gridlabel[today="true"] {
-  background-color: darkgrey;
+  background-color: #C7D0D9;
   color: white;
 }
 
 .datepicker-gridlabel[selected="true"] {
-  background-color: #424F63;
-  color: #000000;
+  background-color: Highlight;
+  color: HighlightText;
 }
 
 .datepicker-button {
-  min-width: 4px;
+  -moz-appearance: none;
+  min-width: 8px;
   padding: 0px;
 }
 
-.datepicker-button .button-text {
-  visibility: collapse;
-}
-
 .datepicker-previous {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft.png");
 }
 
 .datepicker-next {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit.png");
 }
 
 .datepicker-previous[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft-dis.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft-dis.png");
 }
 
 .datepicker-next[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit-dis.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit-dis.png");
+}
+
+.datepicker-previous:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit.png");
+}
+
+.datepicker-next:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft.png");
+}
+
+.datepicker-previous[disabled="true"]:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit-dis.png");
+}
+
+.datepicker-next[disabled="true"]:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft-dis.png");
 }

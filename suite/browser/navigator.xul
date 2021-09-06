@@ -113,6 +113,18 @@
            noautofocus="true"
            hidden="true"/>
 
+   <!-- for date/time picker. consumeoutsideclicks is set to never, so that
+        clicks on the anchored input box are never consumed. -->
+    <panel id="DateTimePickerPanel"
+           type="arrow"
+           hidden="true"
+           orient="vertical"
+           noautofocus="true"
+           norolluponanchor="true"
+           consumeoutsideclicks="never"
+           level="parent">
+    </panel>
+
     <!-- for invalid form error message -->
     <panel id="invalid-form-popup" noautofocus="true" hidden="true" level="parent">
       <description/>
@@ -520,6 +532,7 @@
                     onnewtab="BrowserOpenTab();"
                     onnewtabclick="checkForMiddleClick(this, event);"
                     autocompletepopup="PopupAutoComplete"
+                    datetimepicker="DateTimePickerPanel"
                     onbookmarkgroup="PlacesCommandHook.bookmarkCurrentPages();"
                     oncontentclick="return contentAreaClick(event);"
                     oncommand="BrowserOnCommand(event);"/>

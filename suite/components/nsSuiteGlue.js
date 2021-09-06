@@ -23,6 +23,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   PlacesBackups: "resource://gre/modules/PlacesBackups.jsm",
   AsyncShutdown: "resource://gre/modules/AsyncShutdown.jsm",
   AutoCompletePopup: "resource://gre/modules/AutoCompletePopup.jsm",
+  DateTimePickerHelper: "resource://gre/modules/DateTimePickerHelper.jsm",
   BookmarkHTMLUtils: "resource://gre/modules/BookmarkHTMLUtils.jsm",
   BookmarkJSONUtils: "resource://gre/modules/BookmarkJSONUtils.jsm",
   RecentWindow: "resource:///modules/RecentWindow.jsm",
@@ -728,6 +729,7 @@ SuiteGlue.prototype = {
   // First mail or browser window loaded.
   _onFirstWindowLoaded: function(aWindow) {
     AutoCompletePopup.init();
+    DateTimePickerHelper.init();
 
     if ("@mozilla.org/windows-taskbar;1" in Cc &&
         Cc["@mozilla.org/windows-taskbar;1"]
@@ -764,6 +766,7 @@ SuiteGlue.prototype = {
       this._setPrefToSaveSession();
     }
     AutoCompletePopup.uninit();
+    DateTimePickerHelper.uninit();
   },
 
   _promptForMasterPassword: function()

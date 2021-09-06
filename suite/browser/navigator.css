@@ -70,6 +70,17 @@ panel[for="urlbar"] {
   -moz-box-align: center;
 }
 
+#DateTimePickerPanel[active="true"] {
+  -moz-binding: url("chrome://global/content/bindings/datetimepopup.xml#datetime-popup");
+}
+
+.popup-anchor {
+  /* should occupy space but not be visible */
+  opacity: 0;
+  pointer-events: none;
+  -moz-stack-sizing: ignore;
+}
+
 /* ::::: search bar ::::: */
 searchbar {
   -moz-binding: url("chrome://communicator/content/search/search.xml#searchbar");

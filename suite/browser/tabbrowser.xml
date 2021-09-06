@@ -96,7 +96,7 @@
           <xul:notificationbox class="browser-notificationbox" xbl:inherits="popupnotification">
             <xul:stack flex="1" anonid="browserStack">
               <xul:browser flex="1" type="content" primary="true"
-                           xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autocompletepopup"/>
+                           xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autocompletepopup,datetimepicker"/>
             </xul:stack>
           </xul:notificationbox>
         </xul:tabpanels>
@@ -1609,6 +1609,9 @@
             b.setAttribute("contextmenu", this.getAttribute("contentcontextmenu"));
             b.setAttribute("tooltip", this.getAttribute("contenttooltip"));
             b.setAttribute("autocompletepopup", this.getAttribute("autocompletepopup"));
+            if (this.hasAttribute("datetimepicker")) {
+              b.setAttribute("datetimepicker", this.getAttribute("datetimepicker"));
+            }
 
            // Check if we have a "parent" window which we need to set as our opener
            if (aOpener) {
@@ -2312,6 +2315,23 @@
           ]]>
         </body>
       </method>
+
+      <property name="popupAnchor" readonly="true">
+        <getter><![CDATA[
+        if (this.mCurrentTab._popupAnchor) {
+          return this.mCurrentTab._popupAnchor;
+        }
+        // Actually the notificationbox not the browserstack.
+        let stack = this.mCurrentBrowser.parentNode;
+        // Create an anchor for the popup
+        const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+        let popupAnchor = document.createElementNS(NS_XUL, "hbox");
+        popupAnchor.className = "popup-anchor";
+        popupAnchor.hidden = true;
+        stack.appendChild(popupAnchor);
+        return this.mCurrentTab._popupAnchor = popupAnchor;
+        ]]></getter>
+      </property>
 
       <method name="selectTabAtIndex">
         <parameter name="aIndex"/>
