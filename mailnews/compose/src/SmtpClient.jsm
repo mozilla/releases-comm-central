@@ -236,6 +236,11 @@ class SmtpClient {
     this._envelope.rcptFailed = [];
     this._envelope.responseQueue = [];
 
+    if (!this._envelope.rcptQueue.length) {
+      this._onNsError(MsgUtils.NS_MSG_NO_RECIPIENTS);
+      return;
+    }
+
     this._currentAction = this._actionMAIL;
     let cmd = `MAIL FROM:<${this._envelope.from}>`;
     if (
@@ -833,7 +838,7 @@ class SmtpClient {
    */
   _actionGreeting(command) {
     if (command.statusCode !== 220) {
-      this._onError(new Error("Invalid greeting: " + command.data));
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
       return;
     }
 
@@ -853,7 +858,7 @@ class SmtpClient {
    */
   _actionLHLO(command) {
     if (!command.success) {
-      this._onError(new Error(`LHLO not successful: ${command.data}`));
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
       return;
     }
 
@@ -965,7 +970,7 @@ class SmtpClient {
    */
   _actionSTARTTLS(command) {
     if (!command.success) {
-      this._onError(new Error(`STARTTLS not successful: ${command.data}`));
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
       return;
     }
 
@@ -997,12 +1002,7 @@ class SmtpClient {
    */
   _actionAUTH_LOGIN_USER(command) {
     if (command.statusCode !== 334 || command.data !== "VXNlcm5hbWU6") {
-      this._onError(
-        new Error(
-          'Invalid login sequence while waiting for "334 VXNlcm5hbWU6 ": ' +
-            command.data
-        )
-      );
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
     this.logger.debug("AUTH LOGIN USER successful");
@@ -1017,12 +1017,7 @@ class SmtpClient {
    */
   _actionAUTH_LOGIN_PASS(command) {
     if (command.statusCode !== 334 || command.data !== "UGFzc3dvcmQ6") {
-      this._onError(
-        new Error(
-          'Invalid login sequence while waiting for "334 UGFzc3dvcmQ6 ": ' +
-            command.data
-        )
-      );
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
     this.logger.debug("AUTH LOGIN PASS successful");
@@ -1050,9 +1045,7 @@ class SmtpClient {
    */
   async _actionAUTH_CRAM(command) {
     if (command.statusCode !== 334) {
-      this._onError(
-        new Error("Invalid login sequence while waiting for CRAM challenge")
-      );
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
     // Server sent us a base64 encoded challenge.
@@ -1098,11 +1091,7 @@ class SmtpClient {
       return;
     }
     if (command.statusCode !== 334) {
-      this._onError(
-        new Error(
-          `Invalid login sequence while waiting for GSSAPI challenge, ${command}`
-        )
-      );
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI, command.data);
       return;
     }
     let token = this._authenticator.getNextGssapiToken(command.data);
@@ -1123,11 +1112,7 @@ class SmtpClient {
       return;
     }
     if (command.statusCode !== 334) {
-      this._onError(
-        new Error(
-          `Invalid login sequence while waiting for NTLM challenge, ${command}`
-        )
-      );
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
     let token = this._authenticator.getNextNtlmToken(command.data);
@@ -1160,12 +1145,7 @@ class SmtpClient {
    * @param {Object} command Parsed command from the server {statusCode, data}
    */
   _actionIdle(command) {
-    if (command.statusCode > 300) {
-      this._onError(new Error(command.data));
-      return;
-    }
-
-    this._onError(new Error(command.data));
+    this._onNsError(MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT, command.data);
   }
 
   /**
@@ -1187,10 +1167,6 @@ class SmtpClient {
       return;
     }
 
-    if (!this._envelope.rcptQueue.length) {
-      this._onError(new Error("Can't send mail - no recipients defined"));
-      return;
-    }
     this.logger.debug(
       "MAIL FROM successful, proceeding with " +
         this._envelope.rcptQueue.length +
