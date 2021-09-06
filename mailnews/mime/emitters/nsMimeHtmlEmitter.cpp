@@ -460,17 +460,17 @@ nsresult nsMimeHtmlDisplayEmitter::AddAttachmentField(const char* field,
   nsresult rv = GetHeaderSink(getter_AddRefs(headerSink));
   if (NS_SUCCEEDED(rv) && headerSink) {
     headerSink->AddAttachmentField(field, value);
-  } else {
-    // Currently, we only care about the part size.
-    if (strcmp(field, HEADER_X_MOZILLA_PART_SIZE)) return NS_OK;
-
-    uint64_t size = atoi(value);
-    nsAutoString sizeString;
-    rv = FormatFileSize(size, false, sizeString);
-    UtilityWrite("<td class=\"mimeAttachmentSize\">");
-    UtilityWrite(NS_ConvertUTF16toUTF8(sizeString).get());
-    UtilityWrite("</td>");
   }
+
+  // Currently, we only care about the part size.
+  if (strcmp(field, HEADER_X_MOZILLA_PART_SIZE)) return NS_OK;
+
+  uint64_t size = atoi(value);
+  nsAutoString sizeString;
+  rv = FormatFileSize(size, false, sizeString);
+  UtilityWrite("<td class=\"mimeAttachmentSize\">");
+  UtilityWrite(NS_ConvertUTF16toUTF8(sizeString).get());
+  UtilityWrite("</td>");
 
   return NS_OK;
 }
