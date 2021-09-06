@@ -90,10 +90,9 @@
                         label="&newFeedAccountCmd.label;"
                         accesskey="&newFeedAccountCmd.accesskey;"
                         oncommand="AddFeedAccount();"/>
-              <menuitem id="newAccountMenuItem"
-                        label="&newOtherAccountsCmd.label;"
-                        accesskey="&newOtherAccountsCmd.accesskey;"
-                        oncommand="MsgAccountWizard();"/>
+              <menuitem id="newNewsgroupAccountMenuItem"
+                        data-l10n-id="file-new-newsgroup-account"
+                        oncommand="openNewsgroupAccountWizard();"/>
 #ifdef MAIN_WINDOW
               <menuitem id="calendar-new-calendar-menuitem"
                         label="&lightning.menupopup.new.calendar.label;"

@@ -135,10 +135,10 @@ function menu_new_init() {
 
   if (Services.prefs.prefIsLocked("mail.disable_new_account_addition")) {
     document
-      .getElementById("newAccountMenuItem")
+      .getElementById("newNewsgroupAccountMenuItem")
       .setAttribute("disabled", "true");
     document
-      .getElementById("appmenu_newAccountMenuItem")
+      .getElementById("appmenu_newNewsgroupAccountMenuItem")
       .setAttribute("disabled", "true");
   }
 

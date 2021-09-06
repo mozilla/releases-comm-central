@@ -72,106 +72,6 @@ function showMailIntegrationDialog() {
 }
 
 /**
- * Verify that there is at least one account. If not, open a new account wizard.
- *
- * @param wizardCallback if the wizard is run, callback when it is done.
- * @param needsIdentity True only when verifyAccounts is called from the
- *                      compose window. This last condition is so that we open
- *                      the account wizard if the user does not have any
- *                      identities defined and tries to compose mail.
- * @param wizardOpen optional param that allows the caller to specify a
- *                   different method to open a wizard. The wizardOpen method
- *                   takes wizardCallback as an argument. The wizardCallback
- *                   doesn't take any arguments.
- */
-function verifyAccounts(wizardCallback, needsIdentity, wizardOpen) {
-  var openWizard = false;
-  var prefillAccount;
-  var ret = true;
-
-  try {
-    // migrate quoting preferences from global to per account. This function returns
-    // true if it had to migrate, which we will use to mean this is a just migrated
-    // or new profile
-    var newProfile = migrateGlobalQuotingPrefs(
-      MailServices.accounts.allIdentities
-    );
-
-    var accounts = MailServices.accounts.accounts;
-
-    // as long as we have some accounts, we're fine.
-    var accountCount = accounts.length;
-    var invalidAccounts = getInvalidAccounts(accounts);
-    if (invalidAccounts.length > 0 && invalidAccounts.length == accountCount) {
-      prefillAccount = invalidAccounts[0];
-    }
-
-    // if there are no accounts, or all accounts are "invalid"
-    // then kick off the account migration. Or if this is a new (to Mozilla) profile.
-    // MCD can set up accounts without the profile being used yet
-    if (newProfile) {
-      // check if MCD is configured. If not, say this is not a new profile
-      // so that we don't accidentally remigrate non MCD profiles.
-      var adminUrl = Services.prefs.getCharPref(
-        "autoadmin.global_config_url",
-        ""
-      );
-      if (!adminUrl) {
-        newProfile = false;
-      }
-    }
-    if (
-      (newProfile && !accountCount) ||
-      accountCount == invalidAccounts.length
-    ) {
-      openWizard = true;
-    }
-
-    // openWizard is true if messenger migration returns some kind of
-    // error (including those cases where there is nothing to migrate).
-    // prefillAccount is non-null if there is at least one invalid account.
-    // gAnyValidIdentity is true when you've got at least one *valid*
-    // identity. Since local and RSS folders are identity-less accounts, if you
-    // only have one of those, it will be false.
-    // needsIdentity is true only when verifyAccounts is called from the
-    // compose window. This last condition is so that we open the account
-    // wizard if the user does not have any identities defined and tries to
-    // compose mail.
-
-    if (openWizard || prefillAccount || (!gAnyValidIdentity && needsIdentity)) {
-      if (wizardOpen != undefined) {
-        wizardOpen(wizardCallback);
-      } else {
-        MsgAccountWizard(wizardCallback);
-      }
-      ret = false;
-    } else {
-      var localFoldersExists;
-      try {
-        localFoldersExists = MailServices.accounts.localFoldersServer;
-      } catch (ex) {
-        localFoldersExists = false;
-      }
-
-      // we didn't create the MsgAccountWizard - we need to verify that local folders exists.
-      if (!localFoldersExists && requireLocalFoldersAccount()) {
-        MailServices.accounts.createLocalMailAccount();
-      }
-    }
-
-    // This will do nothing on platforms without a shell service
-    if ("@mozilla.org/suite/shell-service;1" in Cc) {
-      // hack, set a time out to do this, so that the window can load first
-      setTimeout(showMailIntegrationDialog, 0);
-    }
-    return ret;
-  } catch (ex) {
-    dump("error verifying accounts " + ex + "\n");
-    return false;
-  }
-}
-
-/**
  * Check that an account exists which requires Local Folders.
  *
  * @returns {Boolean} - true if at least 1 account exists that requires
@@ -183,30 +83,20 @@ function requireLocalFoldersAccount() {
   );
 }
 
-// we do this from a timer because if this is called from the onload=
-// handler, then the parent window doesn't appear until after the wizard
-// has closed, and this is confusing to the user
-function MsgAccountWizard(wizardCallback) {
-  setTimeout(function() {
-    msgOpenAccountWizard(wizardCallback);
-  }, 0);
-}
-
 /**
- * Open the Old Mail Account Wizard, or focus it if it's already open.
+ * Open the Nntp Account Wizard, or focus it if it's already open.
  *
  * @param wizardCallback if the wizard is run, callback when it is done.
- * @param type - optional account type token, for Tb.
  * @see msgNewMailAccount below for the new implementation.
  */
-function msgOpenAccountWizard(wizardCallback, type) {
+function openNewsgroupAccountWizard(wizardCallback) {
   gNewAccountToLoad = null;
 
   window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/AccountWizard.xhtml",
     "AccountWizard",
     "chrome,modal,titlebar,centerscreen",
-    { okCallback: wizardCallback, acctType: type }
+    { okCallback: wizardCallback }
   );
 
   loadInboxForNewAccount();
@@ -219,28 +109,6 @@ function msgOpenAccountWizard(wizardCallback, type) {
     !getCurrentAccount()
   ) {
     selectServer(null, null);
-  }
-}
-
-function initAccountWizardTB(args) {
-  let type = args[0] && args[0].acctType;
-  let selType = null;
-  if (type == "newsgroups") {
-    selType = "newsaccount";
-  }
-  let accountwizard = document.querySelector("wizard");
-  let acctyperadio = document.getElementById("acctyperadio");
-  let feedRadio = acctyperadio.querySelector("radio[value='Feeds']");
-  if (feedRadio) {
-    feedRadio.remove();
-  }
-  if (selType) {
-    acctyperadio.selectedItem = acctyperadio.querySelector(
-      "radio[value='" + selType + "']"
-    );
-    accountwizard.advance("identitypage");
-  } else {
-    acctyperadio.selectedItem = acctyperadio.getItemAtIndex(0);
   }
 }
 

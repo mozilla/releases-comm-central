@@ -3870,15 +3870,6 @@ var gMsgEditorCreationObserver = {
   },
 };
 
-function WizCallback(state) {
-  if (state) {
-    ComposeStartup(null);
-  } else {
-    // The account wizard is still closing so we can't close just yet
-    setTimeout(MsgComposeCloseWindow, 0);
-  }
-}
-
 /**
  * Adjust sign/encrypt settings accordingly after the identity was switched.
  *
@@ -4132,11 +4123,7 @@ function ComposeLoad() {
 
   try {
     SetupCommandUpdateHandlers();
-    // This will do migration, or create a new account if we need to.
-    // We also want to open the account wizard if no identities are found.
-    if (verifyAccounts(WizCallback, true)) {
-      ComposeStartup(null);
-    }
+    ComposeStartup(null);
   } catch (ex) {
     Cu.reportError(ex);
     Services.prompt.alert(

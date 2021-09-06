@@ -66,3 +66,9 @@ mail-uidensity-normal =
 mail-uidensity-touch =
     .label = Touch
     .accesskey = T
+
+## File
+
+file-new-newsgroup-account =
+    .label = Newsgroup Account…
+    .accesskey = N

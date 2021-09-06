@@ -794,10 +794,6 @@ function onSave() {
   return true;
 }
 
-function onAddAccount() {
-  MsgAccountWizard();
-}
-
 /**
  * Highlight the default account row in the account tree,
  * optionally un-highlight the previous one.

@@ -8,7 +8,7 @@ function hiddenWindowStartup() {
   let disabledItems = [
     "menu_newFolder",
     "newMailAccountMenuItem",
-    "newAccountMenuItem",
+    "newNewsgroupAccountMenuItem",
     "menu_close",
     "menu_saveAs",
     "menu_saveAsFile",
@@ -93,7 +93,7 @@ function hiddenWindowStartup() {
     "appmenu_newFolder",
     "appmenu_newMailAccountMenuItem",
     "appmenu_close",
-    "appmenu_newAccountMenuItem",
+    "appmenu_newNewsgroupAccountMenuItem",
     "appmenu_saveAs",
     "appmenu_saveAsFile",
     "appmenu_newVirtualFolder",

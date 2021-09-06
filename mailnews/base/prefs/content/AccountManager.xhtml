@@ -84,10 +84,9 @@
                     prefstring="mail.disable_new_account_addition"
                     oncommand="AddFeedAccount(event); event.stopPropagation();"/>
           <menuitem id="accountActionsAddOtherAccount"
-                    label="&addOtherAccountButton.label;"
-                    accesskey="&addOtherAccountButton.accesskey;"
+                    data-l10n-id="account-action-add-newsgroup-account"
                     prefstring="mail.disable_new_account_addition"
-                    oncommand="onAddAccount(event); event.stopPropagation();"/>
+                    oncommand="openNewsgroupAccountWizard(); event.stopPropagation();"/>
           <menuseparator id="accountActionsDropdownSep1"/>
           <menuitem id="accountActionsDropdownSetDefault"
                     label="&setDefaultButton.label;"

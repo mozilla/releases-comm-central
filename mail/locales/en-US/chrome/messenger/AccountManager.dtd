@@ -15,8 +15,6 @@
 <!ENTITY addIMAccountButton.accesskey "C">
 <!ENTITY addFeedAccountButton.label "Add Feed Account…">
 <!ENTITY addFeedAccountButton.accesskey "F">
-<!ENTITY addOtherAccountButton.label "Add Other Account…">
-<!ENTITY addOtherAccountButton.accesskey "O">
 <!ENTITY setDefaultButton.label "Set as Default">
 <!ENTITY setDefaultButton.accesskey "D">
 <!ENTITY removeButton.label "Remove Account">

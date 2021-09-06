@@ -184,7 +184,7 @@ function viewSettings(selectPage) {
  * Open the newsgroup account wizard.
  */
 function createNewsgroups() {
-  window.parent.msgOpenAccountWizard(function(state) {
+  window.parent.openNewsgroupAccountWizard(function(state) {
     updateMailPaneUI();
     let win = getMostRecentMailWindow();
     if (state && win && win.gFolderTreeView && this.gCurrentAccount) {

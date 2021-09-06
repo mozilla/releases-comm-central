@@ -5,44 +5,25 @@
 
 /* import-globals-from AccountWizard.js */
 
-var gPrefsBundle;
-
 function acctNamePageValidate() {
   var accountname = document.getElementById("prettyName").value;
-  var canAdvance = !!accountname;
-
   // Check if this accountname already exists. If so, return false so that
   // user can enter a different unique account name.
-  if (canAdvance && accountNameExists(accountname)) {
-    canAdvance = false;
-  }
-
-  document.querySelector("wizard").canAdvance = canAdvance;
+  document.querySelector("wizard").canAdvance =
+    !!accountname && !accountNameExists(accountname);
 }
 
 function acctNamePageUnload() {
   var pageData = parent.GetPageData();
   var accountname = document.getElementById("prettyName").value;
-  setPageData(pageData, "accname", "prettyName", accountname);
-  // Set this to true so we know the user has set the name.
-  setPageData(pageData, "accname", "userset", true);
+  pageData.prettyName = accountname;
   return true;
 }
 
 function acctNamePageInit() {
-  gPrefsBundle = document.getElementById("bundle_prefs");
   var accountNameInput = document.getElementById("prettyName");
   if (accountNameInput.value == "") {
-    var pageData = parent.GetPageData();
-    var type = parent.getCurrentServerType(pageData);
-    var accountName;
-
-    if (type == "nntp") {
-      accountName = pageData.newsserver.hostname.value;
-    } else {
-      accountName = pageData.identity.email.value;
-    }
-    accountNameInput.value = accountName;
+    accountNameInput.value = parent.GetPageData().hostname;
   }
   acctNamePageValidate();
 }

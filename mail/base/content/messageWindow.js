@@ -430,7 +430,6 @@ function delayedOnLoadMessageWindow() {
   ShowMenus();
   MailOfflineMgr.init();
   CreateMailWindowGlobals();
-  verifyAccounts(null);
 
   /**
    * Create a message listener so that we can update the title once the message

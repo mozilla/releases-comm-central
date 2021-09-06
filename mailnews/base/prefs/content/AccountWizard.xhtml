@@ -3,6 +3,9 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<!-- NOTE: This Account Wizard is *only* for Newsgroup accounts. Historically,
+   - it was a generic Account Wizard, hence the generic naming. -->
+
 <?xml-stylesheet href="chrome://messenger/skin/accountWizard.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/
@@ -16,11 +19,7 @@ css"?>
 ]>
 
 <window id="AccountWizard" title="&windowTitle.label;"
-#ifdef MOZ_THUNDERBIRD
-        onload="onAccountWizardLoad(); initAccountWizardTB(window.arguments);"
-#else
         onload="onAccountWizardLoad();"
-#endif
         style="&accountWizard.size;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
@@ -35,38 +34,12 @@ css"?>
   <script src="chrome://messenger/content/accountUtils.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
   <script src="chrome://messenger/content/AccountWizard.js"/>
-  <script src="chrome://messenger/content/aw-accounttype.js"/>
   <script src="chrome://messenger/content/aw-identity.js"/>
   <script src="chrome://messenger/content/aw-incoming.js"/>
-  <script src="chrome://messenger/content/aw-outgoing.js"/>
   <script src="chrome://messenger/content/aw-accname.js"/>
   <script src="chrome://messenger/content/aw-done.js"/>
 
   <wizard>
-    <!-- Account Type page : Displays choices of mail and news accounts that user can create -->
-    <wizardpage id="accounttype" pageid="accounttype"
-                label="&accountTypeTitle.label;">
-      <vbox flex="1">
-        <description>&accountSetupInfo2.label;</description>
-        <description>&accountTypeDesc2.label;</description>
-        <label control="acctyperadio">&accountTypeDirections.label;</label>
-        <separator/>
-        <radiogroup id="acctyperadio">
-#ifndef MOZ_THUNDERBIRD
-          <radio id="mailaccount" value="mailaccount"
-                 label="&accountTypeMail.label;" accesskey="&accountTypeMail.accesskey;"
-                 selected="true"/>
-#endif
-#ifndef MOZ_THUNDERBIRD
-          <radio id="rssaccount" value="rss" label="&feeds.wizardLongName;"
-                 accesskey="&feeds.wizardLongName.accesskey;"/>
-#endif
-          <radio id="newsaccount" value="newsaccount"
-                 label="&accountTypeNews.label;" accesskey="&accountTypeNews.accesskey;"/>
-        </radiogroup>
-      </vbox>
-    </wizardpage>
-
     <!-- Identity page : Collects user's full name and email address -->
     <wizardpage id="identitypage" pageid="identitypage"
                 label="&identityTitle.label;">
@@ -80,6 +53,7 @@ css"?>
                  accesskey="&fullnameLabel.accesskey;" control="fullName"/>
           <html:input id="fullName"
                       type="text"
+                      required="required"
                       wsm_persist="true"
                       name="fullName"
                       class="input-inline"
@@ -100,158 +74,15 @@ css"?>
             <hbox class="uri-element input-container" align="center" flex="1">
               <html:input id="email"
                           type="email"
+                          required="required"
                           wsm_persist="true"
                           name="email"
                           aria-labelledby="emailFieldLabel"
                           oninput="identityPageValidate();"
                           class="uri-element input-inline"/>
-              <label id="postEmailText"/>
             </hbox>
           </hbox>
         </vbox>
-      </vbox>
-    </wizardpage>
-
-    <!-- Incoming page : User can choose to create mail account of his choice, POP3 or IMAP -->
-    <!-- Collects incoming server name and login name. -->
-    <!-- Login name is prefilled with user id from the email address provided in identity page -->
-    <!-- User can enter a login name here if it is different from the user id of his/her email address -->
-    <wizardpage id="incomingpage" pageid="incomingpage"
-                label="&incomingTitle.label;">
-      <vbox flex="1">
-        <vbox id="serverTypeBox">
-          <label control="servertype">&incomingServerTypeDesc.label;</label>
-          <separator class="thin"/>
-          <hbox align="center" class="serverDataBox">
-            <!-- The initial value for the servertype radiogroup is set in onInit() -->
-            <radiogroup id="servertype" wsm_persist="true" orient="horizontal">
-              <radio id="pop3" group="servertype" value="pop3" label="&popType.label;"
-                     wsm_persist="true" oncommand="setServerType();" accesskey="&popType.accesskey;"/>
-              <radio id="imap" group="servertype" value="imap" label="&imapType.label;"
-                     wsm_persist="true" oncommand="setServerType();" accesskey="&imapType.accesskey;"/>
-            </radiogroup>
-            <label id="serverPortLabel" control="serverPort"
-                   accesskey="&portNum.accesskey;"
-                   value="&portNum.label;"/>
-            <html:input id="serverPort" type="number"
-                        class="size3 input-inline" max="65535"/>
-            <label id="defaultPortLabel" value="&defaultPortLabel.label;"/>
-            <label id="defaultPortValue" value="&defaultPortValue.label;"/>
-          </hbox>
-          <separator/>
-        </vbox>
-
-        <vbox id="incomingServerbox">
-          <description>&incomingServer.description;</description>
-          <hbox align="center" class="serverDataBox input-container">
-            <label id="incomingServerLabel" class="label serverLabel"
-                   value="&incomingServer.label;"
-                   accesskey="&incomingServer.accesskey;"
-                   control="incomingServer"/>
-            <html:input id="incomingServer"
-                        type="text"
-                        wsm_persist="true"
-                        class="uri-element input-inline"
-                        aria-labelledby="incomingServerLabel"
-                        oninput="incomingPageValidate();"/>
-          </hbox>
-          <hbox id="leaveMsgsOnSrvrBox" class="indent">
-            <checkbox id="leaveMessagesOnServer"
-                      label="&leaveMsgsOnSrvr.label;"
-                      accesskey="&leaveMsgsOnSrvr.accesskey;"
-                      wsm_persist="true"
-                      oncommand="setServerPrefs(this);"
-                      checked="true"/>
-          </hbox>
-          <separator/>
-        </vbox>
-        <description>&incomingUsername.description;</description>
-        <separator class="thin"/>
-        <hbox align="center" class="input-container">
-          <label id="usernameLabel" class="label"
-                 value="&incomingUsername.label;"
-                 style="width: 8em;"
-                 accesskey="&incomingUsername.accesskey;"
-                 control="username"/>
-          <html:input id="username"
-                      type="text"
-                      class="input-inline"
-                      wsm_persist="true"
-                      aria-labelledby="usernameLabel"
-                      oninput="incomingPageValidate();"/>
-        </hbox>
-        <vbox id="deferStorageBox">
-          <separator class="groove"/>
-          <description> &deferStorageDesc.label;</description>
-          <hbox>
-            <checkbox id="deferStorage"
-                      label="&deferStorage.label;"
-                      accesskey="&deferStorage.accesskey;"
-                      checked="true"
-                      wsm_persist="true"
-                      oncommand="setServerPrefs(this);"/>
-          </hbox>
-        </vbox>
-      </vbox>
-    </wizardpage>
-
-    <!-- Outgoing page : Collects outgoing server name and login name. -->
-    <!-- Outgoing server name is collected if there isn't one already -->
-    <!-- Login name is prefilled with user id from the email address provided in identity page -->
-    <!-- User can enter a login name here if it is different from the user id of his/her email address -->
-    <wizardpage id="outgoingpage" pageid="outgoingpage"
-                label="&outgoingTitle.label;">
-      <vbox flex="1">
-        <vbox id="noSmtp">
-          <description>&outgoingServer.description;</description>
-          <hbox align="center" class="serverDataBox input-container">
-            <label id="smtphostnameLabel" class="label serverLabel"
-                   value="&outgoingServer.label;"
-                   accesskey="&outgoingServer.accesskey;"
-                   control="smtphostname"/>
-            <html:input id="smtphostname"
-                        type="text"
-                        wsm_persist="true"
-                        class="uri-element input-inline"
-                        aria-labelledby="smtphostnameLabel"
-                        oninput="outgoingPageValidate();"/>
-          </hbox>
-        </vbox>
-
-        <vbox id="haveSmtp">
-          <description id="smtpStaticText1"
-                       style="width: 200px;"
-                       prefix="&haveSmtp1.prefix;"
-                       suffix="&haveSmtp1.suffix3; &modifyOutgoing.suffix;">*</description>
-        </vbox>
-
-        <vbox id="loginSet1">
-          <description>&outgoingUsername.description;</description>
-          <separator class="thin"/>
-          <hbox align="center" class="input-container">
-            <label id="smtpusernameLabel" class="label"
-                   value="&outgoingUsername.label;"
-                   style="width: 8em;"
-                   accesskey="&outgoingUsername.accesskey;"
-                   control="smtpusername"/>
-            <html:input id="smtpusername"
-                        type="text"
-                        class="input-inline"
-                        aria-labelledby="smtpusernameLabel"
-                        wsm_persist="true"/>
-          </hbox>
-        </vbox>
-
-        <vbox id="loginSet2" hidden="true">
-          <description id="smtpStaticText2" style="width: 200px;" prefix="&haveSmtp2.prefix;"
-                       suffix="&haveSmtp2.suffix3; &modifyOutgoing.suffix;">*</description>
-        </vbox>
-
-        <vbox id="loginSet3" hidden="true">
-          <description id="smtpStaticText3" style="width: 200px;" prefix="&haveSmtp3.prefix;"
-                       suffix="&haveSmtp3.suffix3; &modifyOutgoing.suffix;">*</description>
-        </vbox>
-
       </vbox>
     </wizardpage>
 
@@ -313,27 +144,10 @@ css"?>
           <label id="identity.email.text" flex="1" class="label"/>
           <label id="server.username.label" flex="1" class="label" value="&incomingUsername.label;"/>
           <label id="server.username.text" flex="1" class="label"/>
-          <label id="server.name.label" flex="1" class="label" value="&serverNamePrefix.label;"/>
-          <label id="server.name.text" flex="1" class="label"/>
-          <label id="server.type.label" flex="1" class="label" value="&serverTypePrefix.label;"/>
-          <label id="server.type.text" flex="1" class="label"/>
-          <label id="server.port.label" flex="1" class="label" value="&portNum.label;"/>
-          <label id="server.port.text" flex="1" class="label" />
           <label id="newsServer.name.label" flex="1" class="label" value="&newsServerNamePrefix.label;"/>
           <label id="newsServer.name.text" flex="1" class="label"/>
-          <label id="smtpServer.username.label" flex="1" class="label" value="&outgoingUsername.label;"/>
-          <label id="smtpServer.username.text" flex="1" class="label"/>
-          <label id="smtpServer.name.label" flex="1" class="label" value="&smtpServerNamePrefix.label;"/>
-          <label id="smtpServer.name.text" flex="1" class="label"/>
         </html:div>
         <separator/>
-        <hbox id="downloadMsgsBox">
-          <checkbox id="downloadMsgs"
-                    label="&downloadOnLogin.label;"
-                    accesskey="&downloadOnLogin.accesskey;"
-                    hidden="true"
-                    checked="true"/>
-        </hbox>
         <spacer flex="1"/>
 #ifndef XP_MACOSX
         <description>&clickFinish.label;</description>
