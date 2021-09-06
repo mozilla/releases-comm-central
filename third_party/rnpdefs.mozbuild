@@ -32,6 +32,6 @@ if CONFIG["MOZ_STDCXX_COMPAT"]:
     # Use pre-GCC-5 strings abi
     DEFINES["_GLIBCXX_USE_CXX11_ABI"] = 0
 
-if CONFIG["OS_ARCH"] == "Linux":
+if CONFIG["OS_ARCH"] in ("Linux", "SunOS"):
     CFLAGS += ["-fPIC"]
     CXXFLAGS += ["-fPIC"]
