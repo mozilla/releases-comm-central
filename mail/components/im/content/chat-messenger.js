@@ -1048,19 +1048,20 @@ var chatHandler = {
     }
   },
 
-  _openDialog(aType) {
-    let features = "chrome,modal,titlebar,centerscreen";
+  addBuddy() {
     window.openDialog(
-      "chrome://messenger/content/chat/" + aType + ".xhtml",
+      "chrome://messenger/content/chat/addbuddy.xhtml",
       "",
-      features
+      "chrome,modal,titlebar,centerscreen"
     );
   },
-  addBuddy() {
-    this._openDialog("addbuddy");
-  },
+
   joinChat() {
-    this._openDialog("joinchat");
+    window.openDialog(
+      "chrome://messenger/content/chat/joinchat.xhtml",
+      "",
+      "chrome,modal,titlebar,centerscreen"
+    );
   },
 
   _colorCache: {},

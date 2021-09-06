@@ -8,23 +8,21 @@
 <?xml-stylesheet href="chrome://messenger/content/chat/chat.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/joinChat.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/joinChat.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        id="joinChatDialog"
-        windowtype="Messenger:JoinChat"
-        title="&joinChatWindow.title;"
-        onload="joinChat.onload()"
-        autojoinLabel="&autojoin.label;"
-        autojoinAccesskey="&autojoin.accesskey;">
-<dialog buttons="accept,cancel">
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/chat/joinchat.js"/>
-
-  <div xmlns="http://www.w3.org/1999/xhtml" id="joinChatGrid">
+<html id="joinChatDialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      scrolling="false">
+<head>
+  <title>&joinChatWindow.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/chat/joinchat.js"></script>
+</head>
+<body>
+<xul:dialog buttons="accept,cancel">
+  <div id="joinChatGrid">
     <div>
       <xul:label value="&account.label;" control="accountlist"/>
     </div>
@@ -32,11 +30,12 @@
       <xul:menulist id="accountlist" onselect="joinChat.onAccountSelect();"/>
     </div>
     <div class="optional-col required">
-      <xul:label value="&optional.label;"/>
+      &optional.label;
     </div>
   </div>
-  <hbox>
-    <checkbox id="autojoin" label="&autojoin.label;" accesskey="&autojoin.accesskey;"/>
-  </hbox>
-</dialog>
-</window>
+  <xul:hbox>
+    <xul:checkbox id="autojoin" label="&autojoin.label;" accesskey="&autojoin.accesskey;"/>
+  </xul:hbox>
+</xul:dialog>
+</body>
+</html>
