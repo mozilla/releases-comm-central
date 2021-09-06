@@ -271,3 +271,8 @@ var articleTextListener = {
 registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });
+
+// Somehow profile-after-change is not triggered in xpcshell tests, here we
+// manually run the getService, so that correct nntp modules are loaded
+// according to the pref values.
+Cc["@mozilla.org/messenger/nntp-module-loader;1"].getService();
