@@ -6,17 +6,21 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="export-dialog-window"
-        lightweightthemes="true"
-        width="500">
-  <dialog buttons="accept,cancel" style="min-height: 12em"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false"
+      lightweightthemes="true">
+<head>
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/exportDialog.ftl" />
+  <title data-l10n-id="export-dialog-title"></title>
+  <script defer="defer" src="chrome://messenger/content/exportDialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <dialog buttons="accept,cancel" style="min-height:12em; width:500px;"
           data-l10n-id="export-dialog"
           data-l10n-attrs="buttonlabelaccept">
-    <html:link rel="localization" href="branding/brand.ftl" />
-    <html:link rel="localization" href="messenger/exportDialog.ftl"/>
-    <script src="chrome://messenger/content/exportDialog.js"/>
 
     <description data-l10n-id="export-dialog-desc1"></description>
     <description data-l10n-id="export-dialog-desc2"></description>
@@ -28,4 +32,5 @@
     </vbox>
 
   </dialog>
-</window>
+</html:body>
+</html>
