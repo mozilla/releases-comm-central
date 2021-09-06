@@ -280,12 +280,9 @@ class MsgAuthPrompt {
 
     // If origin is null, we can't save this login.
     if (origin) {
-      let canRememberLogin = false;
-      if (this._allowRememberLogin) {
-        canRememberLogin =
-          aSavePassword == Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY &&
-          Services.logins.getLoginSavingEnabled(origin);
-      }
+      let canRememberLogin =
+        aSavePassword == Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY &&
+        Services.logins.getLoginSavingEnabled(origin);
 
       // if checkBoxLabel is null, the checkbox won't be shown at all.
       if (canRememberLogin) {
@@ -353,7 +350,7 @@ class MsgAuthPrompt {
     }
 
     let checkBox = { value: false };
-    let checkBoxLabel = "saving this shit";
+    let checkBoxLabel = null;
     let [origin, realm, username] = this._getRealmInfo(aPasswordRealm);
 
     username = decodeURIComponent(username);
@@ -502,7 +499,7 @@ function promptPassword(dialogTitle, text, password, checkMsg, checkValue) {
     title: dialogTitle,
     text,
     pass: password.value,
-    checkMsg,
+    checkLabel: checkMsg,
     checked: checkValue.value,
     ok: false,
   };
