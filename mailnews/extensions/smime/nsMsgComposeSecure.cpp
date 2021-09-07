@@ -93,13 +93,15 @@ char* mime_make_separator(const char* prefix) {
 NS_IMPL_ISUPPORTS(nsMsgComposeSecure, nsIMsgComposeSecure)
 
 nsMsgComposeSecure::nsMsgComposeSecure()
-    : mSignMessage(false), mAlwaysEncryptMessage(false) {
-  /* member initializers and constructor code */
-  mMultipartSignedBoundary = 0;
-  mBuffer = 0;
-  mBufferedBytes = 0;
-  mHashType = 0;
-}
+    : mSignMessage(false),
+      mAlwaysEncryptMessage(false),
+      mCryptoState(mime_crypto_none),
+      mHashType(0),
+      mMultipartSignedBoundary(nullptr),
+      mIsDraft(false),
+      mBuffer(nullptr),
+      mBufferedBytes(0),
+      mErrorAlreadyReported(false) {}
 
 nsMsgComposeSecure::~nsMsgComposeSecure() {
   /* destructor code */
