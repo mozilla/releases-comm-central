@@ -15,7 +15,8 @@ const char* kPendingHdrsScope =
 const char* kPendingHdrsTableKind = "ns:msg:db:table:kind:pending";
 struct mdbOid gAllPendingHdrsTableOID;
 
-nsImapMailDatabase::nsImapMailDatabase() { m_mdbAllPendingHdrsTable = nullptr; }
+nsImapMailDatabase::nsImapMailDatabase()
+    : m_pendingHdrsRowScopeToken(0), m_pendingHdrsTableKindToken(0) {}
 
 nsImapMailDatabase::~nsImapMailDatabase() {}
 
