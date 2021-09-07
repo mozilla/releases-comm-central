@@ -154,12 +154,12 @@ NS_IMETHODIMP nsMsgRuleAction::GetCustomAction(
 }
 
 nsMsgFilter::nsMsgFilter()
-    : m_temporary(false),
+    : m_type(nsMsgFilterType::InboxRule | nsMsgFilterType::Manual),
+      m_enabled(false),
+      m_temporary(false),
       m_unparseable(false),
       m_filterList(nullptr),
-      m_expressionTree(nullptr) {
-  m_type = nsMsgFilterType::InboxRule | nsMsgFilterType::Manual;
-}
+      m_expressionTree(nullptr) {}
 
 nsMsgFilter::~nsMsgFilter() { delete m_expressionTree; }
 
