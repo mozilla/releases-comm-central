@@ -2535,12 +2535,13 @@ nsDelAttachListener::OnStopCopy(nsresult aStatus) {
 // local methods
 //
 
-nsDelAttachListener::nsDelAttachListener() {
-  mAttach = nullptr;
-  mSaveFirst = false;
-  mNewMessageKey = nsMsgKey_None;
-  m_state = eStarting;
-}
+nsDelAttachListener::nsDelAttachListener()
+    : mAttach(nullptr),
+      mSaveFirst(false),
+      mOriginalMessageKey(nsMsgKey_None),
+      mNewMessageKey(nsMsgKey_None),
+      mOrigMsgFlags(0),
+      m_state(eStarting) {}
 
 nsDelAttachListener::~nsDelAttachListener() {
   if (mAttach) {
