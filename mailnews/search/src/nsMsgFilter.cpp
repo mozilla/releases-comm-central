@@ -30,7 +30,11 @@
 static const char* kImapPrefix = "//imap:";
 static const char* kWhitespace = "\b\t\r\n ";
 
-nsMsgRuleAction::nsMsgRuleAction() {}
+nsMsgRuleAction::nsMsgRuleAction()
+    : m_type(nsMsgFilterAction::None),
+      m_priority(nsMsgPriority::notSet),
+      m_label(0),
+      m_junkScore(0) {}
 
 nsMsgRuleAction::~nsMsgRuleAction() {}
 
