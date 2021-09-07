@@ -1253,10 +1253,7 @@
       tab = JSON.parse(JSON.stringify(tab));
       // Set up an identifier for the move, consumers may want to correlate TabClose and
       // TabOpen events.
-      let moveSession = Cc["@mozilla.org/uuid-generator;1"]
-        .getService(Ci.nsIUUIDGenerator)
-        .generateUUID()
-        .toString();
+      let moveSession = Services.uuid.generateUUID().toString();
       tab.moving = moveSession;
       aTab.moving = moveSession;
       this.closeTab(aTab, true);

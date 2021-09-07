@@ -262,10 +262,9 @@ var cal = {
    * @return {String}         The generated UUID
    */
   getUUID() {
-    let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
     // generate uuids without braces to avoid problems with
     // CalDAV servers that don't support filenames with {}
-    return uuidGen
+    return Services.uuid
       .generateUUID()
       .toString()
       .replace(/[{}]/g, "");

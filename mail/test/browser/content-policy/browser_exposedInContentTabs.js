@@ -51,10 +51,7 @@ add_task(function setupModule(module) {
 });
 
 function addToFolder(aSubject, aBody, aFolder) {
-  let msgId =
-    Cc["@mozilla.org/uuid-generator;1"]
-      .getService(Ci.nsIUUIDGenerator)
-      .generateUUID() + "@mozillamessaging.invalid";
+  let msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
 
   let source =
     "From - Sat Nov  1 12:39:54 2008\n" +

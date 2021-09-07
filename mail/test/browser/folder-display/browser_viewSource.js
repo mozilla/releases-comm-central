@@ -66,10 +66,7 @@ add_task(async function utf8Header_with_utf8Body() {
 });
 
 function addToFolder(subject, charset, body) {
-  let msgId =
-    Cc["@mozilla.org/uuid-generator;1"]
-      .getService(Ci.nsIUUIDGenerator)
-      .generateUUID() + "@invalid";
+  let msgId = Services.uuid.generateUUID() + "@invalid";
 
   let source =
     "From - Sat Nov  1 12:39:54 2008\n" +

@@ -194,10 +194,7 @@ function create_mail_directory(subFolders) {
 }
 
 function setup_mailbox(type, mailboxPath) {
-  let user = Cc["@mozilla.org/uuid-generator;1"]
-    .getService(Ci.nsIUUIDGenerator)
-    .generateUUID()
-    .toString();
+  let user = Services.uuid.generateUUID().toString();
   let incomingServer = MailServices.accounts.createIncomingServer(
     user,
     "Local Folder",

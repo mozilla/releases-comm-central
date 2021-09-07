@@ -52,10 +52,7 @@ add_task(function setupModule(module) {
 });
 
 function msgSource(aSubject, aContentType) {
-  let msgId =
-    Cc["@mozilla.org/uuid-generator;1"]
-      .getService(Ci.nsIUUIDGenerator)
-      .generateUUID() + "@invalid";
+  let msgId = Services.uuid.generateUUID() + "@invalid";
 
   return (
     "From - Sun Apr 07 22:47:11 2013\r\n" +

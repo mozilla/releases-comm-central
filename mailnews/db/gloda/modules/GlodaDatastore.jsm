@@ -1339,10 +1339,7 @@ var GlodaDatastore = {
    * @return a UUID as a string, ex: "c4dd0159-9287-480f-a648-a4613e147fdb"
    */
   _generateDatastoreID() {
-    let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(
-      Ci.nsIUUIDGenerator
-    );
-    let uuid = uuidGen.generateUUID().toString();
+    let uuid = Services.uuid.generateUUID().toString();
     // We snip off the { and } from each end of the UUID.
     return uuid.substring(1, uuid.length - 2);
   },

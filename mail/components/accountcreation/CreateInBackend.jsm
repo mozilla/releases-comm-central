@@ -30,9 +30,6 @@ const { MailServices } = ChromeUtils.import(
  * @return {nsIMsgAccount} - the newly created account
  */
 function createAccountInBackend(config) {
-  let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(
-    Ci.nsIUUIDGenerator
-  );
   // incoming server
   let inServer = MailServices.accounts.createIncomingServer(
     config.incoming.username,
@@ -47,7 +44,7 @@ function createAccountInBackend(config) {
   // We must generate this unconditionally because we cannot determine whether
   // the outgoing server has clientid enabled yet or not, and we need to do it
   // here in order to populate the incoming server if the outgoing matches.
-  let newOutgoingClientid = uuidGen
+  let newOutgoingClientid = Services.uuid
     .generateUUID()
     .toString()
     .replace(/[{}]/g, "");
@@ -76,7 +73,7 @@ function createAccountInBackend(config) {
     inServer.clientid = newOutgoingClientid;
   } else {
     // If the username/hostname are different then generate a new CLIENTID.
-    inServer.clientid = uuidGen
+    inServer.clientid = Services.uuid
       .generateUUID()
       .toString()
       .replace(/[{}]/g, "");
