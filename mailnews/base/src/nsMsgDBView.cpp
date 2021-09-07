@@ -3471,7 +3471,7 @@ nsresult nsMsgDBView::DetermineActionsForJunkChange(
       rv = server->GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
       NS_ENSURE_SUCCESS(rv, rv);
       rootMsgFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox, targetFolder);
-      moveMessages = targetFolder != nullptr;
+      moveMessages = *targetFolder != nullptr;
     }
 
     return NS_OK;
