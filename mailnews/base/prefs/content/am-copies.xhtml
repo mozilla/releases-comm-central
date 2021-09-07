@@ -6,24 +6,29 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-copies.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-copies.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&copyAndFolderTitle.label;"
-        onload="parent.onPanelLoaded('am-copies.xhtml');">
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-
-  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
-    <script src="chrome://messenger/content/am-copies.js"/>
-    <script src="chrome://messenger/content/am-prefs.js"/>
-    <script src="chrome://messenger/content/amUtils.js"/>
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+<head>
+  <title>&copyAndFolderTitle.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-copies.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { parent.onPanelLoaded('am-copies.xhtml'); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <vbox id="containerBox" flex="1">
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&copyAndFolderTitle.label;"/>
     </hbox>
 #include am-copies.inc.xhtml
-  </vbox></vbox>
-</window>
+  </vbox>
+</html:body>
+</html>
