@@ -357,6 +357,8 @@ nsMsgSearchTerm::nsMsgSearchTerm(nsMsgSearchAttribValue attrib,
 
   nsMsgResultElement::AssignValues(val, &m_value);
   m_matchAll = false;
+  mBeginsGrouping = false;
+  mEndsGrouping = false;
 }
 
 nsMsgSearchTerm::~nsMsgSearchTerm() {}
