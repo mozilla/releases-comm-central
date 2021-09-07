@@ -7,21 +7,28 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % junkMailDTD SYSTEM "chrome://messenger/locale/am-junk.dtd">
 %junkMailDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&junkSettings.label;"
-        onload="parent.onPanelLoaded('am-junk.xhtml');">
-
-  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
-    <script src="chrome://messenger/content/am-junk.js"/>
-    <script src="chrome://messenger/content/am-prefs.js"/>
-    <script src="chrome://messenger/content/amUtils.js"/>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+<head>
+  <title>&junkSettings.label;</title>
+  <script defer="defer" src="chrome://messenger/content/am-junk.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { parent.onPanelLoaded('am-junk.xhtml'); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <vbox id="containerBox" flex="1">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
     <hbox class="dialogheader">
@@ -224,6 +231,6 @@
               accesskey="&globalJunkPrefs.accesskey;"
               oncommand="showGlobalJunkPrefs();"/>
     </hbox>
-
-  </vbox></vbox>
-</window>
+  </vbox>
+</html:body>
+</html>
