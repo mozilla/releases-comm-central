@@ -5,21 +5,27 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd" >%accountNoIdentDTD;
 <!ENTITY % accountServerTopDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">%accountServerTopDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&accountTitle.label;"
-        onload="parent.onPanelLoaded('am-serverwithnoidentities.xhtml');">
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/am-serverwithnoidentities.js"/>
-  <script src="chrome://messenger/content/amUtils.js"/>
-
- <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+<head>
+  <title>&accountTitle.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-serverwithnoidentities.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { parent.onPanelLoaded('am-serverwithnoidentities.xhtml'); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ <vbox id="containerBox" flex="1">
   <hbox class="dialogheader">
     <label class="dialogheader-title" value="&accountTitle.label;"/>
   </hbox>
@@ -99,5 +105,6 @@
     </hbox>
   </html:fieldset>
   </html:div>
-  </vbox></vbox>
-</window>
+  </vbox>
+</html:body>
+</html>
