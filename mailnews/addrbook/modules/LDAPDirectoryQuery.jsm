@@ -47,6 +47,9 @@ function boolExpressionToFilter(attrMap, exp) {
  */
 function boolConditionToFilter(attrMap, exp) {
   let attr = attrMap.getFirstAttribute(exp.name);
+  if (!attr) {
+    return "";
+  }
   switch (exp.condition) {
     case Ci.nsIAbBooleanConditionTypes.DoesNotExist:
       return `(!(${attr}=*))`;
