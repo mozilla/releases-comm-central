@@ -82,7 +82,6 @@ class nsMsgHdr : public nsIMsgDBHdr {
   uint32_t m_flags;
   // avoid parsing references every time we want one
   nsTArray<nsCString> m_references;
-  nsMsgPriorityValue m_priority;
 
   // nsMsgHdrs will have to know what db and row they belong to, since they are
   // really just a wrapper around the msg row in the mdb. This could cause
