@@ -37,12 +37,14 @@ struct fileTransactionEntry {
   }
 
 class nsNetscapeProfileMigratorBase : public nsIMailProfileMigrator,
-                                      public nsITimerCallback
+                                      public nsITimerCallback,
+                                      public nsINamed
 
 {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSITIMERCALLBACK
+  NS_DECL_NSINAMED
 
   nsNetscapeProfileMigratorBase();
 

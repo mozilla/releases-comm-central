@@ -297,6 +297,12 @@ nsNetscapeProfileMigratorBase::Notify(nsITimer* timer) {
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsNetscapeProfileMigratorBase::GetName(nsACString& aName) {
+  aName.AssignLiteral("nsNetscapeProfileMigratorBase");
+  return NS_OK;
+}
+
 void nsNetscapeProfileMigratorBase::CopyNextFolder() {
   if (mFileCopyTransactionIndex < mFileCopyTransactions.Length()) {
     fileTransactionEntry fileTransaction =

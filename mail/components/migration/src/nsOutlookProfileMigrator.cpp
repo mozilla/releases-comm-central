@@ -52,6 +52,12 @@ nsOutlookProfileMigrator::Notify(nsITimer* timer) {
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsOutlookProfileMigrator::GetName(nsACString& aName) {
+  aName.AssignLiteral("nsOutlookProfileMigrator");
+  return NS_OK;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // nsIMailProfileMigrator
 

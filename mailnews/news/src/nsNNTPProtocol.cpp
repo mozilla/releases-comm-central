@@ -2713,6 +2713,12 @@ nsNNTPProtocol::Notify(nsITimer* timer) {
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsNNTPProtocol::GetName(nsACString& aName) {
+  aName.AssignLiteral("nsNNTPProtocol");
+  return NS_OK;
+}
+
 void nsNNTPProtocol::TimerCallback() {
   MOZ_LOG(NNTP, LogLevel::Info, ("nsNNTPProtocol::TimerCallback"));
   m_nextState = NNTP_READ_LIST;

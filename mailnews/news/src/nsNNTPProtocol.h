@@ -140,7 +140,8 @@ class nsNNTPProtocol : public nsMsgProtocol,
                        public nsITimerCallback,
                        public nsICacheEntryOpenCallback,
                        public nsIMsgAsyncPromptListener,
-                       public nsIProtocolProxyCallback {
+                       public nsIProtocolProxyCallback,
+                       public nsINamed {
  public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSINNTPPROTOCOL
@@ -148,6 +149,7 @@ class nsNNTPProtocol : public nsMsgProtocol,
   NS_DECL_NSITIMERCALLBACK
   NS_DECL_NSIMSGASYNCPROMPTLISTENER
   NS_DECL_NSIPROTOCOLPROXYCALLBACK
+  NS_DECL_NSINAMED
 
   // Creating a protocol instance requires the URL
   // need to call Initialize after we do a new of nsNNTPProtocol
