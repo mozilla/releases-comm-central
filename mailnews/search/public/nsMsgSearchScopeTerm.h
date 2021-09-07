@@ -31,7 +31,6 @@ class nsMsgSearchScopeTerm : public nsIMsgSearchScopeTerm {
   char* GetStatusBarName();
 
   nsMsgSearchScopeValue m_attribute;
-  char* m_name;
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsCOMPtr<nsIMsgSearchAdapter> m_adapter;
   nsCOMPtr<nsIInputStream> m_inputStream;  // for message bodies
