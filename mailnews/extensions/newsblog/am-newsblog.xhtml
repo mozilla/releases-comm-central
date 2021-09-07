@@ -6,7 +6,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY %         newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
 %newsblogDTD;
 <!ENTITY %             feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd" >
@@ -17,21 +17,25 @@
 %accountServerTopDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        class="color-dialog"
-        title="&accountTitle.label;"
-        onload="parent.onPanelLoaded('am-newsblog.xhtml');">
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/AccountManager.js"/>
-  <script src="chrome://messenger-newsblog/content/am-newsblog.js"/>
-  <script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
-  <script src="chrome://messenger/content/amUtils.js"/>
-  <script src="chrome://messenger/content/am-prefs.js"/>
-
-  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+<head>
+  <title>&accountTitle.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/AccountManager.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/am-newsblog.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { parent.onPanelLoaded('am-newsblog.xhtml'); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+   <vbox id="containerBox" flex="1">
     <hbox id="am-newsblog-title" class="dialogheader">
       <label class="dialogheader-title" defaultTitle="&accountTitle.label;"/>
     </hbox>
@@ -157,5 +161,6 @@
 
     </html:fieldset>
     </html:div>
-  </vbox></vbox>
-</window>
+  </vbox>
+</html:body>
+</html>
