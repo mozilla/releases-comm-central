@@ -60,8 +60,8 @@ nsDBFolderInfo::QueryInterface(REFNSIID iid, void** result) {
 nsDBFolderInfo::nsDBFolderInfo(nsMsgDatabase* mdb)
     : m_flags(0),
       m_expiredMark(0),
-      m_expiredMarkColumnToken(0),
-      m_tableKindToken(0) {
+      m_tableKindToken(0),
+      m_expiredMarkColumnToken(0) {
   m_mdbTable = NULL;
   m_mdbRow = NULL;
   m_version = 1;                 // for upgrading...
