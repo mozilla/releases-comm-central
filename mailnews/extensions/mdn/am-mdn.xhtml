@@ -1,24 +1,29 @@
 <?xml version="1.0"?>
-
 <!--
-
  This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-mdn.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-mdn.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&pane.title;"
-        onload="parent.onPanelLoaded('am-mdn.xhtml');">
-
-  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+<head>
+  <title>&pane.title;</title>
+  <script defer="defer" src="chrome://messenger/content/AccountManager.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-mdn.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { parent.onPanelLoaded('am-mdn.xhtml'); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <vbox id="containerBox" flex="1">
     <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-mdn.properties"/>
-    <script src="chrome://messenger/content/AccountManager.js"/>
-    <script src="chrome://messenger/content/amUtils.js"/>
-    <script src="chrome://messenger/content/am-mdn.js"/>
 
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&pane.title;"/>
@@ -131,6 +136,6 @@
       </vbox>
     </html:fieldset>
     </html:div>
-  </vbox></vbox>
-
-</window>
+  </vbox>
+</html:body>
+</html>
