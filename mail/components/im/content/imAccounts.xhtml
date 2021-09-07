@@ -9,7 +9,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/chat.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
  <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
  <!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
@@ -18,24 +18,26 @@
  %chatDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        id="accountManager"
-        windowtype="Messenger:Accounts"
-        title="&accountsWindow.title;"
-        style="&accountsWindow2.style;"
-        lightweightthemes="true"
-        persist="width height screenX screenY">
+<html id="accountManager" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="Messenger:Accounts"
+      scrolling="false"
+      lightweightthemes="true"
+      persist="width height screenX screenY">
+<head>
+  <title>&accountsWindow.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/chat/imAccounts.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/chat/imStatusSelector.js"></script>
+  <script defer="defer" src="chrome://global/content/nsTransferable.js"></script>
+  <script defer="defer" src="chrome://chat/content/chat-account-richlistitem.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/chat/imAccounts.js"/>
-  <script src="chrome://messenger/content/accountUtils.js"/>
-  <script src="chrome://messenger/content/chat/imStatusSelector.js"/>
-  <script src="chrome://global/content/nsTransferable.js" />
-  <script src="chrome://chat/content/chat-account-richlistitem.js" />
   <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
-
   <stringbundle id="chatBundle" src="chrome://messenger/locale/chat.properties"/>
 
   <commandset id="accountsCommands">
@@ -172,4 +174,5 @@
     <spacer flex="1"/>
     <button id="close" command="cmd_close"/>
   </hbox>
-</window>
+</html:body>
+</html>
