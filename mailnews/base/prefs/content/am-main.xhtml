@@ -5,22 +5,27 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-main.dtd" >
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-main.dtd" >
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="parent.onPanelLoaded('am-main.xhtml');">
-
-  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+<head>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-identity-edit.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-main.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { parent.onPanelLoaded('am-main.xhtml'); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <vbox id="containerBox" flex="1">
     <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-
-    <script src="chrome://global/content/globalOverlay.js"/>
-    <script src="chrome://global/content/editMenuOverlay.js"/>
-    <script src="chrome://messenger/content/am-identity-edit.js"/>
-    <script src="chrome://messenger/content/am-main.js"/>
-    <script src="chrome://messenger/content/am-prefs.js"/>
-    <script src="chrome://messenger/content/amUtils.js"/>
 
     <hbox id="am-main-title" class="dialogheader">
       <label class="dialogheader-title" defaultTitle="&accountTitle.label;"/>
@@ -217,5 +222,6 @@
               accesskey="&manageIdentities.accesskey;"
               wsm_persist="true" id="identity.manageIdentitiesbutton"/>
     </hbox>
-  </vbox></vbox>
-</window>
+  </vbox>
+</html:body>
+</html>

@@ -16,6 +16,7 @@
   }
 }
 
+body > vbox,
 window > vbox {
   padding-block: 40px;
   padding-inline: 24px 28px;
