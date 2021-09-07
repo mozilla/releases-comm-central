@@ -7,24 +7,29 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/am-server.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
 %trashDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="&serverSettings.label;"
-        onload="parent.onPanelLoaded('am-server.xhtml');">
-
-  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
-    <script src="chrome://global/content/globalOverlay.js"/>
-    <script src="chrome://global/content/editMenuOverlay.js"/>
-    <script src="chrome://messenger/content/am-server.js"/>
-    <script src="chrome://messenger/content/am-prefs.js"/>
-    <script src="chrome://messenger/content/amUtils.js"/>
-    <script src="chrome://messenger/content/menulist-charsetpicker.js"/>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+<head>
+  <title>&serverSettings.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-server.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/menulist-charsetpicker.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { parent.onPanelLoaded('am-server.xhtml'); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <vbox id="containerBox" flex="1">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
     <label hidden="true" wsm_persist="true" id="server.type"/>
@@ -459,5 +464,6 @@
                 preftype="string"
                 prefstring="mail.server.%serverkey%.charset"/>
     </hbox>
-  </vbox></vbox>
-</window>
+  </vbox>
+</html:body>
+</html>
