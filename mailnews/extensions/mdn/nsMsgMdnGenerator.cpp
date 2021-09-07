@@ -80,17 +80,16 @@ char DispositionTypes[7][16] = {
 
 NS_IMPL_ISUPPORTS(nsMsgMdnGenerator, nsIMsgMdnGenerator, nsIUrlListener)
 
-nsMsgMdnGenerator::nsMsgMdnGenerator() {
-  m_disposeType = eDisplayed;
-  m_outputStream = nullptr;
-  m_reallySendMdn = false;
-  m_autoSend = false;
-  m_autoAction = false;
-  m_mdnEnabled = false;
-  m_notInToCcOp = eNeverSendOp;
-  m_outsideDomainOp = eNeverSendOp;
-  m_otherOp = eNeverSendOp;
-}
+nsMsgMdnGenerator::nsMsgMdnGenerator()
+    : m_disposeType(eDisplayed),
+      m_key(nsMsgKey_None),
+      m_notInToCcOp(eNeverSendOp),
+      m_outsideDomainOp(eNeverSendOp),
+      m_otherOp(eNeverSendOp),
+      m_reallySendMdn(false),
+      m_autoSend(false),
+      m_autoAction(false),
+      m_mdnEnabled(false) {}
 
 nsMsgMdnGenerator::~nsMsgMdnGenerator() {}
 
