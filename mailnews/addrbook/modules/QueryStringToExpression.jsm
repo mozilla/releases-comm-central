@@ -145,6 +145,7 @@ var QueryStringToExpression = {
    * @returns {nsIAbBooleanConditionString}
    */
   createBooleanConditionString(name, condition, value) {
+    value = decodeURIComponent(value);
     let cond = {
       "=": Ci.nsIAbBooleanConditionTypes.Is,
       "!=": Ci.nsIAbBooleanConditionTypes.IsNot,
