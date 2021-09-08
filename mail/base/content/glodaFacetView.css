@@ -169,25 +169,22 @@ h1, h2, h3 {
 }
 
 .gloda-timeline-button {
-  appearance: auto;
-  -moz-default-appearance: button !important;
   margin-inline-start: 8px;
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 .gloda-timeline-button > img {
+  /* Icon is squashed. */
   width: 14px;
   height: 10px;
   margin-inline-end: 2px;
-  display: inline-block;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .gloda-timeline-button[checked="true"] {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
-  border-radius: var(--borderRadius);
 }
 
 .facet-date-zoom-out {

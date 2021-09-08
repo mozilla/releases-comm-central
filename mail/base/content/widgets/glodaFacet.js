@@ -96,19 +96,12 @@
       this.countNode = document.createElement("h2");
       this.countNode.classList.add("results-message-count");
 
-      this.toggleTimeline = document.createElement("label");
+      this.toggleTimeline = document.createElement("button");
       this.toggleTimeline.setAttribute("id", "date-toggle");
-      this.toggleTimeline.setAttribute("role", "button");
       this.toggleTimeline.setAttribute("tabindex", 0);
       this.toggleTimeline.classList.add("gloda-timeline-button");
       this.toggleTimeline.addEventListener("click", () => {
         FacetContext.toggleTimeline();
-      });
-      this.toggleTimeline.addEventListener("keypress", event => {
-        if (event.charCode == KeyEvent.DOM_VK_SPACE) {
-          FacetContext.toggleTimeline();
-          event.preventDefault();
-        }
       });
 
       const timelineImage = document.createElement("img");
@@ -116,6 +109,7 @@
         "src",
         "chrome://messenger/skin/icons/popular.svg"
       );
+      timelineImage.setAttribute("alt", "");
       this.toggleTimeline.appendChild(timelineImage);
 
       this.toggleText = document.createElement("span");
