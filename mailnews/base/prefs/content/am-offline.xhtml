@@ -5,17 +5,23 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-offline.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-offline.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="parent.onPanelLoaded('am-offline.xhtml');">
-
-  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+<head>
+  <script defer="defer" src="chrome://messenger/content/retention.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-offline.js"></script>
+  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { parent.onPanelLoaded('am-offline.xhtml'); });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <vbox id="containerBox" flex="1">
     <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
-
-    <script src="chrome://messenger/content/retention.js"/>
-    <script src="chrome://messenger/content/am-offline.js"/>
-    <script src="chrome://messenger/content/am-prefs.js"/>
 
     <label hidden="true" wsm_persist="true" id="server.type"/>
     <label id="imap.autoSyncMaxAgeDays" hidden="true"
@@ -170,5 +176,6 @@
     </vbox>
     </html:fieldset>
     </html:div>
-  </vbox></vbox>
-</window>
+  </vbox>
+</html:body>
+</html>
