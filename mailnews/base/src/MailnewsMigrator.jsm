@@ -12,18 +12,9 @@
 
 const EXPORTED_SYMBOLS = ["migrateMailnews"];
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
-);
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "uuidGen",
-  "@mozilla.org/uuid-generator;1",
-  "nsIUUIDGenerator"
 );
 
 var kServerPrefVersion = 1;
@@ -82,7 +73,7 @@ function MigrateProfileClientid() {
         !Services.prefs.getCharPref(server + "clientid", "")
       ) {
         // Always give outgoing servers a new unique CLIENTID.
-        let newClientid = uuidGen
+        let newClientid = Services.uuid
           .generateUUID()
           .toString()
           .replace(/[{}]/g, "");
@@ -142,7 +133,7 @@ function MigrateProfileClientid() {
       }
       if (!clientidCache.has(combinedKey)) {
         // Generate a new CLIENTID if no matches were found from smtp servers.
-        let newClientid = uuidGen
+        let newClientid = Services.uuid
           .generateUUID()
           .toString()
           .replace(/[{}]/g, "");

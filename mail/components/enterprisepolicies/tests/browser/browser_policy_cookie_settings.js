@@ -11,12 +11,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/cookieService;1",
   "nsICookieService"
 );
-XPCOMUtils.defineLazyServiceGetter(
-  Services,
-  "cookiemgr",
-  "@mozilla.org/cookiemanager;1",
-  "nsICookieManager"
-);
 
 function restore_prefs() {
   Services.prefs.clearUserPref("network.cookie.cookieBehavior");

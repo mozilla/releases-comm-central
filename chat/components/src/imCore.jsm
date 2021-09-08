@@ -5,15 +5,8 @@
 var EXPORTED_SYMBOLS = ["CoreService"];
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var { XPCOMUtils, ClassInfo, initLogModule } = ChromeUtils.import(
+var { ClassInfo, initLogModule } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
-);
-
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "categoryManager",
-  "@mozilla.org/categorymanager;1",
-  "nsICategoryManager"
 );
 
 var kQuitApplicationGranted = "quit-application-granted";
@@ -344,7 +337,7 @@ CoreService.prototype = {
     }
 
     let protocols = [];
-    for (let entry of categoryManager.enumerateCategory(
+    for (let entry of Services.catMan.enumerateCategory(
       kProtocolPluginCategory
     )) {
       let id = entry.data;
@@ -379,7 +372,7 @@ CoreService.prototype = {
 
     let cid;
     try {
-      cid = categoryManager.getCategoryEntry(kProtocolPluginCategory, aPrplId);
+      cid = Services.catMan.getCategoryEntry(kProtocolPluginCategory, aPrplId);
     } catch (e) {
       return null; // no protocol registered for this id.
     }

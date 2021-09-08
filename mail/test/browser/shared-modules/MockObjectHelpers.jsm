@@ -8,16 +8,6 @@ const EXPORTED_SYMBOLS = ["MockObjectReplacer", "MockObjectRegisterer"];
 
 var Cm = Components.manager;
 
-const { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "UUIDGen",
-  "@mozilla.org/uuid-generator;1",
-  "nsIUUIDGenerator"
-);
-
 function MockObjectRegisterer(aContractID, aCID, aComponent) {
   this._contractID = aContractID;
   this._cid = Components.ID("{" + aCID + "}");
@@ -164,7 +154,7 @@ function swapFactoryRegistration(CID, originalCID, contractID, newFactory) {
         error: "trying to register a new contract ID: Missing contractID",
       };
     }
-    CID = UUIDGen.generateUUID();
+    CID = Services.uuid.generateUUID();
 
     componentRegistrar.registerFactory(CID, "", contractID, newFactory);
   } else {

@@ -61,12 +61,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/image/tools;1",
   "imgITools"
 );
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "UuidGenerator",
-  "@mozilla.org/uuid-generator;1",
-  "nsIUUIDGenerator"
-);
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
@@ -1455,7 +1449,8 @@ var XMPPAccountPrototype = {
    * RFC 6120 (Section 8.2.3, 4.7.3).
    */
   generateId: () =>
-    UuidGenerator.generateUUID()
+    Services.uuid
+      .generateUUID()
       .toString()
       .slice(1, -1),
 

@@ -251,6 +251,7 @@ var gMockPromptService = {
   },
 
   _resetServicesPrompt() {
+    // eslint-disable-next-line mozilla/use-services
     XPCOMUtils.defineLazyServiceGetter(
       Services,
       "prompt",

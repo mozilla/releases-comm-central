@@ -22,14 +22,8 @@ var { ComponentUtils } = ChromeUtils.import(
   "resource://gre/modules/ComponentUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var { XPCOMUtils, nsSimpleEnumerator } = ChromeUtils.import(
+var { nsSimpleEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
-);
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "UUIDGen",
-  "@mozilla.org/uuid-generator;1",
-  "nsIUUIDGenerator"
 );
 
 function Message(who, text, properties) {
@@ -286,7 +280,7 @@ TestProtocol.prototype = {
   getAccount(aImAccount) {
     return new Account(this, aImAccount);
   },
-  classID: UUIDGen.generateUUID(),
+  classID: Services.uuid.generateUUID(),
   classDescription: "",
   contractID: "@mozilla.org/chat/mochitest;1",
 };

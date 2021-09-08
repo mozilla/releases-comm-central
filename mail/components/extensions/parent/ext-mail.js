@@ -5,12 +5,6 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-XPCOMUtils.defineLazyServiceGetter(
-  this,
-  "uuidGenerator",
-  "@mozilla.org/uuid-generator;1",
-  "nsIUUIDGenerator"
-);
 
 var { ExtensionError, getInnerWindowID } = ExtensionUtils;
 
@@ -2042,7 +2036,7 @@ var messageListTracker = {
    * @returns {Object}
    */
   createList(extension) {
-    let messageListId = uuidGenerator.generateUUID().number.substring(1, 37);
+    let messageListId = Services.uuid.generateUUID().number.substring(1, 37);
     let messageList = this._createListObject(messageListId, extension);
     let lists = this._contextLists.get(extension);
     if (!lists) {

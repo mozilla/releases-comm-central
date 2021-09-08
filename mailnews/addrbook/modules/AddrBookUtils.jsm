@@ -27,7 +27,6 @@ XPCOMUtils.defineLazyServiceGetters(this, {
     "@mozilla.org/addressbook/ldap-attribute-map-service;1",
     "nsIAbLDAPAttributeMapService",
   ],
-  uuidGenerator: ["@mozilla.org/uuid-generator;1", "nsIUUIDGenerator"],
 });
 
 function SimpleEnumerator(elements) {
@@ -53,7 +52,7 @@ SimpleEnumerator.prototype = {
 };
 
 function newUID() {
-  return uuidGenerator
+  return Services.uuid
     .generateUUID()
     .toString()
     .substring(1, 37);
