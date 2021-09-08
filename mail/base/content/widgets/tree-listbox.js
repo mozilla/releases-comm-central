@@ -117,6 +117,10 @@
         }
 
         this.selectedIndex = this.rows.findIndex(r => r == row);
+        if (document.activeElement != this) {
+          // Overflowing elements with tabindex=-1 steal focus. Grab it back.
+          this.focus();
+        }
       }
 
       _onKeyDown(event) {

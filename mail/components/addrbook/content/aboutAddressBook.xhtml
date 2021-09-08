@@ -56,16 +56,12 @@
     </xul:toolbar>
   </xul:toolbox>
   <div id="booksPane">
-    <!--
-      TODO: Prevent tab focus on overflowing item names. Tried tabindex="-1" but it makes
-      clicking focus on the name.
-    -->
     <ul is="ab-tree-listbox" id="books">
       <li role="option" id="allAddressBooks" class="bookRow noDelete readOnly">
         <div class="bookRow-container">
           <div class="twisty"></div>
           <div class="bookRow-icon"></div>
-          <span class="bookRow-name" data-l10n-id="all-address-books"></span>
+          <span class="bookRow-name" tabindex="-1" data-l10n-id="all-address-books"></span>
         </div>
       </li>
     </ul>
@@ -76,7 +72,7 @@
             <img class="twisty-icon" src="chrome://global/skin/icons/arrow-down-12.svg" alt="" />
           </div>
           <div class="bookRow-icon"></div>
-          <span class="bookRow-name"></span>
+          <span class="bookRow-name" tabindex="-1"></span>
         </div>
         <ul></ul>
       </li>
@@ -85,7 +81,7 @@
       <li class="listRow" role="option">
         <div class="listRow-container">
           <div class="listRow-icon"></div>
-          <span class="listRow-name"></span>
+          <span class="listRow-name" tabindex="-1"></span>
         </div>
       </li>
     </template>
