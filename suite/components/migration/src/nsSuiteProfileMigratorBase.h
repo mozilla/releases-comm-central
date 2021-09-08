@@ -37,11 +37,13 @@ struct fileTransactionEntry {
   { pref, 0, F(Get##method), F(Set##method), false, { -1 } }
 
 class nsSuiteProfileMigratorBase : public nsISuiteProfileMigrator,
-                                   public nsITimerCallback
+                                   public nsITimerCallback,
+                                   public nsINamed
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSITIMERCALLBACK
+  NS_DECL_NSINAMED
 
   nsSuiteProfileMigratorBase();
 

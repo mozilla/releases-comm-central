@@ -43,6 +43,12 @@ nsSuiteProfileMigratorBase::Notify(nsITimer *timer) {
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsSuiteProfileMigratorBase::GetName(nsACString& aName) {
+  aName.AssignLiteral("nsSuiteProfileMigratorBase");
+  return NS_OK;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // nsSuiteProfileMigratorBase
 
