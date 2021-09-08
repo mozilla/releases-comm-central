@@ -323,6 +323,12 @@ async function OnLoadMsgHeaderPane() {
 }
 
 function OnUnloadMsgHeaderPane() {
+  let headerViewElement = document.getElementById("msgHeaderView");
+  if (!headerViewElement.loaded) {
+    // We're unloading, but we never loaded.
+    return;
+  }
+
   Services.prefs.removeObserver(
     "mail.showCondensedAddresses",
     MsgHdrViewObserver
@@ -336,11 +342,9 @@ function OnUnloadMsgHeaderPane() {
 
   // Dispatch an event letting any listeners know that we have unloaded
   // the message pane.
-  document
-    .getElementById("msgHeaderView")
-    .dispatchEvent(
-      new Event("messagepane-unloaded", { bubbles: false, cancelable: true })
-    );
+  headerViewElement.dispatchEvent(
+    new Event("messagepane-unloaded", { bubbles: false, cancelable: true })
+  );
 }
 
 function OnResizeExpandedHeaderView() {
