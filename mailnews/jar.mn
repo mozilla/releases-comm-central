@@ -104,7 +104,6 @@ messenger.jar:
     content/messenger/importDialog.js                                          (import/content/importDialog.js)
 *   content/messenger/importDialog.xhtml                                       (import/content/importDialog.xhtml)
 *   content/messenger/fieldMapImport.xhtml                                     (import/content/fieldMapImport.xhtml)
-    content/messenger/fieldMapImport.css                                       (import/content/fieldMapImport.css)
     content/messenger/fieldMapImport.js                                        (import/content/fieldMapImport.js)
     content/messenger/downloadheaders.js                                       (news/content/downloadheaders.js)
     content/messenger/downloadheaders.xhtml                                    (news/content/downloadheaders.xhtml)
