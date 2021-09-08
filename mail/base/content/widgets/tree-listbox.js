@@ -4,8 +4,9 @@
 
 {
   // Animation variables for expanding and collapsing child lists.
-  const ANIMATION_DURATION = 200;
+  const ANIMATION_DURATION_MS = 200;
   const ANIMATION_EASING = "ease";
+  let reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
 
   /**
    * Provides keyboard and mouse interaction to a (possibly nested) list.
@@ -325,7 +326,7 @@
         }
 
         // Don't add any inline style if we don't need to animate.
-        if (matchMedia("(prefers-reduced-motion)").matches) {
+        if (reducedMotionMedia.matches) {
           return;
         }
 
@@ -486,7 +487,7 @@
        * @param {HTMLLIElement} row - The parent row element.
        */
       _animateCollapseRow(row) {
-        if (matchMedia("(prefers-reduced-motion)").matches) {
+        if (reducedMotionMedia.matches) {
           return;
         }
 
@@ -496,7 +497,7 @@
         let animation = childList.animate(
           [{ height: `${childListHeight}px` }, { height: "0" }],
           {
-            duration: ANIMATION_DURATION,
+            duration: ANIMATION_DURATION_MS,
             easing: ANIMATION_EASING,
             fill: "both",
           }
@@ -513,7 +514,7 @@
        * @param {HTMLLIElement} row - The parent row element.
        */
       _animateExpandRow(row) {
-        if (matchMedia("(prefers-reduced-motion)").matches) {
+        if (reducedMotionMedia.matches) {
           return;
         }
 
@@ -523,7 +524,7 @@
         let animation = childList.animate(
           [{ height: "0" }, { height: `${childListHeight}px` }],
           {
-            duration: ANIMATION_DURATION,
+            duration: ANIMATION_DURATION_MS,
             easing: ANIMATION_EASING,
             fill: "both",
           }
@@ -632,7 +633,7 @@
         return;
       }
 
-      let reducedMotion = matchMedia("(prefers-reduced-motion)").matches;
+      let reducedMotion = reducedMotionMedia.matches;
 
       this.scrollToIndex(this.rows.indexOf(otherRow));
 
@@ -805,8 +806,6 @@
       }
     }
 
-    static _ANIMATION_DURATION_MS = 250;
-
     /**
      * Used to animate a real change in the order. The element is moved in the
      * DOM, then the animation makes it appear to move from the original
@@ -822,7 +821,7 @@
           { transform: `translateY(${from}px)` },
           { transform: "translateY(0px)" },
         ],
-        { duration: OrderableTreeListbox._ANIMATION_DURATION_MS, fill: "both" }
+        { duration: ANIMATION_DURATION_MS, fill: "both" }
       );
       animation.onfinish = () => animation.cancel();
     }
@@ -835,8 +834,8 @@
      * @param {number} to - The new Y position of the element after animation.
      */
     static _transitionTranslation(element, to) {
-      if (!matchMedia("(prefers-reduced-motion)").matches) {
-        element.style.transition = `transform ${OrderableTreeListbox._ANIMATION_DURATION_MS}ms`;
+      if (!reducedMotionMedia.matches) {
+        element.style.transition = `transform ${ANIMATION_DURATION_MS}ms`;
       }
       element.style.transform = to ? `translateY(${to}px)` : null;
     }
@@ -1020,6 +1019,11 @@
       let lastTime = 0;
       let timer = null;
       this.addEventListener("scroll", () => {
+        if (reducedMotionMedia.matches) {
+          this._ensureVisibleRowsAreDisplayed();
+          return;
+        }
+
         let now = Date.now();
         let diff = now - lastTime;
 

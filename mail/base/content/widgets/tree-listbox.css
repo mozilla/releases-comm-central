@@ -6,18 +6,26 @@ tree-view-listbox {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth;
   position: relative;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  tree-view-listbox {
+    scroll-behavior: smooth;
+  }
+}
+
 tree-view-listbox:focus-visible {
   outline: none;
 }
+
 tree-view-listbox > * {
   position: absolute;
   left: 0;
   right: 0;
   cursor: default;
 }
+
 tree-view-listbox > .selected {
   background-color: var(--in-content-button-background);
 }
@@ -27,6 +35,7 @@ tree-view-listbox:focus-visible > .current:not(:hover) {
   outline-offset: -2px;
   z-index: 1;
 }
+
 tree-view-listbox:focus-within > .selected {
   color: var(--in-content-item-selected-text);
   background-color: var(--in-content-item-selected);
