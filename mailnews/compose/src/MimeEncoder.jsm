@@ -178,12 +178,18 @@ class MimeEncoder {
    * Encode this._body according to the value of this.encoding.
    */
   encode() {
+    let output;
     if (this.encoding == "base64") {
-      return this._encodeBase64();
+      output = this._encodeBase64();
     } else if (this.encoding == "quoted-printable") {
-      return this._encodeQP();
+      output = this._encodeQP();
+    } else {
+      output = this._body.replaceAll("\r\n", "\n").replaceAll("\n", "\r\n");
     }
-    return this._body.replaceAll("\r\n", "\n").replaceAll("\n", "\r\n");
+    if (!output.endsWith("\r\n")) {
+      output += "\r\n";
+    }
+    return output;
   }
 
   /**
