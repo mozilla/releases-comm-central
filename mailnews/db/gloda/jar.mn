@@ -5,6 +5,5 @@
 gloda.jar:
 % content gloda   %content/
   content/overlay.js               (content/overlay.js)
-  content/glodacomplete.css        (content/glodacomplete.css)
   content/glodacomplete.js         (content/glodacomplete.js)
   content/autocomplete-richlistitem.js        (content/autocomplete-richlistitem.js)
