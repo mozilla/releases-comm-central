@@ -712,6 +712,9 @@ var gMailInit = {
       case "account-created":
       case "account-created-in-backend":
       case "account-created-from-provisioner":
+        // Set the pref to false in case it was previously changed.
+        Services.prefs.setBoolPref("app.use_without_mail_account", false);
+
         // If the gFolderTreeView was never initialized it means we're in a
         // first run scenario and we need to load the full UI.
         if (!gFolderTreeView.isInited) {
@@ -802,7 +805,7 @@ var gMailInit = {
       }
     } else {
       // Run the tabs restore method here since we're skipping the loading of
-      // the Mail UI which would have take care of this to properly handle
+      // the Mail UI which would have taken care of this to properly handle
       // opened folders or messages in tabs.
       await atStartupRestoreTabs(false);
     }
