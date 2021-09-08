@@ -116,7 +116,6 @@ messenger.jar:
     content/messenger/newsError.xhtml                                          (base/content/newsError.xhtml)
     content/messenger/newsError.js                                             (base/content/newsError.js)
 #ifndef XP_MACOSX
-    content/messenger/newmailalert.css                                         (base/content/newmailalert.css)
     content/messenger/newmailalert.js                                          (base/content/newmailalert.js)
     content/messenger/newmailalert.xhtml                                       (base/content/newmailalert.xhtml)
 #endif
