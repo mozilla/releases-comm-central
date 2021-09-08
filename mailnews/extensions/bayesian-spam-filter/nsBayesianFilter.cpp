@@ -563,6 +563,41 @@ void Tokenizer::tokenize_ascii_word(char* aWord) {
   }
 }
 
+// Copied from mozilla/intl/lwbrk/WordBreaker.cpp
+
+#define ASCII_IS_ALPHA(c) \
+  ((('a' <= (c)) && ((c) <= 'z')) || (('A' <= (c)) && ((c) <= 'Z')))
+#define ASCII_IS_DIGIT(c) (('0' <= (c)) && ((c) <= '9'))
+#define ASCII_IS_SPACE(c) \
+  ((' ' == (c)) || ('\t' == (c)) || ('\r' == (c)) || ('\n' == (c)))
+#define IS_ALPHABETICAL_SCRIPT(c) ((c) < 0x2E80)
+
+// we change the beginning of IS_HAN from 0x4e00 to 0x3400 to relfect
+// Unicode 3.0
+#define IS_HAN(c) \
+  ((0x3400 <= (c)) && ((c) <= 0x9fff)) || ((0xf900 <= (c)) && ((c) <= 0xfaff))
+#define IS_KATAKANA(c) ((0x30A0 <= (c)) && ((c) <= 0x30FF))
+#define IS_HIRAGANA(c) ((0x3040 <= (c)) && ((c) <= 0x309F))
+#define IS_HALFWIDTHKATAKANA(c) ((0xFF60 <= (c)) && ((c) <= 0xFF9F))
+
+// Return true if aChar belongs to a SEAsian script that is written without
+// word spaces, so we need to use the "complex breaker" to find possible word
+// boundaries. (https://en.wikipedia.org/wiki/Scriptio_continua)
+// (How well this works depends on the level of platform support for finding
+// possible line breaks - or possible word boundaries - in the particular
+// script. Thai, at least, works pretty well on the major desktop OSes. If
+// the script is not supported by the platform, we just won't find any useful
+// boundaries.)
+static bool IsScriptioContinua(char16_t aChar) {
+  return false;  // FIXME actually do something
+  /*
+    Script sc = GetScriptCode(aChar);
+    return sc == Script::THAI || sc == Script::MYANMAR || sc == Script::KHMER ||
+           sc == Script::JAVANESE || sc == Script::BALINESE ||
+           sc == Script::SUNDANESE || sc == Script::LAO;
+  */
+}
+
 // one subtract and one conditional jump should be faster than two conditional
 // jump on most recent system.
 #define IN_RANGE(x, low, high) ((uint16_t)((x) - (low)) <= (high) - (low))
@@ -669,6 +704,67 @@ nsresult Tokenizer::stripHTML(const nsAString& inString, nsAString& outString) {
   return utils->ConvertToPlainText(inString, flags, 80, outString);
 }
 
+// Copied from WorfdBreker.cpp due to changes in bug 1728708.
+enum WordBreakClass : uint8_t {
+  kWbClassSpace = 0,
+  kWbClassAlphaLetter,
+  kWbClassPunct,
+  kWbClassHanLetter,
+  kWbClassKatakanaLetter,
+  kWbClassHiraganaLetter,
+  kWbClassHWKatakanaLetter,
+  kWbClassScriptioContinua
+};
+
+WordBreakClass GetWordBreakClass(char16_t c) {
+  // begin of the hack
+
+  if (IS_ALPHABETICAL_SCRIPT(c)) {
+    if (IS_ASCII(c)) {
+      if (ASCII_IS_SPACE(c)) {
+        return WordBreakClass::kWbClassSpace;
+      }
+      if (ASCII_IS_ALPHA(c) || ASCII_IS_DIGIT(c) || (c == '_')) {
+        return WordBreakClass::kWbClassAlphaLetter;
+      }
+      return WordBreakClass::kWbClassPunct;
+    }
+    if (c == 0x00A0 /*NBSP*/) {
+      return WordBreakClass::kWbClassSpace;
+    }
+    /*
+    if (GetGenCategory(c) == nsUGenCategory::kPunctuation) {
+      return WordBreakClass::kWbClassPunct;
+    }
+    */
+    if (IsScriptioContinua(c)) {
+      return WordBreakClass::kWbClassScriptioContinua;
+    }
+    return WordBreakClass::kWbClassAlphaLetter;
+  }
+  if (IS_HAN(c)) {
+    return WordBreakClass::kWbClassHanLetter;
+  }
+  if (IS_KATAKANA(c)) {
+    return kWbClassKatakanaLetter;
+  }
+  if (IS_HIRAGANA(c)) {
+    return WordBreakClass::kWbClassHiraganaLetter;
+  }
+  if (IS_HALFWIDTHKATAKANA(c)) {
+    return WordBreakClass::kWbClassHWKatakanaLetter;
+  }
+  /*
+  if (GetGenCategory(c) == nsUGenCategory::kPunctuation) {
+    return WordBreakClass::kWbClassPunct;
+  }
+  */
+  if (IsScriptioContinua(c)) {
+    return WordBreakClass::kWbClassScriptioContinua;
+  }
+  return WordBreakClass::kWbClassAlphaLetter;
+}
+
 // Copied from nsSemanticUnitScanner.cpp which was removed in bug 1368418.
 nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
                                 int32_t pos, bool isLastBuffer, int32_t* begin,
@@ -685,12 +781,11 @@ nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
     return NS_OK;
   }
 
-  mozilla::intl::WordBreakClass char_class =
-      mozilla::intl::WordBreaker::GetClass(text[pos]);
+  WordBreakClass char_class = GetWordBreakClass(text[pos]);
 
   // If we are in Chinese mode, return one Han letter at a time.
   // We should not do this if we are in Japanese or Korean mode.
-  if (mozilla::intl::kWbClassHanLetter == char_class) {
+  if (WordBreakClass::kWbClassHanLetter == char_class) {
     *begin = pos;
     *end = pos + 1;
     *_retval = true;
@@ -699,7 +794,7 @@ nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
 
   int32_t next;
   // Find the next "word".
-  next = mWordBreaker->NextWord(text, (uint32_t)length, (uint32_t)pos);
+  next = mWordBreaker->Next(text, (uint32_t)length, (uint32_t)pos);
 
   // If we don't have enough text to make decision, return.
   if (next == NS_WORDBREAKER_NEED_MORE_TEXT) {
@@ -710,8 +805,8 @@ nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
   }
 
   // If what we got is space or punct, look at the next break.
-  if (char_class == mozilla::intl::kWbClassSpace ||
-      char_class == mozilla::intl::kWbClassPunct) {
+  if (char_class == WordBreakClass::kWbClassSpace ||
+      char_class == WordBreakClass::kWbClassPunct) {
     // If the next "word" is not letters,
     // call itself recursively with the new pos.
     return ScannerNext(text, length, next, isLastBuffer, begin, end, _retval);
