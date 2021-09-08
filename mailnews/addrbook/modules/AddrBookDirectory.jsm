@@ -643,8 +643,13 @@ class AddrBookDirectory {
     if (this._prefBranch.getPrefType(name) == Ci.nsIPrefBranch.PREF_INVALID) {
       return defaultValue;
     }
-    return this._prefBranch.getComplexValue(name, Ci.nsIPrefLocalizedString)
-      .data;
+    try {
+      return this._prefBranch.getComplexValue(name, Ci.nsIPrefLocalizedString)
+        .data;
+    } catch (e) {
+      // getComplexValue doesn't work with autoconfig.
+      return this._prefBranch.getStringPref(name);
+    }
   }
   setIntValue(name, value) {
     this._prefBranch.setIntPref(name, value);
