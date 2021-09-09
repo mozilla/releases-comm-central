@@ -27,7 +27,6 @@ messenger.jar:
     content/messenger/am-serverwithnoidentities.xhtml                          (base/prefs/content/am-serverwithnoidentities.xhtml)
     content/messenger/am-serverwithnoidentities.js                             (base/prefs/content/am-serverwithnoidentities.js)
     content/messenger/am-server.js                                             (base/prefs/content/am-server.js)
-    content/messenger/am-server.css                                            (base/prefs/content/am-server.css)
 *   content/messenger/am-card-dialog.xhtml                                     (base/prefs/content/am-card-dialog.xhtml)
 *   content/messenger/am-copies.xhtml                                          (base/prefs/content/am-copies.xhtml)
     content/messenger/am-copies.js                                             (base/prefs/content/am-copies.js)

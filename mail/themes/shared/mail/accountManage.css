@@ -402,6 +402,24 @@ richlistitem[default="true"],
   height: 34px;
 }
 
+/* ::::: Server Settings :::::: */
+
+#amServerSetting {
+  display: inline-grid;
+  grid-template-columns: max-content auto auto;
+}
+
+#amServerSetting div:not([hidden]) {
+  /* Do not override display: none when hidden. */
+  display: flex;
+  align-items: center;
+}
+
+#amServerSetting .input-flex {
+  flex-grow: 1;
+  width: 14ch;
+}
+
 /* ::::: SMTP Server Panel :::::: */
 
 .smtpServerListItem {
