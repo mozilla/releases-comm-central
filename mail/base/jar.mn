@@ -66,7 +66,6 @@ messenger.jar:
     content/messenger/multimessageview_print.css    (content/multimessageview_print.css)
     content/messenger/newTagDialog.js               (content/newTagDialog.js)
 *   content/messenger/newTagDialog.xhtml            (content/newTagDialog.xhtml)
-    content/messenger/notification.css              (content/notification.css)
     content/messenger/nsContextMenu.js              (content/nsContextMenu.js)
     content/messenger/phishingDetector.js           (content/phishingDetector.js)
     content/messenger/printUtils.js                 (content/printUtils.js)

@@ -6,8 +6,6 @@
   == Content specific styles for Messenger.
   ======================================================================= */
 
-@import url("chrome://messenger/content/notification.css");
-
 :root {
   --lwt-additional-images: none;
   --lwt-background-alignment: right top;
