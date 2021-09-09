@@ -60,7 +60,6 @@ messenger.jar:
     content/messenger/msgHdrView.js                 (content/msgHdrView.js)
     content/messenger/msgMail3PaneWindow.js         (content/msgMail3PaneWindow.js)
     content/messenger/msgViewNavigation.js          (content/msgViewNavigation.js)
-    content/messenger/multimessageview.css          (content/multimessageview.css)
     content/messenger/multimessageview.js           (content/multimessageview.js)
     content/messenger/multimessageview.xhtml        (content/multimessageview.xhtml)
     content/messenger/multimessageview_print.css    (content/multimessageview_print.css)

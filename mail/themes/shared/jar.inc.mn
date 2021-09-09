@@ -345,6 +345,7 @@
   skin/classic/messenger/shared/messageIcons.css              (../shared/mail/messageIcons.css)
   skin/classic/messenger/shared/messenger.css                 (../shared/mail/messenger.css)
   skin/classic/messenger/shared/messengercompose.css          (../shared/mail/messengercompose.css)
+  skin/classic/messenger/shared/multimessageview.css          (../shared/mail/multimessageview.css)
   skin/classic/messenger/shared/primaryToolbar.css            (../shared/mail/primaryToolbar.css)
   skin/classic/messenger/shared/quickFilterBar.css            (../shared/mail/quickFilterBar.css)
   skin/classic/messenger/shared/activity/activity.css         (../shared/mail/activity/activity.css)
