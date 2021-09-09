@@ -722,3 +722,12 @@ richlistitem[default="true"],
   outline: none;
   padding-block: 0;
 }
+
+.chat-encryption-status {
+  margin: 0;
+  padding: 0;
+}
+
+#protocolIcon {
+  margin-inline-end: 6px;
+}

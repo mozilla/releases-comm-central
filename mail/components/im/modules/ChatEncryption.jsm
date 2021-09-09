@@ -39,6 +39,18 @@ const ChatEncryption = {
     return this._otrEnabled;
   },
   /**
+   * Check if the given protocol has encryption settings for accounts.
+   *
+   * @param {prplIProtocol} protocol - Protocol to check against.
+   * @returns {boolean} If encryption can be configured.
+   */
+  canConfigureEncryption(protocol) {
+    if (this.otrEnabled && OTRUI.enabled) {
+      return true;
+    }
+    return protocol.canEncrypt;
+  },
+  /**
    * Check if the conversation should offer encryption settings.
    *
    * @param {prplIConversation} conversation

@@ -345,6 +345,19 @@ var GenericAccountPrototype = {
   get noImages() {
     return true;
   },
+
+  _encryptionStatus: [],
+  get encryptionStatus() {
+    return this._encryptionStatus;
+  },
+  set encryptionStatus(newStatus) {
+    this._encryptionStatus = newStatus;
+    Services.obs.notifyObservers(
+      this.imAccount,
+      "account-encryption-status-changed",
+      newStatus
+    );
+  },
 };
 
 var GenericAccountBuddyPrototype = {

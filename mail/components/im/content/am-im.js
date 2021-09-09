@@ -9,11 +9,25 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
 ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");
 const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "ChatEncryption",
+  "resource:///modules/ChatEncryption.jsm"
+);
 
 var autoJoinPref = "autoJoin";
 
 function onPreInit(aAccount, aAccountValue) {
   account.init(aAccount.incomingServer.wrappedJSObject.imAccount);
+}
+
+function onBeforeUnload() {
+  if (account.encryptionObserver) {
+    Services.obs.removeObserver(
+      account.encryptionObserver,
+      "account-encryption-status-changed"
+    );
+  }
 }
 
 var account = {
@@ -61,25 +75,58 @@ var account = {
 
     document.getElementById("server.alias").value = this.account.alias;
 
-    if (OTRUI.enabled) {
-      document.getElementById("imTabOTR").hidden = false;
-      document.getElementById(
-        "server.otrAllowMsgLog"
-      ).value = this.account.otrAllowMsgLog;
-      document.getElementById(
-        "server.otrVerifyNudge"
-      ).value = this.account.otrVerifyNudge;
-      document.getElementById(
-        "server.otrRequireEncryption"
-      ).value = this.account.otrRequireEncryption;
+    if (ChatEncryption.canConfigureEncryption(this.account.protocol)) {
+      document.getElementById("imTabEncryption").hidden = false;
+      document.querySelector(".otr-settings").hidden = !OTRUI.enabled;
+      if (OTRUI.enabled) {
+        document.getElementById(
+          "server.otrAllowMsgLog"
+        ).value = this.account.otrAllowMsgLog;
+        document.getElementById(
+          "server.otrVerifyNudge"
+        ).value = this.account.otrVerifyNudge;
+        document.getElementById(
+          "server.otrRequireEncryption"
+        ).value = this.account.otrRequireEncryption;
 
-      let fpa = this.account.normalizedName;
-      let fpp = this.account.protocol.normalizedName;
-      let fp = OTR.privateKeyFingerprint(fpa, fpp);
-      if (!fp) {
-        fp = await document.l10n.formatValue("otr-not-yet-available");
+        let fpa = this.account.normalizedName;
+        let fpp = this.account.protocol.normalizedName;
+        let fp = OTR.privateKeyFingerprint(fpa, fpp);
+        if (!fp) {
+          fp = await document.l10n.formatValue("otr-not-yet-available");
+        }
+        document.getElementById("otrFingerprint").value = fp;
       }
-      document.getElementById("otrFingerprint").value = fp;
+      document.querySelector(".chat-encryption-settings").hidden = !this.account
+        .protocol.canEncrypt;
+      if (this.account.protocol.canEncrypt) {
+        document.l10n.setAttributes(
+          document.getElementById("chat-encryption-description"),
+          "chat-encryption-description",
+          {
+            protocol: this.proto.name,
+          }
+        );
+        this.buildEncryptionStatus();
+        this.encryptionObserver = {
+          observe: (subject, topic) => {
+            if (
+              topic === "account-encryption-status-changed" &&
+              subject.id === this.account.id
+            ) {
+              this.buildEncryptionStatus();
+            }
+          },
+          QueryInterface: ChromeUtils.generateQI([
+            "nsIObserver",
+            "nsISupportsWeakReference",
+          ]),
+        };
+        Services.obs.addObserver(
+          this.encryptionObserver,
+          "account-encryption-status-changed"
+        );
+      }
     }
 
     let protoId = this.proto.id;
@@ -99,6 +146,30 @@ var account = {
       "messenger.account." + this.account.id + ".options."
     );
     this.populateProtoSpecificBox();
+  },
+
+  encryptionObserver: null,
+  buildEncryptionStatus() {
+    const encryptionStatus = document.querySelector(".chat-encryption-status");
+    if (this.account.encryptionStatus.length) {
+      encryptionStatus.replaceChildren(
+        ...this.account.encryptionStatus.map(status => {
+          const item = document.createElementNS(
+            "http://www.w3.org/1999/xhtml",
+            "li"
+          );
+          item.textContent = status;
+          return item;
+        })
+      );
+    } else {
+      const placeholder = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "li"
+      );
+      document.l10n.setAttributes(placeholder, "chat-encryption-placeholder");
+      encryptionStatus.replaceChildren(placeholder);
+    }
   },
 
   populateProtoSpecificBox() {

@@ -18,7 +18,8 @@
         id="account"
         title="&accountWindow.title;"
         buttons="accept,cancel"
-        onload="parent.onPanelLoaded('am-im.xhtml');">
+        onload="parent.onPanelLoaded('am-im.xhtml');"
+        onbeforeunload="onBeforeUnload();">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -41,14 +42,14 @@
         <html:img id="protocolIcon" alt=""/>
         <vbox flex="1">
           <label id="accountName" crop="end" class="header"/>
-          <label id="protocolName"/>
+          <label id="protocolName" class="tip-caption"/>
         </vbox>
       </hbox>
 
       <tabbox id="imTabbox" flex="1">
         <tabs>
             <tab id="imTabGeneral" label="&account.general;"/>
-            <tab id="imTabOTR" data-l10n-id="account-encryption" hidden="true"/>
+            <tab id="imTabEncryption" data-l10n-id="account-encryption" hidden="true"/>
         </tabs>
         <tabpanels flex="1">
           <tabpanel orient="vertical">
@@ -106,58 +107,74 @@
           </tabpanel>
 
           <tabpanel orient="vertical">
-            <label class="header" data-l10n-id="account-otr-label" />
-            <description data-l10n-id="account-otr-description" />
+            <html:div class="chat-encryption-settings">
+              <html:h1 data-l10n-id="chat-encryption-label" />
+              <description data-l10n-id="chat-encryption-description" id="chat-encryption-description" />
 
-            <separator/>
+              <separator/>
 
-            <vbox>
-              <label class="header" data-l10n-id="otr-settings-title" />
-              <checkbox id="server.otrAllowMsgLog"
-                        data-l10n-id="otr-log"
-                        crop="end"
-                        wsm_persist="true"
-                        preftype="bool"
-                        genericattr="true"/>
-              <checkbox id="server.otrRequireEncryption"
-                        data-l10n-id="otr-require-encryption"
-                        crop="end"
-                        wsm_persist="true"
-                        preftype="bool"
-                        genericattr="true"/>
-              <html:p id="otrRequireEncryptionInfo"
-                      class="option-description"
-                      data-l10n-id="otr-require-encryption-info"></html:p>
-              <checkbox id="server.otrVerifyNudge"
-                        data-l10n-id="otr-verify-nudge"
-                        crop="end"
-                        wsm_persist="true"
-                        preftype="bool"
-                        genericattr="true"/>
-            </vbox>
+              <label class="header" data-l10n-id="chat-encryption-status" />
+              <html:div class="indent">
+                <html:ul class="chat-encryption-status">
+                  <html:li data-l10n-id="chat-encryption-placeholder" />
+                </html:ul>
+              </html:div>
+              <separator/>
+            </html:div>
+            <html:div class="otr-settings">
+              <html:h1 data-l10n-id="account-otr-label" />
+              <description data-l10n-id="account-otr-description2" />
 
-            <separator/>
+              <separator/>
 
-            <vbox>
-              <label class="header" data-l10n-id="otr-encryption-title" />
-              <label data-l10n-id="otr-encryption-caption" />
-              <separator class="thin"/>
-              <hbox align="center">
-                <label data-l10n-id="otr-fingerprint-label" />
-                <hbox class="input-container" flex="1">
-                  <html:input id="otrFingerprint"
-                              type="text"
-                              class="input-inline"
-                              readonly="readonly"/>
+              <vbox>
+                <label class="header" data-l10n-id="otr-settings-title" />
+                <checkbox id="server.otrAllowMsgLog"
+                          data-l10n-id="otr-log"
+                          crop="end"
+                          wsm_persist="true"
+                          preftype="bool"
+                          genericattr="true"/>
+                <checkbox id="server.otrRequireEncryption"
+                          data-l10n-id="otr-require-encryption"
+                          crop="end"
+                          wsm_persist="true"
+                          preftype="bool"
+                          genericattr="true"/>
+                <html:p id="otrRequireEncryptionInfo"
+                        class="option-description"
+                        data-l10n-id="otr-require-encryption-info"></html:p>
+                <checkbox id="server.otrVerifyNudge"
+                          data-l10n-id="otr-verify-nudge"
+                          crop="end"
+                          wsm_persist="true"
+                          preftype="bool"
+                          genericattr="true"/>
+              </vbox>
+
+              <separator/>
+
+              <vbox>
+                <label class="header" data-l10n-id="otr-encryption-title" />
+                <label data-l10n-id="otr-encryption-caption" />
+                <separator class="thin"/>
+                <hbox align="center">
+                  <label data-l10n-id="otr-fingerprint-label" />
+                  <hbox class="input-container" flex="1">
+                    <html:input id="otrFingerprint"
+                                type="text"
+                                class="input-inline"
+                                readonly="readonly"/>
+                  </hbox>
                 </hbox>
-              </hbox>
-              <separator class="thin"/>
-              <hbox pack="end">
-                <button id="viewFingerprintButton"
-                        data-l10n-id="view-fingerprint-button"
-                        oncommand="account.viewFingerprintKeys();"/>
-              </hbox>
-            </vbox>
+                <separator class="thin"/>
+                <hbox pack="end">
+                  <button id="viewFingerprintButton"
+                          data-l10n-id="view-fingerprint-button"
+                          oncommand="account.viewFingerprintKeys();"/>
+                </hbox>
+              </vbox>
+            </html:div>
           </tabpanel>
         </tabpanels>
       </tabbox>

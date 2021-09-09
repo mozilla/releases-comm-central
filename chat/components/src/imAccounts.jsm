@@ -992,6 +992,9 @@ imAccount.prototype = {
   get noImages() {
     return this._ensurePrplAccount.noImages;
   },
+  get encryptionStatus() {
+    return this._ensurePrplAccount.encryptionStatus;
+  },
 };
 
 var gAccountsService = null;

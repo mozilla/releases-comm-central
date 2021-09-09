@@ -5,7 +5,7 @@
 account-encryption =
     .label = End-to-end Encryption
 account-otr-label = Off-the-Record Messaging (OTR)
-account-otr-description = { -brand-short-name } supports end-to-end encryption of one-to-one conversations. This prevents third parties from eavesdropping on a conversation. End-to-end encryption can only be used when the other person also uses software that supports OTR.
+account-otr-description2 = { -brand-short-name } supports end-to-end encryption of one-to-one conversations based on OTR. This prevents third parties from eavesdropping on a conversation. This kind of end-to-end encryption can only be used when the other person also uses software that supports OTR.
 otr-encryption-title = Verified Encryption
 otr-encryption-caption = To enable others to verify your identity in OTR chats, share your own OTR fingerprint using an outside (out-of-band) communication channel.
 otr-fingerprint-label = Your Fingerprint:

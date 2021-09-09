@@ -211,6 +211,15 @@ interface prplIAccount: nsISupports {
   //   PURPLE_CONNECTION_NO_IMAGES
   //    Connection does not support sending of images.
   readonly attribute boolean noImages;
+
+  /**
+   * Information as to the state of encryption capabilites of this account. For
+   * example Matrix surfaces the secret storage, key backup and cross-signing
+   * status info here.
+   * The protocol sends a "account-encryption-status-changed" notification when
+   * this chanes.
+   */
+  readonly attribute Array<AUTF8String> encryptionStatus;
 };
 
 
