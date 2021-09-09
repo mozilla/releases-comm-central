@@ -20,6 +20,7 @@ var {
   GenericConvIMPrototype,
   GenericAccountBuddyPrototype,
   GenericMessagePrototype,
+  GenericSessionPrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
@@ -35,6 +36,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EventTimeline: "resource:///modules/matrix-sdk.jsm",
   EventType: "resource:///modules/matrix-sdk.jsm",
   MsgType: "resource:///modules/matrix-sdk.jsm",
+  MatrixCrypto: "resource:///modules/matrix-sdk.jsm",
   MatrixPowerLevels: "resource:///modules/matrixPowerLevels.jsm",
   DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
@@ -953,6 +955,7 @@ MatrixRoom.prototype = {
     if (!this._account._client.isRoomEncrypted(this._roomId)) {
       return Ci.prplIConversation.ENCRYPTION_AVAILABLE;
     }
+    //TODO this method is async, so the condition is always truthy
     if (this.room.hasUnverifiedDevices()) {
       return Ci.prplIConversation.ENCRYPTION_ENABLED;
     }
@@ -967,6 +970,102 @@ MatrixRoom.prototype = {
       EventType.RoomEncryption,
       { algorithm: "m.megolm.v1.aes-sha2" }
     );
+  },
+};
+
+/**
+ * @param {prplIAccount} account - Matrix account this session is associated with.
+ * @param {string} ownerId - Matrix ID that this session is from.
+ * @param {DeviceInfo} deviceInfo - Session device info.
+ */
+function MatrixSession(account, ownerId, deviceInfo) {
+  this._deviceInfo = deviceInfo;
+  this._ownerId = ownerId;
+  let id = deviceInfo.deviceId;
+  if (deviceInfo.getDisplayName()) {
+    id = _("options.encryption.session", id, deviceInfo.getDisplayName());
+  }
+  const deviceTrust = account._client.checkDeviceTrust(
+    ownerId,
+    deviceInfo.deviceId
+  );
+  const isCurrentDevice = deviceInfo.deviceId === account._client.getDeviceId();
+
+  this._init(
+    account,
+    id,
+    deviceTrust.isCrossSigningVerified(),
+    isCurrentDevice
+  );
+}
+MatrixSession.prototype = {
+  __proto__: GenericSessionPrototype,
+  _deviceInfo: null,
+  async _startVerification() {
+    let request;
+    if (this.currentSession) {
+      request = await this._account._client.requestVerification(this._ownerId);
+    } else {
+      request = await this._account._client.requestVerification(this._ownerId, [
+        this._deviceInfo.deviceId,
+      ]);
+    }
+    if (!request.initiatedByMe) {
+      await request.accept();
+    }
+    await request.waitFor(() => request.ready || request.cancelled);
+    if (request.cancelled) {
+      throw new Error("verification aborted");
+    }
+    if (!request.initiatedByMe) {
+      // Auto chose method as the only one we both support.
+      await request.beginKeyVerification(request.methods[0], {
+        userId: this._ownerId,
+      });
+    } else {
+      await request.waitFor(() => request.started || request.cancelled);
+    }
+    if (request.cancelled) {
+      throw new Error("verification aborted");
+    }
+    const sasEventPromise = new Promise(resolve =>
+      request.verifier.once("show_sas", resolve)
+    );
+    request.verifier.verify();
+    const sasEvent = await sasEventPromise;
+    if (request.cancelled) {
+      throw new Error("verification aborted");
+    }
+    let challenge = "";
+    let challengeDescription;
+    if (sasEvent.sas.emoji) {
+      challenge = sasEvent.sas.emoji.map(emoji => emoji[0]).join(" ");
+      challengeDescription = sasEvent.sas.emoji
+        .map(emoji => emoji[1])
+        .join(" ");
+    } else if (sasEvent.sas.decimal) {
+      challenge = sasEvent.sas.decimal.join(" ");
+    } else {
+      sasEvent.cancel();
+      throw new Error("unknown verification method");
+    }
+    return {
+      challenge,
+      challengeDescription,
+      handleResult(challengeMatches) {
+        if (!challengeMatches) {
+          sasEvent.mismatch();
+        } else {
+          sasEvent.confirm();
+        }
+      },
+      cancel() {
+        if (!request.cancelled) {
+          sasEvent.cancel();
+        }
+      },
+      cancelPromise: request.waitFor(() => request.cancelled),
+    };
   },
 };
 
@@ -1220,6 +1319,7 @@ MatrixAccount.prototype = {
           return [keyId, key];
         },
       },
+      verificationMethods: [MatrixCrypto.verificationMethods.SAS],
     };
   },
 
@@ -1542,7 +1642,16 @@ MatrixAccount.prototype = {
     this._client.on("User.presence", this.updateBuddy.bind(this));
     this._client.on("User.currentlyActive", this.updateBuddy.bind(this));
 
+    this._client.on("crypto.devicesUpdated", users => {
+      if (users.includes(this.userId)) {
+        this.reportSessionsChanged();
+        this.updateEncryptionStatus();
+      }
+      //TODO encryption state for conversations where that other user is involved probably changes
+    });
+
     this._client.on("crossSigning.keysChanged", () => {
+      this.reportSessionsChanged();
       this.updateEncryptionStatus();
     });
     this._client.on("crypto.keyBackupStatus", () => {
@@ -1563,6 +1672,7 @@ MatrixAccount.prototype = {
           this._client.startClient(),
           this.updateEncryptionStatus(),
           this.bootstrapSSSS(),
+          this.reportSessionsChanged(),
         ])
       )
       .then(() => {
@@ -2347,6 +2457,15 @@ MatrixAccount.prototype = {
       "user-info-received",
       aUserId
     );
+  },
+
+  getSessions() {
+    if (!this._client || !this._client.isCryptoEnabled()) {
+      return [];
+    }
+    return this._client
+      .getStoredDevicesForUser(this.userId)
+      .map(deviceInfo => new MatrixSession(this, this.userId, deviceInfo));
   },
 
   get userId() {

@@ -26,6 +26,7 @@ const EXPORTED_SYMBOLS = [
   "EventTimeline",
   "EventType",
   "MsgType",
+  "MatrixCrypto",
 ];
 
 // Set-up loading so require works properly in CommonJS modules.
@@ -76,7 +77,6 @@ let loaderGlobal = {
   },
   ...globals,
 };
-
 let loader = Loader({
   paths: {
     // Matrix SDK files.
@@ -241,3 +241,5 @@ let getHttpUriForMxc = require("../content-repo").getHttpUriForMxc;
 let EventTimeline = require("./models/event-timeline.js").EventTimeline;
 
 let { EventType, MsgType } = require("@types/event");
+
+let MatrixCrypto = require("./crypto");
