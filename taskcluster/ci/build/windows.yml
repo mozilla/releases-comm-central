@@ -11,7 +11,6 @@ job-defaults:
         tooltool-downloads: internal
     fetches:
         toolchain:
-            - win64-dump_syms
             - win64-pdbstr
 
 win32/opt:
@@ -399,6 +398,7 @@ win64-plain/debug:
             - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
+            - win64-dump_syms
             - win64-libotr
             - win64-mozmake
             - win64-node
@@ -441,6 +441,7 @@ win64-plain/opt:
             - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
+            - win64-dump_syms
             - win64-libotr
             - win64-mozmake
             - win64-node
