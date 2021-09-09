@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<html id="verifySessionDialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      scrolling="false">
+  <head>
+    <title data-l10n-id="verify-window-title"></title>
+    <link rel="localization" href="messenger/chat-verifySession.ftl"/>
+    <link rel="stylesheet" href="chrome://global/skin/global.css"/>
+    <link rel="stylesheet" href="chrome://messenger/content/chat/chat.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/shared/grid-layout.css"/>
+    <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+    <script defer="defer" src="chrome://messenger/content/chat/verify.js"></script>
+  </head>
+  <body>
+    <xul:dialog buttons="accept,cancel,extra2"
+      data-l10n-id="verify-dialog"
+      data-l10n-attrs="buttonlabelaccept, buttonaccesskeyaccept, buttonlabelextra2, buttonaccesskeyextra2">
+      <xul:vbox>
+        <xul:label data-l10n-id="challenge-label"/>
+        <div class="flex-items-center verification-challenge">
+          <xul:label id="challenge"/>
+          <xul:label id="challenge-description" class="tip-caption" hidden="true"/>
+        </div>
+      </xul:vbox>
+    </xul:dialog>
+  </body>
+</html>

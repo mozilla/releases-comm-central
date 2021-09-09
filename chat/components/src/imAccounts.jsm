@@ -992,6 +992,10 @@ imAccount.prototype = {
   get noImages() {
     return this._ensurePrplAccount.noImages;
   },
+
+  getSessions() {
+    return this._ensurePrplAccount.getSessions();
+  },
   get encryptionStatus() {
     return this._ensurePrplAccount.encryptionStatus;
   },

@@ -25,6 +25,10 @@ function onBeforeUnload() {
   if (account.encryptionObserver) {
     Services.obs.removeObserver(
       account.encryptionObserver,
+      "account-sessions-changed"
+    );
+    Services.obs.removeObserver(
+      account.encryptionObserver,
       "account-encryption-status-changed"
     );
   }
@@ -108,9 +112,15 @@ var account = {
           }
         );
         this.buildEncryptionStatus();
+        this.buildAccountSessionsList();
         this.encryptionObserver = {
           observe: (subject, topic) => {
             if (
+              topic === "account-sessions-changed" &&
+              subject.id === this.account.id
+            ) {
+              this.buildAccountSessionsList();
+            } else if (
               topic === "account-encryption-status-changed" &&
               subject.id === this.account.id
             ) {
@@ -122,6 +132,10 @@ var account = {
             "nsISupportsWeakReference",
           ]),
         };
+        Services.obs.addObserver(
+          this.encryptionObserver,
+          "account-sessions-changed"
+        );
         Services.obs.addObserver(
           this.encryptionObserver,
           "account-encryption-status-changed"
@@ -170,6 +184,52 @@ var account = {
       document.l10n.setAttributes(placeholder, "chat-encryption-placeholder");
       encryptionStatus.replaceChildren(placeholder);
     }
+  },
+  buildAccountSessionsList() {
+    const sessions = this.account.getSessions();
+    document.querySelector(".chat-encryption-sessions-container").hidden =
+      sessions.length === 0;
+    const sessionList = document.querySelector(".chat-encryption-sessions");
+    sessionList.replaceChildren(
+      ...sessions.map(session => {
+        const button = document.createElementNS(
+          "http://www.w3.org/1999/xhtml",
+          "button"
+        );
+        document.l10n.setAttributes(
+          button,
+          "chat-encryption-session-" + (session.trusted ? "trusted" : "verify")
+        );
+        button.disabled = session.trusted;
+        if (!button.disabled) {
+          button.addEventListener("click", async () => {
+            try {
+              const sessionInfo = await session.verify();
+              parent.gSubDialog.open(
+                "chrome://messenger/content/chat/verify.xhtml",
+                { features: "resizable=no" },
+                sessionInfo
+              );
+            } catch (error) {
+              // Verification was probably aborted by the other side.
+              this.account.WARN(error);
+            }
+          });
+        }
+        const sessionLabel = document.createElementNS(
+          "http://www.w3.org/1999/xhtml",
+          "span"
+        );
+        sessionLabel.textContent = session.id;
+        const row = document.createElementNS(
+          "http://www.w3.org/1999/xhtml",
+          "li"
+        );
+        row.append(sessionLabel, button);
+        row.classList.toggle("chat-current-session", session.currentSession);
+        return row;
+      })
+    );
   },
 
   populateProtoSpecificBox() {

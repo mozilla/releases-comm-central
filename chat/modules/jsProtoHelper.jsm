@@ -11,6 +11,7 @@ const EXPORTED_SYMBOLS = [
   "GenericConversationPrototype",
   "GenericMessagePrototype",
   "GenericProtocolPrototype",
+  "GenericSessionPrototype",
   "Message",
   "TooltipInfo",
 ];
@@ -344,6 +345,13 @@ var GenericAccountPrototype = {
   },
   get noImages() {
     return true;
+  },
+
+  getSessions() {
+    return [];
+  },
+  reportSessionsChanged() {
+    Services.obs.notifyObservers(this.imAccount, "account-sessions-changed");
   },
 
   _encryptionStatus: [],
@@ -1281,5 +1289,141 @@ var GenericProtocolPrototype = {
   },
   get contractID() {
     return "@mozilla.org/chat/" + this.normalizedName + ";1";
+  },
+};
+
+/**
+ * Text challenge session verification flow. Starts the UI flow.
+ *
+ * @param {string} challenge - String the challenge should display.
+ * @param {string} subject - Human readable identifier of the other side of the
+ *  challenge.
+ * @param {string} [challengeDescription] - Description of the challenge
+ *  contents.
+ */
+function SessionVerification(challenge, subject, challengeDescription) {
+  this._challenge = challenge;
+  this._subject = subject;
+  if (challengeDescription) {
+    this._description = challengeDescription;
+  }
+  this._responsePromise = new Promise((resolve, reject) => {
+    this._submit = resolve;
+    this._cancel = reject;
+  });
+}
+SessionVerification.prototype = {
+  __proto__: ClassInfo(
+    "imISessionVerification",
+    "generic session verification object"
+  ),
+  _challengeType: Ci.imISessionVerification.CHALLENGE_TEXT,
+  _challenge: "",
+  _description: "",
+  _responsePromise: null,
+  _submit: null,
+  _cancel: null,
+  _cancelled: false,
+  get challengeType() {
+    return this._challengeType;
+  },
+  get challenge() {
+    return this._challenge;
+  },
+  get challengeDescription() {
+    return this._description;
+  },
+  get subject() {
+    return this._subject;
+  },
+  get completePromise() {
+    return this._responsePromise;
+  },
+  submitResponse(challengeMatches) {
+    this._submit(challengeMatches);
+  },
+  cancel() {
+    if (this._cancelled) {
+      return;
+    }
+    this._cancelled = true;
+    this._cancel();
+  },
+};
+
+var GenericSessionPrototype = {
+  __proto__: ClassInfo("prplISession", "generic session object"),
+  /**
+   * Initialize the session.
+   *
+   * @param {prplIAccount} account - Account the session is related to.
+   * @param {string} id - ID of the session.
+   * @param {boolean} [trusted=false] - If the session is trusted.
+   * @param {boolean} [currentSession=false] - If the session represents the.
+   *  session we're connected as.
+   */
+  _init(account, id, trusted = false, currentSession = false) {
+    this._account = account;
+    this._id = id;
+    this._trusted = trusted;
+    this._currentSession = currentSession;
+  },
+  _account: null,
+  _id: "",
+  _trusted: false,
+  _currentSession: false,
+  get id() {
+    return this._id;
+  },
+  get trusted() {
+    return this._trusted;
+  },
+  set trusted(newTrust) {
+    this._trusted = newTrust;
+    this._account.reportSessionsChanged();
+  },
+  get currentSession() {
+    return this._currentSession;
+  },
+  /**
+   * Handle the start of the session verification process. The protocol is
+   * expected to update the trusted property on the session if it becomes
+   * trusted after verification.
+   *
+   * @returns {Promise<{challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise<void>}>}
+   *  Promise resolves to an object holding the challenge string, as well as a
+   *  callback that handles the result of the verification flow. The cancel
+   *  callback is called when the verification is cancelled and the cancelPromise
+   *  is used for the protocol to report when the other side cancels.
+   *  The cancel callback will be called when the cancel promise resolves.
+   */
+  _startVerification() {
+    return Promise.reject(Components.Exception(Cr.NS_ERROR_NOT_IMPLEMENTED));
+  },
+  verify() {
+    if (this.trusted) {
+      return Promise.resolve();
+    }
+    return this._startVerification().then(
+      ({
+        challenge,
+        challengeDescription,
+        handleResult,
+        cancel,
+        cancelPromise,
+      }) => {
+        const verifier = new SessionVerification(
+          challenge,
+          this.id,
+          challengeDescription
+        );
+        verifier.completePromise.then(
+          result => handleResult(result),
+          () => cancel()
+        );
+        cancelPromise.then(() => verifier.cancel());
+        return verifier;
+      }
+    );
   },
 };

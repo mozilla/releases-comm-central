@@ -731,3 +731,19 @@ richlistitem[default="true"],
 #protocolIcon {
   margin-inline-end: 6px;
 }
+
+.chat-encryption-sessions {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chat-encryption-sessions li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.chat-current-session > span {
+  font-weight: bold;
+}

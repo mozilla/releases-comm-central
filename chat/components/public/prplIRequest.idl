@@ -33,3 +33,45 @@ interface prplIBuddyRequest: nsISupports {
   void grant();
   void deny();
 };
+
+/**
+ * Verification information for an encryption session (for example prplISession).
+ * Used to present a verification flow to the user.
+ */
+[scriptable, uuid(48c1748d-ba51-44c0-aa3c-e979d4d4bdf3)]
+interface imISessionVerification: nsISupports {
+   /**
+    * Challenge mode where a text string is presented to the user and they have
+    * to confirm it matches with the other user/device's.
+    */
+   const short CHALLENGE_TEXT = 1;
+   /** Verification mode */
+   readonly attribute short challengeType;
+   /** Challenge string to present to the user for CHALLENGE_TEXT */
+   readonly attribute AUTF8String challenge;
+   /**
+    * Optional description of the challenge contents. For example text
+    * representation of emoji.
+    */
+   readonly attribute AUTF8String challengeDescription;
+   /**
+    * User readable name for the entity the verification is about (so the
+    * user/device on the other side of the flow).
+    */
+   readonly attribute AUTF8String subject;
+   /**
+    * resolves with the result from the challenge, rejects if the action was
+    * cancelled.
+    *
+    * @type {Promise<boolean>}
+    */
+   readonly attribute Promise completePromise;
+   /**
+    * Submit result of the challenge, completing the verification on this side.
+    */
+   void submitResponse(in boolean challengeMatches);
+   /**
+    * Cancel the verification.
+    */
+   void cancel();
+};

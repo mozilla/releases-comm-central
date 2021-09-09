@@ -171,3 +171,11 @@ toolbar[mode="text"] .badgeButton-badge {
   list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
   margin-inline: 3px 0;
 }
+
+#verifySessionDialog {
+  padding: 0;
+}
+
+.verification-challenge {
+  flex-direction: column;
+}

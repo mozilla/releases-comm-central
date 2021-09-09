@@ -23,6 +23,8 @@ messenger.jar:
     content/messenger/chat/chat-imconv.js                (content/chat-imconv.js)
     content/messenger/chat/chat-conversation-info.js     (content/chat-conversation-info.js)
     content/messenger/chat/toolbarbutton-badge-button.js (content/toolbarbutton-badge-button.js)
+    content/messenger/chat/verify.js                     (content/verify.js)
+    content/messenger/chat/verify.xhtml                  (content/verify.xhtml)
 % skin messenger-messagestyles classic/1.0 %skin/classic/messenger/messages/
 	skin/classic/messenger/messages/mail/inline.js                        (messages/mail/inline.js)
 	skin/classic/messenger/messages/mail/Incoming/buddy_icon.svg          (messages/mail/Incoming/buddy_icon.svg)

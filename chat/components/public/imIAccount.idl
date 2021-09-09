@@ -67,6 +67,25 @@ interface prplIRoomInfoCallback: nsISupports {
   void onRoomInfoAvailable(in Array<AString> aRooms, in boolean aCompleted);
 };
 
+/**
+ * Encryption session of the prplIAccount. Usually every logged in device that
+ * can encrypt will have its own session.
+ */
+[scriptable, uuid(0254d011-44b3-40a1-8589-d2fd4a18a421)]
+interface prplISession: nsISupports {
+   /** ID of this session as displayed to the user. */
+   readonly attribute AUTF8String id;
+   /** Whether this session is trusted. */
+   readonly attribute boolean trusted;
+   /** Indicates that this is the session we're currently using */
+   readonly attribute boolean currentSession;
+   /**
+    * Verify the identity of this session.
+    *
+    * @returns {Promise<imISessionVerification>}
+    */
+   Promise verify();
+};
 
 /*
  * This interface should be implemented by the protocol plugin.
@@ -211,6 +230,13 @@ interface prplIAccount: nsISupports {
   //   PURPLE_CONNECTION_NO_IMAGES
   //    Connection does not support sending of images.
   readonly attribute boolean noImages;
+
+  /**
+   * Get a list of active encryption sessions for the account.
+   * The protocol sends a "account-sessions-changed" notification when
+   * the trust state of a session changes, or entries are added or removed.
+   */
+  Array<prplISession> getSessions();
 
   /**
    * Information as to the state of encryption capabilites of this account. For
