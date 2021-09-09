@@ -343,17 +343,22 @@
   </xul:vbox>
 </body>
 <xul:menupopup id="bookContext" type="arrow"
-               class="cui-widget-panel PanelUI-subView">
-  <xul:menuitem id="bookContextProperties" class="subviewbutton"
+               class="cui-widget-panel PanelUI-subView"
+               needsgutter="true">
+  <xul:menuitem id="bookContextProperties" class="subviewbutton menuitem-iconic"
                 data-l10n-id="about-addressbook-books-context-properties"/>
-  <xul:menuitem id="bookContextSynchronize" class="subviewbutton"
+  <xul:menuitem id="bookContextSynchronize" class="subviewbutton menuitem-iconic"
                 data-l10n-id="about-addressbook-books-context-synchronize"/>
-  <xul:menuitem id="bookContextPrint" class="subviewbutton"
+  <xul:menuitem id="bookContextPrint" class="subviewbutton menuitem-iconic"
                 data-l10n-id="about-addressbook-books-context-print"/>
-  <xul:menuitem id="bookContextDelete" class="subviewbutton"
+  <xul:menuitem id="bookContextDelete" class="subviewbutton menuitem-iconic"
                 data-l10n-id="about-addressbook-books-context-delete"/>
-  <xul:menuitem id="bookContextRemove" class="subviewbutton"
+  <xul:menuitem id="bookContextRemove" class="subviewbutton menuitem-iconic"
                 data-l10n-id="about-addressbook-books-context-remove"/>
+  <xul:menuseparator/>
+  <xul:menuitem id="bookContextStartupDefault" type="checkbox"
+                class="subviewbutton"
+                data-l10n-id="about-addressbook-books-context-startup-default"/>
 </xul:menupopup>
 <xul:menupopup id="sortContext" type="arrow"
                class="cui-widget-panel PanelUI-subView"

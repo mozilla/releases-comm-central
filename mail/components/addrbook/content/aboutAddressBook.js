@@ -72,6 +72,13 @@ window.addEventListener("load", () => {
       case "bookContextRemove":
         booksList.deleteSelected();
         break;
+      case "bookContextStartupDefault":
+        if (event.target.hasAttribute("checked")) {
+          booksList.setSelectedAsStartupDefault();
+        } else {
+          booksList.clearStartupDefault();
+        }
+        break;
     }
   });
 
@@ -90,12 +97,43 @@ window.addEventListener("load", () => {
     }
   }
 
+  // Once the old Address Book has gone away, this should be changed to use
+  // UIDs instead of URIs. It's just easier to keep as-is for now.
+  let startupURI = Services.prefs.getStringPref(
+    "mail.addr_book.view.startupURI",
+    ""
+  );
+  if (startupURI) {
+    for (let index = 0; index < booksList.rows.length; index++) {
+      let row = booksList.rows[index];
+      if (row._book?.URI == startupURI || row._list?.URI == startupURI) {
+        booksList.selectedIndex = index;
+        break;
+      }
+    }
+  }
+
   if (booksList.selectedIndex == 0) {
     // Index 0 was selected before we started listening.
     booksList.dispatchEvent(new CustomEvent("select"));
   }
 
   cardsPane.cardsList.focus();
+});
+
+window.addEventListener("unload", () => {
+  // Once the old Address Book has gone away, this should be changed to use
+  // UIDs instead of URIs. It's just easier to keep as-is for now.
+  if (!Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
+    let pref = "mail.addr_book.view.startupURI";
+    if (booksList.selectedIndex === 0) {
+      Services.prefs.clearUserPref(pref);
+    } else {
+      let row = booksList.getRowAtIndex(booksList.selectedIndex);
+      let directory = row._book || row._list;
+      Services.prefs.setCharPref(pref, directory.URI);
+    }
+  }
 });
 
 /**
@@ -498,6 +536,37 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     }
   }
 
+  /**
+   * Set the selected directory to be the one opened when the page opens.
+   */
+  setSelectedAsStartupDefault() {
+    // Once the old Address Book has gone away, this should be changed to use
+    // UIDs instead of URIs. It's just easier to keep as-is for now.
+    Services.prefs.setBoolPref("mail.addr_book.view.startupURIisDefault", true);
+    if (this.selectedIndex === 0) {
+      Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
+      return;
+    }
+
+    let row = this.rows[this.selectedIndex];
+    let directory = row._book || row._list;
+    Services.prefs.setStringPref(
+      "mail.addr_book.view.startupURI",
+      directory.URI
+    );
+  }
+
+  /**
+   * Clear the directory to be opened when the page opens. Instead, the
+   * last-selected directory will be opened.
+   */
+  clearStartupDefault() {
+    Services.prefs.setBoolPref(
+      "mail.addr_book.view.startupURIisDefault",
+      false
+    );
+  }
+
   _onSelect() {
     let row = this.rows[this.selectedIndex];
     if (row.classList.contains("listRow")) {
@@ -632,24 +701,55 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       return;
     }
 
+    let popup = document.getElementById("bookContext");
+    let synchronizeItem = document.getElementById("bookContextSynchronize");
+    let deleteItem = document.getElementById("bookContextDelete");
+    let removeItem = document.getElementById("bookContextRemove");
+    let startupDefaultItem = document.getElementById(
+      "bookContextStartupDefault"
+    );
+
+    let isDefault = Services.prefs.getBoolPref(
+      "mail.addr_book.view.startupURIisDefault"
+    );
+
     this.selectedIndex = this.rows.indexOf(row);
     this.focus();
     if (this.selectedIndex === 0) {
-      return;
+      // All Address Books - only the startup default item is relevant.
+      for (let item of popup.children) {
+        item.hidden = item != startupDefaultItem;
+      }
+
+      isDefault =
+        isDefault &&
+        !Services.prefs.prefHasUserValue("mail.addr_book.view.startupURI");
+    } else {
+      for (let item of popup.children) {
+        item.hidden = false;
+      }
+
+      synchronizeItem.hidden = !row.classList.contains("carddav");
+
+      deleteItem.disabled = row.classList.contains("noDelete");
+      deleteItem.hidden = row.classList.contains("carddav");
+
+      removeItem.disabled = row.classList.contains("noDelete");
+      removeItem.hidden = !row.classList.contains("carddav");
+
+      let directory = row._book || row._list;
+      isDefault =
+        isDefault &&
+        Services.prefs.getStringPref("mail.addr_book.view.startupURI") ==
+          directory.URI;
     }
 
-    let synchronizeItem = document.getElementById("bookContextSynchronize");
-    synchronizeItem.hidden = !row.classList.contains("carddav");
+    if (isDefault) {
+      startupDefaultItem.setAttribute("checked", "true");
+    } else {
+      startupDefaultItem.removeAttribute("checked");
+    }
 
-    let deleteItem = document.getElementById("bookContextDelete");
-    deleteItem.disabled = row.classList.contains("noDelete");
-    deleteItem.hidden = row.classList.contains("carddav");
-
-    let removeItem = document.getElementById("bookContextRemove");
-    removeItem.disabled = row.classList.contains("noDelete");
-    removeItem.hidden = !row.classList.contains("carddav");
-
-    let popup = document.getElementById("bookContext");
     popup.openPopupAtScreen(event.screenX, event.screenY, true);
     event.preventDefault();
   }

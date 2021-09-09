@@ -31,6 +31,8 @@ about-addressbook-books-context-delete =
   .label = Delete
 about-addressbook-books-context-remove =
   .label = Remove
+about-addressbook-books-context-startup-default =
+  .label = Default startup directory
 
 about-addressbook-confirm-delete-book-title = Delete Address Book
 # Variables:

@@ -21,6 +21,9 @@ registerCleanupFunction(async function() {
     }
   }
   closeAddressBookWindow();
+
+  Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
+  Services.prefs.clearUserPref("mail.addr_book.view.startupURIisDefault");
 });
 
 async function openAddressBookWindow() {

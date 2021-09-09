@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
+let historyBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.history");
+
 function rightClickOnIndex(index) {
   let abWindow = getAddressBookWindow();
   let booksList = abWindow.booksList;
@@ -72,11 +75,6 @@ add_task(async function test_additions_and_removals() {
       });
     }
   }
-
-  let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
-  let historyBook = MailServices.ab.getDirectoryFromId(
-    "ldap_2.servers.history"
-  );
 
   let abWindow = await openAddressBookWindow();
 
@@ -484,22 +482,30 @@ add_task(async function test_context_menu() {
   let menu = abWindow.document.getElementById("bookContext");
   let propertiesMenuItem = abDocument.getElementById("bookContextProperties");
   let synchronizeMenuItem = abDocument.getElementById("bookContextSynchronize");
+  let printMenuItem = abDocument.getElementById("bookContextPrint");
   let deleteMenuItem = abDocument.getElementById("bookContextDelete");
   let removeMenuItem = abDocument.getElementById("bookContextRemove");
+  let startupDefaultItem = abDocument.getElementById(
+    "bookContextStartupDefault"
+  );
 
   Assert.equal(booksList.rowCount, 6);
 
   // Test that the menu does not show for All Address Books.
 
-  EventUtils.synthesizeMouseAtCenter(
-    booksList.getRowAtIndex(0),
-    { type: "contextmenu" },
-    abWindow
-  );
+  await rightClickOnIndex(0);
   Assert.equal(booksList.selectedIndex, 0);
-  await new Promise(r => abWindow.setTimeout(r, 500));
-  Assert.equal(menu.state, "closed", "menu stayed closed as expected");
   Assert.equal(abDocument.activeElement, booksList);
+
+  let visibleItems = [...menu.children].filter(BrowserTestUtils.is_visible);
+  Assert.equal(visibleItems.length, 1);
+  Assert.equal(
+    visibleItems[0],
+    startupDefaultItem,
+    "only the startup default item should be visible"
+  );
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  menu.hidePopup();
 
   // Test directories that can't be deleted.
 
@@ -509,10 +515,12 @@ add_task(async function test_context_menu() {
     Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
     Assert.ok(!propertiesMenuItem.disabled);
     Assert.ok(!BrowserTestUtils.is_visible(synchronizeMenuItem));
+    Assert.ok(BrowserTestUtils.is_visible(printMenuItem));
+    Assert.ok(!printMenuItem.disabled);
     Assert.ok(BrowserTestUtils.is_visible(deleteMenuItem));
     Assert.ok(deleteMenuItem.disabled);
     Assert.ok(!BrowserTestUtils.is_visible(removeMenuItem));
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
     Assert.equal(abDocument.activeElement, booksList);
@@ -526,6 +534,8 @@ add_task(async function test_context_menu() {
   Assert.ok(!propertiesMenuItem.disabled);
   Assert.ok(BrowserTestUtils.is_visible(synchronizeMenuItem));
   Assert.ok(!synchronizeMenuItem.disabled);
+  Assert.ok(BrowserTestUtils.is_visible(printMenuItem));
+  Assert.ok(!printMenuItem.disabled);
   Assert.ok(!BrowserTestUtils.is_visible(deleteMenuItem));
   Assert.ok(BrowserTestUtils.is_visible(removeMenuItem));
   Assert.ok(!removeMenuItem.disabled);
@@ -546,6 +556,8 @@ add_task(async function test_context_menu() {
     Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
     Assert.ok(!propertiesMenuItem.disabled);
     Assert.ok(!BrowserTestUtils.is_visible(synchronizeMenuItem));
+    Assert.ok(BrowserTestUtils.is_visible(printMenuItem));
+    Assert.ok(!printMenuItem.disabled);
     Assert.ok(BrowserTestUtils.is_visible(deleteMenuItem));
     Assert.ok(!deleteMenuItem.disabled);
     Assert.ok(!BrowserTestUtils.is_visible(removeMenuItem));
@@ -583,13 +595,9 @@ add_task(async function test_context_menu() {
 add_task(async function test_collapse_expand() {
   Services.xulStore.removeDocument("about:addressbook");
 
-  let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
   personalBook.addMailList(createMailingList("Personal List 1"));
   personalBook.addMailList(createMailingList("Personal List 2"));
 
-  let historyBook = MailServices.ab.getDirectoryFromId(
-    "ldap_2.servers.history"
-  );
   historyBook.addMailList(createMailingList("History List 1"));
 
   let book1 = createAddressBook("Book 1");
@@ -675,4 +683,118 @@ add_task(async function test_collapse_expand() {
   historyBook.childNodes.forEach(list => historyBook.deleteDirectory(list));
   await promiseDirectoryRemoved(book1.URI);
   Services.xulStore.removeDocument("about:addressbook");
+});
+
+/**
+ * Tests that the chosen default directory (or lack thereof) is opened when
+ * the page opens.
+ */
+add_task(async function test_startup_directory() {
+  const URI_PREF = "mail.addr_book.view.startupURI";
+  const DEFAULT_PREF = "mail.addr_book.view.startupURIisDefault";
+
+  Services.prefs.clearUserPref(URI_PREF);
+  Services.prefs.clearUserPref(DEFAULT_PREF);
+
+  async function checkMenuItem(index, expectChecked, toggle = false) {
+    await rightClickOnIndex(index);
+
+    let menu = abWindow.document.getElementById("bookContext");
+    let item = abWindow.document.getElementById("bookContextStartupDefault");
+    Assert.equal(
+      item.hasAttribute("checked"),
+      expectChecked,
+      `directory at index ${index} is the default?`
+    );
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    if (toggle) {
+      menu.activateItem(item);
+    } else {
+      menu.hidePopup();
+    }
+    await hiddenPromise;
+  }
+
+  // With the defaults, All Address Books should open.
+  // No changes should be made to the prefs.
+
+  let abWindow = await openAddressBookWindow();
+  checkDirectoryDisplayed();
+  await checkMenuItem(0, true);
+  await checkMenuItem(1, false);
+  await checkMenuItem(2, false);
+  openDirectory(personalBook);
+  await closeAddressBookWindow();
+  Assert.ok(!Services.prefs.prefHasUserValue(URI_PREF));
+
+  // Now we'll set the default to "last-used".
+  // The last-used book should be saved.
+
+  abWindow = await openAddressBookWindow();
+  checkDirectoryDisplayed();
+  await checkMenuItem(0, true);
+  await checkMenuItem(1, false);
+  await checkMenuItem(2, false);
+  Services.prefs.setBoolPref(DEFAULT_PREF, false);
+  openDirectory(personalBook);
+  await closeAddressBookWindow();
+  Assert.equal(Services.prefs.getStringPref(URI_PREF), personalBook.URI);
+
+  // The last-used book should open.
+
+  abWindow = await openAddressBookWindow();
+  checkDirectoryDisplayed(personalBook);
+  await checkMenuItem(0, false);
+  await checkMenuItem(1, false);
+  await checkMenuItem(2, false);
+  openDirectory(historyBook);
+  await closeAddressBookWindow();
+  Assert.equal(Services.prefs.getStringPref(URI_PREF), historyBook.URI);
+
+  // The last-used book should open.
+  // We'll set a default directory again.
+
+  abWindow = await openAddressBookWindow();
+  checkDirectoryDisplayed(historyBook);
+  await checkMenuItem(0, false);
+  await checkMenuItem(1, false);
+  await checkMenuItem(2, false, true);
+  openDirectory(personalBook);
+  await closeAddressBookWindow();
+  Assert.ok(Services.prefs.getBoolPref(DEFAULT_PREF));
+  Assert.equal(Services.prefs.getStringPref(URI_PREF), historyBook.URI);
+
+  // Check that the saved default opens. Change the default.
+
+  abWindow = await openAddressBookWindow();
+  checkDirectoryDisplayed(historyBook);
+  await checkMenuItem(0, false);
+  await checkMenuItem(2, true);
+  await checkMenuItem(1, false, true);
+  await closeAddressBookWindow();
+  Assert.ok(Services.prefs.getBoolPref(DEFAULT_PREF));
+  Assert.equal(Services.prefs.getStringPref(URI_PREF), personalBook.URI);
+
+  // Check that the saved default opens. Change the default to All Address Books.
+
+  abWindow = await openAddressBookWindow();
+  checkDirectoryDisplayed(personalBook);
+  await checkMenuItem(1, true);
+  await checkMenuItem(2, false);
+  await checkMenuItem(0, false, true);
+  await closeAddressBookWindow();
+  Assert.ok(Services.prefs.getBoolPref(DEFAULT_PREF));
+  Assert.ok(!Services.prefs.prefHasUserValue(URI_PREF));
+
+  // Check that the saved default opens. Clear the default.
+
+  abWindow = await openAddressBookWindow();
+  checkDirectoryDisplayed();
+  await checkMenuItem(1, false);
+  await checkMenuItem(2, false);
+  await checkMenuItem(0, true, true);
+  await closeAddressBookWindow();
+  Assert.ok(!Services.prefs.getBoolPref(DEFAULT_PREF));
+  Assert.ok(!Services.prefs.prefHasUserValue(URI_PREF));
 });
