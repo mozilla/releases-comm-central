@@ -83,7 +83,6 @@ messenger.jar:
     content/messenger/specialTabs.js                (content/specialTabs.js)
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)
     content/messenger/systemIntegrationDialog.xhtml (content/systemIntegrationDialog.xhtml)
-    content/messenger/tabmail.css                   (content/tabmail.css)
     content/messenger/tabmail.js                    (content/tabmail.js)
     content/messenger/threadPane.js                 (content/threadPane.js)
     content/messenger/toolbarIconColor.js           (content/toolbarIconColor.js)

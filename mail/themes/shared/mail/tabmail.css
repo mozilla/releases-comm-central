@@ -2,6 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#tabmail-tabs .tabmail-tab:first-child .tab-close-button,
+#tabmail-tabs[closebuttons="activetab"] .tabmail-tab:not([selected="true"]) .tab-close-button {
+  display: none;
+}
+
+.tab-drop-indicator {
+  position: absolute;
+  top: 0;
+  /* The z-index needs to be big enough to trump other positioned UI pieces
+     that we want to overlay. The selected tab uses 2. */
+  z-index: 3;
+}
+
 #tabs-toolbar {
   --tabs-top-border-width: 0px;
 }
@@ -55,6 +68,18 @@
   flex: 1 1 auto;
 }
 
+.tab-label-container {
+  overflow: hidden;
+}
+
+.tab-label-container[textoverflow] {
+  mask-image: linear-gradient(to left, transparent, black 2em);
+}
+
+.tab-label-container[textoverflow]:-moz-locale-dir(rtl) {
+  mask-image: linear-gradient(to right, transparent, black 2em);
+}
+
 .tab-throbber,
 .tab-icon-image,
 button.tab-close-button {
@@ -74,7 +99,15 @@ button.tab-close-button {
   visibility: hidden;
 }
 
+.tab-throbber:not([busy]):not([thinking]),
+.tab-throbber[busy] + .tab-icon-image,
+.tab-throbber[thinking] + .tab-icon-image,
+.tab-throbber[busy][thinking] + .tab-icon-image {
+  display: none;
+}
+
 .tab-label {
+  white-space: nowrap;
   margin-inline-end: 0;
   margin-inline-start: 0;
   /* Maintain consistent alignment in case of font fallback for non-Latin characters. */
