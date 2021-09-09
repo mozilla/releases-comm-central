@@ -6,6 +6,8 @@
 
 const EXPORTED_SYMBOLS = ["MockObjectReplacer", "MockObjectRegisterer"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var Cm = Components.manager;
 
 function MockObjectRegisterer(aContractID, aCID, aComponent) {

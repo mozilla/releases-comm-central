@@ -74,12 +74,12 @@ async function test_cookie_settings({
     expectedThirdPartyCookies = 0;
   }
   is(
-    Services.cookiemgr.countCookiesFromHost(firstPartyURI.host),
+    Services.cookies.countCookiesFromHost(firstPartyURI.host),
     expectedFirstPartyCookies,
     "Number of first-party cookies should match expected"
   );
   is(
-    Services.cookiemgr.countCookiesFromHost(thirdPartyURI.host),
+    Services.cookies.countCookiesFromHost(thirdPartyURI.host),
     expectedThirdPartyCookies,
     "Number of third-party cookies should match expected"
   );
