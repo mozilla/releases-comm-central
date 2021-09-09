@@ -54,9 +54,14 @@ class NntpService {
   }
 
   postMessage(messageFile, groupNames, accountKey, urlListener, msgWindow) {
-    let server = MailServices.accounts.getAccount(accountKey).incomingServer;
+    let server = MailServices.accounts.getAccount(accountKey)?.incomingServer;
+    if (!server) {
+      // If no matching server, find the first news server and use it.
+      server = MailServices.accounts.FindServer("", "", "nntp");
+    }
+    server = server.QueryInterface(Ci.nsINntpIncomingServer);
     let uri = `news://${server.hostName}/`;
-    let client = new NntpClient(server, uri);
+    let client = new NntpClient(server);
     client.connect();
 
     let runningUrl = Services.io.newURI(uri);
