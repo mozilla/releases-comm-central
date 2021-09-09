@@ -1154,25 +1154,6 @@ findbar {
   min-width: 100px;
 }
 
-/* Address Book menuitem icons */
-
-.abMenuItem[AddrBook="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
-}
-
-.abMenuItem[MailList="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/ablist.svg");
-  padding-inline-start: 30px;
-}
-
-.abMenuItem[AddrBook="true"][IsRemote="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/globe.svg");
-}
-
-.abMenuItem[AddrBook="true"][IsRemote="true"][IsSecure="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/globe-secure.svg");
-}
-
 :is(panel, menupopup)::part(arrow) {
   display: none;
 }

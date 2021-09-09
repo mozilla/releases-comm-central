@@ -137,6 +137,10 @@ button > hbox > label {
   line-height: unset;
 }
 
+.abMenuItem > .menu-iconic-left {
+  display: block;
+}
+
 #preferencesContainer {
   padding: 0 28px 40px;
   overflow: auto;

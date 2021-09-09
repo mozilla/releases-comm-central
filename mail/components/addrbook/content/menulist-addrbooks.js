@@ -155,7 +155,6 @@ if (!customElements.get("menulist")) {
         this._directories.unshift(null);
         let listItem = this.appendItem(this.getAttribute("none"), "");
         listItem.setAttribute("class", "menuitem-iconic abMenuItem");
-        listItem.setAttribute("IsNone", "true");
       }
 
       if (this.hasAttribute("alladdressbooks")) {
@@ -169,8 +168,10 @@ if (!customElements.get("menulist")) {
         this._directories.unshift(null);
         let listItem = this.appendItem(allABLabel, "moz-abdirectory://?");
         listItem.setAttribute("class", "menuitem-iconic abMenuItem");
-        listItem.setAttribute("AddrBook", "true");
-        listItem.setAttribute("IsAllAB", "true");
+        listItem.setAttribute(
+          "image",
+          "chrome://messenger/skin/icons/address.svg"
+        );
       }
 
       // Now create menuitems for all displayed directories.
@@ -186,16 +187,25 @@ if (!customElements.get("menulist")) {
 
         // Style the items by type.
         if (ab.isMailList) {
-          listItem.setAttribute("MailList", "true");
+          listItem.setAttribute(
+            "image",
+            "chrome://messenger/skin/icons/ablist.svg"
+          );
+        } else if (ab.isRemote && ab.isSecure) {
+          listItem.setAttribute(
+            "image",
+            "chrome://messenger/skin/icons/globe-secure.svg"
+          );
+        } else if (ab.isRemote) {
+          listItem.setAttribute(
+            "image",
+            "chrome://messenger/skin/icons/globe.svg"
+          );
         } else {
-          listItem.setAttribute("AddrBook", "true");
-        }
-
-        if (ab.isRemote) {
-          listItem.setAttribute("IsRemote", "true");
-        }
-        if (ab.isSecure) {
-          listItem.setAttribute("IsSecure", "true");
+          listItem.setAttribute(
+            "image",
+            "chrome://messenger/skin/icons/address.svg"
+          );
         }
       }
 
