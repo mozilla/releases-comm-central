@@ -10,17 +10,10 @@ EXPORTS += [
 SOURCES += [
     "nsAbAddressCollector.cpp",
     "nsAbBooleanExpression.cpp",
-    "nsAbBoolExprToLDAPFilter.cpp",
     "nsAbCardProperty.cpp",
     "nsAbDirectoryQuery.cpp",
     "nsAbDirectoryQueryProxy.cpp",
     "nsAbDirProperty.cpp",
-    "nsAbLDAPDirectory.cpp",
-    "nsAbLDAPDirectoryQuery.cpp",
-    "nsAbLDAPListenerBase.cpp",
-    "nsAbLDAPReplicationData.cpp",
-    "nsAbLDAPReplicationQuery.cpp",
-    "nsAbLDAPReplicationService.cpp",
     "nsAbLDIFService.cpp",
     "nsAbQueryStringToExpression.cpp",
 ]

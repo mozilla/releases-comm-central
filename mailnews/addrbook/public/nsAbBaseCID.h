@@ -174,22 +174,6 @@
     }                                                \
   }
 
-// nsAbLDAPDirectoryQuery
-#define NS_ABLDAPDIRECTORYQUERY_CONTRACTID \
-  "@mozilla.org/addressbook/ldap-directory-query;1"
-
-// nsAbLDAPReplicationService
-#define NS_ABLDAP_REPLICATIONSERVICE_CONTRACTID \
-  "@mozilla.org/addressbook/ldap-replication-service;1"
-
-// nsAbLDAPReplicationQuery
-#define NS_ABLDAP_REPLICATIONQUERY_CONTRACTID \
-  "@mozilla.org/addressbook/ldap-replication-query;1"
-
-// nsAbLDAPProcessReplicationData
-#define NS_ABLDAP_PROCESSREPLICATIONDATA_CONTRACTID \
-  "@mozilla.org/addressbook/ldap-process-replication-data;1"
-
 #ifdef XP_MACOSX
 //
 // nsAbOSXDirectory

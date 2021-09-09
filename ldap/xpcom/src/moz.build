@@ -4,17 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    "nsLDAPBERElement.cpp",
-    "nsLDAPBERValue.cpp",
-    "nsLDAPConnection.cpp",
-    "nsLDAPControl.cpp",
-    "nsLDAPMessage.cpp",
-    "nsLDAPModification.cpp",
-    "nsLDAPOperation.cpp",
     "nsLDAPProtocolModule.cpp",
-    "nsLDAPSecurityGlue.cpp",
-    "nsLDAPServer.cpp",
-    "nsLDAPService.cpp",
     "nsLDAPURL.cpp",
 ]
 

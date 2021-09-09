@@ -13,7 +13,6 @@ XPIDL_SOURCES += [
     "nsILDAPMessageListener.idl",
     "nsILDAPModification.idl",
     "nsILDAPOperation.idl",
-    "nsILDAPServer.idl",
     "nsILDAPService.idl",
     "nsILDAPURL.idl",
 ]
