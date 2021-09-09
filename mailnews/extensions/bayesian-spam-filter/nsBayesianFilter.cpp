@@ -28,10 +28,13 @@
 #include "nsIChannel.h"
 #include "nsDependentSubstring.h"
 #include "nsMemory.h"
+#include "nsUnicodeProperties.h"
 
 #include "mozilla/ArenaAllocatorExtensions.h"  // for ArenaStrdup
 
 using namespace mozilla;
+using mozilla::unicode::GetScriptCode;
+using mozilla::unicode::Script;
 
 // needed to mark attachment flag on the db hdr
 #include "nsIMsgHdr.h"
@@ -589,13 +592,10 @@ void Tokenizer::tokenize_ascii_word(char* aWord) {
 // the script is not supported by the platform, we just won't find any useful
 // boundaries.)
 static bool IsScriptioContinua(char16_t aChar) {
-  return false;  // FIXME actually do something
-  /*
-    Script sc = GetScriptCode(aChar);
-    return sc == Script::THAI || sc == Script::MYANMAR || sc == Script::KHMER ||
-           sc == Script::JAVANESE || sc == Script::BALINESE ||
-           sc == Script::SUNDANESE || sc == Script::LAO;
-  */
+  Script sc = GetScriptCode(aChar);
+  return sc == Script::THAI || sc == Script::MYANMAR || sc == Script::KHMER ||
+         sc == Script::JAVANESE || sc == Script::BALINESE ||
+         sc == Script::SUNDANESE || sc == Script::LAO;
 }
 
 // one subtract and one conditional jump should be faster than two conditional
@@ -732,11 +732,9 @@ WordBreakClass GetWordBreakClass(char16_t c) {
     if (c == 0x00A0 /*NBSP*/) {
       return WordBreakClass::kWbClassSpace;
     }
-    /*
-    if (GetGenCategory(c) == nsUGenCategory::kPunctuation) {
+    if (mozilla::unicode::GetGenCategory(c) == nsUGenCategory::kPunctuation) {
       return WordBreakClass::kWbClassPunct;
     }
-    */
     if (IsScriptioContinua(c)) {
       return WordBreakClass::kWbClassScriptioContinua;
     }
@@ -754,11 +752,9 @@ WordBreakClass GetWordBreakClass(char16_t c) {
   if (IS_HALFWIDTHKATAKANA(c)) {
     return WordBreakClass::kWbClassHWKatakanaLetter;
   }
-  /*
-  if (GetGenCategory(c) == nsUGenCategory::kPunctuation) {
+  if (mozilla::unicode::GetGenCategory(c) == nsUGenCategory::kPunctuation) {
     return WordBreakClass::kWbClassPunct;
   }
-  */
   if (IsScriptioContinua(c)) {
     return WordBreakClass::kWbClassScriptioContinua;
   }
