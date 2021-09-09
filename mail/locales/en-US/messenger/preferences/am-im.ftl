@@ -14,4 +14,4 @@ chat-encryption-sessions-description = For end-to-end encryption to work correct
 chat-encryption-session-verify = verify
     .title = Verify the identity of this session
 chat-encryption-session-trusted = trusted
-    .title = This session's identity is verified
+    .title = This session’s identity is verified
