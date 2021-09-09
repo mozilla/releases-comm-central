@@ -18,7 +18,7 @@ const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/base-loader.js"
 );
 
-Cu.importGlobalProperties(["crypto"]);
+Cu.importGlobalProperties(["crypto", "fetch"]);
 
 const EXPORTED_SYMBOLS = [
   "MatrixSDK",
@@ -38,25 +38,44 @@ const EXPORTED_SYMBOLS = [
 //   ., then prefixed by .., etc.
 let matrixPath = "resource:///modules/matrix/";
 
-// Load olm library in a browser-like environment. This allows it to load its
-// wasm module, do crypto operations and log errors.
-let olmScope = {
-  get window() {
-    return olmScope;
-  },
+let globals = {
+  atob,
+  btoa,
   crypto,
-  XMLHttpRequest,
   console,
-  location: {
-    href: matrixPath + "olm",
-  },
-  document: {
-    currentScript: {
-      src: matrixPath + "olm/olm.js",
-    },
-  },
+  XMLHttpRequest,
+  setTimeout,
+  clearTimeout,
+  setInterval,
+  clearInterval,
+  TextEncoder,
+  TextDecoder,
+  location: { href: "" }, // workaround for browser-request's is_crossDomain
+
+  // Necessary for interacting with the logging framework.
+  scriptError,
+  imIDebugMessage: Ci.imIDebugMessage,
+  URL,
 };
-Services.scriptloader.loadSubScript(matrixPath + "olm/olm.js", olmScope);
+let loaderGlobal = {
+  /**
+   * We want a minimal window to make sure the SDK stays in non-browser mode
+   * for the most part.
+   */
+  get window() {
+    return {
+      crypto,
+    };
+  },
+  /**
+   * Global should not hold a self-reference to avoid |global.window| from
+   * being defined, so the SDK doesn't think it's running in a website.
+   */
+  get global() {
+    return globals;
+  },
+  ...globals,
+};
 
 let loader = Loader({
   paths: {
@@ -173,29 +192,45 @@ let loader = Loader({
     "safe-buffer": matrixPath + "safe-buffer.js",
     url: matrixPath + "url.js",
   },
-  globals: {
-    global: {
-      setInterval,
-      clearInterval,
-      setTimeout,
-      clearTimeout,
-      Olm: olmScope.Olm,
-    },
-    console,
-    XMLHttpRequest,
-    setTimeout,
-    clearTimeout,
-    location: { href: "" }, // workaround for browser-request's is_crossDomain
+  globals: loaderGlobal,
+  sandboxName: "Matrix SDK",
+});
 
-    // Necessary for interacting with the logging framework.
-    scriptError,
-    imIDebugMessage: Ci.imIDebugMessage,
-    URL,
+// Load olm library in a browser-like environment. This allows it to load its
+// wasm module, do crypto operations and log errors.
+// Create the global in the commonJS loader context, so they share the same
+// Uint8Array constructor.
+let olmScope = Cu.createObjectIn(loader.sharedGlobalSandbox);
+Object.assign(olmScope, {
+  crypto,
+  fetch,
+  XMLHttpRequest,
+  console,
+  location: {
+    href: matrixPath + "olm",
+  },
+  document: {
+    currentScript: {
+      src: matrixPath + "olm/olm.js",
+    },
   },
 });
+Object.defineProperty(olmScope, "window", {
+  get() {
+    return olmScope;
+  },
+});
+Services.scriptloader.loadSubScript(matrixPath + "olm/olm.js", olmScope);
+olmScope.Olm.init().catch(console.error);
+loader.globals.Olm = olmScope.Olm;
+globals.Olm = olmScope.Olm;
 
 let requirer = Module("matrix-module", "");
 let require = Require(loader, requirer);
+
+// Load the buffer shim into the global commonJS scope
+loader.globals.Buffer = require("safe-buffer").Buffer;
+globals.Buffer = loader.globals.Buffer;
 
 // The main entry point into the Matrix client.
 let MatrixSDK = require("browser-index.js");

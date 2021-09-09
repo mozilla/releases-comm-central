@@ -970,6 +970,12 @@ MatrixRoom.prototype = {
   },
 };
 
+function getStatusString(status) {
+  return status
+    ? _("options.encryption.statusOk")
+    : _("options.encryption.statusNotOk");
+}
+
 /*
  * TODO Other random functionality from MatrixClient that will be useful:
  *  getRooms / getUsers / publicRooms
@@ -1147,6 +1153,12 @@ MatrixAccount.prototype = {
   },
 
   /**
+   * Error displayed to the user if there is some user-action required for the
+   * encryption setup.
+   */
+  _encryptionError: "",
+
+  /**
    * Builds the options for the |createClient| call to the SDK including all
    * stores.
    * @returns {Object}
@@ -1182,6 +1194,32 @@ MatrixAccount.prototype = {
       accessToken: this.prefs.getStringPref("accessToken", "") || undefined,
       userId: this.prefs.getStringPref("userId", "") || undefined,
       timelineSupport: true,
+      cryptoCallbacks: {
+        getSecretStorageKey: async ({ keys }) => {
+          const backupPassphrase = this.getString("backupPassphrase");
+          if (!backupPassphrase) {
+            this.WARN("Missing secret storage key");
+            this._encryptionError = _(
+              "options.encryption.needBackupPassphrase"
+            );
+            await this.updateEncryptionStatus();
+            return null;
+          }
+          let keyId = await this._client.getDefaultSecretStorageKeyId();
+          if (keyId && !keys[keyId]) {
+            keyId = undefined;
+          }
+          if (!keyId) {
+            keyId = keys[0][0];
+          }
+          const backupInfo = await this._client.getKeyBackupVersion();
+          const key = await this._client.keyBackupKeyFromPassword(
+            backupPassphrase,
+            backupInfo
+          );
+          return [keyId, key];
+        },
+      },
     };
   },
 
@@ -1504,13 +1542,33 @@ MatrixAccount.prototype = {
     this._client.on("User.presence", this.updateBuddy.bind(this));
     this._client.on("User.currentlyActive", this.updateBuddy.bind(this));
 
+    this._client.on("crossSigning.keysChanged", () => {
+      this.updateEncryptionStatus();
+    });
+    this._client.on("crypto.keyBackupStatus", () => {
+      this.bootstrapSSSS();
+      this.updateEncryptionStatus();
+    });
+
     // TODO Other events to handle:
     //  Room.localEchoUpdated
     //  Room.tags
+    //  crypto.suggestKeyRestore
+    //  crypto.warning
 
     this._client
       .initCrypto()
-      .then(() => this._client.startClient())
+      .then(() =>
+        Promise.all([
+          this._client.startClient(),
+          this.updateEncryptionStatus(),
+          this.bootstrapSSSS(),
+        ])
+      )
+      .then(() => {
+        // We can disable the unknown devices error thanks to cross signing.
+        this._client.setGlobalErrorOnUnknownDevices(false);
+      })
       .catch(error => this.ERROR(error));
   },
 
@@ -1566,6 +1624,87 @@ MatrixAccount.prototype = {
       if (this.getDMRoomIdsForUserId(userId).length === 0) {
         buddy.remove();
       }
+    }
+  },
+
+  /**
+   * Update the encryption status message based on the current state.
+   */
+  async updateEncryptionStatus() {
+    const secretStorageReady = await this._client.isSecretStorageReady();
+    const crossSigningReady = await this._client.isCrossSigningReady();
+    const keyBackupReady = this._client.getKeyBackupEnabled();
+    const statuses = [
+      _(
+        "options.encryption.enabled",
+        getStatusString(this._client.isCryptoEnabled())
+      ),
+      _(
+        "options.encryption.secretStorage",
+        getStatusString(secretStorageReady)
+      ),
+      _("options.encryption.keyBackup", getStatusString(keyBackupReady)),
+      _("options.encryption.crossSigning", getStatusString(crossSigningReady)),
+    ];
+    if (this._encryptionError) {
+      statuses.push(this._encryptionError);
+    } else if (!secretStorageReady) {
+      statuses.push(_("options.encryption.setUpSecretStorage"));
+    } else if (!keyBackupReady && !crossSigningReady) {
+      statuses.push(_("options.encryption.setUpBackupAndCrossSigning"));
+    }
+    this.encryptionStatus = statuses;
+  },
+
+  /**
+   * Ensures secret storage and cross signing are ready for use. Does not
+   * support initial setup of secret storage. If the backup passphrase is not
+   * set, this is a no-op, else it is cleared once the operation is complete.
+   *
+   * @returns {Promise<void>}
+   */
+  async bootstrapSSSS() {
+    if (!this._client) {
+      // client startup will do bootstrapping
+      return;
+    }
+    const password = this.getString("backupPassphrase");
+    if (!password) {
+      // We do not support setting up secret storage, so we need a passphrase
+      // to boostrap.
+      return;
+    }
+    const backupInfo = await this._client.getKeyBackupVersion();
+    await this._client.bootstrapSecretStorage({
+      setupNewKeyBackup: false,
+      async getKeyBackupPassphrase() {
+        const key = await this._client.keyBackupKeyFromPassword(
+          password,
+          backupInfo
+        );
+        return key;
+      },
+    });
+    await this._client.bootstrapCrossSigning({
+      authUploadDeviceSigningKeys(makeRequest) {
+        makeRequest();
+        return Promise.resolve();
+      },
+    });
+    await this._client.checkOwnCrossSigningTrust();
+    if (backupInfo) {
+      await this._client.restoreKeyBackupWithSecretStorage(backupInfo);
+    }
+    // Clear passphrase once bootstrap was successful
+    this.imAccount.setString("backupPassphrase", "");
+    this.imAccount.save();
+    this._encryptionError = "";
+    await this.updateEncryptionStatus();
+  },
+
+  setString(name, value) {
+    if (name === "backupPassphrase" && value) {
+      this.bootstrapSSSS().catch(this.WARN);
     }
   },
 
@@ -2260,6 +2399,13 @@ MatrixProtocol.prototype = {
         return _("options.deviceDisplayName");
       },
       default: "Thunderbird",
+    },
+    backupPassphrase: {
+      get label() {
+        return _("options.backupPassphrase");
+      },
+      default: "",
+      masked: true,
     },
   },
 
