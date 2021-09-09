@@ -16,11 +16,6 @@ ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { getSearchTokens, getModelQuery, generateQueryURI } = ChromeUtils.import(
   "resource:///modules/ABQueryUtils.jsm"
 );
-var {
-  exportDirectoryToLDIF,
-  exportDirectoryToDelimitedText,
-  exportDirectoryToVCard,
-} = ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -34,6 +29,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
 });
 
@@ -573,179 +569,8 @@ function AbExport(aSelectedDirURI) {
     return;
   }
 
-  let systemCharset = "utf-8";
-  if (AppConstants.platform == "win") {
-    // Some Windows applications (notably Outlook) still don't understand
-    // UTF-8 encoding when importing address books and instead use the current
-    // operating system encoding. We can get that encoding from the registry.
-    let registryKey = Cc["@mozilla.org/windows-registry-key;1"].createInstance(
-      Ci.nsIWindowsRegKey
-    );
-    registryKey.open(
-      Ci.nsIWindowsRegKey.ROOT_KEY_LOCAL_MACHINE,
-      "SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage",
-      Ci.nsIWindowsRegKey.ACCESS_READ
-    );
-    let acpValue = registryKey.readStringValue("ACP");
-
-    // This data converts the registry key value into encodings that
-    // nsIConverterOutputStream understands. It is from
-    // https://github.com/hsivonen/encoding_rs/blob/c3eb642cdf3f17003b8dac95c8fff478568e46da/generate-encoding-data.py#L188
-    systemCharset =
-      {
-        866: "IBM866",
-        874: "windows-874",
-        932: "Shift_JIS",
-        936: "GBK",
-        949: "EUC-KR",
-        950: "Big5",
-        1200: "UTF-16LE",
-        1201: "UTF-16BE",
-        1250: "windows-1250",
-        1251: "windows-1251",
-        1252: "windows-1252",
-        1253: "windows-1253",
-        1254: "windows-1254",
-        1255: "windows-1255",
-        1256: "windows-1256",
-        1257: "windows-1257",
-        1258: "windows-1258",
-        10000: "macintosh",
-        10017: "x-mac-cyrillic",
-        20866: "KOI8-R",
-        20932: "EUC-JP",
-        21866: "KOI8-U",
-        28592: "ISO-8859-2",
-        28593: "ISO-8859-3",
-        28594: "ISO-8859-4",
-        28595: "ISO-8859-5",
-        28596: "ISO-8859-6",
-        28597: "ISO-8859-7",
-        28598: "ISO-8859-8",
-        28600: "ISO-8859-10",
-        28603: "ISO-8859-13",
-        28604: "ISO-8859-14",
-        28605: "ISO-8859-15",
-        28606: "ISO-8859-16",
-        38598: "ISO-8859-8-I",
-        50221: "ISO-2022-JP",
-        54936: "gb18030",
-      }[acpValue] || systemCharset;
-  }
-
   let directory = GetDirectoryFromURI(aSelectedDirURI);
-  let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
-    Ci.nsIFilePicker
-  );
-  let bundle = Services.strings.createBundle(
-    "chrome://messenger/locale/addressbook/addressBook.properties"
-  );
-
-  let title = bundle.formatStringFromName("ExportAddressBookNameTitle", [
-    directory.dirName,
-  ]);
-  filePicker.init(window, title, Ci.nsIFilePicker.modeSave);
-  filePicker.defaultString = directory.dirName;
-
-  let filterString;
-  // Since the list of file picker filters isn't fixed, keep track of which
-  // ones are added, so we can use them in the switch block below.
-  let activeFilters = [];
-
-  // CSV
-  if (systemCharset != "utf-8") {
-    filterString = bundle.GetStringFromName("CSVFilesSysCharset");
-    filePicker.appendFilter(filterString, "*.csv");
-    activeFilters.push("CSVFilesSysCharset");
-  }
-  filterString = bundle.GetStringFromName("CSVFilesUTF8");
-  filePicker.appendFilter(filterString, "*.csv");
-  activeFilters.push("CSVFilesUTF8");
-
-  // Tab separated
-  if (systemCharset != "utf-8") {
-    filterString = bundle.GetStringFromName("TABFilesSysCharset");
-    filePicker.appendFilter(filterString, "*.tab; *.txt");
-    activeFilters.push("TABFilesSysCharset");
-  }
-  filterString = bundle.GetStringFromName("TABFilesUTF8");
-  filePicker.appendFilter(filterString, "*.tab; *.txt");
-  activeFilters.push("TABFilesUTF8");
-
-  // vCard
-  filterString = bundle.GetStringFromName("VCFFiles");
-  filePicker.appendFilter(filterString, "*.vcf");
-  activeFilters.push("VCFFiles");
-
-  // LDIF
-  filterString = bundle.GetStringFromName("LDIFFiles");
-  filePicker.appendFilter(filterString, "*.ldi; *.ldif");
-  activeFilters.push("LDIFFiles");
-
-  filePicker.open(rv => {
-    if (
-      rv == Ci.nsIFilePicker.returnCancel ||
-      !filePicker.file ||
-      !filePicker.file.path
-    ) {
-      return;
-    }
-
-    if (rv == Ci.nsIFilePicker.returnReplace) {
-      if (filePicker.file.isFile()) {
-        filePicker.file.remove(false);
-      }
-    }
-
-    let exportFile = filePicker.file.clone();
-    let leafName = exportFile.leafName;
-    let output = "";
-    let charset = "utf-8";
-
-    switch (activeFilters[filePicker.filterIndex]) {
-      case "CSVFilesSysCharset":
-        charset = systemCharset;
-      // Falls through.
-      case "CSVFilesUTF8":
-        if (!leafName.endsWith(".csv")) {
-          exportFile.leafName += ".csv";
-        }
-        output = exportDirectoryToDelimitedText(directory, ",");
-        break;
-      case "TABFilesSysCharset":
-        charset = systemCharset;
-      // Falls through.
-      case "TABFilesUTF8":
-        if (!leafName.endsWith(".txt") && !leafName.endsWith(".tab")) {
-          exportFile.leafName += ".txt";
-        }
-        output = exportDirectoryToDelimitedText(directory, "\t");
-        break;
-      case "VCFFiles":
-        if (!leafName.endsWith(".vcf")) {
-          exportFile.leafName += ".vcf";
-        }
-        output = exportDirectoryToVCard(directory);
-        break;
-      case "LDIFFiles":
-        if (!leafName.endsWith(".ldi") && !leafName.endsWith(".ldif")) {
-          exportFile.leafName += ".ldif";
-        }
-        output = exportDirectoryToLDIF(directory);
-        break;
-    }
-
-    let outputFileStream = Cc[
-      "@mozilla.org/network/file-output-stream;1"
-    ].createInstance(Ci.nsIFileOutputStream);
-    outputFileStream.init(exportFile, -1, -1, 0);
-    let outputStream = Cc[
-      "@mozilla.org/intl/converter-output-stream;1"
-    ].createInstance(Ci.nsIConverterOutputStream);
-    outputStream.init(outputFileStream, charset);
-    outputStream.writeString(output);
-    outputStream.close();
-  });
+  AddrBookUtils.exportDirectory(directory);
 }
 
 function SetStatusText(total) {

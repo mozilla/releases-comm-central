@@ -4,11 +4,9 @@
 
 "use strict";
 
-var {
-  exportDirectoryToDelimitedText,
-  exportDirectoryToLDIF,
-  exportDirectoryToVCard,
-} = ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
+var { AddrBookUtils } = ChromeUtils.import(
+  "resource:///modules/AddrBookUtils.jsm"
+);
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -61,17 +59,20 @@ add_task(async () => {
 
   await compareAgainstFile(
     "export.csv",
-    exportDirectoryToDelimitedText(book, ",")
+    AddrBookUtils.exportDirectoryToDelimitedText(book, ",")
   );
   await compareAgainstFile(
     "export.txt",
-    exportDirectoryToDelimitedText(book, "\t")
+    AddrBookUtils.exportDirectoryToDelimitedText(book, "\t")
   );
-  await compareAgainstFile("export.vcf", exportDirectoryToVCard(book));
+  await compareAgainstFile(
+    "export.vcf",
+    AddrBookUtils.exportDirectoryToVCard(book)
+  );
   // modifytimestamp is always changing, replace it with a fixed value.
   await compareAgainstFile(
     "export.ldif",
-    exportDirectoryToLDIF(book).replace(
+    AddrBookUtils.exportDirectoryToLDIF(book).replace(
       /modifytimestamp: \d+/g,
       "modifytimestamp: 12345"
     )

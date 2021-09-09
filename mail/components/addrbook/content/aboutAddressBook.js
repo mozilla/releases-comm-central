@@ -20,6 +20,8 @@ XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
   return ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 });
 XPCOMUtils.defineLazyModuleGetters(this, {
+  AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
@@ -65,6 +67,9 @@ window.addEventListener("load", () => {
         break;
       case "bookContextPrint":
         booksList.printSelected();
+        break;
+      case "bookContextExport":
+        booksList.exportSelected();
         break;
       case "bookContextDelete":
         booksList.deleteSelected();
@@ -484,6 +489,19 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   /**
+   * Export the selected address book to a file.
+   */
+  exportSelected() {
+    if (this.selectedIndex == 0) {
+      return;
+    }
+
+    let row = this.getRowAtIndex(this.selectedIndex);
+    let directory = row._book || row._list;
+    AddrBookUtils.exportDirectory(directory);
+  }
+
+  /**
    * Prompt the user and delete the selected address book.
    */
   async deleteSelected() {
@@ -703,6 +721,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
 
     let popup = document.getElementById("bookContext");
     let synchronizeItem = document.getElementById("bookContextSynchronize");
+    let exportItem = document.getElementById("bookContextExport");
     let deleteItem = document.getElementById("bookContextDelete");
     let removeItem = document.getElementById("bookContextRemove");
     let startupDefaultItem = document.getElementById(
@@ -730,6 +749,7 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       }
 
       synchronizeItem.hidden = !row.classList.contains("carddav");
+      exportItem.hidden = row.classList.contains("remote");
 
       deleteItem.disabled = row.classList.contains("noDelete");
       deleteItem.hidden = row.classList.contains("carddav");
