@@ -146,7 +146,7 @@ class NntpNewsGroup {
   _runFilters() {
     let folderFilterList = this._folder.getFilterList(this._msgWindow);
     let folderFilterCount = folderFilterList.filterCount;
-    let serverFilterList = this._folder.getFilterList(this._msgWindow);
+    let serverFilterList = this._server.getFilterList(this._msgWindow);
     let serverFilterCount = serverFilterList.filterCount;
 
     for (let msgHdr of this._msgHdrs) {

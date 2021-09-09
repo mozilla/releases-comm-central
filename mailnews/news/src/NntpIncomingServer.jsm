@@ -231,13 +231,42 @@ class NntpIncomingServer extends MsgIncomingServer {
     }
   }
 
+  performBiff(msgWindow) {
+    this.performExpand(msgWindow);
+  }
+
   /** @see nsINntpIncomingServer */
+  get newsrcRootPath() {
+    let file = this.getFileValue("mail.newsrc_root-rel", "mail.newsrc_root");
+    if (!file) {
+      file = Services.dirsvc.get("NewsD", Ci.nsIFile);
+      this.setFileValue("mail.newsrc_root-rel", "mail.newsrc_root", file);
+    }
+    return file;
+  }
+
+  set newsrcRootPath(value) {
+    this.setFileValue("mail.newsrc_root-rel", "mail.newsrc_root", value);
+  }
+
   get newsrcFilePath() {
     if (!this._newsrcFilePath) {
       this._newsrcFilePath = this.getFileValue(
         "newsrc.file-rel",
         "newsrc.file"
       );
+    }
+    if (!this._newsrcFilePath) {
+      let prefix = "newsrc-";
+      let suffix = "";
+      if (AppConstants.platform == "win") {
+        prefix = "";
+        suffix = ".rc";
+      }
+      this._newsrcFilePath = this.newsrcRootPath;
+      this._newsrcFilePath.append(`${prefix}${this.hostName}${suffix}`);
+      this._newsrcFilePath.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+      this.newsrcFilePath = this._newsrcFilePath;
     }
     return this._newsrcFilePath;
   }

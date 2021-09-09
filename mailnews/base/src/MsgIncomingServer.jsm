@@ -54,6 +54,9 @@ class MsgIncomingServer {
         },
       });
     });
+
+    // nsIMsgIncomingServer attributes.
+    this.performingBiff = false;
   }
 
   get key() {
@@ -350,4 +353,21 @@ class MsgIncomingServer {
   forgetPassword() {}
 
   closeCachedConnections() {}
+
+  getFilterList(msgWindow) {
+    if (!this._filterList) {
+      let filterFile = this.rootFolder.filePath.clone();
+      filterFile.append("msgFilterRules.dat");
+      this._filterList = MailServices.filters.OpenFilterList(
+        filterFile,
+        this.rootFolder,
+        msgWindow
+      );
+    }
+    return this._filterList;
+  }
+
+  setFilterList(value) {
+    this._filterList = value;
+  }
 }
