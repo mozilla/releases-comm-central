@@ -17,10 +17,10 @@ function MockObjectRegisterer(aContractID, aCID, aComponent) {
 }
 
 MockObjectRegisterer.prototype = {
-  register: function MOR_register() {
+  register() {
     let providedConstructor = this._component;
     this._mockFactory = {
-      createInstance: function MF_createInstance(aOuter, aIid) {
+      createInstance(aOuter, aIid) {
         if (aOuter != null) {
           throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
         }
@@ -38,7 +38,7 @@ MockObjectRegisterer.prototype = {
     );
   },
 
-  unregister: function MOR_unregister() {
+  unregister() {
     let componentRegistrar = Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
     componentRegistrar.unregisterFactory(this._cid, this._mockFactory);

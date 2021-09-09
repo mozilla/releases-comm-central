@@ -251,15 +251,14 @@ function close_compose_window(aController, aShouldPrompt) {
 
   windowHelper.plan_for_window_close(aController);
   if (aShouldPrompt) {
-    windowHelper.plan_for_modal_dialog(
-      "commonDialogWindow",
-      function clickDontSave(controller) {
-        controller.window.document
-          .querySelector("dialog")
-          .getButton("extra1")
-          .doCommand();
-      }
-    );
+    windowHelper.plan_for_modal_dialog("commonDialogWindow", function(
+      controller
+    ) {
+      controller.window.document
+        .querySelector("dialog")
+        .getButton("extra1")
+        .doCommand();
+    });
     // Try to close, we should get a prompt to save.
     aController.window.goDoCommand("cmd_close");
     windowHelper.wait_for_modal_dialog();
@@ -298,7 +297,7 @@ function _wait_for_compose_window(aController, replyWindow) {
     let editorObserver = {
       editorLoaded: false,
 
-      observe: function eO_observe(aSubject, aTopic, aData) {
+      observe(aSubject, aTopic, aData) {
         if (aTopic == "obs_documentCreated") {
           this.editorLoaded = true;
         }

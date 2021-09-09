@@ -69,11 +69,11 @@ var gMockFilePicker = {
     };
   },
 
-  init: function gMFP_init(aParent, aTitle, aMode) {},
+  init(aParent, aTitle, aMode) {},
 
-  appendFilters: function gMFP_appendFilters(aFilterMask) {},
+  appendFilters(aFilterMask) {},
 
-  appendFilter: function gMFP_appendFilter(aTitle, aFilter) {},
+  appendFilter(aTitle, aFilter) {},
 
   open(aFilePickerShownCallback) {
     aFilePickerShownCallback.done(Ci.nsIFilePicker.returnOK);

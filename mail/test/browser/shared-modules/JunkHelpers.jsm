@@ -56,7 +56,7 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
   // explanation of why this is done.
   let realDeleteJunkInFolder = aController.window.deleteJunkInFolder;
   let numMessagesDeleted = null;
-  let fakeDeleteJunkInFolder = function fakeDeleteJunkInFolder() {
+  let fakeDeleteJunkInFolder = function() {
     numMessagesDeleted = realDeleteJunkInFolder();
     return numMessagesDeleted;
   };

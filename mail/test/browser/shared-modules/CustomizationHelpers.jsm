@@ -39,7 +39,7 @@ CustomizeDialogHelper.prototype = {
    *   dialog should be opened
    * @returns a controller for the customization dialog
    */
-  open: function CustomizeDialogHelper_open(aController) {
+  open(aController) {
     let ctc;
     aController.click(aController.e(this._openElementId));
     // Depending on preferences the customization dialog is
@@ -61,7 +61,7 @@ CustomizeDialogHelper.prototype = {
    * @param {} aCtc
    *   the controller object of the customization dialog which should be closed
    */
-  close: function CustomizeDialogHelper_close(aCtc) {
+  close(aCtc) {
     if (this._openInWindow) {
       wh.plan_for_window_close(aCtc);
     }
@@ -83,9 +83,7 @@ CustomizeDialogHelper.prototype = {
    *   the controller object of the window for which the customization
    *   dialog should be opened
    */
-  restoreDefaultButtons: function CustomizeDialogHelper_restoreDefaultButtons(
-    aController
-  ) {
+  restoreDefaultButtons(aController) {
     let ctc = this.open(aController);
     let restoreButton = ctc.window.document
       .getElementById("main-box")

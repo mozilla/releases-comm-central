@@ -95,7 +95,7 @@ module.exports = {
     },
     {
       ...browserTestConfig,
-      files: browserTestPaths.map(path => `${path}**`),
+      files: browserTestPaths.map(path => `${path}**/*.js`),
       rules: {
         ...browserTestConfig.rules,
         "func-names": "off",

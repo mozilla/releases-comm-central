@@ -180,7 +180,7 @@ function getUniqueIdForAppWindow(aAppWindow) {
 var WindowWatcher = {
   _inited: false,
   _firstWindowOpened: false,
-  ensureInited: function WindowWatcher_ensureInited() {
+  ensureInited() {
     if (this._inited) {
       return;
     }
@@ -210,16 +210,14 @@ var WindowWatcher = {
    *  (ex: "mailnews:search").  This allows us to be ready if an event shows
    *  up before waitForWindow is called.
    */
-  planForWindowOpen: function WindowWatcher_planForWindowOpen(aWindowType) {
+  planForWindowOpen(aWindowType) {
     this.waitingList.set(aWindowType, null);
   },
 
   /**
    * Like planForWindowOpen but we check for already-existing windows.
    */
-  planForAlreadyOpenWindow: function WindowWatcher_planForAlreadyOpenWindow(
-    aWindowType
-  ) {
+  planForAlreadyOpenWindow(aWindowType) {
     this.waitingList.set(aWindowType, null);
     // We need to iterate over all the app windows and consider them all.
     //  We can't pass the window type because the window might not have a
@@ -244,7 +242,7 @@ var WindowWatcher = {
    *
    * @return The window wrapped in a MozMillController.
    */
-  waitForWindowOpen: function WindowWatcher_waitForWindowOpen(aWindowType) {
+  waitForWindowOpen(aWindowType) {
     this.waitingForOpen = aWindowType;
     utils.waitFor(
       () => this.monitorizeOpen(),
@@ -287,10 +285,7 @@ var WindowWatcher = {
    * The test function to run when the modal dialog opens.
    */
   subTestFunc: null,
-  planForModalDialog: function WindowWatcher_planForModalDialog(
-    aWindowType,
-    aSubTestFunc
-  ) {
+  planForModalDialog(aWindowType, aSubTestFunc) {
     if (this._timer == null) {
       this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     }
@@ -309,7 +304,7 @@ var WindowWatcher = {
   /**
    * This is the nsITimer notification we receive...
    */
-  notify: function WindowWatcher_notify() {
+  notify() {
     if (this.monitorizeOpen()) {
       // okay, the window is opened, and we should be in its event loop now.
       let appWindow = this.waitingList.get(this.waitingForOpen);
@@ -385,10 +380,7 @@ var WindowWatcher = {
    * Symmetry for planForModalDialog; conceptually provides the waiting.  In
    *  reality, all we do is potentially soak up the event loop a little to
    */
-  waitForModalDialog: function WindowWatcher_waitForModalDialog(
-    aWindowType,
-    aTimeout
-  ) {
+  waitForModalDialog(aWindowType, aTimeout) {
     // did the window already come and go?
     if (this.subTestFunc == null) {
       return;
@@ -405,7 +397,7 @@ var WindowWatcher = {
     this.waitingForClose = null;
   },
 
-  planForWindowClose: function WindowWatcher_planForWindowClose(aAppWindow) {
+  planForWindowClose(aAppWindow) {
     let windowType = getWindowTypeOrId(aAppWindow.document.documentElement);
     this.waitingList.set(windowType, aAppWindow);
     this.waitingForClose = windowType;
@@ -416,7 +408,7 @@ var WindowWatcher = {
    *  waitingForOpen, this makes the eval less crazy.
    */
   waitingForClose: null,
-  waitForWindowClose: function WindowWatcher_waitForWindowClose() {
+  waitForWindowClose() {
     utils.waitFor(
       () => this.monitorizeClose(),
       "Timeout waiting for window to close!",
@@ -480,7 +472,7 @@ var WindowWatcher = {
    *  check out the window, and if we were not able to fully consider it, we
    *  add it to our monitoring list.
    */
-  onOpenWindow: function WindowWatcher_onOpenWindow(aAppWindow) {
+  onOpenWindow(aAppWindow) {
     // note: we would love to add our window activation/deactivation listeners
     //  and poke our unique id, but there is no contentViewer at this point
     //  and so there's no place to poke our unique id.  (aAppWindow does not
@@ -530,7 +522,7 @@ var WindowWatcher = {
    * Closing windows have the advantage of having to already have been loaded,
    *  so things like their windowtype are immediately available.
    */
-  onCloseWindow: function WindowWatcher_onCloseWindow(aAppWindow) {
+  onCloseWindow(aAppWindow) {
     let domWindow = aAppWindow.docShell.domWindow;
     let windowType = getWindowTypeOrId(domWindow.document.documentElement);
     mark_action("winhelp", "onCloseWindow", [
@@ -872,7 +864,7 @@ var AugmentEverybodyWith = {
      *
      * @return the element with the given id on the window's document
      */
-    e: function _get_element_by_id_helper(aId, aQuery) {
+    e(aId, aQuery) {
       let elem = this.window.document.getElementById(aId);
       if (aQuery) {
         if (aQuery.tagName) {
@@ -891,7 +883,7 @@ var AugmentEverybodyWith = {
      *
      * @param aId The DOM id of the element you want to wait to show up.
      */
-    ewait: function _wait_for_element_by_id_helper(aId) {
+    ewait(aId) {
       this.waitFor(
         () => this.window.document.getElementById(aId),
         `Waiting for element with id ${aId}`
@@ -910,7 +902,7 @@ var AugmentEverybodyWith = {
      *  can strap debug on and because it's meant so you can easily just
      *  prefix on 'defer_' and be done with it.
      */
-    defer_click: function _augmented_defer_click(aWhatToClick) {
+    defer_click(aWhatToClick) {
       let dis = this;
       dis.window.setTimeout(function() {
         dis.click(aWhatToClick);
@@ -1028,7 +1020,7 @@ var AugmentEverybodyWith = {
      *                     The elements are processed from the end of the array
      *                     to the front (a stack).
      */
-    close_popup_sequence: function _close_popup_sequence(aCloseStack) {
+    close_popup_sequence(aCloseStack) {
       while (aCloseStack.length) {
         let curPopup = aCloseStack.pop();
         if (curPopup.state == "open") {

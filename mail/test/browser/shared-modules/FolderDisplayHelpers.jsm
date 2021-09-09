@@ -1995,12 +1995,12 @@ var FolderListener = {
 
   sawEvents: false,
   watchingFor: null,
-  planToWaitFor: function FolderListener_planToWaitFor(...aArgs) {
+  planToWaitFor(...aArgs) {
     this.sawEvents = false;
     this.watchingFor = aArgs;
   },
 
-  waitForEvents: function FolderListener_waitForEvents() {
+  waitForEvents() {
     if (this.sawEvents) {
       return;
     }
@@ -2021,7 +2021,7 @@ var FolderListener = {
     }
   },
 
-  OnItemEvent: function FolderNotificationHelper_OnItemEvent(aFolder, aEvent) {
+  OnItemEvent(aFolder, aEvent) {
     if (!this.watchingFor) {
       return;
     }
