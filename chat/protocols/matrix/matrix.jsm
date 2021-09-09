@@ -269,6 +269,20 @@ MatrixBuddy.prototype = {
 };
 
 /**
+ * Check if a user has unverified devices.
+ *
+ * @param {string} userId - User to check.
+ * @param {MatrixClient} client - Matrix SDK client instance to use.
+ * @returns {boolean}
+ */
+function checkUserHasUnverifiedDevices(userId, client) {
+  const devices = client.getStoredDevicesForUser(userId);
+  return devices.some(
+    ({ deviceId }) => !client.checkDeviceTrust(userId, deviceId).isVerified()
+  );
+}
+
+/**
  * Matrix rooms are androgynous. Sometimes they are DM conversations, other
  * times they are MUCs.
  * This class implements both conversations state and transition between the
@@ -375,6 +389,7 @@ MatrixRoom.prototype = {
       this.initRoomDm(room);
     }
 
+    this.updateUnverifiedDevices();
     this._setInitialized();
   },
 
@@ -554,6 +569,7 @@ MatrixRoom.prototype = {
         event,
         isEncrypted: event.isEncrypted(),
       });
+      this.updateUnverifiedDevices();
     } else if (eventType == EventType.RoomTopic) {
       this.setTopic(event.getContent().topic, event.getSender());
     } else if (eventType == EventType.RoomTombstone) {
@@ -751,6 +767,7 @@ MatrixRoom.prototype = {
   makeDm() {
     this._participants.clear();
     this.initRoomDm(this.room);
+    this.updateUnverifiedDevices();
   },
 
   /**
@@ -811,6 +828,7 @@ MatrixRoom.prototype = {
       new nsSimpleEnumerator([participant]),
       "chat-buddy-add"
     );
+    this.updateUnverifiedDevices();
   },
 
   removeParticipant(userId) {
@@ -823,6 +841,7 @@ MatrixRoom.prototype = {
       new nsSimpleEnumerator([participant]),
       "chat-buddy-remove"
     );
+    this.updateUnverifiedDevices();
   },
 
   /**
@@ -942,6 +961,43 @@ MatrixRoom.prototype = {
   updateTyping: GenericConvIMPrototype.updateTyping,
   typingState: Ci.prplIConvIM.NOT_TYPING,
 
+  _hasUnverifiedDevices: true,
+  /**
+   * Update the cached value for device trust and fire an
+   * update-conv-encryption if the value changed. We cache the unverified
+   * devices state, since the encryption state getter is sync. Does nothing if
+   * the room is not encrypted.
+   */
+  async updateUnverifiedDevices() {
+    if (
+      !this._account._client.isCryptoEnabled() ||
+      !this._account._client.isRoomEncrypted(this._roomId)
+    ) {
+      return;
+    }
+    const members = await this.room.getEncryptionTargetMembers();
+    // Check for participants that we haven't verified via cross signing, or
+    // of which we don't trust a device, and if everyone seems fine, check our
+    // own device verification state.
+    let newValue =
+      members.some(({ userId }) => {
+        const baseTrust = this._account._client
+          .checkUserTrust(userId)
+          .isCrossSigningVerified();
+        return (
+          !baseTrust ||
+          checkUserHasUnverifiedDevices(userId, this._account._client)
+        );
+      }) ||
+      checkUserHasUnverifiedDevices(
+        this._account.userId,
+        this._account._client
+      );
+    if (this._hasUnverifiedDevices !== newValue) {
+      this._hasUnverifiedDevices = newValue;
+      this.notifyObservers(this, "update-conv-encryption");
+    }
+  },
   get encryptionState() {
     if (
       !this._account._client.isCryptoEnabled() ||
@@ -955,8 +1011,7 @@ MatrixRoom.prototype = {
     if (!this._account._client.isRoomEncrypted(this._roomId)) {
       return Ci.prplIConversation.ENCRYPTION_AVAILABLE;
     }
-    //TODO this method is async, so the condition is always truthy
-    if (this.room.hasUnverifiedDevices()) {
+    if (this._hasUnverifiedDevices) {
       return Ci.prplIConversation.ENCRYPTION_ENABLED;
     }
     return Ci.prplIConversation.ENCRYPTION_TRUSTED;
@@ -1647,12 +1702,36 @@ MatrixAccount.prototype = {
         this.reportSessionsChanged();
         this.updateEncryptionStatus();
       }
-      //TODO encryption state for conversations where that other user is involved probably changes
+      for (const conv of this.roomList.values()) {
+        const encryptionStatus = conv.encryptionStatus;
+        if (
+          encryptionStatus !== Ci.prplIConversation.ENCRYPTION_AVAILABLE &&
+          encryptionStatus !== Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED
+        ) {
+          for (const userId of users) {
+            if (conv.getParticipant(userId)) {
+              conv.updateUnverifiedDevices();
+              break;
+            }
+          }
+        }
+      }
     });
 
+    // From the SDK documentation: Fires when the user's cross-signing keys
+    // have changed or cross-signing has been enabled/disabled
     this._client.on("crossSigning.keysChanged", () => {
       this.reportSessionsChanged();
       this.updateEncryptionStatus();
+      for (const conv of this.roomList.values()) {
+        const encryptionStatus = conv.encryptionStatus;
+        if (
+          encryptionStatus !== Ci.prplIConversation.ENCRYPTION_AVAILABLE &&
+          encryptionStatus !== Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED
+        ) {
+          conv.updateUnverifiedDevices();
+        }
+      }
     });
     this._client.on("crypto.keyBackupStatus", () => {
       this.bootstrapSSSS();

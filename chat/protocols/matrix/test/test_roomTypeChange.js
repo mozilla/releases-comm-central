@@ -19,6 +19,9 @@ FakeAccount.prototype = {
       getHomeserverUrl() {
         return "https://example.com";
       },
+      isCryptoEnabled() {
+        return false;
+      },
     };
   },
 

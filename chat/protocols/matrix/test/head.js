@@ -151,6 +151,9 @@ function getAccount(clientHandler) {
       getRooms() {
         return Array.from(this._rooms.values());
       },
+      isCryptoEnabled() {
+        return false;
+      },
     },
     makeProxyHandler(clientHandler)
   );
