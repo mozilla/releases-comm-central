@@ -150,9 +150,24 @@ CalAlarmMonitor.prototype = {
   },
 
   /**
-   * calIAlarmServiceObserver
+   * @see {calIAlarmServiceObserver}
+   * @param {calIItemBase} item - The item to notify about.
    */
   onNotification(item) {
+    // Don't notify about canceled events.
+    if (item.status == "CANCELLED") {
+      return;
+    }
+    // Don't notify if you declined this event invitation.
+    if (
+      item instanceof Ci.calIEvent &&
+      item.calendar instanceof Ci.calISchedulingSupport &&
+      item.calendar.isInvitation(item) &&
+      item.calendar.getInvitedAttendee(item)?.participationStatus == "DECLINED"
+    ) {
+      return;
+    }
+
     let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(Ci.nsIAlertNotification);
     let alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
     alert.init(
