@@ -320,6 +320,7 @@
   skin/classic/messenger/shared/cardDialog.css                (../shared/mail/cardDialog.css)
   skin/classic/messenger/shared/chat.css                      (../../components/im/themes/chat.css)
   skin/classic/messenger/shared/compacttheme.css              (../shared/mail/compacttheme.css)
+  skin/classic/messenger/shared/customizeToolbar.css          (../shared/mail/customizeToolbar.css)
   skin/classic/messenger/shared/editContactPanel.css          (../shared/mail/editContactPanel.css)
   skin/classic/messenger/shared/EditorDialog.css              (../shared/mail/EditorDialog.css)
   skin/classic/messenger/shared/EdInsertChars.css             (../shared/mail/EdInsertChars.css)
