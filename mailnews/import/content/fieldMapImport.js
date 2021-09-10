@@ -14,7 +14,26 @@ var gMoveDownButton;
 var gListbox;
 var gSkipFirstRecordButton;
 
+window.addEventListener("DOMContentLoaded", event => {
+  OnLoadFieldMapImport();
+});
+window.addEventListener("load", resizeColumns, { once: true });
+window.addEventListener("resize", resizeColumns);
+
 document.addEventListener("dialogaccept", FieldImportOKButton);
+
+function resizeColumns() {
+  let list = document.getElementById("fieldList");
+  let cols = list.getElementsByTagName("treecol");
+  list.style.setProperty(
+    "--column1width",
+    cols[0].getBoundingClientRect().width + "px"
+  );
+  list.style.setProperty(
+    "--column2width",
+    cols[1].getBoundingClientRect().width + "px"
+  );
+}
 
 function OnLoadFieldMapImport() {
   top.importService = Cc["@mozilla.org/import/import-service;1"].getService(

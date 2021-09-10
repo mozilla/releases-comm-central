@@ -2,42 +2,27 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-#ifdef MOZ_THUNDERBIRD
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-#else
-<?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
-#endif
 <?xml-stylesheet href="chrome://messenger/skin/shared/fieldMapImport.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/fieldMapImport.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/fieldMapImport.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        lightweightthemes="true"
-        data-l10n-id="import-ab-csv-window"
-        style="&fieldMapImport.size;"
-        onload="OnLoadFieldMapImport();">
-  <linkset>
-    <html:link rel="localization"
-               href="messenger/addressbook/fieldMapImport.ftl"/>
-  </linkset>
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      width="640" height="480"
+      scrolling="false">
+<head>
+  <link rel="localization" href="messenger/addressbook/fieldMapImport.ftl" />
+  <title data-l10n-id="import-ab-csv-dialog-title"></title>
+  <script defer="defer" src="chrome://messenger/content/fieldMapImport.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <dialog buttons="accept,cancel"
           data-l10n-id="import-ab-csv-dialog"
           data-l10n-attrs="buttonlabelaccept,buttonaccesskeyaccept">
-    <script src="chrome://messenger/content/fieldMapImport.js"/>
-    <script><![CDATA[
-        function resizeColumns() {
-          let list = document.getElementById("fieldList");
-          let cols = list.getElementsByTagName("treecol");
-          list.style.setProperty("--column1width", cols[0].getBoundingClientRect().width + "px");
-          list.style.setProperty("--column2width", cols[1].getBoundingClientRect().width + "px");
-        }
-        addEventListener("load", resizeColumns, { once: true });
-        addEventListener("resize", resizeColumns);
-    ]]></script>
-
     <hbox align="center">
       <label id="labelRecordNumber"/>
       <spacer flex="1"/>
@@ -83,4 +68,5 @@
       </vbox>
     </hbox>
   </dialog>
-</window>
+</html:body>
+</html>
