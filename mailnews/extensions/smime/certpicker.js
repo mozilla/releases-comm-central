@@ -4,16 +4,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 "use strict";
 
-const nsIDialogParamBlock = Ci.nsIDialogParamBlock;
-
 var dialogParams;
 var itemCount = 0;
+
+window.addEventListener("DOMContentLoaded", onLoad);
 
 document.addEventListener("dialogaccept", doOK);
 document.addEventListener("dialogcancel", doCancel);
 
 function onLoad() {
-  dialogParams = window.arguments[0].QueryInterface(nsIDialogParamBlock);
+  dialogParams = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
 
   var selectElement = document.getElementById("nicknames");
   itemCount = dialogParams.GetInt(0);
