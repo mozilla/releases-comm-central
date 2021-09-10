@@ -107,11 +107,25 @@
           </tabpanel>
 
           <tabpanel orient="vertical">
+            <html:div>
+              <html:h1 data-l10n-id="chat-encryption-generic" />
+              <separator class="thin"/>
+
+              <vbox>
+                <checkbox id="server.otrAllowMsgLog"
+                          data-l10n-id="chat-encryption-log"
+                          crop="end"
+                          wsm_persist="true"
+                          preftype="bool"
+                          genericattr="true"/>
+              </vbox>
+            </html:div>
+            <separator/>
             <html:div class="chat-encryption-settings">
               <html:h1 data-l10n-id="chat-encryption-label" />
               <description data-l10n-id="chat-encryption-description" id="chat-encryption-description" />
 
-              <separator/>
+              <separator class="thin"/>
 
               <label class="header" data-l10n-id="chat-encryption-status" />
               <html:div class="indent">
@@ -138,12 +152,6 @@
 
               <vbox>
                 <label class="header" data-l10n-id="otr-settings-title" />
-                <checkbox id="server.otrAllowMsgLog"
-                          data-l10n-id="otr-log"
-                          crop="end"
-                          wsm_persist="true"
-                          preftype="bool"
-                          genericattr="true"/>
                 <checkbox id="server.otrRequireEncryption"
                           data-l10n-id="otr-require-encryption"
                           crop="end"

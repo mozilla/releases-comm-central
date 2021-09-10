@@ -82,10 +82,10 @@ var account = {
     if (ChatEncryption.canConfigureEncryption(this.account.protocol)) {
       document.getElementById("imTabEncryption").hidden = false;
       document.querySelector(".otr-settings").hidden = !OTRUI.enabled;
+      document.getElementById(
+        "server.otrAllowMsgLog"
+      ).value = this.account.otrAllowMsgLog;
       if (OTRUI.enabled) {
-        document.getElementById(
-          "server.otrAllowMsgLog"
-        ).value = this.account.otrAllowMsgLog;
         document.getElementById(
           "server.otrVerifyNudge"
         ).value = this.account.otrVerifyNudge;
