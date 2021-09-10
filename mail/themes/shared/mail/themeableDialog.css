@@ -20,7 +20,7 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
-  --highlight-color: Highlight;
+  --highlight-color: SelectedItem;
   --popup-item-hover: rgba(128, 128, 128, .2);
   --popup-item-hover-text: MenuText;
   --richlist-button-background: -moz-Dialog;
@@ -87,7 +87,7 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
-  --highlight-color: Highlight;
+  --highlight-color: SelectedItem;
   --lwt-accent-color: -moz-Dialog;
   --popup-item-hover: rgba(128, 128, 128, .2);
   --popup-item-hover-text: MenuText;
