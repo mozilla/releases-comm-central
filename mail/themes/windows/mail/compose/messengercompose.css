@@ -133,6 +133,13 @@
   margin-block: 2px;
 }
 
+@media not (-moz-windows-non-native-menus) {
+  :root[lwt-tree] #msgIdentityPopup {
+    --panel-background: transparent;
+    --panel-border-color: var(--arrowpanel-border-color);
+  }
+}
+
 .address-label-container {
   padding-top: 5px;
 }
