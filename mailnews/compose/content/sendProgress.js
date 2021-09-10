@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var nsIMsgCompDeliverMode = Ci.nsIMsgCompDeliverMode;
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // dialog is just an array we'll use to store various properties from the dialog document...
 var dialog;
@@ -13,8 +13,10 @@ var msgProgress = null;
 
 // random global variables...
 var itsASaveOperation = false;
-var gSendProgressStringBundle;
+var gBundle;
 
+window.addEventListener("DOMContentLoaded", onLoad);
+window.addEventListener("unload", onUnload);
 document.addEventListener("dialogcancel", onCancel);
 
 // all progress notifications are done through the nsIWebProgressListener implementation...
@@ -30,19 +32,18 @@ var progressListener = {
       // Indicate completion in status area.
       var msg;
       if (itsASaveOperation) {
-        msg = gSendProgressStringBundle.getString("messageSaved");
+        msg = gBundle.GetStringFromName("messageSaved");
       } else {
-        msg = gSendProgressStringBundle.getString("messageSent");
+        msg = gBundle.GetStringFromName("messageSent");
       }
       dialog.status.setAttribute("value", msg);
 
       // Put progress meter at 100%.
       dialog.progress.setAttribute("value", 100);
-      var percentMsg = gSendProgressStringBundle.getFormattedString(
-        "percentMsg",
-        [100]
+      dialog.progressText.setAttribute(
+        "value",
+        gBundle.formatStringFromName("percentMsg", [100])
       );
-      dialog.progressText.setAttribute("value", percentMsg);
 
       window.close();
     }
@@ -68,11 +69,9 @@ var progressListener = {
       dialog.progress.value = percent;
 
       // Update percentage label on progress meter.
-      var percentMsg = gSendProgressStringBundle.getFormattedString(
-        "percentMsg",
-        [percent]
-      );
-      dialog.progressText.value = percentMsg;
+      dialog.progressText.value = gBundle.formatStringFromName("percentMsg", [
+        percent,
+      ]);
     } else {
       // Progress meter should show no value in this case.
       dialog.progress.removeAttribute("value");
@@ -105,9 +104,8 @@ var progressListener = {
 
 function onLoad() {
   // Set global variables.
-  let subject = "";
-  gSendProgressStringBundle = document.getElementById(
-    "sendProgressStringBundle"
+  gBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/messengercompose/sendProgress.properties"
   );
 
   msgProgress = window.arguments[0];
@@ -117,13 +115,14 @@ function onLoad() {
     return;
   }
 
+  let subject = "";
   if (window.arguments[1]) {
     let progressParams = window.arguments[1].QueryInterface(
       Ci.nsIMsgComposeProgressParams
     );
     if (progressParams) {
       itsASaveOperation =
-        progressParams.deliveryMode != nsIMsgCompDeliverMode.Now;
+        progressParams.deliveryMode != Ci.nsIMsgCompDeliverMode.Now;
       subject = progressParams.subject;
     }
   }
@@ -132,12 +131,10 @@ function onLoad() {
     let title = itsASaveOperation
       ? "titleSaveMsgSubject"
       : "titleSendMsgSubject";
-    document.title = gSendProgressStringBundle.getFormattedString(title, [
-      subject,
-    ]);
+    document.title = gBundle.formatStringFromName(title, [subject]);
   } else {
     let title = itsASaveOperation ? "titleSaveMsg" : "titleSendMsg";
-    document.title = gSendProgressStringBundle.getString(title);
+    document.title = gBundle.GetStringFromName(title);
   }
 
   dialog = {};

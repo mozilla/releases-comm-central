@@ -7,22 +7,20 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/sendProgress.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/sendProgress.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&sendDialog.title;"
-        style="width: 56ch;"
-        lightweightthemes="true"
-        onload="onLoad();"
-        onunload="onUnload();">
-<dialog id="sendProgress"
-        buttons="cancel">
-  <script src="chrome://messenger/content/messengercompose/sendProgress.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-  <stringbundle id="sendProgressStringBundle"
-                src="chrome://messenger/locale/messengercompose/sendProgress.properties"/>
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&sendDialog.title;</title>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/sendProgress.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <dialog id="sendProgress" buttons="cancel" style="width:56ch;">
     <hbox flex="1">
       <vbox align="end">
         <hbox flex="1" align="center">
@@ -42,5 +40,6 @@
         </hbox>
       </vbox>
     </hbox>
-</dialog>
-</window>
+  </dialog>
+</html:body>
+</html>
