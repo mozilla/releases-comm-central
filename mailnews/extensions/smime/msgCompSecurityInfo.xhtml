@@ -7,31 +7,21 @@
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgCompSecurityInfo.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
 
-<window id="msgCompSecurityInfo"
-        title="&title.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width: 50em;"
-        persist="width height"
-        lightweightthemes="true"
-        onload="onLoad();">
+<html id="msgCompSecurityInfo" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      persist="width height"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&title.label;</title>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger-smime/content/msgCompSecurityInfo.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept">
-  <script src="chrome://messenger-smime/content/msgCompSecurityInfo.js"/>
-  <script><![CDATA[
-      function resizeColumns() {
-        let list = document.getElementById("infolist");
-        let cols = list.getElementsByTagName("treecol");
-        list.style.setProperty("--recipientWidth", cols[0].getBoundingClientRect().width + "px");
-        list.style.setProperty("--statusWidth", cols[1].getBoundingClientRect().width + "px");
-        list.style.setProperty("--issuedWidth", cols[2].getBoundingClientRect().width + "px");
-        list.style.setProperty("--expireWidth", cols[3].getBoundingClientRect().width - 5 + "px");
-      }
-      addEventListener("load", resizeColumns, { once: true });
-      addEventListener("resize", resizeColumns);
-  ]]></script>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <stringbundle id="bundle_smime_comp_info" src="chrome://messenger-smime/locale/msgCompSecurityInfo.properties"/>
 
@@ -69,4 +59,5 @@
             oncommand="viewSelectedCert();"/>
   </hbox>
 </dialog>
-</window>
+</html:body>
+</html>

@@ -10,6 +10,9 @@ var gBundle;
 
 var gCerts;
 
+window.addEventListener("DOMContentLoaded", onLoad);
+window.addEventListener("resize", resizeColumns);
+
 function onLoad() {
   let params = window.arguments[0];
   if (!params) {
@@ -217,6 +220,28 @@ function onLoad() {
 
     gListBox.appendChild(listitem);
   }
+  resizeColumns();
+}
+
+function resizeColumns() {
+  let list = document.getElementById("infolist");
+  let cols = list.getElementsByTagName("treecol");
+  list.style.setProperty(
+    "--recipientWidth",
+    cols[0].getBoundingClientRect().width + "px"
+  );
+  list.style.setProperty(
+    "--statusWidth",
+    cols[1].getBoundingClientRect().width + "px"
+  );
+  list.style.setProperty(
+    "--issuedWidth",
+    cols[2].getBoundingClientRect().width + "px"
+  );
+  list.style.setProperty(
+    "--expireWidth",
+    cols[3].getBoundingClientRect().width - 5 + "px"
+  );
 }
 
 // --- borrowed from pippki.js ---
@@ -284,19 +309,4 @@ function viewSelectedCert() {
   if (!gViewButton.disabled) {
     viewCertHelper(window, certForRow(gListBox.selectedIndex));
   }
-}
-
-/* globals openHelp */
-// Suite only.
-function doHelpButton() {
-  openHelp(
-    "compose_security",
-    "chrome://communicator/locale/help/suitehelp.rdf"
-  );
-}
-
-function createCell(label) {
-  var cell = document.createXULElement("listcell");
-  cell.setAttribute("label", label);
-  return cell;
 }
