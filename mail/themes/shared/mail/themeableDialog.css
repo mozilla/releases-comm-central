@@ -39,6 +39,7 @@
   --popup-item-hover: rgba(69, 161, 255, 0.2);
   --popup-item-hover-text: var(--box-text-color);
   background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
 }
 
 :root:-moz-lwtheme-brighttext {
