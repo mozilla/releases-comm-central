@@ -15,8 +15,6 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var nsIX509CertDB = Ci.nsIX509CertDB;
-var nsX509CertDB = "@mozilla.org/security/x509certdb;1";
 var CertAttribute = "usercertificate;binary";
 
 var gEmailAddresses;
@@ -27,6 +25,7 @@ var gCertDB;
 var gLdapOperation;
 var gLogin;
 
+window.addEventListener("DOMContentLoaded", onLoad);
 document.addEventListener("dialogcancel", stopFetching);
 
 function onLoad() {
@@ -82,7 +81,9 @@ function stopFetching() {
 
 function importCert(ber_value) {
   if (!gCertDB) {
-    gCertDB = Cc[nsX509CertDB].getService(nsIX509CertDB);
+    gCertDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
   }
 
   // ber_value has type nsILDAPBERValue

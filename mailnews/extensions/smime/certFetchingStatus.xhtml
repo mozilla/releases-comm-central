@@ -6,18 +6,23 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger-smime/locale/certFetchingStatus.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger-smime/locale/certFetchingStatus.dtd">
 
-<window title="&title.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width: 50em;"
-        onload="onLoad();">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title>&title.label;</title>
+  <script defer="defer" src="chrome://messenger-smime/content/certFetchingStatus.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="certFetchingStatus"
         buttons="cancel"
         buttonlabelcancel="&stop.label;">
   <stringbundle id="bundle_ldap" src="chrome://mozldap/locale/ldap.properties"/>
-  <script src="chrome://messenger-smime/content/certFetchingStatus.js"/>
 
   <description>&info.message;</description>
 </dialog>
-</window>
+</html:body>
+</html>
