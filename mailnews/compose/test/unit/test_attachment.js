@@ -151,3 +151,21 @@ function run_test() {
   tests.forEach(x => add_task(x));
   run_next_test();
 }
+
+/**
+ * Test that the full attachment content is used to pick the CTE.
+ */
+add_task(async function testBinaryAfterPlainTextAttachment() {
+  let testFile = do_get_file("data/binary-after-plain.txt");
+  await createMessage(testFile);
+  let msgData = mailTestUtils.loadMessageToString(
+    gDraftFolder,
+    mailTestUtils.firstMsgHdr(gDraftFolder)
+  );
+  // If only the first few chars are used, encoding will be incorrectly 7bit.
+  Assert.ok(
+    msgData.includes(
+      'Content-Disposition: attachment; filename="binary-after-plain.txt"\r\nContent-Transfer-Encoding: base64\r\n'
+    )
+  );
+});

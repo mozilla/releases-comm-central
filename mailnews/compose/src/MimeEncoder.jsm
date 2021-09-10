@@ -34,10 +34,6 @@ class MimeEncoder {
     // and encode this._body.
     this._encoding = "";
 
-    // Use no more than 1024 chars to pick encoding.
-    this._chunkSize = Math.min(1024, this._bodySize);
-    this._chunk = content.slice(0, this._chunkSize);
-
     // Flags used to pick encoding.
     this._highBitCount = 0;
     this._unPrintableCount = 0;
@@ -57,11 +53,11 @@ class MimeEncoder {
   }
 
   /**
-   * Use the combination of charset, content type and scanning this._chunk to
+   * Use the combination of charset, content type and scanning this._body to
    * decide what encoding it should have.
    */
   pickEncoding() {
-    this._analyzeChunk();
+    this._analyzeBody();
 
     let strictlyMime = Services.prefs.getBoolPref("mail.strictly_mime");
     let needsB64 = false;
@@ -137,7 +133,7 @@ class MimeEncoder {
         needsB64 = true;
       } else if (this._charset == "ISO-2022-JP") {
         this._encoding = "7bit";
-      } else if (encodeP && this._unPrintableCount > this._chunkSize / 10) {
+      } else if (encodeP && this._unPrintableCount > this._bodySize / 10) {
         // If the document contains more than 10% unprintable characters,
         // then that seems like a good candidate for base64 instead of
         // quoted-printable.
@@ -193,22 +189,22 @@ class MimeEncoder {
   }
 
   /**
-   * Scan this._chunk to set flags that will be used by pickEncoding.
+   * Scan this._body to set flags that will be used by pickEncoding.
    */
-  _analyzeChunk() {
+  _analyzeBody() {
     let currentColumn = 0;
     let prevCharWasCr = false;
 
-    for (let i = 0; i < this._chunkSize; i++) {
-      let ch = this._chunk.charAt(i);
-      let charCode = this._chunk.charCodeAt(i);
+    for (let i = 0; i < this._bodySize; i++) {
+      let ch = this._body.charAt(i);
+      let charCode = this._body.charCodeAt(i);
       if (charCode > 126) {
         this._highBitCount++;
         this._unPrintableCount++;
       } else if (ch < " " && !"\t\r\n".includes(ch)) {
         this._unPrintableCount++;
         this._ctrlCount++;
-        if (ch == 0) {
+        if (ch == "\0") {
           this._nullCount++;
         }
       }
