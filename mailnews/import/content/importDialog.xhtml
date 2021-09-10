@@ -7,36 +7,33 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
 <!ENTITY % importDTD SYSTEM "chrome://messenger/locale/importDialog.dtd" >
 %importDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="OnLoadImportDialog()"
-        onunload="OnUnloadImportDialog()"
-        lightweightthemes="true"
-#ifdef XP_MACOSX
-        style="width: &window.macWidth; !important;"
-#else
-        style="width: &window.width; !important;"
-#endif
-        title="&importDialog.windowTitle;">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      width="720" height="520"
+      scrolling="false">
+<head>
+  <title>&importDialog.windowTitle;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/feed-subscriptions.js"></script>
+  <script defer="defer" src="chrome://messenger/content/importDialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <stringbundle id="bundle_importMsgs" src="chrome://messenger/locale/importMsgs.properties"/>
   <stringbundle id="bundle_addressbook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   <stringbundle id="bundle_morkImportMsgs" src="chrome://messenger/locale/morkImportMsgs.properties"/>
   <stringbundle id="bundle_vcardImportMsgs" src="chrome://messenger/locale/vCardImportMsgs.properties"/>
   <stringbundle id="bundle_feeds" src="chrome://messenger-newsblog/locale/newsblog.properties"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/importDialog.js"/>
-  <script src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
-
-  <keyset id="dialogKeys"/>
 
   <hbox class="box-header" id="header"
        title="&importTitle.label;"
@@ -145,4 +142,5 @@
             oncommand="window.close();"/>
   </hbox>
 
-</window>
+</html:body>
+</html>

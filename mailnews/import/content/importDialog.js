@@ -26,7 +26,8 @@ var gSelectedModuleName = null;
 var gAddInterface = null;
 var gNewFeedAcctCreated = false;
 
-var nsISupportsString = Ci.nsISupportsString;
+window.addEventListener("DOMContentLoaded", OnLoadImportDialog);
+window.addEventListener("unload", OnUnloadImportDialog);
 
 function OnLoadImportDialog() {
   gImportMsgsBundle = document.getElementById("bundle_importMsgs");
@@ -45,13 +46,13 @@ function OnLoadImportDialog() {
   gProgressInfo.localFolderExists = false;
 
   gSuccessStr = Cc["@mozilla.org/supports-string;1"].createInstance(
-    nsISupportsString
+    Ci.nsISupportsString
   );
   gErrorStr = Cc["@mozilla.org/supports-string;1"].createInstance(
-    nsISupportsString
+    Ci.nsISupportsString
   );
   gInputStr = Cc["@mozilla.org/supports-string;1"].createInstance(
-    nsISupportsString
+    Ci.nsISupportsString
   );
 
   // look in arguments[0] for parameters

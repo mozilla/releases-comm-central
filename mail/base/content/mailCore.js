@@ -514,7 +514,7 @@ function toImport() {
   window.openDialog(
     "chrome://messenger/content/importDialog.xhtml",
     "importDialog",
-    "chrome, modal, titlebar, centerscreen"
+    "chrome,modal,titlebar,centerscreen"
   );
 }
 
@@ -522,7 +522,7 @@ function toExport() {
   window.openDialog(
     "chrome://messenger/content/exportDialog.xhtml",
     "exportDialog",
-    "chrome, modal, titlebar, centerscreen"
+    "chrome,modal,titlebar,centerscreen"
   );
 }
 
