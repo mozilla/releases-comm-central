@@ -23,6 +23,10 @@
   --highlight-color: SelectedItem;
   --popup-item-hover: rgba(128, 128, 128, .2);
   --popup-item-hover-text: MenuText;
+  --primary-text-color: SelectedItemText;
+  --primary-background-hover: color-mix(in srgb, var(--highlight-color) 85%, black);
+  --primary-background-active: color-mix(in srgb, var(--highlight-color) 78%, black);
+  --primary-focus-border: -moz-Dialog;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
   --tab-selected-background: hsla(0, 0%, 50%, 0.25);
@@ -38,6 +42,7 @@
   --field-border-hover-color: rgba(0, 0, 0, 0.4);
   --popup-item-hover: rgba(69, 161, 255, 0.2);
   --popup-item-hover-text: var(--box-text-color);
+  --primary-focus-border: var(--lwt-accent-color);
   background-color: var(--lwt-accent-color);
   color: var(--lwt-text-color);
 }
@@ -52,6 +57,7 @@
   --field-border-hover-color: hsla(0, 0%, 70%, 0.5);
   --highlight-color: #0a84ff;
   --highlight-background: #fff;
+  --primary-text-color: #f9f9fa;
   --tab-hover-background: hsla(0, 0%, 50%, 0.3);
   --tab-selected-background: hsla(0, 0%, 50%, 0.5);
 }
@@ -227,8 +233,8 @@ html|input[type="color"] {
 }
 
 button:-moz-focusring {
-  outline: 2px solid var(--focus-outline-color);
-  outline-offset: var(--focus-outline-offset, -1px);
+  outline: 2px solid var(--highlight-color);
+  outline-offset: -1px;
 }
 
 button:not([disabled="true"]):hover,
@@ -245,9 +251,22 @@ html|input[type="color"]:not([disabled="true"]):hover:active {
   background-color: var(--button-active-bgcolor);
 }
 
-button[default]:not(:focus-visible) {
-  border-color: var(--highlight-color);
-  outline: 1px solid var(--highlight-color);
+button[default] {
+  background-color: var(--highlight-color);
+  color: var(--primary-text-color) !important;
+}
+
+button[default]:-moz-focusring {
+  border-color: var(--primary-focus-border);
+  outline-offset: 0;
+}
+
+button[default]:not([disabled="true"]):hover {
+  background-color: var(--primary-background-hover);
+}
+
+button[default]:not([disabled="true"]):hover:active {
+  background-color: var(--primary-background-active);
 }
 
 button[type="menu-button"] > .button-box > button {
@@ -304,8 +323,8 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
-  border-color: var(--focus-outline-color);
-  outline: 1px solid var(--focus-outline-color);
+  border-color: var(--highlight-color);
+  outline: 1px solid var(--highlight-color);
 }
 
 menulist menupopup,
@@ -549,7 +568,7 @@ separator.groove:not([orient="vertical"]) {
 }
 
 .text-link:focus-visible {
-  outline: 2px solid var(--focus-outline-color);
+  outline: 2px solid var(--highlight-color);
   outline-offset: 1px;
   border-radius: 1px;
 }
