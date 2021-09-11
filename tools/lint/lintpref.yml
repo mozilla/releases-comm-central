@@ -9,7 +9,6 @@ lintpref:
         - 'comm/mail/components/compose/composer.js'
         - 'comm/mail/components/im/all-im.js'
         - 'comm/mail/locales/en-US/all-l10n.js'
-        - 'comm/mailnews/extensions/dsn/dsn.js'
         - 'comm/mailnews/extensions/mdn/mdn.js'
         - 'comm/mailnews/mailnews.js'
     exclude: []
