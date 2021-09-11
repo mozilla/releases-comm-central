@@ -56,6 +56,9 @@ window.addEventListener("load", () => {
   document
     .getElementById("toolbarCreateList")
     .addEventListener("command", event => createList());
+  document
+    .getElementById("toolbarImport")
+    .addEventListener("command", event => importBook());
 
   document.getElementById("bookContext").addEventListener("command", event => {
     switch (event.target.id) {
@@ -257,6 +260,30 @@ function createList() {
     },
     params
   );
+}
+
+/**
+ * Import an address book from a file. This shows the generic Thunderbird
+ * import wizard, which isn't ideal but better than nothing.
+ */
+function importBook() {
+  let createdDirectory;
+  let observer = function(subject) {
+    // It might be possible for more than one directory to be imported, select
+    // the first one.
+    if (!createdDirectory) {
+      createdDirectory = subject.QueryInterface(Ci.nsIAbDirectory);
+    }
+  };
+
+  Services.obs.addObserver(observer, "addrbook-directory-created");
+  window.browsingContext.topChromeWindow.toImport();
+  Services.obs.removeObserver(observer, "addrbook-directory-created");
+
+  // Select the directory after the import UI closes, so the user sees the change.
+  if (createdDirectory) {
+    booksList.selectedIndex = booksList.getIndexForUID(createdDirectory.UID);
+  }
 }
 
 // Books

@@ -64,7 +64,7 @@ body {
 /* Toolbar */
 
 #toolbox {
-  grid-column: 1/4;
+  grid-column: 1 / -1;
   font: message-box;
 }
 
@@ -82,10 +82,6 @@ body {
 
 #toolbarImport {
   list-style-image: url("chrome://messenger/skin/icons/import.svg");
-}
-
-#toolbarExport {
-  list-style-image: url("chrome://messenger/skin/icons/file.svg");
 }
 
 /* Books pane */

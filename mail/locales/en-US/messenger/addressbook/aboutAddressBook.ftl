@@ -16,6 +16,8 @@ about-addressbook-toolbar-new-contact =
   .label = New Contact
 about-addressbook-toolbar-new-list =
   .label = New List
+about-addressbook-toolbar-import =
+  .label = Import
 
 ## Books
 
