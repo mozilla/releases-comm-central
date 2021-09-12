@@ -250,6 +250,9 @@ window.addEventListener("close", event => {
 window.addEventListener("focus", event => {
   EditorOnFocus();
 });
+window.addEventListener("click", event => {
+  composeWindowOnClick(event);
+});
 
 document.addEventListener("focusin", event => {
   // Listen for focusin event in composition. gLastFocusElement might well be
@@ -9775,4 +9778,26 @@ function setSendEncrypted(encrypted) {
   window.dispatchEvent(
     new CustomEvent("sendencryptedchange", { detail: { encrypted } })
   );
+}
+
+/**
+ * Listen to the click events on the compose window.
+ *
+ * @param {Event} event - The DOM Event
+ */
+function composeWindowOnClick(event) {
+  // Don't deselect pills if the click happened on another pill as the selection
+  // and focus change is handled by the pill itself. We also ignore clicks on
+  // toolbarbuttons, menus, and menu items. This will also prevent the unwanted
+  // deselection when opening the context menu on macOS.
+  if (
+    event.target?.tagName == "mail-address-pill" ||
+    event.target?.tagName == "toolbarbutton" ||
+    event.target?.tagName == "menu" ||
+    event.target?.tagName == "menuitem"
+  ) {
+    return;
+  }
+
+  document.getElementById("recipientsContainer").deselectAllPills();
 }

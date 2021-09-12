@@ -997,10 +997,10 @@ function expandList(element) {
  * Handle the disabling of context menu items according to the types and count
  * of selected pills.
  *
- * @param {Event} event
+ * @param {Event} event - The DOM Event.
  */
-function emailAddressPillOnPopupShown() {
-  let menu = document.getElementById("emailAddressPillPopup");
+function onPillPopupShowing(event) {
+  let menu = event.target;
   // Reset previously hidden menuitems.
   for (let menuitem of menu.querySelectorAll(
     ".pill-action-move, .pill-action-edit"
@@ -1009,10 +1009,24 @@ function emailAddressPillOnPopupShown() {
   }
 
   let recipientsContainer = document.getElementById("recipientsContainer");
+
+  // Check if the pill where the context menu was originated is not selected.
+  let pill = event.explicitOriginalTarget.closest("mail-address-pill");
+  if (!pill.hasAttribute("selected")) {
+    recipientsContainer.deselectAllPills();
+    pill.setAttribute("selected", "selected");
+  }
+
+  let allSelectedPills = recipientsContainer.getAllSelectedPills();
   // If more than one pill is selected, disable the editing item.
   if (recipientsContainer.getAllSelectedPills().length > 1) {
     menu.querySelector("#editAddressPill").hidden = true;
   }
+
+  // Hide the `expand list` item if not all selected pills are mailing lists.
+  let isNotMailingList = [...allSelectedPills].some(pill => !pill.isMailList);
+  menu.querySelector("#expandList").hidden = isNotMailingList;
+  menu.querySelector("#expandListSeparator").hidden = isNotMailingList;
 
   // If any Newsgroup or Followup pill is selected, disable all move actions.
   if (
@@ -1058,18 +1072,6 @@ function emailAddressPillOnPopupShown() {
       menu.querySelector("#moveAddressPillBcc").hidden = true;
       break;
   }
-}
-
-/**
- * Toggles display of the relevant pill context menu items that are not
- * dependent on selection.
- *
- * @param {Event} event
- */
-function onPillPopupShowing(event) {
-  // Show the "Expand List" menu item if the node clicked on is a mail list.
-  let pill = event.explicitOriginalTarget.closest("mail-address-pill");
-  document.getElementById("expandList").hidden = !pill || !pill.isMailList;
 }
 
 /**

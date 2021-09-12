@@ -2063,11 +2063,26 @@
     }
 
     _setupEventListeners() {
+      this.addEventListener("blur", event => {
+        // Prevent deselecting a pill on blur if:
+        // - The related target is null (context menu was opened, bug 1729741).
+        // - The related target is another pill (multi selection and deslection
+        //   are handled by the click event listener added on pill creation).
+        if (
+          !event.relatedTarget ||
+          event.relatedTarget.tagName == "mail-address-pill"
+        ) {
+          return;
+        }
+
+        this.removeAttribute("selected");
+      });
+
       this.emailInput.addEventListener("keypress", event => {
         if (this.hasAttribute("disabled")) {
           return;
         }
-        this.finishEditing(event);
+        this.onEmailInputKeyPress(event);
       });
 
       // Disable the inbuilt autocomplete on blur as we handle it here.
@@ -2138,10 +2153,8 @@
      *
      * @param {Event} event - The DOM Event.
      */
-    finishEditing(event = null) {
-      let key = event ? event.key : "Escape";
-
-      switch (key) {
+    onEmailInputKeyPress(event) {
+      switch (event.key) {
         case "Escape":
           this.emailInput.value = this.fullAddress;
           this.resetPill();
@@ -2474,27 +2487,6 @@
         );
         addressContainer.classList.remove("drag-address-container");
       });
-
-      // We want to deselect pills when focus moves away from them. To simplify
-      // things, we listen to focusout event which bubbles from any element of
-      // the entire mail-recipients-area, including all pills.
-      this.addEventListener("focusout", event => {
-        // Return if focusout did not occur on a pill (nothing to deselect),
-        // if the element receiving focus is a pill (allow preserving selection),
-        // or if event.target remains the active element, i.e. focus was
-        // moved to another window (do nothing, preserve selection if any).
-        if (
-          event.target.tagName != "mail-address-pill" ||
-          event?.relatedTarget?.tagName == "mail-address-pill" ||
-          event.target == document.activeElement
-        ) {
-          return;
-        }
-
-        // If focus moves out from pills, deselect all of them. Luckily,
-        // pill context menu does not trigger focusout on addressing area.
-        this.deselectAllPills();
-      });
     }
 
     /**
@@ -2767,7 +2759,7 @@
           !event.shiftKey
         ) {
           if (!pill.hasAttribute("selected")) {
-            this.clearSelected();
+            this.deselectAllPills();
             pill.setAttribute("selected", "selected");
           }
           this.removeSelectedPills();
@@ -2805,18 +2797,6 @@
           return;
         }
         this.handleKeyPress(pill, event);
-      });
-
-      pill.addEventListener("contextmenu", event => {
-        if (pill.hasAttribute("disabled")) {
-          event.preventDefault();
-          return;
-        }
-        // Update the context menu options only if opened via the context menu
-        // keyboard button.
-        if (event.buttons == 0) {
-          emailAddressPillOnPopupShown();
-        }
       });
 
       element.closest(".address-container").insertBefore(pill, element);
@@ -2935,7 +2915,7 @@
           if (!event.ctrlKey) {
             // Unmodified navigation: select only first pill and focus it below.
             // ### Todo: We can't handle Shift+Home yet, so it ends up here.
-            this.clearSelected();
+            this.deselectAllPills();
             firstPill.setAttribute("selected", "selected");
           }
           firstPill.focus();
@@ -3018,17 +2998,15 @@
      * @param {Event} event - A DOM click or keypress Event.
      */
     checkSelected(pill, event) {
-      if (pill.isEditing) {
-        return;
-      }
-
-      if (pill.hasAttribute("selected") && event.button == 2) {
-        emailAddressPillOnPopupShown();
+      // Interrupt if the pill is in edit mode or a right click was detected.
+      // Selecting pills on right click will be handled by the opening of the
+      // context menu.
+      if (pill.isEditing || event.button == 2) {
         return;
       }
 
       if (!event.ctrlKey && !event.metaKey && event.key != " ") {
-        this.clearSelected();
+        this.deselectAllPills();
       }
 
       pill.toggleAttribute("selected");
@@ -3037,12 +3015,6 @@
       // (or a spacebar keypress), as macOS doesn't automatically move the focus
       // on this custom element (bug 1645643, bug 1645916).
       pill.focus();
-
-      // Update the options in the context menu only after the pills were
-      // selected and if the event was a right click.
-      if (event.button == 2) {
-        emailAddressPillOnPopupShown();
-      }
     }
 
     /**
@@ -3073,7 +3045,7 @@
       } else if (!event.ctrlKey) {
         // Non-modified navigation keys must select the target pill and deselect
         // all others. Also some other keys like Backspace from rowInput.
-        this.clearSelected();
+        this.deselectAllPills();
         if (targetPill) {
           targetPill.setAttribute("selected", "selected");
         } else {
@@ -3085,12 +3057,6 @@
       // If targetElement is a pill, focus it.
       if (targetPill) {
         targetPill.focus();
-      }
-    }
-
-    clearSelected() {
-      for (let pill of this.getAllPills()) {
-        pill.removeAttribute("selected");
       }
     }
 
