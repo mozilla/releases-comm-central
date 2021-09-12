@@ -2243,7 +2243,7 @@ CalStorageCalendar.prototype = {
   // put Google's HTML description in the right place
   //
   fixGoogleCalendarDescriptionIfNeeded(item) {
-    if (item.id.endsWith("@google.com")) {
+    if (item.id && item.id.endsWith("@google.com")) {
       let description = item.getProperty("DESCRIPTION");
       if (description) {
         let altrep = item.getPropertyParameter("DESCRIPTION", "ALTREP");
