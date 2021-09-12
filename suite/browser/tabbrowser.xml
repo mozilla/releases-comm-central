@@ -1949,6 +1949,25 @@
         </body>
       </method>
 
+      <method name="removeBrowser">
+        <parameter name="aBrowser"/>
+        <body>
+          <![CDATA[
+            let panel = this.getNotificationBox(aBrowser);
+            panel.destroy();
+            aBrowser.destroy();
+
+            // The pagehide event that this removal triggers is safe
+            // because the browser is no longer current at this point.
+            panel.remove();
+
+            // Fix up the selected panel.
+            panel = this.getNotificationBox(this.selectedTab.linkedBrowser);
+            this.mTabBox.selectedPanel = panel;
+          ]]>
+        </body>
+      </method>
+
       <method name="removeTab">
         <parameter name="aTab"/>
         <parameter name="aParams"/>
@@ -1992,7 +2011,7 @@
                 detail: !!aParams.disableUndo }));
             var tabData = aTab.tabData || {};
             tabData.pos = this.getTabIndex(aTab);
-            tabData.panel = oldBrowser.parentNode.id;
+            tabData.panel = this.getNotificationBox(oldBrowser).id;
             tabData.title = oldBrowser.contentDocument.title ||
                             this.getTitleForURI(oldBrowser.currentURI) ||
                             this.mStringBundle.getString("tabs.untitled");
@@ -2063,14 +2082,9 @@
               // to preserve the JS objects for any elements that have
               // JS properties set on them, the browser element won't be
               // destroyed until the document goes away.  So we force a
-              // cleanup ourselves.
-              oldBrowser.parentNode.destroy();
-              oldBrowser.destroy();
-              oldBrowser.parentNode.remove();
-
-              // Fix up the selected panel in the case the removed
-              // browser was to the left of the current browser
-              this.mTabBox.selectedPanel = this.selectedTab.linkedBrowser.parentNode;
+              // cleanup ourselves. Also fix up the selected panel in the case
+              // the removed browser was to the left of the current browser.
+              this.removeBrowser(oldBrowser);
               return;
             }
 
@@ -2112,13 +2126,7 @@
               tabData = this.savedBrowsers.pop();
               var deadBrowser = tabData.browserData.browser;
               delete tabData.browserData;
-              deadBrowser.parentNode.destroy();
-              deadBrowser.destroy();
-
-              // The pagehide event that this removal triggers is safe
-              // because the browser is no longer current at this point
-              deadBrowser.parentNode.remove();
-              this.mTabBox.selectedPanel = this.selectedTab.linkedBrowser.parentNode;
+              this.removeBrowser(deadBrowser);
             }
           ]]>
         </body>
@@ -2134,13 +2142,7 @@
             var tabData = this.savedBrowsers.splice(aIndex, 1)[0];
             var deadBrowser = tabData.browserData.browser;
             delete tabData.browserData;
-            deadBrowser.parentNode.destroy();
-            deadBrowser.destroy();
-
-            // The pagehide event that this removal triggers is safe
-            // because the browser is no longer current at this point
-            deadBrowser.parentNode.remove();
-            this.mTabBox.selectedPanel = this.selectedTab.linkedBrowser.parentNode;
+            this.removeBrowser(deadBrowser);
             return true;
           ]]>
         </body>
@@ -2555,6 +2557,7 @@
         <parameter name="aIndex"/>
         <body>
           <![CDATA[
+            let oldPosition;
             // for compatibility with extensions
             if (typeof(aTab) == "number") {
               oldPosition = aTab;
@@ -3024,13 +3027,7 @@
               var tabData = this.savedBrowsers.pop();
               var deadBrowser = tabData.browserData.browser;
               delete tabData.browserData;
-              deadBrowser.parentNode.destroy();
-              deadBrowser.destroy();
-
-              // The pagehide event that this removal triggers is safe
-              // because the browser is no longer current at this point
-              deadBrowser.parentNode.remove();
-              this.mTabBox.selectedPanel = this.selectedTab.linkedBrowser.parentNode;
+              this.removeBrowser(deadBrowser);
             }
           ]]>
         </body>
