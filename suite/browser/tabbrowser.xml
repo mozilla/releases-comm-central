@@ -94,8 +94,10 @@
         </xul:hbox>
         <xul:tabpanels flex="1" class="plain" selectedIndex="0" anonid="panelcontainer">
           <xul:notificationbox class="browser-notificationbox" xbl:inherits="popupnotification">
-            <xul:browser flex="1" type="content" primary="true"
-                         xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autocompletepopup"/>
+            <xul:stack flex="1" anonid="browserStack">
+              <xul:browser flex="1" type="content" primary="true"
+                           xbl:inherits="tooltip=contenttooltip,contextmenu=contentcontextmenu,autocompletepopup"/>
+            </xul:stack>
           </xul:notificationbox>
         </xul:tabpanels>
       </xul:tabbox>
@@ -406,7 +408,8 @@
         <parameter name="aBrowser"/>
         <body>
           <![CDATA[
-            return aBrowser ? aBrowser.parentNode : this.mCurrentBrowser.parentNode;
+            return aBrowser ? aBrowser.parentNode.parentNode
+                            : this.mCurrentBrowser.parentNode.parentNode;
           ]]>
         </body>
       </method>
@@ -1140,7 +1143,7 @@
       <method name="updateCurrentBrowser">
         <body>
           <![CDATA[
-            var newBrowser = this.mPanelContainer.selectedPanel.firstChild;
+            var newBrowser = this.mPanelContainer.selectedPanel.firstChild.firstChild;
             var oldBrowser = this.mCurrentBrowser;
 
             // Transfer the dropped link handler to the new browser.
@@ -1605,19 +1608,26 @@
             b.setAttribute("contextmenu", this.getAttribute("contentcontextmenu"));
             b.setAttribute("tooltip", this.getAttribute("contenttooltip"));
             b.setAttribute("autocompletepopup", this.getAttribute("autocompletepopup"));
-            b.setAttribute("flex", "1");
 
            // Check if we have a "parent" window which we need to set as our opener
            if (aOpener) {
              b.presetOpenerWindow(aOpener);
            }
 
+            // Create the browserStack container
+            var stack = document.createElementNS(
+                                    "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+                                    "stack");
+            stack.setAttribute("anonid", "browserStack");
+            stack.appendChild(b);
+            stack.setAttribute("flex", "1");
+
             // Add the Message and the Browser to the box
             var n = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
                                              "notificationbox");
             n.setAttribute("class", "browser-notificationbox");
             n.setAttribute("popupnotification", this.getAttribute("popupnotification"));
-            n.appendChild(b);
+            n.appendChild(stack);
 
             var uniqueId = "panel" + this.nextTabNumber++;
             n.id = uniqueId;
@@ -3069,7 +3079,7 @@
           if (!this.mPanelContainer)
             return;
 
-          this.mCurrentBrowser = this.mPanelContainer.firstChild.firstChild;
+          this.mCurrentBrowser = this.mPanelContainer.firstChild.firstChild.firstChild;
           this.mCurrentTab = this.tabContainer.firstChild;
 
           var uniqueId = "panel" + this.nextTabNumber++;
