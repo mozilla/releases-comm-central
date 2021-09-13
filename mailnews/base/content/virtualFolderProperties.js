@@ -16,8 +16,6 @@ var kCurrentColor = "";
 var kDefaultColor = "#363959";
 var gNeedToRestoreFolderSelection = false;
 
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
@@ -29,6 +27,8 @@ var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+
+window.addEventListener("DOMContentLoaded", onLoad);
 
 document.addEventListener("dialogaccept", onOK);
 document.addEventListener("dialogcancel", onCancel);
@@ -44,7 +44,7 @@ function onLoad() {
 
   initializeSearchWidgets();
 
-  setSearchScope(nsMsgSearchScope.offlineMail);
+  setSearchScope(Ci.nsMsgSearchScope.offlineMail);
   if (windowArgs.editExistingFolder) {
     acceptButton.label = document
       .querySelector("dialog")

@@ -9,7 +9,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
   %folderDTD;
   <!ENTITY % folderPropsDTD SYSTEM "chrome://messenger/locale/folderProps.dtd">
@@ -18,33 +18,36 @@
   %searchTermDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&virtualFolderProperties.title;"
-        onload="onLoad();"
-        style="width: 50em; height: 28em;"
-        lightweightthemes="true"
-        windowtype="mailnews:virtualFolderProperties">
+<html id="virtualFolderProperties" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      windowtype="mailnews:virtualFolderProperties"
+      width="800" height="448"
+      scrolling="false">
+<head>
+  <title>&virtualFolderProperties.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchWidgets.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/commandglue.js"></script>
+  <script defer="defer" src="chrome://messenger/content/searchTerm.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/virtualFolderProperties.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
+<stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+<stringbundle id="bundle_folder" src="chrome://messenger/locale/folderWidgets.properties"/>
 <dialog id="virtualFolderPropertiesDialog"
         buttons="accept,cancel"
         newFolderAcceptButtonLabel="&newFolderButton.label;"
         newFolderAcceptButtonAccessKey="&newFolderButton.accesskey;"
         editFolderAcceptButtonLabel="&editFolderButton.label;"
         editFolderAcceptButtonAccessKey="&editFolderButton.accesskey;">
-  <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
-  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  <stringbundle id="bundle_folder" src="chrome://messenger/locale/folderWidgets.properties"/>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/searchWidgets.js"/>
-  <script src="chrome://messenger/content/mailCommands.js"/>
-  <script src="chrome://messenger/content/commandglue.js"/>
-  <script src="chrome://messenger/content/virtualFolderProperties.js"/>
-  <script src="chrome://messenger/content/searchTerm.js"/>
-  <script src="chrome://messenger/content/dateFormat.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
   <hbox>
     <vbox>
       <hbox flex="1" align="center">
@@ -116,4 +119,5 @@
     </hbox>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>
