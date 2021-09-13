@@ -9,27 +9,15 @@ var _logger = require("../../logger");
 
 var utils = _interopRequireWildcard(require("../../utils"));
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-/*
-Copyright 2017 Vector Creations Ltd
-Copyright 2018 New Vector Ltd
-Copyright 2020 The Matrix.org Foundation C.I.C.
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * Internal module. in-memory storage for e2e.
@@ -42,29 +30,33 @@ limitations under the License.
  */
 class MemoryCryptoStore {
   constructor() {
-    this._outgoingRoomKeyRequests = [];
-    this._account = null;
-    this._crossSigningKeys = null;
-    this._privateKeys = {};
-    this._backupKeys = {}; // Map of {devicekey -> {sessionId -> session pickle}}
+    _defineProperty(this, "outgoingRoomKeyRequests", []);
 
-    this._sessions = {}; // Map of {devicekey -> array of problems}
+    _defineProperty(this, "account", null);
 
-    this._sessionProblems = {}; // Map of {userId -> deviceId -> true}
+    _defineProperty(this, "crossSigningKeys", null);
 
-    this._notifiedErrorDevices = {}; // Map of {senderCurve25519Key+'/'+sessionId -> session data object}
+    _defineProperty(this, "privateKeys", {});
 
-    this._inboundGroupSessions = {};
-    this._inboundGroupSessionsWithheld = {}; // Opaque device data object
+    _defineProperty(this, "sessions", {});
 
-    this._deviceData = null; // roomId -> Opaque roomInfo object
+    _defineProperty(this, "sessionProblems", {});
 
-    this._rooms = {}; // Set of {senderCurve25519Key+'/'+sessionId}
+    _defineProperty(this, "notifiedErrorDevices", {});
 
-    this._sessionsNeedingBackup = {}; // roomId -> array of [senderKey, sessionId]
+    _defineProperty(this, "inboundGroupSessions", {});
 
-    this._sharedHistoryInboundGroupSessions = {};
+    _defineProperty(this, "inboundGroupSessionsWithheld", {});
+
+    _defineProperty(this, "deviceData", null);
+
+    _defineProperty(this, "rooms", {});
+
+    _defineProperty(this, "sessionsNeedingBackup", {});
+
+    _defineProperty(this, "sharedHistoryInboundGroupSessions", {});
   }
+
   /**
    * Ensure the database exists and is up-to-date.
    *
@@ -72,8 +64,6 @@ class MemoryCryptoStore {
    *
    * @return {Promise} resolves to the store.
    */
-
-
   async startup() {
     // No startup work to do for the memory store.
     return this;
@@ -117,8 +107,7 @@ class MemoryCryptoStore {
 
       _logger.logger.log(`enqueueing key request for ${requestBody.room_id} / ` + requestBody.session_id);
 
-      this._outgoingRoomKeyRequests.push(request);
-
+      this.outgoingRoomKeyRequests.push(request);
       return request;
     });
   }
@@ -148,10 +137,11 @@ class MemoryCryptoStore {
    * @return {module:crypto/store/base~OutgoingRoomKeyRequest?}
    *    the matching request, or null if not found
    */
+  // eslint-disable-next-line @typescript-eslint/naming-convention
 
 
   _getOutgoingRoomKeyRequest(requestBody) {
-    for (const existing of this._outgoingRoomKeyRequests) {
+    for (const existing of this.outgoingRoomKeyRequests) {
       if (utils.deepCompare(existing.requestBody, requestBody)) {
         return existing;
       }
@@ -171,7 +161,7 @@ class MemoryCryptoStore {
 
 
   getOutgoingRoomKeyRequestByState(wantedStates) {
-    for (const req of this._outgoingRoomKeyRequests) {
+    for (const req of this.outgoingRoomKeyRequests) {
       for (const state of wantedStates) {
         if (req.state === state) {
           return Promise.resolve(req);
@@ -189,13 +179,13 @@ class MemoryCryptoStore {
 
 
   getAllOutgoingRoomKeyRequestsByState(wantedState) {
-    return Promise.resolve(this._outgoingRoomKeyRequests.filter(r => r.state == wantedState));
+    return Promise.resolve(this.outgoingRoomKeyRequests.filter(r => r.state == wantedState));
   }
 
   getOutgoingRoomKeyRequestsByTarget(userId, deviceId, wantedStates) {
     const results = [];
 
-    for (const req of this._outgoingRoomKeyRequests) {
+    for (const req of this.outgoingRoomKeyRequests) {
       for (const state of wantedStates) {
         if (req.state === state && req.recipients.includes({
           userId,
@@ -223,12 +213,12 @@ class MemoryCryptoStore {
 
 
   updateOutgoingRoomKeyRequest(requestId, expectedState, updates) {
-    for (const req of this._outgoingRoomKeyRequests) {
+    for (const req of this.outgoingRoomKeyRequests) {
       if (req.requestId !== requestId) {
         continue;
       }
 
-      if (req.state != expectedState) {
+      if (req.state !== expectedState) {
         _logger.logger.warn(`Cannot update room key request from ${expectedState} ` + `as it was already updated to ${req.state}`);
 
         return Promise.resolve(null);
@@ -252,8 +242,8 @@ class MemoryCryptoStore {
 
 
   deleteOutgoingRoomKeyRequest(requestId, expectedState) {
-    for (let i = 0; i < this._outgoingRoomKeyRequests.length; i++) {
-      const req = this._outgoingRoomKeyRequests[i];
+    for (let i = 0; i < this.outgoingRoomKeyRequests.length; i++) {
+      const req = this.outgoingRoomKeyRequests[i];
 
       if (req.requestId !== requestId) {
         continue;
@@ -265,8 +255,7 @@ class MemoryCryptoStore {
         return Promise.resolve(null);
       }
 
-      this._outgoingRoomKeyRequests.splice(i, 1);
-
+      this.outgoingRoomKeyRequests.splice(i, 1);
       return Promise.resolve(req);
     }
 
@@ -275,68 +264,68 @@ class MemoryCryptoStore {
 
 
   getAccount(txn, func) {
-    func(this._account);
+    func(this.account);
   }
 
-  storeAccount(txn, newData) {
-    this._account = newData;
+  storeAccount(txn, accountPickle) {
+    this.account = accountPickle;
   }
 
   getCrossSigningKeys(txn, func) {
-    func(this._crossSigningKeys);
+    func(this.crossSigningKeys);
   }
 
   getSecretStorePrivateKey(txn, func, type) {
-    const result = this._privateKeys[type];
-    return func(result || null);
+    const result = this.privateKeys[type];
+    func(result || null);
   }
 
   storeCrossSigningKeys(txn, keys) {
-    this._crossSigningKeys = keys;
+    this.crossSigningKeys = keys;
   }
 
   storeSecretStorePrivateKey(txn, type, key) {
-    this._privateKeys[type] = key;
+    this.privateKeys[type] = key;
   } // Olm Sessions
 
 
   countEndToEndSessions(txn, func) {
-    return Object.keys(this._sessions).length;
+    func(Object.keys(this.sessions).length);
   }
 
   getEndToEndSession(deviceKey, sessionId, txn, func) {
-    const deviceSessions = this._sessions[deviceKey] || {};
+    const deviceSessions = this.sessions[deviceKey] || {};
     func(deviceSessions[sessionId] || null);
   }
 
   getEndToEndSessions(deviceKey, txn, func) {
-    func(this._sessions[deviceKey] || {});
+    func(this.sessions[deviceKey] || {});
   }
 
   getAllEndToEndSessions(txn, func) {
-    Object.entries(this._sessions).forEach(([deviceKey, deviceSessions]) => {
+    Object.entries(this.sessions).forEach(([deviceKey, deviceSessions]) => {
       Object.entries(deviceSessions).forEach(([sessionId, session]) => {
-        func({ ...session,
+        func(_objectSpread(_objectSpread({}, session), {}, {
           deviceKey,
           sessionId
-        });
+        }));
       });
     });
   }
 
   storeEndToEndSession(deviceKey, sessionId, sessionInfo, txn) {
-    let deviceSessions = this._sessions[deviceKey];
+    let deviceSessions = this.sessions[deviceKey];
 
     if (deviceSessions === undefined) {
       deviceSessions = {};
-      this._sessions[deviceKey] = deviceSessions;
+      this.sessions[deviceKey] = deviceSessions;
     }
 
     deviceSessions[sessionId] = sessionInfo;
   }
 
   async storeEndToEndSessionProblem(deviceKey, type, fixed) {
-    const problems = this._sessionProblems[deviceKey] = this._sessionProblems[deviceKey] || [];
+    const problems = this.sessionProblems[deviceKey] = this.sessionProblems[deviceKey] || [];
     problems.push({
       type,
       fixed,
@@ -348,7 +337,7 @@ class MemoryCryptoStore {
   }
 
   async getEndToEndSessionProblem(deviceKey, timestamp) {
-    const problems = this._sessionProblems[deviceKey] || [];
+    const problems = this.sessionProblems[deviceKey] || [];
 
     if (!problems.length) {
       return null;
@@ -372,7 +361,7 @@ class MemoryCryptoStore {
   }
 
   async filterOutNotifiedErrorDevices(devices) {
-    const notifiedErrorDevices = this._notifiedErrorDevices;
+    const notifiedErrorDevices = this.notifiedErrorDevices;
     const ret = [];
 
     for (const device of devices) {
@@ -400,11 +389,11 @@ class MemoryCryptoStore {
 
   getEndToEndInboundGroupSession(senderCurve25519Key, sessionId, txn, func) {
     const k = senderCurve25519Key + '/' + sessionId;
-    func(this._inboundGroupSessions[k] || null, this._inboundGroupSessionsWithheld[k] || null);
+    func(this.inboundGroupSessions[k] || null, this.inboundGroupSessionsWithheld[k] || null);
   }
 
   getAllEndToEndInboundGroupSessions(txn, func) {
-    for (const key of Object.keys(this._inboundGroupSessions)) {
+    for (const key of Object.keys(this.inboundGroupSessions)) {
       // we can't use split, as the components we are trying to split out
       // might themselves contain '/' characters. We rely on the
       // senderKey being a (32-byte) curve25519 key, base64-encoded
@@ -412,7 +401,7 @@ class MemoryCryptoStore {
       func({
         senderKey: key.substr(0, 43),
         sessionId: key.substr(44),
-        sessionData: this._inboundGroupSessions[key]
+        sessionData: this.inboundGroupSessions[key]
       });
     }
 
@@ -422,47 +411,47 @@ class MemoryCryptoStore {
   addEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn) {
     const k = senderCurve25519Key + '/' + sessionId;
 
-    if (this._inboundGroupSessions[k] === undefined) {
-      this._inboundGroupSessions[k] = sessionData;
+    if (this.inboundGroupSessions[k] === undefined) {
+      this.inboundGroupSessions[k] = sessionData;
     }
   }
 
   storeEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn) {
-    this._inboundGroupSessions[senderCurve25519Key + '/' + sessionId] = sessionData;
+    this.inboundGroupSessions[senderCurve25519Key + '/' + sessionId] = sessionData;
   }
 
   storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn) {
     const k = senderCurve25519Key + '/' + sessionId;
-    this._inboundGroupSessionsWithheld[k] = sessionData;
+    this.inboundGroupSessionsWithheld[k] = sessionData;
   } // Device Data
 
 
   getEndToEndDeviceData(txn, func) {
-    func(this._deviceData);
+    func(this.deviceData);
   }
 
   storeEndToEndDeviceData(deviceData, txn) {
-    this._deviceData = deviceData;
+    this.deviceData = deviceData;
   } // E2E rooms
 
 
   storeEndToEndRoom(roomId, roomInfo, txn) {
-    this._rooms[roomId] = roomInfo;
+    this.rooms[roomId] = roomInfo;
   }
 
   getEndToEndRooms(txn, func) {
-    func(this._rooms);
+    func(this.rooms);
   }
 
   getSessionsNeedingBackup(limit) {
     const sessions = [];
 
-    for (const session in this._sessionsNeedingBackup) {
-      if (this._inboundGroupSessions[session]) {
+    for (const session in this.sessionsNeedingBackup) {
+      if (this.inboundGroupSessions[session]) {
         sessions.push({
           senderKey: session.substr(0, 43),
           sessionId: session.substr(44),
-          sessionData: this._inboundGroupSessions[session]
+          sessionData: this.inboundGroupSessions[session]
         });
 
         if (limit && session.length >= limit) {
@@ -475,13 +464,13 @@ class MemoryCryptoStore {
   }
 
   countSessionsNeedingBackup() {
-    return Promise.resolve(Object.keys(this._sessionsNeedingBackup).length);
+    return Promise.resolve(Object.keys(this.sessionsNeedingBackup).length);
   }
 
   unmarkSessionsNeedingBackup(sessions) {
     for (const session of sessions) {
       const sessionKey = session.senderKey + '/' + session.sessionId;
-      delete this._sessionsNeedingBackup[sessionKey];
+      delete this.sessionsNeedingBackup[sessionKey];
     }
 
     return Promise.resolve();
@@ -490,20 +479,20 @@ class MemoryCryptoStore {
   markSessionsNeedingBackup(sessions) {
     for (const session of sessions) {
       const sessionKey = session.senderKey + '/' + session.sessionId;
-      this._sessionsNeedingBackup[sessionKey] = true;
+      this.sessionsNeedingBackup[sessionKey] = true;
     }
 
     return Promise.resolve();
   }
 
   addSharedHistoryInboundGroupSession(roomId, senderKey, sessionId) {
-    const sessions = this._sharedHistoryInboundGroupSessions[roomId] || [];
+    const sessions = this.sharedHistoryInboundGroupSessions[roomId] || [];
     sessions.push([senderKey, sessionId]);
-    this._sharedHistoryInboundGroupSessions[roomId] = sessions;
+    this.sharedHistoryInboundGroupSessions[roomId] = sessions;
   }
 
   getSharedHistoryInboundGroupSessions(roomId) {
-    return Promise.resolve(this._sharedHistoryInboundGroupSessions[roomId] || []);
+    return Promise.resolve(this.sharedHistoryInboundGroupSessions[roomId] || []);
   } // Session key backups
 
 

@@ -42,11 +42,7 @@ function getClientRoom(roomId, clientHandler, client) {
   const room = new Proxy(
     {
       roomId,
-      summary: {
-        info: {
-          title: roomId,
-        },
-      },
+      name: roomId,
       tags: {},
       getJoinedMembers() {
         return [];

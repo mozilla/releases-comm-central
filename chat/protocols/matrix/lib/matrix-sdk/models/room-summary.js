@@ -3,11 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.RoomSummary = RoomSummary;
+exports.RoomSummary = void 0;
 
 /*
-Copyright 2015, 2016 OpenMarket Ltd
-Copyright 2019 The Matrix.org Foundation C.I.C.
+Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,7 +38,11 @@ limitations under the License.
  * @param {string[]} info.aliases The list of aliases for this room.
  * @param {Number} info.timestamp The timestamp for this room.
  */
-function RoomSummary(roomId, info) {
-  this.roomId = roomId;
-  this.info = info;
+class RoomSummary {
+  constructor(roomId, info) {
+    this.roomId = roomId;
+  }
+
 }
+
+exports.RoomSummary = RoomSummary;

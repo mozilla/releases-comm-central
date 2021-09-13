@@ -57,6 +57,7 @@ let globals = {
   scriptError,
   imIDebugMessage: Ci.imIDebugMessage,
   URL,
+  URLSearchParams,
 };
 let loaderGlobal = {
   /**
@@ -82,6 +83,7 @@ let loader = Loader({
     // Matrix SDK files.
     "": matrixPath + "matrix_sdk/",
     matrix: matrixPath + "matrix_sdk/matrix.js",
+    "../client": matrixPath + "matrix_sdk/client.js",
     "../content-repo": matrixPath + "matrix_sdk/content-repo.js",
     "../../errors": matrixPath + "matrix_sdk/errors.js",
     "../errors": matrixPath + "matrix_sdk/errors.js",
@@ -90,6 +92,7 @@ let loader = Loader({
     "../http-api": matrixPath + "matrix_sdk/http-api.js",
     "../logger": matrixPath + "matrix_sdk/logger.js",
     "../../logger": matrixPath + "matrix_sdk/logger.js",
+    "../NamespacedValue": matrixPath + "matrix_sdk/NamespacedValue.js",
     "../randomstring": matrixPath + "matrix_sdk/randomstring.js",
     "../ReEmitter": matrixPath + "matrix_sdk/ReEmitter.js",
     "../sync-accumulator": matrixPath + "matrix_sdk/sync-accumulator.js",
@@ -99,8 +102,15 @@ let loader = Loader({
 
     // @types
     "@types/event": matrixPath + "matrix_sdk/types/event.js",
+    "../@types/event": matrixPath + "matrix_sdk/types/event.js",
+    "@types/partials": matrixPath + "matrix_sdk/types/partials.js",
+    "@types/PushRules": matrixPath + "matrix_sdk/types/PushRules.js",
+    "@types/search": matrixPath + "matrix_sdk/types/search.js",
 
     // crypto
+    "crypto/api": matrixPath + "matrix_sdk/crypto/api.js",
+    backup: matrixPath + "matrix_sdk/crypto/backup.js",
+    "crypto/backup": matrixPath + "matrix_sdk/crypto/backup.js",
     deviceinfo: matrixPath + "matrix_sdk/crypto/deviceinfo.js",
     "../deviceinfo": matrixPath + "matrix_sdk/crypto/deviceinfo.js",
     DeviceList: matrixPath + "matrix_sdk/crypto/DeviceList.js",
@@ -130,6 +140,8 @@ let loader = Loader({
     base: matrixPath + "matrix_sdk/crypto/algorithms/base.js",
     algorithms: matrixPath + "matrix_sdk/crypto/algorithms/index.js",
     megolm: matrixPath + "matrix_sdk/crypto/algorithms/megolm.js",
+    "crypto/algorithms/megolm":
+      matrixPath + "matrix_sdk/crypto/algorithms/megolm.js",
     olm: matrixPath + "matrix_sdk/crypto/algorithms/olm.js",
 
     // crypto/store
@@ -185,6 +197,12 @@ let loader = Loader({
     // unhomoglyph
     unhomoglyph: matrixPath + "unhomoglyph/index.js",
     "data.json": matrixPath + "unhomoglyph/data.json",
+
+    // p-retry
+    "p-retry": matrixPath + "p_retry/index.js",
+    retry: matrixPath + "retry/index.js",
+    "lib/retry": matrixPath + "retry/lib/retry.js",
+    "lib/retry_operation": matrixPath + "retry/lib/retry_operation.js",
 
     // Packages that are not included, but an alternate implementation is given.
     events: matrixPath + "events.js",

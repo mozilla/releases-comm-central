@@ -5,8 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.SecretStorage = exports.SECRET_STORAGE_ALGORITHM_V1_AES = void 0;
 
-var _events = require("events");
-
 var _logger = require("../logger");
 
 var olmlib = _interopRequireWildcard(require("./olmlib"));
@@ -15,69 +13,59 @@ var _randomstring = require("../randomstring");
 
 var _aes = require("./aes");
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-/*
-Copyright 2019, 2020 The Matrix.org Foundation C.I.C.
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+const SECRET_STORAGE_ALGORITHM_V1_AES = "m.secret_storage.v1.aes-hmac-sha2"; // Some of the key functions use a tuple and some use an object...
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-const SECRET_STORAGE_ALGORITHM_V1_AES = "m.secret_storage.v1.aes-hmac-sha2";
 exports.SECRET_STORAGE_ALGORITHM_V1_AES = SECRET_STORAGE_ALGORITHM_V1_AES;
-const ZERO_STR = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+
 /**
  * Implements Secure Secret Storage and Sharing (MSC1946)
  * @module crypto/SecretStorage
  */
+class SecretStorage {
+  // In it's pure javascript days, this was relying on some proper Javascript-style
+  // type-abuse where sometimes we'd pass in a fake client object with just the account
+  // data methods implemented, which is all this class needs unless you use the secret
+  // sharing code, so it was fine. As a low-touch TypeScript migration, this now has
+  // an extra, optional param for a real matrix client, so you can not pass it as long
+  // as you don't request any secrets.
+  // A better solution would probably be to split this class up into secret storage and
+  // secret sharing which are really two separate things, even though they share an MSC.
+  constructor(accountDataAdapter, cryptoCallbacks, baseApis) {
+    this.accountDataAdapter = accountDataAdapter;
+    this.cryptoCallbacks = cryptoCallbacks;
+    this.baseApis = baseApis;
 
-class SecretStorage extends _events.EventEmitter {
-  constructor(baseApis, cryptoCallbacks) {
-    super();
-    this._baseApis = baseApis;
-    this._cryptoCallbacks = cryptoCallbacks;
-    this._requests = {};
-    this._incomingRequests = {};
+    _defineProperty(this, "requests", new Map());
   }
 
   async getDefaultKeyId() {
-    const defaultKey = await this._baseApis.getAccountDataFromServer('m.secret_storage.default_key');
+    const defaultKey = await this.accountDataAdapter.getAccountDataFromServer('m.secret_storage.default_key');
     if (!defaultKey) return null;
     return defaultKey.key;
   }
 
   setDefaultKeyId(keyId) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const listener = ev => {
         if (ev.getType() === 'm.secret_storage.default_key' && ev.getContent().key === keyId) {
-          this._baseApis.removeListener('accountData', listener);
-
+          this.accountDataAdapter.removeListener('accountData', listener);
           resolve();
         }
       };
 
-      this._baseApis.on('accountData', listener);
-
-      try {
-        await this._baseApis.setAccountData('m.secret_storage.default_key', {
-          key: keyId
-        });
-      } catch (e) {
-        this._baseApis.removeListener('accountData', listener);
-
+      this.accountDataAdapter.on('accountData', listener);
+      this.accountDataAdapter.setAccountData('m.secret_storage.default_key', {
+        key: keyId
+      }).catch(e => {
+        this.accountDataAdapter.removeListener('accountData', listener);
         reject(e);
-      }
+      });
     });
   }
   /**
@@ -114,21 +102,21 @@ class SecretStorage extends _events.EventEmitter {
         const {
           iv,
           mac
-        } = await SecretStorage._calculateKeyCheck(opts.key);
+        } = await (0, _aes.calculateKeyCheck)(opts.key);
         keyInfo.iv = iv;
         keyInfo.mac = mac;
       }
     } else {
-      throw new Error(`Unknown key algorithm ${opts.algorithm}`);
+      throw new Error(`Unknown key algorithm ${algorithm}`);
     }
 
     if (!keyId) {
       do {
         keyId = (0, _randomstring.randomString)(32);
-      } while (await this._baseApis.getAccountDataFromServer(`m.secret_storage.key.${keyId}`));
+      } while (await this.accountDataAdapter.getAccountDataFromServer(`m.secret_storage.key.${keyId}`));
     }
 
-    await this._baseApis.setAccountData(`m.secret_storage.key.${keyId}`, keyInfo);
+    await this.accountDataAdapter.setAccountData(`m.secret_storage.key.${keyId}`, keyInfo);
     return {
       keyId,
       keyInfo
@@ -141,6 +129,7 @@ class SecretStorage extends _events.EventEmitter {
    *     for. Defaults to the default key ID if not provided.
    * @returns {Array?} If the key was found, the return value is an array of
    *     the form [keyId, keyInfo].  Otherwise, null is returned.
+   *     XXX: why is this an array when addKey returns an object?
    */
 
 
@@ -153,7 +142,7 @@ class SecretStorage extends _events.EventEmitter {
       return null;
     }
 
-    const keyInfo = await this._baseApis.getAccountDataFromServer("m.secret_storage.key." + keyId);
+    const keyInfo = await this.accountDataAdapter.getAccountDataFromServer("m.secret_storage.key." + keyId);
     return keyInfo ? [keyId, keyInfo] : null;
   }
   /**
@@ -166,7 +155,7 @@ class SecretStorage extends _events.EventEmitter {
 
 
   async hasKey(keyId) {
-    return !!(await this.getKey(keyId));
+    return Boolean(await this.getKey(keyId));
   }
   /**
    * Check whether a key matches what we expect based on the key info
@@ -183,7 +172,7 @@ class SecretStorage extends _events.EventEmitter {
       if (info.mac) {
         const {
           mac
-        } = await SecretStorage._calculateKeyCheck(key, info.iv);
+        } = await (0, _aes.calculateKeyCheck)(key, info.iv);
         return info.mac.replace(/=+$/g, '') === mac.replace(/=+$/g, '');
       } else {
         // if we have no information, we have to assume the key is right
@@ -192,10 +181,6 @@ class SecretStorage extends _events.EventEmitter {
     } else {
       throw new Error("Unknown algorithm");
     }
-  }
-
-  static async _calculateKeyCheck(key, iv) {
-    return await (0, _aes.encryptAES)(ZERO_STR, key, "", iv);
   }
   /**
    * Store an encrypted secret on the server
@@ -226,7 +211,7 @@ class SecretStorage extends _events.EventEmitter {
 
     for (const keyId of keys) {
       // get key information from key storage
-      const keyInfo = await this._baseApis.getAccountDataFromServer("m.secret_storage.key." + keyId);
+      const keyInfo = await this.accountDataAdapter.getAccountDataFromServer("m.secret_storage.key." + keyId);
 
       if (!keyInfo) {
         throw new Error("Unknown key: " + keyId);
@@ -237,7 +222,7 @@ class SecretStorage extends _events.EventEmitter {
         const keys = {
           [keyId]: keyInfo
         };
-        const [, encryption] = await this._getSecretStorageKey(keys, name);
+        const [, encryption] = await this.getSecretStorageKey(keys, name);
         encrypted[keyId] = await encryption.encrypt(secret);
       } else {
         _logger.logger.warn("unknown algorithm for secret storage key " + keyId + ": " + keyInfo.algorithm); // do nothing if we don't understand the encryption algorithm
@@ -246,38 +231,9 @@ class SecretStorage extends _events.EventEmitter {
     } // save encrypted secret
 
 
-    await this._baseApis.setAccountData(name, {
+    await this.accountDataAdapter.setAccountData(name, {
       encrypted
     });
-  }
-  /**
-   * Temporary method to fix up existing accounts where secrets
-   * are incorrectly stored without the 'encrypted' level
-   *
-   * @param {string} name The name of the secret
-   * @param {object} secretInfo The account data object
-   * @returns {object} The fixed object or null if no fix was performed
-   */
-
-
-  async _fixupStoredSecret(name, secretInfo) {
-    // We assume the secret was only stored passthrough for 1
-    // key - this was all the broken code supported.
-    const keys = Object.keys(secretInfo);
-
-    if (keys.length === 1 && keys[0] !== 'encrypted' && secretInfo[keys[0]].passthrough) {
-      const hasKey = await this.hasKey(keys[0]);
-
-      if (hasKey) {
-        _logger.logger.log("Fixing up passthrough secret: " + name);
-
-        await this.storePassthrough(name, keys[0]);
-        const newData = await this._baseApis.getAccountDataFromServer(name);
-        return newData;
-      }
-    }
-
-    return null;
   }
   /**
    * Get a secret from storage.
@@ -289,19 +245,14 @@ class SecretStorage extends _events.EventEmitter {
 
 
   async get(name) {
-    let secretInfo = await this._baseApis.getAccountDataFromServer(name);
+    const secretInfo = await this.accountDataAdapter.getAccountDataFromServer(name);
 
     if (!secretInfo) {
       return;
     }
 
     if (!secretInfo.encrypted) {
-      // try to fix it up
-      secretInfo = await this._fixupStoredSecret(name, secretInfo);
-
-      if (!secretInfo || !secretInfo.encrypted) {
-        throw new Error("Content is not encrypted!");
-      }
+      throw new Error("Content is not encrypted!");
     } // get possible keys to decrypt
 
 
@@ -309,7 +260,7 @@ class SecretStorage extends _events.EventEmitter {
 
     for (const keyId of Object.keys(secretInfo.encrypted)) {
       // get key information from key storage
-      const keyInfo = await this._baseApis.getAccountDataFromServer("m.secret_storage.key." + keyId);
+      const keyInfo = await this.accountDataAdapter.getAccountDataFromServer("m.secret_storage.key." + keyId);
       const encInfo = secretInfo.encrypted[keyId]; // only use keys we understand the encryption algorithm of
 
       if (keyInfo.algorithm === SECRET_STORAGE_ALGORITHM_V1_AES) {
@@ -328,7 +279,7 @@ class SecretStorage extends _events.EventEmitter {
 
     try {
       // fetch private key from app
-      [keyId, decryption] = await this._getSecretStorageKey(keys, name);
+      [keyId, decryption] = await this.getSecretStorageKey(keys, name);
       const encInfo = secretInfo.encrypted[keyId]; // We don't actually need the decryption object if it's a passthrough
       // since we just want to return the key itself. It must be base64
       // encoded, since this is how a key would normally be stored.
@@ -353,16 +304,11 @@ class SecretStorage extends _events.EventEmitter {
 
   async isStored(name, checkKey) {
     // check if secret exists
-    let secretInfo = await this._baseApis.getAccountDataFromServer(name);
+    const secretInfo = await this.accountDataAdapter.getAccountDataFromServer(name);
     if (!secretInfo) return null;
 
     if (!secretInfo.encrypted) {
-      // try to fix it up
-      secretInfo = await this._fixupStoredSecret(name, secretInfo);
-
-      if (!secretInfo || !secretInfo.encrypted) {
-        return null;
-      }
+      return null;
     }
 
     if (checkKey === undefined) checkKey = true;
@@ -370,7 +316,7 @@ class SecretStorage extends _events.EventEmitter {
 
     for (const keyId of Object.keys(secretInfo.encrypted)) {
       // get key information from key storage
-      const keyInfo = await this._baseApis.getAccountDataFromServer("m.secret_storage.key." + keyId);
+      const keyInfo = await this.accountDataAdapter.getAccountDataFromServer("m.secret_storage.key." + keyId);
       if (!keyInfo) continue;
       const encInfo = secretInfo.encrypted[keyId]; // only use keys we understand the encryption algorithm of
 
@@ -388,28 +334,29 @@ class SecretStorage extends _events.EventEmitter {
    *
    * @param {string} name the name of the secret to request
    * @param {string[]} devices the devices to request the secret from
-   *
-   * @return {string} the contents of the secret
    */
 
 
   request(name, devices) {
-    const requestId = this._baseApis.makeTxnId();
-
-    const requestControl = this._requests[requestId] = {
+    const requestId = this.baseApis.makeTxnId();
+    let resolve;
+    let reject;
+    const promise = new Promise((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    this.requests.set(requestId, {
       name,
-      devices
-    };
-    const promise = new Promise((resolve, reject) => {
-      requestControl.resolve = resolve;
-      requestControl.reject = reject;
+      devices,
+      resolve,
+      reject
     });
 
     const cancel = reason => {
       // send cancellation event
       const cancelData = {
         action: "request_cancellation",
-        requesting_device_id: this._baseApis.deviceId,
+        requesting_device_id: this.baseApis.deviceId,
         request_id: requestId
       };
       const toDevice = {};
@@ -418,20 +365,19 @@ class SecretStorage extends _events.EventEmitter {
         toDevice[device] = cancelData;
       }
 
-      this._baseApis.sendToDevice("m.secret.request", {
-        [this._baseApis.getUserId()]: toDevice
+      this.baseApis.sendToDevice("m.secret.request", {
+        [this.baseApis.getUserId()]: toDevice
       }); // and reject the promise so that anyone waiting on it will be
       // notified
 
-
-      requestControl.reject(new Error(reason || "Cancelled"));
+      reject(new Error(reason || "Cancelled"));
     }; // send request to devices
 
 
     const requestData = {
       name,
       action: "request",
-      requesting_device_id: this._baseApis.deviceId,
+      requesting_device_id: this.baseApis.deviceId,
       request_id: requestId
     };
     const toDevice = {};
@@ -442,22 +388,21 @@ class SecretStorage extends _events.EventEmitter {
 
     _logger.logger.info(`Request secret ${name} from ${devices}, id ${requestId}`);
 
-    this._baseApis.sendToDevice("m.secret.request", {
-      [this._baseApis.getUserId()]: toDevice
+    this.baseApis.sendToDevice("m.secret.request", {
+      [this.baseApis.getUserId()]: toDevice
     });
-
     return {
-      request_id: requestId,
+      requestId,
       promise,
       cancel
     };
   }
 
-  async _onRequestReceived(event) {
+  async onRequestReceived(event) {
     const sender = event.getSender();
     const content = event.getContent();
 
-    if (sender !== this._baseApis.getUserId() || !(content.name && content.action && content.requesting_device_id && content.request_id)) {
+    if (sender !== this.baseApis.getUserId() || !(content.name && content.action && content.requesting_device_id && content.request_id)) {
       // ignore requests from anyone else, for now
       return;
     }
@@ -465,17 +410,27 @@ class SecretStorage extends _events.EventEmitter {
     const deviceId = content.requesting_device_id; // check if it's a cancel
 
     if (content.action === "request_cancellation") {
-      if (this._incomingRequests[deviceId] && this._incomingRequests[deviceId][content.request_id]) {
-        _logger.logger.info("received request cancellation for secret (" + sender + ", " + deviceId + ", " + content.request_id + ")");
-
-        this.baseApis.emit("crypto.secrets.requestCancelled", {
-          user_id: sender,
-          device_id: deviceId,
-          request_id: content.request_id
-        });
+      /*
+      Looks like we intended to emit events when we got cancelations, but
+      we never put anything in the _incomingRequests object, and the request
+      itself doesn't use events anyway so if we were to wire up cancellations,
+      they probably ought to use the same callback interface. I'm leaving them
+      disabled for now while converting this file to typescript.
+      if (this._incomingRequests[deviceId]
+          && this._incomingRequests[deviceId][content.request_id]) {
+          logger.info(
+              "received request cancellation for secret (" + sender +
+              ", " + deviceId + ", " + content.request_id + ")",
+          );
+          this.baseApis.emit("crypto.secrets.requestCancelled", {
+              user_id: sender,
+              device_id: deviceId,
+              request_id: content.request_id,
+          });
       }
+      */
     } else if (content.action === "request") {
-      if (deviceId === this._baseApis.deviceId) {
+      if (deviceId === this.baseApis.deviceId) {
         // no point in trying to send ourself the secret
         return;
       } // check if we have the secret
@@ -483,11 +438,11 @@ class SecretStorage extends _events.EventEmitter {
 
       _logger.logger.info("received request for secret (" + sender + ", " + deviceId + ", " + content.request_id + ")");
 
-      if (!this._cryptoCallbacks.onSecretRequested) {
+      if (!this.cryptoCallbacks.onSecretRequested) {
         return;
       }
 
-      const secret = await this._cryptoCallbacks.onSecretRequested(sender, deviceId, content.request_id, content.name, this._baseApis.checkDeviceTrust(sender, deviceId));
+      const secret = await this.cryptoCallbacks.onSecretRequested(sender, deviceId, content.request_id, content.name, this.baseApis.checkDeviceTrust(sender, deviceId));
 
       if (secret) {
         _logger.logger.info(`Preparing ${content.name} secret for ${deviceId}`);
@@ -501,13 +456,13 @@ class SecretStorage extends _events.EventEmitter {
         };
         const encryptedContent = {
           algorithm: olmlib.OLM_ALGORITHM,
-          sender_key: this._baseApis._crypto._olmDevice.deviceCurve25519Key,
+          sender_key: this.baseApis.crypto.olmDevice.deviceCurve25519Key,
           ciphertext: {}
         };
-        await olmlib.ensureOlmSessionsForDevices(this._baseApis._crypto._olmDevice, this._baseApis, {
-          [sender]: [this._baseApis.getStoredDevice(sender, deviceId)]
+        await olmlib.ensureOlmSessionsForDevices(this.baseApis.crypto.olmDevice, this.baseApis, {
+          [sender]: [this.baseApis.getStoredDevice(sender, deviceId)]
         });
-        await olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this._baseApis.getUserId(), this._baseApis.deviceId, this._baseApis._crypto._olmDevice, sender, this._baseApis.getStoredDevice(sender, deviceId), payload);
+        await olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this.baseApis.getUserId(), this.baseApis.deviceId, this.baseApis.crypto.olmDevice, sender, this.baseApis.getStoredDevice(sender, deviceId), payload);
         const contentMap = {
           [sender]: {
             [deviceId]: encryptedContent
@@ -516,15 +471,15 @@ class SecretStorage extends _events.EventEmitter {
 
         _logger.logger.info(`Sending ${content.name} secret for ${deviceId}`);
 
-        this._baseApis.sendToDevice("m.room.encrypted", contentMap);
+        this.baseApis.sendToDevice("m.room.encrypted", contentMap);
       } else {
         _logger.logger.info(`Request denied for ${content.name} secret for ${deviceId}`);
       }
     }
   }
 
-  _onSecretReceived(event) {
-    if (event.getSender() !== this._baseApis.getUserId()) {
+  onSecretReceived(event) {
+    if (event.getSender() !== this.baseApis.getUserId()) {
       // we shouldn't be receiving secrets from anyone else, so ignore
       // because someone could be trying to send us bogus data
       return;
@@ -534,12 +489,12 @@ class SecretStorage extends _events.EventEmitter {
 
     _logger.logger.log("got secret share for request", content.request_id);
 
-    const requestControl = this._requests[content.request_id];
+    const requestControl = this.requests.get(content.request_id);
 
     if (requestControl) {
       // make sure that the device that sent it is one of the devices that
       // we requested from
-      const deviceInfo = this._baseApis._crypto._deviceList.getDeviceByIdentityKey(olmlib.OLM_ALGORITHM, event.getSenderKey());
+      const deviceInfo = this.baseApis.crypto.deviceList.getDeviceByIdentityKey(olmlib.OLM_ALGORITHM, event.getSenderKey());
 
       if (!deviceInfo) {
         _logger.logger.log("secret share from unknown device with key", event.getSenderKey());
@@ -559,12 +514,12 @@ class SecretStorage extends _events.EventEmitter {
     }
   }
 
-  async _getSecretStorageKey(keys, name) {
-    if (!this._cryptoCallbacks.getSecretStorageKey) {
+  async getSecretStorageKey(keys, name) {
+    if (!this.cryptoCallbacks.getSecretStorageKey) {
       throw new Error("No getSecretStorageKey callback supplied");
     }
 
-    const returned = await this._cryptoCallbacks.getSecretStorageKey({
+    const returned = await this.cryptoCallbacks.getSecretStorageKey({
       keys
     }, name);
 

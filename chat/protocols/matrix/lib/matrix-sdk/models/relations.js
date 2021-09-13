@@ -7,9 +7,11 @@ exports.Relations = void 0;
 
 var _events = require("events");
 
-var _event = require("../models/event");
+var _event = require("./event");
 
 var _logger = require("../logger");
+
+var _event2 = require("../@types/event");
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -23,7 +25,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  */
 class Relations extends _events.EventEmitter {
   /**
-   * @param {String} relationType
+   * @param {RelationType} relationType
    * The type of relation involved, such as "m.annotation", "m.reference",
    * "m.replace", etc.
    * @param {String} eventType
@@ -34,11 +36,28 @@ class Relations extends _events.EventEmitter {
    */
   constructor(relationType, eventType, room) {
     super();
+    this.relationType = relationType;
+    this.eventType = eventType;
+    this.room = room;
 
-    _defineProperty(this, "_onEventStatus", (event, status) => {
+    _defineProperty(this, "relationEventIds", new Set());
+
+    _defineProperty(this, "relations", new Set());
+
+    _defineProperty(this, "annotationsByKey", {});
+
+    _defineProperty(this, "annotationsBySender", {});
+
+    _defineProperty(this, "sortedAnnotationsByKey", []);
+
+    _defineProperty(this, "targetEvent", null);
+
+    _defineProperty(this, "creationEmitted", false);
+
+    _defineProperty(this, "onEventStatus", (event, status) => {
       if (!event.isSending()) {
         // Sending is done, so we don't need to listen anymore
-        event.removeListener("Event.status", this._onEventStatus);
+        event.removeListener("Event.status", this.onEventStatus);
         return;
       }
 
@@ -47,40 +66,28 @@ class Relations extends _events.EventEmitter {
       } // Event was cancelled, remove from the collection
 
 
-      event.removeListener("Event.status", this._onEventStatus);
-
-      this._removeEvent(event);
+      event.removeListener("Event.status", this.onEventStatus);
+      this.removeEvent(event);
     });
 
-    _defineProperty(this, "_onBeforeRedaction", async redactedEvent => {
-      if (!this._relations.has(redactedEvent)) {
+    _defineProperty(this, "onBeforeRedaction", async redactedEvent => {
+      if (!this.relations.has(redactedEvent)) {
         return;
       }
 
-      this._relations.delete(redactedEvent);
+      this.relations.delete(redactedEvent);
 
-      if (this.relationType === "m.annotation") {
+      if (this.relationType === _event2.RelationType.Annotation) {
         // Remove the redacted annotation from aggregation by key
-        this._removeAnnotationFromAggregation(redactedEvent);
-      } else if (this.relationType === "m.replace" && this._targetEvent) {
+        this.removeAnnotationFromAggregation(redactedEvent);
+      } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent) {
         const lastReplacement = await this.getLastReplacement();
-
-        this._targetEvent.makeReplaced(lastReplacement);
+        this.targetEvent.makeReplaced(lastReplacement);
       }
 
-      redactedEvent.removeListener("Event.beforeRedaction", this._onBeforeRedaction);
+      redactedEvent.removeListener("Event.beforeRedaction", this.onBeforeRedaction);
       this.emit("Relations.redaction", redactedEvent);
     });
-
-    this.relationType = relationType;
-    this.eventType = eventType;
-    this._relationEventIds = new Set();
-    this._relations = new Set();
-    this._annotationsByKey = {};
-    this._annotationsBySender = {};
-    this._sortedAnnotationsByKey = [];
-    this._targetEvent = null;
-    this._room = room;
   }
   /**
    * Add relation events to this collection.
@@ -91,7 +98,7 @@ class Relations extends _events.EventEmitter {
 
 
   async addEvent(event) {
-    if (this._relationEventIds.has(event.getId())) {
+    if (this.relationEventIds.has(event.getId())) {
       return;
     }
 
@@ -115,23 +122,22 @@ class Relations extends _events.EventEmitter {
 
 
     if (event.isSending()) {
-      event.on("Event.status", this._onEventStatus);
+      event.on("Event.status", this.onEventStatus);
     }
 
-    this._relations.add(event);
+    this.relations.add(event);
+    this.relationEventIds.add(event.getId());
 
-    this._relationEventIds.add(event.getId());
-
-    if (this.relationType === "m.annotation") {
-      this._addAnnotationToAggregation(event);
-    } else if (this.relationType === "m.replace" && this._targetEvent) {
+    if (this.relationType === _event2.RelationType.Annotation) {
+      this.addAnnotationToAggregation(event);
+    } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent) {
       const lastReplacement = await this.getLastReplacement();
-
-      this._targetEvent.makeReplaced(lastReplacement);
+      this.targetEvent.makeReplaced(lastReplacement);
     }
 
-    event.on("Event.beforeRedaction", this._onBeforeRedaction);
+    event.on("Event.beforeRedaction", this.onBeforeRedaction);
     this.emit("Relations.add", event);
+    this.maybeEmitCreated();
   }
   /**
    * Remove relation event from this collection.
@@ -141,8 +147,8 @@ class Relations extends _events.EventEmitter {
    */
 
 
-  async _removeEvent(event) {
-    if (!this._relations.has(event)) {
+  async removeEvent(event) {
+    if (!this.relations.has(event)) {
       return;
     }
 
@@ -163,14 +169,13 @@ class Relations extends _events.EventEmitter {
       return;
     }
 
-    this._relations.delete(event);
+    this.relations.delete(event);
 
-    if (this.relationType === "m.annotation") {
-      this._removeAnnotationFromAggregation(event);
-    } else if (this.relationType === "m.replace" && this._targetEvent) {
+    if (this.relationType === _event2.RelationType.Annotation) {
+      this.removeAnnotationFromAggregation(event);
+    } else if (this.relationType === _event2.RelationType.Replace && this.targetEvent) {
       const lastReplacement = await this.getLastReplacement();
-
-      this._targetEvent.makeReplaced(lastReplacement);
+      this.targetEvent.makeReplaced(lastReplacement);
     }
 
     this.emit("Relations.remove", event);
@@ -194,10 +199,10 @@ class Relations extends _events.EventEmitter {
    * Relation events in insertion order.
    */
   getRelations() {
-    return [...this._relations];
+    return [...this.relations];
   }
 
-  _addAnnotationToAggregation(event) {
+  addAnnotationToAggregation(event) {
     const {
       key
     } = event.getRelation();
@@ -206,35 +211,33 @@ class Relations extends _events.EventEmitter {
       return;
     }
 
-    let eventsForKey = this._annotationsByKey[key];
+    let eventsForKey = this.annotationsByKey[key];
 
     if (!eventsForKey) {
-      eventsForKey = this._annotationsByKey[key] = new Set();
-
-      this._sortedAnnotationsByKey.push([key, eventsForKey]);
+      eventsForKey = this.annotationsByKey[key] = new Set();
+      this.sortedAnnotationsByKey.push([key, eventsForKey]);
     } // Add the new event to the set for this key
 
 
     eventsForKey.add(event); // Re-sort the [key, events] pairs in descending order of event count
 
-    this._sortedAnnotationsByKey.sort((a, b) => {
+    this.sortedAnnotationsByKey.sort((a, b) => {
       const aEvents = a[1];
       const bEvents = b[1];
       return bEvents.size - aEvents.size;
     });
-
     const sender = event.getSender();
-    let eventsFromSender = this._annotationsBySender[sender];
+    let eventsFromSender = this.annotationsBySender[sender];
 
     if (!eventsFromSender) {
-      eventsFromSender = this._annotationsBySender[sender] = new Set();
+      eventsFromSender = this.annotationsBySender[sender] = new Set();
     } // Add the new event to the set for this sender
 
 
     eventsFromSender.add(event);
   }
 
-  _removeAnnotationFromAggregation(event) {
+  removeAnnotationFromAggregation(event) {
     const {
       key
     } = event.getRelation();
@@ -243,12 +246,12 @@ class Relations extends _events.EventEmitter {
       return;
     }
 
-    const eventsForKey = this._annotationsByKey[key];
+    const eventsForKey = this.annotationsByKey[key];
 
     if (eventsForKey) {
       eventsForKey.delete(event); // Re-sort the [key, events] pairs in descending order of event count
 
-      this._sortedAnnotationsByKey.sort((a, b) => {
+      this.sortedAnnotationsByKey.sort((a, b) => {
         const aEvents = a[1];
         const bEvents = b[1];
         return bEvents.size - aEvents.size;
@@ -256,7 +259,7 @@ class Relations extends _events.EventEmitter {
     }
 
     const sender = event.getSender();
-    const eventsFromSender = this._annotationsBySender[sender];
+    const eventsFromSender = this.annotationsBySender[sender];
 
     if (eventsFromSender) {
       eventsFromSender.delete(event);
@@ -286,12 +289,12 @@ class Relations extends _events.EventEmitter {
    * The events are stored in a Set (which preserves insertion order).
    */
   getSortedAnnotationsByKey() {
-    if (this.relationType !== "m.annotation") {
+    if (this.relationType !== _event2.RelationType.Annotation) {
       // Other relation types are not grouped currently.
       return null;
     }
 
-    return this._sortedAnnotationsByKey;
+    return this.sortedAnnotationsByKey;
   }
   /**
    * Get all events in this collection grouped by sender.
@@ -305,12 +308,12 @@ class Relations extends _events.EventEmitter {
 
 
   getAnnotationsBySender() {
-    if (this.relationType !== "m.annotation") {
+    if (this.relationType !== _event2.RelationType.Annotation) {
       // Other relation types are not grouped currently.
       return null;
     }
 
-    return this._annotationsBySender;
+    return this.annotationsBySender;
   }
   /**
    * Returns the most recent (and allowed) m.replace relation, if any.
@@ -323,12 +326,12 @@ class Relations extends _events.EventEmitter {
 
 
   async getLastReplacement() {
-    if (this.relationType !== "m.replace") {
+    if (this.relationType !== _event2.RelationType.Replace) {
       // Aggregating on last only makes sense for this relation type
       return null;
     }
 
-    if (!this._targetEvent) {
+    if (!this.targetEvent) {
       // Don't know which replacements to accept yet.
       // This method shouldn't be called before the original
       // event is known anyway.
@@ -337,11 +340,10 @@ class Relations extends _events.EventEmitter {
     // this timestamp for its replacement, so any following replacement should definitely not be less
 
 
-    const replaceRelation = this._targetEvent.getServerAggregatedRelation("m.replace");
-
+    const replaceRelation = this.targetEvent.getServerAggregatedRelation(_event2.RelationType.Replace);
     const minTs = replaceRelation && replaceRelation.origin_server_ts;
     const lastReplacement = this.getRelations().reduce((last, event) => {
-      if (event.getSender() !== this._targetEvent.getSender()) {
+      if (event.getSender() !== this.targetEvent.getSender()) {
         return last;
       }
 
@@ -357,9 +359,9 @@ class Relations extends _events.EventEmitter {
     }, null);
 
     if (lastReplacement?.shouldAttemptDecryption()) {
-      await lastReplacement.attemptDecryption(this._room._client._crypto);
+      await lastReplacement.attemptDecryption(this.room.client.crypto);
     } else if (lastReplacement?.isBeingDecrypted()) {
-      await lastReplacement._decryptionPromise;
+      await lastReplacement.getDecryptionPromise();
     }
 
     return lastReplacement;
@@ -370,20 +372,37 @@ class Relations extends _events.EventEmitter {
 
 
   async setTargetEvent(event) {
-    if (this._targetEvent) {
+    if (this.targetEvent) {
       return;
     }
 
-    this._targetEvent = event;
+    this.targetEvent = event;
 
-    if (this.relationType === "m.replace") {
+    if (this.relationType === _event2.RelationType.Replace) {
       const replacement = await this.getLastReplacement(); // this is the initial update, so only call it if we already have something
       // to not emit Event.replaced needlessly
 
       if (replacement) {
-        this._targetEvent.makeReplaced(replacement);
+        this.targetEvent.makeReplaced(replacement);
       }
     }
+
+    this.maybeEmitCreated();
+  }
+
+  maybeEmitCreated() {
+    if (this.creationEmitted) {
+      return;
+    } // Only emit we're "created" once we have a target event instance _and_
+    // at least one related event.
+
+
+    if (!this.targetEvent || !this.relations.size) {
+      return;
+    }
+
+    this.creationEmitted = true;
+    this.targetEvent.emit("Event.relationsCreated", this.relationType, this.eventType);
   }
 
 }

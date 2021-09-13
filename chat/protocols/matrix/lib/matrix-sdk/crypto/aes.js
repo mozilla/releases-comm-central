@@ -5,13 +5,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.encryptAES = encryptAES;
 exports.decryptAES = decryptAES;
+exports.calculateKeyCheck = calculateKeyCheck;
 
 var _utils = require("../utils");
 
 var _olmlib = require("./olmlib");
 
 /*
-Copyright 2020 The Matrix.org Foundation C.I.C.
+Copyright 2020 - 2021 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,7 +28,8 @@ limitations under the License.
 */
 const subtleCrypto = typeof window !== "undefined" && window.crypto ? window.crypto.subtle || window.crypto.webkitSubtle : null; // salt for HKDF, with 8 bytes of zeros
 
-const zerosalt = new Uint8Array(8);
+const zeroSalt = new Uint8Array(8);
+
 /**
  * encrypt a string in Node.js
  *
@@ -36,7 +38,6 @@ const zerosalt = new Uint8Array(8);
  * @param {string} name the name of the secret
  * @param {string} ivStr the initialization vector to use
  */
-
 async function encryptNode(data, key, name, ivStr) {
   const crypto = (0, _utils.getCrypto)();
 
@@ -49,20 +50,20 @@ async function encryptNode(data, key, name, ivStr) {
   if (ivStr) {
     iv = (0, _olmlib.decodeBase64)(ivStr);
   } else {
-    iv = crypto.randomBytes(16);
-  } // clear bit 63 of the IV to stop us hitting the 64-bit counter boundary
-  // (which would mean we wouldn't be able to decrypt on Android). The loss
-  // of a single bit of iv is a price we have to pay.
+    iv = crypto.randomBytes(16); // clear bit 63 of the IV to stop us hitting the 64-bit counter boundary
+    // (which would mean we wouldn't be able to decrypt on Android). The loss
+    // of a single bit of iv is a price we have to pay.
 
+    iv[8] &= 0x7f;
+  }
 
-  iv[8] &= 0x7f;
   const [aesKey, hmacKey] = deriveKeysNode(key, name);
   const cipher = crypto.createCipheriv("aes-256-ctr", aesKey, iv);
-  const ciphertext = cipher.update(data, "utf-8", "base64") + cipher.final("base64");
-  const hmac = crypto.createHmac("sha256", hmacKey).update(ciphertext, "base64").digest("base64");
+  const ciphertext = Buffer.concat([cipher.update(data, "utf8"), cipher.final()]);
+  const hmac = crypto.createHmac("sha256", hmacKey).update(ciphertext).digest("base64");
   return {
     iv: (0, _olmlib.encodeBase64)(iv),
-    ciphertext: ciphertext,
+    ciphertext: ciphertext.toString("base64"),
     mac: hmac
   };
 }
@@ -86,23 +87,23 @@ async function decryptNode(data, key, name) {
   }
 
   const [aesKey, hmacKey] = deriveKeysNode(key, name);
-  const hmac = crypto.createHmac("sha256", hmacKey).update(data.ciphertext, "base64").digest("base64").replace(/=+$/g, '');
+  const hmac = crypto.createHmac("sha256", hmacKey).update(Buffer.from(data.ciphertext, "base64")).digest("base64").replace(/=+$/g, '');
 
   if (hmac !== data.mac.replace(/=+$/g, '')) {
     throw new Error(`Error decrypting secret ${name}: bad MAC`);
   }
 
   const decipher = crypto.createDecipheriv("aes-256-ctr", aesKey, (0, _olmlib.decodeBase64)(data.iv));
-  return decipher.update(data.ciphertext, "base64", "utf-8") + decipher.final("utf-8");
+  return decipher.update(data.ciphertext, "base64", "utf8") + decipher.final("utf8");
 }
 
 function deriveKeysNode(key, name) {
   const crypto = (0, _utils.getCrypto)();
-  const prk = crypto.createHmac("sha256", zerosalt).update(key).digest();
+  const prk = crypto.createHmac("sha256", zeroSalt).update(key).digest();
   const b = Buffer.alloc(1, 1);
-  const aesKey = crypto.createHmac("sha256", prk).update(name, "utf-8").update(b).digest();
+  const aesKey = crypto.createHmac("sha256", prk).update(name, "utf8").update(b).digest();
   b[0] = 2;
-  const hmacKey = crypto.createHmac("sha256", prk).update(aesKey).update(name, "utf-8").update(b).digest();
+  const hmacKey = crypto.createHmac("sha256", prk).update(aesKey).update(name, "utf8").update(b).digest();
   return [aesKey, hmacKey];
 }
 /**
@@ -122,13 +123,13 @@ async function encryptBrowser(data, key, name, ivStr) {
     iv = (0, _olmlib.decodeBase64)(ivStr);
   } else {
     iv = new Uint8Array(16);
-    window.crypto.getRandomValues(iv);
-  } // clear bit 63 of the IV to stop us hitting the 64-bit counter boundary
-  // (which would mean we wouldn't be able to decrypt on Android). The loss
-  // of a single bit of iv is a price we have to pay.
+    window.crypto.getRandomValues(iv); // clear bit 63 of the IV to stop us hitting the 64-bit counter boundary
+    // (which would mean we wouldn't be able to decrypt on Android). The loss
+    // of a single bit of iv is a price we have to pay.
 
+    iv[8] &= 0x7f;
+  }
 
-  iv[8] &= 0x7f;
   const [aesKey, hmacKey] = await deriveKeysBrowser(key, name);
   const encodedData = new TextEncoder().encode(data);
   const ciphertext = await subtleCrypto.encrypt({
@@ -181,7 +182,9 @@ async function deriveKeysBrowser(key, name) {
   }, false, ["deriveBits"]);
   const keybits = await subtleCrypto.deriveBits({
     name: "HKDF",
-    salt: zerosalt,
+    salt: zeroSalt,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/879
     info: new TextEncoder().encode(name),
     hash: "SHA-256"
   }, hkdfkey, 512);
@@ -199,10 +202,24 @@ async function deriveKeysBrowser(key, name) {
   return await Promise.all([aesProm, hmacProm]);
 }
 
-function encryptAES(...args) {
-  return subtleCrypto ? encryptBrowser(...args) : encryptNode(...args);
+function encryptAES(data, key, name, ivStr) {
+  return subtleCrypto ? encryptBrowser(data, key, name, ivStr) : encryptNode(data, key, name, ivStr);
 }
 
-function decryptAES(...args) {
-  return subtleCrypto ? decryptBrowser(...args) : decryptNode(...args);
+function decryptAES(data, key, name) {
+  return subtleCrypto ? decryptBrowser(data, key, name) : decryptNode(data, key, name);
+} // string of zeroes, for calculating the key check
+
+
+const ZERO_STR = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+/** Calculate the MAC for checking the key.
+ *
+ * @param {Uint8Array} key the key to use
+ * @param {string} [iv] The initialization vector as a base64-encoded string.
+ *     If omitted, a random initialization vector will be created.
+ * @return {Promise<object>} An object that contains, `mac` and `iv` properties.
+ */
+
+function calculateKeyCheck(key, iv) {
+  return encryptAES(ZERO_STR, key, "", iv);
 }

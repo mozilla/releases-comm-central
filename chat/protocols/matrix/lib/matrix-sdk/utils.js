@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.encodeParams = encodeParams;
+exports.decodeParams = decodeParams;
 exports.encodeUri = encodeUri;
 exports.removeElement = removeElement;
 exports.isFunction = isFunction;
@@ -11,11 +12,13 @@ exports.checkObjectHasKeys = checkObjectHasKeys;
 exports.checkObjectHasNoAdditionalKeys = checkObjectHasNoAdditionalKeys;
 exports.deepCopy = deepCopy;
 exports.deepCompare = deepCompare;
+exports.deepSortedObjectEntries = deepSortedObjectEntries;
 exports.extend = extend;
 exports.inherits = inherits;
 exports.polyfillSuper = polyfillSuper;
 exports.isNumber = isNumber;
 exports.removeHiddenChars = removeHiddenChars;
+exports.normalize = normalize;
 exports.escapeRegExp = escapeRegExp;
 exports.globToRegexp = globToRegexp;
 exports.ensureNoTrailingSlash = ensureNoTrailingSlash;
@@ -25,10 +28,23 @@ exports.defer = defer;
 exports.promiseMapSeries = promiseMapSeries;
 exports.promiseTry = promiseTry;
 exports.chunkPromises = chunkPromises;
+exports.simpleRetryOperation = simpleRetryOperation;
 exports.setCrypto = setCrypto;
 exports.getCrypto = getCrypto;
+exports.alphabetPad = alphabetPad;
+exports.baseToString = baseToString;
+exports.stringToBase = stringToBase;
+exports.averageBetweenStrings = averageBetweenStrings;
+exports.nextString = nextString;
+exports.prevString = prevString;
+exports.lexicographicCompare = lexicographicCompare;
+exports.compare = compare;
+exports.recursivelyAssign = recursivelyAssign;
+exports.DEFAULT_ALPHABET = void 0;
 
 var _unhomoglyph = _interopRequireDefault(require("unhomoglyph"));
+
+var _pRetry = _interopRequireDefault(require("p-retry"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61,17 +77,28 @@ limitations under the License.
  * @return {string} The encoded string e.g. foo=bar&baz=taz
  */
 function encodeParams(params) {
-  let qs = "";
+  return new URLSearchParams(params).toString();
+}
 
-  for (const key in params) {
-    if (!params.hasOwnProperty(key)) {
-      continue;
-    }
+/**
+ * Decode a query string in `application/x-www-form-urlencoded` format.
+ * @param {string} query A query string to decode e.g.
+ * foo=bar&via=server1&server2
+ * @return {Object} The decoded object, if any keys occurred multiple times
+ * then the value will be an array of strings, else it will be an array.
+ * This behaviour matches Node's qs.parse but is built on URLSearchParams
+ * for native web compatibility
+ */
+function decodeParams(query) {
+  const o = {};
+  const params = new URLSearchParams(query);
 
-    qs += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+  for (const key of params.keys()) {
+    const val = params.getAll(key);
+    o[key] = val.length === 1 ? val[0] : val;
   }
 
-  return qs.substring(1);
+  return o;
 }
 /**
  * Encodes a URI according to a set of template variables. Variables will be
@@ -149,10 +176,10 @@ function isFunction(value) {
 // note using 'keys' here would shadow the 'keys' function defined above
 
 
-function checkObjectHasKeys(obj, keys_) {
-  for (let i = 0; i < keys_.length; i++) {
-    if (!obj.hasOwnProperty(keys_[i])) {
-      throw new Error("Missing required key: " + keys_[i]);
+function checkObjectHasKeys(obj, keys) {
+  for (let i = 0; i < keys.length; i++) {
+    if (!obj.hasOwnProperty(keys[i])) {
+      throw new Error("Missing required key: " + keys[i]);
     }
   }
 }
@@ -276,6 +303,31 @@ function deepCompare(x, y) {
 
 
   return true;
+} // Dev note: This returns a tuple, but jsdoc doesn't like that. https://github.com/jsdoc/jsdoc/issues/1703
+
+/**
+ * Creates an array of object properties/values (entries) then
+ * sorts the result by key, recursively. The input object must
+ * ensure it does not have loops. If the input is not an object
+ * then it will be returned as-is.
+ * @param {*} obj The object to get entries of
+ * @returns {Array} The entries, sorted by key.
+ */
+
+
+function deepSortedObjectEntries(obj) {
+  if (typeof obj !== "object") return obj; // Apparently these are object types...
+
+  if (obj === null || obj === undefined || Array.isArray(obj)) return obj;
+  const pairs = [];
+
+  for (const [k, v] of Object.entries(obj)) {
+    pairs.push([k, deepSortedObjectEntries(v)]);
+  } // lexicographicCompare is faster than localeCompare, so let's use that.
+
+
+  pairs.sort((a, b) => lexicographicCompare(a[0], b[0]));
+  return pairs;
 }
 /**
  * Copy properties from one object to another.
@@ -397,17 +449,26 @@ function removeHiddenChars(str) {
   }
 
   return "";
+}
+
+function normalize(str) {
+  // Note: we have to match the filter with the removeHiddenChars() because the
+  // function strips spaces and other characters (M becomes RN for example, in lowercase).
+  return removeHiddenChars(str.toLowerCase()) // Strip all punctuation
+  .replace(/[\\'!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~\u2000-\u206f\u2e00-\u2e7f]/g, "") // We also doubly convert to lowercase to work around oddities of the library.
+  .toLowerCase();
 } // Regex matching bunch of unicode control characters and otherwise misleading/invisible characters.
 // Includes:
 // various width spaces U+2000 - U+200D
 // LTR and RTL marks U+200E and U+200F
 // LTR/RTL and other directional formatting marks U+202A - U+202F
+// Arabic Letter RTL mark U+061C
 // Combining characters U+0300 - U+036F
 // Zero width no-break space (BOM) U+FEFF
 // eslint-disable-next-line no-misleading-character-class
 
 
-const removeHiddenCharsRegex = /[\u2000-\u200F\u202A-\u202F\u0300-\u036f\uFEFF\s]/g;
+const removeHiddenCharsRegex = /[\u2000-\u200F\u202A-\u202F\u0300-\u036F\uFEFF\u061C\s]/g;
 
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -451,9 +512,9 @@ function sleep(ms, value) {
 
 function isNullOrUndefined(val) {
   return val === null || val === undefined;
-} // Returns a Deferred
+}
 
-
+// Returns a Deferred
 function defer() {
   let resolve;
   let reject;
@@ -469,7 +530,7 @@ function defer() {
 }
 
 async function promiseMapSeries(promises, fn) {
-  for (const o of await promises) {
+  for (const o of promises) {
     await fn(await o);
   }
 }
@@ -487,6 +548,29 @@ async function chunkPromises(fns, chunkSize) {
   }
 
   return results;
+}
+/**
+ * Retries the function until it succeeds or is interrupted. The given function must return
+ * a promise which throws/rejects on error, otherwise the retry will assume the request
+ * succeeded. The promise chain returned will contain the successful promise. The given function
+ * should always return a new promise.
+ * @param {Function} promiseFn The function to call to get a fresh promise instance. Takes an
+ * attempt count as an argument, for logging/debugging purposes.
+ * @returns {Promise<T>} The promise for the retried operation.
+ */
+
+
+function simpleRetryOperation(promiseFn) {
+  return (0, _pRetry.default)(attempt => {
+    return promiseFn(attempt);
+  }, {
+    forever: true,
+    factor: 2,
+    minTimeout: 3000,
+    // ms
+    maxTimeout: 15000 // ms
+
+  });
 } // We need to be able to access the Node.js crypto library from within the
 // Matrix SDK without needing to `require("crypto")`, which will fail in
 // browsers.  So `index.ts` will call `setCrypto` to store it, and when we need
@@ -501,4 +585,208 @@ function setCrypto(c) {
 
 function getCrypto() {
   return crypto;
+} // String averaging inspired by https://stackoverflow.com/a/2510816
+// Dev note: We make the alphabet a string because it's easier to write syntactically
+// than arrays. Thankfully, strings implement the useful parts of the Array interface
+// anyhow.
+
+/**
+ * The default alphabet used by string averaging in this SDK. This matches
+ * all usefully printable ASCII characters (0x20-0x7E, inclusive).
+ */
+
+
+const DEFAULT_ALPHABET = (() => {
+  let str = "";
+
+  for (let c = 0x20; c <= 0x7E; c++) {
+    str += String.fromCharCode(c);
+  }
+
+  return str;
+})();
+/**
+ * Pads a string using the given alphabet as a base. The returned string will be
+ * padded at the end with the first character in the alphabet.
+ *
+ * This is intended for use with string averaging.
+ * @param {string} s The string to pad.
+ * @param {number} n The length to pad to.
+ * @param {string} alphabet The alphabet to use as a single string.
+ * @returns {string} The padded string.
+ */
+
+
+exports.DEFAULT_ALPHABET = DEFAULT_ALPHABET;
+
+function alphabetPad(s, n, alphabet = DEFAULT_ALPHABET) {
+  return s.padEnd(n, alphabet[0]);
+}
+/**
+ * Converts a baseN number to a string, where N is the alphabet's length.
+ *
+ * This is intended for use with string averaging.
+ * @param {bigint} n The baseN number.
+ * @param {string} alphabet The alphabet to use as a single string.
+ * @returns {string} The baseN number encoded as a string from the alphabet.
+ */
+
+
+function baseToString(n, alphabet = DEFAULT_ALPHABET) {
+  // Developer note: the stringToBase() function offsets the character set by 1 so that repeated
+  // characters (ie: "aaaaaa" in a..z) don't come out as zero. We have to reverse this here as
+  // otherwise we'll be wrong in our conversion. Undoing a +1 before an exponent isn't very fun
+  // though, so we rely on a lengthy amount of `x - 1` and integer division rules to reach a
+  // sane state. This also means we have to do rollover detection: see below.
+  const len = BigInt(alphabet.length);
+
+  if (n <= len) {
+    return alphabet[Number(n) - 1] ?? "";
+  }
+
+  let d = n / len;
+  let r = Number(n % len) - 1; // Rollover detection: if the remainder is negative, it means that the string needs
+  // to roll over by 1 character downwards (ie: in a..z, the previous to "aaa" would be
+  // "zz").
+
+  if (r < 0) {
+    d -= BigInt(Math.abs(r)); // abs() is just to be clear what we're doing. Could also `+= r`.
+
+    r = Number(len) - 1;
+  }
+
+  return baseToString(d, alphabet) + alphabet[r];
+}
+/**
+ * Converts a string to a baseN number, where N is the alphabet's length.
+ *
+ * This is intended for use with string averaging.
+ * @param {string} s The string to convert to a number.
+ * @param {string} alphabet The alphabet to use as a single string.
+ * @returns {bigint} The baseN number.
+ */
+
+
+function stringToBase(s, alphabet = DEFAULT_ALPHABET) {
+  const len = BigInt(alphabet.length); // In our conversion to baseN we do a couple performance optimizations to avoid using
+  // excess CPU and such. To create baseN numbers, the input string needs to be reversed
+  // so the exponents stack up appropriately, as the last character in the unreversed
+  // string has less impact than the first character (in "abc" the A is a lot more important
+  // for lexicographic sorts). We also do a trick with the character codes to optimize the
+  // alphabet lookup, avoiding an index scan of `alphabet.indexOf(reversedStr[i])` - we know
+  // that the alphabet and (theoretically) the input string are constrained on character sets
+  // and thus can do simple subtraction to end up with the same result.
+  // Developer caution: we carefully cast to BigInt here to avoid losing precision. We cannot
+  // rely on Math.pow() (for example) to be capable of handling our insane numbers.
+
+  let result = BigInt(0);
+
+  for (let i = s.length - 1, j = BigInt(0); i >= 0; i--, j++) {
+    const charIndex = s.charCodeAt(i) - alphabet.charCodeAt(0); // We add 1 to the char index to offset the whole numbering scheme. We unpack this in
+    // the baseToString() function.
+
+    result += BigInt(1 + charIndex) * len ** j;
+  }
+
+  return result;
+}
+/**
+ * Averages two strings, returning the midpoint between them. This is accomplished by
+ * converting both to baseN numbers (where N is the alphabet's length) then averaging
+ * those before re-encoding as a string.
+ * @param {string} a The first string.
+ * @param {string} b The second string.
+ * @param {string} alphabet The alphabet to use as a single string.
+ * @returns {string} The midpoint between the strings, as a string.
+ */
+
+
+function averageBetweenStrings(a, b, alphabet = DEFAULT_ALPHABET) {
+  const padN = Math.max(a.length, b.length);
+  const baseA = stringToBase(alphabetPad(a, padN, alphabet), alphabet);
+  const baseB = stringToBase(alphabetPad(b, padN, alphabet), alphabet);
+  const avg = (baseA + baseB) / BigInt(2); // Detect integer division conflicts. This happens when two numbers are divided too close so
+  // we lose a .5 precision. We need to add a padding character in these cases.
+
+  if (avg === baseA || avg == baseB) {
+    return baseToString(avg, alphabet) + alphabet[0];
+  }
+
+  return baseToString(avg, alphabet);
+}
+/**
+ * Finds the next string using the alphabet provided. This is done by converting the
+ * string to a baseN number, where N is the alphabet's length, then adding 1 before
+ * converting back to a string.
+ * @param {string} s The string to start at.
+ * @param {string} alphabet The alphabet to use as a single string.
+ * @returns {string} The string which follows the input string.
+ */
+
+
+function nextString(s, alphabet = DEFAULT_ALPHABET) {
+  return baseToString(stringToBase(s, alphabet) + BigInt(1), alphabet);
+}
+/**
+ * Finds the previous string using the alphabet provided. This is done by converting the
+ * string to a baseN number, where N is the alphabet's length, then subtracting 1 before
+ * converting back to a string.
+ * @param {string} s The string to start at.
+ * @param {string} alphabet The alphabet to use as a single string.
+ * @returns {string} The string which precedes the input string.
+ */
+
+
+function prevString(s, alphabet = DEFAULT_ALPHABET) {
+  return baseToString(stringToBase(s, alphabet) - BigInt(1), alphabet);
+}
+/**
+ * Compares strings lexicographically as a sort-safe function.
+ * @param {string} a The first (reference) string.
+ * @param {string} b The second (compare) string.
+ * @returns {number} Negative if the reference string is before the compare string;
+ * positive if the reference string is after; and zero if equal.
+ */
+
+
+function lexicographicCompare(a, b) {
+  // Dev note: this exists because I'm sad that you can use math operators on strings, so I've
+  // hidden the operation in this function.
+  return a < b ? -1 : a === b ? 0 : 1;
+}
+
+const collator = new Intl.Collator();
+/**
+ * Performant language-sensitive string comparison
+ * @param a the first string to compare
+ * @param b the second string to compare
+ */
+
+function compare(a, b) {
+  return collator.compare(a, b);
+}
+/**
+ * This function is similar to Object.assign() but it assigns recursively and
+ * allows you to ignore nullish values from the source
+ *
+ * @param {Object} target
+ * @param {Object} source
+ * @returns the target object
+ */
+
+
+function recursivelyAssign(target, source, ignoreNullish = false) {
+  for (const [sourceKey, sourceValue] of Object.entries(source)) {
+    if (target[sourceKey] instanceof Object && sourceValue) {
+      recursivelyAssign(target[sourceKey], sourceValue);
+      continue;
+    }
+
+    if (sourceValue !== null && sourceValue !== undefined || !ignoreNullish) {
+      target[sourceKey] = sourceValue;
+      continue;
+    }
+  }
+
+  return target;
 }
