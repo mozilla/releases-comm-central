@@ -9,23 +9,25 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % newFolderDTD SYSTEM "chrome://messenger/locale/newFolderDialog.dtd">%newFolderDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&newFolderDialog.title;"
-        lightweightthemes="true"
-        style="width: 25em;"
-        onload="onLoad();">
-<dialog buttonlabelaccept="&accept.label;"
-        buttonaccesskeyaccept="&accept.accesskey;">
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/newFolderDialog.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title>&newFolderDialog.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/newFolderDialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <dialog buttonlabelaccept="&accept.label;"
+          buttonaccesskeyaccept="&accept.accesskey;">
     <label id="nameLabel" value="&name.label;" accesskey="&name.accesskey;"
            control="name"/>
     <html:input id="name"
@@ -62,5 +64,6 @@
       </radiogroup>
 
     </vbox>
-</dialog>
-</window>
+  </dialog>
+</html:body>
+</html>
