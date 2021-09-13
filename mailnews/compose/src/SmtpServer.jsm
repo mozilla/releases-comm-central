@@ -205,15 +205,31 @@ SmtpServer.prototype = {
       this.password = password;
       return this.password;
     }
+    let outUsername = {};
     let outPassword = {};
-    let ok = prompt.promptPassword(
-      promptTitle,
-      promptMessage,
-      this.serverURI,
-      Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
-      outPassword
-    );
+    let ok;
+    if (this.username) {
+      ok = prompt.promptPassword(
+        promptTitle,
+        promptMessage,
+        this.serverURI,
+        Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
+        outPassword
+      );
+    } else {
+      ok = prompt.promptUsernameAndPassword(
+        promptTitle,
+        promptMessage,
+        this.serverURI,
+        Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
+        outUsername,
+        outPassword
+      );
+    }
     if (ok) {
+      if (outUsername.value) {
+        this.username = outUsername.value;
+      }
       this.password = outPassword.value;
     }
     return this.password;
