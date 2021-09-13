@@ -5,7 +5,11 @@
 
 var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 
-/* Feed account standalone wizard functions */
+window.addEventListener("DOMContentLoaded", () => {
+  FeedAccountWizard.onLoad();
+});
+
+/** Feed account standalone wizard functions. */
 var FeedAccountWizard = {
   accountName: "",
 

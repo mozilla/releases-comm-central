@@ -6,7 +6,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountWizard.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY %  accountDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
   %accountDTD;
   <!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
@@ -15,17 +15,18 @@
   %imDTD;
 ]>
 
-<window id="FeedAccountWizard"
-        title="&feedWindowTitle.label;"
-        onload="FeedAccountWizard.onLoad();"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-  <linkset>
-    <html:link rel="localization" href="toolkit/global/wizard.ftl"/>
-  </linkset>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger-newsblog/content/feedAccountWizard.js"/>
-
+<html id="FeedAccountWizard" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title>&feedWindowTitle.label;</title>
+  <link rel="localization" href="toolkit/global/wizard.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/feedAccountWizard.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <wizard>
     <!-- Account setup page : User gets a choice to enter a name for the account -->
     <!-- Defaults : Feed account name -> default string -->
@@ -67,6 +68,6 @@
         <spacer flex="1"/>
       </vbox>
     </wizardpage>
-
   </wizard>
-</window>
+</html:body>
+</html>
