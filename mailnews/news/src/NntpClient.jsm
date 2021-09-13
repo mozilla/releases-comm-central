@@ -39,20 +39,13 @@ class NntpClient {
 
     // TODO: NntpClient should not manipulate folder/group directly, use the
     // onData callback instead.
-    // Two forms of the uri:
+    // The uri is in the form of
     // - news://news.mozilla.org/mozilla.accessibility
-    // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
     if (uri) {
       let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
       this._host = matches[1];
       this._port = matches[2] || this._server.port;
-      let url = new URL(uri);
-      if (url.searchParams.get("group")) {
-        this._groupName = url.searchParams.get("group");
-        this._articleNumber = url.searchParams.get("key");
-      } else {
-        this._groupName = matches[3];
-      }
+      this._groupName = matches[3];
       this._newsFolder = this._server.findGroup(this._groupName);
       this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
     } else {
@@ -119,7 +112,7 @@ class NntpClient {
    * @param {TCPSocketErrorEvent} event - The error event.
    */
   _onError = event => {
-    this._logger.error(event);
+    this._logger.error(event, event.name, event.message, event.errorCode);
   };
 
   /**
@@ -193,11 +186,24 @@ class NntpClient {
   }
 
   /**
-   * Get a single article.
+   * Get a single article by group name and article number.
+   * @param {string} groupName - The group name.
+   * @param {string} articleNumber - The article number.
    */
-  getArticle() {
+  getArticleByArticleNumber(groupName, articleNumber) {
+    this._groupName = groupName;
+    this._articleNumber = articleNumber;
     this._nextAction = this._actionModeReader;
     this._firstCommand = this._actionArticle;
+  }
+
+  /**
+   * Get a single article by the message id.
+   * @param {string} messageId - The message id.
+   */
+  getArticleByMessageId(messageId) {
+    this._articleNumber = `<${messageId}>`;
+    this._nextAction = this._actionArticle;
   }
 
   /**

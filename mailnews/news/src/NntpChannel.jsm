@@ -30,9 +30,16 @@ class NntpChannel {
    * @param {nsILoadInfo} loadInfo - The loadInfo associated with the channel.
    */
   constructor(uri, loadInfo) {
-    this._server = MailServices.accounts
-      .findServerByURI(uri, false)
-      .QueryInterface(Ci.nsINntpIncomingServer);
+    try {
+      this._server = MailServices.accounts
+        .findServerByURI(uri, false)
+        .QueryInterface(Ci.nsINntpIncomingServer);
+    } catch (e) {
+      this._server = MailServices.accounts
+        .createIncomingServer("", uri.asciiHost, "nntp")
+        .QueryInterface(Ci.nsINntpIncomingServer);
+      this._server.port = uri.port;
+    }
 
     if (uri.port < 1) {
       // Ensure the uri has a port so that memory cache works.
@@ -179,10 +186,21 @@ class NntpChannel {
     let inputStream = pipe.inputStream;
     let outputStream = pipe.outputStream;
 
-    let client = new NntpClient(this._server, this.URI.spec);
+    // Two forms of the uri:
+    // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
+    // - news://news.mozilla.org:119/id@mozilla.org
+    let url = new URL(this.URI.spec);
+    let groupName = url.searchParams.get("group");
+    let articleNumber = url.searchParams.get("key");
+    let messageId = groupName ? "" : url.pathname.slice(1);
+    let client = new NntpClient(this._server);
     client.connect();
     client.onOpen = () => {
-      client.getArticle();
+      if (messageId) {
+        client.getArticleByMessageId(messageId);
+      } else {
+        client.getArticleByArticleNumber(groupName, articleNumber);
+      }
       if (this.loadGroup) {
         this.loadGroup.addRequest(this, null);
       }
