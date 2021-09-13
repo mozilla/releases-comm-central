@@ -1,8 +1,6 @@
-/*
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var curTaskIndex = 0;
 var numTasks = 0;
@@ -12,6 +10,7 @@ var msgShutdownService = Cc[
   "@mozilla.org/messenger/msgshutdownservice;1"
 ].getService(Ci.nsIMsgShutdownService);
 
+window.addEventListener("DOMContentLoaded", onLoad);
 document.addEventListener("dialogcancel", onCancel);
 
 function onLoad() {

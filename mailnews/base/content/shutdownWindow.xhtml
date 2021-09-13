@@ -8,14 +8,18 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        style="padding: 20px; width: 350px"
-        lightweightthemes="true"
-        onload="onLoad()">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      width="600" height="150"
+      scrolling="false">
+<head>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/shutdownWindow.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="cancel">
-  <script src="chrome://messenger/content/shutdownWindow.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
   <stringbundle id="bundle_shutdown" src="chrome://messenger/locale/shutdownWindow.properties"/>
 
   <vbox align="center">
@@ -30,4 +34,5 @@
     <separator class="thick" />
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>
