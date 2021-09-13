@@ -1434,6 +1434,70 @@ var chatHandler = {
         notification.close();
       }
     }
+    if (aTopic == "buddy-verification-request") {
+      aSubject.QueryInterface(Ci.imIIncomingSessionVerification);
+      let bundle = document.getElementById("chatBundle");
+      let label = bundle.getFormattedString("buddy.verificationRequest.label", [
+        aSubject.subject,
+      ]);
+      let value =
+        "buddy-verification-request-" +
+        aSubject.account.id +
+        "-" +
+        aSubject.subject;
+      let acceptButton = {
+        accessKey: bundle.getString(
+          "buddy.verificationRequest.allow.accesskey"
+        ),
+        label: bundle.getString("buddy.verificationRequest.allow.label"),
+        callback() {
+          aSubject
+            .verify()
+            .then(() => {
+              window.openDialog(
+                "chrome://messenger/content/chat/verify.xhtml",
+                "",
+                "chrome,modal,titlebar,centerscreen",
+                aSubject
+              );
+            })
+            .catch(error => {
+              aSubject.account.ERROR(error);
+              aSubject.cancel();
+            });
+        },
+      };
+      let denyButton = {
+        accessKey: bundle.getString("buddy.verificationRequest.deny.accesskey"),
+        label: bundle.getString("buddy.verificationRequest.deny.label"),
+        callback() {
+          aSubject.cancel();
+        },
+      };
+      let box = this.msgNotificationBar;
+      box.appendNotification(label, value, null, box.PRIORITY_INFO_HIGH, [
+        acceptButton,
+        denyButton,
+      ]);
+      if (!gChatTab) {
+        let tabmail = document.getElementById("tabmail");
+        tabmail.openTab("chat", { background: true });
+      }
+      return;
+    }
+    if (aTopic == "buddy-verification-request-canceled") {
+      aSubject.QueryInterface(Ci.imIIncomingSessionVerification);
+      let value =
+        "buddy-verification-request-" +
+        aSubject.account.id +
+        "-" +
+        aSubject.subject;
+      let box = this.msgNotificationBar;
+      let notification = box.getNotificationWithValue(value);
+      if (notification) {
+        notification.close();
+      }
+    }
     if (aTopic == "conversation-update-type") {
       // Find conversation in conversation list.
       let contactlistbox = document.getElementById("contactlistbox");
@@ -1606,6 +1670,8 @@ var chatHandler = {
     tabmail.registerTabType(chatTabType);
     this._addObserver("buddy-authorization-request");
     this._addObserver("buddy-authorization-request-canceled");
+    this._addObserver("buddy-verification-request");
+    this._addObserver("buddy-verification-request-canceled");
     let listbox = document.getElementById("contactlistbox");
     listbox.addEventListener("keypress", function(aEvent) {
       let item = listbox.selectedItem;

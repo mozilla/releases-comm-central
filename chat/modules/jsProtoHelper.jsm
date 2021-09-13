@@ -170,6 +170,7 @@ var GenericAccountPrototype = {
       aConnectionErrorMessage
     );
     this.cancelPendingBuddyRequests();
+    this.cancelPendingVerificationRequests();
   },
 
   // Called when the user adds a new buddy from the UI.
@@ -352,6 +353,116 @@ var GenericAccountPrototype = {
   },
   reportSessionsChanged() {
     Services.obs.notifyObservers(this.imAccount, "account-sessions-changed");
+  },
+
+  _pendingVerificationRequests: null,
+  /**
+   *
+   * @param {string} aDisplayName - Display name the request is from.
+   * @param {() => Promise<{challenge: string, challengeDescription: string?}>} aGetChallenge - Accept request and generate
+   *   the challenge.
+   * @param {AbortSignal} [aAbortSignal] - Abort signal to indicate the request
+   *   was cancelled.
+   * @returns {Promise<boolean>} Completion promise for the verification.
+   *   Boolean indicates the result of the verification, rejection is a cancel.
+   */
+  addVerificationRequest(aDisplayName, aGetChallenge, aAbortSignal) {
+    if (!this._pendingVerificationRequests) {
+      this._pendingVerificationRequests = [];
+    }
+    let verificationRequest = {
+      _account: this,
+      get account() {
+        return this._account.imAccount;
+      },
+      get subject() {
+        return aDisplayName;
+      },
+      get challengeType() {
+        return Ci.imISessionVerification.CHALLENGE_TEXT;
+      },
+      get challenge() {
+        return this._challenge;
+      },
+      get challengeDescription() {
+        return this._challengeDescription;
+      },
+      _challenge: "",
+      _challengeDescription: "",
+      _canceled: false,
+      completePromise: null,
+      async verify() {
+        const { challenge, challengeDescription = "" } = await aGetChallenge();
+        this._challenge = challenge;
+        this._challengeDescription = challengeDescription;
+      },
+      submitResponse(challengeMatches) {
+        this._accept(challengeMatches);
+        this._remove();
+      },
+      cancel() {
+        if (this._canceled) {
+          return;
+        }
+        this._canceled = true;
+        Services.obs.notifyObservers(
+          this,
+          "buddy-verification-request-canceled"
+        );
+        this._deny();
+        this._remove();
+      },
+      _remove() {
+        this._account.removeVerificationRequest(this);
+      },
+      QueryInterface: ChromeUtils.generateQI([
+        "imIIncomingSessionVerification",
+      ]),
+    };
+    verificationRequest.completePromise = new Promise((resolve, reject) => {
+      verificationRequest._accept = resolve;
+      verificationRequest._deny = reject;
+    });
+    this._pendingVerificationRequests.push(verificationRequest);
+    Services.obs.notifyObservers(
+      verificationRequest,
+      "buddy-verification-request"
+    );
+    if (aAbortSignal) {
+      aAbortSignal.addEventListener(
+        "abort",
+        () => {
+          verificationRequest.cancel();
+        },
+        { once: true }
+      );
+      if (aAbortSignal.aborted) {
+        verificationRequest.cancel();
+      }
+    }
+    return verificationRequest.completePromise;
+  },
+  /**
+   * Remove a verification request for this account.
+   *
+   * @param {imIIncomingSessionVerification} aRequest
+   */
+  removeVerificationRequest(aRequest) {
+    if (!this._pendingVerificationRequests) {
+      return;
+    }
+    this._pendingVerificationRequests = this._pendingVerificationRequests.filter(
+      r => r !== aRequest
+    );
+  },
+  cancelPendingVerificationRequests() {
+    if (!this._pendingVerificationRequests) {
+      return;
+    }
+    for (let request of this._pendingVerificationRequests) {
+      request.cancel();
+    }
+    this._pendingVerificationRequests = null;
   },
 
   _encryptionStatus: [],

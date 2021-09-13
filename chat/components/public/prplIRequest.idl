@@ -75,3 +75,17 @@ interface imISessionVerification: nsISupports {
     */
    void cancel();
 };
+
+/**
+ * Incoming verification request, sent to the UI via buddy-verification-request
+ * notification. Can be canelled with buddy-verification-request-cancelled.
+ */
+[scriptable, uuid(c46d426f-6e99-4713-b0aa-0b404db5a40d)]
+interface imIIncomingSessionVerification: imISessionVerification {
+   readonly attribute imIAccount account;
+   /**
+    * Method to accept the verification. Resolves once |challenge| is
+    * populated.
+    */
+   Promise verify();
+};
