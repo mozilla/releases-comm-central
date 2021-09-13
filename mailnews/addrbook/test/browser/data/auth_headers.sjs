@@ -10,6 +10,7 @@ function handleRequest(request, response) {
   if (!request.hasHeader("Authorization")) {
     response.setStatusLine("1.1", 401, "Unauthorized");
     response.setHeader("WWW-Authenticate", `Basic realm="test"`);
+    return;
   }
 
   response.setHeader("Content-Type", "application/json", false);

@@ -17,6 +17,8 @@ var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
 
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -124,6 +126,28 @@ var SMTPServer = {
   get port() {
     return this.server.port;
   },
+};
+
+var _srv = DNS.srv;
+var _txt = DNS.txt;
+DNS.srv = function(name) {
+  if (["_caldavs._tcp.localhost", "_carddavs._tcp.localhost"].includes(name)) {
+    return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
+  }
+  throw new Error("Unexpected DNS SRV lookup.");
+};
+DNS.txt = function(name) {
+  if (name == "_caldavs._tcp.localhost") {
+    return [{ data: "path=/browser/comm/calendar/test/browser/data/dns.sjs" }];
+  } else if (name == "_carddavs._tcp.localhost") {
+    return [
+      {
+        data:
+          "path=/browser/comm/mail/components/addrbook/test/browser/new/data/dns.sjs",
+      },
+    ];
+  }
+  throw new Error("Unexpected DNS TXT lookup.");
 };
 
 const PREF_NAME = "mailnews.auto_config_url";
@@ -705,6 +729,129 @@ add_task(async function test_full_account_setup() {
   // Wait for the fetching of address books and calendars to end.
   await syncingNotificationRemoved;
 
+  // Wait for the linked address book section to be visible.
+  await BrowserTestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(
+      tabDocument.getElementById("linkedAddressBooks")
+    )
+  );
+
+  // Expand the section.
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.querySelector("#linkedAddressBooks .linked-services-button"),
+    {},
+    tab.browser.contentWindow
+  );
+  let abList = tabDocument.querySelector(
+    "#addressBooksSetup .linked-services-list"
+  );
+  Assert.ok(BrowserTestUtils.is_visible(abList));
+
+  // Check the linked address book was found.
+  Assert.equal(abList.childElementCount, 1);
+  Assert.equal(
+    abList.querySelector("li > span.protocol-type").textContent,
+    "CardDAV"
+  );
+  Assert.equal(
+    abList.querySelector("li > span.list-item-name").textContent,
+    "You found me!"
+  );
+
+  // Connect the linked address book.
+  let abDirectoryPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  EventUtils.synthesizeMouseAtCenter(
+    abList.querySelector("li > button.small"),
+    {},
+    tab.browser.contentWindow
+  );
+  let [abDirectory] = await abDirectoryPromise;
+  Assert.equal(abDirectory.dirName, "You found me!");
+  Assert.equal(abDirectory.dirType, Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
+  Assert.equal(
+    abDirectory.getStringValue("carddav.url", ""),
+    "https://example.org/browser/comm/mail/components/addrbook/test/browser/new/data/addressbook.sjs"
+  );
+
+  // Wait for the linked calendar section to be visible.
+  await BrowserTestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(tabDocument.getElementById("linkedCalendars"))
+  );
+
+  // Expand the section.
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.querySelector("#linkedCalendars .linked-services-button"),
+    {},
+    tab.browser.contentWindow
+  );
+  let calendarList = tabDocument.querySelector(
+    "#calendarsSetup .linked-services-list"
+  );
+  Assert.ok(BrowserTestUtils.is_visible(abList));
+
+  // Check the linked calendar was found.
+  Assert.equal(calendarList.childElementCount, 1);
+  Assert.equal(
+    calendarList.querySelector("li > span.protocol-type").textContent,
+    "CalDAV"
+  );
+  Assert.equal(
+    calendarList.querySelector("li > span.list-item-name").textContent,
+    "You found me!"
+  );
+
+  // Connect the linked calendar.
+  let calendarManager = cal.getCalendarManager();
+  let calendarPromise = new Promise(resolve => {
+    let observer = {
+      onCalendarRegistered(calendar) {
+        calendarManager.removeObserver(this);
+        resolve(calendar);
+      },
+      onCalendarUnregistering() {},
+      onCalendarDeleting() {},
+    };
+    calendarManager.addObserver(observer);
+  });
+
+  let calendarDialogShowed = BrowserTestUtils.waitForCondition(
+    () => tabDocument.getElementById("calendarDialog").open,
+    "Timeout waiting for the #calendarDialog to be visible"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    calendarList.querySelector("li > button.small"),
+    {},
+    tab.browser.contentWindow
+  );
+  await calendarDialogShowed;
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("calendarDialogConfirmButton"),
+    {},
+    tab.browser.contentWindow
+  );
+
+  let calendar = await calendarPromise;
+  Assert.equal(calendar.name, "You found me!");
+  Assert.equal(calendar.type, "caldav");
+  // This address doesn't need to actually exist for the test to pass.
+  Assert.equal(
+    calendar.uri.spec,
+    "https://example.org/browser/comm/calendar/test/browser/data/calendar.sjs"
+  );
+
+  let logins = Services.logins.findLogins("https://example.org", null, "");
+  Assert.equal(logins.length, 1);
+  Assert.equal(
+    logins[0].username,
+    imapUser.email,
+    "username was saved for linked address book/calendar"
+  );
+  Assert.equal(
+    logins[0].password,
+    imapUser.password,
+    "password was saved for linked address book/calendar"
+  );
+
   let tabChanged = BrowserTestUtils.waitForCondition(
     () => mc.tabmail.selectedTab != tab,
     "Timeout waiting for the currently active tab to change"
@@ -730,6 +877,10 @@ add_task(async function test_full_account_setup() {
     "The currently selected tab is the primary Mail tab"
   );
 
+  // Remove the address book and calendar.
+  MailServices.ab.deleteAddressBook(abDirectory.URI);
+  calendarManager.removeCalendar(calendar);
+
   // Restore the original pref.
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 
@@ -739,8 +890,11 @@ add_task(async function test_full_account_setup() {
 
   IMAPServer.close();
   SMTPServer.close();
+  Services.logins.removeAllLogins();
 });
 
 registerCleanupFunction(function teardownModule(module) {
   MockRegistrar.unregister(originalAlertsServiceCID);
+  DNS.srv = _srv;
+  DNS.txt = _txt;
 });

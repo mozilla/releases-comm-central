@@ -1560,7 +1560,7 @@ CalDavCalendar.prototype = {
 
         // Use supported-calendar-component-set if the server supports it; some do not.
         let supportedComponents = response.firstProps["C:supported-calendar-component-set"];
-        if (supportedComponents.size) {
+        if (supportedComponents?.size) {
           this.mSupportedItemTypes = [...this.mGenerallySupportedItemTypes].filter(itype => {
             return supportedComponents.has(itype);
           });

@@ -20,7 +20,7 @@ var { CalDavDetectionSession } = ChromeUtils.import("resource:///modules/caldav/
  * @implements {calICalendarProvider}
  */
 var CalDavProvider = {
-  QueryInterface: cal.generateQI(["calICalendarProvider"]),
+  QueryInterface: ChromeUtils.generateQI(["calICalendarProvider"]),
 
   get type() {
     return "caldav";

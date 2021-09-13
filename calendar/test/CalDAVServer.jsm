@@ -10,6 +10,7 @@ const PREFIX_BINDINGS = {
   c: "urn:ietf:params:xml:ns:caldav",
   cs: "http://calendarserver.org/ns/",
   d: "DAV:",
+  i: "http://apple.com/ns/ical/",
 };
 const NAMESPACE_STRING = Object.entries(PREFIX_BINDINGS)
   .map(([prefix, url]) => `xmlns:${prefix}="${url}"`)
@@ -46,6 +47,11 @@ var CalDAVServer = {
   },
 
   resetHandlers() {
+    this.server.registerPathHandler("/.well-known/caldav", this.wellKnown.bind(this));
+    this.server.registerPathHandler("/principals/", this.principals.bind(this));
+    this.server.registerPathHandler("/principals/me/", this.myPrincipal.bind(this));
+    this.server.registerPathHandler("/calendars/me/", this.myCalendars.bind(this));
+
     this.server.registerPathHandler(this.path, this.directoryHandler.bind(this));
     this.server.registerPrefixHandler(this.path, this.itemHandler.bind(this));
   },
@@ -115,6 +121,101 @@ var CalDAVServer = {
     response.setStatusLine("1.1", 200, "OK");
     response.setHeader("Content-Type", "text/plain");
     response.write("pong");
+  },
+
+  wellKnown(request, response) {
+    response.setStatusLine("1.1", 301, "Moved Permanently");
+    response.setHeader("Location", "/principals/");
+  },
+
+  principals(request, response) {
+    if (!this.checkAuth(request, response)) {
+      return;
+    }
+
+    let input = new DOMParser().parseFromString(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream),
+      "text/xml"
+    );
+
+    let propNames = this._inputProps(input);
+    let propValues = {
+      "d:current-user-principal": "<href>/principals/me/</href>",
+    };
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(
+      `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+        <response>
+          <href>/principals/</href>
+          ${this._outputProps(propNames, propValues)}
+        </response>
+      </multistatus>`.replace(/>\s+</g, "><")
+    );
+  },
+
+  myPrincipal(request, response) {
+    if (!this.checkAuth(request, response)) {
+      return;
+    }
+
+    let input = new DOMParser().parseFromString(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream),
+      "text/xml"
+    );
+
+    let propNames = this._inputProps(input);
+    let propValues = {
+      "d:resourcetype": "<principal/>",
+      "c:calendar-home-set": "<href>/calendars/me/</href>",
+    };
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(
+      `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+        <response>
+          <href>/principals/me/</href>
+          ${this._outputProps(propNames, propValues)}
+        </response>
+      </multistatus>`.replace(/>\s+</g, "><")
+    );
+  },
+
+  myCalendars(request, response) {
+    if (!this.checkAuth(request, response)) {
+      return;
+    }
+
+    let input = new DOMParser().parseFromString(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream),
+      "text/xml"
+    );
+
+    let propNames = this._inputProps(input);
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(
+      `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+        <response>
+          <href>/addressbooks/me/</href>
+          ${this._outputProps(propNames, {
+            "d:resourcetype": "<collection/>",
+            "d:displayname": "#calendars",
+          })}
+        </response>
+        <response>
+          <href>${this.path}</href>
+          ${this._outputProps(propNames, {
+            "d:resourcetype": "<collection/><c:calendar/>",
+            "d:displayname": "CalDAV Test",
+            "i:calendar-color": "#ff8000",
+          })}
+        </response>
+      </multistatus>`.replace(/>\s+</g, "><")
+    );
   },
 
   /** Handle any requests to the calendar itself. */
@@ -305,6 +406,10 @@ var CalDAVServer = {
         case "getcontenttype":
           Assert.equal(p.namespaceURI, PREFIX_BINDINGS.d);
           propNames.push(`d:${p.localName}`);
+          break;
+        case "calendar-color":
+          Assert.equal(p.namespaceURI, PREFIX_BINDINGS.i);
+          propNames.push(`i:${p.localName}`);
           break;
         default:
           Assert.report(true, undefined, undefined, `Unknown property requested: ${p.nodeName}`);

@@ -167,21 +167,26 @@ var CardDAVServer = {
       return;
     }
 
+    let input = new DOMParser().parseFromString(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream),
+      "text/xml"
+    );
+
+    let propNames = this._inputProps(input);
+    let propValues = {
+      "d:current-user-principal": "<href>/principals/me/</href>",
+    };
+
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
-    response.write(`<multistatus xmlns="${PREFIX_BINDINGS.d}">
+    response.write(
+      `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
         <response>
           <href>/principals/</href>
-          <propstat>
-            <prop>
-              <current-user-principal>
-                <href>/principals/me/</href>
-              </current-user-principal>
-            </prop>
-            <status>HTTP/1.1 200 OK</status>
-          </propstat>
+          ${this._outputProps(propNames, propValues)}
         </response>
-      </multistatus>`);
+      </multistatus>`.replace(/>\s+</g, "><")
+    );
   },
 
   myPrincipal(request, response) {
@@ -189,21 +194,27 @@ var CardDAVServer = {
       return;
     }
 
+    let input = new DOMParser().parseFromString(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream),
+      "text/xml"
+    );
+
+    let propNames = this._inputProps(input);
+    let propValues = {
+      "d:resourcetype": "<principal/>",
+      "card:addressbook-home-set": "<href>/addressbooks/me/</href>",
+    };
+
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
-    response.write(`<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+    response.write(
+      `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
         <response>
           <href>/principals/me/</href>
-          <propstat>
-            <prop>
-              <card:addressbook-home-set>
-                <href>/addressbooks/me/</href>
-              </card:addressbook-home-set>
-            </prop>
-            <status>HTTP/1.1 200 OK</status>
-          </propstat>
+          ${this._outputProps(propNames, propValues)}
         </response>
-      </multistatus>`);
+      </multistatus>`.replace(/>\s+</g, "><")
+    );
   },
 
   myAddressBooks(request, response) {
@@ -211,48 +222,44 @@ var CardDAVServer = {
       return;
     }
 
+    let input = new DOMParser().parseFromString(
+      CommonUtils.readBytesFromInputStream(request.bodyInputStream),
+      "text/xml"
+    );
+
+    let propNames = this._inputProps(input);
+
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
-    response.write(`<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+    response.write(
+      `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
         <response>
           <href>/addressbooks/me/</href>
-          <propstat>
-            <prop>
-              <resourcetype>
-                <collection/>
-              </resourcetype>
-              <displayname>#addressbooks</displayname>
-            </prop>
-            <status>HTTP/1.1 200 OK</status>
-          </propstat>
+          ${this._outputProps(propNames, {
+            "d:resourcetype": "<collection/>",
+            "d:displayname": "#addressbooks",
+          })}
         </response>
         <response>
           <href>${this.altPath}</href>
-          <propstat>
-            <prop>
-              <resourcetype>
-                <collection/>
-                <card:addressbook/>
-              </resourcetype>
-              <displayname>Not This One</displayname>
-            </prop>
-            <status>HTTP/1.1 200 OK</status>
-          </propstat>
+          ${this._outputProps(propNames, {
+            "d:resourcetype": "<collection/><card:addressbook/>",
+            "d:displayname": "Not This One",
+            "d:current-user-privilege-set":
+              "<d:privilege><d:all/></d:privilege>",
+          })}
         </response>
         <response>
           <href>${this.path}</href>
-          <propstat>
-            <prop>
-              <resourcetype>
-                <collection/>
-                <card:addressbook/>
-              </resourcetype>
-              <displayname>CardDAV Test</displayname>
-            </prop>
-            <status>HTTP/1.1 200 OK</status>
-          </propstat>
+          ${this._outputProps(propNames, {
+            "d:resourcetype": "<collection/><card:addressbook/>",
+            "d:displayname": "CardDAV Test",
+            "d:current-user-privilege-set":
+              "<d:privilege><d:all/></d:privilege>",
+          })}
         </response>
-      </multistatus>`);
+      </multistatus>`.replace(/>\s+</g, "><")
+    );
   },
 
   /** Handle any requests to the address book itself. */
@@ -443,6 +450,7 @@ var CardDAVServer = {
       Assert.equal(p.childElementCount, 0);
       switch (p.localName) {
         case "address-data":
+        case "addressbook-home-set":
           Assert.equal(p.namespaceURI, PREFIX_BINDINGS.card);
           propNames.push(`card:${p.localName}`);
           break;

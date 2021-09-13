@@ -8,6 +8,7 @@ const { CardDAVDirectory } = ChromeUtils.import(
 const { CardDAVServer } = ChromeUtils.import(
   "resource://testing-common/CardDAVServer.jsm"
 );
+const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 
 // A list of books returned by CardDAVServer unless changed.
 const DEFAULT_BOOKS = [
@@ -117,10 +118,14 @@ async function attemptInit(
   );
   for (let i = 0; i < expectedBooks.length; i++) {
     Assert.equal(availableBooks.children[i].label, expectedBooks[i].label);
-    Assert.equal(
-      availableBooks.children[i].value,
-      `${CardDAVServer.origin}${expectedBooks[i].url}`
-    );
+    if (expectedBooks[i].url.startsWith("/")) {
+      Assert.equal(
+        availableBooks.children[i].value,
+        `${CardDAVServer.origin}${expectedBooks[i].url}`
+      );
+    } else {
+      Assert.equal(availableBooks.children[i].value, expectedBooks[i].url);
+    }
     Assert.ok(availableBooks.children[i].checked);
   }
 }
@@ -275,6 +280,57 @@ add_task(function testEmailBadPreset() {
     username: "alice@bad.invalid",
     expectedStatus: "carddav-known-incompatible",
   });
+});
+
+/**
+ * Test that we correctly use DNS discovery. This uses the mochitest server
+ * (files in the data directory) instead of CardDAVServer because the latter
+ * can't speak HTTPS, and we only do DNS discovery for HTTPS.
+ */
+add_task(async function testDNS() {
+  let _srv = DNS.srv;
+  let _txt = DNS.txt;
+
+  DNS.srv = function(name) {
+    Assert.equal(name, "_carddavs._tcp.dnstest.invalid");
+    return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
+  };
+  DNS.txt = function(name) {
+    Assert.equal(name, "_carddavs._tcp.dnstest.invalid");
+    return [
+      {
+        data:
+          "path=/browser/comm/mail/components/addrbook/test/browser/new/data/dns.sjs",
+      },
+    ];
+  };
+
+  let abWindow = await openAddressBookWindow();
+  let dialogPromise = promiseLoadSubDialog(
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
+  ).then(async function(dialogWindow) {
+    await attemptInit(dialogWindow, {
+      username: "carol@dnstest.invalid",
+      password: "carol",
+      expectedStatus: null,
+      expectedBooks: [
+        {
+          label: "You found me!",
+          url:
+            "https://example.org/browser/comm/mail/components/addrbook/test/browser/new/data/addressbook.sjs",
+        },
+      ],
+    });
+    dialogWindow.document
+      .querySelector("dialog")
+      .getButton("cancel")
+      .click();
+  });
+  abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
+  await dialogPromise;
+
+  DNS.srv = _srv;
+  DNS.txt = _txt;
 });
 
 /**
