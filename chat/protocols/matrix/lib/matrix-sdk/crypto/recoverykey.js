@@ -46,8 +46,8 @@ function encodeRecoveryKey(key) {
   return base58key.match(/.{1,4}/g).join(" ");
 }
 
-function decodeRecoveryKey(recoveryKey) {
-  const result = _bs.default.decode(recoveryKey.replace(/ /g, ''));
+function decodeRecoveryKey(recoverykey) {
+  const result = _bs.default.decode(recoverykey.replace(/ /g, ''));
 
   let parity = 0;
 

@@ -3,46 +3,41 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.InteractiveAuth = exports.AuthType = void 0;
+exports.InteractiveAuth = InteractiveAuth;
+
+var _url = _interopRequireDefault(require("url"));
 
 var utils = _interopRequireWildcard(require("./utils"));
 
 var _logger = require("./logger");
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/*
+Copyright 2016 OpenMarket Ltd
+Copyright 2017 Vector Creations Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/** @module interactive-auth */
 const EMAIL_STAGE_TYPE = "m.login.email.identity";
 const MSISDN_STAGE_TYPE = "m.login.msisdn";
-let AuthType;
-exports.AuthType = AuthType;
-
-(function (AuthType) {
-  AuthType["Password"] = "m.login.password";
-  AuthType["Recaptcha"] = "m.login.recaptcha";
-  AuthType["Terms"] = "m.login.terms";
-  AuthType["Email"] = "m.login.email.identity";
-  AuthType["Msisdn"] = "m.login.msisdn";
-  AuthType["Sso"] = "m.login.sso";
-  AuthType["SsoUnstable"] = "org.matrix.login.sso";
-  AuthType["Dummy"] = "m.login.dummy";
-})(AuthType || (exports.AuthType = AuthType = {}));
-
-class NoAuthFlowFoundError extends Error {
-  // eslint-disable-next-line @typescript-eslint/naming-convention, camelcase
-  constructor(m, required_stages, flows) {
-    super(m);
-    this.required_stages = required_stages;
-    this.flows = flows;
-
-    _defineProperty(this, "name", "NoAuthFlowFoundError");
-  }
-
-}
-
 /**
  * Abstracts the logic used to drive the interactive auth process.
  *
@@ -69,12 +64,12 @@ class NoAuthFlowFoundError extends Error {
  *     called with the new auth dict to submit the request. Also passes a
  *     second deprecated arg which is a flag set to true if this request
  *     is a background request. The busyChanged callback should be used
- *     instead of the background flag. Should return a promise which resolves
+ *     instead of the backfround flag. Should return a promise which resolves
  *     to the successful response or rejects with a MatrixError.
  *
- * @param {function(boolean): Promise} opts.busyChanged
+ * @param {function(bool): Promise} opts.busyChanged
  *     called whenever the interactive auth logic becomes busy submitting
- *     information provided by the user or finishes. After this has been
+ *     information provided by the user or finsihes. After this has been
  *     called with true the UI should indicate that a request is in progress
  *     until it is called again with false.
  *
@@ -120,50 +115,31 @@ class NoAuthFlowFoundError extends Error {
  *     attemptAuth promise.
  *
  */
-class InteractiveAuth {
-  // if we are currently trying to submit an auth dict (which includes polling)
+
+function InteractiveAuth(opts) {
+  this._matrixClient = opts.matrixClient;
+  this._data = opts.authData || {};
+  this._requestCallback = opts.doRequest;
+  this._busyChangedCallback = opts.busyChanged; // startAuthStage included for backwards compat
+
+  this._stateUpdatedCallback = opts.stateUpdated || opts.startAuthStage;
+  this._resolveFunc = null;
+  this._rejectFunc = null;
+  this._inputs = opts.inputs || {};
+  this._requestEmailTokenCallback = opts.requestEmailToken;
+  if (opts.sessionId) this._data.session = opts.sessionId;
+  this._clientSecret = opts.clientSecret || this._matrixClient.generateClientSecret();
+  this._emailSid = opts.emailSid;
+  if (this._emailSid === undefined) this._emailSid = null;
+  this._requestingEmailToken = false;
+  this._chosenFlow = null;
+  this._currentStage = null; // if we are currently trying to submit an auth dict (which includes polling)
   // the promise the will resolve/reject when it completes
-  constructor(opts) {
-    _defineProperty(this, "matrixClient", void 0);
 
-    _defineProperty(this, "inputs", void 0);
+  this._submitPromise = null;
+}
 
-    _defineProperty(this, "clientSecret", void 0);
-
-    _defineProperty(this, "requestCallback", void 0);
-
-    _defineProperty(this, "busyChangedCallback", void 0);
-
-    _defineProperty(this, "stateUpdatedCallback", void 0);
-
-    _defineProperty(this, "requestEmailTokenCallback", void 0);
-
-    _defineProperty(this, "data", void 0);
-
-    _defineProperty(this, "emailSid", void 0);
-
-    _defineProperty(this, "requestingEmailToken", false);
-
-    _defineProperty(this, "attemptAuthDeferred", null);
-
-    _defineProperty(this, "chosenFlow", null);
-
-    _defineProperty(this, "currentStage", null);
-
-    _defineProperty(this, "submitPromise", null);
-
-    this.matrixClient = opts.matrixClient;
-    this.data = opts.authData || {};
-    this.requestCallback = opts.doRequest;
-    this.busyChangedCallback = opts.busyChanged; // startAuthStage included for backwards compat
-
-    this.stateUpdatedCallback = opts.stateUpdated || opts.startAuthStage;
-    this.requestEmailTokenCallback = opts.requestEmailToken;
-    this.inputs = opts.inputs || {};
-    if (opts.sessionId) this.data.session = opts.sessionId;
-    this.clientSecret = opts.clientSecret || this.matrixClient.generateClientSecret();
-    this.emailSid = opts.emailSid ?? null;
-  }
+InteractiveAuth.prototype = {
   /**
    * begin the authentication process.
    *
@@ -171,62 +147,60 @@ class InteractiveAuth {
    * or rejects with the error on failure. Rejects with NoAuthFlowFoundError if
    *     no suitable authentication flow can be found
    */
-
-
-  attemptAuth() {
+  attemptAuth: function () {
     // This promise will be quite long-lived and will resolve when the
     // request is authenticated and completes successfully.
-    this.attemptAuthDeferred = (0, utils.defer)(); // pluck the promise out now, as doRequest may clear before we return
+    return new Promise((resolve, reject) => {
+      this._resolveFunc = resolve;
+      this._rejectFunc = reject;
+      const hasFlows = this._data && this._data.flows; // if we have no flows, try a request to acquire the flows
 
-    const promise = this.attemptAuthDeferred.promise; // if we have no flows, try a request to acquire the flows
+      if (!hasFlows) {
+        if (this._busyChangedCallback) this._busyChangedCallback(true); // use the existing sessionid, if one is present.
 
-    if (!this.data?.flows) {
-      this.busyChangedCallback?.(true); // use the existing sessionId, if one is present.
+        let auth = null;
 
-      let auth = null;
+        if (this._data.session) {
+          auth = {
+            session: this._data.session
+          };
+        }
 
-      if (this.data.session) {
-        auth = {
-          session: this.data.session
-        };
+        this._doRequest(auth).finally(() => {
+          if (this._busyChangedCallback) this._busyChangedCallback(false);
+        });
+      } else {
+        this._startNextAuthStage();
       }
+    });
+  },
 
-      this.doRequest(auth).finally(() => {
-        this.busyChangedCallback?.(false);
-      });
-    } else {
-      this.startNextAuthStage();
-    }
-
-    return promise;
-  }
   /**
    * Poll to check if the auth session or current stage has been
    * completed out-of-band. If so, the attemptAuth promise will
    * be resolved.
    */
+  poll: async function () {
+    if (!this._data.session) return; // likewise don't poll if there is no auth session in progress
 
-
-  async poll() {
-    if (!this.data.session) return; // likewise don't poll if there is no auth session in progress
-
-    if (!this.attemptAuthDeferred) return; // if we currently have a request in flight, there's no point making
+    if (!this._resolveFunc) return; // if we currently have a request in flight, there's no point making
     // another just to check what the status is
 
-    if (this.submitPromise) return;
+    if (this._submitPromise) return;
     let authDict = {};
 
-    if (this.currentStage == EMAIL_STAGE_TYPE) {
+    if (this._currentStage == EMAIL_STAGE_TYPE) {
       // The email can be validated out-of-band, but we need to provide the
       // creds so the HS can go & check it.
-      if (this.emailSid) {
+      if (this._emailSid) {
         const creds = {
-          sid: this.emailSid,
-          client_secret: this.clientSecret
+          sid: this._emailSid,
+          client_secret: this._clientSecret
         };
 
-        if (await this.matrixClient.doesServerRequireIdServerParam()) {
-          const idServerParsedUrl = new URL(this.matrixClient.getIdentityServerUrl());
+        if (await this._matrixClient.doesServerRequireIdServerParam()) {
+          const idServerParsedUrl = _url.default.parse(this._matrixClient.getIdentityServerUrl());
+
           creds.id_server = idServerParsedUrl.host;
         }
 
@@ -242,83 +216,85 @@ class InteractiveAuth {
     }
 
     this.submitAuthDict(authDict, true);
-  }
+  },
+
   /**
    * get the auth session ID
    *
    * @return {string} session id
    */
+  getSessionId: function () {
+    return this._data ? this._data.session : undefined;
+  },
 
-
-  getSessionId() {
-    return this.data ? this.data.session : undefined;
-  }
   /**
    * get the client secret used for validation sessions
-   * with the identity server.
+   * with the ID server.
    *
    * @return {string} client secret
    */
+  getClientSecret: function () {
+    return this._clientSecret;
+  },
 
-
-  getClientSecret() {
-    return this.clientSecret;
-  }
   /**
    * get the server params for a given stage
    *
    * @param {string} loginType login type for the stage
    * @return {object?} any parameters from the server for this stage
    */
+  getStageParams: function (loginType) {
+    let params = {};
 
+    if (this._data && this._data.params) {
+      params = this._data.params;
+    }
 
-  getStageParams(loginType) {
-    return this.data.params?.[loginType];
-  }
+    return params[loginType];
+  },
 
   getChosenFlow() {
-    return this.chosenFlow;
-  }
+    return this._chosenFlow;
+  },
+
   /**
    * submit a new auth dict and fire off the request. This will either
    * make attemptAuth resolve/reject, or cause the startAuthStage callback
    * to be called for a new stage.
    *
    * @param {object} authData new auth dict to send to the server. Should
-   *    include a `type` property denoting the login type, as well as any
+   *    include a `type` propterty denoting the login type, as well as any
    *    other params for that stage.
-   * @param {boolean} background If true, this request failing will not result
+   * @param {bool} background If true, this request failing will not result
    *    in the attemptAuth promise being rejected. This can be set to true
    *    for requests that just poll to see if auth has been completed elsewhere.
    */
-
-
-  async submitAuthDict(authData, background = false) {
-    if (!this.attemptAuthDeferred) {
+  submitAuthDict: async function (authData, background) {
+    if (!this._resolveFunc) {
       throw new Error("submitAuthDict() called before attemptAuth()");
     }
 
-    if (!background) {
-      this.busyChangedCallback?.(true);
+    if (!background && this._busyChangedCallback) {
+      this._busyChangedCallback(true);
     } // if we're currently trying a request, wait for it to finish
     // as otherwise we can get multiple 200 responses which can mean
     // things like multiple logins for register requests.
-    // (but discard any exceptions as we only care when its done,
+    // (but discard any expections as we only care when its done,
     // not whether it worked or not)
 
 
-    while (this.submitPromise) {
+    while (this._submitPromise) {
       try {
-        await this.submitPromise;
+        await this._submitPromise;
       } catch (e) {}
     } // use the sessionid from the last request, if one is present.
 
 
     let auth;
 
-    if (this.data.session) {
+    if (this._data.session) {
       auth = {
-        session: this.data.session
+        session: this._data.session
       };
       utils.extend(auth, authData);
     } else {
@@ -328,27 +304,27 @@ class InteractiveAuth {
     try {
       // NB. the 'background' flag is deprecated by the busyChanged
       // callback and is here for backwards compat
-      this.submitPromise = this.doRequest(auth, background);
-      await this.submitPromise;
+      this._submitPromise = this._doRequest(auth, background);
+      await this._submitPromise;
     } finally {
-      this.submitPromise = null;
+      this._submitPromise = null;
 
-      if (!background) {
-        this.busyChangedCallback?.(false);
+      if (!background && this._busyChangedCallback) {
+        this._busyChangedCallback(false);
       }
     }
-  }
+  },
+
   /**
    * Gets the sid for the email validation session
    * Specific to m.login.email.identity
    *
    * @returns {string} The sid of the email auth session
    */
+  getEmailSid: function () {
+    return this._emailSid;
+  },
 
-
-  getEmailSid() {
-    return this.emailSid;
-  }
   /**
    * Sets the sid for the email validation session
    * This must be set in order to successfully poll for completion
@@ -357,38 +333,38 @@ class InteractiveAuth {
    *
    * @param {string} sid The sid for the email validation session
    */
+  setEmailSid: function (sid) {
+    this._emailSid = sid;
+  },
 
-
-  setEmailSid(sid) {
-    this.emailSid = sid;
-  }
   /**
    * Fire off a request, and either resolve the promise, or call
    * startAuthStage.
    *
    * @private
    * @param {object?} auth new auth dict, including session id
-   * @param {boolean?} background If true, this request is a background poll, so it
+   * @param {bool?} background If true, this request is a background poll, so it
    *    failing will not result in the attemptAuth promise being rejected.
    *    This can be set to true for requests that just poll to see if auth has
    *    been completed elsewhere.
    */
-
-
-  async doRequest(auth, background = false) {
+  _doRequest: async function (auth, background) {
     try {
-      const result = await this.requestCallback(auth, background);
-      this.attemptAuthDeferred.resolve(result);
-      this.attemptAuthDeferred = null;
+      const result = await this._requestCallback(auth, background);
+
+      this._resolveFunc(result);
+
+      this._resolveFunc = null;
+      this._rejectFunc = null;
     } catch (error) {
       // sometimes UI auth errors don't come with flows
-      const errorFlows = error.data?.flows ?? null;
-      const haveFlows = this.data.flows || Boolean(errorFlows);
+      const errorFlows = error.data ? error.data.flows : null;
+      const haveFlows = this._data.flows || Boolean(errorFlows);
 
       if (error.httpStatus !== 401 || !error.data || !haveFlows) {
         // doesn't look like an interactive-auth failure.
         if (!background) {
-          this.attemptAuthDeferred?.reject(error);
+          this._rejectFunc(error);
         } else {
           // We ignore all failures here (even non-UI auth related ones)
           // since we don't want to suddenly fail if the internet connection
@@ -403,31 +379,33 @@ class InteractiveAuth {
 
 
       if (!error.data.flows && !error.data.completed && !error.data.session) {
-        error.data.flows = this.data.flows;
-        error.data.completed = this.data.completed;
-        error.data.session = this.data.session;
+        error.data.flows = this._data.flows;
+        error.data.completed = this._data.completed;
+        error.data.session = this._data.session;
       }
 
-      this.data = error.data;
+      this._data = error.data;
 
       try {
-        this.startNextAuthStage();
+        this._startNextAuthStage();
       } catch (e) {
-        this.attemptAuthDeferred.reject(e);
-        this.attemptAuthDeferred = null;
+        this._rejectFunc(e);
+
+        this._resolveFunc = null;
+        this._rejectFunc = null;
       }
 
-      if (!this.emailSid && !this.requestingEmailToken && this.chosenFlow.stages.includes(AuthType.Email)) {
+      if (!this._emailSid && !this._requestingEmailToken && this._chosenFlow.stages.includes('m.login.email.identity')) {
         // If we've picked a flow with email auth, we send the email
         // now because we want the request to fail as soon as possible
         // if the email address is not valid (ie. already taken or not
         // registered, depending on what the operation is).
-        this.requestingEmailToken = true;
+        this._requestingEmailToken = true;
 
         try {
-          const requestTokenResult = await this.requestEmailTokenCallback(this.inputs.emailAddress, this.clientSecret, 1, // TODO: Multiple send attempts?
-          this.data.session);
-          this.emailSid = requestTokenResult.sid; // NB. promise is not resolved here - at some point, doRequest
+          const requestTokenResult = await this._requestEmailTokenCallback(this._inputs.emailAddress, this._clientSecret, 1, // TODO: Multiple send attempts?
+          this._data.session);
+          this._emailSid = requestTokenResult.sid; // NB. promise is not resolved here - at some point, doRequest
           // will be called again and if the user has jumped through all
           // the hoops correctly, auth will be complete and the request
           // will succeed.
@@ -440,54 +418,57 @@ class InteractiveAuth {
           // to do) or it could be a network failure. Either way, pass
           // the failure up as the user can't complete auth if we can't
           // send the email, for whatever reason.
-          this.attemptAuthDeferred.reject(e);
-          this.attemptAuthDeferred = null;
+          this._rejectFunc(e);
+
+          this._resolveFunc = null;
+          this._rejectFunc = null;
         } finally {
-          this.requestingEmailToken = false;
+          this._requestingEmailToken = false;
         }
       }
     }
-  }
+  },
+
   /**
    * Pick the next stage and call the callback
    *
    * @private
    * @throws {NoAuthFlowFoundError} If no suitable authentication flow can be found
    */
-
-
-  startNextAuthStage() {
-    const nextStage = this.chooseStage();
+  _startNextAuthStage: function () {
+    const nextStage = this._chooseStage();
 
     if (!nextStage) {
       throw new Error("No incomplete flows from the server");
     }
 
-    this.currentStage = nextStage;
+    this._currentStage = nextStage;
 
-    if (nextStage === AuthType.Dummy) {
+    if (nextStage === 'm.login.dummy') {
       this.submitAuthDict({
         type: 'm.login.dummy'
       });
       return;
     }
 
-    if (this.data && this.data.errcode || this.data.error) {
-      this.stateUpdatedCallback(nextStage, {
-        errcode: this.data.errcode || "",
-        error: this.data.error || ""
+    if (this._data && this._data.errcode || this._data.error) {
+      this._stateUpdatedCallback(nextStage, {
+        errcode: this._data.errcode || "",
+        error: this._data.error || ""
       });
+
       return;
     }
 
     const stageStatus = {};
 
     if (nextStage == EMAIL_STAGE_TYPE) {
-      stageStatus.emailSid = this.emailSid;
+      stageStatus.emailSid = this._emailSid;
     }
 
-    this.stateUpdatedCallback(nextStage, stageStatus);
-  }
+    this._stateUpdatedCallback(nextStage, stageStatus);
+  },
+
   /**
    * Pick the next auth stage
    *
@@ -495,28 +476,27 @@ class InteractiveAuth {
    * @return {string?} login type
    * @throws {NoAuthFlowFoundError} If no suitable authentication flow can be found
    */
-
-
-  chooseStage() {
-    if (this.chosenFlow === null) {
-      this.chosenFlow = this.chooseFlow();
+  _chooseStage: function () {
+    if (this._chosenFlow === null) {
+      this._chosenFlow = this._chooseFlow();
     }
 
-    _logger.logger.log("Active flow => %s", JSON.stringify(this.chosenFlow));
+    _logger.logger.log("Active flow => %s", JSON.stringify(this._chosenFlow));
 
-    const nextStage = this.firstUncompletedStage(this.chosenFlow);
+    const nextStage = this._firstUncompletedStage(this._chosenFlow);
 
     _logger.logger.log("Next stage: %s", nextStage);
 
     return nextStage;
-  }
+  },
+
   /**
    * Pick one of the flows from the returned list
    * If a flow using all of the inputs is found, it will
    * be returned, otherwise, null will be returned.
    *
    * Only flows using all given inputs are chosen because it
-   * is likely to be surprising if the user provides a
+   * is likley to be surprising if the user provides a
    * credential and it is not used. For example, for registration,
    * this could result in the email not being used which would leave
    * the account with no means to reset a password.
@@ -525,13 +505,11 @@ class InteractiveAuth {
    * @return {object} flow
    * @throws {NoAuthFlowFoundError} If no suitable authentication flow can be found
    */
+  _chooseFlow: function () {
+    const flows = this._data.flows || []; // we've been given an email or we've already done an email part
 
-
-  chooseFlow() {
-    const flows = this.data.flows || []; // we've been given an email or we've already done an email part
-
-    const haveEmail = Boolean(this.inputs.emailAddress) || Boolean(this.emailSid);
-    const haveMsisdn = Boolean(this.inputs.phoneCountry) && Boolean(this.inputs.phoneNumber);
+    const haveEmail = Boolean(this._inputs.emailAddress) || Boolean(this._emailSid);
+    const haveMsisdn = Boolean(this._inputs.phoneCountry) && Boolean(this._inputs.phoneNumber);
 
     for (const flow of flows) {
       let flowHasEmail = false;
@@ -548,15 +526,19 @@ class InteractiveAuth {
       if (flowHasEmail == haveEmail && flowHasMsisdn == haveMsisdn) {
         return flow;
       }
-    }
-
-    const requiredStages = [];
-    if (haveEmail) requiredStages.push(EMAIL_STAGE_TYPE);
-    if (haveMsisdn) requiredStages.push(MSISDN_STAGE_TYPE); // Throw an error with a fairly generic description, but with more
+    } // Throw an error with a fairly generic description, but with more
     // information such that the app can give a better one if so desired.
 
-    throw new NoAuthFlowFoundError("No appropriate authentication flow found", requiredStages, flows);
-  }
+
+    const err = new Error("No appropriate authentication flow found");
+    err.name = 'NoAuthFlowFoundError';
+    err.required_stages = [];
+    if (haveEmail) err.required_stages.push(EMAIL_STAGE_TYPE);
+    if (haveMsisdn) err.required_stages.push(MSISDN_STAGE_TYPE);
+    err.available_flows = flows;
+    throw err;
+  },
+
   /**
    * Get the first uncompleted stage in the given flow
    *
@@ -564,10 +546,8 @@ class InteractiveAuth {
    * @param {object} flow
    * @return {string} login type
    */
-
-
-  firstUncompletedStage(flow) {
-    const completed = this.data.completed || [];
+  _firstUncompletedStage: function (flow) {
+    const completed = (this._data || {}).completed || [];
 
     for (let i = 0; i < flow.stages.length; ++i) {
       const stageType = flow.stages[i];
@@ -577,7 +557,4 @@ class InteractiveAuth {
       }
     }
   }
-
-}
-
-exports.InteractiveAuth = InteractiveAuth;
+};

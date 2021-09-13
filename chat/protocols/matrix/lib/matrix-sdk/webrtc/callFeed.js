@@ -29,19 +29,16 @@ exports.CallFeedEvent = CallFeedEvent;
 
 (function (CallFeedEvent) {
   CallFeedEvent["NewStream"] = "new_stream";
-  CallFeedEvent["MuteStateChanged"] = "mute_state_changed";
 })(CallFeedEvent || (exports.CallFeedEvent = CallFeedEvent = {}));
 
 class CallFeed extends _events.default {
-  constructor(stream, userId, purpose, client, roomId, audioMuted, videoMuted) {
+  constructor(stream, userId, purpose, client, roomId) {
     super();
     this.stream = stream;
     this.userId = userId;
     this.purpose = purpose;
     this.client = client;
     this.roomId = roomId;
-    this.audioMuted = audioMuted;
-    this.videoMuted = videoMuted;
   }
   /**
    * Returns callRoom member
@@ -61,7 +58,9 @@ class CallFeed extends _events.default {
 
   isLocal() {
     return this.userId === this.client.getUserId();
-  }
+  } // TODO: The two following methods should be later replaced
+  // by something that will also check if the remote is muted
+
   /**
    * Returns true if audio is muted or if there are no audio
    * tracks, otherwise returns false
@@ -70,7 +69,7 @@ class CallFeed extends _events.default {
 
 
   isAudioMuted() {
-    return this.stream.getAudioTracks().length === 0 || this.audioMuted;
+    return this.stream.getAudioTracks().length === 0;
   }
   /**
    * Returns true video is muted or if there are no video
@@ -81,7 +80,7 @@ class CallFeed extends _events.default {
 
   isVideoMuted() {
     // We assume only one video track
-    return this.stream.getVideoTracks().length === 0 || this.videoMuted;
+    return this.stream.getVideoTracks().length === 0;
   }
   /**
    * Replaces the current MediaStream with a new one.
@@ -93,16 +92,6 @@ class CallFeed extends _events.default {
   setNewStream(newStream) {
     this.stream = newStream;
     this.emit(CallFeedEvent.NewStream, this.stream);
-  }
-
-  setAudioMuted(muted) {
-    this.audioMuted = muted;
-    this.emit(CallFeedEvent.MuteStateChanged, this.audioMuted, this.videoMuted);
-  }
-
-  setVideoMuted(muted) {
-    this.videoMuted = muted;
-    this.emit(CallFeedEvent.MuteStateChanged, this.audioMuted, this.videoMuted);
   }
 
 }

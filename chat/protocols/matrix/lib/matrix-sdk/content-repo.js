@@ -7,12 +7,13 @@ exports.getHttpUriForMxc = getHttpUriForMxc;
 
 var utils = _interopRequireWildcard(require("./utils"));
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 /*
-Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -45,7 +46,7 @@ limitations under the License.
  * for such URLs.
  * @return {string} The complete URL to the content.
  */
-function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirectLinks = false) {
+function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirectLinks) {
   if (typeof mxc !== "string" || !mxc) {
     return '';
   }
@@ -64,15 +65,15 @@ function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirect
   const params = {};
 
   if (width) {
-    params["width"] = Math.round(width);
+    params.width = Math.round(width);
   }
 
   if (height) {
-    params["height"] = Math.round(height);
+    params.height = Math.round(height);
   }
 
   if (resizeMethod) {
-    params["method"] = resizeMethod;
+    params.method = resizeMethod;
   }
 
   if (Object.keys(params).length > 0) {
@@ -89,6 +90,5 @@ function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirect
     serverAndMediaId = serverAndMediaId.substr(0, fragmentOffset);
   }
 
-  const urlParams = Object.keys(params).length === 0 ? "" : "?" + utils.encodeParams(params);
-  return baseUrl + prefix + serverAndMediaId + urlParams + fragment;
+  return baseUrl + prefix + serverAndMediaId + (Object.keys(params).length === 0 ? "" : "?" + utils.encodeParams(params)) + fragment;
 }

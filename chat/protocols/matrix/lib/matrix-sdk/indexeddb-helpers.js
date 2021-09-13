@@ -40,7 +40,7 @@ function exists(indexedDB, dbName) {
       exists = false;
     };
 
-    req.onblocked = () => reject(req.error);
+    req.onblocked = () => reject();
 
     req.onsuccess = () => {
       const db = req.result;
@@ -58,6 +58,6 @@ function exists(indexedDB, dbName) {
       resolve(exists);
     };
 
-    req.onerror = ev => reject(req.error);
+    req.onerror = ev => reject(ev.target.error);
   });
 }

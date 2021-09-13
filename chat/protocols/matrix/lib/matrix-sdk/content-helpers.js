@@ -10,11 +10,9 @@ exports.makeTextMessage = makeTextMessage;
 exports.makeNotice = makeNotice;
 exports.makeEmoteMessage = makeEmoteMessage;
 
-var _event = require("./@types/event");
-
 /*
 Copyright 2018 New Vector Ltd
-Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,7 +37,7 @@ limitations under the License.
  */
 function makeHtmlMessage(body, htmlBody) {
   return {
-    msgtype: _event.MsgType.Text,
+    msgtype: "m.text",
     format: "org.matrix.custom.html",
     body: body,
     formatted_body: htmlBody
@@ -55,7 +53,7 @@ function makeHtmlMessage(body, htmlBody) {
 
 function makeHtmlNotice(body, htmlBody) {
   return {
-    msgtype: _event.MsgType.Notice,
+    msgtype: "m.notice",
     format: "org.matrix.custom.html",
     body: body,
     formatted_body: htmlBody
@@ -71,7 +69,7 @@ function makeHtmlNotice(body, htmlBody) {
 
 function makeHtmlEmote(body, htmlBody) {
   return {
-    msgtype: _event.MsgType.Emote,
+    msgtype: "m.emote",
     format: "org.matrix.custom.html",
     body: body,
     formatted_body: htmlBody
@@ -86,7 +84,7 @@ function makeHtmlEmote(body, htmlBody) {
 
 function makeTextMessage(body) {
   return {
-    msgtype: _event.MsgType.Text,
+    msgtype: "m.text",
     body: body
   };
 }
@@ -99,7 +97,7 @@ function makeTextMessage(body) {
 
 function makeNotice(body) {
   return {
-    msgtype: _event.MsgType.Notice,
+    msgtype: "m.notice",
     body: body
   };
 }
@@ -112,7 +110,7 @@ function makeNotice(body) {
 
 function makeEmoteMessage(body) {
   return {
-    msgtype: _event.MsgType.Emote,
+    msgtype: "m.emote",
     body: body
   };
 }

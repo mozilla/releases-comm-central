@@ -6,10 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.registerAlgorithm = registerAlgorithm;
 exports.UnknownDeviceError = exports.DecryptionError = exports.DecryptionAlgorithm = exports.EncryptionAlgorithm = exports.DECRYPTION_CLASSES = exports.ENCRYPTION_CLASSES = void 0;
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /*
-Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+Copyright 2016 OpenMarket Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,17 +35,15 @@ limitations under the License.
  * @type {Object.<string, function(new: module:crypto/algorithms/base.EncryptionAlgorithm)>}
  */
 const ENCRYPTION_CLASSES = {};
-exports.ENCRYPTION_CLASSES = ENCRYPTION_CLASSES;
-
 /**
  * map of registered encryption algorithm classes. Map from string to {@link
  * module:crypto/algorithms/base.DecryptionAlgorithm|DecryptionAlgorithm} class
  *
  * @type {Object.<string, function(new: module:crypto/algorithms/base.DecryptionAlgorithm)>}
  */
-const DECRYPTION_CLASSES = {};
-exports.DECRYPTION_CLASSES = DECRYPTION_CLASSES;
 
+exports.ENCRYPTION_CLASSES = ENCRYPTION_CLASSES;
+const DECRYPTION_CLASSES = {};
 /**
  * base type for encryption implementations
  *
@@ -58,30 +54,21 @@ exports.DECRYPTION_CLASSES = DECRYPTION_CLASSES;
  * @param {string} params.deviceId The identifier for this device.
  * @param {module:crypto} params.crypto crypto core
  * @param {module:crypto/OlmDevice} params.olmDevice olm.js wrapper
- * @param {MatrixClient} baseApis base matrix api interface
+ * @param {module:base-apis~MatrixBaseApis} baseApis base matrix api interface
  * @param {string} params.roomId  The ID of the room we will be sending to
  * @param {object} params.config  The body of the m.room.encryption event
  */
+
+exports.DECRYPTION_CLASSES = DECRYPTION_CLASSES;
+
 class EncryptionAlgorithm {
   constructor(params) {
-    _defineProperty(this, "userId", void 0);
-
-    _defineProperty(this, "deviceId", void 0);
-
-    _defineProperty(this, "crypto", void 0);
-
-    _defineProperty(this, "olmDevice", void 0);
-
-    _defineProperty(this, "baseApis", void 0);
-
-    _defineProperty(this, "roomId", void 0);
-
-    this.userId = params.userId;
-    this.deviceId = params.deviceId;
-    this.crypto = params.crypto;
-    this.olmDevice = params.olmDevice;
-    this.baseApis = params.baseApis;
-    this.roomId = params.roomId;
+    this._userId = params.userId;
+    this._deviceId = params.deviceId;
+    this._crypto = params.crypto;
+    this._olmDevice = params.olmDevice;
+    this._baseApis = params.baseApis;
+    this._roomId = params.roomId;
   }
   /**
    * Perform any background tasks that can be done before a message is ready to
@@ -96,16 +83,14 @@ class EncryptionAlgorithm {
    * Encrypt a message event
    *
    * @method module:crypto/algorithms/base.EncryptionAlgorithm.encryptMessage
-   * @public
    * @abstract
    *
    * @param {module:models/room} room
    * @param {string} eventType
-   * @param {object} content event content
+   * @param {object} plaintext event content
    *
    * @return {Promise} Promise which resolves to the new event body
    */
-
 
   /**
    * Called when the membership of a member of the room changes.
@@ -114,8 +99,9 @@ class EncryptionAlgorithm {
    * @param {module:models/room-member} member  user whose membership changed
    * @param {string=} oldMembership  previous membership
    * @public
-   * @abstract
    */
+
+
   onRoomMembership(event, member, oldMembership) {}
 
 }
@@ -127,7 +113,7 @@ class EncryptionAlgorithm {
  * @param {string} params.userId  The UserID for the local user
  * @param {module:crypto} params.crypto crypto core
  * @param {module:crypto/OlmDevice} params.olmDevice olm.js wrapper
- * @param {MatrixClient} baseApis base matrix api interface
+ * @param {module:base-apis~MatrixBaseApis} baseApis base matrix api interface
  * @param {string=} params.roomId The ID of the room we will be receiving
  *     from. Null for to-device events.
  */
@@ -137,21 +123,11 @@ exports.EncryptionAlgorithm = EncryptionAlgorithm;
 
 class DecryptionAlgorithm {
   constructor(params) {
-    _defineProperty(this, "userId", void 0);
-
-    _defineProperty(this, "crypto", void 0);
-
-    _defineProperty(this, "olmDevice", void 0);
-
-    _defineProperty(this, "baseApis", void 0);
-
-    _defineProperty(this, "roomId", void 0);
-
-    this.userId = params.userId;
-    this.crypto = params.crypto;
-    this.olmDevice = params.olmDevice;
-    this.baseApis = params.baseApis;
-    this.roomId = params.roomId;
+    this._userId = params.userId;
+    this._crypto = params.crypto;
+    this._olmDevice = params.olmDevice;
+    this._baseApis = params.baseApis;
+    this._roomId = params.roomId;
   }
   /**
    * Decrypt an event
@@ -166,7 +142,6 @@ class DecryptionAlgorithm {
    * `algorithms.DecryptionError` if there is a problem decrypting the event.
    */
 
-
   /**
    * Handle a key event
    *
@@ -174,17 +149,18 @@ class DecryptionAlgorithm {
    *
    * @param {module:models/event.MatrixEvent} params event key event
    */
+
+
   onRoomKeyEvent(params) {// ignore by default
   }
   /**
    * Import a room key
    *
    * @param {module:crypto/OlmDevice.MegolmSessionData} session
-   * @param {object} opts object
    */
 
 
-  async importRoomKey(session, opts) {// ignore by default
+  importRoomKey(session) {// ignore by default
   }
   /**
    * Determine if we have the keys necessary to respond to a room key request
@@ -216,9 +192,7 @@ class DecryptionAlgorithm {
    */
 
 
-  async retryDecryptionFromSender(senderKey) {
-    // ignore by default
-    return false;
+  async retryDecryptionFromSender(senderKey) {// ignore by default
   }
 
 }
@@ -241,19 +215,15 @@ class DecryptionError extends Error {
   constructor(code, msg, details) {
     super(msg);
     this.code = code;
-
-    _defineProperty(this, "detailedString", void 0);
-
-    this.code = code;
     this.name = 'DecryptionError';
-    this.detailedString = detailedStringForDecryptionError(this, details);
+    this.detailedString = _detailedStringForDecryptionError(this, details);
   }
 
 }
 
 exports.DecryptionError = DecryptionError;
 
-function detailedStringForDecryptionError(err, details) {
+function _detailedStringForDecryptionError(err, details) {
   let result = err.name + '[msg: ' + err.message;
 
   if (details) {
@@ -277,7 +247,6 @@ function detailedStringForDecryptionError(err, details) {
 class UnknownDeviceError extends Error {
   constructor(msg, devices) {
     super(msg);
-    this.devices = devices;
     this.name = "UnknownDeviceError";
     this.devices = devices;
   }

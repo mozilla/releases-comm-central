@@ -9,9 +9,9 @@ var utils = _interopRequireWildcard(require("../utils"));
 
 var _events = require("events");
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 /*
 Copyright 2017 New Vector Ltd
@@ -32,7 +32,6 @@ limitations under the License.
 
 /**
  * @module models/group
- * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
  */
 
 /**
@@ -47,7 +46,6 @@ limitations under the License.
  * @prop {Object} inviter Infomation about the user who invited the logged in user
  *       to the group, if myMembership is 'invite'.
  * @prop {string} inviter.userId The user ID of the inviter
- * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
  */
 function Group(groupId) {
   this.groupId = groupId;
@@ -87,7 +85,6 @@ Group.prototype.setInviter = function (inviter) {
  * This means the 'name' and 'avatarUrl' properties.
  * @event module:client~MatrixClient#"Group.profile"
  * @param {Group} group The group whose profile was updated.
- * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
  * @example
  * matrixClient.on("Group.profile", function(group){
  *   var name = group.name;
@@ -99,7 +96,6 @@ Group.prototype.setInviter = function (inviter) {
  * the group is updated.
  * @event module:client~MatrixClient#"Group.myMembership"
  * @param {Group} group The group in which the user's membership changed
- * @deprecated groups/communities never made it to the spec and support for them is being discontinued.
  * @example
  * matrixClient.on("Group.myMembership", function(group){
  *   var myMembership = group.myMembership;

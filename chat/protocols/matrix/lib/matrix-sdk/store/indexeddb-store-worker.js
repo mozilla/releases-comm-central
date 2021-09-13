@@ -5,11 +5,27 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.IndexedDBStoreWorker = void 0;
 
-var _indexeddbLocalBackend = require("./indexeddb-local-backend");
+var _indexeddbLocalBackend = require("./indexeddb-local-backend.js");
 
 var _logger = require("../logger");
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+/*
+Copyright 2017 Vector Creations Ltd
+Copyright 2018 New Vector Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 /**
  * This class lives in the webworker and drives a LocalIndexedDBStoreBackend
@@ -32,107 +48,9 @@ class IndexedDBStoreWorker {
    * should be used to communicate back to the main script.
    */
   constructor(postMessage) {
+    this.backend = null;
     this.postMessage = postMessage;
-
-    _defineProperty(this, "backend", null);
-
-    _defineProperty(this, "onMessage", ev => {
-      const msg = ev.data;
-      let prom;
-
-      switch (msg.command) {
-        case '_setupWorker':
-          // this is the 'indexedDB' global (where global != window
-          // because it's a web worker and there is no window).
-          this.backend = new _indexeddbLocalBackend.LocalIndexedDBStoreBackend(indexedDB, msg.args[0]);
-          prom = Promise.resolve();
-          break;
-
-        case 'connect':
-          prom = this.backend.connect();
-          break;
-
-        case 'isNewlyCreated':
-          prom = this.backend.isNewlyCreated();
-          break;
-
-        case 'clearDatabase':
-          prom = this.backend.clearDatabase();
-          break;
-
-        case 'getSavedSync':
-          prom = this.backend.getSavedSync(false);
-          break;
-
-        case 'setSyncData':
-          prom = this.backend.setSyncData(msg.args[0]);
-          break;
-
-        case 'syncToDatabase':
-          prom = this.backend.syncToDatabase(msg.args[0]);
-          break;
-
-        case 'getUserPresenceEvents':
-          prom = this.backend.getUserPresenceEvents();
-          break;
-
-        case 'getNextBatchToken':
-          prom = this.backend.getNextBatchToken();
-          break;
-
-        case 'getOutOfBandMembers':
-          prom = this.backend.getOutOfBandMembers(msg.args[0]);
-          break;
-
-        case 'clearOutOfBandMembers':
-          prom = this.backend.clearOutOfBandMembers(msg.args[0]);
-          break;
-
-        case 'setOutOfBandMembers':
-          prom = this.backend.setOutOfBandMembers(msg.args[0], msg.args[1]);
-          break;
-
-        case 'getClientOptions':
-          prom = this.backend.getClientOptions();
-          break;
-
-        case 'storeClientOptions':
-          prom = this.backend.storeClientOptions(msg.args[0]);
-          break;
-      }
-
-      if (prom === undefined) {
-        this.postMessage({
-          command: 'cmd_fail',
-          seq: msg.seq,
-          // Can't be an Error because they're not structured cloneable
-          error: "Unrecognised command"
-        });
-        return;
-      }
-
-      prom.then(ret => {
-        this.postMessage.call(null, {
-          command: 'cmd_success',
-          seq: msg.seq,
-          result: ret
-        });
-      }, err => {
-        _logger.logger.error("Error running command: " + msg.command);
-
-        _logger.logger.error(err);
-
-        this.postMessage.call(null, {
-          command: 'cmd_fail',
-          seq: msg.seq,
-          // Just send a string because Error objects aren't cloneable
-          error: {
-            message: err.message,
-            name: err.name
-          }
-        });
-      });
-    });
+    this.onMessage = this.onMessage.bind(this);
   }
   /**
    * Passes a message event from the main script into the class. This method
@@ -141,6 +59,111 @@ class IndexedDBStoreWorker {
    * @param {Object} ev The message event
    */
 
+
+  onMessage(ev) {
+    const msg = ev.data;
+    let prom;
+
+    switch (msg.command) {
+      case '_setupWorker':
+        this.backend = new _indexeddbLocalBackend.LocalIndexedDBStoreBackend( // this is the 'indexedDB' global (where global != window
+        // because it's a web worker and there is no window).
+        indexedDB, msg.args[0]);
+        prom = Promise.resolve();
+        break;
+
+      case 'connect':
+        prom = this.backend.connect();
+        break;
+
+      case 'isNewlyCreated':
+        prom = this.backend.isNewlyCreated();
+        break;
+
+      case 'clearDatabase':
+        prom = this.backend.clearDatabase().then(result => {
+          // This returns special classes which can't be cloned
+          // across to the main script, so don't try.
+          return {};
+        });
+        break;
+
+      case 'getSavedSync':
+        prom = this.backend.getSavedSync(false);
+        break;
+
+      case 'setSyncData':
+        prom = this.backend.setSyncData(...msg.args);
+        break;
+
+      case 'syncToDatabase':
+        prom = this.backend.syncToDatabase(...msg.args).then(() => {
+          // This also returns IndexedDB events which are not cloneable
+          return {};
+        });
+        break;
+
+      case 'getUserPresenceEvents':
+        prom = this.backend.getUserPresenceEvents();
+        break;
+
+      case 'getNextBatchToken':
+        prom = this.backend.getNextBatchToken();
+        break;
+
+      case 'getOutOfBandMembers':
+        prom = this.backend.getOutOfBandMembers(msg.args[0]);
+        break;
+
+      case 'clearOutOfBandMembers':
+        prom = this.backend.clearOutOfBandMembers(msg.args[0]);
+        break;
+
+      case 'setOutOfBandMembers':
+        prom = this.backend.setOutOfBandMembers(msg.args[0], msg.args[1]);
+        break;
+
+      case 'getClientOptions':
+        prom = this.backend.getClientOptions();
+        break;
+
+      case 'storeClientOptions':
+        prom = this.backend.storeClientOptions(msg.args[0]);
+        break;
+    }
+
+    if (prom === undefined) {
+      this.postMessage({
+        command: 'cmd_fail',
+        seq: msg.seq,
+        // Can't be an Error because they're not structured cloneable
+        error: "Unrecognised command"
+      });
+      return;
+    }
+
+    prom.then(ret => {
+      this.postMessage.call(null, {
+        command: 'cmd_success',
+        seq: msg.seq,
+        result: ret
+      });
+    }, err => {
+      _logger.logger.error("Error running command: " + msg.command);
+
+      _logger.logger.error(err);
+
+      this.postMessage.call(null, {
+        command: 'cmd_fail',
+        seq: msg.seq,
+        // Just send a string because Error objects aren't cloneable
+        error: {
+          message: err.message,
+          name: err.name
+        }
+      });
+    });
+  }
 
 }
 

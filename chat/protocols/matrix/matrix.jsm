@@ -371,8 +371,13 @@ MatrixRoom.prototype = {
     this._roomId = room.roomId;
 
     // Update the title to the human readable version.
-    if (room.name && this._name != room.name) {
-      this._name = room.name;
+    if (
+      room.summary &&
+      room.summary.info &&
+      room.summary.info.title &&
+      this._name != room.summary.info.title
+    ) {
+      this._name = room.summary.info.title;
       this.notifyObservers(null, "update-conv-title");
     }
 
@@ -446,7 +451,7 @@ MatrixRoom.prototype = {
         this.addParticipant(member);
       }
 
-      this._name = this.room.name;
+      this._name = this.room.summary.info.title;
       this.notifyObservers(null, "update-conv-title");
     }
 
@@ -1604,8 +1609,13 @@ MatrixAccount.prototype = {
       }
       // Update the title to the human readable version.
       let conv = this.roomList.get(room.roomId);
-      if (!this._catchingUp && conv && room?.name && conv._name != room.name) {
-        conv._name = room.name;
+      if (
+        !this._catchingUp &&
+        conv &&
+        room?.summary?.info?.title &&
+        conv._name != room.summary.info.title
+      ) {
+        conv._name = room.summary.info.title;
         conv.notifyObservers(null, "update-conv-title");
       }
     });
@@ -1626,7 +1636,7 @@ MatrixAccount.prototype = {
           this.invitedToDM(room);
         } else {
           //TODO rejecting a server notice room invite will error
-          this.getGroupConversation(room.roomId, room.name);
+          this.getGroupConversation(room.roomId, room.summary.info.title);
         }
       } else if (me && me.membership == "join") {
         // To avoid the race condition. Whenever we will create the room,
@@ -1904,7 +1914,7 @@ MatrixAccount.prototype = {
         const conversation = this.getDirectConversation(
           userId,
           room.roomId,
-          room.name
+          room.summary.info.title
         );
         if (room.getInvitedAndJoinedMemberCount() !== 2) {
           conversation.checkForUpdate();

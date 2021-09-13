@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DeviceList = exports.TrackingStatus = void 0;
+exports.DeviceList = void 0;
 
 var _events = require("events");
 
@@ -19,13 +19,35 @@ var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
 
 var _utils = require("../utils");
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+/*
+Copyright 2017 Vector Creations Ltd
+Copyright 2018, 2019 New Vector Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
-/* State transition diagram for DeviceList.deviceTrackingStatus
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/**
+ * @module crypto/DeviceList
+ *
+ * Manages the list of other users' devices
+ */
+
+/* State transition diagram for DeviceList._deviceTrackingStatus
  *
  *                                |
  *     stopTrackingDeviceList     V
@@ -44,67 +66,57 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  *   ^                            V                              |
  *   +----------------------- UP_TO_DATE ------------------------+
  */
-// constants for DeviceList.deviceTrackingStatus
-let TrackingStatus;
-exports.TrackingStatus = TrackingStatus;
-
-(function (TrackingStatus) {
-  TrackingStatus[TrackingStatus["NotTracked"] = 0] = "NotTracked";
-  TrackingStatus[TrackingStatus["PendingDownload"] = 1] = "PendingDownload";
-  TrackingStatus[TrackingStatus["DownloadInProgress"] = 2] = "DownloadInProgress";
-  TrackingStatus[TrackingStatus["UpToDate"] = 3] = "UpToDate";
-})(TrackingStatus || (exports.TrackingStatus = TrackingStatus = {}));
-
+// constants for DeviceList._deviceTrackingStatus
+const TRACKING_STATUS_NOT_TRACKED = 0;
+const TRACKING_STATUS_PENDING_DOWNLOAD = 1;
+const TRACKING_STATUS_DOWNLOAD_IN_PROGRESS = 2;
+const TRACKING_STATUS_UP_TO_DATE = 3;
 /**
  * @alias module:crypto/DeviceList
  */
+
 class DeviceList extends _events.EventEmitter {
-  // map of identity keys to the user who owns it
-  // which users we are tracking device status for.
-  // loaded from storage in load()
-  // The 'next_batch' sync token at the point the data was written,
-  // ie. a token representing the point immediately after the
-  // moment represented by the snapshot in the db.
-  // Set whenever changes are made other than setting the sync token
-  // Promise resolved when device data is saved
-  // Function that resolves the save promise
-  // The time the save is scheduled for
-  // The timer used to delay the save
-  // True if we have fetched data from the server or loaded a non-empty
-  // set of device data from the store
-  constructor(baseApis, cryptoStore, olmDevice, // Maximum number of user IDs per request to prevent server overload (#1619)
-  keyDownloadChunkSize = 250) {
+  constructor(baseApis, cryptoStore, olmDevice, keyDownloadChunkSize = 250) {
     super();
-    this.cryptoStore = cryptoStore;
-    this.keyDownloadChunkSize = keyDownloadChunkSize;
+    this._cryptoStore = cryptoStore; // userId -> {
+    //     deviceId -> {
+    //         [device info]
+    //     }
+    // }
 
-    _defineProperty(this, "devices", {});
+    this._devices = {}; // userId -> {
+    //     [key info]
+    // }
 
-    _defineProperty(this, "crossSigningInfo", {});
+    this._crossSigningInfo = {}; // map of identity keys to the user who owns it
 
-    _defineProperty(this, "userByIdentityKey", {});
+    this._userByIdentityKey = {}; // which users we are tracking device status for.
+    // userId -> TRACKING_STATUS_*
 
-    _defineProperty(this, "deviceTrackingStatus", {});
+    this._deviceTrackingStatus = {}; // loaded from storage in load()
+    // The 'next_batch' sync token at the point the data was writen,
+    // ie. a token representing the point immediately after the
+    // moment represented by the snapshot in the db.
 
-    _defineProperty(this, "syncToken", null);
+    this._syncToken = null;
+    this._serialiser = new DeviceListUpdateSerialiser(baseApis, olmDevice, this); // userId -> promise
 
-    _defineProperty(this, "keyDownloadsInProgressByUser", {});
+    this._keyDownloadsInProgressByUser = {}; // Maximum number of user IDs per request to prevent server overload (#1619)
 
-    _defineProperty(this, "dirty", false);
+    this._keyDownloadChunkSize = keyDownloadChunkSize; // Set whenever changes are made other than setting the sync token
 
-    _defineProperty(this, "savePromise", null);
+    this._dirty = false; // Promise resolved when device data is saved
 
-    _defineProperty(this, "resolveSavePromise", null);
+    this._savePromise = null; // Function that resolves the save promise
 
-    _defineProperty(this, "savePromiseTime", null);
+    this._resolveSavePromise = null; // The time the save is scheduled for
 
-    _defineProperty(this, "saveTimer", null);
+    this._savePromiseTime = null; // The timer used to delay the save
 
-    _defineProperty(this, "hasFetched", null);
+    this._saveTimer = null; // True if we have fetched data from the server or loaded a non-empty
+    // set of device data from the store
 
-    _defineProperty(this, "serialiser", void 0);
-
-    this.serialiser = new DeviceListUpdateSerialiser(baseApis, olmDevice, this);
+    this._hasFetched = null;
   }
   /**
    * Load the device tracking state from storage
@@ -112,39 +124,39 @@ class DeviceList extends _events.EventEmitter {
 
 
   async load() {
-    await this.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_DEVICE_DATA], txn => {
-      this.cryptoStore.getEndToEndDeviceData(txn, deviceData => {
-        this.hasFetched = Boolean(deviceData && deviceData.devices);
-        this.devices = deviceData ? deviceData.devices : {}, this.crossSigningInfo = deviceData ? deviceData.crossSigningInfo || {} : {};
-        this.deviceTrackingStatus = deviceData ? deviceData.trackingStatus : {};
-        this.syncToken = deviceData ? deviceData.syncToken : null;
-        this.userByIdentityKey = {};
+    await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_DEVICE_DATA], txn => {
+      this._cryptoStore.getEndToEndDeviceData(txn, deviceData => {
+        this._hasFetched = Boolean(deviceData && deviceData.devices);
+        this._devices = deviceData ? deviceData.devices : {}, this._crossSigningInfo = deviceData ? deviceData.crossSigningInfo || {} : {};
+        this._deviceTrackingStatus = deviceData ? deviceData.trackingStatus : {};
+        this._syncToken = deviceData ? deviceData.syncToken : null;
+        this._userByIdentityKey = {};
 
-        for (const user of Object.keys(this.devices)) {
-          const userDevices = this.devices[user];
+        for (const user of Object.keys(this._devices)) {
+          const userDevices = this._devices[user];
 
           for (const device of Object.keys(userDevices)) {
             const idKey = userDevices[device].keys['curve25519:' + device];
 
             if (idKey !== undefined) {
-              this.userByIdentityKey[idKey] = user;
+              this._userByIdentityKey[idKey] = user;
             }
           }
         }
       });
     });
 
-    for (const u of Object.keys(this.deviceTrackingStatus)) {
+    for (const u of Object.keys(this._deviceTrackingStatus)) {
       // if a download was in progress when we got shut down, it isn't any more.
-      if (this.deviceTrackingStatus[u] == TrackingStatus.DownloadInProgress) {
-        this.deviceTrackingStatus[u] = TrackingStatus.PendingDownload;
+      if (this._deviceTrackingStatus[u] == TRACKING_STATUS_DOWNLOAD_IN_PROGRESS) {
+        this._deviceTrackingStatus[u] = TRACKING_STATUS_PENDING_DOWNLOAD;
       }
     }
   }
 
   stop() {
-    if (this.saveTimer !== null) {
-      clearTimeout(this.saveTimer);
+    if (this._saveTimer !== null) {
+      clearTimeout(this._saveTimer);
     }
   }
   /**
@@ -154,67 +166,70 @@ class DeviceList extends _events.EventEmitter {
    * The actual save will be delayed by a short amount of time to
    * aggregate multiple writes to the database.
    *
-   * @param {number} delay Time in ms before which the save actually happens.
+   * @param {integer} delay Time in ms before which the save actually happens.
    *     By default, the save is delayed for a short period in order to batch
    *     multiple writes, but this behaviour can be disabled by passing 0.
    *
-   * @return {Promise<boolean>} true if the data was saved, false if
+   * @return {Promise<bool>} true if the data was saved, false if
    *     it was not (eg. because no changes were pending). The promise
    *     will only resolve once the data is saved, so may take some time
    *     to resolve.
    */
 
 
-  async saveIfDirty(delay = 500) {
-    if (!this.dirty) return Promise.resolve(false); // Delay saves for a bit so we can aggregate multiple saves that happen
+  async saveIfDirty(delay) {
+    if (!this._dirty) return Promise.resolve(false); // Delay saves for a bit so we can aggregate multiple saves that happen
     // in quick succession (eg. when a whole room's devices are marked as known)
 
-    const targetTime = Date.now() + delay;
+    if (delay === undefined) delay = 500;
+    const targetTime = Date.now + delay;
 
-    if (this.savePromiseTime && targetTime < this.savePromiseTime) {
+    if (this._savePromiseTime && targetTime < this._savePromiseTime) {
       // There's a save scheduled but for after we would like: cancel
       // it & schedule one for the time we want
-      clearTimeout(this.saveTimer);
-      this.saveTimer = null;
-      this.savePromiseTime = null; // (but keep the save promise since whatever called save before
+      clearTimeout(this._saveTimer);
+      this._saveTimer = null;
+      this._savePromiseTime = null; // (but keep the save promise since whatever called save before
       // will still want to know when the save is done)
     }
 
-    let savePromise = this.savePromise;
+    let savePromise = this._savePromise;
 
     if (savePromise === null) {
       savePromise = new Promise((resolve, reject) => {
-        this.resolveSavePromise = resolve;
+        this._resolveSavePromise = resolve;
       });
-      this.savePromise = savePromise;
+      this._savePromise = savePromise;
     }
 
-    if (this.saveTimer === null) {
-      const resolveSavePromise = this.resolveSavePromise;
-      this.savePromiseTime = targetTime;
-      this.saveTimer = setTimeout(() => {
-        _logger.logger.log('Saving device tracking data', this.syncToken); // null out savePromise now (after the delay but before the write),
+    if (this._saveTimer === null) {
+      const resolveSavePromise = this._resolveSavePromise;
+      this._savePromiseTime = targetTime;
+      this._saveTimer = setTimeout(() => {
+        _logger.logger.log('Saving device tracking data', this._syncToken); // null out savePromise now (after the delay but before the write),
         // otherwise we could return the existing promise when the save has
         // actually already happened.
 
 
-        this.savePromiseTime = null;
-        this.saveTimer = null;
-        this.savePromise = null;
-        this.resolveSavePromise = null;
-        this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_DEVICE_DATA], txn => {
-          this.cryptoStore.storeEndToEndDeviceData({
-            devices: this.devices,
-            crossSigningInfo: this.crossSigningInfo,
-            trackingStatus: this.deviceTrackingStatus,
-            syncToken: this.syncToken
+        this._savePromiseTime = null;
+        this._saveTimer = null;
+        this._savePromise = null;
+        this._resolveSavePromise = null;
+
+        this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_DEVICE_DATA], txn => {
+          this._cryptoStore.storeEndToEndDeviceData({
+            devices: this._devices,
+            crossSigningInfo: this._crossSigningInfo,
+            trackingStatus: this._deviceTrackingStatus,
+            syncToken: this._syncToken
           }, txn);
         }).then(() => {
-          // The device list is considered dirty until the write completes.
-          this.dirty = false;
-          resolveSavePromise(true);
+          // The device list is considered dirty until the write
+          // completes.
+          this._dirty = false;
+          resolveSavePromise();
         }, err => {
-          _logger.logger.error('Failed to save device tracking data', this.syncToken);
+          _logger.logger.error('Failed to save device tracking data', this._syncToken);
 
           _logger.logger.error(err);
         });
@@ -231,7 +246,7 @@ class DeviceList extends _events.EventEmitter {
 
 
   getSyncToken() {
-    return this.syncToken;
+    return this._syncToken;
   }
   /**
    * Sets the sync token that the app will pass as the 'since' to the /sync
@@ -246,14 +261,14 @@ class DeviceList extends _events.EventEmitter {
 
 
   setSyncToken(st) {
-    this.syncToken = st;
+    this._syncToken = st;
   }
   /**
    * Ensures up to date keys for a list of users are stored in the session store,
    * downloading and storing them if they're not (or if forceDownload is
    * true).
    * @param {Array} userIds The users to fetch.
-   * @param {boolean} forceDownload Always download the keys even if cached.
+   * @param {bool} forceDownload Always download the keys even if cached.
    *
    * @return {Promise} A promise which resolves to a map userId->deviceId->{@link
    * module:crypto/deviceinfo|DeviceInfo}.
@@ -264,15 +279,15 @@ class DeviceList extends _events.EventEmitter {
     const usersToDownload = [];
     const promises = [];
     userIds.forEach(u => {
-      const trackingStatus = this.deviceTrackingStatus[u];
+      const trackingStatus = this._deviceTrackingStatus[u];
 
-      if (this.keyDownloadsInProgressByUser[u]) {
+      if (this._keyDownloadsInProgressByUser[u]) {
         // already a key download in progress/queued for this user; its results
         // will be good enough for us.
         _logger.logger.log(`downloadKeys: already have a download in progress for ` + `${u}: awaiting its result`);
 
-        promises.push(this.keyDownloadsInProgressByUser[u]);
-      } else if (forceDownload || trackingStatus != TrackingStatus.UpToDate) {
+        promises.push(this._keyDownloadsInProgressByUser[u]);
+      } else if (forceDownload || trackingStatus != TRACKING_STATUS_UP_TO_DATE) {
         usersToDownload.push(u);
       }
     });
@@ -280,7 +295,8 @@ class DeviceList extends _events.EventEmitter {
     if (usersToDownload.length != 0) {
       _logger.logger.log("downloadKeys: downloading for", usersToDownload);
 
-      const downloadPromise = this.doKeyDownload(usersToDownload);
+      const downloadPromise = this._doKeyDownload(usersToDownload);
+
       promises.push(downloadPromise);
     }
 
@@ -289,7 +305,7 @@ class DeviceList extends _events.EventEmitter {
     }
 
     return Promise.all(promises).then(() => {
-      return this.getDevicesFromStore(userIds);
+      return this._getDevicesFromStore(userIds);
     });
   }
   /**
@@ -301,11 +317,12 @@ class DeviceList extends _events.EventEmitter {
    */
 
 
-  getDevicesFromStore(userIds) {
+  _getDevicesFromStore(userIds) {
     const stored = {};
-    userIds.map(u => {
+    const self = this;
+    userIds.map(function (u) {
       stored[u] = {};
-      const devices = this.getStoredDevicesForUser(u) || [];
+      const devices = self.getStoredDevicesForUser(u) || [];
       devices.map(function (dev) {
         stored[u][dev.deviceId] = dev;
       });
@@ -320,7 +337,7 @@ class DeviceList extends _events.EventEmitter {
 
 
   getKnownUserIds() {
-    return Object.keys(this.devices);
+    return Object.keys(this._devices);
   }
   /**
    * Get the stored device keys for a user id
@@ -333,7 +350,7 @@ class DeviceList extends _events.EventEmitter {
 
 
   getStoredDevicesForUser(userId) {
-    const devs = this.devices[userId];
+    const devs = this._devices[userId];
 
     if (!devs) {
       return null;
@@ -360,17 +377,17 @@ class DeviceList extends _events.EventEmitter {
 
 
   getRawStoredDevicesForUser(userId) {
-    return this.devices[userId];
+    return this._devices[userId];
   }
 
   getStoredCrossSigningForUser(userId) {
-    if (!this.crossSigningInfo[userId]) return null;
-    return _CrossSigning.CrossSigningInfo.fromStorage(this.crossSigningInfo[userId], userId);
+    if (!this._crossSigningInfo[userId]) return null;
+    return _CrossSigning.CrossSigningInfo.fromStorage(this._crossSigningInfo[userId], userId);
   }
 
   storeCrossSigningForUser(userId, info) {
-    this.crossSigningInfo[userId] = info;
-    this.dirty = true;
+    this._crossSigningInfo[userId] = info;
+    this._dirty = true;
   }
   /**
    * Get the stored keys for a single device
@@ -384,7 +401,7 @@ class DeviceList extends _events.EventEmitter {
 
 
   getStoredDevice(userId, deviceId) {
-    const devs = this.devices[userId];
+    const devs = this._devices[userId];
 
     if (!devs || !devs[deviceId]) {
       return undefined;
@@ -408,7 +425,7 @@ class DeviceList extends _events.EventEmitter {
       return null;
     }
 
-    return this.userByIdentityKey[senderKey];
+    return this._userByIdentityKey[senderKey];
   }
   /**
    * Find a device by curve25519 identity key
@@ -427,7 +444,7 @@ class DeviceList extends _events.EventEmitter {
       return null;
     }
 
-    const devices = this.devices[userId];
+    const devices = this._devices[userId];
 
     if (!devices) {
       return null;
@@ -463,14 +480,28 @@ class DeviceList extends _events.EventEmitter {
   /**
    * Replaces the list of devices for a user with the given device list
    *
-   * @param {string} userId The user ID
-   * @param {Object} devices New device info for user
+   * @param {string} u The user ID
+   * @param {Object} devs New device info for user
    */
 
 
-  storeDevicesForUser(userId, devices) {
-    this.setRawStoredDevicesForUser(userId, devices);
-    this.dirty = true;
+  storeDevicesForUser(u, devs) {
+    // remove previous devices from _userByIdentityKey
+    if (this._devices[u] !== undefined) {
+      for (const [deviceId, dev] of Object.entries(this._devices[u])) {
+        const identityKey = dev.keys['curve25519:' + deviceId];
+        delete this._userByIdentityKey[identityKey];
+      }
+    }
+
+    this._devices[u] = devs; // add new ones
+
+    for (const [deviceId, dev] of Object.entries(devs)) {
+      const identityKey = dev.keys['curve25519:' + deviceId];
+      this._userByIdentityKey[identityKey] = u;
+    }
+
+    this._dirty = true;
   }
   /**
    * flag the given user for device-list tracking, if they are not already.
@@ -495,13 +526,13 @@ class DeviceList extends _events.EventEmitter {
       throw new Error('userId must be a string; was ' + userId);
     }
 
-    if (!this.deviceTrackingStatus[userId]) {
+    if (!this._deviceTrackingStatus[userId]) {
       _logger.logger.log('Now tracking device list for ' + userId);
 
-      this.deviceTrackingStatus[userId] = TrackingStatus.PendingDownload; // we don't yet persist the tracking status, since there may be a lot
+      this._deviceTrackingStatus[userId] = TRACKING_STATUS_PENDING_DOWNLOAD; // we don't yet persist the tracking status, since there may be a lot
       // of calls; we save all data together once the sync is done
 
-      this.dirty = true;
+      this._dirty = true;
     }
   }
   /**
@@ -516,13 +547,13 @@ class DeviceList extends _events.EventEmitter {
 
 
   stopTrackingDeviceList(userId) {
-    if (this.deviceTrackingStatus[userId]) {
+    if (this._deviceTrackingStatus[userId]) {
       _logger.logger.log('No longer tracking device list for ' + userId);
 
-      this.deviceTrackingStatus[userId] = TrackingStatus.NotTracked; // we don't yet persist the tracking status, since there may be a lot
+      this._deviceTrackingStatus[userId] = TRACKING_STATUS_NOT_TRACKED; // we don't yet persist the tracking status, since there may be a lot
       // of calls; we save all data together once the sync is done
 
-      this.dirty = true;
+      this._dirty = true;
     }
   }
   /**
@@ -534,11 +565,11 @@ class DeviceList extends _events.EventEmitter {
 
 
   stopTrackingAllDeviceLists() {
-    for (const userId of Object.keys(this.deviceTrackingStatus)) {
-      this.deviceTrackingStatus[userId] = TrackingStatus.NotTracked;
+    for (const userId of Object.keys(this._deviceTrackingStatus)) {
+      this._deviceTrackingStatus[userId] = TRACKING_STATUS_NOT_TRACKED;
     }
 
-    this.dirty = true;
+    this._dirty = true;
   }
   /**
    * Mark the cached device list for the given user outdated.
@@ -554,13 +585,13 @@ class DeviceList extends _events.EventEmitter {
 
 
   invalidateUserDeviceList(userId) {
-    if (this.deviceTrackingStatus[userId]) {
+    if (this._deviceTrackingStatus[userId]) {
       _logger.logger.log("Marking device list outdated for", userId);
 
-      this.deviceTrackingStatus[userId] = TrackingStatus.PendingDownload; // we don't yet persist the tracking status, since there may be a lot
+      this._deviceTrackingStatus[userId] = TRACKING_STATUS_PENDING_DOWNLOAD; // we don't yet persist the tracking status, since there may be a lot
       // of calls; we save all data together once the sync is done
 
-      this.dirty = true;
+      this._dirty = true;
     }
   }
   /**
@@ -575,15 +606,15 @@ class DeviceList extends _events.EventEmitter {
     this.saveIfDirty();
     const usersToDownload = [];
 
-    for (const userId of Object.keys(this.deviceTrackingStatus)) {
-      const stat = this.deviceTrackingStatus[userId];
+    for (const userId of Object.keys(this._deviceTrackingStatus)) {
+      const stat = this._deviceTrackingStatus[userId];
 
-      if (stat == TrackingStatus.PendingDownload) {
+      if (stat == TRACKING_STATUS_PENDING_DOWNLOAD) {
         usersToDownload.push(userId);
       }
     }
 
-    return this.doKeyDownload(usersToDownload);
+    return this._doKeyDownload(usersToDownload);
   }
   /**
    * Set the stored device data for a user, in raw object form
@@ -595,30 +626,30 @@ class DeviceList extends _events.EventEmitter {
    */
 
 
-  setRawStoredDevicesForUser(userId, devices) {
-    // remove old devices from userByIdentityKey
-    if (this.devices[userId] !== undefined) {
-      for (const [deviceId, dev] of Object.entries(this.devices[userId])) {
+  _setRawStoredDevicesForUser(userId, devices) {
+    // remove old devices from _userByIdentityKey
+    if (this._devices[userId] !== undefined) {
+      for (const [deviceId, dev] of Object.entries(this._devices[userId])) {
         const identityKey = dev.keys['curve25519:' + deviceId];
-        delete this.userByIdentityKey[identityKey];
+        delete this._userByIdentityKey[identityKey];
       }
     }
 
-    this.devices[userId] = devices; // add new devices into userByIdentityKey
+    this._devices[userId] = devices; // add new devices into _userByIdentityKey
 
     for (const [deviceId, dev] of Object.entries(devices)) {
       const identityKey = dev.keys['curve25519:' + deviceId];
-      this.userByIdentityKey[identityKey] = userId;
+      this._userByIdentityKey[identityKey] = userId;
     }
   }
 
   setRawStoredCrossSigningForUser(userId, info) {
-    this.crossSigningInfo[userId] = info;
+    this._crossSigningInfo[userId] = info;
   }
   /**
    * Fire off download update requests for the given users, and update the
    * device list tracking status for them, and the
-   * keyDownloadsInProgressByUser map for them.
+   * _keyDownloadsInProgressByUser map for them.
    *
    * @param {String[]} users  list of userIds
    *
@@ -628,13 +659,13 @@ class DeviceList extends _events.EventEmitter {
    */
 
 
-  doKeyDownload(users) {
+  _doKeyDownload(users) {
     if (users.length === 0) {
       // nothing to do
       return Promise.resolve();
     }
 
-    const prom = this.serialiser.updateDevicesForUsers(users, this.syncToken).then(() => {
+    const prom = this._serialiser.updateDevicesForUsers(users, this._syncToken).then(() => {
       finished(true);
     }, e => {
       _logger.logger.error('Error downloading keys for ' + users + ":", e);
@@ -642,46 +673,47 @@ class DeviceList extends _events.EventEmitter {
       finished(false);
       throw e;
     });
-    users.forEach(u => {
-      this.keyDownloadsInProgressByUser[u] = prom;
-      const stat = this.deviceTrackingStatus[u];
 
-      if (stat == TrackingStatus.PendingDownload) {
-        this.deviceTrackingStatus[u] = TrackingStatus.DownloadInProgress;
+    users.forEach(u => {
+      this._keyDownloadsInProgressByUser[u] = prom;
+      const stat = this._deviceTrackingStatus[u];
+
+      if (stat == TRACKING_STATUS_PENDING_DOWNLOAD) {
+        this._deviceTrackingStatus[u] = TRACKING_STATUS_DOWNLOAD_IN_PROGRESS;
       }
     });
 
     const finished = success => {
-      this.emit("crypto.willUpdateDevices", users, !this.hasFetched);
+      this.emit("crypto.willUpdateDevices", users, !this._hasFetched);
       users.forEach(u => {
-        this.dirty = true; // we may have queued up another download request for this user
+        this._dirty = true; // we may have queued up another download request for this user
         // since we started this request. If that happens, we should
         // ignore the completion of the first one.
 
-        if (this.keyDownloadsInProgressByUser[u] !== prom) {
+        if (this._keyDownloadsInProgressByUser[u] !== prom) {
           _logger.logger.log('Another update in the queue for', u, '- not marking up-to-date');
 
           return;
         }
 
-        delete this.keyDownloadsInProgressByUser[u];
-        const stat = this.deviceTrackingStatus[u];
+        delete this._keyDownloadsInProgressByUser[u];
+        const stat = this._deviceTrackingStatus[u];
 
-        if (stat == TrackingStatus.DownloadInProgress) {
+        if (stat == TRACKING_STATUS_DOWNLOAD_IN_PROGRESS) {
           if (success) {
             // we didn't get any new invalidations since this download started:
             // this user's device list is now up to date.
-            this.deviceTrackingStatus[u] = TrackingStatus.UpToDate;
+            this._deviceTrackingStatus[u] = TRACKING_STATUS_UP_TO_DATE;
 
             _logger.logger.log("Device list for", u, "now up to date");
           } else {
-            this.deviceTrackingStatus[u] = TrackingStatus.PendingDownload;
+            this._deviceTrackingStatus[u] = TRACKING_STATUS_PENDING_DOWNLOAD;
           }
         }
       });
       this.saveIfDirty();
-      this.emit("crypto.devicesUpdated", users, !this.hasFetched);
-      this.hasFetched = true;
+      this.emit("crypto.devicesUpdated", users, !this._hasFetched);
+      this._hasFetched = true;
     };
 
     return prom;
@@ -702,29 +734,25 @@ class DeviceList extends _events.EventEmitter {
 exports.DeviceList = DeviceList;
 
 class DeviceListUpdateSerialiser {
-  // users which are queued for download
-  // userId -> true
-  // deferred which is resolved when the queued users are downloaded.
-  // non-null indicates that we have users queued for download.
-  // The sync token we send with the requests
-
   /*
    * @param {object} baseApis Base API object
    * @param {object} olmDevice The Olm Device
-   * @param {object} deviceList The device list object, the device list to be updated
+   * @param {object} deviceList The device list object
    */
   constructor(baseApis, olmDevice, deviceList) {
-    this.baseApis = baseApis;
-    this.olmDevice = olmDevice;
-    this.deviceList = deviceList;
+    this._baseApis = baseApis;
+    this._olmDevice = olmDevice;
+    this._deviceList = deviceList; // the device list to be updated
 
-    _defineProperty(this, "downloadInProgress", false);
+    this._downloadInProgress = false; // users which are queued for download
+    // userId -> true
 
-    _defineProperty(this, "keyDownloadsQueuedByUser", {});
+    this._keyDownloadsQueuedByUser = {}; // deferred which is resolved when the queued users are downloaded.
+    //
+    // non-null indicates that we have users queued for download.
 
-    _defineProperty(this, "queuedQueryDeferred", null);
-
-    _defineProperty(this, "syncToken", null);
+    this._queuedQueryDeferred = null;
+    this._syncToken = null; // The sync token we send with the requests
   }
   /**
    * Make a key query request for the given users
@@ -742,53 +770,53 @@ class DeviceListUpdateSerialiser {
 
   updateDevicesForUsers(users, syncToken) {
     users.forEach(u => {
-      this.keyDownloadsQueuedByUser[u] = true;
+      this._keyDownloadsQueuedByUser[u] = true;
     });
 
-    if (!this.queuedQueryDeferred) {
-      this.queuedQueryDeferred = (0, _utils.defer)();
+    if (!this._queuedQueryDeferred) {
+      this._queuedQueryDeferred = (0, _utils.defer)();
     } // We always take the new sync token and just use the latest one we've
     // been given, since it just needs to be at least as recent as the
     // sync response the device invalidation message arrived in
 
 
-    this.syncToken = syncToken;
+    this._syncToken = syncToken;
 
-    if (this.downloadInProgress) {
+    if (this._downloadInProgress) {
       // just queue up these users
       _logger.logger.log('Queued key download for', users);
 
-      return this.queuedQueryDeferred.promise;
+      return this._queuedQueryDeferred.promise;
     } // start a new download.
 
 
-    return this.doQueuedQueries();
+    return this._doQueuedQueries();
   }
 
-  doQueuedQueries() {
-    if (this.downloadInProgress) {
-      throw new Error("DeviceListUpdateSerialiser.doQueuedQueries called with request active");
+  _doQueuedQueries() {
+    if (this._downloadInProgress) {
+      throw new Error("DeviceListUpdateSerialiser._doQueuedQueries called with request active");
     }
 
-    const downloadUsers = Object.keys(this.keyDownloadsQueuedByUser);
-    this.keyDownloadsQueuedByUser = {};
-    const deferred = this.queuedQueryDeferred;
-    this.queuedQueryDeferred = null;
+    const downloadUsers = Object.keys(this._keyDownloadsQueuedByUser);
+    this._keyDownloadsQueuedByUser = {};
+    const deferred = this._queuedQueryDeferred;
+    this._queuedQueryDeferred = null;
 
     _logger.logger.log('Starting key download for', downloadUsers);
 
-    this.downloadInProgress = true;
+    this._downloadInProgress = true;
     const opts = {};
 
-    if (this.syncToken) {
-      opts.token = this.syncToken;
+    if (this._syncToken) {
+      opts.token = this._syncToken;
     }
 
     const factories = [];
 
-    for (let i = 0; i < downloadUsers.length; i += this.deviceList.keyDownloadChunkSize) {
-      const userSlice = downloadUsers.slice(i, i + this.deviceList.keyDownloadChunkSize);
-      factories.push(() => this.baseApis.downloadKeysForUsers(userSlice, opts));
+    for (let i = 0; i < downloadUsers.length; i += this._deviceList._keyDownloadChunkSize) {
+      const userSlice = downloadUsers.slice(i, i + this._deviceList._keyDownloadChunkSize);
+      factories.push(() => this._baseApis.downloadKeysForUsers(userSlice, opts));
     }
 
     (0, _utils.chunkPromises)(factories, 3).then(async responses => {
@@ -806,7 +834,7 @@ class DeviceListUpdateSerialiser {
         await (0, _utils.sleep)(5);
 
         try {
-          await this.processQueryResponseForUser(userId, dk[userId], {
+          await this._processQueryResponseForUser(userId, dk[userId], {
             master: masterKeys[userId],
             self_signing: ssks[userId],
             user_signing: usks[userId]
@@ -820,23 +848,22 @@ class DeviceListUpdateSerialiser {
     }).then(() => {
       _logger.logger.log('Completed key download for ' + downloadUsers);
 
-      this.downloadInProgress = false;
+      this._downloadInProgress = false;
       deferred.resolve(); // if we have queued users, fire off another request.
 
-      if (this.queuedQueryDeferred) {
-        this.doQueuedQueries();
+      if (this._queuedQueryDeferred) {
+        this._doQueuedQueries();
       }
     }, e => {
       _logger.logger.warn('Error downloading keys for ' + downloadUsers + ':', e);
 
-      this.downloadInProgress = false;
+      this._downloadInProgress = false;
       deferred.reject(e);
     });
     return deferred.promise;
   }
 
-  async processQueryResponseForUser(userId, dkResponse, crossSigningResponse // TODO types
-  ) {
+  async _processQueryResponseForUser(userId, dkResponse, crossSigningResponse) {
     _logger.logger.log('got device keys for ' + userId + ':', dkResponse);
 
     _logger.logger.log('got cross-signing keys for ' + userId + ':', crossSigningResponse);
@@ -844,7 +871,8 @@ class DeviceListUpdateSerialiser {
     {
       // map from deviceid -> deviceinfo for this user
       const userStore = {};
-      const devs = this.deviceList.getRawStoredDevicesForUser(userId);
+
+      const devs = this._deviceList.getRawStoredDevicesForUser(userId);
 
       if (devs) {
         Object.keys(devs).forEach(deviceId => {
@@ -854,32 +882,35 @@ class DeviceListUpdateSerialiser {
         });
       }
 
-      await updateStoredDeviceKeysForUser(this.olmDevice, userId, userStore, dkResponse || {}, this.baseApis.getUserId(), this.baseApis.deviceId); // put the updates into the object that will be returned as our results
+      await _updateStoredDeviceKeysForUser(this._olmDevice, userId, userStore, dkResponse || {}, this._baseApis.getUserId(), this._baseApis.deviceId); // put the updates into the object that will be returned as our results
 
       const storage = {};
       Object.keys(userStore).forEach(deviceId => {
         storage[deviceId] = userStore[deviceId].toStorage();
       });
-      this.deviceList.setRawStoredDevicesForUser(userId, storage);
+
+      this._deviceList._setRawStoredDevicesForUser(userId, storage);
     } // now do the same for the cross-signing keys
 
     {
       // FIXME: should we be ignoring empty cross-signing responses, or
       // should we be dropping the keys?
       if (crossSigningResponse && (crossSigningResponse.master || crossSigningResponse.self_signing || crossSigningResponse.user_signing)) {
-        const crossSigning = this.deviceList.getStoredCrossSigningForUser(userId) || new _CrossSigning.CrossSigningInfo(userId);
+        const crossSigning = this._deviceList.getStoredCrossSigningForUser(userId) || new _CrossSigning.CrossSigningInfo(userId);
         crossSigning.setKeys(crossSigningResponse);
-        this.deviceList.setRawStoredCrossSigningForUser(userId, crossSigning.toStorage()); // NB. Unlike most events in the js-sdk, this one is internal to the
+
+        this._deviceList.setRawStoredCrossSigningForUser(userId, crossSigning.toStorage()); // NB. Unlike most events in the js-sdk, this one is internal to the
         // js-sdk and is not re-emitted
 
-        this.deviceList.emit('userCrossSigningUpdated', userId);
+
+        this._deviceList.emit('userCrossSigningUpdated', userId);
       }
     }
   }
 
 }
 
-async function updateStoredDeviceKeysForUser(olmDevice, userId, userStore, userResult, localUserId, localDeviceId) {
+async function _updateStoredDeviceKeysForUser(_olmDevice, userId, userStore, userResult, localUserId, localDeviceId) {
   let updated = false; // remove any devices in the store which aren't in the response
 
   for (const deviceId in userStore) {
@@ -921,7 +952,7 @@ async function updateStoredDeviceKeysForUser(olmDevice, userId, userStore, userR
       continue;
     }
 
-    if (await storeDeviceKeys(olmDevice, userStore, deviceResult)) {
+    if (await _storeDeviceKeys(_olmDevice, userStore, deviceResult)) {
       updated = true;
     }
   }
@@ -935,8 +966,7 @@ async function updateStoredDeviceKeysForUser(olmDevice, userId, userStore, userR
  */
 
 
-async function storeDeviceKeys(olmDevice, userStore, deviceResult // TODO types
-) {
+async function _storeDeviceKeys(_olmDevice, userStore, deviceResult) {
   if (!deviceResult.keys) {
     // no keys?
     return false;
@@ -957,7 +987,7 @@ async function storeDeviceKeys(olmDevice, userStore, deviceResult // TODO types
   const signatures = deviceResult.signatures || {};
 
   try {
-    await olmlib.verifySignature(olmDevice, deviceResult, userId, deviceId, signKey);
+    await olmlib.verifySignature(_olmDevice, deviceResult, userId, deviceId, signKey);
   } catch (e) {
     _logger.logger.warn("Unable to verify signature on device " + userId + ":" + deviceId + ":" + e);
 

@@ -3,9 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC3088_PURPOSE = exports.RoomType = exports.RoomCreateTypeField = exports.MsgType = exports.RelationType = exports.EventType = void 0;
-
-var _NamespacedValue = require("../NamespacedValue");
+exports.RoomType = exports.RoomCreateTypeField = exports.MsgType = exports.EventType = void 0;
 
 /*
 Copyright 2020 The Matrix.org Foundation C.I.C.
@@ -55,8 +53,6 @@ exports.EventType = EventType;
   EventType["CallReject"] = "m.call.reject";
   EventType["CallSelectAnswer"] = "m.call.select_answer";
   EventType["CallNegotiate"] = "m.call.negotiate";
-  EventType["CallSDPStreamMetadataChanged"] = "m.call.sdp_stream_metadata_changed";
-  EventType["CallSDPStreamMetadataChangedPrefix"] = "org.matrix.call.sdp_stream_metadata_changed";
   EventType["CallReplaces"] = "m.call.replaces";
   EventType["CallAssertedIdentity"] = "m.call.asserted_identity";
   EventType["CallAssertedIdentityPrefix"] = "org.matrix.call.asserted_identity";
@@ -72,7 +68,6 @@ exports.EventType = EventType;
   EventType["Presence"] = "m.presence";
   EventType["FullyRead"] = "m.fully_read";
   EventType["Tag"] = "m.tag";
-  EventType["SpaceOrder"] = "org.matrix.msc3230.space_order";
   EventType["PushRules"] = "m.push_rules";
   EventType["Direct"] = "m.direct";
   EventType["IgnoredUserList"] = "m.ignored_user_list";
@@ -81,14 +76,6 @@ exports.EventType = EventType;
   EventType["ForwardedRoomKey"] = "m.forwarded_room_key";
   EventType["Dummy"] = "m.dummy";
 })(EventType || (exports.EventType = EventType = {}));
-
-let RelationType;
-exports.RelationType = RelationType;
-
-(function (RelationType) {
-  RelationType["Annotation"] = "m.annotation";
-  RelationType["Replace"] = "m.replace";
-})(RelationType || (exports.RelationType = RelationType = {}));
 
 let MsgType;
 exports.MsgType = MsgType;
@@ -107,70 +94,8 @@ exports.MsgType = MsgType;
 const RoomCreateTypeField = "type";
 exports.RoomCreateTypeField = RoomCreateTypeField;
 let RoomType;
-/**
- * Identifier for an [MSC3088](https://github.com/matrix-org/matrix-doc/pull/3088)
- * room purpose. Note that this reference is UNSTABLE and subject to breaking changes,
- * including its eventual removal.
- */
-
 exports.RoomType = RoomType;
 
 (function (RoomType) {
   RoomType["Space"] = "m.space";
 })(RoomType || (exports.RoomType = RoomType = {}));
-
-const UNSTABLE_MSC3088_PURPOSE = new _NamespacedValue.UnstableValue("m.room.purpose", "org.matrix.msc3088.purpose");
-/**
- * Enabled flag for an [MSC3088](https://github.com/matrix-org/matrix-doc/pull/3088)
- * room purpose. Note that this reference is UNSTABLE and subject to breaking changes,
- * including its eventual removal.
- */
-
-exports.UNSTABLE_MSC3088_PURPOSE = UNSTABLE_MSC3088_PURPOSE;
-const UNSTABLE_MSC3088_ENABLED = new _NamespacedValue.UnstableValue("m.enabled", "org.matrix.msc3088.enabled");
-/**
- * Subtype for an [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089) space-room.
- * Note that this reference is UNSTABLE and subject to breaking changes, including its
- * eventual removal.
- */
-
-exports.UNSTABLE_MSC3088_ENABLED = UNSTABLE_MSC3088_ENABLED;
-const UNSTABLE_MSC3089_TREE_SUBTYPE = new _NamespacedValue.UnstableValue("m.data_tree", "org.matrix.msc3089.data_tree");
-/**
- * Leaf type for an event in a [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089) space-room.
- * Note that this reference is UNSTABLE and subject to breaking changes, including its
- * eventual removal.
- */
-
-exports.UNSTABLE_MSC3089_TREE_SUBTYPE = UNSTABLE_MSC3089_TREE_SUBTYPE;
-const UNSTABLE_MSC3089_LEAF = new _NamespacedValue.UnstableValue("m.leaf", "org.matrix.msc3089.leaf");
-/**
- * Branch (Leaf Reference) type for the index approach in a
- * [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089) space-room. Note that this reference is
- * UNSTABLE and subject to breaking changes, including its eventual removal.
- */
-
-exports.UNSTABLE_MSC3089_LEAF = UNSTABLE_MSC3089_LEAF;
-const UNSTABLE_MSC3089_BRANCH = new _NamespacedValue.UnstableValue("m.branch", "org.matrix.msc3089.branch");
-/**
- * Functional members type for declaring a purpose of room members (e.g. helpful bots).
- * Note that this reference is UNSTABLE and subject to breaking changes, including its
- * eventual removal.
- *
- * Schema (TypeScript):
- * {
- *   service_members?: string[]
- * }
- *
- * Example:
- * {
- *   "service_members": [
- *     "@helperbot:localhost",
- *     "@reminderbot:alice.tdl"
- *   ]
- * }
- */
-
-exports.UNSTABLE_MSC3089_BRANCH = UNSTABLE_MSC3089_BRANCH;
-const UNSTABLE_ELEMENT_FUNCTIONAL_USERS = new _NamespacedValue.UnstableValue("io.element.functional_members", "io.element.functional_members");
-exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = UNSTABLE_ELEMENT_FUNCTIONAL_USERS;

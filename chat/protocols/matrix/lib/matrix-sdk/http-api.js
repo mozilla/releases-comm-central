@@ -15,15 +15,34 @@ var _logger = require("./logger");
 
 var callbacks = _interopRequireWildcard(require("./realtime-callbacks"));
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+/*
+Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/**
+ * This is an internal module. See {@link MatrixHttpApi} for the public class.
+ * @module http-api
+ */
+// we use our own implementation of setTimeout, so that if we get suspended in
+// the middle of a /sync, we cancel the sync as soon as we awake, rather than
+// waiting for the delay to elapse.
 
 /*
 TODO:
@@ -123,7 +142,7 @@ MatrixHttpApi.prototype = {
   },
 
   /**
-   * Upload content to the homeserver
+   * Upload content to the Home Server
    *
    * @param {object} file The object to upload. On a browser, something that
    *   can be sent to XMLHttpRequest.send (typically a File).  Under node.js,
@@ -384,7 +403,7 @@ MatrixHttpApi.prototype = {
   },
   idServerRequest: function (callback, method, path, params, prefix, accessToken) {
     if (!this.opts.idBaseUrl) {
-      throw new Error("No identity server base URL set");
+      throw new Error("No Identity Server base URL set");
     }
 
     const fullUri = this.opts.idBaseUrl + prefix + path;
@@ -632,7 +651,9 @@ MatrixHttpApi.prototype = {
     const self = this;
 
     if (this.opts.extraParams) {
-      queryParams = _objectSpread(_objectSpread({}, queryParams), this.opts.extraParams);
+      queryParams = { ...queryParams,
+        ...this.opts.extraParams
+      };
     }
 
     const headers = utils.extend({}, opts.headers || {});
@@ -778,9 +799,7 @@ const requestCallback = function (defer, userDefinedCallback, onlyData, bodyPars
 
     if (!err) {
       try {
-        const httpStatus = response.status || response.statusCode; // XMLHttpRequest vs http.IncomingMessage
-
-        if (httpStatus >= 400) {
+        if (response.statusCode >= 400) {
           err = parseErrorResponse(response, body);
         } else if (bodyParser) {
           body = bodyParser(body);
@@ -795,8 +814,7 @@ const requestCallback = function (defer, userDefinedCallback, onlyData, bodyPars
       userDefinedCallback(err);
     } else {
       const res = {
-        code: response.status || response.statusCode,
-        // XMLHttpRequest vs http.IncomingMessage
+        code: response.statusCode,
         // XXX: why do we bother with this? it doesn't work for
         // XMLHttpRequest, so clearly we don't use it.
         headers: response.headers,
@@ -820,8 +838,7 @@ const requestCallback = function (defer, userDefinedCallback, onlyData, bodyPars
 
 
 function parseErrorResponse(response, body) {
-  const httpStatus = response.status || response.statusCode; // XMLHttpRequest vs http.IncomingMessage
-
+  const httpStatus = response.statusCode;
   const contentType = getResponseContentType(response);
   let err;
 

@@ -14,20 +14,22 @@ exports.encodeUnpaddedBase64 = encodeUnpaddedBase64;
 exports.decodeBase64 = decodeBase64;
 exports.MEGOLM_BACKUP_ALGORITHM = exports.MEGOLM_ALGORITHM = exports.OLM_ALGORITHM = void 0;
 
-var _anotherJson = _interopRequireDefault(require("another-json"));
-
 var _logger = require("../logger");
 
 var utils = _interopRequireWildcard(require("../utils"));
 
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+var _anotherJson = _interopRequireDefault(require("another-json"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
 /*
-Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+Copyright 2016 OpenMarket Ltd
+Copyright 2019 New Vector Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -47,32 +49,23 @@ limitations under the License.
  *
  * Utilities common to olm encryption algorithms
  */
-var Algorithm;
+
 /**
  * matrix algorithm tag for olm
  */
-
-(function (Algorithm) {
-  Algorithm["Olm"] = "m.olm.v1.curve25519-aes-sha2";
-  Algorithm["Megolm"] = "m.megolm.v1.aes-sha2";
-  Algorithm["MegolmBackup"] = "m.megolm_backup.v1.curve25519-aes-sha2";
-})(Algorithm || (Algorithm = {}));
-
-const OLM_ALGORITHM = Algorithm.Olm;
+const OLM_ALGORITHM = "m.olm.v1.curve25519-aes-sha2";
 /**
  * matrix algorithm tag for megolm
  */
 
 exports.OLM_ALGORITHM = OLM_ALGORITHM;
-const MEGOLM_ALGORITHM = Algorithm.Megolm;
+const MEGOLM_ALGORITHM = "m.megolm.v1.aes-sha2";
 /**
  * matrix algorithm tag for megolm backups
  */
 
 exports.MEGOLM_ALGORITHM = MEGOLM_ALGORITHM;
-const MEGOLM_BACKUP_ALGORITHM = Algorithm.MegolmBackup;
-exports.MEGOLM_BACKUP_ALGORITHM = MEGOLM_BACKUP_ALGORITHM;
-
+const MEGOLM_BACKUP_ALGORITHM = "m.megolm_backup.v1.curve25519-aes-sha2";
 /**
  * Encrypt an event payload for an Olm device
  *
@@ -89,6 +82,9 @@ exports.MEGOLM_BACKUP_ALGORITHM = MEGOLM_BACKUP_ALGORITHM;
  * Returns a promise which resolves (to undefined) when the payload
  *    has been encrypted into `resultsObject`
  */
+
+exports.MEGOLM_BACKUP_ALGORITHM = MEGOLM_BACKUP_ALGORITHM;
+
 async function encryptMessageForDevice(resultsObject, ourUserId, ourDeviceId, olmDevice, recipientUserId, recipientDevice, payloadFields) {
   const deviceKey = recipientDevice.getIdentityKey();
   const sessionId = await olmDevice.getSessionIdForDevice(deviceKey);
@@ -103,7 +99,6 @@ async function encryptMessageForDevice(resultsObject, ourUserId, ourDeviceId, ol
 
   const payload = {
     sender: ourUserId,
-    // TODO this appears to no longer be used whatsoever
     sender_device: ourDeviceId,
     // Include the Ed25519 key so that the recipient knows what
     // device this message came from.
@@ -137,7 +132,7 @@ async function encryptMessageForDevice(resultsObject, ourUserId, ourDeviceId, ol
  *
  * @param {module:crypto/OlmDevice} olmDevice
  *
- * @param {MatrixClient} baseApis
+ * @param {module:base-apis~MatrixBaseApis} baseApis
  *
  * @param {object<string, module:crypto/deviceinfo[]>} devicesByUser
  *    map from userid to list of devices to ensure sessions for
@@ -183,7 +178,7 @@ async function getExistingOlmSessions(olmDevice, baseApis, devicesByUser) {
  *
  * @param {module:crypto/OlmDevice} olmDevice
  *
- * @param {MatrixClient} baseApis
+ * @param {module:base-apis~MatrixBaseApis} baseApis
  *
  * @param {object<string, module:crypto/deviceinfo[]>} devicesByUser
  *    map from userid to list of devices to ensure sessions for
@@ -205,16 +200,16 @@ async function getExistingOlmSessions(olmDevice, baseApis, devicesByUser) {
  */
 
 
-async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, force = false, otkTimeout, failedServers, log = _logger.logger) {
+async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, force, otkTimeout, failedServers, log) {
   if (typeof force === "number") {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - backwards compatibility
-    log = failedServers; // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - backwards compatibility
-
+    log = failedServers;
     failedServers = otkTimeout;
     otkTimeout = force;
     force = false;
+  }
+
+  if (!log) {
+    log = _logger.logger;
   }
 
   const devicesWithoutSession = [// [userId, deviceId], ...
@@ -241,9 +236,9 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
         // conditions.  If we find that we already have a session, then
         // we'll resolve
         olmDevice._sessionsInProgress[key] = new Promise(resolve => {
-          resolveSession[key] = v => {
+          resolveSession[key] = (...args) => {
             delete olmDevice._sessionsInProgress[key];
-            resolve(v);
+            resolve(...args);
           };
         });
       }
@@ -418,7 +413,6 @@ async function _verifyKeyAndStartSession(olmDevice, oneTimeKey, userId, deviceIn
 
   return sid;
 }
-
 /**
  * Verify the signature on an object
  *
@@ -435,6 +429,8 @@ async function _verifyKeyAndStartSession(olmDevice, oneTimeKey, userId, deviceIn
  * Returns a promise which resolves (to undefined) if the the signature is good,
  * or rejects with an Error if it is bad.
  */
+
+
 async function verifySignature(olmDevice, obj, signingUserId, signingDeviceId, signingKey) {
   const signKeyId = "ed25519:" + signingDeviceId;
   const signatures = obj.signatures || {};
@@ -443,15 +439,12 @@ async function verifySignature(olmDevice, obj, signingUserId, signingDeviceId, s
 
   if (!signature) {
     throw Error("No signature");
-  } // prepare the canonical json: remove unsigned and signatures, and stringify with anotherjson
+  } // prepare the canonical json: remove unsigned and signatures, and stringify with
+  // anotherjson
 
 
   const mangledObj = Object.assign({}, obj);
-
-  if ("unsigned" in mangledObj) {
-    delete mangledObj.unsigned;
-  }
-
+  delete mangledObj.unsigned;
   delete mangledObj.signatures;
 
   const json = _anotherJson.default.stringify(mangledObj);
@@ -465,17 +458,17 @@ async function verifySignature(olmDevice, obj, signingUserId, signingDeviceId, s
  * @param {Olm.PkSigning|Uint8Array} key the signing object or the private key
  * seed
  * @param {string} userId The user ID who owns the signing key
- * @param {string} pubKey The public key (ignored if key is a seed)
+ * @param {string} pubkey The public key (ignored if key is a seed)
  * @returns {string} the signature for the object
  */
 
 
-function pkSign(obj, key, userId, pubKey) {
+function pkSign(obj, key, userId, pubkey) {
   let createdKey = false;
 
   if (key instanceof Uint8Array) {
     const keyObj = new global.Olm.PkSigning();
-    pubKey = keyObj.init_with_seed(key);
+    pubkey = keyObj.init_with_seed(key);
     key = keyObj;
     createdKey = true;
   }
@@ -488,7 +481,7 @@ function pkSign(obj, key, userId, pubKey) {
   try {
     const mysigs = sigs[userId] || {};
     sigs[userId] = mysigs;
-    return mysigs['ed25519:' + pubKey] = key.sign(_anotherJson.default.stringify(obj));
+    return mysigs['ed25519:' + pubkey] = key.sign(_anotherJson.default.stringify(obj));
   } finally {
     obj.signatures = sigs;
     if (unsigned) obj.unsigned = unsigned;
@@ -501,13 +494,13 @@ function pkSign(obj, key, userId, pubKey) {
 /**
  * Verify a signed JSON object
  * @param {Object} obj Object to verify
- * @param {string} pubKey The public key to use to verify
+ * @param {string} pubkey The public key to use to verify
  * @param {string} userId The user ID who signed the object
  */
 
 
-function pkVerify(obj, pubKey, userId) {
-  const keyId = "ed25519:" + pubKey;
+function pkVerify(obj, pubkey, userId) {
+  const keyId = "ed25519:" + pubkey;
 
   if (!(obj.signatures && obj.signatures[userId] && obj.signatures[userId][keyId])) {
     throw new Error("No signature");
@@ -521,7 +514,7 @@ function pkVerify(obj, pubKey, userId) {
   if (obj.unsigned) delete obj.unsigned;
 
   try {
-    util.ed25519_verify(pubKey, _anotherJson.default.stringify(obj), signature);
+    util.ed25519_verify(pubkey, _anotherJson.default.stringify(obj), signature);
   } finally {
     obj.signatures = sigs;
     if (unsigned) obj.unsigned = unsigned;

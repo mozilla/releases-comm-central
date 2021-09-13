@@ -43,11 +43,11 @@ const DEFAULT_NAMESPACE = "matrix"; // because rageshakes in react-sdk hijack th
 
 _loglevel.default.methodFactory = function (methodName, logLevel, loggerName) {
   return function (...args) {
-    /* eslint-disable @typescript-eslint/no-invalid-this */
+    /* eslint-disable @babel/no-invalid-this */
     if (this.prefix) {
       args.unshift(this.prefix);
     }
-    /* eslint-enable @typescript-eslint/no-invalid-this */
+    /* eslint-enable @babel/no-invalid-this */
 
 
     const supportedByConsole = methodName === "error" || methodName === "warn" || methodName === "trace" || methodName === "info";

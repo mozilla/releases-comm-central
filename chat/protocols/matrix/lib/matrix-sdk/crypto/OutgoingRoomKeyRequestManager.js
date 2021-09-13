@@ -3,13 +3,25 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.OutgoingRoomKeyRequestManager = exports.RoomKeyRequestState = void 0;
+exports.OutgoingRoomKeyRequestManager = exports.ROOM_KEY_REQUEST_STATES = void 0;
 
 var _logger = require("../logger");
 
-var _event = require("../@types/event");
+/*
+Copyright 2017 Vector Creations Ltd
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 /**
  * Internal module. Management of outgoing room key requests.
@@ -51,31 +63,36 @@ const SEND_KEY_REQUESTS_DELAY_MS = 500;
  * @enum {number}
  */
 
-let RoomKeyRequestState;
-exports.RoomKeyRequestState = RoomKeyRequestState;
+const ROOM_KEY_REQUEST_STATES = {
+  /** request not yet sent */
+  UNSENT: 0,
 
-(function (RoomKeyRequestState) {
-  RoomKeyRequestState[RoomKeyRequestState["Unsent"] = 0] = "Unsent";
-  RoomKeyRequestState[RoomKeyRequestState["Sent"] = 1] = "Sent";
-  RoomKeyRequestState[RoomKeyRequestState["CancellationPending"] = 2] = "CancellationPending";
-  RoomKeyRequestState[RoomKeyRequestState["CancellationPendingAndWillResend"] = 3] = "CancellationPendingAndWillResend";
-})(RoomKeyRequestState || (exports.RoomKeyRequestState = RoomKeyRequestState = {}));
+  /** request sent, awaiting reply */
+  SENT: 1,
+
+  /** reply received, cancellation not yet sent */
+  CANCELLATION_PENDING: 2,
+
+  /**
+   * Cancellation not yet sent and will transition to UNSENT instead of
+   * being deleted once the cancellation has been sent.
+   */
+  CANCELLATION_PENDING_AND_WILL_RESEND: 3
+};
+exports.ROOM_KEY_REQUEST_STATES = ROOM_KEY_REQUEST_STATES;
 
 class OutgoingRoomKeyRequestManager {
-  // handle for the delayed call to sendOutgoingRoomKeyRequests. Non-null
-  // if the callback has been set, or if it is still running.
-  // sanity check to ensure that we don't end up with two concurrent runs
-  // of sendOutgoingRoomKeyRequests
   constructor(baseApis, deviceId, cryptoStore) {
-    this.baseApis = baseApis;
-    this.deviceId = deviceId;
-    this.cryptoStore = cryptoStore;
+    this._baseApis = baseApis;
+    this._deviceId = deviceId;
+    this._cryptoStore = cryptoStore; // handle for the delayed call to _sendOutgoingRoomKeyRequests. Non-null
+    // if the callback has been set, or if it is still running.
 
-    _defineProperty(this, "sendOutgoingRoomKeyRequestsTimer", null);
+    this._sendOutgoingRoomKeyRequestsTimer = null; // sanity check to ensure that we don't end up with two concurrent runs
+    // of _sendOutgoingRoomKeyRequests
 
-    _defineProperty(this, "sendOutgoingRoomKeyRequestsRunning", false);
-
-    _defineProperty(this, "clientRunning", false);
+    this._sendOutgoingRoomKeyRequestsRunning = false;
+    this._clientRunning = false;
   }
   /**
    * Called when the client is started. Sets background processes running.
@@ -83,7 +100,7 @@ class OutgoingRoomKeyRequestManager {
 
 
   start() {
-    this.clientRunning = true;
+    this._clientRunning = true;
   }
   /**
    * Called when the client is stopped. Stops any running background processes.
@@ -94,7 +111,7 @@ class OutgoingRoomKeyRequestManager {
     _logger.logger.log('stopping OutgoingRoomKeyRequestManager'); // stop the timer on the next run
 
 
-    this.clientRunning = false;
+    this._clientRunning = false;
   }
   /**
    * Send any requests that have been queued
@@ -102,7 +119,7 @@ class OutgoingRoomKeyRequestManager {
 
 
   sendQueuedRequests() {
-    this.startTimer();
+    this._startTimer();
   }
   /**
    * Queue up a room key request, if we haven't already queued or sent one.
@@ -124,48 +141,48 @@ class OutgoingRoomKeyRequestManager {
 
 
   async queueRoomKeyRequest(requestBody, recipients, resend = false) {
-    const req = await this.cryptoStore.getOutgoingRoomKeyRequest(requestBody);
+    const req = await this._cryptoStore.getOutgoingRoomKeyRequest(requestBody);
 
     if (!req) {
-      await this.cryptoStore.getOrAddOutgoingRoomKeyRequest({
+      await this._cryptoStore.getOrAddOutgoingRoomKeyRequest({
         requestBody: requestBody,
         recipients: recipients,
-        requestId: this.baseApis.makeTxnId(),
-        state: RoomKeyRequestState.Unsent
+        requestId: this._baseApis.makeTxnId(),
+        state: ROOM_KEY_REQUEST_STATES.UNSENT
       });
     } else {
       switch (req.state) {
-        case RoomKeyRequestState.CancellationPendingAndWillResend:
-        case RoomKeyRequestState.Unsent:
+        case ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING_AND_WILL_RESEND:
+        case ROOM_KEY_REQUEST_STATES.UNSENT:
           // nothing to do here, since we're going to send a request anyways
           return;
 
-        case RoomKeyRequestState.CancellationPending:
+        case ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING:
           {
             // existing request is about to be cancelled.  If we want to
             // resend, then change the state so that it resends after
             // cancelling.  Otherwise, just cancel the cancellation.
-            const state = resend ? RoomKeyRequestState.CancellationPendingAndWillResend : RoomKeyRequestState.Sent;
-            await this.cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, RoomKeyRequestState.CancellationPending, {
+            const state = resend ? ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING_AND_WILL_RESEND : ROOM_KEY_REQUEST_STATES.SENT;
+            await this._cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING, {
               state,
-              cancellationTxnId: this.baseApis.makeTxnId()
+              cancellationTxnId: this._baseApis.makeTxnId()
             });
             break;
           }
 
-        case RoomKeyRequestState.Sent:
+        case ROOM_KEY_REQUEST_STATES.SENT:
           {
             // a request has already been sent.  If we don't want to
             // resend, then do nothing.  If we do want to, then cancel the
             // existing request and send a new one.
             if (resend) {
-              const state = RoomKeyRequestState.CancellationPendingAndWillResend;
-              const updatedReq = await this.cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, RoomKeyRequestState.Sent, {
+              const state = ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING_AND_WILL_RESEND;
+              const updatedReq = await this._cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, ROOM_KEY_REQUEST_STATES.SENT, {
                 state,
-                cancellationTxnId: this.baseApis.makeTxnId(),
+                cancellationTxnId: this._baseApis.makeTxnId(),
                 // need to use a new transaction ID so that
                 // the request gets sent
-                requestTxnId: this.baseApis.makeTxnId()
+                requestTxnId: this._baseApis.makeTxnId()
               });
 
               if (!updatedReq) {
@@ -186,7 +203,7 @@ class OutgoingRoomKeyRequestManager {
 
 
               try {
-                await this.sendOutgoingRoomKeyRequestCancellation(updatedReq, true);
+                await this._sendOutgoingRoomKeyRequestCancellation(updatedReq, true);
               } catch (e) {
                 _logger.logger.error("Error sending room key request cancellation;" + " will retry later.", e);
               } // The request has transitioned from
@@ -215,19 +232,19 @@ class OutgoingRoomKeyRequestManager {
 
 
   cancelRoomKeyRequest(requestBody) {
-    return this.cryptoStore.getOutgoingRoomKeyRequest(requestBody).then(req => {
+    return this._cryptoStore.getOutgoingRoomKeyRequest(requestBody).then(req => {
       if (!req) {
         // no request was made for this key
         return;
       }
 
       switch (req.state) {
-        case RoomKeyRequestState.CancellationPending:
-        case RoomKeyRequestState.CancellationPendingAndWillResend:
+        case ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING:
+        case ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING_AND_WILL_RESEND:
           // nothing to do here
           return;
 
-        case RoomKeyRequestState.Unsent:
+        case ROOM_KEY_REQUEST_STATES.UNSENT:
           // just delete it
           // FIXME: ghahah we may have attempted to send it, and
           // not yet got a successful response. So the server
@@ -235,14 +252,14 @@ class OutgoingRoomKeyRequestManager {
           // in that case :/
           _logger.logger.log('deleting unnecessary room key request for ' + stringifyRequestBody(requestBody));
 
-          return this.cryptoStore.deleteOutgoingRoomKeyRequest(req.requestId, RoomKeyRequestState.Unsent);
+          return this._cryptoStore.deleteOutgoingRoomKeyRequest(req.requestId, ROOM_KEY_REQUEST_STATES.UNSENT);
 
-        case RoomKeyRequestState.Sent:
+        case ROOM_KEY_REQUEST_STATES.SENT:
           {
             // send a cancellation.
-            return this.cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, RoomKeyRequestState.Sent, {
-              state: RoomKeyRequestState.CancellationPending,
-              cancellationTxnId: this.baseApis.makeTxnId()
+            return this._cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, ROOM_KEY_REQUEST_STATES.SENT, {
+              state: ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING,
+              cancellationTxnId: this._baseApis.makeTxnId()
             }).then(updatedReq => {
               if (!updatedReq) {
                 // updateOutgoingRoomKeyRequest couldn't find the
@@ -265,10 +282,10 @@ class OutgoingRoomKeyRequestManager {
               // do.)
 
 
-              this.sendOutgoingRoomKeyRequestCancellation(updatedReq).catch(e => {
+              this._sendOutgoingRoomKeyRequestCancellation(updatedReq).catch(e => {
                 _logger.logger.error("Error sending room key request cancellation;" + " will retry later.", e);
 
-                this.startTimer();
+                this._startTimer();
               });
             });
           }
@@ -290,7 +307,7 @@ class OutgoingRoomKeyRequestManager {
 
 
   getOutgoingSentRoomKeyRequest(userId, deviceId) {
-    return this.cryptoStore.getOutgoingRoomKeyRequestsByTarget(userId, deviceId, [RoomKeyRequestState.Sent]);
+    return this._cryptoStore.getOutgoingRoomKeyRequestsByTarget(userId, deviceId, [ROOM_KEY_REQUEST_STATES.SENT]);
   }
   /**
    * Find anything in `sent` state, and kick it around the loop again.
@@ -302,7 +319,7 @@ class OutgoingRoomKeyRequestManager {
 
 
   async cancelAndResendAllOutgoingRequests() {
-    const outgoings = await this.cryptoStore.getAllOutgoingRoomKeyRequestsByState(RoomKeyRequestState.Sent);
+    const outgoings = await this._cryptoStore.getAllOutgoingRoomKeyRequestsByState(ROOM_KEY_REQUEST_STATES.SENT);
     return Promise.all(outgoings.map(({
       requestBody,
       recipients
@@ -311,19 +328,20 @@ class OutgoingRoomKeyRequestManager {
   // already running
 
 
-  startTimer() {
-    if (this.sendOutgoingRoomKeyRequestsTimer) {
+  _startTimer() {
+    if (this._sendOutgoingRoomKeyRequestsTimer) {
       return;
     }
 
     const startSendingOutgoingRoomKeyRequests = () => {
-      if (this.sendOutgoingRoomKeyRequestsRunning) {
+      if (this._sendOutgoingRoomKeyRequestsRunning) {
         throw new Error("RoomKeyRequestSend already in progress!");
       }
 
-      this.sendOutgoingRoomKeyRequestsRunning = true;
-      this.sendOutgoingRoomKeyRequests().finally(() => {
-        this.sendOutgoingRoomKeyRequestsRunning = false;
+      this._sendOutgoingRoomKeyRequestsRunning = true;
+
+      this._sendOutgoingRoomKeyRequests().finally(() => {
+        this._sendOutgoingRoomKeyRequestsRunning = false;
       }).catch(e => {
         // this should only happen if there is an indexeddb error,
         // in which case we're a bit stuffed anyway.
@@ -331,92 +349,92 @@ class OutgoingRoomKeyRequestManager {
       });
     };
 
-    this.sendOutgoingRoomKeyRequestsTimer = setTimeout(startSendingOutgoingRoomKeyRequests, SEND_KEY_REQUESTS_DELAY_MS);
+    this._sendOutgoingRoomKeyRequestsTimer = global.setTimeout(startSendingOutgoingRoomKeyRequests, SEND_KEY_REQUESTS_DELAY_MS);
   } // look for and send any queued requests. Runs itself recursively until
   // there are no more requests, or there is an error (in which case, the
   // timer will be restarted before the promise resolves).
 
 
-  sendOutgoingRoomKeyRequests() {
-    if (!this.clientRunning) {
-      this.sendOutgoingRoomKeyRequestsTimer = null;
+  _sendOutgoingRoomKeyRequests() {
+    if (!this._clientRunning) {
+      this._sendOutgoingRoomKeyRequestsTimer = null;
       return Promise.resolve();
     }
 
-    return this.cryptoStore.getOutgoingRoomKeyRequestByState([RoomKeyRequestState.CancellationPending, RoomKeyRequestState.CancellationPendingAndWillResend, RoomKeyRequestState.Unsent]).then(req => {
+    return this._cryptoStore.getOutgoingRoomKeyRequestByState([ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING, ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING_AND_WILL_RESEND, ROOM_KEY_REQUEST_STATES.UNSENT]).then(req => {
       if (!req) {
-        this.sendOutgoingRoomKeyRequestsTimer = null;
+        this._sendOutgoingRoomKeyRequestsTimer = null;
         return;
       }
 
       let prom;
 
       switch (req.state) {
-        case RoomKeyRequestState.Unsent:
-          prom = this.sendOutgoingRoomKeyRequest(req);
+        case ROOM_KEY_REQUEST_STATES.UNSENT:
+          prom = this._sendOutgoingRoomKeyRequest(req);
           break;
 
-        case RoomKeyRequestState.CancellationPending:
-          prom = this.sendOutgoingRoomKeyRequestCancellation(req);
+        case ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING:
+          prom = this._sendOutgoingRoomKeyRequestCancellation(req);
           break;
 
-        case RoomKeyRequestState.CancellationPendingAndWillResend:
-          prom = this.sendOutgoingRoomKeyRequestCancellation(req, true);
+        case ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING_AND_WILL_RESEND:
+          prom = this._sendOutgoingRoomKeyRequestCancellation(req, true);
           break;
       }
 
       return prom.then(() => {
         // go around the loop again
-        return this.sendOutgoingRoomKeyRequests();
+        return this._sendOutgoingRoomKeyRequests();
       }).catch(e => {
         _logger.logger.error("Error sending room key request; will retry later.", e);
 
-        this.sendOutgoingRoomKeyRequestsTimer = null;
+        this._sendOutgoingRoomKeyRequestsTimer = null;
       });
     });
   } // given a RoomKeyRequest, send it and update the request record
 
 
-  sendOutgoingRoomKeyRequest(req) {
+  _sendOutgoingRoomKeyRequest(req) {
     _logger.logger.log(`Requesting keys for ${stringifyRequestBody(req.requestBody)}` + ` from ${stringifyRecipientList(req.recipients)}` + `(id ${req.requestId})`);
 
     const requestMessage = {
       action: "request",
-      requesting_device_id: this.deviceId,
+      requesting_device_id: this._deviceId,
       request_id: req.requestId,
       body: req.requestBody
     };
-    return this.sendMessageToDevices(requestMessage, req.recipients, req.requestTxnId || req.requestId).then(() => {
-      return this.cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, RoomKeyRequestState.Unsent, {
-        state: RoomKeyRequestState.Sent
+    return this._sendMessageToDevices(requestMessage, req.recipients, req.requestTxnId || req.requestId).then(() => {
+      return this._cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, ROOM_KEY_REQUEST_STATES.UNSENT, {
+        state: ROOM_KEY_REQUEST_STATES.SENT
       });
     });
   } // Given a RoomKeyRequest, cancel it and delete the request record unless
   // andResend is set, in which case transition to UNSENT.
 
 
-  sendOutgoingRoomKeyRequestCancellation(req, andResend = false) {
+  _sendOutgoingRoomKeyRequestCancellation(req, andResend) {
     _logger.logger.log(`Sending cancellation for key request for ` + `${stringifyRequestBody(req.requestBody)} to ` + `${stringifyRecipientList(req.recipients)} ` + `(cancellation id ${req.cancellationTxnId})`);
 
     const requestMessage = {
       action: "request_cancellation",
-      requesting_device_id: this.deviceId,
+      requesting_device_id: this._deviceId,
       request_id: req.requestId
     };
-    return this.sendMessageToDevices(requestMessage, req.recipients, req.cancellationTxnId).then(() => {
+    return this._sendMessageToDevices(requestMessage, req.recipients, req.cancellationTxnId).then(() => {
       if (andResend) {
         // We want to resend, so transition to UNSENT
-        return this.cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, RoomKeyRequestState.CancellationPendingAndWillResend, {
-          state: RoomKeyRequestState.Unsent
+        return this._cryptoStore.updateOutgoingRoomKeyRequest(req.requestId, ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING_AND_WILL_RESEND, {
+          state: ROOM_KEY_REQUEST_STATES.UNSENT
         });
       }
 
-      return this.cryptoStore.deleteOutgoingRoomKeyRequest(req.requestId, RoomKeyRequestState.CancellationPending);
+      return this._cryptoStore.deleteOutgoingRoomKeyRequest(req.requestId, ROOM_KEY_REQUEST_STATES.CANCELLATION_PENDING);
     });
   } // send a RoomKeyRequest to a list of recipients
 
 
-  sendMessageToDevices(message, recipients, txnId) {
+  _sendMessageToDevices(message, recipients, txnId) {
     const contentMap = {};
 
     for (const recip of recipients) {
@@ -427,7 +445,7 @@ class OutgoingRoomKeyRequestManager {
       contentMap[recip.userId][recip.deviceId] = message;
     }
 
-    return this.baseApis.sendToDevice(_event.EventType.RoomKeyRequest, contentMap, txnId);
+    return this._baseApis.sendToDevice('m.room_key_request', contentMap, txnId);
   }
 
 }

@@ -1,5 +1,5 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v12.4.1.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v11.1.0.
 
 The following npm dependencies are included:
 
@@ -11,9 +11,7 @@ The following npm dependencies are included:
 * content-type: https://www.npmjs.com/package/content-type v1.0.4
 * events: https://www.npmjs.com/package/events v3.2.0
 * qs: https://www.npmjs.com/package/qs v6.9.6
-* unhomoglyph: https://www.npmjs.com/package/unhomoglyph v1.0.6
-* p-retry: https://www.npmjs.com/package/p-retry v4.6.1
-* retry: https://www.npmjs.com/package/retry v0.13.1
+* unhomoglyph: https://www.npmjs.com/package/unhomoglyph 1.0.6
 
 The following npm dependencies are shimmed:
 
@@ -42,7 +40,7 @@ in chat/protocols/matrix/matrix-sdk.jsm.
 6.  Remove the old SDK files `hg rm chat/protocols/matrix/lib/matrix-sdk`
 7.  Undo the removal of the license: `hg revert chat/protocols/matrix/lib/matrix-sdk/LICENSE`
 8.  Copy the Babel-ified JavaScript files from the matrix-js-sdk to vendored
-    location: `cp -r ../../matrix-js-sdk/lib/* chat/protocols/matrix/lib/matrix-sdk`
+    location: `cp -r ../../matrix-js-sdk/lib/ chat/protocols/matrix/lib/matrix-sdk`
 9.  Add the files back to Mercurial: `hg add chat/protocols/matrix/lib/matrix-sdk`
 10. Modify `moz.build` to add/remove/rename modified files.
 11. Modify `matrix-sdk.jsm` to add/remove/rename modified files.
@@ -65,10 +63,7 @@ used:
         "@babel/preset-typescript"
     ],
     "plugins": [
-        "@babel/plugin-proposal-numeric-separator",
-        "@babel/plugin-proposal-class-properties",
-        "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-syntax-dynamic-import"
+        "@babel/plugin-proposal-class-properties"
     ]
 }
 ```
@@ -123,10 +118,3 @@ thus are not included here.
 
 The package is published on the Matrix gitlab. To update the library, download
 the latest `.tgz` bundle and replace the files in the `@matrix-org/olm` folder.
-
-### Updating p-retry
-
-While p-retry itself only consists of a single `index.js` file, it depends on
-the `retry` package, which consists of three files, and `index.js` and two
-modules in the `lib` folder. All four files should be mirrored over into this
-folder into a `p-retry` and `retry` folder respectively.
