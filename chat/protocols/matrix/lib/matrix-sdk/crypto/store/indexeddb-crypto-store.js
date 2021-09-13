@@ -17,27 +17,11 @@ var _errors = require("../../errors");
 
 var IndexedDBHelpers = _interopRequireWildcard(require("../../indexeddb-helpers"));
 
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-/*
-Copyright 2017 Vector Creations Ltd
-Copyright 2018 New Vector Ltd
-Copyright 2020 The Matrix.org Foundation C.I.C.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * Internal module. indexeddb storage for e2e.
@@ -52,6 +36,10 @@ limitations under the License.
  * @implements {module:crypto/store/base~CryptoStore}
  */
 class IndexedDBCryptoStore {
+  static exists(indexedDB, dbName) {
+    return IndexedDBHelpers.exists(indexedDB, dbName);
+  }
+
   /**
    * Create a new IndexedDBCryptoStore
    *
@@ -59,14 +47,12 @@ class IndexedDBCryptoStore {
    * @param {string} dbName   name of db to connect to
    */
   constructor(indexedDB, dbName) {
-    this._indexedDB = indexedDB;
-    this._dbName = dbName;
-    this._backendPromise = null;
-    this._backend = null;
-  }
+    this.indexedDB = indexedDB;
+    this.dbName = dbName;
 
-  static exists(indexedDB, dbName) {
-    return IndexedDBHelpers.exists(indexedDB, dbName);
+    _defineProperty(this, "backendPromise", null);
+
+    _defineProperty(this, "backend", null);
   }
   /**
    * Ensure the database exists and is up-to-date, or fall back to
@@ -80,22 +66,22 @@ class IndexedDBCryptoStore {
 
 
   startup() {
-    if (this._backendPromise) {
-      return this._backendPromise;
+    if (this.backendPromise) {
+      return this.backendPromise;
     }
 
-    this._backendPromise = new Promise((resolve, reject) => {
-      if (!this._indexedDB) {
+    this.backendPromise = new Promise((resolve, reject) => {
+      if (!this.indexedDB) {
         reject(new Error('no indexeddb support available'));
         return;
       }
 
-      _logger.logger.log(`connecting to indexeddb ${this._dbName}`);
+      _logger.logger.log(`connecting to indexeddb ${this.dbName}`);
 
-      const req = this._indexedDB.open(this._dbName, IndexedDBCryptoStoreBackend.VERSION);
+      const req = this.indexedDB.open(this.dbName, IndexedDBCryptoStoreBackend.VERSION);
 
       req.onupgradeneeded = ev => {
-        const db = ev.target.result;
+        const db = req.result;
         const oldVersion = ev.oldVersion;
         IndexedDBCryptoStoreBackend.upgradeDatabase(db, oldVersion);
       };
@@ -107,13 +93,13 @@ class IndexedDBCryptoStore {
       req.onerror = ev => {
         _logger.logger.log("Error connecting to indexeddb", ev);
 
-        reject(ev.target.error);
+        reject(req.error);
       };
 
-      req.onsuccess = r => {
-        const db = r.target.result;
+      req.onsuccess = () => {
+        const db = req.result;
 
-        _logger.logger.log(`connected to indexeddb ${this._dbName}`);
+        _logger.logger.log(`connected to indexeddb ${this.dbName}`);
 
         resolve(new IndexedDBCryptoStoreBackend.Backend(db));
       };
@@ -123,9 +109,7 @@ class IndexedDBCryptoStore {
       // we can fall back to a different backend.
       return backend.doTxn('readonly', [IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
         backend.getEndToEndInboundGroupSession('', '', txn, () => {});
-      }).then(() => {
-        return backend;
-      });
+      }).then(() => backend);
     }).catch(e => {
       if (e.name === 'VersionError') {
         _logger.logger.warn("Crypto DB is too new for us to use!", e); // don't fall back to a different store: the user has crypto data
@@ -135,7 +119,7 @@ class IndexedDBCryptoStore {
         throw new _errors.InvalidCryptoStoreError(_errors.InvalidCryptoStoreError.TOO_NEW);
       }
 
-      _logger.logger.warn(`unable to connect to indexeddb ${this._dbName}` + `: falling back to localStorage store: ${e}`);
+      _logger.logger.warn(`unable to connect to indexeddb ${this.dbName}` + `: falling back to localStorage store: ${e}`);
 
       try {
         return new _localStorageCryptoStore.LocalStorageCryptoStore(global.localStorage);
@@ -145,9 +129,10 @@ class IndexedDBCryptoStore {
         return new _memoryCryptoStore.MemoryCryptoStore();
       }
     }).then(backend => {
-      this._backend = backend;
+      this.backend = backend;
+      return backend;
     });
-    return this._backendPromise;
+    return this.backendPromise;
   }
   /**
    * Delete all data from this store.
@@ -158,14 +143,14 @@ class IndexedDBCryptoStore {
 
   deleteAllData() {
     return new Promise((resolve, reject) => {
-      if (!this._indexedDB) {
+      if (!this.indexedDB) {
         reject(new Error('no indexeddb support available'));
         return;
       }
 
-      _logger.logger.log(`Removing indexeddb instance: ${this._dbName}`);
+      _logger.logger.log(`Removing indexeddb instance: ${this.dbName}`);
 
-      const req = this._indexedDB.deleteDatabase(this._dbName);
+      const req = this.indexedDB.deleteDatabase(this.dbName);
 
       req.onblocked = () => {
         _logger.logger.log(`can't yet delete IndexedDBCryptoStore because it is open elsewhere`);
@@ -174,11 +159,11 @@ class IndexedDBCryptoStore {
       req.onerror = ev => {
         _logger.logger.log("Error deleting data from indexeddb", ev);
 
-        reject(ev.target.error);
+        reject(req.error);
       };
 
       req.onsuccess = () => {
-        _logger.logger.log(`Removed indexeddb instance: ${this._dbName}`);
+        _logger.logger.log(`Removed indexeddb instance: ${this.dbName}`);
 
         resolve();
       };
@@ -202,7 +187,7 @@ class IndexedDBCryptoStore {
 
 
   getOrAddOutgoingRoomKeyRequest(request) {
-    return this._backend.getOrAddOutgoingRoomKeyRequest(request);
+    return this.backend.getOrAddOutgoingRoomKeyRequest(request);
   }
   /**
    * Look for an existing room key request
@@ -217,7 +202,7 @@ class IndexedDBCryptoStore {
 
 
   getOutgoingRoomKeyRequest(requestBody) {
-    return this._backend.getOutgoingRoomKeyRequest(requestBody);
+    return this.backend.getOutgoingRoomKeyRequest(requestBody);
   }
   /**
    * Look for room key requests by state
@@ -232,7 +217,7 @@ class IndexedDBCryptoStore {
 
 
   getOutgoingRoomKeyRequestByState(wantedStates) {
-    return this._backend.getOutgoingRoomKeyRequestByState(wantedStates);
+    return this.backend.getOutgoingRoomKeyRequestByState(wantedStates);
   }
   /**
    * Look for room key requests by state –
@@ -244,7 +229,7 @@ class IndexedDBCryptoStore {
 
 
   getAllOutgoingRoomKeyRequestsByState(wantedState) {
-    return this._backend.getAllOutgoingRoomKeyRequestsByState(wantedState);
+    return this.backend.getAllOutgoingRoomKeyRequestsByState(wantedState);
   }
   /**
    * Look for room key requests by target device and state
@@ -259,7 +244,7 @@ class IndexedDBCryptoStore {
 
 
   getOutgoingRoomKeyRequestsByTarget(userId, deviceId, wantedStates) {
-    return this._backend.getOutgoingRoomKeyRequestsByTarget(userId, deviceId, wantedStates);
+    return this.backend.getOutgoingRoomKeyRequestsByTarget(userId, deviceId, wantedStates);
   }
   /**
    * Look for an existing room key request by id and state, and update it if
@@ -276,7 +261,7 @@ class IndexedDBCryptoStore {
 
 
   updateOutgoingRoomKeyRequest(requestId, expectedState, updates) {
-    return this._backend.updateOutgoingRoomKeyRequest(requestId, expectedState, updates);
+    return this.backend.updateOutgoingRoomKeyRequest(requestId, expectedState, updates);
   }
   /**
    * Look for an existing room key request by id and state, and delete it if
@@ -290,7 +275,7 @@ class IndexedDBCryptoStore {
 
 
   deleteOutgoingRoomKeyRequest(requestId, expectedState) {
-    return this._backend.deleteOutgoingRoomKeyRequest(requestId, expectedState);
+    return this.backend.deleteOutgoingRoomKeyRequest(requestId, expectedState);
   } // Olm Account
 
   /*
@@ -303,19 +288,19 @@ class IndexedDBCryptoStore {
 
 
   getAccount(txn, func) {
-    this._backend.getAccount(txn, func);
+    this.backend.getAccount(txn, func);
   }
   /**
    * Write the account pickle to the store.
    * This requires an active transaction. See doTxn().
    *
    * @param {*} txn An active transaction. See doTxn().
-   * @param {string} newData The new account pickle to store.
+   * @param {string} accountPickle The new account pickle to store.
    */
 
 
-  storeAccount(txn, newData) {
-    this._backend.storeAccount(txn, newData);
+  storeAccount(txn, accountPickle) {
+    this.backend.storeAccount(txn, accountPickle);
   }
   /**
    * Get the public part of the cross-signing keys (eg. self-signing key,
@@ -328,7 +313,7 @@ class IndexedDBCryptoStore {
 
 
   getCrossSigningKeys(txn, func) {
-    this._backend.getCrossSigningKeys(txn, func);
+    this.backend.getCrossSigningKeys(txn, func);
   }
   /**
    * @param {*} txn An active transaction. See doTxn().
@@ -338,7 +323,7 @@ class IndexedDBCryptoStore {
 
 
   getSecretStorePrivateKey(txn, func, type) {
-    this._backend.getSecretStorePrivateKey(txn, func, type);
+    this.backend.getSecretStorePrivateKey(txn, func, type);
   }
   /**
    * Write the cross-signing keys back to the store
@@ -349,7 +334,7 @@ class IndexedDBCryptoStore {
 
 
   storeCrossSigningKeys(txn, keys) {
-    this._backend.storeCrossSigningKeys(txn, keys);
+    this.backend.storeCrossSigningKeys(txn, keys);
   }
   /**
    * Write the cross-signing private keys back to the store
@@ -361,7 +346,7 @@ class IndexedDBCryptoStore {
 
 
   storeSecretStorePrivateKey(txn, type, key) {
-    this._backend.storeSecretStorePrivateKey(txn, type, key);
+    this.backend.storeSecretStorePrivateKey(txn, type, key);
   } // Olm sessions
 
   /**
@@ -372,7 +357,7 @@ class IndexedDBCryptoStore {
 
 
   countEndToEndSessions(txn, func) {
-    this._backend.countEndToEndSessions(txn, func);
+    this.backend.countEndToEndSessions(txn, func);
   }
   /**
    * Retrieve a specific end-to-end session between the logged-in user
@@ -389,7 +374,7 @@ class IndexedDBCryptoStore {
 
 
   getEndToEndSession(deviceKey, sessionId, txn, func) {
-    this._backend.getEndToEndSession(deviceKey, sessionId, txn, func);
+    this.backend.getEndToEndSession(deviceKey, sessionId, txn, func);
   }
   /**
    * Retrieve the end-to-end sessions between the logged-in user and another
@@ -405,7 +390,7 @@ class IndexedDBCryptoStore {
 
 
   getEndToEndSessions(deviceKey, txn, func) {
-    this._backend.getEndToEndSessions(deviceKey, txn, func);
+    this.backend.getEndToEndSessions(deviceKey, txn, func);
   }
   /**
    * Retrieve all end-to-end sessions
@@ -417,7 +402,7 @@ class IndexedDBCryptoStore {
 
 
   getAllEndToEndSessions(txn, func) {
-    this._backend.getAllEndToEndSessions(txn, func);
+    this.backend.getAllEndToEndSessions(txn, func);
   }
   /**
    * Store a session between the logged-in user and another device
@@ -429,19 +414,19 @@ class IndexedDBCryptoStore {
 
 
   storeEndToEndSession(deviceKey, sessionId, sessionInfo, txn) {
-    this._backend.storeEndToEndSession(deviceKey, sessionId, sessionInfo, txn);
+    this.backend.storeEndToEndSession(deviceKey, sessionId, sessionInfo, txn);
   }
 
   storeEndToEndSessionProblem(deviceKey, type, fixed) {
-    return this._backend.storeEndToEndSessionProblem(deviceKey, type, fixed);
+    return this.backend.storeEndToEndSessionProblem(deviceKey, type, fixed);
   }
 
   getEndToEndSessionProblem(deviceKey, timestamp) {
-    return this._backend.getEndToEndSessionProblem(deviceKey, timestamp);
+    return this.backend.getEndToEndSessionProblem(deviceKey, timestamp);
   }
 
   filterOutNotifiedErrorDevices(devices) {
-    return this._backend.filterOutNotifiedErrorDevices(devices);
+    return this.backend.filterOutNotifiedErrorDevices(devices);
   } // Inbound group sessions
 
   /**
@@ -456,7 +441,7 @@ class IndexedDBCryptoStore {
 
 
   getEndToEndInboundGroupSession(senderCurve25519Key, sessionId, txn, func) {
-    this._backend.getEndToEndInboundGroupSession(senderCurve25519Key, sessionId, txn, func);
+    this.backend.getEndToEndInboundGroupSession(senderCurve25519Key, sessionId, txn, func);
   }
   /**
    * Fetches all inbound group sessions in the store
@@ -468,7 +453,7 @@ class IndexedDBCryptoStore {
 
 
   getAllEndToEndInboundGroupSessions(txn, func) {
-    this._backend.getAllEndToEndInboundGroupSessions(txn, func);
+    this.backend.getAllEndToEndInboundGroupSessions(txn, func);
   }
   /**
    * Adds an end-to-end inbound group session to the store.
@@ -482,7 +467,7 @@ class IndexedDBCryptoStore {
 
 
   addEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn) {
-    this._backend.addEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn);
+    this.backend.addEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn);
   }
   /**
    * Writes an end-to-end inbound group session to the store.
@@ -496,11 +481,11 @@ class IndexedDBCryptoStore {
 
 
   storeEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn) {
-    this._backend.storeEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn);
+    this.backend.storeEndToEndInboundGroupSession(senderCurve25519Key, sessionId, sessionData, txn);
   }
 
   storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn) {
-    this._backend.storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn);
+    this.backend.storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn);
   } // End-to-end device tracking
 
   /**
@@ -516,7 +501,7 @@ class IndexedDBCryptoStore {
 
 
   storeEndToEndDeviceData(deviceData, txn) {
-    this._backend.storeEndToEndDeviceData(deviceData, txn);
+    this.backend.storeEndToEndDeviceData(deviceData, txn);
   }
   /**
    * Get the state of all tracked devices
@@ -528,7 +513,7 @@ class IndexedDBCryptoStore {
 
 
   getEndToEndDeviceData(txn, func) {
-    this._backend.getEndToEndDeviceData(txn, func);
+    this.backend.getEndToEndDeviceData(txn, func);
   } // End to End Rooms
 
   /**
@@ -540,7 +525,7 @@ class IndexedDBCryptoStore {
 
 
   storeEndToEndRoom(roomId, roomInfo, txn) {
-    this._backend.storeEndToEndRoom(roomId, roomInfo, txn);
+    this.backend.storeEndToEndRoom(roomId, roomInfo, txn);
   }
   /**
    * Get an object of roomId->roomInfo for all e2e rooms in the store
@@ -550,19 +535,19 @@ class IndexedDBCryptoStore {
 
 
   getEndToEndRooms(txn, func) {
-    this._backend.getEndToEndRooms(txn, func);
+    this.backend.getEndToEndRooms(txn, func);
   } // session backups
 
   /**
    * Get the inbound group sessions that need to be backed up.
-   * @param {integer} limit The maximum number of sessions to retrieve.  0
+   * @param {number} limit The maximum number of sessions to retrieve.  0
    * for no limit.
    * @returns {Promise} resolves to an array of inbound group sessions
    */
 
 
   getSessionsNeedingBackup(limit) {
-    return this._backend.getSessionsNeedingBackup(limit);
+    return this.backend.getSessionsNeedingBackup(limit);
   }
   /**
    * Count the inbound group sessions that need to be backed up.
@@ -572,7 +557,7 @@ class IndexedDBCryptoStore {
 
 
   countSessionsNeedingBackup(txn) {
-    return this._backend.countSessionsNeedingBackup(txn);
+    return this.backend.countSessionsNeedingBackup(txn);
   }
   /**
    * Unmark sessions as needing to be backed up.
@@ -583,7 +568,7 @@ class IndexedDBCryptoStore {
 
 
   unmarkSessionsNeedingBackup(sessions, txn) {
-    return this._backend.unmarkSessionsNeedingBackup(sessions, txn);
+    return this.backend.unmarkSessionsNeedingBackup(sessions, txn);
   }
   /**
    * Mark sessions as needing to be backed up.
@@ -594,7 +579,7 @@ class IndexedDBCryptoStore {
 
 
   markSessionsNeedingBackup(sessions, txn) {
-    return this._backend.markSessionsNeedingBackup(sessions, txn);
+    return this.backend.markSessionsNeedingBackup(sessions, txn);
   }
   /**
    * Add a shared-history group session for a room.
@@ -606,7 +591,7 @@ class IndexedDBCryptoStore {
 
 
   addSharedHistoryInboundGroupSession(roomId, senderKey, sessionId, txn) {
-    this._backend.addSharedHistoryInboundGroupSession(roomId, senderKey, sessionId, txn);
+    this.backend.addSharedHistoryInboundGroupSession(roomId, senderKey, sessionId, txn);
   }
   /**
    * Get the shared-history group session for a room.
@@ -617,7 +602,7 @@ class IndexedDBCryptoStore {
 
 
   getSharedHistoryInboundGroupSessions(roomId, txn) {
-    return this._backend.getSharedHistoryInboundGroupSessions(roomId, txn);
+    return this.backend.getSharedHistoryInboundGroupSessions(roomId, txn);
   }
   /**
    * Perform a transaction on the crypto store. Any store methods
@@ -644,17 +629,25 @@ class IndexedDBCryptoStore {
 
 
   doTxn(mode, stores, func, log) {
-    return this._backend.doTxn(mode, stores, func, log);
+    return this.backend.doTxn(mode, stores, func, log);
   }
 
 }
 
 exports.IndexedDBCryptoStore = IndexedDBCryptoStore;
-IndexedDBCryptoStore.STORE_ACCOUNT = 'account';
-IndexedDBCryptoStore.STORE_SESSIONS = 'sessions';
-IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS = 'inbound_group_sessions';
-IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD = 'inbound_group_sessions_withheld';
-IndexedDBCryptoStore.STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS = 'shared_history_inbound_group_sessions';
-IndexedDBCryptoStore.STORE_DEVICE_DATA = 'device_data';
-IndexedDBCryptoStore.STORE_ROOMS = 'rooms';
-IndexedDBCryptoStore.STORE_BACKUP = 'sessions_needing_backup';
+
+_defineProperty(IndexedDBCryptoStore, "STORE_ACCOUNT", 'account');
+
+_defineProperty(IndexedDBCryptoStore, "STORE_SESSIONS", 'sessions');
+
+_defineProperty(IndexedDBCryptoStore, "STORE_INBOUND_GROUP_SESSIONS", 'inbound_group_sessions');
+
+_defineProperty(IndexedDBCryptoStore, "STORE_INBOUND_GROUP_SESSIONS_WITHHELD", 'inbound_group_sessions_withheld');
+
+_defineProperty(IndexedDBCryptoStore, "STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS", 'shared_history_inbound_group_sessions');
+
+_defineProperty(IndexedDBCryptoStore, "STORE_DEVICE_DATA", 'device_data');
+
+_defineProperty(IndexedDBCryptoStore, "STORE_ROOMS", 'rooms');
+
+_defineProperty(IndexedDBCryptoStore, "STORE_BACKUP", 'sessions_needing_backup');

@@ -10,8 +10,7 @@ var _logger = require("../../logger");
 var _memoryCryptoStore = require("./memory-crypto-store");
 
 /*
-Copyright 2017, 2018 New Vector Ltd
-Copyright 2020 The Matrix.org Foundation C.I.C.
+Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -70,21 +69,21 @@ function keyEndToEndRoomsPrefix(roomId) {
 
 
 class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
-  constructor(webStore) {
-    super();
-    this.store = webStore;
-  }
-
-  static exists(webStore) {
-    const length = webStore.length;
+  static exists(store) {
+    const length = store.length;
 
     for (let i = 0; i < length; i++) {
-      if (webStore.key(i).startsWith(E2E_PREFIX)) {
+      if (store.key(i).startsWith(E2E_PREFIX)) {
         return true;
       }
     }
 
     return false;
+  }
+
+  constructor(store) {
+    super();
+    this.store = store;
   } // Olm Sessions
 
 
@@ -96,9 +95,10 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
     }
 
     func(count);
-  }
+  } // eslint-disable-next-line @typescript-eslint/naming-convention
 
-  _getEndToEndSessions(deviceKey, txn, func) {
+
+  _getEndToEndSessions(deviceKey) {
     const sessions = getJsonItem(this.store, keyEndToEndSessions(deviceKey));
     const fixedSessions = {}; // fix up any old sessions to be objects rather than just the base64 pickle
 
@@ -344,12 +344,12 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
 
 
   getAccount(txn, func) {
-    const account = getJsonItem(this.store, KEY_END_TO_END_ACCOUNT);
-    func(account);
+    const accountPickle = getJsonItem(this.store, KEY_END_TO_END_ACCOUNT);
+    func(accountPickle);
   }
 
-  storeAccount(txn, newData) {
-    setJsonItem(this.store, KEY_END_TO_END_ACCOUNT, newData);
+  storeAccount(txn, accountPickle) {
+    setJsonItem(this.store, KEY_END_TO_END_ACCOUNT, accountPickle);
   }
 
   getCrossSigningKeys(txn, func) {

@@ -3,34 +3,23 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SyncAccumulator = void 0;
+exports.SyncAccumulator = exports.Category = void 0;
 
 var _logger = require("./logger");
 
 var _utils = require("./utils");
 
-/*
-Copyright 2017 Vector Creations Ltd
-Copyright 2018 New Vector Ltd
-Copyright 2019 The Matrix.org Foundation C.I.C.
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+/* eslint-enable camelcase */
+let Category;
+exports.Category = Category;
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-/**
- * This is an internal module. See {@link SyncAccumulator} for the public class.
- * @module sync-accumulator
- */
+(function (Category) {
+  Category["Invite"] = "invite";
+  Category["Leave"] = "leave";
+  Category["Join"] = "join";
+})(Category || (exports.Category = Category = {}));
 
 /**
  * The purpose of this class is to accumulate /sync responses such that a
@@ -43,6 +32,14 @@ limitations under the License.
  * rather than asking the server to do an initial sync on startup.
  */
 class SyncAccumulator {
+  // $event_type: Object
+  // $roomId: { ... sync 'invite' json data ... }
+  // the /sync token which corresponds to the last time rooms were
+  // accumulated. We remember this so that any caller can obtain a
+  // coherent /sync response and know at what point they should be
+  // streaming from without losing events.
+  // { ('invite'|'join'|'leave'): $groupId: { ... sync 'group' data } }
+
   /**
    * @param {Object} opts
    * @param {Number=} opts.maxTimelineEntries The ideal maximum number of
@@ -52,56 +49,34 @@ class SyncAccumulator {
    * never be more. This cannot be 0 or else it makes it impossible to scroll
    * back in a room. Default: 50.
    */
-  constructor(opts) {
-    opts = opts || {};
-    opts.maxTimelineEntries = opts.maxTimelineEntries || 50;
+  constructor(opts = {}) {
     this.opts = opts;
-    this.accountData = {//$event_type: Object
-    };
-    this.inviteRooms = {//$roomId: { ... sync 'invite' json data ... }
-    };
-    this.joinRooms = {//$roomId: {
-      //    _currentState: { $event_type: { $state_key: json } },
-      //    _timeline: [
-      //       { event: $event, token: null|token },
-      //       { event: $event, token: null|token },
-      //       { event: $event, token: null|token },
-      //       ...
-      //    ],
-      //    _summary: {
-      //       m.heroes: [ $user_id ],
-      //       m.joined_member_count: $count,
-      //       m.invited_member_count: $count
-      //    },
-      //    _accountData: { $event_type: json },
-      //    _unreadNotifications: { ... unread_notifications JSON ... },
-      //    _readReceipts: { $user_id: { data: $json, eventId: $event_id }}
-      //}
-    }; // the /sync token which corresponds to the last time rooms were
-    // accumulated. We remember this so that any caller can obtain a
-    // coherent /sync response and know at what point they should be
-    // streaming from without losing events.
 
-    this.nextBatch = null; // { ('invite'|'join'|'leave'): $groupId: { ... sync 'group' data } }
+    _defineProperty(this, "accountData", {});
 
-    this.groups = {
+    _defineProperty(this, "inviteRooms", {});
+
+    _defineProperty(this, "joinRooms", {});
+
+    _defineProperty(this, "nextBatch", null);
+
+    _defineProperty(this, "groups", {
       invite: {},
       join: {},
       leave: {}
-    };
+    });
+
+    this.opts.maxTimelineEntries = this.opts.maxTimelineEntries || 50;
   }
 
-  accumulate(syncResponse, fromDatabase) {
-    this._accumulateRooms(syncResponse, fromDatabase);
-
-    this._accumulateGroups(syncResponse);
-
-    this._accumulateAccountData(syncResponse);
-
+  accumulate(syncResponse, fromDatabase = false) {
+    this.accumulateRooms(syncResponse, fromDatabase);
+    this.accumulateGroups(syncResponse);
+    this.accumulateAccountData(syncResponse);
     this.nextBatch = syncResponse.next_batch;
   }
 
-  _accumulateAccountData(syncResponse) {
+  accumulateAccountData(syncResponse) {
     if (!syncResponse.account_data || !syncResponse.account_data.events) {
       return;
     } // Clobbers based on event type.
@@ -118,31 +93,31 @@ class SyncAccumulator {
    */
 
 
-  _accumulateRooms(syncResponse, fromDatabase) {
+  accumulateRooms(syncResponse, fromDatabase = false) {
     if (!syncResponse.rooms) {
       return;
     }
 
     if (syncResponse.rooms.invite) {
       Object.keys(syncResponse.rooms.invite).forEach(roomId => {
-        this._accumulateRoom(roomId, "invite", syncResponse.rooms.invite[roomId], fromDatabase);
+        this.accumulateRoom(roomId, Category.Invite, syncResponse.rooms.invite[roomId], fromDatabase);
       });
     }
 
     if (syncResponse.rooms.join) {
       Object.keys(syncResponse.rooms.join).forEach(roomId => {
-        this._accumulateRoom(roomId, "join", syncResponse.rooms.join[roomId], fromDatabase);
+        this.accumulateRoom(roomId, Category.Join, syncResponse.rooms.join[roomId], fromDatabase);
       });
     }
 
     if (syncResponse.rooms.leave) {
       Object.keys(syncResponse.rooms.leave).forEach(roomId => {
-        this._accumulateRoom(roomId, "leave", syncResponse.rooms.leave[roomId], fromDatabase);
+        this.accumulateRoom(roomId, Category.Leave, syncResponse.rooms.leave[roomId], fromDatabase);
       });
     }
   }
 
-  _accumulateRoom(roomId, category, data, fromDatabase) {
+  accumulateRoom(roomId, category, data, fromDatabase = false) {
     // Valid /sync state transitions
     //       +--------+ <======+            1: Accept an invite
     //   +== | INVITE |        | (5)        2: Leave a room
@@ -155,13 +130,12 @@ class SyncAccumulator {
     //
     // * equivalent to "no state"
     switch (category) {
-      case "invite":
+      case Category.Invite:
         // (5)
-        this._accumulateInviteState(roomId, data);
-
+        this.accumulateInviteState(roomId, data);
         break;
 
-      case "join":
+      case Category.Join:
         if (this.inviteRooms[roomId]) {
           // (1)
           // was previously invite, now join. We expect /sync to give
@@ -171,11 +145,10 @@ class SyncAccumulator {
         } // (3)
 
 
-        this._accumulateJoinState(roomId, data, fromDatabase);
-
+        this.accumulateJoinState(roomId, data, fromDatabase);
         break;
 
-      case "leave":
+      case Category.Leave:
         if (this.inviteRooms[roomId]) {
           // (4)
           delete this.inviteRooms[roomId];
@@ -192,7 +165,7 @@ class SyncAccumulator {
     }
   }
 
-  _accumulateInviteState(roomId, data) {
+  accumulateInviteState(roomId, data) {
     if (!data.invite_state || !data.invite_state.events) {
       // no new data
       return;
@@ -229,7 +202,7 @@ class SyncAccumulator {
   } // Accumulate timeline and state events in a room.
 
 
-  _accumulateJoinState(roomId, data, fromDatabase) {
+  accumulateJoinState(roomId, data, fromDatabase = false) {
     // We expect this function to be called a lot (every /sync) so we want
     // this to be fast. /sync stores events in an array but we often want
     // to clobber based on type/state_key. Rather than convert arrays to
@@ -406,32 +379,32 @@ class SyncAccumulator {
    */
 
 
-  _accumulateGroups(syncResponse) {
+  accumulateGroups(syncResponse) {
     if (!syncResponse.groups) {
       return;
     }
 
     if (syncResponse.groups.invite) {
       Object.keys(syncResponse.groups.invite).forEach(groupId => {
-        this._accumulateGroup(groupId, "invite", syncResponse.groups.invite[groupId]);
+        this.accumulateGroup(groupId, Category.Invite, syncResponse.groups.invite[groupId]);
       });
     }
 
     if (syncResponse.groups.join) {
       Object.keys(syncResponse.groups.join).forEach(groupId => {
-        this._accumulateGroup(groupId, "join", syncResponse.groups.join[groupId]);
+        this.accumulateGroup(groupId, Category.Join, syncResponse.groups.join[groupId]);
       });
     }
 
     if (syncResponse.groups.leave) {
       Object.keys(syncResponse.groups.leave).forEach(groupId => {
-        this._accumulateGroup(groupId, "leave", syncResponse.groups.leave[groupId]);
+        this.accumulateGroup(groupId, Category.Leave, syncResponse.groups.leave[groupId]);
       });
     }
   }
 
-  _accumulateGroup(groupId, category, data) {
-    for (const cat of ['invite', 'join', 'leave']) {
+  accumulateGroup(groupId, category, data) {
+    for (const cat of [Category.Invite, Category.Leave, Category.Join]) {
       delete this.groups[cat][groupId];
     }
 
@@ -454,7 +427,7 @@ class SyncAccumulator {
    */
 
 
-  getJSON(forDatabase) {
+  getJSON(forDatabase = false) {
     const data = {
       join: {},
       invite: {},
@@ -534,13 +507,13 @@ class SyncAccumulator {
 
         let transformedEvent;
 
-        if (!forDatabase && msgData.event._localTs) {
+        if (!forDatabase && msgData.event["_localTs"]) {
           // This means we have to copy each event so we can fix it up to
           // set a correct 'age' parameter whilst keeping the local timestamp
           // on our stored event. If this turns out to be a bottleneck, it could
           // be optimised either by doing this in the main process after the data
           // has been structured-cloned to go between the worker & main process,
-          // or special-casing data from saved syncs to read the local timstamp
+          // or special-casing data from saved syncs to read the local timestamp
           // directly rather than turning it into age to then immediately be
           // transformed back again into a local timestamp.
           transformedEvent = Object.assign({}, msgData.event);
@@ -551,7 +524,7 @@ class SyncAccumulator {
 
           delete transformedEvent._localTs;
           transformedEvent.unsigned = transformedEvent.unsigned || {};
-          transformedEvent.unsigned.age = Date.now() - msgData.event._localTs;
+          transformedEvent.unsigned.age = Date.now() - msgData.event["_localTs"];
         } else {
           transformedEvent = msgData.event;
         }

@@ -41,8 +41,8 @@ class DehydrationManager {
   }
 
   async getDehydrationKeyFromCache() {
-    return await this.crypto._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
-      this.crypto._cryptoStore.getSecretStorePrivateKey(txn, async result => {
+    return await this.crypto.cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+      this.crypto.cryptoStore.getSecretStorePrivateKey(txn, async result => {
         if (result) {
           const {
             key,
@@ -50,7 +50,7 @@ class DehydrationManager {
             deviceDisplayName,
             time
           } = result;
-          const pickleKey = Buffer.from(this.crypto._olmDevice._pickleKey);
+          const pickleKey = Buffer.from(this.crypto.olmDevice._pickleKey);
           const decrypted = await (0, _aes.decryptAES)(key, pickleKey, DEHYDRATION_ALGORITHM);
           this.key = (0, _olmlib.decodeBase64)(decrypted);
           this.keyInfo = keyInfo;
@@ -83,8 +83,8 @@ class DehydrationManager {
       } // clear storage
 
 
-      await this.crypto._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
-        this.crypto._cryptoStore.storeSecretStorePrivateKey(txn, "dehydration", null);
+      await this.crypto.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+        this.crypto.cryptoStore.storeSecretStorePrivateKey(txn, "dehydration", null);
       });
       this.key = undefined;
       this.keyInfo = undefined;
@@ -129,11 +129,11 @@ class DehydrationManager {
     }
 
     try {
-      const pickleKey = Buffer.from(this.crypto._olmDevice._pickleKey); // update the crypto store with the timestamp
+      const pickleKey = Buffer.from(this.crypto.olmDevice._pickleKey); // update the crypto store with the timestamp
 
       const key = await (0, _aes.encryptAES)((0, _olmlib.encodeBase64)(this.key), pickleKey, DEHYDRATION_ALGORITHM);
-      await this.crypto._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
-        this.crypto._cryptoStore.storeSecretStorePrivateKey(txn, "dehydration", {
+      await this.crypto.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+        this.crypto.cryptoStore.storeSecretStorePrivateKey(txn, "dehydration", {
           keyInfo: this.keyInfo,
           key,
           deviceDisplayName: this.deviceDisplayName,
@@ -169,7 +169,7 @@ class DehydrationManager {
 
       _logger.logger.log("Uploading account to server");
 
-      const dehydrateResult = await this.crypto._baseApis._http.authedRequest(undefined, "PUT", "/dehydrated_device", undefined, {
+      const dehydrateResult = await this.crypto.baseApis.http.authedRequest(undefined, "PUT", "/dehydrated_device", undefined, {
         device_data: deviceData,
         initial_device_display_name: this.deviceDisplayName
       }, {
@@ -181,9 +181,9 @@ class DehydrationManager {
       _logger.logger.log("Preparing device keys", deviceId);
 
       const deviceKeys = {
-        algorithms: this.crypto._supportedAlgorithms,
+        algorithms: this.crypto.supportedAlgorithms,
         device_id: deviceId,
-        user_id: this.crypto._userId,
+        user_id: this.crypto.userId,
         keys: {
           [`ed25519:${deviceId}`]: e2eKeys.ed25519,
           [`curve25519:${deviceId}`]: e2eKeys.curve25519
@@ -191,13 +191,13 @@ class DehydrationManager {
       };
       const deviceSignature = account.sign(_anotherJson.default.stringify(deviceKeys));
       deviceKeys.signatures = {
-        [this.crypto._userId]: {
+        [this.crypto.userId]: {
           [`ed25519:${deviceId}`]: deviceSignature
         }
       };
 
-      if (this.crypto._crossSigningInfo.getId("self_signing")) {
-        await this.crypto._crossSigningInfo.signObject(deviceKeys, "self_signing");
+      if (this.crypto.crossSigningInfo.getId("self_signing")) {
+        await this.crypto.crossSigningInfo.signObject(deviceKeys, "self_signing");
       }
 
       _logger.logger.log("Preparing one-time keys");
@@ -210,7 +210,7 @@ class DehydrationManager {
         };
         const signature = account.sign(_anotherJson.default.stringify(k));
         k.signatures = {
-          [this.crypto._userId]: {
+          [this.crypto.userId]: {
             [`ed25519:${deviceId}`]: signature
           }
         };
@@ -228,7 +228,7 @@ class DehydrationManager {
         };
         const signature = account.sign(_anotherJson.default.stringify(k));
         k.signatures = {
-          [this.crypto._userId]: {
+          [this.crypto.userId]: {
             [`ed25519:${deviceId}`]: signature
           }
         };
@@ -237,7 +237,7 @@ class DehydrationManager {
 
       _logger.logger.log("Uploading keys to server");
 
-      await this.crypto._baseApis._http.authedRequest(undefined, "POST", "/keys/upload/" + encodeURI(deviceId), undefined, {
+      await this.crypto.baseApis.http.authedRequest(undefined, "POST", "/keys/upload/" + encodeURI(deviceId), undefined, {
         "device_keys": deviceKeys,
         "one_time_keys": oneTimeKeys,
         "org.matrix.msc2732.fallback_keys": fallbackKeys

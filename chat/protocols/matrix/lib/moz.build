@@ -6,12 +6,12 @@
 # The Matrix SDK.
 EXTRA_JS_MODULES.matrix.matrix_sdk += [
     'matrix-sdk/autodiscovery.js',
-    'matrix-sdk/base-apis.js',
     'matrix-sdk/browser-index.js',
     'matrix-sdk/client.js',
     'matrix-sdk/content-helpers.js',
     'matrix-sdk/content-repo.js',
     'matrix-sdk/errors.js',
+    'matrix-sdk/event-mapper.js',
     'matrix-sdk/filter-component.js',
     'matrix-sdk/filter.js',
     'matrix-sdk/http-api.js',
@@ -20,13 +20,16 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     'matrix-sdk/interactive-auth.js',
     'matrix-sdk/logger.js',
     'matrix-sdk/matrix.js',
+    'matrix-sdk/NamespacedValue.js',
     'matrix-sdk/pushprocessor.js',
     'matrix-sdk/randomstring.js',
     'matrix-sdk/realtime-callbacks.js',
     'matrix-sdk/ReEmitter.js',
+    'matrix-sdk/room-hierarchy.js',
     'matrix-sdk/scheduler.js',
     'matrix-sdk/service-types.js',
     'matrix-sdk/sync-accumulator.js',
+    'matrix-sdk/sync.api.js',
     'matrix-sdk/sync.js',
     'matrix-sdk/timeline-window.js',
     'matrix-sdk/utils.js',
@@ -34,6 +37,8 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
     'matrix-sdk/crypto/aes.js',
+    'matrix-sdk/crypto/api.js',
+    'matrix-sdk/crypto/backup.js',
     'matrix-sdk/crypto/CrossSigning.js',
     'matrix-sdk/crypto/dehydration.js',
     'matrix-sdk/crypto/deviceinfo.js',
@@ -57,7 +62,6 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.algorithms += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.store += [
-    'matrix-sdk/crypto/store/base.js',
     'matrix-sdk/crypto/store/indexeddb-crypto-store-backend.js',
     'matrix-sdk/crypto/store/indexeddb-crypto-store.js',
     'matrix-sdk/crypto/store/localStorage-crypto-store.js',
@@ -84,6 +88,8 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     'matrix-sdk/models/event-timeline.js',
     'matrix-sdk/models/event.js',
     'matrix-sdk/models/group.js',
+    'matrix-sdk/models/MSC3089Branch.js',
+    'matrix-sdk/models/MSC3089TreeSpace.js',
     'matrix-sdk/models/relations.js',
     'matrix-sdk/models/room-member.js',
     'matrix-sdk/models/room-state.js',
@@ -108,6 +114,10 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.store.session += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
     'matrix-sdk/@types/event.js',
+    'matrix-sdk/@types/partials.js',
+    'matrix-sdk/@types/PushRules.js',
+    'matrix-sdk/@types/search.js',
+    'matrix-sdk/@types/threepids.js',
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
@@ -151,4 +161,17 @@ EXTRA_JS_MODULES.matrix.unhomoglyph += [
 EXTRA_JS_MODULES.matrix.olm += [
     '@matrix-org/olm/olm.js',
     '@matrix-org/olm/olm.wasm',
+]
+
+EXTRA_JS_MODULES.matrix.p_retry += [
+    'p-retry/index.js',
+]
+
+EXTRA_JS_MODULES.matrix.retry += [
+    'retry/index.js',
+]
+
+EXTRA_JS_MODULES.matrix.retry.lib += [
+    'retry/lib/retry.js',
+    'retry/lib/retry_operation.js',
 ]
