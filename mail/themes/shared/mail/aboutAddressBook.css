@@ -373,29 +373,48 @@ ab-card-listrow:not(.selected) > div.address {
   grid-gap: 0.5em;
 }
 
-.editGrid > div.labelledField {
+.editGrid > .labelledField {
   display: flex;
   flex-direction: column;
+  margin: 0; /* Overrides fieldset. */
+  border: none; /* Overrides fieldset. */
+  padding: 0; /* Overrides fieldset. */
 }
 
-.editGrid > div.labelledField > label:first-child {
+.editGrid > div.labelledField > label:first-child,
+.editGrid > fieldset.labelledField > legend:first-child {
   margin-block-end: 0.25em;
   font-size: 13.333px;
+  font-weight: unset; /* Overrides legend. */
 }
 
 .editGrid > div.spans2columns {
   grid-column: 1 / 3;
 }
 
-.editGrid > div.inlineField {
+.editGrid div.inlineField {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  justify-content: start;
+}
+
+.editGrid div.inlineField > label {
+  margin-inline-end: 0.5em;
+}
+
+.editGrid div.inlineField > input,
+.editGrid div.inlineField > select {
+  margin-inline-start: 0;
 }
 
 .editGrid input:not([type="checkbox"]),
 .editGrid textarea {
   flex: 1;
   margin: 0;
+}
+
+.editGrid div.inlineField > input {
+  flex: unset;
 }
 
 /* Address fields have two neighbouring inputs. */
@@ -405,6 +424,7 @@ ab-card-listrow:not(.selected) > div.address {
 
 .editGrid select {
   line-height: 2;
+  margin-block: 0;
   padding-block: 0;
   padding-inline: 9px 24px;
   border-radius: var(--in-content-button-border-radius);
@@ -426,4 +446,8 @@ ab-card-listrow:not(.selected) > div.address {
   border-radius: var(--in-content-button-border-radius);
   padding-block: initial;
   min-height: 30px; /* it should be 32px but input doesn't include the border */
+}
+
+#BirthDay > option:disabled {
+  display: none;
 }

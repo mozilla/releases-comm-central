@@ -94,17 +94,6 @@ window.addEventListener("load", () => {
   cardsPane.init();
   detailsPane.init();
 
-  if (
-    Services.prefs.getComplexValue(
-      "mail.addr_book.show_phonetic_fields",
-      Ci.nsIPrefLocalizedString
-    ).data != "true"
-  ) {
-    for (let field of document.querySelectorAll(".phonetic")) {
-      field.hidden = true;
-    }
-  }
-
   // Once the old Address Book has gone away, this should be changed to use
   // UIDs instead of URIs. It's just easier to keep as-is for now.
   let startupURI = Services.prefs.getStringPref(
@@ -1619,6 +1608,9 @@ var detailsPane = {
     "WorkState",
     "WorkZipCode",
     "WorkCountry",
+    "BirthDay",
+    "BirthMonth",
+    "BirthYear",
     "Custom1",
     "Custom2",
     "Custom3",
@@ -1639,13 +1631,57 @@ var detailsPane = {
     this.editButton = document.getElementById("editButton");
     this.cancelEditButton = document.getElementById("cancelEditButton");
     this.saveEditButton = document.getElementById("saveEditButton");
-    this.photo = document.getElementById("photo");
 
     this.editButton.addEventListener("click", this);
     this.cancelEditButton.addEventListener("click", this);
     this.saveEditButton.addEventListener("click", this);
+
+    // Photo. TODO: Complete this.
+
+    this.photo = document.getElementById("photo");
     this.photo.addEventListener("dragover", this);
     this.photo.addEventListener("drop", this);
+
+    // Set up phonetic name fields if required.
+
+    if (
+      Services.prefs.getComplexValue(
+        "mail.addr_book.show_phonetic_fields",
+        Ci.nsIPrefLocalizedString
+      ).data != "true"
+    ) {
+      for (let field of document.querySelectorAll(".phonetic")) {
+        field.hidden = true;
+      }
+    }
+
+    // Set up birthday fields.
+
+    this.birthMonth = document.getElementById("BirthMonth");
+    this.birthDay = document.getElementById("BirthDay");
+    this.birthYear = document.getElementById("BirthYear");
+    this.age = document.getElementById("Age");
+
+    let formatter = Intl.DateTimeFormat(undefined, { month: "long" });
+    for (let m = 1; m <= 12; m++) {
+      let option = document.createElement("option");
+      option.setAttribute("value", m);
+      option.setAttribute("label", formatter.format(new Date(2000, m - 1, 2)));
+      this.birthMonth.appendChild(option);
+    }
+
+    formatter = Intl.DateTimeFormat(undefined, { day: "numeric" });
+    for (let d = 1; d <= 31; d++) {
+      let option = document.createElement("option");
+      option.setAttribute("value", d);
+      option.setAttribute("label", formatter.format(new Date(2000, 0, d)));
+      this.birthDay.appendChild(option);
+    }
+
+    this.birthDay.addEventListener("change", () => this.calculateAge());
+    this.birthMonth.addEventListener("change", () => this.calculateAge());
+    this.birthYear.addEventListener("change", () => this.calculateAge());
+    this.age.addEventListener("change", () => this.calculateYear());
   },
 
   handleEvent(event) {
@@ -1776,6 +1812,8 @@ var detailsPane = {
       // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
       card ? card.getProperty("PreferDisplayName", true) == true : true;
 
+    this.calculateAge();
+
     this.container.classList.add("isEditing");
     this.container.scrollTo(0, 0);
   },
@@ -1828,6 +1866,82 @@ var detailsPane = {
       book.modifyCard(card);
     }
     this.displayContact(card);
+  },
+
+  /**
+   * Disable the 29th, 30th and 31st days in a month where appropriate.
+   */
+  setDisabledMonthDays() {
+    let month = this.birthMonth.value;
+    let year = this.birthYear.value;
+
+    if (!isNaN(year) && year >= 1 && year <= 9999) {
+      this.birthDay.children[29].disabled = year % 4 != 0 && month == "2";
+    }
+    this.birthDay.children[30].disabled = month == "2";
+    this.birthDay.children[31].disabled = ["2", "4", "6", "9", "11"].includes(
+      month
+    );
+
+    if (this.birthDay.options[this.birthDay.selectedIndex].disabled) {
+      this.birthDay.value = "";
+    }
+  },
+
+  /**
+   * Calculate the contact's age based on their birth date.
+   */
+  calculateAge() {
+    this.setDisabledMonthDays();
+
+    let month = this.birthMonth.value;
+    let day = this.birthDay.value;
+    let year = this.birthYear.value;
+    this.age.value = "";
+
+    if (isNaN(year) || year < 1 || year > 9999 || month == "" || day == "") {
+      return;
+    }
+
+    month--; // Date object months are 0-indexed.
+    let today = new Date();
+    let age = today.getFullYear() - year;
+    if (
+      month > today.getMonth() ||
+      (month == today.getMonth() && day > today.getDate())
+    ) {
+      age--;
+    }
+    if (age >= 0) {
+      this.age.value = age;
+    }
+  },
+
+  /**
+   * Calculate the contact's birth year based on their age.
+   */
+  calculateYear() {
+    let age = this.age.value;
+    if (isNaN(age)) {
+      return;
+    }
+
+    let today = new Date();
+    let year = today.getFullYear() - age;
+
+    let month = this.birthMonth.value;
+    if (month != "") {
+      month--; // Date object months are 0-indexed.
+      let day = this.birthDay.value;
+      if (
+        month > today.getMonth() ||
+        (month == today.getMonth() && day > today.getDate())
+      ) {
+        year--;
+      }
+    }
+    this.birthYear.value = year;
+    this.setDisabledMonthDays();
   },
 
   _onClick(event) {
