@@ -1029,6 +1029,68 @@ MatrixRoom.prototype = {
 };
 
 /**
+ * Initialize the verification, chosing the challenge method and calculating
+ * the challenge string and description.
+ *
+ * @param {VerificationRequest} request - Matrix SDK verification request.
+ * @returns {Promise<{ challenge: string, challengeDescription: string?, handleResult: (boolean) => {}, cancel: () => {}, cancelPromise: Promise}}
+ */
+async function startVerification(request) {
+  if (!request.initiatedByMe) {
+    await request.accept();
+    if (request.cancelled) {
+      throw new Error("verification aborted");
+    }
+    // Auto chose method as the only one we both support.
+    await request.beginKeyVerification(
+      request.methods[0],
+      request.targetDevice
+    );
+  } else {
+    await request.waitFor(() => request.started || request.cancelled);
+  }
+  if (request.cancelled) {
+    throw new Error("verification aborted");
+  }
+  const sasEventPromise = new Promise(resolve =>
+    request.verifier.once("show_sas", resolve)
+  );
+  request.verifier.verify();
+  const sasEvent = await sasEventPromise;
+  if (request.cancelled) {
+    throw new Error("verification aborted");
+  }
+  let challenge = "";
+  let challengeDescription;
+  if (sasEvent.sas.emoji) {
+    challenge = sasEvent.sas.emoji.map(emoji => emoji[0]).join(" ");
+    challengeDescription = sasEvent.sas.emoji.map(emoji => emoji[1]).join(" ");
+  } else if (sasEvent.sas.decimal) {
+    challenge = sasEvent.sas.decimal.join(" ");
+  } else {
+    sasEvent.cancel();
+    throw new Error("unknown verification method");
+  }
+  return {
+    challenge,
+    challengeDescription,
+    handleResult(challengeMatches) {
+      if (!challengeMatches) {
+        sasEvent.mismatch();
+      } else {
+        sasEvent.confirm();
+      }
+    },
+    cancel() {
+      if (!request.cancelled) {
+        sasEvent.cancel();
+      }
+    },
+    cancelPromise: request.waitFor(() => request.cancelled),
+  };
+}
+
+/**
  * @param {prplIAccount} account - Matrix account this session is associated with.
  * @param {string} ownerId - Matrix ID that this session is from.
  * @param {DeviceInfo} deviceInfo - Session device info.
@@ -1065,62 +1127,7 @@ MatrixSession.prototype = {
         this._deviceInfo.deviceId,
       ]);
     }
-    if (!request.initiatedByMe) {
-      await request.accept();
-    }
-    await request.waitFor(() => request.ready || request.cancelled);
-    if (request.cancelled) {
-      throw new Error("verification aborted");
-    }
-    if (!request.initiatedByMe) {
-      // Auto chose method as the only one we both support.
-      await request.beginKeyVerification(request.methods[0], {
-        userId: this._ownerId,
-      });
-    } else {
-      await request.waitFor(() => request.started || request.cancelled);
-    }
-    if (request.cancelled) {
-      throw new Error("verification aborted");
-    }
-    const sasEventPromise = new Promise(resolve =>
-      request.verifier.once("show_sas", resolve)
-    );
-    request.verifier.verify();
-    const sasEvent = await sasEventPromise;
-    if (request.cancelled) {
-      throw new Error("verification aborted");
-    }
-    let challenge = "";
-    let challengeDescription;
-    if (sasEvent.sas.emoji) {
-      challenge = sasEvent.sas.emoji.map(emoji => emoji[0]).join(" ");
-      challengeDescription = sasEvent.sas.emoji
-        .map(emoji => emoji[1])
-        .join(" ");
-    } else if (sasEvent.sas.decimal) {
-      challenge = sasEvent.sas.decimal.join(" ");
-    } else {
-      sasEvent.cancel();
-      throw new Error("unknown verification method");
-    }
-    return {
-      challenge,
-      challengeDescription,
-      handleResult(challengeMatches) {
-        if (!challengeMatches) {
-          sasEvent.mismatch();
-        } else {
-          sasEvent.confirm();
-        }
-      },
-      cancel() {
-        if (!request.cancelled) {
-          sasEvent.cancel();
-        }
-      },
-      cancelPromise: request.waitFor(() => request.cancelled),
-    };
+    return startVerification(request);
   },
 };
 
@@ -1701,20 +1708,15 @@ MatrixAccount.prototype = {
       if (users.includes(this.userId)) {
         this.reportSessionsChanged();
         this.updateEncryptionStatus();
-      }
-      for (const conv of this.roomList.values()) {
-        const encryptionStatus = conv.encryptionStatus;
-        if (
-          encryptionStatus !== Ci.prplIConversation.ENCRYPTION_AVAILABLE &&
-          encryptionStatus !== Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED
-        ) {
-          for (const userId of users) {
-            if (conv.getParticipant(userId)) {
-              conv.updateUnverifiedDevices();
-              break;
-            }
-          }
-        }
+        this.updateConvDeviceTrust();
+      } else {
+        this.updateConvDeviceTrust(conv =>
+          users.some(
+            userId =>
+              (conv.isChat && conv.getParticipant(userId)) ||
+              (!conv.isChat && conv.buddy?.userName == userId)
+          )
+        );
       }
     });
 
@@ -1723,19 +1725,69 @@ MatrixAccount.prototype = {
     this._client.on("crossSigning.keysChanged", () => {
       this.reportSessionsChanged();
       this.updateEncryptionStatus();
-      for (const conv of this.roomList.values()) {
-        const encryptionStatus = conv.encryptionStatus;
-        if (
-          encryptionStatus !== Ci.prplIConversation.ENCRYPTION_AVAILABLE &&
-          encryptionStatus !== Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED
-        ) {
-          conv.updateUnverifiedDevices();
-        }
-      }
+      this.updateConvDeviceTrust();
     });
     this._client.on("crypto.keyBackupStatus", () => {
       this.bootstrapSSSS();
       this.updateEncryptionStatus();
+    });
+
+    this._client.on("crypto.verification.request", request => {
+      const abort = new AbortController();
+      request.waitFor(() => request.cancelled).then(() => abort.abort());
+      let displayName = request.otherUserId;
+      if (request.isSelfVerification) {
+        const deviceInfo = this._client.getStoredDevice(
+          this.userId,
+          request.targetDevice.deviceId
+        );
+        if (deviceInfo.getDisplayName()) {
+          displayName = _(
+            "options.encryption.session",
+            request.targetDevice.deviceId,
+            deviceInfo.getDisplayName()
+          );
+        } else {
+          displayName = request.targetDevice.deviceId;
+        }
+      }
+      let _handleResult;
+      let _cancel;
+      const uiRequest = this.addVerificationRequest(
+        displayName,
+        async () => {
+          const {
+            challenge,
+            challengeDescription,
+            handleResult,
+            cancel,
+          } = await startVerification(request);
+          _handleResult = handleResult;
+          _cancel = cancel;
+          return { challenge, challengeDescription };
+        },
+        abort.signal
+      );
+      uiRequest.then(
+        result => {
+          if (!_handleResult) {
+            this.ERROR(
+              "Can not handle the result for verification request with " +
+                request.otherUserId +
+                " because the verification was never started."
+            );
+            request.cancel();
+          }
+          _handleResult(result);
+        },
+        () => {
+          if (_cancel) {
+            _cancel();
+          } else {
+            request.cancel();
+          }
+        }
+      );
     });
 
     // TODO Other events to handle:
@@ -1894,6 +1946,27 @@ MatrixAccount.prototype = {
   setString(name, value) {
     if (name === "backupPassphrase" && value) {
       this.bootstrapSSSS().catch(this.WARN);
+    }
+  },
+
+  /**
+   * Update the untrusted/unverified devices state for all encrypted
+   * conversations. Can limit the conversations by supplying a callback that
+   * only returns true if the conversation should update the state.
+   *
+   * @param {(prplIConversation) => boolean} [shouldUpdateConv] - Condition to
+   *   evaluate if a conversation should have the device trust recalcualted.
+   */
+  updateConvDeviceTrust(shouldUpdateConv) {
+    for (const conv of this.roomList.values()) {
+      const encryptionStatus = conv.encryptionStatus;
+      if (
+        encryptionStatus !== Ci.prplIConversation.ENCRYPTION_AVAILABLE &&
+        encryptionStatus !== Ci.prplIConversation.ENCRYPTION_NOT_SUPPORTED &&
+        (!shouldUpdateConv || shouldUpdateConv(conv))
+      ) {
+        conv.updateUnverifiedDevices();
+      }
     }
   },
 
