@@ -41,8 +41,7 @@
   to {opacity: 0;}
 }
 
-#newMailAlertNotification {
-  min-height: 60px;
+body {
   border: 1px solid threedshadow;
   border-radius: 3px;
   background-color: -moz-Dialog;
@@ -50,7 +49,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  #newMailAlertNotification {
+  body {
     background-color: #2a2a2e;
     color: #f9f9fa;
   }

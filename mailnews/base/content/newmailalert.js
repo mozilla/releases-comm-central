@@ -16,9 +16,8 @@ var gOpenTime = 4000; // total time the alert should stay up once we are done an
 
 var gAlertListener = null;
 var gOrigin = 0; // Default value: alert from bottom right.
-var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
-  Ci.nsIDragService
-);
+
+window.addEventListener("DOMContentLoaded", onAlertLoad);
 
 function prefillAlertInfo() {
   // unwrap all the args....
@@ -46,7 +45,9 @@ function prefillAlertInfo() {
 }
 
 function onAlertLoad() {
-  let dragSession = gDragService.getCurrentSession();
+  let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
+    .getService(Ci.nsIDragService)
+    .getCurrentSession();
   if (dragSession && dragSession.sourceNode) {
     // If a drag session is active, adjusting this window's dimensions causes
     // the drag session to be abruptly terminated. To avoid interrupting the
