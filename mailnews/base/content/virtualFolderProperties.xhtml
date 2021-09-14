@@ -35,12 +35,10 @@
   <script defer="defer" src="chrome://messenger/content/searchTerm.js"></script>
   <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
   <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://messenger/content/virtualFolderProperties.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
-<stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 <stringbundle id="bundle_folder" src="chrome://messenger/locale/folderWidgets.properties"/>
 <dialog id="virtualFolderPropertiesDialog"
         buttons="accept,cancel"
@@ -48,6 +46,9 @@
         newFolderAcceptButtonAccessKey="&newFolderButton.accesskey;"
         editFolderAcceptButtonLabel="&editFolderButton.label;"
         editFolderAcceptButtonAccessKey="&editFolderButton.accesskey;">
+
+  <script src="chrome://messenger/content/virtualFolderProperties.js"></script>
+
   <hbox>
     <vbox>
       <hbox flex="1" align="center">

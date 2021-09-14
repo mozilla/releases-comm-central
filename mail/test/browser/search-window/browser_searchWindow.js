@@ -309,7 +309,7 @@ function subtest_save_search(savc) {
   // - save it!
   // this will close the dialog, which wait_for_modal_dialog is making sure
   //  happens.
-  savc.window.document.documentElement.querySelector("dialog").acceptDialog();
+  savc.window.document.querySelector("dialog").acceptDialog();
 }
 
 add_task(function test_close_search_window() {

@@ -37,7 +37,9 @@ function onLoad() {
   var windowArgs = window.arguments[0];
   var acceptButton = document.querySelector("dialog").getButton("accept");
 
-  gMessengerBundle = document.getElementById("bundle_messenger");
+  gMessengerBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/messenger.properties"
+  );
 
   // call this when OK is pressed
   msgWindow = windowArgs.msgWindow; // eslint-disable-line no-global-assign
@@ -178,13 +180,13 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
 
   // set the name of the folder
   let folderBundle = document.getElementById("bundle_folder");
-  let name = folderBundle.getFormattedString("verboseFolderFormat", [
+  let name = folderBundle.formatStringFromName("verboseFolderFormat", [
     aVirtualFolder.prettyName,
     aVirtualFolder.server.prettyName,
   ]);
   folderNameField.setAttribute("value", name);
   // update the window title based on the name of the saved search
-  document.title = gMessengerBundle.getFormattedString(
+  document.title = gMessengerBundle.formatStringFromName(
     "editVirtualFolderPropertiesTitle",
     [aVirtualFolder.prettyName]
   );
@@ -203,7 +205,7 @@ function onOK(event) {
     Services.prompt.alert(
       window,
       null,
-      gMessengerBundle.getString("alertNoSearchFoldersSelected")
+      gMessengerBundle.GetStringFromName("alertNoSearchFoldersSelected")
     );
     event.preventDefault();
     return;
@@ -257,7 +259,7 @@ function onOK(event) {
       Services.prompt.alert(
         window,
         null,
-        gMessengerBundle.getString("folderCreationFailed")
+        gMessengerBundle.GetStringFromName("folderCreationFailed")
       );
       event.preventDefault();
       return;
@@ -265,7 +267,7 @@ function onOK(event) {
       Services.prompt.alert(
         window,
         null,
-        gMessengerBundle.getString("folderExists")
+        gMessengerBundle.GetStringFromName("folderExists")
       );
       event.preventDefault();
       return;
@@ -347,13 +349,13 @@ function updateFoldersCount() {
   let foldersList = document.getElementById("chosenFoldersCount");
   foldersList.textContent = PluralForm.get(
     folderCount,
-    gMessengerBundle.getString("virtualFolderSourcesChosen")
+    gMessengerBundle.GetStringFromName("virtualFolderSourcesChosen")
   ).replace("#1", folderCount);
   if (folderCount > 0) {
     let folderNames = [];
     for (let folderURI of srchFolderUriArray) {
       let folder = MailUtils.getOrCreateFolder(folderURI);
-      let name = this.gMessengerBundle.getFormattedString(
+      let name = this.gMessengerBundle.formatStringFromName(
         "verboseFolderFormat",
         [folder.prettyName, folder.server.prettyName]
       );
