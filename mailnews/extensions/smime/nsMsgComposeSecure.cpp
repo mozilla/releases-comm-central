@@ -803,17 +803,22 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
   if (!mEncryptionCertDBKey.IsEmpty()) {
     res = certdb->FindCertByDBKey(mEncryptionCertDBKey,
                                   getter_AddRefs(mSelfEncryptionCert));
-    if (NS_SUCCEEDED(res) && mSelfEncryptionCert &&
-        (certVerifier->VerifyCert(
-             mSelfEncryptionCert->GetCert(), certificateUsageEmailRecipient,
-             mozilla::pkix::Now(), nullptr, nullptr, builtChain,
-             // Only local checks can run on the main thread.
-             CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success)) {
-      // not suitable for encryption, so unset cert and clear pref
-      mSelfEncryptionCert = nullptr;
-      mEncryptionCertDBKey.Truncate();
-      aIdentity->SetCharAttribute("encryption_cert_dbkey",
-                                  mEncryptionCertDBKey);
+
+    if (NS_SUCCEEDED(res) && mSelfEncryptionCert) {
+      CERTCertificate* cert = mSelfEncryptionCert->GetCert();
+      nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
+
+      if (certVerifier->VerifyCert(
+              certBytes, certificateUsageEmailRecipient, mozilla::pkix::Now(),
+              nullptr, nullptr, builtChain,
+              // Only local checks can run on the main thread.
+              CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
+        // not suitable for encryption, so unset cert and clear pref
+        mSelfEncryptionCert = nullptr;
+        mEncryptionCertDBKey.Truncate();
+        aIdentity->SetCharAttribute("encryption_cert_dbkey",
+                                    mEncryptionCertDBKey);
+      }
     }
   }
 
@@ -821,16 +826,20 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
   if (!mSigningCertDBKey.IsEmpty()) {
     res = certdb->FindCertByDBKey(mSigningCertDBKey,
                                   getter_AddRefs(mSelfSigningCert));
-    if (NS_SUCCEEDED(res) && mSelfSigningCert &&
-        (certVerifier->VerifyCert(
-             mSelfSigningCert->GetCert(), certificateUsageEmailSigner,
-             mozilla::pkix::Now(), nullptr, nullptr, builtChain,
-             // Only local checks can run on the main thread.
-             CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success)) {
-      // not suitable for signing, so unset cert and clear pref
-      mSelfSigningCert = nullptr;
-      mSigningCertDBKey.Truncate();
-      aIdentity->SetCharAttribute("signing_cert_dbkey", mSigningCertDBKey);
+    if (NS_SUCCEEDED(res) && mSelfSigningCert) {
+      CERTCertificate* cert = mSelfSigningCert->GetCert();
+      nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
+
+      if (certVerifier->VerifyCert(
+              certBytes, certificateUsageEmailSigner, mozilla::pkix::Now(),
+              nullptr, nullptr, builtChain,
+              // Only local checks can run on the main thread.
+              CertVerifier::FLAG_LOCAL_ONLY) != mozilla::pkix::Success) {
+        // not suitable for signing, so unset cert and clear pref
+        mSelfSigningCert = nullptr;
+        mSigningCertDBKey.Truncate();
+        aIdentity->SetCharAttribute("signing_cert_dbkey", mSigningCertDBKey);
+      }
     }
   }
 
@@ -1113,9 +1122,12 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
   // search for a valid certificate
   for (node = CERT_LIST_HEAD(certlist); !CERT_LIST_END(node, certlist);
        node = CERT_LIST_NEXT(node)) {
+    nsTArray<uint8_t> certBytes(node->cert->derCert.data,
+                                node->cert->derCert.len);
     nsTArray<nsTArray<uint8_t>> unusedCertChain;
+
     mozilla::pkix::Result result = certVerifier->VerifyCert(
-        node->cert, certificateUsageEmailRecipient, mozilla::pkix::Now(),
+        certBytes, certificateUsageEmailRecipient, mozilla::pkix::Now(),
         nullptr /*XXX pinarg*/, nullptr /*hostname*/, unusedCertChain,
         // Only local checks can run on the main thread.
         CertVerifier::FLAG_LOCAL_ONLY);

@@ -257,9 +257,10 @@ nsresult nsCMSMessage::CommonVerifySignature(
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
   {
+    nsTArray<uint8_t> certBytes(si->cert->derCert.data, si->cert->derCert.len);
     nsTArray<nsTArray<uint8_t>> builtChain;
     mozilla::pkix::Result result = certVerifier->VerifyCert(
-        si->cert, certificateUsageEmailSigner, Now(), nullptr /*XXX pinarg*/,
+        certBytes, certificateUsageEmailSigner, Now(), nullptr /*XXX pinarg*/,
         nullptr /*hostname*/, builtChain,
         // Only local checks can run on the main thread.
         CertVerifier::FLAG_LOCAL_ONLY);

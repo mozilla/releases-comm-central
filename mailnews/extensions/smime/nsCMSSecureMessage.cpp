@@ -62,12 +62,15 @@ nsresult nsCMSSecureMessage::CheckUsageOk(nsIX509Cert* aCert,
       do_GetService("@mozilla.org/security/x509certdb;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  CERTCertificate* cert = aCert->GetCert();
+  nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
+
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
   nsTArray<nsTArray<uint8_t>> unusedBuiltChain;
-  if (certVerifier->VerifyCert(aCert->GetCert(), aUsage, mozilla::pkix::Now(),
-                               nullptr, nullptr, unusedBuiltChain,
+  if (certVerifier->VerifyCert(certBytes, aUsage, mozilla::pkix::Now(), nullptr,
+                               nullptr, unusedBuiltChain,
                                CertVerifier::FLAG_LOCAL_ONLY) ==
       mozilla::pkix::Success) {
     *aCanBeUsed = true;
