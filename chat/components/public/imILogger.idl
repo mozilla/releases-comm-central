@@ -63,15 +63,6 @@ interface imILogger: nsISupports {
 
   // Below methods return promises that resolve to {imILog[]}.
 
-  // Get logs for a username that may not be in the contact list.
-  jsval getLogsForAccountAndName(in imIAccount aAccount,
-                                 in AUTF8String aNormalizedName,
-                                 [optional] in boolean aGroupByDay);
-
-  jsval getLogsForAccountBuddy(in prplIAccountBuddy aAccountBuddy,
-                               [optional] in boolean aGroupByDay);
-  jsval getLogsForBuddy(in imIBuddy aBuddy,
-                        [optional] in boolean aGroupByDay);
   jsval getLogsForContact(in imIContact aContact,
                           [optional] in boolean aGroupByDay);
 

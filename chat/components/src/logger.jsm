@@ -730,30 +730,6 @@ Logger.prototype = {
     }
     return paths;
   },
-  getLogsForAccountAndName(aAccount, aNormalizedName, aGroupByDay) {
-    return this._getLogEntries(aAccount, aNormalizedName).then(aEntries =>
-      this._toLogArray(aEntries, aGroupByDay)
-    );
-  },
-  getLogsForAccountBuddy(aAccountBuddy, aGroupByDay) {
-    return this.getLogsForAccountAndName(
-      aAccountBuddy.account,
-      aAccountBuddy.normalizedName,
-      aGroupByDay
-    );
-  },
-  async getLogsForBuddy(aBuddy, aGroupByDay) {
-    let entries = [];
-    for (let accountBuddy of aBuddy.getAccountBuddies()) {
-      entries = entries.concat(
-        await this._getLogEntries(
-          accountBuddy.account,
-          accountBuddy.normalizedName
-        )
-      );
-    }
-    return this._toLogArray(entries, aGroupByDay);
-  },
   async getLogsForContact(aContact, aGroupByDay) {
     let entries = [];
     for (let buddy of aContact.getBuddies()) {
@@ -773,10 +749,9 @@ Logger.prototype = {
     if (aConversation.isChat) {
       name += ".chat";
     }
-    return this.getLogsForAccountAndName(
-      aConversation.account,
-      name,
-      aGroupByDay
+
+    return this._getLogEntries(aConversation.account, name).then(aEntries =>
+      this._toLogArray(aEntries, aGroupByDay)
     );
   },
   async getSimilarLogs(aLog, aGroupByDay) {
