@@ -77,7 +77,6 @@ interface imILogger: nsISupports {
 
   jsval getLogsForConversation(in prplIConversation aConversation,
                                [optional] in boolean aGroupByDay);
-  jsval getSystemLogsForAccount(in imIAccount aAccount);
   jsval getSimilarLogs(in imILog aLog,
                        [optional] in boolean aGroupByDay);
 

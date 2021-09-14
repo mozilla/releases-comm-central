@@ -125,7 +125,6 @@ pref("purple.debug.loglevel", 2);
 pref("purple.logging.format", "json");
 pref("purple.logging.log_chats", true);
 pref("purple.logging.log_ims", true);
-pref("purple.logging.log_system", true);
 
 // Send typing notification in private conversations.
 pref("purple.conversations.im.send_typing", true);

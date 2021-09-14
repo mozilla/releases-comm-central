@@ -377,76 +377,6 @@ function closeLogWriter(aConversation) {
   gLogWritersById.delete(aConversation.id);
 }
 
-// LogWriter for system logs.
-function SystemLogWriter(aAccount) {
-  this._account = aAccount;
-  this.path = PathUtils.join(
-    getLogFolderPathForAccount(aAccount),
-    ".system",
-    getNewLogFileName()
-  );
-  const dateTimeFormatter = new Services.intl.DateTimeFormat("en-US", {
-    dateStyle: "full",
-    timeStyle: "long",
-  });
-  let header =
-    "System log for account " +
-    aAccount.name +
-    " (" +
-    aAccount.protocol.normalizedName +
-    ") connected at " +
-    dateTimeFormatter.format(new Date()) +
-    kLineBreak;
-  this._initialized = appendToFile(this.path, header, true);
-  // Catch the error separately so that _initialized will stay rejected if
-  // writing the header failed.
-  this._initialized.catch(aError =>
-    Cu.reportError("Error initializing system log:\n" + aError)
-  );
-}
-SystemLogWriter.prototype = {
-  // Constructor sets this to a promise that will resolve when the log header
-  // has been written.
-  _initialized: null,
-  path: null,
-  logEvent(aString) {
-    let date = ToLocaleFormat("%x %X", new Date());
-    let lineToWrite = "---- " + aString + " @ " + date + " ----" + kLineBreak;
-    this._initialized.then(() => {
-      appendToFile(this.path, lineToWrite).catch(aError =>
-        Cu.reportError("Failed to log event:\n" + aError)
-      );
-    });
-  },
-};
-
-var dummySystemLogWriter = {
-  path: null,
-  logEvent() {},
-};
-
-var gSystemLogWritersById = new Map();
-function getSystemLogWriter(aAccount, aCreate) {
-  let id = aAccount.id;
-  if (aCreate) {
-    if (!Services.prefs.getBoolPref("purple.logging.log_system")) {
-      return dummySystemLogWriter;
-    }
-    let writer = new SystemLogWriter(aAccount);
-    gSystemLogWritersById.set(id, writer);
-    return writer;
-  }
-
-  return (
-    (gSystemLogWritersById.has(id) && gSystemLogWritersById.get(id)) ||
-    dummySystemLogWriter
-  );
-}
-
-function closeSystemLogWriter(aAccount) {
-  gSystemLogWritersById.delete(aAccount.id);
-}
-
 /**
  * Takes a properly formatted log file name and extracts the date information
  * and filetype, returning the results as an Array.
@@ -849,9 +779,6 @@ Logger.prototype = {
       aGroupByDay
     );
   },
-  getSystemLogsForAccount(aAccount) {
-    return this.getLogsForAccountAndName(aAccount, ".system");
-  },
   async getSimilarLogs(aLog, aGroupByDay) {
     let entries;
     try {
@@ -975,16 +902,12 @@ Logger.prototype = {
         );
 
         Services.obs.removeObserver(this, "final-ui-startup");
-        [
-          "new-text",
-          "conversation-closed",
-          "conversation-left-chat",
-          "account-connected",
-          "account-disconnected",
-          "account-buddy-status-changed",
-        ].forEach(function(aEvent) {
-          Services.obs.addObserver(this, aEvent);
-        }, this);
+        ["new-text", "conversation-closed", "conversation-left-chat"].forEach(
+          function(aEvent) {
+            Services.obs.addObserver(this, aEvent);
+          },
+          this
+        );
         break;
       case "new-text":
         let excludeBecauseEncrypted = false;
@@ -1004,41 +927,6 @@ Logger.prototype = {
       case "conversation-closed":
       case "conversation-left-chat":
         closeLogWriter(aSubject);
-        break;
-      case "account-connected":
-        getSystemLogWriter(aSubject, true).logEvent(
-          "+++ " + aSubject.name + " signed on"
-        );
-        break;
-      case "account-disconnected":
-        getSystemLogWriter(aSubject).logEvent(
-          "+++ " + aSubject.name + " signed off"
-        );
-        closeSystemLogWriter(aSubject);
-        break;
-      case "account-buddy-status-changed":
-        let status;
-        if (!aSubject.online) {
-          status = "Offline";
-        } else if (aSubject.mobile) {
-          status = "Mobile";
-        } else if (aSubject.idle) {
-          status = "Idle";
-        } else if (aSubject.available) {
-          status = "Available";
-        } else {
-          status = "Unavailable";
-        }
-
-        let statusText = aSubject.statusText;
-        if (statusText) {
-          status += ' ("' + statusText + '")';
-        }
-
-        let nameText = aSubject.displayName + " (" + aSubject.userName + ")";
-        getSystemLogWriter(aSubject.account).logEvent(
-          nameText + " is now " + status
-        );
         break;
       default:
         throw new Error("Unexpected notification " + aTopic);
