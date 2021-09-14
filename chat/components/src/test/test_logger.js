@@ -212,7 +212,7 @@ var test_getLogFolderPathForAccount = async function() {
 
 // Tests the global function getLogFilePathForConversation in logger.js.
 var test_getLogFilePathForConversation = async function() {
-  let path = gLogger.getLogFilePathForConversation(dummyConv, "format");
+  let path = gLogger.getLogFilePathForConversation(dummyConv);
   let expectedPath = PathUtils.join(
     logDirPath,
     dummyAccount.protocol.normalizedName,
@@ -224,13 +224,13 @@ var test_getLogFilePathForConversation = async function() {
   );
   expectedPath = PathUtils.join(
     expectedPath,
-    gLogger.getNewLogFileName("format", dummyConv.startDate / 1000)
+    gLogger.getNewLogFileName(dummyConv.startDate / 1000)
   );
   equal(path, expectedPath);
 };
 
 var test_getLogFilePathForMUC = async function() {
-  let path = gLogger.getLogFilePathForConversation(dummyMUC, "format");
+  let path = gLogger.getLogFilePathForConversation(dummyMUC);
   let expectedPath = PathUtils.join(
     logDirPath,
     dummyAccount.protocol.normalizedName,
@@ -242,7 +242,7 @@ var test_getLogFilePathForMUC = async function() {
   );
   expectedPath = PathUtils.join(
     expectedPath,
-    gLogger.getNewLogFileName("format", dummyMUC.startDate / 1000)
+    gLogger.getNewLogFileName(dummyMUC.startDate / 1000)
   );
   equal(path, expectedPath);
 };
@@ -356,16 +356,16 @@ var test_logging = async function() {
   // Write a zero-length file and a file with incorrect JSON for each day
   // to ensure they are handled correctly.
   let logDir = PathUtils.parent(
-    gLogger.getLogFilePathForConversation(dummyConv, "json")
+    gLogger.getLogFilePathForConversation(dummyConv)
   );
   let createBadFiles = async function(aConv) {
     let blankFile = PathUtils.join(
       logDir,
-      gLogger.getNewLogFileName("json", (aConv.startDate + oneSec) / 1000)
+      gLogger.getNewLogFileName((aConv.startDate + oneSec) / 1000)
     );
     let invalidJSONFile = PathUtils.join(
       logDir,
-      gLogger.getNewLogFileName("json", (aConv.startDate + 2 * oneSec) / 1000)
+      gLogger.getNewLogFileName((aConv.startDate + 2 * oneSec) / 1000)
     );
     await IOUtils.write(blankFile, new Uint8Array());
     await IOUtils.writeUTF8(invalidJSONFile, "This isn't JSON!");

@@ -20,8 +20,6 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/logger.properties")
 );
 
-const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
-
 /*
  * Maps file paths to promises returned by ongoing IOUtils operations on them.
  * This is so that a file can be read after a pending write operation completes
@@ -115,7 +113,7 @@ function getLogFolderPathForAccount(aAccount) {
   );
 }
 
-function getLogFilePathForConversation(aConv, aFormat, aStartTime) {
+function getLogFilePathForConversation(aConv, aStartTime) {
   if (!aStartTime) {
     aStartTime = aConv.startDate / 1000;
   }
@@ -124,14 +122,10 @@ function getLogFilePathForConversation(aConv, aFormat, aStartTime) {
   if (aConv.isChat) {
     name += ".chat";
   }
-  return PathUtils.join(
-    path,
-    encodeName(name),
-    getNewLogFileName(aFormat, aStartTime)
-  );
+  return PathUtils.join(path, encodeName(name), getNewLogFileName(aStartTime));
 }
 
-function getNewLogFileName(aFormat, aStartTime) {
+function getNewLogFileName(aStartTime) {
   let date = aStartTime ? new Date(aStartTime) : new Date();
   let dateTime = ToLocaleFormat("%Y-%m-%d.%H%M%S", date);
   let offset = date.getTimezoneOffset();
@@ -149,21 +143,14 @@ function getNewLogFileName(aFormat, aStartTime) {
     }
     return aNumber < 10 ? "0" + aNumber : aNumber;
   }
-  if (!aFormat) {
-    aFormat = "txt";
-  }
-  return dateTime + twoDigits(offset) + twoDigits(minutes) + "." + aFormat;
+  return dateTime + twoDigits(offset) + twoDigits(minutes) + ".json";
 }
 
 // One of these is maintained for every conversation being logged. It initializes
 // a log file and appends to it as required.
 function LogWriter(aConversation) {
   this._conv = aConversation;
-  if (Services.prefs.getCharPref("purple.logging.format") == "json") {
-    this.format = "json";
-  }
   this.paths = [];
-  this._parser = new DOMParser();
   this.startNewFile(this._conv.startDate / 1000);
 }
 LogWriter.prototype = {
@@ -179,7 +166,6 @@ LogWriter.prototype = {
   _startTime: null,
   _lastMessageTime: null,
   _messageCount: 0,
-  format: "txt",
   startNewFile(aStartTime, aContinuedSession) {
     // We start a new log file every 1000 messages. The start time of this new
     // log file is the time of the next message. Since message times are in seconds,
@@ -190,81 +176,28 @@ LogWriter.prototype = {
     aStartTime = Math.max(aStartTime, this._startTime + 1000);
     this._startTime = this._lastMessageTime = aStartTime;
     this._messageCount = 0;
-    this.paths.push(
-      getLogFilePathForConversation(this._conv, this.format, aStartTime)
-    );
+    this.paths.push(getLogFilePathForConversation(this._conv, aStartTime));
     let account = this._conv.account;
-    let header;
-    if (this.format == "json") {
-      header = {
-        date: new Date(this._startTime),
-        name: this._conv.name,
-        title: this._conv.title,
-        account: account.normalizedName,
-        protocol: account.protocol.normalizedName,
-        isChat: this._conv.isChat,
-        normalizedName: this._conv.normalizedName,
-      };
-      if (aContinuedSession) {
-        header.continuedSession = true;
-      }
-      header = JSON.stringify(header) + "\n";
-    } else {
-      const dateTimeFormatter = new Services.intl.DateTimeFormat("en-US", {
-        dateStyle: "full",
-        timeStyle: "long",
-      });
-      header =
-        "Conversation with " +
-        this._conv.name +
-        " at " +
-        dateTimeFormatter.format(new Date(this._conv.startDate / 1000)) +
-        " on " +
-        account.name +
-        " (" +
-        account.protocol.normalizedName +
-        ")" +
-        kLineBreak;
+    let header = {
+      date: new Date(this._startTime),
+      name: this._conv.name,
+      title: this._conv.title,
+      account: account.normalizedName,
+      protocol: account.protocol.normalizedName,
+      isChat: this._conv.isChat,
+      normalizedName: this._conv.normalizedName,
+    };
+    if (aContinuedSession) {
+      header.continuedSession = true;
     }
+    header = JSON.stringify(header) + "\n";
+
     this._initialized = appendToFile(this.currentPath, header, true);
     // Catch the error separately so that _initialized will stay rejected if
     // writing the header failed.
     this._initialized.catch(aError =>
       Cu.reportError("Failed to initialize log file:\n" + aError)
     );
-  },
-  /**
-   * This parses the message as HTML and converts it to plaintext (in a lossy
-   * fashion) with the following adjustments:
-   *
-   * * Encode newlines as <br/>.
-   * * Ensures that links appear in the plaintext output.
-   *
-   * @param {string} aString The HTML string to convert.
-   * @returns {string}
-   * @private
-   */
-  _serialize(aString) {
-    let doc = this._parser.parseFromString(
-      aString.replace(/\r?\n/g, "<br>"),
-      "text/html"
-    );
-    const type = "text/plain";
-    let encoder = Cu.createDocumentEncoder(type);
-    encoder.init(doc, type, 0);
-    encoder.setNodeFixup({
-      fixupNode(aNode, aSerializeKids) {
-        if (aNode.localName == "a" && aNode.hasAttribute("href")) {
-          let url = aNode.getAttribute("href");
-          let content = aNode.textContent;
-          if (url != content) {
-            aNode.textContent = content + " (" + url + ")";
-          }
-        }
-        return null;
-      },
-    });
-    return encoder.encodeToString();
   },
   // We start a new log file in the following cases:
   // - If it has been 30 minutes since the last message.
@@ -299,51 +232,31 @@ LogWriter.prototype = {
       this._lastMessageTime = messageTime;
     }
 
-    let lineToWrite;
-    if (this.format == "json") {
-      let msg = {
-        date: new Date(messageTime),
-        who: aMessage.who,
-        text: aMessage.displayMessage,
-        flags: [
-          "outgoing",
-          "incoming",
-          "system",
-          "autoResponse",
-          "containsNick",
-          "error",
-          "delayed",
-          "noFormat",
-          "containsImages",
-          "notification",
-          "noLinkification",
-          "isEncrypted",
-        ].filter(f => aMessage[f]),
-      };
-      let alias = aMessage.alias;
-      if (alias && alias != msg.who) {
-        msg.alias = alias;
-      }
-      lineToWrite = JSON.stringify(msg) + "\n";
-    } else {
-      // Text log.
-      let date = new Date(messageTime);
-      let line = "(" + date.toLocaleTimeString() + ") ";
-      let msg = this._serialize(aMessage.displayMessage);
-      if (aMessage.system) {
-        line += msg;
-      } else {
-        let sender = aMessage.alias || aMessage.who;
-        if (aMessage.autoResponse) {
-          line += sender + " <AUTO-REPLY>: " + msg;
-        } else if (msg.startsWith("/me ")) {
-          line += "***" + sender + " " + msg.substr(4);
-        } else {
-          line += sender + ": " + msg;
-        }
-      }
-      lineToWrite = line + kLineBreak;
+    let msg = {
+      date: new Date(messageTime),
+      who: aMessage.who,
+      text: aMessage.displayMessage,
+      flags: [
+        "outgoing",
+        "incoming",
+        "system",
+        "autoResponse",
+        "containsNick",
+        "error",
+        "delayed",
+        "noFormat",
+        "containsImages",
+        "notification",
+        "noLinkification",
+        "isEncrypted",
+      ].filter(f => aMessage[f]),
+    };
+    let alias = aMessage.alias;
+    if (alias && alias != msg.who) {
+      msg.alias = alias;
     }
+    let lineToWrite = JSON.stringify(msg) + "\n";
+
     this._initialized.then(() => {
       appendToFile(this.currentPath, lineToWrite).catch(aError =>
         Cu.reportError("Failed to log message:\n" + aError)
@@ -457,8 +370,8 @@ LogConversation.prototype = {
 
 /**
  * A Log object represents one or more log files. The constructor expects one
- * argument, which is either a single path to a (json or txt) log file or an
- * array of objects each having two properties:
+ * argument, which is either a single path to a json log file or an array of
+ * objects each having two properties:
  *   path: The full path of the (json only) log file it represents.
  *   time: The Date object extracted from the filename of the logfile.
  *
@@ -473,12 +386,10 @@ function Log(aEntries) {
     this.path = path;
     let [date, format] = getDateFromFilename(PathUtils.filename(path));
     if (!date || !format) {
-      this.format = "invalid";
       this.time = 0;
       return;
     }
     this.time = date.valueOf() / 1000;
-    this.format = format;
     // Wrap the path in an array
     this._entryPaths = [path];
     return;
@@ -510,7 +421,6 @@ function Log(aEntries) {
 Log.prototype = {
   __proto__: ClassInfo("imILog", "Log object"),
   _entryPaths: null,
-  format: "json",
   async getConversation() {
     /*
      * Read the set of log files asynchronously and return a promise that
@@ -519,9 +429,6 @@ Log.prototype = {
      * line of metadata is corrupt however, the data isn't useful and the
      * promise will resolve to null.
      */
-    if (this.format != "json") {
-      return null;
-    }
     let messages = [];
     let properties = {};
     let firstFile = true;
@@ -616,29 +523,27 @@ function logsGroupedByDay(aEntries) {
 
     let dateForID = new Date(logDate);
     let dayID;
-    if (logFormat == "json") {
-      // We want to cluster all of the logs that occur on the same day
-      // into the same Arrays. We clone the date for the log, reset it to
-      // the 0th hour/minute/second, and use that to construct an ID for the
-      // Array we'll put the log in.
-      dateForID.setHours(0);
-      dateForID.setMinutes(0);
-      dateForID.setSeconds(0);
-      dayID = dateForID.toISOString();
-
-      if (!(dayID in entries)) {
-        entries[dayID] = [];
-      }
-
-      entries[dayID].push({
-        path,
-        time: logDate,
-      });
-    } else {
-      // Add legacy text logs as individual paths.
-      dayID = dateForID.toISOString() + "txt";
-      entries[dayID] = path;
+    // If the file isn't a JSON file, ignore it.
+    if (logFormat != "json") {
+      continue;
     }
+    // We want to cluster all of the logs that occur on the same day
+    // into the same Arrays. We clone the date for the log, reset it to
+    // the 0th hour/minute/second, and use that to construct an ID for the
+    // Array we'll put the log in.
+    dateForID.setHours(0);
+    dateForID.setMinutes(0);
+    dateForID.setSeconds(0);
+    dayID = dateForID.toISOString();
+
+    if (!(dayID in entries)) {
+      entries[dayID] = [];
+    }
+
+    entries[dayID].push({
+      path,
+      time: logDate,
+    });
   }
 
   let days = Object.keys(entries);
@@ -658,8 +563,7 @@ Logger.prototype = {
         encodeName(aNormalizedName)
       );
       if (await queueFileOperation(path, () => IOUtils.exists(path))) {
-        let entries = await IOUtils.getChildren(path);
-        return entries;
+        return await IOUtils.getChildren(path);
       }
     } catch (aError) {
       Cu.reportError(

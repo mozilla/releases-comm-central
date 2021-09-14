@@ -1777,13 +1777,6 @@ chatLogTreeView.prototype = {
     let formatDate = function(aDate) {
       return dateFormatter.format(aDate);
     };
-    const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-      dateStyle: "short",
-      timeStyle: "short",
-    });
-    let formatDateTime = function(aDate) {
-      return dateTimeFormatter.format(aDate);
-    };
     let formatMonthYear = function(aDate) {
       let month = formatMonth(aDate);
       return dateFormatBundle.getFormattedString("finduri-MonthYear", [
@@ -1809,8 +1802,6 @@ chatLogTreeView.prototype = {
     let firstgroups = {
       previousWeek: [],
       currentWeek: [],
-      yesterday: [],
-      today: [],
     };
 
     // today and yesterday are treated differently, because for JSON logs they
@@ -1824,35 +1815,26 @@ chatLogTreeView.prototype = {
       let logDate = new Date(log.time * 1000);
       // Calculate elapsed time between the log and 00:00:00 today.
       let timeFromToday = todayDate - logDate;
-      let isJSON = log.format == "json";
-      let title = (isJSON ? formatDate : formatDateTime)(logDate);
+      let title = formatDate(logDate);
       let group;
       if (timeFromToday <= 0) {
-        if (isJSON) {
-          today = new chatLogTreeLogItem(
-            log,
-            chatBundle.getString("log.today"),
-            0
-          );
-          continue;
-        }
-        group = firstgroups.today;
+        today = new chatLogTreeLogItem(
+          log,
+          chatBundle.getString("log.today"),
+          0
+        );
+        continue;
       } else if (timeFromToday <= kDayInMsecs) {
-        if (isJSON) {
-          yesterday = new chatLogTreeLogItem(
-            log,
-            chatBundle.getString("log.yesterday"),
-            0
-          );
-          continue;
-        }
-        group = firstgroups.yesterday;
+        yesterday = new chatLogTreeLogItem(
+          log,
+          chatBundle.getString("log.yesterday"),
+          0
+        );
+        continue;
       } else if (timeFromToday <= kWeekInMsecs - kDayInMsecs) {
         // Note that the 7 days of the current week include today.
         group = firstgroups.currentWeek;
-        if (isJSON) {
-          title = formatWeekday(logDate);
-        }
+        title = formatWeekday(logDate);
       } else if (timeFromToday <= kTwoWeeksInMsecs - kDayInMsecs) {
         group = firstgroups.previousWeek;
       } else {
