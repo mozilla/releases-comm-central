@@ -5,7 +5,6 @@ messenger.jar:
 % content messenger %content/messenger/ contentaccessible=yes
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
 % override chrome://global/content/commonDialog.xhtml chrome://messenger/content/commonDialog.xhtml
-    content/messenger/aboutAddonsExtra.css          (content/aboutAddonsExtra.css)
     content/messenger/aboutAddonsExtra.js           (content/aboutAddonsExtra.js)
     content/messenger/aboutDialog-appUpdater.js     (content/aboutDialog-appUpdater.js)
     content/messenger/aboutDialog.css               (content/aboutDialog.css)

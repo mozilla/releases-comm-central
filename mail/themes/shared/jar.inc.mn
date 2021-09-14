@@ -103,6 +103,7 @@
   skin/classic/messenger/overrides/warning.svg                (../shared/mail/overrides/warning.svg)
 # End Proton icon overrides
 
+  skin/classic/messenger/aboutAddonsExtra.css                 (../shared/mail/aboutAddonsExtra.css)
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
   skin/classic/messenger/aboutAddressBook.css                 (../shared/mail/aboutAddressBook.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)

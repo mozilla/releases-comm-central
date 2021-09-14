@@ -41,7 +41,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // Add our stylesheet.
   let contentStylesheet = document.createProcessingInstruction(
     "xml-stylesheet",
-    'href="chrome://messenger/content/aboutAddonsExtra.css" type="text/css"'
+    'href="chrome://messenger/skin/aboutAddonsExtra.css" type="text/css"'
   );
   document.insertBefore(contentStylesheet, document.documentElement);
 
