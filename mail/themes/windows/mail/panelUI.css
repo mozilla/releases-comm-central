@@ -11,6 +11,10 @@ menuitem.subviewbutton[disabled]:not(.menuitem-iconic) {
   min-height: 22px;
 }
 
+menupopup.cui-widget-panel[type="arrow"] {
+  -moz-window-shadow: none;
+}
+
 @media (prefers-contrast) {
   panelview .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus-visible),
   toolbarbutton.subviewbutton:not([disabled],[open],:active):is(:hover,:focus-visible),

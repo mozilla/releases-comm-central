@@ -37,10 +37,6 @@ button {
   border-radius: var(--in-content-button-border-radius);
 }
 
-menupopup[type="arrow"] {
-  -moz-window-shadow: none;
-}
-
 :root {
   appearance: none;
   font: message-box;

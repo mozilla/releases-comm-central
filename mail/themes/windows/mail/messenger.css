@@ -708,7 +708,3 @@ treechildren::-moz-tree-row {
 :root[uidensity="touch"] treechildren::-moz-tree-row {
   height: 2.4rem;
 }
-
-#folderPaneOptionsPopup {
-  -moz-window-shadow: none;
-}
