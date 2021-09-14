@@ -545,6 +545,7 @@ nsImapProtocol::nsImapProtocol()
   m_inThreadShouldDie = false;
   m_pseudoInterrupted = false;
   m_nextUrlReadyToRun = false;
+  m_idleResponseReadyToHandle = false;
   m_trackingTime = false;
   m_curFetchSize = 0;
   m_startTime = 0;
@@ -692,41 +693,70 @@ const char* nsImapProtocol::GetImapServerKey() {
 }
 
 nsresult nsImapProtocol::SetupSinkProxy() {
+  if (!m_runningUrl) return NS_OK;
   nsresult res;
-  if (m_runningUrl) {
-    if (!m_imapMailFolderSink) {
+  bool newFolderSink = false;
+  if (!m_imapMailFolderSink) {
+    nsCOMPtr<nsIImapMailFolderSink> aImapMailFolderSink;
+    (void)m_runningUrl->GetImapMailFolderSink(
+        getter_AddRefs(aImapMailFolderSink));
+    if (aImapMailFolderSink) {
+      m_imapMailFolderSink = new ImapMailFolderSinkProxy(aImapMailFolderSink);
+      newFolderSink = true;
+    }
+  }
+  if (newFolderSink) Log("SetupSinkProxy", nullptr, "got m_imapMailFolderSink");
+
+  // Obtain a sink proxy for the folder to be imap SELECTed on this connection
+  // by the nsImapSelectFolder URL. It is needed to handle untagged IDLE
+  // responses and untagged responses such as during NOOP or STATUS to detect
+  // new mail for the SELECTed folder.
+  nsImapAction imapAction;
+  m_runningUrl->GetImapAction(&imapAction);
+  if (imapAction == nsIImapUrl::nsImapSelectFolder) {
+    m_imapMailFolderSinkSelected = nullptr;
+    if (newFolderSink) {
+      // Use imapMailFolderSink just obtained above.
+      m_imapMailFolderSinkSelected = m_imapMailFolderSink;
+    } else {
+      // Allocate a new one. Have never seen this happen.
+      Log("SetupSinkProxy", nullptr,
+          "getting new m_imapMailFolderSinkSelected");
       nsCOMPtr<nsIImapMailFolderSink> aImapMailFolderSink;
       (void)m_runningUrl->GetImapMailFolderSink(
           getter_AddRefs(aImapMailFolderSink));
       if (aImapMailFolderSink) {
-        m_imapMailFolderSink = new ImapMailFolderSinkProxy(aImapMailFolderSink);
+        m_imapMailFolderSinkSelected =
+            new ImapMailFolderSinkProxy(aImapMailFolderSink);
       }
     }
+    if (m_imapMailFolderSinkSelected)
+      Log("SetupSinkProxy", nullptr, "got m_imapMailFolderSinkSelected");
+  }
 
-    if (!m_imapMessageSink) {
-      nsCOMPtr<nsIImapMessageSink> aImapMessageSink;
-      (void)m_runningUrl->GetImapMessageSink(getter_AddRefs(aImapMessageSink));
-      if (aImapMessageSink) {
-        m_imapMessageSink = new ImapMessageSinkProxy(aImapMessageSink);
-      } else {
-        return NS_ERROR_ILLEGAL_VALUE;
-      }
+  if (!m_imapMessageSink) {
+    nsCOMPtr<nsIImapMessageSink> aImapMessageSink;
+    (void)m_runningUrl->GetImapMessageSink(getter_AddRefs(aImapMessageSink));
+    if (aImapMessageSink) {
+      m_imapMessageSink = new ImapMessageSinkProxy(aImapMessageSink);
+    } else {
+      return NS_ERROR_ILLEGAL_VALUE;
     }
-    if (!m_imapServerSink) {
-      nsCOMPtr<nsIImapServerSink> aImapServerSink;
-      res = m_runningUrl->GetImapServerSink(getter_AddRefs(aImapServerSink));
-      if (aImapServerSink) {
-        m_imapServerSink = new ImapServerSinkProxy(aImapServerSink);
-        m_imapServerSinkLatest = m_imapServerSink;
-      } else {
-        return NS_ERROR_ILLEGAL_VALUE;
-      }
+  }
+  if (!m_imapServerSink) {
+    nsCOMPtr<nsIImapServerSink> aImapServerSink;
+    res = m_runningUrl->GetImapServerSink(getter_AddRefs(aImapServerSink));
+    if (aImapServerSink) {
+      m_imapServerSink = new ImapServerSinkProxy(aImapServerSink);
+      m_imapServerSinkLatest = m_imapServerSink;
+    } else {
+      return NS_ERROR_ILLEGAL_VALUE;
     }
-    if (!m_imapProtocolSink) {
-      nsCOMPtr<nsIImapProtocolSink> anImapProxyHelper(do_QueryInterface(
-          NS_ISUPPORTS_CAST(nsIImapProtocolSink*, this), &res));
-      m_imapProtocolSink = new ImapProtocolSinkProxy(anImapProxyHelper);
-    }
+  }
+  if (!m_imapProtocolSink) {
+    nsCOMPtr<nsIImapProtocolSink> anImapProxyHelper(
+        do_QueryInterface(NS_ISUPPORTS_CAST(nsIImapProtocolSink*, this), &res));
+    m_imapProtocolSink = new ImapProtocolSinkProxy(anImapProxyHelper);
   }
   return NS_OK;
 }
@@ -1145,6 +1175,7 @@ NS_IMETHODIMP nsImapProtocol::Run() {
   if (m_imapProtocolSink) m_imapProtocolSink->CloseStreams();
 
   m_imapMailFolderSink = nullptr;
+  m_imapMailFolderSinkSelected = nullptr;
   m_imapMessageSink = nullptr;
 
   // shutdown this thread, but do it from the main thread
@@ -1234,7 +1265,7 @@ NS_IMETHODIMP nsImapProtocol::OnInputStreamReady(nsIAsyncInputStream* inStr) {
     if (bytesAvailable != 0) {
       ReentrantMonitorAutoEnter mon(m_urlReadyToRunMonitor);
       m_lastActiveTime = PR_Now();
-      m_nextUrlReadyToRun = true;
+      m_idleResponseReadyToHandle = true;
       mon.Notify();
     }
   }
@@ -1398,19 +1429,23 @@ void nsImapProtocol::ImapThreadMainLoop() {
           ("ImapThreadMainLoop entering [this=%p]", this));
 
   PRIntervalTime sleepTime = kImapSleepTime;
+  bool idlePending = false;
   while (!DeathSignalReceived()) {
     nsresult rv = NS_OK;
-    bool readyToRun;
+    bool urlReadyToRun;
 
-    // wait for an URL to process...
+    // wait for a URL or idle response to process...
     {
       ReentrantMonitorAutoEnter mon(m_urlReadyToRunMonitor);
 
       while (NS_SUCCEEDED(rv) && !DeathSignalReceived() &&
-             !m_nextUrlReadyToRun && !m_threadShouldDie)
+             !m_nextUrlReadyToRun && !m_idleResponseReadyToHandle &&
+             !m_threadShouldDie) {
         rv = mon.Wait(sleepTime);
+        if (idlePending) break;
+      }
 
-      readyToRun = m_nextUrlReadyToRun;
+      urlReadyToRun = m_nextUrlReadyToRun;
       m_nextUrlReadyToRun = false;
     }
     // This will happen if the UI thread signals us to die
@@ -1424,7 +1459,19 @@ void nsImapProtocol::ImapThreadMainLoop() {
       break;
     }
 
-    if (readyToRun && m_runningUrl) {
+    // If an idle response has occurred, handle only it on this pass through
+    // the loop.
+    if (m_idleResponseReadyToHandle && !m_threadShouldDie) {
+      m_idleResponseReadyToHandle = false;
+      HandleIdleResponses();
+      if (urlReadyToRun) {
+        // A URL is also ready. Process it on next loop.
+        m_nextUrlReadyToRun = true;
+        urlReadyToRun = false;
+      }
+    }
+
+    if (urlReadyToRun && m_runningUrl) {
       if (m_currentServerCommandTagNumber && m_transport) {
         bool isAlive;
         rv = m_transport->IsAlive(&isAlive);
@@ -1439,31 +1486,47 @@ void nsImapProtocol::ImapThreadMainLoop() {
         }
       }
       //
-      // NOTE: Though we cleared m_nextUrlReadyToRun above, it may have been
-      //       set by LoadImapUrl, which runs on the main thread.  Because of
-      //       this, we must not try to clear m_nextUrlReadyToRun here.
+      // NOTE: Although we cleared m_nextUrlReadyToRun above, it may now be set
+      //       again by LoadImapUrlInternal(), which runs on the main thread.
+      //       Because of this, we must not clear m_nextUrlReadyToRun here.
       //
       if (ProcessCurrentURL()) {
+        // Another URL has been setup to run. Process it on next loop.
         m_nextUrlReadyToRun = true;
         m_imapMailFolderSink = nullptr;
       } else {
-        // see if we want to go into idle mode. Might want to check a pref here
-        // too.
-        if (m_useIdle && !m_urlInProgress &&
+        // No more URLs setup to run. Set idle pending if user has configured
+        // idle and if a URL is not in progress and if the server has IDLE
+        // capability. Just set idlePending since want to wait a short time
+        // to see if more URLs occurs before actually entering idle.
+        if (!idlePending && m_useIdle && !m_urlInProgress &&
             GetServerStateParser().GetCapabilityFlag() & kHasIdleCapability &&
             GetServerStateParser().GetIMAPstate() ==
                 nsImapServerResponseParser::kFolderSelected) {
-          Idle();  // for now, lets just do it. We'll probably want to use a
-                   // timer
-          if (!m_idle) {
-            // Server rejected IDLE. Treat like IDLE not enabled or available.
-            m_imapMailFolderSink = nullptr;
-          }
-        } else  // if not idle, don't need to remember folder sink
+          // Set-up short wait time in milliseconds
+          static const PRIntervalTime kIdleWait =
+              PR_MillisecondsToInterval(2000);
+          sleepTime = kIdleWait;
+          idlePending = true;
+          Log("ImapThreadMainLoop", nullptr, "idlePending set");
+        } else {
+          // if not idle used, don't need to remember folder sink
           m_imapMailFolderSink = nullptr;
+        }
       }
-    } else if (m_idle && !m_threadShouldDie) {
-      HandleIdleResponses();
+    } else {
+      // No URL to run detected on wake up.
+      if (idlePending) {
+        // Have seen no URLs for the short time (kIdleWait) so go into idle mode
+        // and set the loop sleep time back to its original longer time.
+        Idle();
+        if (!m_idle) {
+          // Server rejected IDLE. Treat like IDLE not enabled or available.
+          m_imapMailFolderSink = nullptr;
+        }
+        idlePending = false;
+        sleepTime = kImapSleepTime;
+      }
     }
     if (!GetServerStateParser().Connected()) break;
 #ifdef DEBUG_bienvenu
@@ -1480,22 +1543,40 @@ void nsImapProtocol::ImapThreadMainLoop() {
           ("ImapThreadMainLoop leaving [this=%p]", this));
 }
 
-void nsImapProtocol::HandleIdleResponses() {
-  // int32_t oldRecent = GetServerStateParser().NumberOfRecentMessages();
-  nsAutoCString commandBuffer(GetServerCommandTag());
-  commandBuffer.AppendLiteral(" IDLE" CRLF);
-
+// This handles the response to Idle() command and handles responses sent by
+// the server after in idle mode. Returns true if a BAD or NO response is
+// not seen which is needed when called from Idle().
+bool nsImapProtocol::HandleIdleResponses() {
+  bool rvIdleOk = true;
+  bool untagged = false;
+  NS_ASSERTION(PL_strstr(m_currentCommand.get(), " IDLE"), "not IDLE!");
   do {
-    ParseIMAPandCheckForNewMail(commandBuffer.get());
+    ParseIMAPandCheckForNewMail();
+    rvIdleOk = rvIdleOk && !GetServerStateParser().CommandFailed();
+    untagged = untagged || GetServerStateParser().UntaggedResponse();
   } while (m_inputStreamBuffer->NextLineAvailable() &&
            GetServerStateParser().Connected());
 
-  //  if (oldRecent != GetServerStateParser().NumberOfRecentMessages())
-  //  We might check that something actually changed, but for now we can
-  // just assume it. OnNewIdleMessages must run a url, so that
-  // we'll go back into asyncwait mode.
-  if (GetServerStateParser().Connected() && m_imapMailFolderSink)
-    m_imapMailFolderSink->OnNewIdleMessages();
+  // If still connected and rvIdleOk is true and an untagged response was
+  // detected and have the sink pointer, OnNewIdleMessage will invoke a URL to
+  // update the folder. Otherwise just setup so we get notified of idle response
+  // data on the socket transport thread by OnInputStreamReady() above, which
+  // will trigger the imap thread main loop to run and call this function again.
+  if (GetServerStateParser().Connected() && rvIdleOk) {
+    if (m_imapMailFolderSinkSelected && untagged) {
+      Log("HandleIdleResponses", nullptr, "idle response");
+      m_imapMailFolderSinkSelected->OnNewIdleMessages();
+    } else {
+      // Enable async wait mode. Occurs when Idle() called.
+      nsCOMPtr<nsIAsyncInputStream> asyncInputStream =
+          do_QueryInterface(m_inputStream);
+      if (asyncInputStream) {
+        asyncInputStream->AsyncWait(this, 0, 0, nullptr);
+        Log("HandleIdleResponses", nullptr, "idle mode async waiting");
+      }
+    }
+  }
+  return rvIdleOk;
 }
 
 void nsImapProtocol::EstablishServerConnection() {
@@ -6706,14 +6787,21 @@ bool nsImapProtocol::FolderIsSelected(const char* mailboxName) {
 }
 
 void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
+  // RFC 3501 says:
+  // "the STATUS command SHOULD NOT be used on the currently selected mailbox",
+  // so use NOOP instead if mailboxName is the selected folder on this
+  // connection.
   if (FolderIsSelected(mailboxName)) {
-    int32_t prevNumMessages = GetServerStateParser().NumberOfMessages();
     Noop();
-    // OnNewIdleMessages will cause the ui thread to update the folder
-    if (m_imapMailFolderSink &&
-        (GetServerStateParser().NumberOfRecentMessages() ||
-         prevNumMessages != GetServerStateParser().NumberOfMessages()))
-      m_imapMailFolderSink->OnNewIdleMessages();
+    // Did untagged responses occur during the NOOP response? If so, this
+    // indicates new mail or other changes in the mailbox. Handle this like an
+    // IDLE response which will cause a folder update.
+    if (GetServerStateParser().UntaggedResponse() &&
+        m_imapMailFolderSinkSelected) {
+      Log("OnStatusForFolder", nullptr,
+          "mailbox change on selected folder during noop");
+      m_imapMailFolderSinkSelected->OnNewIdleMessages();
+    }
     return;
   }
 
@@ -6727,6 +6815,7 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
   command.Append(escapedName);
   command.AppendLiteral("\" (UIDNEXT MESSAGES UNSEEN RECENT)" CRLF);
 
+  int32_t prevNumMessages = GetServerStateParser().NumberOfMessages();
   nsresult rv = SendData(command.get());
   if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
 
@@ -6735,6 +6824,20 @@ void nsImapProtocol::OnStatusForFolder(const char* mailboxName) {
         GetServerStateParser().CreateCurrentMailboxSpec(mailboxName);
     if (new_spec && m_imapMailFolderSink)
       m_imapMailFolderSink->UpdateImapMailboxStatus(this, new_spec);
+  }
+
+  // Respond to possible untagged responses EXISTS and RECENT for the SELECTed
+  // folder. Handle as though this were an IDLE response. Can't check for any
+  // untagged as for Noop() above since STATUS produces untagged response for
+  // the target mailbox and not just for the SELECTed box.
+  if (GetServerStateParser().GetIMAPstate() ==
+          nsImapServerResponseParser::kFolderSelected &&
+      m_imapMailFolderSinkSelected &&
+      (GetServerStateParser().NumberOfRecentMessages() ||
+       prevNumMessages != GetServerStateParser().NumberOfMessages())) {
+    Log("OnStatusForFolder", nullptr,
+        "new mail on selected folder during status");
+    m_imapMailFolderSinkSelected->OnNewIdleMessages();
   }
 }
 
@@ -7783,21 +7886,14 @@ void nsImapProtocol::Idle() {
   command += " IDLE" CRLF;
   nsresult rv = SendData(command.get());
   if (NS_SUCCEEDED(rv)) {
-    // we'll just get back a continuation char at first.
-    // + idling...
-    ParseIMAPandCheckForNewMail();
-    if (GetServerStateParser().LastCommandSuccessful()) {
-      m_idle = true;
-      // this will cause us to get notified of data or the socket getting
-      // closed. That notification will occur on the socket transport thread -
-      // we just need to poke a monitor so the imap thread will do a blocking
-      // read and parse the data.
-      nsCOMPtr<nsIAsyncInputStream> asyncInputStream =
-          do_QueryInterface(m_inputStream);
-      if (asyncInputStream) asyncInputStream->AsyncWait(this, 0, 0, nullptr);
-    } else {
-      m_idle = false;
-    }
+    // Typically, we'll just get back only a continuation char on IDLE response,
+    // "+ idling". However, it is possible untagged responses will occur before
+    // and/or after the '+' which we treat the same as later untagged responses
+    // signaled by the socket thread. If untagged responses occur on IDLE,
+    // HandleIdleResponses() will trigger a select URL which will exit idle mode
+    // and update the selected folder. Finally, if IDLE responds with tagged BAD
+    // or NO, HandleIdleResponses() will return false.
+    m_idle = HandleIdleResponses();
   }
 }
 
@@ -7805,8 +7901,8 @@ void nsImapProtocol::Idle() {
 // responses, we need to not wait for the server response
 // on shutdown.
 void nsImapProtocol::EndIdle(bool waitForResponse /* = true */) {
-  // clear the async wait - otherwise, we seem to have trouble doing a blocking
-  // read
+  // clear the async wait - otherwise, we have trouble doing a blocking read
+  // below.
   nsCOMPtr<nsIAsyncInputStream> asyncInputStream =
       do_QueryInterface(m_inputStream);
   if (asyncInputStream) asyncInputStream->AsyncWait(nullptr, 0, 0, nullptr);
@@ -7817,6 +7913,15 @@ void nsImapProtocol::EndIdle(bool waitForResponse /* = true */) {
   if (NS_SUCCEEDED(rv)) {
     m_idle = false;
     ParseIMAPandCheckForNewMail();
+    // If waiting for response (i.e., not shutting down), check for IDLE
+    // untagged response(s) occurring after DONE is sent, which can occur and is
+    // mentioned in the IDLE rfc as a possibility. This is similar to the checks
+    // done in OnStatusForFolder().
+    if (waitForResponse && m_imapMailFolderSinkSelected &&
+        GetServerStateParser().UntaggedResponse()) {
+      Log("EndIdle", nullptr, "idle response after idle DONE");
+      m_imapMailFolderSinkSelected->OnNewIdleMessages();
+    }
   }
   m_imapMailFolderSink = nullptr;
 }

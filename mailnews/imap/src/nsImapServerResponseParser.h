@@ -40,6 +40,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   virtual void InitializeState();
   bool CommandFailed();
   void SetCommandFailed(bool failed);
+  bool UntaggedResponse();
 
   enum eIMAPstate { kNonAuthenticated, kAuthenticated, kFolderSelected };
 
@@ -200,6 +201,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
 
  private:
   bool fCurrentCommandFailed;
+  bool fUntaggedResponse;
   bool fReportingErrors;
 
   bool fCurrentFolderReadOnly;

@@ -101,6 +101,10 @@ void nsImapServerResponseParser::SetCommandFailed(bool failed) {
   fCurrentCommandFailed = failed;
 }
 
+bool nsImapServerResponseParser::UntaggedResponse() {
+  return fUntaggedResponse;
+}
+
 void nsImapServerResponseParser::SetFlagState(nsIImapFlagAndUidState* state) {
   fFlagState = state;
 }
@@ -122,6 +126,7 @@ void nsImapServerResponseParser::InitializeState() {
   fCurrentCommandFailed = false;
   fNumberOfRecentMessages = 0;
   fReceivedHeaderOrSizeForUID = nsMsgKey_None;
+  fUntaggedResponse = false;
 }
 
 // RFC3501:  response = *(continue-req / response-data) response-done
@@ -170,9 +175,6 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(
     if (commandToken && ContinueParse())
       PreProcessCommandToken(commandToken, aCurrentCommand);
 
-    // For checking expected response to IDLE command below.
-    bool untagged = false;
-
     if (ContinueParse()) {
       ResetLexAnalyzer();
 
@@ -181,6 +183,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(
         fCurrentLine = aGreetingWithCapability;
       }
 
+      // When inIdle, only one pass through "do" and "while" below occurs.
       do {
         AdvanceToNextToken();
 
@@ -194,7 +197,9 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(
                      !aGreetingWithCapability)
               AdvanceToNextToken();
           }
-          untagged = true;
+          // For checking expected response to IDLE command below and
+          // for checking if an untagged response occurred by the caller.
+          fUntaggedResponse = true;
         }
 
         // command continuation request [RFC3501, Sec. 7.5]
@@ -234,7 +239,8 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(
       // command will manually set fWaitingForMoreClientInput so we don't lose
       // that information....
       if ((fNextToken && *fNextToken == '+') || inIdle) {
-        if (inIdle && !((fNextToken && *fNextToken == '+') || untagged)) {
+        if (inIdle &&
+            !((fNextToken && *fNextToken == '+') || fUntaggedResponse)) {
           // IDLE "response" + will not be "eaten" as described above since it
           // is not an authentication response. So if IDLE response does not
           // begin with '+' (continuation) or '*' (untagged and probably useful

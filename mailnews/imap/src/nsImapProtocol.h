@@ -450,9 +450,11 @@ class nsImapProtocol : public nsIImapProtocol,
   nsCString m_connectionType;
 
   bool m_nextUrlReadyToRun;
+  bool m_idleResponseReadyToHandle;
   nsWeakPtr m_server;
 
   RefPtr<ImapMailFolderSinkProxy> m_imapMailFolderSink;
+  RefPtr<ImapMailFolderSinkProxy> m_imapMailFolderSinkSelected;
   RefPtr<ImapMessageSinkProxy> m_imapMessageSink;
   RefPtr<ImapServerSinkProxy> m_imapServerSink;
   RefPtr<ImapServerSinkProxy> m_imapServerSinkLatest;
@@ -469,7 +471,7 @@ class nsImapProtocol : public nsIImapProtocol,
   nsImapServerResponseParser m_parser;
   nsImapServerResponseParser& GetServerStateParser() { return m_parser; }
 
-  void HandleIdleResponses();
+  bool HandleIdleResponses();
   virtual bool ProcessCurrentURL();
   void EstablishServerConnection();
   virtual void ParseIMAPandCheckForNewMail(const char* commandString = nullptr,
