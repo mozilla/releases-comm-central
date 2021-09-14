@@ -1250,8 +1250,9 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
     if (mProgress) mProgress->CloseProgressDialog(true);
   };
   if (promise) {
-    new DomPromiseListener(
-        promise, [](JSContext*, JS::Handle<JS::Value>) {}, handleFailure);
+    RefPtr<DomPromiseListener> listener = new DomPromiseListener(
+        [](JSContext*, JS::Handle<JS::Value>) {}, handleFailure);
+    promise->AppendNativeHandler(listener);
     promise.forget(aPromise);
   } else if (NS_FAILED(rv)) {
     handleFailure(rv);
