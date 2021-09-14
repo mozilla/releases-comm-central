@@ -602,6 +602,10 @@ Log.prototype = {
  * @returns {imILog[]} Logs, ordered by day.
  */
 function logsGroupedByDay(aEntries) {
+  if (!Array.isArray(aEntries)) {
+    return [];
+  }
+
   let entries = {};
   for (let path of aEntries) {
     let [logDate, logFormat] = getDateFromFilename(PathUtils.filename(path));
@@ -696,25 +700,6 @@ Logger.prototype = {
     return new Log(relevantEntries);
   },
 
-  /**
-   * Helper to produce array of imILog objects from directory entries.
-   *
-   * @param {string[]} entries - Array of paths of log files to be parsed.
-   * @param {boolean} groupByDay - If true, order by day (rather than by filename).
-   * @returns {imILog[]} Logs, ordered by day.
-   */
-  _toLogArray(entries, groupByDay) {
-    if (!Array.isArray(entries)) {
-      return [];
-    }
-    if (groupByDay) {
-      return logsGroupedByDay(entries);
-    }
-    // Default - sort by filename.
-    entries.sort((a, b) => PathUtils.filename(a) > PathUtils.filename(b));
-    return entries.map(path => new Log(path));
-  },
-
   async getLogPathsForConversation(aConversation) {
     let writer = gLogWritersById.get(aConversation.id);
     // Resolve to null if we haven't created a LogWriter yet for this conv, or
@@ -730,7 +715,7 @@ Logger.prototype = {
     }
     return paths;
   },
-  async getLogsForContact(aContact, aGroupByDay) {
+  async getLogsForContact(aContact) {
     let entries = [];
     for (let buddy of aContact.getBuddies()) {
       for (let accountBuddy of buddy.getAccountBuddies()) {
@@ -742,19 +727,19 @@ Logger.prototype = {
         );
       }
     }
-    return this._toLogArray(entries, aGroupByDay);
+    return logsGroupedByDay(entries);
   },
-  getLogsForConversation(aConversation, aGroupByDay) {
+  getLogsForConversation(aConversation) {
     let name = aConversation.normalizedName;
     if (aConversation.isChat) {
       name += ".chat";
     }
 
-    return this._getLogEntries(aConversation.account, name).then(aEntries =>
-      this._toLogArray(aEntries, aGroupByDay)
+    return this._getLogEntries(aConversation.account, name).then(entries =>
+      logsGroupedByDay(entries)
     );
   },
-  async getSimilarLogs(aLog, aGroupByDay) {
+  async getSimilarLogs(aLog) {
     let entries;
     try {
       entries = await IOUtils.getChildren(PathUtils.parent(aLog.path));
@@ -764,7 +749,7 @@ Logger.prototype = {
       );
     }
     // If there was an error, this will return an empty array.
-    return this._toLogArray(entries, aGroupByDay);
+    return logsGroupedByDay(entries);
   },
 
   getLogFolderPathForAccount(aAccount) {

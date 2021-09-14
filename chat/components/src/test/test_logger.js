@@ -393,18 +393,6 @@ var test_logging = async function() {
     }
   };
 
-  let logs = await logger.getLogsForConversation(dummyConv);
-  let allLogMsgs = [];
-  for (let log of logs) {
-    let conv = await log.getConversation();
-    if (!conv) {
-      continue;
-    }
-    allLogMsgs = allLogMsgs.concat(conv.getMessages());
-  }
-  // Two session messages, one for each valid log file.
-  testMsgs(allLogMsgs, firstDayMsgs.concat(secondDayMsgs), 2);
-
   // Accepts time in seconds, reduces it to a date, and returns the value in millis.
   let reduceTimeToDate = function(aTime) {
     let date = new Date(aTime * 1000);
@@ -419,7 +407,7 @@ var test_logging = async function() {
   messagesByDay.set(reduceTimeToDate(firstDayMsgs[0].time), firstDayMsgs);
   messagesByDay.set(reduceTimeToDate(secondDayMsgs[0].time), secondDayMsgs);
 
-  logs = await logger.getLogsForConversation(dummyConv, true);
+  let logs = await logger.getLogsForConversation(dummyConv);
   for (let log of logs) {
     let conv = await log.getConversation();
     let date = reduceTimeToDate(log.time);

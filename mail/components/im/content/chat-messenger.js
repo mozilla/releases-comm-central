@@ -887,7 +887,7 @@ var chatHandler = {
         ...path.split("/")
       );
       imServices.logs.getLogFromFile(path, true).then(aLog => {
-        imServices.logs.getSimilarLogs(aLog, true).then(aSimilarLogs => {
+        imServices.logs.getSimilarLogs(aLog).then(aSimilarLogs => {
           if (contactlistbox.selectedItem != item) {
             return;
           }
@@ -947,7 +947,7 @@ var chatHandler = {
 
       ChatEncryption.updateEncryptionButton(document, item.conv);
 
-      imServices.logs.getLogsForConversation(item.conv, true).then(aLogs => {
+      imServices.logs.getLogsForConversation(item.conv).then(aLogs => {
         if (contactlistbox.selectedItem != item) {
           return;
         }
@@ -993,7 +993,7 @@ var chatHandler = {
           e.setAttribute("hidden", "true");
         });
 
-      imServices.logs.getLogsForContact(contact, true).then(aLogs => {
+      imServices.logs.getLogsForContact(contact).then(aLogs => {
         if (contactlistbox.selectedItem != item) {
           return;
         }

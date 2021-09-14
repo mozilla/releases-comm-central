@@ -63,13 +63,12 @@ interface imILogger: nsISupports {
 
   // Below methods return promises that resolve to {imILog[]}.
 
-  jsval getLogsForContact(in imIContact aContact,
-                          [optional] in boolean aGroupByDay);
-
-  jsval getLogsForConversation(in prplIConversation aConversation,
-                               [optional] in boolean aGroupByDay);
-  jsval getSimilarLogs(in imILog aLog,
-                       [optional] in boolean aGroupByDay);
+  // Get logs for a contact.
+  jsval getLogsForContact(in imIContact aContact);
+  // Get logs for a conversation.
+  jsval getLogsForConversation(in prplIConversation aConversation);
+  // Get logs that are from the same conversation.
+  jsval getSimilarLogs(in imILog aLog);
 
   // Asynchronously iterates through log folders for all prpls and accounts and
   // invokes the callback on every log file. Returns a promise that resolves when
