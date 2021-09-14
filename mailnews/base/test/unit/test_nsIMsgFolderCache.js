@@ -163,4 +163,38 @@ add_task(async function test_migration() {
   let expect = JSON.parse(raw);
 
   Assert.deepEqual(got, expect);
+
+  // clean up for next test
+  jsonFile.remove(false);
+});
+
+/**
+ * Test foldercache migration doesn't crash with a dud panacea.dat.
+ */
+add_task(async function test_bad_pancea_dat() {
+  let profileDir = do_get_profile();
+  let jsonFile = profileDir.clone();
+  jsonFile.append("folderCache.json");
+  let legacyFile = profileDir.clone();
+  legacyFile.append("panacea.dat");
+
+  Assert.ok(!jsonFile.exists());
+  Assert.ok(!legacyFile.exists());
+
+  // Install our bad panacea.dat. It has only the first line - the mork magic
+  // cookie - so it's valid enough for mork to open, but doesn't have
+  // anything the migration is looking for.
+  do_get_file("data/panacea_empty.dat").copyTo(profileDir, legacyFile.leafName);
+
+  // Set up the cache.
+  let cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
+    Ci.nsIMsgFolderCache
+  );
+  // init() returns OK even if migration fails - the show must go on!
+  cache.init(jsonFile, legacyFile);
+
+  // If we get this far, we didn't crash, which is good.
+  // The migration should have left everything as it was.
+  Assert.ok(legacyFile.exists());
+  Assert.ok(!jsonFile.exists());
 });

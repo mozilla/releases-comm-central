@@ -477,6 +477,8 @@ static nsresult importFromMork(PathString const& dbName, Json::Value& root) {
   rv = store->GetTable(env, &allFoldersTableOID,
                        getter_AddRefs(allFoldersTable));
   NS_ENSURE_SUCCESS(rv, rv);
+  // GetTable() can return null even without an error.
+  NS_ENSURE_STATE(allFoldersTable);
 
   rv = convertTable(env, store, allFoldersTable, root);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -490,6 +492,8 @@ static nsresult importFromMork(PathString const& dbName, Json::Value& root) {
 static nsresult convertTable(nsIMdbEnv* env, nsIMdbStore* store,
                              nsIMdbTable* table, Json::Value& root) {
   MOZ_ASSERT(root.isObject());
+  MOZ_ASSERT(table);
+
   nsresult rv;
   nsCOMPtr<nsIMdbTableRowCursor> rowCursor;
   rv = table->GetTableRowCursor(env, -1, getter_AddRefs(rowCursor));
