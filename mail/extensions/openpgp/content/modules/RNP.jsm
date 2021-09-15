@@ -3108,7 +3108,7 @@ var RNP = {
       false
     );
 
-    let max_out = len * 2;
+    let max_out = len * 2 + 150; // extra bytes for head/tail/hash lines
 
     let output_to_memory = new RNPLib.rnp_output_t();
     RNPLib.rnp_output_to_memory(output_to_memory.address(), max_out);

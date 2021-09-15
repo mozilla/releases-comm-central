@@ -52,7 +52,12 @@ var GPGME = {
     let result = {};
     result.decryptedData = "";
 
-    var tmp_array = ctypes.char.array()(encrypted);
+    let arr = encrypted.split("").map(e => e.charCodeAt());
+    let encrypted_array = ctypes.uint8_t.array()(arr);
+    let tmp_array = ctypes.cast(
+      encrypted_array,
+      ctypes.char.array(encrypted_array.length)
+    );
 
     let data_ciphertext = new GPGMELib.gpgme_data_t();
     if (
