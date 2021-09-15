@@ -5,8 +5,6 @@
 /* Generic (cross-platform) multimessage view CSS.  Some bits will be overridden
   by theme specific files */
 
-@import url("chrome://messenger/content/sharedsummary.css");
-
 :root {
   --body-background-color: Field;
   --body-text-color: FieldText;
