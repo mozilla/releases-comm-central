@@ -145,8 +145,7 @@ MultiMessageSummary.prototype = {
     }
 
     // Clear the notice.
-    let notice = document.getElementById("notice");
-    notice.classList.add("hidden");
+    document.getElementById("notice").textContent = "";
   },
 
   /**
@@ -366,7 +365,6 @@ MultiMessageSummary.prototype = {
   showNotice(aNoticeText) {
     let notice = document.getElementById("notice");
     notice.textContent = aNoticeText;
-    notice.classList.remove("hidden");
   },
 
   /**

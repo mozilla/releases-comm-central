@@ -72,7 +72,6 @@ messenger.jar:
     content/messenger/SearchDialog.js               (content/SearchDialog.js)
 *   content/messenger/SearchDialog.xhtml            (content/SearchDialog.xhtml)
     content/messenger/selectionsummaries.js         (content/selectionsummaries.js)
-    content/messenger/sharedsummary.css             (content/sharedsummary.css)
     content/messenger/specialTabs.js                (content/specialTabs.js)
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)
     content/messenger/systemIntegrationDialog.xhtml (content/systemIntegrationDialog.xhtml)
