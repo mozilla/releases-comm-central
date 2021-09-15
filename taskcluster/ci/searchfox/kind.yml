@@ -158,6 +158,6 @@ jobs:
                 - sysroot-wasm32-wasi
                 - sysroot-x86_64-linux-gnu
                 - win64-libotr
+                - win64-nsis
             fetch:
-                - nsis-3.07-win
                 - upx-3.95-win

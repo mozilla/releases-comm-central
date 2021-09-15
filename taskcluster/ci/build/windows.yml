@@ -65,8 +65,8 @@ win32/opt:
             - linux64-wine
             - sysroot-x86_64-linux-gnu
             - win32-libotr
+            - win64-nsis
         fetch:
-            - nsis-3.07-win
             - upx-3.95-win
 
 win32-shippable/opt:
@@ -125,8 +125,8 @@ win32-shippable/opt:
             - linux64-wine
             - sysroot-x86_64-linux-gnu
             - win32-libotr
+            - win64-nsis
         fetch:
-            - nsis-3.07-win
             - upx-3.95-win
 
 win32/debug:
@@ -182,8 +182,8 @@ win32/debug:
             - linux64-wine
             - sysroot-x86_64-linux-gnu
             - win32-libotr
+            - win64-nsis
         fetch:
-            - nsis-3.07-win
             - upx-3.95-win
 
 win64/opt:
@@ -239,8 +239,8 @@ win64/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
+            - win64-nsis
         fetch:
-            - nsis-3.07-win
             - upx-3.95-win
 
 win64-shippable/opt:
@@ -300,8 +300,8 @@ win64-shippable/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
+            - win64-nsis
         fetch:
-            - nsis-3.07-win
             - upx-3.95-win
 
 win64/debug:
@@ -358,8 +358,8 @@ win64/debug:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
+            - win64-nsis
         fetch:
-            - nsis-3.07-win
             - upx-3.95-win
 
 
@@ -403,6 +403,7 @@ win64-plain/debug:
             - win64-mozmake
             - win64-node
             - win64-nasm
+            - win64-nsis
             - win64-rust
             - win64-winchecksec
 
@@ -446,6 +447,7 @@ win64-plain/opt:
             - win64-mozmake
             - win64-node
             - win64-nasm
+            - win64-nsis
             - win64-rust
             - win64-winchecksec
 
@@ -502,6 +504,6 @@ win64-asan/opt:
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
+            - win64-nsis
         fetch:
-            - nsis-3.07-win
             - upx-3.95-win
