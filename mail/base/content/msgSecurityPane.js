@@ -13,13 +13,15 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+var { MailConstants } = ChromeUtils.import(
+  "resource:///modules/MailConstants.jsm"
+);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
-  MailConstants: "resource:///modules/MailConstants.jsm",
 });
 
 var gSigKeyId = null;
