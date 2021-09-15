@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
+
 function checkDisplayValues(expected) {
   let abWindow = getAddressBookWindow();
 
@@ -17,7 +19,7 @@ function checkInputValues(expected) {
   let abWindow = getAddressBookWindow();
 
   for (let [key, value] of Object.entries(expected)) {
-    Assert.equal(abWindow.document.getElementById(key).value, value);
+    Assert.equal(abWindow.document.getElementById(key).value, value, key);
   }
 }
 
@@ -31,7 +33,12 @@ function setInputValues(changes) {
   let abWindow = getAddressBookWindow();
 
   for (let [key, value] of Object.entries(changes)) {
-    abWindow.document.getElementById(key).value = value;
+    abWindow.document.getElementById(key).select();
+    if (value) {
+      EventUtils.sendString(value);
+    } else {
+      EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
+    }
   }
 }
 
@@ -187,4 +194,107 @@ add_task(async function test_basic_edit() {
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
+});
+
+/**
+ * Test that the display name field is populated when it should be, and not
+ * when it shouldn't be.
+ */
+add_task(async function test_generate_display_name() {
+  Services.prefs.setBoolPref("mail.addr_book.displayName.autoGeneration", true);
+  Services.prefs.setStringPref(
+    "mail.addr_book.displayName.lastnamefirst",
+    "false"
+  );
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+
+  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  let editButton = abDocument.getElementById("editButton");
+  let cancelEditButton = abDocument.getElementById("cancelEditButton");
+  let saveEditButton = abDocument.getElementById("saveEditButton");
+
+  openDirectory(personalBook);
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+
+  checkInputValues({
+    FirstName: "",
+    LastName: "",
+    DisplayName: "",
+  });
+
+  // First name, no last name.
+  setInputValues({ FirstName: "first" });
+  checkInputValues({ DisplayName: "first" });
+
+  // Last name, no first name.
+  setInputValues({ FirstName: "", LastName: "last" });
+  checkInputValues({ DisplayName: "last" });
+
+  // Both names.
+  setInputValues({ FirstName: "first" });
+  checkInputValues({ DisplayName: "first last" });
+
+  // Modify the display name, it should not be overwritten.
+  setInputValues({ DisplayName: "don't touch me" });
+  setInputValues({ FirstName: "second" });
+  checkInputValues({ DisplayName: "don't touch me" });
+
+  // Clear the modified display name, it can be overwritten again.
+  setInputValues({ DisplayName: "" });
+  setInputValues({ FirstName: "third" });
+  checkInputValues({ DisplayName: "third last" });
+
+  // Flip the order.
+  Services.prefs.setStringPref(
+    "mail.addr_book.displayName.lastnamefirst",
+    "true"
+  );
+  setInputValues({ FirstName: "fourth" });
+  checkInputValues({ DisplayName: "last, fourth" });
+
+  // Turn off generation.
+  Services.prefs.setBoolPref(
+    "mail.addr_book.displayName.autoGeneration",
+    false
+  );
+  setInputValues({ FirstName: "fifth" });
+  checkInputValues({ DisplayName: "last, fourth" });
+
+  // Save the card and check the values.
+  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  checkCardValues(personalBook.childCards[0], {
+    FirstName: "fifth",
+    LastName: "last",
+    DisplayName: "last, fourth",
+  });
+
+  // Reset the order and turn generation back on.
+  Services.prefs.setBoolPref("mail.addr_book.displayName.autoGeneration", true);
+  Services.prefs.setStringPref(
+    "mail.addr_book.displayName.lastnamefirst",
+    "false"
+  );
+
+  // Reload the card and check the values.
+  let cardsList = abDocument.getElementById("cards");
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  checkInputValues({
+    FirstName: "fifth",
+    LastName: "last",
+    DisplayName: "last, fourth",
+  });
+
+  // Check the saved name isn't overwritten.
+  setInputValues({ FirstName: "first" });
+  checkInputValues({ DisplayName: "last, fourth" });
+
+  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+
+  await closeAddressBookWindow();
+  Services.prefs.clearUserPref("mail.addr_book.displayName.autoGeneration");
+  Services.prefs.clearUserPref("mail.addr_book.displayName.lastnamefirst");
+  personalBook.deleteCards(personalBook.childCards);
 });

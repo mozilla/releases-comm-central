@@ -1655,6 +1655,18 @@ var detailsPane = {
       }
     }
 
+    // Generate display name automatically.
+
+    this.firstName = document.getElementById("FirstName");
+    this.lastName = document.getElementById("LastName");
+    this.displayName = document.getElementById("DisplayName");
+
+    this.firstName.addEventListener("input", () => this.generateDisplayName());
+    this.lastName.addEventListener("input", () => this.generateDisplayName());
+    this.displayName.addEventListener("input", () => {
+      this.displayName._dirty = !!this.displayName.value;
+    });
+
     // Set up birthday fields.
 
     this.birthMonth = document.getElementById("BirthMonth");
@@ -1807,6 +1819,8 @@ var detailsPane = {
         : "";
     }
 
+    this.displayName._dirty = !!this.displayName.value;
+
     document.getElementById("preferDisplayName").checked =
       // getProperty may return a "1" or "0" string, we want a boolean
       // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
@@ -1866,6 +1880,58 @@ var detailsPane = {
       book.modifyCard(card);
     }
     this.displayContact(card);
+  },
+
+  /**
+   * If the display name field is empty, generate a name from the first and
+   * last name fields.
+   */
+  generateDisplayName() {
+    if (
+      !Services.prefs.getBoolPref("mail.addr_book.displayName.autoGeneration")
+    ) {
+      // Do nothing if generation is disabled.
+      return;
+    }
+
+    if (this.displayName._dirty) {
+      // Don't modify the field if it already has a value, unless the value
+      // was set by this function.
+      return;
+    }
+
+    if (this.firstName.value) {
+      if (!this.lastName.value) {
+        this.displayName.value = this.firstName.value;
+        return;
+      }
+    } else {
+      if (this.lastName.value) {
+        this.displayName.value = this.lastName.value;
+      } else {
+        this.displayName.value = "";
+      }
+      return;
+    }
+
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/addressbook/addressBook.properties"
+    );
+    let lastNameFirst = Services.prefs.getComplexValue(
+      "mail.addr_book.displayName.lastnamefirst",
+      Ci.nsIPrefLocalizedString
+    ).data;
+    if (lastNameFirst === "true") {
+      this.displayName.value = bundle.formatStringFromName("lastFirstFormat", [
+        this.lastName.value,
+        this.firstName.value,
+      ]);
+    } else {
+      this.displayName.value = bundle.formatStringFromName("firstLastFormat", [
+        this.firstName.value,
+        this.lastName.value,
+      ]);
+    }
   },
 
   /**
