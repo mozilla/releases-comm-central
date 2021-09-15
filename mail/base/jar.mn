@@ -29,7 +29,6 @@ messenger.jar:
     content/messenger/folderDisplay.js              (content/folderDisplay.js)
     content/messenger/folderPane.js                 (content/folderPane.js)
     content/messenger/glodaFacetTab.js              (content/glodaFacetTab.js)
-    content/messenger/glodaFacetView.css            (content/glodaFacetView.css)
     content/messenger/glodaFacetView.js             (content/glodaFacetView.js)
     content/messenger/glodaFacetView.xhtml          (content/glodaFacetView.xhtml)
     content/messenger/glodaFacetViewWrapper.xhtml   (content/glodaFacetViewWrapper.xhtml)
