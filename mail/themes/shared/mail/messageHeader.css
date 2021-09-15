@@ -25,6 +25,10 @@
   height: 4px;
 }
 
+mail-tagfield[collapsed="true"] {
+  display: none;
+}
+
 /* ::::: msg header buttons ::::: */
 
 .headerContainer {
@@ -392,6 +396,7 @@ mail-newsgroups-headerfield.headerValueBox {
 /* ::::: msg header email addresses ::::: */
 
 .emailDisplayButton {
+  -moz-user-focus: normal;
   display: -moz-inline-box;
   padding-inline: 2px;
   border: 1px solid transparent;

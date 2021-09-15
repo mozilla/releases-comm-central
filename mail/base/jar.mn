@@ -52,7 +52,6 @@ messenger.jar:
     content/messenger/messageWindow.js              (content/messageWindow.js)
 *   content/messenger/messageWindow.xhtml           (content/messageWindow.xhtml)
     content/messenger/messenger-customization.js    (content/messenger-customization.js)
-    content/messenger/messenger.css                 (content/messenger.css)
 *   content/messenger/messenger.xhtml               (content/messenger.xhtml)
 #ifdef XP_WIN
     content/messenger/minimizeToTray.js             (content/minimizeToTray.js)

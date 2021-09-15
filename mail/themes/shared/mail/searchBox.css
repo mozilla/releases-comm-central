@@ -164,3 +164,7 @@
   background: var(--autocomplete-popup-highlight-background);
   color: var(--autocomplete-popup-highlight-color);
 }
+
+.remote-gloda-search-container {
+  min-width: 10em;
+}
