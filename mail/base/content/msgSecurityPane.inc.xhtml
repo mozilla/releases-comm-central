@@ -1,130 +1,134 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <panel id="messageSecurityPanel" type="arrow" orient="vertical"
-         onpopuphidden="hideMessageReadSecurityInfo();"
+  <panel id="messageSecurityPanel"
+         type="arrow"
+         orient="vertical"
+         class="cui-widget-panel"
          position="bottomcenter topright"
          tabindex="-1">
-    <html:header class="message-security-header">
-      <html:h3>&status.label; <html:span id="techLabel"></html:span></html:h3>
-    </html:header>
+    <vbox class="security-panel-body">
+      <html:header class="message-security-header">
+        <html:h3>&status.label; <html:span id="techLabel"></html:span></html:h3>
+      </html:header>
 
-    <vbox class="message-security-body">
-      <!-- Notification container -->
-      <vbox>
-        <!-- Import OpenPGP key -->
-        <hbox id="openpgpKeyBox" hidden="true"
-              class="inline-notification-container info-container">
-          <hbox class="inline-notification-wrapper align-center">
-            <html:img class="notification-image"
-                      src="chrome://messenger/skin/icons/information.svg"
-                      alt="" />
-            <description>
-              <html:span data-l10n-id="openpgp-has-sender-key"></html:span>
-              <html:span id="hasConflictingKeyOpenPGP" hidden="hidden"></html:span>
-            </description>
-            <button id="openpgpImportButton"
-                    class="button-focusable"
-                    data-l10n-id="openpgp-import-sender-key"
-                    oncommand="Enigmail.msg.importAttachedSenderKey();"/>
+      <vbox class="message-security-body">
+        <!-- Notification container -->
+        <vbox>
+          <!-- Import OpenPGP key -->
+          <hbox id="openpgpKeyBox" hidden="true"
+                class="inline-notification-container info-container">
+            <hbox class="inline-notification-wrapper align-center">
+              <html:img class="notification-image"
+                        src="chrome://messenger/skin/icons/information.svg"
+                        alt="" />
+              <description>
+                <html:span data-l10n-id="openpgp-has-sender-key"></html:span>
+                <html:span id="hasConflictingKeyOpenPGP" hidden="hidden"></html:span>
+              </description>
+              <button id="openpgpImportButton"
+                      class="button-focusable"
+                      data-l10n-id="openpgp-import-sender-key"
+                      oncommand="Enigmail.msg.importAttachedSenderKey();"/>
+            </hbox>
           </hbox>
-        </hbox>
 
-        <!-- Missing signature -->
-        <hbox id="signatureKeyBox" hidden="true"
-              class="inline-notification-container info-container">
-          <hbox class="inline-notification-wrapper align-center">
-            <html:img class="notification-image"
-                      src="chrome://messenger/skin/icons/information.svg"
-                      alt="" />
-            <description data-l10n-id="openpgp-missing-signature-key"/>
-            <button data-l10n-id="openpgp-search-signature-key"
-                    class="button-focusable"
-                    oncommand="Enigmail.msg.searchSignatureKey();"/>
+          <!-- Missing signature -->
+          <hbox id="signatureKeyBox" hidden="true"
+                class="inline-notification-container info-container">
+            <hbox class="inline-notification-wrapper align-center">
+              <html:img class="notification-image"
+                        src="chrome://messenger/skin/icons/information.svg"
+                        alt="" />
+              <description data-l10n-id="openpgp-missing-signature-key"/>
+              <button data-l10n-id="openpgp-search-signature-key"
+                      class="button-focusable"
+                      oncommand="Enigmail.msg.searchSignatureKey();"/>
+            </hbox>
           </hbox>
-        </hbox>
-      </vbox>
+        </vbox>
 
-      <label id="signatureLabel" class="message-security-label"/>
-      <label id="signatureHeader" collapsed="true" />
-      <description id="signatureExplanation"/>
+        <label id="signatureLabel" class="message-security-label"/>
+        <label id="signatureHeader" collapsed="true" />
+        <description id="signatureExplanation"/>
 
-      <vbox id="signatureCert" class="message-security-container"
-            collapsed="true">
-        <hbox>
-          <label id="signedByLabel" class="cert-label">&signer.name;</label>
-          <description id="signedBy" />
-        </hbox>
-        <hbox>
-          <label id="signerEmailLabel"
-                 class="cert-label">&email.address;</label>
-          <description id="signerEmail" />
-        </hbox>
-        <hbox>
-          <label id="sigCertIssuedByLabel"
-                 class="cert-label">&issuer.name;</label>
-          <description id="sigCertIssuedBy" />
-        </hbox>
-        <hbox pack="end">
-          <button id="signatureCertView" label="&signatureCert.label;"
-                  class="button-focusable"
-                  oncommand="viewSignatureCert()" />
-        </hbox>
-      </vbox>
+        <vbox id="signatureCert" class="message-security-container"
+              collapsed="true">
+          <hbox>
+            <label id="signedByLabel" class="cert-label">&signer.name;</label>
+            <description id="signedBy" />
+          </hbox>
+          <hbox>
+            <label id="signerEmailLabel"
+                   class="cert-label">&email.address;</label>
+            <description id="signerEmail" />
+          </hbox>
+          <hbox>
+            <label id="sigCertIssuedByLabel"
+                   class="cert-label">&issuer.name;</label>
+            <description id="sigCertIssuedBy" />
+          </hbox>
+          <hbox pack="end">
+            <button id="signatureCertView" label="&signatureCert.label;"
+                    class="button-focusable"
+                    oncommand="viewSignatureCert()" />
+          </hbox>
+        </vbox>
 
-      <vbox id="signatureKey" class="message-security-container"
-            collapsed="true">
-        <hbox flex="1" align="center">
-          <label id="signatureKeyId" flex="1" context="copyPopup"/>
-          <button id="viewSignatureKey" data-l10n-id="openpgp-view-signer-key"
-                  class="button-focusable"
-                  oncommand="viewSignatureKey()" collapsed="true"/>
-        </hbox>
-      </vbox>
+        <vbox id="signatureKey" class="message-security-container"
+              collapsed="true">
+          <hbox flex="1" align="center">
+            <label id="signatureKeyId" flex="1" context="copyPopup"/>
+            <button id="viewSignatureKey" data-l10n-id="openpgp-view-signer-key"
+                    class="button-focusable"
+                    oncommand="viewSignatureKey()" collapsed="true"/>
+          </hbox>
+        </vbox>
 
-      <label id="encryptionLabel" class="message-security-label"/>
-      <label id="encryptionHeader" collapsed="true" />
-      <description id="encryptionExplanation"/>
+        <label id="encryptionLabel" class="message-security-label"/>
+        <label id="encryptionHeader" collapsed="true" />
+        <description id="encryptionExplanation"/>
 
-      <vbox id="encryptionCert" class="message-security-container"
-            collapsed="true">
-        <hbox>
-          <label id="encryptedForLabel"
-                 class="cert-label">&recipient.name;</label>
-          <description id="encryptedFor" />
-        </hbox>
-        <hbox>
-          <label id="recipientEmailLabel"
-                 class="cert-label">&email.address;</label>
-          <description id="recipientEmail" />
-        </hbox>
-        <hbox>
-          <label id="encCertIssuedByLabel"
-                 class="cert-label">&issuer.name;</label>
-          <description id="encCertIssuedBy" />
-        </hbox>
-        <hbox pack="end">
-          <button id="encryptionCertView" label="&encryptionCert.label;"
-                  class="button-focusable"
-                  oncommand="viewEncryptionCert()" />
-        </hbox>
-      </vbox>
+        <vbox id="encryptionCert" class="message-security-container"
+              collapsed="true">
+          <hbox>
+            <label id="encryptedForLabel"
+                   class="cert-label">&recipient.name;</label>
+            <description id="encryptedFor" />
+          </hbox>
+          <hbox>
+            <label id="recipientEmailLabel"
+                   class="cert-label">&email.address;</label>
+            <description id="recipientEmail" />
+          </hbox>
+          <hbox>
+            <label id="encCertIssuedByLabel"
+                   class="cert-label">&issuer.name;</label>
+            <description id="encCertIssuedBy" />
+          </hbox>
+          <hbox pack="end">
+            <button id="encryptionCertView" label="&encryptionCert.label;"
+                    class="button-focusable"
+                    oncommand="viewEncryptionCert()" />
+          </hbox>
+        </vbox>
 
-      <vbox id="encryptionKey" class="message-security-container"
-            collapsed="true">
-        <label id="encryptionKeyId" context="copyPopup"/>
-        <hbox pack="end">
-          <button id="viewEncryptionKey"
-                  data-l10n-id="openpgp-view-your-encryption-key"
-                  class="button-focusable"
-                  oncommand="viewEncryptionKey()"
-                  collapsed="true"/>
-        </hbox>
-      </vbox>
+        <vbox id="encryptionKey" class="message-security-container"
+              collapsed="true">
+          <label id="encryptionKeyId" context="copyPopup"/>
+          <hbox pack="end">
+            <button id="viewEncryptionKey"
+                    data-l10n-id="openpgp-view-your-encryption-key"
+                    class="button-focusable"
+                    oncommand="viewEncryptionKey()"
+                    collapsed="true"/>
+          </hbox>
+        </vbox>
 
-      <vbox id="otherEncryptionKeys" collapsed="true">
-        <label id="otherLabel" class="message-security-label none"/>
-        <vbox id="otherEncryptionKeysList"/>
+        <vbox id="otherEncryptionKeys" collapsed="true">
+          <label id="otherLabel" class="message-security-label none"/>
+          <vbox id="otherEncryptionKeysList"/>
+        </vbox>
       </vbox>
     </vbox>
   </panel>

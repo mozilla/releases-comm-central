@@ -345,7 +345,7 @@ function onSMIMEStartHeaders() {
   setMessageEncryptionStateButton(null, null, null);
 
   forgetEncryptedURI();
-  hideMessageReadSecurityInfo();
+  onMessageSecurityPopupHidden();
 }
 
 function onSMIMEEndHeaders() {}

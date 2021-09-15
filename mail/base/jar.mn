@@ -55,6 +55,7 @@ messenger.jar:
 #endif
     content/messenger/msgHdrView.js                 (content/msgHdrView.js)
     content/messenger/msgMail3PaneWindow.js         (content/msgMail3PaneWindow.js)
+    content/messenger/msgSecurityPane.js            (content/msgSecurityPane.js)
     content/messenger/msgViewNavigation.js          (content/msgViewNavigation.js)
     content/messenger/multimessageview.js           (content/multimessageview.js)
     content/messenger/multimessageview.xhtml        (content/multimessageview.xhtml)

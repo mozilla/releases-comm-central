@@ -12,7 +12,7 @@
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
-/* global Enigmail, showMessageReadSecurityInfo */
+/* global Enigmail, showMessageReadSecurityInfo, onMessageSecurityPopupShown, onMessageSecurityPopupHidden */
 
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -302,14 +302,13 @@ async function OnLoadMsgHeaderPane() {
     }
   });
 
-  // Add keypress and click event for the encryption button.
-  let cryptoButton = document.getElementById("encryptionTechBtn");
-  cryptoButton.addEventListener("keypress", event => {
-    if (event.key == "Enter") {
-      showMessageReadSecurityInfo();
-    }
-  });
-  cryptoButton.addEventListener("click", showMessageReadSecurityInfo);
+  // Set up event listeners for the encryption technology button and panel.
+  document
+    .getElementById("encryptionTechBtn")
+    .addEventListener("click", showMessageReadSecurityInfo);
+  let panel = document.getElementById("messageSecurityPanel");
+  panel.addEventListener("popupshown", onMessageSecurityPopupShown);
+  panel.addEventListener("popuphidden", onMessageSecurityPopupHidden);
 
   // Dispatch an event letting any listeners know that we have loaded
   // the message pane.

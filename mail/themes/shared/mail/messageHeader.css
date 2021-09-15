@@ -607,6 +607,12 @@ mail-headerfield:focus-visible:not(:hover) {
   width: 34rem;
 }
 
+#messageSecurityPanel .security-panel-body {
+  overflow-x: hidden;
+  -moz-box-flex: 1;
+  padding-inline: 6px;
+}
+
 html|header.message-security-header {
   display: flex;
   flex-wrap: nowrap;
@@ -618,6 +624,11 @@ html|header.message-security-header {
 html|header.message-security-header html|h3 {
   flex: 1;
   margin-block: 0;
+}
+
+.message-security-body {
+  overflow-y: auto;
+  -moz-box-flex: 1;
 }
 
 .message-security-body > description {
@@ -693,8 +704,6 @@ html|header.message-security-header html|h3 {
 
 #otherEncryptionKeysList {
   margin: 9px 6px;
-  max-height: 30rem;
-  overflow-y: auto;
 }
 
 .other-key-row {
