@@ -67,7 +67,6 @@ messenger.jar:
     content/messenger/quickFilterBar.js             (content/quickFilterBar.js)
     content/messenger/sanitize.js                   (content/sanitize.js)
     content/messenger/sanitize.xhtml                (content/sanitize.xhtml)
-    content/messenger/sanitizeDialog.css            (content/sanitizeDialog.css)
     content/messenger/sanitizeDialog.js             (content/sanitizeDialog.js)
     content/messenger/searchBar.js                  (content/searchBar.js)
     content/messenger/SearchDialog.js               (content/SearchDialog.js)
