@@ -17,6 +17,15 @@ panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
   width: 46px;
 }
 
+menupopup[type="arrow"] {
+  appearance: none;
+  background-color: transparent;
+}
+
+menupopup[type="arrow"]::part(content) {
+  margin: 1px;
+}
+
 menuitem.subviewbutton-iconic > .menu-iconic-left > .menu-iconic-icon {
   width: 16px;
 }
