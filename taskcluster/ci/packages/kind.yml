@@ -8,9 +8,7 @@ base-path: taskcluster/ci
 jobs:
     - deb8-32-gcc-7
     - deb8-gcc-7
-    - deb10-cmake
     - deb10-mercurial
-    - deb10-mmdebstrap
     - deb10-python-zstandard
     - deb11-python-zstandard
     - deb11-mercurial
