@@ -66,7 +66,7 @@ win32/opt:
             - sysroot-x86_64-linux-gnu
             - win32-libotr
         fetch:
-            - nsis-3.01-win
+            - nsis-3.07-win
             - upx-3.95-win
 
 win32-shippable/opt:
@@ -126,7 +126,7 @@ win32-shippable/opt:
             - sysroot-x86_64-linux-gnu
             - win32-libotr
         fetch:
-            - nsis-3.01-win
+            - nsis-3.07-win
             - upx-3.95-win
 
 win32/debug:
@@ -183,7 +183,7 @@ win32/debug:
             - sysroot-x86_64-linux-gnu
             - win32-libotr
         fetch:
-            - nsis-3.01-win
+            - nsis-3.07-win
             - upx-3.95-win
 
 win64/opt:
@@ -240,7 +240,7 @@ win64/opt:
             - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
-            - nsis-3.01-win
+            - nsis-3.07-win
             - upx-3.95-win
 
 win64-shippable/opt:
@@ -301,7 +301,7 @@ win64-shippable/opt:
             - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
-            - nsis-3.01-win
+            - nsis-3.07-win
             - upx-3.95-win
 
 win64/debug:
@@ -359,7 +359,7 @@ win64/debug:
             - sysroot-x86_64-linux-gnu
             - win64-libotr
         fetch:
-            - nsis-3.01-win
+            - nsis-3.07-win
             - upx-3.95-win
 
 
@@ -503,5 +503,5 @@ win64-asan/opt:
             - win64-libotr
             - win64-llvm-symbolizer
         fetch:
-            - nsis-3.01-win
+            - nsis-3.07-win
             - upx-3.95-win
