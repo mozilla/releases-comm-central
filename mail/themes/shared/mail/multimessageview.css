@@ -138,3 +138,13 @@
 .message > .header > .senders {
   color: var(--info-text-color);
 }
+
+@media print {
+  #header-view-toolbox {
+    display: none;
+  }
+
+  #heading_wrapper {
+    position: static;
+  }
+}

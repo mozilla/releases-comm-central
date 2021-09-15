@@ -58,7 +58,6 @@ messenger.jar:
     content/messenger/msgViewNavigation.js          (content/msgViewNavigation.js)
     content/messenger/multimessageview.js           (content/multimessageview.js)
     content/messenger/multimessageview.xhtml        (content/multimessageview.xhtml)
-    content/messenger/multimessageview_print.css    (content/multimessageview_print.css)
     content/messenger/newTagDialog.js               (content/newTagDialog.js)
 *   content/messenger/newTagDialog.xhtml            (content/newTagDialog.xhtml)
     content/messenger/nsContextMenu.js              (content/nsContextMenu.js)
