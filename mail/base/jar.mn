@@ -45,7 +45,6 @@ messenger.jar:
     content/messenger/mailTabs.js                   (content/mailTabs.js)
     content/messenger/mailWindow.js                 (content/mailWindow.js)
     content/messenger/mailWindowOverlay.js          (content/mailWindowOverlay.js)
-    content/messenger/menulist.css                  (content/menulist.css)
     content/messenger/messageDisplay.js             (content/messageDisplay.js)
     content/messenger/messageWindow.js              (content/messageWindow.js)
 *   content/messenger/messageWindow.xhtml           (content/messageWindow.xhtml)

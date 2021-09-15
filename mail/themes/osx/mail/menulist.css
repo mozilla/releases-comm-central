@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/content/menulist.css");
+@import url("chrome://messenger/skin/shared/menulist.css");
 
 menulist[is="menulist-editable"][editable="true"] {
   margin: 4px 2px;
