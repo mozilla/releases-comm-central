@@ -852,7 +852,6 @@ nsresult nsMsgSendLater::BuildHeaders() {
       case 'b':
         if (!PL_strncasecmp("BCC", buf, end - buf)) {
           header = &m_bcc;
-          prune_p = true;
         }
         break;
       case 'C':

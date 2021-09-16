@@ -798,6 +798,44 @@ MessageSend.prototype = {
   },
 
   /**
+   * Create the file to be copied to the Sent folder, add X-Mozilla-Status and
+   * X-Mozilla-Status2 if needed.
+   * @returns {nsIFile}
+   */
+  async _createCopyFile() {
+    if (!this._folderUri.startsWith("mailbox:")) {
+      return this._messageFile;
+    }
+
+    // Add a `From - Date` line, so that nsLocalMailFolder.cpp won't add a
+    // dummy envelope. The date string will be parsed by PR_ParseTimeString.
+    // TODO: this should not be added to Maildir, see bug 1686852.
+    let contentToWrite = `From - ${new Date().toUTCString()}\r\n`;
+    let xMozillaStatus = MsgUtils.getXMozillaStatus(this._deliverMode);
+    let xMozillaStatus2 = MsgUtils.getXMozillaStatus2(this._deliverMode);
+    if (xMozillaStatus) {
+      contentToWrite += `X-Mozilla-Status: ${xMozillaStatus}\r\n`;
+    }
+    if (xMozillaStatus2) {
+      contentToWrite += `X-Mozilla-Status2: ${xMozillaStatus2}\r\n`;
+    }
+
+    // Create a separate copy file when there are extra headers.
+    let copyFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    copyFile.append("nscopy.tmp");
+    copyFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
+    await IOUtils.writeUTF8(copyFile.path, contentToWrite);
+    await IOUtils.write(
+      copyFile.path,
+      await IOUtils.read(this._messageFile.path),
+      {
+        mode: "append",
+      }
+    );
+    return copyFile;
+  },
+
+  /**
    * Start copy operation according to this._fcc value.
    */
   async _doFcc() {
@@ -877,33 +915,7 @@ MessageSend.prototype = {
     this._msgCopy = Cc[
       "@mozilla.org/messengercompose/msgcopy;1"
     ].createInstance(Ci.nsIMsgCopy);
-    this._copyFile = this._messageFile;
-    if (this._folderUri.startsWith("mailbox:")) {
-      this._copyFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-      this._copyFile.append("nscopy.tmp");
-      this._copyFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-      let contentToWrite = "";
-      // Add a `From - Date` line, so that nsLocalMailFolder.cpp won't add a
-      // dummy envelope. The date string will be parsed by PR_ParseTimeString.
-      // TODO: this should not be added to Maildir, see bug 1686852.
-      contentToWrite += `From - ${new Date().toUTCString()}\r\n`;
-      let xMozillaStatus = MsgUtils.getXMozillaStatus(this._deliverMode);
-      let xMozillaStatus2 = MsgUtils.getXMozillaStatus2(this._deliverMode);
-      if (xMozillaStatus) {
-        contentToWrite += `X-Mozilla-Status: ${xMozillaStatus}\r\n`;
-      }
-      if (xMozillaStatus2) {
-        contentToWrite += `X-Mozilla-Status2: ${xMozillaStatus2}\r\n`;
-      }
-      const encodedContent = new TextEncoder().encode(contentToWrite);
-      const messageFileContent = await IOUtils.read(this._messageFile.path);
-      const combinedContent = new Uint8Array(
-        encodedContent.length + messageFileContent.length
-      );
-      combinedContent.set(encodedContent);
-      combinedContent.set(messageFileContent, encodedContent.length);
-      await IOUtils.write(this._copyFile.path, combinedContent);
-    }
+    this._copyFile = await this._createCopyFile();
     MsgUtils.sendLogger.debug("fcc file created");
 
     // Notify nsMsgCompose about the saved folder.
