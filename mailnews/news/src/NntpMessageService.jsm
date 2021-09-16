@@ -57,6 +57,8 @@ class BaseMessageService {
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     uri.msgWindow = msgWindow;
     uri.QueryInterface(Ci.nsIMsgMessageUrl).originalSpec = messageURI;
+    uri.QueryInterface(Ci.nsINntpUrl).newsAction =
+      Ci.nsINntpUrl.ActionFetchArticle;
     return uri;
   }
 
