@@ -296,34 +296,17 @@ class NntpClient {
   }
 
   /**
-   * Handle multi-line data blocks response, e.g. ARTICLE/LIST response. Emit
-   * each line through onData.
+   * Handle multi-line data blocks response, e.g. ARTICLE/LIST response.
    * @param {NntpResponse} res - ARTICLE response received from the server.
    */
   _actionReadData({ data }) {
     let ended = false;
-    if (this._leftoverData) {
-      data = this._leftoverData + data;
-      this._leftoverData = null;
-    }
     if (data == ".\r\n" || data.endsWith("\r\n.\r\n")) {
       ended = true;
       data = data.slice(0, -3);
     }
-    while (data) {
-      let index = data.indexOf("\r\n");
-      if (index == -1) {
-        // Not enough data, save it for the next round.
-        this._leftoverData = data;
-        break;
-      }
-      let line = data.slice(0, index + 2);
-      if (line.startsWith("..")) {
-        // Remove stuffed dot.
-        line = line.slice(1);
-      }
-      this.onData(line);
-      data = data.slice(index + 2);
+    if (data) {
+      this.onData(data);
     }
     if (ended) {
       this._actionDone();

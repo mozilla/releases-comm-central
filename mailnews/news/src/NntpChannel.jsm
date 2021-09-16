@@ -9,7 +9,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   NntpClient: "resource:///modules/NntpClient.jsm",
 });
@@ -50,18 +49,6 @@ class NntpChannel {
         .finalize();
     }
 
-    // Two forms of the uri:
-    // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
-    // - news://news.mozilla.org:119/id@mozilla.org
-    let url = new URL(uri.spec);
-    this._groupName = url.searchParams.get("group");
-    if (this._groupName) {
-      this._newsFolder = this._server.findGroup(url.searchParams.get("group"));
-      this._articleNumber = url.searchParams.get("key");
-    } else {
-      this._messageId = url.pathname.slice(1);
-    }
-
     // nsIChannel attributes.
     this.originalURI = uri;
     this.URI = uri;
@@ -91,17 +78,40 @@ class NntpChannel {
       let tee = Cc["@mozilla.org/network/stream-listener-tee;1"].createInstance(
         Ci.nsIStreamListenerTee
       );
-      this._outStream = entry.openOutputStream(0, -1);
+      let outStream = entry.openOutputStream(0, -1);
       // When the tee stream receives data from the server, it writes to both
       // the original listener and outStream (memory cache).
-      tee.init(this._listener, this._outStream, null);
+      tee.init(this._listener, outStream, null);
       this._listener = tee;
       this._readFromServer();
       return;
     }
 
     // It's an old entry, read from the memory cache.
-    this._readFromCacheStream(entry.openInputStream(0));
+    let cacheStream = entry.openInputStream(0);
+    let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
+      Ci.nsIInputStreamPump
+    );
+    this._contentType = "";
+    pump.init(cacheStream, 0, 0, true);
+    pump.asyncRead({
+      onStartRequest: () => {
+        if (this.loadGroup) {
+          this.loadGroup.addRequest(this, null);
+        }
+        this._listener.onStartRequest(this);
+      },
+      onStopRequest: (request, status) => {
+        this._listener.onStopRequest(null, status);
+        if (this.loadGroup) {
+          this.loadGroup.removeRequest(this, null, Cr.NS_OK);
+        }
+      },
+      onDataAvailable: (request, stream, offset, count) => {
+        this.contentLength += count;
+        this._listener.onDataAvailable(null, stream, offset, count);
+      },
+    });
   }
 
   onCacheEntryCheck(entry) {
@@ -144,13 +154,6 @@ class NntpChannel {
       );
     }
     try {
-      // Attempt to get the message from the offline storage.
-      try {
-        if (this._readFromOfflineStorage()) {
-          return;
-        }
-      } catch (e) {}
-
       let uri = this.URI;
       if (this.URI.spec.includes("?")) {
         // A full news url may look like
@@ -175,55 +178,6 @@ class NntpChannel {
   }
 
   /**
-   * Try to read the article from the offline storage.
-   * @returns {boolean} True if successfully read from the offline storage.
-   */
-  _readFromOfflineStorage() {
-    if (!this._newsFolder) {
-      return false;
-    }
-    if (!this._newsFolder.hasMsgOffline(this._articleNumber)) {
-      return false;
-    }
-    let stream = this._newsFolder.getSlicedOfflineFileStream(
-      this._articleNumber
-    );
-    this._readFromCacheStream(stream);
-    return true;
-  }
-
-  /**
-   * Read the article from the a stream.
-   * @param {nsIInputStream} cacheStream - The input stream to read.
-   */
-  _readFromCacheStream(cacheStream) {
-    let pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
-      Ci.nsIInputStreamPump
-    );
-    this.contentLength = 0;
-    this._contentType = "";
-    pump.init(cacheStream, 0, 0, true);
-    pump.asyncRead({
-      onStartRequest: () => {
-        if (this.loadGroup) {
-          this.loadGroup.addRequest(this, null);
-        }
-        this._listener.onStartRequest(this);
-      },
-      onStopRequest: (request, status) => {
-        this._listener.onStopRequest(null, status);
-        if (this.loadGroup) {
-          this.loadGroup.removeRequest(this, null, Cr.NS_OK);
-        }
-      },
-      onDataAvailable: (request, stream, offset, count) => {
-        this.contentLength += count;
-        this._listener.onDataAvailable(null, stream, offset, count);
-      },
-    });
-  }
-
-  /**
    * Retrieve the article from the server.
    */
   _readFromServer() {
@@ -231,21 +185,21 @@ class NntpChannel {
     pipe.init(true, true, 0, 0);
     let inputStream = pipe.inputStream;
     let outputStream = pipe.outputStream;
-    if (this._newsFolder) {
-      this._newsFolder.saveArticleOffline = this._newsFolder.shouldStoreMsgOffline(
-        this._articleNumber
-      );
-    }
 
-    let lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
-
+    // Two forms of the uri:
+    // - news://news.mozilla.org:119/mailman.30.1608649442.1056.accessibility%40lists.mozilla.org?group=mozilla.accessibility&key=378
+    // - news://news.mozilla.org:119/id@mozilla.org
+    let url = new URL(this.URI.spec);
+    let groupName = url.searchParams.get("group");
+    let articleNumber = url.searchParams.get("key");
+    let messageId = groupName ? "" : url.pathname.slice(1);
     let client = new NntpClient(this._server);
     client.connect();
     client.onOpen = () => {
-      if (this._messageId) {
-        client.getArticleByMessageId(this._messageId);
+      if (messageId) {
+        client.getArticleByMessageId(messageId);
       } else {
-        client.getArticleByArticleNumber(this._groupName, this._articleNumber);
+        client.getArticleByArticleNumber(groupName, articleNumber);
       }
       if (this.loadGroup) {
         this.loadGroup.addRequest(this, null);
@@ -256,11 +210,6 @@ class NntpChannel {
     client.onData = data => {
       outputStream.write(data, data.length);
       this._listener.onDataAvailable(null, inputStream, 0, data.length);
-      // NewsFolder will decide whether to save it to the offline storage.
-      this._newsFolder?.notifyDownloadedLine(
-        data.slice(0, -2) + lineSeparator,
-        this._articleNumber
-      );
     };
 
     client.onDone = () => {
@@ -268,12 +217,6 @@ class NntpChannel {
       if (this.loadGroup) {
         this.loadGroup.removeRequest(this, null, Cr.NS_OK);
       }
-      this._outStream?.close();
-      this._newsFolder?.notifyDownloadedLine(
-        `.${lineSeparator}`,
-        this._articleNumber
-      );
-      this._newsFolder?.msgDatabase.Commit(Ci.nsMsgDBCommitType.kSessionCommit);
     };
   }
 }
