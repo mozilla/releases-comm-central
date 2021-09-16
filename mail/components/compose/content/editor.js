@@ -38,8 +38,7 @@ const kDisplayModeTabIDS = [
   "SourceModeButton",
   "PreviewModeButton",
 ];
-const kNormalStyleSheet =
-  "chrome://messenger/content/messengercompose/EditorContent.css";
+const kNormalStyleSheet = "chrome://messenger/skin/shared/editorContent.css";
 const kContentEditableStyleSheet = "resource://gre/res/contenteditable.css";
 
 var kTextMimeType = "text/plain";

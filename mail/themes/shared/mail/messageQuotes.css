@@ -53,7 +53,7 @@ blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[typ
 }
 
 /* Styles for the dark mode */
-/* Disabled in bug 1639249. See also EditorContent.css.
+/* Disabled in bug 1639249. See also editorContent.css.
 @media (prefers-color-scheme: dark) {
   html {
     scrollbar-color: rgba(249, 249, 250, .4) rgba(20, 20, 25, .3);

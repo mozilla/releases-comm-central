@@ -11,7 +11,6 @@ messenger.jar:
     content/messenger/messengercompose/editor.js                     (content/editor.js)
     content/messenger/messengercompose/editorUtilities.js            (content/editorUtilities.js)
     content/messenger/messengercompose/ComposerCommands.js           (content/ComposerCommands.js)
-    content/messenger/messengercompose/EditorContent.css             (content/EditorContent.css)
     content/messenger/messengercompose/images/tag-anchor.gif         (content/images/tag-anchor.gif)
     content/messenger/messengercompose/EdDialogCommon.js             (content/dialogs/EdDialogCommon.js)
     content/messenger/messengercompose/EdLinkProps.xhtml             (content/dialogs/EdLinkProps.xhtml)

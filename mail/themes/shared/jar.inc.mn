@@ -328,6 +328,7 @@
   skin/classic/messenger/shared/customizeToolbar.css          (../shared/mail/customizeToolbar.css)
   skin/classic/messenger/shared/editContactPanel.css          (../shared/mail/editContactPanel.css)
   skin/classic/messenger/shared/EditorDialog.css              (../shared/mail/EditorDialog.css)
+  skin/classic/messenger/shared/editorContent.css             (../shared/mail/editorContent.css)
   skin/classic/messenger/shared/EdInsertChars.css             (../shared/mail/EdInsertChars.css)
   skin/classic/messenger/shared/feedSubscribe.css             (../shared/mail/feedSubscribe.css)
   skin/classic/messenger/shared/fieldMapImport.css            (../shared/mail/fieldMapImport.css)

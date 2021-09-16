@@ -624,7 +624,7 @@ function loadDialog(aItem) {
 
   let link = editorElement.contentDocument.createElement("link");
   link.rel = "stylesheet";
-  link.href = "chrome://messenger/content/messengercompose/EditorContent.css";
+  link.href = "chrome://messenger/skin/shared/editorContent.css";
   editorElement.contentDocument.head.appendChild(link);
 
   try {
