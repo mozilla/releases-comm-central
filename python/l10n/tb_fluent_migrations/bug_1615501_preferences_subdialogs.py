@@ -363,31 +363,31 @@ tag-name-label =
 receipts-dialog-window =
     .title = { COPY(from_path, "dialog.title") }
 
-return-receipt-checkbox =
+return-receipt-checkbox-control =
     .label = { COPY(from_path, "requestReceipt.label") }
     .acceskey = { COPY(from_path, "requestReceipt.accesskey") }
 
 receipt-arrive-label = { COPY(from_path, "receiptArrive.label") }
 
-receipt-leave-radio =
+receipt-leave-radio-control =
     .label = { COPY(from_path, "leaveIt.label") }
     .acceskey = { COPY(from_path, "leaveIt.accesskey") }
 
-receipt-move-radio =
+receipt-move-radio-control =
     .label = { COPY(from_path, "moveToSent.label") }
     .acceskey = { COPY(from_path, "moveToSent.accesskey") }
 
 receipt-request-label = { COPY(from_path, "requestMDN.label") }
 
-receipt-return-never-radio =
+receipt-return-never-radio-control =
     .label = { COPY(from_path, "never.label") }
     .acceskey = { COPY(from_path, "never.accesskey") }
 
-receipt-return-some-radio =
+receipt-return-some-radio-control =
     .label = { COPY(from_path, "returnSome.label") }
     .acceskey = { COPY(from_path, "returnSome.accesskey") }
 
-receipt-not-to-cc =
+receipt-not-to-cc-label =
     .value = { COPY(from_path, "notInToCc.label") }
     .acceskey = { COPY(from_path, "notInToCc.accesskey") }
 
@@ -400,11 +400,11 @@ receipt-send-always-label =
 receipt-send-ask-label =
     .label = { COPY(from_path, "askMe.label") }
 
-sender-outside-domain =
+sender-outside-domain-label =
     .value = { COPY(from_path, "outsideDomain.label") }
     .acceskey = { COPY(from_path, "outsideDomain.accesskey") }
 
-other-cases-label =
+other-cases-text-label =
     .value = { COPY(from_path, "otherCases.label") }
     .acceskey = { COPY(from_path, "otherCases.accesskey") }
 """,
