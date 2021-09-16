@@ -805,8 +805,9 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
                                   getter_AddRefs(mSelfEncryptionCert));
 
     if (NS_SUCCEEDED(res) && mSelfEncryptionCert) {
-      CERTCertificate* cert = mSelfEncryptionCert->GetCert();
-      nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
+      nsTArray<uint8_t> certBytes;
+      res = mSelfEncryptionCert->GetRawDER(certBytes);
+      NS_ENSURE_SUCCESS(res, res);
 
       if (certVerifier->VerifyCert(
               certBytes, certificateUsageEmailRecipient, mozilla::pkix::Now(),
@@ -827,8 +828,9 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
     res = certdb->FindCertByDBKey(mSigningCertDBKey,
                                   getter_AddRefs(mSelfSigningCert));
     if (NS_SUCCEEDED(res) && mSelfSigningCert) {
-      CERTCertificate* cert = mSelfSigningCert->GetCert();
-      nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
+      nsTArray<uint8_t> certBytes;
+      res = mSelfSigningCert->GetRawDER(certBytes);
+      NS_ENSURE_SUCCESS(res, res);
 
       if (certVerifier->VerifyCert(
               certBytes, certificateUsageEmailSigner, mozilla::pkix::Now(),
