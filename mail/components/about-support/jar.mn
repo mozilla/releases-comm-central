@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-    content/messenger/about-support/hide-private.css           (content/hide-private.css)
     content/messenger/about-support/accounts.js                (content/accounts.js)
     content/messenger/about-support/export.js                  (content/export.js)
 *   content/messenger/about-support/aboutSupport.xhtml         (content/aboutSupport.xhtml)

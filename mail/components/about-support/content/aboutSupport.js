@@ -1589,9 +1589,12 @@ function safeModeRestart() {
 
 // Added for TB.
 function onShowPrivateDataChange() {
-  document.getElementById(
-    "about-support-private"
-  ).disabled = document.getElementById("check-show-private-data").checked;
+  document
+    .getElementById("contents")
+    .classList.toggle(
+      "show-private-data",
+      document.getElementById("check-show-private-data").checked
+    );
 }
 
 /**
