@@ -975,12 +975,14 @@ FolderDisplayWidget.prototype = {
    */
   onSearching(aIsSearching) {
     if (this._tabInfo) {
-      let searchBundle = document.getElementById("bundle_search");
+      let searchBundle = Services.strings.createBundle(
+        "chrome://messenger/locale/search.properties"
+      );
       document
         .getElementById("tabmail")
         .setTabThinking(
           this._tabInfo,
-          aIsSearching && searchBundle.getString("searchingMessage")
+          aIsSearching && searchBundle.GetStringFromName("searchingMessage")
         );
     }
 

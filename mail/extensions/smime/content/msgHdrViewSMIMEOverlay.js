@@ -283,10 +283,10 @@ var smimeHeaderSink = {
           .getElementById("bundle_brand")
           .getString("brandShortName");
         var title = gSMIMEBundle
-          .getString("CantDecryptTitle")
+          .GetStringFromName("CantDecryptTitle")
           .replace(/%brand%/g, brand);
         var body = gSMIMEBundle
-          .getString("CantDecryptBody")
+          .GetStringFromName("CantDecryptBody")
           .replace(/%brand%/g, brand);
 
         // insert our message
@@ -375,7 +375,9 @@ function msgHdrViewSMIMEOnLoad(event) {
   document.addEventListener("smartcard-insert", onSmartCardChange);
   document.addEventListener("smartcard-remove", onSmartCardChange);
   if (!gSMIMEBundle) {
-    gSMIMEBundle = document.getElementById("bundle_read_smime");
+    gSMIMEBundle = Services.strings.createBundle(
+      "chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"
+    );
   }
 
   // we want to register our security header sink as an opaque nsISupports

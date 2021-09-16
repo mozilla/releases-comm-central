@@ -26,7 +26,9 @@ function smimeReadOnUnload() {
 }
 
 function showImapSignatureUnknown() {
-  let readSmimeBundle = document.getElementById("bundle_read_smime");
+  let readSmimeBundle = Services.strings.createBundle(
+    "chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"
+  );
   let brandBundle = document.getElementById("bundle_brand");
   if (!readSmimeBundle || !brandBundle) {
     return;
@@ -36,7 +38,7 @@ function showImapSignatureUnknown() {
     Services.prompt.confirm(
       window,
       brandBundle.getString("brandShortName"),
-      readSmimeBundle.getString("ImapOnDemand")
+      readSmimeBundle.GetStringFromName("ImapOnDemand")
     )
   ) {
     gDBView.reloadMessageWithAllParts();

@@ -41,7 +41,9 @@ var addBuddy = {
     let account = Services.accounts.getAccountById(
       this.getValue("accountlist")
     );
-    let group = document.getElementById("chatBundle").getString("defaultGroup");
+    let group = Services.strings
+      .createBundle("chrome://messenger/locale/chat.properties")
+      .GetStringFromName("defaultGroup");
     account.addBuddy(Services.tags.createTag(group), this.getValue("name"));
   },
 };

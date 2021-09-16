@@ -100,22 +100,24 @@ var editContactInlineUI = {
 
   _doShowEditContactPanel(aAnchorElement, aPosition) {
     this._blockCommands(); // un-done in the popuphiding handler.
-    var bundle = document.getElementById("bundle_editContact");
+    var bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/editContactOverlay.properties"
+    );
 
     // Is this address book writeable?
     this._writeable = !this._cardDetails.book.readOnly;
     var type = this._writeable ? "edit" : "view";
 
     // Update the labels accordingly.
-    document.getElementById("editContactPanelTitle").value = bundle.getString(
-      type + "Title"
-    );
+    document.getElementById(
+      "editContactPanelTitle"
+    ).value = bundle.GetStringFromName(type + "Title");
     document.getElementById(
       "editContactPanelEditDetailsButton"
-    ).label = bundle.getString(type + "DetailsLabel");
+    ).label = bundle.GetStringFromName(type + "DetailsLabel");
     document.getElementById(
       "editContactPanelEditDetailsButton"
-    ).accessKey = bundle.getString(type + "DetailsAccessKey");
+    ).accessKey = bundle.GetStringFromName(type + "DetailsAccessKey");
 
     // We don't need a delete button for a read only card.
     document.getElementById(
@@ -196,12 +198,14 @@ var editContactInlineUI = {
     // Hide before the dialog or the panel takes the first click.
     this.panel.hidePopup();
 
-    var bundle = document.getElementById("bundle_editContact");
+    var bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/editContactOverlay.properties"
+    );
     if (
       !Services.prompt.confirm(
         window,
-        bundle.getString("deleteContactTitle"),
-        bundle.getString("deleteContactMessage")
+        bundle.GetStringFromName("deleteContactTitle"),
+        bundle.GetStringFromName("deleteContactMessage")
       )
     ) {
       // XXX Would be nice to bring the popup back up here.

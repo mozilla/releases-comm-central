@@ -153,9 +153,11 @@ function initializeSearchWidgets() {
   gSearchTermList = document.getElementById("searchTermList");
 
   // initialize some strings
-  var bundle = document.getElementById("bundle_search");
-  gMoreButtonTooltipText = bundle.getString("moreButtonTooltipText");
-  gLessButtonTooltipText = bundle.getString("lessButtonTooltipText");
+  var bundle = Services.strings.createBundle(
+    "chrome://messenger/locale/search.properties"
+  );
+  gMoreButtonTooltipText = bundle.GetStringFromName("moreButtonTooltipText");
+  gLessButtonTooltipText = bundle.GetStringFromName("lessButtonTooltipText");
 }
 
 function initializeBooleanWidgets() {

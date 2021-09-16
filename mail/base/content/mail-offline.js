@@ -17,7 +17,9 @@ var MailOfflineMgr = {
     this.offlineManager = Cc[
       "@mozilla.org/messenger/offline-manager;1"
     ].getService(Ci.nsIMsgOfflineManager);
-    this.offlineBundle = document.getElementById("bundle_offlinePrompts");
+    this.offlineBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/offline.properties"
+    );
 
     // initialize our offline state UI
     this.updateOfflineUI(!this.isOnline());
@@ -104,8 +106,8 @@ var MailOfflineMgr = {
   goOnlineToSendMessages(aMsgWindow) {
     let goOnlineToSendMsgs = Services.prompt.confirm(
       window,
-      this.offlineBundle.getString("sendMessagesOfflineWindowTitle1"),
-      this.offlineBundle.getString("sendMessagesOfflineLabel1")
+      this.offlineBundle.GetStringFromName("sendMessagesOfflineWindowTitle1"),
+      this.offlineBundle.GetStringFromName("sendMessagesOfflineLabel1")
     );
 
     if (goOnlineToSendMsgs) {
@@ -128,14 +130,14 @@ var MailOfflineMgr = {
     let sendUnsentMessages =
       Services.prompt.confirmEx(
         window,
-        this.offlineBundle.getString("sendMessagesWindowTitle1"),
-        this.offlineBundle.getString("sendMessagesLabel2"),
+        this.offlineBundle.GetStringFromName("sendMessagesWindowTitle1"),
+        this.offlineBundle.GetStringFromName("sendMessagesLabel2"),
         Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
           Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1,
-        this.offlineBundle.getString("sendMessagesNow2"),
-        this.offlineBundle.getString("processMessagesLater2"),
+        this.offlineBundle.GetStringFromName("sendMessagesNow2"),
+        this.offlineBundle.GetStringFromName("processMessagesLater2"),
         null,
-        this.offlineBundle.getString("sendMessagesCheckboxLabel1"),
+        this.offlineBundle.GetStringFromName("sendMessagesCheckboxLabel1"),
         alwaysAsk
       ) == 0;
 
@@ -186,14 +188,14 @@ var MailOfflineMgr = {
     let downloadMessages =
       Services.prompt.confirmEx(
         window,
-        this.offlineBundle.getString("downloadMessagesWindowTitle1"),
-        this.offlineBundle.getString("downloadMessagesLabel1"),
+        this.offlineBundle.GetStringFromName("downloadMessagesWindowTitle1"),
+        this.offlineBundle.GetStringFromName("downloadMessagesLabel1"),
         Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
           Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1,
-        this.offlineBundle.getString("downloadMessagesNow2"),
-        this.offlineBundle.getString("processMessagesLater2"),
+        this.offlineBundle.GetStringFromName("downloadMessagesNow2"),
+        this.offlineBundle.GetStringFromName("processMessagesLater2"),
         null,
-        this.offlineBundle.getString("downloadMessagesCheckboxLabel1"),
+        this.offlineBundle.GetStringFromName("downloadMessagesCheckboxLabel1"),
         alwaysAsk
       ) == 0;
 
@@ -217,8 +219,8 @@ var MailOfflineMgr = {
   getNewMail() {
     let goOnline = Services.prompt.confirm(
       window,
-      this.offlineBundle.getString("getMessagesOfflineWindowTitle1"),
-      this.offlineBundle.getString("getMessagesOfflineLabel1")
+      this.offlineBundle.GetStringFromName("getMessagesOfflineWindowTitle1"),
+      this.offlineBundle.GetStringFromName("getMessagesOfflineLabel1")
     );
 
     if (goOnline) {
@@ -249,13 +251,13 @@ var MailOfflineMgr = {
       statusBarPanel.setAttribute("offline", "true");
       statusBarPanel.setAttribute(
         "tooltiptext",
-        this.offlineBundle.getString("offlineTooltip")
+        this.offlineBundle.GetStringFromName("offlineTooltip")
       );
     } else {
       statusBarPanel.removeAttribute("offline");
       statusBarPanel.setAttribute(
         "tooltiptext",
-        this.offlineBundle.getString("onlineTooltip")
+        this.offlineBundle.GetStringFromName("onlineTooltip")
       );
     }
   },

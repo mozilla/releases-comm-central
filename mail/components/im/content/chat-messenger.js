@@ -35,6 +35,9 @@ var gRangeParent;
 var gRangeOffset;
 
 var gBuddyListContextMenu = null;
+var gChatBundle = Services.strings.createBundle(
+  "chrome://messenger/locale/chat.properties"
+);
 
 function openChatContextMenu(popup) {
   let conv = chatHandler._getActiveConvView();
@@ -184,24 +187,26 @@ buddyListContextMenu.prototype = {
     }
 
     let buddy = this.target.contact.preferredBuddy;
-    let bundle = document.getElementById("chatBundle");
     let displayName = this.target.displayName;
-    let promptTitle = bundle.getFormattedString("buddy.deletePrompt.title", [
-      displayName,
-    ]);
+    let promptTitle = gChatBundle.formatStringFromName(
+      "buddy.deletePrompt.title",
+      [displayName]
+    );
     let userName = buddy.userName;
     if (displayName != userName) {
-      displayName = bundle.getFormattedString(
+      displayName = gChatBundle.formatStringFromName(
         "buddy.deletePrompt.displayName",
         [displayName, userName]
       );
     }
     let proto = buddy.protocol.name; // FIXME build a list
-    let promptMessage = bundle.getFormattedString(
+    let promptMessage = gChatBundle.formatStringFromName(
       "buddy.deletePrompt.message",
       [displayName, proto]
     );
-    let deleteButton = bundle.getString("buddy.deletePrompt.button");
+    let deleteButton = gChatBundle.GetStringFromName(
+      "buddy.deletePrompt.button"
+    );
     let prompts = Services.prompt;
     let flags =
       prompts.BUTTON_TITLE_IS_STRING * prompts.BUTTON_POS_0 +
@@ -554,7 +559,7 @@ var chatHandler = {
       return;
     }
 
-    let title = document.getElementById("chatBundle").getString("chatTabTitle");
+    let title = gChatBundle.GetStringFromName("chatTabTitle");
     let [unreadTargettedCount] = this.countUnreadMessages();
     if (unreadTargettedCount) {
       title += " (" + unreadTargettedCount + ")";
@@ -827,11 +832,11 @@ var chatHandler = {
       Status.toLabel(statusType, statusText)
     );
 
-    let bundle = document.getElementById("chatBundle");
     let button = document.getElementById("goToConversation");
-    button.label = bundle.getFormattedString("startAConversationWith.button", [
-      aContact.displayName,
-    ]);
+    button.label = gChatBundle.formatStringFromName(
+      "startAConversationWith.button",
+      [aContact.displayName]
+    );
     button.disabled = !aContact.canSendMessage;
   },
   _hideContextPane(aHide) {
@@ -964,8 +969,9 @@ var chatHandler = {
       }
 
       let button = document.getElementById("goToConversation");
-      let bundle = document.getElementById("chatBundle");
-      button.label = bundle.getString("goBackToCurrentConversation.button");
+      button.label = gChatBundle.GetStringFromName(
+        "goBackToCurrentConversation.button"
+      );
       button.disabled = false;
       this.observedContact = null;
     } else if (
@@ -1393,22 +1399,26 @@ var chatHandler = {
 
     if (aTopic == "buddy-authorization-request") {
       aSubject.QueryInterface(Ci.prplIBuddyRequest);
-      let bundle = document.getElementById("chatBundle");
-      let authLabel = bundle.getFormattedString("buddy.authRequest.label", [
-        aSubject.userName,
-      ]);
+      let authLabel = gChatBundle.formatStringFromName(
+        "buddy.authRequest.label",
+        [aSubject.userName]
+      );
       let value =
         "buddy-auth-request-" + aSubject.account.id + aSubject.userName;
       let acceptButton = {
-        accessKey: bundle.getString("buddy.authRequest.allow.accesskey"),
-        label: bundle.getString("buddy.authRequest.allow.label"),
+        accessKey: gChatBundle.GetStringFromName(
+          "buddy.authRequest.allow.accesskey"
+        ),
+        label: gChatBundle.GetStringFromName("buddy.authRequest.allow.label"),
         callback() {
           aSubject.grant();
         },
       };
       let denyButton = {
-        accessKey: bundle.getString("buddy.authRequest.deny.accesskey"),
-        label: bundle.getString("buddy.authRequest.deny.label"),
+        accessKey: gChatBundle.GetStringFromName(
+          "buddy.authRequest.deny.accesskey"
+        ),
+        label: gChatBundle.GetStringFromName("buddy.authRequest.deny.label"),
         callback() {
           aSubject.deny();
         },
@@ -1440,8 +1450,7 @@ var chatHandler = {
     }
     if (aTopic == "buddy-verification-request") {
       aSubject.QueryInterface(Ci.imIIncomingSessionVerification);
-      let bundle = document.getElementById("chatBundle");
-      let barLabel = bundle.getFormattedString(
+      let barLabel = gChatBundle.formatStringFromName(
         "buddy.verificationRequest.label",
         [aSubject.subject]
       );
@@ -1451,10 +1460,12 @@ var chatHandler = {
         "-" +
         aSubject.subject;
       let acceptButton = {
-        accessKey: bundle.getString(
+        accessKey: gChatBundle.GetStringFromName(
           "buddy.verificationRequest.allow.accesskey"
         ),
-        label: bundle.getString("buddy.verificationRequest.allow.label"),
+        label: gChatBundle.GetStringFromName(
+          "buddy.verificationRequest.allow.label"
+        ),
         callback() {
           aSubject
             .verify()
@@ -1473,8 +1484,12 @@ var chatHandler = {
         },
       };
       let denyButton = {
-        accessKey: bundle.getString("buddy.verificationRequest.deny.accesskey"),
-        label: bundle.getString("buddy.verificationRequest.deny.label"),
+        accessKey: gChatBundle.GetStringFromName(
+          "buddy.verificationRequest.deny.accesskey"
+        ),
+        label: gChatBundle.GetStringFromName(
+          "buddy.verificationRequest.deny.label"
+        ),
         callback() {
           aSubject.cancel();
         },
@@ -1843,9 +1858,12 @@ chatLogTreeView.prototype = {
     this._rowMap = [];
 
     // Used to show the dates in the log list in the locale of the application.
-    let chatBundle = document.getElementById("chatBundle");
-    let dateFormatBundle = document.getElementById("bundle_dateformat");
-    let placesBundle = document.getElementById("bundle_places");
+    let dateFormatBundle = Services.strings.createBundle(
+      "chrome://chat/locale/dateFormat.properties"
+    );
+    let placesBundle = Services.strings.createBundle(
+      "chrome://places/locale/places.properties"
+    );
     const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
       dateStyle: "short",
     });
@@ -1854,15 +1872,17 @@ chatLogTreeView.prototype = {
     };
     let formatMonthYear = function(aDate) {
       let month = formatMonth(aDate);
-      return dateFormatBundle.getFormattedString("finduri-MonthYear", [
+      return dateFormatBundle.formatStringFromName("finduri-MonthYear", [
         month,
         aDate.getFullYear(),
       ]);
     };
     let formatMonth = aDate =>
-      dateFormatBundle.getString("month." + (aDate.getMonth() + 1) + ".name");
+      dateFormatBundle.GetStringByName(
+        "month." + (aDate.getMonth() + 1) + ".name"
+      );
     let formatWeekday = aDate =>
-      dateFormatBundle.getString("day." + (aDate.getDay() + 1) + ".name");
+      dateFormatBundle.GetStringByName("day." + (aDate.getDay() + 1) + ".name");
 
     let nowDate = new Date();
     let todayDate = new Date(
@@ -1895,14 +1915,14 @@ chatLogTreeView.prototype = {
       if (timeFromToday <= 0) {
         today = new chatLogTreeLogItem(
           log,
-          chatBundle.getString("log.today"),
+          gChatBundle.GetStringFromName("log.today"),
           0
         );
         continue;
       } else if (timeFromToday <= kDayInMsecs) {
         yesterday = new chatLogTreeLogItem(
           log,
-          chatBundle.getString("log.yesterday"),
+          gChatBundle.GetStringFromName("log.yesterday"),
           0
         );
         continue;
@@ -1922,7 +1942,9 @@ chatLogTreeView.prototype = {
           let groupname;
           if (logDate.getFullYear() == nowDate.getFullYear()) {
             if (logDate.getMonth() == nowDate.getMonth()) {
-              groupname = placesBundle.getString("finduri-AgeInMonths-is-0");
+              groupname = placesBundle.GetStringByName(
+                "finduri-AgeInMonths-is-0"
+              );
             } else {
               groupname = formatMonth(logDate);
             }
@@ -1952,7 +1974,7 @@ chatLogTreeView.prototype = {
       groupIDs.unshift(groupID);
       groups[groupID] = {
         entries: firstgroups[groupID],
-        name: chatBundle.getString("log." + groupID),
+        name: gChatBundle.GetStringFromName("log." + groupID),
       };
     }
 

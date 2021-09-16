@@ -166,11 +166,11 @@ SearchFolderDisplayWidget.prototype = {
       // Search button becomes the "stop" button
       gSearchStopButton.setAttribute(
         "label",
-        gSearchBundle.getString("labelForStopButton")
+        gSearchBundle.GetStringFromName("labelForStopButton")
       );
       gSearchStopButton.setAttribute(
         "accesskey",
-        gSearchBundle.getString("labelForStopButton.accesskey")
+        gSearchBundle.GetStringFromName("labelForStopButton.accesskey")
       );
 
       // update our toolbar equivalent
@@ -179,17 +179,17 @@ SearchFolderDisplayWidget.prototype = {
       gStatusFeedback._startMeteors();
       // tell the user that we're searching
       gStatusFeedback.showStatusString(
-        gSearchBundle.getString("searchingMessage")
+        gSearchBundle.GetStringFromName("searchingMessage")
       );
     } else {
       // Stop button resumes being the "search" button
       gSearchStopButton.setAttribute(
         "label",
-        gSearchBundle.getString("labelForSearchButton")
+        gSearchBundle.GetStringFromName("labelForSearchButton")
       );
       gSearchStopButton.setAttribute(
         "accesskey",
-        gSearchBundle.getString("labelForSearchButton.accesskey")
+        gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
       );
 
       // update our toolbar equivalent
@@ -218,11 +218,11 @@ SearchFolderDisplayWidget.prototype = {
     let statusMsg;
 
     if (rowCount == 0) {
-      statusMsg = gSearchBundle.getString("noMatchesFound");
+      statusMsg = gSearchBundle.GetStringFromName("noMatchesFound");
     } else {
       statusMsg = PluralForm.get(
         rowCount,
-        gSearchBundle.getString("matchesFound")
+        gSearchBundle.GetStringFromName("matchesFound")
       );
       statusMsg = statusMsg.replace("#1", rowCount);
     }
@@ -238,14 +238,16 @@ function searchOnLoad() {
   // eslint-disable-next-line no-global-assign
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
-  gSearchBundle = document.getElementById("bundle_search");
+  gSearchBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/search.properties"
+  );
   gSearchStopButton.setAttribute(
     "label",
-    gSearchBundle.getString("labelForSearchButton")
+    gSearchBundle.GetStringFromName("labelForSearchButton")
   );
   gSearchStopButton.setAttribute(
     "accesskey",
-    gSearchBundle.getString("labelForSearchButton.accesskey")
+    gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
   );
 
   gMessageDisplay = new NeverVisibleMessageDisplayWidget();
@@ -357,7 +359,7 @@ function onEnterInSearchTerm() {
   // if searching, stop and then start again
   if (
     gSearchStopButton.getAttribute("label") ==
-    gSearchBundle.getString("labelForSearchButton")
+    gSearchBundle.GetStringFromName("labelForSearchButton")
   ) {
     onSearch();
   } else {
@@ -550,7 +552,10 @@ function goUpdateSearchItems(commandset) {
 
 // used to toggle functionality for Search/Stop button.
 function onSearchButton(event) {
-  if (event.target.label == gSearchBundle.getString("labelForSearchButton")) {
+  if (
+    event.target.label ==
+    gSearchBundle.GetStringFromName("labelForSearchButton")
+  ) {
     onSearch();
   } else {
     onSearchStop();

@@ -32,8 +32,10 @@ var statusSelector = {
     if (displayName) {
       elt.removeAttribute("usingDefault");
     } else {
-      let bundle = document.getElementById("chatBundle");
-      displayName = bundle.getString("displayNameEmptyText");
+      let bundle = Services.strings.createBundle(
+        "chrome://messenger/locale/chat.properties"
+      );
+      displayName = bundle.GetStringFromName("displayNameEmptyText");
       elt.setAttribute("usingDefault", displayName);
     }
     elt.setAttribute("value", displayName);
@@ -239,10 +241,12 @@ var statusSelector = {
   userIconClick() {
     const nsIFilePicker = Ci.nsIFilePicker;
     let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-    let bundle = document.getElementById("chatBundle");
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/chat.properties"
+    );
     fp.init(
       window,
-      bundle.getString("userIconFilePickerTitle"),
+      bundle.GetStringFromName("userIconFilePickerTitle"),
       nsIFilePicker.modeOpen
     );
     fp.appendFilters(nsIFilePicker.filterImages);

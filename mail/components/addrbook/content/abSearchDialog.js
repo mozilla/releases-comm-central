@@ -62,14 +62,16 @@ function searchOnLoad() {
   initializeSearchWidgets();
   initializeSearchWindowWidgets();
 
-  gSearchBundle = document.getElementById("bundle_search");
+  gSearchBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/search.properties"
+  );
   gSearchStopButton.setAttribute(
     "label",
-    gSearchBundle.getString("labelForSearchButton")
+    gSearchBundle.GetStringFromName("labelForSearchButton")
   );
   gSearchStopButton.setAttribute(
     "accesskey",
-    gSearchBundle.getString("labelForSearchButton.accesskey")
+    gSearchBundle.GetStringFromName("labelForSearchButton.accesskey")
   );
   gAddressBookBundle = document.getElementById("bundle_addressBook");
   gSearchSession = Cc[searchSessionContractID].createInstance(
@@ -167,7 +169,7 @@ function onEnterInSearchTerm() {
   // if searching, stop and then start again
   if (
     gSearchStopButton.getAttribute("label") ==
-    gSearchBundle.getString("labelForSearchButton")
+    gSearchBundle.GetStringFromName("labelForSearchButton")
   ) {
     onSearch();
   } else {
@@ -338,7 +340,10 @@ function onSearch() {
 
 // used to toggle functionality for Search/Stop button.
 function onSearchButton(event) {
-  if (event.target.label == gSearchBundle.getString("labelForSearchButton")) {
+  if (
+    event.target.label ==
+    gSearchBundle.GetStringFromName("labelForSearchButton")
+  ) {
     onSearch();
   } else {
     onSearchStop();
