@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-    content/messenger/policies/aboutPolicies.css              (content/aboutPolicies.css)
     content/messenger/policies/aboutPolicies.xhtml            (content/aboutPolicies.xhtml)
     content/messenger/policies/aboutPolicies.js               (content/aboutPolicies.js)
     content/messenger/policies/policies-active.svg            (content/policies-active.svg)
