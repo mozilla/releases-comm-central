@@ -114,8 +114,22 @@ class NntpService {
       client.getListOfGroups();
     };
 
+    let leftoverData;
     client.onData = data => {
-      server.addNewsgroupToList(data.split(" ")[0]);
+      if (leftoverData) {
+        data = leftoverData + data;
+        leftoverData = null;
+      }
+      while (data) {
+        let index = data.indexOf("\r\n");
+        if (index == -1) {
+          // Not enough data, save it for the next round.
+          leftoverData = data;
+          break;
+        }
+        server.addNewsgroupToList(data.slice(0, index).split(" ")[0]);
+        data = data.slice(index + 2);
+      }
     };
   }
 
