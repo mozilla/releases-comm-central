@@ -592,6 +592,15 @@ interface nsIMsgFolder : nsISupports {
                                       out unsigned long aSize);
 
   /**
+   * Similar to getOfflineFileStream, but returns a sliced stream directly.
+   *
+   * @param aMsgKey key of message to get input stream for.
+   *
+   * @returns sliced input stream to read the message from.
+   */
+  nsIInputStream getSlicedOfflineFileStream(in nsMsgKey aMsgKey);
+
+  /**
    * Get an offline store output stream for the passed message header.
    *
    * @param aHdr hdr of message to get outputstream for

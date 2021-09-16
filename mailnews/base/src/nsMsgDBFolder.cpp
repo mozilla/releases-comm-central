@@ -67,6 +67,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
+#include "mozilla/SlicedInputStream.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
 
@@ -858,6 +859,21 @@ NS_IMETHODIMP nsMsgDBFolder::GetOfflineFileStream(
     }
   }
   return rv;
+}
+
+NS_IMETHODIMP
+nsMsgDBFolder::GetSlicedOfflineFileStream(nsMsgKey msgKey,
+                                          nsIInputStream** aFileStream) {
+  nsCOMPtr<nsIInputStream> fileStream;
+  int64_t offset = 0;
+  uint32_t size = 0;
+  nsresult rv =
+      GetOfflineFileStream(msgKey, &offset, &size, getter_AddRefs(fileStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+  RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
+      fileStream.forget(), uint64_t(offset), uint64_t(size));
+  slicedStream.forget(aFileStream);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
