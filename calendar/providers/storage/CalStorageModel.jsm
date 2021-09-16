@@ -8,6 +8,9 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"
 );
+var { CalStorageStatements } = ChromeUtils.import(
+  "resource:///modules/calendar/CalStorageStatements.jsm"
+);
 
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -42,9 +45,14 @@ class CalStorageModel {
   calendar = null;
 
   /**
+   * @type {CalStorageStatements}
+   */
+  statements = null;
+
+  /**
    * @type {mozIStorageAsyncStatement}
    */
-  mLastStatement = null;
+  lastStatement = null;
 
   /**
    * @param {mozIStorageAsyncConnection} db
@@ -54,395 +62,8 @@ class CalStorageModel {
    */
   constructor(db, calendar) {
     this.db = db;
+    this.statements = new CalStorageStatements(db);
     this.calendar = calendar;
-    this.mSelectEvent = db.createAsyncStatement(
-      `SELECT * FROM cal_events
-          WHERE id = :id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NULL
-          LIMIT 1`
-    );
-    this.mSelectTodo = db.createAsyncStatement(
-      `SELECT * FROM cal_todos
-          WHERE id = :id 
-            AND cal_id = :cal_id
-
-          LIMIT 1`
-    );
-
-    // The more readable version of the next where-clause is:
-    //   WHERE  ((event_end > :range_start OR
-    //           (event_end = :range_start AND
-    //           event_start = :range_start))
-    //          AND event_start < :range_end)
-    //
-    // but that doesn't work with floating start or end times. The logic
-    // is the same though.
-    // For readability, a few helpers:
-    let floatingEventStart = "event_start_tz = 'floating' AND event_start";
-    let nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
-    let floatingEventEnd = "event_end_tz = 'floating' AND event_end";
-    let nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
-    // The query needs to take both floating and non floating into account.
-    this.mSelectNonRecurringEventsByRange = db.createAsyncStatement(
-      `SELECT * FROM cal_events 
-         WHERE
-          ((${floatingEventEnd} > :range_start + :start_offset) OR 
-           (${nonFloatingEventEnd} > :range_start) OR
-           (((${floatingEventEnd} = :range_start + :start_offset) OR
-             (${nonFloatingEventEnd} = :range_start)) AND
-            ((${floatingEventStart} = :range_start + :start_offset) OR
-             (${nonFloatingEventStart} = :range_start)))) 
-          AND
-           ((${floatingEventStart} < :range_end + :end_offset) OR
-            (${nonFloatingEventStart} < :range_end))
-          AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL
-          AND ((:offline_journal IS NULL
-          AND  (offline_journal IS NULL
-           OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
-           OR (offline_journal == :offline_journal))`
-    );
-
-    //
-    // WHERE (due > rangeStart  AND  (entry IS NULL  OR  entry < rangeEnd)) OR
-    //       (due = rangeStart  AND  (entry IS NULL  OR  entry = rangeStart)) OR
-    //       (due IS NULL  AND  (entry >= rangeStart  AND  entry < rangeEnd)) OR
-    //       (entry IS NULL  AND  (completed > rangeStart  OR  completed IS NULL))
-    //
-    let floatingTodoEntry = "todo_entry_tz = 'floating' AND todo_entry";
-    let nonFloatingTodoEntry = "todo_entry_tz != 'floating' AND todo_entry";
-    let floatingTodoDue = "todo_due_tz = 'floating' AND todo_due";
-    let nonFloatingTodoDue = "todo_due_tz != 'floating' AND todo_due";
-    let floatingCompleted = "todo_completed_tz = 'floating' AND todo_completed";
-    let nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
-
-    this.mSelectNonRecurringTodosByRange = db.createAsyncStatement(
-      `SELECT * FROM cal_todos
-         WHERE
-          ((((${floatingTodoDue} > :range_start + :start_offset) OR
-             (${nonFloatingTodoDue} > :range_start)) AND
-            ((todo_entry IS NULL) OR
-             ((${floatingTodoEntry} < :range_end + :end_offset) OR
-              (${nonFloatingTodoEntry} < :range_end)))) OR
-           (((${floatingTodoDue} = :range_start + :start_offset) OR
-             (${nonFloatingTodoDue} = :range_start)) AND
-            ((todo_entry IS NULL) OR
-             ((${floatingTodoEntry} = :range_start + :start_offset) OR
-              (${nonFloatingTodoEntry} = :range_start)))) OR
-           ((todo_due IS NULL) AND
-            (((${floatingTodoEntry} >= :range_start + :start_offset) OR
-              (${nonFloatingTodoEntry} >= :range_start)) AND
-             ((${floatingTodoEntry} < :range_end + :end_offset) OR
-              (${nonFloatingTodoEntry} < :range_end)))) OR
-           ((todo_entry IS NULL) AND
-            (((${floatingCompleted} > :range_start + :start_offset) OR
-              (${nonFloatingCompleted} > :range_start)) OR
-             (todo_completed IS NULL))))
-          AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL
-          AND ((:offline_journal IS NULL
-          AND  (offline_journal IS NULL
-           OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
-           OR (offline_journal == :offline_journal))`
-    );
-
-    this.mSelectAttendeesForItem = db.createAsyncStatement(
-      `SELECT * FROM cal_attendees
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectAttendeesForItemWithRecurrenceId = db.createAsyncStatement(
-      `SELECT * FROM cal_attendees
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id = :recurrence_id
-            AND recurrence_id_tz = :recurrence_id_tz`
-    );
-    this.mSelectAllAttendees = db.createAsyncStatement(
-      `SELECT item_id, icalString FROM cal_attendees
-          WHERE cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectPropertiesForItem = db.createAsyncStatement(
-      `SELECT * FROM cal_properties
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectPropertiesForItemWithRecurrenceId = db.createAsyncStatement(
-      `SELECT * FROM cal_properties
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id = :recurrence_id
-            AND recurrence_id_tz = :recurrence_id_tz`
-    );
-    this.mSelectAllProperties = db.createAsyncStatement(
-      `SELECT item_id, key, value FROM cal_properties
-          WHERE cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectParametersForItem = db.createAsyncStatement(
-      `SELECT * FROM cal_parameters
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectParametersForItemWithRecurrenceId = db.createAsyncStatement(
-      `SELECT * FROM cal_parameters
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id = :recurrence_id
-            AND recurrence_id_tz = :recurrence_id_tz`
-    );
-    this.mSelectAllParameters = db.createAsyncStatement(
-      `SELECT item_id, key1, key2, value FROM cal_parameters
-          WHERE cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectRecurrenceForItem = db.createAsyncStatement(
-      `SELECT * FROM cal_recurrence
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id`
-    );
-    this.mSelectAllRecurrences = db.createAsyncStatement(
-      `SELECT item_id, icalString FROM cal_recurrence
-          WHERE cal_id = :cal_id`
-    );
-    this.mSelectEventsWithRecurrence = db.createAsyncStatement(
-      `SELECT * FROM cal_events
-          WHERE flags & 16 == 16
-            AND cal_id = :cal_id 
-            AND recurrence_id is NULL`
-    );
-    this.mSelectTodosWithRecurrence = db.createAsyncStatement(
-      `SELECT * FROM cal_todos
-          WHERE flags & 16 == 16
-            AND cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectEventExceptions = db.createAsyncStatement(
-      `SELECT * FROM cal_events
-          WHERE id = :id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NOT NULL`
-    );
-    this.mSelectAllEventExceptions = db.createAsyncStatement(
-      `SELECT * FROM cal_events
-          WHERE cal_id = :cal_id
-            AND recurrence_id IS NOT NULL`
-    );
-    this.mSelectTodoExceptions = db.createAsyncStatement(
-      `SELECT * FROM cal_todos
-          WHERE id = :id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NOT NULL`
-    );
-    this.mSelectAllTodoExceptions = db.createAsyncStatement(
-      `SELECT * FROM cal_todos 
-          WHERE cal_id = :cal_id
-            AND recurrence_id IS NOT NULL`
-    );
-    this.mSelectMetaData = db.createStatement(
-      `SELECT * FROM cal_metadata
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id`
-    );
-    this.mSelectAllMetaData = db.createStatement(
-      `SELECT * FROM cal_metadata
-          WHERE cal_id = :cal_id`
-    );
-    this.mSelectRelationsForItem = db.createAsyncStatement(
-      `SELECT * FROM cal_relations
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectRelationsForItemWithRecurrenceId = db.createAsyncStatement(
-      `SELECT * FROM cal_relations
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id = :recurrence_id
-            AND recurrence_id_tz = :recurrence_id_tz`
-    );
-    this.mSelectAllRelations = db.createAsyncStatement(
-      `SELECT item_id, icalString FROM cal_relations
-          WHERE cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectAlarmsForItem = db.createAsyncStatement(
-      `SELECT icalString FROM cal_alarms
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectAlarmsForItemWithRecurrenceId = db.createAsyncStatement(
-      `SELECT icalString FROM cal_alarms
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id = :recurrence_id
-            AND recurrence_id_tz = :recurrence_id_tz`
-    );
-    this.mSelectAllAlarms = db.createAsyncStatement(
-      `SELECT item_id, icalString FROM cal_alarms
-          WHERE cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectAttachmentsForItem = db.createAsyncStatement(
-      `SELECT * FROM cal_attachments
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mSelectAttachmentsForItemWithRecurrenceId = db.createAsyncStatement(
-      `SELECT * FROM cal_attachments
-          WHERE item_id = :item_id
-            AND cal_id = :cal_id
-            AND recurrence_id = :recurrence_id
-            AND recurrence_id_tz = :recurrence_id_tz`
-    );
-    this.mSelectAllAttachments = db.createAsyncStatement(
-      `SELECT item_id, icalString FROM cal_attachments
-          WHERE cal_id = :cal_id
-            AND recurrence_id IS NULL`
-    );
-    this.mInsertEvent = db.createAsyncStatement(
-      `INSERT INTO cal_events
-           (cal_id, id, time_created, last_modified,
-            title, priority, privacy, ical_status, flags,
-            event_start, event_start_tz, event_end, event_end_tz, event_stamp,
-            recurrence_id, recurrence_id_tz, alarm_last_ack)
-         VALUES (:cal_id, :id, :time_created, :last_modified,
-                 :title, :priority, :privacy, :ical_status, :flags,
-                 :event_start, :event_start_tz, :event_end, :event_end_tz, :event_stamp,
-                 :recurrence_id, :recurrence_id_tz, :alarm_last_ack)`
-    );
-
-    this.mInsertTodo = db.createAsyncStatement(
-      `INSERT INTO cal_todos
-           (cal_id, id, time_created, last_modified,
-            title, priority, privacy, ical_status, flags,
-            todo_entry, todo_entry_tz, todo_due, todo_due_tz, todo_stamp,
-            todo_completed, todo_completed_tz, todo_complete,
-            recurrence_id, recurrence_id_tz, alarm_last_ack)
-         VALUES (:cal_id, :id, :time_created, :last_modified,
-                 :title, :priority, :privacy, :ical_status, :flags,
-                 :todo_entry, :todo_entry_tz, :todo_due, :todo_due_tz, :todo_stamp,
-                 :todo_completed, :todo_completed_tz, :todo_complete,
-                 :recurrence_id, :recurrence_id_tz, :alarm_last_ack)`
-    );
-    this.mInsertProperty = db.createAsyncStatement(
-      `INSERT INTO cal_properties (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value)
-         VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value)`
-    );
-    this.mInsertParameter = db.createAsyncStatement(
-      `INSERT INTO cal_parameters (cal_id, item_id, recurrence_id, recurrence_id_tz, key1, key2, value)
-         VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key1, :key2, :value)`
-    );
-    this.mInsertAttendee = db.createAsyncStatement(
-      `INSERT INTO cal_attendees
-           (cal_id, item_id, recurrence_id, recurrence_id_tz, icalString)
-         VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :icalString)`
-    );
-    this.mInsertRecurrence = db.createAsyncStatement(
-      `INSERT INTO cal_recurrence
-           (cal_id, item_id, icalString)
-         VALUES (:cal_id, :item_id, :icalString)`
-    );
-    this.mInsertAttachment = db.createAsyncStatement(
-      `INSERT INTO cal_attachments
-           (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz)
-         VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)`
-    );
-    this.mInsertRelation = db.createAsyncStatement(
-      `INSERT INTO cal_relations
-           (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz)
-         VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)`
-    );
-    this.mInsertMetaData = db.createStatement(
-      `INSERT INTO cal_metadata
-           (cal_id, item_id, value)
-         VALUES (:cal_id, :item_id, :value)`
-    );
-    this.mInsertAlarm = db.createAsyncStatement(
-      `INSERT INTO cal_alarms
-           (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz)
-         VALUES  (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)`
-    );
-    this.mEditEventOfflineFlag = db.createStatement(
-      `UPDATE cal_events SET offline_journal = :offline_journal
-          WHERE id = :id
-            AND cal_id = :cal_id`
-    );
-    this.mEditTodoOfflineFlag = db.createStatement(
-      `UPDATE cal_todos SET offline_journal = :offline_journal
-          WHERE id = :id
-            AND cal_id = :cal_id`
-    );
-    this.mDeleteEvent = db.createAsyncStatement(
-      "DELETE FROM cal_events WHERE id = :id AND cal_id = :cal_id"
-    );
-    this.mDeleteTodo = db.createAsyncStatement(
-      "DELETE FROM cal_todos WHERE id = :id AND cal_id = :cal_id"
-    );
-    this.mDeleteAttendees = db.createAsyncStatement(
-      "DELETE FROM cal_attendees WHERE item_id = :item_id AND cal_id = :cal_id"
-    );
-    this.mDeleteProperties = db.createAsyncStatement(
-      "DELETE FROM cal_properties WHERE item_id = :item_id AND cal_id = :cal_id"
-    );
-    this.mDeleteParameters = db.createAsyncStatement(
-      "DELETE FROM cal_parameters WHERE item_id = :item_id AND cal_id = :cal_id"
-    );
-    this.mDeleteRecurrence = db.createAsyncStatement(
-      "DELETE FROM cal_recurrence WHERE item_id = :item_id AND cal_id = :cal_id"
-    );
-    this.mDeleteAttachments = db.createAsyncStatement(
-      "DELETE FROM cal_attachments WHERE item_id = :item_id AND cal_id = :cal_id"
-    );
-    this.mDeleteRelations = db.createAsyncStatement(
-      "DELETE FROM cal_relations WHERE item_id = :item_id AND cal_id = :cal_id"
-    );
-    this.mDeleteMetaData = db.createStatement(
-      "DELETE FROM cal_metadata WHERE item_id = :item_id AND cal_id = :cal_id"
-    );
-    this.mDeleteAlarms = db.createAsyncStatement(
-      "DELETE FROM cal_alarms WHERE item_id = :item_id AND cal_id = :cal_id"
-    );
-
-    // These are only used when deleting an entire calendar
-    let extrasTables = [
-      "cal_attendees",
-      "cal_properties",
-      "cal_parameters",
-      "cal_recurrence",
-      "cal_attachments",
-      "cal_metadata",
-      "cal_relations",
-      "cal_alarms",
-    ];
-
-    for (let table in extrasTables) {
-      this.mDeleteEventExtras[table] = db.createAsyncStatement(
-        `DELETE FROM ${extrasTables[table]}
-            WHERE item_id IN
-             (SELECT id FROM cal_events WHERE cal_id = :cal_id)
-            AND cal_id = :cal_id`
-      );
-      this.mDeleteTodoExtras[table] = db.createAsyncStatement(
-        `DELETE FROM ${extrasTables[table]}
-            WHERE item_id IN
-             (SELECT id FROM cal_todos WHERE cal_id = :cal_id)
-            AND cal_id = :cal_id`
-      );
-    }
-
-    // Note that you must delete the "extras" _first_ using the above two
-    // statements, before you delete the events themselves.
-    this.mDeleteAllEvents = db.createAsyncStatement(
-      "DELETE from cal_events WHERE cal_id = :cal_id"
-    );
-    this.mDeleteAllTodos = db.createAsyncStatement("DELETE from cal_todos WHERE cal_id = :cal_id");
-    this.mDeleteAllMetaData = db.createStatement("DELETE FROM cal_metadata WHERE cal_id = :cal_id");
   }
 
   /**
@@ -452,21 +73,21 @@ class CalStorageModel {
     let stmts = [];
     calendar = calendar.wrappedJSObject;
 
-    if (this.mDeleteEventExtras) {
-      for (let stmt of this.mDeleteEventExtras) {
+    if (this.statements.mDeleteEventExtras) {
+      for (let stmt of this.statements.mDeleteEventExtras) {
         stmts.push(this.prepareStatement(stmt));
       }
     }
 
-    if (this.mDeleteTodoExtras) {
-      for (let stmt of this.mDeleteTodoExtras) {
+    if (this.statements.mDeleteTodoExtras) {
+      for (let stmt of this.statements.mDeleteTodoExtras) {
         stmts.push(this.prepareStatement(stmt));
       }
     }
 
-    stmts.push(this.prepareStatement(this.mDeleteAllEvents));
-    stmts.push(this.prepareStatement(this.mDeleteAllTodos));
-    stmts.push(this.prepareStatement(this.mDeleteAllMetaData));
+    stmts.push(this.prepareStatement(this.statements.mDeleteAllEvents));
+    stmts.push(this.prepareStatement(this.statements.mDeleteAllTodos));
+    stmts.push(this.prepareStatement(this.statements.mDeleteAllMetaData));
     await this.executeAsync(stmts);
   }
 
@@ -478,7 +99,7 @@ class CalStorageModel {
   prepareStatement(aStmt) {
     try {
       aStmt.params.cal_id = this.calendar.id;
-      this.mLastStatement = aStmt;
+      this.lastStatement = aStmt;
     } catch (e) {
       this.logError("prepareStatement exception", e);
     }
@@ -743,15 +364,15 @@ class CalStorageModel {
       // first get non-recurring events that happen to fall within the range
       //
       try {
-        this.prepareStatement(this.mSelectNonRecurringEventsByRange);
-        params = this.mSelectNonRecurringEventsByRange.params;
+        this.prepareStatement(this.statements.mSelectNonRecurringEventsByRange);
+        params = this.statements.mSelectNonRecurringEventsByRange.params;
         params.range_start = startTime;
         params.range_end = endTime;
         params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
         params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
         params.offline_journal = requestedOfflineJournal;
 
-        await this.executeAsync(this.mSelectNonRecurringEventsByRange, async row => {
+        await this.executeAsync(this.statements.mSelectNonRecurringEventsByRange, async row => {
           let event = await this.getEventFromRow(row);
           resultItems.push(event);
         });
@@ -801,15 +422,15 @@ class CalStorageModel {
 
       // first get non-recurring todos that happen to fall within the range
       try {
-        this.prepareStatement(this.mSelectNonRecurringTodosByRange);
-        params = this.mSelectNonRecurringTodosByRange.params;
+        this.prepareStatement(this.statements.mSelectNonRecurringTodosByRange);
+        params = this.statements.mSelectNonRecurringTodosByRange.params;
         params.range_start = startTime;
         params.range_end = endTime;
         params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
         params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
         params.offline_journal = requestedOfflineJournal;
 
-        await this.executeAsync(this.mSelectNonRecurringTodosByRange, async row => {
+        await this.executeAsync(this.statements.mSelectNonRecurringTodosByRange, async row => {
           let todo = await this.getTodoFromRow(row);
           resultItems.push(todo);
         });
@@ -852,8 +473,7 @@ class CalStorageModel {
   }
 
   /**
-   * Returns the offline_journal column value for an item. Returns null if
-   * no rows are found.
+   * Returns the offline_journal column value for an item.
    *
    * @param {calIItemBase} item
    *
@@ -861,7 +481,7 @@ class CalStorageModel {
    */
   async getItemOfflineFlag(item) {
     let flag = null;
-    let query = item.isEvent() ? this.mSelectEvent : this.mSelectTodo;
+    let query = item.isEvent() ? this.statements.mSelectEvent : this.statements.mSelectTodo;
     this.prepareStatement(query);
     query.params.id = item.id;
     await this.executeAsync(query, row => {
@@ -878,7 +498,9 @@ class CalStorageModel {
    */
   async setOfflineJournalFlag(item, flag) {
     let id = item.id;
-    let query = item.isEvent() ? this.mEditEventOfflineFlag : this.mEditTodoOfflineFlag;
+    let query = item.isEvent()
+      ? this.statements.mEditEventOfflineFlag
+      : this.statements.mEditTodoOfflineFlag;
     this.prepareStatement(query);
     query.params.id = id;
     query.params.offline_journal = flag || null;
@@ -944,8 +566,8 @@ class CalStorageModel {
   async assureRecurringItemCaches() {
     let events = [];
     let itemsMap = new Map();
-    this.prepareStatement(this.mSelectEventsWithRecurrence);
-    await this.executeAsync(this.mSelectEventsWithRecurrence, async row => {
+    this.prepareStatement(this.statements.mSelectEventsWithRecurrence);
+    await this.executeAsync(this.statements.mSelectEventsWithRecurrence, async row => {
       events.push(row);
     });
     for (let row of events) {
@@ -962,8 +584,8 @@ class CalStorageModel {
     }
 
     let todos = [];
-    this.prepareStatement(this.mSelectTodosWithRecurrence);
-    await this.executeAsync(this.mSelectTodosWithRecurrence, async row => {
+    this.prepareStatement(this.statements.mSelectTodosWithRecurrence);
+    await this.executeAsync(this.statements.mSelectTodosWithRecurrence, async row => {
       todos.push(row);
     });
     for (let row of todos) {
@@ -978,8 +600,8 @@ class CalStorageModel {
       itemsMap.set(item_id, item);
     }
 
-    this.prepareStatement(this.mSelectAllAttendees);
-    await this.executeAsync(this.mSelectAllAttendees, row => {
+    this.prepareStatement(this.statements.mSelectAllAttendees);
+    await this.executeAsync(this.statements.mSelectAllAttendees, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (!item) {
         return;
@@ -1003,8 +625,8 @@ class CalStorageModel {
       }
     });
 
-    this.prepareStatement(this.mSelectAllProperties);
-    await this.executeAsync(this.mSelectAllProperties, row => {
+    this.prepareStatement(this.statements.mSelectAllProperties);
+    await this.executeAsync(this.statements.mSelectAllProperties, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (!item) {
         return;
@@ -1027,8 +649,8 @@ class CalStorageModel {
       }
     });
 
-    this.prepareStatement(this.mSelectAllParameters);
-    await this.executeAsync(this.mSelectAllParameters, row => {
+    this.prepareStatement(this.statements.mSelectAllParameters);
+    await this.executeAsync(this.statements.mSelectAllParameters, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (!item) {
         return;
@@ -1040,8 +662,8 @@ class CalStorageModel {
       item.setPropertyParameter(prop, param, value);
     });
 
-    this.prepareStatement(this.mSelectAllRecurrences);
-    await this.executeAsync(this.mSelectAllRecurrences, row => {
+    this.prepareStatement(this.statements.mSelectAllRecurrences);
+    await this.executeAsync(this.statements.mSelectAllRecurrences, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (!item) {
         return;
@@ -1057,8 +679,8 @@ class CalStorageModel {
       recInfo.appendRecurrenceItem(ritem);
     });
 
-    this.prepareStatement(this.mSelectAllEventExceptions);
-    await this.executeAsync(this.mSelectAllEventExceptions, async row => {
+    this.prepareStatement(this.statements.mSelectAllEventExceptions);
+    await this.executeAsync(this.statements.mSelectAllEventExceptions, async row => {
       let item = itemsMap.get(row.getResultByName("id"));
       if (!item) {
         return;
@@ -1069,8 +691,8 @@ class CalStorageModel {
       rec.modifyException(exc, true);
     });
 
-    this.prepareStatement(this.mSelectAllTodoExceptions);
-    await this.executeAsync(this.mSelectAllTodoExceptions, async row => {
+    this.prepareStatement(this.statements.mSelectAllTodoExceptions);
+    await this.executeAsync(this.statements.mSelectAllTodoExceptions, async row => {
       let item = itemsMap.get(row.getResultByName("id"));
       if (!item) {
         return;
@@ -1081,24 +703,24 @@ class CalStorageModel {
       rec.modifyException(exc, true);
     });
 
-    this.prepareStatement(this.mSelectAllAttachments);
-    await this.executeAsync(this.mSelectAllAttachments, row => {
+    this.prepareStatement(this.statements.mSelectAllAttachments);
+    await this.executeAsync(this.statements.mSelectAllAttachments, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
         item.addAttachment(new CalAttachment(row.getResultByName("icalString")));
       }
     });
 
-    this.prepareStatement(this.mSelectAllRelations);
-    await this.executeAsync(this.mSelectAllRelations, row => {
+    this.prepareStatement(this.statements.mSelectAllRelations);
+    await this.executeAsync(this.statements.mSelectAllRelations, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
         item.addRelation(new CalRelation(row.getResultByName("icalString")));
       }
     });
 
-    this.prepareStatement(this.mSelectAllAlarms);
-    await this.executeAsync(this.mSelectAllAlarms, row => {
+    this.prepareStatement(this.statements.mSelectAllAlarms);
+    await this.executeAsync(this.statements.mSelectAllAlarms, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
         item.addAlarm(new CalAlarm(row.getResultByName("icalString")));
@@ -1213,9 +835,9 @@ class CalStorageModel {
     if (flags & CAL_ITEM_FLAG.HAS_ATTENDEES) {
       let selectItem = null;
       if (item.recurrenceId == null) {
-        selectItem = this.mSelectAttendeesForItem;
+        selectItem = this.statements.mSelectAttendeesForItem;
       } else {
-        selectItem = this.mSelectAttendeesForItemWithRecurrenceId;
+        selectItem = this.statements.mSelectAttendeesForItemWithRecurrenceId;
         this.setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
       }
 
@@ -1245,12 +867,12 @@ class CalStorageModel {
       let selectItem = null;
       let selectParam = null;
       if (item.recurrenceId == null) {
-        selectItem = this.mSelectPropertiesForItem;
-        selectParam = this.mSelectParametersForItem;
+        selectItem = this.statements.mSelectPropertiesForItem;
+        selectParam = this.statements.mSelectParametersForItem;
       } else {
-        selectItem = this.mSelectPropertiesForItemWithRecurrenceId;
+        selectItem = this.statements.mSelectPropertiesForItemWithRecurrenceId;
         this.setDateParamHelper(selectItem, "recurrence_id", item.recurrenceId);
-        selectParam = this.mSelectParametersForItemWithRecurrenceId;
+        selectParam = this.statements.mSelectParametersForItemWithRecurrenceId;
         this.setDateParamHelper(selectParam, "recurrence_id", item.recurrenceId);
       }
 
@@ -1300,9 +922,9 @@ class CalStorageModel {
       item.recurrenceInfo = recInfo;
 
       try {
-        this.prepareStatement(this.mSelectRecurrenceForItem);
-        this.mSelectRecurrenceForItem.params.item_id = item.id;
-        await this.executeAsync(this.mSelectRecurrenceForItem, row => {
+        this.prepareStatement(this.statements.mSelectRecurrenceForItem);
+        this.statements.mSelectRecurrenceForItem.params.item_id = item.id;
+        await this.executeAsync(this.statements.mSelectRecurrenceForItem, row => {
           let ritem = this.getRecurrenceItemFromRow(row);
           recInfo.appendRecurrenceItem(ritem);
         });
@@ -1325,10 +947,10 @@ class CalStorageModel {
       let rec = item.recurrenceInfo;
 
       if (item.isEvent()) {
-        this.mSelectEventExceptions.params.id = item.id;
-        this.prepareStatement(this.mSelectEventExceptions);
+        this.statements.mSelectEventExceptions.params.id = item.id;
+        this.prepareStatement(this.statements.mSelectEventExceptions);
         try {
-          await this.executeAsync(this.mSelectEventExceptions, async row => {
+          await this.executeAsync(this.statements.mSelectEventExceptions, async row => {
             let exc = await this.getEventFromRow(row, false);
             rec.modifyException(exc, true);
           });
@@ -1339,10 +961,10 @@ class CalStorageModel {
           );
         }
       } else if (item.isTodo()) {
-        this.mSelectTodoExceptions.params.id = item.id;
-        this.prepareStatement(this.mSelectTodoExceptions);
+        this.statements.mSelectTodoExceptions.params.id = item.id;
+        this.prepareStatement(this.statements.mSelectTodoExceptions);
         try {
-          await this.executeAsync(this.mSelectTodoExceptions, async row => {
+          await this.executeAsync(this.statements.mSelectTodoExceptions, async row => {
             let exc = await this.getTodoFromRow(row, false);
             rec.modifyException(exc, true);
           });
@@ -1358,9 +980,9 @@ class CalStorageModel {
     }
 
     if (flags & CAL_ITEM_FLAG.HAS_ATTACHMENTS) {
-      let selectAttachment = this.mSelectAttachmentsForItem;
+      let selectAttachment = this.statements.mSelectAttachmentsForItem;
       if (item.recurrenceId != null) {
-        selectAttachment = this.mSelectAttachmentsForItemWithRecurrenceId;
+        selectAttachment = this.statements.mSelectAttachmentsForItemWithRecurrenceId;
         this.setDateParamHelper(selectAttachment, "recurrence_id", item.recurrenceId);
       }
       try {
@@ -1378,9 +1000,9 @@ class CalStorageModel {
     }
 
     if (flags & CAL_ITEM_FLAG.HAS_RELATIONS) {
-      let selectRelation = this.mSelectRelationsForItem;
+      let selectRelation = this.statements.mSelectRelationsForItem;
       if (item.recurrenceId != null) {
-        selectRelation = this.mSelectRelationsForItemWithRecurrenceId;
+        selectRelation = this.statements.mSelectRelationsForItemWithRecurrenceId;
         this.setDateParamHelper(selectRelation, "recurrence_id", item.recurrenceId);
       }
       try {
@@ -1398,9 +1020,9 @@ class CalStorageModel {
     }
 
     if (flags & CAL_ITEM_FLAG.HAS_ALARMS) {
-      let selectAlarm = this.mSelectAlarmsForItem;
+      let selectAlarm = this.statements.mSelectAlarmsForItem;
       if (item.recurrenceId != null) {
-        selectAlarm = this.mSelectAlarmsForItemWithRecurrenceId;
+        selectAlarm = this.statements.mSelectAlarmsForItemWithRecurrenceId;
         this.setDateParamHelper(selectAlarm, "recurrence_id", item.recurrenceId);
       }
       try {
@@ -1448,9 +1070,9 @@ class CalStorageModel {
     let item;
     try {
       // try events first
-      this.prepareStatement(this.mSelectEvent);
-      this.mSelectEvent.params.id = aID;
-      await this.executeAsync(this.mSelectEvent, async row => {
+      this.prepareStatement(this.statements.mSelectEvent);
+      this.statements.mSelectEvent.params.id = aID;
+      await this.executeAsync(this.statements.mSelectEvent, async row => {
         item = await this.getEventFromRow(row);
       });
     } catch (e) {
@@ -1460,9 +1082,9 @@ class CalStorageModel {
     // try todo if event fails
     if (!item) {
       try {
-        this.prepareStatement(this.mSelectTodo);
-        this.mSelectTodo.params.id = aID;
-        await this.executeAsync(this.mSelectTodo, async row => {
+        this.prepareStatement(this.statements.mSelectTodo);
+        this.statements.mSelectTodo.params.id = aID;
+        await this.executeAsync(this.statements.mSelectTodo, async row => {
           item = await this.getTodoFromRow(row);
         });
       } catch (e) {
@@ -1535,7 +1157,7 @@ class CalStorageModel {
   }
 
   prepareEvent(stmts, item, olditem, flags) {
-    let array = this.prepareAsyncStatement(stmts, this.mInsertEvent);
+    let array = this.prepareAsyncStatement(stmts, this.statements.mInsertEvent);
     let params = this.prepareAsyncParams(array);
 
     this.setupItemBaseParams(item, olditem, params);
@@ -1555,7 +1177,7 @@ class CalStorageModel {
   }
 
   prepareTodo(stmts, item, olditem, flags) {
-    let array = this.prepareAsyncStatement(stmts, this.mInsertTodo);
+    let array = this.prepareAsyncStatement(stmts, this.statements.mInsertTodo);
     let params = this.prepareAsyncParams(array);
 
     this.setupItemBaseParams(item, olditem, params);
@@ -1604,7 +1226,7 @@ class CalStorageModel {
       attendees.push(item.organizer);
     }
     if (attendees.length > 0) {
-      let array = this.prepareAsyncStatement(stmts, this.mInsertAttendee);
+      let array = this.prepareAsyncStatement(stmts, this.statements.mInsertAttendee);
       for (let att of attendees) {
         let params = this.prepareAsyncParams(array);
         params.bindByName("item_id", item.id);
@@ -1620,7 +1242,7 @@ class CalStorageModel {
   }
 
   prepareProperty(stmts, item, propName, propValue) {
-    let array = this.prepareAsyncStatement(stmts, this.mInsertProperty);
+    let array = this.prepareAsyncStatement(stmts, this.statements.mInsertProperty);
     let params = this.prepareAsyncParams(array);
     params.bindByName("key", propName);
     let wPropValue = cal.wrapInstance(propValue, Ci.calIDateTime);
@@ -1645,7 +1267,7 @@ class CalStorageModel {
   }
 
   prepareParameter(stmts, item, propName, paramName, propValue) {
-    let array = this.prepareAsyncStatement(stmts, this.mInsertParameter);
+    let array = this.prepareAsyncStatement(stmts, this.statements.mInsertParameter);
     let params = this.prepareAsyncParams(array);
     params.bindByName("key1", propName);
     params.bindByName("key2", paramName);
@@ -1703,7 +1325,7 @@ class CalStorageModel {
     if (rec) {
       flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
       let ritems = rec.getRecurrenceItems();
-      let array = this.prepareAsyncStatement(stmts, this.mInsertRecurrence);
+      let array = this.prepareAsyncStatement(stmts, this.statements.mInsertRecurrence);
       for (let ritem of ritems) {
         let params = this.prepareAsyncParams(array);
         params.bindByName("item_id", item.id);
@@ -1736,7 +1358,7 @@ class CalStorageModel {
   prepareAttachments(stmts, item, olditem) {
     let attachments = item.getAttachments();
     if (attachments && attachments.length > 0) {
-      let array = this.prepareAsyncStatement(stmts, this.mInsertAttachment);
+      let array = this.prepareAsyncStatement(stmts, this.statements.mInsertAttachment);
       for (let att of attachments) {
         let params = this.prepareAsyncParams(array);
         this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
@@ -1753,7 +1375,7 @@ class CalStorageModel {
   prepareRelations(stmts, item, olditem) {
     let relations = item.getRelations();
     if (relations && relations.length > 0) {
-      let array = this.prepareAsyncStatement(stmts, this.mInsertRelation);
+      let array = this.prepareAsyncStatement(stmts, this.statements.mInsertRelation);
       for (let rel of relations) {
         let params = this.prepareAsyncParams(array);
         this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
@@ -1773,7 +1395,7 @@ class CalStorageModel {
       return 0;
     }
 
-    let array = this.prepareAsyncStatement(stmts, this.mInsertAlarm);
+    let array = this.prepareAsyncStatement(stmts, this.statements.mInsertAlarm);
     for (let alarm of alarms) {
       let params = this.prepareAsyncParams(array);
       this.setDateParamHelper(params, "recurrence_id", item.recurrenceId);
@@ -1794,17 +1416,17 @@ class CalStorageModel {
    */
   async deleteItemById(id, keepMeta) {
     let stmts = [];
-    this.prepareItemStatement(stmts, this.mDeleteAttendees, "item_id", id);
-    this.prepareItemStatement(stmts, this.mDeleteProperties, "item_id", id);
-    this.prepareItemStatement(stmts, this.mDeleteRecurrence, "item_id", id);
-    this.prepareItemStatement(stmts, this.mDeleteEvent, "id", id);
-    this.prepareItemStatement(stmts, this.mDeleteTodo, "id", id);
-    this.prepareItemStatement(stmts, this.mDeleteAttachments, "item_id", id);
-    this.prepareItemStatement(stmts, this.mDeleteRelations, "item_id", id);
+    this.prepareItemStatement(stmts, this.statements.mDeleteAttendees, "item_id", id);
+    this.prepareItemStatement(stmts, this.statements.mDeleteProperties, "item_id", id);
+    this.prepareItemStatement(stmts, this.statements.mDeleteRecurrence, "item_id", id);
+    this.prepareItemStatement(stmts, this.statements.mDeleteEvent, "id", id);
+    this.prepareItemStatement(stmts, this.statements.mDeleteTodo, "id", id);
+    this.prepareItemStatement(stmts, this.statements.mDeleteAttachments, "item_id", id);
+    this.prepareItemStatement(stmts, this.statements.mDeleteRelations, "item_id", id);
     if (!keepMeta) {
-      this.prepareItemStatement(stmts, this.mDeleteMetaData, "item_id", id);
+      this.prepareItemStatement(stmts, this.statements.mDeleteMetaData, "item_id", id);
     }
-    this.prepareItemStatement(stmts, this.mDeleteAlarms, "item_id", id);
+    this.prepareItemStatement(stmts, this.statements.mDeleteAlarms, "item_id", id);
     await this.executeAsync(stmts);
 
     this.calendar.mItemCache.delete(id);
@@ -1825,11 +1447,11 @@ class CalStorageModel {
    */
   addMetaData(id, value) {
     try {
-      this.prepareStatement(this.mInsertMetaData);
-      let params = this.mInsertMetaData.params;
+      this.prepareStatement(this.statements.mInsertMetaData);
+      let params = this.statements.mInsertMetaData.params;
       params.item_id = id;
       params.value = value;
-      this.mInsertMetaData.executeStep();
+      this.statements.mInsertMetaData.executeStep();
     } catch (e) {
       if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
         this.logError("Unknown error!", e);
@@ -1840,7 +1462,7 @@ class CalStorageModel {
         this.logError("Error setting metadata for id " + id + "!", e);
       }
     } finally {
-      this.mInsertMetaData.reset();
+      this.statements.mInsertMetaData.reset();
     }
   }
 
@@ -1848,7 +1470,7 @@ class CalStorageModel {
    * Deletes meta data for an item using its id.
    */
   deleteMetaDataById(id) {
-    this.executeSyncItemStatement(this.mDeleteMetaData, "item_id", id);
+    this.executeSyncItemStatement(this.statements.mDeleteMetaData, "item_id", id);
   }
 
   /**
@@ -1857,7 +1479,7 @@ class CalStorageModel {
    * @param {string} id
    */
   getMetaData(id) {
-    let query = this.mSelectMetaData;
+    let query = this.statements.mSelectMetaData;
     let value = null;
     try {
       this.prepareStatement(query);
@@ -1881,7 +1503,7 @@ class CalStorageModel {
    * @param {string} key - Specifies which column to return.
    */
   getAllMetaData(key) {
-    let query = this.mSelectAllMetaData;
+    let query = this.statements.mSelectAllMetaData;
     let results = [];
     try {
       this.prepareStatement(query);
@@ -1894,6 +1516,13 @@ class CalStorageModel {
       query.reset();
     }
     return results;
+  }
+
+  /**
+   * Calls the finalize method on the CalStorageStatements object.
+   */
+  finalize() {
+    this.statements.finalize();
   }
 
   /**
@@ -1927,13 +1556,13 @@ class CalStorageModel {
       }
     }
 
-    if (this.mLastStatement) {
-      logMessage += "\nLast DB Statement: " + this.mLastStatement;
+    if (this.lastStatement) {
+      logMessage += "\nLast DB Statement: " + this.lastStatement;
       // Async statements do not allow enumeration of parameters.
-      if (this.mLastStatement instanceof Ci.mozIStorageStatement && this.mLastStatement.params) {
-        for (let param in this.mLastStatement.params) {
+      if (this.lastStatement instanceof Ci.mozIStorageStatement && this.lastStatement.params) {
+        for (let param in this.lastStatement.params) {
           logMessage +=
-            "\nLast Statement param [" + param + "]: " + this.mLastStatement.params[param];
+            "\nLast Statement param [" + param + "]: " + this.lastStatement.params[param];
         }
       }
     }
