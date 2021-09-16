@@ -1930,21 +1930,29 @@ var FeedUtils = {
           feed.options = options;
           FeedUtils.setStatus(feed.folder, feed.url, "lastUpdateTime", now);
         } else if (aDisable) {
-          // Do not keep retrying feeds with error states. Set persisted state
-          // to |null| to indicate error disable (and not user disable), but
-          // only if the feed is user enabled.
-          let options = feed.options;
-          if (options.updates.enabled) {
-            options.updates.enabled = null;
-          }
+          if (
+            Services.prefs.getBoolPref("rss.disable_feeds_on_update_failure")
+          ) {
+            // Do not keep retrying feeds with error states. Set persisted state
+            // to |null| to indicate error disable (and not user disable), but
+            // only if the feed is user enabled.
+            let options = feed.options;
+            if (options.updates.enabled) {
+              options.updates.enabled = null;
+            }
 
-          feed.options = options;
-          FeedUtils.setStatus(feed.folder, feed.url, "enabled", false);
-          FeedUtils.log.warn(
-            "downloaded: updates disabled due to error, " +
-              "check the url - " +
-              feed.url
-          );
+            feed.options = options;
+            FeedUtils.setStatus(feed.folder, feed.url, "enabled", false);
+            FeedUtils.log.warn(
+              "downloaded: updates disabled due to error, " +
+                "check the url - " +
+                feed.url
+            );
+          } else {
+            FeedUtils.log.warn(
+              "downloaded: update failed, check the url - " + feed.url
+            );
+          }
         }
 
         if (!this.mSubscribeMode) {
