@@ -42,14 +42,6 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) inset;
 }
 
-#composeContentBox splitter[orient="vertical"] {
-  appearance: none;
-  height: 5px;
-  margin-top: -5px;
-  position: relative;
-  z-index: 10;
-}
-
 #headers-box {
   background-color: transparent;
 }
@@ -185,18 +177,6 @@ toolbarbutton.formatting-button {
 
 #sidebar {
   background-color: Window;
-}
-
-#sidebar-splitter {
-  appearance: none;
-  border-inline-start: 1px solid ThreeDShadow;
-  /* splitter grip area */
-  width: 5px;
-  /* make only the splitter border visible */
-  margin-inline-end: -5px;
-  /* because of the negative margin needed to make the splitter visible */
-  position: relative;
-  z-index: 10;
 }
 
 menu[command="cmd_attachCloud"] .menu-iconic-left,

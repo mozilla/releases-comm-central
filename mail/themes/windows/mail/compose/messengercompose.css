@@ -241,16 +241,8 @@ toolbar:not(:-moz-lwtheme) {
 
 /* ::::: primary toolbar buttons ::::: */
 
-
 #compose-toolbar-sizer {
-  position: relative;
-  z-index: 10;
-  min-height: 0;
-  height: 5px;
-  margin-top: -5px;
-  border-top-width: 0;
-  border-bottom-color: var(--splitter-color);
-  background-color: transparent;
+  border-block-width: 0;
 }
 
 /* ::::: autocomplete icons ::::: */
@@ -264,17 +256,6 @@ toolbar:not(:-moz-lwtheme) {
 
 #sidebar {
   background-color: -moz-Dialog;
-}
-
-#sidebar-splitter {
-  border-inline-end-width: 0;
-  border-inline-start: 1px solid var(--splitter-color);
-  min-width: 0;
-  width: 5px;
-  background-color: transparent;
-  margin-inline-end: -5px;
-  position: relative;
-  z-index: 10;
 }
 
 @media (-moz-windows-glass) {

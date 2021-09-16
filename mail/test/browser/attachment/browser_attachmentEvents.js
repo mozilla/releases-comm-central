@@ -418,32 +418,32 @@ add_task(function test_attachments_pane_toggle() {
   // Open the compose window.
   let cw = open_compose_new_mail(mc);
 
-  // Use the hotkey to try to toggle attachmentsBox open.
+  // Use the hotkey to try to toggle attachmentsArea open.
   let opts =
     AppConstants.platform == "macosx"
       ? { metaKey: true, shiftKey: true }
       : { ctrlKey: true, shiftKey: true };
   EventUtils.synthesizeKey("m", opts, cw.window);
-  let attachmentsBox = cw.window.document.getElementById("attachmentsBox");
+  let attachmentArea = cw.window.document.getElementById("attachmentArea");
 
   // Since we don't have any uploaded attachment, assert that the box remains
   // closed.
-  cw.waitFor(() => attachmentsBox.collapsed);
-  Assert.ok(attachmentsBox.collapsed);
+  cw.waitFor(() => !attachmentArea.open);
+  Assert.ok(!attachmentArea.open);
 
   // Add an attachment. This should automatically open the box.
   add_attachments(cw, ["http://www.example.com/1"]);
-  Assert.ok(!attachmentsBox.collapsed);
+  Assert.ok(attachmentArea.open);
 
   // Press again, should toggle to closed.
   EventUtils.synthesizeKey("m", opts, cw.window);
-  cw.waitFor(() => attachmentsBox.collapsed);
-  Assert.ok(attachmentsBox.collapsed);
+  cw.waitFor(() => !attachmentArea.open);
+  Assert.ok(!attachmentArea.open);
 
   // Press again, should toggle to open.
   EventUtils.synthesizeKey("m", opts, cw.window);
-  cw.waitFor(() => !attachmentsBox.collapsed);
-  Assert.ok(!attachmentsBox.collapsed);
+  cw.waitFor(() => attachmentArea.open);
+  Assert.ok(attachmentArea.open);
 
   close_compose_window(cw);
 });

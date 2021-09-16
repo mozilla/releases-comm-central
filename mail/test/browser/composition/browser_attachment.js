@@ -933,7 +933,7 @@ add_task(async function test_attachment_reordering() {
   close_compose_window(cwc);
 });
 
-add_task(async function test_restore_attachment_pane_height() {
+add_task(async function test_restore_attachment_bucket_height() {
   let cwc = open_compose_new_mail();
 
   // Add 9 attachments to open a pane least 2 rows height.
@@ -952,12 +952,11 @@ add_task(async function test_restore_attachment_pane_height() {
     add_attachments(cwc, filePrefix + files[i].name, files[i].size);
   }
 
-  let attachmentsBox = cwc.window.document.getElementById("attachmentsBox");
-  let attachmentsView = cwc.window.document.getElementById("attachmentView");
+  let attachmentArea = cwc.window.document.getElementById("attachmentArea");
+  let attachmentBucket = cwc.window.document.getElementById("attachmentBucket");
 
-  // Store the height of the attachment pane and the richlistbox child item.
-  let viewHeight = attachmentsView.getAttribute("height");
-  let richlistboxHeight = attachmentsBox.getAttribute("height");
+  // Store the height of the attachment bucket.
+  let heightBefore = attachmentBucket.getBoundingClientRect().height;
 
   let modifiers =
     AppConstants.platform == "macosx"
@@ -965,8 +964,8 @@ add_task(async function test_restore_attachment_pane_height() {
       : { ctrlKey: true, shiftKey: true };
 
   let collapsedPromise = BrowserTestUtils.waitForCondition(
-    () => attachmentsBox.collapsed,
-    "The attachment pane is collapsed."
+    () => !attachmentArea.hidden && !attachmentArea.open,
+    "The attachment area should be visible but closed."
   );
 
   // Press Ctrl/Cmd+Shift+M to collapse the attachment pane.
@@ -974,16 +973,15 @@ add_task(async function test_restore_attachment_pane_height() {
   await collapsedPromise;
 
   let visiblePromise = BrowserTestUtils.waitForCondition(
-    () => !attachmentsBox.collapsed,
-    "The attachment pane is visible."
+    () => !attachmentArea.hidden && attachmentArea.open,
+    "The attachment area should be visible and open."
   );
   // Press Ctrl/Cmd+Shift+M again.
   EventUtils.synthesizeKey("M", modifiers, cwc.window);
   await visiblePromise;
 
   // The height of these elements should have been properly restored.
-  Assert.equal(attachmentsView.getAttribute("height"), viewHeight);
-  Assert.equal(attachmentsBox.getAttribute("height"), richlistboxHeight);
+  Assert.equal(attachmentBucket.getBoundingClientRect().height, heightBefore);
 
   close_compose_window(cwc);
 });

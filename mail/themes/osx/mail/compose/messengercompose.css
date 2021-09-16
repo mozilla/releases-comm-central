@@ -166,19 +166,6 @@ toolbar[nowindowdrag="true"] {
   margin: 2px 5px;
 }
 
-/* ::::: compose toolbar sizer ::::: */
-
-#compose-toolbar-sizer {
-  position: relative;
-  z-index: 10;
-  min-height: 0;
-  height: 5px;
-  margin-top: -5px;
-  border-top-width: 0;
-  border-bottom-color: var(--splitter-color);
-  background-color: transparent;
-}
-
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {
@@ -235,17 +222,6 @@ toolbarbutton.formatting-button {
   text-shadow: none;
 }
 
-#sidebar-splitter {
-  border-inline-end-width: 0;
-  border-inline-start: 1px solid var(--splitter-color);
-  min-width: 0;
-  width: 5px;
-  background-color: transparent;
-  margin-inline-end: -5px;
-  position: relative;
-  z-index: 10;
-}
-
 #sidebar-title {
   font: icon;
 }
@@ -278,9 +254,4 @@ toolbarbutton.formatting-button {
 :root[lwt-tree] #FormatToolbar {
   background-image: none;
   background-color: transparent !important;
-}
-
-:root[lwt-tree] #compose-toolbar-sizer {
-  background-image: none;
-  background-color: var(--lwt-accent-color);
 }

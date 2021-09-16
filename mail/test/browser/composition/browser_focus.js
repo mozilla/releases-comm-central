@@ -264,6 +264,79 @@ async function checkFocusCycling(controller, options) {
   // Return to the input.
   Assert.ok(identityElement.matches(":focus"), "back to 'from' row again");
 
+  if (options.attachment) {
+    let attachmentArea = doc.getElementById("attachmentArea");
+    let attachmentSummary = attachmentArea.querySelector("summary");
+    Assert.ok(attachmentArea.open, "Attachment area should be open");
+    for (let open of [true, false]) {
+      if (open) {
+        Assert.ok(attachmentArea.open, "Attachment area should be open");
+      } else {
+        // Close the attachment bucket. In this case, the focus will move to the
+        // summary element (where the bucket can be shown again).
+        EventUtils.synthesizeMouseAtCenter(attachmentSummary, {}, win);
+        Assert.ok(!attachmentArea.open, "Attachment area should be closed");
+      }
+
+      // Focus the attachmentSummary.
+      attachmentSummary.focus();
+      goBackward();
+      Assert.equal(
+        editorElement,
+        doc.activeElement,
+        `backward from attachment summary (open: ${open}) to message body`
+      );
+      goForward();
+      if (open) {
+        // Focus returns to the bucket when it is open.
+        Assert.ok(
+          attachmentElement.matches(":focus"),
+          "forward to attachment bucket"
+        );
+      } else {
+        // Otherwise, it returns to the summary.
+        Assert.ok(
+          attachmentSummary.matches(":focus"),
+          "forward to attachment summary"
+        );
+      }
+      // Try reverse.
+      attachmentSummary.focus();
+      goForward();
+      if (options.languageButton) {
+        Assert.ok(
+          languageButton.matches(":focus"),
+          `forward from attachment summary (open: ${open}) to status bar`
+        );
+      } else if (options.contacts) {
+        Assert.ok(
+          contactsInput.matches(":focus-within"),
+          `forward from attachment summary (open: ${open}) to contacts pane`
+        );
+      } else {
+        Assert.ok(
+          identityElement.matches(":focus"),
+          `forward from attachment summary (open: ${open}) to 'from' row`
+        );
+      }
+      goBackward();
+      if (open) {
+        Assert.ok(
+          attachmentElement.matches(":focus"),
+          "return to attachment bucket"
+        );
+      } else {
+        Assert.ok(
+          attachmentSummary.matches(":focus"),
+          "return to attachment summary"
+        );
+        // Open again.
+        EventUtils.synthesizeMouseAtCenter(attachmentSummary, {}, win);
+        Assert.ok(attachmentArea.open, "Attachment area should be open again");
+      }
+    }
+  }
+
   // Contacts pane is persistent, so we close it again.
   if (options.contacts) {
     // Close the contacts sidebar.

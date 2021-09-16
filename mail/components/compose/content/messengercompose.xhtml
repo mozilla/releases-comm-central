@@ -2529,44 +2529,38 @@
         <findbar id="FindToolbar" browserid="content-frame"/>
       </vbox>
 
-      <splitter id="attachmentbucket-sizer" collapsed="true" orient="vertical"
-                onmouseup="attachmentBucketSizerOnMouseUp();"/>
+      <splitter id="attachmentbucket-sizer" hidden="true" orient="vertical"/>
+      <html:details id="attachmentArea" hidden="hidden">
+        <html:summary>
+          <!-- Hide from accessibility tree since this is only used for a brief
+             - animation effect. -->
+          <html:span id="newAttachmentIndicator" aria-hidden="true"></html:span>
+          <html:img id="attachmentToggle"
+                    src="chrome://global/skin/icons/arrow-down-12.svg"
+                    alt="" />
+          <html:span id="attachmentBucketCount"></html:span>
+          <html:span id="attachmentBucketSize" role="note"></html:span>
+        </html:summary>
 
-      <vbox id="attachmentView" collapsed="true">
-        <hbox id="attachmentToolbar" align="center"
-              onclick="onToggleAttachmentPane(event);">
-          <html:div id="attachmentInfo">
-            <html:span id="newAttachmentIndicator"></html:span>
-            <html:img id="attachmentToggle"
-                      src="chrome://global/skin/icons/arrow-down-12.svg"/>
-            <html:span id="attachmentBucketCount"></html:span>
-            <html:span id="attachmentBucketSize"></html:span>
-          </html:div>
-
-          <spacer flex="1"/>
-        </hbox>
-
-        <vbox id="attachmentsBox" collapsed="true"
-              ondragover="envelopeDragObserver.onDragOver(event);"
-              ondrop="envelopeDragObserver.onDrop(event);"
-              ondragleave="envelopeDragObserver.onDragLeave(event);">
-          <richlistbox is="attachment-list" id="attachmentBucket"
-                       aria-describedby="attachmentBucketCount"
-                       class="attachmentList"
-                       orient="horizontal"
-                       disableonsend="true"
-                       seltype="multiple"
-                       flex="1"
-                       role="listbox"
-                       context="msgComposeAttachmentListContext"
-                       itemcontext="msgComposeAttachmentItemContext"
-                       onclick="attachmentBucketOnClick(event);"
-                       onkeypress="attachmentBucketOnKeyPress(event);"
-                       onselect="attachmentBucketOnSelect();"
-                       ondragstart="attachmentBucketDNDObserver.onDragStart(event);"
-                       onblur="attachmentBucketOnBlur();"/>
-        </vbox>
-      </vbox>
+        <richlistbox is="attachment-list" id="attachmentBucket"
+                     aria-describedby="attachmentBucketCount"
+                     class="attachmentList"
+                     orient="horizontal"
+                     disableonsend="true"
+                     seltype="multiple"
+                     flex="1"
+                     role="listbox"
+                     context="msgComposeAttachmentListContext"
+                     itemcontext="msgComposeAttachmentItemContext"
+                     onclick="attachmentBucketOnClick(event);"
+                     onkeypress="attachmentBucketOnKeyPress(event);"
+                     onselect="attachmentBucketOnSelect();"
+                     ondragstart="attachmentBucketDNDObserver.onDragStart(event);"
+                     ondragover="envelopeDragObserver.onDragOver(event);"
+                     ondrop="envelopeDragObserver.onDrop(event);"
+                     ondragleave="envelopeDragObserver.onDragLeave(event);"
+                     onblur="attachmentBucketOnBlur();"/>
+      </html:details>
     </vbox>
   </hbox>
 

@@ -192,12 +192,6 @@ try {
   );
 } catch (e) {}
 
-// Temporarily store the height of the attachment container allowing users to
-// keep the resized height when toggling the attachment panel on and off. Set
-// a default value in order to properly run the condition against a new height
-// value when a message with multiple attachments is forwarded.
-var gAttachmentHeight = 0;
-
 // Boolean variable to keep track of the dragging action of files above the
 // compose window.
 var gIsDraggingAttachments;
@@ -4066,6 +4060,56 @@ function ComposeLoad() {
   let views = ["small", "large", "tile"];
   gAttachmentBucket.view = views[viewMode];
 
+  let attachmentArea = document.getElementById("attachmentArea");
+  attachmentArea.addEventListener("toggle", attachmentAreaOnToggle);
+  // Set up an observer to listen to the height change from the
+  // #attachmentbucket-sizer xul:splitter.
+  // Cached height difference. Note, we do not set its value now because the
+  // attachment pane is hidden.
+  let attachmentAreaHeightDiff;
+  let heightObserver = new MutationObserver(() => {
+    // Here we read the given height attribute from the #attachmentbucket-sizer
+    // xul:splitter, and translate it into a style height.
+    // Rather than set the style.height of the attachmentArea, we instead pass
+    // the height on to the attachment bucket because we want any overflow
+    // scrolling to be handled by the attachment bucket rather than on the whole
+    // attachmentArea. Normally, we could do this using the flex display on the
+    // attachmentArea. However, the attachmentArea is a details element, which
+    // does not (yet) support "display: flex" (see Bug 1245430).
+    // NOTE: The #attachmentbucket-sizer xul:splitter is hidden when the
+    // attachmentArea is closed or hidden, so this should only be called when
+    // the attachmentArea is both visible and open.
+    if (!attachmentAreaHeightDiff) {
+      // NOTE: We are assuming that the attachmentArea has no padding, such that
+      // its height is just the sum of the summary element, the attachment
+      // bucket and its border.
+      // We also assume that the attachment bucket has box-sizing: border-box.
+      // Similarly, we assume that neither the summary nor the attachment bucket
+      // have any set margin, such that their client rectangle is also their
+      // entire occupied size.
+      // And we assume the attachment style and summary do not change in
+      // dimension, so we can can calculate and cache the value once.
+      let attachmentStyle = getComputedStyle(attachmentArea);
+      attachmentAreaHeightDiff =
+        parseFloat(attachmentStyle.borderBlockStartWidth) +
+        parseFloat(attachmentStyle.borderBlockEndWidth) +
+        attachmentArea.querySelector("summary").getBoundingClientRect().height;
+    }
+    // NOTE: The bucket already has a min-height, so we can just set the
+    // height to 0 when the calculation would be negative.
+    let height = Math.max(
+      0,
+      parseFloat(attachmentArea.getAttribute("height")) -
+        attachmentAreaHeightDiff
+    );
+    gAttachmentBucket.style.height = `${height}px`;
+  });
+  // We set the min-height of the attachmentArea to zero. Otherwise the
+  // xul:splitter will not allow us to shrink arbitrarily when the
+  // attachmentBucket has a set height.
+  attachmentArea.style.minHeight = "0";
+  heightObserver.observe(attachmentArea, { attributeFilter: ["height"] });
+
   // Setup the attachment animation counter.
   gAttachmentCounter = document.getElementById("newAttachmentIndicator");
   gAttachmentCounter.addEventListener(
@@ -4212,7 +4256,7 @@ function ComposeLoad() {
       focus: focusMsgBody,
     },
     {
-      root: document.getElementById("attachmentView"),
+      root: document.getElementById("attachmentArea"),
       focus: focusAttachmentBucket,
     },
     {
@@ -6554,17 +6598,33 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
     AttachmentsChanged("show", aContentChanged);
     dispatchAttachmentBucketEvent("attachments-added", addedAttachments);
 
-    // Get the height of the attachment bucket necessary to show all the
-    // attachments.
-    let newHeight =
-      gAttachmentBucket.scrollHeight +
-      gAttachmentBucket.firstElementChild.getBoundingClientRect().height +
-      6;
+    // Set min height for the attachment bucket.
+    if (!gAttachmentBucket.style.minHeight) {
+      // Min height is the height of the first child plus padding and border.
+      // Note: we assume the padding and border have px values, and the child
+      // has no margin.
+      let bucketStyle = getComputedStyle(gAttachmentBucket);
+      let minHeight =
+        gAttachmentBucket.firstChild.getBoundingClientRect().height +
+        parseFloat(bucketStyle.paddingBlockStart) +
+        parseFloat(bucketStyle.paddingBlockEnd) +
+        parseFloat(bucketStyle.borderBlockStartWidth) +
+        parseFloat(bucketStyle.borderBlockEndWidth);
+      gAttachmentBucket.style.minHeight = `${minHeight}px`;
+    }
+
+    // Set the height for the attachment bucket.
+    // NOTE: This height is also set by heightObserver.
+    // NOTE: The pane is already shown by AttachmentsChanged("show", ...) above,
+    // which means that the scrollHeight is no longer zero.
+    let newHeight = gAttachmentBucket.scrollHeight;
+    // Initially, the attachment bucket has no set height. Treat it as 0.
+    let currentHeight = parseFloat(gAttachmentBucket.style.height || "0");
 
     // Increase the height of the attachment bucket to show the uploaded files
-    // only if the new height is taller than the currently saved height.
-    if (newHeight > gAttachmentHeight) {
-      gAttachmentHeight = newHeight;
+    // only if the new height is taller than the current height.
+    if (newHeight > currentHeight) {
+      gAttachmentBucket.style.height = `${newHeight}px`;
     }
   }
 
@@ -6782,10 +6842,13 @@ function updateAttachmentPane(aShowPane) {
 
   document.getElementById("attachmentBucketSize").textContent =
     count > 0 ? gMessenger.formatFileSize(gAttachmentsSize) : "";
-  document.getElementById("attachmentView").collapsed = count == 0;
-  document
-    .getElementById("attachmentToggle")
-    .classList.toggle("closed", count == 0);
+
+  let attachmentArea = document.getElementById("attachmentArea");
+  attachmentArea.hidden = !count;
+  // Hide the splitter if the attachment area is hidden or closed since we do
+  // not want to resize when the bucket isn't shown.
+  document.getElementById("attachmentbucket-sizer").hidden =
+    attachmentArea.hidden || !attachmentArea.open;
 
   attachmentBucketUpdateTooltips();
 
@@ -7165,14 +7228,6 @@ function moveSelectedAttachments(aDirection) {
 /* eslint-enable complexity */
 
 /**
- * Save the height of the attachment container if the user manually resized it.
- */
-function attachmentBucketSizerOnMouseUp() {
-  gAttachmentHeight = Number(
-    document.getElementById("attachmentView").getAttribute("height")
-  );
-}
-/**
  * Toggle attachment pane view state: show or hide it.
  * If aAction parameter is omitted, toggle current view state.
  *
@@ -7181,10 +7236,7 @@ function attachmentBucketSizerOnMouseUp() {
  *                                        "toggle": toggle attachment pane
  */
 function toggleAttachmentPane(aAction = "toggle") {
-  let attachmentsBox = document.getElementById("attachmentsBox");
-  let attachmentBucketSizer = document.getElementById("attachmentbucket-sizer");
-  let attachmentToggle = document.getElementById("attachmentToggle");
-  let bucketHasFocus = document.activeElement == gAttachmentBucket;
+  let attachmentArea = document.getElementById("attachmentArea");
 
   if (aAction == "toggle") {
     // Interrupt if we don't have any attachment as we don't want nor need to
@@ -7193,9 +7245,7 @@ function toggleAttachmentPane(aAction = "toggle") {
       return;
     }
 
-    let shown = !attachmentsBox.collapsed;
-
-    if (shown && !bucketHasFocus) {
+    if (attachmentArea.open && document.activeElement != gAttachmentBucket) {
       // Interrupt and move the focus to the attachment pane if it's already
       // visible but not currently focused.
       moveFocusToAttachmentPane();
@@ -7203,76 +7253,45 @@ function toggleAttachmentPane(aAction = "toggle") {
     }
 
     // Toggle attachment pane.
-    aAction = shown ? "hide" : "show";
-    attachmentToggle.classList.toggle("closed", shown);
+    attachmentArea.open = !attachmentArea.open;
+  } else {
+    attachmentArea.open = aAction != "hide";
+  }
+}
+
+/**
+ * Update the #attachmentArea according to its open state.
+ */
+function attachmentAreaOnToggle() {
+  let attachmentArea = document.getElementById("attachmentArea");
+  let bucketHasFocus = document.activeElement == gAttachmentBucket;
+  if (attachmentArea.open && !bucketHasFocus) {
+    moveFocusToAttachmentPane();
+  } else if (!attachmentArea.open && bucketHasFocus) {
+    // Move the focus to the message body only if the bucket was focused.
+    focusMsgBody();
   }
 
-  switch (aAction) {
-    case "show": {
-      // Restore the previously resized container height.
-      if (gAttachmentHeight) {
-        document
-          .getElementById("attachmentView")
-          .setAttribute("height", gAttachmentHeight);
-      }
-
-      attachmentsBox.collapsed = false;
-      attachmentBucketSizer.collapsed = false;
-      attachmentBucketSizer.setAttribute("state", "");
-      attachmentToggle.classList.remove("closed");
-
-      if (!bucketHasFocus) {
-        moveFocusToAttachmentPane();
-      }
-      break;
-    }
-
-    case "hide": {
-      // Move the focus to the message body only if the bucket was focused.
-      if (bucketHasFocus) {
-        focusMsgBody();
-      }
-
-      // Save the current bucket height so we can properly restore it.
-      gAttachmentHeight = Number(
-        document.getElementById("attachmentView").getAttribute("height")
-      );
-
-      attachmentsBox.collapsed = true;
-      attachmentBucketSizer.setAttribute("state", "collapsed");
-      attachmentToggle.classList.add("closed");
-
-      document.getElementById("attachmentView").removeAttribute("height");
-      break;
-    }
-  }
+  // Show/hide the splitter as well.
+  document.getElementById("attachmentbucket-sizer").hidden =
+    attachmentArea.hidden || !attachmentArea.open;
 
   // Update the checkmark on menuitems hooked up with cmd_toggleAttachmentPane.
   // Menuitem does not have .checked property nor .toggleAttribute(), sigh.
   for (let menuitem of document.querySelectorAll(
     'menuitem[command="cmd_toggleAttachmentPane"]'
   )) {
-    if (aAction == "show") {
+    if (attachmentArea.open) {
       menuitem.setAttribute("checked", "true");
       continue;
     }
     menuitem.removeAttribute("checked");
   }
 
-  // Remove the tooltiptext if we don't have any attachments, meaning we won't
-  // allow the expanding or collpasing of the attachment bucket.
-  if (!gAttachmentBucket.itemCount) {
-    document.getElementById("attachmentToolbar").removeAttribute("tooltiptext");
-    attachmentBucketSizer.collapsed = true;
-    return;
-  }
-
-  // Update the tooltiptext based on the collapsed status of the bucket.
+  // Update the title based on the collapsed status of the bucket.
   document.l10n.setAttributes(
-    document.getElementById("attachmentToolbar"),
-    attachmentsBox.collapsed
-      ? "expand-attachment-pane-tooltip"
-      : "collapse-attachment-pane-tooltip"
+    attachmentArea.querySelector("summary"),
+    attachmentArea.open ? "attachment-area-hide" : "attachment-area-show"
   );
 }
 
@@ -7286,23 +7305,6 @@ function moveFocusToAttachmentPane() {
   if (gAttachmentBucket.currentItem) {
     gAttachmentBucket.ensureElementIsVisible(gAttachmentBucket.currentItem);
   }
-}
-
-/**
- * Toggle the visibility of the attachment bucket when the user clicks on the
- * bottom attachment bar.
- *
- * @param {Event} event - The DOM Event.
- */
-function onToggleAttachmentPane(event) {
-  // Skip if it's not a left click.
-  if (event.button != 0) {
-    return;
-  }
-
-  toggleAttachmentPane(
-    !document.getElementById("attachmentsBox").collapsed ? "hide" : "show"
-  );
 }
 
 function showReorderAttachmentsPanel() {
@@ -8730,17 +8732,18 @@ function focusMsgBody() {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @param {Element} attachmentView - The attachment container.
+ * @param {Element} attachmentArea - The attachment container.
  *
  * @return {boolean} - Whether the attachment bucket was focused.
  */
-function focusAttachmentBucket(attachmentView) {
-  if (attachmentView.collapsed) {
+function focusAttachmentBucket(attachmentArea) {
+  if (attachmentArea.hidden) {
     return false;
   }
-  // Attachment bucket parent may also be collapsed.
-  if (document.getElementById("attachmentsBox").collapsed) {
-    return false;
+  if (!attachmentArea.open) {
+    // Focus the expander instead.
+    attachmentArea.querySelector("summary").focus();
+    return true;
   }
   gAttachmentBucket.focus();
   return true;
@@ -8751,7 +8754,7 @@ function focusAttachmentBucket(attachmentView) {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @param {Element} attachmentView - The status bar.
+ * @param {Element} attachmentArea - The status bar.
  *
  * @return {boolean} - Whether a status bar descendant received focused.
  */
