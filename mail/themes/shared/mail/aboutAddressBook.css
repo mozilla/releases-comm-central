@@ -69,7 +69,7 @@ body {
 }
 
 #toolbarCreateBook {
-  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  list-style-image: url("chrome://messenger/skin/icons/new-addressbook.svg");
 }
 
 #toolbarCreateContact {
