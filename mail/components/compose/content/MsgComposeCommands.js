@@ -9256,7 +9256,7 @@ function InitEditor() {
     domWindowUtils.AGENT_SHEET
   );
   domWindowUtils.loadSheetUsingURIString(
-    "chrome://messenger/content/composerOverlay.css",
+    "chrome://messenger/skin/shared/composerOverlay.css",
     domWindowUtils.AGENT_SHEET
   );
 

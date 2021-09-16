@@ -17,7 +17,6 @@ messenger.jar:
     content/messenger/commonDialog.xhtml            (content/commonDialog.xhtml)
     content/messenger/compactFoldersDialog.js       (content/compactFoldersDialog.js)
     content/messenger/compactFoldersDialog.xhtml    (content/compactFoldersDialog.xhtml)
-    content/messenger/composerOverlay.css           (content/composerOverlay.css)
     content/messenger/customElements.js             (content/customElements.js)
     content/messenger/customizeToolbar.js           (content/customizeToolbar.js)
     content/messenger/customizeToolbar.xhtml        (content/customizeToolbar.xhtml)
