@@ -142,5 +142,7 @@ add_task(async function test_addressBooks_readonly() {
 
 registerCleanupFunction(() => {
   // Make sure any open database is given a chance to close.
-  Services.obs.notifyObservers(null, "quit-application");
+  Services.startup.advanceShutdownPhase(
+    Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
+  );
 });

@@ -294,5 +294,7 @@ add_task(async function setup() {
 
 registerCleanupFunction(() => {
   // Make sure any open address book database is given a chance to close.
-  Services.obs.notifyObservers(null, "quit-application");
+  Services.startup.advanceShutdownPhase(
+    Services.startup.SHUTDOWN_PHASE_APPSHUTDOWNCONFIRMED
+  );
 });
