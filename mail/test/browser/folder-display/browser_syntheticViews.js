@@ -109,11 +109,8 @@ async function openConversationView(row, col) {
   await openContextMenu(row, col);
   menu.activateItem(item);
   await loadedPromise;
-  mc.sleep(500);
-
-  Assert.notEqual(
-    window.tabmail.selectedTab,
-    prevTab,
+  await TestUtils.waitForCondition(
+    () => window.tabmail.selectedTab != prevTab,
     "Conversation View tab did not open"
   );
 }
