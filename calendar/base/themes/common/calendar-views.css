@@ -500,7 +500,8 @@ calendar-header-container[weekend="true"][selected="true"],
   bottom: 0px;
 }
 
-calendar-event-box {
+/* Take care to ensure the dummy event box in a calendar-event-column remains hidden. */
+calendar-event-box:not([hidden]) {
   margin: 1px;
   /* Be the containing block for the child calendar-event-gripbar elements. */
   display: block;
