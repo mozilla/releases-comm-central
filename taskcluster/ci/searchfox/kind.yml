@@ -155,9 +155,9 @@ jobs:
                 - linux64-sccache
                 - linux64-winchecksec
                 - linux64-wine
+                - nsis
                 - sysroot-wasm32-wasi
                 - sysroot-x86_64-linux-gnu
                 - win64-libotr
-                - win64-nsis
             fetch:
                 - upx-3.95-win

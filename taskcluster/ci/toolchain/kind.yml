@@ -63,6 +63,7 @@ reference-jobs:
     - macosx64-minidump-stackwalk
     - macosx64-node
     - mingw32-rust-1.53
+    - nsis
     - sysroot-aarch64-linux-gnu
     - sysroot-i686-linux-gnu
     - sysroot-wasm32-wasi
@@ -81,7 +82,6 @@ reference-jobs:
     - win64-pdbstr
     - win64-nasm
     - win64-node
-    - win64-nsis
     - win64-rust
     - win64-rust-1.47
     - win64-rust-size

@@ -63,9 +63,9 @@ win32/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - nsis
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - win64-nsis
         fetch:
             - upx-3.95-win
 
@@ -123,9 +123,9 @@ win32-shippable/opt:
             - linux64-rust-size
             - linux64-winchecksec
             - linux64-wine
+            - nsis
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - win64-nsis
         fetch:
             - upx-3.95-win
 
@@ -180,9 +180,9 @@ win32/debug:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - nsis
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - win64-nsis
         fetch:
             - upx-3.95-win
 
@@ -236,10 +236,10 @@ win64/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - win64-nsis
         fetch:
             - upx-3.95-win
 
@@ -297,10 +297,10 @@ win64-shippable/opt:
             - linux64-rust-size
             - linux64-winchecksec
             - linux64-wine
+            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - win64-nsis
         fetch:
             - upx-3.95-win
 
@@ -355,10 +355,10 @@ win64/debug:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - win64-nsis
         fetch:
             - upx-3.95-win
 
@@ -395,6 +395,7 @@ win64-plain/debug:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
+            - nsis
             - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
@@ -403,7 +404,6 @@ win64-plain/debug:
             - win64-mozmake
             - win64-node
             - win64-nasm
-            - win64-nsis
             - win64-rust
             - win64-winchecksec
 
@@ -439,6 +439,7 @@ win64-plain/opt:
         skip-unless-backstop-no-suite: null
     fetches:
         toolchain:
+            - nsis
             - sysroot-wasm32-wasi
             - win64-cbindgen
             - win64-clang
@@ -447,7 +448,6 @@ win64-plain/opt:
             - win64-mozmake
             - win64-node
             - win64-nasm
-            - win64-nsis
             - win64-rust
             - win64-winchecksec
 
@@ -500,10 +500,10 @@ win64-asan/opt:
             - linux64-sccache
             - linux64-winchecksec
             - linux64-wine
+            - nsis
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
-            - win64-nsis
         fetch:
             - upx-3.95-win
