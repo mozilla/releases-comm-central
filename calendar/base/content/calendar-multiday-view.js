@@ -4,6 +4,9 @@
 
 "use strict";
 
+/* import-globals-from widgets/mouseoverPreviews.js */
+/* import-globals-from calendar-ui-utils.js */
+
 /* global calendarNavigationBar, currentView, gCurrentMode, getSelectedCalendar,
    invokeEventDragSession, MozElements, MozXULElement, timeIndicator */
 
