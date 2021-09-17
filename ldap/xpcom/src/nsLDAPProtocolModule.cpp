@@ -9,12 +9,9 @@
 
 #include "nsLDAPInternal.h"
 #include "nsLDAPURL.h"
-#include "nsLDAPConnection.h"
-#include "nsLDAPOperation.h"
 #include "nsLDAPMessage.h"
 #include "nsLDAPModification.h"
 #include "nsLDAPServer.h"
-#include "nsLDAPService.h"
 #include "nsLDAPBERValue.h"
 #include "nsLDAPBERElement.h"
 #include "nsLDAPControl.h"
@@ -25,13 +22,10 @@
 
 // use the default constructor
 //
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPConnection)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPOperation)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPMessage)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsLDAPModification, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPServer)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPURL)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsLDAPService, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPBERValue)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPBERElement)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPControl)
@@ -39,12 +33,9 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPControl)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsLDAPSyncQuery)
 #endif
 
-NS_DEFINE_NAMED_CID(NS_LDAPCONNECTION_CID);
-NS_DEFINE_NAMED_CID(NS_LDAPOPERATION_CID);
 NS_DEFINE_NAMED_CID(NS_LDAPMESSAGE_CID);
 NS_DEFINE_NAMED_CID(NS_LDAPMODIFICATION_CID);
 NS_DEFINE_NAMED_CID(NS_LDAPSERVER_CID);
-NS_DEFINE_NAMED_CID(NS_LDAPSERVICE_CID);
 NS_DEFINE_NAMED_CID(NS_LDAPURL_CID);
 NS_DEFINE_NAMED_CID(NS_LDAPBERVALUE_CID);
 NS_DEFINE_NAMED_CID(NS_LDAPBERELEMENT_CID);
@@ -57,12 +48,9 @@ NS_DEFINE_NAMED_CID(NS_LDAPCONTROL_CID);
 //
 
 const mozilla::Module::CIDEntry kLDAPProtocolCIDs[] = {
-    {&kNS_LDAPCONNECTION_CID, false, NULL, nsLDAPConnectionConstructor},
-    {&kNS_LDAPOPERATION_CID, false, NULL, nsLDAPOperationConstructor},
     {&kNS_LDAPMESSAGE_CID, false, NULL, nsLDAPMessageConstructor},
     {&kNS_LDAPMODIFICATION_CID, false, NULL, nsLDAPModificationConstructor},
     {&kNS_LDAPSERVER_CID, false, NULL, nsLDAPServerConstructor},
-    {&kNS_LDAPSERVICE_CID, false, NULL, nsLDAPServiceConstructor},
     {&kNS_LDAPURL_CID, false, NULL, nsLDAPURLConstructor},
     {&kNS_LDAPBERVALUE_CID, false, NULL, nsLDAPBERValueConstructor},
     {&kNS_LDAPBERELEMENT_CID, false, NULL, nsLDAPBERElementConstructor},
@@ -73,12 +61,9 @@ const mozilla::Module::CIDEntry kLDAPProtocolCIDs[] = {
     {NULL}};
 
 const mozilla::Module::ContractIDEntry kLDAPProtocolContracts[] = {
-    {"@mozilla.org/network/ldap-connection;1", &kNS_LDAPCONNECTION_CID},
-    {"@mozilla.org/network/ldap-operation;1", &kNS_LDAPOPERATION_CID},
     {"@mozilla.org/network/ldap-message;1", &kNS_LDAPMESSAGE_CID},
     {"@mozilla.org/network/ldap-modification;1", &kNS_LDAPMODIFICATION_CID},
     {"@mozilla.org/network/ldap-server;1", &kNS_LDAPSERVER_CID},
-    {"@mozilla.org/network/ldap-service;1", &kNS_LDAPSERVICE_CID},
     {"@mozilla.org/network/ldap-url;1", &kNS_LDAPURL_CID},
     {"@mozilla.org/network/ldap-ber-value;1", &kNS_LDAPBERVALUE_CID},
     {"@mozilla.org/network/ldap-ber-element;1", &kNS_LDAPBERELEMENT_CID},

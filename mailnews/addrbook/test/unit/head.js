@@ -48,8 +48,3 @@ acObserver.prototype = {
     });
   },
 };
-
-// Somehow profile-after-change is not triggered in xpcshell tests, here we
-// manually run the getService, so that correct ldap modules are loaded
-// according to the pref values.
-Cc["@mozilla.org/addressbook/ldap-module-loader;1"].getService();

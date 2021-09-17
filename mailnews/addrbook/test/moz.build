@@ -13,7 +13,6 @@ BROWSER_CHROME_MANIFESTS += [
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
-    "unit/xpcshell-jsm.ini",
     "unit/xpcshell.ini",
     "unit/xpcshell_cardDAV.ini",
 ]

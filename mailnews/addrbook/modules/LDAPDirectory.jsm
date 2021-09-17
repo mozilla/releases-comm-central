@@ -19,8 +19,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 /**
- * Set `user_pref("mailnews.ldap.jsmodule", true);` to use this module.
- *
  * @implements {nsIAbLDAPDirectory}
  * @implements {nsIAbDirectory}
  */

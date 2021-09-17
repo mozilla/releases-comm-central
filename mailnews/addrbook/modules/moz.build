@@ -13,7 +13,6 @@ EXTRA_JS_MODULES += [
     "LDAPDirectory.jsm",
     "LDAPDirectoryQuery.jsm",
     "LDAPListenerBase.jsm",
-    "LDAPModuleLoader.jsm",
     "LDAPReplicationService.jsm",
     "QueryStringToExpression.jsm",
     "SQLiteDirectory.jsm",

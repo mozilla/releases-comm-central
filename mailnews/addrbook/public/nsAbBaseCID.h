@@ -174,116 +174,21 @@
     }                                                \
   }
 
-// nsAbLDAPDirectory
-//
-#define NS_ABLDAPDIRECTORY_CONTRACTID \
-  NS_AB_DIRECTORY_TYPE_CONTRACTID_PREFIX "moz-abldapdirectory"
-
-#define NS_ABLDAPDIRECTORY_CID                       \
-  {                                                  \
-    0x783E2777, 0x66D7, 0x4826, {                    \
-      0x9E, 0x4B, 0x8A, 0xB5, 0x8C, 0x22, 0x8A, 0x52 \
-    }                                                \
-  }
-
 // nsAbLDAPDirectoryQuery
-//
 #define NS_ABLDAPDIRECTORYQUERY_CONTRACTID \
   "@mozilla.org/addressbook/ldap-directory-query;1"
 
-#define NS_ABLDAPDIRECTORYQUERY_CID                  \
-  {                                                  \
-    0x783E2777, 0x66D7, 0x4826, {                    \
-      0x9E, 0x4B, 0x8A, 0xB5, 0x8C, 0x22, 0x8A, 0x53 \
-    }                                                \
-  }
-
-//
-// LDAP directory factory
-//
-#define NS_ABLDAPDIRFACTORY_CONTRACTID \
-  NS_AB_DIRECTORY_FACTORY_CONTRACTID_PREFIX "moz-abldapdirectory"
-
-#define NS_ABLDAPDIRFACTORY_CID                      \
-  {                                                  \
-    0x8e3701af, 0x8828, 0x426c, {                    \
-      0x84, 0xac, 0x12, 0x48, 0x25, 0xc7, 0x78, 0xf8 \
-    }                                                \
-  }
-
-//
-// LDAP autocomplete directory factory
-//
-#define NS_ABLDAPACDIRFACTORY_CONTRACTID \
-  NS_AB_DIRECTORY_FACTORY_CONTRACTID_PREFIX "ldap"
-#define NS_ABLDAPSACDIRFACTORY_CONTRACTID \
-  NS_AB_DIRECTORY_FACTORY_CONTRACTID_PREFIX "ldaps"
-
-// nsAbLDAPAutoCompFormatter
-#define NS_ABLDAPAUTOCOMPFORMATTER_CID               \
-  {                                                  \
-    0x4e276d6d, 0x9981, 0x46b4, {                    \
-      0x90, 0x70, 0x92, 0xf3, 0x44, 0xac, 0x5f, 0x5a \
-    }                                                \
-  }
-
-#define NS_ABLDAPAUTOCOMPFORMATTER_CONTRACTID \
-  "@mozilla.org/ldap-autocomplete-formatter;1?type=addrbook"
-
 // nsAbLDAPReplicationService
-#define NS_ABLDAP_REPLICATIONSERVICE_CID             \
-  {                                                  \
-    0xece81280, 0x2639, 0x11d6, {                    \
-      0xb7, 0x91, 0x00, 0xb0, 0xd0, 0x6e, 0x5f, 0x27 \
-    }                                                \
-  }
-
 #define NS_ABLDAP_REPLICATIONSERVICE_CONTRACTID \
   "@mozilla.org/addressbook/ldap-replication-service;1"
 
 // nsAbLDAPReplicationQuery
-#define NS_ABLDAP_REPLICATIONQUERY_CID               \
-  {                                                  \
-    0x5414fff0, 0x263b, 0x11d6, {                    \
-      0xb7, 0x91, 0x00, 0xb0, 0xd0, 0x6e, 0x5f, 0x27 \
-    }                                                \
-  }
-
 #define NS_ABLDAP_REPLICATIONQUERY_CONTRACTID \
   "@mozilla.org/addressbook/ldap-replication-query;1"
 
-// nsAbLDAPChangeLogQuery
-#define NS_ABLDAP_CHANGELOGQUERY_CID                \
-  {                                                 \
-    0x63e11d51, 0x3c9b, 0x11d6, {                   \
-      0xb7, 0xb9, 0x0, 0xb0, 0xd0, 0x6e, 0x5f, 0x27 \
-    }                                               \
-  }
-
-#define NS_ABLDAP_CHANGELOGQUERY_CONTRACTID \
-  "@mozilla.org/addressbook/ldap-changelog-query;1"
-
 // nsAbLDAPProcessReplicationData
-#define NS_ABLDAP_PROCESSREPLICATIONDATA_CID         \
-  {                                                  \
-    0x5414fff1, 0x263b, 0x11d6, {                    \
-      0xb7, 0x91, 0x00, 0xb0, 0xd0, 0x6e, 0x5f, 0x27 \
-    }                                                \
-  }
-
 #define NS_ABLDAP_PROCESSREPLICATIONDATA_CONTRACTID \
   "@mozilla.org/addressbook/ldap-process-replication-data;1"
-
-// nsAbLDAPProcessChangeLogData
-#define NS_ABLDAP_PROCESSCHANGELOGDATA_CID          \
-  {                                                 \
-    0x63e11d52, 0x3c9b, 0x11d6, {                   \
-      0xb7, 0xb9, 0x0, 0xb0, 0xd0, 0x6e, 0x5f, 0x27 \
-    }                                               \
-  }
-
-#define NS_ABLDAP_PROCESSCHANGELOGDATA_CONTRACTID \
-  "@mozilla.org/addressbook/ldap-process-changelog-data;1"
 
 #ifdef XP_MACOSX
 //
