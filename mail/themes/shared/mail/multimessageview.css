@@ -14,7 +14,6 @@
   background-color: var(--body-background-color);
   color: var(--body-text-color);
   appearance: none;
-  height: unset; /* needed to allow elements to react to events */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,15 +38,14 @@ body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* The heading area */
 
 #heading_wrapper {
-  position: fixed;
-  display: block;
-  top: 0;
-  width: -moz-available;
+  flex: 0 0 auto;
   color: var(--head-text-color);
   background-color: var(--header-background-color);
 }
@@ -69,15 +67,9 @@ body {
 /* The main content area */
 
 #content {
-  height: 100%;
-  overflow-y: auto;
-  position: absolute;
-  top: 4em;
-  right: 0;
-  left: 0;
-  z-index: -1;
+  flex: 1 1 0;
+  overflow: auto;
   padding: 1ex 1em;
-  margin: 0;
   font-size: initial;
 }
 

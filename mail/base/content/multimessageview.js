@@ -96,10 +96,6 @@ LimitIterator.prototype[ITERATOR_SYMBOL] = function*() {
  */
 function MultiMessageSummary() {
   this._summarizers = {};
-
-  // Hook into the resize event on the header to make the #content node shift
-  // down as it reflows.
-  window.addEventListener("resize", this._adjustHeadingSize.bind(this));
 }
 
 MultiMessageSummary.prototype = {
@@ -195,8 +191,6 @@ MultiMessageSummary.prototype = {
     let subtitleNode = document.getElementById("summary_subtitle");
     titleNode.textContent = title || "";
     subtitleNode.textContent = subtitle || "";
-
-    this._adjustHeadingSize();
   },
 
   /**
@@ -435,22 +429,6 @@ MultiMessageSummary.prototype = {
     document.getElementById("size").textContent = formatString(format, [
       gMessenger.formatFileSize(numBytes),
     ]);
-  },
-
-  /**
-   * Adjust the position of the top of the main content so that it fits below
-   * the heading.
-   */
-  _adjustHeadingSize() {
-    let content = document.getElementById("content");
-    let heading = document.getElementById("heading");
-    let buttonbox = document.getElementById("header-view-toolbox");
-
-    content.style.top =
-      Math.max(
-        buttonbox.getBoundingClientRect().height,
-        heading.getBoundingClientRect().height
-      ) + "px";
   },
 
   // These are listeners for the gloda collections.
