@@ -520,7 +520,7 @@ nsresult nsAbCardProperty::ConvertToBase64EncodedXML(nsACString& result) {
   xmlStr.AppendLiteral(
       "<?xml version=\"1.0\"?>\n"
       "<?xml-stylesheet type=\"text/css\" "
-      "href=\"chrome://messagebody/content/addressbook/print.css\"?>\n"
+      "href=\"chrome://messagebody/skin/abPrint.css\"?>\n"
       "<directory>\n");
 
   // Get Address Book string and set it as title of XML document

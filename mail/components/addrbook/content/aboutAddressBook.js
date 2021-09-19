@@ -1919,7 +1919,7 @@ var printHandler = {
         new File(
           [
             `<?xml version="1.0"?>`,
-            `<?xml-stylesheet type="text/css" href="chrome://messagebody/content/addressbook/print.css"?>`,
+            `<?xml-stylesheet type="text/css" href="chrome://messagebody/skin/abPrint.css"?>`,
             `<directory>`,
             `<title xmlns="http://www.w3.org/1999/xhtml">${title}</title>`,
             xml,

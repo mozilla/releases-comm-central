@@ -18,7 +18,6 @@ messenger.jar:
     content/messenger/addressbook/abMailListDialog.js                          (addrbook/content/abMailListDialog.js)
     content/messenger/addressbook/abView.js                                    (addrbook/content/abView.js)
     content/messenger/addressbook/map-list.js                                  (addrbook/content/map-list.js)
-    content/messagebody/addressbook/print.css                                  (addrbook/content/print.css)
     content/messenger/AccountManager.xhtml                                     (base/prefs/content/AccountManager.xhtml)
     content/messenger/AccountManager.js                                        (base/prefs/content/AccountManager.js)
     content/messenger/am-main.xhtml                                            (base/prefs/content/am-main.xhtml)
