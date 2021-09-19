@@ -93,7 +93,6 @@ messenger.jar:
     content/messenger/tabmail-tab.js                (content/widgets/tabmail-tab.js)
     content/messenger/tabmail-tabs.js               (content/widgets/tabmail-tabs.js)
     content/messenger/toolbarbutton-menu-button.js  (content/widgets/toolbarbutton-menu-button.js)
-    content/messenger/tree-listbox.css              (content/widgets/tree-listbox.css)
     content/messenger/tree-listbox.js               (content/widgets/tree-listbox.js)
 
 # the following files are mail-specific overrides
