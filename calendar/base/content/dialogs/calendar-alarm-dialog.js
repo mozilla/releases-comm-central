@@ -426,11 +426,11 @@ function doReadOnlyChecks() {
       snoozeAllButton.label,
     ]);
     gReadOnlyNotification.appendNotification(
-      message,
       "calendar-readonly",
-      null,
-      gReadOnlyNotification.PRIORITY_WARNING_MEDIUM,
-      null,
+      {
+        label: message,
+        priority: gReadOnlyNotification.PRIORITY_WARNING_MEDIUM,
+      },
       null
     );
   } else if (notification && !countRO) {

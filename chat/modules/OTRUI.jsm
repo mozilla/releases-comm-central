@@ -571,12 +571,13 @@ var OTRUI = {
     let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
     this.notificationbox = mainWindow.chatHandler.msgNotificationBar;
 
-    let priority = this.globalBox.PRIORITY_WARNING_MEDIUM;
+    let prio = this.globalBox.PRIORITY_WARNING_MEDIUM;
     this.notificationbox.appendNotification(
-      msg,
       name,
-      null,
-      priority,
+      {
+        label: msg,
+        priority: prio,
+      },
       buttons,
       null
     );
@@ -660,12 +661,13 @@ var OTRUI = {
       },
     ];
 
-    let priority = this.globalBox.PRIORITY_WARNING_MEDIUM;
+    let prio = this.globalBox.PRIORITY_WARNING_MEDIUM;
     this.globalBox.appendNotification(
-      msg,
       context.username,
-      null,
-      priority,
+      {
+        label: msg,
+        priority: prio,
+      },
       buttons,
       null
     );
@@ -786,13 +788,14 @@ var OTRUI = {
     }
 
     // higher priority to overlay the current notifyUnverified
-    let priority = this.globalBox.PRIORITY_WARNING_HIGH;
+    let prio = this.globalBox.PRIORITY_WARNING_HIGH;
     OTRUI.closeUnverified(context);
     this.globalBox.appendNotification(
-      msg,
       context.username,
-      null,
-      priority,
+      {
+        label: msg,
+        priority: prio,
+      },
       buttons,
       null
     );

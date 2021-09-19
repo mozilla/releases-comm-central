@@ -164,10 +164,12 @@ function updateToolbar() {
     let msg = cal.l10n.getString("calendar-event-dialog", msgStr[partStat]);
 
     gStatusNotification.appendNotification(
-      msg,
       "statusNotification",
-      null,
-      gStatusNotification.PRIORITY_INFO_MEDIUM
+      {
+        label: msg,
+        priority: gStatusNotification.PRIORITY_INFO_MEDIUM,
+      },
+      null
     );
   } else {
     gStatusNotification.removeAllNotifications();

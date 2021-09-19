@@ -192,10 +192,11 @@ var gBigFileObserver = {
       );
 
       notification = gComposeNotification.appendNotification(
-        msg,
         "bigAttachment",
-        null,
-        gComposeNotification.PRIORITY_WARNING_MEDIUM,
+        {
+          label: msg,
+          priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+        },
         buttons
       );
     } else if (notification) {
@@ -312,10 +313,11 @@ var gBigFileObserver = {
       },
     };
     notification = gComposeNotification.appendNotification(
-      message,
       kUploadNotificationValue,
-      null,
-      gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      {
+        label: message,
+        priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      },
       [showUploadButton]
     );
     notification.timeout = Date.now() + kThreshold;

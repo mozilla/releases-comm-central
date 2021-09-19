@@ -520,10 +520,13 @@ Enigmail.msg = {
       Enigmail.msg.showPartialDecryptionReminder = false;
 
       this.notificationBox.appendNotification(
-        await document.l10n.formatValue("openpgp-reminder-partial-display"),
         "decryptInlinePGReminder",
-        null,
-        this.notificationBox.PRIORITY_INFO_HIGH,
+        {
+          label: await document.l10n.formatValue(
+            "openpgp-reminder-partial-display"
+          ),
+          priority: this.notificationBox.PRIORITY_INFO_HIGH,
+        },
         null
       );
     }
@@ -913,10 +916,13 @@ Enigmail.msg = {
     // Warn that we can't fix a message that was opened from a local file.
     if (!gFolderDisplay.selectedMessage.folder) {
       Enigmail.msg.notificationBox.appendNotification(
-        await document.l10n.formatValue("openpgp-broken-exchange-opened"),
         "brokenExchange",
-        null,
-        Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
+        {
+          label: await document.l10n.formatValue(
+            "openpgp-broken-exchange-opened"
+          ),
+          priority: Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
+        },
         null
       );
       return;
@@ -934,10 +940,11 @@ Enigmail.msg = {
     ];
 
     Enigmail.msg.notificationBox.appendNotification(
-      await document.l10n.formatValue("openpgp-broken-exchange-info"),
       "brokenExchange",
-      null,
-      Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
+      {
+        label: await document.l10n.formatValue("openpgp-broken-exchange-info"),
+        priority: Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
+      },
       buttons
     );
   },
@@ -1196,10 +1203,11 @@ Enigmail.msg = {
         ];
 
         this.notificationBox.appendNotification(
-          description,
           "decryptInlinePG",
-          null,
-          this.notificationBox.PRIORITY_INFO_HIGH,
+          {
+            label: description,
+            priority: this.notificationBox.PRIORITY_INFO_HIGH,
+          },
           buttons
         );
         return;
@@ -1880,10 +1888,11 @@ Enigmail.msg = {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: fixBuggyExchangeMail:\n");
 
     this.notificationBox.appendNotification(
-      await document.l10n.formatValue("openpgp-broken-exchange-wait"),
       "brokenExchangeProgress",
-      null,
-      this.notificationBox.PRIORITY_INFO_HIGH,
+      {
+        label: await document.l10n.formatValue("openpgp-broken-exchange-wait"),
+        priority: this.notificationBox.PRIORITY_INFO_HIGH,
+      },
       null
     );
 
@@ -1965,10 +1974,10 @@ Enigmail.msg = {
     let ct = hdrs.extractHeader("content-type", true);
 
     if (ct && ct.search(/^text\/plain/i) === 0) {
-      /* 
+      /*
       // xxx msgText not really used. It used to be put into
       //  EnigmailURIs.createMessageURI as contentData... but that was also never accessed?
-      // 
+      //
       let bi = this.buggyExchangeEmailContent.search(/\r?\n/);
       let boundary = this.buggyExchangeEmailContent.substr(2, bi - 2);
       let startMsg = this.buggyExchangeEmailContent.search(/\r?\n\r?\n/);

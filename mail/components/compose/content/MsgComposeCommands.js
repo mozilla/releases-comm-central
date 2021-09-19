@@ -2980,10 +2980,11 @@ function manageAttachmentNotification(aForce = false) {
   };
 
   notification = gComposeNotification.appendNotification(
-    "",
     "attachmentReminder",
-    null,
-    gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    {
+      label: "",
+      priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    },
     [addButton, remindButton]
   );
   notification.setAttribute("id", "attachmentNotificationBox");
@@ -5388,10 +5389,11 @@ function checkPublicRecipientsLimit() {
   // has been appended, so that the notification can be found and no further
   // notifications are appended.
   notification = gComposeNotification.appendNotification(
-    "", // "many-public-recipients-notice"
     "warnPublicRecipientsNotification",
-    null,
-    gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    {
+      label: "", // "many-public-recipients-notice"
+      priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    },
     [bccButton, ignoreButton],
     state => {
       if (state == "dismissed") {
@@ -5472,10 +5474,11 @@ async function checkEncryptedBccRecipients() {
   };
 
   gComposeNotification.appendNotification(
-    await document.l10n.formatValue("encrypted-bcc-warning"),
     "warnEncryptedBccRecipients",
-    null,
-    gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    {
+      label: await document.l10n.formatValue("encrypted-bcc-warning"),
+      priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    },
     [ignoreButton],
     state => {
       if (state == "dismissed") {
@@ -9557,10 +9560,11 @@ var gComposeNotificationBar = {
 
     if (!this.isShowingBlockedContentNotification()) {
       gComposeNotification.appendNotification(
-        msg,
         "blockedContent",
-        null,
-        gComposeNotification.PRIORITY_WARNING_MEDIUM,
+        {
+          label: msg,
+          priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+        },
         buttons
       );
     } else {
@@ -9598,12 +9602,16 @@ var gComposeNotificationBar = {
     }
 
     gComposeNotification.appendNotification(
-      await document.l10n.formatValue("compose-missing-identity-warning", {
-        identity,
-      }),
       "identityWarning",
-      null,
-      gComposeNotification.PRIORITY_WARNING_HIGH,
+      {
+        label: await document.l10n.formatValue(
+          "compose-missing-identity-warning",
+          {
+            identity,
+          }
+        ),
+        priority: gComposeNotification.PRIORITY_WARNING_HIGH,
+      },
       null
     );
   },

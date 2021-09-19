@@ -1394,7 +1394,7 @@ var chatHandler = {
     if (aTopic == "buddy-authorization-request") {
       aSubject.QueryInterface(Ci.prplIBuddyRequest);
       let bundle = document.getElementById("chatBundle");
-      let label = bundle.getFormattedString("buddy.authRequest.label", [
+      let authLabel = bundle.getFormattedString("buddy.authRequest.label", [
         aSubject.userName,
       ]);
       let value =
@@ -1414,10 +1414,14 @@ var chatHandler = {
         },
       };
       let box = this.msgNotificationBar;
-      box.appendNotification(label, value, null, box.PRIORITY_INFO_HIGH, [
-        acceptButton,
-        denyButton,
-      ]);
+      box.appendNotification(
+        value,
+        {
+          label: authLabel,
+          priority: box.PRIORITY_INFO_HIGH,
+        },
+        [acceptButton, denyButton]
+      );
       if (!gChatTab) {
         let tabmail = document.getElementById("tabmail");
         tabmail.openTab("chat", { background: true });
@@ -1437,9 +1441,10 @@ var chatHandler = {
     if (aTopic == "buddy-verification-request") {
       aSubject.QueryInterface(Ci.imIIncomingSessionVerification);
       let bundle = document.getElementById("chatBundle");
-      let label = bundle.getFormattedString("buddy.verificationRequest.label", [
-        aSubject.subject,
-      ]);
+      let barLabel = bundle.getFormattedString(
+        "buddy.verificationRequest.label",
+        [aSubject.subject]
+      );
       let value =
         "buddy-verification-request-" +
         aSubject.account.id +
@@ -1475,10 +1480,14 @@ var chatHandler = {
         },
       };
       let box = this.msgNotificationBar;
-      box.appendNotification(label, value, null, box.PRIORITY_INFO_HIGH, [
-        acceptButton,
-        denyButton,
-      ]);
+      box.appendNotification(
+        value,
+        {
+          label: barLabel,
+          priority: box.PRIORITY_INFO_HIGH,
+        },
+        [acceptButton, denyButton]
+      );
       if (!gChatTab) {
         let tabmail = document.getElementById("tabmail");
         tabmail.openTab("chat", { background: true });

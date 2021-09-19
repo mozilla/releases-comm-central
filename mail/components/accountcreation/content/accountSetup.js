@@ -894,10 +894,11 @@ var gAccountSetup = {
     }
 
     notification = this.notificationBox.appendNotification(
-      notificationMessage,
       "accountSetupLoading",
-      null,
-      this.notificationBox.PRIORITY_INFO_LOW,
+      {
+        label: notificationMessage,
+        priority: this.notificationBox.PRIORITY_INFO_LOW,
+      },
       null
     );
     notification.setAttribute("align", "center");
@@ -959,10 +960,11 @@ var gAccountSetup = {
     let notificationMessage = await document.l10n.formatValue(stringName);
 
     let notification = this.notificationBox.appendNotification(
-      notificationMessage,
       "accountSetupSuccess",
-      null,
-      this.notificationBox.PRIORITY_INFO_HIGH,
+      {
+        label: notificationMessage,
+        priority: this.notificationBox.PRIORITY_INFO_HIGH,
+      },
       null
     );
     notification.setAttribute("type", "success");
@@ -1001,10 +1003,11 @@ var gAccountSetup = {
       : await document.l10n.formatValue(stringName);
 
     let notification = this.notificationBox.appendNotification(
-      notificationMessage,
       "accountSetupError",
-      null,
-      this.notificationBox.PRIORITY_WARNING_MEDIUM,
+      {
+        label: notificationMessage,
+        priority: this.notificationBox.PRIORITY_WARNING_MEDIUM,
+      },
       null
     );
 
@@ -2105,10 +2108,11 @@ var gAccountSetup = {
 
       this.clearNotifications();
       let notification = this.notificationBox.appendNotification(
-        errorMessage,
         "accountSetupError",
-        null,
-        this.notificationBox.PRIORITY_CRITICAL_HIGH,
+        {
+          label: errorMessage,
+          priority: this.notificationBox.PRIORITY_CRITICAL_HIGH,
+        },
         null
       );
 
@@ -2324,10 +2328,13 @@ var gAccountSetup = {
     gAccountSetupLogger.debug("Fetching linked address books and calendars");
 
     let notification = this.syncingBox.appendNotification(
-      await document.l10n.formatValue("account-setup-looking-up-address-books"),
       "accountSetupLoading",
-      null,
-      this.syncingBox.PRIORITY_INFO_LOW,
+      {
+        label: await document.l10n.formatValue(
+          "account-setup-looking-up-address-books"
+        ),
+        priority: this.syncingBox.PRIORITY_INFO_LOW,
+      },
       null
     );
     notification.setAttribute("align", "center");

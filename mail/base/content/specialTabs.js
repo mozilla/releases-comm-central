@@ -1219,10 +1219,11 @@ var specialTabs = {
     ];
 
     let notification = this.msgNotificationBar.appendNotification(
-      telemetryText,
       "telemetry",
-      null,
-      this.msgNotificationBar.PRIORITY_INFO_LOW,
+      {
+        label: telemetryText,
+        priority: this.msgNotificationBar.PRIORITY_INFO_LOW,
+      },
       buttons
     );
     // Arbitrary number, just so bar sticks around for a bit.
@@ -1280,10 +1281,11 @@ var specialTabs = {
       "about-rights-notification-text"
     );
     let notification = this.msgNotificationBar.appendNotification(
-      notifyRightsText,
       "about-rights",
-      null,
-      this.msgNotificationBar.PRIORITY_INFO_LOW,
+      {
+        label: notifyRightsText,
+        priority: this.msgNotificationBar.PRIORITY_INFO_LOW,
+      },
       buttons
     );
     // Arbitrary number, just so bar sticks around for a bit.

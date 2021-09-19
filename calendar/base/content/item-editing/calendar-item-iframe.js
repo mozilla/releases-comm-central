@@ -2523,12 +2523,14 @@ function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) 
       info: gEventNotification.PRIORITY_INFO_MEDIUM,
       critical: gEventNotification.PRIORITY_CRITICAL_MEDIUM,
     };
-    let priority = prioMap[aPriority] || gEventNotification.PRIORITY_WARNING_MEDIUM;
+    let prio = prioMap[aPriority] || gEventNotification.PRIORITY_WARNING_MEDIUM;
     gEventNotification.appendNotification(
-      aMessage,
       aValue,
-      aImage,
-      priority,
+      {
+        label: aMessage,
+        image: aImage,
+        priority: prio,
+      },
       aButtonset,
       aCallback
     );

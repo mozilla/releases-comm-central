@@ -597,7 +597,7 @@ var gAccountManager = {
 
     var bundle = document.getElementById("accountsBundle");
     let box = this.msgNotificationBar;
-    var priority = box.PRIORITY_INFO_HIGH;
+    var prio = box.PRIORITY_INFO_HIGH;
     var connectNowButton = {
       accessKey: bundle.getString(
         "accountsManager.notification.button.accessKey"
@@ -605,51 +605,61 @@ var gAccountManager = {
       callback: this.processAutoLogin,
       label: bundle.getString("accountsManager.notification.button.label"),
     };
-    var label;
+    var barLabel;
 
     switch (autoLoginStatus) {
       case as.AUTOLOGIN_USER_DISABLED:
-        label = bundle.getString(
+        barLabel = bundle.getString(
           "accountsManager.notification.userDisabled.label"
         );
         break;
 
       case as.AUTOLOGIN_SAFE_MODE:
-        label = bundle.getString("accountsManager.notification.safeMode.label");
+        barLabel = bundle.getString(
+          "accountsManager.notification.safeMode.label"
+        );
         break;
 
       case as.AUTOLOGIN_START_OFFLINE:
-        label = bundle.getString(
+        barLabel = bundle.getString(
           "accountsManager.notification.startOffline.label"
         );
         isOffline = true;
         break;
 
       case as.AUTOLOGIN_CRASH:
-        label = bundle.getString("accountsManager.notification.crash.label");
-        priority = box.PRIORITY_WARNING_MEDIUM;
+        barLabel = bundle.getString("accountsManager.notification.crash.label");
+        prio = box.PRIORITY_WARNING_MEDIUM;
         break;
 
       /* One or more accounts made the application crash during their connection.
          If none, this function has already returned */
       case as.AUTOLOGIN_ENABLED:
-        label = bundle.getString(
+        barLabel = bundle.getString(
           "accountsManager.notification.singleCrash.label"
         );
-        label = PluralForm.get(crashCount, label).replace("#1", crashCount);
-        priority = box.PRIORITY_WARNING_MEDIUM;
+        barLabel = PluralForm.get(crashCount, barLabel).replace(
+          "#1",
+          crashCount
+        );
+        prio = box.PRIORITY_WARNING_MEDIUM;
         connectNowButton.callback = this.processCrashedAccountsLogin;
         break;
 
       default:
-        label = bundle.getString("accountsManager.notification.other.label");
+        barLabel = bundle.getString("accountsManager.notification.other.label");
     }
     let status = Services.core.globalUserStatus.statusType;
     this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
 
-    box.appendNotification(label, "autologinStatus", null, priority, [
-      connectNowButton,
-    ]);
+    box.appendNotification(
+      "autologinStatus",
+      {
+        label: barLabel,
+        priority: prio,
+      },
+      [connectNowButton]
+    );
   },
   processAutoLogin() {
     var ioService = Services.io;

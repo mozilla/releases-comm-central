@@ -2912,10 +2912,11 @@ Enigmail.msg = {
       });
     }
     gComposeNotification.appendNotification(
-      msgText,
       messageId,
-      null,
-      prio,
+      {
+        label: msgText,
+        priority: prio,
+      },
       buttonArr
     );
   },

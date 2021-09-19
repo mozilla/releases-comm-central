@@ -190,10 +190,12 @@ function setupMaxReminders() {
 
   if (hitMaxReminders) {
     let notification = gReminderNotification.appendNotification(
-      pluralErrorLabel,
       "reminderNotification",
-      null,
-      gReminderNotification.PRIORITY_WARNING_MEDIUM
+      {
+        label: pluralErrorLabel,
+        priority: gReminderNotification.PRIORITY_WARNING_MEDIUM,
+      },
+      null
     );
     notification.closeButton.hidden = true;
   } else {

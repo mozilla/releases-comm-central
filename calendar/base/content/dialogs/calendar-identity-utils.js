@@ -118,10 +118,12 @@ function notifyOnIdentitySelection(aCalendar) {
 
   if (sel == "none") {
     gIdentityNotification.appendNotification(
-      msg,
       "noIdentitySelected",
-      null,
-      gIdentityNotification.PRIORITY_WARNING_MEDIUM
+      {
+        label: msg,
+        priority: gIdentityNotification.PRIORITY_WARNING_MEDIUM,
+      },
+      null
     );
   } else {
     gIdentityNotification.removeAllNotifications();

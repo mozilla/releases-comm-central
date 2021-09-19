@@ -454,10 +454,12 @@ Enigmail.hdrView = {
 
       if (unhideBar) {
         Enigmail.msg.notificationBox.appendNotification(
-          await document.l10n.formatValue(infoId),
           "decryptionFailed",
-          "chrome://global/skin/icons/warning.svg",
-          Enigmail.msg.notificationBox.PRIORITY_CRITICAL_MEDIUM,
+          {
+            label: await document.l10n.formatValue(infoId),
+            image: "chrome://global/skin/icons/warning.svg",
+            priority: Enigmail.msg.notificationBox.PRIORITY_CRITICAL_MEDIUM,
+          },
           null
         );
       }

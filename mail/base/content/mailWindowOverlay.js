@@ -3317,10 +3317,12 @@ var gMessageNotificationBar = {
 
     if (!this.isShowingJunkNotification()) {
       this.msgNotificationBar.appendNotification(
-        junkBarMsg,
         "junkContent",
-        "chrome://messenger/skin/icons/junk.svg",
-        this.msgNotificationBar.PRIORITY_WARNING_HIGH,
+        {
+          label: junkBarMsg,
+          image: "chrome://messenger/skin/icons/junk.svg",
+          priority: this.msgNotificationBar.PRIORITY_WARNING_HIGH,
+        },
         buttons
       );
     }
@@ -3372,10 +3374,12 @@ var gMessageNotificationBar = {
 
     if (!this.isShowingRemoteContentNotification()) {
       let notification = this.msgNotificationBar.appendNotification(
-        remoteContentMsg,
         "remoteContent",
-        "chrome://messenger/skin/icons/remote-blocked.svg",
-        this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
+        {
+          label: remoteContentMsg,
+          image: "chrome://messenger/skin/icons/remote-blocked.svg",
+          priority: this.msgNotificationBar.PRIORITY_WARNING_MEDIUM,
+        },
         aCanOverride ? buttons : []
       );
 
@@ -3414,10 +3418,12 @@ var gMessageNotificationBar = {
 
     if (!this.isShowingPhishingNotification()) {
       let notification = this.msgNotificationBar.appendNotification(
-        phishingMsgNote,
         "maybeScam",
-        "chrome://messenger/skin/icons/phishing.svg",
-        this.msgNotificationBar.PRIORITY_CRITICAL_MEDIUM,
+        {
+          label: phishingMsgNote,
+          image: "chrome://messenger/skin/icons/phishing.svg",
+          priority: this.msgNotificationBar.PRIORITY_CRITICAL_MEDIUM,
+        },
         buttons
       );
 
@@ -3485,10 +3491,11 @@ var gMessageNotificationBar = {
     ];
 
     this.msgNotificationBar.appendNotification(
-      mdnBarMsg,
       "mdnRequested",
-      null,
-      this.msgNotificationBar.PRIORITY_INFO_MEDIUM,
+      {
+        label: mdnBarMsg,
+        priority: this.msgNotificationBar.PRIORITY_INFO_MEDIUM,
+      },
       buttons
     );
   },
@@ -3515,10 +3522,11 @@ var gMessageNotificationBar = {
       ];
 
       this.msgNotificationBar.appendNotification(
-        draftMsgNote,
         "draftMsgContent",
-        null,
-        this.msgNotificationBar.PRIORITY_INFO_HIGH,
+        {
+          label: draftMsgNote,
+          priority: this.msgNotificationBar.PRIORITY_INFO_HIGH,
+        },
         buttons
       );
     }

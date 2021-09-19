@@ -124,14 +124,21 @@ var calendarDeactivator = {
       if (calendarIsActivated) {
         notificationbox.removeNotification(existingNotification);
       } else if (!existingNotification) {
-        let priority = notificationbox.PRIORITY_WARNING_MEDIUM;
+        let prio = notificationbox.PRIORITY_WARNING_MEDIUM;
 
         // Use Fluent's preferred async declarative, DOMLocalization API.
         let messageFragment = window.document.createDocumentFragment();
         let message = window.document.createElement("span");
         window.document.l10n.setAttributes(message, messageName);
         messageFragment.appendChild(message);
-        notificationbox.appendNotification(messageFragment, value, null, priority, null);
+        notificationbox.appendNotification(
+          value,
+          {
+            label: messageFragment,
+            priority: prio,
+          },
+          null
+        );
       }
     }
   },

@@ -1198,10 +1198,12 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
     let text = ignoredThreadText.replace("#1", subj);
 
     notifyBox.appendNotification(
-      text,
       "ignoreThreadInfo",
+      {
+        label: text,
+        priority: notifyBox.PRIORITY_INFO_MEDIUM,
+      },
       null,
-      notifyBox.PRIORITY_INFO_MEDIUM,
       buttons
     );
   } else {
@@ -1213,10 +1215,11 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
       nbrOfThreads
     );
     notifyBox.appendNotification(
-      text,
       "ignoreThreadsInfo",
-      null,
-      notifyBox.PRIORITY_INFO_MEDIUM,
+      {
+        label: text,
+        priority: notifyBox.PRIORITY_INFO_MEDIUM,
+      },
       buttons
     );
   }
