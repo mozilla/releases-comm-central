@@ -2,15 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* ===== accountWizard.css ==============================================
-  == Styles for the Mail Account Wizard.
-  ======================================================================= */
-
 @import url("chrome://messenger/skin/messenger.css");
 
-/* ::::: account wizard :::::: */
+description {
+  margin-inline: 4px;
+}
 
 .awIdentityLabel {
   width: 8em;
   margin-inline-start: 5px;
+}
+
+#accountprotocol,
+#accountsummary {
+  overflow: visible;
+}
+
+#summarygrid {
+  overflow: auto;
+}
+
+#value-column {
+  min-width: 15em;
 }

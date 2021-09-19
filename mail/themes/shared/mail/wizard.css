@@ -1,0 +1,51 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/themeableDialog.css");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+:host {
+  padding: 14px 24px;
+}
+
+.wizard-header-box-text {
+  padding: 6px 0;
+  font: menu;
+  font-weight: bold;
+}
+
+.wizard-header-label {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.wizard-header-box-icon {
+  margin-block: 3px 0;
+  margin-inline: 3px 20px;
+}
+
+:host([data-branded="true"]) .wizard-header-icon {
+  list-style-image: url("chrome://branding/content/icon128.png");
+  width: 48px;
+  height: 48px;
+}
+
+html|*.wizard-page-box {
+  padding: 10px 0;
+}
+
+.wizard-buttons-btm {
+  padding: 3px 6px 6px;
+}
+
+.wizard-button[dlgtype="finish"],
+.wizard-button[dlgtype="next"] {
+  margin-inline-start: 0 !important;
+}
+
+.wizard-button[dlgtype="back"] {
+  margin-inline-end: 0 !important;
+}

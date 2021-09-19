@@ -8,6 +8,7 @@
 # to the location of the actual manifest.
 
 % override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css
+% override chrome://global/skin/wizard.css chrome://messenger/skin/wizard.css
 % override chrome://global/content/elements/message-bar.css chrome://messenger/skin/message-bar.css
 % override chrome://browser/skin/developer.svg chrome://messenger/skin/icons/developer.svg
 
@@ -108,6 +109,7 @@
   skin/classic/messenger/aboutPolicies.css                    (../shared/mail/aboutPolicies.css)
   skin/classic/messenger/aboutAddressBook.css                 (../shared/mail/aboutAddressBook.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
+  skin/classic/messenger/accountWizard.css                    (../shared/mail/accountWizard.css)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
   skin/classic/messenger/messageQuotes.css                    (../shared/mail/messageQuotes.css)
   skin/classic/messenger/msgSelectOffline.css                 (../shared/mail/msgSelectOffline.css)
@@ -116,6 +118,7 @@
 #endif
   skin/classic/messenger/subscribe.css                        (../shared/mail/subscribe.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
+  skin/classic/messenger/wizard.css                           (../shared/mail/wizard.css)
   skin/classic/messenger/addressbook/abResultsPane.css        (../shared/mail/abResultsPane.css)
   skin/classic/messenger/browserRequest.css                   (../shared/mail/browserRequest.css)
   skin/classic/messenger/addressbook/icons/contact-generic.svg      (../shared/mail/icons/contact-generic.svg)
