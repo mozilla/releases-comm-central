@@ -385,7 +385,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
   QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
   async doWebDAVSync() {
-    if (this.calendar.mDisabled) {
+    if (this.calendar.mDisabledByDavError) {
       // check if maybe our calendar has become available
       this.calendar.checkDavResourceType(this.changeLogListener);
       return;
@@ -763,7 +763,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
   QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
   doMultiGet() {
-    if (this.calendar.mDisabled) {
+    if (this.calendar.mDisabledByDavError) {
       // check if maybe our calendar has become available
       this.calendar.checkDavResourceType(this.changeLogListener);
       return;

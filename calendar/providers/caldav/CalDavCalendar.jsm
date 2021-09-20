@@ -35,7 +35,7 @@ function CalDavCalendar() {
   this.unmappedProperties = [];
   this.mUriParams = null;
   this.mItemInfoCache = {};
-  this.mDisabled = false;
+  this.mDisabledByDavError = false;
   this.mCalHomeSet = null;
   this.mInboxUrl = null;
   this.mOutboxUrl = null;
@@ -328,7 +328,7 @@ CalDavCalendar.prototype = {
     return "caldav";
   },
 
-  mDisabled: true,
+  mDisabledByDavError: true,
 
   mCalendarUserAddress: null,
   get calendarUserAddress() {
@@ -1251,7 +1251,7 @@ CalDavCalendar.prototype = {
         cal.LOG(`CalDAV: Disabling calendar ${this.name} due to 404`);
         notifyListener(Cr.NS_ERROR_FAILURE);
         return;
-      } else if (response.ok && this.mDisabled) {
+      } else if (response.ok && this.mDisabledByDavError) {
         // Looks like the calendar is there again, check its resource
         // type first.
         this.checkDavResourceType(aChangeLogListener);
@@ -1322,7 +1322,7 @@ CalDavCalendar.prototype = {
    *                             calendars.
    */
   getUpdatedItems(aUri, aChangeLogListener) {
-    if (this.mDisabled) {
+    if (this.mDisabledByDavError) {
       // check if maybe our calendar has become available
       this.checkDavResourceType(aChangeLogListener);
       return;
@@ -1588,13 +1588,14 @@ CalDavCalendar.prototype = {
         let resourceType = response.firstProps["D:resourcetype"] || new Set();
         if (resourceType.has("C:calendar")) {
           // This is a valid calendar resource
-          if (this.mDisabled) {
-            this.mDisabled = false;
-            this.mReadOnly = false;
+          if (this.mDisabledByDavError) {
+            this.mDisabledByDavError = false;
           }
 
           let privs = response.firstProps["D:current-user-privilege-set"];
-          if (privs && privs instanceof Set) {
+          // Don't clear this.readOnly, only set it. The user may have write
+          // privileges but not want to use them.
+          if (!this.readOnly && privs && privs instanceof Set) {
             this.readOnly = ![
               "D:write",
               "D:write-content",
@@ -1936,8 +1937,7 @@ CalDavCalendar.prototype = {
       return;
     }
     localizedMessage = cal.l10n.getCalString(message, [this.mUri.spec]);
-    this.mReadOnly = true;
-    this.mDisabled = true;
+    this.mDisabledByDavError = true;
     this.notifyError(aErrNo, localizedMessage);
     this.notifyError(
       modificationError ? Ci.calIErrors.MODIFICATION_FAILED : Ci.calIErrors.READ_FAILED,
