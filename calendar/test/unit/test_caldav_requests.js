@@ -946,11 +946,8 @@ add_task(async function test_freebusy_request() {
 add_task(async function test_caldav_client() {
   let client = await gServer.getClient();
   let pclient = cal.async.promisifyCalendar(client);
-
-  // TODO: Fix the problem that is causing this test to fail when the next line is removed.
-  await new Promise(resolve => executeSoon(resolve));
-
   let items = await pclient.getAllItems();
+
   equal(items.length, 1);
   equal(items[0].title, "会議");
 });
