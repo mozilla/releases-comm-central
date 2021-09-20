@@ -137,7 +137,6 @@
 #include "nsMsgComposeProgressParams.h"
 #include "nsMsgAttachment.h"
 #include "nsMsgQuote.h"
-#include "nsURLFetcher.h"
 #include "nsMsgCompUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -422,7 +421,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgQuote)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgQuoteListener)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsSmtpUrl)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMailtoUrl)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsURLFetcher)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgCompUtils)
 
 NS_DEFINE_NAMED_CID(NS_MSGCOMPOSE_CID);
@@ -440,7 +438,6 @@ NS_DEFINE_NAMED_CID(NS_SMTPURL_CID);
 NS_DEFINE_NAMED_CID(NS_MAILTOURL_CID);
 NS_DEFINE_NAMED_CID(NS_MSGQUOTE_CID);
 NS_DEFINE_NAMED_CID(NS_MSGQUOTELISTENER_CID);
-NS_DEFINE_NAMED_CID(NS_URLFETCHER_CID);
 NS_DEFINE_NAMED_CID(NS_MSGCOMPUTILS_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -751,7 +748,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_MAILTOURL_CID, false, NULL, nsMailtoUrlConstructor},
     {&kNS_MSGQUOTE_CID, false, NULL, nsMsgQuoteConstructor},
     {&kNS_MSGQUOTELISTENER_CID, false, NULL, nsMsgQuoteListenerConstructor},
-    {&kNS_URLFETCHER_CID, false, NULL, nsURLFetcherConstructor},
     {&kNS_MSGCOMPUTILS_CID, false, NULL, nsMsgCompUtilsConstructor},
 // JsAccount Entries
 #if JSACCOUNT_ENABLED
@@ -935,7 +931,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_MAILTOURL_CONTRACTID, &kNS_MAILTOURL_CID},
     {NS_MSGQUOTE_CONTRACTID, &kNS_MSGQUOTE_CID},
     {NS_MSGQUOTELISTENER_CONTRACTID, &kNS_MSGQUOTELISTENER_CID},
-    {NS_URLFETCHER_CONTRACTID, &kNS_URLFETCHER_CID},
     {NS_MSGCOMPUTILS_CONTRACTID, &kNS_MSGCOMPUTILS_CID},
 // JsAccount Entries
 #if JSACCOUNT_ENABLED

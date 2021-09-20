@@ -26,6 +26,7 @@
 #include "nsIObserverService.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgDatabase.h"
+#include "nsIInputStream.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Services.h"

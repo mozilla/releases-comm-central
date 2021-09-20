@@ -70,14 +70,6 @@ nsresult mime_generate_headers(nsIMsgCompFields* fields,
 char* mime_make_separator(const char* prefix);
 char* mime_gen_content_id(uint32_t aPartNum, const char* aEmailAddress);
 
-char* mime_generate_attachment_headers(
-    const char* type, const char* type_param, const char* encoding,
-    const char* description, const char* x_mac_type, const char* x_mac_creator,
-    const char* real_name, const char* base_url, bool digest_p,
-    nsMsgAttachmentHandler* ma,
-    const char* attachmentCharset,  // charset of the attachment (can be null)
-    bool bodyIsAsciiOnly, const char* content_id, bool aBodyDocument);
-
 char* msg_generate_message_id(nsIMsgIdentity*);
 
 bool mime_7bit_data_p(const char* string, uint32_t size);
@@ -91,10 +83,6 @@ bool mime_type_requires_b64_p(const char* type);
 bool mime_type_needs_charset(const char* type);
 
 char* msg_make_filename_qtext(const char* srcText, bool stripCRLFs);
-
-// Rip apart the URL and extract a reasonable value for the `real_name' slot.
-void msg_pick_real_name(nsMsgAttachmentHandler* attachment,
-                        const char16_t* proposedName);
 
 char* RFC2231ParmFolding(const char* parmName, const char* parmValue);
 

@@ -32,7 +32,6 @@ interface nsIOutputStream;
 interface nsIMsgComposeSecure;
 interface nsIMsgStatusFeedback;
 interface nsIEditor;
-interface nsIMsgAttachmentHandler;
 interface mozIDOMWindowProxy;
 
 typedef long nsMsgDeliverMode;
@@ -141,14 +140,7 @@ interface nsIMsgEmbeddedImageData : nsISupports
   attribute ACString name;
 };
 
-%{ C++
-// Forward declaration
-class nsMsgAttachmentHandler;
-#include "nsTArray.h"
-%}
-
 [ptr] native nsMsgAttachedFile(nsMsgAttachedFile);
-[ptr] native nsMsgAttachmentHandlerArray(nsTArray<RefPtr<nsMsgAttachmentHandler>>);
 
 [scriptable, uuid(747fdfa2-1754-4282-ab26-1e55fd8de13c)]
 interface nsIMsgSend : nsISupports
@@ -348,7 +340,6 @@ interface nsIMsgSend : nsISupports
     /* process attachment */
     void gatherMimeAttachments();
     readonly attribute boolean processAttachmentsSynchronously;
-    [noscript] nsMsgAttachmentHandlerArray getAttachmentHandlers();
     readonly attribute unsigned long attachmentCount;
     attribute unsigned long pendingAttachmentCount;
     readonly attribute nsMsgDeliverMode deliveryMode;
@@ -374,18 +365,6 @@ interface nsIMsgSend : nsISupports
 
     /// The identity to use to send the message.
     readonly attribute nsIMsgIdentity identity;
-
-    /**
-     * Get a handler for an attachment by its index.
-     * The lifetime of the attachment is dependent on the existence
-     * of the underlying send object, so do not hold onto these
-     * attachment handlers.
-     *
-     * @param index  Index used to specify a particular attachment.
-     *
-     * @return       Attachment handler with information about the attachment.
-     */
-    nsIMsgAttachmentHandler getAttachment(in unsigned long index);
 
     /// The folder name to which the message will be saved,
     /// used by error reporting.

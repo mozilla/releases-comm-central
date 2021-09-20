@@ -5,7 +5,6 @@
 
 XPIDL_SOURCES += [
     "nsIMsgAttachment.idl",
-    "nsIMsgAttachmentHandler.idl",
     "nsIMsgCompFields.idl",
     "nsIMsgCompose.idl",
     "nsIMsgComposeParams.idl",
@@ -24,7 +23,6 @@ XPIDL_SOURCES += [
     "nsISmtpServer.idl",
     "nsISmtpService.idl",
     "nsISmtpUrl.idl",
-    "nsIURLFetcher.idl",
 ]
 
 XPIDL_MODULE = "msgcompose"
