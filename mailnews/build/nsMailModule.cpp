@@ -154,7 +154,6 @@
 #  include "JaCompose.h"
 #  include "JaIncomingServer.h"
 #  include "JaMsgFolder.h"
-#  include "JaSend.h"
 #  include "JaUrl.h"
 #endif
 
@@ -452,14 +451,12 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppAbDirectoryDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppComposeDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(JaCppIncomingServerDelegator, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppMsgFolderDelegator)
-NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppSendDelegator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(JaCppUrlDelegator)
 
 NS_DEFINE_NAMED_CID(JACPPABDIRECTORYDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPCOMPOSEDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPINCOMINGSERVERDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPMSGFOLDERDELEGATOR_CID);
-NS_DEFINE_NAMED_CID(JACPPSENDDELEGATOR_CID);
 NS_DEFINE_NAMED_CID(JACPPURLDELEGATOR_CID);
 #endif
 
@@ -766,7 +763,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
      JaCppIncomingServerDelegatorConstructor},
     {&kJACPPMSGFOLDERDELEGATOR_CID, false, nullptr,
      JaCppMsgFolderDelegatorConstructor},
-    {&kJACPPSENDDELEGATOR_CID, false, nullptr, JaCppSendDelegatorConstructor},
     {&kJACPPURLDELEGATOR_CID, false, nullptr, JaCppUrlDelegatorConstructor},
 #endif
     // Imap Entries
@@ -948,7 +944,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {JACPPINCOMINGSERVERDELEGATOR_CONTRACTID,
      &kJACPPINCOMINGSERVERDELEGATOR_CID},
     {JACPPMSGFOLDERDELEGATOR_CONTRACTID, &kJACPPMSGFOLDERDELEGATOR_CID},
-    {JACPPSENDDELEGATOR_CONTRACTID, &kJACPPSENDDELEGATOR_CID},
     {JACPPURLDELEGATOR_CONTRACTID, &kJACPPURLDELEGATOR_CID},
 #endif
     // Imap Entries
