@@ -578,8 +578,7 @@ var OTRUI = {
         label: msg,
         priority: prio,
       },
-      buttons,
-      null
+      buttons
     );
   },
 
@@ -668,8 +667,7 @@ var OTRUI = {
         label: msg,
         priority: prio,
       },
-      buttons,
-      null
+      buttons
     );
 
     let verifyTitle = l10n.formatValueSync("verify-title");
@@ -796,8 +794,7 @@ var OTRUI = {
         label: msg,
         priority: prio,
       },
-      buttons,
-      null
+      buttons
     );
 
     this.updateNotificationUI(context, typeTitle, context.username, key);

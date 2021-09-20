@@ -5393,13 +5393,13 @@ function checkPublicRecipientsLimit() {
     {
       label: "", // "many-public-recipients-notice"
       priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      eventCallback(state) {
+        if (state == "dismissed") {
+          ignoreButton.callback();
+        }
+      },
     },
-    [bccButton, ignoreButton],
-    state => {
-      if (state == "dismissed") {
-        ignoreButton.callback();
-      }
-    }
+    [bccButton, ignoreButton]
   );
 
   document.l10n.setAttributes(
@@ -5478,13 +5478,13 @@ async function checkEncryptedBccRecipients() {
     {
       label: await document.l10n.formatValue("encrypted-bcc-warning"),
       priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      eventCallback(state) {
+        if (state == "dismissed") {
+          ignoreButton.callback();
+        }
+      },
     },
-    [ignoreButton],
-    state => {
-      if (state == "dismissed") {
-        ignoreButton.callback();
-      }
-    }
+    [ignoreButton]
   );
 }
 

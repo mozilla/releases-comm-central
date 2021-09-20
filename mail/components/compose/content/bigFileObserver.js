@@ -343,9 +343,8 @@ var gBigFileObserver = {
   },
 
   showPrivacyNotification() {
-    const kPrivacyNotificationValue = "bigAttachmentPrivacyWarning";
     let notification = gComposeNotification.getNotificationWithValue(
-      kPrivacyNotificationValue
+      kPrivacyWarningNotificationValue
     );
 
     if (notification) {
@@ -354,10 +353,11 @@ var gBigFileObserver = {
 
     let message = this.formatString("cloudFilePrivacyNotification");
     gComposeNotification.appendNotification(
-      message,
-      kPrivacyNotificationValue,
-      null,
-      gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      kPrivacyWarningNotificationValue,
+      {
+        label: message,
+        priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      },
       null
     );
   },

@@ -2530,9 +2530,9 @@ function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) 
         label: aMessage,
         image: aImage,
         priority: prio,
+        eventCallback: aCallback,
       },
-      aButtonset,
-      aCallback
+      aButtonset
     );
   }
 }
