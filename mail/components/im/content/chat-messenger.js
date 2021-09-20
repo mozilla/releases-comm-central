@@ -1878,11 +1878,13 @@ chatLogTreeView.prototype = {
       ]);
     };
     let formatMonth = aDate =>
-      dateFormatBundle.GetStringByName(
+      dateFormatBundle.GetStringFromName(
         "month." + (aDate.getMonth() + 1) + ".name"
       );
     let formatWeekday = aDate =>
-      dateFormatBundle.GetStringByName("day." + (aDate.getDay() + 1) + ".name");
+      dateFormatBundle.GetStringFromName(
+        "day." + (aDate.getDay() + 1) + ".name"
+      );
 
     let nowDate = new Date();
     let todayDate = new Date(
@@ -1942,7 +1944,7 @@ chatLogTreeView.prototype = {
           let groupname;
           if (logDate.getFullYear() == nowDate.getFullYear()) {
             if (logDate.getMonth() == nowDate.getMonth()) {
-              groupname = placesBundle.GetStringByName(
+              groupname = placesBundle.GetStringFromName(
                 "finduri-AgeInMonths-is-0"
               );
             } else {
