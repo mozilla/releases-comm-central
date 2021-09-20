@@ -314,69 +314,20 @@ int nsImapNamespaceList::UnserializeNamespaces(const char* str, char** prefixes,
   return count;
 }
 
-char* nsImapNamespaceList::AllocateCanonicalFolderName(
+// static
+nsCString nsImapNamespaceList::AllocateCanonicalFolderName(
     const char* onlineFolderName, char delimiter) {
-  char* canonicalPath = nullptr;
-  if (delimiter)
-    canonicalPath =
+  nsCString canonicalPath;
+  if (delimiter) {
+    char* tmp =
         nsImapUrl::ReplaceCharsInCopiedString(onlineFolderName, delimiter, '/');
-  else
-    canonicalPath = PL_strdup(onlineFolderName);
-
-  // eat any escape characters for escaped dir separators
-  if (canonicalPath) {
-    char* currentEscapeSequence = strstr(canonicalPath, "\\/");
-    while (currentEscapeSequence) {
-      strcpy(currentEscapeSequence, currentEscapeSequence + 1);
-      currentEscapeSequence = strstr(currentEscapeSequence + 1, "\\/");
-    }
+    canonicalPath.Assign(tmp);
+    PR_Free(tmp);
+  } else {
+    canonicalPath.Assign(onlineFolderName);
   }
-
+  canonicalPath.ReplaceSubstring("\\/", "/");
   return canonicalPath;
-}
-
-/*
-  GetFolderNameWithoutNamespace takes as input a folder name
-  in canonical form, and the namespace for the given folder.  It returns an
-  allocated string of the folder's path with the namespace string stripped out.
-  For instance, when passed the folder Folders/a/b where the namespace is
-  "Folders/", it will return "a/b".  Similarly, if the folder name is
-  "#news/comp/mail/imap" in canonical form, with a real delimiter of "." and a
-  namespace of "#news.", it will return "comp/mail/imap". The return value is
-  always in canonical form.
-*/
-char* nsImapNamespaceList::GetFolderNameWithoutNamespace(
-    nsImapNamespace* namespaceForFolder, const char* canonicalFolderName) {
-  NS_ASSERTION(canonicalFolderName, "null folder name");
-#ifdef DEBUG
-  NS_ASSERTION(
-      namespaceForFolder || !PL_strcasecmp(canonicalFolderName, "INBOX"),
-      "need namespace or INBOX");
-#endif
-
-  char* retFolderName = nullptr;
-
-  if (!PL_strcasecmp(canonicalFolderName, "INBOX"))
-    return PL_strdup(canonicalFolderName);
-
-  // convert the canonical path to the online path
-  char* convertedFolderName = nsImapNamespaceList::AllocateServerFolderName(
-      canonicalFolderName, namespaceForFolder->GetDelimiter());
-  if (convertedFolderName) {
-    char* beginFolderPath = nullptr;
-    if (strlen(convertedFolderName) <= strlen(namespaceForFolder->GetPrefix()))
-      beginFolderPath = convertedFolderName;
-    else
-      beginFolderPath =
-          convertedFolderName + strlen(namespaceForFolder->GetPrefix());
-    NS_ASSERTION(beginFolderPath, "empty folder path");
-    retFolderName = nsImapNamespaceList::AllocateCanonicalFolderName(
-        beginFolderPath, namespaceForFolder->GetDelimiter());
-    PR_Free(convertedFolderName);
-  }
-
-  NS_ASSERTION(retFolderName, "returning null folder name");
-  return retFolderName;
 }
 
 nsImapNamespace* nsImapNamespaceList::GetNamespaceForFolder(
@@ -512,28 +463,28 @@ void nsImapNamespaceList::SuggestHierarchySeparatorForNamespace(
 
 /*
  GenerateFullFolderNameWithDefaultNamespace takes a folder name in canonical
- form, converts it to online form, allocates a string to contain the full online
- server name including the namespace prefix of the default namespace of the
- given type, in the form: PR_smprintf("%s%s", prefix, onlineServerName) if there
- is a NULL owner PR_smprintf("%s%s%c%s", prefix, owner, delimiter,
- onlineServerName) if there is an owner It then converts this back to canonical
- form and returns it (allocated) to libmsg. It returns NULL if there is no
- namespace of the given type. If nsUsed is not passed in as NULL, then *nsUsed
- is filled in and returned;  it is the namespace used for generating the folder
- name.
+ form, converts to online form and calculates the full online server name
+ including the namespace prefix of the default namespace of the
+ given type, in the form: PR_smprintf("%s%s", prefix, onlineServerName) if
+ there is a NULL owner PR_smprintf("%s%s%c%s", prefix, owner, delimiter,
+ onlineServerName) if there is an owner. It then converts this back to
+ canonical form and returns it.
+ It returns empty string if there is no namespace of the given type.
+ If nsUsed is not passed in as NULL, then *nsUsed is filled in and returned; it
+ is the namespace used for generating the folder name.
 */
-char* nsImapNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
+nsCString nsImapNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
     const char* hostName, const char* canonicalFolderName, const char* owner,
     EIMAPNamespaceType nsType, nsImapNamespace** nsUsed) {
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIImapHostSessionList> hostSession =
       do_GetService(kCImapHostSessionListCID, &rv);
-  NS_ENSURE_SUCCESS(rv, nullptr);
+  NS_ENSURE_SUCCESS(rv, ""_ns);
   nsImapNamespace* ns;
-  char* fullFolderName = nullptr;
+  nsCString fullFolderName;
   rv = hostSession->GetDefaultNamespaceOfTypeForHost(hostName, nsType, ns);
-  NS_ENSURE_SUCCESS(rv, nullptr);
+  NS_ENSURE_SUCCESS(rv, ""_ns);
   if (ns) {
     if (nsUsed) *nsUsed = ns;
     const char* prefix = ns->GetPrefix();
@@ -561,5 +512,5 @@ char* nsImapNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
     // Could not find other users namespace on the given host
     NS_WARNING("couldn't find namespace for given host");
   }
-  return (fullFolderName);
+  return fullFolderName;
 }

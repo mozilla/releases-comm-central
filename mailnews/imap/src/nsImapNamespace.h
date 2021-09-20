@@ -67,21 +67,19 @@ class nsImapNamespaceList {
                                    const char* canonicalFolderName,
                                    char delimiter,
                                    nsImapNamespace* namespaceForFolder);
-  static char* GetFolderNameWithoutNamespace(
-      nsImapNamespace* namespaceForFolder, const char* canonicalFolderName);
-  static char* AllocateServerFolderName(const char* canonicalFolderName,
-                                        char delimiter);
   static char* GetFolderOwnerNameFromPath(nsImapNamespace* namespaceForFolder,
                                           const char* canonicalFolderName);
-  static char* AllocateCanonicalFolderName(const char* onlineFolderName,
-                                           char delimiter);
   static void SuggestHierarchySeparatorForNamespace(
       nsImapNamespace* namespaceForFolder, char delimiterFromFolder);
-  static char* GenerateFullFolderNameWithDefaultNamespace(
+  static nsCString GenerateFullFolderNameWithDefaultNamespace(
       const char* hostName, const char* canonicalFolderName, const char* owner,
       EIMAPNamespaceType nsType, nsImapNamespace** nsUsed);
 
  protected:
+  static char* AllocateServerFolderName(const char* canonicalFolderName,
+                                        char delimiter);
+  static nsCString AllocateCanonicalFolderName(const char* onlineFolderName,
+                                               char delimiter);
   nsImapNamespaceList();  // use CreatensImapNamespaceList to create one
 
   nsTArray<nsImapNamespace*> m_NamespaceList;
