@@ -283,7 +283,12 @@ class ICSDetector {
     // The content type header may include a charset, so use 'string.includes'.
     if (response.ok) {
       let header = response.getHeader("Content-Type");
-      if (header.includes("text/calendar") || header.includes("application/ics")) {
+
+      if (
+        header.includes("text/calendar") ||
+        header.includes("application/ics") ||
+        (response.text && response.text.includes("BEGIN:VCALENDAR"))
+      ) {
         let target = response.uri;
         cal.LOG(`[calICSProvider] ${target.spec} has valid content type (via ${method} request)`);
         return [this.handleCalendar(target)];
