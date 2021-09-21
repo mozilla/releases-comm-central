@@ -31,7 +31,6 @@ messenger.jar:
     content/messenger/preferences/attachmentReminder.xhtml
     content/messenger/preferences/applicationManager.xhtml
     content/messenger/preferences/applicationManager.js
-    content/messenger/preferences/handlers.css
     content/messenger/preferences/actionsshared.js
     content/messenger/preferences/findInPage.js
     content/messenger/preferences/fonts.js
