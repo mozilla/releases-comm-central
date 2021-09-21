@@ -11,6 +11,7 @@
 /* import-globals-from calendar-migration.js */
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-ui-utils.js */
+/* import-globals-from calendar-views-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -479,6 +480,8 @@ function calendarListSetupContextMenu(event) {
 
   let item = event.target.triggerNode.closest("li");
   if (item) {
+    let calendarList = document.getElementById("calendar-list");
+    calendarList.selectedIndex = calendarList.rows.indexOf(item);
     let calendarId = item.getAttribute("calendar-id");
     calendar = cal.getCalendarManager().getCalendarById(calendarId);
   }

@@ -250,6 +250,7 @@ add_task(async () => {
     {
       callback(win) {
         let doc = win.document;
+        Assert.equal(doc.getElementById("calendar-name").value, "Mochitest 3");
         let enabledElement = doc.getElementById("calendar-enabled-checkbox");
         Assert.ok(enabledElement.checked);
         enabledElement.checked = false;
@@ -260,15 +261,16 @@ add_task(async () => {
       },
     }
   );
+  // We're clicking on an item that wasn't the selected one. Selection should be updated.
   calendarListContextMenu(calendarList.rows[3], "list-calendars-context-edit");
   await dialogPromise;
 
   Assert.equal(document.activeElement, calendarList);
-  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[1]);
-  checkProperties(1, { disabled: true });
+  Assert.equal(calendarList.rows[calendarList.selectedIndex], calendarList.rows[3]);
+  checkProperties(3, { disabled: true });
 
-  calendars[1].setProperty("disabled", false);
-  checkProperties(1, { disabled: false });
+  calendars[3].setProperty("disabled", false);
+  checkProperties(3, { disabled: false });
 
   // Test reordering calendars.
 
