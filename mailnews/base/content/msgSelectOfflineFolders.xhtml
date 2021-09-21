@@ -6,25 +6,27 @@
 <?xml-stylesheet href="chrome://messenger/skin/msgSelectOffline.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/msgSynchronize.dtd">
 
-<window id="select-offline"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        windowtype="mailnews:selectOffline"
-        title="&MsgSelect.label;"
-        lightweightthemes="true"
-        width="450" height="400"
-        persist="width height screenX screenY">
+<html id="selectOffline" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mailnews:selectOffline"
+      lightweightthemes="true"
+      width="450" height="400"
+      persist="width height screenX screenY"
+      scrolling="false">
+<head>
+  <title>&MsgSelect.label;</title>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/folderPane.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgSelectOfflineFolders.js"></script>
+  <style id="folderColorsStyle"></style>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-
-  <script src="chrome://messenger/content/msgSelectOfflineFolders.js"/>
-  <script src="chrome://messenger/content/folderPane.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-  <html:style id="folderColorsStyle" type="text/css"></html:style>
 
   <label class="desc" control="synchronizeTree">&MsgSelectDesc.label;</label>
 
@@ -42,8 +44,8 @@
       <splitter class="tree-splitter"/>
       <treecol id="syncCol" flex="1" persist="hidden width" label="&MsgSelectInd.label;" cycler="true"/>
     </treecols>
-
     <treechildren/>
   </tree>
 </dialog>
-</window>
+</html:body>
+</html>
