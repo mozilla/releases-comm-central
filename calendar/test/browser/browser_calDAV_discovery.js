@@ -66,7 +66,12 @@ async function handleWizard(wizardWindow, { username, url, password, expectedCal
   // Select calendars.
 
   let list = wizardDocument.getElementById("network-calendar-list");
-  await TestUtils.waitForCondition(() => BrowserTestUtils.is_visible(list));
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.is_visible(list),
+    "waiting for calendar list to appear",
+    200,
+    100
+  );
 
   Assert.equal(list.childElementCount, expectedCalendars.length);
   for (let i = 0; i < expectedCalendars.length; i++) {
