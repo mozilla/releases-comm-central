@@ -12,4 +12,3 @@ openpgp.jar:
   content/openpgp/strings/enigmail.properties  (content/strings/enigmail.properties)
   content/openpgp/ui                           (content/ui/*.js)
   content/openpgp/ui                           (content/ui/*.xhtml)
-  content/openpgp/ui                           (content/ui/*.css)
