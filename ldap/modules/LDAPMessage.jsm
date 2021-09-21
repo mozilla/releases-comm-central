@@ -58,6 +58,19 @@ class LDAPMessage {
       tagNumber,
     };
   }
+
+  /**
+   * Create a string block with context-specific [n].
+   * @param {number} tagNumber - The tag number of this block.
+   * @param {string} value - The string value of this block.
+   * @returns {LocalBaseBlock}
+   */
+  _contextStringBlock(tagNumber, value) {
+    return new asn1js.Primitive({
+      idBlock: this._getContextId(tagNumber),
+      valueHex: new TextEncoder().encode(value),
+    });
+  }
 }
 
 class BindRequest extends LDAPMessage {
@@ -114,6 +127,7 @@ class BindRequest extends LDAPMessage {
 class SearchRequest extends LDAPMessage {
   static APPLICATION = 3;
 
+  // Filter CHOICE.
   FILTER_AND = 0;
   FILTER_OR = 1;
   FILTER_NOT = 2;
@@ -123,10 +137,18 @@ class SearchRequest extends LDAPMessage {
   FILTER_LESS_OR_EQUAL = 6;
   FILTER_PRESENT = 7;
   FILTER_APPROX_MATCH = 8;
+  FILTER_EXTENSIBLE_MATCH = 9;
 
+  // SubstringFilter SEQUENCE.
   SUBSTRINGS_INITIAL = 0;
   SUBSTRINGS_ANY = 1;
   SUBSTRINGS_FINAL = 2;
+
+  // MatchingRuleAssertion SEQUENCE.
+  MATCHING_RULE = 1; // optional
+  MATCHING_TYPE = 2; // optional
+  MATCHING_VALUE = 3;
+  MATCHING_DN = 4; // default to FALSE
 
   /**
    * @param {string} dn - The name to search.
@@ -184,7 +206,7 @@ class SearchRequest extends LDAPMessage {
    * @returns {[number, string, string]}
    */
   _parseFilterValue(filter) {
-    for (let cond of [">=", "<=", "~=", "="]) {
+    for (let cond of [">=", "<=", "~=", ":=", "="]) {
       let index = filter.indexOf(cond);
       if (index > 0) {
         let k = filter.slice(0, index);
@@ -193,6 +215,7 @@ class SearchRequest extends LDAPMessage {
           ">=": this.FILTER_GREATER_OR_EQUAL,
           "<=": this.FILTER_LESS_OR_EQUAL,
           "~=": this.FILTER_APPROX_MATCH,
+          ":=": this.FILTER_EXTENSIBLE_MATCH,
         }[cond];
         if (!filterId) {
           if (v == "*") {
@@ -303,6 +326,59 @@ class SearchRequest extends LDAPMessage {
             idBlock,
             valueHex: new TextEncoder().encode(field),
           });
+        } else if (tagNumber == this.FILTER_EXTENSIBLE_MATCH) {
+          // An extensibleMatch filter is in the form of
+          // <type>:dn:<rule>:=<value>. We need to further parse the field.
+          let parts = field.split(":");
+          let value = [];
+          if (parts.length == 3) {
+            // field is <type>:dn:<rule>.
+            if (parts[2]) {
+              value.push(
+                this._contextStringBlock(this.MATCHING_RULE, parts[2])
+              );
+            }
+            if (parts[0]) {
+              value.push(
+                this._contextStringBlock(this.MATCHING_TYPE, parts[0])
+              );
+            }
+            value.push(
+              this._contextStringBlock(this.MATCHING_VALUE, fieldValue)
+            );
+            if (parts[1] == "dn") {
+              let dn = new asn1js.Boolean({
+                value: true,
+              });
+              dn.idBlock.tagClass = LDAPMessage.TAG_CLASS_CONTEXT;
+              dn.idBlock.tagNumber = this.MATCHING_DN;
+              value.push(dn);
+            }
+          } else if (parts.length == 2) {
+            // field is <type>:<rule>.
+            if (parts[1]) {
+              value.push(
+                this._contextStringBlock(this.MATCHING_RULE, parts[1])
+              );
+            }
+
+            if (parts[0]) {
+              this._contextStringBlock(this.MATCHING_TYPE, parts[0]);
+            }
+            value.push(
+              this._contextStringBlock(this.MATCHING_VALUE, fieldValue)
+            );
+          } else {
+            // field is <type>.
+            value = [
+              this._contextStringBlock(this.MATCHING_TYPE, field),
+              this._contextStringBlock(this.MATCHING_VALUE, fieldValue),
+            ];
+          }
+          block = new asn1js.Constructed({
+            idBlock,
+            value,
+          });
         } else if (tagNumber != this.FILTER_SUBSTRINGS) {
           // A filter that is not substrings filter.
           block = new asn1js.Constructed({
@@ -368,6 +444,8 @@ class SearchRequest extends LDAPMessage {
 }
 
 class AbandonRequest extends LDAPMessage {
+  static APPLICATION = 16;
+
   /**
    * @param {string} messageId - The messageId to abandon.
    */
@@ -375,8 +453,8 @@ class AbandonRequest extends LDAPMessage {
     super();
     this.protocolOp = new asn1js.Integer({ value: messageId });
     // [APPLICATION 16]
-    this.protocolOp.idBlock.tagClass = 2;
-    this.protocolOp.idBlock.tagNumber = 16;
+    this.protocolOp.idBlock.tagClass = LDAPMessage.TAG_CLASS_APPLICATION;
+    this.protocolOp.idBlock.tagNumber = AbandonRequest.APPLICATION;
   }
 }
 
