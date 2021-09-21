@@ -5,7 +5,6 @@
 messenger.jar:
     content/messenger/ext-mail.json                (ext-mail.json)
     content/messenger/extension.svg                (extension.svg)
-    content/messenger/extensionPopup.css           (extensionPopup.css)
     content/messenger/extensionPopup.js            (extensionPopup.js)
 *   content/messenger/extensionPopup.xhtml         (extensionPopup.xhtml)
     content/messenger/processScript.js             (processScript.js)
