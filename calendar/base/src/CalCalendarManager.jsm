@@ -901,7 +901,10 @@ function deletePrefBranch(id) {
  */
 function maybeRefreshCalendar(calendar) {
   if (!calendar.getProperty("disabled") && calendar.canRefresh) {
-    calendar.refresh();
+    let refreshInterval = calendar.getProperty("refreshInterval");
+    if (refreshInterval != "0") {
+      calendar.refresh();
+    }
   }
 }
 
