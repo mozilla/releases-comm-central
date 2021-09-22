@@ -398,6 +398,9 @@ var calImipBar = {
    * @returns {Boolean}                     true, if the action succeeded
    */
   executeAction(aParticipantStatus, aResponse) {
+    // control to avoid processing _execAction on later user changes on the item
+    let isFirstProcessing = true;
+
     /**
      * Internal function to trigger an scheduling operation
      *
@@ -425,6 +428,7 @@ var calImipBar = {
         let opListener = {
           QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
           onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
+            isFirstProcessing = false;
             if (Components.isSuccessCode(aStatus) && isDeclineCounter) {
               // TODO: move the DECLINECOUNTER stuff to actionFunc
               aItipItem.getItemList().forEach(aItem => {
@@ -574,8 +578,6 @@ var calImipBar = {
         if (saveitems.length > 0) {
           let methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
           let newItipItem = cal.itip.getModifiedItipItem(calImipBar.itipItem, saveitems, methods);
-          // control to avoid processing _execAction on later user changes on the item
-          let isFirstProcessing = true;
           // setup callback and trigger re-processing
           let storeCopy = function(aItipItem, aRc, aActionFunc, aFoundItems) {
             if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
@@ -583,7 +585,6 @@ var calImipBar = {
             }
           };
           cal.itip.processItipItem(newItipItem, storeCopy);
-          isFirstProcessing = false;
         }
         // we stop here to not process the original item
         return false;
