@@ -137,3 +137,4 @@ browser.jar:
     skin/controlcenter/trackers.svg                    (../../../browser/themes/shared/controlcenter/trackers.svg)
     skin/indicator-private-browsing.svg                (../../../browser/themes/shared/icons/indicator-private-browsing.svg)
     skin/tabbrowser/pendingpaint.png                   (../../../browser/themes/shared/tabbrowser/pendingpaint.png)
+    skin/preferences/category-experiments.svg          (../../../browser/themes/shared/preferences/category-experiments.svg)
