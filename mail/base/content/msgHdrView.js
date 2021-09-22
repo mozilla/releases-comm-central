@@ -31,6 +31,10 @@ var { GlodaUtils } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaUtils.jsm"
 );
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+});
+
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gMIMEService",
@@ -1568,7 +1572,7 @@ function hideEmailNewsPopup(addressNode) {
   addressNode.removeAttribute("selected");
 }
 
-function setupEmailAddressPopup(emailAddressNode) {
+async function setupEmailAddressPopup(emailAddressNode) {
   emailAddressNode = emailAddressNode.closest("mail-emailaddress");
   emailAddressNode.setAttribute("selected", "true");
   var emailAddressPlaceHolder = document.getElementById(
@@ -1594,6 +1598,17 @@ function setupEmailAddressPopup(emailAddressNode) {
     document.getElementById("addToAddressBookItem").removeAttribute("hidden");
     document.getElementById("editContactItem").setAttribute("hidden", true);
     document.getElementById("viewContactItem").setAttribute("hidden", true);
+  }
+  let discoverKeyMenuItem = document.getElementById("searchKeysOpenPGP");
+  if (discoverKeyMenuItem) {
+    let address = emailAddressNode
+      .closest("mail-emailaddress")
+      .getAttribute("emailAddress");
+    let hidden = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
+      address
+    );
+    discoverKeyMenuItem.hidden = hidden;
+    discoverKeyMenuItem.nextElementSibling.hidden = hidden; // Hide separator.
   }
 }
 

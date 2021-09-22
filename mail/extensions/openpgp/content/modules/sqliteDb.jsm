@@ -22,6 +22,11 @@ ChromeUtils.defineModuleGetter(
 );
 ChromeUtils.defineModuleGetter(
   this,
+  "EnigmailKeyRing",
+  "chrome://openpgp/content/modules/keyRing.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
   "setTimeout",
   "resource://gre/modules/Timer.jsm"
 );
@@ -114,20 +119,17 @@ var PgpSqliteDb2 = {
     try {
       conn = await this.openDatabase();
 
-      await conn
-        .execute(
-          "select count(decision) as hits from acceptance_email" +
-            " inner join acceptance_decision on" +
-            " acceptance_decision.fpr = acceptance_email.fpr" +
-            " where (decision = 'verified' or decision = 'unverified')" +
-            " and lower(email) = :email",
-          { email }
-        )
-        .then(result => {
-          if (result.length) {
-            count = result[0].getResultByName("hits");
-          }
-        });
+      let result = await conn.execute(
+        "select count(decision) as hits from acceptance_email" +
+          " inner join acceptance_decision on" +
+          " acceptance_decision.fpr = acceptance_email.fpr" +
+          " where (decision = 'verified' or decision = 'unverified')" +
+          " and lower(email) = :email",
+        { email }
+      );
+      if (result.length) {
+        count = result[0].getResultByName("hits");
+      }
       await conn.close();
     } catch (ex) {
       console.debug(ex);
@@ -135,7 +137,11 @@ var PgpSqliteDb2 = {
         await conn.close();
       }
     }
-    return count > 0;
+
+    if (!count) {
+      return Boolean(await EnigmailKeyRing.getSecretKeyByEmail(email));
+    }
+    return true;
   },
 
   async getAcceptance(fingerprint, email, rv) {
