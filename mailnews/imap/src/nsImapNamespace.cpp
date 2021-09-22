@@ -367,46 +367,38 @@ char* nsImapNamespaceList::AllocateServerFolderName(
   in canonical form, and a namespace for that folder.
   The namespace MUST be of type kOtherUsersNamespace, hence the folder MUST be
   owned by another user.  This function extracts the folder owner's name from
-  the canonical name of the folder, and returns an allocated copy of that
-  owner's name
+  the canonical name of the folder, and returns the owner's name.
 */
 /* static */
-char* nsImapNamespaceList::GetFolderOwnerNameFromPath(
+nsCString nsImapNamespaceList::GetFolderOwnerNameFromPath(
     nsImapNamespace* namespaceForFolder, const char* canonicalFolderName) {
   if (!namespaceForFolder || !canonicalFolderName) {
-    NS_ASSERTION(false, "null namespace or canonical folder name");
-    return nullptr;
+    NS_ERROR("null namespace or canonical folder name");
+    return ""_ns;
   }
 
-  char* rv = nullptr;
-
-  // convert the canonical path to the online path
-  char* convertedFolderName = AllocateServerFolderName(
-      canonicalFolderName, namespaceForFolder->GetDelimiter());
-  if (convertedFolderName) {
-#ifdef DEBUG
-    NS_ASSERTION(
-        strlen(convertedFolderName) > strlen(namespaceForFolder->GetPrefix()),
-        "server folder name invalid");
-#endif
-    if (strlen(convertedFolderName) > strlen(namespaceForFolder->GetPrefix())) {
-      char* owner =
-          convertedFolderName + strlen(namespaceForFolder->GetPrefix());
-      NS_ASSERTION(owner, "couldn't find folder owner");
-      char* nextDelimiter = strchr(owner, namespaceForFolder->GetDelimiter());
-      // if !nextDelimiter, then the path is of the form Shared/Users/chrisf (no
-      // subfolder)
-      if (nextDelimiter) {
-        *nextDelimiter = 0;
-      }
-      rv = PL_strdup(owner);
-    }
-    PR_Free(convertedFolderName);
-  } else {
-    NS_ASSERTION(false, "couldn't allocate server folder name");
+  // Convert the canonical path to the online path.
+  nsAutoCString convertedFolderName(canonicalFolderName);
+  char delimiter = namespaceForFolder->GetDelimiter();
+  if (delimiter) {
+    convertedFolderName.ReplaceChar('/', delimiter);
   }
 
-  return rv;
+  // Trim off the prefix.
+  uint32_t prefixLen =
+      nsDependentCString(namespaceForFolder->GetPrefix()).Length();
+  if (convertedFolderName.Length() <= prefixLen) {
+    NS_ERROR("server folder name invalid");
+    return ""_ns;
+  }
+
+  // Trim off anything after the owner name.
+  nsCString owner(Substring(convertedFolderName, prefixLen));
+  int32_t i = owner.FindChar(delimiter);
+  if (i != kNotFound) {
+    owner.Truncate(i);
+  }
+  return owner;
 }
 
 /*

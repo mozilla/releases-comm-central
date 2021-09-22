@@ -67,8 +67,8 @@ class nsImapNamespaceList {
                                    const char* canonicalFolderName,
                                    char delimiter,
                                    nsImapNamespace* namespaceForFolder);
-  static char* GetFolderOwnerNameFromPath(nsImapNamespace* namespaceForFolder,
-                                          const char* canonicalFolderName);
+  static nsCString GetFolderOwnerNameFromPath(
+      nsImapNamespace* namespaceForFolder, const char* canonicalFolderName);
   static void SuggestHierarchySeparatorForNamespace(
       nsImapNamespace* namespaceForFolder, char delimiterFromFolder);
   static nsCString GenerateFullFolderNameWithDefaultNamespace(
