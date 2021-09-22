@@ -8604,11 +8604,20 @@ var envelopeDragObserver = {
   },
 };
 
+// See attachmentListDNDObserver, which should have the same logic.
 let attachmentBucketDNDObserver = {
   onDragStart(event) {
-    let target = event.target;
-    if (target.matches("richlistitem.attachmentItem")) {
-      setupDataTransfer(event, [target.attachment]);
+    // NOTE: Starting a drag on an attachment item will normally also select
+    // the attachment item before this method is called. But this is not
+    // necessarily the case. E.g. holding Shift when starting the drag
+    // operation. When it isn't selected, we just don't transfer.
+    if (event.target.matches(".attachmentItem[selected]")) {
+      // Also transfer other selected attachment items.
+      let attachments = Array.from(
+        gAttachmentBucket.querySelectorAll(".attachmentItem[selected]"),
+        item => item.attachment
+      );
+      setupDataTransfer(event, attachments);
     }
     event.stopPropagation();
   },
