@@ -12,18 +12,15 @@
 
 @media (prefers-contrast) {
   :root {
-    --in-content-accent-color: Highlight;
+    --in-content-accent-color: SelectedItem;
   }
 }
 
-body > vbox,
-window > vbox {
+#containerBox {
+  width: 100%;
+  max-width: 800px;
   padding-block: 40px;
   padding-inline: 24px 28px;
-}
-
-#containerBox {
-  max-width: 800px;
 }
 
 fieldset {
@@ -88,6 +85,7 @@ fieldset:last-of-type {
 
 .input-container:not([hidden="true"]) {
   display: flex;
+  align-items: center;
 }
 
 .input-container.container-column:not([hidden="true"]) {
@@ -222,7 +220,7 @@ richlistitem[default="true"],
 
 #amServerSetting {
   display: inline-grid;
-  grid-template-columns: max-content auto auto;
+  grid-template-columns: max-content 1fr auto;
 }
 
 #amServerSetting div:not([hidden]) {
