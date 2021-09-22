@@ -1830,20 +1830,15 @@ nsresult nsMsgLocalMailFolder::InitCopyMsgHdrAndFileStream() {
 NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy() {
   if (!mCopyState) return NS_ERROR_NULL_POINTER;
 
-  nsresult rv;
   if (!mCopyState->m_copyingMultipleMessages) {
-    rv = InitCopyMsgHdrAndFileStream();
+    nsresult rv = InitCopyMsgHdrAndFileStream();
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  nsCOMPtr<nsISeekableStream> seekableStream =
-      do_QueryInterface(mCopyState->m_fileStream, &rv);
-
-  //  XXX ToDo: When copying multiple messages from a non-offline-enabled IMAP
-  //  server, this fails. (The copy succeeds because the file stream is created
-  //  subsequently in StartMessage) We should not be warning on an expected
-  //  error. Perhaps there are unexpected consequences of returning early?
-  NS_ENSURE_SUCCESS(rv, rv);
-  seekableStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
+  // The output stream may or may not be set already, depending upon all kinds
+  // of inscrutable conditions. This needs cleaning up (see Bug 1731177).
+  if (!mCopyState->m_fileStream) {
+    return NS_OK;
+  }
 
   int32_t messageIndex = (mCopyState->m_copyingMultipleMessages)
                              ? mCopyState->m_curCopyIndex - 1
@@ -1866,7 +1861,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy() {
     mCopyState->m_listener->OnProgress(mCopyState->m_curCopyIndex,
                                        mCopyState->m_totalMsgCount);
   // if we're copying more than one message, StartMessage will handle this.
-  return !mCopyState->m_copyingMultipleMessages ? WriteStartOfNewMessage() : rv;
+  return !mCopyState->m_copyingMultipleMessages ? WriteStartOfNewMessage()
+                                                : NS_OK;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CopyData(nsIInputStream* aIStream,
@@ -1894,11 +1890,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CopyData(nsIInputStream* aIStream,
     mCopyState->m_dataBuffer = newBuffer;
     mCopyState->m_dataBufferSize = aLength + mCopyState->m_leftOver + 3;
   }
-
-  nsCOMPtr<nsISeekableStream> seekableStream =
-      do_QueryInterface(mCopyState->m_fileStream, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  seekableStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
 
   rv = aIStream->Read(mCopyState->m_dataBuffer + mCopyState->m_leftOver + 1,
                       aLength, &readCount);
@@ -2069,10 +2060,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   // Similarly, m_parseMsgState->GetNewMsgHdr() returns a null hdr if the hdr
   // has already been processed by EndMessage so it is not doubly added here.
 
-  nsCOMPtr<nsISeekableStream> seekableStream(
-      do_QueryInterface(mCopyState->m_fileStream));
-  if (seekableStream) {
-    seekableStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
+  if (mCopyState->m_fileStream) {
     rv = FinishNewLocalMessage(mCopyState->m_fileStream, mCopyState->m_newHdr,
                                mCopyState->m_msgStore,
                                mCopyState->m_parseMsgState);
@@ -2387,10 +2375,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
 
   // I think this is always true for online to offline copy
   mCopyState->m_dummyEnvelopeNeeded = true;
-  nsCOMPtr<nsISeekableStream> seekableStream =
-      do_QueryInterface(mCopyState->m_fileStream, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  seekableStream->Seek(nsISeekableStream::NS_SEEK_END, 0);
   rv = FinishNewLocalMessage(mCopyState->m_fileStream, mCopyState->m_newHdr,
                              mCopyState->m_msgStore,
                              mCopyState->m_parseMsgState);
