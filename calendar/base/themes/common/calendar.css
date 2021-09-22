@@ -228,5 +228,5 @@
 }
 
 #calsidebar_splitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid highlight;
+  border-inline-start: 4px solid SelectedItem;
 }

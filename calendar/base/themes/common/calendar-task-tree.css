@@ -53,7 +53,7 @@
 .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus),
 :root[lwt-tree-brighttext] .calendar-task-tree >
   treechildren::-moz-tree-cell-text(overdue, selected, focus) {
-  color: HighlightText !important;
+  color: SelectedItemText !important;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-cell-text(completed) {

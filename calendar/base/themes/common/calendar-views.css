@@ -42,9 +42,9 @@
   --viewColor: var(--sidebar-text-color);
   --viewBackground: var(--sidebar-background-color, Field);
   --viewBorderColor: var(--sidebar-border-color, var(--splitter-color));
-  --viewTodayColor: var(--sidebar-highlight-text-color, HighlightText);
-  --viewTodayBackground: var(--sidebar-highlight-background-color, Highlight);
-  --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, Highlight);
+  --viewTodayColor: var(--sidebar-highlight-text-color, SelectedItemText);
+  --viewTodayBackground: var(--sidebar-highlight-background-color, SelectedItem);
+  --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, SelectedItem);
   --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
   --viewMonthDayBoxLabelColor: var(--sidebar-text-color, FieldText);
   --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
@@ -76,12 +76,12 @@
   --viewColor: WindowText;
   --viewBackground: Field;
   --viewBorderColor: ThreeDShadow;
-  --viewHighlightBorderColor: Highlight;
+  --viewHighlightBorderColor: SelectedItem;
   --viewTodayColor: inherit;
-  --viewTodayBorderColor: Highlight;
+  --viewTodayBorderColor: SelectedItem;
   --viewTodayBackground: Field;
-  --viewTodayLabelColor: HighlightText;
-  --viewTodayLabelBackground: Highlight;
+  --viewTodayLabelColor: SelectedItemText;
+  --viewTodayLabelBackground: SelectedItem;
   --viewTodayOffBackground: ButtonFace;
   --viewTodayDayLabelBackground: ButtonFace;
   --viewTodayWeekendBackground: ButtonFace;
@@ -91,17 +91,17 @@
   --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .2);
   --viewDayBoxOtherSelectedBackground: rgba(0, 0, 0, .2);
   --viewMonthOtherBackground: ButtonFace;
-  --viewMonthDayBoxSelectedColor: Highlight;
+  --viewMonthDayBoxSelectedColor: SelectedItem;
   --viewMonthDayBoxLabelColor: WindowText;
   --viewMonthDayOtherBackground: ButtonFace;
   --viewMonthDayOffLabelBackground: rgba(0, 0, 0, .1);
   --viewOffTimeBackground: rgba(0, 0, 0, .1);
   --viewTimeBoxColor: GrayText;
-  --viewDayLabelSelectedColor: HighlightText;
-  --viewDayLabelSelectedBackground: Highlight;
+  --viewDayLabelSelectedColor: SelectedItemText;
+  --viewDayLabelSelectedBackground: SelectedItem;
   --viewDragboxColor: GrayText;
-  --viewDragboxBackground: Highlight;
-  --viewDropshadowBackground: Highlight !important;
+  --viewDragboxBackground: SelectedItem;
+  --viewDropshadowBackground: SelectedItem !important;
 }
 
 :root[lwt-tree] #calendar-nav-control {

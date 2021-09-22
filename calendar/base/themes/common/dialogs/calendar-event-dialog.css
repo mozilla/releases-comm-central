@@ -420,8 +420,8 @@ label.label {
 }
 
 #calendar-event-dialog-inner .attendee-label:focus {
-  background-color: Highlight;
-  color: Highlighttext;
+  background-color: SelectedItem;
+  color: SelectedItemText;
 }
 
 /*--------------------------------------------------------------------
@@ -449,7 +449,7 @@ label.label {
 
 #keepduration-button[keep="true"] {
   list-style-image: url(chrome://calendar/skin/shared/chain-lock.svg);
-  fill: Highlight;
+  fill: SelectedItem;
 }
 
 #keepduration-button[disabled="true"] {

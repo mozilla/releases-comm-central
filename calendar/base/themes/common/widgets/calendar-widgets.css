@@ -190,8 +190,8 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 #calendar-list:focus-within > li.selected {
-  background-color: highlight;
-  color: highlighttext;
+  background-color: SelectedItem;
+  color: SelectedItemText;
 }
 
 #calendar-list > li.dragging {

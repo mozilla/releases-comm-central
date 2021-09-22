@@ -23,6 +23,6 @@ hbox:last-child > button.calendar-daypicker:last-child[mode="monthly-days"] {
 }
 
 button.calendar-daypicker[checked="true"] {
-  background-color: Highlight !important;
-  color: HighlightText !important;
+  background-color: SelectedItem !important;
+  color: SelectedItemText !important;
 }

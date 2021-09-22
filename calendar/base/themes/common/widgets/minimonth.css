@@ -5,9 +5,9 @@
 calendar-minimonth {
   --mmMainColor: -moz-DialogText;
   --mmMainBackground: Field;
-  --mmHighlightColor: HighlightText;
-  --mmHighlightBackground: Highlight;
-  --mmHighlightBorderColor: Highlight;
+  --mmHighlightColor: SelectedItemText;
+  --mmHighlightBackground: SelectedItem;
+  --mmHighlightBorderColor: SelectedItem;
   --mmBoxBackground: hsla(0, 0%, 60%, 0.15);
   --mmBoxBorderColor: ThreeDShadow;
   --mmDayColor: inherit;
@@ -30,14 +30,14 @@ calendar-minimonth {
 :root[lwt-tree-brighttext] calendar-minimonth {
   --mmMainColor: var(--sidebar-text-color, FieldText);
   --mmMainBackground: var(--sidebar-background-color, Field);
-  --mmHighlightColor: var(--sidebar-highlight-text-color, HighlightText);
-  --mmHighlightBackground: var(--sidebar-highlight-background-color, Highlight);
-  --mmHighlightBorderColor: var(--sidebar-highlight-background-color, Highlight);
+  --mmHighlightColor: var(--sidebar-highlight-text-color, SelectedItemText);
+  --mmHighlightBackground: var(--sidebar-highlight-background-color, SelectedItem);
+  --mmHighlightBorderColor: var(--sidebar-highlight-background-color, SelectedItem);
   --mmBoxBackground: var(--sidebar-background-color, Field);
   --mmBoxBorderColor: var(--sidebar-background-color, Field);
-  --mmDayTodayColor: var(--sidebar-highlight-text-color, HighlightText);
-  --mmDayTodayBackground: var(--sidebar-highlight-background-color, Highlight);
-  --mmDayTodayBorderColor: var(--sidebar-highlight-text-color, HighlightText);
+  --mmDayTodayColor: var(--sidebar-highlight-text-color, SelectedItemText);
+  --mmDayTodayBackground: var(--sidebar-highlight-background-color, SelectedItem);
+  --mmDayTodayBorderColor: var(--sidebar-highlight-text-color, SelectedItemText);
   --mmDayColor: var(--sidebar-text-color, FieldText);
   --mmDayBorderColor: var(--sidebar-background-color, Field);
   --mmDayOtherColor: var(--sidebar-text-color, FieldText);
@@ -66,11 +66,11 @@ calendar-minimonth {
   --mmDayOtherBackground: ButtonFace;
   --mmDayTodayColor: -moz-DialogText;
   --mmDayTodayBackground: Field;
-  --mmDayTodayBorderColor: Highlight;
-  --mmDaySelectedColor: HighlightText;
-  --mmDaySelectedBackground: Highlight;
+  --mmDayTodayBorderColor: SelectedItem;
+  --mmDaySelectedColor: SelectedItemText;
+  --mmDaySelectedBackground: SelectedItem;
   --mmDaySelectedBorderColor: ButtonFace;
-  --mmDaySelectedTodayBackground: Highlight;
+  --mmDaySelectedTodayBackground: SelectedItem;
   --mmDaySelectedTodayBorderColor: ButtonFace;
 }
 
