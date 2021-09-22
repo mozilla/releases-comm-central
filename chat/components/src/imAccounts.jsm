@@ -28,9 +28,6 @@ var kPrefAccountAutoJoin = "autoJoin";
 var kPrefAccountAlias = "alias";
 var kPrefAccountFirstConnectionState = "firstConnectionState";
 
-var kPrefConvertOldPasswords = "messenger.accounts.convertOldPasswords";
-var kPrefAccountPassword = "password";
-
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/accounts.properties")
 );
@@ -47,7 +44,6 @@ XPCOMUtils.defineLazyServiceGetter(
 );
 
 var gUserCanceledMasterPasswordPrompt = false;
-var gConvertingOldPasswords = false;
 
 var SavePrefTimer = {
   saveNow() {
@@ -213,19 +209,6 @@ function imAccount(aKey, aName, aPrplId) {
     // nothing to do.
     if (!this.protocol) {
       return;
-    }
-    // Try to convert old passwords stored in the preferences.
-    // Don't try too hard if the user has canceled a master password prompt:
-    // we don't want to display several of these prompts at startup.
-    if (gConvertingOldPasswords && !this.protocol.noPassword) {
-      try {
-        let password = this.prefBranch.getStringPref(kPrefAccountPassword);
-        if (password && !this.password) {
-          this.password = password;
-        }
-      } catch (e) {
-        /* No password saved in the prefs for this account. */
-      }
     }
 
     // Check for errors that should prevent connection attempts.
@@ -1010,9 +993,6 @@ AccountsService.prototype = {
     this._accounts = [];
     this._accountsById = {};
     gAccountsService = this;
-    gConvertingOldPasswords = Services.prefs.getBoolPref(
-      kPrefConvertOldPasswords
-    );
     let accountList = this._accountList;
     for (let account of accountList ? accountList.split(",") : []) {
       try {
@@ -1025,12 +1005,6 @@ AccountsService.prototype = {
         Cu.reportError(e);
         dump(e + " " + e.toSource() + "\n");
       }
-    }
-    // If the user has canceled a master password prompt, we haven't
-    // been able to save any password, so the old password conversion
-    // still needs to happen.
-    if (gConvertingOldPasswords && !gUserCanceledMasterPasswordPrompt) {
-      Services.prefs.setBoolPref(kPrefConvertOldPasswords, false);
     }
 
     this._prefObserver = this.observe.bind(this);
