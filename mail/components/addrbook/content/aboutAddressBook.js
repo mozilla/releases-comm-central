@@ -1585,6 +1585,8 @@ var detailsPane = {
   PLAIN_CONTACT_FIELDS: [
     "FirstName",
     "LastName",
+    "PhoneticFirstName",
+    "PhoneticLastName",
     "DisplayName",
     "NickName",
     "PrimaryEmail",

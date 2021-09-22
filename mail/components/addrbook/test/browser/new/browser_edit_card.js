@@ -60,6 +60,18 @@ add_task(async function test_basic_edit() {
 
   Assert.ok(detailsPane.hidden);
 
+  // Set some values in the input fields, just to prove they are cleared.
+
+  setInputValues({
+    FirstName: "BAD VALUE!",
+    LastName: "BAD VALUE!",
+    PhoneticFirstName: "BAD VALUE!",
+    PhoneticLastName: "BAD VALUE!",
+    DisplayName: "BAD VALUE!",
+    PrimaryEmail: "BAD VALUE!",
+    SecondEmail: "BAD VALUE!",
+  });
+
   // Select a card in the list. Check the display in view mode.
 
   Assert.equal(cardsList.view.rowCount, 1);
@@ -92,6 +104,8 @@ add_task(async function test_basic_edit() {
   checkInputValues({
     FirstName: "contact",
     LastName: "1",
+    PhoneticFirstName: "",
+    PhoneticLastName: "",
     DisplayName: "contact 1",
     PrimaryEmail: "contact.1@invalid",
     SecondEmail: "",
@@ -194,6 +208,66 @@ add_task(async function test_basic_edit() {
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
+});
+
+add_task(async function test_special_fields() {
+  Services.prefs.setStringPref("mail.addr_book.show_phonetic_fields", "true");
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+
+  openDirectory(personalBook);
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+
+  // The order of the FirstName and LastName fields can be reversed by L10n.
+  // This means they can be broken by L10n. Check that they're alright in the
+  // default configuration. We need to find a more robust way of doing this,
+  // but it is what it is for now.
+
+  let firstName = abDocument.getElementById("FirstName");
+  let lastName = abDocument.getElementById("LastName");
+  Assert.equal(
+    firstName.compareDocumentPosition(lastName),
+    Node.DOCUMENT_POSITION_FOLLOWING,
+    "LastName follows FirstName"
+  );
+
+  // The phonetic name fields should be visible, because the preference is set.
+  // They can also be broken by L10n.
+
+  let phoneticFirstName = abDocument.getElementById("PhoneticFirstName");
+  let phoneticLastName = abDocument.getElementById("PhoneticLastName");
+  Assert.ok(BrowserTestUtils.is_visible(phoneticFirstName));
+  Assert.ok(BrowserTestUtils.is_visible(phoneticLastName));
+  Assert.equal(
+    phoneticFirstName.compareDocumentPosition(phoneticLastName),
+    Node.DOCUMENT_POSITION_FOLLOWING,
+    "PhoneticLastName follows PhoneticFirstName"
+  );
+
+  await closeAddressBookWindow();
+
+  Services.prefs.setStringPref("mail.addr_book.show_phonetic_fields", "false");
+
+  abWindow = await openAddressBookWindow();
+  abDocument = abWindow.document;
+  createContactButton = abDocument.getElementById("toolbarCreateContact");
+
+  openDirectory(personalBook);
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+
+  // The phonetic name fields should be visible, because the preference is set.
+  // They can also be broken by L10n.
+
+  phoneticFirstName = abDocument.getElementById("PhoneticFirstName");
+  phoneticLastName = abDocument.getElementById("PhoneticLastName");
+  Assert.ok(BrowserTestUtils.is_hidden(phoneticFirstName));
+  Assert.ok(BrowserTestUtils.is_hidden(phoneticLastName));
+
+  await closeAddressBookWindow();
+
+  Services.prefs.clearUserPref("mail.addr_book.show_phonetic_fields");
 });
 
 /**

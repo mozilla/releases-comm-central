@@ -373,7 +373,7 @@ ab-card-listrow:not(.selected) > div.address {
   grid-gap: 0.5em;
 }
 
-.editGrid > .labelledField {
+.editGrid > .labelledField:not([hidden]) {
   display: flex;
   flex-direction: column;
   margin: 0; /* Overrides fieldset. */
@@ -392,7 +392,7 @@ ab-card-listrow:not(.selected) > div.address {
   grid-column: 1 / 3;
 }
 
-.editGrid div.inlineField {
+.editGrid div.inlineField:not([hidden]) {
   display: flex;
   align-items: baseline;
   justify-content: start;
