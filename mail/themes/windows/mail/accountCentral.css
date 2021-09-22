@@ -13,12 +13,12 @@
     --bg-color: Window;
     --text-color: WindowText;
     --title-color: -moz-DialogText;
-    --primary-color: Highlight;
-    --primary-color-hover: Highlight;
+    --primary-color: SelectedItem;
+    --primary-color-hover: SelectedItem;
     --btn-color: -moz-DialogText;
-    --btn-color-hover: HighlightText;
+    --btn-color-hover: SelectedItemText;
     --btn-bg: Dialog;
-    --btn-bg-hover: Highlight;
+    --btn-bg-hover: SelectedItem;
     --btn-shadow-hover: transparent;
     --popup-bg: Window;
   }

@@ -61,7 +61,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 }
 
 #folderpane_splitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid highlight;
+  border-inline-start: 4px solid SelectedItem;
 }
 
 #threadpane-splitter:not([orient="vertical"]) {
@@ -78,7 +78,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 }
 
 #threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
-  border-inline-end: 4px solid highlight;
+  border-inline-end: 4px solid SelectedItem;
 }
 
 #threadpane-splitter,
@@ -113,7 +113,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 
 #threadpane-splitter[state="collapsed"]:hover,
 #attachment-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid highlight;
+  border-bottom: 4px solid SelectedItem;
 }
 
 /* ..... status bar adjustments ..... */
@@ -137,8 +137,8 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 }
 
 #threadTree > treechildren::-moz-tree-row(selected, focus) {
-  color: HighlightText;
-  background-color: Highlight;
+  color: SelectedItemText;
+  background-color: SelectedItem;
 }
 
 /* ..... tabs ..... */

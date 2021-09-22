@@ -45,8 +45,8 @@
     .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled="true"]):hover,
   :root:not(:-moz-lwtheme)
     .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled="true"]):hover:active {
-    background-image: linear-gradient(Highlight, Highlight) !important;
-    color: HighlightText !important;
-    border-color: HighlightText !important;
+    background-image: linear-gradient(SelectedItem, SelectedItem) !important;
+    color: SelectedItemText !important;
+    border-color: SelectedItemText !important;
   }
 }

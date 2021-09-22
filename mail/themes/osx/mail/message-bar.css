@@ -15,7 +15,7 @@
 #reminderBarPopup > menuitem[_moz-menuactive="true"] {
   -moz-font-smoothing-background-color: -moz-mac-active-menuitem;
   color: -moz-mac-menutextselect;
-  background-color: Highlight;
+  background-color: SelectedItem;
 }
 
 @media (-moz-mac-big-sur-theme) {

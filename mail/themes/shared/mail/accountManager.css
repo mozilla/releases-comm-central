@@ -12,7 +12,7 @@
 
 @media (prefers-contrast) {
   :root {
-    --in-content-accent-color: Highlight;
+    --in-content-accent-color: SelectedItem;
   }
 }
 

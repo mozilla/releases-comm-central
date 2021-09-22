@@ -18,11 +18,11 @@
   --noselect-folder-color: GrayText;
   --new-folder-color: -moz-hyperlinktext;
   --row-grouped-header-bg-color: -moz-dialog;
-  --row-grouped-header-bg-color-selected: Highlight;
+  --row-grouped-header-bg-color-selected: SelectedItem;
   --panel-separator-color: ThreeDShadow;
   --splitter-color: ThreeDShadow;
   --autocomplete-popup-url-color: -moz-nativehyperlinktext;
-  --select-focus-text-color: HighlightText;
+  --select-focus-text-color: SelectedItemText;
 }
 
 :root:-moz-lwtheme {

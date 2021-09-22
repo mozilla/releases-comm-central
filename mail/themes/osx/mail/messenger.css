@@ -20,7 +20,7 @@
   --panel-separator-color: hsla(210, 4%, 10%, .14);
   --splitter-color: #bdbdbd;
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
-  --select-focus-text-color: HighlightText;
+  --select-focus-text-color: SelectedItemText;
   --noselect-folder-color: gray;
   --new-folder-color: blue;
 }
@@ -278,7 +278,7 @@ treechildren::-moz-tree-line {
 }
 
 treechildren::-moz-tree-line(selected, focus) {
-  border-color: HighlightText;
+  border-color: SelectedItemText;
 }
 
 /* message column icons */

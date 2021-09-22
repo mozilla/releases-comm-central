@@ -584,7 +584,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 #listSplitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid highlight;
+  border-inline-start: 4px solid SelectedItem;
 }
 
 #contextSplitter {
@@ -594,7 +594,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 #contextSplitter[state="collapsed"]:hover {
-  border-inline-end: 4px solid highlight;
+  border-inline-end: 4px solid SelectedItem;
 }
 
 #conv-toolbar {
@@ -642,7 +642,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 .conv-nicklist:focus > richlistitem[inactive][selected] > label {
-  color: HighlightText !important;
+  color: SelectedItemText !important;
 }
 
 /* from instantbird/themes/blist.css */

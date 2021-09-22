@@ -99,7 +99,7 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   --field-background-color: #fff;
   --field-border-color: rgba(0, 0, 0, .3);
   --field-border-hover-color: rgba(0, 0, 0, .4);
-  --highlight-color: Highlight;
+  --highlight-color: SelectedItem;
 }
 
 :root[lwt-tree] #searchTermBox,

@@ -58,7 +58,7 @@
 
 :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-row(selected, focus) {
   appearance: none;
-  background-color: Highlight;
+  background-color: SelectedItem;
 }
 
 #dirTree treechildren::-moz-tree-cell-text {
@@ -76,7 +76,7 @@
 :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-image(selected, focus),
 :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-twisty(selected, focus),
 :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
-  color: HighlightText;
+  color: SelectedItemText;
 }
 
 /* splitters */

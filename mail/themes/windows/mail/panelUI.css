@@ -24,7 +24,7 @@ menupopup.cui-widget-panel[type="arrow"] {
   .widget-overflow-list .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus-visible),
   .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) >
     toolbarbutton:not([disabled],[open],:active):is(:hover,:focus-visible) {
-    color: HighlightText;
+    color: SelectedItemText;
   }
 
   panelview .toolbarbutton-1:not([disabled]):is([open],:hover:active),
@@ -35,7 +35,7 @@ menupopup.cui-widget-panel[type="arrow"] {
   .widget-overflow-list .toolbarbutton-1:not([disabled]):is([open],:hover:active),
   .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) >
     toolbarbutton:not([disabled]):is([open],:hover:active) {
-    color: HighlightText;
+    color: SelectedItemText;
   }
 }
 

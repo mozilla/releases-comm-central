@@ -380,7 +380,7 @@ aside.settings-btn-container {
 }
 
 .donation-link:focus:not(:hover) {
-  outline: 1px dotted Highlight;
+  outline: 1px dotted SelectedItem;
 }
 
 .btn-link {
@@ -430,7 +430,7 @@ aside.settings-btn-container {
 }
 
 .resource-link:focus:not(:hover) {
-  outline: 1px dotted Highlight;
+  outline: 1px dotted SelectedItem;
 }
 
 #featuresLink::before {

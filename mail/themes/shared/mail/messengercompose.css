@@ -262,8 +262,8 @@ splitter:not([orient="vertical"]) {
 }
 
 #newAttachmentIndicator {
-  color: HighlightText;
-  background-color: Highlight;
+  color: SelectedItemText;
+  background-color: SelectedItem;
   font-size: 0.85em;
   padding: 2px 5px;
   border-radius: 10px;
@@ -323,8 +323,8 @@ splitter:not([orient="vertical"]) {
 }
 
 #attachmentBucketSize {
-  color: HighlightText;
-  background-color: Highlight;
+  color: SelectedItemText;
+  background-color: SelectedItem;
   font-size: 0.85em;
   line-height: 1em;
   padding: 3px 5px;
@@ -749,8 +749,8 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 }
 
 .autocomplete-richlistitem[selected] {
-  background-color: Highlight;
-  color: HighlightText;
+  background-color: SelectedItem;
+  color: SelectedItemText;
 }
 
 /* :::: autocomplete icons :::: */
@@ -1037,12 +1037,12 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 #MsgHeadersToolbar[brighttext] .address-pill[selected]:not(.editing),
 .address-pill.invalid-address[selected]:not(.editing),
 #MsgHeadersToolbar[brighttext] .address-pill.invalid-address[selected]:not(.editing) {
-  color: HighlightText;
-  background-color: Highlight;
+  color: SelectedItemText;
+  background-color: SelectedItem;
 }
 
 .address-pill[selected]:not(.editing) .pill-indicator {
-  fill: Highlight;
+  fill: SelectedItem;
 }
 
 .address-identity-recipient {

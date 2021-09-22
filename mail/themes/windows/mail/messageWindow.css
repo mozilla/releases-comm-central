@@ -59,7 +59,7 @@
 }
 
 #attachment-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid highlight;
+  border-bottom: 4px solid SelectedItem;
 }
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {

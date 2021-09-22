@@ -16,7 +16,7 @@ treechildren::-moz-tree-image(folderNameCol) {
   }
 
   treechildren::-moz-tree-image(folderNameCol, selected) {
-    --unread-folder-color: HighlightText;
+    --unread-folder-color: SelectedItemText;
   }
 
   #folderTree treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
@@ -24,12 +24,12 @@ treechildren::-moz-tree-image(folderNameCol) {
   }
 
   treechildren::-moz-tree-image(folderNameCol, newMessages-true) {
-    fill: Highlight !important;
+    fill: SelectedItem !important;
   }
 
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-image(folderNameCol) {
     --default: FieldText;
-    --primary: Highlight;
+    --primary: SelectedItem;
   }
 }
 

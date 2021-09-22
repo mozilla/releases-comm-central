@@ -54,7 +54,7 @@ treechildren::-moz-tree-row(modeHeader) {
 
 :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-row(selected, focus) {
   appearance: none;
-  background-color: Highlight;
+  background-color: SelectedItem;
 }
 
 #folderTree treechildren::-moz-tree-cell-text {
@@ -73,8 +73,8 @@ treechildren::-moz-tree-row(modeHeader) {
 :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-image(selected, focus),
 :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-twisty(selected, focus),
 :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
-  color: HighlightText;
-  fill: HighlightText;
+  color: SelectedItemText;
+  fill: SelectedItemText;
 }
 
 /* ::::: thread decoration ::::: */
@@ -116,7 +116,7 @@ treechildren::-moz-tree-row(dummy) {
 }
 
 #folderpane_splitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid highlight;
+  border-inline-start: 4px solid SelectedItem;
 }
 
 #threadpane-splitter:not([orient="vertical"]) {
@@ -126,7 +126,7 @@ treechildren::-moz-tree-row(dummy) {
 }
 
 #threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
-  border-inline-end: 4px solid highlight;
+  border-inline-end: 4px solid SelectedItem;
 }
 
 #threadpane-splitter,
@@ -160,7 +160,7 @@ treechildren::-moz-tree-row(dummy) {
 
 #threadpane-splitter[state="collapsed"]:hover,
 #attachment-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid highlight;
+  border-bottom: 4px solid SelectedItem;
 }
 
 .telemetry-text-link {

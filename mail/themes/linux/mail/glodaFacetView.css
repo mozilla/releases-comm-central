@@ -7,12 +7,12 @@
 #body {
   --popupColor: Menu;
   --popupBorder: ThreeDShadow;
-  --popupHLColor: Highlight;
-  --popupHLTextColor: HighlightText;
-  --barColor: Highlight;
+  --popupHLColor: SelectedItem;
+  --popupHLTextColor: SelectedItemText;
+  --barColor: SelectedItem;
   --barHlColor: -moz-nativehyperlinktext;
   --dateColor: rgba(0,0,0,0.1);
-  --dateHLColor: Highlight;
+  --dateHLColor: SelectedItem;
   --borderRadius: 3px;
   --buttonHoverColor: ButtonShadow;
   --buttonHoverTextColor: -moz-ButtonHoverText;
@@ -43,5 +43,5 @@
 
 .bar:hover > .bar-link,
 .bar:focus > .bar-link {
-  color: HighlightText;
+  color: SelectedItemText;
 }

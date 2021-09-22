@@ -55,5 +55,5 @@
 }
 
 #attachment-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid highlight;
+  border-bottom: 4px solid SelectedItem;
 }

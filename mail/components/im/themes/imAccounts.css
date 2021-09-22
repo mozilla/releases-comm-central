@@ -114,11 +114,11 @@ richlistitem .account-buttons {
 }
 
 richlistitem[dragover="down"] {
-  border-bottom: 3px solid HighLight;
+  border-bottom: 3px solid SelectedItem;
 }
 
 richlistitem[dragover="up"] {
-  border-top: 3px solid HighLight;
+  border-top: 3px solid SelectedItem;
 }
 
 :root:not([lwt-tree]) #bottombuttons button,

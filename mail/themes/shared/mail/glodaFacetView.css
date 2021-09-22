@@ -212,8 +212,8 @@ html[dir="rtl"] .facet-date-zoom-out {
 }
 
 .facetious[type="date"][zoomedout="false"] .facet-date-zoom-out:hover {
-  fill: HighlightText;
-  background-color: Highlight;
+  fill: SelectedItemText;
+  background-color: SelectedItem;
   border-color: Field;
 }
 
@@ -264,8 +264,8 @@ facet-boolean:not([disabled]):hover > .facet-checkbox-bubble,
 facet-boolean-filtered:not([disabled]):hover > .facet-checkbox-bubble,
 facet-boolean[checked="true"]:not([disabled]) > .facet-checkbox-bubble,
 facet-boolean-filtered[checked="true"]:not([disabled]) > .facet-checkbox-bubble {
-  background-color: Highlight;
-  color: HighlightText;
+  background-color: SelectedItem;
+  color: SelectedItemText;
 }
 
 .facet-checkbox-label,
@@ -333,13 +333,13 @@ html[dir="rtl"] .bar-count {
 }
 
 .bar[selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
+  background-color: SelectedItem;
+  color: SelectedItemText;
 }
 
 .bar:hover,
 .bar:focus {
-  background-color: Highlight;
+  background-color: SelectedItem;
   outline: none;
 }
 
@@ -375,14 +375,14 @@ html[dir="rtl"] .bar-link {
 .bar:hover > .bar-count,
 .bar:focus > .bar-link,
 .bar:focus > .bar-count {
-  color: HighlightText;
+  color: SelectedItemText;
 }
 
 .bar[selected="true"]> .bar-link {
-  color: HighlightText;
+  color: SelectedItemText;
 }
 .bar[selected="true"] > .bar-count {
-  color: HighlightText;
+  color: SelectedItemText;
 }
 
 /* ===== Results ===== */
@@ -425,8 +425,8 @@ html[dir="rtl"] .bar-link {
 
 .results-message-showall-button:hover,
 .results-message-showall-button:focus {
-  background-color: Highlight;
-  color: Highlighttext;
+  background-color: SelectedItem;
+  color: SelectedItemText;
 }
 
 .results-message-sort-bar {
@@ -488,13 +488,13 @@ html[dir="rtl"] .bar-link {
 }
 
 .message:hover .message-subject {
-  color: Highlight;
+  color: SelectedItem;
 }
 
 .message .message-subject:hover,
 .message .message-subject:focus {
-  background-color: Highlight;
-  color: Highlighttext;
+  background-color: SelectedItem;
+  color: SelectedItemText;
 }
 
 .message:focus,
@@ -602,8 +602,8 @@ html[dir="rtl"] .message-attachment-icon {
 }
 
 .message-body-fulltext-match {
-  color: HighlightText;
-  background-color: Highlight;
+  color: SelectedItemText;
+  background-color: SelectedItem;
   border-radius: var(--borderRadius);
 }
 

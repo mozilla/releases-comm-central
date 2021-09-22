@@ -11,7 +11,7 @@
 
 :root {
   --autocomplete-popup-url-color: -moz-nativehyperlinktext;
-  --tabline-color: Highlight;
+  --tabline-color: SelectedItem;
   --glassShadowColor: hsla(240, 5%, 5%, .3);
   --new-folder-color: -moz-hyperlinktext;
   --noselect-folder-color: GrayText;
@@ -21,7 +21,7 @@
                                              rgba(255, 255, 255, .15));
   --chrome-content-separator-color: ThreeDShadow;
   --row-grouped-header-bg-color: -moz-dialog;
-  --row-grouped-header-bg-color-selected: Highlight;
+  --row-grouped-header-bg-color-selected: SelectedItem;
   --panel-separator-color: ThreeDLightShadow;
   --splitter-color: ThreeDShadow;
 }
@@ -61,15 +61,15 @@
 
 @media (prefers-contrast) {
   :root {
-    --select-focus-text-color: HighlightText;
+    --select-focus-text-color: SelectedItemText;
     --tabs-border-color: ThreeDShadow;
-    --tabline-color: Highlight;
-    --item-focus-selected-border-color: HighlightText;
+    --tabline-color: SelectedItem;
+    --item-focus-selected-border-color: SelectedItemText;
     --new-folder-color: Highligt;
     --menuitem-vertical-padding: 3px;
-    --arrowpanel-dimmed: Highlight;
-    --arrowpanel-dimmed-further: Highlight;
-    --toolbar-field-focus-border-color: Highlight;
+    --arrowpanel-dimmed: SelectedItem;
+    --arrowpanel-dimmed-further: SelectedItem;
+    --toolbar-field-focus-border-color: SelectedItem;
   }
 
   :root:not(:-moz-lwtheme) .themeable-full,
@@ -77,13 +77,13 @@
   :root:not(:-moz-lwtheme) #navigation-toolbox > toolbar,
   :root:not(:-moz-lwtheme) #todaypane-new-event-button,
   :root:not(:-moz-lwtheme) #CardViewBox {
-    --toolbarbutton-hover-background: Highlight;
-    --toolbarbutton-hover-bordercolor: HighlightText !important;
-    --toolbarbutton-header-bordercolor: HighlightText;
-    --toolbarbutton-active-background: Highlight;
-    --toolbarbutton-active-bordercolor: HighlightText;
-    --toolbarbutton-checked-background: Highlight;
-    --toolbarbutton-icon-fill-attention: Highlight;
+    --toolbarbutton-hover-background: SelectedItem;
+    --toolbarbutton-hover-bordercolor: SelectedItemText !important;
+    --toolbarbutton-header-bordercolor: SelectedItemText;
+    --toolbarbutton-active-background: SelectedItem;
+    --toolbarbutton-active-bordercolor: SelectedItemText;
+    --toolbarbutton-checked-background: SelectedItem;
+    --toolbarbutton-icon-fill-attention: SelectedItem;
   }
 
   :root:not(:-moz-lwtheme) .toolbarbutton-1:not(.qfb-tag-button):hover,
@@ -91,7 +91,7 @@
   :root:not(:-moz-lwtheme) #todaypane-new-event-button:hover,
   :root:not(:-moz-lwtheme) .toolbarbutton-1[checked="true"],
   :root:not(:-moz-lwtheme) .toolbarbutton-menubutton-button:hover {
-    color: HighlightText !important;
+    color: SelectedItemText !important;
     fill: currentColor;
   }
 
@@ -281,7 +281,7 @@ treechildren::-moz-tree-cell-text {
 
 @media (-moz-windows-default-theme: 0) {
   tree > treechildren::-moz-tree-row(hover) {
-    border-color: HighlightText !important;
+    border-color: SelectedItemText !important;
     border-style: solid;
     background-color: transparent;
   }
@@ -297,13 +297,13 @@ treechildren::-moz-tree-cell-text {
 
   tree > treechildren::-moz-tree-row(tagged, selected) {
     background-color: transparent;
-    border-color: Highlight;
+    border-color: SelectedItem;
   }
 
   #threadTree > treechildren::-moz-tree-row(untagged, selected, focus),
   tree:not(#threadTree) > treechildren::-moz-tree-row(selected, focus) {
-    border-color: HighlightText;
-    background-color: Highlight;
+    border-color: SelectedItemText;
+    background-color: SelectedItem;
   }
 
   tree > treechildren::-moz-tree-twisty {
@@ -314,7 +314,7 @@ treechildren::-moz-tree-cell-text {
   tree > treechildren::-moz-tree-cell-text(dropOn),
   #threadTree > treechildren::-moz-tree-cell-text(untagged, selected, focus),
   tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected, focus) {
-    color: HighlightText;
+    color: SelectedItemText;
     fill: currentColor;
   }
 
@@ -323,7 +323,7 @@ treechildren::-moz-tree-cell-text {
   }
 
   .autocomplete-richlistitem:hover {
-    color: HighlightText;
+    color: SelectedItemText;
   }
 }
 
@@ -475,8 +475,8 @@ treechildren::-moz-tree-indentation {
 
   :root:not(:-moz-lwtheme) tree:not(#threadTree) > treechildren::-moz-tree-row(selected, focus),
   :root:not(:-moz-lwtheme) #threadTree > treechildren::-moz-tree-row(untagged, selected, focus) {
-    border-color: HighlightText;
-    background-color: Highlight;
+    border-color: SelectedItemText;
+    background-color: SelectedItem;
   }
 }
 

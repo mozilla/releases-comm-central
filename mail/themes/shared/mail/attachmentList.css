@@ -34,7 +34,7 @@
 }
 
 .attachmentList[seltype="multiple"]:focus .attachmentItem[current="true"] {
-  border-color: Highlight;
+  border-color: SelectedItem;
   outline: none;
 }
 

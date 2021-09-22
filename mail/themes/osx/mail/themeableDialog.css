@@ -9,12 +9,12 @@
 :host,
 :root {
   appearance: none;
-  --popup-item-hover-text: HighlightText;
-  --popup-item-hover: Highlight;
+  --popup-item-hover-text: SelectedItemText;
+  --popup-item-hover: SelectedItem;
 }
 
 :root[lwt-default-theme-in-dark-mode] {
-  --popup-item-hover: Highlight;
+  --popup-item-hover: SelectedItem;
 }
 
 @media (-moz-mac-big-sur-theme) {

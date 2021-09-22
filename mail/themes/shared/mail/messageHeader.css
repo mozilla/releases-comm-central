@@ -204,8 +204,8 @@ mail-tagfield[collapsed="true"] {
 #attachmentName:hover,
 #attachmentName[selected="true"] {
   cursor: pointer;
-  color: HighlightText;
-  background-color: Highlight;
+  color: SelectedItemText;
+  background-color: SelectedItem;
 }
 
 #attachmentSize {
@@ -405,8 +405,8 @@ mail-newsgroups-headerfield.headerValueBox {
 
 .emailDisplayButton:hover {
   cursor: pointer;
-  color: HighlightText;
-  background-color: Highlight;
+  color: SelectedItemText;
+  background-color: SelectedItem;
 }
 
 .emailDisplayButton:focus-visible:not(:hover) {
@@ -419,8 +419,8 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
    * and tweak the bottom to blend in more w/ the menu
    */
   cursor: pointer;
-  color: HighlightText;
-  background-color: Highlight;
+  color: SelectedItemText;
+  background-color: SelectedItem;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -480,7 +480,7 @@ mail-emailaddress button.email-action-button {
 
 .emailDisplayButton:hover .emailStar,
 mail-emailaddress[selected="true"] > .emailDisplayButton .emailStar {
-  fill: HighlightText;
+  fill: SelectedItemText;
 }
 
 .emaillabel {

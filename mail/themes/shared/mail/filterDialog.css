@@ -24,11 +24,11 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
-  --highlight-color: Highlight;
+  --highlight-color: SelectedItem;
   --popup-item-hover: rgba(128, 128, 128, .2);
   --popup-item-hover-text: MenuText;
-  --popup-item-selected: Highlight;
-  --popup-selected-text: HighlightText;
+  --popup-item-selected: SelectedItem;
+  --popup-selected-text: SelectedItemText;
   --richlist-button-background: -moz-Dialog;
 }
 

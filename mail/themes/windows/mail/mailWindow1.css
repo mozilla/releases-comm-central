@@ -408,8 +408,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         background-color: Field;
       }
       .titlebar-button:hover {
-        stroke: HighlightText;
-        background-color: Highlight;
+        stroke: SelectedItemText;
+        background-color: SelectedItem;
       }
 
       #titlebar-min {
@@ -450,7 +450,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 #folderpane_splitter[state="collapsed"]:hover {
-  border-inline-start: 4px solid highlight;
+  border-inline-start: 4px solid SelectedItem;
 }
 
 #threadpane-splitter:not([orient="vertical"]) {
@@ -460,7 +460,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 #threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
-  border-inline-end: 4px solid highlight;
+  border-inline-end: 4px solid SelectedItem;
 }
 
 #threadpane-splitter,
@@ -494,7 +494,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 #threadpane-splitter[state="collapsed"]:hover,
 #attachment-splitter[state="collapsed"]:hover {
-  border-bottom: 4px solid highlight;
+  border-bottom: 4px solid SelectedItem;
 }
 
 #messagepanebox {
@@ -530,7 +530,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
   :root:not(:-moz-lwtheme)
     treechildren::-moz-tree-cell-text(selected, untagged, unread, focus) {
-    color: HighlightText !important;
+    color: SelectedItemText !important;
   }
 }
 

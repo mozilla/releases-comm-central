@@ -8,8 +8,8 @@
 :root {
   --body-background-color: Field;
   --body-text-color: FieldText;
-  --header-background-color: Highlight;
-  --head-text-color: HighlightText;
+  --header-background-color: SelectedItem;
+  --head-text-color: SelectedItemText;
   --info-text-color: GrayText;
   background-color: var(--body-background-color);
   color: var(--body-text-color);

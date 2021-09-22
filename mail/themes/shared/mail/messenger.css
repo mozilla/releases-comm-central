@@ -33,8 +33,8 @@ body {
 
   --autocomplete-popup-background: Field;
   --autocomplete-popup-color: FieldText;
-  --autocomplete-popup-highlight-background: Highlight;
-  --autocomplete-popup-highlight-color: HighlightText;
+  --autocomplete-popup-highlight-background: SelectedItem;
+  --autocomplete-popup-highlight-color: SelectedItemText;
   --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
   --button-hover-bgcolor: color-mix(in srgb, currentColor 17%, transparent);
   --button-active-bgcolor: color-mix(in srgb, currentColor 30%, transparent);
@@ -76,8 +76,8 @@ body {
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-focus-border-color: -moz-accent-color;
-  --toolbar-field-highlight: Highlight;
-  --toolbar-field-highlight-color: HighlightText;
+  --toolbar-field-highlight: SelectedItem;
+  --toolbar-field-highlight-color: SelectedItemText;
   --item-focus-selected-border-color: #0060df;
   --default: #4f526d;
   --primary: #0a84ff;
@@ -306,7 +306,7 @@ treechildren::-moz-tree-row(selected) {
 }
 
 treechildren::-moz-tree-row(selected, focus) {
-  background-color: Highlight;
+  background-color: SelectedItem;
 }
 
 treechildren::-moz-tree-twisty {
@@ -995,7 +995,7 @@ html|ul.addon-installed-list {
 }
 
 .button-flat:focus-visible:not(:hover) {
-  outline: 2px solid Highlight;
+  outline: 2px solid SelectedItem;
 }
 
 :root[lwt-tree] tree,
@@ -1056,16 +1056,16 @@ tree:-moz-lwtheme:not(:focus)
 }
 
 tree > treechildren::-moz-tree-row(dropOn) {
-  border-color: HighlightText;
-  background-color: Highlight;
+  border-color: SelectedItemText;
+  background-color: SelectedItem;
 }
 
 tree > treechildren::-moz-tree-cell-text(primary, dropOn) {
-  color: HighlightText;
+  color: SelectedItemText;
 }
 
 tree > treechildren::-moz-tree-image(primary, dropOn) {
-  fill: HighlightText !important;
+  fill: SelectedItemText !important;
 }
 
 :root[lwt-tree] treecol:not([hideheader="true"]),

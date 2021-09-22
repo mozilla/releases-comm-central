@@ -105,16 +105,16 @@
 @media (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
     --button-bgcolor: ButtonFace;
-    --button-hover-bgcolor: Highlight;
-    --button-active-bgcolor: Highlight;
-    --button-text-active: HighlightText;
+    --button-hover-bgcolor: SelectedItem;
+    --button-active-bgcolor: SelectedItem;
+    --button-text-active: SelectedItemText;
     --button-border-color: ThreeDShadow;
     --field-border-color: ThreeDShadow;
-    --field-border-hover-color: HighlightText;
-    --popup-item-hover: Highlight;
-    --popup-item-hover-text: HighlightText;
-    --tab-hover-background: Highlight;
-    --tab-selected-background: Highlight;
+    --field-border-hover-color: SelectedItemText;
+    --popup-item-hover: SelectedItem;
+    --popup-item-hover-text: SelectedItemText;
+    --tab-hover-background: SelectedItem;
+    --tab-selected-background: SelectedItem;
   }
 
   button[open],
