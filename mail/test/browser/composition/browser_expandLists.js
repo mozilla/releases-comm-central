@@ -106,6 +106,22 @@ add_task(async function testExpandListsOnTo() {
 });
 
 /**
+ * Tests the "Expand List" menu option works with the "To" list,
+ * with invalid pills involved.
+ */
+add_task(async function testExpandListsInvalidPill() {
+  let cwc = open_compose_new_mail();
+  // We add one invalid pill in the middle so see that parsing out the
+  // addresses still works correctly for that case.
+  let addresses =
+    "start@example,invalidpill,Test List,end@example,invalidpill2";
+
+  setup_msg_contents(cwc, addresses, "Expand To Test Invalid Pill", "");
+  await testListExpansion(cwc.window, "toAddrContainer", addresses);
+  close_compose_window(cwc);
+});
+
+/**
  * Tests the "Expand List" menu option works with the "Cc" list.
  */
 add_task(async function testExpandListsOnCc() {

@@ -332,13 +332,13 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
  * array of addresses.
  *
  * @param {Element} row - The row to add the addresses to.
- * @param {string[]} aAddressArray - Recipient addresses (strings) to add.
+ * @param {string[]} addressArray - Recipient addresses (strings) to add.
  * @param {boolean=false} select - If the newly generated pills should be
  *   selected.
  */
-function addressRowAddRecipientsArray(row, aAddressArray, select = false) {
-  let addresses = MailServices.headerParser.makeFromDisplayAddress(
-    aAddressArray
+function addressRowAddRecipientsArray(row, addressArray, select = false) {
+  let addresses = addressArray.map(
+    addr => MailServices.headerParser.makeFromDisplayAddress(addr)[0]
   );
 
   if (row.classList.contains("hidden")) {
@@ -359,7 +359,7 @@ function addressRowAddRecipientsArray(row, aAddressArray, select = false) {
     .classList.add("addressing-field-edited");
 
   // Add the recipients to our spell check ignore list.
-  addRecipientsToIgnoreList(aAddressArray.join(", "));
+  addRecipientsToIgnoreList(addressArray.join(", "));
   calculateHeaderHeight();
   updateAriaLabelsOfAddressRow(row);
 
@@ -1023,10 +1023,12 @@ function onPillPopupShowing(event) {
     menu.querySelector("#editAddressPill").hidden = true;
   }
 
-  // Hide the `expand list` item if not all selected pills are mailing lists.
+  // Hide the `expand list` item and the separator before it, if not all
+  // selected pills are mailing lists
   let isNotMailingList = [...allSelectedPills].some(pill => !pill.isMailList);
-  menu.querySelector("#expandList").hidden = isNotMailingList;
-  menu.querySelector("#expandListSeparator").hidden = isNotMailingList;
+  let expandListMenuitem = document.getElementById("expandList");
+  expandListMenuitem.hidden = isNotMailingList;
+  expandListMenuitem.previousElementSibling.hidden = isNotMailingList;
 
   // If any Newsgroup or Followup pill is selected, disable all move actions.
   if (
