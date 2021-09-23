@@ -7,11 +7,11 @@
 const THUNDERBIRD_THEME_PREVIEWS = new Map([
   [
     "thunderbird-compact-light@mozilla.org",
-    "chrome://mozapps/content/extensions/firefox-compact-light.svg",
+    "resource://builtin-themes/light/preview.svg",
   ],
   [
     "thunderbird-compact-dark@mozilla.org",
-    "chrome://mozapps/content/extensions/firefox-compact-dark.svg",
+    "resource://builtin-themes/dark/preview.svg",
   ],
 ]);
 
