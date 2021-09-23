@@ -602,6 +602,28 @@ checkbox {
  * Connection dialog
  */
 
+#proxyExtensionContent:not([hidden]) {
+  display: flex;
+  align-items: center;
+}
+
+#proxyExtensionDescription {
+  margin-block: 0;
+  flex: 1 1 auto;
+}
+
+#proxyExtensionDescription > img {
+  height: 20px;
+  width: 20px;
+  vertical-align: text-bottom;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#proxyExtensionDisable {
+  flex: 0 0 auto;
+}
+
 #proxy-grid,
 #dnsOverHttps-grid {
   display: grid;

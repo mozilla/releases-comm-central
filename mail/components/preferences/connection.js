@@ -113,13 +113,8 @@ window.addEventListener(
     );
 
     document
-      .getElementById("disableProxyExtension")
-      .addEventListener(
-        "command",
-        makeDisableControllingExtension(PREF_SETTING_TYPE, PROXY_KEY).bind(
-          gConnectionsDialog
-        )
-      );
+      .getElementById("proxyExtensionDisable")
+      .addEventListener("click", disableControllingProxyExtension);
     gConnectionsDialog.updateProxySettingsUI();
     initializeProxyUI(gConnectionsDialog);
   },
@@ -433,11 +428,9 @@ var gConnectionsDialog = {
 
     if (isLocked) {
       // An extension can't control this setting if any pref is locked.
-      hideControllingExtension(PROXY_KEY);
+      hideControllingProxyExtension();
     } else {
-      handleControllingExtension(PREF_SETTING_TYPE, PROXY_KEY).then(
-        setInputsDisabledState
-      );
+      handleControllingProxyExtension().then(setInputsDisabledState);
     }
   },
 

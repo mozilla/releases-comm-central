@@ -31,13 +31,19 @@
   <script src="chrome://messenger/content/preferences/extensionControlled.js"/>
   <script src="chrome://messenger/content/preferences/connection.js"/>
 
-  <hbox id="proxyExtensionContent"
-        align="start" hidden="true" class="extension-controlled">
-    <description control="disableProxyExtension" flex="1" />
-    <button id="disableProxyExtension"
-            class="extension-controlled-button accessory-button"
-            data-l10n-id="connection-disable-extension" />
-  </hbox>
+  <!-- Need a wrapper div within the xul:dialog, which otherwise does not give
+     - enough height for the flex display.
+     - REMOVE when we use HTML only. -->
+  <html:div>
+  <html:div id="proxyExtensionContent" hidden="hidden">
+    <html:p id="proxyExtensionDescription">
+      <html:img data-l10n-name="extension-icon" />
+    </html:p>
+    <html:button id="proxyExtensionDisable"
+                 data-l10n-id="disable-extension-button">
+    </html:button>
+  </html:div>
+  </html:div>
 
   <html:div>
   <html:fieldset>
