@@ -3,6 +3,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-    content/messenger/cloudfile/selectDialog.css              (content/selectDialog.css)
     content/messenger/cloudfile/selectDialog.js               (content/selectDialog.js)
     content/messenger/cloudfile/selectDialog.xhtml            (content/selectDialog.xhtml)

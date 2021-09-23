@@ -110,6 +110,7 @@
   skin/classic/messenger/aboutAddressBook.css                 (../shared/mail/aboutAddressBook.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
   skin/classic/messenger/accountWizard.css                    (../shared/mail/accountWizard.css)
+  skin/classic/messenger/cloudfileSelectDialog.css            (../shared/mail/cloudfileSelectDialog.css)
   skin/classic/messenger/extensionPopup.css                   (../shared/mail/extensionPopup.css)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
   skin/classic/messenger/messageQuotes.css                    (../shared/mail/messageQuotes.css)
