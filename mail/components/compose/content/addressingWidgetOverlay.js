@@ -337,9 +337,10 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
  *   selected.
  */
 function addressRowAddRecipientsArray(row, addressArray, select = false) {
-  let addresses = addressArray.map(
-    addr => MailServices.headerParser.makeFromDisplayAddress(addr)[0]
-  );
+  let addresses = [];
+  for (let addr of addressArray) {
+    addresses.push(...MailServices.headerParser.makeFromDisplayAddress(addr));
+  }
 
   if (row.classList.contains("hidden")) {
     showAndFocusAddressRow(row.id, true);
