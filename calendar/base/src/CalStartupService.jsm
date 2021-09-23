@@ -68,6 +68,7 @@ CalStartupService.prototype = {
         let packaged = Services.locale.packagedLocales;
         let fileSrc = new L10nFileSource(
           "calendar",
+          "app",
           packaged,
           "resource:///chrome/{locale}/locale/{locale}/calendar/"
         );
