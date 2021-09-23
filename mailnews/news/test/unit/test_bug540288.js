@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* Tests that an empty cache entry doesn't return an empty message for news. */
 
 // The basic daemon to use for testing Nntpd.jsm implementations
@@ -96,8 +96,8 @@ function run_test() {
 
           var messageUri = folder.getUriForMsg(message);
 
-          MailServices.nntp
-            .QueryInterface(Ci.nsIMsgMessageService)
+          Cc["@mozilla.org/messenger/messageservice;1?type=news"]
+            .getService(Ci.nsIMsgMessageService)
             .DisplayMessage(messageUri, streamListener, null, null, null, {});
 
           // Get the server to run

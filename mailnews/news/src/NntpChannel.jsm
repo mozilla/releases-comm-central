@@ -219,9 +219,11 @@ class NntpChannel {
       onDataAvailable: (request, stream, offset, count) => {
         this.contentLength += count;
         this._listener.onDataAvailable(null, stream, offset, count);
-        if (!cacheStream.available()) {
-          cacheStream.close();
-        }
+        try {
+          if (!cacheStream.available()) {
+            cacheStream.close();
+          }
+        } catch (e) {}
       },
     });
   }

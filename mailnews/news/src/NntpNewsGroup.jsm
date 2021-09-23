@@ -141,6 +141,53 @@ class NntpNewsGroup {
   }
 
   /**
+   * Init a msgHdr to prepare to take HEAD response.
+   * @param {number} articleNumber - The article number.
+   */
+  initHdr(articleNumber) {
+    if (this._msgHdr) {
+      this._msgHdrs.push(this._msgHdr);
+    }
+
+    if (articleNumber >= 0) {
+      this._msgHdr = this._db.CreateNewHdr(articleNumber);
+    }
+  }
+
+  /**
+   * Update msgHdr according to HEAD line.
+   * @param {string} line - A HEAD response line.
+   */
+  processHeadLine(line) {
+    let [name, value] = line.split(":");
+    value = value.trim();
+    switch (name) {
+      case "from":
+        this._msgHdr.author = value;
+        break;
+      case "date":
+        this._msgHdr.date = new Date(value).valueOf() * 1000;
+        break;
+      case "subject":
+        this._msgHdr.subject = value;
+        this._msgHdr.OrFlags(Ci.nsMsgMessageFlags.New);
+        break;
+      case "message-id":
+        this._msgHdr.messageId = value;
+        break;
+      case "references":
+        this._msgHdr.setReferences(value);
+        break;
+      case "bytes":
+        this._msgHdr.messageSize = value;
+        break;
+      case "lines":
+        this._msgHdr.lineCount = value;
+        break;
+    }
+  }
+
+  /**
    * Run filters to all newly added msg hdrs.
    */
   _runFilters() {

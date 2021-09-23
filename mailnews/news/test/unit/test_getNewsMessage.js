@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /*
  * Tests:
  * - getNewMessages for a newsgroup folder (single message).
@@ -89,18 +89,11 @@ function run_test() {
 
     var messageUri = folder.getUriForMsg(message);
 
-    var nntpService = MailServices.nntp.QueryInterface(Ci.nsIMsgMessageService);
-
     do_test_pending();
 
-    nntpService.DisplayMessage(
-      messageUri,
-      streamListener,
-      null,
-      null,
-      null,
-      {}
-    );
+    Cc["@mozilla.org/messenger/messageservice;1?type=news"]
+      .getService(Ci.nsIMsgMessageService)
+      .DisplayMessage(messageUri, streamListener, null, null, null, {});
   } catch (e) {
     server.stop();
     do_throw(e);

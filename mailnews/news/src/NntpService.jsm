@@ -12,6 +12,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   NntpClient: "resource:///modules/NntpClient.jsm",
+  NntpNewsGroup: "resource:///modules/NntpNewsGroup.jsm",
 });
 
 /**
@@ -97,12 +98,19 @@ class NntpService {
   }
 
   getNewNews(server, uri, getOld, urlListener, msgWindow) {
-    let client = new NntpClient(server, uri);
+    // The uri is in the form of news://news.mozilla.org/mozilla.accessibility
+    let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
+    let groupName = matches[3];
+    let newsGroup = new NntpNewsGroup(server, groupName);
+    newsGroup.getOldMessages = getOld;
+
+    let client = new NntpClient(server);
     client.connect();
 
     client.onOpen = () => {
-      client.getNewNews(getOld, urlListener, msgWindow);
+      client.getNewNews(groupName, newsGroup, urlListener, msgWindow);
     };
+
     return client.runningUri;
   }
 

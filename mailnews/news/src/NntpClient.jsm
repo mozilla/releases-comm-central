@@ -6,9 +6,6 @@ const EXPORTED_SYMBOLS = ["NntpClient"];
 
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { NntpNewsGroup } = ChromeUtils.import(
-  "resource:///modules/NntpNewsGroup.jsm"
-);
 
 /**
  * A structure to represent a response received from the server. A response can
@@ -29,7 +26,7 @@ class NntpClient {
    * @param {nsINntpIncomingServer} server - The associated server instance.
    * @param {string} uri - The server uri.
    */
-  constructor(server, uri) {
+  constructor(server) {
     this.onOpen = () => {};
     this.onError = () => {};
     this.onData = () => {};
@@ -37,21 +34,7 @@ class NntpClient {
 
     this._server = server;
 
-    // TODO: NntpClient should not manipulate folder/group directly, use the
-    // onData callback instead.
-    // The uri is in the form of
-    // - news://news.mozilla.org/mozilla.accessibility
-    if (uri) {
-      let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
-      this._host = matches[1];
-      this._port = matches[2] || this._server.port;
-      this._groupName = matches[3];
-      this._newsFolder = this._server.findGroup(this._groupName);
-      this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
-    } else {
-      uri = server.serverURI;
-    }
-
+    let uri = `news://${this._server.realHostName}:${this._server.port}`;
     this.runningUri = Services.io
       .newURI(uri)
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
@@ -176,8 +159,10 @@ class NntpClient {
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  getNewNews(getOld, urlListener, msgWindow) {
-    this._newsGroup.getOldMessages = getOld;
+  getNewNews(groupName, newsGroup, urlListener, msgWindow) {
+    this._groupName = groupName;
+    this._newsGroup = newsGroup;
+    this._newsFolder = this._server.findGroup(groupName);
     this._urlListener = urlListener;
     this._msgWindow = msgWindow;
     this.runningUri.updatingFolder = true;
@@ -242,6 +227,8 @@ class NntpClient {
       Number(high)
     );
     if (start && end) {
+      this._startArticle = start;
+      this._endArticle = end;
       this._sendCommand(`XOVER ${start}-${end}`);
       this._nextAction = this._actionXOverResponse;
     } else {
@@ -254,8 +241,15 @@ class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionXOverResponse(res) {
-    this._actionReadXOver(res);
-    this._nextAction = this._actionReadXOver;
+    if (res.status == 224) {
+      this._actionReadXOver(res);
+      this._nextAction = this._actionReadXOver;
+    } else {
+      // Somehow XOVER is not supported by the server, fallback to use HEAD to
+      // fetch one by one.
+      this._actionHead();
+      this._nextAction = this._actionReadHead;
+    }
   }
 
   /**
@@ -263,28 +257,43 @@ class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadXOver({ data }) {
-    // XOVER response can span multiple ondata events, an event's leftover data
-    // is saved in this._xoverData.
-    if (this._xoverData) {
-      data = this._xoverData + data;
-      this._xoverData = null;
-    }
-    while (data) {
-      let index = data.indexOf("\r\n");
-      if (index == -1) {
-        // Not enough data, save it for the next round.
-        this._xoverData = data;
-        break;
-      }
-      if (data == ".\r\n") {
-        // Finished reading XOVER response.
+    this._lineReader(data, line => {
+      if (line == null) {
         this._newsGroup.finishProcessingXOver();
         this._actionDone();
-        break;
+      } else {
+        this._newsGroup.processXOverLine(line);
       }
-      this._newsGroup.processXOverLine(data.slice(0, index));
-      data = data.slice(index + 2);
+    });
+  }
+
+  /**
+   * Send `HEAD` request to the server.
+   */
+  _actionHead() {
+    if (this._startArticle <= this._endArticle) {
+      this._sendCommand(`HEAD ${this._startArticle}`);
+      this._newsGroup.initHdr(this._startArticle);
+      this._startArticle++;
+    } else {
+      this._newsGroup.finishProcessingXOver();
+      this._actionDone();
     }
+  }
+
+  /**
+   * Handle HEAD response.
+   * @param {NntpResponse} res - XOVER response received from the server.
+   */
+  _actionReadHead({ data }) {
+    this._lineReader(data, line => {
+      if (line == null) {
+        this._newsGroup.initHdr(-1);
+        this._actionHead();
+      } else {
+        this._newsGroup.processHeadLine(line);
+      }
+    });
   }
 
   /**
@@ -296,16 +305,17 @@ class NntpClient {
   }
 
   /**
-   * Handle multi-line data blocks response, e.g. ARTICLE/LIST response. Emit
-   * each line through onData.
-   * @param {NntpResponse} res - ARTICLE response received from the server.
+   * Read multi-line data blocks response, emit each line through a callback.
+   * @param {string} data - Response received from the server.
+   * @param {Function} callback - A line will be passed to the callback each
+   *   time, or null if the data block ended.
    */
-  _actionReadData({ data }) {
-    let ended = false;
+  _lineReader(data, callback) {
     if (this._leftoverData) {
       data = this._leftoverData + data;
       this._leftoverData = null;
     }
+    let ended = false;
     if (data == ".\r\n" || data.endsWith("\r\n.\r\n")) {
       ended = true;
       data = data.slice(0, -3);
@@ -322,12 +332,27 @@ class NntpClient {
         // Remove stuffed dot.
         line = line.slice(1);
       }
-      this.onData(line);
+      callback(line);
       data = data.slice(index + 2);
     }
     if (ended) {
-      this._actionDone();
+      callback(null);
     }
+  }
+
+  /**
+   * Handle multi-line data blocks response, e.g. ARTICLE/LIST response. Emit
+   * each line through onData.
+   * @param {NntpResponse} res - Response received from the server.
+   */
+  _actionReadData({ data }) {
+    this._lineReader(data, line => {
+      if (line == null) {
+        this._actionDone();
+      } else {
+        this.onData(line);
+      }
+    });
   }
 
   /**
