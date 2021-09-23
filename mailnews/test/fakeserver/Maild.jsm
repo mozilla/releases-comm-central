@@ -484,7 +484,7 @@ nsMailReader.prototype = {
       }
 
       if (!this._preventLFMunge) {
-        response = response.replace(/([^\r])\n/g, "$1\r\n");
+        response = response.replaceAll("\r\n", "\n").replaceAll("\n", "\r\n");
       }
 
       if (!response.endsWith("\n")) {
