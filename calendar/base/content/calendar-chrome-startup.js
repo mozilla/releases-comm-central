@@ -371,18 +371,11 @@ function setLocaleDefaultPreferences() {
     } else if (aName == "calendar.week.start" && defaultBranch.getIntPref(aName) != startDefault) {
       defaultBranch.setIntPref(aName, startDefault);
     } else if (aName.startsWith("calendar.week.d")) {
-      let weStart = calendarInfo.weekendStart - 1;
-      let weEnd = calendarInfo.weekendEnd - 1;
-      if (weStart > weEnd) {
-        weEnd += 7;
+      let dayNumber = parseInt(aName[15], 10);
+      if (dayNumber == 0) {
+        dayNumber = 7;
       }
-      let weekend = [];
-      for (let i = weStart; i <= weEnd; i++) {
-        weekend.push(i > 6 ? i - 7 : i);
-      }
-      if (defaultBranch.getBoolPref(aName) === weekend.includes(aName[15])) {
-        defaultBranch.setBoolPref(aName, weekend.includes(aName[15]));
-      }
+      defaultBranch.setBoolPref(aName, calendarInfo.weekend.includes(dayNumber));
     }
   }
 
