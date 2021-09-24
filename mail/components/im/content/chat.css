@@ -83,28 +83,6 @@ toolbar[mode="text"] .badgeButton-badge {
   margin: 0;
 }
 
-#joinChatGrid {
-  display: inline-grid;
-  grid-template-columns: auto auto auto;
-}
-
-#joinChatGrid textbox, menulist {
-  width: 100%;
-}
-
-#joinChatGrid html|div {
-  display: flex;
-  align-items: center;
-}
-
-#joinChatGrid html|div html|input:not([type="number"],[type="color"]) {
-  flex: 1;
-}
-
-.required {
-  visibility: hidden;
-}
-
 #participantCount {
   background: transparent;
 }
