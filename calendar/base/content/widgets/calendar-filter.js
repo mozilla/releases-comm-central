@@ -1111,7 +1111,7 @@ let CalFilterMixin = Base =>
     addItems(items) {}
 
     /**
-     * Implement this method to remove  items from the UI.
+     * Implement this method to remove items from the UI.
      *
      * @param {calIItemBase[]} items
      */
@@ -1131,7 +1131,15 @@ let CalFilterMixin = Base =>
 
       onStartBatch(calendar) {},
       onEndBatch(calendar) {},
-      onLoad(calendar) {},
+      onLoad(calendar) {
+        if (calendar.type == "ics") {
+          // ICS doesn't bother telling us about events that disappeared when
+          // sync'ing, so just throw them all out and reload. This should get
+          // fixed somehow, and this hack removed.
+          this.self.removeItemsFromCalendar(calendar.id);
+          this.self._refreshCalendar(calendar);
+        }
+      },
       onAddItem(item) {
         let occurrences = this.self._filter.getOccurrences(item);
         if (occurrences.length) {

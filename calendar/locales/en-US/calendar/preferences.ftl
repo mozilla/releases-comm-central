@@ -123,12 +123,9 @@ previous-weeks-label =
 
 todaypane-legend = Today Pane
 
-# Note: "Upcoming" is the name of a section and the translation must match the
-# translation of that section name (calendar.upcoming.button.label). Also,
-# it should be upper case (as a proper name) if the target language permits.
-soon-label =
-    .value = The Upcoming section shows:
-    .accesskey = U
+agenda-days =
+    .value = The agenda shows:
+    .accesskey = g
 
 event-task-legend = Events and Tasks
 

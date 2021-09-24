@@ -651,9 +651,8 @@
    */
   class CalendarTaskTreeTodaypane extends CalendarTaskTree {
     getInitialDate() {
-      return (agendaListbox.today && agendaListbox.today.start) || cal.dtz.now();
+      return TodayPane.start || cal.dtz.now();
     }
-
     updateFilter(filter) {
       this.mFilter.selectedDate = this.getInitialDate();
       this.doUpdateFilter(filter);

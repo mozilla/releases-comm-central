@@ -20,7 +20,7 @@ Preferences.addAll([
   { id: "calendar.task.defaultdueoffset", type: "int" },
   { id: "calendar.task.defaultdueoffsetunits", type: "string" },
   { id: "calendar.view.useSystemColors", type: "bool" },
-  { id: "calendar.agendaListbox.soondays", type: "int" },
+  { id: "calendar.agenda.days", type: "int" },
   { id: "calendar.item.editInTab", type: "bool" },
   { id: "calendar.item.promptDelete", type: "bool" },
 ]);
@@ -82,7 +82,7 @@ var gCalendarGeneralPane = {
     }
     tzMenuList.value = prefValue;
 
-    // Set the soondays menulist preference
+    // Set the agenda length menulist.
     this.initializeTodaypaneMenu();
   },
 
@@ -108,8 +108,8 @@ var gCalendarGeneralPane = {
 
   initializeTodaypaneMenu() {
     // Assign the labels for the menuitem
-    let soondaysMenu = document.getElementById("soondays-menulist");
-    let items = soondaysMenu.getElementsByTagName("menuitem");
+    let menulist = document.getElementById("agenda-days-menulist");
+    let items = menulist.getElementsByTagName("menuitem");
     for (let menuItem of items) {
       let menuitemValue = Number(menuItem.value);
       if (menuitemValue > 7) {
@@ -119,19 +119,18 @@ var gCalendarGeneralPane = {
       }
     }
 
-    let pref = Preferences.get("calendar.agendaListbox.soondays");
-    let soonpref = pref.value || 5;
+    let pref = Preferences.get("calendar.agenda.days");
+    let value = pref.value;
 
-    // Check if soonDays preference has been edited with a wrong value.
-    if (soonpref > 0 && soonpref <= 28) {
-      if (soonpref % 7 != 0) {
-        let intSoonpref = Math.floor(soonpref / 7) * 7;
-        soonpref = intSoonpref == 0 ? soonpref : intSoonpref;
-        pref.value = soonpref;
+    // Check if the preference has been edited with a wrong value.
+    if (value > 0 && value <= 28) {
+      if (value % 7 != 0) {
+        let intValue = Math.floor(value / 7) * 7;
+        value = intValue == 0 ? value : intValue;
+        pref.value = value;
       }
     } else {
-      soonpref = soonpref > 28 ? 28 : 1;
-      pref.value = soonpref;
+      pref.value = 14;
     }
   },
 };

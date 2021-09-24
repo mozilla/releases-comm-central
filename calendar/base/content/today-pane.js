@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-modes.js */
+/* import-globals-from calendar-tabs.js */
 /* import-globals-from calendar-views-utils.js */
 
-/* globals switchCalendarView */
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Namespace object to hold functions related to the today pane.
@@ -33,13 +32,14 @@ var TodayPane = {
    */
   async onLoad() {
     this.isLoaded = true;
-    await agendaListbox.init();
 
     TodayPane.paneViews = [
       cal.l10n.getCalString("eventsandtasks"),
       cal.l10n.getCalString("tasksonly"),
       cal.l10n.getCalString("eventsonly"),
     ];
+
+    this.agenda = document.getElementById("agenda");
 
     TodayPane.updateDisplay();
     TodayPane.updateSplitterState();
@@ -190,7 +190,6 @@ var TodayPane = {
       }
       let title = document.getElementById("calendar-tab-button").getAttribute("tooltiptext");
       document.getElementById("tabmail").openTab("calendar", { title });
-      currentView().goToDay(agendaListbox.today.start);
     }
   },
 
@@ -366,6 +365,7 @@ var TodayPane = {
   setDaywithjsDate(aNewDate) {
     let newdatetime = cal.dtz.jsDateToDateTime(aNewDate, cal.dtz.floating);
     newdatetime = newdatetime.getInTimezone(cal.dtz.defaultTimezone);
+    newdatetime.hour = newdatetime.minute = newdatetime.second = 0;
     this.setDay(newdatetime, true);
   },
 
@@ -443,7 +443,7 @@ var TodayPane = {
    * start date.
    */
   updatePeriod() {
-    agendaListbox.refreshPeriodDates(this.start.clone());
+    this.agenda.update(this.start);
     if (document.getElementById("todo-tab-panel").isVisible()) {
       this.updateCalendarToDoUnifinder();
     }

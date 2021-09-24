@@ -6,7 +6,6 @@
 /* import-globals-from ../../../mail/base/content/utilityOverlay.js */
 /* import-globals-from ../../../mail/base/content/mailWindow.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
-/* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-clipboard.js */
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-modes.js */
@@ -133,7 +132,6 @@ var calendarController = {
     switch (aCommand) {
       case "calendar_new_event_command":
       case "calendar_new_event_context_command":
-      case "calendar_new_event_todaypane_command":
         return CalendarNewEventsCommandEnabled;
       case "calendar_modify_focused_item_command":
         return this.item_selected;
@@ -266,8 +264,8 @@ var calendarController = {
           if (aCommand == "cmd_delete" || aCommand == "button_delete") {
             let focusedElement = document.commandDispatcher.focusedElement;
             if (focusedElement) {
-              if (focusedElement.getAttribute("id") == "agenda-listbox") {
-                return agendaListbox.isEventSelected();
+              if (focusedElement == TodayPane.agenda) {
+                return TodayPane.agenda.selectedIndex > -1;
               } else if (focusedElement.className == "calendar-task-tree") {
                 return this.writable && this.todo_items_selected && this.todo_items_writable;
               }
@@ -314,15 +312,12 @@ var calendarController = {
         let focusedElement = document.commandDispatcher.focusedElement;
         if (!focusedElement && this.defaultController && !this.isCalendarInForeground()) {
           this.defaultController.doCommand(aCommand);
-        } else {
-          let focusedRichListbox = cal.view.getParentNodeOrThis(focusedElement, "richlistbox");
-          if (focusedRichListbox && focusedRichListbox.id == "agenda-listbox") {
-            agendaListbox.editSelectedItem();
-          } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
-            modifyTaskFromContext();
-          } else if (this.isInMode("calendar")) {
-            editSelectedEvents();
-          }
+        } else if (focusedElement == TodayPane.agenda) {
+          TodayPane.agenda.editSelectedItem();
+        } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
+          modifyTaskFromContext();
+        } else if (this.isInMode("calendar")) {
+          editSelectedEvents();
         }
         break;
       }
@@ -333,15 +328,12 @@ var calendarController = {
         let focusedElement = document.commandDispatcher.focusedElement;
         if (!focusedElement && this.defaultController && !this.isCalendarInForeground()) {
           this.defaultController.doCommand(aCommand);
-        } else {
-          let focusedRichListbox = cal.view.getParentNodeOrThis(focusedElement, "richlistbox");
-          if (focusedRichListbox && focusedRichListbox.id == "agenda-listbox") {
-            agendaListbox.deleteSelectedItem(false);
-          } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
-            deleteToDoCommand(false);
-          } else if (this.isInMode("calendar")) {
-            deleteSelectedEvents();
-          }
+        } else if (focusedElement == TodayPane.agenda) {
+          TodayPane.agenda.deleteSelectedItem(false);
+        } else if (focusedElement && focusedElement.className == "calendar-task-tree") {
+          deleteToDoCommand(false);
+        } else if (this.isInMode("calendar")) {
+          deleteSelectedEvents();
         }
         break;
       }
@@ -368,7 +360,7 @@ var calendarController = {
           null,
           null,
           null,
-          cal.dtz.getDefaultStartDate(agendaListbox.today.start)
+          cal.dtz.getDefaultStartDate(TodayPane.start)
         );
         break;
       case "calendar_delete_todo_command":
@@ -378,7 +370,7 @@ var calendarController = {
         modifyTaskFromContext(cal.dtz.getDefaultStartDate(currentView().selectedDay));
         break;
       case "calendar_modify_todo_todaypane_command":
-        modifyTaskFromContext(cal.dtz.getDefaultStartDate(agendaListbox.today.start));
+        modifyTaskFromContext(cal.dtz.getDefaultStartDate(TodayPane.start));
         break;
 
       case "calendar_new_calendar_command":

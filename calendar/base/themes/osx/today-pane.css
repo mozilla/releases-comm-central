@@ -44,10 +44,6 @@
   margin-inline-start: 0;
 }
 
-#agenda-listbox {
-  border-top-color: #b8b8b8;
-}
-
 #today-pane-splitter {
   min-height: 5px;
 }

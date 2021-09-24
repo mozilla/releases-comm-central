@@ -2,33 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:root #today-pane-panel {
-  --agenda-divider-border-color: #c0c0c0;
-  --agenda-item-current-color: #000;
-  --agenda-item-current-background: #dfeaf4;
-  --agenda-item-selected-color: #000;
-  --agenda-item-selected-background: #fdf5a0;
-}
-
-:root[systemcolors] #today-pane-panel {
-  --agenda-divider-border-color: ThreeDLightShadow;
-  --agenda-item-current-color: ButtonText;
-  --agenda-item-current-background: ThreeDLightShadow;
-}
-
-:root[lwt-tree-brighttext] #today-pane-panel {
-  --agenda-divider-border-color: #c0c0c0;
-}
-
 :root[lwt-tree-brighttext] #today-pane-panel {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
   --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4));
   --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .7));
   --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4)) inset;
-  --agenda-divider-border-color: rgba(255, 255, 255, .3);
-  --agenda-item-current-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
-  --agenda-item-current-background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
 }
 
 .today-subpane {
@@ -306,162 +285,125 @@
   padding-inline-start: 5px;
 }
 
-#agenda-listbox {
-  appearance: none;
-  -moz-user-focus: normal;
+#agenda-container {
+  display: flex;
+  flex-direction: column;
+  height: 0; /* Forces #agenda to scroll instead of being too big. */
+}
+
+#agenda {
+  flex: 1;
+  overflow: auto;
+  height: 0;
   margin: 0;
-  border-top: 1px solid ThreeDShadow;
+  padding: 3px 6px;
+  list-style: none;
+  background-color: field;
+  border-top: 1px solid var(--splitter-color);
 }
 
-:root[lwt-tree] #agenda-listbox {
-  border-top-color: var(--sidebar-border-color);
-  background-color: var(--sidebar-background-color);
-  color: var(--sidebar-text-color);
-  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
+.agenda-date-header,
+.agenda-listitem-details {
+  padding: 6px;
 }
 
-:root[lwt-tree-brighttext] #agenda-listbox {
-  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+:root[uidensity="compact"] :is(.agenda-date-header, .agenda-listitem-details) {
+  padding: 3px;
 }
 
-richlistitem[is="agenda-header-richlistitem"]:not([hidden="true"]) {
-  -moz-user-focus: normal;
-  border-bottom: 1px dotted var(--agenda-divider-border-color);
-  display: block;
+:root[uidensity="touch"] :is(.agenda-date-header, .agenda-listitem-details) {
+  padding: 12px;
 }
 
-richlistitem[is="agenda-richlistitem"],
-richlistitem[is="agenda-allday-richlistitem"] {
-  -moz-user-focus: normal;
-  border-bottom: 1px dotted var(--agenda-divider-border-color);
+.agenda-date-header {
+  margin-block-start: 9px;
+  margin-inline: -6px;
+  padding-inline: 6px !important;
+  background-color: var(--button-bgcolor);
+  font-weight: bold;
+}
+
+.agenda-listitem:first-child .agenda-date-header {
+  margin-block-start: -3px;
+}
+
+.agenda-listitem-details {
+  display: flex;
+  align-items: baseline;
   border-radius: 3px;
 }
 
-richlistitem[is="agenda-richlistitem"]:focus-visible > .agenda-container-box,
-richlistitem[is="agenda-allday-richlistitem"]:focus-visible > .agenda-allday-container-box {
-  outline: 2px solid var(--focus-outline-color);
+.agenda-listitem-all-day .agenda-listitem-details {
+  margin-block: 1px;
+  padding-inline: 8px;
+  background-color: var(--item-backcolor);
+  color: var(--item-forecolor);
 }
 
-#agenda-listbox > richlistitem[selected="true"] {
-  background-color: transparent;
-  color: inherit;
+.agenda-listitem-past .agenda-listitem-details {
+  opacity: 0.5;
 }
 
-.agenda-container-box {
-  border-radius: 2px;
-  margin-inline: 4px;
-  padding: 2px 4px;
+.agenda-listitem-now .agenda-listitem-details {
+  position: relative;
 }
 
-richlistitem[is="agenda-allday-richlistitem"] {
-  /* Needed to give child grid full horizontal space. */
+.agenda-listitem-now .agenda-listitem-details::before {
+  content: "";
+  position: absolute;
   display: block;
-}
-
-.agenda-allday-container-box {
+  width: 4px;
+  inset: 3px -3px;
   border-radius: 2px;
-  margin: 1px 4px;
-  display: grid;
-  grid-template: "a a" auto
-                 "b c" auto / auto 1fr;
-  align-items: baseline;
+  background-color: selectedItem;
 }
 
-.agenda-allday-container-box > .agenda-event-start {
-  grid-area: a;
+#agenda:focus .agenda-listitem.selected .agenda-listitem-details {
+  background-color: SelectedItem;
+  color: SelectedItemText;
+  opacity: unset; /* Overrides .agenda-listitem-past */
 }
 
-.agenda-allday-container-box > .agenda-multiDayEvent-image {
-  grid-area: b;
-}
-
-.agenda-allday-container-box > calendar-month-day-box-item {
-  grid-area: c;
-}
-
-.agenda-allday-container-box .item-classification-icon {
+#agenda:focus .agenda-listitem.selected .agenda-listitem-details::before {
   display: none;
 }
 
-.agenda-allday-container-box > calendar-month-day-box-item .event-name-label {
-  /* Allow the event name to wrap in the today pane. */
-  white-space: normal;
-  overflow-wrap: anywhere;
+.agenda-listitem-all-day :is(.agenda-listitem-calendar, .agenda-listitem-time) {
+  display: none;
 }
 
-.agenda-container-box[selected="true"],
-.agenda-container-box[selected="true"][current="true"] {
-  background-color: var(--agenda-item-selected-background);
-  color: var(--agenda-item-selected-color);
-}
-
-.agenda-container-box[selected="true"][disabled="true"] {
-  opacity: 0.5;
-}
-
-.agenda-container-box[current="true"],
-.agenda-container-box[selected="true"][current="true"][disabled="true"] {
-  background-color: var(--agenda-item-current-background);
-  color: var(--agenda-item-current-color);
-}
-
-.agenda-allday-container-box .calendar-color-box {
-  border-color: rgba(0, 0, 0, 0.5);
-  box-shadow: inset -1px -1px 0 rgba(255, 255, 255, 0.7),
-              inset 1px 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.agenda-allday-container-box[selected="true"] .calendar-color-box,
-.agenda-allday-container-box[selected="true"][current="true"] .calendar-color-box {
-  --item-backcolor: var(--agenda-item-selected-background);
-  --item-forecolor: var(--agenda-item-selected-color);
-}
-
-.agenda-allday-container-box[selected="true"][disabled="true"] .calendar-color-box {
-  opacity: 0.5;
-}
-
-.agenda-allday-container-box[current="true"] .calendar-color-box,
-.agenda-allday-container-box[selected="true"][current="true"][disabled="true"] .calendar-color-box {
-  --item-backcolor: var(--agenda-item-current-background);
-  --item-forecolor: var(--agenda-item-current-color);
-}
-
-.agenda-event-title {
-  margin-top: 0;
-}
-
-.agenda-event-start {
-  margin-bottom: 0;
-}
-
-.agenda-new-date {
-  width: 15px;
-  height: 15px;
-  border: 1px solid grey;
-  cursor: pointer;
-}
-
-.agenda-calendar-image {
-  margin-top: 0.35em;
-  margin-inline-start: 4px;
-  border-radius: 5px;
+.agenda-listitem-calendar {
   width: 10px;
   height: 10px;
+  margin-inline-end: 6px;
+  display: inline-block;
+  border-radius: 5px;
+  background-color: var(--item-backcolor);
 }
 
-.agenda-multiDayEvent-image {
-  width: 11px;
-  height: 11px;
+.agenda-listitem aside {
+  flex: 1;
 }
 
-.agenda-multiDayEvent-image:not([type=""]) {
-  margin-top: 0.35em;
-  margin-inline-start: 3px;
+.agenda-listitem-time {
+  margin-inline-end: 3px;
+  font-weight: 600;
+}
+
+.agenda-listitem-time:empty {
+  margin-inline-end: 0;
+}
+
+.agenda-listitem-title {
+  flex: 1;
+}
+
+.agenda-listitem-overlap {
+  margin-inline-start: 6px;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-.agenda-multiDayEvent-image:not([src]) {
+.agenda-listitem-overlap:not([src]) {
   display: none;
 }

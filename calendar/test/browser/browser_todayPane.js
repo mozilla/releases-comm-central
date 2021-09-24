@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals agendaListbox */
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -12,151 +10,492 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
-add_task(async function testTodayPane() {
-  // Add a calendar to work with.
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-  calendar.name = "Mochitest";
-  manager.registerCalendar(calendar);
-  let pCalendar = cal.async.promisifyCalendar(calendar);
+let calendar = CalendarTestUtils.createProxyCalendar();
+Services.prefs.setIntPref("calendar.agenda.days", 7);
+registerCleanupFunction(() => {
+  CalendarTestUtils.removeProxyCalendar(calendar);
+  Services.prefs.clearUserPref("calendar.agenda.days");
+});
 
-  registerCleanupFunction(async () => {
-    manager.unregisterCalendar(calendar);
-  });
+let today = cal.dtz.now();
+let startHour = today.hour;
+today.hour = today.minute = today.second = 0;
 
-  // Let the UI respond to the registration of the calendar.
-  await new Promise(resolve => setTimeout(resolve));
-  await new Promise(resolve => setTimeout(resolve));
+let todayPanePanel = document.getElementById("today-pane-panel");
+let todayPaneStatusButton = document.getElementById("calendar-status-todaypane-button");
 
-  let todayPanePanel = document.getElementById("today-pane-panel");
-  let todayPaneStatusButton = document.getElementById("calendar-status-todaypane-button");
+// Go to mail tab.
+selectFolderTab();
 
-  let today = cal.dtz.now();
-  let startHour = today.hour;
-  today.hour = today.minute = today.second = 0;
+// Verify today pane open.
+if (todayPanePanel.hasAttribute("collapsed")) {
+  EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
+}
+Assert.ok(!todayPanePanel.hasAttribute("collapsed"), "Today Pane is open");
 
-  // Go to mail tab.
-  selectFolderTab();
+// Verify today pane's date.
+Assert.equal(document.getElementById("datevalue-label").value, today.day, "Today Pane shows today");
 
-  // Verify today pane open.
-  if (todayPanePanel.hasAttribute("collapsed")) {
-    EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
-  }
-  Assert.ok(!todayPanePanel.hasAttribute("collapsed"));
+async function addEvent(title, relativeStart, relativeEnd, isAllDay) {
+  let event = new CalEvent();
+  event.id = cal.getUUID();
+  event.title = title;
+  event.startDate = today.clone();
+  event.startDate.addDuration(cal.createDuration(relativeStart));
+  event.startDate.isDate = isAllDay;
+  event.endDate = today.clone();
+  event.endDate.addDuration(cal.createDuration(relativeEnd));
+  event.endDate.isDate = isAllDay;
+  return calendar.addItem(event);
+}
 
-  // Verify today pane's date.
-  Assert.equal(document.getElementById("datevalue-label").value, today.day);
-
-  // Tomorrow and soon are collapsed by default. Expand them.
-  for (let headerId of ["today-header", "tomorrow-header", "nextweek-header"]) {
-    let header = document.getElementById(headerId);
-    if (header.getAttribute("checked") != "true") {
-      EventUtils.synthesizeMouseAtCenter(header.firstElementChild.firstElementChild, {});
+function checkEvent(row, { dateHeader, time, title, overlap }) {
+  let dateHeaderElement = row.querySelector(".agenda-date-header");
+  if (dateHeader) {
+    Assert.ok(BrowserTestUtils.is_visible(dateHeaderElement), "date header is visible");
+    if (dateHeader instanceof Ci.calIDateTime) {
+      dateHeader = cal.dtz.formatter.formatDateLongWithoutYear(dateHeader);
     }
-    Assert.equal(header.getAttribute("checked"), "true");
+    Assert.equal(dateHeaderElement.textContent, dateHeader, "date header has correct value");
+  } else {
+    Assert.ok(BrowserTestUtils.is_hidden(dateHeaderElement), "date header is hidden");
   }
 
-  // Create some events.
-  let todaysEvent = new CalEvent();
-  todaysEvent.title = "Today's Event";
-  todaysEvent.startDate = today.clone();
-  todaysEvent.startDate.hour = Math.min(startHour + 6, 23);
-  todaysEvent.endDate = todaysEvent.startDate.clone();
-  todaysEvent.endDate.hour++;
+  let calendarElement = row.querySelector(".agenda-listitem-calendar");
+  let timeElement = row.querySelector(".agenda-listitem-time");
+  if (time !== undefined) {
+    Assert.ok(BrowserTestUtils.is_visible(calendarElement), "calendar is visible");
+    Assert.ok(BrowserTestUtils.is_visible(timeElement), "time is visible");
+    if (time instanceof Ci.calIDateTime) {
+      time = cal.dtz.formatter.formatTime(time);
+    }
+    Assert.equal(timeElement.textContent, time, "time has correct value");
+  } else {
+    Assert.ok(BrowserTestUtils.is_hidden(calendarElement), "calendar is hidden");
+    Assert.ok(BrowserTestUtils.is_hidden(timeElement), "time is hidden");
+  }
 
-  let tomorrowsEvent = new CalEvent();
-  tomorrowsEvent.title = "Tomorrow's Event";
-  tomorrowsEvent.startDate = today.clone();
-  tomorrowsEvent.startDate.day++;
-  tomorrowsEvent.startDate.hour = 9;
-  tomorrowsEvent.endDate = tomorrowsEvent.startDate.clone();
-  tomorrowsEvent.endDate.hour++;
+  let titleElement = row.querySelector(".agenda-listitem-title");
+  Assert.ok(BrowserTestUtils.is_visible(titleElement), "title is visible");
+  Assert.equal(titleElement.textContent, title, "title has correct value");
 
-  let futureEvent = new CalEvent();
-  futureEvent.id = "this is what we're waiting for";
-  futureEvent.title = "Future Event";
-  futureEvent.startDate = today.clone();
-  futureEvent.startDate.day += 3;
-  futureEvent.startDate.hour = 11;
-  futureEvent.endDate = futureEvent.startDate.clone();
-  futureEvent.endDate.hour++;
+  let overlapElement = row.querySelector(".agenda-listitem-overlap");
+  if (overlap) {
+    Assert.ok(BrowserTestUtils.is_visible(overlapElement), "overlap is visible");
+    Assert.equal(
+      overlapElement.src,
+      `chrome://calendar/skin/shared/event-${overlap}.svg`,
+      "overlap has correct image"
+    );
+    Assert.equal(
+      overlapElement.dataset.l10nId,
+      `calendar-editable-item-multiday-event-icon-${overlap}`,
+      "overlap has correct alt text"
+    );
+  } else {
+    Assert.ok(BrowserTestUtils.is_hidden(overlapElement), "overlap is hidden");
+  }
+}
 
-  let promiseFutureEventAdded = new Promise(resolve => {
-    calendar.addObserver({
-      onAddItem(item) {
-        if (item.hasSameIds(futureEvent)) {
-          calendar.removeObserver(this);
-          resolve();
-        }
-      },
-    });
+function checkEvents(...expectedEvents) {
+  Assert.equal(TodayPane.agenda.rowCount, expectedEvents.length, "expected number of rows shown");
+  for (let i = 0; i < expectedEvents.length; i++) {
+    Assert.ok(TodayPane.agenda.rows[i].getAttribute("is"), "agenda-listitem");
+    checkEvent(TodayPane.agenda.rows[i], expectedEvents[i]);
+  }
+}
+
+add_task(async function testBasicAllDay() {
+  let todaysEvent = await addEvent("Today's Event", "P0D", "P1D", true);
+  checkEvents({ dateHeader: "Today", title: "Today's Event" });
+
+  let tomorrowsEvent = await addEvent("Tomorrow's Event", "P1D", "P2D", true);
+  checkEvents(
+    { dateHeader: "Today", title: "Today's Event" },
+    { dateHeader: "Tomorrow", title: "Tomorrow's Event" }
+  );
+
+  let events = [];
+  for (let i = 2; i < 7; i++) {
+    events.push(await addEvent(`Event ${i + 1}`, `P${i}D`, `P${i + 1}D`, true));
+    checkEvents(
+      { dateHeader: "Today", title: "Today's Event" },
+      { dateHeader: "Tomorrow", title: "Tomorrow's Event" },
+      ...events.map(e => {
+        return { dateHeader: e.startDate, title: e.title };
+      })
+    );
+  }
+
+  await calendar.deleteItem(todaysEvent);
+  checkEvents(
+    { dateHeader: "Tomorrow", title: "Tomorrow's Event" },
+    ...events.map(e => {
+      return { dateHeader: e.startDate, title: e.title };
+    })
+  );
+  await calendar.deleteItem(tomorrowsEvent);
+  checkEvents(
+    ...events.map(e => {
+      return { dateHeader: e.startDate, title: e.title };
+    })
+  );
+
+  while (events.length) {
+    await calendar.deleteItem(events.shift());
+    checkEvents(
+      ...events.map(e => {
+        return { dateHeader: e.startDate, title: e.title };
+      })
+    );
+  }
+});
+
+add_task(async function testBasic() {
+  let time = today.clone();
+  time.hour = 23;
+
+  let todaysEvent = await addEvent("Today's Event", "P0D23H", "P1D");
+  checkEvents({ dateHeader: "Today", time, title: "Today's Event" });
+
+  let tomorrowsEvent = await addEvent("Tomorrow's Event", "P1D23H", "P2D");
+  checkEvents(
+    { dateHeader: "Today", time, title: "Today's Event" },
+    { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" }
+  );
+
+  let events = [];
+  for (let i = 2; i < 7; i++) {
+    events.push(await addEvent(`Event ${i + 1}`, `P${i}D23H`, `P${i + 1}D`));
+    checkEvents(
+      { dateHeader: "Today", time, title: "Today's Event" },
+      { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" },
+      ...events.map(e => {
+        return { dateHeader: e.startDate, time, title: e.title };
+      })
+    );
+  }
+
+  await calendar.deleteItem(todaysEvent);
+  checkEvents(
+    { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" },
+    ...events.map(e => {
+      return { dateHeader: e.startDate, time, title: e.title };
+    })
+  );
+  await calendar.deleteItem(tomorrowsEvent);
+  checkEvents(
+    ...events.map(e => {
+      return { dateHeader: e.startDate, time, title: e.title };
+    })
+  );
+
+  while (events.length) {
+    await calendar.deleteItem(events.shift());
+    checkEvents(
+      ...events.map(e => {
+        return { dateHeader: e.startDate, time, title: e.title };
+      })
+    );
+  }
+});
+
+/**
+ * Adds and removes events in a different order from which they occur.
+ * This checks that the events are inserted in the right place, and that the
+ * date header is shown/hidden appropriately.
+ */
+add_task(async function testSortOrder() {
+  let afternoonEvent = await addEvent("Afternoon Event", "P1D13H", "P1D17H");
+  checkEvents({
+    dateHeader: "Tomorrow",
+    time: afternoonEvent.startDate,
+    title: "Afternoon Event",
   });
 
-  await Promise.all([
-    pCalendar.addItem(todaysEvent),
-    pCalendar.addItem(tomorrowsEvent),
-    pCalendar.addItem(futureEvent),
-    promiseFutureEventAdded,
-  ]);
-
-  // Let the UI respond to the new events.
-  await new Promise(resolve => setTimeout(resolve));
-  await new Promise(resolve => setTimeout(resolve));
-
-  // There should be a menupopup child and six list items.
-  let listChildren = agendaListbox.agendaListboxControl.children;
-  Assert.equal(listChildren.length, 7);
-  Assert.equal(listChildren[0].localName, "menupopup");
-  Assert.equal(listChildren[1].id, "today-header");
-  Assert.equal(listChildren[3].id, "tomorrow-header");
-  Assert.equal(listChildren[5].id, "nextweek-header");
-
-  // Verify events shown in today pane.
-  let dateFormatter = cal.dtz.formatter;
-
-  let startString = dateFormatter.formatTime(todaysEvent.startDate, cal.dtz.defaultTimezone);
-  Assert.equal(
-    listChildren[2].querySelector(".agenda-event-start").textContent,
-    `${startString} Today's Event`
+  let morningEvent = await addEvent("Morning Event", "P1D8H", "P1D12H");
+  checkEvents(
+    { dateHeader: "Tomorrow", time: morningEvent.startDate, title: "Morning Event" },
+    { time: afternoonEvent.startDate, title: "Afternoon Event" }
   );
 
-  startString = dateFormatter.formatTime(tomorrowsEvent.startDate, cal.dtz.defaultTimezone);
-  Assert.equal(
-    listChildren[4].querySelector(".agenda-event-start").textContent,
-    `${startString} Tomorrow's Event`
+  let allDayEvent = await addEvent("All Day Event", "P1D", "P2D", true);
+  checkEvents(
+    { dateHeader: "Tomorrow", title: "All Day Event" },
+    { time: morningEvent.startDate, title: "Morning Event" },
+    { time: afternoonEvent.startDate, title: "Afternoon Event" }
   );
 
-  startString = dateFormatter.formatDateTime(futureEvent.startDate, cal.dtz.defaultTimezone);
-  Assert.equal(listChildren[6].querySelector(".agenda-event-start").textContent, startString);
-  Assert.equal(listChildren[6].querySelector(".agenda-event-title").textContent, "Future Event");
+  let eveningEvent = await addEvent("Evening Event", "P1D18H", "P1D22H");
+  checkEvents(
+    { dateHeader: "Tomorrow", title: "All Day Event" },
+    { time: morningEvent.startDate, title: "Morning Event" },
+    { time: afternoonEvent.startDate, title: "Afternoon Event" },
+    { time: eveningEvent.startDate, title: "Evening Event" }
+  );
 
-  // Delete events.
-  EventUtils.synthesizeMouseAtCenter(listChildren[2], {});
-  EventUtils.synthesizeKey("VK_DELETE");
-  Assert.equal(listChildren.length, 6);
+  await calendar.deleteItem(afternoonEvent);
+  checkEvents(
+    { dateHeader: "Tomorrow", title: "All Day Event" },
+    { time: morningEvent.startDate, title: "Morning Event" },
+    { time: eveningEvent.startDate, title: "Evening Event" }
+  );
 
-  EventUtils.synthesizeMouseAtCenter(listChildren[3], {});
-  EventUtils.synthesizeKey("VK_DELETE");
-  Assert.equal(listChildren.length, 5);
+  await calendar.deleteItem(morningEvent);
+  checkEvents(
+    { dateHeader: "Tomorrow", title: "All Day Event" },
+    { time: eveningEvent.startDate, title: "Evening Event" }
+  );
 
-  EventUtils.synthesizeMouseAtCenter(listChildren[4], {});
-  EventUtils.synthesizeKey("VK_DELETE");
-  Assert.equal(listChildren.length, 4);
+  await calendar.deleteItem(allDayEvent);
+  checkEvents({
+    dateHeader: "Tomorrow",
+    time: eveningEvent.startDate,
+    title: "Evening Event",
+  });
 
-  // Hide and verify today pane hidden.
-  EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
-  Assert.ok(todayPanePanel.hasAttribute("collapsed"));
+  await calendar.deleteItem(eveningEvent);
+  checkEvents();
+});
 
-  // Reset today pane.
-  EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
-  Assert.ok(!todayPanePanel.hasAttribute("collapsed"));
+/**
+ * Check events that begin and/or end inside the date range.
+ * All-day events are still sorted ahead of non-all-day events.
+ */
+add_task(async function testOverlapInside() {
+  let allDayEvent = await addEvent("All Day Event", "P0D", "P2D", true);
+  checkEvents(
+    { dateHeader: "Today", title: "All Day Event", overlap: "start" },
+    { dateHeader: "Tomorrow", title: "All Day Event", overlap: "end" }
+  );
 
-  // Collapse tomorrow and soon sections.
-  for (let headerId of ["tomorrow-header", "nextweek-header"]) {
-    let header = document.getElementById(headerId);
-    EventUtils.synthesizeMouseAtCenter(header.firstElementChild.firstElementChild, {});
-    Assert.ok(!header.getAttribute("checked"));
-  }
+  let timedEvent = await addEvent("Timed Event", "P0D", "P2D");
+  checkEvents(
+    { dateHeader: "Today", title: "All Day Event", overlap: "start" },
+    { time: timedEvent.startDate, title: "Timed Event", overlap: "start" },
+    { dateHeader: "Tomorrow", title: "All Day Event", overlap: "end" },
+    { time: timedEvent.endDate, title: "Timed Event", overlap: "end" }
+  );
+
+  await calendar.deleteItem(allDayEvent);
+  await calendar.deleteItem(timedEvent);
+});
+
+/**
+ * Check events that begin and/or end outside the date range. Events that have
+ * already started are listed as "Today", but still sorted by start time.
+ * All-day events are still sorted ahead of non-all-day events.
+ */
+add_task(async function testOverlapOutside() {
+  let before = await addEvent("Starts Before", "-P1D", "P1D", true);
+  checkEvents({ dateHeader: "Today", title: "Starts Before", overlap: "end" });
+
+  let after = await addEvent("Ends After", "P0D", "P9D", true);
+  checkEvents(
+    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { title: "Ends After", overlap: "start" }
+  );
+
+  let both = await addEvent("Beyond Start and End", "-P2D", "P9D", true);
+  checkEvents(
+    { dateHeader: "Today", title: "Beyond Start and End", overlap: "continue" },
+    { title: "Starts Before", overlap: "end" },
+    { title: "Ends After", overlap: "start" }
+  );
+
+  // Change `before` to begin earlier than `both`. They should swap places.
+
+  let startClone = before.clone();
+  startClone.startDate.day -= 2;
+  await calendar.modifyItem(startClone, before);
+  checkEvents(
+    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { title: "Beyond Start and End", overlap: "continue" },
+    { title: "Ends After", overlap: "start" }
+  );
+
+  let beforeWithTime = await addEvent("Starts Before with time", "-P5H", "P15H");
+  checkEvents(
+    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { title: "Beyond Start and End", overlap: "continue" },
+    { title: "Ends After", overlap: "start" },
+    // This is the end of the event so the end time is used.
+    { time: beforeWithTime.endDate, title: "Starts Before with time", overlap: "end" }
+  );
+
+  let afterWithTime = await addEvent("Ends After with time", "P6H", "P8D12H");
+  checkEvents(
+    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { title: "Beyond Start and End", overlap: "continue" },
+    { title: "Ends After", overlap: "start" },
+    { time: afterWithTime.startDate, title: "Ends After with time", overlap: "start" },
+    // This is the end of the event so the end time is used.
+    { time: beforeWithTime.endDate, title: "Starts Before with time", overlap: "end" }
+  );
+
+  let bothWithTime = await addEvent("Beyond Start and End with time", "-P2D10H", "P9D1H");
+  checkEvents(
+    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { title: "Beyond Start and End", overlap: "continue" },
+    { title: "Ends After", overlap: "start" },
+    { time: "", title: "Beyond Start and End with time", overlap: "continue" },
+    { time: afterWithTime.startDate, title: "Ends After with time", overlap: "start" },
+    // This is the end of the event so the end time is used.
+    { time: beforeWithTime.endDate, title: "Starts Before with time", overlap: "end" }
+  );
+
+  await calendar.deleteItem(before);
+  await calendar.deleteItem(after);
+  await calendar.deleteItem(both);
+  await calendar.deleteItem(beforeWithTime);
+  await calendar.deleteItem(afterWithTime);
+  await calendar.deleteItem(bothWithTime);
+});
+
+/**
+ * Checks that events that happened earlier today are marked as in the past,
+ * and events happening now are marked as such.
+ *
+ * This test may fail if run within a minute either side of midnight.
+ *
+ * It would be nice to test that as time passes events are changed
+ * appropriately, but that means waiting around for minutes and probably won't
+ * be very reliable, so we don't do that.
+ */
+add_task(async function testActive() {
+  let now = cal.dtz.now();
+
+  let pastEvent = await addEvent("Past Event", "PT0M", "PT1M");
+  let presentEvent = await addEvent("Present Event", `PT${now.hour}H`, `PT${now.hour + 1}H`);
+  let futureEvent = await addEvent("Future Event", "PT23H59M", "PT24H");
+  checkEvents(
+    { dateHeader: "Today", time: pastEvent.startDate, title: "Past Event" },
+    { time: presentEvent.startDate, title: "Present Event" },
+    { time: futureEvent.startDate, title: "Future Event" }
+  );
+
+  let [pastRow, presentRow, futureRow] = TodayPane.agenda.rows;
+  Assert.ok(pastRow.classList.contains("agenda-listitem-past"), "past event is marked past");
+  Assert.ok(!pastRow.classList.contains("agenda-listitem-now"), "past event is not marked now");
+  Assert.ok(
+    !presentRow.classList.contains("agenda-listitem-past"),
+    "present event is not marked past"
+  );
+  Assert.ok(presentRow.classList.contains("agenda-listitem-now"), "present event is marked now");
+  Assert.ok(
+    !futureRow.classList.contains("agenda-listitem-past"),
+    "future event is not marked past"
+  );
+  Assert.ok(!futureRow.classList.contains("agenda-listitem-now"), "future event is not marked now");
+
+  await calendar.deleteItem(pastEvent);
+  await calendar.deleteItem(presentEvent);
+  await calendar.deleteItem(futureEvent);
+});
+
+/**
+ * Checks events in different time zones are displayed correctly.
+ */
+add_task(async function testOtherTimeZones() {
+  // Johannesburg is UTC+2.
+  let johannesburg = cal.getTimezoneService().getTimezone("Africa/Johannesburg");
+  // Panama is UTC-5.
+  let panama = cal.getTimezoneService().getTimezone("America/Panama");
+
+  // All-day events are displayed on the day of the event, the time zone is ignored.
+
+  let allDayEvent = new CalEvent();
+  allDayEvent.id = cal.getUUID();
+  allDayEvent.title = "All-day event in Johannesburg";
+  allDayEvent.startDate = cal.createDateTime();
+  allDayEvent.startDate.resetTo(today.year, today.month, today.day + 1, 0, 0, 0, johannesburg);
+  allDayEvent.startDate.isDate = true;
+  allDayEvent.endDate = cal.createDateTime();
+  allDayEvent.endDate.resetTo(today.year, today.month, today.day + 2, 0, 0, 0, johannesburg);
+  allDayEvent.endDate.isDate = true;
+  allDayEvent = await calendar.addItem(allDayEvent);
+
+  checkEvents({
+    dateHeader: "Tomorrow",
+    title: "All-day event in Johannesburg",
+  });
+
+  await calendar.deleteItem(allDayEvent);
+
+  // The event time must be displayed in the local time zone, and the event must be sorted correctly.
+
+  let beforeEvent = await addEvent("Before", "P1D5H", "P1D6H");
+  let afterEvent = await addEvent("After", "P1D7H", "P1D8H");
+
+  let timedEvent = new CalEvent();
+  timedEvent.id = cal.getUUID();
+  timedEvent.title = "Morning in Johannesburg";
+  timedEvent.startDate = cal.createDateTime();
+  timedEvent.startDate.resetTo(today.year, today.month, today.day + 1, 8, 0, 0, johannesburg);
+  timedEvent.endDate = cal.createDateTime();
+  timedEvent.endDate.resetTo(today.year, today.month, today.day + 1, 12, 0, 0, johannesburg);
+  timedEvent = await calendar.addItem(timedEvent);
+
+  checkEvents(
+    {
+      dateHeader: "Tomorrow",
+      time: beforeEvent.startDate,
+      title: "Before",
+    },
+    {
+      time: cal.dtz.formatter.formatTime(cal.createDateTime("20000101T060000Z")), // The date used here is irrelevant.
+      title: "Morning in Johannesburg",
+    },
+    {
+      time: afterEvent.startDate,
+      title: "After",
+    }
+  );
+  Assert.stringContains(
+    TodayPane.agenda.rows[1].querySelector(".agenda-listitem-time").getAttribute("datetime"),
+    "T08:00:00+02:00"
+  );
+
+  await calendar.deleteItem(beforeEvent);
+  await calendar.deleteItem(afterEvent);
+  await calendar.deleteItem(timedEvent);
+
+  // Events that cross midnight in the local time zone (but not in the event time zone)
+  // must have a start row and an end row.
+
+  let overnightEvent = new CalEvent();
+  overnightEvent.id = cal.getUUID();
+  overnightEvent.title = "Evening in Panama";
+  overnightEvent.startDate = cal.createDateTime();
+  overnightEvent.startDate.resetTo(today.year, today.month, today.day, 17, 0, 0, panama);
+  overnightEvent.endDate = cal.createDateTime();
+  overnightEvent.endDate.resetTo(today.year, today.month, today.day, 23, 0, 0, panama);
+  overnightEvent = await calendar.addItem(overnightEvent);
+
+  checkEvents(
+    {
+      dateHeader: "Today",
+      time: cal.dtz.formatter.formatTime(cal.createDateTime("20000101T220000Z")), // The date used here is irrelevant.
+      title: "Evening in Panama",
+      overlap: "start",
+    },
+    {
+      dateHeader: "Tomorrow",
+      time: cal.dtz.formatter.formatTime(cal.createDateTime("20000101T040000Z")), // The date used here is irrelevant.
+      title: "Evening in Panama",
+      overlap: "end",
+    }
+  );
+  Assert.stringContains(
+    TodayPane.agenda.rows[0].querySelector(".agenda-listitem-time").getAttribute("datetime"),
+    "T17:00:00-05:00"
+  );
+  Assert.stringContains(
+    TodayPane.agenda.rows[1].querySelector(".agenda-listitem-time").getAttribute("datetime"),
+    "T23:00:00-05:00"
+  );
+
+  await calendar.deleteItem(overnightEvent);
 });
 
 /**
@@ -164,44 +503,19 @@ add_task(async function testTodayPane() {
  * non-recurring and recurring events.
  */
 add_task(async function testOpenEvent() {
-  let now = cal.dtz.now();
-  let uri = Services.io.newURI("moz-memory-calendar://");
-  let manager = cal.getCalendarManager();
-  let calendar = manager.createCalendar("memory", uri);
-  let calendarProxy = cal.async.promisifyCalendar(calendar);
-
-  calendar.name = "TestOpenEvent";
-  manager.registerCalendar(calendar);
-  registerCleanupFunction(() => manager.removeCalendar(calendar));
-
-  // Let the UI respond to the registration of the calendar.
-  await new Promise(resolve => setTimeout(resolve));
-  await new Promise(resolve => setTimeout(resolve));
-
-  let todayPanePanel = document.querySelector("#today-pane-panel");
-  let todayPaneBtn = document.querySelector("#calendar-status-todaypane-button");
-
-  // Go to mail tab.
-  selectFolderTab();
-
-  // Verify today pane open.
-  if (todayPanePanel.hasAttribute("collapsed")) {
-    EventUtils.synthesizeMouseAtCenter(todayPaneBtn, {});
-  }
-
-  Assert.ok(!todayPanePanel.hasAttribute("collapsed"));
-
   let noRepeatEvent = new CalEvent();
   noRepeatEvent.id = "no repeat event";
   noRepeatEvent.title = "No Repeat Event";
-  noRepeatEvent.startDate = now.clone();
+  noRepeatEvent.startDate = today.clone();
+  noRepeatEvent.startDate.hour = startHour;
   noRepeatEvent.endDate = noRepeatEvent.startDate.clone();
   noRepeatEvent.endDate.hour++;
 
   let repeatEvent = new CalEvent();
   repeatEvent.id = "repeated event";
   repeatEvent.title = "Repeated Event";
-  repeatEvent.startDate = now.clone();
+  repeatEvent.startDate = today.clone();
+  repeatEvent.startDate.hour = startHour;
   repeatEvent.endDate = noRepeatEvent.startDate.clone();
   repeatEvent.endDate.hour++;
   repeatEvent.recurrenceInfo = new CalRecurrenceInfo(repeatEvent);
@@ -210,19 +524,21 @@ add_task(async function testOpenEvent() {
   );
 
   for (let event of [noRepeatEvent, repeatEvent]) {
-    await calendarProxy.addItem(event);
+    let addedEvent = await calendar.addItem(event);
 
-    // Let the UI respond to the new events.
-    await new Promise(resolve => setTimeout(resolve));
-    await new Promise(resolve => setTimeout(resolve));
-
-    let listBox = agendaListbox.agendaListboxControl;
-    let richlistitem = listBox.querySelector("#today-header + richlistitem");
-
-    Assert.ok(richlistitem.textContent.includes(event.title), "event title is correct");
+    if (event == noRepeatEvent) {
+      Assert.equal(TodayPane.agenda.rowCount, 1);
+    } else {
+      Assert.equal(TodayPane.agenda.rowCount, 5);
+    }
+    Assert.equal(
+      TodayPane.agenda.rows[0].querySelector(".agenda-listitem-title").textContent,
+      event.title,
+      "event title is correct"
+    );
 
     let dialogWindowPromise = CalendarTestUtils.waitForEventDialog();
-    EventUtils.synthesizeMouseAtCenter(richlistitem, { clickCount: 2 });
+    EventUtils.synthesizeMouseAtCenter(TodayPane.agenda.rows[0], { clickCount: 2 });
 
     let dialogWindow = await dialogWindowPromise;
     let docUri = dialogWindow.document.documentURI;
@@ -232,6 +548,6 @@ add_task(async function testOpenEvent() {
     );
 
     await BrowserTestUtils.closeWindow(dialogWindow);
-    await calendarProxy.deleteItem(event);
+    await calendar.deleteItem(addedEvent);
   }
 });

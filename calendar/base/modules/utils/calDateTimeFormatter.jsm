@@ -75,6 +75,17 @@ var formatter = {
   },
 
   /**
+   * Format a date into a long format without mentioning the year, for example
+   * "Monday, December 17".
+   *
+   * @param {calIDateTime} aDate    The datetime to format.
+   * @return {string}               A string representing the date part of the datetime.
+   */
+  formatDateLongWithoutYear(aDate) {
+    return inTimezone(aDate, { weekday: "long", month: "long", day: "numeric" });
+  },
+
+  /**
    * Format a time into the format specified by the OS settings. Will omit the seconds from the
    * output.
    *

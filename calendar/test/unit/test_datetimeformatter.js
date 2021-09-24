@@ -318,6 +318,89 @@ add_task(async function formatDateWithoutYear_test() {
   Services.prefs.setIntPref("calendar.date.format", dateformat);
 });
 
+add_task(async function formatDateLongWithoutYear_test() {
+  let data = [
+    {
+      input: {
+        datetime: "20170401T180000",
+        timezone: "Pacific/Fakaofo",
+      },
+      expected: "Saturday, April 1",
+    },
+    {
+      input: {
+        datetime: "20170401T180000",
+        timezone: "Pacific/Kiritimati",
+      },
+      expected: "Saturday, April 1",
+    },
+    {
+      input: {
+        datetime: "20170401T180000",
+        timezone: "UTC",
+      },
+      expected: "Saturday, April 1",
+    },
+    {
+      input: {
+        datetime: "20170401T180000",
+        timezone: "floating",
+      },
+      expected: "Saturday, April 1",
+    },
+    {
+      input: {
+        datetime: "20170401",
+        timezone: "Pacific/Fakaofo",
+      },
+      expected: "Saturday, April 1",
+    },
+    {
+      input: {
+        datetime: "20170401",
+        timezone: "Pacific/Kiritimati",
+      },
+      expected: "Saturday, April 1",
+    },
+    {
+      input: {
+        datetime: "20170401",
+        timezone: "UTC",
+      },
+      expected: "Saturday, April 1",
+    },
+    {
+      input: {
+        datetime: "20170401",
+        timezone: "floating",
+      },
+      expected: "Saturday, April 1",
+    },
+  ];
+
+  let dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
+  let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  // we make sure to have set short format
+  Services.prefs.setIntPref("calendar.date.format", 1);
+
+  let tzs = cal.getTimezoneService();
+
+  let i = 0;
+  for (let test of data) {
+    i++;
+
+    let zone =
+      test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
+    let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
+
+    equal(formatter.formatDateLongWithoutYear(date), test.expected, "(test #" + i + ")");
+  }
+  // let's reset the preferences
+  Services.prefs.setStringPref("calendar.timezone.local", tzlocal);
+  Services.prefs.setIntPref("calendar.date.format", dateformat);
+});
+
 add_task(async function formatTime_test() {
   let data = [
     {

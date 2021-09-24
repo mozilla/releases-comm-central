@@ -6,8 +6,8 @@
             commandupdater="true"
             events="calendar_commands"
             oncommandupdate="calendarController.updateCommands()">
-  <command id="agenda_delete_event_command" oncommand="agendaListbox.deleteSelectedItem(false);"/>
-  <command id="agenda_edit_event_command" oncommand="agendaListbox.editSelectedItem(event);"/>
+  <command id="agenda_delete_event_command" oncommand="TodayPane.agenda.deleteSelectedItem();"/>
+  <command id="agenda_edit_event_command" oncommand="TodayPane.agenda.editSelectedItem();"/>
   <command id="switch2calendar"
            oncommand="document.getElementById('tabmail').openTab('calendar', { title: document.getElementById('calendar-tab-button').getAttribute('title') })"/>
   <command id="switch2task"
@@ -24,7 +24,6 @@
   <command id="calendar_edit_calendar_command" oncommand="goDoCommand('calendar_edit_calendar_command')"/>
 
   <command id="calendar_new_event_command" oncommand="goDoCommand('calendar_new_event_command')"/>
-  <command id="calendar_new_event_todaypane_command" oncommand="agendaListbox.createNewEvent(event)"/>
   <command id="calendar_new_event_context_command" oncommand="goDoCommand('calendar_new_event_context_command')"/>
   <command id="calendar_modify_event_command" oncommand="goDoCommand('calendar_modify_event_command')"/>
   <command id="calendar_view_event_command" oncommand="goDoCommand('calendar_view_event_command')"/>

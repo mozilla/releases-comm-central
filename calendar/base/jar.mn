@@ -9,8 +9,6 @@ calendar.jar:
 % override chrome://messagebody/skin/calendar-attendees.css chrome://calendar/skin/shared/calendar-attendees.css
 % override chrome://messagebody/skin/calendar-event-dialog-attendees.png chrome://calendar/skin/shared/calendar-event-dialog-attendees.png
 % content calendar %content/
-    content/agenda-listbox-utils.js                             (content/agenda-listbox-utils.js)
-    content/agenda-listbox.js                                   (content/agenda-listbox.js)
     content/calendar-base-view.js                               (content/calendar-base-view.js)
     content/calendar-chrome-startup.js                          (content/calendar-chrome-startup.js)
     content/calendar-clipboard.js                               (content/calendar-clipboard.js)
@@ -96,6 +94,7 @@ calendar.jar:
     content/publish.js                                          (content/publish.js)
     content/sound.wav                                           (content/sound.wav)
     content/today-pane.js                                       (content/today-pane.js)
+    content/today-pane-agenda.js                                (content/today-pane-agenda.js)
     content/widgets/calendar-alarm-widget.js                    (content/widgets/calendar-alarm-widget.js)
     content/widgets/calendar-dnd-widgets.js                     (content/widgets/calendar-dnd-widgets.js)
     content/widgets/calendar-filter.js                          (content/widgets/calendar-filter.js)

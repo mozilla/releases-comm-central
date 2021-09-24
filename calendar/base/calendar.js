@@ -25,8 +25,8 @@ pref("calendar.task.defaultdueoffsetunits", "minutes");
 pref("calendar.events.defaultTransparency.allday.transparent", true);
 pref("calendar.events.defaultTransparency.standard.transparent", false);
 
-// number of days in "Soon" section
-pref("calendar.agendaListbox.soondays", 5);
+// Number of days in Today Pane agenda
+pref("calendar.agenda.days", 14);
 
 // alarm settings
 pref("calendar.alarms.show", true);

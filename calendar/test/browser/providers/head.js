@@ -238,6 +238,8 @@ async function runTestAlarms() {
 
 let syncChangesTest = {
   async setUp() {
+    await CalendarTestUtils.openCalendarTab(window);
+
     if (document.getElementById("today-pane-panel").collapsed) {
       EventUtils.synthesizeMouseAtCenter(
         document.getElementById("calendar-status-todaypane-button"),
@@ -247,10 +249,6 @@ let syncChangesTest = {
 
     if (document.getElementById("agenda-panel").collapsed) {
       EventUtils.synthesizeMouseAtCenter(document.getElementById("today-pane-cycler-next"), {});
-    }
-
-    if (document.getElementById("nextweek-header").getAttribute("checked") != "true") {
-      EventUtils.synthesizeMouseAtCenter(document.querySelector("#nextweek-header > checkbox"), {});
     }
   },
 
@@ -285,10 +283,12 @@ let syncChangesTest = {
     let item = await CalendarTestUtils.multiweekView.waitForItemAt(window, 2, 3, 1);
     Assert.equal(item.item.title, "holy cow, a new item!");
 
-    let agendaItem = await TestUtils.waitForCondition(() =>
-      document.querySelector(`#nextweek-header + richlistitem[is="agenda-richlistitem"]`)
+    await TestUtils.waitForCondition(() => window.TodayPane.agenda.rowCount == 1);
+    let agendaItem = window.TodayPane.agenda.rows[0];
+    Assert.equal(
+      agendaItem.querySelector(".agenda-listitem-title").textContent,
+      "holy cow, a new item!"
     );
-    Assert.equal(agendaItem.occurrence.title, "holy cow, a new item!");
     Assert.ok(!agendaItem.nextElementSibling);
   },
 
@@ -323,10 +323,9 @@ let syncChangesTest = {
     let item = await CalendarTestUtils.multiweekView.waitForItemAt(window, 2, 4, 1);
     Assert.equal(item.item.title, "a changed item");
 
-    let agendaItem = await TestUtils.waitForCondition(() =>
-      document.querySelector(`#nextweek-header + richlistitem[is="agenda-richlistitem"]`)
-    );
-    Assert.equal(agendaItem.occurrence.title, "a changed item");
+    await TestUtils.waitForCondition(() => window.TodayPane.agenda.rowCount == 1);
+    let agendaItem = window.TodayPane.agenda.rows[0];
+    Assert.equal(agendaItem.querySelector(".agenda-listitem-title").textContent, "a changed item");
     Assert.ok(!agendaItem.nextElementSibling);
   },
 
@@ -335,8 +334,6 @@ let syncChangesTest = {
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 3, 1);
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 4, 1);
 
-    await TestUtils.waitForCondition(
-      () => !document.querySelector(`#nextweek-header + richlistitem[is="agenda-richlistitem"]`)
-    );
+    await TestUtils.waitForCondition(() => window.TodayPane.agenda.rowCount == 0);
   },
 };

@@ -5,12 +5,12 @@
     <html:fieldset data-category="paneCalendar">
         <html:legend data-l10n-id="todaypane-legend"></html:legend>
         <hbox align="center">
-            <label data-l10n-id="soon-label"
-                   control="soondays-menulist"/>
+            <label data-l10n-id="agenda-days"
+                   control="agenda-days-menulist"/>
             <hbox>
-                <menulist id="soondays-menulist"
-                          preference="calendar.agendaListbox.soondays">
-                    <menupopup id="soondaysdurationpopup">
+                <menulist id="agenda-days-menulist"
+                          preference="calendar.agenda.days">
+                    <menupopup id="agenda-days-popup">
                         <menuitem value="1"/>
                         <menuitem value="2"/>
                         <menuitem value="3"/>
