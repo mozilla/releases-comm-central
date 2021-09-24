@@ -354,15 +354,18 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
   -moz-default-appearance: -moz-window-button-box;
 }
 
-/* Fullscreen and caption buttons don't move with RTL on OS X so override the automatic ordering. */
-#titlebar-buttonbox-container:-moz-locale-dir(rtl),
-.titlebar-placeholder[type="caption-buttons"]:-moz-locale-dir(rtl) {
-  -moz-box-ordinal-group: 1000;
+@media (-moz-mac-rtl) {
+  #titlebar-buttonbox-container:-moz-locale-dir(rtl),
+  .titlebar-placeholder[type="caption-buttons"]:-moz-locale-dir(rtl) {
+    -moz-box-ordinal-group: 0;
+  }
 }
 
-#titlebar-buttonbox-container:-moz-locale-dir(ltr),
-.titlebar-placeholder[type="caption-buttons"]:-moz-locale-dir(ltr) {
-  -moz-box-ordinal-group: 0;
+@media not (-moz-mac-rtl) {
+  #titlebar-buttonbox-container:-moz-locale-dir(ltr),
+  .titlebar-placeholder[type="caption-buttons"]:-moz-locale-dir(ltr) {
+    -moz-box-ordinal-group: 0;
+  }
 }
 
 #messengerWindow[sizemode="fullscreen"] .titlebar-placeholder[type="caption-buttons"] {
