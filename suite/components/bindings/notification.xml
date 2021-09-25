@@ -1832,6 +1832,7 @@
       <constructor>
         <![CDATA[
           var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+          var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
           ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
           Services.obs.addObserver(this, "indexedDB-permissions-prompt");
@@ -1853,7 +1854,7 @@
 
           this.addProgressListener();
 
-          if ("nsICrashReporter" in Ci)
+          if (AppConstants.MOZ_CRASHREPORTER)
             ChromeUtils.import("resource://gre/modules/CrashSubmit.jsm", this);
         ]]>
       </constructor>

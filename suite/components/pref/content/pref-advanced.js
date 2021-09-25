@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 const {ShellService} = ChromeUtils.import("resource:///modules/ShellService.jsm");
 
 var defaultClient = 0;
@@ -73,8 +74,7 @@ function onNewsChange(aChecked) {
 
 function CrashReportsCheck()
 {
-  if ("nsICrashReporter" in Ci)
-  {
+  if (AppConstants.MOZ_CRASHREPORTER) {
     var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"]
                .getService(Ci.nsICrashReporter);
     document.getElementById("crashReports").hidden = !cr.enabled;
