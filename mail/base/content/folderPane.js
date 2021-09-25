@@ -220,8 +220,10 @@ var gFolderTreeView = {
     // Remove our listener
     MailServices.mailSession.RemoveFolderListener(this);
 
-    if (filename) {
-      // Write out our json file...
+    // Update the JSON file only if we have a file, the folder tree was inited
+    // and we have at least one available folder in order to avoid overriding
+    // existing data in case the UI is broken on startup.
+    if (filename && this.isInited && this.rowCount) {
       let data = {
         open: this._persistOpenMap,
         colors: this._persistColorMap,
