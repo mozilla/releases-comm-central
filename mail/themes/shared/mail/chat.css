@@ -137,6 +137,7 @@
 }
 
 richlistitem[is="chat-group-richlistitem"] {
+  -moz-box-align: center;
   padding-inline-start: 4px;
   margin-inline-end: 1px;
 }
@@ -249,6 +250,11 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   margin-inline-start: 1ch;
 }
 
+.convUnreadCount[value="0"],
+.convUnreadTargetedCount[value="0"] {
+  display: none;
+}
+
 .convUnreadTargetedCountLabel {
   margin: 0;
 }
@@ -274,10 +280,17 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   height: 16px;
   min-height: 16px;
   min-width: 16px;
+  cursor: pointer;
+  -moz-user-focus: ignore;
 }
 
 .startChatBubble {
+  display: none;
   list-style-image: url('chrome://chat/skin/prpl-generic/icon.png');
+}
+
+richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
+  display: -moz-box;
 }
 
 .closeConversationButton > .button-box > .button-icon {
@@ -347,6 +360,10 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
 .statusTypeIcon {
   width: 16px;
   height: 16px;
+}
+
+#statusTypeIcon:not([disabled]) {
+  cursor: pointer;
 }
 
 .userIcon:not([src]) + .statusTypeIcon {
@@ -690,6 +707,18 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   display: -moz-box;
 }
 
+.status-container {
+  width: 15em;
+}
+
+#statusMessageLabel:not([statusType="offline"],[disabled]) {
+  cursor: text;
+}
+
+#statusMessageInput.status-message-input {
+  margin: 0;
+}
+
 .statusMessageToolbarItem {
   margin: 2px 4px;
   margin-inline-start: -1px;
@@ -747,6 +776,10 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   color: var(--sidebar-text-color);
 }
 
+#contextPaneFlexibleBox {
+  overflow: hidden;
+}
+
 :root[lwt-tree] #nicklist,
 :root[lwt-tree] .conv-nicklist-header,
 :root[lwt-tree] .conv-logs-header-label {
@@ -768,6 +801,10 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 
 :root[lwt-tree-brighttext] #nicklist {
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+}
+
+#participantCount {
+  background: transparent;
 }
 
 :root[lwt-tree] #participantCount {
@@ -829,4 +866,98 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 #goToConversation:hover:active {
   background-color: hsla(0, 0%, 50%, 0.4) !important;
   box-shadow: 0 0 1px hsla(0, 0%, 50%, 0.15) inset;
+}
+
+
+/* Chat Toolbar button. */
+toolbar[mode="text"] #button-chat {
+  -moz-box-orient: horizontal;
+}
+
+.badgeButton-badge {
+  background-color: red;
+  border: 1px solid white;
+  border-radius: 1em;
+  box-shadow: 1px 1px 1px black;
+  color: white;
+  font: xx-small Helvetica, Verdana, Tahoma;
+  height: -moz-fit-content;
+  min-width: 1em;
+  text-align: center;
+  margin-top: -4px;
+  margin-inline-start: 5px;
+  margin-inline-end: 0;
+  padding-inline: 1px;
+  padding-block: 1px 0;
+}
+
+toolbar[mode="text"] .badgeButton-badge {
+  margin: 0;
+}
+
+.badgeButton-badgeLabel {
+  margin: 0;
+}
+
+/* encryption status selector */
+
+.encryption-container {
+  border-top: 1px solid var(--splitter-color);
+  min-height: 32px;
+  padding: 4px;
+}
+
+.encryption-label {
+  font-weight: 600;
+}
+
+.encryption-not-private > image {
+  list-style-image: url("chrome://messenger/skin/icons/connection-insecure.svg");
+}
+
+.encryption-unverified > image {
+  list-style-image: url("chrome://messenger/skin/icons/connection-mixed.svg");
+}
+
+.encryption-finished > image {
+  list-style-image: url("chrome://chat/skin/otr-connection-finished.svg");
+}
+
+.encryption-private > image {
+  list-style-image: url("chrome://chat/skin/otr-connection-encrypted.svg");
+}
+
+.encryption-button {
+  appearance: none !important;
+  padding: 1px !important;
+  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  border-radius: var(--toolbarbutton-border-radius);
+  background: var(--toolbarbutton-hover-background) !important;
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.encryption-button:not([disabled="true"]):not([open="true"]):hover {
+  background: var(--toolbarbutton-active-background) !important;
+  border-color: var(--toolbarbutton-active-bordercolor);
+}
+
+.encryption-button[open="true"] {
+  background: var(--toolbarbutton-active-background) !important;
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+.encryption-button > image {
+  margin-inline-end: 3px !important;
+  width: 14px;
+}
+
+.encryption-button .toolbarbutton-menu-dropmarker {
+  appearance: none !important;
+  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  margin-inline: 3px 0;
 }

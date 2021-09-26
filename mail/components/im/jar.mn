@@ -4,7 +4,6 @@
 
 messenger.jar:
     content/messenger/chat/chat-messenger.js             (content/chat-messenger.js)
-    content/messenger/chat/chat.css                      (content/chat.css)
     content/messenger/am-im.js                           (content/am-im.js)
     content/messenger/am-im.xhtml                        (content/am-im.xhtml)
     content/messenger/chat/addbuddy.js                   (content/addbuddy.js)
