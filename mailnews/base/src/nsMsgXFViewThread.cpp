@@ -412,15 +412,13 @@ NS_IMETHODIMP
 nsMsgXFViewThread::GetFirstUnreadChild(nsIMsgDBHdr** aResult) {
   NS_ENSURE_ARG(aResult);
   uint32_t numChildren;
-  nsresult rv = NS_OK;
-
   GetNumChildren(&numChildren);
 
   if ((int32_t)numChildren < 0) numChildren = 0;
 
   for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++) {
     nsCOMPtr<nsIMsgDBHdr> child;
-    rv = GetChildHdrAt(childIndex, getter_AddRefs(child));
+    nsresult rv = GetChildHdrAt(childIndex, getter_AddRefs(child));
     if (NS_SUCCEEDED(rv) && child) {
       nsMsgKey msgKey;
       child->GetMessageKey(&msgKey);
@@ -437,7 +435,7 @@ nsMsgXFViewThread::GetFirstUnreadChild(nsIMsgDBHdr** aResult) {
     }
   }
 
-  return rv;
+  return (*aResult) ? NS_OK : NS_ERROR_NULL_POINTER;
 }
 
 NS_IMETHODIMP

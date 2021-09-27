@@ -978,7 +978,6 @@ nsresult nsMsgThread::GetChildHdrForKey(nsMsgKey desiredKey,
 NS_IMETHODIMP nsMsgThread::GetFirstUnreadChild(nsIMsgDBHdr** result) {
   NS_ENSURE_ARG_POINTER(result);
 
-  nsresult rv = NS_OK;
   uint8_t minLevel = 0xff;
 
   uint32_t numChildren = 0;
@@ -988,7 +987,7 @@ NS_IMETHODIMP nsMsgThread::GetFirstUnreadChild(nsIMsgDBHdr** result) {
 
   for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++) {
     nsCOMPtr<nsIMsgDBHdr> child;
-    rv = GetChildHdrAt(childIndex, getter_AddRefs(child));
+    nsresult rv = GetChildHdrAt(childIndex, getter_AddRefs(child));
     if (NS_SUCCEEDED(rv) && child) {
       nsMsgKey msgKey;
       child->GetMessageKey(&msgKey);
@@ -1022,7 +1021,7 @@ NS_IMETHODIMP nsMsgThread::GetFirstUnreadChild(nsIMsgDBHdr** result) {
   }
 
   retHdr.forget(result);
-  return rv;
+  return (*result) ? NS_OK : NS_ERROR_NULL_POINTER;
 }
 
 NS_IMETHODIMP nsMsgThread::GetNewestMsgDate(uint32_t* aResult) {
