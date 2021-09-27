@@ -33,8 +33,8 @@
 #include "nsIMsgFolderCompactor.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
+#include "nsQuarantinedOutputStream.h"
 #include "mozilla/Preferences.h"
-#include "mozilla/UniquePtr.h"
 #include "prprf.h"
 #include <cstdlib>  // for std::abs(int/long)
 #include <cmath>    // for std::abs(float/double)
@@ -549,6 +549,38 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
                                          nsIMsgDBHdr** aNewMsgHdr,
                                          bool* aReusable,
                                          nsIOutputStream** aResult) {
+  bool quarantining = false;
+  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
+  if (prefBranch) {
+    prefBranch->GetBoolPref("mailnews.downloadToTempFile", &quarantining);
+  }
+
+  if (!quarantining) {
+    // Caller will write directly to mbox.
+    return InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr, aReusable,
+                                         aResult);
+  }
+
+  // Quarantining is on, so we want to write the new message to a temp file
+  // and let the virus checker have at it before we append it to the mbox.
+  // We'll wrap the mboxStream with an nsQuarantinedOutputStream and return
+  // that.
+  nsCOMPtr<nsIOutputStream> mboxStream;
+  bool reusable;
+  nsresult rv = InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr, &reusable,
+                                              getter_AddRefs(mboxStream));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<nsQuarantinedOutputStream> qStream =
+      new nsQuarantinedOutputStream(mboxStream);
+  *aReusable = false;
+  qStream.forget(aResult);
+  return NS_OK;
+}
+
+nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
+    nsIMsgFolder* aFolder, nsIMsgDBHdr** aNewMsgHdr, bool* aReusable,
+    nsIOutputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aNewMsgHdr);
   NS_ENSURE_ARG_POINTER(aReusable);
@@ -622,6 +654,12 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
 #ifdef _DEBUG
   m_streamOutstandingFolder = nullptr;
 #endif
+  nsCOMPtr<nsISafeOutputStream> safe = do_QueryInterface(aOutputStream);
+  if (safe) {
+    // nsISafeOutputStream only writes upon finish(), so no cleanup required.
+    return aOutputStream->Close();
+  }
+  // Truncate the mbox back to where we started writing.
   uint64_t hdrOffset;
   aNewHdr->GetMessageOffset(&hdrOffset);
   aOutputStream->Close();
@@ -637,11 +675,16 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
 NS_IMETHODIMP
 nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream* aOutputStream,
                                     nsIMsgDBHdr* aNewHdr) {
+  NS_ENSURE_ARG_POINTER(aOutputStream);
 #ifdef _DEBUG
   m_streamOutstandingFolder = nullptr;
 #endif
-  NS_ENSURE_ARG_POINTER(aOutputStream);
-  //  NS_ENSURE_ARG_POINTER(aNewHdr);
+  // Quarantining is implemented using a nsISafeOutputStream.
+  // It requires an explicit commit, or the data will be discarded.
+  nsCOMPtr<nsISafeOutputStream> safe = do_QueryInterface(aOutputStream);
+  if (safe) {
+    return safe->Finish();
+  }
   return NS_OK;
 }
 
