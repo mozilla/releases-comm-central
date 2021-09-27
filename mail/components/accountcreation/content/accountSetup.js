@@ -2638,7 +2638,7 @@ var gAccountSetup = {
       alwaysCache || (canCache && calendar.getProperty("cache.enabled"));
 
     // Set up the "Refresh calendar" menulist.
-    let calendarRefresh = document.getElementById("calendaRefresh");
+    let calendarRefresh = document.getElementById("calendarRefresh");
     calendarRefresh.disabled = !calendar.canRefresh;
     calendarRefresh.value = calendar.getProperty("refreshInterval") || 30;
 
