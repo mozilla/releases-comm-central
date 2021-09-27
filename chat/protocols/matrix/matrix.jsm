@@ -468,7 +468,7 @@ MatrixRoom.prototype = {
     this._roomId = room.roomId;
 
     // Update the title to the human readable version.
-    if (room.name && this._name != room.name) {
+    if (room.name && this._name != room.name && room.name !== room.roomId) {
       this._name = room.name;
       this.notifyObservers(null, "update-conv-title");
     }
@@ -1246,6 +1246,7 @@ function MatrixAccount(aProtocol, aImAccount) {
   this.buddies = new Map();
   this._pendingDirectChats = new Map();
   this._pendingRoomAliases = new Map();
+  this._pendingRoomInvites = new Set();
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
@@ -1922,9 +1923,11 @@ MatrixAccount.prototype = {
    * This includes adding and removing rooms and catching up their contents.
    */
   handleCaughtUp() {
-    const joinedRooms = this._client
-      .getRooms()
-      .filter(room => room.getMyMembership() === "join" && !room.isSpaceRoom())
+    const allRooms = this._client
+      .getVisibleRooms()
+      .filter(room => !room.isSpaceRoom());
+    const joinedRooms = allRooms
+      .filter(room => room.getMyMembership() === "join")
       .map(room => room.roomId);
     // Ensure existing conversations are up to date
     for (const [roomId, conv] of this.roomList.entries()) {
@@ -1959,6 +1962,16 @@ MatrixAccount.prototype = {
           conv = this.getGroupConversation(roomId);
         }
         conv.catchup().catch(error => this.ERROR(error));
+      }
+    }
+    // Add pending invites
+    const invites = allRooms.filter(
+      room => room.getMyMembership() === "invite"
+    );
+    for (const room of invites) {
+      const me = room.getMember(this.userId);
+      if (me.events.member.getContent().is_direct) {
+        this.invitedToDM(room);
       }
     }
     // Remove orphaned buddies.
@@ -2075,15 +2088,26 @@ MatrixAccount.prototype = {
   },
 
   /**
+   * Set of room IDs that have pending invites that are being displayed to the
+   * user this session.
+   *
+   * @type {Set<string>}
+   */
+  _pendingRoomInvites: null,
+  /**
    * A user invited this user to a DM room.
    *
    * @param {Room} room - Room we're invited to.
    */
   invitedToDM(room) {
+    if (this._pendingRoomInvites.has(room.roomId)) {
+      return;
+    }
     let userId = room.getDMInviter();
     this.addBuddyRequest(
       userId,
       () => {
+        this._pendingRoomInvites.delete(room.roomId);
         this.setDirectRoom(userId, room.roomId);
         // For the invited rooms, we will not get the summary info from
         // the room object created after the joining. So we need to use
@@ -2098,9 +2122,11 @@ MatrixAccount.prototype = {
         }
       },
       () => {
+        this._pendingRoomInvites.delete(room.roomId);
         this._client.leave(room.roomId);
       }
     );
+    this._pendingRoomInvites.add(room.roomId);
   },
 
   /**
