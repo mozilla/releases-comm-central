@@ -363,19 +363,15 @@ MessageSend.prototype = {
 
   notifyListenerOnStartCopy() {
     MsgUtils.sendLogger.debug("notifyListenerOnStartCopy");
-    if (this._sendListener) {
-      this._sendListener
-        .QueryInterface(Ci.nsIMsgCopyServiceListener)
-        .OnStartCopy();
+    if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
+      this._sendListener.OnStartCopy();
     }
   },
 
   notifyListenerOnProgressCopy(progress, progressMax) {
     MsgUtils.sendLogger.debug("notifyListenerOnProgressCopy");
-    if (this._sendListener) {
-      this._sendListener
-        .QueryInterface(Ci.nsIMsgCopyServiceListener)
-        .OnProgress(progress, progressMax);
+    if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
+      this._sendListener.OnProgress(progress, progressMax);
     }
   },
 
@@ -968,9 +964,9 @@ MessageSend.prototype = {
     // resolving in MsgComposeCommands.js. Use setTimeout to work around it.
     setTimeout(() => {
       try {
-        this._sendListener
-          ?.QueryInterface(Ci.nsIMsgCopyServiceListener)
-          .OnStopCopy(0);
+        if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
+          this._sendListener.OnStopCopy(0);
+        }
       } catch (e) {
         // Ignore the return value of OnStopCopy. Non-zero nsresult will throw
         // when going through XPConnect. In this case, we don't care about it.
@@ -1044,8 +1040,9 @@ MessageSend.prototype = {
     MsgUtils.sendLogger.debug("Delivering mail message");
     let deliveryListener = new MsgDeliveryListener(this, false);
     let msgStatus =
-      this._sendProgress?.QueryInterface(Ci.nsIMsgStatusFeedback) ||
-      this._statusFeedback;
+      this._sendProgress instanceof Ci.nsIMsgStatusFeedback
+        ? this._sendProgress
+        : this._statusFeedback;
     this._smtpRequest = {};
     MailServices.smtp.sendMailMessage(
       file,
