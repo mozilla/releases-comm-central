@@ -21,6 +21,8 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 
 const EXPORTED_SYMBOLS = ["calprint"]; /* exported calprint */
 
+const weekInfoService = cal.getWeekInfoService();
+
 var calprint = {
   ensureInitialized() {
     // Deliberate no-op. By calling this function from outside, you've ensured
@@ -49,17 +51,15 @@ var calprint = {
     }
     document.getElementById("tasks-list-box").hidden = true;
 
-    let items = await getItems(startDate, endDate, filter, notDueTasks);
-
     switch (type) {
       case "list":
-        await listView.draw(document, items);
+        await listView.draw(document, startDate, endDate, filter, notDueTasks);
         break;
       case "monthGrid":
-        await monthGridView.draw(document, startDate, endDate, items);
+        await monthGridView.draw(document, startDate, endDate, filter, notDueTasks);
         break;
       case "weekPlanner":
-        await weekPlannerView.draw(document, startDate, endDate, items);
+        await weekPlannerView.draw(document, startDate, endDate, filter, notDueTasks);
         break;
     }
   },
@@ -226,12 +226,26 @@ function getItems(startDate, endDate, filter, notDueTasks) {
   });
 }
 
+/**
+ * A simple list of calendar items.
+ */
 let listView = {
-  async draw(document, items) {
+  /**
+   * Create the list view.
+   *
+   * @param {HTMLDocument} document
+   * @param {calIDateTime} startDate - the first day of the months to be displayed
+   * @param {calIDateTime} endDate - the first day of the month AFTER the
+   *   months to be displayed
+   * @param {integer} filter - calICalendar ITEM_FILTER flags
+   * @param {boolean} notDueTasks - if true, include tasks with no due date
+   */
+  async draw(document, startDate, endDate, filter, notDueTasks) {
     let container = document.getElementById("list-container");
     let listItemTemplate = document.getElementById("list-item-template");
 
-    // Sort items.
+    // Get and sort items.
+    let items = await getItems(startDate, endDate, filter, notDueTasks);
     items.sort((a, b) => {
       let start_a = a[cal.dtz.startDateProp(a)];
       if (!start_a) {
@@ -244,6 +258,7 @@ let listView = {
       return start_a.compare(start_b);
     });
 
+    // Display the items.
     for (let item of items) {
       let itemNode = listItemTemplate.content.firstElementChild.cloneNode(true);
 
@@ -264,16 +279,16 @@ let listView = {
         }
       };
 
-      let startDate = item[cal.dtz.startDateProp(item)];
-      let endDate = item[cal.dtz.endDateProp(item)];
-      if (startDate || endDate) {
+      let itemStartDate = item[cal.dtz.startDateProp(item)];
+      let itemEndDate = item[cal.dtz.endDateProp(item)];
+      if (itemStartDate || itemEndDate) {
         // This is a task with a start or due date, format accordingly
         let prefixWhen = cal.l10n.getCalString("htmlPrefixWhen");
         itemNode.querySelector(".intervalkey").textContent = prefixWhen;
 
         let startNode = itemNode.querySelector(".dtstart");
         let dateString = cal.dtz.formatter.formatItemInterval(item);
-        startNode.setAttribute("title", startDate ? startDate.icalString : "none");
+        startNode.setAttribute("title", itemStartDate ? itemStartDate.icalString : "none");
         startNode.textContent = dateString;
       } else {
         let row = itemNode.querySelector(".intervalrow");
@@ -297,25 +312,54 @@ let listView = {
 
       container.appendChild(itemNode);
     }
+
+    // Set the page title.
+    let startMonth = cal.l10n.formatMonth(startDate.month + 1, "calendar", "monthInYear");
+    let startMonthTitle = cal.l10n.getCalString("monthInYear", [startMonth, startDate.year]);
+    endDate.day--;
+    let endMonth = cal.l10n.formatMonth(endDate.month + 1, "calendar", "monthInYear");
+    let endMonthTitle = cal.l10n.getCalString("monthInYear", [endMonth, endDate.year]);
+
+    if (startMonthTitle == endMonthTitle) {
+      document.title = startMonthTitle;
+    } else {
+      document.title = `${startMonthTitle} – ${endMonthTitle}`;
+    }
   },
 };
 
+/**
+ * A layout with one calendar month per page.
+ */
 let monthGridView = {
   dayTable: {},
 
-  async draw(document, start, end, items) {
-    let startDate = this.normalizeStartDate(start);
-    let endDate = this.normalizeEndDate(end);
-
+  /**
+   * Create the month grid view.
+   *
+   * @param {HTMLDocument} document
+   * @param {calIDateTime} startDate - the first day of the months to be displayed
+   * @param {calIDateTime} endDate - the first day of the month AFTER the
+   *   months to be displayed
+   * @param {integer} filter - calICalendar ITEM_FILTER flags
+   * @param {boolean} notDueTasks - if true, include tasks with no due date
+   */
+  async draw(document, startDate, endDate, filter, notDueTasks) {
     let container = document.getElementById("month-container");
 
-    // Now set up all the months we need to
+    // Draw the month grid(s).
     let current = startDate.clone();
     do {
       container.appendChild(this.drawMonth(document, current));
       current.month += 1;
-    } while (current.compare(endDate) <= 0);
+    } while (current.compare(endDate) < 0);
 
+    // Extend the date range to include adjacent days that will be printed.
+    startDate = weekInfoService.getStartOfWeek(startDate);
+    endDate = weekInfoService.getEndOfWeek(endDate);
+
+    // Get and display the items.
+    let items = await getItems(startDate, endDate, filter, notDueTasks);
     let defaultTimezone = cal.dtz.defaultTimezone;
     for (let item of items) {
       let itemStartDate = item[cal.dtz.startDateProp(item)] || item[cal.dtz.endDateProp(item)];
@@ -331,66 +375,33 @@ let monthGridView = {
       let boxDate = itemStartDate.clone();
       boxDate.isDate = true;
       for (boxDate; boxDate.compare(itemEndDate) < (itemEndDate.isDate ? 0 : 1); boxDate.day++) {
-        // Ignore items outside of the range, i.e tasks without start date
-        // where the end date is somewhere else.
-        if (start && end && boxDate && (boxDate.compare(start) < 0 || boxDate.compare(end) >= 0)) {
-          continue;
-        }
-
-        for (let dayBox of this.dayTable[boxDate.icalString]) {
-          addItemToDaybox(document, item, boxDate, dayBox.querySelector(".items"));
+        let boxDateString = boxDate.icalString;
+        if (boxDateString in this.dayTable) {
+          for (let dayBox of this.dayTable[boxDateString]) {
+            addItemToDaybox(document, item, boxDate, dayBox.querySelector(".items"));
+          }
         }
       }
     }
-  },
 
-  normalizeStartDate(start) {
-    // Make sure the start date is really a date.
-    let startDate = start.clone();
-    startDate.isDate = true;
-
-    // Find out if the start date is also shown in the first week of the
-    // following month. This means we can spare a month printout.
-    let firstDayOfNextMonth = startDate.clone();
-    firstDayOfNextMonth.day = 1;
-    firstDayOfNextMonth.month++;
-    if (
-      cal
-        .getWeekInfoService()
-        .getStartOfWeek(firstDayOfNextMonth)
-        .compare(startDate) <= 0
-    ) {
-      startDate = firstDayOfNextMonth;
+    // Set the page title.
+    let months = container.querySelectorAll("table");
+    if (months.length == 1) {
+      document.title = months[0].querySelector(".month-title").textContent;
     } else {
-      startDate = startDate.startOfMonth;
+      document.title =
+        months[0].querySelector(".month-title").textContent +
+        " – " +
+        months[months.length - 1].querySelector(".month-title").textContent;
     }
-    return startDate;
   },
 
-  normalizeEndDate(end) {
-    // Copy end date, which is exclusive. For our calculations, we will
-    // only be handling dates and the formatToHtml() code is much cleaner with
-    // the range being inclusive.
-    let endDate = end.clone();
-    endDate.isDate = true;
-
-    // Find out if the end date is also shown in the last week of the
-    // previous month. This also means we can spare a month printout.
-    let lastDayOfPreviousMonth = endDate.clone();
-    lastDayOfPreviousMonth.month--;
-    lastDayOfPreviousMonth = lastDayOfPreviousMonth.endOfMonth;
-    if (
-      cal
-        .getWeekInfoService()
-        .getEndOfWeek(lastDayOfPreviousMonth)
-        .compare(endDate) >= 0
-    ) {
-      endDate = lastDayOfPreviousMonth;
-    }
-
-    return endDate;
-  },
-
+  /**
+   * Create one month from the template.
+   *
+   * @param {HTMLDocument} document
+   * @param {calIDateTime} startOfMonth - the first day of the month
+   */
   drawMonth(document, startOfMonth) {
     let monthTemplate = document.getElementById("month-template");
     let month = monthTemplate.content.firstElementChild.cloneNode(true);
@@ -410,7 +421,6 @@ let monthGridView = {
     }
 
     // Set up each week
-    let weekInfoService = cal.getWeekInfoService();
     let endOfMonthView = weekInfoService.getEndOfWeek(startOfMonth.endOfMonth);
     let startOfMonthView = weekInfoService.getStartOfWeek(startOfMonth);
     let mainMonth = startOfMonth.month;
@@ -426,6 +436,14 @@ let monthGridView = {
     return month;
   },
 
+  /**
+   * Create one week from the template.
+   *
+   * @param {HTMLDocument} document
+   * @param {calIDateTime} startOfWeek - the first day of the week
+   * @param {number} mainMonth - the month that this week is being added to
+   *   (for marking days that are in adjacent months)
+   */
   drawWeek(document, startOfWeek, mainMonth) {
     const weekdayMap = [
       "d0sundaysoff",
@@ -468,26 +486,32 @@ let monthGridView = {
   },
 };
 
+/**
+ * A layout with seven days per page. The week layout is NOT aware of the
+ * start-of-week preferences. It always begins on a Monday.
+ */
 let weekPlannerView = {
   dayTable: {},
 
-  async draw(document, start, end, items) {
+  /**
+   * Create the week planner view.
+   *
+   * @param {HTMLDocument} document
+   * @param {calIDateTime} startDate - the Monday of the first week to be displayed
+   * @param {calIDateTime} endDate - the Monday AFTER the last week to be displayed
+   * @param {integer} filter - calICalendar ITEM_FILTER flags
+   * @param {boolean} notDueTasks - if true, include tasks with no due date
+   */
+  async draw(document, startDate, endDate, filter, notDueTasks) {
     let container = document.getElementById("week-container");
 
-    // Table that maps YYYY-MM-DD to the DOM node container where items are to be added
-    let weekInfoService = cal.getWeekInfoService();
-
-    // Make sure to create tables from start to end, if passed
-    if (start && end) {
-      for (
-        let current = weekInfoService.getStartOfWeek(start);
-        current.compare(end) < 0;
-        current.day += 7
-      ) {
-        container.appendChild(this.drawWeek(document, current));
-      }
+    // Draw the week grid(s).
+    for (let current = startDate.clone(); current.compare(endDate) < 0; current.day += 7) {
+      container.appendChild(this.drawWeek(document, current));
     }
 
+    // Get and display the items.
+    let items = await getItems(startDate, endDate, filter, notDueTasks);
     let defaultTimezone = cal.dtz.defaultTimezone;
     for (let item of items) {
       let itemStartDate = item[cal.dtz.startDateProp(item)] || item[cal.dtz.endDateProp(item)];
@@ -503,18 +527,32 @@ let weekPlannerView = {
       let boxDate = itemStartDate.clone();
       boxDate.isDate = true;
       for (boxDate; boxDate.compare(itemEndDate) < (itemEndDate.isDate ? 0 : 1); boxDate.day++) {
-        // Ignore items outside of the range, i.e tasks without start date
-        // where the end date is somewhere else.
-        if (start && end && boxDate && (boxDate.compare(start) < 0 || boxDate.compare(end) >= 0)) {
-          continue;
+        let boxDateString = boxDate.icalString;
+        if (boxDateString in this.dayTable) {
+          addItemToDaybox(document, item, boxDate, this.dayTable[boxDateString]);
         }
-
-        addItemToDaybox(document, item, boxDate, this.dayTable[boxDate.icalString]);
       }
+    }
+
+    // Set the page title.
+    let weeks = container.querySelectorAll("table");
+    if (weeks.length == 1) {
+      document.title = cal.l10n.getCalString("singleLongCalendarWeek", [weeks[0].number]);
+    } else {
+      document.title = cal.l10n.getCalString("severalLongCalendarWeeks", [
+        weeks[0].number,
+        weeks[weeks.length - 1].number,
+      ]);
     }
   },
 
-  drawWeek(document, startOfWeek) {
+  /**
+   * Create one week from the template.
+   *
+   * @param {HTMLDocument} document
+   * @param {calIDateTime} monday - the Monday of the week
+   */
+  drawWeek(document, monday) {
     // In the order they appear on the page.
     const weekdayMap = [
       "d1mondaysoff",
@@ -529,24 +567,19 @@ let weekPlannerView = {
     let weekTemplate = document.getElementById("week-template");
     let week = weekTemplate.content.firstElementChild.cloneNode(true);
 
-    week.item = startOfWeek.clone();
-
     // Set up the week number title
-    let weekInfo = cal.getWeekInfoService();
-    let weekno = weekInfo.getWeekTitle(startOfWeek);
-    let weekTitle = cal.l10n.getCalString("WeekTitle", [weekno]);
-    week.rows[0].cells[0].firstElementChild.textContent = weekTitle;
+    week.number = weekInfoService.getWeekTitle(monday);
+    week.querySelector(".week-title").textContent = cal.l10n.getCalString("WeekTitle", [
+      week.number,
+    ]);
 
     // Set up the day boxes
-    let defaultTimezone = cal.dtz.defaultTimezone;
-    let currentDate = startOfWeek.clone();
+    let currentDate = monday.clone();
     for (let i = 0; i < 7; i++) {
       let day = week.rows[1].cells[i];
 
       let titleNode = day.querySelector(".day-title");
-      titleNode.textContent = cal.dtz.formatter.formatDateLong(
-        currentDate.getInTimezone(defaultTimezone)
-      );
+      titleNode.textContent = cal.dtz.formatter.formatDateLong(currentDate);
 
       this.dayTable[currentDate.icalString] = day.querySelector(".items");
 
