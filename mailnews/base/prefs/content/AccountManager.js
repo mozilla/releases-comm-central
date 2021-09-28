@@ -1875,6 +1875,7 @@ var gAccountTree = {
           kidtreeitem.appendChild(kidtreerow);
           let kidtreecell = document.createElement("span");
           kidtreecell.classList.add("name");
+          kidtreecell.tabIndex = -1;
           kidtreerow.appendChild(kidtreecell);
           kidtreecell.textContent = panel.string;
           kidtreeitem.setAttribute("PageTag", panel.src);
