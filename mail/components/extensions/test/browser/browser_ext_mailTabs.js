@@ -673,8 +673,8 @@ add_task(async function test_get_and_query() {
 
   let window2 = await openNewMailWindow();
   for (let win of [window, window2]) {
-    // The folder selection sometimes throws errors, a setTimeout seems to fix this.
-    await new Promise(resolve => setTimeout(resolve));
+    // The folder selection throws errors, if the tree view is not yet initialized.
+    await TestUtils.waitForCondition(() => win.gFolderTreeView.isInited);
     win.gFolderTreeView.selectFolder(rootFolder);
     let tabmail = win.document.getElementById("tabmail");
     win.openContentTab("about:mozilla");
