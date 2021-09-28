@@ -1857,35 +1857,16 @@ chatLogTreeView.prototype = {
     }
     this._rowMap = [];
 
-    // Used to show the dates in the log list in the locale of the application.
-    let dateFormatBundle = Services.strings.createBundle(
-      "chrome://chat/locale/dateFormat.properties"
-    );
     let placesBundle = Services.strings.createBundle(
       "chrome://places/locale/places.properties"
     );
-    const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
-      dateStyle: "short",
+    let dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "short" });
+    let monthYearFormat = new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "long",
     });
-    let formatDate = function(aDate) {
-      return dateFormatter.format(aDate);
-    };
-    let formatMonthYear = function(aDate) {
-      let month = formatMonth(aDate);
-      return dateFormatBundle.formatStringFromName("finduri-MonthYear", [
-        month,
-        aDate.getFullYear(),
-      ]);
-    };
-    let formatMonth = aDate =>
-      dateFormatBundle.GetStringFromName(
-        "month." + (aDate.getMonth() + 1) + ".name"
-      );
-    let formatWeekday = aDate =>
-      dateFormatBundle.GetStringFromName(
-        "day." + (aDate.getDay() + 1) + ".name"
-      );
-
+    let monthFormat = new Intl.DateTimeFormat(undefined, { month: "long" });
+    let weekdayFormat = new Intl.DateTimeFormat(undefined, { weekday: "long" });
     let nowDate = new Date();
     let todayDate = new Date(
       nowDate.getFullYear(),
@@ -1912,7 +1893,7 @@ chatLogTreeView.prototype = {
       let logDate = new Date(log.time * 1000);
       // Calculate elapsed time between the log and 00:00:00 today.
       let timeFromToday = todayDate - logDate;
-      let title = formatDate(logDate);
+      let title = dateFormat.format(logDate);
       let group;
       if (timeFromToday <= 0) {
         today = new chatLogTreeLogItem(
@@ -1931,7 +1912,7 @@ chatLogTreeView.prototype = {
       } else if (timeFromToday <= kWeekInMsecs - kDayInMsecs) {
         // Note that the 7 days of the current week include today.
         group = firstgroups.currentWeek;
-        title = formatWeekday(logDate);
+        title = weekdayFormat.format(logDate);
       } else if (timeFromToday <= kTwoWeeksInMsecs - kDayInMsecs) {
         group = firstgroups.previousWeek;
       } else {
@@ -1948,10 +1929,10 @@ chatLogTreeView.prototype = {
                 "finduri-AgeInMonths-is-0"
               );
             } else {
-              groupname = formatMonth(logDate);
+              groupname = monthFormat.format(logDate);
             }
           } else {
-            groupname = formatMonthYear(logDate);
+            groupname = monthYearFormat.format(logDate);
           }
           groups[groupID] = {
             entries: [],
