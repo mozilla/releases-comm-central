@@ -801,6 +801,11 @@ class Tab extends TabBase {
 
   /** Overrides the matches function to enable querying for tab types. */
   matches(queryInfo, context) {
+    // If the query includes url or title, but this is a non-browser tab, return
+    // false directly.
+    if ((queryInfo.url || queryInfo.title) && !this.browser) {
+      return false;
+    }
     let result = super.matches(queryInfo, context);
     let type = queryInfo.mailTab ? "mail" : queryInfo.type;
     return result && (!type || this.type == type);
