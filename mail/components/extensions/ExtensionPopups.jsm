@@ -432,6 +432,7 @@ class ViewPopup extends BasePopup {
     let createPanel = remote => {
       let panel = document.createXULElement("panel");
       panel.setAttribute("type", "arrow");
+      panel.setAttribute("class", "panel-no-padding");
       if (remote) {
         panel.setAttribute("remote", "true");
       }
