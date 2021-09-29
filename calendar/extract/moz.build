@@ -5,5 +5,5 @@
 
 EXTRA_JS_MODULES.calendar.extract += [
     "CalExtractParser.jsm",
-    "CalExtractParserService.jsm"
+    "CalExtractParserService.jsm",
 ]
