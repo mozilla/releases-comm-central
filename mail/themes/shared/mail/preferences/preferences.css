@@ -42,6 +42,11 @@ menulist {
   padding: 0 6px;
 }
 
+button[open="true"],
+menulist[open="true"] {
+  color: var(--in-content-button-text-color-hover);
+}
+
 button,
 menulist,
 html|select,
