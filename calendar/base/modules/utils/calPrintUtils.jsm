@@ -356,7 +356,11 @@ let monthGridView = {
 
     // Extend the date range to include adjacent days that will be printed.
     startDate = weekInfoService.getStartOfWeek(startDate);
+    // Get the end of the week containing the last day of the month, not the
+    // week containing the first day of the next month.
+    endDate.day--;
     endDate = weekInfoService.getEndOfWeek(endDate);
+    endDate.day++; // Add a day to include items from the last day.
 
     // Get and display the items.
     let items = await getItems(startDate, endDate, filter, notDueTasks);
