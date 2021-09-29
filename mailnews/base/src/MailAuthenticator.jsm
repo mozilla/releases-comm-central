@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["SmtpAuthenticator"];
+const EXPORTED_SYMBOLS = ["SmtpAuthenticator", "NntpAuthenticator"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -274,5 +274,37 @@ class SmtpAuthenticator extends MailAuthenticator {
       null,
       this._server.description || this.hostname
     );
+  }
+}
+
+/**
+ * Collection of helper functions for authenticating an incoming server.
+ * @extends MailAuthenticator
+ */
+class IncomingServerAuthenticator extends MailAuthenticator {
+  /**
+   * @param {nsIMsgIncomingServer} server - The associated server instance.
+   */
+  constructor(server) {
+    super();
+    this._server = server;
+  }
+
+  get hostname() {
+    return this._server.hostname;
+  }
+
+  get username() {
+    return this._server.username;
+  }
+}
+
+/**
+ * Collection of helper functions for authenticating a NNTP connection.
+ * @extends IncomingServerAuthenticator
+ */
+class NntpAuthenticator extends IncomingServerAuthenticator {
+  promptAuthFailed() {
+    return this._promptAuthFailed(null, this._server.prettyName);
   }
 }

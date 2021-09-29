@@ -23,7 +23,7 @@ class MsgIncomingServer {
 
   constructor() {
     // nsIMsgIncomingServer attributes that map directly to pref values.
-    [
+    this._mapAttrsToPrefs([
       ["Unichar", "username", "userName"],
       ["Char", "type"],
       ["Char", "clientid"],
@@ -45,7 +45,19 @@ class MsgIncomingServer {
       ["Bool", "canFileMessagesOnServer", "canFileMessages"],
       ["Bool", "limitOfflineMessageSize", "limie_offline_message_size"],
       ["Bool", "hidden"],
-    ].forEach(([type, attrName, prefName]) => {
+    ]);
+
+    // nsIMsgIncomingServer attributes.
+    this.performingBiff = false;
+  }
+
+  /**
+   * Set up getters/setters for attributes that map directly to pref values.
+   * @param {string[]} - An array of attributes, each attribute is defined by
+   *   its type, name and corresponding prefName.
+   */
+  _mapAttrsToPrefs(attributes) {
+    for (let [type, attrName, prefName] of attributes) {
       prefName = prefName || attrName;
       Object.defineProperty(this, attrName, {
         get: () => this[`get${type}Value`](prefName),
@@ -53,10 +65,7 @@ class MsgIncomingServer {
           this[`set${type}Value`](prefName, value);
         },
       });
-    });
-
-    // nsIMsgIncomingServer attributes.
-    this.performingBiff = false;
+    }
   }
 
   get key() {
@@ -350,7 +359,17 @@ class MsgIncomingServer {
     this.clientid = "";
   }
 
-  forgetPassword() {}
+  forgetPassword() {
+    let serverURI = `${this.localStoreType}://${encodeURIComponent(
+      this.hostName
+    )}`;
+    let logins = Services.logins.findLogins(serverURI, "", serverURI);
+    for (let login of logins) {
+      if (login.username == this.username) {
+        Services.logins.removeLogin(login);
+      }
+    }
+  }
 
   closeCachedConnections() {}
 

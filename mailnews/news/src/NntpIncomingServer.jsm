@@ -16,6 +16,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
+  NntpClient: "resource:///modules/NntpClient.jsm",
 });
 
 /**
@@ -51,6 +52,16 @@ class NntpIncomingServer extends MsgIncomingServer {
 
     // nsINntpIncomingServer attributes.
     this.newsrcHasChanged = false;
+
+    // nsINntpIncomingServer attributes that map directly to pref values.
+    this._mapAttrsToPrefs([
+      ["Bool", "notifyOn", "notify.on"],
+      ["Bool", "markOldRead", "mark_old_read"],
+      ["Bool", "abbreviate", "abbreviate"],
+      ["Bool", "pushAuth", "always_authenticate"],
+      ["Bool", "singleSignon"],
+      ["Int", "maxArticles", "max_articles"],
+    ]);
   }
 
   /**
@@ -315,7 +326,28 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   findGroup(name) {
-    return this.rootMsgFolder.findSubFolder(name);
+    return this.rootMsgFolder
+      .findSubFolder(name)
+      .QueryInterface(Ci.nsIMsgNewsFolder);
+  }
+
+  loadNewsUrl(uri, msgWindow, consumer) {
+    if (consumer instanceof Ci.nsIStreamListener) {
+      let client = new NntpClient(this);
+      client.loadNewsUrl(uri.spec, msgWindow, consumer);
+    }
+  }
+
+  forgetPassword() {
+    let newsFolder = this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder);
+    // Clear password of root folder.
+    newsFolder.forgetAuthenticationCredentials();
+
+    // Clear password of all sub folders.
+    for (let folder of newsFolder.subFolders) {
+      folder.QueryInterface(Ci.nsIMsgNewsFolder);
+      folder.forgetAuthenticationCredentials();
+    }
   }
 
   _lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";

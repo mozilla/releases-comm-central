@@ -6,6 +6,16 @@ const EXPORTED_SYMBOLS = ["NntpClient"];
 
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { NntpNewsGroup } = ChromeUtils.import(
+  "resource:///modules/NntpNewsGroup.jsm"
+);
+
+// Server response code.
+const AUTH_ACCEPTED = 281;
+const AUTH_PASSWORD_REQUIRED = 381;
+const AUTH_REQUIRED = 480;
+const AUTH_FAILED = 481;
+const SERVICE_UNAVAILABLE = 502;
 
 /**
  * A structure to represent a response received from the server. A response can
@@ -47,6 +57,19 @@ class NntpClient {
   }
 
   /**
+   * @type {NntpAuthenticator} - An authentication helper.
+   */
+  get _authenticator() {
+    if (!this._nntpAuthenticator) {
+      var { NntpAuthenticator } = ChromeUtils.import(
+        "resource:///modules/MailAuthenticator.jsm"
+      );
+      this._nntpAuthenticator = new NntpAuthenticator(this._server);
+    }
+    return this._nntpAuthenticator;
+  }
+
+  /**
    * Initiate a connection to the server
    */
   connect() {
@@ -72,7 +95,13 @@ class NntpClient {
     this._logger.debug("Connected");
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
-    this.onOpen();
+    this.runningUri.SetUrlState(true, Cr.NS_OK);
+    this._nextAction = ({ status }) => {
+      if (status == 200) {
+        this._nextAction = null;
+        this.onOpen();
+      }
+    };
   };
 
   /**
@@ -86,6 +115,15 @@ class NntpClient {
     this._logger.debug(`S: ${stringPayload}`);
 
     let res = this._parse(stringPayload);
+
+    switch (res.status) {
+      case AUTH_REQUIRED:
+        this._actionAuthUser();
+        return;
+      case SERVICE_UNAVAILABLE:
+        this._actionDone();
+        return;
+    }
 
     this._nextAction?.(res);
   };
@@ -148,8 +186,7 @@ class NntpClient {
    * Send a LIST command to get all the groups in the current server.
    */
   getListOfGroups() {
-    this._sendCommand("LIST");
-    this._nextAction = this._actionReadData;
+    this._actionModeReader(this._actionList);
     this._urlListener = this._server.QueryInterface(Ci.nsIUrlListener);
   }
 
@@ -166,7 +203,7 @@ class NntpClient {
     this._urlListener = urlListener;
     this._msgWindow = msgWindow;
     this.runningUri.updatingFolder = true;
-    this._nextAction = this._actionModeReader;
+    this._actionModeReader(this._actionGroup);
     this._firstCommand = this._actionXOver;
   }
 
@@ -178,7 +215,7 @@ class NntpClient {
   getArticleByArticleNumber(groupName, articleNumber) {
     this._groupName = groupName;
     this._articleNumber = articleNumber;
-    this._nextAction = this._actionModeReader;
+    this._actionModeReader(this._actionGroup);
     this._firstCommand = this._actionArticle;
   }
 
@@ -188,7 +225,50 @@ class NntpClient {
    */
   getArticleByMessageId(messageId) {
     this._articleNumber = `<${messageId}>`;
-    this._nextAction = this._actionArticle;
+    this._actionModeReader(this._actionArticle);
+  }
+
+  /**
+   * Load a news uri directly, see rfc5538 about supported news uri.
+   * @param {string} uir - The news uri to load.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {nsIStreamListener} streamListener - The listener for the request.
+   */
+  loadNewsUrl(uri, msgWindow, streamListener) {
+    this._logger.debug(`Loading ${uri}`);
+    let url = new URL(uri);
+    let path = url.pathname.slice(1);
+    let action;
+    if (path == "*") {
+      action = () => this.getListOfGroups();
+    } else if (path.includes("@")) {
+      action = () => this.getArticleByMessageId(path);
+    } else {
+      this._groupName = path;
+      this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
+      this._newsFolder = this._server.findGroup(this._groupName);
+      action = () => this._actionModeReader(this._actionGroup);
+    }
+    if (!action) {
+      return;
+    }
+    this._msgWindow = msgWindow;
+    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+    pipe.init(true, true, 0, 0);
+    let inputStream = pipe.inputStream;
+    let outputStream = pipe.outputStream;
+    this.connect();
+    this.onOpen = () => {
+      streamListener.onStartRequest(null, Cr.NS_OK);
+      action();
+    };
+    this.onData = data => {
+      outputStream.write(data, data.length);
+      streamListener.onDataAvailable(null, inputStream, 0, data.length);
+    };
+    this.onDone = () => {
+      streamListener.onStopRequest(null, Cr.NS_OK);
+    };
   }
 
   /**
@@ -202,9 +282,18 @@ class NntpClient {
   /**
    * Send `MODE READER` request to the server.
    */
-  _actionModeReader() {
+  _actionModeReader(nextAction) {
     this._sendCommand("MODE READER");
-    this._nextAction = this._actionGroup;
+    this._nextAction = nextAction;
+  }
+
+  /**
+   * Send `LIST` request to the server.
+   */
+  _actionList() {
+    this._sendCommand("LIST");
+    this._currentAction = this._actionList;
+    this._nextAction = this._actionReadData;
   }
 
   /**
@@ -212,7 +301,8 @@ class NntpClient {
    */
   _actionGroup() {
     this._sendCommand(`GROUP ${this._groupName}`);
-    this._nextAction = this._firstCommand;
+    this._currentAction = this._actionGroup;
+    this._nextAction = this._firstCommand || this._actionXOver;
   }
 
   /**
@@ -366,13 +456,71 @@ class NntpClient {
   }
 
   /**
+   * Send `AUTHINFO user <name>` to the server.
+   * @param {boolean} [forcePrompt=false] - Whether to force showing an auth prompt.
+   */
+  _actionAuthUser(forcePrompt = false) {
+    if (!this._newsFolder) {
+      this._newsFolder = this._server.rootFolder.QueryInterface(
+        Ci.nsIMsgNewsFolder
+      );
+    }
+    if (!this._newsFolder.groupUsername) {
+      this._newsFolder.getAuthenticationCredentials(
+        this._msgWindow,
+        true,
+        forcePrompt
+      );
+    }
+    this._sendCommand(`AUTHINFO user ${this._newsFolder.groupUsername}`);
+    this._nextAction = this._actionAuthResult;
+  }
+
+  /**
+   * Send `AUTHINFO pass <password>` to the server.
+   */
+  _actionAuthPassword() {
+    this._sendCommand(`AUTHINFO pass ${this._newsFolder.groupPassword}`);
+    this._nextAction = this._actionAuthResult;
+  }
+
+  /**
+   * Decide the next step according to the auth response.
+   * @param {NntpResponse} res - Auth response received from the server.
+   */
+  _actionAuthResult({ status }) {
+    switch (status) {
+      case AUTH_ACCEPTED:
+        this._currentAction?.();
+        return;
+      case AUTH_PASSWORD_REQUIRED:
+        this._actionAuthPassword();
+        return;
+      case AUTH_FAILED:
+        let action = this._authenticator.promptAuthFailed();
+        if (action == 1) {
+          // Cancel button pressed.
+          this._actionDone();
+          return;
+        }
+        if (action == 2) {
+          // 'New password' button pressed.
+          this._newsFolder.forgetAuthenticationCredentials();
+        }
+        // Retry.
+        this._actionAuthUser();
+    }
+  }
+
+  /**
    * Close the connection and do necessary cleanup.
    */
   _actionDone() {
     this.onDone();
     this._newsGroup?.cleanUp();
-    this._newsFolder?.OnStopRunningUrl(this.runningUri, 0);
+    this._newsFolder?.OnStopRunningUrl?.(this.runningUri, 0);
     this._urlListener?.OnStopRunningUrl(this.runningUri, 0);
+    this.runningUri.SetUrlState(false, Cr.NS_OK);
     this._socket.close();
     this._nextAction = null;
   }
