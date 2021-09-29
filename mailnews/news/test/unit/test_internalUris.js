@@ -79,7 +79,7 @@ function* test_cancel() {
   let hdr = db.GetMsgHdrForKey(4);
 
   let folderListener = {
-    OnItemEvent(aEventFolder, aEvent) {
+    onFolderEvent(aEventFolder, aEvent) {
       if (aEvent == "DeleteOrMoveMsgCompleted") {
         MailServices.mailSession.RemoveFolderListener(this);
       }

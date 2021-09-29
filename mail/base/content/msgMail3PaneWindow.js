@@ -201,13 +201,14 @@ var gSummaryFrameManager;
 
 // the folderListener object
 var folderListener = {
-  OnItemAdded(parentItem, item) {},
+  onFolderAdded(parentFolder, child) {},
+  onMessageAdded(parentFolder, msg) {},
+  onFolderRemoved(parentFolder, child) {},
+  onMessageRemoved(parentFolder, msg) {},
 
-  OnItemRemoved(parentItem, item) {},
+  onFolderPropertyChanged(item, property, oldValue, newValue) {},
 
-  OnItemPropertyChanged(item, property, oldValue, newValue) {},
-
-  OnItemIntPropertyChanged(item, property, oldValue, newValue) {
+  onFolderIntPropertyChanged(item, property, oldValue, newValue) {
     if (item == gFolderDisplay.displayedFolder) {
       if (property == "TotalMessages" || property == "TotalUnreadMessages") {
         UpdateStatusMessageCounts(gFolderDisplay.displayedFolder);
@@ -215,12 +216,12 @@ var folderListener = {
     }
   },
 
-  OnItemBoolPropertyChanged(item, property, oldValue, newValue) {},
+  onFolderBoolPropertyChanged(item, property, oldValue, newValue) {},
 
-  OnItemUnicharPropertyChanged(item, property, oldValue, newValue) {},
-  OnItemPropertyFlagChanged(item, property, oldFlag, newFlag) {},
+  onFolderUnicharPropertyChanged(item, property, oldValue, newValue) {},
+  onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {},
 
-  OnItemEvent(folder, event) {
+  onFolderEvent(folder, event) {
     if (event == "ImapHdrDownloaded") {
       if (folder) {
         var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);

@@ -251,7 +251,7 @@ function endTest() {
 
 // nsIFolderListener implementation
 var FolderListener = {
-  OnItemEvent(aEventFolder, aEvent) {
+  onFolderEvent(aEventFolder, aEvent) {
     dump(
       "received folder event " + aEvent + " folder " + aEventFolder.name + "\n"
     );

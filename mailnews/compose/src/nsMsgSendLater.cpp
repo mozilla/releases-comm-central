@@ -1279,8 +1279,7 @@ nsresult nsMsgSendLater::GetIdentityFromKey(const char* aKey,
   return rv;
 }
 
-NS_IMETHODIMP
-nsMsgSendLater::OnItemAdded(nsIMsgFolder* aParentItem, nsISupports* aItem) {
+nsresult nsMsgSendLater::StartTimer() {
   // No need to trigger if timer is already set
   if (mTimerSet) return NS_OK;
 
@@ -1304,7 +1303,25 @@ nsMsgSendLater::OnItemAdded(nsIMsgFolder* aParentItem, nsISupports* aItem) {
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemRemoved(nsIMsgFolder* aParentItem, nsISupports* aItem) {
+nsMsgSendLater::OnFolderAdded(nsIMsgFolder* /*parent*/,
+                              nsIMsgFolder* /*child*/) {
+  return StartTimer();
+}
+
+NS_IMETHODIMP
+nsMsgSendLater::OnMessageAdded(nsIMsgFolder* /*parent*/, nsIMsgDBHdr* /*msg*/) {
+  return StartTimer();
+}
+
+NS_IMETHODIMP
+nsMsgSendLater::OnFolderRemoved(nsIMsgFolder* /*parent*/,
+                                nsIMsgFolder* /*child*/) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgSendLater::OnMessageRemoved(nsIMsgFolder* /*parent*/,
+                                 nsIMsgDBHdr* /*msg*/) {
   return NS_OK;
 }
 

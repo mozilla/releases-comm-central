@@ -79,10 +79,13 @@ var FListener = {
     return this.totalMsgs[this.totalMsgs.length - 1 - aBack];
   },
 
-  OnItemAdded: function act_add(aRDFParentItem, aItem) {},
-  OnItemRemoved: function act_remove(aRDFParentItem, aItem) {},
-  OnItemPropertyChanged(aItem, aProperty, aOld, aNew) {},
-  OnItemIntPropertyChanged(aItem, aProperty, aOld, aNew) {
+  onFolderAdded: function act_add(parentFolder, child) {},
+  onMessageAdded: function act_add(parentFolder, msg) {},
+  onFolderRemoved: function act_remove(parentFolder, child) {},
+  onMessageRemoved: function act_remove(parentFolder, msg) {},
+
+  onFolderPropertyChanged(aItem, aProperty, aOld, aNew) {},
+  onFolderIntPropertyChanged(aItem, aProperty, aOld, aNew) {
     if (aItem === gInbox) {
       dump(
         "Property change on folder Inbox:" +
@@ -100,10 +103,10 @@ var FListener = {
       }
     }
   },
-  OnItemBoolPropertyChanged(aItem, aProperty, aOld, aNew) {},
-  OnItemUnicharPropertyChanged(aItem, aProperty, aOld, aNew) {},
-  OnItemPropertyFlagChanged(aItem, aProperty, aOld, aNew) {},
-  OnItemEvent(aFolder, aEvent) {},
+  onFolderBoolPropertyChanged(aItem, aProperty, aOld, aNew) {},
+  onFolderUnicharPropertyChanged(aItem, aProperty, aOld, aNew) {},
+  onFolderPropertyFlagChanged(aItem, aProperty, aOld, aNew) {},
+  onFolderEvent(aFolder, aEvent) {},
 };
 
 /**
@@ -365,7 +368,7 @@ function downloadOver4GiB_success_check() {
   Assert.equal(gInbox.sizeOnDisk, localInboxSize);
 
   // Bug 813459
-  // Check if the OnItemIntPropertyChanged folder listener hook can return
+  // Check if the onFolderIntPropertyChanged folder listener hook can return
   // values above 2^32 for properties where it is relevant.
   Assert.equal(FListener.sizeHistory(0), gInbox.sizeOnDisk);
   Assert.ok(FListener.sizeHistory(1) < FListener.sizeHistory(0));
@@ -560,7 +563,7 @@ var ParseListener_run_test = {
     Assert.notEqual(gInbox.msgDatabase, null);
     Assert.ok(gInbox.msgDatabase.summaryValid);
     // Bug 813459
-    // Check if the OnItemIntPropertyChanged folder listener hook can return
+    // Check if the onFolderIntPropertyChanged folder listener hook can return
     // values below 2^32 for properties which are not 64 bits long.
     Assert.equal(FListener.msgsHistory(0), gExpectedNewMessages);
     Assert.equal(FListener.msgsHistory(0), gInbox.getTotalMessages(false));

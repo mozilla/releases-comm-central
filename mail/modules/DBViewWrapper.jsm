@@ -201,7 +201,7 @@ var FolderNotificationHelper = {
     }
   },
 
-  OnItemEvent(aFolder, aEvent) {
+  onFolderEvent(aFolder, aEvent) {
     if (aEvent == "FolderLoaded") {
       let folderURI = aFolder.URI;
       let widgets = this._pendingFolderUriToViewWrapperLists[folderURI];
@@ -243,7 +243,7 @@ var FolderNotificationHelper = {
     }
   },
 
-  OnItemIntPropertyChanged(aFolder, aProperty, aOldValue, aNewValue) {
+  onFolderIntPropertyChanged(aFolder, aProperty, aOldValue, aNewValue) {
     if (aProperty == "TotalMessages" || aProperty == "TotalUnreadMessages") {
       this._notifyHelper(aFolder, "_messageCountsChanged");
     }

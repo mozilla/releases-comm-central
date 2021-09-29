@@ -197,20 +197,13 @@ NewMailNotificationService.prototype = {
     return shouldCount.data;
   },
 
-  OnItemIntPropertyChanged(folder, property, oldValue, newValue) {
+  onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     try {
       if (property == "FolderSize") {
         return;
       }
       this._log.trace(
-        "NMNS_OnItemIntPropertyChanged: folder " +
-          folder.URI +
-          " " +
-          property +
-          " " +
-          oldValue +
-          " " +
-          newValue
+        `Changed int ${property} of ${folder.folderURL}: ${oldValue} -> ${newValue}`
       );
       if (property == "BiffState") {
         this._biffStateChanged(folder, oldValue, newValue);
@@ -220,7 +213,7 @@ NewMailNotificationService.prototype = {
         this._newMailReceived(folder, oldValue, newValue);
       }
     } catch (error) {
-      this._log.error("NMNS_OnItemIntPropertyChanged: exception " + error);
+      this._log.error("onFolderIntPropertyChanged: exception " + error);
     }
   },
 
@@ -337,47 +330,39 @@ NewMailNotificationService.prototype = {
     }
   },
 
-  OnItemAdded(parentItem, item) {
-    if (item instanceof Ci.nsIMsgDBHdr) {
-      if (this.confirmShouldCount(item.folder)) {
-        this._log.trace(
-          "NMNS_OnItemAdded: item " +
-            item.folder.getUriForMsg(item) +
-            " added to " +
-            item.folder.folderURL
-        );
-      }
+  onFolderAdded(parentFolder, child) {
+    this._log.trace(
+      `Added child folder ${child.folderURL} to ${parentFolder.folderURL}`
+    );
+  },
+
+  onMessageAdded(parentFolder, msg) {
+    if (this.confirmShouldCount(msg.folder)) {
+      this._log.trace(`Added <${msg.messageId}> to ${msg.folder.folderURL}`);
     }
   },
 
-  OnItemPropertyFlagChanged(item, property, oldFlag, newFlag) {
-    if (item instanceof Ci.nsIMsgDBHdr) {
-      if (
-        oldFlag & Ci.nsMsgMessageFlags.New &&
-        !(newFlag & Ci.nsMsgMessageFlags.New)
-      ) {
-        this._log.trace(
-          "NMNS_OnItemPropertyFlagChanged: item " +
-            item.folder.getUriForMsg(item) +
-            " marked read"
-        );
-      } else if (newFlag & Ci.nsMsgMessageFlags.New) {
-        this._log.trace(
-          "NMNS_OnItemPropertyFlagChanged: item " +
-            item.folder.getUriForMsg(item) +
-            " marked unread"
-        );
-      }
+  onFolderPropertyFlagChanged(msg, property, oldFlag, newFlag) {
+    if (
+      oldFlag & Ci.nsMsgMessageFlags.New &&
+      !(newFlag & Ci.nsMsgMessageFlags.New)
+    ) {
+      this._log.trace(`<${msg.messageId}> marked read`);
+    } else if (newFlag & Ci.nsMsgMessageFlags.New) {
+      this._log.trace(`<${msg.messageId}> marked unread`);
     }
   },
 
-  OnItemRemoved(parentItem, item) {
-    if (item instanceof Ci.nsIMsgDBHdr && !item.isRead) {
+  onFolderRemoved(parentFolder, child) {
+    this._log.trace(
+      `Removed child folder ${child.folderURL} from ${parentFolder.folderURL}`
+    );
+  },
+
+  onMessageRemoved(parentFolder, msg) {
+    if (!msg.isRead) {
       this._log.trace(
-        "NMNS_OnItemRemoved: unread item " +
-          item.folder.getUriForMsg(item) +
-          " removed from " +
-          item.folder.folderURL
+        `Removed unread <${msg.messageId}> from ${msg.folder.folderURL}`
       );
     }
   },

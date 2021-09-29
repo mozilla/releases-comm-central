@@ -14,14 +14,16 @@ load("../../../resources/MessageGenerator.jsm");
 load("../../../resources/messageInjection.js");
 
 var folderListener = {
-  OnItemAdded() {},
-  OnItemRemoved() {},
-  OnItemPropertyChanged() {},
-  OnItemIntPropertyChanged() {},
-  OnItemBoolPropertyChanged() {},
-  OnItemUnicharPropertyChanged() {},
-  OnItemPropertyFlagChanged() {},
-  OnItemEvent() {},
+  onFolderAdded() {},
+  onMessageAdded() {},
+  onFolderRemoved() {},
+  onMessageRemoved() {},
+  onFolderPropertyChanged() {},
+  onFolderIntPropertyChanged() {},
+  onFolderBoolPropertyChanged() {},
+  onFolderUnicharPropertyChanged() {},
+  onFolderPropertyFlagChanged() {},
+  onFolderEvent() {},
 };
 
 var targetFolder;

@@ -113,15 +113,17 @@ function ScrollToMessageAfterFolderLoad(folder)
 // the folderListener object
 var folderListener =
 {
-  OnItemAdded:   function(parentItem, item) {},
-  OnItemRemoved: function(parentItem, item) {},
+  onFolderAdded: function(parentFolder, child) {},
+  onMessageAdded: function(parentFolder, msg) {},
+  onFolderRemoved: function(parentFolder, child) {},
+  onMessageRemoved: function(parentFolder, msg) {},
 
-  OnItemPropertyChanged:        function(item, property, oldValue, newValue) {},
-  OnItemBoolPropertyChanged:    function(item, property, oldValue, newValue) {},
-  OnItemUnicharPropertyChanged: function(item, property, oldValue, newValue) {},
-  OnItemPropertyFlagChanged:    function(item, property, oldFlag,  newFlag)  {},
+  onFolderPropertyChanged:        function(item, property, oldValue, newValue) {},
+  onFolderBoolPropertyChanged:    function(item, property, oldValue, newValue) {},
+  onFolderUnicharPropertyChanged: function(item, property, oldValue, newValue) {},
+  onFolderPropertyFlagChanged:    function(item, property, oldFlag,  newFlag)  {},
 
-  OnItemIntPropertyChanged: function(item, property, oldValue, newValue)
+  onFolderIntPropertyChanged: function(item, property, oldValue, newValue)
   {
     // handle the currently visible folder
     if (item == gMsgFolderSelected)
@@ -151,7 +153,7 @@ var folderListener =
     }
   },
 
-    OnItemEvent: function(folder, event) {
+    onFolderEvent: function(folder, event) {
       if (event == "FolderLoaded") {
         if (folder) {
           var scrolled = false;

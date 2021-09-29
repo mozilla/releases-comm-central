@@ -21,48 +21,50 @@ typedef unsigned long folderListenerNotifyFlagValue;
  */
 [scriptable, uuid(f60ee1a2-6d81-422c-958f-d408b1b2daa7)]
 interface nsIFolderListener : nsISupports {
+  // "added" flag covers adding both messages and child folders.
   const folderListenerNotifyFlagValue added = 0x1;
-  void OnItemAdded(in nsIMsgFolder aParentItem,
-                   in nsISupports aItem);
+  void onFolderAdded(in nsIMsgFolder parent, in nsIMsgFolder child);
+  void onMessageAdded(in nsIMsgFolder parent, in nsIMsgDBHdr msg);
 
+  // "removed" flag covers removing both messages and child folders.
   const folderListenerNotifyFlagValue removed = 0x2;
-  void OnItemRemoved(in nsIMsgFolder aParentItem,
-                     in nsISupports aItem);
+  void onFolderRemoved(in nsIMsgFolder parent, in nsIMsgFolder child);
+  void onMessageRemoved(in nsIMsgFolder parent, in nsIMsgDBHdr msg);
 
   const folderListenerNotifyFlagValue propertyChanged = 0x4;
-  void OnItemPropertyChanged(in nsIMsgFolder aItem,
-                             in ACString aProperty,
-                             in AUTF8String aOldValue,
-                             in AUTF8String aNewValue);
+  void onFolderPropertyChanged(in nsIMsgFolder folder,
+                               in ACString property,
+                               in AUTF8String oldValue,
+                               in AUTF8String newValue);
 
   const folderListenerNotifyFlagValue intPropertyChanged = 0x8;
   // While this property handles long long (64bit wide) values,
   // the Javascript engine will only pass values up to 2^53 to the consumers.
-  void OnItemIntPropertyChanged(in nsIMsgFolder aItem,
-                                in ACString aProperty,
-                                in long long aOldValue,
-                                in long long aNewValue);
+  void onFolderIntPropertyChanged(in nsIMsgFolder folder,
+                                  in ACString property,
+                                  in long long oldValue,
+                                  in long long newValue);
 
   const folderListenerNotifyFlagValue boolPropertyChanged = 0x10;
-  void OnItemBoolPropertyChanged(in nsIMsgFolder aItem,
-                                 in ACString aProperty,
-                                 in boolean aOldValue,
-                                 in boolean aNewValue);
+  void onFolderBoolPropertyChanged(in nsIMsgFolder folder,
+                                   in ACString property,
+                                   in boolean oldValue,
+                                   in boolean newValue);
 
   const folderListenerNotifyFlagValue unicharPropertyChanged = 0x20;
-  void OnItemUnicharPropertyChanged(in nsIMsgFolder aItem,
-                                    in ACString aProperty,
-                                    in AString aOldValue,
-                                    in AString aNewValue);
+  void onFolderUnicharPropertyChanged(in nsIMsgFolder folder,
+                                      in ACString property,
+                                      in AString oldValue,
+                                      in AString newValue);
 
   const folderListenerNotifyFlagValue propertyFlagChanged = 0x40;
-  void OnItemPropertyFlagChanged(in nsIMsgDBHdr aItem,
-                                 in ACString aProperty,
-                                 in unsigned long aOldFlag,
-                                 in unsigned long aNewFlag);
+  void onFolderPropertyFlagChanged(in nsIMsgDBHdr msg,
+                                   in ACString property,
+                                   in unsigned long oldFlag,
+                                   in unsigned long newFlag);
 
   const folderListenerNotifyFlagValue event = 0x80;
-  void OnItemEvent(in nsIMsgFolder aItem, in ACString aEvent);
+  void onFolderEvent(in nsIMsgFolder folder, in ACString event);
 
   const folderListenerNotifyFlagValue all = 0xFFFFFFFF;
 };

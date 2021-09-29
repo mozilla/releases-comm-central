@@ -2037,32 +2037,39 @@ nsMessenger::FormatFileSize(uint64_t aSize, bool aUseKB,
   return ::FormatFileSize(aSize, aUseKB, aFormattedSize);
 }
 
-NS_IMETHODIMP nsMessenger::OnItemAdded(nsIMsgFolder* parentItem,
-                                       nsISupports* item) {
+NS_IMETHODIMP nsMessenger::OnFolderAdded(nsIMsgFolder* parent,
+                                         nsIMsgFolder* child) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMessenger::OnItemRemoved(nsIMsgFolder* parentItem,
-                                         nsISupports* item) {
+NS_IMETHODIMP nsMessenger::OnMessageAdded(nsIMsgFolder* parent,
+                                          nsIMsgDBHdr* msg) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsMessenger::OnFolderRemoved(nsIMsgFolder* parent,
+                                           nsIMsgFolder* child) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMessenger::OnMessageRemoved(nsIMsgFolder* parent,
+                                            nsIMsgDBHdr* msgHdr) {
   // check if this item is a message header that's in our history list. If so,
   // remove it from the history list.
-  nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryInterface(item);
-  if (msgHdr) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    msgHdr->GetFolder(getter_AddRefs(folder));
-    if (folder) {
-      nsCString msgUri;
-      nsMsgKey msgKey;
-      msgHdr->GetMessageKey(&msgKey);
-      folder->GenerateMessageURI(msgKey, msgUri);
-      // need to remove the corresponding folder entry, and
-      // adjust the current history pos.
-      size_t uriPos = mLoadedMsgHistory.IndexOf(msgUri);
-      if (uriPos != mLoadedMsgHistory.NoIndex) {
-        mLoadedMsgHistory.RemoveElementAt(uriPos);
-        mLoadedMsgHistory.RemoveElementAt(uriPos);  // and the folder uri entry
-        if (mCurHistoryPos >= (int32_t)uriPos) mCurHistoryPos -= 2;
-      }
+  nsCOMPtr<nsIMsgFolder> folder;
+  msgHdr->GetFolder(getter_AddRefs(folder));
+  if (folder) {
+    nsCString msgUri;
+    nsMsgKey msgKey;
+    msgHdr->GetMessageKey(&msgKey);
+    folder->GenerateMessageURI(msgKey, msgUri);
+    // need to remove the corresponding folder entry, and
+    // adjust the current history pos.
+    size_t uriPos = mLoadedMsgHistory.IndexOf(msgUri);
+    if (uriPos != mLoadedMsgHistory.NoIndex) {
+      mLoadedMsgHistory.RemoveElementAt(uriPos);
+      mLoadedMsgHistory.RemoveElementAt(uriPos);  // and the folder uri entry
+      if (mCurHistoryPos >= (int32_t)uriPos) mCurHistoryPos -= 2;
     }
   }
   return NS_OK;

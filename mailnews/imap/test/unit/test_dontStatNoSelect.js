@@ -131,7 +131,7 @@ function* endTest() {
 }
 
 var gFolderListener = {
-  OnItemBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
+  onFolderBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     // This means that the STAT on "folder 2" has finished.
     if (aProperty == "NewMessages" && aNewValue) {
       async_driver();

@@ -131,15 +131,26 @@ nsMsgMailSession::OnItemPropertyFlagChanged(nsIMsgDBHdr* aItem,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::OnItemAdded(nsIMsgFolder* aParentItem,
-                                            nsISupports* aItem) {
-  NOTIFY_FOLDER_LISTENERS(added, OnItemAdded, (aParentItem, aItem));
+NS_IMETHODIMP nsMsgMailSession::OnFolderAdded(nsIMsgFolder* parent,
+                                              nsIMsgFolder* child) {
+  NOTIFY_FOLDER_LISTENERS(added, OnFolderAdded, (parent, child));
+  return NS_OK;
+}
+NS_IMETHODIMP nsMsgMailSession::OnMessageAdded(nsIMsgFolder* parent,
+                                               nsIMsgDBHdr* msg) {
+  NOTIFY_FOLDER_LISTENERS(added, OnMessageAdded, (parent, msg));
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::OnItemRemoved(nsIMsgFolder* aParentItem,
-                                              nsISupports* aItem) {
-  NOTIFY_FOLDER_LISTENERS(removed, OnItemRemoved, (aParentItem, aItem));
+NS_IMETHODIMP nsMsgMailSession::OnFolderRemoved(nsIMsgFolder* parent,
+                                                nsIMsgFolder* child) {
+  NOTIFY_FOLDER_LISTENERS(removed, OnFolderRemoved, (parent, child));
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailSession::OnMessageRemoved(nsIMsgFolder* parent,
+                                                 nsIMsgDBHdr* msg) {
+  NOTIFY_FOLDER_LISTENERS(removed, OnMessageRemoved, (parent, msg));
   return NS_OK;
 }
 
@@ -174,7 +185,7 @@ NS_IMETHODIMP
 nsMsgMailSession::AlertUser(const nsAString& aMessage,
                             nsIMsgMailNewsUrl* aUrl) {
   bool listenersNotified = false;
-  nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener>>::ForwardIterator iter(
       mFeedbackListeners);
   nsCOMPtr<nsIMsgUserFeedbackListener> listener;
 
