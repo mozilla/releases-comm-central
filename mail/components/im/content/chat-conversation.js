@@ -1264,28 +1264,25 @@
      */
     setBuddyAttributes(aItem) {
       let buddy = aItem.chatBuddy;
-      let image;
-      let role;
+      let src;
+      let l10nId;
       if (buddy.founder) {
-        image = "founder";
-        role = "owner";
+        src = "chrome://messenger/skin/icons/founder.png";
+        l10nId = "chat-participant-owner-role-icon2";
       } else if (buddy.admin) {
-        image = "operator";
-        role = "administrator";
+        src = "chrome://messenger/skin/icons/operator.png";
+        l10nId = "chat-participant-administrator-role-icon2";
       } else if (buddy.moderator) {
-        image = "half-operator";
-        role = "moderator";
+        src = "chrome://messenger/skin/icons/half-operator.png";
+        l10nId = "chat-participant-moderator-role-icon2";
       } else if (buddy.voiced) {
-        image = "voice";
-        role = "voiced";
+        src = "chrome://messenger/skin/icons/voice.png";
+        l10nId = "chat-participant-voiced-role-icon2";
       }
       let imageEl = aItem.querySelector(".conv-nicklist-image");
-      if (image) {
-        imageEl.setAttribute("src", `chrome://messenger/skin/${image}.png`);
-        document.l10n.setAttributes(
-          imageEl,
-          `chat-participant-${role}-role-icon2`
-        );
+      if (src) {
+        imageEl.setAttribute("src", src);
+        document.l10n.setAttributes(imageEl, l10nId);
       } else {
         imageEl.removeAttribute("src");
         imageEl.removeAttribute("data-l10n-id");
