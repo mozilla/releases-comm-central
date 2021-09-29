@@ -75,7 +75,7 @@ with only_when("--enable-compile-environment"):
     # ZLIB honors --with-system-zlib
 
     # JSON-C --with-system-json
-    option(
+    system_lib_option(
         "--with-system-jsonc",
         help="Use system JSON-C for librnp (located with pkgconfig)",
     )
@@ -91,7 +91,7 @@ with only_when("--enable-compile-environment"):
             return True
 
     # Bzip2 --with-system-bz2
-    option(
+    system_lib_option(
         "--with-system-bz2",
         nargs="?",
         help="Use system Bzip2 for librnp (pkgconfig/given prefix)",
@@ -154,7 +154,7 @@ with only_when("--enable-compile-environment"):
         set_config("MZLA_BZIP2_LIBS", bzip2_flags.ldflags)
 
     # BOTAN --with-system-botan
-    option(
+    system_lib_option(
         "--with-system-botan",
         help="Use system Botan for librnp (located with pkgconfig)",
     )
