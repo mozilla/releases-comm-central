@@ -2,11 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://calendar/skin/shared/widgets/minimonth.css");
+
 #calendar-print {
   flex: 1;
   display: flex;
   flex-direction: column;
   font: menu;
+}
+
+#calendar-print fieldset.section-block {
+  border: none;
+  padding: 0;
+  display: flex;
+}
+
+#calendar-print select#from-month,
+#calendar-print select#to-month {
+  flex: 1;
+}
+
+#calendar-print input#from-year,
+#calendar-print input#to-year {
+  flex: 1;
+  margin-block: 0;
+  margin-inline: 3px 0;
 }
 
 #calendar-print select {
@@ -16,4 +36,9 @@
 #calendar-print label.indent {
   padding-inline-start: 1.5em;
   box-sizing: border-box;
+}
+
+calendar-minimonth {
+  padding: 0;
+  width: 100%;
 }

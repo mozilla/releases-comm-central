@@ -11,10 +11,10 @@
 
 /* import-globals-from ../../../../toolkit/components/printing/content/print.js */
 
+const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+
 // In a block to avoid polluting the global scope.
 {
-  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-
   let ownerWindow = window.browsingContext.topChromeWindow;
   let ownerDocument = ownerWindow.document;
 
@@ -38,8 +38,24 @@
   let tasksCompletedCheckbox = form.querySelector("input#completed-tasks");
 
   let layout = form.querySelector("select#layout");
+
+  let fromMinimonth = form.querySelector("calendar-minimonth#from-minimonth");
+  let fromMonth = form.querySelector("select#from-month");
+  let fromYear = form.querySelector("input#from-year");
   let fromDate = form.querySelector("select#from-date");
+
+  let toMinimonth = form.querySelector("calendar-minimonth#to-minimonth");
+  let toMonth = form.querySelector("select#to-month");
+  let toYear = form.querySelector("input#to-year");
   let toDate = form.querySelector("select#to-date");
+
+  for (let i = 0; i < 12; i++) {
+    let option = document.createElement("option");
+    option.value = i;
+    option.label = cal.l10n.formatMonth(i + 1, "calendar", "monthInYear");
+    fromMonth.appendChild(option.cloneNode(false));
+    toMonth.appendChild(option);
+  }
 
   eventsCheckbox.addEventListener("change", updatePreview);
   tasksCheckbox.addEventListener("change", function() {
@@ -51,6 +67,47 @@
   tasksCompletedCheckbox.addEventListener("change", updatePreview);
 
   layout.addEventListener("change", onLayoutChange);
+
+  fromMinimonth.addEventListener("change", function() {
+    if (toMinimonth.value < fromMinimonth.value) {
+      toMinimonth.value = fromMinimonth.value;
+    }
+
+    updatePreview();
+  });
+  toMinimonth.addEventListener("change", updatePreview);
+
+  fromMonth.addEventListener("keydown", function(event) {
+    if (event.key == "ArrowDown" && fromMonth.selectedIndex == 11) {
+      fromMonth.selectedIndex = 0;
+      fromYear.value++;
+      onMonthChange();
+      event.preventDefault();
+    } else if (event.key == "ArrowUp" && fromMonth.selectedIndex == 0) {
+      fromMonth.selectedIndex = 11;
+      fromYear.value--;
+      onMonthChange();
+      event.preventDefault();
+    }
+  });
+  fromMonth.addEventListener("change", onMonthChange);
+  fromYear.addEventListener("change", onMonthChange);
+  toMonth.addEventListener("keydown", function(event) {
+    if (event.key == "ArrowDown" && toMonth.selectedIndex == 11) {
+      toMonth.selectedIndex = 0;
+      toYear.value++;
+      onMonthChange();
+      event.preventDefault();
+    } else if (event.key == "ArrowUp" && toMonth.selectedIndex == 0) {
+      toMonth.selectedIndex = 11;
+      toYear.value--;
+      onMonthChange();
+      event.preventDefault();
+    }
+  });
+  toMonth.addEventListener("change", onMonthChange);
+  toYear.addEventListener("change", onMonthChange);
+
   fromDate.addEventListener("change", function() {
     let fromValue = parseInt(fromDate.value, 10);
     for (let option of toDate.options) {
@@ -85,16 +142,28 @@
    * which actually fits better for some print layouts.
    */
   function onLayoutChange() {
-    while (fromDate.lastChild) {
-      fromDate.lastChild.remove();
-    }
-    while (toDate.lastChild) {
-      toDate.lastChild.remove();
-    }
+    if (layout.value == "list") {
+      fromMinimonth.hidden = toMinimonth.hidden = false;
+      fromMonth.hidden = fromYear.hidden = toMonth.hidden = toYear.hidden = true;
+      fromDate.hidden = toDate.hidden = true;
+    } else if (layout.value == "monthGrid") {
+      let today = new Date();
+      fromMonth.value = toMonth.value = today.getMonth();
+      fromYear.value = toYear.value = today.getFullYear();
 
-    if (layout.value == "weekPlanner") {
-      const FIRST_WEEK = -6;
+      fromMinimonth.hidden = toMinimonth.hidden = true;
+      fromMonth.hidden = fromYear.hidden = toMonth.hidden = toYear.hidden = false;
+      fromDate.hidden = toDate.hidden = true;
+    } else {
+      const FIRST_WEEK = -53;
       const LAST_WEEK = 53;
+
+      while (fromDate.lastChild) {
+        fromDate.lastChild.remove();
+      }
+      while (toDate.lastChild) {
+        toDate.lastChild.remove();
+      }
 
       // Always use Monday - Sunday week, regardless of prefs, because the layout requires it.
       let monday = cal.dtz.now();
@@ -115,31 +184,24 @@
 
         monday.day += 7;
       }
-    } else {
-      const FIRST_MONTH = -3;
-      const LAST_MONTH = 12;
 
-      let first = cal.dtz.now();
-      first.isDate = true;
-      first.day = 1;
-      first.month += FIRST_MONTH;
+      fromDate.value = toDate.value = 0;
 
-      for (let i = FIRST_MONTH; i < LAST_MONTH; i++) {
-        let option = document.createElement("option");
-        option.value = i;
-        let monthName = cal.l10n.formatMonth(first.month + 1, "calendar", "monthInYear");
-        option.label = cal.l10n.getCalString("monthInYear", [monthName, first.year]);
-        fromDate.appendChild(option.cloneNode(false));
-
-        option.hidden = i < 0;
-        toDate.appendChild(option);
-
-        first.month++;
-      }
+      fromMinimonth.hidden = toMinimonth.hidden = true;
+      fromMonth.hidden = fromYear.hidden = toMonth.hidden = toYear.hidden = true;
+      fromDate.hidden = toDate.hidden = false;
     }
 
-    fromDate.value = toDate.value = 0;
+    updatePreview();
+  }
 
+  function onMonthChange() {
+    if (parseInt(toYear.value, 10) < fromYear.value) {
+      toYear.value = fromYear.value;
+      toMonth.value = fromMonth.value;
+    } else if (toYear.value == fromYear.value && parseInt(toMonth.value, 10) < fromMonth.value) {
+      toMonth.value = fromMonth.value;
+    }
     updatePreview();
   }
 
@@ -152,16 +214,48 @@
     let endDate = cal.dtz.now();
     endDate.isDate = true;
 
-    if (layout.value == "weekPlanner") {
+    if (layout.value == "list") {
+      let fromValue = fromMinimonth.value;
+      let toValue = toMinimonth.value;
+
+      startDate.resetTo(
+        fromValue.getFullYear(),
+        fromValue.getMonth(),
+        fromValue.getDate(),
+        0,
+        0,
+        0,
+        cal.dtz.floating
+      );
+      startDate.isDate = true;
+      if (toValue > fromValue) {
+        endDate.resetTo(
+          toValue.getFullYear(),
+          toValue.getMonth(),
+          toValue.getDate(),
+          0,
+          0,
+          0,
+          cal.dtz.floating
+        );
+        endDate.isDate = true;
+      } else {
+        endDate = startDate.clone();
+      }
+      endDate.day++;
+    } else if (layout.value == "monthGrid") {
+      startDate.day = 1;
+      startDate.month = parseInt(fromMonth.value, 10);
+      startDate.year = parseInt(fromYear.value, 10);
+      endDate.day = 1;
+      endDate.month = parseInt(toMonth.value, 10);
+      endDate.year = parseInt(toYear.value, 10);
+      endDate.month++;
+    } else {
       startDate.day = startDate.day - startDate.weekday + 1;
       startDate.day += parseInt(fromDate.value, 10) * 7;
       endDate.day = endDate.day - endDate.weekday + 1;
       endDate.day += parseInt(toDate.value, 10) * 7 + 7;
-    } else {
-      startDate.day = 1;
-      startDate.month += parseInt(fromDate.value, 10);
-      endDate.day = 1;
-      endDate.month += parseInt(toDate.value, 10) + 1;
     }
 
     let filter = 0;

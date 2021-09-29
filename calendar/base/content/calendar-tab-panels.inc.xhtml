@@ -684,17 +684,20 @@
           </label>
         </section>
 
-        <!-- It would be nice to use HTML date inputs here but the browser this form is loaded
-             into won't allow it. Instead use lists of the most likely values, which actually fits
-             better for some print layouts. -->
-        <section class="section-block">
-          <label class="block-label" data-l10n-id="calendar-print-range-from"></label>
+        <fieldset class="section-block">
+          <legend class="block-label" data-l10n-id="calendar-print-range-from"></legend>
+          <xul:calendar-minimonth id="from-minimonth"></xul:calendar-minimonth>
+          <select id="from-month"></select>
+          <input id="from-year" type="number" size="1"/>
           <select id="from-date"></select>
-        </section>
-        <section class="section-block">
-          <label class="block-label" data-l10n-id="calendar-print-range-to"></label>
+        </fieldset>
+        <fieldset class="section-block">
+          <legend class="block-label" data-l10n-id="calendar-print-range-to"></legend>
+          <xul:calendar-minimonth id="to-minimonth"></xul:calendar-minimonth>
+          <select id="to-month"></select>
+          <input id="to-year" type="number" size="1"/>
           <select id="to-date"></select>
-        </section>
+        </fieldset>
       </section>
 
       <hr />

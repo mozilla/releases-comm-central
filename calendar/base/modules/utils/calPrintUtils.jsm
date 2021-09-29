@@ -314,17 +314,8 @@ let listView = {
     }
 
     // Set the page title.
-    let startMonth = cal.l10n.formatMonth(startDate.month + 1, "calendar", "monthInYear");
-    let startMonthTitle = cal.l10n.getCalString("monthInYear", [startMonth, startDate.year]);
     endDate.day--;
-    let endMonth = cal.l10n.formatMonth(endDate.month + 1, "calendar", "monthInYear");
-    let endMonthTitle = cal.l10n.getCalString("monthInYear", [endMonth, endDate.year]);
-
-    if (startMonthTitle == endMonthTitle) {
-      document.title = startMonthTitle;
-    } else {
-      document.title = `${startMonthTitle} – ${endMonthTitle}`;
-    }
+    document.title = cal.dtz.formatter.formatInterval(startDate, endDate);
   },
 };
 
@@ -616,6 +607,10 @@ Services.obs.addObserver(
         return;
       }
 
+      Services.scriptloader.loadSubScript(
+        "chrome://calendar/content/widgets/calendar-minimonth.js",
+        subDialogWindow
+      );
       Services.scriptloader.loadSubScript(
         "chrome://calendar/content/calendar-print.js",
         subDialogWindow
