@@ -42,6 +42,19 @@ class NntpNewsGroup {
    */
   getArticlesRangeToFetch(msgWindow, firstPossible, lastPossible) {
     this._msgWindow = msgWindow;
+
+    this._folderFilterList = this._folder.getFilterList(this._msgWindow);
+    this._serverFilterList = this._server.getFilterList(this._msgWindow);
+    this._filterHeaders = new Set(
+      (
+        this._folderFilterList.arbitraryHeaders +
+        " " +
+        this._serverFilterList.arbitraryHeaders
+      )
+        .split(" ")
+        .filter(Boolean)
+    );
+
     let groupInfo = this._db.dBFolderInfo;
     if (groupInfo) {
       if (lastPossible < groupInfo.highWater) {
@@ -141,6 +154,28 @@ class NntpNewsGroup {
   }
 
   /**
+   * Extra headers needed by filters, but not returned in XOVER response.
+   */
+  getXHdrFields() {
+    return [...this._filterHeaders].filter(
+      x => !["message-id", "references"].includes(x)
+    );
+  }
+
+  /**
+   * Update msgHdr according to XHDR line.
+   * @param {string} header - The requested header.
+   * @param {string} line - A XHDR response line.
+   */
+  processXHdrLine(header, line) {
+    let spaceIndex = line.indexOf(" ");
+    let articleNumber = line.slice(0, spaceIndex);
+    let value = line.slice(spaceIndex).trim();
+    let msgHdr = this._db.GetMsgHdrForKey(articleNumber);
+    msgHdr.setStringProperty(header, value);
+  }
+
+  /**
    * Init a msgHdr to prepare to take HEAD response.
    * @param {number} articleNumber - The article number.
    */
@@ -159,8 +194,9 @@ class NntpNewsGroup {
    * @param {string} line - A HEAD response line.
    */
   processHeadLine(line) {
-    let [name, value] = line.split(":");
-    value = value.trim();
+    let colonIndex = line.indexOf(":");
+    let name = line.slice(0, colonIndex);
+    let value = line.slice(colonIndex + 1).trim();
     switch (name) {
       case "from":
         this._msgHdr.author = value;
@@ -184,6 +220,10 @@ class NntpNewsGroup {
       case "lines":
         this._msgHdr.lineCount = value;
         break;
+      default:
+        if (this._filterHeaders.has(name)) {
+          this._msgHdr.setStringProperty(name, value);
+        }
     }
   }
 
@@ -191,10 +231,8 @@ class NntpNewsGroup {
    * Run filters to all newly added msg hdrs.
    */
   _runFilters() {
-    let folderFilterList = this._folder.getFilterList(this._msgWindow);
-    let folderFilterCount = folderFilterList.filterCount;
-    let serverFilterList = this._server.getFilterList(this._msgWindow);
-    let serverFilterCount = serverFilterList.filterCount;
+    let folderFilterCount = this._folderFilterList.filterCount;
+    let serverFilterCount = this._serverFilterList.filterCount;
 
     for (let msgHdr of this._msgHdrs) {
       this._filteringHdr = msgHdr;
@@ -211,7 +249,7 @@ class NntpNewsGroup {
         }
       }
       if (folderFilterCount) {
-        folderFilterList.applyFiltersToHdr(
+        this._folderFilterList.applyFiltersToHdr(
           Ci.nsMsgFilterType.NewsRule,
           msgHdr,
           this._folder,
@@ -222,7 +260,7 @@ class NntpNewsGroup {
         );
       }
       if (serverFilterCount) {
-        serverFilterList.applyFiltersToHdr(
+        this._serverFilterList.applyFiltersToHdr(
           Ci.nsMsgFilterType.NewsRule,
           msgHdr,
           this._folder,
@@ -232,13 +270,8 @@ class NntpNewsGroup {
           this._msgWindow
         );
       }
-      if (this._addHdrToDB) {
-        try {
-          this._db.AddNewHdrToDB(msgHdr, true);
-        } catch (e) {
-          // In some cases the msgHdr is already in db.
-          continue;
-        }
+      if (this._addHdrToDB && !this._db.ContainsKey(msgHdr.messageKey)) {
+        this._db.AddNewHdrToDB(msgHdr, true);
         MailServices.mfn.notifyMsgAdded(msgHdr);
         this._folder.orProcessingFlags(
           msgHdr.messageKey,
@@ -277,16 +310,16 @@ class NntpNewsGroup {
           );
           break;
         case Ci.nsMsgFilterAction.KillSubthread:
-          this._filteringHdr.orFlags(Ci.nsMsgMessageFlags.Ignored);
+          this._filteringHdr.OrFlags(Ci.nsMsgMessageFlags.Ignored);
           break;
         case Ci.nsMsgFilterAction.WatchThread:
-          this._filteringHdr.orFlags(Ci.nsMsgMessageFlags.Watched);
+          this._filteringHdr.OrFlags(Ci.nsMsgMessageFlags.Watched);
           break;
         case Ci.nsMsgFilterAction.MarkFlagged:
           this._filteringHdr.markFlagged(true);
           break;
         case Ci.nsMsgFilterAction.ChangePriority:
-          this._filteringHdr.setPriority(action.priority);
+          this._filteringHdr.priority = action.priority;
           break;
         case Ci.nsMsgFilterAction.AddTag:
           this._folder.addKeywordsToMessages(

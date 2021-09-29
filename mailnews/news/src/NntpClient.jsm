@@ -16,6 +16,7 @@ const AUTH_PASSWORD_REQUIRED = 381;
 const AUTH_REQUIRED = 480;
 const AUTH_FAILED = 481;
 const SERVICE_UNAVAILABLE = 502;
+const NOT_SUPPORTED = 503;
 
 /**
  * A structure to represent a response received from the server. A response can
@@ -319,8 +320,8 @@ class NntpClient {
     if (start && end) {
       this._startArticle = start;
       this._endArticle = end;
-      this._sendCommand(`XOVER ${start}-${end}`);
       this._nextAction = this._actionXOverResponse;
+      this._sendCommand(`XOVER ${start}-${end}`);
     } else {
       this._actionDone();
     }
@@ -332,13 +333,12 @@ class NntpClient {
    */
   _actionXOverResponse(res) {
     if (res.status == 224) {
-      this._actionReadXOver(res);
       this._nextAction = this._actionReadXOver;
+      this._actionReadXOver(res);
     } else {
       // Somehow XOVER is not supported by the server, fallback to use HEAD to
       // fetch one by one.
       this._actionHead();
-      this._nextAction = this._actionReadHead;
     }
   }
 
@@ -349,10 +349,47 @@ class NntpClient {
   _actionReadXOver({ data }) {
     this._lineReader(data, line => {
       if (line == null) {
-        this._newsGroup.finishProcessingXOver();
-        this._actionDone();
+        // Fetch extra headers used by filters, but not returned in XOVER response.
+        this._xhdrFields = this._newsGroup.getXHdrFields();
+        this._actionXHdr();
       } else {
         this._newsGroup.processXOverLine(line);
+      }
+    });
+  }
+
+  /**
+   * Send `XHDR` request to the server.
+   */
+  _actionXHdr() {
+    this._curXHdrHeader = this._xhdrFields.shift();
+    if (this._curXHdrHeader) {
+      this._nextAction = this._actionXHdrResponse;
+      this._sendCommand(
+        `XHDR ${this._curXHdrHeader} ${this._startArticle}-${this._endArticle}`
+      );
+    } else {
+      this._newsGroup.finishProcessingXOver();
+      this._actionDone();
+    }
+  }
+
+  /**
+   * Handle XHDR response.
+   * @param {NntpResponse} res - XOVER response received from the server.
+   */
+  _actionXHdrResponse({ status, data }) {
+    if (status == NOT_SUPPORTED) {
+      // Fallback to HEAD request.
+      this._actionHead();
+      return;
+    }
+
+    this._lineReader(data, line => {
+      if (line == null) {
+        this._actionXHdr();
+      } else {
+        this._newsGroup.processXHdrLine(this._curXHdrHeader, line);
       }
     });
   }
@@ -362,6 +399,7 @@ class NntpClient {
    */
   _actionHead() {
     if (this._startArticle <= this._endArticle) {
+      this._nextAction = this._actionReadHead;
       this._sendCommand(`HEAD ${this._startArticle}`);
       this._newsGroup.initHdr(this._startArticle);
       this._startArticle++;
