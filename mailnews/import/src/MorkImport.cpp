@@ -285,7 +285,10 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
     }
 
     nsIAbDirectory* outList;
-    newDirectory->AddMailList(mailList, &outList);
+    rv = newDirectory->AddMailList(mailList, &outList);
+    if (NS_FAILED(rv)) {
+      continue;
+    }
 
     uint32_t listRowId;
     card->GetPropertyAsUint32(kRowIDProperty, &listRowId);
