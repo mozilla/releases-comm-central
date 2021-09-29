@@ -2808,6 +2808,10 @@ var RNP = {
       throw new Error("rnp_output_to_armor failed:" + rv);
     }
 
+    if ((rv = RNPLib.rnp_output_armor_set_line_length(out_binary, 64))) {
+      throw new Error("rnp_output_armor_set_line_length failed:" + rv);
+    }
+
     let flags = RNPLib.RNP_KEY_EXPORT_PUBLIC | RNPLib.RNP_KEY_EXPORT_SUBKEYS;
 
     for (let id of idArray) {

@@ -1603,6 +1603,14 @@ function enableRNPLibJS() {
       ctypes.char.ptr.ptr
     ),
 
+    rnp_output_armor_set_line_length: librnp.declare(
+      "rnp_output_armor_set_line_length",
+      abi,
+      rnp_result_t,
+      rnp_output_t,
+      ctypes.size_t
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
