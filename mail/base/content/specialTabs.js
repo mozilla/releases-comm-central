@@ -832,6 +832,7 @@ var specialTabs = {
     let tabmail = document.getElementById("tabmail");
 
     tabmail.registerTabType(this.contentTabType);
+    tabmail.registerTabType(this.newMailTabType);
 
     this.showWhatsNewPage();
 
@@ -1069,6 +1070,80 @@ var specialTabs = {
         tab.browser.droppedLinkHandler = event =>
           tab.browser.contentWindow.gDragDrop.onDrop(event);
       }
+    },
+  },
+
+  /**
+   * Tabs for displaying mail folders and messages.
+   */
+  newMailTabType: {
+    __proto__: contentTabBaseType,
+    name: "newMailTab",
+    perTabPanel: "vbox",
+
+    modes: {
+      mail3PaneTab: {
+        shouldSwitchTo({ folderURI } = {}) {
+          if (folderURI) {
+            for (let tab of this.modes.mail3PaneTab.tabs) {
+              if (tab.folderURI == folderURI) {
+                return document.getElementById("tabmail").tabInfo.indexOf(tab);
+              }
+            }
+          }
+          return -1;
+        },
+        openTab(tab, args = {}) {
+          args.url = "about:3pane";
+          if (args.folderURI) {
+            args.onLoad = (event, browser) =>
+              browser.contentWindow.displayFolder(args.folderURI);
+            tab.folderURI = args.folderURI;
+          }
+          specialTabs.contentTabType.openTab(tab, args);
+          tab.browser.addEventListener("folderURIChanged", function(event) {
+            tab.folderURI = event.detail;
+          });
+          return tab;
+        },
+        persistTab(tab) {
+          return { folderURI: tab.folderURI };
+        },
+        restoreTab(tabmail, persistedState) {
+          tabmail.openTab("mail3PaneTab", persistedState);
+        },
+      },
+      mailMessageTab: {
+        shouldSwitchTo({ messageURI } = {}) {
+          if (messageURI) {
+            for (let tab of this.modes.mailMessageTab.tabs) {
+              if (tab.messageURI == messageURI) {
+                return document.getElementById("tabmail").tabInfo.indexOf(tab);
+              }
+            }
+          }
+          return -1;
+        },
+        openTab(tab, args = {}) {
+          args.url = "about:message";
+          if (args.messageURI) {
+            args.onLoad = (event, browser) =>
+              browser.contentWindow.displayMessage(args.messageURI);
+            tab.messageURI = args.messageURI;
+          }
+          specialTabs.contentTabType.openTab(tab, args);
+          tab.browser.addEventListener("messageURIChanged", function(event) {
+            tab.messageURI = event.detail;
+          });
+          return tab;
+        },
+        persistTab(tab) {
+          return { messageURI: tab.messageURI };
+        },
+        restoreTab(tabmail, persistedState) {
+          tabmail.openTab("mailMessageTab", persistedState);
+        },
+      },
     },
   },
 
