@@ -314,3 +314,23 @@ function monkeyPatch(obj, x, func) {
     }
   };
 }
+
+/**
+ * Asserts the properties of an actual extract parser result to what was
+ * expected.
+ *
+ * @param {object} actual   - Mostly the actual output of parse().
+ * @param {object} expected - The expected output.
+ * @param {string} level    - The variable name to refer to report on.
+ */
+function compareExtractResults(actual, expected, level = "") {
+  for (let [key, value] of Object.entries(expected)) {
+    let qualifiedKey = [level, Array.isArray(expected) ? `[${key}]` : `.${key}`].join("");
+    if (value && typeof value == "object") {
+      Assert.ok(actual[key], `${qualifiedKey} is not null`);
+      compareExtractResults(actual[key], value, qualifiedKey);
+      continue;
+    }
+    Assert.equal(actual[key], value, `${qualifiedKey} has value "${value}"`);
+  }
+}
