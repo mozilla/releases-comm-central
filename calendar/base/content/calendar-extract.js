@@ -18,6 +18,13 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
+XPCOMUtils.defineLazyGetter(this, "extractService", () => {
+  const { CalExtractParserService } = ChromeUtils.import(
+    "resource:///modules/calendar/extract/CalExtractParserService.jsm"
+  );
+  return new CalExtractParserService();
+});
+
 var calendarExtract = {
   onShowLocaleMenu(target) {
     let localeList = document.getElementById(target.id);
@@ -102,16 +109,6 @@ var calendarExtract = {
     let date = new Date(message.date / 1000);
     let time = new Date().getTime();
 
-    let locale = Services.locale.requestedLocale;
-    let dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
-    let extractor;
-
-    if (fixedLang) {
-      extractor = new Extractor(fixedLocale, dayStart);
-    } else {
-      extractor = new Extractor(locale, dayStart, false);
-    }
-
     let item;
     item = isEvent ? new CalEvent() : new CalTodo();
     item.title = message.mime2DecodedSubject;
@@ -133,15 +130,42 @@ var calendarExtract = {
         // we will just have a null selection.
       }
     }
-    let collected = extractor.extract(title, content, date, sel);
+
+    let guessed;
+    let endGuess;
+    let extractor;
+    let collected = [];
+    let useService = Services.prefs.getBoolPref("calendar.extract.service.enabled");
+    if (useService) {
+      let result = extractService.extract(content, { now: date });
+      if (!result) {
+        useService = false;
+      } else {
+        guessed = result.startTime;
+        endGuess = result.endTime;
+      }
+    }
+
+    if (!useService) {
+      let locale = Services.locale.requestedLocale;
+      let dayStart = Services.prefs.getIntPref("calendar.view.daystarthour", 6);
+      if (fixedLang) {
+        extractor = new Extractor(fixedLocale, dayStart);
+      } else {
+        extractor = new Extractor(locale, dayStart, false);
+      }
+      collected = extractor.extract(title, content, date, sel);
+    }
 
     // if we only have email date then use default start and end
-    if (collected.length == 1) {
+    if (!useService && collected.length <= 1) {
       cal.LOG("[calExtract] Date and time information was not found in email/selection.");
       createEventWithDialog(null, null, null, null, item);
     } else {
-      let guessed = extractor.guessStart(!isEvent);
-      let endGuess = extractor.guessEnd(guessed, !isEvent);
+      if (!useService) {
+        guessed = extractor.guessStart(!isEvent);
+        endGuess = extractor.guessEnd(guessed, !isEvent);
+      }
       let allDay = (guessed.hour == null || guessed.minute == null) && isEvent;
 
       if (isEvent) {

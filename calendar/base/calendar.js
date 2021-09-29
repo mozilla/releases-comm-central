@@ -169,3 +169,6 @@ pref("calendar.icaljs", false);
 
 // Enables the prompt when deleting from the item views or trees.
 pref("calendar.item.promptDelete", true);
+
+// Enables the new extract service.
+pref("calendar.extract.service.enabled", false);
