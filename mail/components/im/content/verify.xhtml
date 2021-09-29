@@ -10,7 +10,7 @@
     <title data-l10n-id="verify-window-title"></title>
     <link rel="localization" href="messenger/chat-verifySession.ftl"/>
     <link rel="stylesheet" href="chrome://global/skin/global.css"/>
-    <link rel="stylesheet" href="chrome://messenger/content/chat/chat.css"/>
+    <link rel="stylesheet" href="chrome://messenger/skin/verifychat.css"/>
     <link rel="stylesheet" href="chrome://messenger/skin/shared/grid-layout.css"/>
     <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
     <script defer="defer" src="chrome://messenger/content/chat/verify.js"></script>
@@ -19,13 +19,14 @@
     <xul:dialog buttons="accept,cancel,extra2"
       data-l10n-id="verify-dialog"
       data-l10n-attrs="buttonlabelaccept, buttonaccesskeyaccept, buttonlabelextra2, buttonaccesskeyextra2">
-      <xul:vbox>
-        <xul:label data-l10n-id="challenge-label"/>
-        <div class="flex-items-center verification-challenge">
-          <xul:label id="challenge"/>
-          <xul:label id="challenge-description" class="tip-caption" hidden="true"/>
-        </div>
-      </xul:vbox>
+      <p data-l10n-id="challenge-label"></p>
+      <p id="challengePresentation">
+        <span id="challenge"></span>
+        <!-- Describes the text content of #challenge in an alternative way.
+           - E.g. if #challenge is a sequence of emojis, then
+           - #challengeDescription would be a sequence of emoji names. -->
+        <span id="challengeDescription" role="note" hidden="hidden"></span>
+      </p>
     </xul:dialog>
   </body>
 </html>

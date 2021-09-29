@@ -124,6 +124,7 @@
   skin/classic/messenger/subscribe.css                        (../shared/mail/subscribe.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
   skin/classic/messenger/wizard.css                           (../shared/mail/wizard.css)
+  skin/classic/messenger/verifychat.css                       (../shared/mail/verifychat.css)
   skin/classic/messenger/addressbook/abResultsPane.css        (../shared/mail/abResultsPane.css)
   skin/classic/messenger/browserRequest.css                   (../shared/mail/browserRequest.css)
   skin/classic/messenger/addressbook/icons/contact-generic.svg      (../shared/mail/icons/contact-generic.svg)

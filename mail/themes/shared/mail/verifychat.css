@@ -1,0 +1,17 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+p {
+  margin-block-start: 0;
+}
+
+#challengePresentation {
+  text-align: center;
+  font-weight: bold;
+}
+
+#challengePresentation span:not([hidden]) {
+  /* Make each span start on a newline. */
+  display: block;
+}

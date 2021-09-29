@@ -21,13 +21,11 @@ var verifySession = {
     );
     document.getElementById(
       "challenge"
-    ).value = this.sessionVerification.challenge;
+    ).textContent = this.sessionVerification.challenge;
     if (this.sessionVerification.challengeDescription) {
-      const challengeDescription = document.getElementById(
-        "challenge-description"
-      );
-      challengeDescription.hidden = false;
-      challengeDescription.value = this.sessionVerification.challengeDescription;
+      let description = document.getElementById("challengeDescription");
+      description.hidden = false;
+      description.textContent = this.sessionVerification.challengeDescription;
     }
     document.addEventListener("dialogaccept", () => {
       this.sessionVerification.submitResponse(true);
