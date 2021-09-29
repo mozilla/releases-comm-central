@@ -339,7 +339,7 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
   if (imapChild) {
     imapChild->SetHierarchyDelimiter(m_hierarchyDelimiter);
   }
-  NotifyItemAdded(*aChild);
+  NotifyFolderAdded(*aChild);
   return rv;
 }
 
@@ -991,7 +991,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
 
   if (!suppressNotification) {
     if (NS_SUCCEEDED(rv) && child) {
-      NotifyItemAdded(child);
+      NotifyFolderAdded(child);
       child->NotifyFolderEvent(kFolderCreateCompleted);
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
           do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
@@ -7259,7 +7259,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
       srcFolder->GetFlags(&flags);
       newMsgFolder->SetFlags(flags);
 
-      NotifyItemAdded(newMsgFolder);
+      NotifyFolderAdded(newMsgFolder);
 
       // now remove the old folder
       nsCOMPtr<nsIMsgFolder> msgParent;
@@ -7996,7 +7996,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     // notified all listeners about the rename.  This allows them to access
     // properties on the source folder without experiencing failures.
     if (msgParent) msgParent->PropagateDelete(msgFolder, true, nullptr);
-    NotifyItemAdded(child);
+    NotifyFolderAdded(child);
   }
   return rv;
 }

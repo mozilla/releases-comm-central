@@ -499,7 +499,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
 
     // Notify the "folder" that was dragged and dropped has been created. No
     // need to do this for its subfolders. isMoveFolder will be true for folder.
-    aDstFolder->NotifyItemAdded(newMsgFolder);
+    aDstFolder->NotifyFolderAdded(newMsgFolder);
 
     nsCOMPtr<nsIMsgFolder> msgParent;
     aSrcFolder->GetParent(getter_AddRefs(msgParent));

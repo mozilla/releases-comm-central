@@ -2721,7 +2721,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 
             parentFolder->AddSubfolder(currentFolderNameStr,
                                        getter_AddRefs(childFolder));
-            if (childFolder) parentFolder->NotifyItemAdded(childFolder);
+            if (childFolder) parentFolder->NotifyFolderAdded(childFolder);
             // here we make sure if our parent is rooted - if not, we're
             // going to loop and add our parent as a child of its grandparent
             // and repeat until we get to the server, or a folder that

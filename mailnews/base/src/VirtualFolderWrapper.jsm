@@ -56,7 +56,7 @@ var VirtualFolderHelper = {
     msgDatabase.summaryValid = true;
     msgDatabase.Close(true);
 
-    aParentFolder.NotifyItemAdded(msgFolder);
+    aParentFolder.notifyFolderAdded(msgFolder);
     MailServices.accounts.saveVirtualFolders();
 
     return wrappedVirt;

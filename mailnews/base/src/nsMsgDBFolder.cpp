@@ -1092,9 +1092,9 @@ NS_IMETHODIMP nsMsgDBFolder::OnHdrAdded(nsIMsgDBHdr* aHdrChanged,
 nsresult nsMsgDBFolder::OnHdrAddedOrDeleted(nsIMsgDBHdr* aHdrChanged,
                                             bool added) {
   if (added)
-    NotifyItemAdded(aHdrChanged);
+    NotifyMessageAdded(aHdrChanged);
   else
-    NotifyItemRemoved(aHdrChanged);
+    NotifyMessageRemoved(aHdrChanged);
   UpdateSummaryTotals(true);
   return NS_OK;
 }
@@ -3311,7 +3311,7 @@ NS_IMETHODIMP nsMsgDBFolder::PropagateDelete(nsIMsgFolder* folder,
       if (NS_SUCCEEDED(rv)) {
         // Remove from list of subfolders.
         mSubFolders.RemoveObjectAt(i);
-        NotifyItemRemoved(child);
+        NotifyFolderRemoved(child);
         break;
       } else  // setting parent back if we failed
         child->SetParent(this);
@@ -3734,7 +3734,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsAString& aNewName,
       if (parentFolder) {
         SetParent(nullptr);
         parentFolder->PropagateDelete(this, false, msgWindow);
-        parentFolder->NotifyItemAdded(newFolder);
+        parentFolder->NotifyFolderAdded(newFolder);
       }
       newFolder->NotifyFolderEvent(kRenameCompleted);
     }
@@ -4518,30 +4518,52 @@ nsMsgDBFolder::NotifyPropertyFlagChanged(nsIMsgDBHdr* aItem,
                                                           aOldValue, aNewValue);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::NotifyItemAdded(nsISupports* aItem) {
-  static bool notify = true;
-
-  if (!notify) return NS_OK;
-
-  NOTIFY_LISTENERS(OnItemAdded, (this, aItem));
-
+NS_IMETHODIMP nsMsgDBFolder::NotifyMessageAdded(nsIMsgDBHdr* msg) {
+  // Notify our directly-registered listeners.
+  NOTIFY_LISTENERS(OnItemAdded, (this, msg));
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemAdded(this, aItem);
+  rv = folderListenerManager->OnItemAdded(this, msg);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return NS_OK;
 }
 
-nsresult nsMsgDBFolder::NotifyItemRemoved(nsISupports* aItem) {
-  NOTIFY_LISTENERS(OnItemRemoved, (this, aItem));
+nsresult nsMsgDBFolder::NotifyMessageRemoved(nsIMsgDBHdr* msg) {
+  // Notify our directly-registered listeners.
+  NOTIFY_LISTENERS(OnItemRemoved, (this, msg));
+  // Notify listeners who listen to every folder
+  nsresult rv;
+  nsCOMPtr<nsIFolderListener> folderListenerManager =
+      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = folderListenerManager->OnItemRemoved(this, msg);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDBFolder::NotifyFolderAdded(nsIMsgFolder* child) {
+  NOTIFY_LISTENERS(OnItemAdded, (this, child));
 
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemRemoved(this, aItem);
+  return folderListenerManager->OnItemAdded(this, child);
+}
+
+nsresult nsMsgDBFolder::NotifyFolderRemoved(nsIMsgFolder* child) {
+  NOTIFY_LISTENERS(OnItemRemoved, (this, child));
+
+  // Notify listeners who listen to every folder
+  nsresult rv;
+  nsCOMPtr<nsIFolderListener> folderListenerManager =
+      do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return folderListenerManager->OnItemRemoved(this, child);
 }
 
 nsresult nsMsgDBFolder::NotifyFolderEvent(const nsACString& aEvent) {

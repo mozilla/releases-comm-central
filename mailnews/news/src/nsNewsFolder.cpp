@@ -418,7 +418,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
                                      getter_AddRefs(db));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    NotifyItemAdded(child);
+    NotifyFolderAdded(child);
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
     if (notifier) notifier->NotifyFolderAdded(child);
@@ -1213,7 +1213,7 @@ NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder* aNewsgroupToMove,
   }
 
   // move NewsgroupToMove to new index and set new sort order
-  NotifyItemRemoved(aNewsgroupToMove);
+  NotifyFolderRemoved(aNewsgroupToMove);
 
   if (indexNewsgroupToMove != indexRefNewsgroup) {
     nsCOMPtr<nsIMsgFolder> newsgroup = mSubFolders[indexNewsgroupToMove];
@@ -1227,7 +1227,7 @@ NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder* aNewsgroupToMove,
   for (uint32_t i = indexMin; i <= indexMax; i++)
     mSubFolders[i]->SetSortOrder(kNewsSortOffset + i);
 
-  NotifyItemAdded(aNewsgroupToMove);
+  NotifyFolderAdded(aNewsgroupToMove);
 
   // write changes back to file
   nsCOMPtr<nsINntpIncomingServer> nntpServer;

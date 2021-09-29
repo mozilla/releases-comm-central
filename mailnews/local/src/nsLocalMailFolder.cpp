@@ -476,7 +476,7 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
     (*aNewFolder)
         ->SetPrettyName(
             folderName);  // because empty trash will create a new trash folder
-    NotifyItemAdded(*aNewFolder);
+    NotifyFolderAdded(*aNewFolder);
   }
 
   return rv;
@@ -763,7 +763,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsAString& aNewName,
     if (parentFolder) {
       SetParent(nullptr);
       parentFolder->PropagateDelete(this, false, msgWindow);
-      parentFolder->NotifyItemAdded(newFolder);
+      parentFolder->NotifyFolderAdded(newFolder);
     }
     // Forget our path, since this folder object renamed itself.
     SetFilePath(nullptr);

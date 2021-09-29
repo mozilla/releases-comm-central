@@ -733,8 +733,10 @@ interface nsIMsgFolder : nsISupports {
                                     in AString oldValue,
                                     in AString newValue);
 
-  void NotifyItemAdded(in nsISupports item);
-  void NotifyItemRemoved(in nsISupports item);
+  void notifyMessageAdded(in nsIMsgDBHdr msg);
+  void notifyMessageRemoved(in nsIMsgDBHdr msg);
+  void notifyFolderAdded(in nsIMsgFolder child);
+  void notifyFolderRemoved(in nsIMsgFolder child);
 
   void NotifyFolderEvent(in ACString event);
 

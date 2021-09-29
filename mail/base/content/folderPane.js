@@ -1602,7 +1602,7 @@ var gFolderTreeView = {
         vfdb.summaryValid = true;
         vfdb.Close(true);
       }
-      parentFolder.NotifyItemAdded(newFolder);
+      parentFolder.notifyFolderAdded(newFolder);
       MailServices.accounts.saveVirtualFolders();
     } catch (e) {
       dump("Exception : creating virtual folder \n");

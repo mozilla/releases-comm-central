@@ -871,7 +871,7 @@ function  CreateVirtualFolder(newName, parentFolder, searchFolderURIs, searchTer
       dbFolderInfo.setBooleanProperty("searchOnline", searchOnline);
       vfdb.summaryValid = true;
       vfdb.Close(true);
-      parentFolder.NotifyItemAdded(newFolder);
+      parentFolder.notifyFolderAdded(newFolder);
       MailServices.accounts.saveVirtualFolders();
     }
     catch(e)
