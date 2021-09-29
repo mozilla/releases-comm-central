@@ -2021,7 +2021,7 @@ var FolderListener = {
     }
   },
 
-  onFolderEvent(aFolder, aEvent) {
+  OnItemEvent(aFolder, aEvent) {
     if (!this.watchingFor) {
       return;
     }
@@ -2033,7 +2033,7 @@ var FolderListener = {
 };
 
 /**
- * Plan to wait for an nsIFolderListener.onFolderEvent matching one of the
+ * Plan to wait for an nsIFolderListener.OnItemEvent matching one of the
  *  provided strings.  Call this before you do the thing that triggers the
  *  event, then call |wait_for_folder_events| after the event.  This ensures
  *  that we see the event, because it might be too late after you initiate

@@ -190,21 +190,20 @@ var gSearchNotificationListener =
 
 // the folderListener object
 var gFolderListener = {
-    onFolderAdded: function(parentFolder, child) {},
-    onMessageAdded: function(parentFolder, msg) {},
-    onFolderRemoved: function(parentFolder, child) {},
-    onMessageRemoved: function(parentFolder, msg) {},
+    OnItemAdded: function(parentItem, item) {},
 
-    onFolderPropertyChanged: function(item, property, oldValue, newValue) {},
+    OnItemRemoved: function(parentItem, item){},
 
-    onFolderIntPropertyChanged: function(item, property, oldValue, newValue) {},
+    OnItemPropertyChanged: function(item, property, oldValue, newValue) {},
 
-    onFolderBoolPropertyChanged: function(item, property, oldValue, newValue) {},
+    OnItemIntPropertyChanged: function(item, property, oldValue, newValue) {},
 
-    onFolderUnicharPropertyChanged: function(item, property, oldValue, newValue){},
-    onFolderPropertyFlagChanged: function(item, property, oldFlag, newFlag) {},
+    OnItemBoolPropertyChanged: function(item, property, oldValue, newValue) {},
 
-    onFolderEvent: function(folder, event) {
+    OnItemUnicharPropertyChanged: function(item, property, oldValue, newValue){},
+    OnItemPropertyFlagChanged: function(item, property, oldFlag, newFlag) {},
+
+    OnItemEvent: function(folder, event) {
         if (event == "DeleteOrMoveMsgCompleted") {
             HandleDeleteOrMoveMessageCompleted(folder);
         }

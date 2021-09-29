@@ -1843,7 +1843,7 @@ var messageTracker = new (class extends EventEmitter {
 
   // nsIFolderListener
 
-  onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {
+  OnItemPropertyFlagChanged(item, property, oldFlag, newFlag) {
     switch (property) {
       case "Status":
         if ((oldFlag ^ newFlag) & Ci.nsMsgMessageFlags.Read) {
@@ -1865,7 +1865,7 @@ var messageTracker = new (class extends EventEmitter {
     }
   }
 
-  onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
+  OnItemIntPropertyChanged(folder, property, oldValue, newValue) {
     switch (property) {
       case "BiffState":
         if (newValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail) {

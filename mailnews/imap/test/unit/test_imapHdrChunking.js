@@ -34,7 +34,7 @@ var dummyMsgWindow = {
 
 var gFolderListener = {
   _gotNewMailBiff: false,
-  onFolderIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
+  OnItemIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     if (
       aProperty == "BiffState" &&
       aNewValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail

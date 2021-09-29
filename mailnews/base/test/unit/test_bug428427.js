@@ -210,7 +210,7 @@ function CreateVirtualFolder(
   // use acctMgr to setup the virtual folder listener
   var acctMgr = MailServices.accounts.QueryInterface(Ci.nsIFolderListener);
   // print(acctMgr);
-  acctMgr.onFolderAdded(parentFolder, newFolder);
+  acctMgr.OnItemAdded(null, newFolder);
   return newFolder;
 }
 

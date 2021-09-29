@@ -359,42 +359,34 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
   return rv;
 }
 
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnFolderAdded(nsIMsgFolder* parent,
-                                                   nsIMsgFolder* child) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnMessageAdded(nsIMsgFolder* parent,
-                                                    nsIMsgDBHdr
-                                                    : msgHdr) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgFolder> folder =
-      do_QueryReferent(m_undoing ? m_srcFolder : m_dstFolder, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCString messageId;
-  msgHdr->GetMessageId(getter_Copies(messageId));
-  if (m_copiedMsgIds.Contains(messageId)) {
-    nsMsgKey msgKey;
-    msgHdr->GetMessageKey(&msgKey);
-    if (m_undoing)
-      m_srcKeyArray.AppendElement(msgKey);
-    else
-      m_dstKeyArray.AppendElement(msgKey);
-    if (++m_numHdrsCopied == m_copiedMsgIds.Length()) {
-      folder->RemoveFolderListener(this);
-      m_copiedMsgIds.Clear();
+NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemAdded(nsIMsgFolder* parentItem,
+                                                 nsISupports* item) {
+  nsCOMPtr<nsIMsgDBHdr> msgHdr(do_QueryInterface(item));
+  if (msgHdr) {
+    nsresult rv;
+    nsCOMPtr<nsIMsgFolder> folder =
+        do_QueryReferent(m_undoing ? m_srcFolder : m_dstFolder, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCString messageId;
+    msgHdr->GetMessageId(getter_Copies(messageId));
+    if (m_copiedMsgIds.Contains(messageId)) {
+      nsMsgKey msgKey;
+      msgHdr->GetMessageKey(&msgKey);
+      if (m_undoing)
+        m_srcKeyArray.AppendElement(msgKey);
+      else
+        m_dstKeyArray.AppendElement(msgKey);
+      if (++m_numHdrsCopied == m_copiedMsgIds.Length()) {
+        folder->RemoveFolderListener(this);
+        m_copiedMsgIds.Clear();
+      }
     }
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnFolderRemoved(nsIMsgFolder* parent,
-                                                     nsIMsgFolder* child) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnMessageRemoved(nsIMsgFolder* parent,
-                                                      nsIMsgDBHdr* msg) {
+NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemRemoved(nsIMsgFolder* parentItem,
+                                                   nsISupports* item) {
   return NS_OK;
 }
 
@@ -443,23 +435,13 @@ nsLocalUndoFolderListener::nsLocalUndoFolderListener(
 
 nsLocalUndoFolderListener::~nsLocalUndoFolderListener() {}
 
-NS_IMETHODIMP nsLocalUndoFolderListener::OnFolderAdded(nsIMsgFolder* parent,
-                                                       nsIMsgFolder* child) {
+NS_IMETHODIMP nsLocalUndoFolderListener::OnItemAdded(nsIMsgFolder* parentItem,
+                                                     nsISupports* item) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalUndoFolderListener::OnMessageAdded(nsIMsgFolder* parent,
-                                                        nsIMsgDBHdr* msg) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsLocalUndoFolderListener::OnFolderRemoved(nsIMsgFolder* parent,
-                                                         nsIMsgFolder* child) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsLocalUndoFolderListener::OnMessageRemoved(nsIMsgFolder* parent,
-                                                          nsIMsgDBHdr* msg) {
+NS_IMETHODIMP nsLocalUndoFolderListener::OnItemRemoved(nsIMsgFolder* parentItem,
+                                                       nsISupports* item) {
   return NS_OK;
 }
 

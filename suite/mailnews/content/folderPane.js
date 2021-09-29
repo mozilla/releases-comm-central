@@ -1391,9 +1391,10 @@ let gFolderTreeView = {
   /**
    * This is our implementation of nsIMsgFolderListener to watch for changes
    */
-  onFolderAdded: function ftl_add(aParentItem, aItem) {
+  OnItemAdded: function ftl_add(aParentItem, aItem) {
     // Ignore this item if it's not a folder, or we knew about it.
-    if (this.getIndexOfFolder(aItem) != null)
+    if (!(aItem instanceof Ci.nsIMsgFolder) ||
+        this.getIndexOfFolder(aItem) != null)
       return;
 
     // If no parent, this is an account, so let's rebuild.
@@ -1405,7 +1406,6 @@ let gFolderTreeView = {
     this._modes[this._mode].onFolderAdded(
       aParentItem.QueryInterface(Ci.nsIMsgFolder), aItem);
   },
-  onMessageAdded: function(parentFolder, msg) {},
 
   addFolder: function ftl_add_folder(aParentItem, aItem) {
     // This intentionally adds any new folder even if it would not pass the
@@ -1452,7 +1452,10 @@ let gFolderTreeView = {
     this._addChildToView(parent, parentIndex, newChild);
   },
 
-  onFolderRemoved: function ftl_remove(aRDFParentItem, aItem) {
+  OnItemRemoved: function ftl_remove(aRDFParentItem, aItem) {
+    if (!(aItem instanceof Ci.nsIMsgFolder))
+      return;
+
     this._persistItemClosed(aItem.URI);
 
     let index = this.getIndexOfFolder(aItem);
@@ -1473,10 +1476,8 @@ let gFolderTreeView = {
     this._tree.invalidateRow(index);
   },
 
-  onMessageRemoved: function(parentFolder, msg) {},
-
-  onFolderPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
-  onFolderIntPropertyChanged: function(aItem, aProperty, aOld, aNew) {
+  OnItemPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
+  OnItemIntPropertyChanged: function(aItem, aProperty, aOld, aNew) {
     // First try mode specific handling of the changed property.
     if (this._modes[this.mode].handleChangedIntProperty(aItem, aProperty, aOld,
                                                         aNew))
@@ -1498,14 +1499,14 @@ let gFolderTreeView = {
     }
   },
 
-  onFolderBoolPropertyChanged: function(aItem, aProperty, aOld, aNew) {
+  OnItemBoolPropertyChanged: function(aItem, aProperty, aOld, aNew) {
     let index = this.getIndexOfFolder(aItem);
     if (index != null)
       this._tree.invalidateRow(index);
   },
-  onFolderUnicharPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
-  onFolderPropertyFlagChanged: function(aItem, aProperty, aOld, aNew) {},
-  onFolderEvent: function(aFolder, aEvent) {
+  OnItemUnicharPropertyChanged: function(aItem, aProperty, aOld, aNew) {},
+  OnItemPropertyFlagChanged: function(aItem, aProperty, aOld, aNew) {},
+  OnItemEvent: function(aFolder, aEvent) {
     let index = this.getIndexOfFolder(aFolder);
     if (index != null)
       this._tree.invalidateRow(index);

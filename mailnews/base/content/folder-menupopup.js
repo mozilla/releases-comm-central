@@ -265,28 +265,29 @@
             }
           },
 
-          _folderAddedOrRemoved(folder) {
-            if (this._filterFunction && !this._filterFunction(folder)) {
+          _itemAddedOrRemoved(item) {
+            if (!(item instanceof Ci.nsIMsgFolder)) {
+              return;
+            }
+            if (this._filterFunction && !this._filterFunction(item)) {
               return;
             }
             // xxx we can optimize this later
             this._clearMenu(this._menu);
           },
 
-          onFolderAdded(parentFolder, child) {
-            this._folderAddedOrRemoved(child);
+          OnItemAdded(ParentItem, item) {
+            this._itemAddedOrRemoved(item);
           },
-          onMessageAdded(parentFolder, msg) {},
-          onFolderRemoved(parentFolder, child) {
-            this._folderAddedOrRemoved(child);
+          OnItemRemoved(ParentItem, item) {
+            this._itemAddedOrRemoved(item);
           },
-          onMessageRemoved(parentFolder, msg) {},
 
           // xxx I stole this listener list from nsMsgFolderDatasource.cpp, but
           // someone should really document what events are fired when, so that
           // we make sure we're updating at the right times.
-          onFolderPropertyChanged(item, property, old, newItem) {},
-          onFolderIntPropertyChanged(item, property, old, aNew) {
+          OnItemPropertyChanged(item, property, old, newItem) {},
+          OnItemIntPropertyChanged(item, property, old, aNew) {
             if (item instanceof Ci.nsIMsgFolder) {
               if (property == "FolderFlag") {
                 if (
@@ -306,15 +307,15 @@
             }
             this._setCssSelectorsForItem(item);
           },
-          onFolderBoolPropertyChanged(item, property, old, newItem) {
+          OnItemBoolPropertyChanged(item, property, old, newItem) {
             this._setCssSelectorsForItem(item);
           },
-          onFolderUnicharPropertyChanged(item, property, old, newItem) {
+          OnItemUnicharPropertyChanged(item, property, old, newItem) {
             this._setCssSelectorsForItem(item);
           },
-          onFolderPropertyFlagChanged(item, property, old, newItem) {},
+          OnItemPropertyFlagChanged(item, property, old, newItem) {},
 
-          onFolderEvent(folder, eventName) {
+          OnItemEvent(folder, eventName) {
             if (eventName == "MRMTimeChanged") {
               if (
                 this._menu.getAttribute("showRecent") != "true" ||

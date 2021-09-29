@@ -2745,9 +2745,12 @@ var gFolderTreeView = {
   /**
    * This is our implementation of nsIMsgFolderListener to watch for changes
    */
-  onFolderAdded(aParentItem, aItem) {
-    // Ignore this folder if we already know about it.
-    if (this.getIndexOfFolder(aItem) != null) {
+  OnItemAdded(aParentItem, aItem) {
+    // Ignore this item if it's not a folder, or we knew about it.
+    if (
+      !(aItem instanceof Ci.nsIMsgFolder) ||
+      this.getIndexOfFolder(aItem) != null
+    ) {
       return;
     }
 
@@ -2774,8 +2777,6 @@ var gFolderTreeView = {
       this._rebuild();
     }
   },
-
-  onMessageAdded(parentFolder, msg) {},
 
   addFolder(aParentItem, aItem) {
     // This intentionally adds any new folder even if it would not pass the
@@ -2824,7 +2825,11 @@ var gFolderTreeView = {
     this._addChildToView(parent, parentIndex, newChild);
   },
 
-  onFolderRemoved(aParentItem, aItem) {
+  OnItemRemoved(aParentItem, aItem) {
+    if (!(aItem instanceof Ci.nsIMsgFolder)) {
+      return;
+    }
+
     let index = this.getIndexOfFolder(aItem);
     if (index == null) {
       return;
@@ -2854,9 +2859,9 @@ var gFolderTreeView = {
       gFolderDisplay.show();
     }
   },
-  onMessageRemoved(parentFolder, msg) {},
-  onFolderPropertyChanged(aItem, aProperty, aOld, aNew) {},
-  onFolderIntPropertyChanged(aItem, aProperty, aOld, aNew) {
+
+  OnItemPropertyChanged(aItem, aProperty, aOld, aNew) {},
+  OnItemIntPropertyChanged(aItem, aProperty, aOld, aNew) {
     // First try mode specific handling of the changed property.
     for (let mode of this.activeModes) {
       if (
@@ -2887,7 +2892,7 @@ var gFolderTreeView = {
     }
   },
 
-  onFolderBoolPropertyChanged(aItem, aProperty, aOld, aNew) {
+  OnItemBoolPropertyChanged(aItem, aProperty, aOld, aNew) {
     let index = this.getIndexOfFolder(aItem);
     if (index != null) {
       this.clearFolderCacheProperty(aItem, "properties");
@@ -2895,7 +2900,7 @@ var gFolderTreeView = {
     }
   },
 
-  onFolderUnicharPropertyChanged(aItem, aProperty, aOld, aNew) {
+  OnItemUnicharPropertyChanged(aItem, aProperty, aOld, aNew) {
     let index = this.getIndexOfFolder(aItem);
     if (index != null) {
       this.clearFolderCacheProperty(aItem, "properties");
@@ -2903,8 +2908,8 @@ var gFolderTreeView = {
     }
   },
 
-  onFolderPropertyFlagChanged(aItem, aProperty, aOld, aNew) {},
-  onFolderEvent(aFolder, aEvent) {
+  OnItemPropertyFlagChanged(aItem, aProperty, aOld, aNew) {},
+  OnItemEvent(aFolder, aEvent) {
     let index = this.getIndexOfFolder(aFolder);
     if (index != null) {
       this.clearFolderCacheProperty(aFolder, "properties");

@@ -178,7 +178,7 @@ PromiseTestUtils.promiseFolderEvent = function(folder, event) {
   return new Promise((resolve, reject) => {
     let folderListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
-      onFolderEvent(aEventFolder, aEvent) {
+      OnItemEvent(aEventFolder, aEvent) {
         if (folder === aEventFolder && event == aEvent) {
           MailServices.mailSession.RemoveFolderListener(folderListener);
           resolve();

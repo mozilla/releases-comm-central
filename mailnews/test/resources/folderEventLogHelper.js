@@ -144,20 +144,18 @@ var _folderEventLogHelper_msgFolderListener = {
  * nsIFolderListener implementation to logHelper stuff that gloda cares about.
  */
 var _folderEventLogHelper_folderListener = {
-  onFolderAdded(parentFolder, child) {},
-  onMessageAdded(parentFolder, msg) {},
-  onFolderRemoved(parentFolder, child) {},
-  onMessageRemoved(parentFolder, msg) {},
-  onFolderPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
-  onFolderIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
-  onFolderBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
-  onFolderUnicharPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+  OnItemAdded(aParentItem, aItem) {},
+  OnItemRemoved(aParentItem, aItem) {},
+  OnItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+  OnItemIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+  OnItemBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+  OnItemUnicharPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
   /**
    * Notice when user activity adds/removes tags or changes a message's
    *  status.
    */
-  onFolderPropertyFlagChanged(aMsgHdr, aProperty, aOldValue, aNewValue) {
-    mark_action("msgEvent", "onFolderPropertyFlagChanged", [
+  OnItemPropertyFlagChanged(aMsgHdr, aProperty, aOldValue, aNewValue) {
+    mark_action("msgEvent", "OnItemPropertyFlagChanged", [
       "Header",
       aMsgHdr,
       "had property " +
@@ -172,7 +170,7 @@ var _folderEventLogHelper_folderListener = {
    * Get folder loaded notifications for folders that had to do some
    *  (asynchronous) processing before they could be opened.
    */
-  onFolderEvent(aFolder, aEvent) {
-    mark_action("msgEvent", "onFolderEvent", [aFolder, aEvent]);
+  OnItemEvent(aFolder, aEvent) {
+    mark_action("msgEvent", "OnItemEvent", [aFolder, aEvent]);
   },
 };

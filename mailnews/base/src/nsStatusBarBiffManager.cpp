@@ -142,25 +142,14 @@ nsresult nsStatusBarBiffManager::PlayBiffSound(const char* aPrefBranch) {
 
 // nsIFolderListener methods....
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnFolderAdded(nsIMsgFolder* parent,
-                                      nsIMsgFolder* child) {
+nsStatusBarBiffManager::OnItemAdded(nsIMsgFolder* parentItem,
+                                    nsISupports* item) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnMessageAdded(nsIMsgFolder* parent, nsIMsgDBHdr* msg) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsStatusBarBiffManager::OnFolderRemoved(nsIMsgFolder* parent,
-                                        nsIMsgFolder* child) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsStatusBarBiffManager::OnMessageRemoved(nsIMsgFolder* parent,
-                                         nsIMsgDBHdr* msg) {
+nsStatusBarBiffManager::OnItemRemoved(nsIMsgFolder* parentItem,
+                                      nsISupports* item) {
   return NS_OK;
 }
 

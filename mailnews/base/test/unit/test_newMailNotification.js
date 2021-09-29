@@ -84,7 +84,7 @@ add_test(function testNotifyInbox() {
   let notif = MailServices.newMailNotification.wrappedJSObject;
   notif.addListener(mockListener, iNMNS.count);
 
-  notif.onFolderIntPropertyChanged(folder, "TotalUnreadMessages", 0, 2);
+  notif.OnItemIntPropertyChanged(folder, "TotalUnreadMessages", 0, 2);
   Assert.ok(notified);
 
   // Special folders should never count
@@ -93,7 +93,7 @@ add_test(function testNotifyInbox() {
     flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Junk,
   };
   notified = false;
-  notif.onFolderIntPropertyChanged(special, "TotalUnreadMessages", 0, 2);
+  notif.OnItemIntPropertyChanged(special, "TotalUnreadMessages", 0, 2);
   Assert.ok(!notified);
 
   // by default, non-inbox should not count
@@ -102,13 +102,13 @@ add_test(function testNotifyInbox() {
     flags: Ci.nsMsgFolderFlags.Mail,
   };
   notified = false;
-  notif.onFolderIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
+  notif.OnItemIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
   Assert.ok(!notified);
 
   // Try setting the pref to count non-inboxes and notifying a non-inbox
   Services.prefs.setBoolPref(countInboxesPref, false);
   notified = false;
-  notif.onFolderIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
+  notif.OnItemIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
   Assert.ok(notified);
 
   run_next_test();

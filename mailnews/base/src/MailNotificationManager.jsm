@@ -120,22 +120,31 @@ class MailNotificationManager {
   /**
    * Following are nsIFolderListener interfaces. Do nothing about them.
    */
-  onFolderAdded() {}
-  onMessageAdded() {}
-  onFolderRemoved() {}
-  onMessageRemoved() {}
-  onFolderPropertyChanged() {}
+  OnItemAdded() {}
+
+  OnItemRemoved() {}
+
+  OnItemPropertyChanged() {}
+
+  OnItemBoolPropertyChanged() {}
+
+  OnItemUnicharPropertyChanged() {}
+
+  OnItemPropertyFlagChanged() {}
+
+  OnItemEvent() {}
+
   /**
    * The only nsIFolderListener interface we care about.
    * @see nsIFolderListener
    */
-  onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
+  OnItemIntPropertyChanged(folder, property, oldValue, newValue) {
     if (!Services.prefs.getBoolPref("mail.biff.show_alert")) {
       return;
     }
 
     this._logger.debug(
-      `onFolderIntPropertyChanged; property=${property}: ${oldValue} => ${newValue}, folder.URI=${folder.URI}`
+      `OnItemIntPropertyChanged; property=${property}: ${oldValue} => ${newValue}, folder.URI=${folder.URI}`
     );
 
     switch (property) {
@@ -151,10 +160,6 @@ class MailNotificationManager {
         break;
     }
   }
-  onFolderBoolPropertyChanged() {}
-  onFolderUnicharPropertyChanged() {}
-  onFolderPropertyFlagChanged() {}
-  onFolderEvent() {}
 
   /**
    * @see mozINewMailNotificationService

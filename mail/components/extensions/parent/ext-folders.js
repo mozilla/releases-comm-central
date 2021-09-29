@@ -71,7 +71,7 @@ var folderTracker = new (class extends EventEmitter {
 
   // nsIFolderListener
 
-  onFolderIntPropertyChanged(item, property, oldValue, newValue) {
+  OnItemIntPropertyChanged(item, property, oldValue, newValue) {
     if (!(item instanceof Ci.nsIMsgFolder)) {
       return;
     }
