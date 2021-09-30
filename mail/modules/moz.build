@@ -24,7 +24,6 @@ EXTRA_JS_MODULES += [
     "SummaryFrameManager.jsm",
     "TagUtils.jsm",
     "TBDistCustomizer.jsm",
-    "ThemeVariableMap.jsm",
     "UIDensity.jsm",
 ]
 
@@ -43,6 +42,5 @@ if CONFIG["MOZ_UPDATER"]:
 
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
     EXTRA_JS_MODULES += [
-        "Windows8WindowFrameColor.jsm",
         "WindowsJumpLists.jsm",
     ]
