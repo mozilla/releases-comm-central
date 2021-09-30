@@ -139,10 +139,14 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
 
     // Bring the minimized windows to the front.
     for (uint32_t i = 0; i < sHiddenWindows.Length(); i++) {
-      sHiddenWindows[i]->SetVisibility(true);
+      auto window = sHiddenWindows.SafeElementAt(i);
+      if (!window) {
+        continue;
+      }
+      window->SetVisibility(true);
 
       nsCOMPtr<nsIWidget> widget;
-      sHiddenWindows[i]->GetMainWidget(getter_AddRefs(widget));
+      window->GetMainWidget(getter_AddRefs(widget));
       if (!widget) {
         continue;
       }
@@ -153,7 +157,7 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
 
       nsCOMPtr<nsIObserverService> obs =
           mozilla::services::GetObserverService();
-      obs->NotifyObservers(sHiddenWindows[i], "window-restored-from-tray", 0);
+      obs->NotifyObservers(window, "window-restored-from-tray", 0);
     }
 
     sHiddenWindows.Clear();
