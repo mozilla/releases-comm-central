@@ -1024,8 +1024,6 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove,
       msgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
   }
 
-  if (aListener) aListener->OnStartCopy();
-
   aDstHdrs.Clear();
   aDstHdrs.SetCapacity(aHdrArray.Length());
 
@@ -1072,7 +1070,6 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove,
       nsMsgKey dstKey;
       destHdr->GetMessageKey(&dstKey);
       msgTxn->AddDstKey(dstKey);
-      if (aListener) aListener->SetMessageKey(dstKey);
     }
   }
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
@@ -1092,9 +1089,6 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove,
   }
 
   *aCopyDone = true;
-  nsCOMPtr<nsISupports> srcSupports(do_QueryInterface(srcFolder));
-  if (destLocalFolder) destLocalFolder->OnCopyCompleted(srcSupports, true);
-  if (aListener) aListener->OnStopCopy(NS_OK);
   msgTxn.forget(aUndoAction);
   return NS_OK;
 }

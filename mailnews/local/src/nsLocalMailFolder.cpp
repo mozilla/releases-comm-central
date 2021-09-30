@@ -1340,9 +1340,10 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
       msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
       if (txnMgr) txnMgr->DoTransaction(undoTxn);
     }
-    if (isMove)
+    if (isMove) {
       srcFolder->NotifyFolderEvent(NS_SUCCEEDED(rv) ? kDeleteOrMoveMsgCompleted
                                                     : kDeleteOrMoveMsgFailed);
+    }
 
     if (NS_SUCCEEDED(rv)) {
       // If the store did the copy, like maildir, we need to mark messages on
@@ -1363,6 +1364,8 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
         }
       }
     }
+
+    OnCopyCompleted(srcSupport, NS_SUCCEEDED(rv));
     return rv;
   }
   // If the store doesn't do the copy, we'll stream the source messages into
