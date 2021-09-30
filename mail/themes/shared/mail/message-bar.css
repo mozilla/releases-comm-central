@@ -331,7 +331,7 @@ button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   background-size: 16px;
 }
 
-.notification-button.small {
+.notification-button.small-button {
   font-size: inherit;
   font-weight: 400;
 }

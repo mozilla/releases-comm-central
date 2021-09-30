@@ -4,7 +4,7 @@
 
 @import url("chrome://messenger/skin/shared/message-bar.css");
 
-.notification-button.small {
+.notification-button.small-button {
   padding-block: 2px;
 }
 

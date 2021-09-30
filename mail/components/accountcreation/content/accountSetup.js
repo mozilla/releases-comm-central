@@ -2426,14 +2426,14 @@ var gAccountSetup = {
       if (existing.includes(book.url.href)) {
         // This address book aready exists for some reason, so disable the
         // button and mark it as existing.
-        button.classList.add("existing", "small");
+        button.classList.add("existing", "small-button");
         document.l10n.setAttributes(
           button,
           "account-setup-existing-address-book"
         );
         button.disabled = true;
       } else {
-        button.classList.add("small");
+        button.classList.add("small-button");
         document.l10n.setAttributes(button, "account-setup-connect-link");
         button.addEventListener("click", () => {
           this._setupAddressBook(button, book);
@@ -2549,14 +2549,14 @@ var gAccountSetup = {
         if (existing.has(calendar.uri.spec)) {
           // This calendar aready exists for some reason, so disable the button
           // and mark it as existing.
-          button.classList.add("existing", "small");
+          button.classList.add("existing", "small-button");
           document.l10n.setAttributes(
             button,
             "account-setup-existing-calendar"
           );
           button.disabled = true;
         } else {
-          button.classList.add("small");
+          button.classList.add("small-button");
           document.l10n.setAttributes(button, "account-setup-connect-link");
           button.addEventListener("click", () => {
             // If the button has a specific data attribute it means we want to

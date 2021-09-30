@@ -813,7 +813,7 @@ button.quick-link:hover:active {
   font-weight: 600;
 }
 
-.linked-services-list button.small {
+.linked-services-list button.small-button {
   line-height: 0.9em;
   padding-block: 0;
 }
