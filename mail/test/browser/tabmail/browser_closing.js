@@ -23,6 +23,12 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { BrowserTestUtils } = ChromeUtils.import(
+  "resource://testing-common/BrowserTestUtils.jsm"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 var gFolder;
 
@@ -123,4 +129,121 @@ add_task(function test_opening_thread_in_tabs_closing_behaviour() {
       "Expected tab at index " + (i - 1) + " to be selected."
     );
   }
+});
+
+/**
+ * Test closing the tab with the mouse or keyboard.
+ */
+add_task(function test_close_tab_methods() {
+  be_in_folder(gFolder);
+  select_click_row(0);
+  // Open five message tabs in the background.
+  open_selected_message_in_new_tab(true);
+  open_selected_message_in_new_tab(true);
+  open_selected_message_in_new_tab(true);
+  open_selected_message_in_new_tab(true);
+  open_selected_message_in_new_tab(true);
+
+  let numTabs = 6;
+
+  let tabs = mc.tabmail.tabInfo.map((info, index) => {
+    return {
+      info,
+      index,
+      node: info.tabNode,
+      close: info.tabNode.querySelector(".tab-close-button"),
+    };
+  });
+  Assert.equal(tabs.length, numTabs, "Have all tabs");
+
+  /**
+   * Assert that a tab is closed.
+   *
+   * @param {Object} tab - The tab to close (an item from the 'tabs' array).
+   * @param {Function} closeMethod - The method to call on tab in order to close
+   *   it.
+   * @param {Object} switchTo - The tab we expect to switch to after closing
+   *   tab.
+   */
+  function assertClose(tab, closeMethod, switchTo) {
+    Assert.equal(
+      mc.tabmail.tabInfo.length,
+      numTabs,
+      `Number of tabs before removing tab #${tab.index}`
+    );
+    Assert.ok(tab.node.parentNode, `tab #${tab.index} should be in DOM tree`);
+    closeMethod(tab);
+    Assert.ok(
+      !tab.node.parentNode,
+      `tab #${tab.index} should be removed from the DOM tree`
+    );
+    numTabs--;
+    Assert.equal(
+      mc.tabmail.tabInfo.length,
+      numTabs,
+      `Number of tabs after removing tab #${tab.index}`
+    );
+    assert_selected_tab(
+      switchTo.info,
+      `tab #${switchTo.index} is selected after removing tab #${tab.index}`
+    );
+  }
+
+  function closeWithButton(tab) {
+    EventUtils.synthesizeMouseAtCenter(tab.close, {}, mc.window);
+  }
+
+  function closeWithMiddleClick(tab) {
+    EventUtils.synthesizeMouseAtCenter(tab.node, { button: 1 }, mc.window);
+  }
+
+  function closeWithKeyboard() {
+    if (AppConstants.platform == "macosx") {
+      EventUtils.synthesizeKey("w", { accelKey: true }, mc.window);
+    } else {
+      EventUtils.synthesizeKey("w", { ctrlKey: true }, mc.window);
+    }
+  }
+
+  // Can't close the first tab.
+  Assert.ok(
+    BrowserTestUtils.is_hidden(tabs[0].close),
+    "Close button should be hidden for the first tab"
+  );
+  // Middle click does nothing.
+  closeWithMiddleClick(tabs[0]);
+  assert_selected_tab(tabs[0].info);
+  // Keyboard shortcut does nothing.
+  closeWithKeyboard();
+  assert_selected_tab(tabs[0].info);
+
+  // Close unselected tabs. The selected tab should stay the same.
+  assertClose(tabs[5], closeWithButton, tabs[0]);
+  assertClose(tabs[4], closeWithMiddleClick, tabs[0]);
+  // Keyboard shortcut cannot be used to close an unselected tab.
+
+  // Close selected tabs.
+  // Select tab by clicking it.
+  EventUtils.synthesizeMouseAtCenter(tabs[3].node, {}, mc.window);
+  assert_selected_tab(tabs[3].info);
+  assertClose(tabs[3], closeWithButton, tabs[2]);
+
+  // Select tab #1 by clicking tab #2 and using the shortcut to go back.
+  EventUtils.synthesizeMouseAtCenter(tabs[2].node, {}, mc.window);
+  assert_selected_tab(tabs[2].info);
+  EventUtils.synthesizeKey(
+    "VK_TAB",
+    { ctrlKey: true, shiftKey: true },
+    mc.window
+  );
+  assert_selected_tab(tabs[1].info);
+  assertClose(tabs[1], closeWithKeyboard, tabs[2]);
+
+  // Select tab #2 (which is now the second tab) by using the shortcut to go
+  // forward from the first tab.
+  EventUtils.synthesizeMouseAtCenter(tabs[0].node, {}, mc.window);
+  assert_selected_tab(tabs[0].info);
+  EventUtils.synthesizeKey("VK_TAB", { ctrlKey: true }, mc.window);
+  assert_selected_tab(tabs[2].info);
+  assertClose(tabs[2], closeWithMiddleClick, tabs[0]);
 });

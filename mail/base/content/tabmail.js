@@ -1716,16 +1716,6 @@
       saveTabFunc.call(tab.mode.tabType, tab);
     }
 
-    onTabClick(event) {
-      // a middle mouse button click on a tab is a short cut for closing a tab
-      if (event.button != 1 || document.tab.localName != "tab") {
-        return;
-      }
-
-      this.removeTabByNode(document.tab);
-      event.stopPropagation();
-    }
-
     setTabTitle(aTabNodeOrInfo) {
       let [iTab, tab] = this._getTabContextForTabbyThing(aTabNodeOrInfo, true);
       if (tab) {

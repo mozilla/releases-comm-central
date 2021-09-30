@@ -80,26 +80,33 @@
         true
       );
 
-      this.querySelector(".tab-close-button").addEventListener("click", () =>
+      let closeButton = this.querySelector(".tab-close-button");
+
+      // Prevent switching to the tab before closing it by stopping the
+      // mousedown event.
+      closeButton.addEventListener("mousedown", event => {
+        if (event.button != 0) {
+          return;
+        }
+        event.stopPropagation();
+      });
+
+      closeButton.addEventListener("click", () =>
         document.getElementById("tabmail").removeTabByNode(this)
       );
+
+      // Middle mouse button click on the tab also closes it.
+      this.addEventListener("click", event => {
+        if (event.button != 1) {
+          return;
+        }
+        document.getElementById("tabmail").removeTabByNode(this);
+      });
 
       this.addEventListener(
         "contextmenu",
         event => {
           document.popupNode = this;
-        },
-        true
-      );
-
-      this.addEventListener(
-        "dblclick",
-        event => {
-          if (event.button != 0) {
-            return;
-          }
-          // for the one-close-button case
-          event.stopPropagation();
         },
         true
       );
