@@ -292,6 +292,11 @@ menulist:-moz-focusring:not([open="true"])::part(label-box) {
   outline: none;
 }
 
+menulist::part(icon) {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 menulist::part(dropmarker) {
   appearance: none;
   width: 16px;

@@ -136,6 +136,11 @@ menulist::part(label-box) {
   font-weight: 400;
 }
 
+menulist::part(icon) {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 menulist::part(label),
 menuitem > label,
 button > hbox > label {
