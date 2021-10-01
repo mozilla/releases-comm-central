@@ -456,7 +456,7 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-richlistbox > richlistitem[selected="true"] {
+:root[lwt-tree] richlistitem[selected="true"] {
   background-color: hsla(0,0%,50%,.15);
   color: inherit;
 }
