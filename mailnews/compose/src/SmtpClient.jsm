@@ -72,7 +72,9 @@ class SmtpClient {
    */
   constructor(server) {
     this.options = {
-      ignoreTLS: server.socketType == Ci.nsMsgSocketType.plain,
+      alwaysSTARTTLS:
+        server.socketType == Ci.nsMsgSocketType.trySTARTTLS ||
+        server.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS,
       requireTLS: server.socketType == Ci.nsMsgSocketType.SSL,
     };
 
@@ -876,7 +878,7 @@ class SmtpClient {
 
     if ([500, 502].includes(command.statusCode)) {
       // EHLO is not implemented by the server.
-      if (this._server.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS) {
+      if (this.options.alwaysSTARTTLS) {
         // If alwaysSTARTTLS is set by the user, EHLO is required to advertise it.
         this._onNsError(MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS);
         return;
@@ -895,15 +897,15 @@ class SmtpClient {
       return;
     }
 
-    // Detect if the server supports STARTTLS
-    if (
-      command.data.match(/STARTTLS\s?$/im) &&
-      !this._secureMode &&
-      !this.options.ignoreTLS &&
-      !this.options.requireTLS
-    ) {
-      this._currentAction = this._actionSTARTTLS;
-      this._sendCommand("STARTTLS");
+    if (!this._secureMode && this.options.alwaysSTARTTLS) {
+      // STARTTLS is required by the user. Detect if the server supports it.
+      if (command.data.match(/STARTTLS\s?$/im)) {
+        this._currentAction = this._actionSTARTTLS;
+        this._sendCommand("STARTTLS");
+        return;
+      }
+      // STARTTLS is required but not advertised.
+      this._onNsError(MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS);
       return;
     }
 
