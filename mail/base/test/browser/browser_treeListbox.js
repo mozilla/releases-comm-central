@@ -321,6 +321,10 @@ async function subtestMutation() {
 /**
  * Checks that expanding and collapsing works. Twisties in the test file are
  * styled as coloured squares: red for collapsed, green for expanded.
+ *
+ * @note This is practically the same test as in browser_treeViewListbox.js,
+ * but for TreeListbox instead of TreeViewListbox. If you make changes here
+ * you may want to make changes there too.
  */
 async function subtestExpandCollapse() {
   let doc = content.document;

@@ -800,3 +800,533 @@ async function testRowCountChange() {
   addValues(7, [7, 8, 9]);
   list.selectedIndex = -1;
 }
+
+add_task(async function() {
+  let tab = tabmail.openTab("contentTab", {
+    url:
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox2.xhtml",
+  });
+
+  await BrowserTestUtils.browserLoaded(tab.browser);
+  tab.browser.focus();
+
+  await SpecialPowers.spawn(tab.browser, [], testExpandCollapse);
+
+  tabmail.closeTab(tab);
+});
+
+/**
+ * Checks that expanding and collapsing works. Twisties in the test file are
+ * styled as coloured squares: red for collapsed, green for expanded.
+ *
+ * @note This is practically the same test as in browser_treeListbox.js, but
+ * for TreeViewListbox instead of TreeListbox. If you make changes here you
+ * may want to make changes there too.
+ */
+async function testExpandCollapse() {
+  let doc = content.document;
+  let list = doc.querySelector("tree-view-listbox");
+  let allIds = [
+    "row-1",
+    "row-2",
+    "row-2-1",
+    "row-2-2",
+    "row-3",
+    "row-3-1",
+    "row-3-1-1",
+    "row-3-1-2",
+  ];
+  let idsWithoutChildren = [
+    "row-1",
+    "row-2-1",
+    "row-2-2",
+    "row-3-1-1",
+    "row-3-1-2",
+  ];
+
+  let listener = {
+    reset() {
+      this.collapsedIndex = null;
+      this.expandedIndex = null;
+    },
+    handleEvent(event) {
+      if (event.type == "collapsed") {
+        this.collapsedIndex = event.detail;
+      } else if (event.type == "expanded") {
+        this.expandedIndex = event.detail;
+      }
+    },
+  };
+  list.addEventListener("collapsed", listener);
+  list.addEventListener("expanded", listener);
+
+  let selectHandler = {
+    seenEvent: null,
+    selectedAtEvent: null,
+
+    reset() {
+      this.seenEvent = null;
+      this.selectedAtEvent = null;
+    },
+    handleEvent(event) {
+      this.seenEvent = event;
+      this.selectedAtEvent = list.selectedIndex;
+    },
+  };
+
+  Assert.equal(
+    list.querySelectorAll("collapsed").length,
+    0,
+    "no rows are collapsed"
+  );
+  Assert.equal(list.view.rowCount, 8, "row count");
+  Assert.deepEqual(
+    Array.from(list.children, r => r.id),
+    [
+      "row-1",
+      "row-2",
+      "row-2-1",
+      "row-2-2",
+      "row-3",
+      "row-3-1",
+      "row-3-1-1",
+      "row-3-1-2",
+    ],
+    "rows property"
+  );
+
+  function checkSelected(expectedIndex, expectedId) {
+    Assert.equal(list.selectedIndex, expectedIndex, "selectedIndex is correct");
+    let selected = [...list.querySelectorAll(".selected")].map(row => row.id);
+    Assert.deepEqual(
+      selected,
+      [expectedId],
+      "correct rows have the 'selected' class"
+    );
+  }
+
+  list.selectedIndex = 0;
+  checkSelected(0, "row-1");
+
+  // Click the twisties of rows without children.
+
+  function performChange(id, expectedChange, changeCallback) {
+    listener.reset();
+    let row = doc.getElementById(id);
+    let before = row.classList.contains("collapsed");
+
+    changeCallback(row);
+
+    row = doc.getElementById(id);
+    if (expectedChange == "collapsed") {
+      Assert.ok(!before, `${id} was expanded`);
+      Assert.ok(row.classList.contains("collapsed"), `${id} collapsed`);
+      Assert.notEqual(
+        listener.collapsedIndex,
+        null,
+        `${id} fired 'collapse' event`
+      );
+      Assert.ok(!listener.expandedIndex, `${id} did not fire 'expand' event`);
+    } else if (expectedChange == "expanded") {
+      Assert.ok(before, `${id} was collapsed`);
+      Assert.ok(!row.classList.contains("collapsed"), `${id} expanded`);
+      Assert.ok(
+        !listener.collapsedIndex,
+        `${id} did not fire 'collapse' event`
+      );
+      Assert.notEqual(
+        listener.expandedIndex,
+        null,
+        `${id} fired 'expand' event`
+      );
+    } else {
+      Assert.equal(
+        row.classList.contains("collapsed"),
+        before,
+        `${id} state did not change`
+      );
+    }
+  }
+
+  function clickTwisty(id, expectedChange) {
+    info(`clicking the twisty on ${id}`);
+    performChange(id, expectedChange, row =>
+      EventUtils.synthesizeMouseAtCenter(
+        row.querySelector(".twisty"),
+        {},
+        content
+      )
+    );
+  }
+
+  for (let id of idsWithoutChildren) {
+    clickTwisty(id, null);
+    Assert.equal(list.querySelector(".selected").id, id);
+  }
+
+  checkSelected(7, "row-3-1-2");
+
+  // Click the twisties of rows with children.
+
+  function checkRowsAreHidden(...hiddenIds) {
+    let remainingIds = allIds.slice();
+
+    for (let id of allIds) {
+      if (hiddenIds.includes(id)) {
+        Assert.ok(!doc.getElementById(id), `${id} is hidden`);
+        remainingIds.splice(remainingIds.indexOf(id), 1);
+      } else {
+        Assert.greater(
+          doc.getElementById(id).clientHeight,
+          0,
+          `${id} is visible`
+        );
+      }
+    }
+
+    Assert.equal(list.view.rowCount, 8 - hiddenIds.length, "row count");
+    Assert.deepEqual(
+      Array.from(list.children, r => r.id),
+      remainingIds,
+      "rows property"
+    );
+  }
+
+  // Collapse row 2.
+
+  clickTwisty("row-2", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(5, "row-3-1-2");
+
+  // Collapse row 3.
+
+  clickTwisty("row-3", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  // Expand row 2.
+
+  clickTwisty("row-2", "expanded");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  // Expand row 3.
+
+  clickTwisty("row-3", "expanded");
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+
+  // Collapse row 3-1.
+
+  clickTwisty("row-3-1", "collapsed");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  // Collapse row 3.
+
+  clickTwisty("row-3", "collapsed");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  // Expand row 3.
+
+  clickTwisty("row-3", "expanded");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  // Expand row 3-1.
+
+  clickTwisty("row-3-1", "expanded");
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+
+  // Test key presses.
+
+  function pressKey(id, key, expectedChange) {
+    info(`pressing ${key}`);
+    performChange(id, expectedChange, row => {
+      EventUtils.synthesizeKey(key, {}, content);
+    });
+  }
+
+  // Row 0 has no children or parent, nothing should happen.
+
+  list.selectedIndex = 0;
+  pressKey("row-1", "VK_LEFT");
+  checkSelected(0, "row-1");
+  pressKey("row-1", "VK_RIGHT");
+  checkSelected(0, "row-1");
+
+  // Collapse row 2.
+
+  list.selectedIndex = 1;
+  pressKey("row-2", "VK_LEFT", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(1, "row-2");
+
+  pressKey("row-2", "VK_LEFT");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(1, "row-2");
+
+  // Collapse row 3.
+
+  list.selectedIndex = 2;
+  pressKey("row-3", "VK_LEFT", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  pressKey("row-3", "VK_LEFT");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  // Expand row 2.
+
+  list.selectedIndex = 1;
+  pressKey("row-2", "VK_RIGHT", "expanded");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(1, "row-2");
+
+  // Expand row 3.
+
+  list.selectedIndex = 4;
+  pressKey("row-3", "VK_RIGHT", "expanded");
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+
+  // Go down the tree to row 3-1-1.
+
+  pressKey("row-3", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  pressKey("row-3-1-1", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  // Collapse row 3-1.
+
+  pressKey("row-3-1-1", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "VK_LEFT", "collapsed");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  // Collapse row 3.
+
+  pressKey("row-3-1", "VK_LEFT");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  pressKey("row-3", "VK_LEFT", "collapsed");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  // Expand row 3.
+
+  pressKey("row-3", "VK_RIGHT", "expanded");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  pressKey("row-3", "VK_RIGHT");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  // Expand row 3-1.
+
+  pressKey("row-3-1", "VK_RIGHT", "expanded");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  pressKey("row-3-1-1", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  // Same again, with a RTL tree.
+
+  info("switching to RTL");
+  doc.documentElement.dir = "rtl";
+
+  // Row 0 has no children or parent, nothing should happen.
+
+  list.selectedIndex = 0;
+  pressKey("row-1", "VK_RIGHT");
+  checkSelected(0, "row-1");
+  pressKey("row-1", "VK_LEFT");
+  checkSelected(0, "row-1");
+
+  // Collapse row 2.
+
+  list.selectedIndex = 1;
+  pressKey("row-2", "VK_RIGHT", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(1, "row-2");
+
+  pressKey("row-2", "VK_RIGHT");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  checkSelected(1, "row-2");
+
+  // Collapse row 3.
+
+  list.selectedIndex = 2;
+  pressKey("row-3", "VK_RIGHT", "collapsed");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  pressKey("row-3", "VK_RIGHT");
+  checkRowsAreHidden("row-2-1", "row-2-2", "row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(2, "row-3");
+
+  // Expand row 2.
+
+  list.selectedIndex = 1;
+  pressKey("row-2", "VK_LEFT", "expanded");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(1, "row-2");
+
+  // Expand row 3.
+
+  list.selectedIndex = 4;
+  pressKey("row-3", "VK_LEFT", "expanded");
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+
+  // Go down the tree to row 3-1-1.
+
+  pressKey("row-3", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  pressKey("row-3-1-1", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  // Collapse row 3-1.
+
+  pressKey("row-3-1-1", "VK_RIGHT");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "VK_RIGHT", "collapsed");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  // Collapse row 3.
+
+  pressKey("row-3-1", "VK_RIGHT");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  pressKey("row-3", "VK_RIGHT", "collapsed");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  // Expand row 3.
+
+  pressKey("row-3", "VK_LEFT", "expanded");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+
+  pressKey("row-3", "VK_LEFT");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  // Expand row 3-1.
+
+  pressKey("row-3-1", "VK_LEFT", "expanded");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  pressKey("row-3-1-1", "VK_LEFT");
+  checkRowsAreHidden();
+  checkSelected(6, "row-3-1-1");
+
+  // Use the class methods for expanding and collapsing.
+
+  selectHandler.reset();
+  list.addEventListener("select", selectHandler);
+  listener.reset();
+
+  list.collapseRowAtIndex(6); // No children, no effect.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.ok(!listener.collapsedIndex, "'collapsed' event did not fire");
+
+  list.expandRowAtIndex(6); // No children, no effect.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.ok(!listener.expandedIndex, "'expanded' event did not fire");
+
+  list.collapseRowAtIndex(1); // Item with children that aren't selected.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.equal(listener.collapsedIndex, 1, "row-2 fired 'collapsed' event");
+  listener.reset();
+
+  list.expandRowAtIndex(1); // Item with children that aren't selected.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.equal(listener.expandedIndex, 1, "row-2 fired 'expanded' event");
+  listener.reset();
+
+  list.collapseRowAtIndex(5); // Item with children that are selected.
+  Assert.ok(selectHandler.seenEvent, "'select' event fired");
+  Assert.equal(
+    selectHandler.selectedAtEvent,
+    5,
+    "selectedIndex was correct when 'select' event fired"
+  );
+  Assert.equal(listener.collapsedIndex, 5, "row-3-1 fired 'collapsed' event");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+  selectHandler.reset();
+  listener.reset();
+
+  list.expandRowAtIndex(5); // Selected item with children.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.equal(listener.expandedIndex, 5, "row-3-1 fired 'expanded' event");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+  listener.reset();
+
+  list.selectedIndex = 7;
+  selectHandler.reset();
+
+  list.collapseRowAtIndex(4); // Item with grandchildren that are selected.
+  Assert.ok(selectHandler.seenEvent, "'select' event fired");
+  Assert.equal(
+    selectHandler.selectedAtEvent,
+    4,
+    "selectedIndex was correct when 'select' event fired"
+  );
+  Assert.equal(listener.collapsedIndex, 4, "row-3 fired 'collapsed' event");
+  checkRowsAreHidden("row-3-1", "row-3-1-1", "row-3-1-2");
+  checkSelected(4, "row-3");
+  selectHandler.reset();
+  listener.reset();
+
+  list.expandRowAtIndex(4); // Selected item with grandchildren.
+  Assert.ok(!selectHandler.seenEvent, "'select' event did not fire");
+  Assert.equal(listener.expandedIndex, 4, "row-3 fired 'expanded' event");
+  checkRowsAreHidden();
+  checkSelected(4, "row-3");
+  listener.reset();
+
+  list.removeEventListener("collapsed", listener);
+  list.removeEventListener("expanded", listener);
+  list.removeEventListener("select", selectHandler);
+  doc.documentElement.dir = null;
+}

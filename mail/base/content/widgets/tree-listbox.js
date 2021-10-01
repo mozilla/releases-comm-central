@@ -849,8 +849,7 @@
    * whatever replaces it in time) and be scalable to a very large number of
    * items if necessary. Multiple selections are possible and changes in the
    * connected view are cause updates to the list (provided `rowCountChanged`/
-   * `invalidate` are called as appropriate). Nested rows are not currently
-   * possible but this is planned.
+   * `invalidate` are called as appropriate).
    *
    * Rows are provided by a custom element that inherits from
    * TreeViewListrow below. Set the name of the custom element as the "rows"
@@ -936,6 +935,22 @@
 
         let index = row.index;
 
+        if (this._view.isContainer(index) && event.target.closest(".twisty")) {
+          if (this._view.isContainerOpen(index)) {
+            this.collapseRowAtIndex(index);
+          } else {
+            let addedRows = this.expandRowAtIndex(index);
+            this.scrollToIndex(
+              index +
+                Math.min(
+                  addedRows,
+                  this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
+                )
+            );
+          }
+          return;
+        }
+
         if (event.ctrlKey) {
           this._anchorIndex = index;
           this.currentIndex = index;
@@ -968,6 +983,41 @@
           case "ArrowDown":
             newIndex = this.currentIndex + 1;
             break;
+          case "ArrowLeft":
+          case "ArrowRight": {
+            let isArrowRight = event.key == "ArrowRight";
+            let isRTL = this.matches(":dir(rtl)");
+            if (isArrowRight == isRTL) {
+              // Collapse action.
+              let currentLevel = this._view.getLevel(newIndex);
+              if (this._view.isContainerOpen(newIndex)) {
+                this.collapseRowAtIndex(newIndex);
+                return;
+              } else if (currentLevel == 0) {
+                return;
+              }
+
+              let parentIndex = this._view.getParentIndex(newIndex);
+              if (parentIndex != -1) {
+                this.selectedIndex = parentIndex;
+              }
+            } else if (this._view.isContainer(newIndex)) {
+              // Expand action.
+              if (!this._view.isContainerOpen(newIndex)) {
+                let addedRows = this.expandRowAtIndex(newIndex);
+                this.scrollToIndex(
+                  newIndex +
+                    Math.min(
+                      addedRows,
+                      this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
+                    )
+                );
+              } else {
+                this.selectedIndex++;
+              }
+            }
+            return;
+          }
           case "Home":
             newIndex = 0;
             break;
@@ -1107,6 +1157,33 @@
     }
 
     /**
+     * Invalidate the row at `index` in place. If `index` refers to a row that
+     * should exist but doesn't (because the row count increased), adds a row.
+     * If `index` refers to a row that does exist but shouldn't (because the
+     * row count decreased), removes it.
+     *
+     * @param {integer} index
+     */
+    invalidateRow(index) {
+      let row = this.getRowAtIndex(index);
+      if (row) {
+        if (index >= this._view.rowCount) {
+          row.remove();
+          this._rows.delete(index);
+          let i = this._selectedIndicies.indexOf(index);
+          if (i > -1) {
+            this._selectedIndicies.splice(i, 1);
+          }
+        } else {
+          row.index = index;
+          row.selected = this._selectedIndicies.includes(index);
+        }
+      } else if (index >= this._firstRowIndex && index <= this._lastRowIndex) {
+        this._addRowAtIndex(index);
+      }
+    }
+
+    /**
      * Fills the view with rows at the current scroll position. Also creates
      * `OVERFLOW_BUFFER` rows above and below the visible rows. Performance
      * here is important.
@@ -1198,7 +1275,6 @@
 
     /**
      * Updates the list to reflect added or removed rows.
-     * TODO: Currently this is barely optimised.
      *
      * @param {integer} index
      */
@@ -1216,18 +1292,24 @@
 
       let rowCount = this._view.rowCount;
       let oldRowCount = rowCount - delta;
+      // Ensure the filler height matches the row count.
+      this.filler.style.minHeight =
+        rowCount * this._rowElementClass.ROW_HEIGHT + "px";
       if (
         // Change happened beyond the rows that exist in the DOM and
         index > this._lastRowIndex &&
         // we weren't at the end of the list.
         this._lastRowIndex + 1 < oldRowCount
       ) {
-        this.filler.style.minHeight =
-          rowCount * this._rowElementClass.ROW_HEIGHT + "px";
         return;
       }
 
-      this.invalidate();
+      // Invalidate every row between here and the last row displayed.
+      for (let i = index; i <= this._lastRowIndex; i++) {
+        this.invalidateRow(i);
+      }
+      // We may need to display more rows.
+      this._ensureVisibleRowsAreDisplayed();
 
       this.dispatchEvent(new CustomEvent("rowcountchange"));
     }
@@ -1279,6 +1361,89 @@
      */
     getRowAtIndex(index) {
       return this._rows.get(index) ?? null;
+    }
+
+    /**
+     * Collapses the row at `index` if it can be collapsed. If the selected
+     * row is a descendant of the collapsing row, selection is moved to the
+     * collapsing row.
+     *
+     * @param {integer} index
+     */
+    collapseRowAtIndex(index) {
+      if (!this._view.isContainerOpen(index)) {
+        return;
+      }
+
+      // If the selected row is going to be collapsed, move the selection.
+      let selectedIndex = this.selectedIndex;
+      while (selectedIndex > index) {
+        selectedIndex = this._view.getParentIndex(selectedIndex);
+        if (selectedIndex == index) {
+          this.selectedIndex = index;
+          break;
+        }
+      }
+
+      // Check if the view calls rowCountChanged. If it didn't, we'll have to
+      // call it. This can happen if the view has no reference to the tree.
+      let rowCountDidChange = false;
+      let rowCountChangeListener = () => {
+        rowCountDidChange = true;
+      };
+
+      let countBefore = this._view.rowCount;
+      this.addEventListener("rowcountchange", rowCountChangeListener);
+      this._view.toggleOpenState(index);
+      this.removeEventListener("rowcountchange", rowCountChangeListener);
+      let countAdded = this._view.rowCount - countBefore;
+
+      // Call rowCountChanged, if it hasn't already happened.
+      if (countAdded && !rowCountDidChange) {
+        this.invalidateRow(index);
+        this.rowCountChanged(index + 1, countAdded);
+      }
+
+      this.dispatchEvent(
+        new CustomEvent("collapsed", { bubbles: true, detail: index })
+      );
+    }
+
+    /**
+     * Expands the row at `index` if it can be expanded.
+     *
+     * @param {integer} index
+     * @returns {integer} - the number of rows that were added
+     */
+    expandRowAtIndex(index) {
+      if (!this._view.isContainer(index) || this._view.isContainerOpen(index)) {
+        return 0;
+      }
+
+      // Check if the view calls rowCountChanged. If it didn't, we'll have to
+      // call it. This can happen if the view has no reference to the tree.
+      let rowCountDidChange = false;
+      let rowCountChangeListener = () => {
+        rowCountDidChange = true;
+      };
+
+      let countBefore = this._view.rowCount;
+      this.addEventListener("rowcountchange", rowCountChangeListener);
+      this._view.toggleOpenState(index);
+      this.removeEventListener("rowcountchange", rowCountChangeListener);
+      let countAdded = this._view.rowCount - countBefore;
+
+      // Call rowCountChanged, if it hasn't already happened.
+      if (countAdded && !rowCountDidChange) {
+        this.invalidateRow(index);
+        this.rowCountChanged(index + 1, countAdded);
+      }
+
+      this.dispatchEvent(
+        new CustomEvent("expanded", { bubbles: true, detail: index })
+      );
+
+      return countAdded;
     }
 
     /**
@@ -1460,6 +1625,8 @@
 
     set index(index) {
       this.setAttribute("aria-posinset", index);
+      this.classList.toggle("children", this.view.isContainer(index));
+      this.classList.toggle("collapsed", !this.view.isContainerOpen(index));
       this._index = index;
     }
 

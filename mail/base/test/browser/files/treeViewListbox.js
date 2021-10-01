@@ -52,6 +52,14 @@ class TestView {
     return `${column.id} ${this.values[index]}`;
   }
 
+  isContainer() {
+    return false;
+  }
+
+  isContainerOpen() {
+    return false;
+  }
+
   setTree() {}
 }
 
