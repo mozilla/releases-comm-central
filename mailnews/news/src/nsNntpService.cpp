@@ -130,7 +130,7 @@ nsNntpService::SaveMessageToDisk(const char* aMessageURI, nsIFile* aFile,
 
     rv = DisplayMessage(aMessageURI, saveAsListener,
                         /* nsIMsgWindow *aMsgWindow */ nullptr, aUrlListener,
-                        nullptr /*aCharsetOverride */, aURL);
+                        false /*aOverrideCharset */, aURL);
   }
   return rv;
 }
@@ -187,7 +187,7 @@ nsNntpService::DisplayMessage(const char* aMessageURI,
                               nsISupports* aDisplayConsumer,
                               nsIMsgWindow* aMsgWindow,
                               nsIUrlListener* aUrlListener,
-                              const char* aCharsetOverride, nsIURI** aURL) {
+                              bool aOverrideCharset, nsIURI** aURL) {
   nsresult rv = NS_OK;
   NS_ENSURE_ARG_POINTER(aMessageURI);
 
@@ -223,7 +223,7 @@ nsNntpService::DisplayMessage(const char* aMessageURI,
   nsCOMPtr<nsIMsgI18NUrl> i18nurl = do_QueryInterface(url, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  i18nurl->SetCharsetOverRide(aCharsetOverride);
+  i18nurl->SetOverRideCharset(aOverrideCharset);
 
   bool shouldStoreMsgOffline = false;
 
@@ -587,7 +587,7 @@ nsNntpService::CopyMessage(const char* aSrcMessageURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = DisplayMessage(aSrcMessageURI, streamSupport, aMsgWindow, aUrlListener,
-                      nullptr, aURL);
+                      false, aURL);
   return rv;
 }
 
@@ -1324,7 +1324,7 @@ NS_IMETHODIMP nsNntpService::DisplayMessageForPrinting(
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, nsIURI** aURL) {
   mPrintingOperation = true;
   nsresult rv = DisplayMessage(aMessageURI, aDisplayConsumer, aMsgWindow,
-                               aUrlListener, nullptr, aURL);
+                               aUrlListener, false, aURL);
   mPrintingOperation = false;
   return rv;
 }

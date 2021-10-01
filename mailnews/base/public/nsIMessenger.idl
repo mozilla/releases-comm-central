@@ -55,7 +55,7 @@ interface nsIMessenger : nsISupports {
     unsigned long getRedoTransactionType();
     void undo(in nsIMsgWindow msgWindow);
     void redo(in nsIMsgWindow msgWindow);
-    void setDocumentCharset(in ACString characterSet);
+    void forceDetectDocumentCharset();
     /**
      * Saves a given message to a file or template.
      *

@@ -90,7 +90,7 @@ NS_IMETHODIMP nsMsgQuote::GetStreamListener(
 nsresult nsMsgQuote::QuoteMessage(
     const char* msgURI, bool quoteHeaders,
     nsIMsgQuotingOutputStreamListener* aQuoteMsgStreamListener,
-    const char* aMsgCharSet, bool headersOnly, nsIMsgDBHdr* aMsgHdr) {
+    bool aOverRideCharSet, bool headersOnly, nsIMsgDBHdr* aMsgHdr) {
   nsresult rv;
   if (!msgURI) return NS_ERROR_INVALID_ARG;
 
@@ -134,10 +134,10 @@ nsresult nsMsgQuote::QuoteMessage(
   rv = NS_MutateURI(newURI).SetQuery(queryPart).Finalize(newURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // if we were given a non empty charset, then use it
-  if (aMsgCharSet && *aMsgCharSet) {
+  // if we were told to autodetect the charset, pass that on.
+  if (aOverRideCharSet) {
     nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(newURI));
-    if (i18nUrl) i18nUrl->SetCharsetOverRide(aMsgCharSet);
+    if (i18nUrl) i18nUrl->SetOverRideCharset(true);
   }
 
   mQuoteListener = do_CreateInstance(NS_MSGQUOTELISTENER_CONTRACTID, &rv);

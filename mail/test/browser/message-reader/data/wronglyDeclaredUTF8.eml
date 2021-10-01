@@ -1,0 +1,11 @@
+To: decoder@example.com
+From: encoder@example.com
+Subject: Test Encoding
+MIME-Version: 1.0
+Content-Type: text/plain; charset=windows-1252;
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+
+メールを簡単に。
+
+メッセージの高速全文検索、タブ表示、アーカイブ。設定も簡単で、カスタマイズ自由自在。そんなメールソフトが Thunderbird です。

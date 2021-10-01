@@ -1294,17 +1294,13 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   NS_ENSURE_SUCCESS(rv, rv);
 
   // if we are forwarding a message and that message used a charset over ride
-  // then use that over ride charset instead of the charset specified in the
-  // message
-  nsCString mailCharset;
+  // then forward the override flag, too.
+  bool charsetOverride = false;
   if (aMsgWindow) {
-    bool charsetOverride;
     if (NS_SUCCEEDED(aMsgWindow->GetCharsetOverride(&charsetOverride)) &&
         charsetOverride) {
-      if (NS_SUCCEEDED(aMsgWindow->GetMailCharacterSet(mailCharset))) {
-        nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(url));
-        if (i18nUrl) (void)i18nUrl->SetCharsetOverRide(mailCharset.get());
-      }
+      nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(url));
+      if (i18nUrl) (void)i18nUrl->SetOverRideCharset(true);
     }
   }
 
@@ -1328,7 +1324,7 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   nsCOMPtr<nsIURI> dummyNull;
   return messageService->DisplayMessage(
       PromiseFlatCString(aMsgURI).get(), streamListener, aMsgWindow, nullptr,
-      mailCharset.get(), getter_AddRefs(dummyNull));
+      charsetOverride, getter_AddRefs(dummyNull));
 }
 
 NS_IMETHODIMP

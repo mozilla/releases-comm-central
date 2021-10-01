@@ -476,7 +476,7 @@ int MimeHeaders_write_all_headers(MimeHeaders* hdrs, MimeDisplayOptions* opt,
   char* charset = nullptr;
   if (opt->format_out == nsMimeOutput::nsMimeMessageSaveAs) {
     if (opt->override_charset)
-      charset = PL_strdup(opt->default_charset);
+       charset = PL_strdup(opt->default_charset);
     else {
       char* contentType =
           MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);

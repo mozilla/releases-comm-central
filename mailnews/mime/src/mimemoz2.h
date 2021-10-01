@@ -125,6 +125,7 @@ class mime_draft_data {
   char* originalMsgURI;  // the original URI of the message we are currently
                          // processing
   nsCOMPtr<nsIMsgDBHdr> origMsgHdr;
+  bool autodetectCharset; // Used to indicate pending autodetection while streaming contents.
 };
 
 ////////////////////////////////////////////////////////////////

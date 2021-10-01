@@ -127,7 +127,7 @@ class nsImapUrl : public nsIImapUrl,
   bool m_canonicalLineEnding;  // CRLF
 
   nsCString mURI;              // the RDF URI associated with this url.
-  nsCString mCharsetOverride;  // used by nsIMsgI18NUrl...
+  bool mOverrideCharset;  // used by nsIMsgI18NUrl...
   mozilla::Mutex mLock;
 };
 

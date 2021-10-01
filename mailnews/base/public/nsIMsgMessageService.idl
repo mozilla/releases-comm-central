@@ -79,14 +79,14 @@ interface nsIMsgMessageService : nsISupports {
    *                         XXXbz Should it be an nsIWebNavigation or something?
    * @param aMsgWindow
    * @param aUrlListener
-   * @param aCharsetOverride (optional) character set over ride to force the message to use.
+   * @param aCharsetOverride (optional) if the characterset should be overridden.
    * @param aURL
    */
   void DisplayMessage(in string aMessageURI,
             in nsISupports aDisplayConsumer,
             in nsIMsgWindow aMsgWindow,
             in nsIUrlListener aUrlListener,
-            in string aCharsetOverride,
+            in boolean aCharsetOverride,
             out nsIURI aURL);
 
   /**

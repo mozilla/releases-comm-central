@@ -93,7 +93,7 @@ nsresult nsMailboxService::CopyMessage(const char* aSrcMailboxURI,
   nsMailboxAction mailboxAction = nsIMailboxUrl::ActionMoveMessage;
   if (!moveMessage) mailboxAction = nsIMailboxUrl::ActionCopyMessage;
   return FetchMessage(aSrcMailboxURI, aMailboxCopyHandler, aMsgWindow,
-                      aUrlListener, nullptr, mailboxAction, nullptr, aURL);
+                      aUrlListener, nullptr, mailboxAction, false, aURL);
 }
 
 nsresult nsMailboxService::CopyMessages(
@@ -139,7 +139,7 @@ nsresult nsMailboxService::FetchMessage(
     const char* aMessageURI, nsISupports* aDisplayConsumer,
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
     const char* aFileName, /* only used by open attachment... */
-    nsMailboxAction mailboxAction, const char* aCharsetOverride,
+    nsMailboxAction mailboxAction, bool aOverrideCharset,
     nsIURI** aURL) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMailboxUrl> mailboxurl;
@@ -201,7 +201,7 @@ nsresult nsMailboxService::FetchMessage(
   }
 
   nsCOMPtr<nsIMsgI18NUrl> i18nurl(do_QueryInterface(msgUrl));
-  if (i18nurl) i18nurl->SetCharsetOverRide(aCharsetOverride);
+  if (i18nurl) i18nurl->SetOverRideCharset(aOverrideCharset);
 
   // instead of running the mailbox url like we used to, let's try to run the
   // url in the docshell...
@@ -248,11 +248,11 @@ NS_IMETHODIMP nsMailboxService::DisplayMessage(const char* aMessageURI,
                                                nsISupports* aDisplayConsumer,
                                                nsIMsgWindow* aMsgWindow,
                                                nsIUrlListener* aUrlListener,
-                                               const char* aCharsetOveride,
+                                               bool aOverideCharset,
                                                nsIURI** aURL) {
   return FetchMessage(aMessageURI, aDisplayConsumer, aMsgWindow, aUrlListener,
                       nullptr, nsIMailboxUrl::ActionFetchMessage,
-                      aCharsetOveride, aURL);
+                      aOverideCharset, aURL);
 }
 
 NS_IMETHODIMP
@@ -274,7 +274,7 @@ nsMailboxService::StreamMessage(const char* aMessageURI, nsISupports* aConsumer,
   }
 
   return FetchMessage(aURIString.get(), aConsumer, aMsgWindow, aUrlListener,
-                      nullptr, nsIMailboxUrl::ActionFetchMessage, nullptr,
+                      nullptr, nsIMailboxUrl::ActionFetchMessage, false,
                       aURL);
 }
 
@@ -579,7 +579,7 @@ nsresult nsMailboxService::DisplayMessageForPrinting(
   mPrintingOperation = true;
   nsresult rv =
       FetchMessage(aMessageURI, aDisplayConsumer, aMsgWindow, aUrlListener,
-                   nullptr, nsIMailboxUrl::ActionFetchMessage, nullptr, aURL);
+                   nullptr, nsIMailboxUrl::ActionFetchMessage, false, aURL);
   mPrintingOperation = false;
   return rv;
 }

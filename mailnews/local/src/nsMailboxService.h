@@ -51,7 +51,7 @@ class nsMailboxService : public nsIMailboxService,
       const char* aMessageURI, nsISupports* aDisplayConsumer,
       nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
       const char* aFileName, /* only used by open attachment */
-      nsMailboxAction mailboxAction, const char* aCharsetOverride,
+      nsMailboxAction mailboxAction, bool aOverrideCharset,
       nsIURI** aURL);
 
   nsresult DecomposeMailboxURI(const char* aMessageURI, nsIMsgFolder** aFolder,

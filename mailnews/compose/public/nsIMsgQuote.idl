@@ -20,7 +20,7 @@ interface nsIMsgQuote : nsISupports {
   */
   void quoteMessage(in string msgURI, in boolean quoteHeaders,
                     in nsIMsgQuotingOutputStreamListener streamListener,
-                    in string charset, in boolean headersOnly,
+                    in bool overrideCharset, in boolean headersOnly,
                     in nsIMsgDBHdr aOrigHdr);
 
   readonly attribute nsIMimeStreamConverterListener quoteListener;

@@ -91,7 +91,8 @@ mime_draft_data::mime_draft_data()
       forwardInline(false),
       forwardInlineFilter(false),
       overrideComposeFormat(false),
-      originalMsgURI(nullptr) {}
+      originalMsgURI(nullptr),
+      autodetectCharset(false) {}
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 // THIS SHOULD ALL MOVE TO ANOTHER FILE AFTER LANDING!
@@ -1724,9 +1725,14 @@ int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
   if (!nAttachments && !mdd->messageBody) {
     // if we've been told to use an override charset then do so....otherwise use
     // the charset inside the message header...
-    if (mdd->options && mdd->options->override_charset)
-      mdd->mailcharset = strdup(mdd->options->default_charset);
-    else {
+    if (mdd->options && mdd->options->override_charset) {
+      if (mdd->options->default_charset)
+        mdd->mailcharset = strdup(mdd->options->default_charset);
+      else {
+        mdd->mailcharset = strdup("");
+        mdd->autodetectCharset = true;
+      }
+    } else {
       char* contentType;
       contentType = MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, false);
       if (contentType) {
@@ -1922,6 +1928,16 @@ int mime_decompose_file_output_fn(const char* buf, int32_t size,
   if (!size) return 0;
 
   if (!mdd->tmpFileStream) return 0;
+
+  if (mdd->autodetectCharset) {
+    nsAutoCString detectedCharset;
+    nsresult res = NS_OK;
+    res = MIME_detect_charset(buf, size, detectedCharset);
+    if (NS_SUCCEEDED(res) && !detectedCharset.IsEmpty()) {
+      mdd->mailcharset = ToNewCString(detectedCharset);
+      mdd->autodetectCharset = false;
+    }
+  }
 
   if (mdd->decoder_data) {
     int32_t outsize;

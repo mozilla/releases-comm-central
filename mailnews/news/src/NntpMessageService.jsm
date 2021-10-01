@@ -26,7 +26,7 @@ class BaseMessageService {
     displayConsumer,
     msgWindow,
     urlListener,
-    charsetOverride,
+    overrideCharset,
     outURL
   ) {
     let uri = this.getUrlForUri(messageURI, msgWindow);

@@ -103,7 +103,7 @@ class nsMailboxUrl : public nsIMailboxUrl,
   // truncated message support
   nsCString m_originalSpec;
   nsCString mURI;              // the RDF URI associated with this url.
-  nsCString mCharsetOverride;  // used by nsIMsgI18NUrl...
+  bool mOverrideCharset;  // used by nsIMsgI18NUrl...
 };
 
 #endif  // nsMailboxUrl_h__

@@ -55,7 +55,6 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
                             mozilla::dom::Element* element);
   nsresult TagEmbeddedObjects(nsIEditor* aEditor);
 
-  nsCString mQuoteCharset;
   nsCString mOriginalMsgURI;  // used so we can mark message disposition flags
                               // after we send the message
 

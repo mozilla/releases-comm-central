@@ -47,6 +47,7 @@ nsMailboxUrl::nsMailboxUrl() {
   m_addDummyEnvelope = false;
   m_canonicalLineEnding = false;
   m_curMsgIndex = 0;
+  mOverrideCharset = false;
 }
 
 nsMailboxUrl::~nsMailboxUrl() { PR_Free(m_messageID); }
@@ -469,16 +470,13 @@ nsresult nsMailboxUrl::GetFolder(nsIMsgFolder** msgFolder) {
   return msg->GetFolder(msgFolder);
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetCharsetOverRide(char** aCharacterSet) {
-  if (!mCharsetOverride.IsEmpty())
-    *aCharacterSet = ToNewCString(mCharsetOverride);
-  else
-    *aCharacterSet = nullptr;
+NS_IMETHODIMP nsMailboxUrl::GetOverRideCharset(bool* aOverride) {
+  *aOverride = mOverrideCharset;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::SetCharsetOverRide(const char* aCharacterSet) {
-  mCharsetOverride = aCharacterSet;
+NS_IMETHODIMP nsMailboxUrl::SetOverRideCharset(bool aOverride) {
+  mOverrideCharset = aOverride;
   return NS_OK;
 }
 

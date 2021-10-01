@@ -108,14 +108,14 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
         // associated with this url...
         nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(aURI));
         if (i18nUrl) {
-          nsCString charset;
+          bool overrideCharset = false;
 
           // check to see if we have a charset override...and if we do, set that
           // field appropriately too...
-          nsresult rv = i18nUrl->GetCharsetOverRide(getter_Copies(charset));
-          if (NS_SUCCEEDED(rv) && !charset.IsEmpty()) {
+          nsresult rv = i18nUrl->GetOverRideCharset(&overrideCharset);
+          if (NS_SUCCEEDED(rv) && overrideCharset) {
             *override_charset = true;
-            *default_charset = ToNewCString(charset);
+            *default_charset = nullptr;
           } else {
             *override_charset = false;
             *default_charset = strdup("UTF-8");
