@@ -33,11 +33,8 @@ const STANDARD_THEMES = new Map([
   ],
 ]);
 
-const COLORWAY_THEMES = new Map();
-
 class _BuiltInThemes {
-  constructor() {
-  }
+  constructor() {}
 
   /**
    * @param {string} id An addon's id string.
