@@ -272,6 +272,12 @@ var accountWizard = {
 
     this.populateProtoSpecificBox();
 
+    // Make sure the protocol specific options and wizard buttons are visible.
+    let wizard = document.querySelector("wizard");
+    if (wizard.scrollHeight > window.innerHeight) {
+      window.resizeBy(0, wizard.scrollHeight - window.innerHeight);
+    }
+
     let alias = document.getElementById("alias");
     alias.focus();
   },
