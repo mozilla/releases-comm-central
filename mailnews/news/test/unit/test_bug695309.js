@@ -82,7 +82,7 @@ add_task(async function trigger_bug() {
     return new Promise((resolve, reject) => {
       let folderListener = {
         QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
-        OnItemEvent(aEventFolder, aEvent) {
+        onFolderEvent(aEventFolder, aEvent) {
           if (
             aEvent == "FolderLoaded" &&
             aEventFolder.prettyName == "test.subscribe.simple"

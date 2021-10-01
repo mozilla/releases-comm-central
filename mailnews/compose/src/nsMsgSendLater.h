@@ -101,6 +101,7 @@ class nsMsgSendLater : public nsIMsgSendLater,
   nsresult GetIdentityFromKey(const char* aKey, nsIMsgIdentity** aIdentity);
   nsresult ReparseDBIfNeeded(nsIUrlListener* aListener);
   nsresult InternalSendMessages(bool aUserInitiated, nsIMsgIdentity* aIdentity);
+  nsresult StartTimer();
 
   nsTObserverArray<nsCOMPtr<nsIMsgSendLaterListener> > mListenerArray;
   nsCOMPtr<nsIMsgDBHdr> mMessage;

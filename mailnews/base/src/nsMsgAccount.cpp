@@ -128,7 +128,7 @@ nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer* aIncomingServer) {
     nsCOMPtr<nsIFolderListener> mailSession =
         do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    mailSession->OnItemAdded(nullptr, rootFolder);
+    mailSession->OnFolderAdded(nullptr, rootFolder);
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -145,7 +145,7 @@ nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer* aIncomingServer) {
     NS_ENSURE_SUCCESS(rv, rv);
 
     for (nsIMsgFolder* msgFolder : subFolders) {
-      mailSession->OnItemAdded(rootFolder, msgFolder);
+      mailSession->OnFolderAdded(rootFolder, msgFolder);
       notifier->NotifyFolderAdded(msgFolder);
     }
   }

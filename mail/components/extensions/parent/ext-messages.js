@@ -846,7 +846,7 @@ this.messages = class extends ExtensionAPI {
               ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
               : Ci.nsIJunkMailPlugin.IS_HAM_SCORE;
             msgHdr.folder.setJunkScoreForMessages(msgs, score);
-            // nsIFolderListener::OnItemEvent is notified about changes through
+            // nsIFolderListener::OnFolderEvent is notified about changes through
             // setJunkScoreForMessages(), but does not provide the actual message.
             // nsIMsgFolderListener::msgsJunkStatusChanged is notified only by
             // nsMsgDBView::ApplyCommandToIndices(). Since it only works on

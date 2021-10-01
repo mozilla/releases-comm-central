@@ -2037,73 +2037,77 @@ nsMessenger::FormatFileSize(uint64_t aSize, bool aUseKB,
   return ::FormatFileSize(aSize, aUseKB, aFormattedSize);
 }
 
-NS_IMETHODIMP nsMessenger::OnItemAdded(nsIMsgFolder* parentItem,
-                                       nsISupports* item) {
+NS_IMETHODIMP nsMessenger::OnFolderAdded(nsIMsgFolder* parent,
+                                         nsIMsgFolder* child) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMessenger::OnItemRemoved(nsIMsgFolder* parentItem,
-                                         nsISupports* item) {
+NS_IMETHODIMP nsMessenger::OnMessageAdded(nsIMsgFolder* parent,
+                                          nsIMsgDBHdr* msg) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsMessenger::OnFolderRemoved(nsIMsgFolder* parent,
+                                           nsIMsgFolder* child) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMessenger::OnMessageRemoved(nsIMsgFolder* parent,
+                                            nsIMsgDBHdr* msgHdr) {
   // check if this item is a message header that's in our history list. If so,
   // remove it from the history list.
-  nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryInterface(item);
-  if (msgHdr) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    msgHdr->GetFolder(getter_AddRefs(folder));
-    if (folder) {
-      nsCString msgUri;
-      nsMsgKey msgKey;
-      msgHdr->GetMessageKey(&msgKey);
-      folder->GenerateMessageURI(msgKey, msgUri);
-      // need to remove the corresponding folder entry, and
-      // adjust the current history pos.
-      size_t uriPos = mLoadedMsgHistory.IndexOf(msgUri);
-      if (uriPos != mLoadedMsgHistory.NoIndex) {
-        mLoadedMsgHistory.RemoveElementAt(uriPos);
-        mLoadedMsgHistory.RemoveElementAt(uriPos);  // and the folder uri entry
-        if (mCurHistoryPos >= (int32_t)uriPos) mCurHistoryPos -= 2;
-      }
+  nsCOMPtr<nsIMsgFolder> folder;
+  msgHdr->GetFolder(getter_AddRefs(folder));
+  if (folder) {
+    nsCString msgUri;
+    nsMsgKey msgKey;
+    msgHdr->GetMessageKey(&msgKey);
+    folder->GenerateMessageURI(msgKey, msgUri);
+    // need to remove the corresponding folder entry, and
+    // adjust the current history pos.
+    size_t uriPos = mLoadedMsgHistory.IndexOf(msgUri);
+    if (uriPos != mLoadedMsgHistory.NoIndex) {
+      mLoadedMsgHistory.RemoveElementAt(uriPos);
+      mLoadedMsgHistory.RemoveElementAt(uriPos);  // and the folder uri entry
+      if (mCurHistoryPos >= (int32_t)uriPos) mCurHistoryPos -= 2;
     }
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMessenger::OnItemPropertyChanged(nsIMsgFolder* item,
-                                                 const nsACString& property,
-                                                 const nsACString& oldValue,
-                                                 const nsACString& newValue) {
+NS_IMETHODIMP nsMessenger::OnFolderPropertyChanged(nsIMsgFolder* folder,
+                                                   const nsACString& property,
+                                                   const nsACString& oldValue,
+                                                   const nsACString& newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMessenger::OnItemIntPropertyChanged(nsIMsgFolder* item,
-                                                    const nsACString& property,
-                                                    int64_t oldValue,
-                                                    int64_t newValue) {
+NS_IMETHODIMP nsMessenger::OnFolderIntPropertyChanged(
+    nsIMsgFolder* folder, const nsACString& property, int64_t oldValue,
+    int64_t newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMessenger::OnItemBoolPropertyChanged(nsIMsgFolder* item,
-                                                     const nsACString& property,
-                                                     bool oldValue,
-                                                     bool newValue) {
+NS_IMETHODIMP nsMessenger::OnFolderBoolPropertyChanged(
+    nsIMsgFolder* folder, const nsACString& property, bool oldValue,
+    bool newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMessenger::OnItemUnicharPropertyChanged(
-    nsIMsgFolder* item, const nsACString& property, const nsAString& oldValue,
+NS_IMETHODIMP nsMessenger::OnFolderUnicharPropertyChanged(
+    nsIMsgFolder* folder, const nsACString& property, const nsAString& oldValue,
     const nsAString& newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMessenger::OnItemPropertyFlagChanged(nsIMsgDBHdr* item,
-                                                     const nsACString& property,
-                                                     uint32_t oldFlag,
-                                                     uint32_t newFlag) {
+NS_IMETHODIMP nsMessenger::OnFolderPropertyFlagChanged(
+    nsIMsgDBHdr* msg, const nsACString& property, uint32_t oldFlag,
+    uint32_t newFlag) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMessenger::OnItemEvent(nsIMsgFolder* item,
-                                       const nsACString& event) {
+NS_IMETHODIMP nsMessenger::OnFolderEvent(nsIMsgFolder* folder,
+                                         const nsACString& event) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

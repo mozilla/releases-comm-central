@@ -83,69 +83,81 @@ NS_IMETHODIMP nsMsgMailSession::RemoveFolderListener(
   PR_END_MACRO
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemPropertyChanged(nsIMsgFolder* aItem,
-                                        const nsACString& aProperty,
-                                        const nsACString& aOldValue,
-                                        const nsACString& aNewValue) {
-  NOTIFY_FOLDER_LISTENERS(propertyChanged, OnItemPropertyChanged,
+nsMsgMailSession::OnFolderPropertyChanged(nsIMsgFolder* aItem,
+                                          const nsACString& aProperty,
+                                          const nsACString& aOldValue,
+                                          const nsACString& aNewValue) {
+  NOTIFY_FOLDER_LISTENERS(propertyChanged, OnFolderPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemUnicharPropertyChanged(nsIMsgFolder* aItem,
-                                               const nsACString& aProperty,
-                                               const nsAString& aOldValue,
-                                               const nsAString& aNewValue) {
-  NOTIFY_FOLDER_LISTENERS(unicharPropertyChanged, OnItemUnicharPropertyChanged,
+nsMsgMailSession::OnFolderUnicharPropertyChanged(nsIMsgFolder* aItem,
+                                                 const nsACString& aProperty,
+                                                 const nsAString& aOldValue,
+                                                 const nsAString& aNewValue) {
+  NOTIFY_FOLDER_LISTENERS(unicharPropertyChanged,
+                          OnFolderUnicharPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemIntPropertyChanged(nsIMsgFolder* aItem,
-                                           const nsACString& aProperty,
-                                           int64_t aOldValue,
-                                           int64_t aNewValue) {
-  NOTIFY_FOLDER_LISTENERS(intPropertyChanged, OnItemIntPropertyChanged,
+nsMsgMailSession::OnFolderIntPropertyChanged(nsIMsgFolder* aItem,
+                                             const nsACString& aProperty,
+                                             int64_t aOldValue,
+                                             int64_t aNewValue) {
+  NOTIFY_FOLDER_LISTENERS(intPropertyChanged, OnFolderIntPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemBoolPropertyChanged(nsIMsgFolder* aItem,
-                                            const nsACString& aProperty,
-                                            bool aOldValue, bool aNewValue) {
-  NOTIFY_FOLDER_LISTENERS(boolPropertyChanged, OnItemBoolPropertyChanged,
+nsMsgMailSession::OnFolderBoolPropertyChanged(nsIMsgFolder* aItem,
+                                              const nsACString& aProperty,
+                                              bool aOldValue, bool aNewValue) {
+  NOTIFY_FOLDER_LISTENERS(boolPropertyChanged, OnFolderBoolPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemPropertyFlagChanged(nsIMsgDBHdr* aItem,
-                                            const nsACString& aProperty,
-                                            uint32_t aOldValue,
-                                            uint32_t aNewValue) {
-  NOTIFY_FOLDER_LISTENERS(propertyFlagChanged, OnItemPropertyFlagChanged,
+nsMsgMailSession::OnFolderPropertyFlagChanged(nsIMsgDBHdr* aItem,
+                                              const nsACString& aProperty,
+                                              uint32_t aOldValue,
+                                              uint32_t aNewValue) {
+  NOTIFY_FOLDER_LISTENERS(propertyFlagChanged, OnFolderPropertyFlagChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::OnItemAdded(nsIMsgFolder* aParentItem,
-                                            nsISupports* aItem) {
-  NOTIFY_FOLDER_LISTENERS(added, OnItemAdded, (aParentItem, aItem));
+NS_IMETHODIMP nsMsgMailSession::OnFolderAdded(nsIMsgFolder* parent,
+                                              nsIMsgFolder* child) {
+  NOTIFY_FOLDER_LISTENERS(added, OnFolderAdded, (parent, child));
+  return NS_OK;
+}
+NS_IMETHODIMP nsMsgMailSession::OnMessageAdded(nsIMsgFolder* parent,
+                                               nsIMsgDBHdr* msg) {
+  NOTIFY_FOLDER_LISTENERS(added, OnMessageAdded, (parent, msg));
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::OnItemRemoved(nsIMsgFolder* aParentItem,
-                                              nsISupports* aItem) {
-  NOTIFY_FOLDER_LISTENERS(removed, OnItemRemoved, (aParentItem, aItem));
+NS_IMETHODIMP nsMsgMailSession::OnFolderRemoved(nsIMsgFolder* parent,
+                                                nsIMsgFolder* child) {
+  NOTIFY_FOLDER_LISTENERS(removed, OnFolderRemoved, (parent, child));
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::OnItemEvent(nsIMsgFolder* aFolder,
-                                            const nsACString& aEvent) {
-  NOTIFY_FOLDER_LISTENERS(event, OnItemEvent, (aFolder, aEvent));
+NS_IMETHODIMP nsMsgMailSession::OnMessageRemoved(nsIMsgFolder* parent,
+                                                 nsIMsgDBHdr* msg) {
+  NOTIFY_FOLDER_LISTENERS(removed, OnMessageRemoved, (parent, msg));
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailSession::OnFolderEvent(nsIMsgFolder* aFolder,
+                                              const nsACString& aEvent) {
+  NOTIFY_FOLDER_LISTENERS(event, OnFolderEvent, (aFolder, aEvent));
   return NS_OK;
 }
 
@@ -174,7 +186,7 @@ NS_IMETHODIMP
 nsMsgMailSession::AlertUser(const nsAString& aMessage,
                             nsIMsgMailNewsUrl* aUrl) {
   bool listenersNotified = false;
-  nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener>>::ForwardIterator iter(
       mFeedbackListeners);
   nsCOMPtr<nsIMsgUserFeedbackListener> listener;
 

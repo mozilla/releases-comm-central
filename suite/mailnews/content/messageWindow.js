@@ -24,31 +24,30 @@ var gNextMessageAfterLoad = null;
 
 // the folderListener object
 var folderListener = {
-  OnItemAdded: function(parentItem, item) {},
-
-  OnItemRemoved: function(parentItem, item)
+  onFolderAdded: function(parentFolder, child) {},
+  onMessageAdded: function(parentFolder, msg) {},
+  onFolderRemoved: function(parentFolder, child) {},
+  onMessageRemoved: function(parentFolder, msg)
   {
-    if (parentItem.URI != gCurrentFolderUri)
+    if (parentFolder.URI != gCurrentFolderUri)
       return;
-
-    if (item instanceof Ci.nsIMsgDBHdr &&
-        extractMsgKeyFromURI() == item.messageKey)
+    if (extractMsgKeyFromURI() == msg.messageKey)
       gCurrentMessageIsDeleted = true;
   },
 
-  OnItemPropertyChanged: function(item, property, oldValue, newValue) {},
-  OnItemIntPropertyChanged: function(item, property, oldValue, newValue) {
+  onFolderPropertyChanged: function(item, property, oldValue, newValue) {},
+  onFolderIntPropertyChanged: function(item, property, oldValue, newValue) {
     if (item.URI == gCurrentFolderUri) {
       if (property == "TotalMessages" || property == "TotalUnreadMessages") {
         UpdateStandAloneMessageCounts();
       }
     }
   },
-  OnItemBoolPropertyChanged: function(item, property, oldValue, newValue) {},
-  OnItemUnicharPropertyChanged: function(item, property, oldValue, newValue){},
-  OnItemPropertyFlagChanged: function(item, property, oldFlag, newFlag) {},
+  onFolderBoolPropertyChanged: function(item, property, oldValue, newValue) {},
+  onFolderUnicharPropertyChanged: function(item, property, oldValue, newValue){},
+  onFolderPropertyFlagChanged: function(item, property, oldFlag, newFlag) {},
 
-  OnItemEvent: function(folder, event) {
+  onFolderEvent: function(folder, event) {
     if (event == "DeleteOrMoveMsgCompleted")
       HandleDeleteOrMoveMsgCompleted(folder);
     else if (event == "DeleteOrMoveMsgFailed")

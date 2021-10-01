@@ -1279,8 +1279,7 @@ nsresult nsMsgSendLater::GetIdentityFromKey(const char* aKey,
   return rv;
 }
 
-NS_IMETHODIMP
-nsMsgSendLater::OnItemAdded(nsIMsgFolder* aParentItem, nsISupports* aItem) {
+nsresult nsMsgSendLater::StartTimer() {
   // No need to trigger if timer is already set
   if (mTimerSet) return NS_OK;
 
@@ -1304,50 +1303,69 @@ nsMsgSendLater::OnItemAdded(nsIMsgFolder* aParentItem, nsISupports* aItem) {
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemRemoved(nsIMsgFolder* aParentItem, nsISupports* aItem) {
+nsMsgSendLater::OnFolderAdded(nsIMsgFolder* /*parent*/,
+                              nsIMsgFolder* /*child*/) {
+  return StartTimer();
+}
+
+NS_IMETHODIMP
+nsMsgSendLater::OnMessageAdded(nsIMsgFolder* /*parent*/, nsIMsgDBHdr* /*msg*/) {
+  return StartTimer();
+}
+
+NS_IMETHODIMP
+nsMsgSendLater::OnFolderRemoved(nsIMsgFolder* /*parent*/,
+                                nsIMsgFolder* /*child*/) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemPropertyChanged(nsIMsgFolder* aItem,
-                                      const nsACString& aProperty,
-                                      const nsACString& aOldValue,
-                                      const nsACString& aNewValue) {
+nsMsgSendLater::OnMessageRemoved(nsIMsgFolder* /*parent*/,
+                                 nsIMsgDBHdr* /*msg*/) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemIntPropertyChanged(nsIMsgFolder* aItem,
-                                         const nsACString& aProperty,
-                                         int64_t aOldValue, int64_t aNewValue) {
+nsMsgSendLater::OnFolderPropertyChanged(nsIMsgFolder* aFolder,
+                                        const nsACString& aProperty,
+                                        const nsACString& aOldValue,
+                                        const nsACString& aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemBoolPropertyChanged(nsIMsgFolder* aItem,
-                                          const nsACString& aProperty,
-                                          bool aOldValue, bool aNewValue) {
+nsMsgSendLater::OnFolderIntPropertyChanged(nsIMsgFolder* aFolder,
+                                           const nsACString& aProperty,
+                                           int64_t aOldValue,
+                                           int64_t aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemUnicharPropertyChanged(nsIMsgFolder* aItem,
-                                             const nsACString& aProperty,
-                                             const nsAString& aOldValue,
-                                             const nsAString& aNewValue) {
+nsMsgSendLater::OnFolderBoolPropertyChanged(nsIMsgFolder* aFolder,
+                                            const nsACString& aProperty,
+                                            bool aOldValue, bool aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemPropertyFlagChanged(nsIMsgDBHdr* aItem,
-                                          const nsACString& aProperty,
-                                          uint32_t aOldValue,
-                                          uint32_t aNewValue) {
+nsMsgSendLater::OnFolderUnicharPropertyChanged(nsIMsgFolder* aFolder,
+                                               const nsACString& aProperty,
+                                               const nsAString& aOldValue,
+                                               const nsAString& aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemEvent(nsIMsgFolder* aItem, const nsACString& aEvent) {
+nsMsgSendLater::OnFolderPropertyFlagChanged(nsIMsgDBHdr* aMsg,
+                                            const nsACString& aProperty,
+                                            uint32_t aOldValue,
+                                            uint32_t aNewValue) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgSendLater::OnFolderEvent(nsIMsgFolder* aFolder, const nsACString& aEvent) {
   return NS_OK;
 }
 

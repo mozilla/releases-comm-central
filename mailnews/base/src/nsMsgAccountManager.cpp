@@ -505,11 +505,11 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
     if (mailSession) {
       nsCOMPtr<nsIMsgFolder> parentFolder;
       folder->GetParent(getter_AddRefs(parentFolder));
-      mailSession->OnItemRemoved(parentFolder, folder);
+      mailSession->OnFolderRemoved(parentFolder, folder);
     }
   }
   if (notifier) notifier->NotifyFolderDeleted(rootFolder);
-  if (mailSession) mailSession->OnItemRemoved(nullptr, rootFolder);
+  if (mailSession) mailSession->OnFolderRemoved(nullptr, rootFolder);
 
   removeListenersFromFolder(rootFolder);
   NotifyServerUnloaded(aServer);
@@ -2947,12 +2947,8 @@ NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemAdded(nsIMsgFolder* parentItem,
-                                               nsISupports* item) {
-  nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(item);
-  // just kick out with a success code if the item in question is not a folder
-  if (!folder) return NS_OK;
-
+NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
+                                                 nsIMsgFolder* folder) {
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
   bool addToSmartFolders = false;
@@ -3028,10 +3024,10 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemAdded(nsIMsgFolder* parentItem,
             rv = folder->GetDescendants(allDescendants);
             NS_ENSURE_SUCCESS(rv, rv);
 
-            nsCOMPtr<nsIMsgFolder> parent;
+            nsCOMPtr<nsIMsgFolder> parentFolder;
             for (auto subFolder : allDescendants) {
-              subFolder->GetParent(getter_AddRefs(parent));
-              OnItemAdded(parent, subFolder);
+              subFolder->GetParent(getter_AddRefs(parentFolder));
+              OnFolderAdded(parentFolder, subFolder);
             }
           }
         }
@@ -3058,11 +3054,13 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemAdded(nsIMsgFolder* parentItem,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemRemoved(nsIMsgFolder* parentItem,
-                                                 nsISupports* item) {
-  nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(item);
-  // just kick out with a success code if the item in question is not a folder
-  if (!folder) return NS_OK;
+NS_IMETHODIMP nsMsgAccountManager::OnMessageAdded(nsIMsgFolder* parent,
+                                                  nsIMsgDBHdr* msg) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
+                                                   nsIMsgFolder* folder) {
   nsresult rv = NS_OK;
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
@@ -3135,28 +3133,33 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemRemoved(nsIMsgFolder* parentItem,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemPropertyChanged(
-    nsIMsgFolder* item, const nsACString& property, const nsACString& oldValue,
-    const nsACString& newValue) {
+NS_IMETHODIMP nsMsgAccountManager::OnMessageRemoved(nsIMsgFolder* parent,
+                                                    nsIMsgDBHdr* msg) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAccountManager::OnFolderPropertyChanged(
+    nsIMsgFolder* folder, const nsACString& property,
+    const nsACString& oldValue, const nsACString& newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::OnItemIntPropertyChanged(nsIMsgFolder* aFolder,
-                                              const nsACString& aProperty,
-                                              int64_t oldValue,
-                                              int64_t newValue) {
+nsMsgAccountManager::OnFolderIntPropertyChanged(nsIMsgFolder* aFolder,
+                                                const nsACString& aProperty,
+                                                int64_t oldValue,
+                                                int64_t newValue) {
   if (aProperty.Equals(kFolderFlag)) {
     uint32_t smartFlagsChanged =
         (oldValue ^ newValue) &
         (nsMsgFolderFlags::SpecialUse & ~nsMsgFolderFlags::Queue);
     if (smartFlagsChanged) {
       if (smartFlagsChanged & newValue) {
-        // if the smart folder flag was set, calling OnItemAdded will
+        // if the smart folder flag was set, calling OnFolderAdded will
         // do the right thing.
         nsCOMPtr<nsIMsgFolder> parent;
         aFolder->GetParent(getter_AddRefs(parent));
-        return OnItemAdded(parent, aFolder);
+        return OnFolderAdded(parent, aFolder);
       }
       RemoveFolderFromSmartFolder(aFolder, smartFlagsChanged);
       // sent|archive flag removed, remove sub-folders from smart folder.
@@ -3224,26 +3227,26 @@ nsresult nsMsgAccountManager::RemoveFolderFromSmartFolder(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemBoolPropertyChanged(
-    nsIMsgFolder* item, const nsACString& property, bool oldValue,
+NS_IMETHODIMP nsMsgAccountManager::OnFolderBoolPropertyChanged(
+    nsIMsgFolder* folder, const nsACString& property, bool oldValue,
     bool newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemUnicharPropertyChanged(
-    nsIMsgFolder* item, const nsACString& property, const nsAString& oldValue,
+NS_IMETHODIMP nsMsgAccountManager::OnFolderUnicharPropertyChanged(
+    nsIMsgFolder* folder, const nsACString& property, const nsAString& oldValue,
     const nsAString& newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemPropertyFlagChanged(
-    nsIMsgDBHdr* item, const nsACString& property, uint32_t oldFlag,
+NS_IMETHODIMP nsMsgAccountManager::OnFolderPropertyFlagChanged(
+    nsIMsgDBHdr* msg, const nsACString& property, uint32_t oldFlag,
     uint32_t newFlag) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::OnItemEvent(nsIMsgFolder* aFolder,
-                                               const nsACString& aEvent) {
+NS_IMETHODIMP nsMsgAccountManager::OnFolderEvent(nsIMsgFolder* aFolder,
+                                                 const nsACString& aEvent) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

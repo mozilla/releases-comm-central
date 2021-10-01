@@ -2917,15 +2917,17 @@ var GlodaMsgIndexer = {
       this.indexer = aIndexer;
     },
 
-    OnItemAdded(aParentItem, aItem) {},
-    OnItemRemoved(aParentItem, aItem) {},
-    OnItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+    onFolderAdded(parentFolder, child) {},
+    onMessageAdded(parentFolder, msg) {},
+    onFolderRemoved(parentFolder, child) {},
+    onMessageRemoved(parentFolder, msg) {},
+    onFolderPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
     /**
      * Detect changes to folder flags and reset our indexing priority.  This
      * is important because (all?) folders start out without any flags and
      * then get their flags added to them.
      */
-    OnItemIntPropertyChanged(aFolderItem, aProperty, aOldValue, aNewValue) {
+    onFolderIntPropertyChanged(aFolderItem, aProperty, aOldValue, aNewValue) {
       if (aProperty !== "FolderFlag") {
         return;
       }
@@ -2941,13 +2943,13 @@ var GlodaMsgIndexer = {
       }
       GlodaMsgIndexer.resetFolderIndexingPriority(aFolderItem);
     },
-    OnItemBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
-    OnItemUnicharPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+    onFolderBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+    onFolderUnicharPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
     /**
      * Notice when user activity adds/removes tags or changes a message's
      *  status.
      */
-    OnItemPropertyFlagChanged(aMsgHdr, aProperty, aOldValue, aNewValue) {
+    onFolderPropertyFlagChanged(aMsgHdr, aProperty, aOldValue, aNewValue) {
       if (
         aProperty == "Keywords" ||
         // We could care less about the new flag changing.
@@ -2966,7 +2968,7 @@ var GlodaMsgIndexer = {
      * Get folder loaded notifications for folders that had to do some
      *  (asynchronous) processing before they could be opened.
      */
-    OnItemEvent(aFolder, aEvent) {
+    onFolderEvent(aFolder, aEvent) {
       if (aEvent == "FolderLoaded") {
         this.indexer._onFolderLoaded(aFolder);
       }

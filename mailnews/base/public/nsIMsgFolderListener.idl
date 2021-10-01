@@ -218,7 +218,7 @@ interface nsIMsgFolderListener : nsISupports {
    * Following this notification, the database will be closed, backed up
    * (so that header properties can be propagated), and then rebuilt from the
    * source. The rebuild is triggered by a call to updateFolder, so an
-   * nsIFolderListener OnItemEvent(folder, FolderLoaded atom) notification
+   * nsIFolderListener OnFolderEvent(folder, FolderLoaded atom) notification
    * will be received if you want to know when this is all completed.
    * Note: this event is only generated for Thunderbird because the event
    * currently comes from Thunderbird-specific code.

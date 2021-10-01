@@ -182,10 +182,10 @@ NS_IMETHODIMP nsPop3IncomingServer::SetDeferredToAccount(
     if (rootFolder) {
       // if isDeferred state has changed, send notification
       if (aAccountKey.IsEmpty() != deferredToAccount.IsEmpty()) {
-        folderListenerManager->OnItemBoolPropertyChanged(
+        folderListenerManager->OnFolderBoolPropertyChanged(
             rootFolder, kIsDeferred, !deferredToAccount.IsEmpty(),
             deferredToAccount.IsEmpty());
-        folderListenerManager->OnItemBoolPropertyChanged(
+        folderListenerManager->OnFolderBoolPropertyChanged(
             rootFolder, kCanFileMessages, deferredToAccount.IsEmpty(),
             !deferredToAccount.IsEmpty());
 

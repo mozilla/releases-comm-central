@@ -4438,7 +4438,7 @@ NS_IMETHODIMP
 nsMsgDBFolder::NotifyPropertyChanged(const nsACString& aProperty,
                                      const nsACString& aOldValue,
                                      const nsACString& aNewValue) {
-  NOTIFY_LISTENERS(OnItemPropertyChanged,
+  NOTIFY_LISTENERS(OnFolderPropertyChanged,
                    (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
@@ -4446,15 +4446,15 @@ nsMsgDBFolder::NotifyPropertyChanged(const nsACString& aProperty,
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemPropertyChanged(this, aProperty,
-                                                      aOldValue, aNewValue);
+  return folderListenerManager->OnFolderPropertyChanged(this, aProperty,
+                                                        aOldValue, aNewValue);
 }
 
 NS_IMETHODIMP
 nsMsgDBFolder::NotifyUnicharPropertyChanged(const nsACString& aProperty,
                                             const nsAString& aOldValue,
                                             const nsAString& aNewValue) {
-  NOTIFY_LISTENERS(OnItemUnicharPropertyChanged,
+  NOTIFY_LISTENERS(OnFolderUnicharPropertyChanged,
                    (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
@@ -4462,7 +4462,7 @@ nsMsgDBFolder::NotifyUnicharPropertyChanged(const nsACString& aProperty,
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemUnicharPropertyChanged(
+  return folderListenerManager->OnFolderUnicharPropertyChanged(
       this, aProperty, aOldValue, aNewValue);
 }
 
@@ -4474,7 +4474,7 @@ nsMsgDBFolder::NotifyIntPropertyChanged(const nsACString& aProperty,
                                aProperty.Equals(kTotalUnreadMessages)))
     return NS_OK;
 
-  NOTIFY_LISTENERS(OnItemIntPropertyChanged,
+  NOTIFY_LISTENERS(OnFolderIntPropertyChanged,
                    (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
@@ -4482,14 +4482,14 @@ nsMsgDBFolder::NotifyIntPropertyChanged(const nsACString& aProperty,
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemIntPropertyChanged(this, aProperty,
-                                                         aOldValue, aNewValue);
+  return folderListenerManager->OnFolderIntPropertyChanged(
+      this, aProperty, aOldValue, aNewValue);
 }
 
 NS_IMETHODIMP
 nsMsgDBFolder::NotifyBoolPropertyChanged(const nsACString& aProperty,
                                          bool aOldValue, bool aNewValue) {
-  NOTIFY_LISTENERS(OnItemBoolPropertyChanged,
+  NOTIFY_LISTENERS(OnFolderBoolPropertyChanged,
                    (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
@@ -4497,8 +4497,8 @@ nsMsgDBFolder::NotifyBoolPropertyChanged(const nsACString& aProperty,
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemBoolPropertyChanged(this, aProperty,
-                                                          aOldValue, aNewValue);
+  return folderListenerManager->OnFolderBoolPropertyChanged(
+      this, aProperty, aOldValue, aNewValue);
 }
 
 NS_IMETHODIMP
@@ -4506,7 +4506,7 @@ nsMsgDBFolder::NotifyPropertyFlagChanged(nsIMsgDBHdr* aItem,
                                          const nsACString& aProperty,
                                          uint32_t aOldValue,
                                          uint32_t aNewValue) {
-  NOTIFY_LISTENERS(OnItemPropertyFlagChanged,
+  NOTIFY_LISTENERS(OnFolderPropertyFlagChanged,
                    (aItem, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
@@ -4514,67 +4514,67 @@ nsMsgDBFolder::NotifyPropertyFlagChanged(nsIMsgDBHdr* aItem,
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemPropertyFlagChanged(aItem, aProperty,
-                                                          aOldValue, aNewValue);
+  return folderListenerManager->OnFolderPropertyFlagChanged(
+      aItem, aProperty, aOldValue, aNewValue);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::NotifyMessageAdded(nsIMsgDBHdr* msg) {
   // Notify our directly-registered listeners.
-  NOTIFY_LISTENERS(OnItemAdded, (this, msg));
+  NOTIFY_LISTENERS(OnMessageAdded, (this, msg));
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = folderListenerManager->OnItemAdded(this, msg);
+  rv = folderListenerManager->OnMessageAdded(this, msg);
   NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
 }
 
 nsresult nsMsgDBFolder::NotifyMessageRemoved(nsIMsgDBHdr* msg) {
   // Notify our directly-registered listeners.
-  NOTIFY_LISTENERS(OnItemRemoved, (this, msg));
+  NOTIFY_LISTENERS(OnMessageRemoved, (this, msg));
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = folderListenerManager->OnItemRemoved(this, msg);
+  rv = folderListenerManager->OnMessageRemoved(this, msg);
   NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::NotifyFolderAdded(nsIMsgFolder* child) {
-  NOTIFY_LISTENERS(OnItemAdded, (this, child));
+  NOTIFY_LISTENERS(OnFolderAdded, (this, child));
 
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemAdded(this, child);
+  return folderListenerManager->OnFolderAdded(this, child);
 }
 
 nsresult nsMsgDBFolder::NotifyFolderRemoved(nsIMsgFolder* child) {
-  NOTIFY_LISTENERS(OnItemRemoved, (this, child));
+  NOTIFY_LISTENERS(OnFolderRemoved, (this, child));
 
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemRemoved(this, child);
+  return folderListenerManager->OnFolderRemoved(this, child);
 }
 
 nsresult nsMsgDBFolder::NotifyFolderEvent(const nsACString& aEvent) {
-  NOTIFY_LISTENERS(OnItemEvent, (this, aEvent));
+  NOTIFY_LISTENERS(OnFolderEvent, (this, aEvent));
 
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemEvent(this, aEvent);
+  return folderListenerManager->OnFolderEvent(this, aEvent);
 }
 
 NS_IMETHODIMP

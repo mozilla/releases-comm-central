@@ -519,7 +519,7 @@ var mailTestUtils = {
     // register for the folder loaded notification ahead of time... even though
     //  we may not need it...
     let folderListener = {
-      OnItemEvent(aEventFolder, aEvent) {
+      onFolderEvent(aEventFolder, aEvent) {
         if (aEvent == "FolderLoaded" && aFolder.URI == aEventFolder.URI) {
           MailServices.mailSession.RemoveFolderListener(this);
           aCallback.apply(aCallbackThis, aCallbackArgs);
