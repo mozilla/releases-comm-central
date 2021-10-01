@@ -327,7 +327,11 @@ var XMPPMUCConversationPrototype = {
     let from = aStanza.attributes.from;
     let nick = this._account._parseJID(from).resource;
     let jid = this._account.normalize(from);
-    let x = aStanza.getElements(["x"]).find(e => e.uri == Stanza.NS.muc_user);
+    let x = aStanza
+      .getElements(["x"])
+      .find(
+        e => e.uri == Stanza.NS.muc_user || e.uri == Stanza.NS.vcard_update
+      );
 
     // Check if the join failed.
     if (this.left && aStanza.attributes.type == "error") {
@@ -367,6 +371,23 @@ var XMPPMUCConversationPrototype = {
         "Received a MUC presence stanza without an x element or " +
           "with a namespace we don't handle."
       );
+      return;
+    }
+    // Handle a MUC resource avatar
+    if (
+      x.uri == Stanza.NS.vcard_update &&
+      aStanza.attributes.from == this.normalizedName
+    ) {
+      let photo = aStanza.getElement(["x", "photo"]);
+      if (photo && photo.uri == Stanza.NS.vcard_update) {
+        let hash = photo.innerText;
+        if (hash && hash != this._photoHash) {
+          this._account._addVCardRequest(this.normalizedName);
+        } else if (!hash && this._photoHash) {
+          delete this._photoHash;
+          this.convIconFilename = "";
+        }
+      }
       return;
     }
     let codes = x.getElements(["status"]).map(elt => elt.attributes.code);
@@ -496,6 +517,9 @@ var XMPPMUCConversationPrototype = {
       this.joining = false;
       // TODO (Bug 1172350): Implement Service Discovery Extensions (XEP-0128) to obtain
       // configuration of this room.
+    } else if (codes.includes("104") && nick == this.name) {
+      // https://xmpp.org/extensions/inbox/muc-avatars.html (XEP-XXXX)
+      this._account._addVCardRequest(this.normalizedName);
     }
 
     if (!this._participants.get(nick)) {
@@ -722,6 +746,23 @@ var XMPPMUCConversationPrototype = {
   unInit() {
     this._account.removeConversation(this.name);
     GenericConvChatPrototype.unInit.call(this);
+  },
+
+  _photoHash: null,
+  _saveIcon(aPhotoNode) {
+    this._account._saveResourceIcon(aPhotoNode, this).then(
+      url => {
+        this.convIconFilename = url;
+      },
+      error => {
+        this._account.WARN(
+          "Error while loading conversation icon for " +
+            this.normalizedName +
+            ": " +
+            error.message
+        );
+      }
+    );
   },
 };
 function XMPPMUCConversation(aAccount, aJID, aNick) {
@@ -1207,70 +1248,19 @@ var XMPPAccountBuddyPrototype = {
 
   _photoHash: null,
   _saveIcon(aPhotoNode) {
-    // Some servers seem to send a photo node without a type declared.
-    let type = aPhotoNode.getElement(["TYPE"]);
-    if (!type) {
-      return;
-    }
-    type = type.innerText;
-    const kExt = {
-      "image/gif": "gif",
-      "image/jpeg": "jpg",
-      "image/png": "png",
-    };
-    if (!kExt.hasOwnProperty(type)) {
-      return;
-    }
-
-    let content = "",
-      data = "";
-    // Strip all characters not allowed in base64 before parsing.
-    let parseBase64 = aBase => atob(aBase.replace(/[^A-Za-z0-9\+\/\=]/g, ""));
-    for (let line of aPhotoNode.getElement(["BINVAL"]).innerText.split("\n")) {
-      data += line;
-      // Mozilla's atob() doesn't handle padding with "=" or "=="
-      // unless it's at the end of the string, so we have to work around that.
-      if (line.endsWith("=")) {
-        content += parseBase64(data);
-        data = "";
+    this._account._saveResourceIcon(aPhotoNode, this).then(
+      url => {
+        this.buddyIconFilename = url;
+      },
+      error => {
+        this._account.WARN(
+          "Error loading buddy icon for " +
+            this.normalizedName +
+            ": " +
+            error.message
+        );
       }
-    }
-    content += parseBase64(data);
-
-    // Store a sha1 hash of the photo we have just received.
-    let ch = Cc["@mozilla.org/security/hash;1"].createInstance(
-      Ci.nsICryptoHash
     );
-    ch.init(ch.SHA1);
-    let dataArray = Object.keys(content).map(i => content.charCodeAt(i));
-    ch.update(dataArray, dataArray.length);
-    let hash = ch.finish(false);
-    function toHexString(charCode) {
-      return ("0" + charCode.toString(16)).slice(-2);
-    }
-    this._photoHash = Object.keys(hash)
-      .map(i => toHexString(hash.charCodeAt(i)))
-      .join("");
-
-    let istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-      Ci.nsIStringInputStream
-    );
-    istream.setData(content, content.length);
-
-    let fileName = this._photoHash + "." + kExt[type];
-    let file = FileUtils.getFile("ProfD", [
-      "icons",
-      this.account.protocol.normalizedName,
-      this.account.normalizedName,
-      fileName,
-    ]);
-    let ostream = FileUtils.openSafeFileOutputStream(file);
-    let buddy = this;
-    NetUtil.asyncCopy(istream, ostream, function(rc) {
-      if (Components.isSuccessCode(rc)) {
-        buddy.buddyIconFilename = Services.io.newFileURI(file).spec;
-      }
-    });
   },
 
   _preferredResource: undefined,
@@ -2686,7 +2676,7 @@ var XMPPAccountPrototype = {
   onVCard(aStanza) {
     let jid = this._pendingVCardRequests.shift();
     this._requestNextVCard();
-    if (!this._buddies.has(jid)) {
+    if (!this._buddies.has(jid) && !this._mucs.has(jid)) {
       this.WARN("Received a vCard for unknown buddy " + jid);
       return;
     }
@@ -2707,7 +2697,6 @@ var XMPPAccountPrototype = {
       return;
     }
 
-    let buddy = this._buddies.get(jid);
     let stanzaJid = this.normalize(aStanza.attributes.from);
     if (jid && jid != stanzaJid) {
       this.ERROR(
@@ -2721,6 +2710,14 @@ var XMPPAccountPrototype = {
 
     let foundFormattedName = false;
     let vCardInfo = this.parseVCard(vCard);
+    if (this._mucs.has(jid)) {
+      const conv = this._mucs.get(jid);
+      if (vCardInfo.photo) {
+        conv._saveIcon(vCardInfo.photo);
+      }
+      return;
+    }
+    let buddy = this._buddies.get(jid);
     if (vCardInfo.fullName) {
       buddy.vCardFormattedName = vCardInfo.fullName;
       foundFormattedName = true;
@@ -2732,6 +2729,81 @@ var XMPPAccountPrototype = {
       buddy.vCardFormattedName = "";
     }
     buddy._vCardReceived = true;
+  },
+
+  /**
+   * Save the icon for a resource to the local file system.
+   *
+   * @param photo - The vcard photo node representing the icon.
+   * @param {prplIChatBuddy|prplIConversation} resource - Resource the icon is for.
+   * @returns {Promise<string>} Resolves with the file:// URI to the local icon file.
+   */
+  _saveResourceIcon(photo, resource) {
+    // Some servers seem to send a photo node without a type declared.
+    let type = photo.getElement(["TYPE"]);
+    if (!type) {
+      return Promise.reject(new Error("Missing image type"));
+    }
+    type = type.innerText;
+    const kExt = {
+      "image/gif": "gif",
+      "image/jpeg": "jpg",
+      "image/png": "png",
+    };
+    if (!kExt.hasOwnProperty(type)) {
+      return Promise.reject(new Error("Unknown image type"));
+    }
+
+    let content = "",
+      data = "";
+    // Strip all characters not allowed in base64 before parsing.
+    let parseBase64 = aBase => atob(aBase.replace(/[^A-Za-z0-9\+\/\=]/g, ""));
+    for (let line of photo.getElement(["BINVAL"]).innerText.split("\n")) {
+      data += line;
+      // Mozilla's atob() doesn't handle padding with "=" or "=="
+      // unless it's at the end of the string, so we have to work around that.
+      if (line.endsWith("=")) {
+        content += parseBase64(data);
+        data = "";
+      }
+    }
+    content += parseBase64(data);
+
+    // Store a sha1 hash of the photo we have just received.
+    let ch = Cc["@mozilla.org/security/hash;1"].createInstance(
+      Ci.nsICryptoHash
+    );
+    ch.init(ch.SHA1);
+    let dataArray = Object.keys(content).map(i => content.charCodeAt(i));
+    ch.update(dataArray, dataArray.length);
+    let hash = ch.finish(false);
+    function toHexString(charCode) {
+      return charCode.toString(16).padStart(2, "0");
+    }
+    resource._photoHash = Object.keys(hash)
+      .map(i => toHexString(hash.charCodeAt(i)))
+      .join("");
+
+    let istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+      Ci.nsIStringInputStream
+    );
+    istream.setData(content, content.length);
+
+    let fileName = resource._photoHash + "." + kExt[type];
+    let file = FileUtils.getFile("ProfD", [
+      "icons",
+      this.protocol.normalizedName,
+      this.normalizedName,
+      fileName,
+    ]);
+    let ostream = FileUtils.openSafeFileOutputStream(file);
+    return new Promise(resolve => {
+      NetUtil.asyncCopy(istream, ostream, rc => {
+        if (Components.isSuccessCode(rc)) {
+          resolve(Services.io.newFileURI(file).spec);
+        }
+      });
+    });
   },
 
   _requestNextVCard() {
