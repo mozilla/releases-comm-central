@@ -20,6 +20,28 @@ ChromeUtils.defineModuleGetter(
 );
 
 /**
+ * Shared handler for verification requests. We need it twice because the
+ * request can be the msgtype of a normal message or its own event.
+ *
+ * @param {MatrixEvent} matrixEvent - Matrix Event this is handling.
+ * @param {{ sender: string, content: Object}} param1 - handler context.
+ * @returns {string}
+ */
+const keyVerificationRequest = (matrixEvent, { sender, content }) => {
+  return _("message.verification.request", sender, content.to);
+};
+/**
+ * Shared handler for room messages, since those come in the plain text and
+ * encrypted form.
+ */
+const roomMessage = {
+  pivot: "msgtype",
+  handlers: {
+    [EventType.KeyVerificationRequest]: keyVerificationRequest,
+  },
+};
+
+/**
  * Functions returning notices to display when matrix events are received.
  * Top level key is the matrix event type.
  *
@@ -223,6 +245,22 @@ const MATRIX_EVENT_HANDLERS = {
       }
       // No discernible changes to aliases
       return null;
+    },
+  },
+
+  [EventType.RoomMessage]: roomMessage,
+  [EventType.RoomMessageEncrypted]: roomMessage,
+  [EventType.KeyVerificationRequest]: {
+    handler: keyVerificationRequest,
+  },
+  [EventType.KeyVerificationCancel]: {
+    handler(matrixEvent, { sender, content }) {
+      return _("message.verification.cancel", sender, content.reason);
+    },
+  },
+  [EventType.KeyVerificationDone]: {
+    handler(matrixEvent, { sender, content }) {
+      return _("message.verification.done");
     },
   },
 

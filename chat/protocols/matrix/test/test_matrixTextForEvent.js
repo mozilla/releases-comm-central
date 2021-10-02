@@ -716,6 +716,44 @@ const FIXTURES = [
     result: null,
     name: "No discernible changes to the room aliases",
   },
+  {
+    event: _makeMatrixEvent({
+      type: EventType.RoomMessage,
+      content: {
+        msgtype: EventType.KeyVerificationRequest,
+        to: "@foo:example.com",
+      },
+    }),
+    result: _("message.verification.request", SENDER, "@foo:example.com"),
+    name: "Inline key verification request",
+  },
+  {
+    event: _makeMatrixEvent({
+      type: EventType.KeyVerificationRequest,
+      content: {
+        to: "@foo:example.com",
+      },
+    }),
+    result: _("message.verification.request", SENDER, "@foo:example.com"),
+    name: "Key verification request",
+  },
+  {
+    event: _makeMatrixEvent({
+      type: EventType.KeyVerificationCancel,
+      content: {
+        reason: "Lorem ipsum",
+      },
+    }),
+    result: _("message.verification.cancel", SENDER, "Lorem ipsum"),
+    name: "Key verification cancelled",
+  },
+  {
+    event: _makeMatrixEvent({
+      type: EventType.KeyVerificationDone,
+    }),
+    result: _("message.verification.done"),
+    name: "Key verification done",
+  },
 ];
 
 function testGetTextForMatrixEvent() {

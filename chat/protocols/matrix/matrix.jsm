@@ -30,6 +30,12 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
+XPCOMUtils.defineLazyGetter(this, "brandShortName", () =>
+  Services.strings
+    .createBundle("chrome://branding/locale/brand.properties")
+    .GetStringFromName("brandShortName")
+);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   MatrixSDK: "resource:///modules/matrix-sdk.jsm",
   getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
@@ -126,6 +132,87 @@ MatrixMessage.prototype = {
   },
 };
 
+/**
+ * Check if a user has unverified devices.
+ *
+ * @param {string} userId - User to check.
+ * @param {MatrixClient} client - Matrix SDK client instance to use.
+ * @returns {boolean}
+ */
+function checkUserHasUnverifiedDevices(userId, client) {
+  const devices = client.getStoredDevicesForUser(userId);
+  return devices.some(
+    ({ deviceId }) => !client.checkDeviceTrust(userId, deviceId).isVerified()
+  );
+}
+
+/**
+ * Shared implementation for canVerifyIdentity between MatrixParticipant and
+ * MatrixBuddy.
+ *
+ * @param {string} userId - Matrix ID of the user.
+ * @param {MatrixClient} client - Matrix SDK client instance.
+ * @returns {boolean}
+ */
+function canVerifyUserIdentity(userId, client) {
+  client.downloadKeys([userId]);
+  return Boolean(client.getStoredDevicesForUser(userId)?.length);
+}
+
+/**
+ * Checks if we consider the identity of a user as verified.
+ *
+ * @param {string} userId - Matrix ID of the user to check.
+ * @param {MatrixClient} client - Matrix SDK client instance to use.
+ * @returns {boolean}
+ */
+function userIdentityVerified(userId, client) {
+  return (
+    client.checkUserTrust(userId).isCrossSigningVerified() &&
+    !checkUserHasUnverifiedDevices(userId, client)
+  );
+}
+
+/**
+ * Shared implementation to initiate a verification with a MatrixParticipant or
+ * MatrixBuddy.
+ *
+ * @param {string} userId - Matrix ID of the user to verify.
+ * @param {MatrixAccount} account - Account the verification should happen with.
+ * @returns {Promise} Same payload as startVerification.
+ */
+async function startVerificationDM(userId, account) {
+  let request;
+  if (userId == account.userId) {
+    request = await this._account._client.requestVerification(userId);
+  } else {
+    let conv = account.getDirectConversation(userId);
+    conv = await conv.waitForRoom();
+    // Wait for the user to become part of the room (so being invited) for two
+    // seconds before sending verification request.
+    if (conv.isChat || !conv.room.getMember(userId)) {
+      let waitForMember;
+      let timeout;
+      try {
+        await new Promise(resolve => {
+          waitForMember = (event, state, member) => {
+            if (member.roomId == conv._roomId && member.userId == userId) {
+              resolve();
+            }
+          };
+          account._client.on("RoomState.newMember", waitForMember);
+          timeout = setTimeout(resolve, 2000);
+        });
+      } finally {
+        clearTimeout(timeout);
+        account._client.removeListener("RoomState.newMember", waitForMember);
+      }
+    }
+    request = await account._client.requestVerificationDM(userId, conv._roomId);
+  }
+  return startVerification(request);
+}
+
 function MatrixParticipant(roomMember, account) {
   this._id = roomMember.userId;
   this._roomMember = roomMember;
@@ -161,6 +248,18 @@ MatrixParticipant.prototype = {
   },
   get admin() {
     return this._roomMember.powerLevelNorm >= MatrixPowerLevels.admin;
+  },
+
+  get canVerifyIdentity() {
+    return canVerifyUserIdentity(this.name, this._account._client);
+  },
+
+  get _identityVerified() {
+    return userIdentityVerified(this.name, this._account._client);
+  },
+
+  _startVerification() {
+    return startVerificationDM(this.name, this._account);
   },
 };
 
@@ -266,21 +365,19 @@ MatrixBuddy.prototype = {
   createConversation() {
     return this._account.getDirectConversation(this.userName);
   },
-};
 
-/**
- * Check if a user has unverified devices.
- *
- * @param {string} userId - User to check.
- * @param {MatrixClient} client - Matrix SDK client instance to use.
- * @returns {boolean}
- */
-function checkUserHasUnverifiedDevices(userId, client) {
-  const devices = client.getStoredDevicesForUser(userId);
-  return devices.some(
-    ({ deviceId }) => !client.checkDeviceTrust(userId, deviceId).isVerified()
-  );
-}
+  get canVerifyIdentity() {
+    return canVerifyUserIdentity(this.userName, this._account._client);
+  },
+
+  get _identityVerified() {
+    return userIdentityVerified(this.userName, this._account._client);
+  },
+
+  _startVerification() {
+    return startVerificationDM(this.userName, this._account);
+  },
+};
 
 /**
  * Matrix rooms are androgynous. Sometimes they are DM conversations, other
@@ -540,14 +637,19 @@ MatrixRoom.prototype = {
       let message = eventContent.body;
       if (eventContent.msgtype === MsgType.Emote) {
         message = "/me " + message;
+      } else if (eventContent.msgtype === EventType.KeyVerificationRequest) {
+        message = getMatrixTextForEvent(event);
       }
       //TODO handle media messages better (currently just show file name)
       this.writeMessage(event.getSender(), message, {
         outgoing: isOutgoing,
         incoming: !isOutgoing,
-        system: [MsgType.Notice, "m.server_notice", "m.bad.encrypted"].includes(
-          eventContent.msgtype
-        ),
+        system: [
+          MsgType.Notice,
+          "m.server_notice",
+          "m.bad.encrypted",
+          EventType.KeyVerificationRequest,
+        ].includes(eventContent.msgtype),
         time: Math.floor(event.getDate() / 1000),
         _alias: event.sender.name,
         delayed,
@@ -976,13 +1078,7 @@ MatrixRoom.prototype = {
     // own device verification state.
     let newValue =
       members.some(({ userId }) => {
-        const baseTrust = this._account._client
-          .checkUserTrust(userId)
-          .isCrossSigningVerified();
-        return (
-          !baseTrust ||
-          checkUserHasUnverifiedDevices(userId, this._account._client)
-        );
+        return !userIdentityVerified(userId, this._account._client);
       }) ||
       checkUserHasUnverifiedDevices(
         this._account.userId,
@@ -996,7 +1092,7 @@ MatrixRoom.prototype = {
   get encryptionState() {
     if (
       !this._account._client.isCryptoEnabled() ||
-      !this.room.currentState.mayClientSendStateEvent(
+      !this.room?.currentState.mayClientSendStateEvent(
         EventType.RoomEncryption,
         this._account._client
       )
@@ -1218,9 +1314,7 @@ MatrixAccount.prototype = {
       accessToken = undefined;
     }
 
-    const opts = this.getClientOptions();
-
-    await Promise.all([opts.store.startup(), opts.cryptoStore.startup()]);
+    const opts = await this.getClientOptions();
     this._client = MatrixSDK.createClient(opts);
     if (this._client.isLoggedIn()) {
       this.startClient();
@@ -1317,9 +1411,9 @@ MatrixAccount.prototype = {
   /**
    * Builds the options for the |createClient| call to the SDK including all
    * stores.
-   * @returns {Object}
+   * @returns {Promise<Object>}
    */
-  getClientOptions() {
+  async getClientOptions() {
     let dbName = "chat:matrix:" + this.imAccount.id;
 
     // Create a storage principal unique to this account.
@@ -1334,7 +1428,7 @@ MatrixAccount.prototype = {
       ""
     );
 
-    return {
+    const opts = {
       useAuthorizationHeader: true,
       baseUrl: this._baseURL,
       store: new MatrixSDK.IndexedDBStore({
@@ -1378,6 +1472,8 @@ MatrixAccount.prototype = {
       },
       verificationMethods: [MatrixCrypto.verificationMethods.SAS],
     };
+    await Promise.all([opts.store.startup(), opts.cryptoStore.startup()]);
+    return opts;
   },
 
   /**
@@ -1404,7 +1500,9 @@ MatrixAccount.prototype = {
       }
       this.storeSessionInformation(data);
       // Need to create a new client with the device ID set.
-      this._client = MatrixSDK.createClient(this.getClientOptions());
+      const opts = await this.getClientOptions();
+      this._client.stopClient();
+      this._client = MatrixSDK.createClient(opts);
       if (!this._client.isLoggedIn()) {
         throw new Error("Client has no access token after login");
       }
@@ -1580,7 +1678,11 @@ MatrixAccount.prototype = {
         }
         // Encrypted events are handled through separate SDK event to wait for
         // decryption
-        if (event.isEncrypted()) {
+        if (
+          event.isEncrypted() &&
+          !event.getClearContent() &&
+          !event.isDecryptionFailure()
+        ) {
           return;
         }
         let conv = this.roomList.get(room.roomId);
@@ -1656,7 +1758,7 @@ MatrixAccount.prototype = {
           }
           this.getDirectConversation(interlocutorId);
         } else {
-          this.getGroupConversation(room.roomId);
+          this.getGroupConversation(room.roomId, room.name);
         }
       }
     });
@@ -1694,6 +1796,14 @@ MatrixAccount.prototype = {
     this._client.on("User.presence", this.updateBuddy.bind(this));
     this._client.on("User.currentlyActive", this.updateBuddy.bind(this));
 
+    this._client.on("userTrustStatusChanged", (userId, trustLevel) => {
+      this.updateConvDeviceTrust(
+        conv =>
+          (conv.isChat && conv.getParticipant(userId)) ||
+          (!conv.isChat && conv.buddy?.userName == userId)
+      );
+    });
+
     this._client.on("crypto.devicesUpdated", users => {
       if (users.includes(this.userId)) {
         this.reportSessionsChanged();
@@ -1724,7 +1834,9 @@ MatrixAccount.prototype = {
 
     this._client.on("crypto.verification.request", request => {
       const abort = new AbortController();
-      request.waitFor(() => request.cancelled).then(() => abort.abort());
+      request
+        .waitFor(() => request.cancelled || request.observeOnly)
+        .then(() => abort.abort());
       let displayName = request.otherUserId;
       if (request.isSelfVerification) {
         const deviceInfo = this._client.getStoredDevice(
@@ -1790,7 +1902,9 @@ MatrixAccount.prototype = {
       .initCrypto()
       .then(() =>
         Promise.all([
-          this._client.startClient(),
+          this._client.startClient({
+            pendingEventOrdering: "detached",
+          }),
           this.updateEncryptionStatus(),
           this.bootstrapSSSS(),
           this.reportSessionsChanged(),
@@ -2659,7 +2773,7 @@ MatrixProtocol.prototype = {
       get label() {
         return _("options.deviceDisplayName");
       },
-      default: "Thunderbird",
+      default: brandShortName,
     },
     backupPassphrase: {
       get label() {
