@@ -63,6 +63,12 @@
   margin-bottom: 0;
 }
 
+@media (-moz-windows-classic) {
+  :root:not(:-moz-lwtheme) .autocomplete-richlistitem {
+    --arrowpanel-dimmed: Highlight;
+  }
+}
+
 @media (prefers-contrast) {
   #msgSubject:not(:-moz-lwtheme),
   #msgIdentity:not(:-moz-lwtheme),
