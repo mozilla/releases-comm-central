@@ -52,7 +52,7 @@ interface imIContactsService: nsISupports {
   void forgetAccount(in unsigned long aId);
 };
 
-/*
+/**
  * An imIContact represents a person, e.g. our friend Alice. This person might
  * have multiple means of contacting them.
  *
@@ -154,7 +154,7 @@ interface imIContact: imIStatusInfo {
                        [optional] in wstring aData);
 };
 
-/*
+/**
  * An imIBuddy represents a person's account on a particular network. Note that
  * what a network is depends on the implementation of the prpl, e.g. for AIM
  * there is only a single network, but both GTalk and XMPP are the same network.
@@ -218,7 +218,7 @@ interface imIBuddy: imIStatusInfo {
                [optional] in wstring aData);
 };
 
-/*
+/**
  * A prplIAccountBuddy represents the connection on a network between one of the
  * current user's accounts and a persons's account. E.g. if we're logged into
  * the Foo network as BobbyBoy91 and want to talk to Alice, there may be two
@@ -264,6 +264,21 @@ interface prplIAccountBuddy: imIStatusInfo {
   // for the directory name for log storage.
   readonly attribute AUTF8String normalizedName;
            attribute AUTF8String serverAlias;
+
+  /** Whether we can verify the identity of this buddy. */
+  readonly attribute boolean canVerifyIdentity;
+
+  /**
+   * True if we trust the encryption with this buddy in E2EE conversations. Can
+   * only be true if |canVerifyIdentity| is true.
+   */
+  readonly attribute boolean identityVerified;
+
+  /**
+   * Initialize identity verification with this buddy.
+   * @returns {Promise<imISessionVerification>}
+   */
+  Promise verifyIdentity();
 
   // remove the buddy from the buddy list of this account.
   void remove();

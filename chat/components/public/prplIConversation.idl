@@ -13,10 +13,11 @@ interface imIMessage;
 interface nsIURI;
 interface prplIChatRoomFieldValues;
 
-/*
- * This is the XPCOM purple conversation component, a proxy for PurpleConversation.
+/**
+ * This interface represents a conversation as implemented by a protocol. It
+ * contains the properties and methods shared between direct (IM) and multi
+ * user (chat) conversations.
  */
-
 [scriptable, uuid(f71c58d6-2c47-4468-934b-b1c61462c01a)]
 interface prplIConversation: nsISupports {
 
@@ -152,7 +153,7 @@ interface prplIConvIM: prplIConversation {
   readonly attribute short typingState;
 };
 
-/* This represents a participant in a chat room */
+/** This represents a participant in a chat room */
 [scriptable, uuid(b0e9177b-40f6-420b-9918-04bbbb9ce44f)]
 interface prplIConvChatBuddy: nsISupports {
 
@@ -181,6 +182,21 @@ interface prplIConvChatBuddy: nsISupports {
 
   /* Whether the participant is currently typing. */
   readonly attribute boolean typing;
+
+  /** Whether we can verify the identity of this participant. */
+  readonly attribute boolean canVerifyIdentity;
+
+  /**
+   * True if we trust the encryption with this participant in E2EE chats. Can
+   * only be true if |canVerifyIdentity| is true.
+   */
+  readonly attribute boolean identityVerified;
+
+  /**
+   * Initialize identity verification with this participant.
+   * @returns {Promise<imISessionVerification>}
+   */
+  Promise verifyIdentity();
 };
 
 [scriptable, uuid(72c17398-639f-4141-a19c-78cbdeb39fba)]

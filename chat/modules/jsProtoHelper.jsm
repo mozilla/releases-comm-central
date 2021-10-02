@@ -564,6 +564,51 @@ var GenericAccountBuddyPrototype = {
     }
   },
 
+  /**
+   * Method called to start verification of the buddy. Same signature as
+   * _startVerification of GenericSessionPrototype. If the property is not a
+   * function, |canVerifyIdentity| is false.
+   *
+   * @type {() => {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise}?}
+   */
+  _startVerification: null,
+  get canVerifyIdentity() {
+    return typeof this._startVerification === "function";
+  },
+  _identityVerified: false,
+  get identityVerified() {
+    return this.canVerifyIdentity && this._identityVerified;
+  },
+  verifyIdentity() {
+    if (!this.canVerifyIdentity) {
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    }
+    if (this.identityVerified) {
+      return Promise.resolve();
+    }
+    return this._startVerification().then(
+      ({
+        challenge,
+        challengeDescription,
+        handleResult,
+        cancel,
+        cancelPromise,
+      }) => {
+        const verifier = new SessionVerification(
+          challenge,
+          this.userName,
+          challengeDescription
+        );
+        verifier.completePromise.then(
+          result => handleResult(result),
+          () => cancel()
+        );
+        cancelPromise.then(() => verifier.cancel());
+        return verifier;
+      }
+    );
+  },
+
   remove() {
     Services.contacts.accountBuddyRemoved(this);
   },
@@ -1112,6 +1157,51 @@ var GenericConvChatBuddyPrototype = {
   admin: false,
   founder: false,
   typing: false,
+
+  /**
+   * Method called to start verification of the buddy. Same signature as
+   * _startVerification of GenericSessionPrototype. If the property is not a
+   * function, |canVerifyIdentity| is false.
+   *
+   * @type {() => {challenge: string, challengeDescription: string?, handleResult: (boolean) => void, cancel: () => void, cancelPromise: Promise}?}
+   */
+  _startVerification: null,
+  get canVerifyIdentity() {
+    return typeof this._startVerification === "function";
+  },
+  _identityVerified: false,
+  get identityVerified() {
+    return this.canVerifyIdentity && this._identityVerified;
+  },
+  verifyIdentity() {
+    if (!this.canVerifyIdentity) {
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    }
+    if (this.identityVerified) {
+      return Promise.resolve();
+    }
+    return this._startVerification().then(
+      ({
+        challenge,
+        challengeDescription,
+        handleResult,
+        cancel,
+        cancelPromise,
+      }) => {
+        const verifier = new SessionVerification(
+          challenge,
+          this.name,
+          challengeDescription
+        );
+        verifier.completePromise.then(
+          result => handleResult(result),
+          () => cancel()
+        );
+        cancelPromise.then(() => verifier.cancel());
+        return verifier;
+      }
+    );
+  },
 };
 
 function TooltipInfo(aLabel, aValue, aType = Ci.prplITooltipInfo.pair) {
@@ -1509,7 +1599,9 @@ var GenericSessionPrototype = {
    *  The cancel callback will be called when the cancel promise resolves.
    */
   _startVerification() {
-    return Promise.reject(Components.Exception(Cr.NS_ERROR_NOT_IMPLEMENTED));
+    return Promise.reject(
+      Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED)
+    );
   },
   verify() {
     if (this.trusted) {
