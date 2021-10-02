@@ -402,9 +402,9 @@
 
       if (aBuddy.canVerifyIdentity) {
         const identityStatus = aBuddy.identityVerified
-          ? "chat-buddy-identityStatus-verified"
-          : "chat-buddy-identityStatus-unverified";
-        this.addRow("chat-buddy-identityStatus", identityStatus, {
+          ? "chat-buddy-identity-status-verified"
+          : "chat-buddy-identity-status-unverified";
+        this.addRow("chat-buddy-identity-status", identityStatus, {
           label: true,
           value: true,
         });
@@ -518,9 +518,9 @@
 
       if (aParticipant.canVerifyIdentity) {
         const identityStatus = aParticipant.identityVerified
-          ? "chat-buddy-identityStatus-verified"
-          : "chat-buddy-identityStatus-unverified";
-        this.addRow("chat-buddy-identityStatus", identityStatus, {
+          ? "chat-buddy-identity-status-verified"
+          : "chat-buddy-identity-status-unverified";
+        this.addRow("chat-buddy-identity-status", identityStatus, {
           label: true,
           value: true,
         });

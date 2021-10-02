@@ -27,6 +27,6 @@ chat-verify-identity =
 chat-identity-verified =
   .label = Identity already verified
 
-chat-buddy-identityStatus = Encryption Trust
-chat-buddy-identityStatus-verified = Verified
-chat-buddy-identityStatus-unverified = Unverified
+chat-buddy-identity-status = Encryption Trust
+chat-buddy-identity-status-verified = Verified
+chat-buddy-identity-status-unverified = Unverified
