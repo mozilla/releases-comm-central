@@ -163,9 +163,33 @@ function buddyListContextMenu(aXulMenu) {
   ) {
     OTRUI.addBuddyContextMenu(this.menu, document, this.target.contact);
   }
+
+  const accountBuddy = this._getAccountBuddy();
+  const canVerifyBuddy = accountBuddy.canVerifyIdentity;
+  const verifyMenuItem = document.getElementById("context-verifyBuddy");
+  verifyMenuItem.hidden = !canVerifyBuddy;
+  if (canVerifyBuddy) {
+    const identityVerified = accountBuddy.identityVerified;
+    verifyMenuItem.disabled = identityVerified;
+    document.l10n.setAttributes(
+      verifyMenuItem,
+      identityVerified ? "chat-identity-verified" : "chat-verify-identity"
+    );
+  }
 }
 
 buddyListContextMenu.prototype = {
+  /**
+   * Get the prplIAccountBuddy instance that is related to the current context.
+   *
+   * @returns {prplIAccountBuddy}
+   */
+  _getAccountBuddy() {
+    if (this.onConv && this.target.conv?.buddy) {
+      return this.target.conv.buddy;
+    }
+    return this.target.contact?.preferredBuddy?.preferredAccountBuddy;
+  },
   openConversation() {
     if (this.onContact || this.onConv) {
       this.target.openConversation();
@@ -229,6 +253,17 @@ buddyListContextMenu.prototype = {
     }
 
     this.target.deleteContact();
+  },
+  /**
+   * Command event handler to verify the identity of the buddy the context menu
+   * is currently opened for.
+   */
+  verifyIdentity() {
+    const accountBuddy = this._getAccountBuddy();
+    if (!accountBuddy) {
+      return;
+    }
+    ChatEncryption.verifyIdentity(window, accountBuddy);
   },
 };
 
@@ -1980,5 +2015,47 @@ chatLogTreeView.prototype = {
     }
   },
 };
+
+/**
+ * Handler for onpopupshowing event of the participantListContextMenu. Decides
+ * if the menu should be shown at all and manages the disabled state of its
+ * items.
+ *
+ * @param {XULMenuPopupElement} menu
+ * @returns {boolean} If the menu should be shown, currently decided based on
+ *   if its only item has an action to perform.
+ */
+function showParticipantMenu(menu) {
+  const target = menu.triggerNode.closest("richlistitem");
+  if (!target?.chatBuddy?.canVerifyIdentity) {
+    return false;
+  }
+  const identityVerified = target.chatBuddy.identityVerified;
+  const verifyMenuItem = document.getElementById("context-verifyParticipant");
+  verifyMenuItem.disabled = identityVerified;
+  document.l10n.setAttributes(
+    verifyMenuItem,
+    identityVerified ? "chat-identity-verified" : "chat-verify-identity"
+  );
+  return true;
+}
+
+/**
+ * Command handler for the verify identity context menu item of the participant
+ * context menu. Initiates the verification for the participant the menu was
+ * opened on.
+ *
+ * @returns {undefined}
+ */
+function verifyChatParticipant() {
+  const target = document
+    .getElementById("participantListContextMenu")
+    .triggerNode.closest("richlistitem");
+  const buddy = target.chatBuddy;
+  if (!buddy) {
+    return;
+  }
+  ChatEncryption.verifyIdentity(window, buddy);
+}
 
 window.addEventListener("load", chatHandler.init.bind(chatHandler));

@@ -263,16 +263,32 @@
       }
     }
 
-    addRow(aLabel, aValue) {
+    /**
+     * Add a row to the tooltip's table
+     *
+     * @param {string} aLabel - Label for the table row.
+     * @param {string} aValue - Value for the table row.
+     * @param {{label: boolean, value: boolean}} [l10nIds] - Treat the label
+     *   and value as l10n IDs
+     */
+    addRow(aLabel, aValue, l10nIds = { label: false, value: false }) {
       let description;
       let row = [...this.table.querySelectorAll("tr")].find(row => {
-        return row.querySelector("th").textContent == aLabel;
+        let th = row.querySelector("th");
+        if (l10nIds?.label) {
+          return th.dataset.l10nId == aLabel;
+        }
+        return th.textContent == aLabel;
       });
       if (!row) {
         // Create a new row for this label.
         row = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
         let th = document.createElementNS("http://www.w3.org/1999/xhtml", "th");
-        th.textContent = aLabel;
+        if (l10nIds?.label) {
+          document.l10n.setAttributes(th, aLabel);
+        } else {
+          th.textContent = aLabel;
+        }
         th.setAttribute("valign", "top");
         row.appendChild(th);
         description = document.createElementNS(
@@ -285,7 +301,11 @@
         // Row with this label already exists - just update.
         description = row.querySelector("td");
       }
-      description.textContent = aValue;
+      if (l10nIds?.value) {
+        document.l10n.setAttributes(description, aValue);
+      } else {
+        description.textContent = aValue;
+      }
     }
 
     addSeparator() {
@@ -379,6 +399,16 @@
       }
 
       this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
+
+      if (aBuddy.canVerifyIdentity) {
+        const identityStatus = aBuddy.identityVerified
+          ? "chat-buddy-identityStatus-verified"
+          : "chat-buddy-identityStatus-unverified";
+        this.addRow("chat-buddy-identityStatus", identityStatus, {
+          label: true,
+          value: true,
+        });
+      }
 
       // Add encryption status.
       if (this.triggerNode.classList.contains("message-encrypted")) {
@@ -485,6 +515,16 @@
       this.setStatusIcon("unknown");
       this.setMessage(LazyModules.Status.toLabel("unknown"));
       this.setUserIcon(aParticipant?.buddyIconFilename, true);
+
+      if (aParticipant.canVerifyIdentity) {
+        const identityStatus = aParticipant.identityVerified
+          ? "chat-buddy-identityStatus-verified"
+          : "chat-buddy-identityStatus-unverified";
+        this.addRow("chat-buddy-identityStatus", identityStatus, {
+          label: true,
+          value: true,
+        });
+      }
 
       this.requestBuddyInfo(account, normalizedNick);
       return true;

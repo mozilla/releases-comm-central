@@ -123,4 +123,33 @@ const ChatEncryption = {
       OTRUI.hideOTRButton();
     }
   },
+  /**
+   * Verify identity of a participant of buddy.
+   *
+   * @param {DOMWindow} window - Window that the verification dialog attaches to.
+   * @param {prplIAccountBuddy|prplIConvChatBuddy} buddy - Buddy to verify.
+   */
+  verifyIdentity(window, buddy) {
+    if (!buddy.canVerifyIdentity) {
+      Promise.resolve();
+    }
+    buddy
+      .verifyIdentity()
+      .then(sessionVerification => {
+        window.openDialog(
+          "chrome://messenger/content/chat/verify.xhtml",
+          "",
+          "chrome,modal,titlebar,centerscreen",
+          sessionVerification
+        );
+      })
+      .catch(error => {
+        // Only prplIAccountBuddy has a reference to the owner account.
+        if (buddy.account) {
+          buddy.account.prplAccount.wrappedJSObject.ERROR(error);
+        } else {
+          console.error(error);
+        }
+      });
+  },
 };

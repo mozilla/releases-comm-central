@@ -15,6 +15,9 @@
               label="&closeConversationCmd.label;"
               accesskey="&closeConversationCmd.accesskey;"
               oncommand="gBuddyListContextMenu.closeConversation();"/>
+    <menuitem id="context-verifyBuddy"
+              data-l10n-id="chat-verify-identity"
+              oncommand="gBuddyListContextMenu.verifyIdentity();"/>
     <menuseparator id="context-edit-buddy-separator"/>
     <menuitem id="context-alias"
               label="&aliasCmd.label;"
@@ -96,4 +99,11 @@
       </menupopup>
     </menu>
 
+  </menupopup>
+
+  <menupopup id="participantListContextMenu"
+             onpopupshowing="return showParticipantMenu(this);">
+    <menuitem id="context-verifyParticipant"
+              data-l10n-id="chat-verify-identity"
+              oncommand="verifyChatParticipant();"/>
   </menupopup>

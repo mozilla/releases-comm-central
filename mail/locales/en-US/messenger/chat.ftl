@@ -19,3 +19,14 @@ chat-participant-moderator-role-icon2 =
 
 chat-participant-voiced-role-icon2 =
   .alt = Participant can post messages
+
+chat-verify-identity =
+  .label = Verify Identity
+  .accesskey = I
+
+chat-identity-verified =
+  .label = Identity already verified
+
+chat-buddy-identityStatus = Encryption Trust
+chat-buddy-identityStatus-verified = Verified
+chat-buddy-identityStatus-unverified = Unverified
