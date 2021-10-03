@@ -757,16 +757,13 @@ interface nsIMsgFolder : nsISupports {
    * titletips/message preview in the thread pane.
    *
    * @param aKeysToFetch   keys of msgs to fetch
-   * @param aLocalOnly     whether to fetch msgs from server (imap msgs might
-   *                       be in memory cache from junk filter)
    * @param aUrlListener   url listener to notify if we run url to fetch msgs
    *
    * @result aAsyncResults if true, we ran a url to fetch one or more of msg bodies
    *
    */
   boolean fetchMsgPreviewText(in Array<nsMsgKey> aKeysToFetch,
-                      in boolean aLocalOnly,
-                      in nsIUrlListener aUrlListener);
+                              in nsIUrlListener aUrlListener);
 
   // used to set/clear tags - we could have a single method to setKeywords which
   // would figure out the diffs, but these methods might be more convenient.

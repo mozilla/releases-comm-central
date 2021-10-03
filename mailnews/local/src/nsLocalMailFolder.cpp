@@ -3346,20 +3346,17 @@ nsMsgLocalMailFolder::WarnIfLocalFileTooBig(nsIMsgWindow* aWindow,
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(
-    nsTArray<nsMsgKey> const& aKeysToFetch, bool aLocalOnly,
-    nsIUrlListener* aUrlListener, bool* aAsyncResults) {
+    nsTArray<nsMsgKey> const& aKeysToFetch, nsIUrlListener* aUrlListener,
+    bool* aAsyncResults) {
   NS_ENSURE_ARG_POINTER(aAsyncResults);
 
   *aAsyncResults = false;
   nsCOMPtr<nsIInputStream> inputStream;
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
 
   for (uint32_t i = 0; i < aKeysToFetch.Length(); i++) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     nsCString prevBody;
-    rv = GetMessageHeader(aKeysToFetch[i], getter_AddRefs(msgHdr));
+    nsresult rv = GetMessageHeader(aKeysToFetch[i], getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
     // ignore messages that already have a preview body.
     msgHdr->GetStringProperty("preview", getter_Copies(prevBody));
@@ -3369,8 +3366,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(
     rv = GetMsgInputStream(msgHdr, &reusable, getter_AddRefs(inputStream));
     NS_ENSURE_SUCCESS(rv, rv);
     rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::AddKeywordsToMessages(

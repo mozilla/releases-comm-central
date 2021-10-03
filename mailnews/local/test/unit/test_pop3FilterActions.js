@@ -88,9 +88,7 @@ var gTestArray = [
       keys.push(hdr.messageKey);
       hdrs.push(hdr);
     }
-    Assert.ok(
-      !localAccountUtils.inboxFolder.fetchMsgPreviewText(keys, false, null)
-    );
+    Assert.ok(!localAccountUtils.inboxFolder.fetchMsgPreviewText(keys, null));
     let preview1 = hdrs[0].getStringProperty("preview");
     let preview2 = hdrs[1].getStringProperty("preview");
     Assert.equal(preview1, previews[hdrs[0].subject]);

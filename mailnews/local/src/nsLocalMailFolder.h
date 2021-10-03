@@ -180,7 +180,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
       nsTArray<RefPtr<nsIMsgDBHdr>> const& aMessages,
       nsIMsgWindow* aWindow) override;
   NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const& aKeysToFetch,
-                                 bool aLocalOnly, nsIUrlListener* aUrlListener,
+                                 nsIUrlListener* aUrlListener,
                                  bool* aAsyncResults) override;
   NS_IMETHOD AddKeywordsToMessages(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,

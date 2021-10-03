@@ -87,7 +87,7 @@ var gTestArray = [
       keys.push(hdr.messageKey);
       hdrs.push(hdr);
     }
-    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, false, null));
+    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, null));
     Assert.equal(
       hdrs[0].getStringProperty("preview"),
       previews[hdrs[0].subject]

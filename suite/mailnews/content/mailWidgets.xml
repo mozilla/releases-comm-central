@@ -1718,7 +1718,7 @@
                 // fetchMsgPreviewText forces the previewText property to get generated
                 // for each of the message keys.
                 try {
-                  aOutAsync.value = aFolder.fetchMsgPreviewText(msgKeys, false, aUrlListener);
+                  aOutAsync.value = aFolder.fetchMsgPreviewText(msgKeys, aUrlListener);
                   aFolder.msgDatabase = null;
                 }
                 catch (ex)

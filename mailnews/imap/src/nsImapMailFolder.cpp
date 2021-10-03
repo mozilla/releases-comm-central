@@ -8414,8 +8414,8 @@ void nsImapMailFolder::GetTrashFolderName(nsAString& aFolderName) {
   return;
 }
 NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
-    nsTArray<nsMsgKey> const& aKeysToFetch, bool aLocalOnly,
-    nsIUrlListener* aUrlListener, bool* aAsyncResults) {
+    nsTArray<nsMsgKey> const& aKeysToFetch, nsIUrlListener* aUrlListener,
+    bool* aAsyncResults) {
   NS_ENSURE_ARG_POINTER(aAsyncResults);
 
   nsTArray<nsMsgKey> keysToFetchFromServer;
@@ -8461,7 +8461,7 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
       NS_ENSURE_SUCCESS(rv, rv);
       rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
       NS_ENSURE_SUCCESS(rv, rv);
-    } else if (!aLocalOnly) {
+    } else {
       keysToFetchFromServer.AppendElement(msgKey);
     }
   }

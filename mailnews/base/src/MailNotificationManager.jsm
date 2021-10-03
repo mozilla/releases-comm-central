@@ -252,7 +252,7 @@ class MailNotificationManager {
    */
   async _getAlertBody(folder, msgHdr) {
     await new Promise((resolve, reject) => {
-      let isAsync = folder.fetchMsgPreviewText([msgHdr.messageKey], false, {
+      let isAsync = folder.fetchMsgPreviewText([msgHdr.messageKey], {
         OnStartRunningUrl() {},
         // @see nsIUrlListener
         OnStopRunningUrl(url, exitCode) {

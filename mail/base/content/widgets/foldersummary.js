@@ -154,11 +154,7 @@
           // fetchMsgPreviewText forces the previewText property to get generated
           // for each of the message keys.
           try {
-            outAsync.value = folder.fetchMsgPreviewText(
-              msgKeys,
-              false,
-              urlListener
-            );
+            outAsync.value = folder.fetchMsgPreviewText(msgKeys, urlListener);
             folder.msgDatabase = null;
           } catch (ex) {
             // fetchMsgPreviewText throws an error when we call it on a news

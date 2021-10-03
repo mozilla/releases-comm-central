@@ -4925,8 +4925,8 @@ NS_IMETHODIMP nsMsgDBFolder::CompareSortKeys(nsIMsgFolder* aFolder,
 }
 
 NS_IMETHODIMP nsMsgDBFolder::FetchMsgPreviewText(
-    nsTArray<nsMsgKey> const& aKeysToFetch, bool aLocalOnly,
-    nsIUrlListener* aUrlListener, bool* aAsyncResults) {
+    nsTArray<nsMsgKey> const& aKeysToFetch, nsIUrlListener* aUrlListener,
+    bool* aAsyncResults) {
   NS_ENSURE_ARG_POINTER(aAsyncResults);
   return NS_ERROR_NOT_IMPLEMENTED;
 }

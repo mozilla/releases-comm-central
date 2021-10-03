@@ -57,16 +57,12 @@ var gTestArray = [
   function verifyMessages() {
     // check MoveFolder message
     let hdr = [...gMoveFolder.msgDatabase.EnumerateMessages()][0];
-    Assert.ok(!gMoveFolder.fetchMsgPreviewText([hdr.messageKey], false, null));
+    Assert.ok(!gMoveFolder.fetchMsgPreviewText([hdr.messageKey], null));
     Assert.equal(hdr.getStringProperty("preview"), bugmail10_preview);
     // check inbox message
     hdr = [...localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()][0];
     Assert.ok(
-      !localAccountUtils.inboxFolder.fetchMsgPreviewText(
-        [hdr.messageKey],
-        false,
-        null
-      )
+      !localAccountUtils.inboxFolder.fetchMsgPreviewText([hdr.messageKey], null)
     );
     Assert.equal(hdr.getStringProperty("preview"), basic1_preview);
   },

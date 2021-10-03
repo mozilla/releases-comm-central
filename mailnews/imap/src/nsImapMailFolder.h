@@ -317,7 +317,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD GetCanFileMessages(bool* aCanFileMessages) override;
   NS_IMETHOD GetCanDeleteMessages(bool* aCanDeleteMessages) override;
   NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const& aKeysToFetch,
-                                 bool aLocalOnly, nsIUrlListener* aUrlListener,
+                                 nsIUrlListener* aUrlListener,
                                  bool* aAsyncResults) override;
 
   NS_IMETHOD AddKeywordsToMessages(
