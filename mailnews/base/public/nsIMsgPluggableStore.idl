@@ -200,13 +200,13 @@ interface nsIMsgPluggableStore : nsISupports {
    * This allows the store to handle a msg move/copy if it wants. This lets
    * it optimize move/copies within the same store. E.g., for maildir, a
    * msg move mostly entails moving the file containing the message, and
-   * updating the db. If the store does not want to implement this, the core
-   * code will use getMsgInputStream on the source message,
-   * getNewMsgOutputStream for the dest message, and stream the input to
-   * the output (that operation can be asynchronous).
+   * updating the db.
    * If the store does the copy, it must return the appropriate undo action,
    * which can be store dependent. And it must send the appropriate
    * nsIMsgFolderNotificationService notifications.
+   * If the store does not perform the copy, it returns false and the caller
+   * has to handle the copy itself (by streaming messages).
+   * This function is synchronous.
    *
    * @param isMove true if this is a move, false if it is a copy.
    * @param aHdrArray array of nsIMsgDBHdr's, all in the same folder
