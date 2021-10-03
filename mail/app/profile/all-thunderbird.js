@@ -321,9 +321,6 @@ pref("mail.threadpane.use_correspondents", true);
 pref("network.auth.subresource-img-cross-origin-http-auth-allow", true);
 pref("network.auth.non-web-content-triggered-resources-http-auth-allow", true);
 
-// URL for DNS over https.
-pref("network.trr.uri", "https://mozilla.cloudflare-dns.com/dns-query");
-
 // 0=as attachment 2=default forward as inline with attachments
 pref("mail.forward_message_mode", 2);
 
