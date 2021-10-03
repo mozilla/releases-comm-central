@@ -82,13 +82,10 @@ struct nsLocalFolderScanState {
   ~nsLocalFolderScanState();
 
   nsCOMPtr<nsIInputStream> m_inputStream;
-  nsCOMPtr<nsISeekableStream> m_seekableStream;
   nsCOMPtr<nsIMsgPluggableStore> m_msgStore;
   nsCString m_header;
   nsCString m_accountKey;
   const char* m_uidl;  // memory is owned by m_header
-  // false if we need a new input stream for each message
-  bool m_streamReusable;
 };
 
 class nsMsgLocalMailFolder : public nsMsgDBFolder,

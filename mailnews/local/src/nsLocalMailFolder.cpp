@@ -3186,9 +3186,9 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState* aState,
   bool more = false;
   uint32_t size = 0, len = 0;
   const char* accountKey = nullptr;
-  nsresult rv = GetMsgInputStream(aMsgDBHdr, &aState->m_streamReusable,
+  bool reusable;
+  nsresult rv = GetMsgInputStream(aMsgDBHdr, &reusable,
                                   getter_AddRefs(aState->m_inputStream));
-  aState->m_seekableStream = do_QueryInterface(aState->m_inputStream);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
@@ -3221,7 +3221,7 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState* aState,
       }
     }
   }
-  if (!aState->m_streamReusable) {
+  if (!reusable) {
     aState->m_inputStream->Close();
     aState->m_inputStream = nullptr;
   }
