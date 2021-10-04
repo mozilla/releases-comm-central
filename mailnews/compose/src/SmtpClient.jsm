@@ -30,9 +30,7 @@ const EXPORTED_SYMBOLS = ["SmtpClient"];
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { setTimeout, clearTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailCryptoUtils } = ChromeUtils.import(
   "resource:///modules/MailCryptoUtils.jsm"
@@ -45,20 +43,6 @@ var { MsgUtils } = ChromeUtils.import(
 );
 
 const NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
-
-/**
- * Lower Bound for socket timeout to wait since the last data was written to a socket
- */
-const TIMEOUT_SOCKET_LOWER_BOUND = 10000;
-
-/**
- * Multiplier for socket timeout:
- *
- * We assume at least a GPRS connection with 115 kb/s = 14,375 kB/s tops, so 10 KB/s to be on
- * the safe side. We can timeout after a lower bound of 10s + (n KB / 10 KB/s). A 1 MB message
- * upload would be 110 seconds to wait for the timeout. 10 KB/s === 0.1 s/B
- */
-const TIMEOUT_SOCKET_MULTIPLIER = 0.1;
 
 class SmtpClient {
   /**
@@ -77,9 +61,6 @@ class SmtpClient {
         server.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS,
       requireTLS: server.socketType == Ci.nsMsgSocketType.SSL,
     };
-
-    this.timeoutSocketLowerBound = TIMEOUT_SOCKET_LOWER_BOUND;
-    this.timeoutSocketMultiplier = TIMEOUT_SOCKET_MULTIPLIER;
 
     this.socket = false; // Downstream TCP socket to the SMTP server, created with TCPSocket
     this.waitDrain = false; // Keeps track if the downstream socket is currently full and a drain event should be waited for or not
@@ -117,9 +98,6 @@ class SmtpClient {
     this._envelope = null; // Envelope object for tracking who is sending mail to whom
     this._currentAction = null; // Stores the function that should be run after a response has been received from the server
     this._secureMode = this.options.requireTLS; // Indicates if the connection is secured or plaintext
-    this._socketTimeoutTimer = false; // Timer waiting to declare the socket dead starting from the last write
-    this._socketTimeoutStart = false; // Start time of sending the first packet in data mode
-    this._socketTimeoutPeriod = false; // Timeout for sending in data mode, gets extended with every send()
 
     this._parseBlock = { data: [], statusCode: null };
     this._parseRemainder = ""; // If the complete line is not received yet, contains the beginning of it
@@ -150,8 +128,8 @@ class SmtpClient {
     try {
       this.socket.oncert = this.oncert;
     } catch (E) {}
-    this.socket.onerror = this._onError.bind(this);
-    this.socket.onopen = this._onOpen.bind(this);
+    this.socket.onerror = this._onError;
+    this.socket.onopen = this._onOpen;
 
     this._destroyed = false;
   }
@@ -327,10 +305,8 @@ class SmtpClient {
       ); // \r\n.\r\n
     }
 
-    // end data mode, reset the variables for extending the timeout in data mode
+    // End data mode.
     this._dataMode = false;
-    this._socketTimeoutStart = false;
-    this._socketTimeoutPeriod = false;
 
     return this.waitDrain;
   }
@@ -405,14 +381,15 @@ class SmtpClient {
    * Connection listener that is run when the connection to the server is opened.
    * Sets up different event handlers for the opened socket
    */
-  _onOpen() {
-    this.socket.ondata = this._onData.bind(this);
+  _onOpen = () => {
+    this.logger.debug("Connected");
 
-    this.socket.onclose = this._onClose.bind(this);
-    this.socket.ondrain = this._onDrain.bind(this);
+    this.socket.ondata = this._onData;
+    this.socket.onclose = this._onClose;
+    this.socket.ondrain = this._onDrain;
 
     this._currentAction = this._actionGreeting;
-  }
+  };
 
   /**
    * Data listener for chunks of data emitted by the server
@@ -420,15 +397,20 @@ class SmtpClient {
    * @event
    * @param {Event} evt Event object. See `evt.data` for the chunk received
    */
-  _onData(evt) {
-    clearTimeout(this._socketTimeoutTimer);
+  _onData = async evt => {
+    // Prevent blocking the main thread, otherwise onclose/onerror may not be
+    // called in time. test_smtpPasswordFailure3 is such a case, the server
+    // rejects AUTH PLAIN then closes the connection, the client then sends AUTH
+    // LOGIN. This line guarantees onclose is called before sending AUTH LOGIN.
+    await new Promise(resolve => setTimeout(resolve));
+
     var stringPayload = new TextDecoder("UTF-8").decode(
       new Uint8Array(evt.data)
     );
     // "S: " to denote that this is data from the Server.
     this.logger.debug(`S: ${stringPayload}`);
     this._parse(stringPayload);
-  }
+  };
 
   /**
    * More data can be buffered in the socket, `waitDrain` is reset to false
@@ -436,17 +418,17 @@ class SmtpClient {
    * @event
    * @param {Event} evt Event object. Not used
    */
-  _onDrain() {
+  _onDrain = () => {
     this.waitDrain = false;
     this.ondrain();
-  }
+  };
 
   /**
    * Error handler. Emits an nsresult value.
    *
    * @param {Error|TCPSocketErrorEvent} e - An Error or TCPSocketErrorEvent object.
    */
-  _onError(e) {
+  _onError = e => {
     this.logger.error(e);
     let nsError = Cr.NS_ERROR_FAILURE;
     let secInfo = null;
@@ -458,7 +440,7 @@ class SmtpClient {
     // MessageSend.jsm will show an error message depending on the nsresult.
     this.onerror(nsError, "", secInfo);
     this.close();
-  }
+  };
 
   /**
    * Error handler. Emits an nsresult value.
@@ -499,14 +481,14 @@ class SmtpClient {
    * @event
    * @param {Event} evt Event object. Not used
    */
-  _onClose() {
+  _onClose = () => {
     this.logger.debug("Socket closed.");
     this._destroy();
     if (this._authenticating) {
       // In some cases, socket is closed for invalid username/password.
       this._onAuthFailed({ data: "Socket closed." });
     }
-  }
+  };
 
   /**
    * This is not a socket data handler but the handler for data emitted by the parser,
@@ -526,21 +508,10 @@ class SmtpClient {
     }
   }
 
-  _onTimeout() {
-    this.logger.error("Socket timed out.");
-    this._destroy();
-    if (this._authenticating) {
-      // In some cases, socket timed out for invalid username/password.
-      this._onAuthFailed({ data: "Socket timed out." });
-    }
-  }
-
   /**
    * Ensures that the connection is closed and such
    */
   _destroy() {
-    clearTimeout(this._socketTimeoutTimer);
-
     if (!this._destroyed) {
       this._destroyed = true;
       this.onclose();
@@ -591,6 +562,12 @@ class SmtpClient {
    *   so that debugging auth problems is easier.
    */
   _sendCommand(str, suppressLogging = false) {
+    if (this.socket.readyState !== "open") {
+      this.logger.warn(
+        `Failed to send "${str}" because socket state is ${this.socket.readyState}`
+      );
+      return;
+    }
     // "C: " is used to denote that this is data from the Client.
     if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
       this.logger.debug(
@@ -606,35 +583,7 @@ class SmtpClient {
   }
 
   _send(buffer) {
-    this._setTimeout(buffer.byteLength);
     return this.socket.send(buffer);
-  }
-
-  _setTimeout(byteLength) {
-    var prolongPeriod = Math.floor(byteLength * this.timeoutSocketMultiplier);
-    var timeout;
-
-    if (this._dataMode) {
-      // we're in data mode, so we count only one timeout that get extended for every send().
-      var now = Date.now();
-
-      // the old timeout start time
-      this._socketTimeoutStart = this._socketTimeoutStart || now;
-
-      // the old timeout period, normalized to a minimum of TIMEOUT_SOCKET_LOWER_BOUND
-      this._socketTimeoutPeriod =
-        (this._socketTimeoutPeriod || this.timeoutSocketLowerBound) +
-        prolongPeriod;
-
-      // the new timeout is the delta between the new firing time (= timeout period + timeout start time) and now
-      timeout = this._socketTimeoutStart + this._socketTimeoutPeriod - now;
-    } else {
-      // set new timout
-      timeout = this.timeoutSocketLowerBound + prolongPeriod;
-    }
-
-    clearTimeout(this._socketTimeoutTimer); // clear pending timeouts
-    this._socketTimeoutTimer = setTimeout(this._onTimeout.bind(this), timeout); // arm the next timeout
   }
 
   /**
@@ -1142,12 +1091,12 @@ class SmtpClient {
   }
 
   /**
-   * Used when the connection is idle and the server emits timeout
+   * Used when the connection is idle, not expecting anything from the server.
    *
    * @param {Object} command Parsed command from the server {statusCode, data}
    */
   _actionIdle(command) {
-    this._onNsError(MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT, command.data);
+    this._onError(new Error(command.data));
   }
 
   /**

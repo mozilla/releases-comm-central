@@ -278,7 +278,9 @@ SmtpServer.prototype = {
   _getServerURI(includeUsername) {
     return (
       "smtp://" +
-      (includeUsername && this.username ? `${this.username}@` : "") +
+      (includeUsername && this.username
+        ? `${encodeURIComponent(this.username)}@`
+        : "") +
       this.hostname
     );
   },
