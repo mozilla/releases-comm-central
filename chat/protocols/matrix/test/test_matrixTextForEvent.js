@@ -724,7 +724,7 @@ const FIXTURES = [
         to: "@foo:example.com",
       },
     }),
-    result: _("message.verification.request", SENDER, "@foo:example.com"),
+    result: _("message.verification.request2", SENDER, "@foo:example.com"),
     name: "Inline key verification request",
   },
   {
@@ -734,7 +734,7 @@ const FIXTURES = [
         to: "@foo:example.com",
       },
     }),
-    result: _("message.verification.request", SENDER, "@foo:example.com"),
+    result: _("message.verification.request2", SENDER, "@foo:example.com"),
     name: "Key verification request",
   },
   {
@@ -744,7 +744,7 @@ const FIXTURES = [
         reason: "Lorem ipsum",
       },
     }),
-    result: _("message.verification.cancel", SENDER, "Lorem ipsum"),
+    result: _("message.verification.cancel2", SENDER, "Lorem ipsum"),
     name: "Key verification cancelled",
   },
   {
