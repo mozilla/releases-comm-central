@@ -1331,7 +1331,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsITransaction> undoTxn;
   nsTArray<RefPtr<nsIMsgDBHdr>> dstHdrs;
-  rv = msgStore->CopyMessages(isMove, srcHdrs, this, listener, dstHdrs,
+  rv = msgStore->CopyMessages(isMove, srcHdrs, this, dstHdrs,
                               getter_AddRefs(undoTxn), &storeDidCopy);
   if (storeDidCopy) {
     NS_ASSERTION(undoTxn, "if store does copy, it needs to add undo action");

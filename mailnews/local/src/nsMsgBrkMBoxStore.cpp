@@ -736,7 +736,6 @@ NS_IMETHODIMP
 nsMsgBrkMBoxStore::CopyMessages(bool isMove,
                                 const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray,
                                 nsIMsgFolder* aDstFolder,
-                                nsIMsgCopyServiceListener* aListener,
                                 nsTArray<RefPtr<nsIMsgDBHdr>>& aDstHdrs,
                                 nsITransaction** aUndoAction, bool* aCopyDone) {
   NS_ENSURE_ARG_POINTER(aDstFolder);
