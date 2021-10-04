@@ -761,7 +761,7 @@ add_task(async function test_full_account_setup() {
   // Connect the linked address book.
   let abDirectoryPromise = TestUtils.topicObserved("addrbook-directory-synced");
   EventUtils.synthesizeMouseAtCenter(
-    abList.querySelector("li > button.small"),
+    abList.querySelector("li > button.small-button"),
     {},
     tab.browser.contentWindow
   );
@@ -819,7 +819,7 @@ add_task(async function test_full_account_setup() {
     "Timeout waiting for the #calendarDialog to be visible"
   );
   EventUtils.synthesizeMouseAtCenter(
-    calendarList.querySelector("li > button.small"),
+    calendarList.querySelector("li > button.small-button"),
     {},
     tab.browser.contentWindow
   );
