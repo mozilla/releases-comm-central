@@ -98,6 +98,12 @@
         `[tooltip="${this.id}"] richlistitem`
       );
 
+      // No tooltip on search results
+      if (item?.hasAttribute("is-search-result")) {
+        return false;
+      }
+
+      // No tooltip on the group headers
       if (item && item.matches(`:scope[is="chat-group-richlistitem"]`)) {
         return false;
       }

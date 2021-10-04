@@ -125,6 +125,8 @@
         icon.setAttribute("src", "chrome://global/skin/icons/search-glass.svg");
         let statusIcon = this.querySelector(".smallStatusIcon");
         statusIcon.hidden = true;
+        this.setAttribute("unreadCount", "0");
+        this.setAttribute("unreadTargetedCount", "0");
       }
 
       this.initializeAttributeInheritance();
