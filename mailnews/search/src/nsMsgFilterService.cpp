@@ -988,7 +988,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
                 ("(Post) Action execution failed with error: %" PRIx32,
                  static_cast<uint32_t>(mFinalResult)));
-        if (loggingEnabled) {
+        if (loggingEnabled && m_searchHitHdrs.Length() > 0) {
           (void)curFilter->LogRuleHitFail(filterAction, m_searchHitHdrs[0],
                                           mFinalResult,
                                           "filterActionFailed"_ns);
