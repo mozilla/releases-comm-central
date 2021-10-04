@@ -52,6 +52,10 @@ AboutRedirector.prototype = {
       url: "chrome://messenger/content/addressbook/aboutAddressBook.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
+    "3pane": {
+      url: "chrome://messenger/content/about3Pane.xhtml",
+      flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
+    },
     message: {
       url: "chrome://messenger/content/aboutMessage.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,

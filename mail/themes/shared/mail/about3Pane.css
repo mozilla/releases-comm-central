@@ -1,0 +1,292 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --in-content-button-border-radius: 3px;
+}
+
+@media not (prefers-contrast) {
+  :root {
+    --in-content-button-background: var(--grey-90-a10);
+    --in-content-button-background-hover: var(--grey-90-a20);
+    --in-content-button-background-active: var(--grey-90-a30);
+    --in-content-categories-background: #ebebef;
+    --in-content-item-selected-unfocused: var(--grey-20);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --in-content-categories-background: rgba(249, 249, 250, 0.1);
+      --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
+      --in-content-button-background: rgba(249, 249, 250, 0.1);
+      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
+      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
+      --in-content-primary-button-background: #45a1ff;
+      --in-content-primary-button-background-hover: #65c1ff;
+      --in-content-primary-button-background-active: #85e1ff;
+      --in-content-focus-outline-color: #45a1ff;
+    }
+  }
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+
+  display: grid;
+  --splitter1-width: 18em;
+  --splitter2-width: 54em;
+  --splitter2-height: 36em;
+
+  font: message-box;
+}
+
+hr[is="pane-splitter"] {
+  margin: 0 -3px;
+  z-index: 1;
+  cursor: ew-resize;
+  border: none;
+}
+
+hr[is="pane-splitter"]:hover {
+  background-color: SelectedItem;
+}
+
+/* Classic layout: folder tree on the left, thread tree and message browser on the right. */
+
+body.layout-classic {
+  grid-template-columns: var(--splitter1-width) 0 auto;
+  grid-template-rows: auto 0 var(--splitter2-height);
+}
+
+body.layout-classic :is(#folderTreePane, #splitter1) {
+  grid-row: 1 / -1;
+}
+
+body.layout-classic :is(#threadTreePane, #splitter2, #messageBrowserPane, #messageBrowserPaneCover) {
+  grid-column: 3;
+}
+
+body.layout-classic #messageBrowserPane {
+  border-top: 1px solid ThreeDShadow;
+  border-inline-start: 1px solid ThreeDShadow;
+}
+
+body.layout-classic #splitter2 {
+  margin: -3px 0;
+  cursor: ns-resize;
+}
+
+body.layout-classic :is(#messageBrowserPane, #messageBrowserPaneCover) {
+  grid-row: 3;
+}
+
+/* Vertical layout: three columns. */
+
+body.layout-vertical {
+  grid-template-columns: var(--splitter1-width) 0 auto 0 var(--splitter2-width);
+}
+
+body.layout-vertical :is(#folderTreePane, #splitter1) {
+  grid-row: 1 / -1;
+}
+
+body.layout-vertical :is(#messageBrowserPane, #messageBrowserPaneCover) {
+  grid-column: 5;
+  grid-row: 1;
+}
+
+body.layout-vertical #messageBrowserPane {
+  border-inline-start: 1px solid ThreeDShadow;
+}
+
+/* Wide layout: folder tree and thread tree on the top, and message browser on the bottom. */
+
+body.layout-wide {
+  grid-template-columns: var(--splitter1-width) 0 auto;
+  grid-template-rows: auto 0 var(--splitter2-height);
+}
+
+body.layout-wide :is(#folderTreePane, #splitter1, #threadTreePane) {
+  grid-row: 1;
+}
+
+body.layout-wide :is(#splitter2, #messageBrowserPane, #messageBrowserPaneCover) {
+  grid-column: 1 / -1;
+}
+
+body.layout-wide #splitter2 {
+  margin: -3px 0;
+  cursor: ns-resize;
+}
+
+body.layout-wide #messageBrowserPane {
+  border-top: 1px solid ThreeDShadow;
+}
+
+body.layout-wide :is(#messageBrowserPane, #messageBrowserPaneCover) {
+  grid-row: 3;
+}
+
+/* Folder tree pane. */
+
+#folderTreePane {
+  overflow: hidden auto;
+}
+
+#folderTree,
+#folderTree ul {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  -moz-context-properties: fill;
+  margin-inline: 6px;
+  border-radius: var(--in-content-button-border-radius);
+  fill: currentColor;
+  cursor: default;
+  padding-inline-start: var(--indent);
+}
+
+li.selected > .container {
+  background-color: var(--in-content-button-background);
+}
+
+li > .container:hover {
+  background-color: var(--in-content-item-hover);
+}
+
+#folderTree:focus li.selected > .container {
+  background-color: var(--in-content-item-selected);
+  color: var(--in-content-item-selected-text);
+}
+
+:is(li, thread-listrow) .twisty {
+  width: 22px;
+  height: 22px;
+}
+
+:is(li, thread-listrow):not(.children) .twisty-icon {
+  display: none;
+}
+
+:is(li, thread-listrow) .twisty-icon {
+  margin: 5px;
+}
+
+:is(li, thread-listrow).children.collapsed .twisty-icon {
+  transform: rotate(-90deg);
+}
+
+:is(li, thread-listrow).children.collapsed:dir(rtl) .twisty-icon {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(li, thread-listrow) .twisty-icon {
+    transition: transform 200ms ease;
+  }
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.name {
+  flex: 1;
+  margin-inline: 7px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+}
+
+ul:empty,
+li.collapsed > ul {
+  display: none;
+}
+
+#folderTree > li > ul {
+  --indent: 16px;
+}
+
+#folderTree > li > ul > li > ul {
+  --indent: 32px;
+}
+
+#folderTree > li > ul > li > ul > li > ul {
+  --indent: 48px;
+}
+
+/* Thread tree pane. */
+
+#threadTreePane {
+  overflow: auto;
+  display: flex;
+  border-inline-start: 1px solid ThreeDShadow;
+}
+
+#threadTreePane > tree-view-listbox {
+  flex: 1;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+thread-listrow {
+  line-height: 22px;
+  margin-inline: 6px;
+  display: flex;
+  border-radius: var(--in-content-button-border-radius);
+}
+
+thread-listrow > span {
+  padding-inline: 4px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+thread-listrow > .senderCol {
+  width: 15%;
+}
+
+thread-listrow > .subjectCol {
+  flex: 1;
+}
+
+thread-listrow > .dateCol {
+  width: 10em;
+}
+
+/* Message browser pane. */
+
+#messageBrowserPane {
+  overflow: auto;
+  display: flex;
+}
+
+#messageBrowser {
+  visibility: hidden;
+  flex: 1;
+}
+
+#messageBrowserPaneCover {
+  display: none;
+}
+
+body.dragging #messageBrowserPaneCover {
+  display: unset;
+}

@@ -1262,6 +1262,14 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
     properties.AppendLiteral(" untagged");
   }
 
+  uint32_t flags;
+  msgHdr->GetFlags(&flags);
+
+  if (!(flags & nsMsgMessageFlags::Read))
+    properties.AppendLiteral(" unread");
+  else
+    properties.AppendLiteral(" read");
+
   // Give the custom column handlers a chance to style the row.
   for (int i = 0; i < m_customColumnHandlers.Count(); i++) {
     nsString extra;

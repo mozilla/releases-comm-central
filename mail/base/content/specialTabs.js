@@ -244,6 +244,7 @@ var DOMLinkHandler = {
   handleEvent(event) {
     switch (event.type) {
       case "DOMLinkAdded":
+      case "DOMLinkChanged":
         this.onLinkAdded(event);
         break;
     }
@@ -338,6 +339,7 @@ var contentTabBaseType = {
   // List of URLs that will receive special treatment when opened in a tab.
   // Note that about:preferences is loaded via a different mechanism.
   inContentWhitelist: [
+    "about:3pane",
     "about:addons",
     "about:addressbook",
     "about:blank",
@@ -349,6 +351,11 @@ var contentTabBaseType = {
   // The array members (functions) are for the respective document URLs
   // as specified in inContentWhitelist.
   inContentOverlays: [
+    // about:3pane provides its own context menu.
+    function(aDocument, aTab) {
+      aTab.browser.removeAttribute("context");
+    },
+
     // about:addons
     function(aDocument, aTab) {
       Services.scriptloader.loadSubScript(
@@ -433,6 +440,7 @@ var contentTabBaseType = {
       true
     );
     aTab.browser.removeEventListener("DOMLinkAdded", DOMLinkHandler);
+    aTab.browser.removeEventListener("DOMLinkChanged", DOMLinkHandler);
     aTab.browser.webProgress.removeProgressListener(aTab.filter);
     aTab.filter.removeProgressListener(aTab.progressListener);
     aTab.browser.destroy();
@@ -960,6 +968,7 @@ var specialTabs = {
       }
 
       aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
+      aTab.browser.addEventListener("DOMLinkChanged", DOMLinkHandler);
 
       // Now initialise the find bar.
       aTab.findbar = document.createXULElement("findbar");

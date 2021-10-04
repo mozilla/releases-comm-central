@@ -7,14 +7,20 @@
  */
 
 const EXPORTED_SYMBOLS = [
-  "getFolderProperties",
-  "getSpecialFolderString",
   "allAccountsSorted",
-  "getMostRecentFolders",
-  "folderNameCompare",
   "compareAccounts",
+  "folderNameCompare",
+  "getFolderIcon",
+  "getFolderProperties",
+  "getMostRecentFolders",
+  "getSpecialFolderString",
 ];
 
+ChromeUtils.defineModuleGetter(
+  this,
+  "FeedUtils",
+  "resource:///modules/FeedUtils.jsm"
+);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -232,4 +238,69 @@ function folderNameCompare(aString1, aString2) {
   return aString1
     .toLocaleLowerCase()
     .localeCompare(aString2.toLocaleLowerCase());
+}
+
+function getFolderIcon(folder) {
+  let iconName;
+  if (FeedUtils.getFeedUrlsInFolder(folder)) {
+    iconName = "feeds-folder.svg";
+  } else if (folder.isServer) {
+    switch (folder.server.type) {
+      case "nntp":
+        iconName = folder.server.isSecure ? "globe-secure.svg" : "globe.svg";
+        break;
+      case "imap":
+      case "pop":
+        iconName = folder.server.isSecure
+          ? "message-secure.svg"
+          : "message.svg";
+        break;
+      case "none":
+        iconName = "folder-local.svg";
+        break;
+      case "rss":
+        iconName = "feeds.svg";
+        break;
+      default:
+        iconName = "message.svg";
+        break;
+    }
+  } else if (folder.server.type == "nntp") {
+    iconName = "newsgroup.svg";
+  } else {
+    switch (getSpecialFolderString(folder)) {
+      case "Virtual":
+        iconName = "search-folder.svg";
+        break;
+      case "Junk":
+        iconName = "junk.svg";
+        break;
+      case "Templates":
+        iconName = "template.svg";
+        break;
+      case "Archive":
+        iconName = "archive.svg";
+        break;
+      case "Trash":
+        iconName = "delete.svg";
+        break;
+      case "Drafts":
+        iconName = "file-item.svg";
+        break;
+      case "Outbox":
+        iconName = "outbox.svg";
+        break;
+      case "Sent":
+        iconName = "sent.svg";
+        break;
+      case "Inbox":
+        iconName = "inbox.svg";
+        break;
+      default:
+        iconName = "folder.svg";
+        break;
+    }
+  }
+
+  return `chrome://messenger/skin/icons/${iconName}`;
 }

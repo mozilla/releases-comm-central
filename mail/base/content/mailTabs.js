@@ -15,7 +15,7 @@ var { MsgHdrSyntheticView } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { getSpecialFolderString } = ChromeUtils.import(
+var { getFolderIcon, getSpecialFolderString } = ChromeUtils.import(
   "resource:///modules/folderUtils.jsm"
 );
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
@@ -331,70 +331,7 @@ var mailTabType = {
           return;
         }
 
-        let iconName;
-        if (feedUrls) {
-          iconName = "feeds-folder.svg";
-        } else if (folder.isServer) {
-          switch (folder.server.type) {
-            case "nntp":
-              iconName = folder.server.isSecure
-                ? "globe-secure.svg"
-                : "globe.svg";
-              break;
-            case "imap":
-            case "pop":
-              iconName = folder.server.isSecure
-                ? "message-secure.svg"
-                : "message.svg";
-              break;
-            case "none":
-              iconName = "folder-local.svg";
-              break;
-            case "rss":
-              iconName = "feeds.svg";
-              break;
-            default:
-              iconName = "message.svg";
-              break;
-          }
-        } else if (folder.server.type == "nntp") {
-          iconName = "newsgroup.svg";
-        } else {
-          switch (specialFolderStr) {
-            case "Virtual":
-              iconName = "search-folder.svg";
-              break;
-            case "Junk":
-              iconName = "junk.svg";
-              break;
-            case "Templates":
-              iconName = "template.svg";
-              break;
-            case "Archive":
-              iconName = "archive.svg";
-              break;
-            case "Trash":
-              iconName = "delete.svg";
-              break;
-            case "Drafts":
-              iconName = "file-item.svg";
-              break;
-            case "Outbox":
-              iconName = "outbox.svg";
-              break;
-            case "Sent":
-              iconName = "sent.svg";
-              break;
-            case "Inbox":
-              iconName = "inbox.svg";
-              break;
-            default:
-              iconName = "folder.svg";
-              break;
-          }
-        }
-
-        aTabNode.setIcon(`chrome://messenger/skin/icons/${iconName}`);
+        aTabNode.setIcon(getFolderIcon(folder));
       },
       getBrowser(aTab) {
         // If we are currently a thread summary, we want to select the multi

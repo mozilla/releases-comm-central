@@ -1131,7 +1131,17 @@
       }
 
       this._view = view;
-      this._view.setTree(this);
+      if (view) {
+        try {
+          view.setTree(this);
+        } catch (ex) {
+          // This isn't a XULTreeElement, and we can't make it one, so if the
+          // `setTree` call crosses XPCOM, an exception will be thrown.
+          if (ex.result != Cr.NS_ERROR_XPC_BAD_CONVERT_JS) {
+            throw ex;
+          }
+        }
+      }
       this._rowElementName = this.getAttribute("rows") || "tree-view-listrow";
       this._rowElementClass = customElements.get(this._rowElementName);
       this.invalidate();
@@ -1151,8 +1161,9 @@
       this._firstRowIndex = 0;
       this._lastRowIndex = 0;
 
+      let rowCount = this._view ? this._view.rowCount : 0;
       this.filler.style.minHeight =
-        this._view.rowCount * this._rowElementClass.ROW_HEIGHT + "px";
+        rowCount * this._rowElementClass.ROW_HEIGHT + "px";
       this._ensureVisibleRowsAreDisplayed();
     }
 
@@ -1456,6 +1467,10 @@
     }
 
     set currentIndex(index) {
+      if (!this._view) {
+        this._currentIndex = -1;
+        return;
+      }
       if (index < 0 || index > this._view.rowCount - 1) {
         return;
       }

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<head>
+  <meta charset="utf-8" />
+  <title></title>
+  <link rel="icon" href="chrome://messenger/skin/icons/folder-local.svg" />
+  <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/about3Pane.css" />
+  <script defer="defer" src="chrome://messenger/content/pane-splitter.js"></script>
+  <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
+  <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/about3Pane.js"></script>
+</head>
+<body class="layout-classic">
+  <div id="folderTreePane" tabindex="-1">
+    <ul id="folderTree" is="tree-listbox"></ul>
+    <template id="folderTemplate">
+      <li>
+        <div class="container">
+          <div class="twisty">
+            <img class="twisty-icon" src="chrome://global/skin/icons/arrow-down-12.svg" alt="" />
+          </div>
+          <div class="icon"></div>
+          <span class="name" tabindex="-1"></span>
+          <!-- <div class="menu"></div> -->
+        </div>
+      </li>
+    </template>
+  </div>
+  <hr is="pane-splitter" id="splitter1" />
+  <div id="threadTreePane">
+    <tree-view-listbox id="threadTree" rows="thread-listrow"></tree-view-listbox>
+  </div>
+  <hr is="pane-splitter" id="splitter2" after="after" />
+  <div id="messageBrowserPane">
+    <xul:browser id="messageBrowser" type="content" src="about:message" />
+  </div>
+  <div id="messageBrowserPaneCover" class="dragcover"><!--
+    Occupies the same grid cell(s) as #messageBrowserPane, and only visible
+    during drag operations, so that we get mouse events in this space.
+  --></div>
+</body>
+</html>
