@@ -28,7 +28,7 @@ ChromeUtils.defineModuleGetter(
  * @returns {string}
  */
 const keyVerificationRequest = (matrixEvent, { sender, content }) => {
-  return _("message.verification.request", sender, content.to);
+  return _("message.verification.request2", sender, content.to);
 };
 /**
  * Shared handler for room messages, since those come in the plain text and
@@ -255,7 +255,7 @@ const MATRIX_EVENT_HANDLERS = {
   },
   [EventType.KeyVerificationCancel]: {
     handler(matrixEvent, { sender, content }) {
-      return _("message.verification.cancel", sender, content.reason);
+      return _("message.verification.cancel2", sender, content.reason);
     },
   },
   [EventType.KeyVerificationDone]: {
