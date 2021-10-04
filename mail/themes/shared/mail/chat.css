@@ -122,7 +122,6 @@
   /* make it possible to let the children overwrite the end border.
      margin-inline-start because of the inverted direction */
   margin-inline-start: -1px;
-  pointer-events: none;
 }
 
 /* move the scrollbar to the left */
