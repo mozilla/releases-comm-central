@@ -139,8 +139,7 @@ nsresult nsMailboxService::FetchMessage(
     const char* aMessageURI, nsISupports* aDisplayConsumer,
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
     const char* aFileName, /* only used by open attachment... */
-    nsMailboxAction mailboxAction, bool aOverrideCharset,
-    nsIURI** aURL) {
+    nsMailboxAction mailboxAction, bool aOverrideCharset, nsIURI** aURL) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMailboxUrl> mailboxurl;
   nsMailboxAction actionToUse = mailboxAction;
@@ -274,8 +273,7 @@ nsMailboxService::StreamMessage(const char* aMessageURI, nsISupports* aConsumer,
   }
 
   return FetchMessage(aURIString.get(), aConsumer, aMsgWindow, aUrlListener,
-                      nullptr, nsIMailboxUrl::ActionFetchMessage, false,
-                      aURL);
+                      nullptr, nsIMailboxUrl::ActionFetchMessage, false, aURL);
 }
 
 NS_IMETHODIMP nsMailboxService::StreamHeaders(const char* aMessageURI,
@@ -292,10 +290,7 @@ NS_IMETHODIMP nsMailboxService::StreamHeaders(const char* aMessageURI,
   if (msgKey == nsMsgKey_None) return NS_MSG_MESSAGE_NOT_FOUND;
 
   nsCOMPtr<nsIInputStream> inputStream;
-  int64_t messageOffset;
-  uint32_t messageSize;
-  rv = folder->GetOfflineFileStream(msgKey, &messageOffset, &messageSize,
-                                    getter_AddRefs(inputStream));
+  rv = folder->GetSlicedOfflineFileStream(msgKey, getter_AddRefs(inputStream));
   NS_ENSURE_SUCCESS(rv, rv);
   return MsgStreamMsgHeaders(inputStream, aConsumer);
 }

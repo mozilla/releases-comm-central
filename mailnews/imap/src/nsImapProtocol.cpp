@@ -9685,29 +9685,19 @@ bool nsImapMockChannel::ReadFromLocalCache() {
     return false;
   }
   // we want to create a file channel and read the msg from there.
-  nsCOMPtr<nsIInputStream> fileStream;
   nsMsgKey msgKey = strtoul(messageIdString.get(), nullptr, 10);
-  uint32_t size;
-  int64_t offset;
-  rv = folder->GetOfflineFileStream(msgKey, &offset, &size,
-                                    getter_AddRefs(fileStream));
+  nsCOMPtr<nsIInputStream> msgStream;
+  rv = folder->GetSlicedOfflineFileStream(msgKey, getter_AddRefs(msgStream));
   NS_ENSURE_SUCCESS(rv, false);
-  // get the file channel from the folder, somehow (through the message or
-  // folder sink?) We also need to set the transfer offset to the message
-  // offset
   // dougt - This may break the ablity to "cancel" a read from offline
   // mail reading. fileChannel->SetLoadGroup(m_loadGroup);
   RefPtr<nsImapCacheStreamListener> cacheListener =
       new nsImapCacheStreamListener();
   cacheListener->Init(m_channelListener, this);
 
-  // create a stream pump that will async read the specified amount of
-  // data.
-  // XXX make size 64-bit int
-  RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
-      fileStream.forget(), uint64_t(offset), uint64_t(size));
+  // create a stream pump that will async read the message.
   nsCOMPtr<nsIInputStreamPump> pump;
-  rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
+  rv = NS_NewInputStreamPump(getter_AddRefs(pump), msgStream.forget());
   NS_ENSURE_SUCCESS(rv, false);
   rv = pump->AsyncRead(cacheListener);
   NS_ENSURE_SUCCESS(rv, false);

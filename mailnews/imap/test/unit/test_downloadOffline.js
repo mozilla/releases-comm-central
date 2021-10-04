@@ -53,17 +53,13 @@ async function downloadAllForOffline() {
 
 function verifyDownloaded() {
   // verify that the message headers have the offline flag set.
-  let offset = {};
-  let size = {};
   for (let header of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
     // Verify that each message has been downloaded and looks OK.
     if (
       header instanceof Ci.nsIMsgDBHdr &&
       header.flags & Ci.nsMsgMessageFlags.Offline
     ) {
-      IMAPPump.inbox
-        .getOfflineFileStream(header.messageKey, offset, size)
-        .close();
+      IMAPPump.inbox.getSlicedOfflineFileStream(header.messageKey).close();
     } else {
       do_throw("Message not downloaded for offline use");
     }

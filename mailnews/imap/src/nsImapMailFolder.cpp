@@ -8454,10 +8454,7 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     nsMsgKey msgKey;
     msgHdr->GetMessageKey(&msgKey);
     if (msgFlags & nsMsgMessageFlags::Offline) {
-      int64_t messageOffset;
-      uint32_t messageSize;
-      rv = GetOfflineFileStream(msgKey, &messageOffset, &messageSize,
-                                getter_AddRefs(inputStream));
+      rv = GetSlicedOfflineFileStream(msgKey, getter_AddRefs(inputStream));
       NS_ENSURE_SUCCESS(rv, rv);
       rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
       NS_ENSURE_SUCCESS(rv, rv);
@@ -8845,10 +8842,12 @@ NS_IMETHODIMP nsImapMailFolder::GetOfflineFileStream(
   rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (offlineFolder == this)
+  if (offlineFolder == this) {
     return nsMsgDBFolder::GetOfflineFileStream(msgKey, offset, size,
                                                aFileStream);
+  }
 
+  // The message we want is stored in a different folder (hackery for gmail).
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);

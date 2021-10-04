@@ -59,8 +59,6 @@ function addGeneratedMessagesToServer(messages, mailbox) {
 
 function checkOfflineStore(prevOfflineStoreSize) {
   dump("checking offline store\n");
-  let offset = {};
-  let size = {};
   let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
   if (enumerator) {
     for (let header of enumerator) {
@@ -70,9 +68,7 @@ function checkOfflineStore(prevOfflineStoreSize) {
         header instanceof Ci.nsIMsgDBHdr &&
         header.flags & Ci.nsMsgMessageFlags.Offline
       ) {
-        IMAPPump.inbox
-          .getOfflineFileStream(header.messageKey, offset, size)
-          .close();
+        IMAPPump.inbox.getSlicedOfflineFileStream(header.messageKey).close();
       }
     }
   }

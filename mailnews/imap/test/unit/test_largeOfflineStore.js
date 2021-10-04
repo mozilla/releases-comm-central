@@ -123,8 +123,6 @@ function* check_result() {
   Assert.ok(offlineStoreSize > gOfflineStoreSize);
 
   // Verify that the message headers have the offline flag set.
-  let offset = {};
-  let size = {};
   for (let header of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
     // Verify that each message has been downloaded and looks OK.
     if (
@@ -136,10 +134,8 @@ function* check_result() {
       do_throw("Message not downloaded for offline use");
     }
 
-    IMAPPump.inbox
-      .getOfflineFileStream(header.messageKey, offset, size)
-      .close();
-    info("Msg hdr offset = " + offset.value);
+    // Make sure we don't fall over if we ask to read the message.
+    IMAPPump.inbox.getSlicedOfflineFileStream(header.messageKey).close();
   }
 }
 

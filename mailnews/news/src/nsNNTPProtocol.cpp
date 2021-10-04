@@ -650,58 +650,51 @@ nsresult nsNNTPProtocol::ReadFromNewsConnection() {
 // download because this method does the rest of the work.
 bool nsNNTPProtocol::ReadFromLocalCache() {
   bool msgIsInLocalCache = false;
-  nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningURL);
   mailnewsUrl->GetMsgIsInLocalCache(&msgIsInLocalCache);
 
-  if (msgIsInLocalCache) {
-    nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(m_newsFolder);
-    if (folder && NS_SUCCEEDED(rv)) {
-      // we want to create a file channel and read the msg from there.
-      nsCOMPtr<nsIInputStream> fileStream;
-      int64_t offset = 0;
-      uint32_t size = 0;
-      rv = folder->GetOfflineFileStream(m_key, &offset, &size,
-                                        getter_AddRefs(fileStream));
+  if (!msgIsInLocalCache) {
+    return false;
+  }
+  nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(m_newsFolder);
+  MOZ_ASSERT(folder);
 
-      // get the file stream from the folder, somehow (through the message or
-      // folder sink?) We also need to set the transfer offset to the message
-      // offset
-      if (NS_SUCCEEDED(rv)) {
-        // dougt - This may break the ablity to "cancel" a read from offline
-        // mail reading. fileChannel->SetLoadGroup(m_loadGroup);
+  // Attempt to get locally-stored message.
+  nsCOMPtr<nsIInputStream> msgStream;
+  nsresult rv =
+      folder->GetSlicedOfflineFileStream(m_key, getter_AddRefs(msgStream));
 
-        m_typeWanted = ARTICLE_WANTED;
-
-        RefPtr<nsNntpCacheStreamListener> cacheListener =
-            new nsNntpCacheStreamListener();
-
-        cacheListener->Init(m_channelListener, static_cast<nsIChannel*>(this),
-                            mailnewsUrl);
-
-        // create a stream pump that will async read the specified amount of
-        // data.
-        // XXX make size 64-bit int
-        RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
-            fileStream.forget(), uint64_t(offset), uint64_t(size));
-        nsCOMPtr<nsIInputStreamPump> pump;
-        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
-        if (NS_SUCCEEDED(rv)) rv = pump->AsyncRead(cacheListener);
-
-        if (NS_SUCCEEDED(rv))  // ONLY if we succeeded in actually starting the
-                               // read should we return
-        {
-          mContentType.Truncate();
-          m_channelListener = nullptr;
-          NNTP_LOG_NOTE("Loading message from offline storage");
-          return true;
-        }
-      } else
-        mailnewsUrl->SetMsgIsInLocalCache(false);
-    }
+  if (NS_FAILED(rv)) {
+    mailnewsUrl->SetMsgIsInLocalCache(false);
+    return false;
   }
 
-  return false;
+  // dougt - This may break the ablity to "cancel" a read from offline
+  // mail reading. fileChannel->SetLoadGroup(m_loadGroup);
+
+  m_typeWanted = ARTICLE_WANTED;
+
+  RefPtr<nsNntpCacheStreamListener> cacheListener =
+      new nsNntpCacheStreamListener();
+
+  cacheListener->Init(m_channelListener, static_cast<nsIChannel*>(this),
+                      mailnewsUrl);
+
+  // Create a stream pump that will async read the message.
+  nsCOMPtr<nsIInputStreamPump> pump;
+  rv = NS_NewInputStreamPump(getter_AddRefs(pump), msgStream.forget());
+  if (NS_SUCCEEDED(rv)) rv = pump->AsyncRead(cacheListener);
+
+  if (NS_FAILED(rv)) {
+    mailnewsUrl->SetMsgIsInLocalCache(false);
+    return false;
+  }
+
+  // Started streaming the offline copy, so we're done.
+  mContentType.Truncate();
+  m_channelListener = nullptr;
+  NNTP_LOG_NOTE("Loading message from offline storage");
+  return true;
 }
 
 NS_IMETHODIMP
