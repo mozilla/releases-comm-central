@@ -36,11 +36,6 @@ class nsImapMailDatabase : public nsMailDatabase {
   NS_IMETHOD UpdatePendingAttributes(nsIMsgDBHdr* aNewHdr) override;
 
  protected:
-  // IMAP does not set local file flags, override does nothing
-  virtual void UpdateFolderFlag(nsIMsgDBHdr* msgHdr, bool bSet,
-                                nsMsgMessageFlagType flag,
-                                nsIOutputStream** ppFileStream);
-
   nsresult GetRowForPendingHdr(nsIMsgDBHdr* pendingHdr, nsIMdbRow** row);
   nsresult GetAllPendingHdrsTable();
   mdb_token m_pendingHdrsRowScopeToken;

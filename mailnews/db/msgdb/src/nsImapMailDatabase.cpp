@@ -40,11 +40,6 @@ NS_IMETHODIMP nsImapMailDatabase::SetSummaryValid(bool valid) {
   return NS_OK;
 }
 
-// IMAP does not set local file flags, override does nothing
-void nsImapMailDatabase::UpdateFolderFlag(
-    nsIMsgDBHdr* /* msgHdr */, bool /* bSet */, nsMsgMessageFlagType /* flag */,
-    nsIOutputStream** /* ppFileStream */) {}
-
 // We override this to avoid our parent class (nsMailDatabase)'s
 // grabbing of the folder semaphore, and bailing on failure.
 NS_IMETHODIMP nsImapMailDatabase::DeleteMessages(
