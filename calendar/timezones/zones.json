@@ -1,5 +1,5 @@
 {
-  "version": "2.2021a",
+  "version": "2.2021c",
   "aliases": {
     "AUS Central Standard Time": {
       "aliasTo": "Australia/Darwin"
@@ -345,6 +345,9 @@
     },
     "Pacific Standard Time (Mexico)": {
       "aliasTo": "America/Santa_Isabel"
+    },
+    "Pacific/Enderbury": {
+      "aliasTo": "Pacific/Kanton"
     },
     "Pacific/Johnston": {
       "aliasTo": "Pacific/Honolulu"
@@ -2107,8 +2110,9 @@
     },
     "Asia/Amman": {
       "ics": [
-        "BEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0300\r\nTZNAME:EEST\r\nDTSTART:19700326T235959\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1TH\r\nEND:DAYLIGHT",
-        "BEGIN:STANDARD\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0200\r\nTZNAME:EET\r\nDTSTART:19701030T010000\r\nRRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1FR\r\nEND:STANDARD"
+        "BEGIN:STANDARD\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0200\r\nTZNAME:EET\r\nDTSTART:19701030T010000\r\nRRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1FR\r\nEND:STANDARD",
+        "BEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0300\r\nTZOFFSETTO:+0300\r\nTZNAME:EEST\r\nDTSTART:20220224T235959\r\nRRULE:FREQ=YEARLY;BYMONTH=2;BYDAY=-1TH\r\nEND:DAYLIGHT",
+        "BEGIN:DAYLIGHT\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0300\r\nTZNAME:EEST\r\nDTSTART:20180329T235959\r\nRDATE:20180329T235959\r\nRDATE:20190328T235959\r\nRDATE:20200326T235959\r\nRDATE:20210325T235959\r\nEND:DAYLIGHT"
       ],
       "latitude": "+0315700",
       "longitude": "+0355600"
@@ -3409,8 +3413,8 @@
     },
     "Pacific/Apia": {
       "ics": [
-        "BEGIN:STANDARD\r\nTZOFFSETFROM:+1400\r\nTZOFFSETTO:+1300\r\nTZNAME:+13\r\nDTSTART:19700405T040000\r\nRRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=1SU\r\nEND:STANDARD",
-        "BEGIN:DAYLIGHT\r\nTZOFFSETFROM:+1300\r\nTZOFFSETTO:+1400\r\nTZNAME:+14\r\nDTSTART:19700927T030000\r\nRRULE:FREQ=YEARLY;BYMONTH=9;BYDAY=-1SU\r\nEND:DAYLIGHT"
+        "BEGIN:STANDARD\r\nTZOFFSETFROM:+1400\r\nTZOFFSETTO:+1300\r\nTZNAME:+13\r\nDTSTART:20180401T040000\r\nRDATE:20180401T040000\r\nRDATE:20190407T040000\r\nRDATE:20200405T040000\r\nRDATE:20210404T040000\r\nEND:STANDARD",
+        "BEGIN:DAYLIGHT\r\nTZOFFSETFROM:+1300\r\nTZOFFSETTO:+1400\r\nTZNAME:+14\r\nDTSTART:19700101T000000\r\nRDATE:19700101T000000\r\nRDATE:20180930T030000\r\nRDATE:20190929T030000\r\nRDATE:20200927T030000\r\nEND:DAYLIGHT"
       ],
       "latitude": "-0135000",
       "longitude": "-1714400"
@@ -3461,13 +3465,6 @@
       ],
       "latitude": "-0174000",
       "longitude": "+1682500"
-    },
-    "Pacific/Enderbury": {
-      "ics": [
-        "BEGIN:STANDARD\r\nTZOFFSETFROM:+1300\r\nTZOFFSETTO:+1300\r\nTZNAME:+13\r\nDTSTART:19700101T000000\r\nEND:STANDARD"
-      ],
-      "latitude": "-0030800",
-      "longitude": "-1710500"
     },
     "Pacific/Fakaofo": {
       "ics": [
@@ -3526,6 +3523,13 @@
       ],
       "latitude": "+0211825",
       "longitude": "-1575130"
+    },
+    "Pacific/Kanton": {
+      "ics": [
+        "BEGIN:STANDARD\r\nTZOFFSETFROM:+1300\r\nTZOFFSETTO:+1300\r\nTZNAME:+13\r\nDTSTART:19700101T000000\r\nEND:STANDARD"
+      ],
+      "latitude": "-0024700",
+      "longitude": "-1714300"
     },
     "Pacific/Kiritimati": {
       "ics": [
@@ -3667,8 +3671,8 @@
       "ics": [
         "BEGIN:STANDARD\r\nTZOFFSETFROM:+1300\r\nTZOFFSETTO:+1300\r\nTZNAME:+13\r\nDTSTART:19700101T000000\r\nEND:STANDARD"
       ],
-      "latitude": "-0211000",
-      "longitude": "-1751000"
+      "latitude": "-0210800",
+      "longitude": "-1751200"
     },
     "Pacific/Wake": {
       "ics": [

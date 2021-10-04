@@ -1,5 +1,5 @@
 {
-  "version": "2.2020d",
+  "version": "2.2021a",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -29,6 +29,7 @@
     "Atlantic/Faeroe",
     "Atlantic/Jan_Mayen",
     "Aus Central W. Standard Time",
+    "Australia/Currie",
     "Azerbaijan Standard Time",
     "Azores Standard Time",
     "Bahia Standard Time",
@@ -482,7 +483,6 @@
     "Australia/Adelaide",
     "Australia/Brisbane",
     "Australia/Broken_Hill",
-    "Australia/Currie",
     "Australia/Darwin",
     "Australia/Eucla",
     "Australia/Hobart",
