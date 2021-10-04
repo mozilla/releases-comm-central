@@ -192,4 +192,8 @@ add_task(async () => {
   await Promise.all([hiddenPromise, promptPromise]);
 
   window.FeedMessageHandler.onSelectPref = 1;
+
+  window.gFolderTreeView.selectFolder(
+    window.gFolderTreeView.getFolderForIndex(0)
+  );
 });
