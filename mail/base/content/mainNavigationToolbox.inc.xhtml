@@ -149,13 +149,14 @@
           <menu id="menu_saveAs"
                 label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
             <menupopup id="menu_SavePopup">
-              <menuitem id="menu_saveAsFile" label="&saveAsFileCmd.label;"
-               accesskey="&saveAsFileCmd.accesskey;"
-               key="key_saveAsFile"
-               command="cmd_saveAsFile"/>
-              <menuitem id="menu_saveAsTemplate" label="&saveAsTemplateCmd.label;"
-               accesskey="&saveAsTemplateCmd.accesskey;"
-               command="cmd_saveAsTemplate"/>
+              <menuitem id="menu_saveAsFile"
+                        data-l10n-id="menu-file-save-as-file"
+                        key="key_saveAsFile"
+                        command="cmd_saveAsFile"/>
+              <menuitem id="menu_saveAsTemplate"
+                        label="&saveAsTemplateCmd.label;"
+                        accesskey="&saveAsTemplateCmd.accesskey;"
+                        command="cmd_saveAsTemplate"/>
             </menupopup>
           </menu>
           <menuseparator id="fileMenuAfterSaveSeparator"/>

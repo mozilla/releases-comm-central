@@ -82,7 +82,14 @@ redirect-msg-menuitem =
     .label = Redirect
     .accesskey = D
 
+menu-file-save-as-file =
+    .label = File…
+    .accesskey = F
+
 ## AppMenu
+
+appmenu-save-as-file =
+    .label = { menu-file-save-as-file.label }
 
 # Since v89 we dropped the platforms distinction between Options or Preferences
 # and consolidated everything with Preferences.
