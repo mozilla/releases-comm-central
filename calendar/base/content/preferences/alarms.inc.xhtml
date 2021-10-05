@@ -1,188 +1,188 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-    <html:div data-category="paneCalendar">
-    <html:fieldset data-category="paneCalendar">
-        <html:legend data-l10n-id="reminder-legend"></html:legend>
-        <vbox id="alarm-sound-box">
-            <hbox align="center">
-                <checkbox id="alarmSoundCheckbox"
-                          preference="calendar.alarms.playsound"
-                          data-l10n-id="reminder-play-checkbox"/>
-                <spacer flex="1"/>
-                <button is="highlightable-button" id="calendar.prefs.alarm.sound.play"
-                        data-l10n-id="reminder-play-alarm-button"
-                        oncommand="gAlarmsPane.previewAlarm()"/>
-            </hbox>
-            <radiogroup id="alarmSoundType"
-                        class="indent"
-                        orient="vertical"
-                        preference="calendar.alarms.soundType"
-                        aria-labelledby="alarmSoundCheckbox">
-                <hbox>
-                    <radio id="alarmSoundSystem"
-                           value="0"
-                           data-l10n-id="reminder-default-sound-label"/>
-                </hbox>
-                <hbox>
-                    <radio id="alarmSoundCustom"
-                           value="1"
-                           data-l10n-id="reminder-custom-sound-label"/>
-                </hbox>
-            </radiogroup>
-            <hbox align="center" class="input-container">
-                <html:input id="alarmSoundFileField"
-                            type="text"
-                            class="input-filefield indent"
-                            readonly="readonly"
-                            preference="calendar.alarms.soundURL"
-                            preference-editable="true"
-                            aria-labelledby="alarmSoundCustom"/>
-                <button is="highlightable-button" id="calendar.prefs.alarm.sound.browse"
-                        data-l10n-id="reminder-browse-sound-label"
-                        oncommand="gAlarmsPane.browseAlarm()"/>
-            </hbox>
-        </vbox>
-        <hbox align="center" flex="1">
-            <checkbox id="alarmshow"
-                      preference="calendar.alarms.show"
-                      data-l10n-id="reminder-dialog-label"/>
-        </hbox>
-        <hbox align="center" flex="1">
-            <checkbox id="missedalarms"
-                      preference="calendar.alarms.showmissed"
-                      data-l10n-id="missed-reminder-label"/>
-        </hbox>
-    </html:fieldset>
-    </html:div>
-
-    <html:div data-category="paneCalendar">
-    <html:fieldset data-category="paneCalendar">
-        <html:legend data-l10n-id="reminder-default-legend"></html:legend>
-        <hbox align="center">
-            <label data-l10n-id="default-snooze-label"
-                   control="defaultsnoozelength"/>
-            <html:input id="defaultsnoozelength" type="number" class="size3"
-                        min="0"
-                        preference="calendar.alarms.defaultsnoozelength"
-                        onselect="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"
-                        oninput="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"/>
-            <label id="defaultsnoozelengthunit"/>
+  <html:div data-category="paneCalendar">
+  <html:fieldset data-category="paneCalendar">
+    <html:legend data-l10n-id="reminder-legend"></html:legend>
+    <vbox id="alarm-sound-box">
+      <hbox align="center">
+        <checkbox id="alarmSoundCheckbox"
+                  preference="calendar.alarms.playsound"
+                  data-l10n-id="reminder-play-checkbox"/>
+        <spacer flex="1"/>
+        <button is="highlightable-button" id="calendar.prefs.alarm.sound.play"
+                data-l10n-id="reminder-play-alarm-button"
+                oncommand="gAlarmsPane.previewAlarm()"/>
+      </hbox>
+      <radiogroup id="alarmSoundType"
+                  class="indent"
+                  orient="vertical"
+                  preference="calendar.alarms.soundType"
+                  aria-labelledby="alarmSoundCheckbox">
+        <hbox>
+          <radio id="alarmSoundSystem"
+                 value="0"
+                 data-l10n-id="reminder-default-sound-label"/>
         </hbox>
         <hbox>
-            <html:table id="alarm-defaults-table">
-                <html:tr>
-                    <html:td>
-                        <label data-l10n-id="event-alarm-label"
-                               control="eventdefalarm"/>
-                    </html:td>
-                    <html:td>
-                        <hbox>
-                            <menulist id="eventdefalarm"
-                                      crop="none"
-                                      preference="calendar.alarms.onforevents">
-                                <menupopup id="eventdefalarmpopup">
-                                    <menuitem id="eventdefalarmon"
-                                              data-l10n-id="alarm-on-label"
-                                              value="1"/>
-                                    <menuitem id="eventdefalarmoff"
-                                              data-l10n-id="alarm-off-label"
-                                              value="0"
-                                              selected="true"/>
-                                </menupopup>
-                            </menulist>
-                        </hbox>
-                    </html:td>
-                </html:tr>
-                <html:tr>
-                    <html:td>
-                        <label data-l10n-id="task-alarm-label"
-                               control="tododefalarm"/>
-                    </html:td>
-                    <html:td>
-                        <hbox>
-                            <menulist id="tododefalarm"
-                                      crop="none"
-                                      preference="calendar.alarms.onfortodos">
-                                <menupopup id="tododefalarmpopup">
-                                    <menuitem id="tododefalarmon"
-                                              data-l10n-id="alarm-on-label"
-                                              value="1"/>
-                                    <menuitem id="tododefalarmoff"
-                                              data-l10n-id="alarm-off-label"
-                                              value="0"
-                                              selected="true"/>
-                                </menupopup>
-                            </menulist>
-                        </hbox>
-                    </html:td>
-                </html:tr>
-                <html:tr>
-                    <html:td>
-                        <label data-l10n-id="event-alarm-time-label"
-                               control="eventdefalarmlen"/>
-                    </html:td>
-                    <html:td>
-                        <hbox class="defaultTimeBox"
-                              align="center"
-                              flex="1">
-                            <html:input id="eventdefalarmlen" type="number" class="size3" min="0"
-                                        preference="calendar.alarms.eventalarmlen"
-                                        onselect="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"
-                                        oninput="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"/>
-                            <hbox>
-                                <menulist id="eventdefalarmunit"
-                                          flex="1"
-                                          crop="none"
-                                          preference="calendar.alarms.eventalarmunit">
-                                    <menupopup id="eventdefalarmunitpopup">
-                                        <menuitem id="eventdefalarmunitmin"
-                                                  value="minutes"
-                                                  selected="true"/>
-                                        <menuitem id="eventdefalarmunithour"
-                                                  value="hours"/>
-                                        <menuitem id="eventdefalarmunitday"
-                                                  value="days"/>
-                                    </menupopup>
-                                </menulist>
-                            </hbox>
-                        </hbox>
-                    </html:td>
-                </html:tr>
-                <html:tr>
-                    <html:td>
-                        <label data-l10n-id="task-alarm-time-label"
-                               control="tododefalarmlen"/>
-                    </html:td>
-                    <html:td>
-                        <hbox class="defaultTimeBox"
-                              align="center"
-                              flex="1">
-                            <html:input id="tododefalarmlen" type="number" class="size3" min="0"
-                                        preference="calendar.alarms.todoalarmlen"
-                                        onselect="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"
-                                        oninput="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"/>
-                            <hbox>
-                                <menulist id="tododefalarmunit"
-                                          flex="1"
-                                          crop="none"
-                                          preference="calendar.alarms.todoalarmunit">
-                                    <menupopup id="tododefalarmunitpopup">
-                                        <menuitem id="tododefalarmunitmin"
-                                                  value="minutes"
-                                                  selected="true"/>
-                                        <menuitem id="tododefalarmunithour"
-                                                  value="hours"/>
-                                        <menuitem id="tododefalarmunitday"
-                                                  value="days"/>
-                                    </menupopup>
-                                </menulist>
-                            </hbox>
-                        </hbox>
-                    </html:td>
-                </html:tr>
-            </html:table>
-            <spacer flex="1"/>
+          <radio id="alarmSoundCustom"
+                 value="1"
+                 data-l10n-id="reminder-custom-sound-label"/>
         </hbox>
-    </html:fieldset>
-    </html:div>
+      </radiogroup>
+      <hbox align="center" class="input-container">
+        <html:input id="alarmSoundFileField"
+                    type="text"
+                    class="input-filefield indent"
+                    readonly="readonly"
+                    preference="calendar.alarms.soundURL"
+                    preference-editable="true"
+                    aria-labelledby="alarmSoundCustom"/>
+        <button is="highlightable-button" id="calendar.prefs.alarm.sound.browse"
+                data-l10n-id="reminder-browse-sound-label"
+                oncommand="gAlarmsPane.browseAlarm()"/>
+      </hbox>
+    </vbox>
+    <hbox align="center" flex="1">
+      <checkbox id="alarmshow"
+                preference="calendar.alarms.show"
+                data-l10n-id="reminder-dialog-label"/>
+    </hbox>
+    <hbox align="center" flex="1">
+      <checkbox id="missedalarms"
+                preference="calendar.alarms.showmissed"
+                data-l10n-id="missed-reminder-label"/>
+    </hbox>
+  </html:fieldset>
+  </html:div>
+
+  <html:div data-category="paneCalendar">
+  <html:fieldset data-category="paneCalendar">
+    <html:legend data-l10n-id="reminder-default-legend"></html:legend>
+    <hbox align="center">
+      <label data-l10n-id="default-snooze-label"
+             control="defaultsnoozelength"/>
+      <html:input id="defaultsnoozelength" type="number" class="size3"
+                  min="0"
+                  preference="calendar.alarms.defaultsnoozelength"
+                  onselect="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"
+                  oninput="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"/>
+      <label id="defaultsnoozelengthunit"/>
+    </hbox>
+    <hbox>
+      <html:table id="alarm-defaults-table">
+        <html:tr>
+          <html:td>
+            <label data-l10n-id="event-alarm-label"
+                   control="eventdefalarm"/>
+          </html:td>
+          <html:td>
+            <hbox>
+              <menulist id="eventdefalarm"
+                        crop="none"
+                        preference="calendar.alarms.onforevents">
+                <menupopup id="eventdefalarmpopup">
+                  <menuitem id="eventdefalarmon"
+                            data-l10n-id="alarm-on-label"
+                            value="1"/>
+                  <menuitem id="eventdefalarmoff"
+                            data-l10n-id="alarm-off-label"
+                            value="0"
+                            selected="true"/>
+                </menupopup>
+              </menulist>
+            </hbox>
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:td>
+            <label data-l10n-id="task-alarm-label"
+                   control="tododefalarm"/>
+          </html:td>
+          <html:td>
+            <hbox>
+              <menulist id="tododefalarm"
+                        crop="none"
+                        preference="calendar.alarms.onfortodos">
+                <menupopup id="tododefalarmpopup">
+                  <menuitem id="tododefalarmon"
+                            data-l10n-id="alarm-on-label"
+                            value="1"/>
+                  <menuitem id="tododefalarmoff"
+                            data-l10n-id="alarm-off-label"
+                            value="0"
+                            selected="true"/>
+                </menupopup>
+              </menulist>
+            </hbox>
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:td>
+            <label data-l10n-id="event-alarm-time-label"
+                   control="eventdefalarmlen"/>
+          </html:td>
+          <html:td>
+            <hbox class="defaultTimeBox"
+                  align="center"
+                  flex="1">
+              <html:input id="eventdefalarmlen" type="number" class="size3" min="0"
+                          preference="calendar.alarms.eventalarmlen"
+                          onselect="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"
+                          oninput="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"/>
+              <hbox>
+                <menulist id="eventdefalarmunit"
+                          flex="1"
+                          crop="none"
+                          preference="calendar.alarms.eventalarmunit">
+                  <menupopup id="eventdefalarmunitpopup">
+                    <menuitem id="eventdefalarmunitmin"
+                              value="minutes"
+                              selected="true"/>
+                    <menuitem id="eventdefalarmunithour"
+                              value="hours"/>
+                    <menuitem id="eventdefalarmunitday"
+                              value="days"/>
+                  </menupopup>
+                </menulist>
+              </hbox>
+            </hbox>
+          </html:td>
+        </html:tr>
+        <html:tr>
+          <html:td>
+            <label data-l10n-id="task-alarm-time-label"
+                   control="tododefalarmlen"/>
+          </html:td>
+          <html:td>
+            <hbox class="defaultTimeBox"
+                  align="center"
+                  flex="1">
+              <html:input id="tododefalarmlen" type="number" class="size3" min="0"
+                          preference="calendar.alarms.todoalarmlen"
+                          onselect="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"
+                          oninput="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"/>
+              <hbox>
+                <menulist id="tododefalarmunit"
+                          flex="1"
+                          crop="none"
+                          preference="calendar.alarms.todoalarmunit">
+                  <menupopup id="tododefalarmunitpopup">
+                    <menuitem id="tododefalarmunitmin"
+                              value="minutes"
+                              selected="true"/>
+                    <menuitem id="tododefalarmunithour"
+                              value="hours"/>
+                    <menuitem id="tododefalarmunitday"
+                              value="days"/>
+                  </menupopup>
+                </menulist>
+              </hbox>
+            </hbox>
+          </html:td>
+        </html:tr>
+      </html:table>
+      <spacer flex="1"/>
+    </hbox>
+  </html:fieldset>
+  </html:div>
