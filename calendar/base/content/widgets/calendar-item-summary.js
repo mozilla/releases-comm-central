@@ -689,6 +689,14 @@
       link.rel = "stylesheet";
       link.href = "chrome://messenger/skin/shared/editorContent.css";
       itemDescription.contentDocument.head.appendChild(link);
+
+      // Layout the dialog,...
+      requestAnimationFrame(() => {
+        // ... then resize the iframe to fit its content. I don't know why, but the scroll height
+        // seems to be a few pixels smaller than we need to avoid vertical scrolling.
+        itemDescription.style.height =
+          Math.min(itemDescription.contentDocument.documentElement.scrollHeight + 10, 500) + "px";
+      });
     }
 
     /**
