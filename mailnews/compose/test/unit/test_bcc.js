@@ -14,6 +14,13 @@ var { MailServices } = ChromeUtils.import(
 var gServer;
 var gSentFolder;
 
+function cleanUpSent() {
+  let messages = [...gSentFolder.msgDatabase.EnumerateMessages()];
+  if (messages.length) {
+    gSentFolder.deleteMessages(messages, null, true, false, null, false);
+  }
+}
+
 /**
  * Load local mail account and start fake SMTP server.
  */
@@ -159,6 +166,7 @@ add_task(async function testBccWithNonUtf8EmlAttachment() {
 
 add_task(async function testBccWithSendLater() {
   gServer.resetTest();
+  cleanUpSent();
   let identity = getSmtpIdentity(
     "from@tinderbox.invalid",
     getBasicSmtpServer(gServer.port)
@@ -171,7 +179,7 @@ add_task(async function testBccWithSendLater() {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.to = "Nobody <to@tinderbox.invalid>";
-  fields.subject = "Test bcc";
+  fields.subject = "Test bcc with send later";
   fields.bcc = "bcc@tinderbox.invalid";
   fields.body = "A\r\nBcc: \r\n mail body\r\n.";
 
@@ -203,7 +211,7 @@ add_task(async function testBccWithSendLater() {
   let msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
     Ci.nsIMsgSendLater
   );
-  msgSendLater.addListener({
+  let sendLaterListener = {
     onStartSending() {},
     onMessageStartSending() {},
     onMessageSendProgress() {},
@@ -213,7 +221,7 @@ add_task(async function testBccWithSendLater() {
       // Should not contain extra \r\n between head and body.
       let notExpectedBody = `\r\n\r\n\r\n${fields.body}`;
 
-      Assert.ok(gServer._daemon.post.includes("Subject: Test bcc"));
+      Assert.ok(gServer._daemon.post.includes(`Subject: ${fields.subject}`));
       // Check that bcc header doesn't exist in the sent mail.
       Assert.ok(!gServer._daemon.post.includes("Bcc: bcc@tinderbox.invalid"));
       Assert.ok(gServer._daemon.post.includes(expectedBody));
@@ -223,14 +231,93 @@ add_task(async function testBccWithSendLater() {
         gSentFolder,
         mailTestUtils.getMsgHdrN(gSentFolder, 0)
       );
-      Assert.ok(msgData.includes("Subject: Test bcc"));
+      Assert.ok(msgData.includes(`Subject: ${fields.subject}`));
       // Check that bcc header exists in the mail copy.
       Assert.ok(msgData.includes("Bcc: bcc@tinderbox.invalid"));
       Assert.ok(msgData.includes(fields.body));
       Assert.ok(msgData.includes(expectedBody));
       Assert.ok(!msgData.includes(notExpectedBody));
+
+      msgSendLater.removeListener(sendLaterListener);
     },
+  };
+
+  msgSendLater.addListener(sendLaterListener);
+
+  // Actually send the message.
+  msgSendLater.sendUnsentMessages(identity);
+  gServer.performTest();
+});
+
+/**
+ * Test that sending bcc only message from Outbox works. With a bcc only
+ * message, nsMsgSendLater passes `To: undisclosed-recipients: ;` to
+ * SmtpService, but it should not be sent to the SMTP server.
+ */
+add_task(async function testBccOnlyWithSendLater() {
+  gServer.resetTest();
+  let identity = getSmtpIdentity(
+    "from@tinderbox.invalid",
+    getBasicSmtpServer(gServer.port)
+  );
+  let account = MailServices.accounts.createAccount();
+  account.addIdentity(identity);
+
+  // Prepare the comp fields, including the bcc field.
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  fields.subject = "Test bcc only with send later";
+  fields.bcc = "bcc@tinderbox.invalid";
+  fields.body = "A\r\nBcc: \r\n mail body\r\n.";
+
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = fields;
+
+  // Queue the mail to send later.
+  let msgCompose = MailServices.compose.initCompose(params);
+  msgCompose.type = Ci.nsIMsgCompType.New;
+  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+    Ci.nsIMsgProgress
+  );
+  let promise = new Promise((resolve, reject) => {
+    progressListener.resolve = resolve;
+    progressListener.reject = reject;
   });
+  progress.registerListener(progressListener);
+  msgCompose.sendMsg(
+    Ci.nsIMsgSend.nsMsgQueueForLater,
+    identity,
+    "",
+    null,
+    progress
+  );
+  await promise;
+
+  let msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
+    Ci.nsIMsgSendLater
+  );
+  let sendLaterListener = {
+    onStartSending() {},
+    onMessageStartSending() {},
+    onMessageSendProgress() {},
+    onMessageSendError() {},
+    onStopSending() {
+      // Should not include RCPT TO:<undisclosed-recipients: ;>
+      do_check_transaction(gServer.playTransaction(), [
+        "EHLO test",
+        "MAIL FROM:<from@tinderbox.invalid> BODY=8BITMIME SIZE=408",
+        "RCPT TO:<bcc@tinderbox.invalid>",
+        "DATA",
+      ]);
+
+      msgSendLater.removeListener(sendLaterListener);
+    },
+  };
+
+  msgSendLater.addListener(sendLaterListener);
 
   // Actually send the message.
   msgSendLater.sendUnsentMessages(identity);
