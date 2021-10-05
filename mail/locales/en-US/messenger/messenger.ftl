@@ -89,7 +89,7 @@ menu-file-save-as-file =
 ## AppMenu
 
 appmenu-save-as-file =
-    .label = { menu-file-save-as-file.label }
+    .label = File…
 
 # Since v89 we dropped the platforms distinction between Options or Preferences
 # and consolidated everything with Preferences.
