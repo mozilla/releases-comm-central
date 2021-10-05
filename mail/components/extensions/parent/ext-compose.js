@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyGlobalGetters(this, ["IOUtils", "PathUtils"]);
+
 ChromeUtils.defineModuleGetter(
   this,
   "MailServices",
   "resource:///modules/MailServices.jsm"
 );
-ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);
@@ -424,33 +429,30 @@ async function fileURLForFile(file) {
     return Services.io.newFileURI(realFile).spec;
   }
 
-  // TODO PathUtils and IOUtils aren't exposed on the extension global at
-  // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/toolkit/components/extensions/ExtensionCommon.jsm#1749
-  let tempDir = OS.Constants.Path.tmpDir;
-  let destFile = OS.Path.join(tempDir, file.name);
-
-  let { path: outputPath, file: outputFileWriter } = await OS.File.openUnique(
-    destFile
+  let pathTempDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
+  let pathTempFile = PathUtils.createUniquePath(
+    PathUtils.join(pathTempDir, file.name)
   );
-  let outputFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-  outputFile.initWithPath(outputPath);
 
+  let outputFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  outputFile.initWithPath(pathTempFile);
   let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
     Ci.nsPIExternalAppLauncher
   );
   extAppLauncher.deleteTemporaryFileOnExit(outputFile);
 
-  return new Promise(function(resolve) {
+  let bytes = await new Promise(function(resolve) {
     let reader = new FileReader();
-    reader.onloadend = async function() {
-      await outputFileWriter.write(new Uint8Array(reader.result));
-      outputFileWriter.close();
-
-      let outputURL = Services.io.newFileURI(outputFile);
-      resolve(outputURL.spec);
+    reader.onloadend = function() {
+      let _arrayBuffer = reader.result;
+      let _bytes = new Uint8Array(_arrayBuffer);
+      resolve(_bytes);
     };
     reader.readAsArrayBuffer(file);
   });
+
+  await IOUtils.write(pathTempFile, bytes);
+  return PathUtils.toFileURI(pathTempFile);
 }
 
 var composeStates = {
