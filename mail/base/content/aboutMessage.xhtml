@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#filter substitution
+
+<?xml-stylesheet href="chrome://messenger/skin/messageWindow.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/editContactPanel.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
+
+<!DOCTYPE html [
+<!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
+%msgHdrViewOverlayDTD;
+<!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
+%messengerDTD;
+<!ENTITY % editContactOverlayDTD SYSTEM "chrome://messenger/locale/editContactOverlay.dtd">
+%editContactOverlayDTD;
+<!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
+%quickFilterBarDTD;
+<!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
+%lightningDTD;
+<!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd" >
+%calendarDTD;
+<!ENTITY % smimeDTD SYSTEM "chrome://messenger-smime/locale/msgReadSecurityInfo.dtd">
+%smimeDTD;
+]>
+
+<!--
+  - This window displays a single message.
+  -->
+<html id="messengerWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true">
+<head>
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="toolkit/main-window/findbar.ftl" />
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+  <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
+  <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl" />
+
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
+#ifdef MOZ_OPENPGP
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"></script>
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"></script>
+#endif
+  <script defer="defer" src="chrome://messenger/content/msgSecurityPane.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+  <script defer="defer" src="chrome://messenger/content/aboutMessage.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
+  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+  <stringbundle id="bundle_smime_read_info" src="chrome://messenger-smime/locale/msgSecurityInfo.properties"/>
+
+  <popupset id="mainPopupSet">
+#include mainPopupSet.inc.xhtml
+#include msgHdrPopup.inc.xhtml
+#include editContactPanel.inc.xhtml
+    <menu id="msgAttachmentMenu" hidden="true"/><!-- Just a placeholder for now. -->
+  </popupset>
+
+
+    <tooltip id="aHTMLTooltip" page="true"/>
+
+    <!-- msg header view -->
+    <!-- a convenience box for ease of extension overlaying -->
+    <hbox id="messagepaneboxwrapper" flex="1">
+      <vbox id="messagepanebox" flex="3"
+            ondragover="messagepaneObserver.onDragOver(event);"
+            ondrop="messagepaneObserver.onDrop(event);"
+            ondragleave="messagepaneObserver.onDragLeave(event);">
+        <vbox id="singleMessage">
+          <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
+#include msgHdrView.inc.xhtml
+          </hbox>
+#include ../../../calendar/base/content/imip-bar-overlay.inc.xhtml
+        </vbox>
+        <!-- The msgNotificationBar appears on top of the message and displays
+             information like: junk, mdn, remote content and phishing warnings -->
+        <vbox id="mail-notification-top">
+          <!-- notificationbox will be added here lazily. -->
+        </vbox>
+
+        <!-- message view -->
+        <browser id="messagepane"
+                 context="mailContext"
+                 tooltip="aHTMLTooltip"
+                 style="height: 0px; min-height: 1px; background-color: field;"
+                 flex="1"
+                 name="messagepane"
+                 disablesecurity="true"
+                 disablehistory="true"
+                 type="content"
+                 primary="true"
+                 autofind="false"
+                 src="about:blank"
+                 messagemanagergroup="single-page"
+                 onclick="return contentAreaClick(event);"
+                 onresize="return messagePaneOnResize(event);"/>
+        <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
+        <vbox id="attachmentView" collapsed="true">
+#include msgAttachmentView.inc.xhtml
+        </vbox>
+        <findbar id="FindToolbar" browserid="messagepane"/>
+      </vbox>
+#include msgSecurityPane.inc.xhtml
+    </hbox>
+</html:body>
+</html>

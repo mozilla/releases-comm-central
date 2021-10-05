@@ -11,6 +11,8 @@ messenger.jar:
     content/messenger/aboutDialog.css               (content/aboutDialog.css)
     content/messenger/aboutDialog.js                (content/aboutDialog.js)
 *   content/messenger/aboutDialog.xhtml             (content/aboutDialog.xhtml)
+    content/messenger/aboutMessage.js               (content/aboutMessage.js)
+*   content/messenger/aboutMessage.xhtml            (content/aboutMessage.xhtml)
     content/messenger/aboutRights.xhtml             (content/aboutRights.xhtml)
     content/messenger/browserRequest.js             (content/browserRequest.js)
     content/messenger/browserRequest.xhtml          (content/browserRequest.xhtml)
