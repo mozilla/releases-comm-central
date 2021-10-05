@@ -22,7 +22,7 @@ XPCOMUtils.defineLazyGetter(this, "gStatusNotification", () => {
  * Sets up the summary dialog, setting all needed fields on the dialog from the
  * item received in the window arguments.
  */
-function onLoad() {
+async function onLoad() {
   let args = window.arguments[0];
   let item = args.calendarEvent;
   item = item.clone(); // use an own copy of the passed item
@@ -75,6 +75,8 @@ function onLoad() {
     window.ToolbarIconColor.init();
   }
 
+  await document.l10n.translateRoots();
+  window.sizeToContent();
   window.focus();
   opener.setCursor("auto");
 }
