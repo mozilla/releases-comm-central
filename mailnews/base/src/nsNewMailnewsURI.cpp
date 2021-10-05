@@ -58,12 +58,24 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
     nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
     mozilla::SyncRunnable::DispatchToThread(mozilla::GetMainThreadEventTarget(),
                                             task);
+    return rv;
   }
   if (scheme.EqualsLiteral("smtp") || scheme.EqualsLiteral("smtps")) {
     return nsSmtpUrl::NewSmtpURI(aSpec, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("mailto")) {
-    return nsMailtoUrl::NewMailtoURI(aSpec, aBaseURI, aURI);
+    if (NS_IsMainThread()) {
+      return nsMailtoUrl::NewMailtoURI(aSpec, aBaseURI, aURI);
+    }
+    // If we're for some reason not on the main thread, dispatch to main
+    // or else we'll crash.
+    auto NewURI = [&aSpec, &aCharset, &aBaseURI, aURI, &rv ]() -> auto {
+      rv = nsMailtoUrl::NewMailtoURI(aSpec, aBaseURI, aURI);
+    };
+    nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction("NewURI", NewURI);
+    mozilla::SyncRunnable::DispatchToThread(mozilla::GetMainThreadEventTarget(),
+                                            task);
+    return rv;
   }
   if (scheme.EqualsLiteral("pop") || scheme.EqualsLiteral("pop3")) {
     return nsPop3Service::NewURI(aSpec, aCharset, aBaseURI, aURI);
