@@ -641,9 +641,32 @@
      * @param {string} descriptionText - The value of the DESCRIPTION property.
      * @param {string} descriptionHTML - HTML description if available.
      */
-    updateDescription(descriptionText, descriptionHTML) {
+    async updateDescription(descriptionText, descriptionHTML) {
       this.querySelector(".item-description-box").removeAttribute("hidden");
       let itemDescription = this.querySelector(".item-description");
+      if (itemDescription.contentDocument.readyState != "complete") {
+        // The iframe's document hasn't loaded yet. If we add to it now, what we add will be
+        // overwritten. Wait for the initial document to load.
+        await new Promise(resolve => {
+          itemDescription._listener = {
+            QueryInterface: ChromeUtils.generateQI([
+              "nsIWebProgressListener",
+              "nsISupportsWeakReference",
+            ]),
+            onStateChange(webProgress, request, stateFlags, status) {
+              if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+                itemDescription.browsingContext.webProgress.removeProgressListener(this);
+                delete itemDescription._listener;
+                resolve();
+              }
+            },
+          };
+          itemDescription.browsingContext.webProgress.addProgressListener(
+            itemDescription._listener,
+            Ci.nsIWebProgress.NOTIFY_STATE_ALL
+          );
+        });
+      }
       let docFragment = cal.view.textToHtmlDocumentFragment(
         descriptionText,
         itemDescription.contentDocument,
