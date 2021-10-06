@@ -35,7 +35,6 @@ class nsMailboxService : public nsIMailboxService,
 
  protected:
   virtual ~nsMailboxService();
-  bool mPrintingOperation;
 
   // helper functions used by the service
   nsresult PrepareMessageUrl(const char* aSrcMsgMailboxURI,
@@ -51,8 +50,7 @@ class nsMailboxService : public nsIMailboxService,
       const char* aMessageURI, nsISupports* aDisplayConsumer,
       nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
       const char* aFileName, /* only used by open attachment */
-      nsMailboxAction mailboxAction, bool aOverrideCharset,
-      nsIURI** aURL);
+      nsMailboxAction mailboxAction, bool aOverrideCharset, nsIURI** aURL);
 
   nsresult DecomposeMailboxURI(const char* aMessageURI, nsIMsgFolder** aFolder,
                                nsMsgKey* aMsgKey);

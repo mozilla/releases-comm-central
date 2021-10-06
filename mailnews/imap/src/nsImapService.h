@@ -117,7 +117,6 @@ class nsImapService : public nsIImapService,
                             nsIMsgFolder** aFolder, nsMsgKey* msgKey);
 
   nsCOMPtr<nsICacheStorage> mCacheStorage;
-  bool mPrintingOperation;  // Flag for printing operations
 };
 
 #endif /* nsImapService_h___ */

@@ -31,7 +31,7 @@
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 
-nsMailboxService::nsMailboxService() { mPrintingOperation = false; }
+nsMailboxService::nsMailboxService() {}
 
 nsMailboxService::~nsMailboxService() {}
 
@@ -426,10 +426,7 @@ nsresult nsMailboxService::PrepareMessageUrl(const char* aSrcMsgMailboxURI,
           folderPath,
           nsINetUtil::ESCAPE_URL_DIRECTORY | nsINetUtil::ESCAPE_URL_FORCED,
           buf);
-      if (mPrintingOperation)
-        urlSpec = PR_smprintf("mailbox://%s?number=%lu&header=print", buf.get(),
-                              msgKey);
-      else if (part)
+      if (part)
         urlSpec =
             PR_smprintf("mailbox://%s?number=%lu&%s", buf.get(), msgKey, part);
       else if (header)
@@ -566,17 +563,6 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
 
   protocol.forget(_retval);
   return NS_OK;
-}
-
-nsresult nsMailboxService::DisplayMessageForPrinting(
-    const char* aMessageURI, nsISupports* aDisplayConsumer,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, nsIURI** aURL) {
-  mPrintingOperation = true;
-  nsresult rv =
-      FetchMessage(aMessageURI, aDisplayConsumer, aMsgWindow, aUrlListener,
-                   nullptr, nsIMailboxUrl::ActionFetchMessage, false, aURL);
-  mPrintingOperation = false;
-  return rv;
 }
 
 NS_IMETHODIMP nsMailboxService::Search(nsIMsgSearchSession* aSearchSession,

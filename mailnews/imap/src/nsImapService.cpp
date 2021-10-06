@@ -83,7 +83,6 @@ NS_IMPL_ISUPPORTS(nsImapService, nsIImapService, nsIMsgMessageService,
                   nsIMsgMessageFetchPartService, nsIContentHandler)
 
 nsImapService::nsImapService() {
-  mPrintingOperation = false;
   if (!gInitialized) {
     nsresult rv;
     nsCOMPtr<nsIPrefBranch> prefBranch(
@@ -523,8 +522,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char* aMessageURI,
                         forcePeek ? nsIImapUrl::nsImapMsgFetchPeek
                                   : nsIImapUrl::nsImapMsgFetch,
                         folder, imapMessageSink, aMsgWindow, aDisplayConsumer,
-                        msgKey, false,
-                        (mPrintingOperation) ? "print"_ns : ""_ns, aURL);
+                        msgKey, false, ""_ns, aURL);
     }
   }
   return rv;
@@ -564,11 +562,6 @@ nsresult nsImapService::FetchMimePart(
 
     rv = url->GetSpec(urlSpec);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    // rhp: If we are displaying this message for the purpose of printing, we
-    // need to append the header=print option.
-    //
-    if (mPrintingOperation) urlSpec.AppendLiteral("?header=print");
 
     rv = msgurl->SetSpecInternal(urlSpec);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -645,20 +638,6 @@ nsresult nsImapService::FetchMimePart(
       }
     }
   }
-  return rv;
-}
-
-//
-// rhp: Right now, this is the same as simple DisplayMessage, but it will change
-// to support print rendering.
-//
-NS_IMETHODIMP nsImapService::DisplayMessageForPrinting(
-    const char* aMessageURI, nsISupports* aDisplayConsumer,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, nsIURI** aURL) {
-  mPrintingOperation = true;
-  nsresult rv = DisplayMessage(aMessageURI, aDisplayConsumer, aMsgWindow,
-                               aUrlListener, false, aURL);
-  mPrintingOperation = false;
   return rv;
 }
 

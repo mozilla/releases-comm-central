@@ -140,22 +140,6 @@ interface nsIMsgMessageService : nsISupports {
   nsIURI getUrlForUri(in AUTF8String aMessageURI, [optional] in nsIMsgWindow aMsgWindow);
 
   /**
-   * When you want a message displayed in a format that is suitable for printing....
-   *
-   * @param aMessageURI A uri representing the message to display.
-   * @param aDisplayConsumer is (for now) a nsIDocShell which we'll use to load
-   *        the message into.
-   *        XXXbz should it be an nsIWebNavigation?
-   * @param aMsgWindow
-   * @param aUrlListener
-   * @param aURL
-   */
-  void DisplayMessageForPrinting(in string aMessageURI, in nsISupports aDisplayConsumer,
-            in nsIMsgWindow aMsgWindow,
-            in nsIUrlListener aUrlListener,
-            out nsIURI aURL);
-
-  /**
    *
    *
    * @param aSearchSession

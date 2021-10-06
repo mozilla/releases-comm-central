@@ -74,7 +74,6 @@ class nsNntpService : public nsINntpService,
   nsresult DecomposeNewsMessageURI(const char* aMessageURI,
                                    nsIMsgFolder** aFolder, nsMsgKey* aMsgKey);
 
-  bool mPrintingOperation;        // Flag for printing operations
   bool mOpenAttachmentOperation;  // Flag for opening attachments
 
   nsCOMPtr<nsICacheStorage> mCacheStorage;  // the cache storage used by news

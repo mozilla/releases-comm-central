@@ -57,7 +57,6 @@
 #define PREF_MAIL_ROOT_NNTP_REL "mail.root.nntp-rel"
 
 nsNntpService::nsNntpService() {
-  mPrintingOperation = false;
   mOpenAttachmentOperation = false;
 }
 
@@ -207,10 +206,6 @@ nsNntpService::DisplayMessage(const char* aMessageURI,
   // (from a cross post) it would be in your cache.
   rv = CreateMessageIDURL(folder, key, getter_Copies(urlStr));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  // rhp: If we are displaying this message for the purposes of printing, append
-  // the magic operand.
-  if (mPrintingOperation) urlStr.AppendLiteral("?header=print");
 
   nsNewsAction action = nsINntpUrl::ActionFetchArticle;
   if (mOpenAttachmentOperation) action = nsINntpUrl::ActionFetchPart;
@@ -1313,20 +1308,6 @@ nsNntpService::GetFoldersCreatedAsync(bool* aAsyncCreation) {
   NS_ENSURE_ARG_POINTER(aAsyncCreation);
   *aAsyncCreation = false;
   return NS_OK;
-}
-
-//
-// rhp: Right now, this is the same as simple DisplayMessage, but it will change
-// to support print rendering.
-//
-NS_IMETHODIMP nsNntpService::DisplayMessageForPrinting(
-    const char* aMessageURI, nsISupports* aDisplayConsumer,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, nsIURI** aURL) {
-  mPrintingOperation = true;
-  nsresult rv = DisplayMessage(aMessageURI, aDisplayConsumer, aMsgWindow,
-                               aUrlListener, false, aURL);
-  mPrintingOperation = false;
-  return rv;
 }
 
 NS_IMETHODIMP
