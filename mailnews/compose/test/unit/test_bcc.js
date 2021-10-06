@@ -308,7 +308,7 @@ add_task(async function testBccOnlyWithSendLater() {
       // Should not include RCPT TO:<undisclosed-recipients: ;>
       do_check_transaction(gServer.playTransaction(), [
         "EHLO test",
-        "MAIL FROM:<from@tinderbox.invalid> BODY=8BITMIME SIZE=408",
+        `MAIL FROM:<from@tinderbox.invalid> BODY=8BITMIME SIZE=${gServer._daemon.post.length}`,
         "RCPT TO:<bcc@tinderbox.invalid>",
         "DATA",
       ]);

@@ -100,7 +100,7 @@ SmtpService.prototype = {
       fresh = false;
       let from = sender;
       let to = MailServices.headerParser
-        .parseEncodedHeader(decodeURIComponent(recipients))
+        .parseEncodedHeaderW(decodeURIComponent(recipients))
         .map(rec => rec.email);
 
       if (
@@ -114,7 +114,7 @@ SmtpService.prototype = {
           .msgGenerateMessageId(userIdentity);
       }
       client.useEnvelope({
-        from: MailServices.headerParser.parseEncodedHeader(
+        from: MailServices.headerParser.parseEncodedHeaderW(
           decodeURIComponent(from)
         )[0].email,
         to,

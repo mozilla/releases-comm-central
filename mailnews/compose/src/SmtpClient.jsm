@@ -194,7 +194,7 @@ class SmtpClient {
             break;
           }
         }
-        if (firstInvalid != null) {
+        if (!recipient || firstInvalid != null) {
           if (!lastAt) {
             // Invalid char found in the localpart, throw error until we implement RFC 6532.
             this.onerror(NS_ERROR_BUT_DONT_SHOW_ALERT, null);
