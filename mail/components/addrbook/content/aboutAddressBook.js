@@ -1358,20 +1358,23 @@ var cardsPane = {
 
     let writeMenuItem = document.getElementById("cardContextWrite");
     let writeMenu = document.getElementById("cardContextWriteMenu");
+    let writeMenuSeparator = document.getElementById(
+      "cardContextWriteSeparator"
+    );
     if (this.cardsList.selectedIndicies.length == 1) {
       let card = this.cardsList.view.getCardFromRow(
         this.cardsList.selectedIndex
       );
       if (card.isMailList) {
-        writeMenuItem.hidden = false;
+        writeMenuItem.hidden = writeMenuSeparator.hidden = false;
         writeMenu.hidden = true;
       } else {
         let addresses = card.emailAddresses;
 
         if (addresses.length == 0) {
-          writeMenuItem.hidden = writeMenu.hidden = true;
+          writeMenuItem.hidden = writeMenu.hidden = writeMenuSeparator.hidden = true;
         } else if (addresses.length == 1) {
-          writeMenuItem.hidden = false;
+          writeMenuItem.hidden = writeMenuSeparator.hidden = false;
           writeMenu.hidden = true;
         } else {
           while (writeMenu.menupopup.lastChild) {
@@ -1392,7 +1395,7 @@ var cardsPane = {
           }
 
           writeMenuItem.hidden = true;
-          writeMenu.hidden = false;
+          writeMenu.hidden = writeMenuSeparator.hidden = false;
         }
       }
     } else {

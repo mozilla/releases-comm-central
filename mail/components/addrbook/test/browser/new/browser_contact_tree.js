@@ -451,6 +451,9 @@ add_task(async function test_context_menu_compose() {
   let menu = abDocument.getElementById("cardContext");
   let writeMenuItem = abDocument.getElementById("cardContextWrite");
   let writeMenu = abDocument.getElementById("cardContextWriteMenu");
+  let writeMenuSeparator = abDocument.getElementById(
+    "cardContextWriteSeparator"
+  );
 
   async function checkComposeWindow(composeWindow, ...expectedAddresses) {
     await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
@@ -476,8 +479,9 @@ add_task(async function test_context_menu_compose() {
   let composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
   await rightClickOnIndex(0);
-  Assert.ok(!writeMenuItem.hidden);
-  Assert.ok(writeMenu.hidden);
+  Assert.ok(!writeMenuItem.hidden, "write menu item shown");
+  Assert.ok(writeMenu.hidden, "write menu hidden");
+  Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
   await checkComposeWindow(
@@ -490,8 +494,9 @@ add_task(async function test_context_menu_compose() {
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
   await rightClickOnIndex(1);
-  Assert.ok(writeMenuItem.hidden);
-  Assert.ok(!writeMenu.hidden);
+  Assert.ok(writeMenuItem.hidden, "write menu item hidden");
+  Assert.ok(!writeMenu.hidden, "write menu shown");
+  Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   let shownPromise = BrowserTestUtils.waitForEvent(writeMenu, "popupshown");
   writeMenu.openMenu(true);
   await shownPromise;
@@ -512,8 +517,9 @@ add_task(async function test_context_menu_compose() {
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
   await rightClickOnIndex(1);
-  Assert.ok(writeMenuItem.hidden);
-  Assert.ok(!writeMenu.hidden);
+  Assert.ok(writeMenuItem.hidden, "write menu item hidden");
+  Assert.ok(!writeMenu.hidden, "write menu shown");
+  Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   shownPromise = BrowserTestUtils.waitForEvent(writeMenu, "popupshown");
   writeMenu.openMenu(true);
   await shownPromise;
@@ -534,8 +540,9 @@ add_task(async function test_context_menu_compose() {
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
   await rightClickOnIndex(2);
-  Assert.ok(!writeMenuItem.hidden);
-  Assert.ok(writeMenu.hidden);
+  Assert.ok(!writeMenuItem.hidden, "write menu item shown");
+  Assert.ok(writeMenu.hidden, "write menu hidden");
+  Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
   await checkComposeWindow(
@@ -546,8 +553,9 @@ add_task(async function test_context_menu_compose() {
   // Contact D, no email address.
 
   await rightClickOnIndex(3);
-  Assert.ok(writeMenuItem.hidden);
-  Assert.ok(writeMenu.hidden);
+  Assert.ok(writeMenuItem.hidden, "write menu item hidden");
+  Assert.ok(writeMenu.hidden, "write menu hidden");
+  Assert.ok(writeMenuSeparator.hidden, "write menu separator hidden");
   menu.hidePopup();
 
   // List.
@@ -555,8 +563,9 @@ add_task(async function test_context_menu_compose() {
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
   await rightClickOnIndex(4);
-  Assert.ok(!writeMenuItem.hidden);
-  Assert.ok(writeMenu.hidden);
+  Assert.ok(!writeMenuItem.hidden, "write menu item shown");
+  Assert.ok(writeMenu.hidden, "write menu hidden");
+  Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
   await checkComposeWindow(await composeWindowPromise, "List <List>");
@@ -567,8 +576,9 @@ add_task(async function test_context_menu_compose() {
 
   cardsList.selectedIndicies = [0, 3];
   await rightClickOnIndex(3);
-  Assert.ok(!writeMenuItem.hidden);
-  Assert.ok(writeMenu.hidden);
+  Assert.ok(!writeMenuItem.hidden, "write menu item shown");
+  Assert.ok(writeMenu.hidden, "write menu hidden");
+  Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
   await checkComposeWindow(
@@ -582,8 +592,9 @@ add_task(async function test_context_menu_compose() {
 
   cardsList.selectedIndicies = [1, 2];
   await rightClickOnIndex(2);
-  Assert.ok(!writeMenuItem.hidden);
-  Assert.ok(writeMenu.hidden);
+  Assert.ok(!writeMenuItem.hidden, "write menu item shown");
+  Assert.ok(writeMenu.hidden, "write menu hidden");
+  Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
   await checkComposeWindow(
@@ -598,8 +609,9 @@ add_task(async function test_context_menu_compose() {
 
   cardsList.selectedIndicies = [1, 4];
   await rightClickOnIndex(4);
-  Assert.ok(!writeMenuItem.hidden);
-  Assert.ok(writeMenu.hidden);
+  Assert.ok(!writeMenuItem.hidden, "write menu item shown");
+  Assert.ok(writeMenu.hidden, "write menu hidden");
+  Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
   await checkComposeWindow(
