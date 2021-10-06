@@ -28,6 +28,5 @@ XPIDL_SOURCES += [
 XPIDL_MODULE = "msgcompose"
 
 EXPORTS += [
-    "nsMsgAttachmentData.h",
     "nsMsgCompCID.h",
 ]

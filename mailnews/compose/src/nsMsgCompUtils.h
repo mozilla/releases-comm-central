@@ -7,7 +7,7 @@
 #define _nsMsgCompUtils_H_
 
 #include "nscore.h"
-#include "nsMsgSend.h"
+#include "mozilla/dom/Document.h"
 #include "nsMsgCompFields.h"
 #include "nsIMsgSend.h"
 #include "nsIMsgCompUtils.h"

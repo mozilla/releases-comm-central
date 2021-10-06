@@ -136,6 +136,7 @@
 #include "nsMsgComposeParams.h"
 #include "nsMsgComposeProgressParams.h"
 #include "nsMsgAttachment.h"
+#include "nsMsgAttachmentData.h"
 #include "nsMsgQuote.h"
 #include "nsMsgCompUtils.h"
 

@@ -9,7 +9,7 @@
 #include "mozilla/Attributes.h"
 #include "nscore.h"
 #include "nsIFile.h"
-#include "nsMsgSend.h"
+#include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
 #include "nsITransactionManager.h"
 #include "nsIMsgCopy.h"

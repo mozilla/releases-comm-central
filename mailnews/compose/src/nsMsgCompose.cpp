@@ -78,6 +78,7 @@
 #include "nsIFileURL.h"
 #include "nsTextNode.h"  // from dom/base
 #include "nsIParserUtils.h"
+#include "nsIStringBundle.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;

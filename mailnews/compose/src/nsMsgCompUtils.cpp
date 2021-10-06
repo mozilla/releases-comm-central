@@ -7,7 +7,7 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "prmem.h"
-#include "nsMsgSend.h"
+#include "nsIStringBundle.h"
 #include "nsIIOService.h"
 #include "nsIHttpProtocolHandler.h"
 #include "nsMailHeaders.h"
