@@ -42,6 +42,7 @@ class NntpIncomingServer extends MsgIncomingServer {
     super();
 
     this._subscribed = new Set();
+    this._groups = [];
 
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "news";
@@ -181,6 +182,18 @@ class NntpIncomingServer extends MsgIncomingServer {
 
     this._tree?.rowCountChanged(0, this._searchResult.length);
     this._tree?.endUpdateBatch();
+  }
+
+  getLeafName(path) {
+    return this._subscribable.getLeafName(path);
+  }
+
+  getFirstChildURI(path) {
+    return this._subscribable.getFirstChildURI(path);
+  }
+
+  getChildURIs(path) {
+    return this._subscribable.getChildURIs(path);
   }
 
   /** @see nsITreeView */

@@ -12,6 +12,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   NntpChannel: "resource:///modules/NntpChannel.jsm",
+  NntpClient: "resource:///modules/NntpClient.jsm",
 });
 
 /**
@@ -95,6 +96,27 @@ class BaseMessageService {
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
+  }
+
+  Search(searchSession, msgWindow, msgFolder, searchUri) {
+    let slashIndex = searchUri.indexOf("/");
+    let xpatLines = searchUri.slice(slashIndex + 1).split("/");
+    let client = new NntpClient(
+      msgFolder.server.QueryInterface(Ci.nsINntpIncomingServer)
+    );
+    client.connect();
+
+    client.onOpen = () => {
+      client.search(
+        searchSession.QueryInterface(Ci.nsIUrlListener),
+        msgFolder.name,
+        xpatLines
+      );
+    };
+
+    client.onData = line => {
+      searchSession.runningAdapter.AddHit(line.split(" ")[0]);
+    };
   }
 
   /**

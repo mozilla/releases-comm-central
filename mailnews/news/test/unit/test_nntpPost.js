@@ -11,6 +11,7 @@ function run_test() {
   server.start();
   var localserver = setupLocalServer(server.port);
   var listener = {
+    OnStartRunningUrl() {},
     OnStopRunningUrl() {
       localserver.closeCachedConnections();
     },

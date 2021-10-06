@@ -127,6 +127,96 @@ class NntpService {
     };
   }
 
+  fetchMessage(folder, key, msgWindow, consumer, urlListener) {
+    if (!(consumer instanceof Ci.nsIStreamListener)) {
+      return;
+    }
+    let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+    pipe.init(true, true, 0, 0);
+    let inputStream = pipe.inputStream;
+    let outputStream = pipe.outputStream;
+
+    let client = new NntpClient(
+      folder.server.QueryInterface(Ci.nsINntpIncomingServer)
+    );
+    client._urlListener = urlListener;
+    client.connect();
+    client.onOpen = () => {
+      client.getArticleByArticleNumber(folder.name, key);
+      consumer.onStartRequest(null);
+    };
+    client.onData = data => {
+      outputStream.write(data, data.length);
+      consumer.onDataAvailable(null, inputStream, 0, data.length);
+    };
+    client.onDone = () => {
+      consumer.onStopRequest(null, Cr.NS_OK);
+    };
+  }
+
+  cancelMessage(cancelUrl, messageUri, consumer, urlListener, msgWindow) {
+    if (Services.prefs.getBoolPref("news.cancel.confirm")) {
+      let bundle = Services.strings.createBundle(
+        "chrome://messenger/locale/news.properties"
+      );
+      let result = msgWindow.promptDialog.confirmEx(
+        null,
+        bundle.GetStringFromName("cancelConfirm"),
+        Ci.nsIPrompt.STD_YES_NO_BUTTONS,
+        null,
+        null,
+        null,
+        null,
+        { value: false }
+      );
+      if (result != 0) {
+        // Cancelled.
+        return;
+      }
+    }
+    // The cancelUrl is in the form of "news://host/message-id?cancel"
+    let url = new URL(cancelUrl);
+    let messageId = "<" + decodeURIComponent(url.pathname.slice(1)) + ">";
+    let server = MailServices.accounts
+      .FindServer("", url.host, "nntp")
+      .QueryInterface(Ci.nsINntpIncomingServer);
+    let groupName = new URL(messageUri).pathname.slice(1);
+    let messageKey = messageUri.split("#")[1];
+    let newsFolder = server.findGroup(groupName);
+    let from = MailServices.accounts.getFirstIdentityForServer(server).email;
+    let bundle = Services.strings.createBundle(
+      "chrome://branding/locale/brand.properties"
+    );
+
+    let client = new NntpClient(server);
+    client.runningUri.msgWindow = msgWindow;
+    client.connect();
+
+    client.onOpen = () => {
+      client.cancelArticle(urlListener, groupName);
+    };
+
+    client.onReadyToPost = () => {
+      let content = [
+        `From: ${from}`,
+        `Newsgroups: ${groupName}`,
+        `Subject: cancel ${messageId}`,
+        `References: ${messageId}`,
+        `Control: cancel ${messageId}`,
+        "MIME-Version: 1.0",
+        "Content-Type: text/plain",
+        "", // body separator
+        `This message was cancelled from within ${bundle.GetStringFromName(
+          "brandFullName"
+        )}`,
+      ];
+      client.send(content.join("\r\n"));
+      client.sendEnd();
+
+      newsFolder.removeMessage(messageKey);
+    };
+  }
+
   /**
    * Find the hostname of a NNTP server from a group name.
    * @param {string} groupName - The group name.

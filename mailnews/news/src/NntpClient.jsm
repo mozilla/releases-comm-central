@@ -230,6 +230,34 @@ class NntpClient {
   }
 
   /**
+   * Send a `Control: cancel <msg-id>` message to cancel an article, not every
+   * server supports it, see rfc5537.
+   * @param {nsIUrlListener} urlListener - Callback for the request.
+   * @param {string} groupName - The group name.
+   */
+  cancelArticle(urlListener, groupName) {
+    this._urlListener = urlListener;
+    this._groupName = groupName;
+    this._firstCommand = this.post;
+    this._actionModeReader(this._actionGroup);
+  }
+
+  /**
+   * Send a `XPAT <header> <message-id> <pattern>` message, not every server
+   * supports it, see rfc2980.
+   * @param {nsIUrlListener} urlListener - Callback for the request.
+   * @param {string} groupName - The group name.
+   * @param {string[]} xpatLines - An array of xpat lines to send.
+   */
+  search(urlListener, groupName, xpatLines) {
+    this._urlListener = urlListener;
+    this._groupName = groupName;
+    this._xpatLines = xpatLines;
+    this._firstCommand = this._actionXPat;
+    this._actionModeReader(this._actionGroup);
+  }
+
+  /**
    * Load a news uri directly, see rfc5538 about supported news uri.
    * @param {string} uir - The news uri to load.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
@@ -347,21 +375,23 @@ class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadXOver({ data }) {
-    this._lineReader(data, line => {
-      if (line == null) {
+    this._lineReader(
+      data,
+      line => {
+        this._newsGroup.processXOverLine(line);
+      },
+      () => {
         // Fetch extra headers used by filters, but not returned in XOVER response.
         this._xhdrFields = this._newsGroup.getXHdrFields();
         this._actionXHdr();
-      } else {
-        this._newsGroup.processXOverLine(line);
       }
-    });
+    );
   }
 
   /**
    * Send `XHDR` request to the server.
    */
-  _actionXHdr() {
+  _actionXHdr = () => {
     this._curXHdrHeader = this._xhdrFields.shift();
     if (this._curXHdrHeader) {
       this._nextAction = this._actionXHdrResponse;
@@ -372,7 +402,7 @@ class NntpClient {
       this._newsGroup.finishProcessingXOver();
       this._actionDone();
     }
-  }
+  };
 
   /**
    * Handle XHDR response.
@@ -385,13 +415,13 @@ class NntpClient {
       return;
     }
 
-    this._lineReader(data, line => {
-      if (line == null) {
-        this._actionXHdr();
-      } else {
+    this._lineReader(
+      data,
+      line => {
         this._newsGroup.processXHdrLine(this._curXHdrHeader, line);
-      }
-    });
+      },
+      this._actionXHdr
+    );
   }
 
   /**
@@ -414,14 +444,16 @@ class NntpClient {
    * @param {NntpResponse} res - XOVER response received from the server.
    */
   _actionReadHead({ data }) {
-    this._lineReader(data, line => {
-      if (line == null) {
+    this._lineReader(
+      data,
+      line => {
+        this._newsGroup.processHeadLine(line);
+      },
+      () => {
         this._newsGroup.initHdr(-1);
         this._actionHead();
-      } else {
-        this._newsGroup.processHeadLine(line);
       }
-    });
+    );
   }
 
   /**
@@ -435,10 +467,11 @@ class NntpClient {
   /**
    * Read multi-line data blocks response, emit each line through a callback.
    * @param {string} data - Response received from the server.
-   * @param {Function} callback - A line will be passed to the callback each
-   *   time, or null if the data block ended.
+   * @param {Function} lineCallback - A line will be passed to the callback each
+   *   time.
+   * @param {Function} doneCallback - A function to be called when data is ended.
    */
-  _lineReader(data, callback) {
+  _lineReader(data, lineCallback, doneCallback) {
     if (this._leftoverData) {
       data = this._leftoverData + data;
       this._leftoverData = null;
@@ -460,11 +493,11 @@ class NntpClient {
         // Remove stuffed dot.
         line = line.slice(1);
       }
-      callback(line);
+      lineCallback(line);
       data = data.slice(index + 2);
     }
     if (ended) {
-      callback(null);
+      doneCallback(null);
     }
   }
 
@@ -474,13 +507,7 @@ class NntpClient {
    * @param {NntpResponse} res - Response received from the server.
    */
   _actionReadData({ data }) {
-    this._lineReader(data, line => {
-      if (line == null) {
-        this._actionDone();
-      } else {
-        this.onData(line);
-      }
-    });
+    this._lineReader(data, this.onData, this._actionDone);
   }
 
   /**
@@ -551,9 +578,30 @@ class NntpClient {
   }
 
   /**
+   * Send `XPAT <header> <message-id> <pattern>` to the server.
+   */
+  _actionXPat = () => {
+    let xptLine = this._xpatLines.shift();
+    if (!xptLine) {
+      this._actionDone();
+      return;
+    }
+    this._sendCommand(xptLine);
+    this._nextAction = this._actionXPatResponse;
+  };
+
+  /**
+   * Handle XPAT response.
+   * @param {NntpResponse} res - XOVER response received from the server.
+   */
+  _actionXPatResponse({ data }) {
+    this._lineReader(data, this.onData, this._actionXPat);
+  }
+
+  /**
    * Close the connection and do necessary cleanup.
    */
-  _actionDone() {
+  _actionDone = () => {
     this.onDone();
     this._newsGroup?.cleanUp();
     this._newsFolder?.OnStopRunningUrl?.(this.runningUri, 0);
@@ -561,5 +609,5 @@ class NntpClient {
     this.runningUri.SetUrlState(false, Cr.NS_OK);
     this._socket.close();
     this._nextAction = null;
-  }
+  };
 }

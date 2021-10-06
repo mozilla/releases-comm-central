@@ -764,9 +764,10 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
   rv = GetUriForMsg(msgHdr, messageURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCOMPtr<nsIURI> resultUri;
   return nntpService->CancelMessage(cancelURL.get(), messageURI.get(),
                                     nullptr /* consumer */, nullptr, aMsgWindow,
-                                    nullptr);
+                                    getter_AddRefs(resultUri));
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(nsIMsgWindow* aMsgWindow,
