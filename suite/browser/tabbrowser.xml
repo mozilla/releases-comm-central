@@ -1246,6 +1246,7 @@
 
             this.removeTab(event.target);
             event.stopPropagation();
+            event.preventDefault();
           ]]>
         </body>
       </method>
