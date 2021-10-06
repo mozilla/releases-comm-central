@@ -64,6 +64,7 @@
 #include "nsIScriptError.h"
 #include "nsIURIMutator.h"
 #include "nsIXULAppInfo.h"
+#include "nsPrintfCString.h"
 #include "mozilla/Services.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
@@ -904,15 +905,28 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr, bool* aReusable,
   nsCString storeToken;
   rv = aMsgHdr->GetStringProperty("storeToken", getter_Copies(storeToken));
   NS_ENSURE_SUCCESS(rv, rv);
-  int64_t offset;
-  rv = msgStore->GetMsgInputStream(this, storeToken, &offset, aMsgHdr,
-                                   aReusable, aInputStream);
+
+  // Handle legacy DB which has mbox offset but no storeToken.
+  // If this is still needed (open question), it should be done as separate
+  // migration pass, probably at folder creation when store and DB are set
+  // up (but that's tricky at the moment, because the DB is created
+  // on-demand).
+  if (storeToken.IsEmpty()) {
+    nsAutoCString storeType;
+    msgStore->GetStoreType(storeType);
+    if (!storeType.EqualsLiteral("mbox")) {
+      return NS_ERROR_FAILURE;  // DB is missing storeToken.
+    }
+    uint64_t offset;
+    aMsgHdr->GetMessageOffset(&offset);
+    storeToken = nsPrintfCString("%" PRIu64, offset);
+    rv = aMsgHdr->SetStringProperty("storeToken", storeToken.get());
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  rv = msgStore->GetMsgInputStream(this, storeToken, aReusable, aInputStream);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsISeekableStream> seekableStream(do_QueryInterface(*aInputStream));
-  if (seekableStream) rv = seekableStream->Seek(PR_SEEK_SET, offset);
-  NS_WARNING_ASSERTION(seekableStream || !offset,
-                       "non-zero offset w/ non-seekable stream");
-  return rv;
+  return NS_OK;
 }
 
 // path coming in is the root path without the leaf name,

@@ -702,29 +702,25 @@ nsMsgBrkMBoxStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aNewHdr,
 NS_IMETHODIMP
 nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
                                      const nsACString& aMsgToken,
-                                     int64_t* aOffset, nsIMsgDBHdr* aMsgHdr,
                                      bool* aReusable,
                                      nsIInputStream** aResult) {
-  NS_ENSURE_ARG_POINTER(aMsgFolder);
-  NS_ENSURE_ARG_POINTER(aResult);
-  NS_ENSURE_ARG_POINTER(aOffset);
+  MOZ_ASSERT(aMsgFolder);
+  MOZ_ASSERT(aResult);
+  MOZ_ASSERT(!aMsgToken.IsEmpty());
 
-  // If there is no store token, then we set it to the existing message offset.
-  if (aMsgToken.IsEmpty()) {
-    uint64_t offset;
-    NS_ENSURE_ARG_POINTER(aMsgHdr);
-    aMsgHdr->GetMessageOffset(&offset);
-    *aOffset = int64_t(offset);
-    char storeToken[100];
-    PR_snprintf(storeToken, sizeof(storeToken), "%lld", *aOffset);
-    aMsgHdr->SetStringProperty("storeToken", storeToken);
-  } else
-    *aOffset = ParseUint64Str(PromiseFlatCString(aMsgToken).get());
   *aReusable = true;
+  uint64_t offset = ParseUint64Str(PromiseFlatCString(aMsgToken).get());
   nsCOMPtr<nsIFile> mboxFile;
   nsresult rv = aMsgFolder->GetFilePath(getter_AddRefs(mboxFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  return NS_NewLocalFileInputStream(aResult, mboxFile);
+  nsCOMPtr<nsIInputStream> msgStream;
+  rv = NS_NewLocalFileInputStream(getter_AddRefs(msgStream), mboxFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(msgStream));
+  rv = seekable->Seek(PR_SEEK_SET, offset);
+  NS_ENSURE_SUCCESS(rv, rv);
+  msgStream.forget(aResult);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteMessages(

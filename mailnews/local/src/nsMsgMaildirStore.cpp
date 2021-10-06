@@ -882,15 +882,12 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aHdr,
 NS_IMETHODIMP
 nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
                                      const nsACString& aMsgToken,
-                                     int64_t* aOffset, nsIMsgDBHdr* aMsgHdr,
                                      bool* aReusable,
                                      nsIInputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aMsgFolder);
-  NS_ENSURE_ARG_POINTER(aOffset);
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aReusable = false;  // message per file
-  *aOffset = 0;
 
   // construct path to file
   nsCOMPtr<nsIFile> path;

@@ -177,17 +177,12 @@ interface nsIMsgPluggableStore : nsISupports {
    *                  and must be set as a string property "storeToken" on the
    *                  message hdr by the store when the message is added
    *                  to the store.
-   * @param aOffset offset in the returned stream of the message.
-   * @param[optional] aHdr msgHdr to use in case storeToken is not set. This is
-   *                  for upgrade from existing profiles.
-   * @param[optional] aReusable Is the returned stream re-usable for other
+   * @param aReusable Is the returned stream re-usable for other
    *                            messages' input streams?
    */
   nsIInputStream getMsgInputStream(in nsIMsgFolder aFolder,
                                    in ACString aMsgToken,
-                                   out long long aOffset,
-                                   [optional] in nsIMsgDBHdr aHdr,
-                                   [optional] out boolean aReusable);
+                                   out boolean aReusable);
 
   /**
    * Delete the passed in messages. These message should all be in the
