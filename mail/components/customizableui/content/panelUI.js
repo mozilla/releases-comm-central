@@ -756,7 +756,7 @@ const PanelUI = {
    * @param {ViewShowingEvent} event  The "ViewShowing" event.
    */
   _onAttachmentViewShow(event) {
-    const attachment = event.target.attachment;
+    const attachment = event.explicitOriginalTarget.attachment;
     const bundle = document.getElementById("bundle_messenger");
 
     const detached = attachment.isExternalAttachment;
