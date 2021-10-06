@@ -5,7 +5,7 @@ Parameters
 Overview
 --------
 
-See the Firefox taskgraph parameters documentation.
+See the gecko_taskgraph parameters documentation.
 
 Comm Push Information
 ---------------------

@@ -7,7 +7,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import hashlib
 import six
 import mozpack.path as mozpath
-from taskgraph.util.hash import hash_path, get_file_finder
+from gecko_taskgraph.util.hash import hash_path, get_file_finder
 
 
 def split_patterns_list(patterns):
@@ -43,8 +43,8 @@ def process_found(found_gen, prefix=None):
 
 def hash_paths_extended(base_path, patterns):
     """
-    Works like taskgraph.util.hash.hash_paths, except it is able to account for Thunderbird source
-    code being part of a separate repository.
+    Works like gecko_taskgraph.util.hash.hash_paths, except it is able to account for Thunderbird
+    source code being part of a separate repository.
     Two file finders are created if necessary.
     """
     gecko_patterns, comm_patterns = split_patterns_list(patterns)

@@ -4,9 +4,9 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-from taskgraph.util.signed_artifacts import is_notarization_kind
+from gecko_taskgraph.util.signed_artifacts import is_notarization_kind
 
-from taskgraph.transforms.base import TransformSequence
+from gecko_taskgraph.transforms.base import TransformSequence
 
 transforms = TransformSequence()
 
@@ -28,7 +28,7 @@ def remove_widevine(config, jobs):
 
     This is to avoid adding special cases for handling signed artifacts
     in mozilla-central code. Artifact signature formats are determined in
-    taskgraph.util.signed_artifacts. There's no override mechanism so we
+    gecko_taskgraph.util.signed_artifacts. There's no override mechanism so we
     remove the autograph_widevine format here.
     """
     for job in jobs:

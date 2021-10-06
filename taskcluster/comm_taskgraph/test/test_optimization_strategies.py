@@ -14,8 +14,8 @@ from mozunit import main
 # from responses import RequestsMock
 
 from comm_taskgraph.optimize import SkipSuiteOnly
-from taskgraph.optimize import registry
-from taskgraph.task import Task
+from gecko_taskgraph.optimize import registry
+from gecko_taskgraph.task import Task
 
 
 def generate_task():

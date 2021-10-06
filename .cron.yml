@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
 # Definitions for jobs that run periodically.  For details on the format, see
-# `taskcluster/taskgraph/cron/schema.py`.  For documentation, see
+# `taskcluster/gecko_taskgraph/cron/schema.py`.  For documentation, see
 # `taskcluster/docs/cron.rst`.
 #
 # Thunderbird specific documentation: `comm/taskcluster/docs/cron.rst`

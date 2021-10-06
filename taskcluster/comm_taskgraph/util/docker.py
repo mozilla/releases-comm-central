@@ -9,7 +9,7 @@ import os
 import logging
 
 from .. import COMM
-from taskgraph.util import (
+from gecko_taskgraph.util import (
     docker as utildocker,
 )
 

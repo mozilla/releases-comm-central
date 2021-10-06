@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-from taskgraph.loader.transform import loader as transform_loader
+from gecko_taskgraph.loader.transform import loader as transform_loader
 from comm_taskgraph.loader.reference import loader as reference_loader
 
 

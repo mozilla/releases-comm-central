@@ -41,9 +41,9 @@ reference-jobs:
     - update-verify
 
 transforms:
-    - taskgraph.transforms.docker_image:transforms
-    - taskgraph.transforms.cached_tasks:transforms
-    - taskgraph.transforms.task:transforms
+    - gecko_taskgraph.transforms.docker_image:transforms
+    - gecko_taskgraph.transforms.cached_tasks:transforms
+    - gecko_taskgraph.transforms.task:transforms
 
 jobs-from:
     - docker-image.yml

@@ -8,8 +8,8 @@ import os
 import logging
 from importlib import import_module
 
-from taskgraph import GECKO
-from taskgraph.optimize.schema import set_optimization_schema
+from gecko_taskgraph import GECKO
+from gecko_taskgraph.optimize.schema import set_optimization_schema
 from comm_taskgraph.optimize import thunderbird_optimizations
 
 logger = logging.getLogger(__name__)

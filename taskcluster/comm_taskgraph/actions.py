@@ -4,12 +4,12 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-from taskgraph.actions.registry import register_callback_action
-from taskgraph.actions.util import (
+from gecko_taskgraph.actions.registry import register_callback_action
+from gecko_taskgraph.actions.util import (
     create_tasks,
     fetch_graph_and_labels,
 )
-from taskgraph.util.attributes import RELEASE_PROMOTION_PROJECTS
+from gecko_taskgraph.util.attributes import RELEASE_PROMOTION_PROJECTS
 
 
 def is_release_promotion_available(parameters):

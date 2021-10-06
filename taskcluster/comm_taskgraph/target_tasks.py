@@ -6,7 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
-from taskgraph.target_tasks import (
+from gecko_taskgraph.target_tasks import (
     _target_task,
     filter_out_shipping_phase,
     standard_filter,

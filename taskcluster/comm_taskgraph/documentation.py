@@ -9,6 +9,6 @@ import os
 
 from . import COMM
 
-from taskgraph.util.verify import documentation_paths
+from gecko_taskgraph.util.verify import documentation_paths
 
 documentation_paths.add(os.path.join(COMM, "taskcluster", "docs"))

@@ -12,23 +12,23 @@ import json
 from six import text_type, ensure_text
 from voluptuous import Any, Optional, Required
 import mozpack.path as mozpath
-from taskgraph.transforms.job import (
+from gecko_taskgraph.transforms.job import (
     configure_taskdesc_for_run,
     run_job_using,
 )
-from taskgraph.transforms.job.toolchain import (
+from gecko_taskgraph.transforms.job.toolchain import (
     toolchain_defaults,
     toolchain_run_schema,
 )
-from taskgraph.transforms.job.common import (
+from gecko_taskgraph.transforms.job.common import (
     docker_worker_add_artifacts,
 )
 
-from taskgraph.util import taskcluster
-from taskgraph.util.hash import hash_paths as hash_paths_gecko_root
+from gecko_taskgraph.util import taskcluster
+from gecko_taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 from comm_taskgraph.util.hash import hash_paths_extended
-from taskgraph import GECKO
-import taskgraph
+from gecko_taskgraph import GECKO
+import gecko_taskgraph
 
 CACHE_TYPE = "toolchains.v3"
 
@@ -60,7 +60,7 @@ def hash_paths(*args):
 
 def get_digest_data(config, run, taskdesc):
     """
-    Copied from taskgraph.transforms.job.toolchain, with minor
+    Copied from gecko_taskgraph.transforms.job.toolchain, with minor
     modifications to support the required script path.
     """
     files = list(run.pop("resources", []))
@@ -136,7 +136,7 @@ def docker_worker_toolchain(config, job, taskdesc):
     if "toolchain-alias" in run:
         attributes["toolchain-alias"] = run.pop("toolchain-alias")
 
-    if not taskgraph.fast:
+    if not gecko_taskgraph.fast:
         name = taskdesc["label"].replace("{}-".format(config.kind), "", 1)
         taskdesc["cache"] = {
             "type": CACHE_TYPE,
@@ -206,7 +206,7 @@ def docker_macos_sdk_fetch(config, job, taskdesc):
 
     # Sets the MOZ_FETCHES environment variable with the task id and artifact
     # path of the gecko artifact. This bypasses the usual setup done in
-    # taskgraph/transforms/job/__init__.py.
+    # gecko_taskgraph/transforms/job/__init__.py.
     moz_fetches = {
         "task-reference": ensure_text(
             json.dumps(
@@ -237,7 +237,7 @@ def docker_macos_sdk_fetch(config, job, taskdesc):
     if "toolchain-alias" in run:
         attributes["toolchain-alias"] = run.pop("toolchain-alias")
 
-    if not taskgraph.fast:
+    if not gecko_taskgraph.fast:
         name = taskdesc["label"].replace("{}-".format(config.kind), "", 1)
         taskdesc["cache"] = {
             "type": CACHE_TYPE,

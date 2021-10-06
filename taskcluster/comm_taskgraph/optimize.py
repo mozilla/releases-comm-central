@@ -11,17 +11,17 @@ import logging
 
 from six import text_type
 
-from taskgraph.optimize import (
+from gecko_taskgraph.optimize import (
     register_strategy,
     Any,
     OptimizationStrategy,
 )
-from taskgraph.optimize.schema import (
+from gecko_taskgraph.optimize.schema import (
     default_optimizations,
 )
 from mozbuild.util import memoize
 from mozpack.path import match as mozpackmatch
-from taskgraph.files_changed import get_changed_files
+from gecko_taskgraph.files_changed import get_changed_files
 
 logger = logging.getLogger(__name__)
 

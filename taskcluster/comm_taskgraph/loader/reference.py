@@ -7,8 +7,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 import os
 import logging
 
-from taskgraph.util.yaml import load_yaml
-from taskgraph.util.python_path import find_object
+from gecko_taskgraph.util.yaml import load_yaml
+from gecko_taskgraph.util.python_path import find_object
 from six import text_type
 
 logger = logging.getLogger(__name__)

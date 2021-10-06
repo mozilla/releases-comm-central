@@ -7,7 +7,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import unittest
 
 import comm_taskgraph.parameters  # noqa: F401
-from taskgraph.parameters import Parameters
+from gecko_taskgraph.parameters import Parameters
 from mozunit import main
 
 

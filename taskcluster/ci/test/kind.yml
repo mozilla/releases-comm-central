@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: taskgraph.loader.test:loader
+loader: gecko_taskgraph.loader.test:loader
 
 kind-dependencies:
     - build
@@ -12,9 +12,9 @@ kind-dependencies:
 
 transforms:
     - comm_taskgraph.transforms.tests:transforms
-    - taskgraph.transforms.tests:transforms
-    - taskgraph.transforms.job:transforms
-    - taskgraph.transforms.task:transforms
+    - gecko_taskgraph.transforms.tests:transforms
+    - gecko_taskgraph.transforms.job:transforms
+    - gecko_taskgraph.transforms.task:transforms
 
 jobs-from:
     - compiled.yml
