@@ -346,7 +346,10 @@ async function testSendHeaders() {
     getBasicSmtpServer()
   );
   identity.setCharAttribute("headers", "bah,humbug");
-  identity.setCharAttribute("header.bah", "X-Custom-1: A header value");
+  identity.setCharAttribute(
+    "header.bah",
+    "X-Custom-1: A header value: with a colon"
+  );
   identity.setUnicharAttribute("header.humbug", "X-Custom-2: Enchanté");
   identity.setCharAttribute("subscribed_mailing_lists", "list@test.invalid");
   identity.setCharAttribute(
@@ -357,7 +360,7 @@ async function testSendHeaders() {
   fields.cc = "not-list@test.invalid";
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
-    "X-Custom-1": "A header value",
+    "X-Custom-1": "A header value: with a colon",
     "X-Custom-2": "=?UTF-8?B?RW5jaGFudMOp?=",
     "Mail-Followup-To": "list@test.invalid, not-list@test.invalid",
     "Mail-Reply-To": undefined,
@@ -368,7 +371,7 @@ async function testSendHeaders() {
   fields.cc = "";
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
-    "X-Custom-1": "A header value",
+    "X-Custom-1": "A header value: with a colon",
     "X-Custom-2": "=?UTF-8?B?RW5jaGFudMOp?=",
     "Mail-Reply-To": "from@tinderbox.invalid",
     "Mail-Followup-To": undefined,

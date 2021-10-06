@@ -164,10 +164,10 @@ var MsgUtils = {
       // mail.identity.<id#>.header.<header name> grab all the headers
       let attrValue = userIdentity.getUnicharAttribute(`header.${attr}`);
       if (attrValue) {
-        let [headerName, headerValue] = attrValue.split(":");
+        let colonIndex = attrValue.indexOf(":");
         headers.push({
-          headerName,
-          headerValue,
+          headerName: attrValue.slice(0, colonIndex),
+          headerValue: attrValue.slice(colonIndex + 1).trim(),
         });
       }
     }
