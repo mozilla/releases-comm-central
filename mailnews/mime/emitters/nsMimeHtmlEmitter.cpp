@@ -396,8 +396,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
       ((!p7mExternal && !strcmp(contentType, APPLICATION_XPKCS7_MIME)) ||
        (!p7mExternal && !strcmp(contentType, APPLICATION_PKCS7_MIME)) ||
        (!strcmp(contentType, APPLICATION_XPKCS7_SIGNATURE)) ||
-       (!strcmp(contentType, APPLICATION_PKCS7_SIGNATURE)) ||
-       (!strcmp(contentType, TEXT_VCARD)))) {
+       (!strcmp(contentType, APPLICATION_PKCS7_SIGNATURE)))) {
     mSkipAttachment = true;
     return NS_OK;
   }
@@ -476,12 +475,11 @@ nsresult nsMimeHtmlDisplayEmitter::AddAttachmentField(const char* field,
 }
 
 nsresult nsMimeHtmlDisplayEmitter::EndAttachment() {
-  if (mSkipAttachment) return NS_OK;
+  if (!mSkipAttachment) {
+    UtilityWrite("</tr>");
+  }
 
   mSkipAttachment = false;  // reset it for next attachment round
-
-  UtilityWrite("</tr>");
-
   return NS_OK;
 }
 

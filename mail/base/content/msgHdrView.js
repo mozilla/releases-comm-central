@@ -661,23 +661,10 @@ var messageHeaderSink = {
   },
 
   handleAttachment(contentType, url, displayName, uri, isExternalAttachment) {
-    this.skipAttachment = true;
-
-    // Don't show vcards as external attachments in the UI. libmime already
-    // renders them inline.
     if (!this.mSaveHdr) {
       this.mSaveHdr = messenger
         .messageServiceFromURI(uri)
         .messageURIToMsgHdr(uri);
-    }
-    if (contentType == "text/vcard" || contentType == "text/x-vcard") {
-      var inlineAttachments = Services.prefs.getBoolPref(
-        "mail.inline_attachments"
-      );
-      var displayHtmlAs = Services.prefs.getIntPref("mailnews.display.html_as");
-      if (inlineAttachments && !displayHtmlAs) {
-        return;
-      }
     }
 
     let newAttachment = new AttachmentInfo(
@@ -688,44 +675,26 @@ var messageHeaderSink = {
       isExternalAttachment
     );
     currentAttachments.push(newAttachment);
-    this.skipAttachment = false;
 
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-      if (newAttachment.contentType == "application/pgp-keys") {
-        Enigmail.msg.autoProcessPgpKeyAttachment(newAttachment);
-      }
+    if (
+      contentType == "application/pgp-keys" &&
+      MailConstants.MOZ_OPENPGP &&
+      BondOpenPGP.isEnabled()
+    ) {
+      Enigmail.msg.autoProcessPgpKeyAttachment(newAttachment);
     }
 
-    // If we have an attachment, set the nsMsgMessageFlags.Attachment flag
-    // on the hdr to cause the "message with attachment" icon to show up
-    // in the thread pane.
-    // We only need to do this on the first attachment.
-    var numAttachments = currentAttachments.length;
-    if (numAttachments == 1) {
+    if (currentAttachments.length == 1) {
       // We also have to enable the Message/Attachments menuitem.
-      var node = document.getElementById("msgAttachmentMenu");
-      if (node) {
-        node.removeAttribute("disabled");
-      }
-
-      // convert the uri into a hdr
-      this.mSaveHdr.markHasAttachments(true);
+      document.getElementById("msgAttachmentMenu").removeAttribute("disabled");
       // we also do the same on appmenu
-      let appmenunode = document.getElementById("appmenu_msgAttachmentMenu");
-      if (appmenunode) {
-        appmenunode.removeAttribute("disabled");
-      }
-
-      // convert the uri into a hdr
-      this.mSaveHdr.markHasAttachments(true);
+      document
+        .getElementById("appmenu_msgAttachmentMenu")
+        ?.removeAttribute("disabled");
     }
   },
 
   addAttachmentField(field, value) {
-    if (this.skipAttachment) {
-      return;
-    }
-
     let last = currentAttachments[currentAttachments.length - 1];
     if (
       field == "X-Mozilla-PartSize" &&
@@ -791,20 +760,35 @@ var messageHeaderSink = {
   onEndMsgDownload(url) {
     gMessageDisplay.onLoadCompleted();
 
-    // if we don't have any attachments, turn off the attachments flag
     if (!this.mSaveHdr) {
       var messageUrl = url.QueryInterface(Ci.nsIMsgMessageUrl);
       this.mSaveHdr = messenger.msgHdrFromURI(messageUrl.uri);
     }
-    if (!currentAttachments.length && this.mSaveHdr) {
-      this.mSaveHdr.markHasAttachments(false);
-    }
+
+    // If we have no attachments, we hide the attachment icon in the message
+    // tree.
+    // We do the same if we only have text/vcard attachments because we
+    // *assume* the vcard attachment is a personal vcard (rather than an
+    // addressbook, or a shared contact) that is attached to every message.
+    // NOTE: There would be some obvious give-aways in the vcard content that
+    // this personal vcard assumption is incorrect (multiple contacts, or a
+    // contact with an address that is different from the sender address) but we
+    // do not have easy access to the attachment content here, so we just stick
+    // to the assumption.
+    // NOTE: If the message contains two vcard attachments (or more) then this
+    // would hint that one of the vcards is not personal, but we won't make an
+    // exception here to keep the implementation simple.
+    this.mSaveHdr.markHasAttachments(
+      currentAttachments.some(
+        att =>
+          att.contentType != "text/vcard" && att.contentType != "text/x-vcard"
+      )
+    );
 
     let browser = getBrowser();
     if (
       currentAttachments.length &&
       Services.prefs.getBoolPref("mail.inline_attachments") &&
-      this.mSaveHdr &&
       gFolderDisplay.selectedMessageIsFeed &&
       browser &&
       browser.contentDocument &&
@@ -1295,12 +1279,10 @@ function HideMessageHeaderPane() {
   // Disable the Message/Attachments menuitem.
   document.getElementById("msgAttachmentMenu").setAttribute("disabled", "true");
 
-  // If the App Menu is being used, disable the attachment menu in there as
-  // well.
-  let appMenuNode = document.getElementById("appmenu_msgAttachmentMenu");
-  if (appMenuNode) {
-    appMenuNode.setAttribute("disabled", "true");
-  }
+  // Disable the app menu attachment menu in there as well.
+  document
+    .getElementById("appmenu_msgAttachmentMenu")
+    ?.setAttribute("disabled", "true");
 
   // disable the attachment box
   document.getElementById("attachmentView").collapsed = true;
@@ -3339,15 +3321,11 @@ async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
 
 function ClearAttachmentList() {
   // We also have to disable the Message/Attachments menuitem.
-  var node = document.getElementById("msgAttachmentMenu");
-  if (node) {
-    node.setAttribute("disabled", "true");
-  }
+  document.getElementById("msgAttachmentMenu").setAttribute("disabled", "true");
   // Do the same on appmenu.
-  let appmenunode = document.getElementById("appmenu_msgAttachmentMenu");
-  if (appmenunode) {
-    appmenunode.setAttribute("disabled", "true");
-  }
+  document
+    .getElementById("appmenu_msgAttachmentMenu")
+    ?.setAttribute("disabled", "true");
 
   // clear selection
   var list = document.getElementById("attachmentList");

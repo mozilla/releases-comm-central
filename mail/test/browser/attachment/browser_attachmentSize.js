@@ -53,6 +53,7 @@ var imageSize = 188;
 var vcardAttachment =
   "YmVnaW46dmNhcmQNCmZuOkppbSBCb2INCm46Qm9iO0ppbQ0KZW1haWw7aW50ZXJuZXQ6Zm9v" +
   "QGJhci5jb20NCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K";
+var vcardSize = 90;
 
 var detachedName = "./attachment.txt";
 var missingName = "./nonexistent.txt";
@@ -129,8 +130,7 @@ var messages = [
       exact: true,
     },
   },
-  // vCards should be ignored in the attachment list; make sure we do so
-  // properly.
+  // vCards should be included in the attachment list.
   {
     name: "multiple_attachments_one_vcard",
     attachments: [
@@ -143,8 +143,11 @@ var messages = [
         format: "",
       },
     ],
-    attachmentSizes: [textAttachment.length],
-    attachmentTotalSize: { size: textAttachment.length, exact: true },
+    attachmentSizes: [textAttachment.length, vcardSize],
+    attachmentTotalSize: {
+      size: textAttachment.length + vcardSize,
+      exact: true,
+    },
   },
   {
     name: "multiple_attachments_one_detached",
@@ -269,30 +272,18 @@ function check_attachment_size(index, expectedSize) {
 
   // First, let's check that the attachment size is correct
   let size = node.attachment.size;
-  if (Math.abs(size - expectedSize) > epsilon) {
-    throw new Error(
-      "Reported attachment size (" +
-        size +
-        ") not within epsilon " +
-        "of actual attachment size (" +
-        expectedSize +
-        ")"
-    );
-  }
+  Assert.ok(
+    Math.abs(size - expectedSize) <= epsilon,
+    `Attachment "${node.attachment.name}" size should be within ${epsilon} ` +
+      `of ${expectedSize} (actual: ${size})`
+  );
 
   // Next, make sure that the formatted size in the label is correct
-  let formattedSize = node.getAttribute("size");
-  let expectedFormattedSize = messenger.formatFileSize(size);
-  if (formattedSize != expectedFormattedSize) {
-    throw new Error(
-      "Formatted attachment size (" +
-        formattedSize +
-        ") does not " +
-        "match expected value (" +
-        expectedFormattedSize +
-        ")"
-    );
-  }
+  Assert.equal(
+    node.getAttribute("size"),
+    messenger.formatFileSize(size),
+    `Attachment "${node.attachment.name}" displayed size should match`
+  );
 }
 
 /**
@@ -303,20 +294,18 @@ function check_no_attachment_size(index) {
   let list = mc.e("attachmentList");
   let node = list.querySelectorAll("richlistitem.attachmentItem")[index];
 
-  if (node.attachment.size != -1) {
-    throw new Error(
-      "attachmentSize attribute of deleted attachment should be -1!"
-    );
-  }
+  Assert.equal(
+    node.attachment.size,
+    -1,
+    `Attachment "${node.attachment.name}" should have a size of -1`
+  );
 
   // If there's no size, the size attribute is the zero-width space.
   let nodeSize = node.getAttribute("size");
-  mc.window.console.log(
-    "check_no_attachment_size: node.size->" + nodeSize + "<-"
+  Assert.ok(
+    nodeSize == "\u200b" || nodeSize == "",
+    `Attachment "${node.attachment.name}" size should not be displayed`
   );
-  if (nodeSize != "\u200b" && nodeSize != "") {
-    throw new Error("Attachment size should not be displayed!");
-  }
 }
 
 /**
@@ -330,11 +319,11 @@ function check_total_attachment_size(count, expectedSize, exact) {
   let nodes = list.querySelectorAll("richlistitem.attachmentItem");
   let sizeNode = mc.e("attachmentSize");
 
-  if (nodes.length != count) {
-    throw new Error(
-      "Saw " + nodes.length + " attachments, but expected " + count
-    );
-  }
+  Assert.equal(
+    nodes.length,
+    count,
+    "Should have the expected number of attachments"
+  );
 
   let lastPartID;
   let size = 0;
@@ -349,16 +338,11 @@ function check_total_attachment_size(count, expectedSize, exact) {
     }
   }
 
-  if (Math.abs(size - expectedSize) > epsilon * count) {
-    throw new Error(
-      "Reported attachment size (" +
-        size +
-        ") not within epsilon " +
-        "of actual attachment size (" +
-        expectedSize +
-        ")"
-    );
-  }
+  Assert.ok(
+    Math.abs(size - expectedSize) <= epsilon * count,
+    `Total attachments size should be within ${epsilon * count} ` +
+      `of ${expectedSize} (actual: ${size})`
+  );
 
   // Next, make sure that the formatted size in the label is correct
   let formattedSize = sizeNode.getAttribute("value");
@@ -377,16 +361,11 @@ function check_total_attachment_size(count, expectedSize, exact) {
       );
     }
   }
-  if (formattedSize != expectedFormattedSize) {
-    throw new Error(
-      "Formatted attachment size (" +
-        formattedSize +
-        ") does not " +
-        "match expected value (" +
-        expectedFormattedSize +
-        ")"
-    );
-  }
+  Assert.equal(
+    formattedSize,
+    expectedFormattedSize,
+    "Displayed attachments total size should match"
+  );
 }
 
 /**
@@ -394,17 +373,19 @@ function check_total_attachment_size(count, expectedSize, exact) {
  * are as expected
  * @param index the index of the message to check in the thread pane
  */
-function help_test_attachment_size(index) {
+async function help_test_attachment_size(index) {
   be_in_folder(folder);
   select_click_row(index);
+  info(`Testing message ${index}: ${messages[index].name}`);
   let expectedSizes = messages[index].attachmentSizes;
 
   mc.window.toggleAttachmentList(true);
 
-  // Test funcs are generated in the global scope, and there isn't a way to
-  // do this async (like within an async add_task in xpcshell) so await can
-  // force serial execution of each test. Wait here for the fetch() to complete.
-  controller.sleep(2000);
+  let attachmentList = mc.window.document.getElementById("attachmentList");
+  await TestUtils.waitForCondition(
+    () => !attachmentList.collapsed,
+    "Attachment list is shown"
+  );
 
   for (let i = 0; i < expectedSizes.length; i++) {
     if (expectedSizes[i] == -1) {
@@ -422,18 +403,8 @@ function help_test_attachment_size(index) {
   );
 }
 
-// Generate a test for each message in |messages|.
-for (let i = 0; i < messages.length; i++) {
-  add_task(function() {
-    help_test_attachment_size(i);
-  });
-}
-
-add_task(() => {
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
+add_task(async function test_attachment_sizes() {
+  for (let i = 0; i < messages.length; i++) {
+    await help_test_attachment_size(i);
+  }
 });
