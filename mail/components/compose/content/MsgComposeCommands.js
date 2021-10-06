@@ -8082,15 +8082,12 @@ function msgSubjectOnInput(event) {
 
 // Content types supported in the envelopeDragObserver.
 let flavors = [
+  "application/x-moz-file",
+  "text/uri-list",
   "text/x-moz-address",
   "text/x-moz-message",
-  "text/uri-list",
-  "application/x-moz-file",
   "text/x-moz-url",
 ];
-
-// Array of content types that should trigger the attachment overlay.
-let overlayFlavors = ["text/x-moz-message", "text/uri-list", "text/x-moz-url"];
 
 // We can drag and drop addresses, files, messages and urls into the compose
 // envelope.
@@ -8206,6 +8203,126 @@ var envelopeDragObserver = {
     }
   },
 
+  /**
+   * Loop through all the valid data type flavors and return a list of valid
+   * attachments to handle the various drag&drop actions.
+   *
+   * @param {Event} event - The drag-and-drop event being performed.
+   * @param {boolean} isDropping - If the action was performed from the onDrop
+   *   method and it needs to handle pills creation.
+   *
+   * @returns {nsIMsgAttachment[]} - The array of valid attachments.
+   */
+  getValidAttachments(event, isDropping) {
+    let attachments = [];
+    let dt = event.dataTransfer;
+    let dataList = [];
+
+    // Extract all the flavors matching the data type of the dragged elements.
+    for (let i = 0; i < dt.mozItemCount; i++) {
+      let types = Array.from(dt.mozTypesAt(i));
+      for (let flavor of flavors) {
+        if (types.includes(flavor)) {
+          let data = dt.mozGetDataAt(flavor, i);
+          if (data) {
+            dataList.push({ data, flavor });
+          }
+          break;
+        }
+      }
+    }
+
+    // Check if we have any valid attachment in the dragged data.
+    for (let { data, flavor } of dataList) {
+      let isValidAttachment = false;
+      let prettyName;
+      let size;
+
+      // We could be dropping an attachment of various flavors OR an address;
+      // check and do the right thing.
+      switch (flavor) {
+        // Process attachments.
+        case "application/x-moz-file":
+          if (data instanceof Ci.nsIFile) {
+            size = data.fileSize;
+          }
+          try {
+            data = Services.io
+              .getProtocolHandler("file")
+              .QueryInterface(Ci.nsIFileProtocolHandler)
+              .getURLSpecFromActualFile(data);
+            isValidAttachment = true;
+          } catch (e) {
+            Cu.reportError(
+              "Couldn't process the dragged file " + data.leafName + ":" + e
+            );
+          }
+          break;
+
+        case "text/x-moz-message":
+          isValidAttachment = true;
+          let msgHdr = gMessenger
+            .messageServiceFromURI(data)
+            .messageURIToMsgHdr(data);
+          prettyName = msgHdr.mime2DecodedSubject + ".eml";
+          size = msgHdr.messageSize;
+          break;
+
+        case "text/uri-list":
+        case "text/x-moz-url":
+          let pieces = data.split("\n");
+          data = pieces[0];
+          if (pieces.length > 1) {
+            prettyName = pieces[1];
+          }
+          if (pieces.length > 2) {
+            size = parseInt(pieces[2]);
+          }
+
+          // If this is a URL (or selected text), check if it's a valid URL
+          // by checking if we can extract a scheme using Services.io.
+          // Don't attach invalid or mailto: URLs.
+          try {
+            let scheme = Services.io.extractScheme(data);
+            if (scheme != "mailto") {
+              isValidAttachment = true;
+            }
+          } catch (ex) {}
+          break;
+
+        // Process address: Drop it into recipient field.
+        case "text/x-moz-address":
+          // Process the drop only if the message body wasn't the target and we
+          // called this method from the onDrop() method.
+          if (event.target.baseURI != "about:blank?compose" && isDropping) {
+            DropRecipient(event.target, data);
+            // Prevent the default behaviour which drops the address text into
+            // the widget.
+            event.preventDefault();
+          }
+
+          break;
+      }
+
+      // Create the attachment and add it to attachments array.
+      if (isValidAttachment) {
+        let attachment = Cc[
+          "@mozilla.org/messengercompose/attachment;1"
+        ].createInstance(Ci.nsIMsgAttachment);
+        attachment.url = data;
+        attachment.name = prettyName;
+
+        if (size !== undefined) {
+          attachment.size = size;
+        }
+
+        attachments.push(attachment);
+      }
+    }
+
+    return attachments;
+  },
+
   // eslint-disable-next-line complexity
   onDrop(event) {
     // Call the dragLeave event to properly hide the overlay.
@@ -8317,107 +8434,7 @@ var envelopeDragObserver = {
       return;
     }
 
-    let attachments = [];
-    let dt = event.dataTransfer;
-    let dataList = [];
-    for (let i = 0; i < dt.mozItemCount; i++) {
-      let types = Array.from(dt.mozTypesAt(i));
-      for (let flavor of flavors) {
-        if (types.includes(flavor)) {
-          let data = dt.mozGetDataAt(flavor, i);
-          if (data) {
-            dataList.push({ data, flavor });
-          }
-          break;
-        }
-      }
-    }
-
-    for (let { data, flavor } of dataList) {
-      let isValidAttachment = false;
-      let prettyName;
-      let size;
-
-      // We could be dropping an attachment of various flavors OR an address;
-      // check and do the right thing.
-      switch (flavor) {
-        // Process attachments.
-        case "application/x-moz-file":
-          if (data instanceof Ci.nsIFile) {
-            size = data.fileSize;
-          }
-          try {
-            data = Services.io
-              .getProtocolHandler("file")
-              .QueryInterface(Ci.nsIFileProtocolHandler)
-              .getURLSpecFromActualFile(data);
-            isValidAttachment = true;
-          } catch (e) {
-            Cu.reportError(
-              "Couldn't process the dragged file " + data.leafName + ":" + e
-            );
-          }
-          break;
-
-        case "text/x-moz-message":
-          isValidAttachment = true;
-          let msgHdr = gMessenger
-            .messageServiceFromURI(data)
-            .messageURIToMsgHdr(data);
-          prettyName = msgHdr.mime2DecodedSubject + ".eml";
-          size = msgHdr.messageSize;
-          break;
-
-        case "text/uri-list":
-        case "text/x-moz-url":
-          let pieces = data.split("\n");
-          data = pieces[0];
-          if (pieces.length > 1) {
-            prettyName = pieces[1];
-          }
-          if (pieces.length > 2) {
-            size = parseInt(pieces[2]);
-          }
-
-          // If this is a URL (or selected text), check if it's a valid URL
-          // by checking if we can extract a scheme using Services.io.
-          // Don't attach invalid or mailto: URLs.
-          try {
-            let scheme = Services.io.extractScheme(data);
-            if (scheme != "mailto") {
-              isValidAttachment = true;
-            }
-          } catch (ex) {}
-          break;
-
-        // Process address: Drop it into recipient field.
-        case "text/x-moz-address":
-          // Process the drop only if the message body wasn't the target.
-          if (event.target.baseURI != "about:blank?compose") {
-            DropRecipient(event.target, data);
-            // Prevent the default behaviour which drops the address text into
-            // the widget.
-            event.preventDefault();
-          }
-
-          break;
-      }
-
-      // Create the attachment and add it to attachments array.
-      if (isValidAttachment) {
-        let attachment = Cc[
-          "@mozilla.org/messengercompose/attachment;1"
-        ].createInstance(Ci.nsIMsgAttachment);
-        attachment.url = data;
-        attachment.name = prettyName;
-
-        if (size !== undefined) {
-          attachment.size = size;
-        }
-
-        attachments.push(attachment);
-      }
-    }
+    let attachments = this.getValidAttachments(event, true);
 
     // Interrupt if we don't have anything to attach.
     if (!attachments.length) {
@@ -8469,10 +8486,8 @@ var envelopeDragObserver = {
 
     if (flavors.some(f => event.dataTransfer.types.includes(f))) {
       // Show the drop overlay only if we dragged files or supported types.
-      if (
-        event.dataTransfer.files.length ||
-        event.dataTransfer.types.some(type => overlayFlavors.includes(type))
-      ) {
+      let attachments = this.getValidAttachments(event);
+      if (attachments.length) {
         event.stopPropagation();
         event.preventDefault();
         document
@@ -8482,13 +8497,13 @@ var envelopeDragObserver = {
         document.l10n.setAttributes(
           document.getElementById("addAsAttachmentLabel"),
           "drop-file-label-attachment",
-          { count: event.dataTransfer.files.length || 1 }
+          { count: attachments.length || 1 }
         );
 
         document.l10n.setAttributes(
           document.getElementById("addInlineLabel"),
           "drop-file-label-inline",
-          { count: event.dataTransfer.files.length || 1 }
+          { count: attachments.length || 1 }
         );
 
         // Show the #addInline box only if the user is dragging only images and
@@ -8497,7 +8512,7 @@ var envelopeDragObserver = {
           .getElementById("addInline")
           .classList.toggle(
             "hidden",
-            !event.dataTransfer.files.length ||
+            !attachments.length ||
               this.isNotDraggingOnlyImages(event.dataTransfer) ||
               !gMsgCompose.composeHTML
           );
