@@ -723,9 +723,7 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption(
    signature first (since it's inside.) */
   if (aSign) {
     rv = MimeFinishMultipartSigned(false, sendReport);
-    if (NS_FAILED(rv)) {
-      goto FAIL;
-    }
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   /* Close off the opaque encrypted blob.
@@ -737,25 +735,21 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption(
     mBufferedBytes = 0;
     if (NS_FAILED(rv)) {
       PR_ASSERT(PR_GetError() < 0);
-      goto FAIL;
+      return rv;
     }
   }
 
   rv = mEncryptionContext->Finish();
   if (NS_FAILED(rv)) {
     SetError(sendReport, u"ErrorEncryptMail");
-    goto FAIL;
+    return rv;
   }
 
   mEncryptionContext = nullptr;
 
-  PR_ASSERT(mEncryptionCinfo);
-  if (!mEncryptionCinfo) {
-    rv = NS_ERROR_FAILURE;
-  }
-  if (mEncryptionCinfo) {
-    mEncryptionCinfo = nullptr;
-  }
+  NS_ENSURE_TRUE(mEncryptionCinfo, NS_ERROR_UNEXPECTED);
+
+  mEncryptionCinfo = nullptr;
 
   // Shut down the base64 encoder.
   mCryptoEncoder->Flush();
@@ -765,7 +759,6 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption(
   rv = mStream->Write(CRLF, 2, &n);
   if (NS_FAILED(rv) || n < 2) rv = NS_ERROR_FAILURE;
 
-FAIL:
   return rv;
 }
 
