@@ -267,8 +267,10 @@ nsresult nsNetscapeProfileMigratorBase::RecursiveCopy(nsIFile* srcDir,
             dirEntry->GetLeafName(leafName);
             newChild->AppendRelativePath(leafName);
             rv = newChild->Exists(&exists);
-            if (NS_SUCCEEDED(rv) && !exists)
+            if (NS_SUCCEEDED(rv) && !exists) {
               rv = newChild->Create(nsIFile::DIRECTORY_TYPE, 0775);
+              if (NS_FAILED(rv)) return rv;
+            }
             rv = RecursiveCopy(dirEntry, newChild);
           }
         } else {
