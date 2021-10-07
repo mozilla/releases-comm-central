@@ -365,7 +365,9 @@ function migrateCalendarUI() {
 
 function setLocaleDefaultPreferences() {
   function setDefaultLocaleValue(aName) {
-    let startDefault = calendarInfo.firstDayOfWeek - 1;
+    // Shift encoded days from 1=Monday ... 7=Sunday to 0=Sunday ... 6=Saturday
+    let startDefault = calendarInfo.firstDayOfWeek % 7;
+
     if (aName == "calendar.categories.names" && defaultBranch.getStringPref(aName) == "") {
       cal.category.setupDefaultCategories();
     } else if (aName == "calendar.week.start" && defaultBranch.getIntPref(aName) != startDefault) {
