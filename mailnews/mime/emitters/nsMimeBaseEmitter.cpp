@@ -173,13 +173,12 @@ char* nsMimeBaseEmitter::MimeGetStringByName(const char* aHeaderName) {
   nsresult res = NS_OK;
 
   if (!m_headerStringBundle) {
-    static const char propertyURL[] = MIME_HEADER_URL;
-
     nsCOMPtr<nsIStringBundleService> sBundleService =
         mozilla::services::GetStringBundleService();
     if (sBundleService) {
-      res = sBundleService->CreateBundle(propertyURL,
+      res = sBundleService->CreateBundle(MIME_HEADER_URL,
                                          getter_AddRefs(m_headerStringBundle));
+      if (NS_FAILED(res)) return nullptr;
     }
   }
 
@@ -195,9 +194,8 @@ char* nsMimeBaseEmitter::MimeGetStringByName(const char* aHeaderName) {
     // if this is used as UCS-2 (e.g. cannot do nsString(utfStr);
     //
     return ToNewUTF8String(val);
-  } else {
-    return nullptr;
   }
+  return nullptr;
 }
 
 char* nsMimeBaseEmitter::MimeGetStringByID(int32_t aID) {
@@ -220,8 +218,8 @@ char* nsMimeBaseEmitter::MimeGetStringByID(int32_t aID) {
     if (NS_FAILED(res)) return nullptr;
 
     return ToNewUTF8String(val);
-  } else
-    return nullptr;
+  }
+  return nullptr;
 }
 
 //
