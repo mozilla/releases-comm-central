@@ -4190,7 +4190,7 @@ NS_IMETHODIMP nsMsgDBFolder::SetBiffState(uint32_t aBiffState) {
   uint32_t oldBiffState = nsMsgBiffState_Unknown;
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
-  if (NS_SUCCEEDED(rv) && server) rv = server->GetBiffState(&oldBiffState);
+  if (NS_SUCCEEDED(rv) && server) server->GetBiffState(&oldBiffState);
 
   if (oldBiffState != aBiffState) {
     // Get the server and notify it and not inbox.
