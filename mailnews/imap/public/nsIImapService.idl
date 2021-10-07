@@ -67,7 +67,6 @@ interface nsIImapService : nsISupports
                     in nsISupports aConsumer,
                     in ACString aMessageIdentifierList,
                     in boolean convertDataToText,
-                    in ACString additionalHeader,
                     out nsIURI aOutURL);
 
   void noop(in nsIMsgFolder aImapMailFolder,

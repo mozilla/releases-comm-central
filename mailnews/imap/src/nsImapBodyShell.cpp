@@ -319,22 +319,6 @@ nsIMAPBodypart* nsIMAPBodypart::FindPartWithNumber(const char* partNum) {
   return NULL;
 }
 
-/*
-void nsIMAPBodypart::PrefetchMIMEHeader()
-{
-if (!m_headerData && !m_shell->DeathSignalReceived())
-{
-m_shell->GetConnection()->FetchMessage(m_shell->GetUID(), kMIMEHeader, true, 0,
-0, m_partNumberString);
-// m_headerLength will be filled in when it is adopted from the parser
-}
-if (!m_headerData)
-{
-SetIsValid(false);
-}
-}
-*/
-
 void nsIMAPBodypart::QueuePrefetchMIMEHeader(nsImapBodyShell* aShell) {
   aShell->AddPrefetchToQueue(kMIMEHeader, m_partNumberString);
 }
