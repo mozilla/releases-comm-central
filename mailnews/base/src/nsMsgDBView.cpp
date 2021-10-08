@@ -110,6 +110,7 @@ nsMsgDBView::nsMsgDBView() {
   m_sortValid = false;
   m_checkedCustomColumns = false;
   m_sortOrder = nsMsgViewSortOrder::none;
+  m_sortType = nsMsgViewSortType::byNone;
   m_viewFlags = nsMsgViewFlagsType::kNone;
   m_secondarySort = nsMsgViewSortType::byId;
   m_secondarySortOrder = nsMsgViewSortOrder::ascending;
