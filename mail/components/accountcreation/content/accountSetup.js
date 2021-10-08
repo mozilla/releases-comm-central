@@ -23,10 +23,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CreateInBackend: "resource:///modules/accountcreation/CreateInBackend.jsm",
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.jsm",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   verifyConfig: "resource:///modules/accountcreation/verifyConfig.jsm",
 });
 
