@@ -1646,15 +1646,15 @@ function InitFileSaveAsMenu() {
 }
 
 function isSmimeSigningConfigured() {
-  return !!gCurrentIdentity.getUnicharAttribute("signing_cert_name");
+  return !!gCurrentIdentity?.getUnicharAttribute("signing_cert_name");
 }
 
 function isSmimeEncryptionConfigured() {
-  return !!gCurrentIdentity.getUnicharAttribute("encryption_cert_name");
+  return !!gCurrentIdentity?.getUnicharAttribute("encryption_cert_name");
 }
 
 function isPgpConfigured() {
-  return !!gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
+  return !!gCurrentIdentity?.getUnicharAttribute("openpgp_key_id");
 }
 
 function toggleGlobalSignMessage() {

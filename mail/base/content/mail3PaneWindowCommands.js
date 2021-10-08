@@ -371,6 +371,10 @@ var DefaultController = {
       case "cmd_viewPageSource":
       case "cmd_reload":
       case "cmd_applyFiltersToSelection":
+        if (!CanComposeMessages()) {
+          return false;
+        }
+
         let numSelected = gFolderDisplay.selectedCount;
         if (command == "cmd_applyFiltersToSelection") {
           var whichText = "valueMessage";

@@ -1119,10 +1119,18 @@ var MessageWindowController = {
       case "button_reply":
       case "cmd_replyall":
       case "button_replyall":
-        return gFolderDisplay.selectedMessage && IsReplyEnabled();
+        return (
+          gFolderDisplay.selectedMessage &&
+          IsReplyEnabled() &&
+          CanComposeMessages()
+        );
       case "cmd_replylist":
       case "button_replylist":
-        return gFolderDisplay.selectedMessage && IsReplyListEnabled();
+        return (
+          gFolderDisplay.selectedMessage &&
+          IsReplyListEnabled() &&
+          CanComposeMessages()
+        );
       case "cmd_newMessage":
         return CanComposeMessages();
       case "cmd_replySender":
@@ -1134,6 +1142,7 @@ var MessageWindowController = {
       case "cmd_forwardAttachment":
       case "cmd_redirect":
       case "cmd_editAsNew":
+        return CanComposeMessages();
       case "cmd_editDraftMsg":
       case "cmd_newMsgFromTemplate":
       case "cmd_editTemplateMsg":
