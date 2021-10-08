@@ -1029,6 +1029,8 @@ class TabmailTab extends Tab {
           switch (currentURI.filePath) {
             case "addressbook":
               return "addressBook";
+            case "accountprovisioner":
+              return "accountProvisioner";
             case "blank":
               return "content";
             default:
@@ -1046,7 +1048,7 @@ class TabmailTab extends Tab {
       case "tasks":
       case "chat":
         return this.nativeTab.mode.name;
-      case "accountProvisionerTab":
+      case "provisionerCheckoutTab":
       case "glodaFacet":
       case "preferencesTab":
         return "special";

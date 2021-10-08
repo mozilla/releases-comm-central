@@ -981,7 +981,7 @@ var gAccountSetup = {
    * @param {string} stringName - The name of the fluent string that needs to
    *   be attached to the notification.
    * @param {boolean} isMsgError - True if the message comes from a server error
-   * response or try/catch.
+   *   response or try/catch.
    */
   async showErrorNotification(stringName, isMsgError) {
     gAccountSetupLogger.debug(`Status error: ${stringName}`);

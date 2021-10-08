@@ -64,11 +64,11 @@ header {
 }
 
 .main-container {
+  max-width: 80rem;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   margin: 0 4rem 3rem;
-  max-width: 80rem;
 }
 
 .column {
@@ -78,6 +78,10 @@ header {
 
 .first-column {
   max-width: 425px;
+}
+
+.column-wide {
+  max-width: 525px;
 }
 
 .second-column {
@@ -143,7 +147,7 @@ header {
   padding-block: 0;
   padding-inline-end: 33px;
   min-height: 35px;
-  border-radius: 3px;
+  border-radius: var(--in-content-button-border-radius);
 }
 
 .form-icon {
@@ -204,7 +208,7 @@ input:user-invalid ~ .icon-warning {
   font-weight: 600;
   cursor: pointer;
   min-height: auto;
-  border-radius: 3px;
+  border-radius: var(--in-content-button-border-radius);
 }
 
 .btn-link-new-email {
@@ -243,7 +247,7 @@ input:user-invalid ~ .icon-warning {
 }
 
 .action-buttons-container button {
-  border-radius: 3px;
+  border-radius: var(--in-content-button-border-radius);
 }
 
 .account-setup-notifications {
@@ -269,7 +273,7 @@ input:user-invalid ~ .icon-warning {
   margin-block: 0 12px;
 }
 
-.autoconfigautoconfig-note {
+.autoconfig-note {
   margin-block: 10px 0;
   font-size: 0.85em;
 }
@@ -412,7 +416,7 @@ input:user-invalid ~ .icon-warning {
   margin-top: 0;
   background-color: var(--red-60);
   color: #fff;
-  border-radius: 3px;
+  border-radius: var(--in-content-button-border-radius);
   padding: 6px;
 }
 
@@ -591,7 +595,7 @@ input:user-invalid ~ .icon-warning {
 #installAddonInfo {
   background-color: var(--addon-bg);
   padding: 3px 6px;
-  border-radius: 3px;
+  border-radius: var(--in-content-button-border-radius);
   border: 1px solid var(--addon-border);
 }
 
@@ -636,7 +640,7 @@ select[disabled] {
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
   column-gap: 6px;
   padding: 3px 9px;
-  border-radius: 3px;
+  border-radius: var(--in-content-button-border-radius);
   min-height: 39px;
   line-height: 1em;
   -moz-context-properties: fill;
@@ -803,7 +807,7 @@ button.quick-link:hover:active {
   align-items: center;
   justify-content: space-between;
   padding-inline-start: 4px;
-  border-radius: 3px;
+  border-radius: var(--in-content-button-border-radius);
 }
 
 .linked-services-list li span {
@@ -909,4 +913,128 @@ button.existing:dir(rtl) {
 
 .calendar-dialog-form select > option {
   padding-inline-start: 11px;
+}
+
+
+/* Account Provisioner variations */
+
+#backButton {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  background-image: url("chrome://global/skin/icons/arrow-left.svg");
+  background-repeat: no-repeat;
+  background-position-x: 6px;
+  background-position-y: center;
+  padding-inline-start: 25px;
+  background-size: 16px;
+}
+
+#backButton:dir(rtl) {
+  background-image: url("chrome://global/skin/icons/arrow-right.svg");
+  background-position-x: right 6px;
+}
+
+.service-title {
+  margin-top: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.service-description {
+  font-size: 0.9em;
+  line-height: 1.3em;
+  color: var(--in-content-deemphasized-text);
+}
+
+.service-form {
+  margin-bottom: 30px;
+}
+
+.service-form-container {
+  display: flex;
+  align-items: center;
+}
+
+.service-form-container input {
+  flex: 1;
+  margin-inline: 0 10px;
+}
+
+.service-form-container button {
+  margin-inline: 0;
+}
+
+.providers-list {
+  margin: 10px 0 40px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+}
+
+.providers-list li {
+  margin-inline: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.providers-list img {
+  width: 26px;
+  margin-inline-end: 6px;
+}
+
+.providers-list span {
+  font-weight: bold;
+}
+
+.provisioner-buttons {
+  margin-inline: -3px;
+}
+
+.provisioner-results-area {
+  margin-block-end: 21px;
+}
+
+.results-title {
+  font-weight: 500;
+  margin-block: 0 9px;
+}
+
+.result-list-header {
+  margin-block: 0 10px;
+  text-transform: uppercase;
+  background-color: var(--button-bgcolor);
+  color: var(--default);
+  padding: 9px 6px;
+  border-radius: var(--in-content-button-border-radius);
+  text-align: center;
+  margin: -9px -9px 10px;
+}
+.results-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.results-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.results-list ul + .result-list-header  {
+  margin-block-start: 10px;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline-start: 4px;
+  border-radius: var(--in-content-button-border-radius);
+}
+
+.result-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
 }

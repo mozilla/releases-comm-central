@@ -15,14 +15,14 @@ var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
  * "subclass" specialTabs.contentTabType, and then override the appropriate
  * members.
  *
- * Also note that accountProvisionerTab is a singleton (hence the maxTabs: 1).
+ * Also note that provisionerCheckoutTab is a singleton (hence the maxTabs: 1).
  */
-var accountProvisionerTabType = Object.create(specialTabs.contentTabType, {
-  name: { value: "accountProvisionerTab" },
+var provisionerCheckoutTabType = Object.create(specialTabs.contentTabType, {
+  name: { value: "provisionerCheckoutTab" },
   modes: {
     value: {
-      accountProvisionerTab: {
-        type: "accountProvisionerTab",
+      provisionerCheckoutTab: {
+        type: "provisionerCheckoutTab",
         maxTabs: 1,
       },
     },
@@ -38,11 +38,11 @@ var accountProvisionerTabType = Object.create(specialTabs.contentTabType, {
 
 /**
  * Here, we're overriding openTab - first we call the openTab of contentTab
- * (for the context of this accountProvisionerTab "aTab") and then passing
+ * (for the context of this provisionerCheckoutTab "aTab") and then passing
  * special arguments "realName", "email" and "searchEngine" from the caller
  * of openTab, and passing those to our _setMonitoring function.
  */
-accountProvisionerTabType.openTab = function(aTab, aArgs) {
+provisionerCheckoutTabType.openTab = function(aTab, aArgs) {
   specialTabs.contentTabType.openTab.call(this, aTab, aArgs);
 
   // Since there's only one tab of this type ever (see the mode definition),
@@ -61,10 +61,10 @@ accountProvisionerTabType.openTab = function(aTab, aArgs) {
 
 /**
  * We're overriding closeTab - first, we call the closeTab of contentTab,
- * (for the context of this accountProvisionerTab "aTab"), and then we
+ * (for the context of this provisionerCheckoutTab "aTab"), and then we
  * unregister our observer that was registered in _setMonitoring.
  */
-accountProvisionerTabType.closeTab = function(aTab) {
+provisionerCheckoutTabType.closeTab = function(aTab) {
   specialTabs.contentTabType.closeTab.call(this, aTab);
   this._log.info("Performing account provisioner cleanup");
   this._log.info("Removing httpRequestObserver");
@@ -81,7 +81,7 @@ accountProvisionerTabType.closeTab = function(aTab) {
 /**
  * Serialize our tab into something we can restore later.
  */
-accountProvisionerTabType.persistTab = function(aTab) {
+provisionerCheckoutTabType.persistTab = function(aTab) {
   return {
     tabURI: aTab.browser.currentURI.spec,
     realName: this._realName,
@@ -91,11 +91,11 @@ accountProvisionerTabType.persistTab = function(aTab) {
 };
 
 /**
- * Re-open the accountProvisionerTab with all of the stuff we stashed in
+ * Re-open the provisionerCheckoutTab with all of the stuff we stashed in
  * persistTab. This will automatically hook up our monitoring again.
  */
-accountProvisionerTabType.restoreTab = function(aTabmail, aPersistedState) {
-  aTabmail.openTab("accountProvisionerTab", {
+provisionerCheckoutTabType.restoreTab = function(aTabmail, aPersistedState) {
+  aTabmail.openTab("provisionerCheckoutTab", {
     url: aPersistedState.tabURI,
     realName: aPersistedState.realName,
     email: aPersistedState.email,
@@ -108,7 +108,7 @@ accountProvisionerTabType.restoreTab = function(aTabmail, aPersistedState) {
  * This function registers an observer to watch for HTTP requests where the
  * contentType contains text/xml.
  */
-accountProvisionerTabType._setMonitoring = function(
+provisionerCheckoutTabType._setMonitoring = function(
   aBrowser,
   aRealName,
   aEmail,
@@ -136,16 +136,16 @@ accountProvisionerTabType._setMonitoring = function(
 /**
  * This observer listens for the mail-unloading-messenger event fired by each
  * mail window before they unload. If the mail window is the same window that
- * this accountProvisionerTab belongs to, then we stash a pref so that when
+ * this provisionerCheckoutTab belongs to, then we stash a pref so that when
  * the session restarts, we go straight to the tab, as opposed to showing the
  * dialog again.
  */
-accountProvisionerTabType.quitObserver = {
+provisionerCheckoutTabType.quitObserver = {
   observe(aSubject, aTopic, aData) {
     // Make sure we saw the right topic, and that the window that is closing
-    // is the 3pane window that the accountProvisionerTab belongs to.
+    // is the 3pane window that the provisionerCheckoutTab belongs to.
     if (aTopic == "mail-unloading-messenger" && aSubject === window) {
-      // We quit while the accountProvisionerTab was opened. Set our sneaky
+      // We quit while the provisionerCheckoutTab was opened. Set our sneaky
       // pref so that we suppress the dialog on startup.
       Services.prefs.setBoolPref(
         "mail.provider.suppress_dialog_on_startup",

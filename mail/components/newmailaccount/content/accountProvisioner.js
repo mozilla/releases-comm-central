@@ -2,51 +2,75 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals MsgAccountManager */
+"use strict";
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
-var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+/* globals MsgAccountManager, MozElements */
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
-var { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-
-// Get a configured logger for this component.
-// To debug, set mail.provider.loglevel="All"
-var gLog = new ConsoleAPI({
-  prefix: "mail.provider",
-  maxLogLevel: "warn",
-  maxLogLevelPref: "mail.provider.loglevel",
-});
-var stringBundle = Services.strings.createBundle(
-  "chrome://messenger/locale/newmailaccount/accountProvisioner.properties"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AccountCreationUtils:
+    "resource:///modules/accountcreation/AccountCreationUtils.jsm",
+  PluralForm: "resource://gre/modules/PluralForm.jsm",
+});
+
+var { gAccountSetupLogger } = AccountCreationUtils;
+
+// AbortController to handle timeouts and abort the fetch requests.
+var gAbortController;
 var RETRY_TIMEOUT = 5000; // 5 seconds
 var CONNECTION_TIMEOUT = 15000; // 15 seconds
-
-function isAccel(event) {
-  return AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
-}
-
 var MAX_SMALL_ADDRESSES = 2;
 
+// Keep track of the prefers-reduce-motion media query for JS based animations.
+var gReducedMotion;
+
+// The main 3 Pane Window that we need to define on load in order to properly
+// update the UI when a new account is created.
+var gMainWindow;
+
+// Define window event listeners.
+window.addEventListener("load", () => {
+  gAccountProvisioner.onLoad();
+});
+window.addEventListener("unload", () => {
+  gAccountProvisioner.onUnload();
+});
+
+// Object to collect all the extra providers attributes to be used when
+// building the URL for the API call to purchase an item.
 var storedData = {};
 
+/**
+ * Helper method to split a value based on its first available blank space.
+ *
+ * @param {string} str - The string to split.
+ * @returns {Array} - An array with the generated first and last name.
+ */
 function splitName(str) {
   let i = str.lastIndexOf(" ");
   if (i >= 1) {
     return [str.substring(0, i), str.substring(i + 1)];
   }
   return [str, ""];
+}
+
+/**
+ * Quick and simple HTML sanitization.
+ *
+ * @param {string} inputID - The ID of the currently used input field.
+ * @returns {string} - The HTML sanitized input value.
+ */
+function sanitizeName(inputID) {
+  let div = document.createElement("div");
+  div.textContent = document.getElementById(inputID).value;
+  return div.innerHTML.trim();
 }
 
 /**
@@ -73,529 +97,287 @@ function insertHTMLReplacement(
 }
 
 /**
- * Logic and functionality for the Account Provisioner dialog.  Sets and reacts
- * to user interaction events, deals with searching and search results, and
- * tracks / maintains window state throughout the Account Provisioner workflow.
+ * This is our controller for the entire account provisioner setup process.
  */
-var EmailAccountProvisioner = {
-  _inited: false,
-  _loadingProviders: false,
-  _loadedProviders: false,
+var gAccountProvisioner = {
+  // If the setup wizard has already been initialized.
+  _isInited: false,
+  // If the data fetching of the providers is currently in progress.
+  _isLoadingProviders: false,
+  // If the providers have already been loaded.
+  _isLoadedProviders: false,
+  // Store a timeout retry in case fetching the providers fails.
   _loadProviderRetryId: null,
-  providers: {},
-  _someProvidersChecked: false,
-  // These get passed in when creating the Account Provisioner window.
-  openAccountSetupTab: window.arguments[0].openAccountSetupTab,
-  openAddonsMgr: window.arguments[0].openAddonsMgr,
-
-  get someProvidersChecked() {
-    return this._someProvidersChecked;
-  },
-
-  set someProvidersChecked(aVal) {
-    this._someProvidersChecked = aVal;
-    EmailAccountProvisioner.onSearchInputOrProvidersChanged();
-  },
+  // Array containing all fetched providers.
+  allProviders: [],
+  // Array containing all fetched provider names that only offer email.
+  mailProviders: [],
+  // Array containing all fetched provider names that also offer custom domain.
+  domainProviders: [],
+  // Handle a timeout to abort the fetch requests.
+  timeoutId: null,
 
   /**
-   * Get the list of loaded providers that we got back from the server.
-   */
-  get loadedProviders() {
-    return this._loadedProviders;
-  },
-
-  /**
-   * Returns the URL for retrieving suggested names from the
-   * selected providers.
+   * Returns the URL for retrieving suggested names from the selected providers.
    */
   get suggestFromName() {
     return Services.prefs.getCharPref("mail.provider.suggestFromName");
   },
 
   /**
-   * Returns the language tag of the language that the user currently accepts.
+   * Initialize the main notification box for the account setup process.
    */
-  get userLanguage() {
-    return Services.locale.requestedLocale.split("-")[0];
-  },
-
-  /**
-   * A helper function to enable or disable the Search button.
-   */
-  searchButtonEnabled(aVal) {
-    document.getElementById("searchSubmit").disabled = !aVal;
-  },
-
-  /**
-   * A setter for enabling / disabling the search fields.
-   */
-  searchEnabled(aVal) {
-    document.getElementById("name").disabled = !aVal;
-    for (let node of document.querySelectorAll(".providerCheckbox")) {
-      node.disabled = !aVal;
+  get notificationBox() {
+    if (!this._notificationBox) {
+      this._notificationBox = new MozElements.NotificationBox(element => {
+        element.setAttribute("notificationside", "top");
+        document
+          .getElementById("accountProvisionerNotifications")
+          .append(element);
+      });
     }
-    this.searchButtonEnabled(aVal);
+    return this._notificationBox;
   },
 
   /**
-   * If aVal is true, show the spinner, else hide.
+   * Clear currently running async fetches and reset important variables.
    */
-  spinning(aVal) {
-    let display = aVal ? "block" : "none";
-    for (let node of document.querySelectorAll("#notifications .spinner")) {
-      node.style.display = display;
-    }
+  onUnload() {
+    this.clearAbortTimeout();
+    gAbortController.abort();
+    gAbortController = null;
   },
 
-  /**
-   * Sets the current window state to display the "success" page, with options
-   * for composing messages, setting a signature, finding add-ons, etc.
-   */
-  showSuccessPage() {
-    gLog.info("Showing the success page");
-    let engine = Services.search.getEngineByName(
-      window.arguments[0].search_engine
-    );
-    let account = window.arguments[0].account;
-
-    if (engine && Services.search.defaultEngine != engine) {
-      // Expose the search engine checkbox
-      let searchEngineWrap = document.getElementById("search_engine_wrap");
-      let searchEngineCheck = document.getElementById("search_engine_check");
-      searchEngineWrap.style.display = "block";
-      searchEngineWrap.addEventListener("click", function() {
-        searchEngineCheck.click();
-        return false;
-      });
-
-      searchEngineCheck.addEventListener("click", function(event) {
-        event.stopPropagation();
-      });
-
-      // Set up the fields...
-      searchEngineCheck.checked = true;
-
-      let b = document.createElement("b");
-      b.appendChild(document.createTextNode(engine.name));
-
-      let searchStr = document.createTextNode(
-        stringBundle.GetStringFromName("searchEngineDesc")
-      );
-      let searchElem = document.getElementById("search_engine_desc");
-      searchElem.textContent = "";
-      searchElem.appendChild(searchStr);
-      insertHTMLReplacement(searchElem, searchElem.firstChild, "%S", b);
-    }
-
-    document
-      .getElementById("success-compose")
-      .addEventListener("click", function() {
-        MailServices.compose.OpenComposeWindow(
-          null,
-          null,
-          null,
-          Ci.nsIMsgCompType.New,
-          Ci.nsIMsgCompFormat.Default,
-          account.defaultIdentity,
-          null,
-          null
-        );
-      });
-
-    document
-      .getElementById("success-addons")
-      .addEventListener("click", function() {
-        EmailAccountProvisioner.openAddonsMgr();
-      });
-
-    document
-      .getElementById("success-signature")
-      .addEventListener("click", function() {
-        MsgAccountManager(null, account.incomingServer);
-      });
-
-    document.getElementById("window").style.display = "none";
-    document.getElementById("successful_account").style.display = "block";
-  },
-
-  /**
-   * Save the name entered into the search field to a pref, so we can
-   * reconstitute it on respawn later.
-   */
-  saveName() {
-    let name = document.getElementById("name").value.trim();
-    Services.prefs.setStringPref("mail.provider.realname", name);
-  },
-
-  onSearchInputOrProvidersChanged(event) {
-    let emptyName = document.getElementById("name").value == "";
-    EmailAccountProvisioner.searchButtonEnabled(
-      !emptyName && EmailAccountProvisioner.someProvidersChecked
-    );
-  },
-
-  /**
-   * Hook up our events, populate the DOM, set our hooks, do all of our
-   * prep work.  Since this is called via jQuery on document ready,
-   * the value for "this" is the actual window document, hence the need
-   * to explicitly refer to EmailAccountProvisioner.
-   */
-  init() {
+  async onLoad() {
     // We can only init once, so bail out if we've been called again.
-    if (EmailAccountProvisioner._inited) {
+    if (this._isInited) {
       return;
     }
 
-    gLog.info("Initializing Email Account Provisioner");
+    gAccountSetupLogger.debug("Initializing provisioner wizard");
+    gReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
+      .matches;
 
-    // For any anchor element that gets the "external" class, make it so that
-    // when we click on that element, instead of loading up the href in the
-    // window itself, we open up the link in the default browser.
-    let opener = Cc[
-      "@mozilla.org/uriloader/external-protocol-service;1"
-    ].getService(Ci.nsIExternalProtocolService);
-    document.addEventListener("click", function(e) {
-      if (e.target.tagName == "a" && e.target.classList.contains("external")) {
-        e.preventDefault();
-        let uri = e.target.getAttribute("href");
-        opener.loadURI(Services.io.newURI(uri, "UTF-8"));
-      }
-    });
+    // Store the main window.
+    gMainWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
-    // Throw the disclaimer into the window.  In the future, this should probably
-    // be done in the actual XHTML page, instead of injected via JS.
-    let commentary = document.querySelector(".commentary");
-
-    let a = document.createElement("a");
-    a.setAttribute(
-      "href",
-      "https://www.mozilla.org/thunderbird/legal/privacy/"
-    );
-    a.setAttribute("class", "external");
-    a.appendChild(
-      document.createTextNode(stringBundle.GetStringFromName("privacyPolicy"))
-    );
-
-    let span = document.createElement("span");
-    span.appendChild(
-      document.createTextNode(
-        stringBundle.GetStringFromName("privacyDisclaimer")
-      )
-    );
-    insertHTMLReplacement(span, span.firstChild, "#1", a);
-
-    let placeHolder = document.createElement("span");
-    placeHolder.setAttribute("class", "placeholder");
-
-    // Replace the other placeholder in whatever child it resides now.
-    let children = span.childNodes;
-    for (let i = 0; i < children.length; i++) {
-      if (children[i].nodeType == Node.TEXT_NODE) {
-        insertHTMLReplacement(span, children[i], "#2", placeHolder);
-      }
-    }
-
-    commentary.appendChild(span);
-
-    EmailAccountProvisioner.tryToPopulateProviderList();
-
-    // Link the keypress function to the name field so that we can enable and
-    // disable the search button.
-    let nameElement = document.getElementById("name");
-    nameElement.addEventListener(
-      "keyup",
-      EmailAccountProvisioner.onSearchInputOrProvidersChanged
-    );
+    // Initialize the fetch abort controller.
+    gAbortController = new AbortController();
 
     // If we have a name stored, populate the search field with it.
-    let name =
-      Services.prefs.getStringPref("mail.provider.realname") ||
-      nameElement.value;
-    if (!name && "@mozilla.org/userinfo;1" in Cc) {
-      name = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo).fullname;
-    }
-    nameElement.value = name;
-    EmailAccountProvisioner.saveName();
-
-    // Pretend like we've typed something into the search input to set the
-    // initial enabled/disabled state of the search button.
-    EmailAccountProvisioner.onSearchInputOrProvidersChanged();
-
-    document.getElementById("window").style.height =
-      window.innerHeight - 1 + "px";
-
-    document
-      .querySelector("button.existing")
-      .addEventListener("click", function() {
-        EmailAccountProvisioner.saveName();
-        EmailAccountProvisioner.openAccountSetupTab();
-        window.close();
-      });
-
-    // Handle Ctrl-W and Esc
-    window.addEventListener("keypress", function(event) {
-      if ((event.which == "119" && isAccel(event)) || event.keyCode == 27) {
-        window.close();
+    if ("@mozilla.org/userinfo;1" in Cc) {
+      let userInfo = Cc["@mozilla.org/userinfo;1"].getService(Ci.nsIUserInfo);
+      // Assume that it's a genuine full name if it includes a space.
+      if (userInfo.fullname.includes(" ")) {
+        document.getElementById("mailName").value = userInfo.fullname;
+        document.getElementById("domainName").value = userInfo.fullname;
       }
-    });
-
-    document
-      .getElementById("search")
-      .addEventListener("submit", EmailAccountProvisioner.onSearchSubmit);
-
-    let notifications = document.getElementById("notifications");
-    notifications.addEventListener("click", function(event) {
-      if (
-        event.target.tagName == "button" &&
-        event.target.classList.contains("create")
-      ) {
-        EmailAccountProvisioner.onAddressSelected(event.target);
-      }
-    });
-
-    // Handle clicking on both email address suggestions, as well
-    // as the headers for the providers of those suggestions.
-    let results = document.getElementById("results");
-    results.addEventListener("click", event => {
-      // Find the resultsGroup this click was in.
-      let resultsGroup = event.target;
-      while (resultsGroup) {
-        if (resultsGroup.classList.contains("resultsGroup")) {
-          break;
-        }
-        resultsGroup = resultsGroup.parentElement;
-      }
-      if (!resultsGroup) {
-        throw new Error("Unexpected error finding resultsGroup.");
-      }
-
-      // Return if we're already expanded
-      if (resultsGroup.classList.contains("expanded")) {
-        return;
-      }
-
-      for (let child of resultsGroup.parentElement.children) {
-        if (child != resultsGroup) {
-          child.classList.remove("expanded");
-          // Hide the other boxes.
-          for (let node of child.querySelectorAll(".extra")) {
-            node.classList.add("slideUp");
-            for (let address of node.querySelectorAll(".address")) {
-              address.classList.remove("showWithFade");
-              address.classList.add("hideWithFade");
-            }
-          }
-          let more = child.querySelector(".more");
-          let makeListener = (aNode, aMore) => {
-            let listener = () => {
-              if (aMore) {
-                aMore.style.display = "block";
-              }
-              aNode.querySelector("button").disabled = true;
-              aNode.removeEventListener("transitionend", listener);
-            };
-            return listener;
-          };
-          for (let node of child.querySelectorAll(".pricing")) {
-            node.classList.remove("showWithFade");
-            // Disable the pricing button and show the "more" text
-            // after the transition is complete.
-            node.addEventListener("transitionend", makeListener(node, more));
-            node.classList.add("hideWithFade");
-          }
-          for (let node of child.querySelectorAll(".price")) {
-            node.classList.remove("hideWithFade");
-            node.classList.add("showWithFade");
-          }
-        } else {
-          child.classList.add("expanded");
-          // And show this box.
-          let more = child.querySelector(".more");
-          if (more) {
-            more.style.display = "none";
-          }
-          for (let node of child.querySelectorAll(".pricing")) {
-            node.classList.remove("hideWithFade");
-            node.classList.add("showWithFade");
-            node.querySelector("button").disabled = false;
-          }
-          for (let node of child.querySelectorAll(".price")) {
-            node.classList.remove("showWithFade");
-            node.classList.add("hideWithFade");
-          }
-          for (let node of child.querySelectorAll(".extra")) {
-            node.classList.remove("slideUp");
-            for (let address of node.querySelectorAll(".address")) {
-              address.classList.remove("hideWithFade");
-              address.classList.add("showWithFade");
-            }
-          }
-        }
-      }
-    });
-
-    for (let node of document.querySelectorAll("button.close")) {
-      node.addEventListener("click", () => window.close());
     }
 
-    window.addEventListener("unload", function() {
-      let searchEngineCheck = document.getElementById("search_engine_check");
-      if (window.arguments[0].search_engine && searchEngineCheck.checked) {
-        let engine = Services.search.getEngineByName(
-          window.arguments[0].search_engine
-        );
-        Services.search.defaultEngine = engine;
-      }
-    });
+    this.setupEventListeners();
+    await this.tryToFetchProviderList();
 
-    if (window.arguments[0].success) {
-      // Show the success page which lets a user compose mail, find add-ons,
-      // set a signature, etc.
-      gLog.info(
-        "Looks like we just finished ordering an address - showing the success page..."
-      );
-      EmailAccountProvisioner.showSuccessPage();
-    } else {
-      // The default mode, where we display the search input, providers, etc
-      document.getElementById("window").style.display = "block";
-      document.getElementById("successful_account").style.display = "none";
-    }
+    gAccountSetupLogger.debug("Provisioner wizard init complete.");
 
-    gLog.info("Email Account Provisioner init complete.");
-
-    EmailAccountProvisioner._inited = true;
+    // Move the focus on the first available field.
+    document.getElementById("mailName").focus();
+    this._isInited = true;
   },
 
   /**
-   * Event handler for when the user submits the search request for their
-   * name to the suggestFromName service.
+   * Set up the event listeners for the static elements in the page.
    */
-  onSearchSubmit() {
-    for (let node of document.getElementById("notifications").children) {
-      node.style.display = "none";
+  setupEventListeners() {
+    document.getElementById("cancelButton").onclick = () => {
+      window.close();
+    };
+
+    document.getElementById("existingButton").onclick = () => {
+      window.close();
+      gMainWindow.postMessage("open-account-setup-tab", "*");
+    };
+
+    document.getElementById("backButton").onclick = () => {
+      this.backToSetupView();
+    };
+  },
+
+  /**
+   * Return to the initial view without resetting any existing data.
+   */
+  backToSetupView() {
+    this.clearAbortTimeout();
+    this.clearNotifications();
+
+    // Clear search results.
+    let mailResultsArea = document.getElementById("mailResultsArea");
+    while (mailResultsArea.hasChildNodes()) {
+      mailResultsArea.lastChild.remove();
     }
-    document.getElementById("instructions").classList.add("hide");
-    EmailAccountProvisioner.saveName();
-
-    // Here's where we do some kind of hack-y client-side sanitization.
-    // Believe it or not, this is how you sanitize stuff to HTML elements
-    // via jQuery.
-    // let name = $("<div></div>").text($("#name").val()).html().trim();
-    // Not quite sure what this was for, but here's the hack converted
-    // to vanilla JS.
-    let nameElement = document.getElementById("name");
-    let div = document.createElement("div");
-    div.textContent = nameElement.value;
-    let name = div.innerHTML.trim();
-    if (!name) {
-      nameElement.select();
-      nameElement.focus();
-      return;
+    let domainResultsArea = document.getElementById("domainResultsArea");
+    while (domainResultsArea.hasChildNodes()) {
+      domainResultsArea.lastChild.remove();
     }
 
-    EmailAccountProvisioner.searchEnabled(false);
-    EmailAccountProvisioner.spinning(true);
-    let [firstname, lastname] = splitName(name);
-    let selectedProviderList = [
-      ...document.querySelectorAll(".provider input:checked"),
-    ];
-    let providerList = selectedProviderList.map(node => node.value).join(",");
+    // Update the UI to show the initial view.
+    document.getElementById("mailSearch").hidden = false;
+    document.getElementById("domainSearch").hidden = false;
+    document.getElementById("mailSearchResults").hidden = true;
+    document.getElementById("domainSearchResults").hidden = true;
 
-    let request = new XMLHttpRequest();
-    request.open(
-      "GET",
-      EmailAccountProvisioner.suggestFromName +
-        "?first_name=" +
-        encodeURIComponent(firstname) +
-        "&last_name=" +
-        encodeURIComponent(lastname) +
-        "&providers=" +
-        encodeURIComponent(providerList) +
-        "&version=2"
+    // Update the buttons visibility.
+    document.getElementById("backButton").hidden = true;
+    document.getElementById("cancelButton").hidden = false;
+    document.getElementById("existingButton").hidden = false;
+
+    // Move the focus back on the first available field.
+    document.getElementById("mailName").focus();
+  },
+
+  /**
+   * Show a loading notification.
+   */
+  async startLoadingState(stringName) {
+    this.clearNotifications();
+
+    let notificationMessage = await document.l10n.formatValue(stringName);
+
+    gAccountSetupLogger.debug(`Status msg: ${notificationMessage}`);
+
+    let notification = this.notificationBox.appendNotification(
+      "accountSetupLoading",
+      {
+        label: notificationMessage,
+        priority: this.notificationBox.PRIORITY_INFO_LOW,
+      },
+      null
     );
-    request.onload = function() {
-      let data;
-      try {
-        data = JSON.parse(request.responseText);
-      } catch (e) {}
-      EmailAccountProvisioner.onSearchResults(data);
-    };
-    request.onerror = () => {
-      gLog.info("Error response of XMLHttpRequest fetching address data.");
-      EmailAccountProvisioner.showSearchError();
-    };
-    request.ontimeout = () => {
-      gLog.info("Timeout of XMLHttpRequest fetching address data.");
-      EmailAccountProvisioner.showSearchError();
-    };
-    request.onloadend = function() {
-      // Also called if we timeout.
-      let firstAndLastName = document.getElementById("FirstAndLastName");
-      firstAndLastName.textContent = (firstname + " " + lastname).trim();
-      EmailAccountProvisioner.searchEnabled(true);
-      EmailAccountProvisioner.spinning(false);
-    };
-    request.timeout = CONNECTION_TIMEOUT;
-    request.send(null);
+    notification.setAttribute("align", "center");
+
+    // Hide the close button to prevent dismissing the notification.
+    notification.removeAttribute("dismissable");
+
+    this.ensureVisibleNotification();
   },
 
   /**
-   * Event handler for when the user selects an address by clicking on
-   * the price button for that address.  This function spawns the content
-   * tab for the address order form, and then closes the Account Provisioner
-   * window.
+   * Show an error notification in case something went wrong.
+   *
+   * @param {string} stringName - The name of the fluent string that needs to
+   *   be attached to the notification.
+   * @param {boolean} isMsgError - True if the message comes from a server error
+   *   response or try/catch.
    */
-  onAddressSelected(aTarget) {
-    gLog.info("An address was selected by the user.");
-    let provider = EmailAccountProvisioner.providers[aTarget.dataset.provider];
+  async showErrorNotification(stringName, isMsgError) {
+    gAccountSetupLogger.debug(`Status error: ${stringName}`);
 
-    // Replace the variables in the url.
+    // Always remove any leftover notification before creating a new one.
+    this.clearNotifications();
+
+    // Fetch the fluent string only if this is not an error message coming from
+    // a previous method.
+    let notificationMessage = isMsgError
+      ? stringName
+      : await document.l10n.formatValue(stringName);
+
+    let notification = this.notificationBox.appendNotification(
+      "accountProvisionerError",
+      {
+        label: notificationMessage,
+        priority: this.notificationBox.PRIORITY_WARNING_MEDIUM,
+      },
+      null
+    );
+
+    // Hide the close button to prevent dismissing the notification.
+    notification.removeAttribute("dismissable");
+
+    this.ensureVisibleNotification();
+  },
+
+  async showSuccessNotification(stringName) {
+    // Always remove any leftover notification before creating a new one.
+    this.clearNotifications();
+
+    let notification = this.notificationBox.appendNotification(
+      "accountProvisionerSuccess",
+      {
+        label: await document.l10n.formatValue(stringName),
+        priority: this.notificationBox.PRIORITY_WARNING_MEDIUM,
+      },
+      null
+    );
+    notification.setAttribute("type", "success");
+    // Hide the close button to prevent dismissing the notification.
+    notification.removeAttribute("dismissable");
+
+    this.ensureVisibleNotification();
+  },
+
+  /**
+   * Clear all leftover notifications.
+   */
+  clearNotifications() {
+    this.notificationBox.removeAllNotifications();
+  },
+
+  /**
+   * Event handler for when the user selects an address by clicking on the price
+   * button for that address. This function spawns the content tab for the
+   * address order form, and then closes the Account Provisioner tab.
+   *
+   * @param {string} providerId - The ID of the chosen provider.
+   * @param {string} email - The chosen email address.
+   * @param {boolean} [isDomain=false] - If the fetched data comes from a domain
+   *  search form.
+   */
+  onAddressSelected(providerId, email, isDomain = false) {
+    gAccountSetupLogger.debug("An address was selected by the user.");
+    let provider = this.allProviders.find(p => p.id == providerId);
+
     let url = provider.api;
-    let [firstName, lastName] = splitName(
-      document.getElementById("name").value.trim()
-    );
-    let email = aTarget.getAttribute("address");
+    let inputID = isDomain ? "domainName" : "mailName";
+    let [firstName, lastName] = splitName(sanitizeName(inputID));
+    // Replace the variables in the API url.
     url = url.replace("{firstname}", firstName);
     url = url.replace("{lastname}", lastName);
     url = url.replace("{email}", email);
 
     // And add the extra data.
-    let data = storedData[provider.id];
+    let data = storedData[providerId];
     delete data.provider;
     for (let name in data) {
-      url +=
-        (!url.includes("?") ? "?" : "&") +
-        name +
-        "=" +
-        encodeURIComponent(data[name]);
+      url += `${!url.includes("?") ? "?" : "&"}${name}=${encodeURIComponent(
+        data[name]
+      )}`;
     }
 
-    gLog.info("Opening up a contentTab with the order form.");
-    // Then open a content tab.
+    gAccountSetupLogger.debug("Opening up a contentTab with the order form.");
+    // Open the checkout content tab.
     let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
     let tabmail = mail3Pane.document.getElementById("tabmail");
-    tabmail.openTab("accountProvisionerTab", {
+    tabmail.openTab("provisionerCheckoutTab", {
       url,
       realName: (firstName + " " + lastName).trim(),
       email,
-      searchEngine: provider.search_engine,
     });
 
-    // The user has made a selection. Close the provisioner window and let
-    // the provider setup process take place in the tab.
+    // The user has made a selection. Close the provisioner window and let the
+    // provider setup process take place in a dedicated tab.
     window.close();
   },
 
   /**
-   * Attempt to fetch the provider list from the server.  If it fails,
-   * display an error message, and queue for retry.
+   * Attempt to fetch the provider list from the server.
    */
-  tryToPopulateProviderList() {
-    // If we're already in the middle of getting the provider list, or
-    // we already got it before, bail out.
-    if (this._loadingProviders || this._loadedProviders) {
+  async tryToFetchProviderList() {
+    // If we're already in the middle of getting the provider list, or we
+    // already got it before, bail out.
+    if (this._isLoadingProviders || this._isLoadedProviders) {
       return;
     }
+
+    this._isLoadingProviders = true;
 
     // If there's a timeout ID for waking the account provisioner, clear it.
     if (this._loadProviderRetryId) {
@@ -603,55 +385,45 @@ var EmailAccountProvisioner = {
       this._loadProviderRetryId = null;
     }
 
-    this.searchEnabled(false);
-    this.spinning(true);
+    await this.startLoadingState("account-provisioner-fetching-provisioners");
 
     let providerListUrl = Services.prefs.getCharPref(
       "mail.provider.providerList"
     );
 
-    gLog.info(`Trying to populate provider list from ${providerListUrl}...`);
+    gAccountSetupLogger.debug(
+      `Trying to populate provider list from ${providerListUrl}…`
+    );
 
-    let request = new XMLHttpRequest();
-    request.open("GET", providerListUrl);
-    request.onload = function() {
-      let data;
-      try {
-        data = JSON.parse(request.responseText);
-      } catch (e) {}
-      EmailAccountProvisioner.populateProviderList(data);
-    };
-    request.onerror = () => {
+    try {
+      let res = await fetch(providerListUrl, {
+        signal: gAbortController.signal,
+      });
+      this.startAbortTimeout();
+      let data = await res.json();
+      this.populateProvidersLists(data);
+    } catch (error) {
       // Ugh, we couldn't get the JSON file. Maybe we're not online. Or maybe
       // the server is down, or the file isn't being served. Regardless, if
       // we get here, none of this stuff is going to work.
-      EmailAccountProvisioner._loadProviderRetryId = window.setTimeout(
-        () => EmailAccountProvisioner.tryToPopulateProviderList(),
+      this._loadProviderRetryId = window.setTimeout(
+        () => this.tryToFetchProviderList(),
         RETRY_TIMEOUT
       );
-      EmailAccountProvisioner._loadingProviders = false;
-      EmailAccountProvisioner.beOffline();
-      gLog.error(
-        "Something went wrong loading the provider list JSON file. " +
-          "Going into offline mode."
-      );
-    };
-    request.onloadend = function() {
-      EmailAccountProvisioner._loadingProviders = false;
-      EmailAccountProvisioner.spinning(false);
-      gLog.info("Got provider list JSON.");
-    };
-    request.timeout = CONNECTION_TIMEOUT;
-    request.ontimeout = () => {
-      gLog.info("Timeout of XMLHttpRequest fetching provider list.");
-      request.onerror();
-    };
-    request.send(null);
-
-    EmailAccountProvisioner._loadingProviders = true;
-    gLog.info("We've kicked off a request for the provider list JSON file...");
+      this._isLoadingProviders = false;
+      this.showErrorNotification("account-provisioner-connection-issues");
+      gAccountSetupLogger.warn(`Failed to populate providers: ${error}`);
+    }
   },
 
+  /**
+   * Validate a provider fetched during an API request to be sure we have all
+   * the necessary fields to complete a setup process.
+   *
+   * @param {Object} provider - The fetched provider.
+   * @returns {boolean} - True if all the fields in the provider match the
+   *   required fields.
+   */
   providerHasCorrectFields(provider) {
     let result = true;
 
@@ -663,17 +435,16 @@ var EmailAccountProvisioner = {
       "api",
       "tos_url",
       "privacy_url",
+      "sells_domain",
     ];
 
-    for (let aField of required) {
-      let fieldExists = aField in provider;
+    for (let field of required) {
+      let fieldExists = field in provider;
       result &= fieldExists;
 
       if (!fieldExists) {
-        gLog.error(
-          "A provider did not have the field " +
-            aField +
-            ", and will be skipped."
+        gAccountSetupLogger.warn(
+          `A provider did not have the field ${field}, and will be skipped.`
         );
       }
     }
@@ -682,433 +453,401 @@ var EmailAccountProvisioner = {
   },
 
   /**
-   * Take the fetched providers, create checkboxes, icons and labels,
-   * and insert them below the search input.
+   * Take the fetched providers, create checkboxes, icons and labels, and insert
+   * them below the corresponding search input.
+   *
+   * @param {?Object} data - The object containing all fetched providers.
    */
-  populateProviderList(data) {
-    gLog.info("Populating the provider list");
+  populateProvidersLists(data) {
+    gAccountSetupLogger.debug("Populating the provider list");
+    this.clearAbortTimeout();
 
     if (!data || !data.length) {
-      gLog.error("The provider list we got back from the server was empty!");
-      EmailAccountProvisioner.beOffline();
+      gAccountSetupLogger.warn(
+        "The provider list we got back from the server was empty!"
+      );
+      this.showErrorNotification("account-provisioner-connection-issues");
       return;
     }
 
-    let providerList = document.getElementById("providerList");
-    let otherLangProviders = [];
+    let mailProviderList = document.getElementById("mailProvidersList");
+    let domainProviderList = document.getElementById("domainProvidersList");
 
-    EmailAccountProvisioner.providers = {};
+    this.allProviders = data;
+    this.mailProviders = [];
+    this.domainProviders = [];
 
-    data.forEach(provider => {
-      if (!EmailAccountProvisioner.providerHasCorrectFields(provider)) {
-        gLog.error("A provider had incorrect fields, and has been skipped");
-        return;
+    for (let provider of data) {
+      if (!this.providerHasCorrectFields(provider)) {
+        gAccountSetupLogger.warn(
+          "A provider had incorrect fields, and has been skipped"
+        );
+        continue;
       }
 
-      EmailAccountProvisioner.providers[provider.id] = provider;
+      let entry = document.createElement("li");
+      entry.setAttribute("id", provider.id);
 
-      let checkboxId = provider.id + "-check";
-
-      let providerCheckbox = document.createElement("input");
-      providerCheckbox.setAttribute("type", "checkbox");
-      providerCheckbox.setAttribute("value", provider.id);
-      providerCheckbox.className = "providerCheckbox";
-      providerCheckbox.setAttribute("id", checkboxId);
-
-      let providerEntry = document.createElement("li");
-      providerEntry.className = "provider";
-      providerEntry.appendChild(providerCheckbox);
-
-      let icon = document.createElement("img");
-      icon.className = "icon";
-      // We add this even if there is no icon, so that the alignment with
-      // providers without icons isn't broken.
-      providerEntry.appendChild(icon);
       if (provider.icon) {
-        // Note this favicon must be fetched, which takes a noticeable
-        // time the first time it happens.
+        let icon = document.createElement("img");
         icon.setAttribute("src", provider.icon);
         icon.setAttribute("alt", "");
+        entry.appendChild(icon);
       }
 
-      let labelSpan = document.createElement("label");
-      labelSpan.className = "providerLabel";
-      labelSpan.setAttribute("for", checkboxId);
-      labelSpan.textContent = provider.label;
-      providerEntry.appendChild(labelSpan);
+      let name = document.createElement("span");
+      name.textContent = provider.label;
+      entry.appendChild(name);
 
-      providerCheckbox.addEventListener(
-        "change",
-        EmailAccountProvisioner.populateTermsAndPrivacyLinks
-      );
-
-      // Let's go through the array of languages for this provider, and
-      // check to see if at least one of them matches the user's language.
-      // If so, we'll show / select this provider by default.
-      let ul = EmailAccountProvisioner.userLanguage;
-      if (provider.languages.some(l => l == "*" || l.split("-")[0] == ul)) {
-        providerCheckbox.setAttribute("checked", "true");
-        providerEntry.style.display = "inline-block";
-        providerList.appendChild(providerEntry);
+      if (provider.sells_domain) {
+        domainProviderList.appendChild(entry);
+        this.domainProviders.push(provider.id);
       } else {
-        providerEntry.classList.add("otherLanguage");
-        otherLangProviders.push(providerEntry);
+        mailProviderList.appendChild(entry);
+        this.mailProviders.push(provider.id);
       }
-    });
-
-    if (otherLangProviders.length) {
-      for (let provider of otherLangProviders) {
-        providerList.appendChild(provider);
-      }
-
-      let otherLangDesc = document.getElementById("otherLangDesc");
-      otherLangDesc.classList.remove("fadeOut");
-      otherLangDesc.classList.add("fadeIn");
-      otherLangDesc.addEventListener("click", function() {
-        otherLangDesc.classList.remove("fadeIn");
-        otherLangDesc.classList.add("fadeOut");
-        for (let node of document.querySelectorAll(".otherLanguage")) {
-          node.style.display = "inline-block";
-          node.classList.add("showWithFade");
-        }
-      });
     }
 
-    EmailAccountProvisioner.populateTermsAndPrivacyLinks();
-    EmailAccountProvisioner.beOnline();
-    EmailAccountProvisioner._loadedProviders = true;
-    EmailAccountProvisioner.onSearchInputOrProvidersChanged();
+    this._isLoadedProviders = true;
+    this.clearNotifications();
   },
 
   /**
-   * Go through each of the checked providers, and add the appropriate
-   * ToS and privacy links to the disclaimer.
+   * Enable or disable the form fields when a fetch request starts or ends.
+   *
+   * @param {boolean} state - True if a fetch request is in progress.
    */
-  populateTermsAndPrivacyLinks() {
-    gLog.info("Refreshing terms and privacy links");
-    // Empty the Terms of Service and Privacy links placeholder.
-    let placeholder = document.querySelector(".commentary .placeholder");
+  updateSearchingState(state) {
+    for (let element of document.querySelectorAll(".disable-on-submit")) {
+      element.disabled = state;
+    }
+  },
 
-    let selectedProviders = [
-      ...document.querySelectorAll(".provider input:checked"),
-    ];
-    let len = selectedProviders.length;
+  /**
+   * Search for available email accounts.
+   *
+   * @param {DOMEvent} event - The form submit event.
+   */
+  async onMailFormSubmit(event) {
+    // Always prevent the actual form submission.
+    event.preventDefault();
 
-    EmailAccountProvisioner.someProvidersChecked = len > 0;
-    if (!len) {
-      // Something went really wrong - we shouldn't have gotten here. Bail out.
+    // Quick HTML sanitization.
+    let name = sanitizeName("mailName");
+
+    // Bail out if the user didn't type anything.
+    if (!name) {
       return;
     }
 
-    let providerList = new DocumentFragment();
-    selectedProviders.forEach((checkbox, i) => {
-      let providerId = checkbox.value;
-      let provider = EmailAccountProvisioner.providers[providerId];
+    let resultsArea = document.getElementById("mailSearchResults");
+    resultsArea.hidden = true;
 
-      let span = document.createElement("span");
-      span.appendChild(document.createTextNode(provider.label + " ("));
-      providerList.appendChild(span);
+    this.startLoadingState("account-provisioner-searching-email");
+    let data = await this.submitFormRequest(name, this.mailProviders.join(","));
+    this.clearAbortTimeout();
 
-      let a = document.createElement("a");
-      a.setAttribute("href", provider.privacy_url);
-      a.setAttribute("class", "privacy external " + provider.id);
-      a.appendChild(
-        document.createTextNode(stringBundle.GetStringFromName("privacyPolicy"))
+    let count = this.populateSearchResults(data);
+    if (!count) {
+      // Bail out if we didn't get any usable data.
+      gAccountSetupLogger.warn(
+        "We got nothing back from the server for search results!"
       );
-      providerList.appendChild(a);
+      this.showErrorNotification("account-provisioner-searching-error");
+      return;
+    }
 
-      span = document.createElement("span");
-      span.appendChild(
-        document.createTextNode(stringBundle.GetStringFromName("sepComma"))
-      );
-      providerList.appendChild(span);
+    let resultsTitle = document.getElementById("mailResultsTitle");
+    let resultsString = await document.l10n.formatValue(
+      "account-provisioner-results-title",
+      { count }
+    );
+    // Attach the sanitized search terms to avoid HTML conversion in fluent.
+    resultsTitle.textContent = `${resultsString} "${name}"`;
 
-      a = document.createElement("a");
-      a.setAttribute("href", provider.tos_url);
-      a.setAttribute("class", "tos external " + provider.id);
-      a.appendChild(
-        document.createTextNode(stringBundle.GetStringFromName("tos"))
-      );
-      providerList.appendChild(a);
-
-      span = document.createElement("span");
-      span.appendChild(document.createTextNode(")"));
-      providerList.appendChild(span);
-
-      if (len != 1) {
-        if (i < len - 2) {
-          span = document.createElement("span");
-          span.appendChild(
-            document.createTextNode(stringBundle.GetStringFromName("sepComma"))
-          );
-          providerList.appendChild(span);
-        } else if (i == len - 2) {
-          span = document.createElement("span");
-          span.appendChild(
-            document.createTextNode(stringBundle.GetStringFromName("sepAnd"))
-          );
-          providerList.appendChild(span);
-        }
-      }
-    });
-
-    placeholder.textContent = "";
-    placeholder.appendChild(providerList);
+    // Hide the domain section.
+    document.getElementById("domainSearch").hidden = true;
+    // Show the results area.
+    resultsArea.hidden = false;
+    // Update the buttons visibility.
+    document.getElementById("cancelButton").hidden = true;
+    document.getElementById("existingButton").hidden = true;
+    // Show the back button.
+    document.getElementById("backButton").hidden = false;
   },
 
   /**
-   * Something went wrong during search.  Show a generic error.  In the future,
-   * we might want to show something a bit more descriptive.
+   * Search for available domain names.
+   *
+   * @param {DOMEvent} event - The form submit event.
    */
-  showSearchError() {
-    for (let node of document.getElementById("notifications").children) {
-      node.style.display = "none";
+  async onDomainFormSubmit(event) {
+    // Always prevent the actual form submission.
+    event.preventDefault();
+
+    // Quick HTML sanitization.
+    let name = sanitizeName("domainName");
+
+    // Bail out if the user didn't type anything.
+    if (!name) {
+      return;
     }
-    for (let node of document.querySelectorAll("#notifications .error")) {
-      node.style.display = "block";
-      node.getBoundingClientRect();
-      node.classList.add("showWithFade");
+
+    let resultsArea = document.getElementById("domainSearchResults");
+    resultsArea.hidden = true;
+
+    this.startLoadingState("account-provisioner-searching-domain");
+    let data = await this.submitFormRequest(
+      name,
+      this.domainProviders.join(",")
+    );
+    this.clearAbortTimeout();
+
+    let count = this.populateSearchResults(data, true);
+    if (!count) {
+      // Bail out if we didn't get any usable data.
+      gAccountSetupLogger.warn(
+        "We got nothing back from the server for search results!"
+      );
+      this.showErrorNotification("account-provisioner-searching-error");
+      return;
     }
+
+    let resultsTitle = document.getElementById("domainResultsTitle");
+    let resultsString = await document.l10n.formatValue(
+      "account-provisioner-results-title",
+      { count }
+    );
+    // Attach the sanitized search terms to avoid HTML conversion in fluent.
+    resultsTitle.textContent = `${resultsString} "${name}"`;
+
+    // Hide the mail section.
+    document.getElementById("mailSearch").hidden = true;
+    // Show the results area.
+    resultsArea.hidden = false;
+    // Update the buttons visibility.
+    document.getElementById("cancelButton").hidden = true;
+    document.getElementById("existingButton").hidden = true;
+    // Show the back button.
+    document.getElementById("backButton").hidden = false;
   },
 
   /**
-   * Once we've received search results from the server, create some
-   * elements to display those results, and inject them into the DOM.
+   * Update the UI to show the fetched address data.
+   *
+   * @param {Object} data - The fetched data from an email or domain search.
+   * @param {boolean} [isDomain=false] - If the fetched data comes from a domain
+   *  search form.
    */
-  onSearchResults(data) {
-    gLog.info("Got back search results");
-
-    // Empty any old results.
-    let results = document.getElementById("results");
-    results.textContent = "";
-
+  populateSearchResults(data, isDomain = false) {
     if (!data || !data.length) {
-      // If we've gotten back nonsense, display the generic
-      // error message, and bail out.
-      gLog.error("We got nothing back from the server for search results!");
-      EmailAccountProvisioner.showSearchError();
-      return;
+      return 0;
     }
 
-    // Get a list of the providers that the user checked - we'll
-    // check against these to make sure the server didn't send any
-    // back from a provider that the user did not select.
-    let selectedProviderList = [
-      ...document.querySelectorAll(".provider input:checked"),
-    ];
-    let selectedProviders = selectedProviderList.map(node => node.value);
-    gLog.info(selectedProviders.length + " selected providers.");
+    this.clearNotifications();
 
-    // Filter out any results that don't match our requirements...
-    let returnedProviders = data.filter(function(aResult) {
-      // We require that the search succeeded for a provider, that we
-      // got at least one result, and that the provider is actually in
-      // the list of providers that we care about.
-      let providerInList =
-        aResult.provider in EmailAccountProvisioner.providers;
-
-      if (!providerInList) {
-        gLog.error(
-          "Got a result back for a provider that was not " +
-            "in the original providerList: " +
-            aResult.provider
-        );
-      }
-
-      let providerSelected = selectedProviders.includes(aResult.provider);
-
-      if (!providerSelected) {
-        gLog.error(
-          "Got a result back for a provider that the user did " +
-            "not select: " +
-            aResult.provider
-        );
-      }
-
-      return (
-        aResult.succeeded &&
-        aResult.addresses.length > 0 &&
-        providerInList &&
-        providerSelected
-      );
-    });
-
-    if (returnedProviders.length == 0) {
-      gLog.info("There weren't any results for the selected providers.");
-      // Display the generic error message, and bail out.
-      EmailAccountProvisioner.showSearchError();
-      return;
+    let resultsArea = isDomain
+      ? document.getElementById("domainResultsArea")
+      : document.getElementById("mailResultsArea");
+    // Clear previously generated content.
+    while (resultsArea.hasChildNodes()) {
+      resultsArea.lastChild.remove();
     }
 
-    for (let provider of returnedProviders) {
-      let group = document.createElement("div");
-      group.className = "resultsGroup";
+    // Filter out possible errors or empty lists.
+    let validData = data.filter(
+      result => result.succeeded && result.addresses.length
+    );
 
-      let header = document.getElementById("resultsHeader").cloneNode(true);
-      header.classList.remove("displayNone");
-      header.classList.add("selection");
+    if (!validData || !validData.length) {
+      return 0;
+    }
 
-      let providerLabel = document.createTextNode(
-        EmailAccountProvisioner.providers[provider.provider].label
-      );
-      header.querySelector(".provider").appendChild(providerLabel);
+    let providersList = isDomain ? this.domainProviders : this.mailProviders;
 
-      let providerPrice;
-      if (provider.price && provider.price != "0") {
-        providerPrice = document.createTextNode(provider.price);
-      } else {
-        providerPrice = document.createTextNode(
-          stringBundle.GetStringFromName("free")
-        );
+    let count = 0;
+    for (let provider of validData) {
+      count += provider.addresses.length;
+
+      // Don't add a provider header if only 1 is currently available.
+      if (providersList.length > 1) {
+        let header = document.createElement("h5");
+        header.classList.add("result-list-header");
+        header.textContent = this.allProviders.find(
+          p => p.id == provider.provider
+        ).label;
+        resultsArea.appendChild(header);
       }
-      header.querySelector(".price").appendChild(providerPrice);
 
-      group.appendChild(header);
+      let list = document.createElement("ul");
 
-      let renderedAddresses = 0;
-      let addrIndex = 0;
-      for (let address of provider.addresses) {
-        addrIndex++;
+      // Only show a chink of addresses if we got a long list.
+      let isLongList = provider.addresses.length > 5;
+      let addresses = isLongList
+        ? provider.addresses.slice(0, 4)
+        : provider.addresses;
 
-        // Figure out the price to display on the address button, as so:
-        // If there is a per-address price of > 0, use that.
-        // Otherwise, if there is a per-address price of 0, use "Free",
-        // Otherwise, there's no per-address price,
-        //   so if the provider's price is > 0, use that.
-        //   Or if the provider's price is 0, use "Free".
-        let priceStr;
-        if (address.price && address.price != "0") {
-          priceStr = stringBundle.formatStringFromName("price", [
-            address.price,
-          ]);
-        } else if (address.price && address.price == "0") {
-          priceStr = stringBundle.GetStringFromName("free");
-        } else if (provider.price && provider.price != "0") {
-          priceStr = stringBundle.formatStringFromName("price", [
-            provider.price,
-          ]);
-        } else {
-          priceStr = stringBundle.GetStringFromName("free");
+      for (let address of addresses) {
+        list.appendChild(this.createAddressRow(address, provider, isDomain));
+      }
+
+      resultsArea.appendChild(list);
+
+      // If we got more than 5 addresses, create an hidden bug expandable list
+      // with the rest of the data.
+      if (isLongList) {
+        let hiddenList = document.createElement("ul");
+        hiddenList.hidden = true;
+
+        for (let address of provider.addresses.slice(5)) {
+          hiddenList.appendChild(
+            this.createAddressRow(address, provider, isDomain)
+          );
         }
 
-        let templateElement = document.querySelector("#result_tmpl");
-        let result = document.importNode(templateElement.content, true)
-          .children[0];
-        let finalAddress = address.address ? address.address : address;
-        function replacePlaceholders(elem) {
-          if (elem.childNodes.length > 0) {
-            elem.childNodes.forEach(elem => replacePlaceholders(elem));
-          }
-
-          if (elem.nodeType == elem.TEXT_NODE) {
-            if (elem.textContent == "${priceStr}") {
-              elem.textContent = priceStr;
-            }
-            if (elem.textContent == "${address}") {
-              elem.textContent = finalAddress;
-            }
-          }
-          if (
-            elem.nodeType == elem.ELEMENT_NODE &&
-            elem.getAttribute("address") == "${address}"
-          ) {
-            elem.setAttribute("address", finalAddress);
-          }
-        }
-        replacePlaceholders(result);
-        group.appendChild(result);
-        // Keep a count of the rendered addresses for the "More" buttons, etc.
-        renderedAddresses++;
-
-        if (addrIndex > MAX_SMALL_ADDRESSES) {
-          result.classList.add("extra");
-          for (let address of result.querySelectorAll(".address")) {
-            address.classList.add("hideWithFade");
-          }
-          result.classList.add("slideUp");
-        }
-      }
-      gLog.info(
-        "Added " +
-          renderedAddresses +
-          " addresses, showing at most " +
-          MAX_SMALL_ADDRESSES +
-          "."
-      );
-
-      if (renderedAddresses > MAX_SMALL_ADDRESSES) {
-        let more = renderedAddresses - MAX_SMALL_ADDRESSES;
-        let moreStr = PluralForm.get(
-          more,
-          stringBundle.GetStringFromName("moreOptions")
-        ).replace("#1", more);
-        let last = group.querySelector(
-          ".row:nth-child(" + (MAX_SMALL_ADDRESSES + 1) + ")"
+        let button = document.createElement("button");
+        button.setAttribute("type", "button");
+        button.classList.add("btn-link", "self-center");
+        document.l10n.setAttributes(
+          button,
+          "account-provisioner-all-results-button"
         );
-        let div = document.createElement("div");
-        div.setAttribute("class", "more");
-        div.appendChild(document.createTextNode(moreStr));
-        last.appendChild(div);
-      }
-      for (let node of group.querySelectorAll("button.create")) {
-        node.dataset.provider = provider.provider;
-      }
+        button.onclick = () => {
+          hiddenList.hidden = false;
+          button.hidden = true;
+        };
 
-      // There doesn't seem to be a #resultsFooter anywhere.
-      // let footer = document.getElementById("resultsFooter").cloneNode(true);
-      // footer.classList.remove("displayNone");
-      // group.append(footer);
-
-      results.appendChild(group);
-    }
-
-    for (let node of document.getElementById("notifications").children) {
-      if (node.classList.contains("success")) {
-        node.style.display = "block";
-      } else {
-        node.style.display = "none";
+        resultsArea.appendChild(button);
+        resultsArea.appendChild(hiddenList);
       }
     }
+
     for (let provider of data) {
       delete provider.succeeded;
       delete provider.addresses;
       delete provider.price;
       storedData[provider.provider] = provider;
     }
+
+    return count;
   },
 
   /**
-   * If we cannot retrieve the provider list from the server, display a
-   * message about connection problems, and disable the search fields.
+   * Create the list item to show the suggested address returned from a search.
+   *
+   * @param {Object} address - The address returned from the provider search.
+   * @param {Object} provider - The provider from which the address is
+   * @param {boolean} [isDomain=false] - If the fetched data comes from a domain
+   *  search form.
+   *   available.
+   * @returns {HTMLLIElement}
    */
-  beOffline() {
-    let offlineMsg = stringBundle.GetStringFromName("cannotConnect");
-    let element = document.getElementById("cannotConnectMessage");
-    if (!element.hasChildNodes()) {
-      element.appendChild(document.createTextNode(offlineMsg));
+  createAddressRow(address, provider, isDomain = false) {
+    let row = document.createElement("li");
+    row.classList.add("result-item");
+
+    let suggestedAddress = address.address || address;
+
+    let name = document.createElement("span");
+    name.classList.add("result-name");
+    name.textContent = suggestedAddress;
+    row.appendChild(name);
+    row.setAttribute("data-label", suggestedAddress);
+
+    let price = document.createElement("button");
+    price.setAttribute("type", "button");
+    price.classList.add("result-price");
+    price.onclick = () => {
+      this.onAddressSelected(provider.provider, suggestedAddress, isDomain);
+    };
+
+    // Build the pricing text and handle possible free trials.
+    if (address.price) {
+      if (address.price != 0) {
+        // Some pricing is defined.
+        document.l10n.setAttributes(price, "account-provision-price-per-year", {
+          price: address.price,
+        });
+      } else if (address.price == 0) {
+        // Price is defined by it's zero.
+        document.l10n.setAttributes(price, "account-provisioner-free-account");
+      }
+    } else if (provider.price && provider.price != 0) {
+      // We don't have a price for the current result so let's try to use
+      // the general Provider's price.
+      document.l10n.setAttributes(price, "account-provision-price-per-year", {
+        price: provider.price,
+      });
+    } else {
+      // No price was specified, let's return "Free".
+      document.l10n.setAttributes(price, "account-provisioner-free-account");
     }
-    element.style.display = "block";
-    element.style.opacity = 1;
-    this.searchEnabled(false);
-    gLog.info("Email Account Provisioner is in offline mode.");
+    row.appendChild(price);
+
+    return row;
   },
 
   /**
-   * If we're suddenly able to get the provider list, hide the connection
-   * error message and re-enable the search fields.
+   * Fetches a list of suggested email addresses or domain names from a list of
+   * selected providers.
+   *
+   * @param {string} name - The search value typed by the user.
+   * @param {Array} providers - Array of providers to search for.
+   * @returns {Object} - A list of available emails or domains.
    */
-  beOnline() {
-    let element = document.getElementById("cannotConnectMessage");
-    element.style.display = "none";
-    element.textContent = "";
-    this.searchEnabled(true);
-    gLog.info("Email Account Provisioner is in online mode.");
+  async submitFormRequest(name, providers) {
+    this.updateSearchingState(true);
+
+    let [firstName, lastName] = splitName(name);
+    let url = `${this.suggestFromName}?first_name=${encodeURIComponent(
+      firstName
+    )}&last_name=${encodeURIComponent(lastName)}&providers=${encodeURIComponent(
+      providers
+    )}&version=2`;
+
+    let data;
+    try {
+      let res = await fetch(url, { signal: gAbortController.signal });
+      this.startAbortTimeout();
+      data = await res.json();
+    } catch (error) {
+      gAccountSetupLogger.warn(`Failed to fetch address data: ${error}`);
+    }
+
+    this.updateSearchingState(false);
+    return data;
+  },
+
+  /**
+   * Start a timeout to abort a fetch request based on a time limit.
+   */
+  startAbortTimeout() {
+    this.timeoutId = setTimeout(() => {
+      gAbortController.abort();
+      this.showErrorNotification("account-provisioner-connection-timeout");
+      gAccountSetupLogger.warn("Connection timed out");
+    }, CONNECTION_TIMEOUT);
+  },
+
+  /**
+   * Clear any leftover timeout to prevent an unnecessary fetch abort.
+   */
+  clearAbortTimeout() {
+    if (this.timeoutId) {
+      window.clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+  },
+
+  /**
+   * Always ensure the notification area is visible when a new notification is
+   * created.
+   */
+  ensureVisibleNotification() {
+    document.getElementById("accountProvisionerNotifications").scrollIntoView({
+      behavior: gReducedMotion ? "auto" : "smooth",
+      block: "start",
+      inline: "nearest",
+    });
   },
 };
-
-window.addEventListener(
-  "online",
-  EmailAccountProvisioner.tryToPopulateProviderList
-);
-
-document.addEventListener("DOMContentLoaded", EmailAccountProvisioner.init);

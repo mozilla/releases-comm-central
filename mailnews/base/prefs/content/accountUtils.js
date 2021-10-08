@@ -261,70 +261,6 @@ function migrateGlobalQuotingPrefs(allIdentities) {
 }
 
 /**
- * Open the account provisioner dialog.
- *
- * @param {?Object} args - List of arguments after a successful account creation.
- */
-function openAccountProvisioner(args) {
-  if (!args) {
-    args = {};
-  }
-
-  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-  // Interrupt if we can't find the mail:3pane.
-  if (!mail3Pane) {
-    Cu.reportError("Could not find a 3pane to connect to.");
-    return;
-  }
-
-  let tabmail = mail3Pane.document.getElementById("tabmail");
-  // Interrupt if we can't find the tabmail.
-  if (!tabmail) {
-    Cu.reportError("Could not find a tabmail in the 3pane!");
-    return;
-  }
-
-  // If there's already an accountProvisionerTab open, just focus it instead
-  // of opening a new dialog.
-  let apTab = tabmail.getTabInfoForCurrentOrFirstModeInstance(
-    tabmail.tabModes.accountProvisionerTab
-  );
-  if (apTab) {
-    tabmail.switchToTab(apTab);
-    return;
-  }
-
-  // Pass the methods that might be used from the provisioner after a successful
-  // account creation.
-  args.openAccountSetupTab = openAccountSetupTab;
-  args.openAddonsMgr = mail3Pane.openAddonsMgr;
-
-  let windowParams = "chrome,titlebar,centerscreen,width=640,height=480";
-
-  // A new email address was successfully created and we need to load the UI
-  // in case the account was created but the UI wasn't properly loaded. This
-  // might happen if the user switches to the account provisioner dialog from
-  // the emailWizard dialog on first launch.
-  if (args.success) {
-    if (document.getElementById("folderPaneBox").collapsed) {
-      mail3Pane.postMessage("account-created-from-provisioner", "*");
-    }
-  } else {
-    args.success = false;
-    // If we're not opening up the success dialog, then our window should be
-    // modal.
-    windowParams = `modal,${windowParams}`;
-  }
-
-  window.browsingContext.topChromeWindow.openDialog(
-    "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml",
-    "AccountCreation",
-    windowParams,
-    args
-  );
-}
-
-/**
  * Open the Account Setup Tab or focus it if it's already open.
  */
 function openAccountSetupTab() {
@@ -346,6 +282,79 @@ function openAccountSetupTab() {
   }
 
   tabmail.openTab("contentTab", { url: "about:accountsetup" });
+}
+
+/**
+ * Open the account setup tab and switch to the success view to show the newly
+ * created account, or show an error if the account wasn't created.
+ *
+ * @param {Object} account - A newly created account.
+ * @param {string} name - The account name defined in the provider's website.
+ * @param {string} email - The newly created email address.
+ */
+function openAccountSetupTabWithAccount(account, name, email) {
+  // Define which actions we need to take after the account setup tab has been
+  // loaded and we have access to its objects.
+  let onTabLoaded = function(event, browser, account) {
+    let accountSetup = browser.contentWindow.gAccountSetup;
+
+    if (account) {
+      // Update the account setup variables before kicking off the success view
+      // which will start fetching linked services with these values.
+      accountSetup._realname = name;
+      accountSetup._email = email;
+      accountSetup._password = account.incomingServer.password;
+      accountSetup.showSuccessView(account);
+      return;
+    }
+
+    accountSetup.showErrorNotification("account-setup-provisioner-error");
+  };
+
+  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  let tabmail = mail3Pane.document.getElementById("tabmail");
+
+  // Switch to the account setup tab if it's already open.
+  for (let tabInfo of tabmail.tabInfo) {
+    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsetup") {
+      let accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
+      // Reset the entire UI only if the previously opened setup was completed.
+      if (accountSetup._currentModename == "success") {
+        accountSetup.resetSetup();
+      }
+      tabmail.switchToTab(tabInfo);
+      onTabLoaded(null, tabInfo.browser, account);
+      return;
+    }
+  }
+
+  // Open the account setup tab.
+  tabmail.openTab("contentTab", {
+    url: "about:accountsetup",
+    onLoad(event, browser) {
+      onTabLoaded(event, browser, account);
+    },
+  });
+}
+
+/**
+ * Open the Account Provisioner Tab or focus it if it's already open.
+ */
+function openAccountProvisionerTab() {
+  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  let tabmail = mail3Pane.document.getElementById("tabmail");
+
+  // Switch to the account setup tab if it's already open.
+  for (let tabInfo of tabmail.tabInfo) {
+    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+    if (tab && tab.urlbar && tab.urlbar.value == "about:accountprovisioner") {
+      tabmail.switchToTab(tabInfo);
+      return;
+    }
+  }
+
+  tabmail.openTab("contentTab", { url: "about:accountprovisioner" });
 }
 
 /**

@@ -5,7 +5,7 @@
   "api": "http://www.example.com/tbReg?first={firstname}&last={lastname}&email={email}",
   "tos_url": "http://www.example.com/foo-tos",
   "privacy_url": "http://www.example.com/foo-privacy",
-  "search_engine": "foo"
+  "sells_domain": false
  },
  {"id": "bar",
   "label": "bar",
@@ -14,7 +14,7 @@
   "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/bar-tos",
   "privacy_url": "http://www.example.com/bar-privacy",
-  "search_engine": "bar"
+  "sells_domain": false
  },
  {"id": "French",
   "label": "French Provider",
@@ -23,7 +23,7 @@
   "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/French-tos",
   "privacy_url": "http://www.example.com/French-privacy",
-  "search_engine": "French"
+  "sells_domain": false
  },
  {"id": "German",
   "label": "German Provider",
@@ -32,7 +32,7 @@
   "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/German-tos",
   "privacy_url": "http://www.example.com/German-privacy",
-  "search_engine": "German"
+  "sells_domain": false
  },
  {"id": "corrupt",
   "label": "Corrupt Provider",
@@ -40,7 +40,8 @@
   "languages" : ["en-US"],
   "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registrationCorrupt.html",
   "tos_url": "http://www.example.com/corrupt-tos",
-  "privacy_url": "http://www.example.com/corrupt-privacy"
+  "privacy_url": "http://www.example.com/corrupt-privacy",
+  "sells_domain": true
  },
  {"id": "err",
   "label": "Error Provider",
@@ -48,7 +49,8 @@
   "languages" : ["en-US"],
   "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registrationError.html",
   "tos_url": "http://www.example.com/err-tos",
-  "privacy_url": "http://www.example.com/err-privacy"
+  "privacy_url": "http://www.example.com/err-privacy",
+  "sells_domain": true
  },
  {"id": "multi",
   "label": "multi",
@@ -56,5 +58,6 @@
   "languages" : ["en-US"],
   "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/bar-tos",
-  "privacy_url": "http://www.example.com/bar-privacy"
+  "privacy_url": "http://www.example.com/bar-privacy",
+  "sells_domain": true
  }]

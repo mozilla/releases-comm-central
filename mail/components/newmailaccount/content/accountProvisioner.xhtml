@@ -1,154 +1,162 @@
-<!DOCTYPE html [
-  <!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd">
-    %globalDTD;
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-    %brandDTD;
-  <!ENTITY % mainDTD SYSTEM "chrome://messenger/locale/newmailaccount/accountProvisioner.dtd">
-    %mainDTD;
-]>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <!-- This meta charset tag has to be above the license block, or
-       window.arguments is undefined.  See bug 617339.  -->
-  <meta charset="utf-8" />
-
+<?xml version="1.0"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-  <title>&window.title;</title>
+<?xml-stylesheet href="chrome://messenger/skin/accountSetup.css" type="text/css"?>
 
-  <link rel="stylesheet"
-        type="text/css"
-        href="chrome://messenger/skin/newmailaccount/accountProvisioner.css" />
+<!DOCTYPE html>
+
+<html id="accountProvisioner" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title data-l10n-id="account-provisioner-tab-title"></title>
+  <link rel="icon" href="chrome://messenger/skin/icons/globe.svg" />
+
+  <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/accountProvisioner.ftl" />
 
-  <script src="chrome://communicator/content/utilityOverlay.js">
-  </script>
-  <script src="chrome://messenger/content/newmailaccount/accountProvisioner.js">
-  </script>
-  <script src="chrome://messenger/content/accountUtils.js"></script>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/newmailaccount/accountProvisioner.js"></script>
 </head>
-<body dir="&locale.dir;">
-  <div id="window" class="vbox">
 
-    <div id="content" class="boxFlex vbox">
+<body>
+  <header>
+    <h1 id="accountProvisionerTitle"
+        data-l10n-id="account-provisioner-title"
+        class="title">
+    </h1>
+    <p id="accountProvisionerDescription"
+       data-l10n-id="account-provisioner-description"
+       class="description">
+    </p>
+  </header>
 
-      <div id="upper" class="contentPadded">
-        <div class="header">
-          <h2>&header2.label;</h2>
-        </div>
+  <section class="main-container">
+    <aside id="setupView" class="column column-wide">
 
-        <form id="search" onsubmit="return false;">
-          <div id="searchFields" class="hbox">
-            <input id="name" type="text" placeholder="&input.namePlaceholder;"
-                   maxlength="150" class="boxFlex"/>
-            <input type="submit" value="&input.search;" class="search boxFlex" id="searchSubmit"/>
+      <section id="mailSearch">
+        <h3 class="service-title"
+            data-l10n-id="account-provisioner-mail-account-title"></h3>
+
+        <p class="service-description"
+           data-l10n-id="account-provisioner-mail-account-description">
+          <a href="https://mailfence.com/"
+             data-l10n-name="mailfence-home-link"></a>
+        </p>
+
+        <form id="mailForm"
+              class="service-form"
+              onsubmit="gAccountProvisioner.onMailFormSubmit(event);">
+          <div class="service-form-container">
+            <input id="mailName" type="text"
+                   data-l10n-id="account-provisioner-mail-input"
+                   class="disable-on-submit"
+                   autocomplete="off"
+                   required="required"/>
+            <button type="submit"
+                    class="disable-on-submit"
+                    data-l10n-id="account-provisioner-search-button">
+            </button>
           </div>
-          <div id="providers">
-            <div id="instructions">&partnership.description;</div>
-            <ol id="providerList">
-            </ol>
-            <div id="otherLangDesc">&other.languages;</div>
-          </div>
+
+          <ul id="mailProvidersList" class="providers-list">
+            <!-- This will be populated in JS. -->
+          </ul>
         </form>
 
-        <div id="notifications">
+        <div id="mailSearchResults" hidden="hidden">
+          <h4 id="mailResultsTitle" class="results-title"></h4>
+          <section class="provisioner-results-area content-blocking-category linked-services-section">
+            <div id="mailResultsArea" class="results-list"></div>
+          </section>
+          <p data-l10n-id="account-provisioner-mail-results-caption"
+             class="tip-caption"></p>
+        </div>
+      </section>
 
-          <img class="spinner"
-               data-l10n-id="provisioner-searching-icon"
-               src="chrome://messenger/skin/newmailaccount/spinner.gif" />
+      <section id="domainSearch">
+        <h3 class="service-title"
+            data-l10n-id="account-provisioner-domain-title"></h3>
 
-          <div id="cannotConnectMessage" class="error"></div>
+        <p class="service-description"
+           data-l10n-id="account-provisioner-domain-description">
+          <a href="https://gandi.net/" data-l10n-name="gandi-home-link"></a>
+        </p>
 
-          <div class="error">
-            <p>&error.line1;</p>
-            <p>&error.line2;</p>
-            &error.suggest.before;<a
-              href="https://www.thunderbird.net/en-US/email-providers/"
-              class="external">&error.suggest.middle;</a>&error.suggest.after;
+        <form id="domainForm"
+              class="service-form"
+              onsubmit="gAccountProvisioner.onDomainFormSubmit(event);">
+          <div class="service-form-container">
+            <input id="domainName" type="text"
+                   data-l10n-id="account-provisioner-domain-input"
+                   class="disable-on-submit"
+                   autocomplete="off"
+                   required="required"/>
+            <button type="submit"
+                    class="disable-on-submit"
+                    data-l10n-id="account-provisioner-search-button">
+            </button>
           </div>
 
-          <div class="success">
-            <div class="title">&success.title.before;<span id="FirstAndLastName"></span>&success.title.after;</div>
+          <ul id="domainProvidersList" class="providers-list">
+            <!-- This will be populated in JS. -->
+          </ul>
+        </form>
 
-            <div class="boxFlex tip">&success.tip;</div>
-
-            <div id="resultsHeader" class="hbox row th displayNone">
-              <div class="boxFlex provider th"></div>
-              <div class="price th"></div>
-            </div>
-
-            <div id="results"></div>
-          </div>
-
+        <div id="domainSearchResults" hidden="hidden">
+          <h4 id="domainResultsTitle" class="results-title"></h4>
+          <section class="provisioner-results-area content-blocking-category linked-services-section">
+            <div id="domainResultsArea" class="results-list"></div>
+          </section>
+          <p data-l10n-id="account-provisioner-domain-results-caption"
+             class="tip-caption"></p>
         </div>
+      </section>
+
+      <div id="accountProvisionerNotifications"
+           class="account-setup-notifications">
+        <!-- Notifications will be lazily loaded here. -->
       </div>
 
-      <div class="spacer"></div>
-      <hr />
-      <div class="description contentPadded">
-        <div class="commentary">
-        </div>
-      </div>
+      <section class="action-buttons-container provisioner-buttons">
+        <button id="backButton" type="button"
+                data-l10n-id="account-provisioner-button-back"
+                data-l10n-attrs="accesskey"
+                hidden="hidden">
+        </button>
+        <button id="cancelButton" type="button"
+                data-l10n-id="account-provisioner-button-cancel"
+                data-l10n-attrs="accesskey">
+        </button>
+        <button id="existingButton" type="button"
+                data-l10n-id="account-provisioner-button-existing"
+                data-l10n-attrs="accesskey">
+        </button>
+      </section>
+    </aside><!-- END setupView column  -->
 
-    </div>
-
-    <div id="existing" class="contentPadded">
-      <div class="tinyheader">
-        <button class="existing">&tinyheader.existing;</button>
-        <button class="close">&content.close;</button>
-      </div>
-    </div>
-
-  </div>
-
-  <div id="successful_account">
-    <h2>&successful.title;</h2>
-    <div id="success-message">&successful.successMessage;</div>
-
-    <div id="search_engine_wrap">
-      <img src="chrome://messenger/skin/newmailaccount/search.png" alt="" />
-      <input type="checkbox" id="search_engine_check" />
-      <span id="search_engine_desc"></span>
-    </div>
-
-    <div id="success-compose">
-      <img src="chrome://messenger/skin/newmailaccount/success-compose.png"
-           alt="" />
-      <h4>&successful.write;</h4>
-      &successful.write.desc;
-    </div>
-
-    <div id="success-addons">
-      <img src="chrome://messenger/skin/newmailaccount/success-addons.png"
-           alt="" />
-      <h4>&successful.customize;</h4>
-      &successful.customize.desc;
-    </div>
-
-    <div id="success-signature">
-      <img src="chrome://messenger/skin/newmailaccount/success-signature.png"
-           alt="" />
-      <h4>&successful.attach;</h4>
-      &successful.attach.desc;
-    </div>
-
-    <button id="closeWindow" class="close">&successful.close;</button>
-  </div>
-
-  <template id="result_tmpl">
-    <div class="hbox row selection">
-      <div class="boxFlex address">${address}</div>
-      <div class="pricing hideWithFade">
-        <button class="create" disabled="true"
-          address="${address}">${priceStr}</button>
-        <span class="create"
-          address="${address}">${priceStr}</span>
-      </div>
-    </div>
-  </template>
+    <aside class="column second-column">
+      <article id="step1" class="tip-caption">
+        <img src="chrome://messenger/skin/illustrations/octopus-setup.svg"
+             data-l10n-id="account-provisioner-step1-image"
+             alt="" />
+        <p data-l10n-id="account-provisioner-start-help">
+          <a href="https://www.mozilla.org/privacy/"
+             data-l10n-name="mozilla-privacy-link"></a>
+          <a href="https://mailfence.com/en/privacy.jsp"
+             data-l10n-name="mailfence-privacy-link"></a>
+          <a href="https://mailfence.com/en/terms.jsp"
+             data-l10n-name="mailfence-tou-link"></a>
+          <a href="https://www.gandi.net/contracts/privacy-policy"
+             data-l10n-name="gandi-privacy-link"></a>
+          <a href="https://www.gandi.net/contracts/terms-of-use"
+             data-l10n-name="gandi-tou-link"></a>
+        </p>
+      </article>
+    </aside><!-- END second column-->
+  </section>
 
 </body>
-
 </html>

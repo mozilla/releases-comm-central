@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals openAccountProvisioner */
+/* globals openAccountSetupTabWithAccount, openAccountProvisionerTab */
 
 /**
  * This object takes care of intercepting page loads and creating the
@@ -164,10 +164,7 @@ TracingListener.prototype = {
       "resource:///modules/accountcreation/AccountConfig.jsm"
     );
 
-    let tabmail = document.getElementById("tabmail");
-    let success = false;
-    let account;
-
+    let newAccount;
     try {
       // Construct the downloaded data (we'll assume UTF-8 bytes) into XML.
       let xml = this.chunks.join("");
@@ -177,7 +174,7 @@ TracingListener.prototype = {
       }
       xml = new TextDecoder().decode(bytes);
 
-      // Attempt to derive email account information
+      // Attempt to derive email account information.
       let domParser = new DOMParser();
       let accountConfig = readFromXML(
         JXON.build(domParser.parseFromString(xml, "text/xml"))
@@ -187,31 +184,44 @@ TracingListener.prototype = {
         this.params.realName,
         this.params.email
       );
-      account = CreateInBackend.createAccountInBackend(accountConfig);
-      success = true;
+
+      // Create the new account in the back end.
+      newAccount = CreateInBackend.createAccountInBackend(accountConfig);
+
+      let tabmail = document.getElementById("tabmail");
+      // Find the tab associated with this browser, and close it.
+      let myTabInfo = tabmail.tabInfo.filter(
+        function(x) {
+          return "browser" in x && x.browser == this.browser;
+        }.bind(this)
+      )[0];
+      tabmail.closeTab(myTabInfo);
+
+      // Trigger the first login to download the folder structure and messages.
+      newAccount.incomingServer.getNewMessages(
+        newAccount.incomingServer.rootFolder,
+        this._msgWindow,
+        null
+      );
     } catch (e) {
       // Something went wrong with account set up. Dump the error out to the
-      // error console. The tab will be closed, and the Account Provisioner
-      // tab will be reopened.
+      // error console, reopen the account provisioner tab, and show an error
+      // dialog to the user.
       Cu.reportError("Problem interpreting provider XML:" + e);
+      openAccountProvisionerTab();
+      Services.prompt.alert(window, null, e);
+
+      this.oldListener.onStopRequest(aRequest, aStatusCode);
+      return;
     }
 
-    tabmail.switchToTab(0);
-
-    // Find the tab associated with this browser, and close it.
-    let myTabInfo = tabmail.tabInfo.filter(
-      function(x) {
-        return "browser" in x && x.browser == this.browser;
-      }.bind(this)
-    )[0];
-    tabmail.closeTab(myTabInfo);
-
-    // Respawn the account provisioner to announce our success.
-    openAccountProvisioner({
-      success,
-      search_engine: this.params.searchEngine,
-      account,
-    });
+    // Open the account setup tab and show the success view or an error if we
+    // weren't able to create the new account.
+    openAccountSetupTabWithAccount(
+      newAccount,
+      this.params.realName,
+      this.params.email
+    );
 
     this.oldListener.onStopRequest(aRequest, aStatusCode);
   },

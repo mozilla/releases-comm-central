@@ -5,6 +5,7 @@
 "use strict";
 
 const EXPORTED_SYMBOLS = [
+  "openAccountProvisioner",
   "openAccountSetup",
   "openAccountSettings",
   "open_advanced_settings",
@@ -68,6 +69,14 @@ async function openAccountSetup() {
   return new Promise(resolve => {
     let tab = open_content_tab_with_url("about:accountsetup");
     wait_for_content_tab_load(tab, "about:accountsetup", 10000);
+    resolve(tab);
+  });
+}
+
+async function openAccountProvisioner() {
+  return new Promise(resolve => {
+    let tab = open_content_tab_with_url("about:accountprovisioner");
+    wait_for_content_tab_load(tab, "about:accountprovisioner", 10000);
     resolve(tab);
   });
 }

@@ -229,6 +229,8 @@ account-setup-find-settings-failed = { -brand-short-name } failed to find the se
 
 account-setup-exchange-config-unverifiable = Configuration could not be verified. If your username and password are correct, it’s likely that the server administrator has disabled the selected configuration for your account. Try selecting another protocol.
 
+account-setup-provisioner-error = An error occurred while setting up your new account in { -brand-short-name }. Please, try to manually set up your account with your credentials.
+
 ## Manual configuration area
 
 account-setup-manual-config-title = Manual configuration
