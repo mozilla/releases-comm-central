@@ -1867,54 +1867,6 @@
       tab.busy = aBusy;
     }
 
-    onTabContextMenuShowing(event) {
-      let tabContextMenu = document.getElementById("tabContextMenu");
-      let tabNode = tabContextMenu.triggerNode?.closest("tab");
-
-      // this happens when the user did not actually-click on a tab but
-      // instead on the strip behind it.
-      if (!tabNode || tabNode.localName != "tab") {
-        return false;
-      }
-
-      let tab = this._getTabContextForTabbyThing(tabNode, true)[1];
-      // by default "close other tabs" is disabled...
-      tabContextMenu
-        .querySelector(`[anonid="closeOtherTabs"]`)
-        .setAttribute("disabled", "true");
-      // ... except if we find at least one other tab that can be closed.
-      for (let i = 0; i < this.tabInfo.length; i++) {
-        if (this.tabInfo[i].canClose && this.tabInfo[i] != tab) {
-          tabContextMenu
-            .querySelector(`[anonid="closeOtherTabs"]`)
-            .setAttribute("disabled", "false");
-          break;
-        }
-      }
-
-      tabContextMenu
-        .querySelector(`[anonid="closeTab"]`)
-        .setAttribute("disabled", tab.canClose ? "false" : "true");
-      // enable "Open in new Window" iff tab is closable and...
-      // ... it can persist its state. Other wise it would get destroyed...
-      // ... while moving it to a new window.
-      tabContextMenu
-        .querySelector(`[anonid="openTabInWindow"]`)
-        .setAttribute(
-          "disabled",
-          tab.canClose && this.persistTab(tab) ? "false" : "true"
-        );
-      // If the tab history is empty, disable "Undo Close Tab"
-      tabContextMenu
-        .querySelector(`[anonid="recentlyClosedTabs"]`)
-        .setAttribute(
-          "disabled",
-          this.recentlyClosedTabs.length ? "false" : "true"
-        );
-
-      return true;
-    }
-
     /**
      * Set the document title based on the tab title
      */
@@ -2039,3 +1991,75 @@
     "nsISupportsWeakReference",
   ]);
 }
+
+// Set up the tabContextMenu, which is used as the context menu for all tabmail
+// tabs.
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    let tabmail = document.getElementById("tabmail");
+    let tabMenu = document.getElementById("tabContextMenu");
+
+    let openInWindowItem = document.getElementById(
+      "tabContextMenuOpenInWindow"
+    );
+    let closeOtherTabsItem = document.getElementById(
+      "tabContextMenuCloseOtherTabs"
+    );
+    let recentlyClosedMenu = document.getElementById(
+      "tabContextMenuRecentlyClosed"
+    );
+    let closeItem = document.getElementById("tabContextMenuClose");
+
+    // Shared variable: the tabNode that was activated to open the context menu.
+    let currentTabInfo = null;
+
+    tabMenu.addEventListener("popupshowing", () => {
+      let tabNode = tabMenu.triggerNode?.closest("tab");
+
+      // this happens when the user did not actually-click on a tab but
+      // instead on the strip behind it.
+      if (!tabNode) {
+        currentTabInfo = null;
+        return false;
+      }
+
+      currentTabInfo = tabmail.tabInfo.find(info => info.tabNode == tabNode);
+      openInWindowItem.setAttribute(
+        "disabled",
+        currentTabInfo.canClose && tabmail.persistTab(currentTabInfo)
+      );
+      closeOtherTabsItem.setAttribute(
+        "disabled",
+        tabmail.tabInfo.every(info => info == currentTabInfo || !info.canClose)
+      );
+      recentlyClosedMenu.setAttribute(
+        "disabled",
+        !tabmail.recentlyClosedTabs.length
+      );
+      closeItem.setAttribute("disabled", !currentTabInfo.canClose);
+      return true;
+    });
+
+    // Tidy up.
+    tabMenu.addEventListener("popuphidden", () => {
+      currentTabInfo = null;
+    });
+
+    openInWindowItem.addEventListener("command", () => {
+      tabmail.replaceTabWithWindow(currentTabInfo);
+    });
+    closeOtherTabsItem.addEventListener("command", () => {
+      tabmail.closeOtherTabs(currentTabInfo);
+    });
+    closeItem.addEventListener("command", () => {
+      tabmail.closeTab(currentTabInfo);
+    });
+
+    let recentlyClosedPopup = recentlyClosedMenu.querySelector("menupopup");
+    recentlyClosedPopup.addEventListener("popupshowing", () =>
+      InitRecentlyClosedTabsPopup(recentlyClosedPopup)
+    );
+  },
+  { once: true }
+);

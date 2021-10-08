@@ -378,27 +378,23 @@
        outside of any tabs, the mail-toolbox context menu opens, as desired.
   -->
 
-  <menupopup id="tabContextMenu"
-             onpopupshowing="return document.getElementById('tabmail').onTabContextMenuShowing(event);">
-    <menuitem label="&moveToNewWindow.label;"
-              accesskey="&moveToNewWindow.accesskey;"
-              anonid="openTabInWindow"
-              oncommand="document.getElementById('tabmail').replaceTabWithWindow(this.parentNode.triggerNode);"/>
+  <menupopup id="tabContextMenu">
+    <menuitem id="tabContextMenuOpenInWindow"
+              label="&moveToNewWindow.label;"
+              accesskey="&moveToNewWindow.accesskey;"/>
     <menuseparator />
-    <menuitem label="&closeOtherTabsCmd2.label;"
-              accesskey="&closeOtherTabsCmd2.accesskey;"
-              anonid="closeOtherTabs"
-              oncommand="document.getElementById('tabmail').closeOtherTabs(this.parentNode.triggerNode);"/>
+    <menuitem id="tabContextMenuCloseOtherTabs"
+              label="&closeOtherTabsCmd2.label;"
+              accesskey="&closeOtherTabsCmd2.accesskey;"/>
     <menuseparator />
-    <menu label="&recentlyClosedTabsCmd.label;"
-          accesskey="&recentlyClosedTabsCmd.accesskey;"
-          anonid="recentlyClosedTabs" >
-      <menupopup onpopupshowing="return InitRecentlyClosedTabsPopup(this);" />
+    <menu id="tabContextMenuRecentlyClosed"
+          label="&recentlyClosedTabsCmd.label;"
+          accesskey="&recentlyClosedTabsCmd.accesskey;">
+      <menupopup />
     </menu>
-    <menuitem label="&closeTabCmd2.label;"
-              accesskey="&closeTabCmd2.accesskey;"
-              anonid="closeTab"
-              oncommand="document.getElementById('tabmail').closeTab(this.parentNode.triggerNode);"/>
+    <menuitem id="tabContextMenuClose"
+              label="&closeTabCmd2.label;"
+              accesskey="&closeTabCmd2.accesskey;"/>
   </menupopup>
 
   <tooltip is="folder-tooltip" id="folderpopup"/>

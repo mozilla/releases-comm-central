@@ -364,8 +364,8 @@ async function _synthesizeRecentlyClosedMenu() {
   let tabContextMenu = mc.window.document.getElementById("tabContextMenu");
   await wait_for_popup_to_open(tabContextMenu);
 
-  let recentlyClosedTabs = tabContextMenu.querySelector(
-    '[anonid="recentlyClosedTabs"]'
+  let recentlyClosedTabs = mc.window.document.getElementById(
+    "tabContextMenuRecentlyClosed"
   );
 
   recentlyClosedTabs.openMenu(true);
