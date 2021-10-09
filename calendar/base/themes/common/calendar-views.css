@@ -33,7 +33,7 @@
   --viewDayLabelSelectedColor: #000;
   --viewDayLabelSelectedBackground: #fffabc;
   --viewDragboxColor: -moz-dialogtext;
-  --viewDragboxBackground: linear-gradient(#fe4b22, #feb822);
+  --viewDragboxBackground: #45a1ff;
   --viewDropshadowBackground: #ffa47d;
 }
 
@@ -235,7 +235,6 @@
 
 .calendar-category-box {
   width: 7px;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.38), transparent) !important;
 }
 
 /* Multiday view */
@@ -609,8 +608,6 @@ calendar-multiday-view[hidden="true"] {
 calendar-day-label {
   color: var(--viewColor);
   background-color: var(--viewBackground);
-  background-image: linear-gradient(transparent, transparent 48%,
-                                    rgba(0, 0, 0, 0.02) 52%, rgba(0, 0, 0, 0.1));
 }
 
 calendar-day-label[selected="true"] {
@@ -846,7 +843,6 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
 .calendar-color-box {
   /* FIXME: Is min-height needed? */
   min-height: 13px;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1) 50%, rgba(0, 0, 0, 0.05));
   border: 1px solid transparent;
   border-radius: 2px;
   background-color: var(--item-backcolor);
