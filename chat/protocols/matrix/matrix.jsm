@@ -2061,8 +2061,17 @@ MatrixAccount.prototype = {
   },
 
   setString(name, value) {
+    if (!this._client) {
+      return;
+    }
     if (name === "backupPassphrase" && value) {
       this.bootstrapSSSS().catch(this.WARN);
+    } else if (name === "deviceDisplayName") {
+      this._client
+        .setDeviceDetails(this._client.getDeviceId(), {
+          display_name: value,
+        })
+        .catch(this.WARN);
     }
   },
 
