@@ -672,6 +672,22 @@ function serv_tolowercase(str)
      return str;
 }
 
+// Iterates through the keys in an object and, if specified, the keys of
+// child objects.
+CIRCServer.prototype.renameProperties =
+function serv_renameproperties(obj, child)
+{
+    for (let key in obj)
+    {
+        let item = obj[key];
+        item.canonicalName = this.toLowerCase(item.encodedName);
+        item.collectionKey = ":" + item.canonicalName;
+        renameProperty(obj, key, item.collectionKey);
+        if (child && (child in item))
+            this.renameProperties(item[child], null);
+    }
+}
+
 // Encodes tag data to send.
 CIRCServer.prototype.encodeTagData =
 function serv_encodetagdata(obj)
@@ -1747,27 +1763,8 @@ function serv_005 (e)
     // Update all users and channels if the casemapping changed.
     if (this.supports["casemapping"] != oldCaseMapping)
     {
-        for (let userKey in this.users)
-        {
-            let user = this.users[userKey];
-            user.canonicalName = this.toLowerCase(user.encodedName);
-            user.collectionKey = ":" + user.canonicalName;
-            renameProperty(this.users, userKey, user.collectionKey);
-        }
-        for (let channelKey in this.channels)
-        {
-            let channel = this.channels[channelKey];
-            channel.canonicalName = this.toLowerCase(channel.encodedName);
-            channel.collectionKey = ":" + channel.canonicalName;
-            renameProperty(this.channels, channelKey, channel.collectionKey);
-            for (let userKey in channel.users)
-            {
-                let user = channel.users[userKey];
-                user.canonicalName = this.toLowerCase(user.encodedName);
-                user.collectionKey = ":" + user.canonicalName;
-                renameProperty(channel.users, userKey, user.collectionKey);
-            }
-        }
+        this.renameProperties(this.users, null);
+        this.renameProperties(this.channels, "users");
     }
 
     // Supported 'special' items:
