@@ -364,6 +364,15 @@
   opacity: unset; /* Overrides .agenda-listitem-past */
 }
 
+:root[lwt-tree] #agenda:focus .agenda-listitem.selected .agenda-listitem-details {
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+  background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
+}
+
+:root[lwt-tree-brighttext] #agenda:focus .agenda-listitem.selected .agenda-listitem-details {
+  background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
+}
+
 #agenda:focus .agenda-listitem.selected .agenda-listitem-details::before {
   display: none;
 }
