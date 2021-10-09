@@ -106,6 +106,67 @@ add_task(async function testMUCMessageSenderTooltip() {
   Services.accounts.deleteAccount(account.id);
 });
 
+add_task(async function testTimestampTooltip() {
+  const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
+  account.password = "this is a test";
+  account.connect();
+
+  await openChatTab();
+  const conversation = account.prplAccount.wrappedJSObject.makeMUC("tooltips");
+  const convNode = getConversationItem(conversation);
+  ok(convNode);
+
+  await EventUtils.synthesizeMouseAtCenter(convNode, {});
+
+  const chatConv = getChatConversationElement(conversation);
+  ok(chatConv);
+  ok(BrowserTestUtils.is_visible(chatConv));
+
+  const messageTime = Math.floor(Date.now() / 1000);
+
+  conversation.addParticipant("foo", "1");
+  conversation.addMessages([
+    {
+      who: "foo",
+      content: "hi",
+      options: {
+        incoming: true,
+      },
+      time: messageTime,
+    },
+  ]);
+  // Wait for at least one event.
+  do {
+    await BrowserTestUtils.waitForEvent(
+      chatConv.convBrowser,
+      "MessagesDisplayed"
+    );
+  } while (chatConv.convBrowser.getPendingMessagesCount() > 0);
+
+  const tooltip = document.getElementById("imTooltip");
+  window.windowUtils.disableNonTestMouseEvents(true);
+  try {
+    const messageSelector = ".message:nth-child(1)";
+    const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
+      timeStyle: "medium",
+    });
+    const expectedText = dateTimeFormatter.format(new Date(messageTime * 1000));
+
+    await showTooltip(messageSelector, tooltip, chatConv.convBrowser);
+
+    const htmlTooltip = tooltip.querySelector(".htmlTooltip");
+    ok(BrowserTestUtils.is_visible(htmlTooltip));
+    is(htmlTooltip.textContent, expectedText);
+    await hideTooltip(tooltip, chatConv.convBrowser);
+  } finally {
+    window.windowUtils.disableNonTestMouseEvents(false);
+  }
+
+  conversation.close();
+  account.disconnect();
+  Services.accounts.deleteAccount(account.id);
+});
+
 async function showTooltip(elementSelector, tooltip, browser) {
   const popupShown = BrowserTestUtils.waitForEvent(tooltip, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(

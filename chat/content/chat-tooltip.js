@@ -87,10 +87,14 @@
         return false;
       }
 
+      let showHTMLTooltip = false;
+
       // Reset tooltip.
       let largeTooltip = this.querySelector(".largeTooltip");
       largeTooltip.hidden = false;
       this.removeAttribute("label");
+      let htmlTooltip = this.querySelector(".htmlTooltip");
+      htmlTooltip.hidden = true;
 
       // We have a few cases that have special behavior. These are richlistitems
       // and have tooltip="<myid>".
@@ -187,11 +191,27 @@
         // we are pointing at carries a title set by the prpl,
         // that title won't be overridden.
         node.setAttribute("title", text);
+        showHTMLTooltip = true;
         break;
       }
 
-      // Use the default content tooltip.
       largeTooltip.hidden = true;
+      // Show the title in the tooltip
+      if (showHTMLTooltip) {
+        let content = this.triggerNode.getAttribute("title");
+        if (!content) {
+          let closestTitle = this.triggerNode.closest("[title]");
+          if (closestTitle) {
+            content = closestTitle.getAttribute("title");
+          }
+        }
+        if (!content) {
+          return false;
+        }
+        htmlTooltip.textContent = content;
+        htmlTooltip.hidden = false;
+        return true;
+      }
       return false;
     }
 
@@ -218,6 +238,7 @@
             <html:table class="tooltipTable">
             </html:table>
           </vbox>
+          <html:div class="htmlTooltip" hidden="hidden"></html:div>
         `)
       );
       this.initializeAttributeInheritance();
