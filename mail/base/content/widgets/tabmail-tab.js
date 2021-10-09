@@ -103,14 +103,6 @@
         document.getElementById("tabmail").removeTabByNode(this);
       });
 
-      this.addEventListener(
-        "contextmenu",
-        event => {
-          document.popupNode = this;
-        },
-        true
-      );
-
       this.setAttribute("context", "tabContextMenu");
 
       this.mCorrespondingMenuitem = null;
