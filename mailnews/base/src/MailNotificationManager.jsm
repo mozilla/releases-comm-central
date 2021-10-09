@@ -75,7 +75,7 @@ class MailNotificationManager {
       Services.obs.addObserver(this, "new-directed-incoming-message");
     }
     if (AppConstants.platform == "win") {
-      Services.obs.addObserver(this, "window-restored-from-tray");
+      Services.obs.addObserver(this, "windows-refresh-badge-tray");
       Services.prefs.addObserver("mail.biff.show_badge", this);
     }
   }
@@ -99,7 +99,7 @@ class MailNotificationManager {
       case "new-directed-incoming-messenger":
         this._animateDockIcon();
         return;
-      case "window-restored-from-tray":
+      case "windows-refresh-badge-tray":
         this._updateUnreadCount();
         return;
       case "profile-before-change":

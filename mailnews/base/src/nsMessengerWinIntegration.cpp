@@ -106,63 +106,93 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
                                                            UINT msg, WPARAM wp,
                                                            LPARAM lp) {
   nsresult rv;
-  if (msg == WM_USER && lp == WM_LBUTTONDOWN) {
-    nsCOMPtr<nsIPrefBranch> prefBranch =
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, FALSE);
-    bool showTrayIcon;
-    rv = prefBranch->GetBoolPref(SHOW_TRAY_ICON_PREF, &showTrayIcon);
-    NS_ENSURE_SUCCESS(rv, FALSE);
-    if (!showTrayIcon || !sUnreadCount) {
-      ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
-      if (auto instance = reinterpret_cast<nsMessengerWinIntegration*>(
-              ::GetWindowLongPtrW(msgWindow, GWLP_USERDATA))) {
-        instance->mTrayIconShown = false;
+  static UINT sTaskbarRecreated;
+
+  switch (msg) {
+    case WM_USER:
+      if (msg == WM_USER && lp == WM_LBUTTONDOWN) {
+        nsCOMPtr<nsIPrefBranch> prefBranch =
+            do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
+        NS_ENSURE_SUCCESS(rv, FALSE);
+        bool showTrayIcon;
+        rv = prefBranch->GetBoolPref(SHOW_TRAY_ICON_PREF, &showTrayIcon);
+        NS_ENSURE_SUCCESS(rv, FALSE);
+        if (!showTrayIcon || !sUnreadCount) {
+          ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
+          if (auto instance = reinterpret_cast<nsMessengerWinIntegration*>(
+                  ::GetWindowLongPtrW(msgWindow, GWLP_USERDATA))) {
+            instance->mTrayIconShown = false;
+          }
+        }
+
+        // No minimzed window, bring the most recent 3pane window to the front.
+        if (sHiddenWindows.Length() == 0) {
+          nsCOMPtr<nsIWindowMediator> windowMediator =
+              do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+          NS_ENSURE_SUCCESS(rv, FALSE);
+
+          nsCOMPtr<mozIDOMWindowProxy> domWindow;
+          rv = windowMediator->GetMostRecentBrowserWindow(
+              getter_AddRefs(domWindow));
+          NS_ENSURE_SUCCESS(rv, FALSE);
+          if (domWindow) {
+            activateWindow(domWindow);
+            return TRUE;
+          }
+        }
+
+        // Bring the minimized windows to the front.
+        for (uint32_t i = 0; i < sHiddenWindows.Length(); i++) {
+          auto window = sHiddenWindows.SafeElementAt(i);
+          if (!window) {
+            continue;
+          }
+          window->SetVisibility(true);
+
+          nsCOMPtr<nsIWidget> widget;
+          window->GetMainWidget(getter_AddRefs(widget));
+          if (!widget) {
+            continue;
+          }
+
+          HWND hwnd = (HWND)(widget->GetNativeData(NS_NATIVE_WIDGET));
+          ::ShowWindow(hwnd, SW_RESTORE);
+          ::SetForegroundWindow(hwnd);
+
+          nsCOMPtr<nsIObserverService> obs =
+              mozilla::services::GetObserverService();
+          obs->NotifyObservers(window, "windows-refresh-badge-tray", 0);
+        }
+
+        sHiddenWindows.Clear();
       }
-    }
-
-    // No minimzed window, bring the most recent 3pane window to the front.
-    if (sHiddenWindows.Length() == 0) {
-      nsCOMPtr<nsIWindowMediator> windowMediator =
-          do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, FALSE);
-
-      nsCOMPtr<mozIDOMWindowProxy> domWindow;
-      rv =
-          windowMediator->GetMostRecentBrowserWindow(getter_AddRefs(domWindow));
-      NS_ENSURE_SUCCESS(rv, FALSE);
-      if (domWindow) {
-        activateWindow(domWindow);
-        return TRUE;
+      break;
+    case WM_CREATE:
+      sTaskbarRecreated = ::RegisterWindowMessageW(L"TaskbarCreated");
+      break;
+    default:
+      if (msg == sTaskbarRecreated) {
+        // When taskbar is recreated (e.g. by restarting Windows Explorer), all
+        // tray icons are removed. If there are windows minimized to tray icon,
+        // we have to recreate the tray icon, otherwise the windows can't be
+        // restored.
+        if (auto instance = reinterpret_cast<nsMessengerWinIntegration*>(
+                ::GetWindowLongPtrW(msgWindow, GWLP_USERDATA))) {
+          instance->mTrayIconShown = false;
+        }
+        for (uint32_t i = 0; i < sHiddenWindows.Length(); i++) {
+          auto window = sHiddenWindows.SafeElementAt(i);
+          if (!window) {
+            continue;
+          }
+          nsCOMPtr<nsIObserverService> obs =
+              mozilla::services::GetObserverService();
+          obs->NotifyObservers(window, "windows-refresh-badge-tray", 0);
+        }
       }
-    }
-
-    // Bring the minimized windows to the front.
-    for (uint32_t i = 0; i < sHiddenWindows.Length(); i++) {
-      auto window = sHiddenWindows.SafeElementAt(i);
-      if (!window) {
-        continue;
-      }
-      window->SetVisibility(true);
-
-      nsCOMPtr<nsIWidget> widget;
-      window->GetMainWidget(getter_AddRefs(widget));
-      if (!widget) {
-        continue;
-      }
-
-      HWND hwnd = (HWND)(widget->GetNativeData(NS_NATIVE_WIDGET));
-      ::ShowWindow(hwnd, SW_RESTORE);
-      ::SetForegroundWindow(hwnd);
-
-      nsCOMPtr<nsIObserverService> obs =
-          mozilla::services::GetObserverService();
-      obs->NotifyObservers(window, "window-restored-from-tray", 0);
-    }
-
-    sHiddenWindows.Clear();
+      break;
   }
-  return TRUE;
+  return ::DefWindowProc(msgWindow, msg, wp, lp);
 }
 
 nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
