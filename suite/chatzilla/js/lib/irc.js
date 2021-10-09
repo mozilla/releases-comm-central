@@ -738,20 +738,20 @@ function serv_decodetagdata(str)
     function unescapeTagValue(data)
     {
         var rv = "";
-        for (var i = 0; i  < data.length; i++)
+        for (let j = 0; j < data.length; j++)
         {
-            var ci = data[i];
-            var co = dict[data[i+1]];
-            if (ci == "\\" && i < str.length - 1)
+            let currentItem = data[j];
+            if (currentItem == "\\" && j < data.length - 1)
             {
-                if (co)
-                    rv += co;
+                let nextItem = data[j + 1];
+                if (nextItem in dict)
+                    rv += dict[nextItem];
                 else
-                    rv += data[i+1];
-                i++
+                    rv += nextItem;
+                j++
             }
-            else if (ci != "\\")
-                rv += ci;
+            else if (currentItem != "\\")
+                rv += currentItem;
         }
 
         return rv;
