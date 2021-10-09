@@ -615,7 +615,8 @@ MatrixRoom.prototype = {
     const eventType = event.getType();
     if (
       eventType === EventType.RoomMessage ||
-      eventType === EventType.RoomMessageEncrypted
+      eventType === EventType.RoomMessageEncrypted ||
+      eventType === EventType.Sticker
     ) {
       if (event.isEncrypted()) {
         const clearContent = event.getClearContent();
@@ -640,7 +641,8 @@ MatrixRoom.prototype = {
       } else if (eventContent.msgtype === EventType.KeyVerificationRequest) {
         message = getMatrixTextForEvent(event);
       }
-      //TODO handle media messages better (currently just show file name)
+      //TODO handle media messages better (currently just show file name, or
+      // for stickers we just show the description)
       this.writeMessage(event.getSender(), message, {
         outgoing: isOutgoing,
         incoming: !isOutgoing,

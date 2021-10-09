@@ -452,6 +452,59 @@ add_task(function test_setInitialized() {
   ok(!roomStub.joining);
 });
 
+add_task(function test_addEventSticker() {
+  const date = new Date();
+  const event = {
+    getSender() {
+      return "@user:example.com";
+    },
+    getType() {
+      return EventType.Sticker;
+    },
+    getContent() {
+      return {
+        body: "foo",
+        url: "mxc://example.com/sticker.png",
+      };
+    },
+    isEncrypted() {
+      return false;
+    },
+    getDate() {
+      return date;
+    },
+    isRedacted() {
+      return false;
+    },
+    getId() {
+      return 0;
+    },
+    sender: {
+      name: "foo bar",
+    },
+  };
+  const roomStub = {
+    _account: {
+      userId: "@test:example.com",
+    },
+    writeMessage(who, message, options) {
+      this.who = who;
+      this.message = message;
+      this.options = options;
+    },
+  };
+  matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
+  equal(roomStub.who, "@user:example.com");
+  equal(roomStub.message, "foo");
+  ok(roomStub.options.incoming);
+  ok(!roomStub.options.outgoing);
+  ok(!roomStub.options.system);
+  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
+  equal(roomStub.options._alias, "foo bar");
+  ok(!roomStub.options.delayed);
+  equal(roomStub._mostRecentEventId, 0);
+});
+
 function waitForNotification(target, expectedTopic) {
   let promise = new Promise(resolve => {
     let observer = {
