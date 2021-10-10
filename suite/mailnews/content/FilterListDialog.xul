@@ -109,6 +109,11 @@
                   accesskey="&deleteButton.accesskey;"
                   oncommand="onDeleteFilter();"/>
           <spacer flex="1"/>
+          <button id="reorderTopButton"
+                  label="&reorderTopButton;"
+                  accesskey="&reorderTopButton.accessKey;"
+                  tooltiptext="&reorderTopButton.toolTip;"
+                  oncommand="onTop(event);"/>
           <button id="reorderUpButton"
                   label="&reorderUpButton.label;"
                   accesskey="&reorderUpButton.accesskey;"
@@ -119,6 +124,11 @@
                   accesskey="&reorderDownButton.accesskey;"
                   class="down"
                   oncommand="onDown(event);"/>
+          <button id="reorderBottomButton"
+                  label="&reorderBottomButton;"
+                  accesskey="&reorderBottomButton.accessKey;"
+                  tooltiptext="&reorderBottomButton.toolTip;"
+                  oncommand="onBottom(event);"/>
           <spacer flex="1"/>
           <button dlgtype="help" class="dialog-button"/>
         </vbox>

@@ -10,8 +10,10 @@ var gEditButton;
 var gDeleteButton;
 var gNewButton;
 var gCopyToNewButton;
-var gReorderUpButton;
-var gReorderDownButton;
+var gTopButton;
+var gUpButton;
+var gDownButton;
+var gBottomButton;
 var gRunFiltersFolderPrefix;
 var gRunFiltersFolder;
 var gRunFiltersButton;
@@ -21,6 +23,13 @@ var gFilterTree;
 var gStatusBar;
 var gStatusText;
 var gCurrentFolder;
+
+var msgMoveMotion = {
+  Up     : 0,
+  Down   : 1,
+  Top    : 2,
+  Bottom : 3,
+}
 
 var gStatusFeedback = {
   showStatusString: function(status)
@@ -120,8 +129,6 @@ var gFilterTreeView = {
   setCellText: function setCellText(row, col, value) { /* XXX Write me */ },
 }
 
-const nsMsgFilterMotion = Ci.nsMsgFilterMotion;
-
 function onLoad()
 {
     setHelpFileURI("chrome://communicator/locale/help/suitehelp.rdf");
@@ -137,8 +144,10 @@ function onLoad()
     gDeleteButton = document.getElementById("deleteButton");
     gNewButton = document.getElementById("newButton");
     gCopyToNewButton = document.getElementById("copyToNewButton");
-    gReorderUpButton = document.getElementById("reorderUpButton");
-    gReorderDownButton = document.getElementById("reorderDownButton");
+    gTopButton = document.getElementById("reorderTopButton");
+    gUpButton = document.getElementById("reorderUpButton");
+    gDownButton = document.getElementById("reorderDownButton");
+    gBottomButton = document.getElementById("reorderBottomButton");
     gRunFiltersFolderPrefix = document.getElementById("folderPickerPrefix");
     gRunFiltersFolder = document.getElementById("runFiltersFolder");
     gRunFiltersButton = document.getElementById("runFiltersButton");
@@ -384,14 +393,72 @@ function onDeleteFilter()
   }
 }
 
-function onUp(event)
-{
-    moveCurrentFilter(nsMsgFilterMotion.up);
+/**
+ * Move filter one step up in visible list.
+ */
+function onUp(event) {
+  moveFilter(msgMoveMotion.Up);
 }
 
-function onDown(event)
-{
-    moveCurrentFilter(nsMsgFilterMotion.down);
+/**
+ * Move filter one step down in visible list.
+ */
+function onDown(event) {
+  moveFilter(msgMoveMotion.Down);
+}
+
+/**
+ * Move filter to bottom for long filter lists.
+ */
+function onTop(event) {
+  moveFilter(msgMoveMotion.Top);
+}
+
+/**
+ * Move filter to top for long filter lists.
+ */
+function onBottom(event) {
+  moveFilter(msgMoveMotion.Bottom);
+}
+
+/**
+ * Moves a singular selected filter up or down either 1 increment or to the
+ * top/bottom.
+ *
+ * @param motion
+ *   msgMoveMotion.Up, msgMoveMotion.Down, msgMoveMotion.Top, msgMoveMotion.Bottom
+ */
+function moveFilter(motion) {
+  // At the moment, do not allow moving groups of filters.
+  let selectedFilter = currentFilter();
+  if (!selectedFilter)
+    return;
+
+  let filterList = currentFilterList();
+  let moveFilterNative;
+
+  switch (motion) {
+    case msgMoveMotion.Top:
+      filterList.removeFilter(selectedFilter);
+      filterList.insertFilterAt(0, selectedFilter);
+      gFilterTree.treeBoxObject.ensureRowIsVisible(0);
+      gFilterTree.view.selection.select(0);
+      return;
+    case msgMoveMotion.Bottom:
+      filterList.removeFilter(selectedFilter);
+      filterList.insertFilterAt(filterList.filterCount, selectedFilter);
+      gFilterTree.treeBoxObject.ensureRowIsVisible(filterList.filterCount - 1);
+      gFilterTree.view.selection.select(filterList.filterCount - 1);
+      return;
+    case msgMoveMotion.Up:
+      moveFilterNative = Ci.nsMsgFilterMotion.up;
+      break;
+    case msgMoveMotion.Down:
+      moveFilterNative = Ci.nsMsgFilterMotion.down;
+      break;
+  }
+
+  moveCurrentFilter(moveFilterNative);
 }
 
 function viewLog()
@@ -481,7 +548,7 @@ function moveCurrentFilter(motion)
       return;
 
     filterList.moveFilter(filter, motion);
-    if (motion == nsMsgFilterMotion.up)
+    if (motion == Ci.nsMsgFilterMotion.up)
       gFilterTree.view.selection.select(gFilterTree.currentIndex - 1);
     else
       gFilterTree.view.selection.select(gFilterTree.currentIndex + 1);
@@ -489,6 +556,13 @@ function moveCurrentFilter(motion)
     gFilterTree.treeBoxObject.ensureRowIsVisible(gFilterTree.currentIndex);
 }
 
+/**
+ * Try to only enable buttons that make sense
+ *  - moving filters is currently only enabled for single selection
+ *    also movement is restricted by searchBox and current selection position
+ *  - edit only for single filters
+ *  - delete / run only for one or more selected filters
+ */
 function updateButtons()
 {
     var numFiltersSelected = gFilterTree.view.selection.count;
@@ -511,10 +585,18 @@ function updateButtons()
     gRunFiltersFolder.disabled = !numFiltersSelected;
     gRunFiltersButton.disabled = !numFiltersSelected;
 
-    // "up" enabled only if one filter selected, and it's not the first
-    gReorderUpButton.disabled = !(oneFilterSelected && gFilterTree.currentIndex > 0);
-    // "down" enabled only if one filter selected, and it's not the last
-    gReorderDownButton.disabled = !(oneFilterSelected && gFilterTree.currentIndex < gFilterTree.view.rowCount-1);
+    // "up" and "top" enabled only if one filter is selected,
+    // and it's not the first.
+    disabled = !(oneFilterSelected && gFilterTree.currentIndex > 0);
+    gUpButton.disabled = disabled;
+    gTopButton.disabled = disabled;
+
+    // "down" and "bottom" enabled only if one filter selected,
+    // and it's not the last.
+    disabled = !(oneFilterSelected &&
+                 gFilterTree.currentIndex < gFilterTree.view.rowCount - 1);
+    gDownButton.disabled = disabled;
+    gBottomButton.disabled = disabled;
 }
 
 /**
