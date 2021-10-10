@@ -4,6 +4,24 @@
 
 let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
 
+async function inEditingMode() {
+  let abWindow = getAddressBookWindow();
+  let detailsPane = abWindow.document.getElementById("detailsPane");
+  await TestUtils.waitForCondition(
+    () => detailsPane.classList.contains("is-editing"),
+    "entering editing mode"
+  );
+}
+
+async function notInEditingMode() {
+  let abWindow = getAddressBookWindow();
+  let detailsPane = abWindow.document.getElementById("detailsPane");
+  await TestUtils.waitForCondition(
+    () => !detailsPane.classList.contains("is-editing"),
+    "leaving editing mode"
+  );
+}
+
 function checkDisplayValues(expected) {
   let abWindow = getAddressBookWindow();
 
@@ -40,6 +58,7 @@ function setInputValues(changes) {
       EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
     }
   }
+  EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
 }
 
 add_task(async function test_basic_edit() {
@@ -76,7 +95,9 @@ add_task(async function test_basic_edit() {
 
   Assert.equal(cardsList.view.rowCount, 1);
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  Assert.ok(BrowserTestUtils.is_visible(detailsPane));
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
   Assert.equal(h1.textContent, "contact 1");
@@ -93,6 +114,7 @@ add_task(async function test_basic_edit() {
   // Click to edit.
 
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
   Assert.equal(h1.textContent, "contact 1");
@@ -120,6 +142,7 @@ add_task(async function test_basic_edit() {
   });
 
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await notInEditingMode();
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
@@ -142,6 +165,7 @@ add_task(async function test_basic_edit() {
   // Click to edit again. The changes should have been reversed.
 
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
   Assert.equal(h1.textContent, "contact 1");
@@ -167,6 +191,7 @@ add_task(async function test_basic_edit() {
   });
 
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
   Assert.ok(BrowserTestUtils.is_visible(detailsPane));
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
@@ -190,6 +215,7 @@ add_task(async function test_basic_edit() {
   // Click to edit again. The new values should be shown.
 
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
 
   Assert.ok(BrowserTestUtils.is_visible(h1));
   Assert.equal(h1.textContent, "contact one");
@@ -219,6 +245,7 @@ add_task(async function test_special_fields() {
 
   openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await inEditingMode();
 
   // The order of the FirstName and LastName fields can be reversed by L10n.
   // This means they can be broken by L10n. Check that they're alright in the
@@ -256,6 +283,7 @@ add_task(async function test_special_fields() {
 
   openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await inEditingMode();
 
   // The phonetic name fields should be visible, because the preference is set.
   // They can also be broken by L10n.
@@ -285,12 +313,14 @@ add_task(async function test_generate_display_name() {
   let abDocument = abWindow.document;
 
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  let detailsPane = abDocument.getElementById("detailsPane");
   let editButton = abDocument.getElementById("editButton");
   let cancelEditButton = abDocument.getElementById("cancelEditButton");
   let saveEditButton = abDocument.getElementById("saveEditButton");
 
   openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await inEditingMode();
 
   checkInputValues({
     FirstName: "",
@@ -338,11 +368,16 @@ add_task(async function test_generate_display_name() {
 
   // Save the card and check the values.
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
+  await notInEditingMode();
   checkCardValues(personalBook.childCards[0], {
     FirstName: "fifth",
     LastName: "last",
     DisplayName: "last, fourth",
   });
+  Assert.ok(
+    !detailsPane.classList.contains("is-dirty"),
+    "dirty flag is cleared"
+  );
 
   // Reset the order and turn generation back on.
   Services.prefs.setBoolPref("mail.addr_book.displayName.autoGeneration", true);
@@ -355,6 +390,7 @@ add_task(async function test_generate_display_name() {
   let cardsList = abDocument.getElementById("cards");
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
   checkInputValues({
     FirstName: "fifth",
     LastName: "last",
@@ -366,9 +402,176 @@ add_task(async function test_generate_display_name() {
   checkInputValues({ DisplayName: "last, fourth" });
 
   EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
+  await notInEditingMode();
 
   await closeAddressBookWindow();
   Services.prefs.clearUserPref("mail.addr_book.displayName.autoGeneration");
   Services.prefs.clearUserPref("mail.addr_book.displayName.lastnamefirst");
+  personalBook.deleteCards(personalBook.childCards);
+});
+
+/**
+ * Checks that a prompt to save appears if clicking the new contact button in
+ * the middle of editing.
+ */
+add_task(async function test_save_prompt() {
+  let existingCard = personalBook.addCard(createContact("existing", "contact"));
+
+  let abWindow = await openAddressBookWindow();
+  openDirectory(personalBook);
+
+  let abDocument = abWindow.document;
+  let cardsList = abDocument.getElementById("cards");
+  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  let detailsPane = abDocument.getElementById("detailsPane");
+  let editButton = abDocument.getElementById("editButton");
+
+  Assert.ok(detailsPane.hidden);
+
+  // Select a card in the list. Check the display in view mode.
+
+  Assert.equal(cardsList.view.rowCount, 1);
+  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  await TestUtils.waitForCondition(() =>
+    BrowserTestUtils.is_visible(detailsPane)
+  );
+
+  // Click to edit.
+
+  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
+  await inEditingMode();
+
+  Assert.ok(
+    abWindow.detailsPane.currentCard.equals(existingCard),
+    "current card is still the existing card"
+  );
+  checkInputValues({
+    FirstName: "existing",
+    LastName: "contact",
+    DisplayName: "existing contact",
+    PrimaryEmail: "existing.contact@invalid",
+    SecondEmail: "",
+  });
+
+  // Click the new contact button. No changes have been made, so no prompt.
+
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await inEditingMode();
+
+  Assert.equal(abWindow.detailsPane.currentCard, null, "current card is new");
+  Assert.ok(detailsPane.classList.contains("is-editing"), "in editing mode");
+  Assert.ok(!detailsPane.classList.contains("is-dirty"), "not marked as dirty");
+  checkInputValues({
+    FirstName: "",
+    LastName: "",
+    DisplayName: "",
+    PrimaryEmail: "",
+    SecondEmail: "",
+  });
+
+  // Make a change.
+
+  setInputValues({ FirstName: "unsaved" });
+  Assert.ok(
+    detailsPane.classList.contains("is-dirty"),
+    "marked as dirty after editing one field"
+  );
+  setInputValues({ LastName: "contact" });
+
+  // Click the new contact button. Cancel the prompt.
+
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await promptPromise;
+  await new Promise(resolve => setTimeout(resolve));
+
+  Assert.equal(abWindow.detailsPane.currentCard, null, "current card is new");
+  Assert.ok(
+    detailsPane.classList.contains("is-editing"),
+    "still in editing mode after cancelling a prompt"
+  );
+  Assert.ok(
+    detailsPane.classList.contains("is-dirty"),
+    "still marked as dirty after cancelling a prompt"
+  );
+  checkInputValues({
+    FirstName: "unsaved",
+    LastName: "contact",
+    DisplayName: "unsaved contact",
+    PrimaryEmail: "",
+    SecondEmail: "",
+  });
+  Assert.equal(
+    abDocument.activeElement.id,
+    "DisplayName",
+    "focus is still where it was"
+  );
+
+  // Click the new contact button. Choose "Don't Save". The fields should
+  // clear and the focus return to the first field.
+
+  promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await promptPromise;
+  await TestUtils.waitForCondition(
+    () => abDocument.activeElement.id == "FirstName",
+    "focus is on the first field"
+  );
+
+  Assert.equal(abWindow.detailsPane.currentCard, null, "current card is new");
+  Assert.ok(detailsPane.classList.contains("is-editing"), "in editing mode");
+  Assert.ok(
+    !detailsPane.classList.contains("is-dirty"),
+    "dirty flag is cleared"
+  );
+  checkInputValues({
+    FirstName: "",
+    LastName: "",
+    DisplayName: "",
+    PrimaryEmail: "",
+    SecondEmail: "",
+  });
+
+  // Make a change.
+
+  setInputValues({ FirstName: "saved" });
+  Assert.ok(
+    detailsPane.classList.contains("is-dirty"),
+    "marked as dirty after editing one field"
+  );
+  setInputValues({ LastName: "contact" });
+
+  // Click the new contact button. Accept the prompt.
+
+  promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
+  await promptPromise;
+  await new Promise(resolve => setTimeout(resolve));
+
+  Assert.equal(abWindow.detailsPane.currentCard, null, "current card is new");
+  Assert.ok(detailsPane.classList.contains("is-editing"), "in editing mode");
+  Assert.ok(
+    !detailsPane.classList.contains("is-dirty"),
+    "dirty flag is cleared"
+  );
+  checkInputValues({
+    FirstName: "",
+    LastName: "",
+    DisplayName: "",
+    PrimaryEmail: "",
+    SecondEmail: "",
+  });
+  Assert.equal(
+    abDocument.activeElement.id,
+    "FirstName",
+    "focus is on the first field"
+  );
+
+  // Check the card was actually saved.
+
+  Assert.equal(personalBook.childCards.length, 2);
+  Assert.equal(personalBook.childCards[1].displayName, "saved contact");
+
+  await closeAddressBookWindow();
   personalBook.deleteCards(personalBook.childCards);
 });

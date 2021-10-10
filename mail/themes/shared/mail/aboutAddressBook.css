@@ -332,12 +332,12 @@ ab-card-listrow:not(.selected) > div.address {
   font-weight: 400;
 }
 
-#detailsPane.isEditing .view {
+#detailsPane.is-editing .view {
   display: none;
 }
 
-#detailsPane:not(.isEditing) .edit,
-#detailsPane:not(.isEditing) .noValue {
+#detailsPane:not(.is-editing) .edit,
+#detailsPane:not(.is-editing) .noValue {
   display: none !important;
 }
 

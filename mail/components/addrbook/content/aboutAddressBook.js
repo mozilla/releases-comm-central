@@ -199,9 +199,7 @@ function createContact() {
     }
   }
 
-  detailsPane.currentCard = null;
-  detailsPane.editCurrentContact();
-  detailsPane.container.hidden = false;
+  detailsPane.editNewContact();
 }
 
 /**
@@ -1637,6 +1635,9 @@ var detailsPane = {
     this.cancelEditButton = document.getElementById("cancelEditButton");
     this.saveEditButton = document.getElementById("saveEditButton");
 
+    this.container.addEventListener("change", () =>
+      this.container.classList.add("is-dirty")
+    );
     this.editButton.addEventListener("click", this);
     this.cancelEditButton.addEventListener("click", this);
     this.saveEditButton.addEventListener("click", this);
@@ -1722,6 +1723,10 @@ var detailsPane = {
    *     mailing list card. Pass null to hide the details pane.
    */
   displayContact(card) {
+    if (this.container.classList.contains("is-editing")) {
+      return;
+    }
+
     this.currentCard = card;
     if (!card || card.isMailList) {
       this.container.hidden = true;
@@ -1793,19 +1798,35 @@ var detailsPane = {
       let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
       file.append("Photos");
       file.append(photoName);
-      document.querySelector("#photo").style.backgroundImage = `url("${
+      this.photo.style.backgroundImage = `url("${
         Services.io.newFileURI(file).spec
       }")`;
     } else {
-      document.querySelector("#photo").style.backgroundImage = null;
+      this.photo.style.backgroundImage = null;
     }
 
     let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
     this.editButton.disabled = book.readOnly;
 
-    this.container.classList.remove("isEditing");
+    this.container.classList.remove("is-editing");
     this.container.scrollTo(0, 0);
     this.container.hidden = false;
+  },
+
+  /**
+   * Show controls for editing a new card.
+   */
+  async editNewContact() {
+    try {
+      await this.promptToSave();
+    } catch (ex) {
+      if (ex.result == Cr.NS_ERROR_ABORT) {
+        return;
+      }
+    }
+
+    detailsPane.currentCard = null;
+    this.editCurrentContact();
   },
 
   /**
@@ -1816,6 +1837,7 @@ var detailsPane = {
 
     if (!card) {
       document.querySelector("h1").textContent = "";
+      this.photo.style.backgroundImage = null;
     }
 
     for (let field of this.PLAIN_CONTACT_FIELDS) {
@@ -1833,8 +1855,65 @@ var detailsPane = {
 
     this.calculateAge();
 
-    this.container.classList.add("isEditing");
+    this.container.classList.add("is-editing");
+    this.container.hidden = false;
     this.container.scrollTo(0, 0);
+    this.container.querySelector("input").focus();
+  },
+
+  /**
+   * If a card is being edited, ask the user if they want to save it and, if
+   * they do, perform the save.
+   */
+  async promptToSave() {
+    if (!this.container.classList.contains("is-editing")) {
+      return;
+    }
+
+    // It's possible that we have edited a field but not left it, therefore
+    // not triggering the "change" event and not marking everything as dirty.
+    let activeElement = document.activeElement;
+    if (activeElement.localName == "input") {
+      activeElement.blur();
+    } else {
+      activeElement = null;
+    }
+
+    if (!this.container.classList.contains("is-dirty")) {
+      return;
+    }
+
+    let [title, message] = await document.l10n.formatValues([
+      { id: "about-addressbook-prompt-to-save-title" },
+      { id: "about-addressbook-prompt-to-save" },
+    ]);
+
+    let prompt = Services.ww.getNewPrompter(
+      window.browsingContext.topChromeWindow
+    );
+    let whichButton = prompt.confirmEx(
+      title,
+      message,
+      Ci.nsIPrompt.BUTTON_TITLE_SAVE * Ci.nsIPrompt.BUTTON_POS_0 +
+        Ci.nsIPrompt.BUTTON_TITLE_CANCEL * Ci.nsIPrompt.BUTTON_POS_1 +
+        Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE * Ci.nsIPrompt.BUTTON_POS_2,
+      null,
+      null,
+      null,
+      null,
+      {}
+    );
+    if (whichButton == 1) {
+      if (activeElement) {
+        activeElement.focus();
+      }
+      throw new Components.Exception("User clicked cancel.", Cr.NS_ERROR_ABORT);
+    }
+
+    this.container.classList.remove("is-dirty");
+    if (whichButton === 0) {
+      this.saveCurrentContact();
+    }
   },
 
   /**
@@ -1875,16 +1954,18 @@ var detailsPane = {
 
     // TODO: Save photo.
 
+    this.container.classList.remove("is-dirty", "is-editing");
+
     if (!card.directoryUID) {
       card = book.addCard(card);
       cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
         card.UID
       );
-      cardsPane.cardsList.focus();
     } else {
       book.modifyCard(card);
+      this.displayContact(card);
     }
-    this.displayContact(card);
+    cardsPane.cardsList.focus();
   },
 
   /**
@@ -2021,6 +2102,7 @@ var detailsPane = {
         this.editCurrentContact();
         break;
       case "cancelEditButton":
+        this.container.classList.remove("is-dirty", "is-editing");
         this.displayContact(this.currentCard);
         break;
       case "saveEditButton":
