@@ -256,7 +256,7 @@ add_task(async function test_account_creation_from_provisioner() {
   await BrowserTestUtils.waitForCondition(
     () =>
       mc.tabmail.selectedTab.browser.contentWindow.gAccountSetup
-        ._currentModename == "success",
+        ?._currentModename == "success",
     "The success view was shown"
   );
 
