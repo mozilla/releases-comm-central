@@ -22,8 +22,6 @@ XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
-const LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";
-
 var EnigmailDialog = {
   /***
    * Confirmation dialog with OK / Cancel buttons (both customizable)
@@ -93,61 +91,6 @@ var EnigmailDialog = {
       },
       null
     );
-  },
-
-  /**
-   * Displays an alert dialog with 1-3 optional buttons.
-   *
-   * @win:           nsIWindow - parent window to display modal dialog; can be null
-   * @mesg:          String    - message text
-   * @checkboxLabel: String    - if not null, display checkbox with text; the
-   *                             checkbox state is returned in checkedObj.value
-   * @button-Labels: String    - use "&" to indicate access key
-   *     use "buttonType:label" or ":buttonType" to indicate special button types
-   *        (buttonType is one of cancel, help, extra1, extra2)
-   * @checkedObj:    Object    - holding the checkbox value
-   *
-   * @return: 0-2: button Number pressed
-   *          -1: ESC or close window button pressed
-   *
-   */
-  longAlert(
-    win,
-    mesg,
-    checkboxLabel,
-    okLabel,
-    labelButton2,
-    labelButton3,
-    checkedObj
-  ) {
-    var result = {
-      value: -1,
-      checked: false,
-    };
-
-    if (!win) {
-      win = EnigmailWindows.getBestParentWin();
-    }
-
-    win.openDialog(
-      "chrome://openpgp/content/ui/enigmailMsgBox.xhtml",
-      "_blank",
-      "chrome,dialog,modal,centerscreen,resizable,titlebar",
-      {
-        msgtext: mesg,
-        checkboxLabel,
-        iconType: EnigmailConstants.ICONTYPE_ALERT,
-        button1: okLabel,
-        button2: labelButton2,
-        button3: labelButton3,
-      },
-      result
-    );
-
-    if (checkboxLabel) {
-      checkedObj.value = result.checked;
-    }
-    return result.value;
   },
 
   /**
@@ -414,9 +357,10 @@ var EnigmailDialog = {
     let mode = save ? Ci.nsIFilePicker.modeSave : open;
 
     filePicker.init(win, title, mode);
-
     if (displayDir) {
-      var localFile = Cc[LOCAL_FILE_CONTRACTID].createInstance(Ci.nsIFile);
+      var localFile = Cc["@mozilla.org/file/local;1"].createInstance(
+        Ci.nsIFile
+      );
 
       try {
         localFile.initWithPath(displayDir);
