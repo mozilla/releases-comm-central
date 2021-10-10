@@ -702,10 +702,13 @@ function enigmailSearchKey() {
     value: "",
   };
   if (
-    !EnigmailDialog.promptValue(
+    !Services.prompt.prompt(
       window,
+      l10n.formatValueSync("enig-prompt"),
       l10n.formatValueSync("openpgp-key-man-discover-prompt"),
-      result
+      result,
+      "",
+      {}
     )
   ) {
     return;
@@ -946,94 +949,97 @@ function enigmailReceiveKeyCb(exitCode, errorMsg, msgBox) {
 */
 
 function enigmailImportKeysFromUrl() {
-  var value = {
+  var result = {
     value: "",
   };
   if (
-    EnigmailDialog.promptValue(
+    !Services.prompt.prompt(
       window,
+      l10n.formatValueSync("enig-prompt"),
       l10n.formatValueSync("import-from-url"),
-      value
+      result,
+      "",
+      {}
     )
   ) {
-    var p = new Promise(function(resolve, reject) {
-      var cbFunc = async function(data) {
-        EnigmailLog.DEBUG("enigmailImportKeysFromUrl: _cbFunc()\n");
-        var errorMsgObj = {};
-
-        var preview = EnigmailKey.getKeyListFromKeyBlock(
-          data,
-          errorMsgObj,
-          true,
-          true,
-          false
-        );
-        // should we allow importing secret keys?
-        if (preview && preview.length > 0) {
-          let confirmImport = false;
-          let outParam = {};
-          confirmImport = EnigmailDialog.confirmPubkeyImport(
-            window,
-            preview,
-            outParam
-          );
-          if (confirmImport) {
-            EnigmailKeyRing.importKey(
-              window,
-              false,
-              data,
-              false,
-              "",
-              errorMsgObj,
-              null,
-              false,
-              [],
-              false,
-              true,
-              null,
-              outParam.acceptance
-            );
-            errorMsgObj.preview = preview;
-            resolve(errorMsgObj);
-          }
-        } else {
-          EnigmailDialog.alert(
-            window,
-            await document.l10n.formatValue("preview-failed")
-          );
-        }
-      };
-
-      try {
-        var bufferListener = EnigmailStreams.newStringStreamListener(cbFunc);
-        var ioServ = Services.io;
-        var msgUri = ioServ.newURI(value.value);
-
-        var channel = EnigmailStreams.createChannel(msgUri);
-        channel.asyncOpen(bufferListener, msgUri);
-      } catch (ex) {
-        var err = {
-          value: ex,
-        };
-        reject(err);
-      }
-    });
-
-    p.then(function(errorMsgObj) {
-      var keyList = errorMsgObj.preview.map(function(a) {
-        return a.id;
-      });
-      EnigmailDialog.keyImportDlg(window, keyList);
-      refreshKeys();
-    }).catch(async function(reason) {
-      EnigmailDialog.alert(
-        window,
-        await document.l10n.formatValue("general-error", {
-          reason: reason.value,
-        })
-      );
-    });
+    return;
   }
+  var p = new Promise(function(resolve, reject) {
+    var cbFunc = async function(data) {
+      EnigmailLog.DEBUG("enigmailImportKeysFromUrl: _cbFunc()\n");
+      var errorMsgObj = {};
+
+      var preview = EnigmailKey.getKeyListFromKeyBlock(
+        data,
+        errorMsgObj,
+        true,
+        true,
+        false
+      );
+      // should we allow importing secret keys?
+      if (preview && preview.length > 0) {
+        let confirmImport = false;
+        let outParam = {};
+        confirmImport = EnigmailDialog.confirmPubkeyImport(
+          window,
+          preview,
+          outParam
+        );
+        if (confirmImport) {
+          EnigmailKeyRing.importKey(
+            window,
+            false,
+            data,
+            false,
+            "",
+            errorMsgObj,
+            null,
+            false,
+            [],
+            false,
+            true,
+            null,
+            outParam.acceptance
+          );
+          errorMsgObj.preview = preview;
+          resolve(errorMsgObj);
+        }
+      } else {
+        EnigmailDialog.alert(
+          window,
+          await document.l10n.formatValue("preview-failed")
+        );
+      }
+    };
+
+    try {
+      var bufferListener = EnigmailStreams.newStringStreamListener(cbFunc);
+      var msgUri = Services.io.newURI(result.value.trim());
+
+      var channel = EnigmailStreams.createChannel(msgUri);
+      channel.asyncOpen(bufferListener, msgUri);
+    } catch (ex) {
+      var err = {
+        value: ex,
+      };
+      reject(err);
+    }
+  });
+
+  p.then(function(errorMsgObj) {
+    var keyList = errorMsgObj.preview.map(function(a) {
+      return a.id;
+    });
+    EnigmailDialog.keyImportDlg(window, keyList);
+    refreshKeys();
+  }).catch(async function(reason) {
+    EnigmailDialog.alert(
+      window,
+      await document.l10n.formatValue("general-error", {
+        reason: reason.value,
+      })
+    );
+  });
 }
 
 function initiateAcKeyTransfer() {

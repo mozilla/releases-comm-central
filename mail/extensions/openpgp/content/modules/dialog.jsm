@@ -142,26 +142,6 @@ var EnigmailDialog = {
   },
 
   /**
-   * Display a dialog with a message and a text entry field
-   *
-   * @win:      nsIWindow - parent window to display modal dialog; can be null
-   * @mesg:     String    - message text
-   * @valueObj: Object    - object to hold the entered text in .value
-   *
-   * @return:   Boolean - true if OK was pressed / false otherwise
-   */
-  promptValue(win, mesg, valueObj) {
-    return Services.prompt.prompt(
-      win,
-      l10n.formatValueSync("enig-prompt"),
-      mesg,
-      valueObj,
-      "",
-      {}
-    );
-  },
-
-  /**
    * Display an alert message with an OK button and a checkbox to hide
    * the message in the future.
    * In case the checkbox was pressed in the past, the dialog is skipped
