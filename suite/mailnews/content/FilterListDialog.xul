@@ -33,6 +33,27 @@
     <key id="key_selectAll"/>
   </keyset>
 
+  <hbox align="center">
+    <label value="&filtersForPrefix.label;"
+           accesskey="&filtersForPrefix.accesskey;"
+           control="serverMenu"/>
+
+    <menulist id="serverMenu"
+              class="folderMenuItem"
+              IsServer="true"
+              IsSecure="false"
+              ServerType="none">
+      <menupopup id="serverMenuPopup"
+                 class="menulist-menupopup"
+                 type="folder"
+                 mode="filters"
+                 expandFolders="nntp"
+                 showFileHereLabel="true"
+                 showAccountsFileHere="true"
+                 oncommand="onFolderSelect(event.target._folder)"/>
+    </menulist>
+  </hbox>
+
   <grid flex="1">
     <columns>
       <column flex="1"/>
@@ -40,38 +61,15 @@
     </columns>
     <rows>
       <row>
-        <hbox align="center">
-          <label value="&filtersForPrefix.label;"
-                 accesskey="&filtersForPrefix.accesskey;"
-                 control="serverMenu"/>
-
-          <menulist id="serverMenu"
-                    class="folderMenuItem"
-                    IsServer="true"
-                    IsSecure="false"
-                    ServerType="none">
-            <menupopup id="serverMenuPopup"
-                       class="menulist-menupopup"
-                       type="folder"
-                       mode="filters"
-                       expandFolders="nntp"
-                       showFileHereLabel="true"
-                       showAccountsFileHere="true"
-                       oncommand="onFolderSelect(event.target._folder)"/>
-          </menulist>
-          <spacer flex="1"/>
-        </hbox>
-        <button label="&viewLogButton.label;"
-                accesskey="&viewLogButton.accesskey;"
-                oncommand="viewLog();"/>
+        <separator class="thin"/>
       </row>
 
       <row>
-        <separator/>
-      </row>
-
-      <row>
-        <label id="filterHeader" control="filterTree">&filterHeader.label;</label>
+        <hbox>
+          <label id="filterHeader"
+                 flex="1"
+                 control="filterTree">&filterHeader.label;</label>
+       </hbox>
       </row>
 
       <row flex="1">
@@ -118,7 +116,12 @@
                   class="down"
                   oncommand="onDown(event);"/>
           <spacer flex="1"/>
+          <button dlgtype="help" class="dialog-button"/>
         </vbox>
+      </row>
+
+      <row>
+        <separator class="thin"/>
       </row>
 
       <row align="center">
@@ -152,8 +155,10 @@
                   disabled="true"
                   oncommand="runSelectedFilters();"/>
         </hbox>
-        <vbox align="center">
-          <button dlgtype="help" class="dialog-button"/>
+        <vbox>
+          <button label="&viewLogButton.label;"
+                  accesskey="&viewLogButton.accesskey;"
+                  oncommand="viewLog();"/>
         </vbox>
       </row>
     </rows>
