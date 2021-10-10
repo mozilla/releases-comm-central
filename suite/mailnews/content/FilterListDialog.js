@@ -374,12 +374,21 @@ function onDeleteFilter()
 
   var sel = gFilterTree.view.selection;
   var selCount = sel.getRangeCount();
-  if (!selCount ||
+  if (!selCount)
+    return;
+
+  let checkValue = {value: false};
+  if (Services.prefs.getBoolPref("mailnews.filters.confirm_delete") &&
       Services.prompt.confirmEx(window, null,
                         gFilterBundle.getString("deleteFilterConfirmation"),
                         Services.prompt.STD_YES_NO_BUTTONS,
-                        '', '', '', '', {}))
+                        '', '', '',
+                        gFilterBundle.getString('dontWarnAboutDeleteCheckbox'),
+                        checkValue))
     return;
+
+  if (checkValue.value)
+    Services.prefs.setBoolPref("mailnews.filters.confirm_delete", false);
 
   for (var i = selCount - 1; i >= 0; --i) {
     var start = {}, end = {};
