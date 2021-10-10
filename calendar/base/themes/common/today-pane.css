@@ -300,6 +300,17 @@
   list-style: none;
   background-color: field;
   border-top: 1px solid var(--splitter-color);
+  --selected-background: SelectedItem;
+  --selected-foreground: SelectedItemText;
+}
+
+:root[lwt-tree] #agenda {
+  --selected-background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
+  --selected-foreground: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+:root[lwt-tree-brighttext] #agenda {
+  --selected-background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
 }
 
 .agenda-date-header,
@@ -344,37 +355,10 @@
   opacity: 0.5;
 }
 
-.agenda-listitem-now .agenda-listitem-details {
-  position: relative;
-}
-
-.agenda-listitem-now .agenda-listitem-details::before {
-  content: "";
-  position: absolute;
-  display: block;
-  width: 4px;
-  inset: 3px -3px;
-  border-radius: 2px;
-  background-color: selectedItem;
-}
-
 #agenda:focus .agenda-listitem.selected .agenda-listitem-details {
-  background-color: SelectedItem;
-  color: SelectedItemText;
+  background-color: var(--selected-background);
+  color: var(--selected-foreground);
   opacity: unset; /* Overrides .agenda-listitem-past */
-}
-
-:root[lwt-tree] #agenda:focus .agenda-listitem.selected .agenda-listitem-details {
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
-  background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
-}
-
-:root[lwt-tree-brighttext] #agenda:focus .agenda-listitem.selected .agenda-listitem-details {
-  background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
-}
-
-#agenda:focus .agenda-listitem.selected .agenda-listitem-details::before {
-  display: none;
 }
 
 .agenda-listitem-all-day :is(.agenda-listitem-calendar, .agenda-listitem-time) {
@@ -390,7 +374,7 @@
   background-color: var(--item-backcolor);
 }
 
-.agenda-listitem aside {
+.agenda-listitem-details-inner {
   flex: 1;
 }
 
@@ -400,11 +384,33 @@
 }
 
 .agenda-listitem-time:empty {
-  margin-inline-end: 0;
+  display: none;
 }
 
-.agenda-listitem-title {
-  flex: 1;
+.agenda-listitem-relative {
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.agenda-listitem:not(.selected, .agenda-listitem-now) .agenda-listitem-relative {
+  opacity: 0.75;
+}
+
+.agenda-listitem-relative:empty {
+  display: none;
+}
+
+.agenda-listitem-now .agenda-listitem-relative {
+  padding: 1px 4px;
+  border-radius: 12px;
+  background-color: var(--viewTodayLabelBackground);
+  color: var(--viewTodayLabelColor);
+  font-weight: bold;
+}
+
+#agenda:focus .agenda-listitem-now.selected .agenda-listitem-relative {
+  background-color: var(--selected-foreground);
+  color: var(--selected-background);
 }
 
 .agenda-listitem-overlap {

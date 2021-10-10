@@ -11,6 +11,7 @@
 /* import-globals-from today-pane.js */
 
 {
+  const { CalMetronome } = ChromeUtils.import("resource:///modules/CalMetronome.jsm");
   const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
   class Agenda extends CalFilterMixin(customElements.get("tree-listbox")) {
@@ -58,6 +59,25 @@
           return value;
         }
       );
+    }
+
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+      super.connectedCallback();
+
+      let metronomeCallback = () => {
+        if (!this.showsToday) {
+          return;
+        }
+
+        for (let item of this.children) {
+          item.setRelativeTime();
+        }
+      };
+      CalMetronome.on("minute", metronomeCallback);
+      window.addEventListener("unload", () => CalMetronome.off("minute", metronomeCallback));
     }
 
     /**
@@ -291,6 +311,7 @@
       this.calendarElement = this.querySelector(".agenda-listitem-calendar");
       this.timeElement = this.querySelector(".agenda-listitem-time");
       this.titleElement = this.querySelector(".agenda-listitem-title");
+      this.relativeElement = this.querySelector(".agenda-listitem-relative");
       this.overlapElement = this.querySelector(".agenda-listitem-overlap");
 
       this.detailsElement.addEventListener("dblclick", () => openEventDialogForViewing(this.item));
@@ -311,7 +332,7 @@
       // end of the event. It's owned by this item (representing the start of
       // the event), and if this item is removed, it is too.
       this._endItem = document.createElement("li", { is: "agenda-listitem" });
-      this._endItem.classList.add("end");
+      this._endItem.classList.add("agenda-listitem-end");
       this._endItem.item = this.item;
       TodayPane.agenda.insertListItem(this._endItem);
     }
@@ -389,7 +410,7 @@
       this.classList.toggle("agenda-listitem-all-day", isAllDay);
       this.overlapsStart = item.startDate.compare(TodayPane.agenda.startDate) < 0;
 
-      if (this.classList.contains("end")) {
+      if (this.classList.contains("agenda-listitem-end")) {
         this.id = `agenda-listitem-end-${item.hashId}`;
         this.overlapsStart = true;
 
@@ -463,6 +484,7 @@
             localStartDate = localStartDate.getInTimezone(defaultTimezone);
           }
           this.timeElement.textContent = cal.dtz.formatter.formatTime(localStartDate);
+          this.setRelativeTime();
         }
       }
       this.titleElement.textContent = this.item.title;
@@ -492,43 +514,72 @@
         this.overlapElement.removeAttribute("data-l10n-id");
         this.overlapElement.removeAttribute("alt");
       }
-
-      this.checkIfCurrent();
     }
 
-    checkIfCurrent() {
-      if (this._checkCurrentTimer) {
-        window.clearTimeout(this._checkCurrentTimer);
-        this._checkCurrentTimer = null;
+    /**
+     * Sets class names and a label depending on when the event occurs
+     * relative to the current time.
+     *
+     * If the event happened today but has finished, sets the class
+     * `agenda-listitem-past`, or if it is happening now, sets
+     * `agenda-listitem-now`.
+     *
+     * For events that are today or within the next 12 hours (i.e. early
+     * tomorrow) a label is displayed stating the when the start time is, e.g.
+     * "1 hr ago", "now", "in 23 min".
+     */
+    setRelativeTime() {
+      // These conditions won't change in the lifetime of an AgendaListItem,
+      // so let's avoid any further work and return immediately.
+      if (
+        !TodayPane.agenda.showsToday ||
+        this.item.startDate.isDate ||
+        this.classList.contains("agenda-listitem-end")
+      ) {
+        return;
       }
 
-      let past = false;
-      let current = false;
+      this.classList.remove("agenda-listitem-past");
+      this.classList.remove("agenda-listitem-now");
+      this.relativeElement.textContent = "";
 
-      if (TodayPane.agenda.showsToday && !this.classList.contains("agenda-listitem-all-day")) {
-        let now = cal.dtz.now().nativeTime;
-        let timeToStart = this._item.startDate.nativeTime - now;
-        let timeToEnd = this._item.endDate.nativeTime - now;
+      let now = cal.dtz.now();
 
-        past = timeToEnd <= 0;
-        current = timeToStart <= 0 && timeToEnd > 0;
-
-        if (timeToStart > 0) {
-          this._checkCurrentTimer = window.setTimeout(
-            () => this.checkIfCurrent(),
-            timeToStart / 1000
-          );
-        } else if (timeToEnd > 0) {
-          this._checkCurrentTimer = window.setTimeout(
-            () => this.checkIfCurrent(),
-            timeToEnd / 1000
-          );
+      // The event has started.
+      if (this.item.startDate.compare(now) <= 0) {
+        // The event is happening now.
+        if (this.item.endDate.compare(now) <= 0) {
+          this.classList.add("agenda-listitem-past");
+        } else {
+          this.classList.add("agenda-listitem-now");
+          this.relativeElement.textContent = AgendaListItem.relativeFormatter.format(0, "second");
         }
+        return;
       }
 
-      this.classList.toggle("agenda-listitem-past", past);
-      this.classList.toggle("agenda-listitem-now", current);
+      let relative = this.item.startDate.subtractDate(now);
+
+      // Should we display a label? Is the event today or less than 12 hours away?
+      if (this.item.startDate.day == now.day || (relative.days == 0 && relative.hours < 12)) {
+        let unit = "hour";
+        let value = relative.hours;
+        if (value == 0) {
+          unit = "minute";
+          value = relative.minutes;
+          if (relative.seconds >= 30) {
+            value++;
+          }
+        } else if (relative.minutes >= 30) {
+          value++;
+        }
+        this.relativeElement.textContent = AgendaListItem.relativeFormatter.format(value, unit);
+      }
     }
   }
+  XPCOMUtils.defineLazyGetter(
+    AgendaListItem,
+    "relativeFormatter",
+    () => new Intl.RelativeTimeFormat(undefined, { numeric: "auto", style: "short" })
+  );
   customElements.define("agenda-listitem", AgendaListItem, { extends: "li" });
 }

@@ -49,7 +49,7 @@ async function addEvent(title, relativeStart, relativeEnd, isAllDay) {
   return calendar.addItem(event);
 }
 
-function checkEvent(row, { dateHeader, time, title, overlap }) {
+function checkEvent(row, { dateHeader, time, title, relative, overlap, classes = [] }) {
   let dateHeaderElement = row.querySelector(".agenda-date-header");
   if (dateHeader) {
     Assert.ok(BrowserTestUtils.is_visible(dateHeaderElement), "date header is visible");
@@ -63,13 +63,16 @@ function checkEvent(row, { dateHeader, time, title, overlap }) {
 
   let calendarElement = row.querySelector(".agenda-listitem-calendar");
   let timeElement = row.querySelector(".agenda-listitem-time");
-  if (time !== undefined) {
+  if (time) {
     Assert.ok(BrowserTestUtils.is_visible(calendarElement), "calendar is visible");
     Assert.ok(BrowserTestUtils.is_visible(timeElement), "time is visible");
     if (time instanceof Ci.calIDateTime) {
       time = cal.dtz.formatter.formatTime(time);
     }
     Assert.equal(timeElement.textContent, time, "time has correct value");
+  } else if (time === "") {
+    Assert.ok(BrowserTestUtils.is_visible(calendarElement), "calendar is visible");
+    Assert.ok(BrowserTestUtils.is_hidden(timeElement), "time is hidden");
   } else {
     Assert.ok(BrowserTestUtils.is_hidden(calendarElement), "calendar is hidden");
     Assert.ok(BrowserTestUtils.is_hidden(timeElement), "time is hidden");
@@ -78,6 +81,14 @@ function checkEvent(row, { dateHeader, time, title, overlap }) {
   let titleElement = row.querySelector(".agenda-listitem-title");
   Assert.ok(BrowserTestUtils.is_visible(titleElement), "title is visible");
   Assert.equal(titleElement.textContent, title, "title has correct value");
+
+  let relativeElement = row.querySelector(".agenda-listitem-relative");
+  if (Array.isArray(relative)) {
+    Assert.ok(BrowserTestUtils.is_visible(relativeElement), "relative time is visible");
+    Assert.ok(relative.includes(relativeElement.textContent), "relative time is correct");
+  } else if (relative !== undefined) {
+    Assert.ok(BrowserTestUtils.is_hidden(relativeElement), "relative time is hidden");
+  }
 
   let overlapElement = row.querySelector(".agenda-listitem-overlap");
   if (overlap) {
@@ -94,6 +105,10 @@ function checkEvent(row, { dateHeader, time, title, overlap }) {
     );
   } else {
     Assert.ok(BrowserTestUtils.is_hidden(overlapElement), "overlap is hidden");
+  }
+
+  for (let className of classes) {
+    Assert.ok(row.classList.contains(className), `row has ${className} class`);
   }
 }
 
@@ -496,6 +511,108 @@ add_task(async function testOtherTimeZones() {
   );
 
   await calendar.deleteItem(overnightEvent);
+});
+
+/**
+ * Checks events in different time zones are displayed correctly.
+ */
+add_task(async function testRelativeTime() {
+  let formatter = new Intl.RelativeTimeFormat(undefined, { style: "short" });
+  let now = cal.dtz.now();
+  now.second = 0;
+  info(`The time is now ${now}`);
+
+  let testData = [
+    {
+      name: "two hours ago",
+      start: "-PT1H55M",
+      expected: {
+        classes: ["agenda-listitem-past"],
+      },
+      minHour: 2,
+    },
+    {
+      name: "one hour ago",
+      start: "-PT1H5M",
+      expected: {
+        classes: ["agenda-listitem-past"],
+      },
+      minHour: 2,
+    },
+    {
+      name: "23 minutes ago",
+      start: "-PT23M",
+      expected: {
+        classes: ["agenda-listitem-past"],
+      },
+      minHour: 1,
+    },
+    {
+      name: "now",
+      start: "-PT5M",
+      expected: {
+        relative: ["now"],
+        classes: ["agenda-listitem-now"],
+      },
+      minHour: 1,
+      maxHour: 22,
+    },
+    {
+      name: "19 minutes ahead",
+      start: "PT19M",
+      expected: {
+        relative: [formatter.format(19, "minute"), formatter.format(18, "minute")],
+      },
+      maxHour: 22,
+    },
+    {
+      name: "one hour ahead",
+      start: "PT1H5M",
+      expected: {
+        relative: [formatter.format(1, "hour")],
+      },
+      maxHour: 21,
+    },
+    {
+      name: "two hours ahead",
+      start: "PT1H55M",
+      expected: {
+        relative: [formatter.format(2, "hour")],
+      },
+      maxHour: 21,
+    },
+  ];
+
+  let events = [];
+  let expectedEvents = [];
+  for (let { name, start, expected, minHour, maxHour } of testData) {
+    if (minHour && now.hour < minHour) {
+      info(`Skipping ${name} because it's too early.`);
+      continue;
+    }
+    if (maxHour && now.hour > maxHour) {
+      info(`Skipping ${name} because it's too late.`);
+      continue;
+    }
+
+    let event = new CalEvent();
+    event.id = cal.getUUID();
+    event.title = name;
+    event.startDate = now.clone();
+    event.startDate.addDuration(cal.createDuration(start));
+    event.endDate = event.startDate.clone();
+    event.endDate.addDuration(cal.createDuration("PT10M"));
+    events.push(await calendar.addItem(event));
+
+    expectedEvents.push({ ...expected, title: name, time: event.startDate });
+  }
+
+  expectedEvents[0].dateHeader = "Today";
+  checkEvents(...expectedEvents);
+
+  for (let event of events) {
+    await calendar.deleteItem(event);
+  }
 });
 
 /**
