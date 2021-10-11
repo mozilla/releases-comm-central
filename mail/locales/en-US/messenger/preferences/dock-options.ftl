@@ -27,4 +27,4 @@ count-new-messages-radio =
     .label = Count of new messages
     .accesskey = n
 
-notification-settings-info = You can disable the badge on the Notification pane of System Preferences.
+notification-settings-info2 = You can disable the badge on the Notification pane of System Settings.

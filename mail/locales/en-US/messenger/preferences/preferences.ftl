@@ -5,7 +5,7 @@
 close-button =
     .aria-label = Close
 
-preferences-doc-title = Preferences
+preferences-doc-title2 = Settings
 
 category-list =
     .aria-label = Categories
@@ -192,7 +192,7 @@ app-icon-options =
     .label = App Icon Options…
     .accesskey = n
 
-notification-settings = Alerts and the default sound can be disabled on the Notification pane of System Preferences.
+notification-settings2 = Alerts and the default sound can be disabled on the Notification pane of System Settings.
 
 animated-alert-label =
     .label = Show an alert
@@ -871,18 +871,18 @@ chat-variant-label =
 # Notice: The value of the `.style` attribute is a CSS string, and the `width`
 # is the name of the CSS property. It is intended only to adjust the element's width.
 # Do not translate.
-search-preferences-input =
+search-preferences-input2 =
     .style = width: 15.4em
-    .placeholder = Find in Preferences
+    .placeholder = Find in Settings
 
-## Preferences UI Search Results
+## Settings UI Search Results
 
 search-results-header = Search Results
 
 # `<span data-l10n-name="query"></span>` will be replaced by the search term.
 search-results-empty-message = { PLATFORM() ->
     [windows] Sorry! There are no results in Options for “<span data-l10n-name="query"></span>”.
-    *[other] Sorry! There are no results in Preferences for “<span data-l10n-name="query"></span>”.
+    *[other] Sorry! There are no results in Settings for “<span data-l10n-name="query"></span>”.
 }
 
 search-results-help-link = Need help? Visit <a data-l10n-name="url">{ -brand-short-name } Support</a>

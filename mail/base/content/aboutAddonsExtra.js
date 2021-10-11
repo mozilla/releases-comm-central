@@ -32,12 +32,6 @@ XPCOMUtils.defineLazyPreferenceGetter(
   let textbox = document.querySelector("search-addons > search-textbox");
   document.l10n.setAttributes(textbox, "atn-addons-heading-search-input");
 
-  // Change the "Settings" button to "Preferences".
-  let prefsButton = document.querySelector(
-    "#preferencesButton > .sidebar-footer-label"
-  );
-  document.l10n.setAttributes(prefsButton, "sidebar-preferences-button-title");
-
   // Add our stylesheet.
   let contentStylesheet = document.createProcessingInstruction(
     "xml-stylesheet",
