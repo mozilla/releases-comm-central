@@ -14,6 +14,7 @@
 nsBasicUTF7Decoder::nsBasicUTF7Decoder(char aLastChar, char aEscChar) {
   mLastChar = aLastChar;
   mEscChar = aEscChar;
+  mFreshBase64 = false;
   Reset();
 }
 
