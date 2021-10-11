@@ -27,6 +27,7 @@ EXTRA_JS_MODULES += [
     "NntpModuleLoader.jsm",
     "NntpNewsGroup.jsm",
     "NntpProtocolHandler.jsm",
+    "NntpProtocolInfo.jsm",
     "NntpService.jsm",
 ]
 

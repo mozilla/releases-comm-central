@@ -57,6 +57,11 @@ var nntpJSModules = [
     "{dc4ad42f-bc98-4193-a469-0cfa95ed9bcb}",
     "@mozilla.org/messenger/server;1?type=nntp",
   ],
+  [
+    "NntpProtocolInfo",
+    "{7d71db22-0624-4c9f-8d70-dea6ab3ff076}",
+    "@mozilla.org/messenger/protocol/info;1?type=nntp",
+  ],
 ];
 
 NntpModuleLoader.prototype = {
