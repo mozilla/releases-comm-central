@@ -3271,21 +3271,6 @@ function HandleMultipleAttachments(attachments, action) {
  * @param {AttachmentInfo[]} aAttachmentInfoArray - Array of attachmentInfo.
  */
 async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
-  let aURL,
-    aDocument,
-    aDefaultFileName,
-    aContentDisposition,
-    aContentType,
-    aShouldBypassCache,
-    aFilePickerTitleKey,
-    aChosenData,
-    aReferrer,
-    aInitiatingDocument,
-    aSkipPrompt,
-    aCacheKey,
-    aIsContentWindowPrivate;
-  // Required for privacy context.
-  aInitiatingDocument = document;
   for (let attachment of aAttachmentInfoArray) {
     if (
       !attachment.hasFile ||
@@ -3299,22 +3284,22 @@ async function saveLinkAttachmentsToFile(aAttachmentInfoArray) {
       continue;
     }
 
-    aURL = attachment.url;
-    aDefaultFileName = attachment.name;
+    // internalSave() is part of saveURL() internals...
     internalSave(
-      aURL,
-      aDocument,
-      aDefaultFileName,
-      aContentDisposition,
-      aContentType,
-      aShouldBypassCache,
-      aFilePickerTitleKey,
-      aChosenData,
-      aReferrer,
-      aInitiatingDocument,
-      aSkipPrompt,
-      aCacheKey,
-      aIsContentWindowPrivate
+      attachment.url, // aURL,
+      undefined, // aDocument,
+      attachment.name, // aDefaultFileName,
+      undefined, // aContentDisposition,
+      undefined, // aContentType,
+      undefined, // aShouldBypassCache,
+      undefined, // aFilePickerTitleKey,
+      undefined, // aChosenData,
+      undefined, // aReferrer,
+      undefined, // aCookieJarSettings,
+      document, // aInitiatingDocument,
+      undefined, // aSkipPrompt,
+      undefined, // aCacheKey,
+      undefined // aIsContentWindowPrivate
     );
   }
 }
