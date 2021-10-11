@@ -393,10 +393,13 @@ int MIMEGetRelativeCryptoNestLevel(MimeObject* obj) {
           ++aTopMessageNestLevel;
         }
       }
-      if (!aAlreadyFoundTop &&
-          !strcmp(mime_part_address(walker), walker->options->part_to_load)) {
-        aAlreadyFoundTop = true;
-        aTopShownObject = walker;
+      if (!aAlreadyFoundTop) {
+        char* addr = mime_part_address(walker);
+        if (!strcmp(addr, walker->options->part_to_load)) {
+          aAlreadyFoundTop = true;
+          aTopShownObject = walker;
+        }
+        PR_FREEIF(addr);
       }
       if (!aAlreadyFoundTop && !walker->parent) {
         // The mime part part_to_load is not a parent of the
