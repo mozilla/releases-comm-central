@@ -1301,17 +1301,7 @@ function openPgpCopyToClipboard(val) {
  * @param {string} keyId - The formatted OpenPgp Key ID.
  */
 function openPgpSendKeyEmail(keyId) {
-  let tmpDir = EnigmailFiles.getTempDir();
-  let tmpFile;
-
-  try {
-    tmpFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    tmpFile.initWithPath(tmpDir);
-  } catch (ex) {
-    Cu.reportError(ex);
-    return;
-  }
-
+  let tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
   tmpFile.append("key.asc");
   tmpFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 

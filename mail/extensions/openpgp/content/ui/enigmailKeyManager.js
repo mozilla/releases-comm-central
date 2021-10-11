@@ -420,18 +420,7 @@ function enigmailDeleteKey() {
 
 function enigCreateKeyMsg() {
   var keyList = getSelectedKeyIds();
-  var tmpDir = EnigmailFiles.getTempDir();
-  var tmpFile;
-  try {
-    tmpFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    tmpFile.initWithPath(tmpDir);
-    if (!(tmpFile.isDirectory() && tmpFile.isWritable())) {
-      document.l10n.formatValue("no-temp-dir").then(value => {
-        EnigmailDialog.alert(window, value);
-      });
-      return;
-    }
-  } catch (ex) {}
+  var tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
   tmpFile.append("key.asc");
   tmpFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 

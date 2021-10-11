@@ -662,9 +662,6 @@ send-to-news-warning =
     This is discouraged because it only makes sense if all members of the group can decrypt the message, i.e. the message needs to be encrypted with the keys of all group participants. Please send this message only if you know exactly what you are doing.
     Continue?
 save-attachment-header = Save decrypted attachment
-no-temp-dir =
-    Could not find a temporary directory to write to
-    Please set the TEMP environment variable
 possibly-pgp-mime = Possibly PGP/MIME encrypted or signed message; use ‘Decrypt/Verify’ function to verify
 cannot-send-sig-because-no-own-key = Cannot digitally sign this message, because you haven’t yet configured end-to-end encryption for <{ $key }>
 cannot-send-enc-because-no-own-key = Cannot send this message encrypted, because you haven’t yet configured end-to-end encryption for <{ $key }>

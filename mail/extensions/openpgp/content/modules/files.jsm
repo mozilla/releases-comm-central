@@ -27,66 +27,6 @@ const NS_TRUNCATE = 0x20;
 const DEFAULT_FILE_PERMS = 0o600;
 
 var EnigmailFiles = {
-  isAbsolutePath(filePath, isDosLike) {
-    // Check if absolute path
-    if (isDosLike) {
-      return (
-        filePath.search(/^\w+:\\/) === 0 ||
-        filePath.search(/^\\\\/) === 0 ||
-        filePath.search(/^\/\//) === 0
-      );
-    }
-
-    return filePath.search(/^\//) === 0;
-  },
-
-  resolvePath(filePath, envPath, isDosLike) {
-    EnigmailLog.DEBUG("files.jsm: resolvePath: filePath=" + filePath + "\n");
-
-    if (EnigmailFiles.isAbsolutePath(filePath, isDosLike)) {
-      return filePath;
-    }
-
-    if (!envPath) {
-      return null;
-    }
-
-    const fileNames = filePath.split(";");
-
-    const pathDirs = envPath.split(isDosLike ? ";" : ":");
-
-    for (let i = 0; i < fileNames.length; i++) {
-      for (let j = 0; j < pathDirs.length; j++) {
-        try {
-          const pathDir = Cc["@mozilla.org/file/local;1"].createInstance(
-            Ci.nsIFile
-          );
-
-          EnigmailLog.DEBUG(
-            "files.jsm: resolvePath: checking for " +
-              pathDirs[j] +
-              "/" +
-              fileNames[i] +
-              "\n"
-          );
-
-          EnigmailFiles.initPath(pathDir, pathDirs[j]);
-
-          try {
-            if (pathDir.exists() && pathDir.isDirectory()) {
-              pathDir.appendRelativePath(fileNames[i]);
-
-              if (pathDir.exists() && !pathDir.isDirectory()) {
-                return pathDir;
-              }
-            }
-          } catch (ex) {}
-        } catch (ex) {}
-      }
-    }
-    return null;
-  },
-
   createFileStream(filePath, permissions) {
     try {
       let localFile;
@@ -200,43 +140,12 @@ var EnigmailFiles = {
     return fileContents;
   },
 
-  formatCmdLine(command, args) {
-    function getQuoted(str) {
-      str = str.toString();
-
-      let i = str.indexOf(" ");
-      if (i >= 0) {
-        return '"' + str + '"';
-      }
-
-      return str;
-    }
-
-    if (command instanceof Ci.nsIFile) {
-      command = EnigmailFiles.getFilePathDesc(command);
-    }
-
-    const cmdStr = getQuoted(command) + " ";
-    const argStr = args
-      .map(getQuoted)
-      .join(" ")
-      .replace(/\\\\/g, "\\");
-    return cmdStr + argStr;
-  },
-
   getFilePathDesc(nsFileObj) {
     if (AppConstants.platform == "win") {
       return nsFileObj.persistentDescriptor;
     }
 
     return nsFileObj.path;
-  },
-
-  getFilePath(nsFileObj) {
-    return EnigmailData.convertToUnicode(
-      EnigmailFiles.getFilePathDesc(nsFileObj),
-      "utf-8"
-    );
   },
 
   getEscapedFilename(fileNameStr) {
@@ -248,63 +157,6 @@ var EnigmailFiles = {
       fileNameStr = fileNameStr.replace(/^\\\\*/, "//");
     }
     return fileNameStr;
-  },
-
-  /**
-   * get the temporary folder
-   *
-   * @return nsIFile object holding a reference to the temp directory
-   */
-  getTempDirObj() {
-    const TEMPDIR_PROP = "TmpD";
-
-    try {
-      const dsprops = Cc["@mozilla.org/file/directory_service;1"]
-        .getService()
-        .QueryInterface(Ci.nsIProperties);
-      return dsprops.get(TEMPDIR_PROP, Ci.nsIFile);
-    } catch (ex) {
-      // let's guess ...
-      const tmpDirObj = Cc["@mozilla.org/file/local;1"].createInstance(
-        Ci.nsIFile
-      );
-      if (AppConstants.platform == "win") {
-        tmpDirObj.initWithPath("C:/TEMP");
-      } else {
-        tmpDirObj.initWithPath("/tmp");
-      }
-      return tmpDirObj;
-    }
-  },
-
-  /**
-   * get the temporary folder as string
-   *
-   * @return String containing the temp directory name
-   */
-  getTempDir() {
-    return EnigmailFiles.getTempDirObj().path;
-  },
-
-  /**
-   * create a new folder as subfolder of the temporary directory
-   *
-   * @param dirName  String  - name of subfolder
-   * @param unique   Boolean - if true, the directory is guaranteed to be unique
-   *
-   * @return nsIFile object holding a reference to the created directory
-   */
-  createTempSubDir(dirName, unique = false) {
-    const localFile = EnigmailFiles.getTempDirObj().clone();
-
-    localFile.append(dirName);
-    if (unique) {
-      localFile.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 509 /* = 0775 */);
-    } else {
-      localFile.create(Ci.nsIFile.DIRECTORY_TYPE, 509 /* = 0775 */);
-    }
-
-    return localFile;
   },
 
   /**

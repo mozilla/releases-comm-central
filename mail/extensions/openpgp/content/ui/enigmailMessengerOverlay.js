@@ -2494,14 +2494,7 @@ Enigmail.msg = {
     }
 
     // open
-    var tmpDir = EnigmailFiles.getTempDir();
-    var outFile1, outFile2;
-    outFile1 = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    outFile1.initWithPath(tmpDir);
-    if (!(outFile1.isDirectory() && outFile1.isWritable())) {
-      EnigmailDialog.alert(window, l10n.formatValueSync("no-temp-dir"));
-      return;
-    }
+    var outFile1 = Services.dirsvc.get("TmpD", Ci.nsIFile);
     outFile1.append(EnigmailMsgRead.getAttachmentName(origAtt));
     outFile1.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     EnigmailFiles.writeUrlToFile(origAtt.url, outFile1);
@@ -2519,8 +2512,7 @@ Enigmail.msg = {
       );
     }
 
-    outFile2 = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    outFile2.initWithPath(tmpDir);
+    var outFile2 = Services.dirsvc.get("TmpD", Ci.nsIFile);
     outFile2.append(EnigmailMsgRead.getAttachmentName(signatureAtt));
     outFile2.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     EnigmailFiles.writeUrlToFile(signatureAtt.url, outFile2);
@@ -2662,20 +2654,9 @@ Enigmail.msg = {
       return;
     } else {
       // open
-      var tmpDir = EnigmailFiles.getTempDir();
-      try {
-        outFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-        outFile.initWithPath(tmpDir);
-        if (!(outFile.isDirectory() && outFile.isWritable())) {
-          errorMsgObj.value = l10n.formatValueSync("no-temp-dir");
-          return;
-        }
-        outFile.append(rawFileName);
-        outFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-      } catch (ex) {
-        errorMsgObj.value = l10n.formatValueSync("no-temp-dir");
-        return;
-      }
+      outFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+      outFile.append(rawFileName);
+      outFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
     }
 
     if (callbackArg.actionType == "importKey") {

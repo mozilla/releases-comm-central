@@ -35,7 +35,7 @@ var EnigmailSend = {
     EnigmailLog.DEBUG("EnigmailSend.sendMessage()\n");
     let tmpFile, msgIdentity;
     try {
-      tmpFile = EnigmailFiles.getTempDirObj();
+      tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
       tmpFile.append("message.eml");
       tmpFile.createUnique(0, 0o600);
     } catch (ex) {

@@ -793,23 +793,7 @@ Enigmail.msg = {
       return null;
     }
 
-    var tmpDir = EnigmailFiles.getTempDir();
-    var tmpFile;
-    try {
-      tmpFile = Cc[LOCAL_FILE_CONTRACTID].createInstance(Ci.nsIFile);
-      tmpFile.initWithPath(tmpDir);
-      if (!(tmpFile.isDirectory() && tmpFile.isWritable())) {
-        document.l10n.formatValue("no-temp-dir").then(value => {
-          EnigmailDialog.alert(window, value);
-        });
-        return null;
-      }
-    } catch (ex) {
-      EnigmailLog.writeException(
-        "enigmailMsgComposeOverlay.js: Enigmail.msg.extractAndAttachKey",
-        ex
-      );
-    }
+    var tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     tmpFile.append("key.asc");
     tmpFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
@@ -832,8 +816,7 @@ Enigmail.msg = {
     }
 
     // create attachment
-    var ioServ = Services.io;
-    var tmpFileURI = ioServ.newFileURI(tmpFile);
+    var tmpFileURI = Services.io.newFileURI(tmpFile);
     var keyAttachment = Cc[
       "@mozilla.org/messengercompose/attachment;1"
     ].createInstance(Ci.nsIMsgAttachment);
