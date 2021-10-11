@@ -499,7 +499,7 @@ nsParseMailMessageState::nsParseMailMessageState() {
     if (m_customDBHeaders.Length()) {
       m_customDBHeaderValues =
           new struct message_header[m_customDBHeaders.Length()];
-      if (!m_customDBHeaderValues) m_customDBHeaders.Clear();
+      m_customDBHeaders.Clear();
     }
   }
   Clear();
