@@ -885,8 +885,8 @@ extern "C" void mime_display_stream_complete(nsMIMESession* stream) {
       nsresult rv = MimeGetAttachmentList(obj, msd->url_name, &attachments);
       if (NS_SUCCEEDED(rv)) {
         NotifyEmittersOfAttachmentList(msd->options, attachments);
-        MimeFreeAttachmentList(attachments);
       }
+      MimeFreeAttachmentList(attachments);
     }
 
     // Release the conversion object - this has to be done after
