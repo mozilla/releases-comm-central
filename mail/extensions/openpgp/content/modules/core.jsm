@@ -16,7 +16,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailCommandLine: "chrome://openpgp/content/modules/commandLine.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailMimeEncrypt: "chrome://openpgp/content/modules/mimeEncrypt.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
@@ -75,15 +74,6 @@ var EnigmailCore = {
   },
 
   shutdown(reason) {
-    EnigmailLog.DEBUG("core.jsm: shutdown():\n");
-
-    let cLineReg = EnigmailCommandLine.categoryRegistry;
-    Services.catMan.deleteCategoryEntry(
-      cLineReg.category,
-      cLineReg.entry,
-      false
-    );
-
     if (this.factories) {
       for (let fct of this.factories) {
         fct.unregister();
