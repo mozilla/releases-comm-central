@@ -2307,11 +2307,6 @@ MatrixAccount.prototype = {
               name: roomName || alias,
               visibility: "private",
               preset: "private_chat",
-              content: {
-                guest_access: "can_join",
-              },
-              type: EventType.RoomGuestAccess,
-              state_key: "",
             });
           }
           conv.joining = false;
@@ -2612,11 +2607,6 @@ MatrixAccount.prototype = {
         invite: [userId],
         visibility: "private",
         preset: "trusted_private_chat",
-        content: {
-          guest_access: "can_join",
-        },
-        type: EventType.RoomGuestAccess,
-        state_key: "",
       },
       roomId => {
         this.setDirectRoom(userId, roomId);
