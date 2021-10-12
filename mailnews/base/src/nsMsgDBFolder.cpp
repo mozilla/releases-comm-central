@@ -762,7 +762,8 @@ NS_IMETHODIMP nsMsgDBFolder::GetOfflineFileStream(
     bool line1 = true;
     bool foundError = false;
     // If Read() above fails, don't check any lines and set record bad.
-    bool foundNextLine = NS_SUCCEEDED(rv) ? true : false;
+    // Even if Read() succeeds, don't enter the loop below if bytesRead is 0.
+    bool foundNextLine = NS_SUCCEEDED(rv) && (bytesRead > 0) ? true : false;
     while (foundNextLine) {
       headerLine = startOfMsg + msgOffset;
       // Ignore lines beginning X-Mozilla-Status or X-Mozilla-Status2
