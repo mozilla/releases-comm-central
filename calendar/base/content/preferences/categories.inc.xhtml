@@ -1,36 +1,32 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-    <html:div data-category="paneCalendar">
+  <html:div data-category="paneCalendar">
     <html:fieldset data-category="paneCalendar">
-        <separator class="thin"/>
-        <hbox>
-          <richlistbox id="categorieslist"
-                       flex="1"
-                       seltype="multiple"
-                       onselect="gCategoriesPane.updateButtons()"
-                       ondblclick="gCategoriesPane.listOnDblClick(event)"/>
-          <vbox id="categoriesButtons">
-              <hbox>
-                  <button is="highlightable-button" id="newCButton"
-                          data-l10n-id="new-tag-button"
-                          oncommand="gCategoriesPane.addCategory()"
-                          search-l10n-ids="
-                            category-name-label,
-                            category-color-label.label"/>
-              </hbox>
-              <hbox>
-                  <button is="highlightable-button" id="editCButton"
-                          data-l10n-id="edit-tag-button"
-                          oncommand="gCategoriesPane.editCategory()"
-                          search-l10n-ids="
-                            category-name-label,
-                            category-color-label.label"/>
-              </hbox>
-              <button is="highlightable-button" id="deleteCButton"
-                      data-l10n-id="delete-tag-button"
-                      oncommand="gCategoriesPane.deleteCategory()"/>
-          </vbox>
-        </hbox>
+      <separator class="thin"/>
+      <hbox>
+        <richlistbox id="categorieslist"
+                     flex="1"
+                     seltype="multiple"
+                     onselect="gCategoriesPane.updateButtons()"
+                     ondblclick="gCategoriesPane.listOnDblClick(event)"/>
+        <vbox id="categoriesButtons">
+          <hbox>
+            <button is="highlightable-button" id="newCButton"
+                    data-l10n-id="new-tag-button"
+                    oncommand="gCategoriesPane.addCategory()"
+                    search-l10n-ids="category-name-label,category-color-label.label"/>
+          </hbox>
+          <hbox>
+            <button is="highlightable-button" id="editCButton"
+                    data-l10n-id="edit-tag-button"
+                    oncommand="gCategoriesPane.editCategory()"
+                    search-l10n-ids="category-name-label,category-color-label.label"/>
+          </hbox>
+          <button is="highlightable-button" id="deleteCButton"
+                  data-l10n-id="delete-tag-button"
+                  oncommand="gCategoriesPane.deleteCategory()"/>
+        </vbox>
+      </hbox>
     </html:fieldset>
-    </html:div>
+  </html:div>
