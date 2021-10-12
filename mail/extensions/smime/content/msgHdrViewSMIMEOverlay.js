@@ -134,10 +134,6 @@ function refreshSmimeMessageEncryptionStateButton() {
 }
 
 var smimeHeaderSink = {
-  maxWantedNesting() {
-    return 1;
-  },
-
   /**
    * @return the URI of the selected message, or null if the current
    *         message displayed isn't in a folder, for example if the

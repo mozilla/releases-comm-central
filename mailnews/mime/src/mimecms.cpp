@@ -631,10 +631,8 @@ static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
 
   if (aRelativeNestLevel < 0) return 0;
 
-  int32_t maxNestLevel = 0;
-  data->smimeHeaderSink->MaxWantedNesting(&maxNestLevel);
-
-  if (aRelativeNestLevel > maxNestLevel) return 0;
+  // maxWantedNesting 1: only want outermost nesting level
+  if (aRelativeNestLevel > 1) return 0;
 
   if (data->decoding_failed) status = nsICMSMessageErrors::GENERAL_ERROR;
 

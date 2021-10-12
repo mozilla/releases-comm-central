@@ -398,11 +398,9 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
 
   if (aRelativeNestLevel < 0) return nullptr;
 
-  int32_t maxNestLevel = 0;
-  if (data->smimeHeaderSink && aRelativeNestLevel >= 0) {
-    data->smimeHeaderSink->MaxWantedNesting(&maxNestLevel);
-
-    if (aRelativeNestLevel > maxNestLevel) return nullptr;
+  if (aRelativeNestLevel >= 0) {
+    // maxWantedNesting 1: only want outermost nesting level
+    if (aRelativeNestLevel > 1) return nullptr;
   }
 
   if (data->self->options->missing_parts) {

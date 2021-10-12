@@ -1255,35 +1255,6 @@ Enigmail.hdrView = {
         Enigmail.msg.messageReload(false);
       }
     },
-
-    maxWantedNesting() {
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.maxWantedNesting:\n"
-      );
-      return this._smimeHeaderSink.maxWantedNesting();
-    },
-
-    signedStatus(aNestingLevel, aSignatureStatus, aSignerCert) {
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.signedStatus:\n"
-      );
-      return this._smimeHeaderSink.signedStatus(
-        aNestingLevel,
-        aSignatureStatus,
-        aSignerCert
-      );
-    },
-
-    encryptionStatus(aNestingLevel, aEncryptionStatus, aRecipientCert) {
-      EnigmailLog.DEBUG(
-        "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.encryptionStatus:\n"
-      );
-      return this._smimeHeaderSink.encryptionStatus(
-        aNestingLevel,
-        aEncryptionStatus,
-        aRecipientCert
-      );
-    },
   },
 
   /*

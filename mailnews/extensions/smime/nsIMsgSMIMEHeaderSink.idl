@@ -24,6 +24,4 @@ interface nsIMsgSMIMEHeaderSink : nsISupports
                         in long aEncryptionStatus,
                         in nsIX509Cert aReceipientCert,
                         in AUTF8String aMsgNeckoURL);
-
-  long maxWantedNesting(); // 1 == only info on outermost nesting level wanted
 };

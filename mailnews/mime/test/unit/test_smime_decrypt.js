@@ -123,9 +123,6 @@ let smimeHeaderSink = {
     this.resultSigFirst = undefined;
     return this._deferred.promise;
   },
-  maxWantedNesting() {
-    return 2;
-  },
   signedStatus(aNestingLevel, aSignedStatus, aSignerCert) {
     console.log("signedStatus " + aSignedStatus + " level " + aNestingLevel);
     // dump("Signed message\n");
