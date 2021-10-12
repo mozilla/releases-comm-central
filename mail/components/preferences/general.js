@@ -700,46 +700,83 @@ var gGeneralPane = {
     }
   },
 
-  addSearchEngine() {
-    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    fp.init(
-      window,
-      document
-        .getElementById("bundlePreferences")
-        .getString("searchEnginePickerTitle"),
-      Ci.nsIFilePicker.modeOpen
+  /**
+   * Look up OpenSearch Description URL.
+   * @param url - the url to use as basis for discovery
+   */
+  async lookupOpenSearch(url) {
+    let response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Bad response for url=${url}`);
+    }
+    let contentType = response.headers.get("Content-Type")?.toLowerCase();
+    if (
+      contentType == "application/opensearchdescription+xml" ||
+      contentType == "application/xml" ||
+      contentType == "text/xml"
+    ) {
+      return url;
+    }
+    let doc = new DOMParser().parseFromString(
+      await response.text(),
+      "text/html"
     );
-
-    // Filter on XML files only.
-    fp.appendFilter(
-      document
-        .getElementById("bundlePreferences")
-        .getString("searchEngineType2"),
-      "*.xml"
+    let auto = doc.querySelector(
+      "link[rel='search'][type='application/opensearchdescription+xml']"
     );
+    if (!auto) {
+      throw new Error(`No provider discovered for url=${url}`);
+    }
+    return /^https?:/.test(auto.href)
+      ? auto.href
+      : new URL(url).origin + auto.href;
+  },
 
-    fp.open(async rv => {
-      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
-        return;
-      }
-      let uri = fp.fileURL.spec;
-      let engine = await Services.search.addOpenSearchEngine(uri, null);
-
-      // Add new engine to the list.
-      let engineList = document.getElementById("defaultWebSearch");
-
-      let item = engineList.appendItem(engine.name);
-      item.engine = engine;
-      item.className = "menuitem-iconic";
-      item.setAttribute(
-        "image",
-        engine.iconURI
-          ? engine.iconURI.spec
-          : "resource://gre-resources/broken-image.png"
-      );
-
-      this.updateRemoveButton();
+  async addSearchEngine() {
+    let input = { value: "https://" };
+    let [title, text] = await document.l10n.formatValues([
+      "add-opensearch-provider-title",
+      "add-opensearch-provider-text",
+    ]);
+    let result = Services.prompt.prompt(window, title, text, input, null, {
+      value: false,
     });
+    input.value = input.value.trim();
+    if (!result || !input.value || input.value == "https://") {
+      return;
+    }
+    let url = input.value;
+    let engine;
+    try {
+      url = await this.lookupOpenSearch(url);
+      engine = await Services.search.addOpenSearchEngine(url, null);
+    } catch (reason) {
+      let [title, text] = await document.l10n.formatValues([
+        { id: "adding-opensearch-provider-failed-title" },
+        { id: "adding-opensearch-provider-failed-text", args: { url } },
+      ]);
+      Services.prompt.alert(window, title, text);
+      return;
+    }
+    // Wait a bit, so the engine iconURI has time to be fetched.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 500));
+
+    // Add new engine to the list, make the added engine the default.
+    let engineList = document.getElementById("defaultWebSearch");
+    let item = engineList.appendItem(engine.name);
+    item.engine = engine;
+    item.className = "menuitem-iconic";
+    item.setAttribute(
+      "image",
+      engine.iconURI
+        ? engine.iconURI.spec
+        : "resource://gre-resources/broken-image.png"
+    );
+    engineList.selectedIndex =
+      engineList.firstElementChild.childElementCount - 1;
+    await Services.search.setDefault(engineList.selectedItem.engine);
+    this.updateRemoveButton();
   },
 
   async removeSearchEngine() {
