@@ -319,7 +319,7 @@ nsresult nsMessenger::ShowPicker(nsIFilePicker* aPicker, int16_t* aResult) {
   // Spin the event loop until the callback was called.
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
   while (!cb->mPickerDone) {
-    NS_ProcessPendingEvents(thread);
+    NS_ProcessNextEvent(thread, true);
   }
 
   *aResult = cb->mResult;

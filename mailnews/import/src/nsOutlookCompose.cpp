@@ -323,7 +323,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
     // Wait for the listener to get done.
     nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
     while (!pListen->m_done) {
-      NS_ProcessPendingEvents(thread);
+      NS_ProcessNextEvent(thread, true);
     }
   }
 
