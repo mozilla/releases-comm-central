@@ -103,7 +103,7 @@ class NntpNewsGroup {
         if (!args.hitOK) {
           return [];
         }
-        start = args.downloadAll ? start : end - this._server.maxArticles;
+        start = args.downloadAll ? start : end - this._server.maxArticles + 1;
       }
       return [start, end];
     }

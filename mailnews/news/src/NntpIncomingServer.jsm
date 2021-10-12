@@ -15,6 +15,8 @@ var { MsgIncomingServer } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   Services: "resource://gre/modules/Services.jsm",
+  clearInterval: "resource://gre/modules/Timer.jsm",
+  setInterval: "resource://gre/modules/Timer.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   NntpClient: "resource:///modules/NntpClient.jsm",
 });
@@ -44,6 +46,10 @@ class NntpIncomingServer extends MsgIncomingServer {
     this._subscribed = new Set();
     this._groups = [];
 
+    Services.obs.addObserver(this, "profile-before-change");
+    // Update newsrc every 5 minutes.
+    this._newsrcTimer = setInterval(() => this.writeNewsrcFile(), 300000);
+
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "news";
     this.localDatabaseType = "news";
@@ -63,6 +69,14 @@ class NntpIncomingServer extends MsgIncomingServer {
       ["Bool", "singleSignon"],
       ["Int", "maxArticles", "max_articles"],
     ]);
+  }
+
+  observe(subject, topic, data) {
+    switch (topic) {
+      case "profile-before-change":
+        clearInterval(this._newsrcTimer);
+        this.writeNewsrcFile();
+    }
   }
 
   /**
@@ -327,6 +341,10 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   writeNewsrcFile() {
+    if (!this.newsrcHasChanged) {
+      return;
+    }
+
     let newsFolder = this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder);
     let lines = [];
     for (let folder of newsFolder.subFolders) {

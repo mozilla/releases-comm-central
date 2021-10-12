@@ -49,6 +49,7 @@ class MsgIncomingServer {
 
     // nsIMsgIncomingServer attributes.
     this.performingBiff = false;
+    this.accountManagerChrome = "am-main.xhtml";
   }
 
   /**
@@ -163,6 +164,25 @@ class MsgIncomingServer {
     }
   }
 
+  set socketType(value) {
+    let wasSecure = this.isSecure;
+    this._prefs.setIntPref("socketType", value);
+    let isSecure = this.isSecure;
+    if (wasSecure != isSecure) {
+      this.rootFolder.NotifyBoolPropertyChanged(
+        "isSecure",
+        wasSecure,
+        isSecure
+      );
+    }
+  }
+
+  get isSecure() {
+    return [Ci.nsMsgSocketType.alwaysSTARTTLS, Ci.nsMsgSocketType.SSL].includes(
+      this.socketType
+    );
+  }
+
   get serverURI() {
     // Construct <localStoreType>://[<username>@]<hostname>.
     let auth = this.username ? `${encodeURIComponent(this.username)}@` : "";
@@ -237,6 +257,78 @@ class MsgIncomingServer {
       this._msgStore = Cc[contractId].createInstance(Ci.nsIMsgPluggableStore);
     }
     return this._msgStore;
+  }
+
+  get doBiff() {
+    try {
+      return this._prefs.getBoolPref("check_new_mail");
+    } catch (e) {
+      return this.protocolInfo.defaultDoBiff;
+    }
+  }
+
+  set doBiff(value) {
+    let biffManager = Cc["@mozilla.org/messenger/biffManager;1"].getService(
+      Ci.nsIMsgBiffManager
+    );
+    if (value) {
+      biffManager.addServerBiff(this);
+    } else {
+      biffManager.removeServerBiff(this);
+    }
+    this._prefs.setBoolPref("check_new_mail", value);
+  }
+
+  /**
+   * type, attribute name, pref name
+   */
+  _retentionSettingsPrefs = [
+    ["Int", "retainByPreference", "retainBy"],
+    ["Int", "numHeadersToKeep", "numHdrsToKeep"],
+    ["Int", "daysToKeepHdrs"],
+    ["Int", "daysToKeepBodies"],
+    ["Bool", "cleanupBodiesByDays", "cleanupBodies"],
+    ["Bool", "applyToFlaggedMessages"],
+  ];
+
+  get retentionSettings() {
+    let settings = Cc[
+      "@mozilla.org/msgDatabase/retentionSettings;1"
+    ].createInstance(Ci.nsIMsgRetentionSettings);
+    for (let [type, attrName, prefName] of this._retentionSettingsPrefs) {
+      prefName = prefName || attrName;
+      settings[attrName] = this[`get${type}Value`](prefName);
+    }
+    return settings;
+  }
+
+  set retentionSettings(settings) {
+    for (let [type, attrName, prefName] of this._retentionSettingsPrefs) {
+      prefName = prefName || attrName;
+      this[`set${type}Value`](prefName, settings[attrName]);
+    }
+  }
+
+  get spamSettings() {
+    if (!this.getCharValue("spamActionTargetAccount")) {
+      this.setCharValue("spamActionTargetAccount", this.serverURI);
+    }
+    if (!this._spamSettings) {
+      this._spamSettings = Cc[
+        "@mozilla.org/messenger/spamsettings;1"
+      ].createInstance(Ci.nsISpamSettings);
+      this._spamSettings.initialize(this);
+    }
+    return this._spamSettings;
+  }
+
+  get spamFilterPlugin() {
+    if (!this._spamFilterPlugin) {
+      this._spamFilterPlugin = Cc[
+        "@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"
+      ].getService(Ci.nsIMsgFilterPlugin);
+    }
+    return this._spamFilterPlugin;
   }
 
   getCharValue(prefName) {
@@ -388,5 +480,17 @@ class MsgIncomingServer {
 
   setFilterList(value) {
     this._filterList = value;
+  }
+
+  setDefaultLocalPath(value) {
+    this.protocolInfo.setDefaultLocalPath(value);
+  }
+
+  getNewMessages(folder, msgWindow, urlListener) {
+    folder.getNewMessages(msgWindow, urlListener);
+  }
+
+  writeToFolderCache(folderCache) {
+    this.rootFolder.writeToFolderCache(folderCache, true);
   }
 }
