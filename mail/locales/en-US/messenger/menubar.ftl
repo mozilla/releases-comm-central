@@ -6,7 +6,7 @@
 
 menu-tools-settings =
     .label = Settings
-    .accesskey = P
+    .accesskey = e
 
 menu-addons-and-themes =
     .label = Add-ons and Themes
