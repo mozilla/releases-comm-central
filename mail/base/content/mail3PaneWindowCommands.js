@@ -425,6 +425,7 @@ var DefaultController = {
         // printing only if exactly one message is selected and it is the
         // message being displayed.
         return (
+          gMessageDisplay.visible &&
           gFolderDisplay.selectedCount == 1 &&
           gFolderDisplay.selectedMessage == gMessageDisplay.displayedMessage
         );
