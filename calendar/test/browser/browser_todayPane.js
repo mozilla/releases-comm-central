@@ -155,10 +155,10 @@ add_task(async function testBasic() {
   let time = today.clone();
   time.hour = 23;
 
-  let todaysEvent = await addEvent("Today's Event", "P0D23H", "P1D");
+  let todaysEvent = await addEvent("Today's Event", "P0DT23H", "P1D");
   checkEvents({ dateHeader: "Today", time, title: "Today's Event" });
 
-  let tomorrowsEvent = await addEvent("Tomorrow's Event", "P1D23H", "P2D");
+  let tomorrowsEvent = await addEvent("Tomorrow's Event", "P1DT23H", "P2D");
   checkEvents(
     { dateHeader: "Today", time, title: "Today's Event" },
     { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" }
@@ -166,7 +166,7 @@ add_task(async function testBasic() {
 
   let events = [];
   for (let i = 2; i < 7; i++) {
-    events.push(await addEvent(`Event ${i + 1}`, `P${i}D23H`, `P${i + 1}D`));
+    events.push(await addEvent(`Event ${i + 1}`, `P${i}DT23H`, `P${i + 1}D`));
     checkEvents(
       { dateHeader: "Today", time, title: "Today's Event" },
       { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" },
@@ -206,14 +206,14 @@ add_task(async function testBasic() {
  * date header is shown/hidden appropriately.
  */
 add_task(async function testSortOrder() {
-  let afternoonEvent = await addEvent("Afternoon Event", "P1D13H", "P1D17H");
+  let afternoonEvent = await addEvent("Afternoon Event", "P1DT13H", "P1DT17H");
   checkEvents({
     dateHeader: "Tomorrow",
     time: afternoonEvent.startDate,
     title: "Afternoon Event",
   });
 
-  let morningEvent = await addEvent("Morning Event", "P1D8H", "P1D12H");
+  let morningEvent = await addEvent("Morning Event", "P1DT8H", "P1DT12H");
   checkEvents(
     { dateHeader: "Tomorrow", time: morningEvent.startDate, title: "Morning Event" },
     { time: afternoonEvent.startDate, title: "Afternoon Event" }
@@ -226,7 +226,7 @@ add_task(async function testSortOrder() {
     { time: afternoonEvent.startDate, title: "Afternoon Event" }
   );
 
-  let eveningEvent = await addEvent("Evening Event", "P1D18H", "P1D22H");
+  let eveningEvent = await addEvent("Evening Event", "P1DT18H", "P1DT22H");
   checkEvents(
     { dateHeader: "Tomorrow", title: "All Day Event" },
     { time: morningEvent.startDate, title: "Morning Event" },
@@ -314,7 +314,7 @@ add_task(async function testOverlapOutside() {
     { title: "Ends After", overlap: "start" }
   );
 
-  let beforeWithTime = await addEvent("Starts Before with time", "-P5H", "P15H");
+  let beforeWithTime = await addEvent("Starts Before with time", "-PT5H", "PT15H");
   checkEvents(
     { dateHeader: "Today", title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
@@ -323,7 +323,7 @@ add_task(async function testOverlapOutside() {
     { time: beforeWithTime.endDate, title: "Starts Before with time", overlap: "end" }
   );
 
-  let afterWithTime = await addEvent("Ends After with time", "P6H", "P8D12H");
+  let afterWithTime = await addEvent("Ends After with time", "PT6H", "P8DT12H");
   checkEvents(
     { dateHeader: "Today", title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
@@ -333,7 +333,7 @@ add_task(async function testOverlapOutside() {
     { time: beforeWithTime.endDate, title: "Starts Before with time", overlap: "end" }
   );
 
-  let bothWithTime = await addEvent("Beyond Start and End with time", "-P2D10H", "P9D1H");
+  let bothWithTime = await addEvent("Beyond Start and End with time", "-P2DT10H", "P9DT1H");
   checkEvents(
     { dateHeader: "Today", title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
@@ -424,8 +424,8 @@ add_task(async function testOtherTimeZones() {
 
   // The event time must be displayed in the local time zone, and the event must be sorted correctly.
 
-  let beforeEvent = await addEvent("Before", "P1D5H", "P1D6H");
-  let afterEvent = await addEvent("After", "P1D7H", "P1D8H");
+  let beforeEvent = await addEvent("Before", "P1DT5H", "P1DT6H");
+  let afterEvent = await addEvent("After", "P1DT7H", "P1DT8H");
 
   let timedEvent = new CalEvent();
   timedEvent.id = cal.getUUID();
