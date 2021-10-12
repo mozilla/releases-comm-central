@@ -174,7 +174,7 @@ SmtpService.prototype = {
         Services.telemetry.scalarAdd("tb.mails.sent", 1);
       }
       deliveryListener?.OnStopRunningUrl(runningUrl, exitCode);
-      client.close();
+      client.quit();
     };
     client.onerror = (nsError, errorMessage, secInfo) => {
       runningUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
