@@ -1690,7 +1690,27 @@ MatrixAccount.prototype = {
         }
         let conv = this.roomList.get(room.roomId);
         if (!conv) {
-          return;
+          // If our membership changed to join without us knowing about the
+          // room, another client probably accepted an invite.
+          if (
+            event.getType() == EventType.RoomMember &&
+            event.target.userId == this.userId &&
+            event.getContent().membership == "join" &&
+            event.getPrevContent()?.membership == "invite"
+          ) {
+            if (event.getPrevContent()?.is_direct) {
+              let userId = room.getDMInviter();
+              if (this._pendingRoomInvites.has(room.roomId)) {
+                this.cancelBuddyRequest(userId);
+                this._pendingRoomInvites.delete(room.roomId);
+              }
+              conv = this.getDirectConversation(userId, room.roomId, room.name);
+            } else {
+              conv = this.getGroupConversation(room.roomId, room.name);
+            }
+          } else {
+            return;
+          }
         }
         conv.addEvent(event);
       }
@@ -1943,11 +1963,16 @@ MatrixAccount.prototype = {
       }
     }
     // Create new conversations
+    let conv;
     for (const roomId of joinedRooms) {
       if (!this.roomList.has(roomId)) {
-        let conv;
         if (this.isDirectRoom(roomId)) {
           const room = this._client.getRoom(roomId);
+          if (this._pendingRoomInvites.has(roomId)) {
+            let userId = room.getDMInviter();
+            this.cancelBuddyRequest(userId);
+            this._pendingRoomInvites.delete(roomId);
+          }
           const interlocutorId = room
             .getJoinedMembers()
             .find(member => member.userId != this.userId)?.userId;

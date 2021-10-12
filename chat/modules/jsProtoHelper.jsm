@@ -236,6 +236,23 @@ var GenericAccountPrototype = {
       r => r !== aRequest
     );
   },
+  /**
+   * Cancel a pending buddy request.
+   *
+   * @param {string} aUserName - The username the request is for.
+   */
+  cancelBuddyRequest(aUserName) {
+    if (!this._pendingBuddyRequests) {
+      return;
+    }
+
+    for (let request of this._pendingBuddyRequests) {
+      if (request.userName == aUserName) {
+        request.cancel();
+        break;
+      }
+    }
+  },
   cancelPendingBuddyRequests() {
     if (!this._pendingBuddyRequests) {
       return;
