@@ -132,118 +132,274 @@ add_task(function test_opening_thread_in_tabs_closing_behaviour() {
 });
 
 /**
- * Test closing the tab with the mouse or keyboard.
+ * @typedef {Object} TestTab
+ * @property {Element} node - The tab's DOM node.
+ * @property {number} index - The tab's index.
+ * @property {Object} info - The tabInfo for this tab, as used in #tabmail.
  */
-add_task(function test_close_tab_methods() {
+
+/**
+ * Open some message tabs in the background from the folder tab.
+ *
+ * @param {number} numAdd - The number of tabs to add.
+ *
+ * @param {TestTab[]} An array of tab objects corresponding to all the open
+ *   tabs.
+ */
+function openTabs(numAdd) {
   be_in_folder(gFolder);
   select_click_row(0);
-  // Open five message tabs in the background.
-  open_selected_message_in_new_tab(true);
-  open_selected_message_in_new_tab(true);
-  open_selected_message_in_new_tab(true);
-  open_selected_message_in_new_tab(true);
-  open_selected_message_in_new_tab(true);
-
-  let numTabs = 6;
-
+  for (let i = 0; i < numAdd; i++) {
+    open_selected_message_in_new_tab(true);
+  }
   let tabs = mc.tabmail.tabInfo.map((info, index) => {
     return {
       info,
       index,
       node: info.tabNode,
-      close: info.tabNode.querySelector(".tab-close-button"),
     };
   });
-  Assert.equal(tabs.length, numTabs, "Have all tabs");
+  Assert.equal(tabs.length, numAdd + 1, "Have expected number of tabs");
+  return tabs;
+}
 
-  /**
-   * Assert that a tab is closed.
-   *
-   * @param {Object} tab - The tab to close (an item from the 'tabs' array).
-   * @param {Function} closeMethod - The method to call on tab in order to close
-   *   it.
-   * @param {Object} switchTo - The tab we expect to switch to after closing
-   *   tab.
-   */
-  function assertClose(tab, closeMethod, switchTo) {
-    Assert.equal(
-      mc.tabmail.tabInfo.length,
-      numTabs,
-      `Number of tabs before removing tab #${tab.index}`
+/**
+ * Assert that a tab is closed.
+ *
+ * @param {TestTab} fromTab - The tab to close from.
+ * @param {Function} closeMethod - The (async) method to call on fromTab.node in
+ *   order to perform the tab close.
+ * @param {TestTab} switchToTab - The tab we expect to switch to after closing
+ *   tab.
+ * @param {TestTab[]} [closingTabs] - The tabs we expect to close after calling
+ *   the closeMethod. This is just fromTab by default.
+ */
+async function assertClose(fromTab, closeMethod, switchToTab, closingTabs) {
+  let desc;
+  if (closingTabs) {
+    let closingIndices = closingTabs.map(t => t.index).join(",");
+    desc = `closing tab #${closingIndices} using tab #${fromTab.index}`;
+  } else {
+    closingTabs = [fromTab];
+    desc = `closing tab #${fromTab.index}`;
+  }
+  let numTabsBefore = mc.tabmail.tabInfo.length;
+  for (let tab of closingTabs) {
+    Assert.ok(
+      tab.node.parentNode,
+      `tab #${tab.index} should be in the DOM tree before ${desc}`
     );
-    Assert.ok(tab.node.parentNode, `tab #${tab.index} should be in DOM tree`);
-    closeMethod(tab);
+  }
+  fromTab.node.scrollIntoView();
+  await closeMethod(fromTab.node);
+  for (let tab of closingTabs) {
     Assert.ok(
       !tab.node.parentNode,
-      `tab #${tab.index} should be removed from the DOM tree`
-    );
-    numTabs--;
-    Assert.equal(
-      mc.tabmail.tabInfo.length,
-      numTabs,
-      `Number of tabs after removing tab #${tab.index}`
-    );
-    assert_selected_tab(
-      switchTo.info,
-      `tab #${switchTo.index} is selected after removing tab #${tab.index}`
+      `tab #${tab.index} should be removed from the DOM tree after ${desc}`
     );
   }
+  Assert.equal(
+    mc.tabmail.tabInfo.length,
+    numTabsBefore - closingTabs.length,
+    `Number of tabs after ${desc}`
+  );
+  assert_selected_tab(
+    switchToTab.info,
+    `tab #${switchToTab.index} is selected after ${desc}`
+  );
+}
 
-  function closeWithButton(tab) {
-    EventUtils.synthesizeMouseAtCenter(tab.close, {}, mc.window);
-  }
+/**
+ * Close a tab using its close button.
+ *
+ * @param {Element} tab - The tab to close.
+ */
+function closeWithButton(tab) {
+  EventUtils.synthesizeMouseAtCenter(
+    tab.querySelector(".tab-close-button"),
+    {},
+    tab.ownerGlobal
+  );
+}
 
-  function closeWithMiddleClick(tab) {
-    EventUtils.synthesizeMouseAtCenter(tab.node, { button: 1 }, mc.window);
-  }
+/**
+ * Close a tab using a middle mouse click.
+ *
+ * @param {Element} tab - The tab to close.
+ */
+function closeWithMiddleClick(tab) {
+  EventUtils.synthesizeMouseAtCenter(tab, { button: 1 }, tab.ownerGlobal);
+}
 
-  function closeWithKeyboard() {
-    if (AppConstants.platform == "macosx") {
-      EventUtils.synthesizeKey("w", { accelKey: true }, mc.window);
-    } else {
-      EventUtils.synthesizeKey("w", { ctrlKey: true }, mc.window);
-    }
+/**
+ * Close the currently selected tab.
+ *
+ * @param {Element} tab - The tab to close.
+ */
+function closeWithKeyboard(tab) {
+  if (AppConstants.platform == "macosx") {
+    EventUtils.synthesizeKey("w", { accelKey: true }, tab.ownerGlobal);
+  } else {
+    EventUtils.synthesizeKey("w", { ctrlKey: true }, tab.ownerGlobal);
   }
+}
+
+/**
+ * Open the context menu of a tab.
+ *
+ * @param {Element} tab - The tab to open the context menu of.
+ */
+async function openContextMenu(tab) {
+  let win = tab.ownerGlobal;
+  let contextMenu = win.document.getElementById("tabContextMenu");
+  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    tab,
+    { type: "contextmenu", button: 2 },
+    win
+  );
+  await shownPromise;
+}
+
+/**
+ * Close the context menu, without selecting anything.
+ *
+ * @param {Element} tab - The tab to close the context menu of.
+ */
+async function closeContextMenu(tab) {
+  let win = tab.ownerGlobal;
+  let contextMenu = win.document.getElementById("tabContextMenu");
+  let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
+  contextMenu.hidePopup();
+  await hiddenPromise;
+}
+
+/**
+ * Open a tab's context menu and select an item.
+ *
+ * @param {Element} tab - The tab to open the context menu on.
+ * @param {string} itemId - The id of the menu item to select.
+ */
+async function selectFromContextMenu(tab, itemId) {
+  let doc = tab.ownerDocument;
+  let contextMenu = doc.getElementById("tabContextMenu");
+  let item = doc.getElementById(itemId);
+  await openContextMenu(tab);
+  let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
+  contextMenu.activateItem(item);
+  await hiddenPromise;
+}
+
+/**
+ * Close a tab using its context menu.
+ *
+ * @param {Element} tab - The tab to close.
+ */
+async function closeWithContextMenu(tab) {
+  await selectFromContextMenu(tab, "tabContextMenuClose");
+}
+
+/**
+ * Close all other tabs using a tab's context menu.
+ *
+ * @param {Element} tab - The tab to not close.
+ */
+async function closeOtherTabsWithContextMenu(tab) {
+  await selectFromContextMenu(tab, "tabContextMenuCloseOtherTabs");
+}
+
+/**
+ * Test closing unselected tabs with the mouse or keyboard.
+ */
+add_task(async function test_close_unselected_tab_methods() {
+  let tabs = openTabs(3);
 
   // Can't close the first tab.
   Assert.ok(
-    BrowserTestUtils.is_hidden(tabs[0].close),
+    BrowserTestUtils.is_hidden(tabs[0].node.querySelector(".tab-close-button")),
     "Close button should be hidden for the first tab"
   );
   // Middle click does nothing.
-  closeWithMiddleClick(tabs[0]);
+  closeWithMiddleClick(tabs[0].node);
   assert_selected_tab(tabs[0].info);
   // Keyboard shortcut does nothing.
-  closeWithKeyboard();
+  closeWithKeyboard(tabs[0].node);
   assert_selected_tab(tabs[0].info);
+  // Context close item is disabled.
+  await openContextMenu(tabs[0].node);
+  Assert.ok(
+    mc.window.document.getElementById("tabContextMenuClose").disabled,
+    "Close context menu item should be disabled for the first tab"
+  );
+  await closeContextMenu(tabs[0].node);
 
   // Close unselected tabs. The selected tab should stay the same.
-  assertClose(tabs[5], closeWithButton, tabs[0]);
-  assertClose(tabs[4], closeWithMiddleClick, tabs[0]);
+  await assertClose(tabs[3], closeWithButton, tabs[0]);
+  await assertClose(tabs[1], closeWithMiddleClick, tabs[0]);
+  await assertClose(tabs[2], closeWithContextMenu, tabs[0]);
   // Keyboard shortcut cannot be used to close an unselected tab.
+});
 
-  // Close selected tabs.
+/**
+ * Test closing selected tabs with the mouse or keyboard.
+ */
+add_task(async function test_close_selected_tab_methods() {
+  let tabs = openTabs(4);
+
   // Select tab by clicking it.
+  EventUtils.synthesizeMouseAtCenter(tabs[4].node, {}, mc.window);
+  assert_selected_tab(tabs[4].info);
+  await assertClose(tabs[4], closeWithButton, tabs[3]);
+
+  // Select tab #2 by clicking tab #3 and using the shortcut to go back.
   EventUtils.synthesizeMouseAtCenter(tabs[3].node, {}, mc.window);
   assert_selected_tab(tabs[3].info);
-  assertClose(tabs[3], closeWithButton, tabs[2]);
-
-  // Select tab #1 by clicking tab #2 and using the shortcut to go back.
-  EventUtils.synthesizeMouseAtCenter(tabs[2].node, {}, mc.window);
-  assert_selected_tab(tabs[2].info);
   EventUtils.synthesizeKey(
     "VK_TAB",
     { ctrlKey: true, shiftKey: true },
     mc.window
   );
-  assert_selected_tab(tabs[1].info);
-  assertClose(tabs[1], closeWithKeyboard, tabs[2]);
+  assert_selected_tab(tabs[2].info);
+  await assertClose(tabs[2], closeWithKeyboard, tabs[3]);
 
-  // Select tab #2 (which is now the second tab) by using the shortcut to go
-  // forward from the first tab.
+  // Note: Current open tabs is: #0, #1, #2, #3.
+
+  // Select tab #1 by using the shortcut to go forward from tab #0.
   EventUtils.synthesizeMouseAtCenter(tabs[0].node, {}, mc.window);
   assert_selected_tab(tabs[0].info);
   EventUtils.synthesizeKey("VK_TAB", { ctrlKey: true }, mc.window);
-  assert_selected_tab(tabs[2].info);
-  assertClose(tabs[2], closeWithMiddleClick, tabs[0]);
+  assert_selected_tab(tabs[1].info);
+  await assertClose(tabs[1], closeWithMiddleClick, tabs[3]);
+
+  // Note: Current open tabs is: #0, #3.
+  // Close tabs #3 using the context menu.
+  await assertClose(tabs[3], closeWithContextMenu, tabs[0]);
+});
+
+/**
+ * Test closing other tabs with the context menu.
+ */
+add_task(async function test_close_other_tabs() {
+  let tabs = openTabs(3);
+
+  EventUtils.synthesizeMouseAtCenter(tabs[3].node, {}, mc.window);
+  assert_selected_tab(tabs[3].info);
+  // Close tabs #1 and #2 using the context menu of #3.
+  await assertClose(tabs[3], closeOtherTabsWithContextMenu, tabs[3], [
+    tabs[1],
+    tabs[2],
+  ]);
+
+  // Note: Current open tabs is: #0 #3.
+  // The tab #3 closeOtherItem is now disabled since only tab #0 is left, which
+  // cannot be closed.
+  await openContextMenu(tabs[3].node);
+  Assert.ok(
+    mc.window.document.getElementById("tabContextMenuCloseOtherTabs").disabled,
+    "Close context menu item should be disabled for the first tab"
+  );
+  await closeContextMenu(tabs[3].node);
+
+  // But we can close tab #3 using tab #0 context menu.
+  await assertClose(tabs[0], closeOtherTabsWithContextMenu, tabs[0], [tabs[3]]);
 });
