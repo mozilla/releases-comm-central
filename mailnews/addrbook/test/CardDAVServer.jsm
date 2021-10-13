@@ -20,6 +20,10 @@ const { CommonUtils } = ChromeUtils.import(
 const { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
 
 var CardDAVServer = {
+  books: {
+    "/addressbooks/me/default/": "Not This One",
+    "/addressbooks/me/test/": "CardDAV Test",
+  },
   cards: new Map(),
   movedCards: new Map(),
   deletedCards: new Map(),
@@ -72,22 +76,10 @@ var CardDAVServer = {
 
     // Address book interaction.
 
-    this.server.registerPathHandler(
-      this.path,
-      this.directoryHandler.bind(this)
-    );
-    this.server.registerPrefixHandler(this.path, this.cardHandler.bind(this));
-
-    // Secondary address book. There's no cards here.
-
-    this.server.registerPathHandler(
-      this.altPath,
-      this.directoryHandler.bind(this)
-    );
-    this.server.registerPrefixHandler(
-      this.altPath,
-      this.cardHandler.bind(this)
-    );
+    for (let path of Object.keys(this.books)) {
+      this.server.registerPathHandler(path, this.directoryHandler.bind(this));
+      this.server.registerPrefixHandler(path, this.cardHandler.bind(this));
+    }
   },
 
   close() {
@@ -231,35 +223,30 @@ var CardDAVServer = {
 
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
-    response.write(
-      `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
         <response>
           <href>/addressbooks/me/</href>
           ${this._outputProps(propNames, {
             "d:resourcetype": "<collection/>",
             "d:displayname": "#addressbooks",
           })}
-        </response>
-        <response>
-          <href>${this.altPath}</href>
+        </response>`;
+
+    for (let [path, name] of Object.entries(this.books)) {
+      output += `<response>
+          <href>${path}</href>
           ${this._outputProps(propNames, {
             "d:resourcetype": "<collection/><card:addressbook/>",
-            "d:displayname": "Not This One",
+            "d:displayname": name,
             "d:current-user-privilege-set":
               "<d:privilege><d:all/></d:privilege>",
           })}
-        </response>
-        <response>
-          <href>${this.path}</href>
-          ${this._outputProps(propNames, {
-            "d:resourcetype": "<collection/><card:addressbook/>",
-            "d:displayname": "CardDAV Test",
-            "d:current-user-privilege-set":
-              "<d:privilege><d:all/></d:privilege>",
-          })}
-        </response>
-      </multistatus>`.replace(/>\s+</g, "><")
-    );
+        </response>`;
+    }
+
+    output += `</multistatus>`;
+    response.write(output.replace(/>\s+</g, "><"));
   },
 
   /** Handle any requests to the address book itself. */
@@ -487,7 +474,7 @@ var CardDAVServer = {
     let found = [];
     let notFound = [];
     for (let p of propNames) {
-      if (p in propValues) {
+      if (p in propValues && propValues[p] !== undefined) {
         found.push(`<${p}>${propValues[p]}</${p}>`);
       } else {
         notFound.push(`<${p}/>`);

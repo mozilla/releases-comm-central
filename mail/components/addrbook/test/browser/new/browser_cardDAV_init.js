@@ -602,3 +602,82 @@ add_task(async function testSavePasswordLater() {
 
   Services.logins.removeAllLogins();
 });
+
+/**
+ * Tests that an address book can still be created if the server returns no
+ * name. The hostname of the server is used instead.
+ */
+add_task(async function testNoName() {
+  CardDAVServer._books = CardDAVServer.books;
+  CardDAVServer.books = { "/addressbooks/me/noname/": undefined };
+  CardDAVServer.open("alice", "alice");
+
+  let abWindow = await openAddressBookWindow();
+
+  Assert.equal(abWindow.booksList.rowCount, 3);
+
+  let dialogPromise = promiseLoadSubDialog(
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
+  ).then(async function(dialogWindow) {
+    await attemptInit(dialogWindow, {
+      url: CardDAVServer.origin,
+      password: "alice",
+      expectedStatus: null,
+      expectedBooks: [{ label: "noname", url: "/addressbooks/me/noname/" }],
+    });
+
+    dialogWindow.document
+      .querySelector("dialog")
+      .getButton("accept")
+      .click();
+  });
+  let syncPromise = new Promise(resolve => {
+    let observer = {
+      observe(directory) {
+        Services.obs.removeObserver(this, "addrbook-directory-synced");
+        resolve(directory);
+      },
+    };
+    Services.obs.addObserver(observer, "addrbook-directory-synced");
+  });
+
+  abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
+
+  await dialogPromise;
+  let directory = await syncPromise;
+  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
+    `${CardDAVServer.origin}/addressbooks/me/noname/`
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.token`, ""),
+    "http://mochi.test/sync/0"
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.username`, ""),
+    "alice"
+  );
+  Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
+
+  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  Assert.equal(logins.length, 1, "login was saved");
+  Assert.equal(logins[0].username, "alice");
+  Assert.equal(logins[0].password, "alice");
+
+  Assert.equal(abWindow.booksList.rowCount, 4);
+  Assert.equal(
+    abWindow.booksList.getRowAtIndex(2).querySelector(".bookRow-name")
+      .textContent,
+    "noname"
+  );
+
+  await closeAddressBookWindow();
+  await CardDAVServer.close();
+  CardDAVServer.books = CardDAVServer._books;
+
+  await promiseDirectoryRemoved(directory.URI);
+
+  Services.logins.removeAllLogins();
+});

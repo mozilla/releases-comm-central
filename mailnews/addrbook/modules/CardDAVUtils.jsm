@@ -502,9 +502,22 @@ var CardDAVUtils = {
         }
       }
 
+      url = new URL(r.querySelector("href").textContent, url);
+      let name = r.querySelector("displayname")?.textContent;
+      if (!name) {
+        // The server didn't give a name, let's make one from the path.
+        name = url.pathname
+          .replace(/\/$/, "")
+          .split("/")
+          .slice(-1)[0];
+      }
+      if (!name) {
+        // That didn't work either, use the hostname.
+        name = url.hostname;
+      }
       foundBooks.push({
-        url: new URL(r.querySelector("href").textContent, url),
-        name: r.querySelector("displayname").textContent,
+        url,
+        name,
         create() {
           let dirPrefId = MailServices.ab.newAddressBook(
             this.name,
@@ -543,7 +556,7 @@ var CardDAVUtils = {
             }
             book.setStringValue("carddav.username", username);
           } else if (callbacks.authInfo?.username) {
-            log.log(`Saving login info for ${username}`);
+            log.log(`Saving login info for ${callbacks.authInfo.username}`);
             book.setStringValue(
               "carddav.username",
               callbacks.authInfo.username
