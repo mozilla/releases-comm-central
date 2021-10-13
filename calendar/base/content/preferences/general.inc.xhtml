@@ -1,196 +1,196 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-    <html:div data-category="paneCalendar">
-    <html:fieldset data-category="paneCalendar">
-        <html:legend data-l10n-id="todaypane-legend"></html:legend>
-        <hbox align="center">
-            <label data-l10n-id="agenda-days"
-                   control="agenda-days-menulist"/>
+  <html:div data-category="paneCalendar">
+  <html:fieldset data-category="paneCalendar">
+    <html:legend data-l10n-id="todaypane-legend"></html:legend>
+    <hbox align="center">
+      <label data-l10n-id="agenda-days"
+             control="agenda-days-menulist"/>
+      <hbox>
+        <menulist id="agenda-days-menulist"
+                  preference="calendar.agenda.days">
+          <menupopup id="agenda-days-popup">
+            <menuitem value="1"/>
+            <menuitem value="2"/>
+            <menuitem value="3"/>
+            <menuitem value="4"/>
+            <menuitem value="5"/>
+            <menuitem value="6"/>
+            <menuitem value="7"/>
+            <menuitem value="14"/>
+            <menuitem value="21"/>
+            <menuitem value="28"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </hbox>
+  </html:fieldset>
+  </html:div>
+
+  <html:div data-category="paneCalendar">
+  <html:fieldset id="defaults-itemtype-groupbox" data-category="paneCalendar">
+    <html:legend data-l10n-id="event-task-legend"></html:legend>
+    <vbox id="defaults-itemtype-box">
+      <hbox id="defaults-event-grid-box" align="center">
+        <label id="default-event-length-label"
+               data-l10n-id="default-length-label"
+               control="defaultlength"/>
+        <html:input id="defaultlength" type="number"
+                    class="size3"
+                    min="0"
+                    preference="calendar.event.defaultlength"
+                    onselect="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"
+                    oninput="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"/>
+        <label id="defaultlengthunit"/>
+      </hbox>
+      <html:table id="defaults-task-table">
+        <html:tr id="defaults-task-start-row">
+          <html:td>
+            <label id="default-task-start-label"
+                   data-l10n-id="task-start-label"
+                   control="default_task_start"/>
+          </html:td>
+          <html:td>
             <hbox>
-                <menulist id="agenda-days-menulist"
-                          preference="calendar.agenda.days">
-                    <menupopup id="agenda-days-popup">
-                        <menuitem value="1"/>
-                        <menuitem value="2"/>
-                        <menuitem value="3"/>
-                        <menuitem value="4"/>
-                        <menuitem value="5"/>
-                        <menuitem value="6"/>
-                        <menuitem value="7"/>
-                        <menuitem value="14"/>
-                        <menuitem value="21"/>
-                        <menuitem value="28"/>
-                    </menupopup>
+              <menulist id="default_task_start"
+                        crop="none"
+                        oncommand="gCalendarGeneralPane.updateDefaultTodoDates()"
+                        preference="calendar.task.defaultstart">
+                <menupopup id="default_task_start_popup">
+                  <menuitem id="default_task_start_none"
+                            data-l10n-id="task-start-1-label"
+                            value="none"
+                            selected="true"/>
+                  <menuitem id="default_task_start_start_of_day"
+                            data-l10n-id="task-start-2-label"
+                            value="startofday"/>
+                  <menuitem id="default_task_start_tomorrow"
+                            data-l10n-id="task-start-4-label"
+                            value="tomorrow"/>
+                  <menuitem id="default_task_start_next_week"
+                            data-l10n-id="task-start-5-label"
+                            value="nextweek"/>
+                  <menuitem id="default_task_start_offset_current"
+                            data-l10n-id="task-start-6-label"
+                            value="offsetcurrent"/>
+                  <menuitem id="default_task_start_offset_next_hour"
+                            data-l10n-id="task-start-8-label"
+                            value="offsetnexthour"/>
+                </menupopup>
+              </menulist>
+            </hbox>
+          </html:td>
+          <html:td>
+            <hbox id="default_task_start_offset" align="center">
+              <html:input id="default_task_start_offset_text" type="number"
+                          class="size3"
+                          min="0"
+                          preference="calendar.task.defaultstartoffset"
+                          onselect="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"
+                          oninput="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"/>
+              <hbox>
+                <menulist id="default_task_start_offset_units"
+                          crop="none"
+                          preference="calendar.task.defaultstartoffsetunits">
+                  <menupopup id="default_task_start_offset_units_popup">
+                    <menuitem id="default_task_start_offset_units_minutes"
+                              value="minutes"
+                              selected="true"/>
+                    <menuitem id="default_task_start_offset_units_hours"
+                              value="hours"/>
+                    <menuitem id="default_task_start_offset_units_days"
+                              value="days"/>
+                  </menupopup>
                 </menulist>
+              </hbox>
             </hbox>
-        </hbox>
-    </html:fieldset>
-    </html:div>
-
-    <html:div data-category="paneCalendar">
-    <html:fieldset id="defaults-itemtype-groupbox" data-category="paneCalendar">
-        <html:legend data-l10n-id="event-task-legend"></html:legend>
-        <vbox id="defaults-itemtype-box">
-            <hbox id="defaults-event-grid-box" align="center">
-                <label id="default-event-length-label"
-                       data-l10n-id="default-length-label"
-                       control="defaultlength"/>
-                <html:input id="defaultlength" type="number"
-                            class="size3"
-                            min="0"
-                            preference="calendar.event.defaultlength"
-                            onselect="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"
-                            oninput="updateUnitLabelPlural('defaultlength', 'defaultlengthunit', 'minutes')"/>
-                <label id="defaultlengthunit"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="defaults-task-due-row">
+          <html:td>
+            <label id="default-task-due-label"
+                   data-l10n-id="task-due-label"
+                   control="default_task_due"/>
+          </html:td>
+          <html:td>
+            <hbox>
+              <menulist id="default_task_due"
+                        crop="none"
+                        oncommand="gCalendarGeneralPane.updateDefaultTodoDates()"
+                        preference="calendar.task.defaultdue">
+                <menupopup id="default_task_due_popup">
+                  <menuitem id="default_task_due_none"
+                            data-l10n-id="task-start-1-label"
+                            value="none"
+                            selected="true"/>
+                  <menuitem id="default_task_due_end_of_day"
+                            data-l10n-id="task-start-3-label"
+                            value="endofday"/>
+                  <menuitem id="default_task_due_tomorrow"
+                            data-l10n-id="task-start-4-label"
+                            value="tomorrow"/>
+                  <menuitem id="default_task_due_next_week"
+                            data-l10n-id="task-start-5-label"
+                            value="nextweek"/>
+                  <menuitem id="default_task_due_offset_current"
+                            data-l10n-id="task-start-7-label"
+                            value="offsetcurrent"/>
+                  <menuitem id="default_task_due_offset_next_hour"
+                            data-l10n-id="task-start-8-label"
+                            value="offsetnexthour"/>
+                </menupopup>
+              </menulist>
             </hbox>
-            <html:table id="defaults-task-table">
-                <html:tr id="defaults-task-start-row">
-                    <html:td>
-                        <label id="default-task-start-label"
-                               data-l10n-id="task-start-label"
-                               control="default_task_start"/>
-                    </html:td>
-                    <html:td>
-                        <hbox>
-                            <menulist id="default_task_start"
-                                      crop="none"
-                                      oncommand="gCalendarGeneralPane.updateDefaultTodoDates()"
-                                      preference="calendar.task.defaultstart">
-                                <menupopup id="default_task_start_popup">
-                                    <menuitem id="default_task_start_none"
-                                              data-l10n-id="task-start-1-label"
-                                              value="none"
-                                              selected="true"/>
-                                    <menuitem id="default_task_start_start_of_day"
-                                              data-l10n-id="task-start-2-label"
-                                              value="startofday"/>
-                                    <menuitem id="default_task_start_tomorrow"
-                                              data-l10n-id="task-start-4-label"
-                                              value="tomorrow"/>
-                                    <menuitem id="default_task_start_next_week"
-                                              data-l10n-id="task-start-5-label"
-                                              value="nextweek"/>
-                                    <menuitem id="default_task_start_offset_current"
-                                              data-l10n-id="task-start-6-label"
-                                              value="offsetcurrent"/>
-                                    <menuitem id="default_task_start_offset_next_hour"
-                                              data-l10n-id="task-start-8-label"
-                                              value="offsetnexthour"/>
-                                </menupopup>
-                            </menulist>
-                        </hbox>
-                    </html:td>
-                    <html:td>
-                        <hbox id="default_task_start_offset" align="center">
-                            <html:input id="default_task_start_offset_text" type="number"
-                                        class="size3"
-                                        min="0"
-                                        preference="calendar.task.defaultstartoffset"
-                                        onselect="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"
-                                        oninput="updateMenuLabelsPlural('default_task_start_offset_text', 'default_task_start_offset_units')"/>
-                            <hbox>
-                                <menulist id="default_task_start_offset_units"
-                                          crop="none"
-                                          preference="calendar.task.defaultstartoffsetunits">
-                                    <menupopup id="default_task_start_offset_units_popup">
-                                        <menuitem id="default_task_start_offset_units_minutes"
-                                                  value="minutes"
-                                                  selected="true"/>
-                                        <menuitem id="default_task_start_offset_units_hours"
-                                                  value="hours"/>
-                                        <menuitem id="default_task_start_offset_units_days"
-                                                  value="days"/>
-                                    </menupopup>
-                                </menulist>
-                            </hbox>
-                        </hbox>
-                    </html:td>
-                </html:tr>
-                <html:tr id="defaults-task-due-row">
-                    <html:td>
-                        <label id="default-task-due-label"
-                               data-l10n-id="task-due-label"
-                               control="default_task_due"/>
-                    </html:td>
-                    <html:td>
-                        <hbox>
-                            <menulist id="default_task_due"
-                                      crop="none"
-                                      oncommand="gCalendarGeneralPane.updateDefaultTodoDates()"
-                                      preference="calendar.task.defaultdue">
-                                <menupopup id="default_task_due_popup">
-                                    <menuitem id="default_task_due_none"
-                                              data-l10n-id="task-start-1-label"
-                                              value="none"
-                                              selected="true"/>
-                                    <menuitem id="default_task_due_end_of_day"
-                                              data-l10n-id="task-start-3-label"
-                                              value="endofday"/>
-                                    <menuitem id="default_task_due_tomorrow"
-                                              data-l10n-id="task-start-4-label"
-                                              value="tomorrow"/>
-                                    <menuitem id="default_task_due_next_week"
-                                              data-l10n-id="task-start-5-label"
-                                              value="nextweek"/>
-                                    <menuitem id="default_task_due_offset_current"
-                                              data-l10n-id="task-start-7-label"
-                                              value="offsetcurrent"/>
-                                    <menuitem id="default_task_due_offset_next_hour"
-                                              data-l10n-id="task-start-8-label"
-                                              value="offsetnexthour"/>
-                                </menupopup>
-                            </menulist>
-                        </hbox>
-                    </html:td>
-                    <html:td>
-                        <hbox id="default_task_due_offset" align="center">
-                            <html:input id="default_task_due_offset_text" type="number"
-                                        class="size3"
-                                        min="0"
-                                        preference="calendar.task.defaultdueoffset"
-                                        onselect="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"
-                                        oninput="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"/>
-                            <hbox>
-                                <menulist id="default_task_due_offset_units"
-                                          crop="none"
-                                          preference="calendar.task.defaultdueoffsetunits">
-                                    <menupopup id="default_task_due_offset_units_popup">
-                                        <menuitem id="default_task_due_offset_units_minutes"
-                                                  value="minutes"
-                                                  selected="true"/>
-                                        <menuitem id="default_task_due_offset_units_hours"
-                                                  value="hours"/>
-                                        <menuitem id="default_task_due_offset_units_days"
-                                                  value="days"/>
-                                    </menupopup>
-                                </menulist>
-                            </hbox>
-                        </hbox>
-                    </html:td>
-                </html:tr>
-            </html:table>
-        </vbox>
-        <hbox align="center">
-            <checkbox id="tabedit" pack="end"
-                      data-l10n-id="edit-intab-label"
-                      preference="calendar.item.editInTab"/>
-        </hbox>
-        <hbox align="center">
-            <checkbox id="promptDelete" pack="end"
-                      data-l10n-id="prompt-delete-label"
-                      preference="calendar.item.promptDelete"/>
-        </hbox>
-    </html:fieldset>
-    </html:div>
+          </html:td>
+          <html:td>
+            <hbox id="default_task_due_offset" align="center">
+              <html:input id="default_task_due_offset_text" type="number"
+                          class="size3"
+                          min="0"
+                          preference="calendar.task.defaultdueoffset"
+                          onselect="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"
+                          oninput="updateMenuLabelsPlural('default_task_due_offset_text', 'default_task_due_offset_units')"/>
+              <hbox>
+                <menulist id="default_task_due_offset_units"
+                          crop="none"
+                          preference="calendar.task.defaultdueoffsetunits">
+                  <menupopup id="default_task_due_offset_units_popup">
+                    <menuitem id="default_task_due_offset_units_minutes"
+                              value="minutes"
+                              selected="true"/>
+                    <menuitem id="default_task_due_offset_units_hours"
+                              value="hours"/>
+                    <menuitem id="default_task_due_offset_units_days"
+                              value="days"/>
+                  </menupopup>
+                </menulist>
+              </hbox>
+            </hbox>
+          </html:td>
+        </html:tr>
+      </html:table>
+    </vbox>
+    <hbox align="center">
+      <checkbox id="tabedit" pack="end"
+                data-l10n-id="edit-intab-label"
+                preference="calendar.item.editInTab"/>
+    </hbox>
+    <hbox align="center">
+      <checkbox id="promptDelete" pack="end"
+                data-l10n-id="prompt-delete-label"
+                preference="calendar.item.promptDelete"/>
+    </hbox>
+  </html:fieldset>
+  </html:div>
 
-    <html:div data-category="paneCalendar">
-    <html:fieldset id="systemColorsGroupbox" data-category="paneCalendar">
-        <html:legend data-l10n-id="accessibility-legend"></html:legend>
-        <hbox align="center">
-            <checkbox id="systemColors" pack="end"
-                      data-l10n-id="accessibility-colors-label"
-                      preference="calendar.view.useSystemColors"/>
-        </hbox>
-    </html:fieldset>
-    </html:div>
+  <html:div data-category="paneCalendar">
+  <html:fieldset id="systemColorsGroupbox" data-category="paneCalendar">
+    <html:legend data-l10n-id="accessibility-legend"></html:legend>
+    <hbox align="center">
+      <checkbox id="systemColors" pack="end"
+                data-l10n-id="accessibility-colors-label"
+                preference="calendar.view.useSystemColors"/>
+    </hbox>
+  </html:fieldset>
+  </html:div>
