@@ -71,6 +71,13 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
 
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gMIMEService",
+  "@mozilla.org/mime;1",
+  "nsIMIMEService"
+);
+
 XPCOMUtils.defineLazyScriptGetter(
   this,
   "PrintUtils",
@@ -7577,39 +7584,66 @@ function attachmentBucketUpdateTooltips() {
 }
 
 function OpenSelectedAttachment() {
-  if (gAttachmentBucket.selectedItems.length == 1) {
-    let attachmentUrl = gAttachmentBucket.getSelectedItem(0).attachment.url;
+  if (gAttachmentBucket.selectedItems.length != 1) {
+    return;
+  }
+  let attachment = gAttachmentBucket.getSelectedItem(0).attachment;
+  let attachmentUrl = attachment.url;
 
-    let messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
-    if (messagePrefix.test(attachmentUrl)) {
-      // we must be dealing with a forwarded attachment, treat this special
-      let msgHdr = gMessenger
-        .messageServiceFromURI(attachmentUrl)
-        .messageURIToMsgHdr(attachmentUrl);
-      if (msgHdr) {
-        MailUtils.openMessageInNewWindow(msgHdr);
-      }
-    } else {
-      // Turn the URL into a nsIURI object then open it.
-      let uri = Services.io.newURI(attachmentUrl);
-      if (uri) {
-        let channel = Services.io.newChannelFromURI(
-          uri,
-          null,
-          Services.scriptSecurityManager.getSystemPrincipal(),
-          null,
-          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-          Ci.nsIContentPolicy.TYPE_OTHER
-        );
-        if (channel) {
-          let uriLoader = Cc["@mozilla.org/uriloader;1"].getService(
-            Ci.nsIURILoader
-          );
-          uriLoader.openURI(channel, true, new nsAttachmentOpener());
-        }
-      }
+  let messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
+  if (messagePrefix.test(attachmentUrl)) {
+    // we must be dealing with a forwarded attachment, treat this special
+    let msgHdr = gMessenger
+      .messageServiceFromURI(attachmentUrl)
+      .messageURIToMsgHdr(attachmentUrl);
+    if (msgHdr) {
+      MailUtils.openMessageInNewWindow(msgHdr);
     }
-  } // if one attachment selected
+    return;
+  }
+  if (attachment.contentType == "application/pdf") {
+    // @see msgHdrView.js which has simililar opening functionality
+    let handlerInfo = gMIMEService.getFromTypeAndExtension(
+      attachment.contentType,
+      null
+    );
+    // Only open a new tab for pdfs if we are handling them internally.
+    if (
+      !handlerInfo.alwaysAskBeforeHandling &&
+      handlerInfo.preferredAction == Ci.nsIHandlerInfo.handleInternally
+    ) {
+      // Add the content type to avoid a "how do you want to open this?"
+      // dialog. The type may already be there, but that doesn't matter.
+      let url = attachment.url;
+      if (!url.includes("type=")) {
+        url += url.includes("?") ? "&" : "?";
+        url += "type=application/pdf";
+      }
+      let tabmail = Services.wm
+        .getMostRecentWindow("mail:3pane")
+        ?.document.getElementById("tabmail");
+      if (tabmail) {
+        tabmail.openTab("contentTab", {
+          url,
+          background: false,
+          linkHandler: "single-page",
+        });
+        return;
+      }
+      // If no tabmail, open PDF same as other attachments.
+    }
+  }
+  let uri = Services.io.newURI(attachmentUrl);
+  let channel = Services.io.newChannelFromURI(
+    uri,
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
+  let uriLoader = Cc["@mozilla.org/uriloader;1"].getService(Ci.nsIURILoader);
+  uriLoader.openURI(channel, true, new nsAttachmentOpener());
 }
 
 function nsAttachmentOpener() {}
