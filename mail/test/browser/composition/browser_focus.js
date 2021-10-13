@@ -44,6 +44,11 @@ async function checkFocusCycling(controller, options) {
   let extraMenuButton = doc.getElementById("extraAddressRowsMenuButton");
   let languageButton = doc.getElementById("languageStatusButton");
 
+  if (Services.ww.activeWindow != win) {
+    // Wait for the window to be in focus before beginning.
+    await BrowserTestUtils.waitForEvent(win, "activate");
+  }
+
   let key = options.useTab ? "VK_TAB" : "VK_F6";
   let goForward = () =>
     EventUtils.synthesizeKey(key, { ctrlKey: options.useTab }, win);
