@@ -1242,13 +1242,6 @@ function getSortColumn() {
  *   the import or create screen as requested by the user.
  */
 function openKeyWizard(isImport = false) {
-  // Bug 1638153: The rootTreeItem object has been removed after 78. We need to
-  // the availability of "browsingContext" to use the right DOM window in 79+.
-  let w =
-    "browsingContext" in window
-      ? window.browsingContext.topChromeWindow
-      : window.docShell.rootTreeItem.domWindow;
-
   let args = {
     gSubDialog: null,
     cancelCallback: clearKeyCache,
@@ -1260,7 +1253,7 @@ function openKeyWizard(isImport = false) {
     isImport,
   };
 
-  w.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "chrome://openpgp/content/ui/keyWizard.xhtml",
     "enigmail:KeyWizard",
     "dialog,modal,centerscreen,resizable",
