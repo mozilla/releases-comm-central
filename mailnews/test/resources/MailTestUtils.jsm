@@ -101,7 +101,7 @@ var mailTestUtils = {
 
       let bytesToRead = Math.min(bytesLeft, 4096);
       var str = sstream.read(bytesToRead);
-      bytesLeft -= bytesToRead;
+      bytesLeft -= str.length;
       while (str.length > 0) {
         data += str;
         if (bytesLeft <= 0) {
@@ -109,7 +109,7 @@ var mailTestUtils = {
         }
         bytesToRead = Math.min(bytesLeft, 4096);
         str = sstream.read(bytesToRead);
-        bytesLeft -= bytesToRead;
+        bytesLeft -= str.length;
       }
       sstream.close();
     }
