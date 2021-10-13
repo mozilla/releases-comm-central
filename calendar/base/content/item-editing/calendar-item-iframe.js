@@ -421,11 +421,6 @@ function onLoad() {
   // set up our calendar event observer
   eventDialogCalendarObserver.observe(item.calendar);
 
-  // Check if the systemcolor pref is set.
-  if (Services.prefs.getBoolPref("calendar.view.useSystemColors")) {
-    document.documentElement.setAttribute("systemcolors", "true");
-  }
-
   // Disable save and save close buttons and menuitems if the item
   // title is empty.
   updateTitle();

@@ -4,18 +4,6 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-window > dialog {
-  --eventBorderColor: #8d8e90;
-  --eventWidgetBorderColor: #aaaabc;
-  --eventGridStartBorderColor: #bdbec0;
-}
-
-window[systemcolors] > dialog {
-  --eventBorderColor: ThreeDShadow;
-  --eventWidgetBorderColor: ThreeDShadow;
-  --eventGridStartBorderColor: ThreeDShadow;
-}
-
 #calendar-event-dialog:-moz-lwtheme,
 #calendar-task-dialog:-moz-lwtheme {
   background-color: transparent;

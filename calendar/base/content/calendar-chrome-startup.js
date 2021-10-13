@@ -93,9 +93,6 @@ async function loadCalendarComponent() {
   // Set calendar color CSS on this window
   cal.view.colorTracker.registerWindow(window);
 
-  // Set up window pref observers
-  calendarWindowPrefs.init();
-
   // Set up the available modifiers for each platform.
   let keys = document.querySelectorAll("#calendar-keys > key");
   let platform = AppConstants.platform;
@@ -168,9 +165,6 @@ function unloadCalendarComponent() {
   // Remove the command controller
   removeCalendarCommandController();
 
-  // Clean up window pref observers
-  calendarWindowPrefs.cleanup();
-
   finishCalendarUnifinder();
 
   taskEdit.onUnload();
@@ -189,59 +183,6 @@ async function uninstallLightningAddon() {
     console.error("Error while attempting to uninstall Lightning addon:", err);
   }
 }
-
-/**
- * TODO: The systemcolors pref observer really only needs to be set up once, so
- * ideally this code should go into a component. This should be taken care of when
- * there are more prefs that need to be observed on a global basis that don't fit
- * into the calendar manager.
- */
-var calendarWindowPrefs = {
-  /** nsISupports QueryInterface */
-  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-
-  /** Initialize the preference observers */
-  init() {
-    Services.prefs.addObserver("calendar.view.useSystemColors", this);
-    Services.ww.registerNotification(this);
-
-    // Trigger setting pref on all open windows
-    this.observe(null, "nsPref:changed", "calendar.view.useSystemColors");
-  },
-
-  /**  Cleanup the preference observers */
-  cleanup() {
-    Services.prefs.removeObserver("calendar.view.useSystemColors", this);
-    Services.ww.unregisterNotification(this);
-  },
-
-  /**
-   * Observer function called when a pref has changed
-   *
-   * @see nsIObserver
-   */
-  observe(aSubject, aTopic, aData) {
-    if (aTopic == "nsPref:changed") {
-      switch (aData) {
-        case "calendar.view.useSystemColors": {
-          let useSystemColors =
-            Services.prefs.getBoolPref("calendar.view.useSystemColors", false) && "true";
-          for (let win of Services.ww.getWindowEnumerator()) {
-            win.document.documentElement.toggleAttribute("systemcolors", useSystemColors);
-          }
-          break;
-        }
-      }
-    } else if (aTopic == "domwindowopened") {
-      let win = aSubject;
-      win.addEventListener("load", () => {
-        let useSystemColors =
-          Services.prefs.getBoolPref("calendar.view.useSystemColors", false) && "true";
-        win.document.documentElement.toggleAttribute("systemcolors", useSystemColors);
-      });
-    }
-  },
-};
 
 /**
  * Set up calendar appmenu buttons by adding event listeners to the buttons.

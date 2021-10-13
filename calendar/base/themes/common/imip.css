@@ -51,24 +51,26 @@
   text-decoration-line: none;
 }
 
-body[systemcolors] .invitation-table .added {
-  color: currentColor;
-  font-weight: bold;
-}
-
 .invitation-table .modified {
   color: rgb(255, 0, 0);
   font-style: italic;
-}
-
-body[systemcolors] .invitation-table .modified {
-  color: currentColor;
 }
 
 .invitation-table .removed {
   color: rgb(125, 125, 125);
 }
 
-body[systemcolors] .invitation-table .removed {
-  color: currentColor;
+@media (prefers-contrast) {
+  .invitation-table .added {
+    color: currentColor;
+    font-weight: bold;
+  }
+
+  .invitation-table .modified {
+    color: currentColor;
+  }
+
+  .invitation-table .removed {
+    color: currentColor;
+  }
 }

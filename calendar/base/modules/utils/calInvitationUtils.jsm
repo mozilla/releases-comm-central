@@ -6,7 +6,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { recurrenceRule2String } = ChromeUtils.import(
   "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 const EXPORTED_SYMBOLS = ["calinvitation"];
@@ -306,11 +305,6 @@ var calinvitation = {
    *   show as updated.
    */
   updateInvitationOverlay(doc, event, itipItem, oldEvent) {
-    doc.body.toggleAttribute(
-      "systemcolors",
-      Services.prefs.getBoolPref("calendar.view.useSystemColors", false)
-    );
-
     let headerDescr = doc.getElementById("imipHtml-header");
     if (headerDescr) {
       headerDescr.textContent = calinvitation.getItipHeader(itipItem);

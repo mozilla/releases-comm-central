@@ -446,13 +446,28 @@ calview.colorTracker = {
       this.calendars = new Set(manager.getCalendars());
       manager.addObserver(this);
       manager.addCalendarObserver(this);
+
       this.categoryBranch = Services.prefs.getBranch("calendar.category.color.");
       this.categoryBranch.addObserver("", this);
+
+      XPCOMUtils.defineLazyPreferenceGetter(
+        this,
+        "useSystemColors",
+        "calendar.view.useSystemColors",
+        false,
+        (name, oldValue, value) => {
+          for (let window of this.windows) {
+            window.document.documentElement.toggleAttribute("systemcolors", value);
+          }
+        }
+      );
+
       Services.obs.addObserver(this, "xpcom-shutdown");
     }
 
     this.windows.add(aWindow);
     aWindow.addEventListener("unload", () => this.windows.delete(aWindow));
+
     this.addColorsToDocument(aWindow.document);
   },
   addColorsToDocument(aDocument) {
@@ -460,6 +475,7 @@ calview.colorTracker = {
       this._addCalendarToDocument(aDocument, calendar);
     }
     this._addAllCategoriesToDocument(aDocument);
+    aDocument.documentElement.toggleAttribute("systemcolors", this.useSystemColors);
   },
 
   _addCalendarToDocument(aDocument, aCalendar) {
