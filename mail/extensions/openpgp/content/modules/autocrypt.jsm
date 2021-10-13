@@ -24,7 +24,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   // EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  // EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailSqliteDb: "chrome://openpgp/content/modules/sqliteDb.jsm",
   // PromiseUtils: "resource://gre/modules/PromiseUtils.jsm",
@@ -778,14 +777,17 @@ var EnigmailAutocrypt = {
           if (setupData) {
             EnigmailKeyEditor.setKeyTrust(null, "0x" + setupData.fpr, "5", function(returnCode) {
               if (returnCode === 0) {
-                let id = EnigmailStdlib.getIdentityForEmail(EnigmailFuncs.stripEmail(fromAddr).toLowerCase());
-                let ac = EnigmailFuncs.getAccountForIdentity(id.identity);
+                let email = EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
+                let identity = MailServices.accounts.allIdentities.find(id =>
+                  id.email?.toLowerCase() == email
+                );
+                let ac = EnigmailFuncs.getAccountForIdentity(identity);
                 ac.incomingServer.setBoolValue("enableAutocrypt", true);
                 ac.incomingServer.setIntValue("acPreferEncrypt", (setupData.preferEncrypt === "mutual" ? 1 : 0));
-                id.identity.setCharAttribute("pgpkeyId", "0x" + setupData.fpr);
-                id.identity.setBoolAttribute("enablePgp", true);
-                id.identity.setBoolAttribute("pgpMimeMode", true);
-                id.identity.setIntAttribute("pgpKeyMode", 1);
+                identity.setCharAttribute("pgpkeyId", "0x" + setupData.fpr);
+                identity.setBoolAttribute("enablePgp", true);
+                identity.setBoolAttribute("pgpMimeMode", true);
+                identity.setIntAttribute("pgpKeyMode", 1);
                 resolve(setupData);
               }
               else {

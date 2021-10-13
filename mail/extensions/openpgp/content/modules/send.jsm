@@ -16,7 +16,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
 
@@ -47,23 +47,12 @@ var EnigmailSend = {
       "EnigmailSend.sendMessage: wrote file: " + tmpFile.path + "\n"
     );
 
-    try {
-      msgIdentity = EnigmailStdlib.getIdentityForEmail(compFields.from);
-    } catch (ex) {
-      msgIdentity = EnigmailStdlib.getDefaultIdentity();
-    }
-
-    if (!msgIdentity) {
-      return false;
-    }
-
-    EnigmailLog.DEBUG(
-      "EnigmailSend.sendMessage: identity key: " +
-        msgIdentity.identity.key +
-        "\n"
+    let email = EnigmailFuncs.stripEmail(compFields.from).toLowerCase();
+    let identity = MailServices.accounts.allIdentities.find(
+      id => id.email?.toLowerCase() == email
     );
 
-    let acct = EnigmailFuncs.getAccountForIdentity(msgIdentity.identity);
+    let acct = EnigmailFuncs.getAccountForIdentity(identity);
     if (!acct) {
       return false;
     }

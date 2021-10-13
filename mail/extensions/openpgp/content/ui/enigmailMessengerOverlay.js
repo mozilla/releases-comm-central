@@ -49,7 +49,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
-  EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
@@ -449,11 +448,13 @@ Enigmail.msg = {
     try {
       let email = EnigmailFuncs.stripEmail(
         gFolderDisplay.selectedMessage.recipients
+      ).toLowerCase();
+      let identity = MailServices.accounts.allIdentities.find(id =>
+        id.email?.toLowerCase() == email
       );
-      let maybeIdent = EnigmailStdlib.getIdentityForEmail(email);
 
-      if (maybeIdent && maybeIdent.identity) {
-        let acct = EnigmailFuncs.getAccountForIdentity(maybeIdent.identity);
+      if (identity) {
+        let acct = EnigmailFuncs.getAccountForIdentity(identity);
         return acct.incomingServer.getBoolValue("enableAutocrypt");
       }
     } catch (ex) {}
@@ -2996,16 +2997,108 @@ Enigmail.msg = {
   /*
   confirmWksRequest() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: confirmWksRequest()\n");
+
+
+    /* *
+     * @param aMsgHdrs The messages to modify
+     * @param aTransformer A function which takes the input data, modifies it, and
+     * @return the corresponding data. This is the _raw_ contents of the message.
+     * /
+    let msgHdrsModifyRaw = function(aMsgHdrs, aTransformer) {
+      let toCopy = [];
+      let toDelete = [];
+      let copyNext = () => {
+        let obj = toCopy.pop();
+        if (!obj) {
+          msgHdrsDelete(toDelete);
+          return;
+        }
+
+        let { msgHdr, tempFile } = obj;
+
+        MailServices.copy.copyFileMessage(
+          tempFile,
+          msgHdr.folder,
+          null,
+          false,
+          msgHdr.flags,
+          msgHdr.getStringProperty("keywords"),
+          {
+            QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
+
+            OnStartCopy() {},
+            OnProgress(aProgress, aProgressMax) {},
+            SetMessageKey(aKey) {},
+            GetMessageId(aMessageId) {},
+            OnStopCopy(aStatus) {
+              if (NS_SUCCEEDED(aStatus)) {
+                toDelete.push(msgHdr);
+                tempFile.remove(false);
+              }
+              copyNext();
+            },
+          },
+          null
+        );
+      };
+
+      let count = aMsgHdrs.length;
+      let tick = function() {
+        if (--count == 0) {
+          copyNext();
+        }
+      };
+
+      for (let aMsgHdr of aMsgHdrs) {
+        let msgHdr = aMsgHdr;
+        let uri = msgHdrGetUri(msgHdr);
+        let messageService = MailServices.messenger.messageServiceFromURI(uri);
+        messageService.streamMessage(
+          uri,
+          createStreamListener(function(aRawString) {
+            let data = aTransformer(aRawString);
+            if (!data) {
+              return;
+            }
+
+            let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+            tempFile.append("rethread.eml");
+            tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
+
+            let stream = Cc[
+              "@mozilla.org/network/file-output-stream;1"
+            ].createInstance(Ci.nsIFileOutputStream);
+            stream.init(tempFile, PR_WRONLY, parseInt("0600", 8), 0);
+            stream.write(data, data.length);
+            stream.close();
+
+            toCopy.push({
+              tempFile,
+              msgHdr,
+            });
+            tick();
+          }),
+          null,
+          null,
+          false,
+          ""
+        );
+      }
+    }
+
+
     try {
       var msg = gFolderDisplay.selectedMessage;
       if (!(!msg || !msg.folder)) {
         var msgHdr = msg.folder.GetMessageHeader(msg.messageKey);
-        let email = EnigmailFuncs.stripEmail(msgHdr.recipients);
-        let maybeIdent = EnigmailStdlib.getIdentityForEmail(email);
+        let email = EnigmailFuncs.stripEmail(msgHdr.recipients).toLowerCase();
+        let identity = MailServices.accounts.allIdentities.find(id =>
+          id.email?.toLowerCase() == email
+        );
 
-        if (maybeIdent && maybeIdent.identity) {
-          EnigmailStdlib.msgHdrsModifyRaw([msgHdr], function(data) {
-            EnigmailWks.confirmKey(maybeIdent.identity, data, window, function(
+        if (identity) {
+          msgHdrsModifyRaw([msgHdr], function(data) {
+            EnigmailWks.confirmKey(identity, data, window, function(
               ret
             ) {
               if (ret) {

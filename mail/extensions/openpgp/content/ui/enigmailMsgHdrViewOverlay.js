@@ -34,7 +34,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
-  EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",

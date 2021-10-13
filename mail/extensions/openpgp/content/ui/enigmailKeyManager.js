@@ -25,9 +25,6 @@ var { EnigmailClipboard } = ChromeUtils.import(
 var { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
 );
-var { EnigmailStdlib } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/stdlib.jsm"
-);
 var { EnigmailWindows } = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
 );

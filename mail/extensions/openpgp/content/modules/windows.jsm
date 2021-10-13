@@ -16,7 +16,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
 
@@ -556,7 +555,9 @@ var EnigmailWindows = {
   shutdown(reason) {
     EnigmailLog.DEBUG("windows.jsm: shutdown()\n");
 
-    let tabs = EnigmailStdlib.getMail3Pane().document.getElementById("tabmail");
+    let tabs = Services.wm
+      .getMostRecentWindow("mail:3pane")
+      .document.getElementById("tabmail");
 
     for (let i = tabs.tabInfo.length - 1; i >= 0; i--) {
       if (

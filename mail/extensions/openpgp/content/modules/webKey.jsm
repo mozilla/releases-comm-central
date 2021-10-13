@@ -21,7 +21,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
 });
 
 var EnigmailWks = {
@@ -148,12 +148,14 @@ function getWkdIdentities(keys) {
     try {
       let found = false;
       for (let uid of key.userIds) {
-        let email = EnigmailFuncs.stripEmail(uid.userId);
-        let maybeIdent = EnigmailStdlib.getIdentityForEmail(email);
+        let email = EnigmailFuncs.stripEmail(uid.userId).toLowerCase();
+        let identity = MailServices.accounts.allIdentities.find(
+          id => id.email?.toLowerCase() == email
+        );
 
-        if (maybeIdent && maybeIdent.identity) {
+        if (identity) {
           senderIdentities.push({
-            identity: maybeIdent.identity,
+            identity,
             fpr: key.fpr,
           });
         }

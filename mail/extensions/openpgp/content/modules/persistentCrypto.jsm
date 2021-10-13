@@ -23,7 +23,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailEncryption: "chrome://openpgp/content/modules/encryption.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   EnigmailFixExchangeMsg:
     "chrome://openpgp/content/modules/fixExchangeMessage.jsm",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
@@ -1169,7 +1168,8 @@ function deleteOriginalMail(msgHdr) {
           msgHdr.messageKey +
           "\n"
       );
-      EnigmailStdlib.msgHdrsDelete([msgHdr]);
+
+      msgHdr.folder.deleteMessages([msgHdr], null, false, false, null, true);
     } catch (e) {
       EnigmailLog.DEBUG(
         "persistentCrypto.jsm: deletion failed. Error: " + e.toString() + "\n"
