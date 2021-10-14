@@ -426,7 +426,7 @@ nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(
         nsCOMPtr<nsIMsgDBHdr> parent;
         // count number of ancestors - that's our level
         while (parentId != nsMsgKey_None) {
-          rv = m_db->GetMsgHdrForKey(parentId, getter_AddRefs(parent));
+          m_db->GetMsgHdrForKey(parentId, getter_AddRefs(parent));
           if (parent) {
             nsMsgKey saveParentId = parentId;
             parent->GetThreadParent(&parentId);
