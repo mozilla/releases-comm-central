@@ -374,6 +374,7 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
   if (!sortThreads) {
     // Call the base class in case we're not sorting by thread.
     rv = nsMsgDBView::Sort(sortType, sortOrder);
+    NS_ENSURE_SUCCESS(rv, rv);
     SaveSortInfo(sortType, sortOrder);
   }
 
