@@ -799,14 +799,14 @@ nsresult nsMsgFilter::SaveRule(nsIOutputStream* aStream) {
       default:
         break;
     }
+    NS_ENSURE_SUCCESS(err, err);
   }
   // and here the fun begins - file out term list...
   nsAutoCString condition;
   err = MsgTermListToString(m_termList, condition);
-  if (NS_SUCCEEDED(err))
-    err = filterList->WriteStrAttr(nsIMsgFilterList::attribCondition,
-                                   condition.get(), aStream);
-  return err;
+  NS_ENSURE_SUCCESS(err, err);
+  return filterList->WriteStrAttr(nsIMsgFilterList::attribCondition,
+                                  condition.get(), aStream);
 }
 
 // for each action, this table encodes the filterTypes that support the action.
