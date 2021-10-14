@@ -5554,7 +5554,7 @@ nsMsgViewIndex nsMsgDBView::GetThreadRootIndex(nsIMsgDBHdr* msgHdr) {
     nsCOMPtr<nsIMsgDatabase> db;
     // ### this should get the db from the folder...
     GetDBForViewIndex(tryIndex, getter_AddRefs(db));
-    if (db) rv = db->GetMsgHdrForKey(EntryInfo2.id, getter_AddRefs(tryHdr));
+    if (db) db->GetMsgHdrForKey(EntryInfo2.id, getter_AddRefs(tryHdr));
 
     if (!tryHdr) break;
 
