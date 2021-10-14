@@ -1560,7 +1560,7 @@ nsMsgLocalMailFolder::CopyFolderLocal(nsIMsgFolder* srcFolder,
     }
 
     bool match = false;
-    rv = srcFolder->MatchOrChangeFilterDestination(nullptr, false, &match);
+    srcFolder->MatchOrChangeFilterDestination(nullptr, false, &match);
     if (match && msgWindow) {
       bool confirmed = false;
       srcFolder->ConfirmFolderDeletionForFilter(msgWindow, &confirmed);
