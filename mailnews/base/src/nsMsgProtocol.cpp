@@ -1166,6 +1166,8 @@ nsMsgAsyncWriteProtocol::nsMsgAsyncWriteProtocol(nsIURI* aURL)
   mGenerateProgressNotifications = false;
   mSuspendedReadBytesPostPeriod = 0;
   mFilePostHelper = nullptr;
+  mNumBytesPosted = 0;
+  mFilePostSize = 0;
 }
 
 nsMsgAsyncWriteProtocol::~nsMsgAsyncWriteProtocol() {}
