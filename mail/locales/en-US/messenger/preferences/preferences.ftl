@@ -411,9 +411,9 @@ quoted-text-color =
 search-handler-table =
     .placeholder = Filter content types and actions
 
-type-column-label = Content Type
+type-column-header = Content Type
 
-action-column-label = Action
+action-column-header = Action
 
 save-to-label =
     .label = Save files to
