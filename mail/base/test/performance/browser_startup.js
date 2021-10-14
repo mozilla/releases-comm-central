@@ -63,7 +63,6 @@ const startupPhases = {
         // Bug 1660907: These core modules shouldn't really be being loaded
         // until sometime after first paint.
         // "resource://gre/modules/PlacesUtils.jsm",
-        // "resource://gre/modules/Promise.jsm", // imported by devtools during _delayedStartup
         // "resource://gre/modules/Preferences.jsm",
         // These can probably be pushed back even further.
         "resource:///modules/MsgDBCacheManager.jsm",

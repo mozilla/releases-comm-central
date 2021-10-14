@@ -45,7 +45,6 @@ var {
   POP3_RFC2449_handler,
   POP3_RFC5034_handler,
 } = ChromeUtils.import("resource://testing-common/mailnews/Pop3d.jsm");
-var { Promise } = ChromeUtils.import("resource://gre/modules/Promise.jsm");
 
 function POP3Pump() {
   // public attributes
