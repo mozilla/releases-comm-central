@@ -182,6 +182,8 @@ var gAccountProvisioner = {
     // Move the focus on the first available field.
     document.getElementById("mailName").focus();
     this._isInited = true;
+
+    Services.telemetry.scalarAdd("tb.account.opened_account_provisioner", 1);
   },
 
   /**
@@ -361,6 +363,14 @@ var gAccountProvisioner = {
       realName: (firstName + " " + lastName).trim(),
       email,
     });
+
+    let providerHostname = new URL(url).hostname;
+    // Collect telemetry on which provider was selected for a new email account.
+    Services.telemetry.keyedScalarAdd(
+      "tb.account.selected_account_from_provisioner",
+      providerHostname,
+      1
+    );
 
     // The user has made a selection. Close the provisioner window and let the
     // provider setup process take place in a dedicated tab.

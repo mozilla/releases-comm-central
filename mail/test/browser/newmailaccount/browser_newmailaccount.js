@@ -30,6 +30,9 @@ var { openAccountProvisioner, openAccountSetup } = ChromeUtils.import(
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
+let { TelemetryTestUtils } = ChromeUtils.import(
+  "resource://testing-common/TelemetryTestUtils.jsm"
+);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
@@ -109,6 +112,8 @@ async function waitForLoadedProviders(tab) {
  * Test a full account creation with an email provider.
  */
 add_task(async function test_account_creation_from_provisioner() {
+  Services.telemetry.clearScalars();
+
   let tab = await openAccountProvisioner();
   let tabDocument = tab.browser.contentWindow.document;
 
@@ -119,6 +124,13 @@ add_task(async function test_account_creation_from_provisioner() {
   );
 
   await waitForLoadedProviders(tab);
+
+  let scalars = TelemetryTestUtils.getProcessScalars("parent");
+  Assert.equal(
+    scalars["tb.account.opened_account_provisioner"],
+    1,
+    "Count of opened account provisioner must be correct"
+  );
 
   // Fill the email input.
   input_value(mc, NAME);
@@ -221,6 +233,14 @@ add_task(async function test_account_creation_from_provisioner() {
   wait_for_content_tab_load(undefined, function(aURL) {
     return aURL.host == "mochi.test";
   });
+
+  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  Assert.equal(
+    scalars["tb.account.selected_account_from_provisioner"]["mochi.test"],
+    1,
+    "Count of selected email addresses from provisioner must be correct"
+  );
+
   // Close the account provisioner tab, and then restore it.
   mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
   mc.tabmail.undoCloseTab();
@@ -258,6 +278,13 @@ add_task(async function test_account_creation_from_provisioner() {
       mc.tabmail.selectedTab.browser.contentWindow.gAccountSetup
         ?._currentModename == "success",
     "The success view was shown"
+  );
+
+  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  Assert.equal(
+    scalars["tb.account.new_account_from_provisioner"]["mochi.test"],
+    1,
+    "Count of created accounts from provisioner must be correct"
   );
 
   // Clean it up.

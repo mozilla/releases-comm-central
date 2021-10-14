@@ -185,6 +185,15 @@ TracingListener.prototype = {
         this.params.email
       );
 
+      let host = aRequest.getRequestHeader("Host");
+      let providerHostname = new URL("http://" + host).hostname;
+      // Collect telemetry on which provider the new address was purchased from.
+      Services.telemetry.keyedScalarAdd(
+        "tb.account.new_account_from_provisioner",
+        providerHostname,
+        1
+      );
+
       // Create the new account in the back end.
       newAccount = CreateInBackend.createAccountInBackend(accountConfig);
 
