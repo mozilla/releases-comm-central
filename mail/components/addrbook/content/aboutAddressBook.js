@@ -131,6 +131,10 @@ window.addEventListener("unload", () => {
       Services.prefs.setCharPref(pref, directory.URI);
     }
   }
+
+  // Disconnect the view (if there is one) and tree, so that the view cleans
+  // itself up and stops listening for observer service notifications.
+  cardsPane.cardsList.view = null;
 });
 
 /**
