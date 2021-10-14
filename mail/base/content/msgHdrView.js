@@ -767,6 +767,10 @@ var messageHeaderSink = {
 
     // If we have no attachments, we hide the attachment icon in the message
     // tree.
+    // PGP key attachments do not count as attachments for the purposes of the
+    // message tree, even though we still show them in the attachment list.
+    // Otherwise the attachment icon becomes less useful when someone receives
+    // lots of signed messages.
     // We do the same if we only have text/vcard attachments because we
     // *assume* the vcard attachment is a personal vcard (rather than an
     // addressbook, or a shared contact) that is attached to every message.
@@ -781,7 +785,9 @@ var messageHeaderSink = {
     this.mSaveHdr.markHasAttachments(
       currentAttachments.some(
         att =>
-          att.contentType != "text/vcard" && att.contentType != "text/x-vcard"
+          att.contentType != "text/vcard" &&
+          att.contentType != "text/x-vcard" &&
+          att.contentType != "application/pgp-keys"
       )
     );
 
