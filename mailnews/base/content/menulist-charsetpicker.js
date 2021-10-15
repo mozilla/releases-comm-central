@@ -17,23 +17,34 @@ if (!customElements.get("menulist")) {
   /**
    * MozMenulistCharsetpicker is a menulist widget that is automatically
    * populated with charset selections.
-   * Setting preference="<name>" will set the selected value to that of the
-   * named preference value.
-   * @abstract
    * @extends {MozMenuList}
    */
-  class MozMenulistCharsetpickerBase extends customElements.get("menulist") {
-    static get observedAttributes() {
-      return super.observedAttributes.concat(["subset", "preference"]);
-    }
-
+  class MozMenulistCharsetpickerViewing extends customElements.get("menulist") {
     /**
      * Get the charset values to show in the list.
      * @abstract
      * @return {String[]} an array of character encoding names
      */
     get charsetValues() {
-      return [];
+      return [
+        "UTF-8",
+        "Big5",
+        "EUC-KR",
+        "gbk",
+        "KOI8-R",
+        "ISO-2022-JP",
+        "ISO-8859-1",
+        "ISO-8859-2",
+        "ISO-8859-7",
+        "windows-874",
+        "windows-1250",
+        "windows-1251",
+        "windows-1252",
+        "windows-1255",
+        "windows-1256",
+        "windows-1257",
+        "windows-1258",
+      ];
     }
 
     connectedCallback() {
@@ -67,85 +78,6 @@ if (!customElements.get("menulist")) {
         .forEach(item => {
           this.appendItem(item.label, item.value);
         });
-      this._setupSelectedValueFromPref();
-    }
-
-    _setupSelectedValueFromPref() {
-      // Set appropriate selected menu item based on preference value.
-      if (this.hasAttribute("preference")) {
-        let preference = Services.prefs.getComplexValue(
-          this.getAttribute("preference"),
-          Ci.nsIPrefLocalizedString
-        );
-        this.value = preference.data;
-      }
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-      super.attributeChangedCallback(name, oldValue, newValue);
-      // @see MozElementMixin.attributeChangedCallback()
-      if (
-        !this.isConnectedAndReady ||
-        oldValue === newValue ||
-        !this.inheritedAttributesCache
-      ) {
-        return;
-      }
-      if (name == "preference") {
-        this._setupSelectedValueFromPref();
-      }
-    }
-  }
-
-  /**
-   * Menulist widget that shows charset applicable for sending messages.
-   * @extends MozMenulistCharsetpickerBase
-   */
-  class MozMenulistCharsetpickerSending extends MozMenulistCharsetpickerBase {
-    get charsetValues() {
-      return [
-        "UTF-8",
-        "EUC-KR",
-        "gbk",
-        "gb18030",
-        "ISO-2022-JP",
-        "ISO-8859-1",
-        "ISO-8859-7",
-        "windows-1252",
-      ];
-    }
-  }
-  customElements.define(
-    "menulist-charsetpicker-sending",
-    MozMenulistCharsetpickerSending,
-    { extends: "menulist" }
-  );
-
-  /**
-   * Menulist widget that shows charsets applicable for viewing messages.
-   * @extends MozMenulistCharsetpickerBase
-   */
-  class MozMenulistCharsetpickerViewing extends MozMenulistCharsetpickerBase {
-    get charsetValues() {
-      return [
-        "UTF-8",
-        "Big5",
-        "EUC-KR",
-        "gbk",
-        "KOI8-R",
-        "ISO-2022-JP",
-        "ISO-8859-1",
-        "ISO-8859-2",
-        "ISO-8859-7",
-        "windows-874",
-        "windows-1250",
-        "windows-1251",
-        "windows-1252",
-        "windows-1255",
-        "windows-1256",
-        "windows-1257",
-        "windows-1258",
-      ];
     }
   }
   customElements.define(
