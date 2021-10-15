@@ -4,6 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["NntpClient"];
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { NntpNewsGroup } = ChromeUtils.import(
@@ -133,9 +136,19 @@ class NntpClient {
     let stringPayload = CommonUtils.arrayBufferToByteString(
       new Uint8Array(event.data)
     );
-    this._logger.debug(`S: ${stringPayload}`);
 
     let res = this._parse(stringPayload);
+    if (res.status) {
+      this._logger.debug(`S: ${res.status} ${res.statusText}`);
+    }
+    if (res.data) {
+      if (AppConstants.MOZ_UPDATE_CHANNEL == "default") {
+        // Log the full data block only in dev build.
+        this._logger.debug(`S: ${res.data}`);
+      } else {
+        this._logger.debug(`Receiving ${res.data.length} bytes of data`);
+      }
+    }
 
     switch (res.status) {
       case AUTH_REQUIRED:
@@ -182,8 +195,24 @@ class NntpClient {
   /**
    * Send a command to the socket.
    * @param {string} str - The command string to send.
+   * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
    */
-  _sendCommand(str) {
+  _sendCommand(str, suppressLogging) {
+    if (this._socket.readyState !== "open") {
+      this._logger.warn(
+        `Failed to send "${str}" because socket state is ${this._socket.readyState}`
+      );
+      return;
+    }
+    if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
+      this._logger.debug(
+        "C: Logging suppressed (it probably contained auth information)"
+      );
+    } else {
+      // Do not suppress for non-release builds, so that debugging auth problems
+      // is easier.
+      this._logger.debug(`C: ${str}`);
+    }
     this.send(str + "\r\n");
   }
 
@@ -192,13 +221,6 @@ class NntpClient {
    * @param {string} str - The string to send.
    */
   send(str) {
-    if (this._socket.readyState !== "open") {
-      this._logger.warn(
-        `Failed to send "${str}" because socket state is ${this._socket.readyState}`
-      );
-      return;
-    }
-    this._logger.debug(`C: ${str}`);
     this._socket.send(CommonUtils.byteStringToArrayBuffer(str).buffer);
   }
 
@@ -593,7 +615,7 @@ class NntpClient {
         forcePrompt
       );
     }
-    this._sendCommand(`AUTHINFO user ${this._newsFolder.groupUsername}`);
+    this._sendCommand(`AUTHINFO user ${this._newsFolder.groupUsername}`, true);
     this._nextAction = this._actionAuthResult;
   }
 
@@ -601,7 +623,7 @@ class NntpClient {
    * Send `AUTHINFO pass <password>` to the server.
    */
   _actionAuthPassword() {
-    this._sendCommand(`AUTHINFO pass ${this._newsFolder.groupPassword}`);
+    this._sendCommand(`AUTHINFO pass ${this._newsFolder.groupPassword}`, true);
     this._nextAction = this._actionAuthResult;
   }
 

@@ -57,21 +57,28 @@ function testRFC977() {
     ]);
 
     // Test - news expiration
-    test = "news:GROUP?list-ids";
-    server.resetTest();
-    setupProtocolTest(NNTP_PORT, prefix + "test.filter?list-ids");
-    server.performTest();
-    transaction = server.playTransaction();
-    do_check_transaction(transaction, ["MODE READER", "listgroup test.filter"]);
+    if (!Services.prefs.getBoolPref("mailnews.nntp.jsmodule", false)) {
+      test = "news:GROUP?list-ids";
+      server.resetTest();
+      setupProtocolTest(NNTP_PORT, prefix + "test.filter?list-ids");
+      server.performTest();
+      transaction = server.playTransaction();
+      do_check_transaction(transaction, [
+        "MODE READER",
+        "listgroup test.filter",
+      ]);
+    }
 
     // Test - posting
-    test = "news with post";
-    server.resetTest();
-    var url = create_post(prefix, "postings/post1.eml");
-    setupProtocolTest(NNTP_PORT, url);
-    server.performTest();
-    transaction = server.playTransaction();
-    do_check_transaction(transaction, ["MODE READER", "POST"]);
+    if (!Services.prefs.getBoolPref("mailnews.nntp.jsmodule", false)) {
+      test = "news with post";
+      server.resetTest();
+      var url = create_post(prefix, "postings/post1.eml");
+      setupProtocolTest(NNTP_PORT, url);
+      server.performTest();
+      transaction = server.playTransaction();
+      do_check_transaction(transaction, ["MODE READER", "POST"]);
+    }
   } catch (e) {
     dump("NNTP Protocol test " + test + " failed for type RFC 977:\n");
     try {
@@ -140,7 +147,11 @@ function testReentrantClose() {
   url.QueryInterface(Ci.nsIMsgMailNewsUrl);
   url.RegisterListener(listener);
 
-  _server.loadNewsUrl(url, null, null);
+  _server.loadNewsUrl(url, null, {
+    QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+    onStartRequest() {},
+    onStopRequest() {},
+  });
   server.performTest("GROUP");
   dump("Stopping server\n");
   gThreadManager.currentThread.dispatch(
