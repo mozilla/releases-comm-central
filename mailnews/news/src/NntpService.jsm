@@ -11,8 +11,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
-  NntpClient: "resource:///modules/NntpClient.jsm",
-  NntpNewsGroup: "resource:///modules/NntpNewsGroup.jsm",
 });
 
 /**
@@ -61,70 +59,63 @@ class NntpService {
       server = MailServices.accounts.FindServer("", "", "nntp");
     }
     server = server.QueryInterface(Ci.nsINntpIncomingServer);
-    let uri = `news://${server.hostName}/`;
-    let client = new NntpClient(server);
-    client.connect();
 
-    let runningUrl = Services.io.newURI(uri);
+    server.wrappedJSObject.withClient(client => {
+      client.urlListener = urlListener;
 
-    client.onOpen = () => {
-      client.post();
-      urlListener?.OnStartRunningUrl(runningUrl, Cr.NS_OK);
-    };
+      client.onOpen = () => {
+        client.post();
+      };
 
-    client.onReadyToPost = () => {
-      let fstream = Cc[
-        "@mozilla.org/network/file-input-stream;1"
-      ].createInstance(Ci.nsIFileInputStream);
-      // PR_RDONLY
-      fstream.init(messageFile, 0x01, 0, 0);
-      let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      sstream.init(fstream);
+      client.onReadyToPost = () => {
+        let fstream = Cc[
+          "@mozilla.org/network/file-input-stream;1"
+        ].createInstance(Ci.nsIFileInputStream);
+        // PR_RDONLY
+        fstream.init(messageFile, 0x01, 0, 0);
+        let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+          Ci.nsIScriptableInputStream
+        );
+        sstream.init(fstream);
 
-      while (sstream.available()) {
-        let chunk = sstream.read(65536);
-        client.send(chunk);
-      }
-      sstream.close();
-      fstream.close();
-      client.sendEnd();
-    };
-
-    client.onDone = () => {
-      urlListener?.OnStopRunningUrl(runningUrl, Cr.NS_OK);
-    };
+        while (sstream.available()) {
+          let chunk = sstream.read(65536);
+          client.send(chunk);
+        }
+        sstream.close();
+        fstream.close();
+        client.sendEnd();
+      };
+    });
   }
 
   getNewNews(server, uri, getOld, urlListener, msgWindow) {
     // The uri is in the form of news://news.mozilla.org/mozilla.accessibility
     let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
-    let groupName = matches[3];
-    let newsGroup = new NntpNewsGroup(server, groupName);
-    newsGroup.getOldMessages = getOld;
 
-    let client = new NntpClient(server);
-    client.connect();
+    let runningUri = Services.io
+      .newURI(uri)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    server.wrappedJSObject.withClient(client => {
+      client.runningUri = runningUri;
+      client.onOpen = () => {
+        client.getNewNews(matches[3], getOld, urlListener, msgWindow);
+      };
+    });
 
-    client.onOpen = () => {
-      client.getNewNews(groupName, newsGroup, urlListener, msgWindow);
-    };
-
-    return client.runningUri;
+    return runningUri;
   }
 
   getListOfGroupsOnServer(server, msgWindow, getOnlyNew) {
-    let client = new NntpClient(server);
-    client.connect();
+    server.wrappedJSObject.withClient(client => {
+      client.onOpen = () => {
+        client.getListOfGroups();
+      };
 
-    client.onOpen = () => {
-      client.getListOfGroups();
-    };
-
-    client.onData = data => {
-      server.addNewsgroupToList(data.split(" ")[0]);
-    };
+      client.onData = data => {
+        server.addNewsgroupToList(data.split(" ")[0]);
+      };
+    });
   }
 
   fetchMessage(folder, key, msgWindow, consumer, urlListener) {
@@ -136,22 +127,22 @@ class NntpService {
     let inputStream = pipe.inputStream;
     let outputStream = pipe.outputStream;
 
-    let client = new NntpClient(
-      folder.server.QueryInterface(Ci.nsINntpIncomingServer)
-    );
-    client._urlListener = urlListener;
-    client.connect();
-    client.onOpen = () => {
-      client.getArticleByArticleNumber(folder.name, key);
-      consumer.onStartRequest(null);
-    };
-    client.onData = data => {
-      outputStream.write(data, data.length);
-      consumer.onDataAvailable(null, inputStream, 0, data.length);
-    };
-    client.onDone = () => {
-      consumer.onStopRequest(null, Cr.NS_OK);
-    };
+    let server = folder.server.QueryInterface(Ci.nsINntpIncomingServer);
+    server.wrappedJSObject.withClient(client => {
+      client.urlListener = urlListener;
+
+      client.onOpen = () => {
+        client.getArticleByArticleNumber(folder.name, key);
+        consumer.onStartRequest(null);
+      };
+      client.onData = data => {
+        outputStream.write(data, data.length);
+        consumer.onDataAvailable(null, inputStream, 0, data.length);
+      };
+      client.onDone = () => {
+        consumer.onStopRequest(null, Cr.NS_OK);
+      };
+    });
   }
 
   cancelMessage(cancelUrl, messageUri, consumer, urlListener, msgWindow) {
@@ -188,33 +179,34 @@ class NntpService {
       "chrome://branding/locale/brand.properties"
     );
 
-    let client = new NntpClient(server);
-    client.runningUri.msgWindow = msgWindow;
-    client.connect();
+    server.wrappedJSObject.withClient(client => {
+      client.runningUri.msgWindow = msgWindow;
 
-    client.onOpen = () => {
-      client.cancelArticle(urlListener, groupName);
-    };
+      client.onOpen = () => {
+        client.cancelArticle(urlListener, groupName);
+      };
 
-    client.onReadyToPost = () => {
-      let content = [
-        `From: ${from}`,
-        `Newsgroups: ${groupName}`,
-        `Subject: cancel ${messageId}`,
-        `References: ${messageId}`,
-        `Control: cancel ${messageId}`,
-        "MIME-Version: 1.0",
-        "Content-Type: text/plain",
-        "", // body separator
-        `This message was cancelled from within ${bundle.GetStringFromName(
-          "brandFullName"
-        )}`,
-      ];
-      client.send(content.join("\r\n"));
-      client.sendEnd();
+      client.onReadyToPost = () => {
+        let content = [
+          `From: ${from}`,
+          `Newsgroups: ${groupName}`,
+          `Subject: cancel ${messageId}`,
+          `References: ${messageId}`,
+          `Control: cancel ${messageId}`,
+          "MIME-Version: 1.0",
+          "Content-Type: text/plain",
+          "", // body separator
+          `This message was cancelled from within ${bundle.GetStringFromName(
+            "brandFullName"
+          )}`,
+        ];
+        client.send(content.join("\r\n"));
+        client.sendEnd();
 
-      newsFolder.removeMessage(messageKey);
-    };
+        newsFolder.removeMessage(messageKey);
+        newsFolder.cancelComplete();
+      };
+    });
   }
 
   /**

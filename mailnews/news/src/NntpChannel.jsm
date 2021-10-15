@@ -11,7 +11,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
-  NntpClient: "resource:///modules/NntpClient.jsm",
 });
 
 /**
@@ -244,40 +243,45 @@ class NntpChannel {
 
     let lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
 
-    let client = new NntpClient(this._server);
-    client.connect();
-    client.onOpen = () => {
-      if (this._messageId) {
-        client.getArticleByMessageId(this._messageId);
-      } else {
-        client.getArticleByArticleNumber(this._groupName, this._articleNumber);
-      }
-      if (this.loadGroup) {
-        this.loadGroup.addRequest(this, null);
-      }
-      this._listener.onStartRequest(this);
-    };
+    this._server.wrappedJSObject.withClient(client => {
+      client.onOpen = () => {
+        if (this._messageId) {
+          client.getArticleByMessageId(this._messageId);
+        } else {
+          client.getArticleByArticleNumber(
+            this._groupName,
+            this._articleNumber
+          );
+        }
+        if (this.loadGroup) {
+          this.loadGroup.addRequest(this, null);
+        }
+        this._listener.onStartRequest(this);
+      };
 
-    client.onData = data => {
-      outputStream.write(data, data.length);
-      this._listener.onDataAvailable(null, inputStream, 0, data.length);
-      // NewsFolder will decide whether to save it to the offline storage.
-      this._newsFolder?.notifyDownloadedLine(
-        data.slice(0, -2) + lineSeparator,
-        this._articleNumber
-      );
-    };
+      client.onData = data => {
+        outputStream.write(data, data.length);
+        this._listener.onDataAvailable(null, inputStream, 0, data.length);
+        // NewsFolder will decide whether to save it to the offline storage.
+        this._newsFolder?.notifyDownloadedLine(
+          data.slice(0, -2) + lineSeparator,
+          this._articleNumber
+        );
+      };
 
-    client.onDone = () => {
-      this._listener.onStopRequest(null, Cr.NS_OK);
-      if (this.loadGroup) {
-        this.loadGroup.removeRequest(this, null, Cr.NS_OK);
-      }
-      this._newsFolder?.notifyDownloadedLine(
-        `.${lineSeparator}`,
-        this._articleNumber
-      );
-      this._newsFolder?.msgDatabase.Commit(Ci.nsMsgDBCommitType.kSessionCommit);
-    };
+      client.onDone = () => {
+        this._listener.onStopRequest(null, Cr.NS_OK);
+        if (this.loadGroup) {
+          this.loadGroup.removeRequest(this, null, Cr.NS_OK);
+        }
+        this._newsFolder?.notifyDownloadedLine(
+          `.${lineSeparator}`,
+          this._articleNumber
+        );
+        this._newsFolder?.msgDatabase.Commit(
+          Ci.nsMsgDBCommitType.kSessionCommit
+        );
+      };
+    });
   }
 }

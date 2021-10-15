@@ -38,18 +38,9 @@ class NntpClient {
    * @param {string} uri - The server uri.
    */
   constructor(server) {
-    this.onOpen = () => {};
-    this.onError = () => {};
-    this.onData = () => {};
-    this.onDone = () => {};
-
     this._server = server;
 
-    let uri = `news://${this._server.realHostName}:${this._server.port}`;
-    this.runningUri = Services.io
-      .newURI(uri)
-      .QueryInterface(Ci.nsIMsgMailNewsUrl);
-
+    this._reset();
     this._logger = console.createInstance({
       prefix: "mailnews.nntp",
       maxLogLevel: "Warn",
@@ -71,22 +62,50 @@ class NntpClient {
   }
 
   /**
+   * Reset some internal states to be safely reused.
+   */
+  _reset() {
+    this.onOpen = () => {};
+    this.onError = () => {};
+    this.onData = () => {};
+    this.onDone = () => {};
+
+    let uri = `news://${this._server.realHostName}:${this._server.port}`;
+    this.runningUri = Services.io
+      .newURI(uri)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
+    this.urlListener = null;
+    this._msgWindow = null;
+  }
+
+  /**
    * Initiate a connection to the server
    */
   connect() {
-    this._urlListener?.OnStartRunningUrl(this.runningUri);
-    let useSecureTransport = this._server.isSecure;
-    this._logger.debug(
-      `Connecting to ${useSecureTransport ? "snews" : "news"}://${
-        this._server.realHostName
-      }:${this._server.port}`
-    );
-    this._socket = new TCPSocket(this._server.realHostName, this._server.port, {
-      binaryType: "arraybuffer",
-      useSecureTransport,
-    });
-    this._socket.onopen = this._onOpen;
-    this._socket.onerror = this._onError;
+    this.runningUri.SetUrlState(true, Cr.NS_OK);
+    this.urlListener?.OnStartRunningUrl(this.runningUri);
+    if (this._socket?.readyState == "open") {
+      // Reuse the connection.
+      this.onOpen();
+    } else {
+      // Start a new connection.
+      let useSecureTransport = this._server.isSecure;
+      this._logger.debug(
+        `Connecting to ${useSecureTransport ? "snews" : "news"}://${
+          this._server.realHostName
+        }:${this._server.port}`
+      );
+      this._socket = new TCPSocket(
+        this._server.realHostName,
+        this._server.port,
+        {
+          binaryType: "arraybuffer",
+          useSecureTransport,
+        }
+      );
+      this._socket.onopen = this._onOpen;
+      this._socket.onerror = this._onError;
+    }
   }
 
   /**
@@ -96,7 +115,8 @@ class NntpClient {
     this._logger.debug("Connected");
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
-    this.runningUri.SetUrlState(true, Cr.NS_OK);
+    this._inReadingMode = false;
+    this._currentGroupName = null;
     this._nextAction = ({ status }) => {
       if (status == 200) {
         this._nextAction = null;
@@ -119,6 +139,7 @@ class NntpClient {
 
     switch (res.status) {
       case AUTH_REQUIRED:
+        this._currentGroupName = null;
         this._actionAuthUser();
         return;
       case SERVICE_UNAVAILABLE:
@@ -171,6 +192,12 @@ class NntpClient {
    * @param {string} str - The string to send.
    */
   send(str) {
+    if (this._socket.readyState !== "open") {
+      this._logger.warn(
+        `Failed to send "${str}" because socket state is ${this._socket.readyState}`
+      );
+      return;
+    }
     this._logger.debug(`C: ${str}`);
     this._socket.send(CommonUtils.byteStringToArrayBuffer(str).buffer);
   }
@@ -188,24 +215,27 @@ class NntpClient {
    */
   getListOfGroups() {
     this._actionModeReader(this._actionList);
-    this._urlListener = this._server.QueryInterface(Ci.nsIUrlListener);
+    this.urlListener = this._server.QueryInterface(Ci.nsIUrlListener);
   }
 
   /**
    * Get new articles.
+   * @param {string} groupName - The group to get new articles.
    * @param {boolean} getOld - Get old articles as well.
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    */
-  getNewNews(groupName, newsGroup, urlListener, msgWindow) {
-    this._groupName = groupName;
-    this._newsGroup = newsGroup;
+  getNewNews(groupName, getOld, urlListener, msgWindow) {
+    this._currentGroupName = null;
+    this._nextGroupName = groupName;
+    this._newsGroup = new NntpNewsGroup(this._server, groupName);
+    this._newsGroup.getOldMessages = getOld;
     this._newsFolder = this._server.findGroup(groupName);
-    this._urlListener = urlListener;
+    this.urlListener = urlListener;
     this._msgWindow = msgWindow;
     this.runningUri.updatingFolder = true;
+    this._firstGroupCommand = this._actionXOver;
     this._actionModeReader(this._actionGroup);
-    this._firstCommand = this._actionXOver;
   }
 
   /**
@@ -214,10 +244,10 @@ class NntpClient {
    * @param {string} articleNumber - The article number.
    */
   getArticleByArticleNumber(groupName, articleNumber) {
-    this._groupName = groupName;
+    this._nextGroupName = groupName;
     this._articleNumber = articleNumber;
+    this._firstGroupCommand = this._actionArticle;
     this._actionModeReader(this._actionGroup);
-    this._firstCommand = this._actionArticle;
   }
 
   /**
@@ -236,9 +266,9 @@ class NntpClient {
    * @param {string} groupName - The group name.
    */
   cancelArticle(urlListener, groupName) {
-    this._urlListener = urlListener;
-    this._groupName = groupName;
-    this._firstCommand = this.post;
+    this.urlListener = urlListener;
+    this._nextGroupName = groupName;
+    this._firstGroupCommand = this.post;
     this._actionModeReader(this._actionGroup);
   }
 
@@ -250,10 +280,10 @@ class NntpClient {
    * @param {string[]} xpatLines - An array of xpat lines to send.
    */
   search(urlListener, groupName, xpatLines) {
-    this._urlListener = urlListener;
-    this._groupName = groupName;
+    this.urlListener = urlListener;
+    this._nextGroupName = groupName;
     this._xpatLines = xpatLines;
-    this._firstCommand = this._actionXPat;
+    this._firstGroupCommand = this._actionXPat;
     this._actionModeReader(this._actionGroup);
   }
 
@@ -273,9 +303,9 @@ class NntpClient {
     } else if (path.includes("@")) {
       action = () => this.getArticleByMessageId(path);
     } else {
-      this._groupName = path;
-      this._newsGroup = new NntpNewsGroup(this._server, this._groupName);
-      this._newsFolder = this._server.findGroup(this._groupName);
+      this._nextGroupName = path;
+      this._newsGroup = new NntpNewsGroup(this._server, this._nextGroupName);
+      this._newsFolder = this._server.findGroup(this._nextGroupName);
       action = () => this._actionModeReader(this._actionGroup);
     }
     if (!action) {
@@ -286,7 +316,6 @@ class NntpClient {
     pipe.init(true, true, 0, 0);
     let inputStream = pipe.inputStream;
     let outputStream = pipe.outputStream;
-    this.connect();
     this.onOpen = () => {
       streamListener.onStartRequest(null, Cr.NS_OK);
       action();
@@ -309,35 +338,62 @@ class NntpClient {
   }
 
   /**
+   * Send `QUIT` request to the server.
+   */
+  quit() {
+    this._sendCommand("QUIT");
+    this._nextAction = this.close;
+    this.close();
+  }
+
+  /**
+   * Close the socket.
+   */
+  close() {
+    this._socket.close();
+  }
+
+  /**
    * Send `MODE READER` request to the server.
    */
   _actionModeReader(nextAction) {
-    this._sendCommand("MODE READER");
-    this._nextAction = nextAction;
+    if (this._inReadingMode) {
+      nextAction();
+    } else {
+      this._sendCommand("MODE READER");
+      this._inReadingMode = true;
+      this._nextAction = nextAction;
+    }
   }
 
   /**
    * Send `LIST` request to the server.
    */
-  _actionList() {
+  _actionList = () => {
     this._sendCommand("LIST");
     this._currentAction = this._actionList;
     this._nextAction = this._actionReadData;
-  }
+  };
 
   /**
    * Send `GROUP` request to the server.
    */
-  _actionGroup() {
-    this._sendCommand(`GROUP ${this._groupName}`);
-    this._currentAction = this._actionGroup;
-    this._nextAction = this._firstCommand || this._actionXOver;
-  }
+  _actionGroup = () => {
+    this._firstGroupCommand = this._firstGroupCommand || this._actionXOver;
+    if (this._nextGroupName == this._currentGroupName) {
+      this._firstGroupCommand();
+    } else {
+      this._sendCommand(`GROUP ${this._nextGroupName}`);
+      this._currentAction = this._actionGroup;
+      this._currentGroupName = this._nextGroupName;
+      this._nextAction = this._firstGroupCommand;
+    }
+  };
 
   /**
    * Send `XOVER` request to the server.
    */
-  _actionXOver(res) {
+  _actionXOver = res => {
     let [count, low, high] = res.statusText.split(" ");
     this._newsFolder.updateSummaryFromNNTPInfo(low, high, count);
     let [start, end] = this._newsGroup.getArticlesRangeToFetch(
@@ -353,7 +409,7 @@ class NntpClient {
     } else {
       this._actionDone();
     }
-  }
+  };
 
   /**
    * A transient action to consume the status line of XOVER response.
@@ -427,7 +483,7 @@ class NntpClient {
   /**
    * Send `HEAD` request to the server.
    */
-  _actionHead() {
+  _actionHead = () => {
     if (this._startArticle <= this._endArticle) {
       this._nextAction = this._actionReadHead;
       this._sendCommand(`HEAD ${this._startArticle}`);
@@ -437,7 +493,7 @@ class NntpClient {
       this._newsGroup.finishProcessingXOver();
       this._actionDone();
     }
-  }
+  };
 
   /**
    * Handle HEAD response.
@@ -459,10 +515,10 @@ class NntpClient {
   /**
    * Send `ARTICLE` request to the server.
    */
-  _actionArticle() {
+  _actionArticle = () => {
     this._sendCommand(`ARTICLE ${this._articleNumber}`);
     this._nextAction = this._actionReadData;
-  }
+  };
 
   /**
    * Read multi-line data blocks response, emit each line through a callback.
@@ -605,9 +661,9 @@ class NntpClient {
     this.onDone();
     this._newsGroup?.cleanUp();
     this._newsFolder?.OnStopRunningUrl?.(this.runningUri, 0);
-    this._urlListener?.OnStopRunningUrl(this.runningUri, 0);
+    this.urlListener?.OnStopRunningUrl(this.runningUri, 0);
     this.runningUri.SetUrlState(false, Cr.NS_OK);
-    this._socket.close();
-    this._nextAction = null;
+    this._reset();
+    this.onIdle?.();
   };
 }

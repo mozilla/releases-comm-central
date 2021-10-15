@@ -46,6 +46,13 @@ class NntpIncomingServer extends MsgIncomingServer {
     this._subscribed = new Set();
     this._groups = [];
 
+    // @type {NntpClient[]} - An array of connections can be used.
+    this._idleConnections = [];
+    // @type {NntpClient[]} - An array of connections in use.
+    this._busyConnections = [];
+    // @type {Function[]} - An array of Promise.resolve functions.
+    this._connectionWaitingQueue = [];
+
     Services.obs.addObserver(this, "profile-before-change");
     // Update newsrc every 5 minutes.
     this._newsrcTimer = setInterval(() => this.writeNewsrcFile(), 300000);
@@ -273,7 +280,31 @@ class NntpIncomingServer extends MsgIncomingServer {
     this.performExpand(msgWindow);
   }
 
+  closeCachedConnections() {
+    for (let client of [...this._idleConnections, ...this._busyConnections]) {
+      client.quit();
+    }
+    this._idleConnections = [];
+    this._busyConnections = [];
+  }
+
   /** @see nsINntpIncomingServer */
+  get maximumConnectionsNumber() {
+    let maxConnections = this.getIntValue("max_cached_connections", 0);
+    if (maxConnections > 0) {
+      return maxConnections;
+    }
+    // The default is 2 connections, if the pref value is 0, we use the default.
+    // If it's negative, treat it as 1.
+    maxConnections = maxConnections == 0 ? 2 : 1;
+    this.maximumConnectionsNumber = maxConnections;
+    return maxConnections;
+  }
+
+  set maximumConnectionsNumber(value) {
+    this.setIntValue("max_cached_connections", value);
+  }
+
   get newsrcRootPath() {
     let file = this.getFileValue("mail.newsrc_root-rel", "mail.newsrc_root");
     if (!file) {
@@ -364,8 +395,9 @@ class NntpIncomingServer extends MsgIncomingServer {
 
   loadNewsUrl(uri, msgWindow, consumer) {
     if (consumer instanceof Ci.nsIStreamListener) {
-      let client = new NntpClient(this);
-      client.loadNewsUrl(uri.spec, msgWindow, consumer);
+      this.withClient(client => {
+        client.loadNewsUrl(uri.spec, msgWindow, consumer);
+      });
     }
   }
 
@@ -450,6 +482,52 @@ class NntpIncomingServer extends MsgIncomingServer {
       this._hostInfoFile.path,
       lines.join(this._lineSeparator) + this._lineSeparator
     );
+  }
+
+  get wrappedJSObject() {
+    return this;
+  }
+
+  /**
+   * Get an idle connection that can be used.
+   * @returns {NntpClient}
+   */
+  async _getNextClient() {
+    // The newest connection is the least likely to have timed out.
+    let client = this._idleConnections.pop();
+    if (client) {
+      this._busyConnections.push(client);
+      return client;
+    }
+    if (
+      this._idleConnections.length + this._busyConnections.length <
+      this.maximumConnectionsNumber
+    ) {
+      // Create a new client if the pool is not full.
+      client = new NntpClient(this);
+      this._busyConnections.push(client);
+      return client;
+    }
+    // Wait until a connection is available.
+    await new Promise(resolve => this._connectionWaitingQueue.push(resolve));
+    return this._getNextClient();
+  }
+
+  /**
+   * Do some actions with a connection.
+   * @param {Function} handler - A callback function to take a NntpClient
+   *   instance, and do some actions.
+   */
+  async withClient(handler) {
+    let client = await this._getNextClient();
+    client.onIdle = () => {
+      this._busyConnections = this._busyConnections.filter(c => c != client);
+      this._idleConnections.push(client);
+      // Resovle the first waiting in queue.
+      this._connectionWaitingQueue.shift()?.();
+    };
+    handler(client);
+    client.connect();
   }
 }
 
