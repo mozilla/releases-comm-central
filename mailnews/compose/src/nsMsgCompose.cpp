@@ -186,7 +186,24 @@ nsMsgCompose::nsMsgCompose() {
   m_composeHTML = false;
 }
 
-nsMsgCompose::~nsMsgCompose() {}
+nsMsgCompose::~nsMsgCompose() {
+  // Remove temporary attachment files, e.g. key.asc when attaching public key.
+  nsTArray<RefPtr<nsIMsgAttachment>> attachments;
+  m_compFields->GetAttachments(attachments);
+  for (nsIMsgAttachment* attachment : attachments) {
+    bool isTemporary;
+    attachment->GetTemporary(&isTemporary);
+    if (isTemporary) {
+      nsCString url;
+      attachment->GetUrl(url);
+      nsCOMPtr<nsIFile> urlFile;
+      nsresult rv = NS_GetFileFromURLSpec(url, getter_AddRefs(urlFile));
+      if (NS_SUCCEEDED(rv)) {
+        urlFile->Remove(false);
+      }
+    }
+  }
+}
 
 /* the following macro actually implement addref, release and query interface
  * for our component. */
@@ -1303,25 +1320,6 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
   rv = composeService->UnregisterComposeDocShell(mDocShell);
   NS_ENSURE_SUCCESS(rv, rv);
   mDocShell = nullptr;
-
-  if (mMsgSend) {
-    // Remove temporary attachment files, e.g. key.asc when attaching public key.
-    nsTArray<RefPtr<nsIMsgAttachment>> attachments;
-    m_compFields->GetAttachments(attachments);
-    for (nsIMsgAttachment* attachment : attachments) {
-      bool isTemporary;
-      attachment->GetTemporary(&isTemporary);
-      if (isTemporary) {
-        nsCString url;
-        attachment->GetUrl(url);
-        nsCOMPtr<nsIFile> urlFile;
-        rv = NS_GetFileFromURLSpec(url, getter_AddRefs(urlFile));
-        if (NS_SUCCEEDED(rv)) {
-          urlFile->Remove(false);
-        }
-      }
-    }
-  }
 
   // ensure that the destructor of nsMsgSend is invoked to remove
   // temporary files.
