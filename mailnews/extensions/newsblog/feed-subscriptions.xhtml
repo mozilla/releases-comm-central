@@ -31,8 +31,19 @@
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/specialTabs.js"></script>
-  <script defer="defer" src="chrome://messenger-newsblog/content/feed-subscriptions.js"></script>
   <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/feed-subscriptions.js"></script>
+  <script>
+  window.addEventListener("load", event => {
+    FeedSubscriptions.onLoad();
+  });
+  window.addEventListener("keypress", event => {
+    FeedSubscriptions.onKeyPress(event);
+  });
+  window.addEventListener("mousedown", event => {
+    FeedSubscriptions.onMouseDown(event);
+  });
+  </script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="subscriptionsDialog" buttons="accept" buttonlabelaccept="&button.close.label;">

@@ -3123,18 +3123,3 @@ var FeedSubscriptions = {
     aWin.updateStatusItem("statusText", aStatusReport);
   },
 };
-
-window.addEventListener("load", event => {
-  FeedSubscriptions.onLoad();
-});
-window.addEventListener("dialogaccept", event => {
-  if (!FeedSubscriptions.onDialogAccept()) {
-    event.preventDefault();
-  }
-});
-window.addEventListener("keypress", event => {
-  FeedSubscriptions.onKeyPress(event);
-});
-window.addEventListener("mousedown", event => {
-  FeedSubscriptions.onMouseDown(event);
-});
