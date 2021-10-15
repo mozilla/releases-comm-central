@@ -227,6 +227,17 @@ nsMessengerWinIntegration::ShowWindow(mozIDOMWindowProxy* aWindow) {
 }
 
 NS_IMETHODIMP
+nsMessengerWinIntegration::GetSuppressNotification(bool* suppressNotification) {
+  *suppressNotification = false;
+  QUERY_USER_NOTIFICATION_STATE qstate;
+  if (SUCCEEDED(SHQueryUserNotificationState(&qstate)) &&
+      qstate != QUNS_ACCEPTS_NOTIFICATIONS) {
+    *suppressNotification = true;
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsMessengerWinIntegration::UpdateUnreadCount(uint32_t unreadCount,
                                              const nsAString& unreadTooltip) {
   sUnreadCount = unreadCount;

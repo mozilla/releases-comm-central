@@ -77,6 +77,7 @@ class MailNotificationManager {
     if (AppConstants.platform == "win") {
       Services.obs.addObserver(this, "windows-refresh-badge-tray");
       Services.prefs.addObserver("mail.biff.show_badge", this);
+      this._osIntegration.QueryInterface(Ci.nsIMessengerWindowsIntegration);
     }
   }
 
@@ -133,6 +134,12 @@ class MailNotificationManager {
     if (!Services.prefs.getBoolPref("mail.biff.show_alert")) {
       return;
     }
+    if (
+      AppConstants.platform == "win" &&
+      this._osIntegration.suppressNotification
+    ) {
+      return;
+    }
 
     this._logger.debug(
       `onFolderIntPropertyChanged; property=${property}: ${oldValue} => ${newValue}, folder.URI=${folder.URI}`
@@ -166,7 +173,7 @@ class MailNotificationManager {
   }
 
   /**
-   * Show an alert according the changed folder.
+   * Show an alert according to the changed folder.
    * @param {nsIMsgFolder} changedFolder - The folder that emitted the change
    *   event, can be a root folder or a real folder.
    */
