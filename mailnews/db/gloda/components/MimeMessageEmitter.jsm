@@ -421,7 +421,6 @@ MimeMessageEmitter.prototype = {
         this._partMap[partName].url = aUrl;
         this._partMap[partName].isExternal = aIsExternalAttachment;
         this._partMap[partName].name = aName;
-        this._partMap[partName].isRealAttachment = true;
       }
     } else if (partName) {
       let part = new this._mimeMsg.MimeMessageAttachment(

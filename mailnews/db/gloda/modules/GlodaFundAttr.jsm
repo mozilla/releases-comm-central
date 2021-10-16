@@ -555,27 +555,16 @@ var GlodaFundAttr = {
       // out the part has no filename, then we don't treat it as an attachment.
       // We just streamed the message, and we have all the information to figure
       // that out, so now is a good place to clear the flag if needed.
-      let foundRealAttachment = false;
-      let attachmentTypes = [];
+      let attachmentTypes = new Set();
       for (let attachment of aMimeMsg.allAttachments) {
-        // We don't care about would-be attachments that are not user-intended
-        //  attachments but rather artifacts of the message content.
-        // We also want to avoid dealing with obviously bogus mime types.
-        //  (If you don't have a "/", you are probably bogus.)
-        if (
-          attachment.isRealAttachment &&
-          attachment.contentType.includes("/")
-        ) {
-          attachmentTypes.push(
-            MimeTypeNoun.getMimeType(attachment.contentType)
-          );
+        // getMimeType expects the content type to contain at least a "/".
+        if (!attachment.contentType.includes("/")) {
+          continue;
         }
-        if (attachment.isRealAttachment) {
-          foundRealAttachment = true;
-        }
+        attachmentTypes.add(MimeTypeNoun.getMimeType(attachment.contentType));
       }
-      if (attachmentTypes.length) {
-        aGlodaMessage.attachmentTypes = attachmentTypes;
+      if (attachmentTypes.size) {
+        aGlodaMessage.attachmentTypes = Array.from(attachmentTypes);
       }
 
       let aMsgHdr = aRawReps.header;
@@ -588,7 +577,7 @@ var GlodaFundAttr = {
       // Clear the flag if it turns out there's no attachment after all and we
       // streamed completely the message (if we didn't, then we have no
       // knowledge of attachments, unless bug 673370 is fixed).
-      if (!foundRealAttachment && wasStreamed) {
+      if (wasStreamed && !aMimeMsg.allAttachments.length) {
         aMsgHdr.markHasAttachments(false);
       }
 

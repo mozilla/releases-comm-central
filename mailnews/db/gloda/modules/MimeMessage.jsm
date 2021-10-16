@@ -756,10 +756,6 @@ function MimeMessageAttachment(
 
 MimeMessageAttachment.prototype = {
   __proto__: HeaderHandlerBase,
-  // This is a legacy property.
-  get isRealAttachment() {
-    return true;
-  },
   get allAttachments() {
     return [this]; // we are a leaf, so just us.
   },

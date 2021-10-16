@@ -3287,12 +3287,7 @@ var GlodaMsgIndexer = {
       }
     }
 
-    let attachmentNames = null;
-    if (aMimeMsg) {
-      attachmentNames = aMimeMsg.allAttachments
-        .filter(att => att.isRealAttachment)
-        .map(att => att.name);
-    }
+    let attachmentNames = aMimeMsg?.allAttachments.map(att => att.name) || null;
 
     let isConceptuallyNew, isRecordNew, insertFulltext;
     if (curMsg === null) {
