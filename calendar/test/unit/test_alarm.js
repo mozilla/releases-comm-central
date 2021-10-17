@@ -384,7 +384,7 @@ function test_dates() {
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   let alarmDate = createDate(2007, 0, 1, true, 2, 0, 0);
   alarm.alarmDate = alarmDate;
-  equal(alarm.alarmDate, alarmDate);
+  equal(alarm.alarmDate.icalString, alarmDate.icalString);
   equal(alarm.offset, null);
   try {
     alarm.offset = cal.createDuration();

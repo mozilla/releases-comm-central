@@ -88,7 +88,7 @@ add_task(async function test_setDefaultValues_tasks() {
   equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
   equal(alarm.offset.icalString, "-P2DT12H");
-  equal(item.entryDate, nowDate);
+  equal(item.entryDate.icalString, nowDate.icalString);
 
   Services.prefs.setIntPref("calendar.alarms.onfortodos", 1);
   Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "yards");

@@ -94,6 +94,6 @@ function check_absolute(aIcalString) {
   let alarm = new CalAlarm();
   alarm.icalString = aIcalString;
   equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_ABSOLUTE);
-  notEqual(alarm.alarmDate, null);
+  ok(alarm.alarmDate != null);
   equal(alarm.offset, null);
 }

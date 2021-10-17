@@ -919,14 +919,7 @@ add_task(async function test_freebusy_request() {
   equal(results.headers.get("Originator"), "mailto:xpcshell@example.com");
   equal(results.headers.get("Recipient"), "mailto:recipient@example.com");
 
-  // The following assertion succeeds but causes "too much recursion" with
-  // icaljs. Assert.jsm calls JSON.stringify on the arguments to log the result
-  // of the assertion, and that causes the recursion error. (Then Assert.jsm
-  // just falls back to using toString instead.) See bug 1546606 starting at
-  // comment 23 and ical.js issue #410.
   let first = response.firstRecipient;
-  strictEqual(first, response.data["mailto:recipient1@example.com"]);
-
   equal(first.status, "2.0;Success");
   deepEqual(
     first.intervals.map(interval => interval.type),
