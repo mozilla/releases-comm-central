@@ -2495,10 +2495,7 @@
     so that WebExtension content scripts are not loaded here in the moments
     before navigation to about:blank?compose occurs.
   -->
-      <vbox id="appcontent" flex="1"
-            ondragover="envelopeDragObserver.onDragOver(event);"
-            ondrop="envelopeDragObserver.onDrop(event);"
-            ondragleave="envelopeDragObserver.onDragLeave(event);">
+      <vbox id="appcontent" flex="1">
         <html:div id="dropAttachmentOverlay" class="drop-attachment-overlay">
           <html:aside id="addInline" class="drop-attachment-box">
             <html:span id="addInlineLabel"

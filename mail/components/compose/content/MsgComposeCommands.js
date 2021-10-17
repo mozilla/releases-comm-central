@@ -4125,6 +4125,18 @@ function ComposeLoad() {
     toggleAttachmentAnimation
   );
 
+  // Set up the drag & drop event listeners.
+  let appcontent = document.getElementById("appcontent");
+  appcontent.addEventListener("dragover", event =>
+    envelopeDragObserver.onDragOver(event)
+  );
+  appcontent.addEventListener("dragleave", event =>
+    envelopeDragObserver.onDragLeave(event)
+  );
+  appcontent.addEventListener("drop", event =>
+    envelopeDragObserver.onDrop(event)
+  );
+
   // Setup the attachment overlay animation listeners.
   let overlay = document.getElementById("dropAttachmentOverlay");
   overlay.addEventListener("animationend", e => {
@@ -8357,89 +8369,91 @@ var envelopeDragObserver = {
     return attachments;
   },
 
-  // eslint-disable-next-line complexity
+  /**
+   * Reorder the attachments dragged within the attachment bucket.
+   *
+   * @param {Event} event - The drag event.
+   */
+  _reorderDraggedAttachments(event) {
+    // Adjust the drop target according to mouse position on list (items).
+    let target = this._adjustDropTarget(event);
+    // Get a non-live, sorted list of selected attachment list items.
+    let selItems = attachmentsSelectionGetSortedArray();
+    // Keep track of the item we had focused originally. Deselect it though,
+    // since listbox gets confused if you move its focused item around.
+    let focus = gAttachmentBucket.currentItem;
+    gAttachmentBucket.currentItem = null;
+    // Moving possibly non-coherent multiple selections around correctly
+    // is much more complex than one might think...
+    if (
+      (target.matches && target.matches("richlistitem.attachmentItem")) ||
+      target == "afterLastItem"
+    ) {
+      // Drop before targetItem in the list, or after last item.
+      let blockItems = [];
+      let targetItem;
+      for (let item of selItems) {
+        blockItems.push(item);
+        if (target == "afterLastItem") {
+          // Original target is the end of the list; append all items there.
+          gAttachmentBucket.appendChild(item);
+        } else if (target == selItems[0]) {
+          // Original target is first item of first selected block.
+          if (blockItems.includes(target)) {
+            // Item is in first block: do nothing, find the end of the block.
+            let nextItem = item.nextElementSibling;
+            if (!nextItem || !nextItem.selected) {
+              // We've reached the end of the first block.
+              blockItems.length = 0;
+              targetItem = nextItem;
+            }
+          } else {
+            // Item is NOT in first block: insert before targetItem,
+            // i.e. after end of first block.
+            gAttachmentBucket.insertBefore(item, targetItem);
+          }
+        } else if (target.selected) {
+          // Original target is not first item of first block,
+          // but first item of another block.
+          if (
+            gAttachmentBucket.getIndexOfItem(item) <
+            gAttachmentBucket.getIndexOfItem(target)
+          ) {
+            // Insert all items from preceding blocks before original target.
+            gAttachmentBucket.insertBefore(item, target);
+          } else if (blockItems.includes(target)) {
+            // target is included in any selected block except first:
+            // do nothing for that block, find its end.
+            let nextItem = item.nextElementSibling;
+            if (!nextItem || !nextItem.selected) {
+              // end of block containing target
+              blockItems.length = 0;
+              targetItem = nextItem;
+            }
+          } else {
+            // Item from block after block containing target: insert before
+            // targetItem, i.e. after end of block containing target.
+            gAttachmentBucket.insertBefore(item, targetItem);
+          }
+        } else {
+          // target != selItems [0]
+          // Original target is NOT first item of any block, and NOT selected:
+          // Insert all items before the original target.
+          gAttachmentBucket.insertBefore(item, target);
+        }
+      }
+    }
+    gAttachmentBucket.currentItem = focus;
+  },
+
   onDrop(event) {
-    // Call the dragLeave event to properly hide the overlay.
-    this.onDragLeave(event);
+    this._hideDropOverlay();
 
     let dragSession = gDragService.getCurrentSession();
-
     if (dragSession.sourceNode?.parentNode == gAttachmentBucket) {
       // We dragged from the attachment pane onto itself, so instead of
       // attaching a new object, we're just reordering them.
-
-      // Adjust the drop target according to mouse position on list (items).
-      let target = this._adjustDropTarget(event);
-
-      // Get a non-live, sorted list of selected attachment list items.
-      let selItems = attachmentsSelectionGetSortedArray();
-      // Keep track of the item we had focused originally. Deselect it though,
-      // since listbox gets confused if you move its focused item around.
-      let focus = gAttachmentBucket.currentItem;
-      gAttachmentBucket.currentItem = null;
-
-      // Moving possibly non-coherent multiple selections around correctly
-      // is much more complex than one might think...
-      if (
-        (target.matches && target.matches("richlistitem.attachmentItem")) ||
-        target == "afterLastItem"
-      ) {
-        // Drop before targetItem in the list, or after last item.
-        let blockItems = [];
-        let targetItem;
-        for (let item of selItems) {
-          blockItems.push(item);
-          if (target == "afterLastItem") {
-            // Original target is the end of the list; append all items there.
-            gAttachmentBucket.appendChild(item);
-          } else if (target == selItems[0]) {
-            // Original target is first item of first selected block.
-            if (blockItems.includes(target)) {
-              // Item is in first block: do nothing, find the end of the block.
-              let nextItem = item.nextElementSibling;
-              if (!nextItem || !nextItem.selected) {
-                // We've reached the end of the first block.
-                blockItems.length = 0;
-                targetItem = nextItem;
-              }
-            } else {
-              // Item is NOT in first block: insert before targetItem,
-              // i.e. after end of first block.
-              gAttachmentBucket.insertBefore(item, targetItem);
-            }
-          } else if (target.selected) {
-            // Original target is not first item of first block,
-            // but first item of another block.
-            if (
-              gAttachmentBucket.getIndexOfItem(item) <
-              gAttachmentBucket.getIndexOfItem(target)
-            ) {
-              // Insert all items from preceding blocks before original target.
-              gAttachmentBucket.insertBefore(item, target);
-            } else if (blockItems.includes(target)) {
-              // target is included in any selected block except first:
-              // do nothing for that block, find its end.
-              let nextItem = item.nextElementSibling;
-              if (!nextItem || !nextItem.selected) {
-                // end of block containing target
-                blockItems.length = 0;
-                targetItem = nextItem;
-              }
-            } else {
-              // Item from block after block containing target: insert before
-              // targetItem, i.e. after end of block containing target.
-              gAttachmentBucket.insertBefore(item, targetItem);
-            }
-          } else {
-            // target != selItems [0]
-            // Original target is NOT first item of any block, and NOT selected:
-            // Insert all items before the original target.
-            gAttachmentBucket.insertBefore(item, target);
-          }
-        }
-      }
-
-      gAttachmentBucket.currentItem = focus;
+      this._reorderDraggedAttachments(event);
       this._hideDropMarker();
       return;
     }
@@ -8514,6 +8528,13 @@ var envelopeDragObserver = {
       return;
     }
 
+    // No need to check for the same dragged files if the previous dragging
+    // action didn't end.
+    if (gIsDraggingAttachments) {
+      this.detectHoveredOverlay(event.target.id);
+      return;
+    }
+
     // We're dragging files that can potentially be attached or added inline, so
     // update the variable.
     gIsDraggingAttachments = true;
@@ -8542,11 +8563,16 @@ var envelopeDragObserver = {
 
         // Show the #addInline box only if the user is dragging only images and
         // this is not a plain text message.
+        // NOTE: We're using event.dataTransfer.files.lenght instead of
+        // attachments.lenght because we only need to consider images coming
+        // from outside the application. The attachments array might contain
+        // files dragged from other compose windows or received message, which
+        // should not trigger the inline attachment overlay.
         document
           .getElementById("addInline")
           .classList.toggle(
             "hidden",
-            !attachments.length ||
+            !event.dataTransfer.files.length ||
               this.isNotDraggingOnlyImages(event.dataTransfer) ||
               !gMsgCompose.composeHTML
           );
@@ -8555,14 +8581,7 @@ var envelopeDragObserver = {
       }
     }
 
-    // Add or remove the hover effect to the droppable containers. We can't do
-    // it simply via CSS since the hover events don't work when draggin an item.
-    document
-      .getElementById("addInline")
-      .classList.toggle("hover", event.target.id == "addInline");
-    document
-      .getElementById("addAsAttachment")
-      .classList.toggle("hover", event.target.id == "addAsAttachment");
+    this.detectHoveredOverlay(event.target.id);
   },
 
   onDragLeave(event) {
@@ -8574,18 +8593,29 @@ var envelopeDragObserver = {
     // compose window.
     setTimeout(() => {
       // If after the timeout, the dragging boolean is true, it means the user
-      // is still dragging something above the compose window.
+      // is still dragging something above the compose window, so let's bail out
+      // to prevent visual flickering of the drop overlay.
       if (gIsDraggingAttachments) {
         return;
       }
 
-      // Hide the drop overlay.
-      let overlay = document.getElementById("dropAttachmentOverlay");
-      overlay.classList.remove("showing");
-      overlay.classList.add("hiding");
+      this._hideDropOverlay();
     }, 100);
 
     this._hideDropMarker();
+  },
+
+  /**
+   * Hide the drag & drop overlay and update the global dragging variable to
+   * false. This operations are set in a dedicated method since they need to be
+   * called outside of the onDragleave() method.
+   */
+  _hideDropOverlay() {
+    gIsDraggingAttachments = false;
+
+    let overlay = document.getElementById("dropAttachmentOverlay");
+    overlay.classList.remove("showing");
+    overlay.classList.add("hiding");
   },
 
   /**
@@ -8603,6 +8633,21 @@ var envelopeDragObserver = {
       }
     }
     return false;
+  },
+
+  /**
+   * Add or remove the hover effect to the droppable containers. We can't do it
+   * simply via CSS since the hover events don't work when draggin an item.
+   *
+   * @param {string} targetId - The ID of the hovered overlay element.
+   */
+  detectHoveredOverlay(targetId) {
+    document
+      .getElementById("addInline")
+      .classList.toggle("hover", targetId == "addInline");
+    document
+      .getElementById("addAsAttachment")
+      .classList.toggle("hover", targetId == "addAsAttachment");
   },
 
   /**
