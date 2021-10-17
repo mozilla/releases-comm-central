@@ -501,8 +501,9 @@ calCachedCalendar.prototype = {
   onOfflineStatusChanged(aNewState) {
     if (aNewState) {
       // Going offline: (XXX get items before going offline?) => we may ask the user to stay online a bit longer
-    } else {
-      // Going online (start replaying changes to the remote calendar)
+    } else if (!this.getProperty("disabled") && this.getProperty("refreshInterval") != "0") {
+      // Going online (start replaying changes to the remote calendar).
+      // Don't do this if the calendar is disabled or set to manual updates only.
       this.refresh();
     }
   },
