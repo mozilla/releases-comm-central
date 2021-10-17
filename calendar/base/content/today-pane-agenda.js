@@ -432,7 +432,7 @@
         );
         this.overlapsMidnight = item.endDate.compare(nextDay) > 0;
         this.overlapsEnd =
-          this.overlapsMidnight && item.endDate.compare(TodayPane.agenda.endDate) > 0;
+          this.overlapsMidnight && item.endDate.compare(TodayPane.agenda.endDate) >= 0;
 
         this.dateString = labelDate.icalString;
       }
