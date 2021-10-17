@@ -28,7 +28,6 @@ EXTRA_JS_MODULES += [
     "CalRecurrenceDate.jsm",
     "CalRecurrenceInfo.jsm",
     "CalRelation.jsm",
-    "CalSleepMonitor.jsm",
     "CalStartupService.jsm",
     "CalTimezoneService.jsm",
     "CalTodo.jsm",
