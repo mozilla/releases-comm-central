@@ -127,7 +127,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 29;
+    const UI_VERSION = 30;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -606,6 +606,11 @@ var MailMigrator = {
           Services.prefs.setBoolPref("mail.biff.use_new_count_in_badge", true);
           Services.prefs.clearUserPref("mail.biff.use_new_count_in_mac_dock");
         }
+      }
+
+      // Clear ui.systemUsesDarkTheme after bug 1736252.
+      if (currentUIVersion < 30) {
+        Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
       }
 
       // Update the migration version.
