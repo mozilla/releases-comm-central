@@ -17,17 +17,12 @@
 }
 
 #sanitizeEverythingWarningBox {
-  background-color: hsla(0, 0%, 0%, 0.2);
-  border: 1px solid hsla(0, 0%, 0%, 0.6);
+  background-color: hsla(0, 0%, 50%, 0.2);
+  border: 1px solid hsl(0, 0%, 50%);
   border-radius: 4px;
   margin-top: 8px;
   margin-inline: 4px;
   padding: 16px;
-}
-
-:root[lwt-tree-brighttext] #sanitizeEverythingWarningBox {
-  background-color: hsla(0, 0%, 100%, 0.2);
-  border: 1px solid hsla(0, 0%, 100%, 0.6);
 }
 
 #sanitizeEverythingWarningIcon {
