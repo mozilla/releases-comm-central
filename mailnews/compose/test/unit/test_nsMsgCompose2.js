@@ -3,13 +3,10 @@
  * Test suite for nsMsgCompose functions relating to send listeners.
  */
 
-var gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
-  Ci.nsIMsgCompose
-);
+let gMsgCompose = null;
+let numSendListenerFunctions = 7;
 
-var numSendListenerFunctions = 7;
-
-var gSLAll = new Array(numSendListenerFunctions + 1);
+let gSLAll = new Array(numSendListenerFunctions + 1);
 
 function sendListener() {}
 
@@ -72,13 +69,19 @@ function NotifySendListeners() {
 }
 
 function run_test() {
-  var i;
+  gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+    Ci.nsIMsgCompose
+  );
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  gMsgCompose.initialize(params);
 
   Assert.ok(gMsgCompose != null);
 
   // Test - Add a listener
 
-  for (i = 0; i < numSendListenerFunctions + 1; ++i) {
+  for (let i = 0; i < numSendListenerFunctions + 1; ++i) {
     gSLAll[i] = new sendListener();
     gMsgCompose.addMsgSendListener(gSLAll[i]);
   }
@@ -88,7 +91,7 @@ function run_test() {
   NotifySendListeners();
 
   const bitMask = (1 << numSendListenerFunctions) - 1;
-  for (i = 0; i < numSendListenerFunctions + 1; ++i) {
+  for (let i = 0; i < numSendListenerFunctions + 1; ++i) {
     Assert.equal(gSLAll[i].mReceived, bitMask);
     gSLAll[i].mReceived = 0;
 
@@ -100,9 +103,9 @@ function run_test() {
 
   NotifySendListeners();
 
-  var currentReceived = 0;
+  let currentReceived = 0;
 
-  for (i = 0; i < numSendListenerFunctions + 1; ++i) {
+  for (let i = 0; i < numSendListenerFunctions + 1; ++i) {
     if (i < numSendListenerFunctions) {
       currentReceived += 1 << i;
     }
@@ -115,7 +118,7 @@ function run_test() {
 
   NotifySendListeners();
 
-  for (i = 0; i < numSendListenerFunctions + 1; ++i) {
+  for (let i = 0; i < numSendListenerFunctions + 1; ++i) {
     if (i < numSendListenerFunctions) {
       Assert.equal(gSLAll[i].mReceived, 0);
     } else {

@@ -3,13 +3,13 @@
  * attachment test using non-ascii character
  */
 
-var nonAsciiUrl = "http://\u65e5\u672c\u8a9e.jp";
-var prettyResult = "\u65e5\u672c\u8a9e.jp";
+let nonAsciiUrl = "http://\u65e5\u672c\u8a9e.jp";
+let prettyResult = "\u65e5\u672c\u8a9e.jp";
 
 function doAttachmentUrlTest() {
   // handles non-ascii url in nsIMsgAttachment
 
-  var attachment = Cc[
+  let attachment = Cc[
     "@mozilla.org/messengercompose/attachment;1"
   ].createInstance(Ci.nsIMsgAttachment);
   attachment.url = nonAsciiUrl;
@@ -20,9 +20,13 @@ function doAttachmentUrlTest() {
 function doPrettyNameTest() {
   // handles non-ascii url in nsIMsgCompose
 
-  var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
     Ci.nsIMsgCompose
   );
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  msgCompose.initialize(params);
 
   Assert.equal(
     msgCompose.AttachmentPrettyName(nonAsciiUrl, null),
