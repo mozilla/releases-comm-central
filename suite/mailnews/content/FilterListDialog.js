@@ -22,7 +22,7 @@ var gFilterListMsgWindow = null;
 var gFilterTree;
 var gStatusBar;
 var gStatusText;
-var gCurrentFolder;
+var gServerMenu;
 
 var msgMoveMotion = {
   Up     : 0,
@@ -138,6 +138,8 @@ function onLoad()
     gFilterListMsgWindow.statusFeedback = gStatusFeedback;
 
     gFilterBundle = document.getElementById("bundle_filter");
+
+    gServerMenu = document.getElementById("serverMenu");
     gFilterTree = document.getElementById("filterTree");
 
     gEditButton = document.getElementById("editButton");
@@ -170,7 +172,7 @@ function onLoad()
     }
 
     if (firstItem)
-      selectFolder(firstItem);
+      setFilterFolder(firstItem);
     else
       updateButtons();
 
@@ -183,26 +185,6 @@ function onLoad()
     top.controllers.insertControllerAt(0, gFilterController);
 }
 
-/**
- * Called when a user selects a folder in the list, so we can update the
- * filters that are displayed
- *
- * @param aFolder  the nsIMsgFolder that was selected
- */
-function onFolderSelect(aFolder)
-{
-    if (!aFolder || aFolder == gCurrentFolder)
-      return;
-
-    // Save the current filters to disk before switching because
-    // the dialog may be closed and we'll lose current filters.
-    var filterList = currentFilterList();
-    if (filterList)
-      filterList.saveToDefaultFile();
-
-    selectFolder(aFolder);
-}
-
 function CanRunFiltersAfterTheFact(aServer)
 {
   // filter after the fact is implement using search
@@ -210,13 +192,26 @@ function CanRunFiltersAfterTheFact(aServer)
   return aServer.canSearchMessages;
 }
 
-// roots the tree at the specified folder
-function setFolder(msgFolder)
-{
-  if (msgFolder == gCurrentFolder)
+/**
+ * Change the root server for which we are managing filters.
+ *
+ * @param msgFolder The nsIMsgFolder server containing filters
+ *                  (or a folder for NNTP server).
+ */
+function setFilterFolder(msgFolder) {
+  if (!msgFolder || msgFolder == gServerMenu._folder)
     return;
 
-  gCurrentFolder = msgFolder;
+  // Save the current filters to disk before switching because
+  // the dialog may be closed and we'll lose current filters.
+  let filterList = currentFilterList();
+  if (filterList)
+    filterList.saveToDefaultFile();
+
+  // Setting this attribute should go away in bug 473009.
+  gServerMenu._folder = msgFolder;
+  // Calling this should go away in bug 802609.
+  gServerMenu.menupopup.selectFolder(msgFolder);
 
   // Calling getFilterList will detect any errors in rules.dat,
   // backup the file, and alert the user
@@ -227,15 +222,15 @@ function setFolder(msgFolder)
     gFilterTreeView.selection.select(0);
 
   // This will get the deferred to account root folder, if server is deferred.
-  // We intentionally do this after setting gCurrentFolder, as we want
+  // We intentionally do this after setting the current server, as we want
   // that to refer to the rootFolder for the actual server, not the
-  // deferred-to server, as gCurrentFolder is really a proxy for the
+  // deferred-to server, as current server is really a proxy for the
   // server whose filters we are editing. But below here we are managing
   // where the filters will get applied, which is on the deferred-to server.
   msgFolder = msgFolder.server.rootMsgFolder;
 
   // root the folder picker to this server
-  var runMenu = document.getElementById("runFiltersPopup");
+  let runMenu = gRunFiltersFolder.menupopup;
   runMenu._teardown();
   runMenu._parentFolder = msgFolder;
   runMenu._ensureInitialized();
@@ -246,12 +241,54 @@ function setFolder(msgFolder)
   gRunFiltersFolderPrefix.hidden = !canFilterAfterTheFact;
 
   if (canFilterAfterTheFact) {
-    // Get the first folder for this server. INBOX for
-    // IMAP and POP3 accounts and 1st news group for news.
-    gRunFiltersFolder.selectedIndex = 0;
-    runMenu.selectFolder(getFirstFolder(msgFolder));
+    let wantedFolder = null;
+    // For a given server folder, get the default run target folder or show
+    // "Choose Folder".
+    if (!msgFolder.isServer) {
+      wantedFolder = msgFolder;
+    } else {
+      try {
+        switch (msgFolder.server.type) {
+          case "nntp":
+            // For NNTP select the subscribed newsgroup.
+            wantedFolder = gServerMenu._folder;
+            break;
+          case "rss":
+            // Show "Choose Folder" for feeds.
+            wantedFolder = null;
+            break;
+          case "imap":
+          case "pop3":
+          case "none":
+            // Find Inbox for IMAP and POP or Local Folders,
+            // show "Choose Folder" if not found.
+            wantedFolder = msgFolder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+            break;
+          default:
+            // For other account types we don't know what's good to select,
+            // so show "Choose Folder".
+            wantedFolder = null;
+        }
+      } catch (e) {
+        Cu.reportError("Failed to select a suitable folder to run filters on: " + e);
+        wantedFolder = null;
+      }
+    }
+    // Select a useful first folder for the server.
+    setRunFolder(wantedFolder);
   }
+}
 
+/**
+ * Select a folder on which filters are to be run.
+ *
+ * @param aFolder     nsIMsgFolder folder to select.
+ */
+function setRunFolder(aFolder) {
+  // Setting this attribute should go away in bug 473009.
+  gRunFiltersFolder._folder = aFolder;
+  // Calling this should go away in bug 802609.
+  gRunFiltersFolder.menupopup.selectFolder(gRunFiltersFolder._folder);
   updateButtons();
 }
 
@@ -267,15 +304,6 @@ function toggleFilter(index)
     }
     filter.enabled = !filter.enabled;
     return true;
-}
-
-// sets up the menulist and the gFilterTree
-function selectFolder(aFolder)
-{
-  // update the server menu
-  var serverMenu = document.getElementById("serverMenuPopup");
-  serverMenu.selectFolder(aFolder);
-  setFolder(aFolder);
 }
 
 function getFilter(index)
@@ -592,7 +620,8 @@ function updateButtons()
     // so only disable this UI if no filters are selected
     gRunFiltersFolderPrefix.disabled = !numFiltersSelected;
     gRunFiltersFolder.disabled = !numFiltersSelected;
-    gRunFiltersButton.disabled = !numFiltersSelected;
+    gRunFiltersButton.disabled = !numFiltersSelected ||
+                                 !gRunFiltersFolder._folder;
 
     // "up" and "top" enabled only if one filter is selected,
     // and it's not the first.
@@ -729,47 +758,6 @@ function onFilterTreeKeyPress(aEvent) {
 function doHelpButton()
 {
   openHelp("mail-filters");
-}
-
-function onTargetSelect(event)
-{
-  gRunFiltersFolder._folder = event.target._folder;
-  gRunFiltersFolder.menupopup.selectFolder(gRunFiltersFolder._folder);
-}
-
-/**
- * For a given server folder, get the first folder. For IMAP
- * and POP it's INBOX and it's the very first group for news accounts.
- */
-function getFirstFolder(msgFolder)
-{
-  // Sanity check.
-  if (!msgFolder.isServer)
-    return msgFolder;
-
-  try {
-    // Choose Folder for feeds.
-    if (msgFolder.server.type == "rss")
-      return null;
-
-    // Find Inbox for imap and pop
-    if (msgFolder.server.type != "nntp")
-    {
-      var inboxFolder = msgFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
-      if (inboxFolder)
-        return inboxFolder;
-      else
-        // If inbox does not exist then use the server as default.
-        return msgFolder;
-    }
-
-    // For news, this is the account folder.
-    return msgFolder;
-  }
-  catch (ex) {
-    dump(ex + "\n");
-  }
-  return msgFolder;
 }
 
 var gFilterController =

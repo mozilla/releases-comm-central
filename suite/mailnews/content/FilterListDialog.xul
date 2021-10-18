@@ -50,7 +50,7 @@
                  expandFolders="nntp"
                  showFileHereLabel="true"
                  showAccountsFileHere="true"
-                 oncommand="onFolderSelect(event.target._folder)"/>
+                 oncommand="setFilterFolder(event.target._folder)"/>
     </menulist>
   </hbox>
 
@@ -156,7 +156,7 @@
                        type="folder"
                        showFileHereLabel="true"
                        showAccountsFileHere="false"
-                       oncommand="onTargetSelect(event);"/>
+                       oncommand="setRunFolder(event.target._folder);"/>
           </menulist>
           <spacer flex="1"/>
           <button id="runFiltersButton"
