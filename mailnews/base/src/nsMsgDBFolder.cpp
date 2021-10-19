@@ -1626,9 +1626,11 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage() {
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   GetMsgStore(getter_AddRefs(msgStore));
 
-  if (seekable) {
-    mDatabase->MarkOffline(messageKey, true, nullptr);
+  mDatabase->MarkOffline(messageKey, true, nullptr);
+  if (m_tempMessageStream) {
     m_tempMessageStream->Flush();
+  }
+  if (seekable) {
     int64_t tellPos;
     seekable->Tell(&tellPos);
     curStorePos = tellPos;
