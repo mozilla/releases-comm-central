@@ -13,4 +13,7 @@ interface nsIMessengerWindowsIntegration : nsIMessengerOSIntegration {
   void hideWindow(in nsIBaseWindow aWindow);
 
   void showWindow(in mozIDOMWindowProxy aWindow);
+
+  /** Do not show notifications in some states, e.g. when running a fullscreen app. */
+  readonly attribute boolean suppressNotification;
 };
