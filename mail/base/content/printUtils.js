@@ -8,6 +8,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   SubDialogManager: "resource://gre/modules/SubDialog.jsm",
 });
 
@@ -94,6 +95,45 @@ XPCOMUtils.defineLazyGetter(this, "PrintUtils", () => {
     }
 
     return b;
+  };
+
+  scope.PrintUtils.__defineGetter__("printBrowser", () =>
+    document.getElementById("hiddenPrintContent")
+  );
+  scope.PrintUtils.loadPrintBrowser = async function(url) {
+    let printBrowser = this.printBrowser;
+    if (printBrowser.currentURI.spec == url) {
+      return;
+    }
+
+    // The template page hasn't been loaded yet. Do that now.
+    await new Promise(resolve => {
+      // Store a strong reference to this progress listener.
+      printBrowser.progressListener = {
+        QueryInterface: ChromeUtils.generateQI([
+          "nsIWebProgressListener",
+          "nsISupportsWeakReference",
+        ]),
+
+        /** nsIWebProgressListener */
+        onStateChange(webProgress, request, stateFlags, status) {
+          if (
+            stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+            printBrowser.currentURI.spec != "about:blank"
+          ) {
+            printBrowser.webProgress.removeProgressListener(this);
+            delete printBrowser.progressListener;
+            resolve();
+          }
+        },
+      };
+
+      printBrowser.webProgress.addProgressListener(
+        printBrowser.progressListener,
+        Ci.nsIWebProgress.NOTIFY_STATE_ALL
+      );
+      MailE10SUtils.loadURI(printBrowser, url);
+    });
   };
   return scope.PrintUtils;
 });

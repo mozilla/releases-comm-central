@@ -945,37 +945,6 @@ async function printCalendar() {
   // Ensure the printing of this file will be detected by calPrintUtils.jsm.
   cal.print.ensureInitialized();
 
-  let printBrowser = document.getElementById("calendarPrintContent");
-  if (printBrowser.currentURI.spec == "about:blank") {
-    // The template page hasn't been loaded yet. Do that now.
-    await new Promise(resolve => {
-      // Store a strong reference to this progress listener.
-      printBrowser.progressListener = {
-        QueryInterface: ChromeUtils.generateQI([
-          "nsIWebProgressListener",
-          "nsISupportsWeakReference",
-        ]),
-
-        /** nsIWebProgressListener */
-        onStateChange(webProgress, request, stateFlags, status) {
-          if (
-            stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
-            printBrowser.currentURI.spec != "about:blank"
-          ) {
-            printBrowser.webProgress.removeProgressListener(this);
-            delete printBrowser.progressListener;
-            resolve();
-          }
-        },
-      };
-
-      printBrowser.webProgress.addProgressListener(
-        printBrowser.progressListener,
-        Ci.nsIWebProgress.NOTIFY_STATE_ALL
-      );
-      MailE10SUtils.loadURI(printBrowser, "chrome://calendar/content/printing-template.html");
-    });
-  }
-
-  PrintUtils.startPrintWindow(printBrowser.browsingContext, {});
+  await PrintUtils.loadPrintBrowser("chrome://calendar/content/printing-template.html");
+  PrintUtils.startPrintWindow(PrintUtils.printBrowser.browsingContext, {});
 }

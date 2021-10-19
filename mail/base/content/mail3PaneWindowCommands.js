@@ -421,14 +421,7 @@ var DefaultController = {
         }
         return false;
       case "cmd_print":
-        // We can't print messages unless they're being displayed, so enable
-        // printing only if exactly one message is selected and it is the
-        // message being displayed.
-        return (
-          gMessageDisplay.visible &&
-          gFolderDisplay.selectedCount == 1 &&
-          gFolderDisplay.selectedMessage == gMessageDisplay.displayedMessage
-        );
+        return gFolderDisplay.selectedCount >= 1;
       case "cmd_newMessage":
         return CanComposeMessages();
       case "cmd_viewAllHeader":
@@ -917,8 +910,7 @@ var DefaultController = {
         );
         return;
       case "cmd_print":
-        let messagePaneBrowser = document.getElementById("messagepane");
-        PrintUtils.startPrintWindow(messagePaneBrowser.browsingContext, {});
+        PrintSelectedMessages();
         return;
       case "cmd_saveAsFile":
         MsgSaveAsFile();
@@ -1540,4 +1532,43 @@ function CanDeleteFolder(folder) {
   }
 
   return true;
+}
+
+/** Prints the messages selected in the thread pane. */
+async function PrintSelectedMessages() {
+  if (gFolderDisplay.selectedCount == 1) {
+    if (
+      gMessageDisplay.visible &&
+      gFolderDisplay.selectedMessage == gMessageDisplay.displayedMessage
+    ) {
+      // Use the already displayed message and print preview UI if we can.
+      let messagePaneBrowser = document.getElementById("messagepane");
+      PrintUtils.startPrintWindow(messagePaneBrowser.browsingContext, {});
+    } else {
+      // Load the only message in a hidden browser, then use the print preview UI.
+      let uri = gFolderDisplay.selectedMessageUris[0];
+      let messageService = messenger.messageServiceFromURI(uri);
+      await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
+      PrintUtils.startPrintWindow(PrintUtils.printBrowser.browsingContext, {});
+    }
+
+    return;
+  }
+
+  // Multiple messages. Get the printer settings, then load the messages into
+  // a hidden browser and print them one at a time.
+  let ps = PrintUtils.getPrintSettings();
+  Cc["@mozilla.org/embedcomp/printingprompt-service;1"]
+    .getService(Ci.nsIPrintingPromptService)
+    .showPrintDialog(window, ps);
+  if (ps.isCancelled) {
+    return;
+  }
+  ps.printSilent = true;
+
+  for (let uri of gFolderDisplay.selectedMessageUris) {
+    let messageService = messenger.messageServiceFromURI(uri);
+    await PrintUtils.loadPrintBrowser(messageService.getUrlForUri(uri).spec);
+    await PrintUtils.printBrowser.browsingContext.print(ps);
+  }
 }

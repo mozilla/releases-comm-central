@@ -2138,11 +2138,6 @@ var detailsPane = {
 // Printing
 
 var printHandler = {
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIWebProgressListener",
-    "nsISupportsWeakReference",
-  ]),
-
   printDirectory(directory) {
     let title = directory ? directory.dirName : document.title;
 
@@ -2202,37 +2197,12 @@ var printHandler = {
     );
   },
 
-  _printURL(url) {
-    let stack = window.browsingContext.topFrameElement.parentNode;
-    this._browser = stack.querySelector("browser.aboutAddressBookPrint");
-
-    if (!this._browser) {
-      this._browser = stack.ownerDocument.createXULElement("browser");
-      this._browser.classList.add("aboutAddressBookPrint");
-      this._browser.setAttribute("type", "content");
-      this._browser.setAttribute("hidden", "true");
-      this._browser.setAttribute("remote", "true");
-
-      stack.appendChild(this._browser);
-    }
-
-    this._browser.webProgress.addProgressListener(
-      this,
-      Ci.nsIWebProgress.NOTIFY_STATE_ALL
+  async _printURL(url) {
+    let topWindow = window.browsingContext.topChromeWindow;
+    await topWindow.PrintUtils.loadPrintBrowser(url);
+    topWindow.PrintUtils.startPrintWindow(
+      topWindow.PrintUtils.printBrowser.browsingContext,
+      {}
     );
-
-    MailE10SUtils.loadURI(this._browser, url);
-  },
-
-  /** nsIWebProgressListener */
-  onStateChange(webProgress, request, stateFlags, status) {
-    if (
-      stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
-      this._browser.currentURI.spec != "about:blank"
-    ) {
-      let topWindow = window.browsingContext.topChromeWindow;
-      topWindow.PrintUtils.startPrintWindow(this._browser.browsingContext, {});
-      this._browser.webProgress.removeProgressListener(this);
-    }
   },
 };
