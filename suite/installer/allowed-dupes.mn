@@ -277,6 +277,18 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/media/thro
 chrome/toolkit/skin/classic/global/media/throbber.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/brand/throbber-anim.png
 chrome/classic/skin/classic/communicator/brand/throbber-anim.png
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/spinner-arrow-down.svg
+chrome/toolkit/skin/classic/global/icons/spinner-arrow-down.svg
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/spinner-arrow-up.svg
+chrome/toolkit/skin/classic/global/icons/spinner-arrow-up.svg
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/datetimepopup.css
+chrome/toolkit/skin/classic/global/datetimepopup.css
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/calendar-arrow-left.svg
+chrome/toolkit/skin/classic/global/icons/calendar-arrow-left.svg
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/calendar-arrow-right.svg
+chrome/toolkit/skin/classic/global/icons/calendar-arrow-right.svg
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/icons/input-clear.svg
+chrome/toolkit/skin/classic/global/icons/input-clear.svg
 
 # Compatibility gif files for modern theme.
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/gtk/tree/sort-dsc.gif
