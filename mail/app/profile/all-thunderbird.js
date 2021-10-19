@@ -770,7 +770,6 @@ pref("chat.otr.default.allowMsgLog", true);
 
 // BigFiles
 pref("mail.cloud_files.enabled", true);
-pref("mail.cloud_files.inserted_urls.footer.link", "https://www.thunderbird.net");
 pref("mail.cloud_files.learn_more_url", "https://support.thunderbird.net/kb/filelink-large-attachments");
 
 // Ignore threads
