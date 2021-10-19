@@ -4053,6 +4053,7 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
 }
 
 function ComposeLoad() {
+  updateTroubleshootMenuItem();
   let otherHeaders = Services.prefs.getCharPref(
     "mail.compose.other.header",
     ""

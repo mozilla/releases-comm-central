@@ -890,6 +890,24 @@ function setupDataTransfer(event, attachments) {
   }
 }
 
+/**
+ * Checks if Thunderbird was launched in safe mode and updates the menu items.
+ */
+function updateTroubleshootMenuItem() {
+  if (Services.appinfo.inSafeMode) {
+    let safeMode = document.getElementById("helpTroubleshootMode");
+    document.l10n.setAttributes(safeMode, "menu-help-exit-troubleshoot-mode");
+
+    let appSafeMode = document.getElementById("appmenu_troubleshootMode");
+    if (appSafeMode) {
+      document.l10n.setAttributes(
+        appSafeMode,
+        "appmenu-help-exit-troubleshoot-mode"
+      );
+    }
+  }
+}
+
 function nsFlavorDataProvider() {}
 
 nsFlavorDataProvider.prototype = {

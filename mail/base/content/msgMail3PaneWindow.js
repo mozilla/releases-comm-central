@@ -734,18 +734,7 @@ var gMailInit = {
    * checking for existing accounts.
    */
   async _loadComponentsAtStartup() {
-    // Check if Thunderbird was launched in safe mode.
-    if (Services.appinfo.inSafeMode) {
-      let safeMode = document.getElementById("helpTroubleshootMode");
-      document.l10n.setAttributes(safeMode, "menu-help-exit-troubleshoot-mode");
-
-      let appSafeMode = document.getElementById("appmenu_troubleshootMode");
-      document.l10n.setAttributes(
-        appSafeMode,
-        "appmenu-help-exit-troubleshoot-mode"
-      );
-    }
-
+    updateTroubleshootMenuItem();
     // Initialize the customizeDone method on the customizeable toolbar.
     let toolbox = document.getElementById("mail-toolbox");
     toolbox.customizeDone = function(aEvent) {
