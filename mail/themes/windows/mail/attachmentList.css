@@ -22,7 +22,8 @@
   }
 
   .attachmentcell-name, .attachmentcell-size {
-    margin: 0 4px;
+    margin-block: 1px 0;
+    margin-inline: 4px;
   }
 
   @media (-moz-os-version: windows-win7) {

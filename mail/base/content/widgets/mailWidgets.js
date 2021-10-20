@@ -1548,10 +1548,6 @@
       item.classList.add("attachmentItem");
       item.setAttribute("role", "option");
 
-      let itemContainer = this.ownerDocument.createXULElement("hbox");
-      itemContainer.setAttribute("flex", "1");
-      itemContainer.classList.add("attachmentcell-content");
-
       item.addEventListener("dblclick", event => {
         let evt = document.createEvent("XULCommandEvent");
         evt.initCommandEvent(
@@ -1566,38 +1562,8 @@
           event.metaKey,
           null
         );
-        event.target.dispatchEvent(evt);
+        item.dispatchEvent(evt);
       });
-
-      let iconContainer = this.ownerDocument.createXULElement("hbox");
-      iconContainer.setAttribute("align", "center");
-      let icon = this.ownerDocument.createElement("img");
-      icon.setAttribute("alt", "");
-      // Allow the src to be invalid.
-      icon.classList.add("attachmentcell-icon", "invisible-on-broken");
-      iconContainer.appendChild(icon);
-
-      let textContainer = this.ownerDocument.createXULElement("hbox");
-      textContainer.setAttribute("flex", "1");
-      textContainer.classList.add("attachmentcell-text");
-      let textName = this.ownerDocument.createXULElement("hbox");
-      textName.setAttribute("flex", "1");
-      textName.classList.add("attachmentcell-nameselection");
-      let textLabel = this.ownerDocument.createXULElement("label");
-      textLabel.setAttribute("flex", "1");
-      textLabel.setAttribute("crop", "center");
-      textLabel.classList.add("attachmentcell-name");
-      textName.appendChild(textLabel);
-
-      let spacer = this.ownerDocument.createXULElement("spacer");
-      spacer.setAttribute("flex", "99999");
-
-      let sizeLabel = this.ownerDocument.createXULElement("label");
-      sizeLabel.classList.add("attachmentcell-size");
-
-      textContainer.appendChild(textName);
-      textContainer.appendChild(spacer);
-      textContainer.appendChild(sizeLabel);
 
       let makeDropIndicator = placementClass => {
         let img = document.createElement("img");
@@ -1610,11 +1576,25 @@
         return img;
       };
 
-      itemContainer.appendChild(makeDropIndicator("before"));
-      itemContainer.appendChild(iconContainer);
-      itemContainer.appendChild(textContainer);
-      itemContainer.appendChild(makeDropIndicator("after"));
-      item.appendChild(itemContainer);
+      item.appendChild(makeDropIndicator("before"));
+
+      let icon = this.ownerDocument.createElement("img");
+      icon.setAttribute("alt", "");
+      icon.setAttribute("draggable", "false");
+      // Allow the src to be invalid.
+      icon.classList.add("attachmentcell-icon", "invisible-on-broken");
+      item.appendChild(icon);
+
+      let textLabel = this.ownerDocument.createElement("span");
+      textLabel.classList.add("attachmentcell-name");
+      item.appendChild(textLabel);
+
+      let sizeLabel = this.ownerDocument.createElement("span");
+      sizeLabel.setAttribute("role", "note");
+      sizeLabel.classList.add("attachmentcell-size");
+      item.appendChild(sizeLabel);
+
+      item.appendChild(makeDropIndicator("after"));
 
       item.setAttribute("context", this.getAttribute("itemcontext"));
 
@@ -1724,7 +1704,7 @@
      */
     setAttachmentName(item, name) {
       item.setAttribute("name", name);
-      item.querySelector(".attachmentcell-name").value = name;
+      item.querySelector(".attachmentcell-name").textContent = name;
     }
 
     /**
@@ -1735,7 +1715,9 @@
      */
     setAttachmentSize(item, size) {
       item.setAttribute("size", size);
-      item.querySelector(".attachmentcell-size").value = size;
+      let sizeEl = item.querySelector(".attachmentcell-size");
+      sizeEl.textContent = size;
+      sizeEl.hidden = !size;
     }
 
     invalidateItem(item, name) {
@@ -1811,7 +1793,8 @@
     }
 
     /**
-     * Only used by attachmentlist with horizontal orient.
+     * Set the width of each child to the largest width child to create a
+     * grid-like effect for the flex-wrapped attachment list.
      */
     setOptimumWidth() {
       if (this._childNodes.length == 0) {
@@ -1819,18 +1802,15 @@
       }
 
       let width = 0;
-
-      // If widths have changed after the initial calculation (updated
-      // size string), clear each item's prior hardcoded width so
-      // getBoundingClientRect is natural, then get the width for
-      // the widest item and set it on all the items again.
-      // Use Math.ceil to always round to the next higher integer.
       for (let child of this._childNodes) {
-        child.width = "";
-        width = Math.max(width, Math.ceil(child.getBoundingClientRect().width));
+        // Unset the width, then the child will expand or shrink to its
+        // "natural" size in the flex-wrapped container. I.e. its preferred
+        // width bounded by the width of the container's content space.
+        child.style.width = null;
+        width = Math.max(width, child.getBoundingClientRect().width);
       }
       for (let child of this._childNodes) {
-        child.width = width;
+        child.style.width = `${width}px`;
       }
     }
   }

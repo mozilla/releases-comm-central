@@ -236,6 +236,8 @@ splitter:not([orient="vertical"]) {
 
 #attachmentArea {
   border-block-start: 1px solid var(--splitter-color);
+  /* Allow the area to shrink. */
+  min-width: 0;
 }
 
 :root[lwt-tree] #attachmentArea {

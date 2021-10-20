@@ -211,9 +211,12 @@ add_task(async function() {
       totalSize += size;
 
       let item = bucket.itemChildren[i];
-      Assert.equal(item.querySelector(".attachmentcell-name").value, name);
       Assert.equal(
-        item.querySelector(".attachmentcell-size").value,
+        item.querySelector(".attachmentcell-name").textContent,
+        name
+      );
+      Assert.equal(
+        item.querySelector(".attachmentcell-size").textContent,
         `${size} bytes`
       );
     }

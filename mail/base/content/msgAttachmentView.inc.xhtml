@@ -96,13 +96,10 @@
                               </hbox>
                             </vbox>
                           </hbox>
-                          <hbox class="attachments-container">
-                            <richlistbox is="attachment-list" id="attachmentList"
-                                         class="attachmentList"
-                                         seltype="multiple"
-                                         context="attachmentListContext"
-                                         itemcontext="attachmentItemContext"
-                                         role="listbox"
-                                         flex="1"
-                                         ondragstart="attachmentListDNDObserver.onDragStart(event);"/>
-                          </hbox>
+                          <richlistbox is="attachment-list" id="attachmentList"
+                                       class="attachmentList"
+                                       seltype="multiple"
+                                       context="attachmentListContext"
+                                       itemcontext="attachmentItemContext"
+                                       role="listbox"
+                                       ondragstart="attachmentListDNDObserver.onDragStart(event);"/>

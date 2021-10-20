@@ -2,12 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-.attachments-container {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
 .attachmentList {
   appearance: none;
   -moz-user-focus: normal;
@@ -28,10 +22,35 @@
 
 .attachmentItem {
   border: 1px solid transparent;
-  display: -moz-inline-box;
   min-width: 10em;
   padding: 1px 3px;
   border-radius: 2px;
+  display: flex;
+  align-items: baseline;
+}
+
+.attachmentItem > * {
+  /* We treat the entire attachment item as a single object for click events.
+   * This ensures that dragging will drag the entire widget by default, and
+   * click event targets will point to the attachmentItem, rather than a
+   * descendant. */
+  pointer-events: none;
+}
+
+.attachmentItem > .attachmentcell-icon {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.attachmentItem > .attachmentcell-name {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+
+.attachmentItem > .attachmentcell-size {
+  flex: 0 0 auto;
 }
 
 .attachmentList[seltype="multiple"]:focus .attachmentItem[current="true"] {
@@ -41,7 +60,7 @@
 
 /* Hide the drop indicator for the message pane attachment list. */
 #attachmentList .attachmentItem .attach-drop-indicator {
-  display: none !important;
+  display: none;
 }
 
 #attachmentBucket .attachmentItem .attach-drop-indicator {
@@ -63,14 +82,6 @@
 .attachmentList[seltype="multiple"]:focus
   .attachmentItem[current="true"][selected="true"] {
   border-color: var(--sidebar-highlight-border-color, var(--item-focus-selected-border-color));
-}
-
-.attachmentcell-content {
-  -moz-box-orient: horizontal;
-}
-
-.attachmentcell-text {
-  -moz-box-orient: horizontal;
 }
 
 :root[lwt-tree] .attachmentList {
@@ -120,10 +131,6 @@
   text-decoration-line: line-through;
 }
 
-.attachmentItem > * {
-  pointer-events: none;
-}
-
 .attachmentcell-icon {
   margin: 1px;
   width: 16px;
@@ -132,7 +139,8 @@
 
 .attachmentcell-name,
 .attachmentcell-size {
-  padding-top: 1px;
+  margin-block: 2px;
+  margin-inline: 6px 5px;
 }
 
 .attachmentcell-size {
