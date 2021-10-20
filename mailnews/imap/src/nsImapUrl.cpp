@@ -801,34 +801,31 @@ static void unescapeSlashes(char* path, size_t* newLength) {
 NS_IMETHODIMP nsImapUrl::AllocateCanonicalPath(const char* serverPath,
                                                char onlineDelimiter,
                                                char** allocatedPath) {
-  nsresult rv = NS_ERROR_NULL_POINTER;
-  char delimiterToUse = onlineDelimiter;
-  char* serverKey = nullptr;
-  nsString aString;
-  char* currentPath = (char*)serverPath;
-  nsAutoCString onlineDir;
-  nsCOMPtr<nsIMsgIncomingServer> server;
+  NS_ENSURE_ARG_POINTER(serverPath);
 
+  char delimiterToUse = onlineDelimiter;
+  *allocatedPath = nullptr;
+
+  char* currentPath = (char*)serverPath;
+
+  nsresult rv;
   nsCOMPtr<nsIImapHostSessionList> hostSessionList =
       do_GetService(kCImapHostSessionListCID, &rv);
-
-  *allocatedPath = nullptr;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (onlineDelimiter == kOnlineHierarchySeparatorUnknown ||
       onlineDelimiter == 0)
     GetOnlineSubDirSeparator(&delimiterToUse);
 
-  NS_ASSERTION(serverPath, "Oops... null serverPath");
-
-  if (!serverPath || NS_FAILED(rv)) goto done;
-
-  hostSessionList->GetOnlineDirForHost(m_serverKey.get(), aString);
+  nsString dir;
+  hostSessionList->GetOnlineDirForHost(m_serverKey.get(), dir);
   // First we have to check to see if we should strip off an online server
   // subdirectory
   // If this host has an online server directory configured
-  LossyCopyUTF16toASCII(aString, onlineDir);
+  nsAutoCString onlineDir;
+  LossyCopyUTF16toASCII(dir, onlineDir);
 
-  if (currentPath && !onlineDir.IsEmpty()) {
+  if (!onlineDir.IsEmpty()) {
     // By definition, the online dir must be at the root.
     if (delimiterToUse && delimiterToUse != kOnlineHierarchySeparatorUnknown) {
       // try to change the canonical online dir name to real dir name first
@@ -851,13 +848,7 @@ NS_IMETHODIMP nsImapUrl::AllocateCanonicalPath(const char* serverPath,
     }
   }
 
-  if (!currentPath) goto done;
-
-  rv = ConvertToCanonicalFormat(currentPath, delimiterToUse, allocatedPath);
-
-done:
-  PR_Free(serverKey);
-  return rv;
+  return ConvertToCanonicalFormat(currentPath, delimiterToUse, allocatedPath);
 }
 
 // this method is only called from the imap thread
