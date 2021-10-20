@@ -2407,12 +2407,8 @@ function attachToCloudRepeat(upload, account) {
   attachment.cloudFileAccountKey = account.accountKey;
 
   AddAttachments([attachment], function(item) {
-    // FIXME: The UI logic should be handled by the attachment list or item
-    // itself.
-    let itemLabel = item.querySelector(".attachmentcell-name");
     item.account = account;
-    item.setAttribute("name", upload.leafName);
-    itemLabel.setAttribute("value", upload.leafName);
+    gAttachmentBucket.setAttachmentName(item, upload.leafName);
     item.cloudFileUpload = {
       ...upload,
       repeat: true,
@@ -6570,11 +6566,13 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
       gAttachmentsSize += attachment.size;
     }
 
+    let tooltiptext;
     try {
-      item.setAttribute("tooltiptext", decodeURI(attachment.url));
-    } catch (e) {
-      item.setAttribute("tooltiptext", attachment.url);
+      tooltiptext = decodeURI(attachment.url);
+    } catch {
+      tooltiptext = attachment.url;
     }
+    item.setAttribute("tooltiptext", tooltiptext);
     item.addEventListener("command", OpenSelectedAttachment);
 
     if (attachment.sendViaCloud) {
@@ -6652,8 +6650,6 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
   if (gAttachmentBucket.itemCount) {
     toggleAttachmentPane("show");
   }
-
-  return items;
 }
 
 /**
@@ -6977,10 +6973,8 @@ function RenameSelectedAttachment() {
     }
 
     let originalName = item.attachment.name;
-    let itemLabel = item.querySelector(".attachmentcell-name");
     item.attachment.name = attachmentName.value;
-    item.setAttribute("name", attachmentName.value);
-    itemLabel.setAttribute("value", attachmentName.value);
+    gAttachmentBucket.setAttachmentName(item, attachmentName.value);
 
     gContentChanged = true;
 

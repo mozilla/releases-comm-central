@@ -302,8 +302,9 @@ function check_no_attachment_size(index) {
 
   // If there's no size, the size attribute is the zero-width space.
   let nodeSize = node.getAttribute("size");
-  Assert.ok(
-    nodeSize == "\u200b" || nodeSize == "",
+  Assert.equal(
+    nodeSize,
+    "",
     `Attachment "${node.attachment.name}" size should not be displayed`
   );
 }

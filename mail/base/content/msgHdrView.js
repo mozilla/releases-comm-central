@@ -2653,8 +2653,9 @@ function displayAttachmentsForExpandedViewExternal() {
         "MsgStatusFeedback.setOverLink('')"
       );
 
-      let name = attachmentitem.getElementsByClassName("attachmentcell-name");
-      name[0].classList.add("text-link");
+      attachmentitem
+        .querySelector(".attachmentcell-name")
+        .classList.add("text-link");
 
       if (attachment.isLinkAttachment) {
         if (index == 0) {
@@ -2754,18 +2755,17 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
 
     // The attachment listitem.
     attachmentList.setAttachmentLoaded(attachmentItem, true);
+    attachmentList.setAttachmentSize(
+      attachmentItem,
+      attachmentInfo.hasFile ? sizeStr : ""
+    );
 
     // FIXME: The UI logic for this should be moved to the attachment list or
     // item itself.
-    let sizeLabel = attachmentItem.querySelector(".attachmentcell-size");
     if (attachmentInfo.hasFile) {
-      attachmentItem.setAttribute("size", sizeStr);
-      sizeLabel.setAttribute("value", sizeStr);
       attachmentItem.removeAttribute("tooltiptext");
       attachmentItem.classList.remove("notfound");
     } else {
-      attachmentItem.removeAttribute("size");
-      sizeLabel.setAttribute("value", "");
       attachmentItem.setAttribute("tooltiptext", tooltiptextExternalNotFound);
       attachmentItem.classList.add("notfound");
     }

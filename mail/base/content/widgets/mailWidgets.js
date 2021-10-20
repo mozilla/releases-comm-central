@@ -1693,7 +1693,7 @@
     }
 
     /**
-     * Set the attachment's loaded state.
+     * Set the attachment item's loaded state.
      *
      * @param {MozRichlistitem} item - The attachment item.
      * @param {boolean} loaded - Whether the attachment is fully loaded.
@@ -1716,22 +1716,37 @@
       }
     }
 
+    /**
+     * Set the attachment item's displayed name.
+     *
+     * @param {MozRichlistitem} item - The attachment item.
+     * @param {string} name - The name to display for the attachment.
+     */
+    setAttachmentName(item, name) {
+      item.setAttribute("name", name);
+      item.querySelector(".attachmentcell-name").value = name;
+    }
+
+    /**
+     * Set the attachment item's displayed size.
+     *
+     * @param {MozRichlistitem} item - The attachment item.
+     * @param {string} size - The size to display for the attachment.
+     */
+    setAttachmentSize(item, size) {
+      item.setAttribute("size", size);
+      item.querySelector(".attachmentcell-size").value = size;
+    }
+
     invalidateItem(item, name) {
       let attachment = item.attachment;
-      item.setAttribute("name", name || attachment.name);
-      item
-        .querySelector(".attachmentcell-name")
-        .setAttribute("value", name || attachment.name);
 
-      let size;
-      if (attachment.size != null && attachment.size != -1) {
-        size = this.messenger.formatFileSize(attachment.size);
-      } else {
-        // Use a zero-width space so the size label has the right height.
-        size = "\u200b";
-      }
-      item.setAttribute("size", size);
-      item.querySelector(".attachmentcell-size").setAttribute("value", size);
+      this.setAttachmentName(item, name || attachment.name);
+      let size = attachment.size;
+      this.setAttachmentSize(
+        item,
+        size == null || size == -1 ? "" : this.messenger.formatFileSize(size)
+      );
 
       // By default, items are considered loaded.
       item.loaded = true;
