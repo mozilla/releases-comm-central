@@ -2339,19 +2339,14 @@ Enigmail.msg = {
     }
   },
 
-  // handle the attachment view toggle
-  handleAttchmentEvent() {
+  /**
+   * Set up some event handlers for the attachment items in #attachmentList.
+   */
+  handleAttachmentEvent() {
     let attList = document.getElementById("attachmentList");
 
-    let clickFunc = function(event) {
-      Enigmail.msg.attachmentListClick("attachmentList", event);
-    };
-
-    if (attList && attList.itemCount > 0) {
-      for (let i = 0; i < attList.itemCount; i++) {
-        let att = attList.getItemAtIndex(i);
-        att.addEventListener("click", clickFunc, true);
-      }
+    for (let att of attList.itemChildren) {
+      att.addEventListener("click", this.attachmentItemClick.bind(this), true);
     }
   },
 
@@ -2847,13 +2842,15 @@ Enigmail.msg = {
     return navWindow;
   },
 
-  // handle double click events on Attachments
-  attachmentListClick(elementId, event) {
+  /**
+   * Open an encrypted attachment item.
+   */
+  attachmentItemClick(event) {
     EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: attachmentListClick: event=" + event + "\n"
+      "enigmailMessengerOverlay.js: attachmentItemClick: event=" + event + "\n"
     );
 
-    var attachment = event.target.attachment;
+    let attachment = event.currentTarget.attachment;
     if (this.checkEncryptedAttach(attachment)) {
       if (event.button === 0 && event.detail == 2) {
         // double click

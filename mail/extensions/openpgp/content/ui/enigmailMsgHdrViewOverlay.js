@@ -663,7 +663,7 @@ Enigmail.hdrView = {
     EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.messageLoad\n");
 
     await Enigmail.msg.messageAutoDecrypt();
-    Enigmail.msg.handleAttchmentEvent();
+    Enigmail.msg.handleAttachmentEvent();
   },
 
   showPhoto() {
