@@ -1573,6 +1573,10 @@
       textLabel.classList.add("attachmentcell-name");
       item.appendChild(textLabel);
 
+      let extensionLabel = this.ownerDocument.createElement("span");
+      extensionLabel.classList.add("attachmentcell-extension");
+      item.appendChild(extensionLabel);
+
       let sizeLabel = this.ownerDocument.createElement("span");
       sizeLabel.setAttribute("role", "note");
       sizeLabel.classList.add("attachmentcell-size");
@@ -1688,7 +1692,15 @@
      */
     setAttachmentName(item, name) {
       item.setAttribute("name", name);
-      item.querySelector(".attachmentcell-name").textContent = name;
+      // Extract what looks like the file extension so we can always show it,
+      // even if the full name would overflow.
+      // NOTE: This is a convenience feature rather than a security feature
+      // since the content type of an attachment need not match the extension.
+      let found = name.match(/^(.+)(\.[a-zA-Z0-9_#$!~+-]{1,16})$/);
+      item.querySelector(".attachmentcell-name").textContent =
+        found?.[1] || name;
+      item.querySelector(".attachmentcell-extension").textContent =
+        found?.[2] || "";
     }
 
     /**

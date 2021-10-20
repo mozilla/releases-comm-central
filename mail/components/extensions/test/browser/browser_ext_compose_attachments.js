@@ -212,7 +212,8 @@ add_task(async function() {
 
       let item = bucket.itemChildren[i];
       Assert.equal(
-        item.querySelector(".attachmentcell-name").textContent,
+        item.querySelector(".attachmentcell-name").textContent +
+          item.querySelector(".attachmentcell-extension").textContent,
         name
       );
       Assert.equal(

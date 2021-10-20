@@ -43,10 +43,16 @@
 }
 
 .attachmentItem > .attachmentcell-name {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   white-space: nowrap;
   overflow-x: hidden;
   text-overflow: ellipsis;
+}
+
+.attachmentItem > .attachmentcell-extension {
+  /* The extension part grows to fill the available space after the attachment
+   * name, but the name part shrinks when we do not have enough space. */
+  flex: 1 0 auto;
 }
 
 .attachmentItem > .attachmentcell-size {
@@ -138,9 +144,20 @@
 }
 
 .attachmentcell-name,
+.attachmentcell-extension,
 .attachmentcell-size {
   margin-block: 2px;
-  margin-inline: 6px 5px;
+}
+
+/* NOTE: We do not create a margin between the name and extension. */
+.attachmentcell-name,
+.attachmentcell-size {
+  margin-inline-start: 6px;
+}
+
+.attachmentcell-extension,
+.attachmentcell-size {
+  margin-inline-end: 5px;
 }
 
 .attachmentcell-size {
@@ -151,6 +168,6 @@
   opacity: 0.8;
 }
 
-.attachmentItem:not(.notfound):hover .attachmentcell-name.text-link {
+.attachmentItem:not(.notfound):hover .text-link {
   text-decoration: underline;
 }

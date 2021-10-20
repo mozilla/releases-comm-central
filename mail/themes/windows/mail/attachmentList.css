@@ -21,9 +21,16 @@
     color: FieldText;
   }
 
-  .attachmentcell-name, .attachmentcell-size {
+  .attachmentcell-name, .attachmentcell-extension, .attachmentcell-size {
     margin-block: 1px 0;
-    margin-inline: 4px;
+  }
+
+  .attachmentcell-name, .attachmentcell-size {
+    margin-inline-start: 4px;
+  }
+
+  .attachmentcell-extension, .attachmentcell-size {
+    margin-inline-end: 4px;
   }
 
   @media (-moz-os-version: windows-win7) {

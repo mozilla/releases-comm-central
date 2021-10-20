@@ -2656,6 +2656,9 @@ function displayAttachmentsForExpandedViewExternal() {
       attachmentitem
         .querySelector(".attachmentcell-name")
         .classList.add("text-link");
+      attachmentitem
+        .querySelector(".attachmentcell-extension")
+        .classList.add("text-link");
 
       if (attachment.isLinkAttachment) {
         if (index == 0) {
