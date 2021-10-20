@@ -8219,12 +8219,8 @@ var envelopeDragObserver = {
   },
 
   _showDropMarker(targetItem) {
-    let oldDropMarkerItem = gAttachmentBucket.querySelector(
-      "richlistitem.attachmentItem[dropOn]"
-    );
-    if (oldDropMarkerItem) {
-      oldDropMarkerItem.removeAttribute("dropOn");
-    }
+    // Hide old drop marker.
+    this._hideDropMarker();
 
     if (targetItem == "afterLastItem") {
       targetItem = gAttachmentBucket.lastElementChild;
@@ -8235,12 +8231,9 @@ var envelopeDragObserver = {
   },
 
   _hideDropMarker() {
-    let oldDropMarkerItem = document
-      .getElementById("attachmentBucket")
-      .querySelector("richlistitem.attachmentItem[dropOn]");
-    if (oldDropMarkerItem) {
-      oldDropMarkerItem.removeAttribute("dropOn");
-    }
+    gAttachmentBucket
+      .querySelector(".attachmentItem[dropOn]")
+      ?.removeAttribute("dropOn");
   },
 
   /**
