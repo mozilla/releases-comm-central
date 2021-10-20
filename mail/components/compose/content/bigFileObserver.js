@@ -55,28 +55,28 @@ var gBigFileObserver = {
       return;
     }
 
-    const bucketCallbacks = {
-      "attachments-added": this.attachmentsAdded,
-      "attachments-removed": this.attachmentsRemoved,
-      "attachments-converted": this.attachmentsConverted,
-      "attachments-uploading": this.attachmentsUploading,
-    };
-
-    const itemCallbacks = {
-      "attachment-uploaded": this.attachmentUploaded,
-      "attachment-upload-failed": this.attachmentUploadFailed,
-    };
-
-    if (event.type in bucketCallbacks) {
-      bucketCallbacks[event.type].call(this, event.detail);
-    }
-
-    if (event.type in itemCallbacks) {
-      itemCallbacks[event.type].call(
-        this,
-        event.target,
-        "detail" in event ? event.detail : null
-      );
+    switch (event.type) {
+      case "attachments-added":
+        this.attachmentsAdded(event.detail);
+        break;
+      case "attachments-removed":
+        this.attachmentsRemoved(event.detail);
+        break;
+      case "attachments-converted":
+        this.attachmentsConverted(event.detail);
+        break;
+      case "attachments-uploading":
+        this.attachmentsUploading(event.detail);
+        break;
+      case "attachment-uploaded":
+        this.attachmentUploaded();
+        break;
+      case "attachment-upload-failed":
+        this.attachmentUploadFailed();
+        break;
+      default:
+        // Do not update the notification for other events.
+        return;
     }
 
     this.updateNotification();
@@ -135,7 +135,7 @@ var gBigFileObserver = {
     this.showUploadingNotification(aAttachments);
   },
 
-  attachmentUploaded(aAttachment) {
+  attachmentUploaded() {
     if (!this._anyUploadsInProgress()) {
       this.hideUploadingNotification();
 
@@ -146,7 +146,7 @@ var gBigFileObserver = {
     }
   },
 
-  attachmentUploadFailed(aAttachment, aStatusCode) {
+  attachmentUploadFailed() {
     if (!this._anyUploadsInProgress()) {
       this.hideUploadingNotification();
     }
