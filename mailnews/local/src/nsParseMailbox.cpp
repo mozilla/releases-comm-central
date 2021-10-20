@@ -477,29 +477,30 @@ nsParseMailMessageState::nsParseMailMessageState() {
   m_customDBHeaderValues = nullptr;
   nsCString customDBHeaders;  // not shown in search UI
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
-  if (pPrefBranch) {
-    pPrefBranch->GetCharPref("mailnews.customDBHeaders", customDBHeaders);
-    ToLowerCase(customDBHeaders);
-    if (customDBHeaders.Find("content-base") == -1)
-      customDBHeaders.InsertLiteral("content-base ", 0);
-    ParseString(customDBHeaders, ' ', m_customDBHeaders);
+  if (!pPrefBranch) {
+    return;
+  }
+  pPrefBranch->GetCharPref("mailnews.customDBHeaders", customDBHeaders);
+  ToLowerCase(customDBHeaders);
+  if (customDBHeaders.Find("content-base") == -1)
+    customDBHeaders.InsertLiteral("content-base ", 0);
+  ParseString(customDBHeaders, ' ', m_customDBHeaders);
 
-    // now add customHeaders
-    nsCString customHeadersString;  // shown in search UI
-    nsTArray<nsCString> customHeadersArray;
-    pPrefBranch->GetCharPref("mailnews.customHeaders", customHeadersString);
-    ToLowerCase(customHeadersString);
-    customHeadersString.StripWhitespace();
-    ParseString(customHeadersString, ':', customHeadersArray);
-    for (uint32_t i = 0; i < customHeadersArray.Length(); i++) {
-      if (!m_customDBHeaders.Contains(customHeadersArray[i]))
-        m_customDBHeaders.AppendElement(customHeadersArray[i]);
-    }
+  // now add customHeaders
+  nsCString customHeadersString;  // shown in search UI
+  nsTArray<nsCString> customHeadersArray;
+  pPrefBranch->GetCharPref("mailnews.customHeaders", customHeadersString);
+  ToLowerCase(customHeadersString);
+  customHeadersString.StripWhitespace();
+  ParseString(customHeadersString, ':', customHeadersArray);
+  for (uint32_t i = 0; i < customHeadersArray.Length(); i++) {
+    if (!m_customDBHeaders.Contains(customHeadersArray[i]))
+      m_customDBHeaders.AppendElement(customHeadersArray[i]);
+  }
 
-    if (m_customDBHeaders.Length()) {
-      m_customDBHeaderValues =
-          new struct message_header[m_customDBHeaders.Length()];
-    }
+  if (m_customDBHeaders.Length()) {
+    m_customDBHeaderValues =
+        new struct message_header[m_customDBHeaders.Length()];
   }
   Clear();
 }
