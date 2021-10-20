@@ -2511,11 +2511,6 @@ async function displayAttachmentsForExpandedView() {
 
     var attachmentList = document.getElementById("attachmentList");
 
-    var viewMode = Services.prefs.getIntPref(
-      "mailnews.attachments.display.view"
-    );
-    var views = ["small", "large", "tile"];
-    attachmentList.view = views[viewMode];
     attachmentList.controllers.appendController(AttachmentListController);
 
     toggleAttachmentList(false);

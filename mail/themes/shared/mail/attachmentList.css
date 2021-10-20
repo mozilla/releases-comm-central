@@ -13,9 +13,6 @@
   -moz-user-focus: normal;
   margin: 0;
   padding: 3px;
-}
-
-.attachmentList[orient="horizontal"] {
   display: flex;
   overflow-x: hidden;
   flex-wrap: wrap;
@@ -31,6 +28,10 @@
 
 .attachmentItem {
   border: 1px solid transparent;
+  display: -moz-inline-box;
+  min-width: 10em;
+  padding: 1px 3px;
+  border-radius: 2px;
 }
 
 .attachmentList[seltype="multiple"]:focus .attachmentItem[current="true"] {
@@ -70,37 +71,6 @@
 
 .attachmentcell-text {
   -moz-box-orient: horizontal;
-}
-
-.attachmentList[view="large"] .attachmentcell-content {
-  -moz-box-orient: horizontal;
-}
-
-.attachmentList[view="large"] .attachmentcell-text {
-  -moz-box-align: start;
-  -moz-box-orient: vertical;
-}
-
-.attachmentList[view="tile"] .attachmentcell-content {
-  -moz-box-align: center;
-  -moz-box-orient: vertical;
-}
-
-.attachmentList[view="tile"] .attachmentcell-text {
-  -moz-box-align: center;
-  -moz-box-orient: vertical;
-}
-
-.attachmentList[orient="horizontal"] .attachmentItem {
-  display: -moz-inline-box;
-  min-width: 10em;
-  padding: 1px 3px;
-  border-radius: 2px;
-}
-
-.attachmentList[orient="horizontal"][view="tile"] .attachmentItem {
-  min-width: 5em;
-  max-width: 10em;
 }
 
 :root[lwt-tree] .attachmentList {

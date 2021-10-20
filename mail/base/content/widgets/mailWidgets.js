@@ -1338,7 +1338,6 @@
   /**
    * The MozAttachmentlist widget lists attachments for a mail. This is typically used to show
    * attachments while writing a new mail as well as when reading mails.
-   * It has two layouts, which you can set by orient="horizontal" and orient="vertical" respectively.
    *
    * @extends {MozElements.RichListBox}
    */
@@ -1409,43 +1408,6 @@
           this.focus();
         }
       });
-
-      if (this.getAttribute("orient") === "horizontal") {
-        this.addEventListener("keypress", event => {
-          switch (event.keyCode) {
-            case KeyEvent.DOM_VK_LEFT:
-              this.moveByOffset(-1, !event.ctrlKey, event.shiftKey);
-              event.preventDefault();
-              break;
-
-            case KeyEvent.DOM_VK_RIGHT:
-              this.moveByOffset(1, !event.ctrlKey, event.shiftKey);
-              event.preventDefault();
-              break;
-
-            case KeyEvent.DOM_VK_DOWN:
-              this.moveByOffset(
-                this._itemsPerRow(),
-                !event.ctrlKey,
-                event.shiftKey
-              );
-              event.preventDefault();
-              break;
-
-            case KeyEvent.DOM_VK_UP:
-              this.moveByOffset(
-                -this._itemsPerRow(),
-                !event.ctrlKey,
-                event.shiftKey
-              );
-              event.preventDefault();
-              break;
-
-            default:
-              break;
-          }
-        });
-      }
     }
 
     connectedCallback() {
@@ -1465,27 +1427,6 @@
         .forEach(child =>
           child.setAttribute("context", this.getAttribute("itemcontext"))
         );
-    }
-
-    set view(val) {
-      this.setAttribute("view", val);
-    }
-
-    get view() {
-      return this.getAttribute("view");
-    }
-
-    set orient(val) {
-      // The current item can get messed up when changing orientation.
-      let curr = this.currentItem;
-      this.currentItem = null;
-
-      this.setAttribute("orient", val);
-      this.currentItem = curr;
-    }
-
-    get orient() {
-      return this.getAttribute("orient");
     }
 
     get itemCount() {
@@ -1820,11 +1761,6 @@
     }
 
     _itemsPerRow() {
-      if (this.getAttribute("orient") === "vertical") {
-        // Vertical attachment lists have one item per row by definition.
-        return 1;
-      }
-
       // For 0 or 1 children, we can assume that they all fit in one row.
       if (this._childNodes.length < 2) {
         return this._childNodes.length;

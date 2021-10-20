@@ -12,21 +12,13 @@
     background-repeat: no-repeat;
     background-size: 100% 100%;
     padding: 1px;
+    margin-top: 1px;
+    margin-inline-start: 1px;
   }
 
   .attachmentList:focus .attachmentItem[selected="true"],
   #attachmentList:focus > .attachmentItem[selected="true"] {
     color: FieldText;
-  }
-
-  .attachmentlist[orient="horizontal"] {
-    margin-inline-end: 1px;
-    margin-bottom: 1px;
-  }
-
-  .attachmentList[orient="horizontal"] .attachmentItem {
-    margin-top: 1px;
-    margin-inline-start: 1px;
   }
 
   .attachmentcell-name, .attachmentcell-size {
@@ -78,12 +70,6 @@
       background-image: linear-gradient(rgba(131, 183, 249, 0.05),
                                         rgba(131, 183, 249, 0.16));
     }
-
-    #attachmentBucket[orient="vertical"]:focus >
-      .attachmentItem:is([current="true"],[selected="true"]) +
-      .attachmentItem:is([current="true"],[selected="true"]) {
-      border-top-color: rgba(131, 183, 249, 0.375);
-    }
   }
 
   @media not all and (-moz-os-version: windows-win7) {
@@ -102,11 +88,6 @@
       background-color: rgb(205, 232, 255);
     }
 
-    #attachmentBucket[orient="vertical"]:focus
-      .attachmentItem[selected="true"]:not([current="true"],:hover) {
-      border-inline-color: transparent;
-    }
-
     .attachmentList:focus .attachmentItem[current="true"] {
       border-color: rgb(125, 162, 206);
     }
@@ -120,12 +101,6 @@
     .attachmentItem:hover {
       border-color: rgb(229, 243, 255);
       background-color: rgb(229, 243, 255);
-    }
-
-    #attachmentBucket[orient="vertical"]:focus >
-      .attachmentItem:is([current="true"],[selected="true"]) +
-      .attachmentItem:is([current="true"],[selected="true"]) {
-      border-top-color: transparent;
     }
   }
 }

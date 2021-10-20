@@ -288,7 +288,6 @@ pref("mail.showCondensedAddresses", true); // show the friendly display name for
 
 pref("mailnews.attachments.display.start_expanded", false);
 // hidden pref for changing how we present attachments in the message pane
-pref("mailnews.attachments.display.view", 0);
 pref("mail.pane_config.dynamic",            0);
 pref("mailnews.reuse_thread_window2",     true);
 pref("editor.singleLine.pasteNewlines", 4);  // substitute commas for new lines in single line text boxes

@@ -4065,9 +4065,6 @@ function ComposeLoad() {
 
   // Setup the attachment bucket.
   gAttachmentBucket = document.getElementById("attachmentBucket");
-  let viewMode = Services.prefs.getIntPref("mailnews.attachments.display.view");
-  let views = ["small", "large", "tile"];
-  gAttachmentBucket.view = views[viewMode];
 
   let attachmentArea = document.getElementById("attachmentArea");
   attachmentArea.addEventListener("toggle", attachmentAreaOnToggle);
