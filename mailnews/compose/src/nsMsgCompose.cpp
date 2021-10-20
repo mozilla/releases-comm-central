@@ -84,6 +84,8 @@ using namespace mozilla;
 using namespace mozilla::dom;
 using namespace mozilla::mailnews;
 
+LazyLogModule Compose("Compose");
+
 static nsresult GetReplyHeaderInfo(int32_t* reply_header_type,
                                    nsString& reply_header_authorwrote,
                                    nsString& reply_header_ondateauthorwrote,
@@ -187,6 +189,7 @@ nsMsgCompose::nsMsgCompose() {
 }
 
 nsMsgCompose::~nsMsgCompose() {
+  MOZ_LOG(Compose, LogLevel::Debug, ("~nsMsgCompose()"));
   if (!m_compFields) {
     // Uhoh. We're in an uninitialized state. Maybe initialize() failed, or
     // was never even called.
