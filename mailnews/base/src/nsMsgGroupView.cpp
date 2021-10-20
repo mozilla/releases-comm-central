@@ -24,7 +24,6 @@
 
 nsMsgGroupView::nsMsgGroupView() {
   m_dayChanged = false;
-  m_lastCurExplodedTime.tm_mday = 0;
 }
 
 nsMsgGroupView::~nsMsgGroupView() {}

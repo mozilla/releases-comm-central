@@ -72,7 +72,7 @@ class nsMsgGroupView : public nsMsgDBView {
   virtual nsMsgGroupThread* CreateGroupThread(nsIMsgDatabase* db);
 
   nsInterfaceHashtable<nsStringHashKey, nsIMsgThread> m_groupsTable;
-  PRExplodedTime m_lastCurExplodedTime;
+  PRExplodedTime m_lastCurExplodedTime{0};
   bool m_dayChanged;
 
  private:
