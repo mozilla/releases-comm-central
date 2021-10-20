@@ -404,7 +404,8 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
   // Add the list of attachments. This is only visible when printing.
 
   if (mFirst) {
-    UtilityWrite("<fieldset class=\"mimeAttachmentHeader print-only\">");
+    UtilityWrite(
+        "<fieldset class=\"moz-mime-attachment-header moz-print-only\">");
     if (!name.IsEmpty()) {
       nsresult rv;
 
@@ -421,7 +422,8 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
       nsString attachmentsHeader;
       bundle->GetStringFromName("attachmentsPrintHeader", attachmentsHeader);
 
-      UtilityWrite("<legend class=\"mimeAttachmentHeaderName print-only\">");
+      UtilityWrite(
+          "<legend class=\"moz-mime-attachment-headerName moz-print-only\">");
       nsCString escapedName;
       nsAppendEscapedHTML(NS_ConvertUTF16toUTF8(attachmentsHeader),
                           escapedName);
@@ -429,13 +431,13 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
       UtilityWrite("</legend>");
     }
     UtilityWrite("</fieldset>");
-    UtilityWrite("<div class=\"mimeAttachmentWrap print-only\">");
-    UtilityWrite("<table class=\"mimeAttachmentTable\">");
+    UtilityWrite("<div class=\"moz-mime-attachment-wrap moz-print-only\">");
+    UtilityWrite("<table class=\"moz-mime-attachment-table\">");
   }
 
   UtilityWrite("<tr>");
 
-  UtilityWrite("<td class=\"mimeAttachmentFile\">");
+  UtilityWrite("<td class=\"moz-mime-attachment-file\">");
   nsCString escapedName;
   nsAppendEscapedHTML(name, escapedName);
   UtilityWrite(escapedName.get());
@@ -467,7 +469,7 @@ nsresult nsMimeHtmlDisplayEmitter::AddAttachmentField(const char* field,
   uint64_t size = atoi(value);
   nsAutoString sizeString;
   rv = FormatFileSize(size, false, sizeString);
-  UtilityWrite("<td class=\"mimeAttachmentSize\">");
+  UtilityWrite("<td class=\"moz-mime-attachment-size\">");
   UtilityWrite(NS_ConvertUTF16toUTF8(sizeString).get());
   UtilityWrite("</td>");
 

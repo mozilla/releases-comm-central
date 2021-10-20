@@ -17,23 +17,23 @@ mailattachcount {
 /* :::: message header ::::: */
 
 @media screen {
-  .main-header,
-  .main-header + br,
-  .print-only {
+  .moz-main-header,
+  .moz-main-header + br,
+  .moz-print-only {
     display: none;
   }
 }
 
-.header-part1 {
+.moz-header-part1 {
   background-color: #EFEFEF;
 }
 
-.header-part2,
-.header-part3 {
+.moz-header-part2,
+.moz-header-part3 {
   background-color: #DEDEDE;
 }
 
-.headerdisplayname {
+.moz-header-display-name {
   display: inline;
   font-weight: bold;
   white-space: pre;
@@ -156,49 +156,49 @@ img[overflowing][shrinktofit] {
 }
 
 /* Attachment display styling (for inline attachments and printing) */
-.mimeAttachmentHeader {
+.moz-mime-attachment-header {
   border-style: none;
   border-top: 1px solid GrayText;
   padding-block-start: 0.625em;
   padding-block-end: 0.2em;
 }
 
-.mimeAttachmentHeader.print-only {
+.moz-mime-attachment-header.moz-print-only {
   margin-top: 1em;
 }
 
-.mimeAttachmentHeaderName {
+.moz-mime-attachment-header-name {
   color: GrayText;
   font-size: 80%;
   font-family: Arial, sans-serif;
 }
 
-.mimeAttachmentWrap {
+.moz-mime-attachment-wrap {
   padding: 0 1em;
 }
 
-.mimeAttachmentTable {
+.moz-mime-attachment-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
 }
 
-.mimeAttachmentTable tr + tr > td {
+.moz-mime-attachment-table tr + tr > td {
   border-top: 1px solid GrayText;
   padding-top: 0.25em;
 }
 
-.mimeAttachmentFile {
+.moz-mime-attachment-file {
   word-wrap: break-word;
 }
 
-.mimeAttachmentSize {
+.moz-mime-attachment-size {
   vertical-align: top;
   width: 10ch;
   text-align: right;
 }
 
-.mimeAttachmentFile,
-.mimeAttachmentSize {
+.moz-mime-attachment-file,
+.moz-mime-attachment-size {
   padding: 0 0 0.25em;
 }

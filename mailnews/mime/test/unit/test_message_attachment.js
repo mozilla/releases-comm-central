@@ -109,7 +109,7 @@ var gStreamListener = {
   onStopRequest(aRequest, aStatusCode) {
     // Check that the attachments' filenames are as expected. Just use a regex
     // here because it's simple.
-    let regex = /<legend class="mimeAttachmentHeaderName">(.*?)<\/legend>/gi;
+    let regex = /<legend class="moz-mime-attachment-header-name">(.*?)<\/legend>/gi;
 
     for (let attachment of messages[this.index].attachments) {
       let match = regex.exec(this.contents);
@@ -122,7 +122,7 @@ var gStreamListener = {
     Assert.equal(regex.exec(this.contents), null);
 
     // Check the attachments' filenames are listed for printing.
-    regex = /<td class="mimeAttachmentFile">(.*?)<\/td>/gi;
+    regex = /<td class="moz-mime-attachment-file">(.*?)<\/td>/gi;
 
     for (let attachment of messages[this.index].attachments) {
       let match = regex.exec(this.contents);

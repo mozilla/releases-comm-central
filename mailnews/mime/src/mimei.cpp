@@ -1528,7 +1528,7 @@ int MimeOptions_write(MimeHeaders* hdrs, MimeDisplayOptions* opt,
     if (opt->state->separator_suppressed_p)
       opt->state->separator_suppressed_p = false;
     else {
-      const char* sep = "<BR><FIELDSET CLASS=\"mimeAttachmentHeader\">";
+      const char* sep = "<BR><FIELDSET CLASS=\"moz-mime-attachment-header\">";
       int lstatus = opt->output_fn(sep, strlen(sep), closure);
       opt->state->separator_suppressed_p = false;
       if (lstatus < 0) return lstatus;
@@ -1538,7 +1538,7 @@ int MimeOptions_write(MimeHeaders* hdrs, MimeDisplayOptions* opt,
       MimeHeaders_convert_header_value(opt, name, false);
 
       if (!name.IsEmpty()) {
-        sep = "<LEGEND CLASS=\"mimeAttachmentHeaderName\">";
+        sep = "<LEGEND CLASS=\"moz-mime-attachment-header-name\">";
         lstatus = opt->output_fn(sep, strlen(sep), closure);
         opt->state->separator_suppressed_p = false;
         if (lstatus < 0) return lstatus;

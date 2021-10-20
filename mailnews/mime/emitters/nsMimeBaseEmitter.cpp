@@ -732,7 +732,7 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char* field,
     mHTMLHeaders.AppendLiteral("<b>");
   else
     mHTMLHeaders.AppendLiteral(
-        "<div class=\"headerdisplayname\" style=\"display:inline;\">");
+        "<div class=\"moz-header-display-name\" style=\"display:inline;\">");
 
   // Here is where we are going to try to L10N the tagName so we will always
   // get a field name next to an emitted header value. Note: Default will always
@@ -774,9 +774,11 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString& name) {
     /* DO NOTHING */;  // rhp: Do nothing...leaving the conditional like this so
                        // its easier to see the logic of what is going on.
   else {
-    mHTMLHeaders.AppendLiteral("<br><fieldset class=\"mimeAttachmentHeader\">");
+    mHTMLHeaders.AppendLiteral(
+        "<br><fieldset class=\"moz-mime-attachment-header\">");
     if (!name.IsEmpty()) {
-      mHTMLHeaders.AppendLiteral("<legend class=\"mimeAttachmentHeaderName\">");
+      mHTMLHeaders.AppendLiteral(
+          "<legend class=\"moz-mime-attachment-header-name\">");
       nsAppendEscapedHTML(name, mHTMLHeaders);
       mHTMLHeaders.AppendLiteral("</legend>");
     }
@@ -821,9 +823,9 @@ nsMimeBaseEmitter::WriteHTMLHeaders(const nsACString& name) {
 nsresult nsMimeBaseEmitter::DumpSubjectFromDate() {
   mHTMLHeaders.AppendLiteral(
       "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
-      "class=\"header-part1");
+      "class=\"moz-header-part1");
   if (mDocHeader) {
-    mHTMLHeaders.AppendLiteral(" main-header");
+    mHTMLHeaders.AppendLiteral(" moz-main-header");
   }
   mHTMLHeaders.AppendLiteral("\">");
 
@@ -854,9 +856,9 @@ nsresult nsMimeBaseEmitter::DumpToCC() {
   if (toField || ccField || bccField || newsgroupField) {
     mHTMLHeaders.AppendLiteral(
         "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
-        "class=\"header-part2");
+        "class=\"moz-header-part2");
     if (mDocHeader) {
-      mHTMLHeaders.AppendLiteral(" main-header");
+      mHTMLHeaders.AppendLiteral(" moz-main-header");
     }
     mHTMLHeaders.AppendLiteral("\">");
 
@@ -877,9 +879,9 @@ nsresult nsMimeBaseEmitter::DumpRestOfHeaders() {
 
   mHTMLHeaders.AppendLiteral(
       "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" "
-      "class=\"header-part3");
+      "class=\"moz-header-part3");
   if (mDocHeader) {
-    mHTMLHeaders.AppendLiteral(" main-header");
+    mHTMLHeaders.AppendLiteral(" moz-main-header");
   }
   mHTMLHeaders.AppendLiteral("\">");
 
