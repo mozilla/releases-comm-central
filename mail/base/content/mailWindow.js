@@ -23,6 +23,7 @@ var { MailServices } = ChromeUtils.import(
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
+var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -48,6 +49,7 @@ var accountManager;
 var gContextMenu;
 
 UIDensity.registerWindow(window);
+UIFontSize.registerWindow(window);
 
 /**
  * Called by messageWindow.xhtml:onunload,  the 'single message display window'.

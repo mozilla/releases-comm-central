@@ -59,18 +59,17 @@ var ZoomManager = {
     this.setZoomForBrowser(getBrowser(), aVal);
   },
 
-  setZoomForBrowser(aBrowser, aVal) {
-    if (aVal < this.MIN || aVal > this.MAX) {
-      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
+  setZoomForBrowser(browser, val) {
+    if (val < this.MIN || val > this.MAX) {
+      throw Components.Exception(
+        `invalid zoom value: ${val}`,
+        Cr.NS_ERROR_INVALID_ARG
+      );
     }
 
-    if (this.useFullZoomForBrowser(aBrowser)) {
-      aBrowser.textZoom = 1;
-      aBrowser.fullZoom = aVal;
-    } else {
-      aBrowser.textZoom = aVal;
-      aBrowser.fullZoom = 1;
-    }
+    let fullZoom = this.useFullZoomForBrowser(browser);
+    browser.textZoom = fullZoom ? 1 : val;
+    browser.fullZoom = fullZoom ? val : 1;
   },
 
   get zoomValues() {

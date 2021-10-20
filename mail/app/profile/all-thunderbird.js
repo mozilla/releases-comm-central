@@ -779,6 +779,11 @@ pref("mail.ignore_thread.learn_more_url", "https://support.thunderbird.net/kb/ig
 // The possible values are 0=compact, 1=normal, 2=touch.
 pref("mail.uidensity", 0);
 
+// Font size control for the entire Thunderbird UI. The value represents the
+// pixel value which will be applied as inline style to the root element of the
+// page (e.g.: 14 = font-size: 14px)
+pref("mail.uifontsize", 0);
+
 // Sanitize dialog window
 pref("privacy.cpd.history", true);
 pref("privacy.cpd.cookies", true);
