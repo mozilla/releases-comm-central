@@ -565,6 +565,18 @@ AddonInstaller.prototype.isInstalled = async function() {
 };
 
 /**
+ * Checks whether we already have an addon but it is disabled.
+ * @returns {boolean} is already installed but disabled
+ */
+AddonInstaller.prototype.isDisabled = async function() {
+  if (!this._id) {
+    return false;
+  }
+  let addon = await AddonManager.getAddonByID(this._id);
+  return !(addon && addon.isActive);
+};
+
+/**
  * Downloads and installs the addon.
  * The downloaded XPI will be checked using prompt().
  */

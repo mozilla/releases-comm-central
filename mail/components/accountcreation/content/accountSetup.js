@@ -34,15 +34,10 @@ var {
   alertPrompt,
   assert,
   CancelledException,
-  ddump,
-  deepCopy,
   Exception,
   gAccountSetupLogger,
-  getStringBundle,
   NotReached,
   PriorityOrderAbortable,
-  SuccessiveAbortable,
-  TimeoutAbortable,
   UserCancelledException,
 } = AccountCreationUtils;
 
@@ -1123,8 +1118,11 @@ var gAccountSetup = {
       { count: protocols.length }
     );
 
-    // Thunderbird can't handle Exchange server independentely, therefore we
-    // need to prompt the user with the isntallation of the Owl add-on.
+    // Ensure by default the "Done" button is enabled.
+    document.getElementById("createButton").disabled = false;
+
+    // Thunderbird can't handle Exchange server independently, therefore we
+    // need to prompt the user with the installation of the Owl add-on.
     if (config.incoming.type == "exchange") {
       let addonsInstallRows = document.getElementById("resultAddonInstallRows");
 
@@ -1145,6 +1143,7 @@ var gAccountSetup = {
           for (let addon of config.addons) {
             let installer = new AddonInstaller(addon);
             addon.isInstalled = await installer.isInstalled();
+            addon.isDisabled = await installer.isDisabled();
           }
 
           let addonInfoArea = document.getElementById("installAddonInfo");
@@ -1157,6 +1156,9 @@ var gAccountSetup = {
             addonInfoArea.hidden = true;
             return;
           }
+          // Disable "Done" until add-on is installed, or some other protocol
+          // is selected.
+          document.getElementById("createButton").disabled = true;
 
           addonInfoArea.hidden = false;
 
@@ -1195,6 +1197,14 @@ var gAccountSetup = {
             button.addEventListener("click", () => {
               gAccountSetup.addonInstall(addon);
             });
+            if (addon.isDisabled) {
+              // If the add on is disabled by user, or due to incompatibility
+              // - disable install (it won't help, it's already installed)
+              // - link to the addons manager instead (so they can fix it)
+              button.disabled = true;
+              link.setAttribute("href", "about:addons");
+              link.setAttribute("target", "_blank");
+            }
 
             container.appendChild(img);
             container.appendChild(link);
@@ -1202,7 +1212,6 @@ var gAccountSetup = {
 
             addonsInstallRows.appendChild(container);
           }
-          document.getElementById("createButton").disabled = true;
         } catch (e) {
           this.showErrorNotification(e, true);
         }
@@ -1372,9 +1381,15 @@ var gAccountSetup = {
       this.stopLoadingState("account-setup-success-addon");
       createButton.disabled = false;
 
-      this._currentConfig.incoming.type = addon.useType.addonAccountType;
-      await this.validateAndFinish();
+      this._currentConfig.incoming.addonAccountType =
+        addon.useType.addonAccountType;
+      // Remove the note about having to install an add-on.
+      let rows = document.getElementById("resultAddonInstallRows");
+      while (rows.lastChild) {
+        rows.lastChild.remove();
+      }
     } catch (e) {
+      Cu.reportError(e);
       this.showErrorNotification(e, true);
       addonInfoArea.hidden = false;
     }
@@ -2079,49 +2094,52 @@ var gAccountSetup = {
   },
 
   async onCreate() {
-    try {
-      gAccountSetupLogger.debug("Create button clicked");
+    gAccountSetupLogger.debug("Create button clicked");
 
-      let configFilledIn = this.getConcreteConfig();
-      let self = this;
-      // If the dialog is not needed, it will go straight to OK callback
-      gSecurityWarningDialog.open(
-        this._currentConfig,
-        configFilledIn,
-        true,
-        async function() {
-          // on OK
-          await self.validateAndFinish(configFilledIn);
-        },
-        function() {
-          // on cancel, do nothing
-        }
-      );
-    } catch (ex) {
-      let errorMessage = await document.l10n.formatValue(
-        "account-setup-creation-error-title"
-      );
-      errorMessage += `. Ex=${ex}. Stack=${ex.stack}`;
-      gAccountSetupLogger.error(errorMessage);
+    let configFilledIn = this.getConcreteConfig();
+    let self = this;
+    // If the dialog is not needed, it will go straight to OK callback
+    gSecurityWarningDialog.open(
+      this._currentConfig,
+      configFilledIn,
+      true,
+      async function() {
+        // on OK
+        await self.validateAndFinish(configFilledIn).catch(async ex => {
+          let errorMessage = await document.l10n.formatValue(
+            "account-setup-creation-error-title"
+          );
+          gAccountSetupLogger.error(errorMessage + ". " + ex);
 
-      this.clearNotifications();
-      let notification = this.notificationBox.appendNotification(
-        "accountSetupError",
-        {
-          label: errorMessage,
-          priority: this.notificationBox.PRIORITY_CRITICAL_HIGH,
-        },
-        null
-      );
+          self.clearNotifications();
+          let notification = self.notificationBox.appendNotification(
+            "accountSetupError",
+            {
+              label: errorMessage,
+              priority: self.notificationBox.PRIORITY_CRITICAL_HIGH,
+            },
+            null
+          );
 
-      // Hide the close button to prevent dismissing the notification.
-      notification.removeAttribute("dismissable");
-    }
+          // Hide the close button to prevent dismissing the notification.
+          notification.removeAttribute("dismissable");
+        });
+      },
+      function() {
+        // on cancel, do nothing
+      }
+    );
   },
 
   // called by onCreate()
   async validateAndFinish(configFilled) {
     let configFilledIn = configFilled || this.getConcreteConfig();
+    if (
+      configFilledIn.incoming.type == "exchange" &&
+      "addonAccountType" in configFilledIn.incoming
+    ) {
+      configFilledIn.incoming.type = configFilledIn.incoming.addonAccountType;
+    }
 
     if (CreateInBackend.checkIncomingServerAlreadyExists(configFilledIn)) {
       let [title, description] = await document.l10n.formatValues([
@@ -2202,6 +2220,7 @@ var gAccountSetup = {
         );
       },
       function(e) {
+        self.stopLoadingState("account-setup-checking-password");
         // failed
         // Could be a wrong password, but there are 1000 other
         // reasons why this failed. Only the backend knows.
