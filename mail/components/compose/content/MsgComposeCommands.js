@@ -6617,11 +6617,13 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
     // Set min height for the attachment bucket.
     if (!gAttachmentBucket.style.minHeight) {
       // Min height is the height of the first child plus padding and border.
-      // Note: we assume the padding and border have px values, and the child
-      // has no margin.
+      // Note: we assume the computed styles have px values.
       let bucketStyle = getComputedStyle(gAttachmentBucket);
+      let childStyle = getComputedStyle(gAttachmentBucket.firstChild);
       let minHeight =
         gAttachmentBucket.firstChild.getBoundingClientRect().height +
+        parseFloat(childStyle.marginBlockStart) +
+        parseFloat(childStyle.marginBlockEnd) +
         parseFloat(bucketStyle.paddingBlockStart) +
         parseFloat(bucketStyle.paddingBlockEnd) +
         parseFloat(bucketStyle.borderBlockStartWidth) +
