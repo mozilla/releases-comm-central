@@ -434,8 +434,7 @@ char* extractAttributeValue(const char* searchString,
       startOfAttribute += attributeNameSize;  // skip over the attributeName
       if (startOfAttribute)  // is there something after the attribute name
       {
-        char* endOfAttribute =
-            startOfAttribute ? PL_strchr(startOfAttribute, '&') : nullptr;
+        char* endOfAttribute = PL_strchr(startOfAttribute, '&');
         nsDependentCString attributeValueStr;
         if (startOfAttribute &&
             endOfAttribute)  // is there text after attribute value
