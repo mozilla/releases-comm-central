@@ -1382,22 +1382,6 @@
         }
       });
 
-      this.addEventListener("click", event => {
-        if (
-          event.button != 0 ||
-          event.target.classList.contains("attachmentItem")
-        ) {
-          return;
-        }
-
-        if (
-          this.selType != "multiple" ||
-          (!event.ctrlKey && !event.shiftKey && !event.metaKey)
-        ) {
-          this.clearSelection();
-        }
-      });
-
       // Make sure we keep the focus.
       this.addEventListener("mousedown", event => {
         if (event.button != 0) {
