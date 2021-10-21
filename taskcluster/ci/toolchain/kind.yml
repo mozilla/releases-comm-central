@@ -10,7 +10,7 @@ kind-dependencies:
     - packages
 
 reference-jobs:
-    - linux64-aarch64-compiler-rt-12
+    - linux64-aarch64-compiler-rt-13
     - linux64-binutils
     - linux64-cbindgen
     - linux64-cctools-port-clang-11
@@ -56,8 +56,8 @@ reference-jobs:
     - linux64-upx
     - linux64-winchecksec
     - linux64-wine
-    - macosx64-aarch64-compiler-rt-12
-    - macosx64-x64-compiler-rt-12
+    - macosx64-aarch64-compiler-rt-13
+    - macosx64-x64-compiler-rt-13
     - macosx64-clang-12
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
@@ -69,13 +69,13 @@ reference-jobs:
     - sysroot-wasm32-wasi
     - sysroot-x86_64-linux-gnu
     - wasm32-wasi-compiler-rt
-    - wasm32-wasi-compiler-rt-12
+    - wasm32-wasi-compiler-rt-13
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
     - win64-cbindgen
     - win64-clang
-    - win64-clang-12-2stage
+    - win64-clang-13-2stage
     - win64-dump_syms
     - win64-llvm-symbolizer
     - win64-mozmake
