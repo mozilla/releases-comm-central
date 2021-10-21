@@ -28,6 +28,15 @@ XPCOMUtils.defineLazyPreferenceGetter(
 (async function() {
   window.MozXULElement.insertFTLIfNeeded("messenger/aboutAddonsExtra.ftl");
 
+  // Consume clicks on a-tags and let openTrustedLinkIn() decide how to open them.
+  window.addEventListener("click", event => {
+    if (event.target.matches("a[href]")) {
+      event.preventDefault();
+      event.stopPropagation();
+      windowRoot.ownerGlobal.openTrustedLinkIn(event.target.href, "tab");
+    }
+  });
+
   // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
   let textbox = document.querySelector("search-addons > search-textbox");
   document.l10n.setAttributes(textbox, "atn-addons-heading-search-input");
