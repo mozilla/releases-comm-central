@@ -276,12 +276,16 @@ SmtpServer.prototype = {
    * @returns {string}
    */
   _getServerURI(includeUsername) {
+    // When constructing nsIURI, need to wrap IPv6 address in [].
+    let hostname = this.hostname.includes(":")
+      ? `[${this.hostname}]`
+      : this.hostname;
     return (
       "smtp://" +
       (includeUsername && this.username
         ? `${encodeURIComponent(this.username)}@`
         : "") +
-      this.hostname
+      hostname
     );
   },
 

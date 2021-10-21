@@ -118,6 +118,7 @@ class SmtpClient {
    */
   connect() {
     let port = this._server.port || (this.options.requireTLS ? 465 : 587);
+    this.logger.debug(`Connecting to smtp://${this._server.hostname}:${port}`);
     this.socket = new TCPSocket(this._server.hostname, port, {
       binaryType: "arraybuffer",
       useSecureTransport: this._secureMode,
@@ -956,7 +957,7 @@ class SmtpClient {
       this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
-    this.logger.debug("AUTH LOGIN USER successful");
+    this.logger.debug("AUTH LOGIN USER");
     this._currentAction = this._actionAUTH_LOGIN_PASS;
     this._sendCommand(btoa(this._authenticator.username), true);
   }
@@ -971,7 +972,7 @@ class SmtpClient {
       this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
-    this.logger.debug("AUTH LOGIN PASS successful");
+    this.logger.debug("AUTH LOGIN PASS");
     this._currentAction = this._actionAUTHComplete;
     let password = this._authenticator.getPassword();
     if (
