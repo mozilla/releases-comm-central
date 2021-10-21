@@ -15,6 +15,7 @@ gRootFolder.createSubfolder("drafts", null);
 let gDraftsFolder = gRootFolder.getChildNamed("drafts");
 gDraftsFolder.flags = Ci.nsMsgFolderFlags.Drafts;
 createMessages(gDraftsFolder, 2);
+let gDrafts = [...gDraftsFolder.messages];
 
 add_task(async function testHeaders() {
   let files = {
@@ -754,6 +755,11 @@ add_task(async function testType() {
 
         let details = await browser.compose.getComposeDetails(tab.id);
         browser.test.assertEq(expected.type, details.type, "type of composer");
+        browser.test.assertEq(
+          expected.relatedMessageId,
+          details.relatedMessageId,
+          `related message id (${details.type})`
+        );
         await browser.windows.remove(tab.windowId);
       }
 
@@ -761,48 +767,48 @@ add_task(async function testType() {
         {
           funcName: "beginNew",
           args: [],
-          expected: { type: "new" },
+          expected: { type: "new", relatedMessageId: null },
         },
         {
           funcName: "beginReply",
           args: [messages[0].id],
-          expected: { type: "reply" },
+          expected: { type: "reply", relatedMessageId: messages[0].id },
         },
         {
           funcName: "beginReply",
           args: [messages[1].id, "replyToAll"],
-          expected: { type: "reply" },
+          expected: { type: "reply", relatedMessageId: messages[1].id },
         },
         {
           funcName: "beginReply",
           args: [messages[2].id, "replyToList"],
-          expected: { type: "reply" },
+          expected: { type: "reply", relatedMessageId: messages[2].id },
         },
         {
           funcName: "beginReply",
           args: [messages[3].id, "replyToSender"],
-          expected: { type: "reply" },
+          expected: { type: "reply", relatedMessageId: messages[3].id },
         },
         {
           funcName: "beginForward",
           args: [messages[0].id],
-          expected: { type: "forward" },
+          expected: { type: "forward", relatedMessageId: messages[0].id },
         },
         {
           funcName: "beginForward",
           args: [messages[1].id, "forwardAsAttachment"],
-          expected: { type: "forward" },
+          expected: { type: "forward", relatedMessageId: messages[1].id },
         },
         // Uses a different code path.
         {
           funcName: "beginForward",
           args: [messages[2].id, "forwardInline"],
-          expected: { type: "forward" },
+          expected: { type: "forward", relatedMessageId: messages[2].id },
         },
         {
           funcName: "beginNew",
           args: [messages[3].id],
-          expected: { type: "new" },
+          expected: { type: "new", relatedMessageId: messages[3].id },
         },
       ];
       for (let test of tests) {
@@ -824,7 +830,10 @@ add_task(async function testType() {
 
         let window = await browser.windows.get(tab.windowId);
         if (window.type == "messageCompose") {
-          await checkComposer(tab, { type: "draft" });
+          await checkComposer(tab, {
+            type: "draft",
+            relatedMessageId: drafts[0].id,
+          });
           browser.test.notifyPass("Finish");
         }
       });
@@ -850,7 +859,7 @@ add_task(async function testType() {
     Ci.nsIMsgCompType.Draft,
     Ci.nsIMsgCompFormat.Default,
     gDraftsFolder,
-    [gDraftsFolder.generateMessageURI(1)]
+    [gDraftsFolder.generateMessageURI(gDrafts[0].messageKey)]
   );
 
   await extension.awaitFinish("Finish");

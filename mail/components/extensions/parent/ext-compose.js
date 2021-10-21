@@ -316,12 +316,27 @@ async function getComposeDetails(composeWindow, extension) {
       break;
   }
 
+  let relatedMessageId = null;
+  if (composeWindow.gMsgCompose.originalMsgURI) {
+    try {
+      // This throws for messages opened from file and then being replied to.
+      let relatedMsgHdr = composeWindow.gMessenger.msgHdrFromURI(
+        composeWindow.gMsgCompose.originalMsgURI
+      );
+      relatedMessageId = messageTracker.getId(relatedMsgHdr);
+    } catch (e) {
+      // We are currently unable to get the fake msgHdr from the uri of messages
+      // opened from file.
+    }
+  }
+
   let details = {
     from: composeFields.splitRecipients(composeFields.from, false).shift(),
     to: composeFields.splitRecipients(composeFields.to, false),
     cc: composeFields.splitRecipients(composeFields.cc, false),
     bcc: composeFields.splitRecipients(composeFields.bcc, false),
     type,
+    relatedMessageId,
     replyTo: composeFields.splitRecipients(composeFields.replyTo, false),
     followupTo: composeFields.splitRecipients(composeFields.followupTo, false),
     newsgroups: composeFields.newsgroups

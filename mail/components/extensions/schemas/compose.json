@@ -125,6 +125,11 @@
             ],
             "optional": true
           },
+          "relatedMessageId" : {
+            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <code>null</code> in all other cases or if the original message was opened from file.",
+            "type": "integer",
+            "optional": true
+          },
           "subject": {
             "type": "string",
             "optional": true
