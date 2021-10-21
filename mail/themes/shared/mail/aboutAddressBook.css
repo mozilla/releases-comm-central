@@ -312,10 +312,14 @@ ab-card-listrow:not(.selected) > div.address {
 /* Details pane */
 
 #detailsPane {
-  padding: 30px 20px;
+  padding-top: 30px;
   overflow: auto;
   color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);
+}
+
+#detailsPane > * {
+  padding-inline: 20px;
 }
 
 #detailsHeader {
@@ -450,4 +454,21 @@ ab-card-listrow:not(.selected) > div.address {
 
 #BirthDay > option:disabled {
   display: none;
+}
+
+#detailsFooter {
+  position: sticky;
+  bottom: 0;
+  min-width: 27.5em;
+  max-width: 54.5em;
+  padding-block: 15px;
+  background-color: var(--in-content-categories-background);
+  text-align: end;
+}
+
+@media (prefers-color-scheme: dark) {
+  #detailsPane,
+  #detailsFooter {
+    background-color: var(--in-content-page-background);
+  }
 }
