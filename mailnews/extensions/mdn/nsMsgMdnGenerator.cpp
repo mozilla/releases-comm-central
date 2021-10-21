@@ -730,8 +730,9 @@ nsresult nsMsgMdnGenerator::OutputAllHeaders() {
       } else {
         NS_ASSERTION(*end == 0, "content of end should be null");
         rv = WriteString(start);
-        if (NS_FAILED(rv)) return rv;
+        NS_ENSURE_SUCCESS(rv, rv);
         rv = WriteString(CRLF);
+        NS_ENSURE_SUCCESS(rv, rv);
         while (end < buf_end && (*end == '\n' || *end == '\r' || *end == 0))
           end++;
         start = end;
