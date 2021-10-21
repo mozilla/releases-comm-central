@@ -101,7 +101,9 @@ nsresult nsStatusBarBiffManager::PlayBiffSound(const char* aPrefBranch) {
   rv = pref->GetIntPref(PREF_SOUND_TYPE, &soundType);
   NS_ENSURE_SUCCESS(rv, rv);
 
+#ifndef XP_MACOSX
   bool customSoundPlayed = false;
+#endif
 
   if (soundType == CUSTOM_SOUND_TYPE) {
     nsCString soundURLSpec;
@@ -121,7 +123,9 @@ nsresult nsStatusBarBiffManager::PlayBiffSound(const char* aPrefBranch) {
             rv = soundFile->Exists(&soundFileExists);
             if (NS_SUCCEEDED(rv) && soundFileExists) {
               rv = mSound->Play(soundURL);
+#ifndef XP_MACOSX
               if (NS_SUCCEEDED(rv)) customSoundPlayed = true;
+#endif
             }
           }
         }

@@ -259,8 +259,8 @@ void nsAppleMailImportMail::FindAccountMailDirs(
         // create a mailbox for this account, so we get a parent for "Inbox",
         // "Sent Messages", etc.
         nsCOMPtr<nsIImportMailboxDescriptor> desc;
-        nsresult rv =
-            aImportService->CreateNewMailboxDescriptor(getter_AddRefs(desc));
+        rv = aImportService->CreateNewMailboxDescriptor(getter_AddRefs(desc));
+        if (NS_FAILED(rv)) continue;
         desc->SetSize(1);
         desc->SetDepth(mCurDepth);
         desc->SetDisplayName(folderName.get());
@@ -268,7 +268,7 @@ void nsAppleMailImportMail::FindAccountMailDirs(
 
         nsCOMPtr<nsIFile> mailboxDescFile;
         rv = desc->GetFile(getter_AddRefs(mailboxDescFile));
-        if (!mailboxDescFile) continue;
+        if (NS_FAILED(rv) || !mailboxDescFile) continue;
 
         mailboxDescFile->InitWithFile(currentEntry);
 

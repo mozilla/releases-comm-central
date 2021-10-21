@@ -56,7 +56,7 @@ BOOL setKeyAndValue(nsAutoString keyName, const WCHAR* subKey,
   }
 
   RegCloseKey(hKey);
-  return TRUE;
+  return retValue;
 }
 
 // Delete a key and all of its descendents.

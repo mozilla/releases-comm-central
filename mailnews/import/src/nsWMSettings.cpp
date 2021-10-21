@@ -535,11 +535,10 @@ void WMSettings::SetIdentities(nsIMsgAccountManager* pMgr, nsIMsgAccount* pAcc,
                                nsAutoString& inUserName,
                                int32_t authMethodIncoming, bool isNNTP) {
   // Get the relevant information for an identity
-  nsresult rv;
   nsAutoString value;
 
   nsCOMPtr<nsIMsgIdentity> id;
-  rv = pMgr->CreateIdentity(getter_AddRefs(id));
+  pMgr->CreateIdentity(getter_AddRefs(id));
   if (id) {
     IMPORT_LOG0("Created identity and added to the account\n");
     if (NS_SUCCEEDED(nsWMUtils::GetValueForTag(

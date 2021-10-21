@@ -581,10 +581,11 @@ nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager, nsIAbCard* aCard) 
 
 nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager* aManager, nsIAbCard* aCard,
                                         nsIMutableArray* aCardList) {
-  nsresult rv;
   uint32_t pos;
-
-  if (NS_SUCCEEDED(aCardList->IndexOf(0, aCard, &pos))) rv = aCardList->RemoveElementAt(pos);
+  if (NS_SUCCEEDED(aCardList->IndexOf(0, aCard, &pos))) {
+    nsresult rv = aCardList->RemoveElementAt(pos);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   return NS_OK;
 }

@@ -183,7 +183,6 @@ DEFINE_OLEGUID(PSETID_Common, MAKELONG(0x2000 + (8), 0x0006), 0, 0);
 
 void CMapiMessage::GetDownloadState() {
   // See http://support.microsoft.com/kb/912239
-  HRESULT hRes = S_OK;
   ULONG ulVal = 0;
   LPSPropValue lpPropVal = NULL;
   LPSPropTagArray lpNamedPropTag = NULL;
@@ -195,14 +194,14 @@ void CMapiMessage::GetDownloadState() {
   NamedID.Kind.lID = dispidHeaderItem;
   lpNamedID = &NamedID;
 
-  hRes = m_lpMsg->GetIDsFromNames(1, &lpNamedID, NULL, &lpNamedPropTag);
+  m_lpMsg->GetIDsFromNames(1, &lpNamedID, NULL, &lpNamedPropTag);
 
   if (lpNamedPropTag && 1 == lpNamedPropTag->cValues) {
     lpNamedPropTag->aulPropTag[0] =
         CHANGE_PROP_TYPE(lpNamedPropTag->aulPropTag[0], PT_LONG);
 
     // Get the value of the property.
-    hRes = m_lpMsg->GetProps(lpNamedPropTag, 0, &ulVal, &lpPropVal);
+    m_lpMsg->GetProps(lpNamedPropTag, 0, &ulVal, &lpPropVal);
     if (lpPropVal && 1 == ulVal && PT_LONG == PROP_TYPE(lpPropVal->ulPropTag) &&
         lpPropVal->Value.ul)
       m_dldStateHeadersOnly = true;
