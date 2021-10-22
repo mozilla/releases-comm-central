@@ -14,6 +14,7 @@ EXTRA_JS_MODULES += [
     "MailConsts.jsm",
     "MailE10SUtils.jsm",
     "MailMigrator.jsm",
+    "MailUsageTelemetry.jsm",
     "MailUtils.jsm",
     "MailViewManager.jsm",
     "MessageArchiver.jsm",

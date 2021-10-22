@@ -180,6 +180,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
   MailMigrator: "resource:///modules/MailMigrator.jsm",
+  MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.jsm",
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.jsm",
   OsEnvironment: "resource://gre/modules/OsEnvironment.jsm",
@@ -265,6 +266,8 @@ MailGlue.prototype = {
     ExtensionSupport.unregisterWindowListener(
       "Thunderbird-internal-BrowserConsole"
     );
+
+    MailUsageTelemetry.uninit();
 
     if (this._lateTasksIdleObserver) {
       this._userIdleService.removeIdleObserver(
@@ -505,6 +508,8 @@ MailGlue.prototype = {
       this._lateTasksIdleObserver,
       LATE_TASKS_IDLE_TIME_SEC
     );
+
+    MailUsageTelemetry.init();
   },
 
   /**

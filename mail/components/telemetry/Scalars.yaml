@@ -362,3 +362,84 @@ tb.calendar:
       - "telemetry-client-dev@thunderbird.net"
     record_in_processes:
       - 'main'
+
+tb.ui.interaction:
+  calendar:
+    bug_numbers:
+      - 1736739
+    description: >
+      Records a count of interactions with items in the calendar.
+    expires: never
+    kind: uint
+    keyed: true
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    products:
+      - "thunderbird"
+    release_channel_collection: opt-out
+    record_in_processes:
+      - "main"
+
+  chat:
+    bug_numbers:
+      - 1736739
+    description: >
+      Records a count of interactions with items in chat.
+    expires: never
+    kind: uint
+    keyed: true
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    products:
+      - "thunderbird"
+    release_channel_collection: opt-out
+    record_in_processes:
+      - "main"
+
+  keyboard:
+    bug_numbers:
+      - 1736739
+    description: >
+      Records a count of interactions with keyboard shortcuts.
+    expires: never
+    kind: uint
+    keyed: true
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    products:
+      - "thunderbird"
+    release_channel_collection: opt-out
+    record_in_processes:
+      - "main"
+
+  message_display:
+    bug_numbers:
+      - 1736739
+    description: >
+      Records a count of interactions with items in the message display.
+    expires: never
+    kind: uint
+    keyed: true
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    products:
+      - "thunderbird"
+    release_channel_collection: opt-out
+    record_in_processes:
+      - "main"
+
+  toolbox:
+    bug_numbers:
+      - 1736739
+    description: >
+      Records a count of interactions with items in the main window toolbox.
+    expires: never
+    kind: uint
+    keyed: true
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    products:
+      - "thunderbird"
+    release_channel_collection: opt-out
+    record_in_processes:
+      - "main"
