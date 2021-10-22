@@ -563,7 +563,7 @@ splitter:not([orient="vertical"]) {
 }
 
 #copy-button {
-  list-style-image: url("chrome://messenger/skin/icons/copy.svg");
+  list-style-image: url("chrome://global/skin/icons/edit-copy.svg");
 }
 
 #paste-button {
@@ -1248,7 +1248,7 @@ button:is(
 }
 
 #InsertLinkItem {
-  list-style-image: url("chrome://messenger/skin/icons/link.svg");
+  list-style-image: url("chrome://global/skin/icons/link.svg");
 }
 
 #InsertAnchorItem {

@@ -310,7 +310,7 @@ label.label {
 }
 
 #linkButton {
-  list-style-image: url("chrome://messenger/skin/icons/link.svg");
+  list-style-image: url("chrome://global/skin/icons/link.svg");
 }
 
 #ulButton {

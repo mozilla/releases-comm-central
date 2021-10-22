@@ -208,7 +208,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenu-copy,
 #appmenu-editmenu-copy {
-  list-style-image: url("chrome://messenger/skin/icons/copy.svg");
+  list-style-image: url("chrome://global/skin/icons/edit-copy.svg");
 }
 
 #appmenu-paste,
