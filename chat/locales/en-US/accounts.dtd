@@ -4,7 +4,6 @@
 
 <!-- Account manager window for Instantbird -->
 <!ENTITY accounts.title                      "Accounts - &brandShortName;">
-<!ENTITY accountManager.width                "450">
 <!-- Instant messaging account status window for Thunderbird -->
 <!ENTITY accountsWindow.title                "Instant messaging status">
 
@@ -23,18 +22,12 @@
 <!ENTITY account.connect.accesskey    "o">
 <!ENTITY account.disconnect.label     "Disconnect">
 <!ENTITY account.disconnect.accesskey "i">
-<!ENTITY account.delete.label         "Delete">
-<!ENTITY account.delete.accesskey     "D">
 <!ENTITY account.edit.label           "Properties">
 <!ENTITY account.edit.accesskey       "P">
-<!ENTITY account.moveup.label         "Move up">
-<!ENTITY account.movedown.label       "Move down">
 <!ENTITY account.cancelReconnection.label         "Cancel reconnection">
 <!ENTITY account.cancelReconnection.accesskey     "A">
 <!ENTITY account.copyDebugLog.label     "Copy Debug Log">
 <!ENTITY account.copyDebugLog.accesskey "C">
-<!ENTITY account.showDebugLog.label     "Show Debug Log">
-<!ENTITY account.showDebugLog.accesskey "H">
 <!ENTITY account.connecting           "Connecting…">
 <!ENTITY account.disconnecting        "Disconnecting…">
 <!ENTITY account.disconnected         "Not Connected">

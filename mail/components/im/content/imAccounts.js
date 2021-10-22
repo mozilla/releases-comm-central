@@ -431,15 +431,10 @@ var gAccountManager = {
       (account.disconnected &&
         account.connectionErrorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL);
 
-    let disabledItems = [
-      ["connect", isCommandDisabled],
-      ["disconnect", isCommandDisabled],
-      ["moveup", accountList.selectedIndex == 0],
-      ["movedown", accountList.selectedIndex == accountList.itemCount - 1],
-    ];
-    for (let [name, state] of disabledItems) {
+    let disabledItems = ["connect", "disconnect"];
+    for (let name of disabledItems) {
       let elt = document.getElementById("cmd_" + name);
-      if (state) {
+      if (isCommandDisabled) {
         elt.setAttribute("disabled", "true");
       } else {
         elt.removeAttribute("disabled");
@@ -494,18 +489,6 @@ var gAccountManager = {
     if (!this.selectedItem) {
       return;
     }
-
-    if (
-      event.shiftKey &&
-      (event.keyCode == event.DOM_VK_DOWN || event.keyCode == event.DOM_VK_UP)
-    ) {
-      let offset = event.keyCode == event.DOM_VK_DOWN ? 1 : -1;
-      gAccountManager.moveCurrentItem(offset);
-      event.stopPropagation();
-      event.preventDefault();
-      return;
-    }
-
     // As we stop propagation, the default action applies to the richlistbox
     // so that the selected account is changed with this default action
     if (event.keyCode == event.DOM_VK_DOWN) {
@@ -534,33 +517,6 @@ var gAccountManager = {
         this.selectedItem.buttons.proceedDefaultAction();
       }
     }
-  },
-
-  moveCurrentItem(aOffset) {
-    let accountList = this.accountList;
-    if (!aOffset || !accountList.selectedItem) {
-      return;
-    }
-
-    // Create the new preference value from the richlistbox list
-    let items = accountList.itemChildren;
-    let selectedID = accountList.selectedItem.id;
-    let array = [];
-    for (let i in items) {
-      if (items[i].id != selectedID) {
-        array.push(items[i].id);
-      }
-    }
-
-    let newIndex = accountList.selectedIndex + aOffset;
-    if (newIndex < 0) {
-      newIndex = 0;
-    } else if (newIndex >= accountList.itemCount) {
-      newIndex = accountList.itemCount - 1;
-    }
-    array.splice(newIndex, 0, selectedID);
-
-    Services.prefs.setCharPref("messenger.accounts", array.join(","));
   },
 
   *getAccounts() {
@@ -700,159 +656,6 @@ var gAccountManager = {
       this.accountList.removeAttribute("offline");
     }
     this.disableCommandItems();
-  },
-};
-
-var gAMDragAndDrop = {
-  ACCOUNT_MIME_TYPE: "application/x-moz-richlistitem",
-  // Size of the scroll zone on the top and on the bottom of the account list
-  MAGIC_SCROLL_HEIGHT: 20,
-
-  // A preference already exists to define scroll speed, let's use it.
-  get SCROLL_SPEED() {
-    delete this.SCROLL_SPEED;
-    this.SCROLL_SPEED = Services.prefs.getIntPref(
-      "toolkit.scrollbox.scrollIncrement",
-      20
-    );
-    return this.SCROLL_SPEED;
-  },
-
-  onDragStart(event) {
-    let target = event.target;
-    if (target.nodeType != Node.ELEMENT_NODE) {
-      target = target.parentNode;
-    }
-    let accountElement = target.closest(
-      'richlistitem[is="chat-account-richlistitem"]'
-    );
-    if (!accountElement) {
-      return;
-    }
-    if (gAccountManager.accountList.itemCount == 1) {
-      throw new Error("Can't drag while there is only one account!");
-    }
-
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.dropEffect = "move";
-    event.dataTransfer.addElement(accountElement);
-    event.dataTransfer.setData(this.ACCOUNT_MIME_TYPE, accountElement);
-    event.stopPropagation();
-  },
-
-  onDragOver(event) {
-    let target = event.target;
-    if (target.nodeType != Node.ELEMENT_NODE) {
-      target = target.parentNode;
-    }
-    let accountElement = target.closest(
-      'richlistitem[is="chat-account-richlistitem"]'
-    );
-    if (!accountElement) {
-      return;
-    }
-
-    // Auto scroll the account list if we are dragging at the top/bottom
-    this.checkForMagicScroll(event.clientY);
-
-    // The hovered element has changed, change the border too
-    if ("_accountElement" in this && this._accountElement != accountElement) {
-      this.cleanBorders();
-    }
-
-    event.dataTransfer.dropEffect = "move";
-
-    if (
-      event.clientY <
-      accountElement.getBoundingClientRect().top +
-        accountElement.clientHeight / 2
-    ) {
-      // we don't want the previous item to show its default bottom-border
-      let previousItem = accountElement.previousElementSibling;
-      if (previousItem) {
-        previousItem.style.borderBottom = "none";
-      }
-      accountElement.setAttribute("dragover", "up");
-    } else {
-      if (
-        "_accountElement" in this &&
-        this._accountElement == accountElement &&
-        accountElement.getAttribute("dragover") == "up"
-      ) {
-        this.cleanBorders();
-      }
-      accountElement.setAttribute("dragover", "down");
-    }
-
-    this._accountElement = accountElement;
-    event.stopPropagation();
-    event.preventDefault();
-  },
-
-  cleanBorders(isEnd) {
-    if (!this._accountElement) {
-      return;
-    }
-    this._accountElement.removeAttribute("dragover");
-    // reset the border of the previous element
-    let previousItem = this._accountElement.previousElementSibling;
-    if (previousItem) {
-      if (
-        isEnd &&
-        !previousItem.style.borderBottom &&
-        previousItem.previousElementSibling
-      ) {
-        previousItem = previousItem.previousElementSibling;
-      }
-      previousItem.style.borderBottom = "";
-    }
-
-    if (isEnd) {
-      delete this._accountElement;
-    }
-  },
-
-  checkForMagicScroll(clientY) {
-    let accountList = gAccountManager.accountList;
-    let listSize = accountList.getBoundingClientRect();
-    let direction = 1;
-    if (clientY < listSize.top + this.MAGIC_SCROLL_HEIGHT) {
-      direction = -1;
-    } else if (clientY < listSize.bottom - this.MAGIC_SCROLL_HEIGHT) {
-      // We are not on a scroll zone
-      return;
-    }
-
-    accountList.scrollTop += direction * this.SCROLL_SPEED;
-  },
-
-  onDrop(event) {
-    let target = event.target;
-    if (target.nodeType != Node.ELEMENT_NODE) {
-      target = target.parentNode;
-    }
-    let accountElement = target.closest(
-      'richlistitem[is="chat-account-richlistitem"]'
-    );
-    if (!accountElement) {
-      return;
-    }
-
-    // compute the destination
-    let accountList = gAccountManager.accountList;
-    let offset =
-      accountList.getIndexOfItem(accountElement) - accountList.selectedIndex;
-    let isDroppingAbove =
-      event.clientY <
-      accountElement.getBoundingClientRect().top +
-        accountElement.clientHeight / 2;
-    if (offset > 0) {
-      offset -= isDroppingAbove;
-    } else {
-      offset += !isDroppingAbove;
-    }
-    gAccountManager.moveCurrentItem(offset);
-    event.stopPropagation();
   },
 };
 

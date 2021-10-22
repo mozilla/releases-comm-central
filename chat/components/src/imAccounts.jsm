@@ -15,9 +15,15 @@ var {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
 
 var kPrefAutologinPending = "messenger.accounts.autoLoginPending";
 var kPrefMessengerAccounts = "messenger.accounts";
+let kPrefAccountOrder = "mail.accountmanager.accounts";
 var kPrefAccountPrefix = "messenger.account.";
 var kAccountKeyPrefix = "account";
 var kAccountOptionPrefPrefix = "options.";
@@ -994,9 +1000,15 @@ AccountsService.prototype = {
     this._accountsById = {};
     gAccountsService = this;
     let accountList = this._accountList;
-    for (let account of accountList ? accountList.split(",") : []) {
+    let accountOrder = MailServices.accounts.accounts.map(account =>
+      account.incomingServer.getCharValue("imAccount")
+    );
+    let accountIdArray = (accountList?.split(",") ?? []).map(key => key.trim());
+    accountIdArray.sort(
+      (keyA, keyB) => accountOrder.indexOf(keyA) - accountOrder.indexOf(keyB)
+    );
+    for (let account of accountIdArray) {
       try {
-        account.trim();
         if (!account) {
           throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
         }
@@ -1009,6 +1021,7 @@ AccountsService.prototype = {
 
     this._prefObserver = this.observe.bind(this);
     Services.prefs.addObserver(kPrefMessengerAccounts, this._prefObserver);
+    Services.prefs.addObserver(kPrefAccountOrder, this._prefObserver);
   },
 
   _observingAccountListChange: true,
@@ -1016,16 +1029,22 @@ AccountsService.prototype = {
   observe(aSubject, aTopic, aData) {
     if (
       aTopic != "nsPref:changed" ||
-      aData != kPrefMessengerAccounts ||
+      (aData != kPrefMessengerAccounts && aData != kPrefAccountOrder) ||
       !this._observingAccountListChange
     ) {
       return;
     }
 
+    let accountOrder = MailServices.accounts.accounts.map(account =>
+      account.incomingServer.getCharValue("imAccount")
+    );
     this._accounts = this._accountList
       .split(",")
       .map(account => account.trim())
       .filter(k => k.startsWith(kAccountKeyPrefix))
+      .sort(
+        (keyA, keyB) => accountOrder.indexOf(keyA) - accountOrder.indexOf(keyB)
+      )
       .map(k => parseInt(k.substr(kAccountKeyPrefix.length)))
       .map(this.getAccountByNumericId, this)
       .filter(a => a);
@@ -1050,6 +1069,7 @@ AccountsService.prototype = {
     delete this._accounts;
     delete this._accountsById;
     Services.prefs.removeObserver(kPrefMessengerAccounts, this._prefObserver);
+    Services.prefs.removeObserver(kPrefAccountOrder, this._prefObserver);
     delete this._prefObserver;
   },
 
