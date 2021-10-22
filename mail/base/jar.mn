@@ -135,10 +135,3 @@ browser.jar:
 #ifdef XP_WIN
     content/extension-win-panel.css                    (../../../browser/components/extensions/extension-win-panel.css)
 #endif
-# These files are referenced from various toolkit files.
-% skin browser classic/1.0 %skin/
-    skin/illustrations/error-malformed-url.svg         (../../../browser/themes/shared/illustrations/error-malformed-url.svg)
-    skin/controlcenter/trackers.svg                    (../../../browser/themes/shared/controlcenter/trackers.svg)
-    skin/indicator-private-browsing.svg                (../../../browser/themes/shared/icons/indicator-private-browsing.svg)
-    skin/tabbrowser/pendingpaint.png                   (../../../browser/themes/shared/tabbrowser/pendingpaint.png)
-    skin/preferences/category-experiments.svg          (../../../browser/themes/shared/preferences/category-experiments.svg)

@@ -1624,7 +1624,7 @@ printpreview-pagination:focus-within,
 
 @media (prefers-reduced-motion: no-preference) {
   .previewRendering {
-    background-image: url("chrome://browser/skin/tabbrowser/pendingpaint.png");
+    background-image: url("chrome://messenger/skin/images/pendingpaint.png");
   }
 
   .printPreviewBrowser {

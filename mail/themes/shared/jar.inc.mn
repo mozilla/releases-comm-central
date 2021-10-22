@@ -384,6 +384,7 @@
   skin/classic/messenger/messengercompose/format-dropmarker.svg (../shared/mail/icons/format-dropmarker.svg)
   skin/classic/messenger/images/account-watermark.png         (../shared/mail/images/account-watermark.png)
   skin/classic/messenger/images/account-watermark-light.png   (../shared/mail/images/account-watermark-light.png)
+  skin/classic/messenger/images/pendingpaint.png              (../shared/mail/images/pendingpaint.png)
   skin/classic/messenger/openpgp/attach-active-18.svg         (../shared/openpgp/attach-active-18.svg)
   skin/classic/messenger/openpgp/attach-disabled-18.svg       (../shared/openpgp/attach-disabled-18.svg)
   skin/classic/messenger/openpgp/attach-inactive-18.svg       (../shared/openpgp/attach-inactive-18.svg)
