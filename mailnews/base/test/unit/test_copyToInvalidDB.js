@@ -47,19 +47,24 @@ async function setup() {
 add_task(async function test_copyToInvalidDB() {
   let [folder1, folder2] = await setup();
 
-  // Sabotage the destination folder database.
-  folder2.msgDatabase.summaryValid = false;
-  folder2.msgDatabase = null;
-  folder2.ForceDBClosed();
-  let dbPath = folder2.filePath;
-  dbPath.leafName = dbPath.leafName + ".msf";
-  dbPath.remove(false);
-  folder2.msgDatabase = null;
+  // folder1 contains [msg1, msg2].
+  // folder2 contains [msg3].
 
   // Take note of the message we're going to move (first msg in folder1).
   let msgHdr = Array.from(folder1.msgDatabase.EnumerateMessages())[0];
   let expectedID = msgHdr.messageId;
   let expectedMsg = mailTestUtils.loadMessageToString(folder1, msgHdr);
+
+  // Sabotage the destination folder2 database.
+  folder2.msgDatabase.summaryValid = false;
+  folder2.msgDatabase = null;
+  folder2.ForceDBClosed();
+  // In fact, delete the .msf file entirely.
+  folder2.summaryFile.remove(false);
+
+  // So folder2 has no trace of a DB.
+  Assert.equal(folder2.databaseOpen, false);
+  Assert.equal(folder2.summaryFile.exists(), false);
 
   // Move the message from folder1 to folder2.
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
@@ -73,6 +78,12 @@ add_task(async function test_copyToInvalidDB() {
     false // allowUndo
   );
   await copyListener.promise;
+
+  // Current behaviour:
+  // After the move, there's still no sign of a DB file.
+  // Yet the copy didn't fail (see Bug 1737203).
+  Assert.equal(folder2.databaseOpen, false);
+  Assert.equal(folder2.summaryFile.exists(), false);
 
   // Rebuild the the database.
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
