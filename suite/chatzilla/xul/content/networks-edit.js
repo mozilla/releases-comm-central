@@ -157,6 +157,17 @@ var gNetworkWindow = {
     this.refreshNetworks();
   },
 
+  // Connect to Network button.
+  onConnect: function() {
+    let selection = this.mNetworkList.selectedItem;
+    if (!selection)
+      return;
+
+    let network = this.networkList[selection.id];
+    if (this.onOK())
+      client.dispatch("server " + network.name);
+  },
+
   // Select a network listitem.
   onSelectNetwork: function(aId = 0) {
     let header = document.getElementById("network-header");

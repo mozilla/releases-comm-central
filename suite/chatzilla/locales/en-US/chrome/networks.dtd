@@ -10,6 +10,8 @@
 
 <!ENTITY restoreButton.label          "Restore Defaults">
 <!ENTITY restoreButton.accesskey      "f">
+<!ENTITY connectNetwork.label         "Connect to Network">
+<!ENTITY connectNetwork.accesskey     "N">
 
 <!ENTITY networkListAdd.label         "Add Network…">
 <!ENTITY networkListAdd.accesskey     "A">

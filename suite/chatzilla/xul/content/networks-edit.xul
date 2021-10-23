@@ -19,12 +19,15 @@
         windowtype="irc:chatzilla:networks"
         onload="gNetworkWindow.onLoad();"
         onunload="gNetworkWindow.onClose();"
-        buttons="accept,cancel,extra1"
-        buttonlabelextra1="&restoreButton.label;"
-        buttonaccesskeyextra1="&restoreButton.accesskey;"
+        buttons="accept,cancel,extra1,extra2"
+        buttonlabelextra1="&connectNetwork.label;"
+        buttonaccesskeyextra1="&connectNetwork.accesskey;"
+        buttonlabelextra2="&restoreButton.label;"
+        buttonaccesskeyextra2="&restoreButton.accesskey;"
         ondialogaccept="return gNetworkWindow.onOK();"
         ondialogcancel="return gNetworkWindow.onCancel();"
-        ondialogextra1="gNetworkWindow.onRestore();"
+        ondialogextra1="gNetworkWindow.onConnect();"
+        ondialogextra2="gNetworkWindow.onRestore();"
         persist="screenX screenY width height">
 
   <script src="chrome://chatzilla/content/lib/js/utils.js"/>
