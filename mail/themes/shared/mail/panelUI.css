@@ -58,6 +58,7 @@ panelview:not([visible]) {
 .cui-widget-panel,
 #widget-overflow {
   font: menu;
+  font-size: inherit;
 }
 
 panelview {
