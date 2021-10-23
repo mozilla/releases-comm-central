@@ -110,8 +110,6 @@ button.tab-close-button {
   white-space: nowrap;
   margin-inline-end: 0;
   margin-inline-start: 0;
-  /* Maintain consistent alignment in case of font fallback for non-Latin characters. */
-  line-height: 1.7em;
 }
 
 button.tab-close-button {

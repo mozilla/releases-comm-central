@@ -59,7 +59,6 @@ treechildren::-moz-tree-row(modeHeader) {
 
 #folderTree treechildren::-moz-tree-cell-text {
   font-family: -apple-system;
-  font-size: 9pt;
   font-weight: 400;
 }
 

@@ -57,6 +57,7 @@
 .tabmail-tab,
 .tabs-newtab-button {
   font: message-box;
+  font-size: inherit;
   border: none;
 }
 
@@ -82,6 +83,7 @@
 
 #tabmail-tabs {
   -moz-box-align: stretch;
+  font-size: inherit;
   padding-left: 0;
   padding-right: 0;
   margin-bottom: 0;
