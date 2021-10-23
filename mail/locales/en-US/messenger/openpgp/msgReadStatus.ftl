@@ -20,6 +20,7 @@ openpgp-view-your-encryption-key =
 openpgp-openpgp = OpenPGP
 
 openpgp-no-sig = No Digital Signature
+openpgp-no-sig-info = This message does not include the sender’s digital signature. The absence of a digital signature means that the message could have been sent by someone pretending to have this email address. It is also possible that the message has been altered while in transit over the network.
 openpgp-uncertain-sig = Uncertain Digital Signature
 openpgp-invalid-sig = Invalid Digital Signature
 openpgp-good-sig = Good Digital Signature
@@ -38,6 +39,17 @@ openpgp-sig-key-id-with-subkey-id = Signer key ID: { $key } (Sub key ID: { $subk
 
 openpgp-enc-key-id = Your decryption key ID: { $key }
 openpgp-enc-key-with-subkey-id = Your decryption key ID: { $key } (Sub key ID: { $subkey })
+
+openpgp-enc-none = Message Is Not Encrypted
+openpgp-enc-none-label = This message was not encrypted before it was sent. Information sent over the Internet without encryption can be seen by other people while in transit.
+
+openpgp-enc-invalid-label = Message Cannot Be Decrypted
+openpgp-enc-invalid = This message was encrypted before it was sent to you, but it cannot be decrypted.
+
+openpgp-enc-clueless = There are unknown problems with this encrypted message.
+
+openpgp-enc-valid-label = Message Is Encrypted
+openpgp-enc-valid = This message was encrypted before it was sent to you. Encryption ensures the message can only be read by the recipients it was intended for.
 
 openpgp-unknown-key-id = Unknown key
 

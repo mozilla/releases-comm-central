@@ -49,11 +49,9 @@ function showImapSignatureUnknown() {
  * Populate the message security popup panel with S/MIME data.
  */
 function loadSmimeMessageSecurityInfo() {
-  let sBundle = document.getElementById("bundle_smime_read_info");
-
-  if (!sBundle) {
-    return;
-  }
+  let sBundle = Services.strings.createBundle(
+    "chrome://messenger-smime/locale/msgSecurityInfo.properties"
+  );
 
   let sigInfoLabel = null;
   let sigInfoHeader = null;
@@ -135,7 +133,7 @@ function loadSmimeMessageSecurityInfo() {
   document.getElementById("techLabel").textContent = "- S/MIME";
 
   let signatureLabel = document.getElementById("signatureLabel");
-  signatureLabel.textContent = sBundle.getString(sigInfoLabel);
+  signatureLabel.textContent = sBundle.GetStringFromName(sigInfoLabel);
 
   // Remove the second class to properly update the signature icon.
   signatureLabel.classList.remove(signatureLabel.classList.item(1));
@@ -144,14 +142,14 @@ function loadSmimeMessageSecurityInfo() {
   if (sigInfoHeader) {
     let label = document.getElementById("signatureHeader");
     label.collapsed = false;
-    label.textContent = sBundle.getString(sigInfoHeader);
+    label.textContent = sBundle.GetStringFromName(sigInfoHeader);
   }
 
   let str;
   if (sigInfo) {
-    str = sBundle.getString(sigInfo);
+    str = sBundle.GetStringFromName(sigInfo);
   } else if (sigInfo_clueless) {
-    str = sBundle.getString("SIClueless") + " (" + gSignatureStatus + ")";
+    str = sBundle.GetStringFromName("SIClueless") + " (" + gSignatureStatus + ")";
   }
   document.getElementById("signatureExplanation").textContent = str;
 
@@ -191,7 +189,7 @@ function loadSmimeMessageSecurityInfo() {
   }
 
   let encryptionLabel = document.getElementById("encryptionLabel");
-  encryptionLabel.textContent = sBundle.getString(encInfoLabel);
+  encryptionLabel.textContent = sBundle.GetStringFromName(encInfoLabel);
 
   // Remove the second class to properly update the encryption icon.
   encryptionLabel.classList.remove(encryptionLabel.classList.item(1));
@@ -200,13 +198,13 @@ function loadSmimeMessageSecurityInfo() {
   if (encInfoHeader) {
     let label = document.getElementById("encryptionHeader");
     label.collapsed = false;
-    label.textContent = sBundle.getString(encInfoHeader);
+    label.textContent = sBundle.GetStringFromName(encInfoHeader);
   }
 
   if (encInfo) {
-    str = sBundle.getString(encInfo);
+    str = sBundle.GetStringFromName(encInfo);
   } else if (encInfo_clueless) {
-    str = sBundle.getString("EIClueless");
+    str = sBundle.GetStringFromName("EIClueless");
   }
   document.getElementById("encryptionExplanation").textContent = str;
 
