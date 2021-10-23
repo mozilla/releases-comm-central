@@ -1248,6 +1248,15 @@ nsresult nsMsgNewsFolder::CreateBaseMessageURI(const nsACString& aURI) {
   return nsCreateNewsBaseMessageURI(nsCString(aURI).get(), mBaseMessageURI);
 }
 
+NS_IMETHODIMP nsMsgNewsFolder::GetCharset(nsACString& charset) {
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsINntpIncomingServer> nserver(do_QueryInterface(server));
+  NS_ENSURE_TRUE(nserver, NS_ERROR_NULL_POINTER);
+  return nserver->GetCharset(charset);
+}
+
 NS_IMETHODIMP
 nsMsgNewsFolder::GetNewsrcLine(nsACString& newsrcLine) {
   nsresult rv;

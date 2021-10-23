@@ -96,6 +96,9 @@ interface nsIMsgNewsFolder : nsISupports {
 
   void setReadSetFromStr(in ACString setStr);
 
+  /// returns the server's default charset.
+  readonly attribute ACString charset;
+
   readonly attribute ACString newsrcLine;
   readonly attribute ACString optionLines;
   readonly attribute ACString unsubscribedNewsgroupLines;

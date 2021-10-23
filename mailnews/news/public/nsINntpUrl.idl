@@ -68,6 +68,9 @@ interface nsINntpUrl : nsISupports {
   /// The message key portion of the URI or nsMsgKey_None if not present
   readonly attribute nsMsgKey key;
 
+  /// returns the server's default charset.
+  readonly attribute ACString charset;
+
   /// The action of this news URI could not be determined
   const nsNewsAction ActionUnknown = 0;
   /// Fetch the contents of an article

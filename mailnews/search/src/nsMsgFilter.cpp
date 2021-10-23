@@ -23,6 +23,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIMsgFilterService.h"
+#include "nsIMsgNewsFolder.h"
 #include "prmem.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
@@ -579,11 +580,12 @@ nsMsgFilter::MatchHdr(nsIMsgDBHdr* msgHdr, nsIMsgFolder* folder,
                       bool* pResult) {
   NS_ENSURE_ARG_POINTER(folder);
   NS_ENSURE_ARG_POINTER(msgHdr);
-  // use offlineMail because
-  nsresult rv = nsMsgSearchOfflineMail::MatchTermsForFilter(
-      msgHdr, m_termList, "UTF-8", m_scope, db, headers, &m_expressionTree,
-      pResult);
-  return rv;
+  nsCString folderCharset = "UTF-8"_ns;
+  nsCOMPtr<nsIMsgNewsFolder> newsfolder(do_QueryInterface(folder));
+  if (newsfolder) newsfolder->GetCharset(folderCharset);
+  return nsMsgSearchOfflineMail::MatchTermsForFilter(
+      msgHdr, m_termList, folderCharset.get(), m_scope, db, headers,
+      &m_expressionTree, pResult);
 }
 
 NS_IMETHODIMP

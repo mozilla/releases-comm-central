@@ -25,6 +25,7 @@
 #include "nsMemory.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/Attributes.h"
+#include "nsIMsgNewsFolder.h"
 
 // This stuff lives in the base class because the IMAP search syntax
 // is used by the Dredd SEARCH command as well as IMAP itself
@@ -200,6 +201,20 @@ nsresult nsMsgSearchAdapter::GetSearchCharsets(nsAString& srcCharset,
 
   srcCharset = m_defaultCharset;
   dstCharset.Assign(srcCharset);
+
+  if (m_scope) {
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = m_scope->GetFolder(getter_AddRefs(folder));
+    if (NS_SUCCEEDED(rv) && folder) {
+      nsCOMPtr<nsIMsgNewsFolder> newsfolder(do_QueryInterface(folder));
+      if (newsfolder) {
+        nsCString folderCharset;
+        rv = newsfolder->GetCharset(folderCharset);
+        if (NS_SUCCEEDED(rv))
+          dstCharset.Assign(NS_ConvertASCIItoUTF16(folderCharset));
+      }
+    }
+  }
 
   if (forceAsciiSearch) {
     // Special cases to use in order to force US-ASCII searching with Latin1

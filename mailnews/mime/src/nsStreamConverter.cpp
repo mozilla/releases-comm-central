@@ -26,6 +26,7 @@
 #include "nsNetUtil.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsIMsgMailNewsUrl.h"
+#include "nsINntpUrl.h"
 #include "nsIMsgWindow.h"
 #include "nsICategoryManager.h"
 #include "nsMsgUtils.h"
@@ -118,7 +119,20 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
             *default_charset = nullptr;
           } else {
             *override_charset = false;
-            *default_charset = strdup("UTF-8");
+            // Special treatment for news: URLs. Get the server default charset.
+            nsCOMPtr<nsINntpUrl> nntpURL(do_QueryInterface(aURI));
+            if (nntpURL) {
+              nsCString charset;
+              rv = nntpURL->GetCharset(charset);
+              if (NS_SUCCEEDED(rv)) {
+                *default_charset = ToNewCString(charset);
+                *override_charset = true;
+              } else {
+                *default_charset = strdup("UTF-8");
+              }
+            } else {
+              *default_charset = strdup("UTF-8");
+            }
           }
 
           // if there is no manual override and a folder charset exists

@@ -132,6 +132,7 @@ if (!customElements.get("menulist")) {
         "Big5",
         "EUC-KR",
         "gbk",
+        "KOI8-R",
         "ISO-2022-JP",
         "ISO-8859-1",
         "ISO-8859-2",

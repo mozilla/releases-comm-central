@@ -107,21 +107,13 @@ static int MimeInlineText_initializeCharset(MimeObject* obj) {
         text->charset = strdup("UTF-8");
 
       if (!text->charset) {
-        nsresult res;
-
         text->charsetOverridable = true;
-
-        nsCOMPtr<nsIPrefBranch> prefBranch(
-            do_GetService(NS_PREFSERVICE_CONTRACTID, &res));
+        text->inputAutodetect = true;
 
         if (obj->options && obj->options->default_charset)
           text->charset = strdup(obj->options->default_charset);
-        else {
-          if (NS_SUCCEEDED(res)) {
-            text->charset = strdup("UTF-8");
-          } else
-            text->charset = strdup("");
-        }
+        else
+          text->charset = strdup("UTF-8");
       }
     }
   }

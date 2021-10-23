@@ -262,6 +262,15 @@ NS_IMETHODIMP nsNntpUrl::GetKey(nsMsgKey* key) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsNntpUrl::GetCharset(nsACString& charset) {
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsINntpIncomingServer> nserver(do_QueryInterface(server));
+  NS_ENSURE_TRUE(nserver, NS_ERROR_NULL_POINTER);
+  return nserver->GetCharset(charset);
+}
+
 NS_IMETHODIMP nsNntpUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
