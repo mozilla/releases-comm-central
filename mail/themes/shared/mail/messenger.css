@@ -678,6 +678,11 @@ description.error {
   padding-inline-start: 4px;
 }
 
+menupopup,
+menubar {
+  font-size: inherit;
+}
+
 menulist {
   min-height: 24px;
   margin-block: 4px;
