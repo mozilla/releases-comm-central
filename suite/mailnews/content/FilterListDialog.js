@@ -158,9 +158,37 @@ function onLoad()
 
     gFilterTree.view = gFilterTreeView;
 
+    processWindowArguments(window.arguments[0]);
+
+    // Focus the list.
+    gFilterTree.focus();
+
+    Services.obs.addObserver(onFilterClose,
+                             "quit-application-requested");
+
+    top.controllers.insertControllerAt(0, gFilterController);
+}
+
+/**
+ * Processes arguments sent to this dialog when opened or refreshed.
+ *
+ * @param aArguments  An object having members representing the arguments.
+ *                    { arg1: value1, arg2: value2, ... }
+ */
+function processWindowArguments(aArguments) {
+  let wantedFolder;
+  if ("folder" in aArguments)
+    wantedFolder = aArguments.folder;
+
+  // If a specific folder was requested, try to select it
+  // if we don't already show its server.
+  if (!gServerMenu._folder ||
+      (wantedFolder && (wantedFolder != gServerMenu._folder) &&
+       (wantedFolder.rootFolder != gServerMenu._folder))) {
+
     // Get the folder where filters should be defined, if that server
     // can accept filters.
-    var firstItem = getFilterFolderForSelection();
+    let firstItem = getFilterFolderForSelection(wantedFolder);
 
     // if the selected server cannot have filters, get the default server
     // if the default server cannot have filters, check all accounts
@@ -176,13 +204,20 @@ function onLoad()
     else
       updateButtons();
 
-    // Focus the list.
-    gFilterTree.focus();
+    if (wantedFolder)
+      setRunFolder(wantedFolder);
+  }
+}
 
-    Services.obs.addObserver(onFilterClose,
-                             "quit-application-requested");
-
-    top.controllers.insertControllerAt(0, gFilterController);
+/**
+ * This is called from OpenOrFocusWindow() if the dialog is already open.
+ * New filters could have been created by operations outside the dialog.
+ *
+ * @param aArguments  An object of arguments having the same format
+ *                    as window.arguments[0].
+ */
+function refresh(aArguments) {
+  processWindowArguments(aArguments);
 }
 
 function CanRunFiltersAfterTheFact(aServer)
@@ -645,31 +680,15 @@ function updateButtons()
  * @param   nsIMsgFolder aFolder - selected folder, from window args
  * @returns an nsIMsgFolder where the filter is defined
  */
-function getFilterFolderForSelection()
-{
-    var args = window.arguments;
-    var selectedFolder = args[0].folder;
-
-    if (args && args[0] && selectedFolder)
-    {
-        var msgFolder = selectedFolder.QueryInterface(Ci.nsIMsgFolder);
-        try
-        {
-            var rootFolder = msgFolder.server.rootFolder;
-            if (rootFolder.isServer)
-            {
-                var server = rootFolder.server;
-
-                if (server.canHaveFilters)
-                    return server.type == "nntp" ? msgFolder : rootFolder;
-            }
-        }
-        catch (ex)
-        {
-        }
-    }
-
+function getFilterFolderForSelection(aFolder) {
+  if (!aFolder || !aFolder.server)
     return null;
+
+  let rootFolder = aFolder.server.rootFolder;
+  if (rootFolder && rootFolder.isServer && rootFolder.server.canHaveFilters)
+    return (aFolder.server.type == "nntp") ? aFolder : rootFolder;
+
+  return null;
 }
 
 /**
