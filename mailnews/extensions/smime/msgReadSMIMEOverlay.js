@@ -149,7 +149,8 @@ function loadSmimeMessageSecurityInfo() {
   if (sigInfo) {
     str = sBundle.GetStringFromName(sigInfo);
   } else if (sigInfo_clueless) {
-    str = sBundle.GetStringFromName("SIClueless") + " (" + gSignatureStatus + ")";
+    str =
+      sBundle.GetStringFromName("SIClueless") + " (" + gSignatureStatus + ")";
   }
   document.getElementById("signatureExplanation").textContent = str;
 
