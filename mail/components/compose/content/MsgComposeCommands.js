@@ -8518,6 +8518,9 @@ var envelopeDragObserver = {
     // No need to check for the same dragged files if the previous dragging
     // action didn't end.
     if (gIsDraggingAttachments) {
+      // Prevent the default action of the event otherwise the onDrop event
+      // won't be triggered.
+      event.preventDefault();
       this.detectHoveredOverlay(event.target.id);
       return;
     }
