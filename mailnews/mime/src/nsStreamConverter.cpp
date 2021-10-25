@@ -126,7 +126,6 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
               rv = nntpURL->GetCharset(charset);
               if (NS_SUCCEEDED(rv)) {
                 *default_charset = ToNewCString(charset);
-                *override_charset = true;
               } else {
                 *default_charset = strdup("UTF-8");
               }
