@@ -1312,7 +1312,7 @@ pref("mail.compose.warn_public_recipients.aggressive", false);
 // Temporary pref while both Address Book UIs exist.
 // Set to false for addressbook.xhtml in a window, or true for
 // about:addressbook in a tab.
-pref("mail.addr_book.useNewAddressBook", false);
+pref("mail.addr_book.useNewAddressBook", true);
 
 // The URL of most things that can be printed is useless information.
 // Hide it and move the title to the center.
