@@ -765,10 +765,6 @@ WordBreakClass GetWordBreakClass(char16_t c) {
 nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
                                 int32_t pos, bool isLastBuffer, int32_t* begin,
                                 int32_t* end, bool* _retval) {
-  if (!mWordBreaker) {
-    mWordBreaker = mozilla::intl::WordBreaker::Create();
-  }
-
   // if we reach the end, just return
   if (pos >= length) {
     *begin = pos;
@@ -790,7 +786,8 @@ nsresult Tokenizer::ScannerNext(const char16_t* text, int32_t length,
 
   int32_t next;
   // Find the next "word".
-  next = mWordBreaker->Next(text, (uint32_t)length, (uint32_t)pos);
+  next =
+      mozilla::intl::WordBreaker::Next(text, (uint32_t)length, (uint32_t)pos);
 
   // If we don't have enough text to make decision, return.
   if (next == NS_WORDBREAKER_NEED_MORE_TEXT) {

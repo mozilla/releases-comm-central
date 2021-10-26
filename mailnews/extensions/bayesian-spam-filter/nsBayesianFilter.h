@@ -152,7 +152,6 @@ class Tokenizer : public TokenHash {
   nsresult ScannerNext(const char16_t* text, int32_t length, int32_t pos,
                        bool isLastBuffer, int32_t* begin, int32_t* end,
                        bool* _retval);
-  RefPtr<mozilla::intl::WordBreaker> mWordBreaker;
 };
 
 /**

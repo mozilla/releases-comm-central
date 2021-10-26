@@ -291,13 +291,11 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
     if (requireMultipleWords) {
       if (selPlain.IsEmpty()) return NS_ERROR_ABORT;
 
-      RefPtr<mozilla::intl::LineBreaker> lineBreaker =
-          mozilla::intl::LineBreaker::Create();
-
       if (NS_SUCCEEDED(rv)) {
         const uint32_t length = selPlain.Length();
         const char16_t* unicodeStr = selPlain.get();
-        int32_t endWordPos = lineBreaker->Next(unicodeStr, length, 0);
+        int32_t endWordPos =
+            mozilla::intl::LineBreaker::Next(unicodeStr, length, 0);
 
         // If there's not even one word, then there's not multiple words
         if (endWordPos == NS_LINEBREAKER_NEED_MORE_TEXT) return NS_ERROR_ABORT;
