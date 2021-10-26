@@ -368,7 +368,7 @@ nsAbDirProperty::GetMailListFromName(const nsAString& aName,
       nsAutoString listName;
       rv = listDir->GetDirName(listName);
       if (NS_SUCCEEDED(rv) && listName.Equals(aName)) {
-        *aResult = listDir;
+        listDir.forget(aResult);
         return NS_OK;
       }
     }
