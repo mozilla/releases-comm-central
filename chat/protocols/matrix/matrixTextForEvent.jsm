@@ -70,12 +70,18 @@ const MATRIX_EVENT_HANDLERS = {
         content,
         target: matrixEvent.target,
         prevContent: matrixEvent.getPrevContent(),
-        reason: content.reason ? _("message.reason", content.reason) : "",
+        reason: content.reason,
+        withReasonKey: content.reason ? "WithReason" : "",
       };
     },
     handlers: {
-      ban(matrixEvent, { sender, target, reason }) {
-        return _("message.banned", sender, target.userId) + reason;
+      ban(matrixEvent, { sender, target, reason, withReasonKey }) {
+        return _(
+          "message.banned" + withReasonKey,
+          sender,
+          target.userId,
+          reason
+        );
       },
       invite(matrixEvent, { sender, content, target }) {
         const thirdPartyInvite = content.third_party_invite;
@@ -117,7 +123,10 @@ const MATRIX_EVENT_HANDLERS = {
         }
         return _("message.joined", target.userId);
       },
-      leave(matrixEvent, { sender, prevContent, target, reason }) {
+      leave(
+        matrixEvent,
+        { sender, prevContent, target, reason, withReasonKey }
+      ) {
         // kick and unban just change the membership to "leave".
         // So we need to look at each transition to what happened to the user.
         if (matrixEvent.getSender() === target.userId) {
@@ -128,9 +137,19 @@ const MATRIX_EVENT_HANDLERS = {
         } else if (prevContent.membership === "ban") {
           return _("message.unbanned", sender, target.userId);
         } else if (prevContent.membership === "join") {
-          return _("message.kicked", sender, target.userId) + reason;
+          return _(
+            "message.kicked" + withReasonKey,
+            sender,
+            target.userId,
+            reason
+          );
         } else if (prevContent.membership === "invite") {
-          return _("message.withdrewInvite", sender, target.userId) + reason;
+          return _(
+            "message.withdrewInvite" + withReasonKey,
+            sender,
+            target.userId,
+            reason
+          );
         }
         // ignore rest of the cases.
         return null;

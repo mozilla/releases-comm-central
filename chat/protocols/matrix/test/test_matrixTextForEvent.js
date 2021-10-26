@@ -39,9 +39,7 @@ const FIXTURES = [
         userId: "@foo:example.com",
       },
     }),
-    result:
-      _("message.banned", SENDER, "@foo:example.com") +
-      _("message.reason", "test"),
+    result: _("message.bannedWithReason", SENDER, "@foo:example.com", "test"),
     name: "Banned with reason",
   },
   {
@@ -234,9 +232,12 @@ const FIXTURES = [
         userId: "@target:example.com",
       },
     }),
-    result:
-      _("message.kicked", SENDER, "@target:example.com") +
-      _("message.reason", "lorem ipsum"),
+    result: _(
+      "message.kickedWithReason",
+      SENDER,
+      "@target:example.com",
+      "lorem ipsum"
+    ),
     name: "Kicked with reason",
   },
   {
@@ -253,9 +254,12 @@ const FIXTURES = [
         userId: "@target:example.com",
       },
     }),
-    result:
-      _("message.withdrewInvite", SENDER, "@target:example.com") +
-      _("message.reason", "lorem ipsum"),
+    result: _(
+      "message.withdrewInviteWithReason",
+      SENDER,
+      "@target:example.com",
+      "lorem ipsum"
+    ),
     name: "Invite withdrawn with reason",
   },
   {
