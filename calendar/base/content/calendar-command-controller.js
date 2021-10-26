@@ -134,7 +134,7 @@ var calendarController = {
       case "calendar_new_event_context_command":
         return CalendarNewEventsCommandEnabled;
       case "calendar_modify_focused_item_command":
-        return this.item_selected;
+        return this.item_selected && canEditSelectedItems();
       case "calendar_modify_event_command":
         return this.item_selected && canEditSelectedItems();
       case "calendar_view_event_command":
