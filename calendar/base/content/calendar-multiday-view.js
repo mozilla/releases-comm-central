@@ -235,9 +235,7 @@
 
       if (!cal.data.compareObjects(val.timezone, this.mTimezone)) {
         this.mTimezone = val.timezone;
-        if (!this.mLayoutBatchCount) {
-          this.recalculateStartEndMinutes();
-        }
+        this.relayout();
       }
     }
 
@@ -369,15 +367,6 @@
       return true;
     }
 
-    recalculateStartEndMinutes() {
-      for (let chunk of this.mEventInfos) {
-        let mins = this.getStartEndMinutesForOccurrence(chunk.event);
-        chunk.startMinute = mins.start;
-        chunk.endMinute = mins.end;
-      }
-
-      this.relayout();
-    }
     /**
      * This function returns the start and end minutes of the occurrence
      * part in the day of this column, moreover, the real start and end
@@ -434,22 +423,10 @@
       };
     }
 
-    createChunk(occurrence) {
-      let mins = this.getStartEndMinutesForOccurrence(occurrence);
-
-      let chunk = {
-        startMinute: mins.start,
-        endMinute: mins.end,
-        event: occurrence,
-      };
-      return chunk;
-    }
-
     addEvent(occurrence) {
       this.internalDeleteEvent(occurrence);
 
-      let chunk = this.createChunk(occurrence);
-      this.mEventInfos.push(chunk);
+      this.mEventInfos.push({ event: occurrence });
       if (this.mEventMapTimeout) {
         clearTimeout(this.mEventMapTimeout);
       }
@@ -2190,22 +2167,6 @@
 
     get parentColumn() {
       return this.mParentColumn;
-    }
-
-    get startMinute() {
-      if (!this.mOccurrence) {
-        return 0;
-      }
-      let startDate = this.mOccurrence.startDate || this.mOccurrence.entryDate;
-      return startDate.hour * 60 + startDate.minute;
-    }
-
-    get endMinute() {
-      if (!this.mOccurrence) {
-        return 0;
-      }
-      let endDate = this.mOccurrence.endDate || this.mOccurrence.dueDate;
-      return endDate.hour * 60 + endDate.minute;
     }
 
     getOptimalMinSize() {
