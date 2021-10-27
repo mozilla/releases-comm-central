@@ -704,18 +704,25 @@
 
       <footer class="footer-container" id="print-footer" role="none">
         <section id="button-container" class="section-block">
+          <button id="next-button"
+                  class="primary"
+                  type="submit"
+                  showfocus=""
+                  autocomplete="off"
+                  data-l10n-id="calendar-print-next-button"></button>
           <button is="cancel-button"
                   type="button"
                   data-l10n-id="printui-cancel-button"
                   data-close-l10n-id="printui-close-button"
                   data-cancel-l10n-id="printui-cancel-button"></button>
-          <button class="primary"
-                  type="submit"
-                  showfocus=""
-                  autocomplete="off"
-                  data-l10n-id="calendar-print-next-button"></button>
         </section>
       </footer>
+
+      <!-- This button will replace the original cancel button. -->
+      <button id="back-button"
+              type="button"
+              autocomplete="off"
+              data-l10n-id="calendar-print-back-button"></button>
     </form>
   </template>
 </vbox>

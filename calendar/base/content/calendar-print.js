@@ -25,12 +25,25 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
     ownerDocument.getElementById("calendarPrintForm").content.firstElementChild,
     true
   );
+  if (AppConstants.platform != "win") {
+    // Move the Next button to the end if this isn't Windows.
+    let nextButton = form.querySelector("#next-button");
+    nextButton.parentElement.append(nextButton);
+  }
   form.addEventListener("submit", event => {
     event.preventDefault();
     form.hidden = true;
     otherForm.hidden = false;
   });
   otherForm.parentNode.insertBefore(form, otherForm);
+
+  let backButton = form.querySelector("#back-button");
+  backButton.addEventListener("click", () => {
+    otherForm.hidden = true;
+    form.hidden = false;
+  });
+  let cancelButton = otherForm.querySelector("#cancel-button");
+  cancelButton.parentNode.replaceChild(backButton, cancelButton);
 
   let eventsCheckbox = form.querySelector("input#events");
   let tasksCheckbox = form.querySelector("input#tasks");

@@ -16,4 +16,5 @@ calendar-print-filter-taskswithnoduedate = Tasks with no due date
 calendar-print-range-from = From
 calendar-print-range-to = To
 
+calendar-print-back-button = Back
 calendar-print-next-button = Next
