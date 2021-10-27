@@ -7,17 +7,12 @@ var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
 
-// Copied from nsILookAndFeel.h, see comments on eIntID_AlertNotificationOrigin.
-var NS_ALERT_LEFT = 2;
-var NS_ALERT_TOP = 4;
-
-var gNumNewMsgsToShowInAlert = 6;
-var gOpenTime = 4000; // total time the alert should stay up once we are done animating.
-
 var gAlertListener = null;
-var gOrigin = 0; // Default value: alert from bottom right.
 
-window.addEventListener("DOMContentLoaded", onAlertLoad);
+// NOTE: We must wait until "load" instead of "DOMContentLoaded" because
+// otherwise the window height and width is not set in time for
+// window.moveTo.
+window.addEventListener("load", onAlertLoad);
 
 function prefillAlertInfo() {
   // unwrap all the args....
@@ -40,7 +35,7 @@ function prefillAlertInfo() {
 
   // <folder-summary> handles rendering of new messages.
   var folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
-  folderSummaryInfoEl.maxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
+  folderSummaryInfoEl.maxMsgHdrsInPopup = 6;
   folderSummaryInfoEl.render(folder, newMsgKeys);
 }
 
@@ -61,72 +56,41 @@ function onAlertLoad() {
 function doOnAlertLoad() {
   prefillAlertInfo();
 
-  gOpenTime = Services.prefs.getIntPref("alerts.totalOpenTime");
-
-  // bogus call to make sure the window is moved offscreen until we are ready for it.
-  resizeAlert(true);
-
-  // Let the JS thread unwind, to give layout
-  // a chance to recompute the styles and widths for our alert text.
-  setTimeout(showAlert, 0);
-}
-
-// If the user initiated the alert, show it right away, otherwise start opening the alert with
-// the fade effect.
-function showAlert() {
   if (!document.getElementById("folderSummaryInfo").hasMessages()) {
     closeAlert(); // no mail, so don't bother showing the alert...
     return;
   }
 
   // resize the alert based on our current content
-  resizeAlert(false);
+  let alertTextBox = document.getElementById("alertTextBox");
+  let alertImageBox = document.getElementById("alertImageBox");
+  alertImageBox.style.minHeight = alertTextBox.scrollHeight + "px";
 
+  // Show in bottom right, offset by 10px.
+  // We wait one cycle until the window has resized.
+  setTimeout(() => {
+    let x = screen.availLeft + screen.availWidth - window.outerWidth - 10;
+    let y = screen.availTop + screen.availHeight - window.outerHeight - 10;
+    window.moveTo(x, y);
+  });
+
+  let openTime = Services.prefs.getIntPref("alerts.totalOpenTime");
   var alertContainer = document.getElementById("alertContainer");
   // Don't fade in if the prefers-reduced-motion is true.
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     alertContainer.setAttribute("noanimation", true);
-    setTimeout(closeAlert, gOpenTime);
+    setTimeout(closeAlert, openTime);
     return;
   }
 
   alertContainer.addEventListener("animationend", function hideAlert(event) {
     if (event.animationName == "fade-in") {
       alertContainer.removeEventListener("animationend", hideAlert);
-      setTimeout(fadeOutAlert, gOpenTime);
+      setTimeout(fadeOutAlert, openTime);
     }
   });
 
   alertContainer.setAttribute("fade-in", true);
-}
-
-function resizeAlert(aMoveOffScreen) {
-  var alertTextBox = document.getElementById("alertTextBox");
-  var alertImageBox = document.getElementById("alertImageBox");
-  alertImageBox.style.minHeight = alertTextBox.scrollHeight + "px";
-
-  sizeToContent();
-
-  // leftover hack to get the window properly hidden when we first open it
-  if (aMoveOffScreen) {
-    window.outerHeight = 1;
-  }
-
-  // Determine position
-  var x =
-    gOrigin & NS_ALERT_LEFT
-      ? screen.availLeft
-      : screen.availLeft + screen.availWidth - window.outerWidth;
-  var y =
-    gOrigin & NS_ALERT_TOP
-      ? screen.availTop
-      : screen.availTop + screen.availHeight - window.outerHeight;
-
-  // Offset the alert by 10 pixels from the edge of the screen
-  y += gOrigin & NS_ALERT_TOP ? 10 : -10;
-  x += gOrigin & NS_ALERT_LEFT ? 10 : -10;
-
-  window.moveTo(x, y);
 }
 
 function fadeOutAlert() {

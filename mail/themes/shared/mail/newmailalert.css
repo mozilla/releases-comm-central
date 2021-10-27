@@ -10,7 +10,17 @@
 @import url("chrome://messenger/skin/messenger.css");
 
 #alertContainer {
+  border: 1px solid threedshadow;
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
   opacity: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  #alertContainer {
+    background-color: #2a2a2e;
+    color: #f9f9fa;
+  }
 }
 
 #alertContainer[noanimation] {
@@ -39,20 +49,6 @@
 @keyframes fade-out {
   from {opacity: 1;}
   to {opacity: 0;}
-}
-
-body {
-  border: 1px solid threedshadow;
-  border-radius: 3px;
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #2a2a2e;
-    color: #f9f9fa;
-  }
 }
 
 #alertImageBox {
