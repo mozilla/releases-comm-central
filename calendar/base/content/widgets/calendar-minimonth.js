@@ -71,26 +71,21 @@
         <hbox class="minimonth-header minimonth-month-box" align="center">
           <toolbarbutton class="months-back-button minimonth-nav-btns"
                          dir="-1"
-                         oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
                          tooltiptext="&onemonthbackward.tooltip;"></toolbarbutton>
           <label class="minimonth-month-name" tabindex="-1"/>
           <toolbarbutton class="months-forward-button minimonth-nav-btns"
                          dir="1"
-                         oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
                          tooltiptext="&onemonthforward.tooltip;"></toolbarbutton>
           <toolbarbutton class="years-back-button minimonth-nav-btns"
                          dir="-1"
-                         oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
                          tooltiptext="&oneyearbackward.tooltip;"></toolbarbutton>
           <label class="yearcell minimonth-year-name" tabindex="-1"></label>
           <toolbarbutton class="years-forward-button minimonth-nav-btns"
                          dir="1"
-                         oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
                          tooltiptext="&oneyearforward.tooltip;"></toolbarbutton>
           <spacer flex="1"></spacer>
           <toolbarbutton class="today-button minimonth-nav-btns"
                          dir="0"
-                         oncommand="this.kMinimonth.value = new Date();"
                          tooltiptext="&showToday.tooltip;"></toolbarbutton>
         </hbox>
       `;
@@ -139,12 +134,21 @@
       this.setAttribute("orient", "vertical");
 
       // Set up header buttons.
-      const kMinimonth = this.closest("calendar-minimonth");
-      this.querySelector(".months-back-button").kMinimonth = kMinimonth;
-      this.querySelector(".months-forward-button").kMinimonth = kMinimonth;
-      this.querySelector(".years-back-button").kMinimonth = kMinimonth;
-      this.querySelector(".years-forward-button").kMinimonth = kMinimonth;
-      this.querySelector(".today-button").kMinimonth = kMinimonth;
+      this.querySelector(".months-back-button").addEventListener("command", () =>
+        this.advanceMonth(-1)
+      );
+      this.querySelector(".months-forward-button").addEventListener("command", () =>
+        this.advanceMonth(1)
+      );
+      this.querySelector(".years-back-button").addEventListener("command", () =>
+        this.advanceYear(-1)
+      );
+      this.querySelector(".years-forward-button").addEventListener("command", () =>
+        this.advanceYear(1)
+      );
+      this.querySelector(".today-button").addEventListener("command", () => {
+        this.value = new Date();
+      });
 
       this.mDayMap = null;
       this.mValue = null;
