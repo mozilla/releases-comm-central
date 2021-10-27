@@ -125,3 +125,23 @@ add_task(async function test_whenReadError() {
   const error = await errorPromise;
   equal(error, readReceiptRejection);
 });
+
+add_task(async function test_whenDisplayedNoEvent() {
+  const message = new matrix.MatrixMessage("foo", "bar", {
+    system: true,
+  });
+
+  message.whenDisplayed();
+
+  ok(!message._displayed);
+});
+
+add_task(async function test_whenReadNoEvent() {
+  const message = new matrix.MatrixMessage("foo", "bar", {
+    system: true,
+  });
+
+  message.whenRead();
+
+  ok(!message._read);
+});

@@ -91,7 +91,7 @@ MatrixMessage.prototype = {
   _read: false,
 
   whenDisplayed() {
-    if (this._displayed) {
+    if (this._displayed || !this.event) {
       return;
     }
     this._displayed = true;
@@ -106,6 +106,7 @@ MatrixMessage.prototype = {
     // whenRead is also called when the conversation is closed.
     if (
       this._read ||
+      !this.event ||
       !this.conversation._account ||
       this.conversation._account.noFullyRead
     ) {
