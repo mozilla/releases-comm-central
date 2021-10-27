@@ -138,3 +138,5 @@ SOURCES += [
     "src/librepgp/stream-sig.cpp",
     "src/librepgp/stream-write.cpp",
 ]
+
+DIRS += ["src/rnp", "src/rnpkeys"]
