@@ -8,6 +8,7 @@
 
 @import url("chrome://global/skin/global.css");
 @import url("chrome://messenger/skin/shared/messenger.css");
+@import url("chrome://messenger/content/webextensions.css");
 
 :root {
   --autocomplete-popup-url-color: -moz-nativehyperlinktext;

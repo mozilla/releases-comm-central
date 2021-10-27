@@ -73,9 +73,9 @@ class Theme {
               properties: {},
             };
           }
-          const { baseURI } = this.extension;
+
           if (experiment.stylesheet) {
-            experiment.stylesheet = baseURI.resolve(experiment.stylesheet);
+            experiment.stylesheet = this.getFileUrl(experiment.stylesheet);
           }
           this.experiment = experiment;
         } else {
@@ -86,6 +86,18 @@ class Theme {
       }
     }
     this.load();
+  }
+
+  // The manifest has moz-extension:// urls. Switch to file:// urls to get around
+  // the skin limitation for moz-extension:// urls.
+  getFileUrl(url) {
+    if (url.startsWith("moz-extension://")) {
+      url = url
+        .split("/")
+        .slice(3)
+        .join("/");
+    }
+    return this.extension.rootURI.resolve(url);
   }
 
   /**
@@ -254,7 +266,7 @@ class Theme {
    * @param {Object} styles - Styles object in which to store the colors.
    */
   loadImages(images, styles) {
-    const { baseURI, logger } = this.extension;
+    const { logger } = this.extension;
 
     for (let image of Object.keys(images)) {
       let val = images[image];
@@ -265,12 +277,12 @@ class Theme {
 
       switch (image) {
         case "additional_backgrounds": {
-          let backgroundImages = val.map(img => baseURI.resolve(img));
+          let backgroundImages = val.map(img => this.getFileUrl(img));
           styles.additionalBackgrounds = backgroundImages;
           break;
         }
         case "theme_frame": {
-          let resolvedURL = baseURI.resolve(val);
+          let resolvedURL = this.getFileUrl(val);
           styles.headerURL = resolvedURL;
           break;
         }
@@ -280,7 +292,7 @@ class Theme {
             this.experiment.images &&
             image in this.experiment.images
           ) {
-            styles.experimental.images[image] = baseURI.resolve(val);
+            styles.experimental.images[image] = this.getFileUrl(val);
           } else {
             logger.warn(`Unrecognized theme property found: images.${image}`);
           }
