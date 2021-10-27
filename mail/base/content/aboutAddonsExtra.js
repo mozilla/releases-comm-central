@@ -82,10 +82,11 @@ XPCOMUtils.defineLazyPreferenceGetter(
     let data = new ExtensionData(addon.getResourceURI());
     await data.loadManifest();
     if (
-      data.manifest.legacy ||
-      (!addon.isCompatible &&
-        (AddonManager.checkCompatibility ||
-          addon.blocklistState !== STATE_SOFTBLOCKED))
+      addon.type == "extension" &&
+      (data.manifest.legacy ||
+        (!addon.isCompatible &&
+          (AddonManager.checkCompatibility ||
+            addon.blocklistState !== STATE_SOFTBLOCKED)))
     ) {
       return {
         linkText: await document.l10n.formatValue(
