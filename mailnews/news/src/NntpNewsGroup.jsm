@@ -16,11 +16,11 @@ var { MsgKeySet } = ChromeUtils.import("resource:///modules/MsgKeySet.jsm");
 class NntpNewsGroup {
   /**
    * @param {nsINntpIncomingServer} server - The associated server instance.
-   * @param {string} groupName - The associated group name.
+   * @param {nsIMsgNewsFolder} folder - The associated news folder.
    */
-  constructor(server, groupName) {
+  constructor(server, folder) {
     this._server = server;
-    this._folder = server.findGroup(groupName);
+    this._folder = folder;
     this._db = this._folder.getDatabaseWithoutCache();
     this._msgHdrs = [];
   }

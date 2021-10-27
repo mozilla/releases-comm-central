@@ -92,6 +92,7 @@ class NntpService {
   getNewNews(server, uri, getOld, urlListener, msgWindow) {
     // The uri is in the form of news://news.mozilla.org/mozilla.accessibility
     let matches = /.+:\/\/([^:]+):?(\d+)?\/(.+)?/.exec(uri);
+    let groupName = decodeURIComponent(matches[3]);
 
     let runningUri = Services.io
       .newURI(uri)
@@ -99,7 +100,7 @@ class NntpService {
     server.wrappedJSObject.withClient(client => {
       client.runningUri = runningUri;
       client.onOpen = () => {
-        client.getNewNews(matches[3], getOld, urlListener, msgWindow);
+        client.getNewNews(groupName, getOld, urlListener, msgWindow);
       };
     });
 

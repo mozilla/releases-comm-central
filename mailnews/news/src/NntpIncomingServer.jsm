@@ -14,6 +14,7 @@ var { MsgIncomingServer } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
+  CommonUtils: "resource://services-common/utils.js",
   Services: "resource://gre/modules/Services.jsm",
   clearInterval: "resource://gre/modules/Timer.jsm",
   setInterval: "resource://gre/modules/Timer.jsm",
@@ -289,6 +290,14 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   /** @see nsINntpIncomingServer */
+  get charset() {
+    return this.getCharValue("charset") || "UTF-8";
+  }
+
+  set charset(value) {
+    this.setCharValue("charset", value);
+  }
+
   get maximumConnectionsNumber() {
     let maxConnections = this.getIntValue("max_cached_connections", 0);
     if (maxConnections > 0) {
@@ -349,6 +358,9 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   addNewsgroupToList(name) {
+    name = new TextDecoder(this.charset).decode(
+      CommonUtils.byteStringToArrayBuffer(name)
+    );
     this.addTo(name, false, true, true);
   }
 
@@ -450,7 +462,7 @@ class NntpIncomingServer extends MsgIncomingServer {
     let groupLine = false;
     for (let line of content.split(this._lineSeparator)) {
       if (groupLine) {
-        this.addNewsgroupToList(line);
+        this.addTo(line, false, true, true);
       } else if (line == "begingroups") {
         groupLine = true;
       }

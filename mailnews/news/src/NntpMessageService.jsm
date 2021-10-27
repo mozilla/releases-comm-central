@@ -139,10 +139,11 @@ class BaseMessageService {
       groupName = url.searchParams.get("group");
       key = url.searchParams.get("key");
     }
+    groupName = decodeURIComponent(groupName);
     let server = MailServices.accounts
       .FindServer("", host, "nntp")
       .QueryInterface(Ci.nsINntpIncomingServer);
-    let folder = server.findGroup(groupName);
+    let folder = server.rootFolder.getChildNamed(groupName);
     return [folder, key];
   }
 

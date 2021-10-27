@@ -249,10 +249,10 @@ class NntpClient {
    */
   getNewNews(groupName, getOld, urlListener, msgWindow) {
     this._currentGroupName = null;
-    this._nextGroupName = groupName;
-    this._newsGroup = new NntpNewsGroup(this._server, groupName);
+    this._newsFolder = this._getNewsFolder(groupName);
+    this._newsGroup = new NntpNewsGroup(this._server, this._newsFolder);
     this._newsGroup.getOldMessages = getOld;
-    this._newsFolder = this._server.findGroup(groupName);
+    this._nextGroupName = this._newsFolder.rawName;
     this.urlListener = urlListener;
     this._msgWindow = msgWindow;
     this.runningUri.updatingFolder = true;
@@ -266,7 +266,7 @@ class NntpClient {
    * @param {string} articleNumber - The article number.
    */
   getArticleByArticleNumber(groupName, articleNumber) {
-    this._nextGroupName = groupName;
+    this._nextGroupName = this._getNextGroupName(groupName);
     this._articleNumber = articleNumber;
     this._firstGroupCommand = this._actionArticle;
     this._actionModeReader(this._actionGroup);
@@ -289,7 +289,7 @@ class NntpClient {
    */
   cancelArticle(urlListener, groupName) {
     this.urlListener = urlListener;
-    this._nextGroupName = groupName;
+    this._nextGroupName = this._getNextGroupName(groupName);
     this._firstGroupCommand = this.post;
     this._actionModeReader(this._actionGroup);
   }
@@ -303,7 +303,7 @@ class NntpClient {
    */
   search(urlListener, groupName, xpatLines) {
     this.urlListener = urlListener;
-    this._nextGroupName = groupName;
+    this._nextGroupName = this._getNextGroupName(groupName);
     this._xpatLines = xpatLines;
     this._firstGroupCommand = this._actionXPat;
     this._actionModeReader(this._actionGroup);
@@ -325,9 +325,9 @@ class NntpClient {
     } else if (path.includes("@")) {
       action = () => this.getArticleByMessageId(path);
     } else {
-      this._nextGroupName = path;
-      this._newsGroup = new NntpNewsGroup(this._server, this._nextGroupName);
-      this._newsFolder = this._server.findGroup(this._nextGroupName);
+      this._newsFolder = this._getNewsFolder(path);
+      this._newsGroup = new NntpNewsGroup(this._server, this._newsFolder);
+      this._nextGroupName = this._newsFolder.rawName;
       action = () => this._actionModeReader(this._actionGroup);
     }
     if (!action) {
@@ -373,6 +373,26 @@ class NntpClient {
    */
   close() {
     this._socket.close();
+  }
+
+  /**
+   * Get the news folder corresponding to a group name.
+   * @param {string} groupName - The group name.
+   * @returns {nsIMsgNewsFolder}
+   */
+  _getNewsFolder(groupName) {
+    return this._server.rootFolder
+      .getChildNamed(groupName)
+      .QueryInterface(Ci.nsIMsgNewsFolder);
+  }
+
+  /**
+   * Given a UTF-8 group name, return the underlying group name used by the server.
+   * @param {string} groupName - The UTF-8 group name.
+   * @returns {BinaryString} - The group name that can be sent to the server.
+   */
+  _getNextGroupName(groupName) {
+    return this._getNewsFolder(groupName).rawName;
   }
 
   /**

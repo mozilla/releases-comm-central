@@ -55,7 +55,9 @@ class NntpChannel {
     let url = new URL(uri.spec);
     this._groupName = url.searchParams.get("group");
     if (this._groupName) {
-      this._newsFolder = this._server.findGroup(url.searchParams.get("group"));
+      this._newsFolder = this._server.rootFolder.getChildNamed(
+        decodeURIComponent(url.searchParams.get("group"))
+      );
       this._articleNumber = url.searchParams.get("key");
     } else {
       this._messageId = url.pathname.slice(1);

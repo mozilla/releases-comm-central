@@ -28,7 +28,7 @@ interface nsIMsgNewsFolder : nsISupports {
    * string is stored in |nsINntpIncomingServer| because that's a server-wide
    * property.
    **/
-  [noscript] readonly attribute ACString rawName;
+  readonly attribute ACString rawName;
   readonly attribute nsINntpIncomingServer nntpServer;
   attribute boolean saveArticleOffline;
 
@@ -99,7 +99,7 @@ interface nsIMsgNewsFolder : nsISupports {
   /// returns the server's default charset.
   readonly attribute ACString charset;
 
-  readonly attribute ACString newsrcLine;
+  readonly attribute AUTF8String newsrcLine;
   readonly attribute ACString optionLines;
   readonly attribute ACString unsubscribedNewsgroupLines;
   void SetNewsrcHasChanged(in boolean newsrcHasChanged);
