@@ -749,8 +749,8 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
             saveListener, getter_AddRefs(dummyNull));
       else
         rv = messageService->DisplayMessage(
-            fullMessageUri.get(), convertedListener, mMsgWindow, nullptr,
-            false, getter_AddRefs(dummyNull));
+            fullMessageUri.get(), convertedListener, mMsgWindow, nullptr, false,
+            getter_AddRefs(dummyNull));
     }  // if we got a message service
   }    // if we created a url
 
@@ -775,11 +775,9 @@ nsMessenger::OpenAttachment(const nsACString& aContentType,
     nsCOMPtr<nsIMsgMessageService> messageService;
     rv = GetMessageServiceFromURI(aMessageUri, getter_AddRefs(messageService));
     if (messageService)
-      rv = messageService->OpenAttachment(
-          PromiseFlatCString(aContentType).get(),
-          PromiseFlatCString(aDisplayName).get(),
-          PromiseFlatCString(aURL).get(), PromiseFlatCString(aMessageUri).get(),
-          mDocShell, mMsgWindow, nullptr);
+      rv = messageService->OpenAttachment(aContentType, aDisplayName, aURL,
+                                          aMessageUri, mDocShell, mMsgWindow,
+                                          nullptr);
   }
 
   return rv;
@@ -1549,9 +1547,9 @@ NS_IMETHODIMP nsMessenger::ForceDetectDocumentCharset() {
 
     if (NS_SUCCEEDED(rv) && messageService) {
       nsCOMPtr<nsIURI> dummyNull;
-      messageService->DisplayMessage(
-          mLastDisplayURI.get(), mDocShell, mMsgWindow, nullptr,
-          true, getter_AddRefs(dummyNull));
+      messageService->DisplayMessage(mLastDisplayURI.get(), mDocShell,
+                                     mMsgWindow, nullptr, true,
+                                     getter_AddRefs(dummyNull));
     }
   }
 

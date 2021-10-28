@@ -56,9 +56,7 @@
   "mail.root.nntp"  // old - for backward compatibility only
 #define PREF_MAIL_ROOT_NNTP_REL "mail.root.nntp-rel"
 
-nsNntpService::nsNntpService() {
-  mOpenAttachmentOperation = false;
-}
+nsNntpService::nsNntpService() { mOpenAttachmentOperation = false; }
 
 nsNntpService::~nsNntpService() {
   // do nothing
@@ -391,17 +389,16 @@ NS_IMETHODIMP nsNntpService::FetchMimePart(
   return RunNewsUrl(msgUrl, aMsgWindow, aDisplayConsumer);
 }
 
-NS_IMETHODIMP nsNntpService::OpenAttachment(
-    const char* aContentType, const char* aFileName, const char* aUrl,
-    const char* aMessageUri, nsISupports* aDisplayConsumer,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener) {
-  NS_ENSURE_ARG_POINTER(aUrl);
-  NS_ENSURE_ARG_POINTER(aFileName);
-
+NS_IMETHODIMP nsNntpService::OpenAttachment(const nsACString& aContentType,
+                                            const nsACString& aFileName,
+                                            const nsACString& aUrl,
+                                            const nsACString& aMessageUri,
+                                            nsISupports* aDisplayConsumer,
+                                            nsIMsgWindow* aMsgWindow,
+                                            nsIUrlListener* aUrlListener) {
   nsCOMPtr<nsIURI> url;
   nsresult rv = NS_OK;
-  nsAutoCString newsUrl;
-  newsUrl = aUrl;
+  nsAutoCString newsUrl(aUrl);
   newsUrl += "&type=";
   newsUrl += aContentType;
   newsUrl += "&filename=";
@@ -414,7 +411,7 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(
     NS_ENSURE_SUCCESS(rv, rv);
 
     msgUrl->SetMsgWindow(aMsgWindow);
-    msgUrl->SetFileNameInternal(nsDependentCString(aFileName));
+    msgUrl->SetFileNameInternal(aFileName);
     // this code isn't ready yet, but it helps getting opening attachments
     // while offline working
     //   nsCOMPtr<nsIMsgMessageUrl> msgMessageUrl = do_QueryInterface(url);

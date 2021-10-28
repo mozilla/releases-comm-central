@@ -100,10 +100,10 @@ interface nsIMsgMessageService : nsISupports {
    * @param aMsgWindow Message window
    * @param aUrlListener
    */
-  void openAttachment(in string aContentType,
-            in string aFileName,
-            in string aUrl,
-            in string aMessageUri,
+  void openAttachment(in AUTF8String aContentType,
+            in AUTF8String aFileName,
+            in AUTF8String aUrl,
+            in AUTF8String aMessageUri,
             in nsISupports aDisplayConsumer,
             in nsIMsgWindow aMsgWindow,
             in nsIUrlListener aUrlListener);

@@ -301,10 +301,13 @@ NS_IMETHODIMP nsMailboxService::IsMsgInMemCache(nsIURI* aUrl,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMailboxService::OpenAttachment(
-    const char* aContentType, const char* aFileName, const char* aUrl,
-    const char* aMessageUri, nsISupports* aDisplayConsumer,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener) {
+NS_IMETHODIMP nsMailboxService::OpenAttachment(const nsACString& aContentType,
+                                               const nsACString& aFileName,
+                                               const nsACString& aUrl,
+                                               const nsACString& aMessageUri,
+                                               nsISupports* aDisplayConsumer,
+                                               nsIMsgWindow* aMsgWindow,
+                                               nsIUrlListener* aUrlListener) {
   nsCOMPtr<nsIURI> URL;
   nsAutoCString urlString(aUrl);
   urlString += "&type=";

@@ -257,10 +257,13 @@ NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
   return rv;
 }
 
-NS_IMETHODIMP nsImapService::OpenAttachment(
-    const char* aContentType, const char* aFileName, const char* aUrl,
-    const char* aMessageUri, nsISupports* aDisplayConsumer,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener) {
+NS_IMETHODIMP nsImapService::OpenAttachment(const nsACString& aContentType,
+                                            const nsACString& aFileName,
+                                            const nsACString& aUrl,
+                                            const nsACString& aMessageUri,
+                                            nsISupports* aDisplayConsumer,
+                                            nsIMsgWindow* aMsgWindow,
+                                            nsIUrlListener* aUrlListener) {
   // okay this is a little tricky....we may have to fetch the mime part
   // or it may already be downloaded for us....the only way i can tell to
   // distinguish the two events is to search for ?section or ?part
@@ -281,9 +284,10 @@ NS_IMETHODIMP nsImapService::OpenAttachment(
     uri += aFileName;
   } else {
     // try to extract the specific part number out from the url string
-    const char* partStart = PL_strstr(aUrl, "part=");
-    if (!partStart) return NS_ERROR_FAILURE;
-    nsDependentCString part(partStart);
+    int32_t partStart = PromiseFlatCString(aUrl).Find("part=");
+    if (partStart == kNotFound) return NS_ERROR_FAILURE;
+
+    nsCString part(Substring(aUrl, partStart));
     uri += "?";
     uri += Substring(part, 0, part.FindChar('&'));
     uri += "&type=";
@@ -328,8 +332,7 @@ NS_IMETHODIMP nsImapService::OpenAttachment(
         if (mailnewsurl) {
           rv = mailnewsurl->SetSpecInternal(urlSpec);
           NS_ENSURE_SUCCESS(rv, rv);
-          if (aFileName)
-            mailnewsurl->SetFileNameInternal(nsDependentCString(aFileName));
+          if (aFileName.Length()) mailnewsurl->SetFileNameInternal(aFileName);
         }
         rv = FetchMimePart(imapUrl, nsIImapUrl::nsImapOpenMimePart, folder,
                            imapMessageSink, nullptr, aDisplayConsumer, msgKey,
