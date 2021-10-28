@@ -150,7 +150,8 @@
        * An internal collection of data for events.
        * @typedef {Object} EventData
        * @property {calItemBase} eventItem - The event item.
-       * @property {Element} - The displayed event in this column.
+       * @property {Element} element - The displayed event in this column.
+       * @property {boolean} selected - Whether the event is selected.
        */
       /**
        * Event data for all the events displayed in this column.
@@ -289,7 +290,13 @@
       if (!data) {
         return;
       }
-      data.element.selected = select;
+      data.selected = select;
+      if (data.element) {
+        // There is a small window between an event item being added and it
+        // actually having an element. If it doesn't have an element yet, it
+        // will be selected on its creation instead.
+        data.element.selected = select;
+      }
     }
 
     /**
@@ -401,7 +408,7 @@
       let eventData = this.eventDataMap.get(eventItem.hashId);
       if (!eventData) {
         // New event with no pre-existing data.
-        eventData = {};
+        eventData = { selected: false };
         this.eventDataMap.set(eventItem.hashId, eventData);
       }
 
@@ -618,12 +625,18 @@
               chunkBox.occurrence = chunk.event;
               chunkBox.parentColumn = this;
               let eventData = this.eventDataMap.get(chunk.event.hashId);
-              // Copy over data from the previous event element to this one, if
-              // any.
-              // If an event is updated, we still maintain its selection.
-              // Otherwise, if there was no such previous event, we make sure it
-              // is not selected.
-              chunkBox.selected = !!eventData.element?.selected;
+              // An event item can technically be 'selected' between a call to
+              // addEvent and this method (because of the setTimeout). E.g.
+              // clicking the event in the unifinder tree will select the item
+              // through selectEvent. If the element wasn't yet created in that
+              // method, we set the selected status here as well.
+              //
+              // Similarly, if an event has the same hashId, we maintain its
+              // selection.
+              // NOTE: In this latter case we are relying on the fact that
+              // eventData.element.selected is never out of sync with
+              // eventData.selected.
+              chunkBox.selected = eventData.selected;
               eventData.element = chunkBox;
 
               if (this.mEventToEdit && chunkBox.occurrence.hashId == this.mEventToEdit.hashId) {
