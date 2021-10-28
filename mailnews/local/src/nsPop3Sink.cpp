@@ -661,6 +661,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
 
 NS_IMETHODIMP
 nsPop3Sink::IncorporateAbort(bool uidlDownload) {
+  NS_ENSURE_STATE(m_outFileStream);
   nsresult rv = m_outFileStream->Close();
   NS_ENSURE_SUCCESS(rv, rv);
   if (m_msgStore && m_newMailParser && m_newMailParser->m_newMsgHdr) {
