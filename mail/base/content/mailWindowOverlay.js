@@ -2398,21 +2398,20 @@ function MsgOpenSelectedMessages() {
 }
 
 function MsgOpenFromFile() {
-  const nsIFilePicker = Ci.nsIFilePicker;
-  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
   var bundle = document.getElementById("bundle_messenger");
   var filterLabel = bundle.getString("EMLFiles");
   var windowTitle = bundle.getString("OpenEMLFiles");
 
-  fp.init(window, windowTitle, nsIFilePicker.modeOpen);
+  fp.init(window, windowTitle, Ci.nsIFilePicker.modeOpen);
   fp.appendFilter(filterLabel, "*.eml");
 
   // Default or last filter is "All Files".
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   fp.open(rv => {
-    if (rv != nsIFilePicker.returnOK || !fp.file) {
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
       return;
     }
     MsgOpenEMLFile(fp.file, fp.fileURL);
