@@ -1938,6 +1938,12 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CopyData(nsIInputStream* aIStream,
       *--start = '>';
     }
 
+    if (!mCopyState->m_fileStream) {
+      ThrowAlertMsg("copyMsgWriteFailed", mCopyState->m_msgWindow);
+      mCopyState->m_writeFailed = true;
+      return NS_ERROR_UNEXPECTED;
+    }
+
     lineLength = end - start + linebreak_len;
     rv = mCopyState->m_fileStream->Write(start, lineLength, &bytesWritten);
     if (bytesWritten != lineLength || NS_FAILED(rv)) {
