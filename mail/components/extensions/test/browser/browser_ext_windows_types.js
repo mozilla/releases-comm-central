@@ -6,6 +6,12 @@ let { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
 );
 
+let defaultUseNewAddressBook = Services.prefs.getBoolPref(
+  "mail.addr_book.useNewAddressBook",
+  false
+);
+Services.prefs.setBoolPref("mail.addr_book.useNewAddressBook", false);
+
 add_task(async () => {
   let files = {
     "background.js": async () => {
@@ -108,3 +114,10 @@ add_task(async () => {
   await extension.awaitFinish();
   await extension.unload();
 });
+
+registerCleanupFunction(() =>
+  Services.prefs.setBoolPref(
+    "mail.addr_book.useNewAddressBook",
+    defaultUseNewAddressBook
+  )
+);

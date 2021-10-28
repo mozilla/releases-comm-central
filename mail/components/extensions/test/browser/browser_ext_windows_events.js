@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+let defaultUseNewAddressBook = Services.prefs.getBoolPref(
+  "mail.addr_book.useNewAddressBook",
+  false
+);
+Services.prefs.setBoolPref("mail.addr_book.useNewAddressBook", false);
+
 add_task(async () => {
   let account = createAccount();
   addIdentity(account);
@@ -244,3 +250,10 @@ add_task(async () => {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+registerCleanupFunction(() =>
+  Services.prefs.setBoolPref(
+    "mail.addr_book.useNewAddressBook",
+    defaultUseNewAddressBook
+  )
+);

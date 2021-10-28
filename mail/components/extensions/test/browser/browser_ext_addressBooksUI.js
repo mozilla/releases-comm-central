@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+let defaultUseNewAddressBook = Services.prefs.getBoolPref(
+  "mail.addr_book.useNewAddressBook",
+  false
+);
+
 async function subTest(checkCallback) {
   async function background() {
     await window.sendMessage("checkNumberOfAddressBookWindows", 0);
@@ -62,5 +67,8 @@ add_task(async function testWithNewUI() {
 });
 
 registerCleanupFunction(() =>
-  Services.prefs.clearUserPref("mail.addr_book.useNewAddressBook")
+  Services.prefs.setBoolPref(
+    "mail.addr_book.useNewAddressBook",
+    defaultUseNewAddressBook
+  )
 );
