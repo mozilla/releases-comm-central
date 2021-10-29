@@ -6,7 +6,6 @@
 #
 
 # browser (see bug 1451050 and bug 1476934)
-defaults/settings/pinning/pins.json
 defaults/settings/main/example.json
 defaults/settings/main/url-classifier-skip-urls.json
 defaults/settings/thunderbird/hijack-blocklists.json
