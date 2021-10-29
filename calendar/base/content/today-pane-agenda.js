@@ -514,6 +514,10 @@
         this.overlapElement.removeAttribute("data-l10n-id");
         this.overlapElement.removeAttribute("alt");
       }
+
+      if (cal.itip.isInvitation(item)) {
+        this.setAttribute("status", cal.itip.getInvitedAttendee(item).participationStatus);
+      }
     }
 
     /**

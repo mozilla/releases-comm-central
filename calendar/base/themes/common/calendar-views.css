@@ -972,8 +972,10 @@ calendar-month-day-box-item {
 
 calendar-event-box[invitation-status="NEEDS-ACTION"],
 calendar-editable-item[invitation-status="NEEDS-ACTION"],
-calendar-month-day-box-item[invitation-status="NEEDS-ACTION"] {
-  border: 2px dotted black;
+calendar-month-day-box-item[invitation-status="NEEDS-ACTION"],
+.agenda-listitem[status="NEEDS-ACTION"] .agenda-listitem-details {
+  outline: 2px dotted black;
+  outline-offset: -2px;
   opacity: 0.6;
 }
 
@@ -983,24 +985,25 @@ calendar-month-day-box-item[invitation-status="TENTATIVE"],
 calendar-event-box[status="TENTATIVE"],
 calendar-editable-item[status="TENTATIVE"],
 calendar-month-day-box-item[status="TENTATIVE"],
-richlistitem[is="agenda-richlistitem"][status="TENTATIVE"] {
+.agenda-listitem[status="TENTATIVE"] .agenda-listitem-details {
   opacity: 0.6;
 }
 
 calendar-event-box[invitation-status="DECLINED"],
 calendar-editable-item[invitation-status="DECLINED"],
 calendar-month-day-box-item[invitation-status="DECLINED"],
+.agenda-listitem[status="DECLINED"] .agenda-listitem-details,
 calendar-event-box[status="CANCELLED"],
 calendar-editable-item[status="CANCELLED"],
 calendar-month-day-box-item[status="CANCELLED"],
-richlistitem[is="agenda-richlistitem"][status="CANCELLED"] {
+.agenda-listitem[status="CANCELLED"] .agenda-listitem-details {
   opacity: 0.5;
 }
 
 calendar-month-day-box-item[status="CANCELLED"],
 calendar-event-box[status="CANCELLED"],
 calendar-editable-item[status="CANCELLED"],
-richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-event-start {
+.agenda-listitem[status="CANCELLED"] .agenda-event-start .agenda-listitem-details {
   text-decoration: line-through;
 }
 

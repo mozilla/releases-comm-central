@@ -14,32 +14,6 @@ calendar-event-column {
   margin: 2px 2px;
 }
 
-calendar-event-box[invitation-status="NEEDS-ACTION"],
-calendar-editable-item[invitation-status="NEEDS-ACTION"],
-calendar-month-day-box-item[invitation-status="NEEDS-ACTION"] {
-  opacity: 0.5;
-}
-
-calendar-event-box[invitation-status="TENTATIVE"],
-calendar-editable-item[invitation-status="TENTATIVE"],
-calendar-month-day-box-item[invitation-status="TENTATIVE"],
-calendar-event-box[status="TENTATIVE"],
-calendar-editable-item[status="TENTATIVE"],
-calendar-month-day-box-item[status="TENTATIVE"],
-richlistitem[is="agenda-richlistitem"][status="TENTATIVE"] {
-  opacity: 0.5;
-}
-
-calendar-event-box[invitation-status="DECLINED"],
-calendar-editable-item[invitation-status="DECLINED"],
-calendar-month-day-box-item[invitation-status="DECLINED"],
-calendar-event-box[status="CANCELLED"],
-calendar-editable-item[status="CANCELLED"],
-calendar-month-day-box-item[status="CANCELLED"],
-richlistitem[is="agenda-richlistitem"][status="CANCELLED"] {
-  opacity: 0.5;
-}
-
 /* Navigation controls for the views */
 #calendar-nav-control {
   background-color: #e8e8e8;
