@@ -303,7 +303,6 @@
 @RESPATH@/defaults/autoconfig/prefcalls.js
 @RESPATH@/defaults/permissions
 @RESPATH@/defaults/settings/blocklists
-@RESPATH@/defaults/settings/pinning
 @RESPATH@/defaults/settings/main
 ; Warning: changing the path to channel-prefs.js can cause bugs. (Bug 756325)
 @RESPATH@/defaults/pref/channel-prefs.js
