@@ -1101,13 +1101,6 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
                                     Promise** aPromise) {
   NS_ENSURE_TRUE(m_compFields, NS_ERROR_NOT_INITIALIZED);
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIPrompt> prompt;
-
-  // i'm assuming the compose window is still up at this point...
-  if (m_window) {
-    nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(m_window);
-    window->GetPrompter(getter_AddRefs(prompt));
-  }
 
   // Set content type based on which type of compose window we had.
   nsString contentType = (m_composeHTML) ? u"text/html"_ns : u"text/plain"_ns;
@@ -1241,14 +1234,24 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
   // Save the identity being sent for later use.
   m_identity = identity;
 
+  nsCOMPtr<nsIPrompt> prompt;
+  if (m_window) {
+    nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(m_window);
+    window->GetPrompter(getter_AddRefs(prompt));
+  }
+
   RefPtr<mozilla::dom::Promise> promise;
   rv = SendMsgToServer(deliverMode, identity, accountKey,
                        getter_AddRefs(promise));
 
-  auto handleFailure = [&](nsresult rv) {
-    NotifyStateListeners(nsIMsgComposeNotificationType::ComposeProcessDone, rv);
+  RefPtr<nsMsgCompose> self = this;
+  auto handleFailure = [self = std::move(self), prompt = std::move(prompt),
+                        deliverMode](nsresult rv) {
+    self->NotifyStateListeners(
+        nsIMsgComposeNotificationType::ComposeProcessDone, rv);
     nsCOMPtr<nsIMsgSendReport> sendReport;
-    if (mMsgSend) mMsgSend->GetSendReport(getter_AddRefs(sendReport));
+    if (self->mMsgSend)
+      self->mMsgSend->GetSendReport(getter_AddRefs(sendReport));
     if (sendReport) {
       nsresult theError;
       sendReport->DisplayReport(prompt, true, true, &theError);
@@ -1272,7 +1275,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
           break;
       }
     }
-    if (mProgress) mProgress->CloseProgressDialog(true);
+    if (self->mProgress) self->mProgress->CloseProgressDialog(true);
   };
   if (promise) {
     RefPtr<DomPromiseListener> listener = new DomPromiseListener(
