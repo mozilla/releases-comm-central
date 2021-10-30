@@ -7607,11 +7607,14 @@ function OpenSelectedAttachment() {
     }
     return;
   }
-  if (attachment.contentType == "application/pdf") {
+  if (
+    attachment.contentType == "application/pdf" ||
+    /\.pdf$/i.test(attachment.name)
+  ) {
     // @see msgHdrView.js which has simililar opening functionality
     let handlerInfo = gMIMEService.getFromTypeAndExtension(
       attachment.contentType,
-      null
+      attachment.name.split(".").pop()
     );
     // Only open a new tab for pdfs if we are handling them internally.
     if (

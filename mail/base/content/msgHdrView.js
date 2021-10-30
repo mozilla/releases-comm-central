@@ -1935,10 +1935,10 @@ AttachmentInfo.prototype = {
       msgWindow.promptDialog.alert(null, prompt);
     } else {
       // @see MsgComposeCommands.js which has simililar opening functionality
-      if (this.contentType == "application/pdf") {
+      if (this.contentType == "application/pdf" || /\.pdf$/i.test(this.name)) {
         let handlerInfo = gMIMEService.getFromTypeAndExtension(
           this.contentType,
-          null
+          this.name.split(".").pop()
         );
         // Only open a new tab for pdfs if we are handling them internally.
         if (
