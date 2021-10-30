@@ -1,6 +1,8 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
+const kSendReadPref = "purple.conversations.im.send_read";
+
 loadMatrix();
 
 add_task(function test_whenDisplayed() {
@@ -23,7 +25,7 @@ add_task(function test_whenDisplayed() {
   message.whenDisplayed();
 
   equal(mockConv.readEvent, "baz");
-  equal(mockConv.readOpts.hidden, message.hideReadReceipts);
+  strictEqual(mockConv.readOpts.hidden, message.hideReadReceipts);
 
   mockConv.readEvent = false;
 
@@ -144,4 +146,15 @@ add_task(async function test_whenReadNoEvent() {
   message.whenRead();
 
   ok(!message._read);
+});
+
+add_task(async function test_hideReadReceipts() {
+  const message = new matrix.MatrixMessage("foo", "bar", {});
+  const initialSendRead = Services.prefs.getBoolPref(kSendReadPref);
+  strictEqual(message.hideReadReceipts, !initialSendRead);
+  Services.prefs.setBoolPref(kSendReadPref, !initialSendRead);
+  const message2 = new matrix.MatrixMessage("lorem", "ipsum", {});
+  strictEqual(message2.hideReadReceipts, initialSendRead);
+  strictEqual(message.hideReadReceipts, !initialSendRead);
+  Services.prefs.setBoolPref(kSendReadPref, initialSendRead);
 });

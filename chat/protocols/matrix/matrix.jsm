@@ -77,7 +77,7 @@ MatrixMessage.prototype = {
    */
   event: null,
 
-  hideReadReceipts() {
+  get hideReadReceipts() {
     // Cache pref value. If this pref gets exposed in UI we need cache busting.
     if (this._hideReadReceipts === undefined) {
       this._hideReadReceipts = !Services.prefs.getBoolPref(
