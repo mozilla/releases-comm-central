@@ -22,6 +22,7 @@
 #include "mozpkix/Result.h"
 #include "mozpkix/pkixtypes.h"
 #include "sechash.h"
+#include "secerr.h"
 #include "smime.h"
 #include "mozilla/StaticMutex.h"
 
@@ -155,6 +156,239 @@ nsCMSMessage::VerifyDetachedSignature(const nsTArray<uint8_t>& aDigestData,
   return CommonVerifySignature(aDigestData, aDigestType);
 }
 
+// This is an exact copy of NSS_CMSArray_Count from NSS' cmsarray.c,
+// temporarily necessary, see below for for justification.
+static int myNSS_CMSArray_Count(void** array) {
+  int n = 0;
+
+  if (array == NULL) return 0;
+
+  while (*array++ != NULL) n++;
+
+  return n;
+}
+
+// This is an exact copy of NSS_CMSArray_Add from NSS' cmsarray.c,
+// temporarily necessary, see below for for justification.
+static SECStatus myNSS_CMSArray_Add(PLArenaPool* poolp, void*** array,
+                                    void* obj) {
+  void** p;
+  int n;
+  void** dest;
+
+  PORT_Assert(array != NULL);
+  if (array == NULL) return SECFailure;
+
+  if (*array == NULL) {
+    dest = (void**)PORT_ArenaAlloc(poolp, 2 * sizeof(void*));
+    n = 0;
+  } else {
+    n = 0;
+    p = *array;
+    while (*p++) n++;
+    dest = (void**)PORT_ArenaGrow(poolp, *array, (n + 1) * sizeof(void*),
+                                  (n + 2) * sizeof(void*));
+  }
+
+  if (dest == NULL) return SECFailure;
+
+  dest[n] = obj;
+  dest[n + 1] = NULL;
+  *array = dest;
+  return SECSuccess;
+}
+
+// This is an exact copy of NSS_CMSArray_Add from NSS' cmsarray.c,
+// temporarily necessary, see below for for justification.
+static SECStatus myNSS_CMSSignedData_AddTempCertificate(NSSCMSSignedData* sigd,
+                                                        CERTCertificate* cert) {
+  CERTCertificate* c;
+  SECStatus rv;
+
+  if (!sigd || !cert) {
+    PORT_SetError(SEC_ERROR_INVALID_ARGS);
+    return SECFailure;
+  }
+
+  c = CERT_DupCertificate(cert);
+  rv = myNSS_CMSArray_Add(sigd->cmsg->poolp, (void***)&(sigd->tempCerts),
+                          (void*)c);
+  return rv;
+}
+
+typedef SECStatus (*extraVerificationOnCertFn)(CERTCertificate* cert,
+                                               SECCertUsage certusage);
+
+static SECStatus myExtraVerificationOnCert(CERTCertificate* cert,
+                                           SECCertUsage certusage) {
+  RefPtr<SharedCertVerifier> certVerifier;
+  certVerifier = GetDefaultCertVerifier();
+  if (!certVerifier) {
+    return SECFailure;
+  }
+
+  SECCertificateUsage usageForPkix;
+
+  switch (certusage) {
+    case certUsageEmailSigner:
+      usageForPkix = certificateUsageEmailSigner;
+      break;
+    case certUsageEmailRecipient:
+      usageForPkix = certificateUsageEmailRecipient;
+      break;
+    default:
+      return SECFailure;
+  }
+
+  nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
+  nsTArray<nsTArray<uint8_t>> builtChain;
+  mozilla::pkix::Result result = certVerifier->VerifyCert(
+      certBytes, usageForPkix, Now(), nullptr /*XXX pinarg*/, nullptr /*hostname*/,
+      builtChain,
+      // Only local checks can run on the main thread.
+      CertVerifier::FLAG_LOCAL_ONLY);
+  if (result != mozilla::pkix::Success) {
+    return SECFailure;
+  }
+
+  return SECSuccess;
+}
+
+// This is a temporary copy of NSS_CMSSignedData_ImportCerts, which
+// performs additional verifications prior to import.
+// The copy is almost identical to the original.
+//
+// The ONLY DIFFERENCE is the addition of parameter extraVerifyFn,
+// and the call to it - plus a non-null check.
+//
+// NSS should add this or a similar API in the future,
+// and then these temporary functions should be removed, including
+// the ones above. Request is tracked in bugzilla 1738592.
+static SECStatus myNSS_CMSSignedData_ImportCerts(
+    NSSCMSSignedData* sigd, CERTCertDBHandle* certdb, SECCertUsage certusage,
+    PRBool keepcerts, extraVerificationOnCertFn extraVerifyFn) {
+  int certcount;
+  CERTCertificate** certArray = NULL;
+  CERTCertList* certList = NULL;
+  CERTCertListNode* node;
+  SECStatus rv;
+  SECItem** rawArray;
+  int i;
+  PRTime now;
+
+  if (!sigd) {
+    PORT_SetError(SEC_ERROR_INVALID_ARGS);
+    return SECFailure;
+  }
+
+  certcount = myNSS_CMSArray_Count((void**)sigd->rawCerts);
+
+  /* get the certs in the temp DB */
+  rv = CERT_ImportCerts(certdb, certusage, certcount, sigd->rawCerts,
+                        &certArray, PR_FALSE, PR_FALSE, NULL);
+  if (rv != SECSuccess) {
+    goto loser;
+  }
+
+  /* save the certs so they don't get destroyed */
+  for (i = 0; i < certcount; i++) {
+    CERTCertificate* cert = certArray[i];
+    if (cert) myNSS_CMSSignedData_AddTempCertificate(sigd, cert);
+  }
+
+  if (!keepcerts) {
+    goto done;
+  }
+
+  /* build a CertList for filtering */
+  certList = CERT_NewCertList();
+  if (certList == NULL) {
+    rv = SECFailure;
+    goto loser;
+  }
+  for (i = 0; i < certcount; i++) {
+    CERTCertificate* cert = certArray[i];
+    if (cert) cert = CERT_DupCertificate(cert);
+    if (cert) CERT_AddCertToListTail(certList, cert);
+  }
+
+  /* filter out the certs we don't want */
+  rv = CERT_FilterCertListByUsage(certList, certusage, PR_FALSE);
+  if (rv != SECSuccess) {
+    goto loser;
+  }
+
+  /* go down the remaining list of certs and verify that they have
+   * valid chains, then import them.
+   */
+  now = PR_Now();
+  for (node = CERT_LIST_HEAD(certList); !CERT_LIST_END(node, certList);
+       node = CERT_LIST_NEXT(node)) {
+    CERTCertificateList* certChain;
+
+    if (!node->cert) {
+      continue;
+    }
+
+    if (extraVerifyFn) {
+      if ((*extraVerifyFn)(node->cert, certusage) != SECSuccess) {
+        continue;
+      }
+    }
+
+    if (CERT_VerifyCert(certdb, node->cert, PR_TRUE, certusage, now, NULL,
+                        NULL) != SECSuccess) {
+      continue;
+    }
+
+    certChain = CERT_CertChainFromCert(node->cert, certusage, PR_FALSE);
+    if (!certChain) {
+      continue;
+    }
+
+    /*
+     * CertChain returns an array of SECItems, import expects an array of
+     * SECItem pointers. Create the SECItem Pointers from the array of
+     * SECItems.
+     */
+    rawArray = (SECItem**)PORT_Alloc(certChain->len * sizeof(SECItem*));
+    if (!rawArray) {
+      CERT_DestroyCertificateList(certChain);
+      continue;
+    }
+    for (i = 0; i < certChain->len; i++) {
+      rawArray[i] = &certChain->certs[i];
+    }
+    (void)CERT_ImportCerts(certdb, certusage, certChain->len, rawArray, NULL,
+                           keepcerts, PR_FALSE, NULL);
+    PORT_Free(rawArray);
+    CERT_DestroyCertificateList(certChain);
+  }
+
+  rv = SECSuccess;
+
+  /* XXX CRL handling */
+
+done:
+  if (sigd->signerInfos != NULL) {
+    /* fill in all signerinfo's certs */
+    for (i = 0; sigd->signerInfos[i] != NULL; i++)
+      (void)NSS_CMSSignerInfo_GetSigningCertificate(sigd->signerInfos[i],
+                                                    certdb);
+  }
+
+loser:
+  /* now free everything */
+  if (certArray) {
+    CERT_DestroyCertArray(certArray, certcount);
+  }
+  if (certList) {
+    CERT_DestroyCertList(certList);
+  }
+
+  return rv;
+}
+
 nsresult nsCMSMessage::CommonVerifySignature(
     const nsTArray<uint8_t>& aDigestData, int16_t aDigestType) {
   MOZ_LOG(gCMSLog, LogLevel::Debug,
@@ -164,7 +398,6 @@ nsresult nsCMSMessage::CommonVerifySignature(
   NSSCMSSignedData* sigd = nullptr;
   NSSCMSSignerInfo* si;
   int32_t nsigners;
-  RefPtr<SharedCertVerifier> certVerifier;
   nsresult rv = NS_ERROR_FAILURE;
 
   if (!NSS_CMSMessage_IsSigned(m_cmsMsg)) {
@@ -238,9 +471,9 @@ nsresult nsCMSMessage::CommonVerifySignature(
 
   // Import certs. Note that import failure is not a signature verification
   // failure. //
-  if (NSS_CMSSignedData_ImportCerts(sigd, CERT_GetDefaultCertDB(),
-                                    certUsageEmailRecipient,
-                                    true) != SECSuccess) {
+  if (myNSS_CMSSignedData_ImportCerts(
+          sigd, CERT_GetDefaultCertDB(), certUsageEmailRecipient, true,
+          myExtraVerificationOnCert) != SECSuccess) {
     MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - can not import certs"));
   }
@@ -250,27 +483,18 @@ nsresult nsCMSMessage::CommonVerifySignature(
   NS_ENSURE_TRUE(nsigners > 0, NS_ERROR_UNEXPECTED);
   si = NSS_CMSSignedData_GetSignerInfo(sigd, 0);
 
+  NS_ENSURE_TRUE(si, NS_ERROR_UNEXPECTED);
+  NS_ENSURE_TRUE(si->cert, NS_ERROR_UNEXPECTED);
+
   // See bug 324474. We want to make sure the signing cert is
   // still valid at the current time.
 
-  certVerifier = GetDefaultCertVerifier();
-  NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
-
-  {
-    nsTArray<uint8_t> certBytes(si->cert->derCert.data, si->cert->derCert.len);
-    nsTArray<nsTArray<uint8_t>> builtChain;
-    mozilla::pkix::Result result = certVerifier->VerifyCert(
-        certBytes, certificateUsageEmailSigner, Now(), nullptr /*XXX pinarg*/,
-        nullptr /*hostname*/, builtChain,
-        // Only local checks can run on the main thread.
-        CertVerifier::FLAG_LOCAL_ONLY);
-    if (result != mozilla::pkix::Success) {
-      MOZ_LOG(gCMSLog, LogLevel::Debug,
-              ("nsCMSMessage::CommonVerifySignature - signing cert not trusted "
-               "now"));
-      rv = NS_ERROR_CMS_VERIFY_UNTRUSTED;
-      goto loser;
-    }
+  if (myExtraVerificationOnCert(si->cert, certUsageEmailSigner) != SECSuccess) {
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
+            ("nsCMSMessage::CommonVerifySignature - signing cert not trusted "
+             "now"));
+    rv = NS_ERROR_CMS_VERIFY_UNTRUSTED;
+    goto loser;
   }
 
   // We verify the first signer info,  only //
