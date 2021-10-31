@@ -164,7 +164,7 @@ function publishRoomDetails(account, conv) {
     system: true,
   });
 
-  const defaultLevel = powerLevel.users_default;
+  const defaultLevel = MatrixPowerLevels.getUserDefaultLevel(powerLevel);
   for (let [key, value] of Object.entries(powerLevel)) {
     if (key == "users") {
       continue;

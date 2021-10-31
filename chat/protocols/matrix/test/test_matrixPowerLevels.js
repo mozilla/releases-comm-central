@@ -4,13 +4,9 @@
 var { MatrixPowerLevels } = ChromeUtils.import(
   "resource:///modules/matrixPowerLevels.jsm"
 );
+var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var _ = l10nHelper("chrome://chat/locale/matrix.properties");
-
-function run_test() {
-  add_test(testToText);
-  run_next_test();
-}
 
 const TO_TEXT_FIXTURES = [
   {
@@ -66,8 +62,79 @@ const TO_TEXT_FIXTURES = [
     name: "Custom power level 25",
   },
 ];
+const GET_EVENT_LEVEL_FIXTURES = [
+  {
+    powerLevels: undefined,
+    expected: 0,
+  },
+  {
+    powerLevels: {},
+    expected: 0,
+  },
+  {
+    powerLevels: {
+      events_default: 10,
+    },
+    expected: 10,
+  },
+  {
+    powerLevels: {
+      events_default: Infinity,
+    },
+    expected: 0,
+  },
+  {
+    powerLevels: {
+      events_default: "foo",
+    },
+    expected: 0,
+  },
+  {
+    powerLevels: {
+      events_default: 0,
+      events: {},
+    },
+    expected: 0,
+  },
+  {
+    powerLevels: {
+      events_default: 0,
+      events: {
+        [EventType.RoomMessage]: 0,
+      },
+    },
+    expected: 0,
+  },
+  {
+    powerLevels: {
+      events_default: 0,
+      events: {
+        [EventType.RoomMessage]: Infinity,
+      },
+    },
+    expected: 0,
+  },
+  {
+    powerLevels: {
+      events_default: 0,
+      events: {
+        [EventType.RoomMessage]: "foo",
+      },
+    },
+    expected: 0,
+  },
+  {
+    powerLevels: {
+      events_default: 0,
+      events: {
+        [EventType.RoomMessage]: 10,
+      },
+    },
+    expected: 10,
+  },
+];
 
-function testToText() {
+add_task(async function testToText() {
   for (const fixture of TO_TEXT_FIXTURES) {
     const result = MatrixPowerLevels.toText(
       fixture.level,
@@ -75,6 +142,62 @@ function testToText() {
     );
     equal(result, fixture.result);
   }
+});
 
-  run_next_test();
-}
+add_task(async function testGetUserDefaultLevel() {
+  equal(MatrixPowerLevels.getUserDefaultLevel(), 0);
+  equal(MatrixPowerLevels.getUserDefaultLevel({}), 0);
+  equal(
+    MatrixPowerLevels.getUserDefaultLevel({
+      users_default: 10,
+    }),
+    10
+  );
+  equal(
+    MatrixPowerLevels.getUserDefaultLevel({
+      users_default: Infinity,
+    }),
+    0
+  );
+  equal(
+    MatrixPowerLevels.getUserDefaultLevel({
+      users_default: "foo",
+    }),
+    0
+  );
+});
+
+add_task(async function testGetEventDefaultLevel() {
+  equal(MatrixPowerLevels.getEventDefaultLevel(), 0);
+  equal(MatrixPowerLevels.getEventDefaultLevel({}), 0);
+  equal(
+    MatrixPowerLevels.getEventDefaultLevel({
+      events_default: 10,
+    }),
+    10
+  );
+  equal(
+    MatrixPowerLevels.getEventDefaultLevel({
+      events_default: Infinity,
+    }),
+    0
+  );
+  equal(
+    MatrixPowerLevels.getEventDefaultLevel({
+      events_default: "foo",
+    }),
+    0
+  );
+});
+
+add_task(async function testGetEventLevel() {
+  for (const eventLevelTest of GET_EVENT_LEVEL_FIXTURES) {
+    equal(
+      MatrixPowerLevels.getEventLevel(
+        eventLevelTest.powerLevels,
+        EventType.RoomMessage
+      ),
+      eventLevelTest.expected
+    );
+  }
+});

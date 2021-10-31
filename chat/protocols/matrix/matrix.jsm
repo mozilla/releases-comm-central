@@ -241,7 +241,23 @@ MatrixParticipant.prototype = {
   },
 
   get voiced() {
-    //TODO this should require the power level specified in m.room.power_levels for m.room.message.
+    // If the default power level doesn't let you send messages, set voiced if
+    // the user can send messages
+    const room = this._account?._client?.getRoom(this._roomMember.roomId);
+    if (room) {
+      const powerLevels = room.currentState
+        .getStateEvents(EventType.RoomPowerLevels, "")
+        ?.getContent();
+      const defaultLevel = MatrixPowerLevels.getUserDefaultLevel(powerLevels);
+      const messageLevel = MatrixPowerLevels.getEventLevel(
+        powerLevels,
+        EventType.RoomMessage
+      );
+      if (defaultLevel < messageLevel) {
+        return room.currentState.maySendMessage(this._id);
+      }
+    }
+    // Else use a synthetic power level for the voiced flag
     return this._roomMember.powerLevelNorm >= MatrixPowerLevels.voice;
   },
   get moderator() {
@@ -885,7 +901,7 @@ MatrixRoom.prototype = {
    * field when the value changes.
    */
   updateConvIcon() {
-    const avatarUrl = this.room.getAvatarUrl(
+    const avatarUrl = this.room?.getAvatarUrl(
       this._account._client.getHomeserverUrl(),
       USER_ICON_SIZE,
       USER_ICON_SIZE,
@@ -1796,6 +1812,16 @@ MatrixAccount.prototype = {
             typingState = Ci.prplIConvIM.TYPING;
           }
           conv.updateTyping(typingState, member.name);
+        }
+      }
+    });
+
+    this._client.on("RoomState.members", (event, state, member) => {
+      if (this.roomList.has(state.roomId)) {
+        const conversation = this.roomList.get(state.roomId);
+        if (conversation.isChat) {
+          const participant = conversation._participants.get(member.userId);
+          conversation.notifyObservers(participant, "chat-buddy-update");
         }
       }
     });

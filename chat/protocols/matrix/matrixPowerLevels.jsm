@@ -40,4 +40,44 @@ var MatrixPowerLevels = {
     }
     return _("powerLevel.detailed", levelName, powerLevel);
   },
+  /**
+   * @param {object} powerLevels - m.room.power_levels event contents.
+   * @param {string} key - Power level key to get.
+   * @returns {number} The power level if given in the event, else 0.
+   */
+  _getDefaultLevel(powerLevels, key) {
+    const fullKey = `${key}_default`;
+    if (Number.isSafeInteger(powerLevels?.[fullKey])) {
+      return powerLevels[fullKey];
+    }
+    return 0;
+  },
+  /**
+   * @param {object} powerLevels - m.room.power_levels event contents.
+   * @returns {number} The default power level of users in the room.
+   */
+  getUserDefaultLevel(powerLevels) {
+    return this._getDefaultLevel(powerLevels, "users");
+  },
+  /**
+   *
+   * @param {object} powerLevels - m.room.power_levels event contents.
+   * @returns {number} The default power level required to send events in the
+   *  room.
+   */
+  getEventDefaultLevel(powerLevels) {
+    return this._getDefaultLevel(powerLevels, "events");
+  },
+  /**
+   *
+   * @param {object} powerLevels - m.room.power_levels event contents.
+   * @param {string} event - Event ID to get the required power level for.
+   * @returns {number} The power level required to send this event in the room.
+   */
+  getEventLevel(powerLevels, event) {
+    if (Number.isSafeInteger(powerLevels?.events?.[event])) {
+      return powerLevels.events[event];
+    }
+    return this.getEventDefaultLevel(powerLevels);
+  },
 };
