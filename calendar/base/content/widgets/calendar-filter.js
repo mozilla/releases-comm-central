@@ -1066,6 +1066,23 @@ let CalFilterMixin = Base =>
     }
 
     /**
+     * Checks if the given calendar is both enabled and visible.
+     *
+     * @param {calICalendar} calendar
+     * @return {boolean} True if both enabled and visible.
+     */
+    _isCalendarVisible(calendar) {
+      if (!calendar) {
+        // If this happens then something's wrong, but it's not our problem so just ignore it.
+        return false;
+      }
+
+      return (
+        !calendar.getProperty("disabled") && calendar.getProperty("calendar-main-in-composite")
+      );
+    }
+
+    /**
      * Adds items that match the filter from a specific calendar. Does NOT
      * remove existing items first, use removeItemsFromCalendar for that.
      *
@@ -1073,7 +1090,7 @@ let CalFilterMixin = Base =>
      * @return {Promise} A promise resolved when this calendar has refreshed.
      */
     async _refreshCalendar(calendar) {
-      if (calendar.getProperty("disabled") || !calendar.getProperty("calendar-main-in-composite")) {
+      if (!this._isCalendarVisible(calendar)) {
         return Promise.resolve();
       }
 
@@ -1141,12 +1158,20 @@ let CalFilterMixin = Base =>
         }
       },
       onAddItem(item) {
+        if (!this.self._isCalendarVisible(item.calendar)) {
+          return;
+        }
+
         let occurrences = this.self._filter.getOccurrences(item);
         if (occurrences.length) {
           this.self.addItems(occurrences);
         }
       },
       onModifyItem(newItem, oldItem) {
+        if (!this.self._isCalendarVisible(newItem.calendar)) {
+          return;
+        }
+
         // Ideally we'd calculate the intersection between oldOccurrences and
         // newOccurrences, then call a modifyItems function, but it proved
         // unreliable in some situations, so instead we remove and replace
@@ -1163,6 +1188,10 @@ let CalFilterMixin = Base =>
         }
       },
       onDeleteItem(deletedItem) {
+        if (!this.self._isCalendarVisible(deletedItem.calendar)) {
+          return;
+        }
+
         this.self.removeItems(this.self._filter.getOccurrences(deletedItem));
       },
       onError(calendar, errNo, message) {},
