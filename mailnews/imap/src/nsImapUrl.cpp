@@ -40,6 +40,7 @@ nsImapUrl::nsImapUrl() : mLock("nsImapUrl.mLock") {
   m_destinationCanonicalFolderPathSubString = nullptr;
   m_listOfMessageIds = nullptr;
   m_tokenPlaceHolder = nullptr;
+  m_urlidSubString = nullptr;
   m_searchCriteriaString = nullptr;
   m_idsAreUids = false;
   m_mimePartSelectorDetected = false;
@@ -54,7 +55,9 @@ nsImapUrl::nsImapUrl() : mLock("nsImapUrl.mLock") {
   m_externalLinkUrl = true;  // we'll start this at true, and set it false in
                              // nsImapService::CreateStartOfImapUrl
   m_contentModified = IMAP_CONTENT_NOT_MODIFIED;
+  m_numBytesToFetch = 0;
   m_validUrl = true;  // assume the best.
+  m_runningUrl = false;
   m_flags = 0;
   m_extraStatus = ImapStatusNone;
   m_onlineSubDirSeparator = '/';
