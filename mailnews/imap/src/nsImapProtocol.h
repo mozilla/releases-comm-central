@@ -683,7 +683,6 @@ class nsImapProtocol : public nsIImapProtocol,
   uint64_t mFolderLastModSeq;
   int32_t mFolderTotalMsgCount;
   uint32_t mFolderHighestUID;
-  uint32_t mFolderNumDeleted;
   bool m_allowUTF8Accept;
 
   bool m_isGmailServer;

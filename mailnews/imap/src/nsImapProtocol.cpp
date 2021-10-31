@@ -603,6 +603,16 @@ nsImapProtocol::nsImapProtocol()
             gChunkThreshold, gFetchByChunks);
   m_forceSelect = false;
   m_capabilityResponseOccurred = true;
+
+  m_imapAction = 0;
+  m_bytesToChannel = 0;
+  m_passwordStatus = NS_OK;
+  m_passwordObtained = false;
+  mFolderTotalMsgCount = 0;
+  mFolderHighestUID = 0;
+  m_notifySearchHit = false;
+  m_preferPlainText = false;
+  m_uidValidity = kUidUnknown;
 }
 
 nsresult nsImapProtocol::Configure(int32_t TooFastTime, int32_t IdealTime,
