@@ -95,7 +95,11 @@
           <button id="newButton"
                   label="&newButton.label;"
                   accesskey="&newButton.accesskey;"
-                  oncommand="onNewFilter(null);"/>
+                  oncommand="onNewFilter();"/>
+          <button id="copyToNewButton"
+                  label="&copyButton.label;"
+                  accesskey="&copyButton.accesskey;"
+                  oncommand="onCopyToNewFilter();"/>
           <button id="editButton"
                   label="&editButton.label;"
                   accesskey="&editButton.accesskey;"

@@ -9,6 +9,7 @@ const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var gEditButton;
 var gDeleteButton;
 var gNewButton;
+var gCopyToNewButton;
 var gReorderUpButton;
 var gReorderDownButton;
 var gRunFiltersFolderPrefix;
@@ -135,6 +136,7 @@ function onLoad()
     gEditButton = document.getElementById("editButton");
     gDeleteButton = document.getElementById("deleteButton");
     gNewButton = document.getElementById("newButton");
+    gCopyToNewButton = document.getElementById("copyToNewButton");
     gReorderUpButton = document.getElementById("reorderUpButton");
     gReorderDownButton = document.getElementById("reorderDownButton");
     gRunFiltersFolderPrefix = document.getElementById("folderPickerPrefix");
@@ -302,14 +304,47 @@ function onEditFilter()
   // The focus change will cause a repaint of the row updating any name change
 }
 
-function onNewFilter(emailAddress)
-{
-  var curFilterList = currentFilterList();
-  var position = Math.max(gFilterTree.currentIndex, 0);
-  var args = {filterList: curFilterList,
-              filterPosition: position, refresh: false};
+/**
+ * Handler function for the 'New...' buttons.
+ * Opens the filter dialog for creating a new filter.
+ */
+function onNewFilter() {
+  calculatePositionAndShowCreateFilterDialog({});
+}
 
-  window.openDialog("chrome://messenger/content/FilterEditor.xul", "FilterEditor", "chrome,modal,titlebar,resizable,centerscreen", args);
+/**
+ * Handler function for the 'Copy...' button.
+ * Opens the filter dialog for copying the selected filter.
+ */
+function onCopyToNewFilter() {
+  if (gCopyToNewButton.disabled)
+    return;
+
+  let selectedFilter = currentFilter();
+  if (!selectedFilter)
+    return;
+
+  calculatePositionAndShowCreateFilterDialog({copiedFilter: selectedFilter});
+}
+
+/**
+ * Calculates the position for inserting the new filter,
+ * and then displays the create dialog.
+ *
+ * @param args  The object containing the arguments for the dialog,
+ *              passed to the filterEditorOnLoad() function.
+ *              It will be augmented with the insertion position
+ *              and global filters list properties by this function.
+ */
+function calculatePositionAndShowCreateFilterDialog(args) {
+  var position = Math.max(gFilterTree.currentIndex, 0);
+  args.filterList = currentFilterList();
+  args.filterPosition = position;
+  args.refresh = false;
+
+  window.openDialog("chrome://messenger/content/FilterEditor.xul",
+                    "FilterEditor",
+                    "chrome,modal,titlebar,resizable,centerscreen", args);
 
   if (args.refresh)
   {
@@ -459,9 +494,13 @@ function updateButtons()
     var numFiltersSelected = gFilterTree.view.selection.count;
     var oneFilterSelected = (numFiltersSelected == 1);
 
-    var filter = currentFilter();
-    // "edit" only enabled when one filter selected or if we couldn't parse the filter
-    gEditButton.disabled = !oneFilterSelected || filter.unparseable;
+    // "edit" only enabled when one filter selected
+    // or if we couldn't parse the filter.
+    let disabled = !oneFilterSelected || currentFilter().unparseable;
+    gEditButton.disabled = disabled;
+
+    // "copy" is the same as "edit".
+    gCopyToNewButton.disabled = disabled;
 
     // "delete" only disabled when no filters are selected
     gDeleteButton.disabled = !numFiltersSelected;
