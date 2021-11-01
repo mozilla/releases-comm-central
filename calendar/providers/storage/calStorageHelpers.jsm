@@ -174,9 +174,9 @@ function newDateTime(aNativeTime, aTimezone) {
 
   // Bug 751821 - Dates before 1970 were incorrectly stored with an unsigned nativeTime value, we need to
   // convert back to a negative value
-  if (aNativeTime > 0x7fffffffffffffff) {
+  if (aNativeTime > 9223372036854776000) {
     cal.WARN("[calStorageCalendar] Converting invalid native time value: " + aNativeTime);
-    aNativeTime = -0x7fffffffffffffff + (aNativeTime - 0x7fffffffffffffff);
+    aNativeTime = -9223372036854776000 + (aNativeTime - 9223372036854776000);
     // Round to nearest second to fix microsecond rounding errors
     aNativeTime = Math.round(aNativeTime / 1000000) * 1000000;
   }

@@ -444,7 +444,7 @@ CalMemoryCalendar.prototype = {
 
     aRangeStart = cal.dtz.ensureDateTime(aRangeStart);
     aRangeEnd = cal.dtz.ensureDateTime(aRangeEnd);
-    let startTime = -0x7ffffffffffffdff;
+    let startTime = -9223372036854775000;
     if (aRangeStart) {
       startTime = aRangeStart.nativeTime;
     }

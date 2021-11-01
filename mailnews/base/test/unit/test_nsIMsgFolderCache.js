@@ -51,10 +51,10 @@ add_task(function test_basics() {
     Assert.equal(e1.getCachedString("pibble"), "42");
 
     // Can set, get and modify Int64 values?
-    e1.setCachedInt64("foo", 0x1fffffffffffffff);
-    Assert.equal(e1.getCachedInt64("foo"), 0x1fffffffffffffff);
-    e1.setCachedInt64("foo", -0x1fffffffffffffff);
-    Assert.equal(e1.getCachedInt64("foo"), -0x1fffffffffffffff);
+    e1.setCachedInt64("foo", 2305843009213694000);
+    Assert.equal(e1.getCachedInt64("foo"), 2305843009213694000);
+    e1.setCachedInt64("foo", -2305843009213694000);
+    Assert.equal(e1.getCachedInt64("foo"), -2305843009213694000);
     e1.setCachedInt64("foo", 42);
     Assert.equal(e1.getCachedInt64("foo"), 42);
 

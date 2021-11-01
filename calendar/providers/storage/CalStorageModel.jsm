@@ -245,10 +245,10 @@ class CalStorageModel {
    */
   async getItems(query, listener) {
     let { filters, rangeStart, rangeEnd } = query;
-    let startTime = -0x7fffffffffffffff;
+    let startTime = -9223372036854776000;
 
     // endTime needs to be the max value a PRTime can be
-    let endTime = 0x7fffffffffffffff;
+    let endTime = 9223372036854776000;
     let count = 0;
 
     if (rangeStart) {

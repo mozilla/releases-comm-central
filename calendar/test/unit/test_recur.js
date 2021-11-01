@@ -275,7 +275,7 @@ function test_rules() {
         "EXDATE:20020402T114500Z\n"
     ),
     [],
-    -0x7ffffffffffffdff
+    -9223372036854775000
   );
 
   check_recur(

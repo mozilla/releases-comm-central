@@ -172,8 +172,8 @@ CalRecurrenceInfo.prototype = {
   get recurrenceEndDate() {
     // The lowest and highest possible values of a PRTime (64-bit integer) when in javascript,
     // which stores them as floating-point values.
-    const MIN_PRTIME = -0x7ffffffffffffdff;
-    const MAX_PRTIME = 0x7ffffffffffffdff;
+    const MIN_PRTIME = -9223372036854775000;
+    const MAX_PRTIME = 9223372036854775000;
 
     // If this object is mutable, skip this optimisation, so that we don't have to work out every
     // possible modification and invalidate the cached value. Immutable objects are unlikely to
