@@ -6,6 +6,47 @@
 
 .main-header-area {
   border-bottom-style: none;
+  display: block;
+}
+
+.message-header-container,
+.message-header-extra-container {
+  display: grid;
+  row-gap: 3px;
+  line-height: 1.2em;
+}
+
+.message-header-container {
+  padding: 3px;
+}
+
+.message-header-row:not([hidden]) {
+  display: flex;
+  align-items: flex-start;
+}
+
+.message-header-wrap {
+  flex-wrap: wrap;
+}
+
+.header-row-reverse {
+  flex-direction: row-reverse;
+}
+
+.header-buttons-container {
+  display: flex;
+  justify-content: end;
+  flex-wrap: wrap;
+}
+
+.header-row-grow {
+  flex: 1;
+  display: flex;
+  font-style: normal;
+}
+
+.message-header-multi-field {
+  flex: 1;
 }
 
 #mail-notification-top {
@@ -14,7 +55,7 @@
 
 /* ::::: msg header toolbars ::::: */
 
-#expandedHeaderView[show_header_mode="all"] {
+#messageHeader[show_header_mode="all"] {
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 14em;
@@ -31,15 +72,11 @@ mail-tagfield[collapsed="true"] {
 
 /* ::::: msg header buttons ::::: */
 
-.headerContainer {
-  min-width: 1px;
-}
-
 #otherActionsButton > .toolbarbutton-icon {
   display: none;
 }
 
-.msgHeaderView-button {
+.message-header-view-button {
   -moz-box-orient: horizontal;
   min-width: 1em;
   margin-block: 1px;
@@ -48,44 +85,44 @@ mail-tagfield[collapsed="true"] {
   fill: currentColor;
 }
 
-.msgHeaderView-button[type="menu-button"] {
+.message-header-view-button[type="menu-button"] {
   padding: 0 !important;
 }
 
-.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button {
+.message-header-view-button[type="menu-button"] > .toolbarbutton-menubutton-button {
   -moz-box-orient: horizontal;
   padding-inline: 3px !important;
 }
 
-.toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
-.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
+.toolbarbutton-1.message-header-view-button:not([type="menu-button"]),
+.toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
+.toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
   border-color: var(--toolbarbutton-header-bordercolor);
 }
 
-.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):is(:hover,[open]) >
+.toolbarbutton-1.message-header-view-button:not([disabled=true]):is(:hover,[open]) >
 .toolbarbutton-menubutton-button,
-.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):is(:hover,[open]) >
+.toolbarbutton-1.message-header-view-button:not([disabled=true]):is(:hover,[open]) >
 .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled=true],[checked=true],[open],:active):hover,
-.toolbarbutton-1.msgHeaderView-button:not([buttonover],[open],:active):hover >
+.toolbarbutton-1.message-header-view-button:not([type="menu-button"],[disabled=true],[checked=true],[open],:active):hover,
+.toolbarbutton-1.message-header-view-button:not([buttonover],[open],:active):hover >
 .toolbarbutton-menubutton-dropmarker:not([disabled]) {
   border-color: var(--toolbarbutton-active-bordercolor);
 }
 
 /* Separator between menu and split type buttons */
-.toolbarbutton-1.msgHeaderView-button:not(:hover,:active,[open],[checked]) >
+.toolbarbutton-1.message-header-view-button:not(:hover,:active,[open],[checked]) >
 .toolbarbutton-menubutton-dropmarker::before,
-.toolbarbutton-1.msgHeaderView-button[disabled="true"] >
+.toolbarbutton-1.message-header-view-button[disabled="true"] >
 .toolbarbutton-menubutton-dropmarker::before {
   background-image: none;
 }
 
-.msgHeaderView-button .toolbarbutton-text {
+.message-header-view-button .toolbarbutton-text {
   padding-inline-start: 2px;
 }
 
-#msgHeaderView[shrink] .msgHeaderView-button .toolbarbutton-text {
+#msgHeaderView[shrink] .message-header-view-button .toolbarbutton-text {
   display: none;
 }
 
@@ -137,20 +174,10 @@ mail-tagfield[collapsed="true"] {
   display: block;
 }
 
-#header-view-toolbox {
-  float: inline-end;
-  display: block;
-  padding-top: 2px;
-}
-
 /* ::::: expanded header pane ::::: */
 
 #expandedsubjectBox {
   font-weight: bold;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow-y: auto;
 }
 
 /* ::::: attachment view ::::: */
@@ -246,28 +273,24 @@ mail-tagfield[collapsed="true"] {
 
 /* ::::: msg header captions ::::: */
 
-#header-view-toolbar .msgHeaderView-button[disabled="true"] {
+#header-view-toolbar .message-header-view-button[disabled="true"] {
   display: none;
 }
 
-#header-view-toolbar {
-  -moz-box-pack: end;
-  margin-inline-end: 3px;
-}
-
-.headerName {
+.message-header-label {
   padding: 0;
-  margin-inline-end: 3px;
+  margin-block: 0 3px;
+  text-align: end;
+  flex-shrink: 0;
 }
 
-.headerValue {
-  overflow-wrap: anywhere;
-  min-width: 50px;
-  white-space: normal;
-  line-height: 1.4em;
-  padding: .1em 0;
-  margin-block: 0 3px;
-  margin-inline: 3px 0;
+.message-header-label.header-pill-label {
+  padding-top: 3px;
+}
+
+.message-header-label,
+#attachmentSize {
+  opacity: 0.7;
 }
 
 .headerValue[containsEmail="true"] {
@@ -300,66 +323,9 @@ mail-headerfield.headerValue:focus-visible:not(:hover) {
   color: -moz-activehyperlinktext;
 }
 
-#otherActionsBox {
-  white-space: nowrap;
-  margin-inline-start: 8px;
-}
-
-#expandedHeaders {
-  display: inline-grid;
-  vertical-align: baseline;
-}
-
-#expandedHeaders2 {
-  flex: 1;
-}
-
-#expandedHeaders,
-#expandedHeaders2 {
-  border-spacing: 0;
-}
-
-#expandedHeadersBottomBox {
-  display: flex;
-}
-
-#expandedHeadersTopBox html|th,
-#expandedHeadersBottomBox html|th {
-  font-weight: normal !important;
-  vertical-align: top;
-  text-align: end;
-  padding-top: 2px !important;
-}
-
-#expandedHeadersTopBox html|td,
-#expandedHeadersBottomBox html|td,
-mail-multi-emailheaderfield {
-  width: 100%;
-}
-
-#expandedHeadersTopBox html|th,
-#expandedHeadersBottomBox html|th,
-#expandedHeadersTopBox html|td,
-#expandedHeadersBottomBox html|td {
-  margin: 0;
-  padding: 0;
-}
-
-.headerValueBox {
-  overflow: visible;
-}
-
 mail-newsgroups-headerfield.headerValueBox {
   padding: .1em 0;
   margin-bottom: 4px;
-}
-
-.headerValueBox[singleline="true"] > .headerValue[containsEmail="true"] {
-  white-space: nowrap;
-}
-
-.headerValueBox[singleline="true"] {
-  overflow: hidden;
 }
 
 .headerField {
@@ -368,6 +334,7 @@ mail-newsgroups-headerfield.headerValueBox {
 
 .moreIndicator {
   font-weight: bold;
+  margin-block-start: 5px;
 }
 
 .moreIndicator:hover {
@@ -387,10 +354,12 @@ mail-newsgroups-headerfield.headerValueBox {
   color: #111111;
 }
 
-.dateLabel {
+.message-header-datetime {
   user-select: text;
   -moz-user-focus: normal;
   cursor: text;
+  align-self: self-start;
+  margin: 0 6px;
 }
 
 /* ::::: msg header email addresses ::::: */
@@ -398,7 +367,7 @@ mail-newsgroups-headerfield.headerValueBox {
 .emailDisplayButton {
   -moz-user-focus: normal;
   display: -moz-inline-box;
-  padding-inline: 2px;
+  padding: 1px 2px;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
 }
@@ -522,19 +491,11 @@ mail-messageids-headerfield button.email-action-button {
   }
 }
 
-/* ::::: view expand and collapse twisties  ::::: */
-
-mail-multi-emailheaderfield,
-mail-headerfield,
-mail-urlfield,
-mail-newsgroups-headerfield {
-  -moz-box-align: baseline;
-}
-
 mail-headerfield {
   -moz-user-focus: normal;
   user-select: text;
-  word-wrap: break-word;
+  word-wrap: anywhere;
+  display: inherit;
 }
 
 mail-headerfield:focus-visible:not(:hover) {
@@ -574,10 +535,6 @@ mail-headerfield:focus-visible:not(:hover) {
 
 /* OpenPGP and S/MIME encryption and signature status icons */
 
-.crypto-container {
-  margin-inline-end: 3px;
-}
-
 .crypto-label {
   font-weight: 600;
 }
@@ -586,7 +543,8 @@ mail-headerfield:focus-visible:not(:hover) {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  margin-block: 6px 3px;
+  margin-block: 0;
+  margin-inline-end: 3px;
   fill: currentColor;
   background-color: transparent;
   gap: 4px;
@@ -743,4 +701,29 @@ html|header.message-security-header html|h3 {
 
 .button-focusable:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* Responsive style */
+@media (max-width: 768px) {
+  .message-header-container {
+    padding: 6px;
+  }
+
+  .message-header-wrap {
+    flex-direction: column;
+  }
+
+  .header-buttons-container {
+    align-self: end;
+  }
+
+  .message-header-label {
+    min-width: 0 !important;
+    margin-inline: 0;
+    text-align: start;
+  }
+
+  .message-header-label:not(.header-pill-label) {
+    padding-inline-end: 6px;
+  }
 }

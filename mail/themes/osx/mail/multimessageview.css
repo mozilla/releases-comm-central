@@ -12,17 +12,13 @@
   margin-bottom: 3px;
 }
 
-#header-view-toolbox {
-  font: message-box;
-}
-
 @media not all and (prefers-color-scheme: dark) {
-  .toolbarbutton-1.msgHeaderView-button {
+  .toolbarbutton-1.message-header-view-button {
     color: -moz-DialogText !important;
     background-color: white;
   }
 
-  .toolbarbutton-1.msgHeaderView-button:hover {
+  .toolbarbutton-1.message-header-view-button:hover {
     background-color: rgb(230, 230, 230) !important;
   }
 }

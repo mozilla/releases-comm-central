@@ -3267,8 +3267,8 @@ Enigmail.msg = {
     // encrypted and doesn't have a signature, but since we have an autocrypt
     // header, we need to show the button to allow users to access the info.
     let cryptoBox = document.getElementById("cryptoBox");
-    if (cryptoBox.collapsed) {
-      cryptoBox.collapsed = false;
+    if (cryptoBox.hidden) {
+      cryptoBox.hidden = false;
       cryptoBox.setAttribute("tech", "OpenPGP");
       document
         .getElementById("encryptionTechBtn")

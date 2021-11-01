@@ -6,10 +6,6 @@
 
 /* linux-specific overrides for multimessageview.css*/
 
-#header-view-toolbox {
-  font: message-box;
-}
-
 .star {
   width: 12px;
   height: 12px;
@@ -17,16 +13,16 @@
 }
 
 @media not all and (prefers-color-scheme: dark) {
-  .toolbarbutton-1.msgHeaderView-button {
+  .toolbarbutton-1.message-header-view-button {
     background: -moz-Dialog;
     color: -moz-DialogText !important;
   }
 
-  .toolbarbutton-1.msgHeaderView-button:not([disabled=true],[checked=true],[open],:active):hover {
+  .toolbarbutton-1.message-header-view-button:not([disabled=true],[checked=true],[open],:active):hover {
     background: -moz-dialog linear-gradient(rgba(255, 255, 255, .5), transparent);
   }
 
-  .toolbarbutton-1.msgHeaderView-button:not([disabled=true],[checked=true],[open],:active):hover {
+  .toolbarbutton-1.message-header-view-button:not([disabled=true],[checked=true],[open],:active):hover {
     background: rgb(154, 154, 154) linear-gradient(rgba(255, 255, 255, .7), rgba(255, 255, 255, .4));
   }
 }

@@ -350,20 +350,6 @@ function OnUnloadMsgHeaderPane() {
   );
 }
 
-function OnResizeExpandedHeaderView() {
-  if (document.getElementById("expandedHeaderView")) {
-    document
-      .getElementById("expandedHeaderView")
-      .setAttribute(
-        "height",
-        document.getElementById("expandedHeadersTopBox").clientHeight +
-          document.getElementById("expandedHeaders2").clientHeight
-      );
-  }
-
-  onHeaderResize();
-}
-
 var MsgHdrViewObserver = {
   observe(subject, topic, prefName) {
     // verify that we're changing the mail pane config pref
@@ -948,7 +934,7 @@ function OnTagsChange() {
       }
 
       // we may need to collapse or show the tag header row...
-      headerEntry.enclosingRow.toggleAttribute("hidden", !headerEntry.valid);
+      headerEntry.enclosingRow.hidden = !headerEntry.valid;
       // ... and ensure that all headers remain correctly aligned
       syncGridColumnWidths();
     }
@@ -979,7 +965,7 @@ function ClearHeaderView(aHeaderTable) {
 function hideHeaderView(aHeaderTable) {
   for (let name in aHeaderTable) {
     let headerEntry = aHeaderTable[name];
-    headerEntry.enclosingRow.setAttribute("hidden", "hidden");
+    headerEntry.enclosingRow.hidden = true;
   }
 }
 
@@ -991,7 +977,7 @@ function hideHeaderView(aHeaderTable) {
 function showHeaderView(aHeaderTable) {
   for (let name in aHeaderTable) {
     let headerEntry = aHeaderTable[name];
-    headerEntry.enclosingRow.toggleAttribute("hidden", !headerEntry.valid);
+    headerEntry.enclosingRow.hidden = !headerEntry.valid;
   }
 }
 
@@ -1066,26 +1052,21 @@ function updateExpandedView() {
 }
 
 /**
- * Ensure that the name columns in both grids are the same size, since the only
- * reason that we're using two grids at all is to workaround the XUL box
- * model's inability to float elements.
+ * Ensure that the all visible labels have the same size.
  */
 function syncGridColumnWidths() {
-  let fromTH = document.getElementById("expandedfromTableHeader");
-  let subjectTH = document.getElementById("expandedsubjectTableHeader");
+  let allHeaderLabels = document.querySelectorAll(
+    ".message-header-row:not([hidden]) .message-header-label"
+  );
 
-  // Reset the minimum widths to 0 so that clientWidth will return the
-  // preferred intrinsic width of each column.
-  fromTH.style.minWidth = subjectTH.style.minWidth = "0px";
+  // Clear existing style.
+  for (let label of allHeaderLabels) {
+    label.style.minWidth = null;
+  }
 
-  // Set minWidth on the smaller of the two columns to be the width of the
-  // larger of the two.
-  if (fromTH.clientWidth > subjectTH.clientWidth) {
-    subjectTH.style.minWidth = fromTH.clientWidth + "px";
-    fromTH.style.minWidth = subjectTH.style.minWidth;
-  } else if (fromTH.clientWidth < subjectTH.clientWidth) {
-    fromTH.style.minWidth = subjectTH.clientWidth + "px";
-    subjectTH.style.minWidth = fromTH.style.minWidth;
+  let minWidth = Math.max(...Array.from(allHeaderLabels, i => i.clientWidth));
+  for (let label of allHeaderLabels) {
+    label.style.minWidth = `${minWidth}px`;
   }
 }
 
@@ -1116,40 +1097,35 @@ function HeaderView(headerName, label) {
   let newRowNode = document.getElementById(rowId);
   if (!newRowNode) {
     // Create new collapsed row.
-    newRowNode = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
+    newRowNode = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "div"
+    );
     newRowNode.setAttribute("id", rowId);
-    newRowNode.setAttribute("hidden", "hidden");
+    newRowNode.classList.add("message-header-row");
+    newRowNode.hidden = true;
 
     // Create and append the label which contains the header name.
     let newLabelNode = document.createXULElement("label");
     newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
     newLabelNode.setAttribute("value", label);
-    newLabelNode.setAttribute("class", "headerName");
+    newLabelNode.setAttribute("class", "message-header-label");
     newLabelNode.setAttribute("control", idName);
-    let newTHNode = document.createElementNS(
-      "http://www.w3.org/1999/xhtml",
-      "th"
-    );
-    newTHNode.appendChild(newLabelNode);
-    newRowNode.appendChild(newTHNode);
+
+    newRowNode.appendChild(newLabelNode);
 
     // Create and append the new header value.
     newHeaderNode = document.createXULElement("mail-headerfield");
     newHeaderNode.setAttribute("id", idName);
     newHeaderNode.setAttribute("flex", "1");
-    let newTDNode = document.createElementNS(
-      "http://www.w3.org/1999/xhtml",
-      "td"
-    );
-    newTDNode.appendChild(newHeaderNode);
 
-    newRowNode.appendChild(newTDNode);
+    newRowNode.appendChild(newHeaderNode);
 
-    // This new element needs to be inserted into the view...
-    let topViewNode = document.getElementById("expandedHeaders2");
-    topViewNode.appendChild(newRowNode);
+    // Add the new row to the extra headers container.
+    document.getElementById("extraHeadersArea").appendChild(newRowNode);
     this.isNewHeader = true;
   } else {
+    newRowNode.hidden = true;
     newHeaderNode = document.getElementById(idName);
     this.isNewHeader = false;
   }
@@ -1194,7 +1170,6 @@ function UpdateExpandedMessageHeaders() {
   // This height attribute may be set by toggleWrap() if the user clicked
   // the "more" button" in the header.
   // Remove it so that the height is determined automatically.
-  document.getElementById("expandedHeaderView").removeAttribute("height");
 
   for (headerName in currentHeaderData) {
     var headerField = currentHeaderData[headerName];
@@ -1243,7 +1218,7 @@ function UpdateExpandedMessageHeaders() {
         headerEntry.valid = false;
       } else {
         // Set the row element visible before populating the field with addresses.
-        headerEntry.enclosingRow.toggleAttribute("hidden", false);
+        headerEntry.enclosingRow.hidden = false;
         headerEntry.outputFunction(headerEntry, headerField.headerValue);
         headerEntry.valid = true;
       }
@@ -1252,11 +1227,15 @@ function UpdateExpandedMessageHeaders() {
 
   let dateLabel = document.getElementById("dateLabel");
   if ("x-mozilla-localizeddate" in currentHeaderData) {
-    document.getElementById("dateLabel").textContent =
+    dateLabel.textContent =
       currentHeaderData["x-mozilla-localizeddate"].headerValue;
-    dateLabel.collapsed = false;
+    dateLabel.setAttribute(
+      "datetime",
+      new Date(currentHeaderData.date.headerValue).toISOString()
+    );
+    dateLabel.hidden = false;
   } else {
-    dateLabel.collapsed = true;
+    dateLabel.hidden = true;
   }
 
   gBuiltExpandedView = true;
@@ -1274,7 +1253,6 @@ function ClearCurrentHeaders() {
 function ShowMessageHeaderPane() {
   document.getElementById("msgHeaderView").collapsed = false;
   document.getElementById("mail-notification-top").collapsed = false;
-  onHeaderResize();
 }
 
 function HideMessageHeaderPane() {
@@ -1295,18 +1273,6 @@ function HideMessageHeaderPane() {
   document.getElementById("attachment-splitter").collapsed = true;
 
   gMessageNotificationBar.clearMsgNotifications();
-
-  // Always remove the shrink attribute in order to start with the right size
-  // when loading a new message.
-  header.removeAttribute("shrink");
-}
-
-function onHeaderResize() {
-  let header = document.getElementById("msgHeaderView");
-  // Arbitrary size of 700px, which should be safe for now. This is a temporary
-  // fix while we wait for the @container media query to be supported, and in
-  // preparation for the full message header rebuild.
-  header.toggleAttribute("shrink", header.getBoundingClientRect().width < 700);
 }
 
 /**

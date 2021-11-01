@@ -494,7 +494,7 @@
                                    label="&calendar.unifinder.tree.categories.label;"
                                    tooltiptext="&calendar.task.category.button.tooltip;"
                                    command="calendar_task_category_command"
-                                   class="toolbarbutton-1 msgHeaderView-button">
+                                   class="toolbarbutton-1 message-header-view-button">
                       <menupopup id="task-actions-category-popup"
                                  onpopupshowing="taskDetailsView.loadCategories(event);"
                                  onpopuphiding="return taskDetailsView.saveCategories(event);">
@@ -511,7 +511,7 @@
                                    label="&calendar.context.markcompleted.label;"
                                    tooltiptext="&calendar.task.complete.button.tooltip;"
                                    command="calendar_toggle_completed_command"
-                                   class="toolbarbutton-1 msgHeaderView-button">
+                                   class="toolbarbutton-1 message-header-view-button">
                       <menupopup is="calendar-task-progress-menupopup" id="task-actions-markcompleted-menupopup"/>
                     </toolbarbutton>
                     <toolbarbutton id="task-actions-priority"
@@ -520,11 +520,11 @@
                                    label="&calendar.context.priority.label;"
                                    tooltiptext="&calendar.task.priority.button.tooltip;"
                                    command="calendar_general-priority_command"
-                                   class="toolbarbutton-1 msgHeaderView-button">
+                                   class="toolbarbutton-1 message-header-view-button">
                       <menupopup is="calendar-task-priority-menupopup" id="task-actions-priority-menupopup"/>
                     </toolbarbutton>
                     <toolbarbutton id="calendar-delete-task-button"
-                                   class="toolbarbutton-1 msgHeaderView-button"
+                                   class="toolbarbutton-1 message-header-view-button"
                                    label="&calendar.taskview.delete.label;"
                                    tooltiptext="&calendar.context.deletetask.label;"
                                    command="calendar_delete_todo_command"/>

@@ -21,22 +21,6 @@
 
 /* ::::: msg header captions ::::: */
 
-.dateLabel {
-  line-height: 1.5em;
-  margin: 0;
-  padding-block: .1em;
-  margin-inline: 0 6px;
-}
-
-.headerName {
-  margin-top: 0;
-}
-
-.headerName,
-#attachmentSize {
-  color: #888a85; /* lower contrast */
-}
-
 @media (-moz-windows-compositor) and (-moz-windows-default-theme) {
   #singleMessage {
     background-color: #f8f8f8;

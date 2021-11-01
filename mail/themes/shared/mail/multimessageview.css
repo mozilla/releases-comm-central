@@ -198,6 +198,13 @@ a:hover {
   cursor: pointer;
 }
 
+#header-view-toolbox {
+  font: message-box;
+  float: inline-end;
+  display: block;
+  padding-top: 2px;
+}
+
 @media print {
   #header-view-toolbox {
     display: none;

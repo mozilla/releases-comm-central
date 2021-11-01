@@ -136,60 +136,60 @@ add_task(function test_add_tag_with_really_long_label() {
 
   assert_selected_and_displayed(mc, curMessage);
 
-  let topColumn = mc.e("expandedfromTableHeader");
-  let bottomColumn = mc.e("expandedsubjectTableHeader");
+  let topLabel = mc.e("expandedfromLabel");
+  let bottomLabel = mc.e("expandedsubjectLabel");
 
-  if (topColumn.clientWidth != bottomColumn.clientWidth) {
+  if (topLabel.clientWidth != bottomLabel.clientWidth) {
     throw new Error(
       "Header columns have different widths!  " +
-        topColumn.clientWidth +
+        topLabel.clientWidth +
         " != " +
-        bottomColumn.clientWidth
+        bottomLabel.clientWidth
     );
   }
-  let defaultWidth = topColumn.clientWidth;
+  let defaultWidth = topLabel.clientWidth;
 
   // Make the tags label really long.
   let tagsLabel = mc.e("expandedtagsLabel");
   let oldTagsValue = tagsLabel.value;
   tagsLabel.value = "taaaaaaaaaaaaaaaaaags";
 
-  if (topColumn.clientWidth != bottomColumn.clientWidth) {
+  if (topLabel.clientWidth != bottomLabel.clientWidth) {
     tagsLabel.value = oldTagsValue;
     throw new Error(
       "Header columns have different widths!  " +
-        topColumn.clientWidth +
+        topLabel.clientWidth +
         " != " +
-        bottomColumn.clientWidth
+        bottomLabel.clientWidth
     );
   }
-  if (topColumn.clientWidth != defaultWidth) {
+  if (topLabel.clientWidth != defaultWidth) {
     tagsLabel.value = oldTagsValue;
     throw new Error(
       "Header columns changed width!  " +
-        topColumn.clientWidth +
+        topLabel.clientWidth +
         " != " +
         defaultWidth
     );
   }
 
   // Add the first tag, and make sure that the label are the same length.
-  mc.window.document.getElementById("expandedfromTableHeader").focus();
+  mc.window.document.getElementById("expandedfromRow").focus();
   EventUtils.synthesizeKey("1", {});
-  if (topColumn.clientWidth != bottomColumn.clientWidth) {
+  if (topLabel.clientWidth != bottomLabel.clientWidth) {
     tagsLabel.value = oldTagsValue;
     throw new Error(
       "Header columns have different widths!  " +
-        topColumn.clientWidth +
+        topLabel.clientWidth +
         " != " +
-        bottomColumn.clientWidth
+        bottomLabel.clientWidth
     );
   }
-  if (topColumn.clientWidth == defaultWidth) {
+  if (topLabel.clientWidth == defaultWidth) {
     tagsLabel.value = oldTagsValue;
     throw new Error(
       "Header columns didn't change width!  " +
-        topColumn.clientWidth +
+        topLabel.clientWidth +
         " == " +
         defaultWidth
     );
@@ -198,9 +198,9 @@ add_task(function test_add_tag_with_really_long_label() {
   // Remove the tag and put it back so that the a11y label gets regenerated
   // with the normal value rather than "taaaaaaaags"
   tagsLabel.value = oldTagsValue;
-  mc.window.document.getElementById("expandedfromTableHeader").focus();
+  mc.window.document.getElementById("expandedfromRow").focus();
   EventUtils.synthesizeKey("1", {});
-  mc.window.document.getElementById("expandedfromTableHeader").focus();
+  mc.window.document.getElementById("expandedfromRow").focus();
   EventUtils.synthesizeKey("1", {});
 });
 
@@ -423,7 +423,7 @@ add_task(function test_more_button_with_many_recipients() {
   assert_selected_and_displayed(mc, curMessage);
 
   // Check the mode of the header.
-  let headerBox = mc.e("expandedHeaderView");
+  let headerBox = mc.e("messageHeader");
   let previousHeaderMode = headerBox.getAttribute("show_header_mode");
 
   // Click the "more" button.
@@ -963,7 +963,7 @@ function subtest_more_widget_star_click(toDescription) {
   ensure_no_card_exists(lastAddr.getAttribute("emailAddress"));
 
   // scroll to the bottom first so the address is in view
-  let view = mc.e("expandedHeaderView");
+  let view = mc.e("messageHeader");
   view.scrollTop = view.scrollHeight - view.clientHeight;
   let star = lastAddr.querySelector(".emailStar");
   let src = star.getAttribute("src");
@@ -1028,49 +1028,6 @@ add_task(function test_more_widget_with_disabled_more() {
         "<= number of expected minimum of 3 lines filled"
     );
   }
-});
-
-/**
- * When the window gets too narrow the toolbar buttons should display only icons
- * and the label should be hidden.
- */
-add_task(async function test_toolbar_collapse_and_expand() {
-  be_in_folder(folder);
-  // Select and open a message, in this case the last, for no particular reason.
-  select_click_row(-1);
-
-  let header = mc.window.document.getElementById("msgHeaderView");
-
-  let expandedPromise = BrowserTestUtils.waitForCondition(
-    () => !header.hasAttribute("shrink"),
-    "The msgHeaderView doesn't have the `shrink` attribute"
-  );
-
-  // Set an initial size of 1200px.
-  resize_to(mc, 1200, gDefaultWindowHeight);
-
-  // Confirm that the button labels are visible.
-  await expandedPromise;
-
-  let shrinkedPromise = BrowserTestUtils.waitForCondition(
-    () => header.hasAttribute("shrink"),
-    "The msgHeaderView has the `shrink` attribute"
-  );
-
-  // Resize to 699px width.
-  resize_to(mc, 699, gDefaultWindowHeight);
-
-  // Confirm that the button labels are hidden.
-  await shrinkedPromise;
-
-  // Set the width to 700px.
-  resize_to(mc, 700, gDefaultWindowHeight);
-
-  // Confirm that the button labels are visible.
-  await expandedPromise;
-
-  // Restore window to nominal dimensions.
-  restore_default_window_size();
 });
 
 /**

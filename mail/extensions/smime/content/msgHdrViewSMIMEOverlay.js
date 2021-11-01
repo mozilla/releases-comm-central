@@ -45,7 +45,7 @@ function setMessageEncryptionStateButton(tech, encryptedState, signedState) {
   let buttonText = button.querySelector(".crypto-label");
 
   let hidden = !tech || (!encryptedState && !signedState);
-  container.collapsed = hidden;
+  container.hidden = hidden;
   button.hidden = hidden;
   if (hidden) {
     container.removeAttribute("tech");

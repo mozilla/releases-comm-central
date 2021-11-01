@@ -995,7 +995,7 @@ function InitViewHeadersMenu() {
 function AdjustHeaderView(headermode) {
   const all = Ci.nsMimeHeaderDisplayTypes.AllHeaders;
   document
-    .getElementById("expandedHeaderView")
+    .getElementById("messageHeader")
     .setAttribute("show_header_mode", headermode == all ? "all" : "normal");
 }
 

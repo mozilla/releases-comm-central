@@ -133,27 +133,27 @@
   border-radius: var(--toolbarbutton-border-radius);
 }
 
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button,
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
   border-color: var(--toolbarbutton-header-bordercolor);
   background-image: linear-gradient(var(--imip-button-background), var(--imip-button-background));
 }
 
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not(:active):hover,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:is(:hover,[open="true"]) >
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:not(:active):hover,
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:is(:hover,[open="true"]) >
   .toolbarbutton-menubutton-button,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:hover >
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:hover >
   .toolbarbutton-menubutton-dropmarker {
   background-image: linear-gradient(var(--toolbarbutton-hover-background),
                                     var(--toolbarbutton-hover-background)),
                     linear-gradient(var(--imip-button-background), var(--imip-button-background));
 }
 
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):hover:active,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[type="menu-button"] >
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:not([type="menu-button"]):hover:active,
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button[type="menu-button"] >
   .toolbarbutton-menubutton-button:hover:active,
-#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[open="true"] >
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button[open="true"] >
   .toolbarbutton-menubutton-dropmarker {
   background-image: linear-gradient(var(--toolbarbutton-active-background),
                                     var(--toolbarbutton-active-background)),

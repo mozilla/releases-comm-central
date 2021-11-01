@@ -21,17 +21,3 @@
   appearance: none;
   padding-inline-end: 2px;
 }
-
-/* ::::: msg header captions ::::: */
-
-.dateLabel {
-  line-height: 1.5em;
-  margin: 0;
-  padding-block: .1em;
-  margin-inline: 0 9px;
-}
-
-.headerName,
-#attachmentSize {
-  color: #888a85; /* lower contrast */
-}

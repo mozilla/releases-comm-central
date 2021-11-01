@@ -34,7 +34,7 @@ function showMessageReadSecurityInfo() {
   // Interrupt if no message is selected or no encryption technology was used.
   if (
     !gFolderDisplay.selectedMessage ||
-    document.getElementById("cryptoBox").collapsed
+    document.getElementById("cryptoBox").hidden
   ) {
     return;
   }

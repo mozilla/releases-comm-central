@@ -73,7 +73,7 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
 
   makeButton(window) {
     let button = super.makeButton(window);
-    button.classList.add("msgHeaderView-button");
+    button.classList.add("message-header-view-button");
     button.style.listStyleImage = "var(--webextension-menupanel-image)";
     // The header toolbar has no associated context menu. Add one directly to
     // this button.

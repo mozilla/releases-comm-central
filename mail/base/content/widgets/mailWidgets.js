@@ -1014,6 +1014,8 @@
         return;
       }
 
+      this.classList.add("message-header-multi-field");
+
       this.longEmailAddresses = document.createXULElement("hbox");
       this.longEmailAddresses.classList.add("headerValueBox");
       this.longEmailAddresses.setAttribute("flex", "1");
@@ -1295,29 +1297,14 @@
      * widget with all the addresses.
      */
     toggleWrap() {
-      // Workaround the fact that XUL line-wrapping and "overflow: auto" don't interact properly
-      // (bug 492645), without which we would be inadvertently occluding too much of the message
-      // header text and forcing the user to scroll unnecessarily (bug 525225).
-      //
       // Fake the "All Headers" mode, so that we get a scroll bar.
       // Will be reset when a new message loads.
       document
-        .getElementById("expandedHeaderView")
+        .getElementById("messageHeader")
         .setAttribute("show_header_mode", "all");
-
-      // Causes different CSS selectors to be used, which allows all of the addresses to be properly
-      // displayed and wrapped.
-      this.longEmailAddresses.removeAttribute("singleline");
 
       // Re-render the node, this time with all the addresses.
       this._fillAddressesNode(true);
-      document
-        .getElementById("expandedHeaderView")
-        .setAttribute(
-          "height",
-          document.getElementById("expandedHeadersTopBox").clientHeight +
-            document.getElementById("expandedHeaders2").clientHeight
-        );
       // This attribute will be reinit in the 'UpdateExpandedMessageHeaders()' method.
     }
 

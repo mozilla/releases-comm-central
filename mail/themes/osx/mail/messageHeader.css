@@ -20,19 +20,6 @@
 
 /* ::::: msg header captions ::::: */
 
-.dateLabel {
-  margin-inline-end: 3px;
-}
-
-.headerName {
-  margin-top: 0;
-}
-
-.headerName,
-#attachmentSize {
-  color: #a1a1a1; /* lower contrast */
-}
-
 mail-messageids-headerfield button.email-action-button {
   margin-inline: 1px 3px;
 }

@@ -6,10 +6,6 @@
 
 /* windows-specific overrides for multimessageview.css*/
 
-#header-view-toolbox {
-  font: message-box;
-}
-
 .star {
   width: 12px;
   height: 12px;
@@ -17,34 +13,34 @@
 }
 
 @media not all and (prefers-color-scheme: dark) {
-  .toolbarbutton-1.msgHeaderView-button {
+  .toolbarbutton-1.message-header-view-button {
     color: -moz-DialogText !important;
   }
 
   @media (-moz-windows-default-theme) {
-    .toolbarbutton-1.msgHeaderView-button {
+    .toolbarbutton-1.message-header-view-button {
       background-image: linear-gradient(-moz-dialog, -moz-dialog);
     }
 
-    .toolbarbutton-1.msgHeaderView-button:not([disabled=true],[checked=true],[open],:active):hover {
+    .toolbarbutton-1.message-header-view-button:not([disabled=true],[checked=true],[open],:active):hover {
       background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), linear-gradient(-moz-dialog, -moz-dialog);
     }
 
-    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
+    .toolbarbutton-1.message-header-view-button:not([type="menu-button"],[disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
       background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)), linear-gradient(-moz-dialog, -moz-dialog) !important;
     }
   }
 }
 
 @media (-moz-windows-default-theme: 0) {
-  :root:not(:-moz-lwtheme) .toolbarbutton-1.msgHeaderView-button {
+  :root:not(:-moz-lwtheme) .toolbarbutton-1.message-header-view-button {
     background-image: linear-gradient(-moz-dialog, -moz-dialog) !important;
   }
 
   :root:not(:-moz-lwtheme)
-    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled="true"]):hover,
+    .toolbarbutton-1.message-header-view-button:not([type="menu-button"],[disabled="true"]):hover,
   :root:not(:-moz-lwtheme)
-    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled="true"]):hover:active {
+    .toolbarbutton-1.message-header-view-button:not([type="menu-button"],[disabled="true"]):hover:active {
     background-image: linear-gradient(SelectedItem, SelectedItem) !important;
     color: SelectedItemText !important;
     border-color: SelectedItemText !important;

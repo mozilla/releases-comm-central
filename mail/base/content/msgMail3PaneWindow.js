@@ -329,27 +329,8 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
   var messagePaneBoxWrapper = GetMessagePaneWrapper();
   if (messagePaneBoxWrapper.parentNode.id != desiredId) {
     ClearAttachmentList();
-    var hdrToolbox = document.getElementById("header-view-toolbox");
-    var hdrToolbar = document.getElementById("header-view-toolbar");
-    var firstPermanentChild = hdrToolbar.firstPermanentChild;
-    var lastPermanentChild = hdrToolbar.lastPermanentChild;
     var messagePaneSplitter = GetThreadAndMessagePaneSplitter();
     var desiredParent = document.getElementById(desiredId);
-
-    // Here the message pane including the header pane is moved to the
-    // new layout by the appendChild() method below.  As described in bug
-    // 519956 only elements in the DOM tree are copied to the new place
-    // whereas javascript class variables of DOM tree elements get lost.
-    // In this case the ToolboxPalette first/lastPermanentChild
-    // are removed which results in the message header pane not being
-    // customizable any more.  A workaround for this problem is to clone
-    // them first and add them to the DOM tree after the message pane has
-    // been moved.
-    var cloneToolboxPalette;
-
-    if (hdrToolbox.palette) {
-      cloneToolboxPalette = hdrToolbox.palette.cloneNode(true);
-    }
 
     // The find bar needs disconnecting before the browser it is attached to.
     // Due to its position in the DOM, this doesn't happen.
@@ -378,10 +359,6 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
       // eslint-disable-next-line no-self-assign
       msgWindow.statusFeedback = msgWindow.statusFeedback;
     }
-    hdrToolbox.palette = cloneToolboxPalette;
-    hdrToolbar = document.getElementById("header-view-toolbar");
-    hdrToolbar.firstPermanentChild = firstPermanentChild;
-    hdrToolbar.lastPermanentChild = lastPermanentChild;
     messagePaneSplitter.setAttribute(
       "orient",
       desiredParent.getAttribute("orient")
