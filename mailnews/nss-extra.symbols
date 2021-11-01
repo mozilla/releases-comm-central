@@ -1,4 +1,5 @@
 CERT_GetCertNicknames
+CERT_VerifyCert
 NSSBase64Decoder_Create_Util
 NSSBase64Decoder_Destroy_Util
 NSSBase64Decoder_Update_Util
@@ -52,3 +53,4 @@ NSS_CMSSignerInfo_GetSignerEmailAddress
 NSS_CMSSignerInfo_GetVerificationStatus
 NSS_CMSSignerInfo_IncludeCerts
 NSS_CMSUtil_VerificationStatusToString
+PORT_ArenaGrow
