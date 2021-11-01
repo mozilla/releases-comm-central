@@ -190,24 +190,49 @@ add_task(async function startup() {
     }
     for (let pref of [
       "font.default.x-western",
-      "font.size.cursive.x-western",
+      "font.minimum-size.x-western",
       "font.name.variable.x-western",
       "font.size-adjust.cursive.x-western",
+      "font.size-adjust.fantasy.x-western",
+      "font.size-adjust.monospace.x-western",
+      "font.size-adjust.sans-serif.x-western",
+      "font.size-adjust.serif.x-western",
+      "font.size-adjust.variable.x-western",
+      "font.size.cursive.x-western",
       "font.size.fantasy.x-western",
       "font.size.monospace.x-western",
       "font.size.sans-serif.x-western",
-      "font.size-adjust.monospace.x-western",
-      "font.size-adjust.serif.x-western",
-      "font.size.variable.x-western",
-      "font.minimum-size.x-western",
-      "font.size-adjust.variable.x-western",
-      "font.size-adjust.fantasy.x-western",
       "font.size.serif.x-western",
-      "font.size-adjust.sans-serif.x-western",
+      "font.size.variable.x-western",
     ]) {
       knownProblematicPrefs[pref] = {
         min: 0,
         max: 75,
+      };
+    }
+  } else if (AppConstants.platform == "macosx") {
+    for (let pref of [
+      "font.default.x-western",
+      "font.minimum-size.x-western",
+      "font.name.variable.x-western",
+      "font.size-adjust.cursive.x-western",
+      "font.size-adjust.fantasy.x-western",
+      "font.size-adjust.monospace.x-western",
+      "font.size-adjust.sans-serif.x-western",
+      "font.size-adjust.serif.x-western",
+      "font.size-adjust.system-ui.x-western",
+      "font.size-adjust.variable.x-western",
+      "font.size.cursive.x-western",
+      "font.size.fantasy.x-western",
+      "font.size.monospace.x-western",
+      "font.size.sans-serif.x-western",
+      "font.size.serif.x-western",
+      "font.size.system-ui.x-western",
+      "font.size.variable.x-western",
+    ]) {
+      knownProblematicPrefs[pref] = {
+        min: 0,
+        max: 45,
       };
     }
   }
