@@ -22,9 +22,7 @@
 #define MSGHDR_CACHE_MAX_SIZE 8192
 #define MSGHDR_CACHE_DEFAULT_SIZE 100
 
-nsMsgGroupView::nsMsgGroupView() {
-  m_dayChanged = false;
-}
+nsMsgGroupView::nsMsgGroupView() { m_dayChanged = false; }
 
 nsMsgGroupView::~nsMsgGroupView() {}
 

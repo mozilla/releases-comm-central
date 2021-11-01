@@ -45,7 +45,7 @@ class nsNntpUrl : public nsINntpUrl,
   nsNewsAction m_newsAction;  // the action this url represents...parse mailbox,
                               // display messages, etc.
 
-  nsCString mURI;              // the RDF URI associated with this url.
+  nsCString mURI;         // the RDF URI associated with this url.
   bool mOverrideCharset;  // used by nsIMsgI18NUrl...
 
   nsCString mOriginalSpec;
