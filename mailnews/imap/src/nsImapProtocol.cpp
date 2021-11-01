@@ -9122,6 +9122,24 @@ NS_IMETHODIMP nsImapMockChannel::Open(nsIInputStream** _retval) {
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);
   NS_ENSURE_SUCCESS(rv, rv);
+  if (m_url) {
+    nsCOMPtr<nsIImapUrl> imapUrl(do_QueryInterface(m_url, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsImapAction imapAction;
+    imapUrl->GetImapAction(&imapAction);
+    // If we're shutting down, and not running the kinds of urls we run at
+    // shutdown, then this should fail because running urls during
+    // shutdown will very likely fail and potentially hang.
+    nsCOMPtr<nsIMsgAccountManager> accountMgr =
+        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    bool shuttingDown = false;
+    (void)accountMgr->GetShutdownInProgress(&shuttingDown);
+    if (shuttingDown && imapAction != nsIImapUrl::nsImapExpungeFolder &&
+        imapAction != nsIImapUrl::nsImapDeleteAllMsgs &&
+        imapAction != nsIImapUrl::nsImapDeleteFolder)
+      return NS_ERROR_FAILURE;
+  }
   return NS_ImplementChannelOpen(this, _retval);
 }
 
