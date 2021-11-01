@@ -545,6 +545,7 @@ add_task(async function test_error_on_corrupt_XML() {
   gMockPromptService.unregister();
 
   // Close the account setup tab.
+  mc.tabmail.closeTab(tab);
   mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
 });
 
