@@ -333,6 +333,9 @@ def process_command_line(args): # pylint: disable=too-many-locals,too-many-state
     target_group.add_option('--ldflags', metavar='FLAGS',
                             help='set linker flags', default=None)
 
+    target_group.add_option('--extra-libs', metavar='LIBS',
+                            help='specify extra libraries to link against', default='')
+
     target_group.add_option('--ar-command', dest='ar_command', metavar='AR', default=None,
                             help='set path to static archive creator')
 
@@ -2007,6 +2010,12 @@ def create_template_vars(source_paths, build_paths, options, modules, cc, arch, 
         else:
             return '%s %s' % (options.compiler_cache, cxx)
 
+    def extra_libs(libs, cc):
+        if libs is None:
+            return ''
+
+        return ' '.join([(cc.add_lib_option % lib) for lib in libs.split(',') if lib != ''])
+
     variables = {
         'version_major':  Version.major(),
         'version_minor':  Version.minor(),
@@ -2026,6 +2035,12 @@ def create_template_vars(source_paths, build_paths, options, modules, cc, arch, 
 
         'all_targets': ' '.join(all_targets(options)),
         'install_targets': ' '.join(install_targets(options)),
+
+        'public_headers': sorted([os.path.basename(h) for h in build_paths.public_headers]),
+        'internal_headers': sorted([os.path.basename(h) for h in build_paths.internal_headers]),
+        'external_headers':  sorted([os.path.basename(h) for h in build_paths.external_headers]),
+
+        'abs_root_dir': os.path.dirname(os.path.realpath(__file__)),
 
         'base_dir': source_paths.base_dir,
         'src_dir': source_paths.src_dir,
@@ -2095,6 +2110,7 @@ def create_template_vars(source_paths, build_paths, options, modules, cc, arch, 
 
         'os': options.os,
         'arch': options.arch,
+        'compiler': options.compiler,
         'cpu_family': arch.family,
         'endian': options.with_endian,
         'cpu_is_64bit': arch.wordsize == 64,
@@ -2131,6 +2147,7 @@ def create_template_vars(source_paths, build_paths, options, modules, cc, arch, 
         'cc_sysroot': sysroot_option(),
         'cc_compile_flags': options.cxxflags or cc.cc_compile_flags(options),
         'ldflags': options.ldflags or '',
+        'extra_libs': extra_libs(options.extra_libs, cc),
         'cc_warning_flags': cc.cc_warning_flags(options),
         'output_to_exe': cc.output_to_exe,
         'cc_macro': cc.macro_name,
@@ -2180,6 +2197,11 @@ def create_template_vars(source_paths, build_paths, options, modules, cc, arch, 
 
         'mod_list': sorted([m.basename for m in modules])
     }
+
+    variables['installed_include_dir'] = os.path.join(
+        variables['prefix'],
+        variables['includedir'],
+        'botan-%d' % (Version.major()), 'botan')
 
     if cc.basename == 'msvc' and variables['cxx_abi_flags'] != '':
         # MSVC linker doesn't support/need the ABI options,
@@ -3005,6 +3027,16 @@ def canonicalize_options(options, info_os, info_arch):
     # Set default fuzzing lib
     if options.build_fuzzers == 'libfuzzer' and options.fuzzer_lib is None:
         options.fuzzer_lib = 'Fuzzer'
+
+    if options.ldflags is not None:
+        extra_libs = []
+        link_to_lib = re.compile('^-l(.*)')
+        for flag in options.ldflags.split(' '):
+            match = link_to_lib.match(flag)
+            if match:
+                extra_libs.append(match.group(1))
+
+        options.extra_libs += ','.join(extra_libs)
 
 # Checks user options for consistency
 # This method DOES NOT change options on behalf of the user but explains

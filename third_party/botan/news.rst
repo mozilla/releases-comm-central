@@ -1,11 +1,81 @@
 Release Notes
 ========================================
 
+Version 2.18.2, 2021-10-25
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Avoid using short exponents when encrypting in ElGamal, as some PGP
+  implementations generate keys with parameters that are weak when
+  short exponents are used (GH #2794)
+
+* Fix a low risk OAEP decryption side channel (GH #2797)
+
+* Work around a miscompilation of SHA-3 caused by a bug in Clang 12
+  and XCode 13. (GH #2826)
+
+* Remove support in OpenSSL provider for algorithms which are
+  disabled by default in OpenSSL 3.0 (GH #2823, #2814)
+
+* Add CI based on GitHub actions to replace Travis CI (GH #2632)
+
+* Fix the online OCSP test, as the certificate involved had expired.
+  (GH #2799)
+
+* Fix some test failures induced by the expiration of the trust root
+  "DST Root CA X3" (GH #2820)
+
+Version 2.18.1, 2021-05-09
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fix a build regression in 2.18.0 which caused linker flags which
+  contain ``-l`` within them (such as ``-fuse-linker-plugin``) to
+  be misinterpreted. (GH #2715)
+
+* Fix a bug which caused decoding a certificate which contained
+  more than one name in a single RDN. (GH #2611 #2630 #2724)
+
+* Fix a bug which caused OID lookup failures when run in a locale
+  which uses thousands separators (pt_BR was reported as having
+  this issue). (GH #2732 #2730 #2237)
+
+* DNS names in name constraints were compared with case sensitivity, which
+  could cause valid certificates to be rejected. (GH #2739 #2735)
+
+* X.509 name constraint extensions were rejected if non-critical. RFC 5280
+  requires conforming CAs issue such extensions as critical, but not all
+  certificates are compliant, and all other known implementations do not
+  require this. (GH #2739 #2736)
+
+* X.509 name constraints were incorrectly applied to the certificate which
+  included the constraint. (GH #2739 #2737)
+
+Version 2.18.0, 2021-04-15
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Add support for implementing custom RNG objects through the
+  FFI interface (GH #2627 #2600)
+
+* Improve safegcd bounds, improving runtime performance (GH #2628 #2619)
+
+* Fix a bug introduced in 2.9.0 where BigInt::operator< would return
+  an incorrect result if both operands were negative. (GH #2641 #2638)
+
+* Reject non-TLS messages as quickly as possible without waiting for
+  a full record. (GH #2676)
+
+* Add build support for RISC-V 32
+
+* Fixes for TLS::Stream::async_shutdown (GH #2673)
+
+* Fix a regression introduced in 2.17.0 where LDFLAGS which add an extra
+  library (such as ``-latomic`` needed on SPARC) were not always applied
+  effectively. (GH #2622 #2623 #2625)
+
 Version 2.17.3, 2020-12-21
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Change base64, base58, base32, and hex encoding and decoding opearations
-  to run in constant time (GH #2549)
+* CVE-2021-24115 Change base64, base58, base32, and hex encoding and
+  decoding operations to run in constant time (GH #2549)
 
 * Fix a build problem on PPC64 building with Clang (GH #2547)
 
@@ -27,7 +97,7 @@ Version 2.17.2, 2020-11-13
 
 * Resolve an issue in the modular square root algorithm where a loop
   to find a quadratic non-residue could, for a carefully chosen
-  composite modulus, not terminte in a timely manner. (GH #2482 #2476)
+  composite modulus, not terminate in a timely manner. (GH #2482 #2476)
 
 * Fix a regression in MinGW builds introduced in 2.17.1
 

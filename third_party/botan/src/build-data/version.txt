@@ -1,11 +1,11 @@
 
 release_major = 2
-release_minor = 17
-release_patch = 3
+release_minor = 18
+release_patch = 2
 release_suffix = ''
-release_so_abi_rev = 17
+release_so_abi_rev = 18
 
 # These are set by the distribution script
-release_vc_rev = 'git:bcda19704da482c57eb0bce786cebb97f378f146'
-release_datestamp = 20201221
+release_vc_rev = 'git:a44f1489239e80937ca67564ff103421e5584069'
+release_datestamp = 20211025
 release_type = 'release'
