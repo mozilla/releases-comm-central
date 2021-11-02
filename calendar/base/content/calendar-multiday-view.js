@@ -173,11 +173,10 @@
       // times in a short interval, and therefore improves performance.
       this.mEventMapTimeout = null;
 
-      // Set this true so that we know in our onAddItem listener to start
-      // modifying an event when it comes back to us as created.
-      this.mCreatedNewEvent = false;
-
-      this.mEventToEdit = null;
+      // Whether the next added event should be created in the editing state.
+      this.newEventNeedsEditing = false;
+      // The hashId of the event we should set to editing in the next relayout.
+      this.eventToEdit = null;
 
       this.mSelected = false;
 
@@ -419,8 +418,9 @@
         clearTimeout(this.mEventMapTimeout);
       }
 
-      if (this.mCreatedNewEvent) {
-        this.mEventToEdit = eventItem;
+      if (this.newEventNeedsEditing) {
+        this.eventToEdit = eventItem.hashId;
+        this.newEventNeedsEditing = false;
       }
 
       this.mEventMapTimeout = setTimeout(() => this.relayout(), 5);
@@ -521,7 +521,6 @@
 
       let eventLayoutList = this.computeEventLayoutInfo(minDuration);
 
-      let boxToEdit;
       for (let eventInfo of eventLayoutList) {
         // Set up a list item element to wrap the event.
         // FIXME: offset and length should be in % of parent's dimension, so we
@@ -586,17 +585,13 @@
         // eventData.selected.
         eventBox.selected = eventData.selected;
         eventData.element = eventBox;
-
-        if (this.mEventToEdit && item.hashId == this.mEventToEdit.hashId) {
-          boxToEdit = eventBox;
-        }
       }
 
+      let boxToEdit = this.eventDataMap.get(this.eventToEdit)?.element;
       if (boxToEdit) {
-        this.mCreatedNewEvent = false;
-        this.mEventToEdit = null;
         boxToEdit.startEditing();
       }
+      this.eventToEdit = null;
     }
 
     /**
@@ -1334,10 +1329,18 @@
         );
 
         // Edit the event title on the first of the new event's occurrences
+        // FIXME: This newEventNeedsEditing flag is read and unset in addEvent,
+        // but this is only called after some delay: after the event creation
+        // transaction completes. So there is a race between this creation and
+        // other actions that call addEvent.
+        // Bug 1710985 would be a way to address this: i.e. at this point we
+        // immediately create an element that the user can type a title into
+        // without creating a calendar item until they submit the title. Then
+        // we won't need any special flag for addEvent.
         if (draggedForward) {
-          dragState.origColumn.mCreatedNewEvent = true;
+          dragState.origColumn.newEventNeedsEditing = true;
         } else {
-          col.mCreatedNewEvent = true;
+          col.newEventNeedsEditing = true;
         }
       } else if (dragState.dragType == "move") {
         // Figure out the new date-times of the event by adding the duration
