@@ -307,7 +307,7 @@ class CalStorageStatements {
   mDeleteAllMetaData = null;
 
   /**
-   * @param {mozIStorageAsyncConnection} db
+   * @param {CalStorageDatabase} db
    *
    * @throws - If unable to initialize SQL statements.
    */

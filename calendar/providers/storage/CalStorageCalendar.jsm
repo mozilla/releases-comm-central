@@ -9,6 +9,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { upgradeDB } = ChromeUtils.import("resource:///modules/calendar/calStorageUpgrade.jsm");
 var { CalStorageModel } = ChromeUtils.import("resource:///modules/calendar/CalStorageModel.jsm");
+var { CalStorageDatabase } = ChromeUtils.import(
+  "resource:///modules/calendar/CalStorageDatabase.jsm"
+);
 
 var kCalICalendar = Ci.calICalendar;
 var cICL = Ci.calIChangeLog;
@@ -41,13 +44,12 @@ CalStorageCalendar.prototype = {
   //
   // private members
   //
-  mDB: null,
+  mStorageDb: null,
+  mModel: null,
   mItemCache: null,
   mRecItemCachePromise: null,
   mRecEventCache: null,
   mRecTodoCache: null,
-  mLastStatement: null,
-  mModel: null,
 
   //
   // calICalendarProvider interface
@@ -68,7 +70,7 @@ CalStorageCalendar.prototype = {
         listener.onDeleteCalendar(aCalendar, Cr.NS_OK, null);
       }
     } catch (ex) {
-      this.mModel.logError("error calling listener.onDeleteCalendar", ex);
+      this.mStorageDb.logError("error calling listener.onDeleteCalendar", ex);
     }
   },
 
@@ -125,7 +127,7 @@ CalStorageCalendar.prototype = {
   set id(val) {
     this.__proto__.__proto__.__lookupSetter__("id").call(this, val);
 
-    if (!this.mDB && this.uri && this.id) {
+    if (!this.mStorageDb && this.uri && this.id) {
       // Prepare the database as soon as we have an id and an uri.
       this.prepareInitDB();
     }
@@ -143,7 +145,7 @@ CalStorageCalendar.prototype = {
 
     this.__proto__.__proto__.__lookupSetter__("uri").call(this, aUri);
 
-    if (!this.mDB && this.uri && this.id) {
+    if (!this.mStorageDb && this.uri && this.id) {
       // Prepare the database as soon as we have an id and an uri.
       this.prepareInitDB();
     }
@@ -151,7 +153,7 @@ CalStorageCalendar.prototype = {
 
   // attribute mozIStorageAsyncConnection db;
   get db() {
-    return this.mDB;
+    return this.mStorageDb.db;
   },
 
   /**
@@ -161,29 +163,7 @@ CalStorageCalendar.prototype = {
    * the version expected by this version of Thunderbird.
    */
   prepareInitDB() {
-    if (this.uri.schemeIs("file")) {
-      let fileURL = this.uri.QueryInterface(Ci.nsIFileURL);
-
-      if (!fileURL) {
-        throw new Components.Exception("Invalid file", Cr.NS_ERROR_NOT_IMPLEMENTED);
-      }
-      // open the database
-      this.mDB = Services.storage.openDatabase(fileURL.file);
-    } else if (this.uri.schemeIs("moz-storage-calendar")) {
-      // New style uri, no need for migration here
-      let localDB = cal.provider.getCalendarDirectory();
-      localDB.append("local.sqlite");
-
-      if (!localDB.exists()) {
-        // This can happen with a database upgrade and the "too new schema" situation.
-        localDB.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o700);
-      }
-
-      this.mDB = Services.storage.openDatabase(localDB);
-    } else {
-      throw new Components.Exception("Invalid Scheme " + this.uri.spec);
-    }
-
+    this.mStorageDb = CalStorageDatabase.connect(this.uri, this.id);
     upgradeDB(this);
   },
 
@@ -634,26 +614,26 @@ CalStorageCalendar.prototype = {
   //
 
   // database initialization
-  // assumes this.mDB is valid
+  // assumes this.mStorageDb is valid
 
   initDB() {
-    cal.ASSERT(this.mDB, "Database has not been opened!", true);
+    cal.ASSERT(this.mStorageDb, "Database has not been opened!", true);
 
     try {
-      this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
-      this.mDB.executeSimpleSQL("PRAGMA cache_size=-10240"); // 10 MiB
-      this.mModel = new CalStorageModel(this.mDB, this);
+      this.mStorageDb.executeSimpleSQL("PRAGMA journal_mode=WAL");
+      this.mStorageDb.executeSimpleSQL("PRAGMA cache_size=-10240"); // 10 MiB
+      this.mModel = new CalStorageModel(this.mStorageDb, this);
     } catch (e) {
-      this.mModel.logError("Error initializing statements.", e);
+      this.mStorageDb.logError("Error initializing statements.", e);
     }
   },
 
   shutdownDB() {
     try {
       this.mModel.finalize();
-      if (this.mDB) {
-        this.mDB.asyncClose();
-        this.mDB = null;
+      if (this.mStorageDb) {
+        this.mStorageDb.close();
+        this.mStorageDb = null;
       }
     } catch (e) {
       cal.ERROR("Error closing storage database: " + e);
