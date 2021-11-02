@@ -499,13 +499,18 @@ CalStorageCalendar.prototype = {
     }
 
     // HACK because recurring offline events/todos objects don't have offline_journal information
-    // Hence we need to update the mRecEventCacheOfflineFlags and  mRecTodoCacheOfflineFlags hash-tables
+    // Hence we need to update the mRecEventCacheOfflineFlags and mRecTodoCacheOfflineFlags hash-tables
     // It can be an expensive operation but is only used in Online Reconciliation mode
     if (
-      query.filters.wantOfflineCreatedItems |
-      query.filters.wantOfflineDeletedItems |
-      query.filters.wantOfflineModifiedItems
+      (query.filters.wantOfflineCreatedItems ||
+        query.filters.wantOfflineDeletedItems ||
+        query.filters.wantOfflineModifiedItems) &&
+      this.mRecItemCachePromise
     ) {
+      // If there's an existing Promise and it's not complete, wait for it - something else is
+      // already waiting and we don't want to break that by throwing away the caches. If it IS
+      // complete, we'll continue immediately.
+      await this.mRecItemCachePromise;
       this.mRecItemCachePromise = null;
     }
 
