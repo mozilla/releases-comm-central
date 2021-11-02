@@ -150,6 +150,8 @@
        * @property {calItemBase} eventItem - The event item.
        * @property {Element} element - The displayed event in this column.
        * @property {boolean} selected - Whether the event is selected.
+       * @property {boolean} needsUpdate - True whilst the eventItem has changed
+       *   and we are still pending updating the 'element' property.
        */
       /**
        * Event data for all the events displayed in this column.
@@ -406,6 +408,7 @@
         eventData = { selected: false };
         this.eventDataMap.set(eventItem.hashId, eventData);
       }
+      eventData.needsUpdate = true;
 
       // We set the eventItem property here, the rest will be updated in
       // relayout().
@@ -523,14 +526,29 @@
 
       for (let eventInfo of eventLayoutList) {
         // Set up a list item element to wrap the event.
+        let item = eventInfo.item;
+        let eventData = this.eventDataMap.get(item.hashId);
+        let eventElement;
+        if (eventData.needsUpdate) {
+          // Create a new wrapper.
+          eventElement = document.createElement("li");
+          eventElement.classList.add("multiday-event-listitem");
+        } else {
+          // Re-use an existing event element. This was removed from the
+          // eventsListElement in _clearElements, but we hold a reference to it
+          // in the eventData. So we can re-add it in the new ordering and
+          // change its dimensions.
+          // Note that we store the calendar-event-box in the eventData, so we
+          // grab its parent to get the wrapper list item.
+          eventElement = eventData.element.parentNode;
+        }
+
         // FIXME: offset and length should be in % of parent's dimension, so we
         // can avoid mPixPerMin.
         let offset = `${eventInfo.start * this.mPixPerMin}px`;
         let length = `${(eventInfo.end - eventInfo.start) * this.mPixPerMin}px`;
         let secondaryOffset = `${eventInfo.secondaryOffset * 100}%`;
         let secondaryLength = `${eventInfo.secondaryLength * 100}%`;
-        let eventElement = document.createElement("li");
-        eventElement.classList.add("multiday-event-listitem");
         if (orient == "vertical") {
           eventElement.style.height = length;
           eventElement.style.width = secondaryLength;
@@ -544,6 +562,9 @@
         }
         this.eventsListElement.appendChild(eventElement);
 
+        if (!eventData.needsUpdate) {
+          continue;
+        }
         // Set up the event box.
         let eventBox = document.createXULElement("calendar-event-box");
         eventElement.appendChild(eventBox);
@@ -551,8 +572,6 @@
           "context",
           this.getAttribute("item-context") || this.getAttribute("context")
         );
-
-        let item = eventInfo.item;
 
         // Set the gripBars visibility in the chunk. Keep it
         // hidden for tasks with only entry date OR due date.
@@ -571,9 +590,8 @@
         eventBox.calendarView = this.calendarView;
         eventBox.occurrence = item;
         eventBox.parentColumn = this;
-        let eventData = this.eventDataMap.get(item.hashId);
         // An event item can technically be 'selected' between a call to
-        // addEvent and this method (because of the setTimeout). E.g.  clicking
+        // addEvent and this method (because of the setTimeout). E.g. clicking
         // the event in the unifinder tree will select the item through
         // selectEvent. If the element wasn't yet created in that method, we set
         // the selected status here as well.
@@ -585,6 +603,7 @@
         // eventData.selected.
         eventBox.selected = eventData.selected;
         eventData.element = eventBox;
+        eventData.needsUpdate = false;
       }
 
       let boxToEdit = this.eventDataMap.get(this.eventToEdit)?.element;
