@@ -22,7 +22,7 @@
   class MozCalendarEventColumn extends MozXULElement {
     static get inheritedAttributes() {
       return {
-        ".multiday-column-top-box": "context",
+        ".multiday-events-list": "context",
         ".timeIndicator": "orient",
         "calendar-event-box": "orient",
       };
@@ -35,9 +35,7 @@
         MozXULElement.parseXULToFragment(`
           <stack class="multiday-column-box-stack" flex="1">
             <box class="multiday-column-bg-box" flex="1"/>
-            <box class="multiday-column-top-box"
-                 flex="1"
-                 equalsize="always"/>
+            <html:ol class="multiday-events-list"></html:ol>
             <box class="timeIndicator" hidden="true"/>
             <box class="fgdragcontainer" flex="1">
               <box class="fgdragspacer">
@@ -52,7 +50,7 @@
         `)
       );
       this.bgbox = this.querySelector(".multiday-column-bg-box");
-      this.topbox = this.querySelector(".multiday-column-top-box");
+      this.eventsListElement = this.querySelector(".multiday-events-list");
 
       this.addEventListener("dblclick", event => {
         if (event.button != 0) {
@@ -184,8 +182,6 @@
       this.mSelected = false;
 
       this.mFgboxes = null;
-
-      this.mMinDuration = null;
 
       this.mDayOff = false;
 
@@ -446,8 +442,8 @@
       while (this.bgbox.hasChildNodes()) {
         this.bgbox.lastChild.remove();
       }
-      while (this.topbox.hasChildNodes()) {
-        this.topbox.lastChild.remove();
+      while (this.eventsListElement.hasChildNodes()) {
+        this.eventsListElement.lastChild.remove();
       }
     }
 
@@ -470,13 +466,13 @@
 
       // 'bgbox' is used mainly for drawing the grid. At some point it may
       // also be used for all-day events.
-      let otherOrient = orient == "horizontal" ? "vertical" : "horizontal";
       let configBox = this.querySelector("calendar-event-box");
       configBox.removeAttribute("hidden");
       let minSize = configBox.getOptimalMinSize();
       configBox.setAttribute("hidden", "true");
-      this.mMinDuration = Cc["@mozilla.org/calendar/duration;1"].createInstance(Ci.calIDuration);
-      this.mMinDuration.minutes = Math.trunc(minSize / this.mPixPerMin);
+      // The minimum event duration in minutes that would give at least the
+      // desired minSize in the layout.
+      let minDuration = Math.ceil(minSize / this.mPixPerMin);
 
       let theMin = this.mStartMin;
       while (theMin < this.mEndMin) {
@@ -523,193 +519,144 @@
       this.fgboxes.box.setAttribute("orient", orient);
       this.querySelector(".fgdragspacer").setAttribute("orient", orient);
 
-      // This one is set to otherOrient, since it will contain
-      // child boxes set to "orient" (one for each set of
-      // overlapping event areas).
-      this.topbox.setAttribute("orient", otherOrient);
-
-      let eventMap = this.computeEventMap();
-
-      if (!eventMap) {
-        return;
-      }
-
-      // First of all we create a xul:stack which
-      // will hold all events for this event column.
-      // The stack will be grouped below .../calendar-event-column/stack/topbox.
-      let stack = document.createXULElement("stack");
-      stack.setAttribute("flex", "1");
-      this.topbox.appendChild(stack);
+      let eventLayoutList = this.computeEventLayoutInfo(minDuration);
 
       let boxToEdit;
-      let columnCount = 1;
-      let spanTotal = 0;
-
-      for (let layer of eventMap) {
-        // The eventMap contains an array of layers.
-        // For each layer we create a box below the stack just created above.
-        // So each different layer lives in a box that's contained in the stack.
-        let xulColumn = document.createXULElement("box");
-        xulColumn.setAttribute("orient", otherOrient);
-        xulColumn.setAttribute("flex", "1");
-        xulColumn.setAttribute("class", "calendar-xul-column");
-        stack.appendChild(xulColumn);
-
-        let numBlocksInserted = 0;
-
-        // Column count determined by layer with no special span columns.
-        if (layer.every(e => !e.specialSpan)) {
-          columnCount = layer.length;
+      for (let eventInfo of eventLayoutList) {
+        // Set up a list item element to wrap the event.
+        // FIXME: offset and length should be in % of parent's dimension, so we
+        // can avoid mPixPerMin.
+        let offset = `${eventInfo.start * this.mPixPerMin}px`;
+        let length = `${(eventInfo.end - eventInfo.start) * this.mPixPerMin}px`;
+        let secondaryOffset = `${eventInfo.secondaryOffset * 100}%`;
+        let secondaryLength = `${eventInfo.secondaryLength * 100}%`;
+        let eventElement = document.createElement("li");
+        eventElement.classList.add("multiday-event-listitem");
+        if (orient == "vertical") {
+          eventElement.style.height = length;
+          eventElement.style.width = secondaryLength;
+          eventElement.style.insetBlockStart = offset;
+          eventElement.style.insetInlineStart = secondaryOffset;
+        } else {
+          eventElement.style.width = length;
+          eventElement.style.height = secondaryLength;
+          eventElement.style.insetInlineStart = offset;
+          eventElement.style.insetBlockStart = secondaryOffset;
         }
-        spanTotal = 0;
+        this.eventsListElement.appendChild(eventElement);
 
-        // Each layer contains a list of the columns that
-        // need to be created for a span.
-        for (let column of layer) {
-          let innerColumn = document.createXULElement("box");
-          innerColumn.setAttribute("orient", orient);
+        // Set up the event box.
+        let eventBox = document.createXULElement("calendar-event-box");
+        eventElement.appendChild(eventBox);
+        eventBox.setAttribute(
+          "context",
+          this.getAttribute("item-context") || this.getAttribute("context")
+        );
 
-          let colFlex = column.specialSpan ? columnCount * column.specialSpan : 1;
-          innerColumn.setAttribute("flex", colFlex);
-          spanTotal += colFlex;
+        let item = eventInfo.item;
 
-          innerColumn.style.minWidth = "1px";
-          innerColumn.style.minHeight = "1px";
-          innerColumn.style.width = colFlex + "px";
-          innerColumn.style.height = colFlex + "px";
-
-          xulColumn.appendChild(innerColumn);
-          let duration;
-          for (let chunk of column) {
-            duration = chunk.duration;
-            if (!duration) {
-              continue;
-            }
-
-            if (chunk.event) {
-              let chunkBox = document.createXULElement("calendar-event-box");
-              let durMinutes = duration.inSeconds / 60;
-              let size = Math.max(durMinutes * this.mPixPerMin, minSize);
-              if (orient == "vertical") {
-                chunkBox.setAttribute("height", size);
-              } else {
-                chunkBox.setAttribute("width", size);
-              }
-              chunkBox.setAttribute(
-                "context",
-                this.getAttribute("item-context") || this.getAttribute("context")
-              );
-
-              // Set the gripBars visibility in the chunk. Keep it
-              // hidden for tasks with only entry date OR due date.
-              if (
-                (chunk.event.entryDate || !chunk.event.dueDate) &&
-                (!chunk.event.entryDate || chunk.event.dueDate)
-              ) {
-                let startGripVisible =
-                  (chunk.event.startDate || chunk.event.entryDate).compare(chunk.startDate) == 0;
-                let endGripVisible =
-                  (chunk.event.endDate || chunk.event.dueDate).compare(chunk.endDate) <= 0;
-                if (startGripVisible && endGripVisible) {
-                  chunkBox.setAttribute("gripBars", "both");
-                } else if (endGripVisible) {
-                  chunkBox.setAttribute("gripBars", "end");
-                } else if (startGripVisible) {
-                  chunkBox.setAttribute("gripBars", "start");
-                }
-              }
-
-              innerColumn.appendChild(chunkBox);
-              chunkBox.setAttribute("orient", orient);
-              chunkBox.calendarView = this.calendarView;
-              chunkBox.occurrence = chunk.event;
-              chunkBox.parentColumn = this;
-              let eventData = this.eventDataMap.get(chunk.event.hashId);
-              // An event item can technically be 'selected' between a call to
-              // addEvent and this method (because of the setTimeout). E.g.
-              // clicking the event in the unifinder tree will select the item
-              // through selectEvent. If the element wasn't yet created in that
-              // method, we set the selected status here as well.
-              //
-              // Similarly, if an event has the same hashId, we maintain its
-              // selection.
-              // NOTE: In this latter case we are relying on the fact that
-              // eventData.element.selected is never out of sync with
-              // eventData.selected.
-              chunkBox.selected = eventData.selected;
-              eventData.element = chunkBox;
-
-              if (this.mEventToEdit && chunkBox.occurrence.hashId == this.mEventToEdit.hashId) {
-                boxToEdit = chunkBox;
-              }
-            } else {
-              let chunkBox = document.createXULElement("spacer");
-              chunkBox.setAttribute("context", this.getAttribute("context"));
-              chunkBox.setAttribute("orient", orient);
-              chunkBox.setAttribute("class", "calendar-empty-space-box");
-              innerColumn.appendChild(chunkBox);
-
-              let durMinutes = duration.inSeconds / 60;
-              if (orient == "vertical") {
-                chunkBox.setAttribute("height", durMinutes * this.mPixPerMin);
-              } else {
-                chunkBox.setAttribute("width", durMinutes * this.mPixPerMin);
-              }
-            }
+        // Set the gripBars visibility in the chunk. Keep it
+        // hidden for tasks with only entry date OR due date.
+        if ((item.entryDate || !item.dueDate) && (!item.entryDate || item.dueDate)) {
+          let startGripVisible = !eventInfo.startClipped;
+          let endGripVisible = !eventInfo.endClipped;
+          if (startGripVisible && endGripVisible) {
+            eventBox.setAttribute("gripBars", "both");
+          } else if (endGripVisible) {
+            eventBox.setAttribute("gripBars", "end");
+          } else if (startGripVisible) {
+            eventBox.setAttribute("gripBars", "start");
           }
-
-          numBlocksInserted++;
         }
+        eventBox.setAttribute("orient", orient);
+        eventBox.calendarView = this.calendarView;
+        eventBox.occurrence = item;
+        eventBox.parentColumn = this;
+        let eventData = this.eventDataMap.get(item.hashId);
+        // An event item can technically be 'selected' between a call to
+        // addEvent and this method (because of the setTimeout). E.g.  clicking
+        // the event in the unifinder tree will select the item through
+        // selectEvent. If the element wasn't yet created in that method, we set
+        // the selected status here as well.
+        //
+        // Similarly, if an event has the same hashId, we maintain its
+        // selection.
+        // NOTE: In this latter case we are relying on the fact that
+        // eventData.element.selected is never out of sync with
+        // eventData.selected.
+        eventBox.selected = eventData.selected;
+        eventData.element = eventBox;
 
-        // Add last empty column if necessary.
-        if (spanTotal < columnCount) {
-          let lastColumn = document.createXULElement("box");
-          lastColumn.setAttribute("orient", orient);
-          lastColumn.setAttribute("flex", columnCount - spanTotal);
-          lastColumn.style.minWidth = "1px";
-          lastColumn.style.minHeight = "1px";
-          lastColumn.style.width = columnCount - spanTotal + "px";
-          lastColumn.style.height = columnCount - spanTotal + "px";
-
-          xulColumn.appendChild(lastColumn);
+        if (this.mEventToEdit && item.hashId == this.mEventToEdit.hashId) {
+          boxToEdit = eventBox;
         }
+      }
 
-        if (boxToEdit) {
-          this.mCreatedNewEvent = false;
-          this.mEventToEdit = null;
-          boxToEdit.startEditing();
-        }
-
-        if (numBlocksInserted == 0) {
-          // If we didn't insert any blocks, then
-          // forget about this column.
-          xulColumn.remove();
-        }
+      if (boxToEdit) {
+        this.mCreatedNewEvent = false;
+        this.mEventToEdit = null;
+        boxToEdit.startEditing();
       }
     }
 
-    computeEventMap() {
+    /**
+     * Layout information for displaying an event in the calendar column. The
+     * calendar column has two dimensions: a primary-dimension, in minutes,
+     * that runs from the start of the day to the end of the day; and a
+     * secondary-dimension which runs from 0 to 1. This object describes how
+     * an event can be placed on these axes.
+     *
+     * @typedef {Object} EventLayoutInfo
+     * @property {calItemBase} item - The event item we want to display.
+     * @property {number} start - The number of minutes from the start of this
+     *   column's day to when the event should start.
+     * @property {number} end - The number of minutes from the start of this
+     *   column's day to when the event ends.
+     * @property {boolean} [startClipped] - Whether the event technically starts
+     *   on a previous day, which means that the 'start' had to be clipped to
+     *   the start of the day.
+     * @property {boolean} [endClipped] - Whether the event technically ends
+     *   on a later day, which means that the 'end' had to be clipped to
+     *   the end of the day.
+     * @property {number} secondaryOffset - The position of the event on the
+     *   secondary axis (between 0 and 1).
+     * @property {number} secondaryLength - The length of the event on the
+     *   secondary axis (between 0 and 1).
+     */
+    /**
+     * Get an ordered list of events and their layout information. The list is
+     * ordered relative to the event's layout.
+     *
+     * @param {number} minDuration - The minimum number of minutes that an event
+     *   should be *shown* to last. This should be large enough to ensure that
+     *   events are readable in the layout.
+     *
+     * @return {EventLayoutInfo[]} - An ordered list of event layout
+     *   information.
+     */
+    computeEventLayoutInfo(minDuration) {
       if (!this.eventDataMap.size) {
-        return null;
+        return [];
       }
 
       function sortByStart(aEventInfo, bEventInfo) {
         // If you pass in tasks without both entry and due dates, I will
         // kill you.
-        let startComparison = aEventInfo.layoutStart.compare(bEventInfo.layoutStart);
+        let startComparison = aEventInfo.startDate.compare(bEventInfo.startDate);
         if (startComparison == 0) {
           // If the items start at the same time, return the longer one
           // first.
-          return bEventInfo.layoutEnd.compare(aEventInfo.layoutEnd);
+          return bEventInfo.endDate.compare(aEventInfo.endDate);
         }
         return startComparison;
       }
 
-      // An ordered list of data for each event we want to show. The contained
-      // fields are:
-      // - event:       The event that is to be displayed.
-      // - layoutStart: The displayed 'start'-datetime object of the event.
-      // - layoutEnd:   The displayed 'end'-datetime object of the event.
+      // Construct the ordered list of EventLayoutInfo objects that we will
+      // eventually return.
+      // To begin, we construct the objects with a 'startDate' and 'endDate'
+      // properties, as opposed to using minutes from the start of the day
+      // because we want to sort the events relative to their absolute start
+      // times.
       let eventList = Array.from(this.eventDataMap.values(), eventData => {
         let item = eventData.eventItem;
         let start = item.startDate || item.entryDate || item.dueDate;
@@ -718,16 +665,39 @@
         start = start.getInTimezone(this.mTimezone);
         let end = item.endDate || item.dueDate || item.entryDate;
         end = end.getInTimezone(this.mTimezone);
-        // Make sure the event has a minimum *displayed* end time to ensure the
-        // event has enough duration to be visible.
-        let minEnd = start.clone();
-        minEnd.addDuration(this.mMinDuration);
-        if (minEnd.nativeTime > end.nativeTime) {
-          end = minEnd;
-        }
-        return { event: item, layoutStart: start, layoutEnd: end };
+        return { item, startDate: start, endDate: end };
       });
       eventList.sort(sortByStart);
+      // After sorting, we now convert start and end date times to minutes from
+      // the start of the day.
+      // Any events that start or end on a different day are clipped to the
+      // start/end minutes of this day instead.
+      for (let eventInfo of eventList) {
+        let start = eventInfo.startDate;
+        let end = eventInfo.endDate;
+        if (
+          start.year == this.date.year &&
+          start.month == this.date.month &&
+          start.day == this.date.day
+        ) {
+          eventInfo.start = start.hour * 60 + start.minute;
+        } else {
+          eventInfo.start = 0;
+          eventInfo.startClipped = true;
+        }
+        let minEnd = eventInfo.start + minDuration;
+        if (
+          end.year == this.date.year &&
+          end.month == this.date.month &&
+          end.day == this.date.day
+        ) {
+          eventInfo.end = Math.max(end.hour * 60 + end.minute, minEnd);
+        } else {
+          // NOTE: minEnd can overflow the end of the day.
+          eventInfo.end = Math.max(24 * 60, minEnd);
+          eventInfo.endClipped = true;
+        }
+      }
 
       // Some Events in the calendar column will overlap in time. When they do,
       // we want them to share the horizontal space (assuming the column is
@@ -759,11 +729,11 @@
       let allEventBlocks = [];
       // The current Block.
       let blockColumns = [];
-      let blockEnd = eventList[0].layoutEnd;
+      let blockEnd = eventList[0].end;
 
       for (let eventInfo of eventList) {
-        let start = eventInfo.layoutStart;
-        if (blockColumns.length && start.compare(blockEnd) != -1) {
+        let start = eventInfo.start;
+        if (blockColumns.length && start >= blockEnd) {
           // There is a gap between this Event and the end of the Block. We also
           // know from the ordering of eventList that all other Events start at
           // the same time or later. So there are no more Events that can be
@@ -772,8 +742,8 @@
           blockColumns = [];
         }
 
-        if (eventInfo.layoutEnd.compare(blockEnd) == 1) {
-          blockEnd = eventInfo.layoutEnd;
+        if (eventInfo.end > blockEnd) {
+          blockEnd = eventInfo.end;
         }
 
         // Find the earliest Column that the Event fits in.
@@ -785,8 +755,8 @@
           // overlap anything else in this Column, it must have a start time
           // that is later than or equal to the end time of the last Event in
           // this column.
-          let colEnd = column[column.length - 1].layoutEnd;
-          if (start.compare(colEnd) != -1) {
+          let colEnd = column[column.length - 1].end;
+          if (start >= colEnd) {
             // It fits in this Column, so we push it to the end (preserving the
             // eventList ordering within the Column).
             column.push(eventInfo);
@@ -804,14 +774,7 @@
         allEventBlocks.push(blockColumns);
       }
 
-      // We're going to create a series of 'blobs'.
-      // Each blob will be an array of objects with the following properties:
-      //    itemInfo: the event/task info
-      //    startCol: the starting column to display the event in (0-indexed)
-      //    colSpan:  the number of columns the item spans
-      // An item with no conflicts will have startCol: 0 and colSpan: 1.
-      let blobs = allEventBlocks.map(blockColumns => {
-        let events = [];
+      for (let blockColumns of allEventBlocks) {
         let totalCols = blockColumns.length;
         for (let colIndex = 0; colIndex < totalCols; colIndex++) {
           for (let eventInfo of blockColumns[colIndex]) {
@@ -819,8 +782,7 @@
               // Already processed this Event in an earlier Column.
               continue;
             }
-            let start = eventInfo.layoutStart;
-            let end = eventInfo.layoutEnd;
+            let { start, end } = eventInfo;
             let colSpan = 1;
             // Currently, the Event is only contained in one Column. We want to
             // first try and stretch it across several continuous columns.
@@ -840,7 +802,7 @@
               let indexInCol;
               for (indexInCol = 0; indexInCol < neighbourColumn.length; indexInCol++) {
                 let otherEventInfo = neighbourColumn[indexInCol];
-                if (end.compare(otherEventInfo.layoutStart) != 1) {
+                if (end <= otherEventInfo.start) {
                   // The end of this Event is before or equal to the start of
                   // the other Event, so it cannot overlap.
                   // Moreover, the rest of the Events in this neighbouring
@@ -851,7 +813,7 @@
                   // Event in this neighbouring Column that starts after this
                   // Event.
                   break;
-                } else if (start.compare(otherEventInfo.layoutEnd) == -1) {
+                } else if (start < otherEventInfo.end) {
                   // The end of this Event is after the start of the other
                   // Event, and the start of this Event is before the end of
                   // the other Event. So they must overlap.
@@ -872,158 +834,12 @@
               neighbourColumn.splice(indexInCol, 0, eventInfo);
             }
             eventInfo.processed = true;
-            // Convert to a blob item.
-            events.push({ itemInfo: eventInfo, startCol: colIndex, colSpan });
+            eventInfo.secondaryOffset = colIndex / totalCols;
+            eventInfo.secondaryLength = colSpan / totalCols;
           }
         }
-        return { blob: events, totalCols };
-      });
-      return this.setupBoxStructure(blobs);
-    }
-
-    setupBoxStructure(blobs) {
-      // This is actually going to end up being a 3-d array
-      // 1st dimension: "layers", sets of columns of events that all
-      //                should have equal width*
-      // 2nd dimension: "columns", individual columns of non-conflicting
-      //                items
-      // 3rd dimension: "chunks", individual items or placeholders for
-      //                the blank time in between them
-      //
-      // * Note that 'equal width' isn't strictly correct.  If we're
-      //   oriented differently, it will be height (and we'll have rows
-      //   not columns).  What's more, in the 'specialSpan' case, the
-      //   columns won't actually have the same size, but will only all
-      //   be multiples of a common size.  See the note in the relayout
-      //   function for more info on this (fairly rare) case.
-      let layers = [];
-
-      // When we start a new blob, move to a new set of layers.
-      let layerOffset = 0;
-      for (let glob of blobs) {
-        let layerArray = [];
-        let layerCounter = 1;
-
-        for (let data of glob.blob) {
-          // From the item at hand we need to figure out on which
-          // layer and on which column it should go.
-          let layerIndex;
-          let specialSpan = null;
-
-          // Each blob receives its own layer, that's the first part of the story. within
-          // a given blob we need to distribute the items on different layers depending on
-          // the number of columns each item spans. if each item just spans a single column
-          // the blob will cover *one* layer. if the blob contains items that span more than
-          // a single column, this blob will cover more than one layer. the algorithm places
-          // the items on the first layer in the case an item covers a single column. new layers
-          // are introduced based on the start column and number of spanning columns of an item.
-          if (data.colSpan == 1) {
-            layerIndex = 0;
-          } else {
-            let index = glob.totalCols * data.colSpan + data.startCol;
-            layerIndex = layerArray[index];
-            if (!layerIndex) {
-              layerIndex = layerCounter++;
-              layerArray[index] = layerIndex;
-            }
-            let offset = (glob.totalCols - data.colSpan) % glob.totalCols;
-            if (offset != 0) {
-              specialSpan = data.colSpan / glob.totalCols;
-            }
-          }
-          layerIndex += layerOffset;
-
-          // Make sure there's room to insert stuff.
-          while (layerIndex >= layers.length) {
-            layers.push([]);
-          }
-
-          while (data.startCol >= layers[layerIndex].length) {
-            layers[layerIndex].push([]);
-            if (specialSpan) {
-              layers[layerIndex][layers[layerIndex].length - 1].specialSpan = 1 / glob.totalCols;
-            }
-          }
-
-          // We now retrieve the column from 'layerIndex' and 'startCol'.
-          let col = layers[layerIndex][data.startCol];
-          if (specialSpan) {
-            col.specialSpan = specialSpan;
-          }
-
-          // Take into account that items can span several days.
-          // that's why i'm clipping the start- and end-time to the
-          // timespan of this column.
-          let start = data.itemInfo.layoutStart;
-          let end = data.itemInfo.layoutEnd;
-          if (
-            start.year != this.date.year ||
-            start.month != this.date.month ||
-            start.day != this.date.day
-          ) {
-            start = start.clone();
-            start.resetTo(
-              this.date.year,
-              this.date.month,
-              this.date.day,
-              0,
-              this.mStartMin,
-              0,
-              start.timezone
-            );
-          }
-          if (
-            end.year != this.date.year ||
-            end.month != this.date.month ||
-            end.day != this.date.day
-          ) {
-            end = end.clone();
-            end.resetTo(
-              this.date.year,
-              this.date.month,
-              this.date.day,
-              0,
-              this.mEndMin,
-              0,
-              end.timezone
-            );
-          }
-          let prevEnd;
-          if (col.length > 0) {
-            // Fill in time gaps with a placeholder.
-            prevEnd = col[col.length - 1].endDate.clone();
-          } else {
-            // First event in the column, add a placeholder for the
-            // blank time from this.mStartMin to the event's start.
-            prevEnd = start.clone();
-            prevEnd.hour = 0;
-            prevEnd.minute = this.mStartMin;
-          }
-          prevEnd.timezone = cal.dtz.floating;
-          // The reason why we need to calculate time durations
-          // based on floating timezones is that we need avoid
-          // dst gaps in this case. converting the date/times to
-          // floating conveys this idea in a natural way. note that
-          // we explicitly don't use getInTimezone() as it would
-          // be slightly more expensive in terms of performance.
-          let floatstart = start.clone();
-          floatstart.timezone = cal.dtz.floating;
-          let dur = floatstart.subtractDate(prevEnd);
-          if (dur.inSeconds) {
-            col.push({ duration: dur });
-          }
-          let floatend = end.clone();
-          floatend.timezone = cal.dtz.floating;
-          col.push({
-            event: data.itemInfo.event,
-            endDate: end,
-            startDate: start,
-            duration: floatend.subtractDate(floatstart),
-          });
-        }
-        layerOffset = layers.length;
       }
-      return layers;
+      return eventList;
     }
 
     getShadowElements(start, end) {

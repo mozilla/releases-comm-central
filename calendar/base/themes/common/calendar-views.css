@@ -239,14 +239,28 @@
 
 /* Multiday view */
 
+.multiday-events-list {
+  padding: 0;
+  position: relative;
+}
+
+.multiday-event-listitem {
+  /* This acts as sized wrapper to an calendar-event-box, so we use the grid
+   * display to give it the same dimensions. */
+  display: grid;
+  position: absolute;
+}
+
 /* Margin that allows event creation by click and drag when the time slot is
    full of events. On the right side in normal view ... */
-.multiday-column-box-stack > .multiday-column-top-box[orient="horizontal"] {
-  margin-inline-end: 5px;
+calendar-event-column[orient="vertical"] .multiday-events-list {
+  margin-inline: 0 5px;
+  margin-block: 0;
 }
 /* ... and on bottom in rotate view. */
-.multiday-column-box-stack > .multiday-column-top-box[orient="vertical"] {
-  margin-bottom: 5px;
+calendar-event-column[orient="horizontal"] .multiday-events-list {
+  margin-block: 0 5px;
+  margin-inline: 0;
 }
 
 /* .. and on the right side in the header container in normal view */
@@ -1164,13 +1178,15 @@ radio.calview:not([selected=true]):hover {
   overflow:hidden;
 }
 
-.multiday-column-top-box,
+.multiday-events-list,
 .timeIndicator {
   pointer-events: none;
 }
 
-.multiday-column-box-stack, .multiday-column-bg-box, .multiday-column-top-box, .calendar-empty-space-box,
-.calendar-event-column-linebox, .calendar-xul-column {
+.multiday-column-box-stack,
+.multiday-column-bg-box,
+.multiday-events-list,
+.calendar-event-column-linebox {
   min-width: 1px;
   min-height: 1px;
 }

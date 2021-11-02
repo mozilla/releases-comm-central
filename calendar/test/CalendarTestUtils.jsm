@@ -237,9 +237,7 @@ class CalendarWeekViewTestUtils {
    */
   getEventBoxes(win, day) {
     let column = this.getEventColumn(win, day);
-    return column.querySelectorAll(
-      `.multiday-column-box-stack > .multiday-column-top-box > stack calendar-event-box`
-    );
+    return column.querySelectorAll(".multiday-events-list calendar-event-box");
   }
 
   /**
