@@ -4,6 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["Pop3Service"];
 
+var { Pop3Client } = ChromeUtils.import("resource:///modules/Pop3Client.jsm");
+
 /**
  * Set mailnews.pop3.jsmodule to true to use this module.
  *
@@ -16,12 +18,21 @@ class Pop3Service {
     this._listeners = [];
   }
 
-  GetNewMail(msgWindow, urlListener, inbox, server) {}
+  GetNewMail(msgWindow, urlListener, inbox, server) {
+    return this._getMail(true, msgWindow, urlListener, inbox, server);
+  }
 
-  CheckForNewMail(msgWindow, urlListener, inbox, server) {}
+  CheckForNewMail(msgWindow, urlListener, inbox, server) {
+    return this._getMail(false, msgWindow, urlListener, inbox, server);
+  }
 
   addListener(listener) {
     this._listeners.push(listener);
+  }
+
+  _getMail(downloadNewMail, msgWindow, urlListener, inbox, server) {
+    let client = new Pop3Client(server);
+    client.connect();
   }
 }
 

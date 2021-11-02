@@ -7,6 +7,9 @@ const EXPORTED_SYMBOLS = ["Pop3IncomingServer"];
 var { MsgIncomingServer } = ChromeUtils.import(
   "resource:///modules/MsgIncomingServer.jsm"
 );
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * @implements {nsIPop3IncomingServer}
@@ -31,7 +34,12 @@ class Pop3IncomingServer extends MsgIncomingServer {
   /** @see nsIMsgIncomingServer */
   performExpand(msgWindow) {}
 
-  getNewMessages(folder, msgWindow, urlListener) {}
+  getNewMessages(folder, msgWindow, urlListener) {
+    let inbox = this.rootMsgFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Inbox
+    );
+    return MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+  }
 }
 
 Pop3IncomingServer.prototype.classID = Components.ID(
