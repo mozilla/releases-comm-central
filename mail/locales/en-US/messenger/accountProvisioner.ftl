@@ -24,10 +24,10 @@ account-provisioner-domain-description = Thunderbird partnered with <a data-l10n
 ## Forms
 
 account-provisioner-mail-input =
-    .placeholder = Your name, nickname or other search term
+    .placeholder = Your name, nickname, or other search term
 
 account-provisioner-domain-input =
-    .placeholder = Your name, nickname or other search term
+    .placeholder = Your name, nickname, or other search term
 
 account-provisioner-search-button = Search
 
@@ -39,7 +39,7 @@ account-provisioner-button-back = Go back
 
 ## Notifications
 
-account-provisioner-fetching-provisioners = Retrivieng provisioners…
+account-provisioner-fetching-provisioners = Retrieving provisioners…
 
 account-provisioner-connection-issues = Unable to communicate with our sign-up servers. Please check your connection.
 
