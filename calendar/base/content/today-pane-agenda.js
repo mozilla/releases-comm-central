@@ -405,16 +405,25 @@
     set item(item) {
       this._item = item;
 
-      let defaultTimezone = cal.dtz.defaultTimezone;
       let isAllDay = item.startDate.isDate;
       this.classList.toggle("agenda-listitem-all-day", isAllDay);
-      this.overlapsStart = item.startDate.compare(TodayPane.agenda.startDate) < 0;
+
+      let defaultTimezone = cal.dtz.defaultTimezone;
+      this._localStartDate = item.startDate;
+      if (this._localStartDate.timezone.tzid != defaultTimezone.tzid) {
+        this._localStartDate = this._localStartDate.getInTimezone(defaultTimezone);
+      }
+      this._localEndDate = item.endDate;
+      if (this._localEndDate.timezone.tzid != defaultTimezone.tzid) {
+        this._localEndDate = this._localEndDate.getInTimezone(defaultTimezone);
+      }
+      this.overlapsStart = this._localStartDate.compare(TodayPane.agenda.startDate) < 0;
 
       if (this.classList.contains("agenda-listitem-end")) {
         this.id = `agenda-listitem-end-${item.hashId}`;
         this.overlapsStart = true;
 
-        let endDate = item.endDate.getInTimezone(defaultTimezone);
+        let endDate = this._localEndDate.clone();
         if (endDate.isDate || (endDate.hour == 0 && endDate.minute == 0 && endDate.second == 0)) {
           endDate.day--;
         }
@@ -437,7 +446,7 @@
           );
           this.sortValue = labelDate.nativeTime;
         } else {
-          labelDate = item.startDate.getInTimezone(defaultTimezone);
+          labelDate = this._localStartDate.clone();
           this.sortValue = labelDate.nativeTime;
         }
 
@@ -451,9 +460,9 @@
           0,
           defaultTimezone
         );
-        this.overlapsMidnight = item.endDate.compare(nextDay) > 0;
+        this.overlapsMidnight = this._localEndDate.compare(nextDay) > 0;
         this.overlapsEnd =
-          this.overlapsMidnight && item.endDate.compare(TodayPane.agenda.endDate) >= 0;
+          this.overlapsMidnight && this._localEndDate.compare(TodayPane.agenda.endDate) >= 0;
 
         this.dateString = labelDate.icalString;
       }
@@ -468,22 +477,12 @@
         if (this.overlapsStart) {
           if (!this.overlapsMidnight) {
             this.timeElement.setAttribute("datetime", cal.dtz.toRFC3339(this.item.endDate));
-
-            let localEndDate = item.endDate;
-            if (localEndDate.timezone.tzid != defaultTimezone.tzid) {
-              localEndDate = localEndDate.getInTimezone(defaultTimezone);
-            }
-            this.timeElement.textContent = cal.dtz.formatter.formatTime(localEndDate);
-            this.sortValue = item.endDate.getInTimezone(defaultTimezone).nativeTime;
+            this.timeElement.textContent = cal.dtz.formatter.formatTime(this._localEndDate);
+            this.sortValue = this._localEndDate.nativeTime;
           }
         } else {
           this.timeElement.setAttribute("datetime", cal.dtz.toRFC3339(this.item.startDate));
-
-          let localStartDate = item.startDate;
-          if (localStartDate.timezone.tzid != defaultTimezone.tzid) {
-            localStartDate = localStartDate.getInTimezone(defaultTimezone);
-          }
-          this.timeElement.textContent = cal.dtz.formatter.formatTime(localStartDate);
+          this.timeElement.textContent = cal.dtz.formatter.formatTime(this._localStartDate);
           this.setRelativeTime();
         }
       }
@@ -550,9 +549,9 @@
       let now = cal.dtz.now();
 
       // The event has started.
-      if (this.item.startDate.compare(now) <= 0) {
+      if (this._localStartDate.compare(now) <= 0) {
         // The event is happening now.
-        if (this.item.endDate.compare(now) <= 0) {
+        if (this._localEndDate.compare(now) <= 0) {
           this.classList.add("agenda-listitem-past");
         } else {
           this.classList.add("agenda-listitem-now");
@@ -561,10 +560,10 @@
         return;
       }
 
-      let relative = this.item.startDate.subtractDate(now);
+      let relative = this._localStartDate.subtractDate(now);
 
       // Should we display a label? Is the event today or less than 12 hours away?
-      if (this.item.startDate.day == now.day || (relative.days == 0 && relative.hours < 12)) {
+      if (this._localStartDate.day == now.day || (relative.days == 0 && relative.hours < 12)) {
         let unit = "hour";
         let value = relative.hours;
         if (value == 0) {
