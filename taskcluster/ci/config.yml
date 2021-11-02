@@ -135,8 +135,8 @@ merge-automation:
                   version-bump: "minor"
             replacements: []
             merge-old-head: false
-            to-repo: 'https://hg.mozilla.org/releases/comm-esr78'
-            to-branch: 'comm-esr78'
+            to-repo: 'https://hg.mozilla.org/releases/comm-esr91'
+            to-branch: 'comm-esr91'
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
