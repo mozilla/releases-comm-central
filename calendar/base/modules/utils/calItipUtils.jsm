@@ -1674,6 +1674,7 @@ ItipItemFinder.prototype = {
                     "_blank",
                     "chrome,modal,resizable=no,centerscreen",
                     {
+                      extResponse,
                       onCancel() {
                         sendCancelled = true;
                       },
