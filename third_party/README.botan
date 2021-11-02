@@ -1,12 +1,13 @@
-Directory ./botan contains a copy of version 2.17.3 of the Botan library,
-which has been obtained from https://botan.randombit.net/releases/Botan-2.17.3.tar.xz .
+Directory ./botan contains a copy of version 2.18.2 of the Botan library,
+which has been obtained from https://botan.randombit.net/releases/Botan-2.18.2.tar.xz .
 
 For licensing information, please refer to the included documentation.
 
 The SHA256SUM of the imported file is:
-79123b654445a4abba486e09a431788545c708237382a3e765664c9f55b03b88  Botan-2.17.3.tar.xz
+541a3b13f1b9d30f977c6c1ae4c7bfdfda763cda6e44de807369dce79f42307e  Botan-2.18.2.tar.xz
 
 The following files were removed from the source distribution:
+.github/
 .gitignore
 .lgtm.yml
 .travis.yml
