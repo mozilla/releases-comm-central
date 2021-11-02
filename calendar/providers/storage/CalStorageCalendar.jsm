@@ -2,19 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["CalStorageCalendar"];
+const EXPORTED_SYMBOLS = ["CalStorageCalendar"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { upgradeDB } = ChromeUtils.import("resource:///modules/calendar/calStorageUpgrade.jsm");
-var { CalStorageModel } = ChromeUtils.import("resource:///modules/calendar/CalStorageModel.jsm");
-var { CalStorageDatabase } = ChromeUtils.import(
+const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { CalStorageDatabase } = ChromeUtils.import(
   "resource:///modules/calendar/CalStorageDatabase.jsm"
 );
+const { CalStorageModelFactory } = ChromeUtils.import(
+  "resource:///modules/calendar/CalStorageModelFactory.jsm"
+);
+const { CalStorageStatements } = ChromeUtils.import(
+  "resource:///modules/calendar/CalStorageStatements.jsm"
+);
+const { upgradeDB } = ChromeUtils.import("resource:///modules/calendar/calStorageUpgrade.jsm");
 
-var kCalICalendar = Ci.calICalendar;
-var cICL = Ci.calIChangeLog;
+const kCalICalendar = Ci.calICalendar;
+const cICL = Ci.calIChangeLog;
 
 function CalStorageCalendar() {
   this.initProviderBase();
@@ -45,7 +50,9 @@ CalStorageCalendar.prototype = {
   // private members
   //
   mStorageDb: null,
-  mModel: null,
+  mItemModel: null,
+  mOfflineModel: null,
+  mMetaModel: null,
   mItemCache: null,
   mRecItemCachePromise: null,
   mRecEventCache: null,
@@ -64,7 +71,7 @@ CalStorageCalendar.prototype = {
   },
 
   async deleteCalendar(aCalendar, listener) {
-    await this.mModel.deleteCalendar(aCalendar);
+    await this.mItemModel.deleteCalendar();
     try {
       if (listener) {
         listener.onDeleteCalendar(aCalendar, Cr.NS_OK, null);
@@ -210,7 +217,7 @@ CalStorageCalendar.prototype = {
       if (olditem) {
         if (this.relaxedMode) {
           // we possibly want to interact with the user before deleting
-          await this.mModel.deleteItemById(aItem.id, true);
+          await this.mItemModel.deleteItemById(aItem.id, true);
         } else {
           this.notifyOperationComplete(
             aListener,
@@ -232,7 +239,7 @@ CalStorageCalendar.prototype = {
     parentItem.calendar = this.superCalendar;
     parentItem.makeImmutable();
 
-    await this.mModel.addItem(parentItem);
+    await this.mItemModel.addItem(parentItem);
 
     // notify the listener
     this.notifyOperationComplete(
@@ -352,8 +359,8 @@ CalStorageCalendar.prototype = {
     }
 
     modifiedItem.makeImmutable();
-    await this.mModel.updateItem(modifiedItem, aOldItem);
-    await this.mModel.setOfflineJournalFlag(aNewItem, oldOfflineFlag);
+    await this.mItemModel.updateItem(modifiedItem, aOldItem);
+    await this.mOfflineModel.setOfflineJournalFlag(aNewItem, oldOfflineFlag);
 
     this.notifyOperationComplete(
       aListener,
@@ -398,7 +405,7 @@ CalStorageCalendar.prototype = {
       return;
     }
 
-    await this.mModel.deleteItemById(aItem.id);
+    await this.mItemModel.deleteItemById(aItem.id);
 
     this.notifyOperationComplete(
       aListener,
@@ -496,7 +503,7 @@ CalStorageCalendar.prototype = {
 
     await this.assureRecurringItemCaches();
 
-    await this.mModel.getItems(query, (items, queuedItemsIID) => {
+    await this.mItemModel.getItems(query, (items, queuedItemsIID) => {
       aListener.onGetResult(this.superCalendar, Cr.NS_OK, queuedItemsIID, null, items);
     });
 
@@ -508,7 +515,7 @@ CalStorageCalendar.prototype = {
     let flag = null;
     if (aItem) {
       try {
-        flag = await this.mModel.getItemOfflineFlag(aItem);
+        flag = await this.mOfflineModel.getItemOfflineFlag(aItem);
       } catch (ex) {
         aListener.onOperationComplete(
           this,
@@ -530,7 +537,7 @@ CalStorageCalendar.prototype = {
   //
   async addOfflineItem(aItem, aListener) {
     let newOfflineJournalFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
-    await this.mModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
+    await this.mOfflineModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
     this.notifyOperationComplete(
       aListener,
       Cr.NS_OK,
@@ -553,7 +560,7 @@ CalStorageCalendar.prototype = {
         ) {
           // Do nothing since a flag of "created" or "deleted" exists
         } else {
-          await self.mModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
+          await self.mOfflineModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
         }
         self.notifyOperationComplete(
           aListener,
@@ -576,12 +583,12 @@ CalStorageCalendar.prototype = {
         if (oldOfflineJournalFlag) {
           // Delete item if flag is c
           if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
-            await self.mModel.deleteItemById(aItem.id);
+            await self.mItemModel.deleteItemById(aItem.id);
           } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
-            await self.mModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+            await self.mOfflineModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
           }
         } else {
-          await self.mModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+          await self.mOfflineModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
         }
 
         self.notifyOperationComplete(
@@ -599,7 +606,7 @@ CalStorageCalendar.prototype = {
   },
 
   async resetItemOfflineFlag(aItem, aListener) {
-    await this.mModel.setOfflineJournalFlag(aItem, null);
+    await this.mOfflineModel.setOfflineJournalFlag(aItem, null);
     this.notifyOperationComplete(
       aListener,
       Cr.NS_OK,
@@ -622,7 +629,25 @@ CalStorageCalendar.prototype = {
     try {
       this.mStorageDb.executeSimpleSQL("PRAGMA journal_mode=WAL");
       this.mStorageDb.executeSimpleSQL("PRAGMA cache_size=-10240"); // 10 MiB
-      this.mModel = new CalStorageModel(this.mStorageDb, this);
+      this.mStatements = new CalStorageStatements(this.mStorageDb);
+      this.mItemModel = CalStorageModelFactory.createInstance(
+        "item",
+        this.mStorageDb,
+        this.mStatements,
+        this
+      );
+      this.mOfflineModel = CalStorageModelFactory.createInstance(
+        "offline",
+        this.mStorageDb,
+        this.mStatements,
+        this
+      );
+      this.mMetaModel = CalStorageModelFactory.createInstance(
+        "metadata",
+        this.mStorageDb,
+        this.mStatements,
+        this
+      );
     } catch (e) {
       this.mStorageDb.logError("Error initializing statements.", e);
     }
@@ -630,7 +655,7 @@ CalStorageCalendar.prototype = {
 
   shutdownDB() {
     try {
-      this.mModel.finalize();
+      this.mStatements.finalize();
       if (this.mStorageDb) {
         this.mStorageDb.close();
         this.mStorageDb = null;
@@ -663,7 +688,7 @@ CalStorageCalendar.prototype = {
   mRecTodoCacheOfflineFlags: new Map(),
   assureRecurringItemCaches() {
     if (!this.mRecItemCachePromise) {
-      this.mRecItemCachePromise = this.mModel.assureRecurringItemCaches();
+      this.mRecItemCachePromise = this.mItemModel.assureRecurringItemCaches();
     }
     return this.mRecItemCachePromise;
   },
@@ -680,7 +705,7 @@ CalStorageCalendar.prototype = {
       return item;
     }
 
-    return this.mModel.getItemById(aID);
+    return this.mItemModel.getItemById(aID);
   },
 
   //
@@ -704,24 +729,24 @@ CalStorageCalendar.prototype = {
   //
 
   setMetaData(id, value) {
-    this.mModel.deleteMetaDataById(id);
-    this.mModel.addMetaData(id, value);
+    this.mMetaModel.deleteMetaDataById(id);
+    this.mMetaModel.addMetaData(id, value);
   },
 
   deleteMetaData(id) {
-    this.mModel.deleteMetaDataById(id);
+    this.mMetaModel.deleteMetaDataById(id);
   },
 
   getMetaData(id) {
-    return this.mModel.getMetaData(id);
+    return this.mMetaModel.getMetaData(id);
   },
 
   getAllMetaDataIds() {
-    return this.mModel.getAllMetaData("item_id");
+    return this.mMetaModel.getAllMetaData("item_id");
   },
 
   getAllMetaDataValues() {
-    return this.mModel.getAllMetaData("value");
+    return this.mMetaModel.getAllMetaData("value");
   },
 
   /**

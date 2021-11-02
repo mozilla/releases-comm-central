@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["CalStorageModel"];
+const EXPORTED_SYMBOLS = ["CalStorageItemModel"];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
+const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"
 );
-var { CalStorageStatements } = ChromeUtils.import(
-  "resource:///modules/calendar/CalStorageStatements.jsm"
+const { CalStorageModelBase } = ChromeUtils.import(
+  "resource:///modules/calendar/CalStorageModelBase.jsm"
 );
 
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
@@ -26,65 +26,131 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 const cICL = Ci.calIChangeLog;
 const USECS_PER_SECOND = 1000000;
+const DEFAULT_START_TIME = -0x7fffffffffffffff;
+
+// endTime needs to be the max value a PRTime can be
+const DEFAULT_END_TIME = 0x7fffffffffffffff;
 
 /**
- * CalStorageModel performs the actual reading and writing of item data to the
- * database on behalf of the CalStorageCalendar. The idea here is to leave most
- * of the adjustments and integrity checks to CalStorageCalendar (or other
- * classes) and focus as much as possible on the retrevial/persistence here.
+ * CalItemQueue is used to buffer fetched items before dispatching to a listener.
  */
-class CalStorageModel {
+class CalItemQueue {
   /**
-   * @type {CalStorageDatabase}
+   * The total number of items ever added to the queue.
+   * @type {number}
    */
-  db = null;
+  totalCount = 0;
 
   /**
-   * @type {CalStorageCalendar}
+   * An array containing the pending items added to the queue.
+   * @type {calIItemBase[]}
    */
-  calendar = null;
+  pendingItems = [];
 
   /**
-   * @type {CalStorageStatements}
+   * Called with the flushed items from the queue.
+   * @type {GetItemsListener}
    */
-  statements = null;
+  listener = null;
 
   /**
-   * @param {CalStorageDatabase} db
-   * @param {CalStorageCalendar} calendar
+   * The total maximum number of items that can be added. If this is reached,
+   * any further attempts to add items will be ignored.
+   * @type {number}
+   */
+  maxTotalItems = null;
+
+  /**
+   * The maximum number of items to queue up before automatically flushing.
+   * @type {number}
+   */
+  maxQueueSize = null;
+
+  /**
+   * @param {GetItemsListener} listener
+   * @param {number} maxTotalItems
+   * @param {number} maxQueueSize
+   */
+  constructor(listener, maxTotalItems = 0, maxQueueSize = 10) {
+    this.listener = listener;
+    this.maxTotalItems = maxTotalItems;
+    this.maxQueueSize = maxQueueSize;
+  }
+
+  /**
+   * Indicates whether the maximum number of items have been to the queue after
+   * which no more will be allowed.
+   * @type {number}
+   */
+  get maxTotalItemsReached() {
+    // Ideally, maxTotalItems=0 should mean no items are returned but 0 is used
+    // elsewhere to indicate the absence of a limit.
+    return this.maxTotalItems && this.pendingItems.length >= this.maxTotalItems;
+  }
+
+  /**
+   * Adds one or more items to the end of the queue.
+   * @param {calItemBase|calItemBase[]} items
+   */
+  add(items) {
+    if (this.maxTotalItemsReached) {
+      return;
+    }
+
+    items = Array.isArray(items) ? items : [items];
+    this.pendingItems = this.pendingItems.concat(items);
+    this.totalCount += items.length;
+
+    if (this.pendingItems.length >= this.maxQueueSize) {
+      this.flush();
+    }
+  }
+
+  /**
+   * Implemented by child classes to pass the correct nsIID to the listener.
    *
-   * @throws - If unable to initialize SQL statements.
+   * @param {calItemBase[]} items
    */
-  constructor(db, calendar) {
-    this.db = db;
-    this.statements = new CalStorageStatements(db);
-    this.calendar = calendar;
-  }
+  invokeListener(items) {}
 
   /**
-   * Delete the passed calendar from the database.
+   * Flushes the pending items passing them to the internal listener.
    */
-  async deleteCalendar(calendar) {
-    let stmts = [];
-    calendar = calendar.wrappedJSObject;
-
-    if (this.statements.mDeleteEventExtras) {
-      for (let stmt of this.statements.mDeleteEventExtras) {
-        stmts.push(this.db.prepareStatement(stmt));
-      }
-    }
-
-    if (this.statements.mDeleteTodoExtras) {
-      for (let stmt of this.statements.mDeleteTodoExtras) {
-        stmts.push(this.db.prepareStatement(stmt));
-      }
-    }
-
-    stmts.push(this.db.prepareStatement(this.statements.mDeleteAllEvents));
-    stmts.push(this.db.prepareStatement(this.statements.mDeleteAllTodos));
-    stmts.push(this.db.prepareStatement(this.statements.mDeleteAllMetaData));
-    await this.db.executeAsync(stmts);
+  flush() {
+    this.invokeListener(this.pendingItems);
+    this.pendingItems = [];
   }
+}
+
+/**
+ * CalEventQueue is for events.
+ */
+class CalEventQueue extends CalItemQueue {
+  invokeListener(items) {
+    this.listener(items, Ci.calIEvent);
+  }
+}
+
+/**
+ * CalTodoQueue is for todos.
+ */
+class CalTodoQueue extends CalItemQueue {
+  invokeListener(items) {
+    this.listener(items, Ci.calITodo);
+  }
+}
+
+/**
+ * CalStorageItemModel provides methods for manipulating item data.
+ */
+class CalStorageItemModel extends CalStorageModelBase {
+  /**
+   * @type {calISchedulingSupport}
+   */
+  _schedulingSupport =
+    (this.calendar.superCalendar.supportsScheduling &&
+      this.calendar.superCalendar.getSchedulingSupport()) ||
+    null;
 
   /**
    * Update the item passed.
@@ -135,12 +201,32 @@ class CalStorageModel {
    * @param {GetItemsListener} listener
    */
   async getItems(query, listener) {
-    let { filters, rangeStart, rangeEnd } = query;
-    let startTime = -9223372036854776000;
+    let eventCount = 0;
+    let { filters, count } = query;
+    if (filters) {
+      if (filters.wantEvents) {
+        eventCount += await this.getEvents(query, listener);
+      }
 
-    // endTime needs to be the max value a PRTime can be
-    let endTime = 9223372036854776000;
-    let count = 0;
+      count = count && count - eventCount;
+      if (filters.wantTodos && (!count || count > 0)) {
+        await this.getTodos({ ...query, count }, listener);
+      }
+    }
+  }
+
+  /**
+   * Queries the database for calIEvent records passing them to the provided
+   * listener.
+   * @param {CalStorageQuery} query
+   * @param {GetItemsListener} listener
+   *
+   * @returns {number} The number of items retrieved.
+   */
+  async getEvents(query, listener) {
+    let { filters, rangeStart, rangeEnd } = query;
+    let startTime = DEFAULT_START_TIME;
+    let endTime = DEFAULT_END_TIME;
 
     if (rangeStart) {
       startTime = rangeStart.nativeTime;
@@ -149,136 +235,39 @@ class CalStorageModel {
       endTime = rangeEnd.nativeTime;
     }
 
-    let schedSupport =
-      filters.wantUnrespondedInvitations &&
-      this.calendar.superCalendar.supportsScheduling &&
-      this.calendar.superCalendar.getSchedulingSupport();
-    let checkUnrespondedInvitation = item => {
-      let att = schedSupport.getInvitedAttendee(item);
-      return att && att.participationStatus == "NEEDS-ACTION";
-    };
+    let params; // stmt params
+    let requestedOfflineJournal = null;
 
-    function checkCompleted(item) {
-      return item.isCompleted ? filters.itemCompletedFilter : filters.itemNotCompletedFilter;
+    if (filters.wantOfflineDeletedItems) {
+      requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+    } else if (filters.wantOfflineCreatedItems) {
+      requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+    } else if (filters.wantOfflineModifiedItems) {
+      requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
     }
 
-    // sending items to the listener 1 at a time sucks. instead,
-    // queue them up.
-    // if we ever have more than maxQueueSize items outstanding,
-    // call the listener.  Calling with null theItems forces
-    // a send and a queue clear.
-    let maxQueueSize = 10;
-    let queuedItems = [];
-    let queuedItemsIID;
-    function queueItems(theItems, theIID) {
-      // if we're about to start sending a different IID,
-      // flush the queue
-      if (theIID && queuedItemsIID != theIID) {
-        if (queuedItemsIID) {
-          queueItems(null);
-        }
-        queuedItemsIID = theIID;
-      }
+    let queue = new CalEventQueue(listener, query.count);
 
-      if (theItems) {
-        queuedItems = queuedItems.concat(theItems);
-      }
+    // first get non-recurring events that happen to fall within the range
+    //
+    try {
+      this.db.prepareStatement(this.statements.mSelectNonRecurringEventsByRange);
+      params = this.statements.mSelectNonRecurringEventsByRange.params;
+      params.range_start = startTime;
+      params.range_end = endTime;
+      params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
+      params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
+      params.offline_journal = requestedOfflineJournal;
 
-      if (queuedItems.length != 0 && (!theItems || queuedItems.length > maxQueueSize)) {
-        listener(queuedItems, queuedItemsIID);
-        queuedItems = [];
-      }
+      await this.db.executeAsync(this.statements.mSelectNonRecurringEventsByRange, async row => {
+        let event = await this.getEventFromRow(row);
+        queue.add(this._expandOccurrences(event, startTime, rangeStart, rangeEnd, filters));
+      });
+    } catch (e) {
+      this.db.logError("Error selecting non recurring events by range!\n", e);
     }
 
-    // helper function to handle converting a row to an item,
-    // expanding occurrences, and queue the items for the listener
-    function handleResultItem(item, theIID, optionalFilterFunc) {
-      if (item.recurrenceInfo && item.recurrenceInfo.recurrenceEndDate < startTime) {
-        return 0;
-      }
-
-      let expandedItems = [];
-      if (item.recurrenceInfo && filters.asOccurrences) {
-        // If the item is recurring, get all occurrences that fall in
-        // the range. If the item doesn't fall into the range at all,
-        // this expands to 0 items.
-        expandedItems = item.recurrenceInfo.getOccurrences(rangeStart, rangeEnd, 0);
-        if (filters.wantUnrespondedInvitations) {
-          expandedItems = expandedItems.filter(checkUnrespondedInvitation);
-        }
-      } else if (
-        (!filters.wantUnrespondedInvitations || checkUnrespondedInvitation(item)) &&
-        cal.item.checkIfInRange(item, rangeStart, rangeEnd)
-      ) {
-        // If no occurrences are wanted, check only the parent item.
-        // This will be changed with bug 416975.
-        expandedItems = [item];
-      }
-
-      if (expandedItems.length) {
-        if (optionalFilterFunc) {
-          expandedItems = expandedItems.filter(optionalFilterFunc);
-        }
-        queueItems(expandedItems, theIID);
-      }
-
-      return expandedItems.length;
-    }
-
-    // check the count and send end if count is exceeded
-    function checkCount() {
-      if (query.count && count >= query.count) {
-        // flush queue
-        queueItems(null);
-
-        // tell caller we're done
-        return true;
-      }
-
-      return false;
-    }
-
-    // First fetch all the events
-    if (filters.wantEvents) {
-      let params; // stmt params
-      let resultItems = [];
-      let requestedOfflineJournal = null;
-
-      if (filters.wantOfflineDeletedItems) {
-        requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
-      } else if (filters.wantOfflineCreatedItems) {
-        requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
-      } else if (filters.wantOfflineModifiedItems) {
-        requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-      }
-
-      // first get non-recurring events that happen to fall within the range
-      //
-      try {
-        this.db.prepareStatement(this.statements.mSelectNonRecurringEventsByRange);
-        params = this.statements.mSelectNonRecurringEventsByRange.params;
-        params.range_start = startTime;
-        params.range_end = endTime;
-        params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
-        params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-        params.offline_journal = requestedOfflineJournal;
-
-        await this.db.executeAsync(this.statements.mSelectNonRecurringEventsByRange, async row => {
-          let event = await this.getEventFromRow(row);
-          resultItems.push(event);
-        });
-      } catch (e) {
-        this.db.logError("Error selecting non recurring events by range!\n", e);
-      }
-
-      // Process the non-recurring events:
-      for (let evitem of resultItems) {
-        count += handleResultItem(evitem, Ci.calIEvent);
-        if (checkCount()) {
-          return;
-        }
-      }
-
+    if (!queue.maxTotalItemsReached) {
       // Process the recurring events from the cache
       for (let [id, evitem] of this.calendar.mRecEventCache.entries()) {
         let cachedJournalFlag = this.calendar.mRecEventCacheOfflineFlags.get(id);
@@ -289,54 +278,74 @@ class CalStorageModel {
             cachedJournalFlag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
           (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
         ) {
-          count += handleResultItem(evitem, Ci.calIEvent);
-          if (checkCount()) {
-            return;
+          queue.add(this._expandOccurrences(evitem, startTime, rangeStart, rangeEnd, filters));
+          if (queue.maxTotalItemsReached) {
+            break;
           }
         }
       }
     }
 
-    // if todos are wanted, do them next
-    if (filters.wantTodos) {
-      let params; // stmt params
-      let resultItems = [];
-      let requestedOfflineJournal = null;
+    queue.flush();
+    return queue.totalCount;
+  }
 
-      if (filters.wantOfflineCreatedItems) {
-        requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
-      } else if (filters.wantOfflineDeletedItems) {
-        requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
-      } else if (filters.wantOfflineModifiedItems) {
-        requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-      }
+  /**
+   * Queries the database for calITodo records passing them to the provided
+   * listener.
+   * @param {CalStorageQuery} query
+   * @param {GetItemsListener} listener
+   *
+   * @returns {number} The number of items retrieved.
+   */
+  async getTodos(query, listener) {
+    let { filters, rangeStart, rangeEnd } = query;
+    let startTime = DEFAULT_START_TIME;
+    let endTime = DEFAULT_END_TIME;
 
-      // first get non-recurring todos that happen to fall within the range
-      try {
-        this.db.prepareStatement(this.statements.mSelectNonRecurringTodosByRange);
-        params = this.statements.mSelectNonRecurringTodosByRange.params;
-        params.range_start = startTime;
-        params.range_end = endTime;
-        params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
-        params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-        params.offline_journal = requestedOfflineJournal;
+    if (rangeStart) {
+      startTime = rangeStart.nativeTime;
+    }
+    if (rangeEnd) {
+      endTime = rangeEnd.nativeTime;
+    }
 
-        await this.db.executeAsync(this.statements.mSelectNonRecurringTodosByRange, async row => {
-          let todo = await this.getTodoFromRow(row);
-          resultItems.push(todo);
-        });
-      } catch (e) {
-        this.db.logError("Error selecting non recurring todos by range", e);
-      }
+    let queue = new CalTodoQueue(listener, query.count);
+    let params; // stmt params
+    let requestedOfflineJournal = null;
 
-      // process the non-recurring todos:
-      for (let todoitem of resultItems) {
-        count += handleResultItem(todoitem, Ci.calITodo, checkCompleted);
-        if (checkCount()) {
-          return;
-        }
-      }
+    if (filters.wantOfflineCreatedItems) {
+      requestedOfflineJournal = cICL.OFFLINE_FLAG_CREATED_RECORD;
+    } else if (filters.wantOfflineDeletedItems) {
+      requestedOfflineJournal = cICL.OFFLINE_FLAG_DELETED_RECORD;
+    } else if (filters.wantOfflineModifiedItems) {
+      requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+    }
 
+    let checkCompleted = item =>
+      item.isCompleted ? filters.itemCompletedFilter : filters.itemNotCompletedFilter;
+
+    // first get non-recurring todos that happen to fall within the range
+    try {
+      this.db.prepareStatement(this.statements.mSelectNonRecurringTodosByRange);
+      params = this.statements.mSelectNonRecurringTodosByRange.params;
+      params.range_start = startTime;
+      params.range_end = endTime;
+      params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
+      params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
+      params.offline_journal = requestedOfflineJournal;
+
+      await this.db.executeAsync(this.statements.mSelectNonRecurringTodosByRange, async row => {
+        let todo = await this.getTodoFromRow(row);
+        queue.add(
+          this._expandOccurrences(todo, startTime, rangeStart, rangeEnd, filters, checkCompleted)
+        );
+      });
+    } catch (e) {
+      this.db.logError("Error selecting non recurring todos by range", e);
+    }
+
+    if (!queue.maxTotalItemsReached) {
       // Note: Reading the code, completed *occurrences* seems to be broken, because
       //       only the parent item has been filtered; I fixed that.
       //       Moreover item.todo_complete etc seems to be a leftover...
@@ -351,55 +360,61 @@ class CalStorageModel {
               cachedJournalFlag == null)) ||
           (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
         ) {
-          count += handleResultItem(todoitem, Ci.calITodo, checkCompleted);
-          if (checkCount()) {
-            return;
+          queue.add(
+            this._expandOccurrences(
+              todoitem,
+              startTime,
+              rangeStart,
+              rangeEnd,
+              filters,
+              checkCompleted
+            )
+          );
+          if (queue.maxTotalItemsReached) {
+            break;
           }
         }
       }
     }
 
-    // flush the queue
-    queueItems(null);
+    queue.flush();
+    return queue.totalCount;
   }
 
-  /**
-   * Returns the offline_journal column value for an item.
-   *
-   * @param {calIItemBase} item
-   *
-   * @return {number}
-   */
-  async getItemOfflineFlag(item) {
-    let flag = null;
-    let query = item.isEvent() ? this.statements.mSelectEvent : this.statements.mSelectTodo;
-    this.db.prepareStatement(query);
-    query.params.id = item.id;
-    await this.db.executeAsync(query, row => {
-      flag = row.getResultByName("offline_journal") || null;
-    });
-    return flag;
+  _checkUnrespondedInvitation(item) {
+    let att = this._schedulingSupport.getInvitedAttendee(item);
+    return att && att.participationStatus == "NEEDS-ACTION";
   }
 
-  /**
-   * Sets the offline_journal column value for an item.
-   *
-   * @param {calIItemBase} item
-   * @param {number} flag
-   */
-  async setOfflineJournalFlag(item, flag) {
-    let id = item.id;
-    let query = item.isEvent()
-      ? this.statements.mEditEventOfflineFlag
-      : this.statements.mEditTodoOfflineFlag;
-    this.db.prepareStatement(query);
-    query.params.id = id;
-    query.params.offline_journal = flag || null;
-    try {
-      await this.db.executeAsync(query);
-    } catch (e) {
-      this.db.logError("Error setting offline journal flag for " + item.title, e);
+  _expandOccurrences(item, startTime, rangeStart, rangeEnd, filters, optionalFilterFunc) {
+    if (item.recurrenceInfo && item.recurrenceInfo.recurrenceEndDate < startTime) {
+      return [];
     }
+
+    let expandedItems = [];
+    if (item.recurrenceInfo && filters.asOccurrences) {
+      // If the item is recurring, get all occurrences that fall in
+      // the range. If the item doesn't fall into the range at all,
+      // this expands to 0 items.
+      expandedItems = item.recurrenceInfo.getOccurrences(rangeStart, rangeEnd, 0);
+      if (filters.wantUnrespondedInvitations) {
+        expandedItems = expandedItems.filter(item => this._checkUnrespondedInvitation(item));
+      }
+    } else if (
+      (!filters.wantUnrespondedInvitations || this._checkUnrespondedInvitation(item)) &&
+      cal.item.checkIfInRange(item, rangeStart, rangeEnd)
+    ) {
+      // If no occurrences are wanted, check only the parent item.
+      // This will be changed with bug 416975.
+      expandedItems = [item];
+    }
+
+    if (expandedItems.length) {
+      if (optionalFilterFunc) {
+        expandedItems = expandedItems.filter(optionalFilterFunc);
+      }
+    }
+    return expandedItems;
   }
 
   /**
@@ -1326,90 +1341,5 @@ class CalStorageModel {
     this.calendar.mItemCache.delete(id);
     this.calendar.mRecEventCache.delete(id);
     this.calendar.mRecTodoCache.delete(id);
-  }
-
-  /**
-   * Adds meta data for an item.
-   * @param {string} id
-   * @param {string} value
-   */
-  addMetaData(id, value) {
-    try {
-      this.db.prepareStatement(this.statements.mInsertMetaData);
-      let params = this.statements.mInsertMetaData.params;
-      params.item_id = id;
-      params.value = value;
-      this.statements.mInsertMetaData.executeStep();
-    } catch (e) {
-      if (e.result == Cr.NS_ERROR_ILLEGAL_VALUE) {
-        this.db.logError("Unknown error!", e);
-      } else {
-        // The storage service throws an NS_ERROR_ILLEGAL_VALUE in
-        // case pval is something complex (i.e not a string or
-        // number). Swallow this error, leaving the value empty.
-        this.db.logError("Error setting metadata for id " + id + "!", e);
-      }
-    } finally {
-      this.statements.mInsertMetaData.reset();
-    }
-  }
-
-  /**
-   * Deletes meta data for an item using its id.
-   */
-  deleteMetaDataById(id) {
-    this.db.executeSyncItemStatement(this.statements.mDeleteMetaData, "item_id", id);
-  }
-
-  /**
-   * Gets meta data for an item given its id.
-   *
-   * @param {string} id
-   */
-  getMetaData(id) {
-    let query = this.statements.mSelectMetaData;
-    let value = null;
-    try {
-      this.db.prepareStatement(query);
-      query.params.item_id = id;
-
-      if (query.executeStep()) {
-        value = query.row.value;
-      }
-    } catch (e) {
-      this.db.logError("Error getting metadata for id " + id + "!", e);
-    } finally {
-      query.reset();
-    }
-
-    return value;
-  }
-
-  /**
-   * Returns the meta data for all items.
-   *
-   * @param {string} key - Specifies which column to return.
-   */
-  getAllMetaData(key) {
-    let query = this.statements.mSelectAllMetaData;
-    let results = [];
-    try {
-      this.db.prepareStatement(query);
-      while (query.executeStep()) {
-        results.push(query.row[key]);
-      }
-    } catch (e) {
-      this.db.logError(`Error getting all metadata ${key == "item_id" ? "IDs" : "values"} ` + e);
-    } finally {
-      query.reset();
-    }
-    return results;
-  }
-
-  /**
-   * Calls the finalize method on the CalStorageStatements object.
-   */
-  finalize() {
-    this.statements.finalize();
   }
 }

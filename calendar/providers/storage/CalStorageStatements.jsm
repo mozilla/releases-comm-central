@@ -8,8 +8,8 @@ const cICL = Ci.calIChangeLog;
 
 /**
  * CalStorageStatements contains the mozIStorageBaseStatements used by the
- * CalStorageModel. CalStorageModel creates an instance of this internally
- * and will call the finalize() method here when shutting down.
+ * various storage calendar models. Remember to call the finalize() method when
+ * shutting down the db.
  */
 class CalStorageStatements {
   /**
