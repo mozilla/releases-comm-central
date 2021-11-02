@@ -42,7 +42,6 @@
 /* :::: Filter Buttons :::: */
 
 #quick-filter-bar toolbarbutton {
-  min-height: 19px;
   padding: 2px 3px;
   margin-inline: 1px;
 }

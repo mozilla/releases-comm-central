@@ -394,7 +394,7 @@ toolbar[customizing="true"][collapsed="true"] {
 
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button {
-  height: 24px;
+  min-height: 24px;
   min-width: 32px;
   margin: 4px 1px;
   padding: 1px 5px !important;
@@ -666,7 +666,7 @@ menupopup.no-icon-menupopup .menu-iconic-left {
 
 button {
   appearance: none;
-  height: 24px;
+  min-height: 24px;
   min-width: 5.5em;
   color: inherit;
   border: 1px solid var(--button-border-color);
