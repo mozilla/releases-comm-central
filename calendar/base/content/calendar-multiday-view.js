@@ -689,18 +689,6 @@
     }
 
     computeEventMap() {
-      // We're going to create a series of 'blobs'.  A blob is a series of
-      // events that create a continuous block of busy time.  In other
-      // words, a blob ends when there is some time such that no events
-      // occupy that time.
-      // Each blob will be an array of objects with the following properties:
-      //    item:     the event/task
-      //    startCol: the starting column to display the event in (0-indexed)
-      //    colSpan:  the number of columns the item spans
-      // An item with no conflicts will have startCol: 0 and colSpan: 1.
-      let blobs = [];
-      let currentBlob = [];
-
       if (!this.eventDataMap.size) {
         return null;
       }
@@ -741,198 +729,154 @@
       });
       eventList.sort(sortByStart);
 
-      // The end time of the last ending event in the entire blob.
-      let latestItemEnd;
+      // Some Events in the calendar column will overlap in time. When they do,
+      // we want them to share the horizontal space (assuming the column is
+      // vertical).
+      //
+      // To do this, we split the events into Blocks, each of which contains a
+      // variable number of Columns, each of which contain non-overlapping
+      // Events.
+      //
+      // Note that the end time of one event is equal to the start time of
+      // another, we consider them non-overlapping.
+      //
+      // We choose each Block to form a continuous block of time in the
+      // calendar column. Specifically, two Events are in the same Block if and
+      // only if there exists some sequence of pairwise overlapping Events that
+      // includes them both. This ensures that no Block will overlap another
+      // Block, and each contains the least number of Events possible.
+      //
+      // Each Column will share the same horizontal width, and will be placed
+      // adjacent to each other.
+      //
+      // Note that each Block may have a different number of Columns, and then
+      // may not share a common factor, so the Columns may not line up in the
+      // view.
 
-      // This array keeps track of the last (latest ending) item in each of
-      // the columns of the current blob. We could reconstruct this data at
-      // any time by looking at the items in the blob, but that would hurt
-      // perf.
-      let colEndArray = [];
+      // All the event Blocks in this calendar column, ordered by their start
+      // time. Each Block will be an array of Columns, which will in turn be an
+      // array of Events.
+      let allEventBlocks = [];
+      // The current Block.
+      let blockColumns = [];
+      let blockEnd = eventList[0].layoutEnd;
 
-      // Go through a 3 step process to try and place each item.
-      // Step 1: Look for an existing column with room for the item.
-      // Step 2: Look for a previously placed item that can be shrunk in
-      //         width to make room for the item.
-      // Step 3: Give up and create a new column for the item.
-      // (The steps are explained in more detail as we come to them).
-      for (let curItemInfo of eventList) {
-        if (!latestItemEnd) {
-          latestItemEnd = curItemInfo.layoutEnd;
+      for (let eventInfo of eventList) {
+        let start = eventInfo.layoutStart;
+        if (blockColumns.length && start.compare(blockEnd) != -1) {
+          // There is a gap between this Event and the end of the Block. We also
+          // know from the ordering of eventList that all other Events start at
+          // the same time or later. So there are no more Events that can be
+          // added to this Block. So we finish it and start a new one.
+          allEventBlocks.push(blockColumns);
+          blockColumns = [];
         }
-        if (
-          currentBlob.length &&
-          latestItemEnd &&
-          curItemInfo.layoutStart.compare(latestItemEnd) != -1
-        ) {
-          // We're done with this current blob because item starts
-          // after the last event in the current blob ended.
-          blobs.push({ blob: currentBlob, totalCols: colEndArray.length });
 
-          // Reset our variables.
-          currentBlob = [];
-          colEndArray = [];
+        if (eventInfo.layoutEnd.compare(blockEnd) == 1) {
+          blockEnd = eventInfo.layoutEnd;
         }
 
-        // Place the item in its correct place in the blob.
-        let placedItem = false;
+        // Find the earliest Column that the Event fits in.
+        let foundCol = false;
+        for (let column of blockColumns) {
+          // We know from the ordering of eventList that all Events already in a
+          // Column have a start time that is equal to or earlier than this
+          // Event's start time. Therefore, in order for this Event to not
+          // overlap anything else in this Column, it must have a start time
+          // that is later than or equal to the end time of the last Event in
+          // this column.
+          let colEnd = column[column.length - 1].layoutEnd;
+          if (start.compare(colEnd) != -1) {
+            // It fits in this Column, so we push it to the end (preserving the
+            // eventList ordering within the Column).
+            column.push(eventInfo);
+            foundCol = true;
+            break;
+          }
+        }
 
-        // Step 1
-        // Look for a possible column in the blob that has been left open. This
-        // would happen if we already have multiple columns but some of
-        // the cols have events before latestItemEnd.  For instance
-        //       |      |      |
-        //       |______|      |
-        //       |ev1   |______|
-        //       |      |ev2   |
-        //       |______|      |
-        //       |      |      |
-        //       |OPEN! |      |<--Our item's start time might be here
-        //       |      |______|
-        //       |      |      |
-        //
-        // Remember that any time we're starting a new blob, colEndArray
-        // will be empty, but that's ok.
-        for (let j = 0; j < colEndArray.length; ++j) {
-          let colEnd = colEndArray[j].layoutEnd;
-          if (colEnd.compare(curItemInfo.layoutStart) != 1) {
-            // Yay, we can jump into this column.
-            colEndArray[j] = curItemInfo;
+        if (!foundCol) {
+          // This Event doesn't fit in any column, so we create a new one.
+          blockColumns.push([eventInfo]);
+        }
+      }
+      if (blockColumns.length) {
+        allEventBlocks.push(blockColumns);
+      }
 
-            // Check and see if there are any adjacent columns we can
-            // jump into as well.
-            let lastCol = Number(j) + 1;
-            while (lastCol < colEndArray.length) {
-              let nextColEnd = colEndArray[lastCol].layoutEnd;
-              // If the next column's item ends after we start, we
-              // can't expand any further.
-              if (nextColEnd.compare(curItemInfo.layoutStart) == 1) {
+      // We're going to create a series of 'blobs'.
+      // Each blob will be an array of objects with the following properties:
+      //    itemInfo: the event/task info
+      //    startCol: the starting column to display the event in (0-indexed)
+      //    colSpan:  the number of columns the item spans
+      // An item with no conflicts will have startCol: 0 and colSpan: 1.
+      let blobs = allEventBlocks.map(blockColumns => {
+        let events = [];
+        let totalCols = blockColumns.length;
+        for (let colIndex = 0; colIndex < totalCols; colIndex++) {
+          for (let eventInfo of blockColumns[colIndex]) {
+            if (eventInfo.processed) {
+              // Already processed this Event in an earlier Column.
+              continue;
+            }
+            let start = eventInfo.layoutStart;
+            let end = eventInfo.layoutEnd;
+            let colSpan = 1;
+            // Currently, the Event is only contained in one Column. We want to
+            // first try and stretch it across several continuous columns.
+            // For this Event, we go through each later Column one by one and
+            // see if there is a gap in it that it can fit in.
+            // Note, we only look forward in the Columns because we already know
+            // that we did not fit in the previous Columns.
+            for (
+              let neighbourColIndex = colIndex + 1;
+              neighbourColIndex < totalCols;
+              neighbourColIndex++
+            ) {
+              let neighbourColumn = blockColumns[neighbourColIndex];
+              // Test if this Event overlaps any of the other Events in the
+              // neighbouring Column.
+              let overlapsCol = false;
+              let indexInCol;
+              for (indexInCol = 0; indexInCol < neighbourColumn.length; indexInCol++) {
+                let otherEventInfo = neighbourColumn[indexInCol];
+                if (end.compare(otherEventInfo.layoutStart) != 1) {
+                  // The end of this Event is before or equal to the start of
+                  // the other Event, so it cannot overlap.
+                  // Moreover, the rest of the Events in this neighbouring
+                  // Column have a later or equal start time, so we know that
+                  // this Event cannot overlap any of them. So we can break
+                  // early.
+                  // We also know that indexInCol now points to the *first*
+                  // Event in this neighbouring Column that starts after this
+                  // Event.
+                  break;
+                } else if (start.compare(otherEventInfo.layoutEnd) == -1) {
+                  // The end of this Event is after the start of the other
+                  // Event, and the start of this Event is before the end of
+                  // the other Event. So they must overlap.
+                  overlapsCol = true;
+                  break;
+                }
+              }
+              if (overlapsCol) {
+                // An Event must span continuously across Columns, so we must
+                // break.
                 break;
               }
-              colEndArray[lastCol] = curItemInfo;
-              lastCol++;
+              colSpan++;
+              // Add this Event to the Column. Note that indexInCol points to
+              // the *first* other Event that is later than this Event, or
+              // points to the end of the Column. So we place ourselves there to
+              // preserve the ordering.
+              neighbourColumn.splice(indexInCol, 0, eventInfo);
             }
-            // Now construct the info we need to push into the blob.
-            currentBlob.push({
-              itemInfo: curItemInfo,
-              startCol: j,
-              colSpan: lastCol - j,
-            });
-
-            // Update latestItemEnd.
-            if (latestItemEnd && curItemInfo.layoutEnd.compare(latestItemEnd) == 1) {
-              latestItemEnd = curItemInfo.layoutEnd;
-            }
-            placedItem = true;
-            break; // Stop iterating through colEndArray.
+            eventInfo.processed = true;
+            // Convert to a blob item.
+            events.push({ itemInfo: eventInfo, startCol: colIndex, colSpan });
           }
         }
-
-        if (placedItem) {
-          // Go get the next item.
-          continue;
-        }
-
-        // Step 2
-        // OK, all columns (if there are any) overlap us.  Look if the
-        // last item in any of the last items in those columns is taking
-        // up 2 or more cols. If so, shrink it and stick the item in the
-        // created space. For instance
-        //       |______|______|______|
-        //       |ev1   |ev3   |ev4   |
-        //       |      |      |      |
-        //       |      |______|      |
-        //       |      |      |______|
-        //       |      |_____________|
-        //       |      |ev2          |
-        //       |______|             |<--If our item's start time is
-        //       |      |_____________|   here, we can shrink ev2 and jump
-        //       |      |      |      |   in column #3
-        //
-        for (let j = 1; j < colEndArray.length; ++j) {
-          if (colEndArray[j].event.hashId == colEndArray[j - 1].event.hashId) {
-            // Good we found a item that spanned multiple columns.
-            // Find it in the blob so we can modify its properties.
-            for (let blobKey in currentBlob) {
-              if (currentBlob[blobKey].itemInfo.event.hashId == colEndArray[j].event.hashId) {
-                // Take all but the first spot that the item spanned.
-                let spanOfShrunkItem = currentBlob[blobKey].colSpan;
-                currentBlob.push({
-                  itemInfo: curItemInfo,
-                  startCol: Number(currentBlob[blobKey].startCol) + 1,
-                  colSpan: spanOfShrunkItem - 1,
-                });
-
-                // Update colEndArray.
-                for (let k = j; k < j + spanOfShrunkItem - 1; k++) {
-                  colEndArray[k] = curItemInfo;
-                }
-
-                // Modify the data on the old item.
-                currentBlob[blobKey] = {
-                  itemInfo: currentBlob[blobKey].itemInfo,
-                  startCol: currentBlob[blobKey].startCol,
-                  colSpan: 1,
-                };
-                // Update latestItemEnd.
-                if (latestItemEnd && curItemInfo.layoutEnd.compare(latestItemEnd) == 1) {
-                  latestItemEnd = curItemInfo.layoutEnd;
-                }
-                break; // Stop iterating through currentBlob.
-              }
-            }
-            placedItem = true;
-            break; // Stop iterating through colEndArray.
-          }
-        }
-
-        if (placedItem) {
-          // Go get the next item.
-          continue;
-        }
-
-        // Step 3
-        // Guess what? We still haven't placed the item.  We need to
-        // create a new column for it.
-
-        // All the items in the last column, except for the one* that
-        // conflicts with the item we're trying to place, need to have
-        // their span extended by 1, since we're adding the new column
-        //
-        // * Note that there can only be one, because we sorted our
-        //   events by start time, so this event must start later than
-        //   the start of any possible conflicts.
-        let lastColNum = colEndArray.length;
-        for (let blobKey in currentBlob) {
-          let blobKeyEnd = currentBlob[blobKey].itemInfo.layoutEnd;
-          if (
-            currentBlob[blobKey].startCol + currentBlob[blobKey].colSpan == lastColNum &&
-            blobKeyEnd.compare(curItemInfo.layoutStart) != 1
-          ) {
-            currentBlob[blobKey] = {
-              itemInfo: currentBlob[blobKey].itemInfo,
-              startCol: currentBlob[blobKey].startCol,
-              colSpan: currentBlob[blobKey].colSpan + 1,
-            };
-          }
-        }
-        currentBlob.push({
-          itemInfo: curItemInfo,
-          startCol: colEndArray.length,
-          colSpan: 1,
-        });
-        colEndArray.push(curItemInfo);
-
-        // Update latestItemEnd.
-        if (latestItemEnd && curItemInfo.layoutEnd.compare(latestItemEnd) == 1) {
-          latestItemEnd = curItemInfo.layoutEnd;
-        }
-        // Go get the next item.
-      }
-      // Add the last blob.
-      blobs.push({
-        blob: currentBlob,
-        totalCols: colEndArray.length,
+        return { blob: events, totalCols };
       });
       return this.setupBoxStructure(blobs);
     }
