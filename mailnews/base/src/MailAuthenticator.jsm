@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["SmtpAuthenticator", "NntpAuthenticator"];
+const EXPORTED_SYMBOLS = [
+  "SmtpAuthenticator",
+  "NntpAuthenticator",
+  "Pop3Authenticator",
+];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -306,5 +310,30 @@ class IncomingServerAuthenticator extends MailAuthenticator {
 class NntpAuthenticator extends IncomingServerAuthenticator {
   promptAuthFailed() {
     return this._promptAuthFailed(null, this._server.prettyName);
+  }
+}
+
+class Pop3Authenticator extends IncomingServerAuthenticator {
+  getPassword() {
+    if (this._server.password) {
+      return this._server.password;
+    }
+    let composeBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/localMsgs.properties"
+    );
+    let params = [this._server.username, this._server.hostname];
+    let promptString = composeBundle.formatStringFromName(
+      "pop3EnterPasswordPrompt",
+      params
+    );
+    let promptTitle = composeBundle.formatStringFromName(
+      "pop3EnterPasswordPromptTitleWithUsername",
+      [this._server.hostname]
+    );
+    return this._server.getPasswordWithUI(
+      promptString,
+      promptTitle,
+      MailServices.mailSession.topmostMsgWindow
+    );
   }
 }

@@ -467,6 +467,56 @@ class MsgIncomingServer {
     }
   }
 
+  /**
+   * Try to get the password from nsILoginManager.
+   * @returns {string}
+   */
+  _getPasswordWithoutUI() {
+    let logins = Services.logins.findLogins(this.serverURI, "", this.serverURI);
+    for (let login of logins) {
+      if (login.username == this.username) {
+        return login.password;
+      }
+    }
+    return null;
+  }
+
+  getPasswordWithUI(promptMessage, promptTitle, msgWindow) {
+    let password = this._getPasswordWithoutUI();
+    if (password) {
+      this.password = password;
+      return this.password;
+    }
+    let outUsername = {};
+    let outPassword = {};
+    let ok;
+    if (this.username) {
+      ok = msgWindow.authPrompt.promptPassword(
+        promptTitle,
+        promptMessage,
+        this.serverURI,
+        Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
+        outPassword
+      );
+    } else {
+      ok = msgWindow.authPrompt.promptUsernameAndPassword(
+        promptTitle,
+        promptMessage,
+        this.serverURI,
+        Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
+        outUsername,
+        outPassword
+      );
+    }
+    if (ok) {
+      if (outUsername.value) {
+        this.username = outUsername.value;
+      }
+      this.password = outPassword.value;
+    }
+    return this.password;
+  }
+
   forgetPassword() {
     let serverURI = `${this.localStoreType}://${encodeURIComponent(
       this.hostName
@@ -477,6 +527,7 @@ class MsgIncomingServer {
         Services.logins.removeLogin(login);
       }
     }
+    this.password = "";
   }
 
   closeCachedConnections() {}
