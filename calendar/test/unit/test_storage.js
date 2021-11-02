@@ -33,7 +33,7 @@ add_task(async () => {
   });
 
   // Make sure the cache is cleared, otherwise we'll get the cached item.
-  delete storage.wrappedJSObject.mItemCache[addedItemId];
+  delete storage.wrappedJSObject.mItemModel.itemCache[addedItemId];
 
   await new Promise(resolve => {
     storage.getItem(addedItemId, {

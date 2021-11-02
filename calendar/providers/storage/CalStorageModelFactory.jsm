@@ -7,6 +7,9 @@ var EXPORTED_SYMBOLS = ["CalStorageModelFactory"];
 var { CalStorageItemModel } = ChromeUtils.import(
   "resource:///modules/calendar/CalStorageItemModel.jsm"
 );
+var { CalStorageCachedItemModel } = ChromeUtils.import(
+  "resource:///modules/calendar/CalStorageCachedItemModel.jsm"
+);
 var { CalStorageOfflineModel } = ChromeUtils.import(
   "resource:///modules/calendar/CalStorageOfflineModel.jsm"
 );
@@ -33,6 +36,9 @@ class CalStorageModelFactory {
     switch (type) {
       case "item":
         return new CalStorageItemModel(db, stmts, calendar);
+
+      case "cached-item":
+        return new CalStorageCachedItemModel(db, stmts, calendar);
 
       case "offline":
         return new CalStorageOfflineModel(db, stmts, calendar);

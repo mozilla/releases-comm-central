@@ -8,7 +8,7 @@ const EXPORTED_SYMBOLS = ["CalStorageModelBase"];
  * CalStorageModelBase is the parent class for the storage calendar models.
  * The idea here is to leave most of the adjustments and integrity checks to
  * CalStorageCalendar (or other classes) while focusing mostly on
- * retrevial/persistence in the children of this class.
+ * retrieval/persistence in the children of this class.
  */
 class CalStorageModelBase {
   /**
@@ -22,14 +22,14 @@ class CalStorageModelBase {
   statements = null;
 
   /**
-   * @type {CalStorageCalendar}
+   * @type {calICalendar}
    */
   calendar = null;
 
   /**
    * @param {CalStorageDatabase} db
    * @param {CalStorageStatements} statements
-   * @param {CalStorageCalendar} calendar
+   * @param {calICalendar} calendar
    *
    * @throws - If unable to initialize SQL statements.
    */

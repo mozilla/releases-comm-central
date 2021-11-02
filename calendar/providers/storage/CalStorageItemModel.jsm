@@ -26,10 +26,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 const cICL = Ci.calIChangeLog;
 const USECS_PER_SECOND = 1000000;
-const DEFAULT_START_TIME = -0x7fffffffffffffff;
+const DEFAULT_START_TIME = -9223372036854776000;
 
 // endTime needs to be the max value a PRTime can be
-const DEFAULT_END_TIME = 0x7fffffffffffffff;
+const DEFAULT_END_TIME = 9223372036854776000;
 
 /**
  * CalItemQueue is used to buffer fetched items before dispatching to a listener.
@@ -268,9 +268,10 @@ class CalStorageItemModel extends CalStorageModelBase {
     }
 
     if (!queue.maxTotalItemsReached) {
-      // Process the recurring events from the cache
-      for (let [id, evitem] of this.calendar.mRecEventCache.entries()) {
-        let cachedJournalFlag = this.calendar.mRecEventCacheOfflineFlags.get(id);
+      // Process the recurring events
+      let [recEvents, recEventFlags] = await this.getFullRecurringEventAndFlagMaps();
+      for (let [id, evitem] of recEvents.entries()) {
+        let cachedJournalFlag = recEventFlags.get(id);
         // No need to return flagged unless asked i.e. requestedOfflineJournal == cachedJournalFlag
         // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
         if (
@@ -350,9 +351,10 @@ class CalStorageItemModel extends CalStorageModelBase {
       //       only the parent item has been filtered; I fixed that.
       //       Moreover item.todo_complete etc seems to be a leftover...
 
-      // process the recurring todos from the cache
-      for (let [id, todoitem] of this.calendar.mRecTodoCache.entries()) {
-        let cachedJournalFlag = this.calendar.mRecTodoCacheOfflineFlags.get(id);
+      // process the recurring todos
+      let [recTodos, recTodoFlags] = await this.getFullRecurringTodoAndFlagMaps();
+      for (let [id, todoitem] of recTodos) {
+        let cachedJournalFlag = recTodoFlags.get(id);
         if (
           (requestedOfflineJournal == null &&
             (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
@@ -467,45 +469,92 @@ class CalStorageItemModel extends CalStorageModelBase {
   }
 
   /**
-   * Build up recurring event and todo cache with its offline flags.
+   * @callback OnItemRowCallback
+   * @param {string} id - The id of the item fetched from the row.
    */
-  async assureRecurringItemCaches() {
-    let events = [];
-    let itemsMap = new Map();
+
+  /**
+   * Provides all recurring events along with offline flag values for each event.
+   *
+   * @param {OnItemRowCallback} [callback] - If provided, will be called on each row
+   *                                         fetched.
+   * @returns {[Map<string, calIEvent>, Map<string, number>]}
+   */
+  async getRecurringEventAndFlagMaps(callback) {
+    let events = new Map();
+    let flags = new Map();
     this.db.prepareStatement(this.statements.mSelectEventsWithRecurrence);
     await this.db.executeAsync(this.statements.mSelectEventsWithRecurrence, async row => {
-      events.push(row);
-    });
-    for (let row of events) {
       let item_id = row.getResultByName("id");
-      this.calendar.mItemCache.delete(item_id);
+      if (callback) {
+        callback(item_id);
+      }
       let item = await this.getEventFromRow(row, false);
+      events.set(item_id, item);
+      flags.set(item_id, row.getResultByName("offline_journal") || null);
+    });
+    return [events, flags];
+  }
 
-      this.calendar.mRecEventCache.set(item_id, item);
-      this.calendar.mRecEventCacheOfflineFlags.set(
-        item_id,
-        row.getResultByName("offline_journal") || null
-      );
-      itemsMap.set(item_id, item);
-    }
+  /**
+   * Provides all recurring events with additional data populated along with
+   * offline flags values for each event.
+   *
+   * @returns {[Map<string, calIEvent>, Map<string, number>]}
+   */
+  async getFullRecurringEventAndFlagMaps() {
+    let [events, flags] = await this.getRecurringEventAndFlagMaps();
+    return [await this.getAdditionalDataForItemMap(events), flags];
+  }
 
-    let todos = [];
+  /**
+   * Provides all recurring todos along with offline flag values for each event.
+   *
+   * @param {OnItemRowCallback} [callback] - If provided, will be called on each row
+   *                                         fetched.
+   *
+   * @returns {[Map<string, calITodo>, Map<string, number>]}
+   */
+  async getRecurringTodoAndFlagMaps(callback) {
+    let todos = new Map();
+    let flags = new Map();
     this.db.prepareStatement(this.statements.mSelectTodosWithRecurrence);
     await this.db.executeAsync(this.statements.mSelectTodosWithRecurrence, async row => {
-      todos.push(row);
-    });
-    for (let row of todos) {
       let item_id = row.getResultByName("id");
-      this.calendar.mItemCache.delete(item_id);
+      if (callback) {
+        callback(item_id);
+      }
       let item = await this.getTodoFromRow(row, false);
-      this.calendar.mRecTodoCache.set(item_id, item);
-      this.calendar.mRecTodoCacheOfflineFlags.set(
-        item_id,
-        row.getResultByName("offline_journal") || null
-      );
-      itemsMap.set(item_id, item);
-    }
+      todos.set(item_id, item);
+      flags.set(item_id, row.getResultByName("offline_journal") || null);
+    });
+    return [todos, flags];
+  }
 
+  /**
+   * Provides all recurring todos with additional data populated along with
+   * offline flags values for each todo.
+   *
+   * @returns {[Map<string, calITodo>, Map<string, number>]}
+   */
+  async getFullRecurringTodoAndFlagMaps() {
+    let [todos, flags] = await this.getRecurringTodoAndFlagMaps();
+    return [await this.getAdditionalDataForItemMap(todos), flags];
+  }
+
+  /**
+   * Populates additional data for a Map of items. This method is overridden in
+   * CalStorageCachedItemModel to allow the todos to be loaded from the cache.
+   *
+   * @param {Map<string, calIItem>} itemMap
+   *
+   * @return {Map<string, calIItem>} The original Map with items modified.
+   */
+  async getAdditionalDataForItemMap(itemsMap) {
+    //NOTE: There seems to be a bug in the SQLite subsystem that causes callers
+    //awaiting on this method to continue prematurely. This can cause unexpected
+    //behaviour. After investigating, it appears triggering the bug is related
+    //to the number of queries executed here.
     this.db.prepareStatement(this.statements.mSelectAllAttendees);
     await this.db.executeAsync(this.statements.mSelectAllAttendees, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
@@ -634,9 +683,27 @@ class CalStorageItemModel extends CalStorageModelBase {
     });
 
     for (let item of itemsMap.values()) {
-      this.calendar.fixGoogleCalendarDescriptionIfNeeded(item);
+      this.fixGoogleCalendarDescriptionIfNeeded(item);
       item.makeImmutable();
-      this.calendar.mItemCache.set(item.id, item);
+    }
+    return itemsMap;
+  }
+
+  /**
+   * For items that were cached or stored in previous versions,
+   * put Google's HTML description in the right place.
+   *
+   * @param {calIItemBase} item
+   */
+  fixGoogleCalendarDescriptionIfNeeded(item) {
+    if (item.id && item.id.endsWith("@google.com")) {
+      let description = item.getProperty("DESCRIPTION");
+      if (description) {
+        let altrep = item.getPropertyParameter("DESCRIPTION", "ALTREP");
+        if (!altrep) {
+          cal.view.fixGoogleCalendarDescription(item);
+        }
+      }
     }
   }
 
@@ -645,12 +712,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {boolean} getAdditionalData
    */
   async getEventFromRow(row, getAdditionalData = true) {
-    let item = this.calendar.mItemCache.get(row.getResultByName("id"));
-    if (item) {
-      return item;
-    }
-
-    item = new CalEvent();
+    let item = new CalEvent();
     let flags = row.getResultByName("flags");
 
     if (row.getResultByName("event_start")) {
@@ -676,9 +738,8 @@ class CalStorageItemModel extends CalStorageModelBase {
     // This must be done last to keep the modification time intact.
     this.getItemBaseFromRow(row, item);
     if (getAdditionalData) {
-      await this.getAdditionalDataForItem(item, flags);
+      await this.getAdditionalDataForItem(item, row.getResultByName("flags"));
       item.makeImmutable();
-      this.calendar.cacheItem(item);
     }
     return item;
   }
@@ -688,12 +749,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {boolean} getAdditionalData
    */
   async getTodoFromRow(row, getAdditionalData = true) {
-    let item = this.calendar.mItemCache.get(row.getResultByName("id"));
-    if (item) {
-      return item;
-    }
-
-    item = new CalTodo();
+    let item = new CalTodo();
 
     if (row.getResultByName("todo_entry")) {
       item.entryDate = newDateTime(
@@ -725,7 +781,6 @@ class CalStorageItemModel extends CalStorageModelBase {
     if (getAdditionalData) {
       await this.getAdditionalDataForItem(item, row.getResultByName("flags"));
       item.makeImmutable();
-      this.calendar.cacheItem(item);
     }
     return item;
   }
@@ -945,7 +1000,7 @@ class CalStorageItemModel extends CalStorageModelBase {
       }
     }
 
-    this.calendar.fixGoogleCalendarDescriptionIfNeeded(item);
+    this.fixGoogleCalendarDescriptionIfNeeded(item);
     // Restore the saved modification time
     item.setProperty("LAST-MODIFIED", savedLastModifiedTime);
   }
@@ -1037,8 +1092,6 @@ class CalStorageItemModel extends CalStorageModelBase {
       stmt.bindParameters(array);
     }
     await this.db.executeAsync([...stmts.keys()]);
-
-    this.calendar.cacheItem(item);
   }
 
   // The prepare* functions prepare the database bits
@@ -1337,9 +1390,5 @@ class CalStorageItemModel extends CalStorageModelBase {
     }
     this.db.prepareItemStatement(stmts, this.statements.mDeleteAlarms, "item_id", id);
     await this.db.executeAsync(stmts);
-
-    this.calendar.mItemCache.delete(id);
-    this.calendar.mRecEventCache.delete(id);
-    this.calendar.mRecTodoCache.delete(id);
   }
 }

@@ -1,0 +1,192 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const EXPORTED_SYMBOLS = ["CalStorageCachedItemModel"];
+
+const { CalStorageItemModel } = ChromeUtils.import(
+  "resource:///modules/calendar/CalStorageItemModel.jsm"
+);
+
+/**
+ * CalStorageCachedItemModel extends CalStorageItemModel to add caching support
+ * for items. Most of the methods here are overridden from the parent class to
+ * either add or retrieve items from the cache.
+ */
+class CalStorageCachedItemModel extends CalStorageItemModel {
+  /**
+   * Cache for all items.
+   * @type {Map<string, calIItemBase>}
+   */
+  itemCache = new Map();
+
+  /**
+   * Cache for recurring events.
+   * @type {Map<string, calIEvent>}
+   */
+  recurringEventsCache = new Map();
+
+  /**
+   * Cache for recurring events offline flags.
+   * @type {Map<string, number>}
+   */
+  recurringEventsOfflineFlagCache = new Map();
+
+  /**
+   * Cache for recurring todos.
+   * @type {Map<string, calITodo>}
+   */
+  recurringTodosCache = new Map();
+
+  /**
+   * Cache for recurring todo offline flags.
+   * @type {Map<string, number>}
+   */
+  recurringTodosOfflineCache = new Map();
+
+  /**
+   * Promise that resolves when the caches have been built up.
+   * @type {Promise<void>}
+   */
+  recurringCachePromise = null;
+
+  /**
+   * Build up recurring event and todo cache with its offline flags.
+   */
+  async assureRecurringItemCaches() {
+    if (!this.recurringCachePromise) {
+      this.recurringCachePromise = this._assureRecurringItemCaches();
+    }
+    return this.recurringCachePromise;
+  }
+
+  async _assureRecurringItemCaches() {
+    // Retrieve items and flags for recurring events and todos before combining
+    // storing them in the item cache. Items need to be expunged from the
+    // existing item cache to avoid get(Event|Todo)FromRow providing stale
+    // values.
+    let expunge = id => this.itemCache.delete(id);
+    let [events, eventFlags] = await this.getRecurringEventAndFlagMaps(expunge);
+    let [todos, todoFlags] = await this.getRecurringTodoAndFlagMaps(expunge);
+    let itemsMap = await this.getAdditionalDataForItemMap(new Map([...events, ...todos]));
+
+    this.itemCache = new Map([...this.itemCache, ...itemsMap]);
+    this.recurringEventsCache = new Map([...this.recurringEventsCache, ...events]);
+    this.recurringEventsOfflineFlagCache = new Map([
+      ...this.recurringEventsOfflineFlagCache,
+      ...eventFlags,
+    ]);
+    this.recurringTodosCache = new Map([...this.recurringTodosCache, ...todos]);
+    this.recurringTodosOfflineCache = new Map([...this.recurringTodosOfflineCache, ...todoFlags]);
+  }
+
+  /**
+   * Overridden here to build the recurring item caches when needed.
+   * @param {CalStorageQuery} query
+   * @param {GetItemsListener} listener
+   */
+  async getItems(query, listener) {
+    // HACK because recurring offline events/todos objects don't have offline_journal information
+    // Hence we need to update the offline flags caches.
+    // It can be an expensive operation but is only used in Online Reconciliation mode
+    if (
+      (query.filters.wantOfflineCreatedItems ||
+        query.filters.wantOfflineDeletedItems ||
+        query.filters.wantOfflineModifiedItems) &&
+      this.mRecItemCachePromise
+    ) {
+      // If there's an existing Promise and it's not complete, wait for it - something else is
+      // already waiting and we don't want to break that by throwing away the caches. If it IS
+      // complete, we'll continue immediately.
+      await this.mRecItemCachePromise;
+      this.mRecItemCachePromise = null;
+    }
+    await this.assureRecurringItemCaches();
+    return super.getItems(query, listener);
+  }
+
+  /**
+   * Overridden here to provide the events from the cache.
+   *
+   * @returns {[Map<string, calIEvent>, Map<string, number>]}
+   */
+  async getFullRecurringEventAndFlagMaps() {
+    return [this.recurringEventsCache, this.recurringEventsOfflineFlagCache];
+  }
+
+  /**
+   * Overridden here to provide the todos from the cache.
+   *
+   * @returns {[Map<string, calITodo>, Map<string, number>]}
+   */
+  async getFullRecurringTodoAndFlagMaps() {
+    return [this.recurringTodosCache, this.recurringTodosOfflineCache];
+  }
+
+  async getEventFromRow(row, getAdditionalData = true) {
+    let item = this.itemCache.get(row.getResultByName("id"));
+    if (item) {
+      return item;
+    }
+
+    item = await super.getEventFromRow(row, getAdditionalData);
+    if (getAdditionalData) {
+      this.cacheItem(item);
+    }
+    return item;
+  }
+
+  async getTodoFromRow(row, getAdditionalData = true) {
+    let item = this.itemCache.get(row.getResultByName("id"));
+    if (item) {
+      return item;
+    }
+
+    item = await super.getTodoFromRow(row, getAdditionalData);
+    if (getAdditionalData) {
+      this.cacheItem(item);
+    }
+    return item;
+  }
+
+  async addItem(item) {
+    await super.addItem(item);
+    this.cacheItem(item);
+  }
+
+  async getItemById(id) {
+    await this.assureRecurringItemCaches();
+    let item = this.itemCache.get(id);
+    if (item) {
+      return item;
+    }
+    return super.getItemById(id);
+  }
+
+  async deleteItemById(id, keepMeta) {
+    await super.deleteItemById(id, keepMeta);
+    this.itemCache.delete(id);
+    this.recurringEventsCache.delete(id);
+    this.recurringTodosCache.delete(id);
+  }
+
+  /**
+   * Adds an item to the relevant caches.
+   *
+   * @param {calIItemBase} item
+   */
+  cacheItem(item) {
+    if (item.recurrenceId) {
+      // Do not cache recurring item instances. See bug 1686466.
+      return;
+    }
+    this.itemCache.set(item.id, item);
+    if (item.recurrenceInfo) {
+      if (item.isEvent()) {
+        this.recurringEventsCache.set(item.id, item);
+      } else {
+        this.recurringTodosCache.set(item.id, item);
+      }
+    }
+  }
+}

@@ -23,9 +23,6 @@ const cICL = Ci.calIChangeLog;
 
 function CalStorageCalendar() {
   this.initProviderBase();
-  this.mItemCache = new Map();
-  this.mRecEventCache = new Map();
-  this.mRecTodoCache = new Map();
 }
 var calStorageCalendarClassID = Components.ID("{b3eaa1c4-5dfe-4c0a-b62a-b3a514218461}");
 var calStorageCalendarInterfaces = [
@@ -53,10 +50,6 @@ CalStorageCalendar.prototype = {
   mItemModel: null,
   mOfflineModel: null,
   mMetaModel: null,
-  mItemCache: null,
-  mRecItemCachePromise: null,
-  mRecEventCache: null,
-  mRecTodoCache: null,
 
   //
   // calICalendarProvider interface
@@ -485,24 +478,6 @@ CalStorageCalendar.prototype = {
       return;
     }
 
-    // HACK because recurring offline events/todos objects don't have offline_journal information
-    // Hence we need to update the mRecEventCacheOfflineFlags and mRecTodoCacheOfflineFlags hash-tables
-    // It can be an expensive operation but is only used in Online Reconciliation mode
-    if (
-      (query.filters.wantOfflineCreatedItems ||
-        query.filters.wantOfflineDeletedItems ||
-        query.filters.wantOfflineModifiedItems) &&
-      this.mRecItemCachePromise
-    ) {
-      // If there's an existing Promise and it's not complete, wait for it - something else is
-      // already waiting and we don't want to break that by throwing away the caches. If it IS
-      // complete, we'll continue immediately.
-      await this.mRecItemCachePromise;
-      this.mRecItemCachePromise = null;
-    }
-
-    await this.assureRecurringItemCaches();
-
     await this.mItemModel.getItems(query, (items, queuedItemsIID) => {
       aListener.onGetResult(this.superCalendar, Cr.NS_OK, queuedItemsIID, null, items);
     });
@@ -631,7 +606,7 @@ CalStorageCalendar.prototype = {
       this.mStorageDb.executeSimpleSQL("PRAGMA cache_size=-10240"); // 10 MiB
       this.mStatements = new CalStorageStatements(this.mStorageDb);
       this.mItemModel = CalStorageModelFactory.createInstance(
-        "item",
+        "cached-item",
         this.mStorageDb,
         this.mStatements,
         this
@@ -669,59 +644,11 @@ CalStorageCalendar.prototype = {
   // database reading functions
   //
 
-  cacheItem(item) {
-    if (item.recurrenceId) {
-      // Do not cache recurring item instances. See bug 1686466.
-      return;
-    }
-    this.mItemCache.set(item.id, item);
-    if (item.recurrenceInfo) {
-      if (item.isEvent()) {
-        this.mRecEventCache.set(item.id, item);
-      } else {
-        this.mRecTodoCache.set(item.id, item);
-      }
-    }
-  },
-
-  mRecEventCacheOfflineFlags: new Map(),
-  mRecTodoCacheOfflineFlags: new Map(),
-  assureRecurringItemCaches() {
-    if (!this.mRecItemCachePromise) {
-      this.mRecItemCachePromise = this.mItemModel.assureRecurringItemCaches();
-    }
-    return this.mRecItemCachePromise;
-  },
-
   //
   // get item from db or from cache with given iid
   //
   async getItemById(aID) {
-    await this.assureRecurringItemCaches();
-
-    // cached?
-    let item = this.mItemCache.get(aID);
-    if (item) {
-      return item;
-    }
-
     return this.mItemModel.getItemById(aID);
-  },
-
-  //
-  // for items that were cached or stored in previous versions,
-  // put Google's HTML description in the right place
-  //
-  fixGoogleCalendarDescriptionIfNeeded(item) {
-    if (item.id && item.id.endsWith("@google.com")) {
-      let description = item.getProperty("DESCRIPTION");
-      if (description) {
-        let altrep = item.getPropertyParameter("DESCRIPTION", "ALTREP");
-        if (!altrep) {
-          cal.view.fixGoogleCalendarDescription(item);
-        }
-      }
-    }
   },
 
   //
