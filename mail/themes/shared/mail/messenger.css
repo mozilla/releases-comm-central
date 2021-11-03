@@ -697,6 +697,7 @@ button.plain-button {
    * content. */
   display: inline grid;
   height: -moz-fit-content;
+  min-height: auto;
   min-width: -moz-fit-content;
   border: none;
   background: none;

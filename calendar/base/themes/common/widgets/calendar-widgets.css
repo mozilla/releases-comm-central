@@ -228,7 +228,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   font-weight: 700;
   border-radius: 12px;
   min-width: auto;
-  height: auto;
+  min-height: auto;
 }
 
 #calendar-list > li > button.calendar-enable-button:hover,
