@@ -109,13 +109,7 @@
 
     onDragStart(event) {
       let draggedDOMNode = document.monthDragEvent || event.target;
-      if (
-        !draggedDOMNode ||
-        !draggedDOMNode.parentNode ||
-        !draggedDOMNode.occurrence ||
-        (draggedDOMNode.parentNode != this &&
-          !draggedDOMNode.parentNode.classList.contains("calendar-month-day-box-list-item"))
-      ) {
+      if (!draggedDOMNode?.occurrence || !this.contains(draggedDOMNode)) {
         return;
       }
       let item = draggedDOMNode.occurrence.clone();
@@ -139,7 +133,7 @@
 
     onDragOver(event) {
       let session = cal.getDragService().getCurrentSession();
-      if (!session || !session.sourceNode || !session.sourceNode.sourceObject) {
+      if (!session?.sourceNode?.sourceObject) {
         // No source item? Then this is not for us.
         return;
       }
@@ -149,49 +143,35 @@
     }
 
     onDragEnter(event) {
-      // FIXME: Why are we restricting showing the drop shadow to only these two
-      // cases? This excludes when we are dragged over a month day box item,
-      // despite ending the drag would successfully drop into this box.
-      // Also, the classList check uses sub-class specific knowledge, which
-      // should be handled by the subclass itself.
-      if (
-        event.target.localName == this.localName ||
-        // classList is undefined if the target is a text node.
-        event.target.classList?.contains("calendar-month-day-box-list") ||
-        event.target.classList?.contains("calendar-month-day-box-list-item")
-      ) {
-        let session = cal.getDragService().getCurrentSession();
-        if (session) {
-          if (!session.sourceNode || !session.sourceNode.sourceObject) {
-            // No source item? Then this is not for us.
-            return;
-          }
-
-          // We can drop now, tell the drag service.
-          event.preventDefault();
-
-          if (!this.hasAttribute("dropbox") || this.getAttribute("dropbox") == "false") {
-            // As it turned out it was not possible to remove the remaining dropshadows
-            // at the "dragleave" event, majorly because it was not reliably
-            // fired.
-            // So we have to remove them at the currentView(). The restriction of course is
-            // that these containers so far may not be used for drag and drop from/to e.g.
-            // the today-pane.
-            currentView().removeDropShadows();
-          }
-          this.setAttribute("dropbox", "true");
-        }
+      let session = cal.getDragService().getCurrentSession();
+      if (!session?.sourceNode?.sourceObject) {
+        // No source item? Then this is not for us.
+        return;
       }
+
+      // We can drop now, tell the drag service.
+      event.preventDefault();
+
+      if (!this.hasAttribute("dropbox") || this.getAttribute("dropbox") == "false") {
+        // As it turned out it was not possible to remove the remaining dropshadows
+        // at the "dragleave" event, majorly because it was not reliably
+        // fired.
+        // So we have to remove them at the currentView(). The restriction of course is
+        // that these containers so far may not be used for drag and drop from/to e.g.
+        // the today-pane.
+        currentView().removeDropShadows();
+      }
+      this.setAttribute("dropbox", "true");
     }
 
     onDrop(event) {
       let session = cal.getDragService().getCurrentSession();
-      if (!session || !session.sourceNode || !session.sourceNode.sourceObject) {
+      let item = session?.sourceNode?.sourceObject;
+      if (!item) {
         // No source node? Not our drag.
         return;
       }
       this.setAttribute("dropbox", "false");
-      let item = session.sourceNode.sourceObject;
       let newItem = this.onDropItem(item).clone();
       let newStart = newItem.startDate || newItem.entryDate || newItem.dueDate;
       let newEnd = newItem.endDate || newItem.dueDate || newItem.entryDate;

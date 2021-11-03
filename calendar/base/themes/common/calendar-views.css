@@ -361,7 +361,7 @@ calendar-header-container[weekend="true"][relation="today"],
   background-color: var(--viewTodayOffBackground);
 }
 
-.multiday-view-header-day-box[orient="vertical"] .calendar-event-column-header {
+.multiday-view-header-day-box[orient="vertical"] calendar-header-container {
   border-bottom: 1px solid var(--viewBorderColor);
   min-width: 100px;
 }
@@ -777,15 +777,20 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
   background-color: var(--viewTodayLabelBackground);
 }
 
+.allday-events-list,
 .calendar-month-day-box-list {
   display: block;
   margin: 0;
   padding: 0;
-  flex: 1 1 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
+.calendar-month-day-box-list {
+  flex: 1 1 0;
+}
+
+.allday-event-listitem,
 .calendar-month-day-box-list-item {
   display: block;
   margin: 2px;
@@ -872,10 +877,6 @@ calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color
   height: 1.2em;
   background-color: var(--viewDropshadowBackground);
   box-shadow: 1px 1px 3px rgba(68, 35, 0, 0.7) inset;
-}
-
-.calendar-header-container .dropshadow {
-  margin: 1px;
 }
 
 calendar-event-gripbar {

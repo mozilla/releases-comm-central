@@ -1661,10 +1661,6 @@
    * @extends {MozElements.CalendarDnDContainer}
    */
   class CalendarHeaderContainer extends MozElements.CalendarDnDContainer {
-    static get inheritedAttributes() {
-      return { ".calendar-event-column-header": "selected" };
-    }
-
     constructor() {
       super();
       this.addEventListener("dblclick", this.onDblClick);
@@ -1680,11 +1676,12 @@
       // this.hasConnected is set to true in super.connectedCallback.
       super.connectedCallback();
 
-      this.mItemBoxes = [];
+      // Map from an event item's hashId to its calendar-editable-item.
+      this.eventElements = new Map();
 
-      this.setAttribute("flex", "1");
-      this.classList.add("calendar-event-column-header");
-      this.initializeAttributeInheritance();
+      this.eventsListElement = document.createElement("ol");
+      this.eventsListElement.classList.add("allday-events-list");
+      this.appendChild(this.eventsListElement);
     }
 
     get date() {
@@ -1695,63 +1692,107 @@
       this.mDate = val;
     }
 
-    findBoxForItem(aItem) {
-      for (let item of this.mItemBoxes) {
-        if (aItem && item.occurrence.hasSameIds(aItem)) {
-          // We can return directly, since there will only be one box per
-          // item in the header.
-          return item;
-        }
-      }
-      return null;
+    /**
+     * Return the displayed calendar-editable-item element for the given event
+     * item.
+     *
+     * @param {calItemBase} eventItem - The event item.
+     *
+     * @return {Element} - The corresponding element, or undefined if none.
+     */
+    findElementForEventItem(eventItem) {
+      return this.eventElements.get(eventItem.hashId);
     }
 
-    addEvent(aItem) {
-      // Prevent same items being added.
-      if (this.mItemBoxes.some(itemBox => itemBox.occurrence.hashId == aItem.hashId)) {
-        return;
+    /**
+     * Return all the event items that are displayed in this columns.
+     *
+     * @return {calItemBase[]} - An array of all the displayed event items.
+     */
+    getAllEventItems() {
+      return Array.from(this.eventElements.values(), element => element.occurrence);
+    }
+
+    /**
+     * Create or update a displayed calendar-editable-item element for the given
+     * event item.
+     *
+     * @param {calItemBase} eventItem - The event item to create or update an
+     *   element for.
+     */
+    addEvent(eventItem) {
+      let existing = this.eventElements.get(eventItem.hashId);
+      if (existing) {
+        existing.remove();
       }
 
       let itemBox = document.createXULElement("calendar-editable-item");
+      let listItemWrapper = document.createElement("li");
+      listItemWrapper.classList.add("allday-event-listitem");
+      listItemWrapper.appendChild(itemBox);
       cal.data.binaryInsertNode(
-        this,
-        itemBox,
-        aItem,
+        this.eventsListElement,
+        listItemWrapper,
+        eventItem,
         cal.view.compareItems,
         false,
-        node => node.occurrence
+        wrapper => wrapper.firstChild.occurrence
       );
+
       itemBox.calendarView = this.calendarView;
-      itemBox.occurrence = aItem;
+      itemBox.occurrence = eventItem;
       let ctxt =
         this.calendarView.getAttribute("item-context") || this.calendarView.getAttribute("context");
       itemBox.setAttribute("context", ctxt);
 
-      if (aItem.hashId in this.calendarView.mFlashingEvents) {
+      if (eventItem.hashId in this.calendarView.mFlashingEvents) {
         itemBox.setAttribute("flashing", "true");
       }
 
-      this.mItemBoxes.push(itemBox);
+      this.eventElements.set(eventItem.hashId, itemBox);
+
       itemBox.parentBox = this;
     }
 
-    deleteEvent(aItem) {
-      for (let i in this.mItemBoxes) {
-        if (this.mItemBoxes[i].occurrence.hashId == aItem.hashId) {
-          this.mItemBoxes[i].remove();
-          this.mItemBoxes.splice(i, 1);
-          break;
-        }
+    /**
+     * Remove the displayed calendar-editable-item element for the given event
+     * item from this column
+     *
+     * @param {calItemBase} eventItem - The event item to remove the element of.
+     */
+    deleteEvent(eventItem) {
+      let current = this.eventElements.get(eventItem.hashId);
+      if (current) {
+        // Need to remove the wrapper list item.
+        current.parentNode.remove();
+        this.eventElements.delete(eventItem.hashId);
       }
     }
 
+    /**
+     * Clear the header of all events.
+     */
+    clear() {
+      this.eventElements.clear();
+      while (this.eventsListElement.hasChildNodes()) {
+        this.eventsListElement.lastChild.remove();
+      }
+    }
+
+    /**
+     * Set whether to show a drop shadow in the event list.
+     *
+     * @param {boolean} on - True to show the drop shadow, otherwise hides the
+     *   drop shadow.
+     */
     setDropShadow(on) {
-      let existing = this.querySelector(".dropshadow");
+      let existing = this.eventsListElement.querySelector(".dropshadow");
       if (on) {
         if (!existing) {
-          let dropshadow = document.createXULElement("box");
-          dropshadow.classList.add("dropshadow");
-          this.insertBefore(dropshadow, this.firstElementChild);
+          // Insert an empty list item.
+          let dropshadow = document.createElement("li");
+          dropshadow.classList.add("dropshadow", "allday-event-listitem");
+          this.eventsListElement.insertBefore(dropshadow, this.eventsListElement.firstElementChild);
         }
       } else if (existing) {
         existing.remove();
@@ -1764,20 +1805,20 @@
       return newItem;
     }
 
-    selectOccurrence(aItem) {
-      for (let itemBox of this.mItemBoxes) {
-        if (aItem && itemBox.occurrence.hashId == aItem.hashId) {
-          itemBox.selected = true;
-        }
+    /**
+     * Set whether the calendar-editable-item element for the given event item
+     * should be displayed as selected or unselected.
+     *
+     * @param {calItemBase} eventItem - The event item.
+     * @param {boolean} select - Whether to show the corresponding event element
+     *   as selected.
+     */
+    selectEvent(eventItem, select) {
+      let element = this.eventElements.get(eventItem.hashId);
+      if (!element) {
+        return;
       }
-    }
-
-    unselectOccurrence(aItem) {
-      for (let itemBox of this.mItemBoxes) {
-        if (aItem && itemBox.occurrence.hashId == aItem.hashId) {
-          itemBox.selected = false;
-        }
-      }
+      element.selected = select;
     }
 
     onDblClick(event) {
@@ -2736,7 +2777,7 @@
       const columns = this.findColumnsForItem(item);
       for (const col of columns) {
         const colBox = col.column.findElementForEventItem(item);
-        const headerBox = col.header.findBoxForItem(item);
+        const headerBox = col.header.findElementForEventItem(item);
 
         if (colBox) {
           setFlashingAttribute(colBox);
@@ -2861,7 +2902,7 @@
           for (const occ of this.getItemOccurrencesInView(item)) {
             const cols = this.findColumnsForItem(occ);
             for (const col of cols) {
-              col.header.unselectOccurrence(occ);
+              col.header.selectEvent(occ, false);
               col.column.selectEvent(occ, false);
             }
           }
@@ -2878,7 +2919,7 @@
           const start = item.startDate || item.entryDate || item.dueDate;
           for (const col of cols) {
             if (start.isDate) {
-              col.header.selectOccurrence(occ);
+              col.header.selectEvent(occ, true);
             } else {
               col.column.selectEvent(occ, true);
             }
@@ -3171,12 +3212,7 @@
         let dayHeaderBox;
         if (counter < headerboxkids.length) {
           dayHeaderBox = headerboxkids[counter];
-          // Delete backwards to make sure we get them all
-          // and delete until no more elements are left.
-          while (dayHeaderBox.mItemBoxes.length != 0) {
-            const num = dayHeaderBox.mItemBoxes.length;
-            dayHeaderBox.deleteEvent(dayHeaderBox.mItemBoxes[num - 1].occurrence);
-          }
+          dayHeaderBox.clear();
         } else {
           dayHeaderBox = document.createXULElement("calendar-header-container");
           dayHeaderBox.setAttribute("flex", "1");
@@ -3541,9 +3577,7 @@
       }
       for (const col of this.mDateColumns) {
         // Get all-day events in column header and events within the column.
-        const colEvents = col.header.mItemBoxes
-          .map(box => box.occurrence)
-          .concat(col.column.getAllEventItems());
+        const colEvents = col.header.getAllEventItems().concat(col.column.getAllEventItems());
 
         for (const event of colEvents) {
           if (event.calendar.id == calendar.id) {
