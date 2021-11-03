@@ -336,6 +336,10 @@ pref("mailnews.smtp.loglevel", "Warn");
 pref("mailnews.nntp.jsmodule", false);
 pref("mailnews.nntp.loglevel", "Warn");
 
+// If true, Pop3Service.jsm is used. Otherwise, nsPop3Service.cpp is used.
+pref("mailnews.pop3.jsmodule", false);
+pref("mailnews.pop3.loglevel", "Warn");
+
 pref("mail.operate_on_msgs_in_collapsed_threads", false);
 pref("mail.warn_on_collapsed_thread_operation", true);
 pref("mail.warn_on_shift_delete", true);
