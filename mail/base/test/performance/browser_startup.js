@@ -29,12 +29,13 @@ const startupPhases = {
     allowlist: {
       modules: new Set([
         "resource:///modules/MailGlue.jsm",
+        "resource://gre/modules/ActorManagerParent.jsm",
         "resource://gre/modules/AppConstants.jsm",
         "resource://gre/modules/ComponentUtils.jsm",
         "resource://gre/modules/CustomElementsListener.jsm",
         "resource://gre/modules/MainProcessSingleton.jsm",
-        "resource://gre/modules/XPCOMUtils.jsm",
         "resource://gre/modules/Services.jsm",
+        "resource://gre/modules/XPCOMUtils.jsm",
       ]),
     },
   },

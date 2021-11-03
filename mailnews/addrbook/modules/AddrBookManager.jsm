@@ -12,6 +12,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   clearTimeout: "resource://gre/modules/Timer.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
+  MailGlue: "resource:///modules/MailGlue.jsm",
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
@@ -101,6 +102,12 @@ function createDirectoryObject(uri, shouldStore = false) {
 function ensureInitialized() {
   if (store !== null) {
     return;
+  }
+  if (MailGlue.isToolboxProcess) {
+    throw new Components.Exception(
+      "AddrBookManager tried to start in the Developer Tools process!",
+      Cr.NS_ERROR_UNEXPECTED
+    );
   }
 
   store = new Map();

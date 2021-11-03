@@ -205,7 +205,7 @@ function MailGlue() {
     "@mozilla.org/widget/useridleservice;1",
     "nsIUserIdleService"
   );
-  Services.obs.addObserver(this, "command-line-startup");
+  this._init();
 }
 
 // This should match the constant of the same name in devtools
@@ -220,10 +220,17 @@ MailGlue.prototype = {
 
   // init (called at app startup)
   _init() {
-    Services.obs.addObserver(this, "xpcom-shutdown");
+    // Start-up notifications, in order.
+    // app-startup happens first, registered in components.conf.
+    Services.obs.addObserver(this, "command-line-startup");
     Services.obs.addObserver(this, "final-ui-startup");
-    Services.obs.addObserver(this, "intl:app-locales-changed");
     Services.obs.addObserver(this, "mail-startup-done");
+
+    // Shut-down notifications.
+    Services.obs.addObserver(this, "xpcom-shutdown");
+
+    // General notifications.
+    Services.obs.addObserver(this, "intl:app-locales-changed");
     Services.obs.addObserver(this, "handle-xul-text-link");
     Services.obs.addObserver(this, "chrome-document-global-created");
     Services.obs.addObserver(this, "document-element-inserted");
@@ -243,8 +250,12 @@ MailGlue.prototype = {
 
   // cleanup (called at shutdown)
   _dispose() {
-    Services.obs.removeObserver(this, "xpcom-shutdown");
+    Services.obs.removeObserver(this, "command-line-startup");
     Services.obs.removeObserver(this, "final-ui-startup");
+    // mail-startup-done is removed by its handler.
+
+    Services.obs.removeObserver(this, "xpcom-shutdown");
+
     Services.obs.removeObserver(this, "intl:app-locales-changed");
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "chrome-document-global-created");
@@ -266,26 +277,7 @@ MailGlue.prototype = {
 
   // nsIObserver implementation
   observe(aSubject, aTopic, aData) {
-    let fs;
     switch (aTopic) {
-      case "command-line-startup":
-        Services.obs.removeObserver(this, "command-line-startup");
-
-        // Check if this process is the developer toolbox process, and if it
-        // is, avoid starting everything MailGlue starts.
-        let commandLine = aSubject.QueryInterface(Ci.nsICommandLine);
-        let flagIndex = commandLine.findFlag("chrome", true) + 1;
-        if (
-          flagIndex > 0 &&
-          flagIndex < commandLine.length &&
-          commandLine.getArgument(flagIndex) ===
-            MailGlue.BROWSER_TOOLBOX_WINDOW_URL
-        ) {
-          return;
-        }
-
-        this._init();
-        break;
       case "app-startup":
         // Record the previously started version. This is used to check for
         // extensions that were disabled by an application update. We need to
@@ -295,25 +287,46 @@ MailGlue.prototype = {
           "0"
         );
         break;
-      case "xpcom-shutdown":
-        this._dispose();
-        break;
-      case "intl:app-locales-changed":
-        fs = Cc["@mozilla.org/msgFolder/msgFolderService;1"].getService(
-          Ci.nsIMsgFolderService
-        );
-        fs.initializeFolderStrings();
+      case "command-line-startup":
+        // Check if this process is the developer toolbox process, and if it
+        // is, stop MailGlue from doing anything more. Also sets a flag that
+        // can be checked to see if this is the toolbox process.
+        let isToolboxProcess = false;
+        let commandLine = aSubject.QueryInterface(Ci.nsICommandLine);
+        let flagIndex = commandLine.findFlag("chrome", true) + 1;
+        if (
+          flagIndex > 0 &&
+          flagIndex < commandLine.length &&
+          commandLine.getArgument(flagIndex) ===
+            MailGlue.BROWSER_TOOLBOX_WINDOW_URL
+        ) {
+          isToolboxProcess = true;
+        }
+
+        MailGlue.__defineGetter__("isToolboxProcess", () => isToolboxProcess);
+
+        if (isToolboxProcess) {
+          // Clean up all of the listeners.
+          this._dispose();
+        }
         break;
       case "final-ui-startup":
-        fs = Cc["@mozilla.org/msgFolder/msgFolderService;1"].getService(
-          Ci.nsIMsgFolderService
-        );
-        fs.initializeFolderStrings();
+        Cc["@mozilla.org/msgFolder/msgFolderService;1"]
+          .getService(Ci.nsIMsgFolderService)
+          .initializeFolderStrings();
         this._beforeUIStartup();
         break;
       case "mail-startup-done":
         this._onFirstWindowLoaded();
         Services.obs.removeObserver(this, "mail-startup-done");
+        break;
+      case "xpcom-shutdown":
+        this._dispose();
+        break;
+      case "intl:app-locales-changed":
+        Cc["@mozilla.org/msgFolder/msgFolderService;1"]
+          .getService(Ci.nsIMsgFolderService)
+          .initializeFolderStrings();
         break;
       case "handle-xul-text-link":
         this._handleLink(aSubject, aData);
