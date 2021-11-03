@@ -200,9 +200,19 @@ class MsgIncomingServer {
     this.rootFolder.prettyName = value;
   }
 
+  /**
+   * Construct a pretty name from username and hostname.
+   * @param {string} username - The user name.
+   * @param {string} hostname - The host name.
+   * @retursn {string}
+   */
+  _constructPrettyName(username, hostname) {
+    let prefix = username ? `${username} on ` : "";
+    return `${prefix}${hostname}`;
+  }
+
   get constructedPrettyName() {
-    let prefix = this.username ? `${this.username} on ` : "";
-    return `${prefix}${this.hostName}`;
+    return this._constructPrettyName(this.username, this.hostName);
   }
 
   get localPath() {
@@ -449,6 +459,12 @@ class MsgIncomingServer {
 
     // Clear the clientid because the user or host have changed.
     this.clientid = "";
+
+    if (hostnameChanged) {
+      this.prettyName = this._constructPrettyName(this.realUsername, newValue);
+    } else {
+      this.prettyName = this._constructPrettyName(newValue, this.realHostName);
+    }
   }
 
   forgetPassword() {

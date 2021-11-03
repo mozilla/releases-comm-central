@@ -329,6 +329,8 @@ pref("mail.default_html_action", 3);
 
 pref("mailnews.send.loglevel", "Warn");
 
+pref("mailnews.nntp.jsmodule", false);
+
 // End core mailnews.js pref overrides
 /////////////////////////////////////////////////////////////////
 

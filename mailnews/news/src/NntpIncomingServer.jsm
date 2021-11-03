@@ -197,9 +197,13 @@ class NntpIncomingServer extends MsgIncomingServer {
     this._tree?.beginUpdateBatch();
     this._tree?.rowCountChanged(0, -this._searchResult.length);
 
-    value = value.toLowerCase();
+    let terms = value.toLowerCase().split(" ");
     this._searchResult = this._groups
-      .filter(name => name.toLowerCase().includes(value))
+      .filter(name => {
+        name = name.toLowerCase();
+        // The group name should contain all the search terms.
+        return terms.every(term => name.includes(term));
+      })
       .sort();
 
     this._tree?.rowCountChanged(0, this._searchResult.length);
