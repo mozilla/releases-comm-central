@@ -3378,34 +3378,6 @@
     }
 
     /**
-     * Return the column objects for a group of occurrences.
-     *
-     * @param {calIItemBase[]} occurrences    Array of calendar item occurrences.
-     * @return {DateColumn[]}                 Array of column objects.
-     */
-    findColumnsForOccurrences(occurrences) {
-      if (!this.mDateColumns || !this.mDateColumns.length) {
-        return [];
-      }
-
-      const occMap = {};
-      for (const occ of occurrences) {
-        const startDate = occ[cal.dtz.startDateProp(occ)].getInTimezone(this.mStartDate.timezone);
-
-        const endDate =
-          occ[cal.dtz.endDateProp(occ)].getInTimezone(this.mEndDate.timezone) || startDate;
-
-        if (startDate.compare(this.mStartDate) >= 0 && endDate.compare(this.mEndDate) <= 0) {
-          for (let i = startDate.day; i <= endDate.day; i++) {
-            occMap[i] = true;
-          }
-        }
-      }
-
-      return this.mDateColumns.filter(col => col.date.day in occMap);
-    }
-
-    /**
      * Return the column objects for a given calendar item.
      *
      * @param {calIItemBase} item    A calendar item.
