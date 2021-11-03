@@ -21,7 +21,7 @@ const EXPORTED_SYMBOLS = [
   "removeGlobalAllowedStyleRule",
 ];
 
-var kAllowedURLs = aValue => /^(https?|ftp|mailto):/.test(aValue);
+var kAllowedURLs = aValue => /^(https?|ftp|mailto|magnet):/.test(aValue);
 var kAllowedMozClasses = aClassName =>
   aClassName == "moz-txt-underscore" ||
   aClassName == "moz-txt-tag" ||
@@ -77,6 +77,7 @@ var kStandardMode = {
     b: true,
     i: true,
     u: true,
+    s: true,
     span: {
       class: kAllowedMozClasses,
     },
@@ -84,10 +85,27 @@ var kStandardMode = {
     code: true,
     ul: true,
     li: true,
-    ol: true,
+    ol: {
+      start: true,
+    },
     cite: true,
     blockquote: true,
     p: true,
+    del: true,
+    strike: true,
+    ins: true,
+    sub: true,
+    sup: true,
+    pre: true,
+    table: true,
+    thead: true,
+    tbody: true,
+    tr: true,
+    th: true,
+    td: true,
+    caption: true,
+    details: true,
+    summary: true,
   },
 
   styles: {
@@ -99,6 +117,8 @@ var kStandardMode = {
 
 /**
  * Permissive mode allows just about anything that isn't going to mess up the chat window.
+ * In comparison to normal mode this primarily means elements that can vary font sizes and
+ * colors.
  *
  * @type {CleanRules}
  */
@@ -124,6 +144,7 @@ var kPermissiveMode = {
     b: true,
     i: true,
     u: true,
+    s: true,
     span: {
       class: kAllowedMozClasses,
     },
@@ -132,10 +153,33 @@ var kPermissiveMode = {
     code: true,
     ul: true,
     li: true,
-    ol: true,
+    ol: {
+      start: true,
+    },
     cite: true,
     blockquote: true,
     p: true,
+    del: true,
+    strike: true,
+    ins: true,
+    sub: true,
+    sup: true,
+    pre: true,
+    table: true,
+    thead: true,
+    tbody: true,
+    tr: true,
+    th: true,
+    td: true,
+    caption: true,
+    details: true,
+    summary: true,
+    h1: true,
+    h2: true,
+    h3: true,
+    h4: true,
+    h5: true,
+    h6: true,
   },
 
   // FIXME: should be possible to use functions to filter values

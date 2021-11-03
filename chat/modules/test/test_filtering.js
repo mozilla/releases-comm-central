@@ -101,6 +101,26 @@ function test_links() {
   Assert.equal(string, cleanupImMarkup(string));
 }
 
+function test_table() {
+  const table =
+    "<table>" +
+    "<caption>test table</caption>" +
+    "<thead>" +
+    "<tr>" +
+    "<th>key</th>" +
+    "<th>data</th>" +
+    "</tr>" +
+    "</thead>" +
+    "<tbody>" +
+    "<tr>" +
+    "<td>lorem</td>" +
+    "<td>ipsum</td>" +
+    "</tr>" +
+    "</tbody>" +
+    "</table>";
+  Assert.equal(table, cleanupImMarkup(table));
+}
+
 function test_allModes() {
   test_plainText();
   test_paragraphs();
@@ -124,6 +144,7 @@ function test_strictMode() {
     "b",
     "i",
     "u",
+    "s",
     "span",
     "code",
     "ul",
@@ -131,6 +152,15 @@ function test_strictMode() {
     "ol",
     "cite",
     "blockquote",
+    "del",
+    "strike",
+    "ins",
+    "sub",
+    "sup",
+    "pre",
+    "td",
+    "details",
+    "h1",
   ]) {
     Assert.equal("foo", cleanupImMarkup("<" + tag + ">foo</" + tag + ">"));
   }
@@ -154,6 +184,7 @@ function test_strictMode() {
 function test_standardMode() {
   Services.prefs.setIntPref(kModePref, kStandardMode);
   test_allModes();
+  test_table();
 
   // check that basic formatting is kept in standard mode.
   for (let tag of [
@@ -163,6 +194,7 @@ function test_standardMode() {
     "b",
     "i",
     "u",
+    "s",
     "span",
     "code",
     "ul",
@@ -170,6 +202,13 @@ function test_standardMode() {
     "ol",
     "cite",
     "blockquote",
+    "del",
+    "sub",
+    "sup",
+    "pre",
+    "strike",
+    "ins",
+    "details",
   ]) {
     let string = "<" + tag + ">foo</" + tag + ">";
     Assert.equal(string, cleanupImMarkup(string));
@@ -221,12 +260,21 @@ function test_standardMode() {
     cleanupImMarkup('<span style="font: 15px normal">foo</span>')
   );
 
+  // Discard headings
+  const heading1 = "test heading";
+  Assert.equal(heading1, cleanupImMarkup(`<h1>${heading1}</h1>`));
+
+  // Setting the start number of an <ol> is allowed
+  const olWithOffset = '<ol start="2"><li>two</li><li>three</li></ol>';
+  Assert.equal(olWithOffset, cleanupImMarkup(olWithOffset));
+
   run_next_test();
 }
 
 function test_permissiveMode() {
   Services.prefs.setIntPref(kModePref, kPermissiveMode);
   test_allModes();
+  test_table();
 
   // Check that all formatting is kept in permissive mode.
   for (let tag of [
@@ -243,6 +291,19 @@ function test_permissiveMode() {
     "ol",
     "cite",
     "blockquote",
+    "del",
+    "sub",
+    "sup",
+    "pre",
+    "strike",
+    "ins",
+    "details",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
   ]) {
     let string = "<" + tag + ">foo</" + tag + ">";
     Assert.equal(string, cleanupImMarkup(string));
