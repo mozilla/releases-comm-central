@@ -22,7 +22,10 @@
                 "optional": true,
                 "default": "ArrayBuffer",
                 "description": "Determines the format of the ``data`` argument in ``onFileUpload``.",
-                "enum": ["ArrayBuffer", "File"]
+                "enum": [
+                  "ArrayBuffer",
+                  "File"
+                ]
               },
               "management_url": {
                 "type": "string",
@@ -55,8 +58,12 @@
   },
   {
     "namespace": "cloudFile",
-    "permissions": ["manifest:cloud_file"],
-    "allowedContexts": ["content"],
+    "permissions": [
+      "manifest:cloud_file"
+    ],
+    "allowedContexts": [
+      "content"
+    ],
     "events": [
       {
         "name": "onFileUpload",
@@ -246,7 +253,9 @@
         "name": "getAccount",
         "type": "function",
         "description": "Retrieve information about a single cloud file account",
-        "allowedContexts": ["content"],
+        "allowedContexts": [
+          "content"
+        ],
         "async": "callback",
         "parameters": [
           {
@@ -270,7 +279,9 @@
         "name": "getAllAccounts",
         "type": "function",
         "description": "Retrieve all cloud file accounts for the current add-on",
-        "allowedContexts": ["content"],
+        "allowedContexts": [
+          "content"
+        ],
         "async": "callback",
         "parameters": [
           {
@@ -292,7 +303,9 @@
         "name": "updateAccount",
         "type": "function",
         "description": "Update a cloud file account",
-        "allowedContexts": ["content"],
+        "allowedContexts": [
+          "content"
+        ],
         "async": "callback",
         "parameters": [
           {

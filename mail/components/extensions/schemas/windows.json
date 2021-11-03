@@ -1,7 +1,6 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 [
   {
     "namespace": "windows",
@@ -26,7 +25,13 @@
         "id": "WindowState",
         "type": "string",
         "description": "The state of this window.",
-        "enum": ["normal", "minimized", "maximized", "fullscreen", "docked"]
+        "enum": [
+          "normal",
+          "minimized",
+          "maximized",
+          "fullscreen",
+          "docked"
+        ]
       },
       {
         "id": "Window",
@@ -64,7 +69,9 @@
           },
           "tabs": {
             "type": "array",
-            "items": { "$ref": "tabs.Tab" },
+            "items": {
+              "$ref": "tabs.Tab"
+            },
             "optional": true,
             "description": "Array of :ref:`tabs.Tab` objects representing the current tabs in the window. Only included if requested by :ref:`windows.get`, :ref:`windows.getCurrent`, :ref:`windows.getAll` or :ref:`windows.getLastFocused` and the optional :ref:`windows.GetInfo` parameter has ``populate`` set to ``true``."
           },
@@ -97,7 +104,12 @@
         "id": "CreateType",
         "type": "string",
         "description": "Specifies what type of browser window to create. The 'panel' and 'detached_panel' types create a popup unless the '--enable-panels' flag is set.",
-        "enum": ["normal", "popup", "panel", "detached_panel"]
+        "enum": [
+          "normal",
+          "popup",
+          "panel",
+          "detached_panel"
+        ]
       },
       {
         "id": "GetInfo",
@@ -111,7 +123,9 @@
           },
           "windowTypes": {
             "type": "array",
-            "items": { "$ref": "WindowType" },
+            "items": {
+              "$ref": "WindowType"
+            },
             "optional": true,
             "description": "If set, the :ref:`windows.Window` returned will be filtered based on its type. Supported by :ref:`windows.getAll` only, ignored in all other functions."
           }
@@ -221,7 +235,9 @@
               {
                 "name": "windows",
                 "type": "array",
-                "items": { "$ref": "Window" }
+                "items": {
+                  "$ref": "Window"
+                }
               }
             ]
           }
@@ -243,10 +259,16 @@
                 "description": "A URL or array of URLs to open as tabs in the window. Fully-qualified URLs must include a scheme (i.e. 'http://www.google.com', not 'www.google.com'). Relative URLs will be relative to the current page within the extension. Defaults to the New Tab Page.",
                 "optional": true,
                 "choices": [
-                  { "type": "string", "format": "relativeUrl" },
+                  {
+                    "type": "string",
+                    "format": "relativeUrl"
+                  },
                   {
                     "type": "array",
-                    "items": { "type": "string", "format": "relativeUrl" }
+                    "items": {
+                      "type": "string",
+                      "format": "relativeUrl"
+                    }
                   }
                 ]
               },
@@ -439,7 +461,9 @@
           {
             "name": "windowTypes",
             "type": "array",
-            "items": { "$ref": "WindowType" },
+            "items": {
+              "$ref": "WindowType"
+            },
             "description": "Conditions that the window's type being created must satisfy. By default it will satisfy <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
           }
         ],
@@ -459,7 +483,9 @@
           {
             "name": "windowTypes",
             "type": "array",
-            "items": { "$ref": "WindowType" },
+            "items": {
+              "$ref": "WindowType"
+            },
             "description": "Conditions that the window's type being removed must satisfy. By default it will satisfy <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
           }
         ],
@@ -480,7 +506,9 @@
           {
             "name": "windowTypes",
             "type": "array",
-            "items": { "$ref": "WindowType" },
+            "items": {
+              "$ref": "WindowType"
+            },
             "description": "Conditions that the window's type being removed must satisfy. By default it will satisfy <code>['app', 'normal', 'panel', 'popup']</code>, with <code>'app'</code> and <code>'panel'</code> window types limited to the extension's own windows."
           }
         ],

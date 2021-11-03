@@ -125,7 +125,7 @@
             ],
             "optional": true
           },
-          "relatedMessageId" : {
+          "relatedMessageId": {
             "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <code>null</code> in all other cases or if the original message was opened from file.",
             "type": "integer",
             "optional": true
@@ -479,11 +479,31 @@
         "permissions": [
           "compose"
         ],
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "tabId",
             "type": "integer"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "choices": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "ComposeAttachment"
+                    }
+                  },
+                  {
+                    "type": "any"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -494,7 +514,7 @@
         "permissions": [
           "compose"
         ],
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "tabId",
@@ -515,6 +535,23 @@
                 "additionalProperties": true
               }
             }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "choices": [
+                  {
+                    "$ref": "ComposeAttachment"
+                  },
+                  {
+                    "type": "any"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -525,7 +562,7 @@
         "permissions": [
           "compose"
         ],
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "tabId",
@@ -551,6 +588,23 @@
                 "optional": true
               }
             }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "choices": [
+                  {
+                    "$ref": "ComposeAttachment"
+                  },
+                  {
+                    "type": "any"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },

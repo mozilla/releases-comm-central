@@ -1,14 +1,22 @@
 [
   {
     "namespace": "menus",
-    "permissions": ["menus"],
-    "allowedContexts": ["content", "devtools"],
+    "permissions": [
+      "menus"
+    ],
+    "allowedContexts": [
+      "content",
+      "devtools"
+    ],
     "description": "The part of the menus API that is available in all extension contexts, including content scripts.",
     "functions": [
       {
         "name": "getTargetElement",
         "type": "function",
-        "allowedContexts": ["content", "devtools"],
+        "allowedContexts": [
+          "content",
+          "devtools"
+        ],
         "description": "Retrieve the element that was associated with a recent contextmenu event.",
         "parameters": [
           {
@@ -21,7 +29,9 @@
           "type": "object",
           "optional": true,
           "isInstanceOf": "Element",
-          "additionalProperties": { "type": "any" }
+          "additionalProperties": {
+            "type": "any"
+          }
         }
       }
     ]

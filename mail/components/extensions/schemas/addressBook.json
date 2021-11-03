@@ -260,7 +260,7 @@
       {
         "name": "onSearchRequest",
         "type": "function",
-        "description": "Creates a read-only addressbook that fires this event when searching for a contact. Note: This event may change in future releases of Thunderbird.",
+        "description": "Registering this listener will create and list a read-only address book in Thunderbird's address book window, similar to LDAP address books. When selecting this address book, users will first see no contacts, but they can search for them, which will fire this event. Contacts returned by the listener callback will be displayed as contact cards in the address book. Several listeners can be registered, to create multiple address books.\n\nThe event also fires for each registered listener (for each created read-only address book), when users type something into the mail composer's <code>To:</code> field, or into similar fields like the calendar meeting attendees field. Contacts returned by the listener callback will be added to the autocomplete results in the dropdown of that field.\n\nExample: <literalinclude>includes/addressBooks/onSearchRequest.js<lang>JavaScript</lang></literalinclude>",
         "parameters": [
           {
             "name": "node",
@@ -282,22 +282,23 @@
         "extraParameters": [
           {
             "name": "parameters",
+            "description": "Descriptions for the address book created by registering this listener.",
             "type": "object",
             "properties": {
               "addressBookName": {
                 "type": "string",
                 "optional": true,
-                "description": "The initial name of the address book."
+                "description": "The name of the created address book."
               },
               "isSecure": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the address book is searched securely."
+                "description": "Whether the address book search queries are using encrypted protocols like HTTPS."
               },
               "id": {
                 "type": "string",
                 "optional": true,
-                "description": "The id of the address book."
+                "description": "The unique ID of the created address book. If several listeners have been added, the ``id`` allows to identify which address book initiated the search request. If not provided, a unique ID will be generated for you."
               }
             }
           }
@@ -398,11 +399,24 @@
       {
         "name": "list",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "parentId",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "ContactNode"
+                }
+              }
+            ]
           }
         ],
         "description": "Gets all the contacts in the address book with the id <code>parentId</code>."
@@ -410,7 +424,7 @@
       {
         "name": "quickSearch",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "parentId",
@@ -460,18 +474,41 @@
                 }
               }
             ]
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "ContactNode"
+                }
+              }
+            ]
           }
         ],
-        "description": "Gets all contacts matching <code>searchString</code> in the address book with the id <code>parentId</code>."
+        "description": "Gets all contacts matching ``queryInfo`` in the address book with the id ``parentId``."
       },
       {
         "name": "get",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "id",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "ContactNode"
+              }
+            ]
           }
         ],
         "description": "Gets a single contact."
@@ -479,7 +516,7 @@
       {
         "name": "create",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "parentId",
@@ -494,6 +531,17 @@
           {
             "name": "properties",
             "$ref": "ContactProperties"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "string",
+                "description": "The ID of the new contact."
+              }
+            ]
           }
         ],
         "description": "Adds a new contact to the address book with the id <code>parentId</code>."
@@ -633,11 +681,24 @@
       {
         "name": "list",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "parentId",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "MailingListNode"
+                }
+              }
+            ]
           }
         ],
         "description": "Gets all the mailing lists in the address book with id <code>parentId</code>."
@@ -645,11 +706,21 @@
       {
         "name": "get",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "id",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MailingListNode"
+              }
+            ]
           }
         ],
         "description": "Gets a single mailing list."
@@ -657,7 +728,7 @@
       {
         "name": "create",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "parentId",
@@ -679,6 +750,17 @@
                 "optional": true
               }
             }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "string",
+                "description": "The ID of the new mailing list."
+              }
+            ]
           }
         ],
         "description": "Creates a new mailing list in the address book with id <code>parentId</code>."
@@ -743,11 +825,24 @@
       {
         "name": "listMembers",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "id",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "contacts.ContactNode"
+                }
+              }
+            ]
           }
         ],
         "description": "Gets all contacts that are members of the mailing list with id <code>id</code>."

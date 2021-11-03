@@ -51,7 +51,16 @@
             "type": "string",
             "optional": true,
             "description": "The type of folder, for several common types.",
-            "enum": ["inbox", "drafts", "sent", "trash", "templates", "archives", "junk", "outbox"]
+            "enum": [
+              "inbox",
+              "drafts",
+              "sent",
+              "trash",
+              "templates",
+              "archives",
+              "junk",
+              "outbox"
+            ]
           }
         }
       },

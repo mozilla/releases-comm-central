@@ -7,52 +7,59 @@
         "properties": {
           "compose_action": {
             "type": "object",
-            "additionalProperties": { "$ref": "UnrecognizedProperty" },
+            "additionalProperties": {
+              "$ref": "UnrecognizedProperty"
+            },
             "properties": {
-                "default_label": {
-                  "type": "string",
-                  "description": "The label of the composeAction, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
-                  "optional": true,
-                  "preprocess": "localize"
-                },
-                "default_title": {
-                  "type": "string",
-                  "description": "The title of the composeAction. This shows up in the tooltip and the label. Defaults to the add-on name.",
-                  "optional": true,
-                  "preprocess": "localize"
-                },
-                "default_icon": {
-                  "$ref": "IconPath",
-                  "description": "The icon for the messageDisplayAction.",
-                  "optional": true
-                },
-                "theme_icons": {
-                  "type": "array",
-                  "optional": true,
-                  "minItems": 1,
-                  "items": { "$ref": "ThemeIcons" },
-                  "description": "Specifies icons to use for dark and light themes"
-                },
-                "default_popup": {
-                  "type": "string",
-                  "format": "relativeUrl",
-                  "optional": true,
-                  "description": "The html document to be opened as a popup when the user clicks on the composeAction's icon.",
-                  "preprocess": "localize"
-                },
-                "browser_style": {
-                  "type": "boolean",
-                  "optional": true,
-                  "description": "Enable browser styles. See the `MDN documentation on browser styles <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information.",
-                  "default": false
-                },
-                "default_area": {
-                  "description": "Defines the location the composeAction will appear. The default location is ``maintoolbar``.",
-                  "type": "string",
-                  "enum": ["maintoolbar", "formattoolbar"],
-                  "optional": true
-                }
+              "default_label": {
+                "type": "string",
+                "description": "The label of the composeAction, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
+                "optional": true,
+                "preprocess": "localize"
               },
+              "default_title": {
+                "type": "string",
+                "description": "The title of the composeAction. This shows up in the tooltip and the label. Defaults to the add-on name.",
+                "optional": true,
+                "preprocess": "localize"
+              },
+              "default_icon": {
+                "$ref": "IconPath",
+                "description": "The icon for the messageDisplayAction.",
+                "optional": true
+              },
+              "theme_icons": {
+                "type": "array",
+                "optional": true,
+                "minItems": 1,
+                "items": {
+                  "$ref": "ThemeIcons"
+                },
+                "description": "Specifies icons to use for dark and light themes"
+              },
+              "default_popup": {
+                "type": "string",
+                "format": "relativeUrl",
+                "optional": true,
+                "description": "The html document to be opened as a popup when the user clicks on the composeAction's icon.",
+                "preprocess": "localize"
+              },
+              "browser_style": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Enable browser styles. See the `MDN documentation on browser styles <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information.",
+                "default": false
+              },
+              "default_area": {
+                "description": "Defines the location the composeAction will appear. The default location is ``maintoolbar``.",
+                "type": "string",
+                "enum": [
+                  "maintoolbar",
+                  "formattoolbar"
+                ],
+                "optional": true
+              }
+            },
             "optional": true
           }
         }
@@ -62,7 +69,9 @@
   {
     "namespace": "composeAction",
     "description": "Use a composeAction to put an icon in the message composition toolbars. In addition to its icon, a composeAction can also have a tooltip, a badge, and a popup.",
-    "permissions": ["manifest:compose_action"],
+    "permissions": [
+      "manifest:compose_action"
+    ],
     "types": [
       {
         "id": "Details",
@@ -99,16 +108,20 @@
         "id": "ImageDataType",
         "type": "object",
         "isInstanceOf": "ImageData",
-        "additionalProperties": { "type": "any" },
+        "additionalProperties": {
+          "type": "any"
+        },
         "postprocess": "convertImageDataToURL",
         "description": "Pixel data for an image. Must be an ImageData object (for example, from a <code>canvas</code> element)."
       },
       {
         "id": "ImageDataDictionary",
         "type": "object",
-        "description" : "A ``{size: ImageDataType}`` dictionary representing the icon to be set. The actual :ref:`composeAction.ImageDataType` to be used is chosen depending on the screen's pixel density. See the `MDN documentation on browser styles <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information on this. At least one :ref:`composeAction.ImageDataType` must be specified.",
+        "description": "A ``{size: ImageDataType}`` dictionary representing the icon to be set. The actual :ref:`composeAction.ImageDataType` to be used is chosen depending on the screen's pixel density. See the `MDN documentation on browser styles <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information on this. At least one :ref:`composeAction.ImageDataType` must be specified.",
         "patternProperties": {
-          "^[1-9]\\d*$": {"$ref": "ImageDataType"}
+          "^[1-9]\\d*$": {
+            "$ref": "ImageDataType"
+          }
         }
       },
       {
@@ -120,7 +133,13 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["Shift", "Alt", "Command", "Ctrl", "MacCtrl"]
+              "enum": [
+                "Shift",
+                "Alt",
+                "Command",
+                "Ctrl",
+                "MacCtrl"
+              ]
             },
             "description": "An array of keyboard modifiers that were held while the menu item was clicked."
           },
@@ -146,8 +165,12 @@
             "properties": {
               "title": {
                 "choices": [
-                  {"type": "string"},
-                  {"type": "null"}
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
                 ],
                 "description": "The string the composeAction should display as its label and when moused over."
               }
@@ -196,8 +219,12 @@
             "properties": {
               "label": {
                 "choices": [
-                  {"type": "string"},
-                  {"type": "null"}
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
                 ],
                 "description": "The string the composeAction should use as label. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback."
               }
@@ -208,7 +235,8 @@
             "name": "callback",
             "optional": true,
             "parameters": []
-          }        ]
+          }
+        ]
       },
       {
         "name": "getLabel",
@@ -245,16 +273,24 @@
             "properties": {
               "imageData": {
                 "choices": [
-                  { "$ref": "ImageDataType" },
-                  { "$ref": "ImageDataDictionary" }
+                  {
+                    "$ref": "ImageDataType"
+                  },
+                  {
+                    "$ref": "ImageDataDictionary"
+                  }
                 ],
                 "optional": true,
                 "description": "Either an ImageDataType object defining a single icon used for all sizes or an ImageDataDictionary object defining dedicated icons for different sizes."
               },
               "path": {
                 "choices": [
-                  { "type": "string" },
-                  { "$ref": "manifest.IconPath" }
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "manifest.IconPath"
+                  }
                 ],
                 "optional": true,
                 "description": "Either a relative image path defining a single icon used for all sizes or an IconPathDictionary object defining dedicated icons for different sizes."
@@ -282,8 +318,12 @@
             "properties": {
               "popup": {
                 "choices": [
-                  {"type": "string"},
-                  {"type": "null"}
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
                 ],
                 "description": "The html file to show in a popup.  If set to the empty string (''), no popup is shown."
               }
@@ -332,8 +372,12 @@
             "properties": {
               "text": {
                 "choices": [
-                  {"type": "string"},
-                  {"type": "null"}
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
                 ],
                 "description": "Any number of characters can be passed, but only about four can fit in the space."
               }
@@ -383,9 +427,15 @@
               "color": {
                 "description": "An array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <code>[255, 0, 0, 255]</code>. Can also be a string with a CSS value, with opaque red being <code>#FF0000</code> or <code>#F00</code>.",
                 "choices": [
-                  {"type": "string"},
-                  {"$ref": "ColorArray"},
-                  {"type": "null"}
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "ColorArray"
+                  },
+                  {
+                    "type": "null"
+                  }
                 ]
               }
             }
@@ -466,11 +516,21 @@
         "name": "isEnabled",
         "type": "function",
         "description": "Checks whether the composeAction is enabled.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "details",
             "$ref": "Details"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "boolean"
+              }
+            ]
           }
         ]
       },

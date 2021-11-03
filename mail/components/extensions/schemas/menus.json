@@ -1,33 +1,39 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 [
   {
     "namespace": "manifest",
     "types": [
       {
         "$extend": "PermissionNoPrompt",
-        "choices": [{
-          "type": "string",
-          "enum": [
-            "menus"
-          ]
-        }]
-      }, {
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "menus"
+            ]
+          }
+        ]
+      },
+      {
         "$extend": "OptionalPermissionNoPrompt",
-        "choices": [{
-          "type": "string",
-          "enum": [
-            "menus.overrideContext"
-          ]
-        }]
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "menus.overrideContext"
+            ]
+          }
+        ]
       }
     ]
   },
   {
     "namespace": "menus",
-    "permissions": ["menus"],
+    "permissions": [
+      "menus"
+    ],
     "description": "Use the browser.menus API to add items to the browser's menus. You can choose what types of objects your context menu additions apply to, such as images, hyperlinks, and pages.",
     "properties": {
       "ACTION_MENU_TOP_LEVEL_LIMIT": {
@@ -64,7 +70,12 @@
       {
         "id": "ItemType",
         "type": "string",
-        "enum": ["normal", "checkbox", "radio", "separator"],
+        "enum": [
+          "normal",
+          "checkbox",
+          "radio",
+          "separator"
+        ],
         "description": "The type of menu item."
       },
       {
@@ -77,15 +88,21 @@
             "type": "array",
             "items": {
               "choices": [
-                { "type": "integer" },
-                { "type": "string" }
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
               ]
             }
           },
           "contexts": {
             "description": "A list of all contexts that apply to the menu.",
             "type": "array",
-            "items": {"$ref": "ContextType"}
+            "items": {
+              "$ref": "ContextType"
+            }
           },
           "viewType": {
             "$ref": "extension.ViewType",
@@ -168,15 +185,23 @@
         "properties": {
           "menuItemId": {
             "choices": [
-              { "type": "integer" },
-              { "type": "string" }
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
             ],
             "description": "The ID of the menu item that was clicked."
           },
           "parentMenuItemId": {
             "choices": [
-              { "type": "integer" },
-              { "type": "string" }
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
             ],
             "optional": true,
             "description": "The parent ID, if any, for the item clicked."
@@ -245,7 +270,13 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["Shift", "Alt", "Command", "Ctrl", "MacCtrl"]
+              "enum": [
+                "Shift",
+                "Alt",
+                "Command",
+                "Ctrl",
+                "MacCtrl"
+              ]
             },
             "description": "An array of keyboard modifiers that were held while the menu item was clicked."
           },
@@ -263,7 +294,14 @@
             "type": "string",
             "optional": true,
             "description": "An identifier of the clicked Thunderbird UI element, if any.",
-            "enum": ["composeSubject", "composeTo", "composeCc", "composeBcc", "composeReplyTo", "composeNewsgroupTo"]
+            "enum": [
+              "composeSubject",
+              "composeTo",
+              "composeCc",
+              "composeBcc",
+              "composeReplyTo",
+              "composeNewsgroupTo"
+            ]
           },
           "selectedMessages": {
             "$ref": "messages.MessageList",
@@ -303,8 +341,12 @@
         "description": "Creates a new context menu item. Note that if an error occurs during creation, you may not find out until the creation callback fires (the details will be in `runtime.lastError <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/lastError>`_).",
         "returns": {
           "choices": [
-            { "type": "integer" },
-            { "type": "string" }
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
           ],
           "description": "The ID of the newly created item."
         },
@@ -327,7 +369,9 @@
                 "type": "object",
                 "optional": true,
                 "patternProperties": {
-                  "^[1-9]\\d*$": { "type": "string" }
+                  "^[1-9]\\d*$": {
+                    "type": "string"
+                  }
                 }
               },
               "title": {
@@ -382,21 +426,29 @@
               },
               "parentId": {
                 "choices": [
-                  { "type": "integer" },
-                  { "type": "string" }
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
                 ],
                 "optional": true,
                 "description": "The ID of a parent menu item; this makes the item a child of a previously added item."
               },
               "documentUrlPatterns": {
                 "type": "array",
-                "items": {"type": "string"},
+                "items": {
+                  "type": "string"
+                },
                 "optional": true,
                 "description": "Lets you restrict the item to apply only to documents whose URL matches one of the given patterns. (This applies to frames as well.) For details on the format of a pattern, see `Match Patterns <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns>`_."
               },
               "targetUrlPatterns": {
                 "type": "array",
-                "items": {"type": "string"},
+                "items": {
+                  "type": "string"
+                },
                 "optional": true,
                 "description": "Similar to documentUrlPatterns, but lets you filter based on the src attribute of img/audio/video tags and the href of anchor tags."
               },
@@ -429,8 +481,12 @@
         "parameters": [
           {
             "choices": [
-              { "type": "integer" },
-              { "type": "string" }
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
             ],
             "name": "id",
             "description": "The ID of the item to update."
@@ -448,7 +504,9 @@
                 "type": "object",
                 "optional": "omit-key-if-missing",
                 "patternProperties": {
-                  "^[1-9]\\d*$": { "type": "string" }
+                  "^[1-9]\\d*$": {
+                    "type": "string"
+                  }
                 }
               },
               "title": {
@@ -497,20 +555,28 @@
               },
               "parentId": {
                 "choices": [
-                  { "type": "integer" },
-                  { "type": "string" }
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
                 ],
                 "optional": true,
                 "description": "Note: You cannot change an item to be a child of one of its own descendants."
               },
               "documentUrlPatterns": {
                 "type": "array",
-                "items": {"type": "string"},
+                "items": {
+                  "type": "string"
+                },
                 "optional": true
               },
               "targetUrlPatterns": {
                 "type": "array",
-                "items": {"type": "string"},
+                "items": {
+                  "type": "string"
+                },
                 "optional": true
               },
               "enabled": {
@@ -536,8 +602,12 @@
         "parameters": [
           {
             "choices": [
-              { "type": "integer" },
-              { "type": "string" }
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
             ],
             "name": "menuItemId",
             "description": "The ID of the context menu item to remove."
@@ -568,7 +638,9 @@
       },
       {
         "name": "overrideContext",
-        "permissions": ["menus.overrideContext"],
+        "permissions": [
+          "menus.overrideContext"
+        ],
         "type": "function",
         "description": "Show the matching menu items from this extension instead of the default menu. This should be called during a 'contextmenu' DOM event handler, and only applies to the menu that opens after this event.",
         "parameters": [
@@ -584,7 +656,9 @@
               },
               "context": {
                 "type": "string",
-                "enum": ["tab"],
+                "enum": [
+                  "tab"
+                ],
                 "optional": true,
                 "description": "ContextType to override, to allow menu items from other extensions in the menu. Currently only 'tab' is supported. showDefaults cannot be used with this option."
               },

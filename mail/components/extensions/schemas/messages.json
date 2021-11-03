@@ -104,7 +104,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "optional" : true
+            "optional": true
           },
           "messages": {
             "type": "array",
@@ -131,7 +131,13 @@
           "headers": {
             "type": "object",
             "description": "An object of part headers, with the header name as key, and an array of header values as value",
-            "optional": true
+            "optional": true,
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           },
           "name": {
             "type": "string",
@@ -346,7 +352,7 @@
         "name": "list",
         "type": "function",
         "description": "Gets all messages in a folder.",
-        "async": true,
+        "async": "callback",
         "permissions": [
           "accountsRead"
         ],
@@ -354,6 +360,16 @@
           {
             "name": "folder",
             "$ref": "folders.MailFolder"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MessageList"
+              }
+            ]
           }
         ]
       },
@@ -361,11 +377,21 @@
         "name": "continueList",
         "type": "function",
         "description": "Returns the next chunk of messages in a list. See :doc:`how-to/messageLists` for more information.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "messageListId",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MessageList"
+              }
+            ]
           }
         ]
       },
@@ -373,11 +399,21 @@
         "name": "get",
         "type": "function",
         "description": "Returns a specified message.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "messageId",
             "type": "integer"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MessageHeader"
+              }
+            ]
           }
         ]
       },
@@ -385,23 +421,43 @@
         "name": "getFull",
         "type": "function",
         "description": "Returns a specified message, including all headers and MIME parts.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "messageId",
             "type": "integer"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MessagePart"
+              }
+            ]
           }
         ]
       },
       {
         "name": "getRaw",
         "type": "function",
-        "description": "Returns the unmodified source of a message as a `binary string <https://developer.mozilla.org/en-US/docs/Web/API/DOMString/Binary>`__.",
-        "async": true,
+        "description": "Returns the unmodified source of a message as a `binary string <https://developer.mozilla.org/en-US/docs/Web/API/DOMString/Binary>`__, which is a simple series of 8-bit values. If the message contains non-ASCII characters, the body parts in the binary string cannot be read directly and must be decoded according to their character sets. Use :ref:`messages.getFull` to get the correctly decoded parts. Manually decoding the raw message is probably too error-prone, especially if the message contains MIME parts with different character set encodings or attachments.\n\nTo get a readable version of the raw message as it appears in Thunderbird's message source view, it may be sufficient to decode the message according to the character set specified in its main ``content-type`` header (example: `text/html; charset=UTF-8`) using the following function (see MDN for `supported input encodings <https://developer.mozilla.org/en-US/docs/Web/API/Encoding_API/Encodings>`__): <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude>",
+        "async": "callback",
         "parameters": [
           {
             "name": "messageId",
             "type": "integer"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "string"
+              }
+            ]
           }
         ]
       },
@@ -409,11 +465,24 @@
         "name": "listAttachments",
         "type": "function",
         "description": "Lists all of the attachments of a message.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "messageId",
             "type": "integer"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "Attachment"
+                }
+              }
+            ]
           }
         ]
       },
@@ -421,7 +490,7 @@
         "name": "getAttachmentFile",
         "type": "function",
         "description": "Gets the content of an attachment as a DOM <code>File</code> object.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "messageId",
@@ -431,6 +500,18 @@
             "name": "partName",
             "type": "string",
             "pattern": "^\\d+(\\.\\d+)*$"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "object",
+                "isInstanceOf": "File",
+                "additionalProperties": true
+              }
+            ]
           }
         ]
       },
@@ -438,7 +519,7 @@
         "name": "query",
         "type": "function",
         "description": "Gets all messages that have the specified properties, or all messages if no properties are specified.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "type": "object",
@@ -520,6 +601,16 @@
                 "description": "Returns only unread (or read if false) messages."
               }
             }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MessageList"
+              }
+            ]
           }
         ]
       },
@@ -642,8 +733,22 @@
         "name": "listTags",
         "type": "function",
         "description": "Returns a list of tags that can be set on messages, and their human-friendly name, colour, and sort order.",
-        "async": true,
-        "parameters": []
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "MessageTag"
+                }
+              }
+            ]
+          }
+        ]
       }
     ]
   }

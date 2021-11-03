@@ -203,10 +203,10 @@
                 "optional": true
               }
             ]
-           }
-         ]
-       },
-       {
+          }
+        ]
+      },
+      {
         "name": "update",
         "type": "function",
         "description": "Modifies the properties of a mail tab. Properties that are not specified in <var>updateProperties</var> are not modified.",
@@ -302,7 +302,9 @@
         "name": "getSelectedMessages",
         "type": "function",
         "description": "Lists the selected messages in the current folder.",
-        "permissions": ["messagesRead"],
+        "permissions": [
+          "messagesRead"
+        ],
         "async": "callback",
         "parameters": [
           {
@@ -393,7 +395,9 @@
         "name": "onDisplayedFolderChanged",
         "type": "function",
         "description": "Fired when the displayed folder changes in any mail tab.",
-        "permissions": ["accountsRead"],
+        "permissions": [
+          "accountsRead"
+        ],
         "parameters": [
           {
             "name": "tab",
@@ -409,7 +413,9 @@
         "name": "onSelectedMessagesChanged",
         "type": "function",
         "description": "Fired when the selected messages change in any mail tab.",
-        "permissions": ["messagesRead"],
+        "permissions": [
+          "messagesRead"
+        ],
         "parameters": [
           {
             "name": "tab",

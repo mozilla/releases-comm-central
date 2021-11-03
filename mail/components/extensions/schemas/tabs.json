@@ -1,29 +1,32 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 [
   {
     "namespace": "manifest",
     "types": [
       {
         "$extend": "OptionalPermissionNoPrompt",
-        "choices": [{
-          "type": "string",
-          "enum": [
-            "activeTab"
-          ]
-        }]
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "activeTab"
+            ]
+          }
+        ]
       },
       {
         "$extend": "OptionalPermission",
-        "choices": [{
-          "type": "string",
-          "enum": [
-            "tabs",
-            "tabHide"
-          ]
-        }]
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "tabs",
+              "tabHide"
+            ]
+          }
+        ]
       }
     ]
   },
@@ -132,7 +135,10 @@
       {
         "id": "TabStatus",
         "type": "string",
-        "enum": ["loading", "complete"],
+        "enum": [
+          "loading",
+          "complete"
+        ],
         "description": "Whether the tabs have completed loading."
       },
       {
@@ -169,18 +175,28 @@
             "type": "array",
             "description": "A list of URLs or URL patterns. Events that cannot match any of the URLs will be filtered out.  Filtering with urls requires the <permission>tabs</permission> or  <permission>activeTab</permission> permission.",
             "optional": true,
-            "items": { "type": "string" },
+            "items": {
+              "type": "string"
+            },
             "minItems": 1
           },
           "properties": {
             "type": "array",
             "optional": true,
             "description": "A list of property names. Events that do not match any of the names will be filtered out.",
-            "items": { "$ref": "UpdatePropertyName" },
+            "items": {
+              "$ref": "UpdatePropertyName"
+            },
             "minItems": 1
           },
-          "tabId": { "type": "integer", "optional": true },
-          "windowId": { "type": "integer", "optional": true }
+          "tabId": {
+            "type": "integer",
+            "optional": true
+          },
+          "windowId": {
+            "type": "integer",
+            "optional": true
+          }
         }
       }
     ],
@@ -206,7 +222,10 @@
             "type": "function",
             "name": "callback",
             "parameters": [
-              {"name": "tab", "$ref": "Tab"}
+              {
+                "name": "tab",
+                "$ref": "Tab"
+              }
             ]
           }
         ]
@@ -244,7 +263,11 @@
             "type": "object",
             "name": "connectInfo",
             "properties": {
-              "name": { "type": "string", "optional": true, "description": "Will be passed into onConnect for content scripts that are listening for the connection event." },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "description": "Will be passed into onConnect for content scripts that are listening for the connection event."
+              },
               "frameId": {
                 "type": "integer",
                 "optional": true,
@@ -437,8 +460,15 @@
               },
               "url": {
                 "choices": [
-                  {"type": "string"},
-                  {"type": "array", "items": {"type": "string"}}
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
                 ],
                 "optional": true,
                 "description": "Match tabs against one or more `URL Patterns <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns>`_. Note that fragment identifiers are not matched."
@@ -531,8 +561,17 @@
             "name": "tabIds",
             "description": "The tab or list of tabs to move.",
             "choices": [
-              {"type": "integer", "minimum": 0},
-              {"type": "array", "items": {"type": "integer", "minimum": 0}}
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
             ]
           },
           {
@@ -561,8 +600,15 @@
                 "name": "tabs",
                 "description": "Details about the moved tabs.",
                 "choices": [
-                  {"$ref": "Tab"},
-                  {"type": "array", "items": {"$ref": "Tab"}}
+                  {
+                    "$ref": "Tab"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "Tab"
+                    }
+                  }
                 ]
               }
             ]
@@ -612,8 +658,17 @@
             "name": "tabIds",
             "description": "The tab or list of tabs to close.",
             "choices": [
-              {"type": "integer", "minimum": 0},
-              {"type": "array", "items": {"type": "integer", "minimum": 0}}
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
             ]
           },
           {
@@ -652,7 +707,9 @@
                 "name": "result",
                 "optional": true,
                 "type": "array",
-                "items": {"type": "any"},
+                "items": {
+                  "type": "any"
+                },
                 "description": "The result of the script in every injected frame."
               }
             ]
@@ -732,7 +789,11 @@
         "type": "function",
         "description": "Fired when a tab is updated.",
         "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0},
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
           {
             "type": "object",
             "name": "changeInfo",
@@ -775,14 +836,27 @@
         "type": "function",
         "description": "Fired when a tab is moved within a window. Only one move event is fired, representing the tab the user directly moved. Move events are not fired for the other tabs that must move in response. This event is not fired when a tab is moved between windows. For that, see :ref:`tabs.onDetached`.",
         "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0},
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
           {
             "type": "object",
             "name": "moveInfo",
             "properties": {
-              "windowId": {"type": "integer", "minimum": 0},
-              "fromIndex": {"type": "integer", "minimum": 0},
-              "toIndex": {"type": "integer", "minimum": 0}
+              "windowId": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "fromIndex": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "toIndex": {
+                "type": "integer",
+                "minimum": 0
+              }
             }
           }
         ]
@@ -815,13 +889,23 @@
         "type": "function",
         "description": "Fired when a tab is detached from a window, for example because it is being moved between windows.",
         "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0},
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
           {
             "type": "object",
             "name": "detachInfo",
             "properties": {
-              "oldWindowId": {"type": "integer", "minimum": 0},
-              "oldPosition": {"type": "integer", "minimum": 0}
+              "oldWindowId": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "oldPosition": {
+                "type": "integer",
+                "minimum": 0
+              }
             }
           }
         ]
@@ -831,13 +915,23 @@
         "type": "function",
         "description": "Fired when a tab is attached to a window, for example because it was moved between windows.",
         "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0},
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
           {
             "type": "object",
             "name": "attachInfo",
             "properties": {
-              "newWindowId": {"type": "integer", "minimum": 0},
-              "newPosition": {"type": "integer", "minimum": 0}
+              "newWindowId": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "newPosition": {
+                "type": "integer",
+                "minimum": 0
+              }
             }
           }
         ]
@@ -847,13 +941,24 @@
         "type": "function",
         "description": "Fired when a tab is closed.",
         "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0},
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
           {
             "type": "object",
             "name": "removeInfo",
             "properties": {
-              "windowId": {"type": "integer", "minimum": 0, "description": "The window whose tab is closed." },
-              "isWindowClosing": {"type": "boolean", "description": "True when the tab is being closed because its window is being closed." }
+              "windowId": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "The window whose tab is closed."
+              },
+              "isWindowClosing": {
+                "type": "boolean",
+                "description": "True when the tab is being closed because its window is being closed."
+              }
             }
           }
         ]

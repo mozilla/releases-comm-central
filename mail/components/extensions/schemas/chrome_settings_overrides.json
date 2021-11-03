@@ -8,12 +8,16 @@
           "chrome_settings_overrides": {
             "type": "object",
             "optional": true,
-            "additionalProperties": { "$ref": "UnrecognizedProperty" },
+            "additionalProperties": {
+              "$ref": "UnrecognizedProperty"
+            },
             "properties": {
               "search_provider": {
                 "type": "object",
                 "optional": true,
-                "additionalProperties": { "$ref": "UnrecognizedProperty" },
+                "additionalProperties": {
+                  "$ref": "UnrecognizedProperty"
+                },
                 "properties": {
                   "name": {
                     "type": "string",
@@ -149,7 +153,10 @@
                         "condition": {
                           "type": "string",
                           "optional": true,
-                          "enum": ["purpose", "pref"],
+                          "enum": [
+                            "purpose",
+                            "pref"
+                          ],
                           "description": "The type of param can be either \"purpose\" or \"pref\"."
                         },
                         "pref": {
@@ -160,7 +167,13 @@
                         "purpose": {
                           "type": "string",
                           "optional": true,
-                          "enum": ["contextmenu", "searchbar", "homepage", "keyword", "newtab"],
+                          "enum": [
+                            "contextmenu",
+                            "searchbar",
+                            "homepage",
+                            "keyword",
+                            "newtab"
+                          ],
                           "description": "The context that initiates a search, required if condition is \"purpose\"."
                         },
                         "value": {

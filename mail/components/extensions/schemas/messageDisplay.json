@@ -44,12 +44,29 @@
         "name": "getDisplayedMessage",
         "type": "function",
         "description": "Gets the currently displayed message in the specified tab. It returns null if no messages are displayed, or if multiple messages are displayed.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "tabId",
             "type": "integer",
             "minimum": 1
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "choices": [
+                  {
+                    "$ref": "messages.MessageHeader"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -57,12 +74,25 @@
         "name": "getDisplayedMessages",
         "type": "function",
         "description": "Gets an array of the currently displayed messages in the specified tab. The array is empty if no messages are displayed.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "tabId",
             "type": "integer",
             "minimum": 1
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "messages.MessageHeader"
+                }
+              }
+            ]
           }
         ]
       }
