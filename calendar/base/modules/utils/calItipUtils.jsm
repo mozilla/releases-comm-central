@@ -680,6 +680,70 @@ var calitip = {
   },
 
   /**
+   * Scope: iTIP message receiver
+   *
+   * Prompt for the invited attendee if we cannot automatically determine one.
+   * This will modify the items of the passed calIItipItem to ensure an invited
+   * attendee is available. Note: This should only be done for the PUBLISH and
+   * REQUEST methods.
+   *
+   * @param {Window} window         - Used to prompt the user.
+   * @param {calIItipItem} itipItem - The itip item to ensure.
+   * @param {number} responseMode   - One of the calIITipItem response mode
+   *                                  constants indicating whether a response
+   *                                  will be sent or not.
+   *
+   * @returns {boolean} True if an invited attendee is available for all
+   *                    items, false if otherwise.
+   */
+  promptInvitedAttendee(window, itipItem, responseMode) {
+    let cancelled = false;
+    for (let item of itipItem.getItemList()) {
+      let att = calitip.getInvitedAttendee(item, null, true);
+      if (!att) {
+        window.openDialog(
+          "chrome://calendar/content/calendar-itip-identity-dialog.xhtml",
+          "_blank",
+          "chrome,modal,resizable=no,centerscreen",
+          {
+            responseMode,
+            identities: MailServices.accounts.allIdentities.slice().sort((a, b) => {
+              if (a.email == itipItem.identity && b.email != itipItem.identity) {
+                return -1;
+              }
+              if (b.email == itipItem.identity && a.email != itipItem.identity) {
+                return 1;
+              }
+              return 0;
+            }),
+            onCancel() {
+              cancelled = true;
+            },
+            onOk(identity) {
+              att = new CalAttendee();
+              att.id = `mailto:${identity.email}`;
+              att.commonName = identity.fullName;
+              att.isOrganizer = false;
+              item.addAttendee(att);
+            },
+          }
+        );
+      }
+
+      if (cancelled) {
+        break;
+      }
+
+      if (att) {
+        // Set this so we know who accepted the event.
+        item.setProperty("X-MOZ-INVITED-ATTENDEE", att.id);
+      }
+    }
+
+    return !cancelled;
+  },
+
+  /**
    * Clean up after the given iTIP item. This needs to be called once for each time
    * processItipItem is called. May be called with a null itipItem in which case it will do
    * nothing.
@@ -1653,46 +1717,19 @@ ItipItemFinder.prototype = {
               newItem.parentItem.calendar = this.mItipItem.targetCalendar;
               addScheduleAgentClient(newItem, this.mItipItem.targetCalendar);
 
-              let sendCancelled = false;
               if (partStat) {
                 if (partStat != "DECLINED") {
                   cal.alarms.setDefaultValues(newItem);
                 }
 
-                // Remove this property if set so it won't affect the invited
-                // attendee selection.
-                newItem.deleteProperty("X-MOZ-INVITED-ATTENDEE");
-
                 let att = calitip.getInvitedAttendee(newItem);
                 if (!att) {
-                  // Prompt the user for the identity to use for the response.
-                  // This has the side effect of the identity selected
-                  // becomming the one configured for the chosen calendar.
-                  let parent = cal.window.getCalendarWindow();
-                  parent.openDialog(
-                    "chrome://calendar/content/calendar-itip-identity-dialog.xhtml",
-                    "_blank",
-                    "chrome,modal,resizable=no,centerscreen",
-                    {
-                      extResponse,
-                      onCancel() {
-                        sendCancelled = true;
-                      },
-                      onOk(identity) {
-                        att = new CalAttendee();
-                        att.id = `mailto:${identity.email}`;
-                        att.commonName = identity.fullName;
-                        att.isOrganizer = false;
-                        newItem.addAttendee(att);
-                      },
-                    }
+                  cal.WARN(
+                    `Encountered item without invited attendee! id=${newItem.id}, method=${method} Exiting...`
                   );
+                  return null;
                 }
-                if (att) {
-                  att.participationStatus = partStat;
-                  // Set this so we know who accepted the event.
-                  newItem.setProperty("X-MOZ-INVITED-ATTENDEE", att.id);
-                }
+                att.participationStatus = partStat;
               } else {
                 cal.ASSERT(
                   itipItemItem.getAttendees().length == 0,
@@ -1701,13 +1738,9 @@ ItipItemFinder.prototype = {
                 cal.alarms.setDefaultValues(newItem);
               }
 
-              let requestListener = sendCancelled
-                ? null
-                : new ItipOpListener(opListener, null, extResponse);
-
               return newItem.calendar.addItem(
                 newItem,
-                method == "REQUEST" ? requestListener : opListener
+                method == "REQUEST" ? new ItipOpListener(opListener, null, extResponse) : opListener
               );
             };
             operations.push(action);

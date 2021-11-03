@@ -414,7 +414,12 @@ var calImipBar = {
      * @returns {Boolean}                    true, if the action succeeded
      */
     function _execAction(aActionFunc, aItipItem, aWindow, aPartStat, aExtResponse) {
-      if (cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow)) {
+      let method = aActionFunc.method;
+      if (
+        cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow) &&
+        (method == "PUBLISH" || method == "REQUEST") &&
+        cal.itip.promptInvitedAttendee(window, aItipItem, Ci.calIItipItem[aResponse])
+      ) {
         let isDeclineCounter = aPartStat == "X-DECLINECOUNTER";
         // filter out fake partstats
         if (aPartStat.startsWith("X-")) {
