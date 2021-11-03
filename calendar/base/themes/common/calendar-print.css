@@ -9,6 +9,7 @@
   display: flex;
   flex-direction: column;
   font: menu;
+  overflow: auto;
 }
 
 #calendar-print fieldset.section-block {
