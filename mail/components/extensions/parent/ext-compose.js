@@ -390,6 +390,7 @@ async function setFromField(composeWindow, details, extension) {
 
 async function setComposeDetails(composeWindow, details, extension) {
   await composeWindowIsReady(composeWindow);
+  let activeElement = composeWindow.document.activeElement;
 
   if (details.body && details.plainTextBody) {
     throw new ExtensionError(
@@ -435,6 +436,8 @@ async function setComposeDetails(composeWindow, details, extension) {
   }
   composeWindow.SetComposeDetails(details);
   await setFromField(composeWindow, details, extension);
+
+  activeElement.focus();
 }
 
 async function fileURLForFile(file) {
