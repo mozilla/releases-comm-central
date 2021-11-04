@@ -30,10 +30,13 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
   // Consume clicks on a-tags and let openTrustedLinkIn() decide how to open them.
   window.addEventListener("click", event => {
-    if (event.target.matches("a[href]")) {
-      event.preventDefault();
-      event.stopPropagation();
-      windowRoot.ownerGlobal.openTrustedLinkIn(event.target.href, "tab");
+    if (event.target.matches("a[href]") && event.target.href) {
+      let uri = Services.io.newURI(event.target.href);
+      if (uri.scheme == "http" || uri.scheme == "https") {
+        event.preventDefault();
+        event.stopPropagation();
+        windowRoot.ownerGlobal.openTrustedLinkIn(event.target.href, "tab");
+      }
     }
   });
 
