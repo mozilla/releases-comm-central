@@ -107,6 +107,16 @@
   }
 }
 
+@media (-moz-windows-non-native-menus) {
+  :root:not([lwt-tree]):-moz-lwtheme-brighttext menupopup {
+    --panel-background: var(--arrowpanel-background) !important;
+    --panel-color: var(--arrowpanel-color) !important;
+    --panel-border-color: var(--arrowpanel-border-color) !important;
+    --menu-color: var(--arrowpanel-color) !important;
+    --menuitem-hover-background-color: color-mix(in srgb, var(--arrowpanel-color) 13%, transparent) !important;
+  }
+}
+
 @media not (-moz-windows-non-native-menus) {
   .menu-iconic > .menu-iconic-left,
   .menuitem-iconic > .menu-iconic-left {
