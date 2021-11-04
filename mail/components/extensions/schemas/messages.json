@@ -525,6 +525,11 @@
             "type": "object",
             "name": "queryInfo",
             "properties": {
+              "attachment": {
+                "type": "boolean",
+                "optional": true,
+                "description": "If specified, returns only messages with or without attachments."
+              },
               "author": {
                 "type": "string",
                 "optional": true,

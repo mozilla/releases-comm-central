@@ -81,6 +81,30 @@ function convertAttachment(attachment) {
   };
 }
 
+async function getAttachments(msgHdr) {
+  // Use jsmime based MimeParser to read NNTP messages, which are not
+  // supported by MsgHdrToMimeMessage. No encryption support!
+  if (msgHdr.folder.server.type == "nntp") {
+    let raw = await MsgHdrToRawMessage(msgHdr);
+    let mimeMsg = MimeParser.extractMimeMsg(raw, {
+      includeAttachments: true,
+    });
+    return mimeMsg.allAttachments;
+  }
+
+  return new Promise(resolve => {
+    MsgHdrToMimeMessage(
+      msgHdr,
+      null,
+      (_msgHdr, mimeMsg) => {
+        resolve(mimeMsg.allAttachments);
+      },
+      true,
+      { examineEncryptedParts: true, partsOnDemand: true }
+    );
+  });
+}
+
 this.messages = class extends ExtensionAPI {
   getAPI(context) {
     function collectMessagesInFolders(messageIds) {
@@ -327,28 +351,7 @@ this.messages = class extends ExtensionAPI {
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-
-          // Use jsmime based MimeParser to read NNTP messages, which are not
-          // supported by MsgHdrToMimeMessage. No encryption support!
-          if (msgHdr.folder.server.type == "nntp") {
-            let raw = await MsgHdrToRawMessage(msgHdr);
-            let mimeMsg = MimeParser.extractMimeMsg(raw, {
-              includeAttachments: true,
-            });
-            return mimeMsg.allAttachments.map(convertAttachment);
-          }
-
-          return new Promise(resolve => {
-            MsgHdrToMimeMessage(
-              msgHdr,
-              null,
-              (_msgHdr, mimeMsg) => {
-                resolve(mimeMsg.allAttachments.map(convertAttachment));
-              },
-              true,
-              { examineEncryptedParts: true, partsOnDemand: true }
-            );
-          });
+          return getAttachments(msgHdr).then(rv => rv.map(convertAttachment));
         },
         async getAttachmentFile(messageId, partName) {
           let msgHdr = messageTracker.getMessage(messageId);
@@ -716,6 +719,12 @@ this.messages = class extends ExtensionAPI {
               ) {
                 return false;
               }
+            }
+
+            // Check attachments.
+            if (queryInfo.attachment != null) {
+              let attachments = await getAttachments(msg);
+              return !!attachments.length == queryInfo.attachment;
             }
 
             return true;
