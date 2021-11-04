@@ -6,11 +6,12 @@
 
 var EXPORTED_SYMBOLS = ["CalCalendarManager"];
 
-var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { calCachedCalendar } = ChromeUtils.import("resource:///components/calCachedCalendar.js");
+const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { calCachedCalendar } = ChromeUtils.import("resource:///components/calCachedCalendar.js");
+const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 var REGISTRY_BRANCH = "calendar.registry.";
 var MAX_INT = Math.pow(2, 31) - 1;
@@ -539,7 +540,13 @@ CalCalendarManager.prototype = {
     // do refreshing in a second step, when *all* calendars are already available
     // via getCalendars():
     for (let calendar of Object.values(this.mCache)) {
-      maybeRefreshCalendar(calendar);
+      let delay = 0;
+      if (calendar.getProperty("cache.enabled")) {
+        // If the calendar is cached, we don't need to refresh it RIGHT NOW, so let's wait a
+        // while and let other things happen first.
+        delay = 15000;
+      }
+      setTimeout(() => maybeRefreshCalendar(calendar), delay);
     }
   },
 
