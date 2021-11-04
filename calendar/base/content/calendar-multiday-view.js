@@ -995,11 +995,11 @@
       let scrollbox = currentView().scrollbox;
       let boundingRect = scrollbox.getBoundingClientRect();
       if (orient == "vertical") {
-        diffStart = event.clientY - boundingRect.y;
-        diffEnd = boundingRect.y + boundingRect.height - event.clientY;
+        diffStart = Math.max(event.clientY - boundingRect.y, 0);
+        diffEnd = Math.max(boundingRect.y + boundingRect.height - event.clientY, 0);
       } else {
-        diffStart = event.clientX - boundingRect.x;
-        diffEnd = boundingRect.x + boundingRect.width - event.clientX;
+        diffStart = Math.max(event.clientX - boundingRect.x, 0);
+        diffEnd = Math.max(boundingRect.x + boundingRect.width - event.clientX, 0);
       }
 
       const SCROLLZONE = 55; // Size (pixels) of the top/bottom view where the scroll starts.
@@ -1045,10 +1045,11 @@
       // drag session, no sweeping.
       let boundingRect = currentView().scrollbox.getBoundingClientRect();
       if (
-        event.clientX < boundingRect.x ||
-        event.clientX > boundingRect.x + boundingRect.width ||
-        event.clientY < boundingRect.y ||
-        event.clientY > boundingRect.y + boundingRect.height
+        dragState.dragType == "move" &&
+        (event.clientX < boundingRect.x ||
+          event.clientX > boundingRect.x + boundingRect.width ||
+          event.clientY < boundingRect.y ||
+          event.clientY > boundingRect.y + boundingRect.height)
       ) {
         // Remove the drag state.
         for (
@@ -1079,6 +1080,7 @@
         if (!selectedItems.some(aItem => aItem.hashId == item.hashId)) {
           col.calendarView.setSelectedItems([event.ctrlKey ? item.parentItem : item]);
         }
+        // NOTE: Dragging to the allday header will fail (bug 1675056).
         invokeEventDragSession(dragState.dragOccurrence, col);
         return;
       }
