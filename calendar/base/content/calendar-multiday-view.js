@@ -1007,7 +1007,7 @@
       const MINTIMEOUT = 30; // two consecutive scrolls.
       const SCROLLBYHOUR = 0.33; // Part of hour to move for each scroll.
       let insideScrollZone = 0;
-      let pxPerHr = event.target.mPixPerMin * 60;
+      let pxPerHr = this.mPixPerMin * 60;
       let scrollBy = Math.floor(pxPerHr * SCROLLBYHOUR);
       if (diffStart < SCROLLZONE) {
         insideScrollZone = SCROLLZONE - diffStart;
