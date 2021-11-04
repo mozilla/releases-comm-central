@@ -9,7 +9,7 @@ if CONFIG["TB_LIBOTR_PREBUILT"]:
     if CONFIG["HAVE_64BIT_BUILD"]:
         DEFINES["HAVE_64BIT_BUILD"] = True
 
-if CONFIG["MOZ_OPENPGP"]:
+if CONFIG["MOZ_OPENPGP"] and CONFIG["MZLA_LIBRNP"]:
     DIRS += [
         "botan",
         "bzip2",

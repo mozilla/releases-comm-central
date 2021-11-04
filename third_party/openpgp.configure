@@ -71,9 +71,23 @@ def check_symbol_exists(
 
 
 with only_when("--enable-compile-environment"):
-    # Use system libraries when building librnp
-    # ZLIB honors --with-system-zlib
+    option(
+        "--with-system-librnp",
+        help="Use system RNP (librnp) for OpenPGP support.",
+    )
 
+    @depends("--with-system-librnp")
+    def in_tree_librnp(system_librnp):
+        if system_librnp:
+            log.info("System librnp will be used at runtime.")
+            return False
+        return True
+
+    set_config("MZLA_LIBRNP", depends_if(in_tree_librnp)(lambda _: True))
+    set_define("MZLA_LIBRNP", depends_if(in_tree_librnp)(lambda _: True))
+
+
+with only_when(in_tree_librnp):
     # JSON-C --with-system-json
     system_lib_option(
         "--with-system-jsonc",
