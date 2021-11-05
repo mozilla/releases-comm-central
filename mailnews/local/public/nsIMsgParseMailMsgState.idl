@@ -13,6 +13,7 @@ typedef long nsMailboxParseState;
 
 [scriptable, uuid(0d44646c-0759-43a2-954d-dc2a9a9660ec)]
 interface nsIMsgParseMailMsgState : nsISupports {
+    attribute unsigned long long envelopePos;
     void SetMailDB(in nsIMsgDatabase aDatabase);
     /*
      * Set a backup mail database, whose data will be read during parsing to
