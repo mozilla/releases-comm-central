@@ -35,9 +35,6 @@
 
 #include "mozilla/Encoding.h"
 
-#include <stdlib.h>
-#include <tuple>
-
 // needed for the call the OpenStreamOnFile
 extern LPMAPIALLOCATEBUFFER gpMapiAllocateBuffer;
 extern LPMAPIFREEBUFFER gpMapiFreeBuffer;
@@ -573,7 +570,8 @@ bool CMapiMessage::CheckBodyInCharsetRange(const char* charset) {
   while (true) {
     uint32_t result;
     size_t read;
-    std::tie(result, read, std::ignore) =
+    size_t written;
+    mozilla::Tie(result, read, written) =
         encoder->EncodeFromUTF16WithoutReplacement(src, dst, false);
     if (result == mozilla::kInputEmpty) {
       // All converted successfully.
@@ -584,6 +582,7 @@ bool CMapiMessage::CheckBodyInCharsetRange(const char* charset) {
       return false;
     }
     src = src.From(read);
+    // dst = dst.From(written); // Just overwrite output since we don't need it.
   }
 
   return true;
