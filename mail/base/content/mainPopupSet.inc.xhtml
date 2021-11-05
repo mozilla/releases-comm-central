@@ -519,10 +519,13 @@
   </menupopup>
 
   <menupopup id="aboutPagesContext"
-             onpopupshowing="goUpdateCommand('cmd_copy'); goUpdateCommand('cmd_selectAll');">
+             onpopupshowing="goUpdateCommand('cmd_copy'); goUpdateCommand('cmd_paste'); goUpdateCommand('cmd_selectAll');">
     <menuitem id="aboutPagesContext-copy"
               data-l10n-id="text-action-copy"
               command="cmd_copy"/>
+    <menuitem id="aboutPagesContext-paste"
+              data-l10n-id="text-action-paste"
+              command="cmd_paste"/>
     <menuitem id="aboutPagesContext-selectall"
               data-l10n-id="text-action-select-all"
               command="cmd_selectAll"/>
