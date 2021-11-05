@@ -39,7 +39,7 @@
   flex-wrap: wrap;
 }
 
-.header-row-grow {
+.header-row-grow:not([hidden]) {
   flex: 1;
   display: flex;
   font-style: normal;
