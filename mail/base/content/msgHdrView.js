@@ -41,6 +41,12 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/mime;1",
   "nsIMIMEService"
 );
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gHandlerService",
+  "@mozilla.org/uriloader/handler-service;1",
+  "nsIHandlerService"
+);
 
 // Warning: It's critical that the code in here for displaying the message
 // headers for a selected message remain as fast as possible. In particular,
@@ -1936,12 +1942,126 @@ AttachmentInfo.prototype = {
           // If no tabmail, open PDF same as other attachments.
         }
       }
-      messenger.openAttachment(
+
+      // Just use the old method for handling messages, it works.
+
+      if (this.contentType == "message/rfc822") {
+        messenger.openAttachment(
+          this.contentType,
+          this.url,
+          encodeURIComponent(this.name),
+          this.uri,
+          this.isExternalAttachment
+        );
+        return;
+      }
+
+      // Get the MIME info from the service.
+
+      let match = this.name.match(/\.([^.]+)$/);
+      let extension = match ? match[1] : null;
+      let mimeInfo = gMIMEService.getFromTypeAndExtension(
         this.contentType,
-        this.url,
-        encodeURIComponent(this.name),
-        this.uri,
-        this.isExternalAttachment
+        extension
+      );
+      // The default action is saveToDisk, which is not what we want.
+      // If we don't have a stored handler, ask before handling.
+      if (!gHandlerService.exists(mimeInfo)) {
+        mimeInfo.alwaysAskBeforeHandling = true;
+        mimeInfo.preferredAction = Ci.nsIHandlerInfo.alwaysAsk;
+      }
+
+      // If we know what to do, do it.
+
+      let { name, url } = this;
+      async function saveToFile(path) {
+        let response = await fetch(url.replace(/^imap:\/\/[\w%]+@/, "imap://"));
+        let blob = await response.blob();
+        let buffer = await blob.arrayBuffer();
+        await IOUtils.write(path, new Uint8Array(buffer));
+      }
+
+      async function saveAndOpen(mimeInfo) {
+        let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+        tempFile.append(name);
+        tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
+        tempFile.remove(false);
+
+        Cc["@mozilla.org/mime;1"]
+          .getService(Ci.nsPIExternalAppLauncher)
+          .deleteTemporaryFileOnExit(tempFile);
+
+        await saveToFile(tempFile.path);
+        mimeInfo.launchWithFile(tempFile);
+      }
+
+      if (!mimeInfo.alwaysAskBeforeHandling) {
+        switch (mimeInfo.preferredAction) {
+          case Ci.nsIHandlerInfo.saveToDisk:
+            if (Services.prefs.getBoolPref("browser.download.useDownloadDir")) {
+              let destFile = new FileUtils.File(
+                await Downloads.getPreferredDownloadsDirectory()
+              );
+              destFile.append(name);
+              destFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
+              destFile.remove(false);
+              await saveToFile(destFile.path);
+            } else {
+              let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+                Ci.nsIFilePicker
+              );
+              filePicker.init(window, "title", Ci.nsIFilePicker.modeSave);
+              let rv = await new Promise(resolve => filePicker.open(resolve));
+              if (rv != Ci.nsIFilePicker.returnCancel) {
+                await saveToFile(filePicker.file.path);
+              }
+            }
+            return;
+          case Ci.nsIHandlerInfo.useHelperApp:
+          case Ci.nsIHandlerInfo.useSystemDefault:
+            await saveAndOpen(mimeInfo);
+            return;
+        }
+      }
+
+      // Ask what to do, then do it.
+
+      let appLauncherDialog = Cc[
+        "@mozilla.org/helperapplauncherdialog;1"
+      ].createInstance(Ci.nsIHelperAppLauncherDialog);
+      appLauncherDialog.show(
+        {
+          QueryInterface: ChromeUtils.generateQI(["nsIHelperAppLauncher"]),
+          MIMEInfo: mimeInfo,
+          source: Services.io.newURI(this.url),
+          suggestedFileName: this.name,
+          cancel(reason) {},
+          promptForSaveDestination() {
+            appLauncherDialog.promptForSaveToFileAsync(
+              this,
+              window,
+              this.suggestedFileName,
+              extension,
+              false
+            );
+          },
+          async launchWithApplication(handleInternally, file) {
+            await saveAndOpen(mimeInfo);
+          },
+          async saveDestinationAvailable(file) {
+            if (file) {
+              await saveToFile(file.path);
+            }
+          },
+          setWebProgressListener(webProgressListener) {},
+          targetFile: null,
+          targetFileIsExecutable: null,
+          timeDownloadStarted: null,
+          contentLength: this.size,
+          browsingContextId: null,
+        },
+        window,
+        null
       );
     }
   },
