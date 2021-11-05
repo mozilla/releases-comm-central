@@ -29,6 +29,9 @@
 #include "../../intl/nsMUTF7ToUnicode.h"
 #include "../../intl/nsUnicodeToMUTF7.h"
 
+#include <stdlib.h>
+#include <tuple>
+
 //
 // International functions necessary for composition
 //
@@ -50,10 +53,8 @@ nsresult nsMsgI18NConvertFromUnicode(const nsACString& aCharset,
     return NS_ERROR_UCONV_NOCONV;
   }
 
-  const mozilla::Encoding* actualEncoding;
   nsresult rv;
-  mozilla::Tie(rv, actualEncoding) = encoding->Encode(inString, outString);
-  mozilla::Unused << actualEncoding;
+  std::tie(rv, std::ignore) = encoding->Encode(inString, outString);
 
   if (rv == NS_OK_HAD_REPLACEMENTS) {
     rv = aReportUencNoMapping ? NS_ERROR_UENC_NOMAPPING : NS_OK;
@@ -241,7 +242,7 @@ bool nsMsgI18Ncheck_data_in_charset_range(const char* charset,
     uint32_t result;
     size_t read;
     size_t written;
-    mozilla::Tie(result, read, written) =
+    std::tie(result, read, written) =
         encoder->EncodeFromUTF16WithoutReplacement(src, dst, false);
     if (result == mozilla::kInputEmpty) {
       // All converted successfully.
