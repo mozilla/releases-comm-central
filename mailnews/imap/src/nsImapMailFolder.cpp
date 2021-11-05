@@ -7563,14 +7563,6 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
   NS_ENSURE_SUCCESS(rv, rv);
   msgParser->SetMailDB(mDatabase);
 
-  uint64_t offset = 0;
-  if (offlineStore) {
-    // Tell the parser to use the offset that will be in the dest stream,
-    //   not the temp file.
-    fakeHdr->GetMessageOffset(&offset);
-  }
-  msgParser->SetEnvelopePos(offset);
-
   rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), srcFile);
   if (NS_SUCCEEDED(rv) && inputStream) {
     // Now, parse the temp file to (optionally) copy to
