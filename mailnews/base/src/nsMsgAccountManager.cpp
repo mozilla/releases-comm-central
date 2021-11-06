@@ -109,7 +109,8 @@ nsMsgAccountManager::nsMsgAccountManager()
       m_cleanupInboxInProgress(false),
       m_userAuthenticated(false),
       m_loadingVirtualFolders(false),
-      m_virtualFoldersLoaded(false) {}
+      m_virtualFoldersLoaded(false),
+      m_lastFindServerPort(0) {}
 
 nsMsgAccountManager::~nsMsgAccountManager() {
   if (!m_haveShutdown) {
