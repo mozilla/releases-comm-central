@@ -66,7 +66,8 @@ menulist menupopup menu,
 menulist menupopup menuitem,
 button menupopup menu,
 button menupopup menuitem {
-  padding: 5px;
+  appearance: none;
+  padding: 5px 8px;
 }
 
 .menu-right {

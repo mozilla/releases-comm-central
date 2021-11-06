@@ -76,12 +76,6 @@ menulist > menupopup:not([position]) {
   margin-top: 0;
 }
 
-menulist menupopup,
-button[type="menu-button"] menupopup,
-menupopup[is="folder-menupopup"] {
-  appearance: auto;
-}
-
 .menu-right {
   -moz-image-region: auto;
   margin-top: 3px;
