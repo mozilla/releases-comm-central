@@ -101,16 +101,5 @@ module.exports = {
         "func-names": "off",
       },
     },
-    {
-      // TODO: Bug 1609885 Fix all violations for ChromeUtils.import(..., null)
-      files: [
-        "mail/components/enterprisepolicies/tests/browser/browser_policies_setAndLockPref_API.js",
-        "mail/components/enterprisepolicies/tests/xpcshell/test_proxy.js",
-        "mail/components/enterprisepolicies/tests/xpcshell/test_runOnce_helper.js",
-      ],
-      rules: {
-        "mozilla/reject-chromeutils-import-params": "off",
-      },
-    },
   ],
 };

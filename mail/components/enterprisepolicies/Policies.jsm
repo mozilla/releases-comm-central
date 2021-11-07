@@ -50,7 +50,12 @@ XPCOMUtils.defineLazyGetter(this, "log", () => {
   });
 });
 
-var EXPORTED_SYMBOLS = ["Policies"];
+var EXPORTED_SYMBOLS = [
+  "Policies",
+  "setAndLockPref",
+  "PoliciesUtils",
+  "runOnce",
+];
 
 /*
  * ============================
@@ -136,21 +141,21 @@ var Policies = {
       }
 
       if ("SPNEGO" in param) {
-        setDefaultPref(
+        PoliciesUtils.setDefaultPref(
           "network.negotiate-auth.trusted-uris",
           param.SPNEGO.join(", "),
           locked
         );
       }
       if ("Delegated" in param) {
-        setDefaultPref(
+        PoliciesUtils.setDefaultPref(
           "network.negotiate-auth.delegation-uris",
           param.Delegated.join(", "),
           locked
         );
       }
       if ("NTLM" in param) {
-        setDefaultPref(
+        PoliciesUtils.setDefaultPref(
           "network.automatic-ntlm-auth.trusted-uris",
           param.NTLM.join(", "),
           locked
@@ -158,14 +163,14 @@ var Policies = {
       }
       if ("AllowNonFQDN" in param) {
         if ("NTLM" in param.AllowNonFQDN) {
-          setDefaultPref(
+          PoliciesUtils.setDefaultPref(
             "network.automatic-ntlm-auth.allow-non-fqdn",
             param.AllowNonFQDN.NTLM,
             locked
           );
         }
         if ("SPNEGO" in param.AllowNonFQDN) {
-          setDefaultPref(
+          PoliciesUtils.setDefaultPref(
             "network.negotiate-auth.allow-non-fqdn",
             param.AllowNonFQDN.SPNEGO,
             locked
@@ -174,14 +179,14 @@ var Policies = {
       }
       if ("AllowProxies" in param) {
         if ("NTLM" in param.AllowProxies) {
-          setDefaultPref(
+          PoliciesUtils.setDefaultPref(
             "network.automatic-ntlm-auth.allow-proxies",
             param.AllowProxies.NTLM,
             locked
           );
         }
         if ("SPNEGO" in param.AllowProxies) {
-          setDefaultPref(
+          PoliciesUtils.setDefaultPref(
             "network.negotiate-auth.allow-proxies",
             param.AllowProxies.SPNEGO,
             locked
@@ -189,7 +194,7 @@ var Policies = {
         }
       }
       if ("PrivateBrowsing" in param) {
-        setDefaultPref(
+        PoliciesUtils.setDefaultPref(
           "network.auth.private-browsing-sso",
           param.PrivateBrowsing,
           locked
@@ -390,12 +395,12 @@ var Policies = {
           }
         }
 
-        setDefaultPref(
+        PoliciesUtils.setDefaultPref(
           "network.cookie.cookieBehavior",
           newCookieBehavior,
           param.Locked
         );
-        setDefaultPref(
+        PoliciesUtils.setDefaultPref(
           "network.cookie.cookieBehavior.pbmode",
           newCookieBehavior,
           param.Locked
@@ -411,7 +416,7 @@ var Policies = {
           newLifetimePolicy = KEEP_COOKIES_UNTIL_END_OF_SESSION;
         }
 
-        setDefaultPref(
+        PoliciesUtils.setDefaultPref(
           "network.cookie.lifetimePolicy",
           newLifetimePolicy,
           param.Locked
@@ -422,7 +427,10 @@ var Policies = {
 
   DefaultDownloadDirectory: {
     onBeforeAddons(manager, param) {
-      setDefaultPref("browser.download.dir", replacePathVariables(param));
+      PoliciesUtils.setDefaultPref(
+        "browser.download.dir",
+        replacePathVariables(param)
+      );
       // If a custom download directory is being used, just lock folder list to 2.
       setAndLockPref("browser.download.folderList", 2);
     },
@@ -598,13 +606,17 @@ var Policies = {
       }
       if ("Enabled" in param) {
         let mode = param.Enabled ? 2 : 5;
-        setDefaultPref("network.trr.mode", mode, locked);
+        PoliciesUtils.setDefaultPref("network.trr.mode", mode, locked);
       }
       if ("ProviderURL" in param) {
-        setDefaultPref("network.trr.uri", param.ProviderURL.href, locked);
+        PoliciesUtils.setDefaultPref(
+          "network.trr.uri",
+          param.ProviderURL.href,
+          locked
+        );
       }
       if ("ExcludedDomains" in param) {
-        setDefaultPref(
+        PoliciesUtils.setDefaultPref(
           "network.trr.excluded-domains",
           param.ExcludedDomains.join(","),
           locked
@@ -891,7 +903,7 @@ var Policies = {
           `OfferToSaveLoginsDefault ignored because OfferToSaveLogins is present.`
         );
       } else {
-        setDefaultPref("signon.rememberSignons", param);
+        PoliciesUtils.setDefaultPref("signon.rememberSignons", param);
       }
     },
   },
@@ -1065,7 +1077,10 @@ var Policies = {
         manager.disallowFeature("changeProxySettings");
         ProxyPolicies.configureProxySettings(param, setAndLockPref);
       } else {
-        ProxyPolicies.configureProxySettings(param, setDefaultPref);
+        ProxyPolicies.configureProxySettings(
+          param,
+          PoliciesUtils.setDefaultPref
+        );
       }
     },
   },
@@ -1155,7 +1170,7 @@ var Policies = {
  *        The value to set and lock
  */
 function setAndLockPref(prefName, prefValue) {
-  setDefaultPref(prefName, prefValue, true);
+  PoliciesUtils.setDefaultPref(prefName, prefValue, true);
 }
 
 /**
@@ -1171,48 +1186,51 @@ function setAndLockPref(prefName, prefValue) {
  * @param {boolean} locked
  *        Optionally lock the pref
  */
-function setDefaultPref(prefName, prefValue, locked = false) {
-  if (Services.prefs.prefIsLocked(prefName)) {
-    Services.prefs.unlockPref(prefName);
-  }
 
-  let defaults = Services.prefs.getDefaultBranch("");
+var PoliciesUtils = {
+  setDefaultPref(prefName, prefValue, locked = false) {
+    if (Services.prefs.prefIsLocked(prefName)) {
+      Services.prefs.unlockPref(prefName);
+    }
 
-  switch (typeof prefValue) {
-    case "boolean":
-      defaults.setBoolPref(prefName, prefValue);
-      break;
+    let defaults = Services.prefs.getDefaultBranch("");
 
-    case "number":
-      if (!Number.isInteger(prefValue)) {
-        throw new Error(`Non-integer value for ${prefName}`);
-      }
+    switch (typeof prefValue) {
+      case "boolean":
+        defaults.setBoolPref(prefName, prefValue);
+        break;
 
-      // This is ugly, but necessary. On Windows GPO and macOS
-      // configs, booleans are converted to 0/1. In the previous
-      // Preferences implementation, the schema took care of
-      // automatically converting these values to booleans.
-      // Since we allow arbitrary prefs now, we have to do
-      // something different. See bug 1666836.
-      if (
-        defaults.getPrefType(prefName) == defaults.PREF_INT ||
-        ![0, 1].includes(prefValue)
-      ) {
-        defaults.setIntPref(prefName, prefValue);
-      } else {
-        defaults.setBoolPref(prefName, !!prefValue);
-      }
-      break;
+      case "number":
+        if (!Number.isInteger(prefValue)) {
+          throw new Error(`Non-integer value for ${prefName}`);
+        }
 
-    case "string":
-      defaults.setStringPref(prefName, prefValue);
-      break;
-  }
+        // This is ugly, but necessary. On Windows GPO and macOS
+        // configs, booleans are converted to 0/1. In the previous
+        // Preferences implementation, the schema took care of
+        // automatically converting these values to booleans.
+        // Since we allow arbitrary prefs now, we have to do
+        // something different. See bug 1666836.
+        if (
+          defaults.getPrefType(prefName) == defaults.PREF_INT ||
+          ![0, 1].includes(prefValue)
+        ) {
+          defaults.setIntPref(prefName, prefValue);
+        } else {
+          defaults.setBoolPref(prefName, !!prefValue);
+        }
+        break;
 
-  if (locked) {
-    Services.prefs.lockPref(prefName);
-  }
-}
+      case "string":
+        defaults.setStringPref(prefName, prefValue);
+        break;
+    }
+
+    if (locked) {
+      Services.prefs.lockPref(prefName);
+    }
+  },
+};
 
 /**
  * addAllowDenyPermissions
