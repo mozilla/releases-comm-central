@@ -566,7 +566,7 @@ var WinTaskbarJumpList =
   notify: function WTBJL_notify(aTimer) {
     // Add idle observer on the first notification so it doesn't hit startup.
     this._updateIdleObserver();
-    this.update();
+    Services.tm.idleDispatchToMainThread(() => { this.update(); });
   },
 
   observe: function WTBJL_observe(aSubject, aTopic, aData) {
@@ -577,7 +577,7 @@ var WinTaskbarJumpList =
         this._refreshPrefs();
         this._updateTimer();
         this._updateIdleObserver();
-        this.update();
+        Services.tm.idleDispatchToMainThread(() => { this.update(); });
       break;
 
       case "profile-before-change":
