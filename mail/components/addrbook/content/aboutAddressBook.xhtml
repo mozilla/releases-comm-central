@@ -11,7 +11,7 @@
   <meta charset="utf-8" />
   <title data-l10n-id="about-addressbook-title"></title>
   <meta http-equiv="Content-Security-Policy"
-        content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome:; style-src chrome:; object-src 'none'" />
+        content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: blob: http: https:; style-src chrome:; object-src 'none'" />
 
   <link rel="icon" href="chrome://messenger/skin/icons/address.svg" />
 
@@ -105,7 +105,10 @@
       <button id="editButton"
               class="view"
               data-l10n-id="about-addressbook-begin-edit-contact-button"></button>
-      <div id="photo"></div>
+      <div id="photoOuter">
+        <div id="photo"></div>
+        <div id="photoOverlay" tabindex="0"></div>
+      </div>
     </div>
 
     <div class="edit editGrid">
@@ -353,6 +356,30 @@
               data-l10n-id="about-addressbook-save-edit-contact-button"></button>
     </div>
   </div>
+
+  <dialog id="photoDialog" class="account-setup-dialog">
+    <div id="photoDialogInner">
+      <div id="photoDropTarget">
+        <div class="icon"></div>
+        <div class="label" data-l10n-id="about-addressbook-photo-drop-target"></div>
+      </div>
+      <svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="-10 -10 520 520">
+        <image/>
+        <path fill="#000000" fill-opacity="0.5" d="M0 0H500V500H0Z M200 200V300H300V200Z"/>
+        <rect x="0" y="0" width="500" height="500"/>
+        <rect class="corner nw" width="40" height="40"/>
+        <rect class="corner ne" width="40" height="40"/>
+        <rect class="corner se" width="40" height="40"/>
+        <rect class="corner sw" width="40" height="40"/>
+      </svg>
+    </div>
+
+    <menu class="dialog-menu-container">
+      <button class="extra1" data-l10n-id="about-addressbook-photo-discard"></button>
+      <button class="cancel" data-l10n-id="about-addressbook-photo-cancel"></button>
+      <button class="accept primary" data-l10n-id="about-addressbook-photo-save"></button>
+    </menu>
+  </dialog>
 
   <!-- In-content dialogs. -->
   <xul:stack id="dialogStack" hidden="true"/>

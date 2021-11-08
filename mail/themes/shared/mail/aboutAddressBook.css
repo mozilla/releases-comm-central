@@ -345,11 +345,23 @@ ab-card-listrow:not(.selected) > div.address {
   display: none !important;
 }
 
-#photo {
+#photoOuter {
+  margin-inline-start: 1em;
   width: 150px;
   height: 150px;
-  margin-inline-start: 1em;
+  display: grid;
+}
+
+#photo,
+#photoOverlay {
+  grid-column: 1;
+  grid-row: 1;
+  width: 150px;
+  height: 150px;
   border-radius: 100%;
+}
+
+#photo {
   background-size: cover;
   background-position: center;
   background-color: var(--in-content-button-background);
@@ -357,6 +369,30 @@ ab-card-listrow:not(.selected) > div.address {
   box-shadow: 0 0 3px var(--in-content-button-background);
   -moz-context-properties: fill;
   fill: var(--in-content-box-background);
+}
+
+#photoOverlay {
+  display: none;
+}
+
+#detailsPane.is-editing #photoOverlay {
+  display: block;
+}
+
+#photoOverlay:focus {
+  outline: 2px solid var(--in-content-focus-outline-color);
+  outline-offset: 2px;
+}
+
+#photoOverlay:is(:focus, :hover) {
+  background-color: #0003;
+  background-image: url("chrome://messenger/skin/icons/more.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 48px;
+  -moz-context-properties: fill;
+  fill: #fff;
+  cursor: pointer;
 }
 
 #detailsPane h2 {
@@ -523,4 +559,175 @@ input[type="number"]::-moz-number-spin-down {
   min-height: 12px;
   border-end-end-radius: var(--in-content-button-border-radius);
   background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+}
+
+/* Generic dialog stuff, TODO refactor this out of here */
+
+.account-setup-dialog {
+  border-radius: 6px;
+  border: none;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
+  box-shadow: 0 2px 6px -5px #000;
+}
+
+.account-setup-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-title {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  margin-block: 0px 9px;
+}
+
+.dialog-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dialog-container.vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dialog-header-image {
+  -moz-context-properties: fill;
+  fill: var(--in-content-primary-button-background);
+  margin-inline-end: 12px;
+  height: 32px;
+}
+
+.dialog-header-image.small {
+  height: 16px;
+}
+
+.dialog-description {
+  margin-block: 0.2em;
+  line-height: 1.4em;
+}
+
+.dialog-menu-container {
+  display: flex;
+  align-items: center;
+  margin-block-end: 0;
+  margin-inline: 0;
+  padding-inline: 0;
+  justify-content: end;
+}
+
+.dialog-menu-container.two-columns {
+  justify-content: space-between;
+}
+
+/* Photo dialog */
+
+#photoDialogInner {
+  width: 500px;
+  text-align: center;
+}
+
+#photoDropTarget {
+  height: 150px;
+  background-color: var(--in-content-button-background);
+  background-image: url("chrome://messenger/skin/icons/contact.svg");
+  background-size: 80px;
+  background-position: center;
+  -moz-context-properties: fill;
+  fill: var(--in-content-box-background);
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#photoDropTarget[hidden] {
+  display: none;
+}
+
+#photoDropTarget .icon {
+  display: none;
+  margin-inline-end: 8px;
+  width: 16px;
+  height: 16px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #photoDropTarget.drop-loading .icon {
+    display: unset;
+    position: relative;
+    overflow: hidden;
+    text-align: start;
+  }
+
+  #photoDropTarget.drop-loading .icon::before {
+    content: "";
+    position: absolute;
+    background-image: url("chrome://messenger/skin/icons/loading.svg");
+    width: 480px;
+    height: 100%;
+    animation: tab-throbber-animation 1.05s steps(30) infinite;
+  }
+
+  #photoDropTarget.drop-loading .icon:dir(rtl)::before {
+    animation-name: tab-throbber-animation-rtl;
+  }
+
+  @keyframes tab-throbber-animation {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes tab-throbber-animation-rtl {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+  }
+}
+
+#photoDropTarget.drop-error .icon {
+  display: unset;
+  background-image: url("chrome://global/skin/icons/warning.svg");
+  background-size: contain;
+}
+
+#photoDialog svg {
+  margin: -10px;
+}
+
+#photoDialog svg[hidden] {
+  display: none;
+}
+
+#photoDialog rect {
+  fill: transparent;
+}
+
+#photoDialog rect:not(.corner) {
+  shape-rendering: crispEdges;
+  stroke: #fff;
+  stroke-width: 1px;
+}
+
+#photoDialog .corner.nw {
+  cursor: nw-resize;
+}
+
+#photoDialog .corner.ne {
+  cursor: ne-resize;
+}
+
+#photoDialog .corner.se {
+  cursor: se-resize;
+}
+
+#photoDialog .corner.sw {
+  cursor: sw-resize;
+}
+
+#photoDialog .extra1 {
+  margin-inline-end: auto;
 }

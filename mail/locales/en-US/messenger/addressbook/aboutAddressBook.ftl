@@ -146,3 +146,14 @@ about-addressbook-details-other-info-header = Other Information
 
 about-addressbook-prompt-to-save-title = Save Changes?
 about-addressbook-prompt-to-save = Do you want to save your changes?
+
+# Photo dialog
+
+about-addressbook-photo-drop-target = Drop or paste a photo here, or click to select a file.
+about-addressbook-photo-drop-loading = Loading photo…
+about-addressbook-photo-drop-error = Failed to load photo.
+about-addressbook-photo-filepicker-title = Select an image file
+
+about-addressbook-photo-discard = Discard existing photo
+about-addressbook-photo-cancel = Cancel
+about-addressbook-photo-save = Save

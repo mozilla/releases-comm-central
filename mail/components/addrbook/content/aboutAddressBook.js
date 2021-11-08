@@ -23,6 +23,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
+  FileUtils: "resource://gre/modules/FileUtils.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
@@ -93,6 +94,7 @@ window.addEventListener("load", () => {
   booksList = document.getElementById("books");
   cardsPane.init();
   detailsPane.init();
+  photoDialog.init();
 
   // Once the old Address Book has gone away, this should be changed to use
   // UIDs instead of URIs. It's just easier to keep as-is for now.
@@ -1585,6 +1587,11 @@ var cardsPane = {
 // Details
 
 var detailsPane = {
+  PHOTOS_DIR: PathUtils.join(
+    Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+    "Photos"
+  ),
+
   /** These properties are displayed exactly as-is. */
   PLAIN_CONTACT_FIELDS: [
     "FirstName",
@@ -1646,11 +1653,17 @@ var detailsPane = {
     this.cancelEditButton.addEventListener("click", this);
     this.saveEditButton.addEventListener("click", this);
 
-    // Photo. TODO: Complete this.
-
+    this.photoOuter = document.getElementById("photoOuter");
     this.photo = document.getElementById("photo");
-    this.photo.addEventListener("dragover", this);
-    this.photo.addEventListener("drop", this);
+    this.photoOuter.addEventListener("paste", photoDialog);
+    this.photoOuter.addEventListener("dragover", photoDialog);
+    this.photoOuter.addEventListener("drop", photoDialog);
+    this.photoOuter.addEventListener("click", event =>
+      this._onPhotoActivate(event)
+    );
+    this.photoOuter.addEventListener("keypress", event =>
+      this._onPhotoActivate(event)
+    );
 
     // Set up phonetic name fields if required.
 
@@ -1710,12 +1723,6 @@ var detailsPane = {
     switch (event.type) {
       case "click":
         this._onClick(event);
-        break;
-      case "dragover":
-        this._onDragOver(event);
-        break;
-      case "drop":
-        this._onDrop(event);
         break;
     }
   },
@@ -1802,12 +1809,15 @@ var detailsPane = {
       let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
       file.append("Photos");
       file.append(photoName);
-      this.photo.style.backgroundImage = `url("${
-        Services.io.newFileURI(file).spec
-      }")`;
+      let url = Services.io.newFileURI(file).spec;
+      this.photo.style.backgroundImage = `url("${url}")`;
+      this.photo._url = url;
     } else {
       this.photo.style.backgroundImage = null;
+      delete this.photo._url;
     }
+    delete this.photo._blob;
+    delete this.photo._cropRect;
 
     let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
     this.editButton.disabled = book.readOnly;
@@ -1842,6 +1852,9 @@ var detailsPane = {
     if (!card) {
       document.querySelector("h1").textContent = "";
       this.photo.style.backgroundImage = null;
+      delete this.photo._blob;
+      delete this.photo._cropRect;
+      delete this.photo._url;
     }
 
     for (let field of this.PLAIN_CONTACT_FIELDS) {
@@ -1923,7 +1936,7 @@ var detailsPane = {
   /**
    * Save the currently displayed card.
    */
-  saveCurrentContact() {
+  async saveCurrentContact() {
     let card = this.currentCard;
     let book;
     if (card) {
@@ -1956,7 +1969,29 @@ var detailsPane = {
       document.getElementById("preferDisplayName").checked
     );
 
-    // TODO: Save photo.
+    // No photo or a new photo. Delete the old one.
+    if (!this.photo.style.backgroundImage || this.photo._blob) {
+      let oldLeafName = card.getProperty("PhotoName", "");
+      if (oldLeafName) {
+        let oldPath = PathUtils.join(this.PHOTOS_DIR, oldLeafName);
+        IOUtils.remove(oldPath);
+
+        card.setProperty("PhotoName", "");
+        card.setProperty("PhotoType", "");
+        card.setProperty("PhotoURI", "");
+      }
+    }
+
+    // Save the new photo.
+    if (this.photo._blob) {
+      let leafName = `${AddrBookUtils.newUID()}.jpg`;
+      let path = PathUtils.join(this.PHOTOS_DIR, leafName);
+      let buffer = await this.photo._blob.arrayBuffer();
+      await IOUtils.write(path, new Uint8Array(buffer));
+      card.setProperty("PhotoName", leafName);
+
+      delete this.photo._blob;
+    }
 
     this.container.classList.remove("is-dirty", "is-editing");
 
@@ -2115,23 +2150,493 @@ var detailsPane = {
     }
   },
 
+  async _onPhotoActivate(event) {
+    if (!this.container.classList.contains("is-editing")) {
+      return;
+    }
+    if (event.type == "keypress" && ![" ", "Enter"].includes(event.key)) {
+      return;
+    }
+
+    if (this.photo._url) {
+      photoDialog.showWithURL(this.photo._url, this.photo._cropRect);
+    } else {
+      photoDialog.showEmpty();
+    }
+  },
+};
+
+var photoDialog = {
+  /**
+   * The ratio of pixels in the source image to pixels in the preview.
+   *
+   * @type {number}
+   */
+  _scale: null,
+
+  /**
+   * The square to which the image will be cropped, in preview pixels.
+   *
+   * @type {DOMRect}
+   */
+  _cropRect: null,
+
+  /**
+   * The bounding rectangle of the image in the preview, in preview pixels.
+   * Cached for efficiency.
+   *
+   * @type {DOMRect}
+   */
+  _previewRect: null,
+
+  init() {
+    this._dialog = document.getElementById("photoDialog");
+    this._dialog.saveButton = this._dialog.querySelector(".accept");
+    this._dialog.cancelButton = this._dialog.querySelector(".cancel");
+    this._dialog.discardButton = this._dialog.querySelector(".extra1");
+
+    this._dropTarget = this._dialog.querySelector("#photoDropTarget");
+    this._svg = this._dialog.querySelector("svg");
+    this._preview = this._svg.querySelector("image");
+    this._cropMask = this._svg.querySelector("path");
+    this._dragRect = this._svg.querySelector("rect");
+    this._corners = this._svg.querySelectorAll("rect.corner");
+
+    this._dialog.addEventListener("dragover", this);
+    this._dialog.addEventListener("drop", this);
+    this._dialog.addEventListener("paste", this);
+    this._dropTarget.addEventListener("click", () => this._showFilePicker());
+
+    class Mover {
+      constructor(element) {
+        element.addEventListener("mousedown", this);
+      }
+
+      handleEvent(event) {
+        if (event.type == "mousedown") {
+          if (event.buttons != 1) {
+            return;
+          }
+          this.onMouseDown(event);
+          window.addEventListener("mousemove", this);
+          window.addEventListener("mouseup", this);
+        } else if (event.type == "mousemove") {
+          if (event.buttons != 1) {
+            // The button was released and we didn't get a mouseup event, or the
+            // button(s) pressed changed. Either way, stop dragging.
+            this.onMouseUp();
+            return;
+          }
+          this.onMouseMove(event);
+        } else {
+          this.onMouseUp(event);
+        }
+      }
+
+      onMouseUp(event) {
+        delete this._dragPosition;
+        window.removeEventListener("mousemove", this);
+        window.removeEventListener("mouseup", this);
+      }
+    }
+
+    new (class extends Mover {
+      onMouseDown(event) {
+        this._dragPosition = {
+          x: event.clientX - photoDialog._cropRect.x,
+          y: event.clientY - photoDialog._cropRect.y,
+        };
+      }
+
+      onMouseMove(event) {
+        photoDialog._cropRect.x = Math.min(
+          Math.max(0, event.clientX - this._dragPosition.x),
+          photoDialog._previewRect.width - photoDialog._cropRect.width
+        );
+        photoDialog._cropRect.y = Math.min(
+          Math.max(0, event.clientY - this._dragPosition.y),
+          photoDialog._previewRect.height - photoDialog._cropRect.height
+        );
+        photoDialog._redrawCropRect();
+      }
+    })(this._dragRect);
+
+    class CornerMover extends Mover {
+      constructor(element, xEdge, yEdge) {
+        super(element);
+        this.xEdge = xEdge;
+        this.yEdge = yEdge;
+      }
+
+      onMouseDown(event) {
+        this._dragPosition = {
+          x: event.clientX - photoDialog._cropRect[this.xEdge],
+          y: event.clientY - photoDialog._cropRect[this.yEdge],
+        };
+      }
+
+      onMouseMove(event) {
+        let { width, height } = photoDialog._previewRect;
+        let { top, right, bottom, left } = photoDialog._cropRect;
+        let { x, y } = this._dragPosition;
+
+        // New coordinates of the dragged corner, constrained to the image size.
+        x = Math.max(0, Math.min(width, event.clientX - x));
+        y = Math.max(0, Math.min(height, event.clientY - y));
+
+        // New size based on the dragged corner and a minimum size of 80px.
+        let newWidth = this.xEdge == "right" ? x - left : right - x;
+        let newHeight = this.yEdge == "bottom" ? y - top : bottom - y;
+        let newSize = Math.max(80, Math.min(newWidth, newHeight));
+
+        photoDialog._cropRect.width = newSize;
+        if (this.xEdge == "left") {
+          photoDialog._cropRect.x = right - photoDialog._cropRect.width;
+        }
+        photoDialog._cropRect.height = newSize;
+        if (this.yEdge == "top") {
+          photoDialog._cropRect.y = bottom - photoDialog._cropRect.height;
+        }
+        photoDialog._redrawCropRect();
+      }
+    }
+
+    new CornerMover(this._corners[0], "left", "top");
+    new CornerMover(this._corners[1], "right", "top");
+    new CornerMover(this._corners[2], "right", "bottom");
+    new CornerMover(this._corners[3], "left", "bottom");
+
+    this._dialog.saveButton.addEventListener("click", () => this._save());
+    this._dialog.cancelButton.addEventListener("click", () => this._cancel());
+    this._dialog.discardButton.addEventListener("click", () => this._discard());
+  },
+
+  _setState(state) {
+    if (state == "preview") {
+      this._dropTarget.hidden = true;
+      this._svg.toggleAttribute("hidden", false);
+      this._dialog.saveButton.disabled = false;
+      return;
+    }
+
+    this._dropTarget.classList.toggle("drop-target", state == "target");
+    this._dropTarget.classList.toggle("drop-loading", state == "loading");
+    this._dropTarget.classList.toggle("drop-error", state == "error");
+    document.l10n.setAttributes(
+      this._dropTarget.querySelector(".label"),
+      `about-addressbook-photo-drop-${state}`
+    );
+
+    this._dropTarget.hidden = false;
+    this._svg.toggleAttribute("hidden", true);
+    this._dialog.saveButton.disabled = true;
+  },
+
+  /**
+   * Show the photo dialog, with no displayed image.
+   */
+  showEmpty() {
+    this._setState("target");
+
+    if (!this._dialog.open) {
+      this._dialog.discardButton.hidden = !detailsPane.photo.style
+        .backgroundImage;
+      this._dialog.showModal();
+    }
+  },
+
+  /**
+   * Show the photo dialog, with `file` as the displayed image.
+   *
+   * @param {File} file
+   */
+  showWithFile(file) {
+    this.showWithURL(URL.createObjectURL(file));
+  },
+
+  /**
+   * Show the photo dialog, with `URL` as the displayed image and (optionally)
+   * a pre-set crop rectangle
+   *
+   * @param {string} url
+   * @param {DOMRect} cropRect
+   */
+  showWithURL(url, cropRect) {
+    // Load the image from the URL, to figure out the scale factor.
+    let img = document.createElement("img");
+    img.addEventListener("load", () => {
+      const PREVIEW_SIZE = 500;
+
+      let { naturalWidth, naturalHeight } = img;
+      this._scale = Math.max(
+        1,
+        img.naturalWidth / PREVIEW_SIZE,
+        img.naturalHeight / PREVIEW_SIZE
+      );
+
+      let previewWidth = naturalWidth / this._scale;
+      let previewHeight = naturalHeight / this._scale;
+      let smallDimension = Math.min(previewWidth, previewHeight);
+
+      this._previewRect = new DOMRect(0, 0, previewWidth, previewHeight);
+      if (cropRect) {
+        this._cropRect = DOMRect.fromRect(cropRect);
+      } else {
+        this._cropRect = new DOMRect(
+          (this._previewRect.width - smallDimension) / 2,
+          (this._previewRect.height - smallDimension) / 2,
+          smallDimension,
+          smallDimension
+        );
+      }
+
+      this._preview.setAttribute("href", url);
+      this._preview.setAttribute("width", previewWidth);
+      this._preview.setAttribute("height", previewHeight);
+
+      this._svg.setAttribute("width", previewWidth + 20);
+      this._svg.setAttribute("height", previewHeight + 20);
+      this._svg.setAttribute(
+        "viewBox",
+        `-10 -10 ${previewWidth + 20} ${previewHeight + 20}`
+      );
+
+      this._redrawCropRect();
+      this._setState("preview");
+      this._dialog.saveButton.focus();
+    });
+    img.addEventListener("error", () => this._setState("error"));
+    img.src = url;
+
+    this._setState("loading");
+
+    if (!this._dialog.open) {
+      this._dialog.discardButton.hidden = !detailsPane.photo.style
+        .backgroundImage;
+      this._dialog.showModal();
+    }
+  },
+
+  /**
+   * Resize the crop controls to match the current _cropRect.
+   */
+  _redrawCropRect() {
+    let { top, right, bottom, left, width, height } = this._cropRect;
+
+    this._cropMask.setAttribute(
+      "d",
+      `M0 0H${this._previewRect.width}V${this._previewRect.height}H0Z M${left} ${top}V${bottom}H${right}V${top}Z`
+    );
+
+    this._dragRect.setAttribute("x", left);
+    this._dragRect.setAttribute("y", top);
+    this._dragRect.setAttribute("width", width);
+    this._dragRect.setAttribute("height", height);
+
+    this._corners[0].setAttribute("x", left - 10);
+    this._corners[0].setAttribute("y", top - 10);
+    this._corners[1].setAttribute("x", right - 30);
+    this._corners[1].setAttribute("y", top - 10);
+    this._corners[2].setAttribute("x", right - 30);
+    this._corners[2].setAttribute("y", bottom - 30);
+    this._corners[3].setAttribute("x", left - 10);
+    this._corners[3].setAttribute("y", bottom - 30);
+  },
+
+  /**
+   * Crop, shrink, convert the image to a JPEG, then assign it to the photo
+   * element and close the dialog. Doesn't save the JPEG to disk, that happens
+   * when (if) the contact is saved.
+   */
+  async _save() {
+    const DOUBLE_SIZE = 600;
+    const FINAL_SIZE = 300;
+
+    let source = this._preview;
+    let { x, y, width, height } = this._cropRect;
+    x *= this._scale;
+    y *= this._scale;
+    width *= this._scale;
+    height *= this._scale;
+
+    // If the image is much larger than our target size, draw an intermediate
+    // version at twice the size first. This produces better-looking results.
+    if (width > DOUBLE_SIZE) {
+      let canvas1 = document.createElement("canvas");
+      canvas1.width = canvas1.height = DOUBLE_SIZE;
+      let context1 = canvas1.getContext("2d");
+      context1.drawImage(
+        source,
+        x,
+        y,
+        width,
+        height,
+        0,
+        0,
+        DOUBLE_SIZE,
+        DOUBLE_SIZE
+      );
+
+      source = canvas1;
+      x = y = 0;
+      width = height = DOUBLE_SIZE;
+    }
+
+    let canvas2 = document.createElement("canvas");
+    canvas2.width = canvas2.height = FINAL_SIZE;
+    let context2 = canvas2.getContext("2d");
+    context2.drawImage(
+      source,
+      x,
+      y,
+      width,
+      height,
+      0,
+      0,
+      FINAL_SIZE,
+      FINAL_SIZE
+    );
+
+    detailsPane.photo._blob = await new Promise(resolve =>
+      canvas2.toBlob(resolve, "image/jpeg")
+    );
+    detailsPane.photo._cropRect = DOMRect.fromRect(this._cropRect);
+    detailsPane.photo._url = this._preview.getAttribute("href");
+    detailsPane.photo.style.backgroundImage = `url("${URL.createObjectURL(
+      detailsPane.photo._blob
+    )}")`;
+
+    this._dialog.close();
+    detailsPane.container.classList.add("is-dirty");
+  },
+
+  /**
+   * Just close the dialog.
+   */
+  _cancel() {
+    this._dialog.close();
+  },
+
+  /**
+   * Throw away the contact's existing photo, and close the dialog. Doesn't
+   * remove the existing photo from disk, that happens when (if) the contact
+   * is saved.
+   */
+  _discard() {
+    this._dialog.close();
+    detailsPane.photo.style.backgroundImage = null;
+    delete detailsPane.photo._blob;
+    delete detailsPane.photo._cropRect;
+    delete detailsPane.photo._url;
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "dragover":
+        this._onDragOver(event);
+        break;
+      case "drop":
+        this._onDrop(event);
+        break;
+      case "paste":
+        this._onPaste(event);
+        break;
+    }
+  },
+
+  /**
+   * Gets the first image file from a DataTransfer object, or null if there
+   * are no image files in the object.
+   *
+   * @param {DataTransfer} dataTransfer
+   * @return {File|null}
+   */
+  _getUseableFile(dataTransfer) {
+    if (
+      dataTransfer.files.length &&
+      dataTransfer.files[0].type.startsWith("image/")
+    ) {
+      return dataTransfer.files[0];
+    }
+    return null;
+  },
+
+  /**
+   * Gets the first image file from a DataTransfer object, or null if there
+   * are no image files in the object.
+   *
+   * @param {DataTransfer} dataTransfer
+   * @return {string|null}
+   */
+  _getUseableURL(dataTransfer) {
+    let data =
+      dataTransfer.getData("text/plain") ||
+      dataTransfer.getData("text/unicode");
+
+    return /^https?:\/\//.test(data) ? data : null;
+  },
+
   _onDragOver(event) {
     if (
-      event.dataTransfer.files.length > 0 &&
-      ["image/jpeg", "image/png"].includes(event.dataTransfer.files[0].type)
+      this._getUseableFile(event.dataTransfer) ||
+      this._getUseableURL(event.clipboardData)
     ) {
       event.dataTransfer.dropEffect = "move";
-      this.photo._dragged = event.dataTransfer.files[0];
       event.preventDefault();
     }
   },
 
-  _onDrop() {
-    if (this.photo._dragged) {
-      this.photo.style.backgroundImage = `url("${URL.createObjectURL(
-        this.photo._dragged
-      )}")`;
+  _onDrop(event) {
+    let file = this._getUseableFile(event.dataTransfer);
+    if (file) {
+      this.showWithFile(file);
+      event.preventDefault();
+    } else {
+      let url = this._getUseableURL(event.clipboardData);
+      if (url) {
+        this.showWithURL(url);
+        event.preventDefault();
+      }
     }
+  },
+
+  _onPaste(event) {
+    let file = this._getUseableFile(event.clipboardData);
+    if (file) {
+      this.showWithFile(file);
+    } else {
+      let url = this._getUseableURL(event.clipboardData);
+      if (url) {
+        this.showWithURL(url);
+      }
+    }
+    event.preventDefault();
+  },
+
+  /**
+   * Show a file picker to choose an image.
+   */
+  async _showFilePicker() {
+    let title = await document.l10n.formatValue(
+      "about-addressbook-photo-filepicker-title"
+    );
+
+    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(
+      Ci.nsIFilePicker
+    );
+    picker.init(
+      window.browsingContext.topChromeWindow,
+      title,
+      Ci.nsIFilePicker.modeOpen
+    );
+    picker.appendFilters(Ci.nsIFilePicker.filterImages);
+    let result = await new Promise(resolve => picker.open(resolve));
+
+    if (result != Ci.nsIFilePicker.returnOK) {
+      return;
+    }
+
+    this.showWithFile(await File.createFromNsIFile(picker.file));
   },
 };
 

@@ -480,6 +480,7 @@ class AddrBookDirectory {
     }
 
     for (let card of cards) {
+      // TODO: delete photo if there is one
       this.deleteCard(card.UID);
       if (this.hasOwnProperty("cards")) {
         this.cards.delete(card.UID);
