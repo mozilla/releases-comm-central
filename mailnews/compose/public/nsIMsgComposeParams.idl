@@ -67,7 +67,7 @@ interface nsIMsgCompFormat : nsISupports{
 interface nsIMsgComposeParams : nsISupports {
   attribute MSG_ComposeType       type;
   attribute MSG_ComposeFormat     format;
-  attribute string                originalMsgURI;
+  attribute AUTF8String           originalMsgURI;
   attribute nsIMsgIdentity        identity;
 
   attribute nsIMsgCompFields      composeFields;

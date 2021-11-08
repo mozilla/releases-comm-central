@@ -41,14 +41,13 @@ NS_IMETHODIMP nsMsgComposeParams::SetFormat(MSG_ComposeFormat aFormat) {
 }
 
 /* attribute string originalMsgURI; */
-NS_IMETHODIMP nsMsgComposeParams::GetOriginalMsgURI(char** aOriginalMsgURI) {
-  NS_ENSURE_ARG_POINTER(aOriginalMsgURI);
-
-  *aOriginalMsgURI = ToNewCString(mOriginalMsgUri);
+NS_IMETHODIMP nsMsgComposeParams::GetOriginalMsgURI(
+    nsACString& aOriginalMsgURI) {
+  aOriginalMsgURI = mOriginalMsgUri;
   return NS_OK;
 }
 NS_IMETHODIMP nsMsgComposeParams::SetOriginalMsgURI(
-    const char* aOriginalMsgURI) {
+    const nsACString& aOriginalMsgURI) {
   mOriginalMsgUri = aOriginalMsgURI;
   return NS_OK;
 }

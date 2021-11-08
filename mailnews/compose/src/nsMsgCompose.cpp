@@ -874,7 +874,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
   aParams->GetType(&type);
 
   nsCString originalMsgURI;
-  aParams->GetOriginalMsgURI(getter_Copies(originalMsgURI));
+  aParams->GetOriginalMsgURI(originalMsgURI);
   aParams->GetOrigMsgHdr(getter_AddRefs(mOrigMsgHdr));
 
   nsCOMPtr<nsIMsgCompFields> composeFields;

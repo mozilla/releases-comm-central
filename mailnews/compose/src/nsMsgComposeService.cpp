@@ -441,8 +441,7 @@ nsMsgComposeService::OpenComposeWindow(
           pMsgCompFields->SetNewsgroups(NS_ConvertUTF8toUTF16(unescapedName));
           pMsgCompFields->SetNewspostUrl(host.get());
         } else {
-          pMsgComposeParams->SetOriginalMsgURI(
-              PromiseFlatCString(originalMsgURI).get());
+          pMsgComposeParams->SetOriginalMsgURI(originalMsgURI);
           pMsgComposeParams->SetOrigMsgHdr(origMsgHdr);
           pMsgCompFields->SetFrom(NS_ConvertUTF8toUTF16(from));
         }
@@ -740,7 +739,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
   pMsgComposeParams->SetFormat(nsIMsgCompFormat::Default);
   pMsgComposeParams->SetIdentity(mIdentity);
   pMsgComposeParams->SetComposeFields(compFields);
-  pMsgComposeParams->SetOriginalMsgURI(msgUri.get());
+  pMsgComposeParams->SetOriginalMsgURI(msgUri);
 
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose(
@@ -1010,7 +1009,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
   pMsgComposeParams->SetFormat(nsIMsgCompFormat::Default);
   pMsgComposeParams->SetIdentity(identity);
   pMsgComposeParams->SetComposeFields(compFields);
-  pMsgComposeParams->SetOriginalMsgURI(uriToOpen.get());
+  pMsgComposeParams->SetOriginalMsgURI(uriToOpen);
   // create the nsIMsgCompose object to send the object
   nsCOMPtr<nsIMsgCompose> pMsgCompose(
       do_CreateInstance(NS_MSGCOMPOSE_CONTRACTID, &rv));

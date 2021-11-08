@@ -237,7 +237,8 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
   pMsgComposeParams->SetFormat(format);
   pMsgComposeParams->SetIdentity(identity);
   pMsgComposeParams->SetComposeFields(compFields);
-  if (originalMsgURI) pMsgComposeParams->SetOriginalMsgURI(originalMsgURI);
+  if (originalMsgURI)
+    pMsgComposeParams->SetOriginalMsgURI(nsDependentCString(originalMsgURI));
   if (origMsgHdr) pMsgComposeParams->SetOrigMsgHdr(origMsgHdr);
   return NS_OK;
 }
