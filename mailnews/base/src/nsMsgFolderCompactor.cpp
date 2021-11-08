@@ -947,9 +947,9 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
     nsCOMPtr<nsISupports> thisSupports;
     QueryInterface(NS_GET_IID(nsISupports), getter_AddRefs(thisSupports));
     nsCOMPtr<nsIURI> dummyNull;
-    rv = m_messageService->StreamMessage(
-        m_messageUri.get(), thisSupports, m_window, nullptr, false,
-        EmptyCString(), true, getter_AddRefs(dummyNull));
+    rv = m_messageService->StreamMessage(m_messageUri, thisSupports, m_window,
+                                         nullptr, false, EmptyCString(), true,
+                                         getter_AddRefs(dummyNull));
     // if copy fails, we clear the offline flag on the source message.
     if (NS_FAILED(rv)) {
       nsCOMPtr<nsIMsgDBHdr> hdr;

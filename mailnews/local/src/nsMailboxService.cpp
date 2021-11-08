@@ -243,19 +243,20 @@ NS_IMETHODIMP nsMailboxService::FetchMimePart(
   return RunMailboxUrl(msgUrl, aDisplayConsumer);
 }
 
-NS_IMETHODIMP nsMailboxService::DisplayMessage(const char* aMessageURI,
+NS_IMETHODIMP nsMailboxService::DisplayMessage(const nsACString& aMessageURI,
                                                nsISupports* aDisplayConsumer,
                                                nsIMsgWindow* aMsgWindow,
                                                nsIUrlListener* aUrlListener,
                                                bool aOverideCharset,
                                                nsIURI** aURL) {
-  return FetchMessage(aMessageURI, aDisplayConsumer, aMsgWindow, aUrlListener,
-                      nullptr, nsIMailboxUrl::ActionFetchMessage,
-                      aOverideCharset, aURL);
+  return FetchMessage(PromiseFlatCString(aMessageURI).get(), aDisplayConsumer,
+                      aMsgWindow, aUrlListener, nullptr,
+                      nsIMailboxUrl::ActionFetchMessage, aOverideCharset, aURL);
 }
 
 NS_IMETHODIMP
-nsMailboxService::StreamMessage(const char* aMessageURI, nsISupports* aConsumer,
+nsMailboxService::StreamMessage(const nsACString& aMessageURI,
+                                nsISupports* aConsumer,
                                 nsIMsgWindow* aMsgWindow,
                                 nsIUrlListener* aUrlListener,
                                 bool /* aConvertData */,

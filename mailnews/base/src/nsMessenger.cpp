@@ -459,9 +459,8 @@ nsresult nsMessenger::CompleteOpenURL() {
 
   if (NS_SUCCEEDED(rv) && messageService) {
     nsCOMPtr<nsIURI> dummyNull;
-    messageService->DisplayMessage(PromiseFlatCString(mURLToLoad).get(),
-                                   mDocShell, mMsgWindow, nullptr, false,
-                                   getter_AddRefs(dummyNull));
+    messageService->DisplayMessage(mURLToLoad, mDocShell, mMsgWindow, nullptr,
+                                   false, getter_AddRefs(dummyNull));
     AddMsgUrlToNavigateHistory(mURLToLoad);
     mLastDisplayURI = mURLToLoad;  // remember the last uri we displayed....
     return NS_OK;
@@ -748,9 +747,9 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
             URL, fullMessageUri.get(), convertedListener, mMsgWindow,
             saveListener, getter_AddRefs(dummyNull));
       else
-        rv = messageService->DisplayMessage(
-            fullMessageUri.get(), convertedListener, mMsgWindow, nullptr, false,
-            getter_AddRefs(dummyNull));
+        rv = messageService->DisplayMessage(fullMessageUri, convertedListener,
+                                            mMsgWindow, nullptr, false,
+                                            getter_AddRefs(dummyNull));
     }  // if we got a message service
   }    // if we created a url
 
@@ -1131,7 +1130,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       if (NS_FAILED(rv)) goto done;
 
       nsCOMPtr<nsIURI> dummyNull;
-      rv = messageService->DisplayMessage(urlString.get(), convertedListener,
+      rv = messageService->DisplayMessage(urlString, convertedListener,
                                           mMsgWindow, nullptr, false,
                                           getter_AddRefs(dummyNull));
     }
@@ -1547,9 +1546,8 @@ NS_IMETHODIMP nsMessenger::ForceDetectDocumentCharset() {
 
     if (NS_SUCCEEDED(rv) && messageService) {
       nsCOMPtr<nsIURI> dummyNull;
-      messageService->DisplayMessage(mLastDisplayURI.get(), mDocShell,
-                                     mMsgWindow, nullptr, true,
-                                     getter_AddRefs(dummyNull));
+      messageService->DisplayMessage(mLastDisplayURI, mDocShell, mMsgWindow,
+                                     nullptr, true, getter_AddRefs(dummyNull));
     }
   }
 
@@ -2640,9 +2638,9 @@ nsresult nsDelAttachListener::StartProcessing(nsMessenger* aMessenger,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> dummyNull;
-  rv = mMessageService->StreamMessage(
-      messageUri.get(), listenerSupports, mMsgWindow, listenerUrlListener, true,
-      sHeader, false, getter_AddRefs(dummyNull));
+  rv = mMessageService->StreamMessage(messageUri, listenerSupports, mMsgWindow,
+                                      listenerUrlListener, true, sHeader, false,
+                                      getter_AddRefs(dummyNull));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_OK;

@@ -1369,8 +1369,9 @@ nsresult nsBayesianFilter::tokenizeMessage(const char* aMessageURI,
   aAnalyzer->setSource(aMessageURI);
   nsCOMPtr<nsIURI> dummyNull;
   return msgService->StreamMessage(
-      aMessageURI, aAnalyzer->mTokenListener, aMsgWindow, nullptr,
-      true /* convert data */, "filter"_ns, false, getter_AddRefs(dummyNull));
+      nsDependentCString(aMessageURI), aAnalyzer->mTokenListener, aMsgWindow,
+      nullptr, true /* convert data */, "filter"_ns, false,
+      getter_AddRefs(dummyNull));
 }
 
 // a TraitAnalysis is the per-token representation of the statistical

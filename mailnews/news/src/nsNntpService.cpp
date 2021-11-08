@@ -125,7 +125,7 @@ nsNntpService::SaveMessageToDisk(const char* aMessageURI, nsIFile* aFile,
     mailNewsUrl->GetSaveAsListener(aAddDummyEnvelope, aFile,
                                    getter_AddRefs(saveAsListener));
 
-    rv = DisplayMessage(aMessageURI, saveAsListener,
+    rv = DisplayMessage(nsDependentCString(aMessageURI), saveAsListener,
                         /* nsIMsgWindow *aMsgWindow */ nullptr, aUrlListener,
                         false /*aOverrideCharset */, aURL);
   }
@@ -180,17 +180,17 @@ nsresult nsNntpService::CreateMessageIDURL(nsIMsgFolder* folder, nsMsgKey key,
 }
 
 NS_IMETHODIMP
-nsNntpService::DisplayMessage(const char* aMessageURI,
+nsNntpService::DisplayMessage(const nsACString& aMessageURI,
                               nsISupports* aDisplayConsumer,
                               nsIMsgWindow* aMsgWindow,
                               nsIUrlListener* aUrlListener,
                               bool aOverrideCharset, nsIURI** aURL) {
   nsresult rv = NS_OK;
-  NS_ENSURE_ARG_POINTER(aMessageURI);
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key = nsMsgKey_None;
-  rv = DecomposeNewsMessageURI(aMessageURI, getter_AddRefs(folder), &key);
+  rv = DecomposeNewsMessageURI(PromiseFlatCString(aMessageURI).get(),
+                               getter_AddRefs(folder), &key);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString urlStr;
@@ -209,8 +209,9 @@ nsNntpService::DisplayMessage(const char* aMessageURI,
   if (mOpenAttachmentOperation) action = nsINntpUrl::ActionFetchPart;
 
   nsCOMPtr<nsIURI> url;
-  rv = ConstructNntpUrl(urlStr.get(), aUrlListener, aMsgWindow, aMessageURI,
-                        action, getter_AddRefs(url));
+  rv = ConstructNntpUrl(urlStr.get(), aUrlListener, aMsgWindow,
+                        PromiseFlatCString(aMessageURI).get(), action,
+                        getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgI18NUrl> i18nurl = do_QueryInterface(url, &rv);
@@ -578,8 +579,8 @@ nsNntpService::CopyMessage(const char* aSrcMessageURI,
       do_QueryInterface(aMailboxCopyHandler, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = DisplayMessage(aSrcMessageURI, streamSupport, aMsgWindow, aUrlListener,
-                      false, aURL);
+  rv = DisplayMessage(nsDependentCString(aSrcMessageURI), streamSupport,
+                      aMsgWindow, aUrlListener, false, aURL);
   return rv;
 }
 
@@ -1308,8 +1309,8 @@ nsNntpService::GetFoldersCreatedAsync(bool* aAsyncCreation) {
 }
 
 NS_IMETHODIMP
-nsNntpService::StreamMessage(const char* aMessageURI, nsISupports* aConsumer,
-                             nsIMsgWindow* aMsgWindow,
+nsNntpService::StreamMessage(const nsACString& aMessageURI,
+                             nsISupports* aConsumer, nsIMsgWindow* aMsgWindow,
                              nsIUrlListener* aUrlListener,
                              bool /* convertData */,
                              const nsACString& aAdditionalHeader,
@@ -1329,8 +1330,8 @@ nsNntpService::StreamMessage(const char* aMessageURI, nsISupports* aConsumer,
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key;
-  nsresult rv =
-      DecomposeNewsMessageURI(aMessageURI, getter_AddRefs(folder), &key);
+  nsresult rv = DecomposeNewsMessageURI(nsCString(aMessageURI).get(),
+                                        getter_AddRefs(folder), &key);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString urlStr;

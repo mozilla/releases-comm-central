@@ -920,7 +920,7 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
 
   nsCOMPtr<nsIURI> dummyNull;
   rv = msgService->StreamMessage(
-      templateMsgHdrUri.get(), listenerSupports, aMsgWindow, helper,
+      templateMsgHdrUri, listenerSupports, aMsgWindow, helper,
       false,  // convert data
       EmptyCString(), false, getter_AddRefs(dummyNull));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1320,9 +1320,9 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   // Now, just plug the two together and get the hell out of the way!
   nsCOMPtr<nsIStreamListener> streamListener = do_QueryInterface(mimeConverter);
   nsCOMPtr<nsIURI> dummyNull;
-  return messageService->DisplayMessage(
-      PromiseFlatCString(aMsgURI).get(), streamListener, aMsgWindow, nullptr,
-      charsetOverride, getter_AddRefs(dummyNull));
+  return messageService->DisplayMessage(aMsgURI, streamListener, aMsgWindow,
+                                        nullptr, charsetOverride,
+                                        getter_AddRefs(dummyNull));
 }
 
 NS_IMETHODIMP

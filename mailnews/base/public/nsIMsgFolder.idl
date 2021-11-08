@@ -450,7 +450,7 @@ interface nsIMsgFolder : nsISupports {
   boolean isSpecialFolder(in unsigned long flags,
                           [optional] in boolean checkAncestors);
 
-  ACString getUriForMsg(in nsIMsgDBHdr msgHdr);
+  AUTF8String getUriForMsg(in nsIMsgDBHdr msgHdr);
 
   /**
    * Deletes the messages from the folder.
