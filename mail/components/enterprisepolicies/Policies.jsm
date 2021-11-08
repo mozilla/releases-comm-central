@@ -1186,7 +1186,6 @@ function setAndLockPref(prefName, prefValue) {
  * @param {boolean} locked
  *        Optionally lock the pref
  */
-
 var PoliciesUtils = {
   setDefaultPref(prefName, prefValue, locked = false) {
     if (Services.prefs.prefIsLocked(prefName)) {

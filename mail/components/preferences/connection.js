@@ -181,26 +181,15 @@ var gConnectionsDialog = {
 
     // In the case of a shared proxy preference, backup the current values and update with the HTTP value
     if (shareProxiesPref.value) {
-      var proxyPrefs = ["ssl"];
-      for (var i = 0; i < proxyPrefs.length; ++i) {
-        var proxyServerURLPref = Preferences.get(
-          "network.proxy." + proxyPrefs[i]
-        );
-        var proxyPortPref = Preferences.get(
-          "network.proxy." + proxyPrefs[i] + "_port"
-        );
-        var backupServerURLPref = Preferences.get(
-          "network.proxy.backup." + proxyPrefs[i]
-        );
-        var backupPortPref = Preferences.get(
-          "network.proxy.backup." + proxyPrefs[i] + "_port"
-        );
-        backupServerURLPref.value =
-          backupServerURLPref.value || proxyServerURLPref.value;
-        backupPortPref.value = backupPortPref.value || proxyPortPref.value;
-        proxyServerURLPref.value = httpProxyURLPref.value;
-        proxyPortPref.value = httpProxyPortPref.value;
-      }
+      var proxyServerURLPref = Preferences.get("network.proxy.ssl");
+      var proxyPortPref = Preferences.get("network.proxy.ssl_port");
+      var backupServerURLPref = Preferences.get("network.proxy.backup.ssl");
+      var backupPortPref = Preferences.get("network.proxy.backup.ssl_port");
+      backupServerURLPref.value =
+        backupServerURLPref.value || proxyServerURLPref.value;
+      backupPortPref.value = backupPortPref.value || proxyPortPref.value;
+      proxyServerURLPref.value = httpProxyURLPref.value;
+      proxyPortPref.value = httpProxyPortPref.value;
     }
 
     this.sanitizeNoProxiesPref();
