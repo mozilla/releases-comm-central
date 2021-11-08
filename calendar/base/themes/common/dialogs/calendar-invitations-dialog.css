@@ -3,8 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #calendar-invitations-dialog {
-  min-width: 500px;
-  min-height: 273px;
+  width: 500px;
+  height: 273px;
+}
+
+#dialog-box {
+  overflow: auto;
 }
 
 .calendar-invitations-updating-icon {
