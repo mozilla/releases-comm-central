@@ -18,7 +18,7 @@ interface nsIMsgQuote : nsISupports {
   * @param charset optional parameter - if set, force the message to be
   *                quoted using this particular charset
   */
-  void quoteMessage(in string msgURI, in boolean quoteHeaders,
+  void quoteMessage(in AUTF8String msgURI, in boolean quoteHeaders,
                     in nsIMsgQuotingOutputStreamListener streamListener,
                     in bool overrideCharset, in boolean headersOnly,
                     in nsIMsgDBHdr aOrigHdr);

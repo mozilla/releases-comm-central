@@ -1929,9 +1929,9 @@ NS_IMETHODIMP nsMsgCompose::GetOriginalMsgURI(char** originalMsgURI) {
 QuotingOutputStreamListener::~QuotingOutputStreamListener() {}
 
 QuotingOutputStreamListener::QuotingOutputStreamListener(
-    const char* originalMsgURI, nsIMsgDBHdr* originalMsgHdr, bool quoteHeaders,
-    bool headersOnly, nsIMsgIdentity* identity, nsIMsgQuote* msgQuote,
-    bool charsetFixed, bool quoteOriginal, const nsACString& htmlToQuote) {
+    nsIMsgDBHdr* originalMsgHdr, bool quoteHeaders, bool headersOnly,
+    nsIMsgIdentity* identity, nsIMsgQuote* msgQuote, bool charsetFixed,
+    bool quoteOriginal, const nsACString& htmlToQuote) {
   nsresult rv;
   mQuoteHeaders = quoteHeaders;
   mHeadersOnly = headersOnly;
@@ -2724,9 +2724,7 @@ NS_IMETHODIMP nsMsgCompose::GetType(MSG_ComposeType* aType) {
 }
 
 NS_IMETHODIMP
-nsMsgCompose::QuoteMessage(const char* msgURI) {
-  NS_ENSURE_ARG_POINTER(msgURI);
-
+nsMsgCompose::QuoteMessage(const nsACString& msgURI) {
   nsresult rv;
   mQuotingToFollow = false;
 
@@ -2735,12 +2733,13 @@ nsMsgCompose::QuoteMessage(const char* msgURI) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(msgURI, getter_AddRefs(msgHdr));
+  rv = GetMsgDBHdrFromURI(PromiseFlatCString(msgURI).get(),
+                          getter_AddRefs(msgHdr));
 
   // Create the consumer output stream.. this will receive all the HTML from
   // libmime
   mQuoteStreamListener = new QuotingOutputStreamListener(
-      msgURI, msgHdr, false, !mHtmlToQuote.IsEmpty(), m_identity, mQuote,
+      msgHdr, false, !mHtmlToQuote.IsEmpty(), m_identity, mQuote,
       mCharsetOverride || mAnswerDefaultCharset, false, mHtmlToQuote);
 
   mQuoteStreamListener->SetComposeObj(this);
@@ -2779,13 +2778,13 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
   // Create the consumer output stream.. this will receive all the HTML from
   // libmime
   mQuoteStreamListener = new QuotingOutputStreamListener(
-      mOriginalMsgURI.get(), originalMsgHdr, mWhatHolder != 1,
-      !bAutoQuote || !mHtmlToQuote.IsEmpty(), m_identity, mQuote,
-      mCharsetOverride || mAnswerDefaultCharset, true, mHtmlToQuote);
+      originalMsgHdr, mWhatHolder != 1, !bAutoQuote || !mHtmlToQuote.IsEmpty(),
+      m_identity, mQuote, mCharsetOverride || mAnswerDefaultCharset, true,
+      mHtmlToQuote);
 
   mQuoteStreamListener->SetComposeObj(this);
 
-  rv = mQuote->QuoteMessage(mOriginalMsgURI.get(), mWhatHolder != 1,
+  rv = mQuote->QuoteMessage(mOriginalMsgURI, mWhatHolder != 1,
                             mQuoteStreamListener, mCharsetOverride, !bAutoQuote,
                             originalMsgHdr);
   return rv;

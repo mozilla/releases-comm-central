@@ -88,19 +88,17 @@ NS_IMETHODIMP nsMsgQuote::GetStreamListener(
 }
 
 nsresult nsMsgQuote::QuoteMessage(
-    const char* msgURI, bool quoteHeaders,
+    const nsACString& msgURI, bool quoteHeaders,
     nsIMsgQuotingOutputStreamListener* aQuoteMsgStreamListener,
     bool aOverRideCharSet, bool headersOnly, nsIMsgDBHdr* aMsgHdr) {
   nsresult rv;
-  if (!msgURI) return NS_ERROR_INVALID_ARG;
 
   mQuoteHeaders = quoteHeaders;
   mStreamListener = do_GetWeakReference(aQuoteMsgStreamListener);
 
   nsAutoCString msgUri(msgURI);
-  bool fileUrl = !strncmp(msgURI, "file:", 5);
-  bool forwardedMessage =
-      PL_strstr(msgURI, "&realtype=message/rfc822") != nullptr;
+  bool fileUrl = StringBeginsWith(msgUri, "file:"_ns);
+  bool forwardedMessage = msgUri.Find("&realtype=message/rfc822") >= 0;
   nsCOMPtr<nsIURI> newURI;
   if (fileUrl) {
     msgUri.Replace(0, 5, "mailbox:"_ns);
@@ -112,11 +110,9 @@ nsresult nsMsgQuote::QuoteMessage(
     rv = NS_NewURI(getter_AddRefs(newURI), msgURI);
   else {
     nsCOMPtr<nsIMsgMessageService> msgService;
-    rv = GetMessageServiceFromURI(nsDependentCString(msgURI),
-                                  getter_AddRefs(msgService));
+    rv = GetMessageServiceFromURI(msgURI, getter_AddRefs(msgService));
     if (NS_FAILED(rv)) return rv;
-    rv = msgService->GetUrlForUri(nsDependentCString(msgURI), nullptr,
-                                  getter_AddRefs(newURI));
+    rv = msgService->GetUrlForUri(msgURI, nullptr, getter_AddRefs(newURI));
   }
   if (NS_FAILED(rv)) return rv;
 

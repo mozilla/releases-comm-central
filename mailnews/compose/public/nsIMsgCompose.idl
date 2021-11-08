@@ -136,7 +136,7 @@ interface nsIMsgCompose : nsIMsgSendListener {
   void abort();
 
   /* ... */
-  void quoteMessage(in string msgURI);
+  void quoteMessage(in AUTF8String msgURI);
 
   /*
     AttachmentPrettyName will return only the leafName if the it's a file URL.

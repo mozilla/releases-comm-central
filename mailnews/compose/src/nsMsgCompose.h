@@ -147,8 +147,7 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
 class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener,
                                     public nsSupportsWeakReference {
  public:
-  QuotingOutputStreamListener(const char* originalMsgURI,
-                              nsIMsgDBHdr* origMsgHdr, bool quoteHeaders,
+  QuotingOutputStreamListener(nsIMsgDBHdr* origMsgHdr, bool quoteHeaders,
                               bool headersOnly, nsIMsgIdentity* identity,
                               nsIMsgQuote* msgQuote, bool charsetFixed,
                               bool quoteOriginal,
