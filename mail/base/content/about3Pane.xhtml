@@ -2,7 +2,12 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
-<!DOCTYPE html>
+<!DOCTYPE html [
+<!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
+%messengerDTD;
+<!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
+%calendarDTD;
+]>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <head>
@@ -46,4 +51,99 @@
     during drag operations, so that we get mouse events in this space.
   --></div>
 </body>
+<popupset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <menupopup id="folderPaneContext">
+    <menuitem id="folderPaneContext-getMessages"
+              class="menuitem-iconic"
+              label="&folderContextGetMessages.label;"
+              accesskey="&folderContextGetMessages.accesskey;"/>
+    <menuitem id="folderPaneContext-pauseAllUpdates"
+              class="menuitem-iconic"
+              type="checkbox"
+              label="&folderContextPauseAllUpdates.label;"
+              accesskey="&folderContextPauseUpdates.accesskey;"/>
+    <menuitem id="folderPaneContext-pauseUpdates"
+              class="menuitem-iconic"
+              type="checkbox"
+              label="&folderContextPauseUpdates.label;"
+              accesskey="&folderContextPauseUpdates.accesskey;"/>
+    <menuseparator/>
+    <menuitem id="folderPaneContext-openNewTab"
+              class="menuitem-iconic"
+              label="&folderContextOpenNewTab.label;"
+              accesskey="&folderContextOpenNewTab.accesskey;"/>
+    <menuitem id="folderPaneContext-openNewWindow"
+              class="menuitem-iconic"
+              label="&folderContextOpenInNewWindow.label;"
+              accesskey="&folderContextOpenInNewWindow.accesskey;"/>
+    <menuitem id="folderPaneContext-searchMessages"
+              class="menuitem-iconic"
+              label="&folderContextSearchForMessages.label;"
+              accesskey="&folderContextSearchForMessages.accesskey;"/>
+    <menuitem id="folderPaneContext-subscribe"
+              class="menuitem-iconic"
+              label="&folderContextSubscribe.label;"
+              accesskey="&folderContextSubscribe.accesskey;"/>
+    <menuitem id="folderPaneContext-newsUnsubscribe"
+              class="menuitem-iconic"
+              label="&folderContextUnsubscribe.label;"
+              accesskey="&folderContextUnsubscribe.accesskey;"/>
+    <menuseparator/>
+    <menuitem id="folderPaneContext-new"
+              class="menuitem-iconic"
+              label="&folderContextNew.label;"
+              accesskey="&folderContextNew.accesskey;"/>
+    <menuitem id="folderPaneContext-remove"
+              class="menuitem-iconic"
+              label="&folderContextRemove.label;"
+              accesskey="&folderContextRemove.accesskey;"/>
+    <menuitem id="folderPaneContext-rename"
+              class="menuitem-iconic"
+              label="&folderContextRename.label;"
+              accesskey="&folderContextRename.accesskey;"/>
+    <menuseparator/>
+    <menuitem id="folderPaneContext-compact"
+              class="menuitem-iconic"
+              label="&folderContextCompact.label;"
+              accesskey="&folderContextCompact.accesskey;"/>
+    <menuitem id="folderPaneContext-markMailFolderAllRead"
+              class="menuitem-iconic"
+              label="&folderContextMarkMailFolderRead.label;"
+              accesskey="&folderContextMarkMailFolderRead.accesskey;"/>
+    <menuitem id="folderPaneContext-markNewsgroupAllRead"
+              class="menuitem-iconic"
+              label="&folderContextMarkNewsgroupRead.label;"
+              accesskey="&folderContextMarkNewsgroupRead.accesskey;"/>
+    <menuitem id="folderPaneContext-emptyTrash"
+              class="menuitem-iconic"
+              label="&folderContextEmptyTrash.label;"
+              accesskey="&folderContextEmptyTrash.accesskey;"/>
+    <menuitem id="folderPaneContext-emptyJunk"
+              class="menuitem-iconic"
+              label="&folderContextEmptyJunk.label;"
+              accesskey="&folderContextEmptyJunk.accesskey;"/>
+    <menuitem id="folderPaneContext-sendUnsentMessages"
+              class="menuitem-iconic"
+              label="&folderContextSendUnsentMessages.label;"
+              accesskey="&folderContextSendUnsentMessages.accesskey;"/>
+    <menuseparator/>
+    <menuitem id="folderPaneContext-favoriteFolder"
+              class="menuitem-iconic"
+              type="checkbox"
+              label="&folderContextFavoriteFolder.label;"
+              accesskey="&folderContextFavoriteFolder.accesskey;"/>
+    <menuitem id="folderPaneContext-properties"
+              class="menuitem-iconic"
+              label="&folderContextProperties2.label;"
+              accesskey="&folderContextProperties2.accesskey;"/>
+    <menuitem id="folderPaneContext-markAllFoldersRead"
+              class="menuitem-iconic"
+              label="&folderContextMarkAllFoldersRead.label;"/>
+    <menuseparator/>
+    <menuitem id="folderPaneContext-settings"
+              class="menuitem-iconic"
+              label="&folderContextSettings2.label;"
+              accesskey="&folderContextSettings2.accesskey;"/>
+  </menupopup>
+</popupset>
 </html>

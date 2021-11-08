@@ -1956,16 +1956,14 @@ function MsgGetMessage() {
   }
 }
 
-function MsgPauseUpdates(aMenuitem) {
+function MsgPauseUpdates(selectedFolders = GetSelectedMsgFolders(), pause) {
   // Pause single feed folder subscription updates, or all account updates if
   // folder is the account folder.
-  let selectedFolders = GetSelectedMsgFolders();
   let folder = selectedFolders.length ? selectedFolders[0] : null;
   if (!FeedUtils.isFeedFolder(folder)) {
     return;
   }
 
-  let pause = aMenuitem.getAttribute("checked") == "true";
   FeedUtils.pauseFeedFolderUpdates(folder, pause, true);
 }
 
@@ -2281,10 +2279,10 @@ function ConfirmUnsubscribe(folders) {
 
 /**
  * Unsubscribe from selected or passed in newsgroup/s.
- * @param newsgroups (optional param) the newsgroup folders to unsubscribe from
+ * @param {nsIMsgFolder[]} [selectedFolders] - The folders to unsubscribe
+ *   from or, if not given, the selected folders.
  */
-function MsgUnsubscribe(newsgroups) {
-  var folders = newsgroups || gFolderTreeView.getSelectedFolders();
+function MsgUnsubscribe(folders = gFolderTreeView.getSelectedFolders()) {
   if (!ConfirmUnsubscribe(folders)) {
     return;
   }
@@ -2342,15 +2340,19 @@ function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
 
 /**
  * UI-triggered command to open the currently selected folder(s) in new tabs.
- * @param aBackground [optional] if true, then the folder tab is opened in the
- *                    background. If false or not given, then the folder tab is
- *                    opened in the foreground.
+ * @param {nsIMsgFolder[]} [selectedFolders] - Folders to open in new tabs or,
+ *   if not given, the selected folders.
+ * @param {boolean} [aBackground] - If true, then the folder tab is opened in
+ *   the background. If false or not given, then the folder tab is opened in
+ *   the foreground.
  */
-function MsgOpenNewTabForFolder(aBackground) {
+function MsgOpenNewTabForFolder(
+  selectedFolders = gFolderTreeView.getSelectedFolders(),
+  aBackground
+) {
   // If there is a right-click happening, gFolderTreeView.getSelectedFolders()
   // will tell us about it (while the selection's currentIndex would reflect
   // the node that was selected/displayed before the right-click.)
-  let selectedFolders = gFolderTreeView.getSelectedFolders();
   for (let i = 0; i < selectedFolders.length; i++) {
     document.getElementById("tabmail").openTab("folder", {
       folder: selectedFolders[i],
@@ -2599,8 +2601,7 @@ function MsgMarkReadByDate() {
   );
 }
 
-function MsgMarkAllRead() {
-  let folders = gFolderTreeView.getSelectedFolders();
+function MsgMarkAllRead(folders = gFolderTreeView.getSelectedFolders()) {
   for (let i = 0; i < folders.length; i++) {
     folders[i].markAllMessagesRead(msgWindow);
   }
@@ -2608,10 +2609,19 @@ function MsgMarkAllRead() {
 
 /**
  * Go through each selected server and mark all its folders read.
+ *
+ * @param {nsIMsgFolder[]} [selectedFolders] - Folders in the servers to be
+ *   marked as read or, if not given, the selected folders.
  */
-function MsgMarkAllFoldersRead() {
-  const bundle = document.getElementById("bundle_messenger");
+function MsgMarkAllFoldersRead(
+  selectedFolders = gFolderTreeView.getSelectedFolders()
+) {
+  let selectedServers = selectedFolders.filter(folder => folder.isServer);
+  if (!selectedServers.length) {
+    return;
+  }
 
+  let bundle = document.getElementById("bundle_messenger");
   if (
     !Services.prompt.confirm(
       window,
@@ -2621,9 +2631,6 @@ function MsgMarkAllFoldersRead() {
   ) {
     return;
   }
-
-  const selectedFolders = gFolderTreeView.getSelectedFolders();
-  const selectedServers = selectedFolders.filter(folder => folder.isServer);
 
   selectedServers.forEach(function(server) {
     for (let folder of server.rootFolder.descendants) {

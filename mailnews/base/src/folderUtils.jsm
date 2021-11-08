@@ -14,6 +14,7 @@ const EXPORTED_SYMBOLS = [
   "getFolderProperties",
   "getMostRecentFolders",
   "getSpecialFolderString",
+  "canRenameDeleteJunkMail",
 ];
 
 ChromeUtils.defineModuleGetter(
@@ -303,4 +304,26 @@ function getFolderIcon(folder) {
   }
 
   return `chrome://messenger/skin/icons/${iconName}`;
+}
+
+/**
+ * Checks if the configured junk mail can be renamed or deleted.
+ *
+ * @param {string} aFolderUri
+ */
+function canRenameDeleteJunkMail(aFolderUri) {
+  // Go through junk mail settings for all servers and see if the folder is set/used by anyone.
+  for (let server of MailServices.accounts.allServers) {
+    let settings = server.spamSettings;
+    // If junk mail control or move junk mail to folder option is disabled then
+    // allow the folder to be removed/renamed since the folder is not used in this case.
+    if (!settings.level || !settings.moveOnSpam) {
+      continue;
+    }
+    if (settings.spamFolderURI == aFolderUri) {
+      return false;
+    }
+  }
+
+  return true;
 }

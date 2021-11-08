@@ -166,7 +166,7 @@ li > .container:hover {
   background-color: var(--in-content-item-hover);
 }
 
-#folderTree:focus li.selected > .container {
+#folderTree:focus-within li.selected > .container {
   background-color: var(--in-content-item-selected);
   color: var(--in-content-item-selected-text);
 }

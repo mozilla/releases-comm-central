@@ -5,7 +5,7 @@
 var { DBViewWrapper } = ChromeUtils.import(
   "resource:///modules/DBViewWrapper.jsm"
 );
-var { getFolderIcon } = ChromeUtils.import(
+var { canRenameDeleteJunkMail, getFolderIcon } = ChromeUtils.import(
   "resource:///modules/folderUtils.jsm"
 );
 var { MailServices } = ChromeUtils.import(
@@ -16,6 +16,15 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  FeedUtils: "resource:///modules/FeedUtils.jsm",
+});
+
+const messengerBundle = Services.strings.createBundle(
+  "chrome://messenger/locale/messenger.properties"
+);
+
+var gFolder;
 var folderTree, threadTree, messageBrowser;
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -99,14 +108,14 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   folderTree = document.getElementById("folderTree");
-  threadTree = document.getElementById("threadTree");
-  messageBrowser = document.getElementById("messageBrowser");
   let folderTemplate = document.getElementById("folderTemplate");
+  let folderPaneContext = document.getElementById("folderPaneContext");
 
   for (let account of MailServices.accounts.accounts) {
     let accountItem = folderTree.appendChild(
       folderTemplate.content.firstElementChild.cloneNode(true)
     );
+    accountItem.id = account.key;
     accountItem.dataset.uri = account.incomingServer.rootFolder.URI;
     accountItem.querySelector(
       ".icon"
@@ -124,22 +133,22 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    let folder = MailServices.folderLookup.getFolderForURL(uri);
+    gFolder = MailServices.folderLookup.getFolderForURL(uri);
 
     document.head.querySelector(`link[rel="icon"]`).href = getFolderIcon(
-      folder
+      gFolder
     );
 
-    if (folder.isServer) {
-      document.title = folder.server.prettyName;
+    if (gFolder.isServer) {
+      document.title = gFolder.server.prettyName;
       threadTree.view = null;
       return;
     }
-    document.title = `${folder.name} - ${folder.server.prettyName}`;
+    document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
 
     let wrapper = new DBViewWrapper(dbViewWrapperListener);
     wrapper._viewFlags = 1;
-    wrapper.open(folder);
+    wrapper.open(gFolder);
     threadTree.view = wrapper.dbView;
     // Tell the view about the tree. nsITreeView.setTree can't be used because
     // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
@@ -170,6 +179,31 @@ window.addEventListener("DOMContentLoaded", () => {
     );
   });
 
+  folderTree.addEventListener("contextmenu", event => {
+    if (folderTree.selectedIndex == -1) {
+      return;
+    }
+
+    folderTree.selectedIndex = folderTree.rows.indexOf(
+      event.target.closest("li")
+    );
+
+    let popup = document.getElementById("folderPaneContext");
+    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    event.preventDefault();
+  });
+
+  folderPaneContext.addEventListener(
+    "popupshowing",
+    folderPaneContextMenu.onPopupShowing
+  );
+  folderPaneContext.addEventListener(
+    "command",
+    folderPaneContextMenu.onCommand
+  );
+
+  threadTree = document.getElementById("threadTree");
+
   threadTree.addEventListener("select", async event => {
     if (threadTree.selectedIndicies.length != 1) {
       return;
@@ -181,6 +215,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     displayMessage(uri);
   });
+
+  messageBrowser = document.getElementById("messageBrowser");
 });
 
 window.addEventListener("splitter-resizing", () =>
@@ -220,7 +256,6 @@ window.addEventListener("keypress", event => {
 });
 
 function displayFolder(folderURI) {
-  let folderTree = document.getElementById("folderTree");
   for (let index = 0; index < folderTree.rowCount; index++) {
     if (folderTree.rows[index].dataset.uri == folderURI) {
       folderTree.selectedIndex = index;
@@ -233,6 +268,231 @@ function displayMessage(messageURI) {
   messageBrowser.contentWindow.displayMessage(messageURI);
   messageBrowser.style.visibility = "visible";
 }
+
+var folderPaneContextMenu = {
+  onPopupShowing(event) {
+    function showItem(id, show) {
+      let item = document.getElementById(id);
+      if (item) {
+        item.hidden = !show;
+      }
+    }
+
+    function checkItem(id, checked) {
+      let item = document.getElementById(id);
+      if (item) {
+        // Always convert truthy/falsy to boolean before string.
+        item.setAttribute("checked", !!checked);
+      }
+    }
+
+    let {
+      canCompact,
+      canCreateSubfolders,
+      canRename,
+      deletable,
+      flags,
+      isServer,
+      isSpecialFolder,
+      server,
+      URI,
+    } = gFolder;
+    let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
+    let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
+    let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
+    let isRealFolder = !isServer && !isVirtual;
+    let serverType = server.type;
+
+    showItem(
+      "folderPaneContext-getMessages",
+      (isServer && serverType != "none") ||
+        (["nntp", "rss"].includes(serverType) && !isTrash && !isVirtual)
+    );
+    let showPauseAll = isServer && FeedUtils.isFeedFolder(gFolder);
+    showItem("folderPaneContext-pauseAllUpdates", showPauseAll);
+    if (showPauseAll) {
+      let optionsAcct = FeedUtils.getOptionsAcct(server);
+      checkItem("folderPaneContext-pauseAllUpdates", !optionsAcct.doBiff);
+    }
+    let showPaused = !isServer && FeedUtils.getFeedUrlsInFolder(gFolder);
+    showItem("folderPaneContext-pauseUpdates", showPaused);
+    if (showPaused) {
+      let properties = FeedUtils.getFolderProperties(gFolder);
+      checkItem(
+        "folderPaneContext-pauseUpdates",
+        properties.includes("isPaused")
+      );
+    }
+
+    showItem("folderPaneContext-searchMessages", !isVirtual);
+    if (isVirtual) {
+      showItem("folderPaneContext-subscribe", false);
+    } else if (serverType == "rss" && !isTrash) {
+      showItem("folderPaneContext-subscribe", true);
+    } else {
+      showItem(
+        "folderPaneContext-subscribe",
+        isServer && ["imap", "nntp"].includes(serverType)
+      );
+    }
+    showItem(
+      "folderPaneContext-newsUnsubscribe",
+      isRealFolder && serverType == "nntp"
+    );
+
+    let showNewFolderItem =
+      (serverType != "nntp" && canCreateSubfolders) ||
+      flags & Ci.nsMsgFolderFlags.Inbox;
+    showItem("folderPaneContext-new", showNewFolderItem);
+    if (showNewFolderItem) {
+      document
+        .getElementById("folderPaneContext-new")
+        .setAttribute(
+          "label",
+          messengerBundle.GetStringFromName(
+            isServer || flags & Ci.nsMsgFolderFlags.Inbox
+              ? "newFolder"
+              : "newSubfolder"
+          )
+        );
+    }
+    if (isJunk) {
+      showItem("folderPaneContext-remove", canRenameDeleteJunkMail(URI));
+    } else {
+      showItem("folderPaneContext-remove", deletable);
+    }
+    showItem(
+      "folderPaneContext-rename",
+      (!isServer && canRename && !(flags & Ci.nsMsgFolderFlags.SpecialUse)) ||
+        isVirtual ||
+        (isJunk && canRenameDeleteJunkMail(URI))
+    );
+
+    showItem(
+      "folderPaneContext-compact",
+      !isVirtual && canCompact && gFolder.isCommandEnabled("cmd_compactFolder")
+    );
+    showItem(
+      "folderPaneContext-markMailFolderAllRead",
+      isRealFolder && serverType != "nntp"
+    );
+    showItem(
+      "folderPaneContext-markNewsgroupAllRead",
+      isRealFolder && serverType == "nntp"
+    );
+    showItem("folderPaneContext-emptyTrash", isTrash);
+    showItem("folderPaneContext-emptyJunk", isJunk);
+    showItem(
+      "folderPaneContext-sendUnsentMessages",
+      flags & Ci.nsMsgFolderFlags.Queue
+    );
+
+    showItem("folderPaneContext-favoriteFolder", !isServer);
+    if (!isServer) {
+      checkItem(
+        "folderPaneContext-favoriteFolder",
+        flags & Ci.nsMsgFolderFlags.Favorite
+      );
+    }
+    showItem("folderPaneContext-properties", !isServer);
+    showItem("folderPaneContext-markAllFoldersRead", isServer);
+
+    showItem("folderPaneContext-settings", isServer);
+
+    let lastItem;
+    for (let child of document.getElementById("folderPaneContext").children) {
+      if (child.localName == "menuseparator") {
+        child.hidden = !lastItem || lastItem.localName == "menuseparator";
+      }
+      if (!child.hidden) {
+        lastItem = child;
+      }
+    }
+    if (lastItem.localName == "menuseparator") {
+      lastItem.hidden = true;
+    }
+  },
+
+  onCommand(event) {
+    let topChromeWindow = window.browsingContext.topChromeWindow;
+    switch (event.target.id) {
+      case "folderPaneContext-getMessages":
+        topChromeWindow.MsgGetMessage();
+        break;
+      case "folderPaneContext-pauseAllUpdates":
+        topChromeWindow.MsgPauseUpdates(
+          [gFolder],
+          event.target.getAttribute("checked") == "true"
+        );
+        break;
+      case "folderPaneContext-pauseUpdates":
+        topChromeWindow.MsgPauseUpdates(
+          [gFolder],
+          event.target.getAttribute("checked") == "true"
+        );
+        break;
+      case "folderPaneContext-openNewTab": {
+        let inBackground = Services.prefs.getBoolPref(
+          "mail.tabs.loadInBackground"
+        );
+        if (event.shiftKey) {
+          inBackground = !inBackground;
+        }
+        topChromeWindow.MsgOpenNewTabForFolder([gFolder], inBackground);
+        break;
+      }
+      case "folderPaneContext-openNewWindow":
+        topChromeWindow.MsgOpenNewWindowForFolder(gFolder.URI, -1);
+        break;
+      case "folderPaneContext-searchMessages":
+        topChromeWindow.gFolderTreeController.searchMessages(gFolder);
+        break;
+      case "folderPaneContext-subscribe":
+        topChromeWindow.MsgSubscribe(gFolder);
+        break;
+      case "folderPaneContext-newsUnsubscribe":
+        topChromeWindow.MsgUnsubscribe([gFolder]);
+        break;
+      case "folderPaneContext-new":
+        topChromeWindow.gFolderTreeController.newFolder(gFolder);
+        break;
+      case "folderPaneContext-remove":
+        topChromeWindow.gFolderTreeController.deleteFolder(gFolder);
+        break;
+      case "folderPaneContext-rename":
+        topChromeWindow.gFolderTreeController.renameFolder(gFolder);
+        break;
+      case "folderPaneContext-compact":
+        topChromeWindow.gFolderTreeController.compactFolders([gFolder]);
+        break;
+      case "folderPaneContext-markMailFolderAllRead":
+      case "folderPaneContext-markNewsgroupAllRead":
+        topChromeWindow.MsgMarkAllRead([gFolder]);
+        break;
+      case "folderPaneContext-emptyTrash":
+        topChromeWindow.gFolderTreeController.emptyTrash(gFolder);
+        break;
+      case "folderPaneContext-emptyJunk":
+        topChromeWindow.gFolderTreeController.emptyJunk(gFolder);
+        break;
+      case "folderPaneContext-sendUnsentMessages":
+        topChromeWindow.SendUnsentMessages();
+        break;
+      case "folderPaneContext-favoriteFolder":
+        gFolder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
+        break;
+      case "folderPaneContext-properties":
+        topChromeWindow.gFolderTreeController.editFolder(undefined, gFolder);
+        break;
+      case "folderPaneContext-markAllFoldersRead":
+        topChromeWindow.MsgMarkAllFoldersRead([gFolder]);
+        break;
+      case "folderPaneContext-settings":
+        topChromeWindow.gFolderTreeController.editFolder(undefined, gFolder);
+        break;
+    }
+  },
+};
 
 /**
  * Custom element for rows in the thread tree.

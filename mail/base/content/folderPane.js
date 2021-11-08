@@ -16,6 +16,7 @@ var {
   allAccountsSorted,
   getMostRecentFolders,
   folderNameCompare,
+  canRenameDeleteJunkMail,
 } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -3511,7 +3512,7 @@ var gFolderTreeController = {
     }
 
     var canDelete = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false)
-      ? CanRenameDeleteJunkMail(folder.URI)
+      ? canRenameDeleteJunkMail(folder.URI)
       : folder.deletable;
 
     if (!canDelete) {

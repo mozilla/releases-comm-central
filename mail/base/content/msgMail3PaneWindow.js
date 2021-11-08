@@ -1629,7 +1629,7 @@ function FolderPaneContextMenuNewTab(event) {
   if (event.shiftKey) {
     bgLoad = !bgLoad;
   }
-  MsgOpenNewTabForFolder(bgLoad);
+  MsgOpenNewTabForFolder(undefined, bgLoad);
 }
 
 function FolderPaneOnClick(event) {

@@ -1484,33 +1484,6 @@ function SetFocusMessagePane() {
   }
 }
 
-//
-// This function checks if the configured junk mail can be renamed or deleted.
-//
-function CanRenameDeleteJunkMail(aFolderUri) {
-  if (!aFolderUri) {
-    return false;
-  }
-
-  // Go through junk mail settings for all servers and see if the folder is set/used by anyone.
-  try {
-    for (let server of MailServices.accounts.allServers) {
-      var settings = server.spamSettings;
-      // If junk mail control or move junk mail to folder option is disabled then
-      // allow the folder to be removed/renamed since the folder is not used in this case.
-      if (!settings.level || !settings.moveOnSpam) {
-        continue;
-      }
-      if (settings.spamFolderURI == aFolderUri) {
-        return false;
-      }
-    }
-  } catch (ex) {
-    dump("Can't get all servers\n");
-  }
-  return true;
-}
-
 /** Check if this is a folder the user is allowed to delete. */
 function CanDeleteFolder(folder) {
   if (folder.isServer) {
@@ -1526,7 +1499,7 @@ function CanDeleteFolder(folder) {
     specialFolder == "Sent" ||
     specialFolder == "Templates" ||
     specialFolder == "Outbox" ||
-    (specialFolder == "Junk" && !CanRenameDeleteJunkMail(folder.URI))
+    (specialFolder == "Junk" && !canRenameDeleteJunkMail(folder.URI))
   ) {
     return false;
   }

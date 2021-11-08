@@ -432,12 +432,12 @@
               type="checkbox"
               label="&folderContextPauseAllUpdates.label;"
               accesskey="&folderContextPauseUpdates.accesskey;"
-              oncommand="MsgPauseUpdates(this);"/>
+              oncommand="MsgPauseUpdates(undefined, this.getAttribute('checked') == true);"/>
     <menuitem id="folderPaneContext-pauseUpdates"
               type="checkbox"
               label="&folderContextPauseUpdates.label;"
               accesskey="&folderContextPauseUpdates.accesskey;"
-              oncommand="MsgPauseUpdates(this);"/>
+              oncommand="MsgPauseUpdates(undefined, this.getAttribute('checked') == true);"/>
     <menuseparator id="folderPaneContext-sepPause"/>
     <menuitem id="folderPaneContext-openNewTab"
               label="&folderContextOpenNewTab.label;"
