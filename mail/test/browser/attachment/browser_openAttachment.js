@@ -287,8 +287,11 @@ add_task(async function useHelperAppAlwaysAsk() {
 add_task(async function useSystemDefaultAlwaysAsk() {
   createMockedHandler("test/useSystemDefault-true", useSystemDefault, true);
   createAndLoadMessage("test/useSystemDefault-true");
-  // Would be mode: "open" except our handler isn't real.
-  await clickWithDialog({ rememberExpected: false });
+  // Would be mode: "open" on all platforms except our handler isn't real.
+  await clickWithDialog({
+    mode: AppConstants.platform == "win" ? "open" : "save",
+    rememberExpected: false,
+  });
 });
 
 // Check what happens with alwaysAskBeforeHandling set to false. We can't test
