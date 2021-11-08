@@ -294,7 +294,7 @@
     },
 
     "ExtensionSettings": {
-      "type": ["JSON", "object"],
+      "type": "object",
       "properties": {
         "*": {
           "type": "object",
@@ -355,7 +355,7 @@
     },
 
     "Handlers": {
-      "type": ["JSON", "object"],
+      "type": "object",
       "patternProperties": {
         "^(mimeTypes|extensions|schemes)$": {
           "type": "object",
@@ -447,7 +447,7 @@
     },
 
     "Preferences": {
-      "type": ["JSON", "object"],
+      "type": "object",
       "patternProperties": {
         "^.*$": {
           "type": ["number", "boolean", "string", "object"],
