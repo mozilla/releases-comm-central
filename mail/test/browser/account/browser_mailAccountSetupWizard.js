@@ -730,10 +730,11 @@ add_task(async function test_full_account_setup() {
   await syncingNotificationRemoved;
 
   // Wait for the linked address book section to be visible.
-  await BrowserTestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(
-      tabDocument.getElementById("linkedAddressBooks")
-    )
+  let addressBookSection = tabDocument.getElementById("linkedAddressBooks");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.is_visible(addressBookSection),
+    "linked address book section visible",
+    250
   );
 
   // Expand the section.
@@ -745,7 +746,7 @@ add_task(async function test_full_account_setup() {
   let abList = tabDocument.querySelector(
     "#addressBooksSetup .linked-services-list"
   );
-  Assert.ok(BrowserTestUtils.is_visible(abList));
+  Assert.ok(BrowserTestUtils.is_visible(abList), "address book list visible");
 
   // Check the linked address book was found.
   Assert.equal(abList.childElementCount, 1);
@@ -774,8 +775,11 @@ add_task(async function test_full_account_setup() {
   );
 
   // Wait for the linked calendar section to be visible.
-  await BrowserTestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(tabDocument.getElementById("linkedCalendars"))
+  let calendarSection = tabDocument.getElementById("linkedCalendars");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.is_visible(calendarSection),
+    "linked calendar section visible",
+    250
   );
 
   // Expand the section.
@@ -787,7 +791,7 @@ add_task(async function test_full_account_setup() {
   let calendarList = tabDocument.querySelector(
     "#calendarsSetup .linked-services-list"
   );
-  Assert.ok(BrowserTestUtils.is_visible(abList));
+  Assert.ok(BrowserTestUtils.is_visible(calendarList), "calendar list visible");
 
   // Check the linked calendar was found.
   Assert.equal(calendarList.childElementCount, 1);
