@@ -21,16 +21,18 @@
 
 /* ::::: msg header captions ::::: */
 
-@media (-moz-windows-compositor) and (-moz-windows-default-theme) {
-  #singleMessage {
-    background-color: #f8f8f8;
+@media not (prefers-color-scheme: dark) {
+  @media (-moz-windows-compositor) and (-moz-windows-default-theme) {
+    #singleMessage {
+      background-color: #f8f8f8;
+    }
   }
-}
 
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #displayBox[collapsed="true"] + splitter + #messagepaneboxwrapper
-  #singleMessage {
-    background-image: none;
-    background-color: rgb(233, 239, 245);
+  @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
+    #displayBox[collapsed="true"] + splitter + #messagepaneboxwrapper
+    #singleMessage {
+      background-image: none;
+      background-color: rgb(233, 239, 245);
+    }
   }
 }

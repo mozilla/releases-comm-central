@@ -116,11 +116,6 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
     appearance: none;
     padding-inline: 2px;
   }
-
-  #nicklist > richlistitem[selected] > label,
-  #nicklist:focus > richlistitem[inactive][selected] > label {
-    color: -moz-dialogtext !important;
-  }
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
@@ -145,7 +140,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 }
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  :root:not([lwt-tree]) #listPaneBox {
+  :root:not([lwt-tree],:-moz-lwtheme-brighttext) #listPaneBox {
     background-color: #fafafa;
   }
 }

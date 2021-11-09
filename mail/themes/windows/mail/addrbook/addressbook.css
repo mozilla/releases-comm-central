@@ -73,13 +73,6 @@ toolbox > toolbar:last-of-type {
   }
 }
 
-@media (-moz-windows-default-theme) {
-  treechildren::-moz-tree-image(DirCol, selected, focus),
-  treechildren::-moz-tree-image(GeneratedName, selected, focus) {
-    color: -moz-DialogText;
-  }
-}
-
 /* Search Textbox */
 
 #peopleSearchInput {
@@ -90,7 +83,7 @@ toolbox > toolbar:last-of-type {
 /* directory pane adjustments */
 
 @media (-moz-windows-default-theme) {
-  :root:not([lwt-tree]) #dirTree {
+  :root:not([lwt-tree],:-moz-lwtheme-brighttext) #dirTree {
     background-color: #fafafa;
   }
 

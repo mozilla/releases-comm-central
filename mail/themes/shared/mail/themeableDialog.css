@@ -47,21 +47,6 @@
   color: var(--lwt-text-color);
 }
 
-:root:-moz-lwtheme-brighttext {
-  --box-text-color: rgb(249, 249, 250);
-  --box-background-color: #202023;
-  --box-border-color: rgba(249, 249, 250, 0.3);
-  --field-text-color: #f9f9fa;
-  --field-background-color: #353537;
-  --field-border-color: hsla(0, 0%, 70%, 0.4);
-  --field-border-hover-color: hsla(0, 0%, 70%, 0.5);
-  --highlight-color: #0a84ff;
-  --highlight-background: #fff;
-  --primary-text-color: #f9f9fa;
-  --tab-hover-background: hsla(0, 0%, 50%, 0.3);
-  --tab-selected-background: hsla(0, 0%, 50%, 0.5);
-}
-
 :root[lwt-tree] {
   --richlist-button-background: var(--sidebar-background-color);
 }
@@ -100,6 +85,24 @@
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
   --tab-selected-background: hsla(0, 0%, 50%, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme,
+  :root:not([lwt-tree]):-moz-lwtheme dialog {
+    --box-text-color: rgb(249, 249, 250);
+    --box-background-color: #202023;
+    --box-border-color: rgba(249, 249, 250, 0.3);
+    --field-text-color: #f9f9fa;
+    --field-background-color: #353537;
+    --field-border-color: hsla(0, 0%, 70%, 0.4);
+    --field-border-hover-color: hsla(0, 0%, 70%, 0.5);
+    --highlight-color: #0a84ff;
+    --highlight-background: #fff;
+    --primary-text-color: #f9f9fa;
+    --tab-hover-background: hsla(0, 0%, 50%, 0.3);
+    --tab-selected-background: hsla(0, 0%, 50%, 0.5);
+  }
 }
 
 @media (prefers-contrast) {

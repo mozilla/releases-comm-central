@@ -546,13 +546,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     top: 8px;
   }
 
-  :root:not([lwt-tree]) #folderTree {
+  :root:not([lwt-tree],:-moz-lwtheme-brighttext) #folderTree {
     background-color: #fafafa;
-  }
-
-  treechildren::-moz-tree-line(selected, focus),
-  tree[seltype="cell"] > treechildren::-moz-tree-line(active, selected, focus) {
-    border-color: -moz-DialogText;
   }
 
   #viewPicker::part(label),

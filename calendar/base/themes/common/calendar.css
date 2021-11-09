@@ -113,6 +113,12 @@
   background-color: #464cb9;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme-brighttext .calendar-notification-bar {
+    background-color: #464cb9;
+  }
+}
+
 .calendar-notification-bar {
   margin: 0 4px 4px;
   border-radius: 4px;

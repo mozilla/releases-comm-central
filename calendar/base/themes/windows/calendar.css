@@ -68,15 +68,3 @@
 #imip-view-toolbar {
   --imip-button-background: ButtonFace;
 }
-
-@media (-moz-windows-compositor) and (-moz-windows-default-theme) {
-  #imip-view-toolbar {
-    --imip-button-background: #f8f8f8;
-  }
-}
-
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #imip-view-toolbar {
-    --imip-button-background: rgb(233, 239, 245);
-  }
-}

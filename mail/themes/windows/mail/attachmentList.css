@@ -6,109 +6,17 @@
 
 /* styles for the attachment list */
 
-@media (-moz-windows-default-theme) {
-  .attachmentItem {
-    background-color: transparent;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    padding: 1px;
-    margin-top: 1px;
-    margin-inline-start: 1px;
+.attachmentItem:hover {
+  background-color: hsla(0, 0%, 50%, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme-brighttext .attachmentList .attachmentItem[selected="true"] {
+    color: var(--lwt-text-color);
+    background: rgba(249, 249, 250, .1);
   }
 
-  .attachmentList:focus .attachmentItem[selected="true"],
-  #attachmentList:focus > .attachmentItem[selected="true"] {
-    color: FieldText;
-  }
-
-  .attachmentcell-name, .attachmentcell-extension, .attachmentcell-size {
-    margin-block: 1px 0;
-  }
-
-  .attachmentcell-name, .attachmentcell-size {
-    margin-inline-start: 4px;
-  }
-
-  .attachmentcell-extension, .attachmentcell-size {
-    margin-inline-end: 4px;
-  }
-
-  @media (-moz-os-version: windows-win7) {
-    .attachmentItem {
-      border-radius: 3px;
-    }
-
-    .attachmentItem[selected="true"] {
-      border-color: rgb(217, 217, 217);
-      background-image: linear-gradient(rgba(190, 190, 190, 0.1),
-                                        rgba(190, 190, 190, 0.4));
-    }
-
-    .attachmentItem[selected="true"]:hover {
-      border-color: rgb(125, 162, 206);
-      background-image: linear-gradient(rgba(131, 183, 249, 0.28),
-                                        rgba(131, 183, 249, 0.5));
-    }
-
-    .attachmentList:focus .attachmentItem[current="true"] {
-      border-color: rgb(125, 162, 206);
-    }
-
-    .attachmentList:focus .attachmentItem[current="true"]:hover {
-      border-color: rgb(125, 162, 206);
-      background-image: linear-gradient(rgba(131, 183, 249, 0.05),
-                                        rgba(131, 183, 249, 0.16));
-    }
-
-    .attachmentList:focus .attachmentItem[selected="true"] {
-      border-color: rgb(132, 172, 221);
-      background-image: linear-gradient(rgba(131, 183, 249, 0.16),
-                                        rgba(131, 183, 249, 0.375));
-    }
-
-    .attachmentList:focus .attachmentItem[selected="true"]:hover,
-    .attachmentList:focus .attachmentItem[selected="true"][current="true"] {
-      border-color: rgb(125, 162, 206);
-      background-image: linear-gradient(rgba(131, 183, 249, 0.28),
-                                        rgba(131, 183, 249, 0.5));
-    }
-
-    .attachmentItem:hover {
-      border-color: rgb(184, 214, 251);
-      background-image: linear-gradient(rgba(131, 183, 249, 0.05),
-                                        rgba(131, 183, 249, 0.16));
-    }
-  }
-
-  @media not all and (-moz-os-version: windows-win7) {
-    .attachmentItem[selected="true"] {
-      border-color: rgb(217, 217, 217);
-      background-color: rgb(217, 217, 217);
-    }
-
-    .attachmentItem[selected="true"]:hover {
-      border-color: rgb(229, 243, 255);
-      background-color: rgb(229, 243, 255);
-    }
-
-    .attachmentList:focus .attachmentItem[selected="true"] {
-      border-color: rgb(142, 186, 235);
-      background-color: rgb(205, 232, 255);
-    }
-
-    .attachmentList:focus .attachmentItem[current="true"] {
-      border-color: rgb(125, 162, 206);
-    }
-
-    .attachmentList:focus .attachmentItem[current="true"]:hover,
-    .attachmentList:focus .attachmentItem[selected="true"]:hover,
-    .attachmentList:focus .attachmentItem[selected="true"][current="true"] {
-      border-color: rgb(125, 162, 206);
-    }
-
-    .attachmentItem:hover {
-      border-color: rgb(229, 243, 255);
-      background-color: rgb(229, 243, 255);
-    }
+  :root:-moz-lwtheme-brighttext .attachmentList:focus .attachmentItem[selected="true"] {
+    background: #0a84ff;
   }
 }

@@ -59,7 +59,6 @@ toolbar[nowindowdrag="true"] {
   color: -moz-DialogText;
   text-shadow: none;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
-  background-color: rgb(242, 242, 242);
 }
 
 #composeContentBox:-moz-window-inactive {

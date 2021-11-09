@@ -18,8 +18,10 @@
   border-bottom: 1px solid #bebebe;
 }
 
-#folderPaneHeader:-moz-window-inactive {
-  background-color: -moz-mac-chrome-inactive;
+@media not (prefers-color-scheme: dark) {
+  #folderPaneHeader:-moz-window-inactive {
+    background-color: -moz-mac-chrome-inactive;
+  }
 }
 
 :root:not([lwt-tree]) #folderTree {
@@ -85,13 +87,10 @@ treechildren::-moz-tree-row(dummy) {
 
 /* ..... message pane adjustments ..... */
 
-/* We need to hide overflow in messagepanebox, so that resizing doesn't spill
-   header content over the statusbar.
-   */
-
-#messagepanebox {
-  background-color: #FFFFFF;
-  appearance: none;
+@media not (prefers-color-scheme: dark) {
+  #messagepanebox {
+    background-color: #fff;
+  }
 }
 
 /* ..... splitter adjustments ..... */

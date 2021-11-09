@@ -28,8 +28,10 @@
   background-color: hsl(0, 0%, 97%);
 }
 
-#mini-day-image:-moz-window-inactive {
-  background-color: -moz-mac-chrome-inactive;
+@media not (prefers-color-scheme: dark) {
+  #mini-day-image:-moz-window-inactive {
+    background-color: -moz-mac-chrome-inactive;
+  }
 }
 
 :root[lwt-tree] #mini-day-image:-moz-window-inactive {

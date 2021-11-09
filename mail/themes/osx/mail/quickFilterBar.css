@@ -10,9 +10,11 @@
   height: 25px;
 }
 
-#quick-filter-bar-main-bar:-moz-window-inactive,
-#quick-filter-bar-expando:-moz-window-inactive {
-  background-color: -moz-mac-chrome-inactive;
+@media not (prefers-color-scheme: dark) {
+  #quick-filter-bar-main-bar:-moz-window-inactive,
+  #quick-filter-bar-expando:-moz-window-inactive {
+    background-color: -moz-mac-chrome-inactive;
+  }
 }
 
 :root[lwt-tree] #quick-filter-bar-main-bar:-moz-lwtheme,

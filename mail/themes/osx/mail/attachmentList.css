@@ -5,8 +5,3 @@
 @import url("chrome://messenger/skin/shared/attachmentList.css");
 
 /* styles for the attachment list */
-
-.attachmentItem[selected="true"] {
-  background-color: -moz-CellHighlight;
-  color: -moz-CellHighlightText;
-}

@@ -171,6 +171,11 @@ splitter:not([orient="vertical"]) {
   border-block-start: 1px solid var(--splitter-color);
   /* Allow the area to shrink. */
   min-width: 0;
+  text-shadow: none;
+}
+
+#attachmentArea:-moz-lwtheme {
+  text-shadow: none;
 }
 
 :root[lwt-tree] #attachmentArea {

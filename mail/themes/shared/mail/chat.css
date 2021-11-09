@@ -810,23 +810,23 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   color: var(--sidebar-text-color);
 }
 
-:root[lwt-tree] .conv-nicklist.theme-listbox > richlistitem {
+:root[lwt-tree] .conv-nicklist > richlistitem {
   color: var(--sidebar-text-color);
   box-shadow: none;
 }
 
-:root[lwt-tree] .conv-nicklist.theme-listbox > richlistitem[selected="true"],
-:root[lwt-tree] .conv-nicklist.theme-listbox:focus > richlistitem[current="true"],
-:root[lwt-tree] .conv-nicklist.theme-listbox:focus > richlistitem[selected="true"] {
+:root[lwt-tree] .conv-nicklist > richlistitem[selected="true"],
+:root[lwt-tree] .conv-nicklist:focus > richlistitem[current="true"],
+:root[lwt-tree] .conv-nicklist:focus > richlistitem[selected="true"] {
   background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
   background-image: none;
   border-color: var(--sidebar-border-color, hsla(0,0%,80%,.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
-:root[lwt-tree-brighttext] .conv-nicklist.theme-listbox > richlistitem[selected="true"],
-:root[lwt-tree-brighttext] .conv-nicklist.theme-listbox:focus > richlistitem[current="true"],
-:root[lwt-tree-brighttext] .conv-nicklist.theme-listbox:focus > richlistitem[selected="true"] {
+:root[lwt-tree-brighttext] .conv-nicklist > richlistitem[selected="true"],
+:root[lwt-tree-brighttext] .conv-nicklist:focus > richlistitem[current="true"],
+:root[lwt-tree-brighttext] .conv-nicklist:focus > richlistitem[selected="true"] {
   background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
   border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }

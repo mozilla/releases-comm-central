@@ -167,29 +167,41 @@ body {
   --space-above-tabbar: 8px;
 }
 
-/* Styles for the default system dark theme */
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme-brighttext,
+  :root[lwt-default-theme-in-dark-mode] {
+    --button-primary-bgcolor: rgb(0, 97, 224) !important; /* override the default variable */
+    --button-primary-hover-bgcolor: rgb(2, 80, 187) !important;
+    --button-primary-active-bgcolor: rgb(5, 62, 148) !important;
+    --button-primary-color: rgb(251, 251, 254) !important;
+    --lwt-accent-color: rgb(24, 24, 26) !important;
+    --autocomplete-popup-color: var(--lwt-text-color);
+    --sidebar-border-color: #606064 !important;
+
+    /* Toolbar buttons */
+    --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
+    --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
+
+    /* !important to override LightweightThemeManager.addBuiltInTheme in
+       mailGlue.js */
+    --autocomplete-popup-background: #2a2a2e !important;
+    --autocomplete-popup-highlight-background: #0060df;
+
+    /* composer header fields bottom border */
+    --composer-header-border-color: rgb(127, 127, 128);
+    --toolbar-field-border-color: #5f5f6d !important;
+    --unread-folder-color: var(--sidebar-text-color);
+  }
+
+  :root:-moz-lwtheme-brighttext {
+    --item-focus-selected-border-color: #bebebf;
+    --default: #dcdcdc;
+    --primary: #45b1ff;
+  }
+}
+
 :root[lwt-default-theme-in-dark-mode] {
-  --button-primary-bgcolor: rgb(0, 97, 224) !important; /* override the default variable */
-  --button-primary-hover-bgcolor: rgb(2, 80, 187) !important;
-  --button-primary-active-bgcolor: rgb(5, 62, 148) !important;
-  --button-primary-color: rgb(251, 251, 254) !important;
-  --lwt-accent-color: rgb(24, 24, 26) !important;
   --lwt-selected-tab-background-color: #2a2a2e !important;
-  --sidebar-border-color: #606064 !important;
-
-  /* Toolbar buttons */
-  --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
-  --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
-
-  /* !important to override LightweightThemeManager.addBuiltInTheme in
-     mailGlue.js */
-  --autocomplete-popup-background: #2a2a2e !important;
-  --autocomplete-popup-highlight-background: #0060df;
-
-  /* composer header fields bottom border */
-  --composer-header-border-color: rgb(127, 127, 128);
-  --toolbar-field-border-color: #5f5f6d !important;
-  --unread-folder-color: var(--sidebar-text-color);
 }
 
 body {
@@ -291,26 +303,39 @@ toolbar[brighttext] {
   --toolbarbutton-checked-background: rgba(0, 0, 0, .25);
 }
 
+@media (prefers-color-scheme: dark) {
+:root:-moz-lwtheme-brighttext .themeable-brighttext {
+    --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background,
+                                            rgba(255, 255, 255, .25));
+  }
+}
+
 .thread-tree-col-picker image,
 .thread-tree-icon-header img {
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-treechildren::-moz-tree-row(hover) {
+tree > treechildren::-moz-tree-row(hover) {
   background-color: hsla(0, 0%, 50%, 0.15);
 }
 
-treechildren::-moz-tree-row(selected) {
+tree > treechildren::-moz-tree-row(selected) {
   background-color: -moz-cellhighlight;
 }
 
-treechildren::-moz-tree-row(selected, focus) {
+tree > treechildren::-moz-tree-row(selected, focus) {
   background-color: SelectedItem;
 }
 
 treechildren::-moz-tree-twisty {
   color: #505050;
+}
+
+@media (prefers-color-scheme: dark) {
+  treechildren::-moz-tree-twisty {
+    color: #d4d4d4;
+  }
 }
 
 treechildren::-moz-tree-twisty(selected, focus) {

@@ -14,7 +14,9 @@
   display: none;
 }
 
-#unifinder-searchBox:-moz-window-inactive {
-  border-bottom-color: hsl(0, 0%, 85%);
-  background-color: -moz-mac-chrome-inactive;
+@media not (prefers-color-scheme: dark) {
+  #unifinder-searchBox:-moz-window-inactive {
+    border-bottom-color: hsl(0, 0%, 85%);
+    background-color: -moz-mac-chrome-inactive;
+  }
 }

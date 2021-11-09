@@ -38,10 +38,15 @@
   z-index: 10;
 }
 
-@media (-moz-windows-default-theme) {
-  #task-addition-box {
-    background-color: #f8f8f8;
-    height: 32px;
+#task-addition-box {
+  height: 35px;
+}
+
+@media not (prefers-color-scheme: dark) {
+  @media (-moz-windows-default-theme) {
+    #task-addition-box {
+      background-color: #f8f8f8;
+    }
   }
 }
 

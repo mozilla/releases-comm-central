@@ -20,13 +20,15 @@
   padding-inline-start: 4px !important;
 }
 
-#task-addition-box:-moz-window-inactive {
-  border-bottom-color: hsl(0, 0%, 85%);
-  background: -moz-mac-chrome-inactive;
-}
+@media not (prefers-color-scheme: dark) {
+  #task-addition-box:-moz-window-inactive {
+    border-bottom-color: hsl(0, 0%, 85%);
+    background: -moz-mac-chrome-inactive;
+  }
 
-#calendar-task-details-container:-moz-window-inactive {
-  background-color: -moz-mac-chrome-inactive;
+  #calendar-task-details-container:-moz-window-inactive {
+    background-color: -moz-mac-chrome-inactive;
+  }
 }
 
 #calendar-add-task-button[disabled="true"] {

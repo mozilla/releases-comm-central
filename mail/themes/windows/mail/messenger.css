@@ -37,7 +37,7 @@
     --panel-separator-color: hsla(210,4%,10%,.14);
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);
     --splitter-color: #a9b7c9;
-    --select-focus-text-color: -moz-DialogText;
+    --select-focus-text-color: SelectedItemText;
   }
 }
 
@@ -98,12 +98,6 @@
 
   menulist {
     --toolbarbutton-hover-background: ButtonFace;
-  }
-}
-
-@media (-moz-windows-default-theme) {
-  :root:not([lwt-tree]) {
-    --new-focused-folder-color: -moz-DialogText;
   }
 }
 
@@ -291,6 +285,39 @@ treechildren::-moz-tree-cell-text {
   padding-bottom: 2px;
 }
 
+@media (prefers-color-scheme: dark) {
+  /* Override the toolkit color. */
+  :root:-moz-lwtheme-brighttext tree > treechildren::-moz-tree-row(selected) {
+    background-color:  rgba(249, 249, 250, .1);
+  }
+
+  :root:-moz-lwtheme-brighttext tree > treechildren::-moz-tree-row(selected, focus) {
+    background-color: #0a84ff;
+  }
+
+  :root:-moz-lwtheme-brighttext treechildren::-moz-tree-twisty(selected),
+  :root:-moz-lwtheme-brighttext tree:not(:focus) treechildren::-moz-tree-image(selected),
+  :root:-moz-lwtheme-brighttext #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
+  :root:-moz-lwtheme-brighttext tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
+    color: FieldText;
+  }
+
+  :root:-moz-lwtheme-brighttext tree:not(#threadTree) treechildren::-moz-tree-image(selected, focus),
+  :root:-moz-lwtheme-brighttext #threadTree treechildren::-moz-tree-image(untagged, selected, focus),
+  :root:-moz-lwtheme-brighttext #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
+  :root:-moz-lwtheme-brighttext tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
+    color: FieldText;
+    fill: currentColor;
+    stroke: currentColor;
+  }
+
+  :root:-moz-lwtheme-brighttext tree:not(#threadTree) treechildren::-moz-tree-twisty(selected),
+  :root:-moz-lwtheme-brighttext #threadTree treechildren::-moz-tree-twisty(untagged, selected),
+  :root:-moz-lwtheme-brighttext treechildren::-moz-tree-image(folderNameCol, selected, focus) {
+    fill: FieldText !important;
+  }
+}
+
 @media (-moz-windows-default-theme: 0) {
   tree > treechildren::-moz-tree-row(hover) {
     border-color: SelectedItemText !important;
@@ -341,126 +368,6 @@ treechildren::-moz-tree-cell-text {
 
 treechildren::-moz-tree-indentation {
   width: 12px;
-}
-
-@media (-moz-windows-default-theme) {
-  treechildren {
-    --treechildren-focusColor: rgb(123,195,255);
-    --treechildren-selectedFocusColor: rgb(205,232,255);
-    --treechildren-currentColor: rgb(125,162,206);
-    --treechildren-hoverColor: rgb(229,243,255);
-    --treechildren-selectedBorder: rgb(217,217,217);
-    --treechildren-selectedBackground: rgb(217,217,217);
-    --treechildren-currentFocusBorder: var(--treechildren-focusColor);
-    --treechildren-selectedFocusBorder: var(--treechildren-selectedFocusColor) var(--treechildren-selectedFocusColor) rgb(165,214,255);
-    --treechildren-selectedFocusBackground: var(--treechildren-selectedFocusColor);
-    --treechildren-selectedFocusCurrentBorder: var(--treechildren-focusColor);
-    --treechildren-selectedFocusCurrentBackground: rgb(205,232,255);
-    --treechildren-hoverBorder: var(--treechildren-hoverColor);
-    --treechildren-hoverBackground: rgb(229,243,255);
-    --treechildren-hoverCurrentBorder: var(--treechildren-currentColor);
-    --treechildren-hoverCurrentBackground: rgba(131,183,249,.16);
-    --treechildren-hoverSelectedBorder: var(--treechildren-focusColor);
-    --treechildren-hoverSelectedBackground: rgb(205,232,255);
-  }
-
-  treechildren::-moz-tree-row {
-    color: FieldText;
-    margin-inline-start: 1px;
-    margin-inline-end: 1px;
-    border-width: 1px;
-    border-color: transparent;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-  }
-
-  treechildren::-moz-tree-row(selected) {
-    border-color: var(--treechildren-selectedBorder);
-    background-color: var(--treechildren-selectedBackground);
-  }
-
-  treechildren::-moz-tree-row(current, focus) {
-    border-style: solid;
-    border-color: var(--treechildren-currentFocusBorder);
-  }
-
-  treechildren::-moz-tree-row(selected, focus) {
-    border-color: var(--treechildren-selectedFocusBorder);
-    background-color: var(--treechildren-selectedFocusBackground);
-  }
-
-  treechildren::-moz-tree-row(selected, current, focus) {
-    border-style: solid;
-    border-color: var(--treechildren-selectedFocusCurrentBorder);
-    background-color: var(--treechildren-selectedFocusCurrentBackground);
-  }
-
-  treechildren::-moz-tree-row(hover) {
-    border-color: var(--treechildren-hoverBorder);
-    background-color: var(--treechildren-hoverBackground);
-  }
-
-  treechildren::-moz-tree-row(hover, current) {
-    border-color: var(--treechildren-hoverCurrentBorder);
-    background-image: var(--treechildren-hoverCurrentBackground);
-  }
-
-  treechildren::-moz-tree-row(hover, selected) {
-    border-color: var(--treechildren-hoverSelectedBorder);
-    background-color: var(--treechildren-hoverSelectedBackground);
-  }
-
-  tree[disabled="true"] > treechildren::-moz-tree-row {
-    background: none;
-    border-color: transparent;
-  }
-
-  treechildren::-moz-tree-cell-text {
-    padding-bottom: initial;
-    border-color: transparent;
-    background-color: transparent;
-  }
-
-  treechildren::-moz-tree-cell-text(selected, focus) {
-    color: -moz-DialogText;
-  }
-
-  treechildren::-moz-tree-row(tagged, selected, focus) {
-    border-color: rgba(0,0,0,0.25);
-  }
-
-  @media (-moz-os-version: windows-win7),
-         (-moz-os-version: windows-win8) {
-    treechildren {
-      --treechildren-2ndBorderColor: rgba(255,255,255,.4);
-      --treechildren-selectedBackground: rgba(190,190,190,.4);
-      --treechildren-currentFocusBorder: var(--treechildren-currentColor);
-      --treechildren-selectedFocusBorder: rgb(132,172,221) var(--treechildren-2ndBorderColor) var(--treechildren-currentColor);
-      --treechildren-selectedFocusBackground: rgba(131,183,249,.375);
-      --treechildren-selectedFocusCurrentBorder: var(--treechildren-currentColor);
-      --treechildren-selectedFocusCurrentBackground: rgba(131,183,249,.5);
-      --treechildren-hoverBorder: rgb(184,214,251);
-      --treechildren-hoverBackground: rgba(131,183,249,.16);
-      --treechildren-hoverSelectedBorder: var(--treechildren-currentColor);
-      --treechildren-hoverSelectedBackground: rgba(131,183,249,.5);
-    }
-  }
-
-  @media (-moz-os-version: windows-win7) {
-    :root:not([lwt-tree]) treechildren::-moz-tree-row(selected),
-    :root:not([lwt-tree]) treechildren::-moz-tree-row(dropOn),
-    :root:not([lwt-tree]) treechildren::-moz-tree-row(hover) {
-      background-image: linear-gradient(rgba(255, 255, 255, 0.7), transparent);
-    }
-
-    :root:not([lwt-tree]) treechildren::-moz-tree-row(tagged, selected, focus) {
-      background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
-    }
-
-    treechildren::-moz-tree-row {
-      border-radius: 3px;
-    }
-  }
 }
 
 @media (-moz-windows-classic) {

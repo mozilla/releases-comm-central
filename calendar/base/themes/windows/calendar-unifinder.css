@@ -16,16 +16,14 @@
   margin-inline-end: 2px;
 }
 
-@media (-moz-windows-default-theme) {
-  #unifinder-searchBox {
-    background-color: #f8f8f8;
-    height: 33px;
-  }
+#unifinder-searchBox {
+  height: 35px;
 }
 
-@media (-moz-os-version: windows-win8),
-       (-moz-os-version: windows-win10) {
-  #unifinder-searchBox {
-    height: 35px;
+@media not (prefers-color-scheme: dark) {
+  @media (-moz-windows-default-theme) {
+    #unifinder-searchBox {
+      background-color: #f8f8f8;
+    }
   }
 }
