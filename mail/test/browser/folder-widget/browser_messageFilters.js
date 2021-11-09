@@ -156,14 +156,9 @@ function create_simple_filter() {
   function fill_in_filter_fields(fec) {
     let filterName = fec.e("filterName");
     filterName.value = "A Simple Filter";
-    let searchAttr = fec.e("searchAttr0");
-    let attrList = searchAttr.children[0];
-    attrList.value = Ci.nsMsgSearchAttrib.To;
-    let searchOp = fec.e("searchOp0");
-    let opList = searchOp.children[0];
-    opList.value = Ci.nsMsgSearchOp.Is;
-    let searchValList = fec.e("searchVal0");
-    let searchVal = searchValList.children[0];
+    fec.e("searchAttr0").value = Ci.nsMsgSearchAttrib.To;
+    fec.e("searchOp0").value = Ci.nsMsgSearchOp.Is;
+    let searchVal = fec.e("searchVal0").input;
     searchVal.setAttribute("value", "test@foo.invalid");
 
     let filterActions = fec.e("filterActionList");
@@ -200,26 +195,17 @@ add_task(function test_address_books_appear_in_message_filter_dropdown() {
   // Prepare a function to deal with the filter editor once it
   // has opened
   function filterEditorOpened(fec) {
-    let searchAttr = fec.e("searchAttr0");
-    let attrList = searchAttr.children[0];
-    attrList.value = Ci.nsMsgSearchAttrib.To;
-    let searchOp = fec.e("searchOp0");
-    let opList = searchOp.children[0];
-    opList.value = Ci.nsMsgSearchOp.IsInAB;
-    let searchValue = fec.e("searchVal0");
-
-    // The magic number "4" is because the address book list is the
-    // 4th child node of the search-value widget.
-    let abList = searchValue.children[4];
+    fec.e("searchAttr0").value = Ci.nsMsgSearchAttrib.To;
+    fec.e("searchOp0").value = Ci.nsMsgSearchOp.IsInAB;
+    let abList = fec.e("searchVal0").input;
 
     // We should have 2 address books here - one for the Personal Address
     // Book, and one for Collected Addresses.  The LDAP address book should
     // not be shown, since it isn't a local address book.
     Assert.equal(
-      2,
       abList.itemCount,
-      "Did not display the correct number " +
-        "of address books in the filter menu list."
+      2,
+      "Should have 2 address books in the filter menu list."
     );
   }
 

@@ -31,9 +31,12 @@
   height: 100px;
 }
 
-.search-value-menulist,
-.search-value-textbox[type="number"] {
+.search-value-menulist {
   flex: 1;
+}
+
+.search-value-input {
+  width: -moz-available;
 }
 
 .search-menulist[unavailable="true"] {

@@ -69,11 +69,11 @@ function subtest_save_mail_view(savc) {
   // - make sure the name is right
   Assert.equal(savc.e("name").value, baseFolder.prettyName + "-Important");
 
-  let elem = savc.window.document.getElementById("searchVal0");
+  let selector = savc.window.document.querySelector("#searchVal0 menulist");
+  Assert.ok(selector, "Should have a tag selector");
 
   // Check the value of the search-value.
-  let activeItem = elem.findActiveItem();
-  Assert.equal(activeItem.value, "$label1");
+  Assert.equal(selector.value, "$label1");
 
   // - save it
   savc.window.onOK();

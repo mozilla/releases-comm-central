@@ -693,49 +693,14 @@ function AssignMeaningfulName() {
     stub = gFilterBundle.getString("matchAllFilterName");
   } else {
     // Assign a name based on the first search term.
-    let searchValue = termRoot.searchvalue;
-    let activeItem = searchValue.findActiveItem();
-
-    // Values are either popup menu items or edit fields.
-    // For popup menus use activeItem.label; for
-    // edit fields, activeItem.value
-    let value;
-    switch (Number(termRoot.searchattribute.value)) {
-      case Ci.nsMsgSearchAttrib.Priority:
-      case Ci.nsMsgSearchAttrib.MsgStatus:
-      case Ci.nsMsgSearchAttrib.Keywords:
-      case Ci.nsMsgSearchAttrib.HasAttachmentStatus:
-      case Ci.nsMsgSearchAttrib.JunkStatus:
-      case Ci.nsMsgSearchAttrib.JunkScoreOrigin:
-        value = activeItem ? activeItem.label : "";
-        break;
-
-      default:
-        try {
-          value = activeItem.value;
-        } catch (ex) {
-          // We should never get here, but for safety's sake,
-          // let's name the filter "Untitled Filter".
-          stub = gFilterBundle.getString("untitledFilterName");
-          // Do not 'Return'. Instead fall through and deal with the untitled filter below.
-        }
-        break;
-    }
-    // We are now ready to name the filter.
-    // If at this point stub is empty, we know that this is not a Match All Filter
-    // and is not an "untitledFilterName" Filter, so assign it a name using
-    // a string format from the Filter Bundle.
-    if (!stub) {
-      // Term, Operator and Value are the three parts of a filter match.
-      // Term and Operator are easy to retrieve.
-      let term = termRoot.searchattribute.label;
-      let operator = termRoot.searchoperator.label;
-      stub = gFilterBundle.getFormattedString("filterAutoNameStr", [
-        term,
-        operator,
-        value,
-      ]);
-    }
+    let term = termRoot.searchattribute.label;
+    let operator = termRoot.searchoperator.label;
+    let value = termRoot.searchvalue.getReadableValue();
+    stub = gFilterBundle.getFormattedString("filterAutoNameStr", [
+      term,
+      operator,
+      value,
+    ]);
   }
 
   // Whatever name we have used, 'uniquify' it.
@@ -743,7 +708,7 @@ function AssignMeaningfulName() {
   let count = 1;
   while (duplicateFilterNameExists(tempName)) {
     count++;
-    tempName = stub + " " + count;
+    tempName = `${stub} ${count}`;
   }
   gFilter.filterName = tempName;
 }
