@@ -16,6 +16,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
 });
 
+const MIN_RNP_VERSION = [0, 15, 2];
+
 var systemOS = Services.appinfo.OS.toLowerCase();
 var abi = ctypes.default_abi;
 
@@ -89,11 +91,18 @@ var RNPLibLoader = {
     loadExternalRNPLib();
     if (librnp) {
       enableRNPLibJS();
+      const rnp_version_str = RNPLib.rnp_version_string_full().readStringReplaceMalformed();
+      if (!RNPLib.check_required_version()) {
+        const required_version_str = `${MIN_RNP_VERSION[0]}.${MIN_RNP_VERSION[1]}.${MIN_RNP_VERSION[2]}`;
+        throw new Error(
+          `RNP version ${rnp_version_str} does not meet minimum required ${required_version_str}.`
+        );
+      }
       console.debug(
         "Successfully loaded OpenPGP library " +
           librnpLoadedFile +
           " version " +
-          RNPLib.rnp_version_string_full().readStringReplaceMalformed() +
+          rnp_version_str +
           " from " +
           librnpLoadedFrom
       );
@@ -246,6 +255,12 @@ function enableRNPLibJS() {
       if (!canRepair) {
         console.log("Cannot protect the unprotected keys at this time.");
       }
+    },
+
+    check_required_version() {
+      const min_version = this.rnp_version_for(...MIN_RNP_VERSION);
+      const this_version = this.rnp_version();
+      return Boolean(this_version >= min_version);
     },
 
     async init() {
@@ -577,7 +592,19 @@ function enableRNPLibJS() {
       return true;
     },
 
+    // For comparing version numbers
+    rnp_version_for: librnp.declare(
+      "rnp_version_for",
+      abi,
+      ctypes.uint32_t,
+      ctypes.uint32_t, // major
+      ctypes.uint32_t, // minor
+      ctypes.uint32_t // patch
+    ),
+
     // Get the library version.
+    rnp_version: librnp.declare("rnp_version", abi, ctypes.uint32_t),
+
     rnp_version_string_full: librnp.declare(
       "rnp_version_string_full",
       abi,
