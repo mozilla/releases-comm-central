@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onUnload */
-
-/* globals invitationsText, MozXULElement, MozElements */ // From calendar-invitations-dialog.xhtml.
+/* globals MozXULElement, MozElements */ // From calendar-invitations-dialog.xhtml.
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
@@ -209,11 +207,15 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   });
 }
 
+window.addEventListener("DOMContentLoaded", onLoad);
+window.addEventListener("unload", onUnload);
+
 /**
  * Sets up the invitations dialog from the window arguments, retrieves the
  * invitations from the invitations manager.
  */
 function onLoad() {
+  let title = document.title;
   let operationListener = {
     QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
     onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
@@ -231,7 +233,7 @@ function onLoad() {
       if (!Components.isSuccessCode(aStatus)) {
         return;
       }
-      document.title = invitationsText + " (" + aItems.length + ")";
+      document.title = title + " (" + aItems.length + ")";
       let updatingBox = document.getElementById("updating-box");
       updatingBox.setAttribute("hidden", "true");
       let richListBox = document.getElementById("invitations-listbox");

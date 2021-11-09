@@ -7,34 +7,26 @@
 <?xml-stylesheet href="chrome://calendar/skin/calendar-invitations-dialog.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
-<!DOCTYPE window [
-    <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar-invitations-dialog.dtd" >  %dtd1;
+<!DOCTYPE html [
+  <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar-invitations-dialog.dtd"> %dtd1;
 ]>
 
-<window
-  id="calendar-invitations-dialog"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:html="http://www.w3.org/1999/xhtml"
-  title="&calendar.invitations.dialog.invitations.text;"
-  windowtype="Calendar:InvitationsDialog"
-  lightweightthemes="true"
-  onload="return onLoad();"
-  onunload="return onUnload();"
-  persist="screenX screenY width height">
-
+<html id="calendar-invitations-dialog" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      persist="screenX screenY width height"
+      width="600" height="350"
+      scrolling="false">
+<head>
+  <title>&calendar.invitations.dialog.invitations.text;</title>
+  <link rel="localization" href="calendar/calendar-invitations-dialog.ftl" />
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-invitations-dialog.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog buttons="accept,cancel">
-
-  <html:link rel="localization" href="calendar/calendar-invitations-dialog.ftl"/>
-
-  <!-- Javascript includes -->
-  <script src="chrome://calendar/content/calendar-invitations-dialog.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-  <script >
-    var invitationsText = "&calendar.invitations.dialog.invitations.text;";
-  </script>
-
   <vbox id="dialog-box" flex="1">
     <stack flex="1">
       <richlistbox id="invitations-listbox" flex="1"/>
@@ -51,4 +43,5 @@
     </stack>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>
