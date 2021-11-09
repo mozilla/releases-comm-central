@@ -24,6 +24,7 @@ chrome/messenger/content/branding/icon32.png
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/branding/icon64.png
 chrome/messenger/content/branding/icon128.png
+chrome/messenger/content/branding/icon256.png
 chrome/messenger/content/messenger/extension.svg
 chrome/messenger/skin/classic/messenger/messages/simple/Variants/Normal.css
 chrome/messenger/skin/classic/messenger/messages/simple/Incoming/Context.html
@@ -36,6 +37,7 @@ chrome/icons/default/default32.png
 chrome/icons/default/default48.png
 chrome/icons/default/default64.png
 chrome/icons/default/default128.png
+chrome/icons/default/default256.png
 
 # calendar
 components/calUtils.js
