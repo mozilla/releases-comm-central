@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 const {
   add_message_to_folder,
   be_in_folder,
@@ -100,7 +104,7 @@ function createAndLoadMessage(type) {
         {
           contentType: type,
           body: `${type}Attachment`,
-          filename: `attachment${messageIndex}.test`,
+          filename: `attachment${messageIndex}.test${messageIndex}`,
         },
       ],
     })
@@ -168,7 +172,7 @@ async function clickWithoutDialog() {
 
 async function checkFileSaved(parent = saveDestination) {
   let expectedFile = parent.clone();
-  expectedFile.append(`attachment${messageIndex}.test`);
+  expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
   await TestUtils.waitForCondition(
     () => expectedFile.exists(),
     `attachment was saved to ${expectedFile.path}`
@@ -209,9 +213,9 @@ add_task(async function sanityCheck() {
  */
 add_task(async function noHandler() {
   createAndLoadMessage("test/foo");
-  await clickWithDialog({ rememberExpected: false }, "accept");
+  await clickWithDialog({ rememberExpected: false, remember: true }, "accept");
   await checkFileSaved();
-  checkHandler("test/foo", saveToDisk, true);
+  checkHandler("test/foo", saveToDisk, false);
 });
 
 /**
@@ -220,7 +224,7 @@ add_task(async function noHandler() {
  */
 add_task(async function noHandlerNoSave() {
   createAndLoadMessage("test/bar");
-  await clickWithDialog({ rememberExpected: false }, "accept");
+  await clickWithDialog({ rememberExpected: false, remember: false }, "accept");
   await checkFileSaved();
   checkHandler("test/bar", saveToDisk, true);
 });
@@ -251,7 +255,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
   createAndLoadMessage("test/saveToDisk-true");
 
   let expectedFile = tempDir.clone();
-  expectedFile.append(`attachment${messageIndex}.test`);
+  expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
   MockFilePicker.setFiles([expectedFile]);
   MockFilePicker.returnValue = Ci.nsIFilePicker.returnOK;
 
@@ -318,7 +322,7 @@ add_task(async function saveToDiskPromptLocation() {
   createAndLoadMessage("test/saveToDisk-false");
 
   let expectedFile = tempDir.clone();
-  expectedFile.append(`attachment${messageIndex}.test`);
+  expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
   MockFilePicker.setFiles([expectedFile]);
   MockFilePicker.returnValue = Ci.nsIFilePicker.returnOK;
 
