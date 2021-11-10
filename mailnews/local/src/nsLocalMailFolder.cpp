@@ -1396,6 +1396,9 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
   }
 
   if (!protocolType.LowerCaseEqualsLiteral("mailbox")) {
+    // Copying from a non-mbox source, so we will be synthesising
+    // a "From " line and "X-Mozilla-*" headers before copying the message
+    // proper.
     mCopyState->m_dummyEnvelopeNeeded = true;
     nsParseMailMessageState* parseMsgState = new nsParseMailMessageState();
     if (parseMsgState) {
@@ -1755,9 +1758,17 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
 nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
   // CopyFileMessage() and CopyMessages() from servers other than pop3
   if (mCopyState->m_parseMsgState) {
-    if (mCopyState->m_parseMsgState->m_newMsgHdr)
+    // Make sure the parser knows where the "From " separator is.
+    // A hack for Bug 1734847.
+    // If we were using nsMsgMailboxParser, that would handle it automatically.
+    // But we're using the base class (nsParseMailMessageState) which doesn't.
+    mCopyState->m_parseMsgState->m_envelope_pos =
+        mCopyState->m_parseMsgState->m_position;
+
+    if (mCopyState->m_parseMsgState->m_newMsgHdr) {
       mCopyState->m_parseMsgState->m_newMsgHdr->GetMessageKey(
           &mCopyState->m_curDstKey);
+    }
     mCopyState->m_parseMsgState->SetState(
         nsIMsgParseMailMsgState::ParseHeadersState);
   }
@@ -1768,6 +1779,18 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
     result.AppendLiteral("From - ");
     result.Append(nowStr);
     result.Append(MSG_LINEBREAK);
+
+    uint32_t bytesWritten;
+    mCopyState->m_fileStream->Write(result.get(), result.Length(),
+                                    &bytesWritten);
+    if (mCopyState->m_parseMsgState) {
+      mCopyState->m_parseMsgState->ParseAFolderLine(result.get(),
+                                                    result.Length());
+      // Make sure the parser knows where the header block begins.
+      // Another hack for Bug 1734847.
+      mCopyState->m_parseMsgState->m_headerstartpos =
+          mCopyState->m_parseMsgState->m_position;
+    }
 
     // *** jt - hard code status line for now; come back later
     char statusStrBuf[50];
@@ -1785,12 +1808,6 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
               0x0000FFFF);
     } else
       strcpy(statusStrBuf, "X-Mozilla-Status: 0001" MSG_LINEBREAK);
-    uint32_t bytesWritten;
-    mCopyState->m_fileStream->Write(result.get(), result.Length(),
-                                    &bytesWritten);
-    if (mCopyState->m_parseMsgState)
-      mCopyState->m_parseMsgState->ParseAFolderLine(result.get(),
-                                                    result.Length());
     mCopyState->m_fileStream->Write(statusStrBuf, strlen(statusStrBuf),
                                     &bytesWritten);
     if (mCopyState->m_parseMsgState)
