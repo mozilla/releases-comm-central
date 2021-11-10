@@ -165,7 +165,7 @@ function buddyListContextMenu(aXulMenu) {
   }
 
   const accountBuddy = this._getAccountBuddy();
-  const canVerifyBuddy = accountBuddy.canVerifyIdentity;
+  const canVerifyBuddy = accountBuddy?.canVerifyIdentity;
   const verifyMenuItem = document.getElementById("context-verifyBuddy");
   verifyMenuItem.hidden = !canVerifyBuddy;
   if (canVerifyBuddy) {
@@ -182,7 +182,7 @@ buddyListContextMenu.prototype = {
   /**
    * Get the prplIAccountBuddy instance that is related to the current context.
    *
-   * @returns {prplIAccountBuddy}
+   * @returns {prplIAccountBuddy?}
    */
   _getAccountBuddy() {
     if (this.onConv && this.target.conv?.buddy) {
