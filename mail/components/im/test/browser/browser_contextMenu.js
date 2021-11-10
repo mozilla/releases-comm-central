@@ -22,7 +22,6 @@ add_task(async function testContextMenu() {
   ok(chatConv, "found conversation");
   ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
   await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
-  const convDocument = chatConv.convBrowser.contentWindow.document;
 
   await conversationLoaded;
 
@@ -31,9 +30,9 @@ add_task(async function testContextMenu() {
 
   const popupShown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   BrowserTestUtils.synthesizeMouse(
-    convDocument.body,
-    10,
-    10,
+    "body",
+    0,
+    0,
     { type: "contextmenu" },
     chatConv.convBrowser,
     true
@@ -44,6 +43,112 @@ add_task(async function testContextMenu() {
   // Assume normal context menu semantics work and just close it directly.
   contextMenu.hidePopup();
   await popupHidden;
+
+  conversation.close();
+  account.disconnect();
+  Services.accounts.deleteAccount(account.id);
+});
+
+add_task(async function testMessageContextMenuOnLink() {
+  const account = Services.accounts.createAccount("context", "prpl-mochitest");
+  account.password = "this is a test";
+  account.connect();
+
+  await openChatTab();
+  ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
+  const conversation = account.prplAccount.wrappedJSObject.makeDM("linker");
+
+  const convNode = getConversationItem(conversation);
+  ok(convNode);
+
+  await EventUtils.synthesizeMouseAtCenter(convNode, {});
+
+  const chatConv = getChatConversationElement(conversation);
+  ok(chatConv, "found conversation");
+  await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
+
+  ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
+
+  conversation.addMessages([
+    {
+      who: "linker",
+      content: "hi https://example.com/",
+      options: {
+        incoming: true,
+      },
+    },
+    {
+      who: "linker",
+      content: "hi mailto:test@example.com",
+      options: {
+        incoming: true,
+      },
+    },
+  ]);
+  // Wait for at least one event.
+  do {
+    await BrowserTestUtils.waitForEvent(
+      chatConv.convBrowser,
+      "MessagesDisplayed"
+    );
+  } while (chatConv.convBrowser.getPendingMessagesCount() > 0);
+
+  const contextMenu = document.getElementById("chatConversationContextMenu");
+  ok(BrowserTestUtils.is_hidden(contextMenu));
+
+  const popupShown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  BrowserTestUtils.synthesizeMouse(
+    ".message:nth-child(1) a",
+    0,
+    0,
+    { type: "contextmenu", centered: true },
+    chatConv.convBrowser,
+    true
+  );
+  await popupShown;
+
+  ok(
+    BrowserTestUtils.is_visible(contextMenu.querySelector("#context-openlink")),
+    "open link"
+  );
+  ok(
+    BrowserTestUtils.is_visible(contextMenu.querySelector("#context-copylink")),
+    "copy link"
+  );
+
+  const popupHidden = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
+  // Assume normal context menu semantics work and just close it directly.
+  contextMenu.hidePopup();
+  await popupHidden;
+
+  const popupShownAgain = BrowserTestUtils.waitForEvent(
+    contextMenu,
+    "popupshown"
+  );
+  BrowserTestUtils.synthesizeMouse(
+    ".message:nth-child(2) a",
+    0,
+    0,
+    { type: "contextmenu", centered: true },
+    chatConv.convBrowser,
+    true
+  );
+  await popupShownAgain;
+
+  ok(
+    BrowserTestUtils.is_visible(
+      contextMenu.querySelector("#context-copyemail")
+    ),
+    "copy mail"
+  );
+
+  const popupHiddenAgain = BrowserTestUtils.waitForEvent(
+    contextMenu,
+    "popuphidden"
+  );
+  // Assume normal context menu semantics work and just close it directly.
+  contextMenu.hidePopup();
+  await popupHiddenAgain;
 
   conversation.close();
   account.disconnect();
