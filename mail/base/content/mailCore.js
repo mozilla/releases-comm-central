@@ -349,6 +349,9 @@ function onViewToolbarsPopupShowing(
   }
 
   let popup = event.target.querySelector(".panel-subview-body") || event.target;
+  if (popup != event.currentTarget) {
+    return;
+  }
 
   // Remove all collapsible nodes from the menu.
   for (let i = popup.children.length - 1; i >= 0; --i) {
