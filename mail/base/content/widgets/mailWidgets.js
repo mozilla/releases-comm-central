@@ -2180,8 +2180,9 @@
       this.pillIndicator.hidden = true;
 
       // Check if the address is not in the Address Book only if it's not a
-      // mail list.
+      // mail list or a newsgroup.
       if (
+        !isNewsgroup &&
         !this.isMailList &&
         !LazyModules.DisplayNameUtils.getCardForEmail(this.emailAddress)?.card
       ) {
