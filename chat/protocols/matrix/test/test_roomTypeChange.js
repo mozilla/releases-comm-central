@@ -10,6 +10,7 @@ function FakeAccount() {
 FakeAccount.prototype = {
   __proto__: matrix.MatrixAccount.prototype,
 
+  _pendingOutgoingVerificationRequests: new Map(),
   get _client() {
     return {
       getRoom: () => {
@@ -59,6 +60,10 @@ FakeAccount.prototype = {
       },
       isSpaceRoom() {
         return false;
+      },
+      // Avoid running searchForVerificationRequests
+      getMyMembership() {
+        return "leave";
       },
     };
   },

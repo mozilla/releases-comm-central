@@ -212,7 +212,7 @@ var account = {
               );
             } catch (error) {
               // Verification was probably aborted by the other side.
-              this.account.WARN(error);
+              this.account.prplAccount.wrappedJSObject.WARN(error);
             }
           });
         }

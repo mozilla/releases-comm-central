@@ -333,6 +333,9 @@ add_task(function test_close() {
     forget() {
       this.forgetCalled = true;
     },
+    cleanUpOutgoingVerificationRequests() {
+      this.cleanUpCalled = true;
+    },
     _roomId: "foo",
     _account: {
       _client: {
@@ -346,6 +349,7 @@ add_task(function test_close() {
   matrix.MatrixRoom.prototype.close.call(roomStub);
   equal(roomStub.leftRoom, roomStub._roomId);
   ok(roomStub.forgetCalled);
+  ok(roomStub.cleanUpCalled);
 });
 
 add_task(function test_setTypingState() {

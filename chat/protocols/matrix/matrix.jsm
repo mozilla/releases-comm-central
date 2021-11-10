@@ -174,46 +174,6 @@ function userIdentityVerified(userId, client) {
   );
 }
 
-/**
- * Shared implementation to initiate a verification with a MatrixParticipant or
- * MatrixBuddy.
- *
- * @param {string} userId - Matrix ID of the user to verify.
- * @param {MatrixAccount} account - Account the verification should happen with.
- * @returns {Promise} Same payload as startVerification.
- */
-async function startVerificationDM(userId, account) {
-  let request;
-  if (userId == account.userId) {
-    request = await this._account._client.requestVerification(userId);
-  } else {
-    let conv = account.getDirectConversation(userId);
-    conv = await conv.waitForRoom();
-    // Wait for the user to become part of the room (so being invited) for two
-    // seconds before sending verification request.
-    if (conv.isChat || !conv.room.getMember(userId)) {
-      let waitForMember;
-      let timeout;
-      try {
-        await new Promise(resolve => {
-          waitForMember = (event, state, member) => {
-            if (member.roomId == conv._roomId && member.userId == userId) {
-              resolve();
-            }
-          };
-          account._client.on("RoomState.newMember", waitForMember);
-          timeout = setTimeout(resolve, 2000);
-        });
-      } finally {
-        clearTimeout(timeout);
-        account._client.removeListener("RoomState.newMember", waitForMember);
-      }
-    }
-    request = await account._client.requestVerificationDM(userId, conv._roomId);
-  }
-  return startVerification(request);
-}
-
 function MatrixParticipant(roomMember, account) {
   this._id = roomMember.userId;
   this._roomMember = roomMember;
@@ -276,7 +236,7 @@ MatrixParticipant.prototype = {
   },
 
   _startVerification() {
-    return startVerificationDM(this.name, this._account);
+    return this._account.startVerificationDM(this.name);
   },
 };
 
@@ -392,7 +352,7 @@ MatrixBuddy.prototype = {
   },
 
   _startVerification() {
-    return startVerificationDM(this.userName, this._account);
+    return this._account.startVerificationDM(this.userName);
   },
 };
 
@@ -434,6 +394,10 @@ MatrixRoom.prototype = {
    * Leave the room if we close the conversation.
    */
   close() {
+    // Clean up any outgoing verification request by us.
+    if (!this.isChat) {
+      this.cleanUpOutgoingVerificationRequests();
+    }
     this._account._client.leave(this._roomId);
     this.forget();
   },
@@ -496,6 +460,9 @@ MatrixRoom.prototype = {
       this.initRoomMuc(room);
     } else {
       this.initRoomDm(room);
+      this.searchForVerificationRequests().catch(error =>
+        this._account.WARN(error)
+      );
     }
 
     this.updateUnverifiedDevices();
@@ -892,6 +859,8 @@ MatrixRoom.prototype = {
    * list and updating the topic.
    */
   makeMuc() {
+    // Cancel any pending outgoing verification request we sent.
+    this.cleanUpOutgoingVerificationRequests();
     this.closeDm();
     this.initRoomMuc(this.room);
   },
@@ -1057,6 +1026,97 @@ MatrixRoom.prototype = {
   },
 
   /**
+   * Searches for recent verification requests in the room history.
+   * Optimally we would instead handle verification requests with natural event
+   * backfill for the room. Until then, we search the last three days of events
+   * for verification requests.
+   */
+  async searchForVerificationRequests() {
+    // Wait for us to join the room.
+    let myMembership = this.room.getMyMembership();
+    if (myMembership === "invite") {
+      let listener;
+      try {
+        await new Promise((resolve, reject) => {
+          listener = (event, member) => {
+            if (member.userId === this._account.userId) {
+              if (member.membership === "join") {
+                resolve();
+              } else if (member.membership === "leave") {
+                reject(new Error("Not in room"));
+              }
+            }
+          };
+          this._account._client.on("RoomMember.membership", listener);
+        });
+      } catch (error) {
+        return;
+      } finally {
+        this._account._client.removeListener("RoomMember.membership", listener);
+      }
+    } else if (myMembership === "leave") {
+      return;
+    }
+    let timelineWindow = new MatrixSDK.TimelineWindow(
+      this._account._client,
+      this.room.getUnfilteredTimelineSet()
+    );
+    // Limit how far back we search. Three days seems like it would catch most
+    // relevant verification requests. We might get even older events in the
+    // intial load of 25 events.
+    const windowChunkSize = 25;
+    const threeDaysMs = 1000 * 60 * 60 * 24 * 3;
+    const newerThanMs = Date.now() - threeDaysMs;
+    await timelineWindow.load(undefined, windowChunkSize);
+    while (
+      timelineWindow.canPaginate(EventTimeline.BACKWARDS) &&
+      timelineWindow.getEvents()[0].getTs() >= newerThanMs
+    ) {
+      if (
+        !(await timelineWindow.paginate(
+          EventTimeline.BACKWARDS,
+          windowChunkSize
+        ))
+      ) {
+        // Pagination was unable to add any more events
+        break;
+      }
+    }
+    let events = timelineWindow.getEvents();
+    for (const event of events) {
+      // Find verification requests that are still in the requested state that
+      // were sent by the other user.
+      if (
+        event.getType() === EventType.RoomMessage &&
+        event.getContent().msgtype === EventType.KeyVerificationRequest &&
+        event.getSender() !== this._account.userId &&
+        event.verificationRequest?.requested
+      ) {
+        this._account.handleIncomingVerificationRequest(
+          event.verificationRequest
+        );
+      }
+    }
+  },
+
+  /**
+   * Cancel any pending outgoing verification requests. Used when we leave a
+   * DM room, when the other party leaves or when the room can no longer be
+   * considered a DM room.
+   */
+  cleanUpOutgoingVerificationRequests() {
+    const request = this._account._pendingOutgoingVerificationRequests.get(
+      this.buddy?.userName
+    );
+    if (request && request.requestEvent.getRoomId() == this._roomId) {
+      request.cancel();
+      this._account._pendingOutgoingVerificationRequests.delete(
+        this.buddy.userName
+      );
+    }
+  },
+
+  /**
    * Clean up the buddy associated with this DM conversation if it is the last
    * conversation associated with it.
    */
@@ -1146,21 +1206,23 @@ MatrixRoom.prototype = {
  * @returns {Promise<{ challenge: string, challengeDescription: string?, handleResult: (boolean) => {}, cancel: () => {}, cancelPromise: Promise}}
  */
 async function startVerification(request) {
-  if (!request.initiatedByMe) {
-    await request.accept();
+  if (!request.verifier) {
+    if (!request.initiatedByMe) {
+      await request.accept();
+      if (request.cancelled) {
+        throw new Error("verification aborted");
+      }
+      // Auto chose method as the only one we both support.
+      await request.beginKeyVerification(
+        request.methods[0],
+        request.targetDevice
+      );
+    } else {
+      await request.waitFor(() => request.started || request.cancelled);
+    }
     if (request.cancelled) {
       throw new Error("verification aborted");
     }
-    // Auto chose method as the only one we both support.
-    await request.beginKeyVerification(
-      request.methods[0],
-      request.targetDevice
-    );
-  } else {
-    await request.waitFor(() => request.started || request.cancelled);
-  }
-  if (request.cancelled) {
-    throw new Error("verification aborted");
   }
   const sasEventPromise = new Promise(resolve =>
     request.verifier.once("show_sas", resolve)
@@ -1230,6 +1292,14 @@ MatrixSession.prototype = {
   _deviceInfo: null,
   async _startVerification() {
     let request;
+    const requestKey = this.currentSession
+      ? this._ownerId
+      : this._deviceInfo.deviceId;
+    if (this._account._pendingOutgoingVerificationRequests.has(requestKey)) {
+      throw new Error(
+        "Already have a pending verification request for " + requestKey
+      );
+    }
     if (this.currentSession) {
       request = await this._account._client.requestVerification(this._ownerId);
     } else {
@@ -1237,6 +1307,7 @@ MatrixSession.prototype = {
         this._deviceInfo.deviceId,
       ]);
     }
+    this._account.trackOutgoingVerificationRequest(request, requestKey);
     return startVerification(request);
   },
 };
@@ -1252,7 +1323,6 @@ function getStatusString(status) {
  *  getRooms / getUsers / publicRooms
  *  invite
  *  ban / kick
- *  leave
  *  redactEvent
  *  scrollback
  *  setAvatarUrl
@@ -1266,6 +1336,7 @@ function MatrixAccount(aProtocol, aImAccount) {
   this._pendingDirectChats = new Map();
   this._pendingRoomAliases = new Map();
   this._pendingRoomInvites = new Set();
+  this._pendingOutgoingVerificationRequests = new Map();
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
@@ -1285,21 +1356,46 @@ MatrixAccount.prototype = {
       conv.forget();
     }
     delete this.roomList;
+    // Cancel all pending outgoing verification requests, as we can no longer handle them.
+    let pendingClientOperations = Promise.all(
+      Array.from(
+        this._pendingOutgoingVerificationRequests.values(),
+        request => {
+          return request.cancel().catch(error => this.ERROR(error));
+        }
+      )
+    ).then(() => {
+      this._pendingOutgoingVerificationRequests.clear();
+    });
     // We want to clear data stored for syncing in indexedDB so when
     // user logins again, one gets the fresh start.
     if (this._client) {
-      let sessionDisposed = Promise.resolve();
       if (this._client.isLoggedIn()) {
-        sessionDisposed = this._client.logout();
+        pendingClientOperations = pendingClientOperations.then(() =>
+          this._client.logout()
+        );
       }
-      sessionDisposed.finally(() => {
+      pendingClientOperations.finally(() => {
         this._client.clearStores();
       });
     }
   },
   unInit() {
+    // Cancel all pending outgoing verification requests, as we can no longer handle them.
+    let pendingClientOperations = Promise.all(
+      Array.from(
+        this._pendingOutgoingVerificationRequests.values(),
+        request => {
+          return request.cancel().catch(error => this.ERROR(error));
+        }
+      )
+    );
     if (this._client) {
-      this._client.stopClient();
+      pendingClientOperations.finally(() => {
+        // Avoid sending connection status changes.
+        this._client.removeAllListeners("sync");
+        this._client.stopClient();
+      });
     }
   },
   connect() {
@@ -1883,63 +1979,7 @@ MatrixAccount.prototype = {
     });
 
     this._client.on("crypto.verification.request", request => {
-      const abort = new AbortController();
-      request
-        .waitFor(() => request.cancelled || request.observeOnly)
-        .then(() => abort.abort());
-      let displayName = request.otherUserId;
-      if (request.isSelfVerification) {
-        const deviceInfo = this._client.getStoredDevice(
-          this.userId,
-          request.targetDevice.deviceId
-        );
-        if (deviceInfo.getDisplayName()) {
-          displayName = _(
-            "options.encryption.session",
-            request.targetDevice.deviceId,
-            deviceInfo.getDisplayName()
-          );
-        } else {
-          displayName = request.targetDevice.deviceId;
-        }
-      }
-      let _handleResult;
-      let _cancel;
-      const uiRequest = this.addVerificationRequest(
-        displayName,
-        async () => {
-          const {
-            challenge,
-            challengeDescription,
-            handleResult,
-            cancel,
-          } = await startVerification(request);
-          _handleResult = handleResult;
-          _cancel = cancel;
-          return { challenge, challengeDescription };
-        },
-        abort.signal
-      );
-      uiRequest.then(
-        result => {
-          if (!_handleResult) {
-            this.ERROR(
-              "Can not handle the result for verification request with " +
-                request.otherUserId +
-                " because the verification was never started."
-            );
-            request.cancel();
-          }
-          _handleResult(result);
-        },
-        () => {
-          if (_cancel) {
-            _cancel();
-          } else {
-            request.cancel();
-          }
-        }
-      );
+      this.handleIncomingVerificationRequest(request);
     });
 
     // TODO Other events to handle:
@@ -2148,6 +2188,136 @@ MatrixAccount.prototype = {
         conv.updateUnverifiedDevices();
       }
     }
+  },
+
+  /**
+   * Handle an incoming verification request.
+   *
+   * @param {VerificationRequest} request - Verification request from another
+   *   user that is still pending and not handled by another session.
+   */
+  handleIncomingVerificationRequest(request) {
+    const abort = new AbortController();
+    request
+      .waitFor(
+        () => request.cancelled || (!request.requested && request.observeOnly)
+      )
+      .then(() => abort.abort());
+    let displayName = request.otherUserId;
+    if (request.isSelfVerification) {
+      const deviceInfo = this._client.getStoredDevice(
+        this.userId,
+        request.targetDevice.deviceId
+      );
+      if (deviceInfo.getDisplayName()) {
+        displayName = _(
+          "options.encryption.session",
+          request.targetDevice.deviceId,
+          deviceInfo.getDisplayName()
+        );
+      } else {
+        displayName = request.targetDevice.deviceId;
+      }
+    }
+    let _handleResult;
+    let _cancel;
+    const uiRequest = this.addVerificationRequest(
+      displayName,
+      async () => {
+        const {
+          challenge,
+          challengeDescription,
+          handleResult,
+          cancel,
+        } = await startVerification(request);
+        _handleResult = handleResult;
+        _cancel = cancel;
+        return { challenge, challengeDescription };
+      },
+      abort.signal
+    );
+    uiRequest.then(
+      result => {
+        if (!_handleResult) {
+          this.ERROR(
+            "Can not handle the result for verification request with " +
+              request.otherUserId +
+              " because the verification was never started."
+          );
+          request.cancel();
+        }
+        _handleResult(result);
+      },
+      () => {
+        if (_cancel) {
+          _cancel();
+        } else {
+          request.cancel();
+        }
+      }
+    );
+  },
+
+  /**
+   * Shared implementation to initiate a verification with a MatrixParticipant or
+   * MatrixBuddy.
+   *
+   * @param {string} userId - Matrix ID of the user to verify.
+   * @returns {Promise} Same payload as startVerification.
+   */
+  async startVerificationDM(userId) {
+    let request;
+    if (this._pendingOutgoingVerificationRequests.has(userId)) {
+      throw new Error("Already have a pending request for user " + userId);
+    }
+    if (userId == this.userId) {
+      request = await this._client.requestVerification(userId);
+    } else {
+      let conv = this.getDirectConversation(userId);
+      conv = await conv.waitForRoom();
+      // Wait for the user to become part of the room (so being invited) for two
+      // seconds before sending verification request.
+      if (conv.isChat || !conv.room.getMember(userId)) {
+        let waitForMember;
+        let timeout;
+        try {
+          await new Promise(resolve => {
+            waitForMember = (event, state, member) => {
+              if (member.roomId == conv._roomId && member.userId == userId) {
+                resolve();
+              }
+            };
+            this._client.on("RoomState.newMember", waitForMember);
+            timeout = setTimeout(resolve, 2000);
+          });
+        } finally {
+          clearTimeout(timeout);
+          this._client.removeListener("RoomState.newMember", waitForMember);
+        }
+      }
+      request = await this._client.requestVerificationDM(userId, conv._roomId);
+    }
+    this.trackOutgoingVerificationRequest(request, userId);
+    return startVerification(request);
+  },
+
+  /**
+   * Tracks a verification throughout its lifecycle, adding and removing it
+   * from the |_pendingOutgoingVerificationRequests| map.
+   *
+   * @param {VerificationRequest} request - Outgoing verification request.
+   * @param {string} requestKey - Key to identify this request.
+   */
+  async trackOutgoingVerificationRequest(request, requestKey) {
+    if (request.cancelled || request.done) {
+      return;
+    }
+    this._pendingOutgoingVerificationRequests.set(requestKey, request);
+    request
+      .waitFor(() => request.done || request.cancelled)
+      .then(() => {
+        this._pendingOutgoingVerificationRequests.delete(requestKey);
+      });
   },
 
   /**
