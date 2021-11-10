@@ -296,11 +296,6 @@
 @RESPATH@/chrome/openpgp.manifest
 #endif
 
-; LDAP components
-@BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
-@BINPATH@/@DLL_PREFIX@ldif60@DLL_SUFFIX@
-@BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
-
 ; misson control, autoconfig
 #ifdef MOZ_PREF_EXTENSIONS
 @RESPATH@/defaults/autoconfig/prefcalls.js
