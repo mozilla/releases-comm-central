@@ -59,6 +59,14 @@ class Pop3Client {
   }
 
   /**
+   * Check and fetch new mails.
+   */
+  async getMail() {
+    await this._loadStateFile();
+    this._actionUidl();
+  }
+
+  /**
    * The open event handler.
    */
   _onOpen = () => {
@@ -109,6 +117,80 @@ class Pop3Client {
   _onClose = () => {
     this._logger.debug("Connection closed.");
   };
+
+  _lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
+
+  /**
+   * Read popstate.dat into this._uidlMap.
+   */
+  async _loadStateFile() {
+    let stateFile = this._server.localPath;
+    stateFile.append("popstate.dat");
+    let content = await IOUtils.readUTF8(stateFile.path);
+    this._uidlMap = new Map();
+    let uidlLine = false;
+    for (let line of content.split(this._lineSeparator)) {
+      if (!line) {
+        continue;
+      }
+      if (uidlLine) {
+        let [status, uidl, ts] = line.split(" ");
+        this._uidlMap.set(uidl, {
+          // 'k'=KEEP, 'd'=DELETE, 'b'=TOO_BIG, 'f'=FETCH_BODY
+          status,
+          uidl,
+          receivedAt: new Date(ts * 1000),
+        });
+      }
+      if (line.startsWith("#")) {
+        // A comment line.
+        continue;
+      }
+      if (line.startsWith("*")) {
+        // The host & user line.
+        uidlLine = true;
+      }
+    }
+  }
+
+  /**
+   * Read multi-line data blocks response, emit each line through a callback.
+   * @param {string} data - Response received from the server.
+   * @param {Function} lineCallback - A line will be passed to the callback each
+   *   time.
+   * @param {Function} doneCallback - A function to be called when data is ended.
+   */
+  _lineReader(data, lineCallback, doneCallback) {
+    if (this._leftoverData) {
+      // For a single request, the response can span multiple ondata events.
+      // Concatenate the leftover data from last event to the current data.
+      data = this._leftoverData + data;
+      this._leftoverData = null;
+    }
+    let ended = false;
+    if (data == ".\r\n" || data.endsWith("\r\n.\r\n")) {
+      ended = true;
+      data = data.slice(0, -3);
+    }
+    while (data) {
+      let index = data.indexOf("\r\n");
+      if (index == -1) {
+        // Not enough data, save it for the next round.
+        this._leftoverData = data;
+        break;
+      }
+      let line = data.slice(0, index + 2);
+      if (line.startsWith("..")) {
+        // Remove stuffed dot.
+        line = line.slice(1);
+      }
+      lineCallback(line);
+      data = data.slice(index + 2);
+    }
+    if (ended) {
+      doneCallback(null);
+    }
+  }
 
   /**
    * Send a command to the server.
@@ -168,5 +250,56 @@ class Pop3Client {
     if (res.success) {
       this.onReady();
     }
+  };
+
+  /**
+   * Send `UIDL` request to the server.
+   */
+  _actionUidl = () => {
+    this._messageNumbers = [];
+    this._nextAction = this._actionUidlResponse;
+    this._send("UIDL");
+  };
+
+  /**
+   * Handle `UIDL` response.
+   * @param {Pop3Response} res - UIDL response received from the server.
+   */
+  _actionUidlResponse = ({ data }) => {
+    this._lineReader(
+      data,
+      line => {
+        let [messageNumber, messageUidl] = line.split(" ");
+        messageUidl = messageUidl.trim();
+        if (!this._uidlMap.has(messageUidl)) {
+          // Fetch only if it's not already in _uidlMap.
+          this._messageNumbers.push(messageNumber);
+        }
+      },
+      () => {
+        this._actionRetr();
+      }
+    );
+  };
+
+  /**
+   * Send `RETR` request to the server.
+   */
+  _actionRetr = () => {
+    let messageNumber = this._messageNumbers.shift();
+    if (messageNumber) {
+      this._nextAction = this._actionRetrResponse;
+      this._send(`RETR ${messageNumber}`);
+    } else {
+      this._nextAction = null;
+    }
+  };
+
+  /**
+   * Handle `RETR` response.
+   * @param {Pop3Response} res - UIDL response received from the server.
+   */
+  _actionRetrResponse = res => {
+    this._actionRetr();
   };
 }
