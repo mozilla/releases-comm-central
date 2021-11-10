@@ -189,6 +189,7 @@ button,
 menulist,
 html|input[type="color"] {
   appearance: none;
+  min-height: 24px;
   /* !important overrides button.css for disabled and default XUL buttons: */
   color: inherit !important;
   border: 1px solid var(--button-border-color); /* needed for high-contrast mode, where it'll show up */
@@ -206,7 +207,6 @@ menulist {
 }
 
 html|input[type="color"] {
-  min-height: 24px;
   padding: 4px;
 }
 
