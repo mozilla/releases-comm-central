@@ -6,25 +6,29 @@
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderProps.css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/folderProps.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/folderProps.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&folderProps.windowtitle.label;"
-        onload="folderPropsOnLoad();"
-        lightweightthemes="true"
-        style="width: 56ch; height: 21em;">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      width="570" height="305"
+      scrolling="false">
+<head>
+  <title>&folderProps.windowtitle.label;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/retention.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/folderProps.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog id="folderPropertiesDialog"
         buttons="accept,cancel">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/retention.js"/>
-  <script src="chrome://messenger/content/folderProps.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
 <tabbox id="folderPropTabBox">
   <tabs id="folderPropTabs">
@@ -198,4 +202,5 @@
   </tabpanels>
 </tabbox>
 </dialog>
-</window>
+</html:body>
+</html>

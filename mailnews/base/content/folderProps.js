@@ -15,6 +15,7 @@ var kCurrentColor = "";
 var kDefaultColor = "#363959";
 var gNeedToRestoreFolderSelection = false;
 
+window.addEventListener("DOMContentLoaded", folderPropsOnLoad);
 document.addEventListener("dialogaccept", folderPropsOKButton);
 document.addEventListener("dialogcancel", folderCancelButton);
 
