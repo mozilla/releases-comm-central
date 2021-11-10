@@ -113,6 +113,7 @@
     --panel-color: var(--arrowpanel-color) !important;
     --panel-border-color: var(--arrowpanel-border-color) !important;
     --menu-color: var(--arrowpanel-color) !important;
+    --menu-disabled-color: color-mix(in srgb, var(--arrowpanel-color) 35%, transparent) !important;
     --menuitem-hover-background-color: color-mix(in srgb, var(--arrowpanel-color) 13%, transparent) !important;
   }
 }
