@@ -34,6 +34,11 @@ class Pop3Client {
     this._server = server;
     this._authenticator = new Pop3Authenticator(server);
 
+    this._sink = Cc["@mozilla.org/messenger/pop3-sink;1"].createInstance(
+      Ci.nsIPop3Sink
+    );
+    this._sink.popServer = server;
+
     this._logger = console.createInstance({
       prefix: "mailnews.pop3",
       maxLogLevel: "Warn",
@@ -60,8 +65,15 @@ class Pop3Client {
 
   /**
    * Check and fetch new mails.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {nsIUrlListener} urlListener - Callback for the request.
+   * @param {nsIMsgFolder} folder - The folder to save the messages to.
    */
-  async getMail() {
+  async getMail(msgWindow, urlListener, folder) {
+    this._msgWindow = msgWindow;
+    this._urlListener = urlListener;
+    this._sink.folder = folder;
+
     await this._loadStateFile();
     this._actionUidl();
   }
@@ -134,12 +146,12 @@ class Pop3Client {
         continue;
       }
       if (uidlLine) {
-        let [status, uidl, ts] = line.split(" ");
+        let [status, uidl, receivedAt] = line.split(" ");
         this._uidlMap.set(uidl, {
           // 'k'=KEEP, 'd'=DELETE, 'b'=TOO_BIG, 'f'=FETCH_BODY
           status,
           uidl,
-          receivedAt: new Date(ts * 1000),
+          receivedAt,
         });
       }
       if (line.startsWith("#")) {
@@ -151,6 +163,30 @@ class Pop3Client {
         uidlLine = true;
       }
     }
+  }
+
+  /**
+   * Write this._uidlMap into popstate.dat.
+   */
+  async _writeStateFile() {
+    if (!this._uidlMapChanged) {
+      return;
+    }
+
+    let stateFile = this._server.localPath;
+    stateFile.append("popstate.dat");
+    let content = [
+      "# POP3 State File",
+      "# This is a generated file!  Do not edit.",
+      "",
+      `*${this._server.realHostName} ${this._server.realUsername}`,
+    ];
+    for (let { status, uidl, receivedAt } of this._uidlMap.values()) {
+      content.push(`${status} ${uidl} ${receivedAt}`);
+    }
+    await IOUtils.writeUTF8(stateFile.path, content.join(this._lineSeparator));
+
+    this._uidlMapChanged = false;
   }
 
   /**
@@ -256,7 +292,7 @@ class Pop3Client {
    * Send `UIDL` request to the server.
    */
   _actionUidl = () => {
-    this._messageNumbers = [];
+    this._messages = [];
     this._nextAction = this._actionUidlResponse;
     this._send("UIDL");
   };
@@ -273,7 +309,7 @@ class Pop3Client {
         messageUidl = messageUidl.trim();
         if (!this._uidlMap.has(messageUidl)) {
           // Fetch only if it's not already in _uidlMap.
-          this._messageNumbers.push(messageNumber);
+          this._messages.push({ messageNumber, messageUidl });
         }
       },
       () => {
@@ -286,12 +322,12 @@ class Pop3Client {
    * Send `RETR` request to the server.
    */
   _actionRetr = () => {
-    let messageNumber = this._messageNumbers.shift();
-    if (messageNumber) {
+    this._currentMessage = this._messages.shift();
+    if (this._currentMessage) {
       this._nextAction = this._actionRetrResponse;
-      this._send(`RETR ${messageNumber}`);
+      this._send(`RETR ${this._currentMessage.messageNumber}`);
     } else {
-      this._nextAction = null;
+      this._actionDone();
     }
   };
 
@@ -300,6 +336,33 @@ class Pop3Client {
    * @param {Pop3Response} res - UIDL response received from the server.
    */
   _actionRetrResponse = res => {
-    this._actionRetr();
+    if (res.statusText) {
+      this._currentMessageSize = Number.parseInt(res.statusText);
+    }
+    this._sink.incorporateBegin(this._currentMessage.messageUidl, 0);
+    this._lineReader(
+      res.data,
+      line => {
+        this._sink.incorporateWrite(line, line.length);
+      },
+      () => {
+        this._sink.incorporateComplete(
+          this._msgWindow,
+          this._currentMessageSize
+        );
+        this._uidlMap.set(this._currentMessage.messageUidl, {
+          status: "k",
+          uidl: this._currentMessage.messageUidl,
+          receivedAt: Math.floor(Date.now() / 1000),
+        });
+        this._uidlMapChanged = true;
+        this._actionRetr();
+      }
+    );
+  };
+
+  _actionDone = () => {
+    this._nextAction = null;
+    this._writeStateFile();
   };
 }

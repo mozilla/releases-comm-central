@@ -3145,7 +3145,7 @@ int32_t nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
      */
     m_pop3ConData->real_new_counter++;
     /* (rb) count only real messages being downloaded */
-    rv = m_nsIPop3Sink->IncorporateBegin(uidl, m_url, flags);
+    rv = m_nsIPop3Sink->IncorporateBegin(uidl, flags);
 
     MOZ_LOG(POP3LOGMODULE, LogLevel::Info,
             (POP3LOG("Done opening message stream!")));

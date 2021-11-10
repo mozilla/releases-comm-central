@@ -367,8 +367,7 @@ nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol* protocol) {
 }
 
 NS_IMETHODIMP
-nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
-                             uint32_t flags) {
+nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
 #ifdef DEBUG
   printf("Incorporate message begin:\n");
   if (uidlString) printf("uidl string: %s\n", uidlString);

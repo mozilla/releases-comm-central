@@ -25,8 +25,7 @@ interface nsIPop3Sink : nsISupports {
   void endMailDelivery(in nsIPop3Protocol protocol);
   void abortMailDelivery(in nsIPop3Protocol protocol);
 
-  void incorporateBegin(in string uidlString, in nsIURI aURL,
-                        in unsigned long flags);
+  void incorporateBegin(in string uidlString, in unsigned long flags);
 
   void incorporateWrite(in string block, in long length);
 
