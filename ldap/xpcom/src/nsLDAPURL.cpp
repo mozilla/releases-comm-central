@@ -13,7 +13,6 @@
 #include "nsIStandardURL.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Encoding.h"
-#include "ldap.h"
 
 // The two schemes we support, LDAP and LDAPS
 //
@@ -74,42 +73,28 @@ void nsLDAPURL::GetPathInternal(nsCString& aPath) {
 }
 
 nsresult nsLDAPURL::SetPathInternal(const nsCString& aPath) {
-  LDAPURLDesc* desc;
+  nsCOMPtr<nsILDAPURLParser> parser =
+    do_CreateInstance("@mozilla.org/network/ldap-url-parser;1");
+  nsCOMPtr<nsILDAPURLParserResult> parserResult;
+  nsresult rv = parser->Parse(aPath, getter_AddRefs(parserResult));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  // This is from the LDAP C-SDK, which currently doesn't
-  // support everything from RFC 2255... :(
-  //
-  int err = ldap_url_parse(aPath.get(), &desc);
-  switch (err) {
-    case LDAP_SUCCESS: {
-      // The base URL can pick up the host & port details and deal with them
-      // better than we can
-      mDN = desc->lud_dn;
-      mScope = desc->lud_scope;
-      mFilter = desc->lud_filter;
-      mOptions = desc->lud_options;
-      nsresult rv = SetAttributeArray(desc->lud_attrs);
-      if (NS_FAILED(rv)) return rv;
+  parserResult->GetDn(mDN);
+  parserResult->GetScope(&mScope);
+  parserResult->GetFilter(mFilter);
+  parserResult->GetOptions(&mOptions);
 
-      ldap_free_urldesc(desc);
-      return NS_OK;
-    }
-
-    case LDAP_URL_ERR_NOTLDAP:
-    case LDAP_URL_ERR_NODN:
-    case LDAP_URL_ERR_BADSCOPE:
-      return NS_ERROR_MALFORMED_URI;
-
-    case LDAP_URL_ERR_MEM:
-      NS_ERROR("nsLDAPURL::SetSpec: out of memory ");
-      return NS_ERROR_OUT_OF_MEMORY;
-
-    case LDAP_URL_ERR_PARAM:
-      return NS_ERROR_INVALID_POINTER;
+  nsCString attributes;
+  parserResult->GetAttributes(attributes);
+  mAttributes.Truncate();
+  if (!attributes.IsEmpty()) {
+    // Always start and end with a comma if not empty.
+    mAttributes.Append(',');
+    mAttributes.Append(attributes);
+    mAttributes.Append(',');
   }
 
-  // This shouldn't happen...
-  return NS_ERROR_UNEXPECTED;
+  return NS_OK;
 }
 
 // A string representation of the URI. Setting the spec
@@ -390,22 +375,6 @@ NS_IMETHODIMP nsLDAPURL::SetAttributes(const nsACString& aAttributes) {
 
   // and update the base url
   return NS_MutateURI(mBaseURL).SetPathQueryRef(newPath).Finalize(mBaseURL);
-}
-
-nsresult nsLDAPURL::SetAttributeArray(char** aAttributes) {
-  mAttributes.Truncate();
-
-  while (aAttributes && *aAttributes) {
-    // Always start with a comma as that's what we store internally.
-    mAttributes.Append(',');
-    mAttributes.Append(*aAttributes);
-    ++aAttributes;
-  }
-
-  // Add a comma on the end if we have something.
-  if (!mAttributes.IsEmpty()) mAttributes.Append(',');
-
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsLDAPURL::AddAttribute(const nsACString& aAttribute) {

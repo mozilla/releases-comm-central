@@ -130,3 +130,41 @@ interface nsILDAPURL : nsIURI {
      */
     const unsigned long OPT_SECURE = 0x01;
 };
+
+/**
+ * A structure to represent an LDAP URL.
+ */
+[scriptable, uuid(c0376fe9-2c7c-4f7b-a991-db9c3d95c1bb)]
+interface nsILDAPURLParserResult : nsISupports {
+    /** The host name of the URL. */
+    readonly attribute AUTF8String host;
+
+    /** The port number of the URL. */
+    readonly attribute long port;
+
+    /** The distinguished name of the URL. */
+    readonly attribute AUTF8String dn;
+
+    /** The attributes to request when searching. */
+    readonly attribute ACString attributes;
+
+    /** The scope to use when searching. */
+    readonly attribute long scope;
+
+    /** The filter to use when searching. */
+    readonly attribute AUTF8String filter;
+
+    /** The options of the URL. */
+    readonly attribute unsigned long options;
+};
+
+/**
+ * A helper module to parse a string to an LDAP URL.
+ */
+[scriptable, uuid(340098c0-a881-49ab-a5e8-f79d04e6651c)]
+interface nsILDAPURLParser : nsISupports {
+    /**
+     * Parse a string to an LDAP URL.
+     */
+    nsILDAPURLParserResult parse(in AUTF8String aSpec);
+};

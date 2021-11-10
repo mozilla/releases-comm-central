@@ -91,7 +91,6 @@ class nsLDAPURL : public nsILDAPURL {
 
   void GetPathInternal(nsCString& aPath);
   nsresult SetPathInternal(const nsCString& aPath);
-  nsresult SetAttributeArray(char** aAttributes);
 
   nsCString mDN;      // Base Distinguished Name (Base DN)
   int32_t mScope;     // Search scope (base, one or sub)
