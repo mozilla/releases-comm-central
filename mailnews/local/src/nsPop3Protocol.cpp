@@ -3145,14 +3145,15 @@ int32_t nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
      */
     m_pop3ConData->real_new_counter++;
     /* (rb) count only real messages being downloaded */
-    rv = m_nsIPop3Sink->IncorporateBegin(uidl, m_url, flags,
-                                         &m_pop3ConData->msg_closure);
+    rv = m_nsIPop3Sink->IncorporateBegin(uidl, m_url, flags);
 
     MOZ_LOG(POP3LOGMODULE, LogLevel::Info,
             (POP3LOG("Done opening message stream!")));
 
-    if (!m_pop3ConData->msg_closure || NS_FAILED(rv))
+    if (NS_FAILED(rv))
       return Error("pop3MessageWriteError");
+
+    m_pop3ConData->msg_closure = (void*)m_nsIPop3Sink;
   }
 
   m_pop3ConData->pause_for_read = true;
@@ -3363,7 +3364,7 @@ nsresult nsPop3Protocol::HandleLine(char* line, uint32_t line_length) {
     if (line_length > 6 && !PL_strncasecmp("From: ", line, 6)) {
       m_pop3ConData->seenFromHeader = true;
       if (PL_strstr(line, m_senderInfo.get()) == NULL)
-        m_nsIPop3Sink->SetSenderAuthedFlag(m_pop3ConData->msg_closure, false);
+        m_nsIPop3Sink->SetSenderAuthedFlag(false);
     }
   }
 

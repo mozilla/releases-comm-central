@@ -73,7 +73,7 @@ nsresult nsPop3Sink::GetUserAuthenticated(bool* authed) {
   return m_popServer->GetAuthenticated(authed);
 }
 
-nsresult nsPop3Sink::SetSenderAuthedFlag(void* closure, bool authed) {
+nsresult nsPop3Sink::SetSenderAuthedFlag(bool authed) {
   m_authed = authed;
   return NS_OK;
 }
@@ -368,7 +368,7 @@ nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol* protocol) {
 
 NS_IMETHODIMP
 nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
-                             uint32_t flags, void** closure) {
+                             uint32_t flags) {
 #ifdef DEBUG
   printf("Incorporate message begin:\n");
   if (uidlString) printf("uidl string: %s\n", uidlString);
@@ -403,8 +403,6 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
     m_newMailParser = nullptr;
     rv = NS_OK;
   }
-
-  if (closure) *closure = (void*)this;
 
   nsCString outputString(GetDummyEnvelope());
   rv = WriteLineToMailbox(outputString);
