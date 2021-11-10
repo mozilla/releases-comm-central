@@ -934,6 +934,11 @@ var specialTabs = {
         aTab.browser
       );
 
+      // For pdf.js use the aboutPagesContext context menu.
+      if (aArgs.url.includes("type=application/pdf")) {
+        aTab.browser.setAttribute("context", "aboutPagesContext");
+      }
+
       // Start setting up the browser.
       aTab.toolbar = aTab.panel.querySelector(".contentTabToolbar");
       aTab.backButton = aTab.toolbar.querySelector(".back-btn");
