@@ -573,7 +573,7 @@ AddonInstaller.prototype.isDisabled = async function() {
     return false;
   }
   let addon = await AddonManager.getAddonByID(this._id);
-  return !(addon && addon.isActive);
+  return addon && !addon.isActive;
 };
 
 /**

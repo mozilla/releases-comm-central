@@ -18,6 +18,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.jsm",
+  AddonManager: "resource://gre/modules/AddonManager.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
   CreateInBackend: "resource:///modules/accountcreation/CreateInBackend.jsm",
@@ -1204,6 +1205,24 @@ var gAccountSetup = {
               button.disabled = true;
               link.setAttribute("href", "about:addons");
               link.setAttribute("target", "_blank");
+
+              // Trigger an add-on update check. If an update is available,
+              // enable the install button to (re)install.
+              AddonManager.getAddonByID(addon.id).then(a => {
+                if (!a) {
+                  return;
+                }
+                let listener = {
+                  onUpdateAvailable(addon, install) {
+                    button.disabled = false;
+                  },
+                  onNoUpdateAvailable() {},
+                };
+                a.findUpdates(
+                  listener,
+                  AddonManager.UPDATE_WHEN_USER_REQUESTED
+                );
+              });
             }
 
             container.appendChild(img);
