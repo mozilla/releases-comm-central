@@ -6,8 +6,6 @@ var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
 
-var wpl = Ci.nsIWebProgressListener;
-
 var reporterListener = {
   _isBusy: false,
 
@@ -53,11 +51,13 @@ var reporterListener = {
     /* in unsigned long*/ aState
   ) {
     const wpl_security_bits =
-      wpl.STATE_IS_SECURE | wpl.STATE_IS_BROKEN | wpl.STATE_IS_INSECURE;
+      Ci.nsIWebProgressListener.STATE_IS_SECURE |
+      Ci.nsIWebProgressListener.STATE_IS_BROKEN |
+      Ci.nsIWebProgressListener.STATE_IS_INSECURE;
 
     let icon = document.getElementById("security-icon");
     switch (aState & wpl_security_bits) {
-      case wpl.STATE_IS_SECURE:
+      case Ci.nsIWebProgressListener.STATE_IS_SECURE:
         icon.setAttribute(
           "src",
           "chrome://messenger/skin/icons/connection-secure.svg"
@@ -66,7 +66,7 @@ var reporterListener = {
         document.l10n.setAttributes(icon, "content-tab-security-high-icon");
         icon.classList.add("secure-connection-icon");
         break;
-      case wpl.STATE_IS_BROKEN:
+      case Ci.nsIWebProgressListener.STATE_IS_BROKEN:
         icon.setAttribute(
           "src",
           "chrome://messenger/skin/icons/connection-insecure.svg"
