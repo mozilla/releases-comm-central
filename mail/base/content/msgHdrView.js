@@ -1937,7 +1937,7 @@ AttachmentInfo.prototype = {
               background: false,
               linkHandler: "single-page",
             });
-            tabmail.ownerDocument.defaultView.focus();
+            tabmail.ownerGlobal.focus();
             return;
           }
           // If no tabmail, open PDF same as other attachments.
