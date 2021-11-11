@@ -378,7 +378,7 @@ var gCloudAttachmentLinkManager = {
       list = aDocument.getElementById("cloudAttachmentList");
     }
 
-    let node = aDocument.createElement("li");
+    let node = aDocument.createElement(gMsgCompose.composeHTML ? "li" : "div");
     node.className = "cloudAttachmentItem";
     node.contentLocation = aAttachment.contentLocation;
 
