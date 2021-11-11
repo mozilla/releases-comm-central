@@ -10,6 +10,7 @@ const EXPORTED_SYMBOLS = [
 ];
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
 var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
@@ -529,10 +530,13 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
 
   if (!BrowserTestUtils.is_visible(label)) {
     menuitem.click();
-    await sleep(iframeWindow);
+    await TestUtils.waitForCondition(
+      () => BrowserTestUtils.is_visible(label),
+      "Timezone label should become visible"
+    );
   }
 
-  Assert.ok(BrowserTestUtils.is_visible(label));
+  await TestUtils.waitForCondition(() => !label.disabled, "Tiemzone label should become enabled");
 
   let shownPromise = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(

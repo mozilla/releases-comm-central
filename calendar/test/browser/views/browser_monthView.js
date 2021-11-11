@@ -8,10 +8,6 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
-);
-
 const TITLE1 = "Month View Event";
 const TITLE2 = "Month View Event Changed";
 const DESC = "Month View Event Description";

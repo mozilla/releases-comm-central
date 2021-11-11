@@ -329,8 +329,10 @@ async function createCalendarUsingDialog(name, data = {}) {
   return dialogWindowPromise;
 }
 
+const calendarViewsInitialState = CalendarTestUtils.saveCalendarViewsState(window);
+
 registerCleanupFunction(async () => {
-  await CalendarTestUtils.closeCalendarTab(window);
+  await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
   await closeTasksTab();
   await closeChatTab();
   await closePreferencesTab();

@@ -257,6 +257,131 @@
 
 /* Multiday view */
 
+:is(calendar-day-view, calendar-week-view):not([hidden]) {
+  display: grid;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.multiday-grid {
+  overflow: auto;
+  display: grid;
+  grid-auto-flow: column;
+  /* Columns: timebar, days, multiday-end-border.
+   * --multiday-num-days is set in javascript on the grid. */
+  grid-template-columns: min-content repeat(var(--multiday-num-days), 1fr) min-content;
+  /* Rows: heading, all-day header, event column.
+   * NOTE: We use "min-content" instead of "auto" because otherwise the grid
+   * will grow "auto" rows if it has extra vertical space, and this can effect
+   * calculating the pixelsPerMinute for the view. */
+  grid-template-rows: min-content min-content min-content;
+}
+
+.multiday-grid.multiday-grid-rotated {
+  grid-auto-flow: row;
+  grid-template-columns: min-content min-content min-content;
+  grid-template-rows: min-content repeat(var(--multiday-num-days), 1fr) min-content;
+}
+
+.multiday-header-corner {
+  position: sticky;
+  z-index: 3;
+  inset-block-start: 0;
+  inset-inline-start: auto;
+  grid-row: 1 / 3;
+  grid-column: 1 / 2;
+}
+
+.multiday-grid-rotated .multiday-header-corner {
+  inset-block-start: auto;
+  inset-inline-start: 0;
+  grid-row: 1 / 2;
+  grid-column: 1 / 3;
+}
+
+.multiday-grid:not(.multiday-grid-rotated) calendar-time-bar {
+  min-width: 10ex;
+}
+
+.multiday-grid.multiday-grid-rotated calendar-time-bar {
+  min-height: 40px;
+}
+
+.calendar-time-bar-box-odd,
+.calendar-time-bar-box-even {
+  color: var(--viewTimeBoxColor);
+  text-align: end;
+  overflow: hidden;
+}
+
+.day-column-container {
+  /* Container children become grid items. */
+  display: contents;
+}
+
+.day-column-heading {
+  color: var(--viewColor);
+  font-size: inherit;
+  box-sizing: border-box;
+  white-space: nowrap;
+  padding-inline: 5px;
+  padding-block: 1px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.day-column-heading > * {
+  flex: 0 0 auto;
+}
+
+.day-column-heading {
+  position: sticky;
+  z-index: 2;
+  inset-block-start: 0;
+  inset-inline-start: auto;
+}
+
+.multiday-grid-rotated .day-column-heading {
+  inset-block-start: auto;
+  inset-inline-start: 0;
+}
+
+calendar-header-container {
+  position: sticky;
+  z-index: 2;
+  /* NOTE: calendar-header-container must have its inset-*-start set in
+   * javascript, when we know the height/width of the .day-column-heading. */
+  /* Give child all available space. */
+  display: grid;
+}
+
+.allday-events-list {
+  display: block;
+  min-height: 30px;
+  max-height: 120px;
+  min-width: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0;
+  padding-block: 0;
+  padding-inline: 1px 6px;
+  /* Prevent overscrolling from moving into the parent view.
+   * NOTE: This only works if the list is overflowing. For cases where it does
+   * not overflow, we must prevent scrolling the parent in javascript. */
+  overscroll-behavior: none;
+}
+
+.multiday-grid-rotated .allday-events-list:not(:empty) {
+  min-width: 150px;
+}
+
+.allday-event-listitem {
+  display: block;
+  margin: 2px;
+}
+
 .multiday-events-list {
   padding: 0;
   position: relative;
@@ -267,196 +392,219 @@
    * display to give it the same dimensions. */
   display: grid;
   position: absolute;
+  padding: 1px;
+  box-sizing: border-box;
 }
 
 /* Margin that allows event creation by click and drag when the time slot is
    full of events. On the right side in normal view ... */
-calendar-event-column[orient="vertical"] .multiday-events-list {
+calendar-event-column .multiday-events-list {
   margin-inline: 0 5px;
   margin-block: 0;
 }
 /* ... and on bottom in rotate view. */
-calendar-event-column[orient="horizontal"] .multiday-events-list {
+.multiday-grid-rotated calendar-event-column .multiday-events-list {
   margin-block: 0 5px;
   margin-inline: 0;
 }
 
-/* .. and on the right side in the header container in normal view */
-.multiday-view-header-day-box[orient="horizontal"] >
-  calendar-header-container
-{
-  padding-inline: 1px 6px;
-}
-/* ... and on the bottom in rotated view. */
-.multiday-view-header-day-box[orient="vertical"] >
-  calendar-header-container
-{
-  padding-block: 1px 5px;
+.multiday-end-border {
+  grid-row: 1 / 4;
+  grid-column: auto;
 }
 
-calendar-event-column {
-  background-color: var(--viewBackground);
+.multiday-grid-rotated .multiday-end-border {
+  grid-row: auto;
+  grid-column: 1 / 4;
 }
 
-calendar-event-column[orient="horizontal"] {
-  border-top: 1px solid var(--viewBorderColor);
+/* Borders. */
+
+.multiday-header-corner {
+  border-inline-start: none;
+  border-inline-end: 2px solid var(--viewBorderColor);
+  border-block-start: none;
+  border-block-end: 2px solid var(--viewBorderColor);
 }
 
-calendar-event-column[orient="vertical"] {
+calendar-time-bar {
+  border-inline-start: none;
+  border-inline-end: 2px solid var(--viewBorderColor);
+  border-block: none;
+}
+
+.multiday-grid-rotated calendar-time-bar {
+  border-block-start: 1px solid var(--viewBorderColor);
+  border-block-end: 2px solid var(--viewBorderColor);
+  border-inline: none;
+}
+
+.day-column-heading {
+  border-block: 1px solid var(--viewBorderColor);
   border-inline-start: 1px solid var(--viewBorderColor);
+  border-inline-end: none;
 }
 
-calendar-event-column[orient="horizontal"][relation="today"] {
-  border-block: 1px solid var(--viewHighlightBorderColor);
-  margin-bottom: -1px;
-  position: relative;
-}
-
-calendar-event-column[orient="vertical"][relation="today"] {
-  border-inline: 1px solid var(--viewHighlightBorderColor);
-  margin-inline-end: -1px;
-  position: relative;
+.multiday-grid-rotated .day-column-heading {
+  border-inline: 1px solid var(--viewBorderColor);
+  border-block-start: 1px solid var(--viewBorderColor);
+  border-block-end: none;
 }
 
 calendar-header-container {
-  background-color: var(--viewBackground);
+  /* Block start border is given by .day-column-heading. */
+  border-block-start: none;
+  border-block-end: 2px solid var(--viewBorderColor);
   border-inline-start: 1px solid var(--viewBorderColor);
+  /* Inline end border is given by the next header. */
+  border-inline-end: none;
 }
 
-.multiday-view-header-day-box[orient="vertical"] >
-  calendar-header-container
-{
-  max-width: 150px;
+.multiday-grid-rotated calendar-header-container {
+  border-inline-start: none;
+  border-inline-end: 2px solid var(--viewBorderColor);
+  border-block-start: 1px solid var(--viewBorderColor);
+  border-block-end: none;
 }
 
-calendar-header-container[weekend="true"],
-.calendar-event-column-linebox[weekend="true"] {
+calendar-event-column,
+.multiday-end-border {
+  /* NOTE: For calendar-event-column, the calendar-header-container and last
+   * .calendar-event-column-linebox elements provide the starting end ending
+   * block borders, respectively. */
+  border-inline-start: 1px solid var(--viewBorderColor);
+  border-inline-end: none;
+  border-block: none;
+}
+
+.multiday-grid-rotated :is(
+  calendar-event-column,
+  .multiday-end-border
+) {
+  border-block-start: 1px solid var(--viewBorderColor);
+  border-block-end: none;
+  border-inline: none;
+}
+
+.calendar-event-column-linebox {
+  border-block-start: none;
+  border-block-end: 1px solid var(--viewBorderColor);
+  border-inline: none;
+}
+
+.calendar-time-bar-box-odd,
+.calendar-time-bar-box-even {
+  /* Same border positioning and width as calendar-event-column-linebox, so that
+   * they align, but we make it transparent to hide it. */
+  border-block-start: none;
+  border-block-end: 1px solid transparent;
+  border-inline: none;
+}
+
+.multiday-grid-rotated :is(
+  .calendar-time-bar-box-odd,
+  .calendar-time-bar-box-even,
+  .calendar-event-column-linebox
+) {
+  border-inline-start: none;
+  border-inline-end: 1px solid var(--viewBorderColor);
+  border-block: none;
+}
+
+/* If we have more than one day column, and one of them is today, we change the
+ * border color. */
+.day-column-container:not(:only-of-type).day-column-today :is(
+  .day-column-heading,
+  calendar-header-container,
+  calendar-event-column,
+  .calendar-event-column-linebox:last-child
+) {
+  border-color: var(--viewHighlightBorderColor);
+}
+
+/* If a column is after .day-column-today, we match its starting border. */
+.multiday-grid:not(.multiday-grid-rotated) :is(
+  .day-column-today + .day-column-container :is(
+    .day-column-heading,
+    calendar-header-container,
+    calendar-event-column
+  ),
+  .day-column-today + .multiday-end-border
+) {
+  border-inline-start-color: var(--viewHighlightBorderColor);
+}
+
+.multiday-grid.multiday-grid-rotated :is(
+  .day-column-today + .day-column-container :is(
+    .day-column-heading,
+    calendar-header-container,
+    calendar-event-column
+  ),
+  .day-column-today + .multiday-end-border
+) {
+  border-block-start-color: var(--viewHighlightBorderColor);
+}
+
+/* Background.
+ * Styling priority, from lowest to highest:
+ * + .day-column-weekend
+ * + .day-column-today
+ * + .day-column-selected
+ */
+
+.multiday-header-corner,
+.day-column-heading,
+calendar-header-container,
+calendar-event-column,
+.calendar-time-bar-box-odd,
+.calendar-time-bar-box-even {
+  background-color: var(--viewBackground);
+}
+
+.day-column-weekend :is(
+  calendar-header-container,
+  .calendar-event-column-linebox:not([off-time="true"])
+) {
   background-color: var(--viewWeekendBackground);
 }
 
-.calendar-event-column-linebox[off-time="true"] {
-  background-color: var(--viewOffTimeBackground);
-}
-
-.calendar-event-column-linebox[off-time="true"][weekend="true"] {
-  background-color: var(--viewMonthDayOffLabelBackground);
-}
-
-calendar-header-container[relation="today"],
-.calendar-event-column-linebox[relation="today"],
-calendar-day-label[orient][relation="today"] {
+.day-column-today :is(
+  calendar-header-container,
+  .calendar-event-column-linebox:not([off-time="true"])
+) {
   background-color: var(--viewTodayBackground);
 }
 
-.multiday-view-header-day-box[orient="horizontal"] >
-  calendar-header-container[relation="today"]
-{
-  border-inline: 1px solid var(--viewTodayBorderColor);
-  margin-inline-end: -1px;
-  position: relative;
-}
-
-.multiday-view-header-day-box[orient="vertical"] >
-  calendar-header-container[relation="today"]
-{
-  border-top: 1px solid var(--viewTodayBorderColor);
-  border-bottom: 1px solid var(--viewTodayBorderColor) !important;
-  margin-top: -1px;
-  position: relative;
-}
-
-calendar-header-container[selected="true"],
-.calendar-event-column-linebox[selected="true"] {
-  background-color: var(--viewHeaderSelectedBackground);
-}
-
-calendar-header-container[weekend="true"][relation="today"],
-.calendar-event-column-linebox[weekend="true"][relation="today"] {
+.day-column-today.day-column-weekend:not(.day-column-selected) :is(
+  calendar-header-container,
+  .calendar-event-column-linebox:not([off-time="true"])
+) {
   background-color: var(--viewTodayWeekendBackground);
 }
 
-.calendar-event-column-linebox[off-time="true"][relation="today"] {
-  background-color: var(--viewTodayOffBackground);
-}
-
-.multiday-view-header-day-box[orient="vertical"] calendar-header-container {
-  border-bottom: 1px solid var(--viewBorderColor);
-  min-width: 100px;
-}
-
-calendar-header-container[weekend="true"][selected="true"],
-.calendar-event-column-linebox[weekend="true"][selected="true"] {
+.day-column-selected :is(
+  calendar-header-container,
+  .calendar-event-column-linebox:not([off-time="true"])
+) {
   background-color: var(--viewHeaderSelectedBackground);
 }
 
-.calendar-event-column-linebox[off-time="true"][selected="true"] {
+.calendar-event-column-linebox[off-time="true"],
+.calendar-time-bar-box-odd[off-time="true"] ,
+.calendar-time-bar-box-even[off-time="true"] {
+  background-color: var(--viewOffTimeBackground);
+}
+
+.day-column-weekend .calendar-event-column-linebox[off-time="true"] {
+  background-color: var(--viewMonthDayOffLabelBackground);
+}
+
+.day-column-today .calendar-event-column-linebox[off-time="true"] {
+  background-color: var(--viewTodayOffBackground);
+}
+
+.day-column-selected .calendar-event-column-linebox[off-time="true"] {
   background-color: var(--viewDayBoxOffSelectedBackground);
-}
-
-.calendar-event-column-linebox[orient="horizontal"] {
-  border-inline-end: 1px solid var(--viewBorderColor);
-}
-
-.calendar-event-column-linebox[orient="vertical"] {
-  border-bottom: 1px solid var(--viewBorderColor);
-}
-
-.calendar-event-column-linebox[orient="horizontal"][relation="today"]:last-child {
-  border-inline-end: 1px solid var(--viewHighlightBorderColor);
-}
-
-.calendar-event-column-linebox[orient="vertical"][relation="today"]:last-child {
-  border-bottom: 1px solid var(--viewHighlightBorderColor);
-}
-
-/* Make sure we extend the bold line separating scrollable and non-scrollable
-   areas over the timebar. */
-.multiday-view-header-time-spacer[orient="horizontal"] {
-  border-bottom: 2px solid var(--viewBorderColor);
-  border-inline-end: 1px solid var(--viewBorderColor);
-  margin-inline-end: 1px;
-}
-
-.multiday-view-header-time-spacer[orient="vertical"] {
-  border-inline-end: 2px solid var(--viewBorderColor);
-}
-
-.multiday-view-label-box[orient="horizontal"] > .multiday-view-label-time-spacer {
-  border-inline-end: 1px solid var(--viewBorderColor);
-  margin-inline-end: 1px;
-}
-
-.multiday-view-header-day-box[orient="horizontal"] {
-  border-inline-end: 1px solid var(--viewBorderColor);
-  border-bottom: 2px solid var(--viewBorderColor);
-  overflow-x: hidden;
-  overflow-y: auto;
-  max-height: 120px;
-}
-
-.multiday-view-header-day-box[orient="horizontal"][todaylastinview="true"] {
-  border-inline-end: 1px solid var(--viewHighlightBorderColor);
-}
-
-/* Make sure the box for day-labels appears to end before the scrollbar. */
-.multiday-view-label-day-box[orient="horizontal"] {
-  border-top: 1px solid var(--viewBorderColor);
-  border-inline-end: 1px solid var(--viewBorderColor);
-}
-
-.multiday-view-label-day-box[orient="vertical"] {
-  border-top: 1px solid var(--viewBorderColor);
-}
-
-.multiday-view-header-day-box[orient="vertical"] {
-  border-top: 1px solid var(--viewBorderColor);
-  border-inline-end: 2px solid var(--viewBorderColor);
-}
-
-/* Make sure to have a border between the edge of the views and the scrollbar. */
-.multiday-view-day-box {
-  border-inline-end: 1px solid var(--viewBorderColor);
-  border-bottom: 1px solid var(--viewBorderColor);
 }
 
 .fgdragbox {
@@ -494,20 +642,20 @@ calendar-header-container[weekend="true"][selected="true"],
   color: var(--viewDragboxColor);
 }
 
-.timeIndicator[orient="vertical"] {
-  min-width: 1px;
-  margin-inline-start: -1px;
-  margin-inline-end: -1px;
-  border-top: 2px solid red;
+.timeIndicator {
   opacity: 0.7;
 }
 
-.timeIndicator[orient="horizontal"] {
+.multiday-grid:not(.multiday-grid-rotated) .timeIndicator {
+  min-width: 1px;
+  margin-inline: -1px;
+  border-block-start: 2px solid red;
+}
+
+.multiday-grid.multiday-grid-rotated .timeIndicator {
   min-height: 1px;
-  margin-top: -1px;
-  margin-bottom: -1px;
+  margin-block: -1px;
   border-inline-start: 2px solid red;
-  opacity: 0.7;
 }
 
 .timeIndicator-timeBar {
@@ -517,23 +665,22 @@ calendar-header-container[weekend="true"][selected="true"],
   border-radius: 2px;
 }
 
-.timeIndicator-timeBar[orient="vertical"] {
-  margin-top: -1px;
+.multiday-grid:not(.multiday-grid-rotated) .timeIndicator-timeBar {
+  margin-block-start: -1px;
   height: 4px;
   width: 8px;
-  right: 0px;
+  inset-inline-end: 0;
 }
 
-.timeIndicator-timeBar[orient="horizontal"] {
-  margin-left: -1px;
+.multiday-grid.multiday-grid-rotated .timeIndicator-timeBar {
+  margin-inline-start: -1px;
   height: 8px;
   width: 4px;
-  bottom: 0px;
+  inset-block-end: 0px;
 }
 
 /* Take care to ensure the dummy event box in a calendar-event-column remains hidden. */
 calendar-event-box:not([hidden]) {
-  margin: 1px;
   /* Be the containing block for the child calendar-event-gripbar elements. */
   display: block;
   position: relative;
@@ -547,139 +694,18 @@ calendar-editable-item[selected="true"].calendar-color-box {
   box-shadow: 1px 2px 5px rgba(30, 20, 0, 0.6);
 }
 
-
-/* RTL styles for the main box and children */
-.multiday-view-main-box {
-  direction: ltr;
-}
-
-.multiday-view-label-day-box:-moz-locale-dir(rtl) {
-  direction: rtl;
-}
-
-/* headers horizontal, times vertical */
-.multiday-view-label-box[orient="horizontal"] {
-  height: 10px;
-}
-
-.multiday-view-header-box[orient="horizontal"] {
-  min-height: 30px;
-}
-
-.multiday-view-label-box[orient="horizontal"] > .multiday-view-label-time-spacer,
-.multiday-view-header-box[orient="horizontal"] > .multiday-view-header-time-spacer,
-calendar-time-bar[orient="vertical"] {
-  width: 10ex; /* space for "11:00 AM" */
-}
-
-/* headers vertical, times horizontal */
-.view-label-box[orient="vertical"] {
-  width: 30px;
-}
-
-.view-header-box[orient="vertical"] {
-  width: 40px;
-}
-
-.multiday-view-label-box[orient="vertical"] > .multiday-view-label-time-spacer,
-.multiday-view-header-box[orient="vertical"] > .multiday-view-header-time-spacer {
-  height: 40px;
-}
-
-calendar-time-bar[orient="vertical"] {
-  margin-inline-end: 1px;
-  border-inline-end: 1px solid var(--viewBorderColor);
-}
-
-calendar-time-bar[orient="horizontal"] {
-  height: 40px;
-}
-
-/** Start time bar **/
-
-.calendar-time-bar-label {
-  font-size: 1em;
-}
-
-.calendar-time-bar-box-odd,
-.calendar-time-bar-box-even {
-  color: var(--viewTimeBoxColor);
-  background-color: var(--viewBackground);
-  text-align: right;
-  overflow: hidden;
-}
-
-.calendar-time-bar-box-odd[off-time="true"] ,
-.calendar-time-bar-box-even[off-time="true"] {
-  background-color: var(--viewOffTimeBackground);
-}
-
-.calendar-time-bar-box-odd[orient="horizontal"],
-.calendar-time-bar-box-even[orient="horizontal"] {
-  border-inline-end: 1px solid var(--viewBorderColor);
-  border-top: 1px solid var(--viewBorderColor);
-  height: 40px; /* the same as the calendar-time-bar element */
-  margin-inline-end: 0;
-}
-
-.calendar-time-bar-box-odd[orient="vertical"],
-.calendar-time-bar-box-even[orient="vertical"] {
-  border-bottom: 1px  transparent !important;
-  width: 10ex; /* the same as the calendar-time-bar element */
-}
-
-calendar-multiday-view {
-  background-color: var(--viewBackground);
-  padding: 0px;
-}
-
-calendar-multiday-view[hidden="true"] {
-  display: none;
-}
-
 calendar-day-label {
   color: var(--viewColor);
   background-color: var(--viewBackground);
 }
 
-calendar-day-label[selected="true"] {
-  color: var(--viewDayLabelSelectedColor);
-  background-color: var(--viewDayLabelSelectedBackground) !important;
-}
-
-calendar-day-label[orient="vertical"] {
-  background-image: none !important;
-  min-width: 100px;
-}
-
-calendar-day-label[relation="today"],
-calendar-day-label[relation="today1day"] {
+calendar-day-label[relation="today"] {
   background-color: var(--viewTodayDayLabelBackground);
   color: var(--viewTodayColor);
 }
 
 .calendar-day-label-name {
   text-align: center;
-}
-
-.calendar-day-label-name[relation="today"],
-.calendar-day-label-name[relation="today1day"] {
-  font-weight: bold;
-}
-
-/* Day/Week View */
-
-:is(calendar-day-view, calendar-week-view) calendar-day-label {
-  border-inline-start: 1px solid var(--viewBorderColor);
-  border-bottom: 1px solid var(--viewBorderColor);
-}
-
-:is(calendar-day-view, calendar-week-view) calendar-day-label:is([relation="today"], [relation="today1day"]) {
-  border: 1px solid var(--viewHighlightBorderColor);
-  /* Cover neighbouring borders. */
-  position: relative;
-  margin-inline-end: -1px;
-  margin-top: -1px;
 }
 
 /* Multiweek/Month View */
@@ -751,10 +777,7 @@ calendar-multiweek-view[hidden] {
   border-color: var(--viewTodayBorderColor);
 }
 
-.monthtable th > :is(
-  calendar-day-label[relation="today"],
-  calendar-day-label[relation="today1day"]
-) {
+.monthtable th > calendar-day-label[relation="today"] {
   border-color: var(--viewHighlightBorderColor);
 }
 
@@ -763,10 +786,7 @@ calendar-multiweek-view[hidden] {
   .calendar-month-day-box-day-off[relation="today"],
   .calendar-month-day-box-other-month[relation="today"]
 ),
-.monthtable th > :is(
-  calendar-day-label[relation="today"],
-  calendar-day-label[relation="today1day"]
-) {
+.monthtable th > calendar-day-label[relation="today"] {
   /* Border on all sides. */
   position: relative;
   border-width: 1px;
@@ -795,20 +815,15 @@ calendar-month-day-box[relation="today"] > .calendar-month-day-box-dates {
   background-color: var(--viewTodayLabelBackground);
 }
 
-.allday-events-list,
 .calendar-month-day-box-list {
   display: block;
   margin: 0;
-  padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-.calendar-month-day-box-list {
+  padding: 0;
   flex: 1 1 0;
 }
 
-.allday-event-listitem,
 .calendar-month-day-box-list-item {
   display: block;
   margin: 2px;
@@ -909,23 +924,27 @@ calendar-event-gripbar {
   justify-content: center;
 }
 
-calendar-event-gripbar[parentorient="vertical"][whichside="start"] {
+/* NOTE: The gripbars use the same direction in all locales, hence the class
+ * names gripbar-direction-top/bottom/left/right.
+ * This also means we can use 'inset' (top, right, bottom, left) instead of
+ * 'inset-inline' and 'inset-block'. */
+calendar-event-gripbar.gripbar-direction-top {
   cursor: n-resize;
   /* Stretch the width of the event box, attach to the top. */
   inset: 0 0 auto 0;
 }
 
-calendar-event-gripbar[parentorient="vertical"][whichside="end"] {
+calendar-event-gripbar.gripbar-direction-bottom {
   cursor: s-resize;
   inset: auto 0 0 0;
 }
 
-calendar-event-gripbar[parentorient="horizontal"][whichside="start"] {
+calendar-event-gripbar.gripbar-direction-left {
   cursor: w-resize;
   inset: 0 auto 0 0;
 }
 
-calendar-event-gripbar[parentorient="horizontal"][whichside="end"] {
+calendar-event-gripbar.gripbar-direction-right {
   cursor: e-resize;
   inset: 0 0 0 auto;
 }
@@ -1203,11 +1222,4 @@ radio.calview:not([selected=true]):hover {
 .calendar-event-column-linebox {
   min-width: 1px;
   min-height: 1px;
-}
-
-@media (-moz-overlay-scrollbars) {
-  .multiday-headerscrollbarspacer,
-  .multiday-labelscrollbarspacer {
-    display: none;
-  }
 }

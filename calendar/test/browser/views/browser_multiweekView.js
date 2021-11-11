@@ -8,10 +8,6 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
-);
-
 const TITLE1 = "Multiweek View Event";
 const TITLE2 = "Multiweek View Event Changed";
 const DESC = "Multiweek View Event Description";

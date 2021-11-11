@@ -39,6 +39,12 @@ var TIMEZONES = [
   "Australia/Adelaide",
 ];
 
+const calendarViewsInitialState = CalendarTestUtils.saveCalendarViewsState(window);
+
+registerCleanupFunction(async () => {
+  await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
+});
+
 add_task(async function testTimezones2_CreateEvents() {
   let calendar = CalendarTestUtils.createProxyCalendar();
   registerCleanupFunction(() => {

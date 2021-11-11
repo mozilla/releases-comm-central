@@ -30,6 +30,9 @@ var savePromptObserver = {
 };
 Services.ww.registerNotification(savePromptObserver);
 
+const calendarViewsInitialState = CalendarTestUtils.saveCalendarViewsState(window);
+
 registerCleanupFunction(async () => {
   Services.ww.unregisterNotification(savePromptObserver);
+  await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
 });

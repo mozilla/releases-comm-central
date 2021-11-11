@@ -381,9 +381,8 @@
           if (deltaView != 0) {
             this.moveView(deltaView);
           }
+          event.preventDefault();
         }
-
-        event.preventDefault();
       });
 
       this.addEventListener("MozRotateGesture", event => {
@@ -458,7 +457,6 @@
       this.mFlashingEvents = {};
 
       this.mSelectedItems = [];
-      this.mLongWeekdayTotalPixels = -1;
 
       this.mDropShadowsLength = null;
 
@@ -719,55 +717,6 @@
       end.day += 1;
       end.isDate = true;
       return end;
-    }
-
-    /**
-     * Guarantee that the labels are clipped when an overflow occurs, to
-     * prevent horizontal scrollbars from appearing briefly.
-     *
-     * @param {boolean} forceShortName  Whether to force the use of a short name.
-     */
-    adjustWeekdayLength(forceShortName) {
-      let useShortNames = false;
-
-      if (forceShortName === true) {
-        useShortNames = true;
-      } else {
-        const clientWidth = this.querySelector(".mainbox").clientWidth;
-        const timespacer = this.querySelector(".headertimespacer");
-
-        const width = timespacer ? clientWidth - timespacer.clientWidth : clientWidth;
-
-        if (this.longWeekdayTotalPixels > 0.95 * width) {
-          useShortNames = true;
-        }
-      }
-
-      for (const kid of this.querySelectorAll("calendar-day-label")) {
-        kid.shortWeekNames = useShortNames;
-      }
-    }
-
-    /**
-     * The width in pixels of the widest weekday label.
-     *
-     * @return {number}  A number of pixels.
-     */
-    get longWeekdayTotalPixels() {
-      if (this.mLongWeekdayTotalPixels <= 0) {
-        let maxDayWidth = 0;
-
-        const dayLabels = this.querySelectorAll("calendar-day-label");
-        for (const label of dayLabels) {
-          label.shortWeekNames = false;
-          const curPixelLength = label.getLongWeekdayPixels();
-          maxDayWidth = Math.max(maxDayWidth, curPixelLength);
-        }
-        if (maxDayWidth > 0) {
-          this.mLongWeekdayTotalPixels = maxDayWidth * dayLabels.length + 10;
-        }
-      }
-      return this.mLongWeekdayTotalPixels;
     }
 
     /**

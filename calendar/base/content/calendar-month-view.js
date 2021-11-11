@@ -764,6 +764,33 @@
     }
 
     /**
+     * Guarantee that the labels are clipped when an overflow occurs, to
+     * prevent horizontal scrollbars from appearing briefly.
+     */
+    adjustWeekdayLength() {
+      let dayLabels = this.querySelectorAll("calendar-day-label");
+      if (!this.longWeekdayTotalPixels) {
+        let maxDayWidth = 0;
+
+        for (const label of dayLabels) {
+          label.shortWeekNames = false;
+          maxDayWidth = Math.max(maxDayWidth, label.getLongWeekdayPixels());
+        }
+        if (maxDayWidth > 0) {
+          // FIXME: Where does the + 10 come from?
+          this.longWeekdayTotalPixels = maxDayWidth * dayLabels.length + 10;
+        } else {
+          this.longWeekdayTotalPixels = 0;
+        }
+      }
+      let useShortNames = this.longWeekdayTotalPixels > 0.95 * this.clientWidth;
+
+      for (let label of dayLabels) {
+        label.shortWeekNames = useShortNames;
+      }
+    }
+
+    /**
      * Handle resizing by adjusting the view to the new size.
      *
      * @param {Element} viewElement    A calendar view element (calICalendarView).

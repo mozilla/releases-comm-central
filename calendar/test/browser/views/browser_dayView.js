@@ -8,10 +8,6 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
-);
-
 const TITLE1 = "Day View Event";
 const TITLE2 = "Day View Event Changed";
 const DESC = "Day View Event Description";
@@ -25,11 +21,12 @@ add_task(async function testDayView() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
+  let dayView = document.getElementById("day-view");
   // Verify date in view.
-  await TestUtils.waitForCondition(() => {
-    let dateLabel = document.querySelector("#day-view .labeldaybox calendar-day-label");
-    return dateLabel && dateLabel.mDate.icalString == "20090101";
-  }, "Inspecting the date");
+  await TestUtils.waitForCondition(
+    () => dayView.dayColumns[0]?.date.icalString == "20090101",
+    "Inspecting the date"
+  );
 
   // Create event at 8 AM.
   let eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, 8);

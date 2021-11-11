@@ -7,16 +7,65 @@
  * when switching tabs or views.
  */
 
-var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
-);
+/**
+ * Wait until the view's timebar shows the given number of visible hours.
+ *
+ * @param {CalendarMultidayBaseView} view - The calendar view.
+ * @param {number} numHours - The expected number of visible hours.
+ *
+ * @return {Promise} - Promise that resolves when the timebar has numHours
+ *   visible hours.
+ */
+function waitForVisibleHours(view, numHours) {
+  // The timebar is the only scrollable child in its column (the others are
+  // sticky), so the difference between the scroll area's scrollTopMax and the
+  // timebar's clientHeight should give us the visible height.
+  return TestUtils.waitForCondition(() => {
+    let timebarHeight = view.timebar.clientHeight;
+    let visiblePx = timebarHeight - view.grid.scrollTopMax;
+    let expectPx = (numHours / 24) * timebarHeight;
+    return Math.abs(visiblePx - expectPx) < 2;
+  }, `${view.id} should have ${numHours} hours visible`);
+}
+
+/**
+ * Wait until the view's timebar's first visible hour is the given hour.
+ *
+ * @param {CalendarMultidayBaseView} view - The calendar view.
+ * @param {number} hour - The expected first visible hour.
+ *
+ * @return {Promise} - Promise that resolves when the timebar has the given
+ *   first visible hour.
+ */
+function waitForFirstVisibleHour(view, hour) {
+  return TestUtils.waitForCondition(() => {
+    let expectPx = (hour / 24) * view.timebar.clientHeight;
+    let actualPx = view.grid.scrollTop;
+    return Math.abs(actualPx - expectPx) < 2;
+  }, `${view.id} first visible hour should be ${hour}`);
+}
+
+/**
+ * Perform a scroll on the view by one hour.
+ *
+ * @param {CalendarMultidayBaseView} view - The calendar view to scroll.
+ * @param {boolean} scrollDown - Whether to scroll down, otherwise scrolls up.
+ */
+async function doScroll(view, scrollDown) {
+  let scrollPromise = BrowserTestUtils.waitForEvent(view.grid, "scroll");
+  let viewRect = view.getBoundingClientRect();
+  EventUtils.synthesizeWheel(
+    view.grid,
+    viewRect.width / 2,
+    viewRect.height / 2,
+    { deltaY: scrollDown ? 1 : -1, deltaMode: WheelEvent.DOM_DELTA_LINE },
+    window
+  );
+  await scrollPromise;
+}
 
 add_task(async function() {
   let tabmail = document.getElementById("tabmail");
-
-  // Ensure the initial state is correct.
-
-  await CalendarTestUtils.closeCalendarTab(window);
   Assert.equal(tabmail.tabInfo.length, 1);
 
   Assert.equal(Services.prefs.getIntPref("calendar.view.daystarthour"), 8);
@@ -30,163 +79,62 @@ add_task(async function() {
 
   await CalendarTestUtils.setCalendarView(window, "day");
 
-  let dayViewScrollBox = document.querySelector("#day-view scrollbox");
-  let dayViewHourHeight = dayViewScrollBox.scrollHeight / 24;
+  let dayView = document.getElementById("day-view");
 
   Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  Assert.less(
-    Math.abs(dayViewScrollBox.scrollTop - 8 * dayViewHourHeight),
-    2,
-    "day view is scrolled correctly"
-  );
-  Assert.equal(
-    Math.round(dayViewScrollBox.clientHeight / dayViewHourHeight),
-    9,
-    "day view shows the correct number of hours"
-  );
+  await waitForFirstVisibleHour(dayView, 8);
+  await waitForVisibleHours(dayView, 9);
 
   // Scroll down 3 hours. We'll check this scroll position later.
+  await doScroll(dayView, true);
+  await waitForFirstVisibleHour(dayView, 9);
 
-  EventUtils.synthesizeWheel(
-    dayViewScrollBox,
-    5,
-    5,
-    { deltaY: 1, deltaMode: WheelEvent.DOM_DELTA_LINE },
-    window
-  );
-  Assert.less(
-    Math.abs(dayViewScrollBox.scrollTop - 9 * dayViewHourHeight),
-    2,
-    "day view is scrolled correctly"
-  );
-
-  EventUtils.synthesizeWheel(
-    dayViewScrollBox,
-    5,
-    5,
-    { deltaY: 1, deltaMode: WheelEvent.DOM_DELTA_LINE },
-    window
-  );
-  EventUtils.synthesizeWheel(
-    dayViewScrollBox,
-    5,
-    5,
-    { deltaY: 1, deltaMode: WheelEvent.DOM_DELTA_LINE },
-    window
-  );
-  Assert.less(
-    Math.abs(dayViewScrollBox.scrollTop - 11 * dayViewHourHeight),
-    2,
-    "day view is scrolled correctly"
-  );
-  Assert.equal(
-    Math.round(dayViewScrollBox.clientHeight / dayViewHourHeight),
-    9,
-    "day view shows the correct number of hours"
-  );
+  await doScroll(dayView, true);
+  await doScroll(dayView, true);
+  await waitForFirstVisibleHour(dayView, 11);
+  await waitForVisibleHours(dayView, 9);
 
   // Open the week view, check the display matches the prefs.
 
   await CalendarTestUtils.setCalendarView(window, "week");
 
-  let weekViewScrollBox = document.querySelector("#week-view scrollbox");
-  let weekViewHourHeight = weekViewScrollBox.scrollHeight / 24;
+  let weekView = document.getElementById("week-view");
 
   Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  Assert.less(
-    Math.abs(weekViewScrollBox.scrollTop - 8 * weekViewHourHeight),
-    2,
-    "week view is scrolled correctly"
-  );
-  Assert.equal(
-    Math.round(weekViewScrollBox.clientHeight / weekViewHourHeight),
-    9,
-    "week view shows the correct number of hours"
-  );
+  await waitForFirstVisibleHour(weekView, 8);
+  await waitForVisibleHours(weekView, 9);
 
-  // Scroll up 1 hour. We'll check this scroll position later.
-
-  EventUtils.synthesizeWheel(
-    weekViewScrollBox,
-    5,
-    5,
-    { deltaY: -1, deltaMode: WheelEvent.DOM_DELTA_LINE },
-    window
-  );
-  Assert.less(
-    Math.abs(weekViewScrollBox.scrollTop - 7 * weekViewHourHeight),
-    2,
-    "week view is scrolled correctly"
-  );
-  Assert.equal(
-    Math.round(weekViewScrollBox.clientHeight / weekViewHourHeight),
-    9,
-    "week view shows the correct number of hours"
-  );
+  // Scroll up 1 hour.
+  await doScroll(weekView, false);
+  await waitForFirstVisibleHour(weekView, 7);
+  await waitForVisibleHours(weekView, 9);
 
   // Go back to the day view, check the timer and scroll position.
 
   await CalendarTestUtils.setCalendarView(window, "day");
 
-  Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  Assert.less(
-    Math.abs(dayViewScrollBox.scrollTop - 11 * dayViewHourHeight),
-    2,
-    "day view is scrolled correctly"
-  );
-  Assert.equal(
-    Math.round(dayViewScrollBox.clientHeight / dayViewHourHeight),
-    9,
-    "day view shows the correct number of hours"
-  );
+  await waitForFirstVisibleHour(dayView, 11);
+  await waitForVisibleHours(dayView, 9);
 
   // Switch away from the calendar tab.
 
   tabmail.switchToTab(0);
   Assert.equal(window.timeIndicator.timer, null, "time indicator is not active");
 
-  // Pause to be sure the event loop is empty.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => window.setTimeout(resolve, 250));
-
   // Switch back to the calendar tab. Check the timer and scroll position.
 
   tabmail.switchToTab(1);
   Assert.equal(window.currentView().id, "day-view");
 
-  // Pause to be sure the event loop is empty.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => window.setTimeout(resolve, 250));
-
   Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  Assert.less(
-    Math.abs(dayViewScrollBox.scrollTop - 11 * dayViewHourHeight),
-    2,
-    "day view is scrolled correctly"
-  );
-  Assert.equal(
-    Math.round(dayViewScrollBox.clientHeight / dayViewHourHeight),
-    9,
-    "day view shows the correct number of hours"
-  );
+  await waitForFirstVisibleHour(dayView, 11);
+  await waitForVisibleHours(dayView, 9);
 
   // Go back to the week view, check the timer and scroll position.
 
   await CalendarTestUtils.setCalendarView(window, "week");
 
   Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
-  Assert.less(
-    Math.abs(weekViewScrollBox.scrollTop - 7 * weekViewHourHeight),
-    2,
-    "week view is scrolled correctly"
-  );
-  Assert.equal(
-    Math.round(weekViewScrollBox.clientHeight / weekViewHourHeight),
-    9,
-    "week view shows the correct number of hours"
-  );
-
-  // Clean up.
-
-  await CalendarTestUtils.closeCalendarTab(window);
+  await waitForFirstVisibleHour(weekView, 7);
+  await waitForVisibleHours(weekView, 9);
 });

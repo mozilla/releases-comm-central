@@ -5,9 +5,6 @@
 var { MID_SLEEP, execEventDialogCallback } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
-var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
-);
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );

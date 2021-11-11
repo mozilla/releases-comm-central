@@ -68,21 +68,31 @@
         default:
           return;
       }
-      let src;
-      if (side === "start" && orient === "vertical") {
-        src = "chrome://calendar/skin/shared/event-grippy-top.png";
-      } else if (side === "start" && orient === "horizontal") {
-        src = "chrome://calendar/skin/shared/event-grippy-left.png";
-      } else if (side === "end" && orient === "vertical") {
-        src = "chrome://calendar/skin/shared/event-grippy-bottom.png";
-      } else if (side === "end" && orient === "horizontal") {
-        src = "chrome://calendar/skin/shared/event-grippy-right.png";
-      }
-      if (src) {
-        this._image.setAttribute("src", src);
+      let direction;
+      if (orient == "vertical") {
+        direction = side == "start" ? "top" : "bottom";
+      } else if (document.dir == "rtl") {
+        direction = side == "start" ? "right" : "left";
       } else {
-        this._image.removeAttribute("src");
+        direction = side == "start" ? "left" : "right";
       }
+      // We use the following sources:
+      //   "chrome://calendar/skin/shared/event-grippy-top.png"
+      //   "chrome://calendar/skin/shared/event-grippy-bottom.png"
+      //   "chrome://calendar/skin/shared/event-grippy-left.png"
+      //   "chrome://calendar/skin/shared/event-grippy-right.png"
+      this._image.setAttribute(
+        "src",
+        `chrome://calendar/skin/shared/event-grippy-${direction}.png`
+      );
+      // Remove all styling classes, and add one back.
+      this.classList.remove(
+        "gripbar-direction-top",
+        "gripbar-direction-bottom",
+        "gripbar-direction-left",
+        "gripbar-direction-right"
+      );
+      this.classList.add(`gripbar-direction-${direction}`);
     }
   }
 

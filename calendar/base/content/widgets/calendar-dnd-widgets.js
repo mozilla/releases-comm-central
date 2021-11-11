@@ -23,6 +23,7 @@
       this.addEventListener("dragenter", this.onDragEnter);
       this.addEventListener("drop", this.onDrop);
       this.addEventListener("dragend", this.onDragEnd);
+      this.mCalendarView = null;
     }
 
     connectedCallback() {
@@ -30,8 +31,6 @@
         return;
       }
       this.hasConnected = true;
-
-      this.mCalendarView = null;
     }
 
     /**

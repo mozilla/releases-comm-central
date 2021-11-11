@@ -43,7 +43,7 @@ class CalendarDayViewTestUtils {
    *
    * @param {Window} win - The window the calendar is displayed in.
    *
-   * @return {MozCalendarEventColumn|null}
+   * @return {MozCalendarEventColumn} - The column.
    */
   getEventColumn(win) {
     return this._helper.getEventColumn(win, 1);
@@ -54,7 +54,7 @@ class CalendarDayViewTestUtils {
    *
    * @param {Window} win - The window the calendar is displayed in.
    *
-   * @return {MozCalendarEventBox[]}
+   * @return {MozCalendarEventBox[]} - The event boxes.
    */
   getEventBoxes(win) {
     return this._helper.getEventBoxes(win, 1);
@@ -67,7 +67,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which event box to select.
    *
-   * @return {MozCalendarEventBox|null}
+   * @return {MozCalendarEventBox|undefined} - The event box, if it exists.
    */
   getEventBoxAt(win, index) {
     return this._helper.getEventBoxAt(win, 1, index);
@@ -80,7 +80,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} hour - Must be between 0-23.
    *
-   * @returns {XULElement}
+   * @returns {XULElement} - The hour box.
    */
   getHourBoxAt(win, hour) {
     return this._helper.getHourBoxAt(win, 1, hour);
@@ -92,7 +92,7 @@ class CalendarDayViewTestUtils {
    *
    * @param {Window} win - The window the calendar is displayed in.
    *
-   * @returns {CalendarHeaderContainer}
+   * @returns {CalendarHeaderContainer} - The all-day header.
    */
   getAllDayHeader(win) {
     return this._helper.getAllDayHeader(win, 1);
@@ -105,7 +105,8 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which item to select (1-based).
    *
-   * @returns {MozCalendarEditableItem}
+   * @returns {MozCalendarEditableItem|undefined} - The all-day item, if it
+   *   exists.
    */
   getAllDayItemAt(win, index) {
     return this._helper.getAllDayItemAt(win, 1, index);
@@ -118,7 +119,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which item to select (1-based).
    *
-   * @return {MozCalendarEventBox}
+   * @return {MozCalendarEventBox} - The event box.
    */
   async waitForEventBoxAt(win, index) {
     return this._helper.waitForEventBoxAt(win, 1, index);
@@ -141,7 +142,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which item to select (1-based).
    *
-   * @returns {MozCalendarEditableItem}
+   * @returns {MozCalendarEditableItem} - The all-day item.
    */
   async waitForAllDayItemAt(win, index) {
     return this._helper.waitForAllDayItemAt(win, 1, index);
@@ -215,16 +216,17 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7
    *
    * @throws - If the day parameter is out of range.
-   * @return {MozCalendarEventColumn|null}
+   * @return {MozCalendarEventColumn} - The column.
    */
   getEventColumn(win, day) {
     if (day < 1 || day > 7) {
       throw new Error(`Invalid parameter to getEventColumn(): expected day=1-7, got day=${day}.`);
     }
 
-    return win.document.documentElement.querySelector(
-      `${this.rootSelector} .daybox > calendar-event-column:nth-of-type(${day})`
+    let columns = win.document.documentElement.querySelectorAll(
+      `${this.rootSelector} calendar-event-column`
     );
+    return columns[day - 1];
   }
 
   /**
@@ -233,7 +235,7 @@ class CalendarWeekViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} day - Must be between 1-7.
    *
-   * @return {MozCalendarEventBox[]}
+   * @return {MozCalendarEventBox[]} - The event boxes.
    */
   getEventBoxes(win, day) {
     let column = this.getEventColumn(win, day);
@@ -248,7 +250,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which event box to select.
    *
-   * @return {MozCalendarEventBox|null}
+   * @return {MozCalendarEventBox|undefined} - The event box, if it exists.
    */
   getEventBoxAt(win, day, index) {
     return this.getEventBoxes(win, day)[index - 1];
@@ -263,7 +265,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} hour - Must be between 0-23.
    *
    * @throws If the day or hour are out of range.
-   * @returns {XULElement}
+   * @returns {XULElement} - The hour box.
    */
   getHourBoxAt(win, day, hour) {
     let column = this.getEventColumn(win, day);
@@ -278,15 +280,17 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Day of the week, between 1-7.
    *
    * @throws If the day is out of range.
-   * @returns {CalendarHeaderContainer}
+   * @returns {CalendarHeaderContainer} - The all-day header.
    */
   getAllDayHeader(win, day) {
     if (!(day >= 1 && day <= 7)) {
       throw new Error(`Invalid parameter to getAllDayHeader(): expected day=1-7, got day=${day}`);
     }
-    return win.document.querySelector(
-      `${this.rootSelector} .headerdaybox > calendar-header-container:nth-of-type(${day})`
+
+    let headers = win.document.documentElement.querySelectorAll(
+      `${this.rootSelector} calendar-header-container`
     );
+    return headers[day - 1];
   }
 
   /**
@@ -298,11 +302,12 @@ class CalendarWeekViewTestUtils {
    * @param {number} index - Indicates which item to select (starting from 1).
    *
    * @throws If the day or index are out of range.
-   * @returns {MozCalendarEditableItem}
+   * @returns {MozCalendarEditableItem|undefined} - The all-day item, if it
+   *   exists.
    */
   getAllDayItemAt(win, day, index) {
     let allDayHeader = this.getAllDayHeader(win, day);
-    return allDayHeader.querySelector(`calendar-editable-item:nth-of-type(${index})`);
+    return allDayHeader.querySelectorAll(`calendar-editable-item`)[index - 1];
   }
 
   /**
@@ -313,7 +318,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Day of the week, between 1-7.
    * @param {number} index - Indicates which event box to select.
    *
-   * @returns {MozCalendarEventBox}
+   * @returns {MozCalendarEventBox} - The event box.
    */
   async waitForEventBoxAt(win, day, index) {
     return TestUtils.waitForCondition(
@@ -345,7 +350,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Day of the week, between 1-7.
    * @param {number} index - Indicates which item to select (starting from 1).
    *
-   * @returns {MozCalendarEditableItem}
+   * @returns {MozCalendarEditableItem} - The all-day item.
    */
   async waitForAllDayItemAt(win, day, index) {
     return TestUtils.waitForCondition(
@@ -800,7 +805,7 @@ const CalendarTestUtils = {
     let dialogPromise = CalendarTestUtils.waitForEventDialog("edit");
 
     if (target) {
-      target.scrollIntoView();
+      this.scrollViewToTarget(target, true);
       EventUtils.synthesizeMouse(target, 1, 1, { clickCount: 2 }, win);
     } else {
       EventUtils.synthesizeMouseAtCenter(
@@ -990,5 +995,89 @@ const CalendarTestUtils = {
   async goToToday(win) {
     EventUtils.synthesizeMouseAtCenter(win.document.getElementById("today-view-button"), {}, win);
     await CalendarTestUtils.ensureViewLoaded(win);
+  },
+
+  /**
+   * Scroll the calendar view to show the given target.
+   *
+   * @param {Element} target - The target to scroll to. A descendent of a
+   *    calendar view.
+   * @param {boolean} alignStart - Whether to scroll the inline and block start
+   *   edges of the target into view, else scrolls the end edges into view.
+   */
+  scrollViewToTarget(target, alignStart) {
+    let multidayView = target.closest("calendar-day-view, calendar-week-view");
+    if (multidayView) {
+      // Multiday view has sticky headers, so scrollIntoView doesn't actually
+      // scroll far enough.
+      let scrollRect = multidayView.getScrollAreaRect();
+      let targetRect = target.getBoundingClientRect();
+      // We want to move the view by the difference between the starting/ending
+      // edge of the view and the starting/ending edge of the target.
+      let yDiff = alignStart
+        ? targetRect.top - scrollRect.top
+        : targetRect.bottom - scrollRect.bottom;
+      // In left-to-right, starting edge is the left edge. Otherwise, it is the
+      // right edge.
+      let xDiff =
+        alignStart == (target.ownerDocument.dir == "ltr")
+          ? targetRect.left - scrollRect.left
+          : targetRect.right - scrollRect.right;
+      multidayView.grid.scrollBy(xDiff, yDiff);
+    } else {
+      target.scrollIntoView(alignStart);
+    }
+  },
+
+  /**
+   * Save the current calendar views' UI states to be restored later.
+   *
+   * This is used with restoreCalendarViewsState to reset the view back to its
+   * initial loaded state after a test, so that later tests in the same group
+   * will receive the calendar view as if it was first opened after launching.
+   *
+   * @param {Window} win - The window that contains the calendar views.
+   *
+   * @return {Object} - An opaque object with data to pass to
+   *   restoreCalendarViewsState.
+   */
+  saveCalendarViewsState(win) {
+    return {
+      multidayViewsData: ["day", "week"].map(viewName => {
+        // Save the scroll state since test utilities may change the scroll
+        // position, and this is currently not reset on re-opening the tab.
+        let view = win.document.getElementById(`${viewName}-view`);
+        return { view, viewName, scrollMinute: view.scrollMinute };
+      }),
+    };
+  },
+
+  /**
+   * Clean up the calendar views after a test by restoring their UI to the saved
+   * state, and close the calendar tab.
+   *
+   * @param {Window} win - The window that contains the calendar views.
+   * @param {Object} data - The data returned by saveCalendarViewsState.
+   */
+  async restoreCalendarViewsState(win, data) {
+    for (let { view, viewName, scrollMinute } of data.multidayViewsData) {
+      await this.setCalendarView(win, viewName);
+      // The scrollMinute is rounded to the nearest integer.
+      // As is the scroll pixels.
+      // When we scrollToMinute, the scroll position is rounded to the nearest
+      // integer, as is the subsequent scroll minute. So calling
+      //   scrollToMinute(min)
+      // will set
+      //   scrollMinute = round(round(min * P) / P)
+      // where P is the pixelsPerMinute of the view. Thus
+      //   scrollMinute = min +- round(0.5 / P)
+      let roundingError = Math.round(0.5 / view.pixelsPerMinute);
+      view.scrollToMinute(scrollMinute);
+      await TestUtils.waitForCondition(
+        () => Math.abs(view.scrollMinute - scrollMinute) <= roundingError,
+        "Waiting for scroll minute to restore"
+      );
+    }
+    await CalendarTestUtils.closeCalendarTab(win);
   },
 };

@@ -5,12 +5,7 @@
 /** Tests that changes in a calendar's properties are reflected in the current view. */
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
-);
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
-
-const { closeCalendarTab, dedent, setCalendarView } = CalendarTestUtils;
 
 let manager = cal.getCalendarManager();
 let composite = cal.view.getCompositeCalendar(window);
@@ -32,6 +27,7 @@ manager.registerCalendar(notThisCalendar);
 
 add_task(async function setUp() {
   let asyncThisCalendar = cal.async.promisifyCalendar(thisCalendar);
+  let { dedent } = CalendarTestUtils;
   await asyncThisCalendar.addItem(
     new CalEvent(dedent`
     BEGIN:VEVENT
@@ -112,7 +108,7 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
   let view = document.getElementById(`${viewName}-view`);
 
   window.goToDate(cal.createDateTime("20150201T000000Z"));
-  await setCalendarView(window, viewName);
+  await CalendarTestUtils.setCalendarView(window, viewName);
   await makeChangeWithReload(() => {
     window.goToDate(cal.createDateTime("20160201T000000Z"));
   });
@@ -206,10 +202,6 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
   checkBoxItems(thisBoxCount + notThisBoxCount, boxItem => {
     Assert.ok(!boxItem.hasAttribute("readonly"), "item is not marked read-only");
   });
-
-  info("Reset.");
-
-  await closeCalendarTab(window);
 }
 
 add_task(async function testMonthView() {
@@ -231,7 +223,6 @@ add_task(async function testDayView() {
 });
 
 registerCleanupFunction(async () => {
-  await closeCalendarTab(window);
   manager.unregisterCalendar(thisCalendar);
   manager.unregisterCalendar(notThisCalendar);
 });

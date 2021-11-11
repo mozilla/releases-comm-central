@@ -56,6 +56,7 @@
         "calendar-event-box": "orient",
       };
     }
+
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
@@ -205,17 +206,12 @@
 
       this.mFgboxes = null;
 
-      this.mDayOff = false;
-
       this.mTimezone = cal.dtz.UTC;
       this.initializeAttributeInheritance();
     }
 
     // Properties.
     set pixelsPerMinute(val) {
-      if (val <= 0.0) {
-        val = 0.01;
-      }
       if (val != this.mPixPerMin) {
         this.mPixPerMin = val;
         this.relayout();
@@ -224,25 +220,6 @@
 
     get pixelsPerMinute() {
       return this.mPixPerMin;
-    }
-
-    set selected(val) {
-      this.mSelected = val;
-      if (this.bgbox && this.bgbox.hasChildNodes()) {
-        let child = this.bgbox.firstElementChild;
-        while (child) {
-          if (val) {
-            child.setAttribute("selected", "true");
-          } else {
-            child.removeAttribute("selected");
-          }
-          child = child.nextElementSibling;
-        }
-      }
-    }
-
-    get selected() {
-      return this.mSelected;
     }
 
     set date(val) {
@@ -285,14 +262,6 @@
 
     get events() {
       return this.methods;
-    }
-
-    set dayOff(val) {
-      this.mDayOff = val;
-    }
-
-    get dayOff() {
-      return this.mDayOff;
     }
 
     /**
@@ -449,18 +418,10 @@
         box.setAttribute("orient", orient);
         box.setAttribute("class", "calendar-event-column-linebox");
 
-        if (this.mSelected) {
-          box.setAttribute("selected", "true");
-        }
-        if (this.mDayOff) {
-          box.setAttribute("weekend", "true");
-        }
         let minute = hour * 60;
         if (minute < this.mDayStartMin || minute >= this.mDayEndMin) {
           box.setAttribute("off-time", "true");
         }
-        // Carry forth the day relation.
-        box.setAttribute("relation", this.getAttribute("relation"));
 
         // Calculate duration pixel as the difference between
         // start pixel and end pixel to avoid rounding errors.
@@ -859,6 +820,14 @@
       for (let col of this.calendarView.getEventColumns()) {
         col.fgboxes.dragbox.removeAttribute("dragging");
         col.fgboxes.box.removeAttribute("dragging");
+        // We remove the height and width attributes as well.
+        // In particular, this means we won't accidentally preserve the height
+        // attribute if we switch to the rotated view, or the width if we
+        // switch back.
+        col.fgboxes.dragbox.removeAttribute("width");
+        col.fgboxes.dragbox.removeAttribute("height");
+        col.fgboxes.dragspacer.removeAttribute("width");
+        col.fgboxes.dragspacer.removeAttribute("height");
       }
 
       window.removeEventListener("mousemove", this.onEventSweepMouseMove);
@@ -959,16 +928,18 @@
       // If we are at the bottom or top of the view (or left/right when
       // rotated), calculate the difference and start accelerating the
       // scrollbar.
-      let diffStart, diffEnd;
-      let orient = document.calendarEventColumnDragging.getAttribute("orient");
-      let scrollbox = currentView().scrollbox;
-      let boundingRect = scrollbox.getBoundingClientRect();
-      if (orient == "vertical") {
-        diffStart = Math.max(event.clientY - boundingRect.y, 0);
-        diffEnd = Math.max(boundingRect.y + boundingRect.height - event.clientY, 0);
+      let view = this.calendarView;
+      let scrollArea = view.getScrollAreaRect();
+
+      let diffStart;
+      let diffEnd;
+      let isVertical = this.getAttribute("orient") == "vertical";
+      if (isVertical) {
+        diffStart = Math.max(event.clientY - scrollArea.top, 0);
+        diffEnd = Math.max(scrollArea.bottom - event.clientY, 0);
       } else {
-        diffStart = Math.max(event.clientX - boundingRect.x, 0);
-        diffEnd = Math.max(boundingRect.x + boundingRect.width - event.clientX, 0);
+        diffStart = Math.max(event.clientX - scrollArea.left, 0);
+        diffEnd = Math.max(scrollArea.right - event.clientX, 0);
       }
 
       const SCROLLZONE = 55; // Size (pixels) of the top/bottom view where the scroll starts.
@@ -988,7 +959,7 @@
       if (insideScrollZone) {
         let timeout = MAXTIMEOUT - (insideScrollZone * (MAXTIMEOUT - MINTIMEOUT)) / SCROLLZONE;
         this.mMagicScrollTimer = setTimeout(() => {
-          scrollbox.scrollBy(orient == "horizontal" && scrollBy, orient == "vertical" && scrollBy);
+          view.grid.scrollBy(isVertical ? 0 : scrollBy, isVertical ? scrollBy : 0);
           this.onEventSweepMouseMove(event);
         }, timeout);
       }
@@ -1445,10 +1416,8 @@
       if (dayStartMin < 0 || dayStartMin > dayEndMin || dayEndMin > MINUTES_IN_DAY) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
-      if (this.mDayStartMin != dayStartMin || this.mDayEndMin != dayEndMin) {
-        this.mDayStartMin = dayStartMin;
-        this.mDayEndMin = dayEndMin;
-      }
+      this.mDayStartMin = dayStartMin;
+      this.mDayEndMin = dayEndMin;
     }
 
     /**
@@ -1509,7 +1478,6 @@
       this.addEventListener("dblclick", this.onDblClick);
       this.addEventListener("mousedown", this.onMouseDown);
       this.addEventListener("click", this.onClick);
-      this.addEventListener("wheel", this.onWheel);
     }
 
     connectedCallback() {
@@ -1584,9 +1552,10 @@
 
       itemBox.calendarView = this.calendarView;
       itemBox.occurrence = eventItem;
-      let ctxt =
-        this.calendarView.getAttribute("item-context") || this.calendarView.getAttribute("context");
-      itemBox.setAttribute("context", ctxt);
+      itemBox.setAttribute(
+        "context",
+        this.calendarView.getAttribute("item-context") || this.calendarView.getAttribute("context")
+      );
 
       if (eventItem.hashId in this.calendarView.mFlashingEvents) {
         itemBox.setAttribute("flashing", "true");
@@ -1629,6 +1598,9 @@
      *   drop shadow.
      */
     setDropShadow(on) {
+      // NOTE: Adding or removing drop shadows may change our size, but we won't
+      // let the calendar view know about these since they are temporary and we
+      // don't want the view to be re-adjusting on every hover.
       let existing = this.eventsListElement.querySelector(".dropshadow");
       if (on) {
         if (!existing) {
@@ -1688,13 +1660,22 @@
       }
     }
 
-    onWheel(event) {
-      if (this.getAttribute("orient") == "vertical") {
-        // In vertical view (normal), don't let the parent multiday view
-        // handle the scrolling in its bubbling phase. The default action
-        // will make the box scroll here.
-        event.stopPropagation();
-      }
+    /**
+     * Determine whether the given wheel event is above a scrollable area and
+     * matches the scroll direction.
+     *
+     * @param {WheelEvent} - The wheel event.
+     *
+     * @return {boolean} - True if this event is above a scrollable area and
+     *   matches its scroll direction.
+     */
+    wheelOnScrollableArea(event) {
+      let scrollArea = this.eventsListElement;
+      return (
+        event.deltaY &&
+        scrollArea.contains(event.target) &&
+        scrollArea.scrollHeight != scrollArea.clientHeight
+      );
     }
   }
   customElements.define("calendar-header-container", CalendarHeaderContainer);
@@ -1923,7 +1904,6 @@
       const indicator = document.createXULElement("box");
 
       stack.setAttribute("class", "timebarboxstack");
-      stack.setAttribute("style", "display: block; position: relative;");
       stack.setAttribute("flex", "1");
 
       topbox.setAttribute("class", "topbox");
@@ -2068,44 +2048,88 @@
     static get inheritedAttributes() {
       return { ".timebar": "orient" };
     }
+    // mDateList will always be sorted before being set.
+    mDateList = null;
+
+    /**
+     * A column in the view representing a particular date.
+     * @typedef {Object} DayColumn
+     * @property {calIDateTime} date - The day's date.
+     * @property {Element} container - The container that holds the other
+     *   elements.
+     * @property {Element} headingContainer - The day heading. This holds both
+     *   the short and long headings, with only one being visible at any given
+     *   time.
+     * @property {Element} longHeading - The day heading that uses the full
+     *   day of the week. For example, "Monday".
+     * @property {Element} longHeading - The day heading that uses an
+     *   abbreviation for the day of the week. For example, "Mon".
+     * @property {number} longHeadingBorderAreaWidth - The border area width
+     *   of the headingContainer when the long heading is shown.
+     * @property {Element} column - A calendar-event-column where regular
+     *   (not "all day") events appear.
+     * @property {Element} header - A calendar-header-container where allday
+     *   events appear.
+     */
+    /**
+     * An ordered list of the shown day columns.
+     *
+     * @type {DayColumn[]}
+     */
+    dayColumns = [];
+
+    /**
+     * Whether the short/long heading widths need to be remeasured.
+     * @type {boolean}
+     */
+    headingWidthsOutdated = true;
+    /**
+     * Whether the headers need repositioning.
+     * @type {boolean}
+     */
+    headerPositionsOutdated = true;
+
+    mPixPerMin = 0.6;
+    mMinPixelsPerMinute = 0.1;
+
+    mSelectedDayCol = null;
+    mSelectedDay = null;
+
+    mDayStartMin = 0;
+    mDayEndMin = 0;
+
+    mVisibleMinutes = 9 * 60;
+    mClickedTime = null;
+
+    mTimeIndicatorInterval = 15;
+    mTimeIndicatorMinutes = 0;
+
+    mModeHandler = null;
+    scrollMinute = 0;
 
     connectedCallback() {
+      // this.hasConnected is set to true via super.connectedCallback (below).
       if (this.delayConnectedCallback() || this.hasConnected) {
         return;
       }
-      // this.hasConnected is set to true via super.connectedCallback (below).
 
-      // The orient of the calendar-time-bar should be the opposite of the parent.
-      this.appendChild(
-        MozXULElement.parseXULToFragment(`
-          <box class="mainbox multiday-view-main-box"
-               flex="1">
-            <box class="labelbox multiday-view-label-box">
-              <box class="labeltimespacer multiday-view-label-time-spacer"/>
-              <box class="labeldaybox multiday-view-label-day-box"
-                   flex="1"
-                   equalsize="always"/>
-              <box class="labelscrollbarspacer multiday-labelscrollbarspacer"/>
-            </box>
-            <box class="headerbox multiday-view-header-box">
-              <box class="headertimespacer multiday-view-header-time-spacer"/>
-              <box class="headerdaybox multiday-view-header-day-box"
-                   flex="1"
-                   equalsize="always"/>
-              <box class="headerscrollbarspacer multiday-headerscrollbarspacer"/>
-            </box>
-            <scrollbox class="scrollbox"
-                       flex="1"
-                       onoverflow="adjustScrollBarSpacers();"
-                       onunderflow="adjustScrollBarSpacers();">
-              <calendar-time-bar class="timebar"/>
-              <box class="daybox multiday-view-day-box"
-                   flex="1"
-                   equalsize="always"/>
-            </scrollbox>
-          </box>
-        `)
-      );
+      this.grid = document.createElement("div");
+      this.grid.classList.add("multiday-grid");
+      this.appendChild(this.grid);
+
+      this.headerCorner = document.createElement("div");
+      this.headerCorner.classList.add("multiday-header-corner");
+
+      this.grid.appendChild(this.headerCorner);
+
+      this.timebar = document.createXULElement("calendar-time-bar");
+      this.timebar.classList.add("timebar");
+      this.grid.appendChild(this.timebar);
+      this.timebar.pixelsPerMinute = this.pixelsPerMinute;
+
+      this.endBorder = document.createElement("div");
+      this.endBorder.classList.add("multiday-end-border");
+      this.grid.appendChild(this.endBorder);
 
       this.initializeAttributeInheritance();
 
@@ -2121,84 +2145,76 @@
 
       this.addEventListener("wheel", event => {
         // Only shift hours if no modifier is pressed.
-        if (!event.ctrlKey && !event.shiftKey && !event.altKey && !event.metaKey) {
-          let minute = this.mFirstVisibleMinute;
-
-          if (event.deltaMode == event.DOM_DELTA_LINE) {
-            if (this.rotated && event.deltaX != 0) {
-              minute += event.deltaX < 0 ? -60 : 60;
-            } else if (!this.rotated && event.deltaY != 0) {
-              minute += event.deltaY < 0 ? -60 : 60;
-            }
-          } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
-            if (this.rotated && event.deltaX != 0) {
-              minute += Math.ceil(event.deltaX / this.mPixPerMin);
-            } else if (!this.rotated && event.deltaY != 0) {
-              minute += Math.ceil(event.deltaY / this.mPixPerMin);
-            }
+        if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+          return;
+        }
+        let deltaTime = this.getAttribute("orient") == "horizontal" ? event.deltaX : event.deltaY;
+        if (!deltaTime) {
+          // Scroll is not in the same direction as the time axis, so just do
+          // the default scroll (if any).
+          return;
+        }
+        if (
+          this.headerCorner.contains(event.target) ||
+          this.dayColumns.some(col => col.headingContainer.contains(event.target))
+        ) {
+          // Prevent any scrolling in these sticky headers.
+          event.preventDefault();
+          return;
+        }
+        let header = this.dayColumns.find(col => col.header.contains(event.target))?.header;
+        if (header) {
+          if (!header.wheelOnScrollableArea(event)) {
+            // Prevent any scrolling in this header.
+            event.preventDefault();
+            // Otherwise, we let the default wheel handler scroll the header.
+            // NOTE: We have the CSS overscroll-behavior set to "none", to stop
+            // the default wheel handler from scrolling the parent if the header
+            // is already at its scrolling edge.
           }
-          this.scrollToMinute(minute);
+          return;
         }
-
-        // We are taking care of scrolling, so prevent the default action in any case.
+        let minute = this.scrollMinute;
+        if (event.deltaMode == event.DOM_DELTA_LINE) {
+          // We snap from the current hour to the next one.
+          let scrollHour = deltaTime < 0 ? Math.floor(minute / 60) : Math.ceil(minute / 60);
+          if (Math.abs(scrollHour * 60 - minute) < 10) {
+            // If the change in minutes would be less than 10 minutes, go to the
+            // next hour. This means that anything in the close neighbourhood of
+            // the hour line will scroll to the same hour.
+            scrollHour += Math.sign(deltaTime);
+          }
+          minute = scrollHour * 60;
+        } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
+          let minDiff = deltaTime / this.mPixPerMin;
+          minute += minDiff < 0 ? Math.floor(minDiff) : Math.ceil(minDiff);
+        } else {
+          return;
+        }
         event.preventDefault();
+        this.scrollToMinute(minute);
       });
 
-      this.addEventListener("scroll", event => {
-        const scrollbox = this.querySelector(".scrollbox");
-
-        // Update the first visible minute, but only if the scrollbox has been sized.
-        if (scrollbox.scrollHeight > 0) {
-          const scrollTopOrLeft =
-            scrollbox.getAttribute("orient") == "horizontal"
-              ? scrollbox.scrollTop
-              : scrollbox.scrollLeft;
-
-          this.mFirstVisibleMinute = Math.round(scrollTopOrLeft / this.mPixPerMin);
+      this.grid.addEventListener("scroll", event => {
+        if (!this.clientHeight) {
+          // Hidden, so don't store the scroll position.
+          // FIXME: We don't expect scrolling whilst we are hidden, so we should
+          // try and remove. This is only seems to happen in mochitests.
+          return;
         }
+        let scrollPx;
+        if (this.getAttribute("orient") == "horizontal") {
+          scrollPx = document.dir == "rtl" ? -this.grid.scrollLeft : this.grid.scrollLeft;
+        } else {
+          scrollPx = this.grid.scrollTop;
+        }
+        this.scrollMinute = Math.round(scrollPx / this.mPixPerMin);
       });
-
-      // mDateList will always be sorted before being set.
-      this.mDateList = null;
-
-      /**
-       * A column in the view representing a particular date.
-       * @typedef {Object} DateColumn
-       * @property {calIDateTime} date    The date.
-       * @property {Element} column       A `calendar-event-column` where regular,
-       *                                  (not "all day") events appear.
-       * @property {Element} header       A `calendar-header-container` where "all day"
-       *                                  events appear.
-       */
-
-      /** @type {DateColumn[]} */
-      this.mDateColumns = null;
-
-      this.mPixPerMin = 0.6;
-      this.mMinPixelsPerMinute = 0.1;
-
-      this.mSelectedDayCol = null;
-      this.mSelectedDay = null;
-
-      this.mDayStartMin = 0;
-      this.mDayEndMin = 0;
-
-      this.mVisibleMinutes = 9 * 60;
-      this.mClickedTime = null;
-
-      this.mTimeIndicatorInterval = 15;
-      this.mTimeIndicatorMinutes = 0;
-
-      this.mModeHandler = null;
-      this.mFirstVisibleMinute = 0;
 
       // Get day start/end hour from prefs and set on the view.
       const startHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8) * 60;
       const endHour = Services.prefs.getIntPref("calendar.view.dayendhour", 17) * 60;
       this.setDayStartEndMinutes(startHour, endHour);
-
-      // Initially scroll to the day start hour in the view.
-      this.scrollToMinute(this.mDayStartMin);
 
       // Get visible hours from prefs and set on the view.
       const visibleMinutes = Services.prefs.getIntPref("calendar.view.visiblehours", 9) * 60;
@@ -2211,11 +2227,11 @@
 
       this.enableTimeIndicator();
 
-      this.reorient();
-    }
-
-    get labeldaybox() {
-      return this.querySelector(".labeldaybox");
+      // We set the scrollMinute, so that when onResize is eventually triggered
+      // by refresh, we will scroll to this.
+      // FIXME: Find a cleaner solution.
+      this.scrollMinute = this.mDayStartMin;
+      this.refresh();
     }
 
     // calICalendarView Properties
@@ -2262,16 +2278,14 @@
       }
 
       if (this.mSelectedDayCol) {
-        this.mSelectedDayCol.column.selected = false;
-        this.mSelectedDayCol.header.removeAttribute("selected");
+        this.mSelectedDayCol.container.classList.remove("day-column-selected");
       }
 
       if (day) {
         this.mSelectedDayCol = this.findColumnForDate(day);
         if (this.mSelectedDayCol) {
           this.mSelectedDay = this.mSelectedDayCol.date;
-          this.mSelectedDayCol.column.selected = true;
-          this.mSelectedDayCol.header.setAttribute("selected", "true");
+          this.mSelectedDayCol.container.classList.add("day-column-selected");
         } else {
           this.mSelectedDay = day;
         }
@@ -2282,7 +2296,7 @@
     get selectedDay() {
       let selected;
       if (this.numVisibleDates == 1) {
-        selected = this.mDateColumns[0].date;
+        selected = this.dayColumns[0].date;
       } else if (this.mSelectedDay) {
         selected = this.mSelectedDay;
       } else if (this.mSelectedDayCol) {
@@ -2296,10 +2310,6 @@
 
     // End calICalendarView Properties
 
-    get daysInView() {
-      return this.labeldaybox.children && this.labeldaybox.children.length;
-    }
-
     set selectedDateTime(dateTime) {
       this.mClickedTime = dateTime;
     }
@@ -2309,14 +2319,15 @@
     }
 
     set pixelsPerMinute(ppm) {
+      if (ppm == this.mPixPerMin) {
+        return;
+      }
+
       this.mPixPerMin = ppm;
 
       this.timebar.pixelsPerMinute = ppm;
 
-      if (!this.mDateColumns) {
-        return;
-      }
-      for (const col of this.mDateColumns) {
+      for (const col of this.dayColumns) {
         col.column.pixelsPerMinute = ppm;
       }
     }
@@ -2348,16 +2359,8 @@
       return count;
     }
 
-    get timebar() {
-      return this.querySelector(".timebar");
-    }
-
     get timeBarTimeIndicator() {
       return this.timebar.querySelector(".timeIndicator-timeBar");
-    }
-
-    get scrollbox() {
-      return this.querySelector(".scrollbox");
     }
 
     /**
@@ -2454,19 +2457,18 @@
         document.getElementById("week-view").mTimeIndicatorMinutes = nowMinutes;
       }
       // Update the position of the indicator.
-      const position = Math.round(this.mPixPerMin * this.mTimeIndicatorMinutes) - 1;
-      const posAttr = this.getAttribute("orient") == "vertical" ? "top: " : "left: ";
+      let position = `${Math.round(this.mPixPerMin * this.mTimeIndicatorMinutes) - 1}px`;
+      let isVertical = this.getAttribute("orient") == "vertical";
 
       if (this.timeBarTimeIndicator) {
-        this.timeBarTimeIndicator.setAttribute("style", posAttr + position + "px;");
+        this.timeBarTimeIndicator.style.insetInlineStart = isVertical ? null : position;
+        this.timeBarTimeIndicator.style.insetBlockStart = isVertical ? position : null;
       }
 
-      const todayColumn = this.findColumnForDate(this.today());
-      if (todayColumn) {
-        todayColumn.column.timeIndicatorBox.setAttribute(
-          "style",
-          "margin-" + posAttr + position + "px;"
-        );
+      const todayIndicator = this.findColumnForDate(this.today())?.column.timeIndicatorBox;
+      if (todayIndicator) {
+        todayIndicator.style.marginInlineStart = isVertical ? null : position;
+        todayIndicator.style.marginBlockStart = isVertical ? position : null;
       }
     }
 
@@ -2508,34 +2510,171 @@
 
     /**
      * Handle resizing by adjusting the view to the new size.
-     *
-     * @param {Element} calViewElem    A calendar view element (calICalendarView).
      */
     onResize() {
-      const scrollboxRect = this.scrollbox.getBoundingClientRect();
+      // Assume resize in both directions.
+      this.resizeScrollArea(true, true, this.scrollMinute);
+    }
+
+    /**
+     * Perform an operation on the header that may cause it to resize, such that
+     * the view can adjust itself accordingly.
+     *
+     * @param {Element} header - The header that may resize.
+     * @param {Function} operation - An operation to run.
+     */
+    doResizingHeaderOperation(header, operation) {
+      // Capture scrollMinute before we potentially change the size of the view.
+      let scrollMinute = this.scrollMinute;
+      let beforeRect = header.getBoundingClientRect();
+
+      operation();
+
+      let afterRect = header.getBoundingClientRect();
+      // Let the view know if we change in size.
+      this.resizeScrollArea(
+        beforeRect.height != afterRect.height,
+        beforeRect.width != afterRect.width,
+        scrollMinute
+      );
+    }
+
+    /**
+     * Adjust the view based an a change in its scrollable area.
+     *
+     * @param {boolean} verticalResize - There may have been a change in the
+     *   vertical direction.
+     * @param {boolean} horizontalResize - There may have been a change in the
+     *   horizontal direction.
+     * @param {number} scrollMinute - The minute we should scroll after
+     *   adjusting the view in the time-direction.
+     */
+    resizeScrollArea(verticalResize, horizontalResize, scrollMinute) {
+      if ((!verticalResize && !horizontalResize) || !this.clientHeight || !this.clientWidth) {
+        // Do nothing if no resize, or we have zero width/height.
+        return;
+      }
+      let isHorizontal = this.getAttribute("orient") == "horizontal";
       let ppmHasChanged = false;
-
-      if (scrollboxRect.width != this.mWidth && scrollboxRect.height != this.mHeight) {
-        this.mWidth = scrollboxRect.width;
-        this.mHeight = scrollboxRect.height;
-
-        const isOrientHorizontal = this.getAttribute("orient") == "horizontal";
-
-        const size = isOrientHorizontal ? scrollboxRect.width : scrollboxRect.height;
-
-        const ppmRaw = size / this.mVisibleMinutes;
-        const ppmRounded = Math.floor(ppmRaw * 1000) / 1000;
-
-        const ppm = ppmRounded < this.mMinPixelsPerMinute ? this.mMinPixelsPerMinute : ppmRounded;
-
+      if ((isHorizontal && horizontalResize) || (!isHorizontal && verticalResize)) {
+        // We want to know how much visible space is available in the
+        // "time-direction" of this view's scrollable area, which will be used to
+        // show mVisibleMinutes minutes in the timebar.
+        // NOTE: The area returned by getScrollAreaRect is the *current*
+        // scrollable area. We are working with the assumption that the length in
+        // the time-direction will not change when we change the pixels per
+        // minute. This assumption is broken if the changes cause the
+        // non-time-direction to switch from overflowing to not, or vis versa,
+        // which adds or removes a scrollbar. Since we are only changing the
+        // content length in the time-direction, this should only happen in edge
+        // cases (e.g. scrollbar being added from a time-direction overflow also
+        // causes the non-time-direction to overflow).
+        let scrollArea = this.getScrollAreaRect();
+        let timeDirectionSize = isHorizontal
+          ? scrollArea.right - scrollArea.left
+          : scrollArea.bottom - scrollArea.top;
+        let ppm = Math.max(
+          this.mMinPixelsPerMinute,
+          Math.floor((timeDirectionSize * 1000) / this.mVisibleMinutes) / 1000
+        );
         ppmHasChanged = this.pixelsPerMinute != ppm;
         this.pixelsPerMinute = ppm;
 
-        // Fit the weekday labels while scrolling.
-        this.adjustWeekdayLength(isOrientHorizontal);
+        // Scroll to the given minute.
+        this.scrollToMinute(scrollMinute);
       }
 
-      setTimeout(() => this.scrollToMinute(this.mFirstVisibleMinute), 0);
+      // If we adjust in the other direction, we may need to change headings.
+      // NOTE: A change in pixels per minute can cause a scrollbar to appear or
+      // disappear, so we assume a change in these cases as well.
+      if (
+        ppmHasChanged ||
+        (isHorizontal && verticalResize) ||
+        (!isHorizontal && horizontalResize)
+      ) {
+        if (this.headingWidthsOutdated) {
+          this.minHeadingWidth = 0;
+
+          for (let dayCol of this.dayColumns) {
+            // Make sure both headings are visible for measuring.
+            dayCol.shortHeading.hidden = false;
+            dayCol.longHeading.hidden = false;
+
+            if (!this.headingContentToBorderOffset) {
+              // Cache the difference between the content area and the border area.
+              // NOTE: We assume this is constant.
+              let style = getComputedStyle(dayCol.headingContainer);
+              this.headingContentToBorderOffset = {
+                inline:
+                  parseFloat(style.paddingInlineStart) +
+                  parseFloat(style.paddingInlineEnd) +
+                  parseFloat(style.borderInlineStartWidth) +
+                  parseFloat(style.borderInlineEndWidth),
+                block:
+                  parseFloat(style.paddingBlockStart) +
+                  parseFloat(style.paddingBlockEnd) +
+                  parseFloat(style.borderBlockStartWidth) +
+                  parseFloat(style.borderBlockEndWidth),
+              };
+            }
+
+            let longHeadingRect = dayCol.longHeading.getBoundingClientRect();
+
+            if (!this.verticalHeadingBorderAreaHeight) {
+              // Cache the border area height of the heading.
+              // NOTE: We assume this is constant when in the vertical view.
+              this.verticalHeadingBorderAreaHeight =
+                longHeadingRect.height + this.headingContentToBorderOffset.block;
+            }
+
+            dayCol.longHeadingBorderAreaWidth =
+              longHeadingRect.width + this.headingContentToBorderOffset.inline;
+            let shortHeadingBorderAreaWidth =
+              dayCol.shortHeading.getBoundingClientRect().width +
+              this.headingContentToBorderOffset.inline;
+            this.minHeadingWidth = Math.max(this.minHeadingWidth, shortHeadingBorderAreaWidth);
+          }
+        }
+        if (this.headingWidthsOutdated || this.headerPositionsOutdated) {
+          if (isHorizontal) {
+            for (let dayCol of this.dayColumns) {
+              // The header is sticky, so we need to position it. We want a constant
+              // position, so we offset the header by the heading width.
+              // NOTE: We assume there is no margin between the two.
+              dayCol.header.style.insetBlockStart = null;
+              dayCol.header.style.insetInlineStart = `${this.minHeadingWidth}px`;
+              // NOTE: The heading must have its box-sizing set to border-box for
+              // this to work properly.
+              dayCol.headingContainer.style.width = `${this.minHeadingWidth}px`;
+              dayCol.headingContainer.style.minWidth = null;
+            }
+          } else {
+            for (let dayCol of this.dayColumns) {
+              // We offset the header by the heading height.
+              dayCol.header.style.insetBlockStart = `${this.verticalHeadingBorderAreaHeight}px`;
+              dayCol.header.style.insetInlineStart = null;
+              dayCol.headingContainer.style.minWidth = `${this.minHeadingWidth}px`;
+              dayCol.headingContainer.style.width = null;
+            }
+          }
+        }
+        this.headingWidthsOutdated = false;
+        this.headerPositionsOutdated = false;
+        // Switch to short headings if we're in the horizontal view, or we're in
+        // the vertical view and the long headings would overflow.
+        let shortHeadings = true;
+        if (!isHorizontal) {
+          // All headers should have the same width, so we only need to measure
+          // the width of one.
+          // NOTE: We assume no inline margin.
+          let headerWidth = this.dayColumns[0]?.headingContainer.getBoundingClientRect().width;
+          shortHeadings = this.dayColumns.some(col => headerWidth < col.longHeadingBorderAreaWidth);
+        }
+        for (let dayCol of this.dayColumns) {
+          dayCol.shortHeading.hidden = !shortHeadings;
+          dayCol.longHeading.hidden = shortHeadings;
+        }
+      }
 
       // Adjust the time indicator position and the related timer.
       if (this.mTimeIndicatorInterval != 0) {
@@ -2857,257 +2996,184 @@
      * @param {string} value    The value to set.
      */
     setAttribute(attr, value) {
-      const needsReorient = attr == "orient" && this.getAttribute("orient") != value;
-
-      const needsRelayout = attr == "context" || attr == "item-context";
+      let rotated = attr == "orient" && this.getAttribute("orient") != value;
+      let context = attr == "context" || attr == "item-context";
 
       // This should be done using lookupMethod(), see bug 286629.
       const ret = XULElement.prototype.setAttribute.call(this, attr, value);
 
-      if (needsReorient) {
-        this.reorient();
-      } else if (needsRelayout) {
-        this.relayout();
+      if (rotated || context) {
+        this.relayout({ rotated, context });
       }
 
       return ret;
     }
 
     /**
-     * Update the view when the view has changed orientation (horizontal or vertical).
+     * Re-render the view based on the given changes.
+     *
+     * Note, changing the dates will wipe the columns of all events, otherwise
+     * the current events are kept in place.
+     *
+     * @param {Object} [changes] - The relevant changes to the view. Defaults to
+     *   all changes.
+     * @property {boolean} dates - A change in the column dates.
+     * @property {boolean} rotated - A change in the rotation.
+     * @property {boolean} context - A change in the context menu.
      */
-    reorient() {
-      const orient = this.getAttribute("orient") || "horizontal";
-      const otherOrient = orient == "vertical" ? "horizontal" : "vertical";
-
-      this.pixelsPerMinute = orient == "horizontal" ? 1.5 : 0.6;
-
-      const normalElems = [".mainbox", ".timebar"];
-      const otherElems = [
-        ".labelbox",
-        ".labeldaybox",
-        ".headertimespacer",
-        ".headerbox",
-        ".headerdaybox",
-        ".scrollbox",
-        ".daybox",
-      ];
-
-      for (const selector of normalElems) {
-        this.querySelector(selector).setAttribute("orient", orient);
-      }
-      for (const selector of otherElems) {
-        this.querySelector(selector).setAttribute("orient", otherOrient);
-      }
-
-      if (orient == "vertical") {
-        this.scrollbox.setAttribute("style", "overflow-x:hidden; overflow-y:auto;");
-        this.querySelector(".mainbox").setAttribute("style", "overflow-x:auto; overflow-y:hidden;");
-      } else {
-        this.scrollbox.setAttribute("style", "overflow-x: auto; overflow-y: hidden;");
-        this.querySelector(".mainbox").setAttribute("style", "overflow-x:hidden; overflow-y:auto;");
-      }
-
-      for (const selector of [".daybox", ".headerdaybox"]) {
-        for (let child of this.querySelector(selector).children) {
-          child.setAttribute("orient", orient);
-        }
-      }
-
-      for (let child of this.labeldaybox.children) {
-        child.setAttribute("orient", otherOrient);
-      }
-
-      this.refresh();
-    }
-
-    /**
-     * Re-render the view.
-     */
-    relayout() {
+    relayout(changes) {
       if (!this.mStartDate || !this.mEndDate) {
         return;
       }
-
-      const orient = this.getAttribute("orient") || "horizontal";
-      const otherOrient = orient == "horizontal" ? "vertical" : "horizontal";
-
-      const computedDateList = [];
-      const startDate = this.mStartDate.clone();
-
-      while (startDate.compare(this.mEndDate) <= 0) {
-        const workday = startDate.clone();
-        workday.makeImmutable();
-
-        if (this.mDisplayDaysOff || !this.mDaysOffArray.includes(startDate.weekday)) {
-          computedDateList.push(workday);
-        }
-        startDate.day += 1;
+      if (!changes) {
+        changes = { dates: true };
       }
-      this.mDateList = computedDateList;
+      if (changes.dates) {
+        // If there is a change in dates we treat as a change in orientation and
+        // context since the potential new columns need this information.
+        changes.rotated = true;
+        changes.context = true;
+      }
+      let scrollMinute = this.scrollMinute;
 
-      // Deselect the previously selected event upon switching views, otherwise those events
-      // will stay selected forever, if other events are selected after changing the view.
-      this.setSelectedItems([], true);
+      const orient = this.getAttribute("orient") || "vertical";
+      this.grid.classList.toggle("multiday-grid-rotated", orient == "horizontal");
 
-      const daybox = this.querySelector(".daybox");
-      const headerdaybox = this.querySelector(".headerdaybox");
+      for (let dayCol of this.dayColumns) {
+        dayCol.column.startLayoutBatchChange();
+      }
 
-      const dayStartMin = this.mDayStartMin;
-      const dayEndMin = this.mDayEndMin;
+      if (changes.dates) {
+        const computedDateList = [];
+        const startDate = this.mStartDate.clone();
+        while (startDate.compare(this.mEndDate) <= 0) {
+          const workday = startDate.clone();
+          workday.makeImmutable();
 
-      const setUpDayEventsBox = (dayBox, date) => {
-        dayBox.setAttribute(
-          "class",
-          "calendar-event-column-" + (counter % 2 == 0 ? "even" : "odd")
-        );
-        dayBox.setAttribute("context", this.getAttribute("context"));
-        dayBox.setAttribute(
-          "item-context",
-          this.getAttribute("item-context") || this.getAttribute("context")
-        );
-
-        dayBox.startLayoutBatchChange();
-        dayBox.date = date;
-        dayBox.setAttribute("orient", orient);
-
-        dayBox.calendarView = this;
-        dayBox.setDayStartEndMinutes(dayStartMin, dayEndMin);
-      };
-
-      const setUpDayHeaderBox = (dayBox, date) => {
-        dayBox.date = date;
-        dayBox.calendarView = this;
-        dayBox.setAttribute("orient", "vertical");
-        // Since the calendar-header-container boxes have the same vertical
-        // orientation for normal and rotated views, it needs an attribute
-        // "rotated" in order to have different css rules.
-        dayBox.rotated = orient == "horizontal";
-      };
-
-      this.mDateColumns = [];
-
-      // Get today's date.
-      const today = this.today();
-      let counter = 0;
-      const dayboxkids = daybox.children;
-      const headerboxkids = headerdaybox.children;
-      const labelboxkids = this.labeldaybox.children;
-      let updateTimeIndicator = false;
-
-      for (const date of computedDateList) {
-        let dayEventsBox;
-        if (counter < dayboxkids.length) {
-          dayEventsBox = dayboxkids[counter];
-          dayEventsBox.removeAttribute("relation");
-          dayEventsBox.clear();
-        } else {
-          dayEventsBox = document.createXULElement("calendar-event-column");
-          dayEventsBox.setAttribute("flex", "1");
-          daybox.appendChild(dayEventsBox);
-        }
-        setUpDayEventsBox(dayEventsBox, date);
-
-        let dayHeaderBox;
-        if (counter < headerboxkids.length) {
-          dayHeaderBox = headerboxkids[counter];
-          dayHeaderBox.clear();
-        } else {
-          dayHeaderBox = document.createXULElement("calendar-header-container");
-          dayHeaderBox.setAttribute("flex", "1");
-          headerdaybox.appendChild(dayHeaderBox);
-        }
-        setUpDayHeaderBox(dayHeaderBox, date);
-
-        if (this.mDaysOffArray.includes(date.weekday)) {
-          dayEventsBox.dayOff = true;
-          dayHeaderBox.setAttribute("weekend", "true");
-        } else {
-          dayEventsBox.dayOff = false;
-          dayHeaderBox.removeAttribute("weekend");
-        }
-        let labelbox;
-        if (counter < labelboxkids.length) {
-          labelbox = labelboxkids[counter];
-          labelbox.date = date;
-        } else {
-          labelbox = document.createXULElement("calendar-day-label");
-          labelbox.setAttribute("orient", otherOrient);
-          this.labeldaybox.appendChild(labelbox);
-          labelbox.date = date;
-        }
-        // Set attributes for date relations and for the time indicator.
-        const headerDayBox = this.querySelector(".headerdaybox");
-        headerDayBox.removeAttribute("todaylastinview");
-        dayEventsBox.timeIndicatorBox.setAttribute("hidden", "true");
-        switch (date.compare(today)) {
-          case -1: {
-            dayHeaderBox.setAttribute("relation", "past");
-            dayEventsBox.setAttribute("relation", "past");
-            labelbox.setAttribute("relation", "past");
-            break;
+          if (this.mDisplayDaysOff || !this.mDaysOffArray.includes(startDate.weekday)) {
+            computedDateList.push(workday);
           }
-          case 0: {
-            const relation_ = this.numVisibleDates == 1 ? "today1day" : "today";
-            dayHeaderBox.setAttribute("relation", relation_);
-            dayEventsBox.setAttribute("relation", relation_);
-            labelbox.setAttribute("relation", relation_);
-            dayEventsBox.timeIndicatorBox.hidden = this.mTimeIndicatorInterval == 0;
+          startDate.day += 1;
+        }
+        this.mDateList = computedDateList;
+
+        this.grid.style.setProperty("--multiday-num-days", computedDateList.length);
+
+        // Deselect the previously selected event upon switching views,
+        // otherwise those events will stay selected forever, if other events
+        // are selected after changing the view.
+        this.setSelectedItems([], true);
+
+        // Get today's date.
+        let today = this.today();
+        let updateTimeIndicator = false;
+
+        let dateFormatter = cal.dtz.formatter;
+
+        // Assume the heading widths are no longer valid because the displayed
+        // dates are likely to change.
+        this.headingWidthsOutdated = true;
+        let colIndex;
+        for (colIndex = 0; colIndex < computedDateList.length; colIndex++) {
+          let dayDate = computedDateList[colIndex];
+          let dayCol = this.dayColumns[colIndex];
+          if (dayCol) {
+            dayCol.column.clear();
+            dayCol.header.clear();
+          } else {
+            dayCol = {};
+            dayCol.container = document.createElement("article");
+            dayCol.container.classList.add("day-column-container");
+            this.grid.insertBefore(dayCol.container, this.endBorder);
+
+            dayCol.headingContainer = document.createElement("h2");
+            dayCol.headingContainer.classList.add("day-column-heading");
+            dayCol.longHeading = document.createElement("span");
+            dayCol.shortHeading = document.createElement("span");
+            dayCol.headingContainer.appendChild(dayCol.longHeading);
+            dayCol.headingContainer.appendChild(dayCol.shortHeading);
+            dayCol.container.appendChild(dayCol.headingContainer);
+
+            dayCol.header = document.createXULElement("calendar-header-container");
+            dayCol.header.setAttribute("orient", "vertical");
+            dayCol.container.appendChild(dayCol.header);
+            dayCol.header.calendarView = this;
+
+            dayCol.column = document.createXULElement("calendar-event-column");
+            dayCol.container.appendChild(dayCol.column);
+            dayCol.column.calendarView = this;
+            dayCol.column.pixelsPerMinute = this.pixelsPerMinute;
+            dayCol.column.startLayoutBatchChange();
+
+            this.dayColumns[colIndex] = dayCol;
+          }
+          dayCol.date = dayDate.clone();
+          dayCol.date.isDate = true;
+          dayCol.date.makeImmutable();
+
+          /* Set up day of the week headings. */
+          dayCol.shortHeading.textContent = cal.l10n.getCalString("dayHeaderLabel", [
+            dateFormatter.shortDayName(dayDate.weekday),
+            dateFormatter.formatDateWithoutYear(dayDate),
+          ]);
+          dayCol.longHeading.textContent = cal.l10n.getCalString("dayHeaderLabel", [
+            dateFormatter.dayName(dayDate.weekday),
+            dateFormatter.formatDateWithoutYear(dayDate),
+          ]);
+
+          /* Set up all-day header. */
+          dayCol.header.date = dayDate;
+
+          /* Set up event column. */
+          dayCol.column.date = dayDate;
+
+          dayCol.column.setDayStartEndMinutes(this.mDayStartMin, this.mDayEndMin);
+
+          /* Set up styling classes for day-off and today. */
+          dayCol.container.classList.toggle(
+            "day-column-weekend",
+            this.mDaysOffArray.includes(dayDate.weekday)
+          );
+
+          let isToday = dayDate.compare(today) == 0;
+          dayCol.column.timeIndicatorBox.hidden = !isToday || this.mTimeIndicatorInterval == 0;
+          if (isToday) {
             updateTimeIndicator = true;
-
-            // Due to equalsize=always being set on the dayboxes
-            // parent, there are a few issues showing the border of
-            // the last daybox correctly. To work around this, we're
-            // setting an attribute we can use in CSS. For more
-            // information about this hack, see bug 455045.
-            if (
-              dayHeaderBox == headerdaybox.children[headerdaybox.children.length - 1] &&
-              this.numVisibleDates > 1
-            ) {
-              headerDayBox.setAttribute("todaylastinview", "true");
-            }
-            break;
           }
-          case 1: {
-            dayHeaderBox.setAttribute("relation", "future");
-            dayEventsBox.setAttribute("relation", "future");
-            labelbox.setAttribute("relation", "future");
-            break;
-          }
+          dayCol.container.classList.toggle("day-column-today", isToday);
         }
-        // We don't want to actually mess with our original dates, plus
-        // they're likely to be immutable.
-        const date2 = date.clone();
-        date2.isDate = true;
-        date2.makeImmutable();
-        this.mDateColumns.push({ date: date2, column: dayEventsBox, header: dayHeaderBox });
-        counter++;
-      }
-
-      // Remove any extra columns that may have been hanging around.
-      function removeExtraKids(elem) {
-        while (counter < elem.children.length) {
-          elem.children[counter].remove();
+        // Remove excess columns.
+        for (let dayCol of this.dayColumns.splice(colIndex)) {
+          dayCol.column.endLayoutBatchChange();
+          dayCol.container.remove();
         }
-      }
-      removeExtraKids(daybox);
-      removeExtraKids(headerdaybox);
-      removeExtraKids(this.labeldaybox);
 
-      if (updateTimeIndicator) {
-        this.updateTimeIndicatorPosition();
-      }
-
-      // Fix pixels-per-minute.
-      this.onResize();
-      if (this.mDateColumns) {
-        for (const col of this.mDateColumns) {
-          col.column.endLayoutBatchChange();
+        if (updateTimeIndicator) {
+          this.updateTimeIndicatorPosition();
         }
       }
 
-      // Adjust scrollbar spacers.
-      this.adjustScrollBarSpacers();
+      if (changes.rotated) {
+        for (let dayCol of this.dayColumns) {
+          dayCol.column.setAttribute("orient", orient);
+        }
+        // Fix pixels-per-minute and heading widths.
+        this.headerPositionsOutdated = true;
+        this.resizeScrollArea(true, true, scrollMinute);
+      }
+
+      if (changes.context) {
+        let context = this.getAttribute("context");
+        let itemContext = this.getAttribute("item-context") || context;
+        for (let dayCol of this.dayColumns) {
+          dayCol.column.setAttribute("context", context);
+          dayCol.column.setAttribute("item-context", itemContext);
+        }
+      }
+
+      for (let dayCol of this.dayColumns) {
+        dayCol.column.endLayoutBatchChange();
+      }
 
       // Store the start and end of current view. Next time when
       // setDateRange is called, it will use mViewStart and mViewEnd to
@@ -3137,10 +3203,7 @@
      * @return {?DateColumn}         A column object.
      */
     findColumnForDate(date) {
-      if (!this.mDateColumns) {
-        return null;
-      }
-      for (const col of this.mDateColumns) {
+      for (const col of this.dayColumns) {
         if (col.date.compare(date) == 0) {
           return col;
         }
@@ -3160,23 +3223,6 @@
     }
 
     /**
-     * Select the column header for a given date.
-     *
-     * @param {calIDateTime} date    A date.
-     */
-    selectColumnHeader(date) {
-      let child = this.labeldaybox.firstElementChild;
-      while (child) {
-        if (child.date.compare(date) == 0) {
-          child.setAttribute("selected", "true");
-        } else {
-          child.removeAttribute("selected");
-        }
-        child = child.nextElementSibling;
-      }
-    }
-
-    /**
      * Return the column objects for a given calendar item.
      *
      * @param {calIItemBase} item    A calendar item.
@@ -3185,7 +3231,7 @@
     findColumnsForItem(item) {
       const columns = [];
 
-      if (!this.mDateColumns) {
+      if (!this.dayColumns.length) {
         return columns;
       }
 
@@ -3194,7 +3240,7 @@
       if (!startDate) {
         return columns;
       }
-      const timezone = this.mDateColumns[0].date.timezone;
+      const timezone = this.dayColumns[0].date.timezone;
       let targetDate = startDate.getInTimezone(timezone);
       let finishDate = (item.endDate || item.dueDate || item.entryDate || startDate).getInTimezone(
         timezone
@@ -3244,10 +3290,7 @@
      * @return {MozCalendarEventColumn[]} - The columns in this view.
      */
     getEventColumns() {
-      if (!this.mDateColumns) {
-        return [];
-      }
-      return Array.from(this.mDateColumns, col => col.column);
+      return Array.from(this.dayColumns, col => col.column);
     }
 
     /**
@@ -3259,25 +3302,7 @@
      *   null if none do.
      */
     findEventColumnThatContains(node) {
-      if (!this.mDateColumns) {
-        return null;
-      }
-      return this.mDateColumns.find(col => col.column.contains(node))?.column;
-    }
-
-    /**
-     * If an all day event is added or deleted, then the header with all day events could get a
-     * scrollbar. Readjust the scrollbar spacers.
-     *
-     * @param {calIItemBase} event    A calendar item.
-     */
-    adjustScrollbarSpacersForAlldayEvents(event) {
-      const startDate = event[cal.dtz.startDateProp(event)];
-      const endDate = event[cal.dtz.endDateProp(event)];
-
-      if ((startDate && startDate.isDate) || (endDate && endDate.isDate)) {
-        this.adjustScrollBarSpacers();
-      }
+      return this.dayColumns.find(col => col.column.contains(node))?.column;
     }
 
     /**
@@ -3295,12 +3320,11 @@
         const estart = event.startDate || event.entryDate || event.dueDate;
 
         if (estart.isDate) {
-          col.header.addEvent(event);
+          this.doResizingHeaderOperation(col.header, () => col.header.addEvent(event));
         } else {
           col.column.addEvent(event);
         }
       }
-      this.adjustScrollbarSpacersForAlldayEvents(event);
     }
 
     /**
@@ -3323,7 +3347,7 @@
         const estart = event.startDate || event.entryDate || event.dueDate;
 
         if (estart.isDate) {
-          col.header.deleteEvent(event);
+          this.doResizingHeaderOperation(col.header, () => col.header.deleteEvent(event));
         } else {
           col.column.deleteEvent(event);
         }
@@ -3333,8 +3357,6 @@
       if (oldLength != this.mSelectedItems.length) {
         this.fireEvent("itemselect", this.mSelectedItems);
       }
-
-      this.adjustScrollbarSpacersForAlldayEvents(event);
     }
 
     /**
@@ -3343,10 +3365,7 @@
      * @param {calICalendar} calendar    A calendar object.
      */
     removeItemsFromCalendar(calendar) {
-      if (!this.mDateColumns) {
-        return;
-      }
-      for (const col of this.mDateColumns) {
+      for (const col of this.dayColumns) {
         // Get all-day events in column header and events within the column.
         const colEvents = col.header.getAllEventItems().concat(col.column.getAllEventItems());
 
@@ -3359,86 +3378,72 @@
     }
 
     /**
-     * Adjust scroll bar spacers if needed.
+     * Get the position of the view's scrollable area (the padding area minus
+     * sticky headers and scrollbars) in the viewport.
+     *
+     * @return {{top: number, bottom: number, left: number, right: number}} -
+     *   The viewport positions of the respective scrollable area edges.
      */
-    adjustScrollBarSpacers() {
-      // Get the width or height of the scrollbox scrollbar, depending on view orientation.
-      const widthOrHeight = this.getAttribute("orient") == "vertical" ? "width" : "height";
+    getScrollAreaRect() {
+      // We want the viewport coordinates of the view's scrollable area. This is
+      // the same as the padding area minus the sticky headers and scrollbars.
+      let scrollTop;
+      let scrollBottom;
+      let scrollLeft;
+      let scrollRight;
+      let view = this.grid;
+      let viewRect = view.getBoundingClientRect();
+      if (this.getAttribute("orient") == "vertical") {
+        // paddingTop is the top of the view's padding area. We translate from
+        // the border area of the view to the padding area by adding clientTop,
+        // which is the view's top border width.
+        let paddingTop = viewRect.top + view.clientTop;
 
-      // We cannot access the scrollbar to get its size directly (e.g. via querySelector) so
-      // we subtract the size of the other scrollbox children from the size of the scrollbox
-      // to calculate the size of the scrollbar.
-      let scrollboxChildrenSize = 0;
-      for (const child of this.scrollbox.children) {
-        let computedStyle = window.getComputedStyle(child);
-        if (this.getAttribute("orient") == "vertical") {
-          // We expect that the margins are only set in px
-          scrollboxChildrenSize += parseFloat(computedStyle.marginLeft);
-          scrollboxChildrenSize += parseFloat(computedStyle.marginRight);
+        // The top of the scroll area is the bottom of the sticky header.
+        scrollTop = this.headerCorner.getBoundingClientRect().bottom;
+        // To get the bottom we add the clientHeight, which is the height of the
+        // padding area minus the scrollbar.
+        scrollBottom = paddingTop + view.clientHeight;
+        // To get the left, we add clientLeft, which is the left border width
+        // plus the scrollbar in right-to-left.
+        scrollLeft = viewRect.left + view.clientLeft;
+        // To get the right, we add clientWidth, which is the width of the
+        // padding area minus the scrollbar.
+        scrollRight = scrollLeft + view.clientWidth;
+      } else {
+        // Similar thing when oriented horizontally, except the sticky headers
+        // are at the inline-start.
+        let paddingLeft = viewRect.left + view.clientLeft;
+        if (document.dir == "rtl") {
+          scrollLeft = paddingLeft;
+          scrollRight = this.headerCorner.getBoundingClientRect().left;
         } else {
-          scrollboxChildrenSize += parseFloat(computedStyle.marginTop);
-          scrollboxChildrenSize += parseFloat(computedStyle.marginBottom);
+          scrollLeft = this.headerCorner.getBoundingClientRect().right;
+          scrollRight = paddingLeft + view.clientWidth;
         }
-        scrollboxChildrenSize += child.getBoundingClientRect()[widthOrHeight];
+        scrollTop = viewRect.top + view.clientTop;
+        scrollBottom = scrollTop + view.clientHeight;
       }
-      const scrollboxSize = this.scrollbox.getBoundingClientRect()[widthOrHeight];
-
-      const scrollbarSize = scrollboxSize - scrollboxChildrenSize;
-
-      // Check if we need to show the headerScrollbarSpacer at all.
-      let headerPropVal = scrollbarSize;
-      const headerDayBox = this.querySelector(".headerdaybox");
-      if (headerDayBox) {
-        // Only do this when there are multiple days.
-        const headerDayBoxMaxHeight = parseInt(
-          document.defaultView.getComputedStyle(headerDayBox).getPropertyValue("max-height"),
-          10
-        );
-
-        if (
-          this.getAttribute("orient") == "vertical" &&
-          headerDayBox.getBoundingClientRect().height >= headerDayBoxMaxHeight
-        ) {
-          // If the headerDayBox is just as high as the max-height, then
-          // there is already a scrollbar and we don't need to show the
-          // headerScrollbarSpacer. This is only valid for the non-rotated view.
-          headerPropVal = 0;
-        }
-      }
-
-      // Set the same width/height for the label and header box spacers.
-      this.querySelector(".headerscrollbarspacer").setAttribute(widthOrHeight, headerPropVal);
-      this.querySelector(".labelscrollbarspacer").setAttribute(widthOrHeight, scrollbarSize);
+      return { top: scrollTop, bottom: scrollBottom, left: scrollLeft, right: scrollRight };
     }
 
     /**
      * Scroll the view to a given minute.
      *
-     * @param {number} rawMinute    The minute to scroll to.
+     * @param {number} minute - The minute to scroll to.
      */
-    scrollToMinute(rawMinute) {
-      const scrollbox = this.scrollbox;
-      // The minute will be the first minute showed in the view, so it must
-      // belong to the range 0 <-> (24*60 - minutes_showed_in_the_view) but
-      // we consider 25 hours instead of 24 to let the view scroll until
-      // showing events that start just before 0.00.
-      const maxFirstMin =
-        25 * 60 - Math.round(scrollbox.getBoundingClientRect().height / this.mPixPerMin);
-
-      const minute = Math.min(maxFirstMin, Math.max(0, rawMinute));
-
-      if (scrollbox.scrollHeight > 0) {
-        const pos = Math.round(minute * this.mPixPerMin);
-        if (scrollbox.getAttribute("orient") == "horizontal") {
-          scrollbox.scrollTo(scrollbox.scrollLeft, pos);
-        } else {
-          scrollbox.scrollTo(pos, scrollbox.scrollTop);
-        }
+    scrollToMinute(minute) {
+      let pos = Math.round(Math.max(0, minute) * this.mPixPerMin);
+      if (this.getAttribute("orient") == "horizontal") {
+        this.grid.scrollLeft = document.dir == "rtl" ? -pos : pos;
+      } else {
+        this.grid.scrollTop = pos;
       }
-
-      // Set the first visible minute in any case, we want to move to the
-      // right minute as soon as possible if we couldn't do so above.
-      this.mFirstVisibleMinute = minute;
+      // NOTE: this.scrollMinute is set by the "scroll" callback.
+      // This means that if we tried to scroll further than possible, the
+      // scrollMinute will be capped.
+      // Also, if mPixPerMin < 1, then scrollMinute may differ from the given
+      // 'minute' due to rounding errors.
     }
 
     /**

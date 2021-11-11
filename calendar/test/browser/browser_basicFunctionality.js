@@ -53,10 +53,7 @@ add_task(async function testBasicFunctionality() {
     document.querySelector(`.calendar-time-bar-label[value='${label}']`),
     "09:00 label exists"
   );
-  Assert.ok(
-    document.querySelector("#day-view .daybox .multiday-column-bg-box").children[9],
-    "09:00 box exists"
-  );
+  Assert.ok(CalendarTestUtils.dayView.getHourBoxAt(window, 9), "09:00 box exists");
 
   // Open tasks view.
   document.querySelector("#task-tab-button").click();

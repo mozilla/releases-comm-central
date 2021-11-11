@@ -120,7 +120,6 @@ add_task(async function testAttachWebPage() {
   let eventBox = await getEventBox("calendar-month-day-box-item");
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {});
-  await CalendarTestUtils.closeCalendarTab(window);
 });
 
 /**
@@ -277,7 +276,6 @@ add_task(async function testAttachProvider() {
   let eventBox = await getEventBox("calendar-month-day-box-item");
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {});
-  await CalendarTestUtils.closeCalendarTab(window);
 });
 
 registerCleanupFunction(() => {

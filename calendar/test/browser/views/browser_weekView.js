@@ -8,10 +8,6 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
-);
-
 var TITLE1 = "Week View Event";
 var TITLE2 = "Week View Event Changed";
 var DESC = "Week View Event Description";
@@ -27,9 +23,9 @@ add_task(async function testWeekView() {
 
   // Verify date.
   await TestUtils.waitForCondition(() => {
-    let dateLabel = document.querySelector("#week-view calendar-header-container[selected=true]");
-    return dateLabel && dateLabel.mDate.icalString == "20090101";
-  }, "Inspecting the date");
+    let dateLabel = document.querySelector("#week-view .day-column-selected calendar-event-column");
+    return dateLabel?.date.icalString == "20090101";
+  }, "Date is selected");
 
   // Create event at 8 AM.
   // Thursday of 2009-01-01 is 4th with default settings.

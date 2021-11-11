@@ -48,17 +48,21 @@ async function resetView(date, view) {
  */
 function simulateDragToColumn(eventBox, column, hour) {
   // Scroll to align to the top of the view.
-  eventBox.scrollIntoView(true);
+  CalendarTestUtils.scrollViewToTarget(eventBox, true);
 
   let sourceRect = eventBox.getBoundingClientRect();
   // Start dragging from the center of the event box to avoid the gripbars.
   // NOTE: We assume that the eventBox's center is in view.
   let leftOffset = sourceRect.width / 2;
-  let topOffset = sourceRect.height / 2;
+  // We round the mouse position to try and reduce rounding errors when
+  // scrolling the view.
+  let sourceTop = Math.round(sourceRect.top + sourceRect.height / 2);
+  // Keep track of the exact offset.
+  let topOffset = sourceTop - sourceRect.top;
 
   EventUtils.synthesizeMouseAtPoint(
     sourceRect.left + leftOffset,
-    sourceRect.top + topOffset,
+    sourceTop,
     // Hold shift to avoid snapping.
     { type: "mousedown", shiftKey: true },
     window
@@ -67,15 +71,16 @@ function simulateDragToColumn(eventBox, column, hour) {
     // We assume the location of the mouseout event does not matter, just as
     // long as the event box receives it.
     sourceRect.left + leftOffset,
-    sourceRect.top + topOffset,
+    sourceTop,
     { type: "mouseout", shiftKey: true },
     window
   );
 
   let hourElement = column.querySelector(`.calendar-event-column-linebox:nth-child(${hour + 1})`);
-  // Place the desired hour at the top of the view.
+  // We actually scroll to the previous hour element so we can avoid triggering
+  // the auto-scroll when we synthesize mousemove below.
   // FIXME: Use and test auto scroll by holding mouseover at the view edges.
-  hourElement.scrollIntoView(true);
+  CalendarTestUtils.scrollViewToTarget(hour ? hourElement.previousElementSibling : hourElement);
   // NOTE: The dragging of the event takes into account the offset of the
   // original mousedown from the sourceBox start edges.
   // So we need to drop the event with the same offset from the starting edge
@@ -85,15 +90,17 @@ function simulateDragToColumn(eventBox, column, hour) {
   // Currently event "move" events get cancelled if the pointer leaves the view.
   let hourRect = hourElement.getBoundingClientRect();
 
+  let destTop = Math.round(hourRect.top + topOffset);
+
   EventUtils.synthesizeMouseAtPoint(
     hourRect.left + leftOffset,
-    hourRect.top + topOffset,
+    destTop,
     { type: "mousemove", shiftKey: true },
     window
   );
   EventUtils.synthesizeMouseAtPoint(
     hourRect.left + leftOffset,
-    hourRect.top + topOffset,
+    destTop,
     { type: "mouseup", shiftKey: true },
     window
   );
@@ -109,26 +116,26 @@ function simulateDragToColumn(eventBox, column, hour) {
  */
 function simulateGripbarDrag(eventBox, side, column, hour) {
   // Scroll the edge of the box into view.
-  eventBox.scrollIntoView(side == "start");
+  CalendarTestUtils.scrollViewToTarget(eventBox, side == "start");
 
   let gripbar = eventBox.querySelector(`[whichside="${side}"]`);
 
   let sourceRect = gripbar.getBoundingClientRect();
   let leftOffset = sourceRect.width / 2;
-  let topOffset = sourceRect.height / 2;
 
   EventUtils.synthesizeMouseAtPoint(
     sourceRect.left + leftOffset,
-    sourceRect.top + topOffset,
+    sourceRect.top + sourceRect.height / 2,
     // Hold shift to avoid snapping.
     { type: "mousedown", shiftKey: true },
     window
   );
 
   let hourElement = column.querySelector(`.calendar-event-column-linebox:nth-child(${hour + 1})`);
-  // Place the desired hour at the top of the view.
+  // We actually scroll to the previous hour element so we can avoid triggering
+  // the auto-scroll when we synthesize mousemove below.
   // FIXME: Use and test auto scroll by holding mouseover at the view edges.
-  hourElement.scrollIntoView(true);
+  CalendarTestUtils.scrollViewToTarget(hour ? hourElement.previousElementSibling : hourElement);
 
   let hourRect = hourElement.getBoundingClientRect();
 
