@@ -389,11 +389,6 @@ bin/libfreebl_32int_3.so
 bin/libfreebl_32int64_3.so
 #endif
 
-; LDAP components need to be in the browser for AutoConfig
-@BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
-@BINPATH@/@DLL_PREFIX@ldif60@DLL_SUFFIX@
-@BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
-
 ; [MAN pages]
 #ifdef UNIX_BUT_NOT_MAC
 man/*
