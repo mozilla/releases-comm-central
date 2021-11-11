@@ -82,7 +82,8 @@ interface prplIConversation: nsISupports {
   void initializeEncryption();
 
   /**
-   * Send a message in the conversation
+   * Send a message in the conversation. Protocols should consider resetting
+   * the typing state with this call, similar to |sendTyping("")|.
    */
   void sendMsg(in AUTF8String aMsg);
 

@@ -421,6 +421,7 @@ MatrixRoom.prototype = {
    * @param {string} msg - Message to send.
    */
   sendMsg(msg) {
+    this.sendTyping("");
     this._account._client.sendTextMessage(this._roomId, msg).catch(error => {
       this._account.ERROR("Failed to send message to: " + this._roomId);
     });
@@ -697,7 +698,7 @@ MatrixRoom.prototype = {
   },
 
   _typingTimer: null,
-  _typingState: false,
+  _typingDebounce: null,
 
   /**
    * Sets up the composing end timeout and sets the typing state based on the
@@ -711,12 +712,14 @@ MatrixRoom.prototype = {
       return Ci.prplIConversation.NO_TYPING_LIMIT;
     }
 
+    const isTyping = string.length > 0;
+
     this._cancelTypingTimer();
-    if (string.length) {
+    if (isTyping) {
       this._typingTimer = setTimeout(this.finishedComposing.bind(this), 10000);
     }
 
-    this._setTypingState(!!string.length);
+    this._setTypingState(isTyping);
 
     return Ci.prplIConversation.NO_TYPING_LIMIT;
   },
@@ -734,18 +737,27 @@ MatrixRoom.prototype = {
   },
 
   /**
-   * Send the given typing state, if it is changed.
+   * Send the given typing state if it is not typing or alternatively not been
+   * sent in the last second.
    *
    * @param {boolean} isTyping - If the user is currently composing a message.
    * @returns {undefined}
    */
   _setTypingState(isTyping) {
-    if (this._typingState == isTyping) {
-      return;
+    if (isTyping) {
+      if (this._typingDebounce) {
+        return;
+      }
+      this._typingDebounce = setTimeout(() => {
+        delete this._typingDebounce;
+      }, 1000);
+    } else if (this._typingDebounce) {
+      clearTimeout(this._typingDebounce);
+      delete this._typingDebounce;
     }
-
-    this._account._client.sendTyping(this._roomId, isTyping);
-    this._typingState = isTyping;
+    this._account._client
+      .sendTyping(this._roomId, isTyping, 10000)
+      .catch(error => this._account.ERROR(error));
   },
   /**
    * Cancel the typing end timer.
