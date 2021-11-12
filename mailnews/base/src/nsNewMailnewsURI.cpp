@@ -17,7 +17,7 @@
 #include "../../local/src/nsPop3Service.h"
 #include "../../local/src/nsMailboxService.h"
 #include "../../compose/src/nsSmtpUrl.h"
-#include "../../../ldap/xpcom/src/nsLDAPURL.h"
+#include "../../addrbook/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
 #include "../../news/src/nsNntpService.h"
 #include "../src/nsCidProtocolHandler.h"

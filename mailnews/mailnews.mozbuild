@@ -4,7 +4,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    "/%s/ldap" % CONFIG["commreltopsrcdir"],
-    "/%s/ldap/xpcom" % CONFIG["commreltopsrcdir"],
     "/%s/mailnews" % CONFIG["commreltopsrcdir"],
 ]
