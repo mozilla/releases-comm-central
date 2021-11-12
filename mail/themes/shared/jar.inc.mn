@@ -337,6 +337,7 @@
   skin/classic/messenger/shared/chat.css                      (../shared/mail/chat.css)
   skin/classic/messenger/shared/compacttheme.css              (../shared/mail/compacttheme.css)
   skin/classic/messenger/shared/composerOverlay.css           (../shared/mail/composerOverlay.css)
+  skin/classic/messenger/shared/contextMenu.css               (../shared/mail/contextMenu.css)
   skin/classic/messenger/shared/converterDialog.css           (../shared/mail/converterDialog.css)
   skin/classic/messenger/shared/customizeToolbar.css          (../shared/mail/customizeToolbar.css)
   skin/classic/messenger/shared/editContactPanel.css          (../shared/mail/editContactPanel.css)

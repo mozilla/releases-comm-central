@@ -1,0 +1,49 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/contextMenu.css");
+
+/* Disabled empty item looks too small otherwise, because it has no icon. */
+menuitem[disabled]:not(.menuitem-iconic) {
+  /* This is 16px for an icon + 3px for its margins + 1px for its padding +
+   * 2px for its border. */
+  min-height: 22px;
+}
+
+menupopup {
+  -moz-window-shadow: none;
+}
+
+@media (prefers-contrast) {
+  menu:not([disabled])[_moz-menuactive],
+  menuitem:not([disabled])[_moz-menuactive] {
+    color: SelectedItemText;
+  }
+}
+
+@media (-moz-windows-non-native-menus) {
+  menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
+  menupopup:not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
+    padding-inline-start: 1em;
+  }
+}
+
+@media (-moz-windows-non-native-menus: 0) {
+  menupopup {
+    appearance: none;
+    -moz-window-shadow: cliprounded;
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+  }
+
+  menuitem[type="checkbox"] > .menu-iconic-left,
+  menuitem > .menu-text {
+    appearance: none;
+  }
+
+  menuitem[checked="true"] > .menu-iconic-left > .menu-iconic-icon {
+    display: block;
+  }
+}

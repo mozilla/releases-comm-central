@@ -1,0 +1,122 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --appmenu-button-margin: 0 8px;
+  --appmenu-button-padding: 6px;
+}
+
+menupopup {
+  /* Complement the :is(menu, menuitem) margin. */
+  --arrowpanel-padding: 8px 0;
+}
+
+/* UI Density customization */
+
+:root[uidensity="compact"] {
+  --appmenu-button-margin: 0 4px;
+  --appmenu-button-padding: 3px;
+}
+
+:root[uidensity="compact"] menupopup {
+  --arrowpanel-padding: 4px 0;
+}
+
+:root[uidensity="touch"] {
+  --appmenu-button-padding: 9px;
+}
+
+menupopup {
+  --panel-background: var(--arrowpanel-background);
+  --panel-color: var(--arrowpanel-color);
+  --panel-border-color: var(--arrowpanel-border-color);
+  --panel-border-radius: var(--arrowpanel-border-radius);
+  --panel-padding: var(--arrowpanel-padding);
+  font: menu;
+  font-size: inherit;
+}
+
+menuitem {
+  appearance: none !important;
+}
+
+:is(menu, menuitem) > .menu-text {
+  appearance: none;
+  margin-inline-start: 0 !important;
+}
+
+menu,
+menuitem {
+  appearance: none;
+  margin: var(--appmenu-button-margin);
+  min-height: 24px;
+  padding-inline: 8px;
+  padding-block: var(--appmenu-button-padding);
+  border-radius: 3px;
+  background-color: transparent;
+}
+
+menu:focus,
+menuitem:focus {
+  outline: 0;
+}
+
+:is(menu, menuitem)[disabled="true"],
+:is(menu, menuitem)[disabled="true"]:hover,
+:is(menu, menuitem)[checked="true"][disabled="true"],
+:is(menu, menuitem)[checked="true"][disabled="true"]:hover {
+  color: var(--panel-description-color);
+  background-color: transparent;
+}
+
+menu > .menu-right {
+  display: none;
+}
+
+menupopup menu::after {
+  -moz-context-properties: fill, fill-opacity;
+  content: url("chrome://global/skin/icons/arrow-right-12.svg");
+  fill: currentColor;
+  fill-opacity: 0.6;
+  float: inline-end;
+  transform: translateY(1px);
+}
+
+menupopup menu:-moz-locale-dir(rtl)::after {
+  transform: scaleX(-1) translateY(1px);
+}
+
+menupopup menu::after {
+  margin-inline-start: 10px;
+}
+
+menu[checked="true"],
+menuitem[checked="true"] {
+  list-style-image: url(chrome://global/skin/icons/check.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+  color: inherit;
+}
+
+menu:not([disabled],:active)[_moz-menuactive],
+menuitem:not([disabled],:active)[_moz-menuactive] {
+  color: inherit;
+  background-color: var(--arrowpanel-dimmed);
+}
+
+menu:not([disabled])[_moz-menuactive]:active,
+menuitem:not([disabled])[_moz-menuactive]:active {
+  color: inherit;
+  background-color: var(--arrowpanel-dimmed-further);
+  box-shadow: 0 1px 0 hsla(210,4%,10%,.03) inset;
+}
+
+menupopup menuseparator {
+  appearance: none;
+  min-height: 0;
+  border-top: 1px solid var(--panel-separator-color);
+  border-bottom: none;
+  margin: 4px 8px;
+  padding: 0;
+}

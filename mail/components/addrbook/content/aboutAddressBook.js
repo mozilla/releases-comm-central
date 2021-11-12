@@ -1385,7 +1385,6 @@ var cardsPane = {
 
           for (let address of addresses) {
             let menuitem = document.createXULElement("menuitem");
-            menuitem.classList.add("subviewbutton");
             menuitem.label = MailServices.headerParser.makeMimeAddress(
               card.displayName,
               address

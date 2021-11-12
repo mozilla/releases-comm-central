@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
   <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />
-  <link rel="stylesheet" href="chrome://messenger/skin/panelUI.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/aboutAddressBook.css" />
 
@@ -376,86 +376,73 @@
     </xul:vbox>
   </xul:vbox>
 </body>
-<xul:menupopup id="bookContext" type="arrow"
-               class="cui-widget-panel PanelUI-subView"
-               needsgutter="true">
-  <xul:menuitem id="bookContextProperties" class="subviewbutton menuitem-iconic"
+<xul:menupopup id="bookContext" needsgutter="true">
+  <xul:menuitem id="bookContextProperties"
                 data-l10n-id="about-addressbook-books-context-properties"/>
-  <xul:menuitem id="bookContextSynchronize" class="subviewbutton menuitem-iconic"
+  <xul:menuitem id="bookContextSynchronize"
                 data-l10n-id="about-addressbook-books-context-synchronize"/>
-  <xul:menuitem id="bookContextPrint" class="subviewbutton menuitem-iconic"
+  <xul:menuitem id="bookContextPrint"
                 data-l10n-id="about-addressbook-books-context-print"/>
-  <xul:menuitem id="bookContextExport" class="subviewbutton menuitem-iconic"
+  <xul:menuitem id="bookContextExport"
                 data-l10n-id="about-addressbook-books-context-export"/>
-  <xul:menuitem id="bookContextDelete" class="subviewbutton menuitem-iconic"
+  <xul:menuitem id="bookContextDelete"
                 data-l10n-id="about-addressbook-books-context-delete"/>
-  <xul:menuitem id="bookContextRemove" class="subviewbutton menuitem-iconic"
+  <xul:menuitem id="bookContextRemove"
                 data-l10n-id="about-addressbook-books-context-remove"/>
   <xul:menuseparator/>
   <xul:menuitem id="bookContextStartupDefault" type="checkbox"
-                class="subviewbutton"
                 data-l10n-id="about-addressbook-books-context-startup-default"/>
 </xul:menupopup>
-<xul:menupopup id="sortContext" type="arrow"
-               class="cui-widget-panel PanelUI-subView"
+<xul:menupopup id="sortContext"
                needsgutter="true"
                position="bottomcenter topleft">
   <xul:menuitem type="radio"
-                class="subviewbutton subviewbutton-iconic"
                 name="format"
                 value="0"
                 checked="true"
                 data-l10n-id="about-addressbook-name-format-display"/>
   <xul:menuitem type="radio"
-                class="subviewbutton subviewbutton-iconic"
                 name="format"
                 value="2"
                 data-l10n-id="about-addressbook-name-format-firstlast"/>
   <xul:menuitem type="radio"
-                class="subviewbutton subviewbutton-iconic"
                 name="format"
                 value="1"
                 data-l10n-id="about-addressbook-name-format-lastfirst"/>
   <xul:menuseparator/>
   <xul:menuitem type="radio"
-                class="subviewbutton subviewbutton-iconic"
                 name="sort"
                 value="GeneratedName ascending"
                 checked="true"
                 data-l10n-id="about-addressbook-sort-name-ascending"/>
   <xul:menuitem type="radio"
-                class="subviewbutton subviewbutton-iconic"
                 name="sort"
                 value="GeneratedName descending"
                 data-l10n-id="about-addressbook-sort-name-descending"/>
   <xul:menuitem type="radio"
-                class="subviewbutton subviewbutton-iconic"
                 name="sort"
                 value="PrimaryEmail ascending"
                 data-l10n-id="about-addressbook-sort-email-ascending"/>
   <xul:menuitem type="radio"
-                class="subviewbutton subviewbutton-iconic"
                 name="sort"
                 value="PrimaryEmail descending"
                 data-l10n-id="about-addressbook-sort-email-descending"/>
 </xul:menupopup>
-<xul:menupopup id="cardContext" type="arrow"
-               class="cui-widget-panel PanelUI-subView">
-  <xul:menuitem id="cardContextWrite" class="subviewbutton"
+<xul:menupopup id="cardContext">
+  <xul:menuitem id="cardContextWrite"
                 data-l10n-id="about-addressbook-cards-context-write"/>
   <xul:menu id="cardContextWriteMenu"
-            class="subviewbutton subviewbutton-nav"
             data-l10n-id="about-addressbook-cards-context-write">
-    <xul:menupopup type="arrow" class="cui-widget-panel PanelUI-subView">
+    <xul:menupopup>
       <!-- Filled dynamically. -->
     </xul:menupopup>
   </xul:menu>
   <xul:menuseparator id="cardContextWriteSeparator"/>
-  <xul:menuitem id="cardContextPrint" class="subviewbutton"
+  <xul:menuitem id="cardContextPrint"
                 data-l10n-id="about-addressbook-books-context-print"/>
-  <xul:menuitem id="cardContextDelete" class="subviewbutton"
+  <xul:menuitem id="cardContextDelete"
                 data-l10n-id="about-addressbook-books-context-delete"/>
-  <xul:menuitem id="cardContextRemove" class="subviewbutton"
+  <xul:menuitem id="cardContextRemove"
                 data-l10n-id="about-addressbook-books-context-remove"/>
 </xul:menupopup>
 </html>
