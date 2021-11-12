@@ -129,6 +129,19 @@ let JSWINDOWACTORS = {
     ],
   },
 
+  Mailto: {
+    parent: {
+      moduleURI: "resource:///actors/MailtoParent.jsm",
+    },
+    child: {
+      moduleURI: "resource:///actors/MailtoChild.jsm",
+      events: {
+        click: {},
+      },
+    },
+    allFrames: true,
+  },
+
   Pdfjs: {
     parent: {
       moduleURI: "resource://pdf.js/PdfjsParent.jsm",

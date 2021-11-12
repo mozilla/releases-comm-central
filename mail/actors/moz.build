@@ -14,6 +14,8 @@ FINAL_TARGET_FILES.actors += [
     "LinkClickHandlerChild.jsm",
     "LinkClickHandlerParent.jsm",
     "LinkHandlerParent.jsm",
+    "MailtoChild.jsm",
+    "MailtoParent.jsm",
     "PromptParent.jsm",
     "VCardChild.jsm",
     "VCardParent.jsm",
