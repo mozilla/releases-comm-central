@@ -120,34 +120,33 @@
 
         <menuitem label="Bugs Filed Today"
                   oncommand="openQAUrl('https://bugzilla.mozilla.org/buglist.cgi?product=Core&amp;product=MailNews+Core&amp;product=SeaMonkey&amp;chfieldfrom=0d&amp;chfieldto=Now&amp;chfield=%5BBug+creation%5D');"/>
+        <menuitem label="Tree Status"
+                  oncommand="openQAUrl('https://treestatus.mozilla-releng.net/static/ui/treestatus/');"/>
+        <menuseparator/>
+        <menuitem label="Recent SeaMonkey website Checkins"
+                  oncommand="openQAUrl('https://hg.mozilla.org/SeaMonkey/seamonkey-project-org/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
+        <menuitem label="Recent gitlab SeaMonkey website Checkins"
+                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/website/activity/');"/>
+        <menuseparator/>
         <menuitem label="Recent comm-central Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/comm-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-central Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/mozilla-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent comm-esr91 Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr91/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr91/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-esr91 Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr91/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
-        <menuitem label="Recent comm-esr78 Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr78/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
-        <menuitem label="Recent mozilla-esr78 Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr78/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr91/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
         <menuitem label="Recent gitlab 2.53 comm Activity"
-                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-comm/activity');"/>
+                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-comm/activity/');"/>
         <menuitem label="Recent gitlab 2.53 mozilla Activity"
-                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-mozilla/activity');"/>
+                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-mozilla/activity/');"/>
         <menuitem label="Recent gitlab 2.53 l10n Activity"
-                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-l10n/activity');"/>
-       <menuitem label="Tree Status"
-                  oncommand="openQAUrl('https://treestatus.mozilla-releng.net/static/ui/treestatus/');"/>
-
+                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-l10n/activity/');"/>
         <menuseparator/>
-
         <menuitem label="Daily unofficial 2.57 Builds"
                   oncommand="openQAUrl('https://www.wg9s.com/comm-257/');"/>
         <menuitem label="Daily unofficial 2.53 Builds"
                   oncommand="openQAUrl('https://www.wg9s.com/comm-253/');"/>
-
       </menupopup>
     </menu>
   </menubar>
