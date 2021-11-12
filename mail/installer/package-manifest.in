@@ -246,7 +246,7 @@
 ; OpenPGP (librnp)
 #ifdef MOZ_OPENPGP
 @BINPATH@/@DLL_PREFIX@rnp@DLL_SUFFIX@
-@BINPATH@/rnp@BIN_SUFFIX@
+@BINPATH@/rnp-cli@BIN_SUFFIX@
 @BINPATH@/rnpkeys@BIN_SUFFIX@
 #endif
 
