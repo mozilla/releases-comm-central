@@ -392,6 +392,12 @@ ab-card-listrow:not(.selected) > div.address {
   font-weight: unset; /* Overrides legend. */
 }
 
+.editGrid > fieldset.labelledField > legend {
+  margin-top: 0;
+  margin-inline-start: 0;
+  padding-inline: 0;
+}
+
 .editGrid > div.spans2columns {
   grid-column: 1 / 3;
 }
@@ -471,4 +477,50 @@ ab-card-listrow:not(.selected) > div.address {
   #detailsFooter {
     background-color: var(--in-content-page-background);
   }
+}
+
+input[type="number"] {
+  min-height: 28px;
+  padding: 1px;
+  border-radius: var(--in-content-button-border-radius);
+}
+
+/* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
+input[type="number"].size3 {
+  width: calc(3ch + 55px);
+}
+
+input[type="number"]::-moz-number-spin-box {
+  padding-inline-start: 10px;
+}
+
+input[type="number"]::-moz-number-spin-up,
+input[type="number"]::-moz-number-spin-down {
+  appearance: none;
+  min-width: 25px;
+  border-color: var(--in-content-box-border-color);
+  border-radius: 0;
+  background-color: var(--in-content-button-background);
+  background-position: center;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+input[type="number"]::-moz-number-spin-up:hover,
+input[type="number"]::-moz-number-spin-down:hover {
+  background-color: var(--in-content-button-background-hover);
+}
+
+input[type="number"]::-moz-number-spin-up {
+  min-height: 13px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-start-end-radius: var(--in-content-button-border-radius);
+  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+}
+
+input[type="number"]::-moz-number-spin-down {
+  min-height: 12px;
+  border-end-end-radius: var(--in-content-button-border-radius);
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg");
 }
