@@ -331,9 +331,13 @@ NewMailNotificationService.prototype = {
   },
 
   onFolderAdded(parentFolder, child) {
-    this._log.trace(
-      `Added child folder ${child.folderURL} to ${parentFolder.folderURL}`
-    );
+    if (child.rootFolder == child) {
+      this._log.trace(`Added root folder ${child.folderURL}`);
+    } else {
+      this._log.trace(
+        `Added child folder ${child.folderURL} to ${parentFolder.folderURL}`
+      );
+    }
   },
 
   onMessageAdded(parentFolder, msg) {
@@ -358,9 +362,13 @@ NewMailNotificationService.prototype = {
   },
 
   onFolderRemoved(parentFolder, child) {
-    this._log.trace(
-      `Removed child folder ${child.folderURL} from ${parentFolder.folderURL}`
-    );
+    if (child.rootFolder == child) {
+      this._log.trace(`Removed root folder ${child.folderURL}`);
+    } else {
+      this._log.trace(
+        `Removed child folder ${child.folderURL} from ${parentFolder.folderURL}`
+      );
+    }
   },
 
   onMessageRemoved(parentFolder, msg) {
