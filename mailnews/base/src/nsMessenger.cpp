@@ -2242,7 +2242,16 @@ nsresult AttachmentDeleter::InternalStartProcessing(nsMessenger* aMessenger,
       nextField = PL_strchr(partId, '&');
       sHeader.Append(partId, nextField ? nextField - partId : -1);
     }
-    if (detaching) detachToHeader.Append(mDetachedFileUris[u]);
+    if (detaching) {
+      // The URI can contain commas, so percent-encode those first.
+      nsAutoCString uri(mDetachedFileUris[u]);
+      int ind = uri.FindChar(',');
+      while (ind != kNotFound) {
+        uri.Replace(ind, 1, "%2C");
+        ind = uri.FindChar(',');
+      }
+      detachToHeader.Append(uri);
+    }
   }
 
   if (detaching) sHeader.Append(detachToHeader);
