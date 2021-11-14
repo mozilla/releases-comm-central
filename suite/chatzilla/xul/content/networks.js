@@ -74,16 +74,6 @@ function networksGetDefaults()
         displayName:  "libera.chat",
         servers: [{hostname: "irc.libera.chat", port:6697, isSecure: true},
                   {hostname: "irc.libera.chat", port:6667}]};
-    networks["freenode"] = {
-        displayName:  "freenode",
-        servers: [{hostname: "chat.freenode.net", port:6667},
-                  {hostname: "chat.freenode.net", port:6697, isSecure: true},
-                  {hostname: "chat.freenode.net", port:7000, isSecure: true},
-                  // XXX irc.freenode.net is only here until we can link servers
-                  // to networks without them being in the network's server list
-                  {hostname: "irc.freenode.net", port:6667},
-                  {hostname: "irc.freenode.net", port:6697, isSecure: true},
-                  {hostname: "irc.freenode.net", port:7000, isSecure: true}]};
    networks["slashnet"] = {
         displayName:  "slashnet",
         servers: [{hostname: "irc.slashnet.org", port:6667}]};
@@ -120,6 +110,11 @@ function networksGetDefaults()
     networks["hispano"] = {
         displayName:  "hispano",
         servers: [{hostname: "irc.irc-hispano.org", port: 6667}]};
+    networks["freenode"] = {
+        displayName:  "freenode",
+        servers: [{hostname: "chat.freenode.net", port:6697, isSecure: true},
+                  {hostname: "chat.freenode.net", port:7000, isSecure: true},
+                  {hostname: "chat.freenode.net", port:6667}]};
 
     for (var name in networks)
         networks[name].name = name;

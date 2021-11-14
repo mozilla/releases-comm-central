@@ -83,8 +83,8 @@ function init(obj)
     obj.eventPump = new CEventPump(100);
 
     obj.networks = new Object();
-    obj.networks["freenode"] =
-        new CIRCNetwork("freenode", [{name: "chat.freenode.net", port: 6667}],
+    obj.networks["libera.chat"] =
+        new CIRCNetwork("libera.chat", [{name: "libera.chat", port: 6667}],
                         obj.eventPump);
 
     obj.networks["efnet"] =
