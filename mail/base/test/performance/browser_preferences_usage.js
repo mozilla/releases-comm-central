@@ -165,52 +165,7 @@ add_task(async function startup() {
     };
   }
 
-  if (AppConstants.platform == "win") {
-    // Bug 1660876 - Seem to be coming from PreferenceSheet::Prefs::Load.
-    for (let pref of [
-      "browser.display.focus_text_color",
-      "browser.visited_color",
-      "browser.active_color",
-      "browser.display.focus_background_color",
-    ]) {
-      knownProblematicPrefs[pref] = {
-        min: 2800,
-        max: 3200,
-      };
-    }
-    for (let pref of [
-      "browser.anchor_color",
-      "browser.display.foreground_color",
-      "browser.display.background_color",
-    ]) {
-      knownProblematicPrefs[pref] = {
-        min: 900,
-        max: 1600,
-      };
-    }
-    for (let pref of [
-      "font.default.x-western",
-      "font.minimum-size.x-western",
-      "font.name.variable.x-western",
-      "font.size-adjust.cursive.x-western",
-      "font.size-adjust.fantasy.x-western",
-      "font.size-adjust.monospace.x-western",
-      "font.size-adjust.sans-serif.x-western",
-      "font.size-adjust.serif.x-western",
-      "font.size-adjust.variable.x-western",
-      "font.size.cursive.x-western",
-      "font.size.fantasy.x-western",
-      "font.size.monospace.x-western",
-      "font.size.sans-serif.x-western",
-      "font.size.serif.x-western",
-      "font.size.variable.x-western",
-    ]) {
-      knownProblematicPrefs[pref] = {
-        min: 0,
-        max: 75,
-      };
-    }
-  } else if (AppConstants.platform == "macosx") {
+  if (AppConstants.platform == "macosx") {
     for (let pref of [
       "font.default.x-western",
       "font.minimum-size.x-western",
