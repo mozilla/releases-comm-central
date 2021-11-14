@@ -8,6 +8,7 @@ const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm"
 
 var gEditButton;
 var gDeleteButton;
+var gNewButton;
 var gReorderUpButton;
 var gReorderDownButton;
 var gRunFiltersFolderPickerLabel;
@@ -133,6 +134,7 @@ function onLoad()
 
     gEditButton = document.getElementById("editButton");
     gDeleteButton = document.getElementById("deleteButton");
+    gNewButton = document.getElementById("newButton");
     gReorderUpButton = document.getElementById("reorderUpButton");
     gReorderDownButton = document.getElementById("reorderDownButton");
     gRunFiltersFolderPickerLabel = document.getElementById("folderPickerPrefix");
@@ -288,6 +290,9 @@ function onFilterSelect(event)
 
 function onEditFilter()
 {
+  if (gEditButton.disabled)
+    return;
+
   var selectedFilter = currentFilter();
   var curFilterList = currentFilterList();
   var args = {filter: selectedFilter, filterList: curFilterList};
@@ -316,6 +321,9 @@ function onNewFilter(emailAddress)
 
 function onDeleteFilter()
 {
+  if (gDeleteButton.disabled)
+    return;
+
   var filterList = currentFilterList();
   if (!filterList)
     return;
@@ -547,30 +555,40 @@ function onFilterDoubleClick(event)
       onEditFilter();
 }
 
-function onFilterTreeKeyPress(event)
-{
-  if (event.charCode == KeyEvent.DOM_VK_SPACE)
-  {
-    var rangeCount = gFilterTree.view.selection.getRangeCount();
-    for (var i = 0; i < rangeCount; ++i)
-    {
-      var start = {}, end = {};
-      gFilterTree.view.selection.getRangeAt(i, start, end);
-      for (var k = start.value; k <= end.value; ++k)
-        toggleFilter(k);
+function onFilterTreeKeyPress(aEvent) {
+  if (aEvent.ctrlKey || aEvent.altKey || aEvent.metaKey || aEvent.shiftKey)
+    return;
+
+  if (aEvent.keyCode) {
+    switch (aEvent.keyCode) {
+      case KeyEvent.DOM_VK_INSERT:
+        if (!gNewButton.disabled)
+          onNewFilter();
+        break;
+      case KeyEvent.DOM_VK_DELETE:
+        if (!gDeleteButton.disabled)
+          onDeleteFilter();
+        break;
+      case KeyEvent.DOM_VK_RETURN:
+        if (!gEditButton.disabled)
+          onEditFilter();
+        break;
     }
-    gFilterTree.view.selection.invalidateSelection();
+    return;
   }
-  else switch (event.keyCode)
-  {
-    case KeyEvent.DOM_VK_DELETE:
-      if (!gDeleteButton.disabled)
-        onDeleteFilter();
+
+  switch (aEvent.charCode) {
+    case KeyEvent.DOM_VK_SPACE:
+      let rangeCount = gFilterTree.view.selection.getRangeCount();
+      for (let i = 0; i < rangeCount; ++i) {
+        let start = {}, end = {};
+        gFilterTree.view.selection.getRangeAt(i, start, end);
+        for (let k = start.value; k <= end.value; ++k)
+          toggleFilter(k);
+      }
+      gFilterTree.view.selection.invalidateSelection();
       break;
-    case KeyEvent.DOM_VK_RETURN:
-      if (!gEditButton.disabled)
-        onEditFilter();
-      break;
+    default:
   }
 }
 
