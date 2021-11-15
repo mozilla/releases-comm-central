@@ -621,7 +621,7 @@ MessageSend.prototype = {
       isNewsDelivery &&
       (this._compFields.to || this._compFields.cc || this._compFields.bcc)
     ) {
-      this._deliverFileAsMail();
+      this._deliverAsMail();
       return;
     }
 
@@ -746,10 +746,10 @@ MessageSend.prototype = {
 
     this._deliveryFile = await this._createDeliveryFile();
     if (this._compFields.newsgroups) {
-      this._deliverFileAsNews(this._deliveryFile);
+      this._deliverAsNews();
       return;
     }
-    this._deliverFileAsMail(this._deliveryFile);
+    this._deliverAsMail();
   },
 
   /**
@@ -1012,10 +1012,9 @@ MessageSend.prototype = {
   },
 
   /**
-   * Send a file to smtp service.
-   * @param {nsIFile} file - The file to send.
+   * Send this._deliveryFile to smtp service.
    */
-  _deliverFileAsMail(file) {
+  _deliverAsMail() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_SMTP;
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("sendingMessage")
@@ -1045,7 +1044,7 @@ MessageSend.prototype = {
         : this._statusFeedback;
     this._smtpRequest = {};
     MailServices.smtp.sendMailMessage(
-      file,
+      this._deliveryFile,
       encodedRecipients,
       this._userIdentity,
       this._compFields.from,
@@ -1061,10 +1060,9 @@ MessageSend.prototype = {
   },
 
   /**
-   * Send a file to nntp service.
-   * @param {nsIFile} file - The file to send.
+   * Send this._deliveryFile to nntp service.
    */
-  _deliverFileAsNews(file) {
+  _deliverAsNews() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
     MsgUtils.sendLogger.debug("Delivering news message");
     let deliveryListener = new MsgDeliveryListener(this, true);
@@ -1072,7 +1070,7 @@ MessageSend.prototype = {
       this._sendProgress?.msgWindow ||
       MailServices.mailSession.topmostMsgWindow;
     MailServices.nntp.postMessage(
-      file,
+      this._deliveryFile,
       this._compFields.newsgroups,
       this._accountKey,
       deliveryListener,
