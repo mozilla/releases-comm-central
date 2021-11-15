@@ -156,6 +156,7 @@ JSTreeSelection.prototype = {
       this._count = 1;
       this._ranges = [[aIndex, aIndex]];
     } else {
+      let added = false;
       for (let [iTupe, [low, high]] of this._ranges.entries()) {
         // below the range? add it to the existing range or create a new one
         if (aIndex < low) {
@@ -164,10 +165,12 @@ JSTreeSelection.prototype = {
           //  high case, not here.)
           if (aIndex == low - 1) {
             this._ranges[iTupe][0] = aIndex;
+            added = true;
             break;
           }
           // then it gets its own range
           this._ranges.splice(iTupe, 0, [aIndex, aIndex]);
+          added = true;
           break;
         }
         // in the range?  will need to either nuke, shrink, or split the range to
@@ -192,6 +195,7 @@ JSTreeSelection.prototype = {
               [aIndex + 1, high]
             );
           }
+          added = true;
           break;
         }
         // just above the range?  fuse into the range, and possibly the next
@@ -206,13 +210,20 @@ JSTreeSelection.prototype = {
           ) {
             // yes, merge the ranges
             this._ranges.splice(iTupe, 2, [low, this._ranges[iTupe + 1][1]]);
+            added = true;
             break;
           }
           // nope, no merge required, just update the range
           this._ranges[iTupe][1] = aIndex;
+          added = true;
           break;
         }
         // otherwise we need to keep going
+      }
+
+      if (!added) {
+        this._count++;
+        this._ranges.push([aIndex, aIndex]);
       }
     }
 

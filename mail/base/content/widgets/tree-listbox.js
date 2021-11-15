@@ -3,6 +3,12 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 {
+  ChromeUtils.defineModuleGetter(
+    this,
+    "JSTreeSelection",
+    "resource:///modules/JsTreeSelection.jsm"
+  );
+
   // Animation variables for expanding and collapsing child lists.
   const ANIMATION_DURATION_MS = 200;
   const ANIMATION_EASING = "ease";
@@ -889,20 +895,18 @@
     _rows = new Map();
 
     /**
-     * In a selection, index of the first-selected row.
+     * The current view.
      *
-     * @type {integer}
+     * @type {nsITreeView}
      */
-    _anchorIndex = 0;
+    _view = null;
 
     /**
-     * In a selection, index of the most-recently-selected row.
+     * The current selection.
      *
-     * @type {integer}
+     * @type {nsITreeSelection}
      */
-    _currentIndex = 0;
-
-    _selectedIndicies = [];
+    _selection = null;
 
     connectedCallback() {
       if (this.hasConnected) {
@@ -952,15 +956,12 @@
         }
 
         if (event.ctrlKey) {
-          this._anchorIndex = index;
           this.currentIndex = index;
           this.toggleSelectionAtIndex(index);
         } else if (event.shiftKey) {
-          let topIndex = Math.min(this._anchorIndex, index);
-          let bottomIndex = Math.max(this._anchorIndex, index);
-
-          this.currentIndex = index;
-          this._setSelectionRange(topIndex, bottomIndex);
+          this._selection.rangedSelect(-1, index, false);
+          this.scrollToIndex(index);
+          this.dispatchEvent(new CustomEvent("select"));
         } else {
           this.selectedIndex = index;
         }
@@ -1041,9 +1042,7 @@
           case "A":
           case "a":
             if (event.ctrlKey) {
-              this._anchorIndex = 0;
-              this.currentIndex = this._view.rowCount - 1;
-              this._setSelectionRange(0, this.currentIndex);
+              this._selection.selectAll();
               event.preventDefault();
             }
             return;
@@ -1058,8 +1057,9 @@
 
         newIndex = this._clampIndex(newIndex);
         if (event.shiftKey) {
-          this.currentIndex = newIndex;
-          this._setSelectionRange(this._anchorIndex, newIndex);
+          this._selection.rangedSelect(-1, newIndex, false);
+          this.scrollToIndex(newIndex);
+          this.dispatchEvent(new CustomEvent("select"));
         } else {
           this.selectedIndex = newIndex;
         }
@@ -1126,13 +1126,23 @@
     }
 
     set view(view) {
+      this._selection = null;
       if (this._view) {
         this._view.setTree(null);
+        this._view.selection = null;
+      }
+      if (this._selection) {
+        this._selection.view = null;
       }
 
       this._view = view;
       if (view) {
         try {
+          this._selection = new JSTreeSelection();
+          this._selection.tree = this;
+          this._selection.view = view;
+
+          view.selection = this._selection;
           view.setTree(this);
         } catch (ex) {
           // This isn't a XULTreeElement, and we can't make it one, so if the
@@ -1145,7 +1155,6 @@
       this._rowElementName = this.getAttribute("rows") || "tree-view-listrow";
       this._rowElementClass = customElements.get(this._rowElementName);
       this.invalidate();
-      this.selectedIndex = -1;
 
       this.dispatchEvent(new CustomEvent("viewchange"));
     }
@@ -1181,13 +1190,9 @@
         if (index >= this._view.rowCount) {
           row.remove();
           this._rows.delete(index);
-          let i = this._selectedIndicies.indexOf(index);
-          if (i > -1) {
-            this._selectedIndicies.splice(i, 1);
-          }
         } else {
           row.index = index;
-          row.selected = this._selectedIndicies.includes(index);
+          row.selected = this._selection.isSelected(index);
         }
       } else if (index >= this._firstRowIndex && index <= this._lastRowIndex) {
         this._addRowAtIndex(index);
@@ -1290,38 +1295,7 @@
      * @param {integer} index
      */
     rowCountChanged(index, delta) {
-      for (let i = 0; i < this._selectedIndicies.length; i++) {
-        if (index <= this._selectedIndicies[i]) {
-          if (delta < 0 && this._selectedIndicies[i] < index - delta) {
-            // A selected row was removed, take it out of _selectedIndicies.
-            this._selectedIndicies.splice(i--, 1);
-            continue;
-          }
-          this._selectedIndicies[i] += delta;
-        }
-      }
-
-      let rowCount = this._view.rowCount;
-      let oldRowCount = rowCount - delta;
-      // Ensure the filler height matches the row count.
-      this.filler.style.minHeight =
-        rowCount * this._rowElementClass.ROW_HEIGHT + "px";
-      if (
-        // Change happened beyond the rows that exist in the DOM and
-        index > this._lastRowIndex &&
-        // we weren't at the end of the list.
-        this._lastRowIndex + 1 < oldRowCount
-      ) {
-        return;
-      }
-
-      // Invalidate every row between here and the last row displayed.
-      for (let i = index; i <= this._lastRowIndex; i++) {
-        this.invalidateRow(i);
-      }
-      // We may need to display more rows.
-      this._ensureVisibleRowsAreDisplayed();
-
+      this._selection.adjustSelection(index, delta);
       this.dispatchEvent(new CustomEvent("rowcountchange"));
     }
 
@@ -1354,7 +1328,7 @@
       row.setAttribute("role", "option");
       row.setAttribute("aria-setsize", this._view.rowCount);
       row.style.top = `${this._rowElementClass.ROW_HEIGHT * index}px`;
-      if (this._selectedIndicies.includes(index)) {
+      if (this._selection.isSelected(index)) {
         row.selected = true;
       }
       if (this.currentIndex === index) {
@@ -1463,27 +1437,29 @@
      * @type {integer}
      */
     get currentIndex() {
-      return this._currentIndex;
+      return this._selection.currentIndex;
     }
 
     set currentIndex(index) {
       if (!this._view) {
-        this._currentIndex = -1;
         return;
       }
-      if (index < 0 || index > this._view.rowCount - 1) {
-        return;
-      }
+
       for (let row of this.querySelectorAll(
         `${this._rowElementName}.current`
       )) {
         row.classList.remove("current");
       }
 
-      this._currentIndex = index;
+      this._selection.currentIndex = index;
+
+      if (index < 0 || index > this._view.rowCount - 1) {
+        return;
+      }
+
       this.getRowAtIndex(index)?.classList.add("current");
       this.scrollToIndex(index);
-      this.setAttribute("aria-activedescendant", `row${index}`);
+      this.setAttribute("aria-activedescendant", `${this.id}-row${index}`);
     }
 
     /**
@@ -1492,34 +1468,22 @@
      * @type {integer}
      */
     get selectedIndex() {
-      return this._selectedIndicies.length ? this._selectedIndicies[0] : -1;
+      if (!this._selection.count) {
+        return -1;
+      }
+
+      let min = {};
+      this._selection.getRangeAt(0, min, {});
+      return min.value;
     }
 
     set selectedIndex(index) {
-      if (this._selectedIndicies.length == 1 && this.selectedIndex == index) {
+      if (this._selection.count == 1 && this._selection.isSelected(index)) {
         return;
       }
 
-      for (let row of this.querySelectorAll(
-        `${this._rowElementName}.selected`
-      )) {
-        row.selected = false;
-      }
-      this._selectedIndicies.length = 0;
-
-      if (index < 0 || index > this._view.rowCount - 1) {
-        this._anchorIndex = 0;
-        this.currentIndex = 0;
-        return;
-      }
-
-      this._anchorIndex = index;
+      this._selection.select(index);
       this.currentIndex = index;
-      this._selectedIndicies.push(index);
-      if (this.getRowAtIndex(index)) {
-        this.getRowAtIndex(index).selected = true;
-      }
-
       this.dispatchEvent(new CustomEvent("select"));
     }
 
@@ -1529,35 +1493,30 @@
      * @type {integer[]}
      */
     get selectedIndicies() {
-      return this._selectedIndicies.slice();
+      let indicies = [];
+      let rangeCount = this._selection.getRangeCount();
+
+      for (let range = 0; range < rangeCount; range++) {
+        let min = {};
+        let max = {};
+        this._selection.getRangeAt(range, min, max);
+
+        if (min.value == -1) {
+          continue;
+        }
+
+        for (let index = min.value; index <= max.value; index++) {
+          indicies.push(index);
+        }
+      }
+
+      return indicies;
     }
 
     set selectedIndicies(indicies) {
-      this._selectedIndicies = indicies.slice();
-      for (let [index, row] of this._rows) {
-        row.selected = indicies.includes(index);
-      }
-      this.dispatchEvent(new CustomEvent("select"));
-    }
-
-    /**
-     * Selects every row from topIndex to bottomIndex, inclusive.
-     *
-     * @param {integer} topIndex
-     * @param {integer} bottomIndex
-     */
-    _setSelectionRange(topIndex, bottomIndex) {
-      if (topIndex > bottomIndex) {
-        [topIndex, bottomIndex] = [bottomIndex, topIndex];
-      }
-      topIndex = this._clampIndex(topIndex);
-      bottomIndex = this._clampIndex(bottomIndex);
-
-      for (let i of this._selectedIndicies.slice()) {
-        this.toggleSelectionAtIndex(i, false, true);
-      }
-      for (let i = topIndex; i <= bottomIndex; i++) {
-        this.toggleSelectionAtIndex(i, true, true);
+      this._selection.clearSelection();
+      for (let index of indicies) {
+        this._selection.toggleSelect(index);
       }
       this.dispatchEvent(new CustomEvent("select"));
     }
@@ -1572,23 +1531,13 @@
      * @returns {boolean} - if the index is now selected
      */
     toggleSelectionAtIndex(index, selected, suppressEvent) {
-      let i = this._selectedIndicies.indexOf(index);
-      let wasSelected = i >= 0;
+      let wasSelected = this._selection.isSelected(index);
       if (selected === undefined) {
         selected = !wasSelected;
       }
 
-      let row = this.getRowAtIndex(index);
-      if (row) {
-        row.selected = selected;
-      }
-
       if (selected != wasSelected) {
-        if (wasSelected) {
-          this._selectedIndicies.splice(i, 1);
-        } else {
-          this._selectedIndicies.push(index);
-        }
+        this._selection.toggleSelect(index);
 
         if (!suppressEvent) {
           this.dispatchEvent(new CustomEvent("select"));
@@ -1640,6 +1589,7 @@
 
     set index(index) {
       this.setAttribute("aria-posinset", index);
+      this.id = `${this.list.id}-row${index}`;
       this.classList.toggle("children", this.view.isContainer(index));
       this.classList.toggle("collapsed", !this.view.isContainerOpen(index));
       this._index = index;

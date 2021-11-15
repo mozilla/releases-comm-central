@@ -13,7 +13,6 @@ add_task(async function() {
   tab.browser.focus();
 
   await SpecialPowers.spawn(tab.browser, [], testKeyboardAndMouse);
-  await SpecialPowers.spawn(tab.browser, [], testRowCountChange);
 
   tabmail.closeTab(tab);
 });
@@ -90,12 +89,16 @@ async function testKeyboardAndMouse() {
     }
 
     let current = list.querySelectorAll(".current");
-    Assert.equal(current.length, 1, "only one row has the 'current' class");
-    Assert.equal(
-      current[0].index,
-      expectedIndex,
-      "correct row has the 'current' class"
-    );
+    if (expectedIndex == -1) {
+      Assert.equal(current.length, 0, "no rows have the 'current' class");
+    } else {
+      Assert.equal(current.length, 1, "only one row has the 'current' class");
+      Assert.equal(
+        current[0].index,
+        expectedIndex,
+        "correct row has the 'current' class"
+      );
+    }
   }
 
   function checkSelected(...expectedIndicies) {
@@ -124,7 +127,7 @@ async function testKeyboardAndMouse() {
     );
   }
 
-  checkCurrent(0);
+  checkCurrent(-1);
   checkSelected();
 
   // Click on some individual rows.
@@ -186,11 +189,11 @@ async function testKeyboardAndMouse() {
 
   clickOnRow(1, { ctrlKey: true });
   checkCurrent(1);
-  checkSelected(2, 5, 1);
+  checkSelected(1, 2, 5);
 
   clickOnRow(5, { ctrlKey: true });
   checkCurrent(5); // Is this right?
-  checkSelected(2, 1);
+  checkSelected(1, 2);
 
   clickOnRow(1, { ctrlKey: true });
   checkCurrent(1); // Is this right?
@@ -378,6 +381,7 @@ async function testKeyboardAndMouse() {
   );
   clickOnRow(12);
   await scrollingDelay();
+  rows = list.querySelectorAll("test-listrow");
   bcr = rows[12].getBoundingClientRect();
   Assert.less(bcr.top, listRect.bottom, "top of row 12 is visible");
   Assert.equal(bcr.bottom, listRect.bottom, "bottom of row 12 is visible");
@@ -387,10 +391,25 @@ async function testKeyboardAndMouse() {
   Assert.greater(bcr.bottom, listRect.top, "bottom of row 0 is visible");
   clickOnRow(0);
   await scrollingDelay();
+  rows = list.querySelectorAll("test-listrow");
   bcr = rows[0].getBoundingClientRect();
   Assert.equal(bcr.top, listRect.top, "top of row 0 is visible");
   Assert.greater(bcr.bottom, listRect.top, "bottom of row 0 is visible");
 }
+
+add_task(async function() {
+  let tab = tabmail.openTab("contentTab", {
+    url:
+      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeViewListbox.xhtml",
+  });
+
+  await BrowserTestUtils.browserLoaded(tab.browser);
+  tab.browser.focus();
+
+  await SpecialPowers.spawn(tab.browser, [], testRowCountChange);
+
+  tabmail.closeTab(tab);
+});
 
 async function testRowCountChange() {
   let doc = content.document;

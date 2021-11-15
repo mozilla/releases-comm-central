@@ -375,7 +375,7 @@ add_task(async function test_drop_on_compose() {
 
   await doDragToComposeWindow(
     [3, 2],
-    [`Source List <"Source List">`, "contact 3 <contact.3@invalid>"]
+    ["contact 3 <contact.3@invalid>", `Source List <"Source List">`]
   );
 
   await closeAddressBookWindow();
