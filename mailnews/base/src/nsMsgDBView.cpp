@@ -2038,6 +2038,12 @@ nsMsgDBView::SetTree(mozilla::dom::XULTreeElement* tree) {
 }
 
 NS_IMETHODIMP
+nsMsgDBView::SetJSTree(nsIMsgJSTree* tree) {
+  mJSTree = tree;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsMsgDBView::ToggleOpenState(int32_t index) {
   uint32_t numChanged;
   nsresult rv = ToggleExpansion(index, &numChanged);
@@ -2261,6 +2267,7 @@ nsMsgDBView::Close() {
   // This needs to happen after we remove all the keys, since RowCountChanged()
   // will call our GetRowCount().
   if (mTree) mTree->RowCountChanged(0, -oldSize);
+  if (mJSTree) mJSTree->RowCountChanged(0, -oldSize);
 
   ClearHdrCache();
   if (m_db) {
@@ -2489,6 +2496,7 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
 
         mTreeSelection->SelectAll();
         if (mTree) mTree->Invalidate();
+        if (mJSTree) mJSTree->Invalidate();
       }
       break;
     case nsMsgViewCommandType::selectThread:
@@ -2516,6 +2524,7 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
         rv = m_folder->MarkAllMessagesRead(msgWindow);
         SetSuppressChangeNotifications(false);
         if (mTree) mTree->Invalidate();
+        if (mJSTree) mJSTree->Invalidate();
       }
       break;
     case nsMsgViewCommandType::toggleThreadWatched:
@@ -2526,6 +2535,7 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
       m_viewFlags |= nsMsgViewFlagsType::kExpandAll;
       SetViewFlags(m_viewFlags);
       if (mTree) mTree->Invalidate();
+      if (mJSTree) mJSTree->Invalidate();
 
       break;
     case nsMsgViewCommandType::collapseAll:
@@ -2533,6 +2543,7 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
       m_viewFlags &= ~nsMsgViewFlagsType::kExpandAll;
       SetViewFlags(m_viewFlags);
       if (mTree) mTree->Invalidate();
+      if (mJSTree) mJSTree->Invalidate();
 
       break;
     default:
@@ -4789,6 +4800,7 @@ nsresult nsMsgDBView::ExpandAndSelectThreadByIndex(nsMsgViewIndex index,
 
 nsresult nsMsgDBView::ExpandAll() {
   if (mTree) mTree->BeginUpdateBatch();
+  if (mJSTree) mJSTree->BeginUpdateBatch();
 
   for (int32_t i = GetSize() - 1; i >= 0; i--) {
     uint32_t numExpanded;
@@ -4797,6 +4809,7 @@ nsresult nsMsgDBView::ExpandAll() {
   }
 
   if (mTree) mTree->EndUpdateBatch();
+  if (mJSTree) mJSTree->EndUpdateBatch();
 
   SelectionChangedXPCOM();
   return NS_OK;
@@ -5867,6 +5880,7 @@ nsMsgDBView::OnAnnouncerGoingAway(nsIDBChangeAnnouncer* instigator) {
 
   // Tell the tree all the rows have gone away.
   if (mTree) mTree->RowCountChanged(0, -saveSize);
+  if (mJSTree) mJSTree->RowCountChanged(0, -saveSize);
 
   return NS_OK;
 }
@@ -5908,18 +5922,23 @@ nsMsgDBView::GetSuppressChangeNotifications(
 NS_IMETHODIMP
 nsMsgDBView::NoteChange(nsMsgViewIndex firstLineChanged, int32_t numChanged,
                         nsMsgViewNotificationCodeValue changeType) {
-  if (mTree && !mSuppressChangeNotification) {
+  if ((mTree || mJSTree) && !mSuppressChangeNotification) {
     switch (changeType) {
       case nsMsgViewNotificationCode::changed:
-        mTree->InvalidateRange(firstLineChanged,
-                               firstLineChanged + numChanged - 1);
+        if (mTree)
+          mTree->InvalidateRange(firstLineChanged,
+                                 firstLineChanged + numChanged - 1);
+        if (mJSTree)
+          mJSTree->InvalidateRange(firstLineChanged,
+                                   firstLineChanged + numChanged - 1);
         break;
       case nsMsgViewNotificationCode::insertOrDelete:
         if (numChanged < 0) mRemovingRow = true;
 
         // The caller needs to have adjusted m_keys before getting here, since
         // RowCountChanged() will call our GetRowCount().
-        mTree->RowCountChanged(firstLineChanged, numChanged);
+        if (mTree) mTree->RowCountChanged(firstLineChanged, numChanged);
+        if (mJSTree) mJSTree->RowCountChanged(firstLineChanged, numChanged);
         mRemovingRow = false;
         [[fallthrough]];
       case nsMsgViewNotificationCode::all:
@@ -7012,19 +7031,25 @@ NS_IMETHODIMP
 nsMsgDBView::OnDeleteCompleted(bool aSucceeded) {
   if (m_deletingRows && aSucceeded) {
     uint32_t numIndices = mIndicesToNoteChange.Length();
-    if (numIndices && mTree) {
+    if (numIndices && (mTree || mJSTree)) {
       if (numIndices > 1) mIndicesToNoteChange.Sort();
 
       // The call to NoteChange() has to happen after we are done removing the
       // keys as NoteChange() will call RowCountChanged() which will call our
       // GetRowCount().
-      if (numIndices > 1) mTree->BeginUpdateBatch();
+      if (numIndices > 1) {
+        if (mTree) mTree->BeginUpdateBatch();
+        if (mJSTree) mJSTree->BeginUpdateBatch();
+      }
 
       for (uint32_t i = 0; i < numIndices; i++)
         NoteChange(mIndicesToNoteChange[i], -1,
                    nsMsgViewNotificationCode::insertOrDelete);
 
-      if (numIndices > 1) mTree->EndUpdateBatch();
+      if (numIndices > 1) {
+        if (mTree) mTree->EndUpdateBatch();
+        if (mJSTree) mJSTree->EndUpdateBatch();
+      }
     }
 
     mIndicesToNoteChange.Clear();
@@ -7149,6 +7174,7 @@ nsresult nsMsgDBView::AdjustRowCount(int32_t rowCountBeforeSort,
         "it is not save to call AdjustRowCount() when you have a selection");
 
     if (mTree) mTree->RowCountChanged(0, rowChange);
+    if (mJSTree) mJSTree->RowCountChanged(0, rowChange);
   }
 
   return NS_OK;

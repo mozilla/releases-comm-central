@@ -141,6 +141,30 @@ window.addEventListener("DOMContentLoaded", () => {
     wrapper._viewFlags = 1;
     wrapper.open(folder);
     threadTree.view = wrapper.dbView;
+    // Tell the view about the tree. nsITreeView.setTree can't be used because
+    // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
+    // the shim passed here isn't a tree either (TreeViewListbox can't be made
+    // to QI to anything) but it does implement the required methods.
+    wrapper.dbView.setJSTree({
+      QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
+      beginUpdateBatch() {},
+      endUpdateBatch() {},
+      ensureRowIsVisible(index) {
+        threadTree.scrollToIndex(index);
+      },
+      invalidate() {
+        threadTree.invalidate();
+      },
+      invalidateRange(startIndex, endIndex) {
+        for (let index = startIndex; index <= endIndex; index++) {
+          threadTree.invalidateRow(index);
+        }
+      },
+      rowCountChanged(index, count) {
+        threadTree.rowCountChanged(index, count);
+      },
+    });
+
     window.dispatchEvent(
       new CustomEvent("folderURIChanged", { bubbles: true, detail: uri })
     );
@@ -246,9 +270,7 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
     super.index = index;
     this.dataset.uri = this.view.getURIForViewIndex(index);
     let rowProps = this.view.getRowProperties(index);
-    if (/\bunread\b/.test(rowProps)) {
-      this.style.fontWeight = "bold";
-    }
+    this.style.fontWeight = /\bunread\b/.test(rowProps) ? "bold" : null;
 
     for (let i = 0; i < this.columns.length; i++) {
       this.children[i + 1].textContent = this.view.cellTextForColumn(

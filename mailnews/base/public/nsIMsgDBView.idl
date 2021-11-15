@@ -12,6 +12,7 @@ interface nsIMessenger;
 interface nsIMsgDBHdr;
 interface nsIMsgThread;
 interface nsIMsgDBViewCommandUpdater;
+interface nsIMsgJSTree;
 interface nsIMsgDatabase;
 interface nsIMsgSearchSession;
 interface nsIMsgEnumerator;
@@ -198,6 +199,9 @@ interface nsMsgNavigationType : nsISupports
 [scriptable, uuid(fe8a2326-4dd0-11e5-8b8a-206a8aa7a25c)]
 interface nsIMsgDBView : nsISupports
 {
+  /** A shim of XULTreeElement, with only the methods called by nsMsgDBView. */
+  void setJSTree(in nsIMsgJSTree tree);
+
   void open(in nsIMsgFolder folder, in nsMsgViewSortTypeValue sortType, in nsMsgViewSortOrderValue sortOrder, in nsMsgViewFlagsTypeValue viewFlags, out long count);
   void openWithHdrs(in nsIMsgEnumerator aHeaders, in nsMsgViewSortTypeValue aSortType,
                       in nsMsgViewSortOrderValue aSortOrder,
@@ -510,4 +514,17 @@ interface nsIMsgDBViewCommandUpdater : nsISupports
   * @return   true if we did summarize, false otherwise.
   */
   boolean summarizeSelection();
+};
+
+/**
+ * A shim of XULTreeElement, with only the methods called by nsMsgDBView.
+ */
+[scriptable, uuid(c5f6b1a2-f56a-49cb-b863-badf158206d5)]
+interface nsIMsgJSTree : nsISupports
+{
+  void beginUpdateBatch();
+  void endUpdateBatch();
+  void invalidate();
+  void invalidateRange(in long startIndex, in long endIndex);
+  void rowCountChanged(in long index, in long count);
 };

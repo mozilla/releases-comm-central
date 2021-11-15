@@ -133,6 +133,7 @@ class nsMsgDBView : public nsIMsgDBView,
   static char16_t* kNewString;
 
   RefPtr<mozilla::dom::XULTreeElement> mTree;
+  nsCOMPtr<nsIMsgJSTree> mJSTree;
   nsCOMPtr<nsITreeSelection> mTreeSelection;
   // We cache this to determine when to push command status notifications.
   uint32_t mNumSelectedRows;
