@@ -17,31 +17,30 @@ function init(aEvent) {
     return;
   }
 
-  try {
-    var distroId = Services.prefs.getCharPref("distribution.id");
-    if (distroId) {
-      var distroVersion = Services.prefs.getCharPref("distribution.version");
+  var distroId = Services.prefs.getCharPref("distribution.id", "");
+  if (distroId) {
+    var distroAbout = Services.prefs.getStringPref("distribution.about", "");
+    // If there is about text, we always show it.
+    if (distroAbout) {
+      var distroField = document.getElementById("distribution");
+      distroField.value = distroAbout;
+      distroField.style.display = "block";
+    }
+    // If it's not a mozilla distribution, show the rest,
+    // unless about text exists, then we always show.
+    if (!distroId.startsWith("mozilla-") || distroAbout) {
+      var distroVersion = Services.prefs.getCharPref(
+        "distribution.version",
+        ""
+      );
+      if (distroVersion) {
+        distroId += " - " + distroVersion;
+      }
 
       var distroIdField = document.getElementById("distributionId");
-      distroIdField.value = distroId + " - " + distroVersion;
+      distroIdField.value = distroId;
       distroIdField.style.display = "block";
-
-      try {
-        // This is in its own try catch due to bug 895473 and bug 900925.
-        var distroAbout = Services.prefs.getComplexValue(
-          "distribution.about",
-          Ci.nsISupportsString
-        );
-        var distroField = document.getElementById("distribution");
-        distroField.value = distroAbout;
-        distroField.style.display = "block";
-      } catch (ex) {
-        // Pref is unset
-        Cu.reportError(ex);
-      }
     }
-  } catch (e) {
-    // Pref is unset
   }
 
   // XXX FIXME
