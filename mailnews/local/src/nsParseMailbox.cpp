@@ -253,8 +253,6 @@ nsMsgMailboxParser::nsMsgMailboxParser(nsIMsgFolder* aFolder)
 nsMsgMailboxParser::~nsMsgMailboxParser() { ReleaseFolderLock(); }
 
 nsresult nsMsgMailboxParser::Init() {
-  m_obuffer = nullptr;
-  m_obuffer_size = 0;
   m_graph_progress_total = 0;
   m_graph_progress_received = 0;
   return AcquireFolderLock();
@@ -327,17 +325,6 @@ void nsMsgMailboxParser::DoneParsingFolder(nsresult status) {
     if (folder) folder->RemoveBackupMsgDatabase();
     m_backupMailDB = nullptr;
   }
-
-  //  if (m_folder != nullptr)
-  //    m_folder->SummaryChanged();
-  FreeBuffers();
-}
-
-void nsMsgMailboxParser::FreeBuffers() {
-  /* We're done reading the folder - we don't need these things
-   any more. */
-  PR_FREEIF(m_obuffer);
-  m_obuffer_size = 0;
 }
 
 void nsMsgMailboxParser::UpdateDBFolderInfo() { UpdateDBFolderInfo(m_mailDB); }
@@ -1530,7 +1517,6 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
 nsParseNewMailState::nsParseNewMailState() : m_disableFilters(false) {
   m_ibuffer = nullptr;
   m_ibuffer_size = 0;
-  m_ibuffer_fp = 0;
   m_numNotNewMessages = 0;
 }
 
@@ -1604,11 +1590,6 @@ void nsParseNewMailState::GetMsgWindow(nsIMsgWindow** aMsgWindow) {
 // This gets called for every message because libnet calls IncorporateBegin,
 // IncorporateWrite (once or more), and IncorporateComplete for every message.
 void nsParseNewMailState::DoneParsingFolder(nsresult status) {
-  /* End of file.  Flush out any partial line remaining in the buffer. */
-  if (m_ibuffer_fp > 0) {
-    ParseFolderLine(m_ibuffer, m_ibuffer_fp);
-    m_ibuffer_fp = 0;
-  }
   PublishMsgHeader(nullptr);
   if (m_mailDB)  // finished parsing, so flush db folder info
     UpdateDBFolderInfo();
@@ -1617,8 +1598,6 @@ void nsParseNewMailState::DoneParsingFolder(nsresult status) {
  any more. */
   PR_FREEIF(m_ibuffer);
   m_ibuffer_size = 0;
-  PR_FREEIF(m_obuffer);
-  m_obuffer_size = 0;
 }
 
 void nsParseNewMailState::OnNewMessage(nsIMsgWindow* msgWindow) {}
@@ -2261,7 +2240,6 @@ nsresult nsParseNewMailState::AppendMsgFromStream(nsIInputStream* fileStream,
     m_ibuffer = (char*)PR_Malloc(m_ibuffer_size);
     NS_ASSERTION(m_ibuffer != nullptr, "couldn't get memory to move msg");
   }
-  m_ibuffer_fp = 0;
 
   while (length > 0 && m_ibuffer) {
     uint32_t nRead;

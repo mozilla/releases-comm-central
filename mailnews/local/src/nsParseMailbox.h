@@ -176,14 +176,11 @@ class nsMsgMailboxParser : public nsIStreamListener,
   nsCOMPtr<nsIMsgStatusFeedback> m_statusFeedback;
 
   virtual int32_t PublishMsgHeader(nsIMsgWindow* msgWindow);
-  void FreeBuffers();
 
   // data
   nsString m_folderName;
   nsCString m_inboxUri;
   ::nsByteArray m_inputStream;
-  int32_t m_obuffer_size;
-  char* m_obuffer;
   uint64_t m_graph_progress_total;
   uint64_t m_graph_progress_received;
   bool m_parsingDone;
@@ -255,7 +252,6 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   bool m_msgMovedByFilter;
   bool m_msgCopiedByFilter;
   bool m_disableFilters;
-  uint32_t m_ibuffer_fp;
   char* m_ibuffer;
   uint32_t m_ibuffer_size;
 
