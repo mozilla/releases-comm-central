@@ -3,10 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { AddonManager } = ChromeUtils.import(
-  "resource://gre/modules/AddonManager.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPIDatabase } = ChromeUtils.import(
+  "resource://gre/modules/addons/XPIDatabase.jsm"
+);
 
 function restartApp() {
   Services.startup.quit(
@@ -24,39 +24,34 @@ function deleteLocalstore() {
 }
 
 async function disableAddons() {
-  for (let addon of await AddonManager.getAllAddons()) {
+  XPIDatabase.syncLoadDB(false);
+  let addons = XPIDatabase.getAddons();
+  for (let addon of addons) {
     if (addon.type == "theme") {
       // Setting userDisabled to false on the default theme activates it,
       // disables all other themes and deactivates the applied persona, if
       // any.
-      const DEFAULT_THEME_ID = "{972ce4c6-7e08-4474-a285-3208198ce6fd}";
+      const DEFAULT_THEME_ID = "default-theme@mozilla.org";
       if (addon.id == DEFAULT_THEME_ID) {
-        addon.userDisabled = false;
+        await XPIDatabase.updateAddonDisabledState(addon, {
+          userDisabled: false,
+        });
       }
     } else {
-      addon.userDisabled = true;
+      await XPIDatabase.updateAddonDisabledState(addon, { userDisabled: true });
     }
   }
-  restartApp();
 }
 
-function onOK(event) {
-  try {
-    if (document.getElementById("resetToolbars").checked) {
-      deleteLocalstore();
-    }
-    if (document.getElementById("disableAddons").checked) {
-      disableAddons();
-      // disableAddons will asynchronously restart the application
-      event.preventDefault();
-      return;
-    }
-  } catch (e) {
-    Cu.reportError(e);
-  }
-
-  restartApp();
+async function onOK(event) {
   event.preventDefault();
+  if (document.getElementById("resetToolbars").checked) {
+    deleteLocalstore();
+  }
+  if (document.getElementById("disableAddons").checked) {
+    await disableAddons();
+  }
+  restartApp();
 }
 
 function onCancel() {
