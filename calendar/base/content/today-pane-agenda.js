@@ -563,7 +563,7 @@
       let relative = this._localStartDate.subtractDate(now);
 
       // Should we display a label? Is the event today or less than 12 hours away?
-      if (this._localStartDate.day == now.day || (relative.days == 0 && relative.hours < 12)) {
+      if (this._localStartDate.day == now.day || relative.inSeconds < 12 * 60 * 60) {
         let unit = "hour";
         let value = relative.hours;
         if (value == 0) {
