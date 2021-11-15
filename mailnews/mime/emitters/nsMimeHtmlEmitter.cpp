@@ -269,12 +269,13 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
 
 NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
     const nsACString& name) {
-  if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput ||
-      mFormat == nsMimeOutput::nsMimeMessageBodyDisplay) {
-    nsMimeBaseEmitter::WriteHTMLHeaders(name);
+  if (!BroadCastHeadersAndAttachments() ||
+      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
+      (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay)) {
+    return nsMimeBaseEmitter::WriteHTMLHeaders(name);
   }
 
-  if (!BroadCastHeadersAndAttachments() || !mDocHeader) {
+  if (!mDocHeader) {
     return NS_OK;
   }
 
