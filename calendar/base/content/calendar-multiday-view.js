@@ -16,6 +16,34 @@
   const MINUTES_IN_DAY = 24 * 60;
 
   /**
+   * Get the nearest or next snap point for the given minute. The set of snap
+   * points is given by `n * snapInterval`, where `n` is some integer.
+   *
+   * @param {number} minute - The minute to snap.
+   * @param {number} snapInterval - The integer number of minutes between snap
+   *   points.
+   * @param {"nearest","forward","backward"} [direction="nearest"] - Where to
+   *   find the snap point. "nearest" will return the closest snap point,
+   *   "forward" will return the closest snap point that is greater (and not
+   *   equal), and "backward" will return the closest snap point that is lower
+   *   (and not equal).
+   *
+   * @return {number} - The nearest snap point.
+   */
+  function snapMinute(minute, snapInterval, direction = "nearest") {
+    switch (direction) {
+      case "forward":
+        return Math.floor((minute + snapInterval) / snapInterval) * snapInterval;
+      case "backward":
+        return Math.ceil((minute - snapInterval) / snapInterval) * snapInterval;
+      case "nearest":
+        return Math.round(minute / snapInterval) * snapInterval;
+      default:
+        throw new RangeError(`"${direction}" is not one of the allowed values for the direction`);
+    }
+  }
+
+  /**
    * The MozCalendarEventColumn widget used for displaying event boxes in one column per day.
    * It is used to make the week view layout in the calendar. It manages the layout of the
    * events given via add/deleteEvent.
@@ -60,7 +88,7 @@
 
         if (this.calendarView.controller) {
           event.stopPropagation();
-          this.calendarView.controller.createNewEvent(null, this.getClickedDateTime(event), null);
+          this.calendarView.controller.createNewEvent(null, this.getMouseDateTime(event), null);
         }
       });
 
@@ -88,7 +116,7 @@
 
         if (event.button == 2) {
           // Set a selected datetime for the context menu.
-          this.calendarView.selectedDateTime = this.getClickedDateTime(event);
+          this.calendarView.selectedDateTime = this.getMouseDateTime(event);
           return;
         }
         // Only start sweeping out an event if the left button was clicked.
@@ -99,7 +127,7 @@
         this.mDragState = {
           origColumn: this,
           dragType: "new",
-          mouseOffset: 0,
+          mouseMinuteOffset: 0,
           offset: null,
           shadows: null,
           limitStartMin: null,
@@ -108,21 +136,18 @@
         };
 
         // Snap interval: 15 minutes or 1 minute if modifier key is pressed.
-        let snapIntMin =
-          event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15;
-        let interval = this.mPixPerMin * snapIntMin;
+        this.mDragState.origMin = snapMinute(
+          this.getMouseMinute(event),
+          event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15
+        );
 
         if (this.getAttribute("orient") == "vertical") {
-          this.mDragState.origLoc = event.screenY;
-          this.mDragState.origMin =
-            Math.round((event.screenY - this.parentNode.screenY) / interval) * snapIntMin;
+          this.mDragState.origLoc = event.clientY;
           this.mDragState.limitEndMin = this.mDragState.origMin;
           this.mDragState.limitStartMin = this.mDragState.origMin;
           this.fgboxes.dragspacer.setAttribute("height", this.mDragState.origMin * this.mPixPerMin);
         } else {
-          this.mDragState.origLoc = event.screenX;
-          this.mDragState.origMin =
-            Math.round((event.screenX - this.parentNode.screenX) / interval) * snapIntMin;
+          this.mDragState.origLoc = event.clientX;
           this.fgboxes.dragspacer.setAttribute("width", this.mDragState.origMin * this.mPixPerMin);
         }
 
@@ -1040,20 +1065,17 @@
         col = newcol;
       }
 
-      let mousePos;
-      if (col.getAttribute("orient") == "vertical") {
-        mousePos = event.screenY - col.parentNode.screenY;
-      } else {
-        mousePos = event.screenX - col.parentNode.screenX;
+      let mouseMinute = col.getMouseMinute(event);
+      if (mouseMinute < 0) {
+        mouseMinute = 0;
+      } else if (mouseMinute > MINUTES_IN_DAY) {
+        mouseMinute = MINUTES_IN_DAY;
       }
-      // Don't let mouse position go outside the window edges.
-      let pos = Math.max(0, mousePos) - dragState.mouseOffset;
-
       // Snap interval: 15 minutes or 1 minute if modifier key is pressed.
       let snapIntMin = event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15;
-      let interval = col.mPixPerMin * snapIntMin;
-      let curmin = Math.round(pos / interval) * snapIntMin;
-      let deltamin = curmin - dragState.origMin;
+      let snappedMouseMinute = snapMinute(mouseMinute - dragState.mouseMinuteOffset, snapIntMin);
+
+      let deltamin = snappedMouseMinute - dragState.origMin;
 
       let shadowElements;
       if (dragState.dragType == "new") {
@@ -1064,7 +1086,7 @@
           shadowElements = {
             shadows: 1 - dragState.jumpedColumns,
             offset: 0,
-            startMin: curmin,
+            startMin: snappedMouseMinute,
             endMin: dragState.origMin,
           };
         } else {
@@ -1073,7 +1095,7 @@
             shadows: dragState.jumpedColumns + 1,
             offset: dragState.jumpedColumns,
             startMin: dragState.origMin,
-            endMin: curmin,
+            endMin: snappedMouseMinute,
           };
         }
         dragState.startMin = shadowElements.startMin;
@@ -1098,8 +1120,7 @@
         // But we need to not go past the end; if we hit
         // the end, then we'll clamp to the previous snap interval minute.
         if (dragState.startMin >= dragState.limitEndMin) {
-          dragState.startMin =
-            Math.ceil((dragState.limitEndMin - snapIntMin) / snapIntMin) * snapIntMin;
+          dragState.startMin = snapMinute(dragState.limitEndMin, snapIntMin, "backward");
         }
       } else if (dragState.dragType == "modify-end") {
         // If we're modifying the end, the start time is fixed.
@@ -1113,8 +1134,7 @@
         // But we need to not go past the start; if we hit
         // the start, then we'll clamp to the next snap interval minute.
         if (dragState.endMin <= dragState.limitStartMin) {
-          dragState.endMin =
-            Math.floor((dragState.limitStartMin + snapIntMin) / snapIntMin) * snapIntMin;
+          dragState.endMin = snapMinute(dragState.limitStartMin, snapIntMin, "forward");
         }
       }
       col.mDragState.offset = shadowElements.offset;
@@ -1138,8 +1158,7 @@
       // If the user didn't sweep out at least a few pixels, ignore
       // unless we're in a different column.
       if (dragState.origColumn == col) {
-        let orient = col.getAttribute("orient");
-        let position = orient == "vertical" ? event.screenY : event.screenX;
+        let position = col.getAttribute("orient") == "vertical" ? event.clientY : event.clientX;
         if (Math.abs(position - dragState.origLoc) < 3) {
           return;
         }
@@ -1294,34 +1313,37 @@
       }
     }
 
-    // This is called by an event box when a grippy on either side is dragged,
-    // or when the middle is pressed to drag the event to move it.  We create
-    // the same type of view that we use to sweep out a new event, but we
-    // initialize it based on the event's values and what type of dragging
-    // we're doing.  In addition, we constrain things like not being able to
-    // drag the end before the start and vice versa.
-    startSweepingToModifyEvent(
-      aEventBox,
-      aOccurrence,
-      aGrabbedElement,
-      aMouseX,
-      aMouseY,
-      aSnapInt
-    ) {
+    /**
+     * Start modifying an item through a mouse motion.
+     *
+     * @param {calItemBase} eventItem - The event item to start modifying.
+     * @param {"start"|"end"|"middle"} where - Whether to modify the starting
+     *   time, ending time, or moving the entire event (modify the start and
+     *   end, but preserve the duration).
+     * @param {Object} position - The mouse position of the event that
+     *   *initialized* the motion.
+     * @param {number} position.clientX - The client x position.
+     * @param {number} position.clientY - The client y position.
+     * @param {number} position.offsetStartMinute - The minute offset of the
+     *   mouse relative to the event item's starting time edge.
+     * @param {number} [snapIntMin=15] - The snapping interval to apply to the
+     *   mouse position, in minutes.
+     */
+    startSweepingToModifyEvent(eventItem, where, position, snapIntMin = 15) {
       if (
-        !cal.acl.isCalendarWritable(aOccurrence.calendar) ||
-        !cal.acl.userCanModifyItem(aOccurrence) ||
-        (aOccurrence.calendar instanceof Ci.calISchedulingSupport &&
-          aOccurrence.calendar.isInvitation(aOccurrence)) ||
-        aOccurrence.calendar.getProperty("capabilities.events.supported") === false
+        !cal.acl.isCalendarWritable(eventItem.calendar) ||
+        !cal.acl.userCanModifyItem(eventItem) ||
+        (eventItem.calendar instanceof Ci.calISchedulingSupport &&
+          eventItem.calendar.isInvitation(eventItem)) ||
+        eventItem.calendar.getProperty("capabilities.events.supported") === false
       ) {
         return;
       }
 
       this.mDragState = {
         origColumn: this,
-        dragOccurrence: aOccurrence,
-        mouseOffset: 0,
+        dragOccurrence: eventItem,
+        mouseMinuteOffset: 0,
         offset: null,
         shadows: null,
         limitStartMin: null,
@@ -1329,16 +1351,14 @@
         jumpedColumns: 0,
       };
 
-      // Snap interval: 15 minutes or 1 minute if modifier key is pressed.
-      let snapIntMin = aSnapInt || 15;
       if (this.getAttribute("orient") == "vertical") {
-        this.mDragState.origLoc = aMouseY;
+        this.mDragState.origLoc = position.clientY;
       } else {
-        this.mDragState.origLoc = aMouseX;
+        this.mDragState.origLoc = position.clientX;
       }
 
-      let stdate = aOccurrence.startDate || aOccurrence.entryDate || aOccurrence.dueDate;
-      let enddate = aOccurrence.endDate || aOccurrence.dueDate || aOccurrence.entryDate;
+      let stdate = eventItem.startDate || eventItem.entryDate || eventItem.dueDate;
+      let enddate = eventItem.endDate || eventItem.dueDate || eventItem.entryDate;
 
       // Get the start and end times in minutes, relative to the start of the
       // day. This may be negative or exceed the length of the day if the event
@@ -1346,7 +1366,7 @@
       let realStart = Math.floor(stdate.subtractDate(this.mDate).inSeconds / 60);
       let realEnd = Math.floor(enddate.subtractDate(this.mDate).inSeconds / 60);
 
-      if (aGrabbedElement == "start") {
+      if (where == "start") {
         this.mDragState.dragType = "modify-start";
         // We have to use "realEnd" as fixed end value.
         this.mDragState.limitEndMin = realEnd;
@@ -1354,7 +1374,7 @@
         // Snap start.
         // Since we are modifying the start, we know the event starts on this
         // day, so realStart is not negative.
-        this.mDragState.origMin = Math.round(realStart / snapIntMin) * snapIntMin;
+        this.mDragState.origMin = snapMinute(realStart, snapIntMin);
 
         // Show the shadows and drag labels when clicking on gripbars.
         let shadowElements = this.getShadowElements(
@@ -1366,7 +1386,7 @@
         this.mDragState.shadows = shadowElements.shadows;
         this.mDragState.offset = shadowElements.offset;
         this.updateColumnShadows();
-      } else if (aGrabbedElement == "end") {
+      } else if (where == "end") {
         this.mDragState.dragType = "modify-end";
         // We have to use "realStart" as fixed end value.
         this.mDragState.limitStartMin = realStart;
@@ -1374,7 +1394,7 @@
         // Snap end.
         // Since we are modifying the end, we know the event end on this day,
         // so realEnd is before midnight on this day.
-        this.mDragState.origMin = Math.round(realEnd / snapIntMin) * snapIntMin;
+        this.mDragState.origMin = snapMinute(realEnd, snapIntMin);
 
         // Show the shadows and drag labels when clicking on gripbars.
         let shadowElements = this.getShadowElements(
@@ -1386,19 +1406,19 @@
         this.mDragState.shadows = shadowElements.shadows;
         this.mDragState.offset = shadowElements.offset;
         this.updateColumnShadows();
-      } else if (aGrabbedElement == "middle") {
+      } else if (where == "middle") {
         this.mDragState.dragType = "move";
         // In a move, origMin will be the start minute of the element where
-        // the drag occurs. Along with mouseOffset, it allows to track the
+        // the drag occurs. Along with mouseMinuteOffset, it allows to track the
         // shadow position. origMinStart and origMinEnd allow to figure out
         // the real shadow size.
-        // We snap to the start and add the real duration to find the end.
-        let limitDurationMin = realEnd - realStart;
+        this.mDragState.mouseMinuteOffset = position.offsetStartMinute;
         // We use origMin to get the number of minutes since the start of *this*
         // day, which is 0 if realStart is negative.
-        this.mDragState.origMin = Math.max(0, Math.round(realStart / snapIntMin) * snapIntMin);
-        this.mDragState.origMinStart = Math.round(realStart / snapIntMin) * snapIntMin;
-        this.mDragState.origMinEnd = this.mDragState.origMinStart + limitDurationMin;
+        this.mDragState.origMin = Math.max(0, snapMinute(realStart, snapIntMin));
+        // We snap to the start and add the real duration to find the end.
+        this.mDragState.origMinStart = snapMinute(realStart, snapIntMin);
+        this.mDragState.origMinEnd = realEnd + this.mDragState.origMinStart - realStart;
         // Keep also track of the real Start, it will be used at the end
         // of the drag session to calculate the new start and end datetimes.
         this.mDragState.realStart = realStart;
@@ -1410,16 +1430,6 @@
         this.mDragState.shadows = shadowElements.shadows;
         this.mDragState.offset = shadowElements.offset;
         // Do not show the shadow yet.
-
-        // We need to set a mouse offset, since we're not dragging from
-        // one end of the element.
-        if (aEventBox) {
-          if (this.getAttribute("orient") == "vertical") {
-            this.mDragState.mouseOffset = aMouseY - aEventBox.screenY;
-          } else {
-            this.mDragState.mouseOffset = aMouseX - aEventBox.screenX;
-          }
-        }
       } else {
         // Invalid grabbed element.
       }
@@ -1441,21 +1451,47 @@
       }
     }
 
-    getClickedDateTime(event) {
+    /**
+     * Get the minute since the starting edge of the given element that a mouse
+     * event points to.
+     *
+     * @param {MouseEvent} mouseEvent - The pointer event.
+     * @param {Element} [element] - The element to use the starting edge of as
+     *   reference. Defaults to using the starting edge of the column itself,
+     *   such that the returned minute is the number of minutes since the start
+     *   of the day.
+     *
+     * @return {number} - The number of minutes since the starting edge of
+     *   'element' that this event points to.
+     */
+    getMouseMinute(mouseEvent, element = this) {
+      let rect = element.getBoundingClientRect();
+      let pos;
+      if (this.getAttribute("orient") == "vertical") {
+        pos = mouseEvent.clientY - rect.top;
+      } else if (document.dir == "rtl") {
+        pos = rect.right - mouseEvent.clientX;
+      } else {
+        pos = mouseEvent.clientX - rect.left;
+      }
+      return pos / this.mPixPerMin;
+    }
+
+    /**
+     * Get the datetime that the mouse event points to, snapped to the nearest
+     * 15 minutes.
+     *
+     * @param {MouseEvent} mouseEvent - The pointer event.
+     *
+     * @return {calDateTime} - A new datetime that the mouseEvent points to.
+     */
+    getMouseDateTime(mouseEvent) {
+      let clickMinute = this.getMouseMinute(mouseEvent);
       let newStart = this.date.clone();
       newStart.isDate = false;
       newStart.hour = 0;
-
-      const ROUND_INTERVAL = 15;
-
-      let interval = this.mPixPerMin * ROUND_INTERVAL;
-      let pos;
-      if (this.getAttribute("orient") == "vertical") {
-        pos = event.screenY - this.parentNode.screenY;
-      } else {
-        pos = event.screenX - this.parentNode.screenX;
-      }
-      newStart.minute = Math.round(pos / interval) * ROUND_INTERVAL;
+      // Round to nearest 15 minutes.
+      newStart.minute = snapMinute(clickMinute, 15);
       return newStart;
     }
   }
@@ -1695,8 +1731,20 @@
         }
 
         this.parentColumn.calendarView.selectedDay = this.parentColumn.mDate;
-        this.mMouseX = event.screenX;
-        this.mMouseY = event.screenY;
+
+        this.mouseDownPosition = {
+          clientX: event.clientX,
+          clientY: event.clientY,
+          // We calculate the offsetStartMinute here because the clientX and
+          // clientY coordinates might become 'stale' by the time we actually
+          // call startItemDrag. E.g. if we scroll the view.
+          offsetStartMinute: this.parentColumn.getMouseMinute(
+            event,
+            // We use the listitem wrapper, since that is positioned relative to
+            // the event's start time.
+            this.closest(".multiday-event-listitem")
+          ),
+        };
 
         let whichside = event.whichside;
         if (whichside) {
@@ -1704,16 +1752,12 @@
             event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence,
           ]);
 
-          let snapIntMin =
-            event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15;
           // Start edge resize drag
           this.parentColumn.startSweepingToModifyEvent(
-            this,
             this.mOccurrence,
             whichside,
-            event.screenX,
-            event.screenY,
-            snapIntMin
+            this.mouseDownPosition,
+            event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15
           );
         } else {
           // May be click or drag,
@@ -1727,8 +1771,8 @@
           return;
         }
 
-        let deltaX = Math.abs(event.screenX - this.mMouseX);
-        let deltaY = Math.abs(event.screenY - this.mMouseY);
+        let deltaX = Math.abs(event.clientX - this.mouseDownPosition.clientX);
+        let deltaY = Math.abs(event.clientY - this.mouseDownPosition.clientY);
         // More than a 3 pixel move?
         const movedMoreThan3Pixels = deltaX * deltaX + deltaY * deltaY > 9;
         if (movedMoreThan3Pixels && this.parentColumn) {
@@ -1846,11 +1890,9 @@
       this.mEditing = false;
 
       this.parentColumn.startSweepingToModifyEvent(
-        this,
         this.mOccurrence,
         "middle",
-        this.mMouseX,
-        this.mMouseY
+        this.mouseDownPosition
       );
       this.mInMouseDown = false;
     }
