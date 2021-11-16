@@ -179,7 +179,7 @@ linux64-asan/opt:
             - linux64-libotr
             - linux64-nasm
             - linux64-node
-            - linux64-rust
+            - linux64-rust-dev
             - linux64-rust-size
             - linux64-sccache
             - sysroot-wasm32-wasi
