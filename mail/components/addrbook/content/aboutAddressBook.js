@@ -1614,6 +1614,7 @@ var detailsPane = {
     "WorkState",
     "WorkZipCode",
     "WorkCountry",
+    "WebPage1",
     "BirthDay",
     "BirthMonth",
     "BirthYear",
