@@ -79,12 +79,9 @@ ActivityManager.prototype = {
   },
 
   removeActivity(aID) {
-    let activity;
-    try {
-      activity = this.getActivity(aID);
-    } catch (e) {
-      this.log.error("Exception: " + e);
-      throw e;
+    let activity = this.getActivity(aID);
+    if (!activity) {
+      return; // Nothing to remove.
     }
 
     // make sure that the activity is not in-progress state
@@ -92,7 +89,7 @@ ActivityManager.prototype = {
       activity instanceof Ci.nsIActivityProcess &&
       activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS
     ) {
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+      throw Components.Exception(`Activity in progress`, Cr.NS_ERROR_FAILURE);
     }
 
     // remove the activity
@@ -131,9 +128,6 @@ ActivityManager.prototype = {
   },
 
   getActivity(aID) {
-    if (!this._activities.has(aID)) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
-    }
     return this._activities.get(aID);
   },
 

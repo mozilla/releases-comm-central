@@ -76,7 +76,6 @@ interface nsIActivityManager : nsISupports {
    * @param aID The unique ID of the activity.
    *
    * @throws NS_ERROR_FAILURE if the activity is in-progress.
-   * @throws NS_ERROR_NOT_AVAILABLE if the activity is not in the list.
    */
   void removeActivity(in unsigned long aID);
 
@@ -87,8 +86,7 @@ interface nsIActivityManager : nsISupports {
    *
    * @param aID The unique ID of the activity.
    *
-   * @return The activity with the specified ID.
-   * @throws NS_ERROR_NOT_AVAILABLE if the activity is not in the list.
+   * @return The activity with the specified ID, or null if not found.
    */
   nsIActivity getActivity(in unsigned long aID);
 
