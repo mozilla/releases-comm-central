@@ -75,7 +75,8 @@ function run_test() {
     lines.includes("TEL;TYPE=cell;VALUE=TEXT:CellularNumber1"),
     "TEL;TYPE=cell"
   );
-  Assert.ok(lines.includes("URL;VALUE=URL:http://WebPage21"), "URL");
+  Assert.ok(lines.includes("URL;TYPE=work;VALUE=URL:http://WebPage21"), "URL");
+  Assert.ok(lines.includes("URL;TYPE=home;VALUE=URL:http://WebPage11"), "URL");
   Assert.ok(lines.includes("UID:fdcb9131-38ec-4daf-a4a7-2ef115f562a7"), "UID");
 
   // Test - XML

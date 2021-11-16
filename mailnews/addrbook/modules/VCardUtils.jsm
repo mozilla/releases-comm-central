@@ -75,8 +75,14 @@ var VCardUtils = {
           }
         }
       }
+      // Preserve URL if no URL with type work is given take for `url.work` the URL without any type.
+      if (name == "url") {
+        name = type.includes("home") ? "url.home" : name;
+        name = type.includes("work") ? "url.work" : name;
+      }
 
-      if (!(name in typeMap)) {
+      // Special treatment for `url`, which is not in the typeMap.
+      if (!(name in typeMap) && name != "url") {
         continue;
       }
 
@@ -89,6 +95,13 @@ var VCardUtils = {
       }
       vPropMap.get(name).push({ index, pref, value });
     }
+
+    // If no URL with type is specified assume its the Work Web Page (WebPage 1).
+    if (vPropMap.has("url") && !vPropMap.has("url.work")) {
+      vPropMap.set("url.work", vPropMap.get("url"));
+    }
+    // AbCard only supports Work Web Page or Home Web Page. Get rid of the URL without type.
+    vPropMap.delete("url");
 
     for (let props of vPropMap.values()) {
       // Sort the properties by preference, or by the order they appeared.
@@ -501,7 +514,8 @@ var typeMap = {
   "tel.fax": singleTextProperty("FaxNumber", "tel", { type: "fax" }),
   "tel.pager": singleTextProperty("PagerNumber", "tel", { type: "pager" }),
   "tel.cell": singleTextProperty("CellularNumber", "tel", { type: "cell" }),
-  url: singleTextProperty("WebPage1", "url", {}, "url"),
+  "url.work": singleTextProperty("WebPage1", "url", { type: "work" }, "url"),
+  "url.home": singleTextProperty("WebPage2", "url", { type: "home" }, "url"),
   "x-mozilla-html": {
     *fromAbCard(map) {
       if (!map.has("PreferMailFormat")) {

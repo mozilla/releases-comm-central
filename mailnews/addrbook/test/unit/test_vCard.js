@@ -167,6 +167,41 @@ add_task(function testVCardToAbCard() {
     Department: "Manufacturing",
   });
 
+  // URL
+  // If no type is given assume its WebPage1 (work).
+  check("URL:https://www.thunderbird.net/", {
+    WebPage1: "https://www.thunderbird.net/",
+  });
+
+  check("URL;TYPE=work:https://developer.thunderbird.net/", {
+    WebPage1: "https://developer.thunderbird.net/",
+  });
+
+  check("URL;TYPE=home:https://addons.thunderbird.net/", {
+    WebPage2: "https://addons.thunderbird.net/",
+  });
+
+  check(
+    formatVCard`
+      URL;TYPE=home:https://addons.thunderbird.net/
+      URL;TYPE=work:https://developer.thunderbird.net/`,
+    {
+      WebPage1: "https://developer.thunderbird.net/",
+      WebPage2: "https://addons.thunderbird.net/",
+    }
+  );
+
+  // If a URL without a type is given and a Work Web Page do not import the URL without type.
+  check(
+    formatVCard`
+      URL:https://www.thunderbird.net/
+      URL;TYPE=home:https://addons.thunderbird.net/
+      URL;TYPE=work:https://developer.thunderbird.net/`,
+    {
+      WebPage1: "https://developer.thunderbird.net/",
+      WebPage2: "https://addons.thunderbird.net/",
+    }
+  );
   // Email: just to be difficult, email is stored by priority, not type.
   check("EMAIL:first@invalid", { PrimaryEmail: "first@invalid" });
   check("EMAIL;PREF=1:first@invalid", { PrimaryEmail: "first@invalid" });
