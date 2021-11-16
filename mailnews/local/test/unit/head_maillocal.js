@@ -208,3 +208,8 @@ function setup_mailbox(type, mailboxPath) {
 registerCleanupFunction(function() {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });
+
+// Somehow profile-after-change is not triggered in xpcshell tests, here we
+// manually run the getService, so that correct pop3 modules are loaded
+// according to the pref values.
+Cc["@mozilla.org/messenger/pop3-module-loader;1"].getService();
