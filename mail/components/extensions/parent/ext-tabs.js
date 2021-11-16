@@ -168,17 +168,15 @@ class TabsUpdateFilterEventManager extends EventManager {
       let listener = event => {
         let changeInfo = {};
         let tab = tabManager.getWrapper(event.detail.tabInfo);
-        switch (event.detail.change) {
-          case "favIconUrl":
-            if (filter.properties.has("favIconUrl")) {
-              changeInfo.favIconUrl = tab.favIconUrl;
-            }
-            break;
-          case "title":
-            if (filter.properties.has("title")) {
-              changeInfo.title = tab.title;
-            }
-            break;
+        let changed = event.detail.changed;
+        if (
+          changed.includes("favIconUrl") &&
+          filter.properties.has("favIconUrl")
+        ) {
+          changeInfo.favIconUrl = tab.favIconUrl;
+        }
+        if (changed.includes("label") && filter.properties.has("title")) {
+          changeInfo.title = tab.title;
         }
 
         fireForTab(tab, changeInfo);

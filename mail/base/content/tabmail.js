@@ -1756,7 +1756,7 @@
           let evt = new CustomEvent("TabAttrModified", {
             bubbles: true,
             cancelable: false,
-            detail: { change: "title", tabInfo: tab },
+            detail: { changed: ["label"], tabInfo: tab },
           });
           tabNode.dispatchEvent(evt);
         }
@@ -1789,7 +1789,7 @@
         let evt = new CustomEvent("TabAttrModified", {
           bubbles: true,
           cancelable: false,
-          detail: { change: "favIconUrl", tabInfo },
+          detail: { changed: ["favIconUrl"], tabInfo },
         });
         tabInfo.tabNode.dispatchEvent(evt);
       }
