@@ -13,12 +13,14 @@ var { MailServices } = ChromeUtils.import(
 
 /**
  * @implements {nsIPop3IncomingServer}
+ * @implements {nsILocalMailIncomingServer}
  * @implements {nsIMsgIncomingServer}
  * @implements {nsISupportsWeakReference}
  */
 class Pop3IncomingServer extends MsgIncomingServer {
   QueryInterface = ChromeUtils.generateQI([
     "nsIPop3IncomingServer",
+    "nsILocalMailIncomingServer",
     "nsIMsgIncomingServer",
     "nsISupportsWeakReference",
   ]);
@@ -39,6 +41,24 @@ class Pop3IncomingServer extends MsgIncomingServer {
       Ci.nsMsgFolderFlags.Inbox
     );
     return MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+  }
+
+  /** @see nsILocalMailIncomingServer */
+  createDefaultMailboxes() {
+    for (let name of ["Inbox", "Trash"]) {
+      if (!this.rootFolder.containsChildNamed(name)) {
+        this.msgStore.createFolder(this.rootFolder, name);
+      }
+    }
+  }
+
+  setFlagsOnDefaultMailboxes() {
+    this.rootFolder
+      .QueryInterface(Ci.nsIMsgLocalMailFolder)
+      // POP3 account gets an inbox, but no queue (unsent messages).
+      .setFlagsOnDefaultMailboxes(
+        Ci.nsMsgFolderFlags.SpecialUse & ~Ci.nsMsgFolderFlags.Queue
+      );
   }
 }
 

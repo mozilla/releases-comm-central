@@ -74,7 +74,7 @@ class Pop3Client {
     this._urlListener = urlListener;
     this._sink.folder = folder;
 
-    await this._loadStateFile();
+    await this._loadUidlState();
     this._actionUidl();
   }
 
@@ -135,11 +135,15 @@ class Pop3Client {
   /**
    * Read popstate.dat into this._uidlMap.
    */
-  async _loadStateFile() {
+  async _loadUidlState() {
+    this._uidlMap = new Map();
     let stateFile = this._server.localPath;
     stateFile.append("popstate.dat");
+    if (!(await IOUtils.exists(stateFile.path))) {
+      return;
+    }
+
     let content = await IOUtils.readUTF8(stateFile.path);
-    this._uidlMap = new Map();
     let uidlLine = false;
     for (let line of content.split(this._lineSeparator)) {
       if (!line) {
@@ -168,7 +172,7 @@ class Pop3Client {
   /**
    * Write this._uidlMap into popstate.dat.
    */
-  async _writeStateFile() {
+  async _writeUidlState() {
     if (!this._uidlMapChanged) {
       return;
     }
@@ -363,6 +367,6 @@ class Pop3Client {
 
   _actionDone = () => {
     this._nextAction = null;
-    this._writeStateFile();
+    this._writeUidlState();
   };
 }

@@ -341,6 +341,16 @@ class MsgIncomingServer {
     return this._spamFilterPlugin;
   }
 
+  get isDeferredTo() {
+    let account = MailServices.accounts.FindAccountForServer(this);
+    if (!account) {
+      return false;
+    }
+    return MailServices.accounts.allServers.some(
+      server => server.getCharValue("deferred_to_account") == account.key
+    );
+  }
+
   getCharValue(prefName) {
     try {
       return this._prefs.getCharPref(prefName);
@@ -559,5 +569,21 @@ class MsgIncomingServer {
 
   writeToFolderCache(folderCache) {
     this.rootFolder.writeToFolderCache(folderCache, true);
+  }
+
+  clearAllValues() {
+    for (let prefName of this._prefs.getChildList("")) {
+      this._prefs.clearUserPref(prefName);
+    }
+  }
+
+  removeFiles() {
+    if (this.getCharValue("deferred_to_account") || this.isDeferredTo) {
+      throw Components.Exception(
+        "Should not remove files for a deferred account",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+    this.localPath.remove(true);
   }
 }
