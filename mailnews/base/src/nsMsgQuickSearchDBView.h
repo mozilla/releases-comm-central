@@ -47,7 +47,8 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
   NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags,
                                uint32_t aNewFlags,
                                nsIDBChangeListener* aInstigator) override;
-  NS_IMETHOD OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange, bool aPreChange,
+  NS_IMETHOD OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange,
+                                  const nsACString& property, bool aPreChange,
                                   uint32_t* aStatus,
                                   nsIDBChangeListener* aInstigator) override;
   NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,

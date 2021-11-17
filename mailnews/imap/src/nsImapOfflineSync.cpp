@@ -1095,6 +1095,7 @@ void nsImapOfflineSync::ClearDB() {
 
 NS_IMETHODIMP
 nsImapOfflineSync::OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange,
+                                        const nsACString& property,
                                         bool aPreChange, uint32_t* aStatus,
                                         nsIDBChangeListener* aInstigator) {
   return NS_OK;

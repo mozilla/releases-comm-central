@@ -5840,7 +5840,8 @@ nsMsgDBView::OnHdrAdded(nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey,
 }
 
 NS_IMETHODIMP
-nsMsgDBView::OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange, bool aPreChange,
+nsMsgDBView::OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange,
+                                  const nsACString& property, bool aPreChange,
                                   uint32_t* aStatus,
                                   nsIDBChangeListener* aInstigator) {
   if (aPreChange) return NS_OK;

@@ -1035,7 +1035,8 @@ nsMsgDBFolder::OnJunkScoreChanged(nsIDBChangeListener* aInstigator) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange, bool aPreChange,
+nsMsgDBFolder::OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange,
+                                    const nsACString& property, bool aPreChange,
                                     uint32_t* aStatus,
                                     nsIDBChangeListener* aInstigator) {
   /* do nothing.  if you care about this, override it.*/

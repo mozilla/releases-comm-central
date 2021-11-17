@@ -2330,8 +2330,8 @@ nsresult VirtualFolderChangeListener::Init() {
 
 NS_IMETHODIMP
 VirtualFolderChangeListener::OnHdrPropertyChanged(
-    nsIMsgDBHdr* aHdrChanged, bool aPreChange, uint32_t* aStatus,
-    nsIDBChangeListener* aInstigator) {
+    nsIMsgDBHdr* aHdrChanged, const nsACString& property, bool aPreChange,
+    uint32_t* aStatus, nsIDBChangeListener* aInstigator) {
   const uint32_t kMatch = 0x1;
   const uint32_t kRead = 0x2;
   const uint32_t kNew = 0x4;

@@ -214,6 +214,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::OnHdrFlagsChanged(
 
 NS_IMETHODIMP
 nsMsgQuickSearchDBView::OnHdrPropertyChanged(nsIMsgDBHdr* aHdrChanged,
+                                             const nsACString& property,
                                              bool aPreChange, uint32_t* aStatus,
                                              nsIDBChangeListener* aInstigator) {
   // If the junk mail plugin just activated on a message, then

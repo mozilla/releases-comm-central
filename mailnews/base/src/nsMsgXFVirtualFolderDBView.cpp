@@ -135,8 +135,8 @@ nsresult nsMsgXFVirtualFolderDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
 
 NS_IMETHODIMP
 nsMsgXFVirtualFolderDBView::OnHdrPropertyChanged(
-    nsIMsgDBHdr* aHdrChanged, bool aPreChange, uint32_t* aStatus,
-    nsIDBChangeListener* aInstigator) {
+    nsIMsgDBHdr* aHdrChanged, const nsACString& property, bool aPreChange,
+    uint32_t* aStatus, nsIDBChangeListener* aInstigator) {
   // If the junk mail plugin just activated on a message, then
   // we'll allow filters to remove from view.
   // Otherwise, just update the view line.

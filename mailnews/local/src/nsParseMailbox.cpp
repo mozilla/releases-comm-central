@@ -172,8 +172,8 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStopRequest(nsIRequest* request,
 
 NS_IMETHODIMP
 nsParseMailMessageState::OnHdrPropertyChanged(
-    nsIMsgDBHdr* aHdrToChange, bool aPreChange, uint32_t* aStatus,
-    nsIDBChangeListener* aInstigator) {
+    nsIMsgDBHdr* aHdrToChange, const nsACString& property, bool aPreChange,
+    uint32_t* aStatus, nsIDBChangeListener* aInstigator) {
   return NS_OK;
 }
 
