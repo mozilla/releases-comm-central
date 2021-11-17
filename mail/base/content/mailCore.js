@@ -349,7 +349,8 @@ function onViewToolbarsPopupShowing(
   }
 
   let popup = event.target.querySelector(".panel-subview-body") || event.target;
-  if (popup != event.currentTarget) {
+  // Limit the toolbar menu entries to the first level of context menus.
+  if (popup != event.currentTarget && event.currentTarget.tagName == "menupopup") {
     return;
   }
 
