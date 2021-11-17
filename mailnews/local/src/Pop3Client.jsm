@@ -8,6 +8,10 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { CommonUtils } = ChromeUtils.import("resource://services-common/utils.js");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailCryptoUtils } = ChromeUtils.import(
+  "resource:///modules/MailCryptoUtils.jsm"
+);
 var { Pop3Authenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
 );
@@ -16,7 +20,8 @@ var { Pop3Authenticator } = ChromeUtils.import(
  * A structure to represent a response received from the server. A response can
  * be a single status line of a multi-line data block.
  * @typedef {Object} Pop3Response
- * @property {boolean} success - True for a positive status indicator ("+OK").
+ * @property {boolean} success - True for a positive status indicator ("+OK","+").
+ * @property {string} status - The status indicator, can be "+OK", "-ERR" or "+".
  * @property {string} statusText - The status line of the response excluding the
  *   status indicator.
  * @property {string} data - The part of a multi-line data block excluding the
@@ -31,8 +36,31 @@ class Pop3Client {
    * @param {nsIPop3IncomingServer} server - The associated server instance.
    */
   constructor(server) {
-    this._server = server;
+    this._server = server.QueryInterface(Ci.nsIMsgIncomingServer);
     this._authenticator = new Pop3Authenticator(server);
+
+    this._runningUri = Services.io
+      .newURI(`http://${this._server.realHostName}:${this._server.port}`)
+      .mutate()
+      .setScheme("pop")
+      .finalize();
+
+    // A list of auth methods detected from the EHLO response.
+    this._supportedAuthMethods = [];
+    // A list of auth methods that worth a try.
+    this._possibleAuthMethods = [];
+    // Auth method set by user preference.
+    this._preferredAuthMethods =
+      {
+        [Ci.nsMsgAuthMethod.passwordCleartext]: ["PLAIN", "LOGIN"],
+        [Ci.nsMsgAuthMethod.passwordEncrypted]: ["CRAM-MD5"],
+        [Ci.nsMsgAuthMethod.GSSAPI]: ["GSSAPI"],
+        [Ci.nsMsgAuthMethod.NTLM]: ["NTLM"],
+        [Ci.nsMsgAuthMethod.OAuth2]: ["XOAUTH2"],
+        [Ci.nsMsgAuthMethod.secure]: ["CRAM-MD5", "XOAUTH2"],
+      }[server.authMethod] || [];
+    // The next auth method to try if the current failed.
+    this._nextAuthMethod = null;
 
     this._sink = Cc["@mozilla.org/messenger/pop3-sink;1"].createInstance(
       Ci.nsIPop3Sink
@@ -75,7 +103,22 @@ class Pop3Client {
     this._sink.folder = folder;
 
     await this._loadUidlState();
-    this._actionUidl();
+    this._actionInitialAuth();
+  }
+
+  /**
+   * Send `QUIT` request to the server.
+   */
+  quit() {
+    this._send("QUIT");
+    this._nextAction = this.close;
+  }
+
+  /**
+   * Close the socket.
+   */
+  close() {
+    this._socket.close();
   }
 
   /**
@@ -85,7 +128,7 @@ class Pop3Client {
     this._logger.debug("Connected");
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
-    this._nextAction = this._actionCapa;
+    this.onOpen();
   };
 
   /**
@@ -94,10 +137,10 @@ class Pop3Client {
    * @returns {Pop3Response}
    */
   _parse(str) {
-    let matches = /^(\+OK|-ERR) ?(.*)\r\n([^]*)/.exec(str);
+    let matches = /^(\+OK|-ERR|\+) ?(.*)\r\n([^]*)/.exec(str);
     if (matches) {
       let [, status, statusText, data] = matches;
-      return { success: status == "+OK", statusText, data };
+      return { success: status != "-ERR", status, statusText, data };
     }
     return { data: str };
   }
@@ -251,6 +294,31 @@ class Pop3Client {
   }
 
   /**
+   * Send `AUTH` request without any parameters to the server, to get supported
+   * auth methods in case CAPA is not implemented by the server.
+   */
+  _actionInitialAuth = () => {
+    this._nextAction = this._actionCapa;
+    this._send("AUTH");
+  };
+
+  /**
+   * Handle `AUTH` response.
+   * @param {Pop3Response} res - AUTH response received from the server.
+   */
+  _actionInitialAuthResponse = ({ data }) => {
+    this._lineReader(
+      data,
+      line => {
+        this._supportedAuthMethods.push(line);
+      },
+      () => {
+        this._actionCapa();
+      }
+    );
+  };
+
+  /**
    * Send `CAPA` request to the server.
    */
   _actionCapa = () => {
@@ -262,33 +330,172 @@ class Pop3Client {
    * Handle `CAPA` response.
    * @param {Pop3Response} res - CAPA response received from the server.
    */
-  _actionCapaResponse = res => {
-    this._actionAuth();
+  _actionCapaResponse = ({ data }) => {
+    this._lineReader(
+      data,
+      line => {
+        if (line.startsWith("SASL ")) {
+          this._supportedAuthMethods = line
+            .slice(5)
+            .trim()
+            .split(" ");
+        }
+      },
+      () => {
+        // If a preferred method is not supported by the server, no need to try it.
+        this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
+          this._supportedAuthMethods.includes(x)
+        );
+        this._logger.debug(
+          `Possible auth methods: ${this._possibleAuthMethods}`
+        );
+        this._nextAuthMethod = this._possibleAuthMethods[0];
+        if (
+          !this._supportedAuthMethods.length &&
+          this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext
+        ) {
+          this._nextAuthMethod = "USERPASS";
+        }
+
+        this._actionAuth();
+      }
+    );
   };
 
   /**
    * Init authentication depending on server capabilities and user prefs.
    */
   _actionAuth = () => {
-    this._logger.debug("Authenticating via AUTH PLAIN");
+    if (!this._nextAuthMethod) {
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+      return;
+    }
+
+    this._currentAuthMethod = this._nextAuthMethod;
+    this._nextAuthMethod = this._possibleAuthMethods[
+      this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
+    ];
+    this._logger.debug(`Current auth method: ${this._currentAuthMethod}`);
+    this._nextAction = this._actionAuthResponse;
+
+    switch (this._currentAuthMethod) {
+      case "USERPASS":
+        this._nextAction = this._actionAuthUserPass;
+        this._send(`USER ${this._authenticator.username}`);
+        break;
+      case "PLAIN":
+        this._nextAction = this._actionAuthPlain;
+        this._send("AUTH PLAIN");
+        break;
+      case "LOGIN":
+        this._nextAction = this._actionAuthLoginUser;
+        this._send("AUTH LOGIN");
+        break;
+      case "CRAM-MD5":
+        this._nextAction = this._actionAuthCramMd5;
+        this._send("AUTH CRAM-MD5");
+        break;
+      default:
+        this._actionDone();
+    }
+  };
+
+  /**
+   * Handle authentication response.
+   * @param {Pop3Response} res - Authentication response received from the server.
+   */
+  _actionAuthResponse = res => {
+    if (res.success) {
+      this._actionStat();
+    } else {
+      this._actionDone();
+    }
+  };
+
+  /**
+   * The second step of USER/PASS auth, send the password to the server.
+   */
+  _actionAuthUserPass = () => {
+    this._nextAction = this._actionAuthResponse;
+    this._send(`PASS ${this._authenticator.getPassword()}`, true);
+  };
+
+  /**
+   * The second step of PLAIN auth, send the auth token to the server.
+   */
+  _actionAuthPlain = () => {
     this._nextAction = this._actionAuthResponse;
     let password = String.fromCharCode(
       ...new TextEncoder().encode(this._authenticator.getPassword())
     );
     this._send(
-      "AUTH PLAIN " +
-        btoa("\0" + this._authenticator.username + "\0" + password),
+      btoa("\0" + this._authenticator.username + "\0" + password),
       true
     );
   };
 
   /**
-   * Handle authentication response.
-   * @param {Pop3Response} res - CAPA response received from the server.
+   * The second step of LOGIN auth, send the username to the server.
    */
-  _actionAuthResponse = res => {
+  _actionAuthLoginUser = () => {
+    this._nextAction = this._actionAuthLoginPass;
+    this._logger.debug("AUTH LOGIN USER");
+    this._send(btoa(this._authenticator.username), true);
+  };
+
+  /**
+   * The third step of LOGIN auth, send the password to the server.
+   */
+  _actionAuthLoginPass = () => {
+    this._nextAction = this._actionAuthResponse;
+    this._logger.debug("AUTH LOGIN PASS");
+    let password = String.fromCharCode(
+      ...new TextEncoder().encode(this._authenticator.getPassword())
+    );
+    this._send(btoa(password), true);
+  };
+
+  /**
+   * The second step of CRAM-MD5 auth, send a HMAC-MD5 signature to the server.
+   * @param {Pop3Response} res - AUTH response received from the server.
+   */
+  _actionAuthCramMd5 = res => {
+    this._nextAction = this._actionAuthResponse;
+
+    // Server sent us a base64 encoded challenge.
+    let challenge = atob(res.statusText);
+    let password = this._authenticator.getPassword();
+    // Use password as key, challenge as payload, generate a HMAC-MD5 signature.
+    let signature = MailCryptoUtils.hmacMd5(
+      new TextEncoder().encode(password),
+      new TextEncoder().encode(challenge)
+    );
+    // Get the hex form of the signature.
+    let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
+    // Send the username and signature back to the server.
+    this._send(btoa(`${this._authenticator.username} ${hex}`), true);
+  };
+
+  /**
+   * Send `STAT` request to the server.
+   */
+  _actionStat = () => {
+    this._nextAction = this._actionStatResponse;
+    this._send("STAT");
+  };
+
+  /**
+   * Handle `STAT` response.
+   * @param {Pop3Response} res - STAT response received from the server.
+   */
+  _actionStatResponse = res => {
+    if (!Number.parseInt(res.statusText)) {
+      // Finish if there is no message.
+      this._actionDone();
+      return;
+    }
     if (res.success) {
-      this.onReady();
+      this._actionUidl();
     }
   };
 
@@ -365,8 +572,9 @@ class Pop3Client {
     );
   };
 
-  _actionDone = () => {
-    this._nextAction = null;
+  _actionDone = (status = Cr.NS_OK) => {
+    this.quit();
     this._writeUidlState();
+    this._urlListener.OnStopRunningUrl(this._runningUri, status);
   };
 }
