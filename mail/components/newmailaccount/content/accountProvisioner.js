@@ -758,18 +758,23 @@ var gAccountProvisioner = {
 
     let suggestedAddress = address.address || address;
 
+    let button = document.createElement("button");
+    button.setAttribute("type", "button");
+    button.onclick = () => {
+      this.onAddressSelected(provider.provider, suggestedAddress, isDomain);
+    };
+
+    let leftArea = document.createElement("span");
+    leftArea.classList.add("result-data");
+
     let name = document.createElement("span");
     name.classList.add("result-name");
     name.textContent = suggestedAddress;
-    row.appendChild(name);
+    leftArea.appendChild(name);
     row.setAttribute("data-label", suggestedAddress);
 
-    let price = document.createElement("button");
-    price.setAttribute("type", "button");
+    let price = document.createElement("span");
     price.classList.add("result-price");
-    price.onclick = () => {
-      this.onAddressSelected(provider.provider, suggestedAddress, isDomain);
-    };
 
     // Build the pricing text and handle possible free trials.
     if (address.price) {
@@ -792,7 +797,17 @@ var gAccountProvisioner = {
       // No price was specified, let's return "Free".
       document.l10n.setAttributes(price, "account-provisioner-free-account");
     }
-    row.appendChild(price);
+    leftArea.appendChild(price);
+
+    button.appendChild(leftArea);
+
+    let img = document.createElement("img");
+    document.l10n.setAttributes(img, "account-provisioner-open-in-tab-img");
+    img.setAttribute("alt", "");
+    img.setAttribute("src", "chrome://global/skin/icons/open-in-new.svg");
+    button.appendChild(img);
+
+    row.appendChild(button);
 
     return row;
   },

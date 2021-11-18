@@ -117,9 +117,10 @@ add_task(async function test_account_creation_from_provisioner() {
   let tab = await openAccountProvisioner();
   let tabDocument = tab.browser.contentWindow.document;
 
+  let mailInput = tabDocument.getElementById("mailName");
   // The focus is on the email input.
   await BrowserTestUtils.waitForCondition(
-    () => tabDocument.activeElement == tabDocument.getElementById("mailName"),
+    () => tabDocument.activeElement == mailInput,
     "The mailForm input field has the focus"
   );
 
@@ -132,6 +133,10 @@ add_task(async function test_account_creation_from_provisioner() {
     "Count of opened account provisioner must be correct"
   );
 
+  // The application will prefill these fields with the account name, if present
+  // so we need to select it before typing the new name to avoid mismatch in the
+  // expected strings during testing.
+  mailInput.select();
   // Fill the email input.
   input_value(mc, NAME);
   // Since we're focused inside a form, pressing "Enter" should submit it.
@@ -166,7 +171,9 @@ add_task(async function test_account_creation_from_provisioner() {
 
   Assert.ok(tabDocument.getElementById("mailSearchResults").hidden);
 
-  tabDocument.getElementById("domainName").focus();
+  let domainName = tabDocument.getElementById("domainName");
+  domainName.focus();
+  domainName.select();
   // Fill the domain input.
   input_value(mc, NAME);
   // Since we're focused inside a form, pressing "Enter" should submit it.
@@ -224,8 +231,9 @@ add_task(async function test_account_creation_from_provisioner() {
   EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
   await BrowserTestUtils.waitForCondition(
     () =>
-      tabDocument.activeElement == mailResults.querySelector(".result-price"),
-    "The first price button was focused"
+      tabDocument.activeElement ==
+      mailResults.querySelector(".result-item > button"),
+    "The first result button was focused"
   );
   EventUtils.synthesizeKey("VK_RETURN", {}, mc.window);
 

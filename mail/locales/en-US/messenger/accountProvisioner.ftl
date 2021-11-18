@@ -73,3 +73,6 @@ account-provisioner-free-account = Free
 account-provision-price-per-year = { $price } a year
 
 account-provisioner-all-results-button = Show all results
+
+account-provisioner-open-in-tab-img =
+    .title = Opens in a new Tab

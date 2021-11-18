@@ -224,6 +224,10 @@ input:user-invalid ~ .icon-warning {
   outline-offset: 1px;
 }
 
+.btn-link[hidden] {
+  margin: 0;
+}
+
 .password-toggled {
   color: var(--in-content-primary-button-background);
   fill: currentColor;
@@ -1025,16 +1029,57 @@ button.existing:dir(rtl) {
 }
 
 .result-item {
+  margin-block-end: 12px;
+}
+
+.result-item > button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-inline-start: 4px;
   border-radius: var(--in-content-button-border-radius);
+  background-color: rgba(215, 215, 219, 0.2);
+  border: 1px solid var(--in-content-border-color);
+  padding: 6px 9px;
+  width: 100%;
+  text-align: start;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .result-item > button {
+    transition: background-color 180ms ease, color 180ms ease, border 180ms ease;
+  }
+}
+
+.result-item > button > img {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  width: 12px;
+  opacity: 0.7;
+}
+
+.result-data {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  word-wrap: break-word;
 }
 
 .result-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 600;
+  font-size: 1.05em;
+  font-weight: 500;
+}
+
+.result-price {
+  color: var(--in-content-primary-button-background);
+}
+
+.result-item > button:hover {
+  background-color: var(--in-content-box-background);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+}
+
+.result-item > button:hover > img {
+  color: var(--in-content-primary-button-background);
 }
