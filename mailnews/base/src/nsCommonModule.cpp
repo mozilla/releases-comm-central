@@ -64,7 +64,6 @@ static const mozilla::Module kCommonModule = {mozilla::Module::kVersion,
 
 extern const mozilla::Module kCalBaseModule;
 extern const mozilla::Module kMorkModule;
-extern const mozilla::Module kLDAPProtocolModule;
 #ifdef MOZ_THUNDERBIRD
 extern const mozilla::Module kMailCompsModule;
 #endif
@@ -83,7 +82,6 @@ class ModulesInit {
     XRE_AddStaticComponent(&kCommonModule);
     XRE_AddStaticComponent(&kCalBaseModule);
     XRE_AddStaticComponent(&kMorkModule);
-    XRE_AddStaticComponent(&kLDAPProtocolModule);
 #ifdef MOZ_THUNDERBIRD
     XRE_AddStaticComponent(&kMailCompsModule);
 #endif

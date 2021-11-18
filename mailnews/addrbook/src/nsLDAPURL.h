@@ -9,14 +9,6 @@
 #include "nsCOMPtr.h"
 #include "nsIURIMutator.h"
 
-// cb7c67f8-0053-4072-89e9-501cbd1b35ab
-#define NS_LDAPURL_CID                               \
-  {                                                  \
-    0xcb7c67f8, 0x0053, 0x4072, {                    \
-      0x89, 0xe9, 0x50, 0x1c, 0xbd, 0x1b, 0x35, 0xab \
-    }                                                \
-  }
-
 /**
  * nsLDAPURL
  *

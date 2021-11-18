@@ -16,7 +16,6 @@ SOURCES += [
     "nsAbDirProperty.cpp",
     "nsAbLDIFService.cpp",
     "nsAbQueryStringToExpression.cpp",
-    "nsLDAPProtocolModule.cpp",
     "nsLDAPURL.cpp",
 ]
 
@@ -35,10 +34,6 @@ if CONFIG["OS_ARCH"] == "Darwin":
         "nsAbOSXDirectory.mm",
         "nsAbOSXUtils.mm",
     ]
-
-if CONFIG["MOZ_PREF_EXTENSIONS"]:
-    SOURCES += ["nsLDAPSyncQuery.cpp"]
-    DEFINES["MOZ_PREF_EXTENSIONS"] = True
 
 EXTRA_JS_MODULES += [
     "AbAutoCompleteMyDomain.jsm",

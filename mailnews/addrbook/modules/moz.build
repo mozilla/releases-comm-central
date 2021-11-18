@@ -26,6 +26,9 @@ EXTRA_JS_MODULES += [
     "VCardUtils.jsm",
 ]
 
+if CONFIG["MOZ_PREF_EXTENSIONS"]:
+    EXTRA_JS_MODULES += ["LDAPSyncQuery.jsm"]
+
 XPCOM_MANIFESTS += [
     "components.conf",
 ]
