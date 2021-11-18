@@ -15,7 +15,7 @@ const { scriptError } = ChromeUtils.import(
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const { Loader, Require, Module } = ChromeUtils.import(
-  "resource://devtools/shared/base-loader.js"
+  "resource://devtools/shared/loader/base-loader.js"
 );
 
 Cu.importGlobalProperties(["crypto", "fetch"]);
