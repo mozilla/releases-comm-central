@@ -17,7 +17,7 @@
 
 # Linux platforms (matching /linux.*/)
 
-linux64/opt:
+linux1804-64-qr/opt:
     build-platform: linux64/opt
     test-sets:
         - gtest-tests
@@ -25,7 +25,7 @@ linux64/opt:
         - mochitest-tests
         - xpcshell-tests
 
-linux64-shippable/opt:
+linux1804-64-shippable-qr/opt:
     build-platform: linux64-shippable/opt
     test-sets:
         - gtest-tests
@@ -33,7 +33,7 @@ linux64-shippable/opt:
         - mochitest-tests
         - xpcshell-tests
 
-linux64/debug:
+linux1804-64-qr/debug:
     build-platform: linux64/debug
     test-sets:
         - gtest-tests
@@ -41,13 +41,13 @@ linux64/debug:
         - mochitest-tests
         - xpcshell-tests
 
-linux1804-64-asan/opt:
+linux1804-64-asan-qr/opt:
     build-platform: linux64-asan/opt
     test-sets:
         - mochitest-tests
         - xpcshell-tests
 
-linux1804-64-tsan/opt:
+linux1804-64-tsan-qr/opt:
     build-platform: linux64-tsan/opt
     test-sets:
         - mochitest-tests
@@ -81,12 +81,6 @@ windows10-32-qr/debug:
         - xpcshell-tests
 
 # win64
-windows10-64/opt:
-    build-platform: win64/opt
-    test-sets:
-        - mochitest-tests
-        - xpcshell-tests
-
 windows10-64-qr/opt:
     build-platform: win64/opt
     test-sets:
@@ -118,21 +112,21 @@ windows10-64-asan-qr/opt:
 
 # MacOS X platforms (matching /macosx.*/)
 
-macosx1015-64/opt:
+macosx1015-64-qr/opt:
     build-platform: macosx64/opt
     test-sets:
         - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
-macosx1015-64/debug:
+macosx1015-64-qr/debug:
     build-platform: macosx64/debug
     test-sets:
         - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
-macosx1015-64-shippable/opt:
+macosx1015-64-shippable-qr/opt:
     build-platform: macosx64-shippable/opt
     test-sets:
         - marionette-tests
