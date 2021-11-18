@@ -1602,8 +1602,6 @@
       let type = attachment.contentType;
       if (type == "text/x-moz-deleted") {
         src = "chrome://messenger/skin/icons/attachment-deleted.svg";
-      } else if (item.cloudIcon) {
-        src = item.cloudIcon;
       } else {
         let iconName = attachment.name;
         if (iconName.toLowerCase().endsWith(".eml")) {
@@ -1661,12 +1659,16 @@
       item.loaded = loaded;
       if (loaded) {
         if (cloudIcon !== undefined) {
-          item.cloudIcon = cloudIcon;
+          this.setAttachmentIconSrc(item, cloudIcon);
+        } else {
+          this.refreshAttachmentIcon(item);
         }
       } else {
-        item.cloudIcon = "chrome://global/skin/icons/loading.png";
+        this.setAttachmentIconSrc(
+          item,
+          "chrome://global/skin/icons/loading.png"
+        );
       }
-      this.refreshAttachmentIcon(item);
     }
 
     /**
