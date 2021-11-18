@@ -65,7 +65,31 @@ var kDefaultSig = "This is my signature.\n\nCheck out my website sometime!";
 var kFiles = ["./data/testFile1", "./data/testFile2"];
 var kLines = ["This is a line of text", "and here's another!"];
 
+const DATA_URLS = {
+  "chrome://messenger/content/extension.svg":
+    "data:image/svg+xml;filename=extension.svg;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBUaGlzIFNvdXJjZSBDb2RlIEZvcm0gaXMgc3ViamVjdCB0byB0aGUgdGVybXMgb2YgdGhlIE1vemlsbGEgUHVibGljCiAgIC0gTGljZW5zZSwgdi4gMi4wLiBJZiBhIGNvcHkgb2YgdGhlIE1QTCB3YXMgbm90IGRpc3RyaWJ1dGVkIHdpdGggdGhpcwogICAtIGZpbGUsIFlvdSBjYW4gb2J0YWluIG9uZSBhdCBodHRwOi8vbW96aWxsYS5vcmcvTVBMLzIuMC8uIC0tPgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgICAgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiB2aWV3Qm94PSIwIDAgNjQgNjQiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuc3R5bGUtcHV6emxlLXBpZWNlIHsKICAgICAgICBmaWxsOiB1cmwoJyNncmFkaWVudC1saW5lYXItcHV6emxlLXBpZWNlJyk7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50LWxpbmVhci1wdXp6bGUtcGllY2UiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzY2Y2M1MiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzYwYmY0YyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0ic3R5bGUtcHV6emxlLXBpZWNlIiBkPSJNNDIsNjJjMi4yLDAsNC0xLjgsNC00bDAtMTQuMmMwLDAsMC40LTMuNywyLjgtMy43YzIuNCwwLDIuMiwzLjksNi43LDMuOWMyLjMsMCw2LjItMS4yLDYuMi04LjIgYzAtNy0zLjktNy45LTYuMi03LjljLTQuNSwwLTQuMywzLjctNi43LDMuN2MtMi40LDAtMi44LTMuOC0yLjgtMy44VjIyYzAtMi4yLTEuOC00LTQtNEgzMS41YzAsMC0zLjQtMC42LTMuNC0zIGMwLTIuNCwzLjgtMi42LDMuOC03LjFjMC0yLjMtMS4zLTUuOS04LjMtNS45cy04LDMuNi04LDUuOWMwLDQuNSwzLjQsNC43LDMuNCw3LjFjMCwyLjQtMy40LDMtMy40LDNINmMtMi4yLDAtNCwxLjgtNCw0bDAsNy44IGMwLDAtMC40LDYsNC40LDZjMy4xLDAsMy4yLTQuMSw3LjMtNC4xYzIsMCw0LDEuOSw0LDZjMCw0LjItMiw2LjMtNCw2LjNjLTQsMC00LjItNC4xLTcuMy00LjFjLTQuOCwwLTQuNCw1LjgtNC40LDUuOEwyLDU4IGMwLDIuMiwxLjgsNCw0LDRIMTljMCwwLDYuMywwLjQsNi4zLTQuNGMwLTMuMS00LTMuNi00LTcuN2MwLTIsMi4yLTQuNSw2LjQtNC41YzQuMiwwLDYuNiwyLjUsNi42LDQuNWMwLDQtMy45LDQuNi0zLjksNy43IGMwLDQuOSw2LjMsNC40LDYuMyw0LjRINDJ6Ii8+Cjwvc3ZnPgo=",
+  "chrome://messenger/skin/icons/globe.svg":
+    "data:image/svg+xml;filename=globe.svg;base64,PCEtLSBUaGlzIFNvdXJjZSBDb2RlIEZvcm0gaXMgc3ViamVjdCB0byB0aGUgdGVybXMgb2YgdGhlIE1vemlsbGEgUHVibGljCiAgIC0gTGljZW5zZSwgdi4gMi4wLiBJZiBhIGNvcHkgb2YgdGhlIE1QTCB3YXMgbm90IGRpc3RyaWJ1dGVkIHdpdGggdGhpcwogICAtIGZpbGUsIFlvdSBjYW4gb2J0YWluIG9uZSBhdCBodHRwOi8vbW96aWxsYS5vcmcvTVBMLzIuMC8uIC0tPgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGZpbGw9ImNvbnRleHQtZmlsbCIgZD0iTTggMGE4IDggMCAxIDAgOCA4IDguMDA5IDguMDA5IDAgMCAwLTgtOHptNS4xNjMgNC45NThoLTEuNTUyYTcuNyA3LjcgMCAwIDAtMS4wNTEtMi4zNzYgNi4wMyA2LjAzIDAgMCAxIDIuNjAzIDIuMzc2ek0xNCA4YTUuOTYzIDUuOTYzIDAgMCAxLS4zMzUgMS45NThoLTEuODIxQTEyLjMyNyAxMi4zMjcgMCAwIDAgMTIgOGExMi4zMjcgMTIuMzI3IDAgMCAwLS4xNTYtMS45NThoMS44MjFBNS45NjMgNS45NjMgMCAwIDEgMTQgOHptLTYgNmMtMS4wNzUgMC0yLjAzNy0xLjItMi41NjctMi45NThoNS4xMzVDMTAuMDM3IDEyLjggOS4wNzUgMTQgOCAxNHpNNS4xNzQgOS45NThhMTEuMDg0IDExLjA4NCAwIDAgMSAwLTMuOTE2aDUuNjUxQTExLjExNCAxMS4xMTQgMCAwIDEgMTEgOGExMS4xMTQgMTEuMTE0IDAgMCAxLS4xNzQgMS45NTh6TTIgOGE1Ljk2MyA1Ljk2MyAwIDAgMSAuMzM1LTEuOTU4aDEuODIxYTEyLjM2MSAxMi4zNjEgMCAwIDAgMCAzLjkxNkgyLjMzNUE1Ljk2MyA1Ljk2MyAwIDAgMSAyIDh6bTYtNmMxLjA3NSAwIDIuMDM3IDEuMiAyLjU2NyAyLjk1OEg1LjQzM0M1Ljk2MyAzLjIgNi45MjUgMiA4IDJ6bS0yLjU2LjU4MmE3LjcgNy43IDAgMCAwLTEuMDUxIDIuMzc2SDIuODM3QTYuMDMgNi4wMyAwIDAgMSA1LjQ0IDIuNTgyem0tMi42IDguNDZoMS41NDlhNy43IDcuNyAwIDAgMCAxLjA1MSAyLjM3NiA2LjAzIDYuMDMgMCAwIDEtMi42MDMtMi4zNzZ6bTcuNzIzIDIuMzc2YTcuNyA3LjcgMCAwIDAgMS4wNTEtMi4zNzZoMS41NTJhNi4wMyA2LjAzIDAgMCAxLTIuNjA2IDIuMzc2eiI+PC9wYXRoPgo8L3N2Zz4K",
+};
+
 var gInbox;
+
+function test_expected_included(actual, expected, description) {
+  Assert.equal(
+    actual.length,
+    expected.length,
+    `${description}: correct length`
+  );
+  for (let i = 0; i < expected.length; i++) {
+    for (let item of Object.keys(expected[i])) {
+      Assert.equal(
+        actual[i][item],
+        expected[i][item],
+        `${description}: ${item} exists and is correct`
+      );
+    }
+  }
+}
 
 add_task(function setupModule(module) {
   requestLongerTimeout(3);
@@ -119,10 +143,12 @@ function setupTest() {
  *
  * @param aController the controller for a compose window.
  * @param aNumUrls the number of Filelink URLs that are expected.
+ * @param aUploads an array containing the objects returned by
+ *                 cloudFileAccounts.uploadFile() for all uploads
  * @returns an array containing the root containment node, the list node, and
  *          an array of the link URL nodes.
  */
-function wait_for_attachment_urls(aController, aNumUrls) {
+function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
   let mailBody = get_compose_body(aController);
 
   // Wait until we can find the root attachment URL node...
@@ -144,6 +170,63 @@ function wait_for_attachment_urls(aController, aNumUrls) {
     return urls != null && urls.length == aNumUrls;
   });
 
+  Assert.equal(
+    aUploads.length,
+    aNumUrls,
+    "Number of uploads matches number of uploaded files."
+  );
+
+  // Check the actual content of the generated cloudAttachmentItems.
+  for (let i = 0; i < urls.length; i++) {
+    if (aController.window.gMsgCompose.composeHTML) {
+      let downloadUrl = urls[i].querySelector(".downloadUrl");
+      Assert.equal(
+        downloadUrl.href,
+        aUploads[i].url,
+        "The seen downloadUrl is correct."
+      );
+
+      let providerLink = urls[i].querySelector(".providerLink");
+      Assert.ok(
+        !!providerLink == !!aUploads[i].serviceURL,
+        "The providerLink has been correctly added."
+      );
+      if (providerLink) {
+        Assert.equal(
+          providerLink.href.toLowerCase().replace(/\/$/, ""),
+          aUploads[i].serviceURL.toLowerCase().replace(/\/$/, ""),
+          "The seen providerLink is correct."
+        );
+      }
+
+      // The provider name is either embedded into the link, or a stand-alone span.
+      let providerName = providerLink || urls[i].querySelector(".providerName");
+      Assert.equal(
+        providerName.textContent,
+        aUploads[i].serviceName,
+        "The seen providerName is correct."
+      );
+
+      let providerIcon = urls[i].querySelector(".providerIcon");
+      Assert.equal(
+        DATA_URLS[aUploads[i].serviceIcon] || aUploads[i].serviceIcon,
+        providerIcon.src,
+        "The seen providerIcon is correct."
+      );
+    } else {
+      Assert.ok(
+        urls[i].textContent.startsWith(`* ${aUploads[i].leafName} (`),
+        "Part 1 of plainttext listitem is correct."
+      );
+      Assert.ok(
+        urls[i].textContent.endsWith(
+          `) hosted on ${aUploads[i].serviceName}: ${aUploads[i].url}`
+        ),
+        "Part 2 of plainttext listitem is correct."
+      );
+    }
+  }
+
   return [root, list, urls];
 }
 
@@ -164,7 +247,11 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
   gMockFilePicker.returnFiles = collectFiles(aFiles);
 
   let provider = new MockCloudfileAccount();
-  provider.init("someKey");
+  provider.init("providerF", {
+    serviceName: "MochiTest F",
+    serviceURL: "https://www.provider-F.org",
+    serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+  });
 
   be_in_folder(gInbox);
   let msg = select_click_row(0);
@@ -174,8 +261,30 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
 
   // If we have any typing to do, let's do it.
   type_in_composer(cw, aText);
-  add_cloud_attachments(cw, provider);
-  return cw;
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerF/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest F",
+        serviceURL: "https://www.provider-F.org",
+      },
+      {
+        url: "http://www.example.com/providerF/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest F",
+        serviceURL: "https://www.provider-F.org",
+      },
+    ],
+    `Expected values in uploads array #11`
+  );
+  let [root] = wait_for_attachment_urls(cw, aFiles.length, uploads);
+
+  return [cw, root];
 }
 
 /**
@@ -195,7 +304,11 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
   gMockFilePicker.returnFiles = collectFiles(aFiles);
 
   let provider = new MockCloudfileAccount();
-  provider.init("someKey");
+  provider.init("providerG", {
+    serviceName: "MochiTest G",
+    serviceURL: "https://www.provider-G.org",
+    serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+  });
 
   be_in_folder(gInbox);
   let msg = select_click_row(0);
@@ -209,8 +322,30 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
 
   // Do any necessary typing...
   type_in_composer(cw, aText);
-  add_cloud_attachments(cw, provider);
-  return cw;
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerG/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest G",
+        serviceURL: "https://www.provider-G.org",
+      },
+      {
+        url: "http://www.example.com/providerG/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest G",
+        serviceURL: "https://www.provider-G.org",
+      },
+    ],
+    `Expected values in uploads array #12`
+  );
+  let [root] = wait_for_attachment_urls(cw, aFiles.length, uploads);
+
+  return [cw, root];
 }
 
 /**
@@ -282,10 +417,30 @@ function subtest_inserts_linebreak_on_empty_compose() {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = open_compose_new_mail();
-  add_cloud_attachments(cw, provider);
 
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let cw = open_compose_new_mail();
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/someKey/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "default",
+        serviceURL: "",
+      },
+      {
+        url: "http://www.example.com/someKey/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "default",
+        serviceURL: "",
+      },
+    ],
+    `Expected values in uploads array #1`
+  );
+  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   let br = root.previousSibling;
   Assert.equal(
@@ -316,12 +471,33 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
+
   let cw = open_compose_new_mail();
-  add_cloud_attachments(cw, provider);
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/someKey/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "default",
+        serviceURL: "",
+      },
+      {
+        url: "http://www.example.com/someKey/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "default",
+        serviceURL: "",
+      },
+    ],
+    `Expected values in uploads array #2`
+  );
   // wait_for_attachment_urls ensures that the attachment URL containment
   // node is an immediate child of the body of the message, so if this
   // succeeds, then we were not in the signature node.
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   let br = assert_previous_nodes("br", root, 1);
 
@@ -353,8 +529,28 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
 
   // Now let's try with plaintext mail.
   cw = open_compose_new_mail();
-  add_cloud_attachments(cw, provider);
-  [root] = wait_for_attachment_urls(cw, kFiles.length);
+  uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/someKey/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "default",
+        serviceURL: "",
+      },
+      {
+        url: "http://www.example.com/someKey/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "default",
+        serviceURL: "",
+      },
+    ],
+    `Expected values in uploads array #3`
+  );
+  [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   br = assert_previous_nodes("br", root, 1);
 
@@ -399,8 +595,7 @@ add_task(function test_removing_filelinks_removes_root_node() {
  * on both plaintext and HTML compose windows.
  */
 function subtest_removing_filelinks_removes_root_node() {
-  let cw = prepare_some_attachments_and_reply([], kFiles);
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let [cw, root] = prepare_some_attachments_and_reply([], kFiles);
 
   // Now select the attachments in the attachment bucket, and remove them.
   select_attachments(cw, 0, 1);
@@ -437,9 +632,28 @@ function subtest_adding_filelinks_to_written_message() {
   let cw = open_compose_new_mail();
 
   type_in_composer(cw, kLines);
-  add_cloud_attachments(cw, provider);
-
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/someKey/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "default",
+        serviceURL: "",
+      },
+      {
+        url: "http://www.example.com/someKey/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "default",
+        serviceURL: "",
+      },
+    ],
+    `Expected values in uploads array #4`
+  );
+  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   let br = root.previousSibling;
   Assert.equal(
@@ -503,8 +717,7 @@ add_task(function test_adding_filelinks_to_nonempty_reply_above() {
  * various cases.
  */
 function subtest_adding_filelinks_to_reply_above_plaintext(aText, aWithSig) {
-  let cw = prepare_some_attachments_and_reply(aText, kFiles);
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let [cw, root] = prepare_some_attachments_and_reply(aText, kFiles);
 
   let br;
   if (aText.length) {
@@ -552,8 +765,7 @@ function subtest_adding_filelinks_to_reply_above_plaintext(aText, aWithSig) {
  * Subtest for test_adding_filelinks_to_reply_above for the HTML composer.
  */
 function subtest_adding_filelinks_to_reply_above(aText) {
-  let cw = prepare_some_attachments_and_reply(aText, kFiles);
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let [cw, root] = prepare_some_attachments_and_reply(aText, kFiles);
 
   // If there's any text written, then there's only a single break between the
   // end of the text and the reply. Otherwise, there are two breaks.
@@ -624,8 +836,8 @@ add_task(function test_adding_filelinks_to_nonempty_reply_below() {
  * Subtest for test_adding_filelinks_to_reply_below for the HTML composer.
  */
 function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
-  let cw = prepare_some_attachments_and_reply(aText, kFiles);
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let [cw, root] = prepare_some_attachments_and_reply(aText, kFiles);
+
   // So, we should have the root, followed by a br
   let br = root.nextSibling;
   Assert.equal(
@@ -672,9 +884,7 @@ function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
  * Subtest for test_adding_filelinks_to_reply_below for the plaintext composer.
  */
 function subtest_adding_filelinks_to_plaintext_reply_below(aText, aWithSig) {
-  let cw = prepare_some_attachments_and_reply(aText, kFiles);
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
-
+  let [cw, root] = prepare_some_attachments_and_reply(aText, kFiles);
   let br, span;
 
   assert_next_nodes("br", root, 1);
@@ -757,8 +967,7 @@ add_task(function test_adding_filelinks_to_forward() {
  * are positioned correctly.
  */
 function subtest_adding_filelinks_to_forward(aText, aWithSig) {
-  let cw = prepare_some_attachments_and_forward(aText, kFiles);
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let [cw, root] = prepare_some_attachments_and_forward(aText, kFiles);
 
   let br = assert_next_nodes("br", root, 1);
   let forwardDiv = br.nextSibling;
@@ -800,26 +1009,68 @@ function subtest_converting_filelink_updates_urls() {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let providerA = new MockCloudfileAccount();
   let providerB = new MockCloudfileAccount();
-  providerA.init("providerA");
-  providerB.init("providerB");
+  providerA.init("providerA", {
+    serviceName: "MochiTest A",
+    serviceURL: "https://www.provider-A.org",
+    serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+  });
+  providerB.init("providerB", {
+    serviceName: "MochiTest B",
+    serviceURL: "https://www.provider-B.org",
+  });
 
   let cw = open_compose_new_mail();
-  add_cloud_attachments(cw, providerA);
-
-  let [, , urls] = wait_for_attachment_urls(cw, kFiles.length);
+  let uploads = add_cloud_attachments(cw, providerA);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerA/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
+      },
+      {
+        url: "http://www.example.com/providerA/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
+      },
+    ],
+    `Expected values in uploads array #5`
+  );
+  let [, , UrlsA] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   // Convert each Filelink to providerB, ensuring that the URLs are replaced.
   for (let i = 0; i < kFiles.length; ++i) {
-    let url = urls[i];
     select_attachments(cw, i);
     cw.window.convertSelectedToCloudAttachment(providerB);
-    gMockCloudfileManager.resolveUploads();
-    [, , urls] = wait_for_attachment_urls(cw, kFiles.length);
-
-    let newUrl = urls[i];
-
-    Assert.notEqual(url, newUrl, "The original URL should have been replaced");
   }
+  uploads = gMockCloudfileManager.resolveUploads();
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerB/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "MochiTest B",
+        serviceURL: "https://www.provider-B.org",
+      },
+      {
+        url: "http://www.example.com/providerB/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "MochiTest B",
+        serviceURL: "https://www.provider-B.org",
+      },
+    ],
+    `Expected values in uploads array #6`
+  );
+  let [, , UrlsB] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  Assert.notEqual(UrlsA, UrlsB, "The original URL should have been replaced");
 
   close_compose_window(cw);
 }
@@ -843,12 +1094,35 @@ add_task(function test_converting_filelink_to_normal_removes_url() {
 function subtest_converting_filelink_to_normal_removes_url() {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
-  provider.init("someKey");
+  provider.init("providerC", {
+    serviceName: "MochiTest C",
+    serviceURL: "https://www.provider-C.org",
+    serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+  });
 
   let cw = open_compose_new_mail();
-  add_cloud_attachments(cw, provider);
-
-  let [root, list] = wait_for_attachment_urls(cw, kFiles.length);
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerC/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest C",
+        serviceURL: "https://www.provider-C.org",
+      },
+      {
+        url: "http://www.example.com/providerC/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest C",
+        serviceURL: "https://www.provider-C.org",
+      },
+    ],
+    `Expected values in uploads array #7`
+  );
+  let [root, list] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
@@ -886,18 +1160,55 @@ function subtest_filelinks_work_after_manual_removal() {
   // Insert some Filelinks...
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
-  provider.init("someKey");
-  let cw = open_compose_new_mail();
-  add_cloud_attachments(cw, provider);
+  provider.init("providerD", {
+    serviceName: "MochiTest D",
+    serviceURL: "https://www.provider-D.org",
+    serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+  });
 
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let cw = open_compose_new_mail();
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerD/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest D",
+        serviceURL: "https://www.provider-D.org",
+      },
+      {
+        url: "http://www.example.com/providerD/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest D",
+        serviceURL: "https://www.provider-D.org",
+      },
+    ],
+    `Expected values in uploads array #8`
+  );
+  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   // Now remove the root node from the document body
   root.remove();
 
   gMockFilePicker.returnFiles = collectFiles(["./data/testFile3"]);
-  add_cloud_attachments(cw, provider);
-  [root] = wait_for_attachment_urls(cw, 1);
+  uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerD/testFile3",
+        leafName: "testFile3",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest D",
+        serviceURL: "https://www.provider-D.org",
+      },
+    ],
+    `Expected values in uploads array #9`
+  );
+  [root] = wait_for_attachment_urls(cw, 1, uploads);
 
   close_compose_window(cw);
 }
@@ -920,7 +1231,10 @@ function subtest_insertion_restores_caret_point() {
   // Insert some Filelinks...
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
-  provider.init("someKey");
+  provider.init("providerE", {
+    serviceName: "MochiTest E",
+    serviceURL: "https://www.provider-E.org",
+  });
 
   let cw = open_compose_new_mail();
 
@@ -932,8 +1246,28 @@ function subtest_insertion_restores_caret_point() {
   type_in_composer(cw, ["Line 1", "Line 2", "", ""]);
 
   // Attach some Filelinks.
-  add_cloud_attachments(cw, provider);
-  let [root] = wait_for_attachment_urls(cw, kFiles.length);
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerE/testFile1",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "MochiTest E",
+        serviceURL: "https://www.provider-E.org",
+      },
+      {
+        url: "http://www.example.com/providerE/testFile2",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/content/extension.svg",
+        serviceName: "MochiTest E",
+        serviceURL: "https://www.provider-E.org",
+      },
+    ],
+    `Expected values in uploads array #10`
+  );
+  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   // Type some text.
   const kTypedIn = "Test";

@@ -2223,8 +2223,8 @@ function makePrettyName(aUri) {
  * Asynchronously uploads the given attachment to the cloud provider, updating
  * the passed listItem as things progress.
  *
- * @param attachment        A calIAttachment to upload
- * @param cloudProvider     The clould provider to upload to
+ * @param attachment        A calIAttachment to upload.
+ * @param cloudFileAccount  The cloud file account used for uploading.
  * @param listItem          The listitem in attachment-link listbox to update.
  */
 function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
@@ -2238,10 +2238,10 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
       delete gAttachMap[attachment.hashId];
       attachment.uri = Services.io.newURI(upload.url);
       attachment.setParameter("FILENAME", file.leafName);
-      attachment.setParameter("PROVIDER", cloudFileAccount.type);
+      attachment.setParameter("X-SERVICE-ICONURL", upload.serviceIcon);
       listItem.setAttribute("label", file.leafName);
       gAttachMap[attachment.hashId] = attachment;
-      image.setAttribute("src", cloudFileAccount.iconURL);
+      image.setAttribute("src", upload.serviceIcon);
       listItem.attachCloudFileUpload = upload;
       updateAttachment();
     },
@@ -2284,6 +2284,8 @@ function addAttachment(attachment, cloudFileAccount) {
     let listItem = document.createXULElement("richlistitem");
     let image = document.createElement("img");
     image.setAttribute("alt", "");
+    image.width = "24";
+    image.height = "24";
     // Allow the moz-icon src to be invalid.
     image.classList.add("invisible-on-broken");
     listItem.appendChild(image);
@@ -2298,8 +2300,9 @@ function addAttachment(attachment, cloudFileAccount) {
         image.setAttribute("src", "chrome://messenger/skin/icons/connecting.png");
         uploadCloudAttachment(attachment, cloudFileAccount, listItem);
       } else {
+        let cloudFileIconURL = attachment.getParameter("X-SERVICE-ICONURL");
+        image.setAttribute("src", cloudFileIconURL);
         let leafName = attachment.getParameter("FILENAME");
-        image.setAttribute("src", cloudFileAccount.iconURL);
         if (leafName) {
           listItem.setAttribute("label", leafName);
         }
@@ -2308,16 +2311,15 @@ function addAttachment(attachment, cloudFileAccount) {
       image.setAttribute("src", "moz-icon://" + attachment.uri.spec);
     } else {
       let leafName = attachment.getParameter("FILENAME");
-      let providerType = attachment.getParameter("PROVIDER");
+      let cloudFileIconURL = attachment.getParameter("X-SERVICE-ICONURL");
       let cloudFileEnabled = Services.prefs.getBoolPref("mail.cloud_files.enabled", false);
 
       if (leafName) {
         // TODO security issues?
         listItem.setAttribute("label", leafName);
       }
-      if (providerType && cloudFileEnabled) {
-        let provider = cloudFileAccounts.getProviderForType(providerType);
-        image.setAttribute("src", provider.iconURL);
+      if (cloudFileIconURL && cloudFileEnabled) {
+        image.setAttribute("src", cloudFileIconURL);
       } else {
         let iconSrc = attachment.uri.spec.length ? attachment.uri.spec : "dummy.html";
         if (attachment.formatType) {

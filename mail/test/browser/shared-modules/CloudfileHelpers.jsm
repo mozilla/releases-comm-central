@@ -22,6 +22,7 @@ var { cloudFileAccounts } = ChromeUtils.import(
 
 var kDefaults = {
   type: "default",
+  displayName: "default",
   iconURL: "chrome://messenger/content/extension.svg",
   accountKey: null,
   managementURL: "",
@@ -67,7 +68,10 @@ function MockCloudfileAccount() {
 MockCloudfileAccount.prototype = {
   nextId: 1,
 
-  init(aAccountKey) {
+  init(aAccountKey, aOverrides = {}) {
+    for (let override in aOverrides) {
+      this[override] = aOverrides[override];
+    }
     this.accountKey = aAccountKey;
   },
 
@@ -81,6 +85,10 @@ MockCloudfileAccount.prototype = {
           url: this.urlForFile(aFile),
           path: aFile.path,
           leafName: aFile.leafName,
+          // Use aOverrides to set these.
+          serviceIcon: this.serviceIcon || this.iconURL,
+          serviceName: this.serviceName || this.displayName,
+          serviceURL: this.serviceURL || "",
         },
       });
     });
@@ -96,10 +104,6 @@ MockCloudfileAccount.prototype = {
 
   deleteFile(window, aUploadId) {
     return new Promise(resolve => fdh.mc.window.setTimeout(resolve));
-  },
-
-  get displayName() {
-    return cloudFileAccounts.getDisplayName(this.accountKey);
   },
 };
 
@@ -119,18 +123,14 @@ var gMockCloudfileManager = {
       type: aID,
       displayName: aID,
       iconURL: "chrome://messenger/content/extension.svg",
-      initAccount(accountKey) {
+      initAccount(accountKey, aAccountOverrides = {}) {
         let account = new MockCloudfileAccount();
-
-        for (let someDefault in kDefaults) {
-          account[someDefault] = kDefaults[someDefault];
-        }
-
         for (let override in aOverrides) {
-          account[override] = aOverrides[override];
+          if (!aAccountOverrides.hasOwnProperty(override)) {
+            aAccountOverrides[override] = aOverrides[override];
+          }
         }
-
-        account.init(accountKey);
+        account.init(accountKey, aAccountOverrides);
         return account;
       },
     });
@@ -146,10 +146,13 @@ var gMockCloudfileManager = {
 
   inProgressUploads: new Set(),
   resolveUploads() {
+    let uploads = [];
     for (let upload of this.inProgressUploads.values()) {
+      uploads.push(upload.resolveData);
       upload.resolve(upload.resolveData);
     }
     this.inProgressUploads.clear();
+    return uploads;
   },
   rejectUploads() {
     for (let upload of this.inProgressUploads.values()) {

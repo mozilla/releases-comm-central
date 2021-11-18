@@ -115,6 +115,9 @@ class CloudFileAccount {
       leafName: file.leafName,
       path: file.path,
       size: file.fileSize,
+      serviceName: this.displayName,
+      serviceIcon: this.iconURL,
+      serviceURL: this.extension.manifest.cloud_file.service_url,
     };
     this._uploads.set(id, upload);
     let results;
@@ -154,7 +157,22 @@ class CloudFileAccount {
         throw cloudFileAccounts.constants.uploadCancelled;
       }
 
+      if (results[0].templateInfo) {
+        if (results[0].templateInfo.service_name) {
+          upload.serviceName = results[0].templateInfo.service_name;
+        }
+        if (results[0].templateInfo.service_icon) {
+          upload.serviceIcon = this.extension.baseURI.resolve(
+            results[0].templateInfo.service_icon
+          );
+        }
+        if (results[0].templateInfo.service_url != null) {
+          upload.serviceURL = results[0].templateInfo.service_url;
+        }
+      }
+
       upload.url = results[0].url;
+
       return { ...upload };
     }
 

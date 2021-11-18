@@ -39,10 +39,10 @@ var gCloudAttachmentLinkManager = {
         this._insertHeader(mailDoc);
       }
 
+      let cloudFileUpload = event.target.cloudFileUpload;
       let attachment = event.target.attachment;
-      let account = event.target.cloudFileAccount;
       this.cloudAttachments.push(attachment);
-      this._insertItem(mailDoc, attachment, account);
+      this._insertItem(mailDoc, attachment, cloudFileUpload);
     } else if (
       event.type == "attachments-removed" ||
       event.type == "attachments-converted"
@@ -368,9 +368,12 @@ var gCloudAttachmentLinkManager = {
    *
    * @param aDocument the document to insert the item into
    * @param aAttachment the nsIMsgAttachment to insert
-   * @param aAccount the cloud storage account
+   * @param aCloudFileUpload object with information about the uploaded file,
+   * @param aCloudFileUpload.serviceName name of the service
+   * @param aCloudFileUpload.serviceIcon URL pointing to the service's icon
+   * @param aCloudFileUpload.serviceURL URL pointing to the service's webpage
    */
-  _insertItem(aDocument, aAttachment, aAccount) {
+  _insertItem(aDocument, aAttachment, aCloudFileUpload) {
     let list = aDocument.getElementById("cloudAttachmentList");
 
     if (!list) {
@@ -381,8 +384,6 @@ var gCloudAttachmentLinkManager = {
     let node = aDocument.createElement(gMsgCompose.composeHTML ? "li" : "div");
     node.className = "cloudAttachmentItem";
     node.contentLocation = aAttachment.contentLocation;
-
-    let provider = cloudFileAccounts.getProviderForType(aAccount.type);
 
     if (gMsgCompose.composeHTML) {
       node.style.border = "1px solid #CDCDCD";
@@ -419,8 +420,9 @@ var gCloudAttachmentLinkManager = {
       let providerIdentity = aDocument.createElement("span");
       providerIdentity.style.cssFloat = "right";
 
-      if (provider.iconURL) {
+      if (aCloudFileUpload.serviceIcon) {
         let providerIcon = aDocument.createElement("img");
+        providerIcon.classList.add("providerIcon");
         providerIcon.alt = "";
         providerIcon.style.marginRight = "5px";
         providerIcon.width = "24";
@@ -428,13 +430,18 @@ var gCloudAttachmentLinkManager = {
         providerIcon.style.verticalAlign = "middle";
         providerIdentity.appendChild(providerIcon);
 
-        if (!/^(chrome|moz-extension):\/\//i.test(provider.iconURL)) {
-          providerIcon.src = provider.iconURL;
+        if (
+          !/^(chrome|moz-extension):\/\//i.test(aCloudFileUpload.serviceIcon)
+        ) {
+          providerIcon.src = aCloudFileUpload.serviceIcon;
         } else {
           try {
             // Let's use the goodness from MsgComposeCommands.js since we're
             // sitting right in a compose window.
-            providerIcon.src = window.loadBlockedImage(provider.iconURL, true);
+            providerIcon.src = window.loadBlockedImage(
+              aCloudFileUpload.serviceIcon,
+              true
+            );
           } catch (e) {
             // Couldn't load the referenced image.
             Cu.reportError(e);
@@ -442,18 +449,20 @@ var gCloudAttachmentLinkManager = {
         }
       }
 
-      if (provider.serviceURL) {
+      if (aCloudFileUpload.serviceURL) {
         let providerLink = this._generateLink(
           aDocument,
-          cloudFileAccounts.getDisplayName(aAccount),
-          provider.serviceURL
+          aCloudFileUpload.serviceName,
+          aCloudFileUpload.serviceURL
         );
         providerLink.style.verticalAlign = "middle";
+        providerLink.classList.add("providerLink");
         providerIdentity.appendChild(providerLink);
       } else {
         let providerName = aDocument.createElement("span");
-        providerName.textContent = provider.displayName;
+        providerName.textContent = aCloudFileUpload.serviceName;
         providerName.style.verticalAlign = "middle";
+        providerName.classList.add("providerName");
         providerIdentity.appendChild(providerName);
       }
       node.appendChild(providerIdentity);
@@ -468,6 +477,7 @@ var gCloudAttachmentLinkManager = {
       );
       downloadUrl.style.fontSize = "small";
       downloadUrl.style.display = "block";
+      downloadUrl.classList.add("downloadUrl");
       node.appendChild(downloadUrl);
     } else {
       node.textContent = getComposeBundle().getFormattedString(
@@ -475,7 +485,7 @@ var gCloudAttachmentLinkManager = {
         [
           aAttachment.name,
           gMessenger.formatFileSize(aAttachment.size),
-          cloudFileAccounts.getDisplayName(aAccount),
+          aCloudFileUpload.serviceName,
           aAttachment.contentLocation,
         ]
       );

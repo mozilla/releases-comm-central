@@ -137,6 +137,9 @@ add_task(async () => {
       path: getFileFromChromeURL("green_eggs.txt").path,
       size: 30,
       url: "https://mochi.test/green_eggs.txt",
+      serviceName: "MyCloud",
+      serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+      serviceURL: "https://www.mycloud.org",
     },
     {
       id: 2,
@@ -205,6 +208,37 @@ add_task(async () => {
   is(
     attachment.attachment.contentLocation,
     "https://mochi.test/green_eggs.txt"
+  );
+
+  // Check the content of the editor for the added template.
+  let editor = composeWindow.GetCurrentEditor();
+  let urls = editor.document.querySelectorAll(
+    "body > #cloudAttachmentListRoot > #cloudAttachmentList"
+  );
+  Assert.equal(urls.length, 1, "Found 1 FileLink template in the document.");
+
+  Assert.equal(
+    urls[0].querySelector(".downloadUrl").href,
+    "https://mochi.test/green_eggs.txt",
+    "The added downloadUrl is correct."
+  );
+
+  Assert.equal(
+    urls[0].querySelector(".providerLink").href,
+    "https://www.mycloud.org/",
+    "The added providerLink is correct."
+  );
+
+  Assert.equal(
+    urls[0].querySelector(".providerLink").textContent,
+    "MyCloud",
+    "The added providerName is correct."
+  );
+
+  Assert.equal(
+    urls[0].querySelector(".providerIcon").src,
+    "data:image/svg+xml;filename=globe.svg;base64,PCEtLSBUaGlzIFNvdXJjZSBDb2RlIEZvcm0gaXMgc3ViamVjdCB0byB0aGUgdGVybXMgb2YgdGhlIE1vemlsbGEgUHVibGljCiAgIC0gTGljZW5zZSwgdi4gMi4wLiBJZiBhIGNvcHkgb2YgdGhlIE1QTCB3YXMgbm90IGRpc3RyaWJ1dGVkIHdpdGggdGhpcwogICAtIGZpbGUsIFlvdSBjYW4gb2J0YWluIG9uZSBhdCBodHRwOi8vbW96aWxsYS5vcmcvTVBMLzIuMC8uIC0tPgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGZpbGw9ImNvbnRleHQtZmlsbCIgZD0iTTggMGE4IDggMCAxIDAgOCA4IDguMDA5IDguMDA5IDAgMCAwLTgtOHptNS4xNjMgNC45NThoLTEuNTUyYTcuNyA3LjcgMCAwIDAtMS4wNTEtMi4zNzYgNi4wMyA2LjAzIDAgMCAxIDIuNjAzIDIuMzc2ek0xNCA4YTUuOTYzIDUuOTYzIDAgMCAxLS4zMzUgMS45NThoLTEuODIxQTEyLjMyNyAxMi4zMjcgMCAwIDAgMTIgOGExMi4zMjcgMTIuMzI3IDAgMCAwLS4xNTYtMS45NThoMS44MjFBNS45NjMgNS45NjMgMCAwIDEgMTQgOHptLTYgNmMtMS4wNzUgMC0yLjAzNy0xLjItMi41NjctMi45NThoNS4xMzVDMTAuMDM3IDEyLjggOS4wNzUgMTQgOCAxNHpNNS4xNzQgOS45NThhMTEuMDg0IDExLjA4NCAwIDAgMSAwLTMuOTE2aDUuNjUxQTExLjExNCAxMS4xMTQgMCAwIDEgMTEgOGExMS4xMTQgMTEuMTE0IDAgMCAxLS4xNzQgMS45NTh6TTIgOGE1Ljk2MyA1Ljk2MyAwIDAgMSAuMzM1LTEuOTU4aDEuODIxYTEyLjM2MSAxMi4zNjEgMCAwIDAgMCAzLjkxNkgyLjMzNUE1Ljk2MyA1Ljk2MyAwIDAgMSAyIDh6bTYtNmMxLjA3NSAwIDIuMDM3IDEuMiAyLjU2NyAyLjk1OEg1LjQzM0M1Ljk2MyAzLjIgNi45MjUgMiA4IDJ6bS0yLjU2LjU4MmE3LjcgNy43IDAgMCAwLTEuMDUxIDIuMzc2SDIuODM3QTYuMDMgNi4wMyAwIDAgMSA1LjQ0IDIuNTgyem0tMi42IDguNDZoMS41NDlhNy43IDcuNyAwIDAgMCAxLjA1MSAyLjM3NiA2LjAzIDYuMDMgMCAwIDEtMi42MDMtMi4zNzZ6bTcuNzIzIDIuMzc2YTcuNyA3LjcgMCAwIDAgMS4wNTEtMi4zNzZoMS41NTJhNi4wMyA2LjAzIDAgMCAxLTIuNjA2IDIuMzc2eiI+PC9wYXRoPgo8L3N2Zz4K",
+    "The added providerIcon is correct."
   );
 
   // clean up

@@ -98,6 +98,11 @@
               "type": "string",
               "description": "The URL where the uploaded file can be accessed",
               "optional": true
+            },
+            "templateInfo" : {
+              "$ref": "CloudFileTemplateInfo",
+              "description": "Information to override the default values used in the cloud file message template.",
+              "optional": true
             }
           }
         }
@@ -212,6 +217,28 @@
             "type": "string",
             "format": "relativeUrl",
             "description": "A page for configuring accounts, to be displayed in the preferences UI."
+          }
+        }
+      },
+      {
+        "id": "CloudFileTemplateInfo",
+        "type": "object",
+        "description": "Information to be used in the cloud file message template.",
+        "properties": {
+          "service_icon": {
+            "type": "string",
+            "optional": true,
+            "description": "A URL pointing to an icon to represent the used cloud file service. Defaults to the icon of the provider add-on."
+          },
+          "service_name": {
+            "type": "string",
+            "optional": true,
+            "description": "A name to represent the used cloud file service. Defaults to the associated cloud file account name."
+          },
+          "service_url": {
+            "type": "string",
+            "optional": true,
+            "description": "An URL to the web page of the used cloud file service, attached the <code>service_name</code>. Defaults to the <code>service_url</code> manifest entry. Set to an empty string in order to not create a link."
           }
         }
       },

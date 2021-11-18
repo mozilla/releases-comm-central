@@ -151,6 +151,11 @@ add_task(async function testAttachProvider() {
             setTimeout(() =>
               resolve({
                 url: fileUrl,
+                // The uploadFile() function should return serviceIcon, serviceName
+                // and serviceURL - either default or user defined values specified
+                // by the onFileUpload event. The item-edit dialog uses only the
+                // serviceIcon.
+                serviceIcon: "chrome://messenger/skin/icons/globe.svg",
               })
             )
           );
@@ -249,7 +254,11 @@ add_task(async function testAttachProvider() {
   Assert.equal(listItem.attachCloudFileUpload.url, fileUrl, "upload attached to event");
 
   let listItemImage = listItem.querySelector("img");
-  Assert.equal(listItemImage.src, iconURL, "attachment image is provider image");
+  Assert.equal(
+    listItemImage.src,
+    "chrome://messenger/skin/icons/globe.svg",
+    "attachment image is provider image"
+  );
 
   // Save the new event.
   eventWin.document.querySelector("#button-saveandclose").click();

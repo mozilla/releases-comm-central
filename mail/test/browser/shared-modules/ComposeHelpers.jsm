@@ -457,7 +457,7 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
  */
 function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
   let bucket = aController.e("attachmentBucket");
-
+  let uploads = [];
   let attachmentsSubmitted = false;
   function uploadAttachments(event) {
     attachmentsSubmitted = true;
@@ -489,13 +489,14 @@ function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
     "Couldn't attach attachments for upload"
   );
   if (aWaitUploaded) {
-    gMockCloudfileManager.resolveUploads();
+    uploads = gMockCloudfileManager.resolveUploads();
     aController.waitFor(
       () => attachmentCount == 0,
       "Attachments uploading didn't finish"
     );
   }
   aController.sleep(0);
+  return uploads;
 }
 
 /**
