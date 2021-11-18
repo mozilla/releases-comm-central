@@ -55,7 +55,7 @@ var { ExtensionSupport } = ChromeUtils.import(
 Object.defineProperty(this, "BrowserConsoleManager", {
   get() {
     let { loader } = ChromeUtils.import(
-      "resource://devtools/shared/Loader.jsm"
+      "resource://devtools/shared/loader/Loader.jsm"
     );
     return loader.require("devtools/client/webconsole/browser-console-manager")
       .BrowserConsoleManager;

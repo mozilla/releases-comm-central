@@ -33,7 +33,7 @@ DevToolsStartup.prototype = {
 
   initialize() {
     let { loader, require, DevToolsLoader } = ChromeUtils.import(
-      "resource://devtools/shared/Loader.jsm"
+      "resource://devtools/shared/loader/Loader.jsm"
     );
     let { DevToolsServer } = require("devtools/server/devtools-server");
     let { gDevTools } = require("devtools/client/framework/devtools");
