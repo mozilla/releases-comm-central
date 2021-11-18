@@ -540,7 +540,24 @@ class MsgIncomingServer {
     this.password = "";
   }
 
+  forgetSessionPassword() {
+    this.password = "";
+  }
+
   closeCachedConnections() {}
+
+  shutdown() {
+    this.closeCachedConnections();
+
+    if (this._filterList) {
+      this._filterList.logStream = null;
+      this._filterList = null;
+    }
+    if (this._spamSettings) {
+      this._spamSettings.logStream = null;
+      this._spamSettings = null;
+    }
+  }
 
   getFilterList(msgWindow) {
     if (!this._filterList) {
