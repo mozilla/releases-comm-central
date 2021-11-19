@@ -269,13 +269,13 @@ var gAccountSetup = {
     // slower because of one-time overheads like DNS and OCSP. Let's create some
     // dummy requests to prime the connections.
     let autoconfigURL = Services.prefs.getCharPref("mailnews.auto_config_url");
-    fetch(autoconfigURL, { method: "OPTIONS" });
+    fetch(autoconfigURL, { method: "OPTIONS" }).catch(Cu.reportError);
 
     let addonsURL = Services.prefs.getCharPref(
       "mailnews.auto_config.addons_url"
     );
     if (new URL(autoconfigURL).origin != new URL(addonsURL).origin) {
-      fetch(addonsURL, { method: "OPTIONS" });
+      fetch(addonsURL, { method: "OPTIONS" }).catch(Cu.reportError);
     }
 
     // We did everything, now we can update the variable.

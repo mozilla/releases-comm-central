@@ -95,7 +95,9 @@ function nAccounts() {
  * @param {Object} tab - The opened account provisioner tab.
  */
 async function waitForLoadedProviders(tab) {
-  let gProvisioner = tab.browser.contentWindow.gAccountProvisioner;
+  let gProvisioner = await TestUtils.waitForCondition(
+    () => tab.browser.contentWindow.gAccountProvisioner
+  );
 
   // We got the correct amount of email and domain providers.
   await BrowserTestUtils.waitForCondition(
@@ -308,6 +310,8 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
   let tab = await openAccountProvisioner();
   let tabDocument = tab.browser.contentWindow.document;
 
+  await waitForLoadedProviders(tab);
+
   // Close the tab.
   let closeButton = tabDocument.getElementById("cancelButton");
   closeButton.scrollIntoView();
@@ -326,6 +330,8 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
 
   tab = await openAccountProvisioner();
   tabDocument = tab.browser.contentWindow.document;
+
+  await waitForLoadedProviders(mc.tabmail.currentTabInfo);
 
   // Click on the "Use existing account" button.
   let existingAccountButton = tabDocument.getElementById("existingButton");
@@ -360,6 +366,7 @@ add_task(async function open_provisioner_from_menu_bar() {
       "about:accountprovisioner",
     "The Account Provisioner Tab was opened"
   );
+  await waitForLoadedProviders(mc.tabmail.currentTabInfo);
 
   // Close the account provisioner tab.
   mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
@@ -385,6 +392,7 @@ add_task(async function open_provisioner_from_app_menu() {
       "about:accountprovisioner",
     "The Account Provisioner Tab was opened"
   );
+  await waitForLoadedProviders(mc.tabmail.currentTabInfo);
 
   // Close the account provisioner tab.
   mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
