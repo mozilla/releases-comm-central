@@ -37,10 +37,14 @@
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "mozilla/dom/Promise.h"
+#include "mozilla/dom/PromiseNativeHandler.h"
 #include "mozilla/ReentrantMonitor.h"
 #include "mozilla/Services.h"
 #include "nsEmbedCID.h"
 #include "mozilla/Logging.h"
+#include "mozilla/SpinEventLoopUntil.h"
+
+using namespace mozilla::dom;
 
 extern mozilla::LazyLogModule MAPI;  // defined in msgMapiImp.cpp
 
@@ -331,17 +335,21 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // If we're in offline mode, we'll need to queue it for later.
-  RefPtr<mozilla::dom::Promise> promise;
+  RefPtr<Promise> promise;
   rv = pMsgCompose->SendMsg(WeAreOffline() ? nsIMsgSend::nsMsgQueueForLater
                                            : nsIMsgSend::nsMsgDeliverNow,
                             pMsgId, nullptr, nullptr, nullptr,
                             getter_AddRefs(promise));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // We need to wait to make sure that we only return when the send is
-  // completed. If we're offline, we're not sending yet, so don't bother
-  // waiting.
-  if (WeAreOffline()) return NS_OK;
+  bool sendMsgFinished = false;
+
+  RefPtr<DomPromiseListener> listener = new DomPromiseListener(
+      [&](JSContext*, JS::Handle<JS::Value>) { sendMsgFinished = true; },
+      [&](nsresult) { sendMsgFinished = true; });
+  promise->AppendNativeHandler(listener);
+  mozilla::SpinEventLoopUntil("nsIMsgCompose::SendMsg is async"_ns,
+                              [=]() { return sendMsgFinished; });
 
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
   while (!sendListener->IsDone()) {
