@@ -74,7 +74,7 @@ void nsLDAPURL::GetPathInternal(nsCString& aPath) {
 
 nsresult nsLDAPURL::SetPathInternal(const nsCString& aPath) {
   nsCOMPtr<nsILDAPURLParser> parser =
-    do_CreateInstance("@mozilla.org/network/ldap-url-parser;1");
+      do_CreateInstance("@mozilla.org/network/ldap-url-parser;1");
   nsCOMPtr<nsILDAPURLParserResult> parserResult;
   nsresult rv = parser->Parse(aPath, getter_AddRefs(parserResult));
   NS_ENSURE_SUCCESS(rv, rv);
