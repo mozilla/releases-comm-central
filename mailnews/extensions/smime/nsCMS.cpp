@@ -243,8 +243,8 @@ static SECStatus myExtraVerificationOnCert(CERTCertificate* cert,
   nsTArray<uint8_t> certBytes(cert->derCert.data, cert->derCert.len);
   nsTArray<nsTArray<uint8_t>> builtChain;
   mozilla::pkix::Result result = certVerifier->VerifyCert(
-      certBytes, usageForPkix, Now(), nullptr /*XXX pinarg*/, nullptr /*hostname*/,
-      builtChain,
+      certBytes, usageForPkix, Now(), nullptr /*XXX pinarg*/,
+      nullptr /*hostname*/, builtChain,
       // Only local checks can run on the main thread.
       CertVerifier::FLAG_LOCAL_ONLY);
   if (result != mozilla::pkix::Success) {
