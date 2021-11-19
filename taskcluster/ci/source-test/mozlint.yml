@@ -321,6 +321,27 @@ shellcheck:
         skip-unless-changed-no-suite:
             - 'comm/**/*.sh'
 
+trojan-source:
+    description: Trojan Source attack - CVE-2021-42572
+    platform: lint/opt
+    treeherder:
+        symbol: misc(trojan-source)
+    run:
+        mach: >
+              lint -v -l trojan-source -f treeherder
+              -f json:/builds/worker/mozlint.json
+              --config-path=comm/tools/lint
+              comm/*
+    optimization:
+        skip-unless-changed-no-suite:
+            - 'comm/**/*.c'
+            - 'comm/**/*.cc'
+            - 'comm/**/*.cpp'
+            - 'comm/**/*.h'
+            - 'comm/**/*.py'
+            - 'comm/**/*.rs'
+            - 'tools/lint/trojan-source.yml'
+
 yaml:
     description: yamllint run over the taskcluster configuration
     treeherder:
