@@ -567,7 +567,7 @@ NS_IMETHODIMP nsDBFolderInfo::GetProperty(const char* propertyName,
 NS_IMETHODIMP nsDBFolderInfo::SetCharProperty(
     const char* aPropertyName, const nsACString& aPropertyValue) {
   return m_mdb->SetProperty(m_mdbRow, aPropertyName,
-                            nsCString(aPropertyValue).get());
+                            PromiseFlatCString(aPropertyValue).get());
 }
 
 NS_IMETHODIMP nsDBFolderInfo::GetCharProperty(const char* propertyName,

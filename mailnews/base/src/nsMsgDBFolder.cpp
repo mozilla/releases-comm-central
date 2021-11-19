@@ -4359,7 +4359,7 @@ nsMsgDBFolder::SetJunkScoreForMessages(
       nsMsgKey msgKey;
       (void)message->GetMessageKey(&msgKey);
       mDatabase->SetStringProperty(msgKey, "junkscore",
-                                   nsCString(junkScore).get());
+                                   PromiseFlatCString(junkScore).get());
       mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "filter");
     }
   }

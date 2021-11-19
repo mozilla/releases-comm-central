@@ -288,7 +288,9 @@ nsresult nsPop3Service::NewURI(const nsACString& aSpec,
   int32_t offset = folderUri.FindChar('?');
   if (offset != kNotFound) folderUri.SetLength(offset);
 
-  const char* uidl = PL_strstr(nsCString(aSpec).get(), "uidl=");
+  // Hold onto the string until it goes out of scope.
+  const nsPromiseFlatCString& flat = PromiseFlatCString(aSpec);
+  const char* uidl = PL_strstr(flat.get(), "uidl=");
   NS_ENSURE_TRUE(uidl, NS_ERROR_FAILURE);
 
   nsresult rv;

@@ -554,7 +554,7 @@ nsresult nsImapService::FetchMimePart(
   if (aImapMailFolder && msgurl && !messageIdentifierList.IsEmpty()) {
     bool useLocalCache = false;
     aImapMailFolder->HasMsgOffline(
-        strtoul(nsCString(messageIdentifierList).get(), nullptr, 10),
+        strtoul(PromiseFlatCString(messageIdentifierList).get(), nullptr, 10),
         &useLocalCache);
     msgurl->SetMsgIsInLocalCache(useLocalCache);
   }
@@ -1063,8 +1063,8 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (msgKey.IsEmpty()) return NS_MSG_MESSAGE_NOT_FOUND;
-  rv = nsParseImapMessageURI(nsCString(aMessageURI).get(), folderURI, &key,
-                             getter_Copies(mimePart));
+  rv = nsParseImapMessageURI(PromiseFlatCString(aMessageURI).get(), folderURI,
+                             &key, getter_Copies(mimePart));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapMessageSink> imapMessageSink(do_QueryInterface(folder, &rv));

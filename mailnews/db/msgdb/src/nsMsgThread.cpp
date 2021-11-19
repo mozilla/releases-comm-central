@@ -132,7 +132,7 @@ NS_IMETHODIMP nsMsgThread::SetFlags(uint32_t flags) {
 NS_IMETHODIMP nsMsgThread::SetSubject(const nsACString& aSubject) {
   return m_mdbDB->CharPtrToRowCellColumn(m_metaRow,
                                          m_mdbDB->m_threadSubjectColumnToken,
-                                         nsCString(aSubject).get());
+                                         PromiseFlatCString(aSubject).get());
 }
 
 NS_IMETHODIMP nsMsgThread::GetSubject(nsACString& aSubject) {

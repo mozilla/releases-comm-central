@@ -1330,7 +1330,7 @@ nsNntpService::StreamMessage(const nsACString& aMessageURI,
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key;
-  nsresult rv = DecomposeNewsMessageURI(nsCString(aMessageURI).get(),
+  nsresult rv = DecomposeNewsMessageURI(PromiseFlatCString(aMessageURI).get(),
                                         getter_AddRefs(folder), &key);
   NS_ENSURE_SUCCESS(rv, rv);
 
