@@ -6,9 +6,9 @@ var EXPORTED_SYMBOLS = ["ThemeVariableMap", "ThemeContentPropertyList"];
 
 const ThemeVariableMap = [
   [
-    "--lwt-accent-color-inactive",
+    "--lwt-frame-inactive",
     {
-      lwtProperty: "accentcolorInactive",
+      lwtProperty: "frame_inactive",
     },
   ],
   [

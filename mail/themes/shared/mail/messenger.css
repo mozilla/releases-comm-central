@@ -172,7 +172,7 @@ body {
     --button-primary-hover-bgcolor: rgb(2, 80, 187) !important;
     --button-primary-active-bgcolor: rgb(5, 62, 148) !important;
     --button-primary-color: rgb(251, 251, 254) !important;
-    --lwt-accent-color: rgb(24, 24, 26) !important;
+    --lwt-frame: rgb(24, 24, 26) !important;
     --sidebar-border-color: #606064 !important;
 
     /* Toolbar buttons */
@@ -251,7 +251,7 @@ p {
 #navigation-toolbox:-moz-lwtheme,
 #ab-toolbox:-moz-lwtheme,
 #compose-toolbox:-moz-lwtheme {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   background-image: var(--lwt-additional-images);
   background-repeat: var(--lwt-background-tiling);
   background-position: var(--lwt-background-alignment);
@@ -276,7 +276,7 @@ p {
    }
 
    #navigation-toolbox:-moz-window-inactive:-moz-lwtheme {
-     background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+     background-color: var(--lwt-accent-color-inactive, var(--lwt-frame));
    }
   }
 }
@@ -441,7 +441,7 @@ treechildren::-moz-tree-twisty(selected, focus) {
 
 /* Quick-Filter-Bar */
 :root[lwt-default-theme-in-dark-mode] #quick-filter-bar:-moz-lwtheme {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   color: var(--lwt-text-color);
 }
 
@@ -1239,14 +1239,14 @@ statuspanel:not([label]) {
 #status-bar:-moz-lwtheme {
   background-repeat: no-repeat, var(--lwt-background-tiling);
   background-position: bottom right, var(--lwt-background-alignment);
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
   color: var(--lwt-text-color);
   border-top: 1px solid var(--lwt-tabs-border-color);
 }
 
 #status-bar:-moz-lwtheme-brighttext {
-  border-top-color: var(--lwt-accent-color);
+  border-top-color: var(--lwt-frame);
 }
 
 #status-bar:-moz-lwtheme toolbarbutton {
@@ -1386,7 +1386,7 @@ findbar {
 }
 
 :root:not([lwtheme-image]) findbar:-moz-lwtheme {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor));
   border-top-color: var(--chrome-content-separator-color);
   color: var(--toolbar-color);

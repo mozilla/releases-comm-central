@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #calendar-alarm-dialog[lwt-tree]  {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   color: var(--lwt-text-color);
 }
 

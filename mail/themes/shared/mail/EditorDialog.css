@@ -5,7 +5,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root:-moz-lwtheme {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   color: var(--lwt-text-color);
 }
 
