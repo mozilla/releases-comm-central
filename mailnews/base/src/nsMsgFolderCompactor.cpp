@@ -30,7 +30,6 @@
 #include "nsIMsgStatusFeedback.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgFolderNotificationService.h"
-#include "nsIMsgPluggableStore.h"
 #include "nsMsgFolderCompactor.h"
 #include "nsIOutputStream.h"
 #include "nsIInputStream.h"
@@ -387,14 +386,7 @@ NS_IMETHODIMP nsFolderCompactState::OnStopRunningUrl(nsIURI* url,
 }
 
 nsresult nsFolderCompactState::StartCompacting() {
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsCOMPtr<nsIMsgIncomingServer> server;
-
-  nsresult rv = m_folder->GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = server->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsresult rv = NS_OK;
   // Notify that compaction is beginning.  We do this even if there are no
   // messages to be copied because the summary database still gets blown away
   // which is still pretty interesting.  (And we like consistency.)
