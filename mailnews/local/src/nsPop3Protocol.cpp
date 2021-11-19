@@ -3150,8 +3150,7 @@ int32_t nsPop3Protocol::RetrResponse(nsIInputStream* inputStream,
     MOZ_LOG(POP3LOGMODULE, LogLevel::Info,
             (POP3LOG("Done opening message stream!")));
 
-    if (NS_FAILED(rv))
-      return Error("pop3MessageWriteError");
+    if (NS_FAILED(rv)) return Error("pop3MessageWriteError");
 
     m_pop3ConData->msg_closure = (void*)m_nsIPop3Sink;
   }
