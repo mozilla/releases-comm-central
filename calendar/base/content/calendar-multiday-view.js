@@ -59,23 +59,17 @@
         }
 
         if (this.calendarView.controller) {
-          let newStart = this.getClickedDateTime(event);
-          this.calendarView.controller.createNewEvent(null, newStart, null);
+          event.stopPropagation();
+          this.calendarView.controller.createNewEvent(null, this.getClickedDateTime(event), null);
         }
       });
 
       this.addEventListener("click", event => {
-        if (event.button != 0 && event.button != 2) {
+        if (event.button != 0 || event.ctrlKey || event.metaKey) {
           return;
         }
-
-        if (event.button == 0 && !(event.ctrlKey || event.metaKey)) {
-          this.calendarView.setSelectedItems([]);
-          this.focus();
-        } else if (event.button == 2) {
-          let newStart = this.getClickedDateTime(event);
-          this.calendarView.selectedDateTime = newStart;
-        }
+        this.calendarView.setSelectedItems([]);
+        this.focus();
       });
 
       // Mouse down handler, in empty event column regions.  Starts sweeping out a new event.
@@ -92,6 +86,11 @@
           return;
         }
 
+        if (event.button == 2) {
+          // Set a selected datetime for the context menu.
+          this.calendarView.selectedDateTime = this.getClickedDateTime(event);
+          return;
+        }
         // Only start sweeping out an event if the left button was clicked.
         if (event.button != 0) {
           return;
@@ -1457,7 +1456,6 @@
         pos = event.screenX - this.parentNode.screenX;
       }
       newStart.minute = Math.round(pos / interval) * ROUND_INTERVAL;
-      event.stopPropagation();
       return newStart;
     }
   }
