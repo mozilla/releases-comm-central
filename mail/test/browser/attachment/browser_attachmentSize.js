@@ -409,3 +409,8 @@ add_task(async function test_attachment_sizes() {
     await help_test_attachment_size(i);
   }
 });
+
+registerCleanupFunction(() => {
+  // Remove created folders.
+  folder.deleteSelf(null);
+});

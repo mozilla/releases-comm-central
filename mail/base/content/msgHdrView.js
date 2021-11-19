@@ -2917,10 +2917,6 @@ function updateAttachmentsDisplay(attachmentInfo, isFetching) {
     if (isFetching) {
       // Set elements busy to show the user this is potentially a long network
       // fetch for the link attachment.
-      attachmentIcon.setAttribute(
-        "src",
-        "chrome://global/skin/icons/loading.png"
-      );
       attachmentList.setAttachmentLoaded(attachmentItem, false);
       return;
     }

@@ -681,3 +681,8 @@ add_task(function test_delete_from_toolbar() {
   mc.click(mc.e("hdrTrashButton"));
   wait_for_folder_events();
 });
+
+registerCleanupFunction(() => {
+  // Remove created folders.
+  folder.deleteSelf(null);
+});

@@ -542,3 +542,8 @@ add_task(() => {
     "Test ran to completion successfully"
   );
 });
+
+registerCleanupFunction(() => {
+  // Remove created folders.
+  folder.deleteSelf(null);
+});

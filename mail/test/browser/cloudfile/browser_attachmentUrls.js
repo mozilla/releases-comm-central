@@ -20,6 +20,7 @@ var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
 );
 var {
   add_cloud_attachments,
+  convert_selected_to_cloud_attachment,
   assert_previous_text,
   close_compose_window,
   get_compose_body,
@@ -176,6 +177,8 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
     "Number of uploads matches number of uploaded files."
   );
 
+  let bucket = aController.e("attachmentBucket");
+
   // Check the actual content of the generated cloudAttachmentItems.
   for (let i = 0; i < urls.length; i++) {
     if (aController.window.gMsgCompose.composeHTML) {
@@ -225,6 +228,22 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
         "Part 2 of plainttext listitem is correct."
       );
     }
+
+    // Find the bucket entry for this upload.
+    let items = Array.from(
+      bucket.querySelectorAll(".attachmentItem"),
+      item => item
+    ).filter(item => item.attachment.name == aUploads[i].leafName);
+    Assert.equal(
+      items.length,
+      1,
+      `Should find one matching bucket entry for ${aUploads[i].serviceName} / ${aUploads[i].leafName}.`
+    );
+    Assert.equal(
+      items[0].querySelector("img.attachmentcell-icon").src,
+      aUploads[i].serviceIcon,
+      `CloudFile icon should be correct for ${aUploads[i].serviceName} / ${aUploads[i].leafName}`
+    );
   }
 
   return [root, list, urls];
@@ -1044,11 +1063,11 @@ function subtest_converting_filelink_updates_urls() {
   let [, , UrlsA] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   // Convert each Filelink to providerB, ensuring that the URLs are replaced.
+  uploads = [];
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
-    cw.window.convertSelectedToCloudAttachment(providerB);
+    uploads.push(...convert_selected_to_cloud_attachment(cw, providerB));
   }
-  uploads = gMockCloudfileManager.resolveUploads();
   test_expected_included(
     uploads,
     [
@@ -1125,8 +1144,15 @@ function subtest_converting_filelink_to_normal_removes_url() {
   let [root, list] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   for (let i = 0; i < kFiles.length; ++i) {
-    select_attachments(cw, i);
+    let [selectedItem] = select_attachments(cw, i);
     cw.window.convertSelectedToRegularAttachment();
+
+    // Check that the cloud icon has been removed.
+    Assert.equal(
+      selectedItem.querySelector("img.attachmentcell-icon").src,
+      `moz-icon://${selectedItem.attachment.name}?size=16`,
+      `CloudIcon should be correctly removed for ${selectedItem.attachment.name}`
+    );
 
     let urls = list.querySelectorAll(".cloudAttachmentItem");
     Assert.equal(urls.length, kFiles.length - (i + 1));

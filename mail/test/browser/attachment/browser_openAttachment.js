@@ -358,3 +358,8 @@ add_task(async function alwaysAskForget() {
   await checkFileSaved();
   checkHandler("test/alwaysAsk-false", saveToDisk, true);
 });
+
+registerCleanupFunction(() => {
+  // Remove created folders.
+  folder.deleteSelf(null);
+});

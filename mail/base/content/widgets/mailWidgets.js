@@ -1602,6 +1602,10 @@
       let type = attachment.contentType;
       if (type == "text/x-moz-deleted") {
         src = "chrome://messenger/skin/icons/attachment-deleted.svg";
+      } else if (!item.loaded || item.uploading) {
+        src = "chrome://global/skin/icons/loading.png";
+      } else if (item.cloudIcon) {
+        src = item.cloudIcon;
       } else {
         let iconName = attachment.name;
         if (iconName.toLowerCase().endsWith(".eml")) {
@@ -1652,23 +1656,23 @@
      *
      * @param {MozRichlistitem} item - The attachment item.
      * @param {boolean} loaded - Whether the attachment is fully loaded.
-     * @param {string} [cloudIcon] - The icon for the cloud provider where the
-     *   attachment was loaded, if any.
      */
-    setAttachmentLoaded(item, loaded, cloudIcon) {
+    setAttachmentLoaded(item, loaded) {
       item.loaded = loaded;
-      if (loaded) {
-        if (cloudIcon !== undefined) {
-          this.setAttachmentIconSrc(item, cloudIcon);
-        } else {
-          this.refreshAttachmentIcon(item);
-        }
-      } else {
-        this.setAttachmentIconSrc(
-          item,
-          "chrome://global/skin/icons/loading.png"
-        );
-      }
+      this.refreshAttachmentIcon(item);
+    }
+
+    /**
+     * Set the attachment item's cloud icon, if any.
+     *
+     * @param {MozRichlistitem} item - The attachment item.
+     * @param {?string} cloudIcon - The icon of the cloud provider where the
+     *   attachment was uploaded. Will be used as file type icon in the list of
+     *   attachments, if specified.
+     */
+    setCloudIcon(item, cloudIcon) {
+      item.cloudIcon = cloudIcon;
+      this.refreshAttachmentIcon(item);
     }
 
     /**

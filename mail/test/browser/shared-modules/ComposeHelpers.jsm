@@ -7,6 +7,7 @@
 const EXPORTED_SYMBOLS = [
   "add_attachments",
   "add_cloud_attachments",
+  "convert_selected_to_cloud_attachment",
   "assert_previous_text",
   "async_wait_for_compose_window",
   "clear_recipients",
@@ -449,6 +450,78 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
 }
 
 /**
+ * Convert the selected attachment to a cloud (filelink) attachment
+ *
+ * @param aController    The controller of the composition window in question.
+ * @param aProvider      The provider account to upload the selected attachment to.
+ * @param aWaitUploaded (optional)  True to wait for the attachments to be uploaded, false otherwise.
+ */
+function convert_selected_to_cloud_attachment(
+  aController,
+  aProvider,
+  aWaitUploaded = true
+) {
+  let bucket = aController.e("attachmentBucket");
+  let uploads = [];
+  let attachmentConverted = false;
+  let attachmentCount = 0;
+
+  function convertAttachment(event) {
+    attachmentConverted = true;
+    if (aWaitUploaded) {
+      // event.detail contains an array of nsIMsgAttachment objects that were uploaded.
+      attachmentCount = event.detail.length;
+      Assert.equal(
+        attachmentCount,
+        1,
+        "Exactly one attachment should be scheduled for conversion."
+      );
+
+      let attachment = event.detail[0];
+      let item = bucket.findItemForAttachment(attachment);
+      let img = item.querySelector("img.attachmentcell-icon");
+      Assert.equal(
+        img.src,
+        "chrome://global/skin/icons/loading.png",
+        "Icon should be the spinner during conversion."
+      );
+
+      item.addEventListener("attachment-uploaded", collectConvertedAttachment, {
+        once: true,
+      });
+    }
+  }
+
+  function collectConvertedAttachment(event) {
+    attachmentCount--;
+    let item = event.target;
+    let img = item.querySelector("img.attachmentcell-icon");
+    Assert.equal(
+      img.src,
+      item.cloudIcon,
+      "Cloud icon should be used after conversion has finished."
+    );
+  }
+
+  bucket.addEventListener("attachments-converted", convertAttachment, {
+    once: true,
+  });
+  aController.window.convertSelectedToCloudAttachment(aProvider);
+  aController.waitFor(() => attachmentConverted, "Couldn't convert attachment");
+
+  if (aWaitUploaded) {
+    uploads = gMockCloudfileManager.resolveUploads();
+    aController.waitFor(
+      () => attachmentCount == 0,
+      "Attachments uploading didn't finish"
+    );
+  }
+
+  aController.sleep(0);
+  return uploads;
+}
+
+/**
  * Add a cloud (filelink) attachment to the compose window.
  *
  * @param aController    The controller of the composition window in question.
@@ -466,6 +539,13 @@ function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
       attachmentCount = event.detail.length;
       for (let attachment of event.detail) {
         let item = bucket.findItemForAttachment(attachment);
+        let img = item.querySelector("img.attachmentcell-icon");
+        Assert.equal(
+          img.src,
+          "chrome://global/skin/icons/loading.png",
+          "Icon should be the spinner during upload."
+        );
+
         item.addEventListener(
           "attachment-uploaded",
           collectUploadedAttachments,
@@ -477,6 +557,13 @@ function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
 
   let attachmentCount = 0;
   function collectUploadedAttachments(event) {
+    let item = event.target;
+    let img = item.querySelector("img.attachmentcell-icon");
+    Assert.equal(
+      img.src,
+      item.cloudIcon,
+      "Cloud icon should be used after upload has finished."
+    );
     attachmentCount--;
   }
 

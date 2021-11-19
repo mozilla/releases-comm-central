@@ -210,6 +210,12 @@ add_task(async () => {
     "https://mochi.test/green_eggs.txt"
   );
 
+  is(
+    attachment.querySelector("img.attachmentcell-icon").src,
+    uploadedFiles[1].serviceIcon,
+    "CloudFile icon should be correct."
+  );
+
   // Check the content of the editor for the added template.
   let editor = composeWindow.GetCurrentEditor();
   let urls = editor.document.querySelectorAll(
