@@ -70,7 +70,6 @@ class nsMailboxProtocol : public nsMsgProtocol {
       m_runningUrl;  // the nsIMailboxURL that is currently running
   nsMailboxAction m_mailboxAction;  // current mailbox action associated with
                                     // this connection...
-  uint64_t m_msgOffset;
   // Event sink handles
   nsCOMPtr<nsIStreamListener> m_mailboxParser;
 

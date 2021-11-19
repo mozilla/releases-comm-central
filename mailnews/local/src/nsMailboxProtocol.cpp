@@ -417,7 +417,6 @@ nsresult nsMailboxProtocol::SetupMessageExtraction() {
       if (NS_SUCCEEDED(rv) && msgHdr) {
         msgHdr->GetMessageSize(&messageSize);
         m_runningUrl->SetMessageSize(messageSize);
-        msgHdr->GetMessageOffset(&m_msgOffset);
       } else
         NS_ASSERTION(false, "couldn't get message header");
     }
