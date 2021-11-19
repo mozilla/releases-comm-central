@@ -353,7 +353,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
       // else uses GetURI to get the RDF resource which describes the message.
       nsCOMPtr<nsINntpUrl> nntpUrl(do_QueryInterface(mURL, &rv));
       if (NS_SUCCEEDED(rv) && nntpUrl)
-        rv = msgurl->GetOriginalSpec(getter_Copies(uriString));
+        rv = msgurl->GetOriginalSpec(uriString);
       else
         rv = msgurl->GetUri(uriString);
     }

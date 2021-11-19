@@ -535,7 +535,7 @@ NS_IMETHODIMP nsMessenger::LaunchExternalURL(const nsACString& aURL) {
   nsresult rv;
 
   nsCOMPtr<nsIURI> uri;
-  rv = NS_NewURI(getter_AddRefs(uri), PromiseFlatCString(aURL).get());
+  rv = NS_NewURI(getter_AddRefs(uri), aURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIExternalProtocolService> extProtService =
@@ -743,9 +743,9 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
 
       nsCOMPtr<nsIURI> dummyNull;
       if (fetchService)
-        rv = fetchService->FetchMimePart(
-            URL, fullMessageUri.get(), convertedListener, mMsgWindow,
-            saveListener, getter_AddRefs(dummyNull));
+        rv = fetchService->FetchMimePart(URL, fullMessageUri, convertedListener,
+                                         mMsgWindow, saveListener,
+                                         getter_AddRefs(dummyNull));
       else
         rv = messageService->DisplayMessage(fullMessageUri, convertedListener,
                                             mMsgWindow, nullptr, false,
@@ -1077,8 +1077,8 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
     if (saveAsFileType == EML_FILE_TYPE) {
       nsCOMPtr<nsIURI> dummyNull;
       rv = messageService->SaveMessageToDisk(
-          PromiseFlatCString(aURI).get(), saveAsFile, false, urlListener,
-          getter_AddRefs(dummyNull), true, mMsgWindow);
+          aURI, saveAsFile, false, urlListener, getter_AddRefs(dummyNull), true,
+          mMsgWindow);
     } else {
       nsAutoCString urlString(aURI);
 
@@ -1166,8 +1166,8 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
 
     nsCOMPtr<nsIURI> dummyNull;
     rv = messageService->SaveMessageToDisk(
-        PromiseFlatCString(aURI).get(), tmpFile, needDummyHeader, urlListener,
-        getter_AddRefs(dummyNull), canonicalLineEnding, mMsgWindow);
+        aURI, tmpFile, needDummyHeader, urlListener, getter_AddRefs(dummyNull),
+        canonicalLineEnding, mMsgWindow);
   }
 
 done:
@@ -1378,7 +1378,7 @@ nsMessenger::SaveMessages(const nsTArray<nsString>& aFilenameArray,
     // Ok, now save the message.
     nsCOMPtr<nsIURI> dummyNull;
     rv = messageService->SaveMessageToDisk(
-        aMessageUriArray[i].get(), saveToFile, false, urlListener,
+        aMessageUriArray[i], saveToFile, false, urlListener,
         getter_AddRefs(dummyNull), true, mMsgWindow);
     if (NS_FAILED(rv)) {
       Alert("saveMessageFailed");

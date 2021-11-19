@@ -1129,10 +1129,12 @@ NS_IMETHODIMP nsImapUrl::IsUrlType(uint32_t type, bool* isType) {
 }
 
 NS_IMETHODIMP
-nsImapUrl::GetOriginalSpec(char** aSpec) { return NS_ERROR_NOT_IMPLEMENTED; }
+nsImapUrl::GetOriginalSpec(nsACString& aSpec) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
 
 NS_IMETHODIMP
-nsImapUrl::SetOriginalSpec(const char* aSpec) {
+nsImapUrl::SetOriginalSpec(const nsACString& aSpec) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

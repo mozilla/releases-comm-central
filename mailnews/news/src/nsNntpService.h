@@ -59,10 +59,11 @@ class nsNntpService : public nsINntpService,
   nsresult GetMessageFromUrl(nsIURI* aUrl, nsIMsgWindow* aMsgWindow,
                              nsISupports* aDisplayConsumer);
   // a convenience routine used to put together news urls
-  nsresult ConstructNntpUrl(const char* urlString, nsIUrlListener* aUrlListener,
+  nsresult ConstructNntpUrl(const nsACString& urlString,
+                            nsIUrlListener* aUrlListener,
                             nsIMsgWindow* aMsgWindow,
-                            const char* originalMessageUri, int32_t action,
-                            nsIURI** aUrl);
+                            const nsACString& originalMessageUri,
+                            int32_t action, nsIURI** aUrl);
   nsresult CreateNewsAccount(const char* aHostname, bool aIsSecure,
                              int32_t aPort, nsIMsgIncomingServer** aServer);
   nsresult GetServerForUri(nsIURI* aUri, nsINntpIncomingServer** aProtocol);
@@ -70,8 +71,8 @@ class nsNntpService : public nsINntpService,
   nsresult RunNewsUrl(nsIURI* aUrl, nsIMsgWindow* aMsgWindow,
                       nsISupports* aConsumer);
   // a convenience routine to go from folder uri to msg folder
-  nsresult GetFolderFromUri(const char* uri, nsIMsgFolder** folder);
-  nsresult DecomposeNewsMessageURI(const char* aMessageURI,
+  nsresult GetFolderFromUri(const nsACString&, nsIMsgFolder** folder);
+  nsresult DecomposeNewsMessageURI(const nsACString& aMessageURI,
                                    nsIMsgFolder** aFolder, nsMsgKey* aMsgKey);
 
   bool mOpenAttachmentOperation;  // Flag for opening attachments

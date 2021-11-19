@@ -21,10 +21,10 @@
 #define kNewsURIGroupQueryLen 7
 #define kNewsURIKeyQueryLen 5
 
-extern nsresult nsParseNewsMessageURI(const char* uri, nsCString& group,
+extern nsresult nsParseNewsMessageURI(const nsACString& uri, nsCString& group,
                                       nsMsgKey* key);
 
-extern nsresult nsCreateNewsBaseMessageURI(const char* baseURI,
+extern nsresult nsCreateNewsBaseMessageURI(const nsACString& baseURI,
                                            nsCString& baseMessageURI);
 
 #endif  // NS_NEWSUTILS_H

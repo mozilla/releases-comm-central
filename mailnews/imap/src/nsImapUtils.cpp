@@ -36,11 +36,11 @@ nsresult nsImapURI2FullName(const char* rootURI, const char* hostName,
 }
 
 /* parses ImapMessageURI */
-nsresult nsParseImapMessageURI(const char* uri, nsCString& folderURI,
+nsresult nsParseImapMessageURI(const nsACString& uri, nsCString& folderURI,
                                uint32_t* key, char** part) {
   if (!key) return NS_ERROR_NULL_POINTER;
 
-  nsAutoCString uriStr(uri);
+  const nsPromiseFlatCString& uriStr = PromiseFlatCString(uri);
   int32_t folderEnd = -1;
   // imap-message uri's can have imap:// url strings tacked on the end,
   // e.g., when opening/saving attachments. We don't want to look for '#'

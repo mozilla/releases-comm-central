@@ -1295,7 +1295,11 @@ extern "C" void* mime_bridge_create_display_stream(
         return NULL;
       }
       nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(uri);
-      if (msgUrl) msgUrl->GetOriginalSpec(&msd->orig_url_name);
+      if (msgUrl) {
+        nsAutoCString orgSpec;
+        msgUrl->GetOriginalSpec(orgSpec);
+        msd->orig_url_name = ToNewCString(orgSpec);
+      }
     }
   }
 

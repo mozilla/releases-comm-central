@@ -9,12 +9,11 @@
 #include "nsMsgUtils.h"
 
 /* parses NewsMessageURI */
-nsresult nsParseNewsMessageURI(const char* uri, nsCString& group,
+nsresult nsParseNewsMessageURI(const nsACString& uri, nsCString& group,
                                nsMsgKey* key) {
-  NS_ENSURE_ARG_POINTER(uri);
   NS_ENSURE_ARG_POINTER(key);
 
-  nsAutoCString uriStr(uri);
+  const nsPromiseFlatCString& uriStr = PromiseFlatCString(uri);
   int32_t keySeparator = uriStr.FindChar('#');
   if (keySeparator != -1) {
     int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "?&", keySeparator);
@@ -44,7 +43,7 @@ nsresult nsParseNewsMessageURI(const char* uri, nsCString& group,
   return NS_ERROR_FAILURE;
 }
 
-nsresult nsCreateNewsBaseMessageURI(const char* baseURI,
+nsresult nsCreateNewsBaseMessageURI(const nsACString& baseURI,
                                     nsCString& baseMessageURI) {
   nsAutoCString tailURI(baseURI);
 

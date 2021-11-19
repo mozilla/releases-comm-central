@@ -597,7 +597,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     nsMsgKey msgKey;
     m_newMailParser->m_newMsgHdr->GetMessageKey(&msgKey);
     m_messageUri.Truncate();
-    nsBuildLocalMessageURI(m_baseMessageUri.get(), msgKey, m_messageUri);
+    nsBuildLocalMessageURI(m_baseMessageUri, msgKey, m_messageUri);
   }
 
   nsresult rv = WriteLineToMailbox(nsLiteralCString(MSG_LINEBREAK));

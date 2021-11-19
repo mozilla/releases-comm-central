@@ -101,7 +101,7 @@ nsresult nsNntpUrl::SetSpecInternal(const nsACString& aSpec) {
     nsAutoCString spec;
     rv = GetSpec(spec);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = nsParseNewsMessageURI(spec.get(), m_group, &m_key);
+    rv = nsParseNewsMessageURI(spec, m_group, &m_key);
     NS_ENSURE_SUCCESS(rv, NS_ERROR_MALFORMED_URI);
   } else
     return NS_ERROR_MALFORMED_URI;
@@ -368,15 +368,13 @@ NS_IMETHODIMP nsNntpUrl::IsUrlType(uint32_t type, bool* isType) {
 }
 
 NS_IMETHODIMP
-nsNntpUrl::GetOriginalSpec(char** aSpec) {
-  NS_ENSURE_ARG_POINTER(aSpec);
-  *aSpec = ToNewCString(mOriginalSpec);
-  if (!*aSpec) return NS_ERROR_OUT_OF_MEMORY;
+nsNntpUrl::GetOriginalSpec(nsACString& aSpec) {
+  aSpec = mOriginalSpec;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpUrl::SetOriginalSpec(const char* aSpec) {
+nsNntpUrl::SetOriginalSpec(const nsACString& aSpec) {
   mOriginalSpec = aSpec;
   return NS_OK;
 }

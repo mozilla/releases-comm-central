@@ -2535,8 +2535,8 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
         do_QueryInterface(copyStreamListener, &rv));
     NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
     nsCOMPtr<nsIURI> dummyNull;
-    rv = mCopyState->m_messageService->CopyMessage(uri.get(), streamListener,
-                                                   isMove, nullptr, aMsgWindow,
+    rv = mCopyState->m_messageService->CopyMessage(uri, streamListener, isMove,
+                                                   nullptr, aMsgWindow,
                                                    getter_AddRefs(dummyNull));
   }
   return rv;
@@ -2702,7 +2702,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::SelectDownloadMsg() {
 
 if (mDownloadState == DOWNLOAD_STATE_GOTMSG && mDownloadWindow) {
   nsAutoCString newuri;
-  nsBuildLocalMessageURI(mBaseMessageURI.get(), mDownloadSelectKey, newuri);
+  nsBuildLocalMessageURI(mBaseMessageURI, mDownloadSelectKey, newuri);
   nsCOMPtr<nsIMsgWindowCommands> windowCommands;
   mDownloadWindow->GetWindowCommands(getter_AddRefs(windowCommands));
   if (windowCommands) windowCommands->SelectMessage(newuri);

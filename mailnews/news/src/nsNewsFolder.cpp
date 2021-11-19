@@ -765,7 +765,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> resultUri;
-  return nntpService->CancelMessage(cancelURL.get(), messageURI.get(),
+  return nntpService->CancelMessage(cancelURL, messageURI,
                                     nullptr /* consumer */, nullptr, aMsgWindow,
                                     getter_AddRefs(resultUri));
 }
@@ -801,8 +801,8 @@ nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
   if (NS_FAILED(rv)) return rv;
 
   nsCOMPtr<nsIURI> resultUri;
-  rv = nntpService->GetNewNews(nntpServer, mURI.get(), aGetOld, this,
-                               aMsgWindow, getter_AddRefs(resultUri));
+  rv = nntpService->GetNewNews(nntpServer, mURI, aGetOld, this, aMsgWindow,
+                               getter_AddRefs(resultUri));
   if (aUrlListener && NS_SUCCEEDED(rv) && resultUri) {
     nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(resultUri));
     if (msgUrl) msgUrl->RegisterListener(aUrlListener);
@@ -1245,8 +1245,7 @@ NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder* aNewsgroupToMove,
 }
 
 nsresult nsMsgNewsFolder::CreateBaseMessageURI(const nsACString& aURI) {
-  return nsCreateNewsBaseMessageURI(PromiseFlatCString(aURI).get(),
-                                    mBaseMessageURI);
+  return nsCreateNewsBaseMessageURI(aURI, mBaseMessageURI);
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetCharset(nsACString& charset) {

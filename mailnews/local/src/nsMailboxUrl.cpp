@@ -215,7 +215,7 @@ NS_IMETHODIMP nsMailboxUrl::GetUri(nsACString& aURI) {
       }
       nsCString baseMessageURI;
       nsCreateLocalBaseMessageURI(baseUri, baseMessageURI);
-      nsBuildLocalMessageURI(baseMessageURI.get(), m_messageKey, aURI);
+      nsBuildLocalMessageURI(baseMessageURI, m_messageKey, aURI);
     } else
       aURI = "";
   }
@@ -283,14 +283,14 @@ NS_IMPL_GETSET(nsMailboxUrl, AddDummyEnvelope, bool, m_addDummyEnvelope)
 NS_IMPL_GETSET(nsMailboxUrl, CanonicalLineEnding, bool, m_canonicalLineEnding)
 
 NS_IMETHODIMP
-nsMailboxUrl::GetOriginalSpec(char** aSpec) {
-  if (!aSpec || m_originalSpec.IsEmpty()) return NS_ERROR_NULL_POINTER;
-  *aSpec = ToNewCString(m_originalSpec);
+nsMailboxUrl::GetOriginalSpec(nsACString& aSpec) {
+  if (m_originalSpec.IsEmpty()) return NS_ERROR_NULL_POINTER;
+  aSpec = m_originalSpec;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMailboxUrl::SetOriginalSpec(const char* aSpec) {
+nsMailboxUrl::SetOriginalSpec(const nsACString& aSpec) {
   m_originalSpec = aSpec;
   return NS_OK;
 }

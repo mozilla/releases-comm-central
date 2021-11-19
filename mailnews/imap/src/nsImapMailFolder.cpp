@@ -7435,8 +7435,8 @@ nsresult nsImapMailFolder::CopyStreamMessage(
     }
     nsCOMPtr<nsIURI> dummyNull;
     rv = m_copyState->m_msgService->CopyMessage(
-        uri.get(), streamListener, isMove && !m_copyState->m_isCrossServerOp,
-        nullptr, aMsgWindow, getter_AddRefs(dummyNull));
+        uri, streamListener, isMove && !m_copyState->m_isCrossServerOp, nullptr,
+        aMsgWindow, getter_AddRefs(dummyNull));
     if (NS_FAILED(rv))
       MOZ_LOG(IMAP, mozilla::LogLevel::Info,
               ("CopyMessage failed: uri %s", uri.get()));

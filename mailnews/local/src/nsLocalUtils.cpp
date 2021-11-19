@@ -154,11 +154,11 @@ nsresult nsLocalURI2Path(const char* rootURI, const char* uriStr,
  * puts folder URI in folderURI (mailbox://folder1/folder2)
  * message key number in key
  */
-nsresult nsParseLocalMessageURI(const char* uri, nsCString& folderURI,
+nsresult nsParseLocalMessageURI(const nsACString& uri, nsCString& folderURI,
                                 nsMsgKey* key) {
   if (!key) return NS_ERROR_NULL_POINTER;
 
-  nsAutoCString uriStr(uri);
+  const nsPromiseFlatCString& uriStr = PromiseFlatCString(uri);
   int32_t keySeparator = uriStr.FindChar('#');
   if (keySeparator != -1) {
     int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "?&", keySeparator);
@@ -178,7 +178,7 @@ nsresult nsParseLocalMessageURI(const char* uri, nsCString& folderURI,
   return NS_ERROR_FAILURE;
 }
 
-nsresult nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key,
+nsresult nsBuildLocalMessageURI(const nsACString& baseURI, nsMsgKey key,
                                 nsACString& uri) {
   // need to convert mailbox://hostname/.. to mailbox-message://hostname/..
   uri.Append(baseURI);

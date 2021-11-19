@@ -177,7 +177,7 @@ interface nsIMsgMessageUrl : nsISupports {
   attribute nsIFile messageFile;
   attribute boolean AddDummyEnvelope;
   attribute boolean canonicalLineEnding;
-  attribute string originalSpec;
+  attribute AUTF8String originalSpec;
 
   // This is used when creating a principal for the URL with a "normalized" spec
   // that doesn't contain all the bits in the query part that mailnews URLs have.

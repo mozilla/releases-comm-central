@@ -15,10 +15,10 @@ static const char kMailboxMessageRootURI[] = "mailbox-message:/";
 nsresult nsLocalURI2Path(const char* rootURI, const char* uriStr,
                          nsCString& pathResult);
 
-nsresult nsParseLocalMessageURI(const char* uri, nsCString& folderURI,
+nsresult nsParseLocalMessageURI(const nsACString& uri, nsCString& folderURI,
                                 nsMsgKey* key);
 
-nsresult nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key,
+nsresult nsBuildLocalMessageURI(const nsACString& baseURI, nsMsgKey key,
                                 nsACString& uri);
 
 nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI,

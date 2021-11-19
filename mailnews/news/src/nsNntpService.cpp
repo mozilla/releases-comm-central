@@ -71,16 +71,15 @@ NS_IMPL_ISUPPORTS(nsNntpService, nsINntpService, nsIMsgMessageService,
 ////////////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP
-nsNntpService::SaveMessageToDisk(const char* aMessageURI, nsIFile* aFile,
+nsNntpService::SaveMessageToDisk(const nsACString& aMessageURI, nsIFile* aFile,
                                  bool aAddDummyEnvelope,
                                  nsIUrlListener* aUrlListener, nsIURI** aURL,
                                  bool canonicalLineEnding,
                                  nsIMsgWindow* aMsgWindow) {
   nsresult rv = NS_OK;
-  NS_ENSURE_ARG_POINTER(aMessageURI);
 
   // double check it is a news-message:/ uri
-  if (PL_strncmp(aMessageURI, kNewsMessageRootURI, kNewsMessageRootURILen)) {
+  if (!StringBeginsWith(aMessageURI, kNewsMessageRootURI ""_ns)) {
     rv = NS_ERROR_UNEXPECTED;
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -95,8 +94,8 @@ nsNntpService::SaveMessageToDisk(const char* aMessageURI, nsIFile* aFile,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> url;
-  rv = ConstructNntpUrl(messageIdURL.get(), aUrlListener, aMsgWindow,
-                        aMessageURI, nsINntpUrl::ActionSaveMessageToDisk,
+  rv = ConstructNntpUrl(messageIdURL, aUrlListener, aMsgWindow, aMessageURI,
+                        nsINntpUrl::ActionSaveMessageToDisk,
                         getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -125,7 +124,7 @@ nsNntpService::SaveMessageToDisk(const char* aMessageURI, nsIFile* aFile,
     mailNewsUrl->GetSaveAsListener(aAddDummyEnvelope, aFile,
                                    getter_AddRefs(saveAsListener));
 
-    rv = DisplayMessage(nsDependentCString(aMessageURI), saveAsListener,
+    rv = DisplayMessage(aMessageURI, saveAsListener,
                         /* nsIMsgWindow *aMsgWindow */ nullptr, aUrlListener,
                         false /*aOverrideCharset */, aURL);
   }
@@ -189,8 +188,7 @@ nsNntpService::DisplayMessage(const nsACString& aMessageURI,
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key = nsMsgKey_None;
-  rv = DecomposeNewsMessageURI(PromiseFlatCString(aMessageURI).get(),
-                               getter_AddRefs(folder), &key);
+  rv = DecomposeNewsMessageURI(aMessageURI, getter_AddRefs(folder), &key);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString urlStr;
@@ -209,8 +207,7 @@ nsNntpService::DisplayMessage(const nsACString& aMessageURI,
   if (mOpenAttachmentOperation) action = nsINntpUrl::ActionFetchPart;
 
   nsCOMPtr<nsIURI> url;
-  rv = ConstructNntpUrl(urlStr.get(), aUrlListener, aMsgWindow,
-                        PromiseFlatCString(aMessageURI).get(), action,
+  rv = ConstructNntpUrl(urlStr, aUrlListener, aMsgWindow, aMessageURI, action,
                         getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -353,9 +350,9 @@ nsNntpService::FetchMessage(nsIMsgFolder* folder, nsMsgKey key,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> url;
-  rv = ConstructNntpUrl(messageIdURL.get(), aUrlListener, aMsgWindow,
-                        originalMessageUri.get(),
-                        nsINntpUrl::ActionFetchArticle, getter_AddRefs(url));
+  rv = ConstructNntpUrl(messageIdURL, aUrlListener, aMsgWindow,
+                        originalMessageUri, nsINntpUrl::ActionFetchArticle,
+                        getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = RunNewsUrl(url, aMsgWindow, aConsumer);
@@ -366,7 +363,7 @@ nsNntpService::FetchMessage(nsIMsgFolder* folder, nsMsgKey key,
 }
 
 NS_IMETHODIMP nsNntpService::FetchMimePart(
-    nsIURI* aURI, const char* aMessageURI, nsISupports* aDisplayConsumer,
+    nsIURI* aURI, const nsACString& aMessageURI, nsISupports* aDisplayConsumer,
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, nsIURI** aURL) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(aURI, &rv));
@@ -385,7 +382,7 @@ NS_IMETHODIMP nsNntpService::FetchMimePart(
   //      nsAutoCString spec;
   //      rv = aURI->GetSpec(spec);
   //      NS_ENSURE_SUCCESS(rv, rv);
-  //      msgMessageUrl->SetOriginalSpec(spec.get());
+  //      msgMessageUrl->SetOriginalSpec(spec);
   //    }
   return RunNewsUrl(msgUrl, aMsgWindow, aDisplayConsumer);
 }
@@ -417,7 +414,7 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(const nsACString& aContentType,
     // while offline working
     //   nsCOMPtr<nsIMsgMessageUrl> msgMessageUrl = do_QueryInterface(url);
     //    if (msgMessageUrl)
-    //      msgMessageUrl->SetOriginalSpec(newsUrl.get());
+    //      msgMessageUrl->SetOriginalSpec(newsUrl);
     // set up the url listener
     if (aUrlListener) msgUrl->RegisterListener(aUrlListener);
 
@@ -440,17 +437,16 @@ NS_IMETHODIMP nsNntpService::GetUrlForUri(const nsACString& aMessageURI,
                                           nsIMsgWindow* aMsgWindow,
                                           nsIURI** aURL) {
   nsresult rv = NS_OK;
-  const nsCString& temp = PromiseFlatCString(aMessageURI);
 
   // double check that it is a news-message:/ uri
-  if (PL_strncmp(temp.get(), kNewsMessageRootURI, kNewsMessageRootURILen)) {
+  if (!StringBeginsWith(aMessageURI, kNewsMessageRootURI ""_ns)) {
     rv = NS_ERROR_UNEXPECTED;
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key = nsMsgKey_None;
-  rv = DecomposeNewsMessageURI(temp.get(), getter_AddRefs(folder), &key);
+  rv = DecomposeNewsMessageURI(aMessageURI, getter_AddRefs(folder), &key);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString messageIdURL;
@@ -458,7 +454,7 @@ NS_IMETHODIMP nsNntpService::GetUrlForUri(const nsACString& aMessageURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // this is only called by view message source
-  rv = ConstructNntpUrl(messageIdURL.get(), nullptr, aMsgWindow, temp.get(),
+  rv = ConstructNntpUrl(messageIdURL, nullptr, aMsgWindow, aMessageURI,
                         nsINntpUrl::ActionFetchArticle, aURL);
   NS_ENSURE_SUCCESS(rv, rv);
   if (folder && *aURL) {
@@ -473,7 +469,7 @@ NS_IMETHODIMP nsNntpService::GetUrlForUri(const nsACString& aMessageURI,
 }
 
 NS_IMETHODIMP
-nsNntpService::DecomposeNewsURI(const char* uri, nsIMsgFolder** folder,
+nsNntpService::DecomposeNewsURI(const nsACString& uri, nsIMsgFolder** folder,
                                 nsMsgKey* aMsgKey) {
   nsresult rv;
 
@@ -482,10 +478,9 @@ nsNntpService::DecomposeNewsURI(const char* uri, nsIMsgFolder** folder,
   return rv;
 }
 
-nsresult nsNntpService::DecomposeNewsMessageURI(const char* aMessageURI,
+nsresult nsNntpService::DecomposeNewsMessageURI(const nsACString& aMessageURI,
                                                 nsIMsgFolder** aFolder,
                                                 nsMsgKey* aMsgKey) {
-  NS_ENSURE_ARG_POINTER(aMessageURI);
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aMsgKey);
 
@@ -497,7 +492,7 @@ nsresult nsNntpService::DecomposeNewsMessageURI(const char* aMessageURI,
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsINntpUrl> nntpUrl = do_QueryInterface(mailnewsurl, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = mailnewsurl->SetSpecInternal(nsDependentCString(aMessageURI));
+  rv = mailnewsurl->SetSpecInternal(aMessageURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get the group name and key from the url
@@ -517,13 +512,12 @@ nsresult nsNntpService::DecomposeNewsMessageURI(const char* aMessageURI,
   return mailnewsurl->GetFolder(aFolder);
 }
 
-nsresult nsNntpService::GetFolderFromUri(const char* aUri,
+nsresult nsNntpService::GetFolderFromUri(const nsACString& aUri,
                                          nsIMsgFolder** aFolder) {
-  NS_ENSURE_ARG_POINTER(aUri);
   NS_ENSURE_ARG_POINTER(aFolder);
 
   nsCOMPtr<nsIURI> uri;
-  nsresult rv = NS_NewURI(getter_AddRefs(uri), nsDependentCString(aUri));
+  nsresult rv = NS_NewURI(getter_AddRefs(uri), aUri);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString path;
@@ -567,11 +561,10 @@ nsresult nsNntpService::GetFolderFromUri(const char* aUri,
 }
 
 NS_IMETHODIMP
-nsNntpService::CopyMessage(const char* aSrcMessageURI,
+nsNntpService::CopyMessage(const nsACString& aSrcMessageURI,
                            nsIStreamListener* aMailboxCopyHandler,
                            bool moveMessage, nsIUrlListener* aUrlListener,
                            nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
-  NS_ENSURE_ARG_POINTER(aSrcMessageURI);
   NS_ENSURE_ARG_POINTER(aMailboxCopyHandler);
 
   nsresult rv;
@@ -579,8 +572,8 @@ nsNntpService::CopyMessage(const char* aSrcMessageURI,
       do_QueryInterface(aMailboxCopyHandler, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = DisplayMessage(nsDependentCString(aSrcMessageURI), streamSupport,
-                      aMsgWindow, aUrlListener, false, aURL);
+  rv = DisplayMessage(aSrcMessageURI, streamSupport, aMsgWindow, aUrlListener,
+                      false, aURL);
   return rv;
 }
 
@@ -694,7 +687,7 @@ nsNntpService::GenerateNewsHeaderValsForPosting(
       nsAutoCString currentHost;
       nsAutoCString theRest;
       // does list[index] start with "news:/"?
-      if (StringBeginsWith(list[index], nsLiteralCString(kNewsRootURI))) {
+      if (StringBeginsWith(list[index], kNewsRootURI ""_ns)) {
         // we have news://group or news://host/group
         // set theRest to what's after news://
         theRest = Substring(list[index], kNewsRootURILen /* for news:/ */ +
@@ -825,10 +818,10 @@ nsNntpService::PostMessage(nsIFile* aFileToPost, const char* newsgroupsNames,
   return rv;
 }
 
-nsresult nsNntpService::ConstructNntpUrl(const char* urlString,
+nsresult nsNntpService::ConstructNntpUrl(const nsACString& urlString,
                                          nsIUrlListener* aUrlListener,
                                          nsIMsgWindow* aMsgWindow,
-                                         const char* originalMessageUri,
+                                         const nsACString& originalMessageUri,
                                          int32_t action, nsIURI** aUrl) {
   nsresult rv = NS_OK;
 
@@ -838,12 +831,12 @@ nsresult nsNntpService::ConstructNntpUrl(const char* urlString,
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(nntpUrl);
   mailnewsurl->SetMsgWindow(aMsgWindow);
   nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(nntpUrl);
-  rv = mailnewsurl->SetSpecInternal(nsDependentCString(urlString));
+  rv = mailnewsurl->SetSpecInternal(urlString);
   NS_ENSURE_SUCCESS(rv, rv);
   nntpUrl->SetNewsAction(action);
 
-  if (originalMessageUri) {
-    msgUrl->SetUri(nsDependentCString(originalMessageUri));
+  if (!originalMessageUri.IsEmpty()) {
+    msgUrl->SetUri(originalMessageUri);
     NS_ENSURE_SUCCESS(rv, rv);
     // we'll use this later in nsNNTPProtocol::ParseURL()
     rv = msgUrl->SetOriginalSpec(originalMessageUri);
@@ -990,17 +983,17 @@ nsresult nsNntpService::GetServerForUri(nsIURI* aUri,
 
   // XXX todo, or do we want to check if it is a news-message:// uri or
   // a news:// uri (but action is not a fetch related action?)
-  if (!PL_strncmp(spec.get(), kNewsMessageRootURI, kNewsMessageRootURILen) ||
+  if (StringBeginsWith(spec, kNewsMessageRootURI)) ||
       (action == nsINntpUrl::ActionFetchPart || action == nsINntpUrl::ActionFetchArticle))
   {
 #else
   // if this is a news-message:/ uri, decompose it and set hasMsgOffline on the
   // uri
-  if (!PL_strncmp(spec.get(), kNewsMessageRootURI, kNewsMessageRootURILen)) {
+  if (StringBeginsWith(spec, kNewsMessageRootURI ""_ns)) {
 #endif
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key = nsMsgKey_None;
-  rv = DecomposeNewsMessageURI(spec.get(), getter_AddRefs(folder), &key);
+  rv = DecomposeNewsMessageURI(spec, getter_AddRefs(folder), &key);
   if (NS_SUCCEEDED(rv) && folder) {
     bool hasMsgOffline = false;
     folder->HasMsgOffline(key, &hasMsgOffline);
@@ -1027,21 +1020,19 @@ nsresult nsNntpService::RunNewsUrl(nsIURI* aUri, nsIMsgWindow* aMsgWindow,
 }
 
 NS_IMETHODIMP nsNntpService::GetNewNews(nsINntpIncomingServer* nntpServer,
-                                        const char* uri, bool aGetOld,
+                                        const nsACString& uri, bool aGetOld,
                                         nsIUrlListener* aUrlListener,
                                         nsIMsgWindow* aMsgWindow,
                                         nsIURI** _retval) {
-  NS_ENSURE_ARG_POINTER(uri);
-
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   server = do_QueryInterface(nntpServer);
 
   /* double check that it is a "news:/" url */
-  if (strncmp(uri, kNewsRootURI, kNewsRootURILen) == 0) {
+  if (StringBeginsWith(uri, kNewsRootURI ""_ns)) {
     nsCOMPtr<nsIURI> url;
-    rv = ConstructNntpUrl(uri, aUrlListener, aMsgWindow, nullptr,
+    rv = ConstructNntpUrl(uri, aUrlListener, aMsgWindow, EmptyCString(),
                           nsINntpUrl::ActionGetNewNews, getter_AddRefs(url));
     if (NS_FAILED(rv)) return rv;
 
@@ -1066,13 +1057,12 @@ NS_IMETHODIMP nsNntpService::GetNewNews(nsINntpIncomingServer* nntpServer,
 }
 
 NS_IMETHODIMP
-nsNntpService::CancelMessage(const char* cancelURL, const char* messageURI,
+nsNntpService::CancelMessage(const nsACString& cancelURL,
+                             const nsACString& messageURI,
                              nsISupports* aConsumer,
                              nsIUrlListener* aUrlListener,
                              nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
   nsresult rv;
-  NS_ENSURE_ARG_POINTER(cancelURL);
-  NS_ENSURE_ARG_POINTER(messageURI);
 
   nsCOMPtr<nsIURI> url;
   // the url should be "news://host/message-id?cancel"
@@ -1330,8 +1320,8 @@ nsNntpService::StreamMessage(const nsACString& aMessageURI,
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key;
-  nsresult rv = DecomposeNewsMessageURI(PromiseFlatCString(aMessageURI).get(),
-                                        getter_AddRefs(folder), &key);
+  nsresult rv =
+      DecomposeNewsMessageURI(aMessageURI, getter_AddRefs(folder), &key);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString urlStr;
@@ -1342,8 +1332,8 @@ nsNntpService::StreamMessage(const nsACString& aMessageURI,
   if (mOpenAttachmentOperation) action = nsINntpUrl::ActionFetchPart;
 
   nsCOMPtr<nsIURI> url;
-  rv = ConstructNntpUrl(urlStr.get(), aUrlListener, aMsgWindow,
-                        aURIString.get(), action, getter_AddRefs(url));
+  rv = ConstructNntpUrl(urlStr, aUrlListener, aMsgWindow, aURIString, action,
+                        getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aLocalOnly || WeAreOffline()) {
@@ -1382,11 +1372,10 @@ nsNntpService::StreamMessage(const nsACString& aMessageURI,
   return rv;
 }
 
-NS_IMETHODIMP nsNntpService::StreamHeaders(const char* aMessageURI,
+NS_IMETHODIMP nsNntpService::StreamHeaders(const nsACString& aMessageURI,
                                            nsIStreamListener* aConsumer,
                                            nsIUrlListener* aUrlListener,
                                            bool aLocalOnly, nsIURI** aURL) {
-  NS_ENSURE_ARG_POINTER(aMessageURI);
   NS_ENSURE_ARG_POINTER(aConsumer);
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key;
@@ -1462,7 +1451,7 @@ NS_IMETHODIMP nsNntpService::Search(nsIMsgSearchSession* aSearchSession,
 
   nsCOMPtr<nsIUrlListener> urlListener = do_QueryInterface(aSearchSession);
   nsCOMPtr<nsIURI> url;
-  rv = ConstructNntpUrl(searchUrl.get(), urlListener, aMsgWindow, nullptr,
+  rv = ConstructNntpUrl(searchUrl, urlListener, aMsgWindow, EmptyCString(),
                         nsINntpUrl::ActionSearch, getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1500,7 +1489,7 @@ nsNntpService::GetListOfGroupsOnServer(nsINntpIncomingServer* aNntpServer,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> url;
-  rv = ConstructNntpUrl(serverUri.get(), listener, aMsgWindow, nullptr,
+  rv = ConstructNntpUrl(serverUri, listener, aMsgWindow, EmptyCString(),
                         newsAction, getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1620,8 +1609,7 @@ nsNntpService::MessageURIToMsgHdr(const nsACString& uri,
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey msgKey;
 
-  rv = DecomposeNewsMessageURI(PromiseFlatCString(uri).get(),
-                               getter_AddRefs(folder), &msgKey);
+  rv = DecomposeNewsMessageURI(uri, getter_AddRefs(folder), &msgKey);
   NS_ENSURE_SUCCESS(rv, rv);
   if (!folder) return NS_ERROR_NULL_POINTER;
 

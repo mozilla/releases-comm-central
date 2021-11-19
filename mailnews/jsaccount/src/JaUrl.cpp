@@ -86,12 +86,12 @@ NS_IMETHODIMP JaBaseCppUrl::SetCanonicalLineEnding(bool aCanonicalLineEnding) {
   return NS_OK;
 }
 
-NS_IMETHODIMP JaBaseCppUrl::GetOriginalSpec(char** aOriginalSpec) {
-  if (!aOriginalSpec || mOriginalSpec.IsEmpty()) return NS_ERROR_NULL_POINTER;
-  *aOriginalSpec = ToNewCString(mOriginalSpec);
+NS_IMETHODIMP JaBaseCppUrl::GetOriginalSpec(nsACString& aOriginalSpec) {
+  if (mOriginalSpec.IsEmpty()) return NS_ERROR_NULL_POINTER;
+  aOriginalSpec = mOriginalSpec;
   return NS_OK;
 }
-NS_IMETHODIMP JaBaseCppUrl::SetOriginalSpec(const char* aOriginalSpec) {
+NS_IMETHODIMP JaBaseCppUrl::SetOriginalSpec(const nsACString& aOriginalSpec) {
   mOriginalSpec = aOriginalSpec;
   return NS_OK;
 }

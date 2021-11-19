@@ -31,9 +31,9 @@ interface nsINntpService : nsISupports {
 
   nsIURI postMessage(in nsIFile aFileToPost, in string newsgroupNames, in string aAccountKey, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 
-  nsIURI getNewNews(in nsINntpIncomingServer nntpServer, in string uri, in boolean getOld, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  nsIURI getNewNews(in nsINntpIncomingServer nntpServer, in AUTF8String uri, in boolean getOld, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 
-  nsIURI cancelMessage(in string cancelURL, in string messageURI, in nsISupports aConsumer, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+  nsIURI cancelMessage(in AUTF8String cancelURL, in AUTF8String messageURI, in nsISupports aConsumer, in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 
   void getListOfGroupsOnServer(in nsINntpIncomingServer nntpServer, in nsIMsgWindow aMsgWindow, in boolean getOnlyNew);
 
@@ -43,7 +43,7 @@ interface nsINntpService : nsISupports {
   /**
    * can handle news-message:// and news://
    */
-  void decomposeNewsURI(in string uri, out nsIMsgFolder folder, out nsMsgKey key);
+  void decomposeNewsURI(in AUTF8String uri, out nsIMsgFolder folder, out nsMsgKey key);
 
   // handle to the cache session used by news....
   readonly attribute nsICacheStorage cacheStorage;
