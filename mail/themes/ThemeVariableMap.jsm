@@ -38,7 +38,7 @@ const ThemeVariableMap = [
     },
   ],
   [
-    "--tab-line-color",
+    "--lwt-tab-line-color",
     {
       lwtProperty: "tab_line",
     },
@@ -62,7 +62,7 @@ const ThemeVariableMap = [
     },
   ],
   [
-    "--tabs-border-color",
+    "--lwt-tabs-border-color",
     {
       lwtProperty: "toolbar_top_separator",
     },

@@ -353,7 +353,7 @@ treechildren::-moz-tree-cell-text {
 }
 
 .statusbar:-moz-lwtheme-brighttext {
-  --tabs-border-color: hsla(0,0%,60%,.4);
+  --lwt-tabs-border-color: hsla(0,0%,60%,.4);
 }
 
 .statusbarpanel {

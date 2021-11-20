@@ -159,7 +159,7 @@ tabpanels {
   :root[sizemode=normal] .tabmail-tab[visuallyselected]:first-child::before {
     content: '';
     display: -moz-box;
-    --tabs-border-color: var(--glassShadowColor);
+    --lwt-tabs-border-color: var(--glassShadowColor);
   }
 
   :root[sizemode=normal] .tabmail-tab:not([visuallyselected]):first-child {

@@ -54,13 +54,13 @@ splitter:not([orient="vertical"]) {
   background-color: -moz-Dialog;
   background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05));
   color: -moz-dialogText;
-  border-bottom: 1px solid var(--tabs-border-color);
+  border-bottom: 1px solid var(--lwt-tabs-border-color);
 }
 
 :root[lwt-tree] #sidebar-box .sidebar-header {
   background-color: var(--toolbar-bgcolor);
   color: var(--lwt-text-color);
-  border-bottom: 1px solid var(--tabs-border-color);
+  border-bottom: 1px solid var(--lwt-tabs-border-color);
 }
 
 :root[lwt-tree-brighttext] #sidebar-box .sidebar-header {
@@ -433,7 +433,7 @@ splitter:not([orient="vertical"]) {
   top: -1px;
   width: -moz-available;
   height: 1px;
-  border-bottom: 1px solid var(--tabs-border-color, transparent);
+  border-bottom: 1px solid var(--lwt-tabs-border-color, transparent);
 }
 
 #composeToolbar2 {

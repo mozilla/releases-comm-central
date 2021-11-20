@@ -27,13 +27,13 @@
 }
 
 :root:not(:-moz-lwtheme) {
-  --tabs-border-color: rgba(0, 0, 0, .2);
+  --lwt-tabs-border-color: rgba(0, 0, 0, .2);
   --chrome-content-separator-color: hsl(0, 0%, 68%);
 }
 
 :root:not(:-moz-lwtheme):-moz-window-inactive {
   --toolbar-bgcolor: -moz-mac-chrome-inactive;
-  --tabs-border-color: rgba(0, 0, 0, .05);
+  --lwt-tabs-border-color: rgba(0, 0, 0, .05);
   --chrome-content-separator-color: hsl(0, 0%, 85%);
 }
 
@@ -426,7 +426,7 @@ button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
 }
 
 .statusbar:-moz-lwtheme-brighttext {
-  --tabs-border-color: hsla(0,0%,60%,.4);
+  --lwt-tabs-border-color: hsla(0,0%,60%,.4);
 }
 
 /* Status panel */

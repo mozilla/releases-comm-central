@@ -109,7 +109,7 @@
   background-image: var(--lwt-header-image);
   color: var(--lwt-text-color);
 
-  --calview-tabline-color: var(--tab-line-color, --calview-tabline-color);
+  --calview-tabline-color: var(--lwt-tab-line-color, --calview-tabline-color);
   --calview-border-color: var(--sidebar-border-color);
   --calview-border-bottom-color: var(--sidebar-border-color);
 }

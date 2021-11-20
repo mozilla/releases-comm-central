@@ -29,7 +29,7 @@
 
 @media (-moz-windows-default-theme) {
   :root {
-    --tabs-border-color: rgba(0,0,0,.3);
+    --lwt-tabs-border-color: rgba(0,0,0,.3);
     --tabline-color: #0a84ff;
     --toolbar-non-lwt-bgcolor: #f9f9fa;
     --toolbar-non-lwt-textcolor: #0c0c0d;
@@ -42,7 +42,7 @@
 }
 
 :root:-moz-lwtheme {
-  --tabs-border-color: rgba(0, 0, 0, .3);
+  --lwt-tabs-border-color: rgba(0, 0, 0, .3);
   --panel-separator-color: hsla(210, 4%, 10%, .14);
 }
 
@@ -69,7 +69,7 @@
 @media (prefers-contrast) {
   :root {
     --select-focus-text-color: SelectedItemText;
-    --tabs-border-color: ThreeDShadow;
+    --lwt-tabs-border-color: ThreeDShadow;
     --tabline-color: SelectedItem;
     --item-focus-selected-border-color: SelectedItemText;
     --new-folder-color: Highligt;
@@ -514,7 +514,7 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 }
 
 .statusbar:-moz-lwtheme-brighttext {
-  --tabs-border-color: hsla(0,0%,60%,.4);
+  --lwt-tabs-border-color: hsla(0,0%,60%,.4);
 }
 
 .statusbarpanel {
@@ -523,7 +523,7 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 }
 
 .statusbarpanel:-moz-lwtheme {
-  border-inline-end-color: var(--tabs-border-color);
+  border-inline-end-color: var(--lwt-tabs-border-color);
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),

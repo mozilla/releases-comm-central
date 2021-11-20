@@ -587,7 +587,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
        (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   @media (-moz-windows-compositor) {
     :root:not(:-moz-lwtheme) {
-      --tabs-border-color: var(--glassShadowColor);
+      --lwt-tabs-border-color: var(--glassShadowColor);
     }
 
     #messengerWindow[sizemode=normal] #tabpanelcontainer {

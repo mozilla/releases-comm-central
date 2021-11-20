@@ -502,7 +502,7 @@ tab:hover {
 tab[visuallyselected="true"] {
   margin-block: 0;
   background-color: var(--tab-selected-background);
-  border-bottom-color: var(--tab-line-color, var(--highlight-color));
+  border-bottom-color: var(--lwt-tab-line-color, var(--highlight-color));
 }
 
 tabpanels {

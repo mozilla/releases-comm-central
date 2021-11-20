@@ -27,7 +27,7 @@
   top: -1px;
   width: -moz-available;
   height: 1px;
-  border-bottom: 1px solid var(--tabs-border-color, transparent);
+  border-bottom: 1px solid var(--lwt-tabs-border-color, transparent);
 }
 
 #ab-toolbox > toolbar {
