@@ -8529,14 +8529,14 @@ var envelopeDragObserver = {
       return;
     }
 
-    // We're dragging files that can potentially be attached or added inline, so
-    // update the variable.
-    gIsDraggingAttachments = true;
-
     if (flavors.some(f => event.dataTransfer.types.includes(f))) {
       // Show the drop overlay only if we dragged files or supported types.
       let attachments = this.getValidAttachments(event);
       if (attachments.length) {
+        // We're dragging files that can potentially be attached or added
+        // inline, so update the variable.
+        gIsDraggingAttachments = true;
+
         event.stopPropagation();
         event.preventDefault();
         document
