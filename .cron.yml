@@ -19,8 +19,8 @@ jobs:
           include-push-tasks: true
       run-on-projects:
           - comm-central
-      # when: [{hour: 11, minute: 0}]
-      when: []
+      when: [{hour: 11, minute: 0}]
+      # when: []
 
     - name: nightly-linux
       job:
@@ -65,8 +65,8 @@ jobs:
           target-tasks-method: comm_searchfox_index
       run-on-projects:
           - comm-central
-      # when: [{hour: 11, minute: 0}]
-      when: []
+      when: [{hour: 11, minute: 0}]
+      # when: []
 
     - name: l10n-bumper
       job:
