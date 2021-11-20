@@ -94,7 +94,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 
 /* Quick-Filter-Bar */
 :root[lwt-tree] #quick-filter-bar:-moz-lwtheme {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--lwt-frame);
   color: var(--lwt-text-color);
 }
 
