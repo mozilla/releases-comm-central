@@ -26,13 +26,13 @@ xpcshell:
             default: default
     chunks:
         by-test-platform:
-            .*-tsan.*/opt: 8
+            .*-tsan/opt: 8
             default: 4
     instance-size: default
     max-run-time:
         by-test-platform:
-            windows.*/opt: 5400
-            .*-tsan.*/opt: 7200
+            windows.*(-shippable)/opt: 5400
+            .*-tsan/opt: 7200
             default: 2700
     allow-software-gl-layers: false
     python-3: true
@@ -90,7 +90,7 @@ mochitest-thunderbird:
     loopback-video: true
     max-run-time:
         by-test-platform:
-            linux.*64-tsan.*/opt: 9000
+            linux.*64-tsan/opt: 9000
             default: 3600
     tier:
         by-test-platform:
@@ -100,9 +100,9 @@ mochitest-thunderbird:
             default: default
     chunks:
         by-test-platform:
-            linux.*64-asan.*/opt: 16
-            linux.*64-tsan.*/opt: 15
-            windows10-64-asan.*/opt: 9
+            linux.*64-asan/opt: 16
+            linux.*64-tsan/opt: 15
+            windows10-64-asan-qr/opt: 9
             default: 5
     e10s: true
     python-3: true
@@ -123,6 +123,6 @@ mochitest-thunderbird:
                     - unittests/thunderbird_extra.py
     instance-size:
         by-test-platform:
-            linux.*64-tsan.*/opt: xlarge  # runs out of memory on default/m3.large
+            linux.*64-tsan/opt: xlarge  # runs out of memory on default/m3.large
             default: default
     allow-software-gl-layers: false
