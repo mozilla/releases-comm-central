@@ -110,18 +110,6 @@ const ThemeVariableMap = [
     },
   ],
   [
-    "--autocomplete-popup-background",
-    {
-      lwtProperty: "popup",
-    },
-  ],
-  [
-    "--autocomplete-popup-color",
-    {
-      lwtProperty: "popup_text",
-    },
-  ],
-  [
     "--arrowpanel-border-color",
     {
       lwtProperty: "popup_border",

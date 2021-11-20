@@ -30,9 +30,6 @@ body {
   --toolbar-color: var(--toolbar-non-lwt-textcolor);
 
   --panelui-subview-transition-duration: 150ms;
-
-  --autocomplete-popup-background: Field;
-  --autocomplete-popup-color: FieldText;
   --autocomplete-popup-highlight-background: SelectedItem;
   --autocomplete-popup-highlight-color: SelectedItemText;
   --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
@@ -133,8 +130,6 @@ body {
 
 :root:-moz-lwtheme {
   color: var(--lwt-text-color);
-  --autocomplete-popup-background: #fff;
-  --autocomplete-popup-color: #0c0c0d;
   --button-background: #d2d2d3;
   --button-background-hover: #c2c2c3;
   --button-background-active: #b2b2b3;
@@ -175,16 +170,11 @@ body {
     --button-primary-active-bgcolor: rgb(5, 62, 148) !important;
     --button-primary-color: rgb(251, 251, 254) !important;
     --lwt-frame: rgb(24, 24, 26) !important;
-    --autocomplete-popup-color: var(--lwt-text-color);
     --sidebar-border-color: #606064 !important;
 
     /* Toolbar buttons */
     --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
     --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
-
-    /* !important to override LightweightThemeManager.addBuiltInTheme in
-       mailGlue.js */
-    --autocomplete-popup-background: #2a2a2e !important;
     --autocomplete-popup-highlight-background: #0060df;
 
     /* composer header fields bottom border */

@@ -20,10 +20,6 @@
   --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
   --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
   --unread-folder-color: #fff;
-
-  /* !important to override LightweightThemeManager.addBuiltInTheme in
-     mailGlue.js */
-  --autocomplete-popup-background: #2A2A2E !important;
   --autocomplete-popup-highlight-background: #0060DF;
 
   /* composer header fields bottom border */
