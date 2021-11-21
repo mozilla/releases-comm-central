@@ -341,6 +341,7 @@ int32_t nsMsgMailboxParser::PublishMsgHeader(nsIMsgWindow* msgWindow) {
     char storeToken[100];
     PR_snprintf(storeToken, sizeof(storeToken), "%lld", m_envelope_pos);
     m_newMsgHdr->SetStringProperty("storeToken", storeToken);
+    m_newMsgHdr->SetMessageOffset(m_envelope_pos);
 
     uint32_t flags;
     (void)m_newMsgHdr->GetFlags(&flags);
