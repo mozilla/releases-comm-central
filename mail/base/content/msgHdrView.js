@@ -2082,9 +2082,23 @@ AttachmentInfo.prototype = {
 
       let { name, url } = this;
       async function saveToFile(path) {
-        let response = await fetch(url.replace(/^imap:\/\/[\w%]+@/, "imap://"));
-        let blob = await response.blob();
-        let buffer = await blob.arrayBuffer();
+        let buffer = await new Promise(function(resolve, reject) {
+          NetUtil.asyncFetch(
+            {
+              uri: Services.io.newURI(url),
+              loadUsingSystemPrincipal: true,
+            },
+            function(inputStream, status) {
+              if (Components.isSuccessCode(status)) {
+                resolve(NetUtil.readInputStream(inputStream));
+              } else {
+                reject(
+                  new Components.Exception("Failed to fetch attachment", status)
+                );
+              }
+            }
+          );
+        });
         await IOUtils.write(path, new Uint8Array(buffer));
       }
 
