@@ -42,8 +42,9 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
     otherForm.hidden = true;
     form.hidden = false;
   });
-  let cancelButton = otherForm.querySelector("#cancel-button");
-  cancelButton.parentNode.replaceChild(backButton, cancelButton);
+  let backButtonContainer = form.querySelector("#back-button-container");
+  let printButtonContainer = otherForm.querySelector("#button-container");
+  printButtonContainer.parentNode.insertBefore(backButtonContainer, printButtonContainer);
 
   let eventsCheckbox = form.querySelector("input#events");
   let tasksCheckbox = form.querySelector("input#tasks");

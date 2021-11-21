@@ -701,8 +701,8 @@
 
       <hr />
 
-      <footer class="footer-container" id="print-footer" role="none">
-        <section id="button-container" class="section-block">
+      <footer class="footer-container" role="none">
+        <section id="next-button-container" class="section-block">
           <button id="next-button"
                   class="primary"
                   type="submit"
@@ -717,11 +717,13 @@
         </section>
       </footer>
 
-      <!-- This button will replace the original cancel button. -->
-      <button id="back-button"
-              type="button"
-              autocomplete="off"
-              data-l10n-id="calendar-print-back-button"></button>
+      <!-- This section will be added to the footer of the original form. -->
+      <section id="back-button-container" class="section-block">
+        <button id="back-button"
+                type="button"
+                autocomplete="off"
+                data-l10n-id="calendar-print-back-button"></button>
+      </section>
     </form>
   </template>
 </vbox>

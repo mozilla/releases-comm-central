@@ -43,3 +43,24 @@ calendar-minimonth {
   padding: 0;
   width: 100%;
 }
+
+#next-button-container,
+#back-button-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+#next-button-container > button,
+#back-button-container > button {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+#back-button-container {
+  margin-bottom: 8px;
+}
+
+#button-container {
+  margin-top: 8px;
+}
