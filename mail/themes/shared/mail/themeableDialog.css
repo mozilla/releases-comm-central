@@ -42,8 +42,8 @@
   --field-border-hover-color: rgba(0, 0, 0, 0.4);
   --popup-item-hover: rgba(69, 161, 255, 0.2);
   --popup-item-hover-text: var(--box-text-color);
-  --primary-focus-border: var(--lwt-frame);
-  background-color: var(--lwt-frame);
+  --primary-focus-border: var(--lwt-accent-color);
+  background-color: var(--lwt-accent-color);
   color: var(--lwt-text-color);
 }
 
@@ -58,7 +58,7 @@
 }
 
 :root:not([lwt-tree]):-moz-lwtheme:-moz-window-inactive {
-  background-color: var(--lwt-frame-inactive, var(--lwt-frame));
+  background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }
 
 :root:not([lwt-tree]):-moz-lwtheme dialog,
@@ -79,7 +79,7 @@
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
   --highlight-color: SelectedItem;
-  --lwt-frame: -moz-Dialog;
+  --lwt-accent-color: -moz-Dialog;
   --popup-item-hover: rgba(128, 128, 128, .2);
   --popup-item-hover-text: MenuText;
   --richlist-button-background: -moz-Dialog;
@@ -522,7 +522,7 @@ fieldset:-moz-lwtheme {
 }
 
 legend:-moz-lwtheme {
-  background-color: var(--lwt-frame);
+  background-color: var(--lwt-accent-color);
 }
 
 separator.groove:not([orient="vertical"]) {

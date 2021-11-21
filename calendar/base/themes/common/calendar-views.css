@@ -105,7 +105,7 @@
 }
 
 :root[lwt-tree] #calendar-nav-control {
-  background-color: var(--lwt-frame);
+  background-color: var(--lwt-accent-color);
   background-image: var(--lwt-header-image);
   color: var(--lwt-text-color);
 

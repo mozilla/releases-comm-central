@@ -96,7 +96,7 @@
 }
 
 :root[lwt-tree] #today-pane-panel > vbox {
-  background-color: var(--lwt-frame);
+  background-color: var(--lwt-accent-color);
   color: var(--sidebar-text-color);
 }
 
