@@ -372,8 +372,13 @@ mail-newsgroups-headerfield.headerValueBox {
   border-radius: var(--toolbarbutton-border-radius);
 }
 
-.emailDisplayButton:hover {
+.emailDisplayButton,
+.emailDisplayButton > label,
+.emailDisplayButton > button {
   cursor: pointer;
+}
+
+.emailDisplayButton:hover {
   color: SelectedItemText;
   background-color: SelectedItem;
 }
@@ -701,6 +706,28 @@ html|header.message-security-header html|h3 {
 
 .button-focusable:focus:not(:focus-visible) {
   outline: none;
+}
+
+button.email-action-flagged {
+  margin-inline: 6px;
+  cursor: pointer;
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  stroke: currentColor;
+  fill-opacity: 0.2;
+  stroke-opacity: 0;
+  align-self: center;
+}
+
+button.email-action-flagged.flagged {
+  fill: #f4bc44 !important;
+  fill-opacity: 1;
+  stroke: #f4bc44;
+  stroke-opacity: 1;
+}
+
+.email-action-flagged:not(.flagged):hover {
+  fill-opacity: 0.4;
 }
 
 /* Responsive style */

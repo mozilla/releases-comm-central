@@ -223,6 +223,10 @@
           </menu>
         </menupopup>
       </toolbarbutton>
+      <html:button id="starMessageButton"
+                   class="plain-button email-action-button email-action-flagged">
+        <html:img src="chrome://messenger/skin/icons/flagged.svg" alt="" />
+      </html:button>
       </hbox>
     </html:div>
 
@@ -235,22 +239,7 @@
     </html:div>
   </html:div>
 
-  <!-- Subject + date -->
-  <html:div class="message-header-row">
-     <html:div id="expandedsubjectRow" class="header-row-grow">
-      <label id="expandedsubjectLabel" class="message-header-label"
-             value="&subjectField4.label;"
-             control="expandedsubjectBox"/>
-      <mail-headerfield id="expandedsubjectBox"
-                        aria-labelledby="expandedsubjectLabel"
-                        headerName="subject" flex="1"/>
-    </html:div>
-    <html:time id="dateLabel"
-               class="message-header-datetime"
-               aria-readonly="true"></html:time>
-  </html:div>
-
-  <!-- To recipients + security info -->
+  <!-- To recipients + date -->
   <html:div class="message-header-row">
    <html:div id="expandedtoRow" class="header-row-grow">
       <label id="expandedtoLabel" class="message-header-label header-pill-label"
@@ -258,15 +247,9 @@
       <mail-multi-emailheaderfield id="expandedtoBox"
                                    aria-labelledby="expandedtoLabel"/>
     </html:div>
-    <html:div id="cryptoBox" hidden="hidden">
-      <html:button id="encryptionTechBtn"
-                   class="toolbarbutton-1 crypto-button themeable-brighttext button-focusable"
-                   data-l10n-id="message-security-button">
-        <html:span class="crypto-label"></html:span>
-        <html:img id="encryptedHdrIcon" hidden="hidden" alt="" />
-        <html:img id="signedHdrIcon" hidden="hidden" alt="" />
-      </html:button>
-    </html:div>
+    <html:time id="dateLabel"
+               class="message-header-datetime"
+               aria-readonly="true"></html:time>
   </html:div>
 
   <!-- Cc recipients -->
@@ -327,6 +310,27 @@
            control="expandedfollowup-toBox"/>
     <mail-newsgroups-headerfield id="expandedfollowup-toBox"
                                  aria-labelledby="expandedfollowup-toLabel"/>
+  </html:div>
+
+  <!-- Subject + security info -->
+  <html:div class="message-header-row">
+     <html:div id="expandedsubjectRow" class="header-row-grow">
+      <label id="expandedsubjectLabel" class="message-header-label"
+             value="&subjectField4.label;"
+             control="expandedsubjectBox"/>
+      <mail-headerfield id="expandedsubjectBox"
+                        aria-labelledby="expandedsubjectLabel"
+                        headerName="subject"/>
+    </html:div>
+    <html:div id="cryptoBox" hidden="hidden">
+      <html:button id="encryptionTechBtn"
+                   class="toolbarbutton-1 crypto-button themeable-brighttext button-focusable"
+                   data-l10n-id="message-security-button">
+        <html:span class="crypto-label"></html:span>
+        <html:img id="encryptedHdrIcon" hidden="hidden" alt="" />
+        <html:img id="signedHdrIcon" hidden="hidden" alt="" />
+      </html:button>
+    </html:div>
   </html:div>
 
   <!-- Tags -->

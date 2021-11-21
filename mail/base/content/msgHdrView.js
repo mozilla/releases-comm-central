@@ -30,6 +30,9 @@ var { MailServices } = ChromeUtils.import(
 var { GlodaUtils } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaUtils.jsm"
 );
+var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
+  Ci.nsIMsgDBService
+);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
@@ -156,7 +159,76 @@ var currentHeaderData = {};
 var currentAttachments = [];
 
 /**
- * Our constructor method which creates a header Entry based on an entry
+ * Folder database listener object. This is used alongside the
+ * nsIDBChangeListener implementation in order to listen for the changes of the
+ * messages' flags that don't trigger a messageHeaderSink.processHeaders().
+ * For now, it's used only for the flagged/marked/starred flag, but it could be
+ * extended to handle other flags changes and remove the full header reload.
+ */
+var gFolderDBListener = null;
+
+/** @implements {nsIDBChangeListener} */
+function DBListener() {}
+
+DBListener.prototype = {
+  onHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator) {
+    // Bail out if the changed message isn't the one currently displayed.
+    if (hdrChanged != gFolderDisplay.selectedMessage) {
+      return;
+    }
+
+    // Check if the flagged/marked/starred state was changed.
+    if (
+      newFlags & Ci.nsMsgMessageFlags.Marked ||
+      oldFlags & Ci.nsMsgMessageFlags.Marked
+    ) {
+      updateStarButton();
+    }
+  },
+  onHdrDeleted(hdrChanged, parentKey, flags, instigator) {},
+  onHdrAdded(hdrChanged, parentKey, flags, instigator) {},
+  onParentChanged(keyChanged, oldParent, newParent, instigator) {},
+  onAnnouncerGoingAway(instigator) {},
+  onReadChanged(instigator) {},
+  onJunkScoreChanged(instigator) {},
+  onHdrPropertyChanged(hdrToChange, property, preChange, status, instigator) {
+    // Not interested before a change or if the message isn't the one displayed.
+    if (preChange || hdrToChange != gFolderDisplay.selectedMessage) {
+      return;
+    }
+    switch (property) {
+      case "keywords":
+        OnTagsChange();
+        break;
+      case "junkscore":
+        gMessageNotificationBar.setJunkMsg(gFolderDisplay.selectedMessage);
+        break;
+    }
+  },
+  onEvent(db, event) {},
+};
+
+/**
+ * Initialize the nsIDBChangeListener when a new folder is selected in order to
+ * listen for any flags change happening in the currently displayed messages.
+ */
+function initFolderDBListener() {
+  // Unregister the listener and clear the object if we already have one,
+  // meaning the user just changed folder.
+  if (gFolderDBListener) {
+    gDbService.unregisterPendingListener(gFolderDBListener);
+    gFolderDBListener = null;
+  }
+
+  gFolderDBListener = new DBListener();
+  gDbService.registerPendingListener(
+    gFolderDisplay.displayedFolder,
+    gFolderDBListener
+  );
+}
+
+/**
+ * Our class constructor method which creates a header Entry based on an entry
  * in one of the header lists. A header entry is different from a header list.
  * A header list just describes how you want a particular header to be
  * presented. The header entry actually has knowledge about the DOM
@@ -165,33 +237,35 @@ var currentAttachments = [];
  * @param prefix  the name of the view (e.g. "expanded")
  * @param headerListInfo  entry from a header list.
  */
-function createHeaderEntry(prefix, headerListInfo) {
-  var partialIDName = prefix + headerListInfo.name;
-  this.enclosingBox = document.getElementById(partialIDName + "Box");
-  this.enclosingRow = document.getElementById(partialIDName + "Row");
-  this.isNewHeader = false;
-  this.valid = false;
+class MsgHeaderEntry {
+  constructor(prefix, headerListInfo) {
+    let partialIDName = prefix + headerListInfo.name;
+    this.enclosingBox = document.getElementById(partialIDName + "Box");
+    this.enclosingRow = document.getElementById(partialIDName + "Row");
+    this.isNewHeader = false;
+    this.valid = false;
 
-  if ("useToggle" in headerListInfo) {
-    this.useToggle = headerListInfo.useToggle;
-  } else {
-    this.useToggle = false;
+    if ("useToggle" in headerListInfo) {
+      this.useToggle = headerListInfo.useToggle;
+    } else {
+      this.useToggle = false;
+    }
+
+    if ("outputFunction" in headerListInfo) {
+      this.outputFunction = headerListInfo.outputFunction;
+    } else {
+      this.outputFunction = updateHeaderValue;
+    }
+
+    // Stash this so that the <mail-multi-emailheaderfield/> binding can
+    // later attach it to any <mail-emailaddress> tags it creates for later
+    // extraction and use by UpdateEmailNodeDetails.
+    this.enclosingBox.headerName = headerListInfo.name;
+    // Set the headerName attribute for the value nodes too.
+    this.enclosingBox.querySelectorAll(".headerValue").forEach(e => {
+      e.setAttribute("headerName", headerListInfo.name);
+    });
   }
-
-  if ("outputFunction" in headerListInfo) {
-    this.outputFunction = headerListInfo.outputFunction;
-  } else {
-    this.outputFunction = updateHeaderValue;
-  }
-
-  // Stash this so that the <mail-multi-emailheaderfield/> binding can
-  // later attach it to any <mail-emailaddress> tags it creates for later
-  // extraction and use by UpdateEmailNodeDetails.
-  this.enclosingBox.headerName = headerListInfo.name;
-  // Set the headerName attribute for the value nodes too.
-  this.enclosingBox.querySelectorAll(".headerValue").forEach(e => {
-    e.setAttribute("headerName", headerListInfo.name);
-  });
 }
 
 function initializeHeaderViewTables() {
@@ -199,10 +273,7 @@ function initializeHeaderViewTables() {
   // for each one. These header entries are then stored in the appropriate header
   // table.
   for (let header of gExpandedHeaderList) {
-    gExpandedHeaderView[header.name] = new createHeaderEntry(
-      "expanded",
-      header
-    );
+    gExpandedHeaderView[header.name] = new MsgHeaderEntry("expanded", header);
   }
 
   let extraHeaders = Services.prefs
@@ -223,7 +294,7 @@ function initializeHeaderViewTables() {
       name: "organization",
       outputFunction: updateHeaderValue,
     };
-    gExpandedHeaderView[organizationEntry.name] = new createHeaderEntry(
+    gExpandedHeaderView[organizationEntry.name] = new MsgHeaderEntry(
       "expanded",
       organizationEntry
     );
@@ -234,7 +305,7 @@ function initializeHeaderViewTables() {
       name: "user-agent",
       outputFunction: updateHeaderValue,
     };
-    gExpandedHeaderView[userAgentEntry.name] = new createHeaderEntry(
+    gExpandedHeaderView[userAgentEntry.name] = new MsgHeaderEntry(
       "expanded",
       userAgentEntry
     );
@@ -245,7 +316,7 @@ function initializeHeaderViewTables() {
       name: "message-id",
       outputFunction: OutputMessageIds,
     };
-    gExpandedHeaderView[messageIdEntry.name] = new createHeaderEntry(
+    gExpandedHeaderView[messageIdEntry.name] = new MsgHeaderEntry(
       "expanded",
       messageIdEntry
     );
@@ -253,7 +324,7 @@ function initializeHeaderViewTables() {
 
   if (Services.prefs.getBoolPref("mailnews.headers.showSender")) {
     var senderEntry = { name: "sender", outputFunction: OutputEmailAddresses };
-    gExpandedHeaderView[senderEntry.name] = new createHeaderEntry(
+    gExpandedHeaderView[senderEntry.name] = new MsgHeaderEntry(
       "expanded",
       senderEntry
     );
@@ -320,6 +391,11 @@ async function OnLoadMsgHeaderPane() {
   panel.addEventListener("popupshown", onMessageSecurityPopupShown);
   panel.addEventListener("popuphidden", onMessageSecurityPopupHidden);
 
+  // Set the flag/star button on click listener.
+  document
+    .getElementById("starMessageButton")
+    .addEventListener("click", MsgMarkAsFlagged);
+
   // Dispatch an event letting any listeners know that we have loaded
   // the message pane.
   let headerViewElement = document.getElementById("msgHeaderView");
@@ -348,6 +424,11 @@ function OnUnloadMsgHeaderPane() {
   );
 
   AddressBookListener.unregister();
+
+  if (gFolderDBListener) {
+    gDbService.unregisterPendingListener(gFolderDBListener);
+    gFolderDBListener = null;
+  }
 
   // Dispatch an event letting any listeners know that we have unloaded
   // the message pane.
@@ -454,7 +535,7 @@ var messageHeaderSink = {
     this.mSaveHdr = null;
     // Every time we start to redisplay a message, check the view all headers
     // pref...
-    var showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
+    let showAllHeadersPref = Services.prefs.getIntPref("mail.show_headers");
     if (showAllHeadersPref == 2) {
       gViewAllHeaders = true;
     } else {
@@ -592,6 +673,7 @@ var messageHeaderSink = {
 
     // Process message tags as if they were headers in the message.
     SetTagHeader();
+    updateStarButton();
 
     if ("from" in currentHeaderData && "sender" in currentHeaderData) {
       let senderMailbox =
@@ -913,6 +995,30 @@ function SetTagHeader() {
   }
 }
 
+/**
+ * Update the flagged (starred) state of the currently selected message.
+ */
+function updateStarButton() {
+  let msgHdr = gFolderDisplay.selectedMessage;
+  if (!msgHdr || gMessageDisplay.isDummy) {
+    // No msgHdr to update, or we're dealing with an .eml.
+    document.getElementById("starMessageButton").hidden = true;
+    return;
+  }
+
+  let flagButton = document.getElementById("starMessageButton");
+  flagButton.hidden = false;
+  let isFlagged = msgHdr.isFlagged;
+  document.l10n.setAttributes(
+    flagButton,
+    isFlagged
+      ? "message-header-msg-is-flagged"
+      : "message-header-msg-not-flagged"
+  );
+
+  flagButton.classList.toggle("flagged", isFlagged);
+}
+
 function EnsureSubjectValue() {
   if (!("subject" in currentHeaderData)) {
     let foo = {};
@@ -1193,7 +1299,7 @@ function UpdateExpandedMessageHeaders() {
           name: headerName,
           outputFunction: OutputMessageIds,
         };
-        gExpandedHeaderView[headerName] = new createHeaderEntry(
+        gExpandedHeaderView[headerName] = new MsgHeaderEntry(
           "expanded",
           messageIdEntry
         );

@@ -1165,3 +1165,60 @@ function subtest_addresses_in_tooltip_text(
     );
   }
 }
+
+/**
+ * Test the marking of a message as starred, be sure the header is properly
+ * updated and changing selected message doesn't affect the state of others.
+ */
+add_task(async function test_starred_message() {
+  be_in_folder(folder);
+
+  // Select the last message, which will display it.
+  let curMessage = select_click_row(-1);
+  wait_for_message_display_completion(mc);
+  assert_selected_and_displayed(mc, curMessage);
+
+  let starButton = mc.window.document.getElementById("starMessageButton");
+  // The message shouldn't be starred.
+  Assert.ok(
+    !starButton.classList.contains("flagged"),
+    "The message is not starred"
+  );
+
+  // Press s to mark the message as starred.
+  EventUtils.synthesizeKey("s", {});
+  // The message should be starred.
+  Assert.ok(starButton.classList.contains("flagged"), "The message is starred");
+
+  // Click on the star button.
+  EventUtils.synthesizeMouseAtCenter(starButton, {}, mc.window);
+  // The message shouldn't be starred.
+  Assert.ok(
+    !starButton.classList.contains("flagged"),
+    "The message is not starred"
+  );
+
+  // Click again on the star button.
+  EventUtils.synthesizeMouseAtCenter(starButton, {}, mc.window);
+  // The message should be starred.
+  Assert.ok(starButton.classList.contains("flagged"), "The message is starred");
+
+  // Select the first message.
+  curMessage = select_click_row(0);
+  wait_for_message_display_completion(mc);
+  assert_selected_and_displayed(mc, curMessage);
+
+  // The newly selected message shouldn't be starred.
+  Assert.ok(
+    !starButton.classList.contains("flagged"),
+    "The message is not starred"
+  );
+
+  // Select again the last message.
+  curMessage = select_click_row(-1);
+  wait_for_message_display_completion(mc);
+  assert_selected_and_displayed(mc, curMessage);
+
+  // The message should still be starred.
+  Assert.ok(starButton.classList.contains("flagged"), "The message is starred");
+});

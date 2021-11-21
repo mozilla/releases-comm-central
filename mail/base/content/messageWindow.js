@@ -566,6 +566,10 @@ function actuallyLoadMessage() {
 
   gFolderDisplay.makeActive();
 
+  // Initialize the folder listener of the message header only after the
+  // gFolderDisplay has been created.
+  initFolderDBListener();
+
   // set focus to the message pane
   window.content.focus();
 }

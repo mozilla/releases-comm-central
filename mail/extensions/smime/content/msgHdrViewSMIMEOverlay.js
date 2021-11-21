@@ -225,7 +225,7 @@ var smimeHeaderSink = {
     }
 
     let senderInfo = { name: "sender", outputFunction: OutputEmailAddresses };
-    let senderEntry = new createHeaderEntry("expanded", senderInfo);
+    let senderEntry = new MsgHeaderEntry("expanded", senderInfo);
 
     gExpandedHeaderView[senderInfo.name] = senderEntry;
     UpdateExpandedMessageHeaders();

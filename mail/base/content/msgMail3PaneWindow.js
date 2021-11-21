@@ -242,6 +242,7 @@ var folderListener = {
         }
       }
     } else if (event == "JunkStatusChanged") {
+      // TODO: Remove this in favor of gFolderDBListener.
       HandleJunkStatusChanged(folder);
     }
   },
