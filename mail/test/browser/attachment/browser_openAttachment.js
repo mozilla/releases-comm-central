@@ -27,6 +27,13 @@ const {
   useSystemDefault,
 } = Ci.nsIHandlerInfo;
 
+// At the time of writing, this pref was set to true on nightly channels only.
+// The behaviour is slightly different when it is false.
+const IMPROVEMENTS_PREF_SET = Services.prefs.getBoolPref(
+  "browser.download.improvements_to_download_panel",
+  true
+);
+
 let tempDir = FileUtils.getDir("TmpD", [], false);
 let saveDestination = FileUtils.getFile("TmpD", ["saveDestination"]);
 saveDestination.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
@@ -273,7 +280,10 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
 add_task(async function alwaysAskAlwaysAsk() {
   createMockedHandler("test/alwaysAsk-true", alwaysAsk, true);
   createAndLoadMessage("test/alwaysAsk-true");
-  await clickWithDialog({ rememberExpected: false });
+  await clickWithDialog({
+    mode: IMPROVEMENTS_PREF_SET ? "save" : "open",
+    rememberExpected: false,
+  });
 });
 
 /**
@@ -344,7 +354,7 @@ add_task(async function alwaysAskRemember() {
   await clickWithDialog(undefined, "accept");
   await checkFileSaved();
   checkHandler("test/alwaysAsk-false", saveToDisk, false);
-});
+}).__skipMe = !IMPROVEMENTS_PREF_SET;
 
 /**
  * Open a content type set to always ask without asking (weird but plausible).
@@ -357,7 +367,7 @@ add_task(async function alwaysAskForget() {
   await clickWithDialog({ remember: false }, "accept");
   await checkFileSaved();
   checkHandler("test/alwaysAsk-false", saveToDisk, true);
-});
+}).__skipMe = !IMPROVEMENTS_PREF_SET;
 
 registerCleanupFunction(() => {
   // Remove created folders.
