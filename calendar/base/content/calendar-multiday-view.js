@@ -339,62 +339,6 @@
     }
 
     /**
-     * This function returns the start and end minutes of the occurrence
-     * part in the day of this column, moreover, the real start and end
-     * minutes of the whole occurrence (which could span multiple days)
-     * relative to the time 0:00 of the day in this column.
-     *
-     * @param {Object}   - occurrence which contains details of the dates of the event.
-     *
-     * @returns {Object} - object with starting and ending times of the event in the minutes.
-     */
-    getStartEndMinutesForOccurrence(occurrence) {
-      let stdate = occurrence.startDate || occurrence.entryDate || occurrence.dueDate;
-      let enddate = occurrence.endDate || occurrence.dueDate || occurrence.entryDate;
-
-      if (!cal.data.compareObjects(stdate.timezone, this.mTimezone)) {
-        stdate = stdate.getInTimezone(this.mTimezone);
-      }
-
-      if (!cal.data.compareObjects(enddate.timezone, this.mTimezone)) {
-        enddate = enddate.getInTimezone(this.mTimezone);
-      }
-
-      let startHour = stdate.hour;
-      let startMinute = stdate.minute;
-      let endHour = enddate.hour;
-      let endMinute = enddate.minute;
-
-      // Handle cases where an event begins or ends on a day other than this.
-      if (stdate.compare(this.mDate) == -1) {
-        startHour = 0;
-        startMinute = 0;
-      }
-      if (enddate.compare(this.mDate) == 1) {
-        endHour = 24;
-        endMinute = 0;
-      }
-
-      // For occurrences that span multiple days, we figure out the real
-      // occurrence start and end minutes relative to the date of this
-      // column and time 0:00.
-      let durend = enddate.subtractDate(this.mDate);
-      let durstart = stdate.subtractDate(this.mDate);
-      // 'durend' is always positive, instead 'durstart' might be negative
-      // if the event starts one or more days before the date of this column.
-      let realStart = (durstart.days * 24 + durstart.hours) * 60 + durstart.minutes;
-      realStart = durstart.isNegative ? -1 * realStart : realStart;
-      let realEnd = (durend.days * 24 + durend.hours) * 60 + durend.minutes;
-
-      return {
-        start: startHour * 60 + startMinute,
-        end: endHour * 60 + endMinute,
-        realStart,
-        realEnd,
-      };
-    }
-
-    /**
      * Create or update a displayed calendar-event-box element for the given
      * event item.
      *
@@ -1470,21 +1414,24 @@
         sizeattr = "width";
       }
 
-      let mins = this.getStartEndMinutesForOccurrence(aOccurrence);
+      let stdate = aOccurrence.startDate || aOccurrence.entryDate || aOccurrence.dueDate;
+      let enddate = aOccurrence.endDate || aOccurrence.dueDate || aOccurrence.entryDate;
 
-      // These are only used to compute durations or to compute UI
-      // sizes, so offset by this.mStartMin for sanity here (at the
-      // expense of possible insanity later).
-      mins.start -= this.mStartMin;
-      mins.end -= this.mStartMin;
+      // Get the start and end times in minutes, relative to the start of the
+      // day. This may be negative or exceed the length of the day if the event
+      // spans more than one day.
+      let realStart = Math.floor(stdate.subtractDate(this.mDate).inSeconds / 60);
+      let realEnd = Math.floor(enddate.subtractDate(this.mDate).inSeconds / 60);
 
       if (aGrabbedElement == "start") {
         this.mDragState.dragType = "modify-start";
         // We have to use "realEnd" as fixed end value.
-        this.mDragState.limitEndMin = mins.realEnd;
+        this.mDragState.limitEndMin = realEnd;
 
         // Snap start.
-        this.mDragState.origMin = Math.floor(mins.start / snapIntMin) * snapIntMin;
+        // Since we are modifying the start, we know the event starts on this
+        // day, so realStart is not negative.
+        this.mDragState.origMin = Math.floor(realStart / snapIntMin) * snapIntMin;
 
         // Show the shadows and drag labels when clicking on gripbars.
         let shadowElements = this.getShadowElements(
@@ -1509,10 +1456,12 @@
       } else if (aGrabbedElement == "end") {
         this.mDragState.dragType = "modify-end";
         // We have to use "realStart" as fixed end value.
-        this.mDragState.limitStartMin = mins.realStart;
+        this.mDragState.limitStartMin = realStart;
 
         // Snap end.
-        this.mDragState.origMin = Math.floor(mins.end / snapIntMin) * snapIntMin;
+        // Since we are modifying the end, we know the event end on this day,
+        // so realEnd is before midnight on this day.
+        this.mDragState.origMin = Math.floor(realEnd / snapIntMin) * snapIntMin;
 
         // Show the shadows and drag labels when clicking on gripbars.
         let shadowElements = this.getShadowElements(
@@ -1541,13 +1490,15 @@
         // shadow position. origMinStart and origMinEnd allow to figure out
         // the real shadow size.
         // We snap to the start and add the real duration to find the end.
-        let limitDurationMin = mins.realEnd - mins.realStart;
-        this.mDragState.origMin = Math.floor(mins.start / snapIntMin) * snapIntMin;
-        this.mDragState.origMinStart = Math.floor(mins.realStart / snapIntMin) * snapIntMin;
+        let limitDurationMin = realEnd - realStart;
+        // We use origMin to get the number of minutes since the start of *this*
+        // day, which is 0 if realStart is negative.
+        this.mDragState.origMin = Math.max(0, Math.floor(realStart / snapIntMin) * snapIntMin);
+        this.mDragState.origMinStart = Math.floor(realStart / snapIntMin) * snapIntMin;
         this.mDragState.origMinEnd = this.mDragState.origMinStart + limitDurationMin;
         // Keep also track of the real Start, it will be used at the end
         // of the drag session to calculate the new start and end datetimes.
-        this.mDragState.realStart = mins.realStart;
+        this.mDragState.realStart = realStart;
 
         let shadowElements = this.getShadowElements(
           this.mDragState.origMinStart,
