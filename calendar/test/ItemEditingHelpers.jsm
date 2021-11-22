@@ -225,7 +225,7 @@ async function setData(dialogWindow, iframeWindow, data) {
               "recurrence dialog active"
             );
 
-            await new Promise(resolve => recurrenceWindow.setTimeout(resolve));
+            await new Promise(resolve => recurrenceWindow.setTimeout(resolve, 500));
             await data.repeat(recurrenceWindow);
           },
         }
