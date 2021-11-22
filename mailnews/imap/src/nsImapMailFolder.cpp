@@ -8252,7 +8252,8 @@ nsImapMailFolder::OnMessageClassified(const char* aMsgURI,
   if (aMsgURI)  // not end of batch
   {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = GetMsgDBHdrFromURI(aMsgURI, getter_AddRefs(msgHdr));
+    rv =
+        GetMsgDBHdrFromURI(nsDependentCString(aMsgURI), getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsMsgKey msgKey;

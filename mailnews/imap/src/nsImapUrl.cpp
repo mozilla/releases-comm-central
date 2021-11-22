@@ -1297,7 +1297,7 @@ nsresult nsImapUrl::GetMsgFolder(nsIMsgFolder** msgFolder) {
   NS_ENSURE_TRUE(!uri.IsEmpty(), NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIMsgDBHdr> msg;
-  GetMsgDBHdrFromURI(uri.get(), getter_AddRefs(msg));
+  GetMsgDBHdrFromURI(uri, getter_AddRefs(msg));
   NS_ENSURE_TRUE(msg, NS_ERROR_FAILURE);
   nsresult rv = msg->GetFolder(msgFolder);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1344,7 +1344,7 @@ NS_IMETHODIMP nsImapUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
   nsCString uri;
   nsresult rv = GetUri(uri);
   NS_ENSURE_SUCCESS(rv, rv);
-  return GetMsgDBHdrFromURI(uri.get(), aMsgHdr);
+  return GetMsgDBHdrFromURI(uri, aMsgHdr);
 }
 
 NS_IMETHODIMP nsImapUrl::SetMessageHeader(nsIMsgDBHdr* aMsgHdr) {

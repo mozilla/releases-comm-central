@@ -2853,7 +2853,7 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
         if (NS_SUCCEEDED(rv)) {
           NS_ENSURE_SUCCESS(rv, rv);
           nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
-          rv = GetMsgDBHdrFromURI(messageuri.get(), getter_AddRefs(msgDBHdr));
+          rv = GetMsgDBHdrFromURI(messageuri, getter_AddRefs(msgDBHdr));
           if (NS_SUCCEEDED(rv)) {
             GetDatabase();
             if (mDatabase)
@@ -3082,7 +3082,8 @@ nsMsgLocalMailFolder::OnMessageClassified(const char* aMsgURI,
   if (aMsgURI)  // not end of batch
   {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = GetMsgDBHdrFromURI(aMsgURI, getter_AddRefs(msgHdr));
+    rv =
+        GetMsgDBHdrFromURI(nsDependentCString(aMsgURI), getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsMsgKey msgKey;

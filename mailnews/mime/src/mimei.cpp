@@ -338,7 +338,7 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
         msgURI->GetUri(rdfURI);
         if (!rdfURI.IsEmpty()) {
           nsCOMPtr<nsIMsgDBHdr> msgHdr;
-          GetMsgDBHdrFromURI(rdfURI.get(), getter_AddRefs(msgHdr));
+          GetMsgDBHdrFromURI(rdfURI, getter_AddRefs(msgHdr));
           NS_IF_ADDREF(*aMsgHdr = msgHdr);
         }
       }

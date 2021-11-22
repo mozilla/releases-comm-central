@@ -36,8 +36,9 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   attribute string  messageId;
 
   attribute AString templateName;
-  attribute string  draftId;
-  attribute string  templateId;
+  // The so-called draft/template ID is a URI in reality.
+  attribute AUTF8String draftId;
+  attribute AUTF8String templateId;
 
   attribute boolean returnReceipt;
   attribute long receiptHeaderType;

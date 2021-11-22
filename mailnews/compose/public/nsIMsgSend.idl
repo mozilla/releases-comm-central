@@ -320,7 +320,7 @@ interface nsIMsgSend : nsISupports
     void notifyListenerOnStopCopy(in nsresult aStatus);
     void getMessageId(out ACString messageID);
     /// When saving as draft, the folder uri we saved to.
-    readonly attribute ACString folderUri;
+    readonly attribute AUTF8String folderUri;
 
     /**
      * After a draft is saved, use this to get the mime part number for the dom

@@ -239,7 +239,7 @@ interface nsIMsgCompose : nsIMsgSendListener {
   [noscript] void setCiteReference(in nsString citeReference);
 
   /* Set the URI of the folder where the message has been saved */
-  attribute string savedFolderURI;
+  attribute AUTF8String savedFolderURI;
 
   /* Append the signature defined in the identity to the msgBody */
   [noscript] void processSignature(in nsIMsgIdentity identity,
@@ -276,7 +276,7 @@ interface nsIMsgCompose : nsIMsgSendListener {
   /* ... */
   [noscript] void getQuotingToFollow(out boolean quotingToFollow);
 
-  readonly attribute string originalMsgURI;
+  readonly attribute AUTF8String originalMsgURI;
 
   attribute boolean deleteDraft;
 

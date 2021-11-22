@@ -48,7 +48,8 @@ NS_MSG_BASE nsresult GetMessageServiceContractIDForURI(const char* uri,
 NS_MSG_BASE nsresult GetMessageServiceFromURI(
     const nsACString& uri, nsIMsgMessageService** aMessageService);
 
-NS_MSG_BASE nsresult GetMsgDBHdrFromURI(const char* uri, nsIMsgDBHdr** msgHdr);
+NS_MSG_BASE nsresult GetMsgDBHdrFromURI(const nsACString& uri,
+                                        nsIMsgDBHdr** msgHdr);
 
 NS_MSG_BASE nsresult NS_MsgGetPriorityFromString(
     const char* const priority, nsMsgPriorityValue& outPriority);

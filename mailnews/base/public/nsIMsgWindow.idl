@@ -18,8 +18,8 @@ interface nsIPrincipal;
 
 [scriptable, uuid(7B8F4A65-CFC4-4b3f-BF5C-152AA8D5CD10)]
 interface nsIMsgWindowCommands : nsISupports {
-  void selectFolder(in ACString folderUri);
-  void selectMessage(in ACString messageUri);
+  void selectFolder(in AUTF8String folderUri);
+  void selectMessage(in AUTF8String messageUri);
   void clearMsgPane();
 };
 

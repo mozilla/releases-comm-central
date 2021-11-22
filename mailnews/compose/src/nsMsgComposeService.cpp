@@ -96,10 +96,10 @@ using namespace mozilla::dom;
 #ifdef MSGCOMP_TRACE_PERFORMANCE
 static mozilla::LazyLogModule MsgComposeLogModule("MsgCompose");
 
-static uint32_t GetMessageSizeFromURI(const char* originalMsgURI) {
+static uint32_t GetMessageSizeFromURI(const nsACString& originalMsgURI) {
   uint32_t msgSize = 0;
 
-  if (originalMsgURI && *originalMsgURI) {
+  if (!originalMsgURI.IsEmpty()) {
     nsCOMPtr<nsIMsgDBHdr> originalMsgHdr;
     GetMsgDBHdrFromURI(originalMsgURI, getter_AddRefs(originalMsgHdr));
     if (originalMsgHdr) originalMsgHdr->GetMessageSize(&msgSize);
@@ -457,9 +457,8 @@ nsMsgComposeService::OpenComposeWindow(
         // ducarroz, properly fix this in the case of new message (not a reply)
         if (type != nsIMsgCompType::NewsPost) {
           char buff[256];
-          sprintf(
-              buff, "Start opening the window, message size = %d",
-              GetMessageSizeFromURI(PromiseFlatCString(originalMsgURI).get()));
+          sprintf(buff, "Start opening the window, message size = %d",
+                  GetMessageSizeFromURI(originalMsgURI));
           TimeStamp(buff, true);
         }
 #endif

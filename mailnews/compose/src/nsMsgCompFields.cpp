@@ -286,22 +286,24 @@ NS_IMETHODIMP nsMsgCompFields::GetTemplateName(nsAString& _retval) {
   return GetUnicodeHeader(MSG_X_TEMPLATE_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetDraftId(const char* value) {
-  return SetAsciiHeader(MSG_DRAFT_ID_HEADER_ID, value);
+NS_IMETHODIMP nsMsgCompFields::SetDraftId(const nsACString& value) {
+  return SetAsciiHeader(MSG_DRAFT_ID_HEADER_ID,
+                        PromiseFlatCString(value).get());
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetDraftId(char** _retval) {
-  *_retval = strdup(GetAsciiHeader(MSG_DRAFT_ID_HEADER_ID));
-  return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+NS_IMETHODIMP nsMsgCompFields::GetDraftId(nsACString& _retval) {
+  _retval.Assign(GetAsciiHeader(MSG_DRAFT_ID_HEADER_ID));
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetTemplateId(const char* value) {
-  return SetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID, value);
+NS_IMETHODIMP nsMsgCompFields::SetTemplateId(const nsACString& value) {
+  return SetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID,
+                        PromiseFlatCString(value).get());
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetTemplateId(char** _retval) {
-  *_retval = strdup(GetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID));
-  return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+NS_IMETHODIMP nsMsgCompFields::GetTemplateId(nsACString& _retval) {
+  _retval.Assign(GetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID));
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgCompFields::SetReturnReceipt(bool value) {

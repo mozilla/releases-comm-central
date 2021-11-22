@@ -464,7 +464,7 @@ nsresult nsMailboxUrl::GetFolder(nsIMsgFolder** msgFolder) {
   GetUri(uri);
   NS_ENSURE_TRUE(!uri.IsEmpty(), NS_ERROR_FAILURE);
   nsCOMPtr<nsIMsgDBHdr> msg;
-  GetMsgDBHdrFromURI(uri.get(), getter_AddRefs(msg));
+  GetMsgDBHdrFromURI(uri, getter_AddRefs(msg));
   if (!msg) return NS_ERROR_FAILURE;
   return msg->GetFolder(msgFolder);
 }

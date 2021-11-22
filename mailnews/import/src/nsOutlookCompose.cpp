@@ -155,7 +155,7 @@ class OutlookSendListener : public nsIMsgSendListener {
   }
 
   /* void OnGetDraftFolderURI (); */
-  NS_IMETHOD OnGetDraftFolderURI(const char* aFolderURI) { return NS_OK; }
+  NS_IMETHOD OnGetDraftFolderURI(const nsACString& aFolderURI) { return NS_OK; }
 
   static nsresult CreateSendListener(nsIMsgSendListener** ppListener);
   void Reset() {

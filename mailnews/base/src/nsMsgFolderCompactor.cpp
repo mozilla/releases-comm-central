@@ -633,7 +633,7 @@ nsresult nsFolderCompactState::CompactNextFolder() {
 }
 
 nsresult nsFolderCompactState::GetMessage(nsIMsgDBHdr** message) {
-  return GetMsgDBHdrFromURI(m_messageUri.get(), message);
+  return GetMsgDBHdrFromURI(m_messageUri, message);
 }
 
 NS_IMETHODIMP

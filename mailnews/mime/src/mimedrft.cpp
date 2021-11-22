@@ -1523,9 +1523,9 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
         // Note that always setting the draft ID here would cause drafts to be
         // overwritten when edited "as new", which is undesired.
         if (msgComposeType == nsIMsgCompType::EditTemplate) {
-          fields->SetDraftId(mdd->url_name);
-          fields->SetTemplateId(
-              mdd->url_name);  // Remember original template ID.
+          fields->SetDraftId(nsDependentCString(mdd->url_name));
+          fields->SetTemplateId(nsDependentCString(
+              mdd->url_name));  // Remember original template ID.
         }
 
         if (convertToPlainText) fields->ConvertBodyToPlainText();
@@ -1550,7 +1550,7 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
                                    mdd->origMsgHdr);
         } else {
           if (convertToPlainText) fields->ConvertBodyToPlainText();
-          fields->SetDraftId(mdd->url_name);
+          fields->SetDraftId(nsDependentCString(mdd->url_name));
           CreateTheComposeWindow(fields, newAttachData, nsIMsgCompType::Draft,
                                  composeFormat, mdd->identity,
                                  mdd->originalMsgURI, mdd->origMsgHdr);
@@ -1584,7 +1584,7 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
                                  mdd->identity, mdd->originalMsgURI,
                                  mdd->origMsgHdr);
         } else {
-          fields->SetDraftId(mdd->url_name);
+          fields->SetDraftId(nsDependentCString(mdd->url_name));
           CreateTheComposeWindow(fields, newAttachData, nsIMsgCompType::Draft,
                                  nsIMsgCompFormat::Default, mdd->identity,
                                  nullptr, mdd->origMsgHdr);

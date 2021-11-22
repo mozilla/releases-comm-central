@@ -364,7 +364,7 @@ SendOperationListener::SendOperationListener(nsMsgSendLater* aSendLater)
 SendOperationListener::~SendOperationListener(void) {}
 
 NS_IMETHODIMP
-SendOperationListener::OnGetDraftFolderURI(const char* aFolderURI) {
+SendOperationListener::OnGetDraftFolderURI(const nsACString& aFolderURI) {
   return NS_OK;
 }
 
@@ -766,8 +766,7 @@ nsresult nsMsgSendLater::SetOrigMsgDisposition() {
     ParseString(originalMsgURIs, ',', uriArray);
     for (uint32_t i = 0; i < uriArray.Length(); i++) {
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      nsresult rv =
-          GetMsgDBHdrFromURI(uriArray[i].get(), getter_AddRefs(msgHdr));
+      nsresult rv = GetMsgDBHdrFromURI(uriArray[i], getter_AddRefs(msgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       if (msgHdr) {
         // get the folder for the message resource

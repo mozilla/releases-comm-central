@@ -47,7 +47,7 @@ interface nsIMsgSendListener : nsISupports {
     /**
      * Notify the observer with the folder uri before the draft is copied.
      */
-    void onGetDraftFolderURI(in string aFolderURI);
+    void onGetDraftFolderURI(in AUTF8String aFolderURI);
 
     /**
      * Notify the observer when the user aborts the send without actually doing the send

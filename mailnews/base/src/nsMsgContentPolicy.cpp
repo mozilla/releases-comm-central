@@ -614,7 +614,7 @@ void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
   NS_ENSURE_SUCCESS_VOID(rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(resourceURI.get(), getter_AddRefs(msgHdr));
+  rv = GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) {
     // Maybe we can get a dummy header.
     nsCOMPtr<nsIMsgWindow> msgWindow;
@@ -672,7 +672,7 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
   NS_ENSURE_SUCCESS_VOID(rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(resourceURI.get(), getter_AddRefs(msgHdr));
+  rv = GetMsgDBHdrFromURI(resourceURI, getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) {
     // Maybe we can get a dummy header.
     nsCOMPtr<nsIMsgWindow> msgWindow;
@@ -718,7 +718,7 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
                "ComposeShouldLoad expects default decision to be reject!");
 
   nsCString originalMsgURI;
-  nsresult rv = aMsgCompose->GetOriginalMsgURI(getter_Copies(originalMsgURI));
+  nsresult rv = aMsgCompose->GetOriginalMsgURI(originalMsgURI);
   NS_ENSURE_SUCCESS_VOID(rv);
 
   MSG_ComposeType composeType;
@@ -735,7 +735,7 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
     *aDecision = nsIContentPolicy::ACCEPT;
   else if (!originalMsgURI.IsEmpty()) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = GetMsgDBHdrFromURI(originalMsgURI.get(), getter_AddRefs(msgHdr));
+    rv = GetMsgDBHdrFromURI(originalMsgURI, getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS_VOID(rv);
     *aDecision =
         ShouldAcceptRemoteContentForMsgHdr(msgHdr, nullptr, aContentLocation);

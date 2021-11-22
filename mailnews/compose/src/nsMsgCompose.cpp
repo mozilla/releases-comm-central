@@ -898,7 +898,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
 
   if (composeFields) {
     nsAutoCString draftId;  // will get set for drafts and templates
-    rv = composeFields->GetDraftId(getter_Copies(draftId));
+    rv = composeFields->GetDraftId(draftId);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Set return receipt flag and type, and if we should attach a vCard
@@ -1554,11 +1554,11 @@ nsresult nsMsgCompose::CreateMessage(const char* originalMsgURI,
 
   if (mType == nsIMsgCompType::Draft) {
     nsCString curDraftIdURL;
-    rv = m_compFields->GetDraftId(getter_Copies(curDraftIdURL));
+    rv = m_compFields->GetDraftId(curDraftIdURL);
     // Skip if no draft id (probably a new draft msg).
     if (NS_SUCCEEDED(rv) && !curDraftIdURL.IsEmpty()) {
       nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
-      rv = GetMsgDBHdrFromURI(curDraftIdURL.get(), getter_AddRefs(msgDBHdr));
+      rv = GetMsgDBHdrFromURI(curDraftIdURL, getter_AddRefs(msgDBHdr));
       NS_ASSERTION(NS_SUCCEEDED(rv),
                    "CreateMessage can't get msg header DB interface pointer.");
       if (msgDBHdr) {
@@ -1603,7 +1603,8 @@ nsresult nsMsgCompose::CreateMessage(const char* originalMsgURI,
       type == nsIMsgCompType::ReplyWithTemplate) {
     // We want to treat this message as a reference too
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = GetMsgDBHdrFromURI(originalMsgURI, getter_AddRefs(msgHdr));
+    rv = GetMsgDBHdrFromURI(nsDependentCString(originalMsgURI),
+                            getter_AddRefs(msgHdr));
     if (NS_SUCCEEDED(rv)) {
       nsAutoCString messageId;
       msgHdr->GetMessageId(getter_Copies(messageId));
@@ -1676,7 +1677,7 @@ nsresult nsMsgCompose::CreateMessage(const char* originalMsgURI,
     if (mOrigMsgHdr)
       msgHdr = mOrigMsgHdr;
     else {
-      rv = GetMsgDBHdrFromURI(uri, getter_AddRefs(msgHdr));
+      rv = GetMsgDBHdrFromURI(nsDependentCString(uri), getter_AddRefs(msgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
     }
     if (msgHdr) {
@@ -1905,21 +1906,19 @@ NS_IMETHODIMP nsMsgCompose::SetCiteReference(nsString citeReference) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompose::SetSavedFolderURI(const char* folderURI) {
+NS_IMETHODIMP nsMsgCompose::SetSavedFolderURI(const nsACString& folderURI) {
   m_folderName = folderURI;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompose::GetSavedFolderURI(char** folderURI) {
-  NS_ENSURE_ARG_POINTER(folderURI);
-  *folderURI = ToNewCString(m_folderName);
-  return (*folderURI) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+NS_IMETHODIMP nsMsgCompose::GetSavedFolderURI(nsACString& folderURI) {
+  folderURI = m_folderName;
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompose::GetOriginalMsgURI(char** originalMsgURI) {
-  NS_ENSURE_ARG_POINTER(originalMsgURI);
-  *originalMsgURI = ToNewCString(mOriginalMsgURI);
-  return (*originalMsgURI) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+NS_IMETHODIMP nsMsgCompose::GetOriginalMsgURI(nsACString& originalMsgURI) {
+  originalMsgURI = mOriginalMsgURI;
+  return NS_OK;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -2733,8 +2732,7 @@ nsMsgCompose::QuoteMessage(const nsACString& msgURI) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(PromiseFlatCString(msgURI).get(),
-                          getter_AddRefs(msgHdr));
+  rv = GetMsgDBHdrFromURI(msgURI, getter_AddRefs(msgHdr));
 
   // Create the consumer output stream.. this will receive all the HTML from
   // libmime
@@ -2764,8 +2762,7 @@ nsresult nsMsgCompose::QuoteOriginalMessage()  // New template
 
   nsCOMPtr<nsIMsgDBHdr> originalMsgHdr = mOrigMsgHdr;
   if (!originalMsgHdr) {
-    rv = GetMsgDBHdrFromURI(mOriginalMsgURI.get(),
-                            getter_AddRefs(originalMsgHdr));
+    rv = GetMsgDBHdrFromURI(mOriginalMsgURI, getter_AddRefs(originalMsgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -2855,11 +2852,11 @@ NS_IMETHODIMP nsMsgCompose::RememberQueuedDisposition() {
     dispositionSetting.AssignLiteral("redirected");
   } else if (mType == nsIMsgCompType::Draft) {
     nsAutoCString curDraftIdURL;
-    rv = m_compFields->GetDraftId(getter_Copies(curDraftIdURL));
+    rv = m_compFields->GetDraftId(curDraftIdURL);
     NS_ENSURE_SUCCESS(rv, rv);
     if (!curDraftIdURL.IsEmpty()) {
       nsCOMPtr<nsIMsgDBHdr> draftHdr;
-      rv = GetMsgDBHdrFromURI(curDraftIdURL.get(), getter_AddRefs(draftHdr));
+      rv = GetMsgDBHdrFromURI(curDraftIdURL, getter_AddRefs(draftHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       draftHdr->GetStringProperty(QUEUED_DISPOSITION_PROPERTY,
                                   getter_Copies(dispositionSetting));
@@ -2938,7 +2935,8 @@ nsresult nsMsgCompose::ProcessReplyFlags() {
       char* uri;
       while (nullptr != (uri = NS_strtok(",", &newStr))) {
         nsCOMPtr<nsIMsgDBHdr> msgHdr;
-        rv = GetMsgDBHdrFromURI(uri, getter_AddRefs(msgHdr));
+        rv =
+            GetMsgDBHdrFromURI(nsDependentCString(uri), getter_AddRefs(msgHdr));
         NS_ENSURE_SUCCESS(rv, rv);
         if (msgHdr) {
           // get the folder for the message resource
@@ -3051,7 +3049,7 @@ NS_IMETHODIMP nsMsgCompose::OnSendNotPerformed(const char* aMsgID,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompose::OnGetDraftFolderURI(const char* aFolderURI) {
+NS_IMETHODIMP nsMsgCompose::OnGetDraftFolderURI(const nsACString& aFolderURI) {
   m_folderName = aFolderURI;
   nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
@@ -3243,7 +3241,8 @@ nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,
   return rv;
 }
 
-nsresult nsMsgComposeSendListener::OnGetDraftFolderURI(const char* aFolderURI) {
+nsresult nsMsgComposeSendListener::OnGetDraftFolderURI(
+    const nsACString& aFolderURI) {
   nsresult rv;
   nsCOMPtr<nsIMsgSendListener> composeSendListener =
       do_QueryReferent(mWeakComposeObj, &rv);
@@ -3316,7 +3315,7 @@ nsresult nsMsgComposeSendListener::GetMsgFolder(nsIMsgCompose* compObj,
                                                 nsIMsgFolder** msgFolder) {
   nsCString folderUri;
 
-  nsresult rv = compObj->GetSavedFolderURI(getter_Copies(folderUri));
+  nsresult rv = compObj->GetSavedFolderURI(folderUri);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return GetOrCreateFolder(folderUri, msgFolder);
@@ -3328,7 +3327,7 @@ nsresult nsMsgComposeSendListener::RemoveDraftOrTemplate(nsIMsgCompose* compObj,
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> msgFolder;
   nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
-  rv = GetMsgDBHdrFromURI(msgURI.get(), getter_AddRefs(msgDBHdr));
+  rv = GetMsgDBHdrFromURI(msgURI, getter_AddRefs(msgDBHdr));
   NS_ASSERTION(
       NS_SUCCEEDED(rv),
       "RemoveDraftOrTemplate can't get msg header DB interface pointer");
@@ -3430,7 +3429,7 @@ nsresult nsMsgComposeSendListener::RemoveCurrentDraftMessage(
   if (NS_FAILED(rv) || !compFields) return rv;
 
   nsCString curDraftIdURL;
-  rv = compFields->GetDraftId(getter_Copies(curDraftIdURL));
+  rv = compFields->GetDraftId(curDraftIdURL);
 
   // Skip if no draft id (probably a new draft msg).
   if (NS_SUCCEEDED(rv) && !curDraftIdURL.IsEmpty()) {
@@ -3442,7 +3441,7 @@ nsresult nsMsgComposeSendListener::RemoveCurrentDraftMessage(
 
   if (isSaveTemplate) {
     nsCString templateIdURL;
-    rv = compFields->GetTemplateId(getter_Copies(templateIdURL));
+    rv = compFields->GetTemplateId(templateIdURL);
     if (NS_SUCCEEDED(rv) && !templateIdURL.Equals(curDraftIdURL)) {
       // Above we deleted an auto-saved draft, so here we need to delete
       // the original template.
@@ -3476,8 +3475,8 @@ nsresult nsMsgComposeSendListener::RemoveCurrentDraftMessage(
         nsCString newDraftIdURL;
         rv = savedToFolder->GenerateMessageURI(newUid, newDraftIdURL);
         NS_ENSURE_SUCCESS(rv, rv);
-        compFields->SetDraftId(newDraftIdURL.get());
-        if (isSaveTemplate) compFields->SetTemplateId(newDraftIdURL.get());
+        compFields->SetDraftId(newDraftIdURL);
+        if (isSaveTemplate) compFields->SetTemplateId(newDraftIdURL);
       }
     }
   }

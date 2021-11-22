@@ -518,8 +518,8 @@ interface nsIMsgFolder : nsISupports {
   /// an nsIFile corresponding to the .msf file.
   readonly attribute nsIFile summaryFile;
 
-  readonly attribute ACString baseMessageURI;
-  ACString generateMessageURI(in nsMsgKey msgKey);
+  readonly attribute AUTF8String baseMessageURI;
+  AUTF8String generateMessageURI(in nsMsgKey msgKey);
 
   const nsMsgDispositionState nsMsgDispositionState_None = -1;
   const nsMsgDispositionState nsMsgDispositionState_Replied = 0;
@@ -621,7 +621,7 @@ interface nsIMsgFolder : nsISupports {
 
   void downloadMessagesForOffline(in Array<nsIMsgDBHdr> messages,
                                   in nsIMsgWindow window);
-  nsIMsgFolder getChildWithURI(in ACString uri, in boolean deep,
+  nsIMsgFolder getChildWithURI(in AUTF8String uri, in boolean deep,
                                in boolean caseInsensitive);
   void downloadAllForOffline(in nsIUrlListener listener, in nsIMsgWindow window);
   /**

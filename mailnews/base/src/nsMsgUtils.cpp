@@ -148,14 +148,14 @@ nsresult GetMessageServiceFromURI(const nsACString& uri,
   return rv;
 }
 
-nsresult GetMsgDBHdrFromURI(const char* uri, nsIMsgDBHdr** msgHdr) {
+nsresult GetMsgDBHdrFromURI(const nsACString& uri, nsIMsgDBHdr** msgHdr) {
   nsCOMPtr<nsIMsgMessageService> msgMessageService;
-  nsresult rv = GetMessageServiceFromURI(nsDependentCString(uri),
-                                         getter_AddRefs(msgMessageService));
+  nsresult rv =
+      GetMessageServiceFromURI(uri, getter_AddRefs(msgMessageService));
   NS_ENSURE_SUCCESS(rv, rv);
   if (!msgMessageService) return NS_ERROR_FAILURE;
 
-  return msgMessageService->MessageURIToMsgHdr(nsDependentCString(uri), msgHdr);
+  return msgMessageService->MessageURIToMsgHdr(uri, msgHdr);
 }
 
 // Where should this live? It's a utility used to convert a string priority,

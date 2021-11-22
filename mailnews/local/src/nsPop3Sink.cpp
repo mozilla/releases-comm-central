@@ -630,8 +630,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     // header from the old.
     if (!m_origMessageUri.IsEmpty() && localFolder) {
       nsCOMPtr<nsIMsgDBHdr> oldMsgHdr;
-      rv =
-          GetMsgDBHdrFromURI(m_origMessageUri.get(), getter_AddRefs(oldMsgHdr));
+      rv = GetMsgDBHdrFromURI(m_origMessageUri, getter_AddRefs(oldMsgHdr));
       if (NS_SUCCEEDED(rv) && oldMsgHdr)
         localFolder->UpdateNewMsgHdr(oldMsgHdr, hdr);
     }

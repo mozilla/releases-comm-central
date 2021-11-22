@@ -163,7 +163,7 @@ interface nsIMsgIncomingServer : nsISupports {
   readonly attribute nsIMsgPluggableStore msgStore;
 
   /* the RDF URI for the root mail folder */
-  readonly attribute ACString serverURI;
+  readonly attribute AUTF8String serverURI;
 
   /* the root folder for this server, even if server is deferred */
   attribute nsIMsgFolder rootFolder;
@@ -490,7 +490,7 @@ interface nsIMsgIncomingServer : nsISupports {
   readonly attribute nsISpamSettings spamSettings;
   readonly attribute nsIMsgFilterPlugin spamFilterPlugin;
 
-  nsIMsgFolder getMsgFolderFromURI(in nsIMsgFolder aFolderResource, in ACString aURI);
+  nsIMsgFolder getMsgFolderFromURI(in nsIMsgFolder aFolderResource, in AUTF8String aURI);
 
   /// Indicates if any other server has deferred storage to this account.
   readonly attribute boolean isDeferredTo;
