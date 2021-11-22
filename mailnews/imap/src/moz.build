@@ -33,6 +33,7 @@ FINAL_LIBRARY = "mail"
 
 LOCAL_INCLUDES += [
     # for nsImapProtocol.cpp
+    "!/ipc/ipdl/_ipdlheaders",
     "/ipc/chromium/src",
     "/netwerk/base",
 ]
