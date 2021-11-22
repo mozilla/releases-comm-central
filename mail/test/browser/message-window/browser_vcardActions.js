@@ -11,58 +11,97 @@
 var { get_cards_in_all_address_books_for_email } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
-var { open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var {
   close_window,
   plan_for_modal_dialog,
   wait_for_modal_dialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
+async function openMessageFromFile(file) {
+  let fileURL = Services.io
+    .newFileURI(file)
+    .mutate()
+    .setQuery("type=application/x-message-display")
+    .finalize();
+
+  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  window.openDialog(
+    "chrome://messenger/content/messageWindow.xhtml",
+    "_blank",
+    "all,chrome,dialog=no,status,toolbar",
+    fileURL
+  );
+  let win = await winPromise;
+
+  let browser = win.document.getElementById("messagepane");
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(browser);
+  }
+
+  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
+  await TestUtils.waitForCondition(
+    () => Services.focus.focusedWindow == browser.contentWindow
+  );
+  // Even after waiting for all these things the message may not be ready for
+  // clicking on. I wish I knew why.
+  await new Promise(resolve => win.setTimeout(resolve, 1000));
+  return win;
+}
+
 /**
  * Bug 1374779
- * Check if clicking attached vcard image opens new card dialog and adds a contact.
+ * Check if clicking attached vCard image opens the Address Book and adds a contact.
  */
 add_task(async function test_check_vcard_icon() {
-  let file = new FileUtils.File(getTestFilePath("data/test-vcard-icon.eml"));
-  let msgc = await open_message_from_file(file);
-
   let newcards = get_cards_in_all_address_books_for_email(
     "meister@example.com"
   );
-  Assert.equal(newcards.length, 0);
+  Assert.equal(newcards.length, 0, "card does not exist at the start");
+
+  let tabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
+
+  let file = new FileUtils.File(getTestFilePath("data/test-vcard-icon.eml"));
+  let messageWindow = await openMessageFromFile(file);
+  messageWindow.moveBy(10, 0);
 
   // Click icon on the vcard block.
-  let vcard = msgc
-    .e("messagepane")
-    .contentDocument.querySelector(".moz-vcard-badge");
+  let messagePane = messageWindow.document.getElementById("messagepane");
+  let vcard = messagePane.contentDocument.querySelector(".moz-vcard-badge");
+  EventUtils.synthesizeMouseAtCenter(vcard, {}, messagePane.contentWindow);
 
-  msgc.click(vcard);
+  await tabPromise;
+  await TestUtils.waitForCondition(
+    () => Services.focus.activeWindow == window,
+    "the main window was focused"
+  );
 
   let tabmail = document.getElementById("tabmail");
-  await TestUtils.waitForCondition(
-    () =>
-      Services.focus.focusedWindow == window &&
-      tabmail.currentTabInfo.mode.name == "addressBookTab",
+  Assert.equal(
+    tabmail.currentTabInfo.mode.name,
+    "addressBookTab",
     "the Address Book tab opened"
   );
 
   let abWindow = tabmail.currentTabInfo.browser.contentWindow;
-  let saveEditButton = await TestUtils.waitForCondition(() =>
-    abWindow.document.getElementById("saveEditButton")
+  let saveEditButton = await TestUtils.waitForCondition(
+    () => abWindow.document.getElementById("saveEditButton"),
+    "Address Book page properly loaded"
   );
-  await TestUtils.waitForCondition(() =>
-    BrowserTestUtils.is_visible(saveEditButton)
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.is_visible(saveEditButton),
+    "entered edit mode"
   );
-  // TODO check the card
   saveEditButton.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
 
   // Check new card was created from the vcard.
-  // newcards = get_cards_in_all_address_books_for_email("meister@example.com");
-  // Assert.equal(newcards.length, 1);
+  newcards = get_cards_in_all_address_books_for_email("meister@example.com");
+  Assert.equal(newcards.length, 1, "card created");
+  Assert.equal(newcards[0].displayName, "Meister", "display name saved");
 
   tabmail.closeTab(tabmail.currentTabInfo);
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(messageWindow);
 });
