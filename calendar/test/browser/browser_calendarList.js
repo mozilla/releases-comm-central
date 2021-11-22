@@ -3,6 +3,14 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 async function calendarListContextMenu(target, menuItem) {
+  info("focused window is " + Services.focus.activeWindow?.location.href);
+  if (Services.focus.activeWindow != window) {
+    info("we're not focused!");
+    let p = BrowserTestUtils.waitForEvent(window, "activate");
+    window.focus();
+    await p;
+  }
+
   // The test frequently times out if we don't wait here. Unknown why.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(r => setTimeout(r, 250));
@@ -64,7 +72,7 @@ add_task(async () => {
 
   function checkDisplayed(...expected) {
     let calendarList = document.getElementById("calendar-list");
-    Assert.ok(calendarList.rowCount > Math.max(...expected));
+    Assert.greater(calendarList.rowCount, Math.max(...expected));
     for (let i = 0; i < calendarList.rowCount; i++) {
       Assert.equal(
         calendarList.rows[i].querySelector(".calendar-displayed").checked,
