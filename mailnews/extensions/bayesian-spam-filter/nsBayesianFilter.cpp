@@ -651,7 +651,7 @@ static char_class getCharClass(char16_t c) {
 
 static bool isJapanese(const char* word) {
   nsString text = NS_ConvertUTF8toUTF16(word);
-  char16_t* p = (char16_t*)text.get();
+  const char16_t* p = (const char16_t*)text.get();
   char16_t c;
 
   // it is japanese chunk if it contains any hiragana or katakana.
