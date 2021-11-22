@@ -1752,6 +1752,8 @@ function gotoIRCURL(url, e)
 
     let isSecure = url.scheme == "ircs";
     let network;
+    // Make sure host is in lower case.
+    url.host = url.host.toLowerCase();
 
     // Convert a request for a server to a network if we know it.
     if (url.isserver)
@@ -1778,11 +1780,12 @@ function gotoIRCURL(url, e)
         }
     }
 
+    let name = url.host;
+    network = client.getNetwork(name);
+
     if (url.isserver)
     {
-        var name = url.host.toLowerCase();
         let found = false;
-        network = client.getNetwork(name);
         if (network) {
           for (let s in network.servers) {
             let server = network.servers[s];
@@ -1814,10 +1817,9 @@ function gotoIRCURL(url, e)
     else
     {
         // There is no network called this, sorry.
-        network = client.getNetwork(url.host);
         if (!network)
         {
-            display(getMsg(MSG_ERR_UNKNOWN_NETWORK, url.host));
+            display(getMsg(MSG_ERR_UNKNOWN_NETWORK, name));
             return;
         }
     }

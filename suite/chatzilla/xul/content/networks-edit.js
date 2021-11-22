@@ -51,7 +51,7 @@ var gNetworkWindow = {
       return null;
     }
 
-    return rv.value.trim();
+    return rv.value.toLowerCase().trim();
   },
 
   refreshNetworks: function(aNetwork) {
