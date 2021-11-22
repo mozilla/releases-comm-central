@@ -101,14 +101,12 @@ add_task(async function test_selection_select_column_deselection() {
   mc.e("selectCol").setAttribute("hidden", true);
 });
 
-// https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c87 last bit
 add_task(function test_selection_last_message_deleted() {
   be_in_folder(folder);
   select_click_row(-1);
   press_delete();
   assert_selected_and_displayed(-1);
-}).__skipMe =
-  AppConstants.platform == "linux" || AppConstants.platform == "macosx";
+});
 
 add_task(function test_selection_persists_through_threading_changes() {
   be_in_folder(folder);

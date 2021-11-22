@@ -1234,8 +1234,6 @@ function _row_click_helper(
 ) {
   // Force-focus the tree
   aTree.focus();
-  // very important, gotta be able to see the row
-  aTree.ensureRowIsVisible(aViewIndex);
   // coordinates of the upper left of the entire tree widget (headers included)
   let treeRect = aTree.getBoundingClientRect();
   let tx = treeRect.x,
@@ -1259,6 +1257,8 @@ function _row_click_helper(
       rowX += 32;
     }
   }
+  // Very important, gotta be able to see the row.
+  aTree.ensureRowIsVisible(aViewIndex);
   let rowY =
     aTree.rowHeight * (aViewIndex - aTree.getFirstVisibleRow()) +
     aTree.rowHeight / 2;
