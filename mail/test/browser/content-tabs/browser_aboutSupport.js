@@ -190,6 +190,7 @@ add_task(function test_display_about_support() {
     "crashes-tbody",
     "processes-tbody",
     "support-printing-prefs-tbody",
+    "chat-tbody",
   ]; // some tables may be empty
   for (let table of tables) {
     if (!emptyTables.includes(table.id)) {

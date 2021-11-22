@@ -128,6 +128,18 @@ IMIncomingServer.prototype = {
     let prefName = "messenger.account." + this.imAccount.id + ".autoJoin";
     Services.prefs.setStringPref(prefName, aAutoJoin);
   },
+  get autologin() {
+    try {
+      let prefName = "messenger.account." + this.imAccount.id + ".autoLogin";
+      return Services.prefs.getBoolPref(prefName);
+    } catch (e) {
+      return false;
+    }
+  },
+  set autologin(aAutoLogin) {
+    let prefName = "messenger.account." + this.imAccount.id + ".autoLogin";
+    Services.prefs.setBoolPref(prefName, aAutoLogin);
+  },
 
   // This is used for user-visible advanced preferences.
   setUnicharValue(aPrefName, aValue) {
@@ -161,9 +173,15 @@ IMIncomingServer.prototype = {
     }
   },
   setBoolValue(aPrefName, aValue) {
+    if (aPrefName == "autologin") {
+      this.autologin = aValue;
+    }
     this.imAccount.setBool(aPrefName, aValue);
   },
   getBoolValue(aPrefName) {
+    if (aPrefName == "autologin") {
+      return this.autologin;
+    }
     try {
       let prefName =
         "messenger.account." + this.imAccount.id + ".options." + aPrefName;

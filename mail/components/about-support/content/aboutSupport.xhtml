@@ -32,8 +32,10 @@
 <!-- Added for TB -->
     <link rel="localization" href="messenger/aboutSupportMail.ftl"/>
     <link rel="localization" href="messenger/aboutSupportCalendar.ftl"/>
+    <link rel="localization" href="messenger/aboutSupportChat.ftl"/>
     <script src="chrome://messenger/content/about-support/accounts.js"/>
     <script src="chrome://messenger/content/about-support/calendars.js"/>
+    <script src="chrome://messenger/content/about-support/chat.js"/>
     <script src="chrome://messenger/content/about-support/export.js"/>
 <!-- End of TB addition -->
   </head>
@@ -379,6 +381,30 @@
         <tr>
           <td></td>
           <td></td>
+        </tr>
+      </template>
+
+      <h2 class="major-section no-copy" data-l10n-id="chat-title"></h2>
+
+      <table class="no-copy" id="chat-table">
+        <thead>
+          <tr>
+            <th data-l10n-id="chat-table-heading-account"></th>
+            <th data-l10n-id="chat-table-heading-protocol"></th>
+            <th data-l10n-id="chat-table-heading-name" class="data-private"></th>
+            <th data-l10n-id="chat-table-heading-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="chat-tbody">
+        </tbody>
+      </table>
+
+      <template id="chat-table-row-template">
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="data-private"></td>
+          <td><button class="button" type="button" data-l10n-id="chat-table-copy-debug-log"></button></td>
         </tr>
       </template>
 
