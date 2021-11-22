@@ -13,9 +13,7 @@
 #include "nsMsgMimeCID.h"
 #include "mozilla/Attributes.h"
 #include "nsStringEnumerator.h"
-#ifdef DEBUG
-#  include "nsPrintfCString.h"
-#endif
+
 using namespace mozilla::mailnews;
 
 NS_IMPL_ISUPPORTS(nsMsgHdr, nsIMsgDBHdr)
@@ -437,16 +435,7 @@ NS_IMETHODIMP nsMsgHdr::GetMessageOffset(uint64_t* result) {
   // if there is a message offset, use it, otherwise, we'll use the message key.
   (void)GetUInt64Column(m_mdb->m_offlineMsgOffsetColumnToken, result,
                         (unsigned)-1);
-  if (*result == (unsigned)-1) {
-#ifdef DEBUG
-    nsCString tok;
-    GetStringProperty("storeToken", getter_Copies(tok));
-    nsPrintfCString err("missing .messageOffset (key=%u, storeToken='%s')",
-                        m_messageKey, tok.get());
-    NS_ERROR(err.get());
-#endif
-    return NS_ERROR_FAILURE;
-  }
+  if (*result == (unsigned)-1) *result = m_messageKey;
   return NS_OK;
 }
 
