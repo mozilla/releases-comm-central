@@ -1519,8 +1519,10 @@ mime_stream_data* GetMSD(MimeDisplayOptions* opt) {
 }
 
 bool NoEmitterProcessing(nsMimeOutputType format_out) {
-  if ((format_out == nsMimeOutput::nsMimeMessageDraftOrTemplate) ||
-      (format_out == nsMimeOutput::nsMimeMessageEditorTemplate))
+  if (format_out == nsMimeOutput::nsMimeMessageDraftOrTemplate ||
+      format_out == nsMimeOutput::nsMimeMessageEditorTemplate ||
+      format_out == nsMimeOutput::nsMimeMessageQuoting ||
+      format_out == nsMimeOutput::nsMimeMessageBodyQuoting)
     return true;
   else
     return false;

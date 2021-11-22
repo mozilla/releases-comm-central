@@ -368,16 +368,10 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
     headerSink->HandleAttachment(
         contentType, nsDependentCString(url) /* was escapedUrl */,
         unicodeHeaderValue.get(), uriString, aIsExternalAttachment);
-
-    mSkipAttachment = false;
-
-    // List the attachments for printing.
-    rv = StartAttachmentInBody(name, contentType, url);
-  } else {
-    // If we don't need or cannot broadcast attachment info, just ignore it
-    mSkipAttachment = true;
-    rv = NS_OK;
   }
+
+  // List the attachments for printing.
+  rv = StartAttachmentInBody(name, contentType, url);
 
   return rv;
 }
