@@ -57,24 +57,31 @@ add_task(function setupModule(module) {
   // out of order to properly test the alphabetical
   // ordering of the address books.
   ldapBook = create_ldap_address_book("LDAP Book");
+  abController.sleep(100);
   addrBook3 = create_address_book("AB 3");
+  abController.sleep(100);
   addrBook1 = create_address_book("AB 1");
+  abController.sleep(100);
   addrBook4 = create_address_book("AB 4");
+  abController.sleep(100);
   addrBook2 = create_address_book("AB 2");
-
-  abController.sleep();
+  abController.sleep(100);
 
   mListA = create_mailing_list("ML A");
   addrBook1.addMailList(mListA);
+  abController.sleep(100);
 
   mListB = create_mailing_list("ML B");
   addrBook2.addMailList(mListB);
+  abController.sleep(100);
 
   mListC = create_mailing_list("ML C");
   addrBook3.addMailList(mListC);
+  abController.sleep(100);
 
   mListD = create_mailing_list("ML D");
   addrBook3.addMailList(mListD);
+  abController.sleep(100);
 
   // There are 8 address books (All, Personal, AB 1, AB 2, AB 3, AB 4, LDAP Book
   // and Collected Address Book) and 4 mailing lists.  So let's ensure that
