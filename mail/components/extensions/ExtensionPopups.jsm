@@ -436,6 +436,7 @@ class ViewPopup extends BasePopup {
       if (remote) {
         panel.setAttribute("remote", "true");
       }
+      panel.setAttribute("neverhidden", "true");
 
       document.getElementById("mainPopupSet").appendChild(panel);
       return panel;
