@@ -259,8 +259,8 @@
 
 :is(calendar-day-view, calendar-week-view):not([hidden]) {
   display: grid;
-  min-height: 100%;
-  min-width: 100%;
+  height: 0;
+  width: 0;
 }
 
 .multiday-grid {
