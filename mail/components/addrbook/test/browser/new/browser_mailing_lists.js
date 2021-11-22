@@ -464,5 +464,5 @@ add_task(async () => {
 
   Assert.ok(!addressBook, "address book was deleted");
 
-  global.abWindow.close();
+  closeAddressBookWindow();
 });
