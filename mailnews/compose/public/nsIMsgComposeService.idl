@@ -130,7 +130,7 @@ interface nsIMsgComposeService : nsISupports {
    * @param msgWindow message window to use
    * @param server server to use for determining which account to send from
    */
-  void replyWithTemplate(in nsIMsgDBHdr msgHdr, in string templateUri,
+  void replyWithTemplate(in nsIMsgDBHdr msgHdr, in AUTF8String templateUri,
                          in nsIMsgWindow msgWindow, in nsIMsgIncomingServer server);
 
   /**

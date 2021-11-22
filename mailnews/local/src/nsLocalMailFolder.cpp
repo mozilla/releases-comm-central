@@ -2812,9 +2812,9 @@ nsMsgLocalMailFolder::OnStartRunningUrl(nsIURI* aUrl) {
       nsCOMPtr<nsIPop3Sink> popsink;
       rv = popurl->GetPop3Sink(getter_AddRefs(popsink));
       if (NS_SUCCEEDED(rv)) {
-        popsink->SetBaseMessageUri(mBaseMessageURI.get());
+        popsink->SetBaseMessageUri(mBaseMessageURI);
         nsCString messageuri;
-        popurl->GetMessageUri(getter_Copies(messageuri));
+        popurl->GetMessageUri(messageuri);
         popsink->SetOrigMessageUri(messageuri);
       }
     }
@@ -2849,7 +2849,7 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
       nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(aUrl, &rv);
       if (NS_SUCCEEDED(rv)) {
         nsCString messageuri;
-        rv = popurl->GetMessageUri(getter_Copies(messageuri));
+        rv = popurl->GetMessageUri(messageuri);
         if (NS_SUCCEEDED(rv)) {
           NS_ENSURE_SUCCESS(rv, rv);
           nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
@@ -2864,7 +2864,7 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           nsCString newMessageUri;
           rv = popurl->GetPop3Sink(getter_AddRefs(pop3sink));
           if (NS_SUCCEEDED(rv)) {
-            pop3sink->GetMessageUri(getter_Copies(newMessageUri));
+            pop3sink->GetMessageUri(newMessageUri);
             if (msgWindow) {
               nsCOMPtr<nsIMsgWindowCommands> windowCommands;
               msgWindow->GetWindowCommands(getter_AddRefs(windowCommands));

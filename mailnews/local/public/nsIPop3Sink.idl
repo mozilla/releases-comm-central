@@ -13,13 +13,13 @@ interface nsIURI;
 interface nsIPop3Sink : nsISupports {
 
   attribute boolean userAuthenticated;
-  attribute ACString mailAccountURL;
+  attribute AUTF8String mailAccountURL;
   attribute boolean buildMessageUri;
-  attribute string messageUri;
-  attribute string baseMessageUri;
+  attribute AUTF8String messageUri;
+  attribute AUTF8String baseMessageUri;
 
   /// message uri for header-only message version
-  attribute ACString origMessageUri;
+  attribute AUTF8String origMessageUri;
 
   boolean beginMailDelivery(in boolean uidlDownload, in nsIMsgWindow msgWindow);
   void endMailDelivery(in nsIPop3Protocol protocol);

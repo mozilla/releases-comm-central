@@ -378,7 +378,7 @@ nsresult nsPop3Service::NewURI(const nsACString& aSpec,
   if (offset != kNotFound) messageUri.Replace(offset, 8, "#");
   offset = messageUri.FindChar('&');
   if (offset != kNotFound) messageUri.SetLength(offset);
-  popurl->SetMessageUri(messageUri.get());
+  popurl->SetMessageUri(messageUri);
   nsCOMPtr<nsIPop3Sink> pop3Sink;
   rv = popurl->GetPop3Sink(getter_AddRefs(pop3Sink));
   NS_ENSURE_SUCCESS(rv, rv);

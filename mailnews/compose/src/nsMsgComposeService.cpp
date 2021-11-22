@@ -393,7 +393,7 @@ nsMsgComposeService::OpenComposeWindow(
         type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft
             ? nsMimeOutput::nsMimeMessageDraftOrTemplate
             : nsMimeOutput::nsMimeMessageEditorTemplate,
-        identity, PromiseFlatCString(originalMsgURI).get(), origMsgHdr,
+        identity, originalMsgURI, origMsgHdr,
         type == nsIMsgCompType::ForwardInline,
         format == nsIMsgCompFormat::OppositeOfDefault, aMsgWindow);
   }
@@ -826,12 +826,13 @@ nsMsgTemplateReplyHelper::OnDataAvailable(nsIRequest* request,
 }
 
 NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
-    nsIMsgDBHdr* aMsgHdr, const char* templateUri, nsIMsgWindow* aMsgWindow,
-    nsIMsgIncomingServer* aServer) {
+    nsIMsgDBHdr* aMsgHdr, const nsACString& templateUri,
+    nsIMsgWindow* aMsgWindow, nsIMsgIncomingServer* aServer) {
   // To reply with template, we need the message body of the template.
   // I think we're going to need to stream the template message to ourselves,
   // and construct the body, and call setBody on the compFields.
   nsresult rv;
+  const nsPromiseFlatCString& templateUriFlat = PromiseFlatCString(templateUri);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -881,16 +882,16 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   nsCOMPtr<nsIMsgFolder> templateFolder;
   nsCOMPtr<nsIMsgDatabase> templateDB;
   nsCString templateMsgHdrUri;
-  const char* query = PL_strstr(templateUri, "?messageId=");
+  const char* query = PL_strstr(templateUriFlat.get(), "?messageId=");
   if (!query) return NS_ERROR_FAILURE;
 
-  nsAutoCString folderUri(Substring(templateUri, query));
+  nsAutoCString folderUri(Substring(templateUriFlat.get(), query));
   rv = GetExistingFolder(folderUri, getter_AddRefs(templateFolder));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = templateFolder->GetMsgDatabase(getter_AddRefs(templateDB));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  const char* subject = PL_strstr(templateUri, "&subject=");
+  const char* subject = PL_strstr(templateUriFlat.get(), "&subject=");
   if (subject) {
     const char* subjectEnd = subject + strlen(subject);
     nsAutoCString messageId(Substring(query + 11, subject));
@@ -988,7 +989,7 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
   if (aForwardType == nsIMsgComposeService::kForwardInline)
     return RunMessageThroughMimeDraft(
         uriToOpen, nsMimeOutput::nsMimeMessageDraftOrTemplate, identity,
-        uriToOpen.get(), aMsgHdr, true, forwardTo, false, aMsgWindow);
+        uriToOpen, aMsgHdr, true, forwardTo, false, aMsgWindow);
 
   nsCOMPtr<mozIDOMWindowProxy> parentWindow;
   if (aMsgWindow) {
@@ -1213,7 +1214,7 @@ nsMsgComposeService::GetMsgComposeForDocShell(nsIDocShell* aDocShell,
  */
 nsresult nsMsgComposeService::LoadDraftOrTemplate(
     const nsACString& aMsgURI, nsMimeOutputType aOutType,
-    nsIMsgIdentity* aIdentity, const char* aOriginalMsgURI,
+    nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,
     nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, bool overrideComposeFormat,
     nsIMsgWindow* aMsgWindow) {
   return RunMessageThroughMimeDraft(
@@ -1246,7 +1247,7 @@ nsresult nsMsgComposeService::LoadDraftOrTemplate(
  */
 nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
     const nsACString& aMsgURI, nsMimeOutputType aOutType,
-    nsIMsgIdentity* aIdentity, const char* aOriginalMsgURI,
+    nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,
     nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, const nsAString& aForwardTo,
     bool aOverrideComposeFormat, nsIMsgWindow* aMsgWindow) {
   nsCOMPtr<nsIMsgMessageService> messageService;
@@ -1280,7 +1281,7 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
     mailboxUri.AppendLiteral("&number=0");
     // Need this to prevent nsMsgCompose::TagEmbeddedObjects from setting
     // inline images as moz-do-not-send.
-    mimeConverter->SetOriginalMsgURI(mailboxUri.get());
+    mimeConverter->SetOriginalMsgURI(mailboxUri);
   }
   if (fileUrl || PromiseFlatCString(aMsgURI).Find(
                      "&type=application/x-message-display") >= 0)

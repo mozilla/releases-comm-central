@@ -40,14 +40,14 @@ class nsMsgComposeService : public nsIMsgComposeService,
   nsresult LoadDraftOrTemplate(const nsACString& aMsgURI,
                                nsMimeOutputType aOutType,
                                nsIMsgIdentity* aIdentity,
-                               const char* aOriginalMsgURI,
+                               const nsACString& aOriginalMsgURI,
                                nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline,
                                bool overrideComposeFormat,
                                nsIMsgWindow* aMsgWindow);
 
   nsresult RunMessageThroughMimeDraft(
       const nsACString& aMsgURI, nsMimeOutputType aOutType,
-      nsIMsgIdentity* aIdentity, const char* aOriginalMsgURI,
+      nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,
       nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, const nsAString& forwardTo,
       bool overrideComposeFormat, nsIMsgWindow* aMsgWindow);
 

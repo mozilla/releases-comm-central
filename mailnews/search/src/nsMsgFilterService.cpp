@@ -884,7 +884,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
               do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
           BREAK_ACTION_IF_FAILURE(rv, "Could not get compose service");
           for (auto msgHdr : m_searchHitHdrs) {
-            rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri.get(),
+            rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,
                                                 m_msgWindow, server);
             if (NS_FAILED(rv)) {
               if (rv == NS_ERROR_ABORT) {

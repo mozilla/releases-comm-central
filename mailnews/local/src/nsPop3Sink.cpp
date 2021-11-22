@@ -708,31 +708,27 @@ nsPop3Sink::SetBuildMessageUri(bool bVal) {
 }
 
 NS_IMETHODIMP
-nsPop3Sink::GetMessageUri(char** messageUri) {
-  NS_ENSURE_ARG_POINTER(messageUri);
+nsPop3Sink::GetMessageUri(nsACString& messageUri) {
   NS_ENSURE_TRUE(!m_messageUri.IsEmpty(), NS_ERROR_FAILURE);
-  *messageUri = ToNewCString(m_messageUri);
+  messageUri = m_messageUri;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Sink::SetMessageUri(const char* messageUri) {
-  NS_ENSURE_ARG_POINTER(messageUri);
+nsPop3Sink::SetMessageUri(const nsACString& messageUri) {
   m_messageUri = messageUri;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Sink::GetBaseMessageUri(char** baseMessageUri) {
-  NS_ENSURE_ARG_POINTER(baseMessageUri);
+nsPop3Sink::GetBaseMessageUri(nsACString& baseMessageUri) {
   NS_ENSURE_TRUE(!m_baseMessageUri.IsEmpty(), NS_ERROR_FAILURE);
-  *baseMessageUri = ToNewCString(m_baseMessageUri);
+  baseMessageUri = m_baseMessageUri;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Sink::SetBaseMessageUri(const char* baseMessageUri) {
-  NS_ENSURE_ARG_POINTER(baseMessageUri);
+nsPop3Sink::SetBaseMessageUri(const nsACString& baseMessageUri) {
   m_baseMessageUri = baseMessageUri;
   return NS_OK;
 }

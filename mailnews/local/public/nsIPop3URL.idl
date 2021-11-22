@@ -9,7 +9,7 @@
 [scriptable, uuid(5fb87ae7-a3a0-440a-8b49-6bca42fb7ff2)]
 interface nsIPop3URL : nsISupports {
   attribute nsIPop3Sink pop3Sink;
-  attribute string messageUri;
+  attribute AUTF8String messageUri;
 
   /// Constant for the default POP3 port number
   const int32_t DEFAULT_POP3_PORT = 110;

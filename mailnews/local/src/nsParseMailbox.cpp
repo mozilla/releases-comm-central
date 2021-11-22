@@ -2150,9 +2150,8 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
         nsCOMPtr<nsIMsgComposeService> compService =
             do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID);
         if (compService) {
-          rv = compService->ReplyWithTemplate(m_msgToForwardOrReply,
-                                              m_replyTemplateUri[i].get(),
-                                              msgWindow, server);
+          rv = compService->ReplyWithTemplate(
+              m_msgToForwardOrReply, m_replyTemplateUri[i], msgWindow, server);
           if (NS_FAILED(rv)) {
             NS_WARNING("ReplyWithTemplate failed");
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,

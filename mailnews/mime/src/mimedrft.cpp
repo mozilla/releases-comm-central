@@ -91,7 +91,6 @@ mime_draft_data::mime_draft_data()
       forwardInline(false),
       forwardInlineFilter(false),
       overrideComposeFormat(false),
-      originalMsgURI(nullptr),
       autodetectCharset(false) {}
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +167,7 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
                              MSG_ComposeType composeType,
                              MSG_ComposeFormat composeFormat,
                              nsIMsgIdentity* identity,
-                             const char* originalMsgURI,
+                             const nsACString& originalMsgURI,
                              nsIMsgDBHdr* origMsgHdr) {
 #ifdef NS_DEBUG
   mime_dump_attachments(attachmentList);
@@ -237,8 +236,8 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
   pMsgComposeParams->SetFormat(format);
   pMsgComposeParams->SetIdentity(identity);
   pMsgComposeParams->SetComposeFields(compFields);
-  if (originalMsgURI)
-    pMsgComposeParams->SetOriginalMsgURI(nsDependentCString(originalMsgURI));
+  if (!originalMsgURI.IsEmpty())
+    pMsgComposeParams->SetOriginalMsgURI(originalMsgURI);
   if (origMsgHdr) pMsgComposeParams->SetOrigMsgHdr(origMsgHdr);
   return NS_OK;
 }
@@ -248,7 +247,7 @@ nsresult CreateTheComposeWindow(nsIMsgCompFields* compFields,
                                 MSG_ComposeType composeType,
                                 MSG_ComposeFormat composeFormat,
                                 nsIMsgIdentity* identity,
-                                const char* originalMsgURI,
+                                const nsACString& originalMsgURI,
                                 nsIMsgDBHdr* origMsgHdr) {
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams;
   nsresult rv = CreateComposeParams(pMsgComposeParams, compFields,
@@ -267,7 +266,8 @@ nsresult CreateTheComposeWindow(nsIMsgCompFields* compFields,
 nsresult ForwardMsgInline(nsIMsgCompFields* compFields,
                           nsMsgAttachmentData* attachmentList,
                           MSG_ComposeFormat composeFormat,
-                          nsIMsgIdentity* identity, const char* originalMsgURI,
+                          nsIMsgIdentity* identity,
+                          const nsACString& originalMsgURI,
                           nsIMsgDBHdr* origMsgHdr) {
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams;
   nsresult rv =
@@ -1570,7 +1570,7 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
 #endif
         CreateTheComposeWindow(fields, newAttachData, nsIMsgCompType::Template,
                                nsIMsgCompFormat::Default, mdd->identity,
-                               nullptr, mdd->origMsgHdr);
+                               EmptyCString(), mdd->origMsgHdr);
       } else {
 #ifdef NS_DEBUG
         printf("Time to create the composition window WITHOUT a body!!!!\n");
@@ -1587,7 +1587,7 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
           fields->SetDraftId(nsDependentCString(mdd->url_name));
           CreateTheComposeWindow(fields, newAttachData, nsIMsgCompType::Draft,
                                  nsIMsgCompFormat::Default, mdd->identity,
-                                 nullptr, mdd->origMsgHdr);
+                                 EmptyCString(), mdd->origMsgHdr);
         }
       }
     }
@@ -1597,8 +1597,8 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
                             getter_AddRefs(fields));
     if (fields)
       CreateTheComposeWindow(fields, newAttachData, nsIMsgCompType::New,
-                             nsIMsgCompFormat::Default, mdd->identity, nullptr,
-                             mdd->origMsgHdr);
+                             nsIMsgCompFormat::Default, mdd->identity,
+                             EmptyCString(), mdd->origMsgHdr);
   }
 
   if (mdd->headers) MimeHeaders_free(mdd->headers);
@@ -1622,7 +1622,6 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
 
   mdd->identity = nullptr;
   PR_Free(mdd->url_name);
-  PR_Free(mdd->originalMsgURI);
   mdd->origMsgHdr = nullptr;
   PR_Free(mdd);
 
@@ -2025,7 +2024,7 @@ extern "C" void* mime_bridge_create_draft_stream(
   newPluginObj2->GetForwardToAddress(mdd->forwardToAddress);
   newPluginObj2->GetOverrideComposeFormat(&mdd->overrideComposeFormat);
   newPluginObj2->GetIdentity(getter_AddRefs(mdd->identity));
-  newPluginObj2->GetOriginalMsgURI(&mdd->originalMsgURI);
+  newPluginObj2->GetOriginalMsgURI(mdd->originalMsgURI);
   newPluginObj2->GetOrigMsgHdr(getter_AddRefs(mdd->origMsgHdr));
   mdd->format_out = format_out;
   mdd->options = new MimeDisplayOptions;
@@ -2078,7 +2077,6 @@ extern "C" void* mime_bridge_create_draft_stream(
 FAIL:
   if (mdd) {
     PR_Free(mdd->url_name);
-    PR_Free(mdd->originalMsgURI);
     if (mdd->options) delete mdd->options;
     PR_Free(mdd);
   }

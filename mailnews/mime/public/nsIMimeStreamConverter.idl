@@ -88,6 +88,6 @@ interface nsIMimeStreamConverter : nsISupports {
    * This is used for OpenDraft, OpenEditorTemplate and Forward inline (which use OpenDraft)
    */
   attribute nsIMsgIdentity identity;
-  attribute string originalMsgURI;
+  attribute AUTF8String originalMsgURI;
   attribute nsIMsgDBHdr origMsgHdr;
 };

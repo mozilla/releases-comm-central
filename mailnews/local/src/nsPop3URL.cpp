@@ -36,14 +36,14 @@ nsresult nsPop3URL::GetPop3Sink(nsIPop3Sink** aPop3Sink) {
 }
 
 NS_IMETHODIMP
-nsPop3URL::GetMessageUri(char** aMessageUri) {
-  if (!aMessageUri || m_messageUri.IsEmpty()) return NS_ERROR_NULL_POINTER;
-  *aMessageUri = ToNewCString(m_messageUri);
+nsPop3URL::GetMessageUri(nsACString& aMessageUri) {
+  if (m_messageUri.IsEmpty()) return NS_ERROR_NULL_POINTER;
+  aMessageUri = m_messageUri;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3URL::SetMessageUri(const char* aMessageUri) {
-  if (aMessageUri) m_messageUri = aMessageUri;
+nsPop3URL::SetMessageUri(const nsACString& aMessageUri) {
+  m_messageUri = aMessageUri;
   return NS_OK;
 }

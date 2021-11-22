@@ -3385,8 +3385,8 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             nsCOMPtr<nsIMsgComposeService> compService =
                 do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
             if (NS_SUCCEEDED(rv) && compService) {
-              rv = compService->ReplyWithTemplate(
-                  msgHdr, replyTemplateUri.get(), msgWindow, server);
+              rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri,
+                                                  msgWindow, server);
               if (NS_FAILED(rv)) {
                 NS_WARNING("ReplyWithTemplate failed");
                 if (rv == NS_ERROR_ABORT) {
