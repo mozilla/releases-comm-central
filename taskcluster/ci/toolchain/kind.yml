@@ -51,6 +51,7 @@ reference-jobs:
     - linux64-rust-macos-1.53
     - linux64-rust-size
     - linux64-rust-windows-1.47
+    - linux64-rust-windows-1.56
     - linux64-sccache
     - linux64-toolchain-sysroot
     - linux64-upx
