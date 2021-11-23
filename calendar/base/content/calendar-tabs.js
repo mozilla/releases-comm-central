@@ -362,11 +362,9 @@ var calendarItemTabType = {
 
       aState.args.calendar = cal.getCalendarManager().getCalendarById(aState.calendarId);
       if (aState.args.calendar) {
-        // using wrappedJSObject is a hack that is needed to prevent a proxy error
-        let pcal = cal.async.promisifyCalendar(aState.args.calendar.wrappedJSObject);
-        pcal.getItem(aState.itemId).then(item => {
-          if (item[0]) {
-            aState.args.calendarEvent = item[0];
+        aState.args.calendar.getItem(aState.itemId).then(item => {
+          if (item) {
+            aState.args.calendarEvent = item;
             aTabmail.openTab(aState.tabType, aState.args);
           }
         });

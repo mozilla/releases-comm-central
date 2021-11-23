@@ -195,7 +195,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
         // Since the target calendar's operations are synchronous, we can
         // safely set variables from this function.
         let pcal = cal.async.promisifyCalendar(this.calendar.mOfflineStorage);
-        let foundItem = (await pcal.getItem(this.calendar.mHrefIndex[path]))[0];
+        let foundItem = await this.calendar.mOfflineStorage.getItem(this.calendar.mHrefIndex[path]);
 
         if (foundItem) {
           let wasInboxItem = this.calendar.mItemInfoCache[foundItem.id].isInboxItem;

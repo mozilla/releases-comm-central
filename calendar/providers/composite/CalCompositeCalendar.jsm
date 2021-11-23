@@ -327,18 +327,15 @@ CalCompositeCalendar.prototype = {
     return this.mDefaultCalendar.addItem(aItem, aListener);
   },
 
-  // void getItem( in string aId, in calIOperationListener aListener );
-  getItem(aId, aListener) {
-    let enabledCalendars = this.enabledCalendars;
-    let cmpListener = new calCompositeGetListenerHelper(this, aListener);
-    for (let calendar of enabledCalendars) {
-      try {
-        cmpListener.opGroup.add(calendar.getItem(aId, cmpListener));
-      } catch (exc) {
-        cal.ASSERT(false, exc);
+  // Promise<calIItemBase|null> getItem(in string aId);
+  async getItem(aId) {
+    for (let calendar of this.enabledCalendars) {
+      let item = await calendar.getItem(aId);
+      if (item) {
+        return item;
       }
     }
-    return cmpListener.opGroup;
+    return null;
   },
 
   // void getItems( in unsigned long aItemFilter, in unsigned long aCount,

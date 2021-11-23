@@ -31,7 +31,6 @@ var promisifyProxyHandler = {
       case "addItem":
       case "modifyItem":
       case "deleteItem":
-      case "getItem":
       case "getItems":
         return (...args) => this.promiseOperation(target, name, args);
       // calIOfflineStorage methods
@@ -50,6 +49,8 @@ var promisifyProxyHandler = {
           this.promiseOperation(target, "getItems", [cIC.ITEM_FILTER_ALL_ITEMS, 0, null, null]);
       case "proxyTarget":
         return target;
+      case "getItem":
+        return id => target.getItem(id);
       default:
         return target[name];
     }

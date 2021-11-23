@@ -1031,7 +1031,7 @@ class CalStorageItemModel extends CalStorageModelBase {
    * @param {string} aID
    */
   async getItemById(aID) {
-    let item;
+    let item = null;
     try {
       // try events first
       this.db.prepareStatement(this.statements.mSelectEvent);

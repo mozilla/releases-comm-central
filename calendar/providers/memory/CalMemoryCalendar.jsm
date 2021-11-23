@@ -335,39 +335,9 @@ CalMemoryCalendar.prototype = {
     this.mObservers.notify("onDeleteItem", [oldItem]);
   },
 
-  // void getItem( in string id, in calIOperationListener aListener );
-  getItem(aId, aListener) {
-    if (!aListener) {
-      return;
-    }
-
-    if (aId == null || this.mItems[aId] == null) {
-      // querying by id is a valid use case, even if no item is returned:
-      this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
-      return;
-    }
-
-    let item = this.mItems[aId];
-    let iid = null;
-
-    if (item.isEvent()) {
-      iid = Ci.calIEvent;
-    } else if (item.isTodo()) {
-      iid = Ci.calITodo;
-    } else {
-      this.notifyOperationComplete(
-        aListener,
-        Cr.NS_ERROR_FAILURE,
-        Ci.calIOperationListener.GET,
-        aId,
-        "Can't deduce item type based on QI"
-      );
-      return;
-    }
-
-    aListener.onGetResult(this.superCalendar, Cr.NS_OK, iid, null, [item]);
-
-    this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
+  // Promise<calIItemBase|null> getItem(in string id);
+  async getItem(aId) {
+    return this.mItems[aId] || null;
   },
 
   // void getItems( in unsigned long aItemFilter, in unsigned long aCount,

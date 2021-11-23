@@ -1319,11 +1319,11 @@ var ItipItemFinderFactory = {
    * @param {calIIipItem} aItipItem   The iTIP item used for processing
    * @param {Function} aOptionsFunc   The options function used for processing the found item
    */
-  findItem(aId, aItipItem, aOptionsFunc) {
+  async findItem(aId, aItipItem, aOptionsFunc) {
     this.cleanup(aId);
     let finder = new ItipItemFinder(aId, aItipItem, aOptionsFunc);
     this._findMap[aId] = finder;
-    finder.findItem();
+    return finder.findItem();
   },
 
   /**
@@ -1355,17 +1355,22 @@ function ItipItemFinder(aId, itipItem, optionsFunc) {
 }
 
 ItipItemFinder.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIObserver", "calIOperationListener"]),
+  QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 
   mSearchId: null,
   mItipItem: null,
   mOptionsFunc: null,
   mFoundItems: null,
 
-  findItem() {
+  async findItem() {
     this.mFoundItems = [];
     this._unobserveChanges();
-    this.mItipItem.targetCalendar.getItem(this.mSearchId, this);
+
+    let foundItem = await this.mItipItem.targetCalendar.getItem(this.mSearchId);
+    if (foundItem) {
+      this.mFoundItems.push(foundItem);
+    }
+    this.processFoundItems();
   },
 
   _observeChanges(aCalendar) {
@@ -1427,10 +1432,6 @@ ItipItemFinder.prototype = {
   onDeleteItem(aItem) {
     // onModifyItem is set up to also handle deletions
     this.onModifyItem(null, aItem);
-  },
-
-  onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-    this.processFoundItems();
   },
 
   destroy() {
@@ -1701,7 +1702,6 @@ ItipItemFinder.prototype = {
     } else {
       // not found:
       cal.LOG("iTIP on " + method + ": no existing items.");
-
       // If the item was not found, observe the target calendar anyway.
       // It will likely be the composite calendar, so we should update
       // if an item was added or removed
@@ -1773,11 +1773,5 @@ ItipItemFinder.prototype = {
     }
 
     this.mOptionsFunc(this.mItipItem, rc, actionFunc, this.mFoundItems);
-  },
-
-  onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-    if (Components.isSuccessCode(aStatus)) {
-      this.mFoundItems = this.mFoundItems.concat(aItems);
-    }
   },
 };

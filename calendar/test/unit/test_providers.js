@@ -266,10 +266,15 @@ add_task(async function testIcalData() {
           if (aOperationType == Ci.calIOperationListener.ADD) {
             compareItemsSpecific(aDetail, aItem);
             // perform getItem() on calendar
-            await new Promise(resolve => {
-              listener.promises.push(resolve);
-              aCalendar.getItem(aId, listener);
-            });
+            returnedItem = await aCalendar.getItem(aId);
+            count = returnedItem ? 1 : 0;
+            listener.onOperationComplete(
+              aCalendar,
+              0,
+              Ci.calIOperationListener.GET,
+              aId,
+              returnedItem
+            );
           } else if (aOperationType == Ci.calIOperationListener.GET) {
             equal(count, 1);
             // Don't check creationDate as it changed when we added the item to the database.
@@ -285,7 +290,9 @@ add_task(async function testIcalData() {
               "recurrenceStartDate",
             ]);
           }
-          this.promises.pop()();
+          if (this.promises.length) {
+            this.promises.pop()();
+          }
         },
         onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
           if (aItems.length) {

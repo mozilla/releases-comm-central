@@ -99,27 +99,6 @@ function createCalendar(type, url, useCache) {
 }
 
 /**
- * Wraps calICalendar's getItem method in a Promise.
- *
- * @param {calICalendar} calendar
- * @param {string} uid
- * @returns {Promise} - resolves to calIItemBase or null
- */
-function getItem(calendar, uid) {
-  return new Promise(resolve => {
-    calendar.getItem(uid, {
-      _item: null,
-      onGetResult(c, status, itemType, detail, items) {
-        this._item = items[0];
-      },
-      onOperationComplete() {
-        resolve(this._item);
-      },
-    });
-  });
-}
-
-/**
  * Creates an event and adds it to the given calendar.
  *
  * @param {calICalendar} calendar
@@ -149,7 +128,7 @@ async function runAddItem(calendar) {
  * @param {calICalendar} calendar
  */
 async function runModifyItem(calendar) {
-  let event = await getItem(calendar, "6b7dd6f6-d6f0-4e93-a953-bb5473c4c47a");
+  let event = await calendar.getItem("6b7dd6f6-d6f0-4e93-a953-bb5473c4c47a");
 
   let clone = event.clone();
   clone.title = "Modified event";
@@ -165,7 +144,7 @@ async function runModifyItem(calendar) {
  * @param {calICalendar} calendar
  */
 async function runDeleteItem(calendar) {
-  let event = await getItem(calendar, "6b7dd6f6-d6f0-4e93-a953-bb5473c4c47a");
+  let event = await calendar.getItem("6b7dd6f6-d6f0-4e93-a953-bb5473c4c47a");
 
   calendarObserver._onDeleteItemPromise = PromiseUtils.defer();
   calendar.deleteItem(event, null);

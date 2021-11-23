@@ -1016,7 +1016,7 @@ CalDavCalendar.prototype = {
   async deleteTargetCalendarItem(path) {
     let pcal = cal.async.promisifyCalendar(this.mOfflineStorage);
 
-    let foundItem = (await pcal.getItem(this.mHrefIndex[path]))[0];
+    let foundItem = await this.mOfflineStorage.getItem(this.mHrefIndex[path]);
     let wasInboxItem = this.mItemInfoCache[foundItem.id].isInboxItem;
     if ((wasInboxItem && this.isInbox(path)) || (wasInboxItem === false && !this.isInbox(path))) {
       cal.LOG("CalDAV: deleting item: " + path + ", uid: " + foundItem.id);
@@ -1145,9 +1145,9 @@ CalDavCalendar.prototype = {
     multiget.doMultiGet();
   },
 
-  // void getItem( in string id, in calIOperationListener aListener );
-  getItem(aId, aListener) {
-    this.mOfflineStorage.getItem(aId, aListener);
+  // Promise<calIItemBase|null> getItem(in string id);
+  async getItem(aId) {
+    return this.mOfflineStorage.getItem(aId);
   },
 
   // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
@@ -2152,44 +2152,10 @@ CalDavCalendar.prototype = {
   // take calISchedulingSupport interface base implementation (cal.provider.BaseClass)
   //
 
-  processItipReply(aItem, aPath) {
+  async processItipReply(aItem, aPath) {
     // modify partstat for in-calendar item
     // delete item from inbox
     let self = this;
-
-    let getItemListener = {};
-    getItemListener.QueryInterface = ChromeUtils.generateQI(["calIOperationListener"]);
-    getItemListener.onOperationComplete = function(
-      aCalendar,
-      aStatus,
-      aOperationType,
-      aId,
-      aDetail
-    ) {};
-    getItemListener.onGetResult = function(aCalendar, aStatus, aItemType, aDetail, aItems) {
-      let itemToUpdate = aItems[0];
-      if (aItem.recurrenceId && itemToUpdate.recurrenceInfo) {
-        itemToUpdate = itemToUpdate.recurrenceInfo.getOccurrenceFor(aItem.recurrenceId);
-      }
-      let newItem = itemToUpdate.clone();
-
-      for (let attendee of aItem.getAttendees()) {
-        let att = newItem.getAttendeeById(attendee.id);
-        if (att) {
-          newItem.removeAttendee(att);
-          att = att.clone();
-          att.participationStatus = attendee.participationStatus;
-          newItem.addAttendee(att);
-        }
-      }
-      self.doModifyItem(
-        newItem,
-        itemToUpdate.parentItem /* related to bug 396182 */,
-        modListener,
-        true
-      );
-    };
-
     let modListener = {};
     modListener.QueryInterface = ChromeUtils.generateQI(["calIOperationListener"]);
     modListener.onOperationComplete = function(
@@ -2212,7 +2178,28 @@ CalDavCalendar.prototype = {
       }
     };
 
-    this.mOfflineStorage.getItem(aItem.id, getItemListener);
+    let itemToUpdate = await this.mOfflineStorage.getItem(aItem.id);
+
+    if (aItem.recurrenceId && itemToUpdate.recurrenceInfo) {
+      itemToUpdate = itemToUpdate.recurrenceInfo.getOccurrenceFor(aItem.recurrenceId);
+    }
+    let newItem = itemToUpdate.clone();
+
+    for (let attendee of aItem.getAttendees()) {
+      let att = newItem.getAttendeeById(attendee.id);
+      if (att) {
+        newItem.removeAttendee(att);
+        att = att.clone();
+        att.participationStatus = attendee.participationStatus;
+        newItem.addAttendee(att);
+      }
+    }
+    self.doModifyItem(
+      newItem,
+      itemToUpdate.parentItem /* related to bug 396182 */,
+      modListener,
+      true
+    );
   },
 
   canNotify(aMethod, aItem) {

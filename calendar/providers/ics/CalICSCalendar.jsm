@@ -490,13 +490,16 @@ CalICSCalendar.prototype = {
     this.processQueue();
   },
 
-  getItem(aId, aListener) {
-    this.queue.push({
-      action: "get_item",
-      id: aId,
-      listener: aListener,
+  // Promise<calIItemBase|null> getItem(in string id);
+  async getItem(aId, aListener) {
+    return new Promise(resolve => {
+      this.queue.push({
+        action: "get_item",
+        id: aId,
+        listener: item => resolve(item),
+      });
+      this.processQueue();
     });
-    this.processQueue();
   },
 
   getItems(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
@@ -548,7 +551,7 @@ CalICSCalendar.prototype = {
           writeICS = true;
           break;
         case "get_item":
-          this.mMemoryCalendar.getItem(a.id, a.listener);
+          this.mMemoryCalendar.getItem(a.id).then(a.listener);
           break;
         case "get_items":
           this.mMemoryCalendar.getItems(

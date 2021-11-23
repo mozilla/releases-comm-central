@@ -116,17 +116,16 @@ add_task(async function testInvitationIdentityPrompt() {
   EventUtils.synthesizeMouseAtCenter(acceptButton, {});
   await dialogPromise;
 
-  let events;
+  let event;
   await TestUtils.waitForCondition(async () => {
-    events = await calendar.getItem("65m17hsdolmotv3kvmrtg40ont@google.com");
-    return events.length && sendItemsArgs.length;
+    event = await calendar.getItem("65m17hsdolmotv3kvmrtg40ont@google.com");
+    return event && sendItemsArgs.length;
   });
 
   // Restore this function.
   cal.itip.getImipTransport = getImipTransport;
 
   let id = `mailto:${receiverIdentity.email}`;
-  let [event] = events;
   Assert.ok(event, "event was added to the calendar successfully");
   Assert.ok(event.getAttendeeById(id), "selected identity was added to the attendee list");
   Assert.equal(

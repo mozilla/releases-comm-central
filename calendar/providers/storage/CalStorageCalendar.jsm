@@ -206,7 +206,7 @@ CalStorageCalendar.prototype = {
       // is this an error?  Or should we generate an IID?
       aItem.id = cal.getUUID();
     } else {
-      let olditem = await this.getItemById(aItem.id);
+      let olditem = await this.mItemModel.getItemById(aItem.id);
       if (olditem) {
         if (this.relaxedMode) {
           // we possibly want to interact with the user before deleting
@@ -315,7 +315,7 @@ CalStorageCalendar.prototype = {
     // Pick up the old item from the database and use this as an old item
     // later on.
     if (!aOldItem) {
-      aOldItem = await this.getItemById(aNewItem.id);
+      aOldItem = await this.mItemModel.getItemById(aNewItem.id);
     }
 
     if (this.relaxedMode) {
@@ -328,7 +328,7 @@ CalStorageCalendar.prototype = {
     } else {
       let storedOldItem = null;
       if (aOldItem) {
-        storedOldItem = await this.getItemById(aOldItem.id);
+        storedOldItem = await this.mItemModel.getItemById(aOldItem.id);
       }
       if (!aOldItem || !storedOldItem) {
         // no old item found?  should be using addItem, then.
@@ -412,37 +412,9 @@ CalStorageCalendar.prototype = {
     this.observers.notify("onDeleteItem", [aItem]);
   },
 
-  // void getItem( in string id, in calIOperationListener aListener );
-  async getItem(aId, aListener) {
-    if (!aListener) {
-      return;
-    }
-
-    let item = await this.getItemById(aId);
-    if (!item) {
-      // querying by id is a valid use case, even if no item is returned:
-      this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
-      return;
-    }
-
-    let item_iid = null;
-    if (item.isEvent()) {
-      item_iid = Ci.calIEvent;
-    } else if (item.isTodo()) {
-      item_iid = Ci.calITodo;
-    } else {
-      this.notifyOperationComplete(
-        aListener,
-        Cr.NS_ERROR_FAILURE,
-        Ci.calIOperationListener.GET,
-        aId,
-        "Can't deduce item type based on QI"
-      );
-      return;
-    }
-
-    aListener.onGetResult(this.superCalendar, Cr.NS_OK, item_iid, null, [item]);
-    this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
+  // Promise<calIItemBase|null> getItem(in string id);
+  async getItem(aId) {
+    return this.mItemModel.getItemById(aId);
   },
 
   // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
@@ -638,17 +610,6 @@ CalStorageCalendar.prototype = {
     } catch (e) {
       cal.ERROR("Error closing storage database: " + e);
     }
-  },
-
-  //
-  // database reading functions
-  //
-
-  //
-  // get item from db or from cache with given iid
-  //
-  async getItemById(aID) {
-    return this.mItemModel.getItemById(aID);
   },
 
   //

@@ -400,21 +400,10 @@ interface calICalendar : nsISupports
    * Get a single event.  The event will be typed as one of the subclasses
    * of calIItemBase (whichever concrete type is most appropriate).
    *
-   * @param aId        UID of the event
-   * @param aListener  listener to which this event will be called back.
-   * @return           optional operation handle to track the operation
-   *
-   * The results of the operation are reported through the listener,
-   * via zero or one onGetResult calls (with aCount set to 1)
-   * followed by an onOperationComplete.
-   *
-   * The parameters to onOperationComplete will be:
-   *
-   * - aOperationType: calIOperationListener::GET
-   * - aId: the ID of the requested item
-   * - aDetail: null (? we can also pass the item back here as well,..)
+   * @param aId                           UID of the event
+   * @return {Promise<calIItemBase|null>} A Promise that is resolved with the item if found.
    */
-  calIOperation getItem(in string aId, in calIOperationListener aListener);
+  Promise getItem(in string aId);
 
   /**
    * XXX As mentioned above, this method isn't suitably general.  It's just

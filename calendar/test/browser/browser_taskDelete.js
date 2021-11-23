@@ -68,10 +68,10 @@ add_task(async function testTaskDeletion() {
   }, `task view displays ${tree.view.rowCount} tasks instead of 1`);
 
   let result = await calendar.getItem(task1.id);
-  Assert.equal(result.length, 0, "first task was deleted successfully");
+  Assert.ok(!result, "first task was deleted successfully");
 
   result = await calendar.getItem(task2.id);
-  Assert.equal(result.length, 1, "second task was not deleted");
+  Assert.ok(result, "second task was not deleted");
   await calendar.deleteItem(task2);
   await closeTasksTab();
 });
@@ -135,7 +135,7 @@ add_task(async function testRecurringTaskDeletion() {
     return tree.view.rowCount == 3;
   }, `task view displays ${tree.view.rowCount} tasks instead of 3`);
 
-  repeatTask = (await calendar.getItem(repeatTask.id))[0];
+  repeatTask = await calendar.getItem(repeatTask.id);
 
   Assert.equal(
     repeatTask.recurrenceInfo.getOccurrences(
@@ -184,10 +184,10 @@ add_task(async function testRecurringTaskDeletion() {
     return tree.view.rowCount == 1;
   }, `task view displays ${tree.view.rowCount} tasks instead of 1`);
 
-  repeatTask = (await calendar.getItem(repeatTask.id))[0];
+  repeatTask = await calendar.getItem(repeatTask.id);
   Assert.ok(!repeatTask, "all occurrences were removed");
 
   let result = await calendar.getItem(nonRepeatTask.id);
-  Assert.equal(result.length, 1, "non-recurring task was not deleted");
+  Assert.ok(result, "non-recurring task was not deleted");
   await closeTasksTab();
 });
