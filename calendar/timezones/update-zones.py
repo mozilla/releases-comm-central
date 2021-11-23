@@ -38,7 +38,7 @@ FUTURE_CUTOFF = 20241231
 
 
 class TimezoneUpdater(object):
-    """ Timezone updater class, use the run method to do everything automatically"""
+    """Timezone updater class, use the run method to do everything automatically"""
 
     def __init__(self, tzdata_path, zoneinfo_pure_path):
         self.tzdata_path = tzdata_path
