@@ -23,6 +23,12 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
+var {
+  close_compose_window,
+  open_compose_with_forward,
+  open_compose_with_reply,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+
 var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
@@ -207,6 +213,63 @@ add_task(async function testJsInMailAgain() {
   assert_selected_and_displayed(gMsgNo);
 
   await SpecialPowers.spawn(messagePane, [], assertJSDisabled);
+
+  ++gMsgNo;
+  select_none();
+});
+
+/*
+ * Runs in the browser process via SpecialPowers.spawn to check JavaScript
+ * is disabled.
+ */
+function assertJSDisabledInEditor() {
+  Assert.ok(content.location.href);
+  Assert.ok(
+    !content.wrappedJSObject.jsIsTurnedOn,
+    "JS should not be turned on in editor."
+  );
+
+  // <noscript> is not shown in the editor, independent of whether scripts
+  // are on or off. So we can't check that like in assertJSDisabledIn.
+}
+
+/**
+ * Check JavaScript is disabled in the editor.
+ */
+add_task(async function testJsInMailReply() {
+  be_in_folder(folder);
+
+  var body = jsMsgBody.replace(
+    "</body>",
+    "<img src=x onerror=alert(1)></body>"
+  );
+
+  let msgDbHdr = addToFolder("js msg reply " + gMsgNo, body, folder);
+
+  // select the newly created message
+  let msgHdr = select_click_row(gMsgNo);
+
+  Assert.equal(
+    msgDbHdr,
+    msgHdr,
+    "selected message header should be the same as generated header"
+  );
+
+  assert_selected_and_displayed(gMsgNo);
+
+  await SpecialPowers.spawn(messagePane, [], assertJSDisabledInEditor);
+
+  let replyWin = open_compose_with_reply();
+  // If JavaScript is on, loading the window will actually show an alert(1)
+  // so execution doesn't go further from here.
+  let editor = replyWin.window.document.getElementById("content-frame");
+  await SpecialPowers.spawn(editor, [], assertJSDisabledInEditor);
+  close_compose_window(replyWin);
+
+  let fwdWin = open_compose_with_forward();
+  editor = fwdWin.window.document.getElementById("content-frame");
+  await SpecialPowers.spawn(editor, [], assertJSDisabledInEditor);
+  close_compose_window(fwdWin);
 
   ++gMsgNo;
   select_none();
