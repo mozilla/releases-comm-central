@@ -212,7 +212,7 @@ add_task(async () => {
 
   is(
     attachment.querySelector("img.attachmentcell-icon").src,
-    uploadedFiles[1].serviceIcon,
+    uploadedFiles[0].serviceIcon,
     "CloudFile icon should be correct."
   );
 
