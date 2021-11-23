@@ -522,11 +522,19 @@ class MimeMessage {
         this._writeString(`--${curPart.separator}\r\n`);
         await this._writePart(part, depth + 1);
       }
-      this._writeString(`--${curPart.separator}--\r\n`);
+      this._writeString(`\r\n--${curPart.separator}--\r\n`);
+    } else {
+      this._writeBinaryString(`\r\n`);
     }
 
+    // Ensure there is exactly one blank line after a part and before
+    // the boundary, and exactly one blank line between boundary lines.
+    // This works around bugs in other software that erroneously remove
+    // additional blank lines, thereby causing verification failures of
+    // OpenPGP or S/MIME signatures. For example see bug 1731529.
+
     // Write out body.
-    this._writeBinaryString(`\r\n${bodyString}`);
+    this._writeBinaryString(`${bodyString}`);
   }
 
   /**
