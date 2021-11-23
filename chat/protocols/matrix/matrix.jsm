@@ -769,6 +769,14 @@ MatrixRoom.prototype = {
     }
   },
 
+  _cleanUpTimers() {
+    this._cancelTypingTimer();
+    if (this._typingDebounce) {
+      clearTimeout(this._typingDebounce);
+      delete this._typingDebounce;
+    }
+  },
+
   /**
    * Write a message to the local conversation. Sets the containsNick flag on
    * the message if appropriate.
@@ -1349,6 +1357,7 @@ function MatrixAccount(aProtocol, aImAccount) {
   this._pendingRoomAliases = new Map();
   this._pendingRoomInvites = new Set();
   this._pendingOutgoingVerificationRequests = new Map();
+  this._verificationRequestTimeouts = new Set();
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
@@ -1366,8 +1375,12 @@ MatrixAccount.prototype = {
       // User just want to remove the account so we need to remove the listed
       // conversations.
       conv.forget();
+      conv._cleanUpTimers();
     }
     delete this.roomList;
+    for (let timeout of this._verificationRequestTimeouts) {
+      clearTimeout(timeout);
+    }
     // Cancel all pending outgoing verification requests, as we can no longer handle them.
     let pendingClientOperations = Promise.all(
       Array.from(
@@ -1393,6 +1406,12 @@ MatrixAccount.prototype = {
     }
   },
   unInit() {
+    for (let conv of this.roomList.values()) {
+      conv._cleanUpTimers();
+    }
+    for (let timeout of this._verificationRequestTimeouts) {
+      clearTimeout(timeout);
+    }
     // Cancel all pending outgoing verification requests, as we can no longer handle them.
     let pendingClientOperations = Promise.all(
       Array.from(
@@ -2271,6 +2290,13 @@ MatrixAccount.prototype = {
   },
 
   /**
+   * Set of currently pending timeouts for verification DM starts.
+   *
+   * @type {Set<TimeoutHandle>}
+   */
+  _verificationRequestTimeouts: null,
+
+  /**
    * Shared implementation to initiate a verification with a MatrixParticipant or
    * MatrixBuddy.
    *
@@ -2301,8 +2327,10 @@ MatrixAccount.prototype = {
             };
             this._client.on("RoomState.newMember", waitForMember);
             timeout = setTimeout(resolve, 2000);
+            this._verificationRequestTimeouts.add(timeout);
           });
         } finally {
+          this._verificationRequestTimeouts.delete(timeout);
           clearTimeout(timeout);
           this._client.removeListener("RoomState.newMember", waitForMember);
         }

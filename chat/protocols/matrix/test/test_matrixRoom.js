@@ -355,54 +355,47 @@ add_task(function test_close() {
 });
 
 add_task(function test_setTypingState() {
-  const roomStub = {
-    _roomId: "foo",
-    _account: {
-      _client: {
-        sendTyping(roomId, isTyping) {
-          roomStub.typingRoomId = roomId;
-          roomStub.typing = isTyping;
-          return Promise.resolve();
-        },
-      },
+  const roomStub = getRoom(true, "foo", {
+    sendTyping(roomId, isTyping) {
+      roomStub.typingRoomId = roomId;
+      roomStub.typing = isTyping;
+      return Promise.resolve();
     },
-  };
+  });
 
-  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, true);
+  roomStub._setTypingState(true);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
 
-  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, false);
+  roomStub._setTypingState(false);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(!roomStub.typing);
 
-  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, true);
+  roomStub._setTypingState(true);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
+
+  roomStub._cleanUpTimers();
+  roomStub.forget();
 });
 
 add_task(function test_setTypingStateDebounce() {
-  const roomStub = {
-    _roomId: "foo",
-    _account: {
-      _client: {
-        sendTyping(roomId, isTyping) {
-          roomStub.typingRoomId = roomId;
-          roomStub.typing = isTyping;
-          return Promise.resolve();
-        },
-      },
+  const roomStub = getRoom(true, "foo", {
+    sendTyping(roomId, isTyping) {
+      roomStub.typingRoomId = roomId;
+      roomStub.typing = isTyping;
+      return Promise.resolve();
     },
-  };
+  });
 
-  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, true);
+  roomStub._setTypingState(true);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
   ok(roomStub._typingDebounce);
 
   roomStub.typing = false;
 
-  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, true);
+  roomStub._setTypingState(true);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(!roomStub.typing);
   ok(roomStub._typingDebounce);
@@ -410,9 +403,12 @@ add_task(function test_setTypingStateDebounce() {
   clearTimeout(roomStub._typingDebounce);
   roomStub._typingDebounce = null;
 
-  matrix.MatrixRoom.prototype._setTypingState.call(roomStub, true);
+  roomStub._setTypingState(true);
   equal(roomStub.typingRoomId, roomStub._roomId);
   ok(roomStub.typing);
+
+  roomStub._cleanUpTimers();
+  roomStub.forget();
 });
 
 add_task(function test_cancelTypingTimer() {
@@ -421,6 +417,16 @@ add_task(function test_cancelTypingTimer() {
   };
   matrix.MatrixRoom.prototype._cancelTypingTimer.call(roomStub);
   ok(!roomStub._typingTimer);
+});
+
+add_task(function test_cleanUpTimers() {
+  const roomStub = getRoom(true);
+  roomStub._typingTimer = setTimeout(() => {}, 10000); // eslint-disable-line mozilla/no-arbitrary-setTimeout
+  roomStub._typingDebounce = setTimeout(() => {}, 1000); // eslint-disable-line mozilla/no-arbitrary-setTimeout
+  roomStub._cleanUpTimers();
+  ok(!roomStub._typingTimer);
+  ok(!roomStub._typingDebounce);
+  roomStub.forget();
 });
 
 add_task(function test_finishedComposing() {
@@ -449,38 +455,32 @@ add_task(function test_finishedComposing() {
 
 add_task(function test_sendTyping() {
   let typingState = false;
-  const roomStub = {
-    __proto__: matrix.MatrixRoom.prototype,
-    shouldSendTypingNotifications: false,
-    _roomId: "foo",
-    _account: {
-      _client: {
-        sendTyping(roomId, state) {
-          typingState = state;
-          return Promise.resolve();
-        },
-      },
+  const roomStub = getRoom(true, "foo", {
+    sendTyping(roomId, state) {
+      typingState = state;
+      return Promise.resolve();
     },
-  };
+  });
+  Services.prefs.setBoolPref("purple.conversations.im.send_typing", false);
 
-  let result = matrix.MatrixRoom.prototype.sendTyping.call(
-    roomStub,
-    "lorem ipsum"
-  );
+  let result = roomStub.sendTyping("lorem ipsum");
   ok(!roomStub._typingTimer);
   equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
   ok(!typingState);
 
-  roomStub.shouldSendTypingNotifications = true;
-  result = matrix.MatrixRoom.prototype.sendTyping.call(roomStub, "lorem ipsum");
+  Services.prefs.setBoolPref("purple.conversations.im.send_typing", true);
+  result = roomStub.sendTyping("lorem ipsum");
   ok(roomStub._typingTimer);
   equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
   ok(typingState);
 
-  result = matrix.MatrixRoom.prototype.sendTyping.call(roomStub, "");
+  result = roomStub.sendTyping("");
   ok(!roomStub._typingTimer);
   equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
   ok(!typingState);
+
+  roomStub._cleanUpTimers();
+  roomStub.forget();
 });
 
 add_task(function test_setInitialized() {
@@ -566,6 +566,8 @@ add_task(function test_sendMsg() {
   roomStub.sendMsg("foo bar");
   ok(!isTyping);
   equal(message, "foo bar");
+  roomStub._cleanUpTimers();
+  roomStub.forget();
 });
 
 function waitForNotification(target, expectedTopic) {
