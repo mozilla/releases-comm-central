@@ -22,7 +22,6 @@ ChromeUtils.defineModuleGetter(
 );
 
 var kPrefAutologinPending = "messenger.accounts.autoLoginPending";
-var kPrefMessengerAccounts = "messenger.accounts";
 let kPrefAccountOrder = "mail.accountmanager.accounts";
 var kPrefAccountPrefix = "messenger.account.";
 var kAccountKeyPrefix = "account";
@@ -157,9 +156,15 @@ function UnknownAccountBuddy(aAccount, aBuddy, aTag) {
 }
 UnknownAccountBuddy.prototype = GenericAccountBuddyPrototype;
 
-// aName and aPrplId are provided as parameter only if this is a new
-// account that doesn't exist in the preferences. In this case, these
-// 2 values should be stored.
+/**
+ * @param {string} aKey - Account key for preferences.
+ * @param {string} [aName] - Name of the account if it is new. Will be stored
+ *  in account preferences. If not provided, the value from the account
+ *  preferences is used instead.
+ * @param {string} [aPrplId] - Protocol ID for this account if it is new. Will
+ *  be stored in account preferences. If not provided, the value from the
+ *  account preferences is used instead.
+ */
 function imAccount(aKey, aName, aPrplId) {
   if (!aKey.startsWith(kAccountKeyPrefix)) {
     throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
@@ -999,14 +1004,9 @@ AccountsService.prototype = {
     this._accounts = [];
     this._accountsById = {};
     gAccountsService = this;
-    let accountList = this._accountList;
-    let accountOrder = MailServices.accounts.accounts.map(account =>
-      account.incomingServer.getCharValue("imAccount")
-    );
-    let accountIdArray = (accountList?.split(",") ?? []).map(key => key.trim());
-    accountIdArray.sort(
-      (keyA, keyB) => accountOrder.indexOf(keyA) - accountOrder.indexOf(keyB)
-    );
+    let accountIdArray = MailServices.accounts.accounts
+      .map(account => account.incomingServer.getCharValue("imAccount"))
+      .filter(accountKey => accountKey?.startsWith(kAccountKeyPrefix));
     for (let account of accountIdArray) {
       try {
         if (!account) {
@@ -1020,45 +1020,28 @@ AccountsService.prototype = {
     }
 
     this._prefObserver = this.observe.bind(this);
-    Services.prefs.addObserver(kPrefMessengerAccounts, this._prefObserver);
     Services.prefs.addObserver(kPrefAccountOrder, this._prefObserver);
   },
 
-  _observingAccountListChange: true,
   _prefObserver: null,
   observe(aSubject, aTopic, aData) {
-    if (
-      aTopic != "nsPref:changed" ||
-      (aData != kPrefMessengerAccounts && aData != kPrefAccountOrder) ||
-      !this._observingAccountListChange
-    ) {
+    if (aTopic != "nsPref:changed" || aData != kPrefAccountOrder) {
       return;
     }
 
-    let accountOrder = MailServices.accounts.accounts.map(account =>
-      account.incomingServer.getCharValue("imAccount")
-    );
-    this._accounts = this._accountList
-      .split(",")
-      .map(account => account.trim())
-      .filter(k => k.startsWith(kAccountKeyPrefix))
-      .sort(
-        (keyA, keyB) => accountOrder.indexOf(keyA) - accountOrder.indexOf(keyB)
+    const imAccounts = MailServices.accounts.accounts
+      .map(account => account.incomingServer.getCharValue("imAccount"))
+      .filter(k => k?.startsWith(kAccountKeyPrefix))
+      .map(k =>
+        this.getAccountByNumericId(parseInt(k.substr(kAccountKeyPrefix.length)))
       )
-      .map(k => parseInt(k.substr(kAccountKeyPrefix.length)))
-      .map(this.getAccountByNumericId, this)
       .filter(a => a);
 
-    Services.obs.notifyObservers(this, "account-list-updated");
-  },
-
-  get _accountList() {
-    return Services.prefs.getCharPref(kPrefMessengerAccounts);
-  },
-  set _accountList(aNewList) {
-    this._observingAccountListChange = false;
-    Services.prefs.setCharPref(kPrefMessengerAccounts, aNewList);
-    delete this._observingAccountListChange;
+    // Only update _accounts if it's a reorder operation
+    if (imAccounts.length == this._accounts.length) {
+      this._accounts = imAccounts;
+      Services.obs.notifyObservers(this, "account-list-updated");
+    }
   },
 
   unInitAccounts() {
@@ -1068,7 +1051,6 @@ AccountsService.prototype = {
     gAccountsService = null;
     delete this._accounts;
     delete this._accountsById;
-    Services.prefs.removeObserver(kPrefMessengerAccounts, this._prefObserver);
     Services.prefs.removeObserver(kPrefAccountOrder, this._prefObserver);
     delete this._prefObserver;
   },
@@ -1257,10 +1239,6 @@ AccountsService.prototype = {
     let key = kAccountKeyPrefix + id;
     let account = new imAccount(key, aName, aPrpl);
 
-    /* Save the account list pref. */
-    let list = this._accountList;
-    this._accountList = list ? list + "," + key : key;
-
     Services.obs.notifyObservers(account, "account-added");
     return account;
   },
@@ -1281,13 +1259,6 @@ AccountsService.prototype = {
     this._accounts.splice(index, 1);
     delete this._accountsById[id];
     Services.obs.notifyObservers(account, "account-removed");
-
-    /* Update the account list pref. */
-    let list = this._accountList;
-    this._accountList = list
-      .split(",")
-      .filter(k => k.trim() != aAccountId)
-      .join(",");
   },
 
   QueryInterface: ChromeUtils.generateQI(["imIAccountsService"]),

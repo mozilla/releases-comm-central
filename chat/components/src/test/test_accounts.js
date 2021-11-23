@@ -17,8 +17,12 @@ function run_test() {
   let prefs = Services.prefs;
   prefs.setCharPref("messenger.account.account1.name", kAccountName);
   prefs.setCharPref("messenger.account.account1.prpl", kPrplId);
-  prefs.setCharPref("messenger.accounts", "account1");
-
+  prefs.setCharPref("mail.accountmanager.accounts", "account1");
+  prefs.setCharPref("mail.account.account1.server", "server1");
+  prefs.setCharPref("mail.server.server1.imAccount", "account1");
+  prefs.setCharPref("mail.server.server1.type", "im");
+  prefs.setCharPref("mail.server.server1.userName", kAccountName);
+  prefs.setCharPref("mail.server.server1.hostname", kPrplId);
   try {
     // Having an implementation of nsIXULAppInfo is required for
     // Services.core.init to work.

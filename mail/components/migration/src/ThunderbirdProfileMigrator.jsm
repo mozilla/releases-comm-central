@@ -475,14 +475,6 @@ class ThunderbirdProfileMigrator {
       branch[`set${type}Pref`](newName, value);
     }
 
-    // Append newly create accounts to messenger.accounts.
-    let accounts = Services.prefs.getCharPref("messenger.accounts", "");
-    if (accounts && imAccountKeyMap.size) {
-      accounts += ",";
-    }
-    accounts += [...imAccountKeyMap.values()].join(",");
-    Services.prefs.setCharPref("messenger.accounts", accounts);
-
     return imAccountKeyMap;
   }
 

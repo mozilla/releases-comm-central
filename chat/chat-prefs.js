@@ -10,8 +10,6 @@
 //  Other values will be added later, for example to start minimized
 pref("messenger.startup.action", 1);
 
-pref("messenger.accounts", "");
-
 // The intervals in seconds between automatic reconnection attempts.
 // The last value will be reused for the rest of the reconnection attempts.
 // A value of 0 means that there will be no more reconnection attempts.
