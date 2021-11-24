@@ -13,7 +13,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 const calendar = CalendarTestUtils.createProxyCalendar("Drag Test", "memory");
-Services.prefs.setIntPref("calendar.view.visiblehours", 24);
+// Set a low number of hours to reduce pixel -> minute rounding errors.
+Services.prefs.setIntPref("calendar.view.visiblehours", 3);
 
 registerCleanupFunction(() => {
   CalendarTestUtils.removeProxyCalendar(calendar);
@@ -21,21 +22,19 @@ registerCleanupFunction(() => {
 });
 
 /**
- * Ensures that we are dragging from a consistent location in the various
- * calendar views (scrolled all the way to the top with the window maximized).
+ * Ensures that the window is maximised after switching dates.
  *
  * @param {calIDateTime} date - A date to navigate the view to.
  */
-async function resetView(date) {
+async function resetView(date, view) {
   window.goToDate(date);
 
   if (window.windowState != window.STATE_MAXIMIZED) {
     // The multi-day views adjust scrolling dynamically when they detect a
     // resize. Hook into the resize event and scroll after the adjustment.
-    let promise = BrowserTestUtils.waitForEvent(window, "resize");
+    let resizePromise = BrowserTestUtils.waitForEvent(window, "resize");
     window.maximize();
-    await promise;
-    await new Promise(resolve => setTimeout(resolve));
+    await resizePromise;
   }
 }
 
@@ -43,74 +42,108 @@ async function resetView(date) {
  * Simulates the dragging of an event box in a multi-day view to another
  * column, horizontally.
  *
- * @param {MozCalendarEventBox} eventBox
- * @param {MozCalendarEventColumn} column
- * @param {number} index
+ * @param {MozCalendarEventBox} eventBox - The event to start moving.
+ * @param {MozCalendarEventColumn} column - The column to drop into.
+ * @param {number} hour - The starting hour to drop to.
  */
-function simulateDragToColumn(eventBox, column, index) {
-  // Force 1 pixel = 1 minute in the column
-  let shiftKey = true;
-  column.pixelsPerMinute = 1;
+function simulateDragToColumn(eventBox, column, hour) {
+  // Scroll to align to the top of the view.
+  eventBox.scrollIntoView(true);
 
-  let mousedownProps = {
-    screenX: eventBox.screenX,
-    screenY: eventBox.screenY,
-    shiftKey: true,
-  };
-  eventBox.dispatchEvent(new MouseEvent("mousedown", mousedownProps));
-  eventBox.dispatchEvent(new MouseEvent("mouseout"));
+  let sourceRect = eventBox.getBoundingClientRect();
+  // Start dragging from the center of the event box to avoid the gripbars.
+  // NOTE: We assume that the eventBox's center is in view.
+  let leftOffset = sourceRect.width / 2;
+  let topOffset = sourceRect.height / 2;
 
-  let spacer = column.querySelector(
-    `.multiday-column-box-stack > .multiday-column-bg-box >` +
-      `.calendar-event-column-linebox:nth-child(${index})`
+  EventUtils.synthesizeMouseAtPoint(
+    sourceRect.left + leftOffset,
+    sourceRect.top + topOffset,
+    // Hold shift to avoid snapping.
+    { type: "mousedown", shiftKey: true },
+    window
   );
-  let screenX = spacer.screenX;
-  let screenY = spacer.screenY;
-  let destRect = column.getBoundingClientRect();
-  let clientX = destRect.x;
-  let clientY = eventBox.getBoundingClientRect().y;
+  EventUtils.synthesizeMouseAtPoint(
+    // We assume the location of the mouseout event does not matter, just as
+    // long as the event box receives it.
+    sourceRect.left + leftOffset,
+    sourceRect.top + topOffset,
+    { type: "mouseout", shiftKey: true },
+    window
+  );
 
-  let props = { clientX, clientY, screenX, screenY, shiftKey };
-  window.dispatchEvent(new MouseEvent("mousemove", props));
-  window.dispatchEvent(new MouseEvent("mouseup", props));
+  let hourElement = column.querySelector(`.calendar-event-column-linebox:nth-child(${hour + 1})`);
+  // Place the desired hour at the top of the view.
+  // FIXME: Use and test auto scroll by holding mouseover at the view edges.
+  hourElement.scrollIntoView(true);
+  // NOTE: The dragging of the event takes into account the offset of the
+  // original mousedown from the sourceBox start edges.
+  // So we need to drop the event with the same offset from the starting edge
+  // of the desired hourElement.
+  // NOTE: This may mean that the drop point may not be above the hourElement.
+  // NOTE: We assume that the drop point is however still above the view.
+  // Currently event "move" events get cancelled if the pointer leaves the view.
+  let hourRect = hourElement.getBoundingClientRect();
+
+  EventUtils.synthesizeMouseAtPoint(
+    hourRect.left + leftOffset,
+    hourRect.top + topOffset,
+    { type: "mousemove", shiftKey: true },
+    window
+  );
+  EventUtils.synthesizeMouseAtPoint(
+    hourRect.left + leftOffset,
+    hourRect.top + topOffset,
+    { type: "mouseup", shiftKey: true },
+    window
+  );
 }
 
 /**
  * Simulates the dragging of an event box via one of the gripbars.
  *
- * @param {MozCalendarEventgripbar} gripbar
- * @param {MozCalendarEventBox} eventBox
- * @param {MozCalendarEventColumn} column
- * @param {number} index
+ * @param {MozCalendarEventBox} eventBox - The event to resize.
+ * @param {"start"|"end"} - The side to grab.
+ * @param {MozCalendarEventColumn} column - The column to move into.
+ * @param {number} hour - The hour to move to.
  */
-function simulateGripbarDrag(gripbar, eventBox, column, index) {
-  // Force 1 pixel = 1 minute in the column
-  let shiftKey = true;
-  column.pixelsPerMinute = 1;
+function simulateGripbarDrag(eventBox, side, column, hour) {
+  // Scroll the edge of the box into view.
+  eventBox.scrollIntoView(side == "start");
 
-  let gripbarRect = eventBox.getBoundingClientRect();
-  let mousedownProps = {
-    screenX: gripbarRect.x,
-    screenY: gripbarRect.y + gripbarRect.height,
-    shiftKey,
-    bubbles: true,
-  };
-  gripbar.dispatchEvent(new MouseEvent("mousedown", mousedownProps));
+  let gripbar = eventBox.querySelector(`[whichside="${side}"]`);
 
-  let spacer = column.querySelector(
-    `.multiday-column-box-stack > .multiday-column-bg-box >` +
-      `.calendar-event-column-linebox:nth-child(${index})`
+  let sourceRect = gripbar.getBoundingClientRect();
+  let leftOffset = sourceRect.width / 2;
+  let topOffset = sourceRect.height / 2;
+
+  EventUtils.synthesizeMouseAtPoint(
+    sourceRect.left + leftOffset,
+    sourceRect.top + topOffset,
+    // Hold shift to avoid snapping.
+    { type: "mousedown", shiftKey: true },
+    window
   );
-  let screenX = spacer.screenX;
-  let screenY = spacer.screenY;
-  let destRect = spacer.getBoundingClientRect();
-  let clientX = destRect.x;
-  let clientY = destRect.y;
-  eventBox.dispatchEvent(new MouseEvent("mouseout"));
 
-  let props = { clientX, clientY, screenX, screenY, shiftKey };
-  window.dispatchEvent(new MouseEvent("mousemove", props));
-  window.dispatchEvent(new MouseEvent("mouseup", props));
+  let hourElement = column.querySelector(`.calendar-event-column-linebox:nth-child(${hour + 1})`);
+  // Place the desired hour at the top of the view.
+  // FIXME: Use and test auto scroll by holding mouseover at the view edges.
+  hourElement.scrollIntoView(true);
+
+  let hourRect = hourElement.getBoundingClientRect();
+
+  EventUtils.synthesizeMouseAtPoint(
+    hourRect.left + leftOffset,
+    hourRect.top,
+    { type: "mousemove", shiftKey: true },
+    window
+  );
+  EventUtils.synthesizeMouseAtPoint(
+    hourRect.left + leftOffset,
+    hourRect.top,
+    { type: "mouseup", shiftKey: true },
+    window
+  );
 }
 
 /**
@@ -221,16 +254,14 @@ add_task(async function testWeekViewDragEventBoxToPreviousDay() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
-  let column = await CalendarTestUtils.weekView.getEventColumn(window, 2);
-  simulateDragToColumn(eventBox, column, 3);
-
-  Assert.ok(
-    !CalendarTestUtils.weekView.getEventBoxAt(window, 3, 1),
-    "event moved from initial position"
-  );
+  let column = CalendarTestUtils.weekView.getEventColumn(window, 2);
+  simulateDragToColumn(eventBox, column, 2);
 
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 2, 1);
-  Assert.ok(eventBox, "event is at new position");
+  await TestUtils.waitForCondition(
+    () => !CalendarTestUtils.weekView.getEventBoxAt(window, 3, 1),
+    "Old position is empty"
+  );
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
   Assert.equal(id, event.id, "id is correct");
@@ -256,16 +287,14 @@ add_task(async function testWeekViewDragEventBoxToFollowingDay() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
-  let column = await CalendarTestUtils.weekView.getEventColumn(window, 4);
-  simulateDragToColumn(eventBox, column, 3);
-
-  Assert.ok(
-    !CalendarTestUtils.weekView.getEventBoxAt(window, 3, 1),
-    "event moved from initial position"
-  );
+  let column = CalendarTestUtils.weekView.getEventColumn(window, 4);
+  simulateDragToColumn(eventBox, column, 2);
 
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 4, 1);
-  Assert.ok(eventBox, "event is at new position");
+  await TestUtils.waitForCondition(
+    () => !CalendarTestUtils.weekView.getEventBoxAt(window, 3, 1),
+    "Old position is empty"
+  );
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
   Assert.equal(id, event.id, "id is correct");
@@ -291,9 +320,8 @@ add_task(async function testWeekViewDragEventBoxStartTime() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
-  let gripbar = eventBox.querySelector('[whichside="start"]');
-  let column = await CalendarTestUtils.weekView.getEventColumn(window, 3);
-  simulateGripbarDrag(gripbar, eventBox, column, 2);
+  let column = CalendarTestUtils.weekView.getEventColumn(window, 3);
+  simulateGripbarDrag(eventBox, "start", column, 1);
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
@@ -319,9 +347,8 @@ add_task(async function testWeekViewDragEventBoxEndTime() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
-  let gripbar = eventBox.querySelector('[whichside="end"]');
-  let column = await CalendarTestUtils.weekView.getEventColumn(window, 3);
-  simulateGripbarDrag(gripbar, eventBox, column, 7);
+  let column = CalendarTestUtils.weekView.getEventColumn(window, 3);
+  simulateGripbarDrag(eventBox, "end", column, 6);
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
@@ -347,9 +374,8 @@ add_task(async function testDayViewDragEventBoxStartTime() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
-  let gripbar = eventBox.querySelector('[whichside="start"]');
-  let column = await CalendarTestUtils.dayView.getEventColumn(window);
-  simulateGripbarDrag(gripbar, eventBox, column, 2);
+  let column = CalendarTestUtils.dayView.getEventColumn(window);
+  simulateGripbarDrag(eventBox, "start", column, 1);
   eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
@@ -376,9 +402,8 @@ add_task(async function testDayViewDragEventBoxEndTime() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
-  let gripbar = eventBox.querySelector('[whichside="end"]');
-  let column = await CalendarTestUtils.dayView.getEventColumn(window);
-  simulateGripbarDrag(gripbar, eventBox, column, 5);
+  let column = CalendarTestUtils.dayView.getEventColumn(window);
+  simulateGripbarDrag(eventBox, "end", column, 4);
   eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
   let { id, title, startDate, endDate } = eventBox.occurrence;

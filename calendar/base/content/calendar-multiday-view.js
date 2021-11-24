@@ -984,17 +984,11 @@
       let firstCol = lateralColumns.firstCol;
       let firstIndex = lateralColumns.firstIndex;
 
+      let newcol = col.calendarView.findEventColumnThatContains(event.target);
       // If we leave the view, then stop our internal sweeping and start a
       // real drag session. Someday we need to fix the sweep to soely be a
       // drag session, no sweeping.
-      let boundingRect = currentView().scrollbox.getBoundingClientRect();
-      if (
-        dragState.dragType == "move" &&
-        (event.clientX < boundingRect.x ||
-          event.clientX > boundingRect.x + boundingRect.width ||
-          event.clientY < boundingRect.y ||
-          event.clientY > boundingRect.y + boundingRect.height)
-      ) {
+      if (dragState.dragType == "move" && !newcol) {
         // Remove the drag state.
         for (
           let column = firstCol, i = firstIndex;
@@ -1035,7 +1029,6 @@
 
       // Check if we need to jump a column.
       let jumpedColumns;
-      let newcol = col.calendarView.findColumnForClientPoint(event.screenX, event.screenY);
       if (newcol && newcol != col) {
         // Find how many columns we are jumping by subtracting the dates.
         let dur = newcol.mDate.subtractDate(col.mDate);
@@ -3392,31 +3385,18 @@
     }
 
     /**
-     * For the given client-coord-system point, return the event column element that contains
-     * it. If no column contains it, return null.
+     * Find the calendar-event-column that contains the given node.
      *
-     * @param {number} clientX    A client X coordinate.
-     * @param {number} clientY    A client Y coordinate.
-     * @return {?Element}         A `calendar-event-column` element.
+     * @param {Node} node - The node to search for.
+     *
+     * @return {?MozCalendarEventColumn} - The column that contains the node, or
+     *   null if none do.
      */
-    findColumnForClientPoint(clientX, clientY) {
+    findEventColumnThatContains(node) {
       if (!this.mDateColumns) {
         return null;
       }
-      for (const col of this.mDateColumns) {
-        const element = col.column.querySelector(".multiday-column-box-stack");
-
-        const boundingRect = element.getBoundingClientRect();
-        if (
-          clientX >= element.screenX &&
-          clientX <= element.screenX + boundingRect.width &&
-          clientY >= element.screenY &&
-          clientY <= element.screenY + boundingRect.height
-        ) {
-          return col.column;
-        }
-      }
-      return null;
+      return this.mDateColumns.find(col => col.column.contains(node))?.column;
     }
 
     /**
