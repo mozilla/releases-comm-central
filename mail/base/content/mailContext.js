@@ -673,30 +673,82 @@ var commandController = {
     cmd_markAllRead: Ci.nsMsgViewCommandType.markAllRead,
     cmd_markAsNotJunk: Ci.nsMsgViewCommandType.unjunk,
   },
-  _commands: [
-    "cmd_reply",
-    "cmd_forward",
-    "cmd_addTag",
-    "cmd_manageTags",
-    "cmd_removeTags",
-    "cmd_markReadByDate",
-    "cmd_markAllRead",
-    "cmd_markAsFlagged",
-    "cmd_markAsJunk",
-    // "cmd_recalculateJunkScore",
-    "cmd_moveToFolderAgain",
-    "cmd_delete",
-    // "cmd_killThread",
-    // "cmd_killSubthread",
-    // "cmd_watchThread",
-    // "cmd_print",
-    // "cmd_downloadSelected",
-  ],
+  _commands: {
+    cmd_reply: event => {
+      if (gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup) {
+        this.doCommand("cmd_replyGroup", event);
+      } else {
+        this.doCommand("cmd_replySender", event);
+      }
+    },
+    cmd_forward: () => {
+      if (Services.prefs.getIntPref("mail.forward_message_mode", 0) == 0) {
+        this.doCommand("cmd_forwardAttachment");
+      } else {
+        this.doCommand("cmd_forwardInline");
+      }
+    },
+    cmd_addTag() {
+      mailContextMenu.addTag();
+    },
+    cmd_manageTags() {
+      window.browsingContext.topChromeWindow.openOptionsDialog(
+        "paneGeneral",
+        "tagsCategory"
+      );
+    },
+    cmd_removeTags() {
+      mailContextMenu.removeAllMessageTags();
+    },
+    cmd_markReadByDate() {
+      window.browsingContext.topChromeWindow.openDialog(
+        "chrome://messenger/content/markByDate.xhtml",
+        "",
+        "chrome,modal,titlebar,centerscreen",
+        gFolder
+      );
+    },
+    cmd_markAsFlagged() {
+      if (gMessage.isFlagged) {
+        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.unflagMessages);
+      } else {
+        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.flagMessages);
+      }
+    },
+    cmd_markAsJunk() {
+      if (
+        Services.prefs.getBoolPref("mailnews.ui.junk.manualMarkAsJunkMarksRead")
+      ) {
+        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
+      }
+      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.junk);
+    },
+    // cmd_recalculateJunkScore() {},
+    cmd_moveToFolderAgain() {
+      let folder = LazyModules.MailUtils.getOrCreateFolder(
+        Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri")
+      );
+      if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
+        mailContextMenu.moveMessage(folder);
+      } else {
+        mailContextMenu.copyMessage(folder);
+      }
+    },
+    cmd_delete() {
+      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
+      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
+    },
+    // cmd_killThread() {},
+    // cmd_killSubthread() {},
+    // cmd_watchThread() {},
+    // cmd_print() {},
+    // cmd_downloadSelected() {},
+  },
   supportsCommand(command) {
     return (
       command in this._composeCommands ||
       command in this._viewCommands ||
-      this._commands.includes(command)
+      command in this._commands
     );
   },
   isCommandEnabled(command) {
@@ -779,74 +831,8 @@ var commandController = {
       return;
     }
 
-    let topChromeWindow = window.browsingContext.topChromeWindow;
-    switch (command) {
-      case "cmd_reply":
-        if (gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup) {
-          this.doCommand("cmd_replyGroup", event);
-        } else {
-          this.doCommand("cmd_replySender", event);
-        }
-        break;
-      case "cmd_forward":
-        if (Services.prefs.getIntPref("mail.forward_message_mode", 0) == 0) {
-          this.doCommand("cmd_forwardAttachment");
-        } else {
-          this.doCommand("cmd_forwardInline");
-        }
-        break;
-      case "cmd_addTag":
-        mailContextMenu.addTag();
-        break;
-      case "cmd_manageTags":
-        topChromeWindow.openOptionsDialog("paneGeneral", "tagsCategory");
-        break;
-      case "cmd_removeTags":
-        mailContextMenu.removeAllMessageTags();
-        break;
-      case "cmd_markReadByDate":
-        topChromeWindow.openDialog(
-          "chrome://messenger/content/markByDate.xhtml",
-          "",
-          "chrome,modal,titlebar,centerscreen",
-          gFolder
-        );
-        break;
-      case "cmd_markAsFlagged":
-        if (gMessage.isFlagged) {
-          gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.unflagMessages);
-        } else {
-          gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.flagMessages);
-        }
-        break;
-      case "cmd_markAsJunk":
-        if (
-          Services.prefs.getBoolPref(
-            "mailnews.ui.junk.manualMarkAsJunkMarksRead"
-          )
-        ) {
-          gViewWrapper.dbView.doCommand(
-            Ci.nsMsgViewCommandType.markMessagesRead
-          );
-        }
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.junk);
-        break;
-      // case "cmd_recalculateJunkScore":
-      //   break;
-      case "cmd_moveToFolderAgain":
-        let folder = LazyModules.MailUtils.getOrCreateFolder(
-          Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri")
-        );
-        if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
-          mailContextMenu.moveMessage(folder);
-        } else {
-          mailContextMenu.copyMessage(folder);
-        }
-        break;
-      case "cmd_delete":
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
-        break;
+    if (command in this._commands) {
+      this._commands[command](event);
     }
   },
 
