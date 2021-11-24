@@ -175,3 +175,45 @@ function makeProxyHandler(clientHandler) {
     },
   };
 }
+
+/**
+ * Build a MatrixEvent like object from a plain object.
+ * @param {{ type: EventType, content: object, sender: string, id: number, redacted: boolean, time: Date }} eventSpec - Data the event holds.
+ * @returns {MatrixEvent}
+ */
+function makeEvent(eventSpec = {}) {
+  const time = eventSpec.time || new Date();
+  return {
+    isRedacted() {
+      return eventSpec.redacted || false;
+    },
+    getType() {
+      return eventSpec.type;
+    },
+    getContent() {
+      return eventSpec.content || {};
+    },
+    getPrevContent() {
+      return eventSpec.prevContent || {};
+    },
+    getWireContent() {
+      return eventSpec.content;
+    },
+    getSender() {
+      return eventSpec.sender;
+    },
+    getDate() {
+      return time;
+    },
+    sender: {
+      name: "foo bar",
+    },
+    getId() {
+      return eventSpec.id || 0;
+    },
+    isEncrypted() {
+      return false;
+    },
+    target: eventSpec.target,
+  };
+}

@@ -72,20 +72,33 @@ add_task(async function test_waitForRoomReplaced() {
 });
 
 add_task(function test_addEventRedacted() {
-  const event = makeEvent("@user:example.com", {}, true);
+  const event = makeEvent({
+    sender: "@user:example.com",
+    redacted: true,
+    type: EventType.RoomMessage,
+  });
   const roomStub = {};
   matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub._mostRecentEventId, 0);
 });
 
 add_task(function test_addEventMessageIncoming() {
-  const event = makeEvent("@user:example.com", {
-    body: "foo",
-    msgtype: MsgType.Text,
+  const event = makeEvent({
+    sender: "@user:example.com",
+    content: {
+      body: "foo",
+      msgtype: MsgType.Text,
+    },
+    type: EventType.RoomMessage,
   });
   const roomStub = {
     _account: {
       userId: "@test:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com";
+        },
+      },
     },
     writeMessage(who, message, options) {
       this.who = who;
@@ -106,13 +119,22 @@ add_task(function test_addEventMessageIncoming() {
 });
 
 add_task(function test_addEventMessageOutgoing() {
-  const event = makeEvent("@test:example.com", {
-    body: "foo",
-    msgtype: MsgType.Text,
+  const event = makeEvent({
+    sender: "@test:example.com",
+    content: {
+      body: "foo",
+      msgtype: MsgType.Text,
+    },
+    type: EventType.RoomMessage,
   });
   const roomStub = {
     _account: {
       userId: "@test:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com";
+        },
+      },
     },
     writeMessage(who, message, options) {
       this.who = who;
@@ -133,13 +155,22 @@ add_task(function test_addEventMessageOutgoing() {
 });
 
 add_task(function test_addEventMessageEmote() {
-  const event = makeEvent("@user:example.com", {
-    body: "foo",
-    msgtype: MsgType.Emote,
+  const event = makeEvent({
+    sender: "@user:example.com",
+    content: {
+      body: "foo",
+      msgtype: MsgType.Emote,
+    },
+    type: EventType.RoomMessage,
   });
   const roomStub = {
     _account: {
       userId: "@test:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com";
+        },
+      },
     },
     writeMessage(who, message, options) {
       this.who = who;
@@ -160,13 +191,22 @@ add_task(function test_addEventMessageEmote() {
 });
 
 add_task(function test_addEventMessageDelayed() {
-  const event = makeEvent("@user:example.com", {
-    body: "foo",
-    msgtype: MsgType.Text,
+  const event = makeEvent({
+    sender: "@user:example.com",
+    content: {
+      body: "foo",
+      msgtype: MsgType.Text,
+    },
+    type: EventType.RoomMessage,
   });
   const roomStub = {
     _account: {
       userId: "@test:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com";
+        },
+      },
     },
     writeMessage(who, message, options) {
       this.who = who;
@@ -187,25 +227,14 @@ add_task(function test_addEventMessageDelayed() {
 });
 
 add_task(function test_addEventTopic() {
-  const event = {
-    isRedacted() {
-      return false;
+  const event = makeEvent({
+    type: EventType.RoomTopic,
+    id: 1,
+    content: {
+      topic: "foo bar",
     },
-    getType() {
-      return EventType.RoomTopic;
-    },
-    getId() {
-      return 1;
-    },
-    getContent() {
-      return {
-        topic: "foo bar",
-      };
-    },
-    getSender() {
-      return "@user:example.com";
-    },
-  };
+    sender: "@user:example.com",
+  });
   const roomStub = {
     setTopic(topic, who) {
       this.who = who;
@@ -219,32 +248,15 @@ add_task(function test_addEventTopic() {
 });
 
 add_task(async function test_addEventTombstone() {
-  const event = {
-    isRedacted() {
-      return false;
+  const event = makeEvent({
+    type: EventType.RoomTombstone,
+    id: 1,
+    content: {
+      body: "updated room",
+      replacement_room: "!new_room:example.com",
     },
-    getType() {
-      return EventType.RoomTombstone;
-    },
-    getId() {
-      return 1;
-    },
-    getContent() {
-      return {
-        body: "updated room",
-        replacement_room: "!new_room:example.com",
-      };
-    },
-    getSender() {
-      return "@test:example.com";
-    },
-    getDate() {
-      return new Date();
-    },
-    isEncrypted() {
-      return false;
-    },
-  };
+    sender: "@test:example.com",
+  });
   const conversation = getRoom(true);
   const newText = waitForNotification(conversation, "new-text");
   conversation.addEvent(event);
@@ -258,36 +270,6 @@ add_task(async function test_addEventTombstone() {
   ok(!conversation._account);
   newConversation.forget();
 });
-
-function makeEvent(sender, content = {}, redacted = false) {
-  const time = new Date();
-  return {
-    isRedacted() {
-      return redacted;
-    },
-    getType() {
-      return EventType.RoomMessage;
-    },
-    getSender() {
-      return sender;
-    },
-    getContent() {
-      return content;
-    },
-    getDate() {
-      return time;
-    },
-    sender: {
-      name: "foo bar",
-    },
-    getId() {
-      return 0;
-    },
-    isEncrypted() {
-      return false;
-    },
-  };
-}
 
 add_task(function test_forgetWith_close() {
   const roomList = new Map();
@@ -497,38 +479,23 @@ add_task(function test_setInitialized() {
 
 add_task(function test_addEventSticker() {
   const date = new Date();
-  const event = {
-    getSender() {
-      return "@user:example.com";
+  const event = makeEvent({
+    time: date,
+    sender: "@user:example.com",
+    type: EventType.Sticker,
+    content: {
+      body: "foo",
+      url: "mxc://example.com/sticker.png",
     },
-    getType() {
-      return EventType.Sticker;
-    },
-    getContent() {
-      return {
-        body: "foo",
-        url: "mxc://example.com/sticker.png",
-      };
-    },
-    isEncrypted() {
-      return false;
-    },
-    getDate() {
-      return date;
-    },
-    isRedacted() {
-      return false;
-    },
-    getId() {
-      return 0;
-    },
-    sender: {
-      name: "foo bar",
-    },
-  };
+  });
   const roomStub = {
     _account: {
       userId: "@test:example.com",
+      _client: {
+        getHomeserverUrl() {
+          return "https://example.com";
+        },
+      },
     },
     writeMessage(who, message, options) {
       this.who = who;
@@ -538,7 +505,10 @@ add_task(function test_addEventSticker() {
   };
   matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
-  equal(roomStub.message, "foo");
+  equal(
+    roomStub.message,
+    "https://example.com/_matrix/media/r0/download/example.com/sticker.png"
+  );
   ok(roomStub.options.incoming);
   ok(!roomStub.options.outgoing);
   ok(!roomStub.options.system);

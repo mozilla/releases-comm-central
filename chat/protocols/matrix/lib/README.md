@@ -6,8 +6,8 @@ The following npm dependencies are included:
 * @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages/10 v3.2.3
 * another-json: https://www.npmjs.com/package/another-json/ v0.2.0
 * base-x: https://www.npmjs.com/package/base-x v3.0.8
-* bs58: https://www.npmjs.com/package/bs58 v4.0.1
 * browser-request: https://www.npmjs.com/package/browser-request v0.3.3
+* bs58: https://www.npmjs.com/package/bs58 v4.0.1
 * content-type: https://www.npmjs.com/package/content-type v1.0.4
 * events: https://www.npmjs.com/package/events v3.2.0
 * qs: https://www.npmjs.com/package/qs v6.9.6

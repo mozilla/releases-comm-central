@@ -47,6 +47,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
   getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
+  MatrixMessageContent: "resource:///modules/matrixMessageContent.jsm",
 });
 
 /**
@@ -619,15 +620,14 @@ MatrixRoom.prototype = {
       ) {
         return;
       }
-      //TODO We should prefer the formatted body (when it's html)
-      let message = eventContent.body;
-      if (eventContent.msgtype === MsgType.Emote) {
-        message = "/me " + message;
-      } else if (eventContent.msgtype === EventType.KeyVerificationRequest) {
+      let message = MatrixMessageContent.getIncomingPlain(
+        event,
+        this._account._client.getHomeserverUrl(),
+        eventId => this.room.findEventById(eventId)
+      );
+      if (eventContent.msgtype === EventType.KeyVerificationRequest) {
         message = getMatrixTextForEvent(event);
       }
-      //TODO handle media messages better (currently just show file name, or
-      // for stickers we just show the description)
       this.writeMessage(event.getSender(), message, {
         outgoing: isOutgoing,
         incoming: !isOutgoing,
@@ -793,6 +793,22 @@ MatrixRoom.prototype = {
     }
     const message = new MatrixMessage(aWho, aText, aProperties);
     message.conversation = this;
+  },
+
+  /**
+   *
+   * @param {MatrixMessage} msg
+   */
+  prepareForDisplaying(msg) {
+    const formattedHTML = MatrixMessageContent.getIncomingHTML(
+      msg.event,
+      this._account._client.getHomeserverUrl(),
+      eventId => this.room.findEventById(eventId)
+    );
+    if (formattedHTML) {
+      msg.displayMessage = formattedHTML;
+    }
+    GenericConversationPrototype.prepareForDisplaying.apply(this, arguments);
   },
 
   /**
