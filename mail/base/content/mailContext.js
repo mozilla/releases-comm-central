@@ -49,6 +49,42 @@ function openContextMenu({ data, target }) {
 }
 
 var mailContextMenu = {
+  // Commands handled by commandController.
+  _commandMap: {
+    "mailContext-editDraftMsg": "cmd_editDraftMsg",
+    "mailContext-newMsgFromTemplate": "cmd_newMsgFromTemplate",
+    "mailContext-editTemplateMsg": "cmd_editTemplateMsg",
+    "mailContext-replyNewsgroup": "cmd_replyGroup",
+    "mailContext-replySender": "cmd_replySender",
+    "mailContext-replyAll": "cmd_replyall",
+    "mailContext-replyList": "cmd_replylist",
+    "mailContext-forward": "cmd_forward",
+    "mailContext-forwardAsInline": "cmd_forwardInline",
+    "mailContext-forwardAsAttachment": "cmd_forwardAttachment",
+    "mailContext-multiForwardAsAttachment": "cmd_forwardAttachment",
+    "mailContext-redirect": "cmd_redirect",
+    "mailContext-editAsNew": "cmd_editAsNew",
+    "mailContext-addNewTag": "cmd_addTag",
+    "mailContext-manageTags": "cmd_manageTags",
+    "mailContext-tagRemoveAll": "cmd_removeTags",
+    "mailContext-markRead": "cmd_markAsRead",
+    "mailContext-markUnread": "cmd_markAsUnread",
+    "mailContext-markThreadAsRead": "cmd_markThreadAsRead",
+    "mailContext-markReadByDate": "cmd_markReadByDate",
+    "mailContext-markAllRead": "cmd_markAllRead",
+    "mailContext-markFlagged": "cmd_markAsFlagged",
+    "mailContext-markAsJunk": "cmd_markAsJunk",
+    "mailContext-markAsNotJunk": "cmd_markAsNotJunk",
+    // "mailContext-recalculateJunkScore": "cmd_recalculateJunkScore",
+    "mailcontext-moveToFolderAgain": "cmd_moveToFolderAgain",
+    "mailContext-delete": "cmd_delete",
+    // "mailContext-ignoreThread": "cmd_killThread",
+    // "mailContext-ignoreSubthread": "cmd_killSubthread",
+    // "mailContext-watchThread": "cmd_watchThread",
+    // "mailContext-print": "cmd_print",
+    // "mailContext-downloadSelected": "cmd_downloadSelected",
+  },
+
   init() {
     let mailContext = document.getElementById("mailContext");
     mailContext.addEventListener("popupshowing", event => {
@@ -178,27 +214,18 @@ var mailContextMenu = {
       showItem(id, false);
     }
 
+    // Ask commandController about the commands it controls.
+    for (let [id, command] of Object.entries(this._commandMap)) {
+      showItem(id, commandController.isCommandEnabled(command));
+    }
+
     // let canArchive = true;
-    let numSelectedMessages = window.gViewWrapper
-      ? gViewWrapper.dbView.selection.count
-      : 1;
+    let numSelectedMessages = gViewWrapper.dbView.selection.count;
     let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
     let canMove =
       numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
     let canCopy = numSelectedMessages >= 1;
 
-    setSingleSelection(
-      "mailContext-editDraftMsg",
-      gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)
-    );
-    setSingleSelection(
-      "mailContext-newMsgFromTemplate",
-      gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
-    );
-    setSingleSelection(
-      "mailContext-editTemplateMsg",
-      gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
-    );
     setSingleSelection("mailContext-openNewTab");
     setSingleSelection("mailContext-openNewWindow");
     // setSingleSelection(
@@ -206,15 +233,7 @@ var mailContextMenu = {
     //   gConversationOpener.isSelectedMessageIndexed()
     // );
     // setSingleSelection("mailContext-openContainingFolder");
-    setSingleSelection("mailContext-replyNewsgroup", isNewsgroup);
-    setSingleSelection("mailContext-replySender");
-    setSingleSelection("mailContext-replyAll");
-    setSingleSelection("mailContext-replyList");
-    setSingleSelection("mailContext-forward");
     setSingleSelection("mailContext-forwardAsMenu");
-    showItem("mailContext-multiForwardAsAttachment", numSelectedMessages > 1);
-    setSingleSelection("mailContext-redirect");
-    setSingleSelection("mailContext-editAsNew");
     this._initMessageTags();
     this._initMessageMark();
     // setSingleSelection("mailContext-copyMessageUrl", isNewsgroup);
@@ -226,26 +245,11 @@ var mailContextMenu = {
     showItem("mailContext-moveMenu", canMove);
     showItem("mailContext-copyMenu", canCopy);
 
-    // Disable "Move to <folder> Again" for news and other read only
-    // folders since we can't really move messages from there - only copy.
-    let canMoveAgain = numSelectedMessages >= 1;
-    if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
-      canMoveAgain = canMove;
-    }
-    if (canMoveAgain) {
-      let targetURI = Services.prefs.getCharPref(
-        "mail.last_msg_movecopy_target_uri"
-      );
-      canMoveAgain =
-        targetURI && LazyModules.MailUtils.getExistingFolder(targetURI);
-    }
     window.browsingContext.topChromeWindow.initMoveToFolderAgainMenu(
       document.getElementById("mailContext-moveToFolderAgain")
     );
-    showItem("mailContext-moveToFolderAgain", canMoveAgain);
 
     // setSingleSelection("mailContext-calendar-convert-menu");
-    showItem("mailContext-delete", isNewsgroup || canMove);
     document.l10n.setAttributes(
       document.getElementById("mailContext-delete"),
       "mail-context-delete-messages",
@@ -270,6 +274,12 @@ var mailContextMenu = {
   },
 
   onMailContextMenuCommand(event) {
+    // If commandController handles this command, ask it to do so.
+    if (event.target.id in this._commandMap) {
+      commandController.doCommand(this._commandMap[event.target.id], event);
+      return;
+    }
+
     let topChromeWindow = window.browsingContext.topChromeWindow;
     switch (event.target.id) {
       // Links
@@ -346,17 +356,6 @@ var mailContextMenu = {
         topChromeWindow.openWebSearch(this.selectionInfo.text);
         break;
 
-      // Drafts/templates
-      case "mailContext-editDraftMsg":
-        commandController.doCommand("cmd_editDraftMsg", event);
-        break;
-      case "mailContext-newMsgFromTemplate":
-        commandController.doCommand("cmd_newMsgFromTemplate", event);
-        break;
-      case "mailContext-editTemplateMsg":
-        commandController.doCommand("cmd_editTemplateMsg", event);
-        break;
-
       // Open messages
       case "mailContext-openNewTab":
         topChromeWindow.OpenMessageInNewTab(gMessage, event);
@@ -371,79 +370,6 @@ var mailContextMenu = {
       //   MailUtils.displayMessageInFolderTab(gMessage);
       //   break;
 
-      // Reply/forward/redirect
-      case "mailContext-replyNewsgroup":
-        commandController.doCommand("cmd_replyGroup", event);
-        break;
-      case "mailContext-replySender":
-        commandController.doCommand("cmd_replySender", event);
-        break;
-      case "mailContext-replyAll":
-        commandController.doCommand("cmd_replyall", event);
-        break;
-      case "mailContext-replyList":
-        commandController.doCommand("cmd_replylist", event);
-        break;
-      case "mailContext-forward":
-        commandController.doCommand("cmd_forward");
-        break;
-      case "mailContext-forwardAsInline":
-        commandController.doCommand("cmd_forwardInline");
-        break;
-
-      // Forward As sub-menu
-      case "mailContext-forwardAsAttachment":
-      case "mailContext-multiForwardAsAttachment":
-        commandController.doCommand("cmd_forwardAttachment");
-        break;
-
-      case "mailContext-redirect":
-        commandController.doCommand("cmd_redirect");
-        break;
-      case "mailContext-editAsNew":
-        commandController.doCommand("cmd_editAsNew");
-        break;
-
-      // "Tags" sub-menu
-      case "mailContext-addNewTag":
-        goDoCommand("cmd_addTag");
-        break;
-      case "mailContext-manageTags":
-        goDoCommand("cmd_manageTags");
-        break;
-      case "mailContext-tagRemoveAll":
-        goDoCommand("cmd_removeTags");
-        break;
-
-      // "Mark" sub-menu
-      case "mailContext-markRead":
-        goDoCommand("cmd_markAsRead");
-        break;
-      case "mailContext-markUnread":
-        goDoCommand("cmd_markAsUnread");
-        break;
-      case "mailContext-markThreadAsRead":
-        goDoCommand("cmd_markThreadAsRead");
-        break;
-      case "mailContext-markReadByDate":
-        goDoCommand("cmd_markReadByDate");
-        break;
-      case "mailContext-markAllRead":
-        goDoCommand("cmd_markAllRead");
-        break;
-      case "mailContext-markFlagged":
-        goDoCommand("cmd_markAsFlagged");
-        break;
-      case "mailContext-markAsJunk":
-        goDoCommand("cmd_markAsJunk");
-        break;
-      case "mailContext-markAsNotJunk":
-        goDoCommand("cmd_markAsNotJunk");
-        break;
-      // case "mailContext-recalculateJunkScore":
-      //   goDoCommand("cmd_recalculateJunkScore");
-      //   break;
-
       // Move/copy/archive/convert/delete
       // (Move and Copy sub-menus are handled in the default case.)
       // case "mailContext-copyMessageUrl":
@@ -453,10 +379,6 @@ var mailContextMenu = {
       //   MsgArchiveSelectedMessages(event);
       //   break;
 
-      case "mailcontext-moveToFolderAgain":
-        goDoCommand("cmd_moveToFolderAgain");
-        break;
-
       // Calendar Convert sub-menu
       // case "mailContext-calendar-convert-event-menuitem":
       //   calendarExtract.extractFromEmail(true);
@@ -465,31 +387,10 @@ var mailContextMenu = {
       //   calendarExtract.extractFromEmail(false);
       //   break;
 
-      case "mailContext-delete":
-        goDoCommand("cmd_delete");
-        break;
-
-      // Threads
-      // case "mailContext-ignoreThread":
-      //   goDoCommand("cmd_killThread");
-      //   break;
-      // case "mailContext-ignoreSubthread":
-      //   goDoCommand("cmd_killSubthread");
-      //   break;
-      // case "mailContext-watchThread":
-      //   goDoCommand("cmd_watchThread");
-      //   break;
-
       // Save/print/download
       case "mailContext-saveAs":
         window.browsingContext.topChromeWindow.SaveAsFile([gMessageURI]);
         break;
-      // case "mailContext-print":
-      //   goDoCommand("cmd_print");
-      //   break;
-      // case "mailContext-downloadSelected":
-      //   goDoCommand("cmd_downloadSelected");
-      //   break;
 
       default: {
         let closestMenu = event.target.closest("menu");
@@ -799,7 +700,69 @@ var commandController = {
     );
   },
   isCommandEnabled(command) {
-    return true;
+    let numSelectedMessages = gViewWrapper.dbView.selection.count;
+    let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
+    let canMove =
+      numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
+
+    switch (command) {
+      case "cmd_reply":
+      case "cmd_replySender":
+      case "cmd_replyall":
+      case "cmd_replylist":
+      case "cmd_forward":
+      case "cmd_redirect":
+      case "cmd_editAsNew":
+        return numSelectedMessages == 1;
+      case "cmd_forwardInline":
+      case "cmd_forwardAttachment":
+      case "cmd_addTag":
+      case "cmd_manageTags":
+      case "cmd_removeTags":
+      case "cmd_toggleRead":
+      case "cmd_markAsRead":
+      case "cmd_markAsUnread":
+      case "cmd_markThreadAsRead":
+      case "cmd_markReadByDate":
+      case "cmd_markAllRead":
+      case "cmd_markAsFlagged":
+      case "cmd_markAsJunk":
+      case "cmd_markAsNotJunk":
+        return numSelectedMessages >= 1;
+      case "cmd_editDraftMsg":
+        return (
+          numSelectedMessages == 1 &&
+          gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)
+        );
+      case "cmd_newMsgFromTemplate":
+      case "cmd_editTemplateMsg":
+        return (
+          numSelectedMessages == 1 &&
+          gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
+        );
+      case "cmd_replyGroup":
+        return isNewsgroup;
+      case "cmd_moveToFolderAgain": {
+        // Disable "Move to <folder> Again" for news and other read only
+        // folders since we can't really move messages from there - only copy.
+        let canMoveAgain = numSelectedMessages >= 1;
+        if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
+          canMoveAgain = canMove;
+        }
+        if (canMoveAgain) {
+          let targetURI = Services.prefs.getCharPref(
+            "mail.last_msg_movecopy_target_uri"
+          );
+          canMoveAgain =
+            targetURI && LazyModules.MailUtils.getExistingFolder(targetURI);
+        }
+        return canMoveAgain;
+      }
+      case "cmd_delete":
+        return isNewsgroup || canMove;
+    }
+
+    return false;
   },
   doCommand(command, event) {
     if (!this.isCommandEnabled(command)) {
