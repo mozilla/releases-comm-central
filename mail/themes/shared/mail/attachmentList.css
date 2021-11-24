@@ -95,14 +95,6 @@
   color: var(--sidebar-text-color);
 }
 
-:root[lwt-tree] .attachmentList {
-  scrollbar-color: rgba(204, 204, 204, .5) rgba(230, 230, 235, .5);
-}
-
-:root[lwt-tree-brighttext] .attachmentList {
-  scrollbar-color: rgba(249, 249, 250, .4) rgba(20, 20, 25, .3);
-}
-
 :root[lwt-tree] .attachmentList .attachmentItem {
   color: var(--sidebar-text-color) !important;
 }

@@ -79,16 +79,9 @@ splitter:not([orient="vertical"]) {
   color: var(--lwt-text-color);
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
-
   --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
   --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
   --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
-
-  scrollbar-color: rgba(128, 128, 128, 0.5) rgba(230, 230, 235, 0.5);
-}
-
-:root[lwt-tree-brighttext] #headers-box {
-  scrollbar-color: rgba(249, 249, 250, 0.4) rgba(20, 20, 25, 0.3);
 }
 
 :root[lwt-tree] #MsgHeadersToolbar {
@@ -101,11 +94,6 @@ splitter:not([orient="vertical"]) {
   --panel-background: var(--arrowpanel-background);
   --panel-color: var(--arrowpanel-color);
   --panel-border-color: var(--arrowpanel-border-color);
-  scrollbar-color: rgba(128, 128, 128, 0.5) rgba(230, 230, 235, 0.5);
-}
-
-:root[lwt-tree-brighttext] panel[type="autocomplete-richlistbox"] {
-  scrollbar-color: rgba(249, 249, 250, 0.4) rgba(20, 20, 25, 0.3);
 }
 
 :root[lwt-tree] .autocomplete-richlistbox {

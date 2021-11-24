@@ -1030,11 +1030,6 @@ calendar-editable-item[status="CANCELLED"],
 :root[lwt-tree] #view-box {
   background-color: var(--sidebar-background-color);
   border-color: var(--sidebar-border-color);
-  scrollbar-color: rgba(128,128,128,.5) rgba(230,230,235,.5);
-}
-
-:root[lwt-tree-brighttext] #view-box {
-  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
 :root[systemcolors] #view-box {

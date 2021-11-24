@@ -27,11 +27,6 @@ html|input.textbox-addressingWidget:disabled {
   background-color: var(--field-background-color);
   color: var(--field-text-color);
   border: 1px solid var(--field-border-color);
-  scrollbar-color: rgba(204, 204, 204, 0.5) rgba(230, 230, 235, 0.5);
-}
-
-:root[lwt-tree-brighttext] .item-attendees-list-container {
-  scrollbar-color: rgba(249, 249, 250, 0.4) rgba(20, 20, 25, 0.3);
 }
 
 .attendee-list {
