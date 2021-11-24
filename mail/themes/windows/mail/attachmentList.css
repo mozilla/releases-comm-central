@@ -6,7 +6,7 @@
 
 /* styles for the attachment list */
 
-.attachmentItem:hover {
+.attachmentItem:where(:hover) {
   background-color: hsla(0, 0%, 50%, 0.15);
 }
 

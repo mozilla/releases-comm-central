@@ -37,6 +37,10 @@
   pointer-events: none;
 }
 
+.attachmentList:focus > .attachmentItem[selected="true"] > * {
+  color: inherit;
+}
+
 .attachmentItem > .attachmentcell-icon {
   flex: 0 0 auto;
   align-self: center;
