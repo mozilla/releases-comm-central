@@ -790,124 +790,135 @@
       return eventList;
     }
 
+    /**
+     * Get information about which columns, relative to this column, are
+     * covered by the given time interval.
+     *
+     * @param {number} start - The starting time of the interval, in minutes
+     *   from the start of this column's day. Should be negative for times on
+     *   previous days. This must be on this column's day or earlier.
+     * @param {number} end - The ending time of the interval, in minutes from
+     *   the start of this column's day. This can go beyond the end of this day.
+     *   This must be greater than 'start' and on this column's day or later.
+     *
+     * @return {Object} - Data determining which columns are covered by the
+     *   interval. Each column that is in the given range is covered from the
+     *   start of the day to the end, apart from the first and last columns.
+     * @property {number} shadows - The number of columns that have some cover.
+     * @property {number} offset - The number of columns before this column that
+     *   have some cover. For example, if 'start' is the day before, this is 1.
+     * @property {number} startMin - The starting time of the time interval, in
+     *   minutes relative to the start of the first column's day.
+     * @property {number} endMin - The ending time of the time interval, in
+     *   minutes relative to the start of the last column's day.
+     */
     getShadowElements(start, end) {
-      // 'start' and 'aEnd' are start and end minutes of the occurrence
-      // from time 0:00 of the dragging column.
       let shadows = 1;
       let offset = 0;
       let startMin;
       if (start < 0) {
-        shadows += Math.ceil(Math.abs(start) / MINUTES_IN_DAY);
-        offset = shadows - 1;
+        offset = Math.ceil(Math.abs(start) / MINUTES_IN_DAY);
+        shadows += offset;
         let remainder = Math.abs(start) % MINUTES_IN_DAY;
         startMin = remainder ? MINUTES_IN_DAY - remainder : 0;
       } else {
         startMin = start;
       }
       shadows += Math.floor(end / MINUTES_IN_DAY);
-
-      // Return values needed to build the shadows while dragging.
-      return {
-        shadows, // Number of shadows.
-        offset, // Offset first<->selected shadows.
-        startMin, // First shadow start minute.
-        endMin: end % MINUTES_IN_DAY, // Last shadow end minute.
-      };
+      return { shadows, offset, startMin, endMin: end % MINUTES_IN_DAY };
     }
 
-    firstLastShadowColumns(offset, shadows) {
-      let firstCol = this; // eslint-disable-line consistent-this
-      let lastCol = this; // eslint-disable-line consistent-this
-      let firstIndex = offset == null ? this.mDragState.offset : offset;
-      let lastIndex = firstIndex;
-      while (firstCol.previousElementSibling && firstIndex > 0) {
-        firstCol = firstCol.previousElementSibling;
-        firstIndex--;
-      }
-      let lastShadow = shadows == null ? this.mDragState.shadows : shadows;
-      while (lastCol.nextElementSibling && lastIndex < lastShadow - 1) {
-        lastCol = lastCol.nextElementSibling;
-        lastIndex++;
+    /**
+     * Clear a dragging sequence that is owned by this column.
+     */
+    clearDragging() {
+      for (let col of this.calendarView.getEventColumns()) {
+        col.fgboxes.dragbox.removeAttribute("dragging");
+        col.fgboxes.box.removeAttribute("dragging");
       }
 
-      // Returns first and last column with shadows that are visible in the
-      // week and the positions of these (visible) columns in the set of
-      // columns shadows of the occurrence.
-      return {
-        firstCol,
-        firstIndex,
-        lastCol,
-        lastIndex,
-      };
+      window.removeEventListener("mousemove", this.onEventSweepMouseMove);
+      window.removeEventListener("mouseup", this.onEventSweepMouseUp);
+      window.removeEventListener("keypress", this.onEventSweepKeypress);
+      document.calendarEventColumnDragging = null;
+      this.mDragState = null;
     }
 
-    updateShadowsBoxes(aStart, aEnd, aCurrentOffset, aCurrentShadows, aSizeattr) {
-      let lateralColumns = this.firstLastShadowColumns(aCurrentOffset, aCurrentShadows);
-      let firstCol = lateralColumns.firstCol;
-      let firstIndex = lateralColumns.firstIndex;
-      let lastCol = lateralColumns.lastCol;
-      let lastIndex = lateralColumns.lastIndex;
-
-      // Remove the first/last shadow when start/end time goes in the
-      // next/previous day. This happens when current offset is different
-      // from offset stored in mDragState.
-      if (aCurrentOffset != null) {
-        if (this.mDragState.offset > aCurrentOffset && firstCol.previousElementSibling) {
-          firstCol.previousElementSibling.fgboxes.dragbox.removeAttribute("dragging");
-          firstCol.previousElementSibling.fgboxes.box.removeAttribute("dragging");
-        }
-        let currentOffsetEndSide = aCurrentShadows - 1 - aCurrentOffset;
-        if (
-          this.mDragState.shadows - 1 - this.mDragState.offset > currentOffsetEndSide &&
-          lastCol.nextElementSibling
-        ) {
-          lastCol.nextElementSibling.fgboxes.dragbox.removeAttribute("dragging");
-          lastCol.nextElementSibling.fgboxes.box.removeAttribute("dragging");
+    /**
+     * Update the shown drag state of all event columns in the same view using
+     * the mDragState of the current column.
+     */
+    updateColumnShadows() {
+      let startStr;
+      // Tasks without Entry or Due date have a string as first label
+      // instead of the time.
+      let item = this.mDragState.dragOccurrence;
+      if (item?.isTodo()) {
+        if (!item.dueDate) {
+          startStr = cal.l10n.getCalString("dragLabelTasksWithOnlyEntryDate");
+        } else if (!item.entryDate) {
+          startStr = cal.l10n.getCalString("dragLabelTasksWithOnlyDueDate");
         }
       }
 
-      // Set shadow boxes size for every part of the occurrence.
-      let firstShadowSize = (aCurrentShadows == 1 ? aEnd : MINUTES_IN_DAY) - aStart;
-      let column = firstCol;
-      for (let i = firstIndex; column && i <= lastIndex; i++) {
-        column.fgboxes.box.setAttribute("dragging", "true");
-        column.fgboxes.dragbox.setAttribute("dragging", "true");
-        if (i == 0) {
-          // First shadow.
-          column.fgboxes.dragspacer.setAttribute(aSizeattr, aStart * column.mPixPerMin);
-          column.fgboxes.dragbox.setAttribute(aSizeattr, firstShadowSize * column.mPixPerMin);
-        } else if (i == aCurrentShadows - 1) {
-          // Last shadow.
-          column.fgboxes.dragspacer.setAttribute(aSizeattr, 0);
-          column.fgboxes.dragbox.setAttribute(aSizeattr, aEnd * column.mPixPerMin);
+      let { startMin, endMin, offset, shadows } = this.mDragState;
+      let jsTime = new Date();
+      let formatter = cal.dtz.formatter;
+      if (!startStr) {
+        jsTime.setHours(0, startMin, 0);
+        startStr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
+      }
+      jsTime.setHours(0, endMin, 0);
+      let endStr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
+
+      let allColumns = this.calendarView.getEventColumns();
+      let thisIndex = allColumns.indexOf(this);
+      // NOTE: startIndex and endIndex be before or after the start and end of
+      // the week, respectively, if the event spans multiple days.
+      let startIndex = thisIndex - offset;
+      let endIndex = startIndex + shadows - 1;
+
+      // All columns have the same orient and pixels per minutes.
+      let sizeAttr = this.getAttribute("orient") == "vertical" ? "height" : "width";
+      let pixPerMin = this.mPixPerMin;
+
+      for (let i = 0; i < allColumns.length; i++) {
+        let fgboxes = allColumns[i].fgboxes;
+        if (i == startIndex) {
+          fgboxes.dragbox.setAttribute("dragging", "true");
+          fgboxes.box.setAttribute("dragging", "true");
+          fgboxes.dragspacer.setAttribute(sizeAttr, startMin * pixPerMin);
+          fgboxes.dragbox.setAttribute(
+            sizeAttr,
+            ((i == endIndex ? endMin : MINUTES_IN_DAY) - startMin) * pixPerMin
+          );
+          fgboxes.startlabel.value = startStr;
+          fgboxes.endlabel.value = i == endIndex ? endStr : "";
+        } else if (i == endIndex) {
+          fgboxes.dragbox.setAttribute("dragging", "true");
+          fgboxes.box.setAttribute("dragging", "true");
+          fgboxes.dragspacer.setAttribute(sizeAttr, 0);
+          fgboxes.dragbox.setAttribute(sizeAttr, endMin * pixPerMin);
+          fgboxes.startlabel.value = "";
+          fgboxes.endlabel.value = endStr;
+        } else if (i > startIndex && i < endIndex) {
+          fgboxes.dragbox.setAttribute("dragging", "true");
+          fgboxes.box.setAttribute("dragging", "true");
+          fgboxes.dragspacer.setAttribute(sizeAttr, 0);
+          fgboxes.dragbox.setAttribute(sizeAttr, MINUTES_IN_DAY * pixPerMin);
+          fgboxes.startlabel.value = "";
+          fgboxes.endlabel.value = "";
         } else {
-          // An intermediate shadow (full day).
-          column.fgboxes.dragspacer.setAttribute(aSizeattr, 0);
-          column.fgboxes.dragbox.setAttribute(aSizeattr, MINUTES_IN_DAY * column.mPixPerMin);
+          fgboxes.dragbox.removeAttribute("dragging");
+          fgboxes.box.removeAttribute("dragging");
         }
-        column = column.nextElementSibling;
       }
     }
 
     onEventSweepKeypress(event) {
       let col = document.calendarEventColumnDragging;
       if (col && event.key == "Escape") {
-        window.removeEventListener("mousemove", col.onEventSweepMouseMove);
-        window.removeEventListener("mouseup", col.onEventSweepMouseUp);
-        window.removeEventListener("keypress", col.onEventSweepKeypress);
-
-        let lateralColumns = col.firstLastShadowColumns();
-        let column = lateralColumns.firstCol;
-        let index = lateralColumns.firstIndex;
-        while (column && index < col.mDragState.shadows) {
-          column.fgboxes.dragbox.removeAttribute("dragging");
-          column.fgboxes.box.removeAttribute("dragging");
-          column = column.nextElementSibling;
-          index++;
-        }
-
-        col.mDragState = null;
-        document.calendarEventColumnDragging = null;
+        col.clearDragging();
       }
     }
 
@@ -970,30 +981,13 @@
 
       let dragState = col.mDragState;
 
-      let lateralColumns = col.firstLastShadowColumns();
-      let firstCol = lateralColumns.firstCol;
-      let firstIndex = lateralColumns.firstIndex;
-
       let newcol = col.calendarView.findEventColumnThatContains(event.target);
       // If we leave the view, then stop our internal sweeping and start a
       // real drag session. Someday we need to fix the sweep to soely be a
       // drag session, no sweeping.
       if (dragState.dragType == "move" && !newcol) {
         // Remove the drag state.
-        for (
-          let column = firstCol, i = firstIndex;
-          column && i < col.mDragState.shadows;
-          column = column.nextElementSibling, i++
-        ) {
-          column.fgboxes.dragbox.removeAttribute("dragging");
-          column.fgboxes.box.removeAttribute("dragging");
-        }
-
-        window.removeEventListener("mousemove", col.onEventSweepMouseMove);
-        window.removeEventListener("mouseup", col.onEventSweepMouseUp);
-        window.removeEventListener("keypress", col.onEventSweepKeypress);
-        document.calendarEventColumnDragging = null;
-        col.mDragState = null;
+        col.clearDragging();
 
         let item = dragState.dragOccurrence;
 
@@ -1012,9 +1006,6 @@
         invokeEventDragSession(dragState.dragOccurrence, col);
         return;
       }
-
-      col.fgboxes.box.setAttribute("dragging", "true");
-      col.fgboxes.dragbox.setAttribute("dragging", "true");
 
       // Check if we need to jump a column.
       if (newcol && newcol != col) {
@@ -1040,33 +1031,21 @@
           dragState.limitStartMin -= MINUTES_IN_DAY * jumpedColumns;
           dragState.jumpedColumns += jumpedColumns;
         }
-        // Kill our drag state.
-        for (
-          let column = firstCol, i = firstIndex;
-          column && i < col.mDragState.shadows;
-          column = column.nextElementSibling, i++
-        ) {
-          column.fgboxes.dragbox.removeAttribute("dragging");
-          column.fgboxes.box.removeAttribute("dragging");
-        }
 
-        // Jump ship.
-        newcol.acceptInProgressSweep(dragState);
-
-        // Restart event handling.
-        col.onEventSweepMouseMove(event);
-
-        return;
+        // Move drag state to the new column.
+        col.mDragState = null;
+        newcol.mDragState = dragState;
+        document.calendarEventColumnDragging = newcol;
+        // The same event handlers are still valid,
+        // because they use document.calendarEventColumnDragging.
+        col = newcol;
       }
 
       let mousePos;
-      let sizeattr;
       if (col.getAttribute("orient") == "vertical") {
         mousePos = event.screenY - col.parentNode.screenY;
-        sizeattr = "height";
       } else {
         mousePos = event.screenX - col.parentNode.screenX;
-        sizeattr = "width";
       }
       // Don't let mouse position go outside the window edges.
       let pos = Math.max(0, mousePos) - dragState.mouseOffset;
@@ -1139,24 +1118,11 @@
             Math.floor((dragState.limitStartMin + snapIntMin) / snapIntMin) * snapIntMin;
         }
       }
-      let currentOffset = shadowElements.offset;
-      let currentShadows = shadowElements.shadows;
+      col.mDragState.offset = shadowElements.offset;
+      col.mDragState.shadows = shadowElements.shadows;
 
       // Now we can update the shadow boxes position and size.
-      col.updateShadowsBoxes(
-        dragState.startMin,
-        dragState.endMin,
-        currentOffset,
-        currentShadows,
-        sizeattr
-      );
-
-      // Update the labels.
-      lateralColumns = col.firstLastShadowColumns(currentOffset, currentShadows);
-      col.updateDragLabels(lateralColumns.firstCol, lateralColumns.lastCol);
-
-      col.mDragState.offset = currentOffset;
-      col.mDragState.shadows = currentShadows;
+      col.updateColumnShadows();
     }
 
     onEventSweepMouseUp(event) {
@@ -1167,34 +1133,15 @@
 
       let dragState = col.mDragState;
 
-      let lateralColumns = col.firstLastShadowColumns();
-      let column = lateralColumns.firstCol;
-      let index = lateralColumns.firstIndex;
-      while (column && index < dragState.shadows) {
-        column.fgboxes.dragbox.removeAttribute("dragging");
-        column.fgboxes.box.removeAttribute("dragging");
-        column = column.nextElementSibling;
-        index++;
-      }
-
+      col.clearDragging();
       col.clearMagicScroll();
-
-      window.removeEventListener("mousemove", col.onEventSweepMouseMove);
-      window.removeEventListener("mouseup", col.onEventSweepMouseUp);
-      window.removeEventListener("keypress", col.onEventSweepKeypress);
 
       // If the user didn't sweep out at least a few pixels, ignore
       // unless we're in a different column.
       if (dragState.origColumn == col) {
-        let ignore = false;
         let orient = col.getAttribute("orient");
         let position = orient == "vertical" ? event.screenY : event.screenX;
         if (Math.abs(position - dragState.origLoc) < 3) {
-          ignore = true;
-        }
-
-        if (ignore) {
-          col.mDragState = null;
           return;
         }
       }
@@ -1346,8 +1293,6 @@
       ) {
         col.calendarView.controller.modifyOccurrence(dragState.dragOccurrence, newStart, newEnd);
       }
-      document.calendarEventColumnDragging = null;
-      col.mDragState = null;
     }
 
     // This is called by an event box when a grippy on either side is dragged,
@@ -1387,13 +1332,10 @@
 
       // Snap interval: 15 minutes or 1 minute if modifier key is pressed.
       let snapIntMin = aSnapInt || 15;
-      let sizeattr;
       if (this.getAttribute("orient") == "vertical") {
         this.mDragState.origLoc = aMouseY;
-        sizeattr = "height";
       } else {
         this.mDragState.origLoc = aMouseX;
-        sizeattr = "width";
       }
 
       let stdate = aOccurrence.startDate || aOccurrence.entryDate || aOccurrence.dueDate;
@@ -1424,17 +1366,7 @@
         this.mDragState.endMin = shadowElements.endMin;
         this.mDragState.shadows = shadowElements.shadows;
         this.mDragState.offset = shadowElements.offset;
-        this.updateShadowsBoxes(
-          this.mDragState.origMin,
-          this.mDragState.endMin,
-          0,
-          this.mDragState.shadows,
-          sizeattr
-        );
-
-        // Update drag labels.
-        let lastCol = this.firstLastShadowColumns().lastCol;
-        this.updateDragLabels(this, lastCol);
+        this.updateColumnShadows();
       } else if (aGrabbedElement == "end") {
         this.mDragState.dragType = "modify-end";
         // We have to use "realStart" as fixed end value.
@@ -1454,17 +1386,7 @@
         this.mDragState.endMin = shadowElements.endMin;
         this.mDragState.shadows = shadowElements.shadows;
         this.mDragState.offset = shadowElements.offset;
-        this.updateShadowsBoxes(
-          this.mDragState.startMin,
-          this.mDragState.endMin,
-          shadowElements.offset,
-          this.mDragState.shadows,
-          sizeattr
-        );
-
-        // Update drag labels.
-        let firstCol = this.firstLastShadowColumns().firstCol;
-        this.updateDragLabels(firstCol, this);
+        this.updateColumnShadows();
       } else if (aGrabbedElement == "middle") {
         this.mDragState.dragType = "move";
         // In a move, origMin will be the start minute of the element where
@@ -1488,6 +1410,8 @@
         );
         this.mDragState.shadows = shadowElements.shadows;
         this.mDragState.offset = shadowElements.offset;
+        // Do not show the shadow yet.
+
         // We need to set a mouse offset, since we're not dragging from
         // one end of the element.
         if (aEventBox) {
@@ -1506,49 +1430,6 @@
       window.addEventListener("mousemove", this.onEventSweepMouseMove);
       window.addEventListener("mouseup", this.onEventSweepMouseUp);
       window.addEventListener("keypress", this.onEventSweepKeypress);
-    }
-
-    // Called by sibling columns to tell us to take over the sweeping
-    // of an event.
-    acceptInProgressSweep(dragState) {
-      this.mDragState = dragState;
-      document.calendarEventColumnDragging = this;
-
-      this.fgboxes.box.setAttribute("dragging", "true");
-      this.fgboxes.dragbox.setAttribute("dragging", "true");
-
-      // The same event handlers are still valid,
-      // because they use document.calendarEventColumnDragging.
-      // So we really don't have anything to do here.
-    }
-
-    updateDragLabels(firstColumnUpdate, lastColumnUpdate) {
-      if (!this.mDragState) {
-        return;
-      }
-
-      let firstColumn = firstColumnUpdate || this;
-      let lastColumn = lastColumnUpdate || this;
-
-      let formatter = cal.dtz.formatter;
-
-      let jsTime = new Date();
-      jsTime.setHours(0, this.mDragState.startMin, 0);
-      let startstr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
-      jsTime.setHours(0, this.mDragState.endMin, 0);
-      let endstr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
-
-      // Tasks without Entry or Due date have a string as first label
-      // instead of the time.
-      if (this.mDragState.dragOccurrence && this.mDragState.dragOccurrence.isTodo()) {
-        if (!this.mDragState.dragOccurrence.dueDate) {
-          startstr = cal.l10n.getCalString("dragLabelTasksWithOnlyEntryDate");
-        } else if (!this.mDragState.dragOccurrence.entryDate) {
-          startstr = cal.l10n.getCalString("dragLabelTasksWithOnlyDueDate");
-        }
-      }
-      firstColumn.fgboxes.startlabel.setAttribute("value", startstr);
-      lastColumn.fgboxes.endlabel.setAttribute("value", endstr);
     }
 
     setDayStartEndMinutes(dayStartMin, dayEndMin) {
@@ -3314,6 +3195,19 @@
       }
 
       return columns;
+    }
+
+    /**
+     * Get an ordered list of all the calendar-event-column elements in this
+     * view.
+     *
+     * @return {MozCalendarEventColumn[]} - The columns in this view.
+     */
+    getEventColumns() {
+      if (!this.mDateColumns) {
+        return [];
+      }
+      return Array.from(this.mDateColumns, col => col.column);
     }
 
     /**
