@@ -13,6 +13,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+  const MINUTES_IN_DAY = 24 * 60;
 
   /**
    * The MozCalendarEventColumn widget used for displaying event boxes in one column per day.
@@ -135,10 +136,6 @@
 
       // Fields.
       this.mPixPerMin = 0.6;
-
-      this.mStartMin = 0;
-
-      this.mEndMin = 24 * 60;
 
       this.mDayStartMin = 8 * 60;
 
@@ -420,15 +417,9 @@
       // The minimum event duration in minutes that would give at least the
       // desired minSize in the layout.
       let minDuration = Math.ceil(minSize / this.mPixPerMin);
+      let prevEndPix = 0;
 
-      let theMin = this.mStartMin;
-      while (theMin < this.mEndMin) {
-        let dur = theMin % 60;
-        theMin += dur;
-        if (dur == 0) {
-          dur = 60;
-        }
-
+      for (let hour = 0; hour < 24; hour++) {
         let box = document.createXULElement("spacer");
         // We key off this in a CSS selector.
         box.setAttribute("orient", orient);
@@ -440,18 +431,18 @@
         if (this.mDayOff) {
           box.setAttribute("weekend", "true");
         }
-        if (theMin < this.mDayStartMin || theMin >= this.mDayEndMin) {
+        let minute = hour * 60;
+        if (minute < this.mDayStartMin || minute >= this.mDayEndMin) {
           box.setAttribute("off-time", "true");
         }
-
         // Carry forth the day relation.
         box.setAttribute("relation", this.getAttribute("relation"));
 
         // Calculate duration pixel as the difference between
         // start pixel and end pixel to avoid rounding errors.
-        let startPix = Math.round(theMin * this.mPixPerMin);
-        let endPix = Math.round((theMin + dur) * this.mPixPerMin);
-        let durPix = endPix - startPix;
+        let endPix = Math.round((hour + 1) * 60 * this.mPixPerMin);
+        let durPix = endPix - prevEndPix;
+        prevEndPix = endPix;
         if (orient == "vertical") {
           box.setAttribute("height", durPix);
         } else {
@@ -459,7 +450,6 @@
         }
 
         this.bgbox.appendChild(box);
-        theMin += 60;
       }
 
       // 'fgbox' is used for dragging events.
@@ -652,7 +642,7 @@
           eventInfo.end = Math.max(end.hour * 60 + end.minute, minEnd);
         } else {
           // NOTE: minEnd can overflow the end of the day.
-          eventInfo.end = Math.max(24 * 60, minEnd);
+          eventInfo.end = Math.max(MINUTES_IN_DAY, minEnd);
           eventInfo.endClipped = true;
         }
       }
@@ -807,21 +797,21 @@
       let offset = 0;
       let startMin;
       if (start < 0) {
-        shadows += Math.ceil(Math.abs(start) / this.mEndMin);
+        shadows += Math.ceil(Math.abs(start) / MINUTES_IN_DAY);
         offset = shadows - 1;
-        let reminder = Math.abs(start) % this.mEndMin;
-        startMin = this.mEndMin - (reminder ? reminder : this.mEndMin);
+        let remainder = Math.abs(start) % MINUTES_IN_DAY;
+        startMin = remainder ? MINUTES_IN_DAY - remainder : 0;
       } else {
         startMin = start;
       }
-      shadows += Math.floor(end / this.mEndMin);
+      shadows += Math.floor(end / MINUTES_IN_DAY);
 
       // Return values needed to build the shadows while dragging.
       return {
         shadows, // Number of shadows.
         offset, // Offset first<->selected shadows.
         startMin, // First shadow start minute.
-        endMin: end % this.mEndMin, // Last shadow end minute.
+        endMin: end % MINUTES_IN_DAY, // Last shadow end minute.
       };
     }
 
@@ -877,7 +867,7 @@
       }
 
       // Set shadow boxes size for every part of the occurrence.
-      let firstShadowSize = (aCurrentShadows == 1 ? aEnd : this.mEndMin) - aStart;
+      let firstShadowSize = (aCurrentShadows == 1 ? aEnd : MINUTES_IN_DAY) - aStart;
       let column = firstCol;
       for (let i = firstIndex; column && i <= lastIndex; i++) {
         column.fgboxes.box.setAttribute("dragging", "true");
@@ -893,7 +883,7 @@
         } else {
           // An intermediate shadow (full day).
           column.fgboxes.dragspacer.setAttribute(aSizeattr, 0);
-          column.fgboxes.dragbox.setAttribute(aSizeattr, this.mEndMin * column.mPixPerMin);
+          column.fgboxes.dragbox.setAttribute(aSizeattr, MINUTES_IN_DAY * column.mPixPerMin);
         }
         column = column.nextElementSibling;
       }
@@ -1025,30 +1015,29 @@
 
       col.fgboxes.box.setAttribute("dragging", "true");
       col.fgboxes.dragbox.setAttribute("dragging", "true");
-      let minutesInDay = col.mEndMin - col.mStartMin;
 
       // Check if we need to jump a column.
-      let jumpedColumns;
       if (newcol && newcol != col) {
         // Find how many columns we are jumping by subtracting the dates.
         let dur = newcol.mDate.subtractDate(col.mDate);
-        jumpedColumns = dur.days;
-        jumpedColumns *= dur.isNegative ? -1 : 1;
+        let jumpedColumns = dur.isNegative ? -dur.days : dur.days;
         if (dragState.dragType == "modify-start") {
           // Prevent dragging the start date after the end date in a new column.
-          if (dragState.limitEndMin - minutesInDay * jumpedColumns < 0) {
+          let limitEndMin = dragState.limitEndMin - MINUTES_IN_DAY * jumpedColumns;
+          if (limitEndMin < 0) {
             return;
           }
-          dragState.limitEndMin -= minutesInDay * jumpedColumns;
+          dragState.limitEndMin = limitEndMin;
         } else if (dragState.dragType == "modify-end") {
+          let limitStartMin = dragState.limitStartMin - MINUTES_IN_DAY * jumpedColumns;
           // Prevent dragging the end date before the start date in a new column.
-          if (dragState.limitStartMin - minutesInDay * jumpedColumns > minutesInDay) {
+          if (limitStartMin > MINUTES_IN_DAY) {
             return;
           }
-          dragState.limitStartMin -= minutesInDay * jumpedColumns;
+          dragState.limitStartMin = limitStartMin;
         } else if (dragState.dragType == "new") {
-          dragState.limitEndMin -= minutesInDay * jumpedColumns;
-          dragState.limitStartMin -= minutesInDay * jumpedColumns;
+          dragState.limitEndMin -= MINUTES_IN_DAY * jumpedColumns;
+          dragState.limitStartMin -= MINUTES_IN_DAY * jumpedColumns;
           dragState.jumpedColumns += jumpedColumns;
         }
         // Kill our drag state.
@@ -1091,7 +1080,7 @@
       let shadowElements;
       if (dragState.dragType == "new") {
         // Extend deltamin in a linear way over the columns.
-        deltamin += minutesInDay * dragState.jumpedColumns;
+        deltamin += MINUTES_IN_DAY * dragState.jumpedColumns;
         if (deltamin < 0) {
           // Create a new event modifying the start. End time is fixed.
           shadowElements = {
@@ -1246,7 +1235,7 @@
           dragDay.month,
           dragDay.day,
           0,
-          dragState.startMin + col.mStartMin,
+          dragState.startMin,
           0,
           newStart.timezone
         );
@@ -1256,7 +1245,7 @@
           dragDay.month,
           dragDay.day,
           0,
-          dragState.endMin + col.mStartMin,
+          dragState.endMin,
           0,
           newEnd.timezone
         );
@@ -1272,7 +1261,7 @@
           newStart.month,
           newStart.day,
           0,
-          dragState.startMin + col.mStartMin,
+          dragState.startMin,
           0,
           newStart.timezone
         );
@@ -1281,7 +1270,7 @@
           newEnd.month,
           newEnd.day,
           0,
-          dragState.endMin + col.mStartMin,
+          dragState.endMin,
           0,
           newEnd.timezone
         );
@@ -1540,20 +1529,13 @@
 
       let firstColumn = firstColumnUpdate || this;
       let lastColumn = lastColumnUpdate || this;
-      let realstartmin = this.mDragState.startMin + this.mStartMin;
-      let realendmin = this.mDragState.endMin + this.mStartMin;
-      let starthr = Math.floor(realstartmin / 60);
-      let startmin = realstartmin % 60;
-
-      let endhr = Math.floor(realendmin / 60);
-      let endmin = realendmin % 60;
 
       let formatter = cal.dtz.formatter;
 
       let jsTime = new Date();
-      jsTime.setHours(starthr, startmin);
+      jsTime.setHours(0, this.mDragState.startMin, 0);
       let startstr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
-      jsTime.setHours(endhr, endmin);
+      jsTime.setHours(0, this.mDragState.endMin, 0);
       let endstr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
 
       // Tasks without Entry or Due date have a string as first label
@@ -1570,7 +1552,7 @@
     }
 
     setDayStartEndMinutes(dayStartMin, dayEndMin) {
-      if (dayStartMin < this.mStartMin || dayStartMin > dayEndMin || dayEndMin > this.mEndMin) {
+      if (dayStartMin < 0 || dayStartMin > dayEndMin || dayEndMin > MINUTES_IN_DAY) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
       if (this.mDayStartMin != dayStartMin || this.mDayEndMin != dayEndMin) {
@@ -1593,7 +1575,7 @@
       } else {
         pos = event.screenX - this.parentNode.screenX;
       }
-      newStart.minute = Math.round(pos / interval) * ROUND_INTERVAL + this.mStartMin;
+      newStart.minute = Math.round(pos / interval) * ROUND_INTERVAL;
       event.stopPropagation();
       return newStart;
     }
@@ -2037,9 +2019,6 @@
 
       this.mPixPerMin = 0.6;
 
-      this.mStartMin = 0;
-      this.mEndMin = 24 * 60;
-
       this.mDayStartHour = 0;
       this.mDayEndHour = 24;
 
@@ -2065,11 +2044,7 @@
      * @param {number} dayEndHour      Hour when the day will end.
      */
     setDayStartEndHours(dayStartHour, dayEndHour) {
-      if (
-        dayStartHour * 60 < this.mStartMin ||
-        dayStartHour > dayEndHour ||
-        dayEndHour * 60 > this.mEndMin
-      ) {
+      if (dayStartHour < 0 || dayStartHour > dayEndHour || dayEndHour > 24) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
 
@@ -2081,10 +2056,7 @@
         if (topbox.children.length) {
           // This only needs to be re-done if the initial relayout has already
           // happened.  (If it hasn't happened, this will be done when it does happen.)
-          const start = this.mStartMin / 60;
-          const end = this.mEndMin / 60;
-
-          for (let hour = start; hour < end; hour++) {
+          for (let hour = 0; hour < 24; hour++) {
             if (hour < this.mDayStartHour || hour >= this.mDayEndHour) {
               topbox.children[hour].setAttribute("off-time", "true");
             } else {
@@ -2127,29 +2099,22 @@
       const orient = topbox.getAttribute("orient");
       const formatter = cal.dtz.formatter;
       const jsTime = new Date();
+      let prevEndPix = 0;
 
-      this.getSections().forEach(([startMinute, duration]) => {
+      for (let hour = 0; hour < 24; hour++) {
         const box = document.createXULElement("box");
         box.setAttribute("orient", orient);
 
         // Calculate duration pixel as the difference between
         // start pixel and end pixel to avoid rounding errors.
-        const startPix = Math.round(startMinute * this.mPixPerMin);
-        const endPix = Math.round((startMinute + duration) * this.mPixPerMin);
-        const durPix = endPix - startPix;
-
+        let endPix = Math.round((hour + 1) * 60 * this.mPixPerMin);
+        let durPix = endPix - prevEndPix;
+        prevEndPix = endPix;
         box.setAttribute(orient == "horizontal" ? "width" : "height", durPix);
 
-        const hour = Math.floor(startMinute / 60);
-        let timeString = "";
-
-        if (duration == 60) {
-          jsTime.setHours(hour, 0, 0);
-
-          const dateTime = cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating);
-
-          timeString = formatter.formatTime(dateTime);
-        }
+        jsTime.setHours(hour, 0, 0);
+        let dateTime = cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating);
+        let timeString = formatter.formatTime(dateTime);
 
         const label = document.createXULElement("label");
         label.setAttribute("value", timeString);
@@ -2165,37 +2130,7 @@
         box.setAttribute("class", "calendar-time-bar-box-" + (hour % 2 == 0 ? "even" : "odd"));
 
         topbox.appendChild(box);
-      });
-    }
-
-    /**
-     * Get the section data for dividing up the time bar.
-     *
-     * @return {number[][]}    An array of arrays that represent time bar sections. Each array
-     *                         holds two numbers, the first is the minute during the day when
-     *                         the section starts, and the second is how many minutes the
-     *                         section lasts (usually 60).
-     */
-    getSections() {
-      const sections = [];
-      let currentMin = this.mStartMin;
-
-      while (currentMin < this.mEndMin) {
-        const minutesLeft = this.mEndMin - currentMin;
-        let duration;
-
-        if (minutesLeft < 60) {
-          duration = minutesLeft;
-        } else {
-          // 0 is falsy, so when the modulo is 0, duration is 60.
-          duration = currentMin % 60 || 60;
-        }
-
-        sections.push([currentMin, duration]);
-
-        currentMin += duration;
       }
-      return sections;
     }
   }
 
@@ -2323,9 +2258,6 @@
 
       this.mSelectedDayCol = null;
       this.mSelectedDay = null;
-
-      this.mStartMin = 0;
-      this.mEndMin = 24 * 60;
 
       this.mDayStartMin = 0;
       this.mDayEndMin = 0;
@@ -2880,7 +2812,7 @@
 
     centerSelectedItems() {
       const displayTZ = cal.dtz.defaultTimezone;
-      let lowMinute = 24 * 60;
+      let lowMinute = MINUTES_IN_DAY;
       let highMinute = 0;
 
       for (const item of this.mSelectedItems) {
@@ -3591,7 +3523,7 @@
         );
         return;
       }
-      if (dayStartMin < this.mStartMin || dayStartMin > dayEndMin || dayEndMin > this.mEndMin) {
+      if (dayStartMin < 0 || dayStartMin > dayEndMin || dayEndMin > MINUTES_IN_DAY) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
       if (this.mDayStartMin != dayStartMin || this.mDayEndMin != dayEndMin) {
@@ -3610,7 +3542,7 @@
      * @return {number}           A number of visible minutes.
      */
     setVisibleMinutes(minutes) {
-      if (minutes <= 0 || minutes > this.mEndMin - this.mStartMin) {
+      if (minutes <= 0 || minutes > MINUTES_IN_DAY) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
       if (this.mVisibleMinutes != minutes) {
