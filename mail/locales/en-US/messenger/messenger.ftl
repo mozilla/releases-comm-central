@@ -125,11 +125,13 @@ mail-context-delete-messages =
 other-action-redirect-msg =
     .label = Redirect
 
-message-header-msg-is-flagged =
-    .title = Star marked message
+message-header-msg-flagged =
+    .title = Starred
+    .aria-label = Starred
 
 message-header-msg-not-flagged =
-    .title = Not star marked message
+    .title = Not starred
+    .aria-label = Not starred
 
 ## Action Button Context Menu
 

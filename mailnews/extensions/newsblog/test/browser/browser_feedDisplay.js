@@ -145,6 +145,20 @@ add_task(async () => {
     style = content.getComputedStyle(noscript);
     Assert.equal(style.display, "inline");
   });
+
+  Assert.ok(
+    window.document.getElementById("expandedtoRow").hidden,
+    "The To field is not visible"
+  );
+  Assert.ok(
+    window.document.getElementById("dateLabel").hidden,
+    "The regular date label is not visible"
+  );
+  Assert.ok(
+    !window.document.getElementById("dateLabelSubject").hidden,
+    "The date label on the subject line is visible"
+  );
+
   await BrowserTestUtils.synthesizeMouseAtCenter("a", {}, messagePane);
   Assert.deepEqual(mockExternalProtocolService._loadedURLs, [
     "http://example.org/link/from/description",

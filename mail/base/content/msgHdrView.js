@@ -167,10 +167,26 @@ var currentAttachments = [];
  */
 var gFolderDBListener = null;
 
-/** @implements {nsIDBChangeListener} */
-function DBListener() {}
+class FolderDBListener {
+  constructor(folder) {
+    // Keep a record of the currently selected folder to check when the
+    // selection changes to avoid initializing the DBListener in case the same
+    // folder is selected.
+    this.selectedFolder = folder;
+    this.isRegistered = false;
+  }
 
-DBListener.prototype = {
+  register() {
+    gDbService.registerPendingListener(this.selectedFolder, this);
+    this.isRegistered = true;
+  }
+
+  unregister() {
+    gDbService.unregisterPendingListener(this);
+    this.isRegistered = false;
+  }
+
+  /** @implements {nsIDBChangeListener} */
   onHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator) {
     // Bail out if the changed message isn't the one currently displayed.
     if (hdrChanged != gFolderDisplay.selectedMessage) {
@@ -184,13 +200,13 @@ DBListener.prototype = {
     ) {
       updateStarButton();
     }
-  },
-  onHdrDeleted(hdrChanged, parentKey, flags, instigator) {},
-  onHdrAdded(hdrChanged, parentKey, flags, instigator) {},
-  onParentChanged(keyChanged, oldParent, newParent, instigator) {},
-  onAnnouncerGoingAway(instigator) {},
-  onReadChanged(instigator) {},
-  onJunkScoreChanged(instigator) {},
+  }
+  onHdrDeleted(hdrChanged, parentKey, flags, instigator) {}
+  onHdrAdded(hdrChanged, parentKey, flags, instigator) {}
+  onParentChanged(keyChanged, oldParent, newParent, instigator) {}
+  onAnnouncerGoingAway(instigator) {}
+  onReadChanged(instigator) {}
+  onJunkScoreChanged(instigator) {}
   onHdrPropertyChanged(hdrToChange, property, preChange, status, instigator) {
     // Not interested before a change or if the message isn't the one displayed.
     if (preChange || hdrToChange != gFolderDisplay.selectedMessage) {
@@ -204,27 +220,41 @@ DBListener.prototype = {
         gMessageNotificationBar.setJunkMsg(gFolderDisplay.selectedMessage);
         break;
     }
-  },
-  onEvent(db, event) {},
-};
+  }
+  onEvent(db, event) {}
+}
 
 /**
  * Initialize the nsIDBChangeListener when a new folder is selected in order to
  * listen for any flags change happening in the currently displayed messages.
  */
 function initFolderDBListener() {
-  // Unregister the listener and clear the object if we already have one,
-  // meaning the user just changed folder.
-  if (gFolderDBListener) {
-    gDbService.unregisterPendingListener(gFolderDBListener);
-    gFolderDBListener = null;
+  // Bail out if we already have a DBListener initialized and the folder didn't
+  // change.
+  if (
+    gFolderDBListener?.isRegistered &&
+    gFolderDBListener.selectedFolder == gFolderDisplay.displayedFolder
+  ) {
+    return;
   }
 
-  gFolderDBListener = new DBListener();
-  gDbService.registerPendingListener(
-    gFolderDisplay.displayedFolder,
-    gFolderDBListener
-  );
+  // Clearly we are viewing a different message in a different folder, so clear
+  // any remaining of the old DBListener.
+  clearFolderDBListener();
+
+  gFolderDBListener = new FolderDBListener(gFolderDisplay.displayedFolder);
+  gFolderDBListener.register();
+}
+
+/**
+ * Unregister the listener and clear the object if we already have one, meaning
+ * the user just changed folder or deselected all messages.
+ */
+function clearFolderDBListener() {
+  if (gFolderDBListener?.isRegistered) {
+    gFolderDBListener.unregister();
+    gFolderDBListener = null;
+  }
 }
 
 /**
@@ -425,10 +455,7 @@ function OnUnloadMsgHeaderPane() {
 
   AddressBookListener.unregister();
 
-  if (gFolderDBListener) {
-    gDbService.unregisterPendingListener(gFolderDBListener);
-    gFolderDBListener = null;
-  }
+  clearFolderDBListener();
 
   // Dispatch an event letting any listeners know that we have unloaded
   // the message pane.
@@ -1011,12 +1038,11 @@ function updateStarButton() {
   let isFlagged = msgHdr.isFlagged;
   document.l10n.setAttributes(
     flagButton,
-    isFlagged
-      ? "message-header-msg-is-flagged"
-      : "message-header-msg-not-flagged"
+    isFlagged ? "message-header-msg-flagged" : "message-header-msg-not-flagged"
   );
 
   flagButton.classList.toggle("flagged", isFlagged);
+  flagButton.setAttribute("aria-checked", isFlagged);
 }
 
 function EnsureSubjectValue() {
@@ -1090,6 +1116,27 @@ function showHeaderView(aHeaderTable) {
   for (let name in aHeaderTable) {
     let headerEntry = aHeaderTable[name];
     headerEntry.enclosingRow.hidden = !headerEntry.valid;
+
+    // If we're hiding the To field, we need to hide the date inline and show
+    // the duplicate on the subject line.
+    if (headerEntry.enclosingRow.id == "expandedtoRow") {
+      let dataLabel = document.getElementById("dateLabel");
+      let dateLabelSubject = document.getElementById("dateLabelSubject");
+      if (!headerEntry.valid) {
+        dataLabel.hidden = true;
+        dateLabelSubject.setAttribute(
+          "datetime",
+          dataLabel.getAttribute("datetime")
+        );
+        dateLabelSubject.textContent = dataLabel.textContent;
+        dateLabelSubject.hidden = false;
+      } else {
+        dataLabel.hidden = false;
+        dateLabelSubject.removeAttribute("datetime");
+        dateLabelSubject.textContent = "";
+        dateLabelSubject.hidden = true;
+      }
+    }
   }
 }
 
@@ -1200,53 +1247,55 @@ function updateHeaderValue(aHeaderEntry, aHeaderValue) {
  *                             construct the element IDs (in lower case)
  * @param {String} label       name of the header as displayed in the UI
  */
-function HeaderView(headerName, label) {
-  headerName = headerName.toLowerCase();
-  let rowId = "expanded" + headerName + "Row";
-  let idName = "expanded" + headerName + "Box";
-  let newHeaderNode;
-  // If a row for this header already exists, do not create another one.
-  let newRowNode = document.getElementById(rowId);
-  if (!newRowNode) {
-    // Create new collapsed row.
-    newRowNode = document.createElementNS(
-      "http://www.w3.org/1999/xhtml",
-      "div"
-    );
-    newRowNode.setAttribute("id", rowId);
-    newRowNode.classList.add("message-header-row");
-    newRowNode.hidden = true;
+class HeaderView {
+  constructor(headerName, label) {
+    headerName = headerName.toLowerCase();
+    let rowId = "expanded" + headerName + "Row";
+    let idName = "expanded" + headerName + "Box";
+    let newHeaderNode;
+    // If a row for this header already exists, do not create another one.
+    let newRowNode = document.getElementById(rowId);
+    if (!newRowNode) {
+      // Create new collapsed row.
+      newRowNode = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "div"
+      );
+      newRowNode.setAttribute("id", rowId);
+      newRowNode.classList.add("message-header-row");
+      newRowNode.hidden = true;
 
-    // Create and append the label which contains the header name.
-    let newLabelNode = document.createXULElement("label");
-    newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
-    newLabelNode.setAttribute("value", label);
-    newLabelNode.setAttribute("class", "message-header-label");
-    newLabelNode.setAttribute("control", idName);
+      // Create and append the label which contains the header name.
+      let newLabelNode = document.createXULElement("label");
+      newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
+      newLabelNode.setAttribute("value", label);
+      newLabelNode.setAttribute("class", "message-header-label");
+      newLabelNode.setAttribute("control", idName);
 
-    newRowNode.appendChild(newLabelNode);
+      newRowNode.appendChild(newLabelNode);
 
-    // Create and append the new header value.
-    newHeaderNode = document.createXULElement("mail-headerfield");
-    newHeaderNode.setAttribute("id", idName);
-    newHeaderNode.setAttribute("flex", "1");
+      // Create and append the new header value.
+      newHeaderNode = document.createXULElement("mail-headerfield");
+      newHeaderNode.setAttribute("id", idName);
+      newHeaderNode.setAttribute("flex", "1");
 
-    newRowNode.appendChild(newHeaderNode);
+      newRowNode.appendChild(newHeaderNode);
 
-    // Add the new row to the extra headers container.
-    document.getElementById("extraHeadersArea").appendChild(newRowNode);
-    this.isNewHeader = true;
-  } else {
-    newRowNode.hidden = true;
-    newHeaderNode = document.getElementById(idName);
-    this.isNewHeader = false;
+      // Add the new row to the extra headers container.
+      document.getElementById("extraHeadersArea").appendChild(newRowNode);
+      this.isNewHeader = true;
+    } else {
+      newRowNode.hidden = true;
+      newHeaderNode = document.getElementById(idName);
+      this.isNewHeader = false;
+    }
+
+    this.enclosingBox = newHeaderNode;
+    this.enclosingRow = newRowNode;
+    this.valid = false;
+    this.useToggle = false;
+    this.outputFunction = updateHeaderValue;
   }
-
-  this.enclosingBox = newHeaderNode;
-  this.enclosingRow = newRowNode;
-  this.valid = false;
-  this.useToggle = false;
-  this.outputFunction = updateHeaderValue;
 }
 
 /**
@@ -1365,6 +1414,11 @@ function ClearCurrentHeaders() {
 function ShowMessageHeaderPane() {
   document.getElementById("msgHeaderView").collapsed = false;
   document.getElementById("mail-notification-top").collapsed = false;
+
+  // Initialize the DBListener if we don't have one. This might happen when the
+  // message pane is hidden or no message was selected before, which caused the
+  // clearing of the the DBListener.
+  initFolderDBListener();
 }
 
 function HideMessageHeaderPane() {
@@ -1380,11 +1434,13 @@ function HideMessageHeaderPane() {
     .getElementById("appmenu_msgAttachmentMenu")
     ?.setAttribute("disabled", "true");
 
-  // disable the attachment box
+  // Disable the attachment box.
   document.getElementById("attachmentView").collapsed = true;
   document.getElementById("attachment-splitter").collapsed = true;
 
   gMessageNotificationBar.clearMsgNotifications();
+  // Clear the DBListener since we don't have any visible UI to update.
+  clearFolderDBListener();
 }
 
 /**

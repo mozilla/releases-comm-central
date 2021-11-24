@@ -178,6 +178,8 @@ mail-tagfield[collapsed="true"] {
 
 #expandedsubjectBox {
   font-weight: bold;
+  flex: 1;
+  margin-block: 1px;
 }
 
 /* ::::: attachment view ::::: */
@@ -359,7 +361,7 @@ mail-newsgroups-headerfield.headerValueBox {
   -moz-user-focus: normal;
   cursor: text;
   align-self: self-start;
-  margin: 0 6px;
+  margin: 3px 6px;
 }
 
 /* ::::: msg header email addresses ::::: */

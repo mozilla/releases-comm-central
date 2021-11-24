@@ -1222,3 +1222,56 @@ add_task(async function test_starred_message() {
   // The message should still be starred.
   Assert.ok(starButton.classList.contains("flagged"), "The message is starred");
 });
+
+/**
+ * Test the DBListener to be sure is initialized and cleared when needed, and it
+ * doesn't change when not needed.
+ */
+add_task(async function test_folder_db_listener() {
+  be_in_folder(folderMore);
+  // Select the last message, which will display it.
+  let curMessage = select_click_row(-1);
+  wait_for_message_display_completion(mc);
+  assert_selected_and_displayed(mc, curMessage);
+
+  Assert.ok(
+    mc.window.gFolderDBListener.isRegistered,
+    "The folder DB listener was initialized"
+  );
+  Assert.equal(
+    folderMore,
+    mc.window.gFolderDBListener.selectedFolder,
+    "The current folder was stored correctly"
+  );
+
+  // Keep a reference before it gets cleared.
+  let gFolderDBRef = mc.window.gFolderDBListener;
+
+  // Collapse the message pane.
+  mc.window.HideMessageHeaderPane();
+
+  Assert.ok(!gFolderDBRef.isRegistered, "The folder DB listener was cleared");
+  Assert.equal(
+    folderMore,
+    gFolderDBRef.selectedFolder,
+    "The current folder wasn't cleared and is still the same"
+  );
+
+  // Change folder
+  be_in_folder(folder);
+
+  // Select the last message, which will display it.
+  curMessage = select_click_row(-1);
+  wait_for_message_display_completion(mc);
+  assert_selected_and_displayed(mc, curMessage);
+
+  Assert.ok(
+    mc.window.gFolderDBListener?.isRegistered,
+    "The folder DB listener was initialized"
+  );
+  Assert.equal(
+    folder,
+    mc.window.gFolderDBListener.selectedFolder,
+    "The current folder was stored correctly"
+  );
+});

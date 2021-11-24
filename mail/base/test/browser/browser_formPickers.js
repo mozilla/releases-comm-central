@@ -145,9 +145,9 @@ add_task(async function testMessagePane() {
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   let rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test", null);
+  rootFolder.createSubfolder("formPickerFolder", null);
   testFolder = rootFolder
-    .getChildNamed("test")
+    .getChildNamed("formPickerFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   let messages = new MessageGenerator().makeMessages({ count: 5 });
   let messageStrings = messages.map(message => message.toMboxString());

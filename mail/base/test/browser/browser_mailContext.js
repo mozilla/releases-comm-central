@@ -155,9 +155,9 @@ add_task(async function testMessagePane() {
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   let rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test", null);
+  rootFolder.createSubfolder("mailContextFolder", null);
   testFolder = rootFolder
-    .getChildNamed("test")
+    .getChildNamed("mailContextFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   let message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
   testFolder.addMessageBatch([message]);

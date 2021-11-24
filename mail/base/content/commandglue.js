@@ -331,6 +331,7 @@ var gIgnoreSyntheticFolderPaneSelectionChange = false;
 function FolderPaneSelectionChange() {
   let folders = GetSelectedMsgFolders();
   if (!folders.length) {
+    clearFolderDBListener();
     return;
   }
 
