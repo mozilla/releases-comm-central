@@ -11,9 +11,16 @@ class ContextMenuParent extends JSWindowActorParent {
       return;
     }
 
+    // Send events from a message display browser to about:3pane or
+    // about:message if possible.
     let browser = this.manager.rootFrameLoader.ownerElement;
-    let win = browser.ownerGlobal;
+    if (browser.contentWindow && "openContextMenu" in browser.contentWindow) {
+      browser.contentWindow.openContextMenu(message, browser, this);
+      return;
+    }
 
+    // Otherwise, send them to the outer window.
+    let win = browser.ownerGlobal;
     if ("openContextMenu" in win) {
       win.openContextMenu(message, browser, this);
     }

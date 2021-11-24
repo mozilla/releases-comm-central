@@ -343,6 +343,7 @@ var contentTabBaseType = {
     "about:addons",
     "about:addressbook",
     "about:blank",
+    "about:message",
     "about:profiles",
     "about:*",
   ],
@@ -371,6 +372,11 @@ var contentTabBaseType = {
 
     // Let's not mess with about:blank.
     null,
+
+    // about:message provides its own context menu.
+    function(aDocument, aTab) {
+      aTab.browser.removeAttribute("context");
+    },
 
     // about:profiles
     function(aDocument, aTab) {

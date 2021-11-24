@@ -114,6 +114,12 @@ appmenu-redirect-msg =
 context-menu-redirect-msg =
     .label = Redirect
 
+mail-context-delete-messages =
+  .label = { $count ->
+     [one] Delete message
+    *[other] Delete selected messages
+  }
+
 ## Message header pane
 
 other-action-redirect-msg =

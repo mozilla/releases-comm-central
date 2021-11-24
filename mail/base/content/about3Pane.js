@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals dbViewWrapperListener, mailContextMenu */ // mailContext.js
+/* globals goDoCommand */ // globalOverlay.js
+
 var { DBViewWrapper } = ChromeUtils.import(
   "resource:///modules/DBViewWrapper.jsm"
 );
@@ -24,7 +27,7 @@ const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
-var gFolder;
+var gFolder, gViewWrapper, gMessage, gMessageURI;
 var folderTree, threadTree, messageBrowser;
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -141,20 +144,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
-      threadTree.view = null;
+      gViewWrapper = threadTree.view = null;
       return;
     }
     document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
 
-    let wrapper = new DBViewWrapper(dbViewWrapperListener);
-    wrapper._viewFlags = 1;
-    wrapper.open(gFolder);
-    threadTree.view = wrapper.dbView;
+    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+    gViewWrapper._viewFlags = 1;
+    gViewWrapper.open(gFolder);
+    threadTree.view = gViewWrapper.dbView;
+
     // Tell the view about the tree. nsITreeView.setTree can't be used because
     // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
     // the shim passed here isn't a tree either (TreeViewListbox can't be made
     // to QI to anything) but it does implement the required methods.
-    wrapper.dbView.setJSTree({
+    gViewWrapper.dbView.setJSTree({
       QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
       beginUpdateBatch() {},
       endUpdateBatch() {},
@@ -205,6 +209,10 @@ window.addEventListener("DOMContentLoaded", () => {
   threadTree = document.getElementById("threadTree");
 
   threadTree.addEventListener("select", async event => {
+    if (threadTree.selectedIndex == -1) {
+      displayMessage();
+      return;
+    }
     if (threadTree.selectedIndicies.length != 1) {
       return;
     }
@@ -266,7 +274,20 @@ function displayFolder(folderURI) {
 
 function displayMessage(messageURI) {
   messageBrowser.contentWindow.displayMessage(messageURI);
-  messageBrowser.style.visibility = "visible";
+  messageBrowser.style.visibility = messageURI ? "visible" : null;
+  if (!messageURI) {
+    gMessage = null;
+    gMessageURI = null;
+    return;
+  }
+
+  gMessageURI = messageURI;
+
+  let protocol = new URL(messageURI).protocol.replace(/:$/, "");
+  let messageService = Cc[
+    `@mozilla.org/messenger/messageservice;1?type=${protocol}`
+  ].getService(Ci.nsIMsgMessageService);
+  gMessage = messageService.messageURIToMsgHdr(messageURI);
 }
 
 var folderPaneContextMenu = {
@@ -518,8 +539,19 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
     for (let i = 0; i < this.columns.length; i++) {
       this.appendChild(document.createElement("span")).classList.add(
         this.columns[i]
-      ); //.style.width = `var(--col${i + 1}width, 15em)`;
+      );
     }
+
+    this.addEventListener("contextmenu", event => {
+      if (threadTree.selectedIndex == -1) {
+        return;
+      }
+
+      mailContextMenu.emptyMessageContextMenu();
+      let popup = document.getElementById("mailContext");
+      popup.openPopupAtScreen(event.screenX, event.screenY, true);
+      event.preventDefault();
+    });
   }
 
   get index() {
@@ -546,36 +578,3 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
   }
 }
 customElements.define("thread-listrow", ThreadListrow);
-
-/**
- * Dummy DBViewWrapperListener so that we can have a DBViewWrapper. Some of
- * this will no doubt need to be filled in later.
- */
-const dbViewWrapperListener = {
-  messenger: null,
-  msgWindow: null,
-  threadPaneCommandUpdater: null,
-
-  get shouldUseMailViews() {
-    return false;
-  },
-  get shouldDeferMessageDisplayUntilAfterServerConnect() {
-    return false;
-  },
-  shouldMarkMessagesReadOnLeavingFolder(msgFolder) {
-    return false;
-  },
-  onFolderLoading(isFolderLoading) {},
-  onSearching(isSearching) {},
-  onCreatedView() {},
-  onDestroyingView(folderIsComingBack) {},
-  onLoadingFolder(dbFolderInfo) {},
-  onDisplayingFolder() {},
-  onLeavingFolder() {},
-  onMessagesLoaded(all) {},
-  onMailViewChanged() {},
-  onSortChanged() {},
-  onMessagesRemoved() {},
-  onMessageRemovalFailed() {},
-  onMessageCountsChanged() {},
-};

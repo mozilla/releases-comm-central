@@ -2,11 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// msgHdrView.js
-/* globals messageHeaderSink, OnLoadMsgHeaderPane */
+// mailContext.js
+/* globals dbViewWrapperListener */
 
-var _uri;
-var _msg;
+// mailWindowOverlay.js
+/* globals gMessageNotificationBar */
+
+// msgHdrView.js
+/* globals HideMessageHeaderPane, initFolderDBListener, messageHeaderSink,
+   OnLoadMsgHeaderPane, OnTagsChange, OnUnloadMsgHeaderPane */
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
+  JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
+});
+
+const messengerBundle = Services.strings.createBundle(
+  "chrome://messenger/locale/messenger.properties"
+);
+
+var gFolder, gViewWrapper, gMessage, gMessageURI;
 
 var content;
 var gFolderDisplay = {
@@ -14,17 +34,17 @@ var gFolderDisplay = {
     return this.selectedMessage?.folder;
   },
   get selectedMessage() {
-    return _msg;
+    return gMessage;
   },
   get selectedMessages() {
-    if (_msg) {
-      return [_msg];
+    if (gMessage) {
+      return [gMessage];
     }
     return [];
   },
   get selectedMessageUris() {
-    if (_uri) {
-      return [_uri];
+    if (gMessageURI) {
+      return [gMessageURI];
     }
     return [];
   },
@@ -52,19 +72,51 @@ window.addEventListener("DOMContentLoaded", () => {
   OnLoadMsgHeaderPane();
 });
 
-function displayMessage(uri) {
+window.addEventListener("unload", () => {
+  OnUnloadMsgHeaderPane();
+});
+
+window.addEventListener("keypress", event => {
+  // These keypresses are implemented here to aid the development process.
+  // It's likely they won't remain here in future.
+  switch (event.key) {
+    case "F5":
+      location.reload();
+      break;
+  }
+});
+
+function displayMessage(uri, viewWrapper) {
   if (!uri) {
-    // How did we get here without a uri?
-    throw new Error("Call to displayMessage without a URI");
+    HideMessageHeaderPane();
+    window.dispatchEvent(
+      new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
+    );
+    return;
   }
 
-  _uri = uri;
+  gMessageURI = uri;
 
   let protocol = new URL(uri).protocol.replace(/:$/, "");
   let messageService = Cc[
     `@mozilla.org/messenger/messageservice;1?type=${protocol}`
   ].getService(Ci.nsIMsgMessageService);
-  _msg = messageService.messageURIToMsgHdr(uri);
+  gMessage = messageService.messageURIToMsgHdr(uri);
+  if (gFolder != gMessage.folder) {
+    gFolder = gMessage.folder;
+    initFolderDBListener();
+  }
+  if (viewWrapper) {
+    gViewWrapper = viewWrapper.clone(dbViewWrapperListener);
+  } else {
+    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+    gViewWrapper._viewFlags = 1;
+    gViewWrapper.open(gFolder);
+  }
+  gViewWrapper.dbView.selection = new JSTreeSelection();
+  gViewWrapper.dbView.selection.select(
+    gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
+  );
 
   // Ideally we'd do this without creating a msgWindow, and just pass the
   // docShell to the message service, but that's not easy yet.
@@ -77,10 +129,10 @@ function displayMessage(uri) {
     {}
   );
 
-  if (_msg.flags & Ci.nsMsgMessageFlags.HasRe) {
-    document.title = `Re: ${_msg.mime2DecodedSubject}`;
+  if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
+    document.title = `Re: ${gMessage.mime2DecodedSubject}`;
   } else {
-    document.title = _msg.mime2DecodedSubject;
+    document.title = gMessage.mime2DecodedSubject;
   }
 
   window.dispatchEvent(

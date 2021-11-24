@@ -2,6 +2,9 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+#filter substitution
+
 <!DOCTYPE html [
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
 %messengerDTD;
@@ -13,13 +16,24 @@
 <head>
   <meta charset="utf-8" />
   <title></title>
+
   <link rel="icon" href="chrome://messenger/skin/icons/folder-local.svg" />
+
+  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
   <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/about3Pane.css" />
+
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/pane-splitter.js"></script>
   <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
   <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
   <script defer="defer" src="chrome://messenger/content/about3Pane.js"></script>
 </head>
 <body class="layout-classic">
@@ -145,5 +159,6 @@
               label="&folderContextSettings2.label;"
               accesskey="&folderContextSettings2.accesskey;"/>
   </menupopup>
+#include mailContext.inc.xhtml
 </popupset>
 </html>

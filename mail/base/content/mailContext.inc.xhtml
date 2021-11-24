@@ -1,0 +1,309 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, you can obtain one at http://mozilla.org/MPL/2.0/.
+
+  <menupopup id="mailContext" needsgutter="true">
+    <!-- Links -->
+    <menuitem id="mailContext-openInBrowser"
+              class="menuitem-iconic"
+              label="&openInBrowser.label;"
+              accesskey="&openInBrowser.accesskey;"/>
+    <menuitem id="mailContext-openLinkInBrowser"
+              class="menuitem-iconic"
+              label="&openLinkInBrowser.label;"
+              accesskey="&openLinkInBrowser.accesskey;"/>
+    <menuitem id="mailContext-copylink"
+              class="menuitem-iconic"
+              label="&copyLinkCmd.label;"
+              accesskey="&copyLinkCmd.accesskey;"/>
+    <menuitem id="mailContext-savelink"
+              class="menuitem-iconic"
+              label="&saveLinkAsCmd.label;"
+              accesskey="&saveLinkAsCmd.accesskey;"/>
+    <menuitem id="mailContext-reportPhishingURL"
+              class="menuitem-iconic"
+              label="&reportPhishingURL.label;"
+              accesskey="&reportPhishingURL.accesskey;"/>
+    <menuitem id="mailContext-addemail"
+              class="menuitem-iconic"
+              label="&AddToAddressBook.label;"
+              accesskey="&AddToAddressBook.accesskey;"/>
+    <menuitem id="mailContext-composeemailto"
+              class="menuitem-iconic"
+              label="&SendMessageTo.label;"
+              accesskey="&SendMessageTo.accesskey;"/>
+    <menuitem id="mailContext-copyemail"
+              class="menuitem-iconic"
+              label="&copyEmailCmd.label;"
+              accesskey="&copyEmailCmd.accesskey;"/>
+    <menuseparator/>
+
+    <!-- Images -->
+    <menuitem id="mailContext-copyimage"
+              class="menuitem-iconic"
+              label="&copyImageAllCmd.label;"
+              accesskey="&copyImageAllCmd.accesskey;"/>
+    <menuitem id="mailContext-saveimage"
+              class="menuitem-iconic"
+              label="&saveImageAsCmd.label;"
+              accesskey="&saveImageAsCmd.accesskey;"/>
+    <menuseparator/>
+
+    <!-- Edit -->
+    <menuitem id="mailContext-copy"
+              class="menuitem-iconic"
+              data-l10n-id="text-action-copy"/>
+    <menuitem id="mailContext-selectall"
+              class="menuitem-iconic"
+              data-l10n-id="text-action-select-all"/>
+    <menuseparator/>
+
+    <!-- Search -->
+    <menuitem id="mailContext-searchTheWeb"
+              class="menuitem-iconic"/>
+    <menuseparator/>
+
+    <!-- Drafts/templates -->
+    <menuitem id="mailContext-editDraftMsg"
+              class="menuitem-iconic"
+              label="&contextEditDraftMsg.label;"
+              default="true"/>
+    <menuitem id="mailContext-newMsgFromTemplate"
+              class="menuitem-iconic"
+              label="&contextNewMsgFromTemplate.label;"
+              default="true"/>
+    <menuitem id="mailContext-editTemplateMsg"
+              class="menuitem-iconic"
+              label="&contextEditTemplate.label;"
+              accesskey="&contextEditTemplate.accesskey;"/>
+    <menuseparator/>
+
+    <!-- Open messages -->
+    <menuitem id="mailContext-openNewTab"
+              class="menuitem-iconic"
+              label="&contextOpenNewTab.label;"
+              accesskey="&contextOpenNewTab.accesskey;"/>
+    <menuitem id="mailContext-openNewWindow"
+              class="menuitem-iconic"
+              label="&contextOpenNewWindow.label;"
+              accesskey="&contextOpenNewWindow.accesskey;"/>
+    <menuitem id="mailContext-openConversation"
+              class="menuitem-iconic"
+              label="&contextOpenConversation.label;"
+              accesskey="&contextOpenConversation.accesskey;"/>
+    <menuitem id="mailContext-openContainingFolder"
+              class="menuitem-iconic"
+              label="&contextOpenContainingFolder.label;"
+              accesskey="&contextOpenContainingFolder.accesskey;"/>
+    <menuseparator/>
+
+    <!-- Reply/forward/redirect -->
+    <menuitem id="mailContext-replyNewsgroup"
+              class="menuitem-iconic"
+              label="&contextReplyNewsgroup2.label;"
+              accesskey="&contextReplyNewsgroup2.accesskey;"/>
+    <menuitem id="mailContext-replySender"
+              class="menuitem-iconic"
+              label="&contextReplySender.label;"
+              accesskey="&contextReplySender.accesskey;"/>
+    <menuitem id="mailContext-replyAll"
+              class="menuitem-iconic"
+              label="&contextReplyAll.label;"
+              accesskey="&contextReplyAll.accesskey;"/>
+    <menuitem id="mailContext-replyList"
+              class="menuitem-iconic"
+              label="&contextReplyList.label;"
+              accesskey="&contextReplyList.accesskey;"/>
+    <menuitem id="mailContext-forward"
+              class="menuitem-iconic"
+              label="&contextForward.label;"
+              accesskey="&contextForward.accesskey;"/>
+    <menu id="mailContext-forwardAsMenu"
+          class="menuitem-iconic"
+          label="&contextForwardAsMenu.label;"
+          accesskey="&contextForwardAsMenu.accesskey;">
+      <menupopup id="mailContext-forwardAsPopup">
+        <menuitem id="mailContext-forwardAsInline"
+                  label="&contextForwardAsInline.label;"
+                  accesskey="&contextForwardAsInline.accesskey;"/>
+        <menuitem id="mailContext-forwardAsAttachment"
+                  label="&contextForwardAsAttachmentItem.label;"
+                  accesskey="&contextForwardAsAttachmentItem.accesskey;"/>
+      </menupopup>
+    </menu>
+
+    <menuitem id="mailContext-multiForwardAsAttachment"
+              class="menuitem-iconic"
+              label="&contextMultiForwardAsAttachment.label;"
+              accesskey="&contextMultiForwardAsAttachment.accesskey;"/>
+    <menuitem id="mailContext-redirect"
+              class="menuitem-iconic"
+              data-l10n-id="context-menu-redirect-msg"/>
+    <menuitem id="mailContext-editAsNew"
+              class="menuitem-iconic"
+              label="&contextEditMsgAsNew.label;"
+              accesskey="&contextEditMsgAsNew.accesskey;"/>
+    <menuseparator/>
+
+    <!-- Tags/mark sub-menus -->
+    <menu id="mailContext-tags"
+          class="menuitem-iconic"
+          label="&tagMenu.label;"
+          accesskey="&tagMenu.accesskey;">
+      <menupopup id="mailContext-tagpopup" needsgutter="true">
+        <menuitem id="mailContext-addNewTag"
+                  class="menuitem-iconic"
+                  label="&addNewTag.label;"
+                  accesskey="&addNewTag.accesskey;"/>
+        <menuitem id="mailContext-manageTags"
+                  class="menuitem-iconic"
+                  label="&manageTags.label;"
+                  accesskey="&manageTags.accesskey;"/>
+        <menuseparator/>
+        <menuitem id="mailContext-tagRemoveAll"
+                  class="menuitem-iconic"
+                  accesskey="&tagCmd0.key;"/>
+        <menuseparator/>
+      </menupopup>
+    </menu>
+    <menu id="mailContext-mark"
+          class="menuitem-iconic"
+          label="&markMenu.label;"
+          accesskey="&markMenu.accesskey;">
+      <menupopup id="mailContext-markPopup">
+        <menuitem id="mailContext-markRead"
+                  class="menuitem-iconic"
+                  label="&markAsReadCmd.label;"
+                  accesskey="&markAsReadCmd.accesskey;"/>
+        <menuitem id="mailContext-markUnread"
+                  class="menuitem-iconic"
+                  label="&markAsUnreadCmd.label;"
+                  accesskey="&markAsUnreadCmd.accesskey;"/>
+        <menuitem id="mailContext-markThreadAsRead"
+                  class="menuitem-iconic"
+                  label="&markThreadAsReadCmd.label;"
+                  accesskey="&markThreadAsReadCmd.accesskey;"/>
+        <menuitem id="mailContext-markReadByDate"
+                  class="menuitem-iconic"
+                  label="&markReadByDateCmd.label;"
+                  accesskey="&markReadByDateCmd.accesskey;"/>
+        <menuitem id="mailContext-markAllRead"
+                  class="menuitem-iconic"
+                  label="&markAllReadCmd.label;"
+                  accesskey="&markAllReadCmd.accesskey;"/>
+        <menuseparator/>
+        <menuitem id="mailContext-markFlagged"
+                  class="menuitem-iconic"
+                  type="checkbox"
+                  label="&markStarredCmd.label;"
+                  accesskey="&markStarredCmd.accesskey;"/>
+        <menuseparator/>
+        <menuitem id="mailContext-markAsJunk"
+                  class="menuitem-iconic"
+                  label="&markAsJunkCmd.label;"
+                  accesskey="&markAsJunkCmd.accesskey;"/>
+        <menuitem id="mailContext-markAsNotJunk"
+                  class="menuitem-iconic"
+                  label="&markAsNotJunkCmd.label;"
+                  accesskey="&markAsNotJunkCmd.accesskey;"/>
+        <menuitem id="mailContext-recalculateJunkScore"
+                  class="menuitem-iconic"
+                  label="&recalculateJunkScoreCmd.label;"
+                  accesskey="&recalculateJunkScoreCmd.accesskey;"/>
+      </menupopup>
+    </menu>
+    <menuseparator/>
+
+    <!-- Move/copy/archive/convert/delete -->
+    <menuitem id="mailContext-copyMessageUrl"
+              class="menuitem-iconic"
+              label="&copyMessageLocation.label;"
+              accesskey="&copyMessageLocation.accesskey;"
+              oncommand="CopyMessageUrl()"/>
+    <menuitem id="mailContext-archive"
+              class="menuitem-iconic"
+              label="&contextArchive.label;"
+              accesskey="&contextArchive.accesskey;"
+              oncommand="MsgArchiveSelectedMessages(event);"/>
+    <menu id="mailContext-moveMenu"
+          class="menuitem-iconic"
+          label="&contextMoveMsgMenu.label;"
+          accesskey="&contextMoveMsgMenu.accesskey;">
+      <menupopup is="folder-menupopup" id="mailContext-fileHereMenu"
+                 mode="filing"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                 showFavorites="true"
+                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+    </menu>
+    <menu id="mailContext-copyMenu"
+          class="menuitem-iconic"
+          label="&contextCopyMsgMenu.label;"
+          accesskey="&contextCopyMsgMenu.accesskey;">
+      <menupopup is="folder-menupopup" id="mailContext-copyHereMenu"
+                 mode="filing"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                 showFavorites="true"
+                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+    </menu>
+    <menuitem id="mailContext-moveToFolderAgain"
+              class="menuitem-iconic"
+              label="&moveToFolderAgain.label;"
+              accesskey="&moveToFolderAgain.accesskey;"/>
+    <menu id="mailContext-calendar-convert-menu"
+          class="menuitem-iconic hide-when-calendar-deactivated"
+          label="&calendar.context.convertmenu.label;"
+          accesskey="&calendar.context.convertmenu.accesskey.mail;">
+      <menupopup id="mailContext-calendar-convert-menupopup">
+        <menuitem id="mailContext-calendar-convert-event-menuitem"
+                  label="&calendar.context.convertmenu.event.label;"
+                  accesskey="&calendar.context.convertmenu.event.accesskey;"/>
+        <menuitem id="mailContext-calendar-convert-task-menuitem"
+                  label="&calendar.context.convertmenu.task.label;"
+                  accesskey="&calendar.context.convertmenu.task.accesskey;"/>
+      </menupopup>
+    </menu>
+    <menuitem id="mailContext-delete"
+              class="menuitem-iconic"/>
+    <menuseparator/>
+
+    <!-- Threads -->
+    <menuitem id="mailContext-ignoreThread"
+              class="menuitem-iconic"
+              type="checkbox"
+              label="&contextKillThreadMenu.label;"
+              accesskey="&contextKillThreadMenu.accesskey;"/>
+    <menuitem id="mailContext-ignoreSubthread"
+              class="menuitem-iconic"
+              type="checkbox"
+              label="&contextKillSubthreadMenu.label;"
+              accesskey="&contextKillSubthreadMenu.accesskey;"/>
+    <menuitem id="mailContext-watchThread"
+              class="menuitem-iconic"
+              type="checkbox"
+              label="&contextWatchThreadMenu.label;"
+              accesskey="&contextWatchThreadMenu.accesskey;"/>
+    <menuseparator/>
+
+    <!-- Save/print/download -->
+    <menuitem id="mailContext-saveAs"
+              class="menuitem-iconic"
+              label="&contextSaveAs.label;"
+              accesskey="&contextSaveAs.accesskey;"/>
+    <menuitem id="mailContext-print"
+              class="menuitem-iconic"
+              label="&contextPrint.label;"
+              accesskey="&contextPrint.accesskey;"
+              observes="cmd_print"/>
+    <menuitem id="mailContext-downloadSelected"
+              class="menuitem-iconic"
+              label="&downloadSelectedCmd.label;"
+              accesskey="&downloadSelectedCmd.accesskey;"/>
+  </menupopup>

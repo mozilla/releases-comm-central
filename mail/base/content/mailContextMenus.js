@@ -624,8 +624,7 @@ function IsMenuItemShowing(menuID) {
 }
 
 // message pane context menu helper methods
-function addEmail() {
-  var url = gContextMenu.linkURL;
+function addEmail(url = gContextMenu.linkURL) {
   var addresses = getEmail(url);
   window.openDialog(
     "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
@@ -635,17 +634,19 @@ function addEmail() {
   );
 }
 
-function composeEmailTo() {
+function composeEmailTo(linkURL, identity) {
   let fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   let params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
-  fields.to = getEmail(gContextMenu.linkURL);
+  fields.to = getEmail(linkURL);
   params.type = Ci.nsIMsgCompType.New;
   params.format = Ci.nsIMsgCompFormat.Default;
-  if (gFolderDisplay.displayedFolder) {
+  if (identity) {
+    params.identity = identity;
+  } else if (gFolderDisplay?.displayedFolder) {
     params.identity = accountManager.getFirstIdentityForServer(
       gFolderDisplay.displayedFolder.server
     );

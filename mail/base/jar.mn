@@ -7,7 +7,7 @@ messenger.jar:
 % override chrome://messagebody/skin/abPrint.css chrome://messenger/skin/shared/abPrint.css
 % override chrome://global/content/commonDialog.xhtml chrome://messenger/content/commonDialog.xhtml
     content/messenger/about3Pane.js                 (content/about3Pane.js)
-    content/messenger/about3Pane.xhtml              (content/about3Pane.xhtml)
+*   content/messenger/about3Pane.xhtml              (content/about3Pane.xhtml)
     content/messenger/aboutAddonsExtra.js           (content/aboutAddonsExtra.js)
     content/messenger/aboutDialog-appUpdater.js     (content/aboutDialog-appUpdater.js)
     content/messenger/aboutDialog.css               (content/aboutDialog.css)
@@ -44,6 +44,7 @@ messenger.jar:
     content/messenger/mail-offline.js               (content/mail-offline.js)
     content/messenger/mail3PaneWindowCommands.js    (content/mail3PaneWindowCommands.js)
     content/messenger/mailCommands.js               (content/mailCommands.js)
+    content/messenger/mailContext.js                (content/mailContext.js)
     content/messenger/mailContextMenus.js           (content/mailContextMenus.js)
     content/messenger/mailCore.js                   (content/mailCore.js)
     content/messenger/mailTabs.js                   (content/mailTabs.js)

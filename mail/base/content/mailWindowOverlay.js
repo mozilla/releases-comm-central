@@ -2473,7 +2473,7 @@ function MsgOpenEMLFile(aFile, aURL) {
   }
 }
 
-function MsgOpenNewWindowForMessage(aMsgHdr) {
+function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
   // no message header provided?  get the selected message (this will give us
   //  the right-click selected message if that's what is going down.)
   if (!aMsgHdr) {
@@ -2489,7 +2489,7 @@ function MsgOpenNewWindowForMessage(aMsgHdr) {
       "_blank",
       "all,chrome,dialog=no,status,toolbar",
       aMsgHdr,
-      gFolderDisplay.view
+      aView || gFolderDisplay.view
     );
   }
 }

@@ -1,17 +1,10 @@
 <?xml version="1.0"?>
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 #filter substitution
-
-<?xml-stylesheet href="chrome://messenger/skin/messageWindow.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/editContactPanel.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
+#define NO_MAILCONTEXT
 
 <!DOCTYPE html [
 <!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
@@ -29,15 +22,22 @@
 <!ENTITY % smimeDTD SYSTEM "chrome://messenger-smime/locale/msgReadSecurityInfo.dtd">
 %smimeDTD;
 ]>
-
-<!--
-  - This window displays a single message.
-  -->
-<html id="messengerWindow" xmlns="http://www.w3.org/1999/xhtml"
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true">
+      xmlns:html="http://www.w3.org/1999/xhtml">
 <head>
+  <meta charset="utf-8" />
+  <title>about:message</title>
+
+  <link rel="stylesheet" href="chrome://messenger/skin/messageWindow.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/editContactPanel.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/messageHeader.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/attachmentList.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/openpgp/inlineNotification.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="toolkit/main-window/findbar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
@@ -57,6 +57,7 @@
   <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
   <script defer="defer" src="chrome://messenger/content/aboutMessage.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -66,6 +67,7 @@
 
   <popupset id="mainPopupSet">
 #include mainPopupSet.inc.xhtml
+#include mailContext.inc.xhtml
 #include msgHdrPopup.inc.xhtml
 #include editContactPanel.inc.xhtml
     <menu id="msgAttachmentMenu" hidden="true"/><!-- Just a placeholder for now. -->
@@ -106,9 +108,7 @@
                  primary="true"
                  autofind="false"
                  src="about:blank"
-                 messagemanagergroup="single-page"
-                 onclick="return contentAreaClick(event);"
-                 onresize="return messagePaneOnResize(event);"/>
+                 messagemanagergroup="single-page"/>
         <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
         <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
