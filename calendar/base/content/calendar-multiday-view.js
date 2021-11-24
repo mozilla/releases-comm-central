@@ -115,14 +115,14 @@
         if (this.getAttribute("orient") == "vertical") {
           this.mDragState.origLoc = event.screenY;
           this.mDragState.origMin =
-            Math.floor((event.screenY - this.parentNode.screenY) / interval) * snapIntMin;
+            Math.round((event.screenY - this.parentNode.screenY) / interval) * snapIntMin;
           this.mDragState.limitEndMin = this.mDragState.origMin;
           this.mDragState.limitStartMin = this.mDragState.origMin;
           this.fgboxes.dragspacer.setAttribute("height", this.mDragState.origMin * this.mPixPerMin);
         } else {
           this.mDragState.origLoc = event.screenX;
           this.mDragState.origMin =
-            Math.floor((event.screenX - this.parentNode.screenX) / interval) * snapIntMin;
+            Math.round((event.screenX - this.parentNode.screenX) / interval) * snapIntMin;
           this.fgboxes.dragspacer.setAttribute("width", this.mDragState.origMin * this.mPixPerMin);
         }
 
@@ -1092,7 +1092,7 @@
       // Snap interval: 15 minutes or 1 minute if modifier key is pressed.
       let snapIntMin = event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15;
       let interval = col.mPixPerMin * snapIntMin;
-      let curmin = Math.floor(pos / interval) * snapIntMin;
+      let curmin = Math.round(pos / interval) * snapIntMin;
       let deltamin = curmin - dragState.origMin;
 
       let shadowElements;
@@ -1431,7 +1431,7 @@
         // Snap start.
         // Since we are modifying the start, we know the event starts on this
         // day, so realStart is not negative.
-        this.mDragState.origMin = Math.floor(realStart / snapIntMin) * snapIntMin;
+        this.mDragState.origMin = Math.round(realStart / snapIntMin) * snapIntMin;
 
         // Show the shadows and drag labels when clicking on gripbars.
         let shadowElements = this.getShadowElements(
@@ -1461,7 +1461,7 @@
         // Snap end.
         // Since we are modifying the end, we know the event end on this day,
         // so realEnd is before midnight on this day.
-        this.mDragState.origMin = Math.floor(realEnd / snapIntMin) * snapIntMin;
+        this.mDragState.origMin = Math.round(realEnd / snapIntMin) * snapIntMin;
 
         // Show the shadows and drag labels when clicking on gripbars.
         let shadowElements = this.getShadowElements(
@@ -1493,8 +1493,8 @@
         let limitDurationMin = realEnd - realStart;
         // We use origMin to get the number of minutes since the start of *this*
         // day, which is 0 if realStart is negative.
-        this.mDragState.origMin = Math.max(0, Math.floor(realStart / snapIntMin) * snapIntMin);
-        this.mDragState.origMinStart = Math.floor(realStart / snapIntMin) * snapIntMin;
+        this.mDragState.origMin = Math.max(0, Math.round(realStart / snapIntMin) * snapIntMin);
+        this.mDragState.origMinStart = Math.round(realStart / snapIntMin) * snapIntMin;
         this.mDragState.origMinEnd = this.mDragState.origMinStart + limitDurationMin;
         // Keep also track of the real Start, it will be used at the end
         // of the drag session to calculate the new start and end datetimes.
