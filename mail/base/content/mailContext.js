@@ -25,7 +25,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   mailContextMenu.init();
-  window.controllers.appendController(commandController);
 });
 
 /**
@@ -358,7 +357,10 @@ var mailContextMenu = {
 
       // Open messages
       case "mailContext-openNewTab":
-        topChromeWindow.OpenMessageInNewTab(gMessage, event);
+        topChromeWindow.OpenMessageInNewTab(gMessage, {
+          event,
+          viewWrapper: gViewWrapper,
+        });
         break;
       case "mailContext-openNewWindow":
         topChromeWindow.MsgOpenNewWindowForMessage(gMessage, gViewWrapper);
@@ -673,7 +675,7 @@ var commandController = {
     cmd_markAllRead: Ci.nsMsgViewCommandType.markAllRead,
     cmd_markAsNotJunk: Ci.nsMsgViewCommandType.unjunk,
   },
-  _commands: {
+  _callbackCommands: {
     cmd_reply: event => {
       if (gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup) {
         this.doCommand("cmd_replyGroup", event);
@@ -744,14 +746,28 @@ var commandController = {
     // cmd_print() {},
     // cmd_downloadSelected() {},
   },
+  _isCallbackEnabled: {},
+
+  registerCallback(name, callback, isEnabled = true) {
+    this._callbackCommands[name] = callback;
+    this._isCallbackEnabled[name] = isEnabled;
+  },
+
   supportsCommand(command) {
     return (
       command in this._composeCommands ||
       command in this._viewCommands ||
-      command in this._commands
+      command in this._callbackCommands
     );
   },
   isCommandEnabled(command) {
+    let type = typeof this._isCallbackEnabled[command];
+    if (type == "function") {
+      return this._isCallbackEnabled[command]();
+    } else if (type == "boolean") {
+      return this._isCallbackEnabled[command];
+    }
+
     let numSelectedMessages = gViewWrapper.dbView.selection.count;
     let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
     let canMove =
@@ -831,8 +847,8 @@ var commandController = {
       return;
     }
 
-    if (command in this._commands) {
-      this._commands[command](event);
+    if (command in this._callbackCommands) {
+      this._callbackCommands[command](event);
     }
   },
 

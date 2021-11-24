@@ -237,6 +237,7 @@ li.collapsed > ul {
   overflow: auto;
   display: flex;
   border-inline-start: 1px solid ThreeDShadow;
+  min-height: 200px;
 }
 
 #threadTreePane > tree-view-listbox {

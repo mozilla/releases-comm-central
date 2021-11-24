@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals dbViewWrapperListener, mailContextMenu */ // mailContext.js
+/* globals commandController, dbViewWrapperListener, mailContextMenu */ // mailContext.js
 /* globals goDoCommand */ // globalOverlay.js
 
 var { DBViewWrapper } = ChromeUtils.import(
@@ -28,7 +28,7 @@ const messengerBundle = Services.strings.createBundle(
 );
 
 var gFolder, gViewWrapper, gMessage, gMessageURI;
-var folderTree, threadTree, messageBrowser;
+var folderTree, splitter1, threadTree, splitter2, messageBrowser;
 
 window.addEventListener("DOMContentLoaded", () => {
   function addSubFolders(parentFolder, parentItem) {
@@ -51,6 +51,35 @@ window.addEventListener("DOMContentLoaded", () => {
       folderItem.querySelector(".name").textContent = folder.name;
       addSubFolders(folder, folderItem);
     }
+  }
+
+  splitter1 = document.getElementById("splitter1");
+  let splitter1Width = Services.xulStore.getValue(
+    "chrome://messenger/content/messenger.xhtml",
+    "folderPaneBox",
+    "width"
+  );
+  if (splitter1Width) {
+    splitter1.width = splitter1Width;
+  }
+
+  splitter2 = document.getElementById("splitter2");
+  let splitter2Height = Services.xulStore.getValue(
+    "chrome://messenger/content/messenger.xhtml",
+    "messagepaneboxwrapper",
+    "height"
+  );
+  if (splitter2Height) {
+    splitter2.height = splitter2Height;
+  }
+
+  let splitter2Width = Services.xulStore.getValue(
+    "chrome://messenger/content/messenger.xhtml",
+    "messagepaneboxwrapper",
+    "width"
+  );
+  if (splitter2Width) {
+    splitter2.width = splitter2Width;
   }
 
   // Setting the pane config on a preference change may turn out to be a bad
@@ -79,36 +108,71 @@ window.addEventListener("DOMContentLoaded", () => {
     (name, oldValue, newValue) => setLayout(newValue)
   );
   setLayout(this.layout);
+  restoreState();
 
-  let splitter1Width = Services.xulStore.getValue(
-    "chrome://messenger/content/messenger.xhtml",
-    "folderPaneBox",
-    "width"
-  );
-  if (splitter1Width) {
-    document.body.style.setProperty("--splitter1-width", `${splitter1Width}px`);
-  }
+  splitter1.addEventListener("splitter-resized", () => {
+    Services.xulStore.setValue(
+      "chrome://messenger/content/messenger.xhtml",
+      "folderPaneBox",
+      "width",
+      splitter1.width
+    );
+  });
 
-  let splitter1Height = Services.xulStore.getValue(
-    "chrome://messenger/content/messenger.xhtml",
-    "messagepaneboxwrapper",
-    "height"
-  );
-  if (splitter1Height) {
-    document.body.style.setProperty(
-      "--splitter2-height",
-      `${splitter1Height}px`
+  splitter2.addEventListener("splitter-resized", () => {
+    if (splitter2.orientation == "vertical") {
+      Services.xulStore.setValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "messagepaneboxwrapper",
+        "height",
+        splitter2.height
+      );
+    } else {
+      Services.xulStore.setValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "messagepaneboxwrapper",
+        "width",
+        splitter2.width
+      );
+    }
+  });
+
+  splitter2.addEventListener("splitter-collapsed", () => {
+    displayMessage();
+
+    Services.xulStore.setValue(
+      "chrome://messenger/content/messenger.xhtml",
+      "messagepaneboxwrapper",
+      "collapsed",
+      true
+    );
+  });
+
+  splitter2.addEventListener("splitter-expanded", () => {
+    if (threadTree.view?.selection.count == 1) {
+      let uri = threadTree.view.getURIForViewIndex(threadTree.selectedIndex);
+      if (!uri) {
+        return;
+      }
+      displayMessage(uri);
+    }
+
+    Services.xulStore.setValue(
+      "chrome://messenger/content/messenger.xhtml",
+      "messagepaneboxwrapper",
+      "collapsed",
+      false
+    );
+  });
+
+  for (let s of [splitter1, splitter2]) {
+    s.addEventListener("mousedown", () =>
+      document.body.classList.add("dragging")
     );
   }
-
-  let splitter2Width = Services.xulStore.getValue(
-    "chrome://messenger/content/messenger.xhtml",
-    "messagepaneboxwrapper",
-    "width"
+  window.addEventListener("mouseup", () =>
+    document.body.classList.remove("dragging")
   );
-  if (splitter2Width) {
-    document.body.style.setProperty("--splitter2-width", `${splitter2Width}px`);
-  }
 
   folderTree = document.getElementById("folderTree");
   let folderTemplate = document.getElementById("folderTemplate");
@@ -209,11 +273,11 @@ window.addEventListener("DOMContentLoaded", () => {
   threadTree = document.getElementById("threadTree");
 
   threadTree.addEventListener("select", async event => {
-    if (threadTree.selectedIndex == -1) {
-      displayMessage();
+    if (splitter2.isCollapsed) {
       return;
     }
-    if (threadTree.selectedIndicies.length != 1) {
+    if (threadTree.view.selection.count != 1) {
+      displayMessage();
       return;
     }
 
@@ -226,13 +290,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   messageBrowser = document.getElementById("messageBrowser");
 });
-
-window.addEventListener("splitter-resizing", () =>
-  document.body.classList.add("dragging")
-);
-window.addEventListener("splitter-resized", () =>
-  document.body.classList.remove("dragging")
-);
 
 window.addEventListener("keypress", event => {
   // These keypresses are implemented here to aid the development process.
@@ -262,6 +319,31 @@ window.addEventListener("keypress", event => {
     }
   }
 });
+
+function restoreState({
+  folderPaneVisible,
+  messagePaneVisible,
+  folderURI,
+} = {}) {
+  if (folderPaneVisible === undefined) {
+    folderPaneVisible = true;
+  }
+  splitter1.isCollapsed = !folderPaneVisible;
+
+  if (messagePaneVisible === undefined) {
+    messagePaneVisible =
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "messagepaneboxwrapper",
+        "collapsed"
+      ) !== "true";
+  }
+  splitter2.isCollapsed = !messagePaneVisible;
+
+  if (folderURI) {
+    displayFolder(folderURI);
+  }
+}
 
 function displayFolder(folderURI) {
   for (let index = 0; index < folderTree.rowCount; index++) {
@@ -452,16 +534,13 @@ var folderPaneContextMenu = {
           event.target.getAttribute("checked") == "true"
         );
         break;
-      case "folderPaneContext-openNewTab": {
-        let inBackground = Services.prefs.getBoolPref(
-          "mail.tabs.loadInBackground"
-        );
-        if (event.shiftKey) {
-          inBackground = !inBackground;
-        }
-        topChromeWindow.MsgOpenNewTabForFolder([gFolder], inBackground);
+      case "folderPaneContext-openNewTab":
+        topChromeWindow.MsgOpenNewTabForFolders([gFolder], {
+          event,
+          folderPaneVisible: !splitter1.isCollapsed,
+          messagePaneVisible: !splitter2.isCollapsed,
+        });
         break;
-      }
       case "folderPaneContext-openNewWindow":
         topChromeWindow.MsgOpenNewWindowForFolder(gFolder.URI, -1);
         break;
@@ -578,3 +657,19 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
   }
 }
 customElements.define("thread-listrow", ThreadListrow);
+
+commandController.registerCallback("cmd_viewClassicMailLayout", () =>
+  Services.prefs.setIntPref("mail.pane_config.dynamic", 0)
+);
+commandController.registerCallback("cmd_viewWideMailLayout", () =>
+  Services.prefs.setIntPref("mail.pane_config.dynamic", 1)
+);
+commandController.registerCallback("cmd_viewVerticalMailLayout", () =>
+  Services.prefs.setIntPref("mail.pane_config.dynamic", 2)
+);
+commandController.registerCallback("cmd_toggleFolderPane", () => {
+  splitter1.isCollapsed = !splitter1.isCollapsed;
+});
+commandController.registerCallback("cmd_toggleMessagePane", () => {
+  splitter2.isCollapsed = !splitter2.isCollapsed;
+});

@@ -2340,24 +2340,34 @@ function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
 
 /**
  * UI-triggered command to open the currently selected folder(s) in new tabs.
- * @param {nsIMsgFolder[]} [selectedFolders] - Folders to open in new tabs or,
- *   if not given, the selected folders.
- * @param {boolean} [aBackground] - If true, then the folder tab is opened in
- *   the background. If false or not given, then the folder tab is opened in
- *   the foreground.
+ * @param {nsIMsgFolder[]} folders - Folders to open in new tabs.
+ * @param {object} [tabParams] - Parameters to pass to the new tabs.
  */
-function MsgOpenNewTabForFolder(
-  selectedFolders = gFolderTreeView.getSelectedFolders(),
-  aBackground
-) {
-  // If there is a right-click happening, gFolderTreeView.getSelectedFolders()
-  // will tell us about it (while the selection's currentIndex would reflect
-  // the node that was selected/displayed before the right-click.)
-  for (let i = 0; i < selectedFolders.length; i++) {
-    document.getElementById("tabmail").openTab("folder", {
-      folder: selectedFolders[i],
-      background: aBackground,
-    });
+function MsgOpenNewTabForFolders(folders, tabParams = {}) {
+  if (tabParams.background === undefined) {
+    tabParams.background = Services.prefs.getBoolPref(
+      "mail.tabs.loadInBackground"
+    );
+    if (tabParams.event?.shiftKey) {
+      tabParams.background = !tabParams.background;
+    }
+  }
+
+  let tabmail = document.getElementById("tabmail");
+  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+    for (let i = 0; i < folders.length; i++) {
+      tabmail.openTab("mail3PaneTab", {
+        ...tabParams,
+        folderURI: folders[i].URI,
+      });
+    }
+  } else {
+    for (let i = 0; i < folders.length; i++) {
+      tabmail.openTab("folder", {
+        folder: folders[i],
+        background: tabParams.background,
+      });
+    }
   }
 }
 

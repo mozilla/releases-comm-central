@@ -1621,11 +1621,10 @@ function TreeOnMouseDown(event) {
 }
 
 function FolderPaneContextMenuNewTab(event) {
-  var bgLoad = Services.prefs.getBoolPref("mail.tabs.loadInBackground");
-  if (event.shiftKey) {
-    bgLoad = !bgLoad;
-  }
-  MsgOpenNewTabForFolder(undefined, bgLoad);
+  // If there is a right-click happening, gFolderTreeView.getSelectedFolders()
+  // will tell us about it (while the selection's currentIndex would reflect
+  // the node that was selected/displayed before the right-click.)
+  MsgOpenNewTabForFolders(gFolderTreeView.getSelectedFolders(), { event });
 }
 
 function FolderPaneOnClick(event) {
@@ -1655,20 +1654,30 @@ function FolderPaneOnClick(event) {
   }
 }
 
-function OpenMessageInNewTab(event) {
-  if (!gFolderDisplay.selectedMessage) {
+function OpenMessageInNewTab(msgHdr, tabParams = {}) {
+  if (!msgHdr) {
     return;
   }
-  var bgLoad = Services.prefs.getBoolPref("mail.tabs.loadInBackground");
-  if (event.shiftKey) {
-    bgLoad = !bgLoad;
+
+  tabParams.messageURI = msgHdr.folder.getUriForMsg(msgHdr);
+  if (tabParams.background === undefined) {
+    tabParams.background = Services.prefs.getBoolPref(
+      "mail.tabs.loadInBackground"
+    );
+    if (tabParams.event?.shiftKey) {
+      tabParams.background = !tabParams.background;
+    }
   }
 
-  document.getElementById("tabmail").openTab("message", {
-    msgHdr: gFolderDisplay.selectedMessage,
-    viewWrapperToClone: gFolderDisplay.view,
-    background: bgLoad,
-  });
+  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+    openTab("mailMessageTab", tabParams);
+  } else {
+    document.getElementById("tabmail").openTab("message", {
+      msgHdr,
+      viewWrapperToClone: tabParams.viewWrapper ?? gFolderDisplay.view,
+      background: tabParams.background,
+    });
+  }
 }
 
 function OpenContainingFolder() {
@@ -1688,7 +1697,7 @@ function ThreadTreeOnClick(event) {
     event.target.localName != "slider" &&
     event.target.localName != "scrollbarbutton"
   ) {
-    OpenMessageInNewTab(event);
+    OpenMessageInNewTab(gFolderDisplay.selectedMessage, { event });
     RestoreSelectionWithoutContentLoad(threadTree);
   }
 }

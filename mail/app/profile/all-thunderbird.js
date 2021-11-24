@@ -1343,6 +1343,10 @@ pref("mail.compose.warn_public_recipients.aggressive", false);
 // about:addressbook in a tab.
 pref("mail.addr_book.useNewAddressBook", true);
 
+// Temporary pref while both 3-pane UIs exist.
+// Opens folders in about:3pane and messages in about:message if true.
+pref("mail.useNewMailTabs", false);
+
 // The URL of most things that can be printed is useless information.
 // Hide it and move the title to the center.
 pref("print.print_headerleft", "");

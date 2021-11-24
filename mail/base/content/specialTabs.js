@@ -1094,31 +1094,36 @@ var specialTabs = {
 
     modes: {
       mail3PaneTab: {
+        // Overrides shouldSwitchTo in contentTabBaseType.
         shouldSwitchTo({ folderURI } = {}) {
-          if (folderURI) {
-            for (let tab of this.modes.mail3PaneTab.tabs) {
-              if (tab.folderURI == folderURI) {
-                return document.getElementById("tabmail").tabInfo.indexOf(tab);
-              }
-            }
-          }
           return -1;
         },
         openTab(tab, args = {}) {
           args.url = "about:3pane";
-          if (args.folderURI) {
-            args.onLoad = (event, browser) =>
-              browser.contentWindow.displayFolder(args.folderURI);
-            tab.folderURI = args.folderURI;
-          }
+          args.onLoad = (event, browser) =>
+            browser.contentWindow.restoreState(args);
           specialTabs.contentTabType.openTab(tab, args);
+          tab.folderURI = args.folderURI;
+          tab.__defineGetter__(
+            "folderPaneVisible",
+            () => !tab.browser.contentWindow.splitter1.isCollapsed
+          );
+          tab.__defineGetter__(
+            "messagePaneVisible",
+            () => !tab.browser.contentWindow.splitter2.isCollapsed
+          );
           tab.browser.addEventListener("folderURIChanged", function(event) {
             tab.folderURI = event.detail;
           });
           return tab;
         },
         persistTab(tab) {
-          return { folderURI: tab.folderURI };
+          return {
+            firstTab: tab.first,
+            folderPaneVisible: tab.folderPaneVisible,
+            folderURI: tab.folderURI,
+            messagePaneVisible: tab.messagePaneVisible,
+          };
         },
         restoreTab(tabmail, persistedState) {
           tabmail.openTab("mail3PaneTab", persistedState);
