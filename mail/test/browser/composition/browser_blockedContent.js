@@ -90,7 +90,7 @@ add_task(async function test_paste_file_urls() {
       return IOUtils.copy(file.path, dest);
     })
     .then(function() {
-      return IOUtils.touch(dest);
+      return IOUtils.setModificationTime(dest);
     })
     .then(function() {
       tmpFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
