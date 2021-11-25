@@ -614,6 +614,34 @@ pref("font.default.x-western", "sans-serif");
 pref("font.default.x-cyrillic", "sans-serif");
 pref("font.default.el", "sans-serif");
 
+#ifdef XP_WIN
+pref("font.name.monospace.x-unicode", "Consolas");
+pref("font.name.sans-serif.x-unicode", "Calibri");
+pref("font.name.serif.x-unicode", "Cambria");
+pref("font.size.monospace.x-unicode", 14);
+pref("font.size.variable.x-unicode", 17);
+
+pref("font.name.monospace.x-western", "Consolas");
+pref("font.name.sans-serif.x-western", "Calibri");
+pref("font.name.serif.x-western", "Cambria");
+pref("font.size.monospace.x-western", 14);
+pref("font.size.variable.x-western", 17);
+
+pref("font.name.monospace.x-cyrillic", "Consolas");
+pref("font.name.sans-serif.x-cyrillic", "Calibri");
+pref("font.name.serif.x-cyrillic", "Cambria");
+pref("font.size.monospace.x-cyrillic", 14);
+pref("font.size.variable.x-cyrillic", 17);
+
+pref("font.name.monospace.el", "Consolas");
+pref("font.name.sans-serif.el", "Calibri");
+pref("font.name.serif.el", "Cambria");
+pref("font.size.monospace.el", 14);
+pref("font.size.variable.el", 17);
+
+pref("mail.font.windows.version", 2);
+#endif
+
 #ifdef XP_MACOSX
 pref("font.name.sans-serif.x-unicode", "Lucida Grande");
 pref("font.name.monospace.x-unicode", "Menlo");
@@ -668,8 +696,6 @@ pref("font.name-list.serif.el", "serif");
 pref("font.name-list.sans-serif.el", "sans-serif");
 pref("font.name-list.monospace.el", "monospace");
 #endif
-
-pref("mail.font.windows.version", 0);
 
 pref("mail.setup.loglevel", "Warn");
 

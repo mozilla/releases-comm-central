@@ -878,10 +878,6 @@ async function loadPostAccountWizard() {
   MigrateJunkMailSettings();
   MigrateFolderViews();
   MigrateOpenMessageBehavior();
-  const { MailMigrator } = ChromeUtils.import(
-    "resource:///modules/MailMigrator.jsm"
-  );
-  MailMigrator.migratePostAccountWizard();
 
   accountManager.setSpecialFolders();
 

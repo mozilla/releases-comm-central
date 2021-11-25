@@ -25,80 +25,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 var MailMigrator = {
-  /**
-   * Switch the given fonts to the given encodings, but only if the current fonts
-   * are defaults.
-   */
-  _switchDefaultFonts(aFonts, aEncodings) {
-    for (let encoding of aEncodings) {
-      let serifPref = "font.name.serif." + encoding;
-      let sansPref = "font.name.sans-serif." + encoding;
-      let variableSizePref = "font.size.variable." + encoding;
-      // This is expected to be one of sans-serif or serif, and determines what
-      // we'll link the variable font size to.
-      let isSansDefault =
-        Services.prefs.getCharPref("font.default." + encoding) == "sans-serif";
-
-      if (!Services.prefs.prefHasUserValue(serifPref)) {
-        Services.prefs.setCharPref(serifPref, aFonts.serif);
-        if (!isSansDefault) {
-          Services.prefs.setIntPref(variableSizePref, aFonts.variableSize);
-        }
-      }
-
-      if (!Services.prefs.prefHasUserValue(sansPref)) {
-        Services.prefs.setCharPref(sansPref, aFonts.sans);
-        if (isSansDefault) {
-          Services.prefs.setIntPref(variableSizePref, aFonts.variableSize);
-        }
-      }
-
-      let monospacePref = "font.name.monospace." + encoding;
-      let fixedSizePref = "font.size.monospace." + encoding;
-      if (!Services.prefs.prefHasUserValue(monospacePref)) {
-        Services.prefs.setCharPref(monospacePref, aFonts.monospace);
-        Services.prefs.setIntPref(fixedSizePref, aFonts.fixedSize);
-      }
-    }
-  },
-
-  /**
-   * Migrate to ClearType fonts (Cambria, Calibri and Consolas) on Windows Vista
-   * and above.
-   */
-  migrateToClearTypeFonts() {
-    // Windows...
-    if ("@mozilla.org/windows-registry-key;1" in Cc) {
-      // Only migrate on Vista (Windows version 6.0) and above
-      if (Services.sysinfo.getPropertyAsDouble("version") >= 6.0) {
-        let fontPrefVersion = Services.prefs.getIntPref(
-          "mail.font.windows.version"
-        );
-        if (fontPrefVersion < 2) {
-          let fonts = {
-            serif: "Cambria",
-            sans: "Calibri",
-            monospace: "Consolas",
-            variableSize: 17,
-            fixedSize: 14,
-          };
-          // Encodings to switch to the new fonts.
-          let encodings = [];
-          // (Thunderbird 3.1)
-          if (fontPrefVersion < 1) {
-            encodings.push("x-unicode", "x-western");
-          }
-          // (Thunderbird 3.2)
-          encodings.push("x-cyrillic", "el");
-
-          this._switchDefaultFonts(fonts, encodings);
-
-          Services.prefs.setIntPref("mail.font.windows.version", 2);
-        }
-      }
-    }
-  },
-
   _migrateXULStoreForDocument(fromURL, toURL) {
     Array.from(Services.xulStore.getIDsEnumerator(fromURL)).forEach(id => {
       Array.from(Services.xulStore.getAttributeEnumerator(fromURL, id)).forEach(
@@ -951,14 +877,6 @@ var MailMigrator = {
 
     await IOUtils.writeJSON(jsonFile.path, items);
     legacyFile.remove(false);
-  },
-
-  /**
-   * Perform any migration work that needs to occur after the Account Wizard
-   * has had a chance to appear.
-   */
-  migratePostAccountWizard() {
-    this.migrateToClearTypeFonts();
   },
 
   /**
