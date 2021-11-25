@@ -123,38 +123,36 @@ NS_IMPL_GETSET(nsSpamSettings, Purge, bool, mPurge)
 NS_IMPL_GETSET(nsSpamSettings, UseWhiteList, bool, mUseWhiteList)
 NS_IMPL_GETSET(nsSpamSettings, UseServerFilter, bool, mUseServerFilter)
 
-NS_IMETHODIMP nsSpamSettings::GetWhiteListAbURI(char** aWhiteListAbURI) {
-  NS_ENSURE_ARG_POINTER(aWhiteListAbURI);
-  *aWhiteListAbURI = ToNewCString(mWhiteListAbURI);
+NS_IMETHODIMP nsSpamSettings::GetWhiteListAbURI(nsACString& aWhiteListAbURI) {
+  aWhiteListAbURI = mWhiteListAbURI;
   return NS_OK;
 }
-NS_IMETHODIMP nsSpamSettings::SetWhiteListAbURI(const char* aWhiteListAbURI) {
+NS_IMETHODIMP nsSpamSettings::SetWhiteListAbURI(
+    const nsACString& aWhiteListAbURI) {
   mWhiteListAbURI = aWhiteListAbURI;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::GetActionTargetAccount(
-    char** aActionTargetAccount) {
-  NS_ENSURE_ARG_POINTER(aActionTargetAccount);
-  *aActionTargetAccount = ToNewCString(mActionTargetAccount);
+    nsACString& aActionTargetAccount) {
+  aActionTargetAccount = mActionTargetAccount;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::SetActionTargetAccount(
-    const char* aActionTargetAccount) {
+    const nsACString& aActionTargetAccount) {
   mActionTargetAccount = aActionTargetAccount;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::GetActionTargetFolder(
-    char** aActionTargetFolder) {
-  NS_ENSURE_ARG_POINTER(aActionTargetFolder);
-  *aActionTargetFolder = ToNewCString(mActionTargetFolder);
+    nsACString& aActionTargetFolder) {
+  aActionTargetFolder = mActionTargetFolder;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::SetActionTargetFolder(
-    const char* aActionTargetFolder) {
+    const nsACString& aActionTargetFolder) {
   mActionTargetFolder = aActionTargetFolder;
   return NS_OK;
 }
@@ -248,13 +246,13 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   rv =
       aServer->GetCharValue("spamActionTargetAccount", spamActionTargetAccount);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = SetActionTargetAccount(spamActionTargetAccount.get());
+  rv = SetActionTargetAccount(spamActionTargetAccount);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString spamActionTargetFolder;
   rv = aServer->GetCharValue("spamActionTargetFolder", spamActionTargetFolder);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = SetActionTargetFolder(spamActionTargetFolder.get());
+  rv = SetActionTargetFolder(spamActionTargetFolder);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool useWhiteList;
@@ -266,7 +264,7 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   nsCString whiteListAbURI;
   rv = aServer->GetCharValue("whiteListAbURI", whiteListAbURI);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = SetWhiteListAbURI(whiteListAbURI.get());
+  rv = SetWhiteListAbURI(whiteListAbURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool purgeSpam;
@@ -394,7 +392,7 @@ nsresult nsSpamSettings::UpdateJunkFolderState() {
   // if the spam folder uri changed on us, we need to unset the junk flag
   // on the old spam folder
   nsCString newJunkFolderURI;
-  rv = GetSpamFolderURI(getter_Copies(newJunkFolderURI));
+  rv = GetSpamFolderURI(newJunkFolderURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!mCurrentJunkFolderURI.IsEmpty() &&
@@ -447,18 +445,17 @@ NS_IMETHODIMP nsSpamSettings::Clone(nsISpamSettings* aSpamSettings) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString actionTargetAccount;
-  rv =
-      aSpamSettings->GetActionTargetAccount(getter_Copies(actionTargetAccount));
+  rv = aSpamSettings->GetActionTargetAccount(actionTargetAccount);
   NS_ENSURE_SUCCESS(rv, rv);
   mActionTargetAccount = actionTargetAccount;
 
   nsCString actionTargetFolder;
-  rv = aSpamSettings->GetActionTargetFolder(getter_Copies(actionTargetFolder));
+  rv = aSpamSettings->GetActionTargetFolder(actionTargetFolder);
   NS_ENSURE_SUCCESS(rv, rv);
   mActionTargetFolder = actionTargetFolder;
 
   nsCString whiteListAbURI;
-  rv = aSpamSettings->GetWhiteListAbURI(getter_Copies(whiteListAbURI));
+  rv = aSpamSettings->GetWhiteListAbURI(whiteListAbURI);
   NS_ENSURE_SUCCESS(rv, rv);
   mWhiteListAbURI = whiteListAbURI;
 
@@ -468,16 +465,14 @@ NS_IMETHODIMP nsSpamSettings::Clone(nsISpamSettings* aSpamSettings) {
   return rv;
 }
 
-NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char** aSpamFolderURI) {
-  NS_ENSURE_ARG_POINTER(aSpamFolderURI);
-
+NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(nsACString& aSpamFolderURI) {
   if (mMoveTargetMode == nsISpamSettings::MOVE_TARGET_MODE_FOLDER)
     return GetActionTargetFolder(aSpamFolderURI);
 
   // if the mode is nsISpamSettings::MOVE_TARGET_MODE_ACCOUNT
   // the spam folder URI = account uri + "/Junk"
   nsCString folderURI;
-  nsresult rv = GetActionTargetAccount(getter_Copies(folderURI));
+  nsresult rv = GetActionTargetAccount(folderURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // we might be trying to get the old spam folder uri
@@ -518,11 +513,8 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char** aSpamFolderURI) {
     if (!folderUriWithNamespace.IsEmpty()) folderURI = folderUriWithNamespace;
   }
 
-  *aSpamFolderURI = ToNewCString(folderURI);
-  if (!*aSpamFolderURI)
-    return NS_ERROR_OUT_OF_MEMORY;
-  else
-    return rv;
+  aSpamFolderURI = folderURI;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::GetServerFilterName(nsACString& aFilterName) {
@@ -643,7 +635,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr* aMsgHdr,
     aMsgHdr->GetMessageId(getter_Copies(msgId));
 
     nsCString junkFolderURI;
-    rv = GetSpamFolderURI(getter_Copies(junkFolderURI));
+    rv = GetSpamFolderURI(junkFolderURI);
     NS_ENSURE_SUCCESS(rv, rv);
 
     AutoTArray<nsString, 2> logMoveFormatStrings;
@@ -725,7 +717,7 @@ NS_IMETHODIMP nsSpamSettings::OnStartRunningUrl(nsIURI* aURL) {
 NS_IMETHODIMP nsSpamSettings::OnStopRunningUrl(nsIURI* aURL,
                                                nsresult exitCode) {
   nsCString junkFolderURI;
-  nsresult rv = GetSpamFolderURI(getter_Copies(junkFolderURI));
+  nsresult rv = GetSpamFolderURI(junkFolderURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (junkFolderURI.IsEmpty()) return NS_ERROR_UNEXPECTED;

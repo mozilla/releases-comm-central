@@ -283,7 +283,7 @@ class nsMsgDBView : public nsIMsgDBView,
   virtual nsMsgViewIndex FindKey(nsMsgKey key, bool expand);
   virtual nsresult GetDBForViewIndex(nsMsgViewIndex index, nsIMsgDatabase** db);
   virtual nsCOMArray<nsIMsgFolder>* GetFolders();
-  virtual nsresult GetFolderFromMsgURI(const char* aMsgURI,
+  virtual nsresult GetFolderFromMsgURI(const nsACString& aMsgURI,
                                        nsIMsgFolder** aFolder);
 
   virtual nsresult ListIdsInThread(nsIMsgThread* threadHdr,

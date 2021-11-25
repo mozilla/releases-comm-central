@@ -237,7 +237,7 @@ nsresult nsMsgPurgeService::PerformPurge() {
         // check if the spam folder uri is set for this server
         // if not skip it.
         nsCString junkFolderURI;
-        rv = spamSettings->GetSpamFolderURI(getter_Copies(junkFolderURI));
+        rv = spamSettings->GetSpamFolderURI(junkFolderURI);
         NS_ENSURE_SUCCESS(rv, rv);
 
         MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,

@@ -53,7 +53,7 @@ interface nsIJunkMailClassificationListener : nsISupports
    * @param aJunkPercent     indicator of degree of uncertainty, with 100 being
    *                         probably junk, and 0 probably good
    */
-  void onMessageClassified(in string aMsgURI,
+  void onMessageClassified(in AUTF8String aMsgURI,
                            in nsMsgJunkStatus aClassification,
                            in uint32_t aJunkPercent);
 };
@@ -74,7 +74,7 @@ interface nsIMsgTraitClassificationListener : nsISupports
    *                     matched) of the trait with the corresponding array
    *                     index in aTraits
    */
-  void onMessageTraitsClassified(in string aMsgURI,
+  void onMessageTraitsClassified(in AUTF8String aMsgURI,
     in Array<unsigned long> aTraits,
     in Array<unsigned long> aPercents);
 };
@@ -98,7 +98,7 @@ interface nsIMsgTraitDetailListener : nsISupports
    * @param runningPercents calculated probability that the message matches the
    *                        trait, accounting for this token and all stronger tokens.
    */
-    void onMessageTraitDetails(in string aMsgUri,
+    void onMessageTraitDetails(in AUTF8String aMsgUri,
                                in unsigned long aProTrait,
                                in Array<AString> tokenStrings,
                                in Array<unsigned long> tokenPercents,
@@ -135,10 +135,10 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * Given a message URI, determine what its current classification is
      * according to the current training set.
      */
-    void classifyMessage(in string aMsgURI, in nsIMsgWindow aMsgWindow,
+    void classifyMessage(in AUTF8String aMsgURI, in nsIMsgWindow aMsgWindow,
                          in nsIJunkMailClassificationListener aListener);
 
-    void classifyMessages(in Array<ACString> aMsgURIs,
+    void classifyMessages(in Array<AUTF8String> aMsgURIs,
                           in nsIMsgWindow aMsgWindow,
                           in nsIJunkMailClassificationListener aListener);
 
@@ -159,7 +159,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      */
 
     void classifyTraitsInMessage(
-           in ACString aMsgURI,
+           in AUTF8String aMsgURI,
            in Array<unsigned long> aProTraits,
            in Array<unsigned long> aAntiTraits,
            in nsIMsgTraitClassificationListener aTraitListener,
@@ -183,7 +183,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      */
 
     void classifyTraitsInMessages(
-           in Array<ACString> aMsgURIs,
+           in Array<AUTF8String> aMsgURIs,
            in Array<unsigned long> aProTraits,
            in Array<unsigned long> aAntiTraits,
            in nsIMsgTraitClassificationListener aTraitListener,
@@ -201,7 +201,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * @arg aListener                   Callback (may be null)
      */
     void setMessageClassification(
-        in string aMsgURI, in nsMsgJunkStatus aOldUserClassification,
+        in AUTF8String aMsgURI, in nsMsgJunkStatus aOldUserClassification,
         in nsMsgJunkStatus aNewClassification,
         in nsIMsgWindow aMsgWindow,
         in nsIJunkMailClassificationListener aListener);
@@ -220,7 +220,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * @param aJunkListener     junk-oriented listener (may be null)
      */
     void setMsgTraitClassification(
-        in string aMsgURI,
+        in AUTF8String aMsgURI,
         in Array<unsigned long> aOldTraits,
         in Array<unsigned long> aNewTraits,
         [optional] in nsIMsgTraitClassificationListener aTraitListener,
@@ -250,7 +250,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * @param aMsgWindow       current message window (may be null)
      */
     void detailMessage(
-        in string aMsgURI,
+        in AUTF8String aMsgURI,
         in unsigned long aProTrait,
         in unsigned long aAntiTrait,
         in nsIMsgTraitDetailListener aListener,

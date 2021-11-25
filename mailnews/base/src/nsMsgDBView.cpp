@@ -3287,7 +3287,7 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
   // adjust its database appropriately.
   nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
   rv = aJunkPlugin->SetMessageClassification(
-      uri.get(), oldUserClassification, aNewClassification, msgWindow, this);
+      uri, oldUserClassification, aNewClassification, msgWindow, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // This routine is only reached if the user someone touched the UI
@@ -3308,14 +3308,14 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
   return rv;
 }
 
-nsresult nsMsgDBView::GetFolderFromMsgURI(const char* aMsgURI,
+nsresult nsMsgDBView::GetFolderFromMsgURI(const nsACString& aMsgURI,
                                           nsIMsgFolder** aFolder) {
   NS_IF_ADDREF(*aFolder = m_folder);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgDBView::OnMessageClassified(const char* aMsgURI,
+nsMsgDBView::OnMessageClassified(const nsACString& aMsgURI,
                                  nsMsgJunkStatus aClassification,
                                  uint32_t aJunkPercent)
 
@@ -3527,7 +3527,7 @@ nsresult nsMsgDBView::DetermineActionsForJunkChange(
     if (folderFlags & nsMsgFolderFlags::Junk) return NS_OK;
 
     nsCString spamFolderURI;
-    rv = spamSettings->GetSpamFolderURI(getter_Copies(spamFolderURI));
+    rv = spamSettings->GetSpamFolderURI(spamFolderURI);
     NS_ENSURE_SUCCESS(rv, rv);
 
     NS_ASSERTION(!spamFolderURI.IsEmpty(),

@@ -28,13 +28,14 @@ interface nsISpamSettings: nsISupports {
   attribute long moveTargetMode;
   const long MOVE_TARGET_MODE_ACCOUNT = 0;
   const long MOVE_TARGET_MODE_FOLDER = 1;
-  attribute string actionTargetAccount;
-  attribute string actionTargetFolder;
+  // Despite their name the following are URIs.
+  attribute AUTF8String actionTargetAccount;
+  attribute AUTF8String actionTargetFolder;
 
   /**
    * built from moveTargetMode, actionTargetAccount, actionTargetFolder
    */
-  readonly attribute string spamFolderURI;
+  readonly attribute AUTF8String spamFolderURI;
 
   attribute boolean purge;
   /**
@@ -43,7 +44,7 @@ interface nsISpamSettings: nsISupports {
   attribute long purgeInterval;
 
   attribute boolean useWhiteList;
-  attribute string whiteListAbURI;
+  attribute AUTF8String whiteListAbURI;
 
   /**
    * Should we do something when the user manually marks a message as junk?

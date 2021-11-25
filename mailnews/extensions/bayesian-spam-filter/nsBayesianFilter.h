@@ -345,19 +345,19 @@ class nsBayesianFilter : public nsIJunkMailPlugin,
 
   nsresult Init();
 
-  nsresult tokenizeMessage(const char* messageURI, nsIMsgWindow* aMsgWindow,
-                           TokenAnalyzer* analyzer);
-  void classifyMessage(Tokenizer& tokens, const char* messageURI,
+  nsresult tokenizeMessage(const nsACString& messageURI,
+                           nsIMsgWindow* aMsgWindow, TokenAnalyzer* analyzer);
+  void classifyMessage(Tokenizer& tokens, const nsACString& messageURI,
                        nsIJunkMailClassificationListener* listener);
 
-  void classifyMessage(Tokenizer& tokenizer, const char* messageURI,
+  void classifyMessage(Tokenizer& tokenizer, const nsACString& messageURI,
                        nsTArray<uint32_t>& aProTraits,
                        nsTArray<uint32_t>& aAntiTraits,
                        nsIJunkMailClassificationListener* listener,
                        nsIMsgTraitClassificationListener* aTraitListener,
                        nsIMsgTraitDetailListener* aDetailListener);
 
-  void observeMessage(Tokenizer& tokens, const char* messageURI,
+  void observeMessage(Tokenizer& tokens, const nsACString& messageURI,
                       nsTArray<uint32_t>& oldClassifications,
                       nsTArray<uint32_t>& newClassifications,
                       nsIJunkMailClassificationListener* listener,

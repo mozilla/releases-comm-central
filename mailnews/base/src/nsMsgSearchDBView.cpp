@@ -1094,16 +1094,15 @@ nsMsgSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
   return rv;
 }
 
-nsresult nsMsgSearchDBView::GetFolderFromMsgURI(const char* aMsgURI,
+nsresult nsMsgSearchDBView::GetFolderFromMsgURI(const nsACString& aMsgURI,
                                                 nsIMsgFolder** aFolder) {
   nsCOMPtr<nsIMsgMessageService> msgMessageService;
-  nsresult rv = GetMessageServiceFromURI(nsDependentCString(aMsgURI),
-                                         getter_AddRefs(msgMessageService));
+  nsresult rv =
+      GetMessageServiceFromURI(aMsgURI, getter_AddRefs(msgMessageService));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = msgMessageService->MessageURIToMsgHdr(nsDependentCString(aMsgURI),
-                                             getter_AddRefs(msgHdr));
+  rv = msgMessageService->MessageURIToMsgHdr(aMsgURI, getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return msgHdr->GetFolder(aFolder);

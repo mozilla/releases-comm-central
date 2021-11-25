@@ -8242,18 +8242,17 @@ nsImapMailFolder::SetJunkScoreForMessages(
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::OnMessageClassified(const char* aMsgURI,
+nsImapMailFolder::OnMessageClassified(const nsACString& aMsgURI,
                                       nsMsgJunkStatus aClassification,
                                       uint32_t aJunkPercent) {
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (aMsgURI)  // not end of batch
+  if (!aMsgURI.IsEmpty())  // not end of batch
   {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv =
-        GetMsgDBHdrFromURI(nsDependentCString(aMsgURI), getter_AddRefs(msgHdr));
+    rv = GetMsgDBHdrFromURI(aMsgURI, getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsMsgKey msgKey;
@@ -8298,7 +8297,7 @@ nsImapMailFolder::OnMessageClassified(const char* aMsgURI,
           (void)spamSettings->GetMoveOnSpam(&moveOnSpam);
           if (moveOnSpam) {
             nsCString spamFolderURI;
-            rv = spamSettings->GetSpamFolderURI(getter_Copies(spamFolderURI));
+            rv = spamSettings->GetSpamFolderURI(spamFolderURI);
             NS_ENSURE_SUCCESS(rv, rv);
 
             if (!spamFolderURI.IsEmpty()) {
@@ -8335,8 +8334,8 @@ nsImapMailFolder::OnMessageClassified(const char* aMsgURI,
   else  // end of batch
   {
     // Parent will apply post bayes filters.
-    nsMsgDBFolder::OnMessageClassified(nullptr, nsIJunkMailPlugin::UNCLASSIFIED,
-                                       0);
+    nsMsgDBFolder::OnMessageClassified(EmptyCString(),
+                                       nsIJunkMailPlugin::UNCLASSIFIED, 0);
 
     if (!m_junkMessagesToMarkAsRead.IsEmpty()) {
       rv = MarkMessagesRead(m_junkMessagesToMarkAsRead, true);

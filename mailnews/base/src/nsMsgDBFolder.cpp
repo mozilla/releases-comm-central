@@ -2113,13 +2113,13 @@ nsMsgDBFolder::GetInheritedStringProperty(const char* aPropertyName,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::OnMessageClassified(const char* aMsgURI,
+nsMsgDBFolder::OnMessageClassified(const nsACString& aMsgURI,
                                    nsMsgJunkStatus aClassification,
                                    uint32_t aJunkPercent) {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, NS_OK);
 
-  if (!aMsgURI)  // This signifies end of batch.
+  if (aMsgURI.IsEmpty())  // This signifies end of batch.
   {
     // Apply filters if needed.
     if (!mPostBayesMessagesToFilter.IsEmpty()) {
@@ -2159,7 +2159,7 @@ nsMsgDBFolder::OnMessageClassified(const char* aMsgURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(nsDependentCString(aMsgURI), getter_AddRefs(msgHdr));
+  rv = GetMsgDBHdrFromURI(aMsgURI, getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsMsgKey msgKey;
@@ -2207,17 +2207,17 @@ nsMsgDBFolder::OnMessageClassified(const char* aMsgURI,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::OnMessageTraitsClassified(const char* aMsgURI,
+nsMsgDBFolder::OnMessageTraitsClassified(const nsACString& aMsgURI,
                                          const nsTArray<uint32_t>& aTraits,
                                          const nsTArray<uint32_t>& aPercents) {
-  if (!aMsgURI)    // This signifies end of batch
-    return NS_OK;  // We are not handling batching
+  if (aMsgURI.IsEmpty())  // This signifies end of batch
+    return NS_OK;         // We are not handling batching
 
   MOZ_ASSERT(aTraits.Length() == aPercents.Length());
 
   nsresult rv;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = GetMsgDBHdrFromURI(nsDependentCString(aMsgURI), getter_AddRefs(msgHdr));
+  rv = GetMsgDBHdrFromURI(aMsgURI, getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsMsgKey msgKey;
@@ -2569,7 +2569,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow* aMsgWindow, bool* aFiltersRun) {
     // post analysis filters will run consistently on a folder, even if
     // disabled junk processing, which could be dynamic through whitelisting,
     // makes the bayes analysis unnecessary.
-    OnMessageClassified(nullptr, nsIJunkMailPlugin::UNCLASSIFIED, 0);
+    OnMessageClassified(EmptyCString(), nsIJunkMailPlugin::UNCLASSIFIED, 0);
   }
 
   return rv;

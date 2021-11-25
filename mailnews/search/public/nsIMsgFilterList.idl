@@ -82,7 +82,7 @@ interface nsIMsgFilterList : nsISupports {
     void writeStrAttr(in nsMsgFilterFileAttribValue attrib, in string value, in nsIOutputStream stream);
     void writeWstrAttr(in nsMsgFilterFileAttribValue attrib, in wstring value, in nsIOutputStream stream);
     void writeBoolAttr(in nsMsgFilterFileAttribValue attrib, in boolean value, in nsIOutputStream stream);
-    boolean matchOrChangeFilterTarget(in ACString oldUri, in ACString newUri, in boolean caseInsensitive);
+    boolean matchOrChangeFilterTarget(in AUTF8String oldUri, in AUTF8String newUri, in boolean caseInsensitive);
 
     /**
      * Turn filter logging on or off. Turning logging off will close any

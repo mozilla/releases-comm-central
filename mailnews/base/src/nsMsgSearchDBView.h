@@ -78,7 +78,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD OnAnnouncerGoingAway(nsIDBChangeAnnouncer* instigator) override;
 
   virtual nsCOMArray<nsIMsgFolder>* GetFolders() override;
-  virtual nsresult GetFolderFromMsgURI(const char* aMsgURI,
+  virtual nsresult GetFolderFromMsgURI(const nsACString& aMsgURI,
                                        nsIMsgFolder** aFolder) override;
 
   NS_IMETHOD GetThreadContainingMsgHdr(nsIMsgDBHdr* msgHdr,

@@ -1784,7 +1784,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
     spamSettings->GetMoveOnSpam(&moveOnSpam);
     if (moveOnSpam) {
       nsCString spamFolderURI;
-      rv = spamSettings->GetSpamFolderURI(getter_Copies(spamFolderURI));
+      rv = spamSettings->GetSpamFolderURI(spamFolderURI);
       if (NS_SUCCEEDED(rv) && (!spamFolderURI.IsEmpty())) {
         nsCOMPtr<nsIMsgRuleAction> moveAction;
         rv = newFilter->CreateAction(getter_AddRefs(moveAction));

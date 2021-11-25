@@ -1372,11 +1372,11 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     rv = GetSpamSettings(getter_AddRefs(spamSettings));
     if (NS_SUCCEEDED(rv) && spamSettings) {
       nsCString spamFolderUri, existingUri;
-      spamSettings->GetSpamFolderURI(getter_Copies(spamFolderUri));
+      spamSettings->GetSpamFolderURI(spamFolderUri);
       if (CheckSpecialFolder(spamFolderUri, nsMsgFolderFlags::Junk,
                              existingUri)) {
         // This only sets the cached values in the spam settings object.
-        spamSettings->SetActionTargetFolder(existingUri.get());
+        spamSettings->SetActionTargetFolder(existingUri);
         spamSettings->SetMoveTargetMode(
             nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
         // Set the preferences too so that the values persist.

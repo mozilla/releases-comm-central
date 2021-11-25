@@ -3062,7 +3062,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Shutdown(bool shutdownChildren) {
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::OnMessageClassified(const char* aMsgURI,
+nsMsgLocalMailFolder::OnMessageClassified(const nsACString& aMsgURI,
                                           nsMsgJunkStatus aClassification,
                                           uint32_t aJunkPercent)
 
@@ -3076,14 +3076,13 @@ nsMsgLocalMailFolder::OnMessageClassified(const char* aMsgURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString spamFolderURI;
-  rv = spamSettings->GetSpamFolderURI(getter_Copies(spamFolderURI));
+  rv = spamSettings->GetSpamFolderURI(spamFolderURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (aMsgURI)  // not end of batch
+  if (!aMsgURI.IsEmpty())  // not end of batch
   {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv =
-        GetMsgDBHdrFromURI(nsDependentCString(aMsgURI), getter_AddRefs(msgHdr));
+    rv = GetMsgDBHdrFromURI(aMsgURI, getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsMsgKey msgKey;
@@ -3141,8 +3140,8 @@ nsMsgLocalMailFolder::OnMessageClassified(const char* aMsgURI,
   else  // end of batch
   {
     // Parent will apply post bayes filters.
-    nsMsgDBFolder::OnMessageClassified(nullptr, nsIJunkMailPlugin::UNCLASSIFIED,
-                                       0);
+    nsMsgDBFolder::OnMessageClassified(EmptyCString(),
+                                       nsIJunkMailPlugin::UNCLASSIFIED, 0);
     nsTArray<RefPtr<nsIMsgDBHdr>> messages;
     if (!mSpamKeysToMove.IsEmpty()) {
       nsCOMPtr<nsIMsgFolder> folder;
