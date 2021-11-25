@@ -10,7 +10,7 @@ initViewWrapperTestUtils();
  */
 function* test_threading_grouping_mutual_exclusion() {
   let viewWrapper = make_view_wrapper();
-  let folder = make_empty_folder();
+  let folder = MessageInjection.make_empty_folder();
 
   yield async_view_open(viewWrapper, folder);
   // enter an update that will never conclude.  this is fine.
@@ -34,7 +34,7 @@ function* test_threading_grouping_mutual_exclusion() {
  */
 function* test_threads_special_views_mutual_exclusion() {
   let viewWrapper = make_view_wrapper();
-  let folder = make_empty_folder();
+  let folder = MessageInjection.make_empty_folder();
 
   yield async_view_open(viewWrapper, folder);
   // enter an update that will never conclude. this is fine.
@@ -79,7 +79,7 @@ function* test_sort_primary() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder] = make_folder_with_sets(1);
+  let [folder] = MessageInjection.make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
   viewWrapper.sort(
@@ -124,7 +124,7 @@ function* test_sort_secondary_explicit() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder] = make_folder_with_sets(1);
+  let [folder] = MessageInjection.make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
   viewWrapper.sort(
@@ -172,7 +172,7 @@ function* test_sort_secondary_implicit() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder] = make_folder_with_sets(1);
+  let [folder] = MessageInjection.make_folder_with_sets(1);
 
   yield async_view_open(viewWrapper, folder);
   viewWrapper.magicSort(
@@ -223,7 +223,7 @@ function* test_sort_group_by_sort() {
   let viewWrapper = make_view_wrapper();
   // we need to put messages in the folder or the sort logic doesn't actually
   //  save the sort state. (this is the C++ view's fault.)
-  let [folder] = make_folder_with_sets(1);
+  let [folder] = MessageInjection.make_folder_with_sets(1);
   yield async_view_open(viewWrapper, folder);
 
   // - start out by being in an illegal (for group-by-sort) sort mode and
@@ -282,7 +282,7 @@ function* test_sort_group_by_sort() {
  */
 function* test_mailviews_persistence() {
   let viewWrapper = make_view_wrapper();
-  let folder = make_empty_folder();
+  let folder = MessageInjection.make_empty_folder();
 
   // open the folder, ensure it is using the default mail view
   yield async_view_open(viewWrapper, folder);

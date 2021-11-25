@@ -72,8 +72,8 @@ function setup_globals(aNextFunc) {
   messages = messages.concat([msgSmallerKey, msgBiggerKey]);
   let msgSet = new SyntheticMessageSet(messages);
 
-  gTestFolder = make_empty_folder();
-  return add_sets_to_folders(gTestFolder, [msgSet]);
+  gTestFolder = MessageInjection.make_empty_folder();
+  return MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
 }
 
 var gCommandUpdater = {
@@ -102,7 +102,7 @@ function make_and_add_message(aMessageArgs) {
   let synMsg = gMessageGenerator.makeMessage(aMessageArgs);
   let msgSet = new SyntheticMessageSet([synMsg]);
   // this is synchronous for local stuff.
-  add_sets_to_folder(gTestFolder, [msgSet]);
+  MessageInjection.add_sets_to_folder(gTestFolder, [msgSet]);
 
   return [synMsg, msgSet];
 }
@@ -838,7 +838,7 @@ function test_qs_results() {
 
 function test_group_sort_collapseAll_expandAll_threading() {
   // - start with an empty folder
-  gTestFolder = make_empty_folder();
+  gTestFolder = MessageInjection.make_empty_folder();
 
   // - create a normal unthreaded view
   setup_view("threaded", 0);
@@ -935,7 +935,7 @@ function test_group_sort_collapseAll_expandAll_threading() {
 
 function* test_group_dummies_under_mutation_by_date() {
   // - start with an empty folder
-  gTestFolder = make_empty_folder();
+  gTestFolder = MessageInjection.make_empty_folder();
 
   // - create the view
   setup_view("group", ViewFlags.kGroupBySort);
@@ -964,7 +964,7 @@ function* test_group_dummies_under_mutation_by_date() {
   }
 
   // - move the messages to the trash
-  yield async_trash_messages(synSet);
+  yield MessageInjection.async_trash_messages(synSet);
 
   // - make sure the message and dummy disappear
   assert_view_empty();
@@ -983,7 +983,7 @@ function* test_group_dummies_under_mutation_by_date() {
 
   // - delete the message right under the dummy
   // (this will be the newer one)
-  yield async_trash_messages(newerSet);
+  yield MessageInjection.async_trash_messages(newerSet);
 
   // - ensure we still have the dummy and the right child node
   assert_view_row_count(2);
@@ -996,7 +996,7 @@ function* test_group_dummies_under_mutation_by_date() {
 function test_xfvf_threading() {
   // - start with an empty folder
   let save_gTestFolder = gTestFolder;
-  gTestFolder = make_empty_folder();
+  gTestFolder = MessageInjection.make_empty_folder();
 
   let messages = [];
   // Add messages such that ancestors arrive after their descendents in
@@ -1028,10 +1028,10 @@ function test_xfvf_threading() {
 
   let msgSet = new SyntheticMessageSet(messages);
 
-  gTestFolder = make_empty_folder();
+  gTestFolder = MessageInjection.make_empty_folder();
 
   // - create the view
-  add_sets_to_folders(gTestFolder, [msgSet]);
+  MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
   setup_view("xfvf", ViewFlags.kThreadedDisplay);
   assert_view_row_count(5);
   gDBView.toggleOpenState(0);
@@ -1057,7 +1057,7 @@ function test_xfvf_threading() {
  */
 function test_thread_sorting() {
   let save_gTestFolder = gTestFolder;
-  gTestFolder = make_empty_folder();
+  gTestFolder = MessageInjection.make_empty_folder();
   let messages = [];
   // build a hierarchy like this (the UID order corresponds to the date order)
   //  1
@@ -1080,7 +1080,7 @@ function test_thread_sorting() {
 
   let msgSet = new SyntheticMessageSet(messages);
 
-  add_sets_to_folders(gTestFolder, [msgSet]);
+  MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
 
   // test the non-default pref state first, so the pref gets left with its
   // default value at the end
@@ -1155,7 +1155,7 @@ var tests_for_specific_views = {
 };
 
 function run_test() {
-  configure_message_injection({ mode: "local" });
+  MessageInjection.configure_message_injection({ mode: "local" });
   do_test_pending();
   async_run({ func: actually_run_test });
 }

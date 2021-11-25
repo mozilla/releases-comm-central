@@ -20,8 +20,8 @@ var {
 var {
   be_in_folder,
   get_special_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
@@ -52,7 +52,7 @@ add_task(function setupModule(module) {
  * Tests that we only open one compose window for one instance of a draft.
  */
 add_task(function test_open_draft_again() {
-  make_new_sets_in_folder(draftsFolder, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(draftsFolder, [{ count: 1 }]);
   be_in_folder(draftsFolder);
   select_click_row(0);
 
@@ -210,7 +210,7 @@ add_task(async function test_save_delivery_format_with_edit_template() {
  * Tests that 'Edit as New' leaves the original message in drafts folder.
  */
 add_task(function test_edit_as_new_in_draft() {
-  make_new_sets_in_folder(draftsFolder, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(draftsFolder, [{ count: 1 }]);
   be_in_folder(draftsFolder);
 
   Assert.equal(draftsFolder.getTotalMessages(false), 1);

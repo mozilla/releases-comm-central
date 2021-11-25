@@ -29,8 +29,8 @@ var {
   create_folder,
   kClassicMailLayout,
   kVerticalMailLayout,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   set_mc,
   set_pane_layout,
   toggle_message_pane,
@@ -127,10 +127,10 @@ function openAddressBook() {
 
 add_task(function setupModule(module) {
   folderA = create_folder("SessionStoreA");
-  make_new_sets_in_folder(folderA, [{ count: 3 }]);
+  MessageInjection.make_new_sets_in_folder(folderA, [{ count: 3 }]);
 
   folderB = create_folder("SessionStoreB");
-  make_new_sets_in_folder(folderB, [{ count: 3 }]);
+  MessageInjection.make_new_sets_in_folder(folderB, [{ count: 3 }]);
 
   SessionStoreManager.stopPeriodicSave();
 

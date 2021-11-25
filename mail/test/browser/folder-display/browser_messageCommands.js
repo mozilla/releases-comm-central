@@ -14,7 +14,6 @@ var { wait_for_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var {
-  add_sets_to_folders,
   archive_selected_messages,
   assert_selected_and_displayed,
   be_in_folder,
@@ -24,8 +23,8 @@ var {
   create_thread,
   make_display_threaded,
   make_display_unthreaded,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   press_delete,
   right_click_on_row,
   select_click_row,
@@ -57,16 +56,16 @@ add_task(function setupModule(module) {
   threadDeleteFolder = create_folder("ThreadDeleteFolder");
   archiveSrcFolder = create_folder("ArchiveSrc");
 
-  make_new_sets_in_folder(unreadFolder, [{ count: 2 }]);
-  make_new_sets_in_folder(shiftDeleteFolder, [{ count: 3 }]);
-  add_sets_to_folders(
+  MessageInjection.make_new_sets_in_folder(unreadFolder, [{ count: 2 }]);
+  MessageInjection.make_new_sets_in_folder(shiftDeleteFolder, [{ count: 3 }]);
+  MessageInjection.add_sets_to_folders(
     [threadDeleteFolder],
     [create_thread(3), create_thread(3), create_thread(3)]
   );
 
   // Create messages from 20 different months, which will mean 2 different
   // years as well.
-  make_new_sets_in_folder(archiveSrcFolder, [
+  MessageInjection.make_new_sets_in_folder(archiveSrcFolder, [
     { count: 20, age_incr: { weeks: 5 } },
   ]);
 
@@ -320,7 +319,10 @@ add_task(async function test_mark_all_read() {
 
 add_task(async function test_mark_thread_as_read() {
   let unreadThreadFolder = create_folder("UnreadThreadFolder");
-  add_sets_to_folders([unreadThreadFolder], [create_thread(3)]);
+  MessageInjection.add_sets_to_folders(
+    [unreadThreadFolder],
+    [create_thread(3)]
+  );
   be_in_folder(unreadThreadFolder);
   make_display_threaded();
 

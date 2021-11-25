@@ -19,8 +19,8 @@ var {
   close_message_window,
   close_tab,
   create_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
@@ -58,19 +58,27 @@ add_task(function setupModule(module) {
   // we want exactly as many messages as we plan to delete, so that we can test
   //  that the message window and tabs close when they run out of things to
   //  to display.
-  make_new_sets_in_folder(folder, [{ count: 4 }]);
+  MessageInjection.make_new_sets_in_folder(folder, [{ count: 4 }]);
 
   // since we don't test window close here, it doesn't really matter how many
   // messages these have
-  make_new_sets_in_folder(lastMessageFolder, [{ count: 4 }]);
-  make_new_sets_in_folder(oneBeforeFolder, [{ count: 10 }]);
-  make_new_sets_in_folder(oneAfterFolder, [{ count: 10 }]);
-  make_new_sets_in_folder(multipleDeletionFolder1, [{ count: 30 }]);
+  MessageInjection.make_new_sets_in_folder(lastMessageFolder, [{ count: 4 }]);
+  MessageInjection.make_new_sets_in_folder(oneBeforeFolder, [{ count: 10 }]);
+  MessageInjection.make_new_sets_in_folder(oneAfterFolder, [{ count: 10 }]);
+  MessageInjection.make_new_sets_in_folder(multipleDeletionFolder1, [
+    { count: 30 },
+  ]);
 
   // We're depending on selecting the last message here, so these do matter
-  make_new_sets_in_folder(multipleDeletionFolder2, [{ count: 10 }]);
-  make_new_sets_in_folder(multipleDeletionFolder3, [{ count: 10 }]);
-  make_new_sets_in_folder(multipleDeletionFolder4, [{ count: 10 }]);
+  MessageInjection.make_new_sets_in_folder(multipleDeletionFolder2, [
+    { count: 10 },
+  ]);
+  MessageInjection.make_new_sets_in_folder(multipleDeletionFolder3, [
+    { count: 10 },
+  ]);
+  MessageInjection.make_new_sets_in_folder(multipleDeletionFolder4, [
+    { count: 10 },
+  ]);
 });
 
 var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;

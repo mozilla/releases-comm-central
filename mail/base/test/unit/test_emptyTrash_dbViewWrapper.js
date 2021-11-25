@@ -4,32 +4,40 @@ initViewWrapperTestUtils({ mode: "imap", offline: false });
 
 function* test_real_folder_load_and_move_to_trash() {
   let viewWrapper = make_view_wrapper();
-  let [msgFolder, msgSet] = make_folder_with_sets([{ count: 1 }]);
+  let [msgFolder, msgSet] = MessageInjection.make_folder_with_sets([
+    { count: 1 },
+  ]);
 
-  yield wait_for_message_injection();
-  yield async_view_open(viewWrapper, get_real_injection_folder(msgFolder));
+  yield MessageInjection.wait_for_message_injection();
+  yield async_view_open(
+    viewWrapper,
+    MessageInjection.get_real_injection_folder(msgFolder)
+  );
   verify_messages_in_view(msgSet, viewWrapper);
 
-  yield async_trash_messages(msgSet);
+  yield MessageInjection.async_trash_messages(msgSet);
   verify_empty_view(viewWrapper);
 }
 
 function* test_empty_trash() {
   let viewWrapper = make_view_wrapper();
-  let trashHandle = get_trash_folder();
+  let trashHandle = MessageInjection.get_trash_folder();
 
   yield wait_for_async_promises();
-  let trashFolder = get_real_injection_folder(trashHandle);
+  let trashFolder = MessageInjection.get_real_injection_folder(trashHandle);
 
   yield async_view_open(viewWrapper, trashFolder);
 
-  yield async_empty_trash();
+  yield MessageInjection.async_empty_trash();
   verify_empty_view(viewWrapper);
 
   Assert.ok(viewWrapper.displayedFolder !== null);
 
-  let [msgSet] = make_new_sets_in_folders([trashHandle], [{ count: 1 }]);
-  yield wait_for_message_injection();
+  let [msgSet] = MessageInjection.make_new_sets_in_folders(
+    [trashHandle],
+    [{ count: 1 }]
+  );
+  yield MessageInjection.wait_for_message_injection();
   verify_messages_in_view(msgSet, viewWrapper);
 }
 

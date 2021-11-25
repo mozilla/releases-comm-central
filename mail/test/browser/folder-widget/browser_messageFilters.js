@@ -15,8 +15,8 @@ var {
   be_in_folder,
   close_popup,
   create_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -48,7 +48,7 @@ add_task(function setupModule(module) {
 
   folderA = create_folder("FolderToolbarA");
   // we need one message to select and open
-  make_new_sets_in_folder(folderA, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(folderA, [{ count: 1 }]);
 
   setupLocalServer(NNTP_PORT);
 });

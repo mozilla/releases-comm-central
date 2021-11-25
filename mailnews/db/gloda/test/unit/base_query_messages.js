@@ -242,25 +242,25 @@ function* setup_populate() {
   }
 
   let setOne = generateFolderMessages();
-  let folderOne = make_empty_folder();
-  yield add_sets_to_folders(folderOne, [setOne]);
+  let folderOne = MessageInjection.make_empty_folder();
+  yield MessageInjection.add_sets_to_folders(folderOne, [setOne]);
   // If this is the online_to_offline variant (indicated by goOffline) we want
   //  to make the messages available offline.  This should trigger an event
   //  driven re-indexing of the messages which should make the body available
   //  for fulltext queries.
   if (goOffline) {
     yield wait_for_gloda_indexer(setOne);
-    yield make_folder_and_contents_offline(folderOne);
+    yield MessageInjection.make_folder_and_contents_offline(folderOne);
   }
   yield wait_for_gloda_indexer(setOne, { verifier: glodaInfoStasher });
 
   world.phase++;
   let setTwo = generateFolderMessages();
-  let folderTwo = make_empty_folder();
-  yield add_sets_to_folders(folderTwo, [setTwo]);
+  let folderTwo = MessageInjection.make_empty_folder();
+  yield MessageInjection.add_sets_to_folders(folderTwo, [setTwo]);
   if (goOffline) {
     yield wait_for_gloda_indexer(setTwo);
-    yield make_folder_and_contents_offline(folderTwo);
+    yield MessageInjection.make_folder_and_contents_offline(folderTwo);
   }
   yield wait_for_gloda_indexer(setTwo, { verifier: glodaInfoStasher });
 }

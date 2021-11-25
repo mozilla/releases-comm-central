@@ -9,7 +9,6 @@
 "use strict";
 
 var {
-  add_sets_to_folders,
   be_in_folder,
   close_tab,
   collapse_all_threads,
@@ -17,6 +16,7 @@ var {
   create_thread,
   make_display_threaded,
   mc,
+  MessageInjection,
   open_selected_message_in_new_tab,
   press_delete,
   select_click_row,
@@ -35,7 +35,7 @@ add_task(function setupModule(module) {
   let msg1 = create_thread(1);
   let thread = create_thread(3);
   let msg2 = create_thread(1);
-  add_sets_to_folders([folder], [msg1, thread, msg2]);
+  MessageInjection.add_sets_to_folders([folder], [msg1, thread, msg2]);
 
   be_in_folder(folder);
   make_display_threaded();

@@ -12,8 +12,8 @@
 var {
   be_in_folder,
   create_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   select_click_row,
   wait_for_message_display_completion,
 } = ChromeUtils.import(
@@ -28,7 +28,7 @@ var prefValue = Services.prefs.getBoolPref(prefName);
 add_task(function setupModule(module) {
   // Create four unread messages in a sample folder
   let folder = create_folder("Sample");
-  make_new_sets_in_folder(folder, [{ count: 4 }]);
+  MessageInjection.make_new_sets_in_folder(folder, [{ count: 4 }]);
   be_in_folder(folder);
 });
 

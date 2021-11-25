@@ -37,14 +37,14 @@ function* test_fix_missing_contacts_and_fallout() {
     yesnoMsgSet,
     noyesMsgSet,
     nonoMsgSet,
-  ] = make_folders_with_sets(3, [
+  ] = MessageInjection.make_folders_with_sets(3, [
     { count: 2, from: abPeeps[0], to: [abPeeps[1]] },
     { count: 2, from: abPeeps[1], to: nonAbPeeps },
     { count: 2, from: nonAbPeeps[0], to: abPeeps },
     { count: 2, from: nonAbPeeps[1], to: [nonAbPeeps[0]] },
   ]);
 
-  yield wait_for_message_injection();
+  yield MessageInjection.wait_for_message_injection();
   // union the yeses together; we don't care about their composition
   let yesMsgSet = yesyesMsgSet.union(yesnoMsgSet).union(noyesMsgSet),
     noMsgSet = nonoMsgSet;
@@ -121,6 +121,6 @@ function* test_fix_missing_contacts_and_fallout() {
 var tests = [test_fix_missing_contacts_and_fallout];
 
 function run_test() {
-  configure_message_injection({ mode: "local" });
+  MessageInjection.configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

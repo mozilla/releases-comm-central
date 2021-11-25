@@ -91,7 +91,7 @@ function* test_index(aPhrase) {
     aPhrase.resultList.push(smsg);
   }
   let synSet = new SyntheticMessageSet(messages);
-  yield add_sets_to_folder(gInbox, [synSet]);
+  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
 
   yield wait_for_gloda_indexer(synSet, { verifier: verify_index });
 }
@@ -263,6 +263,6 @@ var gInbox;
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = configure_message_injection({ mode: "local" });
+  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

@@ -20,8 +20,8 @@ var {
   close_popup,
   close_tab,
   create_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   middle_click_on_folder,
   reset_context_menu_background_tabs,
   right_click_on_folder,
@@ -44,9 +44,9 @@ add_task(function setupModule(module) {
   // We aren't really interested in the messages the folders contain, but just
   // for appearance's sake, add a message to each folder
 
-  make_new_sets_in_folder(folderA, [{ count: 1 }]);
-  make_new_sets_in_folder(folderB, [{ count: 1 }]);
-  make_new_sets_in_folder(folderC, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(folderA, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(folderB, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(folderC, [{ count: 1 }]);
 });
 
 /**

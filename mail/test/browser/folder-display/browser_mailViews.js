@@ -8,8 +8,8 @@ var {
   assert_messages_in_view,
   be_in_folder,
   create_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   wait_for_all_messages_to_load,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -29,7 +29,10 @@ add_task(function setup() {
   // Create a folder with some messages that have no tags and some that are
   //  tagged Important ($label1).
   baseFolder = create_folder("MailViewA");
-  [setUntagged, setTagged] = make_new_sets_in_folder(baseFolder, [{}, {}]);
+  [
+    setUntagged,
+    setTagged,
+  ] = MessageInjection.make_new_sets_in_folder(baseFolder, [{}, {}]);
   setTagged.addTag("$label1"); // Important, by default
 });
 

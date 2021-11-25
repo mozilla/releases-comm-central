@@ -13,8 +13,8 @@ var {
   assert_folder_mode,
   assert_folder_tree_view_row_count,
   be_in_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -66,13 +66,13 @@ add_task(function test_folder_names_in_recent_view_mode() {
   assert_folder_tree_view_row_count(10);
 
   // Create some messages in the folders to make them recently used.
-  make_new_sets_in_folder(fUnique, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(fUnique, [{ count: 1 }]);
   be_in_folder(fUnique);
-  make_new_sets_in_folder(fDup1, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(fDup1, [{ count: 1 }]);
   be_in_folder(fDup1);
-  make_new_sets_in_folder(fDup2, [{ count: 2 }]);
+  MessageInjection.make_new_sets_in_folder(fDup2, [{ count: 2 }]);
   be_in_folder(fDup2);
-  make_new_sets_in_folder(fDup3, [{ count: 3 }]);
+  MessageInjection.make_new_sets_in_folder(fDup3, [{ count: 3 }]);
   be_in_folder(fDup3);
 
   // Enable the recent folder view.

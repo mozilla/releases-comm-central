@@ -18,14 +18,13 @@ var {
   assert_folder_selected_and_displayed,
   be_in_folder,
   collapse_folder,
-  delete_message_set,
   expand_folder,
   FAKE_SERVER_HOSTNAME,
   get_smart_folder_named,
   get_special_folder,
   inboxFolder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -58,8 +57,10 @@ add_task(function setupModule(module) {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  [inboxSet] = make_new_sets_in_folder(inboxFolder, [{ count: 1 }]);
-  make_new_sets_in_folder(inboxSubfolder, [{ count: 1 }]);
+  [inboxSet] = MessageInjection.make_new_sets_in_folder(inboxFolder, [
+    { count: 1 },
+  ]);
+  MessageInjection.make_new_sets_in_folder(inboxSubfolder, [{ count: 1 }]);
 });
 
 /**
@@ -192,7 +193,7 @@ add_task(function test_folder_flag_changes() {
     false,
     pop3Server
   );
-  make_new_sets_in_folder(pop3Inbox, [{ count: 1 }]);
+  MessageInjection.make_new_sets_in_folder(pop3Inbox, [{ count: 1 }]);
   mc.folderTreeView.selectFolder(pop3Inbox);
   select_click_row(0);
   archive_selected_messages();
@@ -278,7 +279,7 @@ add_task(function test_switch_to_all_folders() {
 
 registerCleanupFunction(function teardownModule() {
   inboxFolder.propagateDelete(inboxSubfolder, true, null);
-  delete_message_set(inboxSet);
+  MessageInjection.async_delete_messages(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true, null);
 
   Assert.report(

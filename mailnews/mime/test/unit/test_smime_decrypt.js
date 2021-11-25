@@ -720,7 +720,7 @@ add_task(async function check_smime_message() {
 });
 
 function run_test() {
-  gInbox = configure_message_injection({ mode: "local" });
+  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
   SmimeUtils.ensureNSS();
 
   SmimeUtils.loadPEMCertificate(

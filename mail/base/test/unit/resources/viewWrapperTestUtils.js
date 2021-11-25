@@ -44,11 +44,11 @@ function initViewWrapperTestUtils(aInjectionConfig) {
   gMessageScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
 
   async_test_runner_register_helper(VWTU_testHelper);
-  register_message_injection_listener(VWTU_testHelper);
+  MessageInjection.register_message_injection_listener(VWTU_testHelper);
   if (aInjectionConfig) {
-    gInbox = configure_message_injection(aInjectionConfig);
+    gInbox = MessageInjection.configure_message_injection(aInjectionConfig);
   } else {
-    gInbox = configure_message_injection({ mode: "local" });
+    gInbox = MessageInjection.configure_message_injection({ mode: "local" });
   }
 }
 

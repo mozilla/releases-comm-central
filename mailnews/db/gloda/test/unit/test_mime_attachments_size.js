@@ -275,7 +275,7 @@ function check_attachments(aMimeMsg, epsilon, checkTotalSize) {
 function* test_message_attachments(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield add_sets_to_folder(gInbox, [synSet]);
+  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
   // dump(synMsg.toMboxString()+"\n");
@@ -365,7 +365,7 @@ function check_bogus_parts(aMimeMsg, { epsilon, checkSize }) {
 function* test_bogus_messages(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield add_sets_to_folder(gInbox, [synSet]);
+  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
   // dump(synMsg.toMboxString());
@@ -393,7 +393,7 @@ var messageHaveAttachmentsInfos = [
 function* test_have_attachments(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield add_sets_to_folder(gInbox, [synSet]);
+  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
   // dump(synMsg.toMboxString());
@@ -432,6 +432,6 @@ function run_test() {
   );
 
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = configure_message_injection({ mode: "local" });
+  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

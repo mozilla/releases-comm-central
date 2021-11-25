@@ -15,8 +15,8 @@ var {
   be_in_folder,
   create_folder,
   get_special_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   press_delete,
   right_click_on_row,
   select_click_row,
@@ -43,7 +43,7 @@ add_task(function setupModule(module) {
   folder1 = create_folder("aaafolder1");
   folder2 = create_folder("aaafolder2");
 
-  make_new_sets_in_folder(folder1, [{ count: 3 }]);
+  MessageInjection.make_new_sets_in_folder(folder1, [{ count: 3 }]);
 });
 
 add_task(async function test_move_message() {

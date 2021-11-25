@@ -10,11 +10,11 @@
 "use strict";
 
 var {
-  add_sets_to_folders,
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
   create_thread,
+  MessageInjection,
   open_selected_message_in_new_window,
   plan_for_message_display,
   press_delete,
@@ -38,11 +38,14 @@ add_task(function setupModule(module) {
   let msg2 = create_thread(1);
   let thread1 = create_thread(2);
   let thread2 = create_thread(2);
-  add_sets_to_folders([folderA], [msg1, msg2, thread1, thread2]);
+  MessageInjection.add_sets_to_folders(
+    [folderA],
+    [msg1, msg2, thread1, thread2]
+  );
   // add two more messages in another folder
   let msg3 = create_thread(1);
   let msg4 = create_thread(1);
-  add_sets_to_folders([folderB], [msg3, msg4]);
+  MessageInjection.add_sets_to_folders([folderB], [msg3, msg4]);
   folderA.msgDatabase.dBFolderInfo.viewFlags =
     Ci.nsMsgViewFlagsType.kThreadedDisplay;
 });

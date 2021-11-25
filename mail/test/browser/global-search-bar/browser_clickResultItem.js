@@ -5,8 +5,7 @@
 "use strict";
 
 const {
-  make_new_sets_in_folder,
-  delete_message_set,
+  MessageInjection,
   inboxFolder,
   be_in_folder,
   create_folder,
@@ -81,7 +80,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
   window.focus();
   folder = create_folder("SearchedFolder");
   be_in_folder(folder);
-  threads = make_new_sets_in_folder(folder, [
+  threads = MessageInjection.make_new_sets_in_folder(folder, [
     { from: ["User", "user@example.com"] },
     { from: ["User", "user@example.com"] },
     { from: ["User", "user@example.com"] },

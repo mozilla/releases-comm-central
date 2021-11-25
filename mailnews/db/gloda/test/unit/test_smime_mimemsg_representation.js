@@ -49,7 +49,7 @@ function* test_smime_mimemsg() {
     body: { body: encrypted_blurb },
   });
   let synSet = new SyntheticMessageSet([msg]);
-  yield add_sets_to_folder(gInbox, [synSet]);
+  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
 
@@ -105,7 +105,7 @@ var tests = [test_smime_mimemsg];
 
 function run_test() {
   initNSS();
-  gInbox = configure_message_injection({ mode: "local" });
+  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }
 

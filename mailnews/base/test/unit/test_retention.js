@@ -29,12 +29,12 @@ function setup_globals(aNextFunc) {
 
   let msgSet = new SyntheticMessageSet(messages);
 
-  gTestFolder = make_empty_folder();
-  return add_sets_to_folders(gTestFolder, [msgSet]);
+  gTestFolder = MessageInjection.make_empty_folder();
+  return MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
 }
 
 function run_test() {
-  configure_message_injection({ mode: "local" });
+  MessageInjection.configure_message_injection({ mode: "local" });
   do_test_pending();
   async_run({ func: actually_run_test });
 }

@@ -15,8 +15,8 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
   select_click_row,
@@ -30,7 +30,7 @@ var folder;
 
 add_task(function setupModule(module) {
   folder = create_folder("MessagePaneVisibility");
-  make_new_sets_in_folder(folder, [{ count: 3 }]);
+  MessageInjection.make_new_sets_in_folder(folder, [{ count: 3 }]);
   Assert.ok(true, "setupModule ran to completion");
 });
 

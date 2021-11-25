@@ -5,13 +5,12 @@
 "use strict";
 
 const {
-  add_sets_to_folders,
   be_in_folder,
   create_folder,
   create_thread,
-  delete_message_set,
   inboxFolder,
   mc,
+  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -145,7 +144,7 @@ add_task(async function testListViewMarkRead() {
 
   registerCleanupFunction(() => {
     be_in_folder(inboxFolder);
-    delete_message_set(thread);
+    MessageInjection.async_delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
@@ -153,7 +152,7 @@ add_task(async function testListViewMarkRead() {
   });
 
   be_in_folder(folder);
-  add_sets_to_folders([folder], [thread]);
+  MessageInjection.add_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
@@ -186,7 +185,7 @@ add_task(async function testListViewMarkThreadAsRead() {
 
   registerCleanupFunction(() => {
     be_in_folder(inboxFolder);
-    delete_message_set(thread);
+    MessageInjection.async_delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
@@ -194,7 +193,7 @@ add_task(async function testListViewMarkThreadAsRead() {
   });
 
   be_in_folder(folder);
-  add_sets_to_folders([folder], [thread]);
+  MessageInjection.add_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
@@ -226,7 +225,7 @@ add_task(async function testConversationViewMarkRead() {
 
   registerCleanupFunction(() => {
     be_in_folder(inboxFolder);
-    delete_message_set(thread);
+    MessageInjection.async_delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
@@ -234,7 +233,7 @@ add_task(async function testConversationViewMarkRead() {
   });
 
   be_in_folder(folder);
-  add_sets_to_folders([folder], [thread]);
+  MessageInjection.add_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, {
@@ -263,7 +262,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
 
   registerCleanupFunction(async () => {
     be_in_folder(inboxFolder);
-    delete_message_set(thread);
+    MessageInjection.async_delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
@@ -271,7 +270,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
   });
 
   be_in_folder(folder);
-  add_sets_to_folders([folder], [thread]);
+  MessageInjection.add_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
