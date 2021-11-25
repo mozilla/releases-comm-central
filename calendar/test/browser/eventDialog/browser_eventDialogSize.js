@@ -17,6 +17,7 @@ registerCleanupFunction(() => {
 });
 
 add_task(async function testEventDialog() {
+  await CalendarTestUtils.openCalendarTab(window);
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window);
   await checkLargeEnough(dialogWindow, iframeWindow);
 
