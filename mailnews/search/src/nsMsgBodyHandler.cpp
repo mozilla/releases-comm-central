@@ -34,7 +34,7 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
   // the following are variables used when the body handler is handling stuff
   // from filters....through this constructor, that is not the case so we set
   // them to NULL.
-  m_headers = NULL;
+  m_headers = nullptr;
   m_headersSize = 0;
   m_Filtering = false;  // make sure we set this before we call initialize...
 
@@ -56,16 +56,18 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
   if (!m_lineCountInBodyLines) m_numLocalLines += 3;
   m_msgHdr = msg;
   m_db = db;
-  m_headersSize = headersSize;
+  m_headers = nullptr;
+  m_headersSize = 0;
   m_Filtering = Filtering;
 
   Initialize();
 
-  if (m_Filtering)
+  if (m_Filtering) {
     m_headers = headers;
-  else
-    OpenLocalFolder();  // if nothing else applies, then we must be a POP folder
-                        // file
+    m_headersSize = headersSize;
+  } else {
+    OpenLocalFolder();
+  }
 }
 
 void nsMsgBodyHandler::Initialize()
@@ -94,9 +96,9 @@ int32_t nsMsgBodyHandler::GetNextLine(nsCString& buf, nsCString& charset) {
 
   while (eatThisLine) {
     // first, handle the filtering case...this is easy....
-    if (m_Filtering)
+    if (m_Filtering) {
       length = GetNextFilterLine(nextLine);
-    else {
+    } else {
       // 3 cases: Offline IMAP, POP, or we are dealing with a news message....
       // Offline cases should be same as local mail cases, since we're going
       // to store offline messages in berkeley format folders.
