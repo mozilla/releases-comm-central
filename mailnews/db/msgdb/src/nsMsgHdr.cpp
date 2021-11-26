@@ -13,7 +13,9 @@
 #include "nsMsgMimeCID.h"
 #include "mozilla/Attributes.h"
 #include "nsStringEnumerator.h"
-
+#ifdef DEBUG
+#  include "nsPrintfCString.h"
+#endif
 using namespace mozilla::mailnews;
 
 NS_IMPL_ISUPPORTS(nsMsgHdr, nsIMsgDBHdr)
@@ -432,10 +434,25 @@ NS_IMETHODIMP nsMsgHdr::GetAccountKey(char** aResult) {
 NS_IMETHODIMP nsMsgHdr::GetMessageOffset(uint64_t* result) {
   NS_ENSURE_ARG(result);
 
-  // if there is a message offset, use it, otherwise, we'll use the message key.
   (void)GetUInt64Column(m_mdb->m_offlineMsgOffsetColumnToken, result,
                         (unsigned)-1);
-  if (*result == (unsigned)-1) *result = m_messageKey;
+  if (*result == (unsigned)-1) {
+    // It's unset. Unfortunately there's not much we can do here. There's
+    // a lot of code which relies on being able to read .messageOffset,
+    // even if it doesn't require it to return anything sensible.
+    // (For example - in js unit tests - Assert.equals() stringifies the
+    // attributes of it's expected/actual values to produce an error
+    // message even if the assert passes).
+#ifdef DEBUG
+    nsCString tok;
+    GetStringProperty("storeToken", getter_Copies(tok));
+    nsPrintfCString err("Missing .messageOffset (key=%u, storeToken='%s')",
+                        m_messageKey, tok.get());
+    NS_WARNING(err.get());
+#endif
+    // Return something obviously broken.
+    *result = 12345678;
+  }
   return NS_OK;
 }
 
