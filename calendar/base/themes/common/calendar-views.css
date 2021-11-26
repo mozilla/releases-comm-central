@@ -155,7 +155,7 @@
   overflow-x: hidden;
 }
 
-.calendar-item-flex > alarm-icons-box {
+.calendar-item-flex > .alarm-icons-box {
   display: contents;
 }
 
@@ -205,6 +205,10 @@
 
 .event-name-label {
   white-space: nowrap;
+}
+
+:is(calendar-day-view, calendar-week-view) .event-name-label {
+  white-space: normal;
 }
 
 .event-name-input,
