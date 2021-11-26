@@ -72,8 +72,6 @@ NS_IMETHODIMP nsMsgMailboxParser::OnDataAvailable(nsIRequest* request,
 }
 
 NS_IMETHODIMP nsMsgMailboxParser::OnStartRequest(nsIRequest* request) {
-  m_startTime = PR_Now();
-
   // extract the appropriate event sinks from the url and initialize them in our
   // protocol data the URL should be queried for a nsIMailboxURL. If it doesn't
   // support a mailbox URL interface then we have an error.
@@ -154,8 +152,6 @@ NS_IMETHODIMP nsMsgMailboxParser::OnStopRequest(nsIRequest* request,
                                                 nsresult aStatus) {
   DoneParsingFolder(aStatus);
   // what can we do? we can close the stream?
-  m_urlInProgress =
-      false;  // don't close the connection...we may be re-using it.
 
   if (m_mailDB) m_mailDB->RemoveListener(this);
   // and we want to mark ourselves for deletion or some how inform our protocol
@@ -243,10 +239,7 @@ nsParseMailMessageState::OnJunkScoreChanged(nsIDBChangeListener* instigator) {
 nsMsgMailboxParser::nsMsgMailboxParser() : nsMsgLineBuffer() { Init(); }
 
 nsMsgMailboxParser::nsMsgMailboxParser(nsIMsgFolder* aFolder)
-    : nsMsgLineBuffer(),
-      m_parsingDone(false),
-      m_startTime(0),
-      m_urlInProgress(false) {
+    : nsMsgLineBuffer() {
   m_folder = do_GetWeakReference(aFolder);
 }
 

@@ -140,9 +140,6 @@ class nsMsgMailboxParser : public nsIStreamListener,
   nsMsgMailboxParser();
   nsresult Init();
 
-  bool IsRunningUrl() {
-    return m_urlInProgress;
-  }  // returns true if we are currently running a url and false otherwise...
   NS_DECL_ISUPPORTS_INHERITED
 
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -183,14 +180,8 @@ class nsMsgMailboxParser : public nsIStreamListener,
   ::nsByteArray m_inputStream;
   uint64_t m_graph_progress_total;
   uint64_t m_graph_progress_received;
-  bool m_parsingDone;
-  PRTime m_startTime;
 
  private:
-  // the following flag is used to determine when a url is currently being run.
-  // It is cleared on calls to ::StopBinding and it is set whenever we call Load
-  // on a url
-  bool m_urlInProgress;
   nsWeakPtr m_folder;
   void ReleaseFolderLock();
   nsresult AcquireFolderLock();
