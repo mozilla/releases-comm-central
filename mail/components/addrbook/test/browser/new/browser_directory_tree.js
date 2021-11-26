@@ -603,6 +603,52 @@ add_task(async function test_context_menu() {
 });
 
 /**
+ * Tests the menu button on each item.
+ */
+add_task(async function test_context_menu_button() {
+  let book = createAddressBook("Ordinary Book");
+  book.addMailList(createMailingList("Ordinary List"));
+
+  let abWindow = await openAddressBookWindow();
+  let booksList = abWindow.booksList;
+  let menu = abWindow.document.getElementById("bookContext");
+
+  for (let row of booksList.rows) {
+    info(row.querySelector(".bookRow-name, .listRow-name").textContent);
+    let button = row.querySelector(".bookRow-menu, .listRow-menu");
+    Assert.ok(BrowserTestUtils.is_hidden(button), "menu button is hidden");
+
+    EventUtils.synthesizeMouse(row, 100, 5, { type: "mousemove" }, abWindow);
+    Assert.ok(BrowserTestUtils.is_visible(button), "menu button is visible");
+
+    let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+    EventUtils.synthesizeMouseAtCenter(button, {}, abWindow);
+    await shownPromise;
+
+    let buttonRect = button.getBoundingClientRect();
+    let menuRect = menu.getBoundingClientRect();
+    Assert.less(
+      Math.abs(menuRect.top - buttonRect.bottom),
+      10,
+      "menu appeared near the button vertically"
+    );
+    Assert.less(
+      Math.abs(menuRect.left - buttonRect.left),
+      10,
+      "menu appeared near the button horizontally"
+    );
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    menu.hidePopup();
+    await hiddenPromise;
+  }
+
+  await closeAddressBookWindow();
+
+  await promiseDirectoryRemoved(book.URI);
+});
+
+/**
  * Tests that the collapsed state of books survives a reload of the page.
  */
 add_task(async function test_collapse_expand() {

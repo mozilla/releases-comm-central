@@ -205,6 +205,21 @@ body {
   height: 0;
 }
 
+.bookRow-menu,
+.listRow-menu {
+  background-image: url("chrome://global/skin/icons/more.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 26px;
+  height: 26px;
+  display: none;
+}
+
+.bookRow-container:hover .bookRow-menu,
+.listRow-container:hover .listRow-menu {
+  display: unset;
+}
+
 .listRow-container {
   padding-inline-start: 51px;
 }

@@ -657,6 +657,21 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     }
   }
 
+  _onClick(event) {
+    super._onClick(event);
+
+    // Only handle left-clicks. Right-clicking on the menu button will cause
+    // the menu to appear anyway, and other buttons can be ignored.
+    if (
+      event.button !== 0 ||
+      !event.target.closest(".bookRow-menu, .listRow-menu")
+    ) {
+      return;
+    }
+
+    this._showContextMenu(event);
+  }
+
   _onContextMenu(event) {
     this._showContextMenu(event);
   }
@@ -790,7 +805,13 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       startupDefaultItem.removeAttribute("checked");
     }
 
-    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    if (event.type == "contextmenu") {
+      popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    } else {
+      popup.openPopup(row.querySelector(".bookRow-menu, .listRow-menu"), {
+        triggerEvent: event,
+      });
+    }
     event.preventDefault();
   }
 
