@@ -375,26 +375,13 @@ interface calICalendar : nsISupports
                            in calIOperationListener aListener);
 
   /**
-   * deleteItem takes an item that is to be deleted.  The item is
-   * expected to have an ID that already exists in the calendar; if it
-   * doesn't, or there is no id, onOperationComplete is called with
-   * a status of NS_ERROR_XXXXX.
+   * Deletes an item. The item is expected to have an ID that already exists in
+   * the calendar.
    *
-   * @param aItem       item to delete
-   * @param aListener   where to call back the results
-   * @return            optional operation handle to track the operation
-   *
-   * The results of the operation are reported through an
-   * onOperationComplete call on the listener, with the following
-   * parameters:
-   *
-   * - aOperationType: calIOperationListener::DELETE
-   * - aId: the ID of the deleted item
-   * - aDetail: the calIItemBase corresponding to the immutable version
-   *            of the deleted item
+   * @param aItem            item to delete
+   * @return {Promise<void>} optional operation handle to track the operation
    */
-  calIOperation deleteItem(in calIItemBase aItem,
-                           in calIOperationListener aListener);
+  Promise deleteItem(in calIItemBase aItem);
 
   /**
    * Get a single event.  The event will be typed as one of the subclasses

@@ -751,123 +751,120 @@ CalDavCalendar.prototype = {
    * deleteItem(); required by calICalendar.idl
    * the actual deletion is done in doDeleteItem()
    *
-   * @param aItem       item to delete
-   * @param aListener   listener for method completion
+   * @param {calIItemBase} item The item to delete
+   *
+   * @returns {Promise<void>}
    */
-  deleteItem(aItem, aListener) {
-    return this.doDeleteItem(aItem, aListener, false, null, null);
+  async deleteItem(item, aListener) {
+    return this.doDeleteItem(item, false, null, null);
   },
 
   /**
    * Deletes item from CalDAV store.
    *
-   * @param aItem       item to delete
-   * @param aListener   listener for method completion
-   * @param aIgnoreEtag ignore item etag
-   * @param aFromInbox  delete from inbox rather than calendar
-   * @param aUri        uri of item to delete
-   * */
-  doDeleteItem(aItem, aListener, aIgnoreEtag, aFromInbox, aUri) {
-    let notifyListener = (status, detail, pure = false, report = true) => {
+   * @param {calIItemBase}  item       Item to delete.
+   * @param {boolean}       ignoreEtag Ignore item etag.
+   * @param {boolean}       fromInbox  Delete from inbox rather than calendar.
+   * @param {string}        uri        Uri of item to delete.
+   *
+   * @return {Promise<void>}
+   */
+  async doDeleteItem(item, ignoreEtag, fromInbox, uri) {
+    let onError = async (status, detail) => {
       // Still need to visually notify for uncached calendars.
-      if (!this.isCached && !Components.isSuccessCode(status)) {
+      if (!this.isCached) {
         this.reportDavError(Ci.calIErrors.DAV_REMOVE_ERROR, status, detail);
       }
-
-      let method = pure ? "notifyPureOperationComplete" : "notifyOperationComplete";
-      this[method](aListener, status, cIOL.DELETE, aItem.id, detail);
+      this.notifyOperationComplete(null, status, cIOL.DELETE, null, detail);
+      return Promise.reject(new Components.Exception(detail, status));
     };
 
-    if (aItem.id == null) {
-      notifyListener(Cr.NS_ERROR_FAILURE, "ID doesn't exist for deleteItem");
-      return;
+    if (item.id == null) {
+      return onError(Cr.NS_ERROR_FAILURE, "ID doesn't exist for deleteItem");
     }
 
     let eventUri;
-    if (aUri) {
-      eventUri = aUri;
-    } else if (aFromInbox || this.mItemInfoCache[aItem.id].isInboxItem) {
-      eventUri = this.makeUri(this.mItemInfoCache[aItem.id].locationPath, this.mInboxUrl);
+    if (uri) {
+      eventUri = uri;
+    } else if (fromInbox || this.mItemInfoCache[item.id].isInboxItem) {
+      eventUri = this.makeUri(this.mItemInfoCache[item.id].locationPath, this.mInboxUrl);
     } else {
-      eventUri = this.makeUri(this.mItemInfoCache[aItem.id].locationPath);
+      eventUri = this.makeUri(this.mItemInfoCache[item.id].locationPath);
     }
 
     if (eventUri.pathQueryRef == this.calendarUri.pathQueryRef) {
-      notifyListener(
+      return onError(
         Cr.NS_ERROR_FAILURE,
         "eventUri and calendarUri paths are the same, will not go on to delete entire calendar"
       );
-      return;
     }
 
     if (this.verboseLogging()) {
       cal.LOG("CalDAV: Deleting " + eventUri.spec);
     }
 
-    let sendEtag = aIgnoreEtag ? null : this.mItemInfoCache[aItem.id].etag;
+    let sendEtag = ignoreEtag ? null : this.mItemInfoCache[item.id].etag;
     let request = new CalDavDeleteItemRequest(this.session, this, eventUri, sendEtag);
 
-    request.commit().then(
-      response => {
-        if (response.ok) {
-          if (!aFromInbox) {
-            let decodedPath = this.ensureDecodedPath(eventUri.pathQueryRef);
-            delete this.mHrefIndex[decodedPath];
-            delete this.mItemInfoCache[aItem.id];
-            cal.LOG("CalDAV: Item deleted successfully from calendar " + this.name);
+    let response;
+    try {
+      response = await request.commit();
+    } catch (e) {
+      return onError(Cr.NS_ERROR_NOT_AVAILABLE, "Error preparing http channel");
+    }
 
-            if (this.isCached) {
-              notifyListener(Cr.NS_OK, aItem);
-            } else {
-              // If the calendar is not cached, we need to remove
-              // the item from our memory calendar now. The
-              // listeners will be notified there.
-              this.mOfflineStorage.deleteItem(aItem, aListener);
-            }
-          }
-        } else if (response.conflict) {
-          // item has either been modified or deleted by someone else check to see which
-          cal.LOG("CalDAV: Item has been modified on server, checking if it has been deleted");
-          let headrequest = new CalDavGenericRequest(this.session, this, "HEAD", eventUri);
+    if (response.ok) {
+      if (!fromInbox) {
+        let decodedPath = this.ensureDecodedPath(eventUri.pathQueryRef);
+        delete this.mHrefIndex[decodedPath];
+        delete this.mItemInfoCache[item.id];
+        cal.LOG("CalDAV: Item deleted successfully from calendar " + this.name);
 
-          return headrequest.commit().then(headresponse => {
-            if (headresponse.notFound) {
-              // Nothing to do. Someone else has already deleted it
-              notifyListener(Cr.NS_OK, aItem, true);
-            } else if (headresponse.serverError) {
-              notifyListener(
-                Cr.NS_ERROR_NOT_AVAILABLE,
-                "Server Replied with " + headresponse.status,
-                true
-              );
-            } else if (headresponse.status) {
-              // The item still exists. We need to ask the user if he
-              // really wants to delete the item. Remember, we only
-              // made this request since the actual delete gave 409/412
-              this.promptOverwrite(CALDAV_DELETE_ITEM, aItem, aListener, null);
-            }
-          });
-        } else if (response.serverError) {
-          notifyListener(Cr.NS_ERROR_NOT_AVAILABLE, "Server Replied with " + response.status);
-        } else if (response.status) {
-          cal.ERROR(
-            "CalDAV: Unexpected status deleting item from " +
-              this.name +
-              ": " +
-              response.status +
-              "\n" +
-              "uri: " +
-              eventUri.spec
-          );
-
-          notifyListener(Cr.NS_ERROR_FAILURE, "Server Replied with " + response.status);
+        if (this.isCached) {
+          this.notifyOperationComplete(null, Cr.NS_OK, cIOL.DELETE, null, null);
+          return null;
         }
-        return null;
-      },
-      () => {
-        notifyListener(Cr.NS_ERROR_NOT_AVAILABLE, "Error preparing http channel");
+        // If the calendar is not cached, we need to remove
+        // the item from our memory calendar now. The
+        // listeners will be notified there.
+        return this.mOfflineStorage.deleteItem(item);
       }
-    );
+      return null;
+    } else if (response.conflict) {
+      // item has either been modified or deleted by someone else check to see which
+      cal.LOG("CalDAV: Item has been modified on server, checking if it has been deleted");
+      let headRequest = new CalDavGenericRequest(this.session, this, "HEAD", eventUri);
+      let headResponse = await headRequest.commit();
+
+      if (headResponse.notFound) {
+        // Nothing to do. Someone else has already deleted it
+        this.notifyPureOperationComplete(null, Cr.NS_OK, cIOL.DELETE, null, null);
+        return null;
+      } else if (headResponse.serverError) {
+        return onError(Cr.NS_ERROR_NOT_AVAILABLE, "Server Replied with " + headResponse.status);
+      } else if (headResponse.status) {
+        // The item still exists. We need to ask the user if he
+        // really wants to delete the item. Remember, we only
+        // made this request since the actual delete gave 409/412
+        let item = await this.getItem(item.id);
+        return cal.provider.promptOverwrite(CALDAV_DELETE_ITEM, item)
+          ? this.doDeleteItem(item, true, false, null)
+          : null;
+      }
+    } else if (response.serverError) {
+      return onError(Cr.NS_ERROR_NOT_AVAILABLE, "Server Replied with " + response.status);
+    } else if (response.status) {
+      cal.ERROR(
+        "CalDAV: Unexpected status deleting item from " +
+          this.name +
+          ": " +
+          response.status +
+          "\n" +
+          "uri: " +
+          eventUri.spec
+      );
+    }
+    return onError(Cr.NS_ERROR_FAILURE, "Server Replied with status " + response.status);
   },
 
   /**
@@ -1014,8 +1011,6 @@ CalDavCalendar.prototype = {
    * @param path Path of the item to delete, must not be encoded
    */
   async deleteTargetCalendarItem(path) {
-    let pcal = cal.async.promisifyCalendar(this.mOfflineStorage);
-
     let foundItem = await this.mOfflineStorage.getItem(this.mHrefIndex[path]);
     let wasInboxItem = this.mItemInfoCache[foundItem.id].isInboxItem;
     if ((wasInboxItem && this.isInbox(path)) || (wasInboxItem === false && !this.isInbox(path))) {
@@ -1025,7 +1020,7 @@ CalDavCalendar.prototype = {
       if (this.isCached) {
         this.mOfflineStorage.deleteMetaData(foundItem.id);
       }
-      await pcal.deleteItem(foundItem);
+      await this.mOfflineStorage.deleteItem(foundItem);
     }
   },
 

@@ -478,16 +478,25 @@ CalICSCalendar.prototype = {
     this.endBatch();
   },
 
-  deleteItem(aItem, aListener) {
-    if (this.readOnly) {
-      throw calIErrors.CAL_IS_READONLY;
-    }
-    this.queue.push({
-      action: "delete",
-      item: aItem,
-      listener: aListener,
+  /**
+   * Delete the provided item.
+   *
+   * @param {calIItemBase} item
+   * @returns {Promise<void>}
+   */
+  async deleteItem(item) {
+    return new Promise((resolve, reject) => {
+      if (this.readOnly) {
+        reject(calIErrors.CAL_IS_READONLY);
+        return;
+      }
+      this.queue.push({
+        action: "delete",
+        item,
+        listener: resolve,
+      });
+      this.processQueue();
     });
-    this.processQueue();
   },
 
   // Promise<calIItemBase|null> getItem(in string id);
@@ -546,7 +555,7 @@ CalICSCalendar.prototype = {
           writeICS = true;
           break;
         case "delete":
-          this.mMemoryCalendar.deleteItem(a.item, new modListener(a));
+          this.mMemoryCalendar.deleteItem(a.item);
           this.mModificationActions.push(a);
           writeICS = true;
           break;
@@ -596,10 +605,12 @@ CalICSCalendar.prototype = {
     cal.ASSERT(this.locked, "unexpected!");
 
     this.mModificationActions.forEach(action => {
-      let args = action.opCompleteArgs;
-      cal.ASSERT(args, "missing onOperationComplete call!");
       let listener = action.listener;
-      if (listener) {
+      if (typeof listener == "function") {
+        listener();
+      } else if (listener) {
+        let args = action.opCompleteArgs;
+        cal.ASSERT(args, "missing onOperationComplete call!");
         if (Components.isSuccessCode(args[1]) && errCode && !Components.isSuccessCode(errCode)) {
           listener.onOperationComplete(args[0], errCode, args[2], args[3], null);
         } else {

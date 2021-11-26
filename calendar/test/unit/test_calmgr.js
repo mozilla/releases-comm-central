@@ -271,7 +271,7 @@ add_test(function test_calobserver() {
 
   // Delete the item
   newItem.generation++; // circumvent generation checks for easier code
-  memory.deleteItem(newItem, null);
+  memory.deleteItem(newItem);
   checkCounters(0, 0, 1);
 
   // Now check the same for adding the item to a calendar only observed by the
@@ -279,7 +279,7 @@ add_test(function test_calobserver() {
   // manager counter should have an item added, modified and deleted
   memory2.addItem(item, null);
   memory2.modifyItem(newItem, item, null);
-  memory2.deleteItem(newItem, null);
+  memory2.deleteItem(newItem);
   checkCounters(0, 0, 0, 1, 1, 1);
 
   // Remove observers
@@ -289,7 +289,7 @@ add_test(function test_calobserver() {
   // Make sure removing it actually worked
   memory.addItem(item, null);
   memory.modifyItem(newItem, item, null);
-  memory.deleteItem(newItem, null);
+  memory.deleteItem(newItem);
   checkCounters(0, 0, 0);
 
   // We are done now, start the next test

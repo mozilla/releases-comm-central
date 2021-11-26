@@ -433,7 +433,7 @@ calCachedCalendar.prototype = {
                           item.title +
                           "' at the server seems to be modified recently."
                       );
-                      self.promptOverwrite("modify", item, null, null);
+                      self.promptOverwrite("modify", item, null);
                     } else {
                       // Our item is newer, just modify the item
                       self.modifyOfflineItem(item, null, null);
@@ -445,7 +445,7 @@ calCachedCalendar.prototype = {
                         item.title +
                         "' has been deleted from the server"
                     );
-                    if (cal.provider.promptOverwrite("modify", item, null, null)) {
+                    if (cal.provider.promptOverwrite("modify", item, null)) {
                       self.adoptOfflineItem(item.clone(), null);
                     }
                   }
@@ -462,10 +462,10 @@ calCachedCalendar.prototype = {
                           item.title +
                           "' at the server seems to be modified recently."
                       );
-                      self.promptOverwrite("delete", item, null, null);
+                      self.promptOverwrite("delete", item, null);
                     } else {
                       // ...and has not been modified. Delete it now.
-                      self.deleteOfflineItem(item, null);
+                      self.deleteOfflineItem(item);
                     }
                   } else {
                     // Item has already been deleted from the server, no need to change anything.
@@ -509,13 +509,13 @@ calCachedCalendar.prototype = {
   },
 
   // aOldItem is already in the cache
-  promptOverwrite(aMethod, aItem, aListener, aOldItem) {
-    let overwrite = cal.provider.promptOverwrite(aMethod, aItem, aListener, aOldItem);
+  async promptOverwrite(aMethod, aItem, aOldItem) {
+    let overwrite = cal.provider.promptOverwrite(aMethod, aItem);
     if (overwrite) {
       if (aMethod == "modify") {
-        this.modifyOfflineItem(aItem, aOldItem, aListener);
+        this.modifyOfflineItem(aItem, aOldItem, null);
       } else {
-        this.deleteOfflineItem(aItem, aListener);
+        await this.deleteOfflineItem(aItem);
       }
     }
   },
@@ -815,24 +815,6 @@ calCachedCalendar.prototype = {
   modifyItem(newItem, oldItem, listener) {
     let self = this;
 
-    // First of all, we should find out if the item to modify is
-    // already an offline item or not.
-    let flagListener = {
-      onGetResult(calendar, status, itemType, detail, items) {},
-      onOperationComplete(calendar, status, opType, id, offline_flag) {
-        if (
-          offline_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
-          offline_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD
-        ) {
-          // The item is already offline, just modify it in the cache
-          self.modifyOfflineItem(newItem, oldItem, listener);
-        } else {
-          // Not an offline item, attempt to modify using provider
-          self.mUncachedCalendar.modifyItem(newItem, oldItem, cacheListener);
-        }
-      },
-    };
-
     /* Forwarding add/modify/delete to the cached calendar using the calIObserver
      * callbacks would be advantageous, because the uncached provider could implement
      * a true push mechanism firing without being triggered from within the program.
@@ -877,13 +859,25 @@ calCachedCalendar.prototype = {
       },
     };
 
+    // First of all, we should find out if the item to modify is
+    // already an offline item or not.
     if (this.offline) {
       // If we are offline, don't even try to modify the item
       this.modifyOfflineItem(newItem, oldItem, listener);
     } else {
-      // Otherwise, get the item flags, the listener will further
-      // process the item.
-      this.mCachedCalendar.getItemOfflineFlag(oldItem, flagListener);
+      // Otherwise, get the item flags and further process the item.
+      this.mCachedCalendar.getItemOfflineFlag(oldItem).then(offline_flag => {
+        if (
+          offline_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
+          offline_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD
+        ) {
+          // The item is already offline, just modify it in the cache
+          self.modifyOfflineItem(newItem, oldItem, listener);
+        } else {
+          // Not an offline item, attempt to modify using provider
+          self.mUncachedCalendar.modifyItem(newItem, oldItem, cacheListener);
+        }
+      });
     }
   },
 
@@ -910,53 +904,32 @@ calCachedCalendar.prototype = {
     this.mCachedCalendar.modifyItem(newItem, oldItem, opListener);
   },
 
-  deleteItem(item, listener) {
+  async deleteItem(item) {
     let self = this;
 
     // First of all, we should find out if the item to delete is
     // already an offline item or not.
-    let flagListener = {
-      onGetResult(calendar, status, itemType, detail, items) {},
-      onOperationComplete(calendar, status, opType, id, offline_flag) {
-        if (
-          offline_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
-          offline_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD
-        ) {
-          // The item is already offline, just mark it deleted it in
-          // the cache
-          self.deleteOfflineItem(item, listener);
-        } else {
+    if (this.offline) {
+      // If we are offline, don't even try to delete the item
+      await this.deleteOfflineItem(item);
+    } else {
+      // Otherwise, get the item flags, the listener will further
+      // process the item.
+      let offline_flag = await this.mCachedCalendar.getItemOfflineFlag(item);
+      if (
+        offline_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
+        offline_flag == cICL.OFFLINE_FLAG_MODIFIED_RECORD
+      ) {
+        // The item is already offline, just mark it deleted it in
+        // the cache
+        await self.deleteOfflineItem(item);
+      } else {
+        try {
           // Not an offline item, attempt to delete using provider
-          self.mUncachedCalendar.deleteItem(item, cacheListener);
-        }
-      },
-    };
-    // Forwarding add/modify/delete to the cached calendar using the calIObserver
-    // callbacks would be advantageous, because the uncached provider could implement
-    // a true push mechanism firing without being triggered from within the program.
-    // But this would mean the uncached provider fires on the passed
-    // calIOperationListener, e.g. *before* it fires on calIObservers
-    // (because that order is undefined). Firing onOperationComplete before onAddItem et al
-    // would result in this facade firing onOperationComplete even though the modification
-    // hasn't yet been performed on the cached calendar (which happens in onAddItem et al).
-    // Result is that we currently stick to firing onOperationComplete if the cached calendar
-    // has performed the modification, see below:
-    let cacheListener = {
-      onGetResult(calendar, status, itemType, detail, items) {},
-      onOperationComplete(calendar, status, opType, id, detail) {
-        if (isUnavailableCode(status)) {
-          // The item couldn't be deleted at the (remote) location,
-          // this is like being offline. Mark the item deleted in the
-          // cache instead.
-          cal.LOG(
-            "[calCachedCalendar] Calendar " +
-              calendar.name +
-              " is unavailable, deleting item offline"
-          );
-          self.deleteOfflineItem(item, listener);
-        } else if (Components.isSuccessCode(status)) {
+          await self.mUncachedCalendar.deleteItem(item);
+
           // On success, delete the item from the cache
-          self.mCachedCalendar.deleteItem(item, listener);
+          await self.mCachedCalendar.deleteItem(item);
 
           // Also, remove any meta data associated with the item
           try {
@@ -965,26 +938,27 @@ calCachedCalendar.prototype = {
           } catch (e) {
             cal.LOG("[calCachedCalendar] Offline storage doesn't support metadata");
           }
-        } else if (listener) {
-          // This happens on error, forward the error through the listener
-          listener.onOperationComplete(self, status, opType, id, detail);
+        } catch (e) {
+          if (isUnavailableCode(e.result)) {
+            // The item couldn't be deleted at the (remote) location,
+            // this is like being offline. Mark the item deleted in the
+            // cache instead.
+            cal.LOG(
+              "[calCachedCalendar] Calendar " +
+                item.calendar.name +
+                " is unavailable, deleting item offline"
+            );
+            await self.deleteOfflineItem(item);
+          }
         }
-      },
-    };
-
-    if (this.offline) {
-      // If we are offline, don't even try to delete the item
-      this.deleteOfflineItem(item, listener);
-    } else {
-      // Otherwise, get the item flags, the listener will further
-      // process the item.
-      this.mCachedCalendar.getItemOfflineFlag(item, flagListener);
+      }
     }
   },
-  deleteOfflineItem(item, listener) {
+
+  async deleteOfflineItem(item) {
     /* We do not delete the item from the cache, as we will need it when reconciling the cache content and the server content. */
     let storage = this.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
-    storage.deleteOfflineItem(item, listener);
+    return storage.deleteOfflineItem(item);
   },
 };
 (function() {

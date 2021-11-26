@@ -281,58 +281,44 @@ CalMemoryCalendar.prototype = {
     return null;
   },
 
-  // void deleteItem( in calIItemBase aItem, in calIOperationListener aListener );
-  deleteItem(aItem, aListener) {
+  // Promise<void> deleteItem(in calIItemBase item);
+  async deleteItem(item) {
+    let onError = async (message, exception) => {
+      this.notifyOperationComplete(
+        null,
+        exception,
+        Ci.calIOperationListener.DELETE,
+        item.id,
+        message
+      );
+      return Promise.reject(new Components.Exception(message, exception));
+    };
+
     if (this.readOnly) {
-      this.notifyOperationComplete(
-        aListener,
-        Ci.calIErrors.CAL_IS_READONLY,
-        Ci.calIOperationListener.DELETE,
-        aItem.id,
-        "Calendar is readonly"
-      );
-      return;
+      return onError("Calendar is readonly", Ci.calIErrors.CAL_IS_READONLY);
     }
-    if (aItem.id == null) {
-      this.notifyOperationComplete(
-        aListener,
-        Cr.NS_ERROR_FAILURE,
-        Ci.calIOperationListener.DELETE,
-        aItem.id,
-        "ID is null in deleteItem"
-      );
-      return;
+
+    if (item.id == null) {
+      return onError("ID is null in deleteItem", Cr.NS_ERROR_FAILURE);
     }
 
     let oldItem;
     if (this.relaxedMode) {
-      oldItem = aItem;
+      oldItem = item;
     } else {
-      oldItem = this.mItems[aItem.id];
-      if (oldItem.generation != aItem.generation) {
-        this.notifyOperationComplete(
-          aListener,
-          Cr.NS_ERROR_FAILURE,
-          Ci.calIOperationListener.DELETE,
-          aItem.id,
-          "generation mismatch in deleteItem"
-        );
-        return;
+      oldItem = this.mItems[item.id];
+      if (oldItem.generation != item.generation) {
+        return onError("generation mismatch in deleteItem", Cr.NS_ERROR_FAILURE);
       }
     }
 
-    delete this.mItems[aItem.id];
-    this.mMetaData.delete(aItem.id);
+    delete this.mItems[item.id];
+    this.mMetaData.delete(item.id);
 
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.DELETE,
-      aItem.id,
-      aItem
-    );
+    this.notifyOperationComplete(null, Cr.NS_OK, Ci.calIOperationListener.DELETE, item.id, item);
     // notify observers
     this.mObservers.notify("onDeleteItem", [oldItem]);
+    return null;
   },
 
   // Promise<calIItemBase|null> getItem(in string id);
@@ -509,15 +495,8 @@ CalMemoryCalendar.prototype = {
   //
   // calIOfflineStorage interface
   //
-  addOfflineItem(aItem, aListener) {
+  async addOfflineItem(aItem) {
     this.mOfflineFlags[aItem.id] = cICL.OFFLINE_FLAG_CREATED_RECORD;
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.ADD,
-      aItem.id,
-      aItem
-    );
   },
 
   modifyOfflineItem(aItem, aListener) {
@@ -538,7 +517,7 @@ CalMemoryCalendar.prototype = {
     );
   },
 
-  deleteOfflineItem(aItem, aListener) {
+  async deleteOfflineItem(aItem) {
     let oldFlag = this.mOfflineFlags[aItem.id];
     if (oldFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
       delete this.mItems[aItem.id];
@@ -547,20 +526,12 @@ CalMemoryCalendar.prototype = {
       this.mOfflineFlags[aItem.id] = cICL.OFFLINE_FLAG_DELETED_RECORD;
     }
 
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.DELETE,
-      aItem.id,
-      aItem
-    );
     // notify observers
     this.observers.notify("onDeleteItem", [aItem]);
   },
 
-  getItemOfflineFlag(aItem, aListener) {
-    let flag = aItem && aItem.id in this.mOfflineFlags ? this.mOfflineFlags[aItem.id] : null;
-    this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, flag);
+  async getItemOfflineFlag(aItem) {
+    return aItem && aItem.id in this.mOfflineFlags ? this.mOfflineFlags[aItem.id] : null;
   },
 
   resetItemOfflineFlag(aItem, aListener) {

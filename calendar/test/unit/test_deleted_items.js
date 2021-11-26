@@ -62,7 +62,7 @@ add_task(async function test_deleted_items() {
   };
 
   // Deleting an item should trigger it being marked for deletion.
-  await check_delmgr_call(() => memory.deleteItem(item, null));
+  await check_delmgr_call(() => memory.deleteItem(item));
 
   // Now check if it was deleted at our reference date.
   let deltime = delmgr.getDeletedDate(item.id);
@@ -89,7 +89,7 @@ add_task(async function test_deleted_items() {
   // Add, delete, add. Item should no longer be deleted.
   await check_delmgr_call(() => memory.addItem(item, null));
   equal(delmgr.getDeletedDate(item.id), null);
-  await check_delmgr_call(() => memory.deleteItem(item, null));
+  await check_delmgr_call(() => memory.deleteItem(item));
   equal(delmgr.getDeletedDate(item.id).compare(referenceDate), 0);
   await check_delmgr_call(() => memory.addItem(item, null));
   equal(delmgr.getDeletedDate(item.id), null);

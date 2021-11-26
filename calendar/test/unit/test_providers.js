@@ -352,12 +352,8 @@ add_task(async function testMetaData() {
     ok(values[0] == "meta1" || values[1] == "meta1");
     ok(values[0] == "meta2" || values[1] == "meta2");
 
-    await new Promise(resolve => {
-      aCalendar.deleteItem(event1, {
-        onGetResult: (calendar, aStatus, aItemType, aDetail, aItems) => {},
-        onOperationComplete: resolve,
-      });
-    });
+    await aCalendar.deleteItem(event1);
+
     equal(aCalendar.getMetaData("item1"), null);
     ids = aCalendar.getAllMetaDataIds();
     values = aCalendar.getAllMetaDataValues();

@@ -412,8 +412,8 @@ function doDeleteItemTest(aCalendar) {
   alarmObserver.checkExpected();
 
   // item deletion should clear the fired alarm and timer
-  aCalendar.deleteItem(item, null);
-  aCalendar.deleteItem(item2, null);
+  aCalendar.deleteItem(item);
+  aCalendar.deleteItem(item2);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
   alarmObserver.expectResult(aCalendar, item2, alarm2, EXPECT_NONE);
   alarmObserver.checkExpected("doDeleteItemTest, cleared fired alarm and timer");
@@ -568,7 +568,7 @@ function test_notificationTimers() {
       7320,
     ]);
 
-    memory.deleteItem(item, null);
+    memory.deleteItem(item);
     equal(
       alarmObserver.service.mNotificationTimerMap[item.calendar.id],
       undefined,

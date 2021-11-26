@@ -314,12 +314,12 @@ CalCompositeCalendar.prototype = {
     return aNewItem.calendar.modifyItem(aNewItem, aOldItem, aListener);
   },
 
-  // void deleteItem( in string id, in calIOperationListener aListener );
-  deleteItem(aItem, aListener) {
+  // Promise<void> deleteItem(in calIItemBase aItem);
+  async deleteItem(aItem) {
     cal.ASSERT(aItem.calendar, "Composite can't delete item with null calendar", true);
     cal.ASSERT(aItem.calendar != this, "Composite can't delete item with this calendar", true);
 
-    return aItem.calendar.deleteItem(aItem, aListener);
+    return aItem.calendar.deleteItem(aItem);
   },
 
   // void addItem( in calIItemBase aItem, in calIOperationListener aListener );

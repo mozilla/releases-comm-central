@@ -30,14 +30,11 @@ var promisifyProxyHandler = {
       case "adoptItem":
       case "addItem":
       case "modifyItem":
-      case "deleteItem":
       case "getItems":
         return (...args) => this.promiseOperation(target, name, args);
       // calIOfflineStorage methods
       case "addOfflineItem":
       case "modifyOfflineItem":
-      case "deleteOfflineItem":
-      case "getOfflineItemFlag":
       case "resetItemOfflineFlag": {
         let offline = target.QueryInterface(Ci.calIOfflineStorage);
         return (...args) => this.promiseOperation(offline, name, args);
@@ -50,7 +47,10 @@ var promisifyProxyHandler = {
       case "proxyTarget":
         return target;
       case "getItem":
-        return id => target.getItem(id);
+      case "getOfflineItemFlag":
+      case "deleteItem":
+      case "deleteOfflineItem":
+        return arg => target[name](arg);
       default:
         return target[name];
     }

@@ -103,6 +103,24 @@ CalTransaction.prototype = {
   mIsDoTransaction: false,
   mExtResponse: null,
 
+  _onError(opType, item, error) {
+    if (this.mListener) {
+      this.mListener.onOperationComplete(item.calendar, error.result, opType, item.id, error);
+    }
+  },
+
+  _onSuccess(opType, item) {
+    cal.itip.checkAndSend(
+      opType,
+      item,
+      this.mIsDoTransaction ? this.mOldItem : this.mItem,
+      this.mExtResponse
+    );
+    if (this.mListener) {
+      this.mListener.onOperationComplete(item.calendar, Cr.NS_OK, opType, item.id, item);
+    }
+  },
+
   onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
     if (Components.isSuccessCode(aStatus)) {
       cal.itip.checkAndSend(
@@ -153,7 +171,10 @@ CalTransaction.prototype = {
             onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
               self.onOperationComplete(...arguments);
               if (Components.isSuccessCode(aStatus)) {
-                self.mOldItem.calendar.deleteItem(self.mOldItem, self);
+                self.mOldItem.calendar.deleteItem(self.mOldItem).then(
+                  () => self._onSuccess(Ci.calIOperationListener.DELETE, self.mOldItem),
+                  e => self._onError(Ci.calIOperationListener.DELETE, self.mOldItem, e)
+                );
               }
             },
           };
@@ -163,7 +184,11 @@ CalTransaction.prototype = {
         }
         break;
       case "delete":
-        this.mCalendar.deleteItem(this.mItem, this);
+        this.mCalendar.deleteItem(this.mItem).then(
+          () => this._onSuccess(Ci.calIOperationListener.DELETE, this.mItem),
+          e => this._onError(Ci.calIOperationListener.DELETE, this.mItem, e)
+        );
+
         break;
       default:
         throw new Components.Exception("Invalid action specified", Cr.NS_ERROR_ILLEGAL_VALUE);
@@ -174,7 +199,11 @@ CalTransaction.prototype = {
     this.mIsDoTransaction = false;
     switch (this.mAction) {
       case "add":
-        this.mCalendar.deleteItem(this.mItem, this);
+        this.mCalendar.deleteItem(this.mItem).then(
+          () => this._onSuccess(Ci.calIOperationListener.DELETE, this.mItem),
+          e => this._onError(Ci.calIOperationListener.DELETE, this.mItem, e)
+        );
+
         break;
       case "modify":
         if (this.mOldItem.calendar.id == this.mItem.calendar.id) {
@@ -184,7 +213,10 @@ CalTransaction.prototype = {
             this
           );
         } else {
-          this.mCalendar.deleteItem(this.mItem, this);
+          this.mCalendar.deleteItem(this.mItem).then(
+            () => this._onSuccess(Ci.calIOperationListener.DELETE, this.mItem),
+            e => this._onError(Ci.calIOperationListener.DELETE, e)
+          );
           this.mOldCalendar.addItem(this.mOldItem, this);
         }
         break;

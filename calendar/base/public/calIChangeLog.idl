@@ -33,18 +33,18 @@ interface calIOfflineStorage : calICalendar {
      * Mark the item of which the id is passed as parameter as deleted.
      *
      * @param aItem       the item to delete
-     * @param aListener   where to call back the results
+     * @return {Promise<void>}
      */
-    void deleteOfflineItem(in calIItemBase aItem, in calIOperationListener aListener);
+    Promise deleteOfflineItem(in calIItemBase aItem);
 
     /**
      * Retrieves the offline flag for the given item. The flag is returned using the
      * detail parameter of the onOperationComplete function in calIOperationLIstener.
      *
      * @param aItem       the item to reset
-     * @param aListener   where to call back the results
+     * @return {Promise<number>}
      */
-    void getItemOfflineFlag(in calIItemBase aItem, in calIOperationListener aListener);
+    Promise getItemOfflineFlag(in calIItemBase aItem);
 
     /**
      * Remove any offline flag from the item record.

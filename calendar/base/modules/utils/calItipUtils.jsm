@@ -1683,12 +1683,46 @@ ItipItemFinder.prototype = {
                 } else if (item.recurrenceId && item.recurrenceId.compare(rid) == 0) {
                   // parentless occurrence to be deleted (future)
                   operations.push((opListener, partStat, extResponse) =>
-                    item.calendar.deleteItem(item, opListener)
+                    item.calendar.deleteItem(item).then(
+                      () =>
+                        opListener.onComplete(
+                          item.calendar,
+                          Cr.NS_OK,
+                          Ci.calIOperationListener.DELETE,
+                          item.id,
+                          item
+                        ),
+                      e =>
+                        opListener.onOperationComplete(
+                          item.calendar,
+                          e.result,
+                          Ci.calIOperationListener.DELETE,
+                          item.id,
+                          e
+                        )
+                    )
                   );
                 }
               } else {
                 operations.push((opListener, partStat, extResponse) =>
-                  item.calendar.deleteItem(item, opListener)
+                  item.calendar.deleteItem(item).then(
+                    () =>
+                      opListener.onComplete(
+                        item.calendar,
+                        Cr.NS_OK,
+                        Ci.calIOperationListener.DELETE,
+                        item.id,
+                        item
+                      ),
+                    e =>
+                      opListener.onOperationComplete(
+                        item.calendar,
+                        e.result,
+                        Ci.calIOperationListener.DELETE,
+                        item.id,
+                        e
+                      )
+                  )
                 );
               }
             }

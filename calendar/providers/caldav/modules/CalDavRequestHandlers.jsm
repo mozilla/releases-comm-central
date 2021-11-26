@@ -194,7 +194,6 @@ class CalDavEtagsHandler extends XMLResponseHandler {
         // If an item has been deleted from the server, delete it here too.
         // Since the target calendar's operations are synchronous, we can
         // safely set variables from this function.
-        let pcal = cal.async.promisifyCalendar(this.calendar.mOfflineStorage);
         let foundItem = await this.calendar.mOfflineStorage.getItem(this.calendar.mHrefIndex[path]);
 
         if (foundItem) {
@@ -205,7 +204,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
           ) {
             cal.LOG("Deleting local href: " + path);
             delete this.calendar.mHrefIndex[path];
-            await pcal.deleteItem(foundItem);
+            await this.calendar.mOfflineStorage.deleteItem(foundItem);
             needsRefresh = true;
           }
         }

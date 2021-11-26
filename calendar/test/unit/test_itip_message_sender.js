@@ -125,16 +125,16 @@ add_task(async function testParticipationStatusUpdated() {
 });
 
 /**
- * Test deleting and event queues a "CANCEL" message.
+ * Test deleting an event queues a "CANCEL" message.
  */
 add_task(async function testEventDeleted() {
   let item = new CalEvent(icalString);
   let savedItem = await calendar.addItem(item);
 
-  let deletedItem = await calendar.deleteItem(savedItem);
-  let invitedAttendee = deletedItem.getAttendeeById(calendarOrganizerId);
+  await calendar.deleteItem(savedItem);
+  let invitedAttendee = savedItem.getAttendeeById(calendarOrganizerId);
   let sender = new CalItipMessageSender(null, invitedAttendee);
-  let result = sender.detectChanges(Ci.calIOperationListener.DELETE, deletedItem);
+  let result = sender.detectChanges(Ci.calIOperationListener.DELETE, savedItem);
   Assert.equal(result, 1, "result indicates 1 pending message queued");
   Assert.equal(sender.pendingMessageCount, 1, "pendingMessageCount is 1");
 

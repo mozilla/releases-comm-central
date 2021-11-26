@@ -250,17 +250,11 @@ CalStorageCalendar.prototype = {
   // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
   // Actually uses doModifyItem
   modifyItem(aNewItem, aOldItem, aListener) {
-    let self = this;
-
     // HACK Just modifying the item would clear the offline flag, we need to
     // retrieve the flag and pass it to the real modify function.
-    let offlineJournalFlagListener = {
-      onGetResult(calendar, status, opType, id, detail) {},
-      onOperationComplete(opcalendar, status, opType, id, offlineFlag) {
-        self.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag);
-      },
-    };
-    this.getItemOfflineFlag(aOldItem, offlineJournalFlagListener);
+    this.getItemOfflineFlag(aOldItem).then(offlineFlag =>
+      this.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag)
+    );
   },
 
   async doModifyItem(aNewItem, aOldItem, aListener, offlineFlag) {
@@ -368,48 +362,41 @@ CalStorageCalendar.prototype = {
     return null;
   },
 
-  // void deleteItem( in string id, in calIOperationListener aListener );
-  async deleteItem(aItem, aListener) {
-    if (this.readOnly) {
+  // Promise<void> deleteItem(in calIItemBase item)
+  async deleteItem(item) {
+    let onError = async (message, exception) => {
       this.notifyOperationComplete(
-        aListener,
-        Ci.calIErrors.CAL_IS_READONLY,
-        Ci.calIOperationListener.DELETE,
         null,
-        "Calendar is readonly"
+        exception,
+        Ci.calIOperationListener.DELETE,
+        item.id,
+        message
       );
-      return;
+      return Promise.reject(new Components.Exception(message, exception));
+    };
+
+    if (this.readOnly) {
+      return onError("Calendar is readonly", Ci.calIErrors.CAL_IS_READONLY);
     }
-    if (aItem.parentItem != aItem) {
-      aItem.parentItem.recurrenceInfo.removeExceptionFor(aItem.recurrenceId);
+
+    if (item.parentItem != item) {
+      item.parentItem.recurrenceInfo.removeExceptionFor(item.recurrenceId);
       // xxx todo: would we want to support this case? Removing an occurrence currently results
       //           in a modifyItem(parent)
-      return;
+      return null;
     }
 
-    if (aItem.id == null) {
-      this.notifyOperationComplete(
-        aListener,
-        Cr.NS_ERROR_FAILURE,
-        Ci.calIOperationListener.DELETE,
-        null,
-        "ID is null for deleteItem"
-      );
-      return;
+    if (item.id == null) {
+      return onError("ID is null for deleteItem", Cr.NS_ERROR_FAILURE);
     }
 
-    await this.mItemModel.deleteItemById(aItem.id);
+    await this.mItemModel.deleteItemById(item.id);
 
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.DELETE,
-      aItem.id,
-      aItem
-    );
+    this.notifyOperationComplete(null, Cr.NS_OK, Ci.calIOperationListener.DELETE, item.id, item);
 
     // notify observers
-    this.observers.notify("onDeleteItem", [aItem]);
+    this.observers.notify("onDeleteItem", [item]);
+    return null;
   },
 
   // Promise<calIItemBase|null> getItem(in string id);
@@ -458,40 +445,17 @@ CalStorageCalendar.prototype = {
     this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
   },
 
-  async getItemOfflineFlag(aItem, aListener) {
-    let flag = null;
-    if (aItem) {
-      try {
-        flag = await this.mOfflineModel.getItemOfflineFlag(aItem);
-      } catch (ex) {
-        aListener.onOperationComplete(
-          this,
-          ex.result,
-          Ci.calIOperationListener.GET,
-          aItem.id,
-          aItem
-        );
-        return;
-      }
-    }
-
+  async getItemOfflineFlag(aItem) {
     // It is possible that aItem can be null, flag provided should be null in this case
-    aListener.onOperationComplete(this, Cr.NS_OK, Ci.calIOperationListener.GET, aItem, flag);
+    return aItem ? this.mOfflineModel.getItemOfflineFlag(aItem) : null;
   },
 
   //
   // calIOfflineStorage interface
   //
-  async addOfflineItem(aItem, aListener) {
+  async addOfflineItem(aItem) {
     let newOfflineJournalFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
     await this.mOfflineModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.ADD,
-      aItem.id,
-      aItem
-    );
   },
 
   modifyOfflineItem(aItem, aListener) {
@@ -521,35 +485,21 @@ CalStorageCalendar.prototype = {
     this.getItemOfflineFlag(aItem, opListener);
   },
 
-  deleteOfflineItem(aItem, aListener) {
-    let self = this;
-    let opListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onGetResult(calendar, status, itemType, detail, items) {},
-      async onOperationComplete(calendar, status, opType, id, oldOfflineJournalFlag) {
-        if (oldOfflineJournalFlag) {
-          // Delete item if flag is c
-          if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
-            await self.mItemModel.deleteItemById(aItem.id);
-          } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
-            await self.mOfflineModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
-          }
-        } else {
-          await self.mOfflineModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
-        }
+  async deleteOfflineItem(aItem) {
+    let oldOfflineJournalFlag = await this.getItemOfflineFlag(aItem);
+    if (oldOfflineJournalFlag) {
+      // Delete item if flag is set
+      if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
+        await this.mItemModel.deleteItemById(aItem.id);
+      } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
+        await this.mOfflineModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+      }
+    } else {
+      await this.mOfflineModel.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+    }
 
-        self.notifyOperationComplete(
-          aListener,
-          Cr.NS_OK,
-          Ci.calIOperationListener.DELETE,
-          aItem.id,
-          aItem
-        );
-        // notify observers
-        self.observers.notify("onDeleteItem", [aItem]);
-      },
-    };
-    this.getItemOfflineFlag(aItem, opListener);
+    // notify observers
+    this.observers.notify("onDeleteItem", [aItem]);
   },
 
   async resetItemOfflineFlag(aItem, aListener) {
