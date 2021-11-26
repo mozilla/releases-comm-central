@@ -4681,7 +4681,7 @@ nsMsgDatabase::GetNewList(nsTArray<nsMsgKey>& aNewKeys) {
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::GetSearchResultsTable(const char* searchFolderUri,
+nsresult nsMsgDatabase::GetSearchResultsTable(const nsACString& searchFolderUri,
                                               bool createIfMissing,
                                               nsIMdbTable** table) {
   mdb_kind kindToken;
@@ -4689,8 +4689,8 @@ nsresult nsMsgDatabase::GetSearchResultsTable(const char* searchFolderUri,
   mdb_bool mustBeUnique;
   NS_ENSURE_TRUE(m_mdbStore, NS_ERROR_NULL_POINTER);
 
-  nsresult err =
-      m_mdbStore->StringToToken(GetEnv(), searchFolderUri, &kindToken);
+  nsresult err = m_mdbStore->StringToToken(
+      GetEnv(), PromiseFlatCString(searchFolderUri).get(), &kindToken);
   err = m_mdbStore->GetTableKind(GetEnv(), m_hdrRowScopeToken, kindToken,
                                  &numTables, &mustBeUnique, table);
   if ((!*table || NS_FAILED(err)) && createIfMissing)
@@ -4701,7 +4701,7 @@ nsresult nsMsgDatabase::GetSearchResultsTable(const char* searchFolderUri,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::GetCachedHits(const char* aSearchFolderUri,
+nsMsgDatabase::GetCachedHits(const nsACString& aSearchFolderUri,
                              nsIMsgEnumerator** aEnumerator) {
   nsCOMPtr<nsIMdbTable> table;
   (void)GetSearchResultsTable(aSearchFolderUri, false, getter_AddRefs(table));
@@ -4711,7 +4711,7 @@ nsMsgDatabase::GetCachedHits(const char* aSearchFolderUri,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char* aSearchFolderUri,
+NS_IMETHODIMP nsMsgDatabase::RefreshCache(const nsACString& aSearchFolderUri,
                                           nsTArray<nsMsgKey> const& aNewHits,
                                           nsTArray<nsMsgKey>& aStaleHits) {
   nsCOMPtr<nsIMdbTable> table;
@@ -4822,8 +4822,8 @@ mdb_pos nsMsgDatabase::FindInsertIndexInSortedTable(nsIMdbTable* table,
   return hi;
 }
 NS_IMETHODIMP
-nsMsgDatabase::UpdateHdrInCache(const char* aSearchFolderUri, nsIMsgDBHdr* aHdr,
-                                bool aAdd) {
+nsMsgDatabase::UpdateHdrInCache(const nsACString& aSearchFolderUri,
+                                nsIMsgDBHdr* aHdr, bool aAdd) {
   nsCOMPtr<nsIMdbTable> table;
   nsresult err =
       GetSearchResultsTable(aSearchFolderUri, true, getter_AddRefs(table));
@@ -4853,8 +4853,8 @@ nsMsgDatabase::UpdateHdrInCache(const char* aSearchFolderUri, nsIMsgDBHdr* aHdr,
   return NS_OK;
 }
 NS_IMETHODIMP
-nsMsgDatabase::HdrIsInCache(const char* aSearchFolderUri, nsIMsgDBHdr* aHdr,
-                            bool* aResult) {
+nsMsgDatabase::HdrIsInCache(const nsACString& aSearchFolderUri,
+                            nsIMsgDBHdr* aHdr, bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   nsCOMPtr<nsIMdbTable> table;
   nsresult err =

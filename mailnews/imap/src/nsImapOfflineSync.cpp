@@ -357,7 +357,7 @@ void nsImapOfflineSync::ProcessAppendMsgOperation(
   bool setPlayingBack = false;
   do {
     nsCString moveDestination;
-    currentOp->GetDestinationFolderURI(getter_Copies(moveDestination));
+    currentOp->GetDestinationFolderURI(moveDestination);
 
     nsCOMPtr<nsIMsgFolder> destFolder;
     rv = GetOrCreateFolder(moveDestination, getter_AddRefs(destFolder));
@@ -457,7 +457,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
   nsTArray<nsMsgKey> matchingFlagKeys;
   uint32_t currentKeyIndex = m_KeyIndex;
   nsCString moveDestination;
-  op->GetDestinationFolderURI(getter_Copies(moveDestination));
+  op->GetDestinationFolderURI(moveDestination);
   bool moveMatches = true;
   nsCOMPtr<nsIMsgOfflineImapOperation> currentOp = op;
   do {  // loop for all messages with the same destination
@@ -479,7 +479,7 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
         nsOfflineImapOperationType opType;
         currentOp->GetOperation(&opType);
         if (opType & nsIMsgOfflineImapOperation::kMsgMoved) {
-          currentOp->GetDestinationFolderURI(getter_Copies(nextDestination));
+          currentOp->GetDestinationFolderURI(nextDestination);
           moveMatches = moveDestination.Equals(nextDestination);
         }
       }

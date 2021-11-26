@@ -3514,7 +3514,7 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
                                           getter_AddRefs(currentOp));
           if (currentOp) {
             nsCString opSrcUri;
-            currentOp->GetSourceFolderURI(getter_Copies(opSrcUri));
+            currentOp->GetSourceFolderURI(opSrcUri);
             if (opSrcUri.Equals(srcFolderUri)) {
               nsMsgKey srcMessageKey;
               currentOp->GetSrcMessageKey(&srcMessageKey);
@@ -6276,7 +6276,7 @@ nsresult nsImapMailFolder::GetClearedOriginalOp(
                "not an offline move op");
 
   nsCString sourceFolderURI;
-  op->GetSourceFolderURI(getter_Copies(sourceFolderURI));
+  op->GetSourceFolderURI(sourceFolderURI);
 
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> sourceFolder;
@@ -6294,7 +6294,7 @@ nsresult nsImapMailFolder::GetClearedOriginalOp(
       nsCString moveDestination;
       nsCString thisFolderURI;
       GetURI(thisFolderURI);
-      returnOp->GetDestinationFolderURI(getter_Copies(moveDestination));
+      returnOp->GetDestinationFolderURI(moveDestination);
       if (moveDestination.Equals(thisFolderURI))
         returnOp->ClearOperation(nsIMsgOfflineImapOperation::kMoveResult);
     }
@@ -6308,7 +6308,7 @@ nsresult nsImapMailFolder::GetOriginalOp(
     nsIMsgDatabase** originalDB) {
   nsCOMPtr<nsIMsgOfflineImapOperation> returnOp;
   nsCString sourceFolderURI;
-  op->GetSourceFolderURI(getter_Copies(sourceFolderURI));
+  op->GetSourceFolderURI(sourceFolderURI);
 
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> sourceFolder;
@@ -6529,7 +6529,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
             if (NS_SUCCEEDED(rv) && originalOp) {
               nsCString srcFolderURI;
               srcFolder->GetURI(srcFolderURI);
-              sourceOp->GetSourceFolderURI(getter_Copies(originalSrcFolderURI));
+              sourceOp->GetSourceFolderURI(originalSrcFolderURI);
               sourceOp->GetMessageKey(&originalKey);
               if (isMove) sourceMailDB->RemoveOfflineOp(sourceOp);
               sourceOp = originalOp;
@@ -6548,8 +6548,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
               imapMessageFlagsType newImapFlags = 0;
               message->GetMessageSize(&msgSize);
               message->GetFlags(&msgFlags);
-              sourceOp->SetDestinationFolderURI(
-                  folderURI.get());  // offline move
+              sourceOp->SetDestinationFolderURI(folderURI);  // offline move
               sourceOp->SetOperation(nsIMsgOfflineImapOperation::kMsgMoved);
               sourceOp->SetMsgSize(msgSize);
               newImapFlags = msgFlags & 0x7;
@@ -6557,8 +6556,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                 newImapFlags |= kImapMsgForwardedFlag;
               sourceOp->SetNewFlags(newImapFlags);
             } else
-              sourceOp->AddMessageCopyOperation(
-                  folderURI.get());  // offline copy
+              sourceOp->AddMessageCopyOperation(folderURI);  // offline copy
 
             sourceOp->GetOperation(&moveCopyOpType);
             srcMsgs.AppendObject(message);
@@ -6619,7 +6617,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                 database->RemoveOfflineOp(destOp);
               else {
                 SetFlag(nsMsgFolderFlags::OfflineEvents);
-                destOp->SetSourceFolderURI(originalSrcFolderURI.get());
+                destOp->SetSourceFolderURI(originalSrcFolderURI);
                 destOp->SetSrcMessageKey(originalKey);
                 addedKeys.AppendElement(fakeBase + sourceKeyIndex);
                 addedHdrs.AppendObject(newMailHdr);
@@ -7553,7 +7551,7 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile* srcFile,
     nsCString destFolderUri;
     GetURI(destFolderUri);
     op->SetOperation(nsIMsgOfflineImapOperation::kMoveResult);
-    op->SetDestinationFolderURI(destFolderUri.get());
+    op->SetDestinationFolderURI(destFolderUri);
     SetFlag(nsMsgFolderFlags::OfflineEvents);
   }
 

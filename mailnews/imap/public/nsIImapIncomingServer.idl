@@ -109,7 +109,7 @@ interface nsIImapIncomingServer : nsISupports {
   AString PromptPassword(in nsIMsgWindow aWindow);
   attribute boolean doingLsub;
 
-  ACString getUriWithNamespacePrefixIfNecessary(in long namespaceType, in ACString originalUri);
+  ACString getUriWithNamespacePrefixIfNecessary(in long namespaceType, in AUTF8String originalUri);
   attribute boolean shuttingDown;
   attribute boolean utf8AcceptEnabled;
 };

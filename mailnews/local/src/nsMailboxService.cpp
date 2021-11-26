@@ -571,7 +571,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
 NS_IMETHODIMP nsMailboxService::Search(nsIMsgSearchSession* aSearchSession,
                                        nsIMsgWindow* aMsgWindow,
                                        nsIMsgFolder* aMsgFolder,
-                                       const char* aMessageUri) {
+                                       const nsACString& aMessageUri) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

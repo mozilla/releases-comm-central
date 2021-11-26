@@ -8,5 +8,5 @@
 [scriptable, uuid(088d3dea-4a6a-41ce-b974-5043d00f1798)]
 interface nsIAbOutlookInterface : nsISupports
 {
-  Array<ACString> getFolderURIs(in ACString aURI);
+  Array<ACString> getFolderURIs(in AUTF8String aURI);
 };

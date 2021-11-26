@@ -308,7 +308,7 @@ nsMsgQuickSearchDBView::OnSearchDone(nsresult status) {
     }
     if (m_db) {
       nsTArray<nsMsgKey> staleHits;
-      nsresult rv = m_db->RefreshCache(searchUri.get(), keyArray, staleHits);
+      nsresult rv = m_db->RefreshCache(searchUri, keyArray, staleHits);
       NS_ENSURE_SUCCESS(rv, rv);
       for (nsMsgKey staleKey : staleHits) {
         nsCOMPtr<nsIMsgDBHdr> hdrDeleted;
@@ -365,7 +365,7 @@ nsMsgQuickSearchDBView::OnNewSearch() {
     nsCOMPtr<nsIMsgEnumerator> cachedHits;
     nsCString searchUri;
     m_viewFolder->GetURI(searchUri);
-    m_db->GetCachedHits(searchUri.get(), getter_AddRefs(cachedHits));
+    m_db->GetCachedHits(searchUri, getter_AddRefs(cachedHits));
     if (cachedHits) {
       bool hasMore;
 

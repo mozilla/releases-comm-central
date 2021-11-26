@@ -22,7 +22,8 @@ nsMessengerBootstrap::nsMessengerBootstrap() {}
 nsMessengerBootstrap::~nsMessengerBootstrap() {}
 
 NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(
-    const char* windowType, const char* aFolderURI, nsMsgKey aMessageKey) {
+    const char* windowType, const nsACString& aFolderURI,
+    nsMsgKey aMessageKey) {
   bool standAloneMsgWindow = false;
   nsAutoCString chromeUrl("chrome://messenger/content/");
   if (windowType && !strcmp(windowType, "mail:messageWindow")) {
@@ -38,11 +39,10 @@ NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(
 
   // create scriptable versions of our strings that we can store in our
   // nsIMutableArray....
-  if (aFolderURI) {
+  if (!aFolderURI.IsEmpty()) {
     if (standAloneMsgWindow) {
       nsCOMPtr<nsIMsgFolder> folder;
-      rv = GetExistingFolder(nsDependentCString(aFolderURI),
-                             getter_AddRefs(folder));
+      rv = GetExistingFolder(aFolderURI, getter_AddRefs(folder));
       NS_ENSURE_SUCCESS(rv, rv);
       nsAutoCString msgUri;
       folder->GetBaseMessageURI(msgUri);
@@ -59,7 +59,7 @@ NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(
         do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID));
     NS_ENSURE_TRUE(scriptableFolderURI, NS_ERROR_FAILURE);
 
-    scriptableFolderURI->SetData(nsDependentCString(aFolderURI));
+    scriptableFolderURI->SetData(aFolderURI);
     argsArray->AppendElement(scriptableFolderURI);
 
     if (!standAloneMsgWindow) {

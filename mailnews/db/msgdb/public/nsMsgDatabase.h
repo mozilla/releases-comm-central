@@ -114,7 +114,7 @@ class nsMsgDatabase : public nsIMsgDatabase {
   virtual nsresult GetThreadForMsgKey(nsMsgKey msgKey, nsIMsgThread** result);
   virtual nsresult EnumerateMessagesWithFlag(nsIMsgEnumerator** result,
                                              uint32_t* pFlag);
-  nsresult GetSearchResultsTable(const char* searchFolderUri,
+  nsresult GetSearchResultsTable(const nsACString& searchFolderUri,
                                  bool createIfMissing, nsIMdbTable** table);
 
   //////////////////////////////////////////////////////////////////////////////

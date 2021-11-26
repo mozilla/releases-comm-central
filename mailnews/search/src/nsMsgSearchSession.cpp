@@ -382,8 +382,7 @@ nsresult nsMsgSearchSession::GetNextUrl() {
         GetMessageServiceFromURI(folderUri, getter_AddRefs(msgService));
 
     if (NS_SUCCEEDED(rv) && msgService && currentTerm)
-      msgService->Search(this, msgWindow, currentTerm->m_folder,
-                         m_runningUrl.get());
+      msgService->Search(this, msgWindow, currentTerm->m_folder, m_runningUrl);
     return rv;
   }
   return NS_OK;

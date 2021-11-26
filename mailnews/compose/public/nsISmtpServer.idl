@@ -87,7 +87,7 @@ interface nsISmtpServer : nsISupports {
   readonly attribute ACString helloArgument;
 
   /// Returns the URI of the server (smtp:///)
-  readonly attribute ACString serverURI;
+  readonly attribute AUTF8String serverURI;
 
   /**
    * Gets a password for this server, using a UI prompt if necessary.

@@ -1437,9 +1437,8 @@ NS_IMETHODIMP nsNntpService::IsMsgInMemCache(nsIURI* aUrl,
 NS_IMETHODIMP nsNntpService::Search(nsIMsgSearchSession* aSearchSession,
                                     nsIMsgWindow* aMsgWindow,
                                     nsIMsgFolder* aMsgFolder,
-                                    const char* aSearchUri) {
+                                    const nsACString& aSearchUri) {
   NS_ENSURE_ARG(aMsgFolder);
-  NS_ENSURE_ARG(aSearchUri);
 
   nsresult rv;
 

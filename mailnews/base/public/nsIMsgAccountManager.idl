@@ -238,7 +238,7 @@ interface nsIMsgAccountManager : nsISupports {
    * @param aLocalPath path of the folder whose uri we want.
    * @return the URI of the folder that corresponds to aLocalPath
    */
-  ACString folderUriForPath(in nsIFile aLocalPath);
+  AUTF8String folderUriForPath(in nsIFile aLocalPath);
 
   // Used to sort servers (accounts) for e.g. the folder pane
   long getSortOrder(in nsIMsgIncomingServer server);

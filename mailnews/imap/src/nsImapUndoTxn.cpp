@@ -558,10 +558,10 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
             dstFolder->GetURI(folderURI);
 
             if (m_opType == nsIMsgOfflineImapOperation::kMsgMoved)
-              op->SetDestinationFolderURI(folderURI.get());  // offline move
+              op->SetDestinationFolderURI(folderURI);  // offline move
             if (m_opType == nsIMsgOfflineImapOperation::kMsgCopy) {
               op->SetOperation(nsIMsgOfflineImapOperation::kMsgMoved);
-              op->AddMessageCopyOperation(folderURI.get());  // offline copy
+              op->AddMessageCopyOperation(folderURI);  // offline copy
             }
             dstFolder->SummaryChanged();
           }
@@ -587,7 +587,7 @@ NS_IMETHODIMP nsImapOfflineTxn::RedoTransaction(void) {
         if (NS_SUCCEEDED(rv) && op) {
           nsCString folderURI;
           srcFolder->GetURI(folderURI);
-          op->SetSourceFolderURI(folderURI.get());
+          op->SetSourceFolderURI(folderURI);
         }
       }
       dstFolder->SummaryChanged();

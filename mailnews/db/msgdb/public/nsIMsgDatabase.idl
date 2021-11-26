@@ -527,7 +527,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   Array<nsMsgKey> getNewList();
 
   // These are used for caching search hits in a db, to speed up saved search folders.
-  nsIMsgEnumerator getCachedHits(in string aSearchFolderUri);
+  nsIMsgEnumerator getCachedHits(in AUTF8String aSearchFolderUri);
 
   /**
    * Update search cache to ensure it contains aNewHits.
@@ -536,9 +536,9 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    * @param aNewHits sorted list of new message keys.
    * @returns list of keys of messages removed from cache.
    */
-  Array<nsMsgKey> refreshCache(in string aSearchFolderUri, in Array<nsMsgKey> aNewHits);
-  void updateHdrInCache(in string aSearchFolderUri, in nsIMsgDBHdr aHdr, in boolean aAdd);
-  boolean hdrIsInCache(in string aSearchFolderUri, in nsIMsgDBHdr aHdr);
+  Array<nsMsgKey> refreshCache(in AUTF8String aSearchFolderUri, in Array<nsMsgKey> aNewHits);
+  void updateHdrInCache(in AUTF8String aSearchFolderUri, in nsIMsgDBHdr aHdr, in boolean aAdd);
+  boolean hdrIsInCache(in AUTF8String aSearchFolderUri, in nsIMsgDBHdr aHdr);
 
 };
 /** @} */

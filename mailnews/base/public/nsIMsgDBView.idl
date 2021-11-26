@@ -304,7 +304,7 @@ interface nsIMsgDBView : nsISupports
   Array<AUTF8String> getURIsForSelection();
   Array<nsMsgViewIndex> getIndicesForSelection();
 
-  readonly attribute ACString URIForFirstSelectedMessage;
+  readonly attribute AUTF8String URIForFirstSelectedMessage;
   readonly attribute nsIMsgDBHdr hdrForFirstSelectedMessage;
   void loadMessageByMsgKey(in nsMsgKey aMsgKey);
   void loadMessageByViewIndex(in nsMsgViewIndex aIndex);

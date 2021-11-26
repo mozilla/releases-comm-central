@@ -60,19 +60,19 @@ interface  nsIDBFolderInfo : nsISupports {
   void changeExpungedBytes(in long aDelta);
 
   /**
-   * Gets a string property from the folder.
+   * Gets a string property from the folder. Also used for URIs, hence the AUTF8String type.
    *
    * @param propertyName The name of the property for the value to retrieve.
    */
-  ACString getCharProperty(in string propertyName);
+  AUTF8String getCharProperty(in string propertyName);
 
   /**
-   * Sets a string property from the folder.
+   * Sets a string property from the folder. Also used for URIs, hence the AUTF8String type.
    *
    * @param propertyName   The name of the property for which to set a value
    * @param propertyValue  The new value of the property.
    */
-  void setCharProperty(in string aPropertyName, in ACString aPropertyValue);
+  void setCharProperty(in string aPropertyName, in AUTF8String aPropertyValue);
   void setUint32Property(in string propertyName, in unsigned long propertyValue);
   void setInt64Property(in string propertyName, in long long propertyValue);
   unsigned long getUint32Property(in string propertyName, in unsigned long defaultValue);

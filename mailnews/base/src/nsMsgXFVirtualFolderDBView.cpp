@@ -188,7 +188,7 @@ void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForFolder(
     nsCString searchUri;
     m_viewFolder->GetURI(searchUri);
     nsTArray<nsMsgKey> badHits;
-    rv = db->RefreshCache(searchUri.get(), newHits, badHits);
+    rv = db->RefreshCache(searchUri, newHits, badHits);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgDBHdr> badHdr;
       for (nsMsgKey badKey : badHits) {
@@ -260,7 +260,7 @@ nsMsgXFVirtualFolderDBView::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
     if (NS_SUCCEEDED(rv)) {
       nsCString searchUri;
       m_viewFolder->GetURI(searchUri);
-      dbToUse->HdrIsInCache(searchUri.get(), aMsgHdr, &hdrInCache);
+      dbToUse->HdrIsInCache(searchUri, aMsgHdr, &hdrInCache);
     }
   }
 
@@ -418,7 +418,7 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
         if (m_doingQuickSearch) continue;
 
         nsCOMPtr<nsIMsgEnumerator> cachedHits;
-        searchDB->GetCachedHits(searchUri.get(), getter_AddRefs(cachedHits));
+        searchDB->GetCachedHits(searchUri, getter_AddRefs(cachedHits));
         bool hasMore;
         if (cachedHits) {
           cachedHits->HasMoreElements(&hasMore);

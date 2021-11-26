@@ -839,11 +839,7 @@ nsresult nsNntpIncomingServer::LoadHostInfoFile() {
 NS_IMETHODIMP
 nsNntpIncomingServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
                                              bool aForceToServer,
-                                             const char* uri) {
-#ifdef DEBUG_seth
-  printf("StartPopulatingWithUri(%s)\n", uri);
-#endif
-
+                                             const nsACString& uri) {
   nsresult rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv, rv);
   rv = mInner->StartPopulatingWithUri(aMsgWindow, aForceToServer, uri);

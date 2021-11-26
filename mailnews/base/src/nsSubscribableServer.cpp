@@ -186,7 +186,7 @@ nsSubscribableServer::SubscribeCleanup() {
 NS_IMETHODIMP
 nsSubscribableServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
                                              bool aForceToServer,
-                                             const char* uri) {
+                                             const nsACString& uri) {
   mStopped = false;
   return NS_OK;
 }

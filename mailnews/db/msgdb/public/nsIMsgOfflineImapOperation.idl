@@ -36,14 +36,14 @@ interface nsIMsgOfflineImapOperation : nsISupports
 
   attribute imapMessageFlagsType flagOperation;
   attribute imapMessageFlagsType newFlags; // for kFlagsChanged
-  attribute string destinationFolderURI; // for move or copy
-  attribute string sourceFolderURI;
+  attribute AUTF8String destinationFolderURI; // for move or copy
+  attribute AUTF8String sourceFolderURI;
   void addKeywordToAdd(in string aKeyword);
   void addKeywordToRemove(in string aKeyword);
   readonly attribute string keywordsToAdd;
   readonly attribute string keywordsToRemove;
   readonly attribute long numberOfCopies;
-  void addMessageCopyOperation(in string destinationBox);
+  void addMessageCopyOperation(in AUTF8String destinationBox);
   string getCopyDestination(in long copyIndex);
   attribute unsigned long msgSize;
   attribute boolean playingBack;

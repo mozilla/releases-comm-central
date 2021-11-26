@@ -170,41 +170,40 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetNewFlags(
 
 /* attribute string destinationFolderURI; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetDestinationFolderURI(
-    char** aDestinationFolderURI) {
-  NS_ENSURE_ARG(aDestinationFolderURI);
+    nsACString& aDestinationFolderURI) {
   (void)m_mdb->GetProperty(m_mdbRow, PROP_MOVE_DEST_FOLDER_URI,
                            getter_Copies(m_moveDestination));
-  *aDestinationFolderURI = ToNewCString(m_moveDestination);
-  return (*aDestinationFolderURI) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+  aDestinationFolderURI = m_moveDestination;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetDestinationFolderURI(
-    const char* aDestinationFolderURI) {
+    const nsACString& aDestinationFolderURI) {
   if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
     MOZ_LOG(IMAPOffline, LogLevel::Info,
             ("msg id %x SetDestinationFolderURI to %s", m_messageKey,
-             aDestinationFolderURI));
-  m_moveDestination = aDestinationFolderURI ? aDestinationFolderURI : 0;
+             PromiseFlatCString(aDestinationFolderURI).get()));
+  m_moveDestination = aDestinationFolderURI;
   return m_mdb->SetProperty(m_mdbRow, PROP_MOVE_DEST_FOLDER_URI,
-                            aDestinationFolderURI);
+                            PromiseFlatCString(aDestinationFolderURI).get());
 }
 
 /* attribute string sourceFolderURI; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetSourceFolderURI(
-    char** aSourceFolderURI) {
-  NS_ENSURE_ARG(aSourceFolderURI);
+    nsACString& aSourceFolderURI) {
   nsresult rv = m_mdb->GetProperty(m_mdbRow, PROP_SRC_FOLDER_URI,
                                    getter_Copies(m_sourceFolder));
-  *aSourceFolderURI = ToNewCString(m_sourceFolder);
+  aSourceFolderURI = m_sourceFolder;
   return rv;
 }
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetSourceFolderURI(
-    const char* aSourceFolderURI) {
-  m_sourceFolder = aSourceFolderURI ? aSourceFolderURI : 0;
+    const nsACString& aSourceFolderURI) {
+  m_sourceFolder = aSourceFolderURI;
   SetOperation(kMoveResult);
 
-  return m_mdb->SetProperty(m_mdbRow, PROP_SRC_FOLDER_URI, aSourceFolderURI);
+  return m_mdb->SetProperty(m_mdbRow, PROP_SRC_FOLDER_URI,
+                            PromiseFlatCString(aSourceFolderURI).get());
 }
 
 /* attribute string keyword; */
@@ -259,12 +258,11 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::AddKeywordToRemove(
 }
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::AddMessageCopyOperation(
-    const char* destinationBox) {
+    const nsACString& destinationBox) {
   SetOperation(kMsgCopy);
-  nsAutoCString newDest(destinationBox);
   nsresult rv = GetCopiesFromDB();
   NS_ENSURE_SUCCESS(rv, rv);
-  m_copyDestinations.AppendElement(newDest);
+  m_copyDestinations.AppendElement(destinationBox);
   return SetCopiesToDB();
 }
 
@@ -364,7 +362,7 @@ void nsMsgOfflineImapOperation::Log() {
             ("msg id %x changeFlag:%x", m_messageKey, m_newFlags));
   if (m_operation & nsIMsgOfflineImapOperation::kMsgMoved) {
     nsCString moveDestFolder;
-    GetDestinationFolderURI(getter_Copies(moveDestFolder));
+    GetDestinationFolderURI(moveDestFolder);
     MOZ_LOG(IMAPOffline, LogLevel::Info,
             ("msg id %x moveTo:%s", m_messageKey, moveDestFolder.get()));
   }

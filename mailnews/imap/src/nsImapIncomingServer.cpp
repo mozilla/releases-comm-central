@@ -2024,9 +2024,7 @@ NS_IMETHODIMP nsImapIncomingServer::GetManageMailAccountUrl(
 NS_IMETHODIMP
 nsImapIncomingServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
                                              bool aForceToServer /*ignored*/,
-                                             const char* uri) {
-  NS_ENSURE_ARG_POINTER(uri);
-
+                                             const nsACString& uri) {
   nsresult rv;
   mDoingSubscribeDialog = true;
 
@@ -2054,9 +2052,8 @@ nsImapIncomingServer::StartPopulatingWithUri(nsIMsgWindow* aMsgWindow,
       if uri = imap://user@host/foo/bar, the serverUri is imap://user@host
       to get path from uri, skip over imap://user@host + 1 (for the /)
   */
-  const char* path = uri + serverUri.Length() + 1;
-  return imapService->GetListOfFoldersWithPath(this, aMsgWindow,
-                                               nsDependentCString(path));
+  return imapService->GetListOfFoldersWithPath(
+      this, aMsgWindow, Substring(uri, serverUri.Length() + 1));
 }
 
 NS_IMETHODIMP
