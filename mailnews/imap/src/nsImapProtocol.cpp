@@ -228,13 +228,8 @@ bool nsMsgImapLineDownloadCache::CacheEmpty() { return m_bufferPos == 0; }
 
 NS_IMETHODIMP nsMsgImapLineDownloadCache::CacheLine(const char* line,
                                                     uint32_t uid) {
-  NS_ASSERTION((PL_strlen(line) + 1) <= SpaceAvailable(),
-               "Oops... line length greater than space available");
-
   fLineInfo->uidOfMessage = uid;
-
-  AppendString(line);
-  return NS_OK;
+  return AppendString(line);
 }
 
 /* attribute nsMsgKey msgUid; */
@@ -4092,9 +4087,11 @@ void nsImapProtocol::HandleMessageDownLoadLine(const char* line,
     if (!m_curHdrInfo)
       BeginMessageDownLoad(GetServerStateParser().SizeOfMostRecentMessage(),
                            MESSAGE_RFC822);
-    if (m_curHdrInfo)
-      m_curHdrInfo->CacheLine(messageLine,
-                              GetServerStateParser().CurrentResponseUID());
+    if (m_curHdrInfo) {
+      nsresult cacheLineRv = m_curHdrInfo->CacheLine(
+          messageLine, GetServerStateParser().CurrentResponseUID());
+      NS_ASSERTION(cacheLineRv == NS_OK, "CacheLine for a header failed");
+    }
     PR_Free(localMessageLine);
     return;
   }
@@ -4105,14 +4102,18 @@ void nsImapProtocol::HandleMessageDownLoadLine(const char* line,
       (m_downloadLineCache->SpaceAvailable() < lineLength + 1))
     FlushDownloadCache();
 
-  // so now the cache is flushed, but this string might still be to big
+  // so now the cache is flushed, but this string might still be too big
   if (m_downloadLineCache->SpaceAvailable() < lineLength + 1)
     PostLineDownLoadEvent(messageLine,
                           GetServerStateParser().CurrentResponseUID());
-  else
-    m_downloadLineCache->CacheLine(messageLine,
-                                   GetServerStateParser().CurrentResponseUID());
-
+  else {
+    NS_ASSERTION(
+        (PL_strlen(messageLine) + 1) <= m_downloadLineCache->SpaceAvailable(),
+        "Oops... line length greater than space available");
+    nsresult cacheLineRv = m_downloadLineCache->CacheLine(
+        messageLine, GetServerStateParser().CurrentResponseUID());
+    NS_ASSERTION(cacheLineRv == NS_OK, "CacheLine for message body failed");
+  }
   PR_Free(localMessageLine);
 }
 
