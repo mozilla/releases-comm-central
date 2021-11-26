@@ -43,7 +43,12 @@ static LazyLogModule MAILBOX("Mailbox");
  */
 #define OUTPUT_BUFFER_SIZE (4096 * 2)
 
-nsMailboxProtocol::nsMailboxProtocol(nsIURI* aURI) : nsMsgProtocol(aURI) {}
+nsMailboxProtocol::nsMailboxProtocol(nsIURI* aURI)
+    : nsMsgProtocol(aURI),
+      m_mailboxAction(nsIMailboxUrl::ActionParseMailbox),
+      m_nextState(MAILBOX_UNINITIALIZED),
+      m_initialState(MAILBOX_UNINITIALIZED),
+      mCurrentProgress(0) {}
 
 nsMailboxProtocol::~nsMailboxProtocol() {}
 
