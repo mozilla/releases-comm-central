@@ -634,7 +634,7 @@ add_task(async function test_context_menu_button() {
     );
     Assert.less(
       Math.abs(menuRect.left - buttonRect.left),
-      10,
+      20,
       "menu appeared near the button horizontally"
     );
 
