@@ -2,6 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --in-content-button-background: rgba(249, 249, 250, 0.1);
+    --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
+    --in-content-button-background-active: rgba(249, 249, 250, 0.2);
+    --in-content-primary-button-background: #45a1ff;
+    --in-content-primary-button-background-hover: #65c1ff;
+    --in-content-primary-button-background-active: #85e1ff;
+    --in-content-focus-outline-color: #45a1ff;
+  }
+}
+
 #contents.show-private-data .data-public {
   display: none;
 }
@@ -25,12 +37,12 @@
 }
 
 .thead-level2 > th {
-  background-color: #ebebeb;
-  color: #333;
+  background-color: hsl(0, 0%, 60%);
 }
 
 td.data-private {
   background-color: #ff9;
+  color: #333;
 }
 
 .calendar-table > thead > th:nth-of-type(1) {
