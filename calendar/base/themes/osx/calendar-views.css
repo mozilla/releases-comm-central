@@ -57,7 +57,29 @@ radio.calview[selected="true"] {
   padding-top: 2px;
 }
 
-#calendar-nav-control:-moz-window-inactive {
-  background: -moz-mac-chrome-inactive;
-  --calview-border-bottom-color: hsl(0, 0%, 85%);
+@media (prefers-color-scheme: dark) {
+  #calendar-nav-control {
+    background-color: ButtonFace;
+  }
+
+  #view-box {
+    background-color: Field;
+    border-color: Field;
+  }
+
+  radio.calview[selected="true"],
+  .navigation-bottombox {
+    background-color: Field;
+  }
+}
+
+@media not (prefers-color-scheme: dark) {
+  #calendar-nav-control {
+    background-color: ButtonFace;
+  }
+
+  #calendar-nav-control:-moz-window-inactive {
+    background: -moz-mac-chrome-inactive;
+    --calview-border-bottom-color: hsl(0, 0%, 85%);
+  }
 }

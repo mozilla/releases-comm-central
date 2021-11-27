@@ -290,8 +290,8 @@ treechildren::-moz-tree-line(selected, focus) {
 
 /* message column icons */
 
-:root:not([lwt-tree]) treecol:not([hideheader="true"]),
-:root:not([lwt-tree]) treecolpicker:not([hideheader="true"]) {
+:root:not(:-moz-lwtheme) treecol:not([hideheader="true"]),
+:root:not(:-moz-lwtheme) treecolpicker:not([hideheader="true"]) {
   appearance: none;
   color: inherit;
   background-color: transparent;
@@ -299,12 +299,12 @@ treechildren::-moz-tree-line(selected, focus) {
   border-bottom: 1px solid ThreeDShadow;
 }
 
-:root:not([lwt-tree]) treecol {
+:root:not(:-moz-lwtheme) treecol {
   border-inline-end: 1px solid ThreeDShadow;
 }
 
-:root:not([lwt-tree]) treecol:hover:active,
-:root:not([lwt-tree]) treecolpicker:hover:active {
+:root:not(:-moz-lwtheme) treecol:hover:active,
+:root:not(:-moz-lwtheme) treecolpicker:hover:active {
   background-color: ThreeDFace;
 }
 

@@ -109,8 +109,9 @@
   background-color: var(--sidebar-background-color);
 }
 
-:root[lwt-tree] .today-subpane {
-  border-bottom-color: var(--sidebar-border-color);
+:root[lwt-tree] .today-subpane,
+:root:not([lwt-tree]):-moz-lwtheme-brighttext .today-subpane {
+  border-bottom-color: var(--splitter-color);
 }
 
 #today-minimonth-box {

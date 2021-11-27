@@ -9,15 +9,12 @@
 }
 
 #unifinder-searchBox {
+  height: 35px;
   border-bottom: 1px solid ThreeDShadow;
 }
 
 .unifinder-closebutton {
   margin-inline-end: 2px;
-}
-
-#unifinder-searchBox {
-  height: 35px;
 }
 
 @media not (prefers-color-scheme: dark) {

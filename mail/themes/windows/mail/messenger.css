@@ -63,6 +63,7 @@
 @media (prefers-color-scheme: dark) {
   :root:-moz-lwtheme-brighttext {
     --autocomplete-popup-highlight-color: var(--lwt-text-color);
+    --dark-lwt-highlight-color: #0a84ff;
   }
 }
 
@@ -298,7 +299,7 @@ treechildren::-moz-tree-cell-text {
   }
 
   :root:-moz-lwtheme-brighttext tree > treechildren::-moz-tree-row(selected, focus) {
-    background-color: #0a84ff;
+    background-color: var(--dark-lwt-highlight-color);
   }
 
   :root:-moz-lwtheme-brighttext treechildren::-moz-tree-twisty(selected),
@@ -343,6 +344,17 @@ treechildren::-moz-tree-cell-text {
   tree > treechildren::-moz-tree-row(tagged, selected) {
     background-color: transparent;
     border-color: SelectedItem;
+  }
+
+  #threadTree > treechildren::-moz-tree-row(untagged, selected),
+  tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
+    border-color: SelectedItem;
+    background-color: transparent;
+  }
+
+  #threadTree > treechildren::-moz-tree-cell-text(untagged, selected),
+  tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected) {
+    color: WindowText;
   }
 
   #threadTree > treechildren::-moz-tree-row(untagged, selected, focus),

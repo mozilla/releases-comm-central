@@ -26,8 +26,7 @@ calendar-minimonth {
   --mmDaySelectedTodayBorderColor: #67acd8;
 }
 
-:root[lwt-tree] calendar-minimonth,
-:root[lwt-tree-brighttext] calendar-minimonth {
+:root[lwt-tree]:not([lwt-tree-brighttext]) calendar-minimonth {
   --mmMainColor: var(--sidebar-text-color, FieldText);
   --mmMainBackground: var(--sidebar-background-color, Field);
   --mmHighlightColor: var(--sidebar-highlight-text-color, SelectedItemText);
@@ -45,18 +44,35 @@ calendar-minimonth {
   --mmDayOtherBorderColor: Transparent;
 }
 
-:root[lwt-tree-brighttext] calendar-minimonth {
-  --mmBoxBorderColor: rgba(255, 255, 255, 0.5);
-  --mmDayOtherBackground: rgba(255, 255, 255, 0.2);
-  --mmDayTodayColor: var(--sidebar-highlight-text-color, #fff);
-  --mmDayTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
-  --mmDayTodayBorderColor: #d9c585;
-  --mmDaySelectedColor: #fff;
-  --mmDaySelectedBackground: #8b8bbd;
-  --mmDaySelectedBorderColor: #d9c585;
-  --mmDaySelectedTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
-  --mmDaySelectedTodayBorderColor: var(--sidebar-highlight-text-color, #9fa3d9);
-  --mmDayWeekColor: #888;
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme-brighttext  calendar-minimonth {
+    --mmMainColor: var(--sidebar-text-color, FieldText);
+    --mmMainBackground: var(--sidebar-background-color, Field);
+    --mmHighlightColor: var(--sidebar-highlight-text-color, SelectedItemText);
+    --mmHighlightBackground: var(--sidebar-highlight-background-color, SelectedItem);
+    --mmHighlightBorderColor: var(--sidebar-highlight-background-color, SelectedItem);
+    --mmBoxBackground: var(--sidebar-background-color, Field);
+    --mmBoxBorderColor: var(--sidebar-background-color, Field);
+    --mmDayTodayColor: var(--sidebar-highlight-text-color, SelectedItemText);
+    --mmDayTodayBackground: var(--sidebar-highlight-background-color, SelectedItem);
+    --mmDayTodayBorderColor: var(--sidebar-highlight-text-color, SelectedItemText);
+    --mmDayColor: var(--sidebar-text-color, FieldText);
+    --mmDayBorderColor: var(--sidebar-background-color, Field);
+    --mmDayOtherColor: var(--sidebar-text-color, FieldText);
+    --mmDayOtherBackground: rgba(0, 0, 0, 0.1);
+    --mmDayOtherBorderColor: Transparent;
+    --mmBoxBorderColor: rgba(255, 255, 255, 0.5);
+    --mmDayOtherBackground: rgba(255, 255, 255, 0.2);
+    --mmDayTodayColor: var(--sidebar-highlight-text-color, #fff);
+    --mmDayTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
+    --mmDayTodayBorderColor: #d9c585;
+    --mmDaySelectedColor: #fff;
+    --mmDaySelectedBackground: #8b8bbd;
+    --mmDaySelectedBorderColor: #d9c585;
+    --mmDaySelectedTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
+    --mmDaySelectedTodayBorderColor: var(--sidebar-highlight-text-color, #9fa3d9);
+    --mmDayWeekColor: #888;
+  }
 }
 
 :root[systemcolors] calendar-minimonth {

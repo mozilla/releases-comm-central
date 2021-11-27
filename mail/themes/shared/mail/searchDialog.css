@@ -87,22 +87,6 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 :root:not([lwt-tree]) #searchTermBox:-moz-lwtheme,
 :root:not([lwt-tree]) #searchResults:-moz-lwtheme {
   background-color: -moz-Dialog;
-  color: -moz-DialogText;
-}
-
-:root:not([lwt-tree]) #searchTermBox:-moz-lwtheme-brighttext,
-:root:not([lwt-tree]) #searchResults:-moz-lwtheme-brighttext {
-  --button-background: #d2d2d3;
-  --button-background-hover: #c2c2c3;
-  --button-background-active: #b2b2b3;
-  --box-text-color: #0c0c0d;
-  --box-background-color: #fff;
-  --box-border-color: #adadae;
-  --field-text-color: #181920;
-  --field-background-color: #fff;
-  --field-border-color: rgba(0, 0, 0, .3);
-  --field-border-hover-color: rgba(0, 0, 0, .4);
-  --highlight-color: SelectedItem;
 }
 
 :root[lwt-tree] #searchTermBox,
@@ -110,11 +94,11 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }
 
-:root:not([lwt-tree]) #searchTermList:focus > richlistitem[selected="true"] {
+:root:not(:-moz-lwtheme) #searchTermList:focus > richlistitem[selected="true"] {
   color: inherit;
 }
 
-:root[lwt-tree] #gray_horizontal_splitter {
+:root:-moz-lwtheme #gray_horizontal_splitter {
   background-color: var(--toolbar-bgcolor);
   border-color: hsla(0, 0%, 50%, .3);
 }

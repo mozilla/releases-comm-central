@@ -163,7 +163,7 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme-brighttext,
+  :root:not([lwt-tree]):-moz-lwtheme-brighttext,
   :root[lwt-default-theme-in-dark-mode] {
     --button-primary-bgcolor: rgb(0, 97, 224) !important; /* override the default variable */
     --button-primary-hover-bgcolor: rgb(2, 80, 187) !important;
@@ -183,10 +183,13 @@ body {
     --unread-folder-color: var(--sidebar-text-color);
   }
 
-  :root:-moz-lwtheme-brighttext {
+  :root:not([lwt-tree]):-moz-lwtheme-brighttext {
+    --arrowpanel-border-color: #52525e;
+    --chrome-content-separator-color: #52525e;
     --item-focus-selected-border-color: #bebebf;
     --default: #dcdcdc;
     --primary: #45b1ff;
+    --splitter-color: #606064;
   }
 }
 
@@ -1014,37 +1017,37 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
   fill: SelectedItemText !important;
 }
 
-:root[lwt-tree] treecol:not([hideheader="true"]),
-:root[lwt-tree] treecolpicker:not([hideheader="true"]) {
+:root:-moz-lwtheme treecol:not([hideheader="true"]),
+:root:-moz-lwtheme treecolpicker:not([hideheader="true"]) {
   appearance: none;
   color: inherit;
   background-color: transparent;
   padding-block: 2px;
-  border-bottom: 1px solid color-mix(in srgb, var(--sidebar-border-color,
+  border-bottom: 1px solid color-mix(in srgb, var(--splitter-color,
                                      hsla(0, 0%, 60%, 0.4)) 50%, transparent);
 }
 
-:root[lwt-tree] treecol {
-  border-inline-end: 1px solid color-mix(in srgb, var(--sidebar-border-color,
+:root:-moz-lwtheme treecol {
+  border-inline-end: 1px solid color-mix(in srgb, var(--splitter-color,
                                          hsla(0, 0%, 60%, 0.4)) 50%, transparent);
 }
 
-:root[lwt-tree-brighttext] treecol,
-:root[lwt-tree-brighttext] treecolpicker {
-  border-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
+:root:-moz-lwtheme-brighttext treecol,
+:root:-moz-lwtheme-brighttext treecolpicker {
+  border-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
 }
 
-:root[lwt-tree-brighttext] treecol {
-  border-inline-end-color: var(--sidebar-border-color, rgba(249, 249, 250, 0.2));
+:root:-moz-lwtheme-brighttext] treecol {
+  border-inline-end-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
 }
 
-:root[lwt-tree] treecol:hover,
-:root[lwt-tree] treecolpicker:hover {
+:root:-moz-lwtheme treecol:hover,
+:root:-moz-lwtheme treecolpicker:hover {
   background-color: hsla(0, 0%, 60%, 0.4);
 }
 
-:root[lwt-tree-brighttext] treecol:hover,
-:root[lwt-tree-brighttext] treecolpicker:hover {
+:root:-moz-lwtheme-brighttext treecol:hover,
+:root:-moz-lwtheme-brighttext treecolpicker:hover {
   background-color: rgba(249, 249, 250, 0.2);
 }
 

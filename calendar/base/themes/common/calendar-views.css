@@ -37,8 +37,7 @@
   --viewDropshadowBackground: #ffa47d;
 }
 
-:root[lwt-tree],
-:root[lwt-tree-brighttext] {
+:root[lwt-tree]:not([lwt-tree-brighttext]) {
   --viewColor: var(--sidebar-text-color);
   --viewBackground: var(--sidebar-background-color, Field);
   --viewBorderColor: var(--sidebar-border-color, var(--splitter-color));
@@ -52,24 +51,39 @@
   --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
 }
 
-:root[lwt-tree-brighttext] {
-  --viewCalendarHeaderBackground: rgba(255, 255, 255, 0.05);
-  --viewHighlightBorderColor: #9fa3d9;
-  --viewTodayColor: var(--sidebar-highlight-text-color, #fff);
-  --viewTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
-  --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, #393b66);
-  --viewMonthOtherBackground: rgba(255, 255, 255, 0.3);
-  --viewOffTimeBackground: rgba(255, 255, 255, 0.05);
-  --viewTodayOffBackground: #5358a4;
-  --viewTodayWeekendBackground: #5358a4;
-  --viewWeekendBackground: #646a56;
-  --viewHeaderSelectedBackground: #8b8bbd;
-  --viewDayBoxSelectedBackground: #8b8bbd;
-  --viewDayBoxOffSelectedBackground: #676795;
-  --viewDayBoxOtherSelectedBackground: #fffcd8;
-  --viewMonthDayBoxSelectedColor: #d7d7ec;
-  --viewMonthDayOtherBackground: rgba(255, 255, 255, 0.3);
-  --viewMonthDayOffLabelBackground: #4f5935;
+@media (prefers-color-scheme: dark) {
+  :root:-moz-lwtheme-brighttext {
+    --calview-border-color: var(--splitter-color);
+    --calview-border-bottom-color: var(--splitter-color);
+    --viewColor: var(--sidebar-text-color);
+    --viewBackground: var(--sidebar-background-color, Field);
+    --viewBorderColor: var(--sidebar-border-color, var(--splitter-color));
+    --viewTodayColor: var(--sidebar-highlight-text-color, SelectedItemText);
+    --viewTodayBackground: var(--sidebar-highlight-background-color, SelectedItem);
+    --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, SelectedItem);
+    --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
+    --viewMonthDayBoxLabelColor: var(--sidebar-text-color, FieldText);
+    --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
+    --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
+    --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
+    --viewCalendarHeaderBackground: rgba(255, 255, 255, 0.05);
+    --viewHighlightBorderColor: #9fa3d9;
+    --viewTodayColor: var(--sidebar-highlight-text-color, #fff);
+    --viewTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
+    --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, #393b66);
+    --viewMonthOtherBackground: rgba(255, 255, 255, 0.3);
+    --viewOffTimeBackground: rgba(255, 255, 255, 0.05);
+    --viewTodayOffBackground: #5358a4;
+    --viewTodayWeekendBackground: #5358a4;
+    --viewWeekendBackground: #646a56;
+    --viewHeaderSelectedBackground: #8b8bbd;
+    --viewDayBoxSelectedBackground: #8b8bbd;
+    --viewDayBoxOffSelectedBackground: #676795;
+    --viewDayBoxOtherSelectedBackground: #fffcd8;
+    --viewMonthDayBoxSelectedColor: #d7d7ec;
+    --viewMonthDayOtherBackground: rgba(255, 255, 255, 0.3);
+    --viewMonthDayOffLabelBackground: #4f5935;
+  }
 }
 
 :root[systemcolors] {

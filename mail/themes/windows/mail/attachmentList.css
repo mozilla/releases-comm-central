@@ -17,6 +17,6 @@
   }
 
   :root:-moz-lwtheme-brighttext .attachmentList:focus .attachmentItem[selected="true"] {
-    background: #0a84ff;
+    background: var(--dark-lwt-highlight-color);
   }
 }
