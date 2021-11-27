@@ -1037,7 +1037,7 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
   border-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
 }
 
-:root:-moz-lwtheme-brighttext] treecol {
+:root:-moz-lwtheme-brighttext treecol {
   border-inline-end-color: var(--splitter-color, rgba(249, 249, 250, 0.2));
 }
 
