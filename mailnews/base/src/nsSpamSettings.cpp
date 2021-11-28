@@ -40,7 +40,8 @@ nsSpamSettings::nsSpamSettings() {
   mPurgeInterval = 14;  // 14 days
 
   mServerFilterTrustFlags = 0;
-
+  mInhibitWhiteListingIdentityUser = false;
+  mInhibitWhiteListingIdentityDomain = false;
   mUseWhiteList = false;
   mUseServerFilter = false;
 
