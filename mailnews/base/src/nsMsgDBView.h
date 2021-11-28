@@ -52,7 +52,9 @@ enum nsDateFormatSelectorComm : long {
 class MsgViewSortColumnInfo {
  public:
   MsgViewSortColumnInfo(const MsgViewSortColumnInfo& other);
-  MsgViewSortColumnInfo() {}
+  MsgViewSortColumnInfo()
+      : mSortType(nsMsgViewSortType::byNone),
+        mSortOrder(nsMsgViewSortOrder::none) {}
   bool operator==(const MsgViewSortColumnInfo& other) const;
   nsMsgViewSortTypeValue mSortType;
   nsMsgViewSortOrderValue mSortOrder;
