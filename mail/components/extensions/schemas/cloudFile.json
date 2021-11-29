@@ -20,8 +20,8 @@
               "data_format": {
                 "type": "string",
                 "optional": true,
-                "default": "ArrayBuffer",
-                "description": "Determines the format of the ``data`` argument in ``onFileUpload``.",
+                "default": "File",
+                "description": "Determines the format of the ``data`` argument in ``onFileUpload``. Support for ArrayBuffer will be removed in Thunderbird 102.",
                 "enum": [
                   "ArrayBuffer",
                   "File"
@@ -68,17 +68,17 @@
       {
         "name": "onFileUpload",
         "type": "function",
-        "description": "Fired when a file should be uploaded to the cloud file provider",
+        "description": "Fired when a file should be uploaded to the cloud file provider.",
         "parameters": [
           {
             "name": "account",
             "$ref": "CloudFileAccount",
-            "description": "The created account"
+            "description": "The account used for the file upload."
           },
           {
             "name": "fileInfo",
             "$ref": "CloudFile",
-            "description": "The file to upload"
+            "description": "The file to upload."
           },
           {
             "name": "tab",
@@ -91,15 +91,15 @@
           "properties": {
             "aborted": {
               "type": "boolean",
-              "description": "Set this to true if the file upload was aborted",
+              "description": "Set this to true if the file upload was aborted.",
               "optional": true
             },
             "url": {
               "type": "string",
-              "description": "The URL where the uploaded file can be accessed",
+              "description": "The URL where the uploaded file can be accessed.",
               "optional": true
             },
-            "templateInfo" : {
+            "templateInfo": {
               "$ref": "CloudFileTemplateInfo",
               "description": "Information to override the default values used in the cloud file message template.",
               "optional": true
@@ -114,13 +114,13 @@
           {
             "name": "account",
             "$ref": "CloudFileAccount",
-            "description": "The created account"
+            "description": "The account used for the file upload."
           },
           {
             "type": "integer",
             "name": "fileId",
             "minimum": 1,
-            "description": "An identifier for this file"
+            "description": "An identifier for this file."
           },
           {
             "name": "tab",
@@ -132,18 +132,18 @@
       {
         "name": "onFileDeleted",
         "type": "function",
-        "description": "Fired when a file previously uploaded should be deleted",
+        "description": "Fired when a file previously uploaded should be deleted.",
         "parameters": [
           {
             "name": "account",
             "$ref": "CloudFileAccount",
-            "description": "The created account"
+            "description": "The account used for the file upload."
           },
           {
             "type": "integer",
             "name": "fileId",
             "minimum": 1,
-            "description": "An identifier for this file"
+            "description": "An identifier for this file."
           },
           {
             "name": "tab",
@@ -155,24 +155,24 @@
       {
         "name": "onAccountAdded",
         "type": "function",
-        "description": "Fired when a cloud file account of this add-on was created",
+        "description": "Fired when a cloud file account of this add-on was created.",
         "parameters": [
           {
             "name": "account",
             "$ref": "CloudFileAccount",
-            "description": "The created account"
+            "description": "The created account."
           }
         ]
       },
       {
         "name": "onAccountDeleted",
         "type": "function",
-        "description": "Fired when a cloud file account of this add-on was deleted",
+        "description": "Fired when a cloud file account of this add-on was deleted.",
         "parameters": [
           {
             "name": "accountId",
             "type": "string",
-            "description": "The id of the removed account"
+            "description": "The id of the removed account."
           }
         ]
       }
@@ -181,11 +181,11 @@
       {
         "id": "CloudFileAccount",
         "type": "object",
-        "description": "Information about a cloud file account",
+        "description": "Information about a cloud file account.",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Unique identifier of the account"
+            "description": "Unique identifier of the account."
           },
           "configured": {
             "type": "boolean",
@@ -245,16 +245,16 @@
       {
         "id": "CloudFile",
         "type": "object",
-        "description": "Information about a cloud file",
+        "description": "Information about a cloud file.",
         "properties": {
           "id": {
             "type": "integer",
             "minimum": 1,
-            "description": "An identifier for this file"
+            "description": "An identifier for this file."
           },
           "name": {
             "type": "string",
-            "description": "Filename of the file to be transferred"
+            "description": "Filename of the file to be transferred."
           },
           "data": {
             "choices": [
@@ -262,13 +262,13 @@
                 "type": "object",
                 "isInstanceOf": "ArrayBuffer",
                 "additionalProperties": true,
-                "description": "Contents of the file to be transferred"
+                "description": "Contents of the file to be transferred."
               },
               {
                 "type": "object",
                 "isInstanceOf": "File",
                 "additionalProperties": true,
-                "description": "Contents of the file to be transferred"
+                "description": "Contents of the file to be transferred."
               }
             ]
           }
@@ -279,7 +279,7 @@
       {
         "name": "getAccount",
         "type": "function",
-        "description": "Retrieve information about a single cloud file account",
+        "description": "Retrieve information about a single cloud file account.",
         "allowedContexts": [
           "content"
         ],
@@ -288,7 +288,7 @@
           {
             "name": "accountId",
             "type": "string",
-            "description": "Unique identifier of the account"
+            "description": "Unique identifier of the account."
           },
           {
             "type": "function",
@@ -305,7 +305,7 @@
       {
         "name": "getAllAccounts",
         "type": "function",
-        "description": "Retrieve all cloud file accounts for the current add-on",
+        "description": "Retrieve all cloud file accounts for the current add-on.",
         "allowedContexts": [
           "content"
         ],
@@ -329,7 +329,7 @@
       {
         "name": "updateAccount",
         "type": "function",
-        "description": "Update a cloud file account",
+        "description": "Update a cloud file account.",
         "allowedContexts": [
           "content"
         ],
@@ -338,7 +338,7 @@
           {
             "name": "accountId",
             "type": "string",
-            "description": "Unique identifier of the account"
+            "description": "Unique identifier of the account."
           },
           {
             "name": "updateProperties",

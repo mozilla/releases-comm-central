@@ -170,7 +170,8 @@ add_task(async () => {
           "uploadFile",
           createdAccount.id,
           "cloudFile2",
-          "uploadCancelled"
+          "uploadCancelled",
+          "Upload cancelled."
         );
       });
 
@@ -208,6 +209,7 @@ add_task(async () => {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
+        data_format: "ArrayBuffer",
       },
       applications: { gecko: { id: "cloudfile@mochi.test" } },
       background: { scripts: ["utils.js", "background.js"] },
@@ -229,23 +231,35 @@ add_task(async () => {
     cloudFileAccounts.removeAccount(id);
   });
 
-  extension.onMessage("uploadFile", (id, filename, expected = Cr.NS_OK) => {
-    let account = cloudFileAccounts.getAccount(id);
+  extension.onMessage(
+    "uploadFile",
+    (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
+      let account = cloudFileAccounts.getAccount(id);
 
-    if (typeof expected == "string") {
-      expected = cloudFileAccounts.constants[expected];
-    }
-
-    account.uploadFile(null, testFiles[filename]).then(
-      upload => {
-        Assert.equal(Cr.NS_OK, expected);
-        uploads[filename] = upload;
-      },
-      status => {
-        Assert.equal(status, expected);
+      if (typeof expectedErrorStatus == "string") {
+        expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
       }
-    );
-  });
+
+      account.uploadFile(null, testFiles[filename]).then(
+        upload => {
+          Assert.equal(Cr.NS_OK, expectedErrorStatus);
+          uploads[filename] = upload;
+        },
+        status => {
+          Assert.equal(
+            status.result,
+            expectedErrorStatus,
+            `Error status should be correct for ${testFiles[filename].leafName}`
+          );
+          Assert.equal(
+            status.message,
+            expectedErrorMessage,
+            `Error message should be correct for ${testFiles[filename].leafName}`
+          );
+        }
+      );
+    }
+  );
 
   extension.onMessage("cancelUpload", id => {
     let account = cloudFileAccounts.getAccount(id);
@@ -348,7 +362,8 @@ add_task(async () => {
           "uploadFile",
           createdAccount.id,
           "cloudFile2",
-          "uploadCancelled"
+          "uploadCancelled",
+          "Upload cancelled."
         );
       });
 
@@ -387,6 +402,7 @@ add_task(async () => {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
+        data_format: "ArrayBuffer",
       },
       applications: { gecko: { id: "cloudfile@mochitest" } },
       background: { scripts: ["utils.js", "background.js"] },
@@ -401,23 +417,35 @@ add_task(async () => {
     cloudFileAccounts.removeAccount(id);
   });
 
-  extension.onMessage("uploadFile", (id, filename, expected = Cr.NS_OK) => {
-    let cloudFileAccount = cloudFileAccounts.getAccount(id);
+  extension.onMessage(
+    "uploadFile",
+    (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
+      let cloudFileAccount = cloudFileAccounts.getAccount(id);
 
-    if (typeof expected == "string") {
-      expected = cloudFileAccounts.constants[expected];
-    }
-
-    cloudFileAccount.uploadFile(composeWindow, testFiles[filename]).then(
-      upload => {
-        Assert.equal(Cr.NS_OK, expected);
-        uploads[filename] = upload;
-      },
-      status => {
-        Assert.equal(status, expected, testFiles[filename].leafName);
+      if (typeof expectedErrorStatus == "string") {
+        expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
       }
-    );
-  });
+
+      cloudFileAccount.uploadFile(composeWindow, testFiles[filename]).then(
+        upload => {
+          Assert.equal(Cr.NS_OK, expectedErrorStatus);
+          uploads[filename] = upload;
+        },
+        status => {
+          Assert.equal(
+            status.result,
+            expectedErrorStatus,
+            `Error status should be correct for ${testFiles[filename].leafName}`
+          );
+          Assert.equal(
+            status.message,
+            expectedErrorMessage,
+            `Error message should be correct for ${testFiles[filename].leafName}`
+          );
+        }
+      );
+    }
+  );
 
   extension.onMessage("cancelUpload", id => {
     let cloudFileAccount = cloudFileAccounts.getAccount(id);
@@ -471,7 +499,6 @@ add_task(async () => {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
-        data_format: "File",
       },
       applications: { gecko: { id: "cloudfile@mochi.test" } },
     },

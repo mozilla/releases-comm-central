@@ -156,7 +156,12 @@ var gMockCloudfileManager = {
   },
   rejectUploads() {
     for (let upload of this.inProgressUploads.values()) {
-      upload.reject(cloudFileAccounts.constants.uploadErr);
+      upload.reject(
+        Components.Exception(
+          "Upload error.",
+          cloudFileAccounts.constants.uploadErr
+        )
+      );
     }
     this.inProgressUploads.clear();
   },

@@ -123,31 +123,36 @@ class CloudFileAccount {
     let results;
 
     try {
+      let data;
       if (this.dataFormat == "File") {
-        let blob = await File.createFromNsIFile(file);
-        results = await this.extension.emit("uploadFile", this, {
-          id,
-          name,
-          data: blob,
-          tab: window,
-        });
+        data = await File.createFromNsIFile(file);
       } else {
-        let buffer = await promiseFileRead(file);
-        results = await this.extension.emit("uploadFile", this, {
-          id,
-          name,
-          data: buffer,
-          tab: window,
-        });
+        data = await promiseFileRead(file);
+        console.warn(
+          "Using ArrayBuffer as cloud_file.data_format is deprecated and will be removed in Thunderbird 102."
+        );
       }
+
+      results = await this.extension.emit(
+        "uploadFile",
+        this,
+        { id, name, data },
+        window
+      );
     } catch (ex) {
       this._uploads.delete(id);
       if (ex.result == 0x80530014) {
         // NS_ERROR_DOM_ABORT_ERR
-        throw cloudFileAccounts.constants.uploadCancelled;
+        throw Components.Exception(
+          "Upload cancelled.",
+          cloudFileAccounts.constants.uploadCancelled
+        );
       } else {
         console.error(ex);
-        throw cloudFileAccounts.constants.uploadErr;
+        throw Components.Exception(
+          "Upload error.",
+          cloudFileAccounts.constants.uploadErr
+        );
       }
     }
 
@@ -159,7 +164,10 @@ class CloudFileAccount {
     ) {
       if (results[0].aborted) {
         this._uploads.delete(id);
-        throw cloudFileAccounts.constants.uploadCancelled;
+        throw Components.Exception(
+          "Upload cancelled.",
+          cloudFileAccounts.constants.uploadCancelled
+        );
       }
 
       if (results[0].templateInfo) {
@@ -185,7 +193,10 @@ class CloudFileAccount {
       `Missing cloudFile.onFileUpload listener for ${this.extension.id} (or it is not returning url or aborted)`
     );
     this._uploads.delete(id);
-    throw cloudFileAccounts.constants.uploadErr;
+    throw Components.Exception(
+      "Upload error.",
+      cloudFileAccounts.constants.uploadErr
+    );
   }
 
   urlForFile(uploadId) {
@@ -215,10 +226,7 @@ class CloudFileAccount {
 
     let result;
     if (uploadId != -1) {
-      result = await this.extension.emit("uploadAbort", this, {
-        id: uploadId,
-        tab: window,
-      });
+      result = await this.extension.emit("uploadAbort", this, uploadId, window);
     }
 
     if (result && result.length > 0) {
@@ -251,21 +259,26 @@ class CloudFileAccount {
     let results;
     try {
       if (this._uploads.has(uploadId)) {
-        results = await this.extension.emit("deleteFile", this, {
-          id: uploadId,
-          tab: window,
-        });
+        results = await this.extension.emit(
+          "deleteFile",
+          this,
+          uploadId,
+          window
+        );
       }
       this._uploads.delete(uploadId);
     } catch (ex) {
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+      throw Components.Exception(
+        `Unknown error: ${ex.message}`,
+        Cr.NS_ERROR_FAILURE
+      );
     }
 
     if (!results || results.length == 0) {
-      console.error(
-        `Missing cloudFile.onFileDeleted listener for ${this.extension.id}`
+      throw Components.Exception(
+        `Missing cloudFile.onFileDeleted listener for ${this.extension.id}`,
+        Cr.NS_ERROR_FAILURE
       );
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
   }
 }
@@ -332,7 +345,7 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileUpload",
           register: fire => {
-            let listener = (event, account, { id, name, data, tab }) => {
+            let listener = (event, account, { id, name, data }, tab) => {
               tab = tab ? tabManager.convert(tab) : null;
               account = convertCloudFileAccount(account);
               return fire.async(account, { id, name, data }, tab);
@@ -349,7 +362,7 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileUploadAbort",
           register: fire => {
-            let listener = (event, account, { id, tab }) => {
+            let listener = (event, account, id, tab) => {
               tab = tab ? tabManager.convert(tab) : null;
               account = convertCloudFileAccount(account);
               return fire.async(account, id, tab);
@@ -366,7 +379,7 @@ this.cloudFile = class extends ExtensionAPI {
           context,
           name: "cloudFile.onFileDeleted",
           register: fire => {
-            let listener = (event, account, { id, tab }) => {
+            let listener = (event, account, id, tab) => {
               tab = tab ? tabManager.convert(tab) : null;
               account = convertCloudFileAccount(account);
               return fire.async(account, id, tab);

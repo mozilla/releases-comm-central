@@ -195,7 +195,12 @@ async function assert_can_cancel_upload(
   // it's assumed that the provider is a MockCloudfileAccount.
   aProvider.cancelFileUpload = function(window, aFileToCancel) {
     if (aTargetFile.equals(aFileToCancel)) {
-      aPromise.reject(cloudFileAccounts.constants.uploadCancelled);
+      aPromise.reject(
+        Components.Exception(
+          "Upload cancelled.",
+          cloudFileAccounts.constants.uploadCancelled
+        )
+      );
       cancelled = true;
     }
   };
@@ -327,7 +332,14 @@ async function test_upload(error, expectedAttachments, expectedAlerts = 0) {
  * Check if attachment is removed if upload failed.
  */
 add_task(async function test_error_upload() {
-  await test_upload(cloudFileAccounts.constants.uploadErr, 0, 3);
+  await test_upload(
+    Components.Exception(
+      "Upload error.",
+      cloudFileAccounts.constants.uploadErr
+    ),
+    0,
+    3
+  );
 });
 
 /**

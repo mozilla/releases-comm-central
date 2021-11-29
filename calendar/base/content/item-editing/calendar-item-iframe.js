@@ -2247,7 +2247,8 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
     },
     statusCode => {
       cal.ERROR(
-        "[calendar-event-dialog] Uploading cloud attachment failed. Status code: " + statusCode
+        "[calendar-event-dialog] Uploading cloud attachment failed. Status code: " +
+          statusCode.result
       );
 
       // Uploading failed. First of all, show an error icon. Also,
