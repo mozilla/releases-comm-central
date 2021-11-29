@@ -160,7 +160,9 @@ function loadCalendarManager() {
     let item = document
       .getElementById("calendar-list-item")
       .content.firstElementChild.cloneNode(true);
+    item.id = `calendar-listitem-${calendar.id}`;
     item.searchLabel = calendar.name;
+    item.setAttribute("aria-label", calendar.name);
     item.setAttribute("calendar-id", calendar.id);
     item.toggleAttribute("calendar-disabled", calendar.getProperty("disabled"));
     item.toggleAttribute(
