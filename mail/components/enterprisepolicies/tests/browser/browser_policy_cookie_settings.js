@@ -5,12 +5,7 @@
 const { UrlClassifierTestUtils } = ChromeUtils.import(
   "resource://testing-common/UrlClassifierTestUtils.jsm"
 );
-XPCOMUtils.defineLazyServiceGetter(
-  Services,
-  "cookies",
-  "@mozilla.org/cookieService;1",
-  "nsICookieService"
-);
+Services.cookies.QueryInterface(Ci.nsICookieService);
 
 function restore_prefs() {
   // Bug 1617611: Fix all the tests broken by "cookies SameSite=lax by default"
