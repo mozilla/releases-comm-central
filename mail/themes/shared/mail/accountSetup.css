@@ -303,27 +303,34 @@ input:user-invalid ~ .icon-warning {
   display: none;
   flex-direction: column;
   font-size: 0.9em;
-}
-
-.result-details-grid {
-  display: grid;
-  grid-template-columns: auto max-content 1fr;
-  row-gap: 6px;
-  align-items: center;
+  row-gap: 9px;
   margin-block: 9px;
   margin-inline-start: 21px;
 }
 
-.result-details-grid img {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  color: inherit;
-  margin-inline-end: 6px;
+.result-details-row {
+  display: grid;
+  grid-template: "icon heading" auto
+                 ". info" auto / auto 1fr;
+  gap: 3px 6px;
 }
 
-.result-details-grid h4 {
+.result-details-row img {
+  grid-area: icon;
+   -moz-context-properties: fill;
+  fill: currentColor;
+  color: inherit;
+  width: 16px;
+  height: 16px;
+}
+
+.result-details-row h4 {
+  grid-area: heading;
   margin-block: 0;
-  margin-inline-end: 12px;
+}
+
+.result-details-row .result-host-info {
+  grid-area: info;
 }
 
 .toggle-container-with-text {
@@ -545,9 +552,7 @@ input:user-invalid ~ .icon-warning {
 .result-host-info {
   display: flex;
   align-items: center;
-  padding-block: 0;
-  white-space: nowrap;
-  overflow: hidden;
+  flex-wrap: wrap;
 }
 
 .protocol-type {
@@ -574,9 +579,6 @@ input:user-invalid ~ .icon-warning {
 
 .result-host-info > .domain {
   font-weight: bold;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 .result-host-info > .insecure {
