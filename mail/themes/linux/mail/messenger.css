@@ -150,18 +150,22 @@
   #titlebar-min {
     appearance: auto;
     -moz-default-appearance: -moz-window-button-minimize;
+    -moz-box-ordinal-group: env(-moz-gtk-csd-minimize-button-position);
   }
   #titlebar-max {
     appearance: auto;
     -moz-default-appearance: -moz-window-button-maximize;
+    -moz-box-ordinal-group: env(-moz-gtk-csd-maximize-button-position);
   }
   :root[sizemode="maximized"] #titlebar-max {
     appearance: auto;
     -moz-default-appearance: -moz-window-button-restore;
+    -moz-box-ordinal-group: env(-moz-gtk-csd-maximize-button-position);
   }
   #titlebar-close {
     appearance: auto;
     -moz-default-appearance: -moz-window-button-close;
+    -moz-box-ordinal-group: env(-moz-gtk-csd-close-button-position);
   }
 
   @media (-moz-gtk-csd-minimize-button: 0) {
@@ -192,7 +196,6 @@
 
   @media (-moz-gtk-csd-reversed-placement) {
     #titlebar-buttonbox-container,
-    #titlebar-close,
     .titlebar-placeholder[type="caption-buttons"] {
       -moz-box-ordinal-group: 0;
     }
