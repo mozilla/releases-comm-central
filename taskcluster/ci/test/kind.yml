@@ -12,7 +12,7 @@ kind-dependencies:
 
 transforms:
     - comm_taskgraph.transforms.tests:transforms
-    - gecko_taskgraph.transforms.tests:transforms
+    - gecko_taskgraph.transforms.test:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
