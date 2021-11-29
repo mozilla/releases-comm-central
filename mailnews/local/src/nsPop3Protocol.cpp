@@ -395,7 +395,15 @@ nsPop3Protocol::nsPop3Protocol(nsIURI* aURL)
       m_totalFolderSize(0),
       m_totalDownloadSize(0),
       m_totalBytesReceived(0),
-      m_pop3ConData(nullptr) {}
+      m_pop3ConData(nullptr),
+      m_tlsEnabled(false),
+      m_socketType(nsMsgSocketType::alwaysSTARTTLS),
+      m_password_already_sent(false),
+      m_needToRerunUrl(false),
+      m_prefAuthMethods(POP3_AUTH_MECH_UNDEFINED),
+      m_failedAuthMethods(0),
+      m_currentAuthMethod(POP3_AUTH_MECH_UNDEFINED),
+      m_listpos(0) {}
 
 nsresult nsPop3Protocol::Initialize(nsIURI* aURL) {
   MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("Initialize()")));
@@ -409,7 +417,7 @@ nsresult nsPop3Protocol::Initialize(nsIURI* aURL) {
   m_totalDownloadSize = 0;
   m_totalBytesReceived = 0;
   m_tlsEnabled = false;
-  m_socketType = nsMsgSocketType::trySTARTTLS;
+  m_socketType = nsMsgSocketType::alwaysSTARTTLS;
   m_prefAuthMethods = POP3_AUTH_MECH_UNDEFINED;
   m_failedAuthMethods = 0;
   m_password_already_sent = false;
