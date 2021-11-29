@@ -1123,6 +1123,19 @@ var specialTabs = {
         restoreTab(tabmail, persistedState) {
           tabmail.openTab("mail3PaneTab", persistedState);
         },
+        supportsCommand(command, tab) {
+          return tab.browser?.contentWindow.commandController?.supportsCommand(
+            command
+          );
+        },
+        isCommandEnabled(command, tab) {
+          return tab.browser.contentWindow.commandController?.isCommandEnabled(
+            command
+          );
+        },
+        doCommand(command, tab) {
+          tab.browser.contentWindow.commandController?.doCommand(command);
+        },
       },
       mailMessageTab: {
         shouldSwitchTo({ messageURI } = {}) {
@@ -1153,6 +1166,19 @@ var specialTabs = {
         },
         restoreTab(tabmail, persistedState) {
           tabmail.openTab("mailMessageTab", persistedState);
+        },
+        supportsCommand(command, tab) {
+          return tab.browser?.contentWindow.commandController?.supportsCommand(
+            command
+          );
+        },
+        isCommandEnabled(command, tab) {
+          return tab.browser.contentWindow.commandController?.isCommandEnabled(
+            command
+          );
+        },
+        doCommand(command, tab) {
+          tab.browser.contentWindow.commandController?.doCommand(command);
         },
       },
     },
