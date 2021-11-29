@@ -23,6 +23,7 @@ var {
   add_cloud_attachments,
   close_compose_window,
   open_compose_new_mail,
+  delete_attachment,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -419,6 +420,42 @@ add_task(function test_privacy_warning_notification() {
   ]);
   add_cloud_attachments(cwc, provider, false);
   gMockCloudfileManager.resolveUploads();
+  assert_privacy_warning_notification_displayed(cwc, false);
+
+  close_compose_window(cwc);
+  gMockPromptService.unregister();
+});
+
+/**
+ * Test that when all cloud attachments are removed, the privacy warning will
+ * be removed as well.
+ */
+add_task(function test_privacy_warning_notification() {
+  gMockPromptService.register();
+  gMockPromptService.returnValue = false;
+  gMockFilePicker.returnFiles = collectFiles([
+    "./data/testFile1",
+    "./data/testFile2",
+  ]);
+  let provider = new MockCloudfileAccount();
+  provider.init("aKey");
+
+  let cwc = open_compose_new_mail(mc);
+  add_cloud_attachments(cwc, provider, false);
+
+  wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
+  gMockCloudfileManager.resolveUploads();
+  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
+
+  // Assert that the warning is displayed.
+  assert_privacy_warning_notification_displayed(cwc, true);
+
+  // Assert that the warning is still displayed, if one attachment is removed.
+  delete_attachment(cwc, 1);
+  assert_privacy_warning_notification_displayed(cwc, true);
+
+  // Assert that the warning is not displayed, after both attachments are removed.
+  delete_attachment(cwc, 0);
   assert_privacy_warning_notification_displayed(cwc, false);
 
   close_compose_window(cwc);

@@ -114,6 +114,14 @@ var gBigFileObserver = {
         this.bigFiles.splice(index, 1);
       }
     }
+
+    if (
+      !gAttachmentBucket.itemChildren.find(
+        item => item.attachment && item.attachment.sendViaCloud
+      )
+    ) {
+      this.hidePrivacyNotification();
+    }
   },
 
   attachmentsConverted(aAttachments) {
@@ -138,11 +146,7 @@ var gBigFileObserver = {
   attachmentUploaded() {
     if (!this._anyUploadsInProgress()) {
       this.hideUploadingNotification();
-
-      if (!this.privacyWarned) {
-        this.showPrivacyNotification();
-        this.privacyWarned = true;
-      }
+      this.showPrivacyNotification();
     }
   },
 
@@ -342,7 +346,23 @@ var gBigFileObserver = {
     }
   },
 
+  hidePrivacyNotification() {
+    this.privacyWarned = false;
+    let notification = gComposeNotification.getNotificationWithValue(
+      kPrivacyWarningNotificationValue
+    );
+
+    if (notification) {
+      gComposeNotification.removeNotification(notification);
+    }
+  },
+
   showPrivacyNotification() {
+    if (this.privacyWarned) {
+      return;
+    }
+    this.privacyWarned = true;
+
     let notification = gComposeNotification.getNotificationWithValue(
       kPrivacyWarningNotificationValue
     );
