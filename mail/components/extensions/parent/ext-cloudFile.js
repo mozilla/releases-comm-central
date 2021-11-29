@@ -151,7 +151,12 @@ class CloudFileAccount {
       }
     }
 
-    if (results && results.length > 0) {
+    if (
+      results &&
+      results.length > 0 &&
+      results[0] &&
+      (results[0].aborted || results[0].url)
+    ) {
       if (results[0].aborted) {
         this._uploads.delete(id);
         throw cloudFileAccounts.constants.uploadCancelled;
@@ -177,7 +182,7 @@ class CloudFileAccount {
     }
 
     console.error(
-      `Missing cloudFile.onFileUpload listener for ${this.extension.id}`
+      `Missing cloudFile.onFileUpload listener for ${this.extension.id} (or it is not returning url or aborted)`
     );
     this._uploads.delete(id);
     throw cloudFileAccounts.constants.uploadErr;
@@ -198,7 +203,7 @@ class CloudFileAccount {
    *                        window.
    * @param {nsIFile} file File to be uploaded.
    */
-  cancelFileUpload(window, file) {
+  async cancelFileUpload(window, file) {
     let path = file.path;
     let uploadId = -1;
     for (let upload of this._uploads.values()) {
@@ -207,9 +212,23 @@ class CloudFileAccount {
         break;
       }
     }
+
+    let result;
     if (uploadId != -1) {
-      this.extension.emit("uploadAbort", this, { id: uploadId, tab: window });
+      result = await this.extension.emit("uploadAbort", this, {
+        id: uploadId,
+        tab: window,
+      });
     }
+
+    if (result && result.length > 0) {
+      return true;
+    }
+
+    console.error(
+      `Missing cloudFile.onFileUploadAbort listener for ${this.extension.id}`
+    );
+    return false;
   }
 
   getPreviousUploads() {

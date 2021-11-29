@@ -37,7 +37,19 @@ var { cloudFileAccounts } = ChromeUtils.import(
 
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 
+// Prepare the mock prompt.
+var originalPromptService = Services.prompt;
+var mockPromptService = {
+  confirmCount: 0,
+  confirmEx() {
+    this.confirmCount++;
+    return false;
+  },
+  QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
+};
+
 add_task(function setupModule(module) {
+  Services.prompt = mockPromptService;
   gMockFilePickReg.register();
   gMockCloudfileManager.register();
 });
@@ -45,6 +57,7 @@ add_task(function setupModule(module) {
 registerCleanupFunction(function teardownModule(module) {
   gMockCloudfileManager.unregister();
   gMockFilePickReg.unregister();
+  Services.prompt = originalPromptService;
 });
 
 /**
@@ -83,6 +96,13 @@ add_task(async function test_upload_cancel_repeat() {
     promise = null;
     started = false;
 
+    let bucket = cw.e("attachmentBucket");
+    Assert.equal(
+      bucket.itemCount,
+      1,
+      "Should find correct number of attachments before converting."
+    );
+
     // Select the attachment, and choose to convert it to a Filelink
     select_attachments(cw, 0)[0];
     cw.window.convertSelectedToCloudAttachment(provider);
@@ -90,6 +110,13 @@ add_task(async function test_upload_cancel_repeat() {
 
     await assert_can_cancel_upload(cw, provider, promise, file);
     cw.sleep();
+
+    // A cancelled conversion must not remove the attachment.
+    Assert.equal(
+      bucket.itemCount,
+      1,
+      "Should find correct number of attachments after converting."
+    );
   }
 
   close_compose_window(cw);
@@ -109,25 +136,44 @@ add_task(async function test_upload_multiple_and_cancel() {
   provider.init("someKey");
   let cw = open_compose_new_mail();
 
-  let promise;
+  let promises = {};
   provider.uploadFile = function(window, aFile) {
     return new Promise((resolve, reject) => {
-      promise = { resolve, reject };
+      promises[aFile.leafName] = { resolve, reject };
     });
   };
 
   add_cloud_attachments(cw, provider, false);
 
+  let bucket = cw.e("attachmentBucket");
+  Assert.equal(
+    bucket.itemCount,
+    kFiles.length,
+    "Should find correct number of attachments before uploading."
+  );
+
   for (let i = files.length - 1; i >= 0; --i) {
-    await assert_can_cancel_upload(cw, provider, promise, files[i]);
+    await assert_can_cancel_upload(
+      cw,
+      provider,
+      promises[files[i].leafName],
+      files[i]
+    );
   }
+
+  // The cancelled attachment uploads should have been removed.
+  Assert.equal(
+    bucket.itemCount,
+    0,
+    "Should find correct number of attachments after uploading."
+  );
 
   close_compose_window(cw);
 });
 
 /**
  * Helper function that takes an upload in progress, and cancels it,
- * ensuring that the nsIMsgCloduFileProvider.uploadCanceled status message
+ * ensuring that the nsIMsgCloudFileProvider.uploadCanceled status message
  * is returned to the passed in listener.
  *
  * @param aController the compose window controller to use.
@@ -196,3 +242,97 @@ function get_attachmentitem_index_for_file(aController, aFile) {
   }
   return null;
 }
+
+/**
+ * Helper function to start uploads and check number and icon of attachments
+ * after successful or failed uploads.
+ *
+ * @param error - to be returned error by uploadFile in case of failure
+ * @param expectedAttachments - number of expected attachments at the end of the test
+ * @param expectedAlerts - number of expected alerts at the end of the test
+ */
+async function test_upload(error, expectedAttachments, expectedAlerts = 0) {
+  const kFiles = ["./data/testFile1", "./data/testFile2", "./data/testFile3"];
+
+  // Prepare the mock file picker to return our test file.
+  let files = collectFiles(kFiles);
+  gMockFilePicker.returnFiles = files;
+
+  let provider = new MockCloudfileAccount();
+  provider.init("someKey");
+  let cw = open_compose_new_mail();
+
+  // Override the uploadFile function of the MockCloudfileAccount.
+  let promises = {};
+  provider.uploadFile = function(window, aFile) {
+    return new Promise((resolve, reject) => {
+      promises[aFile.leafName] = { resolve, reject };
+    });
+  };
+
+  add_cloud_attachments(cw, provider, false);
+  cw.waitFor(() => Object.keys(promises).length == kFiles.length);
+
+  let bucket = cw.e("attachmentBucket");
+  Assert.equal(
+    bucket.itemCount,
+    kFiles.length,
+    "Should find correct number of attachments before uploading."
+  );
+
+  for (let item of bucket.itemChildren) {
+    is(
+      item.querySelector("img.attachmentcell-icon").src,
+      "chrome://global/skin/icons/loading.png",
+      "CloudFile icon should be the loading spinner."
+    );
+  }
+
+  for (let [name, promise] of Object.entries(promises)) {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve({ url: "https://example.org/" + name });
+    }
+  }
+  cw.sleep();
+
+  Assert.equal(
+    bucket.itemCount,
+    expectedAttachments,
+    "Should find correct number of attachments after uploading."
+  );
+  // Check if the spinner is no longer shown, but the expected moz-icon.
+  for (let item of bucket.itemChildren) {
+    ok(
+      item
+        .querySelector("img.attachmentcell-icon")
+        .src.startsWith("moz-icon://testFile"),
+      "CloudFile icon should be correct."
+    );
+  }
+
+  close_compose_window(cw);
+
+  // Check and reset the prompt mock service.
+  is(
+    expectedAlerts,
+    Services.prompt.confirmCount,
+    "Number of expected alert prompts should be correct."
+  );
+  Services.prompt.confirmCount = 0;
+}
+
+/**
+ * Check if attachment is removed if upload failed.
+ */
+add_task(async function test_error_upload() {
+  await test_upload(cloudFileAccounts.constants.uploadErr, 0, 3);
+});
+
+/**
+ * Check if attachment is not removed if upload is successful.
+ */
+add_task(async function test_successful_upload() {
+  await test_upload(null, 3, 0);
+});
