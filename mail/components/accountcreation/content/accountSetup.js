@@ -1473,6 +1473,7 @@ var gAccountSetup = {
     let smtpHostname = document.getElementById("outgoingHostname").value;
     let smtpPort = document.getElementById("outgoingPort").value;
     let foundServer = MailServices.smtp.servers.find(
+      // XXX: should really match on socketType as well
       s => s.hostname == smtpHostname && s.port == smtpPort
     );
     // If the user is using a preconfigured SMTP server.
@@ -1672,26 +1673,21 @@ var gAccountSetup = {
 
     // Bail out if a port number is already defined and it's not part of the
     // known ports array.
-    if (incoming.port && !gAllStandardPorts.includes(incoming.port)) {
+    if (!gAllStandardPorts.includes(incoming.port)) {
       return;
     }
+
+    const TYPE_SSL = 2; // Ugh! see AccountConfig.jsm#94
 
     let input = document.getElementById("incomingPort");
 
-    // Bail out if the socketType doesn't match a known type and select the
-    // "Auto" option.
-    if (![1, 2, 3].includes(incoming.socketType)) {
-      input.value = 0;
-      return;
-    }
-
     switch (incoming.type) {
       case "imap":
-        input.value = incoming.socketType == 2 ? 993 : 143;
+        input.value = incoming.socketType == TYPE_SSL ? 993 : 143;
         break;
 
-      case "pop":
-        input.value = incoming.socketType == 2 ? 995 : 110;
+      case "pop3":
+        input.value = incoming.socketType == TYPE_SSL ? 995 : 110;
         break;
 
       case "exchange":
@@ -1711,21 +1707,23 @@ var gAccountSetup = {
 
     // Bail out if a port number is already defined and it's not part of the
     // known ports array.
-    if (outgoing.port && !gAllStandardPorts.includes(outgoing.port)) {
+    if (!gAllStandardPorts.includes(outgoing.port)) {
       return;
     }
 
-    let input = document.getElementById("outgoingPort");
+    const TYPE_SSL = 2; // Ugh! see AccountConfig.jsm#94
+    const TYPE_STARTTLS = 3; // Ugh! see AccountConfig.jsm#94
 
-    // Set the port with the SSL value if the socketType matches it.
-    if (outgoing.socketType == 2) {
-      input.value = 465;
+    // Implicit TLS for SMTP is on port 465.
+    if (outgoing.socketType == TYPE_SSL) {
+      document.getElementById("outgoingPort").value = 465;
       return;
     }
 
-    // Otherwise, any other configuration will get the "Auto" value unless the
-    // user specified a unique port number.
-    input.value = 0;
+    // Implicit TLS for SMTP is on port 465. STARTTLS won't work there.
+    if (outgoing.port == 465 && outgoing.socketType == TYPE_STARTTLS) {
+      document.getElementById("outgoingPort").value = 587;
+    }
   },
 
   /**
@@ -1735,32 +1733,34 @@ var gAccountSetup = {
    */
   adjustIncomingSSLToPort(config) {
     let incoming = config.incoming;
-    let newInSocketType = undefined;
-    if (
-      !incoming.port || // auto
-      !gAllStandardPorts.includes(incoming.port)
-    ) {
+    if (!gAllStandardPorts.includes(incoming.port)) {
       return;
     }
+
+    const TYPE_SSL = 2; // Ugh! see AccountConfig.jsm#94
+    const TYPE_STARTTLS = 3; // Ugh! see AccountConfig.jsm#94
+
     if (incoming.type == "imap") {
-      // normal SSL impossible
-      if (incoming.port == 143 && incoming.socketType == 2) {
-        newInSocketType = 0; // auto
-        // must be normal SSL
-      } else if (incoming.port == 993 && incoming.socketType != 2) {
-        newInSocketType = 2;
+      // Implicit TLS for IMAP is on port 993.
+      if (incoming.port == 993 && incoming.socketType != TYPE_SSL) {
+        document.getElementById("incomingSsl").value = TYPE_SSL;
+        return;
       }
-    } else if (incoming.type == "pop3") {
-      // normal SSL impossible
-      if (incoming.port == 110 && incoming.socketType == 2) {
-        newInSocketType = 0; // auto
-        // must be normal SSL
-      } else if (incoming.port == 995 && incoming.socketType != 2) {
-        newInSocketType = 2;
+      if (incoming.port == 143 && incoming.socketType == TYPE_SSL) {
+        document.getElementById("incomingSsl").value = TYPE_STARTTLS;
+        return;
       }
     }
-    if (newInSocketType != undefined) {
-      document.getElementById("incomingSsl").value = newInSocketType;
+
+    if (incoming.type == "pop3") {
+      // Implicit TLS for POP3 is on port 995.
+      if (incoming.port == 995 && incoming.socketType != TYPE_SSL) {
+        document.getElementById("incomingSsl").value = TYPE_SSL;
+        return;
+      }
+      if (incoming.port == 110 && incoming.socketType == TYPE_SSL) {
+        document.getElementById("incomingSsl").value = TYPE_STARTTLS;
+      }
     }
   },
 
@@ -1769,25 +1769,25 @@ var gAccountSetup = {
    */
   adjustOutgoingSSLToPort(config) {
     let outgoing = config.outgoing;
-    let newOutSocketType = undefined;
-    if (
-      !outgoing.port || // auto
-      !gAllStandardPorts.includes(outgoing.port)
-    ) {
+    if (!gAllStandardPorts.includes(outgoing.port)) {
       return;
     }
-    // normal SSL impossible
+
+    const TYPE_SSL = 2; // Ugh! see AccountConfig.jsm#94
+    const TYPE_STARTTLS = 3; // Ugh! see AccountConfig.jsm#94
+
+    // Implicit TLS for SMTP is on port 465.
+    if (outgoing.port == 465 && outgoing.socketType != TYPE_SSL) {
+      document.getElementById("outgoingSsl").value = TYPE_SSL;
+      return;
+    }
+
+    // Port 587 and port 25 are for plain or STARTTLS. Not for Implicit TLS.
     if (
       (outgoing.port == 587 || outgoing.port == 25) &&
-      outgoing.socketType == 2
+      outgoing.socketType == TYPE_SSL
     ) {
-      newOutSocketType = 0; // auto
-      // must be normal SSL
-    } else if (outgoing.port == 465 && outgoing.socketType != 2) {
-      newOutSocketType = 2;
-    }
-    if (newOutSocketType != undefined) {
-      document.getElementById("outgoingSsl").value = newOutSocketType;
+      document.getElementById("outgoingSsl").value = TYPE_STARTTLS;
     }
   },
 
@@ -1798,13 +1798,17 @@ var gAccountSetup = {
   },
 
   onChangedPortIncoming() {
-    gAccountSetupLogger.debug("incoming port changed");
+    gAccountSetupLogger.debug(
+      "incoming port changed: " + document.getElementById("incomingPort").value
+    );
     this.adjustIncomingSSLToPort(this.getUserConfig());
     this.onChangedManualEdit();
   },
 
   onChangedPortOutgoing() {
-    gAccountSetupLogger.debug("outgoing port changed");
+    gAccountSetupLogger.debug(
+      "outgoing port changed: " + document.getElementById("outgoingPort").value
+    );
     this.adjustOutgoingSSLToPort(this.getUserConfig());
     this.onChangedManualEdit();
   },
@@ -1845,7 +1849,7 @@ var gAccountSetup = {
     this.onChangedManualEdit();
   },
 
-  onBlurHostname() {
+  onChangeHostname() {
     this.onChangedManualEdit();
   },
 
