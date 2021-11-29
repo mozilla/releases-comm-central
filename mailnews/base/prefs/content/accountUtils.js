@@ -85,31 +85,13 @@ function requireLocalFoldersAccount() {
 
 /**
  * Open the Nntp Account Wizard, or focus it if it's already open.
- *
- * @param wizardCallback if the wizard is run, callback when it is done.
- * @see msgNewMailAccount below for the new implementation.
  */
-function openNewsgroupAccountWizard(wizardCallback) {
-  gNewAccountToLoad = null;
-
+function openNewsgroupAccountWizard() {
   window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/AccountWizard.xhtml",
     "AccountWizard",
-    "chrome,modal,titlebar,centerscreen",
-    { okCallback: wizardCallback }
+    "chrome,modal,titlebar,centerscreen"
   );
-
-  loadInboxForNewAccount();
-
-  // If we started with no servers at all and "smtp servers" list selected,
-  // refresh display somehow. Bug 58506.
-  // TODO Better fix: select newly created account (in all cases)
-  if (
-    typeof getCurrentAccount == "function" && // in AccountManager, not menu
-    !getCurrentAccount()
-  ) {
-    selectServer(null, null);
-  }
 }
 
 function AddIMAccount() {

@@ -181,21 +181,6 @@ function viewSettings(selectPage) {
 }
 
 /**
- * Open the newsgroup account wizard.
- */
-function createNewsgroups() {
-  window.parent.openNewsgroupAccountWizard(function(state) {
-    updateMailPaneUI();
-    let win = getMostRecentMailWindow();
-    if (state && win && win.gFolderTreeView && this.gCurrentAccount) {
-      win.gFolderTreeView.selectFolder(
-        this.gCurrentAccount.incomingServer.rootMsgFolder
-      );
-    }
-  });
-}
-
-/**
  * Bring up the search interface for selected account.
  */
 function searchMessages() {

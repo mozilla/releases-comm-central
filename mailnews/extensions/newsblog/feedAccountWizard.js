@@ -41,6 +41,7 @@ var FeedAccountWizard = {
 
   onFinish() {
     let account = FeedUtils.createRssAccount(this.accountName);
+    // The following if..else block is the same as in AccountWizard.js.
     if ("gFolderTreeView" in window.opener.top) {
       // Opened from 3pane File->New or Appmenu New, or Account Central.
       let firstAccount = !window.opener.top.gFolderTreeView.isInited;

@@ -198,6 +198,26 @@ function FinishAccount() {
       // dump("finish callback");
       top.okCallback(state);
     }
+    let openerWindow = window.opener.top;
+    // The following if..else block is the same as in feedAccountWizard.js.
+    if ("gFolderTreeView" in openerWindow) {
+      // Opened from 3pane File->New or Appmenu New, or Account Central.
+      if (openerWindow.gFolderTreeView.isInited) {
+        // Can use selectFolder if folderPane already initialized.
+        openerWindow.gFolderTreeView.selectFolder(
+          gCurrentAccount.incomingServer.rootMsgFolder
+        );
+      } else {
+        // See selectFirstFolder() in msgMail3PaneWindow.js.
+        openerWindow.arguments[0] =
+          gCurrentAccount.incomingServer.rootMsgFolder.URI;
+        // Post a message to the main window to init folderPane.
+        window.opener.top.postMessage("account-created", "*");
+      }
+    } else if ("selectServer" in openerWindow) {
+      // Opened from Account Settings.
+      openerWindow.selectServer(gCurrentAccount.incomingServer);
+    }
   } catch (ex) {
     dump("FinishAccount failed, " + ex + "\n");
   }
