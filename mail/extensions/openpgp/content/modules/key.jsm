@@ -117,6 +117,10 @@ var EnigmailKey = {
     }
   },
 
+  _keyListCache: new Map(),
+  _keyListCacheMaxEntries: 50,
+  _keyListCacheMaxKeySize: 30720,
+
   /**
    * Get details (key ID, UID) of the data contained in a OpenPGP key block
    *
@@ -139,6 +143,33 @@ var EnigmailKey = {
   ) {
     EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
 
+    let cacheEntry = this._keyListCache.get(keyBlockStr);
+    if (cacheEntry) {
+      // Remove and re-insert to move entry to the end of insertion order,
+      // so we know which entry was used least recently.
+      this._keyListCache.delete(keyBlockStr);
+      this._keyListCache.set(keyBlockStr, cacheEntry);
+
+      if (cacheEntry.error) {
+        errorMsgObj.value = cacheEntry.error;
+        return null;
+      }
+      return cacheEntry.data;
+    }
+
+    // We primarily want to cache single keys that are found in email
+    // attachments. We shouldn't attempt to cache larger key blocks
+    // that are likely arriving from explicit import attempts.
+    let updateCache = keyBlockStr.length < this._keyListCacheMaxKeySize;
+
+    if (
+      updateCache &&
+      this._keyListCache.size >= this._keyListCacheMaxEntries
+    ) {
+      // Remove oldest entry, make room for new entry.
+      this._keyListCache.delete(this._keyListCache.keys().next().value);
+    }
+
     const cApi = EnigmailCryptoAPI();
     let keyList;
     let key = {};
@@ -151,10 +182,19 @@ var EnigmailKey = {
       );
     } catch (ex) {
       errorMsgObj.value = ex.toString();
+      if (updateCache) {
+        this._keyListCache.set(keyBlockStr, {
+          error: errorMsgObj.value,
+          data: null,
+        });
+      }
       return null;
     }
 
     if (!keyList) {
+      if (updateCache) {
+        this._keyListCache.set(keyBlockStr, { error: undefined, data: null });
+      }
       return null;
     }
 
@@ -162,11 +202,17 @@ var EnigmailKey = {
       // TODO: not yet tested
       key = keyList[0];
       if ("revoke" in key && !("name" in key)) {
+        if (updateCache) {
+          this._keyListCache.set(keyBlockStr, { error: undefined, data: [] });
+        }
         this.importRevocationCert(key.id, blocks.join("\n"));
         return [];
       }
     }
 
+    if (updateCache) {
+      this._keyListCache.set(keyBlockStr, { error: undefined, data: keyList });
+    }
     return keyList;
   },
 
