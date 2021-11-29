@@ -1,5 +1,5 @@
 {
-  "version": "2.2021a",
+  "version": "2.2021c",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -116,6 +116,7 @@
     "Pacific SA Standard Time",
     "Pacific Standard Time",
     "Pacific Standard Time (Mexico)",
+    "Pacific/Enderbury",
     "Pacific/Johnston",
     "Pakistan Standard Time",
     "Paraguay Standard Time",
@@ -570,7 +571,6 @@
     "Pacific/Chuuk",
     "Pacific/Easter",
     "Pacific/Efate",
-    "Pacific/Enderbury",
     "Pacific/Fakaofo",
     "Pacific/Fiji",
     "Pacific/Funafuti",
@@ -579,6 +579,7 @@
     "Pacific/Guadalcanal",
     "Pacific/Guam",
     "Pacific/Honolulu",
+    "Pacific/Kanton",
     "Pacific/Kiritimati",
     "Pacific/Kosrae",
     "Pacific/Kwajalein",
