@@ -8,6 +8,7 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
 /* import-globals-from utilityOverlay.js */
+/* global EnigmailURIs: false, gEncryptedURIService: true */
 
 var { InlineSpellChecker, SpellCheckHelper } = ChromeUtils.import(
   "resource://gre/modules/InlineSpellChecker.jsm"
@@ -550,6 +551,7 @@ class nsContextMenu {
         "mailContext-moveMenu",
         "mailContext-copyMenu",
         "mailContext-moveToFolderAgain",
+        "mailContext-decryptToFolder",
         "mailContext-ignoreThread",
         "mailContext-ignoreSubthread",
         "mailContext-watchThread",
@@ -651,6 +653,15 @@ class nsContextMenu {
       );
       goUpdateCommand("cmd_moveToFolderAgain");
     }
+
+    let showDecrypt = this.numSelectedMessages > 1;
+    if (this.numSelectedMessages == 1) {
+      let msgURI = gFolderDisplay.selectedMessageUris[0];
+      showDecrypt =
+        EnigmailURIs.isEncryptedUri(msgURI) ||
+        gEncryptedURIService.isEncrypted(msgURI);
+    }
+    this.showItem("mailContext-decryptToFolder", showDecrypt);
 
     this.showItem("mailContext-tags", msgModifyItems);
 

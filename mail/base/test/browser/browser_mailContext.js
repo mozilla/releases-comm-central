@@ -198,7 +198,7 @@ add_task(async function testMessagePane() {
   );
   checkMenuitems(mailContext);
 
-  // One message is selected.
+  // One message is selected (the message is not encrypted)
 
   window.gFolderDisplay.selectViewIndex(0);
   await BrowserTestUtils.browserLoaded(messagePane);
@@ -291,6 +291,7 @@ add_task(async function testMessagePane() {
     "mailContext-moveMenu",
     "mailContext-copyMenu",
     "mailContext-moveToFolderAgain",
+    "mailContext-decryptToFolder",
     "mailContext-delete",
     "mailContext-ignoreThread",
     "mailContext-ignoreSubthread",

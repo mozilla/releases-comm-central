@@ -23,6 +23,15 @@
     }                                                \
   }
 
+#define NS_CMSDECODERJS_CONTRACTID "@mozilla.org/nsCMSDecoderJS;1"
+
+#define NS_CMSDECODERJS_CID                          \
+  { /* fb62c8ed-b875-488a-be35-ab9764bcad25 */       \
+    0xfb62c8ed, 0xb875, 0x488a, {                    \
+      0xbe, 0x35, 0xab, 0x97, 0x64, 0xbc, 0xad, 0x25 \
+    }                                                \
+  }
+
 #define NS_SMIMEENCRYPTURISERVICE_CONTRACTID \
   "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
 

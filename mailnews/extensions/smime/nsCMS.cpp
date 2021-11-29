@@ -963,10 +963,13 @@ loser:
 }
 
 NS_IMPL_ISUPPORTS(nsCMSDecoder, nsICMSDecoder)
+NS_IMPL_ISUPPORTS(nsCMSDecoderJS, nsICMSDecoderJS)
 
 nsCMSDecoder::nsCMSDecoder() : m_dcx(nullptr) {}
+nsCMSDecoderJS::nsCMSDecoderJS() : m_dcx(nullptr) {}
 
 nsCMSDecoder::~nsCMSDecoder() { destructorSafeDestroyNSSReference(); }
+nsCMSDecoderJS::~nsCMSDecoderJS() { destructorSafeDestroyNSSReference(); }
 
 nsresult nsCMSDecoder::Init() {
   nsresult rv;
@@ -975,7 +978,21 @@ nsresult nsCMSDecoder::Init() {
   return rv;
 }
 
+nsresult nsCMSDecoderJS::Init() {
+  nsresult rv;
+  nsCOMPtr<nsISupports> nssInitialized =
+      do_GetService("@mozilla.org/psm;1", &rv);
+  return rv;
+}
+
 void nsCMSDecoder::destructorSafeDestroyNSSReference() {
+  if (m_dcx) {
+    NSS_CMSDecoder_Cancel(m_dcx);
+    m_dcx = nullptr;
+  }
+}
+
+void nsCMSDecoderJS::destructorSafeDestroyNSSReference() {
   if (m_dcx) {
     NSS_CMSDecoder_Cancel(m_dcx);
     m_dcx = nullptr;
@@ -1016,6 +1033,46 @@ NS_IMETHODIMP nsCMSDecoder::Finish(nsICMSMessage** aCMSMsg) {
     obj->referenceContext(m_ctx);
     NS_ADDREF(*aCMSMsg = obj);
   }
+  return NS_OK;
+}
+
+void nsCMSDecoderJS::content_callback(void* arg, const char* input,
+                                      unsigned long length) {
+  nsCMSDecoderJS* self = reinterpret_cast<nsCMSDecoderJS*>(arg);
+  self->mDecryptedData.AppendElements(input, length);
+}
+
+NS_IMETHODIMP nsCMSDecoderJS::Decrypt(const nsTArray<uint8_t>& aInput,
+                                      nsTArray<uint8_t>& _retval) {
+  if (aInput.IsEmpty()) {
+    return NS_ERROR_FAILURE;
+  }
+
+  m_ctx = new PipUIContext();
+
+  m_dcx = NSS_CMSDecoder_Start(0, nsCMSDecoderJS::content_callback, this, 0,
+                               m_ctx, 0, 0);
+  if (!m_dcx) {
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
+            ("nsCMSDecoderJS::Start - can't start decoder"));
+    return NS_ERROR_FAILURE;
+  }
+
+  NSS_CMSDecoder_Update(m_dcx, (char*)aInput.Elements(), aInput.Length());
+
+  NSSCMSMessage* cmsMsg;
+  cmsMsg = NSS_CMSDecoder_Finish(m_dcx);
+  m_dcx = nullptr;
+  if (cmsMsg) {
+    nsCMSMessage* obj = new nsCMSMessage(cmsMsg);
+    // The NSS object cmsMsg still carries a reference to the context
+    // we gave it on construction.
+    // Make sure the context will live long enough.
+    obj->referenceContext(m_ctx);
+    mCMSMessage = obj;
+  }
+
+  _retval = mDecryptedData.Clone();
   return NS_OK;
 }
 

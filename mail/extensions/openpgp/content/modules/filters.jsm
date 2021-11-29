@@ -43,17 +43,19 @@ var gNewMailListenerInitiated = false;
  */
 
 const filterActionMoveDecrypt = {
-  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  async applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     EnigmailLog.DEBUG(
       "filters.jsm: filterActionMoveDecrypt: Move to: " + aActionValue + "\n"
     );
 
-    EnigmailPersistentCrypto.dispatchMessages(
-      aMsgHdrs,
-      aActionValue,
-      aListener,
-      true
-    );
+    for (let msgHdr of aMsgHdrs) {
+      await EnigmailPersistentCrypto.cryptMessage(
+        msgHdr,
+        aActionValue,
+        true,
+        null
+      );
+    }
   },
 
   isValidForType(type, scope) {
@@ -78,17 +80,19 @@ const filterActionMoveDecrypt = {
  * message untouched
  */
 const filterActionCopyDecrypt = {
-  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  async applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     EnigmailLog.DEBUG(
       "filters.jsm: filterActionCopyDecrypt: Copy to: " + aActionValue + "\n"
     );
 
-    EnigmailPersistentCrypto.dispatchMessages(
-      aMsgHdrs,
-      aActionValue,
-      aListener,
-      false
-    );
+    for (let msgHdr of aMsgHdrs) {
+      await EnigmailPersistentCrypto.cryptMessage(
+        msgHdr,
+        aActionValue,
+        false,
+        null
+      );
+    }
   },
 
   isValidForType(type, scope) {
@@ -119,7 +123,7 @@ const filterActionCopyDecrypt = {
  * filter action for to encrypt a mail to a specific key
  */
 const filterActionEncrypt = {
-  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  async applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     // Ensure KeyRing is loaded.
     if (aMsgWindow) {
       EnigmailCore.getService(aMsgWindow.domWindow);
@@ -167,11 +171,10 @@ const filterActionEncrypt = {
     // Also not encrypting to already encrypted messages would make the
     // behavior less transparent as it's not obvious.
 
-    if (aMsgHdrs.length) {
-      EnigmailPersistentCrypto.dispatchMessages(
-        aMsgHdrs,
+    for (let msgHdr of aMsgHdrs) {
+      await EnigmailPersistentCrypto.cryptMessage(
+        msgHdr,
         null /* same folder */,
-        aListener,
         true /* move */,
         keyObj /* target key */
       );

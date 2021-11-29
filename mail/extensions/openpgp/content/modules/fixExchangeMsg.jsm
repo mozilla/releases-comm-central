@@ -17,67 +17,49 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
-  Services: "resource://gre/modules/Services.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
+  EnigmailPersistentCrypto:
+    "chrome://openpgp/content/modules/persistentCrypto.jsm",
 });
 
-/*
- *  Fix a broken message from MS-Exchange and replace it with the original message
- *
- * @param nsIMsgDBHdr hdr          Header of the message to fix (= pointer to message)
- * @param String brokenByApp       Type of app that created the message. Currently one of
- *                                  exchange, iPGMail
- * @param String destFolderUri     optional destination Folder URI
- *
- * @return Promise; upon success, the promise returns the messageKey
- */
 var EnigmailFixExchangeMsg = {
-  fixExchangeMessage(hdr, brokenByApp, destFolderUri) {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      let msgUriSpec = hdr.folder.getUriForMsg(hdr);
-      EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: fixExchangeMessage: msgUriSpec: " +
-          msgUriSpec +
-          "\n"
-      );
+  /*
+   * Fix a broken message from MS-Exchange and replace it with the original message
+   *
+   * @param {nsIMsgDBHdr} hdr        Header of the message to fix (= pointer to message)
+   * @param {string} brokenByApp     Type of app that created the message. Currently one of
+   *                                 exchange, iPGMail
+   * @param {string} [destFolderUri] optional destination Folder URI
+   *
+   * @return {nsMsgKey}              upon success, the promise returns the messageKey
+   */
+  async fixExchangeMessage(hdr, brokenByApp, destFolderUri = null) {
+    let msgUriSpec = hdr.folder.getUriForMsg(hdr);
+    EnigmailLog.DEBUG(
+      "fixExchangeMsg.jsm: fixExchangeMessage: msgUriSpec: " + msgUriSpec + "\n"
+    );
 
-      self.hdr = hdr;
-      self.destFolder = hdr.folder;
-      self.resolve = resolve;
-      self.reject = reject;
-      self.brokenByApp = brokenByApp;
+    this.hdr = hdr;
+    this.brokenByApp = brokenByApp;
+    this.destFolderUri = destFolderUri;
 
-      if (destFolderUri) {
-        self.destFolder = MailUtils.getExistingFolder(destFolderUri);
-      }
+    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      Ci.nsIMessenger
+    );
+    this.msgSvc = messenger.messageServiceFromURI(msgUriSpec);
 
-      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-        Ci.nsIMessenger
-      );
-      self.msgSvc = messenger.messageServiceFromURI(msgUriSpec);
+    let fixedMsgData = await this.getMessageBody();
 
-      let p = self.getMessageBody();
-      p.then(function(fixedMsgData) {
-        EnigmailLog.DEBUG(
-          "fixExchangeMsg.jsm: fixExchangeMessage: got fixedMsgData\n"
-        );
-        if (self.checkMessageStructure(fixedMsgData)) {
-          self.copyToTargetFolder(fixedMsgData);
-        } else {
-          reject();
-        }
-      });
-      p.catch(function(reason) {
-        EnigmailLog.DEBUG(
-          "fixExchangeMsg.jsm: fixExchangeMessage: caught rejection: " +
-            reason +
-            "\n"
-        );
-        reject();
-      });
-    });
+    EnigmailLog.DEBUG(
+      "fixExchangeMsg.jsm: fixExchangeMessage: got fixedMsgData\n"
+    );
+    this.ensureExpectedStructure(fixedMsgData);
+    return EnigmailPersistentCrypto.copyMessageToFolder(
+      this.hdr,
+      this.destFolderUri,
+      true,
+      fixedMsgData,
+      null
+    );
   },
 
   getMessageBody() {
@@ -408,125 +390,33 @@ var EnigmailFixExchangeMsg = {
     );
   },
 
-  checkMessageStructure(msgData) {
+  ensureExpectedStructure(msgData) {
     let msgTree = EnigmailMime.getMimeTree(msgData, true);
 
-    try {
-      // check message structure
-      let ok =
-        msgTree.headers.get("content-type").type.toLowerCase() ===
-          "multipart/encrypted" &&
-        msgTree.headers
-          .get("content-type")
-          .get("protocol")
-          .toLowerCase() === "application/pgp-encrypted" &&
-        msgTree.subParts.length === 2 &&
-        msgTree.subParts[0].headers.get("content-type").type.toLowerCase() ===
-          "application/pgp-encrypted" &&
-        msgTree.subParts[1].headers.get("content-type").type.toLowerCase() ===
-          "application/octet-stream";
+    // check message structure
+    let ok =
+      msgTree.headers.get("content-type").type.toLowerCase() ===
+        "multipart/encrypted" &&
+      msgTree.headers
+        .get("content-type")
+        .get("protocol")
+        .toLowerCase() === "application/pgp-encrypted" &&
+      msgTree.subParts.length === 2 &&
+      msgTree.subParts[0].headers.get("content-type").type.toLowerCase() ===
+        "application/pgp-encrypted" &&
+      msgTree.subParts[1].headers.get("content-type").type.toLowerCase() ===
+        "application/octet-stream";
 
-      if (ok) {
-        // check for existence of PGP Armor
-        let body = msgTree.subParts[1].body;
-        let p0 = body.search(/^-----BEGIN PGP MESSAGE-----$/m);
-        let p1 = body.search(/^-----END PGP MESSAGE-----$/m);
+    if (ok) {
+      // check for existence of PGP Armor
+      let body = msgTree.subParts[1].body;
+      let p0 = body.search(/^-----BEGIN PGP MESSAGE-----$/m);
+      let p1 = body.search(/^-----END PGP MESSAGE-----$/m);
 
-        ok = p0 >= 0 && p1 > p0 + 32;
-      }
-      return ok;
-    } catch (x) {}
-    return false;
-  },
-
-  copyToTargetFolder(msgData) {
-    var self = this;
-    let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-    tempFile.append("message.eml");
-    tempFile.createUnique(0, 0o600);
-
-    // ensure that file gets deleted on exit, if something goes wrong ...
-    var extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
-      Ci.nsPIExternalAppLauncher
-    );
-
-    var foStream = Cc[
-      "@mozilla.org/network/file-output-stream;1"
-    ].createInstance(Ci.nsIFileOutputStream);
-    foStream.init(tempFile, 2, 0x200, false); // open as "write only"
-    foStream.write(msgData, msgData.length);
-    foStream.close();
-
-    extAppLauncher.deleteTemporaryFileOnExit(tempFile);
-
-    // note: nsIMsgFolder.copyFileMessage seems to have a bug on Windows, when
-    // the nsIFile has been already used by foStream (because of Windows lock system?), so we
-    // must initialize another nsIFile object, pointing to the temporary file
-    var fileSpec = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    fileSpec.initWithPath(tempFile.path);
-
-    var copyListener = {
-      QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
-      msgKey: null,
-      GetMessageId(messageId) {},
-      OnProgress(progress, progressMax) {},
-      OnStartCopy() {},
-      SetMessageKey(key) {
-        this.msgKey = key;
-      },
-      OnStopCopy(statusCode) {
-        if (statusCode !== 0) {
-          EnigmailLog.DEBUG(
-            "fixExchangeMsg.jsm: error copying message: " + statusCode + "\n"
-          );
-          try {
-            tempFile.remove(false);
-          } catch (ex) {
-            EnigmailLog.DEBUG(
-              "persistentCrypto.jsm: Could not delete temp file\n"
-            );
-          }
-          self.reject(3);
-          return;
-        }
-        EnigmailLog.DEBUG("fixExchangeMsg.jsm: copy complete\n");
-
-        EnigmailLog.DEBUG(
-          "fixExchangeMsg.jsm: deleting message key=" +
-            self.hdr.messageKey +
-            "\n"
-        );
-
-        self.hdr.folder.deleteMessages(
-          [self.hdr],
-          null,
-          true,
-          false,
-          null,
-          false
-        );
-        EnigmailLog.DEBUG("fixExchangeMsg.jsm: deleted original message\n");
-
-        try {
-          tempFile.remove(false);
-        } catch (ex) {
-          EnigmailLog.DEBUG(
-            "persistentCrypto.jsm: Could not delete temp file\n"
-          );
-        }
-        self.resolve(this.msgKey);
-      },
-    };
-
-    MailServices.copy.copyFileMessage(
-      fileSpec,
-      this.destFolder,
-      null,
-      false,
-      0,
-      this.hdr.flags,
-      copyListener,
-      null
-    );
+      ok = p0 >= 0 && p1 > p0 + 32;
+    }
+    if (!ok) {
+      throw new Error("unexpected MIME structure");
+    }
   },
 };

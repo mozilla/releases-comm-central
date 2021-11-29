@@ -17,7 +17,8 @@ interface nsICMSMessage;
 
 /**
  * nsICMSDecoder
- *  Interface to decode an CMS message
+ *  Streaming interface to decode an CMS message, the input data may be
+ *  passed in chunks. Cannot be called from JS.
  */
 [uuid(c7c7033b-f341-4065-aadd-7eef55ce0dda)]
 interface nsICMSDecoder : nsISupports

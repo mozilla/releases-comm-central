@@ -2861,20 +2861,35 @@ Enigmail.msg = {
     }
   },
 
-  // create a decrypted copy of all selected messages in a target folder
+  // decrypted and copy/move all selected messages in a target folder
 
-  decryptToFolder(destFolder) {
+  async decryptToFolder(destFolder, move) {
     let msgHdrs = gFolderDisplay ? gFolderDisplay.selectedMessages : null;
     if (!msgHdrs || msgHdrs.length === 0) {
       return;
     }
 
-    EnigmailPersistentCrypto.dispatchMessages(
-      msgHdrs,
-      destFolder.URI,
-      false,
-      false
-    );
+    let total = gFolderDisplay.selectedMessages.length;
+
+    let failures = 0;
+    for (let msgHdr of msgHdrs) {
+      await EnigmailPersistentCrypto.cryptMessage(
+        msgHdr,
+        destFolder.URI,
+        move,
+        false
+      ).catch(err => {
+        failures++;
+      });
+    }
+
+    if (failures) {
+      let info = await document.l10n.formatValue("decrypt-and-copy-failures", {
+        failures,
+        total,
+      });
+      Services.prompt.alert(null, document.title, info);
+    }
   },
 
   async searchKeysOnInternet(aHeaderNode) {

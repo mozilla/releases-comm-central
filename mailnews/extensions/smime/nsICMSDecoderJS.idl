@@ -1,0 +1,25 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsICMSMessage;
+
+/**
+ * nsICMSDecoderJS
+ *  Interface to decode a CMS message, can be called from JavaScript.
+ */
+[scriptable,uuid(7e0a6708-17f4-4573-8115-1ca14f1442e0)]
+interface nsICMSDecoderJS : nsISupports
+{
+  /**
+   * Return the result of decoding/decrypting the given CMS message.
+   *
+   * @param aInput  The bytes of a CMS message.
+   * @return        The decoded data
+   */
+  Array<uint8_t> decrypt(in Array<uint8_t> input);
+};
+

@@ -335,6 +335,26 @@
               label="&moveToFolderAgain.label;"
               accesskey="&moveToFolderAgain.accesskey;"/>
 
+#ifdef MOZ_OPENPGP
+    <menu id="mailContext-decryptToFolder"
+          class="openpgp-item"
+          data-l10n-id="context-menu-decrypt-to-folder"
+          data-l10n-attrs="accesskey"
+          oncommand="Enigmail.msg.decryptToFolder(event.target._folder, false);">
+      <menupopup is="folder-menupopup"
+                 id="mailContext-decryptToTargetFolder"
+                 mode="filing"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                 showFavorites="true"
+                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"
+                 hasbeenopened="false" />
+    </menu>
+#endif
+
     <menu id="mailContext-calendar-convert-menu"
           class="hide-when-calendar-deactivated"
           label="&calendar.context.convertmenu.label;"

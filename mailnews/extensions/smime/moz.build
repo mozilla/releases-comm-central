@@ -6,6 +6,7 @@
 XPIDL_SOURCES += [
     "nsICertPickDialogs.idl",
     "nsICMSDecoder.idl",
+    "nsICMSDecoderJS.idl",
     "nsICMSEncoder.idl",
     "nsICMSMessage.idl",
     "nsICMSMessageErrors.idl",

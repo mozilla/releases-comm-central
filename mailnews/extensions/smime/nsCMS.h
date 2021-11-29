@@ -12,6 +12,7 @@
 #include "nsICMSMessage.h"
 #include "nsICMSEncoder.h"
 #include "nsICMSDecoder.h"
+#include "nsICMSDecoderJS.h"
 #include "sechash.h"
 #include "cms.h"
 
@@ -74,6 +75,27 @@ class nsCMSDecoder : public nsICMSDecoder {
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSDecoderContext* m_dcx;
   void destructorSafeDestroyNSSReference();
+};
+
+class nsCMSDecoderJS : public nsICMSDecoderJS {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSICMSDECODERJS
+
+  nsCMSDecoderJS();
+  nsresult Init();
+
+ private:
+  virtual ~nsCMSDecoderJS();
+  nsCOMPtr<nsIInterfaceRequestor> m_ctx;
+  NSSCMSDecoderContext* m_dcx;
+  void destructorSafeDestroyNSSReference();
+
+  nsTArray<uint8_t> mDecryptedData;
+  nsCOMPtr<nsICMSMessage> mCMSMessage;
+
+  static void content_callback(void* arg, const char* input,
+                               unsigned long length);
 };
 
 // ===============================================

@@ -556,6 +556,7 @@ function getMimeTree(mimeStr, getBody = false) {
   let opt = {
     strformat: "unicode",
     bodyformat: getBody ? "decode" : "none",
+    stripcontinuations: false,
   };
 
   try {
