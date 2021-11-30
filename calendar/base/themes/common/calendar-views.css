@@ -52,7 +52,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme-brighttext {
+  :root {
     --calview-border-color: var(--splitter-color);
     --calview-border-bottom-color: var(--splitter-color);
     --viewColor: var(--sidebar-text-color);
