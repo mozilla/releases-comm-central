@@ -367,8 +367,11 @@ treechildren::-moz-tree-cell-text {
     color: WindowText;
   }
 
-  tree > treechildren::-moz-tree-twisty(selected, focus),
   tree > treechildren::-moz-tree-cell-text(dropOn),
+  #threadTree > treechildren::-moz-tree-twisty(untagged, selected, focus),
+  tree:not(#threadTree) > treechildren::-moz-tree-twisty(selected, focus),
+  #threadTree > treechildren::-moz-tree-image(untagged, selected, focus),
+  tree:not(#threadTree) > treechildren::-moz-tree-image(selected, focus),
   #threadTree > treechildren::-moz-tree-cell-text(untagged, selected, focus),
   tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected, focus) {
     color: SelectedItemText;
