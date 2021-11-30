@@ -31,7 +31,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
-  EnigmailAttachment: "chrome://openpgp/content/modules/attachment.jsm",
   EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
@@ -2618,7 +2617,8 @@ Enigmail.msg = {
     // from an encrypted data block.
     /*
     if (callbackArg.actionType != "importKey") {
-      origFilename = EnigmailAttachment.getFileName(window, callbackArg.data);
+      let cApi = EnigmailCryptoAPI();
+      let origFilename = await cApi.getFileName(window, callbackArg.data);
       if (origFilename && origFilename.length > rawFileName.length) {
         rawFileName = origFilename;
       }
