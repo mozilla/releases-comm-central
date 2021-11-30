@@ -5,8 +5,6 @@
 /* ===== messageBody.css =================================================
   == Styles for the body of a mail message.
   ======================================================================= */
-
-@import url(chrome://communicator/skin/smileys.css);
 @import url(chrome://messenger/skin/messageQuotes.css);
 
 @namespace url("http://www.w3.org/1999/xhtml");
