@@ -214,7 +214,13 @@ FetchHTTP.prototype = {
       // workaround, because open(..., username, password) does not work.
       request.setRequestHeader(
         "Authorization",
-        "Basic " + btoa(username + ":" + password)
+        "Basic " +
+          btoa(
+            // btoa() takes a BinaryString.
+            String.fromCharCode(
+              ...new TextEncoder().encode(username + ":" + password)
+            )
+          )
       );
     }
     for (let name in this._args.headers) {
