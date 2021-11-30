@@ -1,5 +1,4 @@
 pth:comm/testing/marionette
 pth:comm/python/l10n
-pth:comm/python/mach
 pth:comm/taskcluster
 pth:comm/python/thirdroc

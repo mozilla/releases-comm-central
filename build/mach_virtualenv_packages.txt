@@ -1,2 +1,0 @@
-packages.txt:build/mach_virtualenv_packages.txt
-packages.txt:comm/build/virtualenv_packages.txt
