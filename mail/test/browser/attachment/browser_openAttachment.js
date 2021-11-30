@@ -184,6 +184,9 @@ async function checkFileSaved(parent = saveDestination) {
     () => expectedFile.exists(),
     `attachment was saved to ${expectedFile.path}`
   );
+  // Wait a moment in case the file is still locked for writing.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 250));
   expectedFile.remove(false);
 }
 
