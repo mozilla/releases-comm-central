@@ -349,14 +349,15 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
       [&](nsresult) { sendMsgFinished = true; });
   promise->AppendNativeHandler(listener);
   mozilla::SpinEventLoopUntil("nsIMsgCompose::SendMsg is async"_ns,
-                              [=]() { return sendMsgFinished; });
+                              [&]() { return sendMsgFinished; });
 
-  nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
-  while (!sendListener->IsDone()) {
-    mozilla::ReentrantMonitorAutoEnter mon(*sendListener);
-    sendListener->Wait(PR_MicrosecondsToInterval(1000UL));
-    NS_ProcessPendingEvents(thread);
-  }
+  // When offline, the message is saved to Outbox and OnStopSending won't be
+  // called.
+  if (WeAreOffline()) return NS_OK;
+
+  // Wait for OnStopSending to be called.
+  mozilla::SpinEventLoopUntil("nsIMsgCompose::SendMsg is async"_ns,
+                              [=]() { return sendListener->IsDone(); });
 
   return rv;
 }
