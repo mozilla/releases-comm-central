@@ -507,7 +507,7 @@ Enigmail.msg = {
 
   async notifyMessageDecryptDone() {
     Enigmail.msg.messageDecryptDone = true;
-    Enigmail.msg.processAfterAttachmentsAndDecrypt();
+    await Enigmail.msg.processAfterAttachmentsAndDecrypt();
 
     document.dispatchEvent(
       new CustomEvent("openpgpprocessed", {
@@ -1372,7 +1372,7 @@ Enigmail.msg = {
 
     if (importOnly) {
       // Import public key
-      this.importKeyFromMsgBody(msgText);
+      await this.importKeyFromMsgBody(msgText);
       return;
     }
     let armorHeaders = EnigmailArmor.getArmorHeaders(msgText);
@@ -1795,7 +1795,7 @@ Enigmail.msg = {
     }
   },
 
-  importKeyFromMsgBody(msgData) {
+  async importKeyFromMsgBody(msgData) {
     let beginIndexObj = {};
     let endIndexObj = {};
     let indentStrObj = {};
@@ -1814,7 +1814,7 @@ Enigmail.msg = {
     let keyData = msgData.substring(beginIndexObj.value, endIndexObj.value);
 
     let errorMsgObj = {};
-    let preview = EnigmailKey.getKeyListFromKeyBlock(
+    let preview = await EnigmailKey.getKeyListFromKeyBlock(
       keyData,
       errorMsgObj,
       true,
@@ -2497,7 +2497,7 @@ Enigmail.msg = {
 
     if (isEncrypted) {
       // Try to decrypt message if we suspect the message is encrypted. If it fails we will just verify the encrypted data.
-      EnigmailDecryption.decryptAttachment(
+      await EnigmailDecryption.decryptAttachment(
         window,
         outFile1,
         EnigmailMsgRead.getAttachmentName(origAtt),
@@ -2539,32 +2539,27 @@ Enigmail.msg = {
     outFile2.remove(false);
   },
 
-  handleAttachment(actionType, anAttachment) {
+  handleAttachment(actionType, attachment) {
     EnigmailLog.DEBUG(
       "enigmailMessengerOverlay.js: handleAttachment: actionType=" +
         actionType +
-        ", anAttachment(url)=" +
-        anAttachment.url +
+        ", attachment(url)=" +
+        attachment.url +
         "\n"
     );
 
-    var argumentsObj = {
-      actionType,
-      attachment: anAttachment,
-      forceBrowser: false,
-      data: "",
-    };
-
-    var f = function(data) {
-      argumentsObj.data = data;
-      Enigmail.msg.decryptAttachmentCallback([argumentsObj]);
-    };
-
-    var bufferListener = EnigmailStreams.newStringStreamListener(f);
-    var ioServ = Services.io;
-    var msgUri = ioServ.newURI(argumentsObj.attachment.url);
-
-    var channel = EnigmailStreams.createChannel(msgUri);
+    let bufferListener = EnigmailStreams.newStringStreamListener(async data => {
+      Enigmail.msg.decryptAttachmentCallback([
+        {
+          actionType,
+          attachment,
+          forceBrowser: false,
+          data,
+        },
+      ]);
+    });
+    let msgUri = Services.io.newURI(attachment.url);
+    let channel = EnigmailStreams.createChannel(msgUri);
     channel.asyncOpen(bufferListener, msgUri);
   },
 
@@ -2657,7 +2652,7 @@ Enigmail.msg = {
     }
 
     if (callbackArg.actionType == "importKey") {
-      var preview = EnigmailKey.getKeyListFromKeyBlock(
+      var preview = await EnigmailKey.getKeyListFromKeyBlock(
         callbackArg.data,
         errorMsgObj,
         true,
@@ -2667,7 +2662,7 @@ Enigmail.msg = {
 
       if (errorMsgObj.value !== "" || !preview || preview.length === 0) {
         // try decrypting the attachment
-        exitStatus = EnigmailDecryption.decryptAttachment(
+        exitStatus = await EnigmailDecryption.decryptAttachment(
           window,
           outFile,
           EnigmailMsgRead.getAttachmentName(callbackArg.attachment),
@@ -2679,7 +2674,7 @@ Enigmail.msg = {
         if (exitStatus && exitCodeObj.value === 0) {
           // success decrypting, let's try again
           callbackArg.data = EnigmailFiles.readBinaryFile(outFile);
-          preview = EnigmailKey.getKeyListFromKeyBlock(
+          preview = await EnigmailKey.getKeyListFromKeyBlock(
             callbackArg.data,
             errorMsgObj,
             true,
@@ -2705,7 +2700,7 @@ Enigmail.msg = {
       return;
     }
 
-    exitStatus = EnigmailDecryption.decryptAttachment(
+    exitStatus = await EnigmailDecryption.decryptAttachment(
       window,
       outFile,
       EnigmailMsgRead.getAttachmentName(callbackArg.attachment),
@@ -3199,12 +3194,12 @@ Enigmail.msg = {
     Enigmail = undefined;
   },
 
-  commonProcessAttachedKey(keyData, isBinaryAutocrypt) {
+  async commonProcessAttachedKey(keyData, isBinaryAutocrypt) {
     if (!keyData) {
       return;
     }
     let errorMsgObj = {};
-    let preview = EnigmailKey.getKeyListFromKeyBlock(
+    let preview = await EnigmailKey.getKeyListFromKeyBlock(
       keyData,
       errorMsgObj,
       true,
@@ -3354,7 +3349,10 @@ Enigmail.msg = {
     }
 
     let keyData = EnigmailData.decodeBase64(senderAutocryptKey);
-    this.commonProcessAttachedKey(keyData, true);
+    // Make sure to let the message load before doing potentially *very*
+    // time consuming auto processing (seconds!?).
+    await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
+    await this.commonProcessAttachedKey(keyData, true);
 
     if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
       this.unhideImportKeyBox();
@@ -3365,7 +3363,7 @@ Enigmail.msg = {
     Enigmail.msg.allAttachmentsDone = true;
 
     if (!Enigmail.msg.autoProcessPgpKeyAttachmentCount) {
-      Enigmail.msg.processAfterAttachmentsAndDecrypt();
+      await Enigmail.msg.processAfterAttachmentsAndDecrypt();
     }
   },
 
@@ -3413,26 +3411,6 @@ Enigmail.msg = {
     return false;
   },
 
-  async autoProcessPgpKeyCallback(callbackArg) {
-    if (
-      callbackArg.transaction !=
-      Enigmail.msg.autoProcessPgpKeyAttachmentTransactionID
-    ) {
-      return;
-    }
-
-    this.commonProcessAttachedKey(callbackArg.data, false);
-
-    Enigmail.msg.autoProcessPgpKeyAttachmentProcessed++;
-
-    if (
-      Enigmail.msg.autoProcessPgpKeyAttachmentProcessed ==
-      Enigmail.msg.autoProcessPgpKeyAttachmentCount
-    ) {
-      Enigmail.msg.processAfterAttachmentsAndDecrypt();
-    }
-  },
-
   autoProcessPgpKeyAttachmentTransactionID: 0,
   autoProcessPgpKeyAttachmentCount: 0,
   autoProcessPgpKeyAttachmentProcessed: 0,
@@ -3446,19 +3424,21 @@ Enigmail.msg = {
 
     Enigmail.msg.autoProcessPgpKeyAttachmentCount++;
 
-    var argumentsObj = {
-      attachment,
-      data: "",
-      transaction: Enigmail.msg.autoProcessPgpKeyAttachmentTransactionID,
-    };
-
-    var bufferListener = EnigmailStreams.newStringStreamListener(data => {
-      argumentsObj.data = data;
-      Enigmail.msg.autoProcessPgpKeyCallback(argumentsObj);
+    let bufferListener = EnigmailStreams.newStringStreamListener(async data => {
+      // Make sure to let the message load before doing potentially *very*
+      // time consuming auto processing (seconds!?).
+      await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
+      await this.commonProcessAttachedKey(data, false);
+      Enigmail.msg.autoProcessPgpKeyAttachmentProcessed++;
+      if (
+        Enigmail.msg.autoProcessPgpKeyAttachmentProcessed ==
+        Enigmail.msg.autoProcessPgpKeyAttachmentCount
+      ) {
+        await Enigmail.msg.processAfterAttachmentsAndDecrypt();
+      }
     });
-    var msgUri = Services.io.newURI(argumentsObj.attachment.url);
-
-    var channel = EnigmailStreams.createChannel(msgUri);
+    let msgUri = Services.io.newURI(attachment.url);
+    let channel = EnigmailStreams.createChannel(msgUri);
     channel.asyncOpen(bufferListener, msgUri);
   },
 

@@ -128,13 +128,13 @@ var EnigmailKey = {
    * @param errorMsgObj  Object: obj.value will contain an error message in case of failures
    * @param interactive  Boolean: if in interactive mode, may display dialogs (default: true)
    *
-   * @return Array of objects with the following structure:
+   * @return {Object[]} an array of objects with the following structure:
    *          - id (key ID)
    *          - fpr
    *          - name (the UID of the key)
    *          - state (one of "old" [existing key], "new" [new key], "invalid" [key cannot not be imported])
    */
-  getKeyListFromKeyBlock(
+  async getKeyListFromKeyBlock(
     keyBlockStr,
     errorMsgObj,
     interactive = true,
@@ -223,9 +223,9 @@ var EnigmailKey = {
    * @param file         nsIFile object - file to read
    * @param errorMsgObj  Object - obj.value will contain error message
    *
-   * @return Array (same as for getKeyListFromKeyBlock())
+   * @return {Object[]} An array of objects; see getKeyListFromKeyBlock()
    */
-  getKeyListFromKeyFile(path, errorMsgObj, pubkey, seckey) {
+  async getKeyListFromKeyFile(path, errorMsgObj, pubkey, seckey) {
     var contents = EnigmailFiles.readFile(path);
     return this.getKeyListFromKeyBlock(
       contents,

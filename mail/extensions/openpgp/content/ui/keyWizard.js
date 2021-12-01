@@ -801,7 +801,7 @@ async function importSecretKey() {
 
     let errorMsgObj = {};
     // Fetch the list of all the available keys inside the selected file.
-    let importKeys = EnigmailKey.getKeyListFromKeyFile(
+    let importKeys = await EnigmailKey.getKeyListFromKeyFile(
       file,
       errorMsgObj,
       false,

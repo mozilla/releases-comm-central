@@ -563,7 +563,7 @@ function enigGetClipboard() {
   );
 }
 
-function enigmailImportFromClipbrd() {
+async function enigmailImportFromClipbrd() {
   if (
     !EnigmailDialog.confirmDlg(
       window,
@@ -576,7 +576,7 @@ function enigmailImportFromClipbrd() {
 
   var cBoardContent = enigGetClipboard();
   var errorMsgObj = {};
-  var preview = EnigmailKey.getKeyListFromKeyBlock(
+  var preview = await EnigmailKey.getKeyListFromKeyBlock(
     cBoardContent,
     errorMsgObj,
     true,
@@ -955,7 +955,7 @@ function enigmailImportKeysFromUrl() {
       EnigmailLog.DEBUG("enigmailImportKeysFromUrl: _cbFunc()\n");
       var errorMsgObj = {};
 
-      var preview = EnigmailKey.getKeyListFromKeyBlock(
+      var preview = await EnigmailKey.getKeyListFromKeyBlock(
         data,
         errorMsgObj,
         true,

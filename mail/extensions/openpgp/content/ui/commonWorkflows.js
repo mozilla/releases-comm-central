@@ -94,7 +94,7 @@ function getKeyBlockFromFile(path, wantSecret) {
  * import OpenPGP keys from file
  * @param {string} what - "rev" for revocation, "pub" for public keys, "sec" for secret keys.
  */
-function EnigmailCommon_importObjectFromFile(what) {
+async function EnigmailCommon_importObjectFromFile(what) {
   let importingRevocation = what == "rev";
   let promptStr = importingRevocation ? "import-rev-file" : "import-key-file";
 
@@ -138,8 +138,8 @@ function EnigmailCommon_importObjectFromFile(what) {
       keyBlock = EnigmailFiles.readFile(file);
     }
 
-    // Generat a preview of the imported key.
-    let preview = EnigmailKey.getKeyListFromKeyBlock(
+    // Generate a preview of the imported key.
+    let preview = await EnigmailKey.getKeyListFromKeyBlock(
       keyBlock,
       errorMsgObj,
       true, // interactive

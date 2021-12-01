@@ -35,7 +35,7 @@ var KeyLookupHelper = {
     let somethingWasImported = false;
     let vks = await EnigmailKeyServer.downloadNoImport(identifier, defKs);
     if (vks && "keyData" in vks) {
-      let keyList = EnigmailKey.getKeyListFromKeyBlock(
+      let keyList = await EnigmailKey.getKeyListFromKeyBlock(
         vks.keyData,
         {},
         false,
@@ -103,7 +103,7 @@ var KeyLookupHelper = {
     if (!wkdKeys) {
       console.debug("searchKeysOnInternet no wkd data for " + email);
     } else {
-      let keyList = EnigmailKey.getKeyListFromKeyBlock(
+      let keyList = await EnigmailKey.getKeyListFromKeyBlock(
         wkdKeys.keyData,
         {},
         false,

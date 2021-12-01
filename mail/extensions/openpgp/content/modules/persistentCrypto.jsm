@@ -387,7 +387,7 @@ CryptMessageIntoFolder.prototype = {
     } else if (this.isPgpMime(mimePart)) {
       this.decryptPGPMIME(mimePart);
     } else if (isAttachment(mimePart)) {
-      this.decryptAttachment(mimePart);
+      this.pgpDecryptAttachment(mimePart);
     } else {
       this.decryptINLINE(mimePart);
     }
@@ -686,8 +686,8 @@ CryptMessageIntoFolder.prototype = {
     this.cryptoChanged = true;
   },
 
-  decryptAttachment(mimePart) {
-    EnigmailLog.DEBUG("persistentCrypto.jsm: decryptAttachment()\n");
+  pgpDecryptAttachment(mimePart) {
+    EnigmailLog.DEBUG("persistentCrypto.jsm: pgpDecryptAttachment()\n");
     let attachmentHead = mimePart.body.substr(0, 30);
     if (attachmentHead.search(/-----BEGIN PGP \w{5,10} KEY BLOCK-----/) >= 0) {
       // attachment appears to be a PGP key file, skip
@@ -733,36 +733,36 @@ CryptMessageIntoFolder.prototype = {
 
     if (data || statusFlagsObj.value & EnigmailConstants.DECRYPTION_OKAY) {
       EnigmailLog.DEBUG(
-        "persistentCrypto.jsm: decryptAttachment: decryption OK\n"
+        "persistentCrypto.jsm: pgpDecryptAttachment: decryption OK\n"
       );
     } else if (
       statusFlagsObj.value &
       (EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.MISSING_MDC)
     ) {
       EnigmailLog.DEBUG(
-        "persistentCrypto.jsm: decryptAttachment: decryption without MDC protection\n"
+        "persistentCrypto.jsm: pgpDecryptAttachment: decryption without MDC protection\n"
       );
     } else if (statusFlagsObj.value & EnigmailConstants.DECRYPTION_FAILED) {
       EnigmailLog.DEBUG(
-        "persistentCrypto.jsm: decryptAttachment: decryption failed\n"
+        "persistentCrypto.jsm: pgpDecryptAttachment: decryption failed\n"
       );
       // Enigmail promts the user here, but we just keep going.
     } else if (statusFlagsObj.value & EnigmailConstants.DECRYPTION_INCOMPLETE) {
       // failure; message not complete
       EnigmailLog.DEBUG(
-        "persistentCrypto.jsm: decryptAttachment: decryption incomplete\n"
+        "persistentCrypto.jsm: pgpDecryptAttachment: decryption incomplete\n"
       );
       return;
     } else {
       // there is nothing to be decrypted
       EnigmailLog.DEBUG(
-        "persistentCrypto.jsm: decryptAttachment: no decryption required\n"
+        "persistentCrypto.jsm: pgpDecryptAttachment: no decryption required\n"
       );
       return;
     }
 
     EnigmailLog.DEBUG(
-      "persistentCrypto.jsm: decryptAttachment: decrypted to " +
+      "persistentCrypto.jsm: pgpDecryptAttachment: decrypted to " +
         data.length +
         " bytes\n"
     );

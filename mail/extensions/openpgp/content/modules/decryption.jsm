@@ -524,7 +524,7 @@ var EnigmailDecryption = {
     return EnigmailData.getUnicodeData(result.decryptedData);
   },
 
-  decryptAttachment(
+  async decryptAttachment(
     parent,
     outFile,
     displayName,
@@ -553,7 +553,7 @@ var EnigmailDecryption = {
           l10n.formatValueSync("dlg-button-view")
         )
       ) {
-        let preview = EnigmailKey.getKeyListFromKeyBlock(
+        let preview = await EnigmailKey.getKeyListFromKeyBlock(
           byteData,
           errorMsgObj,
           true,
@@ -609,7 +609,7 @@ var EnigmailDecryption = {
     //var outFileName = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(outFile.QueryInterface(Ci.nsIFile), NS_WRONLY));
 
     const cApi = EnigmailCryptoAPI();
-    let result = cApi.sync(cApi.decryptAttachment(byteData));
+    let result = await cApi.decryptAttachment(byteData);
     if (!result) {
       console.debug(
         "EnigmailCryptoAPI.decryptAttachment() failed with empty result"
