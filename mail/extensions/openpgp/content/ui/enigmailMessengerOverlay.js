@@ -3198,6 +3198,18 @@ Enigmail.msg = {
     if (!keyData) {
       return;
     }
+
+    // Processing is slow for some types of keys.
+    // We want to avoid automatic key import/updates for users who
+    // have OpenPGP disabled (no account has an OpenPGP key configured).
+    if (
+      !MailServices.accounts.allIdentities.find(id =>
+        id.getUnicharAttribute("openpgp_key_id")
+      )
+    ) {
+      return;
+    }
+
     let errorMsgObj = {};
     let preview = await EnigmailKey.getKeyListFromKeyBlock(
       keyData,
