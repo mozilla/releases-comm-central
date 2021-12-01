@@ -1482,6 +1482,7 @@ var chatHandler = {
       if (notification) {
         notification.close();
       }
+      return;
     }
     if (aTopic == "buddy-verification-request") {
       aSubject.QueryInterface(Ci.imIIncomingSessionVerification);
@@ -1556,6 +1557,53 @@ var chatHandler = {
       if (notification) {
         notification.close();
       }
+      return;
+    }
+    if (aTopic == "conv-authorization-request") {
+      aSubject.QueryInterface(Ci.prplIChatRequest);
+      let value =
+        "conv-auth-request-" + aSubject.account.id + aSubject.conversationName;
+      let acceptButton = {
+        "l10n-id": "chat-conv-invite-accept",
+        callback() {
+          aSubject.grant();
+        },
+      };
+      let denyButton = {
+        "l10n-id": "chat-conv-invite-deny",
+        callback() {
+          aSubject.deny();
+        },
+      };
+      let box = this.msgNotificationBar;
+      // Remove the notification when the request is cancelled.
+      aSubject.completePromise.catch(() => {
+        let notification = box.getNotificationWithValue(value);
+        if (notification) {
+          notification.close();
+        }
+      });
+      let notification = box.appendNotification(
+        value,
+        {
+          label: "",
+          priority: box.PRIORITY_INFO_HIGH,
+        },
+        [acceptButton, denyButton]
+      );
+      document.l10n.setAttributes(
+        notification.messageText,
+        "chat-conv-invite-label",
+        {
+          conversation: aSubject.conversationName,
+        }
+      );
+      notification.removeAttribute("dismissable");
+      if (!gChatTab) {
+        let tabmail = document.getElementById("tabmail");
+        tabmail.openTab("chat", { background: true });
+      }
+      return;
     }
     if (aTopic == "conversation-update-type") {
       // Find conversation in conversation list.
@@ -1731,6 +1779,7 @@ var chatHandler = {
     this._addObserver("buddy-authorization-request-canceled");
     this._addObserver("buddy-verification-request");
     this._addObserver("buddy-verification-request-canceled");
+    this._addObserver("conv-authorization-request");
     let listbox = document.getElementById("contactlistbox");
     listbox.addEventListener("keypress", function(aEvent) {
       let item = listbox.selectedItem;

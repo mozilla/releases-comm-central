@@ -170,6 +170,7 @@ var GenericAccountPrototype = {
       aConnectionErrorMessage
     );
     this.cancelPendingBuddyRequests();
+    this.cancelPendingChatRequests();
     this.cancelPendingVerificationRequests();
   },
 
@@ -262,6 +263,86 @@ var GenericAccountPrototype = {
       request.cancel();
     }
     delete this._pendingBuddyRequests;
+  },
+
+  _pendingChatRequests: null,
+  addChatRequest(conversationName, grantCallback, denyCallback) {
+    if (!this._pendingChatRequests) {
+      this._pendingChatRequests = new Set();
+    }
+    let resolvePromise;
+    let rejectPromise;
+    let completePromise = new Promise((resolve, reject) => {
+      resolvePromise = resolve;
+      rejectPromise = reject;
+    });
+    /** @implements {prplIChatRequest} */
+    let chatRequest = {
+      get account() {
+        return this._account.imAccount;
+      },
+      get conversationName() {
+        return conversationName;
+      },
+      _account: this,
+      // Grant and deny callbacks both receive the auth request object as an
+      // argument for further use.
+      grant() {
+        resolvePromise(true);
+        grantCallback(this);
+        this._remove();
+      },
+      deny() {
+        resolvePromise(false);
+        denyCallback(this);
+        this._remove();
+      },
+      cancel() {
+        rejectPromise(new Error("Cancelled"));
+        this._remove();
+      },
+      completePromise,
+      _remove() {
+        this._account.removeChatRequest(this);
+      },
+      QueryInterface: ChromeUtils.generateQI(["prplIChatRequest"]),
+    };
+    this._pendingChatRequests.add(chatRequest);
+    Services.obs.notifyObservers(chatRequest, "conv-authorization-request");
+  },
+  removeChatRequest(aRequest) {
+    if (!this._pendingChatRequests) {
+      return;
+    }
+
+    this._pendingChatRequests.delete(aRequest);
+  },
+  /**
+   * Cancel a pending chat request.
+   *
+   * @param {string} conversationName - The conversation the request is for.
+   */
+  cancelChatRequest(conversationName) {
+    if (!this._pendingChatRequests) {
+      return;
+    }
+
+    for (let request of this._pendingChatRequests) {
+      if (request.conversationName == conversationName) {
+        request.cancel();
+        break;
+      }
+    }
+  },
+  cancelPendingChatRequests() {
+    if (!this._pendingChatRequests) {
+      return;
+    }
+
+    for (let request of this._pendingChatRequests) {
+      request.cancel();
+    }
+    this._pendingChatRequests = null;
   },
 
   requestBuddyInfo(aBuddyName) {},
