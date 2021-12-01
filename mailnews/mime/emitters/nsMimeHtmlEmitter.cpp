@@ -269,8 +269,9 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
 
 NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
     const nsACString& name) {
-  if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput ||
-      mFormat == nsMimeOutput::nsMimeMessageBodyDisplay) {
+  if (!BroadCastHeadersAndAttachments() ||
+      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
+      (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay)) {
     nsMimeBaseEmitter::WriteHTMLHeaders(name);
   }
 
