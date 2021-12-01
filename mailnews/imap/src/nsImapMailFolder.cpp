@@ -3693,7 +3693,7 @@ NS_IMETHODIMP nsImapMailFolder::FolderPrivileges(nsIMsgWindow* window) {
         bool isExposed;
         rv = extProtService->IsExposedProtocol(scheme.get(), &isExposed);
         if (NS_SUCCEEDED(rv) && !isExposed)
-          return extProtService->LoadURI(uri, nullptr, nullptr, false);
+          return extProtService->LoadURI(uri, nullptr, nullptr, nullptr, false);
       }
     }
   } else {
