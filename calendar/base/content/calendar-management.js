@@ -36,9 +36,6 @@ function getSelectedCalendar() {
  * @param aCalendar     The calendar to delete.
  */
 function promptDeleteCalendar(aCalendar) {
-  const nIPS = Ci.nsIPromptService;
-  const cICM = Ci.calICalendarManager;
-
   let calMgr = cal.getCalendarManager();
   let calendars = calMgr.getCalendars();
   if (calendars.length <= 1) {
@@ -52,20 +49,21 @@ function promptDeleteCalendar(aCalendar) {
   let textKey, b0text, b2text;
   let removeFlags = 0;
   let promptFlags =
-    nIPS.BUTTON_POS_0 * nIPS.BUTTON_TITLE_IS_STRING + nIPS.BUTTON_POS_1 * nIPS.BUTTON_TITLE_CANCEL;
+    Ci.nsIPromptService.BUTTON_POS_0 * Ci.nsIPromptService.BUTTON_TITLE_IS_STRING +
+    Ci.nsIPromptService.BUTTON_POS_1 * Ci.nsIPromptService.BUTTON_TITLE_CANCEL;
 
   if (modes.has("delete") && !modes.has("unsubscribe")) {
     textKey = "removeCalendarMessageDelete";
-    promptFlags += nIPS.BUTTON_DELAY_ENABLE;
+    promptFlags += Ci.nsIPromptService.BUTTON_DELAY_ENABLE;
     b0text = cal.l10n.getCalString("removeCalendarButtonDelete");
   } else if (modes.has("delete")) {
     textKey = "removeCalendarMessageDeleteOrUnsubscribe";
-    promptFlags += nIPS.BUTTON_POS_2 * nIPS.BUTTON_TITLE_IS_STRING;
+    promptFlags += Ci.nsIPromptService.BUTTON_POS_2 * Ci.nsIPromptService.BUTTON_TITLE_IS_STRING;
     b0text = cal.l10n.getCalString("removeCalendarButtonUnsubscribe");
     b2text = cal.l10n.getCalString("removeCalendarButtonDelete");
   } else if (modes.has("unsubscribe")) {
     textKey = "removeCalendarMessageUnsubscribe";
-    removeFlags |= cICM.REMOVE_NO_DELETE;
+    removeFlags |= Ci.calICalendarManager.REMOVE_NO_DELETE;
     b0text = cal.l10n.getCalString("removeCalendarButtonUnsubscribe");
   } else {
     return;
@@ -89,7 +87,7 @@ function promptDeleteCalendar(aCalendar) {
     if (textKey == "removeCalendarMessageDeleteOrUnsubscribe" && res == 0) {
       // Both unsubscribing and deleting is possible, but unsubscribing was
       // requested. Make sure no delete is executed.
-      removeFlags |= cICM.REMOVE_NO_DELETE;
+      removeFlags |= Ci.calICalendarManager.REMOVE_NO_DELETE;
     }
 
     calMgr.removeCalendar(aCalendar, removeFlags);
