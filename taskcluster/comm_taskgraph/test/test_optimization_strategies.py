@@ -11,7 +11,7 @@ import responses
 import pytest
 from mozunit import main
 
-# from responses import RequestsMock
+import conftest  # noqa: F401
 
 from comm_taskgraph.optimize import SkipSuiteOnly
 from gecko_taskgraph.optimize import registry
