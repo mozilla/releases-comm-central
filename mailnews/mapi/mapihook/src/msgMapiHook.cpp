@@ -37,7 +37,6 @@
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "mozilla/dom/Promise.h"
-#include "mozilla/dom/PromiseNativeHandler.h"
 #include "mozilla/ReentrantMonitor.h"
 #include "mozilla/Services.h"
 #include "nsEmbedCID.h"
@@ -341,15 +340,6 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
                             pMsgId, nullptr, nullptr, nullptr,
                             getter_AddRefs(promise));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  bool sendMsgFinished = false;
-
-  RefPtr<DomPromiseListener> listener = new DomPromiseListener(
-      [&](JSContext*, JS::Handle<JS::Value>) { sendMsgFinished = true; },
-      [&](nsresult) { sendMsgFinished = true; });
-  promise->AppendNativeHandler(listener);
-  mozilla::SpinEventLoopUntil("nsIMsgCompose::SendMsg is async"_ns,
-                              [&]() { return sendMsgFinished; });
 
   // When offline, the message is saved to Outbox and OnStopSending won't be
   // called.

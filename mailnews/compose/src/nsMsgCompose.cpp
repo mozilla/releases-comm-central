@@ -186,6 +186,8 @@ nsMsgCompose::nsMsgCompose() {
     prefBranch->GetBoolPref("converter.html2txt.structs", &mConvertStructs);
 
   m_composeHTML = false;
+
+  mTmpAttachmentsDeleted = false;
 }
 
 nsMsgCompose::~nsMsgCompose() {
@@ -195,21 +197,11 @@ nsMsgCompose::~nsMsgCompose() {
     // was never even called.
     return;
   }
-  // Remove temporary attachment files, e.g. key.asc when attaching public key.
-  nsTArray<RefPtr<nsIMsgAttachment>> attachments;
-  m_compFields->GetAttachments(attachments);
-  for (nsIMsgAttachment* attachment : attachments) {
-    bool isTemporary;
-    attachment->GetTemporary(&isTemporary);
-    if (isTemporary) {
-      nsCString url;
-      attachment->GetUrl(url);
-      nsCOMPtr<nsIFile> urlFile;
-      nsresult rv = NS_GetFileFromURLSpec(url, getter_AddRefs(urlFile));
-      if (NS_SUCCEEDED(rv)) {
-        urlFile->Remove(false);
-      }
-    }
+  m_window = nullptr;
+  if (!mMsgSend) {
+    // This dtor can be called before mMsgSend->CreateAndSendMessage returns,
+    // tmp attachments are needed to create the message, so don't delete them.
+    DeleteTmpAttachments();
   }
 }
 
@@ -1276,10 +1268,13 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       }
     }
     if (self->mProgress) self->mProgress->CloseProgressDialog(true);
+
+    self->DeleteTmpAttachments();
   };
   if (promise) {
     RefPtr<DomPromiseListener> listener = new DomPromiseListener(
-        [](JSContext*, JS::Handle<JS::Value>) {}, handleFailure);
+        [&](JSContext*, JS::Handle<JS::Value>) { DeleteTmpAttachments(); },
+        handleFailure);
     promise->AppendNativeHandler(listener);
     promise.forget(aPromise);
   } else if (NS_FAILED(rv)) {
@@ -5213,6 +5208,31 @@ NS_IMETHODIMP nsMsgCompose::GetDeliverMode(MSG_DeliverMode* aDeliverMode) {
   NS_ENSURE_ARG_POINTER(aDeliverMode);
   *aDeliverMode = mDeliverMode;
   return NS_OK;
+}
+
+void nsMsgCompose::DeleteTmpAttachments() {
+  if (mTmpAttachmentsDeleted || m_window) {
+    // Don't delete tmp attachments if compose window is still open, e.g. saving
+    // a draft.
+    return;
+  }
+  mTmpAttachmentsDeleted = true;
+  // Remove temporary attachment files, e.g. key.asc when attaching public key.
+  nsTArray<RefPtr<nsIMsgAttachment>> attachments;
+  m_compFields->GetAttachments(attachments);
+  for (nsIMsgAttachment* attachment : attachments) {
+    bool isTemporary;
+    attachment->GetTemporary(&isTemporary);
+    if (isTemporary) {
+      nsCString url;
+      attachment->GetUrl(url);
+      nsCOMPtr<nsIFile> urlFile;
+      nsresult rv = NS_GetFileFromURLSpec(url, getter_AddRefs(urlFile));
+      if (NS_SUCCEEDED(rv)) {
+        urlFile->Remove(false);
+      }
+    }
+  }
 }
 
 nsMsgMailList::nsMsgMailList(nsIAbDirectory* directory)

@@ -50,6 +50,9 @@ var { imapDaemon, imapMessage } = imapd;
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
 );
+var { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Smtpd.jsm"
+);
 
 function makeServer(daemon, infoString, otherProps) {
   if (infoString in imapd.configurations) {
@@ -149,3 +152,14 @@ function addImapMessage() {
 registerCleanupFunction(function() {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });
+
+// Setup the SMTP daemon and server
+function setupSmtpServerDaemon(handler) {
+  if (!handler) {
+    handler = function(d) {
+      return new SMTP_RFC2821_handler(d);
+    };
+  }
+  var server = new nsMailServer(handler, new smtpDaemon());
+  return server;
+}

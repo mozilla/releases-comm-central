@@ -138,6 +138,10 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
 
   friend class QuotingOutputStreamListener;
   friend class nsMsgComposeSendListener;
+
+ private:
+  void DeleteTmpAttachments();
+  bool mTmpAttachmentsDeleted;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////

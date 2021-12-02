@@ -23,18 +23,39 @@ var gInboxListener; // database listener object
 var gHeader; // the current message db header
 var gInboxCount; // the previous number of messages in the Inbox
 var gSubfolderCount; // the previous number of messages in the subfolder
-var gMessage = "draft1"; // message file used as the test message
+var gMessage = "image-attach-test"; // message file used as the test message
 
 // subject of the test message
-var gMessageSubject = "Hello, did you receive my bugmail?";
+var gMessageSubject = "image attach test";
 
 // a string in the body of the test message
-var gMessageInBody = "an HTML message";
+var gMessageInBody = "01234567890test";
 
 // various object references
 var gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
   Ci.nsIMsgDBService
 );
+
+var gSmtpServerD = setupSmtpServerDaemon();
+
+function setupSmtpServer() {
+  gSmtpServerD.start();
+  var gSmtpServer = localAccountUtils.create_outgoing_server(
+    gSmtpServerD.port,
+    "user",
+    "password",
+    "localhost"
+  );
+  MailServices.accounts.defaultAccount.defaultIdentity.email =
+    "from@tinderbox.invalid";
+  MailServices.accounts.defaultAccount.defaultIdentity.smtpServerKey =
+    gSmtpServer.key;
+
+  registerCleanupFunction(() => {
+    gSmtpServerD.stop();
+    Services.prefs.clearUserPref("mail.forward_message_mode");
+  });
+}
 
 // Definition of tests. The test function name is the filter action
 // being tested, with "Body" appended to tests that use delayed
@@ -45,6 +66,7 @@ var gTestArray = [
   // function serverParms() {
   //   IMAPPump.server.setDebugLevel(fsDebugAll);
   // },
+  setupSmtpServer,
   setupFilters,
   // The initial tests do not result in new messages added.
   async function MoveToFolder() {
@@ -311,6 +333,12 @@ var gTestArray = [
     Assert.equal(gInboxCount + 1, folderCount(IMAPPump.inbox));
     Assert.equal(gSubfolderCount + 1, folderCount(gSubfolder));
   },
+  async function ForwardInline() {
+    return testForward(2);
+  },
+  async function ForwardAsAttachment() {
+    return testForward(0);
+  },
   /**/
   endTest,
 ];
@@ -565,4 +593,20 @@ function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
   } catch (e) {
     dump(e);
   }
+}
+
+/**
+ * Test that Ci.nsMsgFilterAction.Forward works.
+ * @param {number} mode - 0 means forward as attachment, 2 means forward inline.
+ */
+async function testForward(mode) {
+  Services.prefs.setIntPref("mail.forward_message_mode", mode);
+
+  gSmtpServerD.resetTest();
+  gAction.type = Ci.nsMsgFilterAction.Forward;
+  gAction.strValue = "to@local";
+  await setupTest(gFilter, gAction);
+  let msgData = gSmtpServerD._daemon.post;
+  Assert.ok(msgData.includes(`Subject: Fwd: ${gMessageSubject}`));
+  Assert.ok(msgData.includes(`${gMessageInBody}`));
 }

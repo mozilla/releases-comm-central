@@ -52,8 +52,6 @@
 #include "nsFrameLoader.h"
 #include "nsSmtpUrl.h"
 #include "mozilla/NullPrincipal.h"
-#include "mozilla/dom/PromiseNativeHandler.h"
-#include "mozilla/SpinEventLoopUntil.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
 #  include "mozilla/Logging.h"
@@ -1027,15 +1025,6 @@ nsMsgComposeService::ForwardMessage(const nsAString& forwardTo,
   rv = pMsgCompose->SendMsg(nsIMsgSend::nsMsgDeliverNow, identity, nullptr,
                             nullptr, nullptr, getter_AddRefs(promise));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  bool sendMsgFinished = false;
-
-  RefPtr<DomPromiseListener> listener = new DomPromiseListener(
-      [&](JSContext*, JS::Handle<JS::Value>) { sendMsgFinished = true; },
-      [&](nsresult) { sendMsgFinished = true; });
-  promise->AppendNativeHandler(listener);
-  SpinEventLoopUntil("nsIMsgCompose::SendMsg is async"_ns,
-                     [=]() { return sendMsgFinished; });
 
   // nsMsgCompose::ProcessReplyFlags usually takes care of marking messages
   // as forwarded. ProcessReplyFlags is normally called from
