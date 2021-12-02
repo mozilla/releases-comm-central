@@ -12,7 +12,6 @@
 #include "nsIOutputStream.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIUrlListener.h"
-#include "DateTimeFormat.h"
 #include "nsCOMArray.h"
 #include "nsIAbDirectory.h"
 #include "nsTArray.h"

@@ -18,7 +18,7 @@
 #include "nsITreeSelection.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgThread.h"
-#include "DateTimeFormat.h"
+#include "nsMsgUtils.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsIStringBundle.h"
@@ -39,14 +39,6 @@ static_assert(nsMsgViewIndex(nsMsgViewIndexArray::NoIndex) ==
               "These need to be the same value.");
 
 enum eFieldType { kCollationKey, kU32 };
-
-enum nsDateFormatSelectorComm : long {
-  kDateFormatNone = mozilla::kDateFormatNone,
-  kDateFormatLong = mozilla::kDateFormatLong,
-  kDateFormatShort = mozilla::kDateFormatShort,
-  kDateFormatUnused = 3,
-  kDateFormatWeekday = 4
-};
 
 // This is used in an nsTArray<> to keep track of a multi-column sort.
 class MsgViewSortColumnInfo {

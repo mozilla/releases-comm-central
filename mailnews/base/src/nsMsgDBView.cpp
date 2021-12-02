@@ -14,7 +14,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFolder.h"
 #include "MailNewsTypes2.h"
-#include "nsMsgUtils.h"
 #include "nsQuickSort.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsImapCore.h"
@@ -50,6 +49,7 @@
 #include "nsTArray.h"
 #include "mozilla/intl/OSPreferences.h"
 #include "mozilla/intl/LocaleService.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
 
 using namespace mozilla::mailnews;
 nsrefcnt nsMsgDBView::gInstanceCount = 0;
@@ -594,50 +594,73 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr* aHdr, nsAString& aDateString,
     if (dateOfMsgLocal >= mostRecentWeek) dateFormat = m_dateFormatThisWeek;
   }
 
-  if (dateFormat != kDateFormatWeekday) {
-    rv = mozilla::DateTimeFormat::FormatPRTime(
-        static_cast<mozilla::nsDateFormatSelector>(dateFormat),
-        mozilla::kTimeFormatShort, dateOfMsg, aDateString);
-    NS_ENSURE_SUCCESS(rv, rv);
-  } else {
-    // We want weekday + time.
-    nsAutoString timeString;
-    nsAutoString weekdayString;
-    rv = mozilla::DateTimeFormat::FormatPRTime(mozilla::kDateFormatNone,
-                                               mozilla::kTimeFormatShort,
-                                               dateOfMsg, timeString);
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = mozilla::DateTimeFormat::FormatDateTime(
-        &explodedMsgTime, mozilla::DateTimeFormat::Skeleton::E, weekdayString);
-    NS_ENSURE_SUCCESS(rv, rv);
+  mozilla::intl::DateTimeFormat::StyleBag style;
+  style.time = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+  switch (dateFormat) {
+    case kDateFormatNone:
+      rv = mozilla::intl::AppDateTimeFormat::Format(style, dateOfMsg,
+                                                    aDateString);
+      NS_ENSURE_SUCCESS(rv, rv);
+      break;
+    case kDateFormatLong:
+      style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
+      rv = mozilla::intl::AppDateTimeFormat::Format(style, dateOfMsg,
+                                                    aDateString);
+      NS_ENSURE_SUCCESS(rv, rv);
+      break;
+    case kDateFormatShort:
+      style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+      rv = mozilla::intl::AppDateTimeFormat::Format(style, dateOfMsg,
+                                                    aDateString);
+      NS_ENSURE_SUCCESS(rv, rv);
+      break;
+    case kDateFormatWeekday: {
+      // We want weekday + time.
+      nsAutoString timeString;
+      nsAutoString weekdayString;
+      rv = mozilla::intl::AppDateTimeFormat::Format(style, dateOfMsg,
+                                                    timeString);
+      NS_ENSURE_SUCCESS(rv, rv);
 
-    // Note that this `static` value will need revisiting once M-C
-    // can switch locales without a restart of the application.
-    // For now, it's a cheap cache to avoid getting locale and
-    // connector pattern all the time.
-    static nsString connectorPattern;
-    if (connectorPattern.IsEmpty()) {
-      nsAutoCString locale;
-      AutoTArray<nsCString, 10> regionalPrefsLocales;
-      mozilla::intl::LocaleService::GetInstance()->GetRegionalPrefsLocales(
-          regionalPrefsLocales);
-      locale.Assign(regionalPrefsLocales[0]);
-      nsAutoCString str;
-      mozilla::intl::OSPreferences::GetInstance()->GetDateTimeConnectorPattern(
-          locale, str);
-      connectorPattern = NS_ConvertUTF8toUTF16(str);
+      mozilla::intl::DateTimeFormat::ComponentsBag components{};
+      components.weekday =
+          mozilla::Some(mozilla::intl::DateTimeFormat::Text::Short);
+      rv = mozilla::intl::AppDateTimeFormat::Format(
+          components, &explodedMsgTime, weekdayString);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      // Note that this `static` value will need revisiting once M-C
+      // can switch locales without a restart of the application.
+      // For now, it's a cheap cache to avoid getting locale and
+      // connector pattern all the time.
+      static nsString connectorPattern;
+      if (connectorPattern.IsEmpty()) {
+        nsAutoCString locale;
+        AutoTArray<nsCString, 10> regionalPrefsLocales;
+        mozilla::intl::LocaleService::GetInstance()->GetRegionalPrefsLocales(
+            regionalPrefsLocales);
+        locale.Assign(regionalPrefsLocales[0]);
+        nsAutoCString str;
+        mozilla::intl::OSPreferences::GetInstance()
+            ->GetDateTimeConnectorPattern(locale, str);
+        connectorPattern = NS_ConvertUTF8toUTF16(str);
+      }
+
+      nsAutoString pattern(connectorPattern);
+      int32_t ind = pattern.Find(u"{1}"_ns);
+      if (ind != kNotFound) {
+        pattern.Replace(ind, 3, weekdayString);
+      }
+      ind = pattern.Find(u"{0}"_ns);
+      if (ind != kNotFound) {
+        pattern.Replace(ind, 3, timeString);
+      }
+      aDateString = pattern;
+      break;
     }
 
-    nsAutoString pattern(connectorPattern);
-    int32_t ind = pattern.Find(u"{1}"_ns);
-    if (ind != kNotFound) {
-      pattern.Replace(ind, 3, weekdayString);
-    }
-    ind = pattern.Find(u"{0}"_ns);
-    if (ind != kNotFound) {
-      pattern.Replace(ind, 3, timeString);
-    }
-    aDateString = pattern;
+    default:
+      break;
   }
 
   return rv;
@@ -7395,7 +7418,6 @@ static void getDateFormatPref(nsIPrefBranch *_prefBranch,
     // Transfer if valid.
     if (res >= kDateFormatNone && res <= kDateFormatShort)
       _format = res;
-    // M-C doesn't support the following any more, so hand-roll it.
     else if (res == kDateFormatWeekday)
       _format = res;
   }

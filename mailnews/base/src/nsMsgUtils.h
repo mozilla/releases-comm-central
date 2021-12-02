@@ -40,6 +40,14 @@ class nsIMsgSearchTerm;
 #define FILE_IO_BUFFER_SIZE (16 * 1024)
 #define MSGS_URL "chrome://messenger/locale/messenger.properties"
 
+enum nsDateFormatSelectorComm : long {
+  kDateFormatNone = 0,
+  kDateFormatLong = 1,
+  kDateFormatShort = 2,
+  kDateFormatUnused = 3,
+  kDateFormatWeekday = 4
+};
+
 // These are utility functions that can used throughout the mailnews code
 
 NS_MSG_BASE nsresult GetMessageServiceContractIDForURI(const char* uri,

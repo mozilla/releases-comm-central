@@ -27,6 +27,7 @@
 #include "prmem.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
 
 static const char* kImapPrefix = "//imap:";
 static const char* kWhitespace = "\b\t\r\n ";
@@ -450,9 +451,10 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   PRExplodedTime exploded;
   PR_ExplodeTime(date, PR_LocalTimeParameters, &exploded);
 
-  mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                mozilla::kTimeFormatLong,
-                                                &exploded, dateValue);
+  mozilla::intl::DateTimeFormat::StyleBag style;
+  style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+  style.time = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
+  mozilla::intl::AppDateTimeFormat::Format(style, &exploded, dateValue);
 
   (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);
   (void)aMsgHdr->GetMime2DecodedSubject(subjectValue);

@@ -37,7 +37,7 @@
 #include "nsIMsgMailSession.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgMimeCID.h"
-#include "DateTimeFormat.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
 #include "nsIMsgComposeService.h"
 #include "nsIMsgComposeProgressParams.h"
 #include "nsMsgUtils.h"
@@ -2012,16 +2012,20 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(
           if (NS_SUCCEEDED(rv)) {
             nsAutoString citeDatePart;
             if ((placeholderIndex = mCitePrefix.Find("#2")) != kNotFound) {
-              rv = mozilla::DateTimeFormat::FormatPRTime(
-                  kDateFormatShort, kTimeFormatNone, originalMsgDate,
-                  citeDatePart);
+              mozilla::intl::DateTimeFormat::StyleBag style;
+              style.date =
+                  mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+              rv = mozilla::intl::AppDateTimeFormat::Format(
+                  style, originalMsgDate, citeDatePart);
               if (NS_SUCCEEDED(rv))
                 mCitePrefix.Replace(placeholderIndex, 2, citeDatePart);
             }
             if ((placeholderIndex = mCitePrefix.Find("#3")) != kNotFound) {
-              rv = mozilla::DateTimeFormat::FormatPRTime(
-                  kDateFormatNone, kTimeFormatShort, originalMsgDate,
-                  citeDatePart);
+              mozilla::intl::DateTimeFormat::StyleBag style;
+              style.time =
+                  mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+              rv = mozilla::intl::AppDateTimeFormat::Format(
+                  style, originalMsgDate, citeDatePart);
               if (NS_SUCCEEDED(rv))
                 mCitePrefix.Replace(placeholderIndex, 2, citeDatePart);
             }

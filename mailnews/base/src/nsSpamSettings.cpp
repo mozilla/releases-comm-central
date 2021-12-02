@@ -29,6 +29,7 @@
 #include "nsIAbManager.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
 
 using namespace mozilla::mailnews;
 
@@ -600,9 +601,10 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr* aMsgHdr,
   PRExplodedTime exploded;
   PR_ExplodeTime(date, PR_LocalTimeParameters, &exploded);
 
-  mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                mozilla::kTimeFormatLong,
-                                                &exploded, dateValue);
+  mozilla::intl::DateTimeFormat::StyleBag style;
+  style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+  style.time = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
+  mozilla::intl::AppDateTimeFormat::Format(style, &exploded, dateValue);
 
   (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);
   (void)aMsgHdr->GetMime2DecodedSubject(subjectValue);
@@ -665,9 +667,10 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char* string) {
   PRExplodedTime exploded;
   PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
 
-  mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                mozilla::kTimeFormatLong,
-                                                &exploded, dateValue);
+  mozilla::intl::DateTimeFormat::StyleBag style;
+  style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+  style.time = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
+  mozilla::intl::AppDateTimeFormat::Format(style, &exploded, dateValue);
 
   nsCString timestampString(LOG_ENTRY_TIMESTAMP);
   timestampString.ReplaceSubstring("$S",

@@ -26,6 +26,7 @@
 #include "prmem.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Logging.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
 #include <ctype.h>
 
 // Marker for EOF or failure during read
@@ -1174,9 +1175,10 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
   PRExplodedTime exploded;
   nsString dateValue;
   PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
-  mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                mozilla::kTimeFormatLong,
-                                                &exploded, dateValue);
+  mozilla::intl::DateTimeFormat::StyleBag style;
+  style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+  style.time = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Long);
+  mozilla::intl::AppDateTimeFormat::Format(style, &exploded, dateValue);
 
   // HTML-escape the log for security reasons.
   // We don't want someone to send us a message with a subject with

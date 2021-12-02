@@ -18,7 +18,6 @@
 #include "nsTArray.h"
 #include "nsIMimeConverter.h"
 #include "nsIInterfaceRequestor.h"
-#include "DateTimeFormat.h"
 
 //
 // The base emitter will serve as the place to do all of the caching,

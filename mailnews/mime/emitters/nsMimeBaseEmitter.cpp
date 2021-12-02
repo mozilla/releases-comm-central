@@ -26,6 +26,7 @@
 #include "nsMsgUtils.h"
 #include "nsTextFormatter.h"
 #include "mozilla/Services.h"
+#include "mozilla/intl/AppDateTimeFormat.h"
 
 static mozilla::LazyLogModule gMimeEmitterLogModule("MIME");
 
@@ -628,20 +629,24 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
 
   // If we want short dates, check if the message is from today, and if so
   // only show the time (e.g. 3:15 pm).
-  mozilla::nsDateFormatSelector dateFormat = mozilla::kDateFormatShort;
+  nsDateFormatSelectorComm dateFormat = kDateFormatShort;
   if (!showDateForToday &&
       explodedCurrentTime.tm_year == explodedCompTime.tm_year &&
       explodedCurrentTime.tm_month == explodedCompTime.tm_month &&
       explodedCurrentTime.tm_mday == explodedCompTime.tm_mday) {
     // same day...
-    dateFormat = mozilla::kDateFormatNone;
+    dateFormat = kDateFormatNone;
   }
 
   nsAutoString formattedDateString;
 
-  rv = mozilla::DateTimeFormat::FormatPRExplodedTime(
-      dateFormat, mozilla::kTimeFormatShort, &explodedCompTime,
-      formattedDateString);
+  mozilla::intl::DateTimeFormat::StyleBag style;
+  if (dateFormat == kDateFormatShort) {
+    style.date = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+  }
+  style.time = mozilla::Some(mozilla::intl::DateTimeFormat::Style::Short);
+  rv = mozilla::intl::AppDateTimeFormat::Format(style, &explodedCompTime,
+                                                formattedDateString);
 
   if (NS_SUCCEEDED(rv)) {
     if (displaySenderTimezone) {
