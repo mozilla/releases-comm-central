@@ -1825,30 +1825,34 @@ int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
     // nsmail.<extension>
 
     nsAutoCString newAttachName("nsmail");
-    bool extensionAdded = false;
+    nsAutoCString fileExtension;
     // the content type may contain a charset. i.e. text/html; ISO-2022-JP...we
     // want to strip off the charset before we ask the mime service for a mime
     // info for this content type.
     nsAutoCString contentType(newAttachment->m_type);
     int32_t pos = contentType.FindChar(';');
     if (pos > 0) contentType.SetLength(pos);
-    nsresult rv = NS_OK;
-    nsCOMPtr<nsIMIMEService> mimeFinder(
-        do_GetService(NS_MIMESERVICE_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv) && mimeFinder) {
-      nsAutoCString fileExtension;
-      rv = mimeFinder->GetPrimaryExtension(contentType, EmptyCString(),
-                                           fileExtension);
-
-      if (NS_SUCCEEDED(rv) && !fileExtension.IsEmpty()) {
-        newAttachName.Append('.');
-        newAttachName.Append(fileExtension);
-        extensionAdded = true;
+    int32_t extLoc = newAttachment->m_realName.RFindChar('.');
+    int32_t specLength = newAttachment->m_realName.Length();
+    // @see nsExternalHelperAppService::GetTypeFromURI()
+    if (extLoc != -1 && extLoc != specLength - 1 &&
+        // nothing over 20 chars long can be sanely considered an
+        // extension.... Dat dere would be just data.
+        specLength - extLoc < 20) {
+      fileExtension = Substring(newAttachment->m_realName, extLoc + 1);
+    } else {
+      nsCOMPtr<nsIMIMEService> mimeFinder(
+          do_GetService(NS_MIMESERVICE_CONTRACTID));
+      if (mimeFinder) {
+        mimeFinder->GetPrimaryExtension(contentType, ""_ns, fileExtension);
       }
     }
 
-    if (!extensionAdded) {
+    if (fileExtension.IsEmpty()) {
       newAttachName.AppendLiteral(".tmp");
+    } else {
+      newAttachName.Append('.');
+      newAttachName.Append(fileExtension);
     }
 
     nsMsgCreateTempFile(newAttachName.get(), getter_AddRefs(tmpFile));
