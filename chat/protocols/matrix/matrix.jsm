@@ -1964,7 +1964,9 @@ MatrixAccount.prototype = {
         const conversation = this.roomList.get(state.roomId);
         if (conversation.isChat) {
           const participant = conversation._participants.get(member.userId);
-          conversation.notifyObservers(participant, "chat-buddy-update");
+          if (participant) {
+            conversation.notifyObservers(participant, "chat-buddy-update");
+          }
         }
       }
     });
