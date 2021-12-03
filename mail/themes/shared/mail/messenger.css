@@ -195,6 +195,7 @@ body {
 
 :root[lwt-default-theme-in-dark-mode] {
   --lwt-selected-tab-background-color: #2a2a2e !important;
+  --sidebar-highlight-background-color: #0a84ff;
 }
 
 body {
