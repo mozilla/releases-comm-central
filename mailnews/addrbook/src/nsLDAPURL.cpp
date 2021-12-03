@@ -147,7 +147,7 @@ nsresult nsLDAPURL::SetScheme(const nsACString& aScheme) {
   if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
   if (aScheme.Equals(LDAP_SCHEME, nsCaseInsensitiveCStringComparator))
-    mOptions &= !OPT_SECURE;
+    mOptions &= ~OPT_SECURE;
   else if (aScheme.Equals(LDAP_SSL_SCHEME, nsCaseInsensitiveCStringComparator))
     mOptions |= OPT_SECURE;
   else
