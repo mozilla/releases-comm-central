@@ -56,6 +56,9 @@ nsFolderCompactState::nsFolderCompactState() {
   m_needStatusLine = false;
   m_totalExpungedBytes = 0;
   m_alreadyWarnedDiskSpace = false;
+  m_totalMsgSize = 0;
+  m_startOfNewMsg = 0;
+  m_statusOffset = 0;
 }
 
 nsFolderCompactState::~nsFolderCompactState() {
