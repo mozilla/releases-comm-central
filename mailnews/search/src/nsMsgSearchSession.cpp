@@ -31,6 +31,7 @@ nsMsgSearchSession::nsMsgSearchSession() {
   m_handlingError = false;
   m_expressionTree = nullptr;
   m_searchPaused = false;
+  m_iListener = -1;
 }
 
 nsMsgSearchSession::~nsMsgSearchSession() {
