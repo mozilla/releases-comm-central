@@ -43,6 +43,7 @@ treeherder:
         'UV': 'Update verify'
 
         # mozlint
+        'cpp': 'C/C++ checks'
         'js': 'JavaScript checks'
         'l10n': 'Localization checks'
         'misc': 'Misc checks'
@@ -59,6 +60,7 @@ treeherder:
 index:
     products:
         - thunderbird
+        - static-analysis
 
 try:
     ridealong-builds: {}

@@ -24,6 +24,7 @@ reference-jobs:
     - linux64-clang-13-macosx-cross
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
+    - linux64-clang-tidy
     - linux64-clang-win-cross
     - linux64-dump_syms
     - linux64-fix-stacks

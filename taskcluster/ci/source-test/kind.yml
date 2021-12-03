@@ -7,9 +7,15 @@ loader: gecko_taskgraph.loader.transform:loader
 transforms:
     - gecko_taskgraph.transforms.try_job:transforms
     - gecko_taskgraph.transforms.source_test:transforms
+    - comm_taskgraph.transforms.source_test:transforms
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
+kind-dependencies:
+    - fetch
+    - toolchain
+
 jobs-from:
-    - python.yml
+    - clang.yml
     - mozlint.yml
+    - python.yml
