@@ -29,6 +29,8 @@ nsMsgSearchDBView::nsMsgSearchDBView() {
   mSuppressMsgDisplay = true;
   m_totalMessagesInView = 0;
   m_nextThreadId = 1;
+  mCurIndex = 0;
+  mTotalIndices = 0;
 }
 
 nsMsgSearchDBView::~nsMsgSearchDBView() {}

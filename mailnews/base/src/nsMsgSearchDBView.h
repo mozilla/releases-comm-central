@@ -141,7 +141,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   nsCOMArray<nsIMsgFolder> m_uniqueFoldersSelected;
   uint32_t mCurIndex;
 
-  nsMsgViewIndex* mIndicesForChainedDeleteAndFile;
   int32_t mTotalIndices;
   nsCOMArray<nsIMsgDatabase> m_dbToUseList;
   nsMsgViewCommandTypeValue mCommand;
