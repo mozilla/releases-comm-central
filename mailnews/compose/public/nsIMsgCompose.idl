@@ -219,11 +219,6 @@ interface nsIMsgCompose : nsIMsgSendListener {
   */
   attribute boolean bodyModified;
 
-  /* The body string is stored as a byte string in comp fields, but is converted to
-   * UTF16 when fetched by GetBody(). Fetch the body without conversion.
-   */
-  readonly attribute ACString bodyRaw;
-
   /**
    *  Init the editor THIS USED TO BE [noscript]
    *  Now, this is called after editor is created,
