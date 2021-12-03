@@ -67,6 +67,8 @@ nsMsgSendLater::nsMsgSendLater() {
 
   mIdentityKey = nullptr;
   mAccountKey = nullptr;
+
+  mUserInitiated = false;
 }
 
 nsMsgSendLater::~nsMsgSendLater() {
