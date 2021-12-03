@@ -183,9 +183,6 @@ class nsMsgCompFields : public nsIMsgCompFields {
   bool GetBodyIsAsciiOnly() { return m_bodyIsAsciiOnly; }
   bool GetForceMsgEncoding() { return m_forceMsgEncoding; }
 
-  nsresult SetBody(const char* value);
-  const char* GetBody();
-
   nsresult SplitRecipientsEx(const nsAString& recipients,
                              nsTArray<nsMsgRecipient>& aResult);
 
