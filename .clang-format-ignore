@@ -5,6 +5,7 @@
 
 # Specific modules to exclude.
 calendar/libical/.*
+mailnews/mapi/include/.*
 suite/.*
 third_party/.*
 
