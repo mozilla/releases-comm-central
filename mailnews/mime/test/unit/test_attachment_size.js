@@ -320,7 +320,7 @@ msgWindow.msgHeaderSink = gMessageHeaderSink;
 function* test_message_attachments(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  yield add_sets_to_folder(gInbox, [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
   let msgService = gMessenger.messageServiceFromURI(msgURI);
@@ -348,6 +348,6 @@ var gInbox;
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

@@ -32,17 +32,17 @@ var tests = [
   function setup() {
     gMessageGenerator = new MessageGenerator();
 
-    MessageInjection.configure_message_injection({ mode: "local" });
+    configure_message_injection({ mode: "local" });
 
-    targetFolder = MessageInjection.make_empty_folder();
+    targetFolder = make_empty_folder();
     targetFolder.AddFolderListener(folderListener);
     registerCleanupFunction(function() {
       targetFolder.RemoveFolderListener(folderListener);
     });
   },
   async function create_new_message() {
-    MessageInjection.make_new_sets_in_folder(targetFolder, [{ count: 1 }]);
-    await MessageInjection.wait_for_message_injection();
+    make_new_sets_in_folder(targetFolder, [{ count: 1 }]);
+    await wait_for_message_injection();
   },
 ];
 

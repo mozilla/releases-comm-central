@@ -37,8 +37,8 @@ function* test_msf_closure() {
   GlodaFolder.prototype.ACCEPTABLY_OLD_THRESHOLD = 1000000000;
 
   // create a synthetic message
-  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
+  let [, msgSet] = make_folder_with_sets([{ count: 1 }]);
+  yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, {
     verifier: poke_and_verify_msf_closure,
   });
@@ -105,6 +105,6 @@ var tests = [test_msf_closure];
 function run_test() {
   // we only need to test using local folders, although it is important that
   //  we are using a non-Inbox folder (which we are).
-  MessageInjection.configure_message_injection({ mode: "local" });
+  configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

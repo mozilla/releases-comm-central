@@ -331,7 +331,7 @@ var messageInfos = [
 function* test_stream_message(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  yield add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
 
@@ -472,7 +472,7 @@ function* test_sane_bodies() {
     body: { body: hugeString, contentType: "text/plain" },
   });
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  yield add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
 
@@ -585,7 +585,7 @@ function* test_attachments_correctness() {
   for (let [i, params] of attMessagesParams.entries()) {
     let synMsg = gMessageGenerator.makeMessage(params);
     let synSet = new SyntheticMessageSet([synMsg]);
-    yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+    yield add_sets_to_folder(gInbox, [synSet]);
 
     let msgHdr = synSet.getMsgHdr(0);
     // dump(synMsg.toMboxString()+"\n\n");
@@ -678,7 +678,7 @@ var weirdMessageInfos = [
 function* test_part12_not_an_attachment() {
   let synMsg = gMessageGenerator.makeMessage(weirdMessageInfos[0]);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  yield add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
   // dump(synMsg.toMboxString());
@@ -715,6 +715,6 @@ function run_test() {
     GlodaDatastore.shutdown();
   });
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
+  gInbox = configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

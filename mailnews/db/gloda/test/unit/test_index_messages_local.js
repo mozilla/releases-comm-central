@@ -11,8 +11,8 @@ load("base_index_messages.js");
  */
 function* test_reparse_of_local_folder_works() {
   // index a folder
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
+  let [folder, msgSet] = make_folder_with_sets([{ count: 1 }]);
+  yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet);
 
   // force a db flush so we do not have any outstanding references to the
@@ -41,8 +41,8 @@ tests.unshift(test_reparse_of_local_folder_works);
  */
 function* test_fromjson_of_removed_tag() {
   // -- inject
-  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
+  let [, msgSet] = make_folder_with_sets([{ count: 1 }]);
+  yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet, { augment: true });
   let gmsg = msgSet.glodaMessages[0];
 
@@ -97,6 +97,6 @@ function test_nountag_does_not_think_it_has_watch_tag_when_it_does_not() {
 tests.unshift(test_nountag_does_not_think_it_has_watch_tag_when_it_does_not);
 
 function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
+  configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

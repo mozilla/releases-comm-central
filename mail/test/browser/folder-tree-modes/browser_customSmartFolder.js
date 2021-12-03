@@ -22,8 +22,8 @@ var {
   expand_folder,
   get_smart_folder_named,
   inboxFolder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -68,8 +68,8 @@ add_task(function setupModule(module) {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  MessageInjection.make_new_sets_in_folder(subfolderA, [{ count: 1 }]);
-  MessageInjection.make_new_sets_in_folder(subfolderB, [{ count: 1 }]);
+  make_new_sets_in_folder(subfolderA, [{ count: 1 }]);
+  make_new_sets_in_folder(subfolderB, [{ count: 1 }]);
 });
 
 /**

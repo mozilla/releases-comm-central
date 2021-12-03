@@ -20,6 +20,6 @@ function run_test() {
     do_get_profile()
   );
 
-  MessageInjection.configure_message_injection({ mode: "imap", offline: true });
+  configure_message_injection({ mode: "imap", offline: true });
   glodaHelperRunTests(tests);
 }

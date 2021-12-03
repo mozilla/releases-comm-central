@@ -49,7 +49,7 @@ var gTestArray = [
 ];
 
 function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
+  configure_message_injection({ mode: "local" });
 
   gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
@@ -62,8 +62,8 @@ function run_test() {
   let messages = [];
   messages = messages.concat([gMsg1, msg2]);
   let msgSet = new SyntheticMessageSet(messages);
-  gTestFolder = MessageInjection.make_empty_folder();
-  MessageInjection.add_sets_to_folder(gTestFolder, [msgSet]);
+  gTestFolder = make_empty_folder();
+  add_sets_to_folder(gTestFolder, [msgSet]);
 
   // "Master" do_test_pending(), paired with a do_test_finished() at the end of
   // all the operations.

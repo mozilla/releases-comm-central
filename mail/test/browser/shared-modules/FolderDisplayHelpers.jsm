@@ -6,6 +6,7 @@
 
 const EXPORTED_SYMBOLS = [
   "add_message_to_folder",
+  "add_sets_to_folders",
   "add_to_toolbar",
   "archive_messages",
   "archive_selected_messages",
@@ -68,6 +69,7 @@ const EXPORTED_SYMBOLS = [
   "create_message",
   "create_thread",
   "create_virtual_folder",
+  "delete_message_set",
   "delete_via_popup",
   "display_message_in_folder_tab",
   "empty_folder",
@@ -90,9 +92,12 @@ const EXPORTED_SYMBOLS = [
   "make_display_grouped",
   "make_display_threaded",
   "make_display_unthreaded",
+  "make_folder_with_sets",
+  "make_new_sets_in_folder",
+  "make_new_sets_in_folders",
+  "make_virtual_folder",
   "mark_action",
   "mc",
-  "MessageInjection",
   "middle_click_on_folder",
   "middle_click_on_row",
   "msgGen",
@@ -198,8 +203,6 @@ var testHelperModule;
 
 var msgGen;
 
-var MessageInjection;
-
 var inboxFolder = null;
 
 // logHelper exports
@@ -280,7 +283,13 @@ function setupModule() {
   testHelperModule.gMessageGenerator = msgGen;
   testHelperModule.gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
-  MessageInjection = testHelperModule.MessageInjection;
+  make_new_sets_in_folders = make_new_sets_in_folder =
+    testHelperModule.make_new_sets_in_folders;
+  add_sets_to_folders = testHelperModule.add_sets_to_folders;
+  make_folder_with_sets = testHelperModule.make_folder_with_sets;
+  make_virtual_folder = testHelperModule.make_virtual_folder;
+
+  delete_message_set = testHelperModule.async_delete_messages;
 
   // use window-helper's augment_controller method to get our extra good stuff
   //  we need.
@@ -315,9 +324,7 @@ function smimeUtils_loadCertificateAndKey(file) {
 }
 
 function setupAccountStuff() {
-  inboxFolder = testHelperModule.MessageInjection.configure_message_injection({
-    mode: "local",
-  });
+  inboxFolder = testHelperModule.configure_message_injection({ mode: "local" });
 }
 
 /*
@@ -336,20 +343,17 @@ function setupAccountStuff() {
 function create_folder(aFolderName, aSpecialFlags) {
   wait_for_message_display_completion();
 
-  let folder = testHelperModule.MessageInjection.make_empty_folder(
-    aFolderName,
-    aSpecialFlags
-  );
+  let folder = testHelperModule.make_empty_folder(aFolderName, aSpecialFlags);
   mc.folderTreeView.mode = "all";
   return folder;
 }
 
 /**
- * Create a virtual folder by deferring to |MessageInjection.make_virtual_folder| and making
+ * Create a virtual folder by deferring to |make_virtual_folder| and making
  *  sure to rebuild the folder tree afterwards.
  */
 function create_virtual_folder(...aArgs) {
-  let folder = testHelperModule.MessageInjection.make_virtual_folder(...aArgs);
+  let folder = testHelperModule.make_virtual_folder(...aArgs);
   mc.folderTreeView.mode = "all";
   return folder;
 }
@@ -444,7 +448,7 @@ function create_encrypted_openpgp_message(aArgs) {
 function add_message_to_folder(aFolder, aMsg) {
   // should presumably use async_run here, but since setupAccountStuff is
   // using a local store, it should be safe to assume synchronicity
-  MessageInjection.add_sets_to_folders(
+  add_sets_to_folders(
     [aFolder],
     [new testHelperModule.SyntheticMessageSet([aMsg])]
   );
@@ -3322,6 +3326,14 @@ function toggle_main_menu(aEnabled = true) {
   mc.sleep(0);
   return state;
 }
+
+/** exported from messageInjection.js */
+var make_new_sets_in_folders;
+var make_new_sets_in_folder;
+var add_sets_to_folders;
+var delete_message_set;
+var make_folder_with_sets;
+var make_virtual_folder;
 
 /**
  * Load a file in its own 'module' (scope really), based on the effective

@@ -26,8 +26,8 @@ var {
   focus_folder_tree,
   focus_message_pane,
   focus_thread_tree,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
   select_click_row,
@@ -45,8 +45,8 @@ add_task(function setupModule(module) {
 
   // We will verify we are seeing the right folder by checking that it has the
   //  right messages in it.
-  [setA] = MessageInjection.make_new_sets_in_folder(folderA, [{}]);
-  [setB] = MessageInjection.make_new_sets_in_folder(folderB, [{}]);
+  [setA] = make_new_sets_in_folder(folderA, [{}]);
+  [setB] = make_new_sets_in_folder(folderB, [{}]);
 });
 
 /** The tabs in our test. */

@@ -18,17 +18,13 @@ initViewWrapperTestUtils({ mode: "imap", offline: false });
  */
 function* test_enter_imap_folder_requiring_update_folder_immediately() {
   // - create the folder and wait for the IMAP op to complete
-  let folderHandle = MessageInjection.make_empty_folder();
+  let folderHandle = make_empty_folder();
   yield wait_for_async_promises();
-  let msgFolder = MessageInjection.get_real_injection_folder(folderHandle);
+  let msgFolder = get_real_injection_folder(folderHandle);
 
   // - add the messages
-  let [msgSet] = MessageInjection.make_new_sets_in_folder(
-    folderHandle,
-    [{ count: 1 }],
-    true
-  );
-  yield MessageInjection.wait_for_message_injection();
+  let [msgSet] = make_new_sets_in_folder(folderHandle, [{ count: 1 }], true);
+  yield wait_for_message_injection();
 
   let viewWrapper = make_view_wrapper();
 

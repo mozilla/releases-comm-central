@@ -7,6 +7,6 @@
 load("base_index_messages.js");
 
 function run_test() {
-  MessageInjection.configure_message_injection({ mode: "imap", offline: true });
+  configure_message_injection({ mode: "imap", offline: true });
   glodaHelperRunTests(tests);
 }

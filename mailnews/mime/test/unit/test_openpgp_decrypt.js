@@ -281,7 +281,7 @@ add_task(async function setUp() {
     do_get_file(`${keyDir}bob@openpgp.example-0xfbfcc82a015e7330-pub.asc`)
   );
 
-  gInbox = MessageInjection.configure_message_injection({
+  gInbox = configure_message_injection({
     mode: "local",
   });
 

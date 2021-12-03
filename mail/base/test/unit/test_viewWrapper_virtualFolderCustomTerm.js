@@ -46,16 +46,11 @@ MailServices.filters.addCustomTerm(gCustomSearchTermSubject);
 function* test_virtual_folder_single_load_custom_pred() {
   let viewWrapper = make_view_wrapper();
 
-  let [folderOne, oneSubjFoo] = MessageInjection.make_folder_with_sets([
-    { subject: "foo" },
-    {},
-  ]);
+  let [folderOne, oneSubjFoo] = make_folder_with_sets([{ subject: "foo" }, {}]);
 
-  yield MessageInjection.wait_for_message_injection();
+  yield wait_for_message_injection();
 
-  let virtFolder = MessageInjection.make_virtual_folder(folderOne, {
-    custom: "foo",
-  });
+  let virtFolder = make_virtual_folder(folderOne, { custom: "foo" });
 
   yield async_view_open(viewWrapper, virtFolder);
 

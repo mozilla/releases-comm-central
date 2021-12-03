@@ -16,8 +16,8 @@ var {
   create_folder,
   get_smart_folder_named,
   inboxFolder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
@@ -54,15 +54,13 @@ add_task(function setupModule(module) {
   // For setTagged, we want exactly as many messages as we plan to delete, so
   // that we can test that the message window and tabs close when they run out
   // of things to display.
-  let [, setTagged] = MessageInjection.make_new_sets_in_folder(baseFolder, [
+  let [, setTagged] = make_new_sets_in_folder(baseFolder, [
     { count: 4 },
     { count: 4 },
   ]);
   setTagged.addTag("$label1"); // Important, by default
   // We depend on the count for this, too
-  [setNormal] = MessageInjection.make_new_sets_in_folder(inboxFolder, [
-    { count: 4 },
-  ]);
+  [setNormal] = make_new_sets_in_folder(inboxFolder, [{ count: 4 }]);
 
   // Add the view picker to the toolbar
   let toolbar = mc.e("mail-bar3");

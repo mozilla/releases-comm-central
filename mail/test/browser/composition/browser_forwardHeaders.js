@@ -16,12 +16,12 @@ var {
   open_compose_with_forward_as_attachments,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
+  add_sets_to_folders,
   be_in_folder,
   create_folder,
   create_thread,
   get_special_folder,
   mc,
-  MessageInjection,
   press_delete,
   select_click_row,
   select_shift_click_row,
@@ -44,7 +44,7 @@ var gDrafts;
 add_task(function setupModule(module) {
   folder = create_folder("Test");
   let thread1 = create_thread(10);
-  MessageInjection.add_sets_to_folders([folder], [thread1]);
+  add_sets_to_folders([folder], [thread1]);
 
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 

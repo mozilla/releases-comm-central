@@ -16,8 +16,8 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
   remove_from_toolbar,
@@ -34,7 +34,7 @@ add_task(function setupModule(module) {
   folderA = create_folder("FolderToolbarA");
   // we need one message to select and open
   folderB = create_folder("FolderToolbarB");
-  MessageInjection.make_new_sets_in_folder(folderB, [{ count: 1 }]);
+  make_new_sets_in_folder(folderB, [{ count: 1 }]);
 });
 
 add_task(function test_add_folder_toolbar() {

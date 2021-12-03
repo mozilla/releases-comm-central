@@ -227,7 +227,7 @@ function* test_index(aPhrase) {
     aPhrase.resultList.push(smsg);
   }
   let synSet = new SyntheticMessageSet(messages);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  yield add_sets_to_folder(gInbox, [synSet]);
 
   yield wait_for_gloda_indexer(synSet, { verifier: verify_index });
 }
@@ -298,7 +298,7 @@ function* test_encoding_complications_with_mail_addresses() {
   }
 
   let synSet = new SyntheticMessageSet([smsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  yield add_sets_to_folder(gInbox, [synSet]);
   yield wait_for_gloda_indexer(synSet, { verifier: verify_sammy_snake });
 }
 
@@ -318,6 +318,6 @@ var gInbox;
 
 function run_test() {
   // use mbox injection because the fake server chokes sometimes right now
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
+  gInbox = configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

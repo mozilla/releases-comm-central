@@ -13,9 +13,10 @@
 var {
   assert_folder_visible,
   be_in_folder,
+  delete_message_set,
   inboxFolder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -41,10 +42,8 @@ add_task(function setupModule(module) {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  [inboxSet] = MessageInjection.make_new_sets_in_folder(inboxFolder, [
-    { count: 1 },
-  ]);
-  MessageInjection.make_new_sets_in_folder(inboxSubfolder, [{ count: 1 }]);
+  [inboxSet] = make_new_sets_in_folder(inboxFolder, [{ count: 1 }]);
+  make_new_sets_in_folder(inboxSubfolder, [{ count: 1 }]);
 });
 
 /**
@@ -70,9 +69,7 @@ add_task(function test_folder_population() {
  * change the selected folder in unread folders mode.
  */
 add_task(function test_newly_added_folder() {
-  let [newSet] = MessageInjection.make_new_sets_in_folder(trashFolder, [
-    { count: 1 },
-  ]);
+  let [newSet] = make_new_sets_in_folder(trashFolder, [{ count: 1 }]);
   assert_folder_visible(trashFolder);
   if (mc.folderTreeView.getSelectedFolders()[0] != inboxFolder) {
     throw new Error(
@@ -80,12 +77,12 @@ add_task(function test_newly_added_folder() {
         " added to unread view"
     );
   }
-  MessageInjection.async_delete_messages(newSet);
+  delete_message_set(newSet);
 });
 
 registerCleanupFunction(function teardownModule() {
   inboxFolder.propagateDelete(inboxSubfolder, true, null);
-  MessageInjection.async_delete_messages(inboxSet);
+  delete_message_set(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true, null);
   mc.folderTreeView.activeModes = "unread";
 

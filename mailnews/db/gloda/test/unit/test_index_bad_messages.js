@@ -34,10 +34,10 @@ var illegalMessageTemplates = [
  */
 function* test_illegal_message(aInfo) {
   // Inject the messages.
-  let [msgSet] = MessageInjection.make_new_sets_in_folder(gInbox, [
+  let [msgSet] = make_new_sets_in_folder(gInbox, [
     { count: 1, clobberHeaders: aInfo.clobberHeaders },
   ]);
-  yield MessageInjection.wait_for_message_injection();
+  yield wait_for_message_injection();
 
   // indexing should complete without actually indexing the message
   yield wait_for_gloda_indexer([], {
@@ -62,10 +62,8 @@ function* test_streaming_failure() {
   configure_gloda_indexing({ injectFaultIn: "streaming" });
 
   // Inject the messages.
-  let [msgSet] = MessageInjection.make_new_sets_in_folder(gInbox, [
-    { count: 1 },
-  ]);
-  yield MessageInjection.wait_for_message_injection();
+  let [msgSet] = make_new_sets_in_folder(gInbox, [{ count: 1 }]);
+  yield wait_for_message_injection();
 
   // indexing should complete without actually indexing the message
   yield wait_for_gloda_indexer([], {
@@ -91,11 +89,11 @@ function* test_streaming_failure() {
  *  we should not attempt to index the message again.
  */
 function* test_recovery_and_no_second_attempts() {
-  let [, goodSet] = MessageInjection.make_new_sets_in_folder(gInbox, [
+  let [, goodSet] = make_new_sets_in_folder(gInbox, [
     { count: 1, clobberHeaders: { From: "" } },
     { count: 1 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
+  yield wait_for_message_injection();
 
   yield wait_for_gloda_indexer([goodSet], { recovered: 1 });
 
@@ -116,13 +114,13 @@ function* test_recovery_and_no_second_attempts() {
  */
 function* test_reindex_on_dirty_clear_dirty_on_fail() {
   // Inject a new illegal message
-  let [msgSet] = MessageInjection.make_new_sets_in_folder(gInbox, [
+  let [msgSet] = make_new_sets_in_folder(gInbox, [
     {
       count: 1,
       clobberHeaders: illegalMessageTemplates[0].clobberHeaders,
     },
   ]);
-  yield MessageInjection.wait_for_message_injection();
+  yield wait_for_message_injection();
 
   // indexing should complete without actually indexing the message
   yield wait_for_gloda_indexer([], {
@@ -166,6 +164,6 @@ var tests = [
 ];
 
 function run_test() {
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
+  gInbox = configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

@@ -28,8 +28,8 @@ var {
   close_message_window,
   close_tab,
   create_folder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   open_selected_message,
   open_selected_messages,
   plan_for_message_display,
@@ -54,7 +54,7 @@ var NUM_MESSAGES_TO_OPEN = 5;
 
 add_task(function setupModule(module) {
   folder = create_folder("OpeningMessagesA");
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 10 }]);
+  make_new_sets_in_folder(folder, [{ count: 10 }]);
 });
 
 /**

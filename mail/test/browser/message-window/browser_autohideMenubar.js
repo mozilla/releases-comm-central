@@ -13,8 +13,8 @@ var {
   close_message_window,
   create_folder,
   inboxFolder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   open_selected_message_in_new_window,
   select_click_row,
   toggle_main_menu,
@@ -27,7 +27,7 @@ var menuState;
 
 add_task(function setup() {
   menuFolder = create_folder("menuFolder");
-  MessageInjection.make_new_sets_in_folder(menuFolder, [{ count: 1 }]);
+  make_new_sets_in_folder(menuFolder, [{ count: 1 }]);
 
   // Make the menubar not autohide by default.
   menuState = toggle_main_menu(true);

@@ -79,10 +79,8 @@ function* real_test() {
   // Add the messages to the folder
   let msgGenerator = new MessageGenerator();
   let genMessages = tests.map(data => msgGenerator.makeMessage(data[0]));
-  let folder = MessageInjection.make_empty_folder();
-  yield MessageInjection.add_sets_to_folder(folder, [
-    new SyntheticMessageSet(genMessages),
-  ]);
+  let folder = make_empty_folder();
+  yield add_sets_to_folder(folder, [new SyntheticMessageSet(genMessages)]);
 
   // Make the DB view
   let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=threaded";
@@ -106,6 +104,6 @@ function* real_test() {
 }
 
 function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
+  configure_message_injection({ mode: "local" });
   async_run_tests([real_test]);
 }

@@ -14,8 +14,8 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   open_folder_in_new_tab,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -38,17 +38,17 @@ var {
  */
 add_task(function test_sticky_basics() {
   let folderOne = create_folder("QuickFilterBarStickyBasics1");
-  let [unreadOne, readOne] = MessageInjection.make_new_sets_in_folder(
-    folderOne,
-    [{ count: 1 }, { count: 1 }]
-  );
+  let [unreadOne, readOne] = make_new_sets_in_folder(folderOne, [
+    { count: 1 },
+    { count: 1 },
+  ]);
   readOne.setRead(true);
 
   let folderTwo = create_folder("QuickFilterBarStickyBasics2");
-  let [unreadTwo, readTwo] = MessageInjection.make_new_sets_in_folder(
-    folderTwo,
-    [{ count: 1 }, { count: 1 }]
-  );
+  let [unreadTwo, readTwo] = make_new_sets_in_folder(folderTwo, [
+    { count: 1 },
+    { count: 1 },
+  ]);
   readTwo.setRead(true);
 
   // -- setup
@@ -88,20 +88,12 @@ add_task(function test_sticky_tags() {
   const tagA = "$label1",
     tagB = "$label2",
     tagC = "$label3";
-  let [
-    ,
-    setTagA1,
-    setTagB1,
-  ] = MessageInjection.make_new_sets_in_folder(folderOne, [
+  let [, setTagA1, setTagB1] = make_new_sets_in_folder(folderOne, [
     { count: 1 },
     { count: 1 },
     { count: 1 },
   ]);
-  let [
-    ,
-    setTagA2,
-    setTagC2,
-  ] = MessageInjection.make_new_sets_in_folder(folderTwo, [
+  let [, setTagA2, setTagC2] = make_new_sets_in_folder(folderTwo, [
     { count: 1 },
     { count: 1 },
     { count: 1 },

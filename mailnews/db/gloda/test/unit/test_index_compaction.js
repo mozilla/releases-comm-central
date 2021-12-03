@@ -87,22 +87,17 @@ function* test_compaction_indexing_pass(aParam) {
   // Create 5 messages.  We will move just the third message so the first two
   //  message keep their keys and the last two change.  (We want 2 for both
   //  cases to avoid edge cases.)
-  let [
-    folder,
-    sameSet,
-    moveSet,
-    shiftSet,
-  ] = MessageInjection.make_folder_with_sets([
+  let [folder, sameSet, moveSet, shiftSet] = make_folder_with_sets([
     { count: 2 },
     { count: 1 },
     { count: 2 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
+  yield wait_for_message_injection();
   yield wait_for_gloda_indexer([sameSet, moveSet, shiftSet], { augment: true });
 
   // move the message to another folder
-  let otherFolder = MessageInjection.make_empty_folder();
-  yield MessageInjection.async_move_messages(moveSet, otherFolder);
+  let otherFolder = make_empty_folder();
+  yield async_move_messages(moveSet, otherFolder);
   yield wait_for_gloda_indexer([moveSet]);
 
   if (aParam.forceCommit) {
@@ -110,7 +105,7 @@ function* test_compaction_indexing_pass(aParam) {
   }
 
   // compact
-  let msgFolder = MessageInjection.get_real_injection_folder(folder);
+  let msgFolder = get_real_injection_folder(folder);
   mark_action("actual", "triggering compaction", [
     "folder",
     msgFolder,
@@ -132,16 +127,16 @@ function* test_compaction_indexing_pass(aParam) {
  *  (Simulating the user quitting before all compactions have been processed.)
  */
 function* test_sweep_performs_compaction() {
-  let [folder, moveSet, staySet] = MessageInjection.make_folder_with_sets([
+  let [folder, moveSet, staySet] = make_folder_with_sets([
     { count: 1 },
     { count: 1 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
+  yield wait_for_message_injection();
   yield wait_for_gloda_indexer([moveSet, staySet], { augment: true });
 
   // move the message to another folder
-  let otherFolder = MessageInjection.make_empty_folder();
-  yield MessageInjection.async_move_messages(moveSet, otherFolder);
+  let otherFolder = make_empty_folder();
+  yield async_move_messages(moveSet, otherFolder);
   yield wait_for_gloda_indexer([moveSet]);
 
   // Disable event-driven indexing so there is no way the compaction job can
@@ -149,7 +144,7 @@ function* test_sweep_performs_compaction() {
   configure_gloda_indexing({ event: false });
 
   // compact
-  let msgFolder = MessageInjection.get_real_injection_folder(folder);
+  let msgFolder = get_real_injection_folder(folder);
   mark_action("actual", "triggering compaction", [
     "folder",
     msgFolder,
@@ -187,27 +182,27 @@ function* test_moves_and_deletions_on_compacted_folder_edge_case() {
     moveSet,
     delSet,
     staySet,
-  ] = MessageInjection.make_folder_with_sets([
+  ] = make_folder_with_sets([
     { count: 1 },
     { count: 1 },
     { count: 1 },
     { count: 1 },
   ]);
-  yield MessageInjection.wait_for_message_injection();
+  yield wait_for_message_injection();
   yield wait_for_gloda_indexer([compactMoveSet, moveSet, delSet, staySet], {
     augment: true,
   });
 
   // move the message to another folder
-  let otherFolder = MessageInjection.make_empty_folder();
-  yield MessageInjection.async_move_messages(compactMoveSet, otherFolder);
+  let otherFolder = make_empty_folder();
+  yield async_move_messages(compactMoveSet, otherFolder);
   yield wait_for_gloda_indexer([compactMoveSet]);
 
   // Disable indexing because we don't want to process the compaction.
   configure_gloda_indexing({ event: false });
 
   // compact
-  let msgFolder = MessageInjection.get_real_injection_folder(folder);
+  let msgFolder = get_real_injection_folder(folder);
   mark_action("actual", "triggering compaction", [
     "folder",
     msgFolder,
@@ -223,12 +218,12 @@ function* test_moves_and_deletions_on_compacted_folder_edge_case() {
   // - Delete
   // Because of the compaction, the PendingCommitTracker forgot that the message
   //  we are deleting got indexed; we will receive no event.
-  yield MessageInjection.async_delete_messages(delSet);
+  yield async_delete_messages(delSet);
 
   // - Move
   // Same deal on the move, except that it will try and trigger event-based
   //  indexing in the target folder...
-  yield MessageInjection.async_move_messages(moveSet, otherFolder);
+  yield async_move_messages(moveSet, otherFolder);
   // Kill the event-based indexing job of the target; we want the indexing sweep
   //  to see it as a move.
   mark_action("actual", "killing all indexing jobs", []);
@@ -260,31 +255,27 @@ function* test_moves_and_deletions_on_compacted_folder_edge_case() {
  */
 function* test_compaction_interrupting_indexing() {
   // create a folder with a message inside.
-  let [folder, compactionFodderSet] = MessageInjection.make_folder_with_sets([
-    { count: 1 },
-  ]);
-  yield MessageInjection.wait_for_message_injection();
+  let [folder, compactionFodderSet] = make_folder_with_sets([{ count: 1 }]);
+  yield wait_for_message_injection();
   yield wait_for_gloda_indexer([compactionFodderSet]);
 
   // move that message to another folder
-  let otherFolder = MessageInjection.make_empty_folder();
-  yield MessageInjection.async_move_messages(compactionFodderSet, otherFolder);
+  let otherFolder = make_empty_folder();
+  yield async_move_messages(compactionFodderSet, otherFolder);
   yield wait_for_gloda_indexer([compactionFodderSet]);
 
   // Configure the gloda indexer to hang while streaming the message.
   configure_gloda_indexing({ hangWhile: "streaming" });
 
   // create a folder with a message inside.
-  let [msgSet] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-  ]);
-  yield MessageInjection.wait_for_message_injection();
+  let [msgSet] = make_new_sets_in_folder(folder, [{ count: 1 }]);
+  yield wait_for_message_injection();
 
   yield wait_for_indexing_hang();
 
   // compact!  this should kill the job (and because of the compaction; no other
   //  reason should be able to do this.)
-  let msgFolder = MessageInjection.get_real_injection_folder(folder);
+  let msgFolder = get_real_injection_folder(folder);
   msgFolder.compact(asyncUrlListener, null);
   yield false;
 
@@ -308,13 +299,11 @@ function* test_do_not_enter_compacting_folders() {
   configure_gloda_indexing({ event: false });
 
   // create a folder with a message inside.
-  let [folder] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
-  yield MessageInjection.wait_for_message_injection();
+  let [folder] = make_folder_with_sets([{ count: 1 }]);
+  yield wait_for_message_injection();
 
   // lie and claim we are compacting that folder
-  let glodaFolder = Gloda.getFolderForFolder(
-    MessageInjection.get_real_injection_folder(folder)
-  );
+  let glodaFolder = Gloda.getFolderForFolder(get_real_injection_folder(folder));
   glodaFolder.compacting = true;
 
   // now try and force ourselves to index that folder and its message...
@@ -334,6 +323,6 @@ var tests = [
 ];
 
 function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
+  configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

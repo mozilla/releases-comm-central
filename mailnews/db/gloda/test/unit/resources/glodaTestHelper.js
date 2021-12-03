@@ -128,7 +128,7 @@ var GLODA_BAD_MESSAGE_ID = 2;
 var GLODA_OLD_BAD_MESSAGE_ID = 1;
 
 // -- Add a hook that makes folders not filthy when we first see them.
-MessageInjection.register_message_injection_listener({
+register_message_injection_listener({
   /**
    * By default all folders start out filthy.  This is great in the real world
    *  but I went and wrote all the unit tests without entirely thinking about
@@ -863,7 +863,7 @@ function indexAndPermuteMessages(aScenarioMaker, aVerifier) {
  *  us.
  */
 function* _runPermutations(aScenarioMaker, aVerifier) {
-  let folder = MessageInjection.make_empty_folder();
+  let folder = make_empty_folder();
 
   // To calculate the permutations, we need to actually see what gets produced.
   let scenarioMessages = aScenarioMaker();
@@ -880,7 +880,7 @@ function* _runPermutations(aScenarioMaker, aVerifier) {
     }
     scenarioMessages = permute(scenarioMessages, iPermutation);
     let scenarioSet = new SyntheticMessageSet(scenarioMessages);
-    yield MessageInjection.add_sets_to_folders(folder, [scenarioSet]);
+    yield add_sets_to_folders(folder, [scenarioSet]);
     yield wait_for_gloda_indexer(scenarioSet, aVerifier);
 
     mark_sub_test_end();

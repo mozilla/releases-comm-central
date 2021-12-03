@@ -22,8 +22,8 @@ var {
   close_message_window,
   close_tab,
   create_folder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   plan_for_message_display,
   remove_from_toolbar,
   reset_open_message_behavior,
@@ -54,7 +54,7 @@ var NUM_MESSAGES_TO_OPEN = 5;
 
 add_task(function setupModule(module) {
   folder = create_folder("OpeningMessagesNoBackingViewA");
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 10 }]);
+  make_new_sets_in_folder(folder, [{ count: 10 }]);
   // We don't obey mail view persistence unless the view picker is there
   add_to_toolbar(mc.e("mail-bar3"), "mailviews-container");
 });

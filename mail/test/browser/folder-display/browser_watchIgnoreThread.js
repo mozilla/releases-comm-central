@@ -9,6 +9,7 @@
 "use strict";
 
 var {
+  add_sets_to_folders,
   assert_not_shown,
   assert_selected_and_displayed,
   assert_visible,
@@ -19,7 +20,6 @@ var {
   inboxFolder,
   make_display_threaded,
   mc,
-  MessageInjection,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -33,7 +33,7 @@ add_task(function setupModule(module) {
   thread1 = create_thread(3);
   thread2 = create_thread(4);
   thread3 = create_thread(5);
-  MessageInjection.add_sets_to_folders([folder], [thread1, thread2, thread3]);
+  add_sets_to_folders([folder], [thread1, thread2, thread3]);
 
   be_in_folder(folder);
   make_display_threaded();

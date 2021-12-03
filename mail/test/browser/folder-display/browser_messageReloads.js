@@ -16,7 +16,7 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
-  MessageInjection,
+  make_new_sets_in_folder,
   open_folder_in_new_tab,
   select_click_row,
   switch_tab,
@@ -29,7 +29,7 @@ var folder;
 
 add_task(function setupModule(module) {
   folder = create_folder("MessageReloads");
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 1 }]);
+  make_new_sets_in_folder(folder, [{ count: 1 }]);
 });
 
 add_task(function test_message_reloads_work_with_message_pane_toggles() {

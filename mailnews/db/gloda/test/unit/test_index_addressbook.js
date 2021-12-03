@@ -53,10 +53,10 @@ var DISPLAY_NAME = "every day";
  * Create an e-mail so the identity can exist.
  */
 function* setup_create_identity() {
-  let [msgSet] = MessageInjection.make_new_sets_in_folder(gInbox, [
+  let [msgSet] = make_new_sets_in_folder(gInbox, [
     { count: 1, from: [DISPLAY_NAME, EMAIL_ADDRESS] },
   ]);
-  yield MessageInjection.wait_for_message_injection();
+  yield wait_for_message_injection();
   yield wait_for_gloda_indexer(msgSet);
 
   // okay, but it knows it has no card because indexing thinks stuff.
@@ -116,6 +116,6 @@ var tests = [
 ];
 
 function run_test() {
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
+  gInbox = configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

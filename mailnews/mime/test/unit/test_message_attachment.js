@@ -182,7 +182,7 @@ msgWindow.msgHeaderSink = gMessageHeaderSink;
 function* test_message_attachments(info) {
   let synMsg = gMessageGenerator.makeMessage(info);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
+  yield add_sets_to_folder(gInbox, [synSet]);
 
   let msgURI = synSet.getMsgURI(0);
   let msgService = gMessenger.messageServiceFromURI(msgURI);
@@ -207,7 +207,7 @@ var tests = [parameterizeTest(test_message_attachments, messages)];
 var gInbox;
 
 function run_test() {
-  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
+  gInbox = configure_message_injection({ mode: "local" });
   Services.prefs.setBoolPref("mail.inline_attachments.text", true);
   async_run_tests(tests);
 }

@@ -16,8 +16,9 @@ var {
   make_display_grouped,
   make_display_threaded,
   make_display_unthreaded,
+  make_new_sets_in_folder,
+  make_new_sets_in_folders,
   mc,
-  MessageInjection,
   open_folder_in_new_tab,
   press_delete,
   right_click_on_row,
@@ -39,7 +40,7 @@ var folder = null,
 add_task(function setupModule(module) {
   folder = create_folder("SelectionA");
   folder2 = create_folder("SelectionB");
-  MessageInjection.make_new_sets_in_folders([folder, folder2], [{ count: 50 }]);
+  make_new_sets_in_folders([folder, folder2], [{ count: 50 }]);
 });
 
 // https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c80
@@ -173,7 +174,7 @@ add_task(function test_enter_scroll_to_new() {
   // leave the folder so that the messages get marked as read
   enter_folder(folder.rootFolder);
   // add a new message, and make sure it is new
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 1 }]);
+  make_new_sets_in_folder(folder, [{ count: 1 }]);
   // enter the folder
   enter_folder(folder);
   // make sure it (which must be the last row) is visible

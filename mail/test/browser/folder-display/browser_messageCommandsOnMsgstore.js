@@ -21,8 +21,8 @@ var {
   create_folder,
   empty_folder,
   get_special_folder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   press_delete,
   right_click_on_row,
   select_click_row,
@@ -50,7 +50,7 @@ add_task(function setupModule(module) {
 
   gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
   gInbox = create_folder("MsgStoreChecks");
-  MessageInjection.make_new_sets_in_folder(gInbox, [{ count: 6 }]);
+  make_new_sets_in_folder(gInbox, [{ count: 6 }]);
 
   // We delete the first message so that we have to compact anything.
   be_in_folder(gInbox);

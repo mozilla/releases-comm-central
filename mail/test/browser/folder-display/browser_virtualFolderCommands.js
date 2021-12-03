@@ -12,8 +12,9 @@ var {
   be_in_folder,
   expand_all_threads,
   make_display_threaded,
+  make_folder_with_sets,
+  make_virtual_folder,
   mc,
-  MessageInjection,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -24,14 +25,11 @@ var singleVirtFolder;
 var multiVirtFolder;
 
 add_task(function setupModule(module) {
-  let [folderOne] = MessageInjection.make_folder_with_sets([{ msgsPerThread }]);
-  let [folderTwo] = MessageInjection.make_folder_with_sets([{ msgsPerThread }]);
+  let [folderOne] = make_folder_with_sets([{ msgsPerThread }]);
+  let [folderTwo] = make_folder_with_sets([{ msgsPerThread }]);
 
-  singleVirtFolder = MessageInjection.make_virtual_folder([folderOne], {});
-  multiVirtFolder = MessageInjection.make_virtual_folder(
-    [folderOne, folderTwo],
-    {}
-  );
+  singleVirtFolder = make_virtual_folder([folderOne], {});
+  multiVirtFolder = make_virtual_folder([folderOne, folderTwo], {});
 });
 
 add_task(function test_single_folder_select_thread() {

@@ -155,8 +155,8 @@ function glodaInfoStasher(aSynthMessage, aGlodaMessage) {
  */
 function* setup_inject_messages() {
   let msgSet = new SyntheticMessageSet(messageInfos.map(info => info._synMsg));
-  let folder = MessageInjection.make_empty_folder();
-  yield MessageInjection.add_sets_to_folders(folder, [msgSet]);
+  let folder = make_empty_folder();
+  yield add_sets_to_folders(folder, [msgSet]);
   yield wait_for_gloda_indexer(msgSet, { verifier: glodaInfoStasher });
 }
 

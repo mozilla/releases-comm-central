@@ -9,9 +9,6 @@ load("base_query_messages.js");
 expectFulltextResults = false;
 
 function run_test() {
-  MessageInjection.configure_message_injection({
-    mode: "imap",
-    offline: false,
-  });
+  configure_message_injection({ mode: "imap", offline: false });
   glodaHelperRunTests(tests);
 }

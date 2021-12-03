@@ -354,10 +354,10 @@ var _waiting_for_async_promises = false;
  *  just have code with such dependencies to call |wait_for_async_promises| to
  *  ensure that all promises have been fulfilled.
  *
- * For a realistic use-case, this allows messageInjection.js' MessageInjection.make_empty_folder
+ * For a realistic use-case, this allows messageInjection.js' make_empty_folder
  *  to perform an asynchronous operation (the creation of a folder) but not have
  *  to return an asynchronous result indicator.  This simplifies calling code
- *  and avoids complicating the functions that combine MessageInjection.make_empty_folder with
+ *  and avoids complicating the functions that combine make_empty_folder with
  *  other functionality.  The message injection code is where we end up waiting
  *  on the promises (if required).
  */

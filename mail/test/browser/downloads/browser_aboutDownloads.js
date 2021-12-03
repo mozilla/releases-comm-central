@@ -18,8 +18,8 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   select_click_row,
   switch_tab,
   wait_for_popup_to_open,
@@ -79,7 +79,7 @@ var downloadsView = {
 
 function prepare_messages() {
   let folder = create_folder("about:downloads");
-  MessageInjection.make_new_sets_in_folder(folder, [
+  make_new_sets_in_folder(folder, [
     {
       count: 1,
       attachments: [

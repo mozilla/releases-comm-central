@@ -37,7 +37,7 @@ var cards = [
 ];
 
 function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
+  configure_message_injection({ mode: "local" });
 
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
@@ -78,8 +78,8 @@ function run_test() {
 
   do_test_pending();
 
-  gTestFolder = MessageInjection.make_empty_folder();
-  MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
+  gTestFolder = make_empty_folder();
+  add_sets_to_folders(gTestFolder, [msgSet]);
   // - create the view
   setup_view("threaded", Ci.nsMsgViewFlagsType.kNone);
   // Check that sorting by sender uses the display name

@@ -43,7 +43,7 @@ function spin_folder_indexer(...aArgs) {
   return async_run({ func: _spin_folder_indexer_gen, args: aArgs });
 }
 function* _spin_folder_indexer_gen(aFolderHandle, aExpectedJobGoal) {
-  let msgFolder = MessageInjection.get_real_injection_folder(aFolderHandle);
+  let msgFolder = get_real_injection_folder(aFolderHandle);
 
   // cheat and use indexFolder to build the job for us
   GlodaMsgIndexer.indexFolder(msgFolder);
@@ -76,7 +76,7 @@ var arbitraryGlodaId = 4096;
  */
 function* test_propagate_filthy_from_folder_to_messages() {
   // mark the folder as filthy
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 3 }]);
+  let [folder, msgSet] = make_folder_with_sets([{ count: 3 }]);
   let glodaFolder = Gloda.getFolderForFolder(folder);
   glodaFolder._dirtyStatus = glodaFolder.kFolderFilthy;
 
@@ -125,8 +125,8 @@ function* test_propagate_filthy_from_folder_to_messages() {
  *  with 0,1,2 messages matching.
  */
 function* test_count_pass() {
-  let [folder, msgSet] = MessageInjection.make_folder_with_sets([{ count: 2 }]);
-  yield MessageInjection.wait_for_message_injection();
+  let [folder, msgSet] = make_folder_with_sets([{ count: 2 }]);
+  yield wait_for_message_injection();
 
   let hdrs = msgSet.msgHdrList;
 
@@ -159,7 +159,7 @@ function* test_count_pass() {
 var tests = [test_propagate_filthy_from_folder_to_messages, test_count_pass];
 
 function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
+  configure_message_injection({ mode: "local" });
   // we do not want the event-driven indexer crimping our style
   configure_gloda_indexing({ event: false });
   glodaHelperRunTests(tests);

@@ -12,9 +12,6 @@ goOffline = true;
 
 function run_test() {
   // start with the messages online
-  MessageInjection.configure_message_injection({
-    mode: "imap",
-    offline: false,
-  });
+  configure_message_injection({ mode: "imap", offline: false });
   glodaHelperRunTests(tests);
 }

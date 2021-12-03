@@ -11,8 +11,8 @@
 var {
   assert_folder_visible,
   inboxFolder,
+  make_new_sets_in_folder,
   mc,
-  MessageInjection,
   select_no_folders,
   toggle_main_menu,
 } = ChromeUtils.import(
@@ -43,7 +43,7 @@ add_task(function setupModule(module) {
   inboxFolder.createSubfolder("FavoriteFolder", null);
   favoriteFolder = inboxFolder.getChildNamed("FavoriteFolder");
 
-  MessageInjection.make_new_sets_in_folder(unreadFolder, [{ count: 1 }]);
+  make_new_sets_in_folder(unreadFolder, [{ count: 1 }]);
   favoriteFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
   modeList_menu = mc.e("menu_FolderViewsPopup");
