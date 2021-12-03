@@ -118,6 +118,7 @@ nsMsgCopy::nsMsgCopy() {
   mFile = nullptr;
   mMode = nsIMsgSend::nsMsgDeliverNow;
   mSavePref = nullptr;
+  mIsDraft = false;
 }
 
 nsMsgCopy::~nsMsgCopy() { PR_Free(mSavePref); }
