@@ -760,8 +760,10 @@ nsresult EscapeFromSpaceLine(nsIOutputStream* outputStream, char* start,
       start = pChar;
     } else if (start < end) {
       // Check and flush out the remaining data and we're done.
-      if (IsAFromSpaceLine(start, end))
+      if (IsAFromSpaceLine(start, end)) {
         rv = outputStream->Write(">", 1, &written);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
       rv = outputStream->Write(start, end - start, &written);
       NS_ENSURE_SUCCESS(rv, rv);
       break;
