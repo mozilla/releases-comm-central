@@ -293,9 +293,7 @@ NS_IMETHODIMP nsLDAPURL::SchemeIs(const char* aScheme, bool* aEquals) {
 nsresult nsLDAPURL::Clone(nsIURI** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
-  nsLDAPURL* clone = new nsLDAPURL();
-
-  if (!clone) return NS_ERROR_OUT_OF_MEMORY;
+  RefPtr<nsLDAPURL> clone = new nsLDAPURL();
 
   clone->mDN = mDN;
   clone->mScope = mScope;
@@ -306,7 +304,7 @@ nsresult nsLDAPURL::Clone(nsIURI** aResult) {
   nsresult rv = NS_MutateURI(mBaseURL).Finalize(clone->mBaseURL);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ADDREF(*aResult = clone);
+  clone.forget(aResult);
   return NS_OK;
 }
 
