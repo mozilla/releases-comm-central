@@ -22,8 +22,8 @@ load("resources/glodaTestHelper.js");
  */
 function* test_gloda_offline_startup() {
   // Set up a folder for indexing and check the message doesn't get indexed.
-  let [, msgSet] = make_folder_with_sets([{ count: 1 }]);
-  yield wait_for_message_injection();
+  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
+  yield MessageInjection.wait_for_message_injection();
   yield wait_for_gloda_indexer();
 
   // Now go online...
@@ -36,6 +36,6 @@ function* test_gloda_offline_startup() {
 var tests = [test_gloda_offline_startup];
 
 function run_test() {
-  configure_message_injection({ mode: "local" });
+  MessageInjection.configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

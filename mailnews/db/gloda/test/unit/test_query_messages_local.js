@@ -7,6 +7,6 @@
 load("base_query_messages.js");
 
 function run_test() {
-  configure_message_injection({ mode: "local" });
+  MessageInjection.configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

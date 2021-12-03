@@ -14,8 +14,8 @@ var {
   collapse_all_threads,
   create_folder,
   make_display_threaded,
-  make_new_sets_in_folder,
   mc,
+  MessageInjection,
   open_selected_message_in_new_tab,
   open_selected_messages,
   select_click_row,
@@ -36,7 +36,9 @@ var MSGS_PER_THREAD = 3;
 
 add_task(function setupModule(module) {
   gFolder = create_folder("test-tabmail-closing folder");
-  make_new_sets_in_folder(gFolder, [{ msgsPerThread: MSGS_PER_THREAD }]);
+  MessageInjection.make_new_sets_in_folder(gFolder, [
+    { msgsPerThread: MSGS_PER_THREAD },
+  ]);
 });
 
 /**

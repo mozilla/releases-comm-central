@@ -47,7 +47,7 @@ function setup_globals(aNextFunc) {
   messages = messages.concat([msg1]);
   let msgSet = new SyntheticMessageSet(messages);
 
-  return add_sets_to_folders(gLocalInboxFolder, [msgSet]);
+  return MessageInjection.add_sets_to_folders(gLocalInboxFolder, [msgSet]);
 }
 
 var gCommandUpdater = {
@@ -112,7 +112,7 @@ function addMessages() {
   let msg1 = gMessageGenerator.makeMessage();
   messages = messages.concat([msg1]);
   let msgSet = new SyntheticMessageSet(messages);
-  return add_sets_to_folders(gLocalInboxFolder, [msgSet]);
+  return MessageInjection.add_sets_to_folders(gLocalInboxFolder, [msgSet]);
 }
 
 function* junkMessages() {
@@ -142,7 +142,9 @@ gMFListener.prototype = {
 };
 
 function run_test() {
-  gLocalInboxFolder = configure_message_injection({ mode: "local" });
+  gLocalInboxFolder = MessageInjection.configure_message_injection({
+    mode: "local",
+  });
 
   // Set option so that when messages are marked as junk, they move to the junk folder
   Services.prefs.setBoolPref("mail.spam.manualMark", true);

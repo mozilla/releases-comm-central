@@ -7,7 +7,7 @@
 var {
   be_in_folder,
   create_folder,
-  make_new_sets_in_folder,
+  MessageInjection,
   select_click_row,
   select_none,
   select_shift_click_row,
@@ -24,7 +24,7 @@ var folder = null;
 
 add_task(function setupModule(module) {
   folder = create_folder("JunkCommandsA");
-  make_new_sets_in_folder(folder, [{ count: 30 }]);
+  MessageInjection.make_new_sets_in_folder(folder, [{ count: 30 }]);
 });
 
 /**

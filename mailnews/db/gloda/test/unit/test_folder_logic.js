@@ -10,7 +10,7 @@ load("resources/glodaTestHelper.js");
  *  nothing in them.)
  */
 function test_newly_created_folders_start_clean() {
-  let msgFolder = make_empty_folder();
+  let msgFolder = MessageInjection.make_empty_folder();
   let glodaFolder = Gloda.getFolderForFolder(msgFolder);
   Assert.equal(glodaFolder.dirtyStatus, glodaFolder.kFolderClean);
 }
@@ -21,14 +21,14 @@ function test_newly_created_folders_start_clean() {
  *  name.
  */
 function* test_deleted_folder_tombstones_get_forgotten() {
-  let oldFolder = make_empty_folder("volver");
+  let oldFolder = MessageInjection.make_empty_folder("volver");
   let oldGlodaFolder = Gloda.getFolderForFolder(oldFolder);
-  yield async_delete_folder(oldFolder);
+  yield MessageInjection.async_delete_folder(oldFolder);
 
   // the tombstone needs to know it is deleted
   Assert.ok(oldGlodaFolder._deleted);
 
-  let newFolder = make_empty_folder("volver");
+  let newFolder = MessageInjection.make_empty_folder("volver");
   let newGlodaFolder = Gloda.getFolderForFolder(newFolder);
 
   // this folder better not be the same and better not think it is deleted.
@@ -44,6 +44,6 @@ var tests = [
 function run_test() {
   // Tests in this file assume that returned folders are nsIMsgFolders and not
   //  handles which currently only local injection supports.
-  configure_message_injection({ mode: "local" });
+  MessageInjection.configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }

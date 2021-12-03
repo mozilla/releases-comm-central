@@ -40,6 +40,8 @@ if (typeof gDEPTH == "undefined") {
   do_throw("gDEPTH must be defined when using messageInjection.js");
 }
 
+var MessageInjection = {};
+
 /*
  * IMAP port is 1167
  */
@@ -52,7 +54,7 @@ if (typeof gDEPTH == "undefined") {
  * @return {nsIMsgFolder} The Inbox folder.  You do not have to use this to
  *     put messages in; you can create one (or more) using |make_empty_folder|.
  */
-function configure_message_injection(aInjectionConfig) {
+MessageInjection.configure_message_injection = function(aInjectionConfig) {
   let mis = _messageInjectionSetup;
   mis.injectionConfig = aInjectionConfig;
 
@@ -196,11 +198,11 @@ function configure_message_injection(aInjectionConfig) {
   mis.trashFolder = null;
 
   return mis.inboxFolder;
-}
+};
 
-function message_injection_is_local() {
+MessageInjection.message_injection_is_local = function() {
   return _messageInjectionSetup.injectionConfig.mode == "local";
-}
+};
 
 async_test_runner_register_final_cleanup_helper(_cleanup_message_injection);
 
@@ -270,9 +272,9 @@ var _messageInjectionSetup = {
  *     created using |make_virtual_folder|.  The argument is the nsIMsgFolder
  *     that defines the virtual folder.
  */
-function register_message_injection_listener(aListener) {
+MessageInjection.register_message_injection_listener = function(aListener) {
   _messageInjectionSetup.listeners.push(aListener);
-}
+};
 
 /**
  * Convert a list of synthetic messages to a form appropriate to feed to the
@@ -312,7 +314,7 @@ var SEARCH_TERM_MAP_HELPER = {
  * @return A folder handle thing that you can pass in to our methods that
  *     expect actual folders.
  */
-function make_empty_folder(aFolderName, aSpecialFlags) {
+MessageInjection.make_empty_folder = function(aFolderName, aSpecialFlags) {
   if (aFolderName == null) {
     aFolderName = "gabba" + _messageInjectionSetup._nextUniqueFolderId++;
   }
@@ -379,10 +381,10 @@ function make_empty_folder(aFolderName, aSpecialFlags) {
   }
 
   return testFolder;
-}
+};
 
 // Small helper for moving folder. You have to yield move_folder(f1, f2);
-function move_folder(aSource, aTarget) {
+MessageInjection.move_folder = function(aSource, aTarget) {
   // we're doing a true move
   MailServices.copy.copyFolder(
     get_nsIMsgFolder(aSource),
@@ -403,27 +405,29 @@ function move_folder(aSource, aTarget) {
 
   // Wait for the call above to async_driver to be issued
   return false;
-}
+};
 
 /**
  * Get/create the junk folder handle.  Use get_real_injection_folder if you
  *  need the underlying nsIMsgDBFolder.
  */
-function get_junk_folder() {
+MessageInjection.get_junk_folder = function() {
   let mis = _messageInjectionSetup;
 
   if (!mis.junkHandle) {
-    mis.junkHandle = make_empty_folder("Junk", [Ci.nsMsgFolderFlags.Junk]);
+    mis.junkHandle = MessageInjection.make_empty_folder("Junk", [
+      Ci.nsMsgFolderFlags.Junk,
+    ]);
   }
 
   return mis.junkHandle;
-}
+};
 
 /**
  * Get/create the trash folder handle.  Use get_real_injection_folder if you
  *  need the underlying nsIMsgDBFolder.
  */
-function get_trash_folder() {
+MessageInjection.get_trash_folder = function() {
   let mis = _messageInjectionSetup;
 
   if (!mis.trashHandle) {
@@ -438,12 +442,14 @@ function get_trash_folder() {
       mis.handleUriToFakeFolder[mis.trashHandle] = fakeFolder;
       mis.realUriToFakeFolder[mis.trashFolder.URI] = fakeFolder;
     } else {
-      mis.trashHandle = make_empty_folder("Trash", [Ci.nsMsgFolderFlags.Trash]);
+      mis.trashHandle = MessageInjection.make_empty_folder("Trash", [
+        Ci.nsMsgFolderFlags.Trash,
+      ]);
     }
   }
 
   return mis.trashHandle;
-}
+};
 
 /**
  * Create and return a virtual folder.
@@ -456,7 +462,12 @@ function get_trash_folder() {
  * @param aBooleanAnd Should the search terms be and-ed together.
  * @param [aName] Name to use.
  */
-function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
+MessageInjection.make_virtual_folder = function(
+  aFolders,
+  aSearchDef,
+  aBooleanAnd,
+  aName
+) {
   let mis = _messageInjectionSetup;
   let name = aName ? aName : "virt" + mis._nextUniqueFolderId++;
 
@@ -510,24 +521,24 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
     wrapped.virtualFolder,
   ]);
   return wrapped.virtualFolder;
-}
+};
 
 /**
  * Mark the folder as offline and force all of its messages to be downloaded.
  *  This is an asynchronous operation that will call async_driver once the
  *  download is completed.
  */
-function make_folder_and_contents_offline(aFolderHandle) {
+MessageInjection.make_folder_and_contents_offline = function(aFolderHandle) {
   let mis = _messageInjectionSetup;
   if (mis.injectionConfig.mode != "imap") {
     return true;
   }
 
-  let msgFolder = get_real_injection_folder(aFolderHandle);
+  let msgFolder = MessageInjection.get_real_injection_folder(aFolderHandle);
   msgFolder.setFlag(Ci.nsMsgFolderFlags.Offline);
   msgFolder.downloadAllForOffline(asyncUrlListener, null);
   return false;
-}
+};
 
 /**
  * Create a new local folder, populating it with messages according to the set
@@ -545,15 +556,18 @@ function make_folder_and_contents_offline(aFolderHandle) {
  *     test_folder_deletion_nested in base_index_messages.js for an example of
  *     such pain.
  */
-function make_folder_with_sets(aSynSetDefs) {
-  let msgFolder = make_empty_folder();
-  let results = make_new_sets_in_folder(msgFolder, aSynSetDefs);
+MessageInjection.make_folder_with_sets = function(aSynSetDefs) {
+  let msgFolder = MessageInjection.make_empty_folder();
+  let results = MessageInjection.make_new_sets_in_folder(
+    msgFolder,
+    aSynSetDefs
+  );
   // results may be referenced by add_sets_to_folders in an async fashion, so
   //  don't change it.
   results = results.concat();
   results.unshift(msgFolder);
   return results;
-}
+};
 
 /**
  * Create multiple new local folders, populating them with messages according to
@@ -568,18 +582,21 @@ function make_folder_with_sets(aSynSetDefs) {
  *     whose subsequent items are the SyntheticMessageSets used to populate the
  *     folder (as returned by make_new_sets_in_folder).
  */
-function make_folders_with_sets(aFolderCount, aSynSetDefs) {
+MessageInjection.make_folders_with_sets = function(aFolderCount, aSynSetDefs) {
   let msgFolders = [];
   for (let i = 0; i < aFolderCount; i++) {
-    msgFolders.push(make_empty_folder());
+    msgFolders.push(MessageInjection.make_empty_folder());
   }
-  let results = make_new_sets_in_folders(msgFolders, aSynSetDefs);
+  let results = MessageInjection.make_new_sets_in_folders(
+    msgFolders,
+    aSynSetDefs
+  );
   // results may be referenced by add_sets_to_folders in an async fashion, so
   //  don't change it.
   results = results.concat();
   results.unshift(msgFolders);
   return results;
-}
+};
 
 /**
  * Given one or more existing local folder, create new message sets and add them
@@ -597,7 +614,11 @@ function make_folders_with_sets(aFolderCount, aSynSetDefs) {
  * @return A list of SyntheticMessageSet objects, each corresponding to the
  *     entry in aSynSetDefs (or implied if an integer was passed).
  */
-function make_new_sets_in_folders(aMsgFolders, aSynSetDefs, aDoNotForceUpdate) {
+MessageInjection.make_new_sets_in_folders = function(
+  aMsgFolders,
+  aSynSetDefs,
+  aDoNotForceUpdate
+) {
   // is it just a count of the number of plain vanilla sets to create?
   if (typeof aSynSetDefs == "number") {
     let setCount = aSynSetDefs;
@@ -616,12 +637,17 @@ function make_new_sets_in_folders(aMsgFolders, aSynSetDefs, aDoNotForceUpdate) {
   }
 
   // - add the messages to the folders (interleaving them)
-  add_sets_to_folders(aMsgFolders, messageSets, aDoNotForceUpdate);
+  MessageInjection.add_sets_to_folders(
+    aMsgFolders,
+    messageSets,
+    aDoNotForceUpdate
+  );
 
   return messageSets;
-}
+};
 /** singular folder alias for single-folder users' readability */
-var make_new_sets_in_folder = make_new_sets_in_folders;
+MessageInjection.make_new_sets_in_folder =
+  MessageInjection.make_new_sets_in_folders;
 
 /**
  * An iterator that generates an infinite sequence of its argument.  So
@@ -675,7 +701,11 @@ function* _looperator(aList) {
  *     (e.g. for an imap account) and we will call |async_driver| when
  *     we are done.  This is consistent with asyncTestUtils support.
  */
-function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
+MessageInjection.add_sets_to_folders = function(
+  aMsgFolders,
+  aMessageSets,
+  aDoNotForceUpdate
+) {
   if (typeof aMsgFolders == "string" || !("length" in aMsgFolders)) {
     aMsgFolders = [aMsgFolders];
   }
@@ -907,9 +937,9 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
   }
 
   return true;
-}
+};
 /** singular function name for understandability of single-folder users */
-var add_sets_to_folder = add_sets_to_folders;
+MessageInjection.add_sets_to_folder = MessageInjection.add_sets_to_folders;
 
 /**
  * Return the nsIMsgFolder associated with a folder handle.  If the folder has
@@ -917,25 +947,25 @@ var add_sets_to_folder = add_sets_to_folders;
  *  to first "yield wait_for_async_promises();" for us to be able to provide
  *  you with a result.
  */
-function get_real_injection_folder(aFolderHandle) {
+MessageInjection.get_real_injection_folder = function(aFolderHandle) {
   let mis = _messageInjectionSetup;
   if (mis.injectionConfig.mode == "imap") {
     return mis.handleUriToRealFolder[aFolderHandle];
   }
   return aFolderHandle;
-}
+};
 
 /**
  * Helper function for any of the convenience functions that integrate
  *  message injection.
  */
-function wait_for_message_injection() {
+MessageInjection.wait_for_message_injection = function() {
   let mis = _messageInjectionSetup;
   if (mis.injectionConfig.mode == "imap" || mis.injectionConfig.mode == "pop") {
     return false;
   }
   return true;
-}
+};
 
 /**
  * Asynchronously move messages in the given set to the destination folder.
@@ -954,14 +984,20 @@ function wait_for_message_injection() {
  *     a proxy-indicator for it coming from the UI and therefore performing
  *     pseudo-offline operations instead of trying to do things online.)
  */
-function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
+MessageInjection.async_move_messages = function(
+  aSynMessageSet,
+  aDestFolder,
+  aAllowUndo
+) {
   mark_action("messageInjection", "moving messages", aSynMessageSet.msgHdrList);
   return async_run({
     *func() {
       // we need to make sure all folder promises are fulfilled
       yield wait_for_async_promises();
       // and then we can make sure we have the actual folder
-      let realDestFolder = get_real_injection_folder(aDestFolder);
+      let realDestFolder = MessageInjection.get_real_injection_folder(
+        aDestFolder
+      );
 
       for (let [folder, msgs] of aSynMessageSet.foldersWithMsgHdrs) {
         mark_action("messageInjection", "moving messages", [
@@ -973,7 +1009,7 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
 
         // In the IMAP case tell listeners we are moving messages without
         //  destination headers.
-        if (!message_injection_is_local()) {
+        if (!MessageInjection.message_injection_is_local()) {
           _messageInjectionSetup.notifyListeners(
             "onMovingMessagesWithoutDestHeaders",
             [realDestFolder]
@@ -994,7 +1030,7 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
         yield false;
 
         // IMAP special case per function doc...
-        if (!message_injection_is_local()) {
+        if (!MessageInjection.message_injection_is_local()) {
           mark_action(
             "messageInjection",
             "forcing update of folder so IMAP move issued",
@@ -1025,7 +1061,7 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
       }
     },
   });
-}
+};
 
 /**
  * Move the messages to the trash; do not use this on messages that are already
@@ -1035,11 +1071,11 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
  *   The messages do not allhave to be in the same folder, but we have to trash
  *   them folder by folder if they are not.
  */
-async function real_async_trash_messages(synMessageSet) {
+MessageInjection.real_async_trash_messages = async function(synMessageSet) {
   for (let [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
     // In the IMAP case tell listeners we are moving messages without
     // destination headers, since that's what trashing amounts to.
-    if (!message_injection_is_local()) {
+    if (!MessageInjection.message_injection_is_local()) {
       _messageInjectionSetup.notifyListeners(
         "onMovingMessagesWithoutDestHeaders",
         []
@@ -1057,7 +1093,7 @@ async function real_async_trash_messages(synMessageSet) {
     await promiseCopyListener.promise;
 
     // Just like the move case we need to force updateFolder calls for IMAP.
-    if (!message_injection_is_local()) {
+    if (!MessageInjection.message_injection_is_local()) {
       // Update the source folder to force it to issue the move.
       await new Promise(resolve =>
         mailTestUtils.updateFolderAndNotify(folder, resolve)
@@ -1065,7 +1101,9 @@ async function real_async_trash_messages(synMessageSet) {
 
       // Trash folder may not have existed at startup but the deletion
       // will have created it.
-      let trashFolder = get_real_injection_folder(get_trash_folder());
+      let trashFolder = MessageInjection.get_real_injection_folder(
+        MessageInjection.get_trash_folder()
+      );
 
       // Update the dest folder to see the new header.
       await new Promise(resolve =>
@@ -1080,7 +1118,7 @@ async function real_async_trash_messages(synMessageSet) {
       }
     }
   }
-}
+};
 
 /**
  * Move the messages to the trash; do not use this on messages that are already
@@ -1090,7 +1128,7 @@ async function real_async_trash_messages(synMessageSet) {
  *     have to be in the same folder, but we have to trash them folder by
  *     folder if they are not.
  */
-function async_trash_messages(aSynMessageSet) {
+MessageInjection.async_trash_messages = function(aSynMessageSet) {
   mark_action(
     "messageInjection",
     "trashing messages",
@@ -1104,7 +1142,7 @@ function async_trash_messages(aSynMessageSet) {
         ]);
         // In the IMAP case tell listeners we are moving messages without
         //  destination headers, since that's what trashing amounts to.
-        if (!message_injection_is_local()) {
+        if (!MessageInjection.message_injection_is_local()) {
           _messageInjectionSetup.notifyListeners(
             "onMovingMessagesWithoutDestHeaders",
             []
@@ -1121,7 +1159,7 @@ function async_trash_messages(aSynMessageSet) {
         yield false;
 
         // just like the move case we need to force updateFolder calls for IMAP
-        if (!message_injection_is_local()) {
+        if (!MessageInjection.message_injection_is_local()) {
           mark_action(
             "messageInjection",
             "forcing update of folder so IMAP move issued",
@@ -1133,7 +1171,9 @@ function async_trash_messages(aSynMessageSet) {
 
           // trash folder may not have existed at startup but the deletion
           //  will have created it.
-          let trashFolder = get_real_injection_folder(get_trash_folder());
+          let trashFolder = MessageInjection.get_real_injection_folder(
+            MessageInjection.get_trash_folder()
+          );
 
           mark_action(
             "messageInjection",
@@ -1156,7 +1196,7 @@ function async_trash_messages(aSynMessageSet) {
       }
     },
   });
-}
+};
 
 /**
  * Delete all of the messages in a SyntheticMessageSet like the user performed a
@@ -1168,7 +1208,7 @@ function async_trash_messages(aSynMessageSet) {
  *     have to be in the same folder, but we have to delete them folder by
  *     folder if they are not.
  */
-function async_delete_messages(aSynMessageSet) {
+MessageInjection.async_delete_messages = function(aSynMessageSet) {
   mark_action(
     "messageInjection",
     "deleting messages",
@@ -1186,30 +1226,30 @@ function async_delete_messages(aSynMessageSet) {
     );
   }
   return true;
-}
+};
 
 /**
  * Empty the trash.
  */
-function async_empty_trash() {
+MessageInjection.async_empty_trash = function() {
   return async_run({
     *func() {
-      let trashHandle = get_trash_folder();
+      let trashHandle = MessageInjection.get_trash_folder();
       yield wait_for_async_promises();
-      let trashFolder = get_real_injection_folder(trashHandle);
+      let trashFolder = MessageInjection.get_real_injection_folder(trashHandle);
       trashFolder.emptyTrash(null, asyncUrlListener);
       yield false;
     },
   });
-}
+};
 
 /**
  * Delete the given folder, removing the storage.  We do not move it to the
  *  trash.
  */
-function async_delete_folder(aFolder) {
-  let realFolder = get_real_injection_folder(aFolder);
+MessageInjection.async_delete_folder = function(aFolder) {
+  let realFolder = MessageInjection.get_real_injection_folder(aFolder);
   mark_action("messageInjection", "deleting folder", [realFolder]);
   realFolder.parent.propagateDelete(realFolder, true, null);
   return true;
-}
+};

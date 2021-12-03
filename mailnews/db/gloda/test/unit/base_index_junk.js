@@ -24,11 +24,11 @@ var HAM_BODY = { body: "ham ham ham nice nice nice happy happy happy" };
  * Make SPAM_BODY be known as spammy and HAM_BODY be known as hammy.
  */
 function* setup_spam_filter() {
-  let [, spamSet, hamSet] = make_folder_with_sets([
+  let [, spamSet, hamSet] = MessageInjection.make_folder_with_sets([
     { count: 1, body: SPAM_BODY },
     { count: 1, body: HAM_BODY },
   ]);
-  yield wait_for_message_injection();
+  yield MessageInjection.wait_for_message_injection();
   yield wait_for_gloda_indexer([spamSet, hamSet]);
 
   let junkListener = {
@@ -72,8 +72,8 @@ function* test_never_indexes_a_message_marked_as_junk() {
   mark_sub_test_start("event-driven does not index junk");
 
   // make a message that will be marked as junk from the get-go
-  make_folder_with_sets([{ count: 1, body: SPAM_BODY }]);
-  yield wait_for_message_injection();
+  MessageInjection.make_folder_with_sets([{ count: 1, body: SPAM_BODY }]);
+  yield MessageInjection.wait_for_message_injection();
   // since the message is junk, gloda should not index it!
   yield wait_for_gloda_indexer([]);
 
@@ -98,8 +98,8 @@ function reset_spam_filter() {
 function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
   mark_sub_test_start("mark as junk is deletion");
   // create a message; it should get indexed
-  let [, msgSet] = make_folder_with_sets([{ count: 1 }]);
-  yield wait_for_message_injection();
+  let [, msgSet] = MessageInjection.make_folder_with_sets([{ count: 1 }]);
+  yield MessageInjection.wait_for_message_injection();
   yield wait_for_gloda_indexer([msgSet], { augment: true });
 
   let glodaId = msgSet.glodaMessages[0].id;
@@ -129,8 +129,10 @@ function* test_mark_as_junk_is_deletion_mark_as_not_junk_is_exposure() {
  */
 function* test_message_moving_to_junk_folder_is_deletion() {
   // create and index two messages in a conversation
-  let [, msgSet] = make_folder_with_sets([{ count: 2, msgsPerThread: 2 }]);
-  yield wait_for_message_injection();
+  let [, msgSet] = MessageInjection.make_folder_with_sets([
+    { count: 2, msgsPerThread: 2 },
+  ]);
+  yield MessageInjection.wait_for_message_injection();
   yield wait_for_gloda_indexer([msgSet], { augment: true });
 
   let convId = msgSet.glodaMessages[0].conversation.id;
@@ -138,7 +140,10 @@ function* test_message_moving_to_junk_folder_is_deletion() {
   let secondGlodaId = msgSet.glodaMessages[1].id;
 
   // move them to the junk folder.
-  yield async_move_messages(msgSet, get_junk_folder());
+  yield MessageInjection.async_move_messages(
+    msgSet,
+    MessageInjection.get_junk_folder()
+  );
 
   // they will appear deleted after the events
   yield wait_for_gloda_indexer([], { deleted: msgSet });

@@ -23,7 +23,6 @@ var { ensure_card_exists, ensure_no_card_exists } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
 var {
-  add_sets_to_folders,
   assert_collapsed,
   assert_expanded,
   assert_messages_summarized,
@@ -38,8 +37,8 @@ var {
   create_thread,
   create_virtual_folder,
   make_display_threaded,
-  make_new_sets_in_folders,
   mc,
+  MessageInjection,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
   plan_to_wait_for_folder_events,
@@ -68,7 +67,10 @@ add_task(function setupModule(module) {
   msg1 = create_thread(1);
   thread2 = create_thread(10);
   msg2 = create_thread(1);
-  add_sets_to_folders([folder], [thread1, msg1, thread2, msg2]);
+  MessageInjection.add_sets_to_folders(
+    [folder],
+    [thread1, msg1, thread2, msg2]
+  );
 });
 
 add_task(function test_basic_summarization() {
@@ -233,7 +235,7 @@ add_task(function test_new_thread_that_was_not_summarized_expands() {
   make_display_threaded();
 
   // - create the base messages
-  let [willMoveMsg, willNotMoveMsg] = make_new_sets_in_folders(
+  let [willMoveMsg, willNotMoveMsg] = MessageInjection.make_new_sets_in_folders(
     [folder],
     [{ count: 1 }, { count: 1 }]
   );
@@ -245,7 +247,10 @@ add_task(function test_new_thread_that_was_not_summarized_expands() {
   assert_selected_and_displayed(willNotMoveMsg);
 
   // give it a friend...
-  make_new_sets_in_folders([folder], [{ count: 1, inReplyTo: willNotMoveMsg }]);
+  MessageInjection.make_new_sets_in_folders(
+    [folder],
+    [{ count: 1, inReplyTo: willNotMoveMsg }]
+  );
   assert_expanded(willNotMoveMsg);
   assert_selected_and_displayed(willNotMoveMsg);
 
@@ -254,7 +259,10 @@ add_task(function test_new_thread_that_was_not_summarized_expands() {
   assert_selected_and_displayed(willMoveMsg);
 
   // give it a friend...
-  make_new_sets_in_folders([folder], [{ count: 1, inReplyTo: willMoveMsg }]);
+  MessageInjection.make_new_sets_in_folders(
+    [folder],
+    [{ count: 1, inReplyTo: willMoveMsg }]
+  );
   assert_expanded(willMoveMsg);
   assert_selected_and_displayed(willMoveMsg);
 });
@@ -278,7 +286,7 @@ add_task(
     assert_messages_summarized(mc, thread1);
 
     // - add a new message, make sure it's in the summary now.
-    let [thread1Extra] = make_new_sets_in_folders(
+    let [thread1Extra] = MessageInjection.make_new_sets_in_folders(
       [folder],
       [{ count: 1, inReplyTo: thread1 }]
     );
@@ -294,11 +302,14 @@ add_task(function test_summary_when_multiple_identities() {
   let folder1 = create_folder("Search1");
   be_in_folder(folder1);
   let thread1 = create_thread(1);
-  add_sets_to_folders([folder1], [thread1]);
+  MessageInjection.add_sets_to_folders([folder1], [thread1]);
 
   let folder2 = create_folder("Search2");
   be_in_folder(folder2);
-  make_new_sets_in_folders([folder2], [{ count: 1, inReplyTo: thread1 }]);
+  MessageInjection.make_new_sets_in_folders(
+    [folder2],
+    [{ count: 1, inReplyTo: thread1 }]
+  );
 
   let folderVirtual = create_virtual_folder(
     [folder1, folder2],
@@ -340,7 +351,7 @@ add_task(function test_summary_when_multiple_identities() {
   // Second half of the test, makes sure MultiMessageSummary groups messages
   // according to their view thread id
   thread1 = create_thread(1);
-  add_sets_to_folders([folder1], [thread1]);
+  MessageInjection.add_sets_to_folders([folder1], [thread1]);
   be_in_folder(folderVirtual);
   select_shift_click_row(1);
 

@@ -4,11 +4,7 @@
 
 "use strict";
 
-var {
-  be_in_folder,
-  create_folder,
-  make_new_sets_in_folder,
-} = ChromeUtils.import(
+var { be_in_folder, create_folder, MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
@@ -214,7 +210,7 @@ function remember_and_set_bool_pref(aPrefString, aBoolValue) {
   Services.prefs.setBoolPref(aPrefString, aBoolValue);
 }
 
-/* This function wraps up make_new_sets_in_folder, and takes the
+/* This function wraps up MessageInjection.make_new_sets_in_folder, and takes the
  * same arguments.  The point of this function is to ensure that
  * each sent message is slightly newer than the last.  In this
  * case, each new message set will be sent one minute further
@@ -227,7 +223,7 @@ function make_gradually_newer_sets_in_folder(aFolder, aArgs) {
       arg.age = { minutes: gMsgMinutes };
     }
   }
-  make_new_sets_in_folder(aFolder, aArgs);
+  MessageInjection.make_new_sets_in_folder(aFolder, aArgs);
 }
 
 /**

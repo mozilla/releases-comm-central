@@ -63,7 +63,7 @@ SyntheticMessageSet.prototype = {
     return this.synMessages[aMessageIndex];
   },
   /**
-   * Helper method for use by |async_move_messages| to tell us that it moved
+   * Helper method for use by |MessageInjection.async_move_messages| to tell us that it moved
    *  all the messages from aOldFolder to aNewFolder.
    */
   _folderSwap(aOldFolder, aNewFolder) {

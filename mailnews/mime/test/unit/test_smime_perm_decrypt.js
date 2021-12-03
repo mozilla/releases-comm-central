@@ -70,7 +70,7 @@ function testCertValidity(cert, date) {
 }
 
 add_task(async function setup() {
-  gInbox = configure_message_injection({ mode: "local" });
+  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
   SmimeUtils.ensureNSS();
 
   SmimeUtils.loadPEMCertificate(

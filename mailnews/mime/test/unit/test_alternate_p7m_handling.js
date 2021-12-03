@@ -35,7 +35,7 @@ var messages = {
 function* worker(params) {
   let synMsg = gMessageGenerator.makeMessage(params.messages);
   let synSet = new SyntheticMessageSet([synMsg]);
-  yield add_sets_to_folder(gInbox, [synSet]);
+  yield MessageInjection.add_sets_to_folder(gInbox, [synSet]);
 
   let msgHdr = synSet.getMsgHdr(0);
 
@@ -63,6 +63,6 @@ var tests = [
 var gInbox;
 
 function run_test() {
-  gInbox = configure_message_injection({ mode: "local" });
+  gInbox = MessageInjection.configure_message_injection({ mode: "local" });
   async_run_tests(tests);
 }

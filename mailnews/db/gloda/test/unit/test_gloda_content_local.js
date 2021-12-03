@@ -8,6 +8,6 @@
 load("base_gloda_content.js");
 
 function run_test() {
-  configure_message_injection({ mode: "local" });
+  MessageInjection.configure_message_injection({ mode: "local" });
   glodaHelperRunTests(tests);
 }
