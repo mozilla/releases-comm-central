@@ -26,7 +26,6 @@ reference-jobs:
     - linux64-clang-13-macosx-cross
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
-    - linux64-clang-tidy
     - linux64-clang-win-cross
     - linux64-dump_syms
     - linux64-fix-stacks
@@ -47,11 +46,12 @@ reference-jobs:
     - linux64-rust-dev
     - linux64-rust-cross
     - linux64-rust-macos
+    - linux64-rust-macos-beta
     - linux64-rust-macos-1.47
     - linux64-rust-macos-1.53
     - linux64-rust-size
     - linux64-rust-windows-1.47
-    - linux64-rust-windows-1.57
+    - linux64-rust-windows-1.56
     - linux64-sccache
     - linux64-toolchain-sysroot
     - linux64-upx
