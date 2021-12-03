@@ -1039,7 +1039,9 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
     if (!mMsgSend) mMsgSend = do_CreateInstance(NS_MSGSEND_CONTRACTID);
 
     if (mMsgSend) {
-      nsCString bodyString(m_compFields->GetBody());
+      nsString bodyString;
+      rv = m_compFields->GetBody(bodyString);
+      NS_ENSURE_SUCCESS(rv, rv);
 
       // Create the listener for the send operation...
       nsCOMPtr<nsIMsgComposeSendListener> composeSendListener =

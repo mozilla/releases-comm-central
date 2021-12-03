@@ -201,7 +201,7 @@ interface nsIMsgSend : nsISupports
                                in nsMsgDeliverMode aMode,
                                in nsIMsgDBHdr aMsgToReplace,
                                in string aBodyType,
-                               in ACString aBody,
+                               in AString aBody,
                                in mozIDOMWindowProxy aParentWindow,
                                in nsIMsgProgress aProgress,
                                in nsIMsgSendListener aListener,

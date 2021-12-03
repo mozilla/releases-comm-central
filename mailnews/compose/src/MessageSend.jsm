@@ -92,7 +92,16 @@ MessageSend.prototype = {
       embeddedAttachments,
       embeddedObjects,
     } = this._gatherEmbeddedAttachments(editor);
+
     let bodyText = this._getBodyFromEditor(editor) || body;
+    // Convert to a binary string. This is because MimeMessage requires it and:
+    // 1. An attachment content is BinaryString.
+    // 2. Body text and attachment contents are handled in the same way by
+    // MimeEncoder to pick encoding and encode.
+    bodyText = jsmime.mimeutils.typedArrayToString(
+      new TextEncoder().encode(bodyText)
+    );
+
     this._restoreEditorContent(embeddedObjects);
     this._message = new MimeMessage(
       userIdentity,
@@ -1239,13 +1248,10 @@ MessageSend.prototype = {
   },
 
   /**
-   * Get the message body from an editor. This returns a BinaryString because:
-   * 1. The body argument of createAndSendMessage is BinaryString.
-   * 2. An attachment content is BinaryString.
-   * 3. Body text and attachment contents are handled in the same way by
-   * MimeEncoder to pick encoding and encode.
+   * Get the message body from an editor.
+   *
    * @param {nsIEditor} editor - The editor instance.
-   * @returns {BinaryString}
+   * @returns {string}
    */
   _getBodyFromEditor(editor) {
     if (!editor) {
@@ -1271,10 +1277,7 @@ MessageSend.prototype = {
       bodyText = cs.scanHTML(bodyText, csFlags);
     }
 
-    // Convert UTF-16 string to byte string.
-    return jsmime.mimeutils.typedArrayToString(
-      new TextEncoder().encode(bodyText)
-    );
+    return bodyText;
   },
 };
 

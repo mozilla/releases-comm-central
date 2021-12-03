@@ -31,7 +31,7 @@ class MimeMessage {
    * @param {string} fcc - The FCC header value.
    * @param {string} bodyType
    * @param {BinaryString} bodyText - This is ensured to be a 8-bit string, to
-   * be handled the same as attachment content.
+   *   be handled the same as attachment content.
    * @param {nsMsgDeliverMode} deliverMode
    * @param {string} originalMsgURI
    * @param {MSG_ComposeType} compType

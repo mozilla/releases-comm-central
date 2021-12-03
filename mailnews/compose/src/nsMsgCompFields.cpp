@@ -432,24 +432,24 @@ NS_IMETHODIMP nsMsgCompFields::GetBodyIsAsciiOnly(bool* _retval) {
 }
 
 NS_IMETHODIMP nsMsgCompFields::SetBody(const nsAString& value) {
-  CopyUTF16toUTF8(value, m_body);
+  m_body = value;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgCompFields::GetBody(nsAString& _retval) {
-  CopyUTF8toUTF16(m_body, _retval);
+  _retval = m_body;
   return NS_OK;
 }
 
 nsresult nsMsgCompFields::SetBody(const char* value) {
   if (value)
-    m_body = value;
+    m_body = NS_ConvertUTF8toUTF16(value);
   else
     m_body.Truncate();
   return NS_OK;
 }
 
-const char* nsMsgCompFields::GetBody() { return m_body.get(); }
+const char* nsMsgCompFields::GetBody() { return ToNewUTF8String(m_body); }
 
 NS_IMETHODIMP nsMsgCompFields::GetAttachments(
     nsTArray<RefPtr<nsIMsgAttachment>>& attachments) {
