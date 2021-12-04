@@ -1571,11 +1571,6 @@ nsresult nsMsgDBFolder::WriteStartOfNewLocalMessage() {
   result += ct;
   result += MSG_LINEBREAK;
   m_bytesAddedToLocalMsg = result.Length();
-
-  nsCOMPtr<nsISeekableStream> seekable;
-
-  if (m_offlineHeader) seekable = do_QueryInterface(m_tempMessageStream);
-
   m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
 
   constexpr auto MozillaStatus = "X-Mozilla-Status: 0001"_ns MSG_LINEBREAK;
