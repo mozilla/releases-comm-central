@@ -595,14 +595,15 @@ var gAccountSetup = {
    * detection step.
    */
   checkValidForm() {
+    let email = document.getElementById("email");
     let isValidForm =
-      document.getElementById("email").checkValidity() &&
+      email.checkValidity() &&
       document.getElementById("realname").checkValidity();
     this._domain = isValidForm ? this._email.split("@")[1].toLowerCase() : "";
 
     document.getElementById("continueButton").disabled = !isValidForm;
     document.getElementById("manualConfigButton").hidden = !isValidForm;
-    document.getElementById("provisionerButton").hidden = isValidForm;
+    document.getElementById("provisionerButton").hidden = email.value;
   },
 
   /**
