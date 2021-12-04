@@ -306,12 +306,12 @@ CalCompositeCalendar.prototype = {
     this.mObservers.notify("onLoad", [this]);
   },
 
-  // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
-  modifyItem(aNewItem, aOldItem, aListener) {
+  // Promise<calIItemBase> modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem)
+  async modifyItem(aNewItem, aOldItem) {
     cal.ASSERT(aNewItem.calendar, "Composite can't modify item with null calendar", true);
     cal.ASSERT(aNewItem.calendar != this, "Composite can't modify item with this calendar", true);
 
-    return aNewItem.calendar.modifyItem(aNewItem, aOldItem, aListener);
+    return aNewItem.calendar.modifyItem(aNewItem, aOldItem);
   },
 
   // Promise<void> deleteItem(in calIItemBase aItem);

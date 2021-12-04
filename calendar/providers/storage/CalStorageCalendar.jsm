@@ -236,44 +236,30 @@ CalStorageCalendar.prototype = {
     return aItem;
   },
 
-  // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
-  // Actually uses doModifyItem
-  modifyItem(aNewItem, aOldItem, aListener) {
+  // Promise<calIItemBase> modifyItem(in calIItemBase aNewItem, in calIItemBase aOldItem)
+  async modifyItem(aNewItem, aOldItem) {
     // HACK Just modifying the item would clear the offline flag, we need to
     // retrieve the flag and pass it to the real modify function.
-    this.getItemOfflineFlag(aOldItem).then(offlineFlag =>
-      this.doModifyItem(aNewItem, aOldItem, aListener, offlineFlag)
-    );
-  },
-
-  async doModifyItem(aNewItem, aOldItem, aListener, offlineFlag) {
+    let offlineFlag = await this.getItemOfflineFlag(aOldItem);
     let oldOfflineFlag = offlineFlag;
-    if (this.readOnly) {
-      this.notifyOperationComplete(
-        aListener,
-        Ci.calIErrors.CAL_IS_READONLY,
-        Ci.calIOperationListener.MODIFY,
-        null,
-        "Calendar is readonly"
-      );
-      return null;
-    }
-    if (!aNewItem) {
-      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
-    }
 
-    let self = this;
-    function reportError(errStr, errId) {
-      self.notifyOperationComplete(
-        aListener,
-        errId ? errId : Cr.NS_ERROR_FAILURE,
+    function reportError(errStr, errId = Cr.NS_ERROR_FAILURE) {
+      this.notifyOperationComplete(
+        null,
+        errId,
         Ci.calIOperationListener.MODIFY,
         aNewItem.id,
         errStr
       );
-      return null;
+      return Promise.reject(new Components.Exception(errStr, errId));
     }
 
+    if (this.readOnly) {
+      return reportError("Calendar is readonly", Ci.calIErrors.CAL_IS_READONLY);
+    }
+    if (!aNewItem) {
+      return reportError("A modified version of the item is required", Cr.NS_ERROR_INVALID_ARG);
+    }
     if (aNewItem.id == null) {
       // this is definitely an error
       return reportError("ID for modifyItem item is null");
@@ -339,7 +325,7 @@ CalStorageCalendar.prototype = {
     await this.mOfflineModel.setOfflineJournalFlag(aNewItem, oldOfflineFlag);
 
     this.notifyOperationComplete(
-      aListener,
+      null,
       Cr.NS_OK,
       Ci.calIOperationListener.MODIFY,
       modifiedItem.id,
@@ -348,7 +334,7 @@ CalStorageCalendar.prototype = {
 
     // notify observers
     this.observers.notify("onModifyItem", [modifiedItem, aOldItem]);
-    return null;
+    return modifiedItem;
   },
 
   // Promise<void> deleteItem(in calIItemBase item)
@@ -447,31 +433,18 @@ CalStorageCalendar.prototype = {
     await this.mOfflineModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
   },
 
-  modifyOfflineItem(aItem, aListener) {
-    let self = this;
-    let opListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onGetResult(calendar, status, itemType, detail, items) {},
-      async onOperationComplete(calendar, status, opType, id, oldOfflineJournalFlag) {
-        let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-        if (
-          oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
-          oldOfflineJournalFlag == cICL.OFFLINE_FLAG_DELETED_RECORD
-        ) {
-          // Do nothing since a flag of "created" or "deleted" exists
-        } else {
-          await self.mOfflineModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
-        }
-        self.notifyOperationComplete(
-          aListener,
-          Cr.NS_OK,
-          Ci.calIOperationListener.MODIFY,
-          aItem.id,
-          aItem
-        );
-      },
-    };
-    this.getItemOfflineFlag(aItem, opListener);
+  async modifyOfflineItem(aItem) {
+    let oldOfflineJournalFlag = await this.getItemOfflineFlag(aItem);
+    let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+    if (
+      oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
+      oldOfflineJournalFlag == cICL.OFFLINE_FLAG_DELETED_RECORD
+    ) {
+      // Do nothing since a flag of "created" or "deleted" exists
+    } else {
+      await this.mOfflineModel.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
+    }
+    this.notifyOperationComplete(null, Cr.NS_OK, Ci.calIOperationListener.MODIFY, aItem.id, aItem);
   },
 
   async deleteOfflineItem(aItem) {

@@ -333,7 +333,7 @@ InvitationsManager.prototype = {
    * @param jobQueueFinishedCallBack      A callback function called when
    *                                        job has finished.
    */
-  processJobQueue(queue, jobQueueFinishedCallBack) {
+  async processJobQueue(queue, jobQueueFinishedCallBack) {
     // TODO: undo/redo
     function operationListener(mgr, queueCallback, oldItem_) {
       this.mInvitationsManager = mgr;
@@ -368,11 +368,14 @@ InvitationsManager.prototype = {
       switch (job.action) {
         case "modify":
           this.mJobsPending++;
-          newItem.calendar.modifyItem(
-            newItem,
-            oldItem,
-            new operationListener(this, jobQueueFinishedCallBack, oldItem)
-          );
+          let item = await newItem.calendar.modifyItem(newItem, oldItem);
+          cal.itip.checkAndSend(Ci.calIOperationListener.MODIFY, item, oldItem);
+          this.deleteItem(item);
+          this.addItem(item);
+          this.mJobsPending--;
+          if (this.mJobsPending == 0 && jobQueueFinishedCallBack) {
+            jobQueueFinishedCallBack();
+          }
           break;
         default:
           break;

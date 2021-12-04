@@ -1516,7 +1516,24 @@ ItipItemFinder.prototype = {
                   ) {
                     let newItem = updateItem(item, itipItemItem);
                     let action = function(opListener, partStat, extResponse) {
-                      return newItem.calendar.modifyItem(newItem, item, opListener);
+                      return newItem.calendar.modifyItem(newItem, item).then(
+                        item =>
+                          opListener.onOperationComplete(
+                            item.calendar,
+                            Cr.NS_OK,
+                            Ci.calIOperationListener.MODIFY,
+                            item.id,
+                            item
+                          ),
+                        e =>
+                          opListener.onOperationComplete(
+                            null,
+                            e.result || Cr.NS_ERROR_FAILURE,
+                            Ci.calIOperationListener.MODIFY,
+                            null,
+                            e
+                          )
+                      );
                     };
                     actionMethod = method + ":UPDATE";
                     operations.push(action);
@@ -1557,10 +1574,24 @@ ItipItemFinder.prototype = {
                         }
                         changedItem.addAttendee(foundAttendee);
 
-                        return changedItem.calendar.modifyItem(
-                          changedItem,
-                          firstFoundItem,
-                          new ItipOpListener(opListener, firstFoundItem, extResponse)
+                        let listener = new ItipOpListener(opListener, firstFoundItem, extResponse);
+                        return changedItem.calendar.modifyItem(changedItem, firstFoundItem).then(
+                          item =>
+                            listener.onOperationComplete(
+                              item.calendar,
+                              Cr.NS_OK,
+                              Ci.calIOperationListener.MODIFY,
+                              item.id,
+                              item
+                            ),
+                          e =>
+                            listener.onOperationComplete(
+                              null,
+                              e.result || Cr.NS_ERROR_FAILURE,
+                              Ci.calIOperationListener.MODIFY,
+                              null,
+                              e
+                            )
                         );
                       });
                     } else if (
@@ -1581,10 +1612,25 @@ ItipItemFinder.prototype = {
                         att = att.clone();
                         att.participationStatus = partStat;
                         newItem.addAttendee(att);
-                        return newItem.calendar.modifyItem(
-                          newItem,
-                          item,
-                          new ItipOpListener(opListener, item, extResponse)
+
+                        let listener = new ItipOpListener(opListener, item, extResponse);
+                        return newItem.calendar.modifyItem(newItem, item).then(
+                          item =>
+                            listener.onOperationComplete(
+                              item.calendar,
+                              Cr.NS_OK,
+                              Ci.calIOperationListener.MODIFY,
+                              item.id,
+                              item
+                            ),
+                          e =>
+                            listener.onOperationComplete(
+                              null,
+                              e.result || Cr.NS_ERROR_FAILURE,
+                              Ci.calIOperationListener.MODIFY,
+                              null,
+                              e
+                            )
                         );
                       });
                     }
@@ -1642,12 +1688,27 @@ ItipItemFinder.prototype = {
                       // appropriate reply will be taken care within the
                       // opListener (defined in imip-bar.js)
                       // TODO: move that from imip-bar.js to here
-                      return newItem.calendar.modifyItem(
-                        newItem,
-                        item,
-                        newItem.calendar.getProperty("itip.notify-replies")
-                          ? new ItipOpListener(opListener, item, extResponse)
-                          : opListener
+
+                      let listener = newItem.calendar.getProperty("itip.notify-replies")
+                        ? new ItipOpListener(opListener, item, extResponse)
+                        : opListener;
+                      return newItem.calendar.modifyItem(newItem, item).then(
+                        item =>
+                          listener.onOperationComplete(
+                            item.calendar,
+                            Cr.NS_OK,
+                            Ci.calIOperationListener.MODIFY,
+                            item.id,
+                            item
+                          ),
+                        e =>
+                          listener.onOperationComplete(
+                            null,
+                            e.result || Cr.NS_ERROR_FAILURE,
+                            Ci.calIOperationListener.MODIFY,
+                            null,
+                            e
+                          )
                       );
                     };
                     operations.push(action);
@@ -1676,7 +1737,24 @@ ItipItemFinder.prototype = {
                     copyProviderProperties(this.mItipItem, itipItemItem, newItem);
 
                     operations.push((opListener, partStat, extResponse) =>
-                      newItem.calendar.modifyItem(newItem, item, opListener)
+                      newItem.calendar.modifyItem(newItem, item).then(
+                        item =>
+                          opListener.onOperationComplete(
+                            item.calendar,
+                            Cr.NS_OK,
+                            Ci.calIOperationListener.MODIFY,
+                            item.id,
+                            item
+                          ),
+                        e =>
+                          opListener.onOperationComplete(
+                            null,
+                            e.result || Cr.NS_ERROR_FAILURE,
+                            Ci.calIOperationListener.MODIFY,
+                            null,
+                            e
+                          )
+                      )
                     );
                   }
                   newItem.recurrenceInfo.removeOccurrenceAt(rid);

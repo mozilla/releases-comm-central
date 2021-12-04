@@ -111,17 +111,10 @@ async function doPropertiesTest(filterType, originalItem, originalProps, changed
         }
       }
 
-      await new Promise(resolve => {
-        calendar.modifyItem(
-          cal.itip.prepareSequence(targetException, targetOccurrence),
-          targetOccurrence,
-          {
-            onOperationComplete() {
-              resolve();
-            },
-          }
-        );
-      });
+      await calendar.modifyItem(
+        cal.itip.prepareSequence(targetException, targetOccurrence),
+        targetOccurrence
+      );
 
       // Refresh the saved items list after the change.
       savedItems = await calendar.getItems(

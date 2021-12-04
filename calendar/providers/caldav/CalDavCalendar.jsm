@@ -661,15 +661,36 @@ CalDavCalendar.prototype = {
     );
   },
 
+  // Used to allow the cachedCalendar provider to hook into modifyItem() before
+  // it returns.
+  _cachedModifyItemCallback: null,
+
   /**
    * modifyItem(); required by calICalendar.idl
    * we actually use doModifyItem()
    *
    * @param aItem       item to check
-   * @param aListener   listener for method completion
    */
-  modifyItem(aNewItem, aOldItem, aListener) {
-    return this.doModifyItem(aNewItem, aOldItem, aListener, false);
+  async modifyItem(aNewItem, aOldItem) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      this.doModifyItem(
+        aNewItem,
+        aOldItem,
+        {
+          get wrappedJSObject() {
+            return this;
+          },
+          async onOperationComplete(calendar, status, opType, id, detail) {
+            if (self._cachedModifyItemCallback) {
+              await self._cachedModifyItemCallback(calendar, status, opType, id, detail);
+            }
+            return Components.isSuccessCode(status) ? resolve(detail) : reject(detail);
+          },
+        },
+        false
+      );
+    });
   },
 
   /**
@@ -997,30 +1018,17 @@ CalDavCalendar.prototype = {
 
     // Either there's no listener, or we're uncached.
 
-    await new Promise(resolve => {
-      let listener = {
-        onGetResult(...args) {
-          if (aListener) {
-            aListener.onGetResult(...args);
-          }
-        },
-        onOperationComplete(...args) {
-          if (aListener) {
-            aListener.onOperationComplete(...args);
-          }
-          resolve();
-        },
-      };
-
-      if (this.mItemInfoCache[item.id].isNew) {
-        this.mOfflineStorage.adoptItem(item).then(
-          () => listener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
-          e => listener.onOperationComplete(null, e.result, null, null, e)
-        );
-      } else {
-        this.mOfflineStorage.modifyItem(item, null, listener);
-      }
-    });
+    if (this.mItemInfoCache[item.id].isNew) {
+      await this.mOfflineStorage.adoptItem(item).then(
+        () => aListener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
+        e => aListener?.onOperationComplete(null, e.result, null, null, e)
+      );
+    } else {
+      await this.mOfflineStorage.modifyItem(item, null).then(
+        item => aListener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.MODIFY, item.id, item),
+        e => aListener?.onOperationComplete(null, e.result, null, null, e)
+      );
+    }
   },
 
   /**

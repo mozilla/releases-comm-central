@@ -39,38 +39,34 @@ add_task(async function testBug759324() {
   let changedItem = addedItem.clone();
   changedItem.setProperty("SEQUENCE", parseInt(seq, 10) + 1);
 
-  storage.modifyItem(changedItem, addedItem, { onOperationComplete: checkModifiedItem(rid) });
+  checkModifiedItem(rid, await storage.modifyItem(changedItem, addedItem));
 });
 
-function checkModifiedItem(rid) {
-  return (calendar, status, opType, id, changedItem) => {
-    changedItem.QueryInterface(Ci.calIEvent);
-    let seq = changedItem.getProperty("SEQUENCE");
-    let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
+async function checkModifiedItem(rid, changedItem) {
+  changedItem.QueryInterface(Ci.calIEvent);
+  let seq = changedItem.getProperty("SEQUENCE");
+  let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 
-    equal(seq, 4);
-    equal(occ.getProperty("SEQUENCE"), seq);
+  equal(seq, 4);
+  equal(occ.getProperty("SEQUENCE"), seq);
 
-    // Now check with the pref off
-    storage.deleteProperty("capabilities.propagate-sequence");
+  // Now check with the pref off
+  storage.deleteProperty("capabilities.propagate-sequence");
 
-    let changedItem2 = changedItem.clone();
-    changedItem2.setProperty("SEQUENCE", parseInt(seq, 10) + 1);
+  let changedItem2 = changedItem.clone();
+  changedItem2.setProperty("SEQUENCE", parseInt(seq, 10) + 1);
 
-    storage.modifyItem(changedItem2, changedItem, { onOperationComplete: checkNormalItem(rid) });
-  };
+  checkNormalItem(rid, await storage.modifyItem(changedItem2, changedItem));
 }
 
-function checkNormalItem(rid) {
-  return (calendar, status, opType, id, changedItem) => {
-    changedItem.QueryInterface(Ci.calIEvent);
-    let seq = changedItem.getProperty("SEQUENCE");
-    let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
+function checkNormalItem(rid, changedItem) {
+  changedItem.QueryInterface(Ci.calIEvent);
+  let seq = changedItem.getProperty("SEQUENCE");
+  let occ = changedItem.recurrenceInfo.getOccurrenceFor(rid);
 
-    equal(seq, 5);
-    equal(occ.getProperty("SEQUENCE"), 4);
-    completeTest();
-  };
+  equal(seq, 5);
+  equal(occ.getProperty("SEQUENCE"), 4);
+  completeTest();
 }
 
 function completeTest() {

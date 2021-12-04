@@ -176,8 +176,8 @@ CalMemoryCalendar.prototype = {
     return aItem;
   },
 
-  // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
-  modifyItem(aNewItem, aOldItem, aListener) {
+  // Promise<calIItemBase> modifyItem(in calIItemBase aNewItem, in calIItemBase aOldItem)
+  async modifyItem(aNewItem, aOldItem, aListener) {
     if (this.readOnly) {
       throw Ci.calIErrors.CAL_IS_READONLY;
     }
@@ -185,21 +185,20 @@ CalMemoryCalendar.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    let self = this;
-    function reportError(errStr, errId) {
-      self.notifyOperationComplete(
-        aListener,
-        errId ? errId : Cr.NS_ERROR_FAILURE,
+    function reportError(errStr, errId = Cr.NS_ERROR_FAILURE) {
+      this.notifyOperationComplete(
+        null,
+        errId,
         Ci.calIOperationListener.MODIFY,
         aNewItem.id,
         errStr
       );
-      return null;
+      return Promise.reject(new Components.Exception(errStr, errId));
     }
 
     if (!aNewItem.id) {
       // this is definitely an error
-      return reportError(null, "ID for modifyItem item is null");
+      return reportError("ID for modifyItem item is null");
     }
 
     let modifiedItem = aNewItem.parentItem.clone();
@@ -265,7 +264,7 @@ CalMemoryCalendar.prototype = {
     this.mItems[modifiedItem.id] = modifiedItem;
 
     this.notifyOperationComplete(
-      aListener,
+      null,
       Cr.NS_OK,
       Ci.calIOperationListener.MODIFY,
       modifiedItem.id,
@@ -274,7 +273,7 @@ CalMemoryCalendar.prototype = {
 
     // notify observers
     this.mObservers.notify("onModifyItem", [modifiedItem, aOldItem]);
-    return null;
+    return modifiedItem;
   },
 
   // Promise<void> deleteItem(in calIItemBase item);
@@ -495,7 +494,7 @@ CalMemoryCalendar.prototype = {
     this.mOfflineFlags[aItem.id] = cICL.OFFLINE_FLAG_CREATED_RECORD;
   },
 
-  modifyOfflineItem(aItem, aListener) {
+  async modifyOfflineItem(aItem) {
     let oldFlag = this.mOfflineFlags[aItem.id];
     if (
       oldFlag != cICL.OFFLINE_FLAG_CREATED_RECORD &&
@@ -504,13 +503,8 @@ CalMemoryCalendar.prototype = {
       this.mOfflineFlags[aItem.id] = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
     }
 
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.MODIFY,
-      aItem.id,
-      aItem
-    );
+    this.notifyOperationComplete(null, Cr.NS_OK, Ci.calIOperationListener.MODIFY, aItem.id, aItem);
+    return aItem;
   },
 
   async deleteOfflineItem(aItem) {

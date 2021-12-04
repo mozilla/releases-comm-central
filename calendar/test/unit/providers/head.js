@@ -134,7 +134,7 @@ async function runModifyItem(calendar) {
   clone.title = "Modified event";
 
   calendarObserver._onModifyItemPromise = PromiseUtils.defer();
-  calendar.modifyItem(clone, event, null);
+  await calendar.modifyItem(clone, event);
   await calendarObserver._onModifyItemPromise.promise;
 }
 
@@ -147,6 +147,6 @@ async function runDeleteItem(calendar) {
   let event = await calendar.getItem("6b7dd6f6-d6f0-4e93-a953-bb5473c4c47a");
 
   calendarObserver._onDeleteItemPromise = PromiseUtils.defer();
-  calendar.deleteItem(event);
+  await calendar.deleteItem(event);
   await calendarObserver._onDeleteItemPromise.promise;
 }

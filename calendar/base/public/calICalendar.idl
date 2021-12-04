@@ -329,37 +329,24 @@ interface calICalendar : nsISupports
 
   /**
    * modifyItem takes a modified item and modifies the
-   * calendar's internal version of the item to match.  The item is
-   * expected to have an ID that already exists in the calendar; if it
-   * doesn't, or there is no id, onOperationComplete is called with a
-   * status of NS_ERROR_XXXXX.  If the item is immutable,
-   * onOperationComplete is called with a status of NS_ERROR_XXXXX.
+   * calendar's internal version of the item to match. The item is expected to
+   * be mutable and have an ID that already exists in the calendar. If it does
+   * not, the Promise is rejected with NS_ERROR_XXXXX.
    *
    * If the generation of the given aNewItem does not match the generation
    * of the internal item (indicating that someone else modified the
-   * item), onOperationComplete is called with a status of NS_ERROR_XXXXX
-   * and aDetail is set to the latest-version internal immutable item.
+   * item), the Promise is rejected with NS_ERROR_XXXXX.
    *
    * If you would like to disable revision checks, pass null as aOldItem. This
    * will overwrite the item on the server.
    *
    * @param aNewItem    new version to replace the old one
    * @param aOldItem    caller's view of the item to be changed, as it is now
-   * @param aListener   where to call back the results
-   * @return            optional operation handle to track the operation
+   * @return {Promise<calIItemBase>} the newly-updated immutable version of 
+   *                                 the modified item.
    *
-   * The results of the operation are reported through an
-   * onOperationComplete call on the listener, with the following
-   * parameters:
-   *
-   * - aOperationType: calIOperationListener::MODIFY
-   * - aId: the ID of the modified item
-   * - aDetail: the calIItemBase corresponding to the newly-updated
-   *            immutable version of the modified item
    */
-  calIOperation modifyItem(in calIItemBase aNewItem,
-                           in calIItemBase aOldItem,
-                           in calIOperationListener aListener);
+  Promise modifyItem(in calIItemBase aNewItem, in calIItemBase aOldItem);
 
   /**
    * Deletes an item. The item is expected to have an ID that already exists in

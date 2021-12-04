@@ -209,7 +209,7 @@ CalAlarmService.prototype = {
     }
     // calling modifyItem will cause us to get the right callback
     // and update the alarm properly
-    return newEvent.calendar.modifyItem(newEvent, aItem.parentItem, null);
+    return newEvent.calendar.modifyItem(newEvent, aItem.parentItem);
   },
 
   dismissAlarm(aItem, aAlarm) {
@@ -229,7 +229,7 @@ CalAlarmService.prototype = {
       } else {
         newParent.deleteProperty("X-MOZ-SNOOZE-TIME");
       }
-      rv = newParent.calendar.modifyItem(newParent, oldParent, null);
+      rv = newParent.calendar.modifyItem(newParent, oldParent);
     } else {
       // if the calendar of the item is r/o, we simple remove the alarm
       // from the list without modifying the item, so this works like

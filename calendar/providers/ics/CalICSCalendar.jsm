@@ -486,19 +486,38 @@ CalICSCalendar.prototype = {
     return item;
   },
 
-  modifyItem(aNewItem, aOldItem, aListener) {
+  // Used to allow the cachedCalendar provider to hook into modifyItem() before
+  // it returns.
+  _cachedModifyItemCallback: null,
+
+  async modifyItem(newItem, oldItem) {
     if (this.readOnly) {
-      throw calIErrors.CAL_IS_READONLY;
+      throw new Components.Exception("Calendar is not writable", calIErrors.CAL_IS_READONLY);
     }
-    this.startBatch();
-    this.queue.push({
-      action: "modify",
-      oldItem: aOldItem,
-      newItem: aNewItem,
-      listener: aListener,
+    let item = await new Promise((resolve, reject) => {
+      this.startBatch();
+      this.queue.push({
+        action: "modify",
+        newItem,
+        oldItem,
+        listener: item => {
+          this.endBatch();
+          resolve(item);
+        },
+      });
+      this.processQueue();
     });
-    this.processQueue();
-    this.endBatch();
+
+    if (this._cachedModifyItemCallback) {
+      await this._cachedModifyItemCallback(
+        item.calendar,
+        Cr.NS_OK,
+        Ci.calIOperationListener.MODIFY,
+        item.id,
+        item
+      );
+    }
+    return item;
   },
 
   /**
@@ -508,11 +527,10 @@ CalICSCalendar.prototype = {
    * @returns {Promise<void>}
    */
   async deleteItem(item) {
+    if (this.readOnly) {
+      throw new Components.Exception("Calendar is not writable", calIErrors.CAL_IS_READONLY);
+    }
     return new Promise((resolve, reject) => {
-      if (this.readOnly) {
-        reject(calIErrors.CAL_IS_READONLY);
-        return;
-      }
       this.queue.push({
         action: "delete",
         item,
@@ -551,17 +569,6 @@ CalICSCalendar.prototype = {
       return;
     }
 
-    function modListener(action) {
-      this.mAction = action;
-    }
-    modListener.prototype = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult(calendar, status, itemType, detail, items) {},
-      onOperationComplete() {
-        this.mAction.opCompleteArgs = arguments;
-      },
-    };
-
     let a;
     let writeICS = false;
     let refreshAction = null;
@@ -576,10 +583,13 @@ CalICSCalendar.prototype = {
           });
           return;
         case "modify":
-          this.mMemoryCalendar.modifyItem(a.newItem, a.oldItem, new modListener(a));
-          this.mModificationActions.push(a);
-          writeICS = true;
-          break;
+          this.lock();
+          this.mMemoryCalendar.modifyItem(a.newItem, a.oldItem).then(item => {
+            a.item = item;
+            this.mModificationActions.push(a);
+            this.writeICS();
+          });
+          return;
         case "delete":
           this.lock();
           this.mMemoryCalendar.deleteItem(a.item).then(() => {

@@ -117,7 +117,7 @@ CalTransaction.prototype = {
       this.mExtResponse
     );
 
-    if (opType == Ci.calIOperationListener.ADD) {
+    if (opType == Ci.calIOperationListener.ADD || opType == Ci.calIOperationListener.MODIFY) {
       if (this.mIsDoTransaction) {
         this.mItem = item;
       } else {
@@ -169,11 +169,12 @@ CalTransaction.prototype = {
         break;
       case "modify":
         if (this.mItem.calendar.id == this.mOldItem.calendar.id) {
-          this.mCalendar.modifyItem(
-            cal.itip.prepareSequence(this.mItem, this.mOldItem),
-            this.mOldItem,
-            this
-          );
+          this.mCalendar
+            .modifyItem(cal.itip.prepareSequence(this.mItem, this.mOldItem), this.mOldItem)
+            .then(
+              item => this._onSuccess(Ci.calIOperationListener.MODIFY, item),
+              e => this._onError(Ci.calIOperationListener.MODIFY, this.mItem, e)
+            );
         } else {
           this.mOldCalendar = this.mOldItem.calendar;
           this.mCalendar.addItem(this.mItem).then(
@@ -208,15 +209,15 @@ CalTransaction.prototype = {
           () => this._onSuccess(Ci.calIOperationListener.DELETE, this.mItem),
           e => this._onError(Ci.calIOperationListener.DELETE, this.mItem, e)
         );
-
         break;
       case "modify":
         if (this.mOldItem.calendar.id == this.mItem.calendar.id) {
-          this.mCalendar.modifyItem(
-            cal.itip.prepareSequence(this.mOldItem, this.mItem),
-            this.mItem,
-            this
-          );
+          this.mCalendar
+            .modifyItem(cal.itip.prepareSequence(this.mOldItem, this.mItem), this.mItem)
+            .then(
+              () => this._onSuccess(Ci.calIOperationListener.MODIFY, this.mOldItem),
+              e => this._onError(Ci.calIOperationListener.MODIFY, this.mOldItem, e)
+            );
         } else {
           this.mCalendar.deleteItem(this.mItem).then(
             () => this._onSuccess(Ci.calIOperationListener.DELETE, this.mItem),
