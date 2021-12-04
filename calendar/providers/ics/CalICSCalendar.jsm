@@ -253,7 +253,7 @@ CalICSCalendar.prototype = {
       onParsingComplete(rc, parser_) {
         try {
           for (let item of parser_.getItems()) {
-            self.mMemoryCalendar.adoptItem(item, null);
+            self.mMemoryCalendar.adoptItem(item);
           }
           self.unmappedComponents = parser_.getComponents();
           self.unmappedProperties = parser_.getProperties();
@@ -450,17 +450,40 @@ CalICSCalendar.prototype = {
   // Always use the queue, just to reduce the amount of places where
   // this.mMemoryCalendar.addItem() and friends are called. less
   // copied code.
-  addItem(aItem, aListener) {
-    this.adoptItem(aItem.clone(), aListener);
+  async addItem(aItem) {
+    return this.adoptItem(aItem.clone());
   },
-  adoptItem(aItem, aListener) {
+
+  // Used to allow the cachedCalendar provider to hook into adoptItem() before
+  // it returns.
+  _cachedAdoptItemCallback: null,
+
+  async adoptItem(aItem) {
     if (this.readOnly) {
-      throw calIErrors.CAL_IS_READONLY;
+      throw new Components.Exception("Calendar is not writable", calIErrors.CAL_IS_READONLY);
     }
-    this.startBatch();
-    this.queue.push({ action: "add", item: aItem, listener: aListener });
-    this.processQueue();
-    this.endBatch();
+    let item = await new Promise((resolve, reject) => {
+      this.startBatch();
+      this.queue.push({
+        action: "add",
+        item: aItem,
+        listener: item => {
+          this.endBatch();
+          resolve(item);
+        },
+      });
+      this.processQueue();
+    });
+    if (this._cachedAdoptItemCallback) {
+      await this._cachedAdoptItemCallback(
+        item.calendar,
+        Cr.NS_OK,
+        Ci.calIOperationListener.ADD,
+        item.id,
+        item
+      );
+    }
+    return item;
   },
 
   modifyItem(aNewItem, aOldItem, aListener) {
@@ -500,7 +523,7 @@ CalICSCalendar.prototype = {
   },
 
   // Promise<calIItemBase|null> getItem(in string id);
-  async getItem(aId, aListener) {
+  async getItem(aId) {
     return new Promise(resolve => {
       this.queue.push({
         action: "get_item",
@@ -545,20 +568,25 @@ CalICSCalendar.prototype = {
     while ((a = this.queue.shift())) {
       switch (a.action) {
         case "add":
-          this.mMemoryCalendar.addItem(a.item, new modListener(a));
-          this.mModificationActions.push(a);
-          writeICS = true;
-          break;
+          this.lock();
+          this.mMemoryCalendar.addItem(a.item).then(item => {
+            a.item = item;
+            this.mModificationActions.push(a);
+            this.writeICS();
+          });
+          return;
         case "modify":
           this.mMemoryCalendar.modifyItem(a.newItem, a.oldItem, new modListener(a));
           this.mModificationActions.push(a);
           writeICS = true;
           break;
         case "delete":
-          this.mMemoryCalendar.deleteItem(a.item);
-          this.mModificationActions.push(a);
-          writeICS = true;
-          break;
+          this.lock();
+          this.mMemoryCalendar.deleteItem(a.item).then(() => {
+            this.mModificationActions.push(a);
+            this.writeICS();
+          });
+          return;
         case "get_item":
           this.mMemoryCalendar.getItem(a.id).then(a.listener);
           break;
@@ -607,7 +635,7 @@ CalICSCalendar.prototype = {
     this.mModificationActions.forEach(action => {
       let listener = action.listener;
       if (typeof listener == "function") {
-        listener();
+        listener(action.item);
       } else if (listener) {
         let args = action.opCompleteArgs;
         cal.ASSERT(args, "missing onOperationComplete call!");

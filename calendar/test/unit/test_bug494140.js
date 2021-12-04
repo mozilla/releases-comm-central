@@ -47,12 +47,8 @@ add_task(async () => {
   equal(item.getAttachments().length, 1);
 
   // Add the item to the storage calendar and retrieve it again
-  await new Promise(resolve => {
-    storageCal.adoptItem(item, {
-      onGetResult(calendar, status, itemType, detail, items) {},
-      onOperationComplete: resolve,
-    });
-  });
+  await storageCal.adoptItem(item);
+
   let retrievedItem = await storageCal.getItem("c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5");
   // There should still be one alarm, one relation and one attachment
   equal(retrievedItem.getAlarms().length, 1);

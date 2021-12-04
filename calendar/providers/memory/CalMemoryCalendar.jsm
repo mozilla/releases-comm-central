@@ -112,14 +112,14 @@ CalMemoryCalendar.prototype = {
     return "memory";
   },
 
-  // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
-  addItem(aItem, aListener) {
+  // Promise<calIItemBase> addItem(in calIItemBase aItem);
+  async addItem(aItem) {
     let newItem = aItem.clone();
-    return this.adoptItem(newItem, aListener);
+    return this.adoptItem(newItem);
   },
 
-  // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
-  adoptItem(aItem, aListener) {
+  // Promise<calIItemBase> adoptItem(in calIItemBase aItem);
+  async adoptItem(aItem) {
     if (this.readOnly) {
       throw Ci.calIErrors.CAL_IS_READONLY;
     }
@@ -129,13 +129,15 @@ CalMemoryCalendar.prototype = {
 
     if (aItem.id == null) {
       this.notifyOperationComplete(
-        aListener,
+        null,
         Cr.NS_ERROR_FAILURE,
         Ci.calIOperationListener.ADD,
         aItem.id,
         "Can't set ID on non-mutable item to addItem"
       );
-      return;
+      return Promise.reject(
+        new Components.Exception("Can't set ID on non-mutable item to addItem", Cr.NS_ERROR_FAILURE)
+      );
     }
 
     // Lines below are commented because of the offline bug 380060, the
@@ -168,16 +170,10 @@ CalMemoryCalendar.prototype = {
     parentItem.makeImmutable();
     this.mItems[aItem.id] = parentItem;
 
-    // notify the listener
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.ADD,
-      aItem.id,
-      aItem
-    );
     // notify observers
     this.mObservers.notify("onAddItem", [aItem]);
+
+    return aItem;
   },
 
   // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );

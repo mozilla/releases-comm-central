@@ -27,13 +27,10 @@ var promisifyProxyHandler = {
   get(target, name) {
     switch (name) {
       // calICalendar methods
-      case "adoptItem":
-      case "addItem":
       case "modifyItem":
       case "getItems":
         return (...args) => this.promiseOperation(target, name, args);
       // calIOfflineStorage methods
-      case "addOfflineItem":
       case "modifyOfflineItem":
       case "resetItemOfflineFlag": {
         let offline = target.QueryInterface(Ci.calIOfflineStorage);
@@ -46,10 +43,13 @@ var promisifyProxyHandler = {
           this.promiseOperation(target, "getItems", [cIC.ITEM_FILTER_ALL_ITEMS, 0, null, null]);
       case "proxyTarget":
         return target;
-      case "getItem":
-      case "getOfflineItemFlag":
+      case "addItem":
+      case "addOfflineItem":
+      case "adoptItem":
       case "deleteItem":
       case "deleteOfflineItem":
+      case "getItem":
+      case "getOfflineItemFlag":
         return arg => target[name](arg);
       default:
         return target[name];

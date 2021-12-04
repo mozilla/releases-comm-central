@@ -193,6 +193,9 @@ add_task(async function testIcalData() {
   }
 
   async function checkCalendar(calendar, aItem, aResult) {
+    // add item to calendar
+    await calendar.addItem(aItem);
+
     // construct range
     let rangeStart = createDate(2002, 3, 2); // 3 = April
     let rangeEnd = rangeStart.clone();
@@ -210,13 +213,8 @@ add_task(async function testIcalData() {
       let listener = {
         onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
           equal(aStatus, 0);
-          if (aOperationType == Ci.calIOperationListener.ADD) {
-            // perform getItems() on calendar
-            aCalendar.getItems(filter, 0, rangeStart, rangeEnd, listener);
-          } else if (aOperationType == Ci.calIOperationListener.GET) {
-            equal(count, aResult);
-            resolve();
-          }
+          equal(count, aResult);
+          resolve();
         },
         onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
           if (aItems.length) {
@@ -238,9 +236,7 @@ add_task(async function testIcalData() {
           }
         },
       };
-
-      // add item to calendar
-      calendar.addItem(aItem, listener);
+      calendar.getItems(filter, 0, rangeStart, rangeEnd, listener);
     });
   }
 
@@ -256,57 +252,28 @@ add_task(async function testIcalData() {
     calArray.push(getStorageCal());
     calArray.push(getMemoryCal());
     for (let calendar of calArray) {
-      // implement listener
       let count = 0;
       let returnedItem = null;
-      let listener = {
-        promises: [],
-        async onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-          equal(aStatus, 0);
-          if (aOperationType == Ci.calIOperationListener.ADD) {
-            compareItemsSpecific(aDetail, aItem);
-            // perform getItem() on calendar
-            returnedItem = await aCalendar.getItem(aId);
-            count = returnedItem ? 1 : 0;
-            listener.onOperationComplete(
-              aCalendar,
-              0,
-              Ci.calIOperationListener.GET,
-              aId,
-              returnedItem
-            );
-          } else if (aOperationType == Ci.calIOperationListener.GET) {
-            equal(count, 1);
-            // Don't check creationDate as it changed when we added the item to the database.
-            compareItemsSpecific(returnedItem, aItem, [
-              "start",
-              "end",
-              "duration",
-              "title",
-              "priority",
-              "privacy",
-              "status",
-              "alarmLastAck",
-              "recurrenceStartDate",
-            ]);
-          }
-          if (this.promises.length) {
-            this.promises.pop()();
-          }
-        },
-        onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-          if (aItems.length) {
-            count += aItems.length;
-            returnedItem = aItems[0];
-          }
-        },
-      };
 
-      await new Promise(resolve => {
-        listener.promises.push(resolve);
-        // add item to calendar
-        calendar.addItem(aItem, listener);
-      });
+      let aDetail = await calendar.addItem(aItem);
+      compareItemsSpecific(aDetail, aItem);
+      // perform getItem() on calendar
+      returnedItem = await calendar.getItem(aDetail.id);
+      count = returnedItem ? 1 : 0;
+
+      equal(count, 1);
+      // Don't check creationDate as it changed when we added the item to the database.
+      compareItemsSpecific(returnedItem, aItem, [
+        "start",
+        "end",
+        "duration",
+        "title",
+        "priority",
+        "privacy",
+        "status",
+        "alarmLastAck",
+        "recurrenceStartDate",
+      ]);
     }
   }
 });
@@ -319,24 +286,16 @@ add_task(async function testMetaData() {
     );
 
     event1.id = "item1";
-    await new Promise(resolve => {
-      aCalendar.addItem(event1, {
-        onGetResult(calendar, aStatus, aItemType, aDetail, aItems) {},
-        onOperationComplete: resolve,
-      });
-    });
+    await aCalendar.addItem(event1);
+
     aCalendar.setMetaData("item1", "meta1");
     equal(aCalendar.getMetaData("item1"), "meta1");
     equal(aCalendar.getMetaData("unknown"), null);
 
     let event2 = event1.clone();
     event2.id = "item2";
-    await new Promise(resolve => {
-      aCalendar.addItem(event2, {
-        onGetResult(calendar, aStatus, aItemType, aDetail, aItems) {},
-        onOperationComplete: resolve,
-      });
-    });
+    await aCalendar.addItem(event2);
+
     aCalendar.setMetaData("item2", "meta2-");
     equal(aCalendar.getMetaData("item2"), "meta2-");
 

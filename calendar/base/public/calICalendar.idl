@@ -295,16 +295,9 @@ interface calICalendar : nsISupports
   calISchedulingSupport getSchedulingSupport();
 
   /**
-   * The following five "Item" functions are all asynchronous, and return
-   * their results to a calIOperationListener object.
-   *
-   */
-
-  /**
    * addItem adds the given calIItemBase to the calendar.
    *
    * @param aItem       item to add
-   * @param aListener   where to call back the results
    * @return            optional operation handle to track the operation
    *
    * - If aItem already has an ID, that ID is used when adding.
@@ -312,22 +305,15 @@ interface calICalendar : nsISupports
    *   to generate an ID for the item.
    * - If aItem is immutable and has no ID, an error is thrown.
    *
-   * The results of the operation are reported through an
-   * onOperationComplete call on the listener, with the following
-   * parameters:
+   * The result of the operation is the calIItemBase corresponding to the
+   * immutable version of the newly added item.
    *
-   * - aOperationType: calIOperationListener::ADD
-   * - aId: the ID of the newly added item
-   * - aDetail: the calIItemBase corresponding to the immutable
-   *            version of the newly added item
+   * If an item with a given ID already exists in the calendar, the Promise is
+   * rejected with a NS_ERROR_XXXXX error.
    *
-   * If an item with a given ID already exists in the calendar,
-   * onOperationComplete is called with an aStatus of NS_ERROR_XXXXX,
-   * and aDetail set with the calIItemBase of the internal already
-   * existing item.
+   * @return {Promise<calIItemBase>}
    */
-  calIOperation addItem(in calIItemBase aItem,
-                        in calIOperationListener aListener);
+  Promise addItem(in calIItemBase aItem);
 
   /**
    * adoptItem adds the given calIItemBase to the calendar, but doesn't
@@ -336,9 +322,10 @@ interface calICalendar : nsISupports
    * using the item after making the call.
    *
    * @see addItem
+   *
+   * @return {Promise<calIItemBase>}
    */
-  calIOperation adoptItem(in calIItemBase aItem,
-                          in calIOperationListener aListener);
+  Promise adoptItem(in calIItemBase aItem);
 
   /**
    * modifyItem takes a modified item and modifies the

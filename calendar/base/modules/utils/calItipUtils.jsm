@@ -1772,9 +1772,27 @@ ItipItemFinder.prototype = {
                 cal.alarms.setDefaultValues(newItem);
               }
 
-              return newItem.calendar.addItem(
-                newItem,
-                method == "REQUEST" ? new ItipOpListener(opListener, null, extResponse) : opListener
+              let listener =
+                method == "REQUEST"
+                  ? new ItipOpListener(opListener, null, extResponse)
+                  : opListener;
+              return newItem.calendar.addItem(newItem).then(
+                item =>
+                  listener.onOperationComplete(
+                    newItem.calendar,
+                    Cr.NS_OK,
+                    Ci.calIOperationListener.ADD,
+                    item.id,
+                    item
+                  ),
+                e =>
+                  listener.onOperationComplete(
+                    newItem.calendar,
+                    e.result,
+                    Ci.calIOperationListener.ADD,
+                    newItem.id,
+                    e
+                  )
               );
             };
             operations.push(action);

@@ -389,7 +389,7 @@ calCachedCalendar.prototype = {
               // Adding items recd from the Memory Calendar
               // These may be different than what the cache has
               completeListener.modifiedTimes[item.id] = item.lastModifiedTime;
-              self.mCachedCalendar.addItem(item, null);
+              self.mCachedCalendar.addItem(item);
             },
             () => {
               completeListener.getsCompleted++;
@@ -551,7 +551,18 @@ calCachedCalendar.prototype = {
           aCallback,
           cICL.OFFLINE_FLAG_MODIFIED_RECORD
         );
-        uncachedOp = this.mUncachedCalendar.addItem.bind(this.mUncachedCalendar);
+        uncachedOp = item =>
+          this.mUncachedCalendar.addItem(item).then(
+            () => opListener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
+            e =>
+              opListener.onOperationComplete(
+                null,
+                e.result || Cr.NS_ERROR_FAILURE,
+                cIOL.ADD,
+                item.id,
+                e
+              )
+          );
         listenerOp = cIOL.ADD;
         filter = calICalendar.ITEM_FILTER_OFFLINE_CREATED;
         break;
@@ -571,7 +582,19 @@ calCachedCalendar.prototype = {
       case cICL.OFFLINE_FLAG_DELETED_RECORD:
         debugOp = "delete";
         nextCallback = aCallback;
-        uncachedOp = this.mUncachedCalendar.deleteItem.bind(this.mUncachedCalendar);
+        uncachedOp = item =>
+          this.mUncachedCalendar.deleteItem(item).then(
+            () =>
+              opListener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.DELETE, item.id, item),
+            e =>
+              opListener.onOperationComplete(
+                null,
+                e.result || Cr.NS_ERROR_FAILURE,
+                cIOL.DELETE,
+                item.id,
+                e
+              )
+          );
         listenerOp = cIOL.MODIFY;
         filter = calICalendar.ITEM_FILTER_OFFLINE_DELETED;
         break;
@@ -585,7 +608,7 @@ calCachedCalendar.prototype = {
       onOperationComplete(calendar, status, opType, id, detail) {
         if (Components.isSuccessCode(status)) {
           if (aPlaybackType == cICL.OFFLINE_FLAG_DELETED_RECORD) {
-            self.mCachedCalendar.deleteItem(detail, resetListener);
+            self.mCachedCalendar.deleteItem(detail);
           } else {
             storage.resetItemOfflineFlag(detail, resetListener);
           }
@@ -734,10 +757,24 @@ calCachedCalendar.prototype = {
     this.mObservers.delete(aObserver);
   },
 
-  addItem(item, listener) {
-    return this.adoptItem(item.clone(), listener);
+  async addItem(item) {
+    return this.adoptItem(item.clone());
   },
-  adoptItem(item, listener) {
+
+  async adoptItem(item) {
+    return new Promise((resolve, reject) => {
+      this.doAdoptItem(item, {
+        onOperationComplete(calendar, status, opType, id, detail) {
+          if (!Components.isSuccessCode(status)) {
+            return reject(new Components.Exception(detail, status));
+          }
+          return resolve(detail);
+        },
+      });
+    });
+  },
+
+  doAdoptItem(item, listener) {
     // Forwarding add/modify/delete to the cached calendar using the calIObserver
     // callbacks would be advantageous, because the uncached provider could implement
     // a true push mechanism firing without being triggered from within the program.
@@ -765,17 +802,10 @@ calCachedCalendar.prototype = {
           self.adoptOfflineItem(item, listener);
         } else if (Components.isSuccessCode(status)) {
           // On success, add the item to the cache.
-          return new Promise(resolve => {
-            self.mCachedCalendar.addItem(detail, {
-              onGetResult(...args) {
-                cal.ASSERT(false, "unexpected!");
-              },
-              onOperationComplete(...args) {
-                listener?.onOperationComplete(...args);
-                resolve();
-              },
-            });
-          });
+          return self.mCachedCalendar.addItem(detail).then(
+            item => listener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
+            e => listener?.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
+          );
         } else if (listener) {
           // Either an error occurred or this is a successful add
           // to a cached calendar. Forward the call to the listener
@@ -791,7 +821,21 @@ calCachedCalendar.prototype = {
       this.adoptOfflineItem(item, listener);
     } else {
       // Otherwise ask the provider to add the item now.
-      this.mUncachedCalendar.adoptItem(item, cacheListener);
+
+      // This is a needed hack to keep the cached calendar's "onAddItem" event
+      // firing before the endBatch() call of the uncached calendar. It is called
+      // in mUncachedCalendar's adoptItem() method.
+      this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = (...args) =>
+        cacheListener.onOperationComplete(...args);
+
+      this.mUncachedCalendar
+        .adoptItem(item)
+        .catch(e => {
+          cacheListener.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e);
+        })
+        .finally(() => {
+          this.mUncachedCalendar.wrappedJSObject._cachedAdoptItemCallback = null;
+        });
     }
   },
   adoptOfflineItem(item, listener) {
@@ -803,13 +847,19 @@ calCachedCalendar.prototype = {
       onOperationComplete(calendar, status, opType, id, detail) {
         if (Components.isSuccessCode(status)) {
           let storage = self.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
-          storage.addOfflineItem(detail, listener);
+          storage.addOfflineItem(detail).then(
+            item => listener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
+            e => listener.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
+          );
         } else if (listener) {
           listener.onOperationComplete(self, status, opType, id, detail);
         }
       },
     };
-    this.mCachedCalendar.adoptItem(item, opListener);
+    this.mCachedCalendar.adoptItem(item).then(
+      item => opListener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
+      e => opListener.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
+    );
   },
 
   modifyItem(newItem, oldItem, listener) {

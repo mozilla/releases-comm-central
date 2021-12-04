@@ -23,14 +23,7 @@ add_task(async () => {
 
   let storageItem = createEventFromIcalString(str);
 
-  let addedItemId = await new Promise(resolve => {
-    storage.addItem(storageItem, {
-      onOperationComplete(calendar, status, opType, id, addedItem) {
-        addedItem.QueryInterface(Ci.calIEvent);
-        resolve(addedItem.id);
-      },
-    });
-  });
+  let addedItemId = (await storage.addItem(storageItem)).id;
 
   // Make sure the cache is cleared, otherwise we'll get the cached item.
   delete storage.wrappedJSObject.mItemModel.itemCache[addedItemId];

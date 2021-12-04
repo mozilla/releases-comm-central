@@ -17,9 +17,10 @@ interface calIOfflineStorage : calICalendar {
      * Mark the item of which the id is passed as parameter as new.
      *
      * @param aItem       the item to add
-     * @param aListener   where to call back the results
+     *
+     * @return {Promise<void>}
      */
-    void addOfflineItem(in calIItemBase aItem, in calIOperationListener aListener);
+    Promise addOfflineItem(in calIItemBase aItem);
 
     /**
      * Mark the item of which the id is passed as parameter as modified.

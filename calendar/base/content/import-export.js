@@ -176,11 +176,9 @@ async function putItemsIntoCal(destCal, aItems, aListener) {
   let count = 0;
   let total = aItems.length;
 
-  // Using wrappedJSObject is a hack that is needed to prevent a proxy error.
-  let pcal = cal.async.promisifyCalendar(destCal.wrappedJSObject);
   for (let item of aItems) {
     try {
-      await pcal.addItem(item);
+      await destCal.addItem(item);
     } catch (e) {
       if (e == Ci.calIErrors.DUPLICATE_ID) {
         await callListener("onDuplicate", item, e);

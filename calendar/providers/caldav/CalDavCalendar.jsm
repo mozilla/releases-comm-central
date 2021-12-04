@@ -534,21 +534,36 @@ CalDavCalendar.prototype = {
    * we actually use doAdoptItem()
    *
    * @param aItem       item to add
-   * @param aListener   listener for method completion
    */
-  addItem(aItem, aListener) {
-    return this.doAdoptItem(aItem.clone(), aListener);
+  async addItem(aItem) {
+    return this.adoptItem(aItem);
   },
+
+  // Used to allow the cachedCalendar provider to hook into adoptItem() before
+  // it returns.
+  _cachedAdoptItemCallback: null,
 
   /**
    * adoptItem()
    * we actually use doAdoptItem()
    *
    * @param aItem       item to check
-   * @param aListener   listener for method completion
    */
-  adoptItem(aItem, aListener) {
-    return this.doAdoptItem(aItem, aListener);
+  async adoptItem(aItem) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      this.doAdoptItem(aItem.clone(), {
+        get wrappedJSObject() {
+          return this;
+        },
+        async onOperationComplete(calendar, status, opType, id, detail) {
+          if (self._cachedAdoptItemCallback) {
+            await self._cachedAdoptItemCallback(calendar, status, opType, id, detail);
+          }
+          return Components.isSuccessCode(status) ? resolve(detail) : reject(detail);
+        },
+      });
+    });
   },
 
   /**
@@ -998,7 +1013,10 @@ CalDavCalendar.prototype = {
       };
 
       if (this.mItemInfoCache[item.id].isNew) {
-        this.mOfflineStorage.adoptItem(item, listener);
+        this.mOfflineStorage.adoptItem(item).then(
+          () => listener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
+          e => listener.onOperationComplete(null, e.result, null, null, e)
+        );
       } else {
         this.mOfflineStorage.modifyItem(item, null, listener);
       }

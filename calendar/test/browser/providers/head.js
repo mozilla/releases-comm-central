@@ -75,6 +75,7 @@ function createCalendar(type, url, useCache) {
   calendar.name = type + (useCache ? " with cache" : " without cache");
   calendar.id = cal.getUUID();
   calendar.setProperty("cache.enabled", useCache);
+  calendar.setProperty("calendar-main-default", true);
 
   manager.registerCalendar(calendar);
   calendar = manager.getCalendarById(calendar.id);

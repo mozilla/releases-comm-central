@@ -322,9 +322,9 @@ CalCompositeCalendar.prototype = {
     return aItem.calendar.deleteItem(aItem);
   },
 
-  // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
-  addItem(aItem, aListener) {
-    return this.mDefaultCalendar.addItem(aItem, aListener);
+  // Promise<calIItemBase> addItem(in calIItemBase aItem);
+  addItem(aItem) {
+    return this.mDefaultCalendar.addItem(aItem);
   },
 
   // Promise<calIItemBase|null> getItem(in string aId);

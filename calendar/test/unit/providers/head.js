@@ -113,7 +113,7 @@ async function runAddItem(calendar) {
 
   calendarObserver._onAddItemPromise = PromiseUtils.defer();
   calendarObserver._onModifyItemPromise = PromiseUtils.defer();
-  calendar.addItem(event, null);
+  await calendar.addItem(event);
   await Promise.any([
     calendarObserver._onAddItemPromise.promise,
     calendarObserver._onModifyItemPromise.promise,

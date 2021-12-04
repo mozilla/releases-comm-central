@@ -183,23 +183,27 @@ CalStorageCalendar.prototype = {
     // no-op
   },
 
-  // void addItem( in calIItemBase aItem, in calIOperationListener aListener );
-  addItem(aItem, aListener) {
+  // Promise<calIItemBase> addItem(in calIItemBase aItem);
+  async addItem(aItem, aListener) {
     let newItem = aItem.clone();
     return this.adoptItem(newItem, aListener);
   },
 
-  // void adoptItem( in calIItemBase aItem, in calIOperationListener aListener );
-  async adoptItem(aItem, aListener) {
-    if (this.readOnly) {
+  // Promise<calIItemBase> adoptItem(in calIItemBase aItem);
+  async adoptItem(aItem) {
+    let onError = async (message, exception) => {
       this.notifyOperationComplete(
-        aListener,
-        Ci.calIErrors.CAL_IS_READONLY,
-        Ci.calIOperationListener.ADD,
         null,
-        "Calendar is readonly"
+        exception,
+        Ci.calIOperationListener.ADD,
+        aItem.id,
+        message
       );
-      return;
+      return Promise.reject(new Components.Exception(message, exception));
+    };
+
+    if (this.readOnly) {
+      return onError("Calendar is readonly", Ci.calIErrors.CAL_IS_READONLY);
     }
 
     if (aItem.id == null) {
@@ -212,14 +216,7 @@ CalStorageCalendar.prototype = {
           // we possibly want to interact with the user before deleting
           await this.mItemModel.deleteItemById(aItem.id, true);
         } else {
-          this.notifyOperationComplete(
-            aListener,
-            Ci.calIErrors.DUPLICATE_ID,
-            Ci.calIOperationListener.ADD,
-            aItem.id,
-            "ID already exists for addItem"
-          );
-          return;
+          return onError("ID already exists for addItem", Ci.calIErrors.DUPLICATE_ID);
         }
       }
     }
@@ -234,17 +231,9 @@ CalStorageCalendar.prototype = {
 
     await this.mItemModel.addItem(parentItem);
 
-    // notify the listener
-    this.notifyOperationComplete(
-      aListener,
-      Cr.NS_OK,
-      Ci.calIOperationListener.ADD,
-      aItem.id,
-      aItem
-    );
-
     // notify observers
     this.observers.notify("onAddItem", [aItem]);
+    return aItem;
   },
 
   // void modifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem, in calIOperationListener aListener );
