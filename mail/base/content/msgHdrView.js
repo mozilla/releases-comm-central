@@ -1123,7 +1123,6 @@ function showHeaderView(aHeaderTable) {
       let dataLabel = document.getElementById("dateLabel");
       let dateLabelSubject = document.getElementById("dateLabelSubject");
       if (!headerEntry.valid) {
-        dataLabel.hidden = true;
         dateLabelSubject.setAttribute(
           "datetime",
           dataLabel.getAttribute("datetime")
@@ -1131,7 +1130,6 @@ function showHeaderView(aHeaderTable) {
         dateLabelSubject.textContent = dataLabel.textContent;
         dateLabelSubject.hidden = false;
       } else {
-        dataLabel.hidden = false;
         dateLabelSubject.removeAttribute("datetime");
         dateLabelSubject.textContent = "";
         dateLabelSubject.hidden = true;

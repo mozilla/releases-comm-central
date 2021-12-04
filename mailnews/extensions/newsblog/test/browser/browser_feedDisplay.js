@@ -150,12 +150,21 @@ add_task(async () => {
     window.document.getElementById("expandedtoRow").hidden,
     "The To field is not visible"
   );
-  Assert.ok(
-    window.document.getElementById("dateLabel").hidden,
-    "The regular date label is not visible"
+  Assert.equal(
+    window.document.getElementById("dateLabel").textContent,
+    window.document.getElementById("dateLabelSubject").textContent,
+    "The regular date label and the subject date have the same value"
   );
   Assert.ok(
-    !window.document.getElementById("dateLabelSubject").hidden,
+    BrowserTestUtils.is_hidden(
+      window.document.getElementById("dateLabel"),
+      "The regular date label is not visible"
+    )
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(
+      window.document.getElementById("dateLabelSubject")
+    ),
     "The date label on the subject line is visible"
   );
 

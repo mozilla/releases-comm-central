@@ -13,7 +13,6 @@
 .message-header-extra-container {
   display: grid;
   row-gap: 3px;
-  line-height: 1.2em;
 }
 
 .message-header-container {
@@ -22,15 +21,21 @@
 
 .message-header-row:not([hidden]) {
   display: flex;
-  align-items: flex-start;
+  align-items: baseline;
+  min-height: 1.7em;
 }
 
 .message-header-wrap {
   flex-wrap: wrap;
 }
 
-.header-row-reverse {
+.message-header-row.header-row-reverse {
   flex-direction: row-reverse;
+}
+
+.message-header-row.items-center {
+  /* Variation for those rows that include buttons. */
+  align-items: center;
 }
 
 .header-buttons-container {
@@ -42,7 +47,7 @@
 .header-row-grow:not([hidden]) {
   flex: 1;
   display: flex;
-  font-style: normal;
+  align-items: baseline;
 }
 
 .message-header-multi-field {
@@ -179,7 +184,6 @@ mail-tagfield[collapsed="true"] {
 #expandedsubjectBox {
   font-weight: bold;
   flex: 1;
-  margin-block: 1px;
 }
 
 /* ::::: attachment view ::::: */
@@ -281,13 +285,23 @@ mail-tagfield[collapsed="true"] {
 
 .message-header-label {
   padding: 0;
-  margin-block: 0 3px;
+  margin-block: 0;
+  margin-inline: 6px 8px;
   text-align: end;
   flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .message-header-label.header-pill-label {
-  padding-top: 3px;
+  /* 2px is to match the sum of the padding-block-start: 1px and
+    border-block-start-width: 1px of .emailDisplayButton. */
+  padding-block-start: 2px;
+}
+
+mail-multi-emailheaderfield, mail-newsgroups-headerfield {
+  /* The margin by 3px is to 'undo' the padding-inline-start: 2px and
+    border-inline-start-width: 1px of .emailDisplayButton. */
+  margin-inline-start: -3px;
 }
 
 .message-header-label,
@@ -295,39 +309,37 @@ mail-tagfield[collapsed="true"] {
   opacity: 0.7;
 }
 
-.headerValue[containsEmail="true"] {
-  margin-inline-start: 0 !important;
+.headerValueBox {
+  display: block;
+}
+
+.headerValue {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0;
 }
 
 mail-headerfield.headerValue:focus-visible:not(:hover) {
   outline: 1px solid var(--focus-outline-color);
 }
 
-.headerValueUrl {
-  cursor: pointer;
-  color: -moz-hyperlinktext;
-  text-decoration: underline;
-}
-
-.headerValueUrl:hover {
-  color: -moz-activehyperlinktext;
-}
-
-/* ::::: msg header message ids ::::: */
-
+.headerValueUrl,
 .messageIdDisplayButton {
   cursor: pointer;
   color: -moz-hyperlinktext;
   text-decoration: underline;
+  display: inline-block;
+  word-break: break-all;
 }
 
+.headerValueUrl:hover,
 .messageIdDisplayButton:hover {
   color: -moz-activehyperlinktext;
 }
 
 mail-newsgroups-headerfield.headerValueBox {
   padding: .1em 0;
-  margin-bottom: 4px;
 }
 
 .headerField {
@@ -336,7 +348,7 @@ mail-newsgroups-headerfield.headerValueBox {
 
 .moreIndicator {
   font-weight: bold;
-  margin-block-start: 5px;
+  margin-block: 2px;
 }
 
 .moreIndicator:hover {
@@ -360,15 +372,18 @@ mail-newsgroups-headerfield.headerValueBox {
   user-select: text;
   -moz-user-focus: normal;
   cursor: text;
-  align-self: self-start;
-  margin: 3px 6px;
+  margin: 0 6px;
+}
+
+#expandedtoRow .message-header-datetime {
+  align-self: flex-start;
+  margin-block: 2px;
 }
 
 /* ::::: msg header email addresses ::::: */
 
 .emailDisplayButton {
   -moz-user-focus: normal;
-  display: -moz-inline-box;
   padding: 1px 2px;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
@@ -470,8 +485,13 @@ mail-emailaddress[selected="true"] > .emailDisplayButton .emailStar {
   overflow: hidden;
 }
 
+mail-messageids-headerfield {
+  display: flex;
+  align-items: baseline;
+}
+
 mail-messageids-headerfield button.email-action-button {
-  margin-inline: 4px 2px;
+  margin-inline: 0 2px;
 }
 
 .emailToggleHeaderfield {
@@ -541,6 +561,10 @@ mail-headerfield:focus-visible:not(:hover) {
 }
 
 /* OpenPGP and S/MIME encryption and signature status icons */
+
+#cryptoBox:not([hidden]) {
+  display: contents;
+}
 
 .crypto-label {
   font-weight: 600;
@@ -734,12 +758,17 @@ button.email-action-flagged.flagged {
 
 /* Responsive style */
 @media (max-width: 768px) {
+  .message-header-row.items-center {
+    align-items: baseline;
+  }
+
   .message-header-container {
     padding: 6px;
   }
 
-  .message-header-wrap {
+  .message-header-wrap:not([hidden]) {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .header-buttons-container {
@@ -748,11 +777,7 @@ button.email-action-flagged.flagged {
 
   .message-header-label {
     min-width: 0 !important;
-    margin-inline: 0;
+    margin-inline-start: 0;
     text-align: start;
-  }
-
-  .message-header-label:not(.header-pill-label) {
-    padding-inline-end: 6px;
   }
 }

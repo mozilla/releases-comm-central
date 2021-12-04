@@ -15,7 +15,7 @@
 <!-- Header container -->
 <html:header id="messageHeader" class="message-header-container">
   <!-- Sender + buttons -->
-  <html:div class="message-header-row header-row-reverse message-header-wrap">
+  <html:div class="message-header-row header-row-reverse message-header-wrap items-center">
     <html:div id="header-view-toolbox" role="toolbar" class="header-buttons-container">
       <!-- NOTE: Temporarily keep the hbox to allow extensions to add custom sets of
         toolbar buttons. This can be later removed once a new API that doesn't rely
@@ -241,8 +241,8 @@
   </html:div>
 
   <!-- To recipients + date -->
-  <html:div class="message-header-row">
-    <html:div id="expandedtoRow" class="header-row-grow">
+  <html:div id="expandedtoRow" class="message-header-row">
+    <html:div class="header-row-grow">
       <label id="expandedtoLabel" class="message-header-label header-pill-label"
              value="&toField4.label;" control="expandedtoBox"/>
       <mail-multi-emailheaderfield id="expandedtoBox"

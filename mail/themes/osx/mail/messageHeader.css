@@ -18,12 +18,6 @@
   background-color: transparent;
 }
 
-/* ::::: msg header captions ::::: */
-
-mail-messageids-headerfield button.email-action-button {
-  margin-inline: 1px 3px;
-}
-
 /* ::::: collapsed view styles ::::: */
 
 .message-security-label {
