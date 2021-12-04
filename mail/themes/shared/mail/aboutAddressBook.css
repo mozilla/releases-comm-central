@@ -311,12 +311,14 @@ ab-card-listrow:hover {
   background-color: var(--in-content-item-hover);
 }
 
-ab-card-listrow > div.name {
+ab-card-listrow > div {
   line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 ab-card-listrow > div.address {
-  line-height: 18px;
   font-size: 13.333px;
 }
 
