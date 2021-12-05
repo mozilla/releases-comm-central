@@ -26,18 +26,18 @@ let whitelist = [
   },
   // UA-only media features.
   {
-    sourceName: /\b(autocomplete-item|svg|ua)\.css$/,
+    sourceName: /\b(autocomplete-item)\.css$/,
     errorMessage: /Expected media feature name but found \u2018-moz.*/i,
     isFromDevTools: false,
+    platforms: ["windows"],
   },
-
   {
-    sourceName: /\b(contenteditable|EditorOverride|svg|forms|html|mathml|ua|pluginproblem)\.css$/i,
+    sourceName: /\b(contenteditable|EditorOverride|svg|forms|html|mathml|ua)\.css$/i,
     errorMessage: /Unknown pseudo-class.*-moz-/i,
     isFromDevTools: false,
   },
   {
-    sourceName: /\b(minimal-xul|html|mathml|ua|forms|svg)\.css$/i,
+    sourceName: /\b(minimal-xul|html|mathml|ua|forms|svg|manageDialog|autocomplete-item-shared|formautofill)\.css$/i,
     errorMessage: /Unknown property.*-moz-/i,
     isFromDevTools: false,
   },
@@ -61,7 +61,23 @@ let whitelist = [
     errorMessage: /Property contained reference to invalid variable.*color/i,
     isFromDevTools: true,
   },
+  // PDF.js uses a property that is currently only supported in chrome.
+  {
+    sourceName: /web\/viewer\.css$/i,
+    errorMessage: /Unknown property ‘text-size-adjust’\. {2}Declaration dropped\./i,
+    isFromDevTools: false,
+  },
 ];
+
+if (!Services.prefs.getBoolPref("layout.css.color-mix.enabled")) {
+  // Reserved to UA sheets unless layout.css.color-mix.enabled flipped to true.
+  whitelist.push({
+    sourceName: /\b(autocomplete-item)\.css$/,
+    errorMessage: /Expected color but found \u2018color-mix\u2019./i,
+    isFromDevTools: false,
+    platforms: ["windows"],
+  });
+}
 
 if (!Services.prefs.getBoolPref("layout.css.math-depth.enabled")) {
   // mathml.css UA sheet rule for math-depth.
@@ -81,32 +97,19 @@ if (!Services.prefs.getBoolPref("layout.css.math-style.enabled")) {
   });
 }
 
-if (
-  !Services.prefs.getBoolPref(
-    "layout.css.xul-box-display-values.content.enabled"
-  )
-) {
-  // These are UA sheets which use non-content-exposed `display` values.
-  whitelist.push({
-    sourceName: /(skin\/shared\/Heartbeat|((?:res|gre-resources)\/(ua|html)))\.css$/i,
-    errorMessage: /Error in parsing value for .*\bdisplay\b/i,
-    isFromDevTools: false,
-  });
-}
-
-// System colors reserved to UA / chrome sheets
-whitelist.push({
-  sourceName: /(?:res|gre-resources)\/forms\.css$/i,
-  errorMessage: /Expected color but found \u2018-moz.*/i,
-  platforms: ["linux"],
-  isFromDevTools: false,
-});
-
 if (!Services.prefs.getBoolPref("layout.css.scroll-anchoring.enabled")) {
   whitelist.push({
     sourceName: /webconsole\.css$/i,
     errorMessage: /Unknown property .*\boverflow-anchor\b/i,
     isFromDevTools: true,
+  });
+}
+
+if (!Services.prefs.getBoolPref("layout.css.forced-colors.enabled")) {
+  whitelist.push({
+    sourceName: /pdf\.js\/web\/viewer\.css$/,
+    errorMessage: /Expected media feature name but found ‘forced-colors’*/i,
+    isFromDevTools: false,
   });
 }
 
@@ -129,6 +132,10 @@ let propNameWhitelist = [
   // when expanding the shorthands. See https://github.com/w3c/csswg-drafts/issues/2515
   { propName: "--bezier-diagonal-color", isFromDevTools: true },
   { propName: "--bezier-grid-color", isFromDevTools: true },
+
+  // This variable is used from CSS embedded in JS in pdf.js
+  { propName: "--zoom-factor", isFromDevTools: false },
+  { propName: "--viewport-scale-factor", isFromDevTools: false },
 ];
 
 let thunderbirdWhitelist = [];
