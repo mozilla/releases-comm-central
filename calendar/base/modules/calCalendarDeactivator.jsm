@@ -103,10 +103,9 @@ var calendarDeactivator = {
    * and tasks tabs when calendar functionality is deactivated.
    *
    * @param {ChromeWindow} window - A ChromeWindow object.
-   * @param {boolean} calendarIsActivated - Whether any calendars are enabled.
+   * @param {boolean} isEnabled - Whether any calendars are enabled.
    */
-  refreshNotificationBoxes(window, calendarIsActivated) {
-    let value = "calendarDeactivated";
+  refreshNotificationBoxes(window, isEnabled) {
     let notificationboxes = [
       [
         window.calendarTabType.modes.calendar.notificationbox,
@@ -118,27 +117,23 @@ var calendarDeactivator = {
       ],
     ];
 
+    let value = "calendarDeactivated";
     for (let [notificationbox, messageName] of notificationboxes) {
       let existingNotification = notificationbox.getNotificationWithValue(value);
 
-      if (calendarIsActivated) {
+      if (isEnabled) {
         notificationbox.removeNotification(existingNotification);
       } else if (!existingNotification) {
-        let prio = notificationbox.PRIORITY_WARNING_MEDIUM;
-
-        // Use Fluent's preferred async declarative, DOMLocalization API.
-        let messageFragment = window.document.createDocumentFragment();
-        let message = window.document.createElement("span");
-        window.document.l10n.setAttributes(message, messageName);
-        messageFragment.appendChild(message);
-        notificationbox.appendNotification(
+        let notification = notificationbox.appendNotification(
           value,
           {
-            label: messageFragment,
-            priority: prio,
+            label: "",
+            priority: notificationbox.PRIORITY_WARNING_MEDIUM,
           },
           null
         );
+
+        window.document.l10n.setAttributes(notification.messageText, messageName);
       }
     }
   },
