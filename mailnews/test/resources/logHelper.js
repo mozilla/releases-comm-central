@@ -28,6 +28,7 @@ var _logHelperInterestedListeners = false;
  * Let test code extend the list of allowed XPCOM errors.
  */
 var logHelperAllowedErrors = ["NS_ERROR_FAILURE"];
+var logHelperAllowedWarnings = [/Quirks Mode/];
 
 /**
  * Let other test helping code decide whether to register for potentially
@@ -95,6 +96,13 @@ var _errorConsoleTunnel = {
             return;
           }
           info("Found XPCOM error: " + message);
+        }
+        // Ignore warnings that match a white-listed pattern.
+        if (
+          /JavaScript Warning:/.test(aMessage) &&
+          logHelperAllowedWarnings.some(w => w.test(aMessage))
+        ) {
+          return;
         }
         mark_failure(["Error console says", aMessage]);
       }
