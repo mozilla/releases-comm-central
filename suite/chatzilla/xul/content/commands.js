@@ -1442,20 +1442,11 @@ function cmdNetworks(e)
     for (let i = 0; i < netnames.length; i++)
     {
         let net = client.networks[netnames[i]];
-        /* Test for an all-SSL network */
-        var isSecure = true;
-        for (let s in net.serverList)
-        {
-            if (!net.serverList[s].isSecure)
-            {
-                isSecure = false;
-                break;
-            }
-        }
+        let hasSecure = networkHasSecure(net.serverList);
 
         var linkData = {
             "data": net.unicodeName,
-            "href": (isSecure ? "ircs://" : "irc://") + net.canonicalName
+            "href": (hasSecure ? "ircs://" : "irc://") + net.canonicalName
         };
         wrapper.appendChild(newInlineText(linkData, "chatzilla-link", "a"));
 

@@ -211,3 +211,18 @@ function networksSaveList(networkList)
         networksLoader.close();
     }
 }
+
+function networkHasSecure(serverList)
+{
+    // Test to see if the network has a secure server.
+    let hasSecure = false;
+    for (let s in serverList)
+    {
+        if (serverList[s].isSecure)
+        {
+            hasSecure = true;
+            break;
+        }
+    }
+    return hasSecure;
+}

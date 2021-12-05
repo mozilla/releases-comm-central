@@ -164,8 +164,13 @@ var gNetworkWindow = {
       return;
 
     let network = this.networkList[selection.id];
-    if (this.onOK())
-      client.dispatch("server " + network.name);
+    if (this.onOK()) {
+      if (networkHasSecure(network.servers)) {
+          client.dispatch("sslserver " + network.name);
+      } else {
+          client.dispatch("server " + network.name);
+      }
+    }
   },
 
   // Select a network listitem.
