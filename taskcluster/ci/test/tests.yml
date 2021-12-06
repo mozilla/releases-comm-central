@@ -103,7 +103,7 @@ mochitest-thunderbird:
             linux.*64-asan.*/opt: 16
             linux.*64-tsan.*/opt: 15
             windows10-64-asan.*/opt: 9
-            default: 5
+            default: 7
     e10s: true
     python-3: true
     mozharness:
