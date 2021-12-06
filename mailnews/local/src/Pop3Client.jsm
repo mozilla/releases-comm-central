@@ -495,8 +495,30 @@ class Pop3Client {
       return;
     }
     if (res.success) {
-      this._actionUidl();
+      this._actionList();
     }
+  };
+
+  /**
+   * Send `LIST` request to the server.
+   */
+  _actionList = () => {
+    this._nextAction = this._actionListResponse;
+    this._send("LIST");
+  };
+
+  /**
+   * Handle `LIST` response.
+   * @param {Pop3Response} res - LIST response received from the server.
+   */
+  _actionListResponse = ({ data }) => {
+    this._lineReader(
+      data,
+      line => {},
+      () => {
+        this._actionUidl();
+      }
+    );
   };
 
   /**
@@ -544,7 +566,7 @@ class Pop3Client {
 
   /**
    * Handle `RETR` response.
-   * @param {Pop3Response} res - UIDL response received from the server.
+   * @param {Pop3Response} res - RETR response received from the server.
    */
   _actionRetrResponse = res => {
     if (res.statusText) {
@@ -561,15 +583,40 @@ class Pop3Client {
           this._msgWindow,
           this._currentMessageSize
         );
-        this._uidlMap.set(this._currentMessage.messageUidl, {
-          status: "k",
-          uidl: this._currentMessage.messageUidl,
-          receivedAt: Math.floor(Date.now() / 1000),
-        });
-        this._uidlMapChanged = true;
-        this._actionRetr();
+        if (this._server.leaveMessagesOnServer) {
+          this._uidlMap.set(this._currentMessage.messageUidl, {
+            status: "k",
+            uidl: this._currentMessage.messageUidl,
+            receivedAt: Math.floor(Date.now() / 1000),
+          });
+          this._uidlMapChanged = true;
+          this._actionRetr();
+        } else {
+          this._actionDelete();
+        }
       }
     );
+  };
+
+  /**
+   * Send `DELE` request to the server.
+   */
+  _actionDelete = () => {
+    this._nextAction = this._actionDeleteResponse;
+    this._send(`DELE ${this._currentMessage.messageNumber}`);
+  };
+
+  /**
+   * Handle `DELE` response.
+   * @param {Pop3Response} res - DELE response received from the server.
+   */
+  _actionDeleteResponse = res => {
+    this._uidlMap.set(this._currentMessage.messageUidl, {
+      status: "d",
+      uidl: this._currentMessage.messageUidl,
+      receivedAt: Math.floor(Date.now() / 1000),
+    });
+    this._actionRetr();
   };
 
   _actionDone = (status = Cr.NS_OK) => {

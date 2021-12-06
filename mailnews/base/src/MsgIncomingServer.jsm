@@ -119,7 +119,7 @@ class MsgIncomingServer {
   }
 
   set realUsername(value) {
-    let oldName = this.realHostName;
+    let oldName = this.realUsername;
     this.setUnicharValue("realuserName", value);
 
     if (oldName != value) {
@@ -184,11 +184,24 @@ class MsgIncomingServer {
   }
 
   get serverURI() {
-    // Construct <localStoreType>://[<username>@]<hostname>.
-    let auth = this.username ? `${encodeURIComponent(this.username)}@` : "";
-    return `${this.localStoreType}://${auth}${encodeURIComponent(
-      this.hostName
-    )}`;
+    return this._getServerURI(true);
+  }
+
+  /**
+   * Get server URI in the form of localStoreType://[user@]hostname.
+   * @param {boolean} includeUsername - Whether to include the username.
+   * @returns {string}
+   */
+  _getServerURI(includeUsername) {
+    let auth =
+      includeUsername && this.username
+        ? `${encodeURIComponent(this.username)}@`
+        : "";
+    // When constructing nsIURI, need to wrap IPv6 address in [].
+    let hostname = this.hostName.includes(":")
+      ? `[${this.hostName}]`
+      : this.hostName;
+    return `${this.localStoreType}://${auth}${encodeURIComponent(hostname)}`;
   }
 
   get prettyName() {
@@ -482,7 +495,8 @@ class MsgIncomingServer {
    * @returns {string}
    */
   _getPasswordWithoutUI() {
-    let logins = Services.logins.findLogins(this.serverURI, "", this.serverURI);
+    let serverURI = this._getServerURI();
+    let logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (let login of logins) {
       if (login.username == this.username) {
         return login.password;
@@ -500,8 +514,10 @@ class MsgIncomingServer {
     let outUsername = {};
     let outPassword = {};
     let ok;
+    let authPrompt =
+      msgWindow?.authPrompt || Services.ww.getNewAuthPrompter(null);
     if (this.username) {
-      ok = msgWindow.authPrompt.promptPassword(
+      ok = authPrompt.promptPassword(
         promptTitle,
         promptMessage,
         this.serverURI,
@@ -509,7 +525,7 @@ class MsgIncomingServer {
         outPassword
       );
     } else {
-      ok = msgWindow.authPrompt.promptUsernameAndPassword(
+      ok = authPrompt.promptUsernameAndPassword(
         promptTitle,
         promptMessage,
         this.serverURI,
@@ -528,9 +544,7 @@ class MsgIncomingServer {
   }
 
   forgetPassword() {
-    let serverURI = `${this.localStoreType}://${encodeURIComponent(
-      this.hostName
-    )}`;
+    let serverURI = this._getServerURI();
     let logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (let login of logins) {
       if (login.username == this.username) {

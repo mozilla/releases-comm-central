@@ -295,11 +295,11 @@ class IncomingServerAuthenticator extends MailAuthenticator {
   }
 
   get hostname() {
-    return this._server.hostname;
+    return this._server.realHostName;
   }
 
   get username() {
-    return this._server.username;
+    return this._server.realUsername;
   }
 }
 
@@ -330,10 +330,10 @@ class Pop3Authenticator extends IncomingServerAuthenticator {
       "pop3EnterPasswordPromptTitleWithUsername",
       [this._server.hostname]
     );
-    return this._server.getPasswordWithUI(
-      promptString,
-      promptTitle,
-      MailServices.mailSession.topmostMsgWindow
-    );
+    let msgWindow;
+    try {
+      msgWindow = MailServices.mailSession.topmostMsgWindow;
+    } catch (e) {}
+    return this._server.getPasswordWithUI(promptString, promptTitle, msgWindow);
   }
 }
