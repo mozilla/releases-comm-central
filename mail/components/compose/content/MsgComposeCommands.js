@@ -1826,11 +1826,11 @@ function setSecuritySettings(menu_id) {
 
       pgpItem.disabled = !isPgpConfigured();
 
-      sep.setAttribute("hidden", !gSelectedTechnologyIsPGP);
-      men.setAttribute("hidden", !gSelectedTechnologyIsPGP);
-      box.setAttribute("hidden", !gSelectedTechnologyIsPGP);
+      sep.hidden = !gSelectedTechnologyIsPGP;
+      men.hidden = !gSelectedTechnologyIsPGP;
+      box.hidden = !gSelectedTechnologyIsPGP;
       box.setAttribute("checked", gAttachMyPublicPGPKey);
-      box2.setAttribute("hidden", !gSelectedTechnologyIsPGP);
+      box2.hidden = !gSelectedTechnologyIsPGP;
       box2.setAttribute("checked", gEncryptSubject);
 
       if (gSelectedTechnologyIsPGP) {
