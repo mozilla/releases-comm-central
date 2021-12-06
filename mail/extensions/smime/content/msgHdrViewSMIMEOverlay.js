@@ -36,15 +36,21 @@ function neckoURLForMessageURI(aMessageURI) {
  *   message.
  * @param {"ok"|"notok"|"verified"|"unverified"|"unknown"|"mismatch"|null}
  *   signedState - The signed state of the message.
+ * @param {boolean} forceShow - Show the box if unsigned and unencrypted.
  */
-function setMessageEncryptionStateButton(tech, encryptedState, signedState) {
+function setMessageEncryptionStateButton(
+  tech,
+  encryptedState,
+  signedState,
+  forceShow
+) {
   let container = document.getElementById("cryptoBox");
   let encryptedIcon = document.getElementById("encryptedHdrIcon");
   let signedIcon = document.getElementById("signedHdrIcon");
   let button = document.getElementById("encryptionTechBtn");
   let buttonText = button.querySelector(".crypto-label");
 
-  let hidden = !tech || (!encryptedState && !signedState);
+  let hidden = !forceShow && (!tech || (!encryptedState && !signedState));
   container.hidden = hidden;
   button.hidden = hidden;
   if (hidden) {
@@ -130,7 +136,7 @@ function smimeEncryptedStateToString(encryptedState) {
 function refreshSmimeMessageEncryptionStateButton() {
   let signed = smimeSignedStateToString(gSignatureStatus);
   let encrypted = smimeEncryptedStateToString(gEncryptionStatus);
-  setMessageEncryptionStateButton("S/MIME", encrypted, signed);
+  setMessageEncryptionStateButton("S/MIME", encrypted, signed, false);
 }
 
 var smimeHeaderSink = {
@@ -338,7 +344,7 @@ function onSMIMEStartHeaders() {
   gSignerCert = null;
   gEncryptionCert = null;
 
-  setMessageEncryptionStateButton(null, null, null);
+  setMessageEncryptionStateButton(null, null, null, false);
 
   forgetEncryptedURI();
   onMessageSecurityPopupHidden();
@@ -413,7 +419,7 @@ function msgHdrViewSMIMEOnUnload(event) {
 }
 
 function msgHdrViewSMIMEOnMessagePaneHide() {
-  setMessageEncryptionStateButton(null, null, null);
+  setMessageEncryptionStateButton(null, null, null, false);
 }
 
 function msgHdrViewSMIMEOnMessagePaneUnhide() {

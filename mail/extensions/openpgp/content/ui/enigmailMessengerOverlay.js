@@ -3285,17 +3285,7 @@ Enigmail.msg = {
    * Show the import key notification.
    */
   async unhideImportKeyBox() {
-    // If the crypto button area is still collapsed it means the message wasn't
-    // encrypted and doesn't have a signature, but since we have an autocrypt
-    // header, we need to show the button to allow users to access the info.
-    let cryptoBox = document.getElementById("cryptoBox");
-    if (cryptoBox.hidden) {
-      cryptoBox.hidden = false;
-      cryptoBox.setAttribute("tech", "OpenPGP");
-      document
-        .getElementById("encryptionTechBtn")
-        .querySelector("span").textContent = "OpenPGP";
-    }
+    Enigmail.hdrView.notifyHasKeyAttached();
 
     // Check if the proposed key to import was previously accepted.
     let hasAreadyAcceptedOther = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
