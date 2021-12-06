@@ -32,9 +32,6 @@ if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
   var { EnigmailCryptoAPI } = ChromeUtils.import(
     "chrome://openpgp/content/modules/cryptoAPI.jsm"
   );
-  var { EnigmailClipboard } = ChromeUtils.import(
-    "chrome://openpgp/content/modules/clipboard.jsm"
-  );
   var { PgpSqliteDb2 } = ChromeUtils.import(
     "chrome://openpgp/content/modules/sqliteDb.jsm"
   );
@@ -1271,27 +1268,25 @@ function updateUIForSelectedOpenPgpKey() {
  *
  * @param {string} val - The formatted string to be copied in the clipboard.
  */
-function openPgpCopyToClipboard(val) {
+async function openPgpCopyToClipboard(keyId) {
   let exitCodeObj = {};
-  let valArray = [val];
 
-  let keyData = EnigmailKeyRing.extractKey(0, valArray, null, exitCodeObj, {});
+  let keyData = EnigmailKeyRing.extractKey(0, [keyId], null, exitCodeObj, {});
 
   // Alert the user if the copy failed.
-  if (
-    exitCodeObj.value !== 0 ||
-    !EnigmailClipboard.setClipboardContent(keyData)
-  ) {
-    document.l10n.formatValue("copy-to-clipbrd-failed").then(value => {
-      alertUser(value);
-    });
+  if (exitCodeObj.value !== 0) {
+    alertUser(await document.l10n.formatValue("copy-to-clipbrd-failed"));
     return;
   }
 
-  // Let the user know that the copy was successful.
-  document.l10n.formatValue("copy-to-clipbrd-ok").then(value => {
-    alertUser(value);
-  });
+  navigator.clipboard
+    .writeText(keyData)
+    .then(async () => {
+      alertUser(await document.l10n.formatValue("copy-to-clipbrd-ok"));
+    })
+    .catch(async () => {
+      alertUser(await document.l10n.formatValue("copy-to-clipbrd-failed"));
+    });
 }
 
 /**

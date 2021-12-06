@@ -64,9 +64,6 @@ var EnigmailDecryption = ChromeUtils.import(
 var EnigmailEncryption = ChromeUtils.import(
   "chrome://openpgp/content/modules/encryption.jsm"
 ).EnigmailEncryption;
-var EnigmailClipboard = ChromeUtils.import(
-  "chrome://openpgp/content/modules/clipboard.jsm"
-).EnigmailClipboard;
 var EnigmailWkdLookup = ChromeUtils.import(
   "chrome://openpgp/content/modules/wkdLookup.jsm"
 ).EnigmailWkdLookup;
@@ -2434,7 +2431,7 @@ Enigmail.msg = {
     this.sendProcess = false;
   },
 
-  decryptQuote(interactive) {
+  async decryptQuote(interactive) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.decryptQuote: " +
         interactive +
@@ -2653,17 +2650,6 @@ Enigmail.msg = {
       }
     }
 
-    var clipBoard = Services.clipboard;
-    var data;
-    if (clipBoard.supportsSelectionClipboard()) {
-      // get the clipboard contents for selected text (X11)
-      data = EnigmailClipboard.getClipboardContent(
-        window,
-        Ci.nsIClipboard.kSelectionClipboard
-      );
-    }
-
-    // Replace encrypted quote with decrypted quote (destroys selection clipboard on X11)
     this.editorSelectAll();
 
     //EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.decryptQuote: plainText='"+plainText+"'\n");
@@ -2688,14 +2674,6 @@ Enigmail.msg = {
       this.checkInlinePgpReply(head, tail);
     }
 
-    if (clipBoard.supportsSelectionClipboard()) {
-      // restore the clipboard contents for selected text (X11)
-      EnigmailClipboard.setClipboardContent(
-        data,
-        clipBoard.kSelectionClipboard
-      );
-    }
-
     if (interactive) {
       return;
     }
@@ -2714,8 +2692,6 @@ Enigmail.msg = {
         quoteElement +
         "\n"
     );
-
-    var nsISelectionController = Ci.nsISelectionController;
 
     if (this.editor.selectionController) {
       var selection = this.editor.selectionController;
@@ -2757,8 +2733,8 @@ Enigmail.msg = {
       }
 
       this.editor.selectionController.scrollSelectionIntoView(
-        nsISelectionController.SELECTION_NORMAL,
-        nsISelectionController.SELECTION_ANCHOR_REGION,
+        Ci.nsISelectionController.SELECTION_NORMAL,
+        Ci.nsISelectionController.SELECTION_ANCHOR_REGION,
         true
       );
     }

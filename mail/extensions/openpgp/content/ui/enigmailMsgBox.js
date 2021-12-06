@@ -6,9 +6,6 @@
 
 "use strict";
 
-var { EnigmailClipboard } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/clipboard.jsm"
-);
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -167,10 +164,9 @@ function checkboxCb() {
   // do nothing
 }
 
-function copyToClipbrd() {
+async function copyToClipbrd() {
   let s = window.getSelection().toString();
-
-  EnigmailClipboard.setClipboardContent(s);
+  return navigator.clipboard.writeText(s);
 }
 
 function onKeyPress(event) {

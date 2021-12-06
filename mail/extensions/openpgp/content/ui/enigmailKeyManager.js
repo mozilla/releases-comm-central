@@ -19,9 +19,6 @@ var { EnigmailCore } = ChromeUtils.import(
 var { EnigmailStreams } = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
 );
-var { EnigmailClipboard } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/clipboard.jsm"
-);
 var { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
 );
@@ -283,7 +280,12 @@ function enigmailKeyMenu() {
   document.getElementById("ctxRevokeKey").hidden =
     keyList.length != 1 || !gKeyList[keyList[0]].secretAvailable;
 
-  document.getElementById("importFromClipbrd").disabled = !enigGetClipboard();
+  document.getElementById(
+    "importFromClipbrd"
+  ).disabled = !Services.clipboard.hasDataMatchingFlavors(
+    ["text/unicode"],
+    Ci.nsIClipboard.kGlobalClipboard
+  );
 
   for (let item of document.querySelectorAll(".requires-key-selection")) {
     item.disabled = keyList.length != 1;
@@ -533,36 +535,6 @@ function enigmailExportKeys(which) {
   }
 }
 
-/*
-function enigmailManageUids() {
-  var keyList = getSelectedKeys();
-  var inputObj = {
-    keyId: gKeyList[keyList[0]].keyId,
-    ownKey: gKeyList[keyList[0]].secretAvailable,
-  };
-  var resultObj = {
-    refresh: false,
-  };
-  window.openDialog(
-    "chrome://openpgp/content/ui/enigmailManageUidDlg.xhtml",
-    "",
-    "dialog,modal,centerscreen,resizable=yes",
-    inputObj,
-    resultObj
-  );
-  if (resultObj.refresh) {
-    refreshKeys();
-  }
-}
-*/
-
-function enigGetClipboard() {
-  return EnigmailClipboard.getClipboardContent(
-    window,
-    Ci.nsIClipboard.kGlobalClipboard
-  );
-}
-
 async function enigmailImportFromClipbrd() {
   if (
     !EnigmailDialog.confirmDlg(
@@ -574,7 +546,7 @@ async function enigmailImportFromClipbrd() {
     return;
   }
 
-  var cBoardContent = enigGetClipboard();
+  let cBoardContent = await navigator.clipboard.readText();
   var errorMsgObj = {};
   var preview = await EnigmailKey.getKeyListFromKeyBlock(
     cBoardContent,
@@ -625,22 +597,22 @@ async function enigmailImportFromClipbrd() {
 /**
  * Places the fingerprint of each selected key onto the keyboard.
  */
-function copyOpenPGPFingerPrints() {
+async function copyOpenPGPFingerPrints() {
   let fprs = getSelectedKeys()
     .map(idx => gKeyList[idx].fpr)
     .join("\n");
-  EnigmailClipboard.setClipboardContent(fprs);
+  return navigator.clipboard.writeText(fprs);
 }
 
 /**
  * Places the key id of each key selected onto the clipboard.
  */
-function copyOpenPGPKeyIds() {
+async function copyOpenPGPKeyIds() {
   let ids = getSelectedKeyIds();
-  EnigmailClipboard.setClipboardContent(ids.map(id => `0x${id}`).join("\n"));
+  return navigator.clipboard.writeText(ids.map(id => `0x${id}`).join("\n"));
 }
 
-function enigmailCopyToClipbrd() {
+async function enigmailCopyToClipbrd() {
   var keyList = getSelectedKeyIds();
   if (keyList.length === 0) {
     document.l10n.formatValue("no-key-selected").then(value => {
@@ -669,18 +641,18 @@ function enigmailCopyToClipbrd() {
     });
     return;
   }
-  if (EnigmailClipboard.setClipboardContent(keyData)) {
-    EnigmailLog.DEBUG(
-      "enigmailKeyManager.js: enigmailImportFromClipbrd: set clipboard data\n"
-    );
-    l10n.formatValue("copy-to-clipbrd-ok").then(value => {
-      EnigmailDialog.info(window, value);
+  navigator.clipboard
+    .writeText(keyData)
+    .then(() => {
+      l10n.formatValue("copy-to-clipbrd-ok").then(value => {
+        EnigmailDialog.info(window, value);
+      });
+    })
+    .catch(err => {
+      l10n.formatValue("copy-to-clipbrd-failed").then(value => {
+        EnigmailDialog.alert(window, value);
+      });
     });
-  } else {
-    l10n.formatValue("copy-to-clipbrd-failed").then(value => {
-      EnigmailDialog.alert(window, value);
-    });
-  }
 }
 
 function enigmailSearchKey() {
