@@ -462,19 +462,6 @@
   }
 
 //
-// nsMessengerContentHandler
-//
-#define NS_MESSENGERCONTENTHANDLER_CID               \
-  {                                                  \
-    0x57e1bcbb, 0x1fba, 0x47e7, {                    \
-      0xb9, 0x6b, 0xf5, 0x9e, 0x39, 0x24, 0x73, 0xb0 \
-    }                                                \
-  }
-
-#define NS_MESSENGERCONTENTHANDLER_CONTRACTID \
-  NS_CONTENT_HANDLER_CONTRACTID_PREFIX "application/x-message-display"
-
-//
 // nsMsgShutdownService
 //
 #define NS_MSGSHUTDOWNSERVICE_CID                    \

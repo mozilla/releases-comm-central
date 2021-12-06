@@ -3,7 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["MessengerContentHandler", "MidContentHandler"];
+var EXPORTED_SYMBOLS = [
+  "MessengerContentHandler",
+  "MidContentHandler",
+  "MessageDisplayContentHandler",
+];
 
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -682,5 +686,50 @@ class MidContentHandler {
     }
     let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
     MailUtils.openMessageByMessageId(request.URI.spec.slice(4));
+  }
+}
+
+/**
+ * Open a message/rfc822 or eml file in a new msg window.
+ * @implements {nsIContentHandler}
+ */
+class MessageDisplayContentHandler {
+  QueryInterface = ChromeUtils.generateQI(["nsIContentHandler"]);
+
+  handleContent(contentType, windowContext, request) {
+    let channel = request.QueryInterface(Ci.nsIChannel);
+    if (!channel) {
+      throw Components.Exception(
+        "Expecting an nsIChannel",
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
+    let uri = channel.URI;
+    let mailnewsUrl;
+    try {
+      mailnewsUrl = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    } catch (e) {}
+    if (mailnewsUrl) {
+      let queryPart = mailnewsUrl.query.replace(
+        "type=message/rfc822",
+        "type=application/x-message-display"
+      );
+      uri = mailnewsUrl
+        .mutate()
+        .setQuery(queryPart)
+        .finalize();
+    } else if (uri.scheme == "file") {
+      uri = uri
+        .mutate()
+        .setQuery("type=application/x-message-display")
+        .finalize();
+    }
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/messageWindow.xhtml",
+      "_blank",
+      "all,chrome,dialog=no,status,toolbar",
+      uri
+    );
   }
 }
