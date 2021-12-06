@@ -1421,6 +1421,10 @@ void nsBayesianFilter::classifyMessage(
     nsIJunkMailClassificationListener* listener,
     nsIMsgTraitClassificationListener* aTraitListener,
     nsIMsgTraitDetailListener* aDetailListener) {
+  if (aProTraits.Length() != aAntiTraits.Length()) {
+    NS_ERROR("Each Pro trait needs a matching Anti trait");
+    return;
+  }
   Token* tokens = tokenizer.copyTokens();
   uint32_t tokenCount;
   if (!tokens) {
@@ -1430,11 +1434,6 @@ void nsBayesianFilter::classifyMessage(
     // don't return so that we still call the listeners
   } else {
     tokenCount = tokenizer.countTokens();
-  }
-
-  if (aProTraits.Length() != aAntiTraits.Length()) {
-    NS_ERROR("Each Pro trait needs a matching Anti trait");
-    return;
   }
 
   /* this part is similar to the Graham algorithm with some adjustments. */
