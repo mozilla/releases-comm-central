@@ -932,6 +932,11 @@ const CalendarTestUtils = {
       if (mode === "edit") {
         let iframe = win.document.getElementById("calendar-item-panel-iframe");
         await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
+        iframe.focus();
+        await TestUtils.waitForCondition(
+          () => Services.focus.focusedWindow == iframe.contentWindow,
+          "waiting for iframe to be focused"
+        );
       }
       return true;
     });

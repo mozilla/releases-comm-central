@@ -390,16 +390,14 @@ add_task(async function testExtensionBrowserAction() {
 
   await extension.startup();
 
-  let actionButton = document.getElementById(
+  let { panel, browser } = await openExtensionPopup(
+    window,
     "mailcontext_mochi_test-browserAction-toolbarbutton"
   );
-  EventUtils.synthesizeMouseAtCenter(actionButton, {});
-
-  let panel = document.getElementById("webextension-remote-preload-panel");
-  let browser = panel.querySelector("browser");
-  // The panel needs some time to decide how big it's going to be.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await TestUtils.waitForCondition(
+    () => browser.clientWidth > 100,
+    "waiting for browser to resize"
+  );
   await checkABrowser(browser);
   panel.hidePopup();
 
@@ -439,21 +437,11 @@ add_task(async function testExtensionComposeAction() {
   MailServices.compose.OpenComposeWindowWithParams(null, params);
   let composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "load");
-  let composeDocument = composeWindow.document;
 
-  await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
-
-  let actionButton = composeDocument.getElementById(
+  let { panel, browser } = await openExtensionPopup(
+    composeWindow,
     "mailcontext_mochi_test-composeAction-toolbarbutton"
   );
-  EventUtils.synthesizeMouseAtCenter(actionButton, {}, composeWindow);
-
-  let panel = composeDocument.getElementById(
-    "webextension-remote-preload-panel"
-  );
-  let browser = panel.querySelector("browser");
-  // The panel needs some time to decide how big it's going to be.
-  await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
   await checkABrowser(browser);
   panel.hidePopup();
 
@@ -487,22 +475,11 @@ add_task(async function testExtensionMessageDisplayAction() {
   window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
   let messageWindow = await messageWindowPromise;
   await BrowserTestUtils.waitForEvent(messageWindow, "load");
-  let messageDocument = messageWindow.document;
 
-  await new Promise(resolve => messageWindow.setTimeout(resolve, 500));
-
-  let actionButton = messageDocument.getElementById(
+  let { panel, browser } = await openExtensionPopup(
+    messageWindow,
     "mailcontext_mochi_test-messageDisplayAction-toolbarbutton"
   );
-  EventUtils.synthesizeMouseAtCenter(actionButton, {}, messageWindow);
-
-  let panel = messageDocument.getElementById(
-    "webextension-remote-preload-panel"
-  );
-  let browser = panel.querySelector("browser");
-  // The panel needs some time to decide how big it's going to be.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
   await checkABrowser(browser);
   panel.hidePopup();
 

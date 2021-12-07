@@ -3,13 +3,11 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 async function calendarListContextMenu(target, menuItem) {
-  info("focused window is " + Services.focus.activeWindow?.location.href);
-  if (Services.focus.activeWindow != window) {
-    info("we're not focused!");
-    let p = BrowserTestUtils.waitForEvent(window, "activate");
-    window.focus();
-    await p;
-  }
+  window.focus();
+  await TestUtils.waitForCondition(
+    () => Services.focus.focusedWindow == window,
+    "waiting for window to be focused"
+  );
 
   // The test frequently times out if we don't wait here. Unknown why.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
