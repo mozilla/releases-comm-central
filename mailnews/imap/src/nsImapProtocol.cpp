@@ -268,7 +268,6 @@ NS_IMPL_RELEASE_INHERITED(nsImapProtocol, nsMsgProtocol)
 
 NS_INTERFACE_MAP_BEGIN(nsImapProtocol)
   NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIImapProtocol)
-  NS_INTERFACE_MAP_ENTRY(nsIRunnable)
   NS_INTERFACE_MAP_ENTRY(nsIImapProtocol)
   NS_INTERFACE_MAP_ENTRY(nsIProtocolProxyCallback)
   NS_INTERFACE_MAP_ENTRY(nsIInputStreamCallback)
@@ -449,6 +448,42 @@ nsresult nsImapTransportEventSink::ApplyTCPKeepalive(
   }
   return NS_OK;
 }
+
+// This runnable runs on IMAP thread.
+class nsImapProtocolMainLoopRunnable final : public mozilla::Runnable {
+ public:
+  explicit nsImapProtocolMainLoopRunnable(nsImapProtocol* aProtocol)
+      : mozilla::Runnable("nsImapProtocolEventLoopRunnable"),
+        mProtocol(aProtocol) {}
+
+  NS_IMETHOD Run() {
+    MOZ_ASSERT(!NS_IsMainThread());
+
+    if (!mProtocol->RunImapThreadMainLoop()) {
+      // We already run another IMAP event loop.
+      return NS_OK;
+    }
+
+    // Release protocol object on the main thread to avoid destruction of
+    // nsImapProtocol on the IMAP thread, which causes grief for weak
+    // references.
+    NS_ReleaseOnMainThread("nsImapProtocol::this", mProtocol.forget());
+
+    // shutdown this thread, but do it from the main thread
+    nsCOMPtr<nsIThread> imapThread(do_GetCurrentThread());
+    if (NS_FAILED(NS_DispatchToMainThread(
+            NS_NewRunnableFunction("nsImapProtorolMainLoopRunnable::Run",
+                                   [imapThread = std::move(imapThread)]() {
+                                     imapThread->Shutdown();
+                                   })))) {
+      NS_WARNING("Failed to dispatch nsImapThreadShutdownEvent");
+    }
+    return NS_OK;
+  }
+
+ private:
+  RefPtr<nsImapProtocol> mProtocol;
+};
 
 nsImapProtocol::nsImapProtocol()
     : nsMsgProtocol(nullptr),
@@ -657,12 +692,16 @@ nsImapProtocol::Initialize(nsIImapHostSessionList* aHostSessionList,
 
   // Now initialize the thread for the connection
   if (m_thread == nullptr) {
-    nsresult rv = NS_NewNamedThread("IMAP", getter_AddRefs(m_iThread), this);
+    nsCOMPtr<nsIThread> imapThread;
+    nsresult rv = NS_NewNamedThread("IMAP", getter_AddRefs(imapThread));
     if (NS_FAILED(rv)) {
-      NS_ASSERTION(m_iThread, "Unable to create imap thread.");
+      NS_ASSERTION(imapThread, "Unable to create imap thread.");
       return rv;
     }
-    m_iThread->GetPRThread(&m_thread);
+    RefPtr<nsImapProtocolMainLoopRunnable> runnable =
+        new nsImapProtocolMainLoopRunnable(this);
+    imapThread->Dispatch(runnable.forget(), NS_DISPATCH_NORMAL);
+    imapThread->GetPRThread(&m_thread);
   }
   return NS_OK;
 }
@@ -672,6 +711,7 @@ nsImapProtocol::~nsImapProtocol() {
 
   // **** We must be out of the thread main loop function
   NS_ASSERTION(!m_imapThreadIsRunning, "Oops, thread is still running.");
+  MOZ_DIAGNOSTIC_ASSERT(NS_IsMainThread());
 }
 
 const nsCString& nsImapProtocol::GetImapHostName() {
@@ -1122,19 +1162,6 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
   saveFolderSink = nullptr;
 }
 
-class nsImapThreadShutdownEvent : public mozilla::Runnable {
- public:
-  explicit nsImapThreadShutdownEvent(nsIThread* thread)
-      : mozilla::Runnable("nsImapThreadShutdownEvent"), mThread(thread) {}
-  NS_IMETHOD Run() {
-    mThread->Shutdown();
-    return NS_OK;
-  }
-
- private:
-  nsCOMPtr<nsIThread> mThread;
-};
-
 class nsImapCancelProxy : public mozilla::Runnable {
  public:
   explicit nsImapCancelProxy(nsICancelable* aProxyRequest)
@@ -1148,13 +1175,13 @@ class nsImapCancelProxy : public mozilla::Runnable {
   nsCOMPtr<nsICancelable> mRequest;
 };
 
-NS_IMETHODIMP nsImapProtocol::Run() {
+bool nsImapProtocol::RunImapThreadMainLoop() {
   PR_CEnterMonitor(this);
   NS_ASSERTION(!m_imapThreadIsRunning,
                "Oh. oh. thread is already running. What's wrong here?");
   if (m_imapThreadIsRunning) {
     PR_CExitMonitor(this);
-    return NS_OK;
+    return false;
   }
 
   m_imapThreadIsRunning = true;
@@ -1183,17 +1210,7 @@ NS_IMETHODIMP nsImapProtocol::Run() {
   m_imapMailFolderSinkSelected = nullptr;
   m_imapMessageSink = nullptr;
 
-  // shutdown this thread, but do it from the main thread
-  nsCOMPtr<nsIRunnable> ev = new nsImapThreadShutdownEvent(m_iThread);
-  if (NS_FAILED(NS_DispatchToMainThread(ev)))
-    NS_WARNING("Failed to dispatch nsImapThreadShutdownEvent");
-  m_iThread = nullptr;
-
-  // Release protocol object on the main thread to avoid destruction of 'this'
-  // on the IMAP thread, which causes grief for weak references.
-  nsCOMPtr<nsIImapProtocol> releaseOnMain(this);
-  NS_ReleaseOnMainThread("nsImapProtocol::this", releaseOnMain.forget());
-  return NS_OK;
+  return true;
 }
 
 //

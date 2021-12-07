@@ -176,7 +176,6 @@ class nsIMAPMailboxInfo {
  * blocks until the call is completed.
  */
 class nsImapProtocol : public nsIImapProtocol,
-                       public nsIRunnable,
                        public nsIInputStreamCallback,
                        public nsSupportsWeakReference,
                        public nsMsgProtocol,
@@ -200,9 +199,6 @@ class nsImapProtocol : public nsIImapProtocol,
                                         nsIInputStream* inputStream,
                                         uint64_t sourceOffset,
                                         uint32_t length) override;
-
-  // nsIRunnable method
-  NS_IMETHOD Run() override;
 
   //////////////////////////////////////////////////////////////////////////////////
   // we support the nsIImapProtocol interface
@@ -382,6 +378,9 @@ class nsImapProtocol : public nsIImapProtocol,
   const nsString& GetEmptyMimePartString() { return m_emptyMimePartString; }
   void SetCapabilityResponseOccurred();
 
+  // Start event loop. This is called on IMAP thread
+  bool RunImapThreadMainLoop();
+
  private:
   virtual ~nsImapProtocol();
   // the following flag is used to determine when a url is currently being run.
@@ -421,7 +420,6 @@ class nsImapProtocol : public nsIImapProtocol,
   // we're done with the conn.
 
   // ******* Thread support *******
-  nsCOMPtr<nsIThread> m_iThread;
   PRThread* m_thread;
   mozilla::ReentrantMonitor
       m_dataAvailableMonitor;  // used to notify the arrival of data from the
