@@ -411,6 +411,66 @@ MimeVerify.prototype = {
     return -1;
   },
 
+  isAllowedSigPart(queryMimePartNumber, loadedUriSpec) {
+    // allowed are:
+    // - the top part 1
+    // - the child 1.1 if 1 is an encryption layer
+    // - a part that is the one we are loading
+    // - a part that is the first child of the one we are loading,
+    //   and the child we are loading is an encryption layer
+
+    if (queryMimePartNumber.length === 0) {
+      return false;
+    }
+
+    if (queryMimePartNumber === "1") {
+      return true;
+    }
+
+    if (queryMimePartNumber == "1.1") {
+      // We are processing "1.1", which means we're the child of the
+      // top mime part. Don't process the signature unless the top
+      // level mime part is an encryption layer.
+      let currMsg = EnigmailURIs.msgIdentificationFromUrl(this.uri);
+      if (
+        EnigmailSingletons.isLastDecryptedMessagePart(
+          currMsg.folder,
+          currMsg.msgNum,
+          "1"
+        )
+      ) {
+        return true;
+      }
+    }
+
+    if (!loadedUriSpec) {
+      return false;
+    }
+
+    // is the message a subpart of a complete attachment?
+    let msgPart = EnigmailMime.getMimePartNumber(loadedUriSpec);
+
+    if (msgPart.length > 0) {
+      if (queryMimePartNumber === msgPart + ".1") {
+        return true;
+      }
+
+      let currMsg = EnigmailURIs.msgIdentificationFromUrl(this.uri);
+      if (
+        queryMimePartNumber === msgPart + ".1.1" &&
+        EnigmailSingletons.isLastDecryptedMessagePart(
+          currMsg.folder,
+          currMsg.msgNum,
+          msgPart + ".1"
+        )
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  },
+
   onStopRequest() {
     EnigmailLog.DEBUG("mimeVerify.jsm: onStopRequest\n");
 
@@ -421,6 +481,15 @@ MimeVerify.prototype = {
 
     // don't try to verify if no message found
     // if (this.verifyEmbedded && (!this.foundMsg)) return; // TODO - check
+
+    let href = Services.wm.getMostRecentWindow(null).document?.location.href;
+
+    if (
+      href == "about:blank" ||
+      href == "chrome://messenger/content/viewSource.xhtml"
+    ) {
+      return;
+    }
 
     if (this.readMode < 4) {
       // we got incomplete data; simply return what we got
@@ -448,24 +517,8 @@ MimeVerify.prototype = {
       this.returnData(this.signedData);
     }
 
-    // return if not verifying first mime part
-    if (this.mimePartNumber != "1") {
-      if (this.mimePartNumber != "1.1") {
-        return;
-      }
-      // We are processing "1.1", which means we're the child of the
-      // top mime part. Don't process the signature unless the top
-      // level mime part is an encryption layer.
-      let currMsg = EnigmailURIs.msgIdentificationFromUrl(this.uri);
-      if (
-        !EnigmailSingletons.isLastDecryptedMessagePart(
-          currMsg.folder,
-          currMsg.msgNum,
-          "1"
-        )
-      ) {
-        return;
-      }
+    if (!this.isAllowedSigPart(this.mimePartNumber, this.msgUriSpec)) {
+      return;
     }
 
     if (this.uri) {

@@ -397,6 +397,15 @@ MimeDecryptHandler.prototype = {
     this.msgWindow = EnigmailVerify.lastMsgWindow;
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
 
+    let href = Services.wm.getMostRecentWindow(null).document?.location.href;
+
+    if (
+      href == "about:blank" ||
+      href == "chrome://messenger/content/viewSource.xhtml"
+    ) {
+      return;
+    }
+
     let url = {};
     let currMsg = EnigmailURIs.msgIdentificationFromUrl(this.uri);
 
