@@ -3783,6 +3783,10 @@ function ComposeStartup(aParams) {
     );
 
   gMsgCompose.RegisterStateListener(stateListener);
+  dispatchAttachmentBucketEvent(
+    "attachments-added",
+    gMsgCompose.compFields.attachments
+  );
 
   // Add an observer to be called when document is done loading,
   // which creates the editor.
