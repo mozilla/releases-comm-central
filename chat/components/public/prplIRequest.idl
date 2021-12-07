@@ -53,6 +53,7 @@ interface prplIChatRequest: nsISupports {
     * @type {Promise<boolean>}
     */
    readonly attribute Promise completePromise;
+   readonly attribute boolean canDeny;
    void grant();
    void deny();
 };

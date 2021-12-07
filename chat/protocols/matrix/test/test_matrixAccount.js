@@ -298,3 +298,56 @@ add_task(async function test_nameIsMXID() {
   account.imAccount.name = "test";
   ok(!account.nameIsMXID);
 });
+
+add_task(async function test_invitedToChat_deny() {
+  const chatRoomId = "!test:xample.com";
+  let leftRoom = false;
+  const account = getAccount({
+    leave(roomId) {
+      equal(roomId, chatRoomId);
+      leftRoom = true;
+      return Promise.resolve();
+    },
+  });
+  const room = getClientRoom(
+    chatRoomId,
+    {
+      getCanonicalAlias() {
+        return "#foo:example.com";
+      },
+    },
+    account._client
+  );
+  const requestObserver = TestUtils.topicObserved("conv-authorization-request");
+  account.invitedToChat(room);
+  const [request] = await requestObserver;
+  request.QueryInterface(Ci.prplIChatRequest);
+  equal(request.conversationName, "#foo:example.com");
+  ok(request.canDeny);
+  request.deny();
+  ok(leftRoom);
+});
+
+add_task(async function test_invitedToChat_cannotDenyServerNotice() {
+  const chatRoomId = "!test:xample.com";
+  const account = getAccount({});
+  const room = getClientRoom(
+    chatRoomId,
+    {
+      getCanonicalAlias() {
+        return "#foo:example.com";
+      },
+      tags: {
+        "m.server_notice": true,
+      },
+    },
+    account._client
+  );
+  console.log(room.tags);
+  const requestObserver = TestUtils.topicObserved("conv-authorization-request");
+  account.invitedToChat(room);
+  const [request] = await requestObserver;
+  request.QueryInterface(Ci.prplIChatRequest);
+  equal(request.conversationName, "#foo:example.com");
+  ok(!request.canDeny);
+});

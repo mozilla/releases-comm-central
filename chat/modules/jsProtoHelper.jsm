@@ -266,6 +266,16 @@ var GenericAccountPrototype = {
   },
 
   _pendingChatRequests: null,
+  /**
+   * Inform the user about a new conversation invitation.
+   *
+   * @param {string} conversationName - Name of the conversation the user is
+   *   invited to.
+   * @param {function} grantCallback - Function to be called when the invite is
+   *   accepted.
+   * @param {function} [denyCallback] - Function to be called whent he invite
+   *   is rejected. If omitted, |canDeny| will be |false|.
+   */
   addChatRequest(conversationName, grantCallback, denyCallback) {
     if (!this._pendingChatRequests) {
       this._pendingChatRequests = new Set();
@@ -284,6 +294,9 @@ var GenericAccountPrototype = {
       get conversationName() {
         return conversationName;
       },
+      get canDeny() {
+        return Boolean(denyCallback);
+      },
       _account: this,
       // Grant and deny callbacks both receive the auth request object as an
       // argument for further use.
@@ -293,6 +306,9 @@ var GenericAccountPrototype = {
         this._remove();
       },
       deny() {
+        if (!denyCallback) {
+          throw new Error("Can not deny this invitation.");
+        }
         resolvePromise(false);
         denyCallback(this);
         this._remove();

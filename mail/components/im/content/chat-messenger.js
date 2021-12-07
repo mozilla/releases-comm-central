@@ -1563,18 +1563,22 @@ var chatHandler = {
       aSubject.QueryInterface(Ci.prplIChatRequest);
       let value =
         "conv-auth-request-" + aSubject.account.id + aSubject.conversationName;
-      let acceptButton = {
-        "l10n-id": "chat-conv-invite-accept",
-        callback() {
-          aSubject.grant();
+      let buttons = [
+        {
+          "l10n-id": "chat-conv-invite-accept",
+          callback() {
+            aSubject.grant();
+          },
         },
-      };
-      let denyButton = {
-        "l10n-id": "chat-conv-invite-deny",
-        callback() {
-          aSubject.deny();
-        },
-      };
+      ];
+      if (aSubject.canDeny) {
+        buttons.push({
+          "l10n-id": "chat-conv-invite-deny",
+          callback() {
+            aSubject.deny();
+          },
+        });
+      }
       let box = this.msgNotificationBar;
       // Remove the notification when the request is cancelled.
       aSubject.completePromise.catch(() => {
@@ -1589,7 +1593,7 @@ var chatHandler = {
           label: "",
           priority: box.PRIORITY_INFO_HIGH,
         },
-        [acceptButton, denyButton]
+        buttons
       );
       document.l10n.setAttributes(
         notification.messageText,

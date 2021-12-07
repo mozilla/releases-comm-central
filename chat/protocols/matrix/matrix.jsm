@@ -1874,6 +1874,11 @@ MatrixAccount.prototype = {
               }
               conv = this.getDirectConversation(userId, room.roomId, room.name);
             } else {
+              if (this._pendingRoomInvites.has(room.roomId)) {
+                let alias = room.getCanonicalAlias() ?? room.roomId;
+                this.cancelChatRequest(alias);
+                this._pendingRoomInvites.delete(room.roomId);
+              }
               conv = this.getGroupConversation(room.roomId, room.name);
             }
           } else {
@@ -1911,24 +1916,23 @@ MatrixAccount.prototype = {
     });
 
     /*
-     * We auto join all the rooms in which we are invited. This will also be
-     * fired for all the rooms we have joined earlier when SDK gets connected.
-     * We will use that part to to make conversations, direct or group.
+     * We show invitation notifications for rooms where the membership is
+     * invite. This will also be fired for all the rooms we have joined
+     * earlier when SDK gets connected. We will use that part to to make
+     * conversations, direct or group.
      */
     this._client.on("Room", room => {
       if (this._catchingUp || room.isSpaceRoom()) {
         return;
       }
       let me = room.getMember(this.userId);
-      // For now just auto accept the invites by joining the room.
-      if (me && me.membership == "invite") {
+      if (me?.membership == "invite") {
         if (me.events.member.getContent().is_direct) {
           this.invitedToDM(room);
         } else {
-          //TODO rejecting a server notice room invite will error
-          this.getGroupConversation(room.roomId, room.name);
+          this.invitedToChat(room);
         }
-      } else if (me && me.membership == "join") {
+      } else if (me?.membership == "join") {
         // To avoid the race condition. Whenever we will create the room,
         // this will also be fired. So we want to avoid creating duplicate
         // conversations for the same room.
@@ -2110,12 +2114,19 @@ MatrixAccount.prototype = {
           }
           conv = this.getDirectConversation(interlocutorId);
         } else {
+          if (this._pendingRoomInvites.has(roomId)) {
+            const room = this._client.getRoom(roomId);
+            let alias = room.getCanonicalAlias() ?? roomId;
+            this.cancelChatRequest(alias);
+            this._pendingRoomInvites.delete(roomId);
+          }
           conv = this.getGroupConversation(roomId);
         }
         conv.catchup().catch(error => this.ERROR(error));
       }
     }
     // Add pending invites
+    //TODO currently gets no rooms, maybe an SDK state bug?
     const invites = allRooms.filter(
       room => room.getMyMembership() === "invite"
     );
@@ -2123,6 +2134,8 @@ MatrixAccount.prototype = {
       const me = room.getMember(this.userId);
       if (me.events.member.getContent().is_direct) {
         this.invitedToDM(room);
+      } else {
+        this.invitedToChat(room);
       }
     }
     // Remove orphaned buddies.
@@ -2424,6 +2437,37 @@ MatrixAccount.prototype = {
         this._pendingRoomInvites.delete(room.roomId);
         this._client.leave(room.roomId);
       }
+    );
+    this._pendingRoomInvites.add(room.roomId);
+  },
+
+  /**
+   * The account has been invited to a group chat.
+   *
+   * @param {Room} room - Room we're invited to.
+   */
+  invitedToChat(room) {
+    if (this._pendingRoomInvites.has(room.roomId)) {
+      return;
+    }
+    let alias = room.getCanonicalAlias() ?? room.roomId;
+    this.addChatRequest(
+      alias,
+      () => {
+        this._pendingRoomInvites.delete(room.roomId);
+        const conversation = this.getGroupConversation(room.roomId, room.name);
+        if (room.getInvitedAndJoinedMemberCount() === 2) {
+          conversation.checkForUpdate();
+        }
+      },
+      // Server notice room invites can not be rejected.
+      !room.tags[SERVER_NOTICE_TAG] &&
+        (() => {
+          this._pendingRoomInvites.delete(room.roomId);
+          this._client.leave(room.roomId).catch(error => {
+            this.ERROR(error.message);
+          });
+        })
     );
     this._pendingRoomInvites.add(room.roomId);
   },
