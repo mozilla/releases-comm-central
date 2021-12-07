@@ -534,6 +534,13 @@ MimeDecryptHandler.prototype = {
 
       const cApi = EnigmailCryptoAPI();
       EnigmailLog.DEBUG("mimeDecrypt.jsm: got API: " + cApi.api_name + "\n");
+
+      // The processing of a contained signed message must be able to
+      // check that this parent object is encrypted. We set the msg ID
+      // early, despite the full results not yet being available.
+      LAST_MSG.lastMessageURI = currMsg;
+      LAST_MSG.mimePartNumber = this.mimePartNumber;
+
       this.returnStatus = cApi.sync(cApi.decryptMime(this.outQueue, options));
 
       if (!this.returnStatus) {
@@ -614,10 +621,8 @@ MimeDecryptHandler.prototype = {
         !decError
       ) {
         LAST_MSG.lastMessageData = this.decryptedData;
-        LAST_MSG.lastMessageURI = currMsg;
         LAST_MSG.lastStatus = this.returnStatus;
         LAST_MSG.lastStatus.decryptedHeaders = this.decryptedHeaders;
-        LAST_MSG.lastStatus.mimePartNumber = this.mimePartNumber;
       } else {
         LAST_MSG.lastMessageURI = null;
         LAST_MSG.lastMessageData = "";
@@ -629,7 +634,7 @@ MimeDecryptHandler.prototype = {
     } else {
       this.returnStatus = LAST_MSG.lastStatus;
       this.decryptedHeaders = LAST_MSG.lastStatus.decryptedHeaders;
-      this.mimePartNumber = LAST_MSG.lastStatus.mimePartNumber;
+      this.mimePartNumber = LAST_MSG.mimePartNumber;
       this.exitCode = 0;
       this.displayStatus();
       this.returnData(LAST_MSG.lastMessageData);

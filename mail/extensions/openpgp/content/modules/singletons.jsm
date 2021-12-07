@@ -18,7 +18,17 @@ var EnigmailSingletons = {
     let lm = this.lastDecryptedMessage;
     lm.lastMessageData = "";
     lm.lastMessageURI = null;
+    lm.mimePartNumber = "";
     lm.lastStatus = {};
+  },
+
+  isLastDecryptedMessagePart(folder, msgNum, mimePartNumber) {
+    let reval =
+      this.lastDecryptedMessage.lastMessageURI &&
+      this.lastDecryptedMessage.lastMessageURI.folder == folder &&
+      this.lastDecryptedMessage.lastMessageURI.msgNum == msgNum &&
+      this.lastDecryptedMessage.mimePartNumber == mimePartNumber;
+    return reval;
   },
 };
 

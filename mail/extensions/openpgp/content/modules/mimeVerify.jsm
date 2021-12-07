@@ -449,11 +449,23 @@ MimeVerify.prototype = {
     }
 
     // return if not verifying first mime part
-    if (
-      this.mimePartNumber.length > 0 &&
-      this.mimePartNumber.search(/^1(\.1)?$/) < 0
-    ) {
-      return;
+    if (this.mimePartNumber != "1") {
+      if (this.mimePartNumber != "1.1") {
+        return;
+      }
+      // We are processing "1.1", which means we're the child of the
+      // top mime part. Don't process the signature unless the top
+      // level mime part is an encryption layer.
+      let currMsg = EnigmailURIs.msgIdentificationFromUrl(this.uri);
+      if (
+        !EnigmailSingletons.isLastDecryptedMessagePart(
+          currMsg.folder,
+          currMsg.msgNum,
+          "1"
+        )
+      ) {
+        return;
+      }
     }
 
     if (this.uri) {
