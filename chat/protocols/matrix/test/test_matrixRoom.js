@@ -96,7 +96,7 @@ add_task(function test_addEventMessageIncoming() {
       userId: "@test:example.com",
       _client: {
         getHomeserverUrl() {
-          return "https://example.com";
+          return "https://example.com/";
         },
       },
     },
@@ -115,6 +115,7 @@ add_task(function test_addEventMessageIncoming() {
   equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
   equal(roomStub.options._alias, "foo bar");
   ok(!roomStub.options.delayed);
+  equal(roomStub.options._iconURL, "https://example.com/avatar");
   equal(roomStub._mostRecentEventId, 0);
 });
 
@@ -515,6 +516,7 @@ add_task(function test_addEventSticker() {
   equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
   equal(roomStub.options._alias, "foo bar");
   ok(!roomStub.options.delayed);
+  equal(roomStub.options._iconURL, "https://example.com/avatar");
   equal(roomStub._mostRecentEventId, 0);
 });
 

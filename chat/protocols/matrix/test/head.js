@@ -207,6 +207,9 @@ function makeEvent(eventSpec = {}) {
     },
     sender: {
       name: "foo bar",
+      getAvatarUrl() {
+        return "https://example.com/avatar";
+      },
     },
     getId() {
       return eventSpec.id || 0;

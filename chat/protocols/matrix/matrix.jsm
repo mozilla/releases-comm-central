@@ -642,6 +642,14 @@ MatrixRoom.prototype = {
         delayed,
         event,
         isEncrypted: event.isEncrypted(),
+        _iconURL:
+          event.sender.getAvatarUrl(
+            this._account._client.getHomeserverUrl(),
+            USER_ICON_SIZE,
+            USER_ICON_SIZE,
+            "scale",
+            false
+          ) || "",
       });
     } else if (eventType === EventType.RoomEncryption) {
       this.notifyObservers(this, "update-conv-encryption");
