@@ -33,8 +33,8 @@
 #include "mozilla/ArenaAllocatorExtensions.h"  // for ArenaStrdup
 
 using namespace mozilla;
-using mozilla::unicode::GetScriptCode;
-using mozilla::unicode::Script;
+using mozilla::intl::Script;
+using mozilla::intl::UnicodeProperties;
 
 // needed to mark attachment flag on the db hdr
 #include "nsIMsgHdr.h"
@@ -592,7 +592,7 @@ void Tokenizer::tokenize_ascii_word(char* aWord) {
 // the script is not supported by the platform, we just won't find any useful
 // boundaries.)
 static bool IsScriptioContinua(char16_t aChar) {
-  Script sc = GetScriptCode(aChar);
+  Script sc = UnicodeProperties::GetScriptCode(aChar);
   return sc == Script::THAI || sc == Script::MYANMAR || sc == Script::KHMER ||
          sc == Script::JAVANESE || sc == Script::BALINESE ||
          sc == Script::SUNDANESE || sc == Script::LAO;
