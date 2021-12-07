@@ -1179,7 +1179,10 @@ Enigmail.msg = {
       if (ht) {
         let infoId;
         let buttonId;
-        if (ht & EnigmailConstants.UNCERTAIN_SIGNATURE) {
+        if (
+          ht & EnigmailConstants.UNCERTAIN_SIGNATURE ||
+          Enigmail.msg.getFirstPGPMessageType(msgText) == "signed"
+        ) {
           infoId = "openpgp-partially-signed";
           buttonId = "openpgp-partial-verify-button";
         } else {
