@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 async function calendarListContextMenu(target, menuItem) {
+  await new Promise(r => setTimeout(r));
   window.focus();
   await TestUtils.waitForCondition(
     () => Services.focus.focusedWindow == window,
