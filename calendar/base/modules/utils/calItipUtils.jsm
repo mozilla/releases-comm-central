@@ -684,8 +684,9 @@ var calitip = {
    *
    * Prompt for the invited attendee if we cannot automatically determine one.
    * This will modify the items of the passed calIItipItem to ensure an invited
-   * attendee is available. Note: This should only be done for the PUBLISH and
-   * REQUEST methods.
+   * attendee is available.
+   *
+   * Note: This is intended for the REQUEST/COUNTER methods.
    *
    * @param {Window} window         - Used to prompt the user.
    * @param {calIItipItem} itipItem - The itip item to ensure.

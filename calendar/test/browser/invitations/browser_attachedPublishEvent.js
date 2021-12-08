@@ -1,0 +1,77 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * Test that attached events - NOT invites - works properly.
+ * These are attached VCALENDARs that have METHOD:PUBLISH.
+ */
+"use-strict";
+
+var { open_message_from_file } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
+var { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+);
+
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+
+var gCalendar;
+
+/**
+ * Initialize account, identity and calendar.
+ */
+add_task(async function setUp() {
+  let receiverAcct = MailServices.accounts.createAccount();
+  receiverAcct.incomingServer = MailServices.accounts.createIncomingServer(
+    "receiver",
+    "example.com",
+    "imap"
+  );
+  let receiverIdentity = MailServices.accounts.createIdentity();
+  receiverIdentity.email = "john.doe@example.com";
+  receiverIdentity.fullAddress = `Jane <${receiverIdentity.email}>`;
+  receiverAcct.addIdentity(receiverIdentity);
+  gCalendar = CalendarTestUtils.createProxyCalendar("EventTestCal");
+
+  registerCleanupFunction(() => {
+    CalendarTestUtils.removeProxyCalendar(gCalendar);
+    MailServices.accounts.removeAccount(receiverAcct, true);
+  });
+});
+
+/**
+ * Test that opening a message containing an event with iTIP method "PUBLISH"
+ * shows the correct UI.
+ * The party crashing dialog should not show.
+ */
+add_task(async function test_event_from_eml() {
+  let file = new FileUtils.File(getTestFilePath("data/message-non-invite.eml"));
+
+  let { window: win } = await open_message_from_file(file);
+  let imipBar = win.document.getElementById("imip-bar");
+
+  await TestUtils.waitForCondition(() => !imipBar.collapsed);
+  info("Ok, iMIP bar is showing");
+
+  let imipAddButton = win.document.getElementById("imipAddButton");
+  Assert.ok(!imipAddButton.hidden, "Add button should show");
+
+  EventUtils.synthesizeMouseAtCenter(imipAddButton, {}, win);
+
+  // Make sure the event got added, without showing the party crashing dialog.
+  await TestUtils.waitForCondition(async () => {
+    let event = await gCalendar.getItem("1e5fd4e6-bc52-439c-ac76-40da54f57c77@secure.example.com");
+    return event;
+  });
+
+  await TestUtils.waitForCondition(() => imipAddButton.hidden, "Add button should hide");
+
+  let imipDetailsButton = win.document.getElementById("imipDetailsButton");
+  Assert.ok(!imipDetailsButton.hidden, "Details button should show");
+
+  await BrowserTestUtils.closeWindow(win);
+});

@@ -408,7 +408,7 @@ var calImipBar = {
      *                                         scheduling operation
      * @param   {calIItipItem} aItipItem     Scheduling item
      * @param   {nsIWindow}    aWindow       The current window
-     * @param   {String}       aPartStat     partstat string as per RfC 5545
+     * @param   {String}       aPartStat     partstat string as per RFC 5545
      * @param   {Object}       aExtResponse  JS object containing at least
      *                                         an responseMode property
      * @returns {Boolean}                    true, if the action succeeded
@@ -417,8 +417,9 @@ var calImipBar = {
       let method = aActionFunc.method;
       if (
         cal.itip.promptCalendar(aActionFunc.method, aItipItem, aWindow) &&
-        (method == "PUBLISH" || method == "REQUEST") &&
-        cal.itip.promptInvitedAttendee(window, aItipItem, Ci.calIItipItem[aResponse])
+        ((method == "REQUEST" &&
+          cal.itip.promptInvitedAttendee(window, aItipItem, Ci.calIItipItem[aResponse])) ||
+          method == "PUBLISH")
       ) {
         let isDeclineCounter = aPartStat == "X-DECLINECOUNTER";
         // filter out fake partstats
