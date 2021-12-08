@@ -56,21 +56,56 @@ window {
 
 /* ::::: List dialogs ::::: */
 
+.menu-iconic-left,
+menulist::part(icon) {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 #addressingWidget {
   -moz-user-focus: none;
   width: 0;
 }
 
-.addressingWidgetItem,
-.dummy-row {
+.dummy-row,
+.addressingWidgetItem {
   border: none !important;
   background-color: inherit !important;
   color: inherit !important;
+  min-height: 30px;
+}
+
+.addressingWidgetItem:hover,
+.autocomplete-richlistitem:hover {
+  background-color: var(--in-content-item-hover, hsla(0, 0%, 50%, 0.3)) !important;
+}
+
+.textbox-addressingWidget {
+  min-height: 30px;
+  padding-inline-start: 5px;
+  outline-offset: -2px;
 }
 
 .dummy-row-cell,
 .addressingWidgetCell {
   border-bottom: 1px solid hsla(0, 0%, 50%, 0.3);
+}
+
+panel[type="autocomplete-richlistbox"] {
+  border: 1px solid var(--in-content-box-border-color, ThreeDShadow);
+}
+
+panel[type="autocomplete-richlistbox"]::part(content) {
+  border-width: 0;
+}
+
+.autocomplete-richlistbox {
+  border-width: 0;
+  border-radius: 0;
+}
+
+.autocomplete-richlistitem {
+  padding-inline-start: 3px;
 }
 
 .person-icon {

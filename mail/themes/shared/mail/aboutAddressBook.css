@@ -505,7 +505,7 @@ ab-card-listrow:not(.selected) > div.address {
   padding-block: 0;
 }
 
-.editGrid input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
+input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
   border-radius: var(--in-content-button-border-radius);
   padding-block: initial;
   min-height: 30px; /* it should be 32px but input doesn't include the border */
@@ -541,6 +541,9 @@ input[type="number"] {
 /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
 input[type="number"].size3 {
   width: calc(3ch + 55px);
+}
+input[type="number"].size5 {
+  width: calc(5ch + 55px);
 }
 
 input[type="number"]::-moz-number-spin-box {
@@ -747,4 +750,18 @@ input[type="number"]::-moz-number-spin-down {
 
 #photoDialog .extra1 {
   margin-inline-end: auto;
+}
+
+/* Align the elements correctly */
+#directoryTabPanels radiogroup {
+  margin-inline-start: 4px;
+}
+
+#directoryTabPanels textarea {
+  width: calc(100% - 22px);
+}
+
+#directoryTabPanels menulist {
+  width: calc(100% - 4px);
+  margin-inline-start: 4px;
 }

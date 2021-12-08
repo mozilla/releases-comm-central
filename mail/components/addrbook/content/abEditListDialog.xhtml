@@ -6,13 +6,11 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/cardDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/abMailListDialog.dtd">
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        lightweightthemes="true"
         onload="OnLoadEditList();"
         ondragover="DragOverAddressListTree(event);"
         ondrop="DropOnAddressListTree(event);">
@@ -25,7 +23,6 @@
   <!-- move needed functions into a single js file -->
   <script src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script src="chrome://messenger/content/addressbook/abMailListDialog.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <vbox id="editlist">
     <hbox id="ListNameContainer" align="center">

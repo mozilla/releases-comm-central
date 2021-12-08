@@ -7,3 +7,9 @@
   ======================================================================= */
 
 @import url("chrome://messenger/skin/shared/cardDialog.css");
+
+panel[type="autocomplete-richlistbox"],
+panel[type="autocomplete-richlistbox"]::part(content) {
+  margin: 0;
+}
+
