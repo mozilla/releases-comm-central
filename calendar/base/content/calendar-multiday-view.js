@@ -915,56 +915,6 @@
       }
     }
 
-    clearMagicScroll() {
-      if (this.mMagicScrollTimer) {
-        clearTimeout(this.mMagicScrollTimer);
-        this.mMagicScrollTimer = null;
-      }
-    }
-
-    setupMagicScroll(event) {
-      this.clearMagicScroll();
-
-      // If we are at the bottom or top of the view (or left/right when
-      // rotated), calculate the difference and start accelerating the
-      // scrollbar.
-      let view = this.calendarView;
-      let scrollArea = view.getScrollAreaRect();
-
-      let diffStart;
-      let diffEnd;
-      let isVertical = this.getAttribute("orient") == "vertical";
-      if (isVertical) {
-        diffStart = Math.max(event.clientY - scrollArea.top, 0);
-        diffEnd = Math.max(scrollArea.bottom - event.clientY, 0);
-      } else {
-        diffStart = Math.max(event.clientX - scrollArea.left, 0);
-        diffEnd = Math.max(scrollArea.right - event.clientX, 0);
-      }
-
-      const SCROLLZONE = 55; // Size (pixels) of the top/bottom view where the scroll starts.
-      const MAXTIMEOUT = 250; // Max and min time interval (ms) between.
-      const MINTIMEOUT = 30; // two consecutive scrolls.
-      const SCROLLBYHOUR = 0.33; // Part of hour to move for each scroll.
-      let insideScrollZone = 0;
-      let pxPerHr = this.mPixPerMin * 60;
-      let scrollBy = Math.floor(pxPerHr * SCROLLBYHOUR);
-      if (diffStart < SCROLLZONE) {
-        insideScrollZone = SCROLLZONE - diffStart;
-        scrollBy *= -1;
-      } else if (diffEnd < SCROLLZONE) {
-        insideScrollZone = SCROLLZONE - diffEnd;
-      }
-
-      if (insideScrollZone) {
-        let timeout = MAXTIMEOUT - (insideScrollZone * (MAXTIMEOUT - MINTIMEOUT)) / SCROLLZONE;
-        this.mMagicScrollTimer = setTimeout(() => {
-          view.grid.scrollBy(isVertical ? 0 : scrollBy, isVertical ? scrollBy : 0);
-          this.onEventSweepMouseMove(event);
-        }, timeout);
-      }
-    }
-
     // Event sweep handlers.
     onEventSweepMouseMove(event) {
       let col = document.calendarEventColumnDragging;
@@ -972,10 +922,11 @@
         return;
       }
 
-      col.setupMagicScroll(event);
-
       let dragState = col.mDragState;
 
+      // FIXME: Use mouseenter and mouseleave to detect column changes since
+      // they fire when scrolling changes the mouse target, but mousemove does
+      // not.
       let newcol = col.calendarView.findEventColumnThatContains(event.target);
       // If we leave the view, then stop our internal sweeping and start a
       // real drag session. Someday we need to fix the sweep to soely be a
@@ -1001,6 +952,10 @@
         invokeEventDragSession(dragState.dragOccurrence, col);
         return;
       }
+
+      // Snap interval: 15 minutes or 1 minute if modifier key is pressed.
+      dragState.snapIntMin =
+        event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15;
 
       // Check if we need to jump a column.
       if (newcol && newcol != col) {
@@ -1033,18 +988,43 @@
         document.calendarEventColumnDragging = newcol;
         // The same event handlers are still valid,
         // because they use document.calendarEventColumnDragging.
-        col = newcol;
       }
 
-      let mouseMinute = col.getMouseMinute(event);
+      col.updateDragPosition(event.clientX, event.clientY);
+    }
+
+    /**
+     * Update the drag position to point to the given client position.
+     *
+     * Note, this method will not switch the drag state between columns.
+     *
+     * @param {number} clientX - The x position.
+     * @param {number} clientY - The y position.
+     */
+    updateDragPosition(clientX, clientY) {
+      let col = document.calendarEventColumnDragging;
+      if (!col) {
+        return;
+      }
+      // If we scroll, we call this method again using the same mouse positions.
+      // NOTE: if the magic scroll makes the mouse move over a different column,
+      // this won't be updated until another mousemove.
+      this.calendarView.setupMagicScroll(clientX, clientY, () =>
+        this.updateDragPosition(clientX, clientY)
+      );
+
+      let dragState = col.mDragState;
+
+      let mouseMinute = this.getMouseMinute({ clientX, clientY });
       if (mouseMinute < 0) {
         mouseMinute = 0;
       } else if (mouseMinute > MINUTES_IN_DAY) {
         mouseMinute = MINUTES_IN_DAY;
       }
-      // Snap interval: 15 minutes or 1 minute if modifier key is pressed.
-      let snapIntMin = event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15;
-      let snappedMouseMinute = snapMinute(mouseMinute - dragState.mouseMinuteOffset, snapIntMin);
+      let snappedMouseMinute = snapMinute(
+        mouseMinute - dragState.mouseMinuteOffset,
+        dragState.snapIntMin
+      );
 
       let deltamin = snappedMouseMinute - dragState.origMin;
 
@@ -1091,7 +1071,7 @@
         // But we need to not go past the end; if we hit
         // the end, then we'll clamp to the previous snap interval minute.
         if (dragState.startMin >= dragState.limitEndMin) {
-          dragState.startMin = snapMinute(dragState.limitEndMin, snapIntMin, "backward");
+          dragState.startMin = snapMinute(dragState.limitEndMin, dragState.snapIntMin, "backward");
         }
       } else if (dragState.dragType == "modify-end") {
         // If we're modifying the end, the start time is fixed.
@@ -1105,11 +1085,11 @@
         // But we need to not go past the start; if we hit
         // the start, then we'll clamp to the next snap interval minute.
         if (dragState.endMin <= dragState.limitStartMin) {
-          dragState.endMin = snapMinute(dragState.limitStartMin, snapIntMin, "forward");
+          dragState.endMin = snapMinute(dragState.limitStartMin, dragState.snapIntMin, "forward");
         }
       }
-      col.mDragState.offset = shadowElements.offset;
-      col.mDragState.shadows = shadowElements.shadows;
+      dragState.offset = shadowElements.offset;
+      dragState.shadows = shadowElements.shadows;
 
       // Now we can update the shadow boxes position and size.
       col.updateColumnShadows();
@@ -1124,7 +1104,7 @@
       let dragState = col.mDragState;
 
       col.clearDragging();
-      col.clearMagicScroll();
+      col.calendarView.clearMagicScroll();
 
       // If the user didn't sweep out at least a few pixels, ignore
       // unless we're in a different column.
@@ -1424,7 +1404,8 @@
      * Get the minute since the starting edge of the given element that a mouse
      * event points to.
      *
-     * @param {MouseEvent} mouseEvent - The pointer event.
+     * @param {{clientX: number, clientY: number}} mouseEvent - The pointer
+     *   position in the viewport.
      * @param {Element} [element] - The element to use the starting edge of as
      *   reference. Defaults to using the starting edge of the column itself,
      *   such that the returned minute is the number of minutes since the start
@@ -3438,6 +3419,91 @@
             this.doRemoveItem(event);
           }
         }
+      }
+    }
+
+    /**
+     * Clear the pending magic scroll update method.
+     */
+    clearMagicScroll() {
+      if (this.magicScrollTimer) {
+        clearTimeout(this.magicScrollTimer);
+        this.magicScrollTimer = null;
+      }
+    }
+
+    /**
+     * Get the amount to scroll the view by.
+     *
+     * @param {number} startDiff - The number of pixels the mouse is from the
+     *   starting edge.
+     * @param {number} endDiff - The number of pixels the mouse is from the
+     *   ending edge.
+     * @param {number} scrollzone - The number of pixels from the edge at which
+     *   point scrolling is triggered.
+     * @param {number} factor - The number of pixels to scroll by if touching
+     *   the edge.
+     *
+     * @return {number} - The number of pixels to scroll by scaled by the depth
+     *   within the scrollzone. Zero if outside the scrollzone, negative if
+     *   we're closer to the starting edge and positive if we're closer to the
+     *   ending edge.
+     */
+    getScrollBy(startDiff, endDiff, scrollzone, factor) {
+      if (startDiff >= scrollzone && endDiff >= scrollzone) {
+        return 0;
+      } else if (startDiff < endDiff) {
+        return Math.floor((-1 + startDiff / scrollzone) * factor);
+      }
+      return Math.ceil((1 - endDiff / scrollzone) * factor);
+    }
+
+    /**
+     * Start scrolling the view if the given positions are close to or beyond
+     * its edge.
+     *
+     * Note, any pending updater sent to this method previously will be
+     * cancelled.
+     *
+     * @param {number} clientX - The horizontal viewport position.
+     * @param {number} clientY - The vertical viewport position.
+     * @param {Function} updater - A method to call, with some delay, if we
+     *   scroll successfully.
+     */
+    setupMagicScroll(clientX, clientY, updater) {
+      this.clearMagicScroll();
+
+      // If we are at the bottom or top of the view (or left/right when
+      // rotated), calculate the difference and start accelerating the
+      // scrollbar.
+      let scrollArea = this.getScrollAreaRect();
+
+      // Distance the mouse is from the edge.
+      let diffTop = Math.max(clientY - scrollArea.top, 0);
+      let diffBottom = Math.max(scrollArea.bottom - clientY, 0);
+      let diffLeft = Math.max(clientX - scrollArea.left, 0);
+      let diffRight = Math.max(scrollArea.right - clientX, 0);
+
+      // How close to the edge we need to be to trigger scrolling.
+      let primaryZone = 50;
+      let secondaryZone = 20;
+      // How many pixels to scroll by.
+      let primaryFactor = Math.max(4 * this.mPixPerMin, 8);
+      let secondaryFactor = 4;
+
+      let left;
+      let top;
+      if (this.getAttribute("orient") == "horizontal") {
+        left = this.getScrollBy(diffLeft, diffRight, primaryZone, primaryFactor);
+        top = this.getScrollBy(diffTop, diffBottom, secondaryZone, secondaryFactor);
+      } else {
+        top = this.getScrollBy(diffTop, diffBottom, primaryZone, primaryFactor);
+        left = this.getScrollBy(diffLeft, diffRight, secondaryZone, secondaryFactor);
+      }
+
+      if (top || left) {
+        this.grid.scrollBy({ top, left, behaviour: "smooth" });
+        this.magicScrollTimer = setTimeout(updater, 20);
       }
     }
 

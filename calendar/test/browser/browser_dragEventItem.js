@@ -77,10 +77,10 @@ function simulateDragToColumn(eventBox, column, hour) {
   );
 
   let hourElement = column.querySelector(`.calendar-event-column-linebox:nth-child(${hour + 1})`);
-  // We actually scroll to the previous hour element so we can avoid triggering
+  // We scroll to align the *end* of the hour element so we can avoid triggering
   // the auto-scroll when we synthesize mousemove below.
   // FIXME: Use and test auto scroll by holding mouseover at the view edges.
-  CalendarTestUtils.scrollViewToTarget(hour ? hourElement.previousElementSibling : hourElement);
+  CalendarTestUtils.scrollViewToTarget(hourElement, false);
   // NOTE: The dragging of the event takes into account the offset of the
   // original mousedown from the sourceBox start edges.
   // So we need to drop the event with the same offset from the starting edge
@@ -132,10 +132,10 @@ function simulateGripbarDrag(eventBox, side, column, hour) {
   );
 
   let hourElement = column.querySelector(`.calendar-event-column-linebox:nth-child(${hour + 1})`);
-  // We actually scroll to the previous hour element so we can avoid triggering
+  // We scroll to align the *end* of the hour element so we can avoid triggering
   // the auto-scroll when we synthesize mousemove below.
   // FIXME: Use and test auto scroll by holding mouseover at the view edges.
-  CalendarTestUtils.scrollViewToTarget(hour ? hourElement.previousElementSibling : hourElement);
+  CalendarTestUtils.scrollViewToTarget(hourElement, false);
 
   let hourRect = hourElement.getBoundingClientRect();
 
