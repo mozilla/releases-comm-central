@@ -2062,9 +2062,9 @@
      *   time.
      * @property {Element} longHeading - The day heading that uses the full
      *   day of the week. For example, "Monday".
-     * @property {Element} longHeading - The day heading that uses an
+     * @property {Element} shortHeading - The day heading that uses an
      *   abbreviation for the day of the week. For example, "Mon".
-     * @property {number} longHeadingBorderAreaWidth - The border area width
+     * @property {number} longHeadingContentAreaWidth - The content area width
      *   of the headingContainer when the long heading is shown.
      * @property {Element} column - A calendar-event-column where regular
      *   (not "all day") events appear.
@@ -2513,7 +2513,7 @@
      */
     onResize() {
       // Assume resize in both directions.
-      this.resizeScrollArea(true, true, this.scrollMinute);
+      this.readjustView(true, true, this.scrollMinute);
     }
 
     /**
@@ -2531,8 +2531,7 @@
       operation();
 
       let afterRect = header.getBoundingClientRect();
-      // Let the view know if we change in size.
-      this.resizeScrollArea(
+      this.readjustView(
         beforeRect.height != afterRect.height,
         beforeRect.width != afterRect.width,
         scrollMinute
@@ -2540,7 +2539,11 @@
     }
 
     /**
-     * Adjust the view based an a change in its scrollable area.
+     * Adjust the view based an a change in rotation, layout, view size, or
+     * header size.
+     *
+     * Note, this method will do nothing whilst the view is hidden, so must be
+     * called again once it is shown.
      *
      * @param {boolean} verticalResize - There may have been a change in the
      *   vertical direction.
@@ -2549,20 +2552,23 @@
      * @param {number} scrollMinute - The minute we should scroll after
      *   adjusting the view in the time-direction.
      */
-    resizeScrollArea(verticalResize, horizontalResize, scrollMinute) {
-      if ((!verticalResize && !horizontalResize) || !this.clientHeight || !this.clientWidth) {
-        // Do nothing if no resize, or we have zero width/height.
+    readjustView(verticalResize, horizontalResize, scrollMinute) {
+      if (!this.clientHeight || !this.clientWidth) {
+        // Do nothing if we have zero width or height since we cannot measure
+        // elements. Should be called again once we can.
         return;
       }
+
+      // Adjust pixels per minute.
       let isHorizontal = this.getAttribute("orient") == "horizontal";
       let ppmHasChanged = false;
       if ((isHorizontal && horizontalResize) || (!isHorizontal && verticalResize)) {
         // We want to know how much visible space is available in the
-        // "time-direction" of this view's scrollable area, which will be used to
-        // show mVisibleMinutes minutes in the timebar.
+        // "time-direction" of this view's scrollable area, which will be used
+        // to show mVisibleMinutes minutes in the timebar.
         // NOTE: The area returned by getScrollAreaRect is the *current*
-        // scrollable area. We are working with the assumption that the length in
-        // the time-direction will not change when we change the pixels per
+        // scrollable area. We are working with the assumption that the length
+        // in the time-direction will not change when we change the pixels per
         // minute. This assumption is broken if the changes cause the
         // non-time-direction to switch from overflowing to not, or vis versa,
         // which adds or removes a scrollbar. Since we are only changing the
@@ -2582,98 +2588,123 @@
 
         // Scroll to the given minute.
         this.scrollToMinute(scrollMinute);
+        // A change in pixels per minute can cause a scrollbar to appear or
+        // disappear, which can change the available space for headers.
+        if (ppmHasChanged) {
+          verticalResize = true;
+          horizontalResize = true;
+        }
       }
 
-      // If we adjust in the other direction, we may need to change headings.
-      // NOTE: A change in pixels per minute can cause a scrollbar to appear or
-      // disappear, so we assume a change in these cases as well.
-      if (
-        ppmHasChanged ||
-        (isHorizontal && verticalResize) ||
-        (!isHorizontal && horizontalResize)
-      ) {
-        if (this.headingWidthsOutdated) {
-          this.minHeadingWidth = 0;
-
-          for (let dayCol of this.dayColumns) {
-            // Make sure both headings are visible for measuring.
-            dayCol.shortHeading.hidden = false;
-            dayCol.longHeading.hidden = false;
-
-            if (!this.headingContentToBorderOffset) {
-              // Cache the difference between the content area and the border area.
-              // NOTE: We assume this is constant.
-              let style = getComputedStyle(dayCol.headingContainer);
-              this.headingContentToBorderOffset = {
-                inline:
-                  parseFloat(style.paddingInlineStart) +
-                  parseFloat(style.paddingInlineEnd) +
-                  parseFloat(style.borderInlineStartWidth) +
-                  parseFloat(style.borderInlineEndWidth),
-                block:
-                  parseFloat(style.paddingBlockStart) +
-                  parseFloat(style.paddingBlockEnd) +
-                  parseFloat(style.borderBlockStartWidth) +
-                  parseFloat(style.borderBlockEndWidth),
-              };
-            }
-
-            let longHeadingRect = dayCol.longHeading.getBoundingClientRect();
-
-            if (!this.verticalHeadingBorderAreaHeight) {
-              // Cache the border area height of the heading.
-              // NOTE: We assume this is constant when in the vertical view.
-              this.verticalHeadingBorderAreaHeight =
-                longHeadingRect.height + this.headingContentToBorderOffset.block;
-            }
-
-            dayCol.longHeadingBorderAreaWidth =
-              longHeadingRect.width + this.headingContentToBorderOffset.inline;
-            let shortHeadingBorderAreaWidth =
-              dayCol.shortHeading.getBoundingClientRect().width +
-              this.headingContentToBorderOffset.inline;
-            this.minHeadingWidth = Math.max(this.minHeadingWidth, shortHeadingBorderAreaWidth);
-          }
-        }
-        if (this.headingWidthsOutdated || this.headerPositionsOutdated) {
-          if (isHorizontal) {
-            for (let dayCol of this.dayColumns) {
-              // The header is sticky, so we need to position it. We want a constant
-              // position, so we offset the header by the heading width.
-              // NOTE: We assume there is no margin between the two.
-              dayCol.header.style.insetBlockStart = null;
-              dayCol.header.style.insetInlineStart = `${this.minHeadingWidth}px`;
-              // NOTE: The heading must have its box-sizing set to border-box for
-              // this to work properly.
-              dayCol.headingContainer.style.width = `${this.minHeadingWidth}px`;
-              dayCol.headingContainer.style.minWidth = null;
-            }
-          } else {
-            for (let dayCol of this.dayColumns) {
-              // We offset the header by the heading height.
-              dayCol.header.style.insetBlockStart = `${this.verticalHeadingBorderAreaHeight}px`;
-              dayCol.header.style.insetInlineStart = null;
-              dayCol.headingContainer.style.minWidth = `${this.minHeadingWidth}px`;
-              dayCol.headingContainer.style.width = null;
-            }
-          }
-        }
-        this.headingWidthsOutdated = false;
-        this.headerPositionsOutdated = false;
-        // Switch to short headings if we're in the horizontal view, or we're in
-        // the vertical view and the long headings would overflow.
-        let shortHeadings = true;
-        if (!isHorizontal) {
-          // All headers should have the same width, so we only need to measure
-          // the width of one.
-          // NOTE: We assume no inline margin.
-          let headerWidth = this.dayColumns[0]?.headingContainer.getBoundingClientRect().width;
-          shortHeadings = this.dayColumns.some(col => headerWidth < col.longHeadingBorderAreaWidth);
-        }
+      // Measure headings.
+      if (this.headingWidthsOutdated) {
+        this.shortHeadingContentWidth = 0;
         for (let dayCol of this.dayColumns) {
-          dayCol.shortHeading.hidden = !shortHeadings;
-          dayCol.longHeading.hidden = shortHeadings;
+          // Make sure both headings are visible for measuring.
+          dayCol.shortHeading.hidden = false;
+          dayCol.longHeading.hidden = false;
+
+          let longHeadingRect = dayCol.longHeading.getBoundingClientRect();
+          if (!this.headingContentHeight) {
+            // We assume this is constant and the same for each heading.
+            this.headingContentHeight = longHeadingRect.height;
+          }
+
+          dayCol.longHeadingContentAreaWidth = longHeadingRect.width;
+          this.shortHeadingContentWidth = Math.max(
+            this.shortHeadingContentWidth,
+            dayCol.shortHeading.getBoundingClientRect().width
+          );
         }
+        // Unset the other properties that use these values.
+        // NOTE: We do not calculate new values for these properties here
+        // because they can only be measured in one of the rotated or
+        // non-rotated states. So we will calculate them as needed.
+        delete this.rotatedHeadingWidth;
+        delete this.headingMinWidth;
+        delete this.useShortHeadings;
+        this.headingWidthsOutdated = false;
+      }
+      if (this.headerPositionsOutdated) {
+        delete this.useShortHeadings;
+      }
+
+      // Position headers.
+      if (isHorizontal) {
+        // We're in the rotated state, so we can measure the corresponding
+        // header dimensions.
+        // NOTE: we always use short headings in the rotated view.
+        if (!this.rotatedHeadingWidth) {
+          // Width is shared by all headings in the rotated view, so we set it
+          // so that its large enough to fit the text of each heading.
+          if (!this.rotatedHeadingContentToBorderWidthOffset) {
+            // We cache the value since we assume it is constant within the
+            // rotated view.
+            this.rotatedHeadingContentToBorderOffset = this.measureHeadingContentToBorderOffset();
+          }
+          this.rotatedHeadingWidth =
+            this.shortHeadingContentWidth + this.rotatedHeadingContentToBorderOffset.inline;
+          this.headerPositionsOutdated = true;
+        }
+        if (this.headerPositionsOutdated) {
+          for (let dayCol of this.dayColumns) {
+            // The header is sticky, so we need to position it. We want a constant
+            // position, so we offset the header by the heading width.
+            // NOTE: We assume there is no margin between the two.
+            dayCol.header.style.insetBlockStart = null;
+            dayCol.header.style.insetInlineStart = `${this.rotatedHeadingWidth}px`;
+            // NOTE: The heading must have its box-sizing set to border-box for
+            // this to work properly.
+            dayCol.headingContainer.style.width = `${this.rotatedHeadingWidth}px`;
+            dayCol.headingContainer.style.minWidth = null;
+          }
+          this.headerPositionsOutdated = false;
+        }
+      } else {
+        // We're in the non-rotated state, so we can measure the corresponding
+        // header dimensions.
+        if (!this.headingContentToBorderOffset) {
+          // We cache the value since we assume it is constant within the
+          // non-rotated view.
+          this.headingContentToBorderOffset = this.measureHeadingContentToBorderOffset();
+        }
+        if (!this.headingHeight) {
+          this.headingHeight = this.headingContentHeight + this.headingContentToBorderOffset.block;
+        }
+        if (!this.minHeadingWidth) {
+          // Make the minimum width large enough to fit the short heading.
+          this.minHeadingWidth =
+            this.shortHeadingContentWidth + this.headingContentToBorderOffset.inline;
+          this.headerPositionsOutdated = true;
+        }
+        if (this.headerPositionsOutdated) {
+          for (let dayCol of this.dayColumns) {
+            // We offset the header by the heading height.
+            dayCol.header.style.insetBlockStart = `${this.headingHeight}px`;
+            dayCol.header.style.insetInlineStart = null;
+            dayCol.headingContainer.style.minWidth = `${this.minHeadingWidth}px`;
+            dayCol.headingContainer.style.width = null;
+          }
+          this.headerPositionsOutdated = false;
+        }
+      }
+
+      // Decide whether to use short headings.
+      if (isHorizontal) {
+        this.useShortHeadings = true;
+      } else if (horizontalResize || !("useShortHeadings" in this)) {
+        // Use short headings if *any* heading would horizontally overflow with
+        // a long heading.
+        let widthOffset = this.headingContentToBorderOffset.inline;
+        this.useShortHeadings = this.dayColumns.some(
+          col =>
+            col.headingContainer.getBoundingClientRect().width <
+            col.longHeadingContentAreaWidth + widthOffset
+        );
+      }
+      for (let dayCol of this.dayColumns) {
+        dayCol.shortHeading.hidden = !this.useShortHeadings;
+        dayCol.longHeading.hidden = this.useShortHeadings;
       }
 
       // Adjust the time indicator position and the related timer.
@@ -2686,6 +2717,35 @@
           this.updateTimeIndicatorPosition(true, ppmHasChanged, viewHasChanged);
         }
       }
+    }
+
+    /**
+     * Measure the total offset between the content width and border width of
+     * the day headings.
+     *
+     * @return {{inline: number, block: number}} - The offsets in their
+     *   respective directions.
+     */
+    measureHeadingContentToBorderOffset() {
+      if (!this.dayColumns.length) {
+        // undefined properties.
+        return {};
+      }
+      // We cache the offset. We expect these styles to differ between the
+      // rotated and non-rotated views, but to otherwise be constant.
+      let style = getComputedStyle(this.dayColumns[0].headingContainer);
+      return {
+        inline:
+          parseFloat(style.paddingInlineStart) +
+          parseFloat(style.paddingInlineEnd) +
+          parseFloat(style.borderInlineStartWidth) +
+          parseFloat(style.borderInlineEndWidth),
+        block:
+          parseFloat(style.paddingBlockStart) +
+          parseFloat(style.paddingBlockEnd) +
+          parseFloat(style.borderBlockStartWidth) +
+          parseFloat(style.borderBlockEndWidth),
+      };
     }
 
     /**
@@ -3072,6 +3132,8 @@
 
         // Assume the heading widths are no longer valid because the displayed
         // dates are likely to change.
+        // We do not measure them here since we may be hidden. Instead we do so
+        // in readjustView.
         this.headingWidthsOutdated = true;
         let colIndex;
         for (colIndex = 0; colIndex < computedDateList.length; colIndex++) {
@@ -3157,9 +3219,11 @@
         for (let dayCol of this.dayColumns) {
           dayCol.column.setAttribute("orient", orient);
         }
-        // Fix pixels-per-minute and heading widths.
+        // Fix pixels-per-minute and headers.
         this.headerPositionsOutdated = true;
-        this.resizeScrollArea(true, true, scrollMinute);
+        // Since the orientation has changed, act as if both directions have
+        // been resized.
+        this.readjustView(true, true, scrollMinute);
       }
 
       if (changes.context) {
