@@ -21,7 +21,7 @@
 }
 
 .searchBox:not(.gloda-search),
-.themeableSearchBox {
+.themeableSearchBox:not(.contentTabUrlInput) {
   background-image: url("chrome://global/skin/icons/search-textbox.svg");
   background-repeat: no-repeat;
   background-position: 5px center;
