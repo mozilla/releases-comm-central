@@ -1,8 +1,6 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 // from enigmailCommon.js:
 /* global GetEnigmailSvc */
@@ -30,6 +28,9 @@ var { PgpSqliteDb2 } = ChromeUtils.import(
 );
 var { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
+);
+var { EnigmailCryptoAPI } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
 
 var gModePersonal = false;
@@ -160,14 +161,12 @@ async function reloadData(firstLoad) {
     document.getElementById("alsoknown").setAttribute("collapsed", "true");
   }
 
-  if (keyObj.signatures) {
-    let sigListViewObj = new SigListView(keyObj);
-    gSigTree = document.getElementById("signatures_tree");
-    gSigTree.view = sigListViewObj;
-  }
+  gSigTree = document.getElementById("signatures_tree");
+  let cApi = EnigmailCryptoAPI();
+  let signatures = await cApi.getKeySignatures(keyObj.keyId);
+  gSigTree.view = new SigListView(signatures);
 
-  let subkeyListViewObj = new SubkeyListView(keyObj);
-  document.getElementById("subkeyList").view = subkeyListViewObj;
+  document.getElementById("subkeyList").view = new SubkeyListView(keyObj);
 
   gUserId = keyObj.userId;
 
@@ -375,21 +374,32 @@ function genRevocationCert() {
   */
 }
 
-function SigListView(keyObj) {
+/**
+ * @param {Object[]] signatures - list of signature objects
+ *   signatures.userId {string} - User ID.
+ *   signatures.uidLabel {string} - UID label.
+ *   signatures.created
+ *   signatures.fpr {string} - Fingerprint.
+ *   signatures.sigList {Object[]} - Objects
+ *   signatures.sigList.userId
+ *   signatures.sigList.created
+ *   signatures.sigList.signerKeyId
+ *   signatures.sigList.sigType
+ *   signatures.sigList.sigKnown
+ */
+function SigListView(signatures) {
   this.keyObj = [];
 
-  let sigObj = keyObj.signatures;
-  for (let i in sigObj) {
+  for (let sig of signatures) {
     let k = {
-      uid: sigObj[i].userId,
-      keyId: sigObj[i].keyId,
-      created: sigObj[i].created,
+      uid: sig.userId,
+      keyId: sig.keyId,
+      created: sig.created,
       expanded: true,
       sigList: [],
     };
 
-    for (let j in sigObj[i].sigList) {
-      let s = sigObj[i].sigList[j];
+    for (let s of sig.sigList) {
       k.sigList.push({
         uid: s.userId,
         created: s.created,
@@ -406,7 +416,9 @@ function SigListView(keyObj) {
   this.updateRowCount();
 }
 
-// implements nsITreeView
+/**
+ * @implements {nsITreeView}
+ */
 SigListView.prototype = {
   updateRowCount() {
     let rc = 0;

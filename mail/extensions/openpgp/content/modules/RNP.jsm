@@ -736,7 +736,7 @@ var RNP = {
       false
     );
 
-    let rList = {};
+    let rList = [];
 
     try {
       let uid_count = new ctypes.size_t();

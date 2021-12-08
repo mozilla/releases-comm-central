@@ -177,8 +177,11 @@ var EnigmailKey = {
     errorMsgObj.value = "";
 
     try {
-      keyList = cApi.sync(
-        cApi.getKeyListFromKeyBlockAPI(keyBlockStr, pubkey, seckey, true)
+      keyList = await cApi.getKeyListFromKeyBlockAPI(
+        keyBlockStr,
+        pubkey,
+        seckey,
+        true
       );
     } catch (ex) {
       errorMsgObj.value = ex.toString();

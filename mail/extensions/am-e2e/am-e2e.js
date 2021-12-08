@@ -1117,8 +1117,8 @@ async function enigmailDeleteKey(key) {
   }
 
   let cApi = EnigmailCryptoAPI();
-  cApi.sync(cApi.deleteKey(key.fpr, key.secretAvailable));
-  cApi.sync(PgpSqliteDb2.deleteAcceptance(key.fpr));
+  await cApi.deleteKey(key.fpr, key.secretAvailable);
+  await PgpSqliteDb2.deleteAcceptance(key.fpr);
 
   EnigmailKeyRing.clearCache();
   reloadOpenPgpUI();

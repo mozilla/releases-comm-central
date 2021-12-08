@@ -288,7 +288,7 @@ var EnigmailKeyRing = {
     return ret;
   },
 
-  importRevFromFile(inputFile) {
+  async importRevFromFile(inputFile) {
     var contents = EnigmailFiles.readFile(inputFile);
     if (!contents) {
       return;
@@ -318,7 +318,7 @@ var EnigmailKeyRing = {
     );
 
     const cApi = EnigmailCryptoAPI();
-    let res = cApi.sync(cApi.importRevBlockAPI(pgpBlock));
+    let res = await cApi.importRevBlockAPI(pgpBlock);
     if (res.exitCode) {
       return;
     }
@@ -333,7 +333,7 @@ var EnigmailKeyRing = {
    *         to enter a passphrase to unlock a secret key.
    *         For the current API, see passphrasePromptCallback
    */
-  importKeyFromFile(
+  async importKeyFromFile(
     win,
     passCB,
     inputFile,
@@ -357,15 +357,13 @@ var EnigmailKeyRing = {
 
       try {
         // strict on first attempt, permissive on optional second attempt
-        res = cApi.sync(
-          cApi.importKeyFromFileAPI(
-            win,
-            passCB,
-            inputFile,
-            pubkey,
-            seckey,
-            permissive
-          )
+        res = await cApi.importKeyFromFileAPI(
+          win,
+          passCB,
+          inputFile,
+          pubkey,
+          seckey,
+          permissive
         );
         failed =
           !res || res.exitCode || !res.importedKeys || !res.importedKeys.length;
@@ -806,26 +804,22 @@ var EnigmailKeyRing = {
       let blockParam = isBinary ? keyBlock : pgpBlock;
 
       if (!importSecret) {
-        result = cApi.sync(
-          cApi.importPubkeyBlockAutoAcceptAPI(
-            parent,
-            blockParam,
-            acceptance,
-            permissive,
-            limitedUids
-          )
+        result = await cApi.importPubkeyBlockAutoAcceptAPI(
+          parent,
+          blockParam,
+          acceptance,
+          permissive,
+          limitedUids
         );
       } else {
-        result = cApi.sync(
-          cApi.importKeyBlockAPI(
-            parent,
-            passCB,
-            blockParam,
-            !importSecret,
-            importSecret,
-            permissive,
-            limitedUids
-          )
+        result = await cApi.importKeyBlockAPI(
+          parent,
+          passCB,
+          blockParam,
+          !importSecret,
+          importSecret,
+          permissive,
+          limitedUids
         );
       }
 

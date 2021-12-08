@@ -2407,7 +2407,6 @@ Enigmail.msg = {
 
       try {
         this.modifyCompFields();
-
         const cApi = EnigmailCryptoAPI();
         let encryptResult = cApi.sync(this.prepareSendMsg(sendMsgType));
         if (!encryptResult) {

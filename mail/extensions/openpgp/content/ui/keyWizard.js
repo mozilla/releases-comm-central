@@ -621,17 +621,15 @@ async function openPgpKeygenConfirm() {
     let newId = null;
     cApi = EnigmailCryptoAPI();
     let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
-    newId = cApi.sync(
-      cApi.genKey(
-        `${gIdentity.fullName} <${gIdentity.email}>`,
-        document.getElementById("keyType").value,
-        Number(document.getElementById("keySize").value),
-        document.getElementById("openPgpKeygeExpiry").value == 1
-          ? 0
-          : Number(document.getElementById("expireInput").value) *
-              Number(document.getElementById("timeScale").value),
-        pass
-      )
+    newId = await cApi.genKey(
+      `${gIdentity.fullName} <${gIdentity.email}>`,
+      document.getElementById("keyType").value,
+      Number(document.getElementById("keySize").value),
+      document.getElementById("openPgpKeygeExpiry").value == 1
+        ? 0
+        : Number(document.getElementById("expireInput").value) *
+            Number(document.getElementById("timeScale").value),
+      pass
     );
     console.log("created new key with id: " + newId);
     gGeneratedKey = newId;
@@ -664,7 +662,7 @@ async function openPgpKeygenConfirm() {
   closeOverlay();
   EnigmailKeyRing.clearCache();
 
-  let rev = cApi.sync(cApi.getNewRevocation(`0x${gGeneratedKey}`));
+  let rev = await cApi.getNewRevocation(`0x${gGeneratedKey}`);
   if (!rev) {
     openPgpWarning.collapsed = false;
     document.l10n.setAttributes(
@@ -911,7 +909,7 @@ async function openPgpImportStart() {
     let resultKeys = {};
     let errorMsgObj = {};
 
-    let exitCode = EnigmailKeyRing.importKeyFromFile(
+    let exitCode = await EnigmailKeyRing.importKeyFromFile(
       window,
       passphrasePromptCallback,
       file,

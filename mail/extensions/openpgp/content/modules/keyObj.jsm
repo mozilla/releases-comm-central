@@ -45,12 +45,6 @@ var EXPORTED_SYMBOLS = ["newEnigmailKeyObj"];
                     * keySize    - subkey size
                     * type       -  "sub"
 
-  - signatures  - [Array]: list of signature objects
-                    * userId
-                    * uidLabel
-                    * created
-                    * fpr
-                    * sigList: Array of object: { userId, created, signerKeyId, sigType, sigKnown }
   - methods:
      * hasSubUserIds
      * getKeyExpiry
@@ -101,7 +95,6 @@ class EnigmailKeyObj {
     this.photoAvailable = false;
     this.secretAvailable = false;
     this.secretMaterial = false;
-    this._sigList = null;
 
     this.type = keyData.type;
     if ("keyId" in keyData) {
@@ -148,32 +141,12 @@ class EnigmailKeyObj {
   }
 
   /**
-   * gettter that returns a list of all signatures found on the key
-   *
-   * @return Array of Object, or null in case of error:
-   *     - uid
-   *     - uidLabel
-   *     - creationDate
-   *     - sigList: Array of object: { uid, creationDate, signerKeyId, sigType }
-   */
-  get signatures() {
-    if (this._sigList === null) {
-      const cApi = EnigmailCryptoAPI();
-      this._sigList = cApi.sync(cApi.getKeySignatures(this.keyId));
-    }
-
-    return this._sigList;
-  }
-
-  /**
    * create a copy of the object
    */
   clone() {
     let cp = new EnigmailKeyObj(["copy"]);
     for (let i in this) {
-      if (i !== "signatures" && i !== "fprFormatted") {
-        // caution: don't try to evaluate this[i] if i==="signatures";
-        // it would immediately get all signatures for the key (slow!)
+      if (i !== "fprFormatted") {
         if (typeof this[i] !== "function") {
           if (typeof this[i] === "object") {
             cp[i] = EnigmailFuncs.cloneObj(this[i]);
@@ -469,7 +442,6 @@ class EnigmailKeyObj {
    *    - errorMsg (if exitCode != 0)
    *    - keyData: BASE64-encded string of key data
    */
-
   getMinimalPubKey(emailAddr) {
     EnigmailLog.DEBUG(
       "keyObj.jsm: EnigmailKeyObj.getMinimalPubKey: " + this.keyId + "\n"

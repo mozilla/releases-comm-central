@@ -348,7 +348,7 @@ function enigmailKeyDetails(keyId = null) {
   }
 }
 
-function enigmailDeleteKey() {
+async function enigmailDeleteKey() {
   var keyList = getSelectedKeys();
   var deleteSecret = false;
 
@@ -411,8 +411,8 @@ function enigmailDeleteKey() {
   const cApi = EnigmailCryptoAPI();
   for (let j in keyList) {
     let fpr = gKeyList[keyList[j]].fpr;
-    cApi.sync(cApi.deleteKey(fpr, deleteSecret));
-    cApi.sync(PgpSqliteDb2.deleteAcceptance(fpr));
+    await cApi.deleteKey(fpr, deleteSecret);
+    await PgpSqliteDb2.deleteAcceptance(fpr);
   }
   clearKeyCache();
 }

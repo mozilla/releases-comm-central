@@ -124,7 +124,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
     let errorMsgObj = {};
 
     if (importingRevocation) {
-      EnigmailKeyRing.importRevFromFile(file);
+      await EnigmailKeyRing.importRevFromFile(file);
       continue;
     }
 

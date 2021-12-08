@@ -265,7 +265,7 @@ async function getPhotoFileFromGnuPG(keyId, photoNumber) {
 function extractSignatures(gpgKeyList, ignoreUnknownUid) {
   EnigmailLog.DEBUG("GnuPGCryptoAPI.jsm: extractSignatures\n");
 
-  var listObj = {};
+  var listObj = [];
 
   let havePub = false;
   let currUid = "",
