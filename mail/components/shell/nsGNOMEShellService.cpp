@@ -70,7 +70,9 @@ static const AppTypeAssociation sAppTypes[] = {
      ArrayLength(sCalendarProtocols), "text/calendar", "ics"}};
 
 nsGNOMEShellService::nsGNOMEShellService()
-    : mCheckedThisSession(false), mAppIsInPath(false) {}
+    : mUseLocaleFilenames(false),
+      mCheckedThisSession(false),
+      mAppIsInPath(false) {}
 
 nsresult nsGNOMEShellService::Init() {
   nsresult rv;
