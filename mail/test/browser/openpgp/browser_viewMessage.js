@@ -220,6 +220,25 @@ add_task(async function testOpenSignedByUnverifiedUnencrypted() {
 });
 
 /**
+ * Test that opening a message signed (only) with extra outer layer
+ * doesn't show signature state.
+ */
+add_task(async function testOpenSignedWithOuterLayer() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/signed-with-mailman-footer.eml")
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  close_window(mc);
+});
+
+/**
  * Test that opening a message encrypted (only) shows as such.
  */
 add_task(async function testOpenUnverifiedUnsignedEncrypted() {
