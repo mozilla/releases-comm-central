@@ -5437,7 +5437,7 @@ nsresult nsMsgDBFolder::MessagesInKeyOrder(
   return set;
 }
 
-nsMsgKeySetU::nsMsgKeySetU() {}
+nsMsgKeySetU::nsMsgKeySetU() : hiKeySet(nullptr) {}
 
 nsMsgKeySetU::~nsMsgKeySetU() {
   delete loKeySet;
