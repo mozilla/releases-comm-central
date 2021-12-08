@@ -107,6 +107,7 @@
   skin/classic/messenger/about3Pane.css                       (../shared/mail/about3Pane.css)
   skin/classic/messenger/aboutAddonsExtra.css                 (../shared/mail/aboutAddonsExtra.css)
   skin/classic/messenger/aboutAddressBook.css                 (../shared/mail/aboutAddressBook.css)
+  skin/classic/messenger/aboutImport.css                      (../shared/mail/aboutImport.css)
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
   skin/classic/messenger/aboutPolicies.css                    (../shared/mail/aboutPolicies.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)

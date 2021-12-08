@@ -64,6 +64,10 @@ AboutRedirector.prototype = {
       url: "chrome://messenger/content/aboutMessage.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
+    import: {
+      url: "chrome://messenger/content/aboutImport.xhtml",
+      flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
+    },
   },
 
   /**

@@ -518,6 +518,10 @@ function showChatTab() {
 }
 
 function toImport() {
+  if (Services.prefs.getBoolPref("mail.import.in_new_tab")) {
+    toMessengerWindow().openContentTab("about:import");
+    return;
+  }
   window.openDialog(
     "chrome://messenger/content/importDialog.xhtml",
     "importDialog",

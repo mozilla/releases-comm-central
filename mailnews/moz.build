@@ -13,6 +13,7 @@ DIRS += [
     "extensions",
     "imap/public",
     "imap/src",
+    "import/modules",
     "import/public",
     "import/src",
     "intl",

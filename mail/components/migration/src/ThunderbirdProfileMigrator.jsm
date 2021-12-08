@@ -334,7 +334,7 @@ class ThunderbirdProfileMigrator {
     Services.obs.notifyObservers(
       null,
       "Migration:ItemBeforeMigrate",
-      Ci.nsIMailProfileMigrator.ADDRESS_BOOK
+      Ci.nsIMailProfileMigrator.ADDRESSBOOK_DATA
     );
     await new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
 
@@ -345,7 +345,7 @@ class ThunderbirdProfileMigrator {
     Services.obs.notifyObservers(
       null,
       "Migration:ItemAfterMigrate",
-      Ci.nsIMailProfileMigrator.ADDRESS_BOOK
+      Ci.nsIMailProfileMigrator.ADDRESSBOOK_DATA
     );
     Services.obs.notifyObservers(null, "Migration:Progress", "75");
     Services.obs.notifyObservers(

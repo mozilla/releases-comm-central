@@ -1145,5 +1145,8 @@ pref("mailnews.oauth.loglevel", "Warn");
 
 pref("test.loghelper.loglevel", "Warn");
 
+// Use importDialog.xhtml by default, set to true to use aboutImport.xhtml.
+pref("mail.import.in_new_tab", false);
 pref("mail.import.loglevel", "Warn");
+
 pref("mail.export.loglevel", "Warn");

@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title data-l10n-id="import-page-title"></title>
+
+  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css"/>
+  <link rel="stylesheet" href="chrome://global/skin/global.css"/>
+  <link rel="stylesheet" href="chrome://global/skin/in-content/common.css"/>
+  <link rel="stylesheet" href="chrome://messenger/skin/accountSetup.css"/>
+  <link rel="stylesheet" href="chrome://messenger/skin/aboutImport.css"/>
+
+  <link rel="localization" href="messenger/aboutImport.ftl"/>
+
+  <script defer="" src="chrome://messenger/content/aboutImport.js"></script>
+</head>
+<body>
+  <nav id="leftNav">
+    <ul>
+      <li id="tab-app"
+          class="tab"
+          data-l10n-id="import-from-app"></li>
+      <li id="tab-addressBook"
+          class="tab"
+          data-l10n-id="import-address-book"></li>
+    </ul>
+  </nav>
+  <main id="main">
+    <div id="tabPane-app" class="tabPane">
+      <section id="app-sources">
+        <h1 id="importFromApp" data-l10n-id="import-from-app"/>
+        <p data-l10n-id="import-from-app-desc"/>
+        <div class="source-list">
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="Thunderbird"
+                   name="appSource"
+                   checked=""/>
+            <p>Thunderbird</p>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="Seamonkey"
+                   name="appSource"/>
+            <p>Seamonkey</p>
+          </label>
+#ifdef XP_WIN
+          <label class="toggle-container-with-text">
+            <input type="radio"
+                   value="Outlook"
+                   name="appSource"/>
+            <p>Outlook</p>
+          </label>
+#endif
+        </div>
+      </section>
+      <section id="app-profiles">
+        <h1 id="profilesPaneTitle"/>
+        <p data-l10n-id="profiles-pane-desc"/>
+        <div class="profile-list" id="profileList"/>
+        <div class="profile-list" id="filePickerList">
+          <div class="content-blocking-category">
+            <label class="toggle-container-with-text">
+              <input type="radio"
+                    value="file-picker-dir"
+                    name="appProfile"/>
+              <p data-l10n-id="profile-file-picker-dir"/>
+            </label>
+          </div>
+          <div class="content-blocking-category">
+            <label class="toggle-container-with-text">
+              <input type="radio"
+                    value="file-picker-zip"
+                    name="appProfile"/>
+              <p data-l10n-id="profile-file-picker-zip"/>
+            </label>
+          </div>
+        </div>
+      </section>
+      <section id="app-items">
+        <h1 data-l10n-id="items-pane-title"/>
+        <p>
+          <span data-l10n-id="items-pane-desc"/>
+          <span id="appSourceProfilePath"/>
+        </p>
+        <div class="option-list">
+          <label class="toggle-container-with-text">
+            <input type="checkbox" id="checkAccounts" checked=""/>
+            <span data-l10n-id="items-pane-checkbox-accounts"/>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="checkbox" id="checkAddressBooks" checked=""/>
+            <span data-l10n-id="items-pane-checkbox-address-books"/>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="checkbox" id="checkCalendars" checked=""/>
+            <span data-l10n-id="items-pane-checkbox-calendars"/>
+          </label>
+          <label class="toggle-container-with-text">
+            <input type="checkbox" id="checkMailMessages" checked=""/>
+            <span data-l10n-id="items-pane-checkbox-mail-messages"/>
+          </label>
+        </div>
+      </section>
+      <footer class="buttons-container">
+        <button id="profileBackButton"
+                onclick="profileController.back()"
+                data-l10n-id="button-cancel"/>
+        <button class="primary"
+                onclick="profileController.next()"
+                data-l10n-id="button-continue"/>
+      </footer>
+    </div>
+
+    <div id="tabPane-addressBook" class="tabPane">
+      <h1 id="importAddressBook" data-l10n-id="import-address-book"></h1>
+    </div>
+  </main>
+  <dialog id="importDialog">
+    <section id="dialogPane-progress">
+      <h3 data-l10n-id="progress-pane-title"></h3>
+      <progress id="importDialogProgressBar" value="100"></progress>
+      <p data-l10n-id="progress-pane-restart-desc"/>
+    </section>
+    <section id="dialogPane-error">
+      <h3 data-l10n-id="error-pane-title"></h3>
+      <p id="dialogError"/>
+    </section>
+    <footer>
+      <button id="importDialogCancel"
+              onclick="importDialog.onCancel()">Cancel</button>
+      <button id="importDialogAccept"
+              onclick="importDialog.onAccept()">OK</button>
+    </footer>
+  </dialog>
+</body>
+</html>
