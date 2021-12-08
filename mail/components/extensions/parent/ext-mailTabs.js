@@ -174,6 +174,7 @@ this.mailTabs = class extends ExtensionAPI {
                 windowId,
 
                 // All of these are needed for tabManager to return every tab we want.
+                cookieStoreId: null,
                 index: null,
                 screen: null,
                 title: null,

@@ -548,6 +548,7 @@ this.tabs = class extends ExtensionAPI {
           }
 
           // Make ext-tabs-base happy since it does a strict check.
+          queryInfo.cookieStoreId = null;
           queryInfo.screen = null;
 
           return Array.from(tabManager.query(queryInfo, context), tab =>
