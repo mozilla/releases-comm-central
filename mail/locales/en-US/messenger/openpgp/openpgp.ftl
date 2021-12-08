@@ -413,23 +413,6 @@ converter-decrypt-body-failed =
 unknown-signing-alg = Unknown signing algorithm (ID: { $id })
 unknown-hash-alg = Unknown cryptographic hash (ID: { $id })
 
-# Strings in keyUsability.jsm
-expiry-key-expires-soon =
-    Your key { $desc } will expire in less than { $days } days.
-    We recommend that you create a new key pair and configure the corresponding accounts to use it.
-expiry-keys-expire-soon =
-    Your following keys will expire in less than { $days } days:{ $desc }.
-    We recommend that you create new keys and configure the corresponding accounts to use them.
-expiry-key-missing-owner-trust =
-    Your secret key { $desc } has missing trust.
-    We recommend that you set “You rely on certifications” to “ultimate” in key properties.
-expiry-keys-missing-owner-trust =
-    The following of your secret keys have missing trust.
-    { $desc }.
-    We recommend that you set “You rely on certifications” to “ultimate” in key properties.
-expiry-open-key-manager = Open OpenPGP Key Manager
-expiry-open-key-properties = Open Key Properties
-
 # Strings filters.jsm
 filter-folder-required = You must select a target folder.
 filter-decrypt-move-warn-experimental =

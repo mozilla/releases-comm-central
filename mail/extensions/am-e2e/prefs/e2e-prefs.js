@@ -132,13 +132,8 @@ pref("temp.openpgp.encryptionModel", 0);
 // enable encryption for replies to encrypted mails
 pref("temp.openpgp.keepSettingsForReply", true);
 
-// Warn if a key expires in less than N days.
-// 0 will disable the check
-pref("temp.openpgp.warnKeyExpiryNumDays", 30);
-
 // holds the last result of the dayily key expiry check
 pref("temp.openpgp.keyCheckResult", "");
-
 
 // selection for automatic send encrypted if all keys valid
 // 0: never
