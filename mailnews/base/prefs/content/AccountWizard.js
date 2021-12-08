@@ -1,4 +1,4 @@
-/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+/* -*- Mode: JavaScript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -10,8 +10,6 @@
 /* import-globals-from aw-accname.js */
 /* import-globals-from aw-done.js */
 
-/* the okCallback is used for sending a callback for the parent window */
-var okCallback = null;
 /* NOTE: This Account Wizard is *only* for Newsgroup accounts.
  * Historically, it was a generic Account Wizard, hence the generic naming.
  */
@@ -78,14 +76,6 @@ function onAccountWizardLoad() {
   gPrefsBundle = document.getElementById("bundle_prefs");
   gMessengerBundle = document.getElementById("bundle_messenger");
 
-  /* We are checking here for the callback argument */
-  if (window.arguments && window.arguments[0]) {
-    if (window.arguments[0].okCallback) {
-      // dump("There is okCallback");
-      top.okCallback = window.arguments[0].okCallback;
-    }
-  }
-
   checkForInvalidAccounts();
 
   // It is fine if there is no default account, this is expected the first
@@ -123,36 +113,30 @@ function onCancel() {
     // call FinishAccount() and not onFinish(), since the "finish"
     // button may be disabled
     FinishAccount();
-  } else {
+  } else if (!MailServices.accounts.accounts.length) {
     // since this is not an invalid account
     // really cancel if the user hits the "cancel" button
     // if the length of the account list is less than 1, there are no accounts
-    if (MailServices.accounts.accounts.length < 1) {
-      let confirmMsg = gPrefsBundle.getString("cancelWizard");
-      let confirmTitle = gPrefsBundle.getString("accountWizard");
-      let result = Services.prompt.confirmEx(
-        window,
-        confirmTitle,
-        confirmMsg,
-        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
-          Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1,
-        gPrefsBundle.getString("WizardExit"),
-        gPrefsBundle.getString("WizardContinue"),
-        null,
-        null,
-        { value: 0 }
-      );
+    let confirmMsg = gPrefsBundle.getString("cancelWizard");
+    let confirmTitle = gPrefsBundle.getString("accountWizard");
+    let result = Services.prompt.confirmEx(
+      window,
+      confirmTitle,
+      confirmMsg,
+      Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_1,
+      gPrefsBundle.getString("WizardExit"),
+      gPrefsBundle.getString("WizardContinue"),
+      null,
+      null,
+      { value: 0 }
+    );
 
-      if (result == 1) {
-        closeWizard = false;
-      }
-    }
-
-    if (top.okCallback && closeWizard) {
-      var state = false;
-      top.okCallback(state);
+    if (result == 1) {
+      closeWizard = false;
     }
   }
+
   return closeWizard;
 }
 
@@ -192,32 +176,28 @@ function FinishAccount() {
     } catch (ex) {
       dump("Error saving account info: " + ex + "\n");
     }
-    window.close();
-    if (top.okCallback) {
-      var state = true;
-      // dump("finish callback");
-      top.okCallback(state);
-    }
     let openerWindow = window.opener.top;
     // The following if..else block is the same as in feedAccountWizard.js.
     if ("gFolderTreeView" in openerWindow) {
       // Opened from 3pane File->New or Appmenu New, or Account Central.
+      let rootMsgFolder = gCurrentAccount.incomingServer.rootMsgFolder;
+
       if (openerWindow.gFolderTreeView.isInited) {
         // Can use selectFolder if folderPane already initialized.
-        openerWindow.gFolderTreeView.selectFolder(
-          gCurrentAccount.incomingServer.rootMsgFolder
-        );
+        openerWindow.gFolderTreeView.selectFolder(rootMsgFolder);
       } else {
         // See selectFirstFolder() in msgMail3PaneWindow.js.
-        openerWindow.arguments[0] =
-          gCurrentAccount.incomingServer.rootMsgFolder.URI;
-        // Post a message to the main window to init folderPane.
-        window.opener.top.postMessage("account-created", "*");
+        openerWindow.arguments[0] = rootMsgFolder.URI;
       }
     } else if ("selectServer" in openerWindow) {
       // Opened from Account Settings.
       openerWindow.selectServer(gCurrentAccount.incomingServer);
     }
+
+    // Post a message to the main window on successful account setup.
+    openerWindow.postMessage("account-created", "*");
+
+    window.close();
   } catch (ex) {
     dump("FinishAccount failed, " + ex + "\n");
   }

@@ -1,4 +1,4 @@
-/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*- Mode: JavaScript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -41,29 +41,26 @@ var FeedAccountWizard = {
 
   onFinish() {
     let account = FeedUtils.createRssAccount(this.accountName);
+    let openerWindow = window.opener.top;
     // The following if..else block is the same as in AccountWizard.js.
-    if ("gFolderTreeView" in window.opener.top) {
+    if ("gFolderTreeView" in openerWindow) {
       // Opened from 3pane File->New or Appmenu New, or Account Central.
-      let firstAccount = !window.opener.top.gFolderTreeView.isInited;
       let rootMsgFolder = account.incomingServer.rootMsgFolder;
 
-      // Set the account folder to select if this is the only (folderpane) one.
-      if (firstAccount) {
-        window.opener.top.arguments[0] = rootMsgFolder.URI;
+      if (openerWindow.gFolderTreeView.isInited) {
+        // Can use selectFolder if folderPane already initialized.
+        openerWindow.gFolderTreeView.selectFolder(rootMsgFolder);
+      } else {
+        // See selectFirstFolder() in msgMail3PaneWindow.js.
+        openerWindow.arguments[0] = rootMsgFolder.URI;
       }
-
-      // Post a message to the main window at the end of a successful account
-      // setup.
-      window.opener.top.postMessage("account-created", "*");
-
-      // Select the account folder.
-      if (!firstAccount) {
-        window.opener.top.gFolderTreeView.selectFolder(rootMsgFolder);
-      }
-    } else if ("selectServer" in window.opener) {
+    } else if ("selectServer" in openerWindow) {
       // Opened from Account Settings.
-      window.opener.selectServer(account.incomingServer);
+      openerWindow.selectServer(account.incomingServer);
     }
+
+    // Post a message to the main window on successful account setup.
+    openerWindow.postMessage("account-created", "*");
 
     window.close();
   },
