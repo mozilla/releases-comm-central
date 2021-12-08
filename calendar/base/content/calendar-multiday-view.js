@@ -3457,36 +3457,32 @@
       let scrollRight;
       let view = this.grid;
       let viewRect = view.getBoundingClientRect();
-      if (this.getAttribute("orient") == "vertical") {
-        // paddingTop is the top of the view's padding area. We translate from
-        // the border area of the view to the padding area by adding clientTop,
-        // which is the view's top border width.
-        let paddingTop = viewRect.top + view.clientTop;
+      let headerRect = this.headerCorner.getBoundingClientRect();
 
-        // The top of the scroll area is the bottom of the sticky header.
-        scrollTop = this.headerCorner.getBoundingClientRect().bottom;
-        // To get the bottom we add the clientHeight, which is the height of the
-        // padding area minus the scrollbar.
-        scrollBottom = paddingTop + view.clientHeight;
-        // To get the left, we add clientLeft, which is the left border width
-        // plus the scrollbar in right-to-left.
-        scrollLeft = viewRect.left + view.clientLeft;
-        // To get the right, we add clientWidth, which is the width of the
-        // padding area minus the scrollbar.
-        scrollRight = scrollLeft + view.clientWidth;
+      // paddingTop is the top of the view's padding area. We translate from
+      // the border area of the view to the padding area by adding clientTop,
+      // which is the view's top border width.
+      let paddingTop = viewRect.top + view.clientTop;
+      // The top of the scroll area is the bottom of the sticky header.
+      scrollTop = headerRect.bottom;
+      // To get the bottom we add the clientHeight, which is the height of the
+      // padding area minus the scrollbar.
+      scrollBottom = paddingTop + view.clientHeight;
+
+      // paddingLeft is the left of the view's padding area. We translate from
+      // the border area to the padding area by adding clientLeft, which is the
+      // left border width (plus the scrollbar in right-to-left).
+      let paddingLeft = viewRect.left + view.clientLeft;
+      if (document.dir == "rtl") {
+        scrollLeft = paddingLeft;
+        // The right of the scroll area is the left of the sticky header.
+        scrollRight = headerRect.left;
       } else {
-        // Similar thing when oriented horizontally, except the sticky headers
-        // are at the inline-start.
-        let paddingLeft = viewRect.left + view.clientLeft;
-        if (document.dir == "rtl") {
-          scrollLeft = paddingLeft;
-          scrollRight = this.headerCorner.getBoundingClientRect().left;
-        } else {
-          scrollLeft = this.headerCorner.getBoundingClientRect().right;
-          scrollRight = paddingLeft + view.clientWidth;
-        }
-        scrollTop = viewRect.top + view.clientTop;
-        scrollBottom = scrollTop + view.clientHeight;
+        // The left of the scroll area is the right of the sticky header.
+        scrollLeft = headerRect.right;
+        // To get the right we add the clientWidth, which is the width of the
+        // padding area minus the scrollbar.
+        scrollRight = paddingLeft + view.clientWidth;
       }
       return { top: scrollTop, bottom: scrollBottom, left: scrollLeft, right: scrollRight };
     }
