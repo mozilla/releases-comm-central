@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["Pop3Client"];
 
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -81,7 +82,7 @@ class Pop3Client {
    */
   connect() {
     this._logger.debug(
-      `pop://${this._server.realHostName}:${this._server.port}`
+      `Connecting to pop://${this._server.realHostName}:${this._server.port}`
     );
     this._socket = new TCPSocket(this._server.realHostName, this._server.port, {
       binaryType: "arraybuffer",
@@ -89,6 +90,10 @@ class Pop3Client {
     });
     this._socket.onopen = this._onOpen;
     this._socket.onerror = this._onError;
+
+    this._authenticating = false;
+    // Indicates if the connection has been closed and can't be used anymore.
+    this._destroyed = false;
   }
 
   /**
@@ -128,7 +133,9 @@ class Pop3Client {
     this._logger.debug("Connected");
     this._socket.ondata = this._onData;
     this._socket.onclose = this._onClose;
-    this.onOpen();
+    this._nextAction = () => {
+      this.onOpen();
+    };
   };
 
   /**
@@ -149,7 +156,12 @@ class Pop3Client {
    * The data event handler.
    * @param {TCPSocketEvent} event - The data event.
    */
-  _onData = event => {
+  _onData = async event => {
+    // Some servers close the socket on invalid username/password, this line
+    // guarantees onclose is handled before we try another AUTH method. See the
+    // same handling in SmtpClient.jsm.
+    await new Promise(resolve => setTimeout(resolve));
+
     let stringPayload = CommonUtils.arrayBufferToByteString(
       new Uint8Array(event.data)
     );
@@ -171,6 +183,11 @@ class Pop3Client {
    */
   _onClose = () => {
     this._logger.debug("Connection closed.");
+    this._destroyed = true;
+    if (this._authenticating) {
+      // In some cases, socket is closed for invalid username/password.
+      this._actionAuthResponse({ success: false });
+    }
   };
 
   _lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
@@ -290,6 +307,14 @@ class Pop3Client {
       // is easier.
       this._logger.debug(`C: ${str}`);
     }
+
+    if (this._socket.readyState != "open") {
+      this._logger.warn(
+        `Failed to send because socket state is ${this._socket.readyState}`
+      );
+      return;
+    }
+
     this._socket.send(CommonUtils.byteStringToArrayBuffer(str + "\r\n").buffer);
   }
 
@@ -330,9 +355,12 @@ class Pop3Client {
    * Handle `CAPA` response.
    * @param {Pop3Response} res - CAPA response received from the server.
    */
-  _actionCapaResponse = ({ data }) => {
+  _actionCapaResponse = res => {
+    if (!res.success) {
+      this._actionChooseFirstAuthMethod();
+    }
     this._lineReader(
-      data,
+      res.data,
       line => {
         if (line.startsWith("SASL ")) {
           this._supportedAuthMethods = line
@@ -341,25 +369,29 @@ class Pop3Client {
             .split(" ");
         }
       },
-      () => {
-        // If a preferred method is not supported by the server, no need to try it.
-        this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
-          this._supportedAuthMethods.includes(x)
-        );
-        this._logger.debug(
-          `Possible auth methods: ${this._possibleAuthMethods}`
-        );
-        this._nextAuthMethod = this._possibleAuthMethods[0];
-        if (
-          !this._supportedAuthMethods.length &&
-          this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext
-        ) {
-          this._nextAuthMethod = "USERPASS";
-        }
-
-        this._actionAuth();
-      }
+      () => this._actionChooseFirstAuthMethod()
     );
+  };
+
+  /**
+   * Decide the first auth method to try.
+   */
+  _actionChooseFirstAuthMethod = () => {
+    // If a preferred method is not supported by the server, no need to try it.
+    this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
+      this._supportedAuthMethods.includes(x)
+    );
+    this._logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
+    this._nextAuthMethod = this._nextAuthMethod || this._possibleAuthMethods[0];
+    if (
+      !this._supportedAuthMethods.length &&
+      this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext
+    ) {
+      this._possibleAuthMethods.unshift("USERPASS");
+      this._nextAuthMethod = "USERPASS";
+    }
+
+    this._actionAuth();
   };
 
   /**
@@ -370,6 +402,14 @@ class Pop3Client {
       this._actionDone(Cr.NS_ERROR_FAILURE);
       return;
     }
+
+    if (this._destroyed) {
+      // If connection is lost, reconnect.
+      this.connect();
+      return;
+    }
+
+    this._authenticating = true;
 
     this._currentAuthMethod = this._nextAuthMethod;
     this._nextAuthMethod = this._possibleAuthMethods[
@@ -406,9 +446,30 @@ class Pop3Client {
    */
   _actionAuthResponse = res => {
     if (res.success) {
+      this._authenticating = false;
       this._actionStat();
     } else {
-      this._actionDone();
+      if (this._nextAuthMethod) {
+        // Try the next auth method.
+        this._actionAuth();
+        return;
+      }
+
+      // Ask user what to do.
+      let action = this._authenticator.promptAuthFailed();
+      if (action == 1) {
+        // Cancel button pressed.
+        this._actionDone(Cr.NS_ERROR_FAILURE);
+        return;
+      }
+      if (action == 2) {
+        // 'New password' button pressed.
+        this._authenticator.forgetPassword();
+      }
+
+      // Retry.
+      this._nextAuthMethod = this._possibleAuthMethods[0];
+      this._actionAuth();
     }
   };
 
@@ -620,6 +681,7 @@ class Pop3Client {
   };
 
   _actionDone = (status = Cr.NS_OK) => {
+    this._authenticating = false;
     this.quit();
     this._writeUidlState();
     this._urlListener.OnStopRunningUrl(this._runningUri, status);

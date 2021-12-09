@@ -301,6 +301,10 @@ class IncomingServerAuthenticator extends MailAuthenticator {
   get username() {
     return this._server.realUsername;
   }
+
+  forgetPassword() {
+    this._server.forgetPassword();
+  }
 }
 
 /**
@@ -335,5 +339,9 @@ class Pop3Authenticator extends IncomingServerAuthenticator {
       msgWindow = MailServices.mailSession.topmostMsgWindow;
     } catch (e) {}
     return this._server.getPasswordWithUI(promptString, promptTitle, msgWindow);
+  }
+
+  promptAuthFailed() {
+    return this._promptAuthFailed(null, this._server.prettyName);
   }
 }

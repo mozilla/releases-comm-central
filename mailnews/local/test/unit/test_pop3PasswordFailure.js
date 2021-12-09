@@ -36,7 +36,7 @@ function alert(aDialogText, aText) {
   Assert.ok(attempt < 4);
 
   // Log the fact we've got an alert, but we don't need to test anything here.
-  dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
+  info("Alert Title: " + aDialogText + "\nAlert Text: " + aText);
 }
 
 function confirmEx(
@@ -52,19 +52,19 @@ function confirmEx(
   switch (++attempt) {
     // First attempt, retry.
     case 1:
-      dump("\nAttempting retry\n");
+      info("Attempting retry");
       return 0;
     // Second attempt, cancel.
     case 2:
-      dump("\nCancelling login attempt\n");
+      info("Cancelling login attempt");
       return 1;
     // Third attempt, retry.
     case 3:
-      dump("\nAttempting Retry\n");
+      info("Attempting Retry");
       return 0;
     // Fourth attempt, enter a new password.
     case 4:
-      dump("\nEnter new password\n");
+      info("Enter new password");
       return 2;
     default:
       do_throw("unexpected attempt number " + attempt);
@@ -89,6 +89,8 @@ function promptPasswordPS(
 }
 
 function getPopMail() {
+  do_test_pending();
+
   MailServices.pop3.GetNewMail(
     gDummyMsgWindow,
     urlListener,
@@ -112,9 +114,15 @@ var urlListener = {
         attempt == 4 ? 1 : 0
       );
 
-      // If we've just cancelled, expect binding aborted rather than success.
-      Assert.equal(result, attempt == 2 ? Cr.NS_BINDING_ABORTED : 0);
-      async_driver();
+      // nsPop3Protocol.cpp returns two different status codes based on if there
+      // were password failures before the cancel. Pop3Client.jsm doesn't make
+      // the distinction.
+      let result2 = Services.prefs.getBoolPref("mailnews.pop3.jsmodule", false)
+        ? Cr.NS_ERROR_FAILURE
+        : Cr.NS_BINDING_ABORTED;
+
+      // If we've just cancelled, expect failure rather than success.
+      Assert.equal(result, attempt == 2 ? result2 : 0);
     } catch (e) {
       // If we have an error, clean up nicely before we throw it.
       server.stop();
@@ -126,67 +134,9 @@ var urlListener = {
 
       do_throw(e);
     }
+    do_test_finished();
   },
 };
-
-// Definition of tests
-var tests = [getMail1, getMail2, end_test];
-
-function actually_run_test() {
-  daemon.setMessages(["message1.eml"]);
-  async_run_tests(tests);
-}
-
-function* getMail1() {
-  dump("\nGet Mail 1\n");
-
-  // Now get mail
-  getPopMail();
-  yield false;
-
-  dump("\nGot Mail 1\n");
-
-  Assert.equal(attempt, 2);
-
-  // Check that we haven't forgotten the login even though we've retried and cancelled.
-  let logins = Services.logins.findLogins(
-    "mailbox://localhost",
-    null,
-    "mailbox://localhost"
-  );
-
-  Assert.equal(logins.length, 1);
-  Assert.equal(logins[0].username, kUserName);
-  Assert.equal(logins[0].password, kInvalidPassword);
-
-  server.resetTest();
-  yield true;
-}
-
-function* getMail2() {
-  dump("\nGet Mail 2\n");
-
-  // Now get the mail
-  getPopMail();
-  yield false;
-  dump("\nGot Mail 2\n");
-
-  // Now check the new one has been saved.
-  let logins = Services.logins.findLogins(
-    "mailbox://localhost",
-    null,
-    "mailbox://localhost"
-  );
-
-  Assert.equal(logins.length, 1);
-  Assert.equal(logins[0].username, kUserName);
-  Assert.equal(logins[0].password, kValidPassword);
-  yield true;
-}
-
-function* end_test() {
-  do_test_finished();
-}
 
 add_task(async function() {
   // Disable new mail notifications
@@ -230,7 +180,48 @@ add_task(async function() {
   // setup issue.
   Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
 
-  do_test_pending();
+  daemon.setMessages(["message1.eml"]);
+});
 
-  actually_run_test();
+add_task(function getMail1() {
+  info("Get Mail 1");
+
+  // Now get mail
+  getPopMail();
+
+  info("Got Mail 1");
+
+  Assert.equal(attempt, 2);
+
+  // Check that we haven't forgotten the login even though we've retried and cancelled.
+  let logins = Services.logins.findLogins(
+    "mailbox://localhost",
+    null,
+    "mailbox://localhost"
+  );
+
+  Assert.equal(logins.length, 1);
+  Assert.equal(logins[0].username, kUserName);
+  Assert.equal(logins[0].password, kInvalidPassword);
+
+  server.resetTest();
+});
+
+add_task(function getMail2() {
+  info("Get Mail 2");
+
+  // Now get the mail
+  getPopMail();
+  info("Got Mail 2");
+
+  // Now check the new one has been saved.
+  let logins = Services.logins.findLogins(
+    "mailbox://localhost",
+    null,
+    "mailbox://localhost"
+  );
+
+  Assert.equal(logins.length, 1);
+  Assert.equal(logins[0].username, kUserName);
+  Assert.equal(logins[0].password, kValidPassword);
 });
