@@ -29,28 +29,6 @@ var gFolder, gViewWrapper, gDBView;
 var folderTree, splitter1, threadTree, splitter2, messageBrowser;
 
 window.addEventListener("DOMContentLoaded", () => {
-  function addSubFolders(parentFolder, parentItem) {
-    let subFolders = parentFolder.subFolders;
-    if (!subFolders.length) {
-      return;
-    }
-
-    subFolders.sort((a, b) => a.compareSortKeys(b));
-
-    let childList = parentItem.appendChild(document.createElement("ul"));
-    for (let folder of subFolders) {
-      let folderItem = childList.appendChild(
-        folderTemplate.content.firstElementChild.cloneNode(true)
-      );
-      folderItem.dataset.uri = folder.URI;
-      folderItem.querySelector(
-        ".icon"
-      ).style.backgroundImage = `url("${FolderUtils.getFolderIcon(folder)}")`;
-      folderItem.querySelector(".name").textContent = folder.name;
-      addSubFolders(folder, folderItem);
-    }
-  }
-
   splitter1 = document.getElementById("splitter1");
   let splitter1Width = Services.xulStore.getValue(
     "chrome://messenger/content/messenger.xhtml",
@@ -173,24 +151,12 @@ window.addEventListener("DOMContentLoaded", () => {
   );
 
   folderTree = document.getElementById("folderTree");
-  let folderTemplate = document.getElementById("folderTemplate");
-  let folderPaneContext = document.getElementById("folderPaneContext");
+  folderListener.init();
 
-  for (let account of MailServices.accounts.accounts) {
-    let accountItem = folderTree.appendChild(
-      folderTemplate.content.firstElementChild.cloneNode(true)
-    );
-    accountItem.id = account.key;
-    accountItem.dataset.uri = account.incomingServer.rootFolder.URI;
-    accountItem.querySelector(
-      ".icon"
-    ).style.backgroundImage = `url("${FolderUtils.getFolderIcon(
-      account.incomingServer.rootFolder
-    )}")`;
-    accountItem.querySelector(".name").textContent =
-      account.incomingServer.prettyName;
-    addSubFolders(account.incomingServer.rootFolder, accountItem);
-  }
+  MailServices.mailSession.AddFolderListener(
+    folderListener,
+    Ci.nsIFolderListener.all
+  );
 
   folderTree.addEventListener("select", event => {
     let uri = folderTree.rows[folderTree.selectedIndex]?.dataset.uri;
@@ -274,6 +240,7 @@ window.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
   });
 
+  let folderPaneContext = document.getElementById("folderPaneContext");
   folderPaneContext.addEventListener(
     "popupshowing",
     folderPaneContextMenu.onPopupShowing
@@ -316,6 +283,10 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   messageBrowser = document.getElementById("messageBrowser");
+});
+
+window.addEventListener("unload", () => {
+  MailServices.mailSession.RemoveFolderListener(folderListener);
 });
 
 window.addEventListener("keypress", event => {
@@ -379,11 +350,9 @@ function restoreState({
 }
 
 function displayFolder(folderURI) {
-  for (let index = 0; index < folderTree.rowCount; index++) {
-    if (folderTree.rows[index].dataset.uri == folderURI) {
-      folderTree.selectedIndex = index;
-      return;
-    }
+  let index = folderListener.getIndexForFolder(folderURI);
+  if (index >= 0) {
+    folderTree.selectedIndex = index;
   }
 }
 
@@ -615,6 +584,138 @@ var folderPaneContextMenu = {
         break;
     }
   },
+};
+
+var folderListener = {
+  QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
+
+  init() {
+    this._folderTemplate = document.getElementById("folderTemplate");
+    for (let account of MailServices.accounts.accounts) {
+      this._addAccount(account);
+    }
+  },
+
+  _addAccount(account) {
+    let accountItem = folderTree.appendChild(
+      this._folderTemplate.content.firstElementChild.cloneNode(true)
+    );
+    accountItem.id = account.key;
+    accountItem.dataset.uri = account.incomingServer.rootFolder.URI;
+    accountItem.querySelector(
+      ".icon"
+    ).style.backgroundImage = `url("${FolderUtils.getFolderIcon(
+      account.incomingServer.rootFolder
+    )}")`;
+    accountItem.querySelector(".name").textContent =
+      account.incomingServer.prettyName;
+    this._addSubFolders(account.incomingServer.rootFolder, accountItem);
+  },
+  _addFolder(folder, childList, before = null) {
+    let folderItem = childList.insertBefore(
+      this._folderTemplate.content.firstElementChild.cloneNode(true),
+      before
+    );
+    folderItem.id = `folder-${folder.URI}`;
+    folderItem.dataset.uri = folder.URI;
+    folderItem.querySelector(
+      ".icon"
+    ).style.backgroundImage = `url("${FolderUtils.getFolderIcon(folder)}")`;
+    folderItem.querySelector(".name").textContent = folder.name;
+    let numUnread = folder.getNumUnread(false);
+    folderItem.classList.toggle("unread", numUnread > 0);
+    folderItem.querySelector(".unreadCount").textContent = numUnread;
+    this._addSubFolders(folder, folderItem);
+  },
+  _addSubFolders(parentFolder, parentItem) {
+    let subFolders = parentFolder.subFolders;
+    if (!subFolders.length) {
+      return;
+    }
+
+    subFolders.sort((a, b) => a.compareSortKeys(b));
+
+    let childList = parentItem.appendChild(document.createElement("ul"));
+    childList.style.setProperty(
+      "--depth",
+      parseInt(getComputedStyle(parentItem).getPropertyValue("--depth"), 10) + 1
+    );
+    for (let folder of subFolders) {
+      this._addFolder(folder, childList);
+    }
+  },
+
+  getIndexForFolder(folderOrURI) {
+    if (folderOrURI instanceof Ci.nsIMsgFolder) {
+      folderOrURI = folderOrURI.URI;
+    }
+    return folderTree.rows.findIndex(row => row.dataset.uri == folderOrURI);
+  },
+  getRowForFolder(folderOrURI) {
+    if (folderOrURI instanceof Ci.nsIMsgFolder) {
+      folderOrURI = folderOrURI.URI;
+    }
+    return folderTree.rows.find(row => row.dataset.uri == folderOrURI);
+  },
+
+  onFolderAdded(parentFolder, childFolder) {
+    if (!parentFolder) {
+      let account = MailServices.accounts.FindAccountForServer(
+        childFolder.server
+      );
+      this._addAccount(account, false);
+      return;
+    }
+
+    let parentRow = this.getRowForFolder(parentFolder);
+    if (!parentRow) {
+      return;
+    }
+
+    let childList = parentRow.querySelector("ul");
+    if (!childList) {
+      childList = parentRow.appendChild(document.createElement("ul"));
+      childList.style.setProperty(
+        "--depth",
+        parseInt(getComputedStyle(parentRow).getPropertyValue("--depth"), 10) +
+          1
+      );
+    }
+
+    for (let row of childList.children) {
+      let rowFolder = MailServices.folderLookup.getFolderForURL(
+        row.dataset.uri
+      );
+      if (childFolder.compareSortKeys(rowFolder) < 0) {
+        this._addFolder(childFolder, childList, row);
+        return;
+      }
+    }
+
+    this._addFolder(childFolder, childList);
+  },
+  onMessageAdded(parentFolder, msg) {},
+  onFolderRemoved(parentFolder, childFolder) {
+    let row = folderListener.getRowForFolder(childFolder);
+    if (row) {
+      row.remove();
+    }
+  },
+  onMessageRemoved(parentFolder, msg) {},
+  onFolderPropertyChanged(item, property, oldValue, newValue) {},
+  onFolderIntPropertyChanged(item, property, oldValue, newValue) {
+    if (property == "TotalUnreadMessages") {
+      let folderItem = document.getElementById(`folder-${item.URI}`);
+      if (folderItem) {
+        folderItem.classList.toggle("unread", newValue > 0);
+        folderItem.querySelector(".unreadCount").textContent = newValue;
+      }
+    }
+  },
+  onFolderBoolPropertyChanged(item, property, oldValue, newValue) {},
+  onFolderUnicharPropertyChanged(item, property, oldValue, newValue) {},
+  onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {},
+  onFolderEvent(folder, event) {},
 };
 
 /**

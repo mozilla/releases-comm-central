@@ -145,6 +145,8 @@ body.layout-wide :is(#messageBrowserPane, #messageBrowserPaneCover) {
   margin: 0;
   padding: 0;
   list-style: none;
+  --depth: 0;
+  --indent: calc(16px * var(--depth));
 }
 
 .container {
@@ -214,21 +216,27 @@ li > .container:hover {
   overflow-x: hidden;
 }
 
+.unreadCount {
+  display: none;
+  padding: 1px 4px;
+  border-radius: 12px;
+  background-color: var(--in-content-button-background);
+  color: white;
+  font-size: 0.85em;
+  font-weight: bold;
+  min-width: 16px;
+  text-align: center;
+  box-sizing: border-box;
+  margin-inline-end: 6px;
+}
+
+.unread > .container > .unreadCount {
+  display: unset;
+}
+
 ul:empty,
 li.collapsed > ul {
   display: none;
-}
-
-#folderTree > li > ul {
-  --indent: 16px;
-}
-
-#folderTree > li > ul > li > ul {
-  --indent: 32px;
-}
-
-#folderTree > li > ul > li > ul > li > ul {
-  --indent: 48px;
 }
 
 /* Thread tree pane. */
