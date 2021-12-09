@@ -2220,7 +2220,7 @@ AttachmentInfo.prototype = {
               false
             );
           },
-          async launchWithApplication(handleInternally, file) {
+          async setDownloadToLaunch(handleInternally, file) {
             await saveAndOpen(mimeInfo);
           },
           async saveDestinationAvailable(file) {
