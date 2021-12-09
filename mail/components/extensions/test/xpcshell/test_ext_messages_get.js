@@ -82,7 +82,7 @@ add_task(async function test_plain() {
         browser.test.assertTrue(
           rawMessage.includes('To: "Bob Bell" <bob@bell.invalid>\n')
         );
-        browser.test.assertTrue(rawMessage.includes("Hello Bob Bell!\n"));
+        browser.test.assertTrue(rawMessage.includes("Hello Bob Bell!"));
 
         // {
         //   "contentType": "message/rfc822",
