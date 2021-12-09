@@ -3321,7 +3321,10 @@ nsMsgLocalMailFolder::AddMessageBatch(
       uint32_t bytesWritten;
       uint32_t messageLen = aMessages[i].Length();
       outFileStream->Write(aMessages[i].get(), messageLen, &bytesWritten);
-      newMailParser->BufferInput(aMessages[i].get(), messageLen);
+      rv = newMailParser->BufferInput(aMessages[i].get(), messageLen);
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = newMailParser->Flush();
+      NS_ENSURE_SUCCESS(rv, rv);
 
       FinishNewLocalMessage(outFileStream, newHdr, msgStore, newMailParser);
       outFileStream->Close();

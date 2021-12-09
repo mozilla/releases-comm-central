@@ -140,12 +140,12 @@ nsresult nsMsgLineBuffer::BufferInput(const char* net_buffer,
 
 // If there's still some data (non CRLF terminated) flush it out
 nsresult nsMsgLineBuffer::Flush() {
-  char* buf = m_buffer + m_bufferPos;
-  int32_t length = m_bufferPos - 1;
-  if (length > 0) {
-    return HandleLine(buf, length);
+  nsresult rv = NS_OK;
+  if (m_bufferPos > 0) {
+    rv = HandleLine(m_buffer, m_bufferPos);
+    m_bufferPos = 0;
   }
-  return NS_OK;
+  return rv;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
