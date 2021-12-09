@@ -32,7 +32,6 @@ var { MailServices } = ChromeUtils.import(
 /* import-globals-from ../../../../../test/resources/logHelper.js */
 /* import-globals-from ../../../../../test/resources/asyncTestUtils.js */
 /* import-globals-from ../../../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../../../test/resources/messageModifier.js */
 /* import-globals-from ../../../../../test/resources/messageInjection.js */
 /* import-globals-from ../../../../../test/resources/folderEventLogHelper.js */
 load("../../../../resources/abSetup.js");
@@ -40,7 +39,6 @@ load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
 
 load("../../../../resources/MessageGenerator.jsm");
-load("../../../../resources/messageModifier.js");
 load("../../../../resources/messageInjection.js");
 
 load("../../../../resources/folderEventLogHelper.js");

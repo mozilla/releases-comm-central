@@ -24,10 +24,8 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
 /* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageModifier.js */
 /* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
 let gCertValidityResult = 0;

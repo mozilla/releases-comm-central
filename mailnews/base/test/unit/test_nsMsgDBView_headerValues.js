@@ -8,10 +8,8 @@ load("../../../resources/asyncTestUtils.js");
 load("../../../resources/abSetup.js");
 
 /* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageModifier.js */
 /* import-globals-from ../../../test/resources/messageInjection.js */
 load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageModifier.js");
 load("../../../resources/messageInjection.js");
 
 var SortType = Ci.nsMsgViewSortType;

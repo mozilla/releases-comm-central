@@ -61,7 +61,6 @@ TEST_HARNESS_FILES.testing.mochitest.resources += [
     "../../../mailnews/test/resources/logHelper.js",
     "../../../mailnews/test/resources/MessageGenerator.jsm",
     "../../../mailnews/test/resources/messageInjection.js",
-    "../../../mailnews/test/resources/messageModifier.js",
     "../../../mailnews/test/resources/smimeUtils.jsm",
     "../../base/test/unit/resources/viewWrapperTestUtils.js",
 ]

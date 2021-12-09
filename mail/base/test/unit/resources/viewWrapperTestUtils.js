@@ -27,8 +27,6 @@ if (
 
   /* import-globals-from ../../../../../mailnews/test/resources/MessageGenerator.jsm */
   load("../../../../mailnews/resources/MessageGenerator.jsm");
-  /* import-globals-from ../../../../../mailnews/test/resources/messageModifier.js */
-  load("../../../../mailnews/resources/messageModifier.js");
   /* import-globals-from ../../../../../mailnews/test/resources/messageInjection.js */
   load("../../../../mailnews/resources/messageInjection.js");
 }

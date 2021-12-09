@@ -4,7 +4,6 @@
 
 /* import-globals-from asyncTestUtils.js */
 /* import-globals-from logHelper.js */
-/* import-globals-from messageModifier.js */
 
 // This file is included from many different locations. Why the original authors decided they
 // could just dump variables on the global scope and expect them to be there when this file
@@ -18,6 +17,9 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+var { SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"

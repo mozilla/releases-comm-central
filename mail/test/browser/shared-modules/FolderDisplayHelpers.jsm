@@ -171,7 +171,11 @@ var { MailServices } = ChromeUtils.import(
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
+var {
+  MessageGenerator,
+  MessageScenarioFactory,
+  SyntheticMessageSet,
+} = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 var { SmimeUtils } = ChromeUtils.import(
@@ -253,10 +257,6 @@ function setupModule() {
 
   load_via_src_path(
     "../../../testing/mochitest/resources/asyncTestUtils.js",
-    testHelperModule
-  );
-  load_via_src_path(
-    "../../../testing/mochitest/resources/messageModifier.js",
     testHelperModule
   );
   load_via_src_path(
@@ -400,7 +400,7 @@ function get_special_folder(
  * Create a thread with the specified number of messages in it.
  */
 function create_thread(aCount) {
-  return new testHelperModule.SyntheticMessageSet(
+  return new SyntheticMessageSet(
     testHelperModule.gMessageScenarioFactory.directReply(aCount)
   );
 }
@@ -446,7 +446,7 @@ function add_message_to_folder(aFolder, aMsg) {
   // using a local store, it should be safe to assume synchronicity
   MessageInjection.add_sets_to_folders(
     [aFolder],
-    [new testHelperModule.SyntheticMessageSet([aMsg])]
+    [new SyntheticMessageSet([aMsg])]
   );
 }
 
