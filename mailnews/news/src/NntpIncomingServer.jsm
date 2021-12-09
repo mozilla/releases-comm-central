@@ -62,6 +62,15 @@ class NntpIncomingServer extends MsgIncomingServer {
     this.localStoreType = "news";
     this.localDatabaseType = "news";
 
+    Object.defineProperty(this, "defaultCopiesAndFoldersPrefsToServer", {
+      // No Draft/Sent folder on news servers, will point to "Local Folders".
+      get: () => false,
+    });
+    Object.defineProperty(this, "canCreateFoldersOnServer", {
+      // No folder creation on news servers.
+      get: () => false,
+    });
+
     // nsISubscribableServer attributes.
     this.supportsSubscribeSearch = true;
 
@@ -164,7 +173,6 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   updateSubscribed() {
-    // this._tmpSubscribed = new Set(this._subscribed);
     this._tmpSubscribed = new Set();
     this._subscribed.forEach(path => this.setAsSubscribed(path));
   }

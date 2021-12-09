@@ -41,7 +41,8 @@ class NntpService {
     hosts = [...new Set(hosts)];
     let host = hosts[0];
     if (!host) {
-      throw Components.Exception("Host not found", Cr.NS_ERROR_ILLEGAL_VALUE);
+      outNewsHostHeader.value = "";
+      return;
     }
     if (hosts.length > 1) {
       throw Components.Exception(

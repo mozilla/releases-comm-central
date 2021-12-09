@@ -61,6 +61,7 @@ class MsgIncomingServer {
     for (let [type, attrName, prefName] of attributes) {
       prefName = prefName || attrName;
       Object.defineProperty(this, attrName, {
+        configurable: true,
         get: () => this[`get${type}Value`](prefName),
         set: value => {
           this[`set${type}Value`](prefName, value);
@@ -616,5 +617,13 @@ class MsgIncomingServer {
       );
     }
     this.localPath.remove(true);
+  }
+
+  getMsgFolderFromURI(folder, uri) {
+    try {
+      return this.rootMsgFolder.getChildWithURI(uri, true, true) || folder;
+    } catch (e) {
+      return folder;
+    }
   }
 }
