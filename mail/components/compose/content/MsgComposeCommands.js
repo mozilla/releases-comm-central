@@ -2262,6 +2262,10 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
       attachmentItem.uploading = false;
       gAttachmentBucket.setCloudIcon(attachmentItem, upload.serviceIcon);
 
+      // Remove removeOnUploadError flag, so this file is kept, if a conversion
+      // to a different provider later fails.
+      delete attachmentItem.removeOnUploadError;
+
       attachmentItem.dispatchEvent(
         new CustomEvent("attachment-uploaded", {
           bubbles: true,
@@ -2507,24 +2511,17 @@ function convertListItemsToCloudAttachment(aItems, aAccount) {
         continue;
       }
       url = item.originalUrl;
+      convertListItemsToRegularAttachment([item]);
     }
 
     let file = fileHandler.getFileFromURLSpec(url);
-    if (item.cloudFileAccount) {
-      deleteCloudAttachment(
-        item.attachment,
-        item.cloudFileUpload.id,
-        item.cloudFileAccount
-      );
-    }
-
     uploadCloudAttachment(item.attachment, file, aAccount);
     convertedAttachments.push(item.attachment);
   }
 
   if (convertedAttachments.length > 0) {
     dispatchAttachmentBucketEvent(
-      "attachments-converted",
+      "attachments-converting-to-cloud",
       convertedAttachments
     );
   }
@@ -2598,7 +2595,10 @@ function convertListItemsToRegularAttachment(aItems) {
     convertedAttachments.push(item.attachment);
   }
 
-  dispatchAttachmentBucketEvent("attachments-converted", convertedAttachments);
+  dispatchAttachmentBucketEvent(
+    "attachments-converted-to-regular",
+    convertedAttachments
+  );
 
   // We leave the content location in for the notifications because
   // it may be needed to identify the attachment. But clear it out now.

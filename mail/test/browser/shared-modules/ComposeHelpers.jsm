@@ -503,9 +503,13 @@ function convert_selected_to_cloud_attachment(
     );
   }
 
-  bucket.addEventListener("attachments-converted", convertAttachment, {
-    once: true,
-  });
+  bucket.addEventListener(
+    "attachments-converting-to-cloud",
+    convertAttachment,
+    {
+      once: true,
+    }
+  );
   aController.window.convertSelectedToCloudAttachment(aProvider);
   aController.waitFor(() => attachmentConverted, "Couldn't convert attachment");
 

@@ -11,7 +11,7 @@ var gCloudAttachmentLinkManager = {
     let bucket = document.getElementById("attachmentBucket");
     bucket.addEventListener("attachment-uploaded", this);
     bucket.addEventListener("attachments-removed", this);
-    bucket.addEventListener("attachments-converted", this);
+    bucket.addEventListener("attachments-converted-to-regular", this);
 
     // If we're restoring a draft that has some attachments,
     // check to see if any of them are marked to be sent via
@@ -45,7 +45,7 @@ var gCloudAttachmentLinkManager = {
       this._insertItem(mailDoc, attachment, cloudFileUpload);
     } else if (
       event.type == "attachments-removed" ||
-      event.type == "attachments-converted"
+      event.type == "attachments-converted-to-regular"
     ) {
       let items = [];
       let list = mailDoc.getElementById("cloudAttachmentList");

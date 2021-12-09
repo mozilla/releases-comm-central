@@ -24,6 +24,7 @@ var {
 );
 var {
   add_cloud_attachments,
+  convert_selected_to_cloud_attachment,
   close_compose_window,
   open_compose_new_mail,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
@@ -256,7 +257,7 @@ function get_attachmentitem_index_for_file(aController, aFile) {
  * @param expectedAttachments - number of expected attachments at the end of the test
  * @param expectedAlerts - number of expected alerts at the end of the test
  */
-async function test_upload(error, expectedAttachments, expectedAlerts = 0) {
+async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   const kFiles = ["./data/testFile1", "./data/testFile2", "./data/testFile3"];
 
   // Prepare the mock file picker to return our test file.
@@ -265,7 +266,6 @@ async function test_upload(error, expectedAttachments, expectedAlerts = 0) {
 
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = open_compose_new_mail();
 
   // Override the uploadFile function of the MockCloudfileAccount.
   let promises = {};
@@ -317,8 +317,6 @@ async function test_upload(error, expectedAttachments, expectedAlerts = 0) {
     );
   }
 
-  close_compose_window(cw);
-
   // Check and reset the prompt mock service.
   is(
     expectedAlerts,
@@ -332,7 +330,9 @@ async function test_upload(error, expectedAttachments, expectedAlerts = 0) {
  * Check if attachment is removed if upload failed.
  */
 add_task(async function test_error_upload() {
+  let cw = open_compose_new_mail();
   await test_upload(
+    cw,
     Components.Exception(
       "Upload error.",
       cloudFileAccounts.constants.uploadErr
@@ -340,11 +340,80 @@ add_task(async function test_error_upload() {
     0,
     3
   );
+  close_compose_window(cw);
 });
 
 /**
  * Check if attachment is not removed if upload is successful.
  */
 add_task(async function test_successful_upload() {
-  await test_upload(null, 3, 0);
+  let cw = open_compose_new_mail();
+  await test_upload(cw, null, 3, 0);
+  close_compose_window(cw);
+});
+
+/**
+ * Check if a regular attachment is kept, after converting a cloud file to
+ * another provider failed.
+ */
+add_task(async function test_error_conversion() {
+  let cw = open_compose_new_mail();
+  let bucket = cw.e("attachmentBucket");
+
+  // Upload 3 files to the standard provider.
+  await test_upload(cw, null, 3, 0);
+
+  // Define another provider.
+  let providerB = new MockCloudfileAccount();
+  providerB.init("someOtherKey");
+
+  let uploadPromise = null;
+  providerB.uploadFile = function(window, aFile) {
+    return new Promise((resolve, reject) => {
+      uploadPromise = { resolve, reject };
+    });
+  };
+
+  select_attachments(cw, 0);
+  convert_selected_to_cloud_attachment(cw, providerB, false);
+
+  let uploadError = new Promise(resolve => {
+    bucket.addEventListener("attachment-upload-failed", resolve, {
+      once: true,
+    });
+  });
+
+  // Reject the upload, causing the conversion to fail.
+  uploadPromise.reject(
+    new Components.Exception(
+      "Upload error.",
+      cloudFileAccounts.constants.uploadErr
+    )
+  );
+  await uploadError;
+
+  is(
+    1,
+    Services.prompt.confirmCount,
+    "Number of expected alert prompts should be correct."
+  );
+  Services.prompt.confirmCount = 0;
+
+  // Check that we still have 3 attachments and that the first one is a regular one.
+  Assert.equal(
+    bucket.itemCount,
+    3,
+    "Should find correct number of attachments."
+  );
+  let expected = [false, true, true];
+  for (let i = 0; i < bucket.itemCount; i++) {
+    let item = bucket.itemChildren[i];
+    Assert.equal(
+      item.attachment.sendViaCloud,
+      expected[i],
+      "Should find correct type of attachment."
+    );
+  }
+
+  close_compose_window(cw);
 });

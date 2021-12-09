@@ -43,7 +43,8 @@ var gBigFileObserver = {
     bucket.addEventListener("attachments-uploading", this);
     bucket.addEventListener("attachment-uploaded", this);
     bucket.addEventListener("attachment-upload-failed", this);
-    bucket.addEventListener("attachments-converted", this);
+    bucket.addEventListener("attachments-converting-to-cloud", this);
+    bucket.addEventListener("attachments-converted-to-regular", this);
 
     this.sessionHidden = false;
     this.privacyWarned = false;
@@ -62,8 +63,10 @@ var gBigFileObserver = {
       case "attachments-removed":
         this.attachmentsRemoved(event.detail);
         break;
-      case "attachments-converted":
-        this.attachmentsConverted(event.detail);
+      case "attachments-converting-to-cloud":
+        this.attachmentsConvertingToCloud(event.detail);
+        break;
+      case "attachments-converted-to-regular":
         break;
       case "attachments-uploading":
         this.attachmentsUploading(event.detail);
@@ -124,7 +127,7 @@ var gBigFileObserver = {
     }
   },
 
-  attachmentsConverted(aAttachments) {
+  attachmentsConvertingToCloud(aAttachments) {
     let uploaded = [];
 
     for (let attachment of aAttachments) {
