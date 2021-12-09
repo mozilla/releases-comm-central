@@ -750,8 +750,10 @@ nsresult EscapeFromSpaceLine(nsIOutputStream* outputStream, char* start,
 
     if (pChar < end) {
       // Found a line so check if it's a qualified "From " line.
-      if (IsAFromSpaceLine(start, pChar))
+      if (IsAFromSpaceLine(start, pChar)) {
         rv = outputStream->Write(">", 1, &written);
+        NS_ENSURE_SUCCESS(rv, rv);
+      }
       int32_t lineTerminatorCount = (*(pChar + 1) == '\n') ? 2 : 1;
       rv = outputStream->Write(start, pChar - start + lineTerminatorCount,
                                &written);
