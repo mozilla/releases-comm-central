@@ -5,7 +5,7 @@
 async function focusWindow(win) {
   win.focus();
   await TestUtils.waitForCondition(
-    () => Services.focus.focusedWindow.browsingContext.topChromeWindow == win,
+    () => Services.focus.focusedWindow?.browsingContext.topChromeWindow == win,
     "waiting for window to be focused"
   );
 }
