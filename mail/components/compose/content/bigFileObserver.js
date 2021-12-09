@@ -67,6 +67,7 @@ var gBigFileObserver = {
         this.attachmentsConvertingToCloud(event.detail);
         break;
       case "attachments-converted-to-regular":
+        this.attachmentsConvertedToRegular(event.detail);
         break;
       case "attachments-uploading":
         this.attachmentsUploading(event.detail);
@@ -139,6 +140,16 @@ var gBigFileObserver = {
 
     if (uploaded.length) {
       this.showUploadingNotification(uploaded);
+    }
+  },
+
+  attachmentsConvertedToRegular(aAttachments) {
+    if (
+      !gAttachmentBucket.itemChildren.find(
+        item => item.attachment && item.attachment.sendViaCloud
+      )
+    ) {
+      this.hidePrivacyNotification();
     }
   },
 

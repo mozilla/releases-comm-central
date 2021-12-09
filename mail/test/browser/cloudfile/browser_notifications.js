@@ -296,7 +296,8 @@ add_task(function test_link_insertion_goes_away_on_error() {
 
 /**
  * Test that we do not show the Filelink offer notification if we convert
- * a Filelink back into a normal attachment.
+ * a Filelink back into a normal attachment. Also test, that the privacy
+ * notification is correctly shown and hidden.
  */
 add_task(function test_no_offer_on_conversion() {
   const kFiles = ["./data/testFile1", "./data/testFile2"];
@@ -321,11 +322,20 @@ add_task(function test_no_offer_on_conversion() {
   add_cloud_attachments(cw, provider, false);
 
   assert_cloudfile_notification_displayed(cw, false);
+  assert_privacy_warning_notification_displayed(cw, true);
+
   // Now convert the file back into a normal attachment
   select_attachments(cw, 0);
   cw.window.convertSelectedToRegularAttachment();
-
   assert_cloudfile_notification_displayed(cw, false);
+  assert_privacy_warning_notification_displayed(cw, true);
+
+  // Convert also the other file, the privacy notification should no longer
+  // be shown as well.
+  select_attachments(cw, 1);
+  cw.window.convertSelectedToRegularAttachment();
+  assert_cloudfile_notification_displayed(cw, false);
+  assert_privacy_warning_notification_displayed(cw, false);
 
   close_compose_window(cw);
 
