@@ -843,6 +843,13 @@ var commandController = {
     }
 
     if (command in this._viewCommands) {
+      if (command.endsWith("Read") || command.endsWith("Unread")) {
+        if (window.ClearPendingReadTimer) {
+          window.ClearPendingReadTimer();
+        } else {
+          window.messageBrowser.contentWindow.ClearPendingReadTimer();
+        }
+      }
       gViewWrapper.dbView.doCommand(this._viewCommands[command]);
       return;
     }

@@ -6,10 +6,10 @@
 /* globals dbViewWrapperListener */
 
 // mailWindowOverlay.js
-/* globals gMessageNotificationBar */
+/* globals ClearPendingReadTimer, gMessageNotificationBar */
 
 // msgHdrView.js
-/* globals HideMessageHeaderPane, initFolderDBListener, messageHeaderSink,
+/* globals HideMessageHeaderPane, messageHeaderSink,
    OnLoadMsgHeaderPane, OnTagsChange, OnUnloadMsgHeaderPane */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -48,6 +48,22 @@ var gFolderDisplay = {
     }
     return [];
   },
+  getCommandStatus(commandType) {
+    // no view means not enabled
+    if (!gViewWrapper?.dbView) {
+      return false;
+    }
+
+    let enabledObj = {};
+    let checkStatusObj = {};
+    gViewWrapper.dbView.getCommandStatus(
+      commandType,
+      enabledObj,
+      checkStatusObj
+    );
+
+    return enabledObj.value;
+  },
   selectedMessageIsNews: false,
   selectedMessageIsFeed: false,
   view: {
@@ -56,8 +72,22 @@ var gFolderDisplay = {
 };
 
 var gMessageDisplay = {
-  isDummy: true,
+  get displayedMessage() {
+    return gMessage;
+  },
+  get isDummy() {
+    return !gFolder;
+  },
+  onLoadCompleted() {},
 };
+
+function getMessagePaneBrowser() {
+  return content;
+}
+
+function reportMsgRead() {
+  // TODO: implement this telemetry function.
+}
 
 var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 var MsgStatusFeedback =
@@ -66,6 +96,13 @@ var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
 msgWindow.msgHeaderSink = window.messageHeaderSink;
+msgWindow.statusFeedback = Cc[
+  "@mozilla.org/messenger/statusfeedback;1"
+].createInstance(Ci.nsIMsgStatusFeedback);
+content.docShell.addProgressListener(
+  msgWindow.statusFeedback,
+  Ci.nsIWebProgress.NOTIFY_ALL
+);
 
 window.addEventListener("DOMContentLoaded", () => {
   content = document.querySelector("browser");
@@ -87,6 +124,7 @@ window.addEventListener("keypress", event => {
 });
 
 function displayMessage(uri, viewWrapper) {
+  ClearPendingReadTimer();
   if (!uri) {
     HideMessageHeaderPane();
     window.dispatchEvent(
@@ -104,7 +142,6 @@ function displayMessage(uri, viewWrapper) {
   gMessage = messageService.messageURIToMsgHdr(uri);
   if (gFolder != gMessage.folder) {
     gFolder = gMessage.folder;
-    initFolderDBListener();
   }
   if (viewWrapper) {
     gViewWrapper = viewWrapper.clone(dbViewWrapperListener);

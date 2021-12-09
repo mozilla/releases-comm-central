@@ -3815,7 +3815,11 @@ function OnMsgLoaded(aUrl) {
   var msgHdr = gMessageDisplay.displayedMessage;
   window.dispatchEvent(new CustomEvent("MsgLoaded", { detail: msgHdr }));
 
-  var wintype = document.documentElement.getAttribute("windowtype");
+  let win =
+    location.href == "about:message"
+      ? window.browsingContext.topChromeWindow
+      : window;
+  let wintype = win.document.documentElement.getAttribute("windowtype");
 
   gMessageNotificationBar.setJunkMsg(msgHdr);
 

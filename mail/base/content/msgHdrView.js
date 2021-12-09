@@ -892,7 +892,7 @@ var messageHeaderSink = {
       )
     );
 
-    let browser = getBrowser();
+    let browser = getMessagePaneBrowser();
     if (
       currentAttachments.length &&
       Services.prefs.getBoolPref("mail.inline_attachments") &&
