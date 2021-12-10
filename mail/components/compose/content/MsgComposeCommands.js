@@ -2839,26 +2839,26 @@ function handleMailtoArgs(mailtoUrl) {
 function handleEsc() {
   let activeElement = document.activeElement;
 
-  // If findbar is visible and the focus is in the message body,
-  // hide it. (Focus on the findbar is handled by findbar itself).
-  let findbar = document.getElementById("FindToolbar");
-  if (!findbar.hidden && activeElement.id == "content-frame") {
-    findbar.close();
+  if (activeElement.id == "content-frame") {
+    // Focus within the message body.
+    let findbar = document.getElementById("FindToolbar");
+    if (!findbar.hidden) {
+      // If findbar is visible hide it.
+      // Focus on the findbar is handled by findbar itself.
+      findbar.close();
+    } else {
+      // Close the most recently shown notification.
+      gComposeNotification.currentNotification?.close();
+    }
     return;
   }
 
-  // If there is a notification in the attachmentNotificationBox
-  // AND focus is in message body, subject field or on the notification,
-  // hide it.
-  let notification = gComposeNotification.currentNotification;
-  if (
-    notification &&
-    (activeElement.id == "content-frame" ||
-      activeElement.parentNode.parentNode.id == "msgSubject" ||
-      notification.contains(activeElement) ||
-      activeElement.classList.contains("messageCloseButton"))
-  ) {
-    notification.close();
+  // If focus is within a notification, close the corresponding notification.
+  for (let notification of gComposeNotification.allNotifications) {
+    if (notification.contains(activeElement)) {
+      notification.close();
+      return;
+    }
   }
 }
 
