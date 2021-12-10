@@ -26,6 +26,10 @@ add_task(async function testGrantingBuddyRequest() {
   const value = "buddy-auth-request-" + request.account.id + request.userName;
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
+  ok(
+    BrowserTestUtils.is_hidden(notification.closeButton),
+    "Can't dismiss without interacting"
+  );
   const closePromise = new Promise(resolve => {
     notification.eventCallback = event => {
       resolve();

@@ -1459,7 +1459,7 @@ var chatHandler = {
         },
       };
       let box = this.msgNotificationBar;
-      box.appendNotification(
+      let notification = box.appendNotification(
         value,
         {
           label: authLabel,
@@ -1467,6 +1467,7 @@ var chatHandler = {
         },
         [acceptButton, denyButton]
       );
+      notification.removeAttribute("dismissable");
       if (!gChatTab) {
         let tabmail = document.getElementById("tabmail");
         tabmail.openTab("chat", { background: true });
@@ -1531,7 +1532,7 @@ var chatHandler = {
         },
       };
       let box = this.msgNotificationBar;
-      box.appendNotification(
+      let notification = box.appendNotification(
         value,
         {
           label: barLabel,
@@ -1539,6 +1540,7 @@ var chatHandler = {
         },
         [acceptButton, denyButton]
       );
+      notification.removeAttribute("dismissable");
       if (!gChatTab) {
         let tabmail = document.getElementById("tabmail");
         tabmail.openTab("chat", { background: true });
