@@ -244,6 +244,11 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
       aUploads[i].serviceIcon,
       `CloudFile icon should be correct for ${aUploads[i].serviceName} / ${aUploads[i].leafName}`
     );
+    Assert.equal(
+      items[0].querySelector("span.attachmentcell-size").textContent,
+      "",
+      `CloudFile size should be empty.`
+    );
   }
 
   return [root, list, urls];

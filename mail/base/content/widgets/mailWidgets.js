@@ -1714,7 +1714,9 @@
       let size = attachment.size;
       this.setAttachmentSize(
         item,
-        size == null || size == -1 ? "" : this.messenger.formatFileSize(size)
+        size == null || size == -1 || attachment.sendViaCloud
+          ? ""
+          : this.messenger.formatFileSize(size)
       );
 
       // By default, items are considered loaded.

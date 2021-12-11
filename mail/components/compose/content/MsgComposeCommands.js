@@ -229,7 +229,6 @@ var gAutoSaveInterval;
 var gAutoSaveTimeout;
 var gAutoSaveKickedIn;
 var gEditingDraft;
-var gAttachmentsSize;
 var gNumUploadingAttachments;
 
 // From the user's point-of-view, is spell checking enabled? This value only
@@ -319,7 +318,6 @@ function InitializeGlobalVariables() {
   gReceiptOptionChanged = false;
   gDSNOptionChanged = false;
   gAttachVCardOptionChanged = false;
-  gAttachmentsSize = 0;
   gNumUploadingAttachments = 0;
   // eslint-disable-next-line no-global-assign
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
@@ -2503,6 +2501,7 @@ function convertListItemsToCloudAttachment(aItems, aAccount) {
     .QueryInterface(Ci.nsIFileProtocolHandler);
   let convertedAttachments = [];
 
+  let uploadPromises = [];
   for (let item of aItems) {
     let url = item.attachment.url;
 
@@ -2515,7 +2514,7 @@ function convertListItemsToCloudAttachment(aItems, aAccount) {
     }
 
     let file = fileHandler.getFileFromURLSpec(url);
-    uploadCloudAttachment(item.attachment, file, aAccount);
+    uploadPromises.push(uploadCloudAttachment(item.attachment, file, aAccount));
     convertedAttachments.push(item.attachment);
   }
 
@@ -2524,6 +2523,10 @@ function convertListItemsToCloudAttachment(aItems, aAccount) {
       "attachments-converting-to-cloud",
       convertedAttachments
     );
+
+    Promise.all(uploadPromises).then(() => {
+      AttachmentsChanged();
+    });
   }
 }
 
@@ -2605,6 +2608,8 @@ function convertListItemsToRegularAttachment(aItems) {
   for (let item of aItems) {
     delete item.attachment.contentLocation;
   }
+
+  AttachmentsChanged();
 }
 
 /**
@@ -3077,12 +3082,6 @@ attachmentWorker.onmessage = function(event, aManage = true) {
  *                                  defaults to true.
  */
 function AttachmentsChanged(aShowPane, aContentChanged = true) {
-  gAttachmentsSize = 0;
-  for (let item of gAttachmentBucket.itemChildren) {
-    gAttachmentBucket.invalidateItem(item);
-    gAttachmentsSize += item.attachment.size;
-  }
-
   gContentChanged = aContentChanged;
   updateAttachmentPane(aShowPane);
   manageAttachmentNotification(true);
@@ -6583,10 +6582,6 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
     let item = gAttachmentBucket.appendItem(attachment);
     addedAttachments.push(attachment);
 
-    if (attachment.size != -1) {
-      gAttachmentsSize += attachment.size;
-    }
-
     let tooltiptext;
     try {
       tooltiptext = decodeURI(attachment.url);
@@ -6875,8 +6870,16 @@ function updateAttachmentPane(aShowPane) {
     { count }
   );
 
+  let attachmentsSize = 0;
+  for (let item of gAttachmentBucket.itemChildren) {
+    gAttachmentBucket.invalidateItem(item);
+    if (!item.attachment.sendViaCloud) {
+      attachmentsSize += item.attachment.size;
+    }
+  }
+
   document.getElementById("attachmentBucketSize").textContent =
-    count > 0 ? gMessenger.formatFileSize(gAttachmentsSize) : "";
+    count > 0 ? gMessenger.formatFileSize(attachmentsSize) : "";
 
   let attachmentArea = document.getElementById("attachmentArea");
   attachmentArea.hidden = !count;
@@ -6940,10 +6943,6 @@ function RemoveAttachments(items) {
           item.cloudFileAccount
         );
       }
-    }
-
-    if (item.attachment.size != -1) {
-      gAttachmentsSize -= item.attachment.size;
     }
 
     removedAttachments.push(item.attachment);
