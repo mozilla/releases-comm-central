@@ -506,7 +506,7 @@
               if (!this._shouldShowProgress(aRequest))
                 return;
 
-              if (this.mTotalProgress)
+              if (this.mTotalProgress && this.mTab.hasAttribute("busy"))
                 this.mTab.setAttribute("progress", "true");
 
               this._callProgressListeners("onProgressChange",
@@ -575,17 +575,16 @@
                 }
 
                 if (this._shouldShowProgress(aRequest)) {
-                  if (!(aStateFlags & nsIWebProgressListener.STATE_RESTORING)) {
+                  if (!(aStateFlags & nsIWebProgressListener.STATE_RESTORING) &&
+                      aWebProgress && aWebProgress.isTopLevel) {
                     this.mTab.setAttribute("busy", "true");
-
+ 
                     // Do the following only for the top frame not any subframes.
-                    if (aWebProgress.isTopLevel) {
-                      // Remove favicon. This shows busy and progress indicators even during a reload.
-                      this.mTab.removeAttribute("image");
+                    // Remove favicon. This shows busy and progress indicators even during a reload.
+                    this.mTab.removeAttribute("image");
 
-                      if (!(aWebProgress.loadType & Ci.nsIDocShell.LOAD_CMD_RELOAD))
-                        this.mTabBrowser.setTabTitleLoading(this.mTab);
-                    }
+                    if (!(aWebProgress.loadType & Ci.nsIDocShell.LOAD_CMD_RELOAD))
+                      this.mTabBrowser.setTabTitleLoading(this.mTab);
                   }
 
                   if (this.mTab.selected)
