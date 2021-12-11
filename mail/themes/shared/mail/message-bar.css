@@ -17,9 +17,24 @@
   --in-content-button-color: #0c0c0d;
   --in-content-button-border: #c2c2c3;
   --in-content-button-background: #e2e2e3;
+  --in-content-button-text-color-hover: #0c0c0d;
   --in-content-button-background-hover: #d2d2d3;
   --in-content-button-border-active: #a2a2a3;
+  --in-content-button-text-color-active: #0c0c0d;
   --in-content-button-background-active: #c2c2c3;
+}
+
+@media (prefers-contrast) {
+  :host {
+    --in-content-button-color: ButtonText;
+    --in-content-button-border: ThreeDLightShadow;
+    --in-content-button-background: ButtonFace;
+    --in-content-button-text-color-hover: SelectedItemText;
+    --in-content-button-background-hover: SelectedItem;
+    --in-content-button-border-active: ThreeDFace;
+    --in-content-button-text-color-active: SelectedItemText;
+    --in-content-button-background-active: SelectedItem;
+  }
 }
 
 :host([message-bar-type=infobar]) {
@@ -264,7 +279,7 @@
 .notification-button {
   border: 1px solid var(--in-content-button-border);
   border-radius: 3px;
-  color: var(--in-content-button-color) !important;
+  color: var(--in-content-button-color);
 }
 
 .notification-button:hover:active {
@@ -372,7 +387,9 @@ strong {
     --in-content-button-color: #f9f9fa;
     --in-content-button-border: #828283;
     --in-content-button-background: #636364;
+    --in-content-button-text-color-hover: #f9f9fa;
     --in-content-button-background-hover: #777778;
+    --in-content-button-text-color-active: #f9f9fa;
     --in-content-button-border-active: #878788;
     --in-content-button-background-active: #878788;
     --in-content-focus-outline-color: #45a1ff;

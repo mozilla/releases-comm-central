@@ -109,13 +109,19 @@
   padding: 3px;
 }
 
-:root[lwt-tree-brighttext] .calendar-notification-bar {
-  background-color: #464cb9;
+@media (prefers-color-scheme: dark) {
+  .calendar-notification-bar {
+    background-color: #464cb9;
+  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme-brighttext .calendar-notification-bar {
-    background-color: #464cb9;
+@media (prefers-contrast) {
+  .calendar-notification-bar:not(:-moz-lwtheme) {
+    background-color: SelectedItem;
+  }
+
+  .calendar-notification-bar:not(:-moz-lwtheme) > *:not(#imip-view-toolbox) {
+    color: SelectedItemText;
   }
 }
 
