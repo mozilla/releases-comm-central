@@ -24,8 +24,6 @@ interface nsIMessenger : nsISupports {
     const long eCopyMsg = 3;
     const long eMarkAllMsg = 4;
 
-    void setDisplayCharset(in ACString aCharset);
-
     readonly attribute nsITransactionManager transactionManager;
 
     void setWindow(in mozIDOMWindowProxy ptr, in nsIMsgWindow msgWindow);

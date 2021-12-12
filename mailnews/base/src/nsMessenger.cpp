@@ -272,26 +272,6 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMessenger::SetDisplayCharset(const nsACString& aCharset) {
-  // libmime always converts to UTF-8 (both HTML and XML)
-  if (mDocShell) {
-    const Encoding* encoding = nullptr;
-    nsCOMPtr<nsIContentViewer> cv;
-    mDocShell->GetContentViewer(getter_AddRefs(cv));
-    if (cv) {
-      if (!aCharset.IsEmpty()) {
-        if (!(encoding = Encoding::ForLabel(aCharset))) {
-          return NS_ERROR_INVALID_ARG;
-        }
-        cv->SetReloadEncodingAndSource(encoding, kCharsetFromBuiltIn);
-        mCurrentDisplayCharset = aCharset;
-      }
-    }
-  }
-
-  return NS_OK;
-}
-
 NS_IMPL_ISUPPORTS(nsMessenger::nsFilePickerShownCallback,
                   nsIFilePickerShownCallback)
 nsMessenger::nsFilePickerShownCallback::nsFilePickerShownCallback() {
@@ -447,7 +427,6 @@ nsresult nsMessenger::CompleteOpenURL() {
 
   // This is to setup the display DocShell as UTF-8 capable...
   mCurrentDisplayCharset = "";
-  SetDisplayCharset("UTF-8"_ns);
 
   // Disable auth and DNS prefetch in all mail docShells.
   mDocShell->SetAllowAuth(false);
@@ -547,8 +526,6 @@ NS_IMETHODIMP nsMessenger::LaunchExternalURL(const nsACString& aURL) {
 NS_IMETHODIMP
 nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
   nsresult rv;
-
-  SetDisplayCharset("UTF-8"_ns);
 
   NS_ConvertASCIItoUTF16 uriString(aURL);
   // Cleanup the empty spaces that might be on each end.
@@ -1538,8 +1515,6 @@ NS_IMETHODIMP nsMessenger::ForceDetectDocumentCharset() {
   // We want to redisplay the currently selected message (if any) but forcing
   // the redisplay with an autodetected charset
   if (!mLastDisplayURI.IsEmpty()) {
-    SetDisplayCharset("UTF-8"_ns);
-
     nsCOMPtr<nsIMsgMessageService> messageService;
     nsresult rv = GetMessageServiceFromURI(mLastDisplayURI,
                                            getter_AddRefs(messageService));
