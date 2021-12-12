@@ -94,27 +94,46 @@ class CloudFileAccount {
   }
 
   /**
+   * @typedef FileUpload
+   * // Values used in the WebExtension CloudFile type.
+   * @property {string} id - uploadId of the file
+   * @property {string} name - name of the file
+   * @property {string} url - url of the uploaded file
+   * // Properties of the local file.
+   * @property {string} leafName - name of the local file
+   * @property {string} path - path of the local file
+   * @property {string} size - size of the local file
+   * // Template information.
+   * @property {string} serviceName - name of the upload service provider
+   * @property {string} serviceIcon - icon of the upload service provider
+   * @property {string} serviceURL - web interface of the upload service provider
+   */
+
+  /**
    * Initiate a WebExtension cloudFile upload by preparing a CloudFile object &
    * and triggering an onFileUpload event.
    *
    * @param {Object} window Window object of the window, where the upload has
-   *                        been initiated. Must be null, if the window is not
-   *                        supported by the WebExtension windows/tabs API.
-   *                        Currently, this should only be set by the compose
-   *                        window.
+   *   been initiated. Must be null, if the window is not supported by the
+   *   WebExtension windows/tabs API. Currently, this should only be set by the
+   *   compose window.
    * @param {nsIFile} file File to be uploaded.
    * @param {String} [name] Name of the file after it has been uploaded. Defaults
-   *                        to the original filename of the uploaded file.
-   * @returns {Object} Information about the uploaded file: id, leafName, path &
-   *                   size.
+   *   to the original filename of the uploaded file.
+   * @returns {FileUpload} Information about the uploaded file.
    */
   async uploadFile(window, file, name = file.leafName) {
     let id = this._nextId++;
     let upload = {
+      // Values used in the WebExtension CloudFile type.
       id,
+      name,
+      url: null,
+      // Properties of the local file.
       leafName: file.leafName,
       path: file.path,
       size: file.fileSize,
+      // Template information.
       serviceName: this.displayName,
       serviceIcon: this.iconURL,
       serviceURL: this.extension.manifest.cloud_file.service_url,
@@ -160,8 +179,23 @@ class CloudFileAccount {
       results &&
       results.length > 0 &&
       results[0] &&
-      (results[0].aborted || results[0].url)
+      (results[0].aborted || results[0].url || results[0].error)
     ) {
+      if (results[0].error) {
+        this._uploads.delete(id);
+        if (typeof results[0].error == "boolean") {
+          throw Components.Exception(
+            "Upload error.",
+            cloudFileAccounts.constants.uploadErr
+          );
+        } else {
+          throw Components.Exception(
+            results[0].error,
+            cloudFileAccounts.constants.uploadErrWithCustomMessage
+          );
+        }
+      }
+
       if (results[0].aborted) {
         this._uploads.delete(id);
         throw Components.Exception(
@@ -199,6 +233,70 @@ class CloudFileAccount {
     );
   }
 
+  /**
+   * Initiate a WebExtension cloudFile rename by triggering an onFileRename event.
+   *
+   * @param {Object} window Window object of the window, where the upload has
+   *   been initiated. Must be null, if the window is not supported by the
+   *   WebExtension windows/tabs API. Currently, this should only be set by the
+   *   compose window.
+   * @param {Integer} uploadId Id of the uploaded file.
+   * @param {String} newName The requested new name of the file.
+   * @returns {FileUpload} Information about the renamed file.
+   */
+  async renameFile(window, uploadId, newName) {
+    if (!this._uploads.has(uploadId)) {
+      throw Components.Exception(
+        "Rename error.",
+        cloudFileAccounts.constants.renameErr
+      );
+    }
+
+    let upload = this._uploads.get(uploadId);
+    let results;
+    try {
+      results = await this.extension.emit(
+        "renameFile",
+        this,
+        uploadId,
+        newName,
+        window
+      );
+    } catch (ex) {
+      throw Components.Exception(
+        "Rename error.",
+        cloudFileAccounts.constants.renameErr
+      );
+    }
+
+    if (!results || results.length == 0) {
+      throw Components.Exception(
+        "Rename not supported.",
+        cloudFileAccounts.constants.renameNotSupported
+      );
+    }
+
+    if (results[0].error) {
+      if (typeof results[0].error == "boolean") {
+        throw Components.Exception(
+          "Rename error.",
+          cloudFileAccounts.constants.renameErr
+        );
+      } else {
+        throw Components.Exception(
+          results[0].error,
+          cloudFileAccounts.constants.renameErrWithCustomMessage
+        );
+      }
+    }
+
+    upload.name = newName;
+    if (results[0].url) {
+      upload.url = results[0].url;
+    }
+    return upload;
+  }
+
   urlForFile(uploadId) {
     return this._uploads.get(uploadId).url;
   }
@@ -208,10 +306,9 @@ class CloudFileAccount {
    * event.
    *
    * @param {Object} window Window object of the window, where the upload has
-   *                        been initiated. Must be null, if the window is not
-   *                        supported by the WebExtension windows/tabs API.
-   *                        Currently, this should only be set by the compose
-   *                        window.
+   *   been initiated. Must be null, if the window is not supported by the
+   *   WebExtension windows/tabs API. Currently, this should only be set by the
+   *   compose window.
    * @param {nsIFile} file File to be uploaded.
    */
   async cancelFileUpload(window, file) {
@@ -249,10 +346,9 @@ class CloudFileAccount {
    * Delete a WebExtension cloudFile upload by triggering an onFileDeleted event.
    *
    * @param {Object} window Window object of the window, where the upload has
-   *                        been initiated. Must be null, if the window is not
-   *                        supported by the WebExtension windows/tabs API.
-   *                        Currently, this should only be set by the compose
-   *                        window.
+   *   been initiated. Must be null, if the window is not supported by the
+   *   WebExtension windows/tabs API. Currently, this should only be set by the
+   *   compose window.
    * @param {Integer} uploadId Id of the uploaded file.
    */
   async deleteFile(window, uploadId) {
@@ -371,6 +467,23 @@ this.cloudFile = class extends ExtensionAPI {
             context.extension.on("uploadAbort", listener);
             return () => {
               context.extension.off("uploadAbort", listener);
+            };
+          },
+        }).api(),
+
+        onFileRename: new EventManager({
+          context,
+          name: "cloudFile.onFileRename",
+          register: fire => {
+            let listener = (event, account, id, newName, tab) => {
+              tab = tab ? tabManager.convert(tab) : null;
+              account = convertCloudFileAccount(account);
+              return fire.async(account, id, newName, tab);
+            };
+
+            context.extension.on("renameFile", listener);
+            return () => {
+              context.extension.off("renameFile", listener);
             };
           },
         }).api(),

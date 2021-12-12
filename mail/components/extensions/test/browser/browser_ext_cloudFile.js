@@ -11,7 +11,7 @@ var { cloudFileAccounts } = ChromeUtils.import(
 /**
  * Test cloudfile methods (getAccount, getAllAccounts, updateAccount) and
  * events (onAccountAdded, onAccountDeleted, onFileUpload, onFileUploadAbort,
- * onFileDeleted) without UI interaction.
+ * onFileDeleted, onFileRename) without UI interaction.
  */
 add_task(async () => {
   async function background() {
@@ -121,8 +121,8 @@ add_task(async () => {
       await removeCloudfileAccount(createdAccount.id);
     }
 
-    async function test_upload_delete() {
-      browser.test.log("test_upload_delete");
+    async function test_upload_rename_delete() {
+      browser.test.log("test_upload_rename_delete");
       let [createdAccount] = await createCloudfileAccount();
 
       let fileId = await new Promise(resolve => {
@@ -141,6 +141,103 @@ add_task(async () => {
 
         browser.cloudFile.onFileUpload.addListener(fileListener);
         browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile1");
+      });
+
+      browser.test.log("test upload error");
+      await new Promise(resolve => {
+        function fileListener(account, { id, name, data }) {
+          browser.cloudFile.onFileUpload.removeListener(fileListener);
+          setTimeout(() => resolve(id));
+          return { error: true };
+        }
+
+        browser.cloudFile.onFileUpload.addListener(fileListener);
+        browser.test.sendMessage(
+          "uploadFile",
+          createdAccount.id,
+          "cloudFile2",
+          "uploadErr",
+          "Upload error."
+        );
+      });
+
+      browser.test.log("test upload error with message");
+      await new Promise(resolve => {
+        function fileListener(account, { id, name, data }) {
+          browser.cloudFile.onFileUpload.removeListener(fileListener);
+          setTimeout(() => resolve(id));
+          return { error: "Service currently unavailable." };
+        }
+
+        browser.cloudFile.onFileUpload.addListener(fileListener);
+        browser.test.sendMessage(
+          "uploadFile",
+          createdAccount.id,
+          "cloudFile2",
+          "uploadErrWithCustomMessage",
+          "Service currently unavailable."
+        );
+      });
+
+      browser.test.log("test rename");
+      await new Promise(resolve => {
+        function fileListener(account, id, newName) {
+          browser.cloudFile.onFileRename.removeListener(fileListener);
+          browser.test.assertEq(account.id, createdAccount.id);
+          browser.test.assertEq(newName, "cloudFile3.txt");
+          setTimeout(() => resolve(id));
+          return { url: "https://example.com/" + newName };
+        }
+
+        browser.cloudFile.onFileRename.addListener(fileListener);
+        browser.test.sendMessage(
+          "renameFile",
+          createdAccount.id,
+          fileId,
+          "cloudFile3.txt"
+        );
+      });
+
+      browser.test.log("test rename error");
+      await new Promise(resolve => {
+        function fileListener(account, id, newName) {
+          browser.cloudFile.onFileRename.removeListener(fileListener);
+          browser.test.assertEq(account.id, createdAccount.id);
+          browser.test.assertEq(newName, "cloudFile3.txt");
+          setTimeout(() => resolve(id));
+          return { error: true };
+        }
+
+        browser.cloudFile.onFileRename.addListener(fileListener);
+        browser.test.sendMessage(
+          "renameFile",
+          createdAccount.id,
+          fileId,
+          "cloudFile3.txt",
+          "renameErr",
+          "Rename error."
+        );
+      });
+
+      browser.test.log("test rename error with message");
+      await new Promise(resolve => {
+        function fileListener(account, id, newName) {
+          browser.cloudFile.onFileRename.removeListener(fileListener);
+          browser.test.assertEq(account.id, createdAccount.id);
+          browser.test.assertEq(newName, "cloudFile3.txt");
+          setTimeout(() => resolve(id));
+          return { error: "Service currently unavailable." };
+        }
+
+        browser.cloudFile.onFileRename.addListener(fileListener);
+        browser.test.sendMessage(
+          "renameFile",
+          createdAccount.id,
+          fileId,
+          "cloudFile3.txt",
+          "renameErrWithCustomMessage",
+          "Service currently unavailable."
+        );
       });
 
       browser.test.log("test upload aborted");
@@ -195,7 +292,7 @@ add_task(async () => {
     // Tests to run
     await test_account_creation_removal();
     await test_getters_update();
-    await test_upload_delete();
+    await test_upload_rename_delete();
 
     browser.test.notifyPass("cloudFile");
   }
@@ -261,6 +358,43 @@ add_task(async () => {
     }
   );
 
+  extension.onMessage(
+    "renameFile",
+    (
+      id,
+      uploadId,
+      newName,
+      expectedErrorStatus = Cr.NS_OK,
+      expectedErrorMessage
+    ) => {
+      let account = cloudFileAccounts.getAccount(id);
+
+      if (typeof expectedErrorStatus == "string") {
+        expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
+      }
+
+      account.renameFile(null, uploadId, newName).then(
+        upload => {
+          Assert.equal(Cr.NS_OK, expectedErrorStatus);
+          Assert.equal(upload.name, newName, "New name should match.");
+          Assert.equal(
+            upload.url,
+            `https://example.com/${newName}`,
+            "New url should match."
+          );
+        },
+        status => {
+          Assert.equal(status.result, expectedErrorStatus);
+          Assert.equal(
+            status.message,
+            expectedErrorMessage,
+            `Error message should be correct.`
+          );
+        }
+      );
+    }
+  );
+
   extension.onMessage("cancelUpload", id => {
     let account = cloudFileAccounts.getAccount(id);
     account.cancelFileUpload(null, testFiles.cloudFile2);
@@ -284,8 +418,9 @@ add_task(async () => {
 });
 
 /**
- * Test the tab parameter in cloudFile.onFileUpload, cloudFile.onFileDeleted and
- * cloudFile.onFileUploadAbort listeners with UI interaction.
+ * Test the tab parameter in cloudFile.onFileUpload, cloudFile.onFileDeleted,
+ * cloudFile.onFileRename and cloudFile.onFileUploadAbort listeners with UI
+ * interaction.
  */
 add_task(async () => {
   let testFiles = {
@@ -308,7 +443,7 @@ add_task(async () => {
       return deleteListener;
     }
 
-    async function test_tab_in_upload_abort_delete_listener(composeTab) {
+    async function test_tab_in_upload_rename_abort_delete_listener(composeTab) {
       browser.test.log("test_upload_delete");
       let [createdAccount] = await createCloudfileAccount(
         "ext-cloudfile@mochitest"
@@ -331,6 +466,26 @@ add_task(async () => {
 
         browser.cloudFile.onFileUpload.addListener(fileListener);
         browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile1");
+      });
+
+      browser.test.log("test rename");
+      await new Promise(resolve => {
+        function fileListener(account, id, newName, tab) {
+          browser.cloudFile.onFileRename.removeListener(fileListener);
+          browser.test.assertEq(tab.id, composeTab.id);
+          browser.test.assertEq(account.id, createdAccount.id);
+          browser.test.assertEq(newName, "cloudFile3.txt");
+          setTimeout(() => resolve(id));
+          return { url: "https://example.com/" + newName };
+        }
+
+        browser.cloudFile.onFileRename.addListener(fileListener);
+        browser.test.sendMessage(
+          "renameFile",
+          createdAccount.id,
+          fileId,
+          "cloudFile3.txt"
+        );
       });
 
       browser.test.log("test upload aborted");
@@ -388,7 +543,7 @@ add_task(async () => {
     let composerTabs = await browser.tabs.query({
       windowType: "messageCompose",
     });
-    await test_tab_in_upload_abort_delete_listener(composerTabs[0]);
+    await test_tab_in_upload_rename_abort_delete_listener(composerTabs[0]);
 
     browser.test.notifyPass("finished");
   }
@@ -441,6 +596,43 @@ add_task(async () => {
             status.message,
             expectedErrorMessage,
             `Error message should be correct for ${testFiles[filename].leafName}`
+          );
+        }
+      );
+    }
+  );
+
+  extension.onMessage(
+    "renameFile",
+    (
+      id,
+      uploadId,
+      newName,
+      expectedErrorStatus = Cr.NS_OK,
+      expectedErrorMessage
+    ) => {
+      let cloudFileAccount = cloudFileAccounts.getAccount(id);
+
+      if (typeof expectedErrorStatus == "string") {
+        expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
+      }
+
+      cloudFileAccount.renameFile(composeWindow, uploadId, newName).then(
+        upload => {
+          Assert.equal(Cr.NS_OK, expectedErrorStatus);
+          Assert.equal(upload.name, newName, "New name should match.");
+          Assert.equal(
+            upload.url,
+            `https://example.com/${newName}`,
+            "New url should match."
+          );
+        },
+        status => {
+          Assert.equal(status.result, expectedErrorStatus);
+          Assert.equal(
+            status.message,
+            expectedErrorMessage,
+            `Error message should be correct.`
           );
         }
       );

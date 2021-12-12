@@ -12,6 +12,7 @@ var gCloudAttachmentLinkManager = {
     bucket.addEventListener("attachment-uploaded", this);
     bucket.addEventListener("attachments-removed", this);
     bucket.addEventListener("attachments-converted-to-regular", this);
+    bucket.addEventListener("attachment-renamed", this);
 
     // If we're restoring a draft that has some attachments,
     // check to see if any of them are marked to be sent via
@@ -34,7 +35,26 @@ var gCloudAttachmentLinkManager = {
   handleEvent(event) {
     let mailDoc = document.getElementById("content-frame").contentDocument;
 
-    if (event.type == "attachment-uploaded") {
+    if (event.type == "attachment-renamed") {
+      let cloudFileUpload = event.target.cloudFileUpload;
+      let attachment = event.target.attachment;
+      let items = [];
+
+      let list = mailDoc.getElementById("cloudAttachmentList");
+      if (list) {
+        items = list.getElementsByClassName("cloudAttachmentItem");
+      }
+      for (let item of items) {
+        if (item.contentLocation == attachment.contentLocation) {
+          // We did not update contentLocation in RenameSelectedAttachment(), to
+          // be able to find the old entry here. Update now.
+          attachment.contentLocation = cloudFileUpload.url;
+          item.replaceWith(
+            this._createNode(mailDoc, attachment, cloudFileUpload)
+          );
+        }
+      }
+    } else if (event.type == "attachment-uploaded") {
       if (this.cloudAttachments.length == 0) {
         this._insertHeader(mailDoc);
       }
@@ -56,9 +76,9 @@ var gCloudAttachmentLinkManager = {
       for (let attachment of event.detail) {
         // Remove the attachment from the message body.
         if (list) {
-          for (let i = 0; i < items.length; i++) {
-            if (items[i].contentLocation == attachment.contentLocation) {
-              items[i].remove();
+          for (let item of items) {
+            if (item.contentLocation == attachment.contentLocation) {
+              item.remove();
             }
           }
         }
@@ -369,9 +389,6 @@ var gCloudAttachmentLinkManager = {
    * @param aDocument the document to insert the item into
    * @param aAttachment the nsIMsgAttachment to insert
    * @param aCloudFileUpload object with information about the uploaded file,
-   * @param aCloudFileUpload.serviceName name of the service
-   * @param aCloudFileUpload.serviceIcon URL pointing to the service's icon
-   * @param aCloudFileUpload.serviceURL URL pointing to the service's webpage
    */
   _insertItem(aDocument, aAttachment, aCloudFileUpload) {
     let list = aDocument.getElementById("cloudAttachmentList");
@@ -381,6 +398,23 @@ var gCloudAttachmentLinkManager = {
       list = aDocument.getElementById("cloudAttachmentList");
     }
 
+    this._updateAttachmentCount(aDocument);
+    list.appendChild(
+      this._createNode(aDocument, aAttachment, aCloudFileUpload)
+    );
+  },
+
+  /**
+   * Create the link node for a cloud attachment.
+   *
+   * @param aDocument the document to insert the item into
+   * @param aAttachment the nsIMsgAttachment to insert
+   * @param aCloudFileUpload object with information about the uploaded file,
+   * @param aCloudFileUpload.serviceName name of the service
+   * @param aCloudFileUpload.serviceIcon URL pointing to the service's icon
+   * @param aCloudFileUpload.serviceURL URL pointing to the service's webpage
+   */
+  _createNode(aDocument, aAttachment, aCloudFileUpload) {
     let node = aDocument.createElement(gMsgCompose.composeHTML ? "li" : "div");
     node.className = "cloudAttachmentItem";
     node.contentLocation = aAttachment.contentLocation;
@@ -490,9 +524,7 @@ var gCloudAttachmentLinkManager = {
         ]
       );
     }
-
-    this._updateAttachmentCount(aDocument);
-    list.appendChild(node);
+    return node;
   },
 
   /**

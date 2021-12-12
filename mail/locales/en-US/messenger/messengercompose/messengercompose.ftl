@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Addressing widget
+## Addressing widget
 
 #   $type (String) - the type of the addressing row
 remove-address-row-button =
@@ -49,7 +49,7 @@ pill-action-expand-list =
     .label = Expand List
     .accesskey = x
 
-# Attachment widget
+## Attachment widget
 
 ctrl-cmd-shift-pretty-prefix = {
   PLATFORM() ->
@@ -106,7 +106,7 @@ drop-file-label-inline = { $count ->
    *[other] Insert inline
 }
 
-# Reorder Attachment Panel
+## Reorder Attachment Panel
 
 move-attachment-first-panel-button =
     .label = Move First
@@ -121,14 +121,14 @@ button-return-receipt =
     .label = Receipt
     .tooltiptext = Request a return receipt for this message
 
-# Encryption
+## Encryption
 
 message-to-be-signed-icon =
     .alt = Sign message
 message-to-be-encrypted-icon =
     .alt = Encrypt message
 
-# Addressing Area
+## Addressing Area
 
 to-address-row-label =
     .value = To
@@ -232,3 +232,21 @@ encrypted-bcc-ignore-button = Understood
 
 compose-tool-button-remove-text-styling =
   .tooltiptext = Remove Text Styling
+
+## FileLink messages
+
+# $provider (string) - name of the online storage service that reported the error
+# $filename (string) - name of the file that was uploaded and caused the error
+cloud-file-upload-error-with-custom-message-title = Uploading { $filename } to { $provider } Failed
+
+# $provider (string) - name of the online storage service that reported the error
+# $filename (string) - name of the file that was renamed and caused the error
+cloud-file-rename-error-title = Rename Error
+cloud-file-rename-error = There was a problem renaming { $filename } on { $provider }.
+
+# $provider (string) - name of the online storage service that reported the error
+# $filename (string) - name of the file that was renamed and caused the error
+cloud-file-rename-error-with-custom-message-title = Renaming { $filename } on { $provider } Failed
+
+# $provider (string) - name of the online storage service that reported the error
+cloud-file-rename-not-supported = { $provider } does not support renaming already uploaded files.

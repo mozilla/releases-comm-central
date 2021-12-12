@@ -19,6 +19,7 @@ var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kDefaults = {
   type: "default",
@@ -67,29 +68,59 @@ function MockCloudfileAccount() {
 
 MockCloudfileAccount.prototype = {
   nextId: 1,
+  _uploads: new Map(),
 
   init(aAccountKey, aOverrides = {}) {
     for (let override in aOverrides) {
       this[override] = aOverrides[override];
     }
     this.accountKey = aAccountKey;
+
+    Services.prefs.setCharPref(
+      "mail.cloud_files.accounts." + aAccountKey + ".displayName",
+      aAccountKey
+    );
+    Services.prefs.setCharPref(
+      "mail.cloud_files.accounts." + aAccountKey + ".type",
+      aAccountKey
+    );
+  },
+
+  renameFile(window, uploadId, newName) {
+    if (this.renameError) {
+      throw this.renameError;
+    }
+
+    let upload = this._uploads.get(uploadId);
+    upload.url = `http://www.example.com/${this.accountKey}/${newName}`;
+    upload.name = newName;
+    return upload;
   },
 
   uploadFile(window, aFile) {
+    if (this.uploadError) {
+      return Promise.reject(this.uploadError);
+    }
+
     return new Promise((resolve, reject) => {
+      let upload = {
+        // Values used in the WebExtension CloudFile type.
+        id: this.nextId++,
+        url: this.urlForFile(aFile),
+        name: aFile.leafName,
+        // Properties of the local file.
+        leafName: aFile.leafName,
+        path: aFile.path,
+        // Use aOverrides to set these.
+        serviceIcon: this.serviceIcon || this.iconURL,
+        serviceName: this.serviceName || this.displayName,
+        serviceURL: this.serviceURL || "",
+      };
+      this._uploads.set(upload.id, upload);
       gMockCloudfileManager.inProgressUploads.add({
         resolve,
         reject,
-        resolveData: {
-          id: this.nextId++,
-          url: this.urlForFile(aFile),
-          path: aFile.path,
-          leafName: aFile.leafName,
-          // Use aOverrides to set these.
-          serviceIcon: this.serviceIcon || this.iconURL,
-          serviceName: this.serviceName || this.displayName,
-          serviceURL: this.serviceURL || "",
-        },
+        resolveData: upload,
       });
     });
   },

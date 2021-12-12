@@ -7,6 +7,7 @@
 const EXPORTED_SYMBOLS = [
   "add_attachments",
   "add_cloud_attachments",
+  "rename_selected_cloud_attachment",
   "convert_selected_to_cloud_attachment",
   "assert_previous_text",
   "async_wait_for_compose_window",
@@ -48,14 +49,15 @@ var { get_notification } = ChromeUtils.import(
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
-var { TestUtils } = ChromeUtils.import(
-  "resource://testing-common/TestUtils.jsm"
-);
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
 );
+var { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
+);
 
-var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kTextNodeType = 3;
 
@@ -450,6 +452,60 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
 }
 
 /**
+ * Rename the selected cloud (filelink) attachment
+ *
+ * @param aController    The controller of the composition window in question.
+ * @param aName          The requested new name for the attachment.
+ *
+ */
+function rename_selected_cloud_attachment(aController, aName) {
+  let bucket = aController.e("attachmentBucket");
+  let attachmentRenamed = false;
+  let upload = null;
+  let seenAlert = null;
+
+  function getRenamedUpload(event) {
+    upload = event.target.cloudFileUpload;
+    attachmentRenamed = true;
+  }
+
+  /** @implements {nsIPromptService} */
+  let mockPromptService = {
+    value: "",
+    prompt(window, title, message, rv) {
+      rv.value = this.value;
+      return true;
+    },
+    alert(window, title, message) {
+      seenAlert = { title, message };
+    },
+    QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
+  };
+
+  bucket.addEventListener("attachment-renamed", getRenamedUpload, {
+    once: true,
+  });
+
+  let originalPromptService = Services.prompt;
+  Services.prompt = mockPromptService;
+  Services.prompt.value = aName;
+  aController.window.RenameSelectedAttachment();
+
+  aController.waitFor(
+    () => attachmentRenamed || seenAlert,
+    "Couldn't rename attachment"
+  );
+  Services.prompt = originalPromptService;
+
+  aController.sleep(0);
+  if (seenAlert) {
+    return seenAlert;
+  }
+
+  return upload;
+}
+
+/**
  * Convert the selected attachment to a cloud (filelink) attachment
  *
  * @param aController    The controller of the composition window in question.
@@ -528,13 +584,21 @@ function convert_selected_to_cloud_attachment(
 /**
  * Add a cloud (filelink) attachment to the compose window.
  *
- * @param aController    The controller of the composition window in question.
- * @param aProvider      The provider account to upload to, with files to be uploaded.
- * @param aWaitUploaded (optional)  True to wait for the attachments to be uploaded, false otherwise.
+ * @param aController - The controller of the composition window in question.
+ * @param aProvider - The provider account to upload to, with files to be uploaded.
+ * @param [aWaitUploaded] - True to wait for the attachments to be uploaded,
+ *   false otherwise.
+ * @param [aExpectedAlerts] - The number of expected alert prompts.
  */
-function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
+function add_cloud_attachments(
+  aController,
+  aProvider,
+  aWaitUploaded = true,
+  aExpectedAlerts = 0
+) {
   let bucket = aController.e("attachmentBucket");
   let uploads = [];
+  let seenAlerts = [];
   let attachmentsSubmitted = false;
   function uploadAttachments(event) {
     attachmentsSubmitted = true;
@@ -571,14 +635,36 @@ function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
     attachmentCount--;
   }
 
-  bucket.addEventListener("attachments-uploading", uploadAttachments, {
-    once: true,
-  });
+  /** @implements {nsIPromptService} */
+  let mockPromptService = {
+    confirmEx(window, title, message) {
+      seenAlerts.push({ title, message });
+      return false;
+    },
+    QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
+  };
+
+  if (!aExpectedAlerts) {
+    bucket.addEventListener("attachments-uploading", uploadAttachments, {
+      once: true,
+    });
+  }
+
+  let originalPromptService = Services.prompt;
+  Services.prompt = mockPromptService;
   aController.window.attachToCloudNew(aProvider);
+
   aController.waitFor(
-    () => attachmentsSubmitted,
+    () =>
+      attachmentsSubmitted ||
+      (aExpectedAlerts && seenAlerts.length == aExpectedAlerts),
     "Couldn't attach attachments for upload"
   );
+  Services.prompt = originalPromptService;
+  if (seenAlerts.length > 0) {
+    return seenAlerts;
+  }
+
   if (aWaitUploaded) {
     uploads = gMockCloudfileManager.resolveUploads();
     aController.waitFor(

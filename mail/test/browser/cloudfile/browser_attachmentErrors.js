@@ -1,0 +1,335 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * Tests CloudFile alerts on errors.
+ */
+
+"use strict";
+
+var {
+  gMockFilePicker,
+  gMockFilePickReg,
+  select_attachments,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
+var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+);
+var {
+  add_cloud_attachments,
+  rename_selected_cloud_attachment,
+  close_compose_window,
+  open_compose_new_mail,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  add_message_to_folder,
+  create_message,
+  FAKE_SERVER_HOSTNAME,
+  get_special_folder,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+var kHtmlPrefKey = "mail.identity.default.compose_html";
+var kDefaultSigKey = "mail.identity.id1.htmlSigText";
+var kDefaultSig = "This is my signature.\n\nCheck out my website sometime!";
+var kFiles = ["./data/testFile1", "./data/testFile2"];
+
+var gInbox;
+
+function test_expected_included(actual, expected, description) {
+  Assert.equal(
+    actual.length,
+    expected.length,
+    `${description}: correct length`
+  );
+  for (let i = 0; i < expected.length; i++) {
+    for (let item of Object.keys(expected[i])) {
+      Assert.equal(
+        actual[i][item],
+        expected[i][item],
+        `${description}: ${item} exists and is correct`
+      );
+    }
+  }
+}
+
+add_task(function setupModule(module) {
+  requestLongerTimeout(3);
+
+  // These prefs can't be set in the manifest as they contain white-space.
+  Services.prefs.setStringPref(
+    "mail.identity.id1.htmlSigText",
+    "Tinderbox is soo 90ies"
+  );
+  Services.prefs.setStringPref(
+    "mail.identity.id2.htmlSigText",
+    "Tinderboxpushlog is the new <b>hotness!</b>"
+  );
+
+  // For replies and forwards, we'll work off a message in the Inbox folder
+  // of the fake "tinderbox" account.
+  let server = MailServices.accounts.FindServer(
+    "tinderbox",
+    FAKE_SERVER_HOSTNAME,
+    "pop3"
+  );
+  gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
+  add_message_to_folder(gInbox, create_message());
+
+  gMockFilePickReg.register();
+  gMockCloudfileManager.register();
+
+  Services.prefs.setBoolPref(kHtmlPrefKey, true);
+
+  // Don't create paragraphs in the test.
+  // The test fails if it encounters paragraphs <p> instead of breaks <br>.
+  Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
+});
+
+registerCleanupFunction(function teardownModule(module) {
+  gMockCloudfileManager.unregister();
+  gMockFilePickReg.unregister();
+  Services.prefs.clearUserPref(kDefaultSigKey);
+  Services.prefs.clearUserPref(kHtmlPrefKey);
+  Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
+});
+
+/**
+ * Test that we get the correct alert message when the provider reports a custom
+ * error during upload operation.
+ */
+add_task(function test_custom_error_during_upload() {
+  subtest_errors_during_upload({
+    exception: Components.Exception(
+      "This is a custom error.",
+      cloudFileAccounts.constants.uploadErrWithCustomMessage
+    ),
+    expectedAlerts: [
+      {
+        title: "Uploading testFile1 to providerA Failed",
+        message: "This is a custom error.",
+      },
+      {
+        title: "Uploading testFile2 to providerA Failed",
+        message: "This is a custom error.",
+      },
+    ],
+  });
+});
+
+/**
+ * Test that we get the correct alert message when the provider reports a standard
+ * error during upload operation.
+ */
+add_task(function test_standard_error_during_upload() {
+  subtest_errors_during_upload({
+    exception: Components.Exception(
+      "This is a standard error.",
+      cloudFileAccounts.constants.uploadErr
+    ),
+    expectedAlerts: [
+      {
+        title: "Upload Error",
+        message: "Unable to upload testFile1 to providerA.",
+      },
+      {
+        title: "Upload Error",
+        message: "Unable to upload testFile2 to providerA.",
+      },
+    ],
+  });
+});
+
+/**
+ * Subtest for testing error messages during upload operation.
+ *
+ * @param error - defines the the thrown exception and the expected alert messagees
+ * @param error.exception - the exception to be thrown by uploadFile()
+ * @param error.expectedAlerts - array with { title, message } objects for expected
+ *   alerts for each uploaded file
+ */
+function subtest_errors_during_upload(error) {
+  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  let provider = new MockCloudfileAccount();
+  provider.init("providerA", {
+    serviceName: "MochiTest A",
+    serviceURL: "https://www.provider-A.org",
+    serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+    uploadError: error.exception,
+  });
+
+  let cw = open_compose_new_mail();
+  let seenAlerts = add_cloud_attachments(
+    cw,
+    provider,
+    false,
+    error.expectedAlerts.length
+  );
+
+  Assert.equal(
+    seenAlerts.length,
+    error.expectedAlerts.length,
+    "Should have seen the correct number of alerts."
+  );
+  for (let i = 0; i < error.expectedAlerts.length; i++) {
+    Assert.equal(
+      error.expectedAlerts[i].title,
+      seenAlerts[i].title,
+      "Alert should have the correct title."
+    );
+    Assert.equal(
+      error.expectedAlerts[i].message,
+      seenAlerts[i].message,
+      "Alert should have the correct message."
+    );
+  }
+  close_compose_window(cw);
+}
+
+/**
+ * Test that we get the correct alert message when an the provider does not support
+ * renaming.
+ */
+add_task(function test_nosupport_error_during_rename() {
+  subtest_errors_during_rename({
+    exception: Components.Exception(
+      "Rename not supported.",
+      cloudFileAccounts.constants.renameNotSupported
+    ),
+    expectedAlerts: [
+      {
+        title: "Rename Error",
+        message: "providerA does not support renaming already uploaded files.",
+      },
+      {
+        title: "Rename Error",
+        message: "providerA does not support renaming already uploaded files.",
+      },
+    ],
+  });
+});
+
+/**
+ * Test that we get the correct alert message when the provider reports a standard
+ * error during rename operation.
+ */
+add_task(function test_standard_error_during_rename() {
+  subtest_errors_during_rename({
+    exception: Components.Exception(
+      "Rename error.",
+      cloudFileAccounts.constants.renameErr
+    ),
+    expectedAlerts: [
+      {
+        title: "Rename Error",
+        message: "There was a problem renaming testFile1 on providerA.",
+      },
+      {
+        title: "Rename Error",
+        message: "There was a problem renaming testFile2 on providerA.",
+      },
+    ],
+  });
+});
+
+/**
+ * Test that we get the correct alert message when the provider reports a custom
+ * error during rename operation.
+ */
+add_task(function test_custom_error_during_rename() {
+  subtest_errors_during_rename({
+    exception: Components.Exception(
+      "This is a custom error.",
+      cloudFileAccounts.constants.renameErrWithCustomMessage
+    ),
+    expectedAlerts: [
+      {
+        title: "Renaming testFile1 on providerA Failed",
+        message: "This is a custom error.",
+      },
+      {
+        title: "Renaming testFile2 on providerA Failed",
+        message: "This is a custom error.",
+      },
+    ],
+  });
+});
+
+/**
+ * Subtest for testing error messages during rename operation.
+ *
+ * @param error - defines the the thrown exception and the expected alert messagees
+ * @param error.exception - the exception to be thrown by renameFile()
+ * @param error.expectedAlerts - array with { title, message } objects for each renamed file
+ */
+function subtest_errors_during_rename(error) {
+  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  let provider = new MockCloudfileAccount();
+  provider.init("providerA", {
+    serviceName: "MochiTest A",
+    serviceURL: "https://www.provider-A.org",
+    serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+    renameError: error.exception,
+  });
+
+  let cw = open_compose_new_mail();
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerA/testFile1",
+        name: "testFile1",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
+      },
+      {
+        url: "http://www.example.com/providerA/testFile2",
+        name: "testFile2",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
+      },
+    ],
+    `Expected values in uploads array before renaming the files`
+  );
+
+  // Try to rename each Filelink, ensuring that we get the correct alerts.
+  let seenAlerts = [];
+  for (let i = 0; i < kFiles.length; ++i) {
+    select_attachments(cw, i);
+    seenAlerts.push(rename_selected_cloud_attachment(cw, "IgnoredNewName"));
+  }
+
+  Assert.equal(
+    seenAlerts.length,
+    error.expectedAlerts.length,
+    "Should have seen the correct number of alerts."
+  );
+  for (let i = 0; i < error.expectedAlerts.length; i++) {
+    Assert.equal(
+      error.expectedAlerts[i].title,
+      seenAlerts[i].title,
+      "Alert should have the correct title."
+    );
+    Assert.equal(
+      error.expectedAlerts[i].message,
+      seenAlerts[i].message,
+      "Alert should have the correct message."
+    );
+  }
+  close_compose_window(cw);
+}

@@ -21,6 +21,7 @@ var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
 var {
   add_cloud_attachments,
   convert_selected_to_cloud_attachment,
+  rename_selected_cloud_attachment,
   assert_previous_text,
   close_compose_window,
   get_compose_body,
@@ -218,7 +219,7 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
       );
     } else {
       Assert.ok(
-        urls[i].textContent.startsWith(`* ${aUploads[i].leafName} (`),
+        urls[i].textContent.startsWith(`* ${aUploads[i].name} (`),
         "Part 1 of plainttext listitem is correct."
       );
       Assert.ok(
@@ -233,16 +234,16 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
     let items = Array.from(
       bucket.querySelectorAll(".attachmentItem"),
       item => item
-    ).filter(item => item.attachment.name == aUploads[i].leafName);
+    ).filter(item => item.attachment.name == aUploads[i].name);
     Assert.equal(
       items.length,
       1,
-      `Should find one matching bucket entry for ${aUploads[i].serviceName} / ${aUploads[i].leafName}.`
+      `Should find one matching bucket entry for ${aUploads[i].serviceName} / ${aUploads[i].name}.`
     );
     Assert.equal(
       items[0].querySelector("img.attachmentcell-icon").src,
       aUploads[i].serviceIcon,
-      `CloudFile icon should be correct for ${aUploads[i].serviceName} / ${aUploads[i].leafName}`
+      `CloudFile icon should be correct for ${aUploads[i].serviceName} / ${aUploads[i].name}`
     );
     Assert.equal(
       items[0].querySelector("span.attachmentcell-size").textContent,
@@ -291,14 +292,14 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
     [
       {
         url: "http://www.example.com/providerF/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest F",
         serviceURL: "https://www.provider-F.org",
       },
       {
         url: "http://www.example.com/providerF/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest F",
         serviceURL: "https://www.provider-F.org",
@@ -352,14 +353,14 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
     [
       {
         url: "http://www.example.com/providerG/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest G",
         serviceURL: "https://www.provider-G.org",
       },
       {
         url: "http://www.example.com/providerG/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest G",
         serviceURL: "https://www.provider-G.org",
@@ -449,14 +450,14 @@ function subtest_inserts_linebreak_on_empty_compose() {
     [
       {
         url: "http://www.example.com/someKey/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
         serviceURL: "",
       },
       {
         url: "http://www.example.com/someKey/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
         serviceURL: "",
@@ -503,14 +504,14 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
     [
       {
         url: "http://www.example.com/someKey/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
         serviceURL: "",
       },
       {
         url: "http://www.example.com/someKey/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
         serviceURL: "",
@@ -559,14 +560,14 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
     [
       {
         url: "http://www.example.com/someKey/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
         serviceURL: "",
       },
       {
         url: "http://www.example.com/someKey/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
         serviceURL: "",
@@ -662,14 +663,14 @@ function subtest_adding_filelinks_to_written_message() {
     [
       {
         url: "http://www.example.com/someKey/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
         serviceURL: "",
       },
       {
         url: "http://www.example.com/someKey/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
         serviceURL: "",
@@ -1050,14 +1051,14 @@ function subtest_converting_filelink_updates_urls() {
     [
       {
         url: "http://www.example.com/providerA/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
         serviceURL: "https://www.provider-A.org",
       },
       {
         url: "http://www.example.com/providerA/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
         serviceURL: "https://www.provider-A.org",
@@ -1078,14 +1079,14 @@ function subtest_converting_filelink_updates_urls() {
     [
       {
         url: "http://www.example.com/providerB/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "MochiTest B",
         serviceURL: "https://www.provider-B.org",
       },
       {
         url: "http://www.example.com/providerB/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "MochiTest B",
         serviceURL: "https://www.provider-B.org",
@@ -1095,6 +1096,90 @@ function subtest_converting_filelink_updates_urls() {
   );
   let [, , UrlsB] = wait_for_attachment_urls(cw, kFiles.length, uploads);
   Assert.notEqual(UrlsA, UrlsB, "The original URL should have been replaced");
+
+  close_compose_window(cw);
+}
+
+/**
+ * Test that if we rename a Filelink, that the old Filelink is removed, and a
+ * new Filelink is added. We test this on both HTML and plaintext mail.
+ */
+add_task(function test_renaming_filelink_updates_urls() {
+  try_with_plaintext_and_html_mail(subtest_renaming_filelink_updates_urls);
+});
+
+/**
+ * Subtest for test_renaming_filelink_updates_urls that uploads a file to a
+ * storage provider account, renames the upload, and ensures that the attachment
+ * links in the message body get get updated.
+ */
+function subtest_renaming_filelink_updates_urls() {
+  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  let provider = new MockCloudfileAccount();
+  provider.init("providerA", {
+    serviceName: "MochiTest A",
+    serviceURL: "https://www.provider-A.org",
+    serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+  });
+
+  let cw = open_compose_new_mail();
+  let uploads = add_cloud_attachments(cw, provider);
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerA/testFile1",
+        name: "testFile1",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
+      },
+      {
+        url: "http://www.example.com/providerA/testFile2",
+        name: "testFile2",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
+      },
+    ],
+    `Expected values in uploads array before renaming the files`
+  );
+
+  let [, , Urls1] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+
+  // Rename each Filelink, ensuring that the URLs are replaced.
+  let newNames = ["testFile1Renamed", "testFile2Renamed"];
+  uploads = [];
+  for (let i = 0; i < kFiles.length; ++i) {
+    select_attachments(cw, i);
+    uploads.push(rename_selected_cloud_attachment(cw, newNames[i]));
+  }
+
+  test_expected_included(
+    uploads,
+    [
+      {
+        url: "http://www.example.com/providerA/testFile1Renamed",
+        name: "testFile1Renamed",
+        leafName: "testFile1",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
+      },
+      {
+        url: "http://www.example.com/providerA/testFile2Renamed",
+        name: "testFile2Renamed",
+        leafName: "testFile2",
+        serviceIcon: "chrome://messenger/skin/icons/globe.svg",
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
+      },
+    ],
+    `Expected values in uploads array after renaming the files`
+  );
+
+  let [, , Urls2] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  Assert.notEqual(Urls1, Urls2, "The original URL should have been replaced");
 
   close_compose_window(cw);
 }
@@ -1131,14 +1216,14 @@ function subtest_converting_filelink_to_normal_removes_url() {
     [
       {
         url: "http://www.example.com/providerC/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest C",
         serviceURL: "https://www.provider-C.org",
       },
       {
         url: "http://www.example.com/providerC/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest C",
         serviceURL: "https://www.provider-C.org",
@@ -1204,14 +1289,14 @@ function subtest_filelinks_work_after_manual_removal() {
     [
       {
         url: "http://www.example.com/providerD/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest D",
         serviceURL: "https://www.provider-D.org",
       },
       {
         url: "http://www.example.com/providerD/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest D",
         serviceURL: "https://www.provider-D.org",
@@ -1231,7 +1316,7 @@ function subtest_filelinks_work_after_manual_removal() {
     [
       {
         url: "http://www.example.com/providerD/testFile3",
-        leafName: "testFile3",
+        name: "testFile3",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest D",
         serviceURL: "https://www.provider-D.org",
@@ -1283,14 +1368,14 @@ function subtest_insertion_restores_caret_point() {
     [
       {
         url: "http://www.example.com/providerE/testFile1",
-        leafName: "testFile1",
+        name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "MochiTest E",
         serviceURL: "https://www.provider-E.org",
       },
       {
         url: "http://www.example.com/providerE/testFile2",
-        leafName: "testFile2",
+        name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "MochiTest E",
         serviceURL: "https://www.provider-E.org",

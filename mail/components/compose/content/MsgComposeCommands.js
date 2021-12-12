@@ -1213,8 +1213,7 @@ var attachmentBucketController = {
       isEnabled() {
         return (
           gAttachmentBucket.selectedCount == 1 &&
-          !gAttachmentBucket.selectedItem.uploading &&
-          !gAttachmentBucket.selectedItem.attachment?.sendViaCloud
+          !gAttachmentBucket.selectedItem.uploading
         );
       },
       doCommand() {
@@ -2233,9 +2232,11 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
 
   let upload;
   let statusCode = Cr.NS_OK;
+  let statusMessage = null;
   try {
     upload = await cloudFileAccount.uploadFile(window, file, attachment.name);
   } catch (ex) {
+    statusMessage = ex.message;
     statusCode = ex.result;
   }
 
@@ -2287,6 +2288,16 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
         msg = bundle.getFormattedString("errorCloudFileAuth.message", [
           displayName,
         ]);
+        break;
+      case cloudFileAccounts.constants.uploadErrWithCustomMessage:
+        title = await l10nCompose.formatValue(
+          "cloud-file-upload-error-with-custom-message-title",
+          {
+            provider: displayName,
+            filename: attachment.name,
+          }
+        );
+        msg = statusMessage;
         break;
       case cloudFileAccounts.constants.uploadErr:
         title = bundle.getString("errorCloudFileUpload.title");
@@ -6975,14 +6986,15 @@ function RemoveAttachments(items) {
       : gAttachmentBucket.itemCount - 1;
 }
 
-function RenameSelectedAttachment() {
+async function RenameSelectedAttachment() {
   if (gAttachmentBucket.selectedItems.length != 1) {
     // Not one attachment selected.
     return;
   }
 
   let item = gAttachmentBucket.getSelectedItem(0);
-  let attachmentName = { value: item.attachment.name };
+  let originalName = item.attachment.name;
+  let attachmentName = { value: originalName };
   if (
     Services.prompt.prompt(
       window,
@@ -6993,12 +7005,71 @@ function RenameSelectedAttachment() {
       { value: 0 }
     )
   ) {
-    if (attachmentName.value == "") {
-      // Name was not filled, bail out.
+    if (attachmentName.value == "" || attachmentName.value == originalName) {
+      // Name was not filled nor changed, bail out.
       return;
     }
 
-    let originalName = item.attachment.name;
+    // Request rename of the file on the remote server.
+    if (item.cloudFileAccount && item.cloudFileUpload) {
+      try {
+        item.uploading = true;
+        gAttachmentBucket.refreshAttachmentIcon(item);
+        item.cloudFileUpload = await item.cloudFileAccount.renameFile(
+          window,
+          item.cloudFileUpload.id,
+          attachmentName.value
+        );
+      } catch (err) {
+        let bundle = getComposeBundle();
+        let title = await l10nCompose.formatValue(
+          "cloud-file-rename-error-title"
+        );
+        let msg;
+        let displayName = cloudFileAccounts.getDisplayName(
+          item.cloudFileAccount
+        );
+
+        switch (err.result) {
+          case cloudFileAccounts.constants.renameNotSupported:
+            msg = await l10nCompose.formatValue(
+              "cloud-file-rename-not-supported",
+              {
+                provider: displayName,
+              }
+            );
+            break;
+          case cloudFileAccounts.constants.renameErrWithCustomMessage:
+            title = await l10nCompose.formatValue(
+              "cloud-file-rename-error-with-custom-message-title",
+              {
+                provider: displayName,
+                filename: item.attachment.name,
+              }
+            );
+            msg = err.message;
+            break;
+          case cloudFileAccounts.constants.renameErr:
+            msg = await l10nCompose.formatValue("cloud-file-rename-error", {
+              provider: displayName,
+              filename: item.attachment.name,
+            });
+            break;
+          default:
+            title = bundle.getString("errorCloudFileOther.title");
+            msg = bundle.getFormattedString("errorCloudFileOther.message", [
+              displayName,
+            ]);
+            break;
+        }
+        Services.prompt.alert(window, title, msg);
+        return;
+      } finally {
+        item.uploading = false;
+        gAttachmentBucket.setCloudIcon(item, item.cloudFileUpload.serviceIcon);
+      }
+    }
+
     item.attachment.name = attachmentName.value;
     gAttachmentBucket.setAttachmentName(item, attachmentName.value);
 
