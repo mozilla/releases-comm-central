@@ -299,24 +299,27 @@ class CloudFileAccount {
       );
     }
 
-    if (results[0].error) {
-      if (typeof results[0].error == "boolean") {
-        throw Components.Exception(
-          "Rename error.",
-          cloudFileAccounts.constants.renameErr
-        );
-      } else {
-        throw Components.Exception(
-          results[0].error,
-          cloudFileAccounts.constants.renameErrWithCustomMessage
-        );
+    if (results[0]) {
+      if (results[0].error) {
+        if (typeof results[0].error == "boolean") {
+          throw Components.Exception(
+            "Rename error.",
+            cloudFileAccounts.constants.renameErr
+          );
+        } else {
+          throw Components.Exception(
+            results[0].error,
+            cloudFileAccounts.constants.renameErrWithCustomMessage
+          );
+        }
+      }
+
+      if (results[0].url) {
+        upload.url = results[0].url;
       }
     }
 
     upload.name = newName;
-    if (results[0].url) {
-      upload.url = results[0].url;
-    }
     return upload;
   }
 

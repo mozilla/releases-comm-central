@@ -209,7 +209,7 @@ add_task(async () => {
         uploadSizeLimit: -1,
       });
 
-      browser.test.log("test rename");
+      browser.test.log("test rename with url update");
       await new Promise(resolve => {
         function fileListener(account, id, newName) {
           browser.cloudFile.onFileRename.removeListener(fileListener);
@@ -220,12 +220,26 @@ add_task(async () => {
         }
 
         browser.cloudFile.onFileRename.addListener(fileListener);
-        browser.test.sendMessage(
-          "renameFile",
-          createdAccount.id,
-          fileId,
-          "cloudFile3.txt"
-        );
+        browser.test.sendMessage("renameFile", createdAccount.id, fileId, {
+          newName: "cloudFile3.txt",
+          newUrl: "https://example.com/cloudFile3.txt",
+        });
+      });
+
+      browser.test.log("test rename without url update");
+      await new Promise(resolve => {
+        function fileListener(account, id, newName) {
+          browser.cloudFile.onFileRename.removeListener(fileListener);
+          browser.test.assertEq(account.id, createdAccount.id);
+          browser.test.assertEq(newName, "cloudFile4.txt");
+          setTimeout(() => resolve(id));
+        }
+
+        browser.cloudFile.onFileRename.addListener(fileListener);
+        browser.test.sendMessage("renameFile", createdAccount.id, fileId, {
+          newName: "cloudFile4.txt",
+          newUrl: "https://example.com/cloudFile3.txt",
+        });
       });
 
       browser.test.log("test rename error");
@@ -233,7 +247,7 @@ add_task(async () => {
         function fileListener(account, id, newName) {
           browser.cloudFile.onFileRename.removeListener(fileListener);
           browser.test.assertEq(account.id, createdAccount.id);
-          browser.test.assertEq(newName, "cloudFile3.txt");
+          browser.test.assertEq(newName, "cloudFile5.txt");
           setTimeout(() => resolve(id));
           return { error: true };
         }
@@ -243,7 +257,7 @@ add_task(async () => {
           "renameFile",
           createdAccount.id,
           fileId,
-          "cloudFile3.txt",
+          { newName: "cloudFile5.txt" },
           "renameErr",
           "Rename error."
         );
@@ -254,7 +268,7 @@ add_task(async () => {
         function fileListener(account, id, newName) {
           browser.cloudFile.onFileRename.removeListener(fileListener);
           browser.test.assertEq(account.id, createdAccount.id);
-          browser.test.assertEq(newName, "cloudFile3.txt");
+          browser.test.assertEq(newName, "cloudFile5.txt");
           setTimeout(() => resolve(id));
           return { error: "Service currently unavailable." };
         }
@@ -264,7 +278,7 @@ add_task(async () => {
           "renameFile",
           createdAccount.id,
           fileId,
-          "cloudFile3.txt",
+          { newName: "cloudFile5.txt" },
           "renameErrWithCustomMessage",
           "Service currently unavailable."
         );
@@ -423,7 +437,7 @@ add_task(async () => {
     (
       id,
       uploadId,
-      newName,
+      { newName, newUrl },
       expectedErrorStatus = Cr.NS_OK,
       expectedErrorMessage
     ) => {
@@ -437,11 +451,7 @@ add_task(async () => {
         upload => {
           Assert.equal(Cr.NS_OK, expectedErrorStatus);
           Assert.equal(upload.name, newName, "New name should match.");
-          Assert.equal(
-            upload.url,
-            `https://example.com/${newName}`,
-            "New url should match."
-          );
+          Assert.equal(upload.url, newUrl, "New url should match.");
         },
         status => {
           Assert.equal(status.result, expectedErrorStatus);
@@ -528,7 +538,7 @@ add_task(async () => {
         browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile1");
       });
 
-      browser.test.log("test rename");
+      browser.test.log("test rename with Url update");
       await new Promise(resolve => {
         function fileListener(account, id, newName, tab) {
           browser.cloudFile.onFileRename.removeListener(fileListener);
@@ -540,12 +550,10 @@ add_task(async () => {
         }
 
         browser.cloudFile.onFileRename.addListener(fileListener);
-        browser.test.sendMessage(
-          "renameFile",
-          createdAccount.id,
-          fileId,
-          "cloudFile3.txt"
-        );
+        browser.test.sendMessage("renameFile", createdAccount.id, fileId, {
+          newName: "cloudFile3.txt",
+          newUrl: "https://example.com/cloudFile3.txt",
+        });
       });
 
       browser.test.log("test upload aborted");
@@ -667,7 +675,7 @@ add_task(async () => {
     (
       id,
       uploadId,
-      newName,
+      { newName, newUrl },
       expectedErrorStatus = Cr.NS_OK,
       expectedErrorMessage
     ) => {
@@ -681,11 +689,7 @@ add_task(async () => {
         upload => {
           Assert.equal(Cr.NS_OK, expectedErrorStatus);
           Assert.equal(upload.name, newName, "New name should match.");
-          Assert.equal(
-            upload.url,
-            `https://example.com/${newName}`,
-            "New url should match."
-          );
+          Assert.equal(upload.url, newUrl, "New url should match.");
         },
         status => {
           Assert.equal(status.result, expectedErrorStatus);
