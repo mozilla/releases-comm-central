@@ -230,10 +230,8 @@
      * @type {number}
      */
     set pixelsPerMinute(val) {
-      if (val != this._pixelsPerMinute) {
-        this._pixelsPerMinute = val;
-        this.relayout();
-      }
+      this._pixelsPerMinute = val;
+      this.relayout();
     }
 
     get pixelsPerMinute() {
@@ -1916,8 +1914,6 @@
      */
     headerPositionsOutdated = true;
 
-    mMinPixelsPerMinute = 0.1;
-
     mSelectedDayCol = null;
     mSelectedDay = null;
 
@@ -1939,6 +1935,13 @@
      * @type {number}
      */
     visibleHours = 9;
+
+    /**
+     * The number of pixels that a one minute duration should occupy in the
+     * view.
+     * @type {number}
+     */
+    pixelsPerMinute;
 
     /**
      * The timebar hour box elements in this view, ordered and indexed by their
@@ -2184,37 +2187,6 @@
       return this.mClickedTime;
     }
 
-    /**
-     * The number of pixels that a one minute duration should occupy in the
-     * view. This must be reset whenever the view is rotated.
-     * @type {number}
-     */
-    set pixelsPerMinute(ppm) {
-      if (ppm == this._pixelsPerMinute) {
-        return;
-      }
-
-      this._pixelsPerMinute = ppm;
-
-      let orient = this.getAttribute("orient");
-      let dayPx = `${MINUTES_IN_DAY * this.pixelsPerMinute}px`;
-      if (orient == "vertical") {
-        this.timebar.style.height = dayPx;
-        this.timebar.style.width = null;
-      } else {
-        this.timebar.style.width = dayPx;
-        this.timebar.style.height = null;
-      }
-
-      for (const col of this.dayColumns) {
-        col.column.pixelsPerMinute = ppm;
-      }
-    }
-
-    get pixelsPerMinute() {
-      return this._pixelsPerMinute;
-    }
-
     // Private
 
     get numVisibleDates() {
@@ -2434,6 +2406,34 @@
       let isHorizontal = this.getAttribute("orient") == "horizontal";
       let ppmHasChanged = false;
       if ((isHorizontal && horizontalResize) || (!isHorizontal && verticalResize)) {
+        if (isHorizontal && !this.timebarMinWidth) {
+          // Measure the minimum width such that the time labels do not overflow
+          // and are equal width.
+          this.timebar.style.height = null;
+          this.timebar.style.width = "min-content";
+          let maxWidth = 0;
+          for (let hourBox of this.hourBoxes) {
+            maxWidth = Math.max(maxWidth, hourBox.getBoundingClientRect().width);
+          }
+          // NOTE: We assume no margin between the boxes.
+          this.timebarMinWidth = maxWidth * this.hourBoxes.length;
+          // width should be set to the correct value below when the
+          // pixelsPerMinute changes.
+        } else if (!isHorizontal && !this.timebarMinHeight) {
+          // Measure the minimum height such that the time labels do not
+          // overflow and are equal height.
+          this.timebar.style.width = null;
+          this.timebar.style.height = "min-content";
+          let maxHeight = 0;
+          for (let hourBox of this.hourBoxes) {
+            maxHeight = Math.max(maxHeight, hourBox.getBoundingClientRect().height);
+          }
+          // NOTE: We assume no margin between the boxes.
+          this.timebarMinHeight = maxHeight * this.hourBoxes.length;
+          // height should be set to the correct value below when the
+          // pixelsPerMinute changes.
+        }
+
         // We want to know how much visible space is available in the
         // "time-direction" of this view's scrollable area, which will be used
         // to show 'this.visibleHour' hours in the timebar.
@@ -2447,12 +2447,29 @@
         // cases (e.g. scrollbar being added from a time-direction overflow also
         // causes the non-time-direction to overflow).
         let scrollArea = this.getScrollAreaRect();
-        let timeDirectionSize = isHorizontal
-          ? scrollArea.right - scrollArea.left
-          : scrollArea.bottom - scrollArea.top;
-        let ppm = Math.max(this.mMinPixelsPerMinute, timeDirectionSize / (this.visibleHours * 60));
-        ppmHasChanged = this.pixelsPerMinute != ppm;
-        this.pixelsPerMinute = ppm;
+        let dayScale = 24 / this.visibleHours;
+        let dayPixels = isHorizontal
+          ? Math.max((scrollArea.right - scrollArea.left) * dayScale, this.timebarMinWidth)
+          : Math.max((scrollArea.bottom - scrollArea.top) * dayScale, this.timebarMinHeight);
+        let pixelsPerMinute = dayPixels / MINUTES_IN_DAY;
+        if (pixelsPerMinute != this.pixelsPerMinute) {
+          ppmHasChanged = true;
+          this.pixelsPerMinute = pixelsPerMinute;
+
+          // Use the same calculation as in the event columns.
+          let dayPx = `${MINUTES_IN_DAY * pixelsPerMinute}px`;
+          if (isHorizontal) {
+            this.timebar.style.width = dayPx;
+            this.timebar.style.height = null;
+          } else {
+            this.timebar.style.height = dayPx;
+            this.timebar.style.width = null;
+          }
+
+          for (const col of this.dayColumns) {
+            col.column.pixelsPerMinute = pixelsPerMinute;
+          }
+        }
 
         // Scroll to the given minute.
         this.scrollToMinute(scrollMinute);
