@@ -3,9 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.clearTimeout = clearTimeout;
 exports.setNow = setNow;
 exports.setTimeout = setTimeout;
-exports.clearTimeout = clearTimeout;
 
 var _logger = require("./logger");
 
@@ -38,15 +38,14 @@ limitations under the License.
 // some wall-clock time due to being suspended.
 const TIMER_CHECK_PERIOD_MS = 1000; // counter, for making up ids to return from setTimeout
 
-let _count = 0; // the key for our callback with the real global.setTimeout
+let count = 0; // the key for our callback with the real global.setTimeout
 
-let _realCallbackKey; // a sorted list of the callbacks to be run.
+let realCallbackKey; // a sorted list of the callbacks to be run.
 // each is an object with keys [runAt, func, params, key].
 
+const callbackList = []; // var debuglog = logger.log.bind(logger);
 
-const _callbackList = []; // var debuglog = logger.log.bind(logger);
-
-const debuglog = function () {};
+const debuglog = function (...params) {};
 /**
  * Replace the function used by this module to get the current time.
  *
@@ -59,10 +58,10 @@ const debuglog = function () {};
 
 
 function setNow(f) {
-  _now = f || Date.now;
+  now = f || Date.now;
 }
 
-let _now = Date.now;
+let now = Date.now;
 /**
  * reimplementation of window.setTimeout, which will call the callback if
  * the wallclock time goes past the deadline.
@@ -74,16 +73,15 @@ let _now = Date.now;
  *                   clearTimeout later.
  */
 
-function setTimeout(func, delayMs) {
+function setTimeout(func, delayMs, ...params) {
   delayMs = delayMs || 0;
 
   if (delayMs < 0) {
     delayMs = 0;
   }
 
-  const params = Array.prototype.slice.call(arguments, 2);
-  const runAt = _now() + delayMs;
-  const key = _count++;
+  const runAt = now() + delayMs;
+  const key = count++;
   debuglog("setTimeout: scheduling cb", key, "at", runAt, "(delay", delayMs, ")");
   const data = {
     runAt: runAt,
@@ -92,14 +90,11 @@ function setTimeout(func, delayMs) {
     key: key
   }; // figure out where it goes in the list
 
-  const idx = binarySearch(_callbackList, function (el) {
+  const idx = binarySearch(callbackList, function (el) {
     return el.runAt - runAt;
   });
-
-  _callbackList.splice(idx, 0, data);
-
-  _scheduleRealCallback();
-
+  callbackList.splice(idx, 0, data);
+  scheduleRealCallback();
   return key;
 }
 /**
@@ -110,74 +105,70 @@ function setTimeout(func, delayMs) {
 
 
 function clearTimeout(key) {
-  if (_callbackList.length === 0) {
+  if (callbackList.length === 0) {
     return;
   } // remove the element from the list
 
 
   let i;
 
-  for (i = 0; i < _callbackList.length; i++) {
-    const cb = _callbackList[i];
+  for (i = 0; i < callbackList.length; i++) {
+    const cb = callbackList[i];
 
     if (cb.key == key) {
-      _callbackList.splice(i, 1);
-
+      callbackList.splice(i, 1);
       break;
     }
   } // iff it was the first one in the list, reschedule our callback.
 
 
   if (i === 0) {
-    _scheduleRealCallback();
+    scheduleRealCallback();
   }
-} // use the real global.setTimeout to schedule a callback to _runCallbacks.
+} // use the real global.setTimeout to schedule a callback to runCallbacks.
 
 
-function _scheduleRealCallback() {
-  if (_realCallbackKey) {
-    global.clearTimeout(_realCallbackKey);
+function scheduleRealCallback() {
+  if (realCallbackKey) {
+    global.clearTimeout(realCallbackKey);
   }
 
-  const first = _callbackList[0];
+  const first = callbackList[0];
 
   if (!first) {
-    debuglog("_scheduleRealCallback: no more callbacks, not rescheduling");
+    debuglog("scheduleRealCallback: no more callbacks, not rescheduling");
     return;
   }
 
-  const now = _now();
-
-  const delayMs = Math.min(first.runAt - now, TIMER_CHECK_PERIOD_MS);
-  debuglog("_scheduleRealCallback: now:", now, "delay:", delayMs);
-  _realCallbackKey = global.setTimeout(_runCallbacks, delayMs);
+  const timestamp = now();
+  const delayMs = Math.min(first.runAt - timestamp, TIMER_CHECK_PERIOD_MS);
+  debuglog("scheduleRealCallback: now:", timestamp, "delay:", delayMs);
+  realCallbackKey = global.setTimeout(runCallbacks, delayMs);
 }
 
-function _runCallbacks() {
+function runCallbacks() {
   let cb;
+  const timestamp = now();
+  debuglog("runCallbacks: now:", timestamp); // get the list of things to call
 
-  const now = _now();
-
-  debuglog("_runCallbacks: now:", now); // get the list of things to call
-
-  const callbacksToRun = [];
+  const callbacksToRun = []; // eslint-disable-next-line
 
   while (true) {
-    const first = _callbackList[0];
+    const first = callbackList[0];
 
-    if (!first || first.runAt > now) {
+    if (!first || first.runAt > timestamp) {
       break;
     }
 
-    cb = _callbackList.shift();
-    debuglog("_runCallbacks: popping", cb.key);
+    cb = callbackList.shift();
+    debuglog("runCallbacks: popping", cb.key);
     callbacksToRun.push(cb);
   } // reschedule the real callback before running our functions, to
   // keep the codepaths the same whether or not our functions
   // register their own setTimeouts.
 
 
-  _scheduleRealCallback();
+  scheduleRealCallback();
 
   for (let i = 0; i < callbacksToRun.length; i++) {
     cb = callbacksToRun[i];

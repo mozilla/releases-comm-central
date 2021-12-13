@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DeviceList = exports.TrackingStatus = void 0;
+exports.TrackingStatus = exports.DeviceList = void 0;
 
 var _events = require("events");
 

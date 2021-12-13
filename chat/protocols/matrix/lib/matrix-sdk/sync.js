@@ -117,6 +117,7 @@ class SyncApi {
     this.opts.resolveInvitesToProfiles = this.opts.resolveInvitesToProfiles || false;
     this.opts.pollTimeout = this.opts.pollTimeout || 30 * 1000;
     this.opts.pendingEventOrdering = this.opts.pendingEventOrdering || _client.PendingEventOrdering.Chronological;
+    this.opts.experimentalThreadSupport = this.opts.experimentalThreadSupport === true;
 
     if (!opts.canResetEntireTimeline) {
       opts.canResetEntireTimeline = roomId => {
@@ -237,16 +238,18 @@ class SyncApi {
         }
 
         leaveObj.timeline = leaveObj.timeline || {};
-        const timelineEvents = this.mapSyncEventsFormat(leaveObj.timeline, room);
+        const events = this.mapSyncEventsFormat(leaveObj.timeline, room);
+        const [timelineEvents, threadedEvents] = this.client.partitionThreadedEvents(events);
         const stateEvents = this.mapSyncEventsFormat(leaveObj.state, room); // set the back-pagination token. Do this *before* adding any
         // events so that clients can start back-paginating.
 
         room.getLiveTimeline().setPaginationToken(leaveObj.timeline.prev_batch, _eventTimeline.EventTimeline.BACKWARDS);
         this.processRoomEvents(room, stateEvents, timelineEvents);
+        this.processThreadEvents(room, threadedEvents);
         room.recalculate();
         client.store.storeRoom(room);
         client.emit("Room", room);
-        this.processEventsForNotifs(room, timelineEvents);
+        this.processEventsForNotifs(room, events);
       });
       return rooms;
     });
@@ -463,6 +466,9 @@ class SyncApi {
       _logger.logger.warn("Token no longer valid - assuming logout");
 
       this.stop();
+      this.updateSyncState(_sync.SyncState.Error, {
+        error
+      });
       return true;
     }
 
@@ -662,9 +668,12 @@ class SyncApi {
 
 
   stop() {
-    debuglog("SyncApi.stop");
+    debuglog("SyncApi.stop"); // It is necessary to check for the existance of
+    // global.window AND global.window.removeEventListener.
+    // Some platforms (e.g. React Native) register global.window,
+    // but do not have global.window.removeEventListener.
 
-    if (global.window) {
+    if (global.window && global.window.removeEventListener) {
       global.window.removeEventListener("online", this.onOnline, false);
     }
 
@@ -1169,7 +1178,7 @@ class SyncApi {
       // room::decryptCriticalEvent is in charge of decrypting all the events
       // required for a client to function properly
 
-      const timelineEvents = this.mapSyncEventsFormat(joinObj.timeline, room, false);
+      const events = this.mapSyncEventsFormat(joinObj.timeline, room, false);
       const ephemeralEvents = this.mapSyncEventsFormat(joinObj.ephemeral);
       const accountDataEvents = this.mapSyncEventsFormat(joinObj.account_data);
       const encrypted = client.isRoomEncrypted(room.roomId); // we do this first so it's correct when any of the events fire
@@ -1205,8 +1214,8 @@ class SyncApi {
         // will stop us linking the empty timeline into the chain).
         //
 
-        for (let i = timelineEvents.length - 1; i >= 0; i--) {
-          const eventId = timelineEvents[i].getId();
+        for (let i = events.length - 1; i >= 0; i--) {
+          const eventId = events[i].getId();
 
           if (room.getTimelineForEvent(eventId)) {
             debuglog("Already have event " + eventId + " in limited " + "sync - not resetting");
@@ -1214,7 +1223,7 @@ class SyncApi {
             // we don't want to be adding them to the end of the
             // timeline because that would put them out of order.
 
-            timelineEvents.splice(0, i); // XXX: there's a problem here if the skipped part of the
+            events.splice(0, i); // XXX: there's a problem here if the skipped part of the
             // timeline modifies the state set in stateEvents, because
             // we'll end up using the state from stateEvents rather
             // than the later state from timelineEvents. We probably
@@ -1236,7 +1245,9 @@ class SyncApi {
         }
       }
 
-      this.processRoomEvents(room, stateEvents, timelineEvents, syncEventData.fromCache); // set summary after processing events,
+      const [timelineEvents, threadedEvents] = this.client.partitionThreadedEvents(events);
+      this.processRoomEvents(room, stateEvents, timelineEvents, syncEventData.fromCache);
+      this.processThreadEvents(room, threadedEvents); // set summary after processing events,
       // because it will trigger a name calculation
       // which needs the room state to be up to date
 
@@ -1255,7 +1266,7 @@ class SyncApi {
         client.emit("Room", room);
       }
 
-      this.processEventsForNotifs(room, timelineEvents);
+      this.processEventsForNotifs(room, events);
 
       const processRoomEvent = async e => {
         client.emit("event", e);
@@ -1279,6 +1290,7 @@ class SyncApi {
 
       await utils.promiseMapSeries(stateEvents, processRoomEvent);
       await utils.promiseMapSeries(timelineEvents, processRoomEvent);
+      await utils.promiseMapSeries(threadedEvents, processRoomEvent);
       ephemeralEvents.forEach(function (e) {
         client.emit("event", e);
       });
@@ -1295,9 +1307,11 @@ class SyncApi {
     leaveRooms.forEach(leaveObj => {
       const room = leaveObj.room;
       const stateEvents = this.mapSyncEventsFormat(leaveObj.state, room);
-      const timelineEvents = this.mapSyncEventsFormat(leaveObj.timeline, room);
+      const events = this.mapSyncEventsFormat(leaveObj.timeline, room);
       const accountDataEvents = this.mapSyncEventsFormat(leaveObj.account_data);
+      const [timelineEvents, threadedEvents] = this.client.partitionThreadedEvents(events);
       this.processRoomEvents(room, stateEvents, timelineEvents);
+      this.processThreadEvents(room, threadedEvents);
       room.addAccountData(accountDataEvents);
       room.recalculate();
 
@@ -1306,11 +1320,14 @@ class SyncApi {
         client.emit("Room", room);
       }
 
-      this.processEventsForNotifs(room, timelineEvents);
+      this.processEventsForNotifs(room, events);
       stateEvents.forEach(function (e) {
         client.emit("event", e);
       });
       timelineEvents.forEach(function (e) {
+        client.emit("event", e);
+      });
+      threadedEvents.forEach(function (e) {
         client.emit("event", e);
       });
       accountDataEvents.forEach(function (e) {
@@ -1638,6 +1655,25 @@ class SyncApi {
 
     room.addLiveEvents(timelineEventList || [], null, fromCache);
   }
+  /**
+   * @experimental
+   */
+
+
+  processThreadEvents(room, threadedEvents) {
+    return this.client.processThreadEvents(room, threadedEvents);
+  } // extractRelatedEvents(event: MatrixEvent, events: MatrixEvent[], relatedEvents: MatrixEvent[] = []): MatrixEvent[] {
+  //     relatedEvents.push(event);
+  //     const parentEventId = event.parentEventId;
+  //     const parentEventIndex = events.findIndex(event => event.getId() === parentEventId);
+  //     if (parentEventIndex > -1) {
+  //         const [relatedEvent] = events.splice(parentEventIndex, 1);
+  //         return this.extractRelatedEvents(relatedEvent, events, relatedEvents);
+  //     } else {
+  //         return relatedEvents;
+  //     }
+  // }
+
   /**
    * Takes a list of timelineEvents and adds and adds to notifEvents
    * as appropriate.

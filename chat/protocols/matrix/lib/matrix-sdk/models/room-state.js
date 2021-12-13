@@ -15,6 +15,8 @@ var utils = _interopRequireWildcard(require("../utils"));
 
 var _event = require("../@types/event");
 
+var _partials = require("../@types/partials");
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -787,8 +789,30 @@ class RoomState extends _events.EventEmitter {
 
   getJoinRule() {
     const joinRuleEvent = this.getStateEvents(_event.EventType.RoomJoinRules, "");
-    const joinRuleContent = joinRuleEvent ? joinRuleEvent.getContent() : {};
-    return joinRuleContent["join_rule"] || "invite";
+    const joinRuleContent = joinRuleEvent?.getContent() ?? {};
+    return joinRuleContent["join_rule"] || _partials.JoinRule.Invite;
+  }
+  /**
+   * Returns the history visibility based on the m.room.history_visibility state event, defaulting to `shared`.
+   * @returns {HistoryVisibility} the history_visibility applied to this room
+   */
+
+
+  getHistoryVisibility() {
+    const historyVisibilityEvent = this.getStateEvents(_event.EventType.RoomHistoryVisibility, "");
+    const historyVisibilityContent = historyVisibilityEvent?.getContent() ?? {};
+    return historyVisibilityContent["history_visibility"] || _partials.HistoryVisibility.Shared;
+  }
+  /**
+   * Returns the guest access based on the m.room.guest_access state event, defaulting to `shared`.
+   * @returns {GuestAccess} the guest_access applied to this room
+   */
+
+
+  getGuestAccess() {
+    const guestAccessEvent = this.getStateEvents(_event.EventType.RoomGuestAccess, "");
+    const guestAccessContent = guestAccessEvent?.getContent() ?? {};
+    return guestAccessContent["guest_access"] || _partials.GuestAccess.Forbidden;
   }
 
   updateThirdPartyTokenCache(memberEvent) {

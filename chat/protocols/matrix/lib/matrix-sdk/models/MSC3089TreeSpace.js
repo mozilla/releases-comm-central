@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.MSC3089TreeSpace = exports.TreePermissions = exports.DEFAULT_TREE_POWER_LEVELS_TEMPLATE = void 0;
+exports.TreePermissions = exports.MSC3089TreeSpace = exports.DEFAULT_TREE_POWER_LEVELS_TEMPLATE = void 0;
 
 var _event = require("../@types/event");
 
@@ -472,31 +472,46 @@ class MSC3089TreeSpace {
   }
   /**
    * Creates (uploads) a new file to this tree. The file must have already been encrypted for the room.
+   * The file contents are in a type that is compatible with MatrixClient.uploadContent().
    * @param {string} name The name of the file.
-   * @param {ArrayBuffer} encryptedContents The encrypted contents.
+   * @param {File | String | Buffer | ReadStream | Blob} encryptedContents The encrypted contents.
    * @param {Partial<IEncryptedFile>} info The encrypted file information.
    * @param {IContent} additionalContent Optional event content fields to include in the message.
-   * @returns {Promise<void>} Resolves when uploaded.
+   * @returns {Promise<ISendEventResponse>} Resolves to the file event's sent response.
    */
 
 
   async createFile(name, encryptedContents, info, additionalContent) {
-    const mxc = await this.client.uploadContent(new Blob([encryptedContents]), {
+    const mxc = await this.client.uploadContent(encryptedContents, {
       includeFilename: false,
-      onlyContentUri: true
+      onlyContentUri: true,
+      rawResponse: false // make this explicit otherwise behaviour is different on browser vs NodeJS
+
     });
     info.url = mxc;
-    const res = await this.client.sendMessage(this.roomId, _objectSpread(_objectSpread({}, additionalContent ?? {}), {}, {
+    const fileContent = {
       msgtype: _event.MsgType.File,
       body: name,
       url: mxc,
-      file: info,
+      file: info
+    };
+    additionalContent = additionalContent ?? {};
+
+    if (additionalContent["m.new_content"]) {
+      // We do the right thing according to the spec, but due to how relations are
+      // handled we also end up duplicating this information to the regular `content`
+      // as well.
+      additionalContent["m.new_content"] = fileContent;
+    }
+
+    const res = await this.client.sendMessage(this.roomId, _objectSpread(_objectSpread(_objectSpread({}, additionalContent), fileContent), {}, {
       [_event.UNSTABLE_MSC3089_LEAF.name]: {}
     }));
     await this.client.sendStateEvent(this.roomId, _event.UNSTABLE_MSC3089_BRANCH.name, {
       active: true,
       name: name
     }, res['event_id']);
+    return res;
   }
   /**
    * Retrieves a file from the tree.
@@ -507,7 +522,7 @@ class MSC3089TreeSpace {
 
   getFile(fileEventId) {
     const branch = this.room.currentState.getStateEvents(_event.UNSTABLE_MSC3089_BRANCH.name, fileEventId);
-    return branch ? new _MSC3089Branch.MSC3089Branch(this.client, branch) : null;
+    return branch ? new _MSC3089Branch.MSC3089Branch(this.client, branch, this) : null;
   }
   /**
    * Gets an array of all known files for the tree.
@@ -516,8 +531,17 @@ class MSC3089TreeSpace {
 
 
   listFiles() {
+    return this.listAllFiles().filter(b => b.isActive);
+  }
+  /**
+   * Gets an array of all known files for the tree, including inactive/invalid ones.
+   * @returns {MSC3089Branch[]} The known files. May be empty, but not null.
+   */
+
+
+  listAllFiles() {
     const branches = this.room.currentState.getStateEvents(_event.UNSTABLE_MSC3089_BRANCH.name) ?? [];
-    return branches.map(e => new _MSC3089Branch.MSC3089Branch(this.client, e)).filter(b => b.isActive);
+    return branches.map(e => new _MSC3089Branch.MSC3089Branch(this.client, e, this));
   }
 
 }

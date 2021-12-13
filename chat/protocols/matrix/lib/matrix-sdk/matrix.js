@@ -10,14 +10,9 @@ var _exportNames = {
   setCryptoStoreFactory: true,
   createClient: true,
   ContentHelpers: true,
-  createNewMatrixCall: true,
-  setMatrixCallAudioInput: true,
-  setMatrixCallVideoInput: true
+  createNewMatrixCall: true
 };
-exports.request = request;
-exports.getRequest = getRequest;
-exports.wrapRequest = wrapRequest;
-exports.setCryptoStoreFactory = setCryptoStoreFactory;
+exports.ContentHelpers = void 0;
 exports.createClient = createClient;
 Object.defineProperty(exports, "createNewMatrixCall", {
   enumerable: true,
@@ -25,19 +20,10 @@ Object.defineProperty(exports, "createNewMatrixCall", {
     return _call.createNewMatrixCall;
   }
 });
-Object.defineProperty(exports, "setMatrixCallAudioInput", {
-  enumerable: true,
-  get: function () {
-    return _call.setAudioInput;
-  }
-});
-Object.defineProperty(exports, "setMatrixCallVideoInput", {
-  enumerable: true,
-  get: function () {
-    return _call.setVideoInput;
-  }
-});
-exports.ContentHelpers = void 0;
+exports.getRequest = getRequest;
+exports.request = request;
+exports.setCryptoStoreFactory = setCryptoStoreFactory;
+exports.wrapRequest = wrapRequest;
 
 var _memoryCryptoStore = require("./crypto/store/memory-crypto-store");
 

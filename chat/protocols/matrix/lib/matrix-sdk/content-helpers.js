@@ -3,12 +3,12 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.makeEmoteMessage = makeEmoteMessage;
+exports.makeHtmlEmote = makeHtmlEmote;
 exports.makeHtmlMessage = makeHtmlMessage;
 exports.makeHtmlNotice = makeHtmlNotice;
-exports.makeHtmlEmote = makeHtmlEmote;
-exports.makeTextMessage = makeTextMessage;
 exports.makeNotice = makeNotice;
-exports.makeEmoteMessage = makeEmoteMessage;
+exports.makeTextMessage = makeTextMessage;
 
 var _event = require("./@types/event");
 

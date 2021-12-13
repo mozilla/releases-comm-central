@@ -3,11 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.deriveKey = deriveKey;
 exports.keyFromAuthData = keyFromAuthData;
 exports.keyFromPassphrase = keyFromPassphrase;
-exports.deriveKey = deriveKey;
 
 var _randomstring = require("../randomstring");
+
+var _utils = require("../utils");
 
 /*
 Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
@@ -24,6 +26,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const subtleCrypto = typeof window !== "undefined" && window.crypto ? window.crypto.subtle || window.crypto.webkitSubtle : null;
 const DEFAULT_ITERATIONS = 500000;
 const DEFAULT_BITSIZE = 256;
 /* eslint-disable camelcase */
@@ -55,11 +58,14 @@ async function keyFromPassphrase(password) {
 }
 
 async function deriveKey(password, salt, iterations, numBits = DEFAULT_BITSIZE) {
+  return subtleCrypto ? deriveKeyBrowser(password, salt, iterations, numBits) : deriveKeyNode(password, salt, iterations, numBits);
+}
+
+async function deriveKeyBrowser(password, salt, iterations, numBits) {
   const subtleCrypto = global.crypto.subtle;
   const TextEncoder = global.TextEncoder;
 
   if (!subtleCrypto || !TextEncoder) {
-    // TODO: Implement this for node
     throw new Error("Password-based backup is not avaiable on this platform");
   }
 
@@ -73,4 +79,14 @@ async function deriveKey(password, salt, iterations, numBits = DEFAULT_BITSIZE) 
     hash: 'SHA-512'
   }, key, numBits);
   return new Uint8Array(keybits);
+}
+
+async function deriveKeyNode(password, salt, iterations, numBits) {
+  const crypto = (0, _utils.getCrypto)();
+
+  if (!crypto) {
+    throw new Error("No usable crypto implementation");
+  }
+
+  return crypto.pbkdf2Sync(password, Buffer.from(salt, 'binary'), iterations, numBits, 'sha512');
 }

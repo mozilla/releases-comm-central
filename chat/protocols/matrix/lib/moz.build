@@ -96,6 +96,8 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     'matrix-sdk/models/room-summary.js',
     'matrix-sdk/models/room.js',
     'matrix-sdk/models/search-result.js',
+    'matrix-sdk/models/thread.js',
+    'matrix-sdk/models/typed-event-emitter.js',
     'matrix-sdk/models/user.js',
 ]
 
@@ -104,6 +106,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.store += [
     'matrix-sdk/store/indexeddb-remote-backend.js',
     'matrix-sdk/store/indexeddb-store-worker.js',
     'matrix-sdk/store/indexeddb.js',
+    'matrix-sdk/store/local-storage-events-emitter.js',
     'matrix-sdk/store/memory.js',
     'matrix-sdk/store/stub.js',
 ]
@@ -125,6 +128,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
     'matrix-sdk/webrtc/callEventHandler.js',
     'matrix-sdk/webrtc/callEventTypes.js',
     'matrix-sdk/webrtc/callFeed.js',
+    'matrix-sdk/webrtc/mediaHandler.js',
 ]
 
 # Dependencies of the Matrix SDK.

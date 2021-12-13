@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.EventTimelineSet = void 0;
+exports.EventTimelineSet = exports.DuplicateStrategy = void 0;
 
 var _events = require("events");
 
@@ -27,6 +27,14 @@ if (DEBUG) {
 } else {
   debuglog = function () {};
 }
+
+let DuplicateStrategy;
+exports.DuplicateStrategy = DuplicateStrategy;
+
+(function (DuplicateStrategy) {
+  DuplicateStrategy["Ignore"] = "ignore";
+  DuplicateStrategy["Replace"] = "replace";
+})(DuplicateStrategy || (exports.DuplicateStrategy = DuplicateStrategy = {}));
 
 class EventTimelineSet extends _events.EventEmitter {
   /**
@@ -73,6 +81,8 @@ class EventTimelineSet extends _events.EventEmitter {
 
     _defineProperty(this, "unstableClientRelationAggregation", void 0);
 
+    _defineProperty(this, "displayPendingEvents", void 0);
+
     _defineProperty(this, "liveTimeline", void 0);
 
     _defineProperty(this, "timelines", void 0);
@@ -85,7 +95,8 @@ class EventTimelineSet extends _events.EventEmitter {
 
     this.timelineSupport = Boolean(opts.timelineSupport);
     this.liveTimeline = new _eventTimeline.EventTimeline(this);
-    this.unstableClientRelationAggregation = !!opts.unstableClientRelationAggregation; // just a list - *not* ordered.
+    this.unstableClientRelationAggregation = !!opts.unstableClientRelationAggregation;
+    this.displayPendingEvents = opts.pendingEvents !== false; // just a list - *not* ordered.
 
     this.timelines = [this.liveTimeline];
     this._eventIdToTimeline = {};
@@ -136,15 +147,17 @@ class EventTimelineSet extends _events.EventEmitter {
    */
 
 
-  getPendingEvents() {
-    if (!this.room) {
+  getPendingEvents(thread) {
+    if (!this.room || !this.displayPendingEvents) {
       return [];
     }
 
+    const pendingEvents = this.room.getPendingEvents(thread);
+
     if (this.filter) {
-      return this.filter.filterRoomTimeline(this.room.getPendingEvents());
+      return this.filter.filterRoomTimeline(pendingEvents);
     } else {
-      return this.room.getPendingEvents();
+      return pendingEvents;
     }
   }
   /**
@@ -485,10 +498,11 @@ class EventTimelineSet extends _events.EventEmitter {
    * @param {MatrixEvent} event Event to be added
    * @param {string?} duplicateStrategy 'ignore' or 'replace'
    * @param {boolean} fromCache whether the sync response came from cache
+   * @param roomState the state events to reconcile metadata from
    */
 
 
-  addLiveEvent(event, duplicateStrategy, fromCache = false) {
+  addLiveEvent(event, duplicateStrategy = DuplicateStrategy.Ignore, fromCache = false, roomState) {
     if (this.filter) {
       const events = this.filter.filterRoomTimeline([event]);
 
@@ -500,14 +514,18 @@ class EventTimelineSet extends _events.EventEmitter {
     const timeline = this._eventIdToTimeline[event.getId()];
 
     if (timeline) {
-      if (duplicateStrategy === "replace") {
+      if (duplicateStrategy === DuplicateStrategy.Replace) {
         debuglog("EventTimelineSet.addLiveEvent: replacing duplicate event " + event.getId());
         const tlEvents = timeline.getEvents();
 
         for (let j = 0; j < tlEvents.length; j++) {
           if (tlEvents[j].getId() === event.getId()) {
             // still need to set the right metadata on this event
-            _eventTimeline.EventTimeline.setEventMetadata(event, timeline.getState(_eventTimeline.EventTimeline.FORWARDS), false);
+            if (!roomState) {
+              roomState = timeline.getState(_eventTimeline.EventTimeline.FORWARDS);
+            }
+
+            _eventTimeline.EventTimeline.setEventMetadata(event, roomState, false);
 
             tlEvents[j] = event; // XXX: we need to fire an event when this happens.
 
@@ -521,7 +539,7 @@ class EventTimelineSet extends _events.EventEmitter {
       return;
     }
 
-    this.addEventToTimeline(event, this.liveTimeline, false, fromCache);
+    this.addEventToTimeline(event, this.liveTimeline, false, fromCache, roomState);
   }
   /**
    * Add event to the given timeline, and emit Room.timeline. Assumes
@@ -538,9 +556,9 @@ class EventTimelineSet extends _events.EventEmitter {
    */
 
 
-  addEventToTimeline(event, timeline, toStartOfTimeline, fromCache = false) {
+  addEventToTimeline(event, timeline, toStartOfTimeline, fromCache = false, roomState) {
     const eventId = event.getId();
-    timeline.addEvent(event, toStartOfTimeline);
+    timeline.addEvent(event, toStartOfTimeline, roomState);
     this._eventIdToTimeline[eventId] = timeline;
     this.setRelationsTarget(event);
     this.aggregateRelations(event);

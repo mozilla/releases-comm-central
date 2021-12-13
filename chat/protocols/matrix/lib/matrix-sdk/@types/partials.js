@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.HistoryVisibility = exports.GuestAccess = exports.RestrictedAllowType = exports.JoinRule = exports.Preset = exports.Visibility = void 0;
+exports.Visibility = exports.RestrictedAllowType = exports.Preset = exports.JoinRule = exports.HistoryVisibility = exports.GuestAccess = void 0;
 
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.
@@ -64,8 +64,7 @@ exports.GuestAccess = GuestAccess;
   GuestAccess["Forbidden"] = "forbidden";
 })(GuestAccess || (exports.GuestAccess = GuestAccess = {}));
 
-let HistoryVisibility; // XXX move to OlmDevice when converted
-
+let HistoryVisibility;
 exports.HistoryVisibility = HistoryVisibility;
 
 (function (HistoryVisibility) {

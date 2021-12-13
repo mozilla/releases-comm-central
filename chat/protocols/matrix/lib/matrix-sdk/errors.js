@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.InvalidStoreError = InvalidStoreError;
 exports.InvalidCryptoStoreError = InvalidCryptoStoreError;
+exports.InvalidStoreError = InvalidStoreError;
 exports.KeySignatureUploadError = void 0;
 
 // can't just do InvalidStoreError extends Error

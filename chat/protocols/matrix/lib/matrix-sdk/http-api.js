@@ -3,9 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.MatrixError = exports.ConnectionError = exports.AbortError = void 0;
 exports.MatrixHttpApi = MatrixHttpApi;
+exports.PREFIX_UNSTABLE = exports.PREFIX_R0 = exports.PREFIX_MEDIA_R0 = exports.PREFIX_IDENTITY_V2 = exports.PREFIX_IDENTITY_V1 = void 0;
 exports.retryNetworkOperation = retryNetworkOperation;
-exports.AbortError = exports.ConnectionError = exports.MatrixError = exports.PREFIX_MEDIA_R0 = exports.PREFIX_IDENTITY_V2 = exports.PREFIX_IDENTITY_V1 = exports.PREFIX_UNSTABLE = exports.PREFIX_R0 = void 0;
 
 var _contentType = require("content-type");
 

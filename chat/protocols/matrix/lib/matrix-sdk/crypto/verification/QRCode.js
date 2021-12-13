@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QRCodeData = exports.ReciprocateQRCode = exports.SCAN_QR_CODE_METHOD = exports.SHOW_QR_CODE_METHOD = void 0;
+exports.SHOW_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = exports.ReciprocateQRCode = exports.QRCodeData = void 0;
 
 var _Base = require("./Base");
 
@@ -13,27 +13,8 @@ var _olmlib = require("../olmlib");
 
 var _logger = require("../../logger");
 
-/*
-Copyright 2018 New Vector Ltd
-Copyright 2020 The Matrix.org Foundation C.I.C.
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-/**
- * QR code key verification.
- * @module crypto/verification/QRCode
- */
 const SHOW_QR_CODE_METHOD = "m.qr_code.show.v1";
 exports.SHOW_QR_CODE_METHOD = SHOW_QR_CODE_METHOD;
 const SCAN_QR_CODE_METHOD = "m.qr_code.scan.v1";
@@ -45,87 +26,94 @@ const SCAN_QR_CODE_METHOD = "m.qr_code.scan.v1";
 exports.SCAN_QR_CODE_METHOD = SCAN_QR_CODE_METHOD;
 
 class ReciprocateQRCode extends _Base.VerificationBase {
-  static factory(...args) {
-    return new ReciprocateQRCode(...args);
-  }
+  constructor(...args) {
+    super(...args);
 
-  static get NAME() {
-    return "m.reciprocate.v1";
-  }
+    _defineProperty(this, "reciprocateQREvent", void 0);
 
-  async _doVerification() {
-    if (!this.startEvent) {
-      // TODO: Support scanning QR codes
-      throw new Error("It is not currently possible to start verification" + "with this method yet.");
-    }
-
-    const {
-      qrCodeData
-    } = this.request; // 1. check the secret
-
-    if (this.startEvent.getContent()['secret'] !== qrCodeData.encodedSharedSecret) {
-      throw (0, _Error.newKeyMismatchError)();
-    } // 2. ask if other user shows shield as well
-
-
-    await new Promise((resolve, reject) => {
-      this.reciprocateQREvent = {
-        confirm: resolve,
-        cancel: () => reject((0, _Error.newUserCancelledError)())
-      };
-      this.emit("show_reciprocate_qr", this.reciprocateQREvent);
-    }); // 3. determine key to sign / mark as trusted
-
-    const keys = {};
-
-    switch (qrCodeData.mode) {
-      case MODE_VERIFY_OTHER_USER:
-        {
-          // add master key to keys to be signed, only if we're not doing self-verification
-          const masterKey = qrCodeData.otherUserMasterKey;
-          keys[`ed25519:${masterKey}`] = masterKey;
-          break;
-        }
-
-      case MODE_VERIFY_SELF_TRUSTED:
-        {
-          const deviceId = this.request.targetDevice.deviceId;
-          keys[`ed25519:${deviceId}`] = qrCodeData.otherDeviceKey;
-          break;
-        }
-
-      case MODE_VERIFY_SELF_UNTRUSTED:
-        {
-          const masterKey = qrCodeData.myMasterKey;
-          keys[`ed25519:${masterKey}`] = masterKey;
-          break;
-        }
-    } // 4. sign the key (or mark own MSK as verified in case of MODE_VERIFY_SELF_TRUSTED)
-
-
-    await this._verifyKeys(this.userId, keys, (keyId, device, keyInfo) => {
-      // make sure the device has the expected keys
-      const targetKey = keys[keyId];
-      if (!targetKey) throw (0, _Error.newKeyMismatchError)();
-
-      if (keyInfo !== targetKey) {
-        _logger.logger.error("key ID from key info does not match");
-
-        throw (0, _Error.newKeyMismatchError)();
+    _defineProperty(this, "doVerification", async () => {
+      if (!this.startEvent) {
+        // TODO: Support scanning QR codes
+        throw new Error("It is not currently possible to start verification" + "with this method yet.");
       }
 
-      for (const deviceKeyId in device.keys) {
-        if (!deviceKeyId.startsWith("ed25519")) continue;
-        const deviceTargetKey = keys[deviceKeyId];
-        if (!deviceTargetKey) throw (0, _Error.newKeyMismatchError)();
+      const {
+        qrCodeData
+      } = this.request; // 1. check the secret
 
-        if (device.keys[deviceKeyId] !== deviceTargetKey) {
-          _logger.logger.error("master key does not match");
+      if (this.startEvent.getContent()['secret'] !== qrCodeData.encodedSharedSecret) {
+        throw (0, _Error.newKeyMismatchError)();
+      } // 2. ask if other user shows shield as well
+
+
+      await new Promise((resolve, reject) => {
+        this.reciprocateQREvent = {
+          confirm: resolve,
+          cancel: () => reject((0, _Error.newUserCancelledError)())
+        };
+        this.emit("show_reciprocate_qr", this.reciprocateQREvent);
+      }); // 3. determine key to sign / mark as trusted
+
+      const keys = {};
+
+      switch (qrCodeData.mode) {
+        case Mode.VerifyOtherUser:
+          {
+            // add master key to keys to be signed, only if we're not doing self-verification
+            const masterKey = qrCodeData.otherUserMasterKey;
+            keys[`ed25519:${masterKey}`] = masterKey;
+            break;
+          }
+
+        case Mode.VerifySelfTrusted:
+          {
+            const deviceId = this.request.targetDevice.deviceId;
+            keys[`ed25519:${deviceId}`] = qrCodeData.otherDeviceKey;
+            break;
+          }
+
+        case Mode.VerifySelfUntrusted:
+          {
+            const masterKey = qrCodeData.myMasterKey;
+            keys[`ed25519:${masterKey}`] = masterKey;
+            break;
+          }
+      } // 4. sign the key (or mark own MSK as verified in case of MODE_VERIFY_SELF_TRUSTED)
+
+
+      await this.verifyKeys(this.userId, keys, (keyId, device, keyInfo) => {
+        // make sure the device has the expected keys
+        const targetKey = keys[keyId];
+        if (!targetKey) throw (0, _Error.newKeyMismatchError)();
+
+        if (keyInfo !== targetKey) {
+          _logger.logger.error("key ID from key info does not match");
 
           throw (0, _Error.newKeyMismatchError)();
         }
-      }
+
+        for (const deviceKeyId in device.keys) {
+          if (!deviceKeyId.startsWith("ed25519")) continue;
+          const deviceTargetKey = keys[deviceKeyId];
+          if (!deviceTargetKey) throw (0, _Error.newKeyMismatchError)();
+
+          if (device.keys[deviceKeyId] !== deviceTargetKey) {
+            _logger.logger.error("master key does not match");
+
+            throw (0, _Error.newKeyMismatchError)();
+          }
+        }
+      });
     });
+  }
+
+  static factory(channel, baseApis, userId, deviceId, startEvent, request) {
+    return new ReciprocateQRCode(channel, baseApis, userId, deviceId, startEvent, request);
+  } // eslint-disable-next-line @typescript-eslint/naming-convention
+
+
+  static get NAME() {
+    return "m.reciprocate.v1";
   }
 
 }
@@ -135,82 +123,48 @@ const CODE_VERSION = 0x02; // the version of binary QR codes we support
 
 const BINARY_PREFIX = "MATRIX"; // ASCII, used to prefix the binary format
 
-const MODE_VERIFY_OTHER_USER = 0x00; // Verifying someone who isn't us
+var Mode;
 
-const MODE_VERIFY_SELF_TRUSTED = 0x01; // We trust the master key
-
-const MODE_VERIFY_SELF_UNTRUSTED = 0x02; // We do not trust the master key
+(function (Mode) {
+  Mode[Mode["VerifyOtherUser"] = 0] = "VerifyOtherUser";
+  Mode[Mode["VerifySelfTrusted"] = 1] = "VerifySelfTrusted";
+  Mode[Mode["VerifySelfUntrusted"] = 2] = "VerifySelfUntrusted";
+})(Mode || (Mode = {}));
 
 class QRCodeData {
-  constructor(mode, sharedSecret, otherUserMasterKey, otherDeviceKey, myMasterKey, buffer) {
-    this._sharedSecret = sharedSecret;
-    this._mode = mode;
-    this._otherUserMasterKey = otherUserMasterKey;
-    this._otherDeviceKey = otherDeviceKey;
-    this._myMasterKey = myMasterKey;
-    this._buffer = buffer;
+  constructor(mode, sharedSecret, // only set when mode is MODE_VERIFY_OTHER_USER, master key of other party at time of generating QR code
+  otherUserMasterKey, // only set when mode is MODE_VERIFY_SELF_TRUSTED, device key of other party at time of generating QR code
+  otherDeviceKey, // only set when mode is MODE_VERIFY_SELF_UNTRUSTED, own master key at time of generating QR code
+  myMasterKey, buffer) {
+    this.mode = mode;
+    this.sharedSecret = sharedSecret;
+    this.otherUserMasterKey = otherUserMasterKey;
+    this.otherDeviceKey = otherDeviceKey;
+    this.myMasterKey = myMasterKey;
+    this.buffer = buffer;
   }
 
   static async create(request, client) {
-    const sharedSecret = QRCodeData._generateSharedSecret();
-
-    const mode = QRCodeData._determineMode(request, client);
-
+    const sharedSecret = QRCodeData.generateSharedSecret();
+    const mode = QRCodeData.determineMode(request, client);
     let otherUserMasterKey = null;
     let otherDeviceKey = null;
     let myMasterKey = null;
 
-    if (mode === MODE_VERIFY_OTHER_USER) {
+    if (mode === Mode.VerifyOtherUser) {
       const otherUserCrossSigningInfo = client.getStoredCrossSigningForUser(request.otherUserId);
       otherUserMasterKey = otherUserCrossSigningInfo.getId("master");
-    } else if (mode === MODE_VERIFY_SELF_TRUSTED) {
-      otherDeviceKey = await QRCodeData._getOtherDeviceKey(request, client);
-    } else if (mode === MODE_VERIFY_SELF_UNTRUSTED) {
+    } else if (mode === Mode.VerifySelfTrusted) {
+      otherDeviceKey = await QRCodeData.getOtherDeviceKey(request, client);
+    } else if (mode === Mode.VerifySelfUntrusted) {
       const myUserId = client.getUserId();
       const myCrossSigningInfo = client.getStoredCrossSigningForUser(myUserId);
       myMasterKey = myCrossSigningInfo.getId("master");
     }
 
-    const qrData = QRCodeData._generateQrData(request, client, mode, sharedSecret, otherUserMasterKey, otherDeviceKey, myMasterKey);
-
-    const buffer = QRCodeData._generateBuffer(qrData);
-
+    const qrData = QRCodeData.generateQrData(request, client, mode, sharedSecret, otherUserMasterKey, otherDeviceKey, myMasterKey);
+    const buffer = QRCodeData.generateBuffer(qrData);
     return new QRCodeData(mode, sharedSecret, otherUserMasterKey, otherDeviceKey, myMasterKey, buffer);
-  }
-
-  get buffer() {
-    return this._buffer;
-  }
-
-  get mode() {
-    return this._mode;
-  }
-  /**
-   * only set when mode is MODE_VERIFY_SELF_TRUSTED
-   * @return {string} device key of other party at time of generating QR code
-   */
-
-
-  get otherDeviceKey() {
-    return this._otherDeviceKey;
-  }
-  /**
-   * only set when mode is MODE_VERIFY_OTHER_USER
-   * @return {string} master key of other party at time of generating QR code
-   */
-
-
-  get otherUserMasterKey() {
-    return this._otherUserMasterKey;
-  }
-  /**
-   * only set when mode is MODE_VERIFY_SELF_UNTRUSTED
-   * @return {string} own master key at time of generating QR code
-   */
-
-
-  get myMasterKey() {
-    return this._myMasterKey;
   }
   /**
    * The unpadded base64 encoded shared secret.
@@ -218,16 +172,20 @@ class QRCodeData {
 
 
   get encodedSharedSecret() {
-    return this._sharedSecret;
+    return this.sharedSecret;
   }
 
-  static _generateSharedSecret() {
+  getBuffer() {
+    return this.buffer;
+  }
+
+  static generateSharedSecret() {
     const secretBytes = new Uint8Array(11);
     global.crypto.getRandomValues(secretBytes);
     return (0, _olmlib.encodeUnpaddedBase64)(secretBytes);
   }
 
-  static async _getOtherDeviceKey(request, client) {
+  static async getOtherDeviceKey(request, client) {
     const myUserId = client.getUserId();
     const otherDevice = request.targetDevice;
     const otherDeviceId = otherDevice ? otherDevice.deviceId : null;
@@ -237,30 +195,29 @@ class QRCodeData {
       throw new Error("could not find device " + otherDeviceId);
     }
 
-    const key = device.getFingerprint();
-    return key;
+    return device.getFingerprint();
   }
 
-  static _determineMode(request, client) {
+  static determineMode(request, client) {
     const myUserId = client.getUserId();
     const otherUserId = request.otherUserId;
-    let mode = MODE_VERIFY_OTHER_USER;
+    let mode = Mode.VerifyOtherUser;
 
     if (myUserId === otherUserId) {
       // Mode changes depending on whether or not we trust the master cross signing key
       const myTrust = client.checkUserTrust(myUserId);
 
       if (myTrust.isCrossSigningVerified()) {
-        mode = MODE_VERIFY_SELF_TRUSTED;
+        mode = Mode.VerifySelfTrusted;
       } else {
-        mode = MODE_VERIFY_SELF_UNTRUSTED;
+        mode = Mode.VerifySelfUntrusted;
       }
     }
 
     return mode;
   }
 
-  static _generateQrData(request, client, mode, encodedSharedSecret, otherUserMasterKey, otherDeviceKey, myMasterKey) {
+  static generateQrData(request, client, mode, encodedSharedSecret, otherUserMasterKey, otherDeviceKey, myMasterKey) {
     const myUserId = client.getUserId();
     const transactionId = request.channel.transactionId;
     const qrData = {
@@ -276,16 +233,16 @@ class QRCodeData {
     };
     const myCrossSigningInfo = client.getStoredCrossSigningForUser(myUserId);
 
-    if (mode === MODE_VERIFY_OTHER_USER) {
+    if (mode === Mode.VerifyOtherUser) {
       // First key is our master cross signing key
       qrData.firstKeyB64 = myCrossSigningInfo.getId("master"); // Second key is the other user's master cross signing key
 
       qrData.secondKeyB64 = otherUserMasterKey;
-    } else if (mode === MODE_VERIFY_SELF_TRUSTED) {
+    } else if (mode === Mode.VerifySelfTrusted) {
       // First key is our master cross signing key
       qrData.firstKeyB64 = myCrossSigningInfo.getId("master");
       qrData.secondKeyB64 = otherDeviceKey;
-    } else if (mode === MODE_VERIFY_SELF_UNTRUSTED) {
+    } else if (mode === Mode.VerifySelfUntrusted) {
       // First key is our device's key
       qrData.firstKeyB64 = client.getDeviceEd25519Key(); // Second key is what we think our master cross signing key is
 
@@ -295,7 +252,7 @@ class QRCodeData {
     return qrData;
   }
 
-  static _generateBuffer(qrData) {
+  static generateBuffer(qrData) {
     let buf = Buffer.alloc(0); // we'll concat our way through life
 
     const appendByte = b => {

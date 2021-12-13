@@ -3,9 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.encryptAES = encryptAES;
-exports.decryptAES = decryptAES;
 exports.calculateKeyCheck = calculateKeyCheck;
+exports.decryptAES = decryptAES;
+exports.encryptAES = encryptAES;
 
 var _utils = require("../utils");
 

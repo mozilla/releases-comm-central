@@ -54,6 +54,10 @@ class RoomHierarchy {
     return !!this.serverSupportError || !!this.nextBatch || !this._rooms;
   }
 
+  get loading() {
+    return !!this.loadRequest;
+  }
+
   get rooms() {
     return this._rooms;
   }

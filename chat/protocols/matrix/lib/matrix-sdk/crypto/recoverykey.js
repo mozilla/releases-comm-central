@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.encodeRecoveryKey = encodeRecoveryKey;
 exports.decodeRecoveryKey = decodeRecoveryKey;
+exports.encodeRecoveryKey = encodeRecoveryKey;
 
 var _bs = _interopRequireDefault(require("bs58"));
 

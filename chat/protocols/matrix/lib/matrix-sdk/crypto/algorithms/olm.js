@@ -220,12 +220,11 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
       // not a prekey message: we can safely just try & decrypt it
       return this.reallyDecryptMessage(theirDeviceIdentityKey, message);
     } else {
-      const myPromise = this.olmDevice._olmPrekeyPromise.then(() => {
+      const myPromise = this.olmDevice.olmPrekeyPromise.then(() => {
         return this.reallyDecryptMessage(theirDeviceIdentityKey, message);
       }); // we want the error, but don't propagate it to the next decryption
 
-
-      this.olmDevice._olmPrekeyPromise = myPromise.catch(() => {});
+      this.olmDevice.olmPrekeyPromise = myPromise.catch(() => {});
       return await myPromise;
     }
   }

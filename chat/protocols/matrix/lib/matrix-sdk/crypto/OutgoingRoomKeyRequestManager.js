@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.OutgoingRoomKeyRequestManager = exports.RoomKeyRequestState = void 0;
+exports.RoomKeyRequestState = exports.OutgoingRoomKeyRequestManager = void 0;
 
 var _logger = require("../logger");
 

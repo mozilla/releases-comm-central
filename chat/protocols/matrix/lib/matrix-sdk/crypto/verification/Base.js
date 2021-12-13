@@ -17,27 +17,8 @@ var _Error = require("./Error");
 
 var _CrossSigning = require("../CrossSigning");
 
-/*
-Copyright 2018 New Vector Ltd
-Copyright 2020 The Matrix.org Foundation C.I.C.
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-/**
- * Base class for verification methods.
- * @module crypto/verification/Base
- */
 const timeoutException = new Error("Verification timed out");
 
 class SwitchStartEventError extends Error {
@@ -80,16 +61,34 @@ class VerificationBase extends _events.EventEmitter {
    */
   constructor(channel, baseApis, userId, deviceId, startEvent, request) {
     super();
-    this._channel = channel;
-    this._baseApis = baseApis;
+    this.channel = channel;
+    this.baseApis = baseApis;
     this.userId = userId;
     this.deviceId = deviceId;
     this.startEvent = startEvent;
     this.request = request;
-    this.cancelled = false;
-    this._done = false;
-    this._promise = null;
-    this._transactionTimeoutTimer = null;
+
+    _defineProperty(this, "cancelled", false);
+
+    _defineProperty(this, "_done", false);
+
+    _defineProperty(this, "promise", null);
+
+    _defineProperty(this, "transactionTimeoutTimer", null);
+
+    _defineProperty(this, "expectedEvent", void 0);
+
+    _defineProperty(this, "resolve", void 0);
+
+    _defineProperty(this, "reject", void 0);
+
+    _defineProperty(this, "resolveEvent", void 0);
+
+    _defineProperty(this, "rejectEvent", void 0);
+
+    _defineProperty(this, "started", void 0);
+
+    _defineProperty(this, "doVerification", void 0);
   }
 
   get initiatedByMe() {
@@ -102,17 +101,21 @@ class VerificationBase extends _events.EventEmitter {
 
     const sender = this.startEvent.getSender();
     const content = this.startEvent.getContent();
-    return sender === this._baseApis.getUserId() && content.from_device === this._baseApis.getDeviceId();
+    return sender === this.baseApis.getUserId() && content.from_device === this.baseApis.getDeviceId();
   }
 
-  _resetTimer() {
+  get hasBeenCancelled() {
+    return this.cancelled;
+  }
+
+  resetTimer() {
     _logger.logger.info("Refreshing/starting the verification transaction timeout timer");
 
-    if (this._transactionTimeoutTimer !== null) {
-      clearTimeout(this._transactionTimeoutTimer);
+    if (this.transactionTimeoutTimer !== null) {
+      clearTimeout(this.transactionTimeoutTimer);
     }
 
-    this._transactionTimeoutTimer = setTimeout(() => {
+    this.transactionTimeoutTimer = setTimeout(() => {
       if (!this._done && !this.cancelled) {
         _logger.logger.info("Triggering verification timeout");
 
@@ -121,18 +124,18 @@ class VerificationBase extends _events.EventEmitter {
     }, 10 * 60 * 1000); // 10 minutes
   }
 
-  _endTimer() {
-    if (this._transactionTimeoutTimer !== null) {
-      clearTimeout(this._transactionTimeoutTimer);
-      this._transactionTimeoutTimer = null;
+  endTimer() {
+    if (this.transactionTimeoutTimer !== null) {
+      clearTimeout(this.transactionTimeoutTimer);
+      this.transactionTimeoutTimer = null;
     }
   }
 
-  _send(type, uncompletedContent) {
-    return this._channel.send(type, uncompletedContent);
+  send(type, uncompletedContent) {
+    return this.channel.send(type, uncompletedContent);
   }
 
-  _waitForEvent(type) {
+  waitForEvent(type) {
     if (this._done) {
       return Promise.reject(new Error("Verification is already done"));
     }
@@ -143,26 +146,26 @@ class VerificationBase extends _events.EventEmitter {
       return Promise.resolve(existingEvent);
     }
 
-    this._expectedEvent = type;
+    this.expectedEvent = type;
     return new Promise((resolve, reject) => {
-      this._resolveEvent = resolve;
-      this._rejectEvent = reject;
+      this.resolveEvent = resolve;
+      this.rejectEvent = reject;
     });
   }
 
-  canSwitchStartEvent() {
+  canSwitchStartEvent(event) {
     return false;
   }
 
   switchStartEvent(event) {
     if (this.canSwitchStartEvent(event)) {
       _logger.logger.log("Verification Base: switching verification start event", {
-        restartingFlow: !!this._rejectEvent
+        restartingFlow: !!this.rejectEvent
       });
 
-      if (this._rejectEvent) {
-        const reject = this._rejectEvent;
-        this._rejectEvent = undefined;
+      if (this.rejectEvent) {
+        const reject = this.rejectEvent;
+        this.rejectEvent = undefined;
         reject(new SwitchStartEventError(event));
       } else {
         this.startEvent = event;
@@ -173,20 +176,18 @@ class VerificationBase extends _events.EventEmitter {
   handleEvent(e) {
     if (this._done) {
       return;
-    } else if (e.getType() === this._expectedEvent) {
+    } else if (e.getType() === this.expectedEvent) {
       // if we receive an expected m.key.verification.done, then just
       // ignore it, since we don't need to do anything about it
-      if (this._expectedEvent !== "m.key.verification.done") {
-        this._expectedEvent = undefined;
-        this._rejectEvent = undefined;
-
-        this._resetTimer();
-
-        this._resolveEvent(e);
+      if (this.expectedEvent !== "m.key.verification.done") {
+        this.expectedEvent = undefined;
+        this.rejectEvent = undefined;
+        this.resetTimer();
+        this.resolveEvent(e);
       }
     } else if (e.getType() === "m.key.verification.cancel") {
-      const reject = this._reject;
-      this._reject = undefined; // there is only promise to reject if verify has been called
+      const reject = this.reject;
+      this.reject = undefined; // there is only promise to reject if verify has been called
 
       if (reject) {
         const content = e.getContent();
@@ -196,17 +197,17 @@ class VerificationBase extends _events.EventEmitter {
         } = content;
         reject(new Error(`Other side cancelled verification ` + `because ${reason} (${code})`));
       }
-    } else if (this._expectedEvent) {
+    } else if (this.expectedEvent) {
       // only cancel if there is an event expected.
       // if there is no event expected, it means verify() wasn't called
       // and we're just replaying the timeline events when syncing
       // after a refresh when the events haven't been stored in the cache yet.
-      const exception = new Error("Unexpected message: expecting " + this._expectedEvent + " but got " + e.getType());
-      this._expectedEvent = undefined;
+      const exception = new Error("Unexpected message: expecting " + this.expectedEvent + " but got " + e.getType());
+      this.expectedEvent = undefined;
 
-      if (this._rejectEvent) {
-        const reject = this._rejectEvent;
-        this._rejectEvent = undefined;
+      if (this.rejectEvent) {
+        const reject = this.rejectEvent;
+        this.rejectEvent = undefined;
         reject(exception);
       }
 
@@ -215,21 +216,17 @@ class VerificationBase extends _events.EventEmitter {
   }
 
   done() {
-    this._endTimer(); // always kill the activity timer
-
+    this.endTimer(); // always kill the activity timer
 
     if (!this._done) {
       this.request.onVerifierFinished();
-
-      this._resolve();
-
-      return (0, _CrossSigning.requestKeysDuringVerification)(this._baseApis, this.userId, this.deviceId);
+      this.resolve();
+      return (0, _CrossSigning.requestKeysDuringVerification)(this.baseApis, this.userId, this.deviceId);
     }
   }
 
   cancel(e) {
-    this._endTimer(); // always kill the activity timer
-
+    this.endTimer(); // always kill the activity timer
 
     if (!this._done) {
       this.cancelled = true;
@@ -240,8 +237,7 @@ class VerificationBase extends _events.EventEmitter {
         // cancelled by the other user)
         if (e === timeoutException) {
           const timeoutEvent = (0, _Error.newTimeoutError)();
-
-          this._send(timeoutEvent.getType(), timeoutEvent.getContent());
+          this.send(timeoutEvent.getType(), timeoutEvent.getContent());
         } else if (e instanceof _event.MatrixEvent) {
           const sender = e.getSender();
 
@@ -251,31 +247,30 @@ class VerificationBase extends _events.EventEmitter {
             if (e.getType() === "m.key.verification.cancel") {
               content.code = content.code || "m.unknown";
               content.reason = content.reason || content.body || "Unknown reason";
-
-              this._send("m.key.verification.cancel", content);
+              this.send("m.key.verification.cancel", content);
             } else {
-              this._send("m.key.verification.cancel", {
+              this.send("m.key.verification.cancel", {
                 code: "m.unknown",
                 reason: content.body || "Unknown reason"
               });
             }
           }
         } else {
-          this._send("m.key.verification.cancel", {
+          this.send("m.key.verification.cancel", {
             code: "m.unknown",
             reason: e.toString()
           });
         }
       }
 
-      if (this._promise !== null) {
+      if (this.promise !== null) {
         // when we cancel without a promise, we end up with a promise
         // but no reject function. If cancel is called again, we'd error.
-        if (this._reject) this._reject(e);
+        if (this.reject) this.reject(e);
       } else {
         // FIXME: this causes an "Uncaught promise" console message
         // if nothing ends up chaining this promise.
-        this._promise = Promise.reject(e);
+        this.promise = Promise.reject(e);
       } // Also emit a 'cancel' event that the app can listen for to detect cancellation
       // before calling verify()
 
@@ -292,38 +287,32 @@ class VerificationBase extends _events.EventEmitter {
 
 
   verify() {
-    if (this._promise) return this._promise;
-    this._promise = new Promise((resolve, reject) => {
-      this._resolve = (...args) => {
+    if (this.promise) return this.promise;
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = (...args) => {
         this._done = true;
-
-        this._endTimer();
-
+        this.endTimer();
         resolve(...args);
       };
 
-      this._reject = (...args) => {
+      this.reject = e => {
         this._done = true;
-
-        this._endTimer();
-
-        reject(...args);
+        this.endTimer();
+        reject(e);
       };
     });
 
-    if (this._doVerification && !this._started) {
-      this._started = true;
+    if (this.doVerification && !this.started) {
+      this.started = true;
+      this.resetTimer(); // restart the timeout
 
-      this._resetTimer(); // restart the timeout
-
-
-      Promise.resolve(this._doVerification()).then(this.done.bind(this), this.cancel.bind(this));
+      Promise.resolve(this.doVerification()).then(this.done.bind(this), this.cancel.bind(this));
     }
 
-    return this._promise;
+    return this.promise;
   }
 
-  async _verifyKeys(userId, keys, verifier) {
+  async verifyKeys(userId, keys, verifier) {
     // we try to verify all the keys that we're told about, but we might
     // not know about all of them, so keep track of the keys that we know
     // about, and ignore the rest
@@ -331,17 +320,16 @@ class VerificationBase extends _events.EventEmitter {
 
     for (const [keyId, keyInfo] of Object.entries(keys)) {
       const deviceId = keyId.split(':', 2)[1];
-
-      const device = this._baseApis.getStoredDevice(userId, deviceId);
+      const device = this.baseApis.getStoredDevice(userId, deviceId);
 
       if (device) {
-        await verifier(keyId, device, keyInfo);
+        verifier(keyId, device, keyInfo);
         verifiedDevices.push(deviceId);
       } else {
-        const crossSigningInfo = this._baseApis.crypto.deviceList.getStoredCrossSigningForUser(userId);
+        const crossSigningInfo = this.baseApis.crypto.deviceList.getStoredCrossSigningForUser(userId);
 
         if (crossSigningInfo && crossSigningInfo.getId() === deviceId) {
-          await verifier(keyId, _deviceinfo.DeviceInfo.fromStorage({
+          verifier(keyId, _deviceinfo.DeviceInfo.fromStorage({
             keys: {
               [keyId]: deviceId
             }
@@ -365,8 +353,12 @@ class VerificationBase extends _events.EventEmitter {
 
 
     for (const deviceId of verifiedDevices) {
-      await this._baseApis.setDeviceVerified(userId, deviceId);
+      await this.baseApis.setDeviceVerified(userId, deviceId);
     }
+  }
+
+  get events() {
+    return undefined;
   }
 
 }

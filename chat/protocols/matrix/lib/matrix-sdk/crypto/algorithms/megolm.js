@@ -263,13 +263,13 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       const [devicesWithoutSession, olmSessions] = await olmlib.getExistingOlmSessions(this.olmDevice, this.baseApis, shareMap);
       await Promise.all([(async () => {
         // share keys with devices that we already have a session for
-        _logger.logger.debug(`Sharing keys with existing Olm sessions in ${this.roomId}`);
+        _logger.logger.debug(`Sharing keys with existing Olm sessions in ${this.roomId}`, olmSessions);
 
         await this.shareKeyWithOlmSessions(session, key, payload, olmSessions);
 
         _logger.logger.debug(`Shared keys with existing Olm sessions in ${this.roomId}`);
       })(), (async () => {
-        _logger.logger.debug(`Sharing keys (start phase 1) with new Olm sessions in ${this.roomId}`);
+        _logger.logger.debug(`Sharing keys (start phase 1) with new Olm sessions in ${this.roomId}`, devicesWithoutSession);
 
         const errorDevices = []; // meanwhile, establish olm sessions for devices that we don't
         // already have a session for, and share keys with them.  If
@@ -334,8 +334,10 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
         _logger.logger.debug(`Shared keys (all phases done) with new Olm sessions in ${this.roomId}`);
       })(), (async () => {
-        _logger.logger.debug(`Notifying blocked devices in ${this.roomId}`); // also, notify blocked devices that they're blocked
+        _logger.logger.debug(`There are ${Object.entries(blocked).length} blocked devices in ${this.roomId}`, Object.entries(blocked)); // also, notify newly blocked devices that they're blocked
 
+
+        _logger.logger.debug(`Notifying newly blocked devices in ${this.roomId}`);
 
         const blockedMap = {};
         let blockedCount = 0;
@@ -354,7 +356,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
         await this.notifyBlockedDevices(session, blockedMap);
 
-        _logger.logger.debug(`Notified ${blockedCount} blocked devices in ${this.roomId}`);
+        _logger.logger.debug(`Notified ${blockedCount} newly blocked devices in ${this.roomId}`, blockedMap);
       })()]);
     }; // helper which returns the session prepared by prepareSession
 
@@ -600,7 +602,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       contentMap[userId][deviceId] = message;
     }
 
-    await this.baseApis.sendToDevice("org.matrix.room_key.withheld", contentMap); // store that we successfully uploaded the keys of the current slice
+    await this.baseApis.sendToDevice("org.matrix.room_key.withheld", contentMap); // record the fact that we notified these blocked devices
 
     for (const userId of Object.keys(contentMap)) {
       for (const deviceId of Object.keys(contentMap[userId])) {
@@ -724,11 +726,11 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
     this.getDevicesWithoutSessions(devicemap, devicesByUser, errorDevices);
 
-    _logger.logger.debug(`Sharing keys with Olm sessions in ${this.roomId}`);
+    _logger.logger.debug(`Sharing keys with newly created Olm sessions in ${this.roomId}`);
 
     await this.shareKeyWithOlmSessions(session, key, payload, devicemap);
 
-    _logger.logger.debug(`Shared keys with Olm sessions in ${this.roomId}`);
+    _logger.logger.debug(`Shared keys with newly created Olm sessions in ${this.roomId}`);
   }
 
   async shareKeyWithOlmSessions(session, key, payload, devicemap) {
@@ -738,7 +740,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       const taskDetail = `megolm keys for ${session.sessionId} ` + `in ${this.roomId} (slice ${i + 1}/${userDeviceMaps.length})`;
 
       try {
-        _logger.logger.debug(`Sharing ${taskDetail}`);
+        _logger.logger.debug(`Sharing ${taskDetail}`, userDeviceMaps[i].map(d => `${d.userId}/${d.deviceInfo.deviceId}`));
 
         await this.encryptAndSendKeysToDevices(session, key.chain_index, userDeviceMaps[i], payload);
 
@@ -775,16 +777,16 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       session.markSharedWithDevice(userId, deviceId, deviceInfo.getIdentityKey(), key.chain_index);
     }
 
-    const filteredFailedDevices = await this.olmDevice.filterOutNotifiedErrorDevices(failedDevices);
+    const unnotifiedFailedDevices = await this.olmDevice.filterOutNotifiedErrorDevices(failedDevices);
 
-    _logger.logger.debug(`Filtered down to ${filteredFailedDevices.length} error devices ` + `in ${this.roomId}`);
+    _logger.logger.debug(`Need to notify ${unnotifiedFailedDevices.length} failed devices ` + `which haven't been notified before in ${this.roomId}`);
 
     const blockedMap = {};
 
     for (const {
       userId,
       deviceInfo
-    } of filteredFailedDevices) {
+    } of unnotifiedFailedDevices) {
       blockedMap[userId] = blockedMap[userId] || {}; // we use a similar format to what
       // olmlib.ensureOlmSessionsForDevices returns, so that
       // we can use the same function to split
@@ -801,7 +803,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
     await this.notifyBlockedDevices(session, blockedMap);
 
-    _logger.logger.debug(`Notified ${filteredFailedDevices.length} devices we failed to ` + `create Olm sessions in ${this.roomId}`);
+    _logger.logger.debug(`Notified ${unnotifiedFailedDevices.length} devices we failed to ` + `create Olm sessions in ${this.roomId}`);
   }
   /**
    * Notify blocked devices that they have been blocked.

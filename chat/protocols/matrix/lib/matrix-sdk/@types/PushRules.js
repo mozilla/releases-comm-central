@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.TweakName = exports.RuleId = exports.PushRuleKind = exports.PushRuleActionName = exports.DMMemberCountCondition = exports.ConditionOperator = exports.ConditionKind = void 0;
 exports.isDmMemberCountCondition = isDmMemberCountCondition;
-exports.RuleId = exports.PushRuleKind = exports.ConditionKind = exports.DMMemberCountCondition = exports.ConditionOperator = exports.TweakName = exports.PushRuleActionName = void 0;
 
 /*
 Copyright 2021 The Matrix.org Foundation C.I.C.

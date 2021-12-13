@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC3088_PURPOSE = exports.RoomType = exports.RoomCreateTypeField = exports.MsgType = exports.RelationType = exports.EventType = void 0;
+exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.MsgType = exports.EventType = void 0;
 
 var _NamespacedValue = require("../NamespacedValue");
 
@@ -88,6 +88,7 @@ exports.RelationType = RelationType;
 (function (RelationType) {
   RelationType["Annotation"] = "m.annotation";
   RelationType["Replace"] = "m.replace";
+  RelationType["Thread"] = "io.element.thread";
 })(RelationType || (exports.RelationType = RelationType = {}));
 
 let MsgType;
@@ -102,6 +103,7 @@ exports.MsgType = MsgType;
   MsgType["Audio"] = "m.audio";
   MsgType["Location"] = "m.location";
   MsgType["Video"] = "m.video";
+  MsgType["KeyVerificationRequest"] = "m.key.verification.request";
 })(MsgType || (exports.MsgType = MsgType = {}));
 
 const RoomCreateTypeField = "type";

@@ -3,44 +3,45 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.encodeParams = encodeParams;
-exports.decodeParams = decodeParams;
-exports.encodeUri = encodeUri;
-exports.removeElement = removeElement;
-exports.isFunction = isFunction;
+exports.DEFAULT_ALPHABET = void 0;
+exports.alphabetPad = alphabetPad;
+exports.averageBetweenStrings = averageBetweenStrings;
+exports.baseToString = baseToString;
 exports.checkObjectHasKeys = checkObjectHasKeys;
 exports.checkObjectHasNoAdditionalKeys = checkObjectHasNoAdditionalKeys;
-exports.deepCopy = deepCopy;
+exports.chunkPromises = chunkPromises;
+exports.compare = compare;
+exports.decodeParams = decodeParams;
 exports.deepCompare = deepCompare;
+exports.deepCopy = deepCopy;
 exports.deepSortedObjectEntries = deepSortedObjectEntries;
-exports.extend = extend;
-exports.inherits = inherits;
-exports.polyfillSuper = polyfillSuper;
-exports.isNumber = isNumber;
-exports.removeHiddenChars = removeHiddenChars;
-exports.normalize = normalize;
-exports.escapeRegExp = escapeRegExp;
-exports.globToRegexp = globToRegexp;
-exports.ensureNoTrailingSlash = ensureNoTrailingSlash;
-exports.sleep = sleep;
-exports.isNullOrUndefined = isNullOrUndefined;
 exports.defer = defer;
+exports.encodeParams = encodeParams;
+exports.encodeUri = encodeUri;
+exports.ensureNoTrailingSlash = ensureNoTrailingSlash;
+exports.escapeRegExp = escapeRegExp;
+exports.extend = extend;
+exports.getCrypto = getCrypto;
+exports.globToRegexp = globToRegexp;
+exports.inherits = inherits;
+exports.isFunction = isFunction;
+exports.isNullOrUndefined = isNullOrUndefined;
+exports.isNumber = isNumber;
+exports.lexicographicCompare = lexicographicCompare;
+exports.nextString = nextString;
+exports.normalize = normalize;
+exports.polyfillSuper = polyfillSuper;
+exports.prevString = prevString;
 exports.promiseMapSeries = promiseMapSeries;
 exports.promiseTry = promiseTry;
-exports.chunkPromises = chunkPromises;
-exports.simpleRetryOperation = simpleRetryOperation;
-exports.setCrypto = setCrypto;
-exports.getCrypto = getCrypto;
-exports.alphabetPad = alphabetPad;
-exports.baseToString = baseToString;
-exports.stringToBase = stringToBase;
-exports.averageBetweenStrings = averageBetweenStrings;
-exports.nextString = nextString;
-exports.prevString = prevString;
-exports.lexicographicCompare = lexicographicCompare;
-exports.compare = compare;
 exports.recursivelyAssign = recursivelyAssign;
-exports.DEFAULT_ALPHABET = void 0;
+exports.removeDirectionOverrideChars = removeDirectionOverrideChars;
+exports.removeElement = removeElement;
+exports.removeHiddenChars = removeHiddenChars;
+exports.setCrypto = setCrypto;
+exports.simpleRetryOperation = simpleRetryOperation;
+exports.sleep = sleep;
+exports.stringToBase = stringToBase;
 
 var _unhomoglyph = _interopRequireDefault(require("unhomoglyph"));
 
@@ -446,6 +447,20 @@ function isNumber(value) {
 function removeHiddenChars(str) {
   if (typeof str === "string") {
     return (0, _unhomoglyph.default)(str.normalize('NFD').replace(removeHiddenCharsRegex, ''));
+  }
+
+  return "";
+}
+/**
+ * Removes the direction override characters from a string
+ * @param {string} input
+ * @returns string with chars removed
+ */
+
+
+function removeDirectionOverrideChars(str) {
+  if (typeof str === "string") {
+    return str.replace(/[\u202d-\u202e]/g, '');
   }
 
   return "";

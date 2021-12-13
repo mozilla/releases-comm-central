@@ -3,9 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isCryptoAvailable = isCryptoAvailable;
+exports.IncomingRoomKeyRequest = exports.Crypto = void 0;
 exports.fixBackupKey = fixBackupKey;
-exports.IncomingRoomKeyRequest = exports.Crypto = exports.verificationMethods = void 0;
+exports.isCryptoAvailable = isCryptoAvailable;
+exports.verificationMethods = void 0;
 
 var _anotherJson = _interopRequireDefault(require("another-json"));
 
@@ -84,13 +85,11 @@ const defaultVerificationMethods = {
  */
 // legacy export identifier
 
-let verificationMethods;
+const verificationMethods = {
+  RECIPROCATE_QR_CODE: _QRCode.ReciprocateQRCode.NAME,
+  SAS: _SAS.SAS.NAME
+};
 exports.verificationMethods = verificationMethods;
-
-(function (verificationMethods) {
-  verificationMethods[verificationMethods["RECIPROCATE_QR_CODE"] = _QRCode.ReciprocateQRCode.NAME] = "RECIPROCATE_QR_CODE";
-  verificationMethods[verificationMethods["SAS"] = _SAS.SAS.NAME] = "SAS";
-})(verificationMethods || (exports.verificationMethods = verificationMethods = {}));
 
 function isCryptoAvailable() {
   return Boolean(global.Olm);
@@ -727,8 +726,6 @@ class Crypto extends _events.EventEmitter {
     let newKeyId = null; // create a new SSSS key and set it as default
 
     const createSSSS = async (opts, privateKey) => {
-      opts = opts || {};
-
       if (privateKey) {
         opts.key = privateKey;
       }
@@ -821,7 +818,7 @@ class Crypto extends _events.EventEmitter {
 
       const backupKey = (await this.getSessionBackupPrivateKey()) || (await getKeyBackupPassphrase()); // create a new SSSS key and use the backup key as the new SSSS key
 
-      const opts = {}; // TODO types
+      const opts = {};
 
       if (keyBackupInfo.auth_data.private_key_salt && keyBackupInfo.auth_data.private_key_iterations) {
         // FIXME: ???
@@ -1020,7 +1017,7 @@ class Crypto extends _events.EventEmitter {
     }
 
     if (key && key.ciphertext) {
-      const pickleKey = Buffer.from(this.olmDevice._pickleKey);
+      const pickleKey = Buffer.from(this.olmDevice.pickleKey);
       const decrypted = await (0, _aes.decryptAES)(key, pickleKey, "m.megolm_backup.v1");
       key = olmlib.decodeBase64(decrypted);
     }
@@ -1039,7 +1036,7 @@ class Crypto extends _events.EventEmitter {
       throw new Error(`storeSessionBackupPrivateKey expects Uint8Array, got ${key}`);
     }
 
-    const pickleKey = Buffer.from(this.olmDevice._pickleKey);
+    const pickleKey = Buffer.from(this.olmDevice.pickleKey);
     const encryptedKey = await (0, _aes.encryptAES)(olmlib.encodeBase64(key), pickleKey, "m.megolm_backup.v1");
     return this.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
       this.cryptoStore.storeSecretStorePrivateKey(txn, "m.megolm_backup.v1", encryptedKey);
@@ -1195,8 +1192,7 @@ class Crypto extends _events.EventEmitter {
    */
 
 
-  async checkForValidDeviceSignature(userId, key, // TODO types
-  devices) {
+  async checkForValidDeviceSignature(userId, key, devices) {
     const deviceIds = [];
 
     if (devices && key.signatures && key.signatures[userId]) {
@@ -1471,7 +1467,6 @@ class Crypto extends _events.EventEmitter {
 
 
   async storeTrustedSelfKeys(keys) {
-    // TODO types
     if (keys) {
       this.crossSigningInfo.setKeys(keys);
     } else {
@@ -2094,8 +2089,7 @@ class Crypto extends _events.EventEmitter {
     return this.requestVerificationWithChannel(userId, channel, this.toDeviceVerificationRequests);
   }
 
-  async requestVerificationWithChannel(userId, channel, // TODO types
-  requestsMap // TODO types
+  async requestVerificationWithChannel(userId, channel, requestsMap // TODO types
   ) {
     let request = new _VerificationRequest.VerificationRequest(channel, this.verificationMethods, this.baseApis); // if transaction id is already known, add request
 
@@ -2482,6 +2476,7 @@ class Crypto extends _events.EventEmitter {
    * the given users.
    *
    * @param {string[]} users list of user ids
+   * @param {boolean} force If true, force a new Olm session to be created. Default false.
    *
    * @return {Promise} resolves once the sessions are complete, to
    *    an Object mapping from userId to deviceId to
@@ -2489,7 +2484,7 @@ class Crypto extends _events.EventEmitter {
    */
 
 
-  ensureOlmSessionsForUsers(users) {
+  ensureOlmSessionsForUsers(users, force) {
     const devicesByUser = {};
 
     for (let i = 0; i < users.length; ++i) {
@@ -2515,7 +2510,7 @@ class Crypto extends _events.EventEmitter {
       }
     }
 
-    return olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, devicesByUser);
+    return olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, devicesByUser, force);
   }
   /**
    * Get a list containing all of the room keys
@@ -2548,7 +2543,6 @@ class Crypto extends _events.EventEmitter {
 
 
   importRoomKeys(keys, opts = {}) {
-    // TODO types
     let successes = 0;
     let failures = 0;
     const total = keys.length;
@@ -2583,7 +2577,7 @@ class Crypto extends _events.EventEmitter {
           updateProgress();
         }
       });
-    }));
+    })).then();
   }
   /**
    * Counts the number of end to end session keys that are waiting to be backed up
@@ -2656,12 +2650,24 @@ class Crypto extends _events.EventEmitter {
       // Clone content here so we don't remove `m.relates_to` from the local-echo
       content = Object.assign({}, content);
       delete content['m.relates_to'];
+    } // Treat element's performance metrics the same as `m.relates_to` (when present)
+
+
+    const elementPerfMetrics = content['io.element.performance_metrics'];
+
+    if (elementPerfMetrics) {
+      content = Object.assign({}, content);
+      delete content['io.element.performance_metrics'];
     }
 
     const encryptedContent = await alg.encryptMessage(room, event.getType(), content);
 
     if (mRelatesTo) {
       encryptedContent['m.relates_to'] = mRelatesTo;
+    }
+
+    if (elementPerfMetrics) {
+      encryptedContent['io.element.performance_metrics'] = elementPerfMetrics;
     }
 
     event.makeEncrypted("m.room.encrypted", encryptedContent, this.olmDevice.deviceCurve25519Key, this.olmDevice.deviceEd25519Key);
@@ -3021,6 +3027,34 @@ class Crypto extends _events.EventEmitter {
   async handleVerificationEvent(event, requestsMap, // TODO types
   createRequest, // TODO types
   isLiveEvent = true) {
+    // Wait for event to get its final ID with pendingEventOrdering: "chronological", since DM channels depend on it.
+    if (event.isSending() && event.status != _event.EventStatus.SENT) {
+      let eventIdListener;
+      let statusListener;
+
+      try {
+        await new Promise((resolve, reject) => {
+          eventIdListener = resolve;
+
+          statusListener = () => {
+            if (event.status == _event.EventStatus.CANCELLED) {
+              reject(new Error("Event status set to CANCELLED."));
+            }
+          };
+
+          event.once("Event.localEventIdReplaced", eventIdListener);
+          event.on("Event.status", statusListener);
+        });
+      } catch (err) {
+        _logger.logger.error("error while waiting for the verification event to be sent: " + err.message);
+
+        return;
+      } finally {
+        event.removeListener("Event.localEventIdReplaced", eventIdListener);
+        event.removeListener("Event.status", statusListener);
+      }
+    }
+
     let request = requestsMap.getRequest(event);
     let isNewRequest = false;
 

@@ -3,9 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.UserTrustLevel = exports.DeviceTrustLevel = exports.CrossSigningLevel = exports.CrossSigningInfo = void 0;
 exports.createCryptoStoreCacheCallbacks = createCryptoStoreCacheCallbacks;
 exports.requestKeysDuringVerification = requestKeysDuringVerification;
-exports.DeviceTrustLevel = exports.UserTrustLevel = exports.CrossSigningLevel = exports.CrossSigningInfo = void 0;
 
 var _events = require("events");
 
@@ -293,8 +293,7 @@ class CrossSigningInfo extends _events.EventEmitter {
     }
 
     const privateKeys = {};
-    const keys = {}; // TODO types
-
+    const keys = {};
     let masterSigning;
     let masterPub;
 
@@ -719,7 +718,7 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
       });
 
       if (key && key.ciphertext) {
-        const pickleKey = Buffer.from(olmDevice._pickleKey);
+        const pickleKey = Buffer.from(olmDevice.pickleKey);
         const decrypted = await (0, _aes.decryptAES)(key, pickleKey, type);
         return (0, _olmlib.decodeBase64)(decrypted);
       } else {
@@ -731,7 +730,7 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
         throw new Error(`storeCrossSigningKeyCache expects Uint8Array, got ${key}`);
       }
 
-      const pickleKey = Buffer.from(olmDevice._pickleKey);
+      const pickleKey = Buffer.from(olmDevice.pickleKey);
       const encryptedKey = await (0, _aes.encryptAES)((0, _olmlib.encodeBase64)(key), pickleKey, type);
       return store.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
         store.storeSecretStorePrivateKey(txn, type, encryptedKey);
@@ -739,6 +738,7 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
     }
   };
 }
+
 /**
  * Request cross-signing keys from another device during verification.
  *
@@ -746,16 +746,14 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
  * @param {string} userId The user ID being verified
  * @param {string} deviceId The device ID being verified
  */
-
-
-async function requestKeysDuringVerification(baseApis, userId, deviceId) {
+function requestKeysDuringVerification(baseApis, userId, deviceId) {
   // If this is a self-verification, ask the other party for keys
   if (baseApis.getUserId() !== userId) {
     return;
   }
 
   _logger.logger.log("Cross-signing: Self-verification done; requesting keys"); // This happens asynchronously, and we're not concerned about waiting for
-  // it.  We return here in order to test.
+  // it. We return here in order to test.
 
 
   return new Promise((resolve, reject) => {
@@ -782,7 +780,7 @@ async function requestKeysDuringVerification(baseApis, userId, deviceId) {
     // then change here to reject on the timeout
     // Requests can be ignored, so don't wait around forever
 
-    const timeout = new Promise((resolve, reject) => {
+    const timeout = new Promise(resolve => {
       setTimeout(resolve, KEY_REQUEST_TIMEOUT_MS, new Error("Timeout"));
     }); // also request and cache the key backup key
 
@@ -801,7 +799,7 @@ async function requestKeysDuringVerification(baseApis, userId, deviceId) {
 
         _logger.logger.info("Decoded backup key, storing...");
 
-        client.crypto.storeSessionBackupPrivateKey(Uint8Array.from(decodedKey));
+        await client.crypto.storeSessionBackupPrivateKey(Uint8Array.from(decodedKey));
 
         _logger.logger.info("Backup key stored. Starting backup restore...");
 

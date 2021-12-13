@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.randomString = randomString;
 exports.randomLowercaseString = randomLowercaseString;
+exports.randomString = randomString;
 exports.randomUppercaseString = randomUppercaseString;
 
 /*

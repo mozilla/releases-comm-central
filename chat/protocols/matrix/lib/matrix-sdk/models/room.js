@@ -29,6 +29,8 @@ var _event2 = require("../@types/event");
 
 var _client = require("../client");
 
+var _thread = require("./thread");
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -90,6 +92,10 @@ class Room extends _events.EventEmitter {
   // $tagName: { $metadata: $value }
   // $eventType: $event
   // legacy fields
+
+  /**
+   * @experimental
+   */
 
   /**
    * Construct a new Room.
@@ -209,14 +215,11 @@ class Room extends _events.EventEmitter {
 
     _defineProperty(this, "currentState", void 0);
 
+    _defineProperty(this, "threads", new Map());
+
     this.setMaxListeners(100);
     this.reEmitter = new _ReEmitter.ReEmitter(this);
     opts.pendingEventOrdering = opts.pendingEventOrdering || _client.PendingEventOrdering.Chronological;
-
-    if (["chronological", "detached"].indexOf(opts.pendingEventOrdering) === -1) {
-      throw new Error("opts.pendingEventOrdering MUST be either 'chronological' or " + "'detached'. Got: '" + opts.pendingEventOrdering + "'");
-    }
-
     this.name = roomId; // all our per-room timeline sets. the first one is the unfiltered ones;
     // the subsequent ones are the filtered ones in no particular order.
 
@@ -224,7 +227,7 @@ class Room extends _events.EventEmitter {
     this.reEmitter.reEmit(this.getUnfilteredTimelineSet(), ["Room.timeline", "Room.timelineReset"]);
     this.fixUpLegacyTimelineFields();
 
-    if (this.opts.pendingEventOrdering == "detached") {
+    if (this.opts.pendingEventOrdering === _client.PendingEventOrdering.Detached) {
       this.pendingEventList = [];
       const serializedPendingEventList = client.sessionStore.store.getItem(pendingEventsKey(this.roomId));
 
@@ -440,12 +443,14 @@ class Room extends _events.EventEmitter {
    */
 
 
-  getPendingEvents() {
-    if (this.opts.pendingEventOrdering !== "detached") {
+  getPendingEvents(thread) {
+    if (this.opts.pendingEventOrdering !== _client.PendingEventOrdering.Detached) {
       throw new Error("Cannot call getPendingEvents with pendingEventOrdering == " + this.opts.pendingEventOrdering);
     }
 
-    return this.pendingEventList;
+    return this.pendingEventList.filter(event => {
+      return !thread || thread.id === event.threadRootId;
+    });
   }
   /**
    * Removes a pending event for this room
@@ -456,7 +461,7 @@ class Room extends _events.EventEmitter {
 
 
   removePendingEvent(eventId) {
-    if (this.opts.pendingEventOrdering !== "detached") {
+    if (this.opts.pendingEventOrdering !== _client.PendingEventOrdering.Detached) {
       throw new Error("Cannot call removePendingEvent with pendingEventOrdering == " + this.opts.pendingEventOrdering);
     }
 
@@ -476,7 +481,7 @@ class Room extends _events.EventEmitter {
 
 
   hasPendingEvent(eventId) {
-    if (this.opts.pendingEventOrdering !== "detached") {
+    if (this.opts.pendingEventOrdering !== _client.PendingEventOrdering.Detached) {
       return false;
     }
 
@@ -491,7 +496,7 @@ class Room extends _events.EventEmitter {
 
 
   getPendingEvent(eventId) {
-    if (this.opts.pendingEventOrdering !== "detached") {
+    if (this.opts.pendingEventOrdering !== _client.PendingEventOrdering.Detached) {
       return null;
     }
 
@@ -678,9 +683,13 @@ class Room extends _events.EventEmitter {
   async loadMembers() {
     // were the members loaded from the server?
     let fromServer = false;
-    let rawMembersEvents = await this.client.store.getOutOfBandMembers(this.roomId);
+    let rawMembersEvents = await this.client.store.getOutOfBandMembers(this.roomId); // If the room is encrypted, we always fetch members from the server at
+    // least once, in case the latest state wasn't persisted properly.  Note
+    // that this function is only called once (unless loading the members
+    // fails), since loadMembersIfNeeded always returns this.membersPromise
+    // if set, which will be the result of the first (successful) call.
 
-    if (rawMembersEvents === null) {
+    if (rawMembersEvents === null || this.client.isCryptoEnabled() && this.client.isRoomEncrypted(this.roomId)) {
       fromServer = true;
       rawMembersEvents = await this.loadMembersFromServer();
 
@@ -866,7 +875,14 @@ class Room extends _events.EventEmitter {
 
 
   getTimelineForEvent(eventId) {
-    return this.getUnfilteredTimelineSet().getTimelineForEvent(eventId);
+    const event = this.findEventById(eventId);
+    const thread = this.findThreadForEvent(event);
+
+    if (thread) {
+      return thread.timelineSet.getLiveTimeline();
+    } else {
+      return this.getUnfilteredTimelineSet().getTimelineForEvent(eventId);
+    }
   }
   /**
    * Add a new timeline to this room's unfiltered timeline set
@@ -879,7 +895,7 @@ class Room extends _events.EventEmitter {
     return this.getUnfilteredTimelineSet().addTimeline();
   }
   /**
-   * Get an event which is stored in our unfiltered timeline set
+   * Get an event which is stored in our unfiltered timeline set or in a thread
    *
    * @param {string} eventId  event ID to look for
    * @return {?module:models/event.MatrixEvent} the given event, or undefined if unknown
@@ -887,7 +903,22 @@ class Room extends _events.EventEmitter {
 
 
   findEventById(eventId) {
-    return this.getUnfilteredTimelineSet().findEventById(eventId);
+    let event = this.getUnfilteredTimelineSet().findEventById(eventId);
+
+    if (event) {
+      return event;
+    } else {
+      const threads = this.getThreads();
+
+      for (let i = 0; i < threads.length; i++) {
+        const thread = threads[i];
+        event = thread.findEventById(eventId);
+
+        if (event) {
+          return event;
+        }
+      }
+    }
   }
   /**
    * Get one of the notification counts for this room
@@ -1079,6 +1110,24 @@ class Room extends _events.EventEmitter {
     timeline.getTimelineSet().addEventsToTimeline(events, toStartOfTimeline, timeline, paginationToken);
   }
   /**
+   * @experimental
+   */
+
+
+  getThread(eventId) {
+    return this.getThreads().find(thread => {
+      return thread.id === eventId;
+    });
+  }
+  /**
+   * @experimental
+   */
+
+
+  getThreads() {
+    return Array.from(this.threads.values());
+  }
+  /**
    * Get a member from the current room state.
    * @param {string} userId The user ID of the member.
    * @return {RoomMember} The member or <code>null</code>.
@@ -1267,6 +1316,61 @@ class Room extends _events.EventEmitter {
       this.timelineSets.splice(i, 1);
     }
   }
+
+  findThreadForEvent(event) {
+    if (!event) {
+      return null;
+    }
+
+    if (event.isThreadRelation) {
+      return this.threads.get(event.threadRootId);
+    } else if (event.isThreadRoot) {
+      return this.threads.get(event.getId());
+    } else {
+      const parentEvent = this.findEventById(event.parentEventId);
+      return this.findThreadForEvent(parentEvent);
+    }
+  }
+  /**
+   * Add an event to a thread's timeline. Will fire "Thread.update"
+   * @experimental
+   */
+
+
+  async addThreadedEvent(event) {
+    let thread = this.findThreadForEvent(event);
+
+    if (thread) {
+      thread.addEvent(event);
+    } else {
+      const events = [event];
+      let rootEvent = this.findEventById(event.threadRootId); // If the rootEvent does not exist in the current sync, then look for
+      // it over the network
+
+      if (!rootEvent) {
+        const eventData = await this.client.fetchRoomEvent(this.roomId, event.threadRootId);
+        rootEvent = new _event.MatrixEvent(eventData);
+      }
+
+      events.unshift(rootEvent);
+      thread = new _thread.Thread(events, this, this.client);
+      this.threads.set(thread.id, thread);
+      this.reEmitter.reEmit(thread, [_thread.ThreadEvent.Update, _thread.ThreadEvent.Ready]);
+      this.emit(_thread.ThreadEvent.New, thread);
+    }
+
+    if (event.getUnsigned().transaction_id) {
+      const existingEvent = this.txnToEvent[event.getUnsigned().transaction_id];
+
+      if (existingEvent) {
+        // remote echo of an event we sent earlier
+        this.handleRemoteEcho(event, existingEvent);
+        return;
+      }
+    }
+
+    this.emit(_thread.ThreadEvent.Update, thread);
+  }
   /**
    * Add an event to the end of this room's live timelines. Will fire
    * "Room.timeline".
@@ -1283,7 +1387,7 @@ class Room extends _events.EventEmitter {
     if (event.isRedaction()) {
       const redactId = event.event.redacts; // if we know about this event, redact its contents now.
 
-      const redactedEvent = this.getUnfilteredTimelineSet().findEventById(redactId);
+      const redactedEvent = this.findEventById(redactId);
 
       if (redactedEvent) {
         redactedEvent.makeRedacted(event); // If this is in the current state, replace it with the redacted version
@@ -1370,8 +1474,9 @@ class Room extends _events.EventEmitter {
     _eventTimeline.EventTimeline.setEventMetadata(event, this.getLiveTimeline().getState(_eventTimeline.EventTimeline.FORWARDS), false);
 
     this.txnToEvent[txnId] = event;
+    const thread = this.threads.get(event.threadRootId);
 
-    if (this.opts.pendingEventOrdering == "detached") {
+    if (this.opts.pendingEventOrdering === _client.PendingEventOrdering.Detached && !thread) {
       if (this.pendingEventList.some(e => e.status === _event.EventStatus.NOT_SENT)) {
         _logger.logger.warn("Setting event as NOT_SENT due to messages in the same state");
 
@@ -1393,7 +1498,7 @@ class Room extends _events.EventEmitter {
         let redactedEvent = this.pendingEventList && this.pendingEventList.find(e => e.getId() === redactId);
 
         if (!redactedEvent) {
-          redactedEvent = this.getUnfilteredTimelineSet().findEventById(redactId);
+          redactedEvent = this.findEventById(redactId);
         }
 
         if (redactedEvent) {
@@ -1402,15 +1507,19 @@ class Room extends _events.EventEmitter {
         }
       }
     } else {
-      for (let i = 0; i < this.timelineSets.length; i++) {
-        const timelineSet = this.timelineSets[i];
+      if (thread) {
+        thread.timelineSet.addEventToTimeline(event, thread.timelineSet.getLiveTimeline(), false);
+      } else {
+        for (let i = 0; i < this.timelineSets.length; i++) {
+          const timelineSet = this.timelineSets[i];
 
-        if (timelineSet.getFilter()) {
-          if (timelineSet.getFilter().filterRoomTimeline([event]).length) {
+          if (timelineSet.getFilter()) {
+            if (timelineSet.getFilter().filterRoomTimeline([event]).length) {
+              timelineSet.addEventToTimeline(event, timelineSet.getLiveTimeline(), false);
+            }
+          } else {
             timelineSet.addEventToTimeline(event, timelineSet.getLiveTimeline(), false);
           }
-        } else {
-          timelineSet.addEventToTimeline(event, timelineSet.getLiveTimeline(), false);
         }
       }
     }
@@ -1468,17 +1577,23 @@ class Room extends _events.EventEmitter {
 
 
   aggregateNonLiveRelation(event) {
-    // TODO: We should consider whether this means it would be a better
-    // design to lift the relations handling up to the room instead.
-    for (let i = 0; i < this.timelineSets.length; i++) {
-      const timelineSet = this.timelineSets[i];
+    const thread = this.findThreadForEvent(event);
 
-      if (timelineSet.getFilter()) {
-        if (timelineSet.getFilter().filterRoomTimeline([event]).length) {
+    if (thread) {
+      thread.timelineSet.aggregateRelations(event);
+    } else {
+      // TODO: We should consider whether this means it would be a better
+      // design to lift the relations handling up to the room instead.
+      for (let i = 0; i < this.timelineSets.length; i++) {
+        const timelineSet = this.timelineSets[i];
+
+        if (timelineSet.getFilter()) {
+          if (timelineSet.getFilter().filterRoomTimeline([event]).length) {
+            timelineSet.aggregateRelations(event);
+          }
+        } else {
           timelineSet.aggregateRelations(event);
         }
-      } else {
-        timelineSet.aggregateRelations(event);
       }
     }
   }
@@ -1515,11 +1630,16 @@ class Room extends _events.EventEmitter {
 
 
     localEvent.handleRemoteEcho(remoteEvent.event);
+    const thread = this.threads.get(remoteEvent.threadRootId);
 
-    for (let i = 0; i < this.timelineSets.length; i++) {
-      const timelineSet = this.timelineSets[i]; // if it's already in the timeline, update the timeline map. If it's not, add it.
+    if (thread) {
+      thread.timelineSet.handleRemoteEcho(localEvent, oldEventId, newEventId);
+    } else {
+      for (let i = 0; i < this.timelineSets.length; i++) {
+        const timelineSet = this.timelineSets[i]; // if it's already in the timeline, update the timeline map. If it's not, add it.
 
-      timelineSet.handleRemoteEcho(localEvent, oldEventId, newEventId);
+        timelineSet.handleRemoteEcho(localEvent, oldEventId, newEventId);
+      }
     }
 
     this.emit("Room.localEchoUpdated", localEvent, this, oldEventId, oldStatus);
@@ -1548,7 +1668,7 @@ class Room extends _events.EventEmitter {
 
 
     if (newStatus == _event.EventStatus.SENT) {
-      const timeline = this.getUnfilteredTimelineSet().eventIdToTimeline(newEventId);
+      const timeline = this.getTimelineForEvent(newEventId);
 
       if (timeline) {
         // we've already received the event via the event stream.
@@ -1574,12 +1694,18 @@ class Room extends _events.EventEmitter {
 
     if (newStatus == _event.EventStatus.SENT) {
       // update the event id
-      event.replaceLocalEventId(newEventId); // if the event was already in the timeline (which will be the case if
-      // opts.pendingEventOrdering==chronological), we need to update the
-      // timeline map.
+      event.replaceLocalEventId(newEventId);
+      const thread = this.findThreadForEvent(event);
 
-      for (let i = 0; i < this.timelineSets.length; i++) {
-        this.timelineSets[i].replaceEventId(oldEventId, newEventId);
+      if (thread) {
+        thread.timelineSet.replaceEventId(oldEventId, newEventId);
+      } else {
+        // if the event was already in the timeline (which will be the case if
+        // opts.pendingEventOrdering==chronological), we need to update the
+        // timeline map.
+        for (let i = 0; i < this.timelineSets.length; i++) {
+          this.timelineSets[i].replaceEventId(oldEventId, newEventId);
+        }
       }
     } else if (newStatus == _event.EventStatus.CANCELLED) {
       // remove it from the pending event list, or the timeline.
@@ -1664,6 +1790,11 @@ class Room extends _events.EventEmitter {
       // TODO: We should have a filter to say "only add state event
       // types X Y Z to the timeline".
       this.addLiveEvent(events[i], duplicateStrategy, fromCache);
+      const thread = this.threads.get(events[i].getId());
+
+      if (thread) {
+        thread.addEvent(events[i], true);
+      }
     }
   }
   /**
@@ -2029,6 +2160,24 @@ class Room extends _events.EventEmitter {
 
   getJoinRule() {
     return this.currentState.getJoinRule();
+  }
+  /**
+   * Returns the history visibility based on the m.room.history_visibility state event, defaulting to `shared`.
+   * @returns {HistoryVisibility} the history_visibility applied to this room
+   */
+
+
+  getHistoryVisibility() {
+    return this.currentState.getHistoryVisibility();
+  }
+  /**
+   * Returns the history visibility based on the m.room.history_visibility state event, defaulting to `shared`.
+   * @returns {HistoryVisibility} the history_visibility applied to this room
+   */
+
+
+  getGuestAccess() {
+    return this.currentState.getGuestAccess();
   }
   /**
    * Returns the type of the room from the `m.room.create` event content or undefined if none is set

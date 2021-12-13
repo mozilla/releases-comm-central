@@ -358,8 +358,11 @@ class EventTimeline {
    */
 
 
-  addEvent(event, atStart) {
-    const stateContext = atStart ? this.startState : this.endState;
+  addEvent(event, atStart, stateContext) {
+    if (!stateContext) {
+      stateContext = atStart ? this.startState : this.endState;
+    }
+
     const timelineSet = this.getTimelineSet();
 
     if (timelineSet.room) {

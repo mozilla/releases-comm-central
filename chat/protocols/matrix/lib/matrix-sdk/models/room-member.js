@@ -122,8 +122,10 @@ class RoomMember extends _events.EventEmitter {
     this.membership = event.getDirectionalContent().membership;
     this.disambiguate = shouldDisambiguate(this.userId, displayName, roomState);
     const oldName = this.name;
-    this.name = calculateDisplayName(this.userId, displayName, roomState, this.disambiguate);
-    this.rawDisplayName = event.getDirectionalContent().displayname;
+    this.name = calculateDisplayName(this.userId, displayName, roomState, this.disambiguate); // not quite raw: we strip direction override chars so it can safely be inserted into
+    // blocks of text without breaking the text direction
+
+    this.rawDisplayName = utils.removeDirectionOverrideChars(event.getDirectionalContent().displayname);
 
     if (!this.rawDisplayName || !utils.removeHiddenChars(this.rawDisplayName)) {
       this.rawDisplayName = this.userId;
@@ -346,12 +348,23 @@ function shouldDisambiguate(selfUserId, displayName, roomState) {
 }
 
 function calculateDisplayName(selfUserId, displayName, roomState, disambiguate) {
-  if (disambiguate) return displayName + " (" + selfUserId + ")";
+  if (disambiguate) return utils.removeDirectionOverrideChars(displayName) + " (" + selfUserId + ")";
   if (!displayName || displayName === selfUserId) return selfUserId; // First check if the displayname is something we consider truthy
   // after stripping it of zero width characters and padding spaces
 
-  if (!utils.removeHiddenChars(displayName)) return selfUserId;
-  return displayName;
+  if (!utils.removeHiddenChars(displayName)) return selfUserId; // We always strip the direction override characters (LRO and RLO).
+  // These override the text direction for all subsequent characters
+  // in the paragraph so if display names contained these, they'd
+  // need to be wrapped in something to prevent this from leaking out
+  // (which we can do in HTML but not text) or we'd need to add
+  // control characters to the string to reset any overrides (eg.
+  // adding PDF characters at the end). As far as we can see,
+  // there should be no reason these would be necessary - rtl display
+  // names should flip into the correct direction automatically based on
+  // the characters, and you can still embed rtl in ltr or vice versa
+  // with the embed chars or marker chars.
+
+  return utils.removeDirectionOverrideChars(displayName);
 }
 /**
  * Fires whenever any room member's name changes.

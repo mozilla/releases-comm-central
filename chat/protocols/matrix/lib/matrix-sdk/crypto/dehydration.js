@@ -50,7 +50,7 @@ class DehydrationManager {
             deviceDisplayName,
             time
           } = result;
-          const pickleKey = Buffer.from(this.crypto.olmDevice._pickleKey);
+          const pickleKey = Buffer.from(this.crypto.olmDevice.pickleKey);
           const decrypted = await (0, _aes.decryptAES)(key, pickleKey, DEHYDRATION_ALGORITHM);
           this.key = (0, _olmlib.decodeBase64)(decrypted);
           this.keyInfo = keyInfo;
@@ -129,7 +129,7 @@ class DehydrationManager {
     }
 
     try {
-      const pickleKey = Buffer.from(this.crypto.olmDevice._pickleKey); // update the crypto store with the timestamp
+      const pickleKey = Buffer.from(this.crypto.olmDevice.pickleKey); // update the crypto store with the timestamp
 
       const key = await (0, _aes.encryptAES)((0, _olmlib.encodeBase64)(this.key), pickleKey, DEHYDRATION_ALGORITHM);
       await this.crypto.cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {

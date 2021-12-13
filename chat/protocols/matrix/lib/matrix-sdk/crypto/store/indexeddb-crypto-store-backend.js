@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.VERSION = exports.Backend = void 0;
 exports.upgradeDatabase = upgradeDatabase;
-exports.Backend = exports.VERSION = void 0;
 
 var _logger = require("../../logger");
 

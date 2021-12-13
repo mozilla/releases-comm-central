@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TimelineIndex = exports.TimelineWindow = void 0;
+exports.TimelineWindow = exports.TimelineIndex = void 0;
 
 var _eventTimeline = require("./models/event-timeline");
 

@@ -3,16 +3,16 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.encryptMessageForDevice = encryptMessageForDevice;
-exports.getExistingOlmSessions = getExistingOlmSessions;
-exports.ensureOlmSessionsForDevices = ensureOlmSessionsForDevices;
-exports.verifySignature = verifySignature;
-exports.pkSign = pkSign;
-exports.pkVerify = pkVerify;
+exports.OLM_ALGORITHM = exports.MEGOLM_BACKUP_ALGORITHM = exports.MEGOLM_ALGORITHM = void 0;
+exports.decodeBase64 = decodeBase64;
 exports.encodeBase64 = encodeBase64;
 exports.encodeUnpaddedBase64 = encodeUnpaddedBase64;
-exports.decodeBase64 = decodeBase64;
-exports.MEGOLM_BACKUP_ALGORITHM = exports.MEGOLM_ALGORITHM = exports.OLM_ALGORITHM = void 0;
+exports.encryptMessageForDevice = encryptMessageForDevice;
+exports.ensureOlmSessionsForDevices = ensureOlmSessionsForDevices;
+exports.getExistingOlmSessions = getExistingOlmSessions;
+exports.pkSign = pkSign;
+exports.pkVerify = pkVerify;
+exports.verifySignature = verifySignature;
 
 var _anotherJson = _interopRequireDefault(require("another-json"));
 
@@ -236,13 +236,13 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
         continue;
       }
 
-      if (!olmDevice._sessionsInProgress[key]) {
+      if (!olmDevice.sessionsInProgress[key]) {
         // pre-emptively mark the session as in-progress to avoid race
         // conditions.  If we find that we already have a session, then
         // we'll resolve
-        olmDevice._sessionsInProgress[key] = new Promise(resolve => {
+        olmDevice.sessionsInProgress[key] = new Promise(resolve => {
           resolveSession[key] = v => {
-            delete olmDevice._sessionsInProgress[key];
+            delete olmDevice.sessionsInProgress[key];
             resolve(v);
           };
         });
@@ -276,7 +276,7 @@ async function ensureOlmSessionsForDevices(olmDevice, baseApis, devicesByUser, f
       }
 
       const forWhom = `for ${key} (${userId}:${deviceId})`;
-      const sessionId = await olmDevice.getSessionIdForDevice(key, resolveSession[key], log);
+      const sessionId = await olmDevice.getSessionIdForDevice(key, !!resolveSession[key], log);
 
       if (sessionId !== null && resolveSession[key]) {
         // we found a session, but we had marked the session as

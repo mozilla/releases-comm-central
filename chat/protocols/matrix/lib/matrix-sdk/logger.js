@@ -71,7 +71,7 @@ _loglevel.default.methodFactory = function (methodName, logLevel, loggerName) {
 const logger = _loglevel.default.getLogger(DEFAULT_NAMESPACE);
 
 exports.logger = logger;
-logger.setLevel(_loglevel.default.levels.DEBUG);
+logger.setLevel(_loglevel.default.levels.DEBUG, false);
 
 function extendLogger(logger) {
   logger.withPrefix = function (prefix) {
@@ -89,7 +89,7 @@ function getPrefixedLogger(prefix) {
     // Only do this setup work the first time through, as loggers are saved by name.
     extendLogger(prefixLogger);
     prefixLogger.prefix = prefix;
-    prefixLogger.setLevel(_loglevel.default.levels.DEBUG);
+    prefixLogger.setLevel(_loglevel.default.levels.DEBUG, false);
   }
 
   return prefixLogger;

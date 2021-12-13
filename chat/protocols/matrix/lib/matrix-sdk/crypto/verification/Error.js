@@ -3,15 +3,15 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.newVerificationError = newVerificationError;
 exports.errorFactory = errorFactory;
 exports.errorFromEvent = errorFromEvent;
-exports.newInvalidMessageError = exports.newUserMismatchError = exports.newKeyMismatchError = exports.newUnexpectedMessageError = exports.newUnknownMethodError = exports.newUnknownTransactionError = exports.newTimeoutError = exports.newUserCancelledError = void 0;
+exports.newUserMismatchError = exports.newUserCancelledError = exports.newUnknownTransactionError = exports.newUnknownMethodError = exports.newUnexpectedMessageError = exports.newTimeoutError = exports.newKeyMismatchError = exports.newInvalidMessageError = void 0;
+exports.newVerificationError = newVerificationError;
 
 var _event = require("../../models/event");
 
 /*
-Copyright 2018 New Vector Ltd
+Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,11 +31,11 @@ limitations under the License.
  *
  * @module crypto/verification/Error
  */
-function newVerificationError(code, reason, extradata) {
+function newVerificationError(code, reason, extraData) {
   const content = Object.assign({}, {
     code,
     reason
-  }, extradata);
+  }, extraData);
   return new _event.MatrixEvent({
     type: "m.key.verification.cancel",
     content
@@ -43,8 +43,8 @@ function newVerificationError(code, reason, extradata) {
 }
 
 function errorFactory(code, reason) {
-  return function (extradata) {
-    return newVerificationError(code, reason, extradata);
+  return function (extraData) {
+    return newVerificationError(code, reason, extraData);
   };
 }
 /**

@@ -13,6 +13,10 @@ var _event = require("../@types/event");
 
 var _utils = require("../utils");
 
+var _thread = require("./thread");
+
+var _ReEmitter = require("../ReEmitter");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
@@ -72,6 +76,11 @@ class MatrixEvent extends _events.EventEmitter {
 
   /* The txnId with which this event was sent if it was during this session,
    * allows for a unique ID which does not change when the event comes back down sync.
+   */
+
+  /**
+   * @experimental
+   * A reference to the thread this event belongs to
    */
 
   /* Set an approximate timestamp for the event relative the local clock.
@@ -144,6 +153,8 @@ class MatrixEvent extends _events.EventEmitter {
 
     _defineProperty(this, "txnId", null);
 
+    _defineProperty(this, "thread", null);
+
     _defineProperty(this, "localTimestamp", void 0);
 
     _defineProperty(this, "sender", null);
@@ -157,6 +168,8 @@ class MatrixEvent extends _events.EventEmitter {
     _defineProperty(this, "forwardLooking", true);
 
     _defineProperty(this, "verificationRequest", null);
+
+    _defineProperty(this, "reEmitter", void 0);
 
     ["state_key", "type", "sender", "room_id", "membership"].forEach(prop => {
       if (typeof event[prop] !== "string") return;
@@ -172,6 +185,7 @@ class MatrixEvent extends _events.EventEmitter {
     });
     this.txnId = event.txn_id || null;
     this.localTimestamp = Date.now() - this.getAge();
+    this.reEmitter = new _ReEmitter.ReEmitter(this);
   }
   /**
    * Gets the event as though it would appear unencrypted. If the event is already not
@@ -181,8 +195,30 @@ class MatrixEvent extends _events.EventEmitter {
 
 
   getEffectiveEvent() {
-    // clearEvent doesn't have all the fields, so we'll copy what we can from this.event
-    return Object.assign({}, this.event, this.clearEvent);
+    const content = Object.assign({}, this.getContent()); // clone for mutation
+
+    if (this.getWireType() === _event.EventType.RoomMessageEncrypted) {
+      // Encrypted events sometimes aren't symmetrical on the `content` so we'll copy
+      // that over too, but only for missing properties. We don't copy over mismatches
+      // between the plain and decrypted copies of `content` because we assume that the
+      // app is relying on the decrypted version, so we want to expose that as a source
+      // of truth here too.
+      for (const [key, value] of Object.entries(this.getWireContent())) {
+        // Skip fields from the encrypted event schema though - we don't want to leak
+        // these.
+        if (["algorithm", "ciphertext", "device_id", "sender_key", "session_id"].includes(key)) {
+          continue;
+        }
+
+        if (content[key] === undefined) content[key] = value;
+      }
+    } // clearEvent doesn't have all the fields, so we'll copy what we can from this.event.
+    // We also copy over our "fixed" content key.
+
+
+    return Object.assign({}, this.event, this.clearEvent, {
+      content
+    });
   }
   /**
    * Get the event_id for this event.
@@ -304,6 +340,51 @@ class MatrixEvent extends _events.EventEmitter {
 
   getWireContent() {
     return this.event.content || {};
+  }
+  /**
+   * @experimental
+   * Get the event ID of the thread head
+   */
+
+
+  get threadRootId() {
+    const relatesTo = this.getWireContent()?.["m.relates_to"];
+
+    if (relatesTo?.rel_type === _event.RelationType.Thread) {
+      return relatesTo.event_id;
+    }
+  }
+  /**
+   * @experimental
+   */
+
+
+  get isThreadRelation() {
+    return !!this.threadRootId;
+  }
+  /**
+   * @experimental
+   */
+
+
+  get isThreadRoot() {
+    // TODO, change the inner working of this getter for it to use the
+    // bundled relationship return on the event, view MSC3440
+    const thread = this.getThread();
+    return thread?.id === this.getId();
+  }
+
+  get parentEventId() {
+    return this.replyEventId || this.relationEventId;
+  }
+
+  get replyEventId() {
+    const relations = this.getWireContent()["m.relates_to"];
+    return relations?.["m.in_reply_to"]?.["event_id"];
+  }
+
+  get relationEventId() {
+    return this.getWireContent()?.["m.relates_to"]?.event_id;
   }
   /**
    * Get the previous event content JSON. This will only return something for
@@ -1246,6 +1327,23 @@ class MatrixEvent extends _events.EventEmitter {
 
   getTxnId() {
     return this.txnId;
+  }
+  /**
+   * @experimental
+   */
+
+
+  setThread(thread) {
+    this.thread = thread;
+    this.reEmitter.reEmit(thread, [_thread.ThreadEvent.Ready, _thread.ThreadEvent.Update]);
+  }
+  /**
+   * @experimental
+   */
+
+
+  getThread() {
+    return this.thread;
   }
 
 }

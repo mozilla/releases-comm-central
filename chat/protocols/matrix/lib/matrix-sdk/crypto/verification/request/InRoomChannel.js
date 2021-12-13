@@ -9,23 +9,11 @@ var _VerificationRequest = require("./VerificationRequest");
 
 var _logger = require("../../../logger");
 
-/*
-Copyright 2018 New Vector Ltd
-Copyright 2019 The Matrix.org Foundation C.I.C.
+var _event = require("../../../@types/event");
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-const MESSAGE_TYPE = "m.room.message";
+const MESSAGE_TYPE = _event.EventType.RoomMessage;
 const M_REFERENCE = "m.reference";
 const M_RELATES_TO = "m.relates_to";
 /**
@@ -40,24 +28,21 @@ class InRoomChannel {
    * @param {string} userId id of user that the verification request is directed at, should be present in the room.
    */
   constructor(client, roomId, userId = null) {
-    this._client = client;
-    this._roomId = roomId;
+    this.client = client;
+    this.roomId = roomId;
     this.userId = userId;
-    this._requestEventId = null;
+
+    _defineProperty(this, "requestEventId", null);
   }
 
   get receiveStartFromOtherDevices() {
     return true;
   }
-
-  get roomId() {
-    return this._roomId;
-  }
   /** The transaction id generated/used by this verification channel */
 
 
   get transactionId() {
-    return this._requestEventId;
+    return this.requestEventId;
   }
 
   static getOtherPartyUserId(event, client) {
@@ -90,12 +75,16 @@ class InRoomChannel {
   /**
    * Checks whether the given event type should be allowed to initiate a new VerificationRequest over this channel
    * @param {string} type the event type to check
-   * @returns {bool} boolean flag
+   * @returns {boolean} boolean flag
    */
 
 
   static canCreateRequest(type) {
     return type === _VerificationRequest.REQUEST_TYPE;
+  }
+
+  canCreateRequest(type) {
+    return InRoomChannel.canCreateRequest(type);
   }
   /**
    * Extract the transaction id used by a given key verification event, if any
@@ -122,7 +111,7 @@ class InRoomChannel {
    * `handleEvent` can do more checks and choose to ignore invalid events.
    * @param {MatrixEvent} event the event to validate
    * @param {MatrixClient} client the client to get the current user and device id from
-   * @returns {bool} whether the event is valid and should be passed to handleEvent
+   * @returns {boolean} whether the event is valid and should be passed to handleEvent
    */
 
 
@@ -190,12 +179,12 @@ class InRoomChannel {
    * Changes the state of the channel, request, and verifier in response to a key verification event.
    * @param {MatrixEvent} event to handle
    * @param {VerificationRequest} request the request to forward handling to
-   * @param {bool} isLiveEvent whether this is an even received through sync or not
-   * @returns {Promise} a promise that resolves when any requests as an anwser to the passed-in event are sent.
+   * @param {boolean} isLiveEvent whether this is an even received through sync or not
+   * @returns {Promise} a promise that resolves when any requests as an answer to the passed-in event are sent.
    */
 
 
-  async handleEvent(event, request, isLiveEvent) {
+  async handleEvent(event, request, isLiveEvent = false) {
     // prevent processing the same event multiple times, as under
     // some circumstances Room.timeline can get emitted twice for the same event
     if (request.hasEventId(event.getId())) {
@@ -205,13 +194,13 @@ class InRoomChannel {
     const type = InRoomChannel.getEventType(event); // do validations that need state (roomId, userId),
     // ignore if invalid
 
-    if (event.getRoomId() !== this._roomId) {
+    if (event.getRoomId() !== this.roomId) {
       return;
     } // set userId if not set already
 
 
     if (this.userId === null) {
-      const userId = InRoomChannel.getOtherPartyUserId(event, this._client);
+      const userId = InRoomChannel.getOtherPartyUserId(event, this.client);
 
       if (userId) {
         this.userId = userId;
@@ -219,8 +208,7 @@ class InRoomChannel {
     } // ignore events not sent by us or the other party
 
 
-    const ownUserId = this._client.getUserId();
-
+    const ownUserId = this.client.getUserId();
     const sender = event.getSender();
 
     if (this.userId !== null) {
@@ -231,14 +219,12 @@ class InRoomChannel {
       }
     }
 
-    if (this._requestEventId === null) {
-      this._requestEventId = InRoomChannel.getTransactionId(event);
+    if (this.requestEventId === null) {
+      this.requestEventId = InRoomChannel.getTransactionId(event);
     }
 
     const isRemoteEcho = !!event.getUnsigned().transaction_id;
-
-    const isSentByUs = event.getSender() === this._client.getUserId();
-
+    const isSentByUs = event.getSender() === this.client.getUserId();
     return await request.handleEvent(type, event, isLiveEvent, isRemoteEcho, isSentByUs);
   }
   /**
@@ -273,13 +259,13 @@ class InRoomChannel {
     content = Object.assign({}, content);
 
     if (type === _VerificationRequest.REQUEST_TYPE || type === _VerificationRequest.READY_TYPE || type === _VerificationRequest.START_TYPE) {
-      content.from_device = this._client.getDeviceId();
+      content.from_device = this.client.getDeviceId();
     }
 
     if (type === _VerificationRequest.REQUEST_TYPE) {
       // type is mapped to m.room.message in the send method
       content = {
-        body: this._client.getUserId() + " is requesting to verify " + "your key, but your client does not support in-chat key " + "verification.  You will need to use legacy key " + "verification to verify keys.",
+        body: this.client.getUserId() + " is requesting to verify " + "your key, but your client does not support in-chat key " + "verification.  You will need to use legacy key " + "verification to verify keys.",
         msgtype: _VerificationRequest.REQUEST_TYPE,
         to: this.userId,
         from_device: content.from_device,
@@ -321,10 +307,10 @@ class InRoomChannel {
       sendType = MESSAGE_TYPE;
     }
 
-    const response = await this._client.sendEvent(this._roomId, sendType, content);
+    const response = await this.client.sendEvent(this.roomId, sendType, content);
 
     if (type === _VerificationRequest.REQUEST_TYPE) {
-      this._requestEventId = response.event_id;
+      this.requestEventId = response.event_id;
     }
   }
 
@@ -334,21 +320,21 @@ exports.InRoomChannel = InRoomChannel;
 
 class InRoomRequests {
   constructor() {
-    this._requestsByRoomId = new Map();
+    _defineProperty(this, "requestsByRoomId", new Map());
   }
 
   getRequest(event) {
     const roomId = event.getRoomId();
     const txnId = InRoomChannel.getTransactionId(event);
-    return this._getRequestByTxnId(roomId, txnId);
+    return this.getRequestByTxnId(roomId, txnId);
   }
 
   getRequestByChannel(channel) {
-    return this._getRequestByTxnId(channel.roomId, channel.transactionId);
+    return this.getRequestByTxnId(channel.roomId, channel.transactionId);
   }
 
-  _getRequestByTxnId(roomId, txnId) {
-    const requestsByTxnId = this._requestsByRoomId.get(roomId);
+  getRequestByTxnId(roomId, txnId) {
+    const requestsByTxnId = this.requestsByRoomId.get(roomId);
 
     if (requestsByTxnId) {
       return requestsByTxnId.get(txnId);
@@ -356,20 +342,19 @@ class InRoomRequests {
   }
 
   setRequest(event, request) {
-    this._setRequest(event.getRoomId(), InRoomChannel.getTransactionId(event), request);
+    this.doSetRequest(event.getRoomId(), InRoomChannel.getTransactionId(event), request);
   }
 
   setRequestByChannel(channel, request) {
-    this._setRequest(channel.roomId, channel.transactionId, request);
+    this.doSetRequest(channel.roomId, channel.transactionId, request);
   }
 
-  _setRequest(roomId, txnId, request) {
-    let requestsByTxnId = this._requestsByRoomId.get(roomId);
+  doSetRequest(roomId, txnId, request) {
+    let requestsByTxnId = this.requestsByRoomId.get(roomId);
 
     if (!requestsByTxnId) {
       requestsByTxnId = new Map();
-
-      this._requestsByRoomId.set(roomId, requestsByTxnId);
+      this.requestsByRoomId.set(roomId, requestsByTxnId);
     }
 
     requestsByTxnId.set(txnId, request);
@@ -377,20 +362,19 @@ class InRoomRequests {
 
   removeRequest(event) {
     const roomId = event.getRoomId();
-
-    const requestsByTxnId = this._requestsByRoomId.get(roomId);
+    const requestsByTxnId = this.requestsByRoomId.get(roomId);
 
     if (requestsByTxnId) {
       requestsByTxnId.delete(InRoomChannel.getTransactionId(event));
 
       if (requestsByTxnId.size === 0) {
-        this._requestsByRoomId.delete(roomId);
+        this.requestsByRoomId.delete(roomId);
       }
     }
   }
 
   findRequestInProgress(roomId) {
-    const requestsByTxnId = this._requestsByRoomId.get(roomId);
+    const requestsByTxnId = this.requestsByRoomId.get(roomId);
 
     if (requestsByTxnId) {
       for (const request of requestsByTxnId.values()) {

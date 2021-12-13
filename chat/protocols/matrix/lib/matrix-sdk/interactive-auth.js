@@ -29,6 +29,7 @@ exports.AuthType = AuthType;
   AuthType["Sso"] = "m.login.sso";
   AuthType["SsoUnstable"] = "org.matrix.login.sso";
   AuthType["Dummy"] = "m.login.dummy";
+  AuthType["RegistrationToken"] = "org.matrix.msc3231.login.registration_token";
 })(AuthType || (exports.AuthType = AuthType = {}));
 
 class NoAuthFlowFoundError extends Error {
@@ -415,6 +416,7 @@ class InteractiveAuth {
       } catch (e) {
         this.attemptAuthDeferred.reject(e);
         this.attemptAuthDeferred = null;
+        return;
       }
 
       if (!this.emailSid && !this.requestingEmailToken && this.chosenFlow.stages.includes(AuthType.Email)) {

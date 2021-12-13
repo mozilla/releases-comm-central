@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DefaultAlgorithm = exports.algorithmsByName = exports.Aes256 = exports.Curve25519 = exports.BackupManager = void 0;
+exports.algorithmsByName = exports.DefaultAlgorithm = exports.Curve25519 = exports.BackupManager = exports.Aes256 = void 0;
 
 var _client = require("../client");
 
