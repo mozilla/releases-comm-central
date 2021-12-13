@@ -123,6 +123,39 @@ class CloudFileAccount {
    * @returns {FileUpload} Information about the uploaded file.
    */
   async uploadFile(window, file, name = file.leafName) {
+    let data;
+    if (this.dataFormat == "File") {
+      data = await File.createFromNsIFile(file);
+    } else {
+      data = await promiseFileRead(file);
+      console.warn(
+        "Using ArrayBuffer as cloud_file.data_format is deprecated and will be removed in Thunderbird 102."
+      );
+    }
+
+    if (
+      this.remainingFileSpace != -1 &&
+      file.fileSize > this.remainingFileSpace
+    ) {
+      console.error(
+        `Can't upload file. Only ${this.remainingFileSpace}KB left of quota.`
+      );
+      throw Components.Exception(
+        "Quota Error.",
+        cloudFileAccounts.constants.uploadWouldExceedQuota
+      );
+    }
+
+    if (
+      this.fileUploadSizeLimit != -1 &&
+      file.fileSize > this.fileUploadSizeLimit
+    ) {
+      throw Components.Exception(
+        "File Size Error.",
+        cloudFileAccounts.constants.uploadExceedsFileLimit
+      );
+    }
+
     let id = this._nextId++;
     let upload = {
       // Values used in the WebExtension CloudFile type.
@@ -138,20 +171,10 @@ class CloudFileAccount {
       serviceIcon: this.iconURL,
       serviceURL: this.extension.manifest.cloud_file.service_url,
     };
+
     this._uploads.set(id, upload);
     let results;
-
     try {
-      let data;
-      if (this.dataFormat == "File") {
-        data = await File.createFromNsIFile(file);
-      } else {
-        data = await promiseFileRead(file);
-        console.warn(
-          "Using ArrayBuffer as cloud_file.data_format is deprecated and will be removed in Thunderbird 102."
-        );
-      }
-
       results = await this.extension.emit(
         "uploadFile",
         this,

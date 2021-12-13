@@ -179,6 +179,36 @@ add_task(async () => {
         );
       });
 
+      browser.test.log("test upload quota error");
+      await browser.cloudFile.updateAccount(createdAccount.id, {
+        spaceRemaining: 1,
+      });
+      await window.sendMessage(
+        "uploadFileError",
+        createdAccount.id,
+        "cloudFile2",
+        "uploadWouldExceedQuota",
+        "Quota Error."
+      );
+      await browser.cloudFile.updateAccount(createdAccount.id, {
+        spaceRemaining: -1,
+      });
+
+      browser.test.log("test upload file size limit error");
+      await browser.cloudFile.updateAccount(createdAccount.id, {
+        uploadSizeLimit: 1,
+      });
+      await window.sendMessage(
+        "uploadFileError",
+        createdAccount.id,
+        "cloudFile2",
+        "uploadExceedsFileLimit",
+        "File Size Error."
+      );
+      await browser.cloudFile.updateAccount(createdAccount.id, {
+        uploadSizeLimit: -1,
+      });
+
       browser.test.log("test rename");
       await new Promise(resolve => {
         function fileListener(account, id, newName) {
@@ -327,6 +357,36 @@ add_task(async () => {
   extension.onMessage("removeAccount", id => {
     cloudFileAccounts.removeAccount(id);
   });
+
+  extension.onMessage(
+    "uploadFileError",
+    async (id, filename, expectedErrorStatus, expectedErrorMessage) => {
+      let account = cloudFileAccounts.getAccount(id);
+
+      let status;
+      try {
+        await account.uploadFile(null, testFiles[filename]);
+      } catch (ex) {
+        status = ex;
+      }
+
+      Assert.ok(
+        !!status,
+        `Upload should have failed for ${testFiles[filename].leafName}`
+      );
+      Assert.equal(
+        status.result,
+        cloudFileAccounts.constants[expectedErrorStatus],
+        `Error status should be correct for ${testFiles[filename].leafName}`
+      );
+      Assert.equal(
+        status.message,
+        expectedErrorMessage,
+        `Error message should be correct for ${testFiles[filename].leafName}`
+      );
+      extension.sendMessage();
+    }
+  );
 
   extension.onMessage(
     "uploadFile",
@@ -662,8 +722,25 @@ add_task(async () => {
   composeWindow.close();
 });
 
+/** Test data_format "File", which is the default if none is specified in the
+ * manifest. */
 add_task(async () => {
   async function background() {
+    function createCloudfileAccount() {
+      let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+      browser.test.sendMessage("createAccount");
+      return addListener;
+    }
+
+    function removeCloudfileAccount(id) {
+      let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+      browser.test.sendMessage("removeAccount", id);
+      return deleteListener;
+    }
+
+    let [createdAccount] = await createCloudfileAccount();
+
+    browser.test.log("test upload");
     await new Promise(resolve => {
       function fileListener(account, { id, name, data }) {
         browser.cloudFile.onFileUpload.removeListener(fileListener);
@@ -679,35 +756,134 @@ add_task(async () => {
       }
 
       browser.cloudFile.onFileUpload.addListener(fileListener);
-      browser.test.sendMessage("uploadFile");
+      browser.test.sendMessage("uploadFile", createdAccount.id, "cloudFile1");
     });
 
+    browser.test.log("test upload quota error");
+    await browser.cloudFile.updateAccount(createdAccount.id, {
+      spaceRemaining: 1,
+    });
+    await window.sendMessage(
+      "uploadFileError",
+      createdAccount.id,
+      "cloudFile2",
+      "uploadWouldExceedQuota",
+      "Quota Error."
+    );
+    await browser.cloudFile.updateAccount(createdAccount.id, {
+      spaceRemaining: -1,
+    });
+
+    browser.test.log("test upload file size limit error");
+    await browser.cloudFile.updateAccount(createdAccount.id, {
+      uploadSizeLimit: 1,
+    });
+    await window.sendMessage(
+      "uploadFileError",
+      createdAccount.id,
+      "cloudFile2",
+      "uploadExceedsFileLimit",
+      "File Size Error."
+    );
+    await browser.cloudFile.updateAccount(createdAccount.id, {
+      uploadSizeLimit: -1,
+    });
+
+    await removeCloudfileAccount(createdAccount.id);
     browser.test.notifyPass("cloudFile");
   }
 
   let extension = ExtensionTestUtils.loadExtension({
-    background,
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
     manifest: {
       cloud_file: {
         name: "mochitest",
         management_url: "/content/management.html",
       },
       applications: { gecko: { id: "cloudfile@mochi.test" } },
+      background: { scripts: ["utils.js", "background.js"] },
     },
   });
 
-  await extension.startup();
+  let testFiles = {
+    cloudFile1: new FileUtils.File(getTestFilePath("data/cloudFile1.txt")),
+    cloudFile2: new FileUtils.File(getTestFilePath("data/cloudFile2.txt")),
+  };
 
-  await extension.awaitMessage("uploadFile");
-  let id = "ext-cloudfile@mochi.test";
-  let account = cloudFileAccounts.createAccount(id);
-  await account.uploadFile(
-    null,
-    new FileUtils.File(getTestFilePath("data/cloudFile1.txt"))
+  extension.onMessage("createAccount", (id = "ext-cloudfile@mochi.test") => {
+    cloudFileAccounts.createAccount(id);
+  });
+
+  extension.onMessage("removeAccount", id => {
+    cloudFileAccounts.removeAccount(id);
+  });
+
+  extension.onMessage(
+    "uploadFileError",
+    async (id, filename, expectedErrorStatus, expectedErrorMessage) => {
+      let account = cloudFileAccounts.getAccount(id);
+
+      let status;
+      try {
+        await account.uploadFile(null, testFiles[filename]);
+      } catch (ex) {
+        status = ex;
+      }
+
+      Assert.ok(
+        !!status,
+        `Upload should have failed for ${testFiles[filename].leafName}`
+      );
+      Assert.equal(
+        status.result,
+        cloudFileAccounts.constants[expectedErrorStatus],
+        `Error status should be correct for ${testFiles[filename].leafName}`
+      );
+      Assert.equal(
+        status.message,
+        expectedErrorMessage,
+        `Error message should be correct for ${testFiles[filename].leafName}`
+      );
+      extension.sendMessage();
+    }
   );
 
-  await extension.awaitFinish("cloudFile");
-  cloudFileAccounts.removeAccount(account);
+  extension.onMessage(
+    "uploadFile",
+    (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
+      let account = cloudFileAccounts.getAccount(id);
 
+      if (typeof expectedErrorStatus == "string") {
+        expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
+      }
+
+      account.uploadFile(null, testFiles[filename]).then(
+        upload => {
+          Assert.equal(Cr.NS_OK, expectedErrorStatus);
+        },
+        status => {
+          Assert.equal(
+            status.result,
+            expectedErrorStatus,
+            `Error status should be correct for ${testFiles[filename].leafName}`
+          );
+          Assert.equal(
+            status.message,
+            expectedErrorMessage,
+            `Error message should be correct for ${testFiles[filename].leafName}`
+          );
+        }
+      );
+    }
+  );
+
+  await extension.startup();
+  await extension.awaitFinish("cloudFile");
   await extension.unload();
+
+  Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@mochi.test"));
+  Assert.equal(cloudFileAccounts.accounts.length, 0);
 });

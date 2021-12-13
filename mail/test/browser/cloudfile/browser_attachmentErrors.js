@@ -153,6 +153,54 @@ add_task(function test_standard_error_during_upload() {
 });
 
 /**
+ * Test that we get the correct alert message when the provider reports a quota
+ * error.
+ */
+add_task(function test_quota_error_during_upload() {
+  subtest_errors_during_upload({
+    exception: Components.Exception(
+      "Quota Error.",
+      cloudFileAccounts.constants.uploadWouldExceedQuota
+    ),
+    expectedAlerts: [
+      {
+        title: "Quota Error",
+        message:
+          "Uploading testFile1 to providerA would exceed your space quota.",
+      },
+      {
+        title: "Quota Error",
+        message:
+          "Uploading testFile2 to providerA would exceed your space quota.",
+      },
+    ],
+  });
+});
+
+/**
+ * Test that we get the correct alert message when the provider reports a file
+ * size exceeded error.
+ */
+add_task(function test_file_size_error_during_upload() {
+  subtest_errors_during_upload({
+    exception: Components.Exception(
+      "File Size Error.",
+      cloudFileAccounts.constants.uploadExceedsFileLimit
+    ),
+    expectedAlerts: [
+      {
+        title: "File Size Error",
+        message: "testFile1 exceeds the maximum size for providerA.",
+      },
+      {
+        title: "File Size Error",
+        message: "testFile2 exceeds the maximum size for providerA.",
+      },
+    ],
+  });
+});
+
+/**
  * Subtest for testing error messages during upload operation.
  *
  * @param error - defines the the thrown exception and the expected alert messagees
