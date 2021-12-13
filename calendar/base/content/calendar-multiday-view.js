@@ -161,10 +161,16 @@
           this.mDragState.origLoc = event.clientY;
           this.mDragState.limitEndMin = this.mDragState.origMin;
           this.mDragState.limitStartMin = this.mDragState.origMin;
-          this.fgboxes.dragspacer.setAttribute("height", this.mDragState.origMin * this.mPixPerMin);
+          this.fgboxes.dragspacer.setAttribute(
+            "height",
+            this.mDragState.origMin * this.pixelsPerMinute
+          );
         } else {
           this.mDragState.origLoc = event.clientX;
-          this.fgboxes.dragspacer.setAttribute("width", this.mDragState.origMin * this.mPixPerMin);
+          this.fgboxes.dragspacer.setAttribute(
+            "width",
+            this.mDragState.origMin * this.pixelsPerMinute
+          );
         }
 
         document.calendarEventColumnDragging = this;
@@ -173,9 +179,6 @@
         window.addEventListener("mouseup", this.onEventSweepMouseUp);
         window.addEventListener("keypress", this.onEventSweepKeypress);
       });
-
-      // Fields.
-      this.mPixPerMin = 0.6;
 
       /**
        * An internal collection of data for events.
@@ -221,16 +224,20 @@
       this.initializeAttributeInheritance();
     }
 
-    // Properties.
+    /**
+     * The number of pixels that a one minute duration should occupy in the
+     * column.
+     * @type {number}
+     */
     set pixelsPerMinute(val) {
-      if (val != this.mPixPerMin) {
-        this.mPixPerMin = val;
+      if (val != this._pixelsPerMinute) {
+        this._pixelsPerMinute = val;
         this.relayout();
       }
     }
 
     get pixelsPerMinute() {
-      return this.mPixPerMin;
+      return this._pixelsPerMinute;
     }
 
     set date(val) {
@@ -414,9 +421,9 @@
       configBox.setAttribute("hidden", "true");
       // The minimum event duration in minutes that would give at least the
       // desired minSize in the layout.
-      let minDuration = Math.ceil(minSize / this.mPixPerMin);
+      let minDuration = Math.ceil(minSize / this.pixelsPerMinute);
 
-      let dayPx = `${MINUTES_IN_DAY * this.mPixPerMin}px`;
+      let dayPx = `${MINUTES_IN_DAY * this.pixelsPerMinute}px`;
       if (orient == "vertical") {
         this.hourBoxContainer.style.height = dayPx;
         this.hourBoxContainer.style.width = null;
@@ -451,9 +458,9 @@
         }
 
         // FIXME: offset and length should be in % of parent's dimension, so we
-        // can avoid mPixPerMin.
-        let offset = `${eventInfo.start * this.mPixPerMin}px`;
-        let length = `${(eventInfo.end - eventInfo.start) * this.mPixPerMin}px`;
+        // can avoid pixelsPerMinute.
+        let offset = `${eventInfo.start * this.pixelsPerMinute}px`;
+        let length = `${(eventInfo.end - eventInfo.start) * this.pixelsPerMinute}px`;
         let secondaryOffset = `${eventInfo.secondaryOffset * 100}%`;
         let secondaryLength = `${eventInfo.secondaryLength * 100}%`;
         if (orient == "vertical") {
@@ -861,7 +868,7 @@
 
       // All columns have the same orient and pixels per minutes.
       let sizeAttr = this.getAttribute("orient") == "vertical" ? "height" : "width";
-      let pixPerMin = this.mPixPerMin;
+      let pixPerMin = this.pixelsPerMinute;
 
       for (let i = 0; i < allColumns.length; i++) {
         let fgboxes = allColumns[i].fgboxes;
@@ -1422,7 +1429,7 @@
       } else {
         pos = mouseEvent.clientX - rect.left;
       }
-      return pos / this.mPixPerMin;
+      return pos / this.pixelsPerMinute;
     }
 
     /**
@@ -1909,7 +1916,6 @@
      */
     headerPositionsOutdated = true;
 
-    mPixPerMin = 0.6;
     mMinPixelsPerMinute = 0.1;
 
     mSelectedDayCol = null;
@@ -2046,7 +2052,7 @@
           }
           minute = scrollHour * 60;
         } else if (event.deltaMode == event.DOM_DELTA_PIXEL) {
-          let minDiff = deltaTime / this.mPixPerMin;
+          let minDiff = deltaTime / this.pixelsPerMinute;
           minute += minDiff < 0 ? Math.floor(minDiff) : Math.ceil(minDiff);
         } else {
           return;
@@ -2068,7 +2074,7 @@
         } else {
           scrollPx = this.grid.scrollTop;
         }
-        this.scrollMinute = Math.round(scrollPx / this.mPixPerMin);
+        this.scrollMinute = Math.round(scrollPx / this.pixelsPerMinute);
       });
 
       // Get day start/end hour from prefs and set on the view.
@@ -2184,14 +2190,14 @@
      * @type {number}
      */
     set pixelsPerMinute(ppm) {
-      if (ppm == this.mPixPerMin) {
+      if (ppm == this._pixelsPerMinute) {
         return;
       }
 
-      this.mPixPerMin = ppm;
+      this._pixelsPerMinute = ppm;
 
       let orient = this.getAttribute("orient");
-      let dayPx = `${MINUTES_IN_DAY * this.mPixPerMin}px`;
+      let dayPx = `${MINUTES_IN_DAY * this.pixelsPerMinute}px`;
       if (orient == "vertical") {
         this.timebar.style.height = dayPx;
         this.timebar.style.width = null;
@@ -2206,7 +2212,7 @@
     }
 
     get pixelsPerMinute() {
-      return this.mPixPerMin;
+      return this._pixelsPerMinute;
     }
 
     // Private
@@ -2299,8 +2305,8 @@
 
         // If pixels per minute is small, increase (then update) the interval pref.
         const prefInt =
-          ppmChanged && this.mPixPerMin < 0.6
-            ? Math.round(originalPrefInt / this.mPixPerMin)
+          ppmChanged && this.pixelsPerMinute < 0.6
+            ? Math.round(originalPrefInt / this.pixelsPerMinute)
             : originalPrefInt;
 
         if (!ppmChanged || viewChanged || prefInt != originalPrefInt) {
@@ -2326,7 +2332,7 @@
         document.getElementById("week-view").mTimeIndicatorMinutes = nowMinutes;
       }
       // Update the position of the indicator.
-      let position = `${this.mPixPerMin * this.mTimeIndicatorMinutes - 1}px`;
+      let position = `${this.pixelsPerMinute * this.mTimeIndicatorMinutes - 1}px`;
       let isVertical = this.getAttribute("orient") == "vertical";
 
       this.nowIndicator.style.insetInlineStart = isVertical ? null : position;
@@ -3368,7 +3374,7 @@
       let primaryZone = 50;
       let secondaryZone = 20;
       // How many pixels to scroll by.
-      let primaryFactor = Math.max(4 * this.mPixPerMin, 8);
+      let primaryFactor = Math.max(4 * this.pixelsPerMinute, 8);
       let secondaryFactor = 4;
 
       let left;
@@ -3439,7 +3445,7 @@
      * @param {number} minute - The minute to scroll to.
      */
     scrollToMinute(minute) {
-      let pos = Math.round(Math.max(0, minute) * this.mPixPerMin);
+      let pos = Math.round(Math.max(0, minute) * this.pixelsPerMinute);
       if (this.getAttribute("orient") == "horizontal") {
         this.grid.scrollLeft = document.dir == "rtl" ? -pos : pos;
       } else {
@@ -3448,8 +3454,8 @@
       // NOTE: this.scrollMinute is set by the "scroll" callback.
       // This means that if we tried to scroll further than possible, the
       // scrollMinute will be capped.
-      // Also, if mPixPerMin < 1, then scrollMinute may differ from the given
-      // 'minute' due to rounding errors.
+      // Also, if pixelsPerMinute < 1, then scrollMinute may differ from the
+      // given 'minute' due to rounding errors.
     }
 
     /**
