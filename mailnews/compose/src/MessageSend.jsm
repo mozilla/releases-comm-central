@@ -289,13 +289,15 @@ MessageSend.prototype = {
         this._msgCopy.dstFolder,
         Cr.NS_ERROR_ABORT
       );
+    } else {
+      // If already in the fcc step, notifyListenerOnStopCopy will do the clean up.
+      this._cleanup();
     }
     if (!this._failed) {
       // Emit stopsending event if the sending is cancelled by user, so that
       // listeners can do necessary clean up, e.g. reset the sending button.
       this.notifyListenerOnStopSending(null, Cr.NS_ERROR_ABORT, null, null);
     }
-    this._cleanup();
     this._aborting = false;
   },
 
