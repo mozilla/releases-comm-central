@@ -8,12 +8,6 @@ calendar-event-column {
   -moz-user-focus: normal;
 }
 
-/** Start time bar **/
-
-.calendar-time-bar-label {
-  margin: 2px 2px;
-}
-
 /* Navigation controls for the views */
 #calendar-nav-control {
   background-color: #e8e8e8;

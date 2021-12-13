@@ -80,7 +80,6 @@ add_task(async function testTimezones2_CreateEvents() {
       starttime: time,
       timezone: TIMEZONES[i],
     });
-
     await saveAndCloseItemDialog(dialogWindow);
   }
 });
@@ -823,28 +822,20 @@ async function verify(dates, timezones, times) {
   }
   let allowedDifference = 3;
 
-  /* Event box' time can't be deduced from it's position in                    ----------------
-     xul element tree because for each event a box is laid over whole day and  |___spacer_____|
-     a spacer is added to push the event to it's correct location.             |__event_box___|
-     But timeline can be used to retrieve the position of a particular hour    |day continues |
-     on screen and it can be compared against the position of the event.       ----------------
-  */
-
   for (let [selectedYear, selectedMonth, selectedDay, selectedTime] of datetimes()) {
+    info(`Verifying on day ${selectedDay}, month ${selectedMonth}, year ${selectedYear}`);
     await CalendarTestUtils.goToDate(window, selectedYear, selectedMonth, selectedDay);
 
     // Find event with timezone tz.
     for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
-      let [correctHour, minutes, day] = selectedTime[tzIdx];
-
-      let timeNode = document.querySelector(
-        `#day-view .timebarboxstack > .topbox > box:nth-of-type(${correctHour + 1})`
+      let [hour, minutes, day] = selectedTime[tzIdx];
+      info(
+        `Verifying at ${hour} hours, ${minutes} minutes (offset: ${day || "none"}) ` +
+          `in timezone "${timezones[tzIdx]}"`
       );
-      Assert.ok(timeNode);
-      let boundingRect = timeNode.getBoundingClientRect();
-      let timeY = boundingRect.y + boundingRect.height * (minutes / 60);
 
-      let eventNodes = [];
+      let hourRect = CalendarTestUtils.dayView.getHourBoxAt(window, hour).getBoundingClientRect();
+      let timeY = hourRect.y + hourRect.height * (minutes / 60);
 
       // following day
       if (day == 1) {
@@ -853,23 +844,22 @@ async function verify(dates, timezones, times) {
         await CalendarTestUtils.calendarViewBackward(window, 1);
       }
 
-      eventNodes = Array.from(CalendarTestUtils.dayView.getEventBoxes(window));
-      eventNodes = eventNodes
+      let eventPositions = Array.from(CalendarTestUtils.dayView.getEventBoxes(window))
         .filter(node => node.mOccurrence.title == timezones[tzIdx])
         .map(node => node.getBoundingClientRect().y);
 
-      dump(`Looking for ${timezones[tzIdx]} at ${timeY}: found `);
-      dump(eventNodes.join(", ") + "\n");
+      dump(`Looking for event at ${timeY}: found ${eventPositions.join(", ")}\n`);
 
-      if (day != undefined && day == 1) {
+      if (day == 1) {
         await CalendarTestUtils.calendarViewBackward(window, 1);
-      }
-
-      if (day != undefined && day == -1) {
+      } else if (day == -1) {
         await CalendarTestUtils.calendarViewForward(window, 1);
       }
 
-      Assert.ok(eventNodes.some(node => Math.abs(timeY - node) < allowedDifference));
+      Assert.ok(
+        eventPositions.some(pos => Math.abs(timeY - pos) < allowedDifference),
+        `Should exist some event box that starts at ${hour} hours, ${minutes} minutes`
+      );
     }
   }
 }

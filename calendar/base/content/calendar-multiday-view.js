@@ -57,8 +57,13 @@
       };
     }
 
-    dayStartHour = 0;
-    dayEndHour = 0;
+    /**
+     * The background hour box elements this event column owns, ordered and
+     * indexed by their starting hour.
+     *
+     * @type {Element[]}
+     */
+    hourBoxes = [];
 
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
@@ -67,7 +72,7 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(`
           <stack class="multiday-column-box-stack" flex="1">
-            <box class="multiday-column-bg-box" flex="1"/>
+            <html:div class="multiday-hour-box-container"></html:div>
             <html:ol class="multiday-events-list"></html:ol>
             <box class="timeIndicator" hidden="true"/>
             <box class="fgdragcontainer" flex="1">
@@ -82,7 +87,14 @@
           <calendar-event-box hidden="true"/>
         `)
       );
-      this.bgbox = this.querySelector(".multiday-column-bg-box");
+      this.hourBoxContainer = this.querySelector(".multiday-hour-box-container");
+      for (let hour = 0; hour < 24; hour++) {
+        let hourBox = document.createElement("div");
+        hourBox.classList.add("multiday-hour-box");
+        this.hourBoxContainer.appendChild(hourBox);
+        this.hourBoxes.push(hourBox);
+      }
+
       this.eventsListElement = this.querySelector(".multiday-events-list");
 
       this.addEventListener("dblclick", event => {
@@ -375,9 +387,6 @@
     }
 
     _clearElements() {
-      while (this.bgbox.hasChildNodes()) {
-        this.bgbox.lastChild.remove();
-      }
       while (this.eventsListElement.hasChildNodes()) {
         this.eventsListElement.lastChild.remove();
       }
@@ -398,10 +407,7 @@
       this._clearElements();
 
       let orient = this.getAttribute("orient");
-      this.bgbox.setAttribute("orient", orient);
 
-      // 'bgbox' is used mainly for drawing the grid. At some point it may
-      // also be used for all-day events.
       let configBox = this.querySelector("calendar-event-box");
       configBox.removeAttribute("hidden");
       let minSize = configBox.getOptimalMinSize();
@@ -409,30 +415,14 @@
       // The minimum event duration in minutes that would give at least the
       // desired minSize in the layout.
       let minDuration = Math.ceil(minSize / this.mPixPerMin);
-      let prevEndPix = 0;
 
-      for (let hour = 0; hour < 24; hour++) {
-        let box = document.createXULElement("spacer");
-        // We key off this in a CSS selector.
-        box.setAttribute("orient", orient);
-        box.setAttribute("class", "calendar-event-column-linebox");
-
-        if (hour < this.dayStartHour || hour >= this.dayEndHour) {
-          box.setAttribute("off-time", "true");
-        }
-
-        // Calculate duration pixel as the difference between
-        // start pixel and end pixel to avoid rounding errors.
-        let endPix = Math.round((hour + 1) * 60 * this.mPixPerMin);
-        let durPix = endPix - prevEndPix;
-        prevEndPix = endPix;
-        if (orient == "vertical") {
-          box.setAttribute("height", durPix);
-        } else {
-          box.setAttribute("width", durPix);
-        }
-
-        this.bgbox.appendChild(box);
+      let dayPx = `${MINUTES_IN_DAY * this.mPixPerMin}px`;
+      if (orient == "vertical") {
+        this.hourBoxContainer.style.height = dayPx;
+        this.hourBoxContainer.style.width = null;
+      } else {
+        this.hourBoxContainer.style.width = dayPx;
+        this.hourBoxContainer.style.height = null;
       }
 
       // 'fgbox' is used for dragging events.
@@ -1400,8 +1390,12 @@
       if (dayStartHour < 0 || dayStartHour > dayEndHour || dayEndHour > 24) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
-      this.dayStartHour = dayStartHour;
-      this.dayEndHour = dayEndHour;
+      for (let [hour, hourBox] of this.hourBoxes.entries()) {
+        hourBox.classList.toggle(
+          "multiday-hour-box-off-time",
+          hour < dayStartHour || hour >= dayEndHour
+        );
+      }
     }
 
     /**
@@ -1873,13 +1867,17 @@
     static get inheritedAttributes() {
       return {
         ".timebarboxstack": "orient,width,height",
-        ".topbox": "orient,width,height",
         ".timeIndicator-timeBar": "orient",
       };
     }
 
-    dayStartHour = 0;
-    dayEndHour = 0;
+    /**
+     * The background hour box elements this timebar owns, ordered and
+     * indexed by their starting hour.
+     *
+     * @type {Element[]}
+     */
+    hourBoxes = [];
 
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasConnected) {
@@ -1888,19 +1886,31 @@
       this.hasConnected = true;
 
       const stack = document.createXULElement("stack");
-      const topbox = document.createXULElement("box");
       const indicator = document.createXULElement("box");
 
       stack.setAttribute("class", "timebarboxstack");
       stack.setAttribute("flex", "1");
 
-      topbox.setAttribute("class", "topbox");
-      topbox.setAttribute("flex", "1");
+      let formatter = cal.dtz.formatter;
+      let jsTime = new Date();
+      this.hourBoxContainer = document.createElement("div");
+      this.hourBoxContainer.classList.add("multiday-hour-box-container");
+      for (let hour = 0; hour < 24; hour++) {
+        let hourBox = document.createElement("div");
+        hourBox.classList.add("multiday-hour-box", "multiday-timebar-time");
+        // Set the time label.
+        jsTime.setHours(hour, 0, 0);
+        hourBox.textContent = formatter.formatTime(
+          cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating)
+        );
+        this.hourBoxContainer.appendChild(hourBox);
+        this.hourBoxes.push(hourBox);
+      }
 
       indicator.setAttribute("class", "timeIndicator-timeBar");
       indicator.setAttribute("hidden", "true");
 
-      stack.appendChild(topbox);
+      stack.appendChild(this.hourBoxContainer);
       stack.appendChild(indicator);
       this.appendChild(stack);
 
@@ -1933,23 +1943,11 @@
       if (dayStartHour < 0 || dayStartHour > dayEndHour || dayEndHour > 24) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
-
-      if (this.dayStartHour != dayStartHour || this.dayEndHour != dayEndHour) {
-        this.dayEndHour = dayEndHour;
-        this.dayStartHour = dayStartHour;
-
-        const topbox = this.querySelector(".topbox");
-        if (topbox.children.length) {
-          // This only needs to be re-done if the initial relayout has already
-          // happened.  (If it hasn't happened, this will be done when it does happen.)
-          for (let hour = 0; hour < 24; hour++) {
-            if (hour < this.dayStartHour || hour >= this.dayEndHour) {
-              topbox.children[hour].setAttribute("off-time", "true");
-            } else {
-              topbox.children[hour].removeAttribute("off-time");
-            }
-          }
-        }
+      for (let [hour, hourBox] of this.hourBoxes.entries()) {
+        hourBox.classList.toggle(
+          "multiday-hour-box-off-time",
+          hour < dayStartHour || hour >= dayEndHour
+        );
       }
     }
 
@@ -1976,46 +1974,14 @@
      * Re-render the contents of the time bar.
      */
     relayout() {
-      const topbox = this.querySelector(".topbox");
-
-      while (topbox.hasChildNodes()) {
-        topbox.lastChild.remove();
-      }
-
-      const orient = topbox.getAttribute("orient");
-      const formatter = cal.dtz.formatter;
-      const jsTime = new Date();
-      let prevEndPix = 0;
-
-      for (let hour = 0; hour < 24; hour++) {
-        const box = document.createXULElement("box");
-        box.setAttribute("orient", orient);
-
-        // Calculate duration pixel as the difference between
-        // start pixel and end pixel to avoid rounding errors.
-        let endPix = Math.round((hour + 1) * 60 * this.mPixPerMin);
-        let durPix = endPix - prevEndPix;
-        prevEndPix = endPix;
-        box.setAttribute(orient == "horizontal" ? "width" : "height", durPix);
-
-        jsTime.setHours(hour, 0, 0);
-        let dateTime = cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating);
-        let timeString = formatter.formatTime(dateTime);
-
-        const label = document.createXULElement("label");
-        label.setAttribute("value", timeString);
-        label.setAttribute("class", "calendar-time-bar-label");
-        label.setAttribute("align", "center");
-        box.appendChild(label);
-
-        // Set up workweek hours.
-        if (hour < this.dayStartHour || hour >= this.dayEndHour) {
-          box.setAttribute("off-time", "true");
-        }
-
-        box.setAttribute("class", "calendar-time-bar-box-" + (hour % 2 == 0 ? "even" : "odd"));
-
-        topbox.appendChild(box);
+      let orient = this.getAttribute("orient");
+      let dayPx = `${MINUTES_IN_DAY * this.mPixPerMin}px`;
+      if (orient == "vertical") {
+        this.hourBoxContainer.style.height = dayPx;
+        this.hourBoxContainer.style.width = null;
+      } else {
+        this.hourBoxContainer.style.width = dayPx;
+        this.hourBoxContainer.style.height = null;
       }
     }
   }
@@ -2080,9 +2046,23 @@
     mSelectedDayCol = null;
     mSelectedDay = null;
 
+    /**
+     * The hour that a 'day' starts. Any time before this is considered
+     * off-time.
+     * @type {number}
+     */
     dayStartHour = 0;
+    /**
+     * The hour that a 'day' ends. Any time equal to or after this is
+     * considered off-time.
+     * @type {number}
+     */
     dayEndHour = 0;
 
+    /**
+     * How many hours to show in the scrollable area.
+     * @type {number}
+     */
     visibleHours = 9;
     mClickedTime = null;
 
@@ -2442,7 +2422,7 @@
         document.getElementById("week-view").mTimeIndicatorMinutes = nowMinutes;
       }
       // Update the position of the indicator.
-      let position = `${Math.round(this.mPixPerMin * this.mTimeIndicatorMinutes) - 1}px`;
+      let position = `${this.mPixPerMin * this.mTimeIndicatorMinutes - 1}px`;
       let isVertical = this.getAttribute("orient") == "vertical";
 
       if (this.timeBarTimeIndicator) {
@@ -2469,17 +2449,15 @@
       switch (preference) {
         case "calendar.view.daystarthour":
           this.setDayStartEndHours(subject.getIntPref(preference), this.dayEndHour);
-          this.refreshView();
           break;
 
         case "calendar.view.dayendhour":
           this.setDayStartEndHours(this.dayStartHour, subject.getIntPref(preference));
-          this.refreshView();
           break;
 
         case "calendar.view.visiblehours":
           this.setVisibleHours(subject.getIntPref(preference));
-          this.refreshView();
+          this.readjustView(true, true, this.scrollMinute);
           break;
 
         case "calendar.view.timeIndicatorInterval":
@@ -2564,10 +2542,7 @@
         let timeDirectionSize = isHorizontal
           ? scrollArea.right - scrollArea.left
           : scrollArea.bottom - scrollArea.top;
-        let ppm = Math.max(
-          this.mMinPixelsPerMinute,
-          Math.floor((timeDirectionSize * 1000) / (this.visibleHours * 60)) / 1000
-        );
+        let ppm = Math.max(this.mMinPixelsPerMinute, timeDirectionSize / (this.visibleHours * 60));
         ppmHasChanged = this.pixelsPerMinute != ppm;
         this.pixelsPerMinute = ppm;
 
@@ -3151,6 +3126,7 @@
             dayCol.column.calendarView = this;
             dayCol.column.pixelsPerMinute = this.pixelsPerMinute;
             dayCol.column.startLayoutBatchChange();
+            dayCol.column.setDayStartEndHours(this.dayStartHour, this.dayEndHour);
 
             this.dayColumns[colIndex] = dayCol;
           }
@@ -3173,8 +3149,6 @@
 
           /* Set up event column. */
           dayCol.column.date = dayDate;
-
-          dayCol.column.setDayStartEndHours(this.dayStartHour, this.dayEndHour);
 
           /* Set up styling classes for day-off and today. */
           dayCol.container.classList.toggle(
@@ -3590,6 +3564,9 @@
       this.dayEndHour = dayEndHour;
       // Also update on the time-bar.
       this.timebar.setDayStartEndHours(dayStartHour, dayEndHour);
+      for (let dayCol of this.dayColumns) {
+        dayCol.column.setDayStartEndHours(dayStartHour, dayEndHour);
+      }
     }
 
     /**

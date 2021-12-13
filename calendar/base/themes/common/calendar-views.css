@@ -312,11 +312,10 @@ calendar-time-bar {
   inset-block-start: 0;
 }
 
-.calendar-time-bar-box-odd,
-.calendar-time-bar-box-even {
+.multiday-timebar-time {
   color: var(--viewTimeBoxColor);
   text-align: end;
-  overflow: hidden;
+  padding: 1px 5px;
 }
 
 .day-column-container {
@@ -423,6 +422,20 @@ calendar-event-column .multiday-events-list {
   grid-column: 1 / 4;
 }
 
+.multiday-hour-box-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.multiday-grid-rotated .multiday-hour-box-container {
+  flex-direction: row;
+}
+
+.multiday-hour-box {
+  flex: 1 1 0;
+  overflow: hidden;
+}
+
 /* Borders. */
 
 .multiday-header-corner {
@@ -475,8 +488,8 @@ calendar-header-container {
 calendar-event-column,
 .multiday-end-border {
   /* NOTE: For calendar-event-column, the calendar-header-container and last
-   * .calendar-event-column-linebox elements provide the starting end ending
-   * block borders, respectively. */
+   * .multiday-hour-box elements provide the starting end ending block borders,
+   * respectively. */
   border-inline-start: 1px solid var(--viewBorderColor);
   border-inline-end: none;
   border-block: none;
@@ -491,26 +504,19 @@ calendar-event-column,
   border-inline: none;
 }
 
-.calendar-event-column-linebox {
+.multiday-hour-box {
   border-block-start: none;
   border-block-end: 1px solid var(--viewBorderColor);
   border-inline: none;
 }
 
-.calendar-time-bar-box-odd,
-.calendar-time-bar-box-even {
-  /* Same border positioning and width as calendar-event-column-linebox, so that
-   * they align, but we make it transparent to hide it. */
-  border-block-start: none;
-  border-block-end: 1px solid transparent;
-  border-inline: none;
+.multiday-grid:not(.multiday-grid-rotated) calendar-time-bar .multiday-hour-box {
+  /* Timebar has same border as in the calendar-event-column, so that they
+   * align, but we make it transparent to hide it. */
+  border-color: transparent;
 }
 
-.multiday-grid-rotated :is(
-  .calendar-time-bar-box-odd,
-  .calendar-time-bar-box-even,
-  .calendar-event-column-linebox
-) {
+.multiday-grid-rotated .multiday-hour-box {
   border-inline-start: none;
   border-inline-end: 1px solid var(--viewBorderColor);
   border-block: none;
@@ -522,7 +528,7 @@ calendar-event-column,
   .day-column-heading,
   calendar-header-container,
   calendar-event-column,
-  .calendar-event-column-linebox:last-child
+  .multiday-hour-box:last-child
 ) {
   border-color: var(--viewHighlightBorderColor);
 }
@@ -561,54 +567,51 @@ calendar-event-column,
 .day-column-heading,
 calendar-header-container,
 calendar-event-column,
-.calendar-time-bar-box-odd,
-.calendar-time-bar-box-even {
+.multiday-hour-box {
   background-color: var(--viewBackground);
 }
 
 .day-column-weekend :is(
   calendar-header-container,
-  .calendar-event-column-linebox:not([off-time="true"])
+  .multiday-hour-box
 ) {
   background-color: var(--viewWeekendBackground);
 }
 
 .day-column-today :is(
   calendar-header-container,
-  .calendar-event-column-linebox:not([off-time="true"])
+  .multiday-hour-box
 ) {
   background-color: var(--viewTodayBackground);
 }
 
 .day-column-today.day-column-weekend:not(.day-column-selected) :is(
   calendar-header-container,
-  .calendar-event-column-linebox:not([off-time="true"])
+  .multiday-hour-box
 ) {
   background-color: var(--viewTodayWeekendBackground);
 }
 
 .day-column-selected :is(
   calendar-header-container,
-  .calendar-event-column-linebox:not([off-time="true"])
+  .multiday-hour-box
 ) {
   background-color: var(--viewHeaderSelectedBackground);
 }
 
-.calendar-event-column-linebox[off-time="true"],
-.calendar-time-bar-box-odd[off-time="true"] ,
-.calendar-time-bar-box-even[off-time="true"] {
+.multiday-hour-box.multiday-hour-box-off-time {
   background-color: var(--viewOffTimeBackground);
 }
 
-.day-column-weekend .calendar-event-column-linebox[off-time="true"] {
+.day-column-weekend .multiday-hour-box.multiday-hour-box-off-time {
   background-color: var(--viewMonthDayOffLabelBackground);
 }
 
-.day-column-today .calendar-event-column-linebox[off-time="true"] {
+.day-column-today .multiday-hour-box.multiday-hour-box-off-time {
   background-color: var(--viewTodayOffBackground);
 }
 
-.day-column-selected .calendar-event-column-linebox[off-time="true"] {
+.day-column-selected .multiday-hour-box.multiday-hour-box-off-time {
   background-color: var(--viewDayBoxOffSelectedBackground);
 }
 
@@ -1219,12 +1222,4 @@ radio.calview:not([selected=true]):hover {
 .multiday-events-list,
 .timeIndicator {
   pointer-events: none;
-}
-
-.multiday-column-box-stack,
-.multiday-column-bg-box,
-.multiday-events-list,
-.calendar-event-column-linebox {
-  min-width: 1px;
-  min-height: 1px;
 }

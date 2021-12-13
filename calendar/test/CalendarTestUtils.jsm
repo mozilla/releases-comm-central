@@ -74,8 +74,8 @@ class CalendarDayViewTestUtils {
   }
 
   /**
-   * Provides the .calendar-event-column-linebox element for the specified hour.
-   * This element can be double clicked to create a new event at that hour.
+   * Provides the .multiday-hour-box element for the specified hour. This
+   * element can be double clicked to create a new event at that hour.
    *
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} hour - Must be between 0-23.
@@ -257,8 +257,8 @@ class CalendarWeekViewTestUtils {
   }
 
   /**
-   * Provides the .calendar-event-column-linebox element for the specified hour.
-   * This element can be double clicked to create a new event at that hour.
+   * Provides the .multiday-hour-box element for the specified hour. This
+   * element can be double clicked to create a new event at that hour.
    *
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} day - Day of the week, between 1-7.
@@ -269,7 +269,7 @@ class CalendarWeekViewTestUtils {
    */
   getHourBoxAt(win, day, hour) {
     let column = this.getEventColumn(win, day);
-    return column.querySelector(`.multiday-column-bg-box > spacer:nth-of-type(${hour + 1})`);
+    return column.querySelectorAll(".multiday-hour-box")[hour];
   }
 
   /**

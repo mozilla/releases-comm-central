@@ -39,14 +39,48 @@ async function resetView(date, view) {
 }
 
 /**
+ * End the dragging of the event at the specified location.
+ *
+ * @param {number} day - The day to drop into.
+ * @param {number} hour - The starting hour to drop to.
+ * @param {number} topOffset - An offset to apply to the mouse position.
+ */
+function endDrag(day, hour, topOffset) {
+  let view = window.currentView();
+  let hourElement;
+  if (view.id == "day-view") {
+    hourElement = CalendarTestUtils.dayView.getHourBoxAt(window, hour);
+  } else {
+    hourElement = CalendarTestUtils.weekView.getHourBoxAt(window, day, hour);
+  }
+  // We scroll to align the *end* of the hour element so we can avoid triggering
+  // the auto-scroll when we synthesize mousemove below.
+  // FIXME: Use and test auto scroll by holding mouseover at the view edges.
+  CalendarTestUtils.scrollViewToTarget(hourElement, false);
+
+  let hourRect = hourElement.getBoundingClientRect();
+
+  // We drop the event with some offset from the starting edge of the desired
+  // hourElement.
+  // NOTE: This may mean that the drop point may not be above the hourElement.
+  // NOTE: We assume that the drop point is however still above the view.
+  // Currently event "move" events get cancelled if the pointer leaves the view.
+  let top = Math.round(hourRect.top + topOffset);
+  let left = Math.round(hourRect.left + hourRect.width / 2);
+
+  EventUtils.synthesizeMouseAtPoint(left, top, { type: "mousemove", shiftKey: true }, window);
+  EventUtils.synthesizeMouseAtPoint(left, top, { type: "mouseup", shiftKey: true }, window);
+}
+
+/**
  * Simulates the dragging of an event box in a multi-day view to another
  * column, horizontally.
  *
  * @param {MozCalendarEventBox} eventBox - The event to start moving.
- * @param {MozCalendarEventColumn} column - The column to drop into.
+ * @param {number} day - The day to drop into.
  * @param {number} hour - The starting hour to drop to.
  */
-function simulateDragToColumn(eventBox, column, hour) {
+function simulateDragToColumn(eventBox, day, hour) {
   // Scroll to align to the top of the view.
   CalendarTestUtils.scrollViewToTarget(eventBox, true);
 
@@ -76,34 +110,8 @@ function simulateDragToColumn(eventBox, column, hour) {
     window
   );
 
-  let hourElement = column.querySelector(`.calendar-event-column-linebox:nth-child(${hour + 1})`);
-  // We scroll to align the *end* of the hour element so we can avoid triggering
-  // the auto-scroll when we synthesize mousemove below.
-  // FIXME: Use and test auto scroll by holding mouseover at the view edges.
-  CalendarTestUtils.scrollViewToTarget(hourElement, false);
-  // NOTE: The dragging of the event takes into account the offset of the
-  // original mousedown from the sourceBox start edges.
-  // So we need to drop the event with the same offset from the starting edge
-  // of the desired hourElement.
-  // NOTE: This may mean that the drop point may not be above the hourElement.
-  // NOTE: We assume that the drop point is however still above the view.
-  // Currently event "move" events get cancelled if the pointer leaves the view.
-  let hourRect = hourElement.getBoundingClientRect();
-
-  let destTop = Math.round(hourRect.top + topOffset);
-
-  EventUtils.synthesizeMouseAtPoint(
-    hourRect.left + leftOffset,
-    destTop,
-    { type: "mousemove", shiftKey: true },
-    window
-  );
-  EventUtils.synthesizeMouseAtPoint(
-    hourRect.left + leftOffset,
-    destTop,
-    { type: "mouseup", shiftKey: true },
-    window
-  );
+  // End drag with the same offset from the starting edge.
+  endDrag(day, hour, topOffset);
 }
 
 /**
@@ -111,10 +119,10 @@ function simulateDragToColumn(eventBox, column, hour) {
  *
  * @param {MozCalendarEventBox} eventBox - The event to resize.
  * @param {"start"|"end"} - The side to grab.
- * @param {MozCalendarEventColumn} column - The column to move into.
+ * @param {number} day - The day to move into.
  * @param {number} hour - The hour to move to.
  */
-function simulateGripbarDrag(eventBox, side, column, hour) {
+function simulateGripbarDrag(eventBox, side, day, hour) {
   // Scroll the edge of the box into view.
   CalendarTestUtils.scrollViewToTarget(eventBox, side == "start");
 
@@ -131,26 +139,8 @@ function simulateGripbarDrag(eventBox, side, column, hour) {
     window
   );
 
-  let hourElement = column.querySelector(`.calendar-event-column-linebox:nth-child(${hour + 1})`);
-  // We scroll to align the *end* of the hour element so we can avoid triggering
-  // the auto-scroll when we synthesize mousemove below.
-  // FIXME: Use and test auto scroll by holding mouseover at the view edges.
-  CalendarTestUtils.scrollViewToTarget(hourElement, false);
-
-  let hourRect = hourElement.getBoundingClientRect();
-
-  EventUtils.synthesizeMouseAtPoint(
-    hourRect.left + leftOffset,
-    hourRect.top,
-    { type: "mousemove", shiftKey: true },
-    window
-  );
-  EventUtils.synthesizeMouseAtPoint(
-    hourRect.left + leftOffset,
-    hourRect.top,
-    { type: "mouseup", shiftKey: true },
-    window
-  );
+  // End the drag at the start of the hour.
+  endDrag(day, hour, 0);
 }
 
 /**
@@ -261,8 +251,7 @@ add_task(async function testWeekViewDragEventBoxToPreviousDay() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
-  let column = CalendarTestUtils.weekView.getEventColumn(window, 2);
-  simulateDragToColumn(eventBox, column, 2);
+  simulateDragToColumn(eventBox, 2, 2);
 
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 2, 1);
   await TestUtils.waitForCondition(
@@ -294,8 +283,7 @@ add_task(async function testWeekViewDragEventBoxToFollowingDay() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
-  let column = CalendarTestUtils.weekView.getEventColumn(window, 4);
-  simulateDragToColumn(eventBox, column, 2);
+  simulateDragToColumn(eventBox, 4, 2);
 
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 4, 1);
   await TestUtils.waitForCondition(
@@ -327,8 +315,7 @@ add_task(async function testWeekViewDragEventBoxStartTime() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
-  let column = CalendarTestUtils.weekView.getEventColumn(window, 3);
-  simulateGripbarDrag(eventBox, "start", column, 1);
+  simulateGripbarDrag(eventBox, "start", 3, 1);
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
@@ -354,8 +341,7 @@ add_task(async function testWeekViewDragEventBoxEndTime() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
-  let column = CalendarTestUtils.weekView.getEventColumn(window, 3);
-  simulateGripbarDrag(eventBox, "end", column, 6);
+  simulateGripbarDrag(eventBox, "end", 3, 6);
   eventBox = await CalendarTestUtils.weekView.waitForEventBoxAt(window, 3, 1);
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
@@ -381,8 +367,7 @@ add_task(async function testDayViewDragEventBoxStartTime() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
-  let column = CalendarTestUtils.dayView.getEventColumn(window);
-  simulateGripbarDrag(eventBox, "start", column, 1);
+  simulateGripbarDrag(eventBox, "start", 1, 1);
   eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
@@ -409,8 +394,7 @@ add_task(async function testDayViewDragEventBoxEndTime() {
   await resetView(event.startDate);
 
   let eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
-  let column = CalendarTestUtils.dayView.getEventColumn(window);
-  simulateGripbarDrag(eventBox, "end", column, 4);
+  simulateGripbarDrag(eventBox, "end", 1, 4);
   eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
   let { id, title, startDate, endDate } = eventBox.occurrence;
