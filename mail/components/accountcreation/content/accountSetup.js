@@ -1098,6 +1098,11 @@ var gAccountSetup = {
       row.hidden = true;
     }
 
+    // Remove all previously generated protocol types.
+    for (let type of document.querySelectorAll(".config-type")) {
+      type.remove();
+    }
+
     // Reveal all the matching protocols.
     for (let protocol of protocols) {
       let row = document.getElementById(`resultsOption-${protocol.type}`);
@@ -1135,10 +1140,9 @@ var gAccountSetup = {
 
       let container = document.getElementById("resultExchangeHostname");
       _makeHostDisplayString(config.incoming, container);
-      // It's always SSL, so just clutter.
-      container.querySelector(".ssl").hidden = true;
-      // Already have a nicer label.
-      container.querySelector(".protocol-type").hidden = true;
+      document
+        .getElementById("incomingTitle-exchange")
+        .appendChild(_socketTypeSpan(config.incoming.socketType));
 
       (async () => {
         try {
@@ -1240,30 +1244,15 @@ var gAccountSetup = {
     }
 
     function _makeHostDisplayString(server, container) {
-      // Helper method to quickly create the same span element.
-      function _addComponent(text, className) {
-        let span = document.createElement("span");
-        span.classList.add(className);
-        document.l10n.setAttributes(span, text);
-        container.appendChild(span);
-      }
-
       // Clean up any existing element.
       while (container.hasChildNodes()) {
         container.lastChild.remove();
       }
+
       let cert = container.parentNode.querySelector(".cert-status");
       if (cert != null) {
         cert.remove();
       }
-
-      let type = Sanitizer.translate(server.type, {
-        imap: "imap",
-        pop3: "pop",
-        smtp: "smtp",
-        exchange: "exchange",
-      });
-      _addComponent(`account-setup-result-${type}`, "protocol-type");
 
       let domain = server.hostname;
       try {
@@ -1292,17 +1281,6 @@ var gAccountSetup = {
         container.appendChild(portSpan);
       }
 
-      let ssl = Sanitizer.translate(server.socketType, {
-        1: "no-encryption",
-        2: "ssl",
-        3: "starttls",
-      });
-      _addComponent(`account-setup-result-${ssl}`, "ssl");
-
-      if (server.socketType != 2 && server.socketType != 3) {
-        // not SSL/STARTTLS
-        container.querySelector(".ssl").classList.add("insecure");
-      }
       if (server.badCert) {
         container.parentNode
           .querySelector(".cert-status")
@@ -1310,19 +1288,72 @@ var gAccountSetup = {
       }
     }
 
+    /**
+     * Helper method to create the span protocol element.
+     *
+     * @returns {HTMLElement} - The newly created span label.
+     */
+    function _protocolTypeSpan() {
+      let span = document.createElement("span");
+      span.classList.add("protocol-type", "config-type");
+      return span;
+    }
+
+    /**
+     * Helper method to create the span socket element.
+     *
+     * @param {nsMsgSocketType} socket - The value representing the server
+     *   socket type.
+     * @returns {HTMLElement} - The newly created span label.
+     */
+    function _socketTypeSpan(socket) {
+      let ssl = Sanitizer.translate(socket, {
+        1: "no-encryption",
+        2: "ssl",
+        3: "starttls",
+      });
+      let span = _protocolTypeSpan();
+      document.l10n.setAttributes(span, `account-setup-result-${ssl}`);
+      span.classList.add("ssl");
+      if (socket != 2 && socket != 3) {
+        // Not an SSL or STARTTLS socket.
+        span.classList.add("insecure");
+      }
+      return span;
+    }
+
+    let protocolType = config.incoming.type;
     if (configFilledIn.incoming.hostname) {
       _makeHostDisplayString(
         configFilledIn.incoming,
-        document.getElementById(`incomingInfo-${config.incoming.type}`)
+        document.getElementById(`incomingInfo-${protocolType}`)
       );
+
+      let container = document.getElementById(`incomingTitle-${protocolType}`);
+
+      // No need to show the protocol type if it's exchange, and the socket span
+      // is generated somewhere else specifically for exchange.
+      if (protocolType != "exchange") {
+        let span = _protocolTypeSpan();
+        span.textContent = configFilledIn.incoming.type;
+        container.appendChild(span);
+        container.appendChild(_socketTypeSpan(config.incoming.socketType));
+      }
     }
 
-    let outgoingInfo = document.getElementById(
-      `outgoingInfo-${config.incoming.type}`
-    );
+    let outgoingInfo = document.getElementById(`outgoingInfo-${protocolType}`);
     if (!config.outgoing.existingServerKey) {
       if (configFilledIn.outgoing.hostname) {
         _makeHostDisplayString(configFilledIn.outgoing, outgoingInfo);
+      }
+      let container = document.getElementById(`outgoingTitle-${protocolType}`);
+      // No need to show the protocol type if it's exchange, and the socket span
+      // is generated somewhere else specifically for exchange.
+      if (protocolType != "exchange") {
+        let span = _protocolTypeSpan();
+        span.textContent = configFilledIn.outgoing.type;
+        container.appendChild(span);
+        container.appendChild(_socketTypeSpan(config.outgoing.socketType));
       }
     } else {
       let span = document.createElement("span");

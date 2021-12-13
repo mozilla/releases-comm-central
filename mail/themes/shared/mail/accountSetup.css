@@ -204,7 +204,7 @@ input:user-invalid ~ .icon-warning {
   color: var(--in-content-link-color) !important;
   border-style: none;
   padding: 0 3px;
-  font-size: 0.75em;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   min-height: auto;
@@ -279,7 +279,7 @@ input:user-invalid ~ .icon-warning {
 
 .autoconfig-note {
   margin-block: 10px 0;
-  font-size: 0.85em;
+  font-size: 1rem;
 }
 
 .content-blocking-category {
@@ -299,13 +299,30 @@ input:user-invalid ~ .icon-warning {
   display: flex;
 }
 
+.results-option:not([hidden]) {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  column-gap: 3px;
+}
+
+.results-option .toggle-container-with-text,
+.result-details,
+.result-details-row {
+  display: contents;
+}
+
+.results-option .toggle-container-with-text span,
+.result-indent,
+.result-details {
+  grid-column: 2 / 4;
+}
+
 .result-details {
   display: none;
   flex-direction: column;
   font-size: 0.9em;
   row-gap: 9px;
   margin-block: 9px;
-  margin-inline-start: 21px;
 }
 
 .result-details-row {
@@ -317,15 +334,21 @@ input:user-invalid ~ .icon-warning {
 
 .result-details-row img {
   grid-area: icon;
-   -moz-context-properties: fill;
+  -moz-context-properties: fill;
   fill: currentColor;
   color: inherit;
   width: 16px;
   height: 16px;
 }
 
-.result-details-row h4 {
+.result-details-title {
   grid-area: heading;
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.result-details-title h4 {
   margin-block: 0;
 }
 
@@ -333,12 +356,7 @@ input:user-invalid ~ .icon-warning {
   grid-area: info;
 }
 
-.toggle-container-with-text {
-  flex-wrap: wrap;
-}
-
-.toggle-container-with-text span {
-  flex: 1;
+.results-option .toggle-container-with-text span {
   line-height: 1.4em;
 }
 
@@ -347,9 +365,7 @@ input:user-invalid ~ .icon-warning {
 }
 
 .result-indent {
-  margin-inline-start: 21px;
   margin-block: 0;
-  width: 100%;
 }
 
 /* Confirmation dialog */
@@ -485,7 +501,7 @@ input:user-invalid ~ .icon-warning {
   background-color: var(--in-content-primary-button-background);
   border-radius: var(--in-content-button-border-radius);
   padding: 2px 6px;
-  font-size: 0.7em;
+  font-size: 0.9rem;
   text-transform: uppercase;
   color: var(--in-content-primary-button-text-color);
 }
@@ -523,7 +539,7 @@ input:user-invalid ~ .icon-warning {
 }
 
 .option-label {
-  font-size: 0.85em;
+  font-size: 1.05rem;
   line-height: 1em;
   font-weight: 500;
 }
@@ -543,7 +559,7 @@ input:user-invalid ~ .icon-warning {
 
 .foot-note {
   line-height: 1.5em;
-  font-size: 0.85em;
+  font-size: 1rem;
   margin-block-start: 21px;
 }
 
@@ -565,32 +581,18 @@ input:user-invalid ~ .icon-warning {
   background-color: var(--in-content-primary-button-background);
   color: var(--in-content-primary-button-text-color);
 }
-.result-host-info > .protocol-type {
-  margin-inline-end: 5px;
+
+.protocol-type.insecure {
+  background-color: var(--red-70);
+  color: var(--in-content-primary-button-text-color);
 }
 
 .result-host-info > span {
   margin-inline: 0;
 }
 
-.result-host-info > .ssl {
-  margin-inline-start: 0.4em;
-}
-
 .result-host-info > .domain {
   font-weight: bold;
-}
-
-.result-host-info > .insecure {
-  display: inline-block;
-  padding: 2px 4px;
-  font-size: 0.8rem;
-  margin-inline-end: 5px;
-  font-weight: bold;
-  border-radius: 2px;
-  line-height: 1rem;
-  background-color: var(--red-70);
-  color: var(--in-content-primary-button-text-color);
 }
 
 .cert-status.insecure {
@@ -695,7 +697,6 @@ button.linked-services-button:hover:active {
 }
 
 .account-name {
-  font-size: 0.9em;
   margin-block-end: 3px;
   font-weight: 500;
 }
@@ -816,13 +817,6 @@ button.quick-link:hover:active {
   border-radius: var(--in-content-button-border-radius);
 }
 
-.linked-services-list li span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 600;
-}
-
 .linked-services-list button.small-button {
   line-height: 0.9em;
   padding-block: 0;
@@ -831,6 +825,10 @@ button.quick-link:hover:active {
 .list-item-name {
   flex: 1;
   padding-inline: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
 }
 
 .self-center {

@@ -179,18 +179,9 @@ account-setup-results-area-title =
         *[other] Available configurations
     }
 
-# Note: IMAP is the name of a protocol.
-account-setup-result-imap = IMAP
-
 account-setup-result-imap-description = Keep your folders and emails synced on your server
 
-# Note: POP3 is the name of a protocol.
-account-setup-result-pop = POP3
-
 account-setup-result-pop-description = Keep your folders and emails on your computer
-
-# Note: Exchange is the name of a product.
-account-setup-result-exchange = Exchange
 
 # Note: Exchange, Office365 are the name of products.
 account-setup-result-exchange2-description = Use the Microsoft Exchange server or Office365 cloud services
@@ -202,8 +193,6 @@ account-setup-outgoing-title = Outgoing
 account-setup-username-title = Username
 
 account-setup-exchange-title = Server
-
-account-setup-result-smtp = SMTP
 
 account-setup-result-no-encryption = No Encryption
 
@@ -238,12 +227,6 @@ account-setup-manual-config-title = Manual configuration
 account-setup-incoming-server-legend = Incoming server
 
 account-setup-protocol-label = Protocol:
-
-protocol-imap-option = { account-setup-result-imap }
-
-protocol-pop-option = { account-setup-result-pop }
-
-protocol-exchange-option = { account-setup-result-exchange }
 
 account-setup-hostname-label = Hostname:
 

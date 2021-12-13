@@ -364,14 +364,13 @@
         <h4 id="resultAreaTitle" class="section-title"></h4>
 
         <!-- IMAP -->
-        <div id="resultsOption-imap" class="content-blocking-category">
+        <div id="resultsOption-imap" class="content-blocking-category results-option">
           <label class="toggle-container-with-text">
             <input id="resultSelect-imap" type="radio"
                    value="imap"
                    name="resultsServerType"
                    onchange="gAccountSetup.onResultServerTypeChanged();" />
-            <span data-l10n-id="account-setup-result-imap" class="strong">
-            </span>
+            <span class="strong">IMAP</span>
             <p class="result-indent"
                data-l10n-id="account-setup-result-imap-description">
             </p>
@@ -379,33 +378,38 @@
           <aside class="result-details">
             <section class="result-details-row">
               <img src="chrome://messenger/skin/icons/inbox.svg" alt="" />
-              <h4 data-l10n-id="account-setup-incoming-title"></h4>
+              <div id="incomingTitle-imap" class="result-details-title">
+                <h4 data-l10n-id="account-setup-incoming-title"></h4>
+              </div>
               <div id="incomingInfo-imap" class="result-host-info"></div>
             </section>
 
             <section class="result-details-row">
               <img src="chrome://messenger/skin/icons/outbox.svg" alt="" />
-              <h4 data-l10n-id="account-setup-outgoing-title"></h4>
+              <div id="outgoingTitle-imap" class="result-details-title">
+                <h4 data-l10n-id="account-setup-outgoing-title"></h4>
+              </div>
               <div id="outgoingInfo-imap" class="result-host-info"></div>
             </section>
 
             <section class="result-details-row">
               <img src="chrome://messenger/skin/icons/contact.svg" alt="" />
-              <h4 data-l10n-id="account-setup-username-title"></h4>
+              <div class="result-details-title">
+                <h4 data-l10n-id="account-setup-username-title"></h4>
+              </div>
               <div id="usernameInfo-imap" class="result-host-info"></div>
             </section>
           </aside>
         </div>
 
         <!-- POP3 -->
-        <div id="resultsOption-pop3" class="content-blocking-category">
+        <div id="resultsOption-pop3" class="content-blocking-category results-option">
           <label class="toggle-container-with-text">
             <input id="resultSelect-pop3" type="radio"
                    value="pop3"
                    name="resultsServerType"
                    onchange="gAccountSetup.onResultServerTypeChanged();" />
-            <span data-l10n-id="account-setup-result-pop" class="strong">
-            </span>
+            <span class="strong">POP3</span>
             <p class="result-indent"
                data-l10n-id="account-setup-result-pop-description">
             </p>
@@ -413,26 +417,32 @@
           <aside class="result-details">
             <section class="result-details-row">
               <img src="chrome://messenger/skin/icons/inbox.svg" alt="" />
-              <h4 data-l10n-id="account-setup-incoming-title"></h4>
+              <div id="incomingTitle-pop3" class="result-details-title">
+                <h4 data-l10n-id="account-setup-incoming-title"></h4>
+              </div>
               <div id="incomingInfo-pop3" class="result-host-info"></div>
             </section>
 
             <section class="result-details-row">
               <img src="chrome://messenger/skin/icons/outbox.svg" alt="" />
-              <h4 data-l10n-id="account-setup-outgoing-title"></h4>
+              <div id="outgoingTitle-pop3" class="result-details-title">
+                <h4 data-l10n-id="account-setup-outgoing-title"></h4>
+              </div>
               <div id="outgoingInfo-pop3" class="result-host-info"></div>
             </section>
 
             <section class="result-details-row">
               <img src="chrome://messenger/skin/icons/contact.svg" alt="" />
-              <h4 data-l10n-id="account-setup-username-title"></h4>
+              <div class="result-details-title">
+                <h4 data-l10n-id="account-setup-username-title"></h4>
+              </div>
               <div id="usernameInfo-pop3" class="result-host-info"></div>
             </section>
           </aside>
         </div>
 
         <!-- EXCHANGE -->
-        <div id="resultsOption-exchange" class="content-blocking-category">
+        <div id="resultsOption-exchange" class="content-blocking-category results-option">
           <label class="toggle-container-with-text">
             <input id="resultSelect-exchange" type="radio"
                    value="exchange"
@@ -448,7 +458,9 @@
           <aside class="result-details">
             <section class="result-details-row">
               <img src="chrome://messenger/skin/icons/inbox.svg" alt="" />
-              <h4 data-l10n-id="account-setup-exchange-title"></h4>
+              <div id="incomingTitle-exchange" class="result-details-title">
+                <h4 data-l10n-id="account-setup-exchange-title"></h4>
+              </div>
               <div id="resultExchangeHostname" class="result-host-info"></div>
             </section>
             <aside id="installAddonInfo">
@@ -478,12 +490,11 @@
             <div class="input-control">
               <select id="incomingProtocol"
                       onchange="gAccountSetup.onChangedProtocolIncoming();">
-                <option data-l10n-id="protocol-imap-option" value="1"></option>
-                <option data-l10n-id="protocol-pop-option" value="2"></option>
+                <option value="1">IMAP</option>
+                <option value="2">POP3</option>
                 <option id="incomingProtocolExchange"
-                        data-l10n-id="protocol-exchange-option"
                         value="3"
-                        hidden="hidden"></option>
+                        hidden="hidden">Exchange</option>
               </select>
             </div>
           </aside>
