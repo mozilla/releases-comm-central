@@ -57,6 +57,9 @@
       };
     }
 
+    dayStartHour = 0;
+    dayEndHour = 0;
+
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
@@ -161,10 +164,6 @@
 
       // Fields.
       this.mPixPerMin = 0.6;
-
-      this.mDayStartMin = 8 * 60;
-
-      this.mDayEndMin = 17 * 60;
 
       /**
        * An internal collection of data for events.
@@ -418,8 +417,7 @@
         box.setAttribute("orient", orient);
         box.setAttribute("class", "calendar-event-column-linebox");
 
-        let minute = hour * 60;
-        if (minute < this.mDayStartMin || minute >= this.mDayEndMin) {
+        if (hour < this.dayStartHour || hour >= this.dayEndHour) {
           box.setAttribute("off-time", "true");
         }
 
@@ -1392,12 +1390,18 @@
       window.addEventListener("keypress", this.onEventSweepKeypress);
     }
 
-    setDayStartEndMinutes(dayStartMin, dayEndMin) {
-      if (dayStartMin < 0 || dayStartMin > dayEndMin || dayEndMin > MINUTES_IN_DAY) {
+    /**
+     * Set the hours when the day starts and ends.
+     *
+     * @param {number} dayStartHour - Hour at which the day starts.
+     * @param {number} dayEndHour - Hour at which the day ends.
+     */
+    setDayStartEndHours(dayStartHour, dayEndHour) {
+      if (dayStartHour < 0 || dayStartHour > dayEndHour || dayEndHour > 24) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
-      this.mDayStartMin = dayStartMin;
-      this.mDayEndMin = dayEndMin;
+      this.dayStartHour = dayStartHour;
+      this.dayEndHour = dayEndHour;
     }
 
     /**
@@ -1874,6 +1878,9 @@
       };
     }
 
+    dayStartHour = 0;
+    dayEndHour = 0;
+
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasConnected) {
         return;
@@ -1901,9 +1908,6 @@
 
       this.mPixPerMin = 0.6;
 
-      this.mDayStartHour = 0;
-      this.mDayEndHour = 24;
-
       this.relayout();
       this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
     }
@@ -1922,24 +1926,24 @@
     /**
      * Set the hours when the day starts and ends.
      *
-     * @param {number} dayStartHour    Hour when the day will start.
-     * @param {number} dayEndHour      Hour when the day will end.
+     * @param {number} dayStartHour - Hour at which the day starts.
+     * @param {number} dayEndHour - Hour at which the day ends.
      */
     setDayStartEndHours(dayStartHour, dayEndHour) {
       if (dayStartHour < 0 || dayStartHour > dayEndHour || dayEndHour > 24) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
 
-      if (this.mDayStartHour != dayStartHour || this.mDayEndHour != dayEndHour) {
-        this.mDayEndHour = dayEndHour;
-        this.mDayStartHour = dayStartHour;
+      if (this.dayStartHour != dayStartHour || this.dayEndHour != dayEndHour) {
+        this.dayEndHour = dayEndHour;
+        this.dayStartHour = dayStartHour;
 
         const topbox = this.querySelector(".topbox");
         if (topbox.children.length) {
           // This only needs to be re-done if the initial relayout has already
           // happened.  (If it hasn't happened, this will be done when it does happen.)
           for (let hour = 0; hour < 24; hour++) {
-            if (hour < this.mDayStartHour || hour >= this.mDayEndHour) {
+            if (hour < this.dayStartHour || hour >= this.dayEndHour) {
               topbox.children[hour].setAttribute("off-time", "true");
             } else {
               topbox.children[hour].removeAttribute("off-time");
@@ -2005,7 +2009,7 @@
         box.appendChild(label);
 
         // Set up workweek hours.
-        if (hour < this.mDayStartHour || hour >= this.mDayEndHour) {
+        if (hour < this.dayStartHour || hour >= this.dayEndHour) {
           box.setAttribute("off-time", "true");
         }
 
@@ -2076,10 +2080,10 @@
     mSelectedDayCol = null;
     mSelectedDay = null;
 
-    mDayStartMin = 0;
-    mDayEndMin = 0;
+    dayStartHour = 0;
+    dayEndHour = 0;
 
-    mVisibleMinutes = 9 * 60;
+    visibleHours = 9;
     mClickedTime = null;
 
     mTimeIndicatorInterval = 15;
@@ -2193,13 +2197,13 @@
       });
 
       // Get day start/end hour from prefs and set on the view.
-      const startHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8) * 60;
-      const endHour = Services.prefs.getIntPref("calendar.view.dayendhour", 17) * 60;
-      this.setDayStartEndMinutes(startHour, endHour);
+      this.setDayStartEndHours(
+        Services.prefs.getIntPref("calendar.view.daystarthour", 8),
+        Services.prefs.getIntPref("calendar.view.dayendhour", 17)
+      );
 
       // Get visible hours from prefs and set on the view.
-      const visibleMinutes = Services.prefs.getIntPref("calendar.view.visiblehours", 9) * 60;
-      this.setVisibleMinutes(visibleMinutes);
+      this.setVisibleHours(Services.prefs.getIntPref("calendar.view.visiblehours", 9));
 
       // Set the time interval for the time indicator timer.
       this.setTimeIndicatorInterval(
@@ -2211,7 +2215,7 @@
       // We set the scrollMinute, so that when onResize is eventually triggered
       // by refresh, we will scroll to this.
       // FIXME: Find a cleaner solution.
-      this.scrollMinute = this.mDayStartMin;
+      this.scrollMinute = this.dayStartHour * 60;
       this.refresh();
     }
 
@@ -2464,17 +2468,17 @@
       subject.QueryInterface(Ci.nsIPrefBranch);
       switch (preference) {
         case "calendar.view.daystarthour":
-          this.setDayStartEndMinutes(subject.getIntPref(preference) * 60, this.mDayEndMin);
+          this.setDayStartEndHours(subject.getIntPref(preference), this.dayEndHour);
           this.refreshView();
           break;
 
         case "calendar.view.dayendhour":
-          this.setDayStartEndMinutes(this.mDayStartMin, subject.getIntPref(preference) * 60);
+          this.setDayStartEndHours(this.dayStartHour, subject.getIntPref(preference));
           this.refreshView();
           break;
 
         case "calendar.view.visiblehours":
-          this.setVisibleMinutes(subject.getIntPref(preference) * 60);
+          this.setVisibleHours(subject.getIntPref(preference));
           this.refreshView();
           break;
 
@@ -2546,7 +2550,7 @@
       if ((isHorizontal && horizontalResize) || (!isHorizontal && verticalResize)) {
         // We want to know how much visible space is available in the
         // "time-direction" of this view's scrollable area, which will be used
-        // to show mVisibleMinutes minutes in the timebar.
+        // to show 'this.visibleHour' hours in the timebar.
         // NOTE: The area returned by getScrollAreaRect is the *current*
         // scrollable area. We are working with the assumption that the length
         // in the time-direction will not change when we change the pixels per
@@ -2562,7 +2566,7 @@
           : scrollArea.bottom - scrollArea.top;
         let ppm = Math.max(
           this.mMinPixelsPerMinute,
-          Math.floor((timeDirectionSize * 1000) / this.mVisibleMinutes) / 1000
+          Math.floor((timeDirectionSize * 1000) / (this.visibleHours * 60)) / 1000
         );
         ppmHasChanged = this.pixelsPerMinute != ppm;
         this.pixelsPerMinute = ppm;
@@ -2978,18 +2982,18 @@
         }
       }
 
-      const displayDuration = highMinute - lowMinute;
-      if (this.mSelectedItems.length && displayDuration >= 0) {
-        let minute;
-        if (displayDuration <= this.mVisibleMinutes) {
-          minute = lowMinute + (displayDuration - this.mVisibleMinutes) / 2;
+      let halfDurationMinutes = (highMinute - lowMinute) / 2;
+      if (this.mSelectedItems.length && halfDurationMinutes >= 0) {
+        let halfVisibleMinutes = this.visibleHours * 30;
+        if (halfDurationMinutes <= halfVisibleMinutes) {
+          // If the full duration fits in the view, then center the middle of
+          // the region.
+          this.scrollToMinute(lowMinute + halfDurationMinutes - halfVisibleMinutes);
         } else if (this.mSelectedItems.length == 1) {
-          // If the displayDuration doesn't fit into the visible minutes, but
-          // only one event is selected, then go ahead and center the event start.
-
-          minute = Math.max(0, lowMinute - this.mVisibleMinutes / 2);
+          // Else, if only one event is selected, then center the start.
+          this.scrollToMinute(lowMinute - halfVisibleMinutes);
         }
-        this.scrollToMinute(minute);
+        // Else, don't scroll.
       }
     }
 
@@ -3170,7 +3174,7 @@
           /* Set up event column. */
           dayCol.column.date = dayDate;
 
-          dayCol.column.setDayStartEndMinutes(this.mDayStartMin, this.mDayEndMin);
+          dayCol.column.setDayStartEndHours(this.dayStartHour, this.dayEndHour);
 
           /* Set up styling classes for day-off and today. */
           dayCol.container.classList.toggle(
@@ -3573,47 +3577,31 @@
     }
 
     /**
-     * Set the day start minute and the day end minute.
+     * Set the hours when the day starts and ends.
      *
-     * @param {number} dayStartMin    Starting minute for the day.
-     * @param {number} dayEndMin      Ending minute for the day.
+     * @param {number} dayStartHour - Hour at which the day starts.
+     * @param {number} dayEndHour - Hour at which the day ends.
      */
-    setDayStartEndMinutes(dayStartMin, dayEndMin) {
-      // If the timebar is not set up yet, defer until it is.
-      if (!("setDayStartEndHours" in this.timebar)) {
-        this.timebar.addEventListener(
-          "bindingattached",
-          () => this.setDayStartEndMinutes(dayStartMin, dayEndMin),
-          { once: true }
-        );
-        return;
-      }
-      if (dayStartMin < 0 || dayStartMin > dayEndMin || dayEndMin > MINUTES_IN_DAY) {
+    setDayStartEndHours(dayStartHour, dayEndHour) {
+      if (dayStartHour < 0 || dayStartHour > dayEndHour || dayEndHour > 24) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
-      if (this.mDayStartMin != dayStartMin || this.mDayEndMin != dayEndMin) {
-        this.mDayStartMin = dayStartMin;
-        this.mDayEndMin = dayEndMin;
-
-        // Also update on the time-bar.
-        this.timebar.setDayStartEndHours(this.mDayStartMin / 60, this.mDayEndMin / 60);
-      }
+      this.dayStartHour = dayStartHour;
+      this.dayEndHour = dayEndHour;
+      // Also update on the time-bar.
+      this.timebar.setDayStartEndHours(dayStartHour, dayEndHour);
     }
 
     /**
-     * Set how many minutes are visible in the view.
+     * Set how many hours are visible in the scrollable area.
      *
-     * @param {number} minutes    A number of visible minutes.
-     * @return {number}           A number of visible minutes.
+     * @param {number} hours - The number of visible hours.
      */
-    setVisibleMinutes(minutes) {
-      if (minutes <= 0 || minutes > MINUTES_IN_DAY) {
+    setVisibleHours(hours) {
+      if (hours <= 0 || hours > 24) {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
-      if (this.mVisibleMinutes != minutes) {
-        this.mVisibleMinutes = minutes;
-      }
-      return this.mVisibleMinutes;
+      this.visibleHours = hours;
     }
   }
 
