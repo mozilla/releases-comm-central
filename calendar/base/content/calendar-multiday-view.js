@@ -1861,134 +1861,6 @@
   customElements.define("calendar-event-box", MozCalendarEventBox);
 
   /**
-   * The time bar that displays time divisions to the side or top of a multiday (day or week) view.
-   */
-  class CalendarTimeBar extends MozXULElement {
-    static get inheritedAttributes() {
-      return {
-        ".timebarboxstack": "orient,width,height",
-        ".timeIndicator-timeBar": "orient",
-      };
-    }
-
-    /**
-     * The background hour box elements this timebar owns, ordered and
-     * indexed by their starting hour.
-     *
-     * @type {Element[]}
-     */
-    hourBoxes = [];
-
-    connectedCallback() {
-      if (this.delayConnectedCallback() || this.hasConnected) {
-        return;
-      }
-      this.hasConnected = true;
-
-      const stack = document.createXULElement("stack");
-      const indicator = document.createXULElement("box");
-
-      stack.setAttribute("class", "timebarboxstack");
-      stack.setAttribute("flex", "1");
-
-      let formatter = cal.dtz.formatter;
-      let jsTime = new Date();
-      this.hourBoxContainer = document.createElement("div");
-      this.hourBoxContainer.classList.add("multiday-hour-box-container");
-      for (let hour = 0; hour < 24; hour++) {
-        let hourBox = document.createElement("div");
-        hourBox.classList.add("multiday-hour-box", "multiday-timebar-time");
-        // Set the time label.
-        jsTime.setHours(hour, 0, 0);
-        hourBox.textContent = formatter.formatTime(
-          cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating)
-        );
-        this.hourBoxContainer.appendChild(hourBox);
-        this.hourBoxes.push(hourBox);
-      }
-
-      indicator.setAttribute("class", "timeIndicator-timeBar");
-      indicator.setAttribute("hidden", "true");
-
-      stack.appendChild(this.hourBoxContainer);
-      stack.appendChild(indicator);
-      this.appendChild(stack);
-
-      this.initializeAttributeInheritance();
-
-      this.mPixPerMin = 0.6;
-
-      this.relayout();
-      this.dispatchEvent(new CustomEvent("bindingattached", { bubbles: false }));
-    }
-
-    set pixelsPerMinute(ppm) {
-      if (ppm != this.mPixPerMin) {
-        this.mPixPerMin = ppm;
-        this.relayout();
-      }
-    }
-
-    get pixelsPerMinute() {
-      return this.mPixPerMin;
-    }
-
-    /**
-     * Set the hours when the day starts and ends.
-     *
-     * @param {number} dayStartHour - Hour at which the day starts.
-     * @param {number} dayEndHour - Hour at which the day ends.
-     */
-    setDayStartEndHours(dayStartHour, dayEndHour) {
-      if (dayStartHour < 0 || dayStartHour > dayEndHour || dayEndHour > 24) {
-        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
-      }
-      for (let [hour, hourBox] of this.hourBoxes.entries()) {
-        hourBox.classList.toggle(
-          "multiday-hour-box-off-time",
-          hour < dayStartHour || hour >= dayEndHour
-        );
-      }
-    }
-
-    /**
-     * Set an attribute on the time bar element, and do a relayout if needed.
-     *
-     * @param {string} attr     The attribute to set.
-     * @param {string} value    The value to set.
-     */
-    setAttribute(attr, value) {
-      const needsRelayout = attr == "orient" && this.getAttribute("orient") != value;
-
-      // This should be done using lookupMethod(), see bug 286629.
-      const ret = XULElement.prototype.setAttribute.call(this, attr, value);
-
-      if (needsRelayout) {
-        this.relayout();
-      }
-
-      return ret;
-    }
-
-    /**
-     * Re-render the contents of the time bar.
-     */
-    relayout() {
-      let orient = this.getAttribute("orient");
-      let dayPx = `${MINUTES_IN_DAY * this.mPixPerMin}px`;
-      if (orient == "vertical") {
-        this.hourBoxContainer.style.height = dayPx;
-        this.hourBoxContainer.style.width = null;
-      } else {
-        this.hourBoxContainer.style.width = dayPx;
-        this.hourBoxContainer.style.height = null;
-      }
-    }
-  }
-
-  customElements.define("calendar-time-bar", CalendarTimeBar);
-
-  /**
    * Abstract class used for the day and week calendar view elements. (Not month or multiweek.)
    *
    * @implements {calICalendarView}
@@ -1996,9 +1868,6 @@
    * @abstract
    */
   class CalendarMultidayBaseView extends MozElements.CalendarBaseView {
-    static get inheritedAttributes() {
-      return { ".timebar": "orient" };
-    }
     // mDateList will always be sorted before being set.
     mDateList = null;
 
@@ -2064,6 +1933,15 @@
      * @type {number}
      */
     visibleHours = 9;
+
+    /**
+     * The timebar hour box elements in this view, ordered and indexed by their
+     * starting hour.
+     *
+     * @type {Element[]}
+     */
+    hourBoxes = [];
+
     mClickedTime = null;
 
     mTimeIndicatorInterval = 15;
@@ -2087,10 +1965,27 @@
 
       this.grid.appendChild(this.headerCorner);
 
-      this.timebar = document.createXULElement("calendar-time-bar");
-      this.timebar.classList.add("timebar");
+      this.timebar = document.createElement("div");
+      this.timebar.classList.add("multiday-timebar", "multiday-hour-box-container");
+      this.nowIndicator = document.createElement("div");
+      this.nowIndicator.classList.add("multiday-timebar-now-indicator");
+      this.nowIndicator.hidden = true;
+      this.timebar.appendChild(this.nowIndicator);
+
+      let formatter = cal.dtz.formatter;
+      let jsTime = new Date();
+      for (let hour = 0; hour < 24; hour++) {
+        let hourBox = document.createElement("div");
+        hourBox.classList.add("multiday-hour-box", "multiday-timebar-time");
+        // Set the time label.
+        jsTime.setHours(hour, 0, 0);
+        hourBox.textContent = formatter.formatTime(
+          cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating)
+        );
+        this.timebar.appendChild(hourBox);
+        this.hourBoxes.push(hourBox);
+      }
       this.grid.appendChild(this.timebar);
-      this.timebar.pixelsPerMinute = this.pixelsPerMinute;
 
       this.endBorder = document.createElement("div");
       this.endBorder.classList.add("multiday-end-border");
@@ -2283,6 +2178,11 @@
       return this.mClickedTime;
     }
 
+    /**
+     * The number of pixels that a one minute duration should occupy in the
+     * view. This must be reset whenever the view is rotated.
+     * @type {number}
+     */
     set pixelsPerMinute(ppm) {
       if (ppm == this.mPixPerMin) {
         return;
@@ -2290,7 +2190,15 @@
 
       this.mPixPerMin = ppm;
 
-      this.timebar.pixelsPerMinute = ppm;
+      let orient = this.getAttribute("orient");
+      let dayPx = `${MINUTES_IN_DAY * this.mPixPerMin}px`;
+      if (orient == "vertical") {
+        this.timebar.style.height = dayPx;
+        this.timebar.style.width = null;
+      } else {
+        this.timebar.style.width = dayPx;
+        this.timebar.style.height = null;
+      }
 
       for (const col of this.dayColumns) {
         col.column.pixelsPerMinute = ppm;
@@ -2324,10 +2232,6 @@
       return count;
     }
 
-    get timeBarTimeIndicator() {
-      return this.timebar.querySelector(".timeIndicator-timeBar");
-    }
-
     /**
      * Set the preference for the time indicator interval.
      *
@@ -2355,7 +2259,7 @@
      */
     enableTimeIndicator() {
       const hideIndicator = this.mTimeIndicatorInterval == 0;
-      this.timeBarTimeIndicator.hidden = hideIndicator;
+      this.nowIndicator.hidden = hideIndicator;
 
       const todayColumn = this.findColumnForDate(this.today());
       if (todayColumn) {
@@ -2425,10 +2329,8 @@
       let position = `${this.mPixPerMin * this.mTimeIndicatorMinutes - 1}px`;
       let isVertical = this.getAttribute("orient") == "vertical";
 
-      if (this.timeBarTimeIndicator) {
-        this.timeBarTimeIndicator.style.insetInlineStart = isVertical ? null : position;
-        this.timeBarTimeIndicator.style.insetBlockStart = isVertical ? position : null;
-      }
+      this.nowIndicator.style.insetInlineStart = isVertical ? null : position;
+      this.nowIndicator.style.insetBlockStart = isVertical ? position : null;
 
       const todayIndicator = this.findColumnForDate(this.today())?.column.timeIndicatorBox;
       if (todayIndicator) {
@@ -3562,8 +3464,13 @@
       }
       this.dayStartHour = dayStartHour;
       this.dayEndHour = dayEndHour;
-      // Also update on the time-bar.
-      this.timebar.setDayStartEndHours(dayStartHour, dayEndHour);
+      // Also update on the timebar.
+      for (let [hour, hourBox] of this.hourBoxes.entries()) {
+        hourBox.classList.toggle(
+          "multiday-hour-box-off-time",
+          hour < dayStartHour || hour >= dayEndHour
+        );
+      }
       for (let dayCol of this.dayColumns) {
         dayCol.column.setDayStartEndHours(dayStartHour, dayEndHour);
       }

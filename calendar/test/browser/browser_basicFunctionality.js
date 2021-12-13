@@ -49,7 +49,7 @@ add_task(async function testBasicFunctionality() {
   let someTime = cal.createDateTime();
   someTime.resetTo(someTime.year, someTime.month, someTime.day, 9, 0, 0, someTime.timezone);
   let label = cal.dtz.formatter.formatTime(someTime);
-  let labelEl = document.querySelectorAll("#day-view calendar-time-bar .multiday-hour-box")[9];
+  let labelEl = document.querySelectorAll("#day-view .multiday-timebar .multiday-hour-box")[9];
   Assert.ok(labelEl, "9th hour box should exist");
   Assert.equal(labelEl.textContent, label, "9th hour box should show the correct time");
   Assert.ok(CalendarTestUtils.dayView.getHourBoxAt(window, 9), "09:00 box exists");
