@@ -23,7 +23,6 @@ reference-jobs:
     - image_builder
     - index-task
     - lint
-    - mingw32-build
     - static-analysis-build
     - ubuntu1804-base
     - ubuntu1804-i386-packages
