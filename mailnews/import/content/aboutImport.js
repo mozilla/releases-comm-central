@@ -139,6 +139,7 @@ class ProfileImporterController extends ImporterController {
    * @param {boolean} useFilePicker - Whether to render file pickers.
    */
   async _showProfiles(profiles, useFilePicker) {
+    this._sourceProfiles = profiles;
     document.getElementById(
       "profilesPaneTitle"
     ).textContent = await document.l10n.formatValue("profiles-pane-title", {
@@ -188,10 +189,10 @@ class ProfileImporterController extends ImporterController {
    * Handler for the Continue button on the profiles pane.
    */
   _onSelectProfile() {
-    this._sourceProfilePath = [
+    let index = [
       ...document.querySelectorAll("input[name=appProfile]"),
-    ].find(el => el.checked)?.value;
-    this._showItems();
+    ].findIndex(el => el.checked);
+    this._showItems(this._sourceProfiles[index]);
   }
 
   /**
@@ -199,9 +200,9 @@ class ProfileImporterController extends ImporterController {
    * @param {SourceProfile} profile - The profile to import from.
    */
   _showItems(profile) {
-    document.getElementById(
-      "appSourceProfilePath"
-    ).textContent = this._sourceProfilePath;
+    this._sourceProfile = profile;
+    document.getElementById("appSourceProfilePath").textContent =
+      profile.dir.path;
     this.showPane("items");
   }
 
@@ -209,7 +210,7 @@ class ProfileImporterController extends ImporterController {
    * Handler for the Continue button on the items pane.
    */
   _onSelectItems() {
-    this._importer.startImport(this._sourceProfilePath);
+    this._importer.startImport(this._sourceProfile.dir);
     importDialog.showProgress();
   }
 }
@@ -285,7 +286,9 @@ let importDialog = {
   /**
    * The click handler of the accept button.
    */
-  onAccept() {},
+  onAccept() {
+    MailUtils.restartApplication();
+  },
 };
 
 /**
