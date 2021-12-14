@@ -44,7 +44,7 @@ def loader(kind, path, config, params, loaded_tasks):
     and includes all the jobs with names or aliaes matching the names in the
     `jobs` key.
     """
-    base_path = config.pop("base-path")
+    base_path = config.pop("reference-base-path")
     sub_path = os.path.join(base_path, kind)
 
     logger.debug("Reference loader: load tasks from {}".format(sub_path))
@@ -52,7 +52,7 @@ def loader(kind, path, config, params, loaded_tasks):
     _loader = _get_loader(sub_path, sub_config)
     inputs = _loader(kind, sub_path, sub_config, params, loaded_tasks)
 
-    jobs = config.pop("jobs", None)
+    jobs = config.pop("reference-jobs", None)
 
     config.update(sub_config)
 

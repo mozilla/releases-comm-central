@@ -20,8 +20,8 @@ def loader(kind, path, config, params, loaded_tasks):
     # fields that aren't used by the transform loader
     reference_config = {
         "kind-dependencies": config.get("kind-dependencies", None),
-        "base-path": config.pop("reference-base-path"),
-        "jobs": config.pop("reference-jobs", None),
+        "reference-base-path": config.pop("reference-base-path"),
+        "reference-jobs": config.pop("reference-jobs", None),
     }
     for job in reference_loader(kind, path, reference_config, params, loaded_tasks):
         yield job
