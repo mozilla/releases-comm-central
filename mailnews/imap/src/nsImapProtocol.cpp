@@ -552,14 +552,14 @@ nsImapProtocol::nsImapProtocol()
       rv = prefBranch->GetIntPref("mail.imap.tcp_keepalive.idle_time", &val);
       if (NS_SUCCEEDED(rv) && val >= 0)
         gTCPKeepalive.idleTimeS.store(
-            std::min(std::max(val, 1), net::kMaxTCPKeepIdle),
+            std::min<int32_t>(std::max(val, 1), net::kMaxTCPKeepIdle),
             std::memory_order_relaxed);
 
       rv = prefBranch->GetIntPref("mail.imap.tcp_keepalive.retry_interval",
                                   &val);
       if (NS_SUCCEEDED(rv) && val >= 0)
         gTCPKeepalive.retryIntervalS.store(
-            std::min(std::max(val, 1), net::kMaxTCPKeepIntvl),
+            std::min<int32_t>(std::max(val, 1), net::kMaxTCPKeepIntvl),
             std::memory_order_relaxed);
     }
   }
@@ -6049,10 +6049,10 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
       char plain_string[513];
       memset(plain_string, 0, 513);
       PR_snprintf(&plain_string[1], 256, "%.255s", userName);
-      uint32_t len = std::min(PL_strlen(userName), 255u) +
+      uint32_t len = std::min<uint32_t>(PL_strlen(userName), 255u) +
                      2;  // We include two <NUL> characters.
       PR_snprintf(&plain_string[len], 256, "%.255s", password.get());
-      len += std::min(password.Length(), 255u);
+      len += std::min<uint32_t>(password.Length(), 255u);
       char* base64Str = PL_Base64Encode(plain_string, len, nullptr);
       PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s" CRLF, base64Str);
       PR_Free(base64Str);
@@ -6071,7 +6071,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
 
     if (GetServerStateParser().LastCommandSuccessful()) {
       char* base64Str = PL_Base64Encode(
-          userName, std::min(PL_strlen(userName), 255u), nullptr);
+          userName, std::min<uint32_t>(PL_strlen(userName), 255u), nullptr);
       PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s" CRLF, base64Str);
       PR_Free(base64Str);
       rv = SendData(m_dataOutputBuf, true /* suppress logging */);
@@ -6079,7 +6079,8 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
         ParseIMAPandCheckForNewMail(currentCommand);
         if (GetServerStateParser().LastCommandSuccessful()) {
           base64Str = PL_Base64Encode(
-              password.get(), std::min(password.Length(), 255u), nullptr);
+              password.get(), std::min<uint32_t>(password.Length(), 255u),
+              nullptr);
           PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s" CRLF,
                       base64Str);
           PR_Free(base64Str);

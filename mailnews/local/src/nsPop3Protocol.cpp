@@ -2228,7 +2228,7 @@ int32_t nsPop3Protocol::SendPassword() {
     char plain_string[513];
     memset(plain_string, 0, 513);
     PR_snprintf(&plain_string[1], 256, "%.255s", m_username.get());
-    uint32_t len = std::min(m_username.Length(), 255u) +
+    uint32_t len = std::min<uint32_t>(m_username.Length(), 255u) +
                    2;                 // We include two <NUL> characters.
     if (passwordUTF8.Length() > 255)  // RFC 4616: passwd; up to 255 octets
       passwordUTF8.Truncate(255);
