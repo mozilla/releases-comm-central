@@ -12,12 +12,16 @@
 
 /* ::::: columns :::::: */
 
-treechildren::-moz-tree-image(activeColumn) {
+listcell.listcell-iconic > .listcell-label {
+  display: none;
+}
+
+listcell[enabled="false"] {
   list-style-image: url("chrome://messenger/skin/icons/dot.png");
 }
 
-treechildren::-moz-tree-image(activeColumn, Enabled-true) {
- list-style-image: url("chrome://messenger/skin/icons/check.png");
+listcell[enabled="true"] {
+  list-style-image: url("chrome://messenger/skin/icons/check.png");
 }
 
 .small-button {

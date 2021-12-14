@@ -12,11 +12,15 @@
 
 /* ::::: columns :::::: */
 
-treechildren::-moz-tree-image(activeColumn) {
+listcell.listcell-iconic > .listcell-label {
+  display: none;
+}
+
+listcell[enabled="false"] {
   list-style-image: url("chrome://global/skin/checkbox/cbox.png");
 }
 
-treechildren::-moz-tree-image(activeColumn, Enabled-true) {
+listcell[enabled="true"] {
   list-style-image: url("chrome://global/skin/checkbox/cbox-check.png");
 }
 
