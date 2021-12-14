@@ -17,6 +17,8 @@ var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
+requestLongerTimeout(3);
+
 /**
  * Test the cycling of focus in the composition window through (Shift+)F6.
  *
@@ -24,6 +26,7 @@ var { mc } = ChromeUtils.import(
  * @param {Object} options - Options to set for the test.
  * @param {boolean} options.useTab - Whether to use Ctrl+Tab instead of F6.
  * @param {boolean} options.attachment - Whether to add an attachment.
+ * @param {boolean} options.notifications - Whether to show notifications.
  * @param {boolean} options.languageButton - Whether to show the language
  *   menu button.
  * @param {boolean} options.contacts - Whether to show the contacts side pane.
@@ -43,6 +46,8 @@ async function checkFocusCycling(controller, options) {
   let attachmentElement = doc.getElementById("attachmentBucket");
   let extraMenuButton = doc.getElementById("extraAddressRowsMenuButton");
   let languageButton = doc.getElementById("languageStatusButton");
+  let firstNotification;
+  let secondNotification;
 
   if (Services.ww.activeWindow != win) {
     // Wait for the window to be in focus before beginning.
@@ -98,6 +103,22 @@ async function checkFocusCycling(controller, options) {
   // Move the initial focus back to the To input.
   toInput.focus();
 
+  if (options.notifications) {
+    // Exceed the recipient threshold.
+    Assert.equal(
+      win.gComposeNotification.allNotifications.length,
+      0,
+      "Should be no initial notifications"
+    );
+    let notificationPromise = TestUtils.waitForCondition(
+      () => win.gComposeNotification.allNotifications[0],
+      "First notification shown"
+    );
+    EventUtils.sendString("a@b.org,c@d.org", win);
+    EventUtils.synthesizeKey("KEY_Enter", {}, win);
+    firstNotification = await notificationPromise;
+  }
+
   // We start on the addressing widget and go from there.
 
   // From To to Subject.
@@ -107,6 +128,24 @@ async function checkFocusCycling(controller, options) {
   Assert.ok(otherHeaderInput.matches(":focus"), "forward to other row");
   goForward();
   Assert.ok(subjectInput.matches(":focus"), "forward to subject");
+
+  if (options.notifications && !options.attachment) {
+    // Include an attachment key word in the subject.
+    let notificationPromise = TestUtils.waitForCondition(() => {
+      let notifications = win.gComposeNotification.allNotifications;
+      if (notifications.length != 2) {
+        return null;
+      }
+      return notifications[1];
+    }, "Second notification shown");
+    EventUtils.sendString("My attached file", win);
+    secondNotification = await notificationPromise;
+    Assert.notEqual(
+      firstNotification,
+      secondNotification,
+      "New notification shown second"
+    );
+  }
 
   // From Subject to Message Body.
   goForward();
@@ -118,6 +157,15 @@ async function checkFocusCycling(controller, options) {
   goForward();
   if (options.attachment) {
     Assert.ok(attachmentElement.matches(":focus"), "forward to attachments");
+    goForward();
+  }
+
+  if (options.notifications) {
+    Assert.equal(
+      firstNotification,
+      doc.activeElement,
+      "forward to notification"
+    );
     goForward();
   }
 
@@ -159,6 +207,15 @@ async function checkFocusCycling(controller, options) {
 
   if (options.languageButton) {
     Assert.ok(languageButton.matches(":focus"), "backward to status bar");
+    goBackward();
+  }
+
+  if (options.notifications) {
+    Assert.equal(
+      firstNotification,
+      doc.activeElement,
+      "backward to notification"
+    );
     goBackward();
   }
 
@@ -219,6 +276,12 @@ async function checkFocusCycling(controller, options) {
         languageButton.matches(":focus"),
         "from addressbook selector to status bar"
       );
+    } else if (options.notifications) {
+      Assert.equal(
+        firstNotification,
+        doc.activeElement,
+        "from addressbook selector to notification"
+      );
     } else if (options.attachment) {
       Assert.ok(
         attachmentElement.matches(":focus"),
@@ -245,6 +308,12 @@ async function checkFocusCycling(controller, options) {
     );
   } else if (options.languageButton) {
     Assert.ok(languageButton.matches(":focus"), "from Cc button to status bar");
+  } else if (options.notifications) {
+    Assert.equal(
+      firstNotification,
+      doc.activeElement,
+      "from Cc button to notification"
+    );
   } else if (options.attachment) {
     Assert.ok(
       attachmentElement.matches(":focus"),
@@ -308,7 +377,13 @@ async function checkFocusCycling(controller, options) {
       // Try reverse.
       attachmentSummary.focus();
       goForward();
-      if (options.languageButton) {
+      if (options.notifications) {
+        Assert.equal(
+          firstNotification,
+          doc.activeElement,
+          `forward from attachment summary (open: ${open}) to notification`
+        );
+      } else if (options.languageButton) {
         Assert.ok(
           languageButton.matches(":focus"),
           `forward from attachment summary (open: ${open}) to status bar`
@@ -342,6 +417,60 @@ async function checkFocusCycling(controller, options) {
     }
   }
 
+  if (options.notifications) {
+    // Focus inside the notification.
+    let closeButton = (secondNotification || firstNotification).closeButton;
+    closeButton.focus();
+
+    goBackward();
+
+    if (options.attachment) {
+      Assert.ok(
+        attachmentElement.matches(":focus"),
+        "backward from notification button to attachments"
+      );
+    } else {
+      Assert.equal(
+        editorElement,
+        doc.activeElement,
+        "backward from notification button to message body"
+      );
+    }
+    goForward();
+    // Go to the first notification.
+    Assert.equal(
+      firstNotification,
+      doc.activeElement,
+      "forward to the first notification"
+    );
+
+    // Try reverse.
+    closeButton.focus();
+    goForward();
+    if (options.languageButton) {
+      Assert.ok(
+        languageButton.matches(":focus"),
+        "forward from notification button to status bar"
+      );
+    } else if (options.contacts) {
+      Assert.ok(
+        contactsInput.matches(":focus-within"),
+        "forward from notification button to contacts pane"
+      );
+    } else {
+      Assert.ok(
+        identityElement.matches(":focus"),
+        "forward from notification button to 'from' row"
+      );
+    }
+    goBackward();
+    Assert.equal(
+      firstNotification,
+      doc.activeElement,
+      "return to the first notification"
+    );
+  }
+
   // Contacts pane is persistent, so we close it again.
   if (options.contacts) {
     // Close the contacts sidebar.
@@ -355,26 +484,33 @@ add_task(async function test_jump_focus() {
   // the default value is 2 instead of the default 7 used on Windows and Linux.
   Services.prefs.setIntPref("accessibility.tabfocus", 7);
   let prevHeader = Services.prefs.getCharPref("mail.compose.other.header");
+  let prevThreshold = Services.prefs.getIntPref(
+    "mail.compose.warn_public_recipients.threshold"
+  );
   // Set two custom headers, but only one is shown.
   Services.prefs.setCharPref(
     "mail.compose.other.header",
     "X-Header2,X-Header1"
   );
+  Services.prefs.setIntPref("mail.compose.warn_public_recipients.threshold", 2);
   for (let useTab of [false, true]) {
     for (let attachment of [false, true]) {
-      for (let languageButton of [false, true]) {
-        for (let contacts of [false, true]) {
-          let options = {
-            useTab,
-            attachment,
-            languageButton,
-            contacts,
-            otherHeader: "X-Header1",
-          };
-          info(`Test run: ${JSON.stringify(options)}`);
-          let controller = open_compose_new_mail();
-          await checkFocusCycling(controller, options);
-          close_compose_window(controller);
+      for (let notifications of [false, true]) {
+        for (let languageButton of [false, true]) {
+          for (let contacts of [false, true]) {
+            let options = {
+              useTab,
+              attachment,
+              notifications,
+              languageButton,
+              contacts,
+              otherHeader: "X-Header1",
+            };
+            info(`Test run: ${JSON.stringify(options)}`);
+            let controller = open_compose_new_mail();
+            await checkFocusCycling(controller, options);
+            close_compose_window(controller);
+          }
         }
       }
     }
@@ -383,4 +519,8 @@ add_task(async function test_jump_focus() {
   // Reset the preferences.
   Services.prefs.clearUserPref("accessibility.tabfocus");
   Services.prefs.setCharPref("mail.compose.other.header", prevHeader);
+  Services.prefs.setIntPref(
+    "mail.compose.warn_public_recipients.threshold",
+    prevThreshold
+  );
 });

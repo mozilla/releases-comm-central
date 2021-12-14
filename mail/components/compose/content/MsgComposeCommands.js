@@ -4305,6 +4305,10 @@ function ComposeLoad() {
       focus: focusAttachmentBucket,
     },
     {
+      root: document.getElementById("compose-notification-bottom"),
+      focus: focusNotification,
+    },
+    {
       root: document.getElementById("status-bar"),
       focus: focusStatusBar,
     },
@@ -8940,6 +8944,28 @@ function focusAttachmentBucket(attachmentArea) {
   }
   gAttachmentBucket.focus();
   return true;
+}
+
+/**
+ * Focus the first notification button.
+ *
+ * Note, this is used as a {@link moveFocusWithin} method.
+ *
+ * @return {boolean} - Whether a notification received focused.
+ */
+function focusNotification() {
+  let notification = gComposeNotification.allNotifications[0];
+  if (notification) {
+    let button = notification.buttonContainer.querySelector("button");
+    if (button) {
+      button.focus();
+    } else {
+      // Focus the close button instead.
+      notification.closeButton.focus();
+    }
+    return true;
+  }
+  return false;
 }
 
 /**
