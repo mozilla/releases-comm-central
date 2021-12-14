@@ -64,6 +64,7 @@
 #include "nsIAppStartup.h"
 #include "nsMsgUtils.h"
 #include "nsIPrincipal.h"
+#include "nsIMutableArray.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -1398,9 +1399,14 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
         do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID));
     if (arg) arg->SetData(uristr);
 
+    nsCOMPtr<nsIMutableArray> params(do_CreateInstance(NS_ARRAY_CONTRACTID));
+    params->AppendElement(arg);
+    params->AppendElement(aCmdLine);
+
     nsCOMPtr<mozIDOMWindowProxy> opened;
     wwatch->OpenWindow(nullptr, DEFAULT_CHROME, "_blank"_ns,
-                       "chrome,dialog=no,all"_ns, arg, getter_AddRefs(opened));
+                       "chrome,dialog=no,all"_ns, params,
+                       getter_AddRefs(opened));
 
     aCmdLine->SetPreventDefault(true);
   }

@@ -3464,13 +3464,12 @@ function ComposeStartup(aParams) {
       if (args.subject) {
         composeFields.subject = args.subject;
       }
-      if (args.attachment) {
+      if (args.attachment && window.arguments[1] instanceof Ci.nsICommandLine) {
         let attachmentList = args.attachment.split(",");
-        let commandLine = Cu.createCommandLine();
         for (let attachmentName of attachmentList) {
           // resolveURI does all the magic around working out what the
           // attachment is, including web pages, and generating the correct uri.
-          let uri = commandLine.resolveURI(attachmentName);
+          let uri = window.arguments[1].resolveURI(attachmentName);
           let attachment = Cc[
             "@mozilla.org/messengercompose/attachment;1"
           ].createInstance(Ci.nsIMsgAttachment);
