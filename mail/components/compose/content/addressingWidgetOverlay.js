@@ -578,18 +578,53 @@ function addressInputOnBeforeHandleKeyDown(event) {
         break;
       }
 
-      // Don't trigger autocomplete if a comma is present as a first character
-      // to prevent early pill creation when the autocomplete suggests contacts
-      // with commas in the display name, or if the typed value is not a valid
-      // address, after the comma or semicolon has been stripped.
-      if (
-        selection[0] == "," ||
-        !isValidAddress(input.value.substring(0, input.selectionEnd))
+      let beforeComma;
+      let afterComma;
+      if (input.selectionEnd == input.selectionStart) {
+        // If there is no selected text, we will try to create a pill for the
+        // text prior to the typed comma.
+        // NOTE: This also captures auto complete suggestions that are not
+        // inline. E.g. suggestion popup is shown and the user selects one with
+        // the arrow keys.
+        beforeComma = input.value.substring(0, input.selectionEnd);
+        afterComma = input.value.substring(input.selectionEnd);
+        // Only create a pill for valid addresses.
+        if (!isValidAddress(beforeComma)) {
+          break;
+        }
+      } else if (
+        // There is an auto complete suggestion ...
+        input.controller.searchStatus ==
+          Ci.nsIAutoCompleteController.STATUS_COMPLETE_MATCH &&
+        input.controller.matchCount &&
+        // that is also shown inline (the end of the input is selected).
+        input.selectionEnd == input.value.length
+        // NOTE: This should exclude cases where no suggestion is selected (user
+        // presses "DownArrow" then "UpArrow" when the suggestion pops up), or
+        // if the suggestions were cancelled with "Esc", or the inline
+        // suggestion was cleared with "Backspace".
       ) {
+        if (input.value[input.selectionStart] == ",") {
+          // Don't create the pill in the special case where the auto-complete
+          // suggestion starts with a comma.
+          return;
+        }
+        // Complete the suggestion as a pill.
+        beforeComma = input.value;
+        afterComma = "";
+      } else {
+        // If any other part of the text is selected, we treat it as normal.
         break;
       }
+
       event.preventDefault();
+      input.value = beforeComma;
       input.handleEnter(event);
+      // Keep any left over text in the input.
+      input.value = afterComma;
+      // Keep the cursor at the same position.
+      input.selectionStart = 0;
+      input.selectionEnd = 0;
       break;
 
     case "Home":
