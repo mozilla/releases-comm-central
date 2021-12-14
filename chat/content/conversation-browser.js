@@ -24,6 +24,8 @@
     initHTMLDocument: "resource:///modules/imThemes.jsm",
     insertHTMLForMessage: "resource:///modules/imThemes.jsm",
     isNextMessage: "resource:///modules/imThemes.jsm",
+    wasNextMessage: "resource:///modules/imThemes.jsm",
+    replaceHTMLForMessage: "resource:///modules/imThemes.jsm",
     serializeSelection: "resource:///modules/imThemes.jsm",
     smileTextNode: "resource:///modules/imSmileys.jsm",
   });
@@ -418,6 +420,30 @@
       }
     }
 
+    /**
+     * Replace an existing message in the conversation based on the remote ID.
+     *
+     * @param {imIMessage} msg - Message to use as replacement.
+     */
+    replaceMessage(msg) {
+      if (this.browsingContext.isActive) {
+        msg.message = this.prepareMessageContent(msg);
+        const isNext = LazyModules.wasNextMessage(msg, this.contentDocument);
+        const htmlMessage = LazyModules.getHTMLForMessage(
+          msg,
+          this.theme,
+          isNext,
+          false
+        );
+        LazyModules.replaceHTMLForMessage(
+          msg,
+          htmlMessage,
+          this.contentDocument,
+          isNext
+        );
+      }
+    }
+
     startDisplayingPendingMessages(delayed) {
       if (this._messageDisplayPending) {
         return;
@@ -535,50 +561,11 @@
         }
       }
 
-      let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
-        Ci.mozITXTToHTMLConv
-      );
-
-      // kStructPhrase creates tags for plaintext-markup like *bold*,
-      // /italics/, etc. We always use this; the content filter will
-      // filter it out if the user does not want styling.
-      let csFlags = cs.kStructPhrase;
-      // Automatically find and link freetext URLs
-      if (!aMsg.noLinkification) {
-        csFlags |= cs.kURLs;
-      }
-
       if (aFirstUnread) {
         this.setUnreadRuler();
       }
 
-      // Right trim before displaying. This removes any OTR related
-      // whitespace when the extension isn't enabled.
-      let msg = aMsg.displayMessage.trimRight();
-
-      // The slash of a leading '/me' should not be used to
-      // format as italic, so we remove the '/me' text before
-      // scanning the HTML, and we add it back later.
-      let meRegExp = /^((<[^>]+>)*)\/me /;
-      let me = false;
-      if (meRegExp.test(msg)) {
-        me = true;
-        msg = msg.replace(meRegExp, "$1");
-      }
-
-      msg = cs
-        .scanHTML(msg.replace(/&/g, "FROM-DTD-amp"), csFlags)
-        .replace(/FROM-DTD-amp/g, "&");
-
-      if (me) {
-        msg = msg.replace(/^((<[^>]+>)*)/, "$1/me ");
-      }
-
-      aMsg.message = LazyModules.cleanupImMarkup(
-        msg.replace(/\r?\n/g, "<br/>"),
-        null,
-        this._textModifiers
-      );
+      aMsg.message = this.prepareMessageContent(aMsg);
 
       let next =
         (aContext == this._lastMessageIsContext || aMsg.system) &&
@@ -645,6 +632,56 @@
         this._firstNonContextElt = newElt;
       }
       this._lastMessageIsContext = aContext;
+    }
+
+    /**
+     * Prepare the message text for display. Transforms plain text formatting
+     * and removes any unwanted formatting.
+     *
+     * @param {imIMessage} message - Raw message.
+     * @return {string} Message content ready for insertion.
+     */
+    prepareMessageContent(message) {
+      let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
+        Ci.mozITXTToHTMLConv
+      );
+
+      // kStructPhrase creates tags for plaintext-markup like *bold*,
+      // /italics/, etc. We always use this; the content filter will
+      // filter it out if the user does not want styling.
+      let csFlags = cs.kStructPhrase;
+      // Automatically find and link freetext URLs
+      if (!message.noLinkification) {
+        csFlags |= cs.kURLs;
+      }
+
+      // Right trim before displaying. This removes any OTR related
+      // whitespace when the extension isn't enabled.
+      let msg = message.displayMessage?.trimRight() ?? "";
+
+      // The slash of a leading '/me' should not be used to
+      // format as italic, so we remove the '/me' text before
+      // scanning the HTML, and we add it back later.
+      let meRegExp = /^((<[^>]+>)*)\/me /;
+      let me = false;
+      if (meRegExp.test(msg)) {
+        me = true;
+        msg = msg.replace(meRegExp, "$1");
+      }
+
+      msg = cs
+        .scanHTML(msg.replace(/&/g, "FROM-DTD-amp"), csFlags)
+        .replace(/FROM-DTD-amp/g, "&");
+
+      if (me) {
+        msg = msg.replace(/^((<[^>]+>)*)/, "$1/me ");
+      }
+
+      return LazyModules.cleanupImMarkup(
+        msg.replace(/\r?\n/g, "<br/>"),
+        null,
+        this._textModifiers
+      );
     }
 
     setUnreadRuler() {

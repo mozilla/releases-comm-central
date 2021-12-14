@@ -130,8 +130,12 @@ interface prplIConversation: nsISupports {
   void addObserver(in nsIObserver aObserver);
   void removeObserver(in nsIObserver aObserver);
 
-  /* Observers will be all receive new-text notifications.
-     aSubject will contain the message (prplIMessage) */
+  /**
+   * Observers will all receive new-text and update-text notifications.
+   * aSubject will contain the message (prplIMessage). For update-text the
+   * update applies to any message with the same |remoteId| in the same
+   * conversation.
+   */
 };
 
 [scriptable, uuid(c0b5b647-b0ec-4dc6-9e53-31a762a30a6e)]

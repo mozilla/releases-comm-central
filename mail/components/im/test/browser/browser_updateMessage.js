@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_task(async function testDisplayed() {
+add_task(async function testUpdate() {
   const account = Services.accounts.createAccount("testuser", "prpl-mochitest");
   account.password = "this is a test";
   account.connect();
@@ -14,16 +14,10 @@ add_task(async function testDisplayed() {
   const convNode = getConversationItem(conversation);
   ok(convNode);
 
-  ok(!convNode.hasAttribute("unread"), "No unread messages");
-
-  const messagePromise = waitForNotification(conversation, "new-text");
   conversation.writeMessage("mochitest", "hello world", {
     incoming: true,
+    remoteId: "foo",
   });
-  const { subject: message } = await messagePromise;
-
-  ok(convNode.hasAttribute("unread"), "Unread message waiting");
-  is(convNode.getAttribute("unreadCount"), "(1)");
 
   await EventUtils.synthesizeMouseAtCenter(convNode, {});
 
@@ -34,11 +28,30 @@ add_task(async function testDisplayed() {
     "MessagesDisplayed"
   );
   ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
-
+  const messageParent = await getChatMessageParent(chatConv);
   await browserDisplayed;
-  await message.displayed;
 
-  ok(!convNode.hasAttribute("unread"), "Message read");
+  is(
+    messageParent.querySelector(".message.incoming:nth-child(1) .ib-msg-txt")
+      .textContent,
+    "hello world",
+    "message added to conv"
+  );
+
+  const updateTextPromise = waitForNotification(conversation, "update-text");
+  conversation.updateMessage("mochitest", "bye world", {
+    incoming: true,
+    remoteId: "foo",
+  });
+  await updateTextPromise;
+  await TestUtils.waitForTick();
+
+  is(
+    messageParent.querySelector(".message.incoming:nth-child(1) .ib-msg-txt")
+      .textContent,
+    "bye world",
+    "message text updated"
+  );
 
   conversation.close();
   account.disconnect();

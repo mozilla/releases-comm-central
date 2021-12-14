@@ -13,6 +13,8 @@ const EXPORTED_SYMBOLS = [
   "getMessagesForRange",
   "serializeSelection",
   "getDocumentFragmentFromHTML",
+  "replaceHTMLForMessage",
+  "wasNextMessage",
 ];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
@@ -592,6 +594,33 @@ function isNextMessage(aTheme, aMsg, aPreviousMsg) {
   );
 }
 
+/**
+ * Determine whether the message was a next message when it was initially
+ * inserted.
+ *
+ * @param {imIMessage} msg
+ * @param {DOMDocument} doc
+ * @returns {boolean} If the message is a next message. Returns false if the
+ *   message doesn't already exist in the conversation.
+ */
+function wasNextMessage(msg, doc) {
+  return Boolean(
+    doc.querySelector(`#Chat [data-remote-id="${CSS.escape(msg.remoteId)}"]`)
+      ?.dataset.isNext
+  );
+}
+
+/**
+ * Create an HTML string to insert the message into the conversation.
+ *
+ * @param {imIMessage} aMsg
+ * @param {object} aTheme
+ * @param {boolean} aIsNext - If this message is immediately following a
+ *   message of the same origin. Used for visual grouping.
+ * @param {boolean} aIsContext - If this message was already read by the user
+ *   previously and just provided for context.
+ * @returns {string} Raw HTML for the message.
+ */
 function getHTMLForMessage(aMsg, aTheme, aIsNext, aIsContext) {
   let html, replacements;
   if (aMsg.system) {
@@ -623,6 +652,14 @@ function getHTMLForMessage(aMsg, aTheme, aIsNext, aIsContext) {
   return replaceKeywordsInHTML(html, replacements, aMsg);
 }
 
+/**
+ *
+ * @param {imIMessage} aMsg
+ * @param {string} aHTML
+ * @param {DOMDocument} aDoc
+ * @param {boolean} aIsNext
+ * @returns {Element}
+ */
 function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
   let insert = aDoc.getElementById("insert");
   if (insert && !aIsNext) {
@@ -630,10 +667,8 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
     insert = null;
   }
 
-  let range = aDoc.createRange();
   let parent = insert ? insert.parentNode : aDoc.getElementById("Chat");
   let documentFragment = getDocumentFragmentFromHTML(aDoc, aHTML);
-  range.selectNode(parent);
 
   let result = documentFragment.firstElementChild;
   // store the prplIMessage object in each of the "root" node that
@@ -642,6 +677,11 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
   // finds something.
   for (let root = result; root; root = root.nextElementSibling) {
     root._originalMsg = aMsg;
+    // Store remote ID of the message in the DOM for fast retrieval
+    root.dataset.remoteId = aMsg.remoteId;
+    if (aIsNext) {
+      root.dataset.isNext = aIsNext;
+    }
   }
 
   // make sure the result is an HTMLElement and not some text (whitespace)...
@@ -660,6 +700,60 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
     parent.appendChild(documentFragment);
   }
   return result;
+}
+
+/**
+ * Replace the HTML of an already displayed message based on the matching
+ * remote ID.
+ *
+ * @param {imIMessage} msg - Message to insert the updated contents of.
+ * @param {string} html - The HTML contents to insert.
+ * @param {DOMDocument} doc - The HTML document the message should be replaced
+ *   in.
+ * @param {boolean} isNext - If this message is immediately following a
+ *   message of the same origin. Used for visual grouping.
+ */
+function replaceHTMLForMessage(msg, html, doc, isNext) {
+  // If the updated message has no remote ID, do nothing.
+  if (!msg.remoteId) {
+    return;
+  }
+  let parent = doc.getElementById("Chat");
+  let message = parent.querySelectorAll(
+    `[data-remote-id="${CSS.escape(msg.remoteId)}"]`
+  );
+
+  // If we couldn't find a matching message, do nothing.
+  if (!message.length) {
+    return;
+  }
+
+  let documentFragment = getDocumentFragmentFromHTML(doc, html);
+  // store the prplIMessage object in each of the "root" nodes that
+  // will be inserted into the document, so that the selection code can
+  // retrieve the message by just looking at the parent node until it
+  // finds something.
+  for (
+    let root = documentFragment.firstElementChild;
+    root;
+    root = root.nextElementSibling
+  ) {
+    root._originalMsg = msg;
+    root.dataset.remoteId = msg.remoteId;
+    if (isNext) {
+      root.dataset.isNext = isNext;
+    }
+  }
+
+  // Remove all but the first element of the original message
+  if (message.length > 1) {
+    let range = doc.createRange();
+    range.setStartBefore(message[1]);
+    range.setEndAfter(message[message.length - 1]);
+    range.deleteContents();
+  }
+  // Insert the new message into the DOM
+  message[0].replaceWith(documentFragment);
 }
 
 function hasMetadataKey(aTheme, aKey) {

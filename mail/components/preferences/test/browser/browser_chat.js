@@ -53,3 +53,20 @@ add_task(async () => {
     ],
   });
 });
+
+add_task(async function testMessageStylePreview() {
+  await openNewPrefsTab("paneChat", "chatPaneCategory");
+  const conversationLoad = TestUtils.topicObserved("conversation-loaded");
+  const [subject] = await conversationLoad;
+  await BrowserTestUtils.waitForEvent(subject, "MessagesDisplayed");
+  const messageParent = subject.contentChatNode;
+  let message = messageParent.firstElementChild;
+  const messages = new Set();
+  while (message) {
+    ok(message._originalMsg);
+    messages.add(message._originalMsg);
+    message = message.nextElementSibling;
+  }
+  is(messages.size, 3, "All 3 messages displayed");
+  await closePrefsTab();
+});

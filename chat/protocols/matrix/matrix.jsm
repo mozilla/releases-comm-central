@@ -66,9 +66,10 @@ const SERVER_NOTICE_TAG = "m.server_notice";
  * @param {string} text - Message text.
  * @param {object} properties - Message properties, should also have an event
  *   property containing the corresponding MatrixEvent instance.
+ * @param {MatrixRoom} conversation - The conversation the Message belongs to.
  */
-function MatrixMessage(who, text, properties) {
-  this._init(who, text, properties);
+function MatrixMessage(who, text, properties, conversation) {
+  this._init(who, text, properties, conversation);
 }
 MatrixMessage.prototype = {
   __proto__: GenericMessagePrototype,
@@ -786,21 +787,20 @@ MatrixRoom.prototype = {
   },
 
   /**
-   * Write a message to the local conversation. Sets the containsNick flag on
-   * the message if appropriate.
+   * Sets the containsNick flag on the message if appropriate.
    *
-   * @param {string} aWho - MXID that composed the message.
-   * @param {string} aText - Message text.
-   * @param {object} aProperties - Extra attributes for the MatrixMessage.
+   * @param {string} who - MXID that composed the message.
+   * @param {string} text - Message text.
+   * @param {object} properties - Extra attributes for the MatrixMessage.
    */
-  writeMessage(aWho, aText, aProperties) {
+  createMessage(who, text, properties) {
     if (this.isChat) {
       //TODO respect room notification settings
-      aProperties.containsNick =
-        aProperties.incoming && this._pingRegexp.test(aText);
+      properties.containsNick =
+        properties.incoming && this._pingRegexp.test(text);
     }
-    const message = new MatrixMessage(aWho, aText, aProperties);
-    message.conversation = this;
+    const message = new MatrixMessage(who, text, properties, this);
+    return message;
   },
 
   /**

@@ -28,8 +28,8 @@ Conversation.prototype = {
   },
 };
 
-function Message(aWho, aMessage, aObject) {
-  this._init(aWho, aMessage, aObject);
+function Message(aWho, aMessage, aObject, aConversation) {
+  this._init(aWho, aMessage, aObject, aConversation);
 }
 Message.prototype = {
   __proto__: jsProtoHelper.GenericMessagePrototype,
@@ -75,24 +75,36 @@ var previewObserver = {
     });
     let conv = new Conversation(msg.nick2);
     conv.messages = [
-      new Message(msg.buddy1, msg.message1, {
-        outgoing: true,
-        _alias: msg.nick1,
-        time: makeDate("10:42:22"),
-        _conversation: conv,
-      }),
-      new Message(msg.buddy1, msg.message2, {
-        outgoing: true,
-        _alias: msg.nick1,
-        time: makeDate("10:42:25"),
-        _conversation: conv,
-      }),
-      new Message(msg.buddy2, msg.message3, {
-        incoming: true,
-        _alias: msg.nick2,
-        time: makeDate("10:43:01"),
-        _conversation: conv,
-      }),
+      new Message(
+        msg.buddy1,
+        msg.message1,
+        {
+          outgoing: true,
+          _alias: msg.nick1,
+          time: makeDate("10:42:22"),
+        },
+        conv
+      ),
+      new Message(
+        msg.buddy1,
+        msg.message2,
+        {
+          outgoing: true,
+          _alias: msg.nick1,
+          time: makeDate("10:42:25"),
+        },
+        conv
+      ),
+      new Message(
+        msg.buddy2,
+        msg.message3,
+        {
+          incoming: true,
+          _alias: msg.nick2,
+          time: makeDate("10:43:01"),
+        },
+        conv
+      ),
     ];
     previewObserver.conv = conv;
 

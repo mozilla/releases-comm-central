@@ -319,8 +319,9 @@ function getDateFromFilename(aFilename) {
 }
 
 function LogMessage(aData, aConversation) {
-  this._init(aData.who, aData.text);
-  this._conversation = aConversation;
+  this._init(aData.who, aData.text, {}, aConversation);
+  // Not overriding time using the init options, since init also sets the
+  // property.
   this.time = Math.round(new Date(aData.date) / 1000);
   if ("alias" in aData) {
     this._alias = aData.alias;

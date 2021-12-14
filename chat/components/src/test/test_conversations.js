@@ -45,11 +45,16 @@ Conversation.prototype = {
 // message. This prevents regressions due to JS coercions.
 var test_null_message = function() {
   let originalMessage = "Hi!";
-  let pMsg = new Message("buddy", originalMessage, {
-    outgoing: true,
-    _alias: "buddy",
-    time: Date.now(),
-  });
+  let pMsg = new Message(
+    "buddy",
+    originalMessage,
+    {
+      outgoing: true,
+      _alias: "buddy",
+      time: Date.now(),
+    },
+    null
+  );
   let iMsg = new imConversations.imMessage(pMsg);
   equal(iMsg.message, originalMessage, "Expected the original message.");
   // Setting the message should prevent a fallback to the original.
@@ -290,6 +295,49 @@ var test_split_message_before_sending = function() {
   equal(msgCount, 3, "Not enough messages were sent.");
 };
 
+var test_update_message = function() {
+  let conv = new Conversation();
+
+  let uiConv = new imConversations.UIConversation(conv);
+  let message = "Hello!";
+  let receivedMsg = false;
+  let updateText = false;
+
+  uiConv.addObserver({
+    observe(aObject, aTopic, aMsg) {
+      switch (aTopic) {
+        case "received-message":
+          ok(!updateText, "received-message should fire before update-text.");
+          ok(
+            !receivedMsg,
+            "Sanity check that receive-message hasn't fired yet."
+          );
+          ok(aObject.incoming, "Expected an incoming message.");
+          ok(aObject.QueryInterface(Ci.imIMessage), "Wrong message type.");
+          equal(aObject.displayMessage, message, "Wrong message contents");
+          aObject.displayMessage = rot13(aObject.displayMessage);
+          receivedMsg = true;
+          break;
+        case "update-text":
+          ok(!updateText, "Sanity check that update-text hasn't fired yet.");
+          ok(receivedMsg, "Expected received-message to have fired.");
+          ok(aObject.incoming, "Expected an incoming message.");
+          ok(aObject.QueryInterface(Ci.imIMessage), "Wrong message type.");
+          equal(
+            aObject.displayMessage,
+            rot13(message),
+            "Expected to have been rotated in received-message."
+          );
+          updateText = true;
+          break;
+      }
+    },
+  });
+
+  conv.updateMessage("user", message, { incoming: true, remoteId: "foo" });
+  ok(updateText, "Expected update-text to have fired.");
+};
+
 function run_test() {
   test_null_message();
   test_message_transformation();
@@ -297,5 +345,6 @@ function run_test() {
   test_cancel_display_message();
   test_prpl_message_prep();
   test_split_message_before_sending();
+  test_update_message();
   run_next_test();
 }

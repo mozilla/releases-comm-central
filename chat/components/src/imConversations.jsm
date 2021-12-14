@@ -66,6 +66,9 @@ imMessage.prototype = {
   get id() {
     return this.prplMessage.id;
   },
+  get remoteId() {
+    return this.prplMessage.remoteId;
+  },
   get alias() {
     return this.prplMessage.alias;
   },
@@ -469,6 +472,7 @@ UIConversation.prototype = {
     if (
       aTargetId != this._currentTargetId &&
       (aTopic == "new-text" ||
+        aTopic == "update-text" ||
         (aTopic == "update-typing" &&
           this._prplConv[aTargetId].typingState == Ci.prplIConvIM.TYPING))
     ) {
@@ -485,7 +489,8 @@ UIConversation.prototype = {
       error: !!aIsError,
       noCollapse: !!aNoCollapse,
     };
-    new Message("system", aText, flags).conversation = this;
+    const message = new Message("system", aText, flags, this);
+    this.notifyObservers(message, "new-text");
   },
 
   /**
@@ -595,7 +600,7 @@ UIConversation.prototype = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers(aSubject, aTopic, aData) {
-    if (aTopic == "new-text") {
+    if (aTopic == "new-text" || aTopic == "update-text") {
       aSubject = new imMessage(aSubject);
       this.notifyObservers(aSubject, "received-message");
       if (aSubject.cancelled) {
@@ -604,7 +609,8 @@ UIConversation.prototype = {
       if (!aSubject.system) {
         aSubject.conversation.prepareForDisplaying(aSubject);
       }
-
+    }
+    if (aTopic == "new-text") {
       this._messages.push(aSubject);
       ++this._unreadMessageCount;
       if (aSubject.incoming && !aSubject.system) {
@@ -612,6 +618,13 @@ UIConversation.prototype = {
         if (!this.isChat || aSubject.containsNick) {
           ++this._unreadTargetedMessageCount;
         }
+      }
+    } else if (aTopic == "update-text") {
+      const index = this._messages.findIndex(
+        msg => msg.remoteId == aSubject.remoteId
+      );
+      if (index != -1) {
+        this._messages.splice(index, 1, aSubject);
       }
     }
 
@@ -640,9 +653,12 @@ UIConversation.prototype = {
     }
     this._notifyUnreadCountChanged();
 
-    if (aTopic == "new-text") {
-      Services.obs.notifyObservers(aSubject, aTopic, aData);
+    if (aTopic == "new-text" || aTopic == "update-text") {
+      // Even updated messages should be treated as new message for logs.
+      // TODO proper handling in logs is bug 1735353
+      Services.obs.notifyObservers(aSubject, "new-text", aData);
       if (
+        aTopic == "new-text" &&
         aSubject.incoming &&
         !aSubject.system &&
         (!this.isChat || aSubject.containsNick)

@@ -28,6 +28,14 @@ interface prplIMessage: nsISupports {
    * during the execution of the application.
    */
   readonly attribute unsigned long id;
+  /**
+   * An ID for this message provided by the protocol. Used for finding the
+   * message in the conversation for actions like editing. This is expected to
+   * be absolute per conversation, meaning if two prplIMessages in the same
+   * conversation have identical |remoteId|s they refer to the same message in
+   * the conversation as far as the protocol is concerned.
+   */
+  readonly attribute AUTF8String remoteId;
   /** The name of the message sender. */
   readonly attribute AUTF8String who;
   /** The alias of the message sender (frequently the same as who). */

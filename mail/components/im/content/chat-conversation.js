@@ -76,6 +76,12 @@
               }
               break;
 
+            case "update-text":
+              if (this.loaded) {
+                this.updateMsg(subject);
+              }
+              break;
+
             case "status-text-changed":
               this._statusText = data || "";
               this.displayStatusText();
@@ -440,6 +446,44 @@
       }
 
       return isTabFocused;
+    }
+
+    /**
+     * Updates an existing message with the matching remote ID.
+     *
+     * @param {imIMessage} aMsg - Message to update.
+     */
+    updateMsg(aMsg) {
+      if (!this.loaded) {
+        throw new Error("Calling updateMsg before the browser is ready?");
+      }
+
+      var conv = aMsg.conversation;
+      if (!conv) {
+        // The conversation has already been destroyed,
+        // probably because the window was closed.
+        // Return without doing anything.
+        return;
+      }
+
+      // Update buddy color.
+      // Ugly hack... :(
+      if (!aMsg.system && conv.isChat) {
+        let name = aMsg.who;
+        let color;
+        if (this.buddies.has(name)) {
+          let buddy = this.buddies.get(name);
+          color = buddy.color;
+          buddy.removeAttribute("inactive");
+          this._activeBuddies[name] = true;
+        } else {
+          // Buddy no longer in the room
+          color = this._computeColor(name);
+        }
+        aMsg.color = "color: hsl(" + color + ", 100%, 40%);";
+      }
+
+      this.convBrowser.replaceMessage(aMsg);
     }
 
     sendMsg(aMsg) {

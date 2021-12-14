@@ -6,16 +6,21 @@ const {
   initHTMLDocument,
   insertHTMLForMessage,
   getHTMLForMessage,
+  replaceHTMLForMessage,
+  wasNextMessage,
 } = ChromeUtils.import("resource:///modules/imThemes.jsm");
 const { MockDocument } = ChromeUtils.import(
   "resource://testing-common/MockDocument.jsm"
 );
 
+const BASIC_CONV_DOCUMENT_HTML =
+  '<!DOCTYPE html><html><body><div id="Chat"></div></body></html>';
+
 add_task(function test_initHTMLDocument() {
   const window = {};
   const document = MockDocument.createTestDocument(
     "chrome://chat/content/conv.html",
-    "<head></head><body></body>"
+    "<!DOCTYPE html><html><head></head><body></body></html>"
   );
   Object.defineProperty(document, "defaultView", {
     value: window,
@@ -50,7 +55,7 @@ add_task(function test_initHTMLDocument() {
 add_task(function test_insertHTMLForMessage() {
   const document = MockDocument.createTestDocument(
     "chrome://chat/content/conv.html",
-    '<body><div id="Chat"></div></body>'
+    BASIC_CONV_DOCUMENT_HTML
   );
   const html = '<div style="background: blue;">foo bar</div>';
   const message = {};
@@ -59,6 +64,22 @@ add_task(function test_insertHTMLForMessage() {
   strictEqual(messageElement._originalMsg, message);
   equal(messageElement.style.backgroundColor, "blue");
   equal(messageElement.textContent, "foo bar");
+  ok(!messageElement.dataset.isNext);
+});
+
+add_task(function test_insertHTMLForMessage_next() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const html = '<div style="background: blue;">foo bar</div>';
+  const message = {};
+  insertHTMLForMessage(message, html, document, true);
+  const messageElement = document.querySelector("#Chat > div");
+  strictEqual(messageElement._originalMsg, message);
+  equal(messageElement.style.backgroundColor, "blue");
+  equal(messageElement.textContent, "foo bar");
+  ok(messageElement.dataset.isNext);
 });
 
 add_task(function test_getHTMLForMessage() {
@@ -81,4 +102,111 @@ add_task(function test_getHTMLForMessage() {
     html,
     '<span style="color: #ffbbff;"><span class="ib-sender">display name</span></span><span class="ib-msg-txt">foo bar</span>'
   );
+});
+
+add_task(function test_replaceHTMLForMessage() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const html = '<div style="background: blue;">foo bar</div>';
+  const message = {
+    remoteId: "foo",
+  };
+  insertHTMLForMessage(message, html, document, false);
+  const messageElement = document.querySelector("#Chat > div");
+  strictEqual(messageElement._originalMsg, message);
+  equal(messageElement.style.backgroundColor, "blue");
+  equal(messageElement.textContent, "foo bar");
+  equal(messageElement.dataset.remoteId, "foo");
+  ok(!messageElement.dataset.isNext);
+  const updatedHtml = '<div style="background: green;">lorem ipsum</div>';
+  const updatedMessage = {
+    remoteId: "foo",
+  };
+  replaceHTMLForMessage(updatedMessage, updatedHtml, document, true);
+  const updatedMessageElement = document.querySelector("#Chat > div");
+  strictEqual(updatedMessageElement._originalMsg, updatedMessage);
+  equal(updatedMessageElement.style.backgroundColor, "green");
+  equal(updatedMessageElement.textContent, "lorem ipsum");
+  equal(updatedMessageElement.dataset.remoteId, "foo");
+  ok(updatedMessageElement.dataset.isNext);
+});
+
+add_task(function test_replaceHTMLForMessageWithoutExistingMessage() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const updatedHtml = '<div style="background: green;">lorem ipsum</div>';
+  const updatedMessage = {
+    remoteId: "foo",
+  };
+  replaceHTMLForMessage(updatedMessage, updatedHtml, document, false);
+  const updatedMessageElement = document.querySelector("#Chat > div");
+  ok(!updatedMessageElement);
+});
+
+add_task(function test_replaceHTMLForMessageWithoutRemoteId() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const html = '<div style="background: blue;">foo bar</div>';
+  const message = {
+    remoteId: "foo",
+  };
+  insertHTMLForMessage(message, html, document, false);
+  const messageElement = document.querySelector("#Chat > div");
+  strictEqual(messageElement._originalMsg, message);
+  equal(messageElement.style.backgroundColor, "blue");
+  equal(messageElement.textContent, "foo bar");
+  equal(messageElement.dataset.remoteId, "foo");
+  ok(!messageElement.dataset.isNext);
+  const updatedHtml = '<div style="background: green;">lorem ipsum</div>';
+  const updatedMessage = {};
+  replaceHTMLForMessage(updatedMessage, updatedHtml, document, false);
+  const updatedMessageElement = document.querySelector("#Chat > div");
+  strictEqual(updatedMessageElement._originalMsg, message);
+  equal(updatedMessageElement.style.backgroundColor, "blue");
+  equal(updatedMessageElement.textContent, "foo bar");
+  equal(updatedMessageElement.dataset.remoteId, "foo");
+  ok(!updatedMessageElement.dataset.isNext);
+});
+
+add_task(function test_wasNextMessage_isNext() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const html = "<div>foo bar</div>";
+  const message = {
+    remoteId: "foo",
+  };
+  insertHTMLForMessage(message, html, document, true);
+  ok(wasNextMessage(message, document));
+});
+
+add_task(function test_wasNextMessage_isNotNext() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const html = "<div>foo bar</div>";
+  const message = {
+    remoteId: "foo",
+  };
+  insertHTMLForMessage(message, html, document, false);
+  ok(!wasNextMessage(message, document));
+});
+
+add_task(function test_wasNextMessage_noPreviousVersion() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    BASIC_CONV_DOCUMENT_HTML
+  );
+  const message = {
+    remoteId: "foo",
+  };
+  ok(!wasNextMessage(message, document));
 });

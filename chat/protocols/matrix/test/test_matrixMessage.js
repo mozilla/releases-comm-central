@@ -19,7 +19,7 @@ add_task(function test_whenDisplayed() {
   };
   const message = new matrix.MatrixMessage("foo", "bar", {
     event: "baz",
-    _conversation: mockConv,
+    conversation: mockConv,
   });
 
   message.whenDisplayed();
@@ -53,7 +53,7 @@ add_task(async function test_whenDisplayedError() {
   };
   const message = new matrix.MatrixMessage("foo", "bar", {
     event: "baz",
-    _conversation: mockConv,
+    conversation: mockConv,
   });
 
   message.whenDisplayed();
@@ -81,7 +81,7 @@ add_task(function test_whenRead() {
         return "baz";
       },
     },
-    _conversation: mockConv,
+    conversation: mockConv,
   });
 
   message.whenRead();
@@ -120,7 +120,7 @@ add_task(async function test_whenReadError() {
         return "baz";
       },
     },
-    _conversation: mockConv,
+    conversation: mockConv,
   });
 
   message.whenRead();

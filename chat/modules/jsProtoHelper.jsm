@@ -832,12 +832,13 @@ var GenericMessagePrototype = {
   __proto__: ClassInfo("prplIMessage", "generic message object"),
 
   _lastId: 0,
-  _init(aWho, aMessage, aObject) {
+  _init(aWho, aMessage, aObject, aConversation) {
     this.id = ++GenericMessagePrototype._lastId;
     this.time = Math.floor(new Date() / 1000);
     this.who = aWho;
     this.message = aMessage;
     this.originalMessage = aMessage;
+    this.conversation = aConversation;
 
     if (aObject) {
       for (let i in aObject) {
@@ -857,22 +858,16 @@ var GenericMessagePrototype = {
     }
 
     // Otherwise, attempt to find a buddy for incoming messages, and forward the call.
-    if (this.incoming && this._conversation && !this._conversation.isChat) {
-      let buddy = this._conversation.buddy;
+    if (this.incoming && this.conversation && !this.conversation.isChat) {
+      let buddy = this.conversation.buddy;
       if (buddy) {
         return buddy.buddyIconFilename;
       }
     }
     return "";
   },
-  _conversation: null,
-  get conversation() {
-    return this._conversation;
-  },
-  set conversation(aConv) {
-    this._conversation = aConv;
-    aConv.notifyObservers(this, "new-text");
-  },
+  conversation: null,
+  remoteId: "",
 
   outgoing: false,
   incoming: false,
@@ -897,8 +892,8 @@ var GenericMessagePrototype = {
   whenRead() {},
 };
 
-function Message(aWho, aMessage, aObject) {
-  this._init(aWho, aMessage, aObject);
+function Message(aWho, aMessage, aObject, aConversation) {
+  this._init(aWho, aMessage, aObject, aConversation);
 }
 Message.prototype = GenericMessagePrototype;
 
@@ -983,9 +978,35 @@ var GenericConversationPrototype = {
     delete this._observers;
   },
 
+  /**
+   * Create a prplIMessage instance from params.
+   *
+   * @param {string} who - Nick of the participant who sent the message.
+   * @param {string} text - Raw message contents.
+   * @param {object} properties - Additional properties of the message.
+   * @returns {prplIMessage}
+   */
+  createMessage(who, text, properties) {
+    const message = new Message(who, text, properties, this);
+    return message;
+  },
+
   writeMessage(aWho, aText, aProperties) {
-    const message = new Message(aWho, aText, aProperties);
-    message.conversation = this;
+    const message = this.createMessage(aWho, aText, aProperties);
+    this.notifyObservers(message, "new-text");
+  },
+
+  /**
+   * Update the contents of a message.
+   *
+   * @param {string} who - Nick of the participant who sent the message.
+   * @param {string} text - Raw contents of the message.
+   * @param {object} properties - Additional properties of the message. Should
+   *   specify a |remoteId| to find the previous version of this message.
+   */
+  updateMessage(who, text, properties) {
+    const message = this.createMessage(who, text, properties);
+    this.notifyObservers(message, "update-text");
   },
 
   get account() {
@@ -1245,10 +1266,10 @@ var GenericConvChatPrototype = {
     this._participants.clear();
   },
 
-  writeMessage(aWho, aText, aProperties) {
-    aProperties.containsNick =
-      "incoming" in aProperties && this._pingRegexp.test(aText);
-    GenericConversationPrototype.writeMessage.apply(this, arguments);
+  createMessage(who, text, properties) {
+    properties.containsNick =
+      "incoming" in properties && this._pingRegexp.test(text);
+    return GenericConversationPrototype.createMessage.apply(this, arguments);
   },
 };
 

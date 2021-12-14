@@ -2,11 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = [
-  "registerTestProtocol",
-  "unregisterTestProtocol",
-  "Message",
-];
+var EXPORTED_SYMBOLS = ["registerTestProtocol", "unregisterTestProtocol"];
 
 var {
   GenericAccountPrototype,
@@ -26,8 +22,8 @@ var { nsSimpleEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
-function Message(who, text, properties) {
-  this._init(who, text, properties);
+function Message(who, text, properties, conversation) {
+  this._init(who, text, properties, conversation);
   this.displayed = new Promise(resolve => {
     this._onDisplayed = resolve;
   });
@@ -109,6 +105,11 @@ const SharedConversationPrototype = {
   addNotice() {
     this.writeMessage("system", "test notice", { system: true });
   },
+
+  createMessage(who, text, options) {
+    const message = new Message(who, text, options, this);
+    return message;
+  },
 };
 
 /**
@@ -119,26 +120,24 @@ const SharedConversationPrototype = {
 function MUC(account, name) {
   this._init(account, name, "You");
 }
-MUC.prototype = Object.assign(
-  {
-    __proto__: GenericConvChatPrototype,
+MUC.prototype = {
+  __proto__: GenericConvChatPrototype,
 
-    /**
-     *
-     * @param {string} who - Nick of the user to add.
-     * @param {string} alias - Display name of the participant.
-     * @returns
-     */
-    addParticipant(who, alias) {
-      if (this._participants.has(who)) {
-        return;
-      }
-      const participant = new Participant(who, alias);
-      this._participants.set(who, participant);
-    },
+  /**
+   *
+   * @param {string} who - Nick of the user to add.
+   * @param {string} alias - Display name of the participant.
+   * @returns
+   */
+  addParticipant(who, alias) {
+    if (this._participants.has(who)) {
+      return;
+    }
+    const participant = new Participant(who, alias);
+    this._participants.set(who, participant);
   },
-  SharedConversationPrototype
-);
+  ...SharedConversationPrototype,
+};
 
 /**
  *
@@ -148,12 +147,10 @@ MUC.prototype = Object.assign(
 function DM(account, name) {
   this._init(account, name);
 }
-DM.prototype = Object.assign(
-  {
-    __proto__: GenericConvIMPrototype,
-  },
-  SharedConversationPrototype
-);
+DM.prototype = {
+  __proto__: GenericConvIMPrototype,
+  ...SharedConversationPrototype,
+};
 
 function Account(aProtoInstance, aImAccount) {
   this._init(aProtoInstance, aImAccount);
