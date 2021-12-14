@@ -28,6 +28,18 @@ def _get_aliases(kind, job):
     return aliases
 
 
+def _expand_aliases(kind, inputs):
+    """Given the list of all "reference-jobs" pulled in from upstream, return a
+    set with all job names and aliases.
+    For example "linux64-clang" is an alias of "linux64-clang-13", and both
+    of those names will be included in the returned set."""
+    rv = set()
+    for input_job in inputs:
+        for alias in _get_aliases(kind, input_job):
+            rv.add(alias)
+    return rv
+
+
 def _get_loader(path, config):
     try:
         _loader = config["loader"]
@@ -58,6 +70,22 @@ def loader(kind, path, config, params, loaded_tasks):
 
     if jobs is not None:
         jobs = set(jobs)
-        return (job for job in inputs if (_get_aliases(kind, job) & jobs))
+
+        found_reference_jobs = [
+            job for job in inputs if (_get_aliases(kind, job) & jobs)
+        ]
+
+        # Check for jobs listed as a reference job in Thunderbird's config
+        # that do not exist in upstream.
+        reference_alias_names = _expand_aliases(kind, found_reference_jobs)
+        if reference_alias_names >= jobs:
+            return found_reference_jobs
+        else:
+            missing_jobs = jobs - reference_alias_names
+            raise Exception(
+                "Reference jobs not found in kind {}: {}".format(
+                    kind, ", ".join(missing_jobs)
+                )
+            )
     else:
         return inputs
