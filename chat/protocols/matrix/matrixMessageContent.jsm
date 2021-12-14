@@ -167,10 +167,7 @@ function formatHTMLBody(event, homeserverUrl, getEvent, includeReply = true) {
   const reply = parsedBody.querySelector("mx-reply");
   if (reply) {
     if (includeReply && content.msgtype != MsgType.Emote) {
-      //TODO use event.replyEventId when updating matrix-js-sdk
-      const eventId = event.getWireContent()?.["m.relates_to"]?.[
-        "m.in_reply_to"
-      ]?.event_id;
+      const eventId = event.replyEventId;
       const replyEvent = getEvent(eventId);
       if (replyEvent) {
         let replyContent = getReplyContent(
@@ -229,10 +226,7 @@ var MatrixMessageContent = {
     if (type == EventType.RoomMessage) {
       if (kRichBodiedTypes.includes(content.msgtype)) {
         let body = TXTToHTML(content.body);
-        //TODO use event.replyEventId when updating matrix-js-sdk
-        const eventId = event.getWireContent()?.["m.relates_to"]?.[
-          "m.in_reply_to"
-        ]?.event_id;
+        const eventId = event.replyEventId;
         if (body.startsWith("&gt;") && eventId) {
           let nonQuote = Number.MAX_SAFE_INTEGER;
           const replyEvent = getEvent(eventId);

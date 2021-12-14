@@ -7,7 +7,9 @@ this.EXPORTED_SYMBOLS = ["getMatrixTextForEvent"];
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
+var { EventType, MsgType } = ChromeUtils.import(
+  "resource:///modules/matrix-sdk.jsm"
+);
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
@@ -37,7 +39,7 @@ const keyVerificationRequest = (matrixEvent, { sender, content }) => {
 const roomMessage = {
   pivot: "msgtype",
   handlers: {
-    [EventType.KeyVerificationRequest]: keyVerificationRequest,
+    [MsgType.KeyVerificationRequest]: keyVerificationRequest,
   },
 };
 

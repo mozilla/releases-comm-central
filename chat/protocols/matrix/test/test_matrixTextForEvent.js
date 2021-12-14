@@ -5,7 +5,9 @@ var { getMatrixTextForEvent } = ChromeUtils.import(
   "resource:///modules/matrixTextForEvent.jsm"
 );
 var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
+var { EventType, MsgType } = ChromeUtils.import(
+  "resource:///modules/matrix-sdk.jsm"
+);
 var _ = l10nHelper("chrome://chat/locale/matrix.properties");
 
 function run_test() {
@@ -767,7 +769,7 @@ const FIXTURES = [
     event: makeEvent({
       type: EventType.RoomMessage,
       content: {
-        msgtype: EventType.KeyVerificationRequest,
+        msgtype: MsgType.KeyVerificationRequest,
         to: "@foo:example.com",
       },
       sender: SENDER,

@@ -433,7 +433,7 @@ var commands = [
     },
     run: clientCommand("sendEmoteMessage", 1, {
       formatParams(conv, [message]) {
-        return [conv._roomId, message];
+        return [conv._roomId, null, message];
       },
     }),
   },

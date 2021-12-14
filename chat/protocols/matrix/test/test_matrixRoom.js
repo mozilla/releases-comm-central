@@ -529,8 +529,9 @@ add_task(function test_sendMsg() {
       isTyping = typing;
       return Promise.resolve();
     },
-    sendTextMessage(roomId, msg) {
+    sendTextMessage(roomId, threadId, msg) {
       equal(roomId, roomStub._roomId);
+      equal(threadId, null);
       message = msg;
       return Promise.resolve();
     },

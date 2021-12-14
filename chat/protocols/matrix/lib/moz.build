@@ -5,130 +5,130 @@
 
 # The Matrix SDK.
 EXTRA_JS_MODULES.matrix.matrix_sdk += [
-    'matrix-sdk/autodiscovery.js',
-    'matrix-sdk/browser-index.js',
-    'matrix-sdk/client.js',
-    'matrix-sdk/content-helpers.js',
-    'matrix-sdk/content-repo.js',
-    'matrix-sdk/errors.js',
-    'matrix-sdk/event-mapper.js',
-    'matrix-sdk/filter-component.js',
-    'matrix-sdk/filter.js',
-    'matrix-sdk/http-api.js',
-    'matrix-sdk/indexeddb-helpers.js',
-    'matrix-sdk/indexeddb-worker.js',
-    'matrix-sdk/interactive-auth.js',
-    'matrix-sdk/logger.js',
-    'matrix-sdk/matrix.js',
-    'matrix-sdk/NamespacedValue.js',
-    'matrix-sdk/pushprocessor.js',
-    'matrix-sdk/randomstring.js',
-    'matrix-sdk/realtime-callbacks.js',
-    'matrix-sdk/ReEmitter.js',
-    'matrix-sdk/room-hierarchy.js',
-    'matrix-sdk/scheduler.js',
-    'matrix-sdk/service-types.js',
-    'matrix-sdk/sync-accumulator.js',
-    'matrix-sdk/sync.api.js',
-    'matrix-sdk/sync.js',
-    'matrix-sdk/timeline-window.js',
-    'matrix-sdk/utils.js',
+    "matrix-sdk/autodiscovery.js",
+    "matrix-sdk/browser-index.js",
+    "matrix-sdk/client.js",
+    "matrix-sdk/content-helpers.js",
+    "matrix-sdk/content-repo.js",
+    "matrix-sdk/errors.js",
+    "matrix-sdk/event-mapper.js",
+    "matrix-sdk/filter-component.js",
+    "matrix-sdk/filter.js",
+    "matrix-sdk/http-api.js",
+    "matrix-sdk/indexeddb-helpers.js",
+    "matrix-sdk/indexeddb-worker.js",
+    "matrix-sdk/interactive-auth.js",
+    "matrix-sdk/logger.js",
+    "matrix-sdk/matrix.js",
+    "matrix-sdk/NamespacedValue.js",
+    "matrix-sdk/pushprocessor.js",
+    "matrix-sdk/randomstring.js",
+    "matrix-sdk/realtime-callbacks.js",
+    "matrix-sdk/ReEmitter.js",
+    "matrix-sdk/room-hierarchy.js",
+    "matrix-sdk/scheduler.js",
+    "matrix-sdk/service-types.js",
+    "matrix-sdk/sync-accumulator.js",
+    "matrix-sdk/sync.api.js",
+    "matrix-sdk/sync.js",
+    "matrix-sdk/timeline-window.js",
+    "matrix-sdk/utils.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
-    'matrix-sdk/crypto/aes.js',
-    'matrix-sdk/crypto/api.js',
-    'matrix-sdk/crypto/backup.js',
-    'matrix-sdk/crypto/CrossSigning.js',
-    'matrix-sdk/crypto/dehydration.js',
-    'matrix-sdk/crypto/deviceinfo.js',
-    'matrix-sdk/crypto/DeviceList.js',
-    'matrix-sdk/crypto/EncryptionSetup.js',
-    'matrix-sdk/crypto/index.js',
-    'matrix-sdk/crypto/key_passphrase.js',
-    'matrix-sdk/crypto/OlmDevice.js',
-    'matrix-sdk/crypto/olmlib.js',
-    'matrix-sdk/crypto/OutgoingRoomKeyRequestManager.js',
-    'matrix-sdk/crypto/recoverykey.js',
-    'matrix-sdk/crypto/RoomList.js',
-    'matrix-sdk/crypto/SecretStorage.js',
+    "matrix-sdk/crypto/aes.js",
+    "matrix-sdk/crypto/api.js",
+    "matrix-sdk/crypto/backup.js",
+    "matrix-sdk/crypto/CrossSigning.js",
+    "matrix-sdk/crypto/dehydration.js",
+    "matrix-sdk/crypto/deviceinfo.js",
+    "matrix-sdk/crypto/DeviceList.js",
+    "matrix-sdk/crypto/EncryptionSetup.js",
+    "matrix-sdk/crypto/index.js",
+    "matrix-sdk/crypto/key_passphrase.js",
+    "matrix-sdk/crypto/OlmDevice.js",
+    "matrix-sdk/crypto/olmlib.js",
+    "matrix-sdk/crypto/OutgoingRoomKeyRequestManager.js",
+    "matrix-sdk/crypto/recoverykey.js",
+    "matrix-sdk/crypto/RoomList.js",
+    "matrix-sdk/crypto/SecretStorage.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.algorithms += [
-    'matrix-sdk/crypto/algorithms/base.js',
-    'matrix-sdk/crypto/algorithms/index.js',
-    'matrix-sdk/crypto/algorithms/megolm.js',
-    'matrix-sdk/crypto/algorithms/olm.js',
+    "matrix-sdk/crypto/algorithms/base.js",
+    "matrix-sdk/crypto/algorithms/index.js",
+    "matrix-sdk/crypto/algorithms/megolm.js",
+    "matrix-sdk/crypto/algorithms/olm.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.store += [
-    'matrix-sdk/crypto/store/indexeddb-crypto-store-backend.js',
-    'matrix-sdk/crypto/store/indexeddb-crypto-store.js',
-    'matrix-sdk/crypto/store/localStorage-crypto-store.js',
-    'matrix-sdk/crypto/store/memory-crypto-store.js',
+    "matrix-sdk/crypto/store/indexeddb-crypto-store-backend.js",
+    "matrix-sdk/crypto/store/indexeddb-crypto-store.js",
+    "matrix-sdk/crypto/store/localStorage-crypto-store.js",
+    "matrix-sdk/crypto/store/memory-crypto-store.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification += [
-    'matrix-sdk/crypto/verification/Base.js',
-    'matrix-sdk/crypto/verification/Error.js',
-    'matrix-sdk/crypto/verification/IllegalMethod.js',
-    'matrix-sdk/crypto/verification/QRCode.js',
-    'matrix-sdk/crypto/verification/SAS.js',
+    "matrix-sdk/crypto/verification/Base.js",
+    "matrix-sdk/crypto/verification/Error.js",
+    "matrix-sdk/crypto/verification/IllegalMethod.js",
+    "matrix-sdk/crypto/verification/QRCode.js",
+    "matrix-sdk/crypto/verification/SAS.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification.request += [
-    'matrix-sdk/crypto/verification/request/InRoomChannel.js',
-    'matrix-sdk/crypto/verification/request/ToDeviceChannel.js',
-    'matrix-sdk/crypto/verification/request/VerificationRequest.js',
+    "matrix-sdk/crypto/verification/request/InRoomChannel.js",
+    "matrix-sdk/crypto/verification/request/ToDeviceChannel.js",
+    "matrix-sdk/crypto/verification/request/VerificationRequest.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
-    'matrix-sdk/models/event-context.js',
-    'matrix-sdk/models/event-timeline-set.js',
-    'matrix-sdk/models/event-timeline.js',
-    'matrix-sdk/models/event.js',
-    'matrix-sdk/models/group.js',
-    'matrix-sdk/models/MSC3089Branch.js',
-    'matrix-sdk/models/MSC3089TreeSpace.js',
-    'matrix-sdk/models/relations.js',
-    'matrix-sdk/models/room-member.js',
-    'matrix-sdk/models/room-state.js',
-    'matrix-sdk/models/room-summary.js',
-    'matrix-sdk/models/room.js',
-    'matrix-sdk/models/search-result.js',
-    'matrix-sdk/models/thread.js',
-    'matrix-sdk/models/typed-event-emitter.js',
-    'matrix-sdk/models/user.js',
+    "matrix-sdk/models/event-context.js",
+    "matrix-sdk/models/event-timeline-set.js",
+    "matrix-sdk/models/event-timeline.js",
+    "matrix-sdk/models/event.js",
+    "matrix-sdk/models/group.js",
+    "matrix-sdk/models/MSC3089Branch.js",
+    "matrix-sdk/models/MSC3089TreeSpace.js",
+    "matrix-sdk/models/relations.js",
+    "matrix-sdk/models/room-member.js",
+    "matrix-sdk/models/room-state.js",
+    "matrix-sdk/models/room-summary.js",
+    "matrix-sdk/models/room.js",
+    "matrix-sdk/models/search-result.js",
+    "matrix-sdk/models/thread.js",
+    "matrix-sdk/models/typed-event-emitter.js",
+    "matrix-sdk/models/user.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.store += [
-    'matrix-sdk/store/indexeddb-local-backend.js',
-    'matrix-sdk/store/indexeddb-remote-backend.js',
-    'matrix-sdk/store/indexeddb-store-worker.js',
-    'matrix-sdk/store/indexeddb.js',
-    'matrix-sdk/store/local-storage-events-emitter.js',
-    'matrix-sdk/store/memory.js',
-    'matrix-sdk/store/stub.js',
+    "matrix-sdk/store/indexeddb-local-backend.js",
+    "matrix-sdk/store/indexeddb-remote-backend.js",
+    "matrix-sdk/store/indexeddb-store-worker.js",
+    "matrix-sdk/store/indexeddb.js",
+    "matrix-sdk/store/local-storage-events-emitter.js",
+    "matrix-sdk/store/memory.js",
+    "matrix-sdk/store/stub.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.store.session += [
-    'matrix-sdk/store/session/webstorage.js',
+    "matrix-sdk/store/session/webstorage.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
-    'matrix-sdk/@types/event.js',
-    'matrix-sdk/@types/partials.js',
-    'matrix-sdk/@types/PushRules.js',
-    'matrix-sdk/@types/search.js',
-    'matrix-sdk/@types/threepids.js',
+    "matrix-sdk/@types/event.js",
+    "matrix-sdk/@types/partials.js",
+    "matrix-sdk/@types/PushRules.js",
+    "matrix-sdk/@types/search.js",
+    "matrix-sdk/@types/threepids.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
-    'matrix-sdk/webrtc/call.js',
-    'matrix-sdk/webrtc/callEventHandler.js',
-    'matrix-sdk/webrtc/callEventTypes.js',
-    'matrix-sdk/webrtc/callFeed.js',
-    'matrix-sdk/webrtc/mediaHandler.js',
+    "matrix-sdk/webrtc/call.js",
+    "matrix-sdk/webrtc/callEventHandler.js",
+    "matrix-sdk/webrtc/callEventTypes.js",
+    "matrix-sdk/webrtc/callFeed.js",
+    "matrix-sdk/webrtc/mediaHandler.js",
 ]
 
 # Dependencies of the Matrix SDK.
@@ -136,46 +136,46 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
 # Single file dependencies (with good names) are just added to the top-level
 # matrix module.
 EXTRA_JS_MODULES.matrix += [
-    'another-json/another-json.js',
-    'events/events.js',
-    'qs/dist/qs.js',
+    "another-json/another-json.js",
+    "events/events.js",
+    "qs/dist/qs.js",
 ]
 
 EXTRA_JS_MODULES.matrix.base_x += [
-    'base-x/index.js',
+    "base-x/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.browser_request += [
-    'browser-request/index.js',
+    "browser-request/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.bs58 += [
-    'bs58/index.js',
+    "bs58/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.content_type += [
-    'content-type/index.js',
+    "content-type/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.unhomoglyph += [
-    'unhomoglyph/data.json',
-    'unhomoglyph/index.js',
+    "unhomoglyph/data.json",
+    "unhomoglyph/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.olm += [
-    '@matrix-org/olm/olm.js',
-    '@matrix-org/olm/olm.wasm',
+    "@matrix-org/olm/olm.js",
+    "@matrix-org/olm/olm.wasm",
 ]
 
 EXTRA_JS_MODULES.matrix.p_retry += [
-    'p-retry/index.js',
+    "p-retry/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.retry += [
-    'retry/index.js',
+    "retry/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.retry.lib += [
-    'retry/lib/retry.js',
-    'retry/lib/retry_operation.js',
+    "retry/lib/retry.js",
+    "retry/lib/retry_operation.js",
 ]

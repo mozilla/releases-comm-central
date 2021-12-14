@@ -424,9 +424,11 @@ MatrixRoom.prototype = {
    */
   sendMsg(msg) {
     this.sendTyping("");
-    this._account._client.sendTextMessage(this._roomId, msg).catch(error => {
-      this._account.ERROR("Failed to send message to: " + this._roomId);
-    });
+    this._account._client
+      .sendTextMessage(this._roomId, null, msg)
+      .catch(error => {
+        this._account.ERROR("Failed to send message to: " + this._roomId);
+      });
   },
 
   /**
@@ -626,7 +628,7 @@ MatrixRoom.prototype = {
         this._account._client.getHomeserverUrl(),
         eventId => this.room.findEventById(eventId)
       );
-      if (eventContent.msgtype === EventType.KeyVerificationRequest) {
+      if (eventContent.msgtype === MsgType.KeyVerificationRequest) {
         message = getMatrixTextForEvent(event);
       }
       this.writeMessage(event.getSender(), message, {
@@ -636,7 +638,7 @@ MatrixRoom.prototype = {
           MsgType.Notice,
           "m.server_notice",
           "m.bad.encrypted",
-          EventType.KeyVerificationRequest,
+          MsgType.KeyVerificationRequest,
         ].includes(eventContent.msgtype),
         time: Math.floor(event.getDate() / 1000),
         _alias: event.sender.name,

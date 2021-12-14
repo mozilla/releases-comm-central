@@ -221,5 +221,7 @@ function makeEvent(eventSpec = {}) {
       return false;
     },
     target: eventSpec.target,
+    replyEventId:
+      eventSpec.content?.["m.relates_to"]?.["m.in_reply_to"]?.event_id,
   };
 }
