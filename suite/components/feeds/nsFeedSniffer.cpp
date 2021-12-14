@@ -282,10 +282,10 @@ nsFeedSniffer::GetMIMETypeFromContent(nsIRequest* request,
   const char* testData;
   if (mDecodedData.IsEmpty()) {
     testData = (const char*)data;
-    length = std::min(length, MAX_BYTES);
+    length = std::min<uint32_t>(length, MAX_BYTES);
   } else {
     testData = mDecodedData.get();
-    length = std::min(mDecodedData.Length(), MAX_BYTES);
+    length = std::min<uint32_t>(mDecodedData.Length(), MAX_BYTES);
   }
 
   // The strategy here is based on that described in:
