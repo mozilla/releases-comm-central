@@ -811,9 +811,10 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     if (event.type == "contextmenu") {
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
-      popup.openPopup(row.querySelector(".bookRow-menu, .listRow-menu"), {
-        triggerEvent: event,
-      });
+      popup.openPopup(
+        row.querySelector(".bookRow-container, .listRow-container"),
+        { triggerEvent: event, position: "end_before", x: -26, y: 30 }
+      );
     }
     event.preventDefault();
   }
