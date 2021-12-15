@@ -116,6 +116,9 @@ add_task(async function() {
     "window unlocked after saving"
   );
 
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   await checkMisspelledWords(subjectEditor);
   await checkMisspelledWords(bodyEditor);
 
