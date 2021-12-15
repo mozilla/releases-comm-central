@@ -502,6 +502,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   border-inline-start: none;
 }
 
+@media (prefers-contrast) {
+  :root:not(:-moz-lwtheme)
+    treechildren::-moz-tree-image(selected) {
+    color: inherit;
+  }
+}
+
 @media not (-moz-windows-non-native-menus) {
   #viewPickerPopup menu,
   #viewPickerPopup menuitem {
@@ -514,23 +521,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   #viewPickerPopup > menu,
   #viewPickerPopup > menuitem {
     padding-inline-start: 1em;
-  }
-}
-
-@media (prefers-contrast) {
-  :root:not(:-moz-lwtheme)
-    treechildren::-moz-tree-cell-text(untagged, unread) {
-    color: -moz-cellhighlighttext !important;
-  }
-
-  :root:not(:-moz-lwtheme)
-    treechildren::-moz-tree-cell-text(untagged, unread, hover) {
-    color: inherit !important;
-  }
-
-  :root:not(:-moz-lwtheme)
-    treechildren::-moz-tree-cell-text(selected, untagged, unread, focus) {
-    color: SelectedItemText !important;
   }
 }
 

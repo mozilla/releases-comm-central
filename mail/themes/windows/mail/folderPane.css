@@ -33,6 +33,12 @@ treechildren::-moz-tree-image(folderNameCol) {
   }
 }
 
+@media (prefers-contrast) {
+  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus) {
+    fill: SelectedItemText !important;
+  }
+}
+
 #folderTree treechildren::-moz-tree-indentation {
   width: 8px;
 }

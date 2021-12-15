@@ -87,11 +87,15 @@
   :root:not(:-moz-lwtheme) #CardViewBox {
     --toolbarbutton-hover-background: SelectedItem;
     --toolbarbutton-hover-bordercolor: SelectedItemText !important;
-    --toolbarbutton-header-bordercolor: SelectedItemText;
     --toolbarbutton-active-background: SelectedItem;
     --toolbarbutton-active-bordercolor: SelectedItemText;
     --toolbarbutton-checked-background: SelectedItem;
     --toolbarbutton-icon-fill-attention: SelectedItem;
+  }
+
+  :root:not(:-moz-lwtheme) .toolbarbutton-1.message-header-view-button {
+    --toolbarbutton-header-bordercolor: WindowText;
+    --toolbarbutton-active-bordercolor: WindowText;
   }
 
   :root:not(:-moz-lwtheme) .toolbarbutton-1:not(.qfb-tag-button):hover,
