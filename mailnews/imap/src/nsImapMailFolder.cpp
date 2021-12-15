@@ -4462,14 +4462,15 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState* flagState) {
     flagState->GetUidOfMessage(flagIndex, &uidOfMessage);
     imapMessageFlagsType flags;
     flagState->GetMessageFlags(flagIndex, &flags);
-    nsCOMPtr<nsIMsgDBHdr> dbHdr;
     bool containsKey;
     rv = mDatabase->ContainsKey(uidOfMessage, &containsKey);
     // if we don't have the header, don't diddle the flags.
     // GetMsgHdrForKey will create the header if it doesn't exist.
     if (NS_FAILED(rv) || !containsKey) continue;
 
+    nsCOMPtr<nsIMsgDBHdr> dbHdr;
     rv = mDatabase->GetMsgHdrForKey(uidOfMessage, getter_AddRefs(dbHdr));
+    if (NS_FAILED(rv)) continue;
     if (NS_SUCCEEDED(dbHdr->GetMessageSize(&messageSize)))
       newFolderSize += messageSize;
 
