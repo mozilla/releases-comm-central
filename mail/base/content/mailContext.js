@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gFolder, gMessage, gMessageURI, gViewWrapper, goDoCommand, messengerBundle */ // about3Pane.js
+// about:3pane and about:message must BOTH provide these:
+
+/* globals goDoCommand */ // globalOverlay.js
+/* globals CrossFolderNavigation */ // msgViewNavigation.js
+/* globals displayMessage, gDBView, gFolder, gMessage, gMessageURI, gViewWrapper, messengerBundle */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -467,7 +471,7 @@ var mailContextMenu = {
       if (msgHasTag) {
         item.setAttribute("checked", "true");
       }
-      item.setAttribute("value", tagInfo.key);
+      item.value = tagInfo.key;
       item.addEventListener("command", event =>
         this._toggleMessageTag(
           tagInfo.key,
@@ -475,7 +479,7 @@ var mailContextMenu = {
         )
       );
       if (tagInfo.color) {
-        item.setAttribute("style", `color: ${tagInfo.color};`);
+        item.style.color = tagInfo.color;
       }
       parent.appendChild(item);
 
@@ -667,6 +671,15 @@ var commandController = {
     cmd_redirect: Ci.nsIMsgCompType.Redirect,
     cmd_editAsNew: Ci.nsIMsgCompType.EditAsNew,
   },
+  _navigationCommands: {
+    cmd_nextUnreadMsg: Ci.nsMsgNavigationType.nextUnreadMessage,
+    cmd_nextUnreadThread: Ci.nsMsgNavigationType.nextUnreadThread,
+    cmd_nextMsg: Ci.nsMsgNavigationType.nextMessage,
+    cmd_nextFlaggedMsg: Ci.nsMsgNavigationType.nextFlagged,
+    cmd_previousMsg: Ci.nsMsgNavigationType.previousMessage,
+    cmd_previousUnreadMsg: Ci.nsMsgNavigationType.previousUnreadMessage,
+    cmd_previousFlaggedMsg: Ci.nsMsgNavigationType.previousFlagged,
+  },
   _viewCommands: {
     cmd_toggleRead: Ci.nsMsgViewCommandType.toggleMessageRead,
     cmd_markAsRead: Ci.nsMsgViewCommandType.markMessagesRead,
@@ -701,6 +714,12 @@ var commandController = {
     },
     cmd_removeTags() {
       mailContextMenu.removeAllMessageTags();
+    },
+    cmd_toggleTag(event) {
+      mailContextMenu._toggleMessageTag(
+        event.target.value,
+        event.target.getAttribute("checked") == "true"
+      );
     },
     cmd_markReadByDate() {
       window.browsingContext.topChromeWindow.openDialog(
@@ -756,6 +775,7 @@ var commandController = {
   supportsCommand(command) {
     return (
       command in this._composeCommands ||
+      command in this._navigationCommands ||
       command in this._viewCommands ||
       command in this._callbackCommands
     );
@@ -766,6 +786,14 @@ var commandController = {
       return this._isCallbackEnabled[command]();
     } else if (type == "boolean") {
       return this._isCallbackEnabled[command];
+    }
+
+    if (!gViewWrapper) {
+      return false;
+    }
+
+    if (command in this._navigationCommands) {
+      return true;
     }
 
     let numSelectedMessages = gViewWrapper.dbView.selection.count;
@@ -787,6 +815,7 @@ var commandController = {
       case "cmd_addTag":
       case "cmd_manageTags":
       case "cmd_removeTags":
+      case "cmd_toggleTag":
       case "cmd_toggleRead":
       case "cmd_markAsRead":
       case "cmd_markAsUnread":
@@ -842,6 +871,11 @@ var commandController = {
       return;
     }
 
+    if (command in this._navigationCommands) {
+      this._navigate(this._navigationCommands[command]);
+      return;
+    }
+
     if (command in this._viewCommands) {
       if (command.endsWith("Read") || command.endsWith("Unread")) {
         if (window.ClearPendingReadTimer) {
@@ -888,6 +922,39 @@ var commandController = {
       );
     }
   },
+
+  _navigate(navigationType) {
+    let resultKey = {};
+    let resultIndex = {};
+    let threadIndex = {};
+    gViewWrapper.dbView.viewNavigate(
+      navigationType,
+      resultKey,
+      resultIndex,
+      threadIndex,
+      true
+    );
+
+    // nsMsgViewIndex_None
+    if (resultIndex.value == 0xffffffff) {
+      // Not in about:message
+      if (window.displayFolder) {
+        CrossFolderNavigation(navigationType);
+      }
+      return;
+    }
+    // nsMsgKey_None
+    if (resultKey.value == 0xffffffff) {
+      return;
+    }
+
+    gViewWrapper.dbView.selection.select(resultIndex.value);
+    if (window.threadTree) {
+      window.threadTree.scrollToIndex(resultIndex.value);
+      window.threadTree.focus();
+    }
+    displayMessage(gViewWrapper.dbView.URIForFirstSelectedMessage);
+  },
 };
 
 /**
@@ -910,14 +977,23 @@ var dbViewWrapperListener = {
   },
   onFolderLoading(isFolderLoading) {},
   onSearching(isSearching) {},
-  onCreatedView() {},
+  onCreatedView() {
+    if (window.threadTree) {
+      // eslint-disable-next-line no-global-assign
+      window.threadTree.view = gDBView = gViewWrapper.dbView;
+    }
+  },
   onDestroyingView(folderIsComingBack) {},
   onLoadingFolder(dbFolderInfo) {},
   onDisplayingFolder() {},
   onLeavingFolder() {},
   onMessagesLoaded(all) {},
   onMailViewChanged() {},
-  onSortChanged() {},
+  onSortChanged() {
+    if (window.threadTree) {
+      window.threadTree.invalidate();
+    }
+  },
   onMessagesRemoved() {},
   onMessageRemovalFailed() {},
   onMessageCountsChanged() {},

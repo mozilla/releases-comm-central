@@ -27,7 +27,7 @@ const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
-var gFolder, gViewWrapper, gMessage, gMessageURI;
+var gFolder, gViewWrapper, gDBView, gMessage, gMessageURI;
 var folderTree, splitter1, threadTree, splitter2, messageBrowser;
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -208,7 +208,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
-      gViewWrapper = threadTree.view = null;
+      gViewWrapper = gDBView = threadTree.view = null;
       return;
     }
     document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
@@ -216,7 +216,7 @@ window.addEventListener("DOMContentLoaded", () => {
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper._viewFlags = 1;
     gViewWrapper.open(gFolder);
-    threadTree.view = gViewWrapper.dbView;
+    gDBView = gViewWrapper.dbView;
 
     // Tell the view about the tree. nsITreeView.setTree can't be used because
     // it needs a XULTreeElement and threadTree isn't one. Strictly speaking
@@ -673,3 +673,183 @@ commandController.registerCallback("cmd_toggleFolderPane", () => {
 commandController.registerCallback("cmd_toggleMessagePane", () => {
   splitter2.isCollapsed = !splitter2.isCollapsed;
 });
+
+function restoreThreadState() {
+  if (
+    gViewWrapper._threadExpandAll &&
+    !(gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
+  ) {
+    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+  }
+  if (
+    !gViewWrapper._threadExpandAll &&
+    gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+  ) {
+    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+  }
+}
+
+var _savedSelection;
+function saveSelection() {
+  _savedSelection = threadTree.selectedIndicies.map(gDBView.getKeyAt);
+}
+
+function restoreSelection() {
+  threadTree.selectedIndicies = _savedSelection
+    .map(gDBView.findIndexFromKey)
+    .filter(i => i != 0xffffffff); // nsMsgViewIndex_None
+  _savedSelection = null;
+}
+
+var sortController = {
+  handleCommand(event) {
+    switch (event.target.value) {
+      case "ascending":
+        this.sortAscending();
+        break;
+      case "descending":
+        this.sortDescending();
+        break;
+      case "threaded":
+        this.sortThreaded();
+        break;
+      case "unthreaded":
+        this.sortUnthreaded();
+        break;
+      case "group":
+        this.groupBySort();
+        break;
+      default:
+        if (event.target.value in Ci.nsMsgViewSortType) {
+          this.sortThreadPane(event.target.value);
+        }
+        break;
+    }
+  },
+  sortByThread() {
+    gViewWrapper.showThreaded = true;
+    this.sortThreadPane("byDate");
+  },
+  sortThreadPane(sortName) {
+    let sortType = Ci.nsMsgViewSortType[sortName];
+    let grouped = gViewWrapper.showGroupedBySort;
+    gViewWrapper._threadExpandAll = Boolean(
+      gViewWrapper._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+    );
+
+    if (!grouped) {
+      gViewWrapper.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
+      // Respect user's last expandAll/collapseAll choice, post sort direction change.
+      restoreThreadState();
+      return;
+    }
+
+    // legacy behavior dictates we un-group-by-sort if we were.  this probably
+    //  deserves a UX call...
+
+    // For non virtual folders, do not ungroup (which sorts by the going away
+    // sort) and then sort, as it's a double sort.
+    // For virtual folders, which are rebuilt in the backend in a grouped
+    // change, create a new view upfront rather than applying viewFlags. There
+    // are oddities just applying viewFlags, for example changing out of a
+    // custom column grouped xfvf view with the threads collapsed works (doesn't)
+    // differently than other variations.
+    // So, first set the desired sortType and sortOrder, then set viewFlags in
+    // batch mode, then apply it all (open a new view) with endViewUpdate().
+    gViewWrapper.beginViewUpdate();
+    gViewWrapper._sort = [[sortType, Ci.nsMsgViewSortOrder.ascending]];
+    gViewWrapper.showGroupedBySort = false;
+    gViewWrapper.endViewUpdate();
+
+    // Virtual folders don't persist viewFlags well in the back end,
+    // due to a virtual folder being either 'real' or synthetic, so make
+    // sure it's done here.
+    if (gViewWrapper.isVirtual) {
+      gViewWrapper.dbView.viewFlags = gViewWrapper.viewFlags;
+    }
+  },
+  reverseSortThreadPane() {
+    let grouped = gViewWrapper.showGroupedBySort;
+    gViewWrapper._threadExpandAll = Boolean(
+      gViewWrapper._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+    );
+
+    // Grouped By view is special for column click sort direction changes.
+    if (grouped) {
+      if (gDBView.selection.count) {
+        saveSelection();
+      }
+
+      if (gViewWrapper.isSingleFolder) {
+        if (gViewWrapper.isVirtual) {
+          gViewWrapper.showGroupedBySort = false;
+        } else {
+          // Must ensure rows are collapsed and kExpandAll is unset.
+          gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+        }
+      }
+    }
+
+    if (gViewWrapper.isSortedAscending) {
+      gViewWrapper.sortDescending();
+    } else {
+      gViewWrapper.sortAscending();
+    }
+
+    // Restore Grouped By state post sort direction change.
+    if (grouped) {
+      if (gViewWrapper.isVirtual && gViewWrapper.isSingleFolder) {
+        this.groupBySort();
+      }
+
+      // Restore Grouped By selection post sort direction change.
+      restoreSelection();
+    }
+
+    // Respect user's last expandAll/collapseAll choice, for both threaded and grouped
+    // views, post sort direction change.
+    restoreThreadState();
+  },
+  toggleThreaded() {
+    if (gViewWrapper.showThreaded) {
+      gViewWrapper.showUnthreaded = true;
+    } else {
+      gViewWrapper.showThreaded = true;
+    }
+  },
+  sortThreaded() {
+    gViewWrapper.showThreaded = true;
+  },
+  groupBySort() {
+    gViewWrapper.showGroupedBySort = true;
+  },
+  sortUnthreaded() {
+    gViewWrapper.showUnthreaded = true;
+  },
+  sortAscending() {
+    if (gViewWrapper.showGroupedBySort && gViewWrapper.isSingleFolder) {
+      if (gViewWrapper.isSortedDescending) {
+        this.reverseSortThreadPane();
+      }
+      return;
+    }
+
+    gViewWrapper.sortAscending();
+  },
+  sortDescending() {
+    if (gViewWrapper.showGroupedBySort && gViewWrapper.isSingleFolder) {
+      if (gViewWrapper.isSortedAscending) {
+        this.reverseSortThreadPane();
+      }
+      return;
+    }
+
+    gViewWrapper.sortDescending();
+  },
+};
+
+commandController.registerCallback(
+  "cmd_sort",
+  event => sortController.handleCommand(event),
+  () => !!gViewWrapper
+);

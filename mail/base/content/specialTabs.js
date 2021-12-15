@@ -1112,6 +1112,26 @@ var specialTabs = {
             "messagePaneVisible",
             () => !tab.browser.contentWindow.splitter2.isCollapsed
           );
+          tab.__defineGetter__("sort", () => {
+            return {
+              type: tab.browser.contentWindow.gViewWrapper.primarySortType,
+              order: tab.browser.contentWindow.gViewWrapper.primarySortOrder,
+              grouped: tab.browser.contentWindow.gViewWrapper.showGroupedBySort,
+              threaded: tab.browser.contentWindow.gViewWrapper.showThreaded,
+            };
+          });
+          tab.__defineGetter__(
+            "message",
+            () => tab.browser.contentWindow.gMessage
+          );
+          // The same as `doCommand` but with an extra argument.
+          tab.performCommand = function(command, event) {
+            let commandController =
+              tab.browser?.contentWindow.commandController;
+            if (commandController?.isCommandEnabled(command)) {
+              commandController.doCommand(command, event);
+            }
+          };
           tab.browser.addEventListener("folderURIChanged", function(event) {
             tab.folderURI = event.detail;
           });
@@ -1161,6 +1181,18 @@ var specialTabs = {
             tab.messageURI = args.messageURI;
           }
           specialTabs.contentTabType.openTab(tab, args);
+          tab.__defineGetter__(
+            "message",
+            () => tab.browser.contentWindow.gMessage
+          );
+          // The same as `doCommand` but with an extra argument.
+          tab.performCommand = function(command, event) {
+            let commandController =
+              tab.browser?.contentWindow.commandController;
+            if (commandController?.isCommandEnabled(command)) {
+              commandController.doCommand(command, event);
+            }
+          };
           tab.browser.addEventListener("messageURIChanged", function(event) {
             tab.messageURI = event.detail;
           });

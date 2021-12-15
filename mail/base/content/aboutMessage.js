@@ -26,7 +26,7 @@ const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
-var gFolder, gViewWrapper, gMessage, gMessageURI;
+var gFolder, gViewWrapper, gDBView, gMessage, gMessageURI;
 
 var content;
 var gFolderDisplay = {
@@ -154,6 +154,7 @@ function displayMessage(uri, viewWrapper) {
   gViewWrapper.dbView.selection.select(
     gViewWrapper.dbView.findIndexOfMsgHdr(gMessage, true)
   );
+  gDBView = gViewWrapper.dbView;
 
   // Ideally we'd do this without creating a msgWindow, and just pass the
   // docShell to the message service, but that's not easy yet.

@@ -159,9 +159,15 @@ function CrossFolderNavigation(type) {
     var folder = FindNextFolder();
     if (folder && gDBView.msgFolder.URI != folder.URI) {
       if (nextMode == 1) {
-        let promptText = document
-          .getElementById("bundle_messenger")
-          .getFormattedString("advanceNextPrompt", [folder.name], 1);
+        let messengerBundle =
+          window.messengerBundle ||
+          Services.strings.createBundle(
+            "chrome://messenger/locale/messenger.properties"
+          );
+        let promptText = messengerBundle.formatStringFromName(
+          "advanceNextPrompt",
+          [folder.name]
+        );
         if (
           Services.prompt.confirmEx(
             window,
@@ -178,8 +184,13 @@ function CrossFolderNavigation(type) {
           return;
         }
       }
-      gFolderDisplay.pushNavigation(type, true);
-      SelectFolder(folder.URI);
+      if (gFolderDisplay) {
+        gFolderDisplay.pushNavigation(type, true);
+        SelectFolder(folder.URI);
+      } else {
+        // about:3pane
+        window.displayFolder(folder.URI);
+      }
     }
   } else {
     // if no message is loaded, relPos should be 0, to
@@ -194,7 +205,12 @@ function CrossFolderNavigation(type) {
     var curPos = messenger.navigatePos;
     curPos += relPos;
     messenger.navigatePos = curPos;
-    SelectFolder(folderUri);
+    if (SelectFolder) {
+      SelectFolder(folderUri);
+    } else {
+      // about:3pane
+      window.displayFolder(folderUri);
+    }
   }
 }
 
