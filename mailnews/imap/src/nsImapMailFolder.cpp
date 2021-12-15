@@ -106,48 +106,50 @@ LazyLogModule IMAP_KW("IMAP_KW");      // for logging keyword (tag) processing
 */
 
 static nsresult RecursiveCopy(nsIFile* srcDir, nsIFile* destDir) {
-  nsresult rv;
   bool isDir;
-
-  rv = srcDir->IsDirectory(&isDir);
-  if (NS_FAILED(rv)) return rv;
+  nsresult rv = srcDir->IsDirectory(&isDir);
+  NS_ENSURE_SUCCESS(rv, rv);
   if (!isDir) return NS_ERROR_INVALID_ARG;
 
   bool exists;
   rv = destDir->Exists(&exists);
-  if (NS_SUCCEEDED(rv) && !exists)
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!exists) {
     rv = destDir->Create(nsIFile::DIRECTORY_TYPE, 0775);
-  if (NS_FAILED(rv)) return rv;
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   nsCOMPtr<nsIDirectoryEnumerator> dirIterator;
   rv = srcDir->GetDirectoryEntries(getter_AddRefs(dirIterator));
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasMore = false;
   while (NS_SUCCEEDED(dirIterator->HasMoreElements(&hasMore)) && hasMore) {
     nsCOMPtr<nsIFile> dirEntry;
     rv = dirIterator->GetNextFile(getter_AddRefs(dirEntry));
-    if (NS_SUCCEEDED(rv) && dirEntry) {
-      rv = dirEntry->IsDirectory(&isDir);
-      if (NS_SUCCEEDED(rv)) {
-        if (isDir) {
-          nsCOMPtr<nsIFile> newChild;
-          rv = destDir->Clone(getter_AddRefs(newChild));
-          if (NS_SUCCEEDED(rv)) {
-            nsAutoString leafName;
-            dirEntry->GetLeafName(leafName);
-            newChild->AppendRelativePath(leafName);
-            rv = newChild->Exists(&exists);
-            if (NS_SUCCEEDED(rv) && !exists)
-              rv = newChild->Create(nsIFile::DIRECTORY_TYPE, 0775);
-            rv = RecursiveCopy(dirEntry, newChild);
-          }
-        } else
-          rv = dirEntry->CopyTo(destDir, EmptyString());
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!dirEntry) continue;
+    rv = dirEntry->IsDirectory(&isDir);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (isDir) {
+      nsCOMPtr<nsIFile> newChild;
+      rv = destDir->Clone(getter_AddRefs(newChild));
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsAutoString leafName;
+      dirEntry->GetLeafName(leafName);
+      newChild->AppendRelativePath(leafName);
+      rv = newChild->Exists(&exists);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (!exists) {
+        rv = newChild->Create(nsIFile::DIRECTORY_TYPE, 0775);
+        NS_ENSURE_SUCCESS(rv, rv);
       }
+      rv = RecursiveCopy(dirEntry, newChild);
+    } else {
+      rv = dirEntry->CopyTo(destDir, EmptyString());
     }
+    NS_ENSURE_SUCCESS(rv, rv);
   }
-
   return rv;
 }
 
