@@ -30,6 +30,7 @@ class MsgIncomingServer {
       ["Int", "authMethod"],
       ["Int", "biffMinutes", "check_time"],
       ["Int", "maxMessageSize", "max_size"],
+      ["Int", "incomingDuplicateAction", "dup_action"],
       ["Bool", "clientidEnabled"],
       ["Bool", "downloadOnBiff", "download_on_biff"],
       ["Bool", "valid"],
@@ -43,13 +44,18 @@ class MsgIncomingServer {
       ],
       ["Bool", "canCreateFoldersOnServer", "canCreateFolders"],
       ["Bool", "canFileMessagesOnServer", "canFileMessages"],
-      ["Bool", "limitOfflineMessageSize", "limie_offline_message_size"],
+      ["Bool", "limitOfflineMessageSize", "limit_offline_message_size"],
       ["Bool", "hidden"],
     ]);
 
     // nsIMsgIncomingServer attributes.
     this.performingBiff = false;
     this.accountManagerChrome = "am-main.xhtml";
+
+    // @type {Map<string, number>} - The key is MsgId+Subject, the value is
+    //   this._hdrIndex.
+    this._knownHdrMap = new Map();
+    this._hdrIndex = 0;
   }
 
   /**
@@ -625,5 +631,37 @@ class MsgIncomingServer {
     } catch (e) {
       return folder;
     }
+  }
+
+  isNewHdrDuplicate(newHdr) {
+    // If the message has been partially downloaded, the message should not
+    // be considered a duplicated message. See bug 714090.
+    if (newHdr.flags & Ci.nsMsgMessageFlags.Partial) {
+      return false;
+    }
+
+    if (!newHdr.subject || !newHdr.messageId) {
+      return false;
+    }
+
+    let key = `${newHdr.messageId}${newHdr.subject}`;
+    if (this._knownHdrMap.get(key)) {
+      return true;
+    }
+
+    this._knownHdrMap.set(key, ++this._hdrIndex);
+
+    const MAX_SIZE = 500;
+    if (this._knownHdrMap.size > MAX_SIZE) {
+      // Release the oldest half of downloaded hdrs.
+      for (let [k, v] of this._knownHdrMap) {
+        if (v < this._hdrIndex - MAX_SIZE / 2) {
+          this._knownHdrMap.delete(k);
+        } else if (this._knownHdrMap.size <= MAX_SIZE / 2) {
+          break;
+        }
+      }
+    }
+    return false;
   }
 }
