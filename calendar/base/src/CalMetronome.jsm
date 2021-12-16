@@ -37,6 +37,13 @@ var CalMetronome = {
   _lastFireTime: 0,
 
   /**
+   * The last minute for which the minute event fired.
+   *
+   * @type integer (0-59)
+   */
+  _lastMinute: -1,
+
+  /**
    * The last hour for which the hour event fired.
    *
    * @type integer (0-23)
@@ -104,12 +111,13 @@ var CalMetronome = {
   notify() {
     let now = new Date();
     let elapsedSinceLastFire = now.valueOf() - this._lastFireTime;
-    if (elapsedSinceLastFire < MINUTE_IN_MS) {
-      return;
-    }
-
     this._lastFireTime = now.valueOf();
-    this.emit("minute", now);
+
+    let minute = now.getMinutes();
+    if (minute != this._lastMinute || elapsedSinceLastFire > MINUTE_IN_MS) {
+      this._lastMinute = minute;
+      this.emit("minute", now);
+    }
 
     let hour = now.getHours();
     if (hour != this._lastHour || elapsedSinceLastFire > HOUR_IN_MS) {
