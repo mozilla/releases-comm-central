@@ -20,6 +20,7 @@ var LazyModules = {};
 XPCOMUtils.defineLazyModuleGetters(LazyModules, {
   ConversationOpener: "resource:///modules/ConversationOpener.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
+  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
   PhishingDetector: "resource:///modules/PhishingDetector.jsm",
   PlacesUtils: "resource://gre/modules/PlacesUtils.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
@@ -74,6 +75,7 @@ var mailContextMenu = {
     "mailContext-tagRemoveAll": "cmd_removeTags",
     "mailContext-markReadByDate": "cmd_markReadByDate",
     "mailContext-markFlagged": "cmd_markAsFlagged",
+    "mailContext-archive": "cmd_archive",
     "mailcontext-moveToFolderAgain": "cmd_moveToFolderAgain",
     "mailContext-delete": "cmd_delete",
     "mailContext-ignoreThread": "cmd_killThread",
@@ -221,7 +223,6 @@ var mailContextMenu = {
       "mailContext-openContainingFolder",
       "mailContext-recalculateJunkScore",
       "mailContext-copyMessageUrl",
-      "mailContext-archive",
       "mailContext-calendar-convert-menu",
       "mailContext-print",
       "mailContext-downloadSelected",
@@ -257,10 +258,6 @@ var mailContextMenu = {
     checkItem("mailContext-markFlagged", message?.isFlagged);
 
     setSingleSelection("mailContext-copyMessageUrl", isNewsgroup);
-    // showItem(
-    //   "mailContext-archive",
-    //   canMove && numSelectedMessages > 0 && canArchive
-    // );
     // Disable move if we can't delete message(s) from this folder.
     showItem("mailContext-moveMenu", canMove);
     showItem("mailContext-copyMenu", canCopy);
@@ -438,9 +435,6 @@ var mailContextMenu = {
           .copyString(url);
         break;
       }
-      // case "mailContext-archive":
-      //   MsgArchiveSelectedMessages(event);
-      //   break;
 
       // Calendar Convert sub-menu
       // case "mailContext-calendar-convert-event-menuitem":
@@ -784,6 +778,10 @@ var commandController = {
     cmd_recalculateJunkScore() {
       // TODO
     },
+    cmd_archive() {
+      let archiver = new LazyModules.MessageArchiver();
+      archiver.archiveMessages(gViewWrapper.dbView.getSelectedMsgHdrs());
+    },
     cmd_moveToFolderAgain() {
       let folder = LazyModules.MailUtils.getOrCreateFolder(
         Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri")
@@ -930,6 +928,48 @@ var commandController = {
           this._getViewCommandStatus(Ci.nsMsgViewCommandType.junk) &&
           this._getViewCommandStatus(Ci.nsMsgViewCommandType.runJunkControls)
         );
+      case "cmd_archive":
+        if (!gDBView || !gFolder) {
+          return false;
+        }
+
+        if (numSelectedMessages == 0) {
+          return false;
+        }
+
+        // If we're looking at a single folder (i.e. not a cross-folder search), we
+        // can just check to see if all the identities for this folder/server have
+        // archives enabled (or disabled). This is way faster than checking every
+        // message. Note: this may be slightly inaccurate if the identity for a
+        // header is actually on another server.
+        if (numSelectedMessages > 100 && gViewWrapper.isSingleFolder) {
+          let folderIdentity = gFolder.customIdentity;
+          if (folderIdentity) {
+            return folderIdentity.archiveEnabled;
+          }
+
+          if (gFolder.server) {
+            let serverIdentities = MailServices.accounts.getIdentitiesForServer(
+              gFolder.server
+            );
+
+            // Do all identities have the same archiveEnabled setting?
+            if (serverIdentities.every(id => id.archiveEnabled)) {
+              return true;
+            }
+            if (serverIdentities.every(id => !id.archiveEnabled)) {
+              return false;
+            }
+            // If we get here it's a mixture, so have to examine all the messages.
+          }
+        }
+
+        // Either we've selected a small number of messages or we just can't
+        // fast-path the result; examine all the messages.
+        return gDBView.getSelectedMsgHdrs().every(function(msg) {
+          let [identity] = LazyModules.MailUtils.getIdentityForHeader(msg);
+          return Boolean(identity && identity.archiveEnabled);
+        });
       case "cmd_moveToFolderAgain": {
         // Disable "Move to <folder> Again" for news and other read only
         // folders since we can't really move messages from there - only copy.
