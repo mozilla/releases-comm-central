@@ -58,7 +58,9 @@ add_task(async function testMessageStylePreview() {
   await openNewPrefsTab("paneChat", "chatPaneCategory");
   const conversationLoad = TestUtils.topicObserved("conversation-loaded");
   const [subject] = await conversationLoad;
-  await BrowserTestUtils.waitForEvent(subject, "MessagesDisplayed");
+  do {
+    await BrowserTestUtils.waitForEvent(subject, "MessagesDisplayed");
+  } while (subject.getPendingMessagesCount() > 0);
   const messageParent = subject.contentChatNode;
   let message = messageParent.firstElementChild;
   const messages = new Set();
