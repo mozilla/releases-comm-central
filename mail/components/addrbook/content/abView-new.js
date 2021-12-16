@@ -212,7 +212,7 @@ ABView.prototype = {
         prefetchCert: true,
         location,
       };
-      window.openDialog(
+      window.browsingContext.topChromeWindow.openDialog(
         "chrome://pippki/content/exceptionDialog.xhtml",
         "",
         "chrome,centerscreen,modal",

@@ -238,7 +238,7 @@ class LDAPClient {
    */
   _onError = event => {
     this._logger.error(event);
-    this.onError();
+    this.onError(event.errorCode, event.target.transport?.securityInfo);
   };
 
   /**

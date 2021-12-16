@@ -35,6 +35,9 @@ class LDAPConnection {
     this.client.onOpen = () => {
       listener.onLDAPInit();
     };
+    this.client.onError = (status, secInfo) => {
+      listener.onLDAPError(status, secInfo, `${url.host}:${port}`);
+    };
     this.client.connect();
   }
 
