@@ -551,6 +551,7 @@ add_task(function test_createMessage() {
   ok(message.containsNick);
   equal(message.time, Math.floor(time / 1000));
   equal(message.iconURL, "https://example.com/avatar");
+  roomStub.forget();
 });
 
 function waitForNotification(target, expectedTopic) {
