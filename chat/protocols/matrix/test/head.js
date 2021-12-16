@@ -153,6 +153,9 @@ function getAccount(clientHandler) {
       isCryptoEnabled() {
         return false;
       },
+      getPushActionsForEvent() {
+        return {};
+      },
     },
     makeProxyHandler(clientHandler)
   );

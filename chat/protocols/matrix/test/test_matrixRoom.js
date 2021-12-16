@@ -109,13 +109,8 @@ add_task(function test_addEventMessageIncoming() {
   matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "foo");
-  ok(roomStub.options.incoming);
-  ok(!roomStub.options.outgoing);
   ok(!roomStub.options.system);
-  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
-  equal(roomStub.options._alias, "foo bar");
   ok(!roomStub.options.delayed);
-  equal(roomStub.options._iconURL, "https://example.com/avatar");
   equal(roomStub._mostRecentEventId, 0);
 });
 
@@ -146,11 +141,7 @@ add_task(function test_addEventMessageOutgoing() {
   matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@test:example.com");
   equal(roomStub.message, "foo");
-  ok(!roomStub.options.incoming);
-  ok(roomStub.options.outgoing);
   ok(!roomStub.options.system);
-  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
-  equal(roomStub.options._alias, "foo bar");
   ok(!roomStub.options.delayed);
   equal(roomStub._mostRecentEventId, 0);
 });
@@ -182,11 +173,7 @@ add_task(function test_addEventMessageEmote() {
   matrix.MatrixRoom.prototype.addEvent.call(roomStub, event);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "/me foo");
-  ok(roomStub.options.incoming);
-  ok(!roomStub.options.outgoing);
   ok(!roomStub.options.system);
-  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
-  equal(roomStub.options._alias, "foo bar");
   ok(!roomStub.options.delayed);
   equal(roomStub._mostRecentEventId, 0);
 });
@@ -218,11 +205,7 @@ add_task(function test_addEventMessageDelayed() {
   matrix.MatrixRoom.prototype.addEvent.call(roomStub, event, true);
   equal(roomStub.who, "@user:example.com");
   equal(roomStub.message, "foo");
-  ok(roomStub.options.incoming);
-  ok(!roomStub.options.outgoing);
   ok(!roomStub.options.system);
-  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
-  equal(roomStub.options._alias, "foo bar");
   ok(roomStub.options.delayed);
   equal(roomStub._mostRecentEventId, 0);
 });
@@ -510,13 +493,8 @@ add_task(function test_addEventSticker() {
     roomStub.message,
     "https://example.com/_matrix/media/r0/download/example.com/sticker.png"
   );
-  ok(roomStub.options.incoming);
-  ok(!roomStub.options.outgoing);
   ok(!roomStub.options.system);
-  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
-  equal(roomStub.options._alias, "foo bar");
   ok(!roomStub.options.delayed);
-  equal(roomStub.options._iconURL, "https://example.com/avatar");
   equal(roomStub._mostRecentEventId, 0);
 });
 
@@ -541,6 +519,38 @@ add_task(function test_sendMsg() {
   equal(message, "foo bar");
   roomStub._cleanUpTimers();
   roomStub.forget();
+});
+
+add_task(function test_createMessage() {
+  const time = Date.now();
+  const event = makeEvent({
+    type: EventType.RoomMessage,
+    time,
+    sender: "@foo:example.com",
+  });
+  const roomStub = getRoom(true, "#test:example.com", {
+    getPushActionsForEvent(eventToProcess) {
+      equal(eventToProcess, event);
+      return {
+        tweaks: {
+          highlight: true,
+        },
+      };
+    },
+  });
+  const message = roomStub.createMessage("@foo:example.com", "bar", {
+    event,
+  });
+  equal(message.message, "bar");
+  equal(message.who, "@foo:example.com");
+  equal(message.conversation, roomStub);
+  ok(!message.outgoing);
+  ok(message.incoming);
+  equal(message.alias, "foo bar");
+  ok(!message.isEncrypted);
+  ok(message.containsNick);
+  equal(message.time, Math.floor(time / 1000));
+  equal(message.iconURL, "https://example.com/avatar");
 });
 
 function waitForNotification(target, expectedTopic) {

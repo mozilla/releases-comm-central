@@ -614,7 +614,6 @@ MatrixRoom.prototype = {
           return;
         }
       }
-      const isOutgoing = event.getSender() == this._account.userId;
       const eventContent = event.getContent();
       // Only print server notices when we're in a server notice room.
       if (
@@ -632,37 +631,21 @@ MatrixRoom.prototype = {
         message = getMatrixTextForEvent(event);
       }
       this.writeMessage(event.getSender(), message, {
-        outgoing: isOutgoing,
-        incoming: !isOutgoing,
         system: [
           MsgType.Notice,
           "m.server_notice",
           "m.bad.encrypted",
           MsgType.KeyVerificationRequest,
         ].includes(eventContent.msgtype),
-        time: Math.floor(event.getDate() / 1000),
-        _alias: event.sender.name,
         delayed,
         event,
-        isEncrypted: event.isEncrypted(),
-        _iconURL:
-          event.sender.getAvatarUrl(
-            this._account._client.getHomeserverUrl(),
-            USER_ICON_SIZE,
-            USER_ICON_SIZE,
-            "scale",
-            false
-          ) || "",
       });
     } else if (eventType === EventType.RoomEncryption) {
       this.notifyObservers(this, "update-conv-encryption");
       this.writeMessage(event.getSender(), _("message.encryptionStart"), {
         system: true,
-        time: Math.floor(event.getDate() / 1000),
-        _alias: event.sender.name,
         delayed,
         event,
-        isEncrypted: event.isEncrypted(),
       });
       this.updateUnverifiedDevices();
     } else if (eventType == EventType.RoomTopic) {
@@ -671,10 +654,7 @@ MatrixRoom.prototype = {
       // Room version update
       this.writeMessage(event.getSender(), event.getContent().body, {
         system: true,
-        incoming: true,
-        time: Math.floor(event.getDate() / 1000),
         event,
-        isEncrypted: event.isEncrypted(),
       });
       let newConversation = this._account.getGroupConversation(
         event.getContent().replacement_room,
@@ -698,11 +678,8 @@ MatrixRoom.prototype = {
       }
       this.writeMessage(event.getSender(), message, {
         system: true,
-        time: Math.floor(event.getDate() / 1000),
-        _alias: event.sender.name,
         delayed,
         event,
-        isEncrypted: event.isEncrypted(),
       });
     }
     this._mostRecentEventId = event.getId();
@@ -789,15 +766,37 @@ MatrixRoom.prototype = {
   },
 
   /**
-   * Sets the containsNick flag on the message if appropriate.
+   * Sets the containsNick flag on the message if appropriate. If an event is
+   * provided in properties, many of the message properties are set based on
+   * it here.
    *
    * @param {string} who - MXID that composed the message.
    * @param {string} text - Message text.
    * @param {object} properties - Extra attributes for the MatrixMessage.
    */
   createMessage(who, text, properties) {
-    if (this.isChat) {
-      //TODO respect room notification settings
+    if (properties.event) {
+      const actions = this._account._client.getPushActionsForEvent(
+        properties.event
+      );
+      const isOutgoing = properties.event.getSender() == this._account.userId;
+      properties.incoming = !isOutgoing;
+      properties.outgoing = isOutgoing;
+      properties._alias = properties.event.sender?.name;
+      properties.isEncrypted = properties.event.isEncrypted();
+      properties.containsNick =
+        !isOutgoing && Boolean(actions?.tweaks?.highlight);
+      properties.time = Math.floor(properties.event.getDate() / 1000);
+      properties._iconURL =
+        properties.event.sender?.getAvatarUrl(
+          this._account._client.getHomeserverUrl(),
+          USER_ICON_SIZE,
+          USER_ICON_SIZE,
+          "scale",
+          false
+        ) || "";
+    }
+    if (this.isChat && !properties.containsNick) {
       properties.containsNick =
         properties.incoming && this._pingRegexp.test(text);
     }
