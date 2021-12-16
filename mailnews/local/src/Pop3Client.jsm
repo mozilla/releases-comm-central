@@ -630,10 +630,13 @@ class Pop3Client {
    * @param {Pop3Response} res - RETR response received from the server.
    */
   _actionRetrResponse = res => {
+    if (!this._currentMessageSize) {
+      // Call incorporateBegin only once for each message.
+      this._sink.incorporateBegin(this._currentMessage.messageUidl, 0);
+    }
     if (res.statusText) {
       this._currentMessageSize = Number.parseInt(res.statusText);
     }
-    this._sink.incorporateBegin(this._currentMessage.messageUidl, 0);
     this._lineReader(
       res.data,
       line => {
@@ -644,6 +647,7 @@ class Pop3Client {
           this._msgWindow,
           this._currentMessageSize
         );
+        this._currentMessageSize = null;
         if (this._server.leaveMessagesOnServer) {
           this._uidlMap.set(this._currentMessage.messageUidl, {
             status: "k",
