@@ -312,15 +312,21 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
     return NS_OK;
   }
 
-  nsCOMPtr<nsIURI> originatorLocation;
   dom::CanonicalBrowsingContext* cbc = targetContext->Canonical();
-  if (cbc) {
-    dom::WindowGlobalParent* wgp = cbc->GetCurrentWindowGlobal();
-    if (wgp) {
-      originatorLocation = wgp->GetDocumentURI();
-    }
+  if (!cbc) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
   }
+
+  dom::WindowGlobalParent* wgp = cbc->GetCurrentWindowGlobal();
+  if (!wgp) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIURI> originatorLocation = wgp->GetDocumentURI();
   if (!originatorLocation) {
+    *aDecision = nsIContentPolicy::ACCEPT;
     return NS_OK;
   }
 
