@@ -44,6 +44,25 @@
   }
 
   /**
+   * Determine whether the given event item can be edited by the user.
+   *
+   * @param {calItemBase} eventItem - The event item.
+   *
+   * @return {boolean} - Whether the given event can be edited by the user.
+   */
+  function canEditEventItem(eventItem) {
+    return (
+      cal.acl.isCalendarWritable(eventItem.calendar) &&
+      cal.acl.userCanModifyItem(eventItem) &&
+      !(
+        eventItem.calendar instanceof Ci.calISchedulingSupport &&
+        eventItem.calendar.isInvitation(eventItem)
+      ) &&
+      eventItem.calendar.getProperty("capabilities.events.supported") !== false
+    );
+  }
+
+  /**
    * The MozCalendarEventColumn widget used for displaying event boxes in one column per day.
    * It is used to make the week view layout in the calendar. It manages the layout of the
    * events given via add/deleteEvent.
@@ -53,7 +72,6 @@
       return {
         ".multiday-events-list": "context",
         ".timeIndicator": "orient",
-        "calendar-event-box": "orient",
       };
     }
 
@@ -415,7 +433,7 @@
 
       let configBox = this.querySelector("calendar-event-box");
       configBox.removeAttribute("hidden");
-      let minSize = configBox.getOptimalMinSize();
+      let minSize = configBox.getOptimalMinSize(orient);
       configBox.setAttribute("hidden", "true");
       // The minimum event duration in minutes that would give at least the
       // desired minSize in the layout.
@@ -485,20 +503,15 @@
           this.getAttribute("item-context") || this.getAttribute("context")
         );
 
-        // Set the gripBars visibility in the chunk. Keep it
-        // hidden for tasks with only entry date OR due date.
-        if ((item.entryDate || !item.dueDate) && (!item.entryDate || item.dueDate)) {
-          let startGripVisible = !eventInfo.startClipped;
-          let endGripVisible = !eventInfo.endClipped;
-          if (startGripVisible && endGripVisible) {
-            eventBox.setAttribute("gripBars", "both");
-          } else if (endGripVisible) {
-            eventBox.setAttribute("gripBars", "end");
-          } else if (startGripVisible) {
-            eventBox.setAttribute("gripBars", "start");
-          }
+        // Set the gripBars visibility.
+        if ((item.entryDate && !item.dueDate) || (!item.entryDate && item.dueDate)) {
+          // Hidden for tasks with only entry date OR due date.
+          eventBox.startGripbar.hidden = true;
+          eventBox.endGripbar.hidden = true;
+        } else {
+          eventBox.startGripbar.hidden = eventInfo.startClipped;
+          eventBox.endGripbar.hidden = eventInfo.endClipped;
         }
-        eventBox.setAttribute("orient", orient);
         eventBox.calendarView = this.calendarView;
         eventBox.occurrence = item;
         eventBox.parentColumn = this;
@@ -1274,13 +1287,7 @@
      *   mouse position, in minutes.
      */
     startSweepingToModifyEvent(eventItem, where, position, snapIntMin = 15) {
-      if (
-        !cal.acl.isCalendarWritable(eventItem.calendar) ||
-        !cal.acl.userCanModifyItem(eventItem) ||
-        (eventItem.calendar instanceof Ci.calISchedulingSupport &&
-          eventItem.calendar.isInvitation(eventItem)) ||
-        eventItem.calendar.getProperty("capabilities.events.supported") === false
-      ) {
+      if (!canEditEventItem(eventItem)) {
         return;
       }
 
@@ -1677,8 +1684,6 @@
     static get inheritedAttributes() {
       return {
         ".alarm-icons-box": "flashing",
-        ".calendar-event-box-grippy-top": "parentorient=orient",
-        ".calendar-event-box-grippy-bottom": "parentorient=orient",
       };
     }
     constructor() {
@@ -1711,8 +1716,14 @@
           ),
         };
 
-        let whichside = event.whichside;
-        if (whichside) {
+        let side;
+        if (this.startGripbar.contains(event.target)) {
+          side = "start";
+        } else if (this.endGripbar.contains(event.target)) {
+          side = "end";
+        }
+
+        if (side) {
           this.calendarView.setSelectedItems([
             event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence,
           ]);
@@ -1720,7 +1731,7 @@
           // Start edge resize drag
           this.parentColumn.startSweepingToModifyEvent(
             this.mOccurrence,
-            whichside,
+            side,
             this.mouseDownPosition,
             event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey ? 1 : 15
           );
@@ -1764,6 +1775,12 @@
         }
       });
 
+      this.addEventListener("mouseenter", event => {
+        // Update the event-readonly class to determine whether to show the
+        // gripbars, which are otherwise shown on hover.
+        this.classList.toggle("event-readonly", !canEditEventItem(this.occurrence));
+      });
+
       // We have two event listeners for dragstart. This event listener is for the bubbling phase
       // where we are setting up the document.monthDragEvent which will be used in the event listener
       // in the capturing phase which is set up in the calendar-editable-item.
@@ -1797,25 +1814,41 @@
             <html:div class="location-desc"></html:div>
             <html:div class="calendar-category-box"></html:div>
           </html:div>
-          <calendar-event-gripbar class="calendar-event-box-grippy-top"
-                                  whichside="start">
-          </calendar-event-gripbar>
-          <calendar-event-gripbar class="calendar-event-box-grippy-bottom"
-                                  whichside="end">
-          </calendar-event-gripbar>
         `)
       );
+
+      this.startGripbar = this.createGripbar("start");
+      this.endGripbar = this.createGripbar("end");
+      this.appendChild(this.startGripbar);
+      this.appendChild(this.endGripbar);
 
       this.classList.add("calendar-color-box");
 
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
 
-      if (!this.hasAttribute("orient")) {
-        this.setAttribute("orient", "vertical");
-      }
       this.addEventNameTextboxListener();
       this.initializeAttributeInheritance();
+    }
+
+    /**
+     * Create one of the box's gripbars that can be dragged to resize the event.
+     *
+     * @param {"start"|"end"} side - The side the gripbar controls.
+     *
+     * @return {Element} - A newly created gripbar.
+     */
+    createGripbar(side) {
+      let gripbar = document.createElement("div");
+      gripbar.classList.add(side == "start" ? "gripbar-start" : "gripbar-end");
+      let img = document.createElement("img");
+      img.setAttribute("src", "chrome://calendar/skin/shared/event-grippy.png");
+      /* Make sure the img doesn't interfere with dragging the gripbar to
+       * resize. */
+      img.setAttribute("draggable", "false");
+      img.setAttribute("alt", "");
+      gripbar.appendChild(img);
+      return gripbar;
     }
 
     set parentColumn(val) {
@@ -1826,9 +1859,9 @@
       return this.mParentColumn;
     }
 
-    getOptimalMinSize() {
+    getOptimalMinSize(orient) {
       let label = this.querySelector(".event-name-label");
-      if (this.getAttribute("orient") == "vertical") {
+      if (orient == "vertical") {
         let minHeight =
           getOptimalMinimumHeight(label) +
           getSummarizedStyleValues(label.parentNode, ["padding-bottom", "padding-top"]) +

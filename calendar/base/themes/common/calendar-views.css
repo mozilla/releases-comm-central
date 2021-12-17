@@ -197,11 +197,11 @@
   display: none;
 }
 
-.item-type-icon[rotated-to-read-direction]:-moz-locale-dir(ltr) {
+.item-type-icon.rotated-to-read-direction:-moz-locale-dir(ltr) {
   transform: rotate(-90deg);
 }
 
-.item-type-icon[rotated-to-read-direction]:-moz-locale-dir(rtl) {
+.item-type-icon.rotated-to-read-direction:-moz-locale-dir(rtl) {
   transform: rotate(90deg);
 }
 
@@ -689,7 +689,7 @@ calendar-event-column,
 
 /* Take care to ensure the dummy event box in a calendar-event-column remains hidden. */
 calendar-event-box:not([hidden]) {
-  /* Be the containing block for the child calendar-event-gripbar elements. */
+  /* Be the containing block for the gripbar-start/gripbar-end elements. */
   display: block;
   position: relative;
 }
@@ -920,51 +920,85 @@ calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color
   box-shadow: 1px 1px 3px rgba(68, 35, 0, 0.7) inset;
 }
 
-calendar-event-gripbar {
+:is(.gripbar-start, .gripbar-end) {
+  /* Invisible by default. */
+  visibility: hidden;
   pointer-events: auto;
-  min-height: 4px;
-  min-width: 4px;
-  overflow: hidden;
   position: absolute;
   /* Center the image. */
   display: grid;
   align-content: center;
   justify-content: center;
+  overflow: clip;
 }
 
-/* NOTE: The gripbars use the same direction in all locales, hence the class
- * names gripbar-direction-top/bottom/left/right.
- * This also means we can use 'inset' (top, right, bottom, left) instead of
- * 'inset-inline' and 'inset-block'. */
-calendar-event-gripbar.gripbar-direction-top {
-  cursor: n-resize;
-  /* Stretch the width of the event box, attach to the top. */
-  inset: 0 0 auto 0;
+.event-readonly :is(.gripbar-start, .gripbar-end),
+:is(.gripbar-start, .gripbar-end)[hidden] {
+  display: none;
 }
 
-calendar-event-gripbar.gripbar-direction-bottom {
-  cursor: s-resize;
-  inset: auto 0 0 0;
-}
-
-calendar-event-gripbar.gripbar-direction-left {
-  cursor: w-resize;
-  inset: 0 auto 0 0;
-}
-
-calendar-event-gripbar.gripbar-direction-right {
-  cursor: e-resize;
-  inset: 0 0 0 auto;
-}
-
-calendar-event-box calendar-event-gripbar img {
-  visibility: hidden;
-}
-
-calendar-event-box[gripBars="start"]:not([readonly="true"]):hover calendar-event-gripbar[whichside="start"] img,
-calendar-event-box[gripBars="end"]:not([readonly="true"]):hover calendar-event-gripbar[whichside="end"] img,
-calendar-event-box[gripBars="both"]:not([readonly="true"]):hover calendar-event-gripbar img {
+calendar-event-box:hover :is(.gripbar-start, .gripbar-end) {
   visibility: visible;
+}
+
+.gripbar-start {
+  cursor: n-resize;
+  inset-block: 0 auto;
+  inset-inline: 0;
+  padding-block: 1px 0;
+  padding-inline: 0;
+}
+
+.gripbar-end {
+  cursor: s-resize;
+  inset-block: auto 0;
+  inset-inline: 0;
+  padding-block: 0 1px;
+  padding-inline: 0;
+}
+
+/* Rotate the event-grippy.png image in rotated view. */
+.multiday-grid-rotated :is(.gripbar-start, .gripbar-end) img:-moz-locale-dir(ltr) {
+  transform: rotate(-90deg);
+}
+
+.multiday-grid-rotated :is(.gripbar-start, .gripbar-end) img:-moz-locale-dir(rtl) {
+  transform: rotate(90deg);
+}
+
+.multiday-grid-rotated :is(.gripbar-start, .gripbar-end) {
+  /* Explicitly set the content width to 3px (the height of the event-grippy.png
+   * img src) since we rotated the image. Otherwise the auto-width uses the
+   * width of the src. */
+  width: 3px;
+}
+
+.multiday-grid-rotated .gripbar-start {
+  inset-inline: 0 auto;
+  inset-block: 0;
+  padding-inline: 1px 0;
+  padding-block: 0;
+}
+
+.multiday-grid-rotated .gripbar-end {
+  inset-inline: auto 0;
+  inset-block: 0;
+  padding-inline: 0 1px;
+  padding-block: 0;
+}
+
+.multiday-grid-rotated :is(
+  .gripbar-start:-moz-locale-dir(ltr),
+  .gripbar-end:-moz-locale-dir(rtl),
+) {
+  cursor: w-resize;
+}
+
+.multiday-grid-rotated :is(
+  .gripbar-end:-moz-locale-dir(ltr),
+  .gripbar-start:-moz-locale-dir(rtl),
+) {
+  cursor: e-resize;
 }
 
 /* tooltips */

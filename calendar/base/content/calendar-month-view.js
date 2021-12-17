@@ -374,20 +374,27 @@
           }
         }
         let icon = this.querySelector(".item-type-icon");
-        if (type) {
-          // NOTE: "type" attribute only seems to be used in the mochitest
-          // browser_eventDisplay.js.
-          icon.setAttribute("type", type);
-          icon.setAttribute("src", `chrome://calendar/skin/shared/event-${type}.svg`);
-          icon.setAttribute("rotated-to-read-direction", true);
-          // Sets alt.
-          document.l10n.setAttributes(icon, `calendar-editable-item-multiday-event-icon-${type}`);
-        } else {
-          icon.removeAttribute("type");
-          icon.removeAttribute("src");
-          icon.removeAttribute("rotated-to-read-direction");
-          icon.removeAttribute("data-l10n-id");
-          icon.setAttribute("alt", "");
+        icon.classList.toggle("rotated-to-read-direction", !!type);
+        switch (type) {
+          case "start":
+            icon.setAttribute("src", "chrome://calendar/skin/shared/event-start.svg");
+            document.l10n.setAttributes(icon, "calendar-editable-item-multiday-event-icon-start");
+            break;
+          case "continue":
+            icon.setAttribute("src", "chrome://calendar/skin/shared/event-continue.svg");
+            document.l10n.setAttributes(
+              icon,
+              "calendar-editable-item-multiday-event-icon-continue"
+            );
+            break;
+          case "end":
+            icon.setAttribute("src", "chrome://calendar/skin/shared/event-end.svg");
+            document.l10n.setAttributes(icon, "calendar-editable-item-multiday-event-icon-end");
+            break;
+          default:
+            icon.removeAttribute("src");
+            icon.removeAttribute("data-l10n-id");
+            icon.setAttribute("alt", "");
         }
       }
       let timeLabel = this.querySelector(".item-time-label");

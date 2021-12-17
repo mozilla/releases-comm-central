@@ -91,11 +91,12 @@ function simulateDragToColumn(eventBox, day, hour) {
   // We round the mouse position to try and reduce rounding errors when
   // scrolling the view.
   let sourceTop = Math.round(sourceRect.top + sourceRect.height / 2);
+  let sourceLeft = sourceRect.left + leftOffset;
   // Keep track of the exact offset.
   let topOffset = sourceTop - sourceRect.top;
 
   EventUtils.synthesizeMouseAtPoint(
-    sourceRect.left + leftOffset,
+    sourceLeft,
     sourceTop,
     // Hold shift to avoid snapping.
     { type: "mousedown", shiftKey: true },
@@ -104,7 +105,7 @@ function simulateDragToColumn(eventBox, day, hour) {
   EventUtils.synthesizeMouseAtPoint(
     // We assume the location of the mouseout event does not matter, just as
     // long as the event box receives it.
-    sourceRect.left + leftOffset,
+    sourceLeft,
     sourceTop,
     { type: "mouseout", shiftKey: true },
     window
@@ -126,14 +127,17 @@ function simulateGripbarDrag(eventBox, side, day, hour) {
   // Scroll the edge of the box into view.
   CalendarTestUtils.scrollViewToTarget(eventBox, side == "start");
 
-  let gripbar = eventBox.querySelector(`[whichside="${side}"]`);
+  let gripbar = side == "start" ? eventBox.startGripbar : eventBox.endGripbar;
 
   let sourceRect = gripbar.getBoundingClientRect();
-  let leftOffset = sourceRect.width / 2;
+  let sourceTop = sourceRect.top + sourceRect.height / 2;
+  let sourceLeft = sourceRect.left + sourceRect.width / 2;
 
+  // Hover to make the gripbar visible.
+  EventUtils.synthesizeMouseAtPoint(sourceLeft, sourceTop, { type: "mouseover" }, window);
   EventUtils.synthesizeMouseAtPoint(
-    sourceRect.left + leftOffset,
-    sourceRect.top + sourceRect.height / 2,
+    sourceLeft,
+    sourceTop,
     // Hold shift to avoid snapping.
     { type: "mousedown", shiftKey: true },
     window

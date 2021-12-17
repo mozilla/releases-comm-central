@@ -1003,6 +1003,36 @@ const CalendarTestUtils = {
   },
 
   /**
+   * Assert whether the given event box's edges are visually draggable (and
+   * hence, editable) at its edges or not.
+   *
+   * @param {MozCalendarEventBox} eventBox - The event box to test.
+   * @param {boolean} startDraggable - Whether we expect the start edge to be
+   *   draggable.
+   * @param {boolean} endDraggable - Whether we expect the end edge to be
+   *   draggable.
+   * @param {string} message - A message for assertions.
+   */
+  async assertEventBoxDraggable(eventBox, startDraggable, endDraggable, message) {
+    this.scrollViewToTarget(eventBox, true);
+    // Hover to see if the drag gripbars appear.
+    let enterPromise = BrowserTestUtils.waitForEvent(eventBox, "mouseenter");
+    // Hover over start.
+    EventUtils.synthesizeMouse(eventBox, 8, 8, { type: "mouseover" }, eventBox.ownerGlobal);
+    await enterPromise;
+    Assert.equal(
+      BrowserTestUtils.is_visible(eventBox.startGripbar),
+      startDraggable,
+      `Start gripbar should be ${startDraggable ? "visible" : "hidden"} on hover: ${message}`
+    );
+    Assert.equal(
+      BrowserTestUtils.is_visible(eventBox.endGripbar),
+      endDraggable,
+      `End gripbar should be ${endDraggable ? "visible" : "hidden"} on hover: ${message}`
+    );
+  },
+
+  /**
    * Scroll the calendar view to show the given target.
    *
    * @param {Element} target - The target to scroll to. A descendent of a

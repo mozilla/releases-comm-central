@@ -362,11 +362,6 @@
           "invitation-status",
           cal.itip.getInvitedAttendee(item).participationStatus
         );
-        // FIXME? Set as readonly, but the "click" event listener will still
-        // allow editing the name.
-        this.setAttribute("readonly", "true");
-      } else if (!cal.acl.isCalendarWritable(item.calendar)) {
-        this.setAttribute("readonly", "true");
       }
     }
 

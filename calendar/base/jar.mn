@@ -15,7 +15,6 @@ calendar.jar:
     content/calendar-command-controller.js                      (content/calendar-command-controller.js)
     content/calendar-day-label.js                               (content/calendar-day-label.js)
     content/calendar-dnd-listener.js                            (content/calendar-dnd-listener.js)
-    content/calendar-event-gripbar.js                           (content/calendar-event-gripbar.js)
     content/calendar-extract.js                                 (content/calendar-extract.js)
     content/calendar-invitations-manager.js                     (content/calendar-invitations-manager.js)
     content/calendar-management.js                              (content/calendar-management.js)
