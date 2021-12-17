@@ -70,7 +70,6 @@ messenger.jar:
     content/messenger/newTagDialog.js               (content/newTagDialog.js)
 *   content/messenger/newTagDialog.xhtml            (content/newTagDialog.xhtml)
     content/messenger/nsContextMenu.js              (content/nsContextMenu.js)
-    content/messenger/phishingDetector.js           (content/phishingDetector.js)
     content/messenger/printUtils.js                 (content/printUtils.js)
     content/messenger/protovis-r2.6-modded.js       (content/protovis-r2.6-modded.js)
     content/messenger/quickFilterBar.js             (content/quickFilterBar.js)

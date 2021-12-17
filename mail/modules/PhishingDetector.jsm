@@ -2,41 +2,50 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from mailWindowOverlay.js */
-/* import-globals-from utilityOverlay.js */
+const EXPORTED_SYMBOLS = ["PhishingDetector"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { isLegalIPAddress, isLegalLocalIPAddress } = ChromeUtils.import(
-  "resource:///modules/hostnameUtils.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-var kPhishingNotSuspicious = 0;
-var kPhishingWithIPAddress = 1;
-var kPhishingWithMismatchedHosts = 2;
+XPCOMUtils.defineLazyModuleGetters(this, {
+  isLegalIPAddress: "resource:///modules/hostnameUtils.jsm",
+  isLegalLocalIPAddress: "resource:///modules/hostnameUtils.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
-var gPhishingDetector = {
-  mCheckForIPAddresses: true,
-  mCheckForMismatchedHosts: true,
-  mDisallowFormActions: true,
+const PhishingDetector = new (class PhishingDetector {
+  mEnabled = true;
+  mCheckForIPAddresses = true;
+  mCheckForMismatchedHosts = true;
+  mDisallowFormActions = true;
 
-  shutdown() {},
-
-  /**
-   * Initialize the phishing warden.
-   * Initialize the black and white list url tables.
-   * Update the local tables if necessary.
-   */
-  init() {
-    this.mCheckForIPAddresses = Services.prefs.getBoolPref(
-      "mail.phishing.detection.ipaddresses"
+  constructor() {
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "mEnabled",
+      "mail.phishing.detection.enabled",
+      true
     );
-    this.mCheckForMismatchedHosts = Services.prefs.getBoolPref(
-      "mail.phishing.detection.mismatched_hosts"
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "mCheckForIPAddresses",
+      "mail.phishing.detection.ipaddresses",
+      true
     );
-    this.mDisallowFormActions = Services.prefs.getBoolPref(
-      "mail.phishing.detection.disallow_form_actions"
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "mCheckForMismatchedHosts",
+      "mail.phishing.detection.mismatched_hosts",
+      true
     );
-  },
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
+      "mDisallowFormActions",
+      "mail.phishing.detection.disallow_form_actions",
+      true
+    );
+  }
 
   /**
    * Analyze the currently loaded message in the message pane, looking for signs
@@ -45,17 +54,18 @@ var gPhishingDetector = {
    * Assumes the message has finished loading in the message pane (i.e.
    * OnMsgParsed has fired).
    *
-   * @param {nsIURI} aUrl - url for the message being analyzed.
-   *
-   * @return asynchronously calls gMessageNotificationBar.setPhishingMsg if the
-   *         message is identified as a scam.
+   * @param {nsIMsgMailNewsUrl} aUrl
+   *   Url for the message being analyzed.
+   * @param {Element} browser
+   *   The browser element where the message is loaded.
+   * @return {boolean}
+   *   Returns true if this does have phishing urls. Returns false if we
+   *   do not check this message or the phishing message does not need to be
+   *   displayed.
    */
-  analyzeMsgForPhishingURLs(aUrl) {
-    if (
-      !aUrl ||
-      !Services.prefs.getBoolPref("mail.phishing.detection.enabled")
-    ) {
-      return;
+  analyzeMsgForPhishingURLs(aUrl, browser) {
+    if (!aUrl || !this.mEnabled) {
+      return false;
     }
 
     try {
@@ -65,7 +75,7 @@ var gPhishingDetector = {
 
       // Ignore nntp and RSS messages.
       if (folder.server.type == "nntp" || folder.server.type == "rss") {
-        return;
+        return false;
       }
 
       // Also ignore messages in Sent/Drafts/Templates/Outbox.
@@ -75,7 +85,7 @@ var gPhishingDetector = {
         Ci.nsMsgFolderFlags.Templates |
         Ci.nsMsgFolderFlags.Queue;
       if (folder.isSpecialFolder(outgoingFlags, true)) {
-        return;
+        return false;
       }
     } catch (ex) {
       if (ex.result != Cr.NS_ERROR_FAILURE) {
@@ -84,14 +94,10 @@ var gPhishingDetector = {
     }
 
     // If the message contains forms with action attributes, warn the user.
-    let formNodes = document
-      .getElementById("messagepane")
-      .contentDocument.querySelectorAll("form[action]");
+    let formNodes = browser.contentDocument.querySelectorAll("form[action]");
 
-    if (this.mDisallowFormActions && formNodes.length > 0) {
-      gMessageNotificationBar.setPhishingMsg();
-    }
-  },
+    return this.mDisallowFormActions && formNodes.length > 0;
+  }
 
   /**
    * Analyze the url contained in aLinkNode for phishing attacks.
@@ -101,7 +107,7 @@ var gPhishingDetector = {
    *         in case we are dealing with a link node.
    * @return true if link node contains phishing URL. false otherwise.
    */
-  analyzeUrl(aUrl, aLinkText) {
+  #analyzeUrl(aUrl, aLinkText) {
     if (!aUrl) {
       return false;
     }
@@ -155,7 +161,7 @@ var gPhishingDetector = {
     }
 
     return false;
-  },
+  }
 
   /**
    * Opens the default browser to a page where the user can submit the given url
@@ -173,7 +179,7 @@ var gPhishingDetector = {
       "@mozilla.org/uriloader/external-protocol-service;1"
     ].getService(Ci.nsIExternalProtocolService);
     protocolSvc.loadURI(uri);
-  },
+  }
 
   /**
    * Private helper method to determine if the link node contains a user visible
@@ -206,7 +212,7 @@ var gPhishingDetector = {
     }
 
     return false;
-  },
+  }
 
   /**
    * If the current message has been identified as an email scam, prompts the
@@ -214,21 +220,28 @@ var gPhishingDetector = {
    * The warning prompt includes the unobscured host name of the http(s) url the
    * user clicked on.
    *
-   * @param {String} aUrl - the url
-   * @param {String} [aLinkText] - user visible link text associated with the link
-   * @return 0 if the URL implied by aLinkText should be used instead.
-   *         1 if the request should be blocked.
-   *         2 if aUrl should be allowed to load.
+   * @param {DOMWindow} win
+   *   The window the message is being displayed within.
+   * @param {String} aUrl
+   *   The url of the message
+   * @param {String} [aLinkText]
+   *   User visible link text associated with the link
+   * @return {number}
+   *   0 if the URL implied by aLinkText should be used instead.
+   *   1 if the request should be blocked.
+   *   2 if aUrl should be allowed to load.
    */
-  warnOnSuspiciousLinkClick(aUrl, aLinkText) {
-    if (!this.analyzeUrl(aUrl, aLinkText)) {
+  warnOnSuspiciousLinkClick(win, aUrl, aLinkText) {
+    if (!this.#analyzeUrl(aUrl, aLinkText)) {
       return 2; // No problem with the url. Allow it to load.
     }
-    let bundle = document.getElementById("bundle_messenger");
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
 
     // Analysis said there was a problem.
     if (aLinkText && /^https?:/i.test(aLinkText)) {
-      let actualURI = makeURI(aUrl);
+      let actualURI = Services.io.newURI(aUrl);
       let displayedURI;
       try {
         displayedURI = Services.io.newURI(aLinkText);
@@ -236,11 +249,10 @@ var gPhishingDetector = {
         return 1;
       }
 
-      let titleMsg = bundle.getString("linkMismatchTitle");
-      let dialogMsg = bundle.getFormattedString(
+      let titleMsg = bundle.GetStringFromName("linkMismatchTitle");
+      let dialogMsg = bundle.formatStringFromName(
         "confirmPhishingUrlAlternate",
-        [displayedURI.host, actualURI.host],
-        2
+        [displayedURI.host, actualURI.host]
       );
       let warningButtons =
         Ci.nsIPromptService.BUTTON_POS_0 *
@@ -249,18 +261,14 @@ var gPhishingDetector = {
           Ci.nsIPromptService.BUTTON_TITLE_CANCEL +
         Ci.nsIPromptService.BUTTON_POS_2 *
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING;
-      let button0Text = bundle.getFormattedString(
-        "confirmPhishingGoDirect",
-        [displayedURI.host],
-        1
-      );
-      let button2Text = bundle.getFormattedString(
-        "confirmPhishingGoAhead",
-        [actualURI.host],
-        1
-      );
+      let button0Text = bundle.formatStringFromName("confirmPhishingGoDirect", [
+        displayedURI.host,
+      ]);
+      let button2Text = bundle.formatStringFromName("confirmPhishingGoAhead", [
+        actualURI.host,
+      ]);
       return Services.prompt.confirmEx(
-        window,
+        win,
         titleMsg,
         dialogMsg,
         warningButtons,
@@ -286,20 +294,20 @@ var gPhishingDetector = {
       let unobscuredHostNameValue =
         isLegalIPAddress(hrefURL.host, true) || hrefURL.host;
 
-      let brandShortName = document
-        .getElementById("bundle_brand")
-        .getString("brandShortName");
-      let titleMsg = bundle.getString("confirmPhishingTitle");
-      let dialogMsg = bundle.getFormattedString(
-        "confirmPhishingUrl",
-        [brandShortName, unobscuredHostNameValue],
-        2
+      let brandBundle = Services.strings.createBundle(
+        "chrome://branding/locale/brand.properties"
       );
+      let brandShortName = brandBundle.GetStringFromName("brandShortName");
+      let titleMsg = bundle.GetStringFromName("confirmPhishingTitle");
+      let dialogMsg = bundle.formatStringFromName("confirmPhishingUrl", [
+        brandShortName,
+        unobscuredHostNameValue,
+      ]);
       let warningButtons =
         Ci.nsIPromptService.STD_YES_NO_BUTTONS +
         Ci.nsIPromptService.BUTTON_POS_1_DEFAULT;
       let button = Services.prompt.confirmEx(
-        window,
+        win,
         titleMsg,
         dialogMsg,
         warningButtons,
@@ -312,5 +320,5 @@ var gPhishingDetector = {
       return button == 0 ? 2 : 1; // 2 == allow, 1 == block
     }
     return 2; // allow the link to load
-  },
-};
+  }
+})();

@@ -6,7 +6,6 @@
 /* import-globals-from ../../../../toolkit/content/contentAreaUtils.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
-/* import-globals-from phishingDetector.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PlacesUtils } = ChromeUtils.import(
@@ -15,6 +14,9 @@ var { PlacesUtils } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+XPCOMUtils.defineLazyModuleGetters(this, {
+  PhishingDetector: "resource:///modules/PhishingDetector.jsm",
+});
 XPCOMUtils.defineLazyPreferenceGetter(
   this,
   "alternativeAddonSearchUrl",
@@ -206,7 +208,8 @@ function contentAreaClick(aEvent) {
   aEvent.preventDefault();
 
   // Let the phishing detector check the link.
-  let urlPhishCheckResult = gPhishingDetector.warnOnSuspiciousLinkClick(
+  let urlPhishCheckResult = PhishingDetector.warnOnSuspiciousLinkClick(
+    window,
     href,
     linkText
   );

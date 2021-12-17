@@ -19,6 +19,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 var LazyModules = {};
 XPCOMUtils.defineLazyModuleGetters(LazyModules, {
   MailUtils: "resource:///modules/MailUtils.jsm",
+  PhishingDetector: "resource:///modules/PhishingDetector.jsm",
   PlacesUtils: "resource://gre/modules/PlacesUtils.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
@@ -308,9 +309,7 @@ var mailContextMenu = {
       //   );
       //   break;
       case "mailContext-reportPhishingURL":
-        topChromeWindow.gPhishingDetector.reportPhishingURL(
-          this.context.linkURL
-        );
+        LazyModules.PhishingDetector.reportPhishingURL(this.context.linkURL);
         break;
       case "mailContext-addemail":
         topChromeWindow.addEmail(this.context.linkURL);

@@ -15,7 +15,6 @@
 /* import-globals-from mailContextMenus.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
-/* import-globals-from phishingDetector.js */
 /* import-globals-from utilityOverlay.js */
 
 var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
@@ -3731,11 +3730,16 @@ function OnMsgParsed(aUrl) {
     findBar.onFindAgainCommand(false);
   }
 
+  let browser = getMessagePaneBrowser();
   // Run the phishing detector on the message if it hasn't been marked as not
   // a scam already.
   var msgHdr = gMessageDisplay.displayedMessage;
-  if (msgHdr && !msgHdr.getUint32Property("notAPhishMessage")) {
-    gPhishingDetector.analyzeMsgForPhishingURLs(aUrl);
+  if (
+    msgHdr &&
+    !msgHdr.getUint32Property("notAPhishMessage") &&
+    PhishingDetector.analyzeMsgForPhishingURLs(aUrl, browser)
+  ) {
+    gMessageNotificationBar.setPhishingMsg();
   }
 
   // Notify anyone (e.g., extensions) who's interested in when a message is loaded.
@@ -3747,7 +3751,6 @@ function OnMsgParsed(aUrl) {
     msgURI
   );
 
-  let browser = getMessagePaneBrowser();
   let doc = browser && browser.contentDocument ? browser.contentDocument : null;
 
   // Rewrite any anchor elements' href attribute to reflect that the loaded

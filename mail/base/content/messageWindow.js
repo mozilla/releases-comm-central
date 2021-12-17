@@ -19,7 +19,6 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from msgHdrView.js */
 /* import-globals-from msgViewNavigation.js */
-/* import-globals-from phishingDetector.js */
 /* import-globals-from toolbarIconColor.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -457,8 +456,6 @@ function delayedOnLoadMessageWindow() {
   messenger.setWindow(window, msgWindow);
   // FIX ME - later we will be able to use onload from the overlay
   OnLoadMsgHeaderPane();
-
-  gPhishingDetector.init();
 
   // initialize the customizeDone method on the customizeable toolbar
   var toolbox = document.getElementById("mail-toolbox");
@@ -939,7 +936,6 @@ function OnUnloadMessageWindow() {
   UnloadCommandUpdateHandlers();
   // FIX ME - later we will be able to use onunload from the overlay
   OnUnloadMsgHeaderPane();
-  gPhishingDetector.shutdown();
   ToolbarIconColor.uninit();
   OnMailWindowUnload();
 }

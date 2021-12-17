@@ -779,7 +779,6 @@ var gMailInit = {
 
     document.getElementById("tabmail")._teardown();
     MailServices.mailSession.RemoveFolderListener(folderListener);
-    gPhishingDetector.shutdown();
 
     // FIX ME - later we will be able to use onload from the overlay
     OnUnloadMsgHeaderPane();
@@ -887,8 +886,6 @@ async function loadPostAccountWizard() {
     Cu.reportError(e);
   }
   accountManager.addIncomingServerListener(gThreePaneIncomingServerListener);
-
-  gPhishingDetector.init();
 
   // Add to session before trying to load the start folder otherwise the
   // listeners aren't set up correctly.

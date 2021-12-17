@@ -19,6 +19,7 @@ EXTRA_JS_MODULES += [
     "MailViewManager.jsm",
     "MessageArchiver.jsm",
     "MsgHdrSyntheticView.jsm",
+    "PhishingDetector.jsm",
     "QuickFilterManager.jsm",
     "SearchSpec.jsm",
     "SessionStoreManager.jsm",
