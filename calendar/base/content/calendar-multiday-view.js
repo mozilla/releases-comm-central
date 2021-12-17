@@ -441,27 +441,57 @@
       this.fgboxes.box.setAttribute("orient", orient);
       this.querySelector(".fgdragspacer").setAttribute("orient", orient);
 
+      for (let eventData of this.eventDataMap.values()) {
+        if (!eventData.needsUpdate) {
+          continue;
+        }
+        eventData.needsUpdate = false;
+        // Create a new wrapper.
+        let eventElement = document.createElement("li");
+        eventElement.classList.add("multiday-event-listitem");
+        // Set up the event box.
+        let eventBox = document.createXULElement("calendar-event-box");
+        eventElement.appendChild(eventBox);
+
+        // Trigger connectedCallback
+        this.eventsListElement.appendChild(eventElement);
+
+        eventBox.setAttribute(
+          "context",
+          this.getAttribute("item-context") || this.getAttribute("context")
+        );
+
+        eventBox.calendarView = this.calendarView;
+        eventBox.occurrence = eventData.eventItem;
+        eventBox.parentColumn = this;
+        // An event item can technically be 'selected' between a call to
+        // addEvent and this method (because of the setTimeout). E.g. clicking
+        // the event in the unifinder tree will select the item through
+        // selectEvent. If the element wasn't yet created in that method, we set
+        // the selected status here as well.
+        //
+        // Similarly, if an event has the same hashId, we maintain its
+        // selection.
+        // NOTE: In this latter case we are relying on the fact that
+        // eventData.element.selected is never out of sync with
+        // eventData.selected.
+        eventBox.selected = eventData.selected;
+        eventData.element = eventBox;
+
+        // Remove the element to be added again later.
+        eventElement.remove();
+      }
+
       let eventLayoutList = this.computeEventLayoutInfo(minDuration);
 
       for (let eventInfo of eventLayoutList) {
-        // Set up a list item element to wrap the event.
-        let item = eventInfo.item;
-        let eventData = this.eventDataMap.get(item.hashId);
-        let eventElement;
-        if (eventData.needsUpdate) {
-          // Create a new wrapper.
-          eventElement = document.createElement("li");
-          eventElement.classList.add("multiday-event-listitem");
-        } else {
-          // Re-use an existing event element. This was removed from the
-          // eventsListElement in _clearElements, but we hold a reference to it
-          // in the eventData. So we can re-add it in the new ordering and
-          // change its dimensions.
-          // Note that we store the calendar-event-box in the eventData, so we
-          // grab its parent to get the wrapper list item.
-          eventElement = eventData.element.parentNode;
-        }
-
+        // Note that we store the calendar-event-box in the eventInfo, so we
+        // grab its parent to get the wrapper list item.
+        // NOTE: This may be a newly created element or a non-updated element
+        // that was removed from the eventsListElement in _clearElements. We
+        // still hold a reference to it, so we can re-add it in the new ordering
+        // and change its dimensions.
+        let eventElement = eventInfo.element.parentNode;
         // FIXME: offset and length should be in % of parent's dimension, so we
         // can avoid pixelsPerMinute.
         let offset = `${eventInfo.start * this.pixelsPerMinute}px`;
@@ -480,44 +510,6 @@
           eventElement.style.insetBlockStart = secondaryOffset;
         }
         this.eventsListElement.appendChild(eventElement);
-
-        if (!eventData.needsUpdate) {
-          continue;
-        }
-        // Set up the event box.
-        let eventBox = document.createXULElement("calendar-event-box");
-        eventElement.appendChild(eventBox);
-        eventBox.setAttribute(
-          "context",
-          this.getAttribute("item-context") || this.getAttribute("context")
-        );
-
-        // Set the gripBars visibility.
-        if ((item.entryDate && !item.dueDate) || (!item.entryDate && item.dueDate)) {
-          // Hidden for tasks with only entry date OR due date.
-          eventBox.startGripbar.hidden = true;
-          eventBox.endGripbar.hidden = true;
-        } else {
-          eventBox.startGripbar.hidden = eventInfo.startClipped;
-          eventBox.endGripbar.hidden = eventInfo.endClipped;
-        }
-        eventBox.calendarView = this.calendarView;
-        eventBox.occurrence = item;
-        eventBox.parentColumn = this;
-        // An event item can technically be 'selected' between a call to
-        // addEvent and this method (because of the setTimeout). E.g. clicking
-        // the event in the unifinder tree will select the item through
-        // selectEvent. If the element wasn't yet created in that method, we set
-        // the selected status here as well.
-        //
-        // Similarly, if an event has the same hashId, we maintain its
-        // selection.
-        // NOTE: In this latter case we are relying on the fact that
-        // eventData.element.selected is never out of sync with
-        // eventData.selected.
-        eventBox.selected = eventData.selected;
-        eventData.element = eventBox;
-        eventData.needsUpdate = false;
       }
 
       let boxToEdit = this.eventDataMap.get(this.eventToEdit)?.element;
@@ -535,17 +527,11 @@
      * an event can be placed on these axes.
      *
      * @typedef {Object} EventLayoutInfo
-     * @property {calItemBase} item - The event item we want to display.
+     * @property {MozCalendarEventBox} element - The displayed event.
      * @property {number} start - The number of minutes from the start of this
      *   column's day to when the event should start.
      * @property {number} end - The number of minutes from the start of this
      *   column's day to when the event ends.
-     * @property {boolean} [startClipped] - Whether the event technically starts
-     *   on a previous day, which means that the 'start' had to be clipped to
-     *   the start of the day.
-     * @property {boolean} [endClipped] - Whether the event technically ends
-     *   on a later day, which means that the 'end' had to be clipped to
-     *   the end of the day.
      * @property {number} secondaryOffset - The position of the event on the
      *   secondary axis (between 0 and 1).
      * @property {number} secondaryLength - The length of the event on the
@@ -586,46 +572,34 @@
       // because we want to sort the events relative to their absolute start
       // times.
       let eventList = Array.from(this.eventDataMap.values(), eventData => {
-        let item = eventData.eventItem;
-        let start = item.startDate || item.entryDate || item.dueDate;
-        // Make sure the displayed start time is relative to the view's
-        // timezone.
-        start = start.getInTimezone(this.date.timezone);
-        let end = item.endDate || item.dueDate || item.entryDate;
-        end = end.getInTimezone(this.date.timezone);
-        return { item, startDate: start, endDate: end };
+        let element = eventData.element;
+        let {
+          startDate,
+          endDate,
+          startsSameDay,
+          endsSameDay,
+        } = element.updateRelativeStartEndDates(this.date);
+        // If there is no startDate, we use the element's endDate for both the
+        // start and the end times. Similarly if there is no endDate. Such items
+        // will automatically have the minimum duration.
+        if (!startDate) {
+          startDate = endDate;
+          startsSameDay = endsSameDay;
+        } else if (!endDate) {
+          endDate = startDate;
+          endsSameDay = startsSameDay;
+        }
+        // Any events that start or end on a different day are clipped to the
+        // start/end minutes of this day instead.
+        let start = startsSameDay ? startDate.hour * 60 + startDate.minute : 0;
+        // NOTE: The end can overflow the end of the day due to the minDuration.
+        let end = Math.max(
+          start + minDuration, // Minimum display end time.
+          endsSameDay ? endDate.hour * 60 + endDate.minute : MINUTES_IN_DAY
+        );
+        return { element, startDate, endDate, start, end };
       });
       eventList.sort(sortByStart);
-      // After sorting, we now convert start and end date times to minutes from
-      // the start of the day.
-      // Any events that start or end on a different day are clipped to the
-      // start/end minutes of this day instead.
-      for (let eventInfo of eventList) {
-        let start = eventInfo.startDate;
-        let end = eventInfo.endDate;
-        if (
-          start.year == this.date.year &&
-          start.month == this.date.month &&
-          start.day == this.date.day
-        ) {
-          eventInfo.start = start.hour * 60 + start.minute;
-        } else {
-          eventInfo.start = 0;
-          eventInfo.startClipped = true;
-        }
-        let minEnd = eventInfo.start + minDuration;
-        if (
-          end.year == this.date.year &&
-          end.month == this.date.month &&
-          end.day == this.date.day
-        ) {
-          eventInfo.end = Math.max(end.hour * 60 + end.minute, minEnd);
-        } else {
-          // NOTE: minEnd can overflow the end of the day.
-          eventInfo.end = Math.max(MINUTES_IN_DAY, minEnd);
-          eventInfo.endClipped = true;
-        }
-      }
 
       // Some Events in the calendar column will overlap in time. When they do,
       // we want them to share the horizontal space (assuming the column is
@@ -1676,7 +1650,6 @@
     }
     constructor() {
       super();
-      this.mParentColumn = null;
       this.addEventListener("mousedown", event => {
         if (event.button != 0) {
           return;
@@ -1839,12 +1812,55 @@
       return gripbar;
     }
 
-    set parentColumn(val) {
-      this.mParentColumn = val;
-    }
+    /**
+     * Update and retrieve the event's start and end dates relative to the given
+     * day. This updates the gripbars.
+     *
+     * @param {calIDateTime} day - The day that this event is shown on.
+     *
+     * @return {Object} - The start and end time information.
+     * @property {calIDateTime|undefined} startDate - The start date-time of the
+     *   event in the timezone of the given day. Or the entry date-time for
+     *   tasks, if they have one.
+     * @property {calIDateTime|undefined} endDate - The end date-time of the
+     *   event in the timezone of the given day. Or the due date-time for
+     *   tasks, if they have one.
+     * @property {boolean} startsSameDay - Whether the event starts on the same
+     *   day as the given day.
+     * @property {boolean} endsSameDay - Whether the event ends on the same day
+     *   as the given day.
+     */
+    updateRelativeStartEndDates(day) {
+      let item = this.occurrence;
 
-    get parentColumn() {
-      return this.mParentColumn;
+      function relativeTime(date) {
+        if (!date) {
+          return null;
+        }
+        date = date.getInTimezone(day.timezone);
+        let isSameDay = date.year == day.year && date.month == day.month && date.day == day.day;
+        return { date, isSameDay };
+      }
+
+      let start;
+      let end;
+      if (item.isEvent()) {
+        start = relativeTime(item.startDate);
+        end = relativeTime(item.endDate);
+      } else {
+        start = relativeTime(item.entryDate);
+        end = relativeTime(item.dueDate);
+      }
+
+      this.startGripbar.hidden = !(end && start?.isSameDay);
+      this.endGripbar.hidden = !(start && end?.isSameDay);
+
+      return {
+        startDate: start?.date,
+        endDate: end?.date,
+        startsSameDay: start?.isSameDay,
+        endsSameDay: end?.isSameDay,
+      };
     }
 
     getOptimalMinSize(orient) {
