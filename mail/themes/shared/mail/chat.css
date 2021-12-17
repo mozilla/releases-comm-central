@@ -378,6 +378,7 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
 .protoIcon {
   width: 16px;
   height: 16px;
+  object-fit: contain;
 }
 
 .protoIconDimmed {
