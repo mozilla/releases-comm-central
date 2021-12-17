@@ -154,8 +154,6 @@ add_task(async function startup() {
     "layout.reflow.dumpframecounts",
     "layout.reflow.showframecounts",
     "layout.scrollbar.side",
-    "layout.throttled_frame_rate",
-    "layout.visibility.min-recompute-interval-ms",
   ];
 
   for (let pref of prefsUsedInLayout) {
