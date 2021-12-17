@@ -76,9 +76,11 @@ function pickFileToImport() {
       }
     }
 
+    picker.appendFilters(Ci.nsIFilePicker.filterAll);
     picker.open(returnValue => {
       if (returnValue == Ci.nsIFilePicker.returnCancel) {
         resolve();
+        return;
       }
       resolve(picker.file);
     });
@@ -92,10 +94,6 @@ function pickFileToImport() {
  * @return {calIItemBase[]} Array of calendar items.
  */
 function getItemsFromIcsFile(file) {
-  if (!file.leafName.toLowerCase().endsWith(".ics")) {
-    throw new Error("No importer for this type of file: " + file.leafName);
-  }
-
   let importer = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(Ci.calIImporter);
 
   let inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
