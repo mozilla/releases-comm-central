@@ -83,6 +83,13 @@
      */
     hourBoxes = [];
 
+    /**
+     * The date of the day this event column represents.
+     *
+     * @type {calIDateTime}
+     */
+    date;
+
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
@@ -137,7 +144,7 @@
       // Mouse down handler, in empty event column regions.  Starts sweeping out a new event.
       this.addEventListener("mousedown", event => {
         // Select this column.
-        this.calendarView.selectedDay = this.mDate;
+        this.calendarView.selectedDay = this.date;
 
         // If the selected calendar is readOnly, we don't want any sweeping.
         let calendar = getSelectedCalendar();
@@ -216,10 +223,6 @@
 
       this.mCalendarView = null;
 
-      this.mDate = null;
-
-      this.mTimezone = null;
-
       this.mDragState = null;
 
       this.mLayoutBatchCount = 0;
@@ -238,7 +241,6 @@
 
       this.mFgboxes = null;
 
-      this.mTimezone = cal.dtz.UTC;
       this.initializeAttributeInheritance();
     }
 
@@ -254,19 +256,6 @@
 
     get pixelsPerMinute() {
       return this._pixelsPerMinute;
-    }
-
-    set date(val) {
-      this.mDate = val;
-
-      if (!cal.data.compareObjects(val.timezone, this.mTimezone)) {
-        this.mTimezone = val.timezone;
-        this.relayout();
-      }
-    }
-
-    get date() {
-      return this.mDate;
     }
 
     set calendarView(val) {
@@ -601,9 +590,9 @@
         let start = item.startDate || item.entryDate || item.dueDate;
         // Make sure the displayed start time is relative to the view's
         // timezone.
-        start = start.getInTimezone(this.mTimezone);
+        start = start.getInTimezone(this.date.timezone);
         let end = item.endDate || item.dueDate || item.entryDate;
-        end = end.getInTimezone(this.mTimezone);
+        end = end.getInTimezone(this.date.timezone);
         return { item, startDate: start, endDate: end };
       });
       eventList.sort(sortByStart);
@@ -966,7 +955,7 @@
       // Check if we need to jump a column.
       if (newcol && newcol != col) {
         // Find how many columns we are jumping by subtracting the dates.
-        let dur = newcol.mDate.subtractDate(col.mDate);
+        let dur = newcol.date.subtractDate(col.date);
         let jumpedColumns = dur.isNegative ? -dur.days : dur.days;
         if (dragState.dragType == "modify-start") {
           // Prevent dragging the start date after the end date in a new column.
@@ -1125,7 +1114,7 @@
       let newEnd;
       let startTZ;
       let endTZ;
-      let dragDay = col.mDate;
+      let dragDay = col.date;
       if (dragState.dragType != "new") {
         let oldStart =
           dragState.dragOccurrence.startDate ||
@@ -1143,11 +1132,11 @@
         // tweaking. We could just do this for every event but
         // getInTimezone is slow, so it's much better to only do this
         // when the timezones actually differ from the view's.
-        if (col.mTimezone != newStart.timezone || col.mTimezone != newEnd.timezone) {
+        if (col.date.timezone != newStart.timezone || col.date.timezone != newEnd.timezone) {
           startTZ = newStart.timezone;
           endTZ = newEnd.timezone;
-          newStart = newStart.getInTimezone(col.calendarView.mTimezone);
-          newEnd = newEnd.getInTimezone(col.calendarView.mTimezone);
+          newStart = newStart.getInTimezone(col.date.timezone);
+          newEnd = newEnd.getInTimezone(col.date.timezone);
         }
       }
 
@@ -1172,7 +1161,7 @@
           newEnd.timezone
         );
       } else if (dragState.dragType == "new") {
-        let startDay = dragState.origColumn.mDate;
+        let startDay = dragState.origColumn.date;
         let draggedForward = dragDay.compare(startDay) > 0;
         newStart = draggedForward ? startDay.clone() : dragDay.clone();
         newEnd = draggedForward ? dragDay.clone() : startDay.clone();
@@ -1214,7 +1203,7 @@
       } else if (dragState.dragType == "move") {
         // Figure out the new date-times of the event by adding the duration
         // of the total movement (days and minutes) to the old dates.
-        let duration = dragDay.subtractDate(dragState.origColumn.mDate);
+        let duration = dragDay.subtractDate(dragState.origColumn.date);
         let minutes = dragState.lastStart - dragState.realStart;
 
         // Since both boxDate and beginMove are dates (note datetimes),
@@ -1314,8 +1303,8 @@
       // Get the start and end times in minutes, relative to the start of the
       // day. This may be negative or exceed the length of the day if the event
       // spans more than one day.
-      let realStart = Math.floor(stdate.subtractDate(this.mDate).inSeconds / 60);
-      let realEnd = Math.floor(enddate.subtractDate(this.mDate).inSeconds / 60);
+      let realStart = Math.floor(stdate.subtractDate(this.date).inSeconds / 60);
+      let realEnd = Math.floor(enddate.subtractDate(this.date).inSeconds / 60);
 
       if (where == "start") {
         this.mDragState.dragType = "modify-start";
@@ -1464,6 +1453,13 @@
    * @extends {MozElements.CalendarDnDContainer}
    */
   class CalendarHeaderContainer extends MozElements.CalendarDnDContainer {
+    /**
+     * The date of the day this header represents.
+     *
+     * @type {calIDateTime}
+     */
+    date;
+
     constructor() {
       super();
       this.addEventListener("dblclick", this.onDblClick);
@@ -1484,14 +1480,6 @@
       this.eventsListElement = document.createElement("ol");
       this.eventsListElement.classList.add("allday-events-list");
       this.appendChild(this.eventsListElement);
-    }
-
-    get date() {
-      return this.mDate;
-    }
-
-    set date(val) {
-      this.mDate = val;
     }
 
     /**
@@ -1606,7 +1594,7 @@
     }
 
     onDropItem(aItem) {
-      let newItem = cal.item.moveToDate(aItem, this.mDate);
+      let newItem = cal.item.moveToDate(aItem, this.date);
       newItem = cal.item.setToAllDay(newItem, true);
       return newItem;
     }
@@ -1629,12 +1617,12 @@
 
     onDblClick(event) {
       if (event.button == 0) {
-        this.calendarView.controller.createNewEvent(null, this.mDate, null, true);
+        this.calendarView.controller.createNewEvent(null, this.date, null, true);
       }
     }
 
     onMouseDown(event) {
-      this.calendarView.selectedDay = this.mDate;
+      this.calendarView.selectedDay = this.date;
     }
 
     onClick(event) {
@@ -1700,7 +1688,7 @@
           return;
         }
 
-        this.parentColumn.calendarView.selectedDay = this.parentColumn.mDate;
+        this.parentColumn.calendarView.selectedDay = this.parentColumn.date;
 
         this.mouseDownPosition = {
           clientX: event.clientX,
