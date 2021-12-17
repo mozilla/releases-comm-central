@@ -805,12 +805,11 @@ MatrixRoom.prototype = {
   },
 
   /**
-   *
-   * @param {MatrixMessage} msg
+   * @param {imIMessage} msg
    */
   prepareForDisplaying(msg) {
     const formattedHTML = MatrixMessageContent.getIncomingHTML(
-      msg.event,
+      msg.wrappedJSObject.prplMessage.wrappedJSObject.event,
       this._account._client.getHomeserverUrl(),
       eventId => this.room.findEventById(eventId)
     );
