@@ -490,6 +490,12 @@ AbAutoCompleteSearch.prototype = {
       }
 
       result._searchResults = [...result._collectedValues.values()];
+      // Make sure a result with direct email match will be the one used.
+      for (let sr of result._searchResults) {
+        if (sr.emailToUse == fullString.replace(/.*<(.+@.+)>$/, "$1")) {
+          sr.score = 100;
+        }
+      }
     }
 
     // Sort the results. Scoring may have changed so do it even if this is
