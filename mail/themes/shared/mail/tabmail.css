@@ -24,6 +24,11 @@
   --tabline-color: var(--lwt-tab-line-color, currentColor);
 }
 
+:root[tabsintitlebar] #toolbar-menubar[autohide=true] ~
+  #tabs-toolbar > #tabbar-toolbar {
+  margin-inline-start: 40px;
+}
+
 #tabmail-arrowscrollbox {
   min-height: var(--tab-min-height);
 }

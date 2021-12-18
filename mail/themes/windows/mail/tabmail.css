@@ -8,11 +8,6 @@
   appearance: none;
 }
 
-:root[tabsintitlebar][sizemode=normal] #toolbar-menubar[autohide=true] ~
-  #tabs-toolbar > #tabbar-toolbar {
-  margin-inline-start: 40px;
-}
-
 /**
  * Tabmail Tabs
  */
