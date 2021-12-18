@@ -124,7 +124,7 @@ function getReplyContent(replyEvent, homeserverUrl, getEvent, rich) {
 function formatHTMLBody(event, homeserverUrl, getEvent, includeReply = true) {
   const content = event.getContent();
   const parsedBody = domParser.parseFromString(
-    content.formatted_body,
+    `<!DOCTYPE html><html><body>${content.formatted_body}</body></html>`,
     "text/html"
   );
   const textColors = parsedBody.querySelectorAll(

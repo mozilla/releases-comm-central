@@ -704,7 +704,10 @@ var GlodaIMIndexer = {
             // Messages like topic change notifications may not have a source.
             let prefix = who ? who + ": " : "";
             content.push(
-              prefix + MailFolder.convertMsgSnippetToPlainText(m.message)
+              prefix +
+                MailFolder.convertMsgSnippetToPlainText(
+                  "<!DOCTYPE html>" + m.message
+                )
             );
           }
           resolve();

@@ -501,7 +501,10 @@ function cleanupImMarkup(aText, aRuleset, aTextModifiers = []) {
 
   let parser = new DOMParser();
   // Wrap the text to be parsed in a <span> to avoid losing leading whitespace.
-  let doc = parser.parseFromString("<span>" + aText + "</span>", "text/html");
+  let doc = parser.parseFromString(
+    "<!DOCTYPE html><html><body><span>" + aText + "</span></body></html>",
+    "text/html"
+  );
   let span = doc.querySelector("span");
   cleanupNode(span, aRuleset || gGlobalRuleset, aTextModifiers);
   return span.innerHTML;
