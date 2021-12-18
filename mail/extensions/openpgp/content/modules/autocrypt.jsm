@@ -656,36 +656,70 @@ var EnigmailAutocrypt = {
    * Create and send the Autocrypt Setup Message to yourself
    * The message is sent asynchronously.
    *
-   * @param identity: Object - nsIMsgIdentity
+   * @param {nsIMsgIdentity} identity
    *
-   * @return Promise(passwd):
-   *   passwd: String - backup password
+   * @return {string} - the backup password.
    *
    */
   /*
-  sendSetupMessage: function(identity) {
+  async sendSetupMessage(identity) {
     EnigmailLog.DEBUG("autocrypt.jsm: sendSetupMessage()\n");
 
-    let self = this;
-    return new Promise((resolve, reject) => {
-      self.createSetupMessage(identity).then(res => {
-        let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
-        composeFields.messageId = EnigmailRNG.generateRandomString(27) + "-enigmail";
-        composeFields.from = identity.email;
-        composeFields.to = identity.email;
-        gCreatedSetupIds.push(composeFields.messageId);
+    return this.createSetupMessage(identity).then(async res => {
+      let composeFields = Cc[
+        "@mozilla.org/messengercompose/composefields;1"
+      ].createInstance(Ci.nsIMsgCompFields);
+      composeFields.messageId =
+        EnigmailRNG.generateRandomString(27) + "-enigmail";
+      composeFields.from = identity.email;
+      composeFields.to = identity.email;
+      gCreatedSetupIds.push(composeFields.messageId);
 
-        let now = new Date();
-        let mimeStr = "Message-Id: " + composeFields.messageId + "\r\n" +
-          "Date: " + now.toUTCString() + "\r\n" + res.msg;
+      let now = new Date();
+      let mimeStr =
+        "Message-Id: " +
+        composeFields.messageId +
+        "\r\n" +
+        "Date: " +
+        now.toUTCString() +
+        "\r\n" +
+        res.msg;
 
-        if (EnigmailSend.sendMessage(mimeStr, composeFields, null)) {
-          resolve(res.passwd);
-        }
-        else {
-          reject(99);
-        }
-      });
+      let tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+      tmpFile.append("message.eml");
+      tmpFile.createUnique(0, 0o600);
+
+      await IOUtils.write(tmpFile.path, mimeStr);
+
+      let email = EnigmailFuncs.stripEmail(composeFields.from).toLowerCase();
+      let identity = MailServices.accounts.allIdentities.find(
+        id => id.email?.toLowerCase() == email
+      );
+
+      let acct = EnigmailFuncs.getAccountForIdentity(identity);
+      if (!acct) {
+        return false;
+      }
+
+      let msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+        Ci.nsIMsgSend
+      );
+      await msgSend.sendMessageFile(
+        identity,
+        acct.key,
+        composeFields,
+        tmpFile,
+        true, // Delete  File On Completion
+        false,
+        Services.io.offline
+          ? Ci.nsIMsgSend.nsMsgQueueForLater
+          : Ci.nsIMsgSend.nsMsgDeliverNow,
+        null,
+        null,
+        null,
+        ""
+      );
+      return res.passwd;
     });
   },
   */
