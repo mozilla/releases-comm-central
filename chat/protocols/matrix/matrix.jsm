@@ -1406,6 +1406,7 @@ MatrixAccount.prototype = {
     for (let timeout of this._verificationRequestTimeouts) {
       clearTimeout(timeout);
     }
+    this._verificationRequestTimeouts.clear();
     // Cancel all pending outgoing verification requests, as we can no longer handle them.
     let pendingClientOperations = Promise.all(
       Array.from(
@@ -1431,8 +1432,10 @@ MatrixAccount.prototype = {
     }
   },
   unInit() {
-    for (let conv of this.roomList.values()) {
-      conv._cleanUpTimers();
+    if (this.roomList) {
+      for (let conv of this.roomList.values()) {
+        conv._cleanUpTimers();
+      }
     }
     for (let timeout of this._verificationRequestTimeouts) {
       clearTimeout(timeout);

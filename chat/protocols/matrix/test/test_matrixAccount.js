@@ -4,6 +4,7 @@
 var { TestUtils } = ChromeUtils.import(
   "resource://testing-common/TestUtils.jsm"
 );
+const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 loadMatrix();
 
@@ -87,7 +88,7 @@ add_task(async function test_getGroupConversation() {
     const conversations = Services.conversations.getConversations();
     for (const conversation of conversations) {
       try {
-        conversation.close();
+        conversation.forget();
       } catch {}
     }
   });
@@ -120,14 +121,17 @@ add_task(async function test_getGroupConversation() {
     getHomeserverUrl() {
       return "https://example.com";
     },
-    leave() {
+    leave(roomId) {
+      this._rooms.delete(roomId);
       mockAccount.left = true;
     },
   });
-  mockAccount.roomList.set("foo", getRoom(true, "bar", {}, mockAccount));
+  const fooRoom = getRoom(true, "bar", {}, mockAccount);
+  mockAccount.roomList.set("foo", fooRoom);
 
   equal(mockAccount.getGroupConversation(""), null);
   equal(mockAccount.getGroupConversation("foo").name, "bar");
+  fooRoom.close();
 
   const existingRoom = mockAccount.getGroupConversation("baz");
   strictEqual(existingRoom, mockAccount.roomList.get("baz"));
@@ -155,13 +159,12 @@ add_task(async function test_getGroupConversation() {
     "#lorem:example.com"
   );
   ok(roomAlreadyBeingCreated.joining);
-  mockAccount._pendingRoomAliases.set(
-    "#lorem:example.com",
-    getRoom(true, "hi", {}, mockAccount)
-  );
+  const pendingRoom = getRoom(true, "hi", {}, mockAccount);
+  mockAccount._pendingRoomAliases.set("#lorem:example.com", pendingRoom);
   await roomAlreadyBeingCreated.waitForRoom();
   ok(!roomAlreadyBeingCreated.joining);
   ok(roomAlreadyBeingCreated._replacedBy);
+  pendingRoom.forget();
 
   const missingLocalRoom = mockAccount.getGroupConversation(
     "!ipsum:example.com"
@@ -350,4 +353,52 @@ add_task(async function test_invitedToChat_cannotDenyServerNotice() {
   request.QueryInterface(Ci.prplIChatRequest);
   equal(request.conversationName, "#foo:example.com");
   ok(!request.canDeny);
+});
+
+add_task(async function test_deleteAccount() {
+  let clientLoggedIn = true;
+  let storesCleared;
+  let storesPromise = new Promise(resolve => {
+    storesCleared = resolve;
+  });
+  let stopped = false;
+  let removedListeners;
+  const account = getAccount({
+    isLoggedIn() {
+      return true;
+    },
+    logout() {
+      clientLoggedIn = false;
+      return Promise.resolve();
+    },
+    clearStores() {
+      storesCleared();
+    },
+    stopClient() {
+      stopped = true;
+    },
+    removeAllListeners(type) {
+      removedListeners = type;
+    },
+  });
+  const conv = account.getGroupConversation("example");
+  await conv.waitForRoom();
+  const timeout = setTimeout(() => ok(false), 1000); // eslint-disable-line mozilla/no-arbitrary-setTimeout
+  account._verificationRequestTimeouts.add(timeout);
+  let verificationRequestCancelled = false;
+  account._pendingOutgoingVerificationRequests.set("foo", {
+    cancel() {
+      verificationRequestCancelled = true;
+      return Promise.reject(new Error("test"));
+    },
+  });
+  account.remove();
+  account.unInit();
+  await storesPromise;
+  ok(!clientLoggedIn, "logged out");
+  ok(!Services.conversations.getConversations().includes(conv), "room closed");
+  ok(verificationRequestCancelled, "verification request cancelled");
+  ok(stopped);
+  equal(removedListeners, "sync");
+  equal(account._verificationRequestTimeouts.size, 0);
 });

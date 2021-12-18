@@ -156,6 +156,9 @@ function getAccount(clientHandler) {
       getPushActionsForEvent() {
         return {};
       },
+      leave(roomId) {
+        this._rooms.delete(roomId);
+      },
     },
     makeProxyHandler(clientHandler)
   );
