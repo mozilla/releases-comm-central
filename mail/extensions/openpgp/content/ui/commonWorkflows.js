@@ -19,9 +19,6 @@ var { EnigmailKeyRing } = ChromeUtils.import(
 var { EnigmailArmor } = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 );
-var { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
 
 var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
@@ -50,13 +47,13 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
   return password.value;
 }
 
-// Return the first block of the wanted type (skip blocks of wrong type)
-function getKeyBlockFromFile(path, wantSecret) {
-  var contents = EnigmailFiles.readFile(path);
-  if (!contents) {
-    return "";
-  }
-
+/**
+ * @param {nsIFile} file
+ * @returns {string} The first block of the wanted type, or empty string.
+ *   Skip blocks of wrong type.
+ */
+async function getKeyBlockFromFile(file, wantSecret) {
+  let contents = await IOUtils.readUTF8(file.path).catch(() => "");
   let searchOffset = 0;
 
   while (searchOffset < contents.length) {
@@ -130,12 +127,12 @@ async function EnigmailCommon_importObjectFromFile(what) {
 
     let isSecret = what == "sec";
     let importBinary = false;
-    let keyBlock = getKeyBlockFromFile(file, isSecret);
+    let keyBlock = await getKeyBlockFromFile(file, isSecret);
 
     // if we don't find an ASCII block, try to import as binary.
     if (!keyBlock) {
       importBinary = true;
-      keyBlock = EnigmailFiles.readFile(file);
+      keyBlock = String.fromCharCode(...(await IOUtils.read(file.path)));
     }
 
     // Generate a preview of the imported key.

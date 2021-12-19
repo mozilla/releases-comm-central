@@ -23,7 +23,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
 });
@@ -134,7 +133,7 @@ const OpenPGPTestUtils = {
   ) {
     let ids = await OpenPGPTestUtils.importKey(parent, file, false);
     if (!ids.length) {
-      throw new Error("importPublicKey filed");
+      throw new Error(`No public key imported from ${file.leafName}`);
     }
     return OpenPGPTestUtils.updateKeyIdAcceptance(ids, acceptance);
   },
@@ -154,7 +153,7 @@ const OpenPGPTestUtils = {
   ) {
     let ids = await OpenPGPTestUtils.importKey(parent, file, false, true);
     if (!ids.length) {
-      throw new Error("importPrivateKey filed");
+      throw new Error(`No private key imported from ${file.leafName}`);
     }
     return OpenPGPTestUtils.updateKeyIdAcceptance(ids, acceptance);
   },
@@ -170,13 +169,9 @@ const OpenPGPTestUtils = {
    * @returns {Promise<string[]>} - A list of ids for the key(s) imported.
    */
   async importKey(parent, file, isBinary, isSecret = false) {
-    let txt = EnigmailFiles.readFile(file);
+    let txt = String.fromCharCode(...(await IOUtils.read(file.path)));
     let errorObj = {};
     let fingerPrintObj = {};
-
-    if (txt == "") {
-      throw new Error(`Could not open key file at path "${file.path}"!`);
-    }
 
     let result = EnigmailKeyRing.importKey(
       parent,

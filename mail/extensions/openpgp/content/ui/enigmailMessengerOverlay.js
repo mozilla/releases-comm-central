@@ -32,13 +32,13 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
+  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailFixExchangeMsg: "chrome://openpgp/content/modules/fixExchangeMsg.jsm",
-  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
@@ -52,7 +52,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
-  EnigmailVerifyAttachment: "chrome://openpgp/content/modules/verify.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   // EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
   KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.jsm",
@@ -559,7 +558,7 @@ Enigmail.msg = {
     ) {
       this.movePEPsubject();
       await this.messageDecryptCb(event, isAuto, null);
-      this.notifyMessageDecryptDone();
+      await this.notifyMessageDecryptDone();
       return;
     } else if (
       contentType.search(/^multipart\/signed(;|$)/i) === 0 &&
@@ -567,28 +566,23 @@ Enigmail.msg = {
     ) {
       this.movePEPsubject();
       await this.messageDecryptCb(event, isAuto, null);
-      this.notifyMessageDecryptDone();
+      await this.notifyMessageDecryptDone();
       return;
     }
 
-    try {
-      EnigmailMime.getMimeTreeFromUrl(
-        this.getCurrentMsgUrl().spec,
-        false,
-        async function(mimeMsg) {
-          await Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
-          Enigmail.msg.notifyMessageDecryptDone();
-        }
-      );
-    } catch (ex) {
-      EnigmailLog.DEBUG(
-        "enigmailMessengerOverlay.js: messageDecrypt: exception: " +
-          ex.toString() +
-          "\n"
-      );
-      await this.messageDecryptCb(event, isAuto, null);
-      this.notifyMessageDecryptDone();
+    let url = this.getCurrentMsgUrl();
+    if (!url) {
+      await Enigmail.msg.messageDecryptCb(event, isAuto, null);
+      await Enigmail.msg.notifyMessageDecryptDone();
+      return;
     }
+    await new Promise(resolve => {
+      EnigmailMime.getMimeTreeFromUrl(url.spec, false, async function(mimeMsg) {
+        await Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
+        await Enigmail.msg.notifyMessageDecryptDone();
+        resolve();
+      });
+    });
   },
 
   /***
@@ -825,7 +819,7 @@ Enigmail.msg = {
           );
           this.buggyExchangeEmailContent = "???";
 
-          this.buggyMailHeader();
+          await this.buggyMailHeader();
           return;
         }
       }
@@ -2496,15 +2490,24 @@ Enigmail.msg = {
     var outFile1 = Services.dirsvc.get("TmpD", Ci.nsIFile);
     outFile1.append(EnigmailMsgRead.getAttachmentName(origAtt));
     outFile1.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-    EnigmailFiles.writeUrlToFile(origAtt.url, outFile1);
+
+    let response = await fetch(origAtt.url);
+    if (!response.ok) {
+      throw new Error(`Bad response for url=${origAtt.url}`);
+    }
+    await IOUtils.writeUTF8(outFile1.path, await response.text());
 
     if (isEncrypted) {
-      // Try to decrypt message if we suspect the message is encrypted. If it fails we will just verify the encrypted data.
+      // Try to decrypt message if we suspect the message is encrypted.
+      // If it fails we will just verify the encrypted data.
+      let readBinaryFile = async () => {
+        return String.fromCharCode(...(await IOUtils.read(outFile1.path)));
+      };
       await EnigmailDecryption.decryptAttachment(
         window,
         outFile1,
         EnigmailMsgRead.getAttachmentName(origAtt),
-        EnigmailFiles.readBinaryFile(outFile1),
+        readBinaryFile,
         {},
         {},
         {}
@@ -2514,9 +2517,15 @@ Enigmail.msg = {
     var outFile2 = Services.dirsvc.get("TmpD", Ci.nsIFile);
     outFile2.append(EnigmailMsgRead.getAttachmentName(signatureAtt));
     outFile2.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-    EnigmailFiles.writeUrlToFile(signatureAtt.url, outFile2);
 
-    var promise = EnigmailVerifyAttachment.attachment(outFile1, outFile2);
+    let response2 = await fetch(signatureAtt.url);
+    if (!response2.ok) {
+      throw new Error(`Bad response for url=${signatureAtt.url}`);
+    }
+    await IOUtils.writeUTF8(outFile2.path, await response2.text());
+
+    let cApi = EnigmailCryptoAPI();
+    let promise = cApi.verifyAttachment(outFile1.path, outFile2.path);
     promise.then(async function(message) {
       EnigmailDialog.info(
         window,
@@ -2676,7 +2685,9 @@ Enigmail.msg = {
         );
         if (exitStatus && exitCodeObj.value === 0) {
           // success decrypting, let's try again
-          callbackArg.data = EnigmailFiles.readBinaryFile(outFile);
+          callbackArg.data = String.fromCharCode(
+            ...(await IOUtils.read(outFile.path))
+          );
           preview = await EnigmailKey.getKeyListFromKeyBlock(
             callbackArg.data,
             errorMsgObj,

@@ -40,9 +40,6 @@ var { KeyLookupHelper } = ChromeUtils.import(
 var { EnigmailTrust } = ChromeUtils.import(
   "chrome://openpgp/content/modules/trust.jsm"
 );
-var { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
@@ -417,7 +414,7 @@ async function enigmailDeleteKey() {
   clearKeyCache();
 }
 
-function enigCreateKeyMsg() {
+async function enigCreateKeyMsg() {
   var keyList = getSelectedKeyIds();
   var tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
   tmpFile.append("key.asc");
@@ -432,7 +429,7 @@ function enigCreateKeyMsg() {
     keyIdArray.push("0x" + id);
   }
 
-  EnigmailKeyRing.extractKey(
+  await EnigmailKeyRing.extractKey(
     false,
     keyIdArray,
     tmpFile,
@@ -490,7 +487,7 @@ async function enigmailRevokeKey() {
   });
 }
 
-function enigmailExportKeys(which) {
+async function enigmailExportKeys(which) {
   let exportSecretKey = which == "secret";
   var keyList = getSelectedKeys();
   var defaultFileName;
@@ -527,7 +524,7 @@ function enigmailExportKeys(which) {
     for (let id of keyList2) {
       keyIdArray.push("0x" + id);
     }
-    EnigmailKeyRing.exportPublicKeysInteractive(
+    await EnigmailKeyRing.exportPublicKeysInteractive(
       window,
       defaultFileName,
       keyIdArray
@@ -628,7 +625,7 @@ async function enigmailCopyToClipbrd() {
     keyIdArray.push("0x" + id);
   }
 
-  var keyData = EnigmailKeyRing.extractKey(
+  let keyData = await EnigmailKeyRing.extractKey(
     0,
     keyIdArray,
     null,

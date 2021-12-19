@@ -15,9 +15,6 @@ const { OpenPGPMasterpass } = ChromeUtils.import(
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
-const { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
 const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 );
@@ -148,7 +145,7 @@ add_task(async function testImportSecretKeyIsProtected() {
   let carolFile = do_get_file(
     `${keyDir}/carol@example.com-0x3099ff1238852b9f-secret.asc`
   );
-  let carolSec = EnigmailFiles.readFile(carolFile);
+  let carolSec = await IOUtils.readUTF8(carolFile.path);
 
   // Carol's secret key is protected with password "x".
   let getCarolPassword = function(win, keyId, resultFlags) {
@@ -172,7 +169,7 @@ add_task(async function testImportSecretKeyIsProtected() {
   let aliceFile = do_get_file(
     `${keyDir}/alice@openpgp.example-0xf231550c4f47e38e-secret.asc`
   );
-  let aliceSec = EnigmailFiles.readFile(aliceFile);
+  let aliceSec = await IOUtils.readUTF8(aliceFile.path);
 
   // Alice's secret key is unprotected.
   importResult = await RNP.importKeyBlockImpl(
@@ -195,8 +192,8 @@ add_task(async function testImportSecretKeyIsProtected() {
 });
 
 add_task(async function testImportOfflinePrimaryKey() {
-  let keyBlock = EnigmailFiles.readFile(
-    do_get_file(`${keyDir}/ofelia-secret-subkeys.asc`)
+  let keyBlock = await IOUtils.readUTF8(
+    do_get_file(`${keyDir}/ofelia-secret-subkeys.asc`).path
   );
 
   let cancelPassword = function(win, keyId, resultFlags) {

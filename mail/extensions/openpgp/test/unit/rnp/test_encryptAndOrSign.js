@@ -12,9 +12,6 @@ const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
-const { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
 
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
@@ -254,10 +251,14 @@ add_task(async function testEncryptAndOrSignResults() {
  * https://openclipart.org/detail/191741/blue-bird
  */
 add_task(async function testDecryptAttachment() {
-  let expected = EnigmailFiles.readFile(do_get_file("data/bluebird50.jpg"));
+  let expected = String.fromCharCode(
+    ...(await IOUtils.read(do_get_file("data/bluebird50.jpg").path))
+  );
 
   for (let filename of ["data/bluebird50.jpg.asc", "data/bluebird50.jpg.gpg"]) {
-    let encrypted = EnigmailFiles.readFile(do_get_file(filename));
+    let encrypted = String.fromCharCode(
+      ...(await IOUtils.read(do_get_file(filename).path))
+    );
     let options = {};
     options.fromAddr = "";
     let result = await RNP.decrypt(encrypted, options);

@@ -37,9 +37,6 @@ var { EnigmailLog } = ChromeUtils.import(
 var EnigmailArmor = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 ).EnigmailArmor;
-var EnigmailFiles = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-).EnigmailFiles;
 var EnigmailData = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 ).EnigmailData;
@@ -717,7 +714,7 @@ Enigmail.msg = {
     return baseAttachment;
   },
 
-  attachOwnKey(id) {
+  async attachOwnKey(id) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.attachOwnKey: " + id + "\n"
     );
@@ -737,7 +734,7 @@ Enigmail.msg = {
       let hex = "0x" + id;
       let myID = [hex];
       let allIds = myID.concat(revokedIDs);
-      var attachedObj = this.extractAndAttachKey(
+      var attachedObj = await this.extractAndAttachKey(
         allIds,
         gCurrentIdentity.email,
         true,
@@ -770,13 +767,13 @@ Enigmail.msg = {
       if (resultObj.cancelled) {
         return;
       }
-      this.extractAndAttachKey(resultObj.userList, null, true, false);
+      await this.extractAndAttachKey(resultObj.userList, null, true, false);
     } catch (ex) {
       // cancel pressed -> do nothing
     }
   },
 
-  extractAndAttachKey(
+  async extractAndAttachKey(
     uidArray,
     emailForFilename,
     warnOnError,
@@ -798,7 +795,7 @@ Enigmail.msg = {
     var exitCodeObj = {};
     var errorMsgObj = {};
 
-    EnigmailKeyRing.extractKey(
+    await EnigmailKeyRing.extractKey(
       false,
       uidArray,
       tmpFile,
@@ -1540,7 +1537,7 @@ Enigmail.msg = {
         break;
       default:
         if (gAttachMyPublicPGPKey) {
-          this.attachOwnKey();
+          await this.attachOwnKey();
           Attachments2CompFields(gMsgCompose.compFields); // update list of attachments
         }
     }
@@ -1959,7 +1956,7 @@ Enigmail.msg = {
       let keyMap = {};
 
       if (gAttachMyPublicPGPKey) {
-        this.attachOwnKey(senderKeyId);
+        await this.attachOwnKey(senderKeyId);
       }
 
       /*

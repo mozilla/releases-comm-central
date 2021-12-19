@@ -16,12 +16,9 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
-
-const DEFAULT_FILE_PERMS = 0o600;
 
 var OpenPGPMasterpass = {
   _initDone: false,
@@ -134,7 +131,7 @@ var OpenPGPMasterpass = {
           );
         }
 
-        this._ensureMasterPassword();
+        await this._ensureMasterPassword();
         await RNP.protectUnprotectedKeys();
         await RNP.saveKeyRings();
       }
@@ -142,28 +139,17 @@ var OpenPGPMasterpass = {
   },
 
   // returns password
-  _ensureMasterPassword() {
-    let pass = this._readPasswordFromFile();
+  async _ensureMasterPassword() {
+    let pass = await this._readPasswordFromFile();
     if (pass) {
       return pass;
     }
 
-    EnigmailLog.DEBUG("masterpass.jsm: ensureMasterPassword()\n");
-    try {
-      pass = this.generatePassword();
-      let sdr = this.getSDR();
-      let encryptedPass = sdr.encryptString(pass);
+    pass = this.generatePassword();
+    let sdr = this.getSDR();
+    let encryptedPass = sdr.encryptString(pass);
 
-      EnigmailFiles.writeFileContents(
-        this.getPassPath(),
-        encryptedPass,
-        DEFAULT_FILE_PERMS
-      );
-    } catch (ex) {
-      EnigmailLog.writeException("masterpass.jsm", ex);
-      throw ex;
-    }
-    EnigmailLog.DEBUG("masterpass.jsm: ensureMasterPassword(): ok\n");
+    await IOUtils.writeUTF8(this.getPassPath().path, encryptedPass);
     return pass;
   },
 
@@ -183,35 +169,25 @@ var OpenPGPMasterpass = {
     EnigmailLog.DEBUG("masterpass.jsm: retrieveMasterPassword()\n");
 
     if (!this._initDone) {
+      await this._repairOrWarn();
+
       this._initDone = true;
 
-      await this._repairOrWarn();
       // repairing might have created the file
-
       let path = this.getPassPath();
       if (!path.exists()) {
         return this._ensureMasterPassword();
       }
     }
-
     return this._readPasswordFromFile();
   },
 
-  _readPasswordFromFile() {
-    try {
-      let path = this.getPassPath();
-      var encryptedPass = EnigmailFiles.readFile(path).trim();
-      if (!encryptedPass) {
-        return null;
-      }
-      let sdr = this.getSDR();
-      let pass = sdr.decryptString(encryptedPass);
-      //console.debug("your secring.gpg is protected with the following passphrase: " + pass);
-      return pass;
-    } catch (ex) {
-      EnigmailLog.writeException("masterpass.jsm", ex);
+  async _readPasswordFromFile() {
+    if (!(await IOUtils.exists(this.getPassPath().path))) {
+      return null;
     }
-    EnigmailLog.DEBUG("masterpass.jsm: retrieveMasterPassword(): not found!\n");
-    return null;
+    let encryptedPass = await IOUtils.readUTF8(this.getPassPath().path);
+    let sdr = this.getSDR();
+    return sdr.decryptString(encryptedPass);
   },
 };

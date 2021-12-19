@@ -574,6 +574,9 @@ function enableRNPLibJS() {
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
       const cApi = EnigmailCryptoAPI();
       let pass = cApi.sync(OpenPGPMasterpass.retrieveOpenPGPPassword());
+      if (pass == null) {
+        throw new Error("Got null OpenPGP password");
+      }
       var passCTypes = ctypes.char.array()(pass); // UTF-8
       let passLen = passCTypes.length;
 
@@ -584,8 +587,7 @@ function enableRNPLibJS() {
       let char_array = ctypes.cast(buf, ctypes.char.array(buf_len).ptr)
         .contents;
 
-      let i;
-      for (i = 0; i < passLen; ++i) {
+      for (let i = 0; i < passLen; i++) {
         char_array[i] = passCTypes[i];
       }
       char_array[passLen] = 0;

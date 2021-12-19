@@ -17,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
-  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
@@ -31,8 +30,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
-
-const DEFAULT_FILE_PERMS = 0o600;
 
 let gKeyListObj = null;
 let gKeyIndex = [];
@@ -288,11 +285,11 @@ var EnigmailKeyRing = {
     return ret;
   },
 
-  async importRevFromFile(inputFile) {
-    var contents = EnigmailFiles.readFile(inputFile);
-    if (!contents) {
-      return;
-    }
+  /**
+   * @param {nsIFile} file - ASCII armored file containing the revocation.
+   */
+  async importRevFromFile(file) {
+    let contents = await IOUtils.readUTF8(file.path);
 
     const beginIndexObj = {};
     const endIndexObj = {};
@@ -494,7 +491,13 @@ var EnigmailKeyRing = {
    *
    * @return String - if outputFile is NULL, the key block data; "" if a file is written
    */
-  extractKey(includeSecretKey, idArray, outputFile, exitCodeObj, errorMsgObj) {
+  async extractKey(
+    includeSecretKey,
+    idArray,
+    outputFile,
+    exitCodeObj,
+    errorMsgObj
+  ) {
     EnigmailLog.DEBUG(
       "keyRing.jsm: EnigmailKeyRing.extractKey: " + idArray + "\n"
     );
@@ -519,19 +522,17 @@ var EnigmailKeyRing = {
 
     exitCodeObj.value = 0;
     if (outputFile) {
-      if (
-        !EnigmailFiles.writeFileContents(
-          outputFile,
-          keyBlock,
-          DEFAULT_FILE_PERMS
-        )
-      ) {
-        exitCodeObj.value = -1;
-        errorMsgObj.value = l10n.formatValueSync("file-write-failed", {
-          output: outputFile,
+      return IOUtils.writeUTF8(outputFile.path, keyBlock)
+        .then(() => {
+          return "";
+        })
+        .catch(async () => {
+          exitCodeObj.value = -1;
+          errorMsgObj.value = await l10n.formatValue("file-write-failed", {
+            output: outputFile,
+          });
+          return null;
         });
-      }
-      return "";
     }
     return keyBlock;
   },
@@ -549,7 +550,7 @@ var EnigmailKeyRing = {
     );
   },
 
-  exportPublicKeysInteractive(window, defaultFileName, keyIdArray) {
+  async exportPublicKeysInteractive(window, defaultFileName, keyIdArray) {
     let label = l10n.formatValueSync("export-to-file");
     let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
       window,
@@ -563,7 +564,7 @@ var EnigmailKeyRing = {
     var exitCodeObj = {};
     var errorMsgObj = {};
 
-    EnigmailKeyRing.extractKey(
+    await EnigmailKeyRing.extractKey(
       false, // public
       keyIdArray,
       outFile,
@@ -623,19 +624,18 @@ var EnigmailKeyRing = {
       return;
     }
 
-    if (
-      !EnigmailFiles.writeFileContents(file, backupKeyBlock, DEFAULT_FILE_PERMS)
-    ) {
-      Services.prompt.alert(
-        null,
-        l10n.formatValueSync("file-write-failed", {
-          output: file,
-        })
-      );
-      return;
-    }
-
-    EnigmailDialog.info(null, l10n.formatValueSync("save-keys-ok"));
+    await IOUtils.writeUTF8(file.path, backupKeyBlock)
+      .then(async () => {
+        EnigmailDialog.info(null, await l10n.formatValue("save-keys-ok"));
+      })
+      .catch(async () => {
+        Services.prompt.alert(
+          null,
+          await l10n.formatValue("file-write-failed", {
+            output: file,
+          })
+        );
+      });
   },
 
   /**

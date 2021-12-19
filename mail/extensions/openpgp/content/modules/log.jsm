@@ -16,7 +16,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
-  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
 
@@ -45,9 +44,14 @@ var EnigmailLog = {
       !EnigmailLog.fileStream &&
       EnigmailLog.level >= 5
     ) {
-      EnigmailLog.fileStream = EnigmailFiles.createFileStream(
-        EnigmailLog.directory + "enigdbug.txt"
-      );
+      let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      file.initWithPath(EnigmailLog.directory + "enigdbug.txt");
+      let ofStream = Cc[
+        "@mozilla.org/network/file-output-stream;1"
+      ].createInstance(Ci.nsIFileOutputStream);
+      ofStream.init(file, -1, -1, 0);
+
+      EnigmailLog.fileStream = ofStream;
     }
   },
 

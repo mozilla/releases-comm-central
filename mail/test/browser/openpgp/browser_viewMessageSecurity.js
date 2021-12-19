@@ -141,8 +141,13 @@ add_task(async function testSmimeOpenPgpSelection() {
     "S/MIME message cannot be decrypted"
   );
 
+  let openpgpprocessed = BrowserTestUtils.waitForEvent(
+    mc.window.document,
+    "openpgpprocessed"
+  );
   // Select the second row, which should contain the OpenPGP message.
   select_click_row(1);
+  await openpgpprocessed;
 
   Assert.equal(
     mc.window.document.getElementById("encryptionTechBtn").querySelector("span")
@@ -265,12 +270,12 @@ add_task(async function testMessageSecurityShortcut() {
   press_delete();
 });
 
-registerCleanupFunction(function tearDown() {
+registerCleanupFunction(async function tearDown() {
   // Reset the OpenPGP key and delete the account.
-  aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
-  MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);
-  MailServices.accounts.removeAccount(aliceAcct);
+  MailServices.accounts.removeAccount(aliceAcct, true);
   aliceAcct = null;
+
+  await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
 
   // Work around this test timing out at completion because of focus weirdness.
   window.gFolderDisplay.tree.focus();

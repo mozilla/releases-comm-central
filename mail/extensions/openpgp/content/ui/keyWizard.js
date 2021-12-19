@@ -16,9 +16,6 @@ var { AppConstants } = ChromeUtils.import(
 var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
-var { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
 var { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 );
@@ -616,10 +613,9 @@ async function openPgpKeygenConfirm() {
 
   kGenerating = true;
 
-  let cApi;
+  let cApi = EnigmailCryptoAPI();
   try {
     let newId = null;
-    cApi = EnigmailCryptoAPI();
     let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
     newId = await cApi.genKey(
       `${gIdentity.fullName} <${gIdentity.email}>`,
@@ -689,7 +685,7 @@ async function openPgpKeygenConfirm() {
   revFile.append(`0x${gGeneratedKey}_rev.asc`);
 
   // Create a revokation cert in the Thunderbird profile directoy.
-  EnigmailFiles.writeFileContents(revFile, revFull, DEFAULT_FILE_PERMS);
+  await IOUtils.writeUTF8(revFile.path, revFull);
 
   // Key succesfully created. Close the dialog and show a confirmation message.
   // Assigning the key to an identity is the responsibility of the caller,

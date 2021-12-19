@@ -139,13 +139,19 @@ const accessHkpInternal = {
    * Create the payload of hkp requests (upload only)
    *
    */
-  buildHkpPayload(actionFlag, searchTerms) {
+  async buildHkpPayload(actionFlag, searchTerms) {
     let payLoad = null,
       keyData = "";
 
     switch (actionFlag) {
       case EnigmailConstants.UPLOAD_KEY:
-        keyData = EnigmailKeyRing.extractKey(false, searchTerms, null, {}, {});
+        keyData = await EnigmailKeyRing.extractKey(
+          false,
+          searchTerms,
+          null,
+          {},
+          {}
+        );
         if (keyData.length === 0) {
           return null;
         }
@@ -219,13 +225,15 @@ const accessHkpInternal = {
    *
    * @return:   Promise<Number (Status-ID)>
    */
-  accessKeyServer(actionFlag, keyserver, keyId, listener) {
+  async accessKeyServer(actionFlag, keyserver, keyId, listener) {
     EnigmailLog.DEBUG(
       `keyserver.jsm: accessHkpInternal.accessKeyServer(${keyserver})\n`
     );
     if (!keyserver) {
       throw new Error("accessKeyServer requires explicit keyserver parameter");
     }
+
+    let payLoad = await this.buildHkpPayload(actionFlag, keyId);
 
     return new Promise((resolve, reject) => {
       let xmlReq = null;
@@ -245,7 +253,6 @@ const accessHkpInternal = {
         actionFlag = EnigmailConstants.DOWNLOAD_KEY;
       }
 
-      let payLoad = this.buildHkpPayload(actionFlag, keyId);
       if (payLoad === null) {
         reject(createError(EnigmailConstants.KEYSERVER_ERR_UNKNOWN));
         return;
@@ -875,13 +882,19 @@ const accessVksServer = {
    * Create the payload of VKS requests (currently upload only)
    *
    */
-  buildJsonPayload(actionFlag, searchTerms, locale) {
+  async buildJsonPayload(actionFlag, searchTerms, locale) {
     let payLoad = null,
       keyData = "";
 
     switch (actionFlag) {
       case EnigmailConstants.UPLOAD_KEY:
-        keyData = EnigmailKeyRing.extractKey(false, searchTerms, null, {}, {});
+        keyData = await EnigmailKeyRing.extractKey(
+          false,
+          searchTerms,
+          null,
+          {},
+          {}
+        );
         if (keyData.length === 0) {
           return null;
         }
@@ -974,13 +987,16 @@ const accessVksServer = {
    *
    * @return:   Promise<Number (Status-ID)>
    */
-  accessKeyServer(actionFlag, keyserver, keyId, listener) {
+  async accessKeyServer(actionFlag, keyserver, keyId, listener) {
     EnigmailLog.DEBUG(
       `keyserver.jsm: accessVksServer.accessKeyServer(${keyserver})\n`
     );
     if (keyserver === null) {
       keyserver = "keys.openpgp.org";
     }
+
+    let uiLocale = Services.locale.appLocalesAsBCP47[0];
+    let payLoad = await this.buildJsonPayload(actionFlag, keyId, uiLocale);
 
     return new Promise((resolve, reject) => {
       let xmlReq = null;
@@ -1000,8 +1016,6 @@ const accessVksServer = {
         actionFlag = EnigmailConstants.DOWNLOAD_KEY;
       }
 
-      let uiLocale = Services.locale.appLocalesAsBCP47[0];
-      let payLoad = this.buildJsonPayload(actionFlag, keyId, uiLocale);
       if (payLoad === null) {
         reject(createError(EnigmailConstants.KEYSERVER_ERR_UNKNOWN));
         return;

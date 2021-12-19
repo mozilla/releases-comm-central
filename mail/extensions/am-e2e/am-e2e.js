@@ -17,9 +17,6 @@ var { MailServices } = ChromeUtils.import(
 var { BondOpenPGP } = ChromeUtils.import(
   "chrome://openpgp/content/BondOpenPGP.jsm"
 );
-var { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
 
 if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
   var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
@@ -1271,7 +1268,13 @@ function updateUIForSelectedOpenPgpKey() {
 async function openPgpCopyToClipboard(keyId) {
   let exitCodeObj = {};
 
-  let keyData = EnigmailKeyRing.extractKey(0, [keyId], null, exitCodeObj, {});
+  let keyData = await EnigmailKeyRing.extractKey(
+    0,
+    [keyId],
+    null,
+    exitCodeObj,
+    {}
+  );
 
   // Alert the user if the copy failed.
   if (exitCodeObj.value !== 0) {
@@ -1295,7 +1298,7 @@ async function openPgpCopyToClipboard(keyId) {
  *
  * @param {string} keyId - The formatted OpenPgp Key ID.
  */
-function openPgpSendKeyEmail(keyId) {
+async function openPgpSendKeyEmail(keyId) {
   let tmpFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
   tmpFile.append("key.asc");
   tmpFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
@@ -1304,7 +1307,7 @@ function openPgpSendKeyEmail(keyId) {
   let errorMsgObj = {};
   let keyIdArray = [keyId];
 
-  EnigmailKeyRing.extractKey(
+  await EnigmailKeyRing.extractKey(
     false,
     keyIdArray,
     tmpFile,
@@ -1364,7 +1367,13 @@ async function openPgpExportPublicKey(keyId) {
 
   let exitCodeObj = {};
   let errorMsgObj = {};
-  EnigmailKeyRing.extractKey(false, [keyId], outFile, exitCodeObj, errorMsgObj);
+  await EnigmailKeyRing.extractKey(
+    false,
+    [keyId],
+    outFile,
+    exitCodeObj,
+    errorMsgObj
+  );
 
   // Alert the user if the save process failed.
   if (exitCodeObj.value !== 0) {
@@ -1429,26 +1438,17 @@ async function exportSecretKey(password, fprArray, file, confirmed = false) {
   }
 
   let backupKeyBlock = await RNP.backupSecretKeys(fprArray, password);
-
-  if (
-    !backupKeyBlock ||
-    !EnigmailFiles.writeFileContents(
-      file,
-      backupKeyBlock,
-      EnigmailKeyRing.DEFAULT_FILE_PERMS
-    )
-  ) {
-    document.l10n.formatValue("openpgp-export-secret-fail").then(value => {
-      alertUser(value);
+  await IOUtils.writeUTF8(file.path, backupKeyBlock)
+    .then(() => {
+      document.l10n.setAttributes(
+        document.getElementById("openPgpNotificationDescription"),
+        "openpgp-export-secret-success"
+      );
+      document.getElementById("openPgpNotification").collapsed = false;
+    })
+    .catch(async err => {
+      alertUser(await document.l10n.formatValue("openpgp-export-secret-fail"));
     });
-    return;
-  }
-
-  document.l10n.setAttributes(
-    document.getElementById("openPgpNotificationDescription"),
-    "openpgp-export-secret-success"
-  );
-  document.getElementById("openPgpNotification").collapsed = false;
 }
 
 /**

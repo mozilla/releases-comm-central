@@ -14,14 +14,8 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
-  setTimeout: "resource://gre/modules/Timer.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
-
-const NS_STRING_INPUT_STREAM_CONTRACTID =
-  "@mozilla.org/io/string-input-stream;1";
-const NS_INPUT_STREAM_CHNL_CONTRACTID =
-  "@mozilla.org/network/input-stream-channel;1";
 
 var EnigmailStreams = {
   /**
@@ -54,7 +48,6 @@ var EnigmailStreams = {
       inStream: Cc["@mozilla.org/binaryinputstream;1"].createInstance(
         Ci.nsIBinaryInputStream
       ),
-      _onStopCallback: onStopCallback,
       QueryInterface: ChromeUtils.generateQI([
         "nsIStreamListener",
         "nsIRequestObserver",
@@ -64,12 +57,7 @@ var EnigmailStreams = {
 
       onStopRequest(channel, status) {
         this.inStream = null;
-        var cbFunc = this._onStopCallback;
-        var cbData = this.data;
-
-        setTimeout(function() {
-          cbFunc(cbData);
-        }, 0);
+        onStopCallback(this.data);
       },
     };
 
@@ -97,21 +85,20 @@ var EnigmailStreams = {
       loadInfo = createLoadInfo();
     }
 
-    const inputStream = Cc[NS_STRING_INPUT_STREAM_CONTRACTID].createInstance(
-      Ci.nsIStringInputStream
-    );
+    let inputStream = Cc[
+      "@mozilla.org/io/string-input-stream;1"
+    ].createInstance(Ci.nsIStringInputStream);
     inputStream.setData(data, -1);
 
     if (!contentCharset || contentCharset.length === 0) {
-      const ioServ = Services.io;
-      const netUtil = ioServ.QueryInterface(Ci.nsINetUtil);
+      let netUtil = Services.io.QueryInterface(Ci.nsINetUtil);
       const newCharset = {};
       const hadCharset = {};
       netUtil.parseResponseContentType(contentType, newCharset, hadCharset);
       contentCharset = newCharset.value;
     }
 
-    let isc = Cc[NS_INPUT_STREAM_CHNL_CONTRACTID].createInstance(
+    let isc = Cc["@mozilla.org/network/input-stream-channel;1"].createInstance(
       Ci.nsIInputStreamChannel
     );
     isc.QueryInterface(Ci.nsIChannel);
@@ -141,7 +128,7 @@ var EnigmailStreams = {
     const perm = 0;
     inputStream.init(file, ioFlags, perm, behaviorFlags);
 
-    let isc = Cc[NS_INPUT_STREAM_CHNL_CONTRACTID].createInstance(
+    let isc = Cc["@mozilla.org/network/input-stream-channel;1"].createInstance(
       Ci.nsIInputStreamChannel
     );
     isc.QueryInterface(Ci.nsIChannel);

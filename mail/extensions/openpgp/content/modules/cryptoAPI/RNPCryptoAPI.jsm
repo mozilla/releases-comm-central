@@ -17,9 +17,6 @@ Services.scriptloader.loadSubScript(
   "UTF-8"
 ); /* global CryptoAPI */
 
-const { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
@@ -148,7 +145,7 @@ class RNPCryptoAPI extends CryptoAPI {
   ) {
     let contents = null;
     try {
-      contents = EnigmailFiles.readFile(inputFile);
+      contents = String.fromCharCode(...(await IOUtils.read(inputFile.path)));
     } catch (ex) {
       console.debug(ex);
     }

@@ -21,7 +21,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
-  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
@@ -606,8 +605,6 @@ var EnigmailDecryption = {
       return true;
     }
 
-    //var outFileName = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(outFile.QueryInterface(Ci.nsIFile), NS_WRONLY));
-
     const cApi = EnigmailCryptoAPI();
     let result = await cApi.decryptAttachment(byteData);
     if (!result) {
@@ -622,7 +619,11 @@ var EnigmailDecryption = {
     errorMsgObj.value = result.errorMsg;
 
     if (!this.isDecryptFailureResult(result)) {
-      return EnigmailFiles.writeFileContents(outFile, result.decryptedData);
+      await IOUtils.write(
+        outFile.path,
+        new TextEncoder().encode(result.decryptedData)
+      );
+      return true;
     }
 
     return false;

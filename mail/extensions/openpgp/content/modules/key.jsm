@@ -14,7 +14,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
-  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
@@ -223,13 +222,13 @@ var EnigmailKey = {
    * Get details of a key block to import. Works identically as getKeyListFromKeyBlock();
    * except that the input is a file instead of a string
    *
-   * @param file         nsIFile object - file to read
-   * @param errorMsgObj  Object - obj.value will contain error message
+   * @param {nsIFile} file - The file to read.
+   * @param {Object} errorMsgObj - Object; obj.value will contain error message.
    *
    * @return {Object[]} An array of objects; see getKeyListFromKeyBlock()
    */
-  async getKeyListFromKeyFile(path, errorMsgObj, pubkey, seckey) {
-    var contents = EnigmailFiles.readFile(path);
+  async getKeyListFromKeyFile(file, errorMsgObj, pubkey, seckey) {
+    let contents = await IOUtils.readUTF8(file.path);
     return this.getKeyListFromKeyBlock(
       contents,
       errorMsgObj,
