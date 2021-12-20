@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["ThunderbirdProfileImporter"];
 
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -75,12 +76,35 @@ const IGNORE_PREFS = [
 class ThunderbirdProfileImporter {
   useFilePicker = true;
 
+  /** @type ImportItems */
   supportedItems = {
     accounts: true,
     addressBooks: true,
     calendars: true,
     mailMessages: true,
   };
+
+  /** When importing from a zip file, ignoring these folders. */
+  IGNORE_DIRS = [
+    "chrome_debugger_profile",
+    "crashes",
+    "datareporting",
+    "extensions",
+    "extension-store",
+    "logs",
+    "minidumps",
+    "saved-telemetry-pings",
+    "security_state",
+    "storage",
+    "xulstore",
+  ];
+
+  /**
+   * Callback for progress updates.
+   * @param {number} current - Current imported items count.
+   * @param {number} total - Total items count.
+   */
+  onProgress = () => {};
 
   _logger = console.createInstance({
     prefix: "mail.import",
@@ -109,14 +133,30 @@ class ThunderbirdProfileImporter {
   }
 
   /**
+   * Increase _itemsImportedCount by one, and call onProgress.
+   */
+  async _updateProgress() {
+    this.onProgress(++this._itemsImportedCount, this._itemsTotalCount);
+    return new Promise(resolve => setTimeout(resolve));
+  }
+
+  /**
    * Actually start importing things to the current profile.
    * @param {nsIFile} sourceProfileDir - The source location to import from.
    * @param {ImportItems} items - The items to import.
    */
   async startImport(sourceProfileDir, items) {
+    this._logger.debug(
+      `Start importing from ${sourceProfileDir.path}, items=${JSON.stringify(
+        items
+      )}`
+    );
+
     this._sourceProfileDir = sourceProfileDir;
-    items = items || this.supportedItems;
     this._items = items;
+    this._itemsTotalCount = Object.values(items).filter(Boolean).length;
+    this._itemsImportedCount = 0;
+
     if (items.accounts || items.addressBooks || items.calendars) {
       await this._loadPreferences();
     }
@@ -125,6 +165,7 @@ class ThunderbirdProfileImporter {
       await this._importServersAndAccounts();
       this._importPasswords();
       this._importOtherPrefs(this._otherPrefs);
+      await this._updateProgress();
     }
 
     if (this._items.addressBooks) {
@@ -132,15 +173,19 @@ class ThunderbirdProfileImporter {
         this._branchPrefsMap.get(ADDRESS_BOOK),
         this._collectPrefsToObject(this._branchPrefsMap.get(LDAP_AUTO_COMPLETE))
       );
+      await this._updateProgress();
     }
 
     if (this._items.calendars) {
       this._importCalendars(this._branchPrefsMap.get(CALENDAR));
+      await this._updateProgress();
     }
 
     if (!this._items.accounts && this._items.mailMessages) {
       this._importMailMessagesToLocal();
     }
+
+    await this._updateProgress();
   }
 
   /**

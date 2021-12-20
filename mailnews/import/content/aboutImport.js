@@ -16,6 +16,12 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
  * The base controller for an importing process.
  */
 class ImporterController {
+  _logger = console.createInstance({
+    prefix: "mail.import",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mail.import.loglevel",
+  });
+
   /**
    * @param {string} elementId - The root element id.
    * @param {string} paneIdPrefix - The prefix of subpane id.
@@ -192,7 +198,52 @@ class ProfileImporterController extends ImporterController {
     let index = [
       ...document.querySelectorAll("input[name=appProfile]"),
     ].findIndex(el => el.checked);
-    this._showItems(this._sourceProfiles[index]);
+    if (this._sourceProfiles[index]) {
+      this._showItems(this._sourceProfiles[index]);
+    } else {
+      this._openFilePicker(
+        index == this._sourceProfiles.length ? "dir" : "zip"
+      );
+    }
+  }
+
+  /**
+   * Open a filepicker to select a folder or a zip file.
+   * @param {'dir' | 'zip'} type - Whether to pick a folder or a zip file.
+   */
+  async _openFilePicker(type) {
+    let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
+      Ci.nsIFilePicker
+    );
+    let [
+      filePickerTitleDir,
+      filePickerTitleZip,
+    ] = await document.l10n.formatValues([
+      "profile-file-picker-dir",
+      "profile-file-picker-zip",
+    ]);
+    if (type == "zip") {
+      filePicker.init(window, filePickerTitleZip, filePicker.modeOpen);
+      filePicker.appendFilter("", "*.zip");
+    } else {
+      filePicker.init(window, filePickerTitleDir, filePicker.modeGetFolder);
+    }
+    let rv = await new Promise(resolve => filePicker.open(resolve));
+    if (rv != Ci.nsIFilePicker.returnOK) {
+      return;
+    }
+    let selectedFile = filePicker.file;
+    if (!selectedFile.isDirectory()) {
+      if (selectedFile.fileSize > 2147483647) {
+        // nsIZipReader only supports zip file less than 2GB.
+        importDialog.showError(
+          await document.l10n.formatValue("error-message-zip-file-too-big")
+        );
+        return;
+      }
+      this._importingFromZip = true;
+    }
+    this._showItems({ dir: selectedFile });
   }
 
   /**
@@ -203,15 +254,128 @@ class ProfileImporterController extends ImporterController {
     this._sourceProfile = profile;
     document.getElementById("appSourceProfilePath").textContent =
       profile.dir.path;
+    this._setItemsChecked(this._importer.supportedItems);
     this.showPane("items");
+  }
+
+  /** A map from checkbox id to ImportItems field */
+  _itemCheckboxes = {
+    checkAccounts: "accounts",
+    checkAddressBooks: "addressBooks",
+    checkCalendars: "calendars",
+    checkMailMessages: "mailMessages",
+  };
+
+  /**
+   * Set checkbox states according to an ImportItems object.
+   * @param {ImportItems} items.
+   */
+  _setItemsChecked(items) {
+    for (let id in this._itemCheckboxes) {
+      document.getElementById(id).checked = items[this._itemCheckboxes[id]];
+    }
+  }
+
+  /**
+   * Construct an ImportItems object from the checkbox states.
+   * @returns {ImportItems}
+   */
+  _getItemsChecked() {
+    let items = {};
+    for (let id in this._itemCheckboxes) {
+      items[this._itemCheckboxes[id]] = document.getElementById(id).checked;
+    }
+    return items;
+  }
+
+  /**
+   * Extract the zip file to a tmp dir, set _sourceProfile.dir to the tmp dir.
+   */
+  async _extractZipFile() {
+    // Extract the zip file to a tmp dir.
+    let targetDir = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    targetDir.append("tmp-profile");
+    targetDir.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+    let ZipReader = Components.Constructor(
+      "@mozilla.org/libjar/zip-reader;1",
+      "nsIZipReader",
+      "open"
+    );
+    let zip = ZipReader(this._sourceProfile.dir);
+    for (let entry of zip.findEntries(null)) {
+      let parts = entry.split("/");
+      if (
+        this._importer.IGNORE_DIRS.includes(parts[1]) ||
+        entry.endsWith("/")
+      ) {
+        continue;
+      }
+      // Folders can not be unzipped recursively, have to iterate and
+      // extract all file entires one by one.
+      let target = targetDir.clone();
+      for (let part of parts.slice(1)) {
+        // Drop the root folder name in the zip file.
+        target.append(part);
+      }
+      if (!target.parent.exists()) {
+        target.parent.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+      }
+      try {
+        this._logger.debug(`Extracting ${entry} to ${target.path}`);
+        zip.extract(entry, target);
+        this._extractedFileCount++;
+        if (this._extractedFileCount % 10 == 0) {
+          let progress = Math.min((this._extractedFileCount / 200) * 0.2, 0.2);
+          importDialog.updateProgress(progress);
+          await new Promise(resolve => setTimeout(resolve));
+        }
+      } catch (e) {
+        this._logger.error(e);
+      }
+    }
+    // Use the tmp dir as source profile dir.
+    this._sourceProfile = { dir: targetDir };
+    importDialog.updateProgress(0.2);
   }
 
   /**
    * Handler for the Continue button on the items pane.
    */
-  _onSelectItems() {
-    this._importer.startImport(this._sourceProfile.dir);
+  async _onSelectItems() {
     importDialog.showProgress();
+    if (this._importingFromZip) {
+      this._extractedFileCount = 0;
+      try {
+        await this._extractZipFile();
+      } catch (e) {
+        importDialog.showError(
+          await document.l10n.formatValue(
+            "error-message-extract-zip-file-failed"
+          )
+        );
+        throw e;
+      }
+    }
+    this._importer.onProgress = (current, total) => {
+      importDialog.updateProgress(
+        this._importingFromZip ? 0.2 + (0.8 * current) / total : current / total
+      );
+    };
+    try {
+      await this._importer.startImport(
+        this._sourceProfile.dir,
+        this._getItemsChecked()
+      );
+    } catch (e) {
+      importDialog.showError(
+        await document.l10n.formatValue("error-message-failed")
+      );
+      throw e;
+    } finally {
+      if (this._importingFromZip) {
+        IOUtils.remove(this._sourceProfile.dir.path, { recursive: true });
+      }
+    }
   }
 }
 
@@ -233,7 +397,7 @@ let importDialog = {
    * Toggle the disabled status of the cancel button.
    * @param {boolean} disabled - Whether to disable the cancel button.
    */
-  disableCancel(disabled) {
+  _disableCancel(disabled) {
     this._btnCancel.disabled = disabled;
   },
 
@@ -241,7 +405,7 @@ let importDialog = {
    * Toggle the disabled status of the accept button.
    * @param {boolean} disabled - Whether to disable the accept button.
    */
-  disableAccept(disabled) {
+  _disableAccept(disabled) {
     this._btnAccept.disabled = disabled;
   },
 
@@ -265,6 +429,16 @@ let importDialog = {
    */
   showProgress() {
     this._showPane("progress");
+    this._restartOnOk = true;
+    this._disableCancel(true);
+    this._disableAccept(true);
+  },
+
+  updateProgress(value) {
+    document.getElementById("importDialogProgressBar").value = value;
+    if (value >= 1) {
+      this._disableAccept(false);
+    }
   },
 
   /**
@@ -274,6 +448,9 @@ let importDialog = {
   showError(msg) {
     this._showPane("error");
     document.getElementById("dialogError").textContent = msg;
+    this._disableCancel(false);
+    this._disableAccept(false);
+    this._restartOnOk = false;
   },
 
   /**
@@ -287,7 +464,7 @@ let importDialog = {
    * The click handler of the accept button.
    */
   onAccept() {
-    MailUtils.restartApplication();
+    this._restartOnOk ? MailUtils.restartApplication() : this._el.close();
   },
 };
 

@@ -114,3 +114,12 @@ progress {
   padding: 1em 0;
   list-style: none;
 }
+
+/* Override common.css */
+.toggle-container-with-text {
+  grid-template-columns: min-content;
+  display: grid;
+  grid-template-areas:
+    "i text"
+    ". text";
+}
