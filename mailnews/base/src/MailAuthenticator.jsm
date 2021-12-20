@@ -257,9 +257,7 @@ class SmtpAuthenticator extends MailAuthenticator {
       Ci.msgIOAuth2Module
     );
     if (!oauth2Module.initFromSmtp(this._server)) {
-      return Promise.reject(
-        `initFromSmtp failed, hostname: ${this._server.hostname}`
-      );
+      return Promise.reject(`initFromSmtp failed, hostname: ${this.hostname}`);
     }
     return new Promise((resolve, reject) => {
       oauth2Module.connect(true, {
@@ -304,6 +302,25 @@ class IncomingServerAuthenticator extends MailAuthenticator {
 
   forgetPassword() {
     this._server.forgetPassword();
+  }
+
+  async getOAuthToken() {
+    let oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
+      Ci.msgIOAuth2Module
+    );
+    if (!oauth2Module.initFromMail(this._server)) {
+      return Promise.reject(`initFromMail failed, hostname: ${this.hostname}`);
+    }
+    return new Promise((resolve, reject) => {
+      oauth2Module.connect(true, {
+        onSuccess: token => {
+          resolve(token);
+        },
+        onFailure: e => {
+          reject(e);
+        },
+      });
+    });
   }
 }
 

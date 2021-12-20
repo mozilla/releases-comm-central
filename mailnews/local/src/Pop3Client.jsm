@@ -58,7 +58,7 @@ class Pop3Client {
         [Ci.nsMsgAuthMethod.GSSAPI]: ["GSSAPI"],
         [Ci.nsMsgAuthMethod.NTLM]: ["NTLM"],
         [Ci.nsMsgAuthMethod.OAuth2]: ["XOAUTH2"],
-        [Ci.nsMsgAuthMethod.secure]: ["CRAM-MD5", "XOAUTH2"],
+        [Ci.nsMsgAuthMethod.secure]: ["CRAM-MD5", "GSSAPI"],
       }[server.authMethod] || [];
     // The next auth method to try if the current failed.
     this._nextAuthMethod = null;
@@ -397,7 +397,7 @@ class Pop3Client {
   /**
    * Init authentication depending on server capabilities and user prefs.
    */
-  _actionAuth = () => {
+  _actionAuth = async () => {
     if (!this._nextAuthMethod) {
       this._actionDone(Cr.NS_ERROR_FAILURE);
       return;
@@ -434,6 +434,38 @@ class Pop3Client {
       case "CRAM-MD5":
         this._nextAction = this._actionAuthCramMd5;
         this._send("AUTH CRAM-MD5");
+        break;
+      case "GSSAPI": {
+        this._nextAction = this._actionAuthGssapi;
+        this._authenticator.initGssapiAuth("pop");
+        let token;
+        try {
+          token = this._authenticator.getNextGssapiToken("");
+        } catch (e) {
+          this._logger.error(e);
+          this._actionDone(Cr.NS_ERROR_FAILURE);
+          return;
+        }
+        this._send(`AUTH GSSAPI ${token}`, true);
+        break;
+      }
+      case "NTLM": {
+        this._nextAction = this._actionAuthNtlm;
+        this._authenticator.initNtlmAuth("pop");
+        let token;
+        try {
+          token = this._authenticator.getNextNtlmToken("");
+        } catch (e) {
+          this._logger.error(e);
+          this._actionDone(Cr.NS_ERROR_FAILURE);
+        }
+        this._send(`AUTH NTLM ${token}`, true);
+        break;
+      }
+      case "XOAUTH2":
+        this._nextAction = this._actionAuthResponse;
+        let token = await this._authenticator.getOAuthToken();
+        this._send(`AUTH XOAUTH2 ${token}`, true);
         break;
       default:
         this._actionDone();
@@ -535,6 +567,50 @@ class Pop3Client {
     let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
     // Send the username and signature back to the server.
     this._send(btoa(`${this._authenticator.username} ${hex}`), true);
+  };
+
+  /**
+   * The second and next step of GSSAPI auth.
+   * @param {Pop3Response} res - AUTH response received from the server.
+   */
+  _actionAuthGssapi = res => {
+    if (res.status != "+") {
+      this._actionAuthResponse(res);
+      return;
+    }
+
+    // Server returns a challenge, we send a new token. Can happen multiple times.
+    let token;
+    try {
+      token = this._authenticator.getNextGssapiToken(res.statusText);
+    } catch (e) {
+      this._logger.error(e);
+      this._actionAuthResponse({ success: false, data: "AUTH GSSAPI" });
+      return;
+    }
+    this._send(token, true);
+  };
+
+  /**
+   * The second and next step of NTLM auth.
+   * @param {Pop3Response} res - AUTH response received from the server.
+   */
+  _actionAuthNtlm = res => {
+    if (res.status != "+") {
+      this._actionAuthResponse(res);
+      return;
+    }
+
+    // Server returns a challenge, we send a new token. Can happen multiple times.
+    let token;
+    try {
+      token = this._authenticator.getNextNtlmToken(res.statusText);
+    } catch (e) {
+      this._logger.error(e);
+      this._actionAuthResponse({ success: false, data: "AUTH NTLM" });
+      return;
+    }
+    this._send(token, true);
   };
 
   /**
