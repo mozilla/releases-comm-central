@@ -801,8 +801,9 @@ var OTR = {
     if (pb) {
       prefNudge = pb.getBoolPref("options.otrVerifyNudge", defaultNudge);
     }
-    let strid =
-      "context-gone_secure_" + (wContext.trust ? "private" : "unverified");
+    let strid = wContext.trust
+      ? "context-gone-secure-private"
+      : "context-gone-secure-unverified";
     this.notifyObservers(wContext, "otr:msg-state");
     this.sendAlert(wContext, _strArgs(strid, { name: wContext.username }));
     if (prefNudge && !wContext.trust) {
