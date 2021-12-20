@@ -607,7 +607,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
         if (input.value[input.selectionStart] == ",") {
           // Don't create the pill in the special case where the auto-complete
           // suggestion starts with a comma.
-          return;
+          break;
         }
         // Complete the suggestion as a pill.
         beforeComma = input.value;
@@ -771,7 +771,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // Return if the Alt or Cmd modifiers were pressed, meaning the user is
       // switching between windows and not tabbing out of the address input.
       if (event.altKey || event.metaKey) {
-        return;
+        break;
       }
       // Trigger the autocomplete controller only if we have a value,
       // to prevent interfering with the natural change of focus on Tab.
