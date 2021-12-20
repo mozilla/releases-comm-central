@@ -887,6 +887,7 @@ pref("devtools.toolbox.zoomValue", "1");
 pref("devtools.toolbox.splitconsoleEnabled", false);
 pref("devtools.toolbox.splitconsoleHeight", 100);
 pref("devtools.toolbox.tabsOrder", "");
+pref("devtools.netmonitor.features.newEditAndResend", false);
 
 // The fission pref for enabling the "Multiprocess Browser Toolbox", which will
 // make it possible to debug anything in Firefox (See Bug 1570639 for more
