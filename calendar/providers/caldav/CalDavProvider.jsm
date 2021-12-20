@@ -231,30 +231,28 @@ class CalDavDetector {
   /**
    * Attempt to detect calendars using Google OAuth.
    *
-   * @param {nsIURI} location                   The location to attempt.
+   * @param {nsIURI} calURI - The location to attempt.
    * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
    */
-  async attemptGoogleOauth(location) {
-    if (!this.username) {
-      return null;
-    }
-
-    let usesGoogleOAuth = cal.provider.detection.googleOAuthDomains.has(location.host);
-
+  async attemptGoogleOauth(calURI) {
+    let usesGoogleOAuth = cal.provider.detection.googleOAuthDomains.has(calURI.host);
     if (!usesGoogleOAuth) {
       // Not using Google OAuth that we know of, but we could check the mx entry.
       // If mail is handled by Google then this is likely a Google Apps domain.
-      let mxRecords = await DNS.mx(location.host);
+      let mxRecords = await DNS.mx(calURI.host);
       usesGoogleOAuth = mxRecords.some(r => /\bgoogle\.com$/.test(r.host));
     }
 
     if (usesGoogleOAuth) {
-      let uri = Services.io.newURI(
-        `https://apidata.googleusercontent.com/caldav/v2/${encodeURIComponent(this.username)}/user`
-      );
+      // If we were given a full URL to a calendar, try to use it.
+      let spec = this.username
+        ? `https://apidata.googleusercontent.com/caldav/v2/${encodeURIComponent(
+            this.username
+          )}/user`
+        : calURI.spec;
+      let uri = Services.io.newURI(spec);
       return this.handlePrincipal(uri);
     }
-
     return null;
   }
 

@@ -58,7 +58,7 @@ var calproviderdetection = {
    * MX entries should be checked for remaining cases.
    * @type {Set<string>}
    */
-  googleOAuthDomains: new Set(["gmail.com", "googlemail.com"]),
+  googleOAuthDomains: new Set(["gmail.com", "googlemail.com", "apidata.googleusercontent.com"]),
 
   /**
    * Translate location and username to an uri. If the location is empty, the
