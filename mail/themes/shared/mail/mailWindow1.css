@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:root:not([tabsintitlebar]) .titlebar-buttonbox-container {
+  visibility: collapse;
+}
+
 #tabmail:-moz-lwtheme {
   text-shadow: none;
 }
@@ -94,7 +98,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 
 /* Quick-Filter-Bar */
 :root[lwt-tree] #quick-filter-bar:-moz-lwtheme {
-  background-color: var(--lwt-accent-color);
+  background-color: var(--toolbar-bgcolor);
   color: var(--lwt-text-color);
 }
 

@@ -16,7 +16,6 @@
 }
 
 #mail-toolbox:-moz-lwtheme {
-  background: none;
   box-shadow: none;
 }
 
@@ -25,16 +24,9 @@
   -moz-default-appearance: toolbar;
 }
 
-/* Set position: relative to let the LW-background-box be behind them. */
-#navigation-toolbox:-moz-lwtheme,
-#mail-toolbox:-moz-lwtheme,
-#messagepaneboxwrapper:-moz-lwtheme {
-  position: relative;
-}
-
 /* ::::: message header borders ::::: */
 
-#messagepanebox {
+#messagepanebox:not(:-moz-lwtheme) {
   text-shadow: none;
-  background-color: #FFFFFF;
+  background-color: var(--toolbar-bgcolor);
 }

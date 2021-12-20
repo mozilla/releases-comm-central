@@ -8,7 +8,7 @@
   appearance: none;
 }
 
-:root[tabsintitlebar][sizemode=normal] #mail-toolbar-menubar2[autohide=true] ~
+:root[tabsintitlebar][sizemode=normal] #toolbar-menubar[autohide=true] ~
   #tabs-toolbar > #tabbar-toolbar {
   margin-inline-start: 40px;
 }
@@ -136,8 +136,8 @@ tabpanels {
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   @media (-moz-windows-glass: 0) {
-    :root[tabsintitlebar][sizemode=normal] #mail-toolbar-menubar2[autohide=true][inactive] ~
-      #tabs-toolbar {
+    :root[tabsintitlebar][sizemode=normal] #toolbar-menubar[autohide=true][inactive] ~
+      #tabs-toolbar > *:not(.titlebar-buttonbox-container) {
       margin-top: 6px;
     }
   }

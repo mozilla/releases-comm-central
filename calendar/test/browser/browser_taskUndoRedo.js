@@ -237,7 +237,7 @@ add_task(async function setUp() {
   });
 
   clearTransactions();
-  document.getElementById("mail-toolbar-menubar2").setAttribute("autohide", null);
+  document.getElementById("toolbar-menubar").setAttribute("autohide", null);
   await openTasksTab();
 });
 

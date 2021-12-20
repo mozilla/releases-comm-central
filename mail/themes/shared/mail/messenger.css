@@ -204,37 +204,44 @@ body {
   -moz-box-flex: 1;
 }
 
-#titlebar {
-  -moz-window-dragging: drag;
+:root:not([sizemode=maximized]) .titlebar-restore,
+:root:is([sizemode=maximized]) .titlebar-max {
+  display: none;
 }
 
-#messengerWindow:not([chromemargin]) #titlebar {
+:root[tabsintitlebar] #toolbar-menubar[autohide=true]:not([inactive]) +
+  #tabs-toolbar > .titlebar-buttonbox-container {
+  visibility: hidden;
+}
+
+:root[tabsintitlebar]:not([chromehidden~="menubar"]) #toolbar-menubar:not([autohide=true]) +
+  #tabs-toolbar > .titlebar-buttonbox-container {
   display: none;
+}
+
+#toolbar-menubar[autohide="true"] {
+  overflow: hidden;
+}
+
+#toolbar-menubar[autohide="true"][inactive="true"]:not([customizing="true"]) {
+  min-height: 0 !important;
+  height: 0 !important;
+  appearance: none !important;
+}
+
+#titlebar {
+  -moz-window-dragging: drag;
 }
 
 #titlebar-spacer {
   pointer-events: none;
 }
 
-/* Add a box to draw additional background images. */
-#LW-background-box {
-  display: none;
+.titlebar-buttonbox-container {
+  -moz-box-ordinal-group: 1000;
 }
 
-#LW-background-box:-moz-lwtheme {
-  display: block;
-  height: 60px;
-  position: fixed;
-  pointer-events: none;
-  top: 0;
-  width: -moz-available;
-}
-
-#messengerWindow[windowtype="mail:3pane"] #LW-background-box:-moz-lwtheme {
-  z-index: -1;
-}
-
-#LW-background-box:-moz-lwtheme,
+#navigation-toolbox:-moz-lwtheme,
 #ab-toolbox:-moz-lwtheme,
 #compose-toolbox:-moz-lwtheme {
   background-color: var(--lwt-accent-color);
@@ -243,9 +250,53 @@ body {
   background-position: var(--lwt-background-alignment);
 }
 
+/* TODO bug 1695280: Remove these media selectors and merge the rule below
+   with the ruleset above. We must set background properties on :root and not
+   #navigation-toolbox on Windows 7/8 due to a WebRender bug that hides the
+   minimize/maximize/close buttons. */
+@media not (-moz-os-version: windows-win7) {
+  @media not (-moz-os-version: windows-win8) {
+    #navigation-toolbox:-moz-lwtheme {
+      background-color: var(--lwt-accent-color);
+    }
+
+    /* When a theme defines both theme_frame and additional_backgrounds, show
+       the latter atop the former. */
+   :root[lwtheme-image] #navigation-toolbox {
+     background-image: var(--lwt-header-image), var(--lwt-additional-images);
+     background-repeat: no-repeat, var(--lwt-background-tiling);
+     background-position: right top, var(--lwt-background-alignment);
+   }
+
+   #navigation-toolbox:-moz-window-inactive:-moz-lwtheme {
+     background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+   }
+  }
+}
+/* TODO bug 1695280: Remove this block. */
+@media (-moz-os-version: windows-win7),
+       (-moz-os-version: windows-win8) {
+  :root:-moz-lwtheme {
+    background-color: var(--lwt-accent-color);
+    background-image: var(--lwt-additional-images);
+    background-repeat: var(--lwt-background-tiling);
+    background-position: var(--lwt-background-alignment);
+  }
+
+  :root[lwtheme-image] {
+    background-image: var(--lwt-header-image, linear-gradient(transparent, transparent)),  var(--lwt-additional-images) !important;
+    background-repeat: no-repeat, var(--lwt-background-tiling);
+    background-position: right top, var(--lwt-background-alignment) !important;
+  }
+
+  :root:-moz-lwtheme:-moz-window-inactive {
+    background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+  }
+}
+
 /* When a theme defines both theme_frame and additional_backgrounds, show
    the latter atop the former. */
-:root[lwtheme-image] #LW-background-box,
+:root[lwtheme-image] #navigation-toolbox,
 :root[lwtheme-image] #ab-toolbox,
 :root[lwtheme-image] #compose-toolbox {
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
@@ -253,7 +304,7 @@ body {
   background-position: right top, var(--lwt-background-alignment);
 }
 
-#LW-background-box:-moz-window-inactive:-moz-lwtheme,
+#navigation-toolbox:-moz-window-inactive:-moz-lwtheme,
 #ab-toolbox:-moz-window-inactive:-moz-lwtheme,
 #compose-toolbox:-moz-window-inactive:-moz-lwtheme {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
@@ -1157,6 +1208,12 @@ statuspanel:not([label]) {
 }
 
 /* Status bar */
+
+.statusbar {
+  appearance: auto;
+  -moz-default-appearance: statusbar;
+  min-height: 22px;
+}
 
 #status-bar:-moz-lwtheme {
   background-repeat: no-repeat, var(--lwt-background-tiling);

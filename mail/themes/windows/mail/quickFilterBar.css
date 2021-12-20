@@ -71,9 +71,3 @@
 #quick-filter-bar-collapsible-buttons toolbarbutton .toolbarbutton-text {
   margin-inline-start: 3px !important;
 }
-
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #quick-filter-bar {
-    background: #f8f8f8;
-  }
-}

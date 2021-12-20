@@ -336,7 +336,7 @@ async function subtest_tools_menu(testWindow, expectedInfo, expectedTab) {
 }
 
 add_task(async function test_tools_menu() {
-  let toolbar = window.document.getElementById("mail-toolbar-menubar2");
+  let toolbar = window.document.getElementById("toolbar-menubar");
   let initialState = toolbar.getAttribute("inactive");
   toolbar.setAttribute("inactive", "false");
 

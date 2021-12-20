@@ -6,25 +6,25 @@
 
 @media (-moz-windows-compositor: 0),
        (-moz-windows-default-theme: 0) {
-/* We want a 4px gap between the tabs-toolbar and the mail-toolbar-menubar2
+/* We want a 4px gap between the tabs-toolbar and the toolbar-menubar
    when the toolbar-menu is displayed. 1px is taken care of by the (light)
    outer shadow of the tab, the remaining 3 is these margins. */
-  #mail-toolbar-menubar2:not([autohide="true"]) ~ #tabs-toolbar,
-  #mail-toolbar-menubar2[autohide="true"]:not([inactive]) ~ #tabs-toolbar {
+  #toolbar-menubar:not([autohide="true"]) ~ #tabs-toolbar,
+  #toolbar-menubar[autohide="true"]:not([inactive]) ~ #tabs-toolbar {
     margin-top: 3px;
   }
 
-  #messengerWindow[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme) {
+  :root[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme) {
     color: CaptionText;
   }
 
-  #messengerWindow[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
+  :root[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
     color: InactiveCaptionText;
   }
 }
 
 #navigation-toolbox,
-#mail-toolbar-menubar2 {
+#toolbar-menubar {
   appearance: none;
 }
 
@@ -76,17 +76,9 @@
     box-shadow: none;
   }
 
-  /* Add a window top border for webextension themes */
-  :root[tabsintitlebar][sizemode="normal"] #titlebar-content:-moz-lwtheme {
-    background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
-                                      ThreeDLightShadow 1px, ThreeDHighlight 1px,
-                                      ThreeDHighlight 2px, ActiveBorder 2px,
-                                      ActiveBorder 4px, transparent 4px);
-  }
-
   /* End classic titlebar gradient */
 
-  :root[tabsintitlebar] :is(#tabs-toolbar,#mail-toolbar-menubar2)
+  :root[tabsintitlebar] :is(#tabs-toolbar,#toolbar-menubar)
   toolbarbutton:not(:-moz-lwtheme) {
     color: inherit;
   }
@@ -160,17 +152,16 @@
 }
 
 @media (-moz-windows-compositor: 0) {
-  #mail-toolbar-menubar2 {
+  #toolbar-menubar {
     background-color: transparent !important
   }
 
-  #messengerWindow[tabsintitlebar] #titlebar:-moz-lwtheme {
-    visibility: hidden;
+  :root[tabsintitlebar]:not([lwt-tree]) #titlebar:-moz-lwtheme {
+    appearance: none !important;
   }
 
-  #messengerWindow[tabsintitlebar] #titlebar-content:-moz-lwtheme {
-    visibility: visible;
-    -moz-window-dragging: drag;
+  :root[tabsintitlebar][sizemode="maximized"]:not([lwt-tree]) #titlebar:-moz-lwtheme {
+    margin-top: 4px;
   }
 
   #print-preview-toolbar:not(:-moz-lwtheme) {
@@ -186,29 +177,12 @@
       background-color: rgb(215, 228, 242);
     }
 
-    #mail-toolbar-menubar2:not([autohide=true],:-moz-lwtheme),
+    #toolbar-menubar:not([autohide=true],:-moz-lwtheme),
     #tabs-toolbar:not(:-moz-lwtheme) {
       background-color: transparent;
     }
-    #mail-toolbar-menubar2[autohide=true] {
+    #toolbar-menubar[autohide=true] {
       background-color: transparent !important;
-    }
-
-    /* Render a window top border for lwthemes: */
-    #messengerWindow[tabsintitlebar][sizemode="normal"]
-    #titlebar-content:-moz-lwtheme {
-      background-image: linear-gradient(to bottom, rgb(37, 44, 51) 0,
-                                        rgb(37, 44, 51) 1px,
-                                        rgba(255,255,255,.6) 1px,
-                                        rgba(255,255,255,.6) 2px, transparent 2px);
-    }
-
-    #messengerWindow[tabsintitlebar][sizemode="normal"]
-    #titlebar-content:-moz-lwtheme:-moz-window-inactive {
-      background-image: linear-gradient(to bottom, rgb(102, 102, 102) 0,
-                                        rgb(102, 102, 102) 1px,
-                                        rgba(255,255,255,.6) 1px,
-                                        rgba(255,255,255,.6) 2px, transparent 2px);
     }
   }
 }
@@ -233,7 +207,7 @@
    * illegible.
    */
   @media not all and (-moz-os-version: windows-win7) {
-    #mail-toolbar-menubar2:not(:-moz-lwtheme):-moz-window-inactive {
+    #toolbar-menubar:not(:-moz-lwtheme):-moz-window-inactive {
       color: ThreeDShadow;
     }
   }
@@ -249,7 +223,7 @@
     -moz-box-ordinal-group: 10;
   }
 
-  #mail-toolbar-menubar2 {
+  #toolbar-menubar {
     -moz-box-ordinal-group: 20;
     -moz-window-dragging: no-drag;
     box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
@@ -259,19 +233,15 @@
     padding-top: 2px;
   }
 
-  #mail-toolbar-menubar2:-moz-lwtheme {
+  #toolbar-menubar:-moz-lwtheme {
     background-color: var(--toolbar-bgcolor);
     color: var(--toolbar-color, inherit);
     box-shadow: none;
   }
 
-  #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
+  #navigation-toolbox > #toolbar-menubar:not(:-moz-lwtheme) {
     appearance: none;
     border-bottom: 1px solid #aabccf;
-  }
-
-  #mail-toolbar-menubar2 > .titlebar-placeholder {
-    display: none;
   }
 
   #tabs-toolbar:not(:-moz-lwtheme) {
@@ -308,7 +278,7 @@
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  #navigation-toolbox > #mail-toolbar-menubar2 {
+  #navigation-toolbox > #toolbar-menubar {
     background-color: transparent;
     padding-top: 0;
     padding-bottom: 0 !important;

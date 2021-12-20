@@ -68,64 +68,97 @@
                                           hsla(0, 0%, 70%, .6));
 }
 
-/* Hide the titlebar explicitly on versions of GTK+ where
- * it's rendered by window manager. */
-@media (-moz-gtk-csd-available: 0) {
-  #titlebar {
-    display: none;
-  }
+#navigation-toolbox {
+  appearance: none;
+  background-color: transparent;
+  border-top: none;
 }
 
-/* We draw to titlebar when Gkt+ CSD is available */
+.titlebar-buttonbox-container {
+  margin-inline-end: 6px;
+}
+
+#toolbar-menubar[customizing=true] + #tabs-toolbar > .titlebar-buttonbox-container {
+  visibility: hidden;
+}
+
+/**
+ * Titlebar drawing:
+ *
+ * We draw to titlebar when Gkt+ CSD is available. This is mostly
+ * straight-forward, but getting the window corners to look perfect is a bit
+ * tricky, as there are different variables to take into account.
+ *
+ * GTK windows have both a window radius (exposed via the
+ * `-moz-gtk-csd-titlebar-radius`) environment variable, and a window shadow
+ * (which we can't read back from GTK). Note that the native drawing does draw
+ * the shadow already.
+ *
+ * So there are multiple configurations to consider:
+ *
+ *  * Whether we're using Wayland vs. X11
+ *  * Whether we're using a lightweight theme or not.
+ *
+ * Consider the simple case (default system theme). We render the titlebar
+ * using `-moz-default-appearance: -moz-window-titlebar;`, then don't draw
+ * anything else. Success!
+ *
+ * Now consider lightweight themes: We need to render the native titlebar
+ * behind the "theme" titlebar in order to render the native shadow on X11. But
+ * we can't just use the #navigation-toolbox as that's where the lightweight
+ * theme background goes, so we need to use the #navigation-toolbox-background.
+ * We still have to apply the corner radii to #navigation-toolbox of course, so
+ * the lightweight theme background doesn't overflow the titlebar radius.
+ *
+ * In a Wayland-only world, the setup could be much simpler: We could apply the
+ * titlebar appearance to #navigation-toolbox, and just apply the border radius
+ * on the <body> or #navigation-toolbox-background to clip the extra shadow when
+ * using the system theme. For the lightweight theme, we could use
+ * appearance: none and the titlebar radius on the toolbox. In X11 however, we
+ * do need the native titlebar behind at all times.
+ */
 @media (-moz-gtk-csd-available) {
-  :root[tabsintitlebar]:not(:-moz-lwtheme) {
+  :root[tabsintitlebar][sizemode="normal"] {
     background-color: transparent;
-    background-image: linear-gradient(transparent 25px, -moz-dialog 25px);
-  }
-
-  :root[tabsintitlebar] #titlebar:-moz-lwtheme {
-    visibility: hidden;
-  }
-
-  :root[tabsintitlebar] #titlebar-content:-moz-lwtheme {
-    visibility: visible;
   }
 
   :root[tabsintitlebar] #titlebar {
-    appearance: auto;
-    -moz-default-appearance: -moz-window-titlebar-maximized;
     color: CaptionText;
   }
 
-  :root[tabsintitlebar] #navigation-toolbox {
-    color: CaptionText;
-  }
-
-  :root[tabsintitlebar] #titlebar:-moz-window-inactive,
-  :root[tabsintitlebar] #navigation-toolbox:-moz-window-inactive {
+  :root[tabsintitlebar] #titlebar:-moz-window-inactive {
     color: InactiveCaptionText;
   }
 
-  :root[tabsintitlebar] #titlebar:-moz-lwtheme,
-  :root[tabsintitlebar] #navigation-toolbox:-moz-lwtheme {
+  :root[tabsintitlebar] #titlebar:-moz-lwtheme {
     color: inherit;
   }
 
-  :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) #titlebar {
+  :root[tabsintitlebar] #navigation-toolbox-background {
     appearance: auto;
+    -moz-default-appearance: -moz-window-titlebar-maximized;
+  }
+
+  :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) #navigation-toolbox-background {
     -moz-default-appearance: -moz-window-titlebar;
   }
 
-  /* Add extra space to titlebar for dragging */
-  :root[sizemode="normal"] #mail-toolbar-menubar2[autohide="true"][inactive] ~ #tabs-toolbar {
-    padding-top: var(--space-above-tabbar);
+  :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) #navigation-toolbox:-moz-lwtheme,
+  :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) ::backdrop {
+    border-top-left-radius: env(-moz-gtk-csd-titlebar-radius);
+    border-top-right-radius: env(-moz-gtk-csd-titlebar-radius);
   }
 
-  /* Make #TabsToolbar transparent as we style underlying #titlebar with
-      * -moz-window-titlebar (Gtk+ theme).
-      */
+  /* When temporarily showing the menu bar, make it at least as tall as the tab
+   * bar such that the window controls don't appear to move up. */
+  :root[tabsintitlebar] #toolbar-menubar[autohide="true"] {
+    height: var(--tab-min-height);
+  }
+
+  /* Make #tabs-toolbar transparent as we style underlying #titlebar with
+   * -moz-window-titlebar (Gtk+ theme). */
   :root[tabsintitlebar] #tabs-toolbar,
-  :root[tabsintitlebar] #mail-toolbar-menubar2 {
+  :root[tabsintitlebar] #toolbar-menubar {
     appearance: none;
     color: inherit;
   }
@@ -134,12 +167,11 @@
     color: inherit;
   }
 
-  /* The button box must appear on top of the navigator-toolbox in order for
+  /* The button box must appear on top of the navigation-toolbox in order for
    * click and hover mouse events to work properly for the button in the restored
-   * window state. Otherwise, elements in the navigator-toolbox, like the menubar,
-   * can swallow those events.
-   */
-  #titlebar-buttonbox {
+   * window state. Otherwise, elements in the navigation-toolbox, like the menubar,
+   * can swallow those events. */
+  .titlebar-buttonbox {
     position: relative;
     z-index: 1;
     -moz-box-align: center;
@@ -147,62 +179,84 @@
 
   /* Render titlebar command buttons according to system config.
    * Use full scale icons here as the Gtk+ does. */
-  #titlebar-min {
+  .titlebar-min {
     appearance: auto;
     -moz-default-appearance: -moz-window-button-minimize;
     -moz-box-ordinal-group: env(-moz-gtk-csd-minimize-button-position);
   }
-  #titlebar-max {
+  .titlebar-max {
     appearance: auto;
     -moz-default-appearance: -moz-window-button-maximize;
     -moz-box-ordinal-group: env(-moz-gtk-csd-maximize-button-position);
   }
-  :root[sizemode="maximized"] #titlebar-max {
+  .titlebar-restore {
     appearance: auto;
     -moz-default-appearance: -moz-window-button-restore;
     -moz-box-ordinal-group: env(-moz-gtk-csd-maximize-button-position);
   }
-  #titlebar-close {
+  .titlebar-close {
     appearance: auto;
     -moz-default-appearance: -moz-window-button-close;
     -moz-box-ordinal-group: env(-moz-gtk-csd-close-button-position);
   }
 
-  @media (-moz-gtk-csd-minimize-button: 0) {
-    #titlebar-min {
-      display: none;
-    }
-  }
-  @media (-moz-gtk-csd-maximize-button: 0) {
-    #titlebar-max {
-      display: none;
-    }
-  }
-  @media (-moz-gtk-csd-close-button: 0) {
-    #titlebar-close {
-      display: none;
-    }
+  .titlebar-button > .toolbarbutton-icon:-moz-lwtheme {
+    padding: 6px;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
   }
 
-  @media (-moz-gtk-csd-reversed-placement: 0) {
-    .titlebar-placeholder[type="caption-buttons"] {
-      -moz-box-ordinal-group: 1000;
+  @media not (-moz-gtk-csd-minimize-button) {
+    .titlebar-min {
+      display: none;
     }
-
-    :root[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
-      margin-inline-start: 10px;
+  }
+  @media not (-moz-gtk-csd-maximize-button) {
+    .titlebar-restore,
+    .titlebar-max {
+      display: none;
+    }
+  }
+  @media not (-moz-gtk-csd-close-button) {
+    .titlebar-close {
+      display: none;
     }
   }
 
   @media (-moz-gtk-csd-reversed-placement) {
-    #titlebar-buttonbox-container,
-    .titlebar-placeholder[type="caption-buttons"] {
+    .titlebar-buttonbox-container {
       -moz-box-ordinal-group: 0;
+      margin-inline-start: 6px;
     }
 
-    :root[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
-      margin-inline-end: 10px;
+    #tabbar-toolbar {
+      margin-inline-end: 3px;
     }
+  }
+
+  @media not (-moz-gtk-csd-reversed-placement) {
+    /* Add the GTK titlebar border radius to the first tab if we don't have
+    * titlebar buttons and the tabs is attached to the edge of the window. */
+    :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"])
+      #toolbar-menubar[autohide=true][inactive] + #tabs-toolbar
+      .tabmail-tab:first-child > .tab-stack > .tab-background {
+      border-start-start-radius: env(-moz-gtk-csd-titlebar-radius);
+    }
+
+    :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"])
+      #toolbar-menubar[autohide=true][inactive] + #tabs-toolbar
+      .tabmail-tab:first-child > .tab-stack > .tab-background > .tab-line {
+      margin-inline-start: env(-moz-gtk-csd-titlebar-radius);
+    }
+  }
+
+  /**
+   * Style the statusbar differently since we're setting a transparent
+   * background for the entire :root element.
+   */
+  .statusbar {
+    -moz-default-appearance: none;
+    background-color: -moz-Dialog;
   }
 }
 
@@ -344,12 +398,6 @@ treechildren::-moz-tree-cell-text {
 }
 
 /* Status bar */
-
-.statusbar {
-  appearance: auto;
-  -moz-default-appearance: statusbar;
-  min-height: 22px;
-}
 
 .statusbar:-moz-lwtheme {
   appearance: none;

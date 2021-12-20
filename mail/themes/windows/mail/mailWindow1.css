@@ -38,101 +38,87 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 /* ..... Draw in titlebar ..... */
 
-#messengerWindow[sizemode="normal"] #titlebar {
+:root[tabsintitlebar][sizemode="normal"] #titlebar {
   appearance: auto;
   -moz-default-appearance: -moz-window-titlebar;
 }
 
-#messengerWindow[sizemode="maximized"] #titlebar {
+:root[tabsintitlebar][sizemode="maximized"] #titlebar {
   appearance: auto;
   -moz-default-appearance: -moz-window-titlebar-maximized;
 }
 
 @media (-moz-windows-classic) {
-  #messengerWindow[tabsintitlebar] #navigation-toolbox > #mail-toolbar-menubar2 {
+  :root[tabsintitlebar] #navigation-toolbox > #toolbar-menubar {
     border-bottom: none;
   }
 
-  #messengerWindow[tabsintitlebar][sizemode="normal"] #navigation-toolbox > #mail-toolbar-menubar2 {
+  :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox > #toolbar-menubar {
     margin-top: 4px;
   }
 }
 
 /* Prevent window controls from overlapping the nav bar's shadow on the tab
  * bar. */
-#titlebar-buttonbox-container {
+#tabs-toolbar > .titlebar-buttonbox-container {
   margin-bottom: var(--tabs-tabbar-border-size);
 }
 
-/* The button box must appear on top of the navigator-toolbox in order for
+/* The button box must appear on top of the navigation-toolbox in order for
  * click and hover mouse events to work properly for the button in the restored
- * window state. Otherwise, elements in the navigator-toolbox, like the menubar,
+ * window state. Otherwise, elements in the navigation-toolbox, like the menubar,
  * can swallow those events. It will also place the buttons above the fog on
  * themes with Aero Glass.
  */
-#titlebar-buttonbox {
+.titlebar-buttonbox {
   z-index: 1;
 }
 
-#messengerWindow:not([tabsintitlebar]) #titlebar {
-  visibility: collapse;
-}
-
-#titlebar-buttonbox {
+.titlebar-buttonbox {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-box;
   position: relative;
 }
 
-#messengerWindow[sizemode="maximized"] #titlebar-buttonbox {
+@media (-moz-windows-classic) {
+  .titlebar-buttonbox {
+    appearance: none;
+  }
+}
+
+:root[sizemode="maximized"] .titlebar-buttonbox {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-box-maximized;
 }
 
-#titlebar-min {
+.titlebar-min {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-minimize;
 }
 
 @media (-moz-windows-classic: 0) {
-  #titlebar-min {
+  .titlebar-min {
     margin-inline-end: 2px;
   }
 }
 
-#titlebar-max {
+.titlebar-max {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-maximize;
 }
 
-#messengerWindow[sizemode="maximized"] #titlebar-max {
+.titlebar-restore {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-restore;
 }
 
-#titlebar-close {
+.titlebar-close {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-close;
 }
 
-#messengerWindow[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
-  margin-inline-start: 10px; /* additional space for Aero Snap */
-}
-
-#messengerWindow:not([tabsintitlebar]) .titlebar-placeholder {
-  visibility: collapse;
-}
-
-@media (-moz-os-version: windows-win7) and (-moz-windows-glass: 0) {
-  #messengerWindow[tabsintitlebar]
-    #mail-toolbar-menubar2:not([autohide]) + #tabs-toolbar >
-    .titlebar-placeholder {
-    visibility: collapse;
-  }
-}
-
 /* Add extra space to titlebar for dragging */
-:root[sizemode="normal"] #mail-toolbar-menubar2[autohide="true"][inactive] ~ #tabs-toolbar {
+:root[sizemode="normal"] #toolbar-menubar[autohide="true"][inactive] ~ #tabs-toolbar {
   padding-top: var(--space-above-tabbar);
 }
 
@@ -150,36 +136,12 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       display: none;
     }
 
-    :root[sizemode="normal"] #titlebar-buttonbox:-moz-lwtheme {
+    :root[sizemode="normal"] .titlebar-buttonbox:-moz-lwtheme {
       margin-top: -2px;
     }
 
-    :root[sizemode="maximized"] #titlebar-buttonbox {
+    :root[sizemode="maximized"] .titlebar-buttonbox {
       margin-inline-end: 3px;
-    }
-  }
-
-  /* Artificially draw window borders that are covered by lwtheme,
-     see bug 591930. win7 are uses different colors than win8 */
-  @media (-moz-os-version: windows-win7) {
-    #messengerWindow[sizemode="normal"] #titlebar >
-    #titlebar-content:-moz-lwtheme {
-      border-top: 1px solid;
-      padding-top: 1px;
-      border-top-color: rgb(37, 44, 51);
-      box-shadow: 0 1px 0 rgba(255,255,255,.6) inset;
-    }
-
-    #messengerWindow[sizemode="normal"] #titlebar >
-    #titlebar-content:-moz-lwtheme:-moz-window-inactive {
-      border-top-color: rgb(102, 102, 102);
-    }
-  }
-
-  @media (-moz-os-version: windows-win8) {
-    #messengerWindow[sizemode="normal"] #titlebar >
-    #titlebar-content:-moz-lwtheme {
-      border-top: 1px solid hsla(209, 67%, 12%, 0.35);
     }
   }
 
@@ -201,12 +163,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         margin-top: -1px;
       }
 
-      :root[tabsintitlebar] #mail-toolbar-menubar2:not([inactive="true"]) {
+      :root[tabsintitlebar] #toolbar-menubar:not([inactive="true"]) {
         margin-top: 1px;
-      }
-
-      :root[tabsintitlebar] #LW-background-box:-moz-lwtheme {
-        top: 1px;
       }
 
       @media (-moz-windows-accent-color-in-titlebar: 0) {
@@ -264,7 +222,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       }
     }
 
-    #titlebar-buttonbox,
+    .titlebar-buttonbox,
     .titlebar-button {
       appearance: none !important;
     }
@@ -290,39 +248,39 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       height: 12px;
     }
 
-    #titlebar-min {
+    .titlebar-min {
       list-style-image: url(chrome://messenger/skin/window-controls/minimize.svg);
     }
 
-    #titlebar-max {
+    .titlebar-max {
       list-style-image: url(chrome://messenger/skin/window-controls/maximize.svg);
     }
 
-    :root[sizemode="maximized"] #titlebar-max {
+    .titlebar-restore {
       list-style-image: url(chrome://messenger/skin/window-controls/restore.svg);
     }
 
-    :root[sizemode="maximized"] #titlebar-max:-moz-locale-dir(rtl) {
+    .titlebar-restore:-moz-locale-dir(rtl) {
       transform: scaleX(-1);
     }
 
-    #titlebar-close {
+    .titlebar-close {
       list-style-image: url(chrome://messenger/skin/window-controls/close.svg);
     }
 
     :root[lwtheme-image] .titlebar-button {
       -moz-context-properties: unset;
     }
-    :root[lwtheme-image] #titlebar-min {
+    :root[lwtheme-image] .titlebar-min {
       list-style-image: url(chrome://messenger/skin/window-controls/minimize-themes.svg);
     }
-    :root[lwtheme-image] #titlebar-max {
+    :root[lwtheme-image] .titlebar-max {
       list-style-image: url(chrome://messenger/skin/window-controls/maximize-themes.svg);
     }
-    :root[lwtheme-image][sizemode="maximized"] #titlebar-max {
+    :root[lwtheme-image] .titlebar-restore {
       list-style-image: url(chrome://messenger/skin/window-controls/restore-themes.svg);
     }
-    :root[lwtheme-image] #titlebar-close {
+    :root[lwtheme-image] .titlebar-close {
       list-style-image: url(chrome://messenger/skin/window-controls/close-themes.svg);
     }
 
@@ -385,12 +343,12 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         opacity: 0.5;
       }
 
-      #titlebar-close:hover {
+      .titlebar-close:hover {
         stroke: white;
         background-color: hsl(355, 86%, 49%);
       }
 
-      #titlebar-close:hover:active {
+      .titlebar-close:hover:active {
         background-color: hsl(355, 82%, 69%);
       }
 
@@ -412,19 +370,19 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         background-color: SelectedItem;
       }
 
-      #titlebar-min {
+      .titlebar-min {
         list-style-image: url(chrome://messenger/skin/window-controls/minimize-highcontrast.svg);
       }
 
-      #titlebar-max {
+      .titlebar-max {
         list-style-image: url(chrome://messenger/skin/window-controls/maximize-highcontrast.svg);
       }
 
-      :root[sizemode="maximized"] #titlebar-max {
+      .titlebar-restore {
         list-style-image: url(chrome://messenger/skin/window-controls/restore-highcontrast.svg);
       }
 
-      #titlebar-close {
+      .titlebar-close {
         list-style-image: url(chrome://messenger/skin/window-controls/close-highcontrast.svg);
       }
     }
@@ -532,10 +490,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
   }
 
-  :root[sizemode=maximized][tabsintitlebar] #LW-background-box:-moz-lwtheme {
-    top: 8px;
-  }
-
   :root:not([lwt-tree],:-moz-lwtheme-brighttext) #folderTree {
     background-color: #fafafa;
   }
@@ -567,10 +521,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   #viewPickerPopup > menu > .menu-text {
     padding-inline-start: 0 !important;
   }
-
-  :root[sizemode=maximized][tabsintitlebar] #LW-background-box:-moz-lwtheme {
-    top: 4px;
-  }
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
@@ -586,7 +536,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       background-clip: padding-box;
     }
 
-    #messengerWindow[sizemode=normal] #mail-toolbar-menubar2 {
+    #messengerWindow[sizemode=normal] #toolbar-menubar {
       border-right: 1px solid var(--glassShadowColor);
       border-left: 1px solid var(--glassShadowColor);
       background-clip: padding-box;
@@ -659,11 +609,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (-moz-windows-compositor: 0) {
-  #mail-toolbar-menubar2[autohide="false"] +
-  #tabs-toolbar > .titlebar-placeholder {
-    display: none;
-  }
-
   @media (-moz-windows-default-theme) {
     #messengerWindow:not(:-moz-lwtheme) {
       background-color: rgb(185, 209, 234);

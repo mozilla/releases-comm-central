@@ -8,12 +8,17 @@
 .contentTabToolbox {
   appearance: none;
   background-color: var(--toolbar-bgcolor);
-  background-image: var(--toolbar-bgimage);
 }
 
 .mail-toolbox:-moz-lwtheme,
 .contentTabToolbox:-moz-lwtheme {
   color: var(--toolbar-color, inherit);
+  background-color: var(--lwt-accent-color);
+  background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent),
+                    var(--lwt-selected-tab-background-color, transparent)),
+                    linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)),
+                    var(--lwt-header-image, none);
+  background-position: right top, var(--lwt-background-alignment);
 }
 
 .mail-toolbox > toolbar {

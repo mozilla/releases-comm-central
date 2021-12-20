@@ -24,7 +24,7 @@ var gCDHelper;
 
 add_task(function setupModule(module) {
   gCDHelper = new CustomizeDialogHelper(
-    "mail-toolbar-menubar2",
+    "toolbar-menubar",
     "CustomizeMailToolbar",
     "mailnews:customizeToolbar"
   );

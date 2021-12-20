@@ -96,7 +96,7 @@ async function help_test_autohide(controller, menubar) {
 }
 
 add_task(async function test_autohidden_menubar_3pane() {
-  let menubar = mc.e("mail-toolbar-menubar2");
+  let menubar = mc.e("toolbar-menubar");
   await help_test_autohide(mc, menubar);
 });
 
@@ -105,7 +105,7 @@ add_task(async function test_autohidden_menubar_message_window() {
   select_click_row(0);
   let msgc = await open_selected_message_in_new_window();
   msgc.window.focus();
-  let menubar = msgc.e("mail-toolbar-menubar2");
+  let menubar = msgc.e("toolbar-menubar");
 
   await help_test_autohide(msgc, menubar);
   close_message_window(msgc);

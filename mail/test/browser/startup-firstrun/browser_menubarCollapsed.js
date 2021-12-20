@@ -12,7 +12,7 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 add_task(function test_main_menu_collapsed() {
-  let mainMenu = document.getElementById("mail-toolbar-menubar2");
+  let mainMenu = document.getElementById("toolbar-menubar");
   Assert.equal(
     mainMenu.getAttribute("autohide"),
     "true",

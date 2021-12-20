@@ -34,9 +34,7 @@
 <script src="chrome://messenger/content/quickFilterBar.js"/>
 <script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
 <script src="chrome://messenger/content/customizable-toolbar.js"/>
-#ifdef XP_MACOSX
 <script src="chrome://global/content/macWindowMenu.js"/>
-#endif
 
 <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
@@ -84,9 +82,27 @@
        have a menubar for situations where they're the only window remaining
        on a platform that wants to leave the app running, like the Mac.
   -->
+  <box id="navigation-toolbox-background">
+    <toolbox id="navigation-toolbox" flex="1" labelalign="end" defaultlabelalign="end">
 
-#include mainNavigationToolbox.inc.xhtml
-  </toolbox>
+      <vbox id="titlebar">
+        <!-- Menu -->
+        <toolbar is="customizable-toolbar" id="toolbar-menubar"
+                 class="chromeclass-menubar themeable-full"
+                 type="menubar"
+                 customizable="true"
+                 toolboxid="mail-toolbox"
+                 defaultset="menubar-items"
+                 context="toolbar-context-menu">
+          <toolbaritem id="menubar-items" align="center">
+# The entire main menubar is placed into messenger-menubar.inc.xhtml, so that it
+# can be shared with other top level windows.
+#include messenger-menubar.inc.xhtml
+          </toolbaritem>
+        </toolbar>
+      </vbox>
+    </toolbox>
+  </box>
 #include mainMailToolbox.inc.xhtml
 
 <browser id="hiddenBrowser" disablehistory="true"/>

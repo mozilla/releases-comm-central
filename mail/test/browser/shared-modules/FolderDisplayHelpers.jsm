@@ -3316,7 +3316,7 @@ function restore_default_window_size() {
  * @param {boolean} aEnabled - Whether the menu should be shown or not.
  */
 function toggle_main_menu(aEnabled = true) {
-  let menubar = mc.e("mail-toolbar-menubar2");
+  let menubar = mc.e("toolbar-menubar");
   let state = menubar.getAttribute("autohide") != "true";
   menubar.setAttribute("autohide", !aEnabled);
   mc.sleep(0);

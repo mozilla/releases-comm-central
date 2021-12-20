@@ -12,7 +12,7 @@ var AutoHideMenubar = {
   get _node() {
     delete this._node;
     return (this._node =
-      document.getElementById("mail-toolbar-menubar2") ||
+      document.getElementById("toolbar-menubar") ||
       document.getElementById("compose-toolbar-menubar2") ||
       document.getElementById("addrbook-toolbar-menubar2"));
   },

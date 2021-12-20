@@ -19,7 +19,3 @@
 .tabmail-tab[selected="true"]:-moz-lwtheme-darktext {
   -moz-font-smoothing-background-color: var(--toolbar-bgcolor);
 }
-
-:root[tabsintitlebar] #LW-background-box:-moz-lwtheme {
-  background-color: transparent;
-}

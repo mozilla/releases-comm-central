@@ -52,7 +52,7 @@ this.browserAction = class extends ToolbarButtonAPI {
     // Check all possible toolbars and remove the toolbarbutton if found.
     // Sadly we have to hardcode these values here, as the add-on is already
     // shutdown when onUninstall is called.
-    let toolbars = ["mail-bar3", "tabbar-toolbar", "mail-toolbar-menubar2"];
+    let toolbars = ["mail-bar3", "tabbar-toolbar", "toolbar-menubar"];
     for (let toolbar of toolbars) {
       let currentSet = Services.xulStore
         .getValue(windowURL, toolbar, "currentset")

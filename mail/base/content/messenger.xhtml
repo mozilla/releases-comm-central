@@ -466,102 +466,117 @@
 
 #include ../../../calendar/base/content/calendar-context-menus-and-tooltips.inc.xhtml
 
-<vbox id="titlebar">
-  <hbox id="titlebar-content">
-    <spacer id="titlebar-spacer" flex="1"/>
-    <hbox id="titlebar-buttonbox-container" align="start">
-      <hbox id="titlebar-buttonbox">
-        <toolbarbutton class="titlebar-button" id="titlebar-min"
-                       oncommand="window.minimize();"/>
-        <!-- titlebar-max-btn is a special attribute used to identify the
-             maximize button elements programmatically -->
-        <toolbarbutton class="titlebar-button" id="titlebar-max"
-                       titlebar-max-btn="" oncommand="onTitlebarMaxClick();"/>
-        <toolbarbutton class="titlebar-button" id="titlebar-close"
-                       oncommand="window.close()"/>
-      </hbox>
-    </hbox>
-  </hbox>
-</vbox>
+<!--
+  GTK needs to draw behind the lightweight theme toolbox backgrounds, thus the
+  extra box. Also this box allows a negative margin-top to slide the toolbox off
+  screen in fullscreen layout.
+-->
+<box id="navigation-toolbox-background">
+  <toolbox id="navigation-toolbox" flex="1" labelalign="end" defaultlabelalign="end">
 
-  <!-- navigation-toolbox with main menubar and tabs toolbar -->
-#include mainNavigationToolbox.inc.xhtml
-    <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
-      <tabs is="tabmail-tabs" id="tabmail-tabs"
-            flex="1"
-            align="end"
-            setfocus="false"
-            alltabsbutton="alltabs-button"
-            collapsetoolbar="tabs-toolbar"
-            tabtoolbar="tabbar-toolbar"
-            context="toolbar-context-menu">
-        <html:img class="tab-drop-indicator"
-                  src="chrome://messenger/skin/icons/tab-drag-indicator.svg"
-                  alt=""
-                  hidden="hidden" />
-        <arrowscrollbox id="tabmail-arrowscrollbox"
-                        orient="horizontal"
-                        flex="1"
-                        clicktoscroll="true"
-                        style="min-width: 1px;">
-          <tab is="tabmail-tab" selected="true" validate="never" type="folder"
-               style="min-width:100px; max-width:250px;" width="0" flex="100"
-               class="tabmail-tab" crop="end" linkedpanel="mailContent"/>
-        </arrowscrollbox>
-      </tabs>
-
-      <!-- Use of this element for extensions is deprecated! Current
-           extensions should add to #mail-toolbox and add a toolbar item to
-           #tabbar-toolbar below. -->
-      <hbox id="tabmail-buttons"/>
-
-      <box id="notification-popup-box"
-           align="center"
-           hidden="true">
-        <image id="addons-notification-icon"
-               class="notification-anchor-icon addons-icon"
-               role="button"/>
-#ifdef MOZ_UPDATER
-        <image id="app-update-notification-icon"
-               class="notification-anchor-icon app-update-icon"
-               role="button"/>
-#endif
-      </box>
-
-      <toolbar is="customizable-toolbar" id="tabbar-toolbar" toolboxid="mail-toolbox"
-               class="themeable-full"
-               context="toolbar-context-menu"
+    <vbox id="titlebar">
+      <!-- Menu -->
+      <toolbar is="customizable-toolbar" id="toolbar-menubar"
+               class="chromeclass-menubar themeable-full"
+               type="menubar"
                customizable="true"
-               mode="icons" defaultmode="icons" lockmode="true"
-               iconsize="small" defaulticonsize="small" lockiconsize="true"
-               defaultset="">
-        <!-- CALENDAR TAB BAR BUTTONS -->
-        <toolbarbutton id="calendar-tab-button"
-                       class="toolbarbutton-1"
-                       title="&lightning.toolbar.calendar.label;"
-                       tooltiptext="&lightning.toolbar.calendar.tooltip;"
-                       command="new_calendar_tab"/>
-        <toolbarbutton id="task-tab-button"
-                       class="toolbarbutton-1"
-                       title="&lightning.toolbar.task.label;"
-                       tooltiptext="&lightning.toolbar.task.tooltip;"
-                       command="new_task_tab"/>
+               toolboxid="mail-toolbox"
+#ifdef XP_MACOSX
+               defaultset="menubar-items"
+               autohide="true"
+#else
+               defaultset="menubar-items,spring"
+#endif
+#ifndef XP_MACOSX
+               data-l10n-id="toolbar-context-menu-menu-bar"
+               data-l10n-attrs="toolbarname"
+#endif
+               context="toolbar-context-menu"
+               mode="icons"
+               insertbefore="tabs-toolbar"
+               prependmenuitem="true">
+        <toolbaritem id="menubar-items" align="center">
+# The entire main menubar is placed into messenger-menubar.inc.xhtml, so that it
+# can be shared with other top level windows.
+#include messenger-menubar.inc.xhtml
+        </toolbaritem>
+#include messenger-titlebar-items.inc.xhtml
       </toolbar>
 
-      <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
-                     id="alltabs-button"
-                     type="menu"
-                     hidden="true"
-                     tooltiptext="&listAllTabs.label;">
-        <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
-                   position="after_end"
-                   tabcontainer="tabmail-tabs"/>
-      </toolbarbutton>
+      <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
+        <tabs is="tabmail-tabs" id="tabmail-tabs"
+              flex="1"
+              align="end"
+              setfocus="false"
+              alltabsbutton="alltabs-button"
+              collapsetoolbar="tabs-toolbar"
+              tabtoolbar="tabbar-toolbar"
+              context="toolbar-context-menu">
+          <html:img class="tab-drop-indicator"
+                    src="chrome://messenger/skin/icons/tab-drag-indicator.svg"
+                    alt=""
+                    hidden="hidden" />
+          <arrowscrollbox id="tabmail-arrowscrollbox"
+                          orient="horizontal"
+                          flex="1"
+                          clicktoscroll="true"
+                          style="min-width: 1px;">
+            <tab is="tabmail-tab" selected="true" validate="never" type="folder"
+                 style="min-width:100px; max-width:250px;" width="0" flex="100"
+                 class="tabmail-tab" crop="end" linkedpanel="mailContent"/>
+          </arrowscrollbox>
+        </tabs>
 
-      <hbox class="titlebar-placeholder" type="caption-buttons"/>
-    </toolbar>
+        <box id="notification-popup-box" align="center" hidden="true">
+          <image id="addons-notification-icon"
+                 class="notification-anchor-icon addons-icon"
+                 role="button"/>
+#ifdef MOZ_UPDATER
+          <image id="app-update-notification-icon"
+                 class="notification-anchor-icon app-update-icon"
+                 role="button"/>
+#endif
+        </box>
+
+        <toolbar is="customizable-toolbar" id="tabbar-toolbar"
+                 toolboxid="mail-toolbox"
+                 class="themeable-full"
+                 context="toolbar-context-menu"
+                 customizable="true"
+                 mode="icons" defaultmode="icons" lockmode="true"
+                 iconsize="small" defaulticonsize="small" lockiconsize="true"
+                 defaultset="">
+          <!-- CALENDAR TAB BAR BUTTONS -->
+            <toolbarbutton id="calendar-tab-button"
+                           class="toolbarbutton-1"
+                           title="&lightning.toolbar.calendar.label;"
+                           tooltiptext="&lightning.toolbar.calendar.tooltip;"
+                           command="new_calendar_tab"/>
+            <toolbarbutton id="task-tab-button"
+                           class="toolbarbutton-1"
+                           title="&lightning.toolbar.task.label;"
+                           tooltiptext="&lightning.toolbar.task.tooltip;"
+                           command="new_task_tab"/>
+        </toolbar>
+
+        <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
+                        id="alltabs-button"
+                        type="menu"
+                        hidden="true"
+                        tooltiptext="&listAllTabs.label;">
+          <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
+                      position="after_end"
+                      tabcontainer="tabmail-tabs"/>
+        </toolbarbutton>
+
+#include messenger-titlebar-items.inc.xhtml
+
+      </toolbar>
+
+    </vbox>
 
   </toolbox>
+</box>
 
   <!-- XXX This extension point (tabmail-container) is only temporary!
        Horizontal space shouldn't be wasted if it isn't absolutely critical.

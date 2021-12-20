@@ -192,9 +192,9 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
     }
     if (
       AppConstants.platform != "macosx" &&
-      document.getElementById("mail-toolbar-menubar2")
+      document.getElementById("toolbar-menubar")
     ) {
-      externalToolbars.push(document.getElementById("mail-toolbar-menubar2"));
+      externalToolbars.push(document.getElementById("toolbar-menubar"));
     }
     if (document.getElementById("folderPaneHeader")) {
       externalToolbars.push(document.getElementById("folderPaneHeader"));
@@ -380,9 +380,9 @@ function onViewToolbarsPopupShowing(
     if (toolbox.getAttribute("id") === "mail-toolbox") {
       if (
         AppConstants.platform != "macosx" &&
-        document.getElementById("mail-toolbar-menubar2")
+        document.getElementById("toolbar-menubar")
       ) {
-        toolbars.push(document.getElementById("mail-toolbar-menubar2"));
+        toolbars.push(document.getElementById("toolbar-menubar"));
       }
       if (document.getElementById("folderPaneHeader")) {
         toolbars.push(document.getElementById("folderPaneHeader"));

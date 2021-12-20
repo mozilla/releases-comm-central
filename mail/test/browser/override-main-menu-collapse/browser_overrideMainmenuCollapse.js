@@ -13,7 +13,7 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 add_task(function test_main_menu_not_collapsed() {
-  let mainMenu = document.getElementById("mail-toolbar-menubar2");
+  let mainMenu = document.getElementById("toolbar-menubar");
   Assert.ok(
     !mainMenu.hasAttribute("autohide"),
     "The main menu should not have the autohide attribute."

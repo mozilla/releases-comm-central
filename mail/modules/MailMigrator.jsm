@@ -74,7 +74,7 @@ var MailMigrator = {
       if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default")) {
         xulStore.setValue(
           MESSENGER_DOCURL,
-          "mail-toolbar-menubar2",
+          "toolbar-menubar",
           "autohide",
           "true"
         );

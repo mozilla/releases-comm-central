@@ -17,14 +17,11 @@
 
 #tabs-toolbar {
   --tabs-top-border-width: 0px;
+  box-shadow: 0 calc(-1 * var(--tabs-tabbar-border-size)) 0 var(--lwt-tabs-border-color) inset;
 }
 
 #tabs-toolbar:-moz-lwtheme {
   --tabline-color: var(--lwt-tab-line-color, currentColor);
-}
-
-#tabs-toolbar {
-  box-shadow: 0 calc(-1 * var(--tabs-tabbar-border-size)) 0 var(--lwt-tabs-border-color) inset;
 }
 
 #tabmail-arrowscrollbox {
@@ -150,13 +147,13 @@ button.tab-close-button {
 
 :root[extradragspace],
 :root:not([tabsintitlebar]) #tabs-toolbar,
-#mail-toolbar-menubar2[toolbarname]:not([autohide=true]) ~ #tabs-toolbar {
+#toolbar-menubar[toolbarname]:not([autohide=true]) ~ #tabs-toolbar {
   --tabs-top-border-width: 1px;
 }
 
 :root[extradragspace] .tab-background,
 :root:not([tabsintitlebar]) .tab-background,
-#mail-toolbar-menubar2[toolbarname]:not([autohide=true]) ~ #tabs-toolbar > #tabmail-tabs .tab-background {
+#toolbar-menubar[toolbarname]:not([autohide=true]) ~ #tabs-toolbar > #tabmail-tabs .tab-background {
   border-top-style: solid;
 }
 
@@ -297,9 +294,9 @@ button.tab-close-button {
 .tabmail-tab:not([selected=true]):last-child:hover::after,
 .tabmail-tab:not([selected]) + .tabmail-tab:not([selected]):hover::before,
 .tabmail-tab:not([selected]):hover + .tabmail-tab:not([selected])::before,
-:root[tabsintitlebar]:not([extradragspace]) #mail-toolbar-menubar2[autohide=true] ~
+:root[tabsintitlebar]:not([extradragspace]) #toolbar-menubar[autohide=true] ~
   #tabs-toolbar > #tabmail-tabs > .tabmail-tab::after,
-:root[tabsintitlebar]:not([extradragspace]) #mail-toolbar-menubar2[autohide=true] ~
+:root[tabsintitlebar]:not([extradragspace]) #toolbar-menubar[autohide=true] ~
   #tabs-toolbar > #tabmail-tabs > .tabmail-tab::before {
   margin-top: var(--tabs-top-border-width);
   margin-bottom: var(--tabs-tabbar-border-size);

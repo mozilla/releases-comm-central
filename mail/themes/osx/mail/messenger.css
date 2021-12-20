@@ -83,9 +83,25 @@
   height: 22px;
 }
 
-#messengerWindow:not([tabsintitlebar="true"]) #titlebar:not(:-moz-lwtheme),
-#messengerWindow[sizemode="fullscreen"]:not([tabsintitlebar="true"]) #titlebar {
-  display: none;
+#navigation-toolbox {
+  appearance: none;
+}
+
+/*
+  This is a workaround for Bug 1482157
+  -moz-default-appearance: toolbox; makes the macOS sheets attached to the
+  element's bottom border. We cannot put this property on the toolbox itself as
+  it cancels all backgrounds that are there, so we set it on the toolbox bottom
+  border.
+*/
+#navigation-toolbox::after {
+  content: "";
+  display: -moz-box;
+  appearance: auto;
+  -moz-default-appearance: toolbox;
+  height: 1px;
+  margin-top: -1px;
+  opacity: 0.001;
 }
 
 #titlebar {
@@ -93,8 +109,21 @@
   -moz-box-pack: center;
 }
 
+.titlebar-button {
+  display: none;
+}
+
 #titlebar:-moz-lwtheme {
   appearance: none;
+}
+
+#toolbar-menubar {
+  visibility: collapse;
+}
+
+:root[tabsintitlebar] #toolbar-menubar[autohide=true]:not([inactive]) +
+  #tabs-toolbar > .titlebar-buttonbox-container {
+  visibility: visible;
 }
 
 /* ::::: toolbarbutton menu-button ::::: */
@@ -345,37 +374,46 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
   -moz-default-appearance: -moz-window-titlebar;
 }
 
-#messengerWindow:not([tabsintitlebar]) .titlebar-placeholder {
-  visibility: collapse;
+.titlebar-buttonbox-container {
+  -moz-box-align: center;
+}
+
+@media not (-moz-mac-rtl) {
+  .titlebar-buttonbox-container:-moz-locale-dir(ltr) {
+    -moz-box-ordinal-group: 0;
+  }
+}
+
+@media (-moz-mac-rtl) {
+  .titlebar-buttonbox-container:-moz-locale-dir(rtl) {
+    -moz-box-ordinal-group: 0;
+  }
 }
 
 /* NB: these would be margin-inline-start/end if it wasn't for the fact that OS X
  * doesn't reverse the order of the items in the titlebar in RTL mode. */
-.titlebar-placeholder[type="caption-buttons"],
-#titlebar-buttonbox {
+.titlebar-buttonbox {
   margin-inline: 12px;
 }
 
-#titlebar-buttonbox {
+.titlebar-buttonbox {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-box;
 }
 
 @media (-moz-mac-rtl) {
-  #titlebar-buttonbox-container:-moz-locale-dir(rtl),
-  .titlebar-placeholder[type="caption-buttons"]:-moz-locale-dir(rtl) {
+  .titlebar-buttonbox-container:-moz-locale-dir(rtl) {
     -moz-box-ordinal-group: 0;
   }
 }
 
 @media not (-moz-mac-rtl) {
-  #titlebar-buttonbox-container:-moz-locale-dir(ltr),
-  .titlebar-placeholder[type="caption-buttons"]:-moz-locale-dir(ltr) {
+  .titlebar-buttonbox-container:-moz-locale-dir(ltr) {
     -moz-box-ordinal-group: 0;
   }
 }
 
-#messengerWindow[sizemode="fullscreen"] .titlebar-placeholder[type="caption-buttons"] {
+#messengerWindow[sizemode="fullscreen"] .titlebar-buttonbox-container {
   display: none;
 }
 
@@ -413,8 +451,6 @@ button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   margin: 0 !important;
   /* need to use padding-inline-end when/if bug 631729 gets fixed: */
   padding: 0 16px 1px 1px;
-  appearance: auto;
-  -moz-default-appearance: statusbar;
   text-shadow: rgba(255, 255, 255, 0.4) 0 1px;
 }
 

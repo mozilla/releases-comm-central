@@ -241,7 +241,7 @@ add_task(async function setUp() {
   });
 
   clearTransactions();
-  document.getElementById("mail-toolbar-menubar2").setAttribute("autohide", null);
+  document.getElementById("toolbar-menubar").setAttribute("autohide", null);
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(cal.dtz.now());
 });

@@ -128,12 +128,12 @@
   height: 22px;
 }
 
-#titlebar-buttonbox-container {
+.titlebar-buttonbox-container {
   margin-top: 3px;
   margin-inline-start: 7px;
 }
 
-#titlebar-buttonbox {
+.titlebar-buttonbox {
   margin-inline: 0;
 }
 

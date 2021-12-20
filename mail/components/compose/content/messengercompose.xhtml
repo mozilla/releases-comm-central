@@ -840,23 +840,15 @@
 #endif
            labelalign="end"
            defaultlabelalign="end">
-#ifdef XP_MACOSX
-  <vbox id="titlebar">
-    <hbox id="titlebar-content">
-      <hbox id="titlebar-buttonbox-container" align="start">
-        <hbox id="titlebar-buttonbox">
-          <toolbarbutton class="titlebar-button" id="titlebar-min" oncommand="window.minimize();"/>
-          <toolbarbutton class="titlebar-button" id="titlebar-max" oncommand="onTitlebarMaxClick();"/>
-          <toolbarbutton class="titlebar-button" id="titlebar-close" oncommand="window.close()"/>
-        </hbox>
-      </hbox>
-      <hbox id="titlebar-title" align="center" flex="1">
-        <label id="titlebar-title-label" value="&msgComposeWindow.title;" flex="1" crop="end"/>
-      </hbox>
-    </hbox>
-  </vbox>
-#endif
 
+#ifdef XP_MACOSX
+  <hbox id="titlebar">
+    <hbox id="titlebar-title" align="center" flex="1">
+      <label id="titlebar-title-label" value="&msgComposeWindow.title;" flex="1" crop="end"/>
+    </hbox>
+#include ../../../base/content/messenger-titlebar-items.inc.xhtml
+  </hbox>
+#endif
   <!-- Menu -->
   <!-- if you change the id of the menubar, be sure to update mailCore.js::CustomizeMailToolbar and MailToolboxCustomizeDone -->
   <toolbar is="customizable-toolbar" id="compose-toolbar-menubar2"

@@ -30,13 +30,6 @@
   text-shadow: none;
 }
 
-/* Set position: relative to let the LW-background-box be behind them. */
-#navigation-toolbox:-moz-lwtheme,
-#mail-toolbox:-moz-lwtheme,
-#messagepaneboxwrapper:-moz-lwtheme {
-  position: relative;
-}
-
 /* ..... splitter adjustments ..... */
 #attachment-splitter {
   border: none;

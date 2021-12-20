@@ -10,10 +10,6 @@
    broken. So instead just show the normal titlebar in that case, and override
    the window color as transparent when the compositor is available. */
 @media (-moz-windows-compositor: 0) {
-  #messengerWindow[tabsintitlebar] #titlebar:-moz-lwtheme {
-    visibility: visible;
-  }
-
   /* Prevent accent color overriding the window background for
    * light and dark theme on Aero Basic. This is copied from browser-aero.css. */
   @media (-moz-windows-default-theme) {
@@ -28,11 +24,6 @@
 
 @media (-moz-os-version: windows-win7) {
   @media (-moz-windows-default-theme) {
-    /* Hide the LW-background-box to show the window background */
-    :root[tabsintitlebar] #LW-background-box {
-      display: none;
-    }
-
     /* Always show light toolbar elements on aero surface. */
     #tabs-toolbar {
       color: hsl(240,9%,98%);
@@ -164,7 +155,7 @@
 /* Restored windows get an artificial border on windows, because the lwtheme background
  * overlaps the regular window border. That isn't the case for us, so we avoid painting
  * over the native border with our custom borders: */
-#navigator-toolbox {
+#navigation-toolbox {
   /* These are !important to avoid specificity-wars with the selectors that add borders here. */
   background-image: none !important;
   border-top: none !important;

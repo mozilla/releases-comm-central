@@ -283,20 +283,12 @@
          labelalign="end"
          defaultlabelalign="end">
 #ifdef XP_MACOSX
-  <vbox id="titlebar">
-    <hbox id="titlebar-content">
-      <hbox id="titlebar-buttonbox-container" align="start">
-        <hbox id="titlebar-buttonbox">
-          <toolbarbutton class="titlebar-button" id="titlebar-min" oncommand="window.minimize();"/>
-          <toolbarbutton class="titlebar-button" id="titlebar-max" oncommand="onTitlebarMaxClick();"/>
-          <toolbarbutton class="titlebar-button" id="titlebar-close" oncommand="window.close()"/>
-        </hbox>
-      </hbox>
-      <hbox id="titlebar-title" align="center" flex="1">
-        <label id="titlebar-title-label" value="&addressbookWindow.title;" flex="1"/>
-      </hbox>
+  <hbox id="titlebar">
+    <hbox id="titlebar-title" align="center" flex="1">
+      <label id="titlebar-title-label" value="&addressbookWindow.title;" flex="1"/>
     </hbox>
-  </vbox>
+#include ../../../base/content/messenger-titlebar-items.inc.xhtml
+  </hbox>
 #endif
   <toolbar is="customizable-toolbar" id="addrbook-toolbar-menubar2"
            class="chromeclass-menubar themeable-full"
@@ -305,11 +297,11 @@
 #ifdef XP_MACOSX
            defaultset="menubar-items"
 #else
-          defaultset="menubar-items,spring"
+           defaultset="menubar-items,spring"
 #endif
 #ifdef XP_WIN
-          toolbarname="&menubarCmd.label;"
-          accesskey="&menubarCmd.accesskey;"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"
 #endif
            context="toolbar-context-menu" mode="icons">
 

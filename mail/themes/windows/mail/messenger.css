@@ -189,6 +189,24 @@
   }
 }
 
+.titlebar-buttonbox-container {
+  -moz-box-align: stretch;
+}
+
+@media (-moz-os-version: windows-win7),
+       (-moz-os-version: windows-win8) {
+  /* Preserve window control buttons position at the top of the button box. */
+  .titlebar-buttonbox-container {
+    -moz-box-align: start;
+  }
+}
+
+@media (-moz-windows-classic) {
+  :root[tabsintitlebar][sizemode="normal"] #toolbar-menubar {
+    margin-top: 4px;
+  }
+}
+
 #tabbar-toolbar[customizing="true"] {
   min-width: 24px;
 }
@@ -204,10 +222,6 @@
 
 .inline-toolbar toolbarspacer {
   height: 20px;
-}
-
-.titlebar-placeholder[type="caption-buttons"] {
-  -moz-box-ordinal-group: 1000;
 }
 
 /* ::::: menubar ::::: */
@@ -260,11 +274,6 @@ toolbarbutton[type="menu-button"] {
 
 .sidebar-header .toolbarbutton-text:not([value]) {
   display: none;
-}
-
-#tabmail-buttons > toolbarbutton {
-  margin-top: 3px;
-  margin-bottom: 0;
 }
 
 menulist.folderMenuItem menu:not(.folderMenuItem) {
@@ -422,6 +431,15 @@ treechildren::-moz-tree-indentation {
     border-color: SelectedItemText;
     background-color: SelectedItem;
   }
+
+  /* Add a window top border for webextension themes */
+  :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox:-moz-lwtheme {
+    background-image: linear-gradient(to bottom,
+          ThreeDLightShadow 0, ThreeDLightShadow 1px,
+          ThreeDHighlight 1px, ThreeDHighlight 2px,
+          ActiveBorder 2px, ActiveBorder 4px, transparent 4px),
+          var(--lwt-header-image), var(--lwt-additional-images);
+  }
 }
 
 :root[lwt-tree] treechildren::-moz-tree-row(current, focus) {
@@ -521,12 +539,6 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 }
 
 /* Status bar */
-
-.statusbar {
-  appearance: auto;
-  -moz-default-appearance: statusbar;
-  min-height: 22px;
-}
 
 .statusbar:-moz-lwtheme {
   appearance: none;
@@ -636,6 +648,10 @@ fieldset > hbox,
 fieldset > vbox,
 fieldset > radiogroup {
   width: -moz-available;
+}
+
+#navigation-toolbox {
+  appearance: none;
 }
 
 /* UI Density customization */
