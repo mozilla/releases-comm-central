@@ -663,16 +663,19 @@ var OTR = {
     return level;
   },
 
-  getPrefBranchFromWrappedContext(wContext) {
-    for (let acc of Services.accounts.getAccounts()) {
-      if (
-        wContext.account == acc.normalizedName &&
-        wContext.protocol == acc.protocol.normalizedName
-      ) {
-        return acc.prefBranch;
-      }
+  /** @param {Context} wContext - wrapped context. */
+  getAccountPrefBranch(wContext) {
+    let account = Services.accounts
+      .getAccounts()
+      .find(
+        acc =>
+          wContext.account == acc.normalizedName &&
+          wContext.protocol == acc.protocol.normalizedName
+      );
+    if (!account) {
+      return null;
     }
-    return null;
+    return Services.prefs.getBranch(`messenger.account.${account.id}.`);
   },
 
   // uiOps callbacks
@@ -682,7 +685,7 @@ var OTR = {
    */
   policy_cb(opdata, context) {
     let wContext = new Context(context);
-    let pb = OTR.getPrefBranchFromWrappedContext(wContext);
+    let pb = OTR.getAccountPrefBranch(wContext);
     if (!pb) {
       return new ctypes.unsigned_int(0);
     }
@@ -766,7 +769,7 @@ var OTR = {
       "chat.otr.default.verifyNudge"
     );
     let prefNudge = defaultNudge;
-    let pb = OTR.getPrefBranchFromWrappedContext(wContext);
+    let pb = OTR.getAccountPrefBranch(wContext);
     if (pb) {
       prefNudge = pb.getBoolPref("options.otrVerifyNudge", defaultNudge);
     }
@@ -797,7 +800,7 @@ var OTR = {
       "chat.otr.default.verifyNudge"
     );
     let prefNudge = defaultNudge;
-    let pb = OTR.getPrefBranchFromWrappedContext(wContext);
+    let pb = OTR.getAccountPrefBranch(wContext);
     if (pb) {
       prefNudge = pb.getBoolPref("options.otrVerifyNudge", defaultNudge);
     }
