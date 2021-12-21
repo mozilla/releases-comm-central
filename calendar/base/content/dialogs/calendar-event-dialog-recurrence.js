@@ -985,6 +985,34 @@ function checkUntilDate() {
 }
 
 /**
+ * Checks the date entered for a yearly absolute rule (i.e. every 12 of January)
+ * in order to avoid creating a rule on an invalid date.
+ */
+function checkYearlyAbsoluteDate() {
+  if (!gStartTime) {
+    // This function shouldn't run before onLoad.
+    return;
+  }
+
+  const MONTH_LENGTHS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let dayOfMonth = document.getElementById("yearly-days").value;
+  let month = document.getElementById("yearly-month-ordinal").value;
+  document.getElementById("yearly-days").max = MONTH_LENGTHS[month - 1];
+  // Check if the day value is too high.
+  if (dayOfMonth > MONTH_LENGTHS[month - 1]) {
+    document.getElementById("yearly-days").value = MONTH_LENGTHS[month - 1];
+  } else {
+    updateRecurrenceControls();
+  }
+  // Check if the day value is too low.
+  if (dayOfMonth < 1) {
+    document.getElementById("yearly-days").value = 1;
+  } else {
+    updateRecurrenceControls();
+  }
+}
+
+/**
  * Update all recurrence controls on the dialog.
  */
 function updateRecurrenceControls() {

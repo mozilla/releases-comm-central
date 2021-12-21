@@ -541,13 +541,14 @@
                     <html:input id="yearly-days" type="number"
                                 class="size3 input-inline"
                                 min="1" value="1"
-                                oninput="updateRecurrenceControls();"
+                                onchange="checkYearlyAbsoluteDate();"
                                 disable-on-readonly="true"
                                 disable-on-occurrence="true"/>
                     <label id="yearly-period-of-month-label"
                            value="&event.recurrence.pattern.yearly.of.label;"
                            control="yearly-month-ordinal"/>
                     <menulist id="yearly-month-ordinal"
+                              onselect="checkYearlyAbsoluteDate()"
                               disable-on-readonly="true"
                               disable-on-occurrence="true">
                       <menupopup id="yearly-month-ordinal-menupopup">
