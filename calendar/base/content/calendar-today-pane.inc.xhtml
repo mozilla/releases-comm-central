@@ -62,7 +62,7 @@
                         refcontrol="calTodayPaneDisplayMiniday"
                         collapsedinmodes=""
                         persist="collapsedinmodes"
-                        onDOMMouseScroll="TodayPane.advance(event.detail > 0 ? 1 : -1);">
+                        onwheel="TodayPane.advance(event.detail > 0 ? 1 : -1);">
         <hbox id="mini-day-image" flex="1">
           <stack id="dateContainer">
             <hbox pack="center"
