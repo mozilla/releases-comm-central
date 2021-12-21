@@ -484,7 +484,7 @@ var _DEFAULT_META_STATES = {
  * @param [aBodyPart] An instance of one of the many Synthetic part types
  *     available in this file.
  * @param [aMetaState] A dictionary of meta-state about the message that is only
- *     relevant to the messageInjection logic and perhaps some testing logic.
+ *     relevant to the MessageInjection logic and perhaps some testing logic.
  * @param [aMetaState.junk=false] Is the method junk?
  */
 function SyntheticMessage(aHeaders, aBodyPart, aMetaState) {
@@ -838,9 +838,9 @@ function addMessagesToFolder(aMessages, aFolder) {
  *  and aFolderIndices values.  (They are primarily intended for reasons of
  *  slicing, but people who know what they are doing can also use them.)
  *
- * @param aSynMessages The synthetic messages that should belong to this set.
- * @param aMsgFolders Optional nsIMsgDBFolder or list of folders.
- * @param aFolderIndices Optional list where each value is an index into the
+ * @param {SyntheticMessage[]} aSynMessages The synthetic messages that should belong to this set.
+ * @param {nsIMsgFolder|nsIMsgFolder[]} [aMsgFolders] Optional nsIMsgFolder or list of folders.
+ * @param {number[]} [aFolderIndices] Optional list where each value is an index into the
  *     msgFolders attribute, specifying what folder the message can be found
  *     in.  The value may also be null if the message has not yet been
  *     inserted into a folder.
@@ -855,7 +855,6 @@ function SyntheticMessageSet(aSynMessages, aMsgFolders, aFolderIndices) {
   } else {
     this.msgFolders = [];
   }
-
   if (aFolderIndices == null) {
     this.folderIndices = aSynMessages.map(_ => null);
   } else {
@@ -924,6 +923,7 @@ SyntheticMessageSet.prototype = {
   /**
    * Get the single message header of the message at the given index; use
    *  |msgHdrs| if you want to get all the headers at once.
+   * @param {number} aIndex
    */
   getMsgHdr(aIndex) {
     let folder = this.msgFolders[this.folderIndices[aIndex]];
@@ -933,6 +933,7 @@ SyntheticMessageSet.prototype = {
 
   /**
    * Get the URI for the message at the given index.
+   * @param {number} aIndex
    */
   getMsgURI(aIndex) {
     let msgHdr = this.getMsgHdr(aIndex);
@@ -1218,56 +1219,61 @@ MessageGenerator.prototype = {
   },
 
   /**
+   * Description for makeMessage options parameter.
+   *
+   * @typedef MakeMessageOptions
+   * @property {number} [age] A dictionary with potential attributes 'minutes',
+   *     'hours', 'days', 'weeks' to specify the message be created that far in
+   *     the past.
+   * @property {Object} [attachments] A list of dictionaries suitable for passing to
+   *     syntheticPartLeaf, plus a 'body' attribute that has already been
+   *     encoded. Line chopping is on you FOR NOW.
+   * @property {SyntheticPartLeaf} [body] A dictionary suitable for passing to SyntheticPart plus
+   *     a 'body' attribute that has already been encoded (if encoding is
+   *     required).  Line chopping is on you FOR NOW.  Alternately, use
+   *     bodyPart.
+   * @property {SyntheticPartLeaf} [bodyPart] A SyntheticPart to uses as the body.  If you
+   *     provide an attachments value, this part will be wrapped in a
+   *     multipart/mixed to also hold your attachments.  (You can put
+   *     attachments in the bodyPart directly if you want and not use
+   *     attachments.)
+   * @property {string} [callerData] A value to propagate to the callerData attribute
+   *     on the resulting message.
+   * @property {[string, string][]} [cc] A list of cc recipients (name and address pairs).  If
+   *     omitted, no cc is generated.
+   * @property {[string, string]} [from] The name and value pair this message should be from.
+   *     Defaults to the first recipient if this is a reply, otherwise a new
+   *     person is synthesized via |makeNameAndAddress|.
+   * @property {string} [inReplyTo] the SyntheticMessage this message should be in
+   *     reply-to.  If that message was in reply to another message, we will
+   *     appropriately compensate for that.  If a SyntheticMessageSet is
+   *     provided we will use the first message in the set.
+   * @property {boolean} [replyAll] a boolean indicating whether this should be a
+   *     reply-to-all or just to the author of the message.  (er, to-only, not
+   *     cc.)
+   * @property {string} [subject] subject to use; you are responsible for doing any
+   *     encoding before passing it in.
+   * @property {[string, string][]} [to] The list of recipients for this message, defaults to a
+   *     set of toCount newly created persons.
+   * @property {number} [toCount=1] the number of people who the message should be to.
+   * @property {Object} [clobberHeaders] An object whose contents will overwrite the
+   *     contents of the headers object.  This should only be used to construct
+   *     illegal header values; general usage should use another explicit
+   *     mechanism.
+   * @property {boolean} [junk] Should this message be flagged as junk for the benefit
+   *     of the MessageInjection helper so that it can know to flag the message
+   *     as junk?  We have no concept of marking a message as definitely not
+   *     junk at this point.
+   * @property {boolean} [read] Should this message be marked as already read?
+   */
+  /**
    * Create a SyntheticMessage.  All arguments are optional, but allow
    *  additional control.  With no arguments specified, a new name/address will
    *  be generated that has not been used before, and sent to a new name/address
    *  that has not been used before.
    *
-   * @param aArgs An object with any of the following attributes provided:
-   * @param [aArgs.age] A dictionary with potential attributes 'minutes',
-   *     'hours', 'days', 'weeks' to specify the message be created that far in
-   *     the past.
-   * @param [aArgs.attachments] A list of dictionaries suitable for passing to
-   *     syntheticPartLeaf, plus a 'body' attribute that has already been
-   *     encoded.  Line chopping is on you FOR NOW.
-   * @param [aArgs.body] A dictionary suitable for passing to SyntheticPart plus
-   *     a 'body' attribute that has already been encoded (if encoding is
-   *     required).  Line chopping is on you FOR NOW.  Alternately, use
-   *     bodyPart.
-   * @param [aArgs.bodyPart] A SyntheticPart to uses as the body.  If you
-   *     provide an attachments value, this part will be wrapped in a
-   *     multipart/mixed to also hold your attachments.  (You can put
-   *     attachments in the bodyPart directly if you want and not use
-   *     attachments.)
-   * @param [aArgs.callerData] A value to propagate to the callerData attribute
-   *     on the resulting message.
-   * @param [aArgs.cc] A list of cc recipients (name and address pairs).  If
-   *     omitted, no cc is generated.
-   * @param [aArgs.from] The name and value pair this message should be from.
-   *     Defaults to the first recipient if this is a reply, otherwise a new
-   *     person is synthesized via |makeNameAndAddress|.
-   * @param [aArgs.inReplyTo] the SyntheticMessage this message should be in
-   *     reply-to.  If that message was in reply to another message, we will
-   *     appropriately compensate for that.  If a SyntheticMessageSet is
-   *     provided we will use the first message in the set.
-   * @param [aArgs.replyAll] a boolean indicating whether this should be a
-   *     reply-to-all or just to the author of the message.  (er, to-only, not
-   *     cc.)
-   * @param [aArgs.subject] subject to use; you are responsible for doing any
-   *     encoding before passing it in.
-   * @param [aArgs.to] The list of recipients for this message, defaults to a
-   *     set of toCount newly created persons.
-   * @param [aArgs.toCount=1] the number of people who the message should be to.
-   * @param [aArgs.clobberHeaders] An object whose contents will overwrite the
-   *     contents of the headers object.  This should only be used to construct
-   *     illegal header values; general usage should use another explicit
-   *     mechanism.
-   * @param [aArgs.junk] Should this message be flagged as junk for the benefit
-   *     of the messageInjection helper so that it can know to flag the message
-   *     as junk?  We have no concept of marking a message as definitely not
-   *     junk at this point.
-   * @param [aArgs.read] Should this message be marked as already read?
-   * @returns a SyntheticMessage fashioned just to your liking.
+   * @param {MakeMessageOptions} aArgs
+   * @returns {SyntheticMessage} a SyntheticMessage fashioned just to your liking.
    */
   makeMessage(aArgs) {
     aArgs = aArgs || {};
@@ -1390,6 +1396,9 @@ MessageGenerator.prototype = {
   /**
    * Create an encrypted SMime message. It's just a wrapper around makeMessage,
    * that sets the right content-type. Use like makeMessage.
+   *
+   * @param {MakeMessageOptions} aOptions
+   * @return {SyntheticMessage}
    */
   makeEncryptedSMimeMessage(aOptions) {
     if (!aOptions) {
@@ -1410,6 +1419,9 @@ MessageGenerator.prototype = {
   /**
    * Create an encrypted OpenPGP message. It's just a wrapper around makeMessage,
    * that sets the right content-type. Use like makeMessage.
+   *
+   * @param {MakeMessageOptions} aOptions
+   * @return {SyntheticMessage}
    */
   makeEncryptedOpenPGPMessage(aOptions) {
     if (!aOptions) {
@@ -1520,7 +1532,7 @@ MessageGenerator.prototype = {
  *  equivalent to having simply called messageScenarioFactory.method(...).
  *  (Normally this would not be the case when using JavaScript.)
  *
- * @param aMessageGenerator The optional message generator we should use.
+ * @param {MessageGenerator} [aMessageGenerator] The optional message generator we should use.
  *     If you don't pass one, we create our own.  You would want to pass one so
  *     that if you also create synthetic messages directly via the message
  *     generator then the two sources can avoid duplicate use of the same

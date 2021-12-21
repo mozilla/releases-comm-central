@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * @deprecated
+ * messageInjection.js is deprecated and is be replaced by MessageInjection.jsm
+ *
+ * We are getting rid of `asyncTestUtils.js`.
+ * This file will be replaced with MessageInjection.jsm and removed with `Bug 1571683`.
+ */
+
 /* import-globals-from asyncTestUtils.js */
 /* import-globals-from logHelper.js */
 
