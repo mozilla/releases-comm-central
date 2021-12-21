@@ -36,3 +36,9 @@
     }
   }
 }
+
+@media (-moz-windows-default-theme) {
+  #attachment-splitter {
+    border-bottom-color: #a9b7c9;
+  }
+}

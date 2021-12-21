@@ -33,3 +33,7 @@ button.button-focusable:focus-visible:not(:hover) {
   outline: none;
   box-shadow: 0 0 0 3px -moz-mac-focusring;
 }
+
+#attachment-splitter {
+  border-bottom-color: #bdbdbd;
+}

@@ -96,6 +96,62 @@ treechildren::-moz-tree-cell-text(dummy) {
   }
 }
 
+/* splitter adjustments */
+
+#folderpane_splitter,
+#threadpane-splitter:not([orient="vertical"]) {
+  appearance: none;
+  border-width: 0;
+  min-width: 0;
+  width: 5px;
+  background-color: transparent;
+  margin-top: 0;
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#folderpane_splitter {
+  border-inline-start: 1px solid var(--splitter-color);
+  /* make only the splitter border visible */
+  margin-inline-end: -4px;
+}
+
+#folderpane_splitter[state="collapsed"]:hover {
+  border-inline-start: 4px solid SelectedItem;
+}
+
+#threadpane-splitter:not([orient="vertical"]) {
+  border-inline-end: 1px solid var(--splitter-color);
+  /* make only the splitter border visible */
+  margin-inline-start: -4px;
+}
+
+#threadpane-splitter[state="collapsed"]:not([orient="vertical"]):hover {
+  border-inline-end: 4px solid SelectedItem;
+}
+
+#threadpane-splitter {
+  appearance: none;
+  border-width: 0;
+  border-bottom: 1px solid var(--splitter-color);
+  min-height: 0;
+  height: 5px;
+  background-color: transparent;
+  margin-top: -5px;
+  position: relative;
+  z-index: 10;
+  transition: border-width .3s ease-in;
+}
+
+#threadpane-splitter[state="collapsed"] {
+  transition: border-color .3s;
+}
+
+#threadpane-splitter[state="collapsed"]:hover {
+  border-bottom: 4px solid SelectedItem;
+}
+
 /* Quick-Filter-Bar */
 :root[lwt-tree] #quick-filter-bar:-moz-lwtheme {
   background-color: var(--toolbar-bgcolor);
