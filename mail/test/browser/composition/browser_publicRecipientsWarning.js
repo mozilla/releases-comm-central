@@ -73,7 +73,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
     cc: "Lisa <lisa@example.com>",
     subject: "msg over the limit for bulk warning",
   });
-  add_message_to_folder(folder, msg0);
+  await add_message_to_folder([folder], msg0);
 
   be_in_folder(folder);
   let msg = select_click_row(0);

@@ -23,8 +23,8 @@ var {
 
 var folder;
 
-add_task(function setupModule(module) {
-  folder = create_folder("MessageSizeA");
+add_task(async function setupModule(module) {
+  folder = await create_folder("MessageSizeA");
 
   // Create messages with sizes in the byte, KB, and MB ranges.
   let bytemsg = create_message({ body: { body: " " } });
@@ -35,9 +35,9 @@ add_task(function setupModule(module) {
   let mbstring = kbstring.repeat(1024);
   let mbmsg = create_message({ body: { body: mbstring } });
 
-  add_message_to_folder(folder, bytemsg);
-  add_message_to_folder(folder, kbmsg);
-  add_message_to_folder(folder, mbmsg);
+  await add_message_to_folder([folder], bytemsg);
+  await add_message_to_folder([folder], kbmsg);
+  await add_message_to_folder([folder], mbmsg);
 });
 
 function _help_test_message_size(index, unit) {

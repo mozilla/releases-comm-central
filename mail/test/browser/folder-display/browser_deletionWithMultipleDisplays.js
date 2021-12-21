@@ -19,8 +19,8 @@ var {
   close_message_window,
   close_tab,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
@@ -44,41 +44,46 @@ var folder,
   multipleDeletionFolder3,
   multipleDeletionFolder4;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   requestLongerTimeout(3);
 
-  folder = create_folder("DeletionA");
-  lastMessageFolder = create_folder("DeletionB");
-  oneBeforeFolder = create_folder("DeletionC");
-  oneAfterFolder = create_folder("DeletionD");
-  multipleDeletionFolder1 = create_folder("DeletionE");
-  multipleDeletionFolder2 = create_folder("DeletionF");
-  multipleDeletionFolder3 = create_folder("DeletionG");
-  multipleDeletionFolder4 = create_folder("DeletionH");
+  folder = await create_folder("DeletionA");
+  lastMessageFolder = await create_folder("DeletionB");
+  oneBeforeFolder = await create_folder("DeletionC");
+  oneAfterFolder = await create_folder("DeletionD");
+  multipleDeletionFolder1 = await create_folder("DeletionE");
+  multipleDeletionFolder2 = await create_folder("DeletionF");
+  multipleDeletionFolder3 = await create_folder("DeletionG");
+  multipleDeletionFolder4 = await create_folder("DeletionH");
   // we want exactly as many messages as we plan to delete, so that we can test
   //  that the message window and tabs close when they run out of things to
   //  to display.
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 4 }]);
+  await make_message_sets_in_folders([folder], [{ count: 4 }]);
 
   // since we don't test window close here, it doesn't really matter how many
   // messages these have
-  MessageInjection.make_new_sets_in_folder(lastMessageFolder, [{ count: 4 }]);
-  MessageInjection.make_new_sets_in_folder(oneBeforeFolder, [{ count: 10 }]);
-  MessageInjection.make_new_sets_in_folder(oneAfterFolder, [{ count: 10 }]);
-  MessageInjection.make_new_sets_in_folder(multipleDeletionFolder1, [
-    { count: 30 },
-  ]);
+
+  await make_message_sets_in_folders([lastMessageFolder], [{ count: 4 }]);
+  await make_message_sets_in_folders([oneBeforeFolder], [{ count: 10 }]);
+  await make_message_sets_in_folders([oneAfterFolder], [{ count: 10 }]);
+  await make_message_sets_in_folders(
+    [multipleDeletionFolder1],
+    [{ count: 30 }]
+  );
 
   // We're depending on selecting the last message here, so these do matter
-  MessageInjection.make_new_sets_in_folder(multipleDeletionFolder2, [
-    { count: 10 },
-  ]);
-  MessageInjection.make_new_sets_in_folder(multipleDeletionFolder3, [
-    { count: 10 },
-  ]);
-  MessageInjection.make_new_sets_in_folder(multipleDeletionFolder4, [
-    { count: 10 },
-  ]);
+  await make_message_sets_in_folders(
+    [multipleDeletionFolder2],
+    [{ count: 10 }]
+  );
+  await make_message_sets_in_folders(
+    [multipleDeletionFolder3],
+    [{ count: 10 }]
+  );
+  await make_message_sets_in_folders(
+    [multipleDeletionFolder4],
+    [{ count: 10 }]
+  );
 });
 
 var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;

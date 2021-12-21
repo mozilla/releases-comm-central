@@ -31,11 +31,11 @@ var testFolder = null;
 var identity1Email = "carl@example.com";
 var identity2Email = "lenny@springfield.invalid";
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   addIdentitiesAndFolder();
   // Msg #0
-  add_message_to_folder(
-    testFolder,
+  await add_message_to_folder(
+    [testFolder],
     create_message({
       from: "Homer <homer@example.com>",
       to: "workers@springfield.invalid",
@@ -48,8 +48,8 @@ add_task(function setupModule(module) {
     })
   );
   // Msg #1
-  add_message_to_folder(
-    testFolder,
+  await add_message_to_folder(
+    [testFolder],
     create_message({
       from: "Homer <homer@example.com>",
       to: "powerplant-workers@springfield.invalid",
@@ -63,8 +63,8 @@ add_task(function setupModule(module) {
     })
   );
   // Msg #2
-  add_message_to_folder(
-    testFolder,
+  await add_message_to_folder(
+    [testFolder],
     create_message({
       from: "Homer <homer@example.com>",
       to: "powerplant-workers@springfield.invalid, Apu <apu@test.invalid>",
@@ -75,8 +75,8 @@ add_task(function setupModule(module) {
     })
   );
   // Msg #3
-  add_message_to_folder(
-    testFolder,
+  await add_message_to_folder(
+    [testFolder],
     create_message({
       from: "Homer <homer@example.com>",
       to: "Lenny <" + identity2Email + ">",
@@ -87,8 +87,8 @@ add_task(function setupModule(module) {
     })
   );
   // Msg #4
-  add_message_to_folder(
-    testFolder,
+  await add_message_to_folder(
+    [testFolder],
     create_message({
       from: "Homer <homer@example.com>",
       to: "powerplant-workers@springfield.invalid",
@@ -100,8 +100,8 @@ add_task(function setupModule(module) {
     })
   );
   // Msg #5
-  add_message_to_folder(
-    testFolder,
+  await add_message_to_folder(
+    [testFolder],
     create_message({
       from: identity2Email + " <" + identity2Email + ">",
       to: "Marge <marge@example.com>",

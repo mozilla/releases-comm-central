@@ -110,17 +110,22 @@ add_task(async function test_account_sizes() {
   const NUM_INBOX = 3;
   const NUM_OTHER = 2;
 
-  let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, true, null, false);
-  let other = create_folder("TestAccountSize");
+  let inbox = await get_special_folder(
+    Ci.nsMsgFolderFlags.Inbox,
+    true,
+    null,
+    false
+  );
+  let other = await create_folder("TestAccountSize");
   for (let i = 0; i < NUM_INBOX; i++) {
-    add_message_to_folder(
-      inbox,
+    await add_message_to_folder(
+      [inbox],
       msgGen.makeMessage({ body: { body: `test inbox ${i}` } })
     );
   }
   for (let i = 0; i < NUM_OTHER; i++) {
-    add_message_to_folder(
-      other,
+    await add_message_to_folder(
+      [other],
       msgGen.makeMessage({ body: { body: `test other ${i}` } })
     );
   }

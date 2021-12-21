@@ -94,7 +94,7 @@ add_task(async function setup() {
     )
   );
 
-  gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
+  gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
   be_in_folder(gInbox);
 });
 
@@ -126,7 +126,7 @@ add_task(async function testSmimeOpenPgpSelection() {
   await copyListener.promise;
 
   // Create an S/MIME message and add it to the inbox folder.
-  add_message_to_folder(gInbox, create_encrypted_smime_message());
+  await add_message_to_folder([gInbox], create_encrypted_smime_message());
 
   // Select the first row, which should contain the S/MIME message.
   select_click_row(0);
@@ -238,7 +238,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
  */
 add_task(async function testMessageSecurityShortcut() {
   // Create an S/MIME message and add it to the inbox folder.
-  add_message_to_folder(gInbox, create_encrypted_smime_message());
+  await add_message_to_folder([gInbox], create_encrypted_smime_message());
 
   // Select the first row, which should contain the S/MIME message.
   select_click_row(0);

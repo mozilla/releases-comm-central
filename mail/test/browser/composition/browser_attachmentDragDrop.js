@@ -434,9 +434,9 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
 add_task(async function test_drag_and_drop_between_composition_windows() {
   let ctrlDest = open_compose_new_mail();
 
-  let folder = create_folder("AttachmentsForComposition");
-  add_message_to_folder(
-    folder,
+  let folder = await create_folder("AttachmentsForComposition");
+  await add_message_to_folder(
+    [folder],
     create_message({
       attachments: [0, 1, 2, 3, 4, 5].map(num => {
         return {

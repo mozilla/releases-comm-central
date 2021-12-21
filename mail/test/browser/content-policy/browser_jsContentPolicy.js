@@ -33,7 +33,7 @@ var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
 
-var folder = create_folder("jsContentPolicy");
+var folder;
 registerCleanupFunction(async () => {
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   folder.deleteSelf(window.msgWindow);
@@ -135,6 +135,10 @@ var jsMsgBody =
 var gMsgNo = 0;
 
 var messagePane = document.getElementById("messagepane");
+
+add_task(async function setupModule(module) {
+  folder = await create_folder("jsContentPolicy");
+});
 
 /**
  * Check JavaScript is disabled when loading messages in the message pane.

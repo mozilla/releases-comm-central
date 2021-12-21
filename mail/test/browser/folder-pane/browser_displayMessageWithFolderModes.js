@@ -30,8 +30,8 @@ var {
   display_message_in_folder_tab,
   get_smart_folder_named,
   inboxFolder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   select_none,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -44,7 +44,7 @@ var smartInboxFolder;
 
 var msgHdr;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   assert_folder_mode("all");
   assert_folder_tree_view_row_count(7);
 
@@ -57,11 +57,11 @@ add_task(function setupModule(module) {
   // want to not be in folder.
   inboxFolder.createSubfolder("DisplayMessageWithFolderModesB", null);
   dummyFolder = inboxFolder.getChildNamed("DisplayMessageWithFolderModesB");
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 5 }]);
+  await make_message_sets_in_folders([folder], [{ count: 5 }]);
   // The message itself doesn't really matter, as long as there's at least one
   // in the inbox.  We will delete this in teardownModule because the inbox
   // is a shared resource and it's not okay to leave stuff in there.
-  MessageInjection.make_new_sets_in_folder(inboxFolder, [{ count: 1 }]);
+  await make_message_sets_in_folders([inboxFolder], [{ count: 1 }]);
 
   // Create another subfolder on the top level that is not a parent of the
   // 2 folders so that it is not visible in Favorite mode.

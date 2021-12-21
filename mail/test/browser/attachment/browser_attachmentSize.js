@@ -179,7 +179,7 @@ var messages = [
   },
 ];
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
@@ -229,7 +229,7 @@ add_task(function setupModule(module) {
       .replace(/\r\n/g, "\n").length;
   }
 
-  folder = create_folder("AttachmentSizeA");
+  folder = await create_folder("AttachmentSizeA");
   for (let i = 0; i < messages.length; i++) {
     // First, add any missing info to the message object.
     switch (messages[i].name) {
@@ -257,7 +257,7 @@ add_task(function setupModule(module) {
         break;
     }
 
-    add_message_to_folder(folder, create_message(messages[i]));
+    await add_message_to_folder([folder], create_message(messages[i]));
   }
 });
 

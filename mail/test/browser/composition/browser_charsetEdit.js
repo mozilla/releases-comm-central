@@ -46,8 +46,8 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var gDrafts;
 
-add_task(function setupModule(module) {
-  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+add_task(async function setupModule(module) {
+  gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
 /**
@@ -93,15 +93,15 @@ function getMsgHeaders(aMsgHdr, aGetText = false) {
  * Test that if we reply to a message in an invalid charset, we don't try to compose
  * in that charset. Instead, we should be using UTF-8.
  */
-add_task(function test_wrong_reply_charset() {
+add_task(async function test_wrong_reply_charset() {
   let folder = gDrafts;
   let msg0 = create_message({
     bodyPart: new SyntheticPartLeaf("Some text", {
       charset: "invalid-charset",
     }),
   });
-  add_message_to_folder(folder, msg0);
-  be_in_folder(folder);
+  await add_message_to_folder([folder], msg0);
+  await be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
   Assert.equal(getMsgHeaders(msg).get("").charset, "invalid-charset");
@@ -147,14 +147,14 @@ add_task(function test_wrong_reply_charset() {
 /**
  * Test that replying to bad charsets don't screw up the existing text.
  */
-add_task(function test_no_mojibake() {
+add_task(async function test_no_mojibake() {
   let folder = gDrafts;
   let nonASCII = "ケツァルコアトル";
   let UTF7 = "+MLEwxDChMOswszCiMMgw6w-";
   let msg0 = create_message({
     bodyPart: new SyntheticPartLeaf(UTF7, { charset: "utf-7" }),
   });
-  add_message_to_folder(folder, msg0);
+  await add_message_to_folder([folder], msg0);
   be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);

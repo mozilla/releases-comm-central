@@ -57,11 +57,11 @@ var kReminderPref = "mail.compose.attachment_reminder";
 var gDrafts;
 var gOutbox;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   requestLongerTimeout(4);
 
-  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
-  gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
+  gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  gOutbox = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 
   Assert.ok(Services.prefs.getBoolPref(kReminderPref));
 });

@@ -31,7 +31,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var gOutboxFolder = get_special_folder(Ci.nsMsgFolderFlags.Queue);
+var gOutboxFolder;
 
 var kBoxId = "compose-notification-bottom";
 var kNotificationId = "blockedContent";
@@ -61,6 +61,10 @@ function putHTMLOnClipboard(html) {
 
   Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
 }
+
+add_task(async function setupModule(module) {
+  gOutboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
+});
 
 /**
  * Tests that sending message with inline image works, and we pick a file name

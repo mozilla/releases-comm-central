@@ -15,8 +15,8 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   close_tab,
+  make_message_sets_in_folders,
   create_folder,
-  MessageInjection,
   open_folder_in_new_tab,
   select_click_row,
   switch_tab,
@@ -27,9 +27,9 @@ var {
 
 var folder;
 
-add_task(function setupModule(module) {
-  folder = create_folder("MessageReloads");
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 1 }]);
+add_task(async function setupModule(module) {
+  folder = await create_folder("MessageReloads");
+  await make_message_sets_in_folders([folder], [{ count: 1 }]);
 });
 
 add_task(function test_message_reloads_work_with_message_pane_toggles() {

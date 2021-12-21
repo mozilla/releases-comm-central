@@ -38,11 +38,11 @@ async function ensureTodayPane() {
  * up the new event dialog.
  */
 add_task(async function testDropMozMessage() {
-  let folder = create_folder("Mochitest");
+  let folder = await create_folder("Mochitest");
   let subject = "The Grand Event";
   let body = "Parking is available.";
   be_in_folder(folder);
-  add_message_to_folder(folder, create_message({ subject, body: { body } }));
+  await add_message_to_folder([folder], create_message({ subject, body: { body } }));
   select_click_row(0);
 
   let [msgStr] = window.gFolderDisplay.selectedMessageUris;

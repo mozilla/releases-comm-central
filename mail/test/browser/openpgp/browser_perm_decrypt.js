@@ -90,7 +90,7 @@ add_task(async function setup() {
     )
   );
 
-  gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
+  gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
   be_in_folder(gInbox);
 });
 

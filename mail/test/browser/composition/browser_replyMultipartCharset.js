@@ -44,10 +44,11 @@ var { close_window } = ChromeUtils.import(
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var folder = create_folder("FolderWithMessages");
+var folder;
 
-add_task(function setup() {
+add_task(async function setup() {
   requestLongerTimeout(5);
+  folder = await create_folder("FolderWithMessages");
 });
 
 async function subtest_replyEditAsNewForward_charset(

@@ -28,7 +28,7 @@ var {
  * Tests that a message containing an invalid vcard can be displayed.
  */
 add_task(async function testMarkedAsRead() {
-  let folder = create_folder("SpecialMsgs");
+  let folder = await create_folder("SpecialMsgs");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
 
   let file = new FileUtils.File(getTestFilePath("data/test-invalid-vcard.eml"));

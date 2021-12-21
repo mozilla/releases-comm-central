@@ -15,8 +15,8 @@ var {
   be_in_folder,
   create_folder,
   get_special_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   press_delete,
   right_click_on_row,
   select_click_row,
@@ -32,7 +32,7 @@ var { MailServices } = ChromeUtils.import(
 var folder1, folder2;
 var gInitRecentMenuCount;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   // Ensure that there are no updated folders to ensure the recent folder
   // is empty.
   for (let folder of MailServices.accounts.allFolders) {
@@ -40,10 +40,10 @@ add_task(function setupModule(module) {
   }
 
   // Try to make these folders first in alphabetic order
-  folder1 = create_folder("aaafolder1");
-  folder2 = create_folder("aaafolder2");
+  folder1 = await create_folder("aaafolder1");
+  folder2 = await create_folder("aaafolder2");
 
-  MessageInjection.make_new_sets_in_folder(folder1, [{ count: 3 }]);
+  await make_message_sets_in_folders([folder1], [{ count: 3 }]);
 });
 
 add_task(async function test_move_message() {
@@ -154,7 +154,11 @@ add_task(async function test_delete_message() {
 add_task(async function test_archive_message() {
   archive_selected_messages();
   // We've archived a message - we should still just have folder2 in the menu.
-  let archive = get_special_folder(Ci.nsMsgFolderFlags.Archive, false, false);
+  let archive = await get_special_folder(
+    Ci.nsMsgFolderFlags.Archive,
+    false,
+    false
+  );
   be_in_folder(archive.descendants[0]);
   await right_click_on_row(0);
   let popups = await mc.click_menus_in_sequence(

@@ -14,8 +14,8 @@
 var {
   be_in_folder,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -34,10 +34,10 @@ var {
 
 var folder;
 
-add_task(function setupModule(module) {
-  folder = create_folder("QuickFilterBarKeyboardInterface");
+add_task(async function setupModule(module) {
+  folder = await create_folder("QuickFilterBarKeyboardInterface");
   // we need a message so we can select it so we can find in message
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 1 }]);
+  await make_message_sets_in_folders([folder], [{ count: 1 }]);
   be_in_folder(folder);
 });
 

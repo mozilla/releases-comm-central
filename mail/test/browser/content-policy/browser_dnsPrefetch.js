@@ -47,8 +47,8 @@ var msgBody =
   "dns prefetch test message\n" +
   "</body>\n</html>\n";
 
-add_task(function setupModule(module) {
-  folder = create_folder("dnsPrefetch");
+add_task(async function setupModule(module) {
+  folder = await create_folder("dnsPrefetch");
 });
 
 function addToFolder(aSubject, aBody, aFolder) {

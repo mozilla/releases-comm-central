@@ -194,12 +194,12 @@ var contacts = [
   { email: "rjorden@hadleys-hope.invalid", name: "Newt", pdn: false },
 ];
 
-add_task(function setupModule(module) {
-  folder = create_folder("DisplayNameA");
+add_task(async function setupModule(module) {
+  folder = await create_folder("DisplayNameA");
 
   for (let message of messages) {
-    add_message_to_folder(
-      folder,
+    await add_message_to_folder(
+      [folder],
       create_message({
         clobberHeaders: message.headers,
       })

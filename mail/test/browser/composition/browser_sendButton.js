@@ -46,7 +46,7 @@ var { MailServices } = ChromeUtils.import(
 
 var account = null;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
   let server = MailServices.accounts.FindServer(
@@ -55,7 +55,11 @@ add_task(function setupModule(module) {
     "pop3"
   );
   account = MailServices.accounts.FindAccountForServer(server);
-  let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
+  let inbox = await get_special_folder(
+    Ci.nsMsgFolderFlags.Inbox,
+    false,
+    server
+  );
   be_in_folder(inbox);
 });
 

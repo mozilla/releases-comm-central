@@ -14,8 +14,8 @@ var {
   create_folder,
   create_virtual_folder,
   inboxFolder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
@@ -26,9 +26,9 @@ var {
  * Add some messages to a folder, delete the first one, and create a saved
  * search over the inbox and the folder. Then, compact folders.
  */
-add_task(function test_setup_virtual_folder_and_compact() {
-  let otherFolder = create_folder("otherFolder");
-  MessageInjection.make_new_sets_in_folder(otherFolder, [{ count: 2 }]);
+add_task(async function test_setup_virtual_folder_and_compact() {
+  let otherFolder = await create_folder("otherFolder");
+  await make_message_sets_in_folders([otherFolder], [{ count: 2 }]);
 
   /**
    * We delete the first message in the local folder, so compaction of the

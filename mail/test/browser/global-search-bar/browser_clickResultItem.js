@@ -5,10 +5,10 @@
 "use strict";
 
 const {
-  MessageInjection,
-  inboxFolder,
   be_in_folder,
   create_folder,
+  inboxFolder,
+  make_message_sets_in_folders,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -78,13 +78,16 @@ let tests = [
  */
 add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
   window.focus();
-  folder = create_folder("SearchedFolder");
+  folder = await create_folder("SearchedFolder");
   be_in_folder(folder);
-  threads = MessageInjection.make_new_sets_in_folder(folder, [
-    { from: ["User", "user@example.com"] },
-    { from: ["User", "user@example.com"] },
-    { from: ["User", "user@example.com"] },
-  ]);
+  threads = await make_message_sets_in_folders(
+    [folder],
+    [
+      { from: ["User", "user@example.com"] },
+      { from: ["User", "user@example.com"] },
+      { from: ["User", "user@example.com"] },
+    ]
+  );
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });

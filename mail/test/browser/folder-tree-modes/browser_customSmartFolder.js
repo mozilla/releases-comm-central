@@ -22,8 +22,8 @@ var {
   expand_folder,
   get_smart_folder_named,
   inboxFolder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -43,7 +43,7 @@ var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
  * create two smart folder types and two real folders, one for each
  * smart folder type
  */
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   rootFolder = inboxFolder.server.rootFolder;
 
   // register a new smart folder type
@@ -68,8 +68,8 @@ add_task(function setupModule(module) {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  MessageInjection.make_new_sets_in_folder(subfolderA, [{ count: 1 }]);
-  MessageInjection.make_new_sets_in_folder(subfolderB, [{ count: 1 }]);
+  await make_message_sets_in_folders([subfolderA], [{ count: 1 }]);
+  await make_message_sets_in_folders([subfolderB], [{ count: 1 }]);
 });
 
 /**

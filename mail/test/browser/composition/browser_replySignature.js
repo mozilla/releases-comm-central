@@ -30,8 +30,8 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var sig = "roses are red";
 var folder;
 
-add_task(function setupModule(module) {
-  folder = create_folder("SigStripTest");
+add_task(async function setupModule(module) {
+  folder = await create_folder("SigStripTest");
 
   let msg = create_message({
     subject: "msg with signature; format=flowed",
@@ -46,7 +46,7 @@ add_task(function setupModule(module) {
       format: "flowed",
     },
   });
-  add_message_to_folder(folder, msg);
+  await add_message_to_folder([folder], msg);
   let msg2 = create_message({
     subject: "msg with signature; format not flowed",
     body: {
@@ -60,7 +60,7 @@ add_task(function setupModule(module) {
       format: "",
     },
   });
-  add_message_to_folder(folder, msg2);
+  await add_message_to_folder([folder], msg2);
 });
 
 /** Test sig strip true for format flowed. */

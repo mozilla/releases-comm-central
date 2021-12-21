@@ -6,6 +6,7 @@
 
 const EXPORTED_SYMBOLS = [
   "add_message_to_folder",
+  "add_message_sets_to_folders",
   "add_to_toolbar",
   "archive_messages",
   "archive_selected_messages",
@@ -68,6 +69,7 @@ const EXPORTED_SYMBOLS = [
   "create_message",
   "create_thread",
   "create_virtual_folder",
+  "delete_messages",
   "delete_via_popup",
   "display_message_in_folder_tab",
   "empty_folder",
@@ -90,9 +92,9 @@ const EXPORTED_SYMBOLS = [
   "make_display_grouped",
   "make_display_threaded",
   "make_display_unthreaded",
+  "make_message_sets_in_folders",
   "mark_action",
   "mc",
-  "MessageInjection",
   "middle_click_on_folder",
   "middle_click_on_row",
   "msgGen",
@@ -178,6 +180,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 var { SmimeUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/smimeUtils.jsm"
 );
@@ -202,7 +207,10 @@ var testHelperModule;
 
 var msgGen;
 
-var MessageInjection;
+var messageInjection;
+
+msgGen = new MessageGenerator();
+var msgGenFactory = new MessageScenarioFactory(msgGen);
 
 var inboxFolder = null;
 
@@ -244,6 +252,7 @@ function setupModule() {
     "../../../testing/mochitest/resources/logHelper.js",
     testHelperModule
   );
+  // - Hook-up logHelper to the mozmill event system...
   mark_action = testHelperModule.mark_action;
   normalize_for_json = testHelperModule._normalize_for_json;
 
@@ -251,18 +260,6 @@ function setupModule() {
   //  we want them to log extra stuff.
   testHelperModule._logHelperInterestedListeners = true;
 
-  // - Hook-up logHelper to the mozmill event system...
-
-  // -- the rest of the asyncTestUtils framework (but not actually async)
-
-  load_via_src_path(
-    "../../../testing/mochitest/resources/asyncTestUtils.js",
-    testHelperModule
-  );
-  load_via_src_path(
-    "../../../testing/mochitest/resources/messageInjection.js",
-    testHelperModule
-  );
   load_via_src_path(
     "../../../testing/mochitest/resources/viewWrapperTestUtils.js",
     testHelperModule
@@ -274,13 +271,6 @@ function setupModule() {
     testHelperModule
   );
   testHelperModule.registerFolderEventLogHelper();
-
-  // messageInjection wants a gMessageGenerator (and so do we)
-  msgGen = new MessageGenerator();
-  testHelperModule.gMessageGenerator = msgGen;
-  testHelperModule.gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
-
-  MessageInjection = testHelperModule.MessageInjection;
 
   // use window-helper's augment_controller method to get our extra good stuff
   //  we need.
@@ -315,9 +305,10 @@ function smimeUtils_loadCertificateAndKey(file) {
 }
 
 function setupAccountStuff() {
-  inboxFolder = testHelperModule.MessageInjection.configure_message_injection({
+  messageInjection = new MessageInjection({
     mode: "local",
   });
+  inboxFolder = messageInjection.getInboxFolder();
 }
 
 /*
@@ -330,13 +321,14 @@ function setupAccountStuff() {
 
 /**
  * Create a folder and rebuild the folder tree view.
- * @param aFolderName  A folder name with no support for hierarchy at this time.
- * @param aSpecialFlags An optional list of nsMsgFolderFlags bits to set.
+ * @param {string} aFolderName  A folder name with no support for hierarchy at this time.
+ * @param {nsMsgFolderFlags} [aSpecialFlags] An optional list of nsMsgFolderFlags bits to set.
+ * @return {nsIMsgFolder}
  */
-function create_folder(aFolderName, aSpecialFlags) {
+async function create_folder(aFolderName, aSpecialFlags) {
   wait_for_message_display_completion();
 
-  let folder = testHelperModule.MessageInjection.make_empty_folder(
+  let folder = await messageInjection.makeEmptyFolder(
     aFolderName,
     aSpecialFlags
   );
@@ -345,11 +337,13 @@ function create_folder(aFolderName, aSpecialFlags) {
 }
 
 /**
- * Create a virtual folder by deferring to |MessageInjection.make_virtual_folder| and making
+ * Create a virtual folder by deferring to |MessageInjection.makeVirtualFolder| and making
  *  sure to rebuild the folder tree afterwards.
+ * @see MessageInjection.makeVirtualFolder
+ * @return {nsIMsgFolder}
  */
 function create_virtual_folder(...aArgs) {
-  let folder = testHelperModule.MessageInjection.make_virtual_folder(...aArgs);
+  let folder = messageInjection.makeVirtualFolder(...aArgs);
   mc.folderTreeView.mode = "all";
   return folder;
 }
@@ -362,7 +356,7 @@ function create_virtual_folder(...aArgs) {
  * @param aCreate      Create the folder if it does not exist yet.
  * @param aEmpty       Set to false if messages from the folder must not be emptied.
  */
-function get_special_folder(
+async function get_special_folder(
   aFolderFlag,
   aCreate = false,
   aServer,
@@ -381,7 +375,7 @@ function get_special_folder(
   ).rootFolder.getFolderWithFlags(aFolderFlag);
 
   if (!folder && aCreate) {
-    folder = create_folder(folderNames.get(aFolderFlag), [aFolderFlag]);
+    folder = await create_folder(folderNames.get(aFolderFlag), [aFolderFlag]);
   }
   if (!folder) {
     throw new Error("Special folder not found");
@@ -398,18 +392,19 @@ function get_special_folder(
 
 /**
  * Create a thread with the specified number of messages in it.
+ * @param {number} aCount
+ * @return {SyntheticMessageSet}
  */
 function create_thread(aCount) {
-  return new SyntheticMessageSet(
-    testHelperModule.gMessageScenarioFactory.directReply(aCount)
-  );
+  return new SyntheticMessageSet(msgGenFactory.directReply(aCount));
 }
 
 /**
  * Create and return a SyntheticMessage object.
  *
- * @param {Object} aArgs An arguments object to be passed to
- *                       MessageGenerator.makeMessage()
+ * @param {MakeMessageOptions} aArgs An arguments object to be passed to
+ *                                   MessageGenerator.makeMessage()
+ * @return {SyntheticMessage}
  */
 function create_message(aArgs) {
   return msgGen.makeMessage(aArgs);
@@ -418,7 +413,7 @@ function create_message(aArgs) {
 /**
  * Create and return an SMIME SyntheticMessage object.
  *
- * @param {Object} aArgs An arguments object to be passed to
+ * @param {MakeMessageOptions} aArgs An arguments object to be passed to
  *                       MessageGenerator.makeEncryptedSMimeMessage()
  */
 function create_encrypted_smime_message(aArgs) {
@@ -428,7 +423,7 @@ function create_encrypted_smime_message(aArgs) {
 /**
  * Create and return an OpenPGP SyntheticMessage object.
  *
- * @param {Object} aArgs An arguments object to be passed to
+ * @param {MakeMessageOptions} aArgs An arguments object to be passed to
  *                       MessageGenerator.makeEncryptedOpenPGPMessage()
  */
 function create_encrypted_openpgp_message(aArgs) {
@@ -436,20 +431,47 @@ function create_encrypted_openpgp_message(aArgs) {
 }
 
 /**
- * Add a SyntheticMessage to a folder.
+ * Adds a SyntheticMessage as a SyntheticMessageSet to a folder or folders.
  *
+ * @see MessageInjection.addSetsToFolders
  * @param {SyntheticMessage} aMsg
- * @param {Object} aFolder
+ * @param {nsIMsgFolder[]} aFolder
  */
-function add_message_to_folder(aFolder, aMsg) {
-  // should presumably use async_run here, but since setupAccountStuff is
-  // using a local store, it should be safe to assume synchronicity
-  MessageInjection.add_sets_to_folders(
-    [aFolder],
-    [new SyntheticMessageSet([aMsg])]
-  );
+async function add_message_to_folder(aFolder, aMsg) {
+  await messageInjection.addSetsToFolders(aFolder, [
+    new SyntheticMessageSet([aMsg]),
+  ]);
 }
 
+/**
+ * Adds SyntheticMessageSets to a folder or folders.
+ * @see MessageInjection.addSetsToFolders
+ * @param {nsIMsgLocalMailFolder[]} aFolders
+ * @param {SyntheticMessageSet[]} aMsg
+ */
+async function add_message_sets_to_folders(aFolders, aMsg) {
+  await messageInjection.addSetsToFolders(aFolders, aMsg);
+}
+/**
+ * Makes SyntheticMessageSets in aFolders
+ *
+ * @param {nsIMsgFolder[]} aFolders
+ * @param {MakeMessageOptions[]} aOptions
+ * @return {SyntheticMessageSet[]}
+ */
+async function make_message_sets_in_folders(aFolders, aOptions) {
+  return messageInjection.makeNewSetsInFolders(aFolders, aOptions, msgGen);
+}
+
+/**
+ * @param {SyntheticMessageSet} aSynMessageSet The set of messages
+ *     to delete.  The messages do not all
+ *     have to be in the same folder, but we have to delete them folder by
+ *     folder if they are not.
+ */
+async function delete_messages(aSynMessageSet) {
+  await MessageInjection.deleteMessages(aSynMessageSet);
+}
 /**
  * Make sure we are entering the folder from not having been in the folder.  We
  *  will leave the folder and come back if we have to.

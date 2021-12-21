@@ -12,8 +12,8 @@
 var {
   be_in_folder,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   select_click_row,
   wait_for_message_display_completion,
 } = ChromeUtils.import(
@@ -25,10 +25,10 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var prefName = "mail.advance_on_spacebar";
 var prefValue = Services.prefs.getBoolPref(prefName);
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   // Create four unread messages in a sample folder
-  let folder = create_folder("Sample");
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 4 }]);
+  let folder = await create_folder("Sample");
+  await make_message_sets_in_folders([folder], [{ count: 4 }]);
   be_in_folder(folder);
 });
 

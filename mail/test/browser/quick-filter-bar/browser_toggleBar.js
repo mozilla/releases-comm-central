@@ -13,8 +13,8 @@ var {
   assert_messages_in_view,
   be_in_folder,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -32,10 +32,10 @@ var {
 var folder;
 var setUnstarred, setStarred;
 
-add_task(function setupModule(module) {
-  folder = create_folder("QuickFilterBarToggleBar");
-  [setUnstarred, setStarred] = MessageInjection.make_new_sets_in_folder(
-    folder,
+add_task(async function setupModule(module) {
+  folder = await create_folder("QuickFilterBarToggleBar");
+  [setUnstarred, setStarred] = await make_message_sets_in_folders(
+    [folder],
     [{ count: 1 }, { count: 1 }]
   );
   setStarred.setStarred(true);

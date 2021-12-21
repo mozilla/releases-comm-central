@@ -45,12 +45,12 @@ var folder;
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   gMockExtProtSvcReg.register();
 
-  folder = create_folder("PhishingBarA");
-  add_message_to_folder(
-    folder,
+  folder = await create_folder("PhishingBarA");
+  await add_message_to_folder(
+    [folder],
     create_message({
       body: {
         body: '<form action="http://localhost/download-me"><input></form>.',
@@ -58,9 +58,9 @@ add_task(function setupModule(module) {
       },
     })
   );
-  add_message_to_folder(folder, create_message());
-  add_message_to_folder(
-    folder,
+  await add_message_to_folder([folder], create_message());
+  await add_message_to_folder(
+    [folder],
     create_message({
       body: {
         body: "check out http://130.128.4.1. and http://130.128.4.2/.",
@@ -68,8 +68,8 @@ add_task(function setupModule(module) {
       },
     })
   );
-  add_message_to_folder(
-    folder,
+  await add_message_to_folder(
+    [folder],
     create_message({
       body: {
         body:
@@ -78,8 +78,8 @@ add_task(function setupModule(module) {
       },
     })
   );
-  add_message_to_folder(
-    folder,
+  await add_message_to_folder(
+    [folder],
     create_message({
       body: {
         body: '<a href="http://subdomain.google.com/">http://google.com</a>.',
@@ -87,8 +87,8 @@ add_task(function setupModule(module) {
       },
     })
   );
-  add_message_to_folder(
-    folder,
+  await add_message_to_folder(
+    [folder],
     create_message({
       body: {
         body: '<a href="http://evilhost">http://localhost</a>.',
@@ -96,8 +96,8 @@ add_task(function setupModule(module) {
       },
     })
   );
-  add_message_to_folder(
-    folder,
+  await add_message_to_folder(
+    [folder],
     create_message({
       body: {
         body: '<form action="http://localhost/download-me"><input></form>.',

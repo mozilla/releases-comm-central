@@ -144,9 +144,9 @@ var msgBodyStart =
 
 var msgBodyEnd = "</body>\n</html>\n";
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   requestLongerTimeout(2);
-  folder = create_folder("generalContentPolicy");
+  folder = await create_folder("generalContentPolicy");
 });
 
 // We can't call it test since that it would be run as subtest.

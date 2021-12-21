@@ -92,13 +92,13 @@ add_task(async function setUp() {
 
   aliceIdentity.setUnicharAttribute("openpgp_key_id", id.split("0x").join(""));
 
-  draftsFolder = get_special_folder(
+  draftsFolder = await get_special_folder(
     Ci.nsMsgFolderFlags.Drafts,
     true,
     aliceAcct.incomingServer.localFoldersServer
   );
 
-  templatesFolder = get_special_folder(
+  templatesFolder = await get_special_folder(
     Ci.nsMsgFolderFlags.Templates,
     true,
     aliceAcct.incomingServer.localFoldersServer

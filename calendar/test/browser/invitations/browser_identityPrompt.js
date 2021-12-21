@@ -48,7 +48,7 @@ add_task(async function setUp() {
   receiverIdentity.fullAddress = `Receiver <${receiverIdentity.email}>`;
   receiverAcct.addIdentity(receiverIdentity);
 
-  gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
+  gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, true);
   calendar = CalendarTestUtils.createProxyCalendar("Test");
 });
 

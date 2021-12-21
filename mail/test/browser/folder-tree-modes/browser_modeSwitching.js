@@ -11,8 +11,8 @@
 var {
   assert_folder_visible,
   inboxFolder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   select_no_folders,
   toggle_main_menu,
 } = ChromeUtils.import(
@@ -33,7 +33,7 @@ var appmenu_mainView;
 var appmenu_popup;
 var menu_state;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   rootFolder = inboxFolder.server.rootFolder;
 
   // Create one folder with unread messages and one favorite folder.
@@ -43,7 +43,7 @@ add_task(function setupModule(module) {
   inboxFolder.createSubfolder("FavoriteFolder", null);
   favoriteFolder = inboxFolder.getChildNamed("FavoriteFolder");
 
-  MessageInjection.make_new_sets_in_folder(unreadFolder, [{ count: 1 }]);
+  await make_message_sets_in_folders([unreadFolder], [{ count: 1 }]);
   favoriteFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
   modeList_menu = mc.e("menu_FolderViewsPopup");

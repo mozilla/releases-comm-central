@@ -5,6 +5,7 @@
 "use strict";
 
 var {
+  add_message_sets_to_folders,
   archive_messages,
   assert_message_not_in_view,
   assert_nothing_selected,
@@ -15,7 +16,6 @@ var {
   create_thread,
   make_display_threaded,
   mc,
-  MessageInjection,
   select_click_row,
   select_none,
   select_shift_click_row,
@@ -31,12 +31,12 @@ var folder;
  */
 var NUM_MESSAGES_IN_THREAD = 6;
 
-add_task(function setupModule(module) {
-  folder = create_folder("ThreadedMessages");
+add_task(async function setupModule(module) {
+  folder = await create_folder("ThreadedMessages");
   let thread = create_thread(NUM_MESSAGES_IN_THREAD);
-  MessageInjection.add_sets_to_folders([folder], [thread]);
+  await add_message_sets_to_folders([folder], [thread]);
   thread = create_thread(NUM_MESSAGES_IN_THREAD);
-  MessageInjection.add_sets_to_folders([folder], [thread]);
+  await add_message_sets_to_folders([folder], [thread]);
 });
 
 /**

@@ -13,8 +13,8 @@ var {
   assert_folder_mode,
   assert_folder_tree_view_row_count,
   be_in_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -28,7 +28,7 @@ add_task(function setupModule(module) {
   assert_folder_tree_view_row_count(7);
 });
 
-add_task(function test_folder_names_in_recent_view_mode() {
+add_task(async function test_folder_names_in_recent_view_mode() {
   // We need 2 local accounts that have pristine folders with
   // unmodified times, so that it does not influence the
   // list of Recent folders. So clear out the most-recently-used time.
@@ -66,13 +66,13 @@ add_task(function test_folder_names_in_recent_view_mode() {
   assert_folder_tree_view_row_count(10);
 
   // Create some messages in the folders to make them recently used.
-  MessageInjection.make_new_sets_in_folder(fUnique, [{ count: 1 }]);
+  await make_message_sets_in_folders([fUnique], [{ count: 1 }]);
   be_in_folder(fUnique);
-  MessageInjection.make_new_sets_in_folder(fDup1, [{ count: 1 }]);
+  await make_message_sets_in_folders([fDup1], [{ count: 1 }]);
   be_in_folder(fDup1);
-  MessageInjection.make_new_sets_in_folder(fDup2, [{ count: 2 }]);
+  await make_message_sets_in_folders([fDup2], [{ count: 2 }]);
   be_in_folder(fDup2);
-  MessageInjection.make_new_sets_in_folder(fDup3, [{ count: 3 }]);
+  await make_message_sets_in_folders([fDup3], [{ count: 3 }]);
   be_in_folder(fDup3);
 
   // Enable the recent folder view.

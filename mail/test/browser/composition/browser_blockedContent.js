@@ -38,8 +38,8 @@ var gOutboxFolder;
 var kBoxId = "compose-notification-bottom";
 var kNotificationId = "blockedContent";
 
-add_task(function setupModule(module) {
-  gOutboxFolder = get_special_folder(Ci.nsMsgFolderFlags.Queue);
+add_task(async function setupModule(module) {
+  gOutboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 });
 
 function putHTMLOnClipboard(html) {

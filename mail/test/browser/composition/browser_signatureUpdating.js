@@ -34,7 +34,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   requestLongerTimeout(2);
 
   // These prefs can't be set in the manifest as they contain white-space.
@@ -54,7 +54,11 @@ add_task(function setupModule(module) {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  let inbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
+  let inbox = await get_special_folder(
+    Ci.nsMsgFolderFlags.Inbox,
+    false,
+    server
+  );
   be_in_folder(inbox);
 });
 

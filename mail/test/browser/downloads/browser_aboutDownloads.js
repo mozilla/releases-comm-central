@@ -18,8 +18,8 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   select_click_row,
   switch_tab,
   wait_for_popup_to_open,
@@ -32,7 +32,6 @@ var { wait_for_browser_load } = ChromeUtils.import(
 
 var downloads = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var downloadsTab;
 
 var attachmentFileNames = [
@@ -77,37 +76,40 @@ var downloadsView = {
   },
 };
 
-function prepare_messages() {
-  let folder = create_folder("about:downloads");
-  MessageInjection.make_new_sets_in_folder(folder, [
-    {
-      count: 1,
-      attachments: [
-        {
-          filename: attachmentFileNames[0],
-          body: "Body",
-        },
-      ],
-    },
-    {
-      count: 1,
-      attachments: [
-        {
-          filename: attachmentFileNames[1],
-          body: "Body",
-        },
-      ],
-    },
-    {
-      count: 1,
-      attachments: [
-        {
-          filename: attachmentFileNames[2],
-          body: "Body",
-        },
-      ],
-    },
-  ]);
+async function prepare_messages() {
+  let folder = await create_folder("about:downloads");
+  await make_message_sets_in_folders(
+    [folder],
+    [
+      {
+        count: 1,
+        attachments: [
+          {
+            filename: attachmentFileNames[0],
+            body: "Body",
+          },
+        ],
+      },
+      {
+        count: 1,
+        attachments: [
+          {
+            filename: attachmentFileNames[1],
+            body: "Body",
+          },
+        ],
+      },
+      {
+        count: 1,
+        attachments: [
+          {
+            filename: attachmentFileNames[2],
+            body: "Body",
+          },
+        ],
+      },
+    ]
+  );
   be_in_folder(folder);
 }
 
@@ -119,10 +121,10 @@ function prepare_downloads_view() {
   mc.waitFor(() => success, "Timeout waiting for attaching our download view.");
 }
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   gMockFilePickReg.register();
 
-  prepare_messages();
+  await prepare_messages();
   prepare_downloads_view();
 
   downloadsTab = open_about_downloads();

@@ -20,8 +20,8 @@ var {
 var {
   be_in_folder,
   get_special_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
@@ -42,17 +42,17 @@ var { MailServices } = ChromeUtils.import(
 var kBoxId = "mail-notification-top";
 var draftsFolder;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   requestLongerTimeout(2);
-  draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
 /**
  * Bug 349547.
  * Tests that we only open one compose window for one instance of a draft.
  */
-add_task(function test_open_draft_again() {
-  MessageInjection.make_new_sets_in_folder(draftsFolder, [{ count: 1 }]);
+add_task(async function test_open_draft_again() {
+  await make_message_sets_in_folders([draftsFolder], [{ count: 1 }]);
   be_in_folder(draftsFolder);
   select_click_row(0);
 
@@ -209,8 +209,8 @@ add_task(async function test_save_delivery_format_with_edit_template() {
 /**
  * Tests that 'Edit as New' leaves the original message in drafts folder.
  */
-add_task(function test_edit_as_new_in_draft() {
-  MessageInjection.make_new_sets_in_folder(draftsFolder, [{ count: 1 }]);
+add_task(async function test_edit_as_new_in_draft() {
+  await make_message_sets_in_folders([draftsFolder], [{ count: 1 }]);
   be_in_folder(draftsFolder);
 
   Assert.equal(draftsFolder.getTotalMessages(false), 1);

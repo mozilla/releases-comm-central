@@ -51,8 +51,8 @@ var gShrunkenWindowWidth = 600;
 
 var gTodayPane;
 
-add_task(function setupModule(module) {
-  folder = create_folder("QuickFilterBarDisplayIssues");
+add_task(async function setupModule(module) {
+  folder = await create_folder("QuickFilterBarDisplayIssues");
   be_in_folder(folder);
 
   // Let's check window dimensions so we can enlarge from them.

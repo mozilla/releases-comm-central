@@ -19,10 +19,7 @@ var {
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var folder = create_folder("viewsource");
-registerCleanupFunction(() => {
-  folder.deleteSelf(null);
-});
+var folder;
 
 // Message content as stored in the message folder. Non-ASCII characters as
 // escape codes for clarity.
@@ -35,12 +32,19 @@ var contentGarbled = "Testar, ett tvÃ¥ tre.";
 // Latin1 content displayed as UTF-8.
 var contentReplaced = "Testar, ett tv� tre.";
 
-addToFolder("ISO-8859-1 header/ISO-8859-1 body", "ISO-8859-1", contentLatin1);
-addToFolder("ISO-8859-1 header/UTF-8 body", "ISO-8859-1", contentUTF8);
-addToFolder("UTF-8 header/ISO-8859-1 body", "UTF-8", contentLatin1);
-addToFolder("UTF-8 header/UTF-8 body", "UTF-8", contentUTF8);
+add_task(async function setupModule(module) {
+  folder = await create_folder("viewsource");
+  addToFolder("ISO-8859-1 header/ISO-8859-1 body", "ISO-8859-1", contentLatin1);
+  addToFolder("ISO-8859-1 header/UTF-8 body", "ISO-8859-1", contentUTF8);
+  addToFolder("UTF-8 header/ISO-8859-1 body", "UTF-8", contentLatin1);
+  addToFolder("UTF-8 header/UTF-8 body", "UTF-8", contentUTF8);
 
-be_in_folder(folder);
+  be_in_folder(folder);
+});
+
+registerCleanupFunction(() => {
+  folder.deleteSelf(null);
+});
 
 /** Header matches the body. Should be readable in both places. */
 add_task(async function latin1Header_with_latin1Body() {

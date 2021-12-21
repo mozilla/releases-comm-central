@@ -5,12 +5,13 @@
 "use strict";
 
 const {
+  add_message_sets_to_folders,
   be_in_folder,
   create_folder,
   create_thread,
+  delete_messages,
   inboxFolder,
   mc,
-  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -138,13 +139,13 @@ function closeTabs() {
  * search results.
  */
 add_task(async function testListViewMarkRead() {
-  let folder = create_folder("ListViewMarkReadFolder");
+  let folder = await create_folder("ListViewMarkReadFolder");
   let term = "listviewmarkread";
   let thread = createThreadWithTerm(2, term);
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     be_in_folder(inboxFolder);
-    MessageInjection.async_delete_messages(thread);
+    await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
@@ -152,7 +153,7 @@ add_task(async function testListViewMarkRead() {
   });
 
   be_in_folder(folder);
-  MessageInjection.add_sets_to_folders([folder], [thread]);
+  await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
@@ -179,21 +180,20 @@ add_task(async function testListViewMarkRead() {
  * search results.
  */
 add_task(async function testListViewMarkThreadAsRead() {
-  let folder = create_folder("ListViewMarkThreadAsReadFolder");
+  let folder = await create_folder("ListViewMarkThreadAsReadFolder");
   let term = "listviewmarkthreadasread ";
   let thread = createThreadWithTerm(3, term);
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     be_in_folder(inboxFolder);
-    MessageInjection.async_delete_messages(thread);
-
+    await delete_messages(thread);
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
     trash.emptyTrash(null, null);
   });
 
   be_in_folder(folder);
-  MessageInjection.add_sets_to_folders([folder], [thread]);
+  await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
@@ -220,12 +220,12 @@ add_task(async function testListViewMarkThreadAsRead() {
  * Test we can mark a message as read in a conversation view.
  */
 add_task(async function testConversationViewMarkRead() {
-  let folder = create_folder("ConversationViewMarkReadFolder");
+  let folder = await create_folder("ConversationViewMarkReadFolder");
   let thread = create_thread(2);
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     be_in_folder(inboxFolder);
-    MessageInjection.async_delete_messages(thread);
+    await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
@@ -233,7 +233,7 @@ add_task(async function testConversationViewMarkRead() {
   });
 
   be_in_folder(folder);
-  MessageInjection.add_sets_to_folders([folder], [thread]);
+  await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, {
@@ -257,12 +257,12 @@ add_task(async function testConversationViewMarkRead() {
  * Test we can mark a thread as read in a conversation view.
  */
 add_task(async function testConversationViewMarkThreadAsRead() {
-  let folder = create_folder("ConversationViewMarkThreadAsReadFolder");
+  let folder = await create_folder("ConversationViewMarkThreadAsReadFolder");
   let thread = create_thread(3);
 
   registerCleanupFunction(async () => {
     be_in_folder(inboxFolder);
-    MessageInjection.async_delete_messages(thread);
+    await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
@@ -270,7 +270,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
   });
 
   be_in_folder(folder);
-  MessageInjection.add_sets_to_folders([folder], [thread]);
+  await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });

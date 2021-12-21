@@ -11,8 +11,8 @@ var { MailServices } = ChromeUtils.import(
 var {
   be_in_folder,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   open_message_from_file,
   press_delete,
   select_click_row,
@@ -25,10 +25,10 @@ var { close_window } = ChromeUtils.import(
 
 var folder1, folder2;
 
-add_task(function setupModule(module) {
-  folder1 = create_folder("CopyFromFolder");
-  folder2 = create_folder("CopyToFolder");
-  MessageInjection.make_new_sets_in_folder(folder1, [{ count: 1 }]);
+add_task(async function setupModule(module) {
+  folder1 = await create_folder("CopyFromFolder");
+  folder2 = await create_folder("CopyToFolder");
+  await make_message_sets_in_folders([folder1], [{ count: 1 }]);
 });
 
 add_task(async function test_copy_eml_message() {

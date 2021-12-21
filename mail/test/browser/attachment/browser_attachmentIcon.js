@@ -163,7 +163,7 @@ var messages = [
   },
 ];
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   // Set up our detached/deleted attachments.
@@ -184,7 +184,7 @@ add_task(function setupModule(module) {
     create_deleted_attachment(deletedName, "text/plain"),
   ]);
 
-  folder = create_folder("AttachmentIcons");
+  folder = await create_folder("AttachmentIcons");
   for (let i = 0; i < messages.length; i++) {
     switch (messages[i].name) {
       case "detached_attachment":
@@ -198,7 +198,7 @@ add_task(function setupModule(module) {
         break;
     }
 
-    add_message_to_folder(folder, create_message(messages[i]));
+    await add_message_to_folder([folder], create_message(messages[i]));
   }
 });
 

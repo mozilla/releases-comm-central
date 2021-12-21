@@ -51,9 +51,9 @@ var { MailServices } = ChromeUtils.import(
 var folder, folderMore;
 var gInterestingMessage;
 
-add_task(function setupModule(module) {
-  folder = create_folder("MessageWindowA");
-  folderMore = create_folder("MesageHeaderMoreButton");
+add_task(async function setupModule(module) {
+  folder = await create_folder("MessageWindowA");
+  folderMore = await create_folder("MesageHeaderMoreButton");
 
   // create a message that has the interesting headers that commonly
   // show up in the message header pane for testing
@@ -69,7 +69,7 @@ add_task(function setupModule(module) {
     },
   });
 
-  add_message_to_folder(folder, gInterestingMessage);
+  await add_message_to_folder([folder], gInterestingMessage);
 
   // create a message that has more to and cc addresses than visible in the
   // tooltip text of the more button
@@ -77,7 +77,7 @@ add_task(function setupModule(module) {
     to: msgGen.makeNamesAndAddresses(40),
     cc: msgGen.makeNamesAndAddresses(40),
   });
-  add_message_to_folder(folderMore, msgMore1);
+  await add_message_to_folder([folderMore], msgMore1);
 
   // create a message that has more to and cc addresses than visible in the
   // header
@@ -85,12 +85,12 @@ add_task(function setupModule(module) {
     to: msgGen.makeNamesAndAddresses(20),
     cc: msgGen.makeNamesAndAddresses(20),
   });
-  add_message_to_folder(folderMore, msgMore2);
+  await add_message_to_folder([folderMore], msgMore2);
 
   // create a message that has boring headers to be able to switch to and
   // back from, to force the more button to collapse again.
   let msg = create_message();
-  add_message_to_folder(folder, msg);
+  await add_message_to_folder([folder], msg);
 
   // Some of these tests critically depends on the window width, collapse
   // everything that might be in the way
@@ -463,12 +463,12 @@ add_task(function test_more_button_with_many_recipients() {
  * Test that we can open up the inline contact editor when we
  * click on the star.
  */
-add_task(function test_clicking_star_opens_inline_contact_editor() {
+add_task(async function test_clicking_star_opens_inline_contact_editor() {
   // Make sure we're in the right folder
   be_in_folder(folder);
   // Add a new message
   let msg = create_message();
-  add_message_to_folder(folder, msg);
+  await add_message_to_folder([folder], msg);
   // Open the latest message
   select_click_row(-1);
   wait_for_message_display_completion(mc);
@@ -525,7 +525,7 @@ add_task(async function test_msg_id_context_menu() {
         "<4880C986@example.com> <4880CAB2@example.com> <4880CC76@example.com>",
     },
   });
-  add_message_to_folder(folder, msg);
+  await add_message_to_folder([folder], msg);
   be_in_folder(folder);
 
   // Open the latest message.
@@ -557,12 +557,12 @@ add_task(async function test_msg_id_context_menu() {
  * contact cannot be moved.
  */
 add_task(
-  function test_address_book_switch_disabled_on_contact_in_mailing_list() {
+  async function test_address_book_switch_disabled_on_contact_in_mailing_list() {
     const MAILING_LIST_DIRNAME = "Some Mailing List";
     const ADDRESS_BOOK_NAME = "Some Address Book";
     // Add a new message
     let msg = create_message();
-    add_message_to_folder(folder, msg);
+    await add_message_to_folder([folder], msg);
 
     // Make sure we're in the right folder
     be_in_folder(folder);
@@ -720,7 +720,7 @@ add_task(async function test_add_contact_from_context_menu() {
   }
 });
 
-add_task(function test_that_msg_without_date_clears_previous_headers() {
+add_task(async function test_that_msg_without_date_clears_previous_headers() {
   be_in_folder(folder);
 
   // create a message: with descritive subject
@@ -730,7 +730,7 @@ add_task(function test_that_msg_without_date_clears_previous_headers() {
   delete msg.headers.Date;
 
   // this will add the message to the end of the folder
-  add_message_to_folder(folder, msg);
+  await add_message_to_folder([folder], msg);
 
   // Not the first anymore. The timestamp is that of "NOW".
   // select and open the LAST message
@@ -756,7 +756,7 @@ add_task(function test_that_msg_without_date_clears_previous_headers() {
 /**
  * Test various aspects of the (n more) widgetry.
  */
-function test_more_widget() {
+async function test_more_widget() {
   // generate message with 35 recips (effectively guarantees overflow for n=3)
   be_in_folder(folder);
   let msg = create_message({
@@ -765,7 +765,7 @@ function test_more_widget() {
   });
 
   // add the message to the end of the folder
-  add_message_to_folder(folder, msg);
+  await add_message_to_folder([folder], msg);
 
   // Select and open the injected message;
   // It is at the second last message in the display list.
@@ -813,7 +813,7 @@ add_task(test_more_widget);
 /**
  * Test that all addresses are shown in show all header mode
  */
-add_task(function test_show_all_header_mode() {
+add_task(async function test_show_all_header_mode() {
   // generate message with 35 recips (effectively guarantees overflow for n=3)
   be_in_folder(folder);
   let msg = create_message({
@@ -822,7 +822,7 @@ add_task(function test_show_all_header_mode() {
   });
 
   // add the message to the end of the folder
-  add_message_to_folder(folder, msg);
+  await add_message_to_folder([folder], msg);
 
   // select and open the added message.
   // It is at the second last position in the display list.
@@ -978,20 +978,20 @@ function subtest_more_widget_star_click(toDescription) {
  * Make sure the (more) widget hidden pref actually works with a
  * non-default value.
  */
-add_task(function test_more_widget_with_maxlines_of_3() {
+add_task(async function test_more_widget_with_maxlines_of_3() {
   // set maxLines to 3
   Services.prefs.setIntPref("mailnews.headers.show_n_lines_before_more", 3);
 
   // call test_more_widget again
   // We need to look at the second last article in the display list.
-  test_more_widget();
+  await test_more_widget();
 });
 
 /**
  * Make sure the (more) widget hidden pref also works with an
  * "all" (0) non-default value.
  */
-add_task(function test_more_widget_with_disabled_more() {
+add_task(async function test_more_widget_with_disabled_more() {
   // set maxLines to 0
   Services.prefs.setIntPref("mailnews.headers.show_n_lines_before_more", 0);
 
@@ -1000,7 +1000,7 @@ add_task(function test_more_widget_with_disabled_more() {
   let msg = create_message({ toCount: 35 });
 
   // add the message to the end of the folder
-  add_message_to_folder(folder, msg);
+  await add_message_to_folder([folder], msg);
 
   // select and open the last message
   let curMessage = select_click_row(-1);

@@ -21,8 +21,8 @@ var {
   create_folder,
   empty_folder,
   get_special_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   press_delete,
   right_click_on_row,
   select_click_row,
@@ -44,13 +44,13 @@ var gInbox;
 var gOutbox;
 var gAutoRead;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
 
-  gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
-  gInbox = create_folder("MsgStoreChecks");
-  MessageInjection.make_new_sets_in_folder(gInbox, [{ count: 6 }]);
+  gOutbox = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
+  gInbox = await create_folder("MsgStoreChecks");
+  await make_message_sets_in_folders([gInbox], [{ count: 6 }]);
 
   // We delete the first message so that we have to compact anything.
   be_in_folder(gInbox);

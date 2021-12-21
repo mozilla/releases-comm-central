@@ -22,7 +22,7 @@ var { wait_for_window_focused } = ChromeUtils.import(
  * Test custom headers are set and encoded correctly.
  */
 add_task(async function test_customHeaders() {
-  let draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  let draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   // Set other.header so that they will be rendered in compose window.
   let otherHeaders = Services.prefs.getCharPref("mail.compose.other.header");

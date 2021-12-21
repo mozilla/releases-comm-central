@@ -35,13 +35,13 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gInbox;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   let server = MailServices.accounts.FindServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
+  gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
 
   ExtensionSupport.registerWindowListener("mochitest", {
     chromeURLs: ["chrome://messenger/content/messenger.xhtml"],

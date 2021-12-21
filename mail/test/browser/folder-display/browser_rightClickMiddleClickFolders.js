@@ -20,8 +20,8 @@ var {
   close_popup,
   close_tab,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   middle_click_on_folder,
   reset_context_menu_background_tabs,
   right_click_on_folder,
@@ -36,17 +36,17 @@ var {
 
 var folderA, folderB, folderC;
 
-add_task(function setupModule(module) {
-  folderA = create_folder("RightClickMiddleClickFoldersA");
-  folderB = create_folder("RightClickMiddleClickFoldersB");
-  folderC = create_folder("RightClickMiddleClickFoldersC");
+add_task(async function setupModule(module) {
+  folderA = await create_folder("RightClickMiddleClickFoldersA");
+  folderB = await create_folder("RightClickMiddleClickFoldersB");
+  folderC = await create_folder("RightClickMiddleClickFoldersC");
 
   // We aren't really interested in the messages the folders contain, but just
   // for appearance's sake, add a message to each folder
 
-  MessageInjection.make_new_sets_in_folder(folderA, [{ count: 1 }]);
-  MessageInjection.make_new_sets_in_folder(folderB, [{ count: 1 }]);
-  MessageInjection.make_new_sets_in_folder(folderC, [{ count: 1 }]);
+  await make_message_sets_in_folders([folderA], [{ count: 1 }]);
+  await make_message_sets_in_folders([folderB], [{ count: 1 }]);
+  await make_message_sets_in_folders([folderC], [{ count: 1 }]);
 });
 
 /**

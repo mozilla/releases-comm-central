@@ -58,8 +58,8 @@ var textAttachment =
 
 var binaryAttachment = textAttachment;
 
-add_task(function setupModule(module) {
-  folder = create_folder("AttachmentA");
+add_task(async function setupModule(module) {
+  folder = await create_folder("AttachmentA");
 
   var attachedMessage = msgGen.makeMessage({
     body: { body: "I'm an attached email!" },
@@ -173,7 +173,7 @@ add_task(function setupModule(module) {
   }
 
   for (let i = 0; i < messages.length; i++) {
-    add_message_to_folder(folder, create_message(messages[i]));
+    await add_message_to_folder([folder], create_message(messages[i]));
   }
 });
 

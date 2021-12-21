@@ -15,8 +15,8 @@ var {
   be_in_folder,
   close_popup,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -43,12 +43,12 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folderA;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   setupNNTPDaemon();
 
-  folderA = create_folder("FolderToolbarA");
+  folderA = await create_folder("FolderToolbarA");
   // we need one message to select and open
-  MessageInjection.make_new_sets_in_folder(folderA, [{ count: 1 }]);
+  await make_message_sets_in_folders([folderA], [{ count: 1 }]);
 
   setupLocalServer(NNTP_PORT);
 });

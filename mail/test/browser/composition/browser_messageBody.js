@@ -25,7 +25,11 @@ var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var gOutboxFolder = get_special_folder(Ci.nsMsgFolderFlags.Queue);
+var gOutboxFolder;
+
+add_task(async function setupModule(module) {
+  gOutboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
+});
 
 /**
  * Tests that sending link with invalid data uri works.

@@ -46,7 +46,7 @@ var SENT_DEFAULTS;
 var VIRTUAL_DEFAULTS;
 var GLODA_DEFAULTS;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   useCorrespondent = Services.prefs.getBoolPref(
     "mail.threadpane.use_correspondents"
   );
@@ -91,7 +91,7 @@ add_task(function setupModule(module) {
   ];
 
   // create the source
-  folderSource = create_folder("ColumnsApplySource");
+  folderSource = await create_folder("ColumnsApplySource");
 });
 
 /**
@@ -193,8 +193,8 @@ add_task(function test_column_defaults_inbox() {
 /**
  * Make sure we set the proper defaults for a Sent folder.
  */
-add_task(function test_column_defaults_sent() {
-  folderSent = create_folder("ColumnsSent");
+add_task(async function test_column_defaults_sent() {
+  folderSent = await create_folder("ColumnsSent");
   folderSent.setFlag(Ci.nsMsgFolderFlags.SentMail);
 
   be_in_folder(folderSent);
@@ -221,8 +221,8 @@ add_task(function test_column_defaults_cross_folder_virtual_folder() {
  *  after that and don't follow the inbox.  This also does a good workout of the
  *  persistence logic.
  */
-add_task(function test_column_defaults_inherit_from_inbox() {
-  folderA = create_folder("ColumnsA");
+add_task(async function test_column_defaults_inherit_from_inbox() {
+  folderA = await create_folder("ColumnsA");
   // - the folder should inherit from the inbox...
   be_in_folder(folderA);
   assert_visible_columns(INBOX_DEFAULTS);
@@ -243,7 +243,7 @@ add_task(function test_column_defaults_inherit_from_inbox() {
   assert_visible_columns(INBOX_DEFAULTS);
 
   // - but folder B should pick up on the modified set
-  folderB = create_folder("ColumnsB");
+  folderB = await create_folder("ColumnsB");
   be_in_folder(folderB);
   assert_visible_columns(columnsB);
 
@@ -457,7 +457,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
  *  children.  Make sure the folder changes but the children do not.
  */
 add_task(async function test_apply_to_folder_no_children() {
-  folderParent = create_folder("ColumnsApplyParent");
+  folderParent = await create_folder("ColumnsApplyParent");
   folderParent.createSubfolder("Child1", null);
   folderChild1 = folderParent.getChildNamed("Child1");
   folderParent.createSubfolder("Child2", null);
@@ -522,7 +522,7 @@ add_task(async function test_apply_to_folder_and_children() {
  * also has children. Make sure the folder changes but the children do not.
  */
 add_task(async function test_apply_to_folder_no_children_swapped() {
-  folderParent = create_folder("ColumnsApplyParentOutgoing");
+  folderParent = await create_folder("ColumnsApplyParentOutgoing");
   folderParent.setFlag(Ci.nsMsgFolderFlags.SentMail);
   folderParent.createSubfolder("Child1", null);
   folderChild1 = folderParent.getChildNamed("Child1");

@@ -65,7 +65,7 @@ function test_expected_included(actual, expected, description) {
   }
 }
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   requestLongerTimeout(3);
 
   // These prefs can't be set in the manifest as they contain white-space.
@@ -85,8 +85,8 @@ add_task(function setupModule(module) {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
-  add_message_to_folder(gInbox, create_message());
+  gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
+  await add_message_to_folder([gInbox], create_message());
 
   gMockFilePickReg.register();
   gMockCloudfileManager.register();

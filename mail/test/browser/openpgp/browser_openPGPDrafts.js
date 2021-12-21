@@ -84,7 +84,7 @@ add_task(async function setUp() {
  * reply for an encrypted message. See bug 1661510.
  */
 add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
-  let draftsFolder = get_special_folder(
+  let draftsFolder = await get_special_folder(
     Ci.nsMsgFolderFlags.Drafts,
     true,
     aliceAcct.incomingServer.localFoldersServer

@@ -72,7 +72,7 @@ add_task(async function setUp() {
     )
   );
 
-  gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
+  gOutbox = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 });
 
 /**

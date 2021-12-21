@@ -46,7 +46,7 @@ var gIdentities = [
   { email: "a+b@example.invalid", fullname: "User A" },
 ];
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   // Now set up an account with some identities.
   let acctMgr = MailServices.accounts;
   gAccount = acctMgr.createAccount();
@@ -74,7 +74,7 @@ add_task(function setupModule(module) {
 
   acctMgr.defaultAccount = gAccount;
 
-  gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
+  gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
 /**

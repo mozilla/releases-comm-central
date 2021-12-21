@@ -40,8 +40,8 @@ var msgsubject = "mail client suggestions";
 var msgbodyA = "know of a good email client?";
 var msgbodyB = "hi, i think you may know of an email client to recommend?";
 
-add_task(function setupModule(module) {
-  folder = create_folder("FwdedEmlTest");
+add_task(async function setupModule(module) {
+  folder = await create_folder("FwdedEmlTest");
 
   let source =
     "From - Mon Apr  16 22:55:33 2012\n" +

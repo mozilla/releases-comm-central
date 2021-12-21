@@ -55,8 +55,8 @@ var msgBody =
   '<embed id="testelement" type="application/x-test" width="400" height="400" border="1"></embed>\n' +
   "</body>\n</html>\n";
 
-add_task(function setupModule(module) {
-  folder = create_folder("pluginPolicy");
+add_task(async function setupModule(module) {
+  folder = await create_folder("pluginPolicy");
 });
 
 function addToFolder(aSubject, aBody, aFolder) {

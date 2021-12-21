@@ -43,8 +43,7 @@ Services.prefs.setIntPref("browser.download.folderList", 2);
 Services.prefs.setBoolPref("browser.download.useDownloadDir", true);
 Services.prefs.setIntPref("security.dialog_enable_delay", 0);
 
-let folder = create_folder("OpenAttachment");
-be_in_folder(folder);
+let folder;
 
 let mockedExecutable = FileUtils.getFile("TmpD", ["mockedExecutable"]);
 if (!mockedExecutable.exists()) {
@@ -58,6 +57,11 @@ mockedHandlerApp.executable = mockedExecutable;
 mockedHandlerApp.detailedDescription = "Mocked handler app";
 
 let mockedHandlers = new Set();
+
+add_task(async function setupModule(module) {
+  folder = await create_folder("OpenAttachment");
+  be_in_folder(folder);
+});
 
 registerCleanupFunction(function() {
   MockFilePicker.cleanup();
@@ -98,10 +102,10 @@ function createMockedHandler(type, preferredAction, alwaysAskBeforeHandling) {
 }
 
 let messageIndex = -1;
-function createAndLoadMessage(type) {
+async function createAndLoadMessage(type) {
   messageIndex++;
-  add_message_to_folder(
-    folder,
+  await add_message_to_folder(
+    [folder],
     create_message({
       subject: `${type} attachment`,
       body: {
@@ -222,7 +226,7 @@ add_task(async function sanityCheck() {
  * Open a content type we've never seen before. Save, and remember the action.
  */
 add_task(async function noHandler() {
-  createAndLoadMessage("test/foo");
+  await createAndLoadMessage("test/foo");
   await clickWithDialog({ rememberExpected: false, remember: true }, "accept");
   await checkFileSaved();
   checkHandler("test/foo", saveToDisk, false);
@@ -233,7 +237,7 @@ add_task(async function noHandler() {
  * action (except that we do remember it, but also remember to ask next time).
  */
 add_task(async function noHandlerNoSave() {
-  createAndLoadMessage("test/bar");
+  await createAndLoadMessage("test/bar");
   await clickWithDialog({ rememberExpected: false, remember: false }, "accept");
   await checkFileSaved();
   checkHandler("test/bar", saveToDisk, true);
@@ -248,7 +252,7 @@ add_task(async function noHandlerNoSave() {
  */
 add_task(async function saveToDiskAlwaysAsk() {
   createMockedHandler("test/saveToDisk-true", saveToDisk, true);
-  createAndLoadMessage("test/saveToDisk-true");
+  await createAndLoadMessage("test/saveToDisk-true");
   await clickWithDialog({ rememberExpected: false }, "accept");
   await checkFileSaved();
   checkHandler("test/saveToDisk-true", saveToDisk, true);
@@ -262,7 +266,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
   Services.prefs.setBoolPref("browser.download.useDownloadDir", false);
 
   createMockedHandler("test/saveToDisk-true", saveToDisk, true);
-  createAndLoadMessage("test/saveToDisk-true");
+  await createAndLoadMessage("test/saveToDisk-true");
 
   let expectedFile = tempDir.clone();
   expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
@@ -282,7 +286,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
  */
 add_task(async function alwaysAskAlwaysAsk() {
   createMockedHandler("test/alwaysAsk-true", alwaysAsk, true);
-  createAndLoadMessage("test/alwaysAsk-true");
+  await createAndLoadMessage("test/alwaysAsk-true");
   await clickWithDialog({
     mode: IMPROVEMENTS_PREF_SET ? "save" : "open",
     rememberExpected: false,
@@ -294,7 +298,7 @@ add_task(async function alwaysAskAlwaysAsk() {
  */
 add_task(async function useHelperAppAlwaysAsk() {
   createMockedHandler("test/useHelperApp-true", useHelperApp, true);
-  createAndLoadMessage("test/useHelperApp-true");
+  await createAndLoadMessage("test/useHelperApp-true");
   await clickWithDialog({ mode: "open", rememberExpected: false });
 });
 
@@ -303,7 +307,7 @@ add_task(async function useHelperAppAlwaysAsk() {
  */
 add_task(async function useSystemDefaultAlwaysAsk() {
   createMockedHandler("test/useSystemDefault-true", useSystemDefault, true);
-  createAndLoadMessage("test/useSystemDefault-true");
+  await createAndLoadMessage("test/useSystemDefault-true");
   // Would be mode: "open" on all platforms except our handler isn't real.
   await clickWithDialog({
     mode: AppConstants.platform == "win" ? "open" : "save",
@@ -319,7 +323,7 @@ add_task(async function useSystemDefaultAlwaysAsk() {
  */
 add_task(async function saveToDisk() {
   createMockedHandler("test/saveToDisk-false", saveToDisk, false);
-  createAndLoadMessage("test/saveToDisk-false");
+  await createAndLoadMessage("test/saveToDisk-false");
   await clickWithoutDialog();
   await checkFileSaved();
 });
@@ -332,7 +336,7 @@ add_task(async function saveToDiskPromptLocation() {
   Services.prefs.setBoolPref("browser.download.useDownloadDir", false);
 
   createMockedHandler("test/saveToDisk-true", saveToDisk, false);
-  createAndLoadMessage("test/saveToDisk-false");
+  await createAndLoadMessage("test/saveToDisk-false");
 
   let expectedFile = tempDir.clone();
   expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
@@ -353,7 +357,7 @@ add_task(async function saveToDiskPromptLocation() {
  */
 add_task(async function alwaysAskRemember() {
   createMockedHandler("test/alwaysAsk-false", alwaysAsk, false);
-  createAndLoadMessage("test/alwaysAsk-false");
+  await createAndLoadMessage("test/alwaysAsk-false");
   await clickWithDialog(undefined, "accept");
   await checkFileSaved();
   checkHandler("test/alwaysAsk-false", saveToDisk, false);
@@ -366,7 +370,7 @@ add_task(async function alwaysAskRemember() {
  */
 add_task(async function alwaysAskForget() {
   createMockedHandler("test/alwaysAsk-false", alwaysAsk, false);
-  createAndLoadMessage("test/alwaysAsk-false");
+  await createAndLoadMessage("test/alwaysAsk-false");
   await clickWithDialog({ remember: false }, "accept");
   await checkFileSaved();
   checkHandler("test/alwaysAsk-false", saveToDisk, true);

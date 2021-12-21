@@ -25,10 +25,10 @@ var {
 );
 
 var folderA, folderB;
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   show_folder_pane();
-  folderA = create_folder("RightClickToOpenSearchWindowA");
-  folderB = create_folder("RightClickToOpenSearchWindowB");
+  folderA = await create_folder("RightClickToOpenSearchWindowA");
+  folderB = await create_folder("RightClickToOpenSearchWindowB");
 });
 
 /**

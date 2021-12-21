@@ -5,11 +5,12 @@
 "use strict";
 
 const {
-  inboxFolder,
+  add_message_sets_to_folders,
   be_in_folder,
   create_folder,
   create_thread,
-  MessageInjection,
+  delete_messages,
+  inboxFolder,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -26,13 +27,13 @@ const { GlodaMsgIndexer } = ChromeUtils.import(
  */
 add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
   let folderName = "Test Folder Name";
-  let folder = create_folder(folderName);
+  let folder = await create_folder(folderName);
   let thread = create_thread(3);
   let term = "atermtosearchfor";
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     be_in_folder(inboxFolder);
-    MessageInjection.async_delete_messages(thread);
+    await delete_messages(thread);
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
@@ -49,7 +50,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
   }
 
   be_in_folder(folder);
-  MessageInjection.add_sets_to_folders([folder], [thread]);
+  await add_message_sets_to_folders([folder], [thread]);
 
   await new Promise(callback => {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });

@@ -81,7 +81,7 @@ add_task(function setupModule(module) {
 /**
  * Create and select a new message to do a reply with.
  */
-function create_replyMsg(aTo, aEnvelopeTo) {
+async function create_replyMsg(aTo, aEnvelopeTo) {
   let msg0 = create_message({
     from: "Tester <test@example.com>",
     to: aTo,
@@ -90,7 +90,7 @@ function create_replyMsg(aTo, aEnvelopeTo) {
       "envelope-to": aEnvelopeTo,
     },
   });
-  add_message_to_folder(gFolder, msg0);
+  await add_message_to_folder([gFolder], msg0);
 
   be_in_folder(gFolder);
   let msg = select_click_row(i++);
@@ -100,7 +100,7 @@ function create_replyMsg(aTo, aEnvelopeTo) {
 /**
  * The tests.
  */
-add_task(function test_reply_identity_selection() {
+add_task(async function test_reply_identity_selection() {
   let tests = [
     {
       desc: "No catchAll, 'From' will be set to recipient",
@@ -202,7 +202,7 @@ add_task(function test_reply_identity_selection() {
 
   for (let test of tests) {
     info(`Running test: ${test.desc}`);
-    test.replyIndex = create_replyMsg(test.to, test.envelopeTo);
+    test.replyIndex = await create_replyMsg(test.to, test.envelopeTo);
 
     identity1.catchAll = test.catchAllId1;
     identity1.catchAllHint = test.catchAllHintId1;

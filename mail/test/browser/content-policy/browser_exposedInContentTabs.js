@@ -46,8 +46,8 @@ var msgBody =
   'pass.png"/>\n' +
   "</body>\n</html>\n";
 
-add_task(function setupModule(module) {
-  folder = create_folder("exposedInContent");
+add_task(async function setupModule(module) {
+  folder = await create_folder("exposedInContent");
 });
 
 function addToFolder(aSubject, aBody, aFolder) {

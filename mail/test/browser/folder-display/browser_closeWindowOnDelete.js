@@ -13,8 +13,8 @@ var {
   be_in_folder,
   close_tab,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
@@ -33,10 +33,9 @@ var {
 
 var folder;
 
-add_task(function setupModule(module) {
-  folder = create_folder("CloseWindowOnDeleteA");
-
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 10 }]);
+add_task(async function setupModule(module) {
+  folder = await create_folder("CloseWindowOnDeleteA");
+  await make_message_sets_in_folders([folder], [{ count: 10 }]);
 });
 
 /**

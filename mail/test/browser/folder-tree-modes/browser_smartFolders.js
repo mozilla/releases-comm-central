@@ -18,13 +18,14 @@ var {
   assert_folder_selected_and_displayed,
   be_in_folder,
   collapse_folder,
+  delete_messages,
   expand_folder,
   FAKE_SERVER_HOSTNAME,
   get_smart_folder_named,
   get_special_folder,
   inboxFolder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -42,9 +43,8 @@ var smartInboxFolder;
 
 var inboxSet;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   rootFolder = inboxFolder.server.rootFolder;
-
   // Create a folder as a subfolder of the inbox
   inboxFolder.createSubfolder("SmartFoldersA", null);
   inboxSubfolder = inboxFolder.getChildNamed("SmartFoldersA");
@@ -57,10 +57,11 @@ add_task(function setupModule(module) {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  [inboxSet] = MessageInjection.make_new_sets_in_folder(inboxFolder, [
-    { count: 1 },
-  ]);
-  MessageInjection.make_new_sets_in_folder(inboxSubfolder, [{ count: 1 }]);
+  [inboxSet] = await make_message_sets_in_folders(
+    [inboxFolder],
+    [{ count: 1 }]
+  );
+  await make_message_sets_in_folders([inboxSubfolder], [{ count: 1 }]);
 });
 
 /**
@@ -175,7 +176,7 @@ add_task(function test_select_folder_expands_collapsed_account_root() {
  * Test that smart folders are updated when the folders they should be
  * searching over are added/removed or have the relevant flag set/cleared.
  */
-add_task(function test_folder_flag_changes() {
+add_task(async function test_folder_flag_changes() {
   expand_folder(smartInboxFolder);
   // Now attempt to select the folder.
   mc.folderTreeView.selectFolder(inboxSubfolder);
@@ -188,12 +189,12 @@ add_task(function test_folder_flag_changes() {
     FAKE_SERVER_HOSTNAME,
     "pop3"
   );
-  let pop3Inbox = get_special_folder(
+  let pop3Inbox = await get_special_folder(
     Ci.nsMsgFolderFlags.Inbox,
     false,
     pop3Server
   );
-  MessageInjection.make_new_sets_in_folder(pop3Inbox, [{ count: 1 }]);
+  await make_message_sets_in_folders([pop3Inbox], [{ count: 1 }]);
   mc.folderTreeView.selectFolder(pop3Inbox);
   select_click_row(0);
   archive_selected_messages();
@@ -277,9 +278,9 @@ add_task(function test_switch_to_all_folders() {
   mc.folderTreeView.activeModes = "smart";
 });
 
-registerCleanupFunction(function teardownModule() {
+registerCleanupFunction(async function teardownModule() {
   inboxFolder.propagateDelete(inboxSubfolder, true, null);
-  MessageInjection.async_delete_messages(inboxSet);
+  await delete_messages(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true, null);
 
   Assert.report(

@@ -34,7 +34,7 @@ var { MailServices } = ChromeUtils.import(
  * correct number of rows for accounts and folders are always shown as new
  * folders are created, expanded, and collapsed.
  */
-add_task(function test_all_folders_toggle_folder_open_state() {
+add_task(async function test_all_folders_toggle_folder_open_state() {
   // Test that we are in All Folders mode by default
   assert_folder_mode("all");
 
@@ -72,7 +72,7 @@ add_task(function test_all_folders_toggle_folder_open_state() {
   assert_folder_tree_view_row_count(accounts + inbox + trash + archives);
   // close the tinderbox server.
   mc.folderTreeView.toggleOpenState(0);
-  let folderA = create_folder("FolderPaneA");
+  let folderA = await create_folder("FolderPaneA");
   be_in_folder(folderA);
 
   // After creating our first folder we should have 6 rows visible

@@ -53,8 +53,8 @@ var b64Attachment =
   "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
 var b64Size = 188;
 
-add_task(function setupModule(module) {
-  folder = create_folder("ComposeAttachmentA");
+add_task(async function setupModule(module) {
+  folder = await create_folder("ComposeAttachmentA");
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
@@ -92,7 +92,7 @@ add_task(function setupModule(module) {
   ];
 
   for (let i = 0; i < messages.length; i++) {
-    add_message_to_folder(folder, create_message(messages[i]));
+    await add_message_to_folder([folder], create_message(messages[i]));
   }
 });
 

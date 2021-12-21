@@ -38,7 +38,7 @@ var friendName = "Carl Sagan";
 var headertoFieldMe;
 var collectedAddresses;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   localAccount = MailServices.accounts.FindAccountForServer(
     MailServices.accounts.localFoldersServer
   );
@@ -63,13 +63,19 @@ add_task(function setupModule(module) {
   secondIdentity = MailServices.accounts.createIdentity();
   secondIdentity.email = "nobody@nowhere.invalid";
 
-  folder = create_folder("DisplayNamesA");
-  decoyFolder = create_folder("DisplayNamesB");
+  folder = await create_folder("DisplayNamesA");
+  decoyFolder = await create_folder("DisplayNamesB");
 
-  add_message_to_folder(folder, create_message({ to: [["", myEmail]] }));
-  add_message_to_folder(folder, create_message({ from: ["", friendEmail] }));
-  add_message_to_folder(
-    folder,
+  await add_message_to_folder(
+    [folder],
+    create_message({ to: [["", myEmail]] })
+  );
+  await add_message_to_folder(
+    [folder],
+    create_message({ from: ["", friendEmail] })
+  );
+  await add_message_to_folder(
+    [folder],
     create_message({ from: [friendName, friendEmail] })
   );
 

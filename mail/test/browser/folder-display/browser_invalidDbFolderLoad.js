@@ -15,8 +15,8 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -25,9 +25,9 @@ var {
 var folder;
 var setA;
 
-add_task(function setupModule(module) {
-  folder = create_folder("InvalidMSF");
-  [setA] = MessageInjection.make_new_sets_in_folder(folder, [{ count: 3 }]);
+add_task(async function setupModule(module) {
+  folder = await create_folder("InvalidMSF");
+  [setA] = await make_message_sets_in_folders([folder], [{ count: 3 }]);
 });
 
 /**

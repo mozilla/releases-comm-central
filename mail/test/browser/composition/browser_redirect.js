@@ -169,7 +169,7 @@ add_task(async function testRedirectToMe() {
     cc: "Lisa <lisa@example.com>",
     subject: "testRedirectToMe",
   });
-  add_message_to_folder(folder, msg0);
+  await add_message_to_folder([folder], msg0);
 
   be_in_folder(folder);
   let msg = select_click_row(i++);

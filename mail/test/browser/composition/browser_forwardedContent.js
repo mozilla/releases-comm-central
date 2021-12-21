@@ -25,10 +25,10 @@ var {
 
 var folder = null;
 
-add_task(function setupModule(module) {
-  folder = create_folder("Forward Content Testing");
-  add_message_to_folder(
-    folder,
+add_task(async function setupModule(module) {
+  folder = await create_folder("Forward Content Testing");
+  await add_message_to_folder(
+    [folder],
     create_message({
       subject: "something like <foo@example>",
       body: { body: "Testing bug 397021!" },

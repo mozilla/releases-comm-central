@@ -28,26 +28,26 @@ var folder;
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "mdnRequested";
 
-add_task(function setupModule(module) {
-  folder = create_folder("ReturnReceiptTest");
+add_task(async function setupModule(module) {
+  folder = await create_folder("ReturnReceiptTest");
 
   // Create a message that requests a return receipt.
   let msg0 = create_message({
     from: ["Ake", "ake@example.com"],
     clobberHeaders: { "Disposition-Notification-To": "ake@example.com" },
   });
-  add_message_to_folder(folder, msg0);
+  await add_message_to_folder([folder], msg0);
 
   // ... and one that doesn't request a return receipt.
   let msg1 = create_message();
-  add_message_to_folder(folder, msg1);
+  await add_message_to_folder([folder], msg1);
 
   // Create a message that requests a return receipt to a different address.
   let msg2 = create_message({
     from: ["Mimi", "me@example.org"],
     clobberHeaders: { "Disposition-Notification-To": "other@example.com" },
   });
-  add_message_to_folder(folder, msg2);
+  await add_message_to_folder([folder], msg2);
 
   // Create a message that requests a return receipt to different addresses.
   let msg3 = create_message({
@@ -56,14 +56,14 @@ add_task(function setupModule(module) {
       "Disposition-Notification-To": "ex1@example.com, ex2@example.com",
     },
   });
-  add_message_to_folder(folder, msg3);
+  await add_message_to_folder([folder], msg3);
 
   // Create a message that requests a return receipt using non-standard header.
   let msg4 = create_message({
     from: ["Ake", "ake@example.com"],
     clobberHeaders: { "Return-Receipt-To": "ake@example.com" },
   });
-  add_message_to_folder(folder, msg4);
+  await add_message_to_folder([folder], msg4);
 
   // Create a message that requests a return receipt to a different address
   // using non-standard header.
@@ -71,7 +71,7 @@ add_task(function setupModule(module) {
     from: ["Mimi", "me@example.org"],
     clobberHeaders: { "Return-Receipt-To": "other@example.com" },
   });
-  add_message_to_folder(folder, msg5);
+  await add_message_to_folder([folder], msg5);
 
   // Create a message that requests a return receipt to different addresses
   // using non-standard header.
@@ -79,7 +79,7 @@ add_task(function setupModule(module) {
     from: ["Bobby", "bob@example.org"],
     clobberHeaders: { "Return-Receipt-To": "ex1@example.com, ex2@example.com" },
   });
-  add_message_to_folder(folder, msg6);
+  await add_message_to_folder([folder], msg6);
 });
 
 /** Utility to select a message. */

@@ -16,8 +16,8 @@ var {
   make_display_grouped,
   make_display_threaded,
   make_display_unthreaded,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   open_folder_in_new_tab,
   press_delete,
   right_click_on_row,
@@ -36,10 +36,11 @@ var {
 var folder = null,
   folder2 = null;
 
-add_task(function setupModule(module) {
-  folder = create_folder("SelectionA");
-  folder2 = create_folder("SelectionB");
-  MessageInjection.make_new_sets_in_folders([folder, folder2], [{ count: 50 }]);
+add_task(async function setupModule(module) {
+  console.trace();
+  folder = await create_folder("SelectionA");
+  folder2 = await create_folder("SelectionB");
+  await make_message_sets_in_folders([folder, folder2], [{ count: 50 }]);
 });
 
 // https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c80
@@ -165,7 +166,7 @@ add_task(function test_selection_persists_through_folder_tab_changes() {
 /**
  * Verify that we scroll to new messages when we enter a folder.
  */
-add_task(function test_enter_scroll_to_new() {
+add_task(async function test_enter_scroll_to_new() {
   // be in the folder
   be_in_folder(folder);
   // make sure the sort is ascending...
@@ -173,7 +174,7 @@ add_task(function test_enter_scroll_to_new() {
   // leave the folder so that the messages get marked as read
   enter_folder(folder.rootFolder);
   // add a new message, and make sure it is new
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 1 }]);
+  await make_message_sets_in_folders([folder], [{ count: 1 }]);
   // enter the folder
   enter_folder(folder);
   // make sure it (which must be the last row) is visible

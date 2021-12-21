@@ -14,8 +14,9 @@ var {
   assert_messages_not_in_view,
   be_in_folder,
   create_folder,
+  delete_messages,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -38,12 +39,12 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-add_task(function test_filter_unread() {
-  let folder = create_folder("QuickFilterBarFilterUnread");
-  let [unread, read] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-    { count: 1 },
-  ]);
+add_task(async function test_filter_unread() {
+  let folder = await create_folder("QuickFilterBarFilterUnread");
+  let [unread, read] = await make_message_sets_in_folders(
+    [folder],
+    [{ count: 1 }, { count: 1 }]
+  );
   read.setRead(true);
 
   be_in_folder(folder);
@@ -52,12 +53,12 @@ add_task(function test_filter_unread() {
   teardownTest();
 });
 
-add_task(function test_filter_starred() {
-  let folder = create_folder("QuickFilterBarFilterStarred");
-  let [, starred] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-    { count: 1 },
-  ]);
+add_task(async function test_filter_starred() {
+  let folder = await create_folder("QuickFilterBarFilterStarred");
+  let [, starred] = await make_message_sets_in_folders(
+    [folder],
+    [{ count: 1 }, { count: 1 }]
+  );
   starred.setStarred(true);
 
   be_in_folder(folder);
@@ -66,19 +67,17 @@ add_task(function test_filter_starred() {
   teardownTest();
 });
 
-add_task(function test_filter_simple_intersection_unread_and_starred() {
-  let folder = create_folder("QuickFilterBarFilterUnreadAndStarred");
+add_task(async function test_filter_simple_intersection_unread_and_starred() {
+  let folder = await create_folder("QuickFilterBarFilterUnreadAndStarred");
   let [
     ,
     readUnstarred,
     unreadStarred,
     readStarred,
-  ] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-    { count: 1 },
-    { count: 1 },
-    { count: 1 },
-  ]);
+  ] = await make_message_sets_in_folders(
+    [folder],
+    [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
+  );
   readUnstarred.setRead(true);
   unreadStarred.setStarred(true);
   readStarred.setRead(true);
@@ -91,7 +90,7 @@ add_task(function test_filter_simple_intersection_unread_and_starred() {
   teardownTest();
 });
 
-add_task(function test_filter_attachments() {
+add_task(async function test_filter_attachments() {
   let attachSetDef = {
     count: 1,
     attachments: [
@@ -109,11 +108,11 @@ add_task(function test_filter_attachments() {
     count: 1,
   };
 
-  let folder = create_folder("QuickFilterBarFilterAttachments");
-  let [, setAttach] = MessageInjection.make_new_sets_in_folder(folder, [
-    noAttachSetDef,
-    attachSetDef,
-  ]);
+  let folder = await create_folder("QuickFilterBarFilterAttachments");
+  let [, setAttach] = await make_message_sets_in_folders(
+    [folder],
+    [noAttachSetDef, attachSetDef]
+  );
 
   be_in_folder(folder);
   toggle_boolean_constraints("attachments");
@@ -140,25 +139,25 @@ function add_email_to_address_book(aEmailAddr) {
   throw new Error("Unable to find any suitable address book.");
 }
 
-add_task(function test_filter_in_address_book() {
+add_task(async function test_filter_in_address_book() {
   let bookSetDef = {
     from: ["Qbert Q Qbington", "q@q.invalid"],
     count: 1,
   };
   add_email_to_address_book(bookSetDef.from[1]);
-  let folder = create_folder("MesssageFilterBarInAddressBook");
-  let [setBook] = MessageInjection.make_new_sets_in_folder(folder, [
-    bookSetDef,
-    { count: 1 },
-  ]);
+  let folder = await create_folder("MesssageFilterBarInAddressBook");
+  let [setBook] = await make_message_sets_in_folders(
+    [folder],
+    [bookSetDef, { count: 1 }]
+  );
   be_in_folder(folder);
   toggle_boolean_constraints("addrbook");
   assert_messages_in_view(setBook);
   teardownTest();
 });
 
-add_task(function test_filter_tags() {
-  let folder = create_folder("QuickFilterBarTags");
+add_task(async function test_filter_tags() {
+  let folder = await create_folder("QuickFilterBarTags");
   const tagA = "$label1",
     tagB = "$label2",
     tagC = "$label3";
@@ -168,13 +167,10 @@ add_task(function test_filter_tags() {
     setTagB,
     setTagAB,
     setTagC,
-  ] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-    { count: 1 },
-    { count: 1 },
-    { count: 1 },
-    { count: 1 },
-  ]);
+  ] = await make_message_sets_in_folders(
+    [folder],
+    [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
+  );
   setTagA.addTag(tagA);
   setTagB.addTag(tagB);
   setTagAB.addTag(tagA);
@@ -218,8 +214,8 @@ add_task(function test_filter_tags() {
   teardownTest();
 });
 
-add_task(function test_filter_text_single_word_and_predicates() {
-  let folder = create_folder("QuickFilterBarTextSingleWord");
+add_task(async function test_filter_text_single_word_and_predicates() {
+  let folder = await create_folder("QuickFilterBarTextSingleWord");
   let whoFoo = ["zabba", "foo@madeup.invalid"];
   let [
     ,
@@ -227,13 +223,16 @@ add_task(function test_filter_text_single_word_and_predicates() {
     setRecipientsFoo,
     setSubjectFoo,
     setBodyFoo,
-  ] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-    { count: 1, from: whoFoo },
-    { count: 1, to: [whoFoo] },
-    { count: 1, subject: "foo" },
-    { count: 1, body: { body: "foo" } },
-  ]);
+  ] = await make_message_sets_in_folders(
+    [folder],
+    [
+      { count: 1 },
+      { count: 1, from: whoFoo },
+      { count: 1, to: [whoFoo] },
+      { count: 1, subject: "foo" },
+      { count: 1, body: { body: "foo" } },
+    ]
+  );
   be_in_folder(folder);
 
   // by default, sender/recipients/subject are selected
@@ -286,21 +285,20 @@ add_task(function test_filter_text_single_word_and_predicates() {
  *  constitutes sufficient positive coverage, although we also want to make
  *  sure that just a single term match is insufficient.
  */
-add_task(function test_filter_text_multi_word() {
-  let folder = create_folder("QuickFilterBarTextMultiWord");
+add_task(async function test_filter_text_multi_word() {
+  let folder = await create_folder("QuickFilterBarTextMultiWord");
 
   let whoFoo = ["foo", "zabba@madeup.invalid"];
   let whoBar = ["zabba", "bar@madeup.invalid"];
-  let [
-    ,
-    setPeepMatch,
-    setSubjReverse,
-  ] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-    { count: 1, from: whoFoo, to: [whoBar] },
-    { count: 1, subject: "bar foo" },
-    { count: 1, from: whoFoo },
-  ]);
+  let [, setPeepMatch, setSubjReverse] = await make_message_sets_in_folders(
+    [folder],
+    [
+      { count: 1 },
+      { count: 1, from: whoFoo, to: [whoBar] },
+      { count: 1, subject: "bar foo" },
+      { count: 1, from: whoFoo },
+    ]
+  );
   be_in_folder(folder);
 
   // (precondition)
@@ -315,8 +313,8 @@ add_task(function test_filter_text_multi_word() {
  * Verify that the quickfilter bar has OR functionality using
  * | (Pipe character) - Bug 586131
  */
-add_task(function test_filter_or_operator() {
-  let folder = create_folder("QuickFilterBarOrOperator");
+add_task(async function test_filter_or_operator() {
+  let folder = await create_folder("QuickFilterBarOrOperator");
 
   let whoFoo = ["foo", "zabba@madeup.invalid"];
   let whoBar = ["zabba", "bar@madeup.invalid"];
@@ -329,16 +327,19 @@ add_task(function test_filter_or_operator() {
     ,
     setSubject3,
     setMail1,
-  ] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-    { count: 1, from: whoFoo },
-    { count: 1, to: [whoBar] },
-    { count: 1, subject: "foo bar" },
-    { count: 1, subject: "bar test" },
-    { count: 1, subject: "test" },
-    { count: 1, to: [whoTest], subject: "logic" },
-    { count: 1, from: whoFoo, to: [whoBar], subject: "test" },
-  ]);
+  ] = await make_message_sets_in_folders(
+    [folder],
+    [
+      { count: 1 },
+      { count: 1, from: whoFoo },
+      { count: 1, to: [whoBar] },
+      { count: 1, subject: "foo bar" },
+      { count: 1, subject: "bar test" },
+      { count: 1, subject: "test" },
+      { count: 1, to: [whoTest], subject: "logic" },
+      { count: 1, from: whoFoo, to: [whoBar], subject: "test" },
+    ]
+  );
   be_in_folder(folder);
 
   assert_text_constraints_checked("sender", "recipients", "subject");
@@ -371,23 +372,26 @@ add_task(function test_filter_or_operator() {
  *  folders that we persist/propagate the state of the
  *  sender/recipients/subject/body toggle buttons.
  */
-add_task(function test_filter_text_constraints_propagate() {
+add_task(async function test_filter_text_constraints_propagate() {
   let whoFoo = ["foo", "zabba@madeup.invalid"];
   let whoBar = ["zabba", "bar@madeup.invalid"];
 
-  let folderOne = create_folder("QuickFilterBarTextPropagate1");
-  let [setSubjFoo, setWhoFoo] = MessageInjection.make_new_sets_in_folder(
-    folderOne,
+  let folderOne = await create_folder("QuickFilterBarTextPropagate1");
+  let [setSubjFoo, setWhoFoo] = await make_message_sets_in_folders(
+    [folderOne],
     [
       { count: 1, subject: "foo" },
       { count: 1, from: whoFoo },
     ]
   );
-  let folderTwo = create_folder("QuickFilterBarTextPropagate2");
-  let [, setWhoBar] = MessageInjection.make_new_sets_in_folder(folderTwo, [
-    { count: 1, subject: "bar" },
-    { count: 1, from: whoBar },
-  ]);
+  let folderTwo = await create_folder("QuickFilterBarTextPropagate2");
+  let [, setWhoBar] = await make_message_sets_in_folders(
+    [folderTwo],
+    [
+      { count: 1, subject: "bar" },
+      { count: 1, from: whoBar },
+    ]
+  );
 
   be_in_folder(folderOne);
   set_filter_text("foo");
@@ -423,17 +427,16 @@ add_task(function test_filter_text_constraints_propagate() {
  * Additional nuances:
  * - The count needs to update as the user deletes messages or what not.
  */
-add_task(function test_results_label() {
-  let folder = create_folder("QuickFilterBarResultsLabel");
+add_task(async function test_results_label() {
+  let folder = await create_folder("QuickFilterBarResultsLabel");
   let [
     setImmortal,
     setMortal,
     setGoldfish,
-  ] = MessageInjection.make_new_sets_in_folder(folder, [
-    { count: 1 },
-    { count: 1 },
-    { count: 1 },
-  ]);
+  ] = await make_message_sets_in_folders(
+    [folder],
+    [{ count: 1 }, { count: 1 }, { count: 1 }]
+  );
 
   be_in_folder(folder);
 
@@ -446,13 +449,13 @@ add_task(function test_results_label() {
   assert_messages_in_view([setImmortal, setMortal, setGoldfish]);
   assert_results_label_count(3);
 
-  MessageInjection.async_delete_messages(setGoldfish);
+  await delete_messages(setGoldfish);
   assert_results_label_count(2);
 
-  MessageInjection.async_delete_messages(setMortal);
+  await delete_messages(setMortal);
   assert_results_label_count(1);
 
-  MessageInjection.async_delete_messages(setImmortal);
+  await delete_messages(setImmortal);
   assert_results_label_count(0);
   teardownTest();
 });

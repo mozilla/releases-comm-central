@@ -9,6 +9,7 @@
 "use strict";
 
 var {
+  add_message_sets_to_folders,
   assert_displayed,
   assert_message_not_in_view,
   assert_message_pane_focused,
@@ -28,8 +29,8 @@ var {
   expand_all_threads,
   focus_thread_tree,
   make_display_threaded,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   middle_click_on_row,
   reset_context_menu_background_tabs,
   right_click_on_row,
@@ -51,19 +52,19 @@ var folder, threadedFolder;
  */
 var NUM_MESSAGES_IN_THREAD = 6;
 
-add_task(function setupModule(module) {
-  folder = create_folder("RightClickMiddleClickA");
-  threadedFolder = create_folder("RightClickMiddleClickB");
+add_task(async function setupModule(module) {
+  folder = await create_folder("RightClickMiddleClickA");
+  threadedFolder = await create_folder("RightClickMiddleClickB");
   // we want exactly as many messages as we plan to delete, so that we can test
   //  that the message window and tabs close when they run out of things to
   //  to display.
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 20 }]);
+  await make_message_sets_in_folders([folder], [{ count: 20 }]);
   // Create a few messages and one thread (the order is important here, as it
   // determines where the thread is placed. We want it placed right at the
   // end.)
-  MessageInjection.make_new_sets_in_folder(threadedFolder, [{ count: 50 }]);
+  await make_message_sets_in_folders([threadedFolder], [{ count: 50 }]);
   let thread = create_thread(NUM_MESSAGES_IN_THREAD);
-  MessageInjection.add_sets_to_folders([threadedFolder], [thread]);
+  await add_message_sets_to_folders([threadedFolder], [thread]);
 });
 
 /**

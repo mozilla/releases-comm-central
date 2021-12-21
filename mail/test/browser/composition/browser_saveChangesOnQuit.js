@@ -40,12 +40,12 @@ var DONT_SAVE = 2;
 var cwc = null; // compose window controller
 var folder = null;
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   requestLongerTimeout(3);
 
-  folder = create_folder("PromptToSaveTest");
+  folder = await create_folder("PromptToSaveTest");
 
-  add_message_to_folder(folder, create_message()); // row 0
+  await add_message_to_folder([folder], create_message()); // row 0
   let localFolder = folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   localFolder.addMessage(msgSource("content type: text", "text")); // row 1
   localFolder.addMessage(msgSource("content type missing", null)); // row 2

@@ -7,7 +7,7 @@
 var {
   be_in_folder,
   create_folder,
-  MessageInjection,
+  make_message_sets_in_folders,
   select_click_row,
   select_none,
   select_shift_click_row,
@@ -22,9 +22,9 @@ var {
 // One folder's enough
 var folder = null;
 
-add_task(function setupModule(module) {
-  folder = create_folder("JunkCommandsA");
-  MessageInjection.make_new_sets_in_folder(folder, [{ count: 30 }]);
+add_task(async function setupModule(module) {
+  folder = await create_folder("JunkCommandsA");
+  await make_message_sets_in_folders([folder], [{ count: 30 }]);
 });
 
 /**

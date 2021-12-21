@@ -21,8 +21,8 @@ var {
   close_popup,
   create_folder,
   display_message_in_folder_tab,
+  make_message_sets_in_folders,
   mc,
-  MessageInjection,
   open_selected_message_in_new_tab,
   select_click_row,
   switch_tab,
@@ -53,11 +53,12 @@ var msgHdrsInFolder = [];
 // The number of messages in folder.
 var NUM_MESSAGES_IN_FOLDER = 15;
 
-add_task(function setupModule(module) {
-  folder = create_folder("MessageFolder");
-  MessageInjection.make_new_sets_in_folder(folder, [
-    { count: NUM_MESSAGES_IN_FOLDER },
-  ]);
+add_task(async function setupModule(module) {
+  folder = await create_folder("MessageFolder");
+  await make_message_sets_in_folders(
+    [folder],
+    [{ count: NUM_MESSAGES_IN_FOLDER }]
+  );
 });
 
 registerCleanupFunction(async function teardownModule(module) {
