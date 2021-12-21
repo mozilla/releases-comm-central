@@ -30,6 +30,9 @@ function Message(who, text, properties, conversation) {
   this.read = new Promise(resolve => {
     this._onRead = resolve;
   });
+  this.actionRan = new Promise(resolve => {
+    this._onAction = resolve;
+  });
 }
 
 Message.prototype = {
@@ -41,6 +44,18 @@ Message.prototype = {
 
   whenRead() {
     this._onRead();
+  },
+
+  getActions() {
+    return [
+      {
+        QueryInterface: ChromeUtils.generateQI(["prplIMessageAction"]),
+        label: "Test",
+        run: () => {
+          this._onAction();
+        },
+      },
+    ];
   },
 };
 

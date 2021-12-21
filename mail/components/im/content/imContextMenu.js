@@ -22,6 +22,7 @@ function imContextMenu(aXulMenu) {
   this.isContentSelected = false;
   this.shouldDisplay = true;
   this.ellipsis = "\u2026";
+  this.initedActions = false;
 
   try {
     this.ellipsis = Services.prefs.getComplexValue(
@@ -37,6 +38,9 @@ function imContextMenu(aXulMenu) {
 // Prototype for nsContextMenu "class."
 imContextMenu.prototype = {
   cleanup() {
+    nsContextMenu.contentData.browser.browsingContext.currentWindowGlobal
+      ?.getActor("ChatAction")
+      .reportHide();
     let elt = document.getElementById("context-sep-messageactions")
       .nextElementSibling;
     // remove the action menuitems added last time we opened the popup
@@ -47,25 +51,18 @@ imContextMenu.prototype = {
     }
   },
 
-  // Initialize context menu.
+  /**
+   * Initialize context menu. Shows/hides relevant items. Message actions are
+   * handled separately in |initActions| if the actor gets them after this is
+   * called.
+   *
+   * @param {XULMenuPopupElement} aPopup - The popup to initialize on.
+   */
   initMenu(aPopup) {
     this.menu = aPopup;
 
     // Get contextual info.
-    // TODO |triggerNode| is no longer available here. This only breaks message
-    // actions. See bug 1740074
-    let node = aPopup.triggerNode;
     this.setTarget();
-
-    let actions = [];
-    while (node) {
-      if (node._originalMsg) {
-        let msg = node._originalMsg;
-        actions = msg.getActions();
-        break;
-      }
-      node = node.parentNode;
-    }
 
     this.isTextSelected = this.isTextSelection();
     this.isContentSelected = this.isContentSelection();
@@ -84,7 +81,16 @@ imContextMenu.prototype = {
 
     this.showItem("context-copy", this.isContentSelected);
     this.showItem("context-selectall", !this.onLink || this.isContentSelected);
-    this.showItem("context-sep-messageactions", actions.length);
+    if (!this.initedActions) {
+      let actor = nsContextMenu.contentData.browser.browsingContext.currentWindowGlobal?.getActor(
+        "ChatAction"
+      );
+      if (actor?.actions) {
+        this.initActions(actor.actions);
+      } else {
+        this.showItem("context-sep-messageactions", false);
+      }
+    }
 
     // Copy email link depends on whether we're on an email link.
     this.showItem("context-copyemail", this.onMailtoLink);
@@ -95,16 +101,30 @@ imContextMenu.prototype = {
       "context-sep-copylink",
       this.onLink && this.isContentSelected
     );
+  },
+
+  /**
+   * Adds the given message actions to the context menu.
+   *
+   * @param {Array<string>} actions - Array containing the labels for the
+   *   available actions.
+   */
+  initActions(actions) {
+    this.showItem("context-sep-messageactions", actions.length > 0);
 
     // Display action menu items.
     let sep = document.getElementById("context-sep-messageactions");
-    for (let action of actions) {
+    for (let [index, label] of actions.entries()) {
       let menuitem = document.createXULElement("menuitem");
-      menuitem.setAttribute("label", action.label);
-      menuitem.setAttribute("oncommand", "this.action.run();");
-      menuitem.action = action;
+      menuitem.setAttribute("label", label);
+      menuitem.addEventListener("command", () => {
+        nsContextMenu.contentData.browser.browsingContext.currentWindowGlobal
+          ?.getActor("ChatAction")
+          .sendAsyncMessage("ChatAction:Run", { index });
+      });
       sep.parentNode.appendChild(menuitem);
     }
+    this.initedActions = true;
   },
 
   // Set various context menu attributes based on the state of the world.

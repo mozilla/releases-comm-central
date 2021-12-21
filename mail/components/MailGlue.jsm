@@ -33,6 +33,19 @@ ChromeUtils.defineModuleGetter(
 const PREF_PDFJS_ISDEFAULT_CACHE_STATE = "pdfjs.enabledCache.state";
 
 let JSWINDOWACTORS = {
+  ChatAction: {
+    matches: ["chrome://chat/content/conv.html"],
+    parent: {
+      moduleURI: "resource:///actors/ChatActionParent.jsm",
+    },
+    child: {
+      moduleURI: "resource:///actors/ChatActionChild.jsm",
+      events: {
+        contextmenu: { mozSystemGroup: true },
+      },
+    },
+  },
+
   ContextMenu: {
     parent: {
       moduleURI: "resource:///actors/ContextMenuParent.jsm",
