@@ -139,7 +139,7 @@ nsresult nsMailboxService::FetchMessage(
     const nsACString& aMessageURI, nsISupports* aDisplayConsumer,
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
     const char* aFileName, /* only used by open attachment... */
-    nsMailboxAction mailboxAction, bool aOverrideCharset, nsIURI** aURL) {
+    nsMailboxAction mailboxAction, bool aAutodetectCharset, nsIURI** aURL) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMailboxUrl> mailboxurl;
   nsMailboxAction actionToUse = mailboxAction;
@@ -200,7 +200,7 @@ nsresult nsMailboxService::FetchMessage(
   }
 
   nsCOMPtr<nsIMsgI18NUrl> i18nurl(do_QueryInterface(msgUrl));
-  if (i18nurl) i18nurl->SetOverRideCharset(aOverrideCharset);
+  if (i18nurl) i18nurl->SetAutodetectCharset(aAutodetectCharset);
 
   // instead of running the mailbox url like we used to, let's try to run the
   // url in the docshell...

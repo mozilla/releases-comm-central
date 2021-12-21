@@ -103,18 +103,13 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
         }
       }
 
-      if ((default_charset) && (override_charset) && (url_name)) {
-        //
-        // set the default charset to be the folder charset if we have one
-        // associated with this url...
+      if (default_charset && override_charset && url_name) {
+        // Check whether we need to auto-detect the charset.
         nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(aURI));
         if (i18nUrl) {
-          bool overrideCharset = false;
-
-          // check to see if we have a charset override...and if we do, set that
-          // field appropriately too...
-          nsresult rv = i18nUrl->GetOverRideCharset(&overrideCharset);
-          if (NS_SUCCEEDED(rv) && overrideCharset) {
+          bool autodetectCharset = false;
+          nsresult rv = i18nUrl->GetAutodetectCharset(&autodetectCharset);
+          if (NS_SUCCEEDED(rv) && autodetectCharset) {
             *override_charset = true;
             *default_charset = nullptr;
           } else {
@@ -134,8 +129,8 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
             }
           }
 
-          // if there is no manual override and a folder charset exists
-          // then check if we have a folder level override
+          // If there is no override and a default charset exists,
+          // update the message window.
           if (!(*override_charset) && *default_charset && **default_charset) {
             // notify the default to msgWindow (for the menu check mark)
             // do not set the default in case of nsMimeMessageDraftOrTemplate

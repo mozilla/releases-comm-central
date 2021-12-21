@@ -205,6 +205,6 @@ interface nsIMsgMessageUrl : nsISupports {
 
 [scriptable, uuid(D71E0785-2862-11d4-98C1-001083010E9B)]
 interface nsIMsgI18NUrl : nsISupports {
-  // when true the user wants us to auto detect the character set.
-  attribute boolean overRideCharset;
+  // when true the user wants us to auto-detect the character set.
+  attribute boolean autodetectCharset;
 };

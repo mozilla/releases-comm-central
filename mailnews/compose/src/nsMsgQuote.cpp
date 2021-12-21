@@ -90,7 +90,7 @@ NS_IMETHODIMP nsMsgQuote::GetStreamListener(
 nsresult nsMsgQuote::QuoteMessage(
     const nsACString& msgURI, bool quoteHeaders,
     nsIMsgQuotingOutputStreamListener* aQuoteMsgStreamListener,
-    bool aOverRideCharSet, bool headersOnly, nsIMsgDBHdr* aMsgHdr) {
+    bool aAutodetectCharset, bool headersOnly, nsIMsgDBHdr* aMsgHdr) {
   nsresult rv;
 
   mQuoteHeaders = quoteHeaders;
@@ -130,10 +130,10 @@ nsresult nsMsgQuote::QuoteMessage(
   rv = NS_MutateURI(newURI).SetQuery(queryPart).Finalize(newURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // if we were told to autodetect the charset, pass that on.
-  if (aOverRideCharSet) {
+  // if we were told to auto-detect the charset, pass that on.
+  if (aAutodetectCharset) {
     nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(newURI));
-    if (i18nUrl) i18nUrl->SetOverRideCharset(true);
+    if (i18nUrl) i18nUrl->SetAutodetectCharset(true);
   }
 
   mQuoteListener = do_CreateInstance(NS_MSGQUOTELISTENER_CONTRACTID, &rv);

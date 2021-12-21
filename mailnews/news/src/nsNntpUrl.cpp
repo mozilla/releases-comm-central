@@ -31,7 +31,7 @@ nsNntpUrl::nsNntpUrl() {
   m_filePath = nullptr;
   m_getOldMessages = false;
   m_key = nsMsgKey_None;
-  mOverrideCharset = false;
+  mAutodetectCharset = false;
 }
 
 nsNntpUrl::~nsNntpUrl() {}
@@ -464,13 +464,13 @@ NS_IMETHODIMP nsNntpUrl::GetFolder(nsIMsgFolder** msgFolder) {
                                     (void**)msgFolder);
 }
 
-NS_IMETHODIMP nsNntpUrl::GetOverRideCharset(bool* aOverride) {
-  *aOverride = mOverrideCharset;
+NS_IMETHODIMP nsNntpUrl::GetAutodetectCharset(bool* aAutodetectCharset) {
+  *aAutodetectCharset = mAutodetectCharset;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::SetOverRideCharset(bool aOverride) {
-  mOverrideCharset = aOverride;
+NS_IMETHODIMP nsNntpUrl::SetAutodetectCharset(bool aAutodetectCharset) {
+  mAutodetectCharset = aAutodetectCharset;
   return NS_OK;
 }
 

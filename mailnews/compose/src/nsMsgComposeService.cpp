@@ -1292,14 +1292,14 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   rv = mailnewsurl->SetSpecInternal(mailboxUri);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // if we are forwarding a message and that message used a charset over ride
-  // then forward the override flag, too.
-  bool charsetOverride = false;
+  // if we are forwarding a message and that message used a charset override
+  // then forward that as auto-detect flag, too.
+  bool autodetectCharset = false;
   if (aMsgWindow) {
-    if (NS_SUCCEEDED(aMsgWindow->GetCharsetOverride(&charsetOverride)) &&
-        charsetOverride) {
+    if (NS_SUCCEEDED(aMsgWindow->GetCharsetOverride(&autodetectCharset)) &&
+        autodetectCharset) {
       nsCOMPtr<nsIMsgI18NUrl> i18nUrl(do_QueryInterface(url));
-      if (i18nUrl) (void)i18nUrl->SetOverRideCharset(true);
+      if (i18nUrl) (void)i18nUrl->SetAutodetectCharset(true);
     }
   }
 
@@ -1322,7 +1322,7 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   nsCOMPtr<nsIStreamListener> streamListener = do_QueryInterface(mimeConverter);
   nsCOMPtr<nsIURI> dummyNull;
   return messageService->DisplayMessage(aMsgURI, streamListener, aMsgWindow,
-                                        nullptr, charsetOverride,
+                                        nullptr, autodetectCharset,
                                         getter_AddRefs(dummyNull));
 }
 

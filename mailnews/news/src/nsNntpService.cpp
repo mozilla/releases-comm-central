@@ -126,7 +126,7 @@ nsNntpService::SaveMessageToDisk(const nsACString& aMessageURI, nsIFile* aFile,
 
     rv = DisplayMessage(aMessageURI, saveAsListener,
                         /* nsIMsgWindow *aMsgWindow */ nullptr, aUrlListener,
-                        false /*aOverrideCharset */, aURL);
+                        false /*aAutodetectCharset */, aURL);
   }
   return rv;
 }
@@ -183,7 +183,7 @@ nsNntpService::DisplayMessage(const nsACString& aMessageURI,
                               nsISupports* aDisplayConsumer,
                               nsIMsgWindow* aMsgWindow,
                               nsIUrlListener* aUrlListener,
-                              bool aOverrideCharset, nsIURI** aURL) {
+                              bool aAutodetectCharset, nsIURI** aURL) {
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIMsgFolder> folder;
@@ -214,7 +214,7 @@ nsNntpService::DisplayMessage(const nsACString& aMessageURI,
   nsCOMPtr<nsIMsgI18NUrl> i18nurl = do_QueryInterface(url, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  i18nurl->SetOverRideCharset(aOverrideCharset);
+  i18nurl->SetAutodetectCharset(aAutodetectCharset);
 
   bool shouldStoreMsgOffline = false;
 

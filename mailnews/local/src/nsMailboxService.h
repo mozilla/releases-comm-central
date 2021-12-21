@@ -50,7 +50,7 @@ class nsMailboxService : public nsIMailboxService,
       const nsACString& aMessageURI, nsISupports* aDisplayConsumer,
       nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
       const char* aFileName, /* only used by open attachment */
-      nsMailboxAction mailboxAction, bool aOverrideCharset, nsIURI** aURL);
+      nsMailboxAction mailboxAction, bool aAutodetectCharset, nsIURI** aURL);
 
   nsresult DecomposeMailboxURI(const nsACString& aMessageURI,
                                nsIMsgFolder** aFolder, nsMsgKey* aMsgKey);

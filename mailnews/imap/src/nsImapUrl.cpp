@@ -62,7 +62,7 @@ nsImapUrl::nsImapUrl() : mLock("nsImapUrl.mLock") {
   m_extraStatus = ImapStatusNone;
   m_onlineSubDirSeparator = '/';
   m_imapAction = 0;
-  mOverrideCharset = false;
+  mAutodetectCharset = false;
 
   // ** jt - the following are not ref counted
   m_copyState = nullptr;
@@ -1306,13 +1306,13 @@ nsresult nsImapUrl::GetMsgFolder(nsIMsgFolder** msgFolder) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapUrl::GetOverRideCharset(bool* aOverride) {
-  *aOverride = mOverrideCharset;
+NS_IMETHODIMP nsImapUrl::GetAutodetectCharset(bool* aAutodetectCharset) {
+  *aAutodetectCharset = mAutodetectCharset;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapUrl::SetOverRideCharset(bool aOverride) {
-  mOverrideCharset = aOverride;
+NS_IMETHODIMP nsImapUrl::SetAutodetectCharset(bool aAutodetectCharset) {
+  mAutodetectCharset = aAutodetectCharset;
   return NS_OK;
 }
 
