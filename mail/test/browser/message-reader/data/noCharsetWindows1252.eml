@@ -1,0 +1,22 @@
+To: test@example.com
+From: test@example.com
+Subject: Test message with Spanish text, no charset header
+Date: Tue, 20 Apr 2021 15:20:34 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+Content-Transfer-Encoding: 8bit
+
+Aquí tenemos texto en español:
+
+El 12 de octubre es el día de la Hispanidad que celebra el descubrimiento
+de América en 1492. Este día coincide con la fiesta de la Virgen María del Pilar,
+que es el patrona de España.
+
+Actualmente, la Hispanidad se celebra dentro y fuera de España, aunque es
+una de las fiestas que más polémica generan. En muchos países de Latinoamérica
+el descubrimiento de América se asocia al comienzo de la colonización española
+y a la destrucción de las culturas locales nativas. Por este motivo, en América
+del Sur la fiesta se percibe como una reivindicación.
+
+En España la Hispanidad se festeja con un desfile militar y una recepción,
+encabezada por los Reyes, para el cuerpo diplomático en el Palacio Real.

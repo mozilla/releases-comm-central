@@ -78,7 +78,9 @@ static int MimeInlineText_initializeCharset(MimeObject* obj) {
       if (obj->options->default_charset) {
         text->charset = strdup(obj->options->default_charset);
       } else {
+        text->charsetOverridable = true;
         text->inputAutodetect = true;
+        text->needUpdateMsgWinCharset = true;
         text->charset = strdup("");
       }
     } else {
@@ -109,6 +111,7 @@ static int MimeInlineText_initializeCharset(MimeObject* obj) {
       if (!text->charset) {
         text->charsetOverridable = true;
         text->inputAutodetect = true;
+        text->needUpdateMsgWinCharset = true;
 
         if (obj->options && obj->options->default_charset)
           text->charset = strdup(obj->options->default_charset);
