@@ -34,7 +34,7 @@ def mach_sys_path(mozilla_dir):
     requirements = MachEnvRequirements.from_requirements_definition(
         mozilla_dir,
         True,  # is_thunderbird
-        True,
+        False,
         os.path.join(mozilla_dir, "comm/build/mach_virtualenv_packages.txt"),
     )
     return sorted(
