@@ -37,17 +37,12 @@
   <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-<stringbundle id="bundle_folder" src="chrome://messenger/locale/folderWidgets.properties"/>
 <dialog id="virtualFolderPropertiesDialog"
         buttons="accept,cancel"
         newFolderAcceptButtonLabel="&newFolderButton.label;"
         newFolderAcceptButtonAccessKey="&newFolderButton.accesskey;"
         editFolderAcceptButtonLabel="&editFolderButton.label;"
         editFolderAcceptButtonAccessKey="&editFolderButton.accesskey;">
-
-  <script src="chrome://messenger/content/virtualFolderProperties.js"></script>
-
   <hbox>
     <vbox>
       <hbox flex="1" align="center">
@@ -119,5 +114,6 @@
     </hbox>
   </vbox>
 </dialog>
+<script src="chrome://messenger/content/virtualFolderProperties.js"></script>
 </html:body>
 </html>
