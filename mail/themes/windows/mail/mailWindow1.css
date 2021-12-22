@@ -117,11 +117,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   -moz-default-appearance: -moz-window-button-close;
 }
 
-/* Add extra space to titlebar for dragging */
-:root[sizemode="normal"] #toolbar-menubar[autohide="true"][inactive] ~ #tabs-toolbar {
-  padding-top: var(--space-above-tabbar);
-}
-
 @media (-moz-windows-compositor) {
   @media (-moz-os-version: windows-win7),
          (-moz-os-version: windows-win8) {

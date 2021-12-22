@@ -8,7 +8,8 @@
  * Tabmail Tabs
  */
 
-#tabs-toolbar {
+/* Add extra space to titlebar for dragging */
+:root[sizemode="normal"] #tabs-toolbar {
   padding-top: var(--space-above-tabbar);
 }
 
