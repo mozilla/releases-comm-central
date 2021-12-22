@@ -740,6 +740,12 @@
       // event to ensure we have an accurate title.  We assume the tab
       // contents will set themselves up correctly.
       if (this.tabInfo.length == 0) {
+        if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+          let tab = this.openTab("mail3PaneTab", { first: true });
+          this.tabs[0].linkedPanel = tab.panel.id;
+          return;
+        }
+
         let firstTab = {
           mode: this.defaultTabMode,
           busy: false,
@@ -774,6 +780,7 @@
         firstTab.tabId = this.tabId++;
 
         firstTab.mode.tabs.push(firstTab);
+        this.tabs[0].linkedPanel = "mailContent";
         this.tabInfo[0] = this.currentTabInfo = firstTab;
         let tabOpenFirstFunc =
           firstTab.mode.openFirstTab || firstTab.mode.tabType.openFirstTab;
@@ -820,7 +827,7 @@
     }
 
     // eslint-disable-next-line complexity
-    openTab(aTabModeName, aArgs) {
+    openTab(aTabModeName, aArgs = {}) {
       try {
         if (!(aTabModeName in this.tabModes)) {
           throw new Error("No such tab mode: " + aTabModeName);
@@ -835,7 +842,7 @@
         }
 
         // Do this so that we don't generate strict warnings
-        let background = aArgs?.background;
+        let background = aArgs.background;
         // If the mode wants us to, we should switch to an existing tab
         // rather than open a new one. We shouldn't switch to the tab if
         // we're opening it in the background, though.
@@ -851,12 +858,13 @@
           }
         }
 
-        if (!background) {
+        if (!aArgs.first && !background) {
           // we need to save the state before it gets corrupted
           this.saveCurrentTabState();
         }
 
         let tab = {
+          first: !!aArgs.first,
           mode: tabMode,
           busy: false,
           canClose: true,
@@ -868,15 +876,21 @@
 
         tab.tabId = this.tabId++;
         tabMode.tabs.push(tab);
-        var t = document.createXULElement("tab", { is: "tabmail-tab" });
+
+        let t;
+        if (aArgs.first) {
+          t = this.tabContainer.querySelector(`tab[is="tabmail-tab"]`);
+        } else {
+          t = document.createXULElement("tab", { is: "tabmail-tab" });
+          t.maxWidth = this.tabContainer.mTabMaxWidth;
+          t.minWidth = this.tabContainer.mTabMinWidth;
+          t.width = 0;
+          t.setAttribute("flex", "100");
+          t.setAttribute("validate", "never");
+          t.className = "tabmail-tab";
+          this.tabContainer.appendChild(t);
+        }
         tab.tabNode = t;
-        t.maxWidth = this.tabContainer.mTabMaxWidth;
-        t.minWidth = this.tabContainer.mTabMinWidth;
-        t.width = 0;
-        t.setAttribute("flex", "100");
-        t.setAttribute("validate", "never");
-        t.className = "tabmail-tab";
-        this.tabContainer.appendChild(t);
 
         if (this.tabContainer.mCollapseToolbar.collapsed) {
           this.tabContainer.mCollapseToolbar.collapsed = false;
@@ -887,7 +901,7 @@
         // If we're not disregarding the opening, hold a reference to opener
         // so that if the new tab is closed without switching, we can switch
         // back to the opener tab.
-        if (aArgs?.disregardOpener) {
+        if (aArgs.disregardOpener) {
           this.mLastTabOpener = null;
         } else {
           this.mLastTabOpener = oldTab;

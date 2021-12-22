@@ -312,6 +312,10 @@ var gThreePaneIncomingServerListener = {
 
 // aMsgWindowInitialized: false if we are calling from the onload handler, otherwise true
 function UpdateMailPaneConfig(aMsgWindowInitialized) {
+  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+    return;
+  }
+
   const dynamicIds = ["messagesBox", "mailContent", "threadPaneBox"];
   const layouts = ["standard", "wide", "vertical"];
   var layoutView = Services.prefs.getIntPref("mail.pane_config.dynamic");
@@ -1395,6 +1399,10 @@ async function loadStartFolder(initialUri) {
 }
 
 function AddToSession() {
+  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+    return;
+  }
+
   var nsIFolderListener = Ci.nsIFolderListener;
   var notifyFlags =
     nsIFolderListener.intPropertyChanged | nsIFolderListener.event;
@@ -1406,6 +1414,23 @@ function AddToSession() {
  * pane, and Message view pane.
  */
 async function initPanes() {
+  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+    return;
+  }
+
+  let messagepaneboxwrapper = GetMessagePaneWrapper();
+  for (let attrName of ["collapsed", "height", "width"]) {
+    messagepaneboxwrapper.setAttribute(
+      attrName,
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "messagepaneboxwrapper",
+        attrName
+      )
+    );
+  }
+  messagepaneboxwrapper.setAttribute("persist", "collapsed height width");
+
   await gFolderTreeView.load(
     document.getElementById("folderTree"),
     "folderTree.json"

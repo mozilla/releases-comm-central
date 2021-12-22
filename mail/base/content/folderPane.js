@@ -200,7 +200,12 @@ var gFolderTreeView = {
     gFolderStatsHelpers.init();
 
     // Add this listener so that we can update the tree when things change
-    MailServices.mailSession.AddFolderListener(this, Ci.nsIFolderListener.all);
+    if (!Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+      MailServices.mailSession.AddFolderListener(
+        this,
+        Ci.nsIFolderListener.all
+      );
+    }
 
     // We did everything, now we can update the variable.
     this.isInited = true;

@@ -61,7 +61,7 @@ var mailTabType = {
      *    folders. (eShowVirtualFolderResults)
      */
     folder: {
-      isDefault: true,
+      isDefault: !Services.prefs.getBoolPref("mail.useNewMailTabs"),
       type: "folder",
       // The set of panes that are legal to be displayed in this mode
       legalPanes: {
@@ -866,7 +866,7 @@ var newMailTabType = {
   modes: {
     mail3PaneTab: {
       _nextId: 1,
-      isDefault: false,
+      isDefault: Services.prefs.getBoolPref("mail.useNewMailTabs"),
 
       openTab(tab, args = {}) {
         newMailTabType._cloneTemplate("mail3PaneTabTemplate", tab, win =>

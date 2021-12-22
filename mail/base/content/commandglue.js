@@ -18,6 +18,10 @@ var { MailViewConstants } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function UpdateMailToolbar(caller) {
+  if (Services.prefs.getBoolPref("mail.useNewMailTabs")) {
+    return;
+  }
+
   // If we have a transient selection, we shouldn't update the toolbar. We'll
   // update it once we've restored the original selection.
   if (
