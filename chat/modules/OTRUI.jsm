@@ -30,7 +30,6 @@ const OTR_ADD_FINGER_DIALOG_URL =
 
 const AUTH_STATUS_UNVERIFIED = "otr-auth-unverified";
 var authLabelMap;
-var authTitleMap;
 var trustMap;
 
 function initStrings() {
@@ -40,14 +39,6 @@ function initStrings() {
     ["otr:auth-success-them", _str("auth-success-them")],
     ["otr:auth-fail", _str("auth-fail")],
     ["otr:auth-waiting", _str("auth-waiting")],
-  ]);
-
-  authTitleMap = new Map([
-    ["otr:auth-error", _str("error-title")],
-    ["otr:auth-success", _str("success-title")],
-    ["otr:auth-success-them", _str("success-them-title")],
-    ["otr:auth-fail", _str("fail-title")],
-    ["otr:auth-waiting", _str("waiting-title")],
   ]);
 
   let sl = _str("start-label");
@@ -349,7 +340,7 @@ var OTRUI = {
     if (context) {
       OTRUI.hideUserNotifications(context);
     } else {
-      OTRUI.hideAllNotifications();
+      OTRUI.hideAllOTRNotifications();
     }
   },
 
@@ -523,7 +514,7 @@ var OTRUI = {
     otrEnd.setAttribute("disabled", trust.disableEnd);
     otrAuth.setAttribute("label", trust.authLabel);
     otrAuth.setAttribute("disabled", trust.disableAuth);
-    OTRUI.hideAllNotifications();
+    OTRUI.hideAllOTRNotifications();
     OTRUI.showUserNotifications(context);
   },
 
@@ -554,7 +545,6 @@ var OTRUI = {
     uiConv.notifyVerifyOTR(msg);
     Services.obs.notifyObservers(uiConv, "new-otr-verification-request");
 
-    // Trigger the inline notification.
     let window = this.globalDoc.defaultView;
     let buttons = [
       {
@@ -566,34 +556,38 @@ var OTRUI = {
           return true;
         },
       },
+      {
+        label: _str("finger-ignore"),
+        accessKey: _str("finger-ignore-access-key"),
+        callback() {
+          let context = OTR.getContext(uiConv.target);
+          OTR.abortSMP(context);
+        },
+      },
     ];
 
-    let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-    this.notificationbox = mainWindow.chatHandler.msgNotificationBar;
-
-    let prio = this.globalBox.PRIORITY_WARNING_MEDIUM;
-    this.notificationbox.appendNotification(
-      name,
+    let notification = this.globalBox.appendNotification(
+      `ask-auth-${name}`,
       {
         label: msg,
-        priority: prio,
+        priority: this.globalBox.PRIORITY_WARNING_MEDIUM,
       },
       buttons
     );
+
+    notification.removeAttribute("dismissable");
   },
 
   closeAskAuthNotification(aObject) {
-    if (!this.notificationbox) {
-      return;
-    }
-
     let name = aObject.context.username;
-    let notification = this.notificationbox.getNotificationWithValue(name);
+    let notification = this.globalBox.getNotificationWithValue(
+      `ask-auth-${name}`
+    );
     if (!notification) {
       return;
     }
 
-    this.notificationbox.removeNotification(notification);
+    this.globalBox.removeNotification(notification);
   },
 
   closeUnverified(context) {
@@ -602,38 +596,37 @@ var OTRUI = {
       return;
     }
 
-    let notifications = this.globalBox.allNotifications;
-    for (let i = notifications.length - 1; i >= 0; i--) {
+    for (let notification of this.globalBox.allNotifications) {
       if (
-        context.username == notifications[i].getAttribute("user") &&
-        notifications[i].getAttribute("value") == AUTH_STATUS_UNVERIFIED
+        context.username == notification.getAttribute("user") &&
+        notification.getAttribute("value") == AUTH_STATUS_UNVERIFIED
       ) {
-        notifications[i].close();
+        notification.close();
       }
     }
   },
 
   hideUserNotifications(context) {
-    let notifications = this.globalBox.allNotifications;
-    for (let i = notifications.length - 1; i >= 0; i--) {
-      if (context.username == notifications[i].getAttribute("user")) {
-        notifications[i].setAttribute("hidden", "true");
+    for (let notification of this.globalBox.allNotifications) {
+      if (context.username == notification.getAttribute("user")) {
+        notification.close();
       }
     }
   },
 
-  hideAllNotifications() {
-    let notifications = this.globalBox.allNotifications;
-    for (let i = notifications.length - 1; i >= 0; i--) {
-      notifications[i].setAttribute("hidden", "true");
+  hideAllOTRNotifications() {
+    for (let notification of this.globalBox.allNotifications) {
+      if (notification.getAttribute("protocol") == "otr") {
+        notification.setAttribute("hidden", "true");
+      }
     }
   },
 
   showUserNotifications(context) {
-    let notifications = this.globalBox.allNotifications;
-    for (let i = notifications.length - 1; i >= 0; i--) {
-      if (context.username == notifications[i].getAttribute("user")) {
-        notifications[i].removeAttribute("hidden");
+    let name = context.username;
+    for (let notification of this.globalBox.allNotifications) {
+      if (name == notification.getAttribute("user")) {
+        notification.removeAttribute("hidden");
       }
     }
   },
@@ -644,9 +637,9 @@ var OTRUI = {
       return;
     }
 
+    let name = context.username;
     let window = this.globalDoc.defaultView;
 
-    let msg = _strArgs("finger-" + seen, { name: context.username });
     let buttons = [
       {
         label: _str("finger-verify"),
@@ -658,74 +651,41 @@ var OTRUI = {
           return true;
         },
       },
+      {
+        label: _str("finger-ignore"),
+        accessKey: _str("finger-ignore-access-key"),
+        callback() {
+          let context = OTR.getContext(uiConv.target);
+          OTR.abortSMP(context);
+        },
+      },
     ];
 
-    let prio = this.globalBox.PRIORITY_WARNING_MEDIUM;
-    this.globalBox.appendNotification(
-      context.username,
+    let notification = this.globalBox.appendNotification(
+      name,
       {
-        label: msg,
-        priority: prio,
+        label: _strArgs(`finger-${seen}`, { name }),
+        priority: this.globalBox.PRIORITY_WARNING_MEDIUM,
       },
       buttons
     );
 
-    let verifyTitle = l10n.formatValueSync("verify-title");
-    this.updateNotificationUI(
-      context,
-      verifyTitle,
-      context.username,
-      AUTH_STATUS_UNVERIFIED
-    );
+    // Set the user attribute so we can show and hide notifications based on the
+    // currently viewed conversation.
+    notification.setAttribute("user", name);
+    // Set custom attributes for CSS styling.
+    notification.setAttribute("protocol", "otr");
+    notification.setAttribute("status", AUTH_STATUS_UNVERIFIED);
+    // Prevent users from dismissing this notification.
+    notification.removeAttribute("dismissable");
 
     if (!this.visibleConv) {
       return;
     }
 
-    if (context.username !== this.visibleConv.normalizedName) {
+    if (name !== this.visibleConv.normalizedName) {
       this.hideUserNotifications(context);
     }
-  },
-
-  updateNotificationUI(context, typeTitle, username, key) {
-    let notification = this.globalBox.getNotificationWithValue(username);
-    notification.setAttribute("user", context.username);
-    notification.setAttribute("status", key);
-    notification.setAttribute("orient", "vertical");
-    notification.messageDetails.setAttribute("orient", "vertical");
-    notification.messageDetails.removeAttribute("oncommand");
-    notification.messageDetails.removeAttribute("align");
-
-    let title = this.globalDoc.createXULElement("title");
-    title.setAttribute("flex", "1");
-    title.setAttribute("crop", "end");
-    title.textContent = typeTitle;
-
-    let close = notification.querySelector("toolbarbutton");
-    close.setAttribute("oncommand", "this.parentNode.parentNode.dismiss();");
-
-    let top = this.globalDoc.createXULElement("hbox");
-    top.setAttribute("flex", "1");
-    top.setAttribute("align", "center");
-    top.classList.add("otr-notification-header");
-    top.appendChild(notification.messageImage);
-    top.appendChild(title);
-    top.appendChild(close);
-    notification.insertBefore(top, notification.messageDetails);
-
-    let bottom = this.globalDoc.createXULElement("hbox");
-    bottom.setAttribute("flex", "1");
-    bottom.setAttribute(
-      "oncommand",
-      "this.parentNode._doButtonCommand(event);"
-    );
-    bottom.classList.add("otr-notification-footer");
-
-    notification.querySelectorAll("button").forEach(e => {
-      bottom.appendChild(e);
-    });
-
-    notification.appendChild(bottom);
   },
 
   closeVerification(context) {
@@ -748,12 +708,8 @@ var OTRUI = {
       return;
     }
 
-    // TODO: maybe update the .label property on the notification instead
-    // of closing it ... although, buttons need to be updated too.
     OTRUI.closeVerification(context);
 
-    let msg = authLabelMap.get(key);
-    let typeTitle = authTitleMap.get(key);
     let buttons = [];
     if (cancelable) {
       buttons = [
@@ -782,22 +738,62 @@ var OTRUI = {
             return true;
           },
         },
+        {
+          label: _str("finger-ignore"),
+          accessKey: _str("finger-ignore-access-key"),
+          callback() {
+            let context = OTR.getContext(uiConv.target);
+            OTR.abortSMP(context);
+          },
+        },
       ];
     }
 
-    // higher priority to overlay the current notifyUnverified
-    let prio = this.globalBox.PRIORITY_WARNING_HIGH;
+    // Change priority type based on the passed key.
+    let priority = this.globalBox.PRIORITY_WARNING_HIGH;
+    let dismissable = true;
+    switch (key) {
+      case "otr:auth-error":
+      case "otr:auth-fail":
+        priority = this.globalBox.PRIORITY_CRITICAL_HIGH;
+        break;
+      case "otr:auth-waiting":
+        priority = this.globalBox.PRIORITY_INFO_MEDIUM;
+        dismissable = false;
+        break;
+
+      default:
+        break;
+    }
+
     OTRUI.closeUnverified(context);
-    this.globalBox.appendNotification(
+    let notification = this.globalBox.appendNotification(
       context.username,
       {
-        label: msg,
-        priority: prio,
+        label: authLabelMap.get(key),
+        priority,
       },
       buttons
     );
 
-    this.updateNotificationUI(context, typeTitle, context.username, key);
+    // Set the user attribute so we can show and hide notifications based on the
+    // currently viewed conversation.
+    notification.setAttribute("user", context.username);
+    // Set custom attributes for CSS styling.
+    notification.setAttribute("protocol", "otr");
+    notification.setAttribute("status", key);
+
+    // The notification API don't currently support a "success" PRIORITY flag,
+    // so we need to manually set it if we need to.
+    if (["otr:auth-success", "otr:auth-success-them"].includes(key)) {
+      notification.setAttribute("type", "success");
+    }
+
+    if (!dismissable) {
+      // Prevent users from dismissing this notification if something is in
+      // progress or an action is required.
+      notification.removeAttribute("dismissable");
+    }
   },
 
   updateAuth(aObj) {

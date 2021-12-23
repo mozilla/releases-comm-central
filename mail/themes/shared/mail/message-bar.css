@@ -207,12 +207,12 @@
   flex-shrink: 0;
 }
 
-.close.ghost-button:enabled:hover {
-  background-color: color-mix(in srgb, currentColor 10%, transparent);
+button.ghost-button:not(.semi-transparent):enabled:hover {
+  background-color: color-mix(in srgb, currentColor 15%, transparent);
 }
 
-.close.ghost-button:enabled:hover:active {
-  background-color: color-mix(in srgb, currentColor 20%, transparent);
+button.ghost-button:not(.semi-transparent):enabled:hover:active {
+  background-color: color-mix(in srgb, currentColor 25%, transparent);
 }
 
 @media not (prefers-contrast) {

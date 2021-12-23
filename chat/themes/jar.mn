@@ -9,7 +9,6 @@ chat.jar:
   skin/classic/chat/conv.css
   skin/classic/chat/imtooltip.css
   skin/classic/chat/mobile.svg
-  skin/classic/chat/otr.css
   skin/classic/chat/otrFingerprintDialog.css
   skin/classic/chat/typed.svg
   skin/classic/chat/typing.svg

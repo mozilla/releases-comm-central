@@ -84,7 +84,7 @@ const ChatEncryption = {
       document.querySelector(".otr-start").hidden = true;
       document.querySelector(".otr-end").hidden = true;
       document.querySelector(".otr-auth").hidden = true;
-      OTRUI.hideAllNotifications();
+      OTRUI.hideAllOTRNotifications();
 
       const actionsAvailable =
         conversation.encryptionState !==

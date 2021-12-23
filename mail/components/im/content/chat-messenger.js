@@ -1857,11 +1857,6 @@ var chatHandler = {
         }
         Services.obs.addObserver(initObserver, "prpl-init");
       }).then(() => {
-        let sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(
-          Ci.nsIStyleSheetService
-        );
-        let uri = Services.io.newURI("chrome://chat/skin/otr.css");
-        sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
         OTRUI.init();
       });
     }
