@@ -18,6 +18,10 @@
   text-shadow: 0 1px rgba(255, 255, 255, 0.4);
 }
 
+:root[tabsintitlebar] #tabbar-toolbar {
+  margin-inline-end: 9px;
+}
+
 /**
  * Tab
  */

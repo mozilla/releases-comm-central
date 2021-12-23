@@ -63,10 +63,6 @@
   text-shadow: none;
 }
 
-#messengerWindow:not([tabsintitlebar]) #titlebar {
-  height: 22px;
-}
-
 .inline-toolbar,
 .contentTabToolbar {
   appearance: none;
