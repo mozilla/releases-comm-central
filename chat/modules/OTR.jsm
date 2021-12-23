@@ -1307,6 +1307,10 @@ var OTR = {
     OTRLib.otrl_message_free(newMessage);
   },
 
+  /**
+   *
+   * @param {imIMessage} im - Incoming message.
+   */
   onReceive(im) {
     if (im.cancelled || im.system) {
       return;
@@ -1402,6 +1406,14 @@ var OTR = {
     this._buffer = this._buffer.filter(msg => msg.convId !== convId);
   },
 
+  /**
+   * Save unencrypted outgoing message to a buffer so we can restore it later
+   * on when displaying it.
+   *
+   * @param {number} convId - ID of the conversation.
+   * @param {string} display - Message to display.
+   * @param {string} sent - Message that was sent.
+   */
   bufferMsg(convId, display, sent) {
     this._buffer.push({
       convId,
@@ -1411,20 +1423,32 @@ var OTR = {
     });
   },
 
-  pluckMsg(im) {
-    let buf = this._buffer;
-    for (let i = 0; i < buf.length; i++) {
-      let b = buf[i];
-      if (b.convId === im.conversation.id && b.sent === im.displayMessage) {
-        im.displayMessage = b.display;
-        buf.splice(i, 1);
-        this.log("displaying: " + b.display);
+  /**
+   * Get the unencrypted version of an outgoing OTR encrypted message that we
+   * are handling in the incoming message path for displaying. Also discards
+   * magic OTR bytes and such for displaying.
+   *
+   * @param {imIMessage} incomingMessage - Message with an outgoing tag.
+   * @returns
+   */
+  pluckMsg(incomingMessage) {
+    for (let i = 0; i < this._buffer.length; i++) {
+      let bufferedInfo = this._buffer[i];
+      if (
+        bufferedInfo.convId === incomingMessage.conversation.id &&
+        bufferedInfo.sent === incomingMessage.displayMessage
+      ) {
+        incomingMessage.displayMessage = bufferedInfo.display;
+        this._buffer.splice(i, 1);
+        this.log("displaying: " + bufferedInfo.display);
         return;
       }
     }
-    // don't display if it wasn't buffered
-    im.cancelled = true;
-    this.log("not displaying: " + im.displayMessage);
+    // don't display if message wasn't buffered
+    if (incomingMessage.otrEncrypted) {
+      incomingMessage.cancelled = true;
+      this.log("not displaying: " + incomingMessage.displayMessage);
+    }
   },
 };
 
