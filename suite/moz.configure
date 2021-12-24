@@ -21,7 +21,7 @@ set_config("MOZ_BUNDLED_FONTS", bundled_fonts)
 add_old_configure_assignment("MOZ_BUNDLED_FONTS", bundled_fonts)
 
 
-@depends(check_build_environment, "--help")
+@depends(build_environment, "--help")
 def comm_paths(build_env, _):
     topsrcdir = build_env.topsrcdir
     topobjdir = build_env.topobjdir
@@ -55,7 +55,7 @@ set_defconf("commreltopsrcdir", comm_paths.commreltopsrcdir)
 set_defconf("commtopobjdir", comm_paths.commtopobjdir)
 
 
-@depends(check_build_environment, application)
+@depends(build_environment, application)
 @imports(_from="os.path", _import="exists")
 @imports(_from="__builtin__", _import="open")
 def seamonkey_version(build_env, app_path):
@@ -80,7 +80,7 @@ set_defconf("SEAMONKEY_VERSION", seamonkey_version.version)
 set_defconf("SEAMONKEY_VERSION_DISPLAY", seamonkey_version.version_display)
 
 
-@depends(check_build_environment)
+@depends(build_environment)
 @imports(_from="os.path", _import="exists")
 @imports(_from="__builtin__", _import="open")
 def thunderbird_version(build_env):
