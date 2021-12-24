@@ -32,7 +32,8 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
 if SOURCES:
     FINAL_LIBRARY = "mailcomps"
 
-CXXFLAGS += CONFIG["TK_CFLAGS"]
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+    CXXFLAGS += CONFIG["MOZ_GTK3_CFLAGS"]
 
 XPCSHELL_TESTS_MANIFESTS += [
     "test/unit/xpcshell.ini",
