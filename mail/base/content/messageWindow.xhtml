@@ -67,7 +67,10 @@
       persist="width height screenX screenY sizemode"
       toggletoolbar="true"
       windowtype="mail:messageWindow"
+#ifdef XP_MACOSX
       macanimationtype="document"
+      chromemargin="0,-1,-1,-1"
+#endif
       lightweightthemes="true"
       fullscreenbutton="true">
 <head>
@@ -194,47 +197,42 @@
   </popupset>
 #include editContactPanel.inc.xhtml
 
-  <!--
-    GTK needs to draw behind the lightweight theme toolbox backgrounds, thus the
-    extra box. Also this box allows a negative margin-top to slide the toolbox off
-    screen in fullscreen layout.
-  -->
-  <box id="navigation-toolbox-background">
-    <toolbox id="navigation-toolbox" flex="1" labelalign="end" defaultlabelalign="end">
-
-      <vbox id="titlebar">
-        <!-- Menu -->
-        <toolbar is="customizable-toolbar" id="toolbar-menubar"
-                 class="chromeclass-menubar themeable-full"
-                 type="menubar"
-                 customizable="true"
-                 toolboxid="mail-toolbox"
+  <toolbox id="navigation-toolbox" labelalign="end" defaultlabelalign="end">
 #ifdef XP_MACOSX
-                defaultset="menubar-items"
-                autohide="true"
+    <hbox id="titlebar">
+      <hbox id="titlebar-title" align="center" flex="1">
+        <label id="titlebar-title-label" value="&titledefault.label;" flex="1" crop="end"/>
+      </hbox>
+#include messenger-titlebar-items.inc.xhtml
+    </hbox>
+#endif
+    <!-- Menu -->
+    <toolbar is="customizable-toolbar" id="toolbar-menubar"
+             class="chromeclass-menubar themeable-full"
+             type="menubar"
+             customizable="true"
+             toolboxid="mail-toolbox"
+#ifdef XP_MACOSX
+             defaultset="menubar-items"
+             autohide="true"
 #else
-                defaultset="menubar-items,spring"
+             defaultset="menubar-items,spring"
 #endif
 #ifndef XP_MACOSX
-                data-l10n-id="toolbar-context-menu-menu-bar"
-                data-l10n-attrs="toolbarname"
+             data-l10n-id="toolbar-context-menu-menu-bar"
+             data-l10n-attrs="toolbarname"
 #endif
-                context="toolbar-context-menu"
-                mode="icons"
-                insertbefore="tabs-toolbar"
-                prependmenuitem="true">
-          <toolbaritem id="menubar-items" align="center">
+             context="toolbar-context-menu"
+             mode="icons"
+             insertbefore="tabs-toolbar"
+             prependmenuitem="true">
+      <toolbaritem id="menubar-items" align="center">
 # The entire main menubar is placed into messenger-menubar.inc.xhtml, so that it
 # can be shared with other top level windows.
 #include messenger-menubar.inc.xhtml
-          </toolbaritem>
-#ifdef XP_MACOSX
-#include messenger-titlebar-items.inc.xhtml
-#endif
-        </toolbar>
-      </vbox>
-    </toolbox>
-  </box>
+      </toolbaritem>
+    </toolbar>
+  </toolbox>
 
   <vbox class="printPreviewStack" flex="1">
     <!-- mail-toolbox with the main toolbarbuttons -->

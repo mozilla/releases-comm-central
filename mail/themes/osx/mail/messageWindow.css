@@ -11,17 +11,37 @@
 
 /* ::::: Mail Toolbars and Menubars ::::: */
 
+#navigation-toolbox,
+:root[lwt-tree] #navigation-toolbox,
+#navigation-toolbox:-moz-window-inactive {
+  background-color: var(--toolbar-bgcolor);
+}
+
+#titlebar {
+  height: 22px;
+}
+
+.titlebar-buttonbox-container {
+  margin-top: 3px;
+  margin-inline-start: 7px;
+}
+
+.titlebar-buttonbox {
+  margin-inline: 0;
+}
+
+#titlebar-title {
+  text-align: center;
+  /* Equalize the titlebar-buttonbox width */
+  padding-inline-end: 60px;
+}
+
 .mail-toolbox {
   border-bottom: 0;
 }
 
 #mail-toolbox:-moz-lwtheme {
   box-shadow: none;
-}
-
-.mail-toolbox > toolbar:not(:-moz-lwtheme) {
-  appearance: auto;
-  -moz-default-appearance: toolbar;
 }
 
 /* ::::: message header borders ::::: */

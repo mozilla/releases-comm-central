@@ -270,6 +270,9 @@ StandaloneMessageDisplayWidget.prototype = {
     }
 
     document.title = docTitle;
+    if (AppConstants.platform == "macosx") {
+      document.getElementById("titlebar-title-label").value = docTitle;
+    }
 
     this.isDummy = aMsgHdr.folder == null;
     if (!this.isDummy) {
