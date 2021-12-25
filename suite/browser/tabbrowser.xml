@@ -529,19 +529,18 @@
 
               var oldBlank = this.mBlank;
 
-              const nsIWebProgressListener = Ci.nsIWebProgressListener;
-              const nsIChannel = Ci.nsIChannel;
-              let location, originalLocation;
+              let location;
+              let originalLocation;
               try {
-                aRequest.QueryInterface(nsIChannel)
+                aRequest.QueryInterface(Ci.nsIChannel)
                 location = aRequest.URI;
                 originalLocation = aRequest.originalURI;
               } catch (ex) {}
 
-              if (aStateFlags & nsIWebProgressListener.STATE_START) {
+              if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
                 this.mRequestCount++;
               }
-              else if (aStateFlags & nsIWebProgressListener.STATE_STOP) {
+              else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
                 const NS_ERROR_UNKNOWN_HOST = 2152398878;
                 if (--this.mRequestCount > 0 && aStatus == NS_ERROR_UNKNOWN_HOST) {
                   // to prevent bug 235825: wait for the request handled
@@ -553,8 +552,8 @@
                 this.mRequestCount = 0;
               }
 
-              if (aStateFlags & nsIWebProgressListener.STATE_START &&
-                  aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
+              if (aStateFlags & Ci.nsIWebProgressListener.STATE_START &&
+                  aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
                 if (aWebProgress.isTopLevel) {
                   // Need to use originalLocation rather than location because things
                   // like about:privatebrowsing arrive with nsIRequest pointing to
@@ -575,7 +574,7 @@
                 }
 
                 if (this._shouldShowProgress(aRequest)) {
-                  if (!(aStateFlags & nsIWebProgressListener.STATE_RESTORING) &&
+                  if (!(aStateFlags & Ci.nsIWebProgressListener.STATE_RESTORING) &&
                       aWebProgress && aWebProgress.isTopLevel) {
                     this.mTab.setAttribute("busy", "true");
  
@@ -591,8 +590,8 @@
                     this.mTabBrowser.mIsBusy = true;
                 }
               }
-              else if (aStateFlags & nsIWebProgressListener.STATE_STOP &&
-                       aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
+              else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+                       aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
 
                 if (this.mTab.hasAttribute("busy")) {
                   this.mTab.removeAttribute("busy");
@@ -625,7 +624,7 @@
                   this.mBlank = false;
 
                 // For keyword URIs clear the user typed value since they will be changed into real URIs.
-                if (location.scheme == "keyword")
+                if (location && location.scheme == "keyword")
                   this.mBrowser.userTypedValue = null;
 
                 if (this.mTab.label == this.mTabBrowser.mStringBundle.getString("tabs.loading"))
@@ -649,8 +648,8 @@
                                           [aWebProgress, aRequest, aStateFlags, aStatus],
                                           false);
 
-              if (aStateFlags & (nsIWebProgressListener.STATE_START |
-                                 nsIWebProgressListener.STATE_STOP)) {
+              if (aStateFlags & (Ci.nsIWebProgressListener.STATE_START |
+                                 Ci.nsIWebProgressListener.STATE_STOP)) {
                 // reset cached temporary values at beginning and end
                 this.mMessage = "";
                 this.mTotalProgress = 0;
@@ -781,9 +780,8 @@
 
             onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus)
             {
-              const nsIWebProgressListener = Ci.nsIWebProgressListener;
-              if ((aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) &&
-                  (aStateFlags & nsIWebProgressListener.STATE_STOP)) {
+              if ((aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) &&
+                  (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)) {
                 function refresh(closure) {
                   closure.mBrowser.webNavigation.sessionHistory = closure.mSH;
                   closure.mBrowser.webProgress.removeProgressListener(closure);
@@ -1171,7 +1169,6 @@
               this.mCurrentBrowser.updateBlockedPopups();
 
             // Update the URL bar.
-            const nsIWebProgressListener = Ci.nsIWebProgressListener;
             this.updateUrlBar(newBrowser.webProgress,
                               null,
                               newBrowser.currentURI,
@@ -1182,8 +1179,8 @@
 
             // Send the state, status and progress to all progress listeners.
             var flags = tabListener.mStateFlags &
-                (nsIWebProgressListener.STATE_START |
-                 nsIWebProgressListener.STATE_STOP);
+                (Ci.nsIWebProgressListener.STATE_START |
+                 Ci.nsIWebProgressListener.STATE_STOP);
             this._callProgressListeners(null, "onStateChange",
                                         [this.mCurrentBrowser.webProgress,
                                          tabListener.mRequest,
@@ -1339,19 +1336,18 @@
           }
 
           // Security says okay, now ask content policy
-          const nsIContentPolicy = Ci.nsIContentPolicy;
           try {
             var contentPolicy =
               Cc['@mozilla.org/layout/content-policy;1']
-                .getService(nsIContentPolicy);
+                .getService(Ci.nsIContentPolicy);
           } catch (e) {
             return null; // Refuse to load if we can't do a security check.
           }
 
-          if (contentPolicy.shouldLoad(nsIContentPolicy.TYPE_INTERNAL_IMAGE,
+          if (contentPolicy.shouldLoad(Ci.nsIContentPolicy.TYPE_INTERNAL_IMAGE,
                                        uri, targetDoc.documentURIObject,
                                        aLink, aLink.type,
-                                       null) != nsIContentPolicy.ACCEPT) {
+                                       null) != Ci.nsIContentPolicy.ACCEPT) {
             return null;
           }
           return uri;
@@ -1930,16 +1926,17 @@
             b.webNavigation.sessionHistory = hist;
 
             // add back the filters, security first (bug 313335)
-            const nsIWebProgress = Ci.nsIWebProgress;
-            var secFlags = nsIWebProgress.NOTIFY_STATE_ALL | nsIWebProgress.NOTIFY_LOCATION | nsIWebProgress.NOTIFY_SECURITY;
+            var secFlags = Ci.nsIWebProgress.NOTIFY_STATE_ALL |
+                           Ci.nsIWebProgress.NOTIFY_LOCATION |
+                           Ci.nsIWebProgress.NOTIFY_SECURITY;
             b.webProgress.addProgressListener(b.securityUI, secFlags);
 
             var position = this.tabs.length - 1;
             var tabListener = this.mTabProgressListener(t, b, false);
             const filter = Cc["@mozilla.org/appshell/component/browser-status-filter;1"]
-                             .createInstance(nsIWebProgress);
-            filter.addProgressListener(tabListener, nsIWebProgress.NOTIFY_ALL);
-            b.webProgress.addProgressListener(filter, nsIWebProgress.NOTIFY_ALL);
+                             .createInstance(Ci.nsIWebProgress);
+            filter.addProgressListener(tabListener, Ci.nsIWebProgress.NOTIFY_ALL);
+            b.webProgress.addProgressListener(filter, Ci.nsIWebProgress.NOTIFY_ALL);
             this.mTabListeners[position] = tabListener;
             this.mTabFilters[position] = filter;
 
@@ -3114,15 +3111,14 @@
             this.mCurrentBrowser.init();
 
           // Wire up the tab's progress listener and filter.
-          const nsIWebProgress = Ci.nsIWebProgress;
           var tabListener = this.mTabProgressListener(this.mCurrentTab,
                                                       this.mCurrentBrowser,
                                                       false);
           var filter = Cc["@mozilla.org/appshell/component/browser-status-filter;1"]
-                         .createInstance(nsIWebProgress);
-          filter.addProgressListener(tabListener, nsIWebProgress.NOTIFY_ALL);
+                         .createInstance(Ci.nsIWebProgress);
+          filter.addProgressListener(tabListener, Ci.nsIWebProgress.NOTIFY_ALL);
           this.webProgress.addProgressListener(filter,
-                                               nsIWebProgress.NOTIFY_ALL);
+                                               Ci.nsIWebProgress.NOTIFY_ALL);
           this.mTabListeners[0] = tabListener;
           this.mTabFilters[0] = filter;
 
