@@ -555,6 +555,7 @@
               if (aStateFlags & Ci.nsIWebProgressListener.STATE_START &&
                   aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
                 if (aWebProgress.isTopLevel) {
+                  this.mFeeds = [];
                   // Need to use originalLocation rather than location because things
                   // like about:privatebrowsing arrive with nsIRequest pointing to
                   // their resolved jar: or file: URIs.
