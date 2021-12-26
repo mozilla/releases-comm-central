@@ -222,6 +222,8 @@ nsMsgDBFolder::nsMsgDBFolder(void)
       mNewMessages(false),
       mGettingNewMessages(false),
       mLastMessageLoaded(nsMsgKey_None),
+      m_numOfflineMsgLines(0),
+      m_bytesAddedToLocalMsg(0),
       mFlags(0),
       mNumUnreadMessages(-1),
       mNumTotalMessages(-1),
@@ -235,7 +237,9 @@ nsMsgDBFolder::nsMsgDBFolder(void)
       mNumNewBiffMessages(0),
       mHaveParsedURI(false),
       mIsServerIsValid(false),
-      mIsServer(false) {
+      mIsServer(false),
+      mBayesJunkClassifying(false),
+      mBayesTraitClassifying(false) {
   if (mInstanceCount++ <= 0) {
     initializeStrings();
 
