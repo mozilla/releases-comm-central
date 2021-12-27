@@ -97,7 +97,6 @@ class SmtpClient {
     this._lastDataBytes = ""; // Keep track of the last bytes to see how the terminating dot should be placed
     this._envelope = null; // Envelope object for tracking who is sending mail to whom
     this._currentAction = null; // Stores the function that should be run after a response has been received from the server
-    this._secureMode = this.options.requireTLS; // Indicates if the connection is secured or plaintext
 
     this._parseBlock = { data: [], statusCode: null };
     this._parseRemainder = ""; // If the complete line is not received yet, contains the beginning of it
@@ -119,9 +118,10 @@ class SmtpClient {
   connect() {
     let port = this._server.port || (this.options.requireTLS ? 465 : 587);
     this.logger.debug(`Connecting to smtp://${this._server.hostname}:${port}`);
+    this._secureTransport = this.options.requireTLS;
     this.socket = new TCPSocket(this._server.hostname, port, {
       binaryType: "arraybuffer",
-      useSecureTransport: this._secureMode,
+      useSecureTransport: this._secureTransport,
     });
 
     // allows certificate handling for platform w/o native tls support
@@ -847,7 +847,7 @@ class SmtpClient {
       return;
     }
 
-    if (!this._secureMode && this.options.alwaysSTARTTLS) {
+    if (!this._secureTransport && this.options.alwaysSTARTTLS) {
       // STARTTLS is required by the user. Detect if the server supports it.
       if (command.data.match(/STARTTLS\s?$/im)) {
         this._currentAction = this._actionSTARTTLS;
@@ -926,7 +926,7 @@ class SmtpClient {
       return;
     }
 
-    this._secureMode = true;
+    this._secureTransport = true;
     this.socket.upgradeToSecure();
 
     // restart protocol flow

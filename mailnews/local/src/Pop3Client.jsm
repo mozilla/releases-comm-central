@@ -40,11 +40,15 @@ class Pop3Client {
     this._server = server.QueryInterface(Ci.nsIMsgIncomingServer);
     this._authenticator = new Pop3Authenticator(server);
 
+    // Somehow, Services.io.newURI("pop3://localhost") doesn't work, what we
+    // need is just a valid nsIMsgMailNewsUrl to propagate OnStopRunningUrl and
+    // secInfo.
     this._runningUri = Services.io
-      .newURI(`http://${this._server.realHostName}:${this._server.port}`)
+      .newURI(`smtp://${this._server.realHostName}:${this._server.port}`)
       .mutate()
-      .setScheme("pop")
-      .finalize();
+      .setScheme("pop3")
+      .finalize()
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
 
     // A list of auth methods detected from the EHLO response.
     this._supportedAuthMethods = [];
@@ -84,9 +88,10 @@ class Pop3Client {
     this._logger.debug(
       `Connecting to pop://${this._server.realHostName}:${this._server.port}`
     );
+    this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
     this._socket = new TCPSocket(this._server.realHostName, this._server.port, {
       binaryType: "arraybuffer",
-      useSecureTransport: this._server.isSecure,
+      useSecureTransport: this._secureTransport,
     });
     this._socket.onopen = this._onOpen;
     this._socket.onerror = this._onError;
@@ -176,6 +181,11 @@ class Pop3Client {
    */
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
+    let secInfo = event.target.transport?.securityInfo;
+    if (secInfo) {
+      this._runningUri.failedSecInfo = secInfo;
+    }
+    this._actionDone(event.errorCode);
   };
 
   /**
@@ -348,6 +358,7 @@ class Pop3Client {
    */
   _actionCapa = () => {
     this._nextAction = this._actionCapaResponse;
+    this._hasSTLS = false;
     this._send("CAPA");
   };
 
@@ -362,6 +373,9 @@ class Pop3Client {
     this._lineReader(
       res.data,
       line => {
+        if (line.startsWith("STLS")) {
+          this._hasSTLS = true;
+        }
         if (line.startsWith("SASL ")) {
           this._supportedAuthMethods = line
             .slice(5)
@@ -377,6 +391,26 @@ class Pop3Client {
    * Decide the first auth method to try.
    */
   _actionChooseFirstAuthMethod = () => {
+    if (
+      [
+        Ci.nsMsgSocketType.trySTARTTLS,
+        Ci.nsMsgSocketType.alwaysSTARTTLS,
+      ].includes(this._server.socketType) &&
+      !this._secureTransport
+    ) {
+      if (this._hasSTLS) {
+        // Init STARTTLS negotiation if required by user pref and supported.
+        this._nextAction = this._actionStlsResponse;
+        // STLS is the POP3 command to init STARTTLS.
+        this._send("STLS");
+      } else {
+        // Abort if not supported.
+        this._logger.error("Server doesn't support STLS. Aborting.");
+        this._actionDone(Cr.NS_ERROR_FAILURE);
+      }
+      return;
+    }
+
     // If a preferred method is not supported by the server, no need to try it.
     this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
       this._supportedAuthMethods.includes(x)
@@ -392,6 +426,20 @@ class Pop3Client {
     }
 
     this._actionAuth();
+  };
+
+  /**
+   * Handle STLS response. STLS is the POP3 command to init STARTTLS.
+   * @param {Pop3Response} res - STLS response received from the server.
+   */
+  _actionStlsResponse = res => {
+    if (!res.success) {
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+      return;
+    }
+    this._socket.upgradeToSecure();
+    this._secureTransport = true;
+    this._actionCapa();
   };
 
   /**
