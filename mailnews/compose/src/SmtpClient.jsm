@@ -980,7 +980,7 @@ class SmtpClient {
         "mail.smtp_login_pop3_user_pass_auth_is_latin1",
         true
       ) ||
-      !/^[\x00-\xFF]+$/.test(password)
+      !/^[\x00-\xFF]+$/.test(password) // eslint-disable-line no-control-regex
     ) {
       // Unlike PLAIN auth, the payload of LOGIN auth is not standardized. When
       // `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we apply
