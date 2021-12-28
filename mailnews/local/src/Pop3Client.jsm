@@ -29,6 +29,8 @@ var { Pop3Authenticator } = ChromeUtils.import(
  *   status line.
  */
 
+const POP3_AUTH_MECH_UNDEFINED = 0x200;
+
 /**
  * A class to interact with POP3 server.
  */
@@ -88,6 +90,7 @@ class Pop3Client {
     this._logger.debug(
       `Connecting to pop://${this._server.realHostName}:${this._server.port}`
     );
+    this._server.serverBusy = true;
     this._secureTransport = this._server.socketType == Ci.nsMsgSocketType.SSL;
     this._socket = new TCPSocket(this._server.realHostName, this._server.port, {
       binaryType: "arraybuffer",
@@ -113,7 +116,11 @@ class Pop3Client {
     this._sink.folder = folder;
 
     await this._loadUidlState();
-    this._actionInitialAuth();
+    if (this._server.pop3CapabilityFlags & POP3_AUTH_MECH_UNDEFINED) {
+      this._actionInitialAuth();
+    } else {
+      this._actionCapa();
+    }
   }
 
   /**
@@ -193,6 +200,7 @@ class Pop3Client {
    */
   _onClose = () => {
     this._logger.debug("Connection closed.");
+    this._server.serverBusy = false;
     this._destroyed = true;
     if (this._authenticating) {
       // In some cases, socket is closed for invalid username/password.
@@ -333,7 +341,7 @@ class Pop3Client {
    * auth methods in case CAPA is not implemented by the server.
    */
   _actionInitialAuth = () => {
-    this._nextAction = this._actionCapa;
+    this._nextAction = this._actionInitialAuthResponse;
     this._send("AUTH");
   };
 
@@ -341,13 +349,19 @@ class Pop3Client {
    * Handle `AUTH` response.
    * @param {Pop3Response} res - AUTH response received from the server.
    */
-  _actionInitialAuthResponse = ({ data }) => {
+  _actionInitialAuthResponse = res => {
+    if (!res.success) {
+      this._actionCapa();
+    }
     this._lineReader(
-      data,
+      res.data,
       line => {
         this._supportedAuthMethods.push(line);
       },
       () => {
+        // Clear the capability flags so that _actionInitialAuth is not needed
+        // next time, this is only here to make tests happy.
+        this._server.pop3CapabilityFlags = 0;
         this._actionCapa();
       }
     );
@@ -590,9 +604,20 @@ class Pop3Client {
   _actionAuthLoginPass = () => {
     this._nextAction = this._actionAuthResponse;
     this._logger.debug("AUTH LOGIN PASS");
-    let password = String.fromCharCode(
-      ...new TextEncoder().encode(this._authenticator.getPassword())
-    );
+    let password = this._authenticator.getPassword();
+    if (
+      !Services.prefs.getBoolPref(
+        "mail.smtp_login_pop3_user_pass_auth_is_latin1",
+        true
+      ) ||
+      !/^[\x00-\xFF]+$/.test(password)
+    ) {
+      // Unlike PLAIN auth, the payload of LOGIN auth is not standardized. When
+      // `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we apply
+      // base64 encoding directly. Otherwise, we convert it to UTF-8
+      // BinaryString first.
+      password = String.fromCharCode(...new TextEncoder().encode(password));
+    }
     this._send(btoa(password), true);
   };
 
