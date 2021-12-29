@@ -117,9 +117,7 @@
       // each tag name is encoded.
 
       // remove any existing tag items we've appended to the list
-      while (this.hasChildNodes()) {
-        this.lastChild.remove();
-      }
+      this.replaceChildren();
 
       // tokenize the keywords based on ' '
       const tagsArray = tags.split(" ");
@@ -216,9 +214,7 @@
 
     clearHeaderValues() {
       this.mNewsgroups = [];
-      while (this.hasChildNodes()) {
-        this.lastChild.remove();
-      }
+      this.replaceChildren();
     }
   }
   customElements.define(
@@ -1019,7 +1015,6 @@
       this.longEmailAddresses = document.createXULElement("hbox");
       this.longEmailAddresses.classList.add("headerValueBox");
       this.longEmailAddresses.setAttribute("flex", "1");
-      this.longEmailAddresses.setAttribute("singleline", "true");
       this.longEmailAddresses.setAttribute("align", "baseline");
 
       this.emailAddresses = document.createXULElement("description");
@@ -1092,9 +1087,7 @@
      * @return {integer} The number of addresses we have put into the list.
      */
     _fillAddressesNode(all) {
-      while (this.emailAddresses.lastChild) {
-        this.emailAddresses.lastChild.remove();
-      }
+      this.emailAddresses.replaceChildren();
 
       // This ensures that the worst-case "n more" width is considered.
       this.setNMore(this.addresses.length);
@@ -1186,29 +1179,20 @@
     }
 
     /**
-     * Public method to build the DOM nodes for display, to be called after all the addresses have
-     * been added to the widget. It uses _fillAddressesNode to display at most maxLinesBeforeMore lines
-     * of ddresses plus the (more) widget which can be clicked to reveal the rest. The "singleline"
-     * attribute is set for one line only.
+     * Public method to build the DOM nodes for display, to be called after all
+     * the addresses have been added to the widget. It uses _fillAddressesNode
+     * to display at most maxLinesBeforeMore lines of addresses plus the (more)
+     * widget which can be clicked to reveal the rest.
      */
     buildViews() {
       this.maxLinesBeforeMore = Services.prefs.getIntPref(
         "mailnews.headers.show_n_lines_before_more"
       );
       let headerchoice = Services.prefs.getIntPref("mail.show_headers");
-      if (
+      let showAllHeaders =
         this.maxLinesBeforeMore < 1 ||
-        headerchoice == Ci.nsMimeHeaderDisplayTypes.AllHeaders
-      ) {
-        this._fillAddressesNode(true);
-        this.longEmailAddresses.removeAttribute("singleline");
-      } else {
-        this._fillAddressesNode(false);
-        // force a single line only in the default n=1 case
-        if (this.maxLinesBeforeMore > 1) {
-          this.longEmailAddresses.removeAttribute("singleline");
-        }
-      }
+        headerchoice == Ci.nsMimeHeaderDisplayTypes.AllHeaders;
+      this._fillAddressesNode(showAllHeaders);
     }
 
     /**
@@ -1311,10 +1295,7 @@
     clearHeaderValues() {
       // Clear out our local state.
       this.addresses = [];
-      this.longEmailAddresses.setAttribute("singleline", "true");
-      while (this.emailAddresses.lastChild) {
-        this.emailAddresses.lastChild.remove();
-      }
+      this.emailAddresses.replaceChildren();
     }
   }
   customElements.define(
