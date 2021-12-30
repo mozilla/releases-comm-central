@@ -431,7 +431,8 @@ NS_IMPL_ISUPPORTS(nsMsgShutdownService, nsIMsgShutdownService, nsIUrlListener,
                   nsIObserver)
 
 nsMsgShutdownService::nsMsgShutdownService()
-    : mQuitMode(nsIAppStartup::eAttemptQuit),
+    : mTaskIndex(0),
+      mQuitMode(nsIAppStartup::eAttemptQuit),
       mProcessedShutdown(false),
       mQuitForced(false),
       mReadyToQuit(false) {
