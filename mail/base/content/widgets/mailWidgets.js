@@ -184,7 +184,6 @@
 
   class MozMailNewsgroupsHeaderfield extends MozXULElement {
     connectedCallback() {
-      this.classList.add("headerValueBox");
       this.mNewsgroups = [];
     }
 
@@ -195,13 +194,6 @@
     buildViews() {
       for (let i = 0; i < this.mNewsgroups.length; i++) {
         const newNode = document.createXULElement("mail-newsgroup");
-        if (i > 0) {
-          const textNode = document.createXULElement("label");
-          textNode.setAttribute("value", ",");
-          textNode.setAttribute("class", "newsgroupSeparator");
-          this.appendChild(textNode);
-        }
-
         newNode.textContent = this.mNewsgroups[i];
         newNode.setAttribute("newsgroup", this.mNewsgroups[i]);
         newNode.setAttribute(
@@ -347,13 +339,6 @@
           );
         } else {
           let newMessageIdNode = document.createXULElement("mail-messageid");
-
-          if (i > 0) {
-            let textNode = document.createXULElement("label");
-            textNode.setAttribute("value", ", ");
-            textNode.setAttribute("class", "messageIdSeparator");
-            this.headerValue.appendChild(textNode);
-          }
           let itemInDocument = this.headerValue.appendChild(newMessageIdNode);
           this._updateMessageIdNode(
             itemInDocument,
@@ -989,11 +974,6 @@
     constructor() {
       super();
 
-      // This field is used to buffer the width of the comma node so that it
-      // only has to be determined once during the lifetime of this widget.
-      // Otherwise it would cause an expensive reflow every time.
-      this.commaNodeWidth = 0;
-
       // The number of lines of addresses we will display before adding a (more)
       // indicator to the widget. This can be increased using the preference
       // mailnews.headers.show_n_lines_before_more.
@@ -1098,14 +1078,6 @@
       // Add addresses until we're done, or we overflow the allowed lines.
       let addrCount = 0;
       for (let i = 0, line = 0, lineWidth = 0; i < this.addresses.length; i++) {
-        if (i > 0) {
-          this.appendComma();
-          // Calculate comma node width only the first time.
-          if (this.commaNodeWidth == 0) {
-            this.commaNodeWidth = this.emailAddresses.lastElementChild.clientWidth;
-          }
-        }
-
         let newAddressNode = document.createXULElement("mail-emailaddress");
         // Stash the headerName somewhere that UpdateEmailNodeDetails will be
         // able to find it.
@@ -1134,15 +1106,11 @@
 
         // Reading .clientWidth triggers an expensive reflow, so only do it
         // when necessary for possible early loop exit to display (X more).
-        // Calculate width and lines, consider the i+1 comma node if we have to
+        // Calculate width and lines.
         // <http://www.w3.org/TR/cssom-view/#client-attributes>
         // <https://developer.mozilla.org/en/Determining_the_dimensions_of_elements>
-        let newLineWidth =
-          i + 1 < this.addresses.length
-            ? newAddressNode.clientWidth + this.commaNodeWidth
-            : newAddressNode.clientWidth;
+        let newLineWidth = newAddressNode.clientWidth;
         lineWidth += newLineWidth;
-
         let overLineWidth = lineWidth - availableWidth;
         if (overLineWidth > 0 && i > 0) {
           line++;
@@ -1159,7 +1127,6 @@
             newLineWidth - overLineWidth < 50
           ) {
             this.emailAddresses.lastElementChild.remove(); // last addr
-            this.emailAddresses.lastElementChild.remove(); // last comma
             addrCount--;
           }
           break;
@@ -1193,18 +1160,6 @@
         this.maxLinesBeforeMore < 1 ||
         headerchoice == Ci.nsMimeHeaderDisplayTypes.AllHeaders;
       this._fillAddressesNode(showAllHeaders);
-    }
-
-    /**
-     * Append a comma after the (currently) final (email address, we hope!) node of
-     * this.emailAddresses.
-     */
-    appendComma() {
-      // Create and append a comma.
-      let commaNode = document.createXULElement("label");
-      commaNode.setAttribute("value", ",");
-      commaNode.setAttribute("class", "emailSeparator");
-      this.emailAddresses.appendChild(commaNode);
     }
 
     /**
@@ -1267,7 +1222,7 @@
         for (let i = 0; i < this.addresses.length; i++) {
           UpdateExtraAddressProcessing(
             this.addresses[i],
-            children[i * 2],
+            children[i],
             param1,
             param2,
             param3

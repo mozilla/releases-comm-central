@@ -338,7 +338,7 @@ mail-multi-emailheaderfield, mail-newsgroups-headerfield {
 }
 
 .headerValueBox {
-  display: block;
+  display: inline-block;
 }
 
 .headerValue {
@@ -350,6 +350,12 @@ mail-multi-emailheaderfield, mail-newsgroups-headerfield {
 
 mail-headerfield.headerValue:focus-visible:not(:hover) {
   outline: 1px solid var(--focus-outline-color);
+}
+
+/* Separator for multifield emailaddress/newsgroup and messageid header rows. */
+.emailDisplayButton:not(:last-child):after,
+.messageIdDisplayButton:not(:last-child):after {
+  content: ",";
 }
 
 .headerValueUrl,
@@ -366,8 +372,8 @@ mail-headerfield.headerValue:focus-visible:not(:hover) {
   color: -moz-activehyperlinktext;
 }
 
-mail-newsgroups-headerfield.headerValueBox {
-  padding: .1em 0;
+mail-newsgroups-headerfield {
+  display: inline-block;
 }
 
 .headerField {
@@ -415,6 +421,8 @@ mail-newsgroups-headerfield.headerValueBox {
   padding: 1px 2px;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .emailDisplayButton,
@@ -442,26 +450,6 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
   background-color: SelectedItem;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-}
-
-/* this is for the comma in between email addresses */
-.emailSeparator {
-  margin: 0;
-  margin-inline-start: -3px; /* squeeze it inside the bubble, by the star */
-}
-
-/* Because there's no star for newsgroups like there is for email addresses,
- * pushing it back the same number of pixels as emailSeparator causes
- * the comma to be drawn too close to the last letter, which looks bad, so
- * using a separate rule here.
- */
-.newsgroupSeparator {
-  margin: 0;
-  margin-inline-start: -2px;
-}
-
-.messageIdSeparator {
-  margin: 0;
 }
 
 button.email-action-button {
