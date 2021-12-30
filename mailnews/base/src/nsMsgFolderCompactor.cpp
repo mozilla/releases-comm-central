@@ -59,6 +59,7 @@ nsFolderCompactState::nsFolderCompactState() {
   m_totalMsgSize = 0;
   m_startOfNewMsg = 0;
   m_statusOffset = 0;
+  m_addedHeaderSize = 0;
 }
 
 nsFolderCompactState::~nsFolderCompactState() {
