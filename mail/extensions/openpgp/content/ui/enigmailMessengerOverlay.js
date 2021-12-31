@@ -1758,9 +1758,9 @@ Enigmail.msg = {
       .getElementById("signatureKeyBox")
       .getAttribute("keyid");
     if (!keyId) {
-      return;
+      return false;
     }
-    KeyLookupHelper.lookupAndImportByKeyID(window, keyId, true, null);
+    return KeyLookupHelper.lookupAndImportByKeyID(window, keyId, true);
   },
 
   notifySigKeyMissing(keyId) {
@@ -2906,7 +2906,7 @@ Enigmail.msg = {
       .closest("mail-emailaddress")
       .getAttribute("emailAddress");
 
-    KeyLookupHelper.lookupAndImportByEmail(window, address, true, null);
+    return KeyLookupHelper.lookupAndImportByEmail(window, address, true);
   },
 
   importKeyFromKeyserver() {

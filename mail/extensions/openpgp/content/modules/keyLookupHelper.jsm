@@ -62,23 +62,14 @@ var KeyLookupHelper = {
   /**
    * @param {string} searchTerm - The 0x prefxed keyId or email address to search for.
    * @param {boolean} giveFeedbackToUser - Whether to show feedback to user or handle it silently.
-   * @param {Function} whenDoneCB - Callback function.
    * @return {boolean} true if a key was imported
    */
-  async lookupAndImportBySearchTerm(
-    window,
-    searchTerm,
-    giveFeedbackToUser,
-    whenDoneCB
-  ) {
+  async lookupAndImportBySearchTerm(window, searchTerm, giveFeedbackToUser) {
     let somethingWasImported = await this.lookupAndImportOnKeyserver(
       window,
       searchTerm,
       giveFeedbackToUser
     );
-    if (somethingWasImported && whenDoneCB) {
-      whenDoneCB(somethingWasImported);
-    }
     if (!somethingWasImported) {
       let value = await l10n.formatValue("no-key-found");
       EnigmailDialog.alert(window, value);
@@ -86,19 +77,14 @@ var KeyLookupHelper = {
     return somethingWasImported;
   },
 
-  async lookupAndImportByKeyID(window, keyId, giveFeedbackToUser, whenDoneCB) {
+  async lookupAndImportByKeyID(window, keyId, giveFeedbackToUser) {
     if (!/^0x/i.test(keyId)) {
       keyId = "0x" + keyId;
     }
-    return this.lookupAndImportBySearchTerm(
-      window,
-      keyId,
-      giveFeedbackToUser,
-      whenDoneCB
-    );
+    return this.lookupAndImportBySearchTerm(window, keyId, giveFeedbackToUser);
   },
 
-  async lookupAndImportByEmail(window, email, giveFeedbackToUser, whenDoneCB) {
+  async lookupAndImportByEmail(window, email, giveFeedbackToUser) {
     let wkdKeys = await EnigmailWkdLookup.downloadKey(email);
     if (!wkdKeys) {
       console.debug("searchKeysOnInternet no wkd data for " + email);
@@ -120,19 +106,11 @@ var KeyLookupHelper = {
           true
         );
         if (somethingWasImported) {
-          if (whenDoneCB) {
-            whenDoneCB(somethingWasImported);
-          }
-          return somethingWasImported;
+          return true;
         }
       }
     }
 
-    return this.lookupAndImportBySearchTerm(
-      window,
-      email,
-      giveFeedbackToUser,
-      whenDoneCB
-    );
+    return this.lookupAndImportBySearchTerm(window, email, giveFeedbackToUser);
   },
 };

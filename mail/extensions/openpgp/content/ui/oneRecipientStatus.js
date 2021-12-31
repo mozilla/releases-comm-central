@@ -149,5 +149,7 @@ function viewSelectedKey() {
 }
 
 async function discoverKey() {
-  KeyLookupHelper.lookupAndImportByEmail(window, gAddr, true, reloadAndSelect);
+  if (await KeyLookupHelper.lookupAndImportByEmail(window, gAddr, true)) {
+    reloadAndSelect();
+  }
 }

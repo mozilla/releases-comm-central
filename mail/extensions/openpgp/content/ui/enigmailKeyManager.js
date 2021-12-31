@@ -652,7 +652,7 @@ async function enigmailCopyToClipbrd() {
     });
 }
 
-function enigmailSearchKey() {
+async function enigmailSearchKey() {
   var result = {
     value: "",
   };
@@ -673,18 +673,16 @@ function enigmailSearchKey() {
 
   let imported = false;
   if (EnigmailFuncs.stringLooksLikeEmailAddress(result.value)) {
-    imported = KeyLookupHelper.lookupAndImportByEmail(
+    imported = await KeyLookupHelper.lookupAndImportByEmail(
       window,
       result.value,
-      true,
-      null
+      true
     );
   } else {
-    imported = KeyLookupHelper.lookupAndImportByKeyID(
+    imported = await KeyLookupHelper.lookupAndImportByKeyID(
       window,
       result.value,
-      true,
-      null
+      true
     );
   }
 
