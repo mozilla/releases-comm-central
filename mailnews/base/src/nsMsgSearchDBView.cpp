@@ -31,6 +31,7 @@ nsMsgSearchDBView::nsMsgSearchDBView() {
   m_nextThreadId = 1;
   mCurIndex = 0;
   mTotalIndices = 0;
+  mCommand = -1;
 }
 
 nsMsgSearchDBView::~nsMsgSearchDBView() {}
