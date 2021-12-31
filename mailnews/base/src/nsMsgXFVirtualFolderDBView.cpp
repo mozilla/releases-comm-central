@@ -23,6 +23,7 @@ nsMsgXFVirtualFolderDBView::nsMsgXFVirtualFolderDBView() {
   m_doingSearch = false;
   m_doingQuickSearch = false;
   m_totalMessagesInView = 0;
+  m_curFolderHasCachedHits = false;
 }
 
 nsMsgXFVirtualFolderDBView::~nsMsgXFVirtualFolderDBView() {}

@@ -56,8 +56,6 @@ class nsMsgXFVirtualFolderDBView : public nsMsgSearchDBView {
  protected:
   virtual nsresult GetMessageEnumerator(nsIMsgEnumerator** enumerator) override;
 
-  // array index of next folder with cached hits to deal with.
-  uint32_t m_cachedFolderArrayIndex;
   nsCOMArray<nsIMsgFolder> m_foldersSearchingOver;
   nsCOMArray<nsIMsgDBHdr> m_hdrHits;
   nsCOMPtr<nsIMsgFolder> m_curFolderGettingHits;
