@@ -10,6 +10,7 @@ SOURCES += [
 ]
 
 OS_LIBS += [
+    "advapi32",
     "ole32",
     "shell32",
 ]
