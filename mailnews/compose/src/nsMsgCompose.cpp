@@ -188,6 +188,8 @@ nsMsgCompose::nsMsgCompose() {
   m_composeHTML = false;
 
   mTmpAttachmentsDeleted = false;
+  mDraftDisposition = nsIMsgFolder::nsMsgDispositionState_None;
+  mDeliverMode = 0;
 }
 
 nsMsgCompose::~nsMsgCompose() {
