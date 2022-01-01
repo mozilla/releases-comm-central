@@ -34,9 +34,7 @@ class JaBaseCppUrl : public nsMsgMailNewsUrl,
                      public nsIMsgMessageUrl,
                      public msgIJaUrl,
                      public nsIInterfaceRequestor,
-                     public nsSupportsWeakReference
-
-{
+                     public nsSupportsWeakReference {
  public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGMESSAGEURL
@@ -62,11 +60,11 @@ class JaBaseCppUrl : public nsMsgMailNewsUrl,
   // the uri for the original message, like ews-message://server/folder#123
   nsCString mUri;
   nsCOMPtr<nsIFile> mMessageFile;
-  bool mCanonicalLineEnding;
+  bool mCanonicalLineEnding = false;
   nsCString mOriginalSpec;
 
   // msgIJaUrl variables
-  unsigned int m_urlType;
+  unsigned int m_urlType{0};
 };
 
 class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
