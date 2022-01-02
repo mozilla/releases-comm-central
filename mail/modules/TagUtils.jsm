@@ -106,6 +106,10 @@ function findTagColorSheet(aDocument) {
 
 /* Checks if black writing on 'aColor' background has enough contrast */
 function isColorContrastEnough(aColor) {
+  // Is a color set? If not, return "true" to use the default color.
+  if (!aColor) {
+    return true;
+  }
   // Zero-pad the number just to make sure that it is 8 digits.
   let colorHex = ("00000000" + aColor).substr(-8);
   let colorArray = colorHex.match(/../g);
