@@ -25,7 +25,7 @@ function Startup()
   document.getElementById("showAlertSender").hidden =
     !Services.prefs.getBoolPref("mail.biff.show_new_alert");
 
-  // animate dock icon option currently available for Mac OSX only
+  // animate dock icon option currently available for macOS only
   var newMailNotificationBouncePref = document.getElementById("newMailNotificationBounceBox");
   newMailNotificationBouncePref.hidden = AppConstants.platform != "macosx";
 

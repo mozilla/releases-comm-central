@@ -57,7 +57,7 @@ function initPrefs()
     if (en)
     {
         /* Get the enviroment variables used by various OSes:
-         *   USER     - Linux, Mac OSX and other *nix-types.
+         *   USER     - Linux, macOS and other *nix-types.
          *   USERNAME - Windows.
          *   LOGNAME  - *nix again.
          */

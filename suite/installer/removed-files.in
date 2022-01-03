@@ -1,6 +1,6 @@
-# Due to Apple Mac OS X packaging requirements files that are in the same
+# Due to Apple macOS packaging requirements files that are in the same
 # directory on other platforms must be located in different directories on
-# Mac OS X. The following defines allow specifying the Mac OS X bundle
+# macOS. The following defines allow specifying the macOS bundle
 # location which also work on other platforms.
 #
 # @DIR_MACOS@

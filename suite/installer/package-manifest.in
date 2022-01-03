@@ -13,17 +13,17 @@
 ; ; file comment
 ;
 
-; Due to Apple Mac OS X packaging requirements, files that are in the same
+; Due to Apple macOS packaging requirements, files that are in the same
 ; directory on other platforms must be located in different directories on
-; Mac OS X. The following defines allow specifying the Mac OS X bundle
+; macOS. The following defines allow specifying the macOS bundle
 ; location which also work on other platforms.
 ;
 ; @BINPATH@
-; Equals Contents/MacOS/ on Mac OS X and is the path to the main binary on other
+; Equals Contents/MacOS/ on macOS and is the path to the main binary on other
 ; platforms.
 ;
 ; @RESPATH@
-; Equals Contents/Resources/ on Mac OS X and is equivalent to @BINPATH@ on other
+; Equals Contents/Resources/ on macOS and is equivalent to @BINPATH@ on other
 ; platforms.
 
 #filter substitution

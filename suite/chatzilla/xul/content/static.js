@@ -5624,7 +5624,7 @@ function showEventAlerts (type, event, message, nick, o, thisp, msgtype)
         source = o.network.viewName;
     }
 
-    // We can't be sure if it is a MAC OS X and Growl is now turned off or not
+    // We can't be sure if it is a macOS and Growl is now turned off or not
     try
     {
         client.alert.service.showAlertNotification(

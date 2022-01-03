@@ -64,7 +64,7 @@ var DownloadsTaskbar = {
    * another browser window, if available, in no particular order.  When there
    * are no browser windows visible, the indicator is hidden.
    *
-   * On Mac OS X, the indicator is initialized globally when this method is
+   * On macOS, the indicator is initialized globally when this method is
    * called for the first time.  Subsequent calls have no effect.
    *
    * @param aBrowserWindow
@@ -74,7 +74,7 @@ var DownloadsTaskbar = {
   registerIndicator(aWindow) {
     if (!this._taskbarProgress) {
       if (gMacTaskbarProgress) {
-        // On Mac OS X, we have to register the global indicator only once.
+        // On macOS, we have to register the global indicator only once.
         this._taskbarProgress = gMacTaskbarProgress;
         // Free the XPCOM reference on shutdown, to prevent detecting a leak.
         Services.obs.addObserver(() => {

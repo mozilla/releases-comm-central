@@ -61,7 +61,7 @@ NS_IMETHODIMP
 nsMacShellService::SetDefaultClient(bool aForAllUsers,
                                     bool aClaimAllTypes, uint16_t aApps)
 {
-  // Note: We don't support aForAllUsers on Mac OS X.
+  // Note: We don't support aForAllUsers on macOS.
 
   CFStringRef suiteID = ::CFBundleGetIdentifier(::CFBundleGetMainBundle());
   if (!suiteID)
@@ -301,7 +301,7 @@ nsMacShellService::OnStateChange(nsIWebProgress* aWebProgress,
 NS_IMETHODIMP
 nsMacShellService::GetDesktopBackgroundColor(uint32_t *aColor)
 {
-  // This method and |SetDesktopBackgroundColor| has no meaning on Mac OS X.
+  // This method and |SetDesktopBackgroundColor| has no meaning on macOS.
   // The mac desktop preferences UI uses pictures for the few solid colors it
   // supports.
   return NS_ERROR_NOT_IMPLEMENTED;
@@ -310,7 +310,7 @@ nsMacShellService::GetDesktopBackgroundColor(uint32_t *aColor)
 NS_IMETHODIMP
 nsMacShellService::SetDesktopBackgroundColor(uint32_t aColor)
 {
-  // This method and |GetDesktopBackgroundColor| has no meaning on Mac OS X.
+  // This method and |GetDesktopBackgroundColor| has no meaning on macOS.
   // The mac desktop preferences UI uses pictures for the few solid colors it
   // supports.
   return NS_ERROR_NOT_IMPLEMENTED;
