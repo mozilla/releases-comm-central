@@ -17,15 +17,12 @@
     list-style-image: var(--webextension-toolbar-image, inherit);
   }
 
-  .webextension-action:-moz-lwtheme,
-  toolbar:not([brighttext]) .webextension-action:-moz-lwtheme {
-    list-style-image: var(--webextension-toolbar-image-dark, inherit);
+  toolbar[brighttext] .webextension-action {
+    list-style-image: var(--webextension-toolbar-image-light, inherit);
   }
 
-  toolbar[brighttext] .webextension-action,
-  .webextension-action:-moz-lwtheme-brighttext,
-  :root[lwt-tree-brighttext] .webextension-action {
-    list-style-image: var(--webextension-toolbar-image-light, inherit);
+  toolbar:not([brighttext]) .webextension-action:-moz-lwtheme {
+    list-style-image: var(--webextension-toolbar-image-dark, inherit);
   }
 
   .webextension-action[cui-areatype="menu-panel"] {
@@ -50,15 +47,12 @@
     list-style-image: var(--webextension-toolbar-image-2x, inherit);
   }
 
-  .webextension-action:-moz-lwtheme,
-  toolbar:not([brighttext]) .webextension-action:-moz-lwtheme {
-    list-style-image: var(--webextension-toolbar-image-2x-dark, inherit);
+  toolbar[brighttext] .webextension-action {
+    list-style-image: var(--webextension-toolbar-image-2x-light, inherit);
   }
 
-  toolbar[brighttext] .webextension-action,
-  .webextension-action:-moz-lwtheme-brighttext,
-  :root[lwt-tree-brighttext] .webextension-action {
-    list-style-image: var(--webextension-toolbar-image-2x-light, inherit);
+  toolbar:not([brighttext]) .webextension-action:-moz-lwtheme {
+    list-style-image: var(--webextension-toolbar-image-2x-dark, inherit);
   }
 
   .webextension-action[cui-areatype="menu-panel"] {

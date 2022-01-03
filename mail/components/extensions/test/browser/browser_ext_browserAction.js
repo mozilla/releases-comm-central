@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { AddonManager } = ChromeUtils.import(
-  "resource://gre/modules/AddonManager.jsm"
-);
-
 add_task(async () => {
   async function test_it(extension) {
     await extension.startup();
@@ -133,65 +129,4 @@ add_task(async () => {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messenger.xhtml"
   );
-});
-
-add_task(async function test_theme_icons() {
-  let extension = ExtensionTestUtils.loadExtension({
-    manifest: {
-      applications: {
-        gecko: {
-          id: "browser_action_properties@mochi.test",
-        },
-      },
-      browser_action: {
-        default_title: "default",
-        default_icon: "default.png",
-        theme_icons: [
-          {
-            dark: "dark.png",
-            light: "light.png",
-            size: 16,
-          },
-        ],
-      },
-    },
-  });
-
-  await extension.startup();
-
-  let uuid = extension.uuid;
-  let button = document.getElementById(
-    "browser_action_properties_mochi_test-browserAction-toolbarbutton"
-  );
-
-  let default_theme = await AddonManager.getAddonByID(
-    "default-theme@mozilla.org"
-  );
-  await default_theme.enable();
-  Assert.equal(
-    window.getComputedStyle(button).listStyleImage,
-    `url("moz-extension://${uuid}/default.png")`,
-    `Default theme should use default icon.`
-  );
-
-  let dark_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-dark@mozilla.org"
-  );
-  await dark_theme.enable();
-  Assert.equal(
-    window.getComputedStyle(button).listStyleImage,
-    `url("moz-extension://${uuid}/light.png")`,
-    `Dark theme should use light icon.`
-  );
-
-  let light_theme = await AddonManager.getAddonByID(
-    "thunderbird-compact-light@mozilla.org"
-  );
-  await light_theme.enable();
-  Assert.equal(
-    window.getComputedStyle(button).listStyleImage,
-    `url("moz-extension://${uuid}/dark.png")`,
-    `Light theme should use dark icon.`
-  );
-  await extension.unload();
 });
