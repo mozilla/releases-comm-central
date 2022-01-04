@@ -361,6 +361,11 @@ toolbar[brighttext] {
   fill: currentColor;
 }
 
+treechildren::-moz-tree-row(selected, current, focus) {
+  outline-color: color-mix(in srgb, SelectedItem, black 10%);
+  outline-style: solid;
+}
+
 tree > treechildren::-moz-tree-row(hover) {
   background-color: hsla(0, 0%, 50%, 0.15);
 }
