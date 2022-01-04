@@ -16,7 +16,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  compareAccounts: "resource:///modules/folderUtils.jsm",
+  FolderUtils: "resource:///modules/FolderUtils.jsm",
   EventEmitter: "resource://gre/modules/EventEmitter.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   migrateMailnews: "resource:///modules/MailnewsMigrator.jsm",
@@ -478,7 +478,7 @@ var MailMigrator = {
         let accountList = MailServices.accounts.accounts.filter(
           a => a.incomingServer
         );
-        accountList.sort(compareAccounts);
+        accountList.sort(FolderUtils.compareAccounts);
         let accountKeyList = accountList.map(account => account.key);
         try {
           MailServices.accounts.reorderAccounts(accountKeyList);

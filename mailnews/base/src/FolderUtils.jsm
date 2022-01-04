@@ -6,16 +6,18 @@
  * This file contains helper methods for dealing with nsIMsgFolders.
  */
 
-const EXPORTED_SYMBOLS = [
-  "allAccountsSorted",
-  "compareAccounts",
-  "folderNameCompare",
-  "getFolderIcon",
-  "getFolderProperties",
-  "getMostRecentFolders",
-  "getSpecialFolderString",
-  "canRenameDeleteJunkMail",
-];
+const EXPORTED_SYMBOLS = ["FolderUtils"];
+
+var FolderUtils = {
+  allAccountsSorted,
+  compareAccounts,
+  folderNameCompare,
+  getFolderIcon,
+  getFolderProperties,
+  getMostRecentFolders,
+  getSpecialFolderString,
+  canRenameDeleteJunkMail,
+};
 
 ChromeUtils.defineModuleGetter(
   this,

@@ -10,8 +10,10 @@
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var { allAccountsSorted } = ChromeUtils.import(
-  "resource:///modules/folderUtils.jsm"
+ChromeUtils.defineModuleGetter(
+  this,
+  "FolderUtils",
+  "resource:///modules/FolderUtils.jsm"
 );
 var MailstoreConverter = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
@@ -72,7 +74,7 @@ function placeAccountName(aServer) {
   // Account to which other accounts have been deferred.
   let deferredToAccount;
   // Array of all accounts.
-  let accounts = allAccountsSorted(true);
+  let accounts = FolderUtils.allAccountsSorted(true);
 
   for (let account of accounts) {
     if (

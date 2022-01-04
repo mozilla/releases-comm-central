@@ -1030,7 +1030,7 @@ function CanDeleteFolder(folder) {
   if (folder.isServer)
     return false;
 
-  var specialFolder = getSpecialFolderString(folder);
+  var specialFolder = FolderUtils.getSpecialFolderString(folder);
 
   if (specialFolder == "Inbox" || specialFolder == "Trash" ||
       specialFolder == "Drafts" || specialFolder == "Sent" ||

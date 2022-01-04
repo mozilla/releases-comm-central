@@ -8,9 +8,6 @@
 var { DBViewWrapper } = ChromeUtils.import(
   "resource:///modules/DBViewWrapper.jsm"
 );
-var { canRenameDeleteJunkMail, getFolderIcon } = ChromeUtils.import(
-  "resource:///modules/folderUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -21,6 +18,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
+  FolderUtils: "resource:///modules/FolderUtils.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(
@@ -47,7 +45,7 @@ window.addEventListener("DOMContentLoaded", () => {
       folderItem.dataset.uri = folder.URI;
       folderItem.querySelector(
         ".icon"
-      ).style.backgroundImage = `url("${getFolderIcon(folder)}")`;
+      ).style.backgroundImage = `url("${FolderUtils.getFolderIcon(folder)}")`;
       folderItem.querySelector(".name").textContent = folder.name;
       addSubFolders(folder, folderItem);
     }
@@ -186,7 +184,7 @@ window.addEventListener("DOMContentLoaded", () => {
     accountItem.dataset.uri = account.incomingServer.rootFolder.URI;
     accountItem.querySelector(
       ".icon"
-    ).style.backgroundImage = `url("${getFolderIcon(
+    ).style.backgroundImage = `url("${FolderUtils.getFolderIcon(
       account.incomingServer.rootFolder
     )}")`;
     accountItem.querySelector(".name").textContent =
@@ -202,9 +200,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
     gFolder = MailServices.folderLookup.getFolderForURL(uri);
 
-    document.head.querySelector(`link[rel="icon"]`).href = getFolderIcon(
-      gFolder
-    );
+    document.head.querySelector(
+      `link[rel="icon"]`
+    ).href = FolderUtils.getFolderIcon(gFolder);
 
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
@@ -460,7 +458,10 @@ var folderPaneContextMenu = {
         );
     }
     if (isJunk) {
-      showItem("folderPaneContext-remove", canRenameDeleteJunkMail(URI));
+      showItem(
+        "folderPaneContext-remove",
+        FolderUtils.canRenameDeleteJunkMail(URI)
+      );
     } else {
       showItem("folderPaneContext-remove", deletable);
     }
@@ -468,7 +469,7 @@ var folderPaneContextMenu = {
       "folderPaneContext-rename",
       (!isServer && canRename && !(flags & Ci.nsMsgFolderFlags.SpecialUse)) ||
         isVirtual ||
-        (isJunk && canRenameDeleteJunkMail(URI))
+        (isJunk && FolderUtils.canRenameDeleteJunkMail(URI))
     );
 
     showItem(

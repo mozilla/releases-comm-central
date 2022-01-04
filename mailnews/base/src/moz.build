@@ -110,7 +110,7 @@ EXTRA_JS_MODULES += [
     "ABQueryUtils.jsm",
     "converterWorker.js",
     "FolderLookupService.jsm",
-    "folderUtils.jsm",
+    "FolderUtils.jsm",
     "hostnameUtils.jsm",
     "JsTreeSelection.jsm",
     "JXON.jsm",

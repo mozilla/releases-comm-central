@@ -9,8 +9,8 @@
 
 var { FeedUtils } =
   ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var { folderUtils } =
-  ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var { FolderUtils } =
+  ChromeUtils.import("resource:///modules/FolderUtils.jsm");
 var { IOUtils } =
   ChromeUtils.import("resource:///modules/IOUtils.js");
 var { IteratorUtils } =
@@ -1062,7 +1062,7 @@ let gFolderTreeView = {
   },
 
   _sortedAccounts: function ftv_getSortedAccounts() {
-    let accounts = allAccountsSorted(true);
+    let accounts = FolderUtils.allAccountsSorted(true);
 
     // Don't show deferred pop accounts.
     accounts = accounts.filter(function isNotDeferred(a) {
@@ -1288,10 +1288,12 @@ let gFolderTreeView = {
         const MAXRECENT = 15;
 
         // Get 15 (MAXRECENT) most recently accessed folders.
-        let recentFolders = getMostRecentFolders(ftv._enumerateFolders,
-                                                 MAXRECENT,
-                                                 "MRUTime",
-                                                 null);
+        let recentFolders = FolderUtils.getMostRecentFolders(
+          ftv._enumerateFolders,
+          MAXRECENT,
+          "MRUTime",
+          null
+        );
 
         // Sort the folder names alphabetically.
         recentFolders.sort(function rf_sort(a, b){
@@ -1301,7 +1303,7 @@ let gFolderTreeView = {
             aLabel = a.server.prettyName;
             bLabel = b.server.prettyName;
           }
-          return folderNameCompare(aLabel, bLabel);
+          return FolderUtils.folderNameCompare(aLabel, bLabel);
         });
 
         let items = recentFolders.map(f => new ftvItem(f));
@@ -1658,8 +1660,7 @@ ftvItem.prototype = {
     if (aColumn && aColumn.id != "folderNameCol")
       return "";
 
-    // From folderUtils.jsm
-    let properties = getFolderProperties(this._folder, this.open);
+    let properties = FolderUtils.getFolderProperties(this._folder, this.open);
 
     return properties;
   },

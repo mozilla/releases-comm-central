@@ -11,8 +11,8 @@ const { PromiseTestUtils } = ChromeUtils.import(
 var { convertMailStoreTo } = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
 );
-const { allAccountsSorted } = ChromeUtils.import(
-  "resource:///modules/folderUtils.jsm"
+const { FolderUtils } = ChromeUtils.import(
+  "resource:///modules/FolderUtils.jsm"
 );
 
 // XXX: merge into test_converter.js
@@ -145,7 +145,7 @@ function run_test() {
   // String to hold names of accounts to convert.
   let accountsToConvert = "";
 
-  let accounts = allAccountsSorted(true);
+  let accounts = FolderUtils.allAccountsSorted(true);
   for (let account of accounts) {
     if (
       account.incomingServer.rootFolder.filePath.path == deferredToRootFolder

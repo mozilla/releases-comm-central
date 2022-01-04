@@ -10,10 +10,8 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from msgMail3PaneWindow.js */
 
-var { getFolderIcon, getSpecialFolderString } = ChromeUtils.import(
-  "resource:///modules/folderUtils.jsm"
-);
 XPCOMUtils.defineLazyModuleGetters(this, {
+  FolderUtils: "resource:///modules/FolderUtils.jsm",
   GlodaSyntheticView: "resource:///modules/gloda/GlodaSyntheticView.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.jsm",
@@ -297,7 +295,7 @@ var mailTabType = {
         }
 
         // Update the appropriate attributes on the tab.
-        let specialFolderStr = getSpecialFolderString(folder);
+        let specialFolderStr = FolderUtils.getSpecialFolderString(folder);
         let feedUrls = FeedUtils.getFeedUrlsInFolder(folder);
 
         if (
@@ -329,7 +327,7 @@ var mailTabType = {
           return;
         }
 
-        aTabNode.setIcon(getFolderIcon(folder));
+        aTabNode.setIcon(FolderUtils.getFolderIcon(folder));
       },
       getBrowser(aTab) {
         // If we are currently a thread summary, we want to select the multi

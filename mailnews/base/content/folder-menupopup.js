@@ -22,28 +22,13 @@
 
   ChromeUtils.defineModuleGetter(
     LazyModules,
-    "allAccountsSorted",
-    "resource:///modules/folderUtils.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
     "FeedUtils",
     "resource:///modules/FeedUtils.jsm"
   );
   ChromeUtils.defineModuleGetter(
     LazyModules,
-    "folderNameCompare",
-    "resource:///modules/folderUtils.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "getMostRecentFolders",
-    "resource:///modules/folderUtils.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "getSpecialFolderString",
-    "resource:///modules/folderUtils.jsm"
+    "FolderUtils",
+    "resource:///modules/FolderUtils.jsm"
   );
   ChromeUtils.defineModuleGetter(
     LazyModules,
@@ -476,7 +461,7 @@
           // If we don't have a parent, then we assume we should build the
           // top-level accounts. (Actually we build the fake root folders for
           // those accounts.)
-          let accounts = LazyModules.allAccountsSorted(true);
+          let accounts = LazyModules.FolderUtils.allAccountsSorted(true);
 
           // Now generate our folder list. Note that we'll special case this
           // situation elsewhere, to avoid destroying the sort order we just made.
@@ -589,7 +574,7 @@
         switch (specialType) {
           case "recent":
             // Find the most recently modified ones.
-            specialFolders = LazyModules.getMostRecentFolders(
+            specialFolders = LazyModules.FolderUtils.getMostRecentFolders(
               specialFolders,
               Services.prefs.getIntPref("mail.folder_widget.max_recent"),
               "MRMTime"
@@ -640,7 +625,7 @@
 
         // Make sure the entries are sorted alphabetically.
         specialFoldersMap.sort((a, b) =>
-          LazyModules.folderNameCompare(a.label, b.label)
+          LazyModules.FolderUtils.folderNameCompare(a.label, b.label)
         );
 
         // Create entries for each of the recent folders.
@@ -891,7 +876,9 @@
         let attributes = {};
 
         // First the SpecialFolder attribute.
-        attributes.SpecialFolder = LazyModules.getSpecialFolderString(folder);
+        attributes.SpecialFolder = LazyModules.FolderUtils.getSpecialFolderString(
+          folder
+        );
 
         // Now the biffState.
         let biffStates = ["NewMail", "NoMail", "UnknownMail"];
@@ -988,7 +975,9 @@
           );
           menulist.setAttribute(
             "SpecialFolder",
-            folder ? LazyModules.getSpecialFolderString(folder) : "none"
+            folder
+              ? LazyModules.FolderUtils.getSpecialFolderString(folder)
+              : "none"
           );
           menulist.setAttribute(
             "IsFeedFolder",

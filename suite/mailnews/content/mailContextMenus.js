@@ -275,7 +275,7 @@ function FillFolderPaneContextMenu()
   let isServer = folder.isServer;
   let serverType = folder.server.type;
   let specialFolder = haveAnyVirtualFolders ? "Virtual" :
-                                              getSpecialFolderString(folder);
+                                              FolderUtils.getSpecialFolderString(folder);
 
   function checkCanSubscribeToFolder(folder) {
     if (checkIsVirtualFolder(folder))

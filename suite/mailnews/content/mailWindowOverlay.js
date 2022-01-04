@@ -7,10 +7,7 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {FeedUtils} = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var {
-  getFolderProperties, getSpecialFolderString, allAccountsSorted,
-  getMostRecentFolders, folderNameCompare, compareAccounts,
-} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+var { FolderUtils } = ChromeUtils.import("resource:///modules/FolderUtils.jsm");
 var {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 

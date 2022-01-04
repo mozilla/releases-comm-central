@@ -38,8 +38,10 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { allAccountsSorted } = ChromeUtils.import(
-  "resource:///modules/folderUtils.jsm"
+ChromeUtils.defineModuleGetter(
+  this,
+  "FolderUtils",
+  "resource:///modules/FolderUtils.jsm"
 );
 var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
@@ -1742,7 +1744,7 @@ var gAccountTree = {
       { string: getString("prefPanel-junk"), src: "am-junk.xhtml" },
     ];
 
-    let accounts = allAccountsSorted(false);
+    let accounts = FolderUtils.allAccountsSorted(false);
 
     let mainTree = document.getElementById("accounttree");
     // Clear off all children...

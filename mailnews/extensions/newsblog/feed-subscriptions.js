@@ -230,7 +230,7 @@ var FeedSubscriptions = {
       } else {
         let url = folder ? null : item.url;
         folder = folder || item.parentFolder;
-        properties = mainWin.getFolderProperties(folder, item.open);
+        properties = mainWin.FolderUtils.getFolderProperties(folder, item.open);
         properties += mainWin.FeedUtils.getFolderProperties(folder, url);
         if (
           this.selection.currentIndex == aRow &&

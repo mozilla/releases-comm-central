@@ -1494,7 +1494,7 @@ function CanDeleteFolder(folder) {
     return false;
   }
 
-  var specialFolder = getSpecialFolderString(folder);
+  var specialFolder = FolderUtils.getSpecialFolderString(folder);
 
   if (
     specialFolder == "Inbox" ||
@@ -1503,7 +1503,8 @@ function CanDeleteFolder(folder) {
     specialFolder == "Sent" ||
     specialFolder == "Templates" ||
     specialFolder == "Outbox" ||
-    (specialFolder == "Junk" && !canRenameDeleteJunkMail(folder.URI))
+    (specialFolder == "Junk" &&
+      !FolderUtils.canRenameDeleteJunkMail(folder.URI))
   ) {
     return false;
   }

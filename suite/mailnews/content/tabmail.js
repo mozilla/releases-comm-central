@@ -463,7 +463,7 @@ var gMailNewsTabsType =
 
       // The user may have changed folders, triggering our onTitleChanged callback.
       // Update the appropriate attributes on the tab.
-      aTabNode.setAttribute("SpecialFolder", getSpecialFolderString(msgSelectedFolder));
+      aTabNode.setAttribute("SpecialFolder", FolderUtils.getSpecialFolderString(msgSelectedFolder));
       aTabNode.setAttribute("ServerType",    msgSelectedFolder.server.type);
       aTabNode.setAttribute("IsServer",      msgSelectedFolder.isServer);
       aTabNode.setAttribute("IsSecure",      msgSelectedFolder.server.isSecure);

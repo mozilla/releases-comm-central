@@ -298,7 +298,7 @@ function fillFolderPaneContextMenu(aEvent) {
   if (numSelected == 1) {
     specialFolder = haveAnyVirtualFolders
       ? "Virtual"
-      : getSpecialFolderString(folders[0]);
+      : FolderUtils.getSpecialFolderString(folders[0]);
   }
 
   function checkCanSubscribeToFolder(folder) {
@@ -446,7 +446,8 @@ function fillFolderPaneContextMenu(aEvent) {
         folders[0].canRename &&
         specialFolder == "none") ||
         specialFolder == "Virtual" ||
-        (specialFolder == "Junk" && canRenameDeleteJunkMail(folders[0].URI))
+        (specialFolder == "Junk" &&
+          FolderUtils.canRenameDeleteJunkMail(folders[0].URI))
     );
     EnableMenuItem(
       "folderPaneContext-rename",
@@ -459,7 +460,7 @@ function fillFolderPaneContextMenu(aEvent) {
   // --- Set up the delete folder menu item.
   function checkCanDeleteFolder(folder) {
     if (folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false)) {
-      return canRenameDeleteJunkMail(folder.URI);
+      return FolderUtils.canRenameDeleteJunkMail(folder.URI);
     }
     return folder.deletable;
   }

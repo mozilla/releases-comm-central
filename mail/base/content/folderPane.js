@@ -11,14 +11,6 @@
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
 
-var {
-  getFolderProperties,
-  allAccountsSorted,
-  getMostRecentFolders,
-  folderNameCompare,
-  canRenameDeleteJunkMail,
-} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -29,6 +21,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
+  FolderUtils: "resource:///modules/FolderUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
@@ -1933,7 +1926,7 @@ var gFolderTreeView = {
   },
 
   _sortedAccounts() {
-    let accounts = allAccountsSorted(true);
+    let accounts = FolderUtils.allAccountsSorted(true);
 
     // Don't show deferred pop accounts.
     accounts = accounts.filter(function(a) {
@@ -2255,7 +2248,7 @@ var gFolderTreeView = {
 
       generateMap(ftv) {
         // Get the most recently accessed folders.
-        let recentFolders = getMostRecentFolders(
+        let recentFolders = FolderUtils.getMostRecentFolders(
           ftv._enumerateFolders,
           Services.prefs.getIntPref("mail.folder_widget.max_recent"),
           "MRUTime",
@@ -2270,7 +2263,7 @@ var gFolderTreeView = {
             aLabel = a.server.prettyName;
             bLabel = b.server.prettyName;
           }
-          return folderNameCompare(aLabel, bLabel);
+          return FolderUtils.folderNameCompare(aLabel, bLabel);
         });
 
         let items = recentFolders.map(f => new FtvItem(f));
@@ -3181,7 +3174,7 @@ FtvItem.prototype = {
     }
 
     // From folderUtils.jsm.
-    let properties = getFolderProperties(this._folder, this.open);
+    let properties = FolderUtils.getFolderProperties(this._folder, this.open);
     if (this._folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
       properties += " specialFolder-Smart";
       // A second possibility for customized smart folders.
@@ -3513,7 +3506,7 @@ var gFolderTreeController = {
     }
 
     var canDelete = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false)
-      ? canRenameDeleteJunkMail(folder.URI)
+      ? FolderUtils.canRenameDeleteJunkMail(folder.URI)
       : folder.deletable;
 
     if (!canDelete) {

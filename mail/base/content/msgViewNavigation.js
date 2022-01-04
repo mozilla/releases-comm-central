@@ -10,10 +10,13 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
 
-var { allAccountsSorted } = ChromeUtils.import(
-  "resource:///modules/folderUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "FolderUtils",
+  "resource:///modules/FolderUtils.jsm"
+);
 
 function GetSubFoldersInFolderPaneOrder(folder) {
   function compareFolderSortKey(folder1, folder2) {
@@ -121,7 +124,7 @@ function FindNextFolder() {
 }
 
 function GetRootFoldersInFolderPaneOrder() {
-  let accounts = allAccountsSorted(false);
+  let accounts = FolderUtils.allAccountsSorted(false);
 
   let serversMsgFolders = [];
   for (let account of accounts) {

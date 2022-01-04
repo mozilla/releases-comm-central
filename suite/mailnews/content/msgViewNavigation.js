@@ -5,7 +5,7 @@
 
 /*  This file contains the js functions necessary to implement view navigation within the 3 pane. */
 
-const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+const {FolderUtils} = ChromeUtils.import("resource:///modules/FolderUtils.jsm");
 
 //NOTE: gMessengerBundle must be defined and set or this Overlay won't work
 
@@ -111,7 +111,7 @@ function FindNextFolder()
 
 function GetRootFoldersInFolderPaneOrder()
 {
-  var accounts = allAccountsSorted(false);
+  var accounts = FolderUtils.allAccountsSorted(false);
 
   var serversMsgFolders = [];
   for (var account of accounts)
@@ -241,4 +241,3 @@ function GoNextMessage(type, startFromBeginning)
 
   SetFocusThreadPaneIfNotOnMessagePane();
 }
-

@@ -7,7 +7,7 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
-const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+const {FolderUtils} = ChromeUtils.import("resource:///modules/FolderUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
@@ -2434,7 +2434,7 @@ function ToggleAttachVCard(target)
 
 function FillIdentityList(menulist)
 {
-  var accounts = allAccountsSorted(true);
+  var accounts = FolderUtils.allAccountsSorted(true);
 
   for (let acc = 0; acc < accounts.length; acc++)
   {

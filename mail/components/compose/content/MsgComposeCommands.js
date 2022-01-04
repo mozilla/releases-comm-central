@@ -30,16 +30,8 @@ var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { allAccountsSorted } = ChromeUtils.import(
-  "resource:///modules/folderUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailUtils",
-  "resource:///modules/MailUtils.jsm"
 );
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
@@ -55,6 +47,10 @@ var { MailConstants } = ChromeUtils.import(
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
+XPCOMUtils.defineLazyModuleGetters(this, {
+  FolderUtils: "resource:///modules/FolderUtils.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+});
 
 XPCOMUtils.defineLazyGetter(
   this,
@@ -6185,7 +6181,7 @@ function toggleAttachmentAnimation() {
 }
 
 function FillIdentityList(menulist) {
-  let accounts = allAccountsSorted(true);
+  let accounts = FolderUtils.allAccountsSorted(true);
 
   let accountHadSeparator = false;
   let firstAccountWithIdentities = true;
