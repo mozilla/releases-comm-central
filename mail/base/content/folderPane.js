@@ -18,18 +18,19 @@ var {
   folderNameCompare,
   canRenameDeleteJunkMail,
 } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
+
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-if (typeof FeedMessageHandler != "object") {
-  Services.scriptloader.loadSubScript(
-    "chrome://messenger-newsblog/content/newsblogOverlay.js"
-  );
-}
+XPCOMUtils.defineLazyModuleGetters(this, {
+  FeedUtils: "resource:///modules/FeedUtils.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+});
 
 var kDefaultMode = "all";
 

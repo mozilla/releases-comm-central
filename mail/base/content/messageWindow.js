@@ -21,24 +21,17 @@
 /* import-globals-from msgViewNavigation.js */
 /* import-globals-from toolbarIconColor.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
-var { MailConstants } = ChromeUtils.import(
-  "resource:///modules/MailConstants.jsm"
-);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { MsgHdrSyntheticView } = ChromeUtils.import(
-  "resource:///modules/MsgHdrSyntheticView.jsm"
-);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   CustomizableUI: "resource:///modules/CustomizableUI.jsm",
+  MailConstants: "resource:///modules/MailConstants.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+  MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.jsm",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
 

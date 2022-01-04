@@ -36,7 +36,11 @@ var { allAccountsSorted } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailUtils",
+  "resource:///modules/MailUtils.jsm"
+);
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );

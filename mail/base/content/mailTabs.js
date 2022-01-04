@@ -10,17 +10,15 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from msgMail3PaneWindow.js */
 
-var { MsgHdrSyntheticView } = ChromeUtils.import(
-  "resource:///modules/MsgHdrSyntheticView.jsm"
-);
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { getFolderIcon, getSpecialFolderString } = ChromeUtils.import(
   "resource:///modules/folderUtils.jsm"
 );
-var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/MimeMessage.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  GlodaSyntheticView: "resource:///modules/gloda/GlodaSyntheticView.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+  MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.jsm",
+  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm",
+});
 
 /**
  * Displays message "folder"s, mail "message"s, and "glodaList" results.  The

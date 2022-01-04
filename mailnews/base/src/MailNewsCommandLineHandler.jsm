@@ -8,6 +8,11 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailUtils",
+  "resource:///modules/MailUtils.jsm"
+);
 
 var MAPI_STARTUP_ARG = "MapiStartup";
 var MESSAGE_ID_PARAM = "?messageid=";
@@ -30,8 +35,6 @@ MailNewsCommandLineHandler.prototype = {
    *   Don't do anything for now.
    */
   handle(aCommandLine) {
-    // Do this here because xpcshell isn't too happy with this at startup
-    var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
     // -mail <URL>
     let mailURL = null;
     try {

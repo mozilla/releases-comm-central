@@ -6,7 +6,12 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Color } = ChromeUtils.import("resource://gre/modules/Color.jsm");
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "Color",
+  "resource://gre/modules/Color.jsm"
+);
 
 var EXPORTED_SYMBOLS = ["TagUtils"];
 

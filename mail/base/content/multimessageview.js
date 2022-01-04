@@ -18,12 +18,15 @@ var { DisplayNameUtils } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 var { PluralStringFormatter, makeFriendlyDateAgo } = ChromeUtils.import(
   "resource:///modules/TemplateUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  TagUtils: "resource:///modules/TagUtils.jsm",
+});
 
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 

@@ -23,7 +23,11 @@ var { AppConstants } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailUtils",
+  "resource:///modules/MailUtils.jsm"
+);
 var { E10SUtils } = ChromeUtils.import("resource://gre/modules/E10SUtils.jsm");
 
 var gSpellChecker = new InlineSpellChecker();

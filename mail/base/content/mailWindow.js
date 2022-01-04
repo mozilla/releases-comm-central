@@ -17,10 +17,6 @@
 // From netError.js
 /* globals retryThis */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
@@ -31,6 +27,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   appIdleManager: "resource:///modules/AppIdleManager.jsm",
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
 XPCOMUtils.defineLazyScriptGetter(

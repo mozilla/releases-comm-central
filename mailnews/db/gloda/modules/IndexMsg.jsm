@@ -17,8 +17,11 @@ const EXPORTED_SYMBOLS = ["GlodaMsgIndexer"];
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailUtils",
+  "resource:///modules/MailUtils.jsm"
+);
 const { GlodaDatastore } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );

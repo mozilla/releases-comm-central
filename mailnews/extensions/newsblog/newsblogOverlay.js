@@ -6,17 +6,19 @@
 /* globals ReloadMessage, getBrowser, openContentTab, gDBView,
            GetNumSelectedMessages, gMessageNotificationBar */
 
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/MimeMessage.jsm"
-);
-var { MailE10SUtils } = ChromeUtils.import(
-  "resource:///modules/MailE10SUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  FeedUtils: "resource:///modules/FeedUtils.jsm",
+  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
+  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm",
+});
 
 // This global is for SeaMonkey compatibility.
 var gShowFeedSummary;

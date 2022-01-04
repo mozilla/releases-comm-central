@@ -10,11 +10,17 @@ const EXPORTED_SYMBOLS = ["AppUpdateUI"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailUtils",
+  "resource:///modules/MailUtils.jsm"
+);
+
 const PREF_APP_UPDATE_UNSUPPORTED_URL = "app.update.unsupported.url";
 
 const ANCHOR_ID = "app-update-notification-icon";

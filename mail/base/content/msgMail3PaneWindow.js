@@ -24,31 +24,31 @@
 /* globals loadCalendarComponent */
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { SessionStoreManager } = ChromeUtils.import(
-  "resource:///modules/SessionStoreManager.jsm"
-);
-var { SummaryFrameManager } = ChromeUtils.import(
-  "resource:///modules/SummaryFrameManager.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 var { MailConstants } = ChromeUtils.import(
   "resource:///modules/MailConstants.jsm"
 );
-var { Color } = ChromeUtils.import("resource://gre/modules/Color.jsm");
-var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
+  Color: "resource://gre/modules/Color.jsm",
+  CustomizableUI: "resource:///modules/CustomizableUI.jsm",
   JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
+  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
+  MailConsts: "resource:///modules/MailConsts.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
   msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
+  SessionStoreManager: "resource:///modules/SessionStoreManager.jsm",
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
+  SummaryFrameManager: "resource:///modules/SummaryFrameManager.jsm",
+  TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
 // A stub for tests to avoid test failures caused by the harness expecting
@@ -56,13 +56,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 var NewTabPagePreloading = {
   removePreloadedBrowser() {},
 };
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
-  CustomizableUI: "resource:///modules/CustomizableUI.jsm",
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
-});
 
 XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
   let { PopupNotifications } = ChromeUtils.import(

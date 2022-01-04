@@ -16,7 +16,11 @@ const EXPORTED_SYMBOLS = [
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailUtils",
+  "resource:///modules/MailUtils.jsm"
+);
 var LOG = console.createInstance({
   prefix: "gloda.datamodel",
   maxLogLevel: "Warn",

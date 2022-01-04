@@ -17,40 +17,20 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
-var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var { GlodaSyntheticView } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaSyntheticView.jsm"
-);
-var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
-);
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
-var { AddonManager } = ChromeUtils.import(
-  "resource://gre/modules/AddonManager.jsm"
-);
-var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
-var { MessageArchiver } = ChromeUtils.import(
-  "resource:///modules/MessageArchiver.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-var { BrowserToolboxLauncher } = ChromeUtils.import(
-  "resource://devtools/client/framework/browser-toolbox/Launcher.jsm"
-);
-var { ExtensionParent } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionParent.jsm"
-);
-var { ExtensionSupport } = ChromeUtils.import(
-  "resource:///modules/ExtensionSupport.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AddonManager: "resource://gre/modules/AddonManager.jsm",
+  BrowserToolboxLauncher:
+    "resource://devtools/client/framework/browser-toolbox/Launcher.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+  MimeParser: "resource:///modules/mimeParser.jsm",
+  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
+  TagUtils: "resource:///modules/TagUtils.jsm",
+});
+
 Object.defineProperty(this, "BrowserConsoleManager", {
   get() {
     let { loader } = ChromeUtils.import(

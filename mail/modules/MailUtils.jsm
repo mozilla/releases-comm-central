@@ -4,7 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-const { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -12,8 +11,11 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
-
-var MC = MailConsts;
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailConsts",
+  "resource:///modules/MailConsts.jsm"
+);
 
 /**
  * This module has several utility functions for use by both core and
@@ -191,9 +193,11 @@ var MailUtils = {
       "mail.openMessageBehavior"
     );
 
-    if (openMessageBehavior == MC.OpenMessageBehavior.NEW_WINDOW) {
+    if (openMessageBehavior == MailConsts.OpenMessageBehavior.NEW_WINDOW) {
       this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
-    } else if (openMessageBehavior == MC.OpenMessageBehavior.EXISTING_WINDOW) {
+    } else if (
+      openMessageBehavior == MailConsts.OpenMessageBehavior.EXISTING_WINDOW
+    ) {
       // Try reusing an existing window. If we can't, fall back to opening new
       // windows
       if (
@@ -202,7 +206,7 @@ var MailUtils = {
       ) {
         this.openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone);
       }
-    } else if (openMessageBehavior == MC.OpenMessageBehavior.NEW_TAB) {
+    } else if (openMessageBehavior == MailConsts.OpenMessageBehavior.NEW_TAB) {
       let mail3PaneWindow = null;
       if (!aTabmail) {
         // Try opening new tabs in a 3pane window

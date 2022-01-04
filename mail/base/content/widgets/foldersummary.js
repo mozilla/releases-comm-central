@@ -17,7 +17,14 @@
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
-  const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+
+  const LazyModules = {};
+
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "MailUtils",
+    "resource:///modules/MailUtils.jsm"
+  );
 
   /**
    * MozFolderSummary displays a listing of NEW mails for the folder in question.
