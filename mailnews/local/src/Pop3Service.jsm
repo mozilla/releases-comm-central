@@ -26,6 +26,15 @@ class Pop3Service {
     return this._getMail(false, msgWindow, urlListener, inbox, server);
   }
 
+  verifyLogon(server, urlListener, msgWindow) {
+    let client = new Pop3Client(server);
+    client.connect();
+    client.onOpen = () => {
+      client.verifyLogon(msgWindow, urlListener);
+    };
+    return client.runningUri;
+  }
+
   addListener(listener) {
     this._listeners.push(listener);
   }

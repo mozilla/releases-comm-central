@@ -246,8 +246,8 @@ SmtpServer.prototype = {
     this.password = "";
   },
 
-  verifyLogon(urlListner, msgWindow) {
-    return MailServices.smtp.verifyLogon(this, urlListner, msgWindow);
+  verifyLogon(urlListener, msgWindow) {
+    return MailServices.smtp.verifyLogon(this, urlListener, msgWindow);
   },
 
   clearAllValues() {

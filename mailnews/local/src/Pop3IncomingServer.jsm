@@ -81,6 +81,10 @@ class Pop3IncomingServer extends MsgIncomingServer {
     return MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
   }
 
+  verifyLogon(urlListener, msgWindow) {
+    return MailServices.pop3.verifyLogon(this, urlListener, msgWindow);
+  }
+
   /** @see nsILocalMailIncomingServer */
   createDefaultMailboxes() {
     for (let name of ["Inbox", "Trash"]) {

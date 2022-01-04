@@ -45,7 +45,7 @@ class Pop3Client {
     // Somehow, Services.io.newURI("pop3://localhost") doesn't work, what we
     // need is just a valid nsIMsgMailNewsUrl to propagate OnStopRunningUrl and
     // secInfo.
-    this._runningUri = Services.io
+    this.runningUri = Services.io
       .newURI(`smtp://${this._server.realHostName}:${this._server.port}`)
       .mutate()
       .setScheme("pop3")
@@ -114,6 +114,7 @@ class Pop3Client {
     this._msgWindow = msgWindow;
     this._urlListener = urlListener;
     this._sink.folder = folder;
+    this._actionAfterAuth = this._actionStat;
 
     await this._loadUidlState();
     if (this._server.pop3CapabilityFlags & POP3_AUTH_MECH_UNDEFINED) {
@@ -121,6 +122,14 @@ class Pop3Client {
     } else {
       this._actionCapa();
     }
+  }
+
+  verifyLogon(msgWindow, urlListener) {
+    this._msgWindow = msgWindow;
+    this._urlListener = urlListener;
+    this._verifyLogon = true;
+    this._actionAfterAuth = this._actionDone;
+    this._actionCapa();
   }
 
   /**
@@ -190,7 +199,7 @@ class Pop3Client {
     this._logger.error(event, event.name, event.message, event.errorCode);
     let secInfo = event.target.transport?.securityInfo;
     if (secInfo) {
-      this._runningUri.failedSecInfo = secInfo;
+      this.runningUri.failedSecInfo = secInfo;
     }
     this._actionDone(event.errorCode);
   };
@@ -541,11 +550,15 @@ class Pop3Client {
   _actionAuthResponse = res => {
     if (res.success) {
       this._authenticating = false;
-      this._actionStat();
+      this._actionAfterAuth();
     } else {
       if (this._nextAuthMethod) {
         // Try the next auth method.
         this._actionAuth();
+        return;
+      }
+
+      if (this._verifyLogon) {
         return;
       }
 
@@ -837,6 +850,6 @@ class Pop3Client {
     this._authenticating = false;
     this.quit();
     this._writeUidlState();
-    this._urlListener.OnStopRunningUrl(this._runningUri, status);
+    this._urlListener.OnStopRunningUrl(this.runningUri, status);
   };
 }
