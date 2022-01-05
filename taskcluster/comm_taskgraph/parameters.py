@@ -15,7 +15,7 @@ from voluptuous import (
     Required,
 )
 
-from gecko_taskgraph.parameters import extend_parameters_schema
+from taskgraph.parameters import extend_parameters_schema
 from gecko_taskgraph.util.partials import populate_release_history
 from gecko_taskgraph.util.backstop import is_backstop
 
