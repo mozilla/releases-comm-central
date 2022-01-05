@@ -23,12 +23,15 @@ def register(graph_config):
     Import all modules that are siblings of this one, triggering decorators in
     the process.
     """
+    from comm_taskgraph.parameters import register_parameters
+
     logger.info("{} path registered".format(__name__))
+    register_parameters()
+
     set_optimization_schema(thunderbird_optimizations)
     _import_modules(
         [
             "documentation",
-            "parameters",
             "util.docker",
             "actions",
             "target_tasks",
