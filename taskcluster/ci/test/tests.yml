@@ -35,7 +35,6 @@ xpcshell:
             .*-tsan.*/opt: 7200
             default: 2700
     allow-software-gl-layers: false
-    python-3: true
     mozharness:
         script: desktop_unittest.py
         config:
@@ -104,7 +103,6 @@ mochitest-thunderbird:
             linux.*64-tsan.*/opt: 15
             windows10-64-asan.*/opt: 9
             default: 7
-    python-3: true
     mozharness:
         script: desktop_unittest.py
         mochitest-flavor: browser
