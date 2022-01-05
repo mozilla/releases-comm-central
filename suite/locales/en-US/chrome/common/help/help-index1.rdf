@@ -925,11 +925,6 @@
 <rdf:Description about="help-indexAZ.rdf#j">
    <nc:subheadings>
      <rdf:Seq><rdf:li>
-       <rdf:Description ID="java"
-         nc:name="Java"
-         nc:link="nav_help.xhtml#plugins_and_downloads"/>
-     </rdf:li>
-     <rdf:li>
        <rdf:Description ID="JavaScript"
          nc:name="JavaScript"/>
      </rdf:li></rdf:Seq>
