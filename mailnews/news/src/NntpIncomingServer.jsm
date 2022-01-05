@@ -70,6 +70,9 @@ class NntpIncomingServer extends MsgIncomingServer {
       // No folder creation on news servers.
       get: () => false,
     });
+    Object.defineProperty(this, "canFileMessagesOnServer", {
+      get: () => false,
+    });
 
     // nsISubscribableServer attributes.
     this.supportsSubscribeSearch = true;
@@ -434,6 +437,23 @@ class NntpIncomingServer extends MsgIncomingServer {
     for (let folder of newsFolder.subFolders) {
       folder.QueryInterface(Ci.nsIMsgNewsFolder);
       folder.forgetAuthenticationCredentials();
+    }
+  }
+
+  groupNotFound(msgWindow, groupName, opening) {
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/news.properties"
+    );
+    let result = Services.prompt.confirm(
+      msgWindow,
+      null,
+      bundle.formatStringFromName("autoUnsubscribeText", [
+        groupName,
+        this.realHostName,
+      ])
+    );
+    if (result) {
+      this.unsubscribe(groupName);
     }
   }
 

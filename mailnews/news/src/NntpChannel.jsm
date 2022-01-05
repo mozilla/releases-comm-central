@@ -10,6 +10,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
+  Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
 });
 
@@ -60,7 +61,11 @@ class NntpChannel {
       );
       this._articleNumber = url.searchParams.get("key");
     } else {
-      this._messageId = url.pathname.slice(1);
+      this._messageId = decodeURIComponent(url.pathname.slice(1));
+      if (!this._messageId.includes("@")) {
+        this._groupName = this._messageId;
+        this._messageId = null;
+      }
     }
 
     // nsIChannel attributes.
@@ -132,6 +137,29 @@ class NntpChannel {
   }
 
   asyncOpen(listener) {
+    if (this._groupName && !this._server.containsNewsgroup(this._groupName)) {
+      let bundle = Services.strings.createBundle(
+        "chrome://messenger/locale/news.properties"
+      );
+      let result = Services.prompt.confirm(
+        null,
+        null,
+        bundle.formatStringFromName("autoSubscribeText", [this._groupName])
+      );
+      if (result) {
+        this._server.subscribeToNewsgroup(this._groupName);
+      } else {
+        return;
+      }
+    }
+
+    if (this._groupName && !this._articleNumber && !this._messageId) {
+      MailServices.mailSession.topmostMsgWindow.windowCommands.selectFolder(
+        this._server.findGroup(this._groupName).URI
+      );
+      return;
+    }
+
     this._listener = listener;
     if (this.URI.spec.includes("?part=") || this.URI.spec.includes("&part=")) {
       let converter = Cc["@mozilla.org/streamConverters;1"].getService(

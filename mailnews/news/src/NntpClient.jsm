@@ -428,8 +428,20 @@ class NntpClient {
       this._sendCommand(`GROUP ${this._nextGroupName}`);
       this._currentAction = this._actionGroup;
       this._currentGroupName = this._nextGroupName;
-      this._nextAction = this._firstGroupCommand;
+      this._nextAction = this._actionGroupResponse;
     }
+  };
+
+  /**
+   * Handle GROUP response.
+   * @param {NntpResponse} res - GROUP response received from the server.
+   */
+  _actionGroupResponse = res => {
+    if (res.status == 411) {
+      this._server.groupNotFound(null, this._currentGroupName, true);
+      return;
+    }
+    this._firstGroupCommand(res);
   };
 
   /**
