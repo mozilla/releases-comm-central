@@ -14,26 +14,34 @@ let defaultIdentity = addIdentity(account);
 let localAccount = createAccount("local");
 let outbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
 
-// We can't allow sending to actually happen, this is a test. For every
-// compose window that opens, replace the function which does the actual
-// sending with one that only records when it has been called.
-let didTryToSendMessage = false;
-let windowListenerRemoved = false;
-ExtensionSupport.registerWindowListener("mochitest", {
-  chromeURLs: [
-    "chrome://messenger/content/messengercompose/messengercompose.xhtml",
-  ],
-  onLoadWindow(window) {
-    window.CompleteGenericSendMessage = function(msgType) {
-      didTryToSendMessage = true;
-    };
+var MockCompleteGenericSendMessage = {
+  _didTryToSendMessage: false,
+
+  getSendStatus() {
+    return MockCompleteGenericSendMessage._didTryToSendMessage;
   },
-});
-registerCleanupFunction(() => {
-  if (!windowListenerRemoved) {
-    ExtensionSupport.unregisterWindowListener("mochitest");
-  }
-});
+
+  register() {
+    // For every compose window that opens, replace the function which does the
+    // actual sending with one that only records when it has been called.
+    MockCompleteGenericSendMessage._didTryToSendMessage = false;
+    ExtensionSupport.registerWindowListener("MockCompleteGenericSendMessage", {
+      chromeURLs: [
+        "chrome://messenger/content/messengercompose/messengercompose.xhtml",
+      ],
+      onLoadWindow(window) {
+        window.CompleteGenericSendMessage = function(msgType) {
+          MockCompleteGenericSendMessage._didTryToSendMessage = true;
+        };
+      },
+    });
+  },
+
+  unregister() {
+    MockCompleteGenericSendMessage._didTryToSendMessage = false;
+    ExtensionSupport.unregisterWindowListener("MockCompleteGenericSendMessage");
+  },
+};
 
 function messagesInOutbox(count) {
   info(`Checking for ${count} messages in outbox`);
@@ -60,7 +68,141 @@ function messagesInOutbox(count) {
   });
 }
 
+add_task(async function test_send() {
+  MockCompleteGenericSendMessage.register();
+
+  let files = {
+    "background.js": async () => {
+      let details = {
+        to: ["send@test.invalid"],
+        subject: "Test send",
+      };
+
+      // Open a compose window with a message. The message will never send
+      // because we removed the sending function.
+
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew(details);
+      let [createdWindow] = await createdWindowPromise;
+      browser.test.assertEq("messageCompose", createdWindow.type);
+
+      await window.sendMessage("checkWindow", details);
+
+      let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+
+      // Send now.
+
+      await browser.compose.sendMessage(tab.id);
+      await window.sendMessage("checkIfSent", details);
+
+      // Clean up.
+
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(createdWindow.id);
+      await removedWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "compose.send"],
+    },
+  });
+
+  extension.onMessage("checkIfSent", async expected => {
+    // A send request should trigger a direct send.
+    await TestUtils.waitForCondition(
+      () => MockCompleteGenericSendMessage.getSendStatus(),
+      "Should try to send the message directly"
+    );
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkWindow", async expected => {
+    await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  MockCompleteGenericSendMessage.unregister();
+});
+
+add_task(async function test_sendDefault() {
+  MockCompleteGenericSendMessage.register();
+
+  let files = {
+    "background.js": async () => {
+      let details = {
+        to: ["sendDefault@test.invalid"],
+        subject: "Test sendDefault",
+      };
+
+      // Open a compose window with a message. The message will never send
+      // because we removed the sending function.
+
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew(details);
+      let [createdWindow] = await createdWindowPromise;
+      browser.test.assertEq("messageCompose", createdWindow.type);
+
+      await window.sendMessage("checkWindow", details);
+
+      let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+
+      // Send now.
+
+      await browser.compose.sendMessage(tab.id, { mode: "default" });
+      await window.sendMessage("checkIfSent", details);
+
+      // Clean up.
+
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(createdWindow.id);
+      await removedWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "compose.send"],
+    },
+  });
+
+  extension.onMessage("checkIfSent", async expected => {
+    // A send request should trigger a direct send.
+    await TestUtils.waitForCondition(
+      () => MockCompleteGenericSendMessage.getSendStatus(),
+      "Should try to send the message directly"
+    );
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkWindow", async expected => {
+    await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  MockCompleteGenericSendMessage.unregister();
+});
+
 add_task(async function test_sendNow() {
+  MockCompleteGenericSendMessage.register();
+
   let files = {
     "background.js": async () => {
       let details = {
@@ -104,13 +246,11 @@ add_task(async function test_sendNow() {
   });
 
   extension.onMessage("checkIfSent", async expected => {
-    // Wait a moment to see if send happens asynchronously.
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // A sendNow request should trigger a direct send.
-    is(didTryToSendMessage, true, "did try to send a message directly");
-    didTryToSendMessage = false;
+    // A send request should trigger a direct send.
+    await TestUtils.waitForCondition(
+      () => MockCompleteGenericSendMessage.getSendStatus(),
+      "Should try to send the message directly"
+    );
     extension.sendMessage();
   });
 
@@ -123,8 +263,7 @@ add_task(async function test_sendNow() {
   await extension.awaitFinish("finished");
   await extension.unload();
 
-  ExtensionSupport.unregisterWindowListener("mochitest");
-  windowListenerRemoved = true;
+  MockCompleteGenericSendMessage.unregister();
 });
 
 add_task(async function test_sendLater() {
@@ -162,14 +301,6 @@ add_task(async function test_sendLater() {
   });
 
   extension.onMessage("checkIfSent", async expected => {
-    // Wait a moment to see if send happens asynchronously.
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // A sendLater request should not trigger a direct send.
-    is(didTryToSendMessage, false, "did try to send a message directly");
-    didTryToSendMessage = false;
-
     // Check if the sendLater request did put the message in the outbox.
     await messagesInOutbox(1);
 

@@ -807,8 +807,8 @@ this.compose = class extends ExtensionAPI {
           return tabManager.convert(composeWindow);
         },
 
-        async sendMessage(tabId, options = {}) {
-          let command = composeCommands.getCommand(options.mode);
+        async sendMessage(tabId, options) {
+          let command = composeCommands.getCommand(options?.mode);
           let tab = getComposeTab(tabId);
           return composeCommands.goDoCommand(tab, command);
         },
