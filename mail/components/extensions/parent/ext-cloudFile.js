@@ -94,7 +94,13 @@ class CloudFileAccount {
   }
 
   /**
-   * @typedef FileUpload
+   * @typedef CloudFileDate
+   * @property {integer} timestamp - milliseconds since epoch
+   * @property {DateTimeFormat} format - format object of Intl.DateTimeFormat
+   */
+
+  /**
+   * @typedef CloudFileUpload
    * // Values used in the WebExtension CloudFile type.
    * @property {string} id - uploadId of the file
    * @property {string} name - name of the file
@@ -106,7 +112,10 @@ class CloudFileAccount {
    * // Template information.
    * @property {string} serviceName - name of the upload service provider
    * @property {string} serviceIcon - icon of the upload service provider
-   * @property {string} serviceURL - web interface of the upload service provider
+   * @property {string} serviceUrl - web interface of the upload service provider
+   * @property {boolean} downloadPasswordProtected - link is password protected
+   * @property {integer} downloadLimit - download limit of the link
+   * @property {CloudFileDate} downloadExpiryDate - expiry date of the link
    */
 
   /**
@@ -120,7 +129,7 @@ class CloudFileAccount {
    * @param {nsIFile} file File to be uploaded.
    * @param {String} [name] Name of the file after it has been uploaded. Defaults
    *   to the original filename of the uploaded file.
-   * @returns {FileUpload} Information about the uploaded file.
+   * @returns {CloudFileUpload} Information about the uploaded file.
    */
   async uploadFile(window, file, name = file.leafName) {
     let data;
@@ -169,7 +178,10 @@ class CloudFileAccount {
       // Template information.
       serviceName: this.displayName,
       serviceIcon: this.iconURL,
-      serviceURL: this.extension.manifest.cloud_file.service_url,
+      serviceUrl: "",
+      downloadPasswordProtected: false,
+      downloadLimit: 0,
+      downloadExpiryDate: null,
     };
 
     this._uploads.set(id, upload);
@@ -236,8 +248,32 @@ class CloudFileAccount {
             results[0].templateInfo.service_icon
           );
         }
-        if (results[0].templateInfo.service_url != null) {
-          upload.serviceURL = results[0].templateInfo.service_url;
+        if (results[0].templateInfo.service_url) {
+          upload.serviceUrl = results[0].templateInfo.service_url;
+        }
+        if (results[0].templateInfo.download_password_protected) {
+          upload.downloadPasswordProtected =
+            results[0].templateInfo.download_password_protected;
+        }
+        if (results[0].templateInfo.download_limit) {
+          upload.downloadLimit = results[0].templateInfo.download_limit;
+        }
+        if (results[0].templateInfo.download_expiry_date) {
+          // Event return value types are not checked by the WebExtension framework,
+          // manual verification is required.
+          if (
+            results[0].templateInfo.download_expiry_date.timestamp &&
+            Number.isInteger(
+              results[0].templateInfo.download_expiry_date.timestamp
+            )
+          ) {
+            upload.downloadExpiryDate =
+              results[0].templateInfo.download_expiry_date;
+          } else {
+            console.warn(
+              "Invalid CloudFileTemplateInfo.download_expiry_date object, the timestamp property is required and it must be of type integer."
+            );
+          }
         }
       }
 
@@ -265,7 +301,7 @@ class CloudFileAccount {
    *   compose window.
    * @param {Integer} uploadId Id of the uploaded file.
    * @param {String} newName The requested new name of the file.
-   * @returns {FileUpload} Information about the renamed file.
+   * @returns {CloudFileUpload} Information about the renamed file.
    */
   async renameFile(window, uploadId, newName) {
     if (!this._uploads.has(uploadId)) {
@@ -438,9 +474,6 @@ this.cloudFile = class extends ExtensionAPI {
             return extension.baseURI.resolve(icon);
           }
           return "chrome://messenger/content/extension.svg";
-        },
-        get serviceURL() {
-          return extension.manifest.cloud_file.service_url;
         },
         initAccount(accountKey) {
           return new CloudFileAccount(accountKey, extension);
