@@ -122,67 +122,77 @@
     extends: "div",
   });
 
-  class MozMailHeaderfieldTags extends MozXULElement {
+  class MozMessageTags extends HTMLUListElement {
+    constructor() {
+      super();
+      this.setAttribute("is", "message-header-tags");
+      this.classList.add("header-value-list");
+    }
+
     connectedCallback() {
-      this.classList.add("headerValue");
+      if (this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
+      this.labelNode = this.parentElement.querySelector(
+        ".message-header-label"
+      );
     }
 
     set headerValue(val) {
       this.buildTags(val);
     }
 
+    /*
+     * @param {String} tags - Space delimited string of tag keys (not display
+     *                        names).
+     */
     buildTags(tags) {
-      // tags contains a list of actual tag names (not the keys), delimited by spaces
-      // each tag name is encoded.
-
-      // remove any existing tag items we've appended to the list
+      // Remove any existing tag items we've appended to the list.
       this.replaceChildren();
 
-      // tokenize the keywords based on ' '
-      const tagsArray = tags.split(" ");
-      for (let i = 0; i < tagsArray.length; i++) {
-        // for each tag, create a label, give it the font color that corresponds to the
-        // color of the tag and append it.
+      let tagKeysArray = tags.split(" ");
+      for (let tagKey of tagKeysArray) {
+        // For each tag, create a label, give it the font color that
+        // corresponds to the color of the tag and append it.
         let tagName;
         try {
-          // if we got a bad tag name, getTagForKey will throw an exception, skip it
-          // and go to the next one.
-          tagName = MailServices.tags.getTagForKey(tagsArray[i]);
+          // If we got a bad tag name, getTagForKey() will throw an exception;
+          // skip it and go to the next one.
+          tagName = MailServices.tags.getTagForKey(tagKey);
         } catch (ex) {
           continue;
         }
 
-        let color = MailServices.tags.getColorForKey(tagsArray[i]);
+        let color = MailServices.tags.getColorForKey(tagKey);
         let textColor = "black";
         if (!LazyModules.TagUtils.isColorContrastEnough(color)) {
           textColor = "white";
         }
 
-        // now create a label for the tag name, and set the color
-        const label = document.createXULElement("label");
-        label.setAttribute("value", tagName);
-        label.className = "tagvalue";
-        label.setAttribute(
+        // Now create a node for the tag name and set the color.
+        let valueNode = document.createElement("li");
+        valueNode.setAttribute("tabindex", "0");
+        valueNode.classList.add("message-header-value-tag");
+        valueNode.textContent = tagName;
+        valueNode.setAttribute(
           "style",
           "color: " + textColor + "; background-color: " + color + ";"
         );
 
-        // Solve the accessibility problem by manually fetching the translated
-        // string from the label and updating the attribute. Bug 1493608
-        let ariaLabel = document.getElementById(
-          this.getAttribute("aria-labelledby")
-        );
-        label.setAttribute(
+        valueNode.setAttribute(
           "aria-label",
-          `${ariaLabel.textContent}: ${tagName}`
+          `${this.labelNode.textContent}: ${tagName}`
         );
-        label.removeAttribute("aria-labelledby");
 
-        this.appendChild(label);
+        this.appendChild(valueNode);
       }
     }
   }
-  customElements.define("mail-tagfield", MozMailHeaderfieldTags);
+  customElements.define("message-header-tags", MozMessageTags, {
+    extends: "ul",
+  });
 
   class MozMailNewsgroup extends MozXULElement {
     connectedCallback() {

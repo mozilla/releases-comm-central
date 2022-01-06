@@ -333,13 +333,15 @@ let headersToTest = [
   {
     headerName: "Tags",
     headerValueElement(mc) {
-      return mc.window.document.querySelector("#expandedtagsBox > .tagvalue");
+      return mc.window.document.querySelector(
+        "#expandedtagsBox > .message-header-value-tag"
+      );
     },
     expectedName(mc, headerValueElement) {
       return (
         mc.e("expandedtagsLabel").textContent +
         ": " +
-        headerValueElement.getAttribute("value")
+        headerValueElement.textContent
       );
     },
   },

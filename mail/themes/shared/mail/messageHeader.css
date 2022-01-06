@@ -73,10 +73,6 @@
   height: 4px;
 }
 
-mail-tagfield[collapsed="true"] {
-  display: none;
-}
-
 /* ::::: msg header buttons ::::: */
 
 #otherActionsButton > .toolbarbutton-icon {
@@ -347,16 +343,24 @@ mail-multi-emailheaderfield, mail-newsgroups-headerfield {
   margin: 0;
 }
 
+.header-value-list {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
 .message-header-value {
   display: flex;
 }
 
-.message-header-value:focus-visible:not(:hover) {
+.message-header-value:focus-visible:not(:hover),
+.message-header-value-tag:focus-visible:not(:hover) {
   outline: 1px solid var(--focus-outline-color);
   outline-offset: 1px;
 }
 
-.message-header-value:focus-visible:hover {
+.message-header-value:focus-visible:hover,
+.message-header-value-tag:focus-visible:hover {
   outline: 0;
 }
 
@@ -399,14 +403,15 @@ mail-newsgroups-headerfield {
   color: darkred;
 }
 
-.tagvalue {
+.message-header-value-tag {
+  display: flex;
   padding: 0 0.5ex;
-  margin-inline-start: 0;
+  margin-inline: 0 5px;
   background-image: linear-gradient(rgba(255,255,255,0.35),
                                     rgba(255,255,255,0.35));
   border-radius: 3px;
-  border-width: 0.5px;
-  border-style: outset;
+  outline-width: 0.5px;
+  outline-style: outset;
   text-shadow: 0 1px 0 rgba(238, 238, 236, 0.4); /* Tango Alumninum 1 */
   color: #111111;
 }
