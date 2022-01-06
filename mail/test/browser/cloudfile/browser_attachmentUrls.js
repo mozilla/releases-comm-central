@@ -82,13 +82,12 @@ function test_expected_included(actual, expected, description) {
     expected.length,
     `${description}: correct length`
   );
-
   for (let i = 0; i < expected.length; i++) {
     for (let item of Object.keys(expected[i])) {
-      Assert.deepEqual(
+      Assert.equal(
         actual[i][item],
         expected[i][item],
-        `${description}: ${item} should exist and be correct`
+        `${description}: ${item} exists and is correct`
       );
     }
   }
@@ -144,12 +143,6 @@ function setupTest() {
  * Given some compose window controller, wait for some Filelink URLs to be
  * inserted.
  *
- * Note: This function also validates, if the correct items have been added to
- *       the template (serviceUrl, downloadLimit, downloadExpiryDate,
- *       downloadPasswordProtected). There is no dedicated test for the different
- *       conditions, but the tests in this file are using different setups.
- *       See the values in the used provider.init() calls.
- *
  * @param aController the controller for a compose window.
  * @param aNumUrls the number of Filelink URLs that are expected.
  * @param aUploads an array containing the objects returned by
@@ -171,16 +164,6 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
     "#cloudAttachmentListRoot > #cloudAttachmentList"
   );
 
-  let header = wait_for_element(
-    mailBody,
-    "#cloudAttachmentListRoot > #cloudAttachmentListHeader"
-  );
-
-  let footer = wait_for_element(
-    mailBody,
-    "#cloudAttachmentListRoot > #cloudAttachmentListFooter"
-  );
-
   let urls = null;
   aController.waitFor(function() {
     urls = mailBody.querySelectorAll(
@@ -192,137 +175,59 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
   Assert.equal(
     aUploads.length,
     aNumUrls,
-    "Number of links should match number of linked files."
+    "Number of uploads matches number of uploaded files."
   );
-
-  Assert.equal(
-    header.textContent,
-    aNumUrls == 1
-      ? `I've linked 1 file to this email:`
-      : `I've linked ${aNumUrls} files to this email:`,
-    "Number of links mentioned in header should matches number of linked files."
-  );
-
-  let footerExpected = false;
-  for (let entry of aUploads) {
-    if (!entry.serviceUrl) {
-      continue;
-    }
-
-    footerExpected = true;
-    Assert.ok(
-      footer.innerHTML.includes(entry.serviceUrl),
-      `Footer "${footer.innerHTML}" should include serviceUrl "${entry.serviceUrl}".`
-    );
-    Assert.ok(
-      footer.innerHTML.includes(entry.serviceName),
-      `Footer "${footer.innerHTML}" should include serviceName "${entry.serviceName}".`
-    );
-  }
-  if (footerExpected) {
-    Assert.ok(
-      footer.innerHTML.startsWith("Learn more about"),
-      `Footer "${footer.innerHTML}" should start with "Learn more about "`
-    );
-  } else {
-    Assert.ok(
-      footer.innerHTML == "",
-      `Footer should be empty if no serviceUrl is specified.`
-    );
-  }
 
   let bucket = aController.e("attachmentBucket");
 
   // Check the actual content of the generated cloudAttachmentItems.
   for (let i = 0; i < urls.length; i++) {
     if (aController.window.gMsgCompose.composeHTML) {
-      // Test HTML message.
-
-      let paperClipIcon = urls[i].querySelector(".paperClipIcon");
+      let downloadUrl = urls[i].querySelector(".downloadUrl");
       Assert.equal(
-        aUploads[i].downloadPasswordProtected
-          ? "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIfSURBVFhH7ZfLK0RRHMfvNd6PMV4Lj5UkO5bslJIdf4ClRw2TlY2yt2EhsZO9DYoFoiSvJBZkI6SsNMyIiLnH93vmXDF5HNe9pHzqM797fufMPb+Zc4Z7jC+QBnvgJryD93AddkH2eUop3IPiHXdgCfSEdLgLOdE+bIFFSl4zZxeRAl2HXzsn2IIZTCTAHPs4hsvhOlxz3rxRtt6GfRyzJlsucw1582zZehv2cUxEtlyGN6afkThuFa7EL7+H0wK03pek4q/xJwtYVv4YumurO+4V/3vgvwAvC5iHTfHL9zFV/Ah7J9tjE9s2r/K3YwWlD8IaREP+ExPCWBDJVl+gM3LEto0nBURHCiuNpBiflvLjqWcufDFfdVbo4ly1PVoC0xrAaz4qnLdiVjk1hVhArvDRFxuSYxQeFSAaGHzCbAuEIsf0URjtsithX3i1Cf18yewKn8kWyOu+OlWXuSpKnBRwpWKxioTXi7BCtr6Ak004BZvhJAwyAUZhb3Q0bwKxXmY+xVzyB8MNOgXwE/NrC0A+clXBDZV7iYkC7GK18AcvTZ0lOFGRE5NDWAtn4A28hdPQEToFcG1Jq4qERXAZ+DCaBXk+cIROAePQgh2whgk30SngAA7CVDgLq6Fr6P4M++Ec5PmPp6BhWAdzIA+m3BOO0C2AJ2GuMyfme0KQp6Ao5EmZf/fLDGFuI2oi+EEcUQm5JDywhpWc2MFGNIwn/WmcKhqF50UAAAAASUVORK5CYII="
-          : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAVFJREFUWIXtl8FKw0AQhj8EbQ/p0Ut8AVEPgYLUB+i5L6J9E0Wtr1HPgl48WU8K1Tfw4LktxUAhHvZfiMXUbdhVhB0Yms78M/NldwkJuFsD6AMjYCYfASfKBbUd4BkoKvxJmiDWKA1/AXrAtrynmIUIshJ9DXgEmt/km8oVwHEIANu8u0LTleYhBMBUzZMVmkSaSQgAe9DW1d3L/wzAqW6jJpQ3+5cA3vbW1Vz3Np6BCBABIkAE+DWAmX7TUixdynm15Wf6jf5fa3Cq60K5qrraNuHrK1kbmJcGWJ8rB9DC4yvaq5odlmK7wBB4lw8Vs9ZRzdgHwLmaXa5RM1DNmQ+AA2ABfACZgz4DctXs+QAAuMLc0dsPEJk0BXDhazjAFnCnxjlmiTuYg5kAR4rl0twCmz4BLMQAs7RVH6kLzJ17H162fczhGmO+mqa6PqXGnn8CxMN0PcC9DrQAAAAASUVORK5CYII=",
-        paperClipIcon.src,
-        "The paperClipIcon should be correct."
-      );
-
-      Assert.equal(
-        urls[i].querySelector(".cloudfile-name").href,
+        downloadUrl.href,
         aUploads[i].url,
-        "The link attached to the cloudfile name should be correct."
+        "The seen downloadUrl is correct."
       );
 
-      let providerIcon = urls[i].querySelector(".cloudfile-service-icon");
-      if (providerIcon) {
+      let providerLink = urls[i].querySelector(".providerLink");
+      Assert.ok(
+        !!providerLink == !!aUploads[i].serviceURL,
+        "The providerLink has been correctly added."
+      );
+      if (providerLink) {
         Assert.equal(
-          DATA_URLS[aUploads[i].serviceIcon] || aUploads[i].serviceIcon,
-          providerIcon.src,
-          "The cloufile service icon should be correct."
+          providerLink.href.toLowerCase().replace(/\/$/, ""),
+          aUploads[i].serviceURL.toLowerCase().replace(/\/$/, ""),
+          "The seen providerLink is correct."
         );
       }
 
-      let expected = {
-        url: aUploads[i].downloadPasswordProtected
-          ? ".cloudfile-password-protected-link"
-          : ".cloudfile-link",
-        name: ".cloudfile-name",
-        serviceName: ".cloudfile-service-name",
-        downloadLimit: ".cloudfile-download-limit",
-        downloadExpiryDateString: ".cloudfile-expiry-date",
-      };
+      // The provider name is either embedded into the link, or a stand-alone span.
+      let providerName = providerLink || urls[i].querySelector(".providerName");
+      Assert.equal(
+        providerName.textContent,
+        aUploads[i].serviceName,
+        "The seen providerName is correct."
+      );
 
-      for (let [fieldName, id] of Object.entries(expected)) {
-        let element = urls[i].querySelector(id);
-        Assert.ok(
-          !!element == !!aUploads[i][fieldName],
-          `The ${fieldName} should have been correctly added.`
-        );
-        if (aUploads[i][fieldName]) {
-          Assert.equal(
-            element.textContent,
-            `${aUploads[i][fieldName]}`,
-            `The cloudfile ${fieldName} should be correct.`
-          );
-        } else {
-          Assert.equal(
-            element,
-            null,
-            `The cloudfile ${fieldName} should not be present.`
-          );
-        }
-      }
+      let providerIcon = urls[i].querySelector(".providerIcon");
+      Assert.equal(
+        DATA_URLS[aUploads[i].serviceIcon] || aUploads[i].serviceIcon,
+        providerIcon.src,
+        "The seen providerIcon is correct."
+      );
     } else {
-      // Test plain text message.
-
-      let lines = urls[i].textContent.split("\n");
-      let expected = {
-        url: aUploads[i].downloadPasswordProtected
-          ? `    Password Protected Link: `
-          : `    Link: `,
-        name: `  * `,
-        downloadLimit: `    Download Limit: `,
-        downloadExpiryDateString: `    Expiry Date: `,
-      };
-
-      if (urls[i].serviceUrl) {
-        expected.serviceName = `    CloudFile Service: `;
-      }
-
-      for (let [fieldName, prefix] of Object.entries(expected)) {
-        if (aUploads[i][fieldName]) {
-          let line = `${prefix}${aUploads[i][fieldName]}`;
-          Assert.ok(
-            lines.includes(line),
-            `Line "${line}" should be part of "${lines}".`
-          );
-        } else {
-          !lines.find(
-            line => line.startsWith(prefix),
-            `There should be no line starting with "${prefix}" part of "${lines}".`
-          );
-        }
-      }
+      Assert.ok(
+        urls[i].textContent.startsWith(`* ${aUploads[i].name} (`),
+        "Part 1 of plainttext listitem is correct."
+      );
+      Assert.ok(
+        urls[i].textContent.endsWith(
+          `) hosted on ${aUploads[i].serviceName}: ${aUploads[i].url}`
+        ),
+        "Part 2 of plainttext listitem is correct."
+      );
     }
 
     // Find the bucket entry for this upload.
@@ -369,9 +274,8 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
   let provider = new MockCloudfileAccount();
   provider.init("providerF", {
     serviceName: "MochiTest F",
+    serviceURL: "https://www.provider-F.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-    serviceUrl: "https://www.provider-F.org",
-    downloadLimit: 2,
   });
 
   be_in_folder(gInbox);
@@ -383,25 +287,22 @@ function prepare_some_attachments_and_reply(aText, aFiles) {
   // If we have any typing to do, let's do it.
   type_in_composer(cw, aText);
   let uploads = add_cloud_attachments(cw, provider);
-
   test_expected_included(
     uploads,
     [
       {
         url: "http://www.example.com/providerF/testFile1",
         name: "testFile1",
-        serviceName: "MochiTest F",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-F.org",
-        downloadLimit: 2,
+        serviceName: "MochiTest F",
+        serviceURL: "https://www.provider-F.org",
       },
       {
         url: "http://www.example.com/providerF/testFile2",
         name: "testFile2",
-        serviceName: "MochiTest F",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-F.org",
-        downloadLimit: 2,
+        serviceName: "MochiTest F",
+        serviceURL: "https://www.provider-F.org",
       },
     ],
     `Expected values in uploads array #11`
@@ -430,9 +331,8 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
   let provider = new MockCloudfileAccount();
   provider.init("providerG", {
     serviceName: "MochiTest G",
+    serviceURL: "https://www.provider-G.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-    serviceUrl: "https://www.provider-G.org",
-    downloadExpiryDate: { timestamp: 1639827408073 },
   });
 
   be_in_folder(gInbox);
@@ -454,26 +354,20 @@ function prepare_some_attachments_and_forward(aText, aFiles) {
       {
         url: "http://www.example.com/providerG/testFile1",
         name: "testFile1",
-        serviceName: "MochiTest G",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-G.org",
-        downloadExpiryDate: { timestamp: 1639827408073 },
+        serviceName: "MochiTest G",
+        serviceURL: "https://www.provider-G.org",
       },
       {
         url: "http://www.example.com/providerG/testFile2",
         name: "testFile2",
-        serviceName: "MochiTest G",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-G.org",
-        downloadExpiryDate: { timestamp: 1639827408073 },
+        serviceName: "MochiTest G",
+        serviceURL: "https://www.provider-G.org",
       },
     ],
     `Expected values in uploads array #12`
   );
-
-  // Add the expected time string.
-  uploads[0].downloadExpiryDateString = "18.12.2021, 12:36 MEZ";
-  uploads[1].downloadExpiryDateString = "18.12.2021, 12:36 MEZ";
   let [root] = wait_for_attachment_urls(cw, aFiles.length, uploads);
 
   return [cw, root];
@@ -547,9 +441,8 @@ add_task(function test_inserts_linebreak_on_empty_compose() {
 function subtest_inserts_linebreak_on_empty_compose() {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
-  provider.init("someKey", {
-    downloadPasswordProtected: false,
-  });
+  provider.init("someKey");
+
   let cw = open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, provider);
   test_expected_included(
@@ -558,18 +451,16 @@ function subtest_inserts_linebreak_on_empty_compose() {
       {
         url: "http://www.example.com/someKey/testFile1",
         name: "testFile1",
-        serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "",
-        downloadPasswordProtected: false,
+        serviceName: "default",
+        serviceURL: "",
       },
       {
         url: "http://www.example.com/someKey/testFile2",
         name: "testFile2",
-        serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "",
-        downloadPasswordProtected: false,
+        serviceName: "default",
+        serviceURL: "",
       },
     ],
     `Expected values in uploads array #1`
@@ -604,9 +495,7 @@ function subtest_inserts_linebreak_on_empty_compose() {
 add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
-  provider.init("someKey", {
-    downloadPasswordProtected: true,
-  });
+  provider.init("someKey");
 
   let cw = open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, provider);
@@ -616,18 +505,16 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
       {
         url: "http://www.example.com/someKey/testFile1",
         name: "testFile1",
-        serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "",
-        downloadPasswordProtected: true,
+        serviceName: "default",
+        serviceURL: "",
       },
       {
         url: "http://www.example.com/someKey/testFile2",
         name: "testFile2",
-        serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "",
-        downloadPasswordProtected: true,
+        serviceName: "default",
+        serviceURL: "",
       },
     ],
     `Expected values in uploads array #2`
@@ -676,16 +563,14 @@ add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
         name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
-        serviceUrl: "",
-        downloadPasswordProtected: true,
+        serviceURL: "",
       },
       {
         url: "http://www.example.com/someKey/testFile2",
         name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "default",
-        serviceUrl: "",
-        downloadPasswordProtected: true,
+        serviceURL: "",
       },
     ],
     `Expected values in uploads array #3`
@@ -779,16 +664,16 @@ function subtest_adding_filelinks_to_written_message() {
       {
         url: "http://www.example.com/someKey/testFile1",
         name: "testFile1",
-        serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "",
+        serviceName: "default",
+        serviceURL: "",
       },
       {
         url: "http://www.example.com/someKey/testFile2",
         name: "testFile2",
-        serviceName: "default",
         serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "",
+        serviceName: "default",
+        serviceURL: "",
       },
     ],
     `Expected values in uploads array #4`
@@ -1151,12 +1036,12 @@ function subtest_converting_filelink_updates_urls() {
   let providerB = new MockCloudfileAccount();
   providerA.init("providerA", {
     serviceName: "MochiTest A",
-    serviceUrl: "https://www.provider-A.org",
+    serviceURL: "https://www.provider-A.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
   });
   providerB.init("providerB", {
     serviceName: "MochiTest B",
-    serviceUrl: "https://www.provider-B.org",
+    serviceURL: "https://www.provider-B.org",
   });
 
   let cw = open_compose_new_mail();
@@ -1169,14 +1054,14 @@ function subtest_converting_filelink_updates_urls() {
         name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
-        serviceUrl: "https://www.provider-A.org",
+        serviceURL: "https://www.provider-A.org",
       },
       {
         url: "http://www.example.com/providerA/testFile2",
         name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
-        serviceUrl: "https://www.provider-A.org",
+        serviceURL: "https://www.provider-A.org",
       },
     ],
     `Expected values in uploads array #5`
@@ -1197,14 +1082,14 @@ function subtest_converting_filelink_updates_urls() {
         name: "testFile1",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "MochiTest B",
-        serviceUrl: "https://www.provider-B.org",
+        serviceURL: "https://www.provider-B.org",
       },
       {
         url: "http://www.example.com/providerB/testFile2",
         name: "testFile2",
         serviceIcon: "chrome://messenger/content/extension.svg",
         serviceName: "MochiTest B",
-        serviceUrl: "https://www.provider-B.org",
+        serviceURL: "https://www.provider-B.org",
       },
     ],
     `Expected values in uploads array #6`
@@ -1233,12 +1118,8 @@ function subtest_renaming_filelink_updates_urls() {
   let provider = new MockCloudfileAccount();
   provider.init("providerA", {
     serviceName: "MochiTest A",
+    serviceURL: "https://www.provider-A.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-    serviceUrl: "https://www.provider-A.org",
-    downloadExpiryDate: {
-      timestamp: 1639827408073,
-      format: { dateStyle: "short" },
-    },
   });
 
   let cw = open_compose_new_mail();
@@ -1249,32 +1130,21 @@ function subtest_renaming_filelink_updates_urls() {
       {
         url: "http://www.example.com/providerA/testFile1",
         name: "testFile1",
-        serviceName: "MochiTest A",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-A.org",
-        downloadExpiryDate: {
-          timestamp: 1639827408073,
-          format: { dateStyle: "short" },
-        },
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
       },
       {
         url: "http://www.example.com/providerA/testFile2",
         name: "testFile2",
-        serviceName: "MochiTest A",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-A.org",
-        downloadExpiryDate: {
-          timestamp: 1639827408073,
-          format: { dateStyle: "short" },
-        },
+        serviceName: "MochiTest A",
+        serviceURL: "https://www.provider-A.org",
       },
     ],
     `Expected values in uploads array before renaming the files`
   );
 
-  // Add the expected time string.
-  uploads[0].downloadExpiryDateString = "18.12.21";
-  uploads[1].downloadExpiryDateString = "18.12.21";
   let [, , Urls1] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
   // Rename each Filelink, ensuring that the URLs are replaced.
@@ -1294,11 +1164,7 @@ function subtest_renaming_filelink_updates_urls() {
         leafName: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
-        serviceUrl: "https://www.provider-A.org",
-        downloadExpiryDate: {
-          timestamp: 1639827408073,
-          format: { dateStyle: "short" },
-        },
+        serviceURL: "https://www.provider-A.org",
       },
       {
         url: "http://www.example.com/providerA/testFile2Renamed",
@@ -1306,19 +1172,12 @@ function subtest_renaming_filelink_updates_urls() {
         leafName: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
-        serviceUrl: "https://www.provider-A.org",
-        downloadExpiryDate: {
-          timestamp: 1639827408073,
-          format: { dateStyle: "short" },
-        },
+        serviceURL: "https://www.provider-A.org",
       },
     ],
     `Expected values in uploads array after renaming the files`
   );
 
-  // Add the expected time string.
-  uploads[0].downloadExpiryDateString = "18.12.21";
-  uploads[1].downloadExpiryDateString = "18.12.21";
   let [, , Urls2] = wait_for_attachment_urls(cw, kFiles.length, uploads);
   Assert.notEqual(Urls1, Urls2, "The original URL should have been replaced");
 
@@ -1346,8 +1205,8 @@ function subtest_converting_filelink_to_normal_removes_url() {
   let provider = new MockCloudfileAccount();
   provider.init("providerC", {
     serviceName: "MochiTest C",
+    serviceURL: "https://www.provider-C.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-    serviceUrl: "https://www.provider-C.org",
   });
 
   let cw = open_compose_new_mail();
@@ -1358,16 +1217,16 @@ function subtest_converting_filelink_to_normal_removes_url() {
       {
         url: "http://www.example.com/providerC/testFile1",
         name: "testFile1",
-        serviceName: "MochiTest C",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-C.org",
+        serviceName: "MochiTest C",
+        serviceURL: "https://www.provider-C.org",
       },
       {
         url: "http://www.example.com/providerC/testFile2",
         name: "testFile2",
-        serviceName: "MochiTest C",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-C.org",
+        serviceName: "MochiTest C",
+        serviceURL: "https://www.provider-C.org",
       },
     ],
     `Expected values in uploads array #7`
@@ -1390,7 +1249,6 @@ function subtest_converting_filelink_to_normal_removes_url() {
   }
 
   // At this point, the root should also have been removed.
-  cw.sleep(0);
   let mailBody = get_compose_body(cw);
   root = mailBody.querySelector("#cloudAttachmentListRoot");
   if (root) {
@@ -1420,8 +1278,8 @@ function subtest_filelinks_work_after_manual_removal() {
   let provider = new MockCloudfileAccount();
   provider.init("providerD", {
     serviceName: "MochiTest D",
+    serviceURL: "https://www.provider-D.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-    serviceUrl: "https://www.provider-D.org",
   });
 
   let cw = open_compose_new_mail();
@@ -1432,16 +1290,16 @@ function subtest_filelinks_work_after_manual_removal() {
       {
         url: "http://www.example.com/providerD/testFile1",
         name: "testFile1",
-        serviceName: "MochiTest D",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-D.org",
+        serviceName: "MochiTest D",
+        serviceURL: "https://www.provider-D.org",
       },
       {
         url: "http://www.example.com/providerD/testFile2",
         name: "testFile2",
-        serviceName: "MochiTest D",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-        serviceUrl: "https://www.provider-D.org",
+        serviceName: "MochiTest D",
+        serviceURL: "https://www.provider-D.org",
       },
     ],
     `Expected values in uploads array #8`
@@ -1461,7 +1319,7 @@ function subtest_filelinks_work_after_manual_removal() {
         name: "testFile3",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest D",
-        serviceUrl: "https://www.provider-D.org",
+        serviceURL: "https://www.provider-D.org",
       },
     ],
     `Expected values in uploads array #9`
@@ -1491,7 +1349,7 @@ function subtest_insertion_restores_caret_point() {
   let provider = new MockCloudfileAccount();
   provider.init("providerE", {
     serviceName: "MochiTest E",
-    serviceUrl: "https://www.provider-E.org",
+    serviceURL: "https://www.provider-E.org",
   });
 
   let cw = open_compose_new_mail();
@@ -1511,16 +1369,16 @@ function subtest_insertion_restores_caret_point() {
       {
         url: "http://www.example.com/providerE/testFile1",
         name: "testFile1",
-        serviceName: "MochiTest E",
         serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "https://www.provider-E.org",
+        serviceName: "MochiTest E",
+        serviceURL: "https://www.provider-E.org",
       },
       {
         url: "http://www.example.com/providerE/testFile2",
         name: "testFile2",
-        serviceName: "MochiTest E",
         serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "https://www.provider-E.org",
+        serviceName: "MochiTest E",
+        serviceURL: "https://www.provider-E.org",
       },
     ],
     `Expected values in uploads array #10`

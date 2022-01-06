@@ -114,10 +114,7 @@ MockCloudfileAccount.prototype = {
         // Use aOverrides to set these.
         serviceIcon: this.serviceIcon || this.iconURL,
         serviceName: this.serviceName || this.displayName,
-        serviceUrl: this.serviceUrl || "",
-        downloadPasswordProtected: this.downloadPasswordProtected || false,
-        downloadLimit: this.downloadLimit || 0,
-        downloadExpiryDate: this.downloadExpiryDate || null,
+        serviceURL: this.serviceURL || "",
       };
       this._uploads.set(upload.id, upload);
       gMockCloudfileManager.inProgressUploads.add({

@@ -213,7 +213,7 @@ function subtest_errors_during_upload(error) {
   let provider = new MockCloudfileAccount();
   provider.init("providerA", {
     serviceName: "MochiTest A",
-    serviceUrl: "https://www.provider-A.org",
+    serviceURL: "https://www.provider-A.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
     uploadError: error.exception,
   });
@@ -327,7 +327,7 @@ function subtest_errors_during_rename(error) {
   let provider = new MockCloudfileAccount();
   provider.init("providerA", {
     serviceName: "MochiTest A",
-    serviceUrl: "https://www.provider-A.org",
+    serviceURL: "https://www.provider-A.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
     renameError: error.exception,
   });
@@ -342,14 +342,14 @@ function subtest_errors_during_rename(error) {
         name: "testFile1",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
-        serviceUrl: "https://www.provider-A.org",
+        serviceURL: "https://www.provider-A.org",
       },
       {
         url: "http://www.example.com/providerA/testFile2",
         name: "testFile2",
         serviceIcon: "chrome://messenger/skin/icons/globe.svg",
         serviceName: "MochiTest A",
-        serviceUrl: "https://www.provider-A.org",
+        serviceURL: "https://www.provider-A.org",
       },
     ],
     `Expected values in uploads array before renaming the files`

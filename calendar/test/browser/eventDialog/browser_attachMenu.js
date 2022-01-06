@@ -151,7 +151,7 @@ add_task(async function testAttachProvider() {
               resolve({
                 url: fileUrl,
                 // The uploadFile() function should return serviceIcon, serviceName
-                // and serviceUrl - either default or user defined values specified
+                // and serviceURL - either default or user defined values specified
                 // by the onFileUpload event. The item-edit dialog uses only the
                 // serviceIcon.
                 serviceIcon: "chrome://messenger/skin/icons/globe.svg",
