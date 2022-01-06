@@ -17,6 +17,7 @@
 
 .message-header-container {
   padding: 3px;
+  user-select: text;
 }
 
 .message-header-row:not([hidden]) {
@@ -312,11 +313,8 @@ mail-tagfield[collapsed="true"] {
 }
 
 .message-header-label {
-  padding: 0;
-  margin-block: 0;
   margin-inline: 6px 8px;
   text-align: end;
-  flex-shrink: 0;
   align-self: flex-start;
 }
 
@@ -341,15 +339,25 @@ mail-multi-emailheaderfield, mail-newsgroups-headerfield {
   display: inline-block;
 }
 
-.headerValue {
+.headerValue,
+.message-header-value {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   margin: 0;
 }
 
-mail-headerfield.headerValue:focus-visible:not(:hover) {
+.message-header-value {
+  display: flex;
+}
+
+.message-header-value:focus-visible:not(:hover) {
   outline: 1px solid var(--focus-outline-color);
+  outline-offset: 1px;
+}
+
+.message-header-value:focus-visible:hover {
+  outline: 0;
 }
 
 /* Separator for multifield emailaddress/newsgroup and messageid header rows. */
@@ -358,8 +366,9 @@ mail-headerfield.headerValue:focus-visible:not(:hover) {
   content: ",";
 }
 
-.headerValueUrl,
+.message-header-value[is="message-header-url"],
 .messageIdDisplayButton {
+  -moz-user-focus: normal;
   cursor: pointer;
   color: -moz-hyperlinktext;
   text-decoration: underline;
@@ -367,7 +376,7 @@ mail-headerfield.headerValue:focus-visible:not(:hover) {
   word-break: break-all;
 }
 
-.headerValueUrl:hover,
+.message-header-value[is="message-header-url"]:hover,
 .messageIdDisplayButton:hover {
   color: -moz-activehyperlinktext;
 }
@@ -403,7 +412,6 @@ mail-newsgroups-headerfield {
 }
 
 .message-header-datetime {
-  user-select: text;
   -moz-user-focus: normal;
   cursor: text;
   margin: 0 6px;
@@ -532,18 +540,6 @@ mail-messageids-headerfield button.email-action-button {
   .emailToggleHeaderfield {
     transition: transform 200ms ease;
   }
-}
-
-mail-headerfield {
-  -moz-user-focus: normal;
-  user-select: text;
-  word-wrap: anywhere;
-  display: inherit;
-}
-
-mail-headerfield:focus-visible:not(:hover) {
-  outline: 1px solid var(--focus-outline-color);
-  outline-offset: -1px;
 }
 
 #attachmentView {

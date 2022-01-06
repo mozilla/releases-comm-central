@@ -47,11 +47,11 @@
               oncommand="Cc['@mozilla.org/widget/clipboardhelper;1']
                            .getService(Ci.nsIClipboardHelper)
                            .copyString(window.getSelection().isCollapsed ?
-                             this.parentNode.triggerNode.textContent :
+                             document.activeElement.textContent :
                              window.getSelection().toString());"/>
     <menuitem id="createFilterFromMenuItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"
-              oncommand="CreateFilter(this.parentNode.triggerNode, gMessageDisplay.displayedMessage)"
+              oncommand="CreateFilter(document.activeElement, gMessageDisplay.displayedMessage)"
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
 #endif

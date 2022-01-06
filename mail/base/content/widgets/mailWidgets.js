@@ -53,33 +53,44 @@
     "resource:///modules/TagUtils.jsm"
   );
 
-  class MozMailHeaderfield extends MozXULElement {
+  class MozMessageHeader extends HTMLDivElement {
     connectedCallback() {
-      this.setAttribute("context", "copyPopup");
-      this.classList.add("headerValue");
-
-      this._ariaBaseLabel = null;
-      if (this.getAttribute("aria-labelledby")) {
-        this._ariaBaseLabel = document.getElementById(
-          this.getAttribute("aria-labelledby")
-        );
-        this.removeAttribute("aria-labelledby");
+      if (this.hasConnected) {
+        return;
       }
+      this.hasConnected = true;
+
+      this.labelNode = this.parentElement.querySelector(
+        ".message-header-label"
+      );
+
+      this.setAttribute("is", "message-header");
+      this.setAttribute("tabindex", "0");
+      this.setAttribute("role", "menu");
+      this.classList.add("message-header-value");
+      this.oncontextmenu = this.onContextMenu;
+    }
+
+    onContextMenu = event => {
+      document
+       .getElementById("copyPopup")
+       .openPopupAtScreen(event.screenX, event.screenY, true);
+      event.preventDefault();
     }
 
     set headerValue(val) {
-      // Solve the accessibility problem by manually fetching the translated
-      // string from the label and updating the attribute. Bug 1493608
-      if (this._ariaBaseLabel) {
-        this.setAttribute("aria-label", `${this._ariaBaseLabel.value}: ${val}`);
-      }
-
       this.textContent = val;
+      this.setAttribute(
+        "aria-label",
+        `${this.labelNode.textContent}: ${this.textContent}`
+      );
     }
   }
-  customElements.define("mail-headerfield", MozMailHeaderfield);
+  customElements.define("message-header", MozMessageHeader, {
+    extends: "div",
+  });
 
-  class MozMailUrlfield extends MozMailHeaderfield {
+  class MozMessageUrl extends MozMessageHeader {
     constructor() {
       super();
       this.addEventListener("click", event => {
@@ -96,12 +107,20 @@
 
     connectedCallback() {
       super.connectedCallback();
-      this.setAttribute("context", "copyUrlPopup");
-      this.setAttribute("tabindex", "0");
-      this.classList.add("text-link", "headerValueUrl");
+      this.setAttribute("is", "message-header-url");
+      this.oncontextmenu = this.onContextMenu;
+    }
+
+    onContextMenu = event => {
+      document
+       .getElementById("copyUrlPopup")
+       .openPopupAtScreen(event.screenX, event.screenY, true);
+      event.preventDefault();
     }
   }
-  customElements.define("mail-urlfield", MozMailUrlfield);
+  customElements.define("message-header-url", MozMessageUrl, {
+    extends: "div",
+  });
 
   class MozMailHeaderfieldTags extends MozXULElement {
     connectedCallback() {
@@ -153,7 +172,10 @@
         let ariaLabel = document.getElementById(
           this.getAttribute("aria-labelledby")
         );
-        label.setAttribute("aria-label", `${ariaLabel.value}: ${tagName}`);
+        label.setAttribute(
+          "aria-label",
+          `${ariaLabel.textContent}: ${tagName}`
+        );
         label.removeAttribute("aria-labelledby");
 
         this.appendChild(label);
@@ -175,7 +197,7 @@
       );
       this.setAttribute(
         "aria-label",
-        `${ariaLabel.value}: ${this.getAttribute("newsgroup")}`
+        `${ariaLabel.textContent}: ${this.getAttribute("newsgroup")}`
       );
       this.removeAttribute("aria-labelledby");
     }
@@ -1090,7 +1112,7 @@
         );
         newAddressNode.setAttribute(
           "aria-label",
-          `${ariaLabel.value}: ${this.addresses[i].fullAddress ||
+          `${ariaLabel.textContent}: ${this.addresses[i].fullAddress ||
             this.addresses[i].displayName ||
             ""}`
         );

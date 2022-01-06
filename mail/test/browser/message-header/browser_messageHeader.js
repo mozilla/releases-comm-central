@@ -151,11 +151,11 @@ add_task(function test_add_tag_with_really_long_label() {
 
   // Make the tags label really long.
   let tagsLabel = mc.e("expandedtagsLabel");
-  let oldTagsValue = tagsLabel.value;
-  tagsLabel.value = "taaaaaaaaaaaaaaaaaags";
+  let oldTagsValue = tagsLabel.textContent;
+  tagsLabel.textContent = "taaaaaaaaaaaaaaaaaags";
 
   if (topLabel.clientWidth != bottomLabel.clientWidth) {
-    tagsLabel.value = oldTagsValue;
+    tagsLabel.textContent = oldTagsValue;
     throw new Error(
       "Header columns have different widths!  " +
         topLabel.clientWidth +
@@ -164,7 +164,7 @@ add_task(function test_add_tag_with_really_long_label() {
     );
   }
   if (topLabel.clientWidth != defaultWidth) {
-    tagsLabel.value = oldTagsValue;
+    tagsLabel.textContent = oldTagsValue;
     throw new Error(
       "Header columns changed width!  " +
         topLabel.clientWidth +
@@ -177,7 +177,7 @@ add_task(function test_add_tag_with_really_long_label() {
   mc.window.document.getElementById("expandedfromRow").focus();
   EventUtils.synthesizeKey("1", {});
   if (topLabel.clientWidth != bottomLabel.clientWidth) {
-    tagsLabel.value = oldTagsValue;
+    tagsLabel.textContent = oldTagsValue;
     throw new Error(
       "Header columns have different widths!  " +
         topLabel.clientWidth +
@@ -186,7 +186,7 @@ add_task(function test_add_tag_with_really_long_label() {
     );
   }
   if (topLabel.clientWidth == defaultWidth) {
-    tagsLabel.value = oldTagsValue;
+    tagsLabel.textContent = oldTagsValue;
     throw new Error(
       "Header columns didn't change width!  " +
         topLabel.clientWidth +
@@ -197,7 +197,7 @@ add_task(function test_add_tag_with_really_long_label() {
 
   // Remove the tag and put it back so that the a11y label gets regenerated
   // with the normal value rather than "taaaaaaaags"
-  tagsLabel.value = oldTagsValue;
+  tagsLabel.textContent = oldTagsValue;
   mc.window.document.getElementById("expandedfromRow").focus();
   EventUtils.synthesizeKey("1", {});
   mc.window.document.getElementById("expandedfromRow").focus();
@@ -215,11 +215,11 @@ let headersToTest = [
   {
     headerName: "Subject",
     headerValueElement(mc) {
-      return mc.e("expandedsubjectBox", { class: "headerValue" });
+      return mc.e("expandedsubjectBox", { class: "message-header-value" });
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandedsubjectLabel").value +
+        mc.e("expandedsubjectLabel").textContent +
         ": " +
         headerValueElement.textContent
       );
@@ -229,12 +229,12 @@ let headersToTest = [
     headerName: "Content-Base",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandedcontent-baseBox.headerValue.text-link.headerValueUrl"
+        "#expandedcontent-baseBox.message-header-value"
       );
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandedcontent-baseLabel").value +
+        mc.e("expandedcontent-baseLabel").textContent +
         ": " +
         headerValueElement.textContent
       );
@@ -249,7 +249,7 @@ let headersToTest = [
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandedfromLabel").value +
+        mc.e("expandedfromLabel").textContent +
         ": " +
         headerValueElement.getAttribute("fullAddress")
       );
@@ -264,7 +264,7 @@ let headersToTest = [
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandedtoLabel").value +
+        mc.e("expandedtoLabel").textContent +
         ": " +
         headerValueElement.getAttribute("fullAddress")
       );
@@ -279,7 +279,7 @@ let headersToTest = [
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandedccLabel").value +
+        mc.e("expandedccLabel").textContent +
         ": " +
         headerValueElement.getAttribute("fullAddress")
       );
@@ -294,7 +294,7 @@ let headersToTest = [
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandedbccLabel").value +
+        mc.e("expandedbccLabel").textContent +
         ": " +
         headerValueElement.getAttribute("fullAddress")
       );
@@ -309,7 +309,7 @@ let headersToTest = [
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandedreply-toLabel").value +
+        mc.e("expandedreply-toLabel").textContent +
         ": " +
         headerValueElement.getAttribute("fullAddress")
       );
@@ -324,7 +324,7 @@ let headersToTest = [
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandednewsgroupsLabel").value +
+        mc.e("expandednewsgroupsLabel").textContent +
         ": " +
         headerValueElement.getAttribute("newsgroup")
       );
@@ -337,7 +337,7 @@ let headersToTest = [
     },
     expectedName(mc, headerValueElement) {
       return (
-        mc.e("expandedtagsLabel").value +
+        mc.e("expandedtagsLabel").textContent +
         ": " +
         headerValueElement.getAttribute("value")
       );

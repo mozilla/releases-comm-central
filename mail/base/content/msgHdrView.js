@@ -753,9 +753,13 @@ var messageHeaderSink = {
 
     let expandedfromLabel = document.getElementById("expandedfromLabel");
     if (gFolderDisplay.selectedMessageIsFeed) {
-      expandedfromLabel.value = expandedfromLabel.getAttribute("valueAuthor");
+      expandedfromLabel.textContent = expandedfromLabel.getAttribute(
+        "valueAuthor"
+      );
     } else {
-      expandedfromLabel.value = expandedfromLabel.getAttribute("valueFrom");
+      expandedfromLabel.textContent = expandedfromLabel.getAttribute(
+        "valueFrom"
+      );
     }
 
     this.onEndHeaders();
@@ -1255,28 +1259,22 @@ class HeaderView {
     let newRowNode = document.getElementById(rowId);
     if (!newRowNode) {
       // Create new collapsed row.
-      newRowNode = document.createElementNS(
-        "http://www.w3.org/1999/xhtml",
-        "div"
-      );
+      newRowNode = document.createElement("div");
       newRowNode.setAttribute("id", rowId);
       newRowNode.classList.add("message-header-row");
       newRowNode.hidden = true;
 
       // Create and append the label which contains the header name.
-      let newLabelNode = document.createXULElement("label");
+      let newLabelNode = document.createElement("div");
       newLabelNode.setAttribute("id", "expanded" + headerName + "Label");
-      newLabelNode.setAttribute("value", label);
       newLabelNode.setAttribute("class", "message-header-label");
-      newLabelNode.setAttribute("control", idName);
-
+      newLabelNode.textContent = label;
       newRowNode.appendChild(newLabelNode);
 
       // Create and append the new header value.
-      newHeaderNode = document.createXULElement("mail-headerfield");
+      newHeaderNode = document.createElement("div", { is: "message-header" });
       newHeaderNode.setAttribute("id", idName);
-      newHeaderNode.setAttribute("flex", "1");
-
+      newHeaderNode.setAttribute("headerName", headerName);
       newRowNode.appendChild(newHeaderNode);
 
       // Add the new row to the extra headers container.
