@@ -602,7 +602,18 @@
              beneath both of them. -->
         <box id="mailContent" orient="vertical" flex="1">
           <!-- mail-toolbox with the main toolbarbuttons -->
-#include mainMailToolbox.inc.xhtml
+          <toolbox id="mail-toolbox"
+                   class="mail-toolbox"
+                   mode="full"
+                   defaultmode="full"
+#ifdef XP_MACOSX
+                   iconsize="small"
+                   defaulticonsize="small"
+#endif
+                   labelalign="end"
+                   defaultlabelalign="end">
+#include mainMailToolbar.inc.xhtml
+          </toolbox>
 
           <hbox id="messengerBox" flex="1" style="min-height:100px;" height="100" persist="height">
             <vbox id="folderPaneBox" style="min-width:125px;" width="200" persist="width">

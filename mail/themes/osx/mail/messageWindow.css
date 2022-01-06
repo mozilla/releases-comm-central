@@ -11,12 +11,6 @@
 
 /* ::::: Mail Toolbars and Menubars ::::: */
 
-#navigation-toolbox,
-:root[lwt-tree] #navigation-toolbox,
-#navigation-toolbox:-moz-window-inactive {
-  background-color: var(--toolbar-bgcolor);
-}
-
 #titlebar {
   height: 22px;
 }

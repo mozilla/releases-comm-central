@@ -375,17 +375,19 @@ function onViewToolbarsPopupShowing(
     // We consider child nodes that have a toolbarname attribute.
     let toolbars = Array.from(toolbox.querySelectorAll("[toolbarname]"));
 
-    // Add the folder pane toolbar to the list of toolbars that can be shown and
-    // hidden.
-    if (toolbox.getAttribute("id") === "mail-toolbox") {
-      if (
-        AppConstants.platform != "macosx" &&
-        document.getElementById("toolbar-menubar")
-      ) {
-        toolbars.push(document.getElementById("toolbar-menubar"));
-      }
-      if (document.getElementById("folderPaneHeader")) {
-        toolbars.push(document.getElementById("folderPaneHeader"));
+    // On main Window add the folder pane toolbar to the list of toolbars that
+    // can be shown and hidden.
+    if (document.getElementById("tabmail")) {
+      if (toolbox.getAttribute("id") === "mail-toolbox") {
+        if (
+          AppConstants.platform != "macosx" &&
+          document.getElementById("toolbar-menubar")
+        ) {
+          toolbars.push(document.getElementById("toolbar-menubar"));
+        }
+        if (document.getElementById("folderPaneHeader")) {
+          toolbars.push(document.getElementById("folderPaneHeader"));
+        }
       }
     }
 

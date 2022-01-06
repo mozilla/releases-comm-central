@@ -197,7 +197,16 @@
   </popupset>
 #include editContactPanel.inc.xhtml
 
-  <toolbox id="navigation-toolbox" labelalign="end" defaultlabelalign="end">
+  <toolbox id="mail-toolbox"
+           class="mail-toolbox"
+           mode="full"
+           defaultmode="full"
+#ifdef XP_MACOSX
+           iconsize="small"
+           defaulticonsize="small"
+#endif
+           labelalign="end"
+           defaultlabelalign="end">
 #ifdef XP_MACOSX
     <hbox id="titlebar">
       <hbox id="titlebar-title" align="center" flex="1">
@@ -232,11 +241,11 @@
 #include messenger-menubar.inc.xhtml
       </toolbaritem>
     </toolbar>
+    <!-- mail-toolbox with the main toolbarbuttons -->
+#include mainMailToolbar.inc.xhtml
   </toolbox>
 
   <vbox class="printPreviewStack" flex="1">
-    <!-- mail-toolbox with the main toolbarbuttons -->
-#include mainMailToolbox.inc.xhtml
 
     <tooltip id="aHTMLTooltip" page="true"/>
 

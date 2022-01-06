@@ -103,7 +103,16 @@
       </vbox>
     </toolbox>
   </box>
-#include mainMailToolbox.inc.xhtml
+  <toolbox id="mail-toolbox"
+           class="mail-toolbox"
+           mode="full"
+           defaultmode="full"
+           iconsize="small"
+           defaulticonsize="small"
+           labelalign="end"
+           defaultlabelalign="end">
+#include mainMailToolbar.inc.xhtml
+  </toolbox>
 
 <browser id="hiddenBrowser" disablehistory="true"/>
 

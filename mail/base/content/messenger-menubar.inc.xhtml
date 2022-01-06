@@ -338,11 +338,13 @@
           accesskey="&viewToolbarsMenu.accesskey;"
           onpopupshowing="calendarOnToolbarsPopupShowing(event);">
       <menupopup id="view_toolbars_popup">
+#ifdef MAIN_WINDOW
         <menuitem id="view_toolbars_popup_quickFilterBar"
                   type="checkbox"
                   label="&quickFilterBar.toggleBarVisibility.menu.label;"
                   accesskey="&quickFilterBar.toggleBarVisibility.menu.accesskey;"
                   command="cmd_toggleQuickFilterBar"/>
+#endif
         <menuitem id="menu_showTaskbar"
                   type="checkbox"
                   label="&showTaskbarCmd.label;"

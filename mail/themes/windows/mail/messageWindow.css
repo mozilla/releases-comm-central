@@ -15,12 +15,6 @@
   background-color: -moz-Dialog;
 }
 
-#messengerWindow[lwt-tree] #navigation-toolbox {
-  background-color: var(--toolbar-bgcolor);
-  background-image: var(--toolbar-bgimage);
-  color: var(--toolbar-color, inherit);
-}
-
 #messagepanebox {
   text-shadow: none;
   background-color: -moz-Dialog;
