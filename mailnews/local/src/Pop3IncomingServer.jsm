@@ -33,6 +33,15 @@ class Pop3IncomingServer extends MsgIncomingServer {
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "mailbox";
     this.localDatabaseType = "mailbox";
+    this.downloadMessagesAtStartup = true;
+    this.canBeDefaultServer = true;
+
+    Object.defineProperty(this, "canCreateFoldersOnServer", {
+      get: () => !this.deferredToAccount,
+    });
+    Object.defineProperty(this, "canFileMessagesOnServer", {
+      get: () => !this.deferredToAccount,
+    });
 
     // nsIPop3IncomingServer attributes that map directly to pref values.
     this._mapAttrsToPrefs([
@@ -70,6 +79,10 @@ class Pop3IncomingServer extends MsgIncomingServer {
 
     this._rootMsgFolder = incomingServer.rootMsgFolder;
     return this._rootMsgFolder;
+  }
+
+  get canSearchMessages() {
+    return this.canFileMessagesOnServer;
   }
 
   performExpand(msgWindow) {}

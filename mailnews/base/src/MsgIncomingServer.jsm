@@ -51,6 +51,15 @@ class MsgIncomingServer {
     // nsIMsgIncomingServer attributes.
     this.performingBiff = false;
     this.accountManagerChrome = "am-main.xhtml";
+    this.biffState = Ci.nsIMsgFolder.nsMsgBiffState_Unknown;
+    this.downloadMessagesAtStartup = false;
+    this.canHaveFilters = true;
+    this.canBeDefaultServer = false;
+    this.displayStartupPage = true;
+    this.supportsDiskSpace = true;
+    this.canCompactFoldersOnServer = true;
+    this.canUndoDeleteOnServer = true;
+    this.sortOrder = 100000000;
 
     // @type {Map<string, number>} - The key is MsgId+Subject, the value is
     //   this._hdrIndex.
@@ -371,6 +380,81 @@ class MsgIncomingServer {
     );
   }
 
+  get serverRequiresPasswordForBiff() {
+    return true;
+  }
+
+  get canEmptyTrashOnExit() {
+    return true;
+  }
+
+  /**
+   * type, attribute name, pref name
+   */
+  _downloadSettingsPrefs = [
+    ["Int", "ageLimitOfMsgsToDownload", "ageLimit"],
+    ["Bool", "downloadUnreadOnly"],
+    ["Bool", "downloadByDate"],
+  ];
+
+  get downloadSettings() {
+    if (!this._downloadSettings) {
+      this._downloadSettings = Cc[
+        "@mozilla.org/msgDatabase/downloadSettings;1"
+      ].createInstance(Ci.nsIMsgDownloadSettings);
+      for (let [type, attrName, prefName] of this._downloadSettingsPrefs) {
+        prefName = prefName || attrName;
+        this._downloadSettings[attrName] = this[`get${type}Value`](prefName);
+      }
+    }
+    return this._downloadSettings;
+  }
+
+  set downloadSettings(settings) {
+    this._downloadSettings = settings;
+    for (let [type, attrName, prefName] of this._downloadSettingsPrefs) {
+      prefName = prefName || attrName;
+      this[`set${type}Value`](prefName, settings[attrName]);
+    }
+  }
+
+  get offlineSupportLevel() {
+    const OFFLINE_SUPPORT_LEVEL_NONE = 0;
+    const OFFLINE_SUPPORT_LEVEL_UNDEFINED = -1;
+    let level = this.getIntValue("offline_support_level");
+    return level == OFFLINE_SUPPORT_LEVEL_UNDEFINED
+      ? OFFLINE_SUPPORT_LEVEL_NONE
+      : level;
+  }
+
+  set offlineSupportLevel(value) {
+    this.setIntValue("offline_support_level", value);
+  }
+
+  get filterScope() {
+    return Ci.nsMsgSearchScope.offlineMailFilter;
+  }
+
+  get searchScope() {
+    return Ci.nsMsgSearchScope.offlineMail;
+  }
+
+  get passwordPromptRequired() {
+    if (!this.serverRequiresPasswordForBiff) {
+      // If the password is not even required for biff we don't need to check
+      // any further.
+      return false;
+    }
+    if (!this.password) {
+      // If the password is empty, check to see if it is stored.
+      this.password = this._getPasswordWithoutUI();
+    }
+    if (this.password) {
+      return false;
+    }
+    return this.authMethod != Ci.nsMsgAuthMethod.OAuth2;
+  }
+
   getCharValue(prefName) {
     try {
       return this._prefs.getCharPref(prefName);
@@ -597,6 +681,14 @@ class MsgIncomingServer {
     this._filterList = value;
   }
 
+  getEditableFilterList(msgWindow) {
+    return this._editableFilterList;
+  }
+
+  setEditableFilterList(value) {
+    this._editableFilterList = value;
+  }
+
   setDefaultLocalPath(value) {
     this.protocolInfo.setDefaultLocalPath(value);
   }
@@ -663,5 +755,181 @@ class MsgIncomingServer {
       }
     }
     return false;
+  }
+
+  displayOfflineMsg(msgWindow) {
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+    msgWindow.displayHTMLInMessagePane(
+      bundle.GetStringFromName("nocachedbodytitle"),
+      bundle.GetStringFromName("nocachedbodybody2"),
+      true
+    );
+  }
+
+  equals(server) {
+    return this.key == server.key;
+  }
+
+  _configureTemporaryReturnReceiptsFilter(filterList) {
+    let identity = MailServices.accounts.getFirstIdentityForServer(this);
+    if (!identity) {
+      return;
+    }
+    let incorp = Ci.nsIMsgMdnGenerator.eIncorporateInbox;
+    if (identity.getBoolAttribute("use_custom_prefs")) {
+      incorp = this.getIntValue("incorporate_return_receipt");
+    } else {
+      incorp = Services.prefs.getIntPref("mail.incorporate.return-receipt");
+    }
+
+    let enable = incorp == Ci.nsIMsgMdnGenerator.eIncorporateSent;
+
+    const FILTER_NAME = "mozilla-temporary-internal-MDN-receipt-filter";
+    let filter = filterList.getFilterNamed(FILTER_NAME);
+
+    if (filter) {
+      filter.enabled = enable;
+      return;
+    } else if (!enable || !identity.fccFolder) {
+      return;
+    }
+
+    filter = filterList.createFilter(FILTER_NAME);
+    if (!filter) {
+      return;
+    }
+
+    filter.enabled = true;
+    filter.temporary = true;
+
+    let term = filter.createTerm();
+    let value = term.value;
+    value.attrib = Ci.nsMsgSearchAttrib.OtherHeader + 1;
+    value.str = "multipart/report";
+    term.attrib = Ci.nsMsgSearchAttrib.OtherHeader + 1;
+    term.op = Ci.nsMsgSearchOp.Contains;
+    term.booleanAnd = true;
+    term.arbitraryHeader = "Content-Type";
+    term.value = value;
+    filter.appendTerm(term);
+
+    term = filter.createTerm();
+    value = term.value;
+    value.attrib = Ci.nsMsgSearchAttrib.OtherHeader + 1;
+    value.str = "disposition-notification";
+    term.attrib = Ci.nsMsgSearchAttrib.OtherHeader + 1;
+    term.op = Ci.nsMsgSearchOp.Contains;
+    term.booleanAnd = true;
+    term.arbitraryHeader = "Content-Type";
+    term.value = value;
+    filter.appendTerm(term);
+
+    let action = filter.createAction();
+    action.type = Ci.nsMsgFilterAction.MoveToFolder;
+    action.targetFolderUri = identity.fccFolder;
+    filter.appendAction(action);
+    filterList.insertFilterAt(0, filter);
+  }
+
+  _configureTemporaryServerSpamFilters(filterList) {
+    let spamSettings = this.spamSettings;
+    if (!spamSettings.useServerFilter) {
+      return;
+    }
+    let serverFilterName = spamSettings.serverFilterName;
+    let serverFilterTrustFlags = spamSettings.serverFilterTrustFlags;
+    if (!serverFilterName || !serverFilterName) {
+      return;
+    }
+
+    // Check if filters have been setup already.
+    let yesFilterName = `${serverFilterName}Yes`;
+    let noFilterName = `${serverFilterName}No`;
+    let filter = filterList.getFilterNamed(yesFilterName);
+    if (!filter) {
+      filter = filterList.getFilterNamed(noFilterName);
+    }
+    if (filter) {
+      return;
+    }
+
+    let serverFilterList = MailServices.filters.OpenFilterList(
+      spamSettings.serverFilterFile,
+      null,
+      null
+    );
+    filter = serverFilterList.getFilterNamed(yesFilterName);
+    if (filter && serverFilterTrustFlags & Ci.nsISpamSettings.TRUST_POSITIVES) {
+      filter.temporary = true;
+      // Check if we're supposed to move junk mail to junk folder; if so, add
+      // filter action to do so.
+      let searchTerms = filter.searchTerms;
+      if (searchTerms.length) {
+        searchTerms[0].beginsGrouping = true;
+        searchTerms.at(-1).endsGrouping = true;
+      }
+
+      // Create a new term, checking if the user set junk status. The term will
+      // search for junkscoreorigin != "user".
+      let term = filter.createTerm();
+      term.attrib = Ci.nsMsgSearchAttrib.JunkScoreOrigin;
+      term.op = Ci.nsMsgSearchOp.Isnt;
+      term.booleanAnd = true;
+      let value = term.value;
+      value.attrib = Ci.nsMsgSearchAttrib.JunkScoreOrigin;
+      value.str = "user";
+      term.value = value;
+      filter.appendTerm(term);
+
+      if (spamSettings.moveOnSpam) {
+        let spamFolderURI = spamSettings.spamFolderURI;
+        if (spamFolderURI) {
+          let action = filter.createAction();
+          action.type = Ci.nsMsgFilterAction.MoveToFolder;
+          action.targetFolderUri = spamFolderURI;
+          filter.appendAction(action);
+        }
+      }
+
+      if (spamSettings.markAsReadOnSpam) {
+        let action = filter.createAction();
+        action.type = Ci.nsMsgFilterAction.MarkRead;
+        filter.appendAction(action);
+      }
+      filterList.insertFilterAt(0, filter);
+    }
+
+    filter = serverFilterList.getFilterNamed(noFilterName);
+    if (filter && serverFilterTrustFlags & Ci.nsISpamSettings.TRUST_NEGATIVES) {
+      filter.temporary = true;
+      filterList.insertFilterAt(0, filter);
+    }
+  }
+
+  configureTemporaryFilters(filterList) {
+    this._configureTemporaryReturnReceiptsFilter(filterList);
+    this._configureTemporaryServerSpamFilters(filterList);
+  }
+
+  clearTemporaryReturnReceiptsFilter() {
+    if (!this._filterList) {
+      return;
+    }
+    let filter = this._filterList.getFilterNamed(
+      "mozilla-temporary-internal-MDN-receipt-filter"
+    );
+    if (filter) {
+      this._filterList.removeFilter(filter);
+    }
+  }
+
+  getForcePropertyEmpty(name) {
+    return this.getCharValue(`${name}.empty`) == "true";
+  }
+
+  setForcePropertyEmpty(name, value) {
+    return this.setCharValue(`${name}.empty`, value ? "true" : "");
   }
 }

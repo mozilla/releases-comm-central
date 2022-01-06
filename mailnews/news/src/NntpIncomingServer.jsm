@@ -61,6 +61,9 @@ class NntpIncomingServer extends MsgIncomingServer {
     // nsIMsgIncomingServer attributes.
     this.localStoreType = "news";
     this.localDatabaseType = "news";
+    this.canSearchMessages = true;
+    this.canCompactFoldersOnServer = false;
+    this.sortOrder = 500000000;
 
     Object.defineProperty(this, "defaultCopiesAndFoldersPrefsToServer", {
       // No Draft/Sent folder on news servers, will point to "Local Folders".
@@ -282,6 +285,25 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   /** @see nsIMsgIncomingServer */
+  get filterScope() {
+    return Ci.nsMsgSearchScope.newsFilter;
+  }
+
+  get searchScope() {
+    return Services.io.offline
+      ? Ci.nsMsgSearchScope.localNewsBody
+      : Ci.nsMsgSearchScope.news;
+  }
+
+  get offlineSupportLevel() {
+    const OFFLINE_SUPPORT_LEVEL_UNDEFINED = -1;
+    const OFFLINE_SUPPORT_LEVEL_EXTENDED = 20;
+    let level = this.getIntValue("offline_support_level");
+    return level != OFFLINE_SUPPORT_LEVEL_UNDEFINED
+      ? level
+      : OFFLINE_SUPPORT_LEVEL_EXTENDED;
+  }
+
   performExpand(msgWindow) {
     if (!Services.prefs.getBoolPref("news.update_unread_on_expand", false)) {
       return;
