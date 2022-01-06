@@ -44,8 +44,7 @@
 @APPNAME@/Contents/Library/LaunchServices
 #endif
 @APPNAME@/Contents/PkgInfo
-# Temporarily disable Spotlight packaging due to bug 1748802
-# @APPNAME@/Contents/Library/Spotlight/thunderbird.mdimporter/
+@APPNAME@/Contents/Library/Spotlight/thunderbird.mdimporter/
 @RESPATH@/thunderbird.icns
 @RESPATH@/@LPROJ_ROOT@.lproj/*
 #endif
