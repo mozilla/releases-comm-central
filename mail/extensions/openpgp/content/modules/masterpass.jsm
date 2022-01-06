@@ -188,6 +188,6 @@ var OpenPGPMasterpass = {
     }
     let encryptedPass = await IOUtils.readUTF8(this.getPassPath().path);
     let sdr = this.getSDR();
-    return sdr.decryptString(encryptedPass);
+    return sdr.decryptString(encryptedPass.trim());
   },
 };
