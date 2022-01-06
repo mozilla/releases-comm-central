@@ -1456,19 +1456,16 @@ function OutputNewsgroups(headerEntry, headerValue) {
 }
 
 /**
- * Take string of message-ids separated by whitespace, split it
- * into message-ids and send them together with the index number
- * to the corresponding mail-messageids-headerfield element.
+ * Take string of message-ids separated by whitespace and send it to the
+ * corresponding MsgHeaderEntry message-header-list-messageid custom element.
+ *
+ * @param {MsgHeaderEntry} headerEntry - The entry data structure for this
+ *                                       header.
+ * @param {String} headerValue         - Space delimited string of messageIds
+ *                                       for this header.
  */
 function OutputMessageIds(headerEntry, headerValue) {
-  let messageIdArray = headerValue.split(/\s+/);
-
-  headerEntry.enclosingBox.clearHeaderValues();
-  for (let i = 0; i < messageIdArray.length; i++) {
-    headerEntry.enclosingBox.addMessageIdView(messageIdArray[i]);
-  }
-
-  headerEntry.enclosingBox.fillMessageIdNodes();
+  updateHeaderValue(headerEntry, headerValue);
 }
 
 /**
@@ -2599,9 +2596,9 @@ function onShowSaveAttachmentMenuMultiple() {
   deleteAllItem.disabled = !canDetach;
 }
 
-function MessageIdClick(node, event) {
+function MessageIdClick(event) {
   if (event.button == 0) {
-    var messageId = GetMessageIdFromNode(node, true);
+    var messageId = GetMessageIdFromNode(event.target, true);
     OpenMessageForMessageId(messageId);
   }
 }

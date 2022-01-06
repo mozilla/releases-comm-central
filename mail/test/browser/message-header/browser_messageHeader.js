@@ -334,7 +334,7 @@ let headersToTest = [
     headerName: "Tags",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandedtagsBox > .message-header-value-tag"
+        "#expandedtagsBox > .message-header-value"
       );
     },
     expectedName(mc, headerValueElement) {
@@ -535,7 +535,9 @@ add_task(async function test_msg_id_context_menu() {
 
   // Right click to show the context menu.
   EventUtils.synthesizeMouseAtCenter(
-    mc.window.document.querySelector("#expandedreferencesBox mail-messageid"),
+    mc.window.document.querySelector(
+      "#expandedreferencesBox > .message-header-value"
+    ),
     { type: "contextmenu" },
     window
   );

@@ -179,6 +179,10 @@
 
 /* ::::: expanded header pane ::::: */
 
+#expandedsubjectRow {
+  flex: 4;
+}
+
 #expandedsubjectBox {
   font-weight: bold;
   flex: 1;
@@ -335,8 +339,7 @@ mail-multi-emailheaderfield, mail-newsgroups-headerfield {
   display: inline-block;
 }
 
-.headerValue,
-.message-header-value {
+.headerValue {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -345,43 +348,46 @@ mail-multi-emailheaderfield, mail-newsgroups-headerfield {
 
 .header-value-list {
   display: flex;
+  flex-wrap: wrap;
   margin: 0;
   padding: 0;
+  grid-gap: 4px;
 }
 
 .message-header-value {
   display: flex;
+  border-radius: var(--toolbarbutton-border-radius);
+  word-break: break-word;
 }
 
 .message-header-value:focus-visible:not(:hover),
-.message-header-value-tag:focus-visible:not(:hover) {
+.toggle-list-button:focus-visible:not(:hover) {
   outline: 1px solid var(--focus-outline-color);
   outline-offset: 1px;
 }
 
 .message-header-value:focus-visible:hover,
-.message-header-value-tag:focus-visible:hover {
+.toggle-list-button:focus-visible:hover {
   outline: 0;
 }
 
 /* Separator for multifield emailaddress/newsgroup and messageid header rows. */
 .emailDisplayButton:not(:last-child):after,
-.messageIdDisplayButton:not(:last-child):after {
+.header-value-list[is="message-header-list-messageid"] > .message-header-value:not(:last-child):after {
   content: ",";
 }
 
 .message-header-value[is="message-header-url"],
-.messageIdDisplayButton {
+.header-value-list[is="message-header-list-messageid"] > .message-header-value {
+  display: inline-block;
   -moz-user-focus: normal;
   cursor: pointer;
   color: -moz-hyperlinktext;
   text-decoration: underline;
-  display: inline-block;
-  word-break: break-all;
 }
 
 .message-header-value[is="message-header-url"]:hover,
-.messageIdDisplayButton:hover {
+.header-value-list[is="message-header-list-messageid"] > .message-header-value:hover {
   color: -moz-activehyperlinktext;
 }
 
@@ -403,13 +409,11 @@ mail-newsgroups-headerfield {
   color: darkred;
 }
 
-.message-header-value-tag {
-  display: flex;
+.header-value-list[is="message-header-tags"] >.message-header-value {
   padding: 0 0.5ex;
   margin-inline: 0 5px;
   background-image: linear-gradient(rgba(255,255,255,0.35),
                                     rgba(255,255,255,0.35));
-  border-radius: 3px;
   outline-width: 0.5px;
   outline-style: outset;
   text-shadow: 0 1px 0 rgba(238, 238, 236, 0.4); /* Tango Alumninum 1 */
@@ -417,9 +421,14 @@ mail-newsgroups-headerfield {
 }
 
 .message-header-datetime {
-  -moz-user-focus: normal;
-  cursor: text;
   margin: 0 6px;
+  justify-content: end;
+  text-align: end;
+  flex: 1;
+}
+
+.message-header-datetime[hidden] {
+  display: none;
 }
 
 #expandedtoRow .message-header-datetime {
@@ -514,35 +523,33 @@ mail-emailaddress[selected="true"] > .emailDisplayButton .emailStar {
   overflow: hidden;
 }
 
-mail-messageids-headerfield {
-  display: flex;
-  align-items: baseline;
+/* ::::: msg headers list of messageid, in-reply-to, references ::::: */
+
+.toggle-list-container {
+  display: inline-flex;
 }
 
-mail-messageids-headerfield button.email-action-button {
-  margin-inline: 0 2px;
+.toggle-list-container > .toggle-list-button {
+  display: inline-block;
+  margin-inline: -4px 2px;
+  align-self: baseline;
 }
 
-.emailToggleHeaderfield {
-  margin-block: auto;
-  background: url("chrome://global/skin/icons/arrow-right-12.svg") no-repeat center;
-  background-size: contain;
+.toggle-list-button > img {
   -moz-context-properties: fill;
   fill: currentColor;
-  width: 10px;
-  height: 10px;
 }
 
-.emailToggleHeaderfield:-moz-locale-dir(rtl) {
+.toggle-list-button:-moz-locale-dir(rtl) > img {
   transform: rotate(180deg);
 }
 
-.emailToggleHeaderfield.open {
+.toggle-list-button.open > img {
   transform: rotate(90deg);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .emailToggleHeaderfield {
+  .toggle-list-button > img {
     transition: transform 200ms ease;
   }
 }

@@ -249,7 +249,8 @@
                                    aria-labelledby="expandedtoLabel"/>
     </html:div>
     <html:time id="dateLabel"
-               class="message-header-datetime"
+               class="message-header-datetime message-header-value"
+               tabindex="0"
                aria-readonly="true"></html:time>
   </html:div>
 
@@ -329,7 +330,8 @@
       </html:button>
     </html:div>
     <html:time id="dateLabelSubject"
-               class="message-header-datetime"
+               class="message-header-datetime message-header-value"
+               tabindex="0"
                aria-readonly="true"
                hidden="hidden"></html:time>
   </html:div>
@@ -354,24 +356,42 @@
   <html:div id="expandedmessage-idRow" class="message-header-row" hidden="hidden">
     <html:div id="expandedmessage-idLabel"
          class="message-header-label">&messageIdField4.label;</html:div>
-    <mail-messageids-headerfield id="expandedmessage-idBox"
-                                 aria-labelledby="expandedmessage-idLabel"/>
+    <html:div class="toggle-list-container">
+      <html:button class="plain-button toggle-list-button"
+              aria-expanded="false"
+              aria-labelledby="expandedmessage-idLabel">
+        <html:img src="chrome://global/skin/icons/arrow-right-12.svg"></html:img>
+      </html:button>
+      <html:ul is="message-header-list-messageid" id="expandedmessage-idBox"></html:ul>
+    </html:div>
   </html:div>
 
   <!-- In reply to -->
   <html:div id="expandedin-reply-toRow" class="message-header-row" hidden="hidden">
     <html:div id="expandedin-reply-toLabel"
          class="message-header-label">&inReplyToField4.label;</html:div>
-    <mail-messageids-headerfield id="expandedin-reply-toBox"
-                                 aria-labelledby="expandedin-reply-toLabel"/>
+    <html:div class="toggle-list-container">
+      <html:button class="plain-button toggle-list-button"
+              aria-expanded="false"
+              aria-labelledby="expandedin-reply-toLabel">
+        <html:img src="chrome://global/skin/icons/arrow-right-12.svg"></html:img>
+      </html:button>
+      <html:ul is="message-header-list-messageid" id="expandedin-reply-toBox"></html:ul>
+    </html:div>
   </html:div>
 
   <!-- Reference -->
   <html:div id="expandedreferencesRow" class="message-header-row" hidden="hidden">
     <html:div id="expandedreferencesLabel"
          class="message-header-label">&referencesField4.label;</html:div>
-    <mail-messageids-headerfield id="expandedreferencesBox"
-                                 aria-labelledby="expandedreferencesLabel"/>
+    <html:div class="toggle-list-container">
+      <html:button class="plain-button toggle-list-button"
+              aria-expanded="false"
+              aria-labelledby="expandedreferencesLabel">
+        <html:img src="chrome://global/skin/icons/arrow-right-12.svg"></html:img>
+      </html:button>
+      <html:ul is="message-header-list-messageid" id="expandedreferencesBox"></html:ul>
+    </html:div>
   </html:div>
 
   <!-- Content base -->

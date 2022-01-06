@@ -73,10 +73,10 @@
 
     onContextMenu = event => {
       document
-       .getElementById("copyPopup")
-       .openPopupAtScreen(event.screenX, event.screenY, true);
+        .getElementById("copyPopup")
+        .openPopupAtScreen(event.screenX, event.screenY, true);
       event.preventDefault();
-    }
+    };
 
     set headerValue(val) {
       this.textContent = val;
@@ -113,10 +113,10 @@
 
     onContextMenu = event => {
       document
-       .getElementById("copyUrlPopup")
-       .openPopupAtScreen(event.screenX, event.screenY, true);
+        .getElementById("copyUrlPopup")
+        .openPopupAtScreen(event.screenX, event.screenY, true);
       event.preventDefault();
-    }
+    };
   }
   customElements.define("message-header-url", MozMessageUrl, {
     extends: "div",
@@ -174,7 +174,7 @@
         // Now create a node for the tag name and set the color.
         let valueNode = document.createElement("li");
         valueNode.setAttribute("tabindex", "0");
-        valueNode.classList.add("message-header-value-tag");
+        valueNode.classList.add("message-header-value");
         valueNode.textContent = tagName;
         valueNode.setAttribute(
           "style",
@@ -246,134 +246,95 @@
     MozMailNewsgroupsHeaderfield
   );
 
-  class MozMailMessageid extends MozXULElement {
-    static get observedAttributes() {
-      return ["label"];
-    }
-
+  /**
+   * MozMessageMessageIds is a list of Message-Id, In-Reply-To,
+   * and Reference message headers. Shown by default for nntp messages,
+   * not for regular emails.
+   *
+   * @extends {HTMLUListElement}
+   */
+  class MozMessageMessageIds extends HTMLUListElement {
     constructor() {
       super();
-      this.addEventListener("click", event => {
-        MessageIdClick(this, event);
-      });
+      this.setAttribute("is", "message-header-list-messageid");
+      this.classList.add("header-value-list");
     }
 
     connectedCallback() {
-      this.classList.add("messageIdDisplayButton");
-      this.setAttribute("context", "messageIdContext");
-      this._updateAttributes();
-    }
-
-    attributeChangedCallback() {
-      this._updateAttributes();
-    }
-
-    _updateAttributes() {
-      this.textContent = this.label || "";
-    }
-
-    set label(val) {
-      if (val == null) {
-        this.removeAttribute("label");
-      } else {
-        this.setAttribute("label", val);
-      }
-    }
-
-    get label() {
-      return this.getAttribute("label");
-    }
-  }
-  customElements.define("mail-messageid", MozMailMessageid);
-
-  /**
-   * MozMailMessageidsHeaderfield is a widget used to show/link messages in the message header.
-   * Shown by default for nntp messages, not for regular emails.
-   * @extends {MozXULElement}
-   */
-  class MozMailMessageidsHeaderfield extends MozXULElement {
-    connectedCallback() {
-      if (this.hasChildNodes() || this.delayConnectedCallback()) {
+      if (this.hasConnected) {
         return;
       }
+      this.hasConnected = true;
 
-      this.setAttribute("context", "messageIdsHeaderfieldContext");
+      this.labelNode = this.parentElement.parentElement.querySelector(
+        ".message-header-label"
+      );
 
-      this.mMessageIds = [];
-      this.showFullMessageIds = false;
-
-      this.toggleButton = document.createElement("button");
-      this.toggleButton.classList.add("plain-button", "email-action-button");
-      // FIXME: Is the twisty icon the best representation since toggling the
-      // twisty icon does not expand hidden content vertically?
-      // A list of <details> elements may be more appropriate to capture this,
-      // and would be more accessible.
-      // NOTE: We currently style the toggle button as a twisty icon, which
-      // relies on the CSS -moz-locale-dir(rtl) selector to choose the image.
-      // Therefore, we use a <div> rather than an <img> for convenience.
-      // However, this means we cannot set alt text that describes the behaviour
-      // of the button to screen readers. We use aria-expanded to hint that the
-      // behaviour is _similar_ to tree expansion.
-      this.toggleButton.setAttribute("aria-expanded", this.showFullMessageIds);
-      this.toggleIcon = document.createElement("div");
-      this.toggleIcon.classList.add("emailToggleHeaderfield");
-      this.toggleButton.appendChild(this.toggleIcon);
-
+      this.toggleButton = this.parentElement.querySelector(
+        ".toggle-list-button"
+      );
       this.toggleButton.addEventListener("click", () => {
         this._toggleWrap();
       });
-      this.appendChild(this.toggleButton);
 
-      this.headerValue = document.createXULElement("hbox");
-      this.headerValue.classList.add("headerValue");
-      this.headerValue.setAttribute("flex", "1");
-      this.appendChild(this.headerValue);
+      this.mMessageIds = [];
+      this.showFullMessageIds = false;
+    }
+
+    set headerValue(val) {
+      this.mMessageIds = val ? val.split(/\s+/) : [];
+      this.clearHeaderValues();
+      this.fillMessageIdNodes();
     }
 
     _toggleWrap() {
       this.showFullMessageIds = !this.showFullMessageIds;
       this.toggleButton.setAttribute("aria-expanded", this.showFullMessageIds);
-      this.toggleIcon.classList.toggle("open", this.showFullMessageIds);
-      for (let i = 0; i < this.headerValue.children.length; i += 2) {
+      //this.toggleButton.setAttribute("aria-labelledby", this.labelNode.id);
+      this.toggleButton.classList.toggle("open", this.showFullMessageIds);
+      for (let i = 0; i < this.children.length; i++) {
+        let valueNode = this.children[i];
         if (this.showFullMessageIds) {
-          this.headerValue.children[i].setAttribute(
-            "label",
-            this.mMessageIds[i / 2]
-          );
-          this.headerValue.children[i].removeAttribute("tooltiptext");
+          valueNode.textContent = this.mMessageIds[i];
+          valueNode.removeAttribute("title");
         } else {
-          this.headerValue.children[i].setAttribute("label", i / 2 + 1);
-          this.headerValue.children[i].setAttribute(
-            "tooltiptext",
-            this.mMessageIds[i / 2]
-          );
+          valueNode.textContent = i + 1;
+          valueNode.setAttribute("title", this.mMessageIds[i]);
         }
       }
     }
 
     fillMessageIdNodes() {
-      while (
-        this.headerValue.children.length >
-        this.mMessageIds.length * 2 - 1
-      ) {
-        this.headerValue.lastElementChild.remove();
-      }
-
-      this.toggleButton.hidden = this.mMessageIds.length <= 1;
-
       for (let i = 0; i < this.mMessageIds.length; i++) {
-        if (i * 2 <= this.headerValue.children.length - 1) {
+        if (i < this.children.length - 1) {
           this._updateMessageIdNode(
-            this.headerValue.children[i * 2],
+            this.children[i],
             i + 1,
             this.mMessageIds[i],
             this.mMessageIds.length
           );
         } else {
-          let newMessageIdNode = document.createXULElement("mail-messageid");
-          let itemInDocument = this.headerValue.appendChild(newMessageIdNode);
+          let valueNode = document.createElement("li");
+          valueNode.setAttribute("tabindex", "0");
+          // NOTE: if this role is set, the reader will note it's a menu
+          // (and the node does have a contextmenu) but this will lose the
+          // count of items - listitem role is required for that.
+          //valueNode.setAttribute("role", "menu");
+          valueNode.classList.add("message-header-value");
+          valueNode.addEventListener("click", event => {
+            MessageIdClick(event);
+          });
+          valueNode.oncontextmenu = event => {
+            document
+              .getElementById("messageIdContext")
+              .openPopupAtScreen(event.screenX, event.screenY, true);
+            event.preventDefault();
+          };
+
+          this.appendChild(valueNode);
+
           this._updateMessageIdNode(
-            itemInDocument,
+            valueNode,
             i + 1,
             this.mMessageIds[i],
             this.mMessageIds.length
@@ -382,35 +343,36 @@
       }
     }
 
-    _updateMessageIdNode(messageIdNode, index, messageId, lastId) {
+    _updateMessageIdNode(valueNode, index, messageId, lastId) {
       if (this.showFullMessageIds || index == lastId) {
-        messageIdNode.setAttribute("label", messageId);
-        messageIdNode.removeAttribute("tooltiptext");
+        valueNode.textContent = messageId;
+        valueNode.removeAttribute("title");
       } else {
-        messageIdNode.setAttribute("label", index);
-        messageIdNode.setAttribute("tooltiptext", messageId);
+        valueNode.textContent = index;
+        valueNode.setAttribute("title", messageId);
       }
 
-      messageIdNode.setAttribute("index", index);
-      messageIdNode.setAttribute("messageid", messageId);
-    }
-
-    addMessageIdView(messageId) {
-      this.mMessageIds.push(messageId);
+      valueNode.setAttribute("messageid", messageId);
+      valueNode.setAttribute("index", index);
+      valueNode.setAttribute("messageid", messageId);
+      valueNode.setAttribute(
+        "aria-label",
+        `${this.labelNode.textContent}: ${valueNode.textContent}`
+      );
     }
 
     clearHeaderValues() {
-      this.mMessageIds = [];
+      this.replaceChildren();
+      this.toggleButton.hidden = this.mMessageIds.length < 2;
       if (this.showFullMessageIds) {
         this.showFullMessageIds = false;
-        this.toggleIcon.classList.remove("open");
+        this.toggleButton.classList.remove("open");
       }
     }
   }
-  customElements.define(
-    "mail-messageids-headerfield",
-    MozMailMessageidsHeaderfield
-  );
+  customElements.define("message-header-list-messageid", MozMessageMessageIds, {
+    extends: "ul",
+  });
 
   class MozMailEmailaddress extends MozXULElement {
     static get observedAttributes() {
