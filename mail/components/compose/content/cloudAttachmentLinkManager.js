@@ -4,6 +4,10 @@
 
 /* import-globals-from MsgComposeCommands.js */
 
+let { MsgUtils } = ChromeUtils.import(
+  "resource:///modules/MimeMessageUtils.jsm"
+);
+
 var gCloudAttachmentLinkManager = {
   init() {
     this.cloudAttachments = [];
@@ -32,7 +36,7 @@ var gCloudAttachmentLinkManager = {
   ComposeProcessDone() {},
   SaveInFolderDone() {},
 
-  handleEvent(event) {
+  async handleEvent(event) {
     let mailDoc = document.getElementById("content-frame").contentDocument;
 
     if (event.type == "attachment-renamed") {
@@ -50,7 +54,7 @@ var gCloudAttachmentLinkManager = {
           // be able to find the old entry here. Update now.
           attachment.contentLocation = cloudFileUpload.url;
           item.replaceWith(
-            this._createNode(mailDoc, attachment, cloudFileUpload)
+            await this._createNode(mailDoc, attachment, cloudFileUpload)
           );
         }
       }
@@ -62,7 +66,7 @@ var gCloudAttachmentLinkManager = {
       let cloudFileUpload = event.target.cloudFileUpload;
       let attachment = event.target.attachment;
       this.cloudAttachments.push(attachment);
-      this._insertItem(mailDoc, attachment, cloudFileUpload);
+      await this._insertItem(mailDoc, attachment, cloudFileUpload);
     } else if (
       event.type == "attachments-removed" ||
       event.type == "attachments-converted-to-regular"
@@ -90,7 +94,8 @@ var gCloudAttachmentLinkManager = {
         }
       }
 
-      this._updateAttachmentCount(mailDoc);
+      await this._updateAttachmentCount(mailDoc);
+      await this._updateServiceProviderLinks(mailDoc);
 
       if (items.length == 0) {
         if (list) {
@@ -104,7 +109,7 @@ var gCloudAttachmentLinkManager = {
   /**
    * Removes the root node for an attachment list in an HTML email.
    *
-   * @param aDocument the document to remove the root node from.
+   * @param {Document} aDocument - the document to remove the root node from
    */
   _removeRoot(aDocument) {
     let header = aDocument.getElementById("cloudAttachmentListRoot");
@@ -117,8 +122,8 @@ var gCloudAttachmentLinkManager = {
    * Given some node, returns the textual HTML representation for the node
    * and its children.
    *
-   * @param aDocument the document that the node is embedded in
-   * @param aNode the node to get the textual representation from
+   * @param {Document} aDocument - the document that the node is embedded in
+   * @param {DOMNode} aNode - the node to get the textual representation from
    */
   _getHTMLRepresentation(aDocument, aNode) {
     let tmp = aDocument.createElement("p");
@@ -127,19 +132,29 @@ var gCloudAttachmentLinkManager = {
   },
 
   /**
+   * Returns the plain text equivalent of the given HTML markup, ready to be
+   * inserted into a compose editor.
+   *
+   * @param {string} aMarkup - the HTML markup that should be converted
+   */
+  _getTextRepresentation(aMarkup) {
+    return MsgUtils.convertToPlainText(aMarkup, true).replaceAll("\r\n", "\n");
+  },
+
+  /**
    * Generates an appropriately styled link.
    *
-   * @param aDocument the document to append the link to - doesn't actually
-   *                  get appended, but is used to generate the anchor node.
-   * @param aContent the textual content of the link
-   * @param aHref the HREF attribute for the generated link
+   * @param {Document} aDocument - the document to append the link to - doesn't
+   *   actually get appended, but is used to generate the anchor node
+   * @param {String} aContent - the textual content of the link
+   * @param {String} aHref - the HREF attribute for the generated link
+   * @param {String} aColor - the CSS color string for the link
    */
-  _generateLink(aDocument, aContent, aHref) {
-    const LINK_COLOR = "#0F7EDB";
+  _generateLink(aDocument, aContent, aHref, aColor) {
     let link = aDocument.createElement("a");
     link.href = aHref;
     link.textContent = aContent;
-    link.style.cssText = "color: " + LINK_COLOR + " !important";
+    link.style.cssText = `color: ${aColor} !important`;
     return link;
   },
 
@@ -266,8 +281,8 @@ var gCloudAttachmentLinkManager = {
    * Attempts to find any elements with an id in aIDs, and sets those elements
    * id attribute to the empty string, freeing up the ids for later use.
    *
-   * @param aDocument the document to search for the elements.
-   * @param aIDs an array of id strings.
+   * @param {Document} aDocument - the document to search for the elements
+   * @param {String[]} aIDs - an array of id strings
    */
   _resetNodeIDs(aDocument, aIDs) {
     for (let id of aIDs) {
@@ -282,16 +297,18 @@ var gCloudAttachmentLinkManager = {
    * Insert the header for the cloud attachment list, which we'll use to
    * as an insertion point for the individual cloud attachments.
    *
-   * @param aDocument the document to insert the header into.
+   * @param {Document} aDocument - the document to insert the header into
    */
   _insertHeader(aDocument) {
     // If there already exists a cloudAttachmentListRoot,
-    // cloudAttachmentListHeader or cloudAttachmentList in the document,
-    // strip them of their IDs so that we don't conflict with them.
+    // cloudAttachmentListHeader, cloudAttachmentListFooter or
+    // cloudAttachmentList in the document, strip them of their IDs so that we
+    // don't conflict with them.
     this._resetNodeIDs(aDocument, [
       "cloudAttachmentListRoot",
       "cloudAttachmentListHeader",
       "cloudAttachmentList",
+      "cloudAttachmentListFooter",
     ]);
 
     let editor = GetCurrentEditor();
@@ -307,54 +324,48 @@ var gCloudAttachmentLinkManager = {
 
     this._findInsertionPoint(aDocument);
 
+    let root = editor.createElementWithDefaults("div");
+    let header = editor.createElementWithDefaults("div");
+    let list = editor.createElementWithDefaults("div");
+    let footer = editor.createElementWithDefaults("div");
+
     if (gMsgCompose.composeHTML) {
-      // It's really quite strange, but if we don't set
-      // the innerHTML of each element to be non-empty, then
-      // the nodes fail to be added to the compose window.
-      let root = editor.createElementWithDefaults("div");
-      root.id = "cloudAttachmentListRoot";
       root.style.padding = "15px";
       root.style.backgroundColor = "#D9EDFF";
-      root.innerHTML = " ";
 
-      let header = editor.createElementWithDefaults("div");
-      header.id = "cloudAttachmentListHeader";
       header.style.marginBottom = "15px";
-      header.innerHTML = " ";
-      root.appendChild(header);
 
-      let list = editor.createElementWithDefaults("ul");
-      list.id = "cloudAttachmentList";
+      list = editor.createElementWithDefaults("ul");
       list.style.backgroundColor = "#FFFFFF";
       list.style.padding = "15px";
       list.style.listStyleType = "none";
       list.display = "inline-block";
-      list.innerHTML = " ";
-      root.appendChild(list);
-
-      editor.insertElementAtSelection(root, false);
-      if (!root.previousSibling || root.previousSibling.localName == "span") {
-        root.parentNode.insertBefore(editor.document.createElement("br"), root);
-      }
-    } else {
-      let root = editor.createElementWithDefaults("div");
-      root.id = "cloudAttachmentListRoot";
-
-      let header = editor.createElementWithDefaults("div");
-      header.id = "cloudAttachmentListHeader";
-      header.innerHTML = " ";
-      root.appendChild(header);
-
-      let list = editor.createElementWithDefaults("span");
-      list.id = "cloudAttachmentList";
-      root.appendChild(list);
-
-      editor.insertElementAtSelection(root, false);
-      if (!root.previousSibling || root.previousSibling.localName == "span") {
-        root.parentNode.insertBefore(editor.document.createElement("br"), root);
-      }
     }
 
+    root.id = "cloudAttachmentListRoot";
+    header.id = "cloudAttachmentListHeader";
+    list.id = "cloudAttachmentList";
+    footer.id = "cloudAttachmentListFooter";
+
+    // It's really quite strange, but if we don't set
+    // the innerHTML of each element to be non-empty, then
+    // the nodes fail to be added to the compose window.
+    root.innerHTML = " ";
+    header.innerHTML = " ";
+    list.innerHTML = " ";
+    footer.innerHTML = " ";
+
+    root.appendChild(header);
+    root.appendChild(list);
+    root.appendChild(footer);
+    editor.insertElementAtSelection(root, false);
+    if (!root.previousSibling || root.previousSibling.localName == "span") {
+      root.parentNode.insertBefore(editor.document.createElement("br"), root);
+    }
+
+    // Remove the space, which would end up in the plain text converted
+    // version.
+    list.innerHTML = "";
     selection.collapse(originalAnchor, originalOffset);
 
     // Restore the selection ranges.
@@ -367,30 +378,90 @@ var gCloudAttachmentLinkManager = {
    * Updates the count of how many attachments have been added
    * in HTML emails.
    *
-   * @aDocument the document that contains the cloudAttachmentListHeader node.
+   * @param {Document} aDocument - the document that contains the header node
    */
-  _updateAttachmentCount(aDocument) {
+  async _updateAttachmentCount(aDocument) {
     let header = aDocument.getElementById("cloudAttachmentListHeader");
     if (!header) {
       return;
     }
 
-    let count = PluralForm.get(
-      this.cloudAttachments.length,
-      getComposeBundle().getString("cloudAttachmentCountHeader")
+    let entries = aDocument.querySelectorAll(
+      "#cloudAttachmentList > .cloudAttachmentItem"
     );
 
-    header.textContent = count.replace("#1", this.cloudAttachments.length);
+    header.textContent = await l10nCompose.formatValue(
+      "cloud-file-count-header",
+      {
+        count: entries.length,
+      }
+    );
+  },
+
+  /**
+   * Updates the service provider links in the footer.
+   *
+   * @param {Document} aDocument - the document that contains the footer node
+   */
+  async _updateServiceProviderLinks(aDocument) {
+    let footer = aDocument.getElementById("cloudAttachmentListFooter");
+    if (!footer) {
+      return;
+    }
+
+    let providers = [];
+    let entries = aDocument.querySelectorAll(
+      "#cloudAttachmentList > .cloudAttachmentItem"
+    );
+    for (let entry of entries) {
+      if (!entry.dataset.serviceUrl) {
+        continue;
+      }
+
+      let link_markup = this._generateLink(
+        aDocument,
+        entry.dataset.serviceName,
+        entry.dataset.serviceUrl,
+        "dark-grey"
+      ).outerHTML;
+
+      if (!providers.includes(link_markup)) {
+        providers.push(link_markup);
+      }
+    }
+
+    let content = "";
+    let count = providers.length;
+    let lastLink = providers.pop();
+    let firstLinks = providers.join(", ");
+    if (lastLink) {
+      content = await l10nCompose.formatValue(
+        "cloud-file-service-provider-footer",
+        {
+          count,
+          firstLinks,
+          lastLink,
+        }
+      );
+    }
+
+    if (gMsgCompose.composeHTML) {
+      // eslint-disable-next-line no-unsanitized/property
+      footer.innerHTML = content;
+    } else {
+      footer.textContent = this._getTextRepresentation(content);
+    }
   },
 
   /**
    * Insert the information for a cloud attachment.
    *
-   * @param aDocument the document to insert the item into
-   * @param aAttachment the nsIMsgAttachment to insert
-   * @param aCloudFileUpload object with information about the uploaded file,
+   * @param {Document} aDocument - the document to insert the item into
+   * @param {nsIMsgAttachment} aAttachment - the attachment to insert
+   * @param {CloudFileTemplate} aCloudFileUpload - object with information about
+   *   the uploaded file
    */
-  _insertItem(aDocument, aAttachment, aCloudFileUpload) {
+  async _insertItem(aDocument, aAttachment, aCloudFileUpload) {
     let list = aDocument.getElementById("cloudAttachmentList");
 
     if (!list) {
@@ -398,132 +469,232 @@ var gCloudAttachmentLinkManager = {
       list = aDocument.getElementById("cloudAttachmentList");
     }
 
-    this._updateAttachmentCount(aDocument);
     list.appendChild(
-      this._createNode(aDocument, aAttachment, aCloudFileUpload)
+      await this._createNode(aDocument, aAttachment, aCloudFileUpload)
     );
+    await this._updateAttachmentCount(aDocument);
+    await this._updateServiceProviderLinks(aDocument);
   },
+
+  /**
+   * @typedef CloudFileDate
+   * @property {integer} timestamp - milliseconds since epoch
+   * @property {DateTimeFormat} format - format object of Intl.DateTimeFormat
+   */
+
+  /**
+   * @typedef CloudFileTemplate
+   * @property {string} serviceName - name of the upload service provider
+   * @property {string} serviceIcon - icon of the upload service provider
+   * @property {string} serviceUrl - web interface of the upload service provider
+   * @property {boolean} downloadPasswordProtected - link is password protected
+   * @property {integer} downloadLimit - download limit of the link
+   * @property {CloudFileDate} downloadExpiryDate - expiry date of the link
+   */
 
   /**
    * Create the link node for a cloud attachment.
    *
-   * @param aDocument the document to insert the item into
-   * @param aAttachment the nsIMsgAttachment to insert
-   * @param aCloudFileUpload object with information about the uploaded file,
-   * @param aCloudFileUpload.serviceName name of the service
-   * @param aCloudFileUpload.serviceIcon URL pointing to the service's icon
-   * @param aCloudFileUpload.serviceURL URL pointing to the service's webpage
+   * @param {Document} aDocument - the document to insert the item into
+   * @param {nsIMsgAttachment} aAttachment - the attachment to insert
+   * @param {CloudFileTemplate} aCloudFileUpload - object with information about
+   *   the uploaded file
    */
-  _createNode(aDocument, aAttachment, aCloudFileUpload) {
-    let node = aDocument.createElement(gMsgCompose.composeHTML ? "li" : "div");
+  async _createNode(aDocument, aAttachment, aCloudFileUpload) {
+    const iconSize = 32;
+    const locales = {
+      service: 0,
+      size: 1,
+      link: 2,
+      "password-protected-link": 3,
+      "expiry-date": 4,
+      "download-limit": 5,
+      "tooltip-password-protected-link": 6,
+    };
+
+    let l10n_values = await l10nCompose.formatValues([
+      { id: "cloud-file-template-service" },
+      { id: "cloud-file-template-size" },
+      { id: "cloud-file-template-link" },
+      { id: "cloud-file-template-password-protected-link" },
+      { id: "cloud-file-template-expiry-date" },
+      { id: "cloud-file-template-download-limit" },
+      { id: "cloud-file-tooltip-password-protected-link" },
+    ]);
+
+    let node = aDocument.createElement("li");
+    node.style.border = "1px solid #CDCDCD";
+    node.style.borderRadius = "5px";
+    node.style.marginTop = "10px";
+    node.style.marginBottom = "10px";
+    node.style.padding = "15px";
+    node.style.display = "grid";
+    node.style.gridTemplateColumns = "0fr 1fr 0fr 0fr";
+    node.style.alignItems = "center";
+
+    const statsRow = (name, content) => {
+      let entry = aDocument.createElement("span");
+      entry.style.gridColumn = `2 / span 3`;
+      entry.style.fontSize = "small";
+
+      let description = aDocument.createElement("span");
+      description.style.color = "dark-grey";
+      description.textContent = `${l10n_values[locales[name]]} `;
+      entry.appendChild(description);
+
+      let value = aDocument.createElement("span");
+      value.style.color = "#595959";
+      value.textContent = content;
+      value.classList.add(`cloudfile-${name}`);
+      entry.appendChild(value);
+
+      entry.appendChild(aDocument.createElement("br"));
+      return entry;
+    };
+
+    const serviceRow = () => {
+      let service = aDocument.createDocumentFragment();
+
+      let description = aDocument.createElement("span");
+      description.style.display = "none";
+      description.textContent = `${l10n_values[locales.service]} `;
+      service.appendChild(description);
+
+      let providerName = aDocument.createElement("span");
+      providerName.style.gridArea = "1 / 4";
+      providerName.style.color = "#595959";
+      providerName.style.fontSize = "small";
+      providerName.textContent = aCloudFileUpload.serviceName;
+      providerName.classList.add("cloudfile-service-name");
+      service.appendChild(providerName);
+
+      service.appendChild(aDocument.createElement("br"));
+      return service;
+    };
+
+    // If this message is send in plain text only, do not add a link to the file
+    // name.
+    let name = aDocument.createElement("span");
+    name.textContent = aAttachment.name;
+    if (gMsgCompose.composeHTML) {
+      name = this._generateLink(
+        aDocument,
+        aAttachment.name,
+        aAttachment.contentLocation,
+        "#0F7EDB"
+      );
+      name.setAttribute("moz-do-not-send", "true");
+      name.style.gridArea = "1 / 2";
+    }
+    name.classList.add("cloudfile-name");
+    node.appendChild(name);
+
+    let paperclip = aDocument.createElement("img");
+    paperclip.classList.add("paperClipIcon");
+    paperclip.style.gridArea = "1 / 1";
+    paperclip.alt = "";
+    paperclip.style.marginRight = "5px";
+    paperclip.width = `${iconSize}`;
+    paperclip.height = `${iconSize}`;
+    if (aCloudFileUpload.downloadPasswordProtected) {
+      paperclip.title = l10n_values[locales["tooltip-password-protected-link"]];
+      paperclip.src =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIfSURBVFhH7ZfLK0RRHMfvNd6PMV4Lj5UkO5bslJIdf4ClRw2TlY2yt2EhsZO9DYoFoiSvJBZkI6SsNMyIiLnH93vmXDF5HNe9pHzqM797fufMPb+Zc4Z7jC+QBnvgJryD93AddkH2eUop3IPiHXdgCfSEdLgLOdE+bIFFSl4zZxeRAl2HXzsn2IIZTCTAHPs4hsvhOlxz3rxRtt6GfRyzJlsucw1582zZehv2cUxEtlyGN6afkThuFa7EL7+H0wK03pek4q/xJwtYVv4YumurO+4V/3vgvwAvC5iHTfHL9zFV/Ah7J9tjE9s2r/K3YwWlD8IaREP+ExPCWBDJVl+gM3LEto0nBURHCiuNpBiflvLjqWcufDFfdVbo4ly1PVoC0xrAaz4qnLdiVjk1hVhArvDRFxuSYxQeFSAaGHzCbAuEIsf0URjtsithX3i1Cf18yewKn8kWyOu+OlWXuSpKnBRwpWKxioTXi7BCtr6Ak004BZvhJAwyAUZhb3Q0bwKxXmY+xVzyB8MNOgXwE/NrC0A+clXBDZV7iYkC7GK18AcvTZ0lOFGRE5NDWAtn4A28hdPQEToFcG1Jq4qERXAZ+DCaBXk+cIROAePQgh2whgk30SngAA7CVDgLq6Fr6P4M++Ec5PmPp6BhWAdzIA+m3BOO0C2AJ2GuMyfme0KQp6Ao5EmZf/fLDGFuI2oi+EEcUQm5JDywhpWc2MFGNIwn/WmcKhqF50UAAAAASUVORK5CYII=";
+    } else {
+      paperclip.src =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAVFJREFUWIXtl8FKw0AQhj8EbQ/p0Ut8AVEPgYLUB+i5L6J9E0Wtr1HPgl48WU8K1Tfw4LktxUAhHvZfiMXUbdhVhB0Yms78M/NldwkJuFsD6AMjYCYfASfKBbUd4BkoKvxJmiDWKA1/AXrAtrynmIUIshJ9DXgEmt/km8oVwHEIANu8u0LTleYhBMBUzZMVmkSaSQgAe9DW1d3L/wzAqW6jJpQ3+5cA3vbW1Vz3Np6BCBABIkAE+DWAmX7TUixdynm15Wf6jf5fa3Cq60K5qrraNuHrK1kbmJcGWJ8rB9DC4yvaq5odlmK7wBB4lw8Vs9ZRzdgHwLmaXa5RM1DNmQ+AA2ABfACZgz4DctXs+QAAuMLc0dsPEJk0BXDhazjAFnCnxjlmiTuYg5kAR4rl0twCmz4BLMQAs7RVH6kLzJ17H162fczhGmO+mqa6PqXGnn8CxMN0PcC9DrQAAAAASUVORK5CYII=";
+    }
+    node.appendChild(paperclip);
+
+    let serviceIcon = aDocument.createElement("img");
+    serviceIcon.classList.add("cloudfile-service-icon");
+    serviceIcon.style.gridArea = "1 / 3";
+    serviceIcon.alt = "";
+    serviceIcon.style.margin = "0 5px";
+    serviceIcon.width = `${iconSize}`;
+    serviceIcon.height = `${iconSize}`;
+    node.appendChild(serviceIcon);
+
+    if (!/^(chrome|moz-extension):\/\//i.test(aCloudFileUpload.serviceIcon)) {
+      serviceIcon.src = aCloudFileUpload.serviceIcon;
+    } else {
+      try {
+        // Let's use the goodness from MsgComposeCommands.js since we're
+        // sitting right in a compose window.
+        serviceIcon.src = window.loadBlockedImage(
+          aCloudFileUpload.serviceIcon,
+          true
+        );
+      } catch (e) {
+        // Couldn't load the referenced image.
+        Cu.reportError(e);
+      }
+    }
+    node.appendChild(aDocument.createElement("br"));
+
+    node.appendChild(
+      statsRow("size", gMessenger.formatFileSize(aAttachment.size))
+    );
+
+    if (aCloudFileUpload.downloadExpiryDate) {
+      node.appendChild(
+        statsRow(
+          "expiry-date",
+          new Date(
+            aCloudFileUpload.downloadExpiryDate.timestamp
+          ).toLocaleString(
+            undefined,
+            aCloudFileUpload.downloadExpiryDate.format || {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZoneName: "short",
+            }
+          )
+        )
+      );
+    }
+
+    if (aCloudFileUpload.downloadLimit) {
+      node.appendChild(
+        statsRow("download-limit", aCloudFileUpload.downloadLimit)
+      );
+    }
+
+    if (gMsgCompose.composeHTML || aCloudFileUpload.serviceUrl) {
+      node.appendChild(serviceRow());
+    }
+
+    if (aCloudFileUpload.downloadPasswordProtected) {
+      node.appendChild(
+        statsRow("password-protected-link", aAttachment.contentLocation)
+      );
+    } else {
+      node.appendChild(statsRow("link", aAttachment.contentLocation));
+    }
+
+    // An extra line break is needed for the converted plain text version, if it
+    // should have a gap between its <li> elements.
+    if (gMsgCompose.composeHTML) {
+      node.appendChild(aDocument.createElement("br"));
+    }
+
+    // Generate the plain text version from the HTML. The used method needs a <ul>
+    // element wrapped around the <li> element to produce the correct content.
+    if (!gMsgCompose.composeHTML) {
+      let ul = aDocument.createElement("ul");
+      ul.appendChild(node);
+      node = aDocument.createElement("p");
+      node.textContent = this._getTextRepresentation(ul.outerHTML);
+    }
+
     node.className = "cloudAttachmentItem";
     node.contentLocation = aAttachment.contentLocation;
 
-    if (gMsgCompose.composeHTML) {
-      node.style.border = "1px solid #CDCDCD";
-      node.style.borderRadius = "5px";
-      node.style.marginTop = "10px";
-      node.style.marginBottom = "10px";
-      node.style.padding = "15px";
-
-      let paperclip = aDocument.createElement("img");
-      paperclip.style.marginRight = "5px";
-      paperclip.style.cssFloat = "left";
-      paperclip.width = "24";
-      paperclip.height = "24";
-      paperclip.alt = "";
-      paperclip.src =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABVUlEQVR42mNgGChgbGzMqm9slqFnbHZLz8TsPwoGioHkQGrItgBsOLrBaFjfxCydbAvgLjc2zQNymZCkmPRMzfOhllwj3wKoK9EMB4PQ0FBmJHmgWtM1eqZmS8m1gEHXxGyLnon5WlzyyGyyLMBmwKgFoxYMPgv+gdjq1ta8YL6elRhU/i+1LDgAYuuamidC+Q1geVOzzVSxQN/EPAnKvwLM0cFA+hOYb2TmRIkFH0CaDExNDbS1HXgwim1o2QMKNvIsMDafCtW4DOwLMzM1YJl0ChxUxqaNQCFGsDqgRRB1ppdIssDQ3FwLqPE7ermvY2ysDK8zEEH3RdfYWIPkIlvX1DQaasAvfVPTGBQ5E3MvoPhXiAPMYympFxoQ4W7eA/IBKIhASRRiuOkUiutnoGuzYQYi4b/AOCmjWiMAGFz2QEO3gwwGunoXiE+T1oa5uTkfKeoBW+cLhPF1+Q8AAAAASUVORK5CYII=";
-      node.appendChild(paperclip);
-
-      let link = this._generateLink(
-        aDocument,
-        aAttachment.name,
-        aAttachment.contentLocation
-      );
-      link.setAttribute("moz-do-not-send", "true");
-      node.appendChild(link);
-
-      let size = aDocument.createElement("span");
-      size.textContent =
-        " (" + gMessenger.formatFileSize(aAttachment.size) + ") ";
-      size.style.fontSize = "small";
-      size.style.color = "grey";
-      node.appendChild(size);
-
-      let providerIdentity = aDocument.createElement("span");
-      providerIdentity.style.cssFloat = "right";
-
-      if (aCloudFileUpload.serviceIcon) {
-        let providerIcon = aDocument.createElement("img");
-        providerIcon.classList.add("providerIcon");
-        providerIcon.alt = "";
-        providerIcon.style.marginRight = "5px";
-        providerIcon.width = "24";
-        providerIcon.height = "24";
-        providerIcon.style.verticalAlign = "middle";
-        providerIdentity.appendChild(providerIcon);
-
-        if (
-          !/^(chrome|moz-extension):\/\//i.test(aCloudFileUpload.serviceIcon)
-        ) {
-          providerIcon.src = aCloudFileUpload.serviceIcon;
-        } else {
-          try {
-            // Let's use the goodness from MsgComposeCommands.js since we're
-            // sitting right in a compose window.
-            providerIcon.src = window.loadBlockedImage(
-              aCloudFileUpload.serviceIcon,
-              true
-            );
-          } catch (e) {
-            // Couldn't load the referenced image.
-            Cu.reportError(e);
-          }
-        }
-      }
-
-      if (aCloudFileUpload.serviceURL) {
-        let providerLink = this._generateLink(
-          aDocument,
-          aCloudFileUpload.serviceName,
-          aCloudFileUpload.serviceURL
-        );
-        providerLink.style.verticalAlign = "middle";
-        providerLink.classList.add("providerLink");
-        providerIdentity.appendChild(providerLink);
-      } else {
-        let providerName = aDocument.createElement("span");
-        providerName.textContent = aCloudFileUpload.serviceName;
-        providerName.style.verticalAlign = "middle";
-        providerName.classList.add("providerName");
-        providerIdentity.appendChild(providerName);
-      }
-      node.appendChild(providerIdentity);
-
-      let linebreak = aDocument.createElement("br");
-      node.appendChild(linebreak);
-
-      let downloadUrl = this._generateLink(
-        aDocument,
-        aAttachment.contentLocation,
-        aAttachment.contentLocation
-      );
-      downloadUrl.style.fontSize = "small";
-      downloadUrl.style.display = "block";
-      downloadUrl.classList.add("downloadUrl");
-      node.appendChild(downloadUrl);
-    } else {
-      node.textContent = getComposeBundle().getFormattedString(
-        "cloudAttachmentListItem",
-        [
-          aAttachment.name,
-          gMessenger.formatFileSize(aAttachment.size),
-          aCloudFileUpload.serviceName,
-          aAttachment.contentLocation,
-        ]
-      );
-    }
+    node.dataset.serviceName = aCloudFileUpload.serviceName;
+    node.dataset.serviceUrl = aCloudFileUpload.serviceUrl;
     return node;
   },
 
@@ -542,9 +713,10 @@ var gCloudAttachmentLinkManager = {
       msgType == Ci.nsIMsgCompDeliverMode.Background
     ) {
       const kIDs = [
-        "cloudAttachmentList",
         "cloudAttachmentListRoot",
         "cloudAttachmentListHeader",
+        "cloudAttachmentList",
+        "cloudAttachmentListFooter",
       ];
       let mailDoc = document.getElementById("content-frame").contentDocument;
 

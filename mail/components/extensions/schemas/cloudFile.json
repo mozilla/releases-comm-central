@@ -13,7 +13,7 @@
             "properties": {
               "browser_style": {
                 "type": "boolean",
-                "description": "Enable browser styles. See the `MDN documentation <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information.",
+                "description": "Enable browser styles in the ``management_url`` page. See the `MDN documentation <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information.",
                 "optional": true,
                 "default": false
               },
@@ -47,7 +47,8 @@
               "service_url": {
                 "type": "string",
                 "optional": true,
-                "description": "URL to the web page of the cloud file service."
+                "deprecated": true,
+                "description": "This property is no longer used. The ``service_url`` property of the :ref:`cloudFile.CloudFileTemplateInfo` object returned by the :ref:`cloudFile.onFileUpload` event can be used to add a ``Learn more about`` link to the footer of the cloud file attachment element."
               }
             },
             "optional": true
@@ -103,7 +104,7 @@
                   "type": "string"
                 }
               ],
-              "description": "Report an error to the user. Set it to true for showing a generic error message, or set it to a specific error message.",
+              "description": "Report an error to the user. Set this to true for showing a generic error message, or set a specific error message.",
               "optional": true
             },
             "url": {
@@ -113,7 +114,7 @@
             },
             "templateInfo": {
               "$ref": "CloudFileTemplateInfo",
-              "description": "Information to override the default values used in the cloud file message template.",
+              "description": "Defines information to be used in the cloud file entry added to the message.",
               "optional": true
             }
           }
@@ -180,7 +181,7 @@
                   "type": "string"
                 }
               ],
-              "description": "Report an error to the user. Set it to true for showing a generic error message, or set it to a specific error message.",
+              "description": "Report an error to the user. Set this to true for showing a generic error message, or set a specific error message.",
               "optional": true
             },
             "url": {
@@ -285,7 +286,7 @@
       {
         "id": "CloudFileTemplateInfo",
         "type": "object",
-        "description": "Information to be used in the cloud file message template.",
+        "description": "Defines information to be used in the cloud file entry added to the message.",
         "properties": {
           "service_icon": {
             "type": "string",
@@ -300,7 +301,34 @@
           "service_url": {
             "type": "string",
             "optional": true,
-            "description": "An URL to the web page of the used cloud file service, attached the <code>service_name</code>. Defaults to the <code>service_url</code> manifest entry. Set to an empty string in order to not create a link."
+            "description": "A URL pointing to a web page of the used cloud file service. Will be used in a ``Learn more about`` link in the footer of the cloud file attachment element."
+          },
+          "download_password_protected": {
+            "type": "boolean",
+            "optional": true,
+            "description": "If set to true, the cloud file entry for this upload will include a hint, that the download link is password protected."
+          },
+          "download_limit": {
+            "type": "integer",
+            "optional": true,
+            "description": "If set, the cloud file entry for this upload will include a hint, that the file has a download limit."
+          },
+          "download_expiry_date": {
+            "type": "object",
+            "optional": true,
+            "description": "If set, the cloud file entry for this upload will include a hint, that the link will only be available for a limited time.",
+            "properties": {
+              "timestamp": {
+                "type": "integer",
+                "description": "The expiry date of the link as the number of milliseconds since the UNIX epoch."
+              },
+              "format": {
+                "optional": true,
+                "description": "A format options object as used by `Intl.DateTimeFormat <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat>`__. Defaults to: <literalinclude>includes/cloudFile/defaultDateFormat.js<lang>JavaScript</lang></literalinclude>",
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
           }
         }
       },
