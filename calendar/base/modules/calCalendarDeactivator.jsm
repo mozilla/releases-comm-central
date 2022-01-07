@@ -124,7 +124,7 @@ var calendarDeactivator = {
       if (isEnabled) {
         notificationbox.removeNotification(existingNotification);
       } else if (!existingNotification) {
-        let notification = notificationbox.appendNotification(
+        notificationbox.appendNotification(
           value,
           {
             label: { "l10n-id": l10nId },
