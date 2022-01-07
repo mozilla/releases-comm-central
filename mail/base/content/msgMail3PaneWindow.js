@@ -411,20 +411,12 @@ var MailPrefObserver = {
       if (prefName == "mail.pane_config.dynamic") {
         UpdateMailPaneConfig(true);
       } else if (prefName == "mail.showCondensedAddresses") {
-        var currentDisplayNameVersion;
-        var threadTree = document.getElementById("threadTree");
+        let version = Services.prefs.getIntPref("mail.displayname.version", 0);
 
-        currentDisplayNameVersion = Services.prefs.getIntPref(
-          "mail.displayname.version"
-        );
-
-        Services.prefs.setIntPref(
-          "mail.displayname.version",
-          ++currentDisplayNameVersion
-        );
+        Services.prefs.setIntPref("mail.displayname.version", version++);
 
         // refresh the thread pane
-        threadTree.invalidate();
+        document.getElementById("threadTree").invalidate();
       } else if (prefName == "mail.openpgp.enable") {
         if (
           MailConstants.MOZ_OPENPGP &&

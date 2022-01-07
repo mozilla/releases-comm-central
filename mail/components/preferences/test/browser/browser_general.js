@@ -105,8 +105,6 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  Services.prefs.setIntPref("mail.displayname.version", 1);
-
   await testCheckboxes("paneGeneral", "fontsGroup", {
     checkboxID: "displayGlyph",
     pref: "mail.display_glyph",

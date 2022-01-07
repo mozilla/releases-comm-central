@@ -1442,7 +1442,7 @@ FolderDisplayWidget.prototype = {
   displayMessageChanged(aFolder, aSubject, aKeywords) {
     // Hide previous stale message to prevent brief threadpane selection and
     // content displayed mismatch, on both folder and tab changes.
-    let browser = getBrowser();
+    let browser = getMessagePaneBrowser();
     if (browser && browser.contentDocument && browser.contentDocument.body) {
       browser.contentDocument.body.hidden = true;
     }
