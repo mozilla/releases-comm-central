@@ -118,7 +118,7 @@ var calendarDeactivator = {
     ];
 
     let value = "calendarDeactivated";
-    for (let [notificationbox, messageName] of notificationboxes) {
+    for (let [notificationbox, l10nId] of notificationboxes) {
       let existingNotification = notificationbox.getNotificationWithValue(value);
 
       if (isEnabled) {
@@ -127,13 +127,11 @@ var calendarDeactivator = {
         let notification = notificationbox.appendNotification(
           value,
           {
-            label: "",
+            label: { "l10n-id": l10nId },
             priority: notificationbox.PRIORITY_WARNING_MEDIUM,
           },
           null
         );
-
-        window.document.l10n.setAttributes(notification.messageText, messageName);
       }
     }
   },
