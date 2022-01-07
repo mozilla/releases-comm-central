@@ -12,7 +12,6 @@
 #include "mozilla/XREAppData.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Assertions.h"
-#include "mozilla/Vector.h"
 #include "mozilla/TimeStamp.h"
 #include "XREChildData.h"
 #include "XREShellData.h"
