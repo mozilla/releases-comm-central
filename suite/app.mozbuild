@@ -7,9 +7,6 @@ include('/comm/mailnews/mailnews.mozbuild')
 
 include('/toolkit/toolkit.mozbuild')
 
-if CONFIG['MOZ_EXTENSIONS']:
-    DIRS += ['/extensions']
-
 DIRS += [
     '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
     '/comm/calendar',
