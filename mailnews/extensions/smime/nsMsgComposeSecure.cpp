@@ -111,9 +111,11 @@ nsMsgComposeSecure::~nsMsgComposeSecure() {
       mBufferedBytes = 0;
     }
     mEncryptionContext->Finish();
+    mEncryptionContext = nullptr;
   }
 
   delete[] mBuffer;
+  mBuffer = nullptr;
 
   PR_FREEIF(mMultipartSignedBoundary);
 }
@@ -526,8 +528,16 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
     if (mCerts.IsEmpty()) return NS_ERROR_FAILURE;
   }
 
+  // If a previous call to MimeInitEncryption (this function) failed,
+  // the mEncryptionContext already exists and references our
+  // mCryptoEncoder. Destroy mEncryptionContext to release the
+  // reference prior to resetting mCryptoEncoder.
+  if (mEncryptionContext) {
+    mEncryptionContext->Finish();
+    mEncryptionContext = nullptr;
+  }
+
   // Initialize the base64 encoder
-  MOZ_ASSERT(!mCryptoEncoder, "Shouldn't have an encoder already");
   mCryptoEncoder.reset(
       MimeEncoder::GetBase64Encoder(mime_encoder_output_fn, this));
 
@@ -740,12 +750,12 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption(
   }
 
   rv = mEncryptionContext->Finish();
+  mEncryptionContext = nullptr;
+
   if (NS_FAILED(rv)) {
     SetError(sendReport, u"ErrorEncryptMail");
     return rv;
   }
-
-  mEncryptionContext = nullptr;
 
   NS_ENSURE_TRUE(mEncryptionCinfo, NS_ERROR_UNEXPECTED);
 
