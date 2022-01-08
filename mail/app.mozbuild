@@ -15,9 +15,6 @@ include("/%s/mailnews/mailnews.mozbuild" % CONFIG["commreltopsrcdir"])
 
 DIRS += ["/%s/mail/components" % CONFIG["commreltopsrcdir"]]
 
-if CONFIG["MOZ_EXTENSIONS"]:
-    DIRS += ["/%s/extensions" % CONFIG["mozreltopsrcdir"]]
-
 # Never add dirs after /comm/mail because they apparently won't get
 # packaged properly on Mac.
 DIRS += [
