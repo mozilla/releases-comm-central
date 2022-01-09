@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
@@ -14,6 +15,7 @@ var gTopButton;
 var gUpButton;
 var gDownButton;
 var gBottomButton;
+var gSearchBox;
 var gRunFiltersFolderPrefix;
 var gRunFiltersFolder;
 var gRunFiltersButton;
@@ -85,6 +87,7 @@ function onLoad()
     gUpButton = document.getElementById("reorderUpButton");
     gDownButton = document.getElementById("reorderDownButton");
     gBottomButton = document.getElementById("reorderBottomButton");
+    gSearchBox = document.getElementById("searchBox");
     gRunFiltersFolderPrefix = document.getElementById("folderPickerPrefix");
     gRunFiltersFolder = document.getElementById("runFiltersFolder");
     gRunFiltersButton = document.getElementById("runFiltersButton");
@@ -151,6 +154,10 @@ function processWindowArguments(aArguments) {
  *                    as window.arguments[0].
  */
 function refresh(aArguments) {
+  // As we really don't know what has changed, clear the search box
+  // unconditionally so that the changed/added filters are surely visible.
+  resetSearchBox();
+
   processWindowArguments(aArguments);
 }
 
@@ -308,6 +315,8 @@ function onEditFilter()
   window.openDialog("chrome://messenger/content/FilterEditor.xul", "FilterEditor", "chrome,modal,titlebar,resizable,centerscreen", args);
 
   if ("refresh" in args && args.refresh) {
+    // Reset search if edit was okay (name change might lead to hidden entry).
+    resetSearchBox(selectedFilter);
     rebuildFilterList();
   }
 }
@@ -369,6 +378,8 @@ function calculatePositionAndShowCreateFilterDialog(args) {
 
   if (args.refresh)
   {
+    // On success: reset the search box if necessary!
+    resetSearchBox(args.newFilter);
     rebuildFilterList();
 
     // Select the new filter, it is at the position of previous selection.
@@ -409,6 +420,7 @@ function onDeleteFilter()
     gCurrentFilterList.removeFilter(item._filter);
     gFilterListbox.removeItemAt(gFilterListbox.getIndexOfItem(item));
   }
+  updateCountBox();
 
   // Select filter above previously selected if one existed,
   // otherwise the first one.
@@ -461,6 +473,7 @@ function moveFilter(motion) {
   if (!selectedFilter)
     return;
 
+  let relativeStep = 0;
   let moveFilterNative;
 
   switch (motion) {
@@ -480,14 +493,42 @@ function moveFilter(motion) {
       }
       return;
     case msgMoveMotion.Up:
+      relativeStep = -1;
       moveFilterNative = Ci.nsMsgFilterMotion.up;
       break;
     case msgMoveMotion.Down:
+      relativeStep = +1;
       moveFilterNative = Ci.nsMsgFilterMotion.down;
       break;
   }
 
-  moveCurrentFilter(moveFilterNative);
+  if (!gSearchBox.value) {
+    // Use legacy move filter code: up, down; only if searchBox is empty.
+    moveCurrentFilter(moveFilterNative);
+    return;
+  }
+
+  let nextIndex = gFilterListbox.selectedIndex + relativeStep;
+  let nextFilter = gFilterListbox.getItemAtIndex(nextIndex)._filter;
+
+  gCurrentFilterList.removeFilter(selectedFilter);
+
+  // Find the index of the filter we want to insert at.
+  let newIndex = -1;
+  let filterCount = gCurrentFilterList.filterCount;
+  for (let i = 0; i < filterCount; i++) {
+    if (gCurrentFilterList.getFilterAt(i) == nextFilter) {
+      newIndex = i;
+      break;
+    }
+  }
+
+  if (motion == msgMoveMotion.Down)
+    newIndex += relativeStep;
+
+  gCurrentFilterList.insertFilterAt(newIndex, selectedFilter);
+
+  rebuildFilterList();
 }
 
 function viewLog()
@@ -581,6 +622,27 @@ function moveCurrentFilter(motion)
  */
 function rebuildFilterList()
 {
+  // Get filters that match the search box.
+  let aTempFilterList = onFindFilter();
+
+  let searchBoxFocus = false;
+  let activeElement = document.activeElement;
+
+  // Find if the currently focused element is a child inside the search box
+  // (probably html:input). Traverse up the parents until the first element
+  // with an ID is found. If it is not searchBox, return false.
+  while (activeElement != null) {
+    if (activeElement == gSearchBox) {
+      searchBoxFocus = true;
+      break;
+    }
+    else if (activeElement.id) {
+      searchBoxFocus = false;
+      break;
+    }
+    activeElement = activeElement.parentNode;
+  }
+
   // Make a note of which filters were previously selected
   let selectedNames = [];
   for (let i = 0; i < gFilterListbox.selectedItems.length; i++)
@@ -601,8 +663,14 @@ function rebuildFilterList()
   let filterCount = gCurrentFilterList.filterCount;
   let listitemCount = gFilterListbox.itemCount;
   let listitemIndex = 0;
+  let tempFilterListLength = aTempFilterList ? aTempFilterList.length - 1 : 0;
   for (let i = 0; i < filterCount; i++) {
+    if (aTempFilterList && listitemIndex > tempFilterListLength)
+      break;
+
     filter = gCurrentFilterList.getFilterAt(i);
+    if (aTempFilterList && aTempFilterList[listitemIndex] != i)
+      continue;
 
     if (listitemCount > listitemIndex) {
       // If there is a free existing listitem, reuse it.
@@ -649,8 +717,14 @@ function rebuildFilterList()
   }
 
   updateViewPosition(firstVisibleRowIndex);
+  updateCountBox();
 
-  gFilterListbox.focus();
+  // If before rebuilding the list the searchbox was focused, focus it again.
+  // In any other case, focus the list.
+  if (searchBoxFocus)
+    gSearchBox.focus();
+  else
+    gFilterListbox.focus();
 }
 
 function updateViewPosition(firstVisibleRowIndex)
@@ -823,6 +897,85 @@ function onFilterListKeyPress(aEvent) {
       }
       break;
     default:
+      gSearchBox.focus();
+      gSearchBox.value = String.fromCharCode(aEvent.charCode);
+  }
+}
+
+/**
+ * Decides if the given filter matches the given keyword.
+ *
+ * @param  aFilter   nsIMsgFilter to check
+ * @param  aKeyword  the string to find in the filter name
+ *
+ * @return  True if the filter name contains the searched keyword.
+            Otherwise false. In the future this may be extended to match
+            other filter attributes.
+ */
+function filterSearchMatch(aFilter, aKeyword) {
+  return (aFilter.filterName.toLocaleLowerCase().includes(aKeyword))
+}
+
+/**
+ * Called from rebuildFilterList when the list needs to be redrawn.
+ * @return  Uses the search term in search box, to produce an array of
+ *          row (filter) numbers (indexes) that match the search term.
+ */
+function onFindFilter() {
+  let keyWord = gSearchBox.value.toLocaleLowerCase();
+
+  // If searchbox is empty, just return and let rebuildFilterList
+  // create an unfiltered list.
+  if (!keyWord)
+    return null;
+
+  // Rematch everything in the list, remove what doesn't match the search box.
+  let rows = gCurrentFilterList.filterCount;
+  let matchingFilterList = [];
+  // Use the full gCurrentFilterList, not the filterList listbox,
+  // which may already be filtered.
+  for (let i = 0; i < rows; i++) {
+    if (filterSearchMatch(gCurrentFilterList.getFilterAt(i), keyWord))
+      matchingFilterList.push(i);
+  }
+
+  return matchingFilterList;
+}
+
+/**
+ * Clear the search term in the search box if needed.
+ *
+ * @param aFilter  If this nsIMsgFilter matches the search term,
+ *                 do not reset the box. If this is null,
+ *                 reset unconditionally.
+ */
+function resetSearchBox(aFilter) {
+  let keyword = gSearchBox.value.toLocaleLowerCase();
+  if (keyword && (!aFilter || !filterSearchMatch(aFilter, keyword)))
+    gSearchBox.reset();
+}
+
+/**
+ * Display "1 item", "11 items" or "4 of 10" if list is filtered via search box.
+ */
+function updateCountBox() {
+  let countBox = document.getElementById("countBox");
+  let sum = gCurrentFilterList.filterCount;
+  let len = gFilterListbox.itemCount;
+
+  if (len == sum) {
+    // "N items"
+    countBox.value = PluralForm.get(len, gFilterBundle.getString("filterCountItems"))
+                               .replace("#1", len);
+    countBox.removeAttribute("filterActive");
+  } else {
+    // "N of M"
+    countBox.value = gFilterBundle.getFormattedString("filterCountVisibleOfTotal",
+                                                      [len, sum]);
+    if (len == 0 && sum > 0)
+      countBox.setAttribute("filterActive", "nomatches");
+    else
+      countBox.setAttribute("filterActive", "matches");
   }
 }
 

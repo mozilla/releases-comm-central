@@ -52,6 +52,13 @@
                  showAccountsFileHere="true"
                  oncommand="setFilterFolder(event.target._folder)"/>
     </menulist>
+    <textbox id="searchBox"
+             class="searchBox"
+             flex="1"
+             type="search"
+             oncommand="rebuildFilterList();"
+             emptytext="&searchBox.emptyText;"
+             isempty="true"/>
   </hbox>
 
   <grid flex="1">
@@ -69,6 +76,7 @@
           <label id="filterHeader"
                  flex="1"
                  control="filterTree">&filterHeader.label;</label>
+          <label id="countBox"/>
        </hbox>
       </row>
 
