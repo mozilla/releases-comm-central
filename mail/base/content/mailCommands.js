@@ -89,7 +89,6 @@ async function ComposeMessage(type, format, folder, messageArray) {
     return "";
   }
 
-  let msgComposeType = Ci.nsIMsgCompType;
   let suppressReplyQuote = false;
   let msgKey;
   if (messageArray && messageArray.length == 1) {
@@ -98,12 +97,12 @@ async function ComposeMessage(type, format, folder, messageArray) {
       msgWindow.charsetOverride = false;
     }
     if (
-      type == msgComposeType.Reply ||
-      type == msgComposeType.ReplyAll ||
-      type == msgComposeType.ReplyToSender ||
-      type == msgComposeType.ReplyToGroup ||
-      type == msgComposeType.ReplyToSenderAndGroup ||
-      type == msgComposeType.ReplyToList
+      type == Ci.nsIMsgCompType.Reply ||
+      type == Ci.nsIMsgCompType.ReplyAll ||
+      type == Ci.nsIMsgCompType.ReplyToSender ||
+      type == Ci.nsIMsgCompType.ReplyToGroup ||
+      type == Ci.nsIMsgCompType.ReplyToSenderAndGroup ||
+      type == Ci.nsIMsgCompType.ReplyToList
     ) {
       let displayKey =
         gMessageDisplay.displayedMessage &&
@@ -119,7 +118,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
   }
 
   // Check if the draft is already open in another window. If it is, just focus the window.
-  if (type == msgComposeType.Draft && messageArray.length == 1) {
+  if (type == Ci.nsIMsgCompType.Draft && messageArray.length == 1) {
     // We'll search this uri in the opened windows.
     for (let win of Services.wm.getEnumerator("")) {
       // Check if it is a compose window.
@@ -154,9 +153,9 @@ async function ComposeMessage(type, format, folder, messageArray) {
       if (
         !folder.isServer &&
         server.type == "nntp" &&
-        type == msgComposeType.New
+        type == Ci.nsIMsgCompType.New
       ) {
-        type = msgComposeType.NewsPost;
+        type = Ci.nsIMsgCompType.NewsPost;
         newsgroup = folder.folderURL;
       }
 
@@ -173,7 +172,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
   // dump("\nComposeMessage from XUL: " + identity + "\n");
 
   switch (type) {
-    case msgComposeType.New: // new message
+    case Ci.nsIMsgCompType.New: // new message
       // dump("OpenComposeWindow with " + identity + "\n");
 
       MailServices.compose.OpenComposeWindow(
@@ -187,7 +186,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
         msgWindow
       );
       return;
-    case msgComposeType.NewsPost:
+    case Ci.nsIMsgCompType.NewsPost:
       // dump("OpenComposeWindow with " + identity + " and " + newsgroup + "\n");
       MailServices.compose.OpenComposeWindow(
         null,
@@ -200,7 +199,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
         msgWindow
       );
       return;
-    case msgComposeType.ForwardAsAttachment:
+    case Ci.nsIMsgCompType.ForwardAsAttachment:
       if (messageArray && messageArray.length) {
         // If we have more than one ForwardAsAttachment then pass null instead
         // of the header to tell the compose service to work out the attachment
@@ -254,7 +253,7 @@ async function ComposeMessage(type, format, folder, messageArray) {
             null
           );
           let email = fromAddrs[0]?.email;
-          if (type == msgComposeType.ReplyToList) {
+          if (type == Ci.nsIMsgCompType.ReplyToList) {
             // ReplyToList is only enabled for current message (if at all), so
             // using currentHeaderData is ok.
             // List-Post value is of the format <mailto:list@example.com>
