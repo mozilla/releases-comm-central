@@ -20,13 +20,6 @@ const handlerService = Cc[
 const { MockFilePicker } = SpecialPowers;
 MockFilePicker.init(window);
 
-const {
-  saveToDisk,
-  alwaysAsk,
-  useHelperApp,
-  useSystemDefault,
-} = Ci.nsIHandlerInfo;
-
 // At the time of writing, this pref was set to true on nightly channels only.
 // The behaviour is slightly different when it is false.
 const IMPROVEMENTS_PREF_SET = Services.prefs.getBoolPref(
@@ -102,8 +95,13 @@ function createMockedHandler(type, preferredAction, alwaysAskBeforeHandling) {
 }
 
 let messageIndex = -1;
-async function createAndLoadMessage(type) {
+async function createAndLoadMessage(type, filename) {
   messageIndex++;
+
+  if (!filename) {
+    filename = `attachment${messageIndex}.test${messageIndex}`;
+  }
+
   await add_message_to_folder(
     [folder],
     create_message({
@@ -115,7 +113,7 @@ async function createAndLoadMessage(type) {
         {
           contentType: type,
           body: `${type}Attachment`,
-          filename: `attachment${messageIndex}.test${messageIndex}`,
+          filename,
         },
       ],
     })
@@ -181,13 +179,18 @@ async function clickWithoutDialog() {
   );
 }
 
-async function checkFileSaved(parent = saveDestination) {
+async function checkFileSaved(parent = saveDestination, leafName) {
   let expectedFile = parent.clone();
-  expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
+  if (leafName) {
+    expectedFile.append(leafName);
+  } else {
+    expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
+  }
   await TestUtils.waitForCondition(
     () => expectedFile.exists(),
     `attachment was saved to ${expectedFile.path}`
   );
+  Assert.ok(expectedFile.exists(), `${expectedFile.path} exists`);
   // Wait a moment in case the file is still locked for writing.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 250));
@@ -206,6 +209,19 @@ function checkHandler(type, preferredAction, alwaysAskBeforeHandling) {
     alwaysAskBeforeHandling,
     `alwaysAskBeforeHandling of ${type}`
   );
+}
+
+function promiseFileOpened() {
+  let __openTemporaryFile = window.AttachmentInfo.prototype._openTemporaryFile;
+  return new Promise(resolve => {
+    window.AttachmentInfo.prototype._openTemporaryFile = function(
+      mimeInfo,
+      tempFile
+    ) {
+      window.AttachmentInfo.prototype._openTemporaryFile = __openTemporaryFile;
+      resolve({ mimeInfo, tempFile });
+    };
+  });
 }
 
 /**
@@ -229,7 +245,7 @@ add_task(async function noHandler() {
   await createAndLoadMessage("test/foo");
   await clickWithDialog({ rememberExpected: false, remember: true }, "accept");
   await checkFileSaved();
-  checkHandler("test/foo", saveToDisk, false);
+  checkHandler("test/foo", Ci.nsIHandlerInfo.saveToDisk, false);
 });
 
 /**
@@ -240,7 +256,7 @@ add_task(async function noHandlerNoSave() {
   await createAndLoadMessage("test/bar");
   await clickWithDialog({ rememberExpected: false, remember: false }, "accept");
   await checkFileSaved();
-  checkHandler("test/bar", saveToDisk, true);
+  checkHandler("test/bar", Ci.nsIHandlerInfo.saveToDisk, true);
 });
 
 // Now we'll test the various states that handler info objects might be in.
@@ -251,11 +267,15 @@ add_task(async function noHandlerNoSave() {
  * Open a content type set to save to disk, but always ask.
  */
 add_task(async function saveToDiskAlwaysAsk() {
-  createMockedHandler("test/saveToDisk-true", saveToDisk, true);
+  createMockedHandler(
+    "test/saveToDisk-true",
+    Ci.nsIHandlerInfo.saveToDisk,
+    true
+  );
   await createAndLoadMessage("test/saveToDisk-true");
   await clickWithDialog({ rememberExpected: false }, "accept");
   await checkFileSaved();
-  checkHandler("test/saveToDisk-true", saveToDisk, true);
+  checkHandler("test/saveToDisk-true", Ci.nsIHandlerInfo.saveToDisk, true);
 });
 
 /**
@@ -265,7 +285,11 @@ add_task(async function saveToDiskAlwaysAsk() {
 add_task(async function saveToDiskAlwaysAskPromptLocation() {
   Services.prefs.setBoolPref("browser.download.useDownloadDir", false);
 
-  createMockedHandler("test/saveToDisk-true", saveToDisk, true);
+  createMockedHandler(
+    "test/saveToDisk-true",
+    Ci.nsIHandlerInfo.saveToDisk,
+    true
+  );
   await createAndLoadMessage("test/saveToDisk-true");
 
   let expectedFile = tempDir.clone();
@@ -285,7 +309,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
  * Open a content type set to always ask in both fields.
  */
 add_task(async function alwaysAskAlwaysAsk() {
-  createMockedHandler("test/alwaysAsk-true", alwaysAsk, true);
+  createMockedHandler("test/alwaysAsk-true", Ci.nsIHandlerInfo.alwaysAsk, true);
   await createAndLoadMessage("test/alwaysAsk-true");
   await clickWithDialog({
     mode: IMPROVEMENTS_PREF_SET ? "save" : "open",
@@ -297,7 +321,11 @@ add_task(async function alwaysAskAlwaysAsk() {
  * Open a content type set to use helper app, but always ask.
  */
 add_task(async function useHelperAppAlwaysAsk() {
-  createMockedHandler("test/useHelperApp-true", useHelperApp, true);
+  createMockedHandler(
+    "test/useHelperApp-true",
+    Ci.nsIHandlerInfo.useHelperApp,
+    true
+  );
   await createAndLoadMessage("test/useHelperApp-true");
   await clickWithDialog({ mode: "open", rememberExpected: false });
 });
@@ -306,7 +334,11 @@ add_task(async function useHelperAppAlwaysAsk() {
  * Open a content type set to use the system default app, but always ask.
  */
 add_task(async function useSystemDefaultAlwaysAsk() {
-  createMockedHandler("test/useSystemDefault-true", useSystemDefault, true);
+  createMockedHandler(
+    "test/useSystemDefault-true",
+    Ci.nsIHandlerInfo.useSystemDefault,
+    true
+  );
   await createAndLoadMessage("test/useSystemDefault-true");
   // Would be mode: "open" on all platforms except our handler isn't real.
   await clickWithDialog({
@@ -335,7 +367,11 @@ add_task(async function saveToDisk() {
 add_task(async function saveToDiskPromptLocation() {
   Services.prefs.setBoolPref("browser.download.useDownloadDir", false);
 
-  createMockedHandler("test/saveToDisk-true", saveToDisk, false);
+  createMockedHandler(
+    "test/saveToDisk-true",
+    Ci.nsIHandlerInfo.saveToDisk,
+    false
+  );
   await createAndLoadMessage("test/saveToDisk-false");
 
   let expectedFile = tempDir.clone();
@@ -356,11 +392,15 @@ add_task(async function saveToDiskPromptLocation() {
  * Check the action is saved and the "do this automatically" checkbox works.
  */
 add_task(async function alwaysAskRemember() {
-  createMockedHandler("test/alwaysAsk-false", alwaysAsk, false);
+  createMockedHandler(
+    "test/alwaysAsk-false",
+    Ci.nsIHandlerInfo.alwaysAsk,
+    false
+  );
   await createAndLoadMessage("test/alwaysAsk-false");
   await clickWithDialog(undefined, "accept");
   await checkFileSaved();
-  checkHandler("test/alwaysAsk-false", saveToDisk, false);
+  checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, false);
 }).__skipMe = !IMPROVEMENTS_PREF_SET;
 
 /**
@@ -369,12 +409,109 @@ add_task(async function alwaysAskRemember() {
  * alwaysAskBeforeHandling set.
  */
 add_task(async function alwaysAskForget() {
-  createMockedHandler("test/alwaysAsk-false", alwaysAsk, false);
+  createMockedHandler(
+    "test/alwaysAsk-false",
+    Ci.nsIHandlerInfo.alwaysAsk,
+    false
+  );
   await createAndLoadMessage("test/alwaysAsk-false");
   await clickWithDialog({ remember: false }, "accept");
   await checkFileSaved();
-  checkHandler("test/alwaysAsk-false", saveToDisk, true);
+  checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, true);
 }).__skipMe = !IMPROVEMENTS_PREF_SET;
+
+/**
+ * Open a content type set to use helper app.
+ */
+add_task(async function useHelperApp() {
+  let openedPromise = promiseFileOpened();
+
+  createMockedHandler(
+    "test/useHelperApp-false",
+    Ci.nsIHandlerInfo.useHelperApp,
+    false
+  );
+  await createAndLoadMessage("test/useHelperApp-false");
+  await clickWithoutDialog();
+  await checkFileSaved(tempDir);
+
+  let { tempFile } = await openedPromise;
+  Assert.ok(tempFile.path);
+});
+
+/**
+ * Open a content type set to use the system default app.
+ */
+add_task(async function useSystemDefault() {
+  let openedPromise = promiseFileOpened();
+
+  createMockedHandler(
+    "test/useSystemDefault-false",
+    Ci.nsIHandlerInfo.useSystemDefault,
+    false
+  );
+  await createAndLoadMessage("test/useSystemDefault-false");
+  await clickWithoutDialog();
+  await checkFileSaved(tempDir);
+
+  let { tempFile } = await openedPromise;
+  Assert.ok(tempFile.path);
+});
+
+/**
+ * Save an attachment with characters that are illegal in a file name.
+ * Check the characters are sanitized.
+ */
+add_task(async function filenameSanitisedSave() {
+  createMockedHandler("test/bar", Ci.nsIHandlerInfo.saveToDisk, false);
+
+  // Colon, slash and backslash are escaped on all platforms.
+  // Backslash is double-escaped here because of the message generator.
+  await createAndLoadMessage("test/bar", "f:i\\\\le/123.bar");
+  await clickWithoutDialog();
+  await checkFileSaved(undefined, "f i_le_123.bar");
+
+  // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
+  await createAndLoadMessage("test/bar", "f*i?|le<123>.bar");
+  await clickWithoutDialog();
+  if (AppConstants.platform == "win") {
+    await checkFileSaved(undefined, "f i le(123).bar");
+  } else {
+    await checkFileSaved(undefined, "f*i?|le<123>.bar");
+  }
+});
+
+/**
+ * Open an attachment with characters that are illegal in a file name.
+ * Check the characters are sanitized.
+ */
+add_task(async function filenameSanitisedOpen() {
+  createMockedHandler("test/bar", Ci.nsIHandlerInfo.useHelperApp, false);
+
+  let openedPromise = promiseFileOpened();
+
+  // Colon, slash and backslash are escaped on all platforms.
+  // Backslash is double-escaped here because of the message generator.
+  await createAndLoadMessage("test/bar", "f:i\\\\le/123.bar");
+  await clickWithoutDialog();
+  let { tempFile } = await openedPromise;
+  await checkFileSaved(tempDir, "f i_le_123.bar");
+  Assert.equal(tempFile.leafName, "f i_le_123.bar");
+
+  openedPromise = promiseFileOpened();
+
+  // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
+  await createAndLoadMessage("test/bar", "f*i?|le<123>.bar");
+  await clickWithoutDialog();
+  ({ tempFile } = await openedPromise);
+  if (AppConstants.platform == "win") {
+    await checkFileSaved(tempDir, "f i le(123).bar");
+    Assert.equal(tempFile.leafName, "f i le(123).bar");
+  } else {
+    await checkFileSaved(tempDir, "f*i?|le<123>.bar");
+    Assert.equal(tempFile.leafName, "f*i?|le<123>.bar");
+  }
+});
 
 registerCleanupFunction(() => {
   // Remove created folders.
