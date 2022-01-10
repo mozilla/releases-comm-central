@@ -61,17 +61,10 @@ var EnigmailMimeDecrypt = {
   emptyAttachment() {
     EnigmailLog.DEBUG("mimeDecrypt.jsm: emptyAttachment()\n");
 
-    let encPart = l10n.formatValueSync(
-      "mime-decrypt-encrypted-part-attachment-label"
-    );
     let concealed = l10n.formatValueSync(
       "mime-decrypt-encrypted-part-concealed-data"
     );
-    let retData = `Content-Type: message/rfc822; name="${encPart}.eml"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="${encPart}.eml"
-
-Content-Type: text/html
+    let retData = `Content-Type: text/html
 
 <p><i>${concealed}</i></p>
 `;
