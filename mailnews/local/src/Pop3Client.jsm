@@ -148,6 +148,29 @@ class Pop3Client {
   }
 
   /**
+   * Fetch the full message of a uidl.
+   * @param {nsIMsgFolder} folder - The folder to save the messages to.
+   * @param {string} uidl - The uidl of the message to fetch.
+   */
+  async fetchBodyForUidl(folder, uidl) {
+    this._sink.folder = folder;
+    await this._loadUidlState();
+
+    let uidlState = this._uidlMap.get(uidl);
+    if (!uidlState || uidlState.status != "b") {
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+      return;
+    }
+
+    this._uidlMap.set(uidl, {
+      ...uidlState,
+      status: "f",
+    });
+    this._actionAfterAuth = this._actionStat;
+    this._actionCapa();
+  }
+
+  /**
    * Send `QUIT` request to the server.
    */
   quit() {
@@ -733,6 +756,7 @@ class Pop3Client {
       return;
     }
     if (res.success) {
+      this._sink.beginMailDelivery(false, this._msgWindow);
       this._actionList();
     }
   };
@@ -796,6 +820,13 @@ class Pop3Client {
               messageUidl,
               status: "d",
             });
+          } else if (uidlState.status == "f") {
+            // Fetch the full message.
+            this._messagesToHandle.push({
+              messageNumber,
+              messageUidl,
+              status: "f",
+            });
           } else {
             // Do nothing to this message.
             this._newUidlMap.set(messageUidl, uidlState);
@@ -848,6 +879,7 @@ class Pop3Client {
           break;
       }
     } else {
+      this._sink.endMailDelivery(this);
       this._actionDone();
     }
   };
@@ -962,6 +994,9 @@ class Pop3Client {
     this._authenticating = false;
     this.quit();
     this._writeUidlState();
-    this._urlListener.OnStopRunningUrl(this.runningUri, status);
+    this._urlListener?.OnStopRunningUrl(this.runningUri, status);
+    if (status != Cr.NS_OK) {
+      this._sink.abortMailDelivery(this);
+    }
   };
 }

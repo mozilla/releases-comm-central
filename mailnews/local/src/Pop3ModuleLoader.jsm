@@ -33,6 +33,11 @@ var pop3JSModules = [
     "{1e8f21c3-32c3-4114-9ea4-3d74006fb351}",
     "@mozilla.org/messenger/popservice;1",
   ],
+  [
+    "Pop3ProtocolHandler",
+    "{eed38573-d01b-4c13-9f9d-f69963095a4d}",
+    "@mozilla.org/network/protocol;1?name=pop",
+  ],
 ];
 
 Pop3ModuleLoader.prototype = {

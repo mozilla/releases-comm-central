@@ -530,7 +530,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
 
   if (spec.Find("?uidl=") >= 0 || spec.Find("&uidl=") >= 0) {
     nsCOMPtr<nsIProtocolHandler> handler =
-        do_GetService(NS_POP3SERVICE_CONTRACTID1, &rv);
+        do_GetService(NS_POP3SERVICE_CONTRACTID2, &rv);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIURI> pop3Uri;
 
