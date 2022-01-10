@@ -8,12 +8,18 @@
 
 "use strict";
 
-const { open_message_from_file } = ChromeUtils.import(
+const {
+  open_message_from_file,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+const {
+  async_plan_for_new_window,
+  close_window,
+  wait_for_new_window,
+  wait_for_window_focused,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 const { waitForCondition } = ChromeUtils.import(
   "resource://testing-common/mozmill/utils.jsm"
 );
@@ -168,6 +174,68 @@ add_task(async function testOpenVerifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
     "encrypted icon is displayed"
   );
+  close_window(mc);
+});
+
+/**
+ * Test that opening an attached encrypted message has no effect
+ * on security status icons of the parent message window.
+ */
+add_task(async function testOpenForwardedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/fwd-unsigned-encrypted.eml"))
+  );
+
+  Assert.ok(
+    getMsgBodyTxt(mc).includes("wrapper message with plain text"),
+    "wrapper message text should be shown"
+  );
+  Assert.ok(
+    !getMsgBodyTxt(mc).includes(MSG_TEXT),
+    "message text should not be shown"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  mc.click(mc.e("attachmentName"));
+  let mc2 = await newWindowPromise;
+  wait_for_message_display_completion(mc2, true);
+  wait_for_window_focused(mc2.window);
+
+  // Check properties of the opened attachment window.
+  Assert.ok(
+    getMsgBodyTxt(mc2).includes(MSG_TEXT),
+    "message text should be shown"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc2.window.document),
+    "signed icon is not displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc2.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc2);
+
+  wait_for_window_focused(mc.window);
+
+  // Ensure there were no side effects for the primary window.
+  Assert.ok(
+    OpenPGPTestUtils.hasNoSignedIconState(mc.window.document),
+    "signed icon is still not displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is still not displayed"
+  );
+
   close_window(mc);
 });
 
