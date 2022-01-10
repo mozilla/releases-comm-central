@@ -234,16 +234,14 @@ class NntpChannel {
     pump.init(cacheStream, 0, 0, true);
     pump.asyncRead({
       onStartRequest: () => {
-        if (this.loadGroup) {
-          this.loadGroup.addRequest(this, null);
-        }
+        this.loadGroup?.addRequest(this, null);
         this._listener.onStartRequest(this);
       },
       onStopRequest: (request, status) => {
         this._listener.onStopRequest(null, status);
-        if (this.loadGroup) {
-          this.loadGroup.removeRequest(this, null, Cr.NS_OK);
-        }
+        try {
+          this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
+        } catch (e) {}
       },
       onDataAvailable: (request, stream, offset, count) => {
         this.contentLength += count;
@@ -283,9 +281,7 @@ class NntpChannel {
             this._articleNumber
           );
         }
-        if (this.loadGroup) {
-          this.loadGroup.addRequest(this, null);
-        }
+        this.loadGroup?.addRequest(this, null);
         this._listener.onStartRequest(this);
       };
 
@@ -301,9 +297,6 @@ class NntpChannel {
 
       client.onDone = () => {
         this._listener.onStopRequest(null, Cr.NS_OK);
-        if (this.loadGroup) {
-          this.loadGroup.removeRequest(this, null, Cr.NS_OK);
-        }
         this._newsFolder?.notifyDownloadedLine(
           `.${lineSeparator}`,
           this._articleNumber
@@ -311,6 +304,9 @@ class NntpChannel {
         this._newsFolder?.msgDatabase.Commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );
+        try {
+          this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
+        } catch (e) {}
       };
     });
   }
