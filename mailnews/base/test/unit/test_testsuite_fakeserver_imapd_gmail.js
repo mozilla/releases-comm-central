@@ -6,31 +6,29 @@
 // That means X-GM-EXT-1 capability and GMail flavor XLIST
 // per https://developers.google.com/google-apps/gmail/imap_extensions
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/alertTestUtils.js");
-
 // IMAP pump
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
-
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 setupIMAPPump("GMail");
 // create our own handler so that we can call imapd functions directly
 var handler;
 
-// Definition of tests
-var tests = [setupMailboxes, testXlist, endTest];
+add_task(function setupTest() {
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
+});
 
 // mbox mailboxes cannot contain both child mailboxes and messages, so this will
 // be one test case.
-function* setupMailboxes() {
+add_task(async function setupMailboxes() {
   IMAPPump.mailbox.specialUseFlag = "\\Inbox";
   IMAPPump.daemon.createMailbox("[Gmail]", { flags: ["\\Noselect"] });
   IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {
@@ -51,12 +49,13 @@ function* setupMailboxes() {
   let response = handler.onError("1", "LOGIN user password");
   Assert.ok(response.includes("OK"));
   // wait for imap pump to do its thing or else we get memory leaks
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
 // test that 'XLIST "" "*"' returns the proper responses
-function* testXlist() {
+add_task(function testXlist() {
   let response = handler.onError("2", 'XLIST "" "*"');
 
   Assert.ok(response.includes('* LIST (\\HasNoChildren \\Inbox) "/" "INBOX"'));
@@ -86,19 +85,9 @@ function* testXlist() {
     response.includes('* LIST (\\HasNoChildren \\Trash) "/" "[Gmail]/Trash"')
   );
   Assert.ok(response.includes('* LIST (\\HasNoChildren) "/" "test"'));
-
-  yield true;
-}
+});
 
 // Cleanup at end
-function endTest() {
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  Services.prefs.setBoolPref(
-    "mail.server.server1.autosync_offline_stores",
-    false
-  );
-  async_run_tests(tests);
-}
+});

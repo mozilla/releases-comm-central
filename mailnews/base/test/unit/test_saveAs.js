@@ -9,8 +9,6 @@
  * See `checkedContent` for the compared strings.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-load("../../../resources/logHelper.js");
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
@@ -46,7 +44,7 @@ registerCleanupFunction(function() {
  * Creates a SyntheticMessage and prepares it for loading it
  * into a fake IMAP inbox.
  *
- * @returns [imapMessage, SyntheticMessage]
+ * @returns {[imapMessage, SyntheticMessage]}
  */
 async function createMessage() {
   let gMessageGenerator = new MessageGenerator();
@@ -164,11 +162,9 @@ async function txtTest(synthMessage) {
 }
 
 add_task(async function test_saveAs() {
-  do_test_pending();
   let [fakedImapMessage, synthMessage] = await createMessage();
   await addImapMessage(fakedImapMessage);
   await emlTest(synthMessage);
   await txtTest(synthMessage);
   await htmlTest(synthMessage);
-  do_test_finished();
 });

@@ -6,11 +6,6 @@
  * Tests for the formatFileSize method.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
 var gStringBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
@@ -47,8 +42,6 @@ function test_formatFileSize(aArgs) {
 
   Assert.equal(actual, expected);
 }
-
-/* ===== Driver ===== */
 
 var test_data = [
   { bytes: 0, useKB: false, mantissa: "0", units: "b" },
@@ -144,8 +137,8 @@ var test_data = [
   { bytes: 999, useKB: true, mantissa: "1.0", units: "kb" },
 ];
 
-var tests = [parameterizeTest(test_formatFileSize, test_data)];
-
-function run_test() {
-  async_run_tests(tests);
-}
+add_task(function test_format_file_size() {
+  test_data.map(entry => {
+    test_formatFileSize(entry);
+  });
+});

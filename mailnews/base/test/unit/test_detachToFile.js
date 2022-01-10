@@ -6,10 +6,9 @@
  * Tests nsIMessenger's detachAttachmentsWOPrompts
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 // javascript mime emitter functions
 var mimeMsg = {};
@@ -18,11 +17,35 @@ var { MailServices } = ChromeUtils.import(
 );
 ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm", mimeMsg);
 
-var tests = [startCopy, startMime, startDetach, testDetach];
+function SaveAttachmentCallback() {
+  this.attachments = null;
+  this._promise = new Promise((resolve, reject) => {
+    this._resolve = resolve;
+    this._reject = reject;
+  });
+}
 
-function* startCopy() {
+SaveAttachmentCallback.prototype = {
+  callback: function saveAttachmentCallback_callback(aMsgHdr, aMimeMessage) {
+    this.attachments = aMimeMessage.allAttachments;
+    this._resolve();
+  },
+  get promise() {
+    return this._promise;
+  },
+};
+var gCallbackObject = new SaveAttachmentCallback();
+
+add_task(async function setupTest() {
+  if (!localAccountUtils.inboxFolder) {
+    localAccountUtils.loadLocalMailAccount();
+  }
+});
+
+add_task(async function startCopy() {
   // Get a message into the local filestore.
-  var mailFile = do_get_file("../../../data/external-attach-test");
+  let mailFile = do_get_file("../../../data/external-attach-test");
+  let listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
     mailFile,
     localAccountUtils.inboxFolder,
@@ -30,27 +53,28 @@ function* startCopy() {
     false,
     0,
     "",
-    asyncCopyListener,
+    listener,
     null
   );
-  yield false;
-}
+  await listener.promise;
+});
 
 // process the message through mime
-function* startMime() {
+add_task(async function startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   mimeMsg.MsgHdrToMimeMessage(
     msgHdr,
     gCallbackObject,
     gCallbackObject.callback,
-    true /* allowDownload */
+    true // allowDownload
   );
-  yield false;
-}
+
+  await gCallbackObject.promise;
+});
 
 // detach any found attachments
-function* startDetach() {
+add_task(async function startDetach() {
   let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
   let msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
 
@@ -58,6 +82,7 @@ function* startDetach() {
     Ci.nsIMessenger
   );
   let attachment = gCallbackObject.attachments[0];
+  let listener = new PromiseTestUtils.PromiseUrlListener();
 
   messenger.detachAttachmentsWOPrompts(
     do_get_profile(),
@@ -65,16 +90,15 @@ function* startDetach() {
     [attachment.url],
     [attachment.name],
     [msgURI],
-    asyncUrlListener
+    listener
   );
-  yield false;
-}
+  await listener.promise;
+});
 
-// test that the detachment was successful
-function* testDetach() {
-  // This test seems to fail on Linux without the following delay.
-  do_timeout(200, async_driver);
-  yield false;
+/**
+ * Test that the detachment was successful.
+ */
+add_task(async function testDetach() {
   // The message contained a file "check.pdf" which should
   //  now exist in the profile directory.
   let checkFile = do_get_profile().clone();
@@ -89,26 +113,7 @@ function* testDetach() {
 
   let messageContent = getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));
-}
-
-function SaveAttachmentCallback() {
-  this.attachments = null;
-}
-
-SaveAttachmentCallback.prototype = {
-  callback: function saveAttachmentCallback_callback(aMsgHdr, aMimeMessage) {
-    this.attachments = aMimeMessage.allAttachments;
-    async_driver();
-  },
-};
-var gCallbackObject = new SaveAttachmentCallback();
-
-function run_test() {
-  if (!localAccountUtils.inboxFolder) {
-    localAccountUtils.loadLocalMailAccount();
-  }
-  async_run_tests(tests);
-}
+});
 
 /*
  * Get the full message content.
