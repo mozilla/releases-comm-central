@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Attempt to test nsMsgDBView and descendents.  Right now this means we:
  * - Ensure sorting and grouping sorta works, including using custom columns.
@@ -9,30 +13,33 @@
  * You may also want to look into the test_viewWrapper_*.js tests as well.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/abSetup.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/abSetup.js");
-
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
-
+var {
+  MessageGenerator,
+  MessageScenarioFactory,
+  SyntheticMessageSet,
+} = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
 const { JSTreeSelection } = ChromeUtils.import(
   "resource:///modules/JsTreeSelection.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
+var { PromiseUtils } = ChromeUtils.import(
+  "resource://gre/modules/PromiseUtils.jsm"
 );
 
 // Items used to add messages to the folder
 var gMessageGenerator = new MessageGenerator();
 var gScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
+var messageInjection = new MessageInjection({ mode: "local" });
 
 var gTestFolder;
 var gSiblingsMissingParentsSubject;
+var gMessages;
 
-function setup_globals(aNextFunc) {
+function setup_messages() {
   // build up a diverse list of messages
   let messages = [];
   messages = messages.concat(gScenarioFactory.directReply(10));
@@ -69,38 +76,29 @@ function setup_globals(aNextFunc) {
   });
   messages = messages.concat([msgSmallerKey, msgBiggerKey]);
   let msgSet = new SyntheticMessageSet(messages);
-
-  gTestFolder = MessageInjection.make_empty_folder();
-  return MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
+  return msgSet;
 }
 
-var gCommandUpdater = {
-  updateCommandStatus() {
-    // the back end is smart and is only telling us to update command status
-    // when the # of items in the selection has actually changed.
-  },
-
-  displayMessageChanged(aFolder, aSubject, aKeywords) {},
-
-  updateNextMessageAfterDelete() {},
-  summarizeSelection() {
-    return false;
-  },
-};
+/**
+ * Sets gTestFolder with msgSet. Ensure that gTestFolder is clean for each test.
+ * @param {SyntheticMessageSet} msgSet
+ */
+async function set_gTestFolder(msgSet) {
+  gTestFolder = await messageInjection.makeEmptyFolder();
+  await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
+}
 
 /**
  * Create a synthetic message by passing the provided aMessageArgs to
  *  the message generator, then add the resulting message to the given
  *  folder (or gTestFolder if no folder is provided).
- *
- * @TODO change callers to use more generic messageInjection mechanisms.
  */
-function make_and_add_message(aMessageArgs) {
+async function make_and_add_message(aMessageArgs) {
   // create the message
   let synMsg = gMessageGenerator.makeMessage(aMessageArgs);
   let msgSet = new SyntheticMessageSet([synMsg]);
   // this is synchronous for local stuff.
-  MessageInjection.add_sets_to_folder(gTestFolder, [msgSet]);
+  await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
 
   return [synMsg, msgSet];
 }
@@ -286,7 +284,7 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   aViewFlags |= ViewFlags.kExpandAll;
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  gDBView.init(null, null, gCommandUpdater);
+  gDBView.init(null, null, null);
   var outCount = {};
   gDBView.open(
     aViewType != "search" ? aTestFolder : null,
@@ -338,7 +336,7 @@ function setup_group_view(aSortType, aSortOrder, aTestFolder) {
     ViewFlags.kGroupBySort | ViewFlags.kExpandAll | ViewFlags.kThreadedDisplay;
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  gDBView.init(null, null, gCommandUpdater);
+  gDBView.init(null, null, null);
   var outCount = {};
   gDBView.open(aTestFolder, aSortType, aSortOrder, viewFlags, outCount);
 
@@ -741,12 +739,12 @@ function test_insert_remove_view_rows() {
   }
 }
 
-function test_msg_added_to_search_view() {
+async function test_msg_added_to_search_view() {
   // if the view is a non-grouped search view, test adding a header to
   // the search results, and verify it gets put at top.
   if (!(gDBView.viewFlags & ViewFlags.kGroupBySort)) {
     gDBView.sort(SortType.byDate, SortOrder.descending);
-    let [synMsg] = make_and_add_message();
+    let [synMsg] = await make_and_add_message();
     let msgHdr = gTestFolder.msgDatabase.getMsgHdrForMessageID(
       synMsg.messageId
     );
@@ -834,9 +832,9 @@ function test_qs_results() {
   test_threading_levels();
 }
 
-function test_group_sort_collapseAll_expandAll_threading() {
+async function test_group_sort_collapseAll_expandAll_threading() {
   // - start with an empty folder
-  gTestFolder = MessageInjection.make_empty_folder();
+  gTestFolder = await messageInjection.makeEmptyFolder();
 
   // - create a normal unthreaded view
   setup_view("threaded", 0);
@@ -848,9 +846,9 @@ function test_group_sort_collapseAll_expandAll_threading() {
   // msg1: from A, custom column val A, to be starred
   // msg2: from A, custom column val A
   // msg3: from B, custom column val B
-  let [smsg1] = make_and_add_message({ from: ["A", "A@a.invalid"] });
-  make_and_add_message({ from: ["A", "A@a.invalid"] });
-  let [smsg3] = make_and_add_message({ from: ["B", "B@b.invalid"] });
+  let [smsg1] = await make_and_add_message({ from: ["A", "A@a.invalid"] });
+  await make_and_add_message({ from: ["A", "A@a.invalid"] });
+  let [smsg3] = await make_and_add_message({ from: ["B", "B@b.invalid"] });
 
   assert_view_row_count(3);
   gDBView.getMsgHdrAt(0).markFlagged(true);
@@ -931,9 +929,9 @@ function test_group_sort_collapseAll_expandAll_threading() {
   }
 }
 
-function* test_group_dummies_under_mutation_by_date() {
+async function test_group_dummies_under_mutation_by_date() {
   // - start with an empty folder
-  gTestFolder = MessageInjection.make_empty_folder();
+  gTestFolder = await messageInjection.makeEmptyFolder();
 
   // - create the view
   setup_view("group", ViewFlags.kGroupBySort);
@@ -948,7 +946,9 @@ function* test_group_dummies_under_mutation_by_date() {
   //  either. bucket 1 is same day, bucket 2 is yesterday, bucket 3 is last
   //  week, so 2 days ago or older is always last week, even if we roll over
   //  and it becomes 3 days ago.)
-  let [smsg, synSet] = make_and_add_message({ age: { days: 2, hours: 1 } });
+  let [smsg, synSet] = await make_and_add_message({
+    age: { days: 2, hours: 1 },
+  });
 
   // - make sure the message and a dummy appear
   assert_view_row_count(2);
@@ -962,14 +962,16 @@ function* test_group_dummies_under_mutation_by_date() {
   }
 
   // - move the messages to the trash
-  yield MessageInjection.async_trash_messages(synSet);
+  await messageInjection.trashMessages(synSet);
 
   // - make sure the message and dummy disappear
   assert_view_empty();
 
   // - add two messages from this week (same date bucket concerns)
-  let [newer, newerSet] = make_and_add_message({ age: { days: 2, hours: 1 } });
-  let [older] = make_and_add_message({ age: { days: 2, hours: 2 } });
+  let [newer, newerSet] = await make_and_add_message({
+    age: { days: 2, hours: 1 },
+  });
+  let [older] = await make_and_add_message({ age: { days: 2, hours: 2 } });
 
   // - sanity check addition
   assert_view_row_count(3); // 2 messages + 1 dummy
@@ -981,7 +983,7 @@ function* test_group_dummies_under_mutation_by_date() {
 
   // - delete the message right under the dummy
   // (this will be the newer one)
-  yield MessageInjection.async_trash_messages(newerSet);
+  await messageInjection.trashMessages(newerSet);
 
   // - ensure we still have the dummy and the right child node
   assert_view_row_count(2);
@@ -991,10 +993,10 @@ function* test_group_dummies_under_mutation_by_date() {
   assert_view_message_at_indices(older, 0, 1);
 }
 
-function test_xfvf_threading() {
+async function test_xfvf_threading() {
   // - start with an empty folder
   let save_gTestFolder = gTestFolder;
-  gTestFolder = MessageInjection.make_empty_folder();
+  gTestFolder = await messageInjection.makeEmptyFolder();
 
   let messages = [];
   // Add messages such that ancestors arrive after their descendents in
@@ -1026,10 +1028,10 @@ function test_xfvf_threading() {
 
   let msgSet = new SyntheticMessageSet(messages);
 
-  gTestFolder = MessageInjection.make_empty_folder();
+  gTestFolder = await messageInjection.makeEmptyFolder();
 
   // - create the view
-  MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
+  await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
   setup_view("xfvf", ViewFlags.kThreadedDisplay);
   assert_view_row_count(5);
   gDBView.toggleOpenState(0);
@@ -1053,9 +1055,9 @@ function test_xfvf_threading() {
  * threads. Currently limited to testing the sort-threads-by-date case,
  * sorting both by thread root and by newest message.
  */
-function test_thread_sorting() {
+async function test_thread_sorting() {
   let save_gTestFolder = gTestFolder;
-  gTestFolder = MessageInjection.make_empty_folder();
+  gTestFolder = await messageInjection.makeEmptyFolder();
   let messages = [];
   // build a hierarchy like this (the UID order corresponds to the date order)
   //  1
@@ -1078,7 +1080,7 @@ function test_thread_sorting() {
 
   let msgSet = new SyntheticMessageSet(messages);
 
-  MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
+  await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
 
   // test the non-default pref state first, so the pref gets left with its
   // default value at the end
@@ -1124,7 +1126,7 @@ function test_thread_sorting() {
   gTestFolder = save_gTestFolder;
 }
 
-var view_types = [
+const VIEW_TYPES = [
   ["threaded", ViewFlags.kThreadedDisplay],
   ["quicksearch", ViewFlags.kThreadedDisplay],
   ["search", ViewFlags.kThreadedDisplay],
@@ -1134,64 +1136,89 @@ var view_types = [
   ["group", ViewFlags.kGroupBySort],
 ];
 
-var tests_for_all_views = [
-  test_sort_columns,
-  test_number_of_messages,
-  test_selected_messages,
-  test_insert_remove_view_rows,
-];
-
-var tests_for_specific_views = {
-  group: [
-    test_group_sort_collapseAll_expandAll_threading,
-    test_group_dummies_under_mutation_by_date,
-  ],
-  threaded: [test_expand_collapse, test_thread_sorting],
-  search: [test_msg_added_to_search_view],
-  quicksearch: [test_qs_results],
-  xfvf: [test_xfvf_threading],
-};
-
-function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
-  do_test_pending();
-  async_run({ func: actually_run_test });
+/**
+ * These are tests which are for every test configuration.
+ */
+function tests_for_all_views() {
+  test_sort_columns();
+  test_number_of_messages();
+  test_selected_messages();
+  test_insert_remove_view_rows();
 }
 
-function* actually_run_test() {
-  dump("in actually_run_test\n");
-  yield async_run({ func: setup_globals });
-  dump(
-    "Num Messages: " + gTestFolder.msgDatabase.dBFolderInfo.numMessages + "\n"
-  );
+add_task(function setup_test() {
+  gMessages = setup_messages();
+});
 
-  // for each view type...
-  for (let view_type_and_flags of view_types) {
-    let [view_type, view_flags] = view_type_and_flags;
-    dump(
-      "===== Testing View Type: " + view_type + " flags: " + view_flags + "\n"
-    );
+add_task(async function test_threaded() {
+  await set_gTestFolder(gMessages);
+  let [view_type, view_flag] = VIEW_TYPES[0];
+  setup_view(view_type, view_flag);
 
-    let save_gTestFolder = gTestFolder;
-    // ... run each test
-    setup_view(view_type, view_flags);
+  tests_for_all_views();
 
-    for (let testFunc of tests_for_all_views) {
-      dump("=== Running generic test: " + testFunc.name + "\n");
-      yield async_run({ func: testFunc });
-    }
+  // Specific tests for threaded.
+  test_expand_collapse();
+  await test_thread_sorting();
+});
 
-    if (tests_for_specific_views[view_type]) {
-      for (let testFunc of tests_for_specific_views[view_type]) {
-        dump("=== Running view-specific test: " + testFunc.name + "\n");
-        yield async_run({ func: testFunc });
-      }
-    }
-    gTestFolder = save_gTestFolder;
-  }
+add_task(async function test_quicksearch_threaded() {
+  await set_gTestFolder(gMessages);
+  let [view_type, view_flag] = VIEW_TYPES[1];
+  setup_view(view_type, view_flag);
 
+  tests_for_all_views();
+
+  // Specific tests for quicksearch threaded.
+  test_qs_results();
+});
+
+add_task(async function test_search_threaded() {
+  await set_gTestFolder(gMessages);
+  let [view_type, view_flag] = VIEW_TYPES[2];
+  setup_view(view_type, view_flag);
+
+  tests_for_all_views();
+
+  // Specific tests for search threaded.
+  await test_msg_added_to_search_view();
+});
+
+add_task(async function test_search_group_by_sort() {
+  await set_gTestFolder(gMessages);
+  let [view_type, view_flag] = VIEW_TYPES[3];
+  setup_view(view_type, view_flag);
+
+  tests_for_all_views();
+
+  // Specific tests for search group by sort.
+  await test_msg_added_to_search_view();
+});
+
+add_task(async function test_xfvf() {
+  await set_gTestFolder(gMessages);
+  let [view_type, view_flag] = VIEW_TYPES[4];
+  setup_view(view_type, view_flag);
+
+  tests_for_all_views();
+
+  // Specific tests for xfvf.
+  await test_xfvf_threading();
+});
+
+add_task(async function test_group() {
+  await set_gTestFolder(gMessages);
+  let [view_type, view_flag] = VIEW_TYPES[5];
+  setup_view(view_type, view_flag);
+
+  tests_for_all_views();
+
+  // Specific tests for group.
+  await test_group_sort_collapseAll_expandAll_threading;
+  await test_group_dummies_under_mutation_by_date;
+});
+
+add_task(function test_teardown() {
   // Delete view reference to avoid a cycle leak.
   gFakeSelection.view = null;
-
-  do_test_finished();
-}
+});

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Simple tests for retention settings. In particular, we'd like to make
  * sure that applying retention settings works with the new code that avoids
@@ -5,40 +9,35 @@
  * the server defaults.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
+var {
+  MessageGenerator,
+  MessageScenarioFactory,
+  SyntheticMessageSet,
+} = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
 var gMessageGenerator = new MessageGenerator();
 var gScenarioFactory = new MessageScenarioFactory(gMessageGenerator);
+var messageInjection = new MessageInjection({ mode: "local" });
 
 var gTestFolder;
 
-function setup_globals(aNextFunc) {
+add_task(async function setup_test() {
   // Add 10 messages
   let messages = [];
   messages = messages.concat(gScenarioFactory.directReply(10));
 
   let msgSet = new SyntheticMessageSet(messages);
 
-  gTestFolder = MessageInjection.make_empty_folder();
-  return MessageInjection.add_sets_to_folders(gTestFolder, [msgSet]);
-}
+  gTestFolder = await messageInjection.makeEmptyFolder();
+  await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
+});
 
-function run_test() {
-  MessageInjection.configure_message_injection({ mode: "local" });
-  do_test_pending();
-  async_run({ func: actually_run_test });
-}
-
-function* actually_run_test() {
-  yield async_run({ func: setup_globals });
+add_task(function test_retention() {
   let numMessages = 10;
   gTestFolder.msgDatabase = null;
   gTestFolder.applyRetentionSettings();
@@ -69,5 +68,4 @@ function* actually_run_test() {
   gTestFolder.applyRetentionSettings();
   // no retention settings, so we should have the same number of messages.
   Assert.equal(8, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
-  do_test_finished();
-}
+});

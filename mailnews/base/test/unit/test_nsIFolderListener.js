@@ -1,15 +1,17 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Test that adding nsIFolderListener in js does not cause any crash.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
 
 var folderListener = {
   onFolderAdded() {},
@@ -25,25 +27,23 @@ var folderListener = {
 };
 
 var targetFolder;
+var messageInjection;
 
-var tests = [
-  function setup() {
-    gMessageGenerator = new MessageGenerator();
+add_task(async function setup() {
+  messageInjection = new MessageInjection({ mode: "local" });
 
-    MessageInjection.configure_message_injection({ mode: "local" });
+  targetFolder = await messageInjection.makeEmptyFolder();
+  targetFolder.AddFolderListener(folderListener);
+  registerCleanupFunction(function() {
+    targetFolder.RemoveFolderListener(folderListener);
+  });
+});
 
-    targetFolder = MessageInjection.make_empty_folder();
-    targetFolder.AddFolderListener(folderListener);
-    registerCleanupFunction(function() {
-      targetFolder.RemoveFolderListener(folderListener);
-    });
-  },
-  async function create_new_message() {
-    MessageInjection.make_new_sets_in_folder(targetFolder, [{ count: 1 }]);
-    await MessageInjection.wait_for_message_injection();
-  },
-];
-
-function run_test() {
-  async_run_tests(tests);
-}
+add_task(async function create_new_message() {
+  let msgGen = new MessageGenerator();
+  await messageInjection.makeNewSetsInFolders(
+    [targetFolder],
+    [{ count: 1 }],
+    msgGen
+  );
+});

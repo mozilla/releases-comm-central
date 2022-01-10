@@ -1,25 +1,27 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Test that junk actions work even when the bayes filtering of incoming
  *  messages is disabled, as fixed in bug 487610. Test developed by Kent
  *  James using test_nsMsgDBView.js as a base.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/messageInjection.js */
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/messageInjection.js");
-
 const { JSTreeSelection } = ChromeUtils.import(
   "resource:///modules/JsTreeSelection.jsm"
 );
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { MessageInjection } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageInjection.jsm"
+);
+var { PromiseUtils } = ChromeUtils.import(
+  "resource://gre/modules/PromiseUtils.jsm"
 );
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
@@ -35,20 +37,25 @@ var gFakeSelection = new JSTreeSelection(null);
 
 var gMessageGenerator = new MessageGenerator();
 
-var gLocalInboxFolder;
+var messageInjection = new MessageInjection({ mode: "local" });
+
+var gLocalInboxFolder = messageInjection.getInboxFolder();
 var gListener;
+var gCommandUpdater;
 
-function setup_globals(aNextFunc) {
-  // build up a message
-  let messages = [];
-  let msg1 = gMessageGenerator.makeMessage();
-  messages = messages.concat([msg1]);
-  let msgSet = new SyntheticMessageSet(messages);
+var gDBView;
+var gTreeView;
 
-  return MessageInjection.add_sets_to_folders(gLocalInboxFolder, [msgSet]);
-}
+var CommandUpdaterWithPromise = function() {
+  this.deferred = PromiseUtils.defer();
+};
+CommandUpdaterWithPromise.prototype = {
+  async promiseSelectionSummarized() {
+    await this.deferred.promise;
+    this.deferred = PromiseUtils.defer();
+    return this.deferred.promise;
+  },
 
-var gCommandUpdater = {
   updateCommandStatus() {
     // the back end is smart and is only telling us to update command status
     // when the # of items in the selection has actually changed.
@@ -58,70 +65,19 @@ var gCommandUpdater = {
 
   updateNextMessageAfterDelete() {},
   summarizeSelection() {
-    return false;
+    this.deferred.resolve();
   },
 };
 
-var gDBView;
-var gTreeView;
-
-var SortType = Ci.nsMsgViewSortType;
-var SortOrder = Ci.nsMsgViewSortOrder;
-var ViewFlags = Ci.nsMsgViewFlagsType;
-
-function setup_view(aViewType, aViewFlags) {
-  let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
-
-  // always start out fully expanded
-  aViewFlags |= ViewFlags.kExpandAll;
-
-  gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
-  gDBView.init(null, null, gCommandUpdater);
-  var outCount = {};
-  gDBView.open(
-    gLocalInboxFolder,
-    SortType.byDate,
-    SortOrder.ascending,
-    aViewFlags,
-    outCount
-  );
-  dump("  View Out Count: " + outCount.value + "\n");
-
-  gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
-  gTreeView.selection = gFakeSelection;
-  gFakeSelection.view = gTreeView;
-}
-
-var tests_for_all_views = [
-  // In the proposed fix for bug 487610, the first call to junk messages
-  //  only creates the junk folder, it does not actually successfully move
-  //  messages. So we junk messages twice so we can really see a move. But
-  //  if that gets fixed and the messages actually move on the first call,
-  //  I want this test to succeed as well. So I don't actually count how
-  //  many messages get moved, just that some do on the second move.
-  junkMessages,
-  addMessages,
-  junkMessages,
-];
-
-function addMessages() {
-  // add another message in case the first one moved
-  let messages = [];
-  let msg1 = gMessageGenerator.makeMessage();
-  messages = messages.concat([msg1]);
-  let msgSet = new SyntheticMessageSet(messages);
-  return MessageInjection.add_sets_to_folders(gLocalInboxFolder, [msgSet]);
-}
-
-function* junkMessages() {
-  // select and junk all messages
-  gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
-  gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
-  yield false;
-}
-
 // Our listener, which captures events and does the real tests.
-function gMFListener() {}
+function gMFListener() {
+  this._promiseMsgsMoveCopyCompleted = new Promise(resolve => {
+    this._resolveMsgsMoveCopyCompleted = resolve;
+  });
+  this._promiseFolderAdded = new Promise(resolve => {
+    this._resolveFolderAdded = resolve;
+  });
+}
 gMFListener.prototype = {
   msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
     Assert.ok(aDestFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
@@ -129,21 +85,23 @@ gMFListener.prototype = {
     //  Maybe all updates are not completed yet. Anyway I do it by just
     //  making sure there is something in the destination array.
     Assert.ok(aDestMsgs.length > 0);
-    async_driver();
+    this._resolveMsgsMoveCopyCompleted();
   },
 
   folderAdded(aFolder) {
     // this should be a junk folder
     Assert.ok(aFolder.getFlag(Ci.nsMsgFolderFlags.Junk));
-    async_driver();
+    this._resolveFolderAdded();
+  },
+  get promiseMsgsMoveCopyCompleted() {
+    return this._promiseMsgsMoveCopyCompleted;
+  },
+  get promiseFolderAdded() {
+    return this._promiseFolderAdded;
   },
 };
 
-function run_test() {
-  gLocalInboxFolder = MessageInjection.configure_message_injection({
-    mode: "local",
-  });
-
+add_task(async function setup_test() {
   // Set option so that when messages are marked as junk, they move to the junk folder
   Services.prefs.setBoolPref("mail.spam.manualMark", true);
 
@@ -154,42 +112,70 @@ function run_test() {
   //  to make sure that the junk move happens anyway.
   gLocalInboxFolder.server.spamSettings.level = 0;
 
-  do_test_pending();
-
-  // Add folder listeners that will capture async events
+  // Add folder listeners that will capture async events.
   let flags = nsIMFNService.msgsMoveCopyCompleted | nsIMFNService.folderAdded;
   gListener = new gMFListener();
   MailServices.mfn.addListener(gListener, flags);
 
-  async_run({ func: actually_run_test });
-}
+  // Build up a message.
+  await messageInjection.makeNewSetsInFolders(
+    [gLocalInboxFolder],
+    [{}],
+    gMessageGenerator
+  );
+  let view_type = "threaded";
+  let view_flag = Ci.nsMsgViewFlagsType.kThreadedDisplay;
+  let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + view_type;
 
-var view_types = [["threaded", ViewFlags.kThreadedDisplay]];
+  // Always start out fully expanded.
+  view_flag |= Ci.nsMsgViewFlagsType.kExpandAll;
 
-function* actually_run_test() {
-  yield async_run({ func: setup_globals });
-  dump(
-    "Num Messages: " +
-      gLocalInboxFolder.msgDatabase.dBFolderInfo.numMessages +
-      "\n"
+  gCommandUpdater = new CommandUpdaterWithPromise();
+
+  gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
+  gDBView.init(null, null, null);
+  var outCount = {};
+  gDBView.open(
+    gLocalInboxFolder,
+    Ci.nsMsgViewSortType.byDate,
+    Ci.nsMsgViewSortOrder.ascending,
+    view_flag,
+    outCount
   );
 
-  // for each view type...
-  for (let view_type_and_flags of view_types) {
-    let [view_type, view_flags] = view_type_and_flags;
+  gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
+  gTreeView.selection = gFakeSelection;
+  gFakeSelection.view = gTreeView;
+});
 
-    // ... run each test
-    setup_view(view_type, view_flags);
+add_task(async function test_first_junking_create_folder() {
+  // In the proposed fix for bug 487610, the first call to junk messages
+  //  only creates the junk folder, it does not actually successfully move
+  //  messages. So we junk messages twice so we can really see a move. But
+  //  if that gets fixed and the messages actually move on the first call,
+  //  I want this test to succeed as well. So I don't actually count how
+  //  many messages get moved, just that some do on the second move.
 
-    for (let testFunc of tests_for_all_views) {
-      dump("=== Running generic test: " + testFunc.name + "\n");
-      yield async_run({ func: testFunc });
-    }
-  }
-  MailServices.mfn.removeListener(gListener);
+  // Select and junk all messages.
+  gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
+  gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
+  await gCommandUpdater.promiseSelectionSummarized;
+  await gListener.promiseFolderAdded;
+});
 
-  // Delete view reference to avoid a cycle leak.
-  gFakeSelection.view = null;
+add_task(async function test_add_further_message() {
+  // Add another message in case the first one moved.
+  await messageInjection.makeNewSetsInFolders(
+    [gLocalInboxFolder],
+    [{}],
+    gMessageGenerator
+  );
+});
 
-  do_test_finished();
-}
+add_task(async function test_second_junking_move_msgs() {
+  // Select and junk all messages.
+  gDBView.doCommand(Ci.nsMsgViewCommandType.selectAll);
+  gDBView.doCommand(Ci.nsMsgViewCommandType.junk);
+  await gCommandUpdater.promiseSelectionSummarized;
+  await gListener.promiseMsgsMoveCopyCompleted;
+});
