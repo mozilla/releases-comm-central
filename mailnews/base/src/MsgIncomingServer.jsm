@@ -781,7 +781,7 @@ class MsgIncomingServer {
     if (identity.getBoolAttribute("use_custom_prefs")) {
       incorp = this.getIntValue("incorporate_return_receipt");
     } else {
-      incorp = Services.prefs.getIntPref("mail.incorporate.return-receipt");
+      incorp = Services.prefs.getIntPref("mail.incorporate.return_receipt");
     }
 
     let enable = incorp == Ci.nsIMsgMdnGenerator.eIncorporateSent;

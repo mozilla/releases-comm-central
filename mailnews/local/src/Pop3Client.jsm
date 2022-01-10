@@ -81,6 +81,21 @@ class Pop3Client {
     });
 
     this.onReady = () => {};
+
+    this._cutOffTimestamp = -1;
+    if (
+      this._server.deleteByAgeFromServer &&
+      this._server.numDaysToLeaveOnServer
+    ) {
+      // We will send DELE request for messages received before this timestamp.
+      this._cutOffTimestamp =
+        Date.now() / 1000 - this._server.numDaysToLeaveOnServer * 24 * 60 * 60;
+    }
+
+    this._maxMessageSize = 50 * 1024;
+    if (this._server.limitOfflineMessageSize && this._server.maxMessageSize) {
+      this._maxMessageSize = this._server.maxMessageSize * 1024;
+    }
   }
 
   /**
@@ -726,6 +741,7 @@ class Pop3Client {
    * Send `LIST` request to the server.
    */
   _actionList = () => {
+    this._messageSizeMap = new Map();
     this._nextAction = this._actionListResponse;
     this._send("LIST");
   };
@@ -737,7 +753,10 @@ class Pop3Client {
   _actionListResponse = ({ data }) => {
     this._lineReader(
       data,
-      line => {},
+      line => {
+        let [messageNumber, messageSize] = line.split(" ");
+        this._messageSizeMap.set(messageNumber, Number(messageSize));
+      },
       () => {
         this._actionUidl();
       }
@@ -748,7 +767,8 @@ class Pop3Client {
    * Send `UIDL` request to the server.
    */
   _actionUidl = () => {
-    this._messages = [];
+    this._messagesToHandle = [];
+    this._newUidlMap = new Map();
     this._nextAction = this._actionUidlResponse;
     this._send("UIDL");
   };
@@ -763,13 +783,116 @@ class Pop3Client {
       line => {
         let [messageNumber, messageUidl] = line.split(" ");
         messageUidl = messageUidl.trim();
-        if (!this._uidlMap.has(messageUidl)) {
-          // Fetch only if it's not already in _uidlMap.
-          this._messages.push({ messageNumber, messageUidl });
+        let uidlState = this._uidlMap.get(messageUidl);
+        if (uidlState) {
+          if (
+            uidlState.status == "k" &&
+            (!this._server.leaveMessagesOnServer ||
+              uidlState.receivedAt < this._cutOffTimestamp)
+          ) {
+            // Delete this message.
+            this._messagesToHandle.push({
+              messageNumber,
+              messageUidl,
+              status: "d",
+            });
+          } else {
+            // Do nothing to this message.
+            this._newUidlMap.set(messageUidl, uidlState);
+          }
+        } else {
+          // Fetch the full message or only headers depending on server settings
+          // and message size.
+          let status =
+            this._server.headersOnly ||
+            this._messageSizeMap.get(messageNumber) > this._maxMessageSize
+              ? "b"
+              : "f";
+          this._messagesToHandle.push({
+            messageNumber,
+            messageUidl,
+            status,
+          });
         }
       },
       () => {
-        this._actionRetr();
+        this._uidlMapChanged =
+          this._uidlMap.size != this._newUidlMap.size ||
+          this._messagesToHandle.length;
+        // This discards staled uidls that are no longer on the server.
+        this._uidlMap = this._newUidlMap;
+
+        this._actionHandleMessage();
+      }
+    );
+  };
+
+  /**
+   * Consume a message from this._messagesToHandle, decide to send TOP, RETR or
+   * DELE request.
+   */
+  _actionHandleMessage = () => {
+    this._currentMessage = this._messagesToHandle.shift();
+    if (this._currentMessage) {
+      switch (this._currentMessage.status) {
+        case "b":
+          this._actionTop();
+          break;
+        case "f":
+          this._actionRetr();
+          break;
+        case "d":
+          this._actionDelete();
+          break;
+        default:
+          break;
+      }
+    } else {
+      this._actionDone();
+    }
+  };
+
+  /**
+   * Send `TOP` request to the server.
+   */
+  _actionTop = () => {
+    this._nextAction = this._actionTopResponse;
+    let lineNumber = this._server.headersOnly ? 0 : 10;
+    this._send(`TOP ${this._currentMessage.messageNumber} ${lineNumber}`);
+  };
+
+  /**
+   * Handle `TOP` response.
+   * @param {Pop3Response} res - TOP response received from the server.
+   */
+  _actionTopResponse = res => {
+    if (!this._currentMessageSize) {
+      // Call incorporateBegin only once for each message.
+      this._sink.incorporateBegin(
+        this._currentMessage.messageUidl,
+        Ci.nsMsgMessageFlags.Partial
+      );
+    }
+    if (res.statusText) {
+      this._currentMessageSize = Number.parseInt(res.statusText);
+    }
+    this._lineReader(
+      res.data,
+      line => {
+        this._sink.incorporateWrite(line, line.length);
+      },
+      () => {
+        this._sink.incorporateComplete(
+          this._msgWindow,
+          this._currentMessageSize
+        );
+        this._currentMessageSize = null;
+        this._uidlMap.set(this._currentMessage.messageUidl, {
+          status: "b",
+          uidl: this._currentMessage.messageUidl,
+          receivedAt: Math.floor(Date.now() / 1000),
+        });
+        this._actionHandleMessage();
       }
     );
   };
@@ -778,13 +901,8 @@ class Pop3Client {
    * Send `RETR` request to the server.
    */
   _actionRetr = () => {
-    this._currentMessage = this._messages.shift();
-    if (this._currentMessage) {
-      this._nextAction = this._actionRetrResponse;
-      this._send(`RETR ${this._currentMessage.messageNumber}`);
-    } else {
-      this._actionDone();
-    }
+    this._nextAction = this._actionRetrResponse;
+    this._send(`RETR ${this._currentMessage.messageNumber}`);
   };
 
   /**
@@ -816,8 +934,7 @@ class Pop3Client {
             uidl: this._currentMessage.messageUidl,
             receivedAt: Math.floor(Date.now() / 1000),
           });
-          this._uidlMapChanged = true;
-          this._actionRetr();
+          this._actionHandleMessage();
         } else {
           this._actionDelete();
         }
@@ -838,12 +955,7 @@ class Pop3Client {
    * @param {Pop3Response} res - DELE response received from the server.
    */
   _actionDeleteResponse = res => {
-    this._uidlMap.set(this._currentMessage.messageUidl, {
-      status: "d",
-      uidl: this._currentMessage.messageUidl,
-      receivedAt: Math.floor(Date.now() / 1000),
-    });
-    this._actionRetr();
+    this._actionHandleMessage();
   };
 
   _actionDone = (status = Cr.NS_OK) => {
