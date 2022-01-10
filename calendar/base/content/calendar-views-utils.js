@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported switchToView, getSelectedDay, scheduleMidnightUpdate, minimonthPick,
+/* exported switchToView, getSelectedDay, minimonthPick,
  *          observeViewDaySelect, toggleOrientation,
  *          toggleWorkdaysOnly, toggleTasksInView, toggleShowCompletedInView,
  *          goToDate, gLastShownCalendarView, deleteSelectedEvents,
@@ -333,62 +333,6 @@ function currentView() {
  */
 function getSelectedDay() {
   return currentView().selectedDay;
-}
-
-var gMidnightTimer;
-
-/**
- * Creates a timer that will fire after midnight.  Pass in a function as
- * aRefreshCallback that should be called at that time.
- *
- * XXX This function is not very usable, since there is only one midnight timer.
- * Better would be a function that uses the observer service to notify at
- * midnight.
- *
- * @param refreshCallback      A callback to be called at midnight.
- */
-function scheduleMidnightUpdate(refreshCallback) {
-  let jsNow = new Date();
-  let tomorrow = new Date(jsNow.getFullYear(), jsNow.getMonth(), jsNow.getDate() + 1);
-  let msUntilTomorrow = tomorrow.getTime() - jsNow.getTime();
-
-  // Is an nsITimer/callback extreme overkill here? Yes, but it's necessary to
-  // workaround bug 291386.  If we don't, we stand a decent chance of getting
-  // stuck in an infinite loop.
-  let udCallback = {
-    notify(timer) {
-      refreshCallback();
-    },
-  };
-
-  if (gMidnightTimer) {
-    gMidnightTimer.cancel();
-  } else {
-    // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
-    let wakeObserver = {
-      observe(subject, topic, data) {
-        if (topic == "wake_notification") {
-          // postpone refresh for another couple of seconds to get netwerk ready:
-          if (this.mTimer) {
-            this.mTimer.cancel();
-          } else {
-            this.mTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-          }
-          this.mTimer.initWithCallback(udCallback, 10 * 1000, Ci.nsITimer.TYPE_ONE_SHOT);
-        }
-      },
-    };
-
-    // Add observer
-    Services.obs.addObserver(wakeObserver, "wake_notification");
-
-    // Remove observer on unload
-    window.addEventListener("unload", () => {
-      Services.obs.removeObserver(wakeObserver, "wake_notification");
-    });
-    gMidnightTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-  }
-  gMidnightTimer.initWithCallback(udCallback, msUntilTomorrow, gMidnightTimer.TYPE_ONE_SHOT);
 }
 
 /**

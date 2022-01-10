@@ -29,6 +29,8 @@ var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
 
+ChromeUtils.defineModuleGetter(this, "CalMetronome", "resource:///modules/CalMetronome.jsm");
+
 /**
  * Does calendar initialization steps for a given chrome window. Called at
  * startup as the application window is loaded, before tabs are restored.
@@ -59,8 +61,7 @@ async function loadCalendarComponent() {
   // Load the Calendar Manager
   await loadCalendarManager();
 
-  // Make sure we update ourselves if the program stays open over midnight
-  scheduleMidnightUpdate(doMidnightUpdate);
+  CalMetronome.on("day", doMidnightUpdate);
 
   // Set up the command controller from calendar-command-controller.js
   injectCalendarCommandController();
@@ -168,6 +169,8 @@ function unloadCalendarComponent() {
   finishCalendarUnifinder();
 
   taskEdit.onUnload();
+
+  CalMetronome.off("day", doMidnightUpdate);
 }
 
 /**
@@ -346,8 +349,7 @@ function setLocaleDefaultPreferences() {
 }
 
 /**
- * Called at midnight to tell us to redraw date-specific widgets.  Do NOT call
- * this for normal refresh, since it also calls scheduleMidnightUpdate.
+ * Called at midnight to tell us to redraw date-specific widgets.
  */
 function doMidnightUpdate() {
   try {
@@ -376,9 +378,6 @@ function doMidnightUpdate() {
   } catch (exc) {
     cal.ASSERT(false, exc);
   }
-
-  // Schedule the next update.
-  scheduleMidnightUpdate(doMidnightUpdate);
 }
 
 /**
