@@ -35,7 +35,7 @@
       this.calIOperationListener = this.getCustomInterfaceCallback(Ci.calIOperationListener);
 
       let onPreferenceChanged = () => {
-        delete this.mDayMap; // Days have moved, force a refresh of the grid.
+        delete this.dayBoxes; // Days have moved, force a refresh of the grid.
         this.refreshDisplay();
       };
 
@@ -150,15 +150,15 @@
         this.value = new Date();
       });
 
-      this.mDayMap = null;
+      this.dayBoxes = null;
       this.mValue = null;
       this.mEditorDate = null;
       this.mExtraDate = null;
       this.mPixelScrollDelta = 0;
       this.mObservesComposite = false;
-      this.mToday = false;
-      this.mSelected = false;
-      this.mExtra = false;
+      this.mToday = null;
+      this.mSelected = null;
+      this.mExtra = null;
       this.mValue = new Date(); // Default to "today".
       this.mFocused = null;
 
@@ -479,8 +479,8 @@
 
     onCalendarRemoved(aCalendar) {
       if (!aCalendar.getProperty("disabled")) {
-        for (let day in this.mDayMap) {
-          this.removeCalendarFromBoxBusy(this.mDayMap[day], aCalendar);
+        for (let { box } of this.dayBoxes) {
+          this.removeCalendarFromBoxBusy(box, aCalendar);
         }
       }
     }
@@ -594,12 +594,24 @@
         this.mSelected = null;
       }
 
-      if (!monthChanged && this.mDayMap) {
-        let ymd =
-          this.value.getFullYear() + "-" + this.value.getMonth() + "-" + this.value.getDate();
-        this.mSelected = this.mDayMap[ymd];
+      // Get today's date.
+      let today = new Date();
+
+      if (!monthChanged && this.dayBoxes) {
+        this.mSelected = this.getBoxForDate(this.value);
         if (this.mSelected) {
           this.mSelected.setAttribute("selected", "true");
+        }
+
+        let todayBox = this.getBoxForDate(today);
+        if (this.mToday != todayBox) {
+          if (this.mToday) {
+            this.mToday.removeAttribute("today");
+          }
+          this.mToday = todayBox;
+          if (this.mToday) {
+            this.mToday.setAttribute("today", "true");
+          }
         }
         return;
       }
@@ -627,9 +639,6 @@
       let calbox = this.querySelector(".minimonth-calendar");
       let date = this._getStartDate(aDate);
 
-      // Get today's date.
-      let today = new Date();
-
       if (aDate.getFullYear() == (this.mValue || this.mExtraDate).getFullYear()) {
         calbox.setAttribute("aria-label", dateString);
       } else {
@@ -638,7 +647,7 @@
         calbox.setAttribute("aria-label", label);
       }
 
-      this.mDayMap = {};
+      this.dayBoxes = [];
       let defaultTz = cal.dtz.defaultTimezone;
       for (let k = 1; k < 7; k++) {
         // Set the week number.
@@ -655,8 +664,7 @@
 
         for (let i = 1; i < 8; i++) {
           let day = this._getCalBoxNode(k, i);
-          let ymd = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
-          this.mDayMap[ymd] = day;
+          this.setBoxForDate(date, day);
 
           if (this.getAttribute("readonly") != "true") {
             day.setAttribute("interactive", "true");
@@ -721,10 +729,27 @@
       this.dispatchEvent(new CustomEvent(aEventName, { bubbles: true }));
     }
 
+    /**
+     * Fetches the table cell for the given date, or null if the date isn't displayed.
+     *
+     * @param {calIDateTime|Date} aDate
+     * @return {HTMLTableCellElement|null}
+     */
     getBoxForDate(aDate) {
-      // aDate is a calIDateTime.
-      let ymd = [aDate.year, aDate.month, aDate.day].join("-");
-      return ymd in this.mDayMap ? this.mDayMap[ymd] : null;
+      if (!(aDate instanceof Ci.calIDateTime)) {
+        aDate = cal.dtz.jsDateToDateTime(aDate, cal.dtz.floating);
+      }
+      return this.dayBoxes.find(obj => cal.dtz.sameDay(obj.date, aDate))?.box || null;
+    }
+
+    /**
+     * Stores the table cell for the given date.
+     *
+     * @param {Date} aDate
+     * @param {HTMLTableCellElement} aBox
+     */
+    setBoxForDate(aDate, aBox) {
+      this.dayBoxes.push({ date: cal.dtz.jsDateToDateTime(aDate, cal.dtz.floating), box: aBox });
     }
 
     resetAttributesForDate(aDate) {
@@ -751,7 +776,7 @@
       }
 
       if (aDate) {
-        let box = this.getBoxForDate(cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone));
+        let box = this.getBoxForDate(aDate);
         if (box) {
           removeForBox(box);
         }
@@ -835,7 +860,7 @@
     }
 
     setFocusedDate(aDate, aForceFocus) {
-      let newFocused = this.getBoxForDate(cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone));
+      let newFocused = this.getBoxForDate(aDate);
       if (!newFocused) {
         return;
       }
@@ -893,7 +918,7 @@
         this.showMonth(aMainDate);
       } else if (!sameDate) {
         // Select day only.
-        let day = this.getBoxForDate(cal.dtz.jsDateToDateTime(aDate, cal.dtz.defaultTimezone));
+        let day = this.getBoxForDate(aDate);
         if (this.mSelected) {
           this.mSelected.removeAttribute("selected");
         }
