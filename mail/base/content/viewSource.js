@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gViewSourceUtils, internalSave */
+/* globals gViewSourceUtils, internalSave, ZoomManager */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
@@ -52,6 +52,21 @@ addEventListener("load", () => {
       document
         .getElementById("repair-text-encoding")
         .setAttribute("disabled", !gBrowser.mayEnableCharacterEncodingMenu);
+    },
+    true
+  );
+
+  gBrowser.addEventListener(
+    "DoZoomEnlargeBy10",
+    () => {
+      ZoomManager.scrollZoomEnlarge(gBrowser);
+    },
+    true
+  );
+  gBrowser.addEventListener(
+    "DoZoomReduceBy10",
+    () => {
+      ZoomManager.scrollReduceEnlarge(gBrowser);
     },
     true
   );
