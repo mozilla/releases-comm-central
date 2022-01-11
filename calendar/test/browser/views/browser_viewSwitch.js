@@ -24,7 +24,10 @@ function waitForVisibleHours(view, numHours) {
     let timebarHeight = view.timebar.clientHeight;
     let visiblePx = timebarHeight - view.grid.scrollTopMax;
     let expectPx = (numHours / 24) * timebarHeight;
-    return Math.abs(visiblePx - expectPx) < 2;
+    // Allow up to 3px difference to accommodate accumulated integer rounding
+    // errors (e.g. clientHeight is a rounded integer, whilst client rectangles
+    // and expectPx are floating).
+    return Math.abs(visiblePx - expectPx) < 3;
   }, `${view.id} should have ${numHours} hours visible`);
 }
 
@@ -41,7 +44,7 @@ function waitForFirstVisibleHour(view, hour) {
   return TestUtils.waitForCondition(() => {
     let expectPx = (hour / 24) * view.timebar.clientHeight;
     let actualPx = view.grid.scrollTop;
-    return Math.abs(actualPx - expectPx) < 2;
+    return Math.abs(actualPx - expectPx) < 3;
   }, `${view.id} first visible hour should be ${hour}`);
 }
 
