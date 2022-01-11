@@ -904,8 +904,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
        message.)
        */
 
-      bool isSame;
-      if (NS_SUCCEEDED(cert->Equals(mSelfEncryptionCert, &isSame)) && isSame) {
+      if (cert.get() == mSelfEncryptionCert.get()) {
         already_added_self_cert = true;
       }
 
