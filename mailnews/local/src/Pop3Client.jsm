@@ -310,6 +310,11 @@ class Pop3Client {
       "",
       `*${this._server.realHostName} ${this._server.realUsername}`,
     ];
+    for (let msg of this._messagesToHandle) {
+      // _messagesToHandle is not empty means an error happened, put them back
+      // to _uidlMap to prevent loss of popstate.
+      this._uidlMap.set(msg.uidl, msg);
+    }
     for (let { status, uidl, receivedAt } of this._uidlMap.values()) {
       content.push(`${status} ${uidl} ${receivedAt}`);
     }
@@ -419,7 +424,7 @@ class Pop3Client {
    */
   _actionCapa = () => {
     this._nextAction = this._actionCapaResponse;
-    this._hasSTLS = false;
+    this._capabilities = [];
     this._send("CAPA");
   };
 
@@ -434,14 +439,13 @@ class Pop3Client {
     this._lineReader(
       res.data,
       line => {
-        if (line.startsWith("STLS")) {
-          this._hasSTLS = true;
-        }
         if (line.startsWith("SASL ")) {
           this._supportedAuthMethods = line
             .slice(5)
             .trim()
             .split(" ");
+        } else {
+          this._capabilities.push(line.split(" ")[0]);
         }
       },
       () => this._actionChooseFirstAuthMethod()
@@ -459,7 +463,7 @@ class Pop3Client {
       ].includes(this._server.socketType) &&
       !this._secureTransport
     ) {
-      if (this._hasSTLS) {
+      if (this._capabilities.includes("STLS")) {
         // Init STARTTLS negotiation if required by user pref and supported.
         this._nextAction = this._actionStlsResponse;
         // STLS is the POP3 command to init STARTTLS.
@@ -805,9 +809,9 @@ class Pop3Client {
     this._lineReader(
       data,
       line => {
-        let [messageNumber, messageUidl] = line.split(" ");
-        messageUidl = messageUidl.trim();
-        let uidlState = this._uidlMap.get(messageUidl);
+        let [messageNumber, uidl] = line.split(" ");
+        uidl = uidl.trim();
+        let uidlState = this._uidlMap.get(uidl);
         if (uidlState) {
           if (
             uidlState.status == "k" &&
@@ -816,37 +820,63 @@ class Pop3Client {
           ) {
             // Delete this message.
             this._messagesToHandle.push({
+              ...uidlState,
               messageNumber,
-              messageUidl,
               status: "d",
             });
           } else if (uidlState.status == "f") {
             // Fetch the full message.
             this._messagesToHandle.push({
+              ...uidlState,
               messageNumber,
-              messageUidl,
               status: "f",
             });
           } else {
             // Do nothing to this message.
-            this._newUidlMap.set(messageUidl, uidlState);
+            this._newUidlMap.set(uidl, uidlState);
           }
         } else {
           // Fetch the full message or only headers depending on server settings
           // and message size.
           let status =
-            this._server.headersOnly ||
-            this._messageSizeMap.get(messageNumber) > this._maxMessageSize
+            this._capabilities.includes("TOP") &&
+            (this._server.headersOnly ||
+              this._messageSizeMap.get(messageNumber) > this._maxMessageSize)
               ? "b"
               : "f";
           this._messagesToHandle.push({
             messageNumber,
-            messageUidl,
+            uidl,
             status,
           });
         }
       },
       () => {
+        let totalDownloadSize = this._messagesToHandle.reduce(
+          (acc, msg) =>
+            msg.status == "f"
+              ? acc + this._messageSizeMap.get(msg.messageNumber)
+              : acc,
+          0
+        );
+        try {
+          let localFolder = this._sink.folder.QueryInterface(
+            Ci.nsIMsgLocalMailFolder
+          );
+          if (
+            localFolder.warnIfLocalFileTooBig(
+              this._msgWindow,
+              totalDownloadSize
+            )
+          ) {
+            throw new Error("Not enough disk space");
+          }
+        } catch (e) {
+          this._logger.error(e);
+          this._actionDone(Cr.NS_ERROR_FAILURE);
+          return;
+        }
+
         this._uidlMapChanged =
           this._uidlMap.size != this._newUidlMap.size ||
           this._messagesToHandle.length;
@@ -901,7 +931,7 @@ class Pop3Client {
     if (!this._currentMessageSize) {
       // Call incorporateBegin only once for each message.
       this._sink.incorporateBegin(
-        this._currentMessage.messageUidl,
+        this._currentMessage.uidl,
         Ci.nsMsgMessageFlags.Partial
       );
     }
@@ -919,9 +949,9 @@ class Pop3Client {
           this._currentMessageSize
         );
         this._currentMessageSize = null;
-        this._uidlMap.set(this._currentMessage.messageUidl, {
+        this._uidlMap.set(this._currentMessage.uidl, {
           status: "b",
-          uidl: this._currentMessage.messageUidl,
+          uidl: this._currentMessage.uidl,
           receivedAt: Math.floor(Date.now() / 1000),
         });
         this._actionHandleMessage();
@@ -944,7 +974,7 @@ class Pop3Client {
   _actionRetrResponse = res => {
     if (!this._currentMessageSize) {
       // Call incorporateBegin only once for each message.
-      this._sink.incorporateBegin(this._currentMessage.messageUidl, 0);
+      this._sink.incorporateBegin(this._currentMessage.uidl, 0);
     }
     if (res.statusText) {
       this._currentMessageSize = Number.parseInt(res.statusText);
@@ -961,9 +991,9 @@ class Pop3Client {
         );
         this._currentMessageSize = null;
         if (this._server.leaveMessagesOnServer) {
-          this._uidlMap.set(this._currentMessage.messageUidl, {
+          this._uidlMap.set(this._currentMessage.uidl, {
             status: "k",
-            uidl: this._currentMessage.messageUidl,
+            uidl: this._currentMessage.uidl,
             receivedAt: Math.floor(Date.now() / 1000),
           });
           this._actionHandleMessage();
@@ -992,11 +1022,15 @@ class Pop3Client {
 
   _actionDone = (status = Cr.NS_OK) => {
     this._authenticating = false;
-    this.quit();
-    this._writeUidlState();
-    this._urlListener?.OnStopRunningUrl(this.runningUri, status);
     if (status != Cr.NS_OK) {
       this._sink.abortMailDelivery(this);
+      if (this._currentMessage) {
+        // Put _currentMessage back to the queue to prevent loss of popstate.
+        this._messagesToHandle.unshift(this._currentMessage);
+      }
     }
+    this._writeUidlState();
+    this._urlListener?.OnStopRunningUrl(this.runningUri, status);
+    this.quit();
   };
 }
