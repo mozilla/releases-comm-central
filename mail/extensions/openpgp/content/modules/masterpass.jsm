@@ -56,7 +56,10 @@ var OpenPGPMasterpass = {
     let [prot, unprot] = RNP.getProtectedKeysCount();
     let haveAtLeastOneSecretKey = prot || unprot;
 
-    if (!this.getPassPath().exists() && haveAtLeastOneSecretKey) {
+    if (
+      !(await IOUtils.exists(this.getPassPath().path)) &&
+      haveAtLeastOneSecretKey
+    ) {
       // We couldn't read the OpenPGP password from file.
       // This could either mean the file doesn't exist, which indicates
       // either a corruption, or the condition after a failed migration
@@ -174,8 +177,7 @@ var OpenPGPMasterpass = {
       this._initDone = true;
 
       // repairing might have created the file
-      let path = this.getPassPath();
-      if (!path.exists()) {
+      if (!(await IOUtils.exists(this.getPassPath().path))) {
         return this._ensureMasterPassword();
       }
     }

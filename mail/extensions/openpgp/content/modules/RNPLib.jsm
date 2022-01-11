@@ -571,9 +571,17 @@ function enableRNPLibJS() {
 
     keep_password_cb_alive: null,
 
+    password_cb_active: false,
+
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
+      if (this.password_cb_active) {
+        throw new Error("cannot provide password because of recursion");
+      }
       const cApi = EnigmailCryptoAPI();
+      this.password_cb_active = true;
       let pass = cApi.sync(OpenPGPMasterpass.retrieveOpenPGPPassword());
+      this.password_cb_active = false;
+
       if (pass == null) {
         throw new Error("Got null OpenPGP password");
       }
