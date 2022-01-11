@@ -66,8 +66,8 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   bool CheckIncludeSignaturePrefs(nsIMsgIdentity* identity);
   // m_folderName to store the value of the saved drafts folder.
   nsCString m_folderName;
-  void InsertDivWrappedTextAtSelection(const nsAString& aText,
-                                       const nsAString& classStr);
+  MOZ_CAN_RUN_SCRIPT void InsertDivWrappedTextAtSelection(
+      const nsAString& aText, const nsAString& classStr);
 
  protected:
   nsresult CreateMessage(const nsACString& originalMsgURI, MSG_ComposeType type,
@@ -83,9 +83,9 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
                            nsTArray<nsMsgRecipient>& aListMembers);
   void TagConvertible(mozilla::dom::Element* node, int32_t* _retval);
   void _NodeTreeConvertible(mozilla::dom::Element* node, int32_t* _retval);
-  nsresult MoveToAboveQuote(void);
-  nsresult MoveToBeginningOfDocument(void);
-  nsresult MoveToEndOfDocument(void);
+  MOZ_CAN_RUN_SCRIPT nsresult MoveToAboveQuote(void);
+  MOZ_CAN_RUN_SCRIPT nsresult MoveToBeginningOfDocument(void);
+  MOZ_CAN_RUN_SCRIPT nsresult MoveToEndOfDocument(void);
   nsresult ReplaceFileURLs(nsString& sigData);
   nsresult DataURLForFileURL(const nsAString& aFileURL, nsAString& aDataURL);
 
@@ -165,7 +165,8 @@ class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener,
   nsresult SetComposeObj(nsIMsgCompose* obj);
   nsresult ConvertToPlainText(bool formatflowed, bool formatted,
                               bool disallowBreaks);
-  nsresult InsertToCompose(nsIEditor* aEditor, bool aHTMLEditor);
+  MOZ_CAN_RUN_SCRIPT nsresult InsertToCompose(nsIEditor* aEditor,
+                                              bool aHTMLEditor);
   nsresult AppendToMsgBody(const nsCString& inStr);
 
  private:

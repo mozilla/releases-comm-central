@@ -381,8 +381,8 @@ nsMsgCompose::SetInsertingQuotedContent(bool aInsertingQuotedText) {
   return NS_OK;
 }
 
-MOZ_CAN_RUN_SCRIPT void nsMsgCompose::InsertDivWrappedTextAtSelection(
-    const nsAString& aText, const nsAString& classStr) {
+void nsMsgCompose::InsertDivWrappedTextAtSelection(const nsAString& aText,
+                                                   const nsAString& classStr) {
   NS_ASSERTION(m_editor,
                "InsertDivWrappedTextAtSelection called, but no editor exists");
   if (!m_editor) return;
@@ -2061,7 +2061,7 @@ NS_IMETHODIMP QuotingOutputStreamListener::OnStartRequest(nsIRequest* request) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
                                            nsresult status) {
   nsresult rv = NS_OK;
@@ -2600,8 +2600,8 @@ QuotingOutputStreamListener::SetMimeHeaders(nsIMimeHeaders* headers) {
   return NS_OK;
 }
 
-MOZ_CAN_RUN_SCRIPT nsresult QuotingOutputStreamListener::InsertToCompose(
-    nsIEditor* aEditor, bool aHTMLEditor) {
+nsresult QuotingOutputStreamListener::InsertToCompose(nsIEditor* aEditor,
+                                                      bool aHTMLEditor) {
   NS_ENSURE_ARG(aEditor);
   nsCOMPtr<nsINode> nodeInserted;
 
@@ -4951,7 +4951,7 @@ nsMsgCompose::GetIdentity(nsIMsgIdentity** aIdentity) {
  * <div class="moz-cite-prefix"> or <div class="moz-forward-container">
  * in an inline-forwarded message.
  */
-MOZ_CAN_RUN_SCRIPT nsresult nsMsgCompose::MoveToAboveQuote(void) {
+nsresult nsMsgCompose::MoveToAboveQuote(void) {
   RefPtr<Element> rootElement;
   nsresult rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
   if (NS_FAILED(rv) || !rootElement) {
@@ -5021,7 +5021,7 @@ MOZ_CAN_RUN_SCRIPT nsresult nsMsgCompose::MoveToAboveQuote(void) {
  * document before the first editable element. It will position into a
  * container. We need to be at the very front.
  */
-MOZ_CAN_RUN_SCRIPT nsresult nsMsgCompose::MoveToBeginningOfDocument(void) {
+nsresult nsMsgCompose::MoveToBeginningOfDocument(void) {
   RefPtr<Element> rootElement;
   nsresult rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
   if (NS_FAILED(rv) || !rootElement) {
@@ -5041,7 +5041,7 @@ MOZ_CAN_RUN_SCRIPT nsresult nsMsgCompose::MoveToBeginningOfDocument(void) {
  * after the last container so we don't accidentally position into a
  * <blockquote>. That's why we use our own function.
  */
-MOZ_CAN_RUN_SCRIPT nsresult nsMsgCompose::MoveToEndOfDocument(void) {
+nsresult nsMsgCompose::MoveToEndOfDocument(void) {
   int32_t offset;
   RefPtr<Element> rootElement;
   nsCOMPtr<nsINode> lastNode;
