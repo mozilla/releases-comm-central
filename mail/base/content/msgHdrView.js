@@ -2116,10 +2116,20 @@ AttachmentInfo.prototype = {
 
       let match = this.name.match(/\.([^.]+)$/);
       let extension = match ? match[1] : null;
-      let mimeInfo = gMIMEService.getFromTypeAndExtension(
-        this.contentType,
-        extension
-      );
+      let mimeInfo;
+      try {
+        mimeInfo = gMIMEService.getFromTypeAndExtension(
+          this.contentType,
+          extension
+        );
+      } catch (ex) {
+        // If the call above fails, which can happen on Windows where there's
+        // nothing registered for the file type, assume this generic type.
+        mimeInfo = gMIMEService.getFromTypeAndExtension(
+          "application/octet-stream",
+          null
+        );
+      }
       // The default action is saveToDisk, which is not what we want.
       // If we don't have a stored handler, ask before handling.
       if (!gHandlerService.exists(mimeInfo)) {

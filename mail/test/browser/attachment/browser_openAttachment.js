@@ -259,6 +259,16 @@ add_task(async function noHandlerNoSave() {
   checkHandler("test/bar", Ci.nsIHandlerInfo.saveToDisk, true);
 });
 
+/**
+ * The application/octet-stream type is handled weirdly. Check that opening it
+ * still behaves in a useful way.
+ */
+add_task(async function applicationOctetStream() {
+  await createAndLoadMessage("application/octet-stream");
+  await clickWithDialog({ rememberExpected: false }, "accept");
+  await checkFileSaved();
+});
+
 // Now we'll test the various states that handler info objects might be in.
 // There's two fields: preferredAction and alwaysAskBeforeHandling. If the
 // latter is true, we MUST get a prompt. Check that first.
