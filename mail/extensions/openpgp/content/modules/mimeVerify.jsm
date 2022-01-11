@@ -482,7 +482,7 @@ MimeVerify.prototype = {
     // don't try to verify if no message found
     // if (this.verifyEmbedded && (!this.foundMsg)) return; // TODO - check
 
-    let href = Services.wm.getMostRecentWindow(null).document?.location.href;
+    let href = Services.wm.getMostRecentWindow(null)?.document?.location.href;
 
     if (
       href == "about:blank" ||
