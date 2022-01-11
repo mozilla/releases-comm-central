@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { AddonManager } = ChromeUtils.import(
+  "resource://gre/modules/AddonManager.jsm"
+);
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
 async function test_it(account, extensionDetails, toolbarId) {
   let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   let buttonId = "compose_action_mochi_test-composeAction-toolbarbutton";
@@ -166,4 +173,79 @@ add_task(async function setup() {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messengercompose/messengercompose.xhtml"
   );
+});
+
+add_task(async function test_theme_icons() {
+  let extension = ExtensionTestUtils.loadExtension({
+    manifest: {
+      applications: {
+        gecko: {
+          id: "compose_action@mochi.test",
+        },
+      },
+      compose_action: {
+        default_title: "default",
+        default_icon: "default.png",
+        theme_icons: [
+          {
+            dark: "dark.png",
+            light: "light.png",
+            size: 16,
+          },
+        ],
+      },
+    },
+  });
+
+  let account = createAccount();
+  addIdentity(account);
+
+  await extension.startup();
+
+  let composeWindow = await openComposeWindow(account);
+  await focusWindow(composeWindow);
+
+  let uuid = extension.uuid;
+  let button = composeWindow.document.getElementById(
+    "compose_action_mochi_test-composeAction-toolbarbutton"
+  );
+
+  let dark_theme = await AddonManager.getAddonByID(
+    "thunderbird-compact-dark@mozilla.org"
+  );
+  await dark_theme.enable();
+  Assert.equal(
+    composeWindow.getComputedStyle(button).listStyleImage,
+    `url("moz-extension://${uuid}/light.png")`,
+    `Dark theme should use light icon.`
+  );
+
+  let light_theme = await AddonManager.getAddonByID(
+    "thunderbird-compact-light@mozilla.org"
+  );
+  await light_theme.enable();
+  Assert.equal(
+    composeWindow.getComputedStyle(button).listStyleImage,
+    `url("moz-extension://${uuid}/dark.png")`,
+    `Light theme should use dark icon.`
+  );
+
+  // Disabling a theme will enable the default theme.
+  await light_theme.disable();
+  if (AppConstants.platform == "linux") {
+    Assert.equal(
+      composeWindow.getComputedStyle(button).listStyleImage,
+      `url("moz-extension://${uuid}/light.png")`,
+      `Default theme should use light icon on Linux.`
+    );
+  } else {
+    Assert.equal(
+      composeWindow.getComputedStyle(button).listStyleImage,
+      `url("moz-extension://${uuid}/default.png")`,
+      `Default theme should use default icon.`
+    );
+  }
+
+  composeWindow.close();
+  await extension.unload();
 });
