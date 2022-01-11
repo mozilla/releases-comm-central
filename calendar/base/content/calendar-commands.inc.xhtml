@@ -9,16 +9,16 @@
   <command id="agenda_delete_event_command" oncommand="TodayPane.agenda.deleteSelectedItem();"/>
   <command id="agenda_edit_event_command" oncommand="TodayPane.agenda.editSelectedItem();"/>
   <command id="switch2calendar"
-           oncommand="document.getElementById('tabmail').openTab('calendar', { title: document.getElementById('calendar-tab-button').getAttribute('title') })"/>
+           oncommand="document.getElementById('tabmail').openTab('calendar')"/>
   <command id="switch2task"
-           oncommand="document.getElementById('tabmail').openTab('tasks', { title: document.getElementById('task-tab-button').getAttribute('title') })"/>
+           oncommand="document.getElementById('tabmail').openTab('tasks')"/>
   <command id="new_calendar_tab"
-           oncommand="document.getElementById('tabmail').openTab('calendar', { title: document.getElementById('calendar-tab-button').getAttribute('title') })"/>
+           oncommand="document.getElementById('tabmail').openTab('calendar')"/>
   <command id="new_task_tab"
-           oncommand="document.getElementById('tabmail').openTab('tasks', { title: document.getElementById('task-tab-button').getAttribute('title') })"/>
+           oncommand="document.getElementById('tabmail').openTab('tasks')"/>
   <command id="calendar_go_to_today_command"
            observes="calendar_mode_calendar"
-           oncommand="document.getElementById('tabmail').openTab('calendar', { title: document.getElementById('calendar-tab-button').getAttribute('title') }); goToDate(cal.dtz.now())"/>
+           oncommand="document.getElementById('tabmail').openTab('calendar'); goToDate(cal.dtz.now())"/>
   <command id="calendar_new_calendar_command" oncommand="goDoCommand('calendar_new_calendar_command')"/>
   <command id="calendar_delete_calendar_command" oncommand="goDoCommand('calendar_delete_calendar_command')"/>
   <command id="calendar_edit_calendar_command" oncommand="goDoCommand('calendar_edit_calendar_command')"/>

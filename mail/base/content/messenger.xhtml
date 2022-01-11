@@ -20,6 +20,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/panelUI.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/spacesToolbar.css" type="text/css"?>
 
 <!-- Calendar CSS -->
 <?xml-stylesheet href="chrome://calendar/skin/calendar.css" type="text/css"?>
@@ -92,6 +93,7 @@
   <script defer="defer" src="chrome://messenger/content/selectionsummaries.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgMail3PaneWindow.js"></script>
   <script defer="defer" src="chrome://messenger/content/specialTabs.js"></script>
+  <script defer="defer" src="chrome://messenger/content/spacesToolbar.js"></script>
   <script defer="defer" src="chrome://messenger/content/newmailaccount/provisionerCheckout.js"></script>
   <script defer="defer" src="chrome://messenger/content/glodaFacetTab.js"></script>
   <script defer="defer" src="chrome://gloda/content/overlay.js"></script>
@@ -546,17 +548,6 @@
                  mode="icons" defaultmode="icons" lockmode="true"
                  iconsize="small" defaulticonsize="small" lockiconsize="true"
                  defaultset="">
-          <!-- CALENDAR TAB BAR BUTTONS -->
-            <toolbarbutton id="calendar-tab-button"
-                           class="toolbarbutton-1"
-                           title="&lightning.toolbar.calendar.label;"
-                           tooltiptext="&lightning.toolbar.calendar.tooltip;"
-                           command="new_calendar_tab"/>
-            <toolbarbutton id="task-tab-button"
-                           class="toolbarbutton-1"
-                           title="&lightning.toolbar.task.label;"
-                           tooltiptext="&lightning.toolbar.task.tooltip;"
-                           command="new_task_tab"/>
         </toolbar>
 
         <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
@@ -578,6 +569,11 @@
   </toolbox>
 </box>
 
+<!-- Primary container to properly align the spaces toolbar. -->
+<hbox id="messengerContainer">
+#include spacesToolbar.inc.xhtml
+
+  <vbox id="messengerBody">
   <!-- XXX This extension point (tabmail-container) is only temporary!
        Horizontal space shouldn't be wasted if it isn't absolutely critical.
        A mechanism for adding sidebar panes will be added in bug 476154. -->
@@ -898,6 +894,8 @@
     <label id="totalMessageCount" class="statusbarpanel"/>
 #include ../../../calendar/base/content/calendar-status-bar.inc.xhtml
   </hbox>
+  </vbox>
+</hbox><!-- Closing #messengerContainer. -->
 
 #include tabDialogs.inc.xhtml
 </html:body>

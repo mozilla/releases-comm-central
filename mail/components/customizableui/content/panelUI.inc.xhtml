@@ -372,12 +372,20 @@
                title="&viewToolbarsMenu.label;"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
+#ifdef MAIN_WINDOW
         <toolbarbutton id="appmenu_quickFilterBar"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&quickFilterBar.toggleBarVisibility.appmenu.label;"
                        closemenu="none"
                        command="cmd_toggleQuickFilterBar"/>
+        <toolbarbutton id="appmenu_spacesToolbar"
+                       class="subviewbutton subviewbutton-iconic"
+                       type="checkbox"
+                       data-l10n-id="menu-spaces-toolbar-button"
+                       closemenu="none"
+                       oncommand="gSpacesToolbar.toggleToolbarFromMenu();"/>
+#endif
         <toolbarbutton id="appmenu_showStatusbar"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"

@@ -1365,7 +1365,7 @@ var gGeneralPane = {
     let tabmail = mainWin.document.getElementById("tabmail");
     for (let tabInfo of tabmail.tabInfo) {
       let tab = tabmail.getTabForBrowser(tabInfo.browser);
-      if (tab && tab.urlbar && tab.urlbar.value == "about:config") {
+      if (tab?.urlbar?.value == "about:config") {
         tabmail.switchToTab(tabInfo);
         return;
       }

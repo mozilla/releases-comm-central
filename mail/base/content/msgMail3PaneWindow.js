@@ -20,6 +20,7 @@
 /* import-globals-from searchBar.js */
 /* import-globals-from specialTabs.js */
 /* import-globals-from toolbarIconColor.js */
+/* import-globals-from spacesToolbar.js */
 
 /* globals loadCalendarComponent */
 
@@ -652,6 +653,7 @@ var gMailInit = {
         // The user closed the account setup after a successful run. Make sure
         // to focus on the primary mail tab.
         switchToMailTab();
+        gSpacesToolbar.onLoad();
         // Trigger the integration dialog if necessary.
         showSystemIntegrationDialog();
         break;
@@ -849,6 +851,14 @@ function switchToMailTab() {
   }
 }
 
+function switchToCalendarTab() {
+  document.getElementById("tabmail").openTab("calendar");
+}
+
+function switchToTasksTab() {
+  document.getElementById("tabmail").openTab("tasks");
+}
+
 /**
  * Trigger the initialization of the entire UI. Called after the okCallback of
  * the emailWizard during a first run, or directly from the accountProvisioner
@@ -885,6 +895,8 @@ async function loadPostAccountWizard() {
   // Restore the previous folder selection before shutdown, or select the first
   // inbox folder of a newly created account.
   selectFirstFolder();
+
+  gSpacesToolbar.onLoad();
 }
 
 /**
@@ -1429,6 +1441,7 @@ function UnloadPanes() {
   folderTree.removeEventListener("click", FolderPaneOnClick, true);
   folderTree.removeEventListener("mousedown", TreeOnMouseDown, true);
   gFolderTreeView.unload("folderTree.json");
+  gSpacesToolbar.onUnload();
   UnloadCommandUpdateHandlers();
 }
 
@@ -2025,10 +2038,6 @@ var TabsInTitlebar = {
     this._menuObserver = new MutationObserver(this._onMenuMutate);
     this._menuObserver.observe(menu, { attributes: true });
 
-    let sizeMode = document.getElementById("messengerWindow");
-    this._sizeModeObserver = new MutationObserver(this._onSizeModeMutate);
-    this._sizeModeObserver.observe(sizeMode, { attributes: true });
-
     window.addEventListener("resolutionchange", this);
     window.addEventListener("resize", this);
 
@@ -2083,6 +2092,9 @@ var TabsInTitlebar = {
         }
         break;
       case "resize":
+        // The spaces toolbar needs special styling for the fullscreen mode
+        // only on macos.
+        gSpacesToolbar.updateUImacOS();
         if (window.fullScreen || aEvent.target != window) {
           break;
         }
@@ -2114,15 +2126,6 @@ var TabsInTitlebar = {
         mutation.attributeName == "inactive" ||
         mutation.attributeName == "autohide"
       ) {
-        TabsInTitlebar.update();
-        return;
-      }
-    }
-  },
-
-  _onSizeModeMutate(aMutations) {
-    for (let mutation of aMutations) {
-      if (mutation.attributeName == "sizemode") {
         TabsInTitlebar.update();
         return;
       }
@@ -2173,6 +2176,9 @@ var TabsInTitlebar = {
         document.documentElement.setAttribute("drawtitle", "true");
       }
     }
+
+    // Update the spaces toolbar to reflect the tabs in titlebar changes.
+    gSpacesToolbar.updateUI(allowed);
   },
 
   uninit() {

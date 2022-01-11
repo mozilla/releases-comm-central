@@ -48,6 +48,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   -moz-default-appearance: -moz-window-titlebar-maximized;
 }
 
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+  :root[tabsintitlebar][sizemode="normal"] #titlebar {
+    appearance: none;
+  }
+}
+
 @media (-moz-windows-classic) {
   :root[tabsintitlebar] #navigation-toolbox > #toolbar-menubar {
     border-bottom: none;

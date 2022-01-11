@@ -627,9 +627,7 @@ var calImipBar = {
   goToCalendar() {
     let openCal = mainWindow => {
       mainWindow.focus();
-      mainWindow.document.getElementById("tabmail").openTab("calendar", {
-        title: mainWindow.document.getElementById("calendar-tab-button").getAttribute("title"),
-      });
+      mainWindow.document.getElementById("tabmail").openTab("calendar");
     };
 
     let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");

@@ -1,0 +1,20 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/spacesToolbar.css");
+
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
+       (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
+  @media (-moz-windows-compositor) {
+    #messengerWindow[sizemode="normal"][spacestoolbar="true"] #tabpanelcontainer,
+    #messengerWindow[sizemode="normal"][spacestoolbar="true"] .statusbar {
+      border-inline-start-width: 0;
+    }
+
+    #messengerWindow[sizemode="normal"] .spaces-toolbar:not([hidden]) {
+      border-inline-start: 1px solid var(--glassShadowColor);
+      border-bottom: 1px solid var(--glassShadowColor);
+    }
+  }
+}

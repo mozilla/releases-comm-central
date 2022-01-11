@@ -1,0 +1,11 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/shared/spacesToolbar.css");
+
+@media (-moz-gtk-csd-available) {
+  :root[tabsintitlebar]:not([gtktiledwindow="true"]) .spaces-toolbar:not([hidden]) {
+    border-start-start-radius: env(-moz-gtk-csd-titlebar-radius);
+  }
+}

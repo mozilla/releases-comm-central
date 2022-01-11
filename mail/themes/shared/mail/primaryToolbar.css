@@ -282,3 +282,25 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 #appmenu_getnewmsgs_all_accounts {
   list-style-image: url("chrome://messenger/skin/icons/get-all.svg");
 }
+
+#spacesButtonMail {
+  list-style-image: url("chrome://messenger/skin/icons/message.svg");
+}
+
+#spacesButtonAddressBook {
+  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+}
+
+#spacesButtonCalendar {
+  list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
+}
+
+#spacesButtonTasks {
+  list-style-image: url("chrome://calendar/skin/shared/icons/task-tab.svg");
+}
+
+#spacesButtonChat {
+  -moz-context-properties: fill, stroke-opacity;
+  list-style-image: url("chrome://messenger/skin/icons/chat.svg");
+  stroke-opacity: 0;
+}

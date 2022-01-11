@@ -13,7 +13,7 @@
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
   updateEditUIVisibility UpdateFullZoomMenu
-  gFolderTreeView initUiDensityAppMenu
+  gFolderTreeView initUiDensityAppMenu gSpacesToolbar
    */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

@@ -11,6 +11,9 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
+  const { AppConstants } = ChromeUtils.import(
+    "resource://gre/modules/AppConstants.jsm"
+  );
 
   /**
    * The MozTabs widget holds all the tabs for the main tab UI.
@@ -260,6 +263,16 @@
         ind.hidden = false;
 
         newMargin -= ind.clientWidth / 2;
+
+        // Account for the titlebar buttons container if we need to.
+        if (
+          AppConstants.platform == "macosx" &&
+          document.documentElement.getAttribute("tabsintitlebar") == "true"
+        ) {
+          newMargin += document.querySelector(
+            "#tabs-toolbar > .titlebar-buttonbox-container"
+          ).clientWidth;
+        }
 
         ind.style.insetInlineStart = `${Math.round(newMargin)}px`;
       });

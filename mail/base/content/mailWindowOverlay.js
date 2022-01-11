@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements */
+/* global MozElements gSpacesToolbar */
 
 /* import-globals-from ../../../mailnews/base/content/junkCommands.js */
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
@@ -386,6 +386,18 @@ function view_init() {
   let appmenuCharset = document.getElementById("appmenu_charsetRepairMenuitem");
   if (appmenuCharset) {
     appmenuCharset.disabled = disableCharsetItems;
+  }
+
+  // No need to do anything if we don't have a spaces toolbar like in standalone
+  // windows or another non tabmail window.
+  let spacesToolbarMenu = document.getElementById("appmenu_spacesToolbar");
+  if (spacesToolbarMenu) {
+    // Update the spaces toolbar menu items.
+    let isSpacesVisible = !gSpacesToolbar.isHidden;
+    spacesToolbarMenu.checked = isSpacesVisible;
+    document
+      .getElementById("viewToolbarsPopupSpacesToolbar")
+      .setAttribute("checked", isSpacesVisible);
   }
 }
 

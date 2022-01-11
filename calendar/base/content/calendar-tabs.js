@@ -75,30 +75,29 @@ var calendarTabType = {
     calendar: {
       type: "calendar",
       maxTabs: 1,
-      openTab(aTab, aArgs) {
-        aTab.tabNode.setIcon("chrome://messenger/skin/shared/preferences/calendar.svg");
+      openTab(tab) {
+        tab.tabNode.setIcon("chrome://messenger/skin/shared/preferences/calendar.svg");
         gLastShownCalendarView.get();
-        aTab.title = aArgs.title;
+        tab.title = cal.l10n.getLtnString("tabTitleCalendar");
       },
       showTab(tab) {},
       closeTab(tab) {},
 
-      persistTab(aTab) {
+      persistTab(tab) {
         let tabmail = document.getElementById("tabmail");
         return {
           // Since we do strange tab switching logic in calSwitchToCalendarMode,
           // we should store the current tab state ourselves.
-          background: aTab != tabmail.currentTabInfo,
+          background: tab != tabmail.currentTabInfo,
         };
       },
 
-      restoreTab(aTabmail, aState) {
-        aState.title = cal.l10n.getLtnString("tabTitleCalendar");
-        aTabmail.openTab("calendar", aState);
+      restoreTab(tabmail) {
+        tabmail.openTab("calendar");
       },
 
-      onTitleChanged(aTab) {
-        aTab.title = cal.l10n.getLtnString("tabTitleCalendar");
+      onTitleChanged(tab) {
+        tab.title = cal.l10n.getLtnString("tabTitleCalendar");
       },
 
       supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
@@ -110,29 +109,28 @@ var calendarTabType = {
     tasks: {
       type: "tasks",
       maxTabs: 1,
-      openTab(aTab, aArgs) {
-        aTab.tabNode.setIcon("chrome://calendar/skin/shared/icons/task-tab.svg");
-        aTab.title = aArgs.title;
+      openTab(tab) {
+        tab.tabNode.setIcon("chrome://calendar/skin/shared/icons/task-tab.svg");
+        tab.title = cal.l10n.getLtnString("tabTitleTasks");
       },
       showTab(tab) {},
       closeTab(tab) {},
 
-      persistTab(aTab) {
+      persistTab(tab) {
         let tabmail = document.getElementById("tabmail");
         return {
           // Since we do strange tab switching logic in calSwitchToTaskMode,
           // we should store the current tab state ourselves.
-          background: aTab != tabmail.currentTabInfo,
+          background: tab != tabmail.currentTabInfo,
         };
       },
 
-      restoreTab(aTabmail, aState) {
-        aState.title = cal.l10n.getLtnString("tabTitleTasks");
-        aTabmail.openTab("tasks", aState);
+      restoreTab(tabmail) {
+        tabmail.openTab("tasks");
       },
 
-      onTitleChanged(aTab) {
-        aTab.title = cal.l10n.getLtnString("tabTitleTasks");
+      onTitleChanged(tab) {
+        tab.title = cal.l10n.getLtnString("tabTitleTasks");
       },
 
       supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),

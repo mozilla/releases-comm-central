@@ -176,7 +176,7 @@ function MsgAccountManager(selectPage, aServer) {
   // and the selected page, reload the tab and switch to the tab.
   for (let tabInfo of tabmail.tabInfo) {
     let tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsettings") {
+    if (tab?.urlbar?.value == "about:accountsettings") {
       tab.browser.contentDocument.documentElement.server = aServer;
       tab.browser.contentDocument.documentElement.selectPage = selectPage;
       tab.browser.contentWindow.onLoad();
@@ -252,7 +252,7 @@ function openAccountSetupTab() {
   // Switch to the account setup tab if it's already open.
   for (let tabInfo of tabmail.tabInfo) {
     let tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsetup") {
+    if (tab?.urlbar?.value == "about:accountsetup") {
       let accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
       // Reset the entire UI only if the previously opened setup was completed.
       if (accountSetup._currentModename == "success") {
@@ -299,7 +299,7 @@ function openAccountSetupTabWithAccount(account, name, email) {
   // Switch to the account setup tab if it's already open.
   for (let tabInfo of tabmail.tabInfo) {
     let tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsetup") {
+    if (tab?.urlbar?.value == "about:accountsetup") {
       let accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
       // Reset the entire UI only if the previously opened setup was completed.
       if (accountSetup._currentModename == "success") {
@@ -330,7 +330,7 @@ function openAccountProvisionerTab() {
   // Switch to the account setup tab if it's already open.
   for (let tabInfo of tabmail.tabInfo) {
     let tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (tab && tab.urlbar && tab.urlbar.value == "about:accountprovisioner") {
+    if (tab?.urlbar?.value == "about:accountprovisioner") {
       tabmail.switchToTab(tabInfo);
       return;
     }

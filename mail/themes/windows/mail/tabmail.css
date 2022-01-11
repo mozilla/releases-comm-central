@@ -4,6 +4,11 @@
 
 @import url("chrome://messenger/skin/shared/tabmail.css");
 
+/* Make sure the drop indicator stays inside the parent boundaries */
+#tabmail-tabs {
+  position: relative;
+}
+
 #tabs-toolbar {
   appearance: none;
 }
@@ -156,7 +161,7 @@ tabpanels {
 
 @media (-moz-windows-glass),
        (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
-  :root[sizemode=normal] .tabmail-tab[visuallyselected]:first-child::before {
+  :root[sizemode=normal]:not([spacestoolbar]) .tabmail-tab[visuallyselected]:first-child::before {
     content: '';
     display: -moz-box;
     --lwt-tabs-border-color: var(--glassShadowColor);

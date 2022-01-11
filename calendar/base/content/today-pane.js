@@ -188,8 +188,7 @@ var TodayPane = {
       } else {
         return;
       }
-      let title = document.getElementById("calendar-tab-button").getAttribute("tooltiptext");
-      document.getElementById("tabmail").openTab("calendar", { title });
+      document.getElementById("tabmail").openTab("calendar");
     }
   },
 

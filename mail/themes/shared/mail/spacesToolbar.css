@@ -1,0 +1,87 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --spaces-bg-color: #e8e8e8;
+  --spaces-button-text-color: SelectedItemText;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --spaces-bg-color: #252525;
+    --spaces-button-text-color: --toolbar-field-color;
+  }
+}
+
+@media (prefers-contrast) {
+  :root {
+    --spaces-bg-color: -moz-Dialog;
+  }
+}
+
+.spaces-toolbar:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 15px;
+  background-color: var(--spaces-bg-color);
+  border-inline-end: 1px solid color-mix(in srgb, var(--splitter-color) 40%, transparent);
+  margin-top: calc(-1 * var(--tab-min-height));
+  padding: 9px;
+  z-index: 2;
+}
+
+.spaces-toolbar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 15px;
+}
+
+.spaces-toolbar-button {
+  height: auto;
+  min-width: auto;
+  margin: 0;
+  padding: 6px;
+  line-height: 0; /* We never show text in these buttons */
+  border: none;
+  background-color: transparent;
+  opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .spaces-toolbar-button {
+    transition: background-color 280ms ease, opacity 280ms ease, color 280ms;
+  }
+}
+
+.spaces-toolbar-button.current,
+.spaces-toolbar-button.current:hover {
+  background-color: var(--toolbar-field-focus-border-color);
+  color: var(--spaces-button-text-color);
+  opacity: 1;
+}
+
+.spaces-toolbar-button:hover:not(.current) {
+  background-color: color-mix(in srgb, var(--toolbar-field-focus-border-color) 20%, transparent);
+  opacity: 1;
+}
+
+.spaces-toolbar-button:is(:not([disabled])):hover:active {
+  background-color: var(--toolbar-field-focus-border-color);
+  color: var(--spaces-button-text-color);
+}
+
+.spaces-toolbar-button > img {
+  -moz-context-properties: fill, stroke-opacity;
+  fill: currentColor;
+}
+
+#chatButton > img {
+  stroke-opacity: 0;
+}
+
+#collapseButton:-moz-locale-dir(rtl) img {
+  transform: scaleX(-1);
+}

@@ -654,6 +654,27 @@ fieldset > radiogroup {
   appearance: none;
 }
 
+@media (-moz-os-version: windows-win7) {
+  @media (-moz-windows-classic) {
+    /* Add a window top border behind the titlebar */
+    :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox-background {
+      background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
+                                        ThreeDLightShadow 1px, ThreeDHighlight 1px,
+                                        ThreeDHighlight 2px, ActiveBorder 2px,
+                                        ActiveBorder 4px, transparent 4px);
+    }
+  }
+
+  @media (prefers-contrast) {
+    /* Add a window top border behind the titlebar */
+    :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox-background {
+      background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
+                                        ThreeDLightShadow 1px, ThreeDHighlight 1px,
+                                        ThreeDHighlight 2px, transparent 2px);
+    }
+  }
+}
+
 /* UI Density customization */
 
 treechildren::-moz-tree-row {

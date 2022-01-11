@@ -69,6 +69,10 @@ mail-uidensity-touch =
     .label = Touch
     .accesskey = T
 
+menu-spaces-toolbar-button =
+    .label = Spaces Toolbar
+    .accesskey = S
+
 ## File
 
 file-new-newsgroup-account =

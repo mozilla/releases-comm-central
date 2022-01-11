@@ -772,7 +772,7 @@ button.quick-link:hover:active {
   align-self: start;
 }
 
-#calendarButton {
+#createCalendarButton {
   background-image: url("chrome://messenger/skin/icons/new-calendar.svg");
   align-self: start;
 }

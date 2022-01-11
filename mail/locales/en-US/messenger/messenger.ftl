@@ -190,3 +190,29 @@ no-reply-reply-anyway-button = Reply Anyway
 ## error messages
 
 decrypt-and-copy-failures = { $failures } of { $total } messages could not be decrypted and were not copied.
+
+## Spaces toolbar
+
+spaces-toolbar =
+    .toolbarname = Spaces Toolbar
+
+spaces-toolbar-button-mail =
+    .title = Switch to the mail tab
+
+spaces-toolbar-button-address-book =
+    .title = Switch to the address book tab
+
+spaces-toolbar-button-calendar =
+    .title = Switch to the calendar tab
+
+spaces-toolbar-button-tasks =
+    .title = Switch to the tasks tab
+
+spaces-toolbar-button-chat =
+    .title = Switch to the chat tab
+
+spaces-toolbar-button-settings =
+    .title = Switch to the settings tab
+
+spaces-toolbar-button-collapse =
+    .title = Collapse spaces toolbar
