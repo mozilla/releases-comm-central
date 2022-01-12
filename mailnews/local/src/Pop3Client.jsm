@@ -27,6 +27,13 @@ var { Pop3Authenticator } = ChromeUtils.import(
  *   status indicator.
  * @property {string} data - The part of a multi-line data block excluding the
  *   status line.
+ *
+ * A single char to represent a uidl status, possible values are:
+ *   - 'k'=KEEP,
+ *   - 'd'=DELETE
+ *   - 'b'=TOO_BIG
+ *   - 'f'=FETCH_BODY
+ * @typedef {string} UidlStatus
  */
 
 const POP3_AUTH_MECH_UNDEFINED = 0x200;
@@ -96,6 +103,8 @@ class Pop3Client {
     if (this._server.limitOfflineMessageSize && this._server.maxMessageSize) {
       this._maxMessageSize = this._server.maxMessageSize * 1024;
     }
+
+    this._messagesToHandle = [];
   }
 
   /**
@@ -168,6 +177,26 @@ class Pop3Client {
     });
     this._actionAfterAuth = this._actionStat;
     this._actionCapa();
+  }
+
+  /**
+   * Mark uidl status by a passed in Map, then write to popstate.dat.
+   * @param {Map<string, UidlStatus>} uidlsToMark - A Map from uidl to status.
+   */
+  async markMessages(uidlsToMark) {
+    await this._loadUidlState();
+    for (let [uidl, status] of uidlsToMark) {
+      let uidlState = this._uidlMap.get(uidl);
+      if (!uidlState) {
+        continue;
+      }
+      this._uidlMap.set(uidl, {
+        ...uidlState,
+        status,
+      });
+      this._uidlMapChanged = true;
+    }
+    await this._writeUidlState();
   }
 
   /**
@@ -277,8 +306,7 @@ class Pop3Client {
       if (uidlLine) {
         let [status, uidl, receivedAt] = line.split(" ");
         this._uidlMap.set(uidl, {
-          // 'k'=KEEP, 'd'=DELETE, 'b'=TOO_BIG, 'f'=FETCH_BODY
-          status,
+          status, // @type {UidlStatus}
           uidl,
           receivedAt,
         });
@@ -445,7 +473,7 @@ class Pop3Client {
             .trim()
             .split(" ");
         } else {
-          this._capabilities.push(line.split(" ")[0]);
+          this._capabilities.push(line.trim().split(" ")[0]);
         }
       },
       () => this._actionChooseFirstAuthMethod()
@@ -824,12 +852,12 @@ class Pop3Client {
               messageNumber,
               status: "d",
             });
-          } else if (uidlState.status == "f") {
+          } else if (["f", "d"].includes(uidlState.status)) {
             // Fetch the full message.
             this._messagesToHandle.push({
               ...uidlState,
               messageNumber,
-              status: "f",
+              status: uidlState.status,
             });
           } else {
             // Do nothing to this message.

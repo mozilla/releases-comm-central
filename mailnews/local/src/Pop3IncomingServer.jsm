@@ -7,9 +7,14 @@ const EXPORTED_SYMBOLS = ["Pop3IncomingServer"];
 var { MsgIncomingServer } = ChromeUtils.import(
   "resource:///modules/MsgIncomingServer.jsm"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  MailServices: "resource:///modules/MailServices.jsm",
+  Pop3Client: "resource:///modules/Pop3Client.jsm",
+});
 
 const POP3_AUTH_MECH_UNDEFINED = 0x200;
 
@@ -53,6 +58,9 @@ class Pop3IncomingServer extends MsgIncomingServer {
       ["Bool", "deferGetNewMail", "defer_get_new_mail"],
       ["Int", "numDaysToLeaveOnServer", "num_days_to_leave_on_server"],
     ]);
+
+    // @type {Map<string,string>} - A map from uidl to status.
+    this._uidlsToMark = new Map();
   }
 
   /** @see nsIMsgIncomingServer */
@@ -194,6 +202,32 @@ class Pop3IncomingServer extends MsgIncomingServer {
         wasDeferred
       );
     }
+  }
+
+  addUidlToMark(uidl, mark) {
+    console.log("Pop3IncomingServer.addUidlToMark", uidl, mark);
+    // @see nsIMsgLocalMailFolder
+    const POP3_DELETE = 1;
+    const POP3_FETCH_BODY = 2;
+    let status = "k";
+    if (mark == POP3_DELETE) {
+      status = "d";
+    } else if (mark == POP3_FETCH_BODY) {
+      status = "f";
+    }
+    this._uidlsToMark.set(uidl, status);
+  }
+
+  markMessages() {
+    if (!this._uidlsToMark.size) {
+      return;
+    }
+
+    let client = new Pop3Client(this);
+    // Pass a clone of this._uidlsToMark to client.markMessages, because
+    // this._uidlsToMark may be changed before markMessages finishes.
+    client.markMessages(new Map(this._uidlsToMark));
+    this._uidlsToMark = new Map();
   }
 
   downloadMailFromServers(servers, msgWindow, folder, urlListener) {
