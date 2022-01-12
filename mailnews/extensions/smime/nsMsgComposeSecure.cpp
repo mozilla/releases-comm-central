@@ -1149,7 +1149,9 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
 
   // |node| now contains the first valid (if aRequireValidCert true)
   // certificate with correct usage.
-  RefPtr<nsNSSCertificate> nssCert = new nsNSSCertificate(node->cert);
+  RefPtr<nsNSSCertificate> nssCert = nsNSSCertificate::Create(node->cert);
+  if (!nssCert) return NS_ERROR_OUT_OF_MEMORY;
+
   nssCert.forget(_retval);
   return NS_OK;
 }

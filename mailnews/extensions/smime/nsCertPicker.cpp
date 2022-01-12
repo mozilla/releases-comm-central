@@ -294,7 +294,7 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor* ctx,
     while (!CERT_LIST_END(node, certList)) {
       /* if the cert has at least one e-mail address, check if suitable */
       if (CERT_GetFirstEmailAddress(node->cert)) {
-        RefPtr<nsNSSCertificate> tempCert(new nsNSSCertificate(node->cert));
+        RefPtr<nsNSSCertificate> tempCert(nsNSSCertificate::Create(node->cert));
         bool match = false;
         rv = tempCert->ContainsEmailAddress(emailAddress, &match);
         if (NS_FAILED(rv)) {
@@ -326,7 +326,7 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor* ctx,
        !CERT_LIST_END(node, certList.get()) &&
        CertsToUse < nicknames->numnicknames;
        node = CERT_LIST_NEXT(node)) {
-    RefPtr<nsNSSCertificate> tempCert(new nsNSSCertificate(node->cert));
+    RefPtr<nsNSSCertificate> tempCert(nsNSSCertificate::Create(node->cert));
 
     if (tempCert) {
       nsAutoString i_nickname(
@@ -382,7 +382,12 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor* ctx,
     for (i = 0, node = CERT_LIST_HEAD(certList); !CERT_LIST_END(node, certList);
          ++i, node = CERT_LIST_NEXT(node)) {
       if (i == selectedIndex) {
-        RefPtr<nsNSSCertificate> cert = new nsNSSCertificate(node->cert);
+        RefPtr<nsNSSCertificate> cert = nsNSSCertificate::Create(node->cert);
+        if (!cert) {
+          rv = NS_ERROR_OUT_OF_MEMORY;
+          break;
+        }
+
         cert.forget(_retval);
         break;
       }
