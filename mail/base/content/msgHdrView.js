@@ -2240,7 +2240,7 @@ AttachmentInfo.prototype = {
           targetFileIsExecutable: null,
           timeDownloadStarted: null,
           contentLength: this.size,
-          browsingContextId: null,
+          browsingContextId: getMessagePaneBrowser().browsingContext.id,
         },
         window,
         null
