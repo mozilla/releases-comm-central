@@ -232,19 +232,11 @@ add_task(async function test_theme_icons() {
 
   // Disabling a theme will enable the default theme.
   await light_theme.disable();
-  if (AppConstants.platform == "linux") {
-    Assert.equal(
-      composeWindow.getComputedStyle(button).listStyleImage,
-      `url("moz-extension://${uuid}/light.png")`,
-      `Default theme should use light icon on Linux.`
-    );
-  } else {
-    Assert.equal(
-      composeWindow.getComputedStyle(button).listStyleImage,
-      `url("moz-extension://${uuid}/default.png")`,
-      `Default theme should use default icon.`
-    );
-  }
+  Assert.equal(
+    composeWindow.getComputedStyle(button).listStyleImage,
+    `url("moz-extension://${uuid}/default.png")`,
+    `Default theme should use default icon.`
+  );
 
   composeWindow.close();
   await extension.unload();
