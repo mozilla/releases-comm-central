@@ -53,6 +53,15 @@ class _BuiltInThemes {
   }
 
   /**
+   * @param {string} id An addon's id string.
+   * @return {boolean}
+   *   True if the theme with id `id` is a monochromatic theme.
+   */
+  isMonochromaticTheme(id) {
+    return id.endsWith("-colorway@mozilla.org");
+  }
+
+  /**
    * If the active theme is built-in, this function calls
    * AddonManager.maybeInstallBuiltinAddon for that theme.
    */
