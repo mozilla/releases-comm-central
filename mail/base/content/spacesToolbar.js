@@ -93,7 +93,6 @@ var gSpacesToolbar = {
         "hidden"
       ) == "true"
     );
-    // this.loadJsonFile();
 
     // The tab monitor will inform us when a different tab is selected.
     document.getElementById("tabmail").registerTabMonitor(this.tabMonitor);

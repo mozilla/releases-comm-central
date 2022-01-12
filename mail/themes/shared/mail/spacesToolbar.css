@@ -85,3 +85,30 @@
 #collapseButton:-moz-locale-dir(rtl) img {
   transform: scaleX(-1);
 }
+
+:root[uidensity="compact"] .spaces-toolbar:not([hidden]) {
+  padding: 6px;
+  gap: 9px;
+}
+
+:root[uidensity="compact"] .spaces-toolbar-container {
+  gap: 9px;
+}
+
+:root[uidensity="compact"] .spaces-toolbar-button {
+  padding: 4px;
+}
+
+:root[uidensity="touch"] .spaces-toolbar:not([hidden]) {
+  padding: 9px;
+  gap: 18px;
+}
+
+:root[uidensity="touch"] .spaces-toolbar-container {
+  gap: 18px;
+}
+
+:root[uidensity="touch"] .spaces-toolbar-button > img {
+  width: 22px;
+  height: 22px;
+}

@@ -23,6 +23,10 @@ function updateWindow(win) {
       win.document.documentElement.removeAttribute("uidensity");
       break;
   }
+
+  if (win.TabsInTitlebar !== undefined) {
+    win.TabsInTitlebar.update();
+  }
 }
 
 function updateAllWindows() {
