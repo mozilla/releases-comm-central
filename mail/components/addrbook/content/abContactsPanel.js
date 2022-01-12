@@ -4,11 +4,14 @@
 
 /* import-globals-from abCommon.js */
 
+var { UIDensity } = ChromeUtils.import("resource:///modules/UIDensity.jsm");
 var { getSearchTokens, getModelQuery, generateQueryURI } = ChromeUtils.import(
   "resource:///modules/ABQueryUtils.jsm"
 );
 
 var gQueryURIFormat = null;
+
+UIDensity.registerWindow(window);
 
 function GetAbViewListener() {
   // the ab panel doesn't care if the total changes, or if the selection changes

@@ -8,3 +8,6 @@
   appearance: none;
 }
 
+.subviewbutton-iconic > .menu-text {
+  margin-inline-start: 21px !important;
+}

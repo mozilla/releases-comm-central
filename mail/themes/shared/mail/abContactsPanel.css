@@ -60,6 +60,11 @@
   display: none;
 }
 
+#sidebarAbContextMenu {
+  /* Compensate the arrow-scrollbox padding. */
+  margin: -4px;
+}
+
 #addressbookList:not(:-moz-focusring) {
   border: 1px solid var(--field-border-color);
 }
