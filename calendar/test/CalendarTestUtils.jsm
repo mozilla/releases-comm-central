@@ -699,7 +699,7 @@ const CalendarTestUtils = {
     if (calendarMode.tabs.length == 1) {
       tabmail.selectedTab = calendarMode.tabs[0];
     } else {
-      let calendarTabButton = win.document.getElementById("calendar-tab-button");
+      let calendarTabButton = win.document.getElementById("calendarButton");
       EventUtils.synthesizeMouseAtCenter(calendarTabButton, { clickCount: 1 }, win);
     }
 

@@ -1217,7 +1217,7 @@ add_task(async function test_browser_action_menu() {
       menuId: "toolbar-context-menu",
       elementId: "menus_mochi_test-browserAction-toolbarbutton",
       context: "browser_action",
-      nonActionButtonElementId: "button-chat",
+      nonActionButtonElementId: "button-newmsg",
     },
     {
       pageUrl: "about:blank",

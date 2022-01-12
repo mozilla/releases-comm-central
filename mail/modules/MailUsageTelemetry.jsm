@@ -79,6 +79,7 @@ const MESSENGER_UI_CONTAINER_IDS = {
   "quick-filter-bar": "toolbox",
   "appMenu-popup": "toolbox",
   tabContextMenu: "toolbox",
+  spacesToolbar: "toolbox",
 };
 
 const KNOWN_ADDONS = [];

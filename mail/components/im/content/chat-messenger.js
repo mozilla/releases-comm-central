@@ -1747,6 +1747,7 @@ var chatHandler = {
     Notifications.init();
     if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
       [
+        "chatButton",
         "button-chat",
         "menu_goChat",
         "goChatSeparator",

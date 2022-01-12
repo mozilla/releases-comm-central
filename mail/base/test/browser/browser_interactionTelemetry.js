@@ -33,7 +33,7 @@ add_task(async function() {
   Services.telemetry.clearScalars();
 
   EventUtils.synthesizeMouseAtCenter(
-    document.getElementById("calendar-tab-button"),
+    document.getElementById("calendarButton"),
     {},
     window
   );
@@ -60,7 +60,7 @@ add_task(async function() {
       "calendar-new-calendar-command": 1,
     },
     toolbox: {
-      "calendar-tab-button": 1,
+      calendarButton: 1,
       "tab-close-button": 1,
     },
   });

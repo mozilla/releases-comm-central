@@ -55,7 +55,7 @@ add_task(async function testBasicFunctionality() {
   Assert.ok(CalendarTestUtils.dayView.getHourBoxAt(window, 9), "09:00 box exists");
 
   // Open tasks view.
-  document.querySelector("#task-tab-button").click();
+  document.querySelector("#tasksButton").click();
 
   // Should be possible to filter today's tasks.
   Assert.ok(document.querySelector("#opt_today_filter"), "show today radio button exists");

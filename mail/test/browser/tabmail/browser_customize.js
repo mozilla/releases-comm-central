@@ -104,29 +104,32 @@ add_task(function test_redirects_toolbarbutton_drops() {
 
   // Ok, now let's try to grab some toolbar buttons from mail-bar3, and
   // make sure we can drop those on the tab bar too.
-  ["button-getmsg", "button-newmsg", "button-address", "button-tag"].forEach(
-    function(aButtonId) {
-      let button = mc.e(aButtonId);
+  [
+    "button-getmsg",
+    "button-newmsg",
+    "qfb-show-filter-bar",
+    "button-tag",
+  ].forEach(function(aButtonId) {
+    let button = mc.e(aButtonId);
 
-      drag_n_drop_element(
-        button,
-        mc.window,
-        tabbar,
-        mc.window,
-        0.5,
-        0.5,
-        mc.window
-      );
+    drag_n_drop_element(
+      button,
+      mc.window,
+      tabbar,
+      mc.window,
+      0.5,
+      0.5,
+      mc.window
+    );
 
-      // Now let's check to make sure that this button is now the first
-      // item in the tab bar toolbar.
-      Assert.equal(
-        toolbar.firstElementChild.id,
-        "wrapper-" + aButtonId,
-        "Button was not added as first child!"
-      );
-    }
-  );
+    // Now let's check to make sure that this button is now the first
+    // item in the tab bar toolbar.
+    Assert.equal(
+      toolbar.firstElementChild.id,
+      "wrapper-" + aButtonId,
+      "Button was not added as first child!"
+    );
+  });
 
   gCDHelper.close(ctw);
   Services.prefs.clearUserPref("toolkit.customization.unsafe_drag_events");

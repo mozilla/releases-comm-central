@@ -20,7 +20,7 @@ add_task(function test_toolbar_and_placeholder() {
     "chat",
     "the chat tab shouldn't be selected at startup"
   );
-  mc.click(mc.e("button-chat"));
+  mc.click(mc.e("chatButton"));
   Assert.equal(
     mc.tabmail.selectedTab.mode.type,
     "chat",

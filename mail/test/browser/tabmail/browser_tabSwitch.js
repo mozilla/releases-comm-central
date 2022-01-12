@@ -71,7 +71,7 @@ add_task(async function() {
   // Collect some elements.
 
   let tabmail = document.getElementById("tabmail");
-  let calendarTabButton = document.getElementById("calendar-tab-button");
+  let calendarTabButton = document.getElementById("calendarButton");
 
   let mailTabPanel = document.getElementById("mailContent");
   let calendarTabPanel = document.getElementById("calendarTabPanel");

@@ -17,7 +17,7 @@ async function openTasksTab() {
   if (tasksMode.tabs.length == 1) {
     tabmail.selectedTab = tasksMode.tabs[0];
   } else {
-    let tasksTabButton = document.getElementById("task-tab-button");
+    let tasksTabButton = document.getElementById("tasksButton");
     EventUtils.synthesizeMouseAtCenter(tasksTabButton, { clickCount: 1 });
   }
 

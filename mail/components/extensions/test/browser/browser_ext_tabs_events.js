@@ -346,12 +346,12 @@ add_task(async () => {
   });
 
   extension.onMessage("openCalendarTab", async () => {
-    let calendarTabButton = document.getElementById("calendar-tab-button");
+    let calendarTabButton = document.getElementById("calendarButton");
     EventUtils.synthesizeMouseAtCenter(calendarTabButton, { clickCount: 1 });
   });
 
   extension.onMessage("openTaskTab", async () => {
-    let calendarTabButton = document.getElementById("task-tab-button");
+    let calendarTabButton = document.getElementById("tasksButton");
     EventUtils.synthesizeMouseAtCenter(calendarTabButton, { clickCount: 1 });
   });
 

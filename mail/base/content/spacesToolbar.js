@@ -7,6 +7,7 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /* import-globals-from msgMail3PaneWindow.js */
+/* import-globals-from mailCore.js */
 
 /**
  * Special vertical toolbar to organize all the buttons opening a tab.
@@ -105,6 +106,12 @@ var gSpacesToolbar = {
   },
 
   setupEventListeners() {
+    // Prevent buttons from stealing the focus on click since the focus is
+    // handled when a specific tab is opened of switched to.
+    for (let button of document.querySelectorAll(".spaces-toolbar-button")) {
+      button.onmousedown = event => event.preventDefault();
+    }
+
     document.getElementById("mailButton").addEventListener("click", () => {
       switchToMailTab();
     });

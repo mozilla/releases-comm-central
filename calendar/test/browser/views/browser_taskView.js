@@ -20,7 +20,7 @@ add_task(async function setupModule(module) {
   });
 
   // Open task view.
-  EventUtils.synthesizeMouseAtCenter(document.getElementById("task-tab-button"), {}, window);
+  EventUtils.synthesizeMouseAtCenter(document.getElementById("tasksButton"), {}, window);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 

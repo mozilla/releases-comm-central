@@ -23,7 +23,7 @@ async function openAddressBookWindow() {
     }
   );
 
-  const addressBookButton = document.getElementById("button-address");
+  const addressBookButton = document.getElementById("addressBookButton");
   EventUtils.synthesizeMouseAtCenter(addressBookButton, { clickCount: 1 });
 
   let abWindow = await addressBookWindowPromise;
