@@ -91,6 +91,19 @@ class Pop3IncomingServer extends MsgIncomingServer {
     let inbox = this.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
     );
+    if (!this.deferredToAccount) {
+      let deferredServers = this._getDeferedServers(folder.server);
+      if (deferredServers.length) {
+        // If other servers are deferred to this server, get new mail for them
+        // as well.
+        return this.downloadMailFromServers(
+          [...deferredServers, this],
+          msgWindow,
+          inbox,
+          urlListener
+        );
+      }
+    }
     return MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
   }
 
@@ -116,6 +129,10 @@ class Pop3IncomingServer extends MsgIncomingServer {
       );
   }
 
+  getNewMail(msgWindow, urlListener, inbox) {
+    return MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+  }
+
   /** @see nsIPop3IncomingServer */
   _capFlags = POP3_AUTH_MECH_UNDEFINED;
 
@@ -139,7 +156,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
     if (!account || !account.incomingServer || account.incomingServer.hidden) {
       let localAccount;
       try {
-        localAccount = MailServices.FindAccountForServer(
+        localAccount = MailServices.accounts.FindAccountForServer(
           MailServices.accounts.localFoldersServer
         );
       } catch (e) {
@@ -177,6 +194,56 @@ class Pop3IncomingServer extends MsgIncomingServer {
         wasDeferred
       );
     }
+  }
+
+  downloadMailFromServers(servers, msgWindow, folder, urlListener) {
+    let server = servers.shift();
+    if (!server) {
+      urlListener?.OnStopRunningUrl(null, Cr.NS_OK);
+      return;
+    }
+
+    // If server != folder.server, it means server is deferred to folder.server,
+    // so if server.deferGetNewMail is false, no need to call GetNewMail.
+    if (server == folder.server || server.deferGetNewMail) {
+      MailServices.pop3.GetNewMail(
+        msgWindow,
+        {
+          OnStartRunningUrl() {},
+          OnStopRunningUrl: () => {
+            // Call GetNewMail for the next server only after it is finished for
+            // the current server.
+            this.downloadMailFromServers(
+              servers,
+              msgWindow,
+              folder,
+              urlListener
+            );
+          },
+        },
+        folder,
+        server
+      );
+      return;
+    }
+    this.downloadMailFromServers(servers, msgWindow, folder, urlListener);
+  }
+
+  /**
+   * Get all the servers that defer to the passed in server.
+   * @param {nsIMsgIncomingServer} dstServer - The server that others servers
+   *   are deferred to.
+   */
+  _getDeferedServers(dstServer) {
+    let dstAccount = MailServices.accounts.FindAccountForServer(dstServer);
+    if (!dstAccount) {
+      return [];
+    }
+    return MailServices.accounts.allServers.filter(
+      server =>
+        server instanceof Ci.nsIPop3IncomingServer &&
+        server.deferredToAccount == dstAccount.key
+    );
   }
 }
 
