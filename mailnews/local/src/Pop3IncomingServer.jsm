@@ -93,8 +93,6 @@ class Pop3IncomingServer extends MsgIncomingServer {
     return this.canFileMessagesOnServer;
   }
 
-  performExpand(msgWindow) {}
-
   getNewMessages(folder, msgWindow, urlListener) {
     let inbox = this.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
@@ -117,6 +115,19 @@ class Pop3IncomingServer extends MsgIncomingServer {
 
   verifyLogon(urlListener, msgWindow) {
     return MailServices.pop3.verifyLogon(this, urlListener, msgWindow);
+  }
+
+  performBiff(msgWindow) {
+    this.performingBiff = true;
+    let inbox = this.rootMsgFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Inbox
+    );
+    let urlListener = inbox.QueryInterface(Ci.nsIUrlListener);
+    if (this.downloadOnBiff) {
+      MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+    } else {
+      MailServices.pop3.CheckForNewMail(msgWindow, urlListener, inbox, this);
+    }
   }
 
   /** @see nsILocalMailIncomingServer */

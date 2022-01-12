@@ -43,7 +43,7 @@ class Pop3Service {
     let client = new Pop3Client(server);
     client.connect();
     client.onOpen = () => {
-      client.getMail(msgWindow, urlListener, inbox);
+      client.getMail(downloadNewMail, msgWindow, urlListener, inbox);
     };
   }
 }

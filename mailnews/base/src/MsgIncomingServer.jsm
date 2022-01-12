@@ -932,4 +932,6 @@ class MsgIncomingServer {
   setForcePropertyEmpty(name, value) {
     return this.setCharValue(`${name}.empty`, value ? "true" : "");
   }
+
+  performExpand(msgWindow) {}
 }

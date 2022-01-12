@@ -130,11 +130,13 @@ class Pop3Client {
 
   /**
    * Check and fetch new mails.
+   * @param {boolean} downloadNewMail - Whether to download new mails.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgFolder} folder - The folder to save the messages to.
    */
-  async getMail(msgWindow, urlListener, folder) {
+  async getMail(downloadNewMail, msgWindow, urlListener, folder) {
+    this._downloadNewMail = downloadNewMail;
     this._msgWindow = msgWindow;
     this._urlListener = urlListener;
     this._sink.folder = folder;
@@ -782,13 +784,26 @@ class Pop3Client {
    * @param {Pop3Response} res - STAT response received from the server.
    */
   _actionStatResponse = res => {
-    if (!Number.parseInt(res.statusText)) {
+    let numberOfMessages = Number.parseInt(res.statusText);
+    if (!numberOfMessages) {
       // Finish if there is no message.
       this._actionDone();
       return;
     }
+    if (!this._downloadNewMail && !this._server.leaveMessagesOnServer) {
+      // We are not downloading new mails, so finish now.
+      this._sink.setBiffStateAndUpdateFE(
+        Ci.nsIMsgFolder.nsMsgBiffState_NewMail,
+        numberOfMessages,
+        true
+      );
+      this._actionDone();
+      return;
+    }
     if (res.success) {
-      this._sink.beginMailDelivery(false, this._msgWindow);
+      if (this._downloadNewMail) {
+        this._sink.beginMailDelivery(false, this._msgWindow);
+      }
       this._actionList();
     }
   };
@@ -880,6 +895,22 @@ class Pop3Client {
         }
       },
       () => {
+        if (!this._downloadNewMail) {
+          let numberOfMessages = this._messagesToHandle.filter(
+            // No receivedAt means we're seeing it for the first time.
+            msg => !msg.receivedAt
+          ).length;
+          if (numberOfMessages) {
+            this._sink.setBiffStateAndUpdateFE(
+              Ci.nsIMsgFolder.nsMsgBiffState_NewMail,
+              numberOfMessages,
+              true
+            );
+          }
+          this._actionDone();
+          return;
+        }
+
         let totalDownloadSize = this._messagesToHandle.reduce(
           (acc, msg) =>
             msg.status == "f"
