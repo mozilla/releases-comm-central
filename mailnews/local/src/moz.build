@@ -34,6 +34,7 @@ EXTRA_JS_MODULES += [
     "Pop3IncomingServer.jsm",
     "Pop3ModuleLoader.jsm",
     "Pop3ProtocolHandler.jsm",
+    "Pop3ProtocolInfo.jsm",
     "Pop3Service.jsm",
 ]
 

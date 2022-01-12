@@ -29,6 +29,11 @@ var pop3JSModules = [
     "@mozilla.org/messenger/server;1?type=pop3",
   ],
   [
+    "Pop3ProtocolInfo",
+    "{7689942f-cbd1-42ad-87b9-44128354f55d}",
+    "@mozilla.org/messenger/protocol/info;1?type=pop3",
+  ],
+  [
     "Pop3Service",
     "{1e8f21c3-32c3-4114-9ea4-3d74006fb351}",
     "@mozilla.org/messenger/popservice;1",

@@ -2,34 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["NntpProtocolInfo"];
+const EXPORTED_SYMBOLS = ["Pop3ProtocolInfo"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * @implements {nsIMsgProtocolInfo}
  */
-class NntpProtocolInfo {
+class Pop3ProtocolInfo {
   QueryInterface = ChromeUtils.generateQI(["nsIMsgProtocolInfo"]);
 
-  serverIID = Components.ID("{dc4ad42f-bc98-4193-a469-0cfa95ed9bcb}");
+  serverIID = Components.ID("{f99fdbf7-2e79-4ce3-9d94-7af3763b82fc}");
 
-  requiresUsername = false;
-  preflightPrettyNameWithEmailAddress = false;
+  requiresUsername = true;
+  preflightPrettyNameWithEmailAddress = true;
   canDelete = true;
   canLoginAtStartUp = true;
   canDuplicate = true;
-  canGetMessages = false;
-  canGetIncomingMessages = false;
-  defaultDoBiff = false;
-  showComposeMsgLink = false;
+  canGetMessages = true;
+  canGetIncomingMessages = true;
+  defaultDoBiff = true;
+  showComposeMsgLink = true;
   foldersCreatedAsync = false;
 
   get defaultLocalPath() {
-    let file = this._getFileValue("mail.root.nntp-rel", "mail.root.nntp");
+    let file = this._getFileValue("mail.root.pop3-rel", "mail.root.pop3");
     if (!file) {
-      file = Services.dirsvc.get("NewsD", Ci.nsIFile);
-      this._setFileValue("mail.root.nntp-rel", "mail.root.nntp", file);
+      file = Services.dirsvc.get("MailD", Ci.nsIFile);
+      this._setFileValue("mail.root.pop3-rel", "mail.root.pop3", file);
     }
     if (!file.exists()) {
       file.createUnique(Ci.nsIFile.DIRECTORY_TYPE, 0o775);
@@ -38,13 +38,13 @@ class NntpProtocolInfo {
   }
 
   set defaultLocalPath(value) {
-    this._setFileValue("mail.root.nntp-rel", "mail.root.nntp", value);
+    this._setFileValue("mail.root.pop3-rel", "mail.root.pop3", value);
   }
 
   getDefaultServerPort(isSecure) {
     return isSecure
-      ? Ci.nsINntpUrl.DEFAULT_NNTPS_PORT
-      : Ci.nsINntpUrl.DEFAULT_NNTP_PORT;
+      ? Ci.nsIPop3URL.DEFAULT_POP3S_PORT
+      : Ci.nsIPop3URL.DEFAULT_POP3_PORT;
   }
 
   _getFileValue(relPrefName, absPrefName) {
@@ -76,6 +76,6 @@ class NntpProtocolInfo {
   }
 }
 
-NntpProtocolInfo.prototype.classID = Components.ID(
-  "{7d71db22-0624-4c9f-8d70-dea6ab3ff076}"
+Pop3ProtocolInfo.prototype.classID = Components.ID(
+  "{7689942f-cbd1-42ad-87b9-44128354f55d}"
 );
