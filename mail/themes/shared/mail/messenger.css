@@ -204,6 +204,10 @@ body {
   -moz-box-flex: 1;
 }
 
+p {
+  margin-block: 0.2em;
+}
+
 :root:not([sizemode=maximized]) .titlebar-restore,
 :root:is([sizemode=maximized]) .titlebar-max {
   display: none;

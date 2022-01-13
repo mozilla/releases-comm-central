@@ -12,14 +12,12 @@ var gMsgWindow;
 
 var gInitialFolderStates = {};
 
+window.addEventListener("DOMContentLoaded", onLoad);
+
 document.addEventListener("dialogaccept", syncOkButton);
 
-function OnLoad() {
-  if (window.arguments && window.arguments[0]) {
-    if (window.arguments[0].msgWindow) {
-      gParentMsgWindow = window.arguments[0].msgWindow;
-    }
-  }
+function onLoad() {
+  gParentMsgWindow = window.arguments?.[0]?.msgWindow;
 
   document.getElementById("syncMail").checked = Services.prefs.getBoolPref(
     "mailnews.offline_sync_mail"
@@ -33,8 +31,6 @@ function OnLoad() {
   document.getElementById("workOffline").checked = Services.prefs.getBoolPref(
     "mailnews.offline_sync_work_offline"
   );
-
-  return true;
 }
 
 function syncOkButton() {

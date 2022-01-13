@@ -6,23 +6,23 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        windowtype="mailnews:synchronizeOffline"
-        title="&MsgSynchronize.label;"
-        lightweightthemes="true"
-        onload="OnLoad();"
-        style="width: 35em;">
-<dialog id="msg-synchronizer">
-    <script src="chrome://messenger/content/msgSynchronize.js"/>
-    <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-    <keyset id="keyset"/>
-    <label hidden="true" wsm_persist="true" id="server.type"/>
-
-    <description class="desc">&MsgSyncDesc.label;</description>
-    <separator class="thin"/>
-    <label value="&MsgSyncDirections.label;"/>
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/msgSynchronize.dtd">
+<html id="msgSynchronize" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mailnews:synchronizeOffline"
+      lightweightthemes="true"
+      width="510" height="300"
+      scrolling="false">
+<head>
+  <title>&MsgSynchronize.label;</title>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgSynchronize.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <dialog id="msg-synchronizer">
+    <html:p>&MsgSyncDesc.label;</html:p>
+    <html:p>&MsgSyncDirections.label;</html:p>
 
     <vbox class="indent" align="start">
         <checkbox id="syncMail" hidable="true" hidefor="pop3" label="&syncTypeMail.label;"
@@ -38,5 +38,6 @@
         <button id="select" label="&selectButton.label;" accesskey="&selectButton.accesskey;"
                 oncommand="OnSelect();"/>
     </hbox>
-</dialog>
-</window>
+  </dialog>
+</html:body>
+</html>
