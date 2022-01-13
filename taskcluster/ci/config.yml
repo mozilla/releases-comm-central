@@ -284,3 +284,7 @@ mac-notarization:
                     production: comm/build/macosx/hardenedruntime/production.entitlements.xml
                     default: comm/build/macosx/hardenedruntime/developer.entitlements.xml
             default: ''
+    mac-requirements:
+        by-platform:
+            macosx64.*: build/package/mac_osx/requirements.plist
+            default: ''
