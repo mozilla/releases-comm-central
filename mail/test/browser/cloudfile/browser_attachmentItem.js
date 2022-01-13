@@ -41,10 +41,9 @@ var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 // Prepare the mock prompt.
 var originalPromptService = Services.prompt;
 var mockPromptService = {
-  confirmCount: 0,
-  confirmEx() {
-    this.confirmCount++;
-    return false;
+  alertCount: 0,
+  alert() {
+    this.alertCount++;
   },
   QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
 };
@@ -320,10 +319,10 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   // Check and reset the prompt mock service.
   is(
     expectedAlerts,
-    Services.prompt.confirmCount,
+    Services.prompt.alertCount,
     "Number of expected alert prompts should be correct."
   );
-  Services.prompt.confirmCount = 0;
+  Services.prompt.alertCount = 0;
 }
 
 /**
@@ -353,8 +352,8 @@ add_task(async function test_successful_upload() {
 });
 
 /**
- * Check if a regular attachment is kept, after converting a cloud file to
- * another provider failed.
+ * Check if the original cloud attachment is kept, after converting it to another
+ * provider failed.
  */
 add_task(async function test_error_conversion() {
   let cw = open_compose_new_mail();
@@ -378,7 +377,7 @@ add_task(async function test_error_conversion() {
   convert_selected_to_cloud_attachment(cw, providerB, false);
 
   let uploadError = new Promise(resolve => {
-    bucket.addEventListener("attachment-upload-failed", resolve, {
+    bucket.addEventListener("attachment-move-failed", resolve, {
       once: true,
     });
   });
@@ -392,26 +391,33 @@ add_task(async function test_error_conversion() {
   );
   await uploadError;
 
+  // Wait for the showLocalizedCloudFileAlert() to localize the error message.
+  cw.sleep();
+
   is(
+    Services.prompt.alertCount,
     1,
-    Services.prompt.confirmCount,
     "Number of expected alert prompts should be correct."
   );
-  Services.prompt.confirmCount = 0;
+  Services.prompt.alertCount = 0;
 
-  // Check that we still have 3 attachments and that the first one is a regular one.
+  // Check that we still have the 3 attachments we started with.
   Assert.equal(
     bucket.itemCount,
     3,
     "Should find correct number of attachments."
   );
-  let expected = [false, true, true];
   for (let i = 0; i < bucket.itemCount; i++) {
     let item = bucket.itemChildren[i];
     Assert.equal(
       item.attachment.sendViaCloud,
-      expected[i],
-      "Should find correct type of attachment."
+      true,
+      "Attachment should be a cloud attachment."
+    );
+    Assert.equal(
+      item.attachment.cloudFileAccountKey,
+      "someKey",
+      "Attachment should be hosted by the correct provider."
     );
   }
 

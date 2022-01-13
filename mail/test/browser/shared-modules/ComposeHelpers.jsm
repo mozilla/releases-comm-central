@@ -519,37 +519,40 @@ function convert_selected_to_cloud_attachment(
 ) {
   let bucket = aController.e("attachmentBucket");
   let uploads = [];
-  let attachmentConverted = false;
-  let attachmentCount = 0;
+  let attachmentsSelected =
+    aController.window.gAttachmentBucket.selectedItems.length;
+  let attachmentsSubmitted = 0;
+  let attachmentsConverted = 0;
 
-  function convertAttachment(event) {
-    attachmentConverted = true;
-    if (aWaitUploaded) {
-      // event.detail contains an array of nsIMsgAttachment objects that were uploaded.
-      attachmentCount = event.detail.length;
-      Assert.equal(
-        attachmentCount,
-        1,
-        "Exactly one attachment should be scheduled for conversion."
+  Assert.equal(
+    attachmentsSelected,
+    1,
+    "Exactly one attachment should be scheduled for conversion."
+  );
+
+  function collectConvertingAttachments(event) {
+    let item = event.target;
+    let img = item.querySelector("img.attachmentcell-icon");
+    Assert.equal(
+      img.src,
+      "chrome://global/skin/icons/loading.png",
+      "Icon should be the spinner during conversion."
+    );
+
+    attachmentsSubmitted++;
+    if (attachmentsSubmitted == attachmentsSelected) {
+      bucket.removeEventListener(
+        "attachment-uploading",
+        collectConvertingAttachments
       );
-
-      let attachment = event.detail[0];
-      let item = bucket.findItemForAttachment(attachment);
-      let img = item.querySelector("img.attachmentcell-icon");
-      Assert.equal(
-        img.src,
-        "chrome://global/skin/icons/loading.png",
-        "Icon should be the spinner during conversion."
+      bucket.removeEventListener(
+        "attachment-moving",
+        collectConvertingAttachments
       );
-
-      item.addEventListener("attachment-uploaded", collectConvertedAttachment, {
-        once: true,
-      });
     }
   }
 
   function collectConvertedAttachment(event) {
-    attachmentCount--;
     let item = event.target;
     let img = item.querySelector("img.attachmentcell-icon");
     Assert.equal(
@@ -557,22 +560,32 @@ function convert_selected_to_cloud_attachment(
       item.cloudIcon,
       "Cloud icon should be used after conversion has finished."
     );
+
+    attachmentsConverted++;
+    if (attachmentsConverted == attachmentsSelected) {
+      item.removeEventListener(
+        "attachment-uploaded",
+        collectConvertedAttachment
+      );
+      item.removeEventListener("attachment-moved", collectConvertedAttachment);
+    }
   }
 
-  bucket.addEventListener(
-    "attachments-converting-to-cloud",
-    convertAttachment,
-    {
-      once: true,
-    }
-  );
+  bucket.addEventListener("attachment-uploading", collectConvertingAttachments);
+  bucket.addEventListener("attachment-moving", collectConvertingAttachments);
   aController.window.convertSelectedToCloudAttachment(aProvider);
-  aController.waitFor(() => attachmentConverted, "Couldn't convert attachment");
+  aController.waitFor(
+    () => attachmentsSubmitted == attachmentsSelected,
+    "Couldn't start converting all attachments"
+  );
 
   if (aWaitUploaded) {
+    bucket.addEventListener("attachment-uploaded", collectConvertedAttachment);
+    bucket.addEventListener("attachment-moved", collectConvertedAttachment);
+
     uploads = gMockCloudfileManager.resolveUploads();
     aController.waitFor(
-      () => attachmentCount == 0,
+      () => attachmentsConverted == attachmentsSelected,
       "Attachments uploading didn't finish"
     );
   }
@@ -599,31 +612,39 @@ function add_cloud_attachments(
   let bucket = aController.e("attachmentBucket");
   let uploads = [];
   let seenAlerts = [];
-  let attachmentsSubmitted = false;
-  function uploadAttachments(event) {
-    attachmentsSubmitted = true;
-    if (aWaitUploaded) {
-      // event.detail contains an array of nsIMsgAttachment objects that were uploaded.
-      attachmentCount = event.detail.length;
-      for (let attachment of event.detail) {
-        let item = bucket.findItemForAttachment(attachment);
-        let img = item.querySelector("img.attachmentcell-icon");
-        Assert.equal(
-          img.src,
-          "chrome://global/skin/icons/loading.png",
-          "Icon should be the spinner during upload."
-        );
 
-        item.addEventListener(
-          "attachment-uploaded",
-          collectUploadedAttachments,
-          { once: true }
-        );
-      }
+  let attachmentsAdded = 0;
+  let attachmentsSubmitted = 0;
+  let attachmentsUploaded = 0;
+
+  function collectAddedAttachments(event) {
+    attachmentsAdded = event.detail.length;
+    if (!aExpectedAlerts) {
+      bucket.addEventListener(
+        "attachment-uploading",
+        collectUploadingAttachments
+      );
     }
   }
 
-  let attachmentCount = 0;
+  function collectUploadingAttachments(event) {
+    let item = event.target;
+    let img = item.querySelector("img.attachmentcell-icon");
+    Assert.equal(
+      img.src,
+      "chrome://global/skin/icons/loading.png",
+      "Icon should be the spinner during upload."
+    );
+
+    attachmentsSubmitted++;
+    if (attachmentsSubmitted == attachmentsAdded) {
+      bucket.removeEventListener(
+        "attachment-uploading",
+        collectUploadingAttachments
+      );
+    }
+  }
+
   function collectUploadedAttachments(event) {
     let item = event.target;
     let img = item.querySelector("img.attachmentcell-icon");
@@ -632,43 +653,50 @@ function add_cloud_attachments(
       item.cloudIcon,
       "Cloud icon should be used after upload has finished."
     );
-    attachmentCount--;
+
+    attachmentsUploaded++;
+    if (attachmentsUploaded == attachmentsAdded) {
+      bucket.removeEventListener(
+        "attachment-uploaded",
+        collectUploadedAttachments
+      );
+    }
   }
 
   /** @implements {nsIPromptService} */
   let mockPromptService = {
-    confirmEx(window, title, message) {
+    alert(window, title, message) {
       seenAlerts.push({ title, message });
-      return false;
     },
     QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
   };
 
-  if (!aExpectedAlerts) {
-    bucket.addEventListener("attachments-uploading", uploadAttachments, {
-      once: true,
-    });
-  }
+  bucket.addEventListener("attachments-added", collectAddedAttachments, {
+    once: true,
+  });
 
   let originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
   aController.window.attachToCloudNew(aProvider);
-
   aController.waitFor(
     () =>
-      attachmentsSubmitted ||
+      (!aExpectedAlerts &&
+        attachmentsAdded > 0 &&
+        attachmentsAdded == attachmentsSubmitted) ||
       (aExpectedAlerts && seenAlerts.length == aExpectedAlerts),
     "Couldn't attach attachments for upload"
   );
+
   Services.prompt = originalPromptService;
   if (seenAlerts.length > 0) {
     return seenAlerts;
   }
 
   if (aWaitUploaded) {
+    bucket.addEventListener("attachment-uploaded", collectUploadedAttachments);
     uploads = gMockCloudfileManager.resolveUploads();
     aController.waitFor(
-      () => attachmentCount == 0,
+      () => attachmentsAdded == attachmentsUploaded,
       "Attachments uploading didn't finish"
     );
   }

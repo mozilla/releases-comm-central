@@ -8,6 +8,12 @@
 
 "use strict";
 
+XPCOMUtils.defineLazyGetter(this, "brandShortName", () =>
+  Services.strings
+    .createBundle("chrome://branding/locale/brand.properties")
+    .GetStringFromName("brandShortName")
+);
+
 var {
   gMockFilePicker,
   gMockFilePickReg,
@@ -112,10 +118,10 @@ registerCleanupFunction(function teardownModule(module) {
  */
 add_task(function test_custom_error_during_upload() {
   subtest_errors_during_upload({
-    exception: Components.Exception(
-      "This is a custom error.",
-      cloudFileAccounts.constants.uploadErrWithCustomMessage
-    ),
+    exception: {
+      message: "This is a custom error.",
+      result: cloudFileAccounts.constants.uploadErrWithCustomMessage,
+    },
     expectedAlerts: [
       {
         title: "Uploading testFile1 to providerA Failed",
@@ -135,10 +141,10 @@ add_task(function test_custom_error_during_upload() {
  */
 add_task(function test_standard_error_during_upload() {
   subtest_errors_during_upload({
-    exception: Components.Exception(
-      "This is a standard error.",
-      cloudFileAccounts.constants.uploadErr
-    ),
+    exception: {
+      message: "This is a standard error.",
+      result: cloudFileAccounts.constants.uploadErr,
+    },
     expectedAlerts: [
       {
         title: "Upload Error",
@@ -158,10 +164,10 @@ add_task(function test_standard_error_during_upload() {
  */
 add_task(function test_quota_error_during_upload() {
   subtest_errors_during_upload({
-    exception: Components.Exception(
-      "Quota Error.",
-      cloudFileAccounts.constants.uploadWouldExceedQuota
-    ),
+    exception: {
+      message: "Quota Error.",
+      result: cloudFileAccounts.constants.uploadWouldExceedQuota,
+    },
     expectedAlerts: [
       {
         title: "Quota Error",
@@ -183,10 +189,10 @@ add_task(function test_quota_error_during_upload() {
  */
 add_task(function test_file_size_error_during_upload() {
   subtest_errors_during_upload({
-    exception: Components.Exception(
-      "File Size Error.",
-      cloudFileAccounts.constants.uploadExceedsFileLimit
-    ),
+    exception: {
+      message: "File Size Error.",
+      result: cloudFileAccounts.constants.uploadExceedsFileLimit,
+    },
     expectedAlerts: [
       {
         title: "File Size Error",
@@ -201,9 +207,28 @@ add_task(function test_file_size_error_during_upload() {
 });
 
 /**
+ * Test that we get the connection error in offline mode.
+ */
+add_task(function test_offline_error_during_upload() {
+  subtest_errors_during_upload({
+    toggleOffline: true,
+    expectedAlerts: [
+      {
+        title: "Connection Error",
+        message: `${brandShortName} is offline. Could not connect to providerA.`,
+      },
+      {
+        title: "Connection Error",
+        message: `${brandShortName} is offline. Could not connect to providerA.`,
+      },
+    ],
+  });
+});
+
+/**
  * Subtest for testing error messages during upload operation.
  *
- * @param error - defines the the thrown exception and the expected alert messagees
+ * @param error - defines the the thrown exception and the expected alert messages
  * @param error.exception - the exception to be thrown by uploadFile()
  * @param error.expectedAlerts - array with { title, message } objects for expected
  *   alerts for each uploaded file
@@ -211,20 +236,30 @@ add_task(function test_file_size_error_during_upload() {
 function subtest_errors_during_upload(error) {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
-  provider.init("providerA", {
+  let config = {
     serviceName: "MochiTest A",
     serviceUrl: "https://www.provider-A.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-    uploadError: error.exception,
-  });
+  };
+  if (error.exception) {
+    config.uploadError = error.exception;
+  }
+  provider.init("providerA", config);
 
   let cw = open_compose_new_mail();
+
+  if (error.toggleOffline) {
+    Services.io.offline = true;
+  }
   let seenAlerts = add_cloud_attachments(
     cw,
     provider,
     false,
     error.expectedAlerts.length
   );
+  if (error.toggleOffline) {
+    Services.io.offline = false;
+  }
 
   Assert.equal(
     seenAlerts.length,
@@ -252,10 +287,10 @@ function subtest_errors_during_upload(error) {
  */
 add_task(function test_nosupport_error_during_rename() {
   subtest_errors_during_rename({
-    exception: Components.Exception(
-      "Rename not supported.",
-      cloudFileAccounts.constants.renameNotSupported
-    ),
+    exception: {
+      message: "Rename not supported.",
+      result: cloudFileAccounts.constants.renameNotSupported,
+    },
     expectedAlerts: [
       {
         title: "Rename Error",
@@ -275,10 +310,10 @@ add_task(function test_nosupport_error_during_rename() {
  */
 add_task(function test_standard_error_during_rename() {
   subtest_errors_during_rename({
-    exception: Components.Exception(
-      "Rename error.",
-      cloudFileAccounts.constants.renameErr
-    ),
+    exception: {
+      message: "Rename error.",
+      result: cloudFileAccounts.constants.renameErr,
+    },
     expectedAlerts: [
       {
         title: "Rename Error",
@@ -298,10 +333,10 @@ add_task(function test_standard_error_during_rename() {
  */
 add_task(function test_custom_error_during_rename() {
   subtest_errors_during_rename({
-    exception: Components.Exception(
-      "This is a custom error.",
-      cloudFileAccounts.constants.renameErrWithCustomMessage
-    ),
+    exception: {
+      message: "This is a custom error.",
+      result: cloudFileAccounts.constants.renameErrWithCustomMessage,
+    },
     expectedAlerts: [
       {
         title: "Renaming testFile1 on providerA Failed",
@@ -310,6 +345,25 @@ add_task(function test_custom_error_during_rename() {
       {
         title: "Renaming testFile2 on providerA Failed",
         message: "This is a custom error.",
+      },
+    ],
+  });
+});
+
+/**
+ * Test that we get the connection error in offline mode.
+ */
+add_task(function test_offline_error_during_rename() {
+  subtest_errors_during_rename({
+    toggleOffline: true,
+    expectedAlerts: [
+      {
+        title: "Connection Error",
+        message: `${brandShortName} is offline. Could not connect to providerA.`,
+      },
+      {
+        title: "Connection Error",
+        message: `${brandShortName} is offline. Could not connect to providerA.`,
       },
     ],
   });
@@ -325,12 +379,15 @@ add_task(function test_custom_error_during_rename() {
 function subtest_errors_during_rename(error) {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
-  provider.init("providerA", {
+  let config = {
     serviceName: "MochiTest A",
     serviceUrl: "https://www.provider-A.org",
     serviceIcon: "chrome://messenger/skin/icons/globe.svg",
-    renameError: error.exception,
-  });
+  };
+  if (error.exception) {
+    config.renameError = error.exception;
+  }
+  provider.init("providerA", config);
 
   let cw = open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, provider);
@@ -356,10 +413,16 @@ function subtest_errors_during_rename(error) {
   );
 
   // Try to rename each Filelink, ensuring that we get the correct alerts.
+  if (error.toggleOffline) {
+    Services.io.offline = true;
+  }
   let seenAlerts = [];
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
     seenAlerts.push(rename_selected_cloud_attachment(cw, "IgnoredNewName"));
+  }
+  if (error.toggleOffline) {
+    Services.io.offline = false;
   }
 
   Assert.equal(

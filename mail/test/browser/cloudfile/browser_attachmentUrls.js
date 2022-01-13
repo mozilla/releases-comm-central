@@ -53,7 +53,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var kUploadedFile = "attachment-uploaded";
 var kHtmlPrefKey = "mail.identity.default.compose_html";
 var kReplyOnTopKey = "mail.identity.default.reply_on_top";
 var kReplyOnTop = 1;

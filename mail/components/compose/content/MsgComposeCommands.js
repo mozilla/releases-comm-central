@@ -55,14 +55,21 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 XPCOMUtils.defineLazyGetter(
   this,
   "l10nCompose",
-  () => new Localization(["messenger/messengercompose/messengercompose.ftl"])
+  () =>
+    new Localization([
+      "branding/brand.ftl",
+      "messenger/messengercompose/messengercompose.ftl",
+    ])
 );
 
 XPCOMUtils.defineLazyGetter(
   this,
   "l10nComposeSync",
   () =>
-    new Localization(["messenger/messengercompose/messengercompose.ftl"], true)
+    new Localization(
+      ["branding/brand.ftl", "messenger/messengercompose/messengercompose.ftl"],
+      true
+    )
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -1441,7 +1448,7 @@ var attachmentBucketController = {
         for (let item of gAttachmentBucket.selectedItems) {
           if (item && item.uploading) {
             let file = fileHandler.getFileFromURLSpec(item.attachment.url);
-            item.cloudFileAccount.cancelFileUpload(window, file);
+            item.uploading.cancelFileUpload(window, file);
           }
         }
       },
@@ -2200,211 +2207,365 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
     aParentMenu.appendChild(item);
   }
 }
-/**
- * Initiate uploading a file to the cloud and handle errors.
- *
- * @param {nsIMsgAttachment} attachment - The cloud attachment.
- * @param {nsIFile} file - The local file to be uploaded.
- * @param {CloudFileAccount} cloudFileAccount - The account used for upload.
- */
-async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
-  // Notify the UI that we're starting the upload process: disable send commands
-  // and show a "connecting" icon for the attachment.
-  attachment.sendViaCloud = true;
-  gNumUploadingAttachments++;
-  updateSendCommands(true);
 
-  let displayName = cloudFileAccounts.getDisplayName(cloudFileAccount);
-  let attachmentItem = gAttachmentBucket.findItemForAttachment(attachment);
-  if (attachmentItem) {
-    // FIXME: The UI logic should be handled by the attachment list or item
-    // itself.
+function updateAttachmentItemProperties(attachmentItem) {
+  // FIXME: The UI logic should be handled by the attachment list or item
+  // itself.
+  if (attachmentItem.uploading) {
+    // uploading/renaming
     attachmentItem.setAttribute(
       "tooltiptext",
       getComposeBundle().getFormattedString("cloudFileUploadingTooltip", [
-        displayName,
+        cloudFileAccounts.getDisplayName(attachmentItem.uploading),
       ])
     );
-    attachmentItem.uploading = true;
-    attachmentItem.cloudFileAccount = cloudFileAccount;
-    gAttachmentBucket.refreshAttachmentIcon(attachmentItem);
-  }
-
-  let upload;
-  let statusCode = Cr.NS_OK;
-  let statusMessage = null;
-  try {
-    upload = await cloudFileAccount.uploadFile(window, file, attachment.name);
-  } catch (ex) {
-    statusMessage = ex.message;
-    statusCode = ex.result;
-  }
-
-  if (Components.isSuccessCode(statusCode)) {
-    let originalUrl = attachment.url;
-    attachment.contentLocation = upload.url;
-    attachment.cloudFileAccountKey = cloudFileAccount.accountKey;
-    if (attachmentItem) {
-      // Update relevant bits on the attachment list item.
-      if (!attachmentItem.originalUrl) {
-        attachmentItem.originalUrl = originalUrl;
-      }
-      // FIXME: The UI logic should be handled by the attachment list or item
-      // itself.
-      attachmentItem.cloudFileUpload = upload;
-      attachmentItem.setAttribute(
-        "tooltiptext",
-        getComposeBundle().getFormattedString("cloudFileUploadedTooltip", [
-          displayName,
-        ])
-      );
-      attachmentItem.uploading = false;
-      gAttachmentBucket.setCloudIcon(attachmentItem, upload.serviceIcon);
-
-      // Remove removeOnUploadError flag, so this file is kept, if a conversion
-      // to a different provider later fails.
-      delete attachmentItem.removeOnUploadError;
-
-      attachmentItem.dispatchEvent(
-        new CustomEvent("attachment-uploaded", {
-          bubbles: true,
-          cancelable: true,
-        })
-      );
-    }
-    Services.telemetry.keyedScalarAdd(
-      "tb.filelink.uploaded_size",
-      cloudFileAccount.type,
-      attachment.size
+    gAttachmentBucket.setCloudIcon(attachmentItem, "");
+  } else if (attachmentItem.cloudFileAccount) {
+    // uploaded
+    attachmentItem.setAttribute(
+      "tooltiptext",
+      getComposeBundle().getFormattedString("cloudFileUploadedTooltip", [
+        cloudFileAccounts.getDisplayName(attachmentItem.cloudFileAccount),
+      ])
+    );
+    gAttachmentBucket.setAttachmentName(
+      attachmentItem,
+      attachmentItem.attachment.name
+    );
+    gAttachmentBucket.setCloudIcon(
+      attachmentItem,
+      attachmentItem.cloudFileUpload.serviceIcon
     );
   } else {
-    let title;
-    let msg;
-    let bundle = getComposeBundle();
-    let displayError = true;
-    switch (statusCode) {
-      case cloudFileAccounts.constants.authErr:
-        title = bundle.getString("errorCloudFileAuth.title");
-        msg = bundle.getFormattedString("errorCloudFileAuth.message", [
-          displayName,
-        ]);
-        break;
-      case cloudFileAccounts.constants.uploadErrWithCustomMessage:
-        title = await l10nCompose.formatValue(
-          "cloud-file-upload-error-with-custom-message-title",
-          {
-            provider: displayName,
-            filename: attachment.name,
-          }
-        );
-        msg = statusMessage;
-        break;
-      case cloudFileAccounts.constants.uploadErr:
-        title = bundle.getString("errorCloudFileUpload.title");
-        msg = bundle.getFormattedString("errorCloudFileUpload.message", [
-          displayName,
-          attachment.name,
-        ]);
-        break;
-      case cloudFileAccounts.constants.uploadWouldExceedQuota:
-        title = bundle.getString("errorCloudFileQuota.title");
-        msg = bundle.getFormattedString("errorCloudFileQuota.message", [
-          displayName,
-          attachment.name,
-        ]);
-        break;
-      case cloudFileAccounts.constants.uploadExceedsFileNameLimit:
-        title = bundle.getString("errorCloudFileNameLimit.title");
-        msg = bundle.getFormattedString("errorCloudFileNameLimit.message", [
-          displayName,
-          attachment.name,
-        ]);
-        break;
-      case cloudFileAccounts.constants.uploadExceedsFileLimit:
-        title = bundle.getString("errorCloudFileLimit.title");
-        msg = bundle.getFormattedString("errorCloudFileLimit.message", [
-          displayName,
-          attachment.name,
-        ]);
-        break;
-      case cloudFileAccounts.constants.uploadCancelled:
-        displayError = false;
-        break;
-      default:
-        title = bundle.getString("errorCloudFileOther.title");
-        msg = bundle.getFormattedString("errorCloudFileOther.message", [
-          displayName,
-        ]);
-        break;
-    }
-
-    // TODO: support actions other than "Upgrade"
-    if (displayError) {
-      let url =
-        cloudFileAccount.providerUrlForError &&
-        cloudFileAccount.providerUrlForError(statusCode);
-      let flags =
-        Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_OK;
-      if (url) {
-        flags +=
-          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_IS_STRING;
-      }
-      if (
-        Services.prompt.confirmEx(
-          window,
-          title,
-          msg,
-          flags,
-          null,
-          bundle.getString("errorCloudFileUpgrade.label"),
-          null,
-          null,
-          {}
-        )
-      ) {
-        openLinkExternally(url);
-      }
-    }
-
-    if (attachmentItem) {
-      // Remove the loading throbber.
-      attachmentItem.setAttribute("tooltiptext", attachmentItem.attachment.url);
-      attachmentItem.uploading = false;
-      gAttachmentBucket.refreshAttachmentIcon(attachmentItem);
-
-      attachmentItem.attachment.sendViaCloud = false;
-      delete attachmentItem.cloudFileAccount;
-
-      let event = document.createEvent("CustomEvent");
-      event.initEvent("attachment-upload-failed", true, true, statusCode);
-      attachmentItem.dispatchEvent(event);
-
-      // The attachment must be removed after dispatching the "attachment-upload-failed"
-      // event, otherwise the browser_notifications.js test will fail.
-      if (attachmentItem.removeOnUploadError) {
-        RemoveAttachments([attachmentItem]);
-      }
-    }
+    // local
+    attachmentItem.setAttribute("tooltiptext", attachmentItem.attachment.url);
+    gAttachmentBucket.setAttachmentName(
+      attachmentItem,
+      attachmentItem.attachment.name
+    );
+    gAttachmentBucket.setCloudIcon(attachmentItem, "");
   }
-
-  gNumUploadingAttachments--;
-  updateSendCommands(true);
 }
 
-async function deleteCloudAttachment(attachment, id, cloudFileAccount) {
+async function showLocalizedCloudFileAlert(
+  ex,
+  provider = ex.cloudProvider,
+  filename = ex.cloudFileName
+) {
+  let bundle = getComposeBundle();
+  let localizedTitle, localizedMessage;
+
+  switch (ex.result) {
+    case cloudFileAccounts.constants.uploadCancelled:
+      // No alerts for cancelled uploads.
+      return;
+    case cloudFileAccounts.constants.deleteErr:
+      localizedTitle = bundle.getString("errorCloudFileDeletion.title");
+      localizedMessage = bundle.getFormattedString(
+        "errorCloudFileDeletion.message",
+        [provider, filename]
+      );
+      break;
+    case cloudFileAccounts.constants.offlineErr:
+      localizedTitle = await l10nCompose.formatValue(
+        "cloud-file-connection-error-title"
+      );
+      localizedMessage = await l10nCompose.formatValue(
+        "cloud-file-connection-error",
+        {
+          provider,
+        }
+      );
+      break;
+    case cloudFileAccounts.constants.authErr:
+      localizedTitle = bundle.getString("errorCloudFileAuth.title");
+      localizedMessage = bundle.getFormattedString(
+        "errorCloudFileAuth.message",
+        [provider]
+      );
+      break;
+    case cloudFileAccounts.constants.uploadErrWithCustomMessage:
+      localizedTitle = await l10nCompose.formatValue(
+        "cloud-file-upload-error-with-custom-message-title",
+        {
+          provider,
+          filename,
+        }
+      );
+      localizedMessage = ex.message;
+      break;
+    case cloudFileAccounts.constants.uploadErr:
+      localizedTitle = bundle.getString("errorCloudFileUpload.title");
+      localizedMessage = bundle.getFormattedString(
+        "errorCloudFileUpload.message",
+        [provider, filename]
+      );
+      break;
+    case cloudFileAccounts.constants.uploadWouldExceedQuota:
+      localizedTitle = bundle.getString("errorCloudFileQuota.title");
+      localizedMessage = bundle.getFormattedString(
+        "errorCloudFileQuota.message",
+        [provider, filename]
+      );
+      break;
+    case cloudFileAccounts.constants.uploadExceedsFileLimit:
+      localizedTitle = bundle.getString("errorCloudFileLimit.title");
+      localizedMessage = bundle.getFormattedString(
+        "errorCloudFileLimit.message",
+        [provider, filename]
+      );
+      break;
+    case cloudFileAccounts.constants.renameNotSupported:
+      localizedTitle = await l10nCompose.formatValue(
+        "cloud-file-rename-error-title"
+      );
+      localizedMessage = await l10nCompose.formatValue(
+        "cloud-file-rename-not-supported",
+        {
+          provider,
+        }
+      );
+      break;
+    case cloudFileAccounts.constants.renameErrWithCustomMessage:
+      localizedTitle = await l10nCompose.formatValue(
+        "cloud-file-rename-error-with-custom-message-title",
+        {
+          provider,
+          filename,
+        }
+      );
+      localizedMessage = ex.message;
+      break;
+    case cloudFileAccounts.constants.renameErr:
+      localizedTitle = await l10nCompose.formatValue(
+        "cloud-file-rename-error-title"
+      );
+      localizedMessage = await l10nCompose.formatValue(
+        "cloud-file-rename-error",
+        {
+          provider,
+          filename,
+        }
+      );
+      break;
+    default:
+      localizedTitle = bundle.getString("errorCloudFileOther.title");
+      localizedMessage = bundle.getFormattedString(
+        "errorCloudFileOther.message",
+        [provider]
+      );
+  }
+
+  Services.prompt.alert(window, localizedTitle, localizedMessage);
+}
+
+/**
+ * @typedef UpdateSettings
+ * @property {CloudFileAccount} [cloudFileAccount] - cloud file account to store
+ *   the attachment
+ * @property {CloudFileUpload} [cloudFileUpload] - CloudFileUpload data to replace
+ *   the current attachments cloudFileUpload data
+ * @property {nsIFile} [file] - file to replace the current attachments content
+ * @property {string} [name] - name to replace the current attachments name
+ */
+
+/**
+ * Update the name and or the content of an attachment, as well as its local/cloud
+ * state.
+ *
+ * @param {DOMNode} attachmentItem - the existing attachmentItem
+ * @param {UpdateSettings} [updateSettings] - object defining how to update the
+ *   attachment
+ */
+async function UpdateAttachment(attachmentItem, updateSettings = {}) {
+  if (!attachmentItem || !attachmentItem.attachment) {
+    throw new Error("Unexpected: Invalid attachment item.");
+  }
+
+  let originalAttachment = Object.assign({}, attachmentItem.attachment);
+  let eventOnDone = false;
+
+  // Ignore empty or falsy names.
+  let name = updateSettings.name || attachmentItem.attachment.name;
+
+  let destCloudFileAccount = updateSettings.hasOwnProperty("cloudFileAccount")
+    ? updateSettings.cloudFileAccount
+    : attachmentItem.cloudFileAccount;
+
+  const events = {
+    "upload-starting": "attachment-uploading",
+    "upload-finished": "attachment-uploaded",
+    "upload-failed": "attachment-upload-failed",
+    "move-starting": "attachment-moving",
+    "move-finished": "attachment-moved",
+    "move-failed": "attachment-move-failed",
+    "convert-finished": "attachment-converted-to-regular",
+    "rename-finished": "attachment-renamed",
+  };
+
   try {
-    await cloudFileAccount.deleteFile(window, id);
+    if (updateSettings.cloudFileUpload && updateSettings.cloudFileAccount) {
+      // Bypass upload and set provided cloudFileUpload.
+      attachmentItem.attachment.sendViaCloud = true;
+      attachmentItem.attachment.contentLocation =
+        updateSettings.cloudFileUpload.url;
+      attachmentItem.attachment.cloudFileAccountKey =
+        updateSettings.cloudFileAccount.accountKey;
+
+      attachmentItem.cloudFileAccount = updateSettings.cloudFileAccount;
+      attachmentItem.cloudFileUpload = updateSettings.cloudFileUpload;
+      gAttachmentBucket.setCloudIcon(
+        attachmentItem,
+        updateSettings.cloudFileUpload.serviceIcon
+      );
+
+      eventOnDone = new CustomEvent("attachment-uploaded", {
+        bubbles: true,
+        cancelable: true,
+      });
+    } else if (!destCloudFileAccount) {
+      // Handle a cloud -> local conversion or a local -> local replace/rename.
+      let mode = attachmentItem.attachment.sendViaCloud ? "convert" : "replace";
+      if (mode == "replace" && !updateSettings.file) {
+        mode = "rename";
+      }
+
+      if (mode == "convert") {
+        // A cloud delete error is not considered to be a fatal error. It is
+        // not preventing the attachment from being removed from the composer.
+        attachmentItem.cloudFileAccount
+          .deleteFile(window, attachmentItem.cloudFileUpload.id)
+          .catch(ex => console.warn(ex.message));
+
+        // Clean up attachment from cloud bits.
+        attachmentItem.attachment.sendViaCloud = false;
+        delete attachmentItem.attachment.contentLocation;
+        delete attachmentItem.attachment.cloudFileAccountKey;
+        delete attachmentItem.cloudFileAccount;
+        delete attachmentItem.cloudFileUpload;
+      }
+
+      if (events[`${mode}-finished`]) {
+        eventOnDone = new CustomEvent(events[`${mode}-finished`], {
+          bubbles: true,
+          cancelable: true,
+          detail: originalAttachment,
+        });
+      }
+    } else if (Services.io.offline) {
+      // Exit early if offline.
+      throw Components.Exception(
+        "Connection error: Offline",
+        cloudFileAccounts.constants.offlineErr
+      );
+    } else {
+      // Handle a cloud -> cloud move/rename or a local -> cloud upload.
+      let mode = attachmentItem.attachment.sendViaCloud ? "move" : "upload";
+      if (
+        attachmentItem.cloudFileAccount == destCloudFileAccount &&
+        !updateSettings.file
+      ) {
+        mode = "rename";
+      }
+
+      // Notify the UI that we're starting the upload process: disable send commands
+      // and show a "connecting" icon for the attachment.
+      gNumUploadingAttachments++;
+      updateSendCommands(true);
+
+      attachmentItem.uploading = destCloudFileAccount;
+      updateAttachmentItemProperties(attachmentItem);
+
+      if (events[`${mode}-starting`]) {
+        attachmentItem.dispatchEvent(
+          new CustomEvent(events[`${mode}-starting`], {
+            bubbles: true,
+            cancelable: true,
+            detail: attachmentItem.attachment,
+          })
+        );
+      }
+
+      try {
+        let upload;
+        if (mode == "rename") {
+          upload = await destCloudFileAccount.renameFile(
+            window,
+            attachmentItem.cloudFileUpload.id,
+            name
+          );
+        } else {
+          let fileHandler = Services.io
+            .getProtocolHandler("file")
+            .QueryInterface(Ci.nsIFileProtocolHandler);
+
+          let file =
+            updateSettings.file ||
+            fileHandler.getFileFromURLSpec(attachmentItem.attachment.url);
+
+          upload = await destCloudFileAccount.uploadFile(window, file, name);
+
+          attachmentItem.cloudFileAccount = destCloudFileAccount;
+          attachmentItem.attachment.sendViaCloud = true;
+          attachmentItem.attachment.cloudFileAccountKey =
+            destCloudFileAccount.accountKey;
+
+          Services.telemetry.keyedScalarAdd(
+            "tb.filelink.uploaded_size",
+            destCloudFileAccount.type,
+            file.fileSize
+          );
+        }
+
+        attachmentItem.cloudFileUpload = upload;
+        attachmentItem.attachment.contentLocation = upload.url;
+
+        if (events[`${mode}-finished`]) {
+          eventOnDone = new CustomEvent(events[`${mode}-finished`], {
+            bubbles: true,
+            cancelable: true,
+            detail: originalAttachment,
+          });
+        }
+      } catch (ex) {
+        if (events[`${mode}-failed`]) {
+          eventOnDone = new CustomEvent(events[`${mode}-failed`], {
+            bubbles: true,
+            cancelable: true,
+            detail: ex.result,
+          });
+        }
+        throw ex;
+      } finally {
+        attachmentItem.uploading = false;
+        gNumUploadingAttachments--;
+        updateSendCommands(true);
+      }
+    }
+
+    // Update the local attachment.
+    if (updateSettings.file) {
+      let attachment = FileToAttachment(updateSettings.file);
+      attachmentItem.attachment.size = attachment.size;
+      attachmentItem.attachment.url = attachment.url;
+    }
+    attachmentItem.attachment.name = name;
+
+    AttachmentsChanged();
+    // Update cmd_sortAttachmentsToggle because replacing/renaming may change the
+    // current sort order.
+    goUpdateCommand("cmd_sortAttachmentsToggle");
   } catch (ex) {
-    let bundle = getComposeBundle();
-    let displayName = cloudFileAccounts.getDisplayName(cloudFileAccount);
-    Services.prompt.alert(
-      window,
-      bundle.getString("errorCloudFileDeletion.title"),
-      bundle.getFormattedString("errorCloudFileDeletion.message", [
-        displayName,
-        attachment.name,
-      ])
-    );
+    // Attach provider and fileName to the Exception, so showLocalizedCloudFileAlert()
+    // can display the proper alert message.
+    ex.cloudProvider = cloudFileAccounts.getDisplayName(destCloudFileAccount);
+    ex.cloudFileName = originalAttachment?.name || name;
+    throw ex;
+  } finally {
+    updateAttachmentItemProperties(attachmentItem);
+    if (eventOnDone) {
+      attachmentItem.dispatchEvent(eventOnDone);
+    }
   }
 }
 
@@ -2423,31 +2584,26 @@ function attachToCloud(event) {
 /**
  * Attach a file that has already been uploaded to a cloud provider.
  *
- * @param {string} filePath the original file path
- * @param {Object} account  the cloud provider to upload the files to
+ * @param {Object} upload - the cloudFileUpload of the already uploaded file
+ * @param {Object} account - the cloudFileAccount of the already uploaded file
  */
-function attachToCloudRepeat(upload, account) {
+async function attachToCloudRepeat(upload, account) {
   let file = FileUtils.File(upload.path);
   let attachment = FileToAttachment(file);
-  attachment.contentLocation = upload.url;
-  attachment.sendViaCloud = true;
-  attachment.cloudFileAccountKey = account.accountKey;
-
-  AddAttachments([attachment], function(item) {
-    item.account = account;
-    gAttachmentBucket.setAttachmentName(item, upload.leafName);
-    item.cloudFileUpload = {
-      ...upload,
-      repeat: true,
-    };
-    gAttachmentBucket.setCloudIcon(item, upload.serviceIcon);
-    item.dispatchEvent(
-      new CustomEvent("attachment-uploaded", {
-        bubbles: true,
-        cancelable: true,
-      })
-    );
-  });
+  let addedAttachmentItems = AddAttachments([attachment]);
+  if (addedAttachmentItems.length > 0) {
+    try {
+      await UpdateAttachment(addedAttachmentItems[0], {
+        cloudFileUpload: {
+          ...upload,
+          repeat: true,
+        },
+        cloudFileAccount: account,
+      });
+    } catch (ex) {
+      showLocalizedCloudFileAlert(ex);
+    }
+  }
 }
 
 /**
@@ -2455,7 +2611,7 @@ function attachToCloudRepeat(upload, account) {
  *
  * @param aAccount the cloud provider to upload the files to
  */
-function attachToCloudNew(aAccount) {
+async function attachToCloudNew(aAccount) {
   // We need to let the user pick local file(s) to upload to the cloud and
   // gather url(s) to those files.
   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
@@ -2473,24 +2629,30 @@ function attachToCloudNew(aAccount) {
   }
 
   fp.appendFilters(Ci.nsIFilePicker.filterAll);
-  fp.open(rv => {
-    if (rv != Ci.nsIFilePicker.returnOK || !fp.files) {
-      return;
-    }
 
-    let files = [...fp.files];
-    let attachments = files.map(f => FileToAttachment(f));
+  let rv = await new Promise(resolve => fp.open(resolve));
+  if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+    return;
+  }
 
-    let i = 0;
-    AddAttachments(attachments, function(aItem) {
-      aItem.removeOnUploadError = true;
-      uploadCloudAttachment(attachments[i], files[i], aAccount);
-      i++;
-    });
+  let files = [...fp.files];
+  let attachments = files.map(f => FileToAttachment(f));
+  let addedAttachmentItems = AddAttachments(attachments);
+  SetLastAttachDirectory(files[files.length - 1]);
 
-    dispatchAttachmentBucketEvent("attachments-uploading", attachments);
-    SetLastAttachDirectory(files[files.length - 1]);
-  });
+  let promises = [];
+  for (let attachmentItem of addedAttachmentItems) {
+    promises.push(
+      UpdateAttachment(attachmentItem, { cloudFileAccount: aAccount }).catch(
+        ex => {
+          RemoveAttachments([attachmentItem]);
+          showLocalizedCloudFileAlert(ex);
+        }
+      )
+    );
+  }
+
+  await Promise.all(promises);
 }
 
 /**
@@ -2500,45 +2662,24 @@ function attachToCloudNew(aAccount) {
  *        question
  * @param aAccount the cloud account to upload the files to
  */
-function convertListItemsToCloudAttachment(aItems, aAccount) {
-  // If we want to display an offline error message, we should do it here.
-  // No sense in doing the delete and upload and having them fail.
-  if (Services.io.offline) {
-    return;
-  }
-
-  let fileHandler = Services.io
-    .getProtocolHandler("file")
-    .QueryInterface(Ci.nsIFileProtocolHandler);
-  let convertedAttachments = [];
-
-  let uploadPromises = [];
+async function convertListItemsToCloudAttachment(aItems, aAccount) {
+  let promises = [];
   for (let item of aItems) {
-    let url = item.attachment.url;
-
-    if (item.attachment.sendViaCloud) {
-      if (item.cloudFileAccount && item.cloudFileAccount == aAccount) {
-        continue;
-      }
-      url = item.originalUrl;
-      convertListItemsToRegularAttachment([item]);
+    // Bail out, if we would convert to the current account.
+    if (
+      item.attachment.sendViaCloud &&
+      item.cloudFileAccount &&
+      item.cloudFileAccount == aAccount
+    ) {
+      continue;
     }
-
-    let file = fileHandler.getFileFromURLSpec(url);
-    uploadPromises.push(uploadCloudAttachment(item.attachment, file, aAccount));
-    convertedAttachments.push(item.attachment);
-  }
-
-  if (convertedAttachments.length > 0) {
-    dispatchAttachmentBucketEvent(
-      "attachments-converting-to-cloud",
-      convertedAttachments
+    promises.push(
+      UpdateAttachment(item, { cloudFileAccount: aAccount }).catch(
+        showLocalizedCloudFileAlert
+      )
     );
-
-    Promise.all(uploadPromises).then(() => {
-      AttachmentsChanged();
-    });
   }
+  await Promise.all(promises);
 }
 
 /**
@@ -2577,50 +2718,19 @@ function convertToCloudAttachment(aAttachments, aAccount) {
  * @param aItems an array of <attachmentitem>s containing the attachments in
  *        question
  */
-function convertListItemsToRegularAttachment(aItems) {
-  let convertedAttachments = [];
-
+async function convertListItemsToRegularAttachment(aItems) {
+  let promises = [];
   for (let item of aItems) {
     if (!item.attachment.sendViaCloud || !item.cloudFileAccount) {
       continue;
     }
-
-    try {
-      // This will fail for drafts, but we can still send the message
-      // with a normal attachment.
-      deleteCloudAttachment(
-        item.attachment,
-        item.cloudFileUpload.id,
-        item.cloudFileAccount
-      );
-    } catch (ex) {
-      Cu.reportError(ex);
-    }
-
-    item.attachment.url = item.originalUrl;
-    item.setAttribute("tooltiptext", item.attachment.url);
-    item.attachment.sendViaCloud = false;
-
-    gAttachmentBucket.setCloudIcon(item, null);
-
-    delete item.cloudFileAccount;
-    delete item.originalUrl;
-
-    convertedAttachments.push(item.attachment);
+    promises.push(
+      UpdateAttachment(item, { cloudFileAccount: null }).catch(
+        showLocalizedCloudFileAlert
+      )
+    );
   }
-
-  dispatchAttachmentBucketEvent(
-    "attachments-converted-to-regular",
-    convertedAttachments
-  );
-
-  // We leave the content location in for the notifications because
-  // it may be needed to identify the attachment. But clear it out now.
-  for (let item of aItems) {
-    delete item.attachment.contentLocation;
-  }
-
-  AttachmentsChanged();
+  await Promise.all(promises);
 }
 
 /**
@@ -3779,7 +3889,7 @@ function ComposeStartup(aParams) {
 
   document.getElementById("msgSubject").value = gMsgCompose.compFields.subject;
 
-  AddAttachments(gMsgCompose.compFields.attachments, null, false);
+  AddAttachments(gMsgCompose.compFields.attachments, false);
 
   if (Services.prefs.getBoolPref("mail.compose.show_attachment_pane")) {
     toggleAttachmentPane("show");
@@ -6557,13 +6667,10 @@ function FileToAttachment(file) {
  * be set.
  *
  * @param {nsIMsgAttachment[]} aAttachments - Objects to add as attachments.
- * @param {function} [aCallback] - An optional callback function called after
- *   adding each attachment. Takes one argument: the newly-added
- *   <attachmentitem> node.
  * @param {Boolean} [aContentChanged=true] - Optional value to assign gContentChanged
  *   after adding attachments.
  */
-function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
+function AddAttachments(aAttachments, aContentChanged = true) {
   let addedAttachments = [];
   let items = [];
 
@@ -6604,24 +6711,7 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
     }
     item.setAttribute("tooltiptext", tooltiptext);
     item.addEventListener("command", OpenSelectedAttachment);
-
-    if (attachment.sendViaCloud) {
-      try {
-        let account = cloudFileAccounts.getAccount(
-          attachment.cloudFileAccountKey
-        );
-        item.cloudFileAccount = account;
-        item.originalUrl = attachment.url;
-      } catch (ex) {
-        dump(ex);
-      }
-    }
-
     items.push(item);
-
-    if (aCallback) {
-      aCallback(item);
-    }
   }
 
   if (addedAttachments.length > 0) {
@@ -6674,12 +6764,14 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
     }
   }
 
-  // Always show the attachment pane if we have any attachment, no matter if the
-  // upload was successful or not to prevent keeping the panel collapsed when
-  // the user interacts with the attachment button.
+  // Always show the attachment pane if we have any attachment, to prevent
+  // keeping the panel collapsed when the user interacts with the attachment
+  // button.
   if (gAttachmentBucket.itemCount) {
     toggleAttachmentPane("show");
   }
+
+  return items;
 }
 
 /**
@@ -6845,7 +6937,7 @@ function Attachments2CompFields(compFields) {
   }
 }
 
-function RemoveAllAttachments() {
+async function RemoveAllAttachments() {
   // Ensure that attachment pane is shown before removing all attachments.
   toggleAttachmentPane("show");
 
@@ -6853,7 +6945,7 @@ function RemoveAllAttachments() {
     return;
   }
 
-  RemoveAttachments(gAttachmentBucket.itemChildren);
+  await RemoveAttachments(gAttachmentBucket.itemChildren);
 }
 
 /**
@@ -6913,15 +7005,25 @@ function updateAttachmentPane(aShowPane) {
   toggleAttachmentPane(aShowPane);
 }
 
-function RemoveSelectedAttachment() {
+async function RemoveSelectedAttachment() {
   if (!gAttachmentBucket.selectedCount) {
     return;
   }
 
-  RemoveAttachments(gAttachmentBucket.selectedItems);
+  await RemoveAttachments(gAttachmentBucket.selectedItems);
 }
 
-function RemoveAttachments(items) {
+/**
+ * Removes the provided attachmentItems from the composer and deletes all
+ * associated cloud files.
+ *
+ * Note: Cloud file delete errors are not considered to be fatal errors. They do
+ *       not prevent the attachments from being removed from the composer. Such
+ *       errors are caught and logged to the console.
+ *
+ * @param {DOMNode[]} items - AttachmentItems to be removed
+ */
+async function RemoveAttachments(items) {
   // Remember the current focus index so we can try to restore it when done.
   let focusIndex = gAttachmentBucket.currentIndex;
 
@@ -6930,6 +7032,7 @@ function RemoveAttachments(items) {
     .QueryInterface(Ci.nsIFileProtocolHandler);
   let removedAttachments = [];
 
+  let promises = [];
   for (let i = items.length - 1; i >= 0; i--) {
     let item = items[i];
 
@@ -6938,23 +7041,18 @@ function RemoveAttachments(items) {
       item.cloudFileAccount &&
       (!item.cloudFileUpload || !item.cloudFileUpload.repeat)
     ) {
-      let originalUrl = item.originalUrl;
-      if (!originalUrl) {
-        originalUrl = item.attachment.url;
-      }
       if (item.uploading) {
-        let file = fileHandler.getFileFromURLSpec(originalUrl);
-        // Set the removeOnUploadError flag and let the cancelled upload handle
-        // the attachment removal, after all UI related to pending cloudFile
-        // uploads has been taken care of.
-        item.removeOnUploadError = true;
-        item.cloudFileAccount.cancelFileUpload(window, file);
-        continue;
+        let file = fileHandler.getFileFromURLSpec(item.attachment.url);
+        promises.push(
+          item.uploading
+            .cancelFileUpload(window, file)
+            .catch(ex => console.warn(ex.message))
+        );
       } else {
-        deleteCloudAttachment(
-          item.attachment,
-          item.cloudFileUpload.id,
+        promises.push(
           item.cloudFileAccount
+            .deleteFile(window, item.cloudFileUpload.id)
+            .catch(ex => console.warn(ex.message))
         );
       }
     }
@@ -6979,14 +7077,15 @@ function RemoveAttachments(items) {
   // Collapse the attachment container if all the items have been deleted.
   if (!gAttachmentBucket.itemCount) {
     toggleAttachmentPane("hide");
-    return;
+  } else {
+    // Try to restore the original focused item or somewhere close by.
+    gAttachmentBucket.currentIndex =
+      focusIndex < gAttachmentBucket.itemCount
+        ? focusIndex
+        : gAttachmentBucket.itemCount - 1;
   }
 
-  // Try to restore the original focused item or somewhere close by.
-  gAttachmentBucket.currentIndex =
-    focusIndex < gAttachmentBucket.itemCount
-      ? focusIndex
-      : gAttachmentBucket.itemCount - 1;
+  await Promise.all(promises);
 }
 
 async function RenameSelectedAttachment() {
@@ -7012,80 +7111,12 @@ async function RenameSelectedAttachment() {
       // Name was not filled nor changed, bail out.
       return;
     }
-
-    // Request rename of the file on the remote server.
-    if (item.cloudFileAccount && item.cloudFileUpload) {
-      try {
-        item.uploading = true;
-        gAttachmentBucket.refreshAttachmentIcon(item);
-        item.cloudFileUpload = await item.cloudFileAccount.renameFile(
-          window,
-          item.cloudFileUpload.id,
-          attachmentName.value
-        );
-      } catch (err) {
-        let bundle = getComposeBundle();
-        let title = await l10nCompose.formatValue(
-          "cloud-file-rename-error-title"
-        );
-        let msg;
-        let displayName = cloudFileAccounts.getDisplayName(
-          item.cloudFileAccount
-        );
-
-        switch (err.result) {
-          case cloudFileAccounts.constants.renameNotSupported:
-            msg = await l10nCompose.formatValue(
-              "cloud-file-rename-not-supported",
-              {
-                provider: displayName,
-              }
-            );
-            break;
-          case cloudFileAccounts.constants.renameErrWithCustomMessage:
-            title = await l10nCompose.formatValue(
-              "cloud-file-rename-error-with-custom-message-title",
-              {
-                provider: displayName,
-                filename: item.attachment.name,
-              }
-            );
-            msg = err.message;
-            break;
-          case cloudFileAccounts.constants.renameErr:
-            msg = await l10nCompose.formatValue("cloud-file-rename-error", {
-              provider: displayName,
-              filename: item.attachment.name,
-            });
-            break;
-          default:
-            title = bundle.getString("errorCloudFileOther.title");
-            msg = bundle.getFormattedString("errorCloudFileOther.message", [
-              displayName,
-            ]);
-            break;
-        }
-        Services.prompt.alert(window, title, msg);
-        return;
-      } finally {
-        item.uploading = false;
-        gAttachmentBucket.setCloudIcon(item, item.cloudFileUpload.serviceIcon);
-      }
+    try {
+      await UpdateAttachment(item, { name: attachmentName.value });
+    } catch (ex) {
+      showLocalizedCloudFileAlert(ex);
     }
-
-    item.attachment.name = attachmentName.value;
-    gAttachmentBucket.setAttachmentName(item, attachmentName.value);
-
-    gContentChanged = true;
-
-    let event = document.createEvent("CustomEvent");
-    event.initCustomEvent("attachment-renamed", true, true, originalName);
-    item.dispatchEvent(event);
   }
-
-  // Update cmd_sortAttachmentsToggle because renaming may change the current
-  // sort order.
-  goUpdateCommand("cmd_sortAttachmentsToggle");
 }
 
 /* eslint-disable complexity */

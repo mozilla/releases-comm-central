@@ -441,11 +441,11 @@ async function setComposeDetails(composeWindow, details, extension) {
   activeElement.focus();
 }
 
-async function fileURLForFile(file) {
+async function realFileForFile(file) {
   if (file.mozFullPath) {
     let realFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     realFile.initWithPath(file.mozFullPath);
-    return Services.io.newFileURI(realFile).spec;
+    return realFile;
   }
 
   let pathTempDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
@@ -453,12 +453,12 @@ async function fileURLForFile(file) {
     PathUtils.join(pathTempDir, file.name)
   );
 
-  let outputFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-  outputFile.initWithPath(pathTempFile);
+  let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  tempFile.initWithPath(pathTempFile);
   let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
     Ci.nsPIExternalAppLauncher
   );
-  extAppLauncher.deleteTemporaryFileOnExit(outputFile);
+  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
   let bytes = await new Promise(function(resolve) {
     let reader = new FileReader();
@@ -471,7 +471,11 @@ async function fileURLForFile(file) {
   });
 
   await IOUtils.write(pathTempFile, bytes);
-  return PathUtils.toFileURI(pathTempFile);
+  return tempFile;
+}
+async function fileURLForFile(file) {
+  let realFile = await realFileForFile(file);
+  return Services.io.newFileURI(realFile).spec;
 }
 
 var composeStates = {
@@ -876,16 +880,30 @@ this.compose = class extends ExtensionAPI {
             );
           }
 
-          if (data.name) {
-            attachment.name = data.name;
-          }
-          if (data.file) {
-            attachment.size = data.file.size;
-            attachment.url = await fileURLForFile(data.file);
+          let attachmentItem = window.gAttachmentBucket.findItemForAttachment(
+            attachment
+          );
+          if (!attachmentItem) {
+            throw new ExtensionError(`Unexpected invalid attachment item`);
           }
 
-          window.AttachmentsChanged();
-          return composeAttachmentTracker.convert(attachment);
+          if (!data.file && !data.name) {
+            throw new ExtensionError(
+              `Either data.file or data.name property must be specified`
+            );
+          }
+
+          let realFile = data.file ? await realFileForFile(data.file) : null;
+          try {
+            await window.UpdateAttachment(attachmentItem, {
+              file: realFile,
+              name: data.name,
+            });
+          } catch (e) {
+            throw new ExtensionError(e.message);
+          }
+
+          return composeAttachmentTracker.convert(attachmentItem.attachment);
         },
         async removeAttachment(tabId, attachmentId) {
           let tab = tabManager.get(tabId);
@@ -904,11 +922,8 @@ this.compose = class extends ExtensionAPI {
             );
           }
 
-          let bucket = window.document.getElementById("attachmentBucket");
-          let item = bucket.findItemForAttachment(attachment);
-          item.remove();
-
-          window.RemoveAttachments([item]);
+          let item = window.gAttachmentBucket.findItemForAttachment(attachment);
+          await window.RemoveAttachments([item]);
         },
 
         // This method is not available to the extension code, the extension

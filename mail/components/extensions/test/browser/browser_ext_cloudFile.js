@@ -188,7 +188,7 @@ add_task(async () => {
         createdAccount.id,
         "cloudFile2",
         "uploadWouldExceedQuota",
-        "Quota Error."
+        "Quota error: Can't upload file. Only 1KB left of quota."
       );
       await browser.cloudFile.updateAccount(createdAccount.id, {
         spaceRemaining: -1,
@@ -203,7 +203,7 @@ add_task(async () => {
         createdAccount.id,
         "cloudFile2",
         "uploadExceedsFileLimit",
-        "File Size Error."
+        "Upload error: File size is 19KB and exceeds the file size limit of 1KB"
       );
       await browser.cloudFile.updateAccount(createdAccount.id, {
         uploadSizeLimit: -1,
@@ -772,7 +772,7 @@ add_task(async () => {
       createdAccount.id,
       "cloudFile2",
       "uploadWouldExceedQuota",
-      "Quota Error."
+      "Quota error: Can't upload file. Only 1KB left of quota."
     );
     await browser.cloudFile.updateAccount(createdAccount.id, {
       spaceRemaining: -1,
@@ -787,7 +787,7 @@ add_task(async () => {
       createdAccount.id,
       "cloudFile2",
       "uploadExceedsFileLimit",
-      "File Size Error."
+      "Upload error: File size is 19KB and exceeds the file size limit of 1KB"
     );
     await browser.cloudFile.updateAccount(createdAccount.id, {
       uploadSizeLimit: -1,

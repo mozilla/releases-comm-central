@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
+var { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
+
 addIdentity(createAccount());
 
 add_task(async function() {
@@ -56,7 +62,7 @@ add_task(async function() {
         browser.test.assertEq(size, data.size);
       };
 
-      let checkUI = async function(...expected) {
+      let checkUI = async (...expected) => {
         let attachments = await browser.compose.listAttachments(composeTab.id);
         browser.test.assertEq(expected.length, attachments.length);
         for (let i = 0; i < expected.length; i++) {
@@ -65,6 +71,20 @@ add_task(async function() {
 
         return window.sendMessage("checkUI", expected);
       };
+
+      let createCloudfileAccount = () => {
+        let addListener = window.waitForEvent("cloudFile.onAccountAdded");
+        browser.test.sendMessage("createAccount");
+        return addListener;
+      };
+
+      let removeCloudfileAccount = id => {
+        let deleteListener = window.waitForEvent("cloudFile.onAccountDeleted");
+        browser.test.sendMessage("removeAccount", id);
+        return deleteListener;
+      };
+
+      let [createdAccount] = await createCloudfileAccount();
 
       let file1 = new File(["File number one!"], "file1.txt");
       let file2 = new File(
@@ -158,7 +178,7 @@ add_task(async function() {
         }
       );
 
-      // Remove the first attachment.
+      // Remove the first/local attachment.
 
       await browser.compose.removeAttachment(composeTab.id, attachment1.id);
       await listener.checkEvent(
@@ -173,9 +193,78 @@ add_task(async function() {
         size: file3.size,
       });
 
-      // Remove the second attachment.
+      // Convert the second attachment to a cloudFile attachment.
+
+      await new Promise(resolve => {
+        function fileListener(account, { id, name, data }) {
+          browser.cloudFile.onFileUpload.removeListener(fileListener);
+          setTimeout(() => resolve());
+          return { url: "https://cloud.provider.net/1" };
+        }
+
+        browser.cloudFile.onFileUpload.addListener(fileListener);
+        // Conversion/upload is not yet supported via WebExt API.
+        browser.test.sendMessage(
+          "convertFile",
+          createdAccount.id,
+          "file2 with a new name.txt"
+        );
+      });
+
+      // Rename the second/cloud attachment.
+
+      await browser.test.assertRejects(
+        browser.compose.updateAttachment(composeTab.id, attachment2.id, {
+          name: "cloud file2 with a new name.txt",
+        }),
+        "Rename error: Missing cloudFile.onFileRename listener for compose.attachments@mochi.test",
+        "Provider should reject for missing rename support"
+      );
+
+      function cloudFileRenameListener() {
+        browser.cloudFile.onFileRename.removeListener(cloudFileRenameListener);
+        return { url: "https://cloud.provider.net/2" };
+      }
+      browser.cloudFile.onFileRename.addListener(cloudFileRenameListener);
+
+      let changed4 = await browser.compose.updateAttachment(
+        composeTab.id,
+        attachment2.id,
+        { name: "cloud file2 with a new name.txt" }
+      );
+      browser.test.assertEq("cloud file2 with a new name.txt", changed4.name);
+      browser.test.assertEq(30, changed4.size);
+      await checkData(changed4, file3.size);
+
+      // Update the second/cloud attachment.
+
+      await browser.test.assertRejects(
+        browser.compose.updateAttachment(composeTab.id, attachment2.id, {
+          file: file2,
+        }),
+        "Upload error: Missing cloudFile.onFileUpload listener for compose.attachments@mochi.test (or it is not returning url or aborted)",
+        "Provider should reject due to upload errors"
+      );
+
+      function cloudFileUploadListener() {
+        browser.cloudFile.onFileUpload.removeListener(cloudFileUploadListener);
+        return { url: "https://cloud.provider.net/3" };
+      }
+      browser.cloudFile.onFileUpload.addListener(cloudFileUploadListener);
+
+      let changed5 = await browser.compose.updateAttachment(
+        composeTab.id,
+        attachment2.id,
+        { file: file2 }
+      );
+      browser.test.assertEq("cloud file2 with a new name.txt", changed5.name);
+      browser.test.assertEq(41, changed5.size);
+      await checkData(changed5, file2.size);
+
+      // Remove the second/cloud attachment.
 
       await browser.compose.removeAttachment(composeTab.id, attachment2.id);
+
       await listener.checkEvent(
         "onAttachmentRemoved",
         { id: composeTab.id },
@@ -186,6 +275,8 @@ add_task(async function() {
 
       await browser.tabs.remove(composeTab.id);
       browser.test.assertEq(0, listener.events.length);
+
+      await removeCloudfileAccount(createdAccount.id);
       browser.test.notifyPass("finished");
     },
     "utils.js": await getUtilsJS(),
@@ -193,8 +284,14 @@ add_task(async function() {
   let extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
+      cloud_file: {
+        name: "mochitest",
+        management_url: "/content/management.html",
+        data_format: "ArrayBuffer",
+      },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["compose"],
+      applications: { gecko: { id: "compose.attachments@mochi.test" } },
     },
   });
 
@@ -230,6 +327,29 @@ add_task(async function() {
     }
 
     extension.sendMessage();
+  });
+
+  extension.onMessage("createAccount", () => {
+    cloudFileAccounts.createAccount("ext-compose.attachments@mochi.test");
+  });
+
+  extension.onMessage("removeAccount", id => {
+    cloudFileAccounts.removeAccount(id);
+  });
+
+  extension.onMessage("convertFile", (cloudFileAccountId, attachmentName) => {
+    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    let composeDocument = composeWindow.document;
+    let bucket = composeDocument.getElementById("attachmentBucket");
+    let account = cloudFileAccounts.getAccount(cloudFileAccountId);
+
+    let attachmentItem = bucket.itemChildren.find(
+      item => item.attachment && item.attachment.name == attachmentName
+    );
+
+    composeWindow.UpdateAttachment(attachmentItem, {
+      cloudFileAccount: account,
+    });
   });
 
   await extension.startup();

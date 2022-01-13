@@ -88,7 +88,10 @@ MockCloudfileAccount.prototype = {
 
   renameFile(window, uploadId, newName) {
     if (this.renameError) {
-      throw this.renameError;
+      throw Components.Exception(
+        this.renameError.message,
+        this.renameError.result
+      );
     }
 
     let upload = this._uploads.get(uploadId);
@@ -99,7 +102,9 @@ MockCloudfileAccount.prototype = {
 
   uploadFile(window, aFile) {
     if (this.uploadError) {
-      return Promise.reject(this.uploadError);
+      return Promise.reject(
+        Components.Exception(this.uploadError.message, this.uploadError.result)
+      );
     }
 
     return new Promise((resolve, reject) => {

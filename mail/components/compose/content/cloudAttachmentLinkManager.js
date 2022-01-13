@@ -13,9 +13,10 @@ var gCloudAttachmentLinkManager = {
     this.cloudAttachments = [];
 
     let bucket = document.getElementById("attachmentBucket");
-    bucket.addEventListener("attachment-uploaded", this);
     bucket.addEventListener("attachments-removed", this);
-    bucket.addEventListener("attachments-converted-to-regular", this);
+    bucket.addEventListener("attachment-converted-to-regular", this);
+    bucket.addEventListener("attachment-uploaded", this);
+    bucket.addEventListener("attachment-moved", this);
     bucket.addEventListener("attachment-renamed", this);
 
     // If we're restoring a draft that has some attachments,
@@ -39,24 +40,29 @@ var gCloudAttachmentLinkManager = {
   async handleEvent(event) {
     let mailDoc = document.getElementById("content-frame").contentDocument;
 
-    if (event.type == "attachment-renamed") {
-      let cloudFileUpload = event.target.cloudFileUpload;
+    if (
+      event.type == "attachment-renamed" ||
+      event.type == "attachment-moved"
+    ) {
       let attachment = event.target.attachment;
+      let cloudFileUpload = event.target.cloudFileUpload;
       let items = [];
 
       let list = mailDoc.getElementById("cloudAttachmentList");
       if (list) {
         items = list.getElementsByClassName("cloudAttachmentItem");
       }
+
       for (let item of items) {
-        if (item.contentLocation == attachment.contentLocation) {
-          // We did not update contentLocation in RenameSelectedAttachment(), to
-          // be able to find the old entry here. Update now.
-          attachment.contentLocation = cloudFileUpload.url;
+        // The original attachment is stored in the events detail property.
+        if (item.contentLocation == event.detail.contentLocation) {
           item.replaceWith(
             await this._createNode(mailDoc, attachment, cloudFileUpload)
           );
         }
+      }
+      if (event.type == "attachment-moved") {
+        await this._updateServiceProviderLinks(mailDoc);
       }
     } else if (event.type == "attachment-uploaded") {
       if (this.cloudAttachments.length == 0) {
@@ -69,7 +75,7 @@ var gCloudAttachmentLinkManager = {
       await this._insertItem(mailDoc, attachment, cloudFileUpload);
     } else if (
       event.type == "attachments-removed" ||
-      event.type == "attachments-converted-to-regular"
+      event.type == "attachment-converted-to-regular"
     ) {
       let items = [];
       let list = mailDoc.getElementById("cloudAttachmentList");
@@ -77,7 +83,10 @@ var gCloudAttachmentLinkManager = {
         items = list.getElementsByClassName("cloudAttachmentItem");
       }
 
-      for (let attachment of event.detail) {
+      let attachments = Array.isArray(event.detail)
+        ? event.detail
+        : [event.detail];
+      for (let attachment of attachments) {
         // Remove the attachment from the message body.
         if (list) {
           for (let item of items) {

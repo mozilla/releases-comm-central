@@ -324,11 +324,11 @@ add_task(function test_attachment_renamed() {
   Assert.equal(1, eventCount);
   // Ensure that the event mentions the right attachment
   let renamedAttachment1 = lastEvent.target.attachment;
-  let originalName1 = lastEvent.detail;
+  let originalAttachment1 = lastEvent.detail;
   Assert.ok(renamedAttachment1 instanceof Ci.nsIMsgAttachment);
   Assert.equal(kRenameTo1, renamedAttachment1.name);
   Assert.ok(renamedAttachment1.url.includes("http://www.example.com/1"));
-  Assert.equal("www.example.com/1", originalName1);
+  Assert.equal("www.example.com/1", originalAttachment1.name);
 
   // Ok, let's try renaming the same attachment.
   gMockPromptService.reset();
@@ -340,11 +340,11 @@ add_task(function test_attachment_renamed() {
 
   Assert.equal(2, eventCount);
   let renamedAttachment2 = lastEvent.target.attachment;
-  let originalName2 = lastEvent.detail;
+  let originalAttachment2 = lastEvent.detail;
   Assert.ok(renamedAttachment2 instanceof Ci.nsIMsgAttachment);
   Assert.equal(kRenameTo2, renamedAttachment2.name);
   Assert.ok(renamedAttachment2.url.includes("http://www.example.com/1"));
-  Assert.equal(kRenameTo1, originalName2);
+  Assert.equal(kRenameTo1, originalAttachment2.name);
 
   // Ok, let's rename another attachment
   gMockPromptService.reset();
@@ -359,11 +359,11 @@ add_task(function test_attachment_renamed() {
   Assert.equal(3, eventCount);
   // Ensure that the event mentions the right attachment
   let renamedAttachment3 = lastEvent.target.attachment;
-  let originalName3 = lastEvent.detail;
+  let originalAttachment3 = lastEvent.detail;
   Assert.ok(renamedAttachment3 instanceof Ci.nsIMsgAttachment);
   Assert.equal(kRenameTo3, renamedAttachment3.name);
   Assert.ok(renamedAttachment3.url.includes("http://www.example.com/2"));
-  Assert.equal("www.example.com/2", originalName3);
+  Assert.equal("www.example.com/2", originalAttachment3.name);
 
   // Unregister the Mock Prompt service, and remove our observer.
   cw.e("attachmentBucket").removeEventListener(kAttachmentRenamed, listener);

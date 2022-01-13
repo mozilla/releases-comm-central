@@ -146,11 +146,8 @@ class CloudFileAccount {
       this.remainingFileSpace != -1 &&
       file.fileSize > this.remainingFileSpace
     ) {
-      console.error(
-        `Can't upload file. Only ${this.remainingFileSpace}KB left of quota.`
-      );
       throw Components.Exception(
-        "Quota Error.",
+        `Quota error: Can't upload file. Only ${this.remainingFileSpace}KB left of quota.`,
         cloudFileAccounts.constants.uploadWouldExceedQuota
       );
     }
@@ -160,7 +157,7 @@ class CloudFileAccount {
       file.fileSize > this.fileUploadSizeLimit
     ) {
       throw Components.Exception(
-        "File Size Error.",
+        `Upload error: File size is ${file.fileSize}KB and exceeds the file size limit of ${this.fileUploadSizeLimit}KB`,
         cloudFileAccounts.constants.uploadExceedsFileLimit
       );
     }
@@ -202,9 +199,8 @@ class CloudFileAccount {
           cloudFileAccounts.constants.uploadCancelled
         );
       } else {
-        console.error(ex);
         throw Components.Exception(
-          "Upload error.",
+          `Upload error: ${ex.message}`,
           cloudFileAccounts.constants.uploadErr
         );
       }
@@ -282,12 +278,9 @@ class CloudFileAccount {
       return { ...upload };
     }
 
-    console.error(
-      `Missing cloudFile.onFileUpload listener for ${this.extension.id} (or it is not returning url or aborted)`
-    );
     this._uploads.delete(id);
     throw Components.Exception(
-      "Upload error.",
+      `Upload error: Missing cloudFile.onFileUpload listener for ${this.extension.id} (or it is not returning url or aborted)`,
       cloudFileAccounts.constants.uploadErr
     );
   }
@@ -323,14 +316,14 @@ class CloudFileAccount {
       );
     } catch (ex) {
       throw Components.Exception(
-        "Rename error.",
+        `Rename error: ${ex.message}`,
         cloudFileAccounts.constants.renameErr
       );
     }
 
     if (!results || results.length == 0) {
       throw Components.Exception(
-        "Rename not supported.",
+        `Rename error: Missing cloudFile.onFileRename listener for ${this.extension.id}`,
         cloudFileAccounts.constants.renameNotSupported
       );
     }
@@ -427,15 +420,15 @@ class CloudFileAccount {
       this._uploads.delete(uploadId);
     } catch (ex) {
       throw Components.Exception(
-        `Unknown error: ${ex.message}`,
-        Cr.NS_ERROR_FAILURE
+        `Delete error: ${ex.message}`,
+        cloudFileAccounts.constants.deleteErr
       );
     }
 
     if (!results || results.length == 0) {
       throw Components.Exception(
-        `Missing cloudFile.onFileDeleted listener for ${this.extension.id}`,
-        Cr.NS_ERROR_FAILURE
+        `Delete error: Missing cloudFile.onFileDeleted listener for ${this.extension.id}`,
+        cloudFileAccounts.constants.deleteErr
       );
     }
   }

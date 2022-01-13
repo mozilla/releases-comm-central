@@ -20,11 +20,11 @@ var cloudFileAccounts = new (class extends EventEmitter {
       uploadWouldExceedQuota: 0x8055311b,
       uploadExceedsFileLimit: 0x8055311c,
       uploadCancelled: 0x8055311d,
-      uploadExceedsFileNameLimit: 0x8055311e,
       uploadErrWithCustomMessage: 0x8055311f,
       renameErr: 0x80553120,
       renameErrWithCustomMessage: 0x80553121,
       renameNotSupported: 0x80553122,
+      deleteErr: 0x80553123,
     };
   }
 
