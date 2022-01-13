@@ -686,20 +686,6 @@ Enigmail.hdrView = {
     Enigmail.msg.handleAttachmentEvent();
   },
 
-  showPhoto() {
-    if (!Enigmail.msg.securityInfo) {
-      return;
-    }
-
-    let key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
-
-    EnigmailWindows.showPhoto(
-      window,
-      key.keyId,
-      Enigmail.msg.securityInfo.userId
-    );
-  },
-
   dispKeyDetails() {
     if (!Enigmail.msg.securityInfo) {
       return;

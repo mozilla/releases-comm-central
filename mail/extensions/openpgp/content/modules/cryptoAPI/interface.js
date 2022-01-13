@@ -101,18 +101,6 @@ class CryptoAPI {
   }
 
   /**
-   * Extract a photo ID from a key, store it as file and return the file object.
-   *
-   * @param {String} keyId:       Key ID / fingerprint
-   * @param {Number} photoNumber: number of the photo on the key, starting with 0
-   *
-   * @return {nsIFile} object or null in case no data / error.
-   */
-  async getPhotoFile(keyId, photoNumber) {
-    return null;
-  }
-
-  /**
    * Import key(s) from a file
    *
    * @param {nsIFile} inputFile:  the file holding the keys

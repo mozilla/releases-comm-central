@@ -74,18 +74,6 @@ class RNPCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
-  /**
-   * Extract a photo ID from a key, store it as file and return the file object.
-   *
-   * @param {String} keyId:       Key ID / fingerprint
-   * @param {Number} photoNumber: number of the photo on the key, starting with 0
-   *
-   * @return {nsIFile} object or null in case no data / error.
-   */
-  async getPhotoFile(keyId, photoNumber) {
-    throw new Error("Not implemented");
-  }
-
   async importKeyBlockAPI(
     win,
     passCB,

@@ -23,18 +23,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  getGpgKeyData: "chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm",
-  getPhotoFileFromGnuPG:
-    "chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm",
-  GnuPG_importKeyFromFile:
-    "chrome://openpgp/content/modules/cryptoAPI/gnupg-key.jsm",
-  GnuPG_extractSecretKey:
-    "chrome://openpgp/content/modules/cryptoAPI/gnupg-key.jsm",
-  obtainKeyList: "chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm",
-});
-
-XPCOMUtils.defineLazyGetter(this, "l10n", () => {
-  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
 
 /**
@@ -54,8 +42,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * @return {Promise<Array of Object>}
    */
   async getKeys(onlyKeys = null) {
-    let keyList = await obtainKeyList(onlyKeys);
-    return keyList.keys;
+    throw new Error("Not implemented");
   }
 
   /**
@@ -90,19 +77,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
-  /**
-   * Extract a photo ID from a key, store it as file and return the file object.
-   *
-   * @param {String} keyId:       Key ID / fingerprint
-   * @param {Number} photoNumber: number of the photo on the key, starting with 0
-   *
-   * @return {nsIFile} object or null in case no data / error.
-   */
-  async getPhotoFile(keyId, photoNumber) {
-    let file = await getPhotoFileFromGnuPG(keyId, photoNumber);
-    return file;
-  }
-
   async importKeyBlockAPI(keyBlock) {
     return null;
   }
@@ -120,8 +94,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *   - {Number}          importUnchanged: number of unchanged keys
    */
   async importKeyFromFileAPI(inputFile) {
-    let keys = await GnuPG_importKeyFromFile(inputFile);
-    return keys;
+    throw new Error("Not implemented");
   }
 
   /**
@@ -137,13 +110,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
 
   async extractSecretKey(keyId, minimalKey) {
-    let ret = await GnuPG_extractSecretKey(keyId, minimalKey);
-
-    if (ret.exitCode !== 0) {
-      ret.errorMsg =
-        (await l10n.formatValue("fail-key-extract")) + "\n" + ret.errorMsg;
-    }
-    return ret;
+    throw new Error("Not implemented");
   }
 
   /**
@@ -257,9 +224,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
   }
 
   async getKeyListFromKeyBlockAPI(keyBlockStr) {
-    let res;
-    res = await getGpgKeyData(keyBlockStr);
-    return res;
+    throw new Error("Not implemented");
   }
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {

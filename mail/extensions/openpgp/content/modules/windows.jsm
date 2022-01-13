@@ -322,61 +322,6 @@ var EnigmailWindows = {
   },
 
   /**
-   * Display the photo ID associated with a key
-   *
-   * @win        - |object| holding the parent window for the dialog
-   * @keyId      - |string| containing the key ID (eg. "0x12345678")
-   * @userId     - |string| containing the User ID (for displaing in the dialog only)
-   * @photoNumber - |number| UAT entry in the squence of appearance in the key listing, starting with 0
-   * no return value
-   */
-  showPhoto(win, keyId, userId, photoNumber) {
-    const enigmailSvc = EnigmailCore.getService(win);
-    if (enigmailSvc) {
-      if (!photoNumber) {
-        photoNumber = 0;
-      }
-      let keyObj = EnigmailKeyRing.getKeyById(keyId);
-      if (!keyObj) {
-        EnigmailWindows.alert(win, l10n.formatValueSync("no-photo-available"));
-      }
-
-      let photoFile = keyObj.getPhotoFile(photoNumber);
-
-      if (photoFile) {
-        if (!(photoFile.isFile() && photoFile.isReadable())) {
-          EnigmailWindows.alert(
-            win,
-            l10n.formatValueSync("error-photo-path-not-readable", {
-              photo: photoFile.path,
-            })
-          );
-        } else {
-          const photoUri = Services.io.newFileURI(photoFile).spec;
-          const argsObj = {
-            photoUri,
-            userId,
-            keyId,
-          };
-
-          win.openDialog(
-            "chrome://openpgp/content/ui/enigmailDispPhoto.xhtml",
-            photoUri,
-            "chrome,modal,resizable,dialog,centerscreen",
-            argsObj
-          );
-          try {
-            // delete the photo file
-            photoFile.remove(false);
-          } catch (ex) {}
-        }
-      } else {
-        EnigmailWindows.alert(win, l10n.formatValueSync("no-photo-available"));
-      }
-    }
-  },
-
-  /**
    * Display the OpenPGP Key Details window
    *
    * @win        - |object| holding the parent window for the dialog
