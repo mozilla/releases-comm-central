@@ -183,7 +183,8 @@ const OpenPGPTestUtils = {
       fingerPrintObj,
       false,
       [],
-      isSecret
+      isSecret,
+      false
     );
 
     if (result !== 0) {

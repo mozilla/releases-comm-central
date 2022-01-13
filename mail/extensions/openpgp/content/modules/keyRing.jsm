@@ -692,8 +692,8 @@ var EnigmailKeyRing = {
         minimizeKey,
         limitedUids,
         importSecret,
-        passCB,
         allowPermissiveFallbackWithPrompt,
+        passCB,
         acceptance
       )
     );
