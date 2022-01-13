@@ -9,7 +9,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailTimer: "chrome://openpgp/content/modules/timer.jsm",
   ctypes: "resource://gre/modules/ctypes.jsm",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
@@ -572,8 +571,8 @@ function enableRNPLibJS() {
     keep_password_cb_alive: null,
 
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
-      const cApi = EnigmailCryptoAPI();
-      let pass = cApi.sync(OpenPGPMasterpass.retrieveOpenPGPPassword());
+      // cannot call async functions from this C callback
+      let pass = OpenPGPMasterpass.retrieveCachedPassword();
       if (pass == null) {
         throw new Error("Got null OpenPGP password");
       }

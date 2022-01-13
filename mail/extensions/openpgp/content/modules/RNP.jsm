@@ -42,6 +42,7 @@ var RNP = {
         //this.initUiOps();
         RNP.libLoaded = true;
       }
+      await OpenPGPMasterpass.ensurePasswordIsCached();
     } catch (e) {
       console.log(e);
     }

@@ -36,9 +36,11 @@ var OpenPGPMasterpass = {
     return this.sdr;
   },
 
+  filename: "encrypted-openpgp-passphrase.txt",
+
   getPassPath() {
     let path = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    path.append("encrypted-openpgp-passphrase.txt");
+    path.append(this.filename);
     return path;
   },
 
@@ -56,7 +58,10 @@ var OpenPGPMasterpass = {
     let [prot, unprot] = RNP.getProtectedKeysCount();
     let haveAtLeastOneSecretKey = prot || unprot;
 
-    if (!this.getPassPath().exists() && haveAtLeastOneSecretKey) {
+    if (
+      !(await IOUtils.exists(this.getPassPath().path)) &&
+      haveAtLeastOneSecretKey
+    ) {
       // We couldn't read the OpenPGP password from file.
       // This could either mean the file doesn't exist, which indicates
       // either a corruption, or the condition after a failed migration
@@ -131,7 +136,7 @@ var OpenPGPMasterpass = {
           );
         }
 
-        await this._ensureMasterPassword();
+        await this._ensurePasswordCreatedAndCached();
         await RNP.protectUnprotectedKeys();
         await RNP.saveKeyRings();
       }
@@ -139,18 +144,29 @@ var OpenPGPMasterpass = {
   },
 
   // returns password
-  async _ensureMasterPassword() {
-    let pass = await this._readPasswordFromFile();
-    if (pass) {
-      return pass;
+  async _ensurePasswordCreatedAndCached() {
+    if (this.cachedPassword) {
+      return;
     }
 
-    pass = this.generatePassword();
-    let sdr = this.getSDR();
-    let encryptedPass = sdr.encryptString(pass);
+    if (await IOUtils.exists(this.getPassPath().path)) {
+      this.cachedPassword = await this._readPasswordFromFile();
+      return;
+    }
 
+    // Make sure we don't use the new password unless we're successful
+    // in encrypting and storing it to disk.
+    // (This may fail if the user has a master password set,
+    // but refuses to enter it.)
+    let newPass = this.generatePassword();
+    let sdr = this.getSDR();
+    let encryptedPass = sdr.encryptString(newPass);
+    if (!encryptedPass) {
+      throw new Error("cannot create OpenPGP password");
+    }
     await IOUtils.writeUTF8(this.getPassPath().path, encryptedPass);
-    return pass;
+
+    this.cachedPassword = newPass;
   },
 
   generatePassword() {
@@ -165,27 +181,50 @@ var OpenPGPMasterpass = {
     return result;
   },
 
+  cachedPassword: null,
+
+  // This function requires the password to already exist and be cached.
+  retrieveCachedPassword() {
+    if (!this.cachedPassword) {
+      // Obviously some functionality requires the password, but we
+      // don't have it yet.
+      // The best we can do is spawn reading and caching asynchronously,
+      // this will cause the password to be available once the user
+      // retries the current operation.
+      this.ensurePasswordIsCached();
+      throw new Error("no cached password");
+    }
+    return this.cachedPassword;
+  },
+
+  async ensurePasswordIsCached() {
+    if (this.cachedPassword) {
+      return;
+    }
+
+    if (!this._initDone) {
+      // set flag immediately, to avoid any potential recursion
+      // causing us to repair twice in parallel.
+      this._initDone = true;
+      await this._repairOrWarn();
+    }
+
+    if (this.cachedPassword) {
+      return;
+    }
+
+    await this._ensurePasswordCreatedAndCached();
+  },
+
+  // This function may trigger password creation, if necessary
   async retrieveOpenPGPPassword() {
     EnigmailLog.DEBUG("masterpass.jsm: retrieveMasterPassword()\n");
 
-    if (!this._initDone) {
-      await this._repairOrWarn();
-
-      this._initDone = true;
-
-      // repairing might have created the file
-      let path = this.getPassPath();
-      if (!path.exists()) {
-        return this._ensureMasterPassword();
-      }
-    }
-    return this._readPasswordFromFile();
+    await this.ensurePasswordIsCached();
+    return this.cachedPassword;
   },
 
   async _readPasswordFromFile() {
-    if (!(await IOUtils.exists(this.getPassPath().path))) {
-      return null;
-    }
     let encryptedPass = await IOUtils.readUTF8(this.getPassPath().path);
     let sdr = this.getSDR();
     return sdr.decryptString(encryptedPass.trim());
