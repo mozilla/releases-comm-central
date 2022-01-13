@@ -8,14 +8,12 @@
 
 "use strict";
 
-const {
-  open_message_from_file,
-} = ChromeUtils.import(
+const { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const {
-  close_window,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+const { close_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 const { waitForCondition } = ChromeUtils.import(
   "resource://testing-common/mozmill/utils.jsm"
 );
