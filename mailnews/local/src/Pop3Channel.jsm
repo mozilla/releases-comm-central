@@ -74,10 +74,11 @@ class Pop3Channel {
     }
 
     let client = new Pop3Client(this._server);
+    client.runningUri = this.URI;
     client.connect();
     client.onOpen = () => {
       client.fetchBodyForUidl(
-        this.URI.QueryInterface(Ci.nsIPop3URL).pop3Sink.folder,
+        this.URI.QueryInterface(Ci.nsIPop3URL).pop3Sink,
         uidl
       );
     };

@@ -216,7 +216,6 @@ class Pop3IncomingServer extends MsgIncomingServer {
   }
 
   addUidlToMark(uidl, mark) {
-    console.log("Pop3IncomingServer.addUidlToMark", uidl, mark);
     // @see nsIMsgLocalMailFolder
     const POP3_DELETE = 1;
     const POP3_FETCH_BODY = 2;

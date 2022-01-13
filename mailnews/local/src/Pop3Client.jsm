@@ -130,17 +130,18 @@ class Pop3Client {
 
   /**
    * Check and fetch new mails.
-   * @param {boolean} downloadNewMail - Whether to download new mails.
+   * @param {boolean} downloadMail - Whether to download mails using TOP/RETR.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgFolder} folder - The folder to save the messages to.
    */
-  async getMail(downloadNewMail, msgWindow, urlListener, folder) {
-    this._downloadNewMail = downloadNewMail;
+  async getMail(downloadMail, msgWindow, urlListener, folder) {
+    this._downloadMail = downloadMail;
     this._msgWindow = msgWindow;
     this._urlListener = urlListener;
     this._sink.folder = folder;
     this._actionAfterAuth = this._actionStat;
+    this._urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
 
     await this._loadUidlState();
     if (this._server.pop3CapabilityFlags & POP3_AUTH_MECH_UNDEFINED) {
@@ -150,6 +151,11 @@ class Pop3Client {
     }
   }
 
+  /**
+   * Verify that we can logon to the server. Exit after auth success/failure.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {nsIUrlListener} urlListener - Callback for the request.
+   */
   verifyLogon(msgWindow, urlListener) {
     this._msgWindow = msgWindow;
     this._urlListener = urlListener;
@@ -160,11 +166,16 @@ class Pop3Client {
 
   /**
    * Fetch the full message of a uidl.
-   * @param {nsIMsgFolder} folder - The folder to save the messages to.
+   * @param {nsIPop3Sink} sink - The sink to use for this request.
    * @param {string} uidl - The uidl of the message to fetch.
    */
-  async fetchBodyForUidl(folder, uidl) {
-    this._sink.folder = folder;
+  async fetchBodyForUidl(sink, uidl) {
+    this._downloadMail = true;
+    this._sink = sink;
+    this._sink.buildMessageUri = true;
+    this._urlListener = sink.folder.QueryInterface(Ci.nsIUrlListener);
+    this._urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
+
     await this._loadUidlState();
 
     let uidlState = this._uidlMap.get(uidl);
@@ -173,6 +184,7 @@ class Pop3Client {
       return;
     }
 
+    this._singleUidlToDownload = uidl;
     this._uidlMap.set(uidl, {
       ...uidlState,
       status: "f",
@@ -790,7 +802,7 @@ class Pop3Client {
       this._actionDone();
       return;
     }
-    if (!this._downloadNewMail && !this._server.leaveMessagesOnServer) {
+    if (!this._downloadMail && !this._server.leaveMessagesOnServer) {
       // We are not downloading new mails, so finish now.
       this._sink.setBiffStateAndUpdateFE(
         Ci.nsIMsgFolder.nsMsgBiffState_NewMail,
@@ -801,8 +813,11 @@ class Pop3Client {
       return;
     }
     if (res.success) {
-      if (this._downloadNewMail) {
-        this._sink.beginMailDelivery(false, this._msgWindow);
+      if (this._downloadMail) {
+        this._sink.beginMailDelivery(
+          this._singleUidlToDownload,
+          this._msgWindow
+        );
       }
       this._actionList();
     }
@@ -895,7 +910,7 @@ class Pop3Client {
         }
       },
       () => {
-        if (!this._downloadNewMail) {
+        if (!this._downloadMail) {
           let numberOfMessages = this._messagesToHandle.filter(
             // No receivedAt means we're seeing it for the first time.
             msg => !msg.receivedAt
@@ -909,6 +924,13 @@ class Pop3Client {
           }
           this._actionDone();
           return;
+        }
+
+        if (this._singleUidlToDownload) {
+          this._messagesToHandle = this._messagesToHandle.filter(
+            msg => msg.uidl == this._singleUidlToDownload
+          );
+          this._newUidlMap = this._uidlMap;
         }
 
         let totalDownloadSize = this._messagesToHandle.reduce(
@@ -1000,12 +1022,14 @@ class Pop3Client {
     this._lineReader(
       res.data,
       line => {
+        // Remove \r\n and use the OS native line ending.
+        line = line.slice(0, -2) + this._lineSeparator;
         this._sink.incorporateWrite(line, line.length);
       },
       () => {
         this._sink.incorporateComplete(
           this._msgWindow,
-          this._currentMessageSize
+          this._currentMessageSize // Set size because it's a partial message.
         );
         this._currentMessageSize = null;
         this._uidlMap.set(this._currentMessage.uidl, {
@@ -1046,7 +1070,7 @@ class Pop3Client {
       () => {
         this._sink.incorporateComplete(
           this._msgWindow,
-          this._currentMessageSize
+          0 // Set size only when it's a partial message.
         );
         this._currentMessageSize = null;
         if (this._server.leaveMessagesOnServer) {
