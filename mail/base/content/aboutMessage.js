@@ -19,7 +19,11 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
+  DownloadPaths: "resource://gre/modules/DownloadPaths.jsm",
   JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
+  NetUtil: "resource://gre/modules/NetUtil.jsm",
+  PhishingDetector: "resource:///modules/PhishingDetector.jsm",
+  PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(
