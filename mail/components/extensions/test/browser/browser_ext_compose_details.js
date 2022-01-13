@@ -643,7 +643,8 @@ add_task(async function testBody() {
 
       try {
         await browser.compose.setComposeDetails(plainTextTabId, {
-          body: "Trying to set HTML in a plain text message",
+          body: "Providing conflicting format settings.",
+          isPlainText: true,
         });
         browser.test.fail(
           "calling setComposeDetails with these arguments should throw"
@@ -651,22 +652,10 @@ add_task(async function testBody() {
       } catch (ex) {
         browser.test.succeed(`expected exception thrown: ${ex.message}`);
       }
-
       try {
         await browser.compose.setComposeDetails(htmlTabId, {
-          body: "Trying to set HTML",
-          plainTextBody: "and plain text at the same time",
-        });
-        browser.test.fail(
-          "calling setComposeDetails with these arguments should throw"
-        );
-      } catch (ex) {
-        browser.test.succeed(`expected exception thrown: ${ex.message}`);
-      }
-
-      try {
-        await browser.compose.setComposeDetails(htmlTabId, {
-          plainTextBody: "Trying to set a plain text in an html message.",
+          plainTextBody: "Providing conflicting format settings.",
+          isPlainText: false,
         });
         browser.test.fail(
           "calling setComposeDetails with these arguments should throw"
@@ -728,6 +717,122 @@ add_task(async function testBody() {
   );
   plainTextWindow.close();
   await Promise.all(closePromises);
+});
+
+// Verifies ComposeDetails of a given composer can be applied to a different
+// composer, even if they have different compose formats. The composer should pick
+// the matching body/plaintextBody value, if both are specified. The value for
+// isPlainText is ignored by setComposeDetails.
+add_task(async function testIsReflexive() {
+  let files = {
+    "background.js": async () => {
+      // Start a new TEXT message.
+      let createdTextWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew({
+        plainTextBody: "This is some PLAIN text.",
+        isPlainText: true,
+      });
+      let [createdTextWindow] = await createdTextWindowPromise;
+      let [createdTextTab] = await browser.tabs.query({
+        windowId: createdTextWindow.id,
+      });
+
+      // Get details, TEXT message.
+      let textDetails = await browser.compose.getComposeDetails(
+        createdTextTab.id
+      );
+      browser.test.assertTrue(textDetails.isPlainText);
+      browser.test.assertTrue(
+        textDetails.body.includes("This is some PLAIN text")
+      );
+      browser.test.assertEq(
+        "This is some PLAIN text.",
+        textDetails.plainTextBody
+      );
+
+      // Start a new HTML message.
+      let createdHtmlWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew({
+        body: "<p>This is some <i>HTML</i> text.</p>",
+        isPlainText: false,
+      });
+      let [createdHtmlWindow] = await createdHtmlWindowPromise;
+      let [createdHtmlTab] = await browser.tabs.query({
+        windowId: createdHtmlWindow.id,
+      });
+
+      // Get details, HTML message.
+      let htmlDetails = await browser.compose.getComposeDetails(
+        createdHtmlTab.id
+      );
+      browser.test.assertFalse(htmlDetails.isPlainText);
+      browser.test.assertTrue(
+        htmlDetails.body.includes("<p>This is some <i>HTML</i> text.</p>")
+      );
+      browser.test.assertEq(
+        "This is some HTML text.",
+        htmlDetails.plainTextBody
+      );
+
+      // Set HTML details on HTML composer. It should not throw.
+      await browser.compose.setComposeDetails(createdHtmlTab.id, htmlDetails);
+
+      // Set TEXT details on TEXT composer. It should not throw.
+      await browser.compose.setComposeDetails(createdTextTab.id, textDetails);
+
+      // Set TEXT details on HTML composer and verify the changed content.
+      await browser.compose.setComposeDetails(createdHtmlTab.id, textDetails);
+      let htmlDetails2 = await browser.compose.getComposeDetails(
+        createdHtmlTab.id
+      );
+      browser.test.assertFalse(htmlDetails2.isPlainText);
+      browser.test.assertTrue(
+        htmlDetails2.body.includes("This is some PLAIN text")
+      );
+      browser.test.assertEq(
+        "This is some PLAIN text.",
+        htmlDetails2.plainTextBody
+      );
+
+      // Set HTML details on TEXT composer and verify the changed content.
+      await browser.compose.setComposeDetails(createdTextTab.id, htmlDetails);
+      let textDetails2 = await browser.compose.getComposeDetails(
+        createdTextTab.id
+      );
+      browser.test.assertTrue(textDetails2.isPlainText);
+      browser.test.assertTrue(
+        textDetails2.body.includes("This is some HTML text.")
+      );
+      browser.test.assertEq(
+        "This is some HTML text.",
+        textDetails2.plainTextBody
+      );
+
+      // Clean up.
+
+      let removedHtmlWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(createdHtmlWindow.id);
+      await removedHtmlWindowPromise;
+
+      let removedTextWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(createdTextWindow.id);
+      await removedTextWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
 });
 
 add_task(async function testType() {

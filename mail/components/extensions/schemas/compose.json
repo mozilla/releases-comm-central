@@ -148,14 +148,17 @@
           },
           "body": {
             "type": "string",
+            "description": "The HTML content of the message. Ignored by ``setComposeDetails``, if used on a plain text composer. If only ``body`` is specified when used with ``beginNew``, ``beginReply`` and similar functions, an HTML message will be created. The recommended usage is to always specify both (``body`` and ``plainTextBody``) and use ``isPlainText`` to select the compose format, or use the users default compose format.",
             "optional": true
           },
           "plainTextBody": {
             "type": "string",
+            "description": "The plain text content of the message. Ignored by ``setComposeDetails``, if used on an HTML composer. If only ``plainTextBody`` is specified when used with ``beginNew``, ``beginReply`` and similar functions, a plain text message will be created. The recommended usage is to always specify both (``body`` and ``plainTextBody``) and use ``isPlainText`` to select the compose format, or use the users default compose format.",
             "optional": true
           },
           "isPlainText": {
             "type": "boolean",
+            "description": "Wether the message is an HTML message or a plain text message. Can be used to specify the message format in ``beginNew``, ``beginReply`` and similar functions. It is however not possible to change the compose format with ``setComposeDetails``. Note: Using ``isPlainText`` together with a single but conflicting body type (e.g.: ``isPlainText`` = ``true`` and ``body`` is set but not ``plainTextBody``) will cause an exception. ",
             "optional": true
           },
           "attachments": {

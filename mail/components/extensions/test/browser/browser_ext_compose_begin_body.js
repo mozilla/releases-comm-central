@@ -170,22 +170,54 @@ add_task(async function testBody() {
           },
         },
         {
-          // HTML and plain text. Invalid.
+          // HTML body and plain text body without isPlainText. Use default format.
           funcName: "beginNew",
-          arguments: [{ body: "", plainTextBody: "" }],
+          arguments: [{ body: "I am HTML", plainTextBody: "I am TEXT" }],
+          expected: {
+            isHTML: true,
+            htmlIncludes: "I am HTML",
+            plainTextIs: "I am HTML",
+          },
+        },
+        {
+          // HTML body and plain text body with isPlainText. Use the specified
+          // format.
+          funcName: "beginNew",
+          arguments: [
+            {
+              body: "I am HTML",
+              plainTextBody: "I am TEXT",
+              isPlainText: true,
+            },
+          ],
+          expected: {
+            isHTML: false,
+            plainTextIs: "I am TEXT",
+          },
+        },
+        {
+          // Providing an HTML body only and isPlainText = true. Conflicting and
+          // thus invalid.
+          funcName: "beginNew",
+          arguments: [{ body: "I am HTML", isPlainText: true }],
           throws: true,
         },
         {
-          // HTML and isPlainText. Invalid.
+          // Providing a plain text body only and isPlainText = false. Conflicting
+          // and thus invalid.
           funcName: "beginNew",
-          arguments: [{ body: "", isPlainText: true }],
+          arguments: [{ plainTextBody: "I am TEXT", isPlainText: false }],
           throws: true,
         },
         {
-          // HTML and isPlainText. Invalid.
+          // HTML body only and isPlainText false.
           funcName: "beginNew",
-          arguments: [{ plainTextBody: "", isPlainText: false }],
-          throws: true,
+          arguments: [{ body: "I am HTML", isPlainText: false }],
+          expected: {
+            isHTML: true,
+            htmlIncludes: "I am HTML",
+            plainTextIs: "I am HTML",
+          },
         },
         {
           // Edit as new.
@@ -302,13 +334,14 @@ add_task(async function testBody() {
           } else {
             browser.test.fail(`unexpected exception thrown: ${ex.message}`);
           }
-          continue;
         }
 
         let [createdWindow] = await createdWindowPromise;
         browser.test.assertEq("messageCompose", createdWindow.type);
-        browser.test.sendMessage("checkBody", test.expected);
-        await window.waitForMessage();
+        if (test.expected) {
+          browser.test.sendMessage("checkBody", test.expected);
+          await window.waitForMessage();
+        }
         let removedWindowPromise = window.waitForEvent("windows.onRemoved");
         browser.windows.remove(createdWindow.id);
         await removedWindowPromise;

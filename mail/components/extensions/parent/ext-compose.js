@@ -124,29 +124,22 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   let identity = null;
 
   if (details) {
-    if (details.body !== null && details.plainTextBody !== null) {
-      throw new ExtensionError(
-        "Only one of body and plainTextBody can be specified."
-      );
+    if (details.isPlainText != null) {
+      format = details.isPlainText
+        ? Ci.nsIMsgCompFormat.PlainText
+        : Ci.nsIMsgCompFormat.HTML;
+    } else {
+      // If none or both of details.body and details.plainTextBody are given, the
+      // default compose format will be used.
+      if (details.body != null && details.plainTextBody == null) {
+        format = Ci.nsIMsgCompFormat.HTML;
+      }
+      if (details.plainTextBody != null && details.body == null) {
+        format = Ci.nsIMsgCompFormat.PlainText;
+      }
     }
 
-    if (details.isPlainText === false || details.body !== null) {
-      if (details.plainTextBody !== null) {
-        throw new ExtensionError(
-          "Cannot specify plainTextBody when isPlainText is false. Use body instead."
-        );
-      }
-      format = Ci.nsIMsgCompFormat.HTML;
-    }
-    if (details.isPlainText === true || details.plainTextBody !== null) {
-      if (details.body !== null) {
-        throw new ExtensionError(
-          "Cannot specify body when isPlainText is true. Use plainTextBody instead."
-        );
-      }
-      format = Ci.nsIMsgCompFormat.PlainText;
-    }
-    if (details.identityId !== null) {
+    if (details.identityId != null) {
       if (!extension.hasPermission("accountsRead")) {
         throw new ExtensionError(
           'Using identities requires the "accountsRead" permission'
@@ -248,18 +241,16 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
     params.identity = identity;
   }
 
-  if (details) {
-    if (details.attachments !== null) {
-      for (let data of details.attachments) {
-        let attachment = Cc[
-          "@mozilla.org/messengercompose/attachment;1"
-        ].createInstance(Ci.nsIMsgAttachment);
-        attachment.name = data.name || data.file.name;
-        attachment.size = data.file.size;
-        attachment.url = await fileURLForFile(data.file);
+  if (details && details.attachments != null) {
+    for (let data of details.attachments) {
+      let attachment = Cc[
+        "@mozilla.org/messengercompose/attachment;1"
+      ].createInstance(Ci.nsIMsgAttachment);
+      attachment.name = data.name || data.file.name;
+      attachment.size = data.file.size;
+      attachment.url = await fileURLForFile(data.file);
 
-        composeFields.addAttachment(attachment);
-      }
+      composeFields.addAttachment(attachment);
     }
   }
   params.composeFields = composeFields;
@@ -392,23 +383,33 @@ async function setComposeDetails(composeWindow, details, extension) {
   await composeWindowIsReady(composeWindow);
   let activeElement = composeWindow.document.activeElement;
 
-  if (details.body && details.plainTextBody) {
+  // Check if conflicting formats have been specified.
+  if (
+    details.isPlainText === true &&
+    details.body != null &&
+    details.plainTextBody == null
+  ) {
     throw new ExtensionError(
-      "Only one of body and plainTextBody can be specified."
+      "Conflicting format setting: isPlainText =  true and providing a body but no plainTextBody."
     );
   }
-  // Check for body usage on a plain text composer and throw a helpful error.
-  // Otherwise, this will throw a NS_UNEXPECTED_ERROR later.
-  if (details.body && !composeWindow.IsHTMLEditor()) {
+  if (
+    details.isPlainText === false &&
+    details.body == null &&
+    details.plainTextBody != null
+  ) {
     throw new ExtensionError(
-      "Cannot use body on a plain text compose window. Use plainTextBody instead."
+      "Conflicting format setting: isPlainText = false and providing a plainTextBody but no body."
     );
   }
-  // For consistency, using plainTextBody on a html compsoser is not allowed.
-  if (details.plainTextBody && composeWindow.IsHTMLEditor()) {
-    throw new ExtensionError(
-      "Cannot use plainTextBody on an HTML compose window. Use body instead."
-    );
+
+  // Remove any unsupported body type. Otherwise, this will throw an
+  // NS_UNEXPECTED_ERROR later. Note: setComposeDetails cannot change the compose
+  // format, details.isPlainText is ignored.
+  if (composeWindow.IsHTMLEditor()) {
+    delete details.plainTextBody;
+  } else {
+    delete details.body;
   }
 
   if (details.identityId) {
