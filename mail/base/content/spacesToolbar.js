@@ -188,23 +188,36 @@ var gSpacesToolbar = {
       return;
     }
 
-    // Add inline margin to the tabmail-tabs or the navigation-toolbox to
+    // Add inline margin to the titlebar or the navigation-toolbox to
     // account for the spaces toolbar.
     let size = document.getElementById("spacesToolbar").getBoundingClientRect()
       .width;
     let style = `margin-inline-start: ${size}px;`;
     let menubar = document.getElementById("toolbar-menubar");
-    let elementId =
+
+    if (
       tabsInTitlebar &&
       menubar.getAttribute("autohide") &&
       menubar.getAttribute("inactive")
-        ? "navigation-toolbox"
-        : "tabmail-tabs";
-    document.getElementById(elementId).setAttribute("style", style);
+    ) {
+      // If we have tabs in titlebar, we only need to push the navigation
+      // toolbox to account for the spaces toolbar.
+      document
+        .getElementById("navigation-toolbox")
+        .setAttribute("style", style);
+    } else {
+      // Otherwise, we push the entire titlebar so the spaces toolbar doesn't
+      // interfere with it, but we pull back the menubar to properly align it.
+      document.getElementById("titlebar").setAttribute("style", style);
+      document
+        .getElementById("toolbar-menubar")
+        .setAttribute("style", `margin-inline-start: -${size}px;`);
+    }
   },
 
   resetInlineStyle() {
-    document.getElementById("tabmail-tabs").removeAttribute("style");
+    document.getElementById("titlebar").removeAttribute("style");
+    document.getElementById("toolbar-menubar").removeAttribute("style");
     document.getElementById("navigation-toolbox").removeAttribute("style");
   },
 
