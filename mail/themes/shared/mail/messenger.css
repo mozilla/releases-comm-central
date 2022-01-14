@@ -951,8 +951,9 @@ html|ul.addon-installed-list {
 }
 
 #tabbar-toolbar[customizing="true"] {
-  min-width: 16px;
-  min-height: 10px;
+  min-width: 48px;
+  min-height: 16px;
+  margin-inline-start: 20px !important;
 }
 
 .chromeclass-toolbar {
@@ -1498,15 +1499,25 @@ html|input[type="number"].size5 {
 
 /* Toolbar customization */
 
-toolbarpaletteitem[type="spacer"] toolbarspacer,
-toolbarpaletteitem[type="spring"] toolbarspring {
-  border: 1px solid currentColor;
-  background-color: hsla(0, 0%, 100%, .3) !important;
+toolbar[customizing="true"] {
+  outline: 2px dashed var(--focus-outline-color);
+  outline-offset: -3px;
+  border-radius: 3px;
+}
+
+toolbarpaletteitem[type="spacer"][place="toolbar"],
+toolbarpaletteitem[type="spring"][place="toolbar"] {
+  -moz-box-align: center;
 }
 
 toolbarpaletteitem[type="spacer"][place="toolbar"] toolbarspacer,
 toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
-  margin: 2px;
+  height: 16px;
+  margin-inline: 6px;
+  opacity: 0.5;
+  border-inline: 2px solid currentColor;
+  background-image: linear-gradient(transparent calc(50% - 1px), currentColor calc(50% - 1px),
+                                    currentColor calc(50% + 1px), transparent calc(50% + 1px));
 }
 
 toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
@@ -1519,6 +1530,8 @@ toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
 toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer,
 toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
   margin-bottom: 2px;
+  border: 1px solid currentColor;
+  background-color: hsla(0, 0%, 100%, .3) !important;
 }
 
 toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {

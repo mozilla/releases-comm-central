@@ -286,10 +286,6 @@ toolbar:not(.inline-toolbar,.contentTabToolbar,:-moz-lwtheme) {
   height: 28px;
 }
 
-.inline-toolbar toolbarspacer {
-  height: 23px;
-}
-
 menulist {
   padding: 1px 6px !important;
 }

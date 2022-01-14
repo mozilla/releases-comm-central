@@ -207,10 +207,6 @@
   }
 }
 
-#tabbar-toolbar[customizing="true"] {
-  min-width: 24px;
-}
-
 .inline-toolbar {
   appearance: none;
 }
@@ -218,10 +214,6 @@
 .inline-toolbar toolbarpaletteitem toolbarseparator,
 .inline-toolbar toolbarseparator {
   height: 24px;
-}
-
-.inline-toolbar toolbarspacer {
-  height: 20px;
 }
 
 /* ::::: menubar ::::: */
