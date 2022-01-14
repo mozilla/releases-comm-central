@@ -39,11 +39,14 @@ reference-jobs:
     - linux64-node
     - linux64-rust
     - linux64-rust-1.47
+    - linux64-rust-1.57
     - linux64-rust-dev
     - linux64-rust-cross
     - linux64-rust-macos
+    - linux64-rust-macos-1.57
     - linux64-rust-size
     - linux64-rust-windows
+    - linux64-rust-windows-1.57
     - linux64-sccache
     - linux64-toolchain-sysroot
     - linux64-upx
@@ -52,6 +55,7 @@ reference-jobs:
     - macosx64-aarch64-compiler-rt-13
     - macosx64-x64-compiler-rt-13
     - macosx64-clang-13
+    - macosx64-clang-13-raw
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
@@ -76,6 +80,7 @@ reference-jobs:
     - win64-nasm
     - win64-node
     - win64-rust
+    - win64-rust-1.57
     - win64-rust-size
     - win64-sccache
     - win64-winchecksec
