@@ -2631,7 +2631,7 @@ async function attachToCloudNew(aAccount) {
   fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   let rv = await new Promise(resolve => fp.open(resolve));
-  if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
+  if (rv != Ci.nsIFilePicker.returnOK || !fp.files) {
     return;
   }
 
