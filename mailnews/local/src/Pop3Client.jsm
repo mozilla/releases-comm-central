@@ -36,6 +36,11 @@ var { Pop3Authenticator } = ChromeUtils.import(
  * @typedef {string} UidlStatus
  */
 
+const UIDL_KEEP = "k";
+const UIDL_DELETE = "d";
+const UIDL_TOO_BIG = "b";
+const UIDL_FETCH_BODY = "f";
+
 const POP3_AUTH_MECH_UNDEFINED = 0x200;
 
 /**
@@ -179,7 +184,7 @@ class Pop3Client {
     await this._loadUidlState();
 
     let uidlState = this._uidlMap.get(uidl);
-    if (!uidlState || uidlState.status != "b") {
+    if (!uidlState || uidlState.status != UIDL_TOO_BIG) {
       this._actionDone(Cr.NS_ERROR_FAILURE);
       return;
     }
@@ -187,7 +192,7 @@ class Pop3Client {
     this._singleUidlToDownload = uidl;
     this._uidlMap.set(uidl, {
       ...uidlState,
-      status: "f",
+      status: UIDL_FETCH_BODY,
     });
     this._actionAfterAuth = this._actionStat;
     this._actionCapa();
@@ -872,7 +877,7 @@ class Pop3Client {
         let uidlState = this._uidlMap.get(uidl);
         if (uidlState) {
           if (
-            uidlState.status == "k" &&
+            uidlState.status == UIDL_KEEP &&
             (!this._server.leaveMessagesOnServer ||
               uidlState.receivedAt < this._cutOffTimestamp)
           ) {
@@ -880,9 +885,11 @@ class Pop3Client {
             this._messagesToHandle.push({
               ...uidlState,
               messageNumber,
-              status: "d",
+              status: UIDL_DELETE,
             });
-          } else if (["f", "d"].includes(uidlState.status)) {
+          } else if (
+            [UIDL_FETCH_BODY, UIDL_DELETE].includes(uidlState.status)
+          ) {
             // Fetch the full message.
             this._messagesToHandle.push({
               ...uidlState,
@@ -900,8 +907,8 @@ class Pop3Client {
             this._capabilities.includes("TOP") &&
             (this._server.headersOnly ||
               this._messageSizeMap.get(messageNumber) > this._maxMessageSize)
-              ? "b"
-              : "f";
+              ? UIDL_TOO_BIG
+              : UIDL_FETCH_BODY;
           this._messagesToHandle.push({
             messageNumber,
             uidl,
@@ -935,7 +942,7 @@ class Pop3Client {
 
         let totalDownloadSize = this._messagesToHandle.reduce(
           (acc, msg) =>
-            msg.status == "f"
+            msg.status == UIDL_FETCH_BODY
               ? acc + this._messageSizeMap.get(msg.messageNumber)
               : acc,
           0
@@ -964,6 +971,11 @@ class Pop3Client {
         // This discards staled uidls that are no longer on the server.
         this._uidlMap = this._newUidlMap;
 
+        this._sink.setMsgsToDownload(
+          this._messagesToHandle.filter(msg =>
+            [UIDL_FETCH_BODY, UIDL_TOO_BIG].includes(msg.status)
+          ).length
+        );
         this._actionHandleMessage();
       }
     );
@@ -977,13 +989,13 @@ class Pop3Client {
     this._currentMessage = this._messagesToHandle.shift();
     if (this._currentMessage) {
       switch (this._currentMessage.status) {
-        case "b":
+        case UIDL_TOO_BIG:
           this._actionTop();
           break;
-        case "f":
+        case UIDL_FETCH_BODY:
           this._actionRetr();
           break;
-        case "d":
+        case UIDL_DELETE:
           this._actionDelete();
           break;
         default:
@@ -1033,7 +1045,7 @@ class Pop3Client {
         );
         this._currentMessageSize = null;
         this._uidlMap.set(this._currentMessage.uidl, {
-          status: "b",
+          status: UIDL_TOO_BIG,
           uidl: this._currentMessage.uidl,
           receivedAt: Math.floor(Date.now() / 1000),
         });
@@ -1075,7 +1087,7 @@ class Pop3Client {
         this._currentMessageSize = null;
         if (this._server.leaveMessagesOnServer) {
           this._uidlMap.set(this._currentMessage.uidl, {
-            status: "k",
+            status: UIDL_KEEP,
             uidl: this._currentMessage.uidl,
             receivedAt: Math.floor(Date.now() / 1000),
           });
@@ -1116,4 +1128,9 @@ class Pop3Client {
     this._urlListener?.OnStopRunningUrl(this.runningUri, status);
     this.quit();
   };
+
+  /** @see nsIPop3Protocol */
+  checkMessage(uidl) {
+    return this._uidlMap.has(uidl);
+  }
 }
