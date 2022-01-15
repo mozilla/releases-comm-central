@@ -256,7 +256,7 @@ workers:
             implementation: generic-worker
             os: macosx
             worker-type: 'gecko-{alias}'
-        t-win.*:
+        win10-(32|64)-2004:
             provisioner: comm-t
             implementation: generic-worker
             os: windows

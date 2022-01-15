@@ -56,7 +56,7 @@ linux1804-64-tsan-qr/opt:
 # Windows platforms (matching /windows.*/)
 
 # win32
-windows10-32-qr/opt:
+windows10-32-2004-qr/opt:
     build-platform: win32/opt
     test-sets:
         - gtest-tests
@@ -64,7 +64,7 @@ windows10-32-qr/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows10-32-shippable-qr/opt:
+windows10-32-2004-shippable-qr/opt:
     build-platform: win32-shippable/opt
     test-sets:
         - gtest-tests
@@ -72,7 +72,7 @@ windows10-32-shippable-qr/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows10-32-qr/debug:
+windows10-32-2004-qr/debug:
     build-platform: win32/debug
     test-sets:
         - gtest-tests
@@ -81,7 +81,7 @@ windows10-32-qr/debug:
         - xpcshell-tests
 
 # win64
-windows10-64-qr/opt:
+windows10-64-2004-qr/opt:
     build-platform: win64/opt
     test-sets:
         - gtest-tests
@@ -89,7 +89,7 @@ windows10-64-qr/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows10-64-shippable-qr/opt:
+windows10-64-2004-shippable-qr/opt:
     build-platform: win64-shippable/opt
     test-sets:
         - gtest-tests
@@ -97,7 +97,7 @@ windows10-64-shippable-qr/opt:
         - mochitest-tests
         - xpcshell-tests
 
-windows10-64-qr/debug:
+windows10-64-2004-qr/debug:
     build-platform: win64/debug
     test-sets:
         - gtest-tests
@@ -105,7 +105,7 @@ windows10-64-qr/debug:
         - mochitest-tests
         - xpcshell-tests
 
-windows10-64-asan-qr/opt:
+windows10-64-2004-asan-qr/opt:
     build-platform: win64-asan/opt
     test-sets:
         - mochitest-tests
