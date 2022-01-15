@@ -34,9 +34,9 @@
       }
     }
 
-    function doDeleteCertificateHelpButton()
-    {
-      switch (gParams.GetString(0)) {
+    function doDeleteCertificateHelpButton() {
+      let typeFlag = window.arguments[0];
+      switch (typeFlag) {
         case "mine_tab":
           openHelp("delete_my_certs");
           break;
