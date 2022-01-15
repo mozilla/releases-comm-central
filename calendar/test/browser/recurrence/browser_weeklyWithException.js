@@ -64,8 +64,8 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await CalendarTestUtils.calendarViewForward(window, 1);
 
   // Assert exactly two.
-  Assert.ok(await dayView.waitForEventBoxAt(window, 1));
-  Assert.ok(await dayView.waitForEventBoxAt(window, 2));
+  Assert.ok(!!(await dayView.waitForEventBoxAt(window, 1)));
+  Assert.ok(!!(await dayView.waitForEventBoxAt(window, 2)));
 
   await CalendarTestUtils.calendarViewForward(window, 1);
   await dayView.waitForEventBoxAt(window, 1);
@@ -97,23 +97,23 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await CalendarTestUtils.goToDate(window, 2009, 1, 5);
 
   // Assert exactly two on Tuesday.
-  Assert.ok(await weekView.waitForEventBoxAt(window, 3, 1));
-  Assert.ok(await weekView.waitForEventBoxAt(window, 3, 2));
+  Assert.ok(!!(await weekView.waitForEventBoxAt(window, 3, 1)));
+  Assert.ok(!!(await weekView.waitForEventBoxAt(window, 3, 2)));
 
   // Wait for the last occurrence because this appears last.
   await weekView.waitForEventBoxAt(window, 6, 1);
   Assert.ok(!weekView.getEventBoxAt(window, 1, 1));
   Assert.ok(!weekView.getEventBoxAt(window, 2, 1));
-  Assert.ok(weekView.getEventBoxAt(window, 4, 1));
+  Assert.ok(!!weekView.getEventBoxAt(window, 4, 1));
   Assert.ok(!weekView.getEventBoxAt(window, 5, 1));
   Assert.ok(!weekView.getEventBoxAt(window, 7, 1));
 
   await CalendarTestUtils.calendarViewForward(window, 1);
   await weekView.waitForEventBoxAt(window, 6, 1);
   Assert.ok(!weekView.getEventBoxAt(window, 1, 1));
-  Assert.ok(weekView.getEventBoxAt(window, 2, 1));
-  Assert.ok(weekView.getEventBoxAt(window, 3, 1));
-  Assert.ok(weekView.getEventBoxAt(window, 4, 1));
+  Assert.ok(!!weekView.getEventBoxAt(window, 2, 1));
+  Assert.ok(!!weekView.getEventBoxAt(window, 3, 1));
+  Assert.ok(!!weekView.getEventBoxAt(window, 4, 1));
   Assert.ok(!weekView.getEventBoxAt(window, 5, 1));
   Assert.ok(!weekView.getEventBoxAt(window, 7, 1));
 
