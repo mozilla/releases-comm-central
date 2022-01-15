@@ -18,14 +18,6 @@
     "resource:///modules/MailServices.jsm"
   );
 
-  const LazyModules = {};
-
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "MailUtils",
-    "resource:///modules/MailUtils.jsm"
-  );
-
   /**
    * MozFolderSummary displays a listing of NEW mails for the folder in question.
    * For each mail the subject, sender and a message preview can be included.
@@ -47,6 +39,12 @@
       );
       this.messengerBundle = Services.strings.createBundle(
         "chrome://messenger/locale/messenger.properties"
+      );
+
+      ChromeUtils.defineModuleGetter(
+        this,
+        "MailUtils",
+        "resource:///modules/MailUtils.jsm"
       );
     }
 
@@ -121,7 +119,7 @@
         );
         let folderUris = srchFolderUri.split("|");
         for (let uri of folderUris) {
-          let realFolder = MailUtils.getOrCreateFolder(uri);
+          let realFolder = this.MailUtils.getOrCreateFolder(uri);
           if (!realFolder.isServer) {
             folderArray.push(realFolder);
           }
@@ -199,7 +197,7 @@
             if (event.button !== 0) {
               return;
             }
-            MailUtils.displayMessageInFolderTab(msgHdr);
+            this.MailUtils.displayMessageInFolderTab(msgHdr);
           });
 
           if (this.showSubject) {
@@ -262,7 +260,7 @@
           if (event.button !== 0) {
             return;
           }
-          MailUtils.displayMessageInFolderTab(msgHdr);
+          this.MailUtils.displayMessageInFolderTab(msgHdr);
         });
 
         if (this.showSubject) {
