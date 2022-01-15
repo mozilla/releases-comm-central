@@ -6,7 +6,7 @@
 
 /* globals goDoCommand */ // globalOverlay.js
 /* globals CrossFolderNavigation */ // msgViewNavigation.js
-/* globals displayMessage, gDBView, gFolder, gMessage, gMessageURI, gViewWrapper, messengerBundle */
+/* globals displayMessage, gDBView, gFolder, gViewWrapper, messengerBundle */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -223,8 +223,7 @@ var mailContextMenu = {
       showItem(id, commandController.isCommandEnabled(command));
     }
 
-    // let canArchive = true;
-    let numSelectedMessages = gViewWrapper.dbView.selection.count;
+    let numSelectedMessages = gDBView.numSelected;
     let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
     let canMove =
       numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
@@ -360,13 +359,19 @@ var mailContextMenu = {
 
       // Open messages
       case "mailContext-openNewTab":
-        topChromeWindow.OpenMessageInNewTab(gMessage, {
-          event,
-          viewWrapper: gViewWrapper,
-        });
+        topChromeWindow.OpenMessageInNewTab(
+          gDBView.hdrForFirstSelectedMessage,
+          {
+            event,
+            viewWrapper: gViewWrapper,
+          }
+        );
         break;
       case "mailContext-openNewWindow":
-        topChromeWindow.MsgOpenNewWindowForMessage(gMessage, gViewWrapper);
+        topChromeWindow.MsgOpenNewWindowForMessage(
+          gDBView.hdrForFirstSelectedMessage,
+          gViewWrapper
+        );
         break;
       // case "mailContext-openConversation":
       //   gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);
@@ -394,7 +399,9 @@ var mailContextMenu = {
 
       // Save/print/download
       case "mailContext-saveAs":
-        window.browsingContext.topChromeWindow.SaveAsFile([gMessageURI]);
+        window.browsingContext.topChromeWindow.SaveAsFile(
+          gDBView.getURIsForSelection()
+        );
         break;
 
       default: {
@@ -451,7 +458,10 @@ var mailContextMenu = {
     );
 
     // Rebuild the list.
-    let currentTags = gMessage.getStringProperty("keywords").split(" ");
+    let message = gDBView.hdrForFirstSelectedMessage;
+    let currentTags = message
+      ? message.getStringProperty("keywords").split(" ")
+      : [];
     let index = 1;
 
     for (let tagInfo of MailServices.tags.getAllTags()) {
@@ -487,7 +497,7 @@ var mailContextMenu = {
   },
 
   removeAllMessageTags() {
-    let selectedMessages = [gMessage];
+    let selectedMessages = gDBView.getSelectedMsgHdrs();
     if (!selectedMessages.length) {
       return;
     }
@@ -523,7 +533,7 @@ var mailContextMenu = {
 
   _toggleMessageTag(key, addKey) {
     let messages = [];
-    let selectedMessages = [gMessage];
+    let selectedMessages = gDBView.getSelectedMsgHdrs();
     let toggler = addKey
       ? "addKeywordsToMessages"
       : "removeKeywordsFromMessages";
@@ -585,16 +595,17 @@ var mailContextMenu = {
     let selectedIndex = {};
     gViewWrapper.dbView.selection.getRangeAt(0, selectedIndex, {});
 
-    document.getElementById("mailContext-markRead").disabled = gMessage.isRead;
+    let message = gDBView.hdrForFirstSelectedMessage;
+    document.getElementById("mailContext-markRead").disabled = message.isRead;
     document.getElementById(
       "mailContext-markUnread"
-    ).disabled = !gMessage.isRead;
+    ).disabled = !message.isRead;
     document.getElementById("mailContext-markThreadAsRead").disabled =
       gViewWrapper.dbView.getThreadContainingIndex(selectedIndex.value)
         .numUnreadChildren == 0;
     document
       .getElementById("mailContext-markFlagged")
-      .setAttribute("checked", gMessage.isFlagged);
+      .setAttribute("checked", message.isFlagged);
 
     let enabledObj = {};
     let checkStatusObj = {};
@@ -729,7 +740,7 @@ var commandController = {
       );
     },
     cmd_markAsFlagged() {
-      if (gMessage.isFlagged) {
+      if (gDBView.hdrForFirstSelectedMessage.isFlagged) {
         gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.unflagMessages);
       } else {
         gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.flagMessages);
@@ -903,7 +914,7 @@ var commandController = {
     // If we're the hidden window, then we're not going to have a gFolderDisplay
     // to work out existing folders, so just use null.
     let msgFolder = gFolder;
-    let msgUris = gMessageURI ? [gMessageURI] : [];
+    let msgUris = gDBView.getURIsForSelection();
 
     if (event && event.shiftKey) {
       window.browsingContext.topChromeWindow.ComposeMessage(

@@ -444,7 +444,7 @@ JSTreeSelection.prototype = {
     return this._ranges.length;
   },
   getRangeAt(aRangeIndex, aMinObj, aMaxObj) {
-    if (aRangeIndex < 0 || aRangeIndex > this._ranges.length) {
+    if (aRangeIndex < 0 || aRangeIndex >= this._ranges.length) {
       throw new Error("Try a real range index next time.");
     }
     [aMinObj.value, aMaxObj.value] = this._ranges[aRangeIndex];

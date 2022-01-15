@@ -1122,7 +1122,7 @@ var specialTabs = {
           });
           tab.__defineGetter__(
             "message",
-            () => tab.browser.contentWindow.gMessage
+            () => tab.browser.contentWindow.gDBView?.hdrForFirstSelectedMessage
           );
           // The same as `doCommand` but with an extra argument.
           tab.performCommand = function(command, event) {

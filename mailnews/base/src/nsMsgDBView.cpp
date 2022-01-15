@@ -7032,6 +7032,11 @@ nsMsgDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr **hdr) {
   // Don't assert, it is legal for nothing to be selected.
   if (NS_FAILED(rv)) return rv;
 
+  if (key == nsMsgKey_None) {
+    *hdr = nullptr;
+    return NS_OK;
+  }
+
   if (!m_db) return NS_MSG_MESSAGE_NOT_FOUND;
 
   rv = m_db->GetMsgHdrForKey(key, hdr);
@@ -7162,6 +7167,13 @@ nsMsgDBView::GetKeyForFirstSelectedMessage(nsMsgKey *key) {
   // If we don't have a tree selection we must be in stand alone mode...
   if (!mTreeSelection) {
     *key = m_currentlyDisplayedMsgKey;
+    return NS_OK;
+  }
+
+  int32_t selectionCount;
+  mTreeSelection->GetRangeCount(&selectionCount);
+  if (selectionCount == 0) {
+    *key = nsMsgKey_None;
     return NS_OK;
   }
 

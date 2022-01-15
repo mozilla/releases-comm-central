@@ -25,7 +25,7 @@ const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
-var gFolder, gViewWrapper, gDBView, gMessage, gMessageURI;
+var gFolder, gViewWrapper, gDBView;
 var folderTree, splitter1, threadTree, splitter2, messageBrowser;
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -355,19 +355,6 @@ function displayFolder(folderURI) {
 function displayMessage(messageURI) {
   messageBrowser.contentWindow.displayMessage(messageURI);
   messageBrowser.style.visibility = messageURI ? "visible" : null;
-  if (!messageURI) {
-    gMessage = null;
-    gMessageURI = null;
-    return;
-  }
-
-  gMessageURI = messageURI;
-
-  let protocol = new URL(messageURI).protocol.replace(/:$/, "");
-  let messageService = Cc[
-    `@mozilla.org/messenger/messageservice;1?type=${protocol}`
-  ].getService(Ci.nsIMsgMessageService);
-  gMessage = messageService.messageURIToMsgHdr(messageURI);
 }
 
 var folderPaneContextMenu = {
