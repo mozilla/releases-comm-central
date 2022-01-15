@@ -18,6 +18,7 @@ var { XPCOMUtils } = ChromeUtils.import(
 
 var LazyModules = {};
 XPCOMUtils.defineLazyModuleGetters(LazyModules, {
+  ConversationOpener: "resource:///modules/ConversationOpener.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   PhishingDetector: "resource:///modules/PhishingDetector.jsm",
   PlacesUtils: "resource://gre/modules/PlacesUtils.jsm",
@@ -223,6 +224,7 @@ var mailContextMenu = {
       showItem(id, commandController.isCommandEnabled(command));
     }
 
+    let message = gDBView.hdrForFirstSelectedMessage;
     let numSelectedMessages = gDBView.numSelected;
     let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
     let canMove =
@@ -231,10 +233,10 @@ var mailContextMenu = {
 
     setSingleSelection("mailContext-openNewTab");
     setSingleSelection("mailContext-openNewWindow");
-    // setSingleSelection(
-    //   "mailContext-openConversation",
-    //   gConversationOpener.isSelectedMessageIndexed()
-    // );
+    setSingleSelection(
+      "mailContext-openConversation",
+      LazyModules.ConversationOpener.isMessageIndexed(message)
+    );
     // setSingleSelection("mailContext-openContainingFolder");
     setSingleSelection("mailContext-forwardAsMenu");
     this._initMessageTags();
@@ -373,9 +375,11 @@ var mailContextMenu = {
           gViewWrapper
         );
         break;
-      // case "mailContext-openConversation":
-      //   gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages);
-      //   break;
+      case "mailContext-openConversation":
+        new LazyModules.ConversationOpener(window).openConversationForMessages(
+          gDBView.getSelectedMsgHdrs()
+        );
+        break;
       // case "mailContext-openContainingFolder":
       //   MailUtils.displayMessageInFolderTab(gMessage);
       //   break;

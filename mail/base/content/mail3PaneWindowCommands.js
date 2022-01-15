@@ -27,6 +27,11 @@ var { PluralForm } = ChromeUtils.import(
 );
 ChromeUtils.defineModuleGetter(
   this,
+  "ConversationOpener",
+  "resource:///modules/ConversationOpener.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
 );
@@ -344,7 +349,7 @@ var DefaultController = {
       case "button_showconversation":
         return (
           gFolderDisplay.selectedCount == 1 &&
-          gConversationOpener.isSelectedMessageIndexed()
+          ConversationOpener.isMessageIndexed(gFolderDisplay.selectedMessage)
         );
       case "cmd_saveAsFile":
         return gFolderDisplay.selectedCount > 0;
@@ -909,7 +914,7 @@ var DefaultController = {
         return;
       case "cmd_openConversation":
       case "button_showconversation":
-        gConversationOpener.openConversationForMessages(
+        new ConversationOpener(window).openConversationForMessages(
           gFolderDisplay.selectedMessages
         );
         return;

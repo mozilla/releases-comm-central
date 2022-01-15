@@ -591,7 +591,7 @@ class nsContextMenu {
       "mailContext-openConversation",
       this.numSelectedMessages == 1 &&
         this.inThreadPane &&
-        gConversationOpener.isSelectedMessageIndexed()
+        ConversationOpener.isMessageIndexed(gFolderDisplay.selectedMessage)
     );
     this.showItem(
       "mailContext-openContainingFolder",

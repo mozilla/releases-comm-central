@@ -94,7 +94,7 @@
                    label="&openConversationButton.label;"
                    tooltiptext="&openMsgConversationButton.tooltip;"
                    observes="button_showconversation"
-                   oncommand="gConversationOpener.openConversationForMessages(gFolderDisplay.selectedMessages)"/>
+                   oncommand="new ConversationOpener(window).openConversationForMessages(gFolderDisplay.selectedMessages)"/>
     <toolbarbutton is="toolbarbutton-menu-button" id="button-goback"
                    type="menu-button"
                    class="toolbarbutton-1"
