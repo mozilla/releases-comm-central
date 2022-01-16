@@ -566,9 +566,9 @@
       if (this._localStartDate.day == now.day || relative.inSeconds < 12 * 60 * 60) {
         let unit = "hour";
         let value = relative.hours;
-        if (value == 0) {
+        if (relative.inSeconds <= 5400) { // 90 minutes.
           unit = "minute";
-          value = relative.minutes;
+          value = value * 60 + relative.minutes;
           if (relative.seconds >= 30) {
             value++;
           }
