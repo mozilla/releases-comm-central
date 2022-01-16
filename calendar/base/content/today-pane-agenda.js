@@ -483,8 +483,8 @@
         } else {
           this.timeElement.setAttribute("datetime", cal.dtz.toRFC3339(this.item.startDate));
           this.timeElement.textContent = cal.dtz.formatter.formatTime(this._localStartDate);
-          this.setRelativeTime();
         }
+        this.setRelativeTime();
       }
       this.titleElement.textContent = this.item.title;
 
