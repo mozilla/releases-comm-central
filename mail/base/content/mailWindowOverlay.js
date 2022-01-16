@@ -2223,9 +2223,8 @@ function MsgComposeDraftMessage() {
   );
 }
 
-function MsgCreateFilter() {
+function MsgCreateFilter(msgHdr = gFolderDisplay.selectedMessage) {
   // retrieve Sender direct from selected message's headers
-  var msgHdr = gFolderDisplay.selectedMessage;
   let emailAddress = MailServices.headerParser.extractHeaderAddressMailboxes(
     msgHdr.author
   );

@@ -270,6 +270,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
   threadTree = document.getElementById("threadTree");
 
+  threadTree.addEventListener("keypress", event => {
+    if (event.key != "Enter") {
+      return;
+    }
+
+    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
+      commandController.doCommand("cmd_editDraftMsg");
+    } else if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)) {
+      commandController.doCommand("cmd_newMsgFromTemplate");
+    } else {
+      commandController.doCommand("cmd_openMessage");
+    }
+  });
+
   threadTree.addEventListener("select", async event => {
     if (splitter2.isCollapsed) {
       return;
@@ -315,6 +329,12 @@ window.addEventListener("keypress", event => {
       }
       break;
     }
+    case "a":
+      if (event.ctrlKey && !event.altKey && !event.metaKey) {
+        commandController.doCommand("cmd_selectAll");
+        event.preventDefault();
+      }
+      break;
   }
 });
 
@@ -688,6 +708,28 @@ function restoreSelection() {
     .filter(i => i != 0xffffffff); // nsMsgViewIndex_None
   _savedSelection = null;
 }
+
+commandController.registerCallback(
+  "cmd_selectAll",
+  () => {
+    gDBView.selection.selectAll();
+  },
+  () => !!gViewWrapper
+);
+commandController.registerCallback(
+  "cmd_selectThread",
+  () => {
+    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectThread);
+  },
+  () => !!gViewWrapper
+);
+commandController.registerCallback(
+  "cmd_selectFlagged",
+  () => {
+    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.selectFlagged);
+  },
+  () => !!gViewWrapper
+);
 
 var sortController = {
   handleCommand(event) {

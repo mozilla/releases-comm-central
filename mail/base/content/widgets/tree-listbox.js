@@ -968,11 +968,7 @@
       });
 
       this.addEventListener("keydown", event => {
-        if (
-          event.altKey ||
-          (event.ctrlKey && event.key != "a" && event.key != "A") ||
-          event.metaKey
-        ) {
+        if (event.altKey || event.ctrlKey || event.metaKey) {
           return;
         }
 
@@ -1039,13 +1035,6 @@
                 Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
             );
             break;
-          case "A":
-          case "a":
-            if (event.ctrlKey) {
-              this._selection.selectAll();
-              event.preventDefault();
-            }
-            return;
           case " ":
             if (event.originalTarget.closest("button")) {
               return;

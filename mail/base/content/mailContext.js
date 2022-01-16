@@ -72,15 +72,8 @@ var mailContextMenu = {
     "mailContext-addNewTag": "cmd_addTag",
     "mailContext-manageTags": "cmd_manageTags",
     "mailContext-tagRemoveAll": "cmd_removeTags",
-    "mailContext-markRead": "cmd_markAsRead",
-    "mailContext-markUnread": "cmd_markAsUnread",
-    "mailContext-markThreadAsRead": "cmd_markThreadAsRead",
     "mailContext-markReadByDate": "cmd_markReadByDate",
-    "mailContext-markAllRead": "cmd_markAllRead",
     "mailContext-markFlagged": "cmd_markAsFlagged",
-    "mailContext-markAsJunk": "cmd_markAsJunk",
-    "mailContext-markAsNotJunk": "cmd_markAsNotJunk",
-    // "mailContext-recalculateJunkScore": "cmd_recalculateJunkScore",
     "mailcontext-moveToFolderAgain": "cmd_moveToFolderAgain",
     "mailContext-delete": "cmd_delete",
     // "mailContext-ignoreThread": "cmd_killThread",
@@ -88,6 +81,18 @@ var mailContextMenu = {
     // "mailContext-watchThread": "cmd_watchThread",
     // "mailContext-print": "cmd_print",
     // "mailContext-downloadSelected": "cmd_downloadSelected",
+  },
+
+  // More commands handled by commandController, except these ones get
+  // disabled instead of hidden.
+  _alwaysVisibleCommandMap: {
+    "mailContext-markRead": "cmd_markAsRead",
+    "mailContext-markUnread": "cmd_markAsUnread",
+    "mailContext-markThreadAsRead": "cmd_markThreadAsRead",
+    "mailContext-markAllRead": "cmd_markAllRead",
+    "mailContext-markAsJunk": "cmd_markAsJunk",
+    "mailContext-markAsNotJunk": "cmd_markAsNotJunk",
+    "mailContext-recalculateJunkScore": "cmd_recalculateJunkScore",
   },
 
   init() {
@@ -195,6 +200,14 @@ var mailContextMenu = {
       item.disabled = !enabled;
     }
 
+    function checkItem(id, checked) {
+      let item = document.getElementById(id);
+      if (item) {
+        // Convert truthy/falsy to boolean before string.
+        item.setAttribute("checked", !!checked);
+      }
+    }
+
     function setSingleSelection(id, show = true) {
       showItem(id, numSelectedMessages == 1 && show);
       enableItem(id, numSelectedMessages == 1);
@@ -223,6 +236,9 @@ var mailContextMenu = {
     for (let [id, command] of Object.entries(this._commandMap)) {
       showItem(id, commandController.isCommandEnabled(command));
     }
+    for (let [id, command] of Object.entries(this._alwaysVisibleCommandMap)) {
+      enableItem(id, commandController.isCommandEnabled(command));
+    }
 
     let message = gDBView.hdrForFirstSelectedMessage;
     let numSelectedMessages = gDBView.numSelected;
@@ -240,8 +256,9 @@ var mailContextMenu = {
     // setSingleSelection("mailContext-openContainingFolder");
     setSingleSelection("mailContext-forwardAsMenu");
     this._initMessageTags();
-    this._initMessageMark();
-    // setSingleSelection("mailContext-copyMessageUrl", isNewsgroup);
+    checkItem("mailContext-markFlagged", message?.isFlagged);
+
+    setSingleSelection("mailContext-copyMessageUrl", isNewsgroup);
     // showItem(
     //   "mailContext-archive",
     //   canMove && numSelectedMessages > 0 && canArchive
@@ -282,6 +299,13 @@ var mailContextMenu = {
     // If commandController handles this command, ask it to do so.
     if (event.target.id in this._commandMap) {
       commandController.doCommand(this._commandMap[event.target.id], event);
+      return;
+    }
+    if (event.target.id in this._alwaysVisibleCommandMap) {
+      commandController.doCommand(
+        this._alwaysVisibleCommandMap[event.target.id],
+        event
+      );
       return;
     }
 
@@ -386,9 +410,24 @@ var mailContextMenu = {
 
       // Move/copy/archive/convert/delete
       // (Move and Copy sub-menus are handled in the default case.)
-      // case "mailContext-copyMessageUrl":
-      //   CopyMessageUrl();
-      //   break;
+      case "mailContext-copyMessageUrl": {
+        let message = gDBView.hdrForFirstSelectedMessage;
+        let server = message?.folder?.server;
+
+        if (!server) {
+          return;
+        }
+
+        // TODO let backend construct URL and return as attribute
+        let url =
+          server.socketType == Ci.nsMsgSocketType.SSL ? "snews://" : "news://";
+        url += server.hostName + ":" + server.port + "/" + message.messageId;
+
+        Cc["@mozilla.org/widget/clipboardhelper;1"]
+          .getService(Ci.nsIClipboardHelper)
+          .copyString(url);
+        break;
+      }
       // case "mailContext-archive":
       //   MsgArchiveSelectedMessages(event);
       //   break;
@@ -409,11 +448,14 @@ var mailContextMenu = {
         break;
 
       default: {
-        let closestMenu = event.target.closest("menu");
-        if (closestMenu?.id == "mailContext-moveMenu") {
-          this.moveMessage(event.target.gFolder);
-        } else if (closestMenu?.id == "mailContext-copyMenu") {
-          this.copyMessage(event.target.gFolder);
+        if (
+          document.getElementById("mailContext-moveMenu").contains(event.target)
+        ) {
+          this.moveMessage(event.target._folder);
+        } else if (
+          document.getElementById("mailContext-copyMenu").contains(event.target)
+        ) {
+          this.copyMessage(event.target._folder);
         }
         break;
       }
@@ -593,48 +635,6 @@ var mailContextMenu = {
     );
   },
 
-  // Mark sub-menu
-
-  _initMessageMark() {
-    let selectedIndex = {};
-    gViewWrapper.dbView.selection.getRangeAt(0, selectedIndex, {});
-
-    let message = gDBView.hdrForFirstSelectedMessage;
-    document.getElementById("mailContext-markRead").disabled = message.isRead;
-    document.getElementById(
-      "mailContext-markUnread"
-    ).disabled = !message.isRead;
-    document.getElementById("mailContext-markThreadAsRead").disabled =
-      gViewWrapper.dbView.getThreadContainingIndex(selectedIndex.value)
-        .numUnreadChildren == 0;
-    document
-      .getElementById("mailContext-markFlagged")
-      .setAttribute("checked", message.isFlagged);
-
-    let enabledObj = {};
-    let checkStatusObj = {};
-    gViewWrapper.dbView.getCommandStatus(
-      Ci.nsMsgViewCommandType.junk,
-      enabledObj,
-      checkStatusObj
-    );
-    document.getElementById(
-      "mailContext-markAsJunk"
-    ).disabled = !enabledObj.value;
-    document.getElementById(
-      "mailContext-markAsNotJunk"
-    ).disabled = !enabledObj.value;
-
-    // gViewWrapper.dbView.getCommandStatus(
-    //   Ci.nsMsgViewCommandType.runJunkControls,
-    //   enabledObj,
-    //   checkStatusObj
-    // );
-    // document.getElementById(
-    //   "mailContext-recalculateJunkScore"
-    // ).disabled = !enabledObj.value;
-  },
-
   // Move/copy
 
   /**
@@ -717,6 +717,18 @@ var commandController = {
         this.doCommand("cmd_forwardInline");
       }
     },
+    cmd_openMessage(event) {
+      LazyModules.MailUtils.displayMessages(
+        gDBView.getSelectedMsgHdrs(),
+        gViewWrapper,
+        window.browsingContext.topChromeWindow.document.getElementById(
+          "tabmail"
+        )
+      );
+    },
+    cmd_tag() {
+      // Does nothing, just here to enable/disable the tags sub-menu.
+    },
     cmd_addTag() {
       mailContextMenu.addTag();
     },
@@ -743,11 +755,11 @@ var commandController = {
         gFolder
       );
     },
-    cmd_markAsFlagged() {
-      if (gDBView.hdrForFirstSelectedMessage.isFlagged) {
-        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.unflagMessages);
-      } else {
+    cmd_markAsFlagged(event) {
+      if (event.target.getAttribute("checked") == "true") {
         gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.flagMessages);
+      } else {
+        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.unflagMessages);
       }
     },
     cmd_markAsJunk() {
@@ -758,7 +770,9 @@ var commandController = {
       }
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.junk);
     },
-    // cmd_recalculateJunkScore() {},
+    cmd_recalculateJunkScore() {
+      // TODO
+    },
     cmd_moveToFolderAgain() {
       let folder = LazyModules.MailUtils.getOrCreateFolder(
         Services.prefs.getCharPref("mail.last_msg_movecopy_target_uri")
@@ -773,11 +787,24 @@ var commandController = {
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
+    cmd_shiftDelete() {
+      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
+    },
+    cmd_createFilterFromMenu() {
+      window.browsingContext.topChromeWindow.MsgCreateFilter(
+        gDBView.hdrForFirstSelectedMessage
+      );
+    },
     // cmd_killThread() {},
     // cmd_killSubthread() {},
     // cmd_watchThread() {},
     // cmd_print() {},
     // cmd_downloadSelected() {},
+    cmd_viewPageSource() {
+      window.browsingContext.topChromeWindow.ViewPageSource(
+        gDBView.getURIsForSelection()
+      );
+    },
   },
   _isCallbackEnabled: {},
 
@@ -823,22 +850,19 @@ var commandController = {
       case "cmd_forward":
       case "cmd_redirect":
       case "cmd_editAsNew":
+      case "cmd_viewPageSource":
         return numSelectedMessages == 1;
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
+      case "cmd_openMessage":
+      case "cmd_tag":
       case "cmd_addTag":
       case "cmd_manageTags":
       case "cmd_removeTags":
       case "cmd_toggleTag":
       case "cmd_toggleRead":
-      case "cmd_markAsRead":
-      case "cmd_markAsUnread":
-      case "cmd_markThreadAsRead":
       case "cmd_markReadByDate":
-      case "cmd_markAllRead":
       case "cmd_markAsFlagged":
-      case "cmd_markAsJunk":
-      case "cmd_markAsNotJunk":
         return numSelectedMessages >= 1;
       case "cmd_editDraftMsg":
         return (
@@ -853,6 +877,41 @@ var commandController = {
         );
       case "cmd_replyGroup":
         return isNewsgroup;
+      case "cmd_markAsRead":
+        return (
+          numSelectedMessages >= 1 &&
+          gViewWrapper.dbView.getSelectedMsgHdrs().some(msg => !msg.isRead)
+        );
+      case "cmd_markAsUnread":
+        return (
+          numSelectedMessages >= 1 &&
+          gViewWrapper.dbView.getSelectedMsgHdrs().some(msg => msg.isRead)
+        );
+      case "cmd_markThreadAsRead": {
+        if (numSelectedMessages != 1) {
+          return false;
+        }
+        let selectedIndex = {};
+        gViewWrapper.dbView.selection.getRangeAt(0, selectedIndex, {});
+        return (
+          gViewWrapper.dbView.getThreadContainingIndex(selectedIndex.value)
+            .numUnreadChildren > 0
+        );
+      }
+      case "cmd_markAllRead":
+        return gDBView?.msgFolder?.getNumUnread(false) > 0;
+      case "cmd_markAsJunk":
+      case "cmd_markAsNotJunk":
+        return this._getViewCommandStatus(Ci.nsMsgViewCommandType.junk);
+      case "cmd_recalculateJunkScore":
+        // We're going to take a conservative position here, because we really
+        // don't want people running junk controls on folders that are not
+        // enabled for junk. The junk type picks up possible dummy message headers,
+        // while the runJunkControls will prevent running on XF virtual folders.
+        return (
+          this._getViewCommandStatus(Ci.nsMsgViewCommandType.junk) &&
+          this._getViewCommandStatus(Ci.nsMsgViewCommandType.runJunkControls)
+        );
       case "cmd_moveToFolderAgain": {
         // Disable "Move to <folder> Again" for news and other read only
         // folders since we can't really move messages from there - only copy.
@@ -871,6 +930,15 @@ var commandController = {
       }
       case "cmd_delete":
         return isNewsgroup || canMove;
+      case "cmd_shiftDelete":
+        return this._getViewCommandStatus(
+          Ci.nsMsgViewCommandType.deleteNoTrash
+        );
+      case "cmd_createFilterFromMenu":
+        return (
+          numSelectedMessages == 1 &&
+          gDBView.hdrForFirstSelectedMessage?.folder?.server.canHaveFilters
+        );
     }
 
     return false;
@@ -905,6 +973,21 @@ var commandController = {
     if (command in this._callbackCommands) {
       this._callbackCommands[command](event);
     }
+  },
+
+  _getViewCommandStatus(commandType) {
+    if (!gViewWrapper.dbView) {
+      return false;
+    }
+
+    let enabledObj = {};
+    let checkStatusObj = {};
+    gViewWrapper.dbView.getCommandStatus(
+      commandType,
+      enabledObj,
+      checkStatusObj
+    );
+    return enabledObj.value;
   },
 
   /**

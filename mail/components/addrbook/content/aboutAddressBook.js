@@ -1496,8 +1496,15 @@ var cardsPane = {
     }
 
     switch (event.key) {
+      case "a":
+        if (event.ctrlKey) {
+          this.cardsList.view.selection.selectAll();
+          event.preventDefault();
+        }
+        break;
       case "Delete":
         this.deleteSelected();
+        event.preventDefault();
         break;
     }
   },
