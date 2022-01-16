@@ -85,7 +85,13 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
   let relativeElement = row.querySelector(".agenda-listitem-relative");
   if (Array.isArray(relative)) {
     Assert.ok(BrowserTestUtils.is_visible(relativeElement), "relative time is visible");
-    Assert.ok(relative.includes(relativeElement.textContent), "relative time is correct");
+    Assert.report(
+      !relative.includes(relativeElement.textContent),
+      relative,
+      relativeElement.textContent,
+      "relative time is correct",
+      "includes"
+    );
   } else if (relative !== undefined) {
     Assert.ok(BrowserTestUtils.is_hidden(relativeElement), "relative time is hidden");
   }
@@ -567,9 +573,17 @@ add_task(async function testRelativeTime() {
     },
     {
       name: "one hour ahead",
-      start: "PT1H5M",
+      start: "PT1H25M",
       expected: {
-        relative: [formatter.format(1, "hour")],
+        relative: [formatter.format(85, "minute"), formatter.format(84, "minute")],
+      },
+      maxHour: 21,
+    },
+    {
+      name: "one and half hours ahead",
+      start: "PT1H35M",
+      expected: {
+        relative: [formatter.format(2, "hour")],
       },
       maxHour: 21,
     },
