@@ -38,8 +38,8 @@ class nsIMAPBodypart {
   // Generation
   // Generates an HTML representation of this part.  Returns content length
   // generated, -1 if failed.
-  virtual int32_t Generate(nsImapBodyShell* aShell, bool /*stream*/,
-                           bool /* prefetch */) {
+  virtual int32_t Generate(nsImapBodyShell* aShell, nsImapProtocol* conn,
+                           bool /*stream*/, bool /* prefetch */) {
     return -1;
   }
   virtual void AdoptPartDataBuffer(
@@ -60,19 +60,22 @@ class nsIMAPBodypart {
  protected:
   // If stream is false, simply returns the content length that will be
   // generated the body of the part itself
-  virtual int32_t GeneratePart(nsImapBodyShell* aShell, bool stream,
-                               bool prefetch);
+  virtual int32_t GeneratePart(nsImapBodyShell* aShell, nsImapProtocol* conn,
+                               bool stream, bool prefetch);
   // the MIME headers of the part
-  virtual int32_t GenerateMIMEHeader(nsImapBodyShell* aShell, bool stream,
+  virtual int32_t GenerateMIMEHeader(nsImapBodyShell* aShell,
+                                     nsImapProtocol* conn, bool stream,
                                      bool prefetch);
   // Generates the MIME boundary wrapper for this part.
-  virtual int32_t GenerateBoundary(nsImapBodyShell* aShell, bool stream,
+  virtual int32_t GenerateBoundary(nsImapBodyShell* aShell,
+                                   nsImapProtocol* conn, bool stream,
                                    bool prefetch, bool lastBoundary);
   // lastBoundary indicates whether or not this should be the boundary for the
   // final MIME part of the multipart message.
   // Generates (possibly empty) filling for a part that won't be filled in
   // inline.
-  virtual int32_t GenerateEmptyFilling(nsImapBodyShell* aShell, bool stream,
+  virtual int32_t GenerateEmptyFilling(nsImapBodyShell* aShell,
+                                       nsImapProtocol* conn, bool stream,
                                        bool prefetch);
 
   // Part Numbers / Hierarchy
@@ -137,8 +140,8 @@ class nsIMAPMessageHeaders : public nsIMAPBodypart {
   virtual nsIMAPBodypartType GetType() override;
   // Generates an HTML representation of this part.  Returns content length
   // generated, -1 if failed.
-  virtual int32_t Generate(nsImapBodyShell* aShell, bool stream,
-                           bool prefetch) override;
+  virtual int32_t Generate(nsImapBodyShell* aShell, nsImapProtocol* conn,
+                           bool stream, bool prefetch) override;
   virtual bool ShouldFetchInline(nsImapBodyShell* aShell) override;
   virtual void QueuePrefetchMessageHeaders(nsImapBodyShell* aShell);
 };
@@ -152,8 +155,8 @@ class nsIMAPBodypartMultipart : public nsIMAPBodypart {
   virtual bool PreflightCheckAllInline(nsImapBodyShell* aShell) override;
   // Generates an HTML representation of this part.  Returns content length
   // generated, -1 if failed.
-  virtual int32_t Generate(nsImapBodyShell* aShell, bool stream,
-                           bool prefetch) override;
+  virtual int32_t Generate(nsImapBodyShell* aShell, nsImapProtocol* conn,
+                           bool stream, bool prefetch) override;
   // Returns the part object with the given number
   virtual nsIMAPBodypart* FindPartWithNumber(const char* partNum) override;
   virtual bool IsLastTextPart(const char* partNumberString) override;
@@ -176,8 +179,8 @@ class nsIMAPBodypartLeaf : public nsIMAPBodypart {
   virtual nsIMAPBodypartType GetType() override;
   // Generates an HTML representation of this part.  Returns content length
   // generated, -1 if failed.
-  virtual int32_t Generate(nsImapBodyShell* aShell, bool stream,
-                           bool prefetch) override;
+  virtual int32_t Generate(nsImapBodyShell* aShell, nsImapProtocol* conn,
+                           bool stream, bool prefetch) override;
   // returns true if this part should be fetched inline for generation.
   virtual bool ShouldFetchInline(nsImapBodyShell* aShell) override;
   virtual bool PreflightCheckAllInline(nsImapBodyShell* aShell) override;
@@ -195,8 +198,8 @@ class nsIMAPBodypartMessage : public nsIMAPBodypartLeaf {
   void SetBody(nsIMAPBodypart* body);
   virtual nsIMAPBodypartType GetType() override;
   virtual ~nsIMAPBodypartMessage();
-  virtual int32_t Generate(nsImapBodyShell* aShell, bool stream,
-                           bool prefetch) override;
+  virtual int32_t Generate(nsImapBodyShell* aShell, nsImapProtocol* conn,
+                           bool stream, bool prefetch) override;
   virtual bool ShouldFetchInline(nsImapBodyShell* aShell) override;
   virtual bool PreflightCheckAllInline(nsImapBodyShell* aShell) override;
   // Returns the part object with the given number
@@ -242,21 +245,17 @@ class nsIMAPMessagePartID {
 class nsImapBodyShell : public nsISupports {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
-  nsImapBodyShell(nsImapProtocol* protocolConnection,
-                  nsIMAPBodypartMessage* message, uint32_t UID,
-                  uint32_t UIDValidity, const char* folderName);
+  nsImapBodyShell(nsIMAPBodypartMessage* message, uint32_t UID,
+                  uint32_t UIDValidity, const char* folderName,
+                  bool showAttachmentsInline);
   // To be used after a shell is uncached
-  void SetConnection(nsImapProtocol* con) { m_protocolConnection = con; }
-  virtual bool GetIsValid() { return m_isValid; }
-  virtual void SetIsValid(bool valid);
+  bool GetIsValid() { return m_isValid; }
+  void SetIsValid(bool valid);
 
   // Prefetch
   // Adds a message body part to the queue to be prefetched
   // in a single, pipelined command
   void AddPrefetchToQueue(nsIMAPeFetchFields, const char* partNum);
-  // Runs a single pipelined command which fetches all of the
-  // elements in the prefetch queue
-  void FlushPrefetchQueue();
   // Fills in buffer (and adopts storage) for header object
   // partNum specifies the message part number to which the
   // headers correspond.  NULL indicates the top-level message
@@ -273,19 +272,16 @@ class nsImapBodyShell : public nsISupports {
   // If partNum is not NULL, then this works to generates a MIME part that
   // hasn't been downloaded yet and leaves out all other parts.  By default, to
   // generate a normal message, partNum should be NULL.
-  virtual int32_t Generate(char* partNum);
+  int32_t Generate(nsImapProtocol* conn, char* partNum);
 
   // Returns TRUE if the user has the pref "Show Attachments Inline" set.
   // Returns FALSE if the setting is "Show Attachments as Links"
-  virtual bool GetShowAttachmentsInline();
+  bool GetShowAttachmentsInline();
   // Returns true if all parts are inline, false otherwise. Does not generate
   // anything.
   bool PreflightCheckAllInline();
 
   // Helpers
-  nsImapProtocol* GetConnection() { return m_protocolConnection; }
-  bool GetPseudoInterrupted();
-  bool DeathSignalReceived();
   nsCString& GetUID() { return m_UID; }
   nsCString& GetUID_validity() { return m_UID_validity; }
   nsCString const& GetFolderName() const { return m_folderName; }
@@ -297,9 +293,6 @@ class nsImapBodyShell : public nsISupports {
   void SetIsCached(bool isCached) { m_cached = isCached; }
   bool GetGeneratingWholeMessage() { return m_generatingWholeMessage; }
   IMAP_ContentModifiedType GetContentModified() { return m_contentModified; }
-  void SetContentModified(IMAP_ContentModifiedType modType) {
-    m_contentModified = modType;
-  }
 
  protected:
   virtual ~nsImapBodyShell();
@@ -310,19 +303,14 @@ class nsImapBodyShell : public nsISupports {
       m_prefetchQueue;  // Array of pipelined part prefetches.
 
   bool m_isValid;
-  nsImapProtocol* m_protocolConnection;  // Connection, for filling in parts
-  nsCString m_UID;                       // UID of this message
+  nsCString m_UID;           // UID of this message
   nsCString m_UID_validity;  // appended UID and UID-validity of this message
   nsCString m_folderName;    // folder that contains this message
   char* m_generatingPart;  // If a specific part is being generated, this is it.
                            // Otherwise, NULL.
-  bool m_isBeingGenerated;   // true if this body shell is in the process of
-                             // being generated
-  bool m_gotAttachmentPref;  // Whether or not m_showAttachmentsInline has been
-                             // initialized
-  bool m_showAttachmentsInline;   // Whether or not we should display attachment
-                                  // inline
-  bool m_cached;                  // Whether or not this shell is cached
+  bool m_isBeingGenerated;  // true if this body shell is in the process of
+                            // being generated
+  bool m_cached;            // Whether or not this shell is cached
   bool m_generatingWholeMessage;  // whether or not we are generating the whole
                                   // (non-MPOD) message Set to false if we are
                                   // generating by parts

@@ -41,30 +41,25 @@ extern LazyLogModule IMAPCache;  // defined in nsImapProtocol.cpp
 
 NS_IMPL_ISUPPORTS0(nsImapBodyShell)
 
-nsImapBodyShell::nsImapBodyShell(nsImapProtocol* protocolConnection,
-                                 nsIMAPBodypartMessage* message, uint32_t UID,
-                                 uint32_t UIDValidity, const char* folderName)
+nsImapBodyShell::nsImapBodyShell(nsIMAPBodypartMessage* message, uint32_t UID,
+                                 uint32_t UIDValidity, const char* folderName,
+                                 bool showAttachmentsInline)
     : m_message(message),
       m_isValid(false),
-      m_protocolConnection(protocolConnection),
       m_folderName(folderName),
       m_generatingPart(nullptr),
       m_isBeingGenerated(false),
-      m_gotAttachmentPref(false),
-      m_showAttachmentsInline(false),
       m_cached(false),
       m_generatingWholeMessage(false),
       m_contentModified(IMAP_ContentModifiedType::IMAP_CONTENT_NOT_MODIFIED) {
-  NS_ASSERTION(m_protocolConnection, "non null connection");
-  if (!m_protocolConnection) return;
   m_UID = "";
   m_UID.AppendInt(UID);
   m_UID_validity = m_UID;
   m_UID_validity.AppendInt(UIDValidity);
 
-  SetContentModified(GetShowAttachmentsInline()
-                         ? IMAP_CONTENT_MODIFIED_VIEW_INLINE
-                         : IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS);
+  m_contentModified = showAttachmentsInline
+                          ? IMAP_CONTENT_MODIFIED_VIEW_INLINE
+                          : IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS;
 
   SetIsValid(m_message != nullptr);
 }
@@ -75,16 +70,6 @@ nsImapBodyShell::~nsImapBodyShell() {
 }
 
 void nsImapBodyShell::SetIsValid(bool valid) { m_isValid = valid; }
-
-bool nsImapBodyShell::GetShowAttachmentsInline() {
-  if (!m_gotAttachmentPref) {
-    m_showAttachmentsInline = !m_protocolConnection ||
-                              m_protocolConnection->GetShowAttachmentsInline();
-    m_gotAttachmentPref = true;
-  }
-
-  return m_showAttachmentsInline;
-}
 
 // Fills in buffer (and adopts storage) for header object
 void nsImapBodyShell::AdoptMessageHeaders(char* headers, const char* partNum) {
@@ -134,13 +119,6 @@ void nsImapBodyShell::AddPrefetchToQueue(nsIMAPeFetchFields fields,
   m_prefetchQueue.AppendElement(newPart);
 }
 
-// Flushes all of the prefetches that have been queued up in the prefetch queue,
-// freeing them as we go
-void nsImapBodyShell::FlushPrefetchQueue() {
-  m_protocolConnection->PipelinedFetchMessageParts(GetUID(), m_prefetchQueue);
-  m_prefetchQueue.Clear();
-}
-
 // Requires that the shell is valid when called
 // Performs a preflight check on all message parts to see if they are all
 // inline.  Returns true if all parts are inline, false otherwise.
@@ -165,7 +143,10 @@ bool nsImapBodyShell::PreflightCheckAllInline() {
 // a link to a forwarded message, then that forwarded message may be generated
 // along with any images that the forwarded message contains, for instance.
 
-int32_t nsImapBodyShell::Generate(char* partNum) {
+int32_t nsImapBodyShell::Generate(nsImapProtocol* conn, char* partNum) {
+  // Hold the connection in existence for the duration.
+  RefPtr<nsImapProtocol> kungFuDeathGrip(conn);
+
   m_isBeingGenerated = true;
   m_generatingPart = partNum;
   int32_t contentLength = 0;
@@ -177,14 +158,13 @@ int32_t nsImapBodyShell::Generate(char* partNum) {
     NS_ASSERTION(GetIsValid());
 #endif
     m_generatingWholeMessage = true;
-    uint32_t messageSize = m_protocolConnection->GetMessageSize(GetUID());
+    uint32_t messageSize = conn->GetMessageSize(GetUID());
     MOZ_LOG(IMAPCache, LogLevel::Debug,
             ("Generate(): Set IMAP_CONTENT_NOT MODIFIED"));
-    m_protocolConnection->SetContentModified(
-        IMAP_CONTENT_NOT_MODIFIED);  // So that when we cache it, we know we
-                                     // have the whole message
-    if (!DeathSignalReceived())
-      m_protocolConnection->FallbackToFetchWholeMsg(GetUID(), messageSize);
+    // So that when we cache it, we know we have the whole message.
+    conn->SetContentModified(IMAP_CONTENT_NOT_MODIFIED);
+    if (!conn->DeathSignalReceived())
+      conn->FallbackToFetchWholeMsg(GetUID(), messageSize);
     contentLength = (int32_t)messageSize;  // ugh
   } else {
     // We have a valid shell.
@@ -193,25 +173,26 @@ int32_t nsImapBodyShell::Generate(char* partNum) {
 
     ////// PASS 1 : PREFETCH ///////
     // First, prefetch any additional headers/data that we need
-    if (!GetPseudoInterrupted())
+    if (!conn->GetPseudoInterrupted())
       m_message->Generate(
-          this, false, true);  // This queues up everything we need to prefetch
+          this, conn, false,
+          true);  // This queues up everything we need to prefetch
     // Now, run a single pipelined prefetch  (neato!)
-    FlushPrefetchQueue();
+    conn->PipelinedFetchMessageParts(GetUID(), m_prefetchQueue);
+    m_prefetchQueue.Clear();
 
     ////// PASS 2 : COMPUTE STREAM SIZE ///////
     // Next, figure out the size from the parts that we're going to fill in,
     // plus all of the MIME headers, plus the message header itself
-    if (!GetPseudoInterrupted())
-      contentLength = m_message->Generate(this, false, false);
+    if (!conn->GetPseudoInterrupted())
+      contentLength = m_message->Generate(this, conn, false, false);
 
     // Setup the stream
-    if (!GetPseudoInterrupted() && !DeathSignalReceived()) {
-      nsresult rv = m_protocolConnection->BeginMessageDownLoad(contentLength,
-                                                               MESSAGE_RFC822);
+    if (!conn->GetPseudoInterrupted() && !conn->DeathSignalReceived()) {
+      nsresult rv = conn->BeginMessageDownLoad(contentLength, MESSAGE_RFC822);
       if (NS_FAILED(rv)) {
         m_generatingPart = nullptr;
-        m_protocolConnection->AbortMessageDownLoad();
+        conn->AbortMessageDownLoad();
         return 0;
       }
       streamCreated = true;
@@ -219,31 +200,21 @@ int32_t nsImapBodyShell::Generate(char* partNum) {
 
     ////// PASS 3 : GENERATE ///////
     // Generate the message
-    if (!GetPseudoInterrupted() && !DeathSignalReceived())
-      m_message->Generate(this, true, false);
+    if (!conn->GetPseudoInterrupted() && !conn->DeathSignalReceived())
+      m_message->Generate(this, conn, true, false);
 
     // Close the stream here - normal.  If pseudointerrupted, the connection
     // will abort the download stream
-    if (!GetPseudoInterrupted() && !DeathSignalReceived())
-      m_protocolConnection->NormalMessageEndDownload();
+    if (!conn->GetPseudoInterrupted() && !conn->DeathSignalReceived())
+      conn->NormalMessageEndDownload();
     else if (streamCreated)
-      m_protocolConnection->AbortMessageDownLoad();
+      conn->AbortMessageDownLoad();
 
     m_generatingPart = NULL;
   }
 
   m_isBeingGenerated = false;
   return contentLength;
-}
-
-bool nsImapBodyShell::GetPseudoInterrupted() {
-  bool rv = m_protocolConnection->GetPseudoInterrupted();
-  return rv;
-}
-
-bool nsImapBodyShell::DeathSignalReceived() {
-  bool rv = m_protocolConnection->DeathSignalReceived();
-  return rv;
 }
 
 ///////////// nsIMAPBodypart ////////////////////////////////////
@@ -323,7 +294,8 @@ void nsIMAPBodypart::QueuePrefetchMIMEHeader(nsImapBodyShell* aShell) {
   aShell->AddPrefetchToQueue(kMIMEHeader, m_partNumberString);
 }
 
-int32_t nsIMAPBodypart::GenerateMIMEHeader(nsImapBodyShell* aShell, bool stream,
+int32_t nsIMAPBodypart::GenerateMIMEHeader(nsImapBodyShell* aShell,
+                                           nsImapProtocol* conn, bool stream,
                                            bool prefetch) {
   if (prefetch && !m_headerData) {
     QueuePrefetchMIMEHeader(aShell);
@@ -338,10 +310,8 @@ int32_t nsIMAPBodypart::GenerateMIMEHeader(nsImapBodyShell* aShell, bool stream,
                                       m_partNumberString);
       if (xPartHeader) {
         if (stream) {
-          aShell->GetConnection()->Log("SHELL", "GENERATE-XHeader",
-                                       m_partNumberString);
-          aShell->GetConnection()->HandleMessageDownLoadLine(xPartHeader,
-                                                             false);
+          conn->Log("SHELL", "GENERATE-XHeader", m_partNumberString);
+          conn->HandleMessageDownLoadLine(xPartHeader, false);
         }
         mimeHeaderLength += PL_strlen(xPartHeader);
         PR_Free(xPartHeader);
@@ -350,10 +320,9 @@ int32_t nsIMAPBodypart::GenerateMIMEHeader(nsImapBodyShell* aShell, bool stream,
 
     mimeHeaderLength += PL_strlen(m_headerData);
     if (stream) {
-      aShell->GetConnection()->Log("SHELL", "GENERATE-MIMEHeader",
-                                   m_partNumberString);
-      aShell->GetConnection()->HandleMessageDownLoadLine(
-          m_headerData, false);  // all one line?  Can we do that?
+      conn->Log("SHELL", "GENERATE-MIMEHeader", m_partNumberString);
+      conn->HandleMessageDownLoadLine(m_headerData,
+                                      false);  // all one line?  Can we do that?
     }
 
     return mimeHeaderLength;
@@ -363,51 +332,49 @@ int32_t nsIMAPBodypart::GenerateMIMEHeader(nsImapBodyShell* aShell, bool stream,
   return 0;
 }
 
-int32_t nsIMAPBodypart::GeneratePart(nsImapBodyShell* aShell, bool stream,
+int32_t nsIMAPBodypart::GeneratePart(nsImapBodyShell* aShell,
+                                     nsImapProtocol* conn, bool stream,
                                      bool prefetch) {
   if (prefetch) return 0;  // don't need to prefetch anything
 
   if (m_partData)  // we have prefetched the part data
   {
     if (stream) {
-      aShell->GetConnection()->Log("SHELL", "GENERATE-Part-Prefetched",
-                                   m_partNumberString);
-      aShell->GetConnection()->HandleMessageDownLoadLine(m_partData, false);
+      conn->Log("SHELL", "GENERATE-Part-Prefetched", m_partNumberString);
+      conn->HandleMessageDownLoadLine(m_partData, false);
     }
     return PL_strlen(m_partData);
   }
 
   // we are fetching and streaming this part's body as we go
-  if (stream && !aShell->DeathSignalReceived()) {
+  if (stream && !conn->DeathSignalReceived()) {
     char* generatingPart = aShell->GetGeneratingPart();
     bool fetchingSpecificPart =
         (generatingPart && !PL_strcmp(generatingPart, m_partNumberString));
 
-    aShell->GetConnection()->Log("SHELL", "GENERATE-Part-Inline",
-                                 m_partNumberString);
+    conn->Log("SHELL", "GENERATE-Part-Inline", m_partNumberString);
     MOZ_LOG(IMAPCache, LogLevel::Debug,
             ("GeneratePart(): Call FetchTryChunking() part length=%" PRIi32
              ", part number=%s",
              m_partLength, m_partNumberString));
-    aShell->GetConnection()->FetchTryChunking(aShell->GetUID(), kMIMEPart, true,
-                                              m_partNumberString, m_partLength,
-                                              !fetchingSpecificPart);
+    conn->FetchTryChunking(aShell->GetUID(), kMIMEPart, true,
+                           m_partNumberString, m_partLength,
+                           !fetchingSpecificPart);
   }
   return m_partLength;  // the part length has been filled in from the
                         // BODYSTRUCTURE response
 }
 
-int32_t nsIMAPBodypart::GenerateBoundary(nsImapBodyShell* aShell, bool stream,
+int32_t nsIMAPBodypart::GenerateBoundary(nsImapBodyShell* aShell,
+                                         nsImapProtocol* conn, bool stream,
                                          bool prefetch, bool lastBoundary) {
   if (prefetch) return 0;  // don't need to prefetch anything
 
   if (m_boundaryData) {
     if (!lastBoundary) {
       if (stream) {
-        aShell->GetConnection()->Log("SHELL", "GENERATE-Boundary",
-                                     m_partNumberString);
-        aShell->GetConnection()->HandleMessageDownLoadLine(m_boundaryData,
-                                                           false);
+        conn->Log("SHELL", "GENERATE-Boundary", m_partNumberString);
+        conn->HandleMessageDownLoadLine(m_boundaryData, false);
       }
       return PL_strlen(m_boundaryData);
     }
@@ -416,10 +383,8 @@ int32_t nsIMAPBodypart::GenerateBoundary(nsImapBodyShell* aShell, bool stream,
     char* lastBoundaryData = PR_smprintf("%s--", m_boundaryData);
     if (lastBoundaryData) {
       if (stream) {
-        aShell->GetConnection()->Log("SHELL", "GENERATE-Boundary-Last",
-                                     m_partNumberString);
-        aShell->GetConnection()->HandleMessageDownLoadLine(lastBoundaryData,
-                                                           false);
+        conn->Log("SHELL", "GENERATE-Boundary-Last", m_partNumberString);
+        conn->HandleMessageDownLoadLine(lastBoundaryData, false);
       }
       int32_t rv = PL_strlen(lastBoundaryData);
       PR_Free(lastBoundaryData);
@@ -432,14 +397,13 @@ int32_t nsIMAPBodypart::GenerateBoundary(nsImapBodyShell* aShell, bool stream,
 }
 
 int32_t nsIMAPBodypart::GenerateEmptyFilling(nsImapBodyShell* aShell,
-                                             bool stream, bool prefetch) {
+                                             nsImapProtocol* conn, bool stream,
+                                             bool prefetch) {
   if (prefetch) return 0;  // don't need to prefetch anything
 
-  const nsString& emptyString =
-      aShell->GetConnection()->GetEmptyMimePartString();
+  const nsString& emptyString = conn->GetEmptyMimePartString();
   if (!emptyString.IsEmpty()) {
     if (stream) {
-      nsImapProtocol* conn = aShell->GetConnection();
       conn->Log("SHELL", "GENERATE-Filling", m_partNumberString);
       conn->HandleMessageDownLoadLine(NS_ConvertUTF16toUTF8(emptyString).get(),
                                       false);
@@ -480,14 +444,14 @@ nsIMAPBodypartLeaf::nsIMAPBodypartLeaf(char* partNum,
 
 nsIMAPBodypartType nsIMAPBodypartLeaf::GetType() { return IMAP_BODY_LEAF; }
 
-int32_t nsIMAPBodypartLeaf::Generate(nsImapBodyShell* aShell, bool stream,
+int32_t nsIMAPBodypartLeaf::Generate(nsImapBodyShell* aShell,
+                                     nsImapProtocol* conn, bool stream,
                                      bool prefetch) {
   int32_t len = 0;
 
   if (GetIsValid()) {
     if (stream && !prefetch)
-      aShell->GetConnection()->Log("SHELL", "GENERATE-Leaf",
-                                   m_partNumberString);
+      conn->Log("SHELL", "GENERATE-Leaf", m_partNumberString);
 
     // Stream out the MIME part boundary
     // GenerateBoundary();
@@ -499,16 +463,16 @@ int32_t nsIMAPBodypartLeaf::Generate(nsImapBodyShell* aShell, bool stream,
     // of a message
     // if (parentMessage ? !parentMessage->GetIsTopLevelMessage() : true)
     if ((m_parentPart->GetType() != IMAP_BODY_MESSAGE_RFC822) &&
-        !aShell->GetPseudoInterrupted())
-      len += GenerateMIMEHeader(aShell, stream, prefetch);
+        !conn->GetPseudoInterrupted())
+      len += GenerateMIMEHeader(aShell, conn, stream, prefetch);
 
-    if (!aShell->GetPseudoInterrupted()) {
+    if (!conn->GetPseudoInterrupted()) {
       if (ShouldFetchInline(aShell)) {
         // Fetch and stream the content of this part
-        len += GeneratePart(aShell, stream, prefetch);
+        len += GeneratePart(aShell, conn, stream, prefetch);
       } else {
         // fill in the filling within the empty part
-        len += GenerateEmptyFilling(aShell, stream, prefetch);
+        len += GenerateEmptyFilling(aShell, conn, stream, prefetch);
       }
     }
   }
@@ -700,20 +664,20 @@ nsIMAPBodypartMessage::~nsIMAPBodypartMessage() {
   delete m_body;
 }
 
-int32_t nsIMAPBodypartMessage::Generate(nsImapBodyShell* aShell, bool stream,
+int32_t nsIMAPBodypartMessage::Generate(nsImapBodyShell* aShell,
+                                        nsImapProtocol* conn, bool stream,
                                         bool prefetch) {
   if (!GetIsValid()) return 0;
 
   m_contentLength = 0;
 
   if (stream && !prefetch)
-    aShell->GetConnection()->Log("SHELL", "GENERATE-MessageRFC822",
-                                 m_partNumberString);
+    conn->Log("SHELL", "GENERATE-MessageRFC822", m_partNumberString);
 
   if (!m_topLevelMessage &&
-      !aShell->GetPseudoInterrupted())  // not the top-level message - we need
-                                        // the MIME header as well as the
-                                        // message header
+      !conn->GetPseudoInterrupted())  // not the top-level message - we need
+                                      // the MIME header as well as the
+                                      // message header
   {
     // but we don't need the MIME headers of a message/rfc822 part if this
     // content type is in (part of) the main msg header. In other words, we
@@ -734,13 +698,13 @@ int32_t nsIMAPBodypartMessage::Generate(nsImapBodyShell* aShell, bool stream,
         PL_strcasecmp(m_bodySubType, "rfc822") ||
         PL_strcasecmp(m_parentPart->GetBodyType(), "message") ||
         PL_strcasecmp(m_parentPart->GetBodySubType(), "rfc822"))
-      m_contentLength += GenerateMIMEHeader(aShell, stream, prefetch);
+      m_contentLength += GenerateMIMEHeader(aShell, conn, stream, prefetch);
   }
 
-  if (!aShell->GetPseudoInterrupted())
-    m_contentLength += m_headers->Generate(aShell, stream, prefetch);
-  if (!aShell->GetPseudoInterrupted())
-    m_contentLength += m_body->Generate(aShell, stream, prefetch);
+  if (!conn->GetPseudoInterrupted())
+    m_contentLength += m_headers->Generate(aShell, conn, stream, prefetch);
+  if (!conn->GetPseudoInterrupted())
+    m_contentLength += m_body->Generate(aShell, conn, stream, prefetch);
 
   return m_contentLength;
 }
@@ -836,14 +800,14 @@ void nsIMAPBodypartMultipart::SetBodySubType(char* bodySubType) {
     m_contentType = PR_smprintf("%s/%s", m_bodyType, m_bodySubType);
 }
 
-int32_t nsIMAPBodypartMultipart::Generate(nsImapBodyShell* aShell, bool stream,
+int32_t nsIMAPBodypartMultipart::Generate(nsImapBodyShell* aShell,
+                                          nsImapProtocol* conn, bool stream,
                                           bool prefetch) {
   int32_t len = 0;
 
   if (GetIsValid()) {
     if (stream && !prefetch)
-      aShell->GetConnection()->Log("SHELL", "GENERATE-Multipart",
-                                   m_partNumberString);
+      conn->Log("SHELL", "GENERATE-Multipart", m_partNumberString);
 
     // Stream out the MIME header of this part
 
@@ -859,24 +823,25 @@ int32_t nsIMAPBodypartMultipart::Generate(nsImapBodyShell* aShell, bool stream,
         !parentIsMessageType;  // !PL_strcasecmp(m_bodySubType, "signed") ? true
                                // : !parentIsMessageType;
     if (needMIMEHeader &&
-        !aShell->GetPseudoInterrupted())  // not a message body's type
+        !conn->GetPseudoInterrupted())  // not a message body's type
     {
-      len += GenerateMIMEHeader(aShell, stream, prefetch);
+      len += GenerateMIMEHeader(aShell, conn, stream, prefetch);
     }
 
     if (ShouldFetchInline(aShell)) {
       for (size_t i = 0; i < m_partList->Length(); i++) {
-        if (!aShell->GetPseudoInterrupted())
-          len += GenerateBoundary(aShell, stream, prefetch, false);
-        if (!aShell->GetPseudoInterrupted())
-          len += m_partList->ElementAt(i)->Generate(aShell, stream, prefetch);
+        if (!conn->GetPseudoInterrupted())
+          len += GenerateBoundary(aShell, conn, stream, prefetch, false);
+        if (!conn->GetPseudoInterrupted())
+          len += m_partList->ElementAt(i)->Generate(aShell, conn, stream,
+                                                    prefetch);
       }
-      if (!aShell->GetPseudoInterrupted())
-        len += GenerateBoundary(aShell, stream, prefetch, true);
+      if (!conn->GetPseudoInterrupted())
+        len += GenerateBoundary(aShell, conn, stream, prefetch, true);
     } else {
       // fill in the filling within the empty part
-      if (!aShell->GetPseudoInterrupted())
-        len += GenerateEmptyFilling(aShell, stream, prefetch);
+      if (!conn->GetPseudoInterrupted())
+        len += GenerateEmptyFilling(aShell, conn, stream, prefetch);
     }
   }
   m_contentLength = len;
@@ -988,21 +953,21 @@ void nsIMAPMessageHeaders::QueuePrefetchMessageHeaders(
     aShell->AddPrefetchToQueue(kRFC822HeadersOnly, NULL);
 }
 
-int32_t nsIMAPMessageHeaders::Generate(nsImapBodyShell* aShell, bool stream,
+int32_t nsIMAPMessageHeaders::Generate(nsImapBodyShell* aShell,
+                                       nsImapProtocol* conn, bool stream,
                                        bool prefetch) {
   // prefetch the header
-  if (prefetch && !m_partData && !aShell->DeathSignalReceived()) {
+  if (prefetch && !m_partData && !conn->DeathSignalReceived()) {
     QueuePrefetchMessageHeaders(aShell);
   }
 
   if (stream && !prefetch)
-    aShell->GetConnection()->Log("SHELL", "GENERATE-MessageHeaders",
-                                 m_partNumberString);
+    conn->Log("SHELL", "GENERATE-MessageHeaders", m_partNumberString);
 
   // stream out the part data
   if (ShouldFetchInline(aShell)) {
-    if (!aShell->GetPseudoInterrupted())
-      m_contentLength = GeneratePart(aShell, stream, prefetch);
+    if (!conn->GetPseudoInterrupted())
+      m_contentLength = GeneratePart(aShell, conn, stream, prefetch);
   } else {
     m_contentLength = 0;  // don't fill in any filling for the headers
   }

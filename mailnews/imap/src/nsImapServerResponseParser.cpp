@@ -409,7 +409,7 @@ void nsImapServerResponseParser::ProcessOkCommand(const char* commandToken) {
       char* imapPart = nullptr;
 
       fServerConnection.GetCurrentUrl()->GetImapPartToFetch(&imapPart);
-      m_shell->Generate(imapPart);
+      m_shell->Generate(&fServerConnection, imapPart);
       PR_Free(imapPart);
 
       if ((navCon && navCon->GetPseudoInterrupted()) ||
@@ -2347,9 +2347,10 @@ void nsImapServerResponseParser::bodystructure_data() {
       delete message;
       message = nullptr;
     }
+    bool showAttachmentsInline = fServerConnection.GetShowAttachmentsInline();
     m_shell =
-        new nsImapBodyShell(&fServerConnection, message, CurrentResponseUID(),
-                            FolderUID(), GetSelectedMailboxName());
+        new nsImapBodyShell(message, CurrentResponseUID(), FolderUID(),
+                            GetSelectedMailboxName(), showAttachmentsInline);
     // ignore syntax errors in parsing the body structure response. If there's
     // an error we'll just fall back to fetching the whole message.
     SetSyntaxError(false);

@@ -2860,14 +2860,13 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                   MOZ_LOG(IMAPCache, LogLevel::Debug,
                           ("ProcessSelectedStateURL(): Set "
                            "IMAP_CONTENT_MODIFIED_*: fetch one mime part"));
-                  foundShell->SetConnection(this);
                   GetServerStateParser().UseCachedShell(foundShell);
                   // Set the current uid in server state parser (in case it was
                   // used for new mail msgs earlier).
                   GetServerStateParser().SetCurrentResponseUID(
                       strtoul(messageIdString.get(), nullptr, 10));
-                  foundShell->Generate(imappart);
-                  GetServerStateParser().UseCachedShell(NULL);
+                  foundShell->Generate(this, imappart);
+                  GetServerStateParser().UseCachedShell(nullptr);
                 }
               } else {
                 // Message IDs are not UIDs.
@@ -2954,17 +2953,16 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                       getter_AddRefs(foundShell));
                   if (foundShell) {
                     Log("SHELL", NULL, "Loading message, using cached shell.");
-                    foundShell->SetConnection(this);
                     GetServerStateParser().UseCachedShell(foundShell);
                     // Set the current uid in server state parser (in case it
                     // was used for new mail msgs earlier).
                     GetServerStateParser().SetCurrentResponseUID(
                         strtoul(messageIdString.get(), nullptr, 10));
-                    foundShell->Generate(NULL);
+                    foundShell->Generate(this, nullptr);
                     MOZ_LOG(IMAPCache, LogLevel::Debug,
                             ("ProcessSelectedStateURL(): Generated parts fetch "
                              "from cached shell)"));
-                    GetServerStateParser().UseCachedShell(NULL);
+                    GetServerStateParser().UseCachedShell(nullptr);
                   }
                 }
 
