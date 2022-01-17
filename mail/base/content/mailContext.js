@@ -76,9 +76,9 @@ var mailContextMenu = {
     "mailContext-markFlagged": "cmd_markAsFlagged",
     "mailcontext-moveToFolderAgain": "cmd_moveToFolderAgain",
     "mailContext-delete": "cmd_delete",
-    // "mailContext-ignoreThread": "cmd_killThread",
-    // "mailContext-ignoreSubthread": "cmd_killSubthread",
-    // "mailContext-watchThread": "cmd_watchThread",
+    "mailContext-ignoreThread": "cmd_killThread",
+    "mailContext-ignoreSubthread": "cmd_killSubthread",
+    "mailContext-watchThread": "cmd_watchThread",
     // "mailContext-print": "cmd_print",
     // "mailContext-downloadSelected": "cmd_downloadSelected",
   },
@@ -223,9 +223,6 @@ var mailContextMenu = {
       "mailContext-copyMessageUrl",
       "mailContext-archive",
       "mailContext-calendar-convert-menu",
-      "mailContext-ignoreThread",
-      "mailContext-ignoreSubthread",
-      "mailContext-watchThread",
       "mailContext-print",
       "mailContext-downloadSelected",
     ]) {
@@ -241,6 +238,7 @@ var mailContextMenu = {
     }
 
     let message = gDBView.hdrForFirstSelectedMessage;
+    let folder = message?.folder;
     let numSelectedMessages = gDBView.numSelected;
     let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
     let canMove =
@@ -277,8 +275,20 @@ var mailContextMenu = {
       "mail-context-delete-messages",
       { count: numSelectedMessages }
     );
-    // showItem("mailContext-ignoreThread", numSelectedMessages >= 1);
-    // showItem("mailContext-ignoreSubthread", numSelectedMessages >= 1);
+
+    checkItem(
+      "mailContext-ignoreThread",
+      folder?.msgDatabase.IsIgnored(message.messageKey)
+    );
+    checkItem(
+      "mailContext-ignoreSubthread",
+      folder && message.flags & Ci.nsMsgMessageFlags.Ignored
+    );
+    checkItem(
+      "mailContext-watchThread",
+      folder?.msgDatabase.IsWatched(message.messageKey)
+    );
+
     // showItem("mailContext-downloadSelected", numSelectedMessages > 1);
 
     let lastItem;
@@ -701,20 +711,21 @@ var commandController = {
     cmd_markThreadAsRead: Ci.nsMsgViewCommandType.markThreadRead,
     cmd_markAllRead: Ci.nsMsgViewCommandType.markAllRead,
     cmd_markAsNotJunk: Ci.nsMsgViewCommandType.unjunk,
+    cmd_watchThread: Ci.nsMsgViewCommandType.toggleThreadWatched,
   },
   _callbackCommands: {
-    cmd_reply: event => {
+    cmd_reply(event) {
       if (gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup) {
-        this.doCommand("cmd_replyGroup", event);
+        commandController.doCommand("cmd_replyGroup", event);
       } else {
-        this.doCommand("cmd_replySender", event);
+        commandController.doCommand("cmd_replySender", event);
       }
     },
-    cmd_forward: () => {
+    cmd_forward() {
       if (Services.prefs.getIntPref("mail.forward_message_mode", 0) == 0) {
-        this.doCommand("cmd_forwardAttachment");
+        commandController.doCommand("cmd_forwardAttachment");
       } else {
-        this.doCommand("cmd_forwardInline");
+        commandController.doCommand("cmd_forwardInline");
       }
     },
     cmd_openMessage(event) {
@@ -795,9 +806,14 @@ var commandController = {
         gDBView.hdrForFirstSelectedMessage
       );
     },
-    // cmd_killThread() {},
-    // cmd_killSubthread() {},
-    // cmd_watchThread() {},
+    cmd_killThread() {
+      // TODO: show notification (ShowIgnoredMessageNotification)
+      commandController._navigate(Ci.nsMsgNavigationType.toggleThreadKilled);
+    },
+    cmd_killSubthread() {
+      // TODO: show notification (ShowIgnoredMessageNotification)
+      commandController._navigate(Ci.nsMsgNavigationType.toggleSubthreadKilled);
+    },
     // cmd_print() {},
     // cmd_downloadSelected() {},
     cmd_viewPageSource() {
@@ -863,6 +879,8 @@ var commandController = {
       case "cmd_toggleRead":
       case "cmd_markReadByDate":
       case "cmd_markAsFlagged":
+      case "cmd_killThread":
+      case "cmd_killSubthread":
         return numSelectedMessages >= 1;
       case "cmd_editDraftMsg":
         return (
@@ -939,6 +957,19 @@ var commandController = {
           numSelectedMessages == 1 &&
           gDBView.hdrForFirstSelectedMessage?.folder?.server.canHaveFilters
         );
+      case "cmd_watchThread": {
+        if (!gViewWrapper.dbView) {
+          return false;
+        }
+        let enabledObj = {};
+        let checkStatusObj = {};
+        gViewWrapper.dbView.getCommandStatus(
+          Ci.nsMsgViewCommandType.toggleThreadWatched,
+          enabledObj,
+          checkStatusObj
+        );
+        return enabledObj.value;
+      }
     }
 
     return false;

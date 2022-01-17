@@ -4886,6 +4886,7 @@ nsresult nsMsgDBView::ExpandByIndex(nsMsgViewIndex index,
 }
 
 nsresult nsMsgDBView::CollapseAll() {
+  if (mJSTree) mJSTree->BeginUpdateBatch();
   for (uint32_t i = 0; i < GetSize(); i++) {
     uint32_t numExpanded;
     uint32_t flags = m_flags[i];
@@ -4894,6 +4895,7 @@ nsresult nsMsgDBView::CollapseAll() {
       CollapseByIndex(i, &numExpanded);
   }
 
+  if (mJSTree) mJSTree->EndUpdateBatch();
   SelectionChangedXPCOM();
   return NS_OK;
 }

@@ -222,21 +222,36 @@ window.addEventListener("DOMContentLoaded", () => {
     // to QI to anything) but it does implement the required methods.
     gViewWrapper.dbView.setJSTree({
       QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
-      beginUpdateBatch() {},
-      endUpdateBatch() {},
+      _inBatch: false,
+      beginUpdateBatch() {
+        this._inBatch = true;
+      },
+      endUpdateBatch() {
+        this._inBatch = false;
+      },
       ensureRowIsVisible(index) {
-        threadTree.scrollToIndex(index);
+        if (!this._inBatch) {
+          threadTree.scrollToIndex(index);
+        }
       },
       invalidate() {
-        threadTree.invalidate();
+        if (!this._inBatch) {
+          threadTree.invalidate();
+        }
       },
       invalidateRange(startIndex, endIndex) {
+        if (this._inBatch) {
+          return;
+        }
+
         for (let index = startIndex; index <= endIndex; index++) {
           threadTree.invalidateRow(index);
         }
       },
       rowCountChanged(index, count) {
-        threadTree.rowCountChanged(index, count);
+        if (!this._inBatch) {
+          threadTree.rowCountChanged(index, count);
+        }
       },
     });
 
@@ -647,7 +662,6 @@ class ThreadListrow extends customElements.get("tree-view-listrow") {
 
   set index(index) {
     super.index = index;
-    this.dataset.uri = this.view.getURIForViewIndex(index);
     let rowProps = this.view.getRowProperties(index);
     this.style.fontWeight = /\bunread\b/.test(rowProps) ? "bold" : null;
 
@@ -881,5 +895,83 @@ var sortController = {
 commandController.registerCallback(
   "cmd_sort",
   event => sortController.handleCommand(event),
+  () => !!gViewWrapper
+);
+
+commandController.registerCallback(
+  "cmd_expandAllThreads",
+  () => {
+    saveSelection();
+    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+    restoreSelection();
+  },
+  () => !!gViewWrapper
+);
+commandController.registerCallback(
+  "cmd_collapseAllThreads",
+  () => {
+    saveSelection();
+    gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+    // TODO: this reopens threads containing a selected message.
+    restoreSelection();
+  },
+  () => !!gViewWrapper
+);
+
+function SwitchView(command) {
+  // when switching thread views, we might be coming out of quick search
+  // or a message view.
+  // first set view picker to all
+  if (gViewWrapper.mailViewIndex != 0) {
+    // MailViewConstants.kViewItemAll
+    gViewWrapper.setMailView(0);
+  }
+
+  switch (command) {
+    // "All" threads and "Unread" threads don't change threading state
+    case "cmd_viewAllMsgs":
+      gViewWrapper.showUnreadOnly = false;
+      break;
+    case "cmd_viewUnreadMsgs":
+      gViewWrapper.showUnreadOnly = true;
+      break;
+    // "Threads with Unread" and "Watched Threads with Unread" force threading
+    case "cmd_viewWatchedThreadsWithUnread":
+      gViewWrapper.specialViewWatchedThreadsWithUnread = true;
+      break;
+    case "cmd_viewThreadsWithUnread":
+      gViewWrapper.specialViewThreadsWithUnread = true;
+      break;
+    // "Ignored Threads" toggles 'ignored' inclusion --
+    //   but it also resets 'With Unread' views to 'All'
+    case "cmd_viewIgnoredThreads":
+      gViewWrapper.showIgnored = !gViewWrapper.showIgnored;
+      break;
+  }
+}
+
+commandController.registerCallback(
+  "cmd_viewAllMsgs",
+  () => SwitchView("cmd_viewAllMsgs"),
+  () => !!gViewWrapper
+);
+commandController.registerCallback(
+  "cmd_viewThreadsWithUnread",
+  () => SwitchView("cmd_viewThreadsWithUnread"),
+  () => !!gViewWrapper
+);
+commandController.registerCallback(
+  "cmd_viewWatchedThreadsWithUnread",
+  () => SwitchView("cmd_viewWatchedThreadsWithUnread"),
+  () => !!gViewWrapper
+);
+commandController.registerCallback(
+  "cmd_viewUnreadMsgs",
+  () => SwitchView("cmd_viewUnreadMsgs"),
+  () => !!gViewWrapper
+);
+commandController.registerCallback(
+  "cmd_viewIgnoredThreads",
+  () => SwitchView("cmd_viewIgnoredThreads"),
   () => !!gViewWrapper
 );
