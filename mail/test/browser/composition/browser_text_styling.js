@@ -6,7 +6,7 @@
  * Test styling messages.
  */
 
-requestLongerTimeout(2);
+requestLongerTimeout(3);
 
 var {
   close_compose_window,

@@ -1803,15 +1803,60 @@ class FormatHelper {
     this.assertMessageBodyContent([{ block: "P", content }], assertMessage);
   }
 
-  // NOTE: fails to open a native application menu on mac/osx because it is
-  // handled and restricted by the OS.
-  async _openMenu(menu) {
+  /**
+   * Attempt to show a menu. The menu must be closed when calling.
+   *
+   * NOTE: this fails to open a native application menu on mac/osx because it is
+   * handled and restricted by the OS.
+   *
+   * @param {MozMenuPopup} menu - The menu to show.
+   *
+   * @return {boolean} Whether the menu was opened. Otherwise, the menu is still
+   *   closed.
+   */
+  async _openMenuOnce(menu) {
     menu = menu.parentNode;
-    let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+    // NOTE: Calling openMenu(true) on a closed menu will put the menu in the
+    // "showing" state. But this can be cancelled (for some unknown reason) and
+    // the menu will be put back in the "hidden" state. Therefore we listen to
+    // both popupshown and popuphidden. See bug 1720174.
+    // NOTE: This only seems to happen for some platforms, specifically this
+    // sometimes occurs for the linux64 build on the try server.
+    // FIXME: Use only BrowserEventUtils.waitForEvent(menu, "popupshown")
+    let eventPromise = new Promise(resolve => {
+      let listener = event => {
+        menu.removeEventListener("popupshown", listener);
+        menu.removeEventListener("popuphidden", listener);
+        resolve(event.type);
+      };
+      menu.addEventListener("popupshown", listener);
+      menu.addEventListener("popuphidden", listener);
+    });
     menu.openMenu(true);
-    await shownPromise;
+    let eventType = await eventPromise;
+    return eventType == "popupshown";
   }
 
+  /**
+   * Show a menu. The menu must be closed when calling.
+   *
+   * @param {MozMenuPopup} menu - The menu to show.
+   */
+  async _openMenu(menu) {
+    if (!(await this._openMenuOnce(menu))) {
+      // If opening failed, try one more time. See bug 1720174.
+      Assert.ok(
+        await this._openMenuOnce(menu),
+        `Opening ${menu.id} should succeed on a second attempt`
+      );
+    }
+  }
+
+  /**
+   * Hide a menu. The menu must be open when calling.
+   *
+   * @param {MozMenuPopup} menu - The menu to hide.
+   */
   async _closeMenu(menu) {
     menu = menu.parentNode;
     let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
@@ -1819,6 +1864,12 @@ class FormatHelper {
     await hiddenPromise;
   }
 
+  /**
+   * Select a menu item from an open menu. This will also close the menu.
+   *
+   * @param {MozMenuItem} item - The item to select.
+   * @param {MozMenuPopup} menu - The open menu that the item belongs to.
+   */
   async _selectFromOpenMenu(item, menu) {
     menu = menu.parentNode;
     let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
@@ -1826,6 +1877,12 @@ class FormatHelper {
     await hiddenPromise;
   }
 
+  /**
+   * Open a menu, select one of its items and close the menu.
+   *
+   * @param {MozMenuItem} item - The item to select.
+   * @param {MozMenuPopup} menu - The menu to open, that item belongs to.
+   */
   async _selectFromClosedMenu(item, menu) {
     if (item.disabled) {
       await TestUtils.waitForCondition(
@@ -1882,8 +1939,26 @@ class FormatHelper {
    * @param {MozMenuPopup} menu - A closed menu below the Format menu to open.
    */
   async openFormatSubMenu(menu) {
-    await this._openMenu(this.formatMenu);
-    await this._openMenu(menu);
+    if (
+      !(await this._openMenuOnce(this.formatMenu)) ||
+      !(await this._openMenuOnce(menu))
+    ) {
+      // If opening failed, try one more time. See bug 1720174.
+      // NOTE: failing to open the sub-menu can cause the format menu to also
+      // close. But we still make sure the format menu is closed before trying
+      // again.
+      if (this.formatMenu.state == "open") {
+        await this._closeMenu(this.formatMenu);
+      }
+      Assert.ok(
+        await this._openMenuOnce(this.formatMenu),
+        "Opening format menu should succeed on a second attempt"
+      );
+      Assert.ok(
+        await this._openMenuOnce(menu),
+        `Opening format sub-menu ${menu.id} should succeed on a second attempt`
+      );
+    }
   }
 
   /**
