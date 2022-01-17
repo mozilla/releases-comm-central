@@ -160,12 +160,12 @@ class nsIMAPBodypartMultipart : public nsIMAPBodypart {
   // Returns the part object with the given number
   virtual nsIMAPBodypart* FindPartWithNumber(const char* partNum) override;
   virtual bool IsLastTextPart(const char* partNumberString) override;
-  void AppendPart(nsIMAPBodypart* part) { m_partList->AppendElement(part); }
+  void AppendPart(nsIMAPBodypart* part) { m_partList.AppendElement(part); }
   void SetBodySubType(char* bodySubType);
 
  protected:
-  nsTArray<nsIMAPBodypart*>*
-      m_partList;  // An ordered list of top-level body parts for this shell
+  // An ordered list of top-level body parts for this shell
+  nsTArray<nsIMAPBodypart*> m_partList;
 };
 
 // The name "leaf" is somewhat misleading, since a part of type message/rfc822
@@ -299,8 +299,8 @@ class nsImapBodyShell : public nsISupports {
 
   nsIMAPBodypartMessage* m_message;
 
-  nsTArray<nsIMAPMessagePartID>
-      m_prefetchQueue;  // Array of pipelined part prefetches.
+  // Array of pipelined part prefetches.
+  nsTArray<nsIMAPMessagePartID> m_prefetchQueue;
 
   bool m_isValid;
   nsCString m_UID;           // UID of this message

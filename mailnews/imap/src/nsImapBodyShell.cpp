@@ -610,8 +610,8 @@ bool nsIMAPBodypartLeaf::ShouldFetchInline(nsImapBodyShell* aShell) {
 bool nsIMAPBodypartMultipart::IsLastTextPart(const char* partNumberString) {
   // iterate backwards over the parent's part list and if the part is
   // text, compare it to the part number string
-  for (int i = m_partList->Length() - 1; i >= 0; i--) {
-    nsIMAPBodypart* part = m_partList->ElementAt(i);
+  for (int i = m_partList.Length() - 1; i >= 0; i--) {
+    nsIMAPBodypart* part = m_partList[i];
     if (!PL_strcasecmp(part->GetBodyType(), "text"))
       return !PL_strcasecmp(part->GetPartNumberString(), partNumberString);
   }
@@ -773,9 +773,8 @@ nsIMAPBodypartMultipart::nsIMAPBodypartMultipart(char* partNum,
     } else
       m_partNumberString = NS_xstrdup(m_parentPart->GetPartNumberString());
   }
-  m_partList = new nsTArray<nsIMAPBodypart*>();
   m_bodyType = NS_xstrdup("multipart");
-  if (m_partList && m_parentPart && m_bodyType)
+  if (m_parentPart && m_bodyType)
     SetIsValid(true);
   else
     SetIsValid(false);
@@ -786,10 +785,9 @@ nsIMAPBodypartType nsIMAPBodypartMultipart::GetType() {
 }
 
 nsIMAPBodypartMultipart::~nsIMAPBodypartMultipart() {
-  for (int i = m_partList->Length() - 1; i >= 0; i--) {
-    delete m_partList->ElementAt(i);
+  for (int i = m_partList.Length() - 1; i >= 0; i--) {
+    delete m_partList[i];
   }
-  delete m_partList;
 }
 
 void nsIMAPBodypartMultipart::SetBodySubType(char* bodySubType) {
@@ -829,12 +827,11 @@ int32_t nsIMAPBodypartMultipart::Generate(nsImapBodyShell* aShell,
     }
 
     if (ShouldFetchInline(aShell)) {
-      for (size_t i = 0; i < m_partList->Length(); i++) {
+      for (auto part : m_partList) {
         if (!conn->GetPseudoInterrupted())
           len += GenerateBoundary(aShell, conn, stream, prefetch, false);
         if (!conn->GetPseudoInterrupted())
-          len += m_partList->ElementAt(i)->Generate(aShell, conn, stream,
-                                                    prefetch);
+          len += part->Generate(aShell, conn, stream, prefetch);
       }
       if (!conn->GetPseudoInterrupted())
         len += GenerateBoundary(aShell, conn, stream, prefetch, true);
@@ -893,8 +890,8 @@ bool nsIMAPBodypartMultipart::PreflightCheckAllInline(nsImapBodyShell* aShell) {
   bool rv = ShouldFetchInline(aShell);
 
   size_t i = 0;
-  while (rv && (i < m_partList->Length())) {
-    rv = m_partList->ElementAt(i)->PreflightCheckAllInline(aShell);
+  while (rv && (i < m_partList.Length())) {
+    rv = m_partList[i]->PreflightCheckAllInline(aShell);
     i++;
   }
 
@@ -909,9 +906,8 @@ nsIMAPBodypart* nsIMAPBodypartMultipart::FindPartWithNumber(
   if (!PL_strcmp(partNum, m_partNumberString)) return this;
 
   // check children
-  for (int i = m_partList->Length() - 1; i >= 0; i--) {
-    nsIMAPBodypart* foundPart =
-        m_partList->ElementAt(i)->FindPartWithNumber(partNum);
+  for (int i = m_partList.Length() - 1; i >= 0; i--) {
+    nsIMAPBodypart* foundPart = m_partList[i]->FindPartWithNumber(partNum);
     if (foundPart) return foundPart;
   }
 
