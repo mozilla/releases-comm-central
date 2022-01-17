@@ -980,57 +980,34 @@ bool nsIMAPMessageHeaders::ShouldFetchInline(nsImapBodyShell* aShell) {
 
 ///////////// nsImapBodyShellCache ////////////////////////////////////
 
-#if 0  // mscott - commenting out because it does not appear to be used
-static int
-imap_shell_cache_strcmp (const void *a, const void *b)
-{
-  return PL_strcmp ((const char *) a, (const char *) b);
-}
-#endif
-
-nsImapBodyShellCache::nsImapBodyShellCache() : m_shellHash(20) {
-  m_shellList = new nsTArray<nsImapBodyShell*>();
-}
-
-/* static */ nsImapBodyShellCache* nsImapBodyShellCache::Create() {
-  nsImapBodyShellCache* cache = new nsImapBodyShellCache();
-  if (!cache || !cache->m_shellList) return NULL;
-
-  return cache;
-}
-
-nsImapBodyShellCache::~nsImapBodyShellCache() {
-  while (EjectEntry())
-    ;
-  delete m_shellList;
-}
+nsImapBodyShellCache::nsImapBodyShellCache()
+    : m_shellList(kMaxEntries), m_shellHash(kMaxEntries) {}
 
 // We'll use an LRU scheme here.
 // We will add shells in numerical order, so the
 // least recently used one will be in slot 0.
-bool nsImapBodyShellCache::EjectEntry() {
-  if (m_shellList->Length() < 1) return false;
+void nsImapBodyShellCache::EjectEntry() {
+  MOZ_ASSERT(!m_shellList.IsEmpty());
 
-  nsImapBodyShell* removedShell = m_shellList->ElementAt(0);
+  nsImapBodyShell* removedShell = m_shellList.ElementAt(0);
 
-  m_shellList->RemoveElementAt(0);
+  m_shellList.RemoveElementAt(0);
   m_shellHash.Remove(removedShell->GetUID());
-
-  return true;
 }
 
 void nsImapBodyShellCache::Clear() {
-  while (EjectEntry())
-    ;
+  m_shellList.ClearAndRetainStorage();
+  m_shellHash.Clear();
 }
 
-bool nsImapBodyShellCache::AddShellToCache(nsImapBodyShell* shell) {
+void nsImapBodyShellCache::AddShellToCache(nsImapBodyShell* shell) {
   // If it's already in the cache, then just return.
   // This has the side-effect of re-ordering the LRU list
   // to put this at the top, which is good, because it's what we want.
   if (FindShellForUID(shell->GetUID_validity(), shell->GetFolderName(),
-                      shell->GetContentModified()))
-    return true;
+                      shell->GetContentModified())) {
+    return;
+  }
 
   // OK, so it's not in the cache currently.
 
@@ -1041,20 +1018,19 @@ bool nsImapBodyShellCache::AddShellToCache(nsImapBodyShell* shell) {
   m_shellHash.Get(shell->GetUID_validity(), getter_AddRefs(foundShell));
   if (foundShell) {
     m_shellHash.Remove(foundShell->GetUID_validity());
-    m_shellList->RemoveElement(foundShell);
+    m_shellList.RemoveElement(foundShell);
+  }
+
+  // Make sure there's enough room
+  while (m_shellList.Length() > (kMaxEntries - 1)) {
+    EjectEntry();
   }
 
   // Add the new one to the cache
-  m_shellList->AppendElement(shell);
+  m_shellList.AppendElement(shell);
 
   m_shellHash.InsertOrUpdate(shell->GetUID_validity(), RefPtr{shell});
   shell->SetIsCached(true);
-
-  // while we're not over our size limit, eject entries
-  bool rv = true;
-  while (GetSize() > GetMaxSize()) rv = EjectEntry();
-
-  return rv;
 }
 
 nsImapBodyShell* nsImapBodyShellCache::FindShellForUID(
@@ -1075,8 +1051,8 @@ nsImapBodyShell* nsImapBodyShellCache::FindShellForUID(
 
   // adjust the LRU stuff. This defeats the performance gain of the hash if
   // it actually is found since this is linear.
-  m_shellList->RemoveElement(foundShell);
-  m_shellList->AppendElement(foundShell);  // Adds to end
+  m_shellList.RemoveElement(foundShell);
+  m_shellList.AppendElement(foundShell);  // Adds to end
 
   return foundShell;
 }

@@ -44,7 +44,7 @@ class nsIMAPHostInfo {
   bool fDeleteIsMoveToTrash;
   bool fShowDeletedMessages;
   bool fGotNamespaces;
-  nsImapBodyShellCache* fShellCache;
+  nsImapBodyShellCache fShellCache;
 };
 
 // this is an interface to a linked list of host info's

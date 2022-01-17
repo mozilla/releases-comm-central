@@ -332,12 +332,11 @@ class nsImapBodyShell : public nsISupports {
 
 class nsImapBodyShellCache {
  public:
-  static nsImapBodyShellCache* Create();
-  virtual ~nsImapBodyShellCache();
+  nsImapBodyShellCache();
 
   // Adds shell to cache, possibly ejecting
   // another entry based on scheme in EjectEntry().
-  bool AddShellToCache(nsImapBodyShell* shell);
+  void AddShellToCache(nsImapBodyShell* shell);
   // Looks up a shell in the cache given the message's UID.
   nsImapBodyShell* FindShellForUID(nsACString const& UID,
                                    nsACString const& mailboxName,
@@ -345,14 +344,12 @@ class nsImapBodyShellCache {
   void Clear();
 
  protected:
-  nsImapBodyShellCache();
+  static constexpr int kMaxEntries = 20;
   // Chooses an entry to eject;  deletes that entry;  and ejects it from the
-  // cache, clearing up a new space.  Returns true if it found an entry
-  // to eject, false otherwise.
-  bool EjectEntry();
-  uint32_t GetSize() { return m_shellList->Length(); }
-  uint32_t GetMaxSize() { return 20; }
-  nsTArray<nsImapBodyShell*>* m_shellList;  // For maintenance
+  // cache, clearing up a new space.
+  void EjectEntry();
+
+  nsTArray<nsImapBodyShell*> m_shellList;
   // For quick lookup based on UID
   nsRefPtrHashtable<nsCStringHashKey, nsImapBodyShell> m_shellHash;
 };

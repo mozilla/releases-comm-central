@@ -37,7 +37,6 @@ nsIMAPHostInfo::nsIMAPHostInfo(const char* serverKey,
   server->GetUsingSubscription(&fUsingSubscription);
   fOnlineTrashFolderExists = false;
   fShouldAlwaysListInbox = true;
-  fShellCache = nsImapBodyShellCache::Create();
   fPasswordVerifiedOnline = false;
   fDeleteIsMoveToTrash = true;
   fShowDeletedMessages = false;
@@ -52,7 +51,6 @@ nsIMAPHostInfo::~nsIMAPHostInfo() {
   PR_Free(fHierarchyDelimiters);
   delete fNamespaceList;
   delete fTempNamespaceList;
-  delete fShellCache;
 }
 
 NS_IMPL_ISUPPORTS(nsImapHostSessionList, nsIImapHostSessionList, nsIObserver,
@@ -603,11 +601,10 @@ NS_IMETHODIMP nsImapHostSessionList::AddShellToCacheForHost(
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) {
-    if (host->fShellCache) {
-      if (!host->fShellCache->AddShellToCache(shell)) rv = NS_ERROR_UNEXPECTED;
-    }
-  } else
+    host->fShellCache.AddShellToCache(shell);
+  } else {
     rv = NS_ERROR_ILLEGAL_VALUE;
+  }
 
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return rv;
@@ -618,8 +615,8 @@ NS_IMETHODIMP nsImapHostSessionList::FindShellInCacheForHost(
     IMAP_ContentModifiedType modType, nsImapBodyShell** shell) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo* host = FindHost(serverKey);
-  if (host && host->fShellCache) {
-    NS_IF_ADDREF(*shell = host->fShellCache->FindShellForUID(
+  if (host) {
+    NS_IF_ADDREF(*shell = host->fShellCache.FindShellForUID(
                      nsDependentCString(UID), nsDependentCString(mailboxName),
                      modType));
   }
@@ -631,7 +628,7 @@ NS_IMETHODIMP
 nsImapHostSessionList::ClearShellCacheForHost(const char* serverKey) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
   nsIMAPHostInfo* host = FindHost(serverKey);
-  if (host && host->fShellCache) host->fShellCache->Clear();
+  if (host) host->fShellCache.Clear();
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
