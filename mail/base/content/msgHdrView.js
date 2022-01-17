@@ -2062,10 +2062,13 @@ AttachmentInfo.prototype = {
       msgWindow.promptDialog.alert(null, prompt);
     } else {
       // @see MsgComposeCommands.js which has simililar opening functionality
-      if (this.contentType == "application/pdf" || /\.pdf$/i.test(this.name)) {
+      let dotPos = this.name.lastIndexOf(".");
+      let extension =
+        dotPos >= 0 ? this.name.substr(dotPos + 1).toLowerCase() : "";
+      if (this.contentType == "application/pdf" || extension == "pdf") {
         let handlerInfo = gMIMEService.getFromTypeAndExtension(
           this.contentType,
-          this.name.split(".").pop()
+          extension
         );
         // Only open a new tab for pdfs if we are handling them internally.
         if (
@@ -2114,8 +2117,6 @@ AttachmentInfo.prototype = {
 
       // Get the MIME info from the service.
 
-      let match = this.name.match(/\.([^.]+)$/);
-      let extension = match ? match[1] : null;
       let mimeInfo;
       try {
         mimeInfo = gMIMEService.getFromTypeAndExtension(
@@ -2127,7 +2128,7 @@ AttachmentInfo.prototype = {
         // nothing registered for the file type, assume this generic type.
         mimeInfo = gMIMEService.getFromTypeAndExtension(
           "application/octet-stream",
-          null
+          ""
         );
       }
       // The default action is saveToDisk, which is not what we want.
