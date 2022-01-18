@@ -449,9 +449,7 @@ async function realFileForFile(file) {
   }
 
   let pathTempDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
-  let pathTempFile = PathUtils.createUniquePath(
-    PathUtils.join(pathTempDir, file.name)
-  );
+  let pathTempFile = await IOUtils.createUniqueFile(pathTempDir, file.name);
 
   let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   tempFile.initWithPath(pathTempFile);
