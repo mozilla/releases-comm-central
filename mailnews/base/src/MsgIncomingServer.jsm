@@ -682,6 +682,9 @@ class MsgIncomingServer {
   }
 
   getEditableFilterList(msgWindow) {
+    if (!this._editableFilterList) {
+      return this.getFilterList(msgWindow);
+    }
     return this._editableFilterList;
   }
 
