@@ -429,45 +429,49 @@ add_task(async function test_bad_password_uses_old_settings() {
   let outgoingAuthSelect = tabDocument.getElementById("outgoingAuthMethod");
   // Make sure the select field is inside the viewport.
   outgoingAuthSelect.scrollIntoView();
+  outgoingAuthSelect.focus();
 
-  let noAuthOption = outgoingAuthSelect.querySelector(`option[id="outNoAuth"]`);
-  let outgoingOptions = outgoingAuthSelect.getElementsByTagName("option");
-
-  // Change the outgoing authentication method to "No Authentication".
-  EventUtils.synthesizeMouseAtCenter(
-    outgoingAuthSelect,
-    { type: "mousedown" },
-    tab.browser.contentWindow
+  let popupOpened = BrowserTestUtils.waitForEvent(
+    document.getElementById("ContentSelectDropdown"),
+    "popupshown"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    noAuthOption,
-    { type: "mouseup" },
-    tab.browser.contentWindow
-  );
+  EventUtils.sendKey("space", tab.browser.contentWindow);
+  await popupOpened;
 
-  // Confirm that the outgoing username field is disabled.
-  await BrowserTestUtils.waitForCondition(
+  // The default value should be on "Normal password", which is after
+  // "No authentication", so we need to go up. We do this on purpose so we can
+  // properly test and track the order of options.
+  EventUtils.sendKey("up", tab.browser.contentWindow);
+
+  let userNameDisabled = BrowserTestUtils.waitForCondition(
     () => tabDocument.getElementById("outgoingUsername").disabled,
     "Timeout waiting for the outgoing username field to be disabled"
   );
+  EventUtils.sendKey("return", tab.browser.contentWindow);
+
+  // Confirm that the outgoing username field is disabled.
+  await userNameDisabled;
 
   // Revert the outgoing authentication method to "Normal Password".
-  EventUtils.synthesizeMouseAtCenter(
-    outgoingAuthSelect,
-    { type: "mousedown" },
-    tab.browser.contentWindow
+  outgoingAuthSelect.focus();
+  popupOpened = BrowserTestUtils.waitForEvent(
+    document.getElementById("ContentSelectDropdown"),
+    "popupshown"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    outgoingOptions[2],
-    { type: "mouseup" },
-    tab.browser.contentWindow
-  );
+  // Change the outgoing authentication method to "No Authentication".
+  EventUtils.sendKey("space", tab.browser.contentWindow);
+  await popupOpened;
 
-  // Confirm that the outgoing username field is enabled.
-  await BrowserTestUtils.waitForCondition(
+  EventUtils.sendKey("down", tab.browser.contentWindow);
+
+  let usernameEnabled = BrowserTestUtils.waitForCondition(
     () => !tabDocument.getElementById("outgoingUsername").disabled,
     "Timeout waiting for the outgoing username field to be enabled"
   );
+  EventUtils.sendKey("return", tab.browser.contentWindow);
+
+  // Confirm that the outgoing username field is enabled.
+  await usernameEnabled;
 
   let notificationRemoved = BrowserTestUtils.waitForCondition(
     () => notificationBox.getNotificationWithValue("accountSetupError") == null,
