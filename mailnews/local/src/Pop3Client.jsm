@@ -116,6 +116,11 @@ class Pop3Client {
    * Initiate a connection to the server
    */
   connect() {
+    if (this._server.serverBusy) {
+      this._actionError("pop3ServerBusy", [this._server.prettyName]);
+      return;
+    }
+
     this._logger.debug(
       `Connecting to pop://${this._server.realHostName}:${this._server.port}`
     );
@@ -425,9 +430,9 @@ class Pop3Client {
       this._logger.debug(`C: ${str}`);
     }
 
-    if (this._socket.readyState != "open") {
+    if (this._socket?.readyState != "open") {
       this._logger.warn(
-        `Failed to send because socket state is ${this._socket.readyState}`
+        `Failed to send because socket state is ${this._socket?.readyState}`
       );
       return;
     }
@@ -518,7 +523,7 @@ class Pop3Client {
       } else {
         // Abort if not supported.
         this._logger.error("Server doesn't support STLS. Aborting.");
-        this._actionDone(Cr.NS_ERROR_FAILURE);
+        this._actionError("nsErrorCouldNotConnectViaTls");
       }
       return;
     }
@@ -537,7 +542,34 @@ class Pop3Client {
       this._nextAuthMethod = "USERPASS";
     }
 
-    this._actionAuth();
+    if (this._nextAuthMethod) {
+      this._actionAuth();
+      return;
+    }
+
+    // Preferred auth methods don't match any supported auth methods. Give user
+    // some hints to change the config.
+    if (
+      this._server.authMethod == Ci.nsMsgAuthMethod.passwordCleartext &&
+      this._supportedAuthMethods.includes("CRAM-MD5")
+    ) {
+      // Suggest changing from plain password to encrypted password.
+      this._actionError("pop3AuthChangePlainToEncrypt");
+    } else if (
+      this._server.authMethod == Ci.nsMsgAuthMethod.passwordEncrypted &&
+      (this._supportedAuthMethods.includes("PLAIN") ||
+        this._supportedAuthMethods.includes("LOGIN"))
+    ) {
+      // Suggest changing from encrypted password to plain password.
+      this._actionError(
+        this._secureTransport
+          ? "pop3AuthChangeEncryptToPlainSSL"
+          : "pop3AuthChangeEncryptToPlainNoSSL"
+      );
+    } else {
+      // General suggestion about changing auth method.
+      this._actionError("pop3AuthMechNotSupported");
+    }
   };
 
   /**
@@ -603,7 +635,7 @@ class Pop3Client {
           token = this._authenticator.getNextGssapiToken("");
         } catch (e) {
           this._logger.error(e);
-          this._actionDone(Cr.NS_ERROR_FAILURE);
+          this._actionError("pop3GssapiFailure");
           return;
         }
         this._send(`AUTH GSSAPI ${token}`, true);
@@ -637,19 +669,32 @@ class Pop3Client {
    * @param {Pop3Response} res - Authentication response received from the server.
    */
   _actionAuthResponse = res => {
+    this._authenticating = false;
     if (res.success) {
-      this._authenticating = false;
       this._actionAfterAuth();
-    } else {
-      if (this._nextAuthMethod) {
-        // Try the next auth method.
-        this._actionAuth();
-        return;
-      }
+      return;
+    }
 
-      if (this._verifyLogon) {
-        return;
-      }
+    if (this._nextAuthMethod) {
+      // Try the next auth method.
+      this._actionAuth();
+      return;
+    }
+
+    if (this._verifyLogon) {
+      return;
+    }
+
+    if (
+      ["USERPASS", "PLAIN", "LOGIN", "CRAM-MD5"].includes(
+        this._currentAuthMethod
+      )
+    ) {
+      this._actionError(
+        "pop3PasswordFailed",
+        [this._server.realUsername],
+        res.statusText
+      );
 
       // Ask user what to do.
       let action = this._authenticator.promptAuthFailed();
@@ -666,13 +711,19 @@ class Pop3Client {
       // Retry.
       this._nextAuthMethod = this._possibleAuthMethods[0];
       this._actionAuth();
+    } else if (this._currentAuthMethod == "GSSAPI") {
+      this._actionError("pop3GssapiFailure", [], res.statusText);
     }
   };
 
   /**
    * The second step of USER/PASS auth, send the password to the server.
    */
-  _actionAuthUserPass = () => {
+  _actionAuthUserPass = res => {
+    if (!res.success) {
+      this._actionError("pop3UsernameFailure", [], res.statusText);
+      return;
+    }
     this._nextAction = this._actionAuthResponse;
     this._send(`PASS ${this._authenticator.getPassword()}`, true);
   };
@@ -680,7 +731,11 @@ class Pop3Client {
   /**
    * The second step of PLAIN auth, send the auth token to the server.
    */
-  _actionAuthPlain = () => {
+  _actionAuthPlain = res => {
+    if (!res.success) {
+      this._actionError("pop3UsernameFailure", [], res.statusText);
+      return;
+    }
     this._nextAction = this._actionAuthResponse;
     let password = String.fromCharCode(
       ...new TextEncoder().encode(this._authenticator.getPassword())
@@ -703,7 +758,11 @@ class Pop3Client {
   /**
    * The third step of LOGIN auth, send the password to the server.
    */
-  _actionAuthLoginPass = () => {
+  _actionAuthLoginPass = res => {
+    if (!res.success) {
+      this._actionError("pop3UsernameFailure", [], res.statusText);
+      return;
+    }
     this._nextAction = this._actionAuthResponse;
     this._logger.debug("AUTH LOGIN PASS");
     let password = this._authenticator.getPassword();
@@ -728,6 +787,10 @@ class Pop3Client {
    * @param {Pop3Response} res - AUTH response received from the server.
    */
   _actionAuthCramMd5 = res => {
+    if (!res.success) {
+      this._actionError("pop3UsernameFailure", [], res.statusText);
+      return;
+    }
     this._nextAction = this._actionAuthResponse;
 
     // Server sent us a base64 encoded challenge.
@@ -801,6 +864,11 @@ class Pop3Client {
    * @param {Pop3Response} res - STAT response received from the server.
    */
   _actionStatResponse = res => {
+    if (!res.success) {
+      this._actionError("pop3StatFail", [], res.statusText);
+      return;
+    }
+
     let numberOfMessages = Number.parseInt(res.statusText);
     if (!numberOfMessages) {
       // Finish if there is no message.
@@ -817,15 +885,24 @@ class Pop3Client {
       this._actionDone();
       return;
     }
-    if (res.success) {
-      if (this._downloadMail) {
+
+    if (this._downloadMail) {
+      try {
         this._sink.beginMailDelivery(
           this._singleUidlToDownload,
           this._msgWindow
         );
+      } catch (e) {
+        const NS_MSG_FOLDER_BUSY = 2153054218;
+        if (e.result == NS_MSG_FOLDER_BUSY) {
+          this._actionError("pop3ServerBusy", [this._server.prettyName]);
+        } else {
+          this._actionError("pop3MessageWriteError");
+        }
+        return;
       }
-      this._actionList();
     }
+    this._actionList();
   };
 
   /**
@@ -841,9 +918,13 @@ class Pop3Client {
    * Handle `LIST` response.
    * @param {Pop3Response} res - LIST response received from the server.
    */
-  _actionListResponse = ({ data }) => {
+  _actionListResponse = res => {
+    if (!res.success) {
+      this._actionError("pop3ListFailure", [], res.statusText);
+      return;
+    }
     this._lineReader(
-      data,
+      res.data,
       line => {
         let [messageNumber, messageSize] = line.split(" ");
         this._messageSizeMap.set(messageNumber, Number(messageSize));
@@ -1021,29 +1102,39 @@ class Pop3Client {
    * @param {Pop3Response} res - TOP response received from the server.
    */
   _actionTopResponse = res => {
-    if (!this._currentMessageSize) {
-      // Call incorporateBegin only once for each message.
-      this._sink.incorporateBegin(
-        this._currentMessage.uidl,
-        Ci.nsMsgMessageFlags.Partial
-      );
-    }
-    if (res.statusText) {
-      this._currentMessageSize = Number.parseInt(res.statusText);
+    if (res.status) {
+      try {
+        // Call incorporateBegin only once for each message.
+        this._sink.incorporateBegin(
+          this._currentMessage.uidl,
+          Ci.nsMsgMessageFlags.Partial
+        );
+      } catch (e) {
+        this._actionError("pop3MessageWriteError");
+      }
     }
     this._lineReader(
       res.data,
       line => {
         // Remove \r\n and use the OS native line ending.
         line = line.slice(0, -2) + this._lineSeparator;
-        this._sink.incorporateWrite(line, line.length);
+        try {
+          this._sink.incorporateWrite(line, line.length);
+        } catch (e) {
+          this._actionError("pop3MessageWriteError");
+        }
       },
       () => {
-        this._sink.incorporateComplete(
-          this._msgWindow,
-          this._currentMessageSize // Set size because it's a partial message.
-        );
-        this._currentMessageSize = null;
+        try {
+          this._sink.incorporateComplete(
+            this._msgWindow,
+            // Set size because it's a partial message.
+            this._messageSizeMap.get(this._currentMessage.messageNumber)
+          );
+        } catch (e) {
+          this._actionError("pop3MessageWriteError");
+        }
+
         this._uidlMap.set(this._currentMessage.uidl, {
           status: UIDL_TOO_BIG,
           uidl: this._currentMessage.uidl,
@@ -1067,12 +1158,13 @@ class Pop3Client {
    * @param {Pop3Response} res - RETR response received from the server.
    */
   _actionRetrResponse = res => {
-    if (!this._currentMessageSize) {
+    if (res.status) {
+      if (!res.success) {
+        this._actionError("pop3RetrFailure", [], res.statusText);
+        return;
+      }
       // Call incorporateBegin only once for each message.
       this._sink.incorporateBegin(this._currentMessage.uidl, 0);
-    }
-    if (res.statusText) {
-      this._currentMessageSize = Number.parseInt(res.statusText);
     }
     this._lineReader(
       res.data,
@@ -1084,7 +1176,6 @@ class Pop3Client {
           this._msgWindow,
           0 // Set size only when it's a partial message.
         );
-        this._currentMessageSize = null;
         if (this._server.leaveMessagesOnServer) {
           this._uidlMap.set(this._currentMessage.uidl, {
             status: UIDL_KEEP,
@@ -1112,8 +1203,50 @@ class Pop3Client {
    * @param {Pop3Response} res - DELE response received from the server.
    */
   _actionDeleteResponse = res => {
+    if (!res.success) {
+      this._actionError("pop3DeleFailure", [], res.statusText);
+      return;
+    }
     this._actionHandleMessage();
   };
+
+  /**
+   * Show an error prompt.
+   * @param {string} errorName - An error name corresponds to an entry of
+   *   localMsgs.properties.
+   * @param {string[]} errorParams - Params to construct the error message.
+   * @param {string} serverErrorMsg - Error message returned by the server.
+   */
+  _actionError(errorName, errorParams, serverErrorMsg) {
+    this._logger.error(`Got an error name=${errorName}`);
+    if (errorName != "pop3PasswordFailed") {
+      this._actionDone(Cr.NS_ERROR_FAILURE);
+    }
+
+    if (!this._msgWindow) {
+      return;
+    }
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/localMsgs.properties"
+    );
+    let errorMsg;
+    if (errorParams) {
+      errorMsg = bundle.formatStringFromName(errorName, errorParams);
+    } else {
+      errorMsg = bundle.GetStringFromName(errorName);
+    }
+    if (serverErrorMsg) {
+      let serverSaidPrefix = bundle.formatStringFromName("pop3ServerSaid", [
+        this._server.realHostName,
+      ]);
+      errorMsg += ` ${serverSaidPrefix} ${serverErrorMsg}`;
+    }
+
+    let errorTitle = bundle.formatStringFromName("pop3ErrorDialogTitle", [
+      this._server.prettyName,
+    ]);
+    this._msgWindow.promptDialog.alert(errorTitle, errorMsg);
+  }
 
   _actionDone = (status = Cr.NS_OK) => {
     this._authenticating = false;
