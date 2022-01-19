@@ -103,12 +103,12 @@ msgWindow.msgHeaderSink = window.messageHeaderSink;
 msgWindow.statusFeedback = Cc[
   "@mozilla.org/messenger/statusfeedback;1"
 ].createInstance(Ci.nsIMsgStatusFeedback);
-content.docShell.addProgressListener(
-  msgWindow.statusFeedback,
-  Ci.nsIWebProgress.NOTIFY_ALL
-);
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", event => {
+  if (event.target != document) {
+    return;
+  }
+
   content = document.querySelector("browser");
   OnLoadMsgHeaderPane();
 });
@@ -131,6 +131,11 @@ function displayMessage(uri, viewWrapper) {
   ClearPendingReadTimer();
   if (!uri) {
     HideMessageHeaderPane();
+    // Don't use MailE10SUtils.loadURI here, it will try to change remoteness
+    // and we don't want that.
+    content.loadURI("about:blank", {
+      triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+    });
     window.dispatchEvent(
       new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
     );

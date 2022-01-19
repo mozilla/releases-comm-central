@@ -339,11 +339,9 @@ var contentTabBaseType = {
   // List of URLs that will receive special treatment when opened in a tab.
   // Note that about:preferences is loaded via a different mechanism.
   inContentWhitelist: [
-    "about:3pane",
     "about:addons",
     "about:addressbook",
     "about:blank",
-    "about:message",
     "about:profiles",
     "about:*",
   ],
@@ -352,11 +350,6 @@ var contentTabBaseType = {
   // The array members (functions) are for the respective document URLs
   // as specified in inContentWhitelist.
   inContentOverlays: [
-    // about:3pane provides its own context menu.
-    function(aDocument, aTab) {
-      aTab.browser.removeAttribute("context");
-    },
-
     // about:addons
     function(aDocument, aTab) {
       Services.scriptloader.loadSubScript(
@@ -372,11 +365,6 @@ var contentTabBaseType = {
 
     // Let's not mess with about:blank.
     null,
-
-    // about:message provides its own context menu.
-    function(aDocument, aTab) {
-      aTab.browser.removeAttribute("context");
-    },
 
     // about:profiles
     function(aDocument, aTab) {
@@ -838,7 +826,6 @@ var specialTabs = {
     let tabmail = document.getElementById("tabmail");
 
     tabmail.registerTabType(this.contentTabType);
-    tabmail.registerTabType(this.newMailTabType);
 
     this.showWhatsNewPage();
 
@@ -1081,143 +1068,6 @@ var specialTabs = {
         tab.browser.droppedLinkHandler = event =>
           tab.browser.contentWindow.gDragDrop.onDrop(event);
       }
-    },
-  },
-
-  /**
-   * Tabs for displaying mail folders and messages.
-   */
-  newMailTabType: {
-    __proto__: contentTabBaseType,
-    name: "newMailTab",
-    perTabPanel: "vbox",
-
-    modes: {
-      mail3PaneTab: {
-        // Overrides shouldSwitchTo in contentTabBaseType.
-        shouldSwitchTo({ folderURI } = {}) {
-          return -1;
-        },
-        openTab(tab, args = {}) {
-          args.url = "about:3pane";
-          args.onLoad = (event, browser) =>
-            browser.contentWindow.restoreState(args);
-          specialTabs.contentTabType.openTab(tab, args);
-          tab.folderURI = args.folderURI;
-          tab.__defineGetter__(
-            "folderPaneVisible",
-            () => !tab.browser.contentWindow.splitter1.isCollapsed
-          );
-          tab.__defineGetter__(
-            "messagePaneVisible",
-            () => !tab.browser.contentWindow.splitter2.isCollapsed
-          );
-          tab.__defineGetter__("sort", () => {
-            return {
-              type: tab.browser.contentWindow.gViewWrapper.primarySortType,
-              order: tab.browser.contentWindow.gViewWrapper.primarySortOrder,
-              grouped: tab.browser.contentWindow.gViewWrapper.showGroupedBySort,
-              threaded: tab.browser.contentWindow.gViewWrapper.showThreaded,
-            };
-          });
-          tab.__defineGetter__(
-            "message",
-            () => tab.browser.contentWindow.gDBView?.hdrForFirstSelectedMessage
-          );
-          // The same as `doCommand` but with an extra argument.
-          tab.performCommand = function(command, event) {
-            let commandController =
-              tab.browser?.contentWindow.commandController;
-            if (commandController?.isCommandEnabled(command)) {
-              commandController.doCommand(command, event);
-            }
-          };
-          tab.browser.addEventListener("folderURIChanged", function(event) {
-            tab.folderURI = event.detail;
-          });
-          return tab;
-        },
-        persistTab(tab) {
-          return {
-            firstTab: tab.first,
-            folderPaneVisible: tab.folderPaneVisible,
-            folderURI: tab.folderURI,
-            messagePaneVisible: tab.messagePaneVisible,
-          };
-        },
-        restoreTab(tabmail, persistedState) {
-          tabmail.openTab("mail3PaneTab", persistedState);
-        },
-        supportsCommand(command, tab) {
-          return tab.browser?.contentWindow.commandController?.supportsCommand(
-            command
-          );
-        },
-        isCommandEnabled(command, tab) {
-          return tab.browser.contentWindow.commandController?.isCommandEnabled(
-            command
-          );
-        },
-        doCommand(command, tab) {
-          tab.browser.contentWindow.commandController?.doCommand(command);
-        },
-      },
-      mailMessageTab: {
-        shouldSwitchTo({ messageURI } = {}) {
-          if (messageURI) {
-            for (let tab of this.modes.mailMessageTab.tabs) {
-              if (tab.messageURI == messageURI) {
-                return document.getElementById("tabmail").tabInfo.indexOf(tab);
-              }
-            }
-          }
-          return -1;
-        },
-        openTab(tab, args = {}) {
-          args.url = "about:message";
-          if (args.messageURI) {
-            args.onLoad = (event, browser) =>
-              browser.contentWindow.displayMessage(args.messageURI);
-            tab.messageURI = args.messageURI;
-          }
-          specialTabs.contentTabType.openTab(tab, args);
-          tab.__defineGetter__(
-            "message",
-            () => tab.browser.contentWindow.gMessage
-          );
-          // The same as `doCommand` but with an extra argument.
-          tab.performCommand = function(command, event) {
-            let commandController =
-              tab.browser?.contentWindow.commandController;
-            if (commandController?.isCommandEnabled(command)) {
-              commandController.doCommand(command, event);
-            }
-          };
-          tab.browser.addEventListener("messageURIChanged", function(event) {
-            tab.messageURI = event.detail;
-          });
-          return tab;
-        },
-        persistTab(tab) {
-          return { messageURI: tab.messageURI };
-        },
-        restoreTab(tabmail, persistedState) {
-          tabmail.openTab("mailMessageTab", persistedState);
-        },
-        supportsCommand(command, tab) {
-          return tab.browser?.contentWindow.commandController?.supportsCommand(
-            command
-          );
-        },
-        isCommandEnabled(command, tab) {
-          return tab.browser.contentWindow.commandController?.isCommandEnabled(
-            command
-          );
-        },
-        doCommand(command, tab) {
-          tab.browser.contentWindow.commandController?.doCommand(command);
-        },
-      },
     },
   },
 

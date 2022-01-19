@@ -28,7 +28,11 @@ const messengerBundle = Services.strings.createBundle(
 var gFolder, gViewWrapper, gDBView;
 var folderTree, splitter1, threadTree, splitter2, messageBrowser;
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", event => {
+  if (event.target != document) {
+    return;
+  }
+
   splitter1 = document.getElementById("splitter1");
   let splitter1Width = Services.xulStore.getValue(
     "chrome://messenger/content/messenger.xhtml",
@@ -356,7 +360,14 @@ function displayFolder(folderURI) {
   }
 }
 
-function displayMessage(messageURI) {
+async function displayMessage(messageURI) {
+  if (messageBrowser.contentDocument.readyState != "complete") {
+    await new Promise(resolve =>
+      messageBrowser.contentWindow.addEventListener("load", resolve, {
+        once: true,
+      })
+    );
+  }
   messageBrowser.contentWindow.displayMessage(messageURI);
   messageBrowser.style.visibility = messageURI ? "visible" : null;
 }

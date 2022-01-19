@@ -26,8 +26,11 @@ XPCOMUtils.defineLazyModuleGetters(LazyModules, {
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-  if (window.top != window) {
+window.addEventListener("DOMContentLoaded", event => {
+  if (
+    event.target != document ||
+    window.browsingContext.parent != window.browsingContext.top
+  ) {
     return;
   }
 
@@ -35,10 +38,11 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * Called by ContextMenuParent if this is the top window.
+ * Called by ContextMenuParent if this window is about:3pane, or is
+ * about:message but not contained by about:3pane.
  */
 function openContextMenu({ data, target }) {
-  if (window.top != window) {
+  if (window.browsingContext.parent != window.browsingContext.top) {
     // Not sure how we'd get here, but let's not continue if we do.
     return;
   }

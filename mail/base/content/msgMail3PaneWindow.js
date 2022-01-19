@@ -573,6 +573,7 @@ var gMailInit = {
     if (tabmail) {
       // mailTabType is defined in mailTabs.js
       tabmail.registerTabType(mailTabType);
+      tabmail.registerTabType(newMailTabType);
       // glodaFacetTab* in glodaFacetTab.js
       tabmail.registerTabType(glodaFacetTabType);
       QuickFilterBarMuxer._init();
