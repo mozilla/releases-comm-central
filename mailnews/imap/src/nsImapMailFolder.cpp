@@ -612,7 +612,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolder(nsIMsgWindow* inMsgWindow) {
 NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener) {
   nsresult rv;
-  bool selectFolder = false;
 
   // If this is the inbox, filters will be applied. Otherwise, we test the
   // inherited folder property "applyIncomingFilters" (which defaults to empty).
@@ -737,8 +736,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
              (m_filterListRequiresBody ? "true" : "false")));
   }
 
-  selectFolder = true;
-
   bool isServer;
   rv = GetIsServer(&isServer);
   if (NS_SUCCEEDED(rv) && isServer) {
@@ -752,15 +749,13 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
       }
       m_haveDiscoveredAllFolders = true;
     }
-    selectFolder = false;
   }
+
   rv = GetDatabase();
   if (NS_FAILED(rv)) {
     ThrowAlertMsg("errorGettingDB", aMsgWindow);
     return rv;
   }
-  bool canOpenThisFolder = true;
-  GetCanOpenFolder(&canOpenThisFolder);
 
   bool hasOfflineEvents = false;
   GetFlag(nsMsgFolderFlags::OfflineEvents, &hasOfflineEvents);
@@ -782,9 +777,10 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
   // Check it we're password protecting the local store.
   if (!PromptForMasterPasswordIfNecessary()) return NS_ERROR_FAILURE;
 
-  if (!canOpenThisFolder) selectFolder = false;
-  // don't run select if we can't select the folder...
-  if (NS_SUCCEEDED(rv) && !m_urlRunning && selectFolder) {
+  bool canOpenThisFolder = true;
+  GetCanOpenFolder(&canOpenThisFolder);
+  // Don't run select if we can't select the folder...
+  if (!m_urlRunning && canOpenThisFolder && !isServer) {
     nsCOMPtr<nsIImapService> imapService =
         do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -837,9 +833,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
       rv = NS_OK;
       NotifyFolderEvent(kFolderLoaded);
     }
-  } else if (NS_SUCCEEDED(rv))  // tell the front end that the folder is loaded
-                                // if we're not going to
-  {                             // actually run a url.
+  } else {
+    // Tell the front end that the folder is loaded if we're not going to
+    // actually run a url.
     if (!m_updatingFolder)  // if we're already running an update url, we'll let
                             // that one send the folder loaded
       NotifyFolderEvent(kFolderLoaded);
