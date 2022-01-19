@@ -1797,7 +1797,20 @@ var detailsPane = {
       for (let field of fields) {
         let value = card.getProperty(field, "");
         if (value) {
-          list.appendChild(document.createElement("li")).textContent = value;
+          let li = document.createElement("li");
+          if (field.includes("Email")) {
+            let addr = MailServices.headerParser.makeMimeAddress(
+              card.displayName,
+              value
+            );
+            let a = document.createElement("a");
+            a.href = "mailto:" + encodeURIComponent(addr);
+            a.textContent = value;
+            li.appendChild(a);
+          } else {
+            li.textContent = value;
+          }
+          list.append(li);
         }
       }
       list.parentNode.previousElementSibling.classList.toggle(
