@@ -145,7 +145,7 @@
       {
         "name": "onFileRename",
         "type": "function",
-        "description": "Fired when an already uploaded file should be renamed.",
+        "description": "Fired when a previously uploaded file should be renamed.",
         "parameters": [
           {
             "name": "account",
@@ -195,7 +195,7 @@
       {
         "name": "onFileDeleted",
         "type": "function",
-        "description": "Fired when a file previously uploaded should be deleted.",
+        "description": "Fired when a previously uploaded file should be deleted.",
         "parameters": [
           {
             "name": "account",

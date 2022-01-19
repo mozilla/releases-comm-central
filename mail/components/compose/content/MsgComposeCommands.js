@@ -1381,9 +1381,6 @@ var attachmentBucketController = {
           if (item.uploading) {
             return false;
           }
-          if (item.cloudFileUpload && item.cloudFileUpload.repeat) {
-            return false;
-          }
         }
         return true;
       },
@@ -1401,9 +1398,6 @@ var attachmentBucketController = {
 
         for (let item of gAttachmentBucket.selectedItems) {
           if (item.uploading) {
-            return false;
-          }
-          if (item.cloudFileUpload && item.cloudFileUpload.repeat) {
             return false;
           }
         }
@@ -2463,7 +2457,8 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
       let mode = attachmentItem.attachment.sendViaCloud ? "move" : "upload";
       if (
         attachmentItem.cloudFileAccount == destCloudFileAccount &&
-        !updateSettings.file
+        !updateSettings.file &&
+        !destCloudFileAccount.isReusedUpload(attachmentItem.cloudFileUpload)
       ) {
         mode = "rename";
       }
@@ -2505,6 +2500,7 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
 
           upload = await destCloudFileAccount.uploadFile(window, file, name);
 
+          delete upload.repeat;
           attachmentItem.cloudFileAccount = destCloudFileAccount;
           attachmentItem.attachment.sendViaCloud = true;
           attachmentItem.attachment.cloudFileAccountKey =
@@ -7036,11 +7032,7 @@ async function RemoveAttachments(items) {
   for (let i = items.length - 1; i >= 0; i--) {
     let item = items[i];
 
-    if (
-      item.attachment.sendViaCloud &&
-      item.cloudFileAccount &&
-      (!item.cloudFileUpload || !item.cloudFileUpload.repeat)
-    ) {
+    if (item.attachment.sendViaCloud && item.cloudFileAccount) {
       if (item.uploading) {
         let file = fileHandler.getFileFromURLSpec(item.attachment.url);
         promises.push(

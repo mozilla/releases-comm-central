@@ -86,7 +86,7 @@
           },
           "from": {
             "$ref": "ComposeRecipient",
-            "description": "*Caution*: Setting a value for `from` does not change the used identity, it overrides the FROM header. Many email servers do not accept emails where the FROM header does not match the sender identity. Must be set to exactly one valid email address.",
+            "description": "*Caution*: Setting a value for ``from`` does not change the used identity, it overrides the FROM header. Many email servers do not accept emails where the FROM header does not match the sender identity. Must be set to exactly one valid email address.",
             "optional": true
           },
           "to": {
@@ -164,21 +164,35 @@
           "attachments": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "The name, as displayed to the user, of this attachment. If not specified, the name of the ``file`` object is used.",
-                  "optional": true
+              "choices": [
+                {
+                  "$ref": "FileAttachment"
                 },
-                "file": {
-                  "type": "object",
-                  "isInstanceOf": "File",
-                  "additionalProperties": true
+                {
+                  "$ref": "ComposeAttachment"
                 }
-              }
+              ]
             },
             "description": "Attachments to add to the message. Only used in the begin* functions.",
+            "optional": true
+          }
+        }
+      },
+      {
+        "id": "FileAttachment",
+        "type": "object",
+        "description": "Object used to add, update or rename an attachment in a message being composed.",
+        "properties": {
+          "file": {
+            "type": "object",
+            "isInstanceOf": "File",
+            "additionalProperties": true,
+            "description": "The new content for the attachment.",
+            "optional": true
+          },
+          "name": {
+            "type": "string",
+            "description": "The new name for the attachment, as displayed to the user. If not specified, the name of the provided ``file`` object is used.",
             "optional": true
           }
         }
@@ -194,22 +208,15 @@
           },
           "name": {
             "type": "string",
-            "description": "The name, as displayed to the user, of this attachment. This is usually but not always the filename of the attached file."
+            "optional": true,
+            "description": "The name of this attachment, as displayed to the user."
           },
           "size": {
             "type": "integer",
-            "description": "The size in bytes of this attachment."
+            "optional": true,
+            "description": "The size in bytes of this attachment. Read-only."
           }
-        },
-        "functions": [
-          {
-            "name": "getFile",
-            "type": "function",
-            "description": "Retrieves the contents of the attachment as a DOM ``File`` object.",
-            "async": true,
-            "parameters": []
-          }
-        ]
+        }
       }
     ],
     "events": [
@@ -494,17 +501,35 @@
             "optional": true,
             "parameters": [
               {
-                "choices": [
-                  {
-                    "type": "array",
-                    "items": {
-                      "$ref": "ComposeAttachment"
-                    }
-                  },
-                  {
-                    "type": "any"
-                  }
-                ]
+                "type": "array",
+                "items": {
+                  "$ref": "ComposeAttachment"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getAttachmentFile",
+        "type": "function",
+        "description": "Gets the content of a :ref:`compose.ComposeAttachment` as a DOM <code>File</code> object.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "integer",
+            "description": "The unique identifier for the attachment."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "object",
+                "isInstanceOf": "File",
+                "additionalProperties": true
               }
             ]
           }
@@ -524,20 +549,15 @@
             "type": "integer"
           },
           {
-            "name": "data",
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "The name, as displayed to the user, of this attachment. If not specified, the name of the ``file`` object is used.",
-                "optional": true
+            "name": "attachment",
+            "choices": [
+              {
+                "$ref": "FileAttachment"
               },
-              "file": {
-                "type": "object",
-                "isInstanceOf": "File",
-                "additionalProperties": true
+              {
+                "$ref": "ComposeAttachment"
               }
-            }
+            ]
           },
           {
             "type": "function",
@@ -545,14 +565,7 @@
             "optional": true,
             "parameters": [
               {
-                "choices": [
-                  {
-                    "$ref": "ComposeAttachment"
-                  },
-                  {
-                    "type": "any"
-                  }
-                ]
+                "$ref": "ComposeAttachment"
               }
             ]
           }
@@ -576,21 +589,8 @@
             "type": "integer"
           },
           {
-            "name": "data",
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "The name, as displayed to the user, of this attachment. If not specified, the name of the ``file`` object is used.",
-                "optional": true
-              },
-              "file": {
-                "type": "object",
-                "isInstanceOf": "File",
-                "additionalProperties": true,
-                "optional": true
-              }
-            }
+            "name": "attachment",
+            "$ref": "FileAttachment"
           },
           {
             "type": "function",
@@ -598,14 +598,7 @@
             "optional": true,
             "parameters": [
               {
-                "choices": [
-                  {
-                    "$ref": "ComposeAttachment"
-                  },
-                  {
-                    "type": "any"
-                  }
-                ]
+                "$ref": "ComposeAttachment"
               }
             ]
           }

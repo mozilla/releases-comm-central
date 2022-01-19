@@ -239,7 +239,7 @@
         }
       },
       {
-        "id": "Attachment",
+        "id": "MessageAttachment",
         "type": "object",
         "description": "Represents an attachment in a message.",
         "properties": {
@@ -479,7 +479,7 @@
               {
                 "type": "array",
                 "items": {
-                  "$ref": "Attachment"
+                  "$ref": "MessageAttachment"
                 }
               }
             ]
@@ -489,7 +489,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of an attachment as a DOM <code>File</code> object.",
+        "description": "Gets the content of a :ref:`messages.MessageAttachment` as a DOM <code>File</code> object.",
         "async": "callback",
         "parameters": [
           {

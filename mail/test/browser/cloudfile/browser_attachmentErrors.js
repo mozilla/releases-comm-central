@@ -282,7 +282,7 @@ function subtest_errors_during_upload(error) {
 }
 
 /**
- * Test that we get the correct alert message when an the provider does not support
+ * Test that we get the correct alert message when the provider does not support
  * renaming.
  */
 add_task(function test_nosupport_error_during_rename() {

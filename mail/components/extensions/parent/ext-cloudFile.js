@@ -286,6 +286,26 @@ class CloudFileAccount {
   }
 
   /**
+   * Checks if the url of the given upload has been used already.
+   *
+   * @param {CloudFileUpload} cloudFileUpload
+   */
+  isReusedUpload(cloudFileUpload) {
+    if (!cloudFileUpload) {
+      return false;
+    }
+
+    if (!("composeAttachmentTracker" in global)) {
+      extensions.loadModule("compose");
+    }
+
+    return (
+      !!cloudFileUpload.repeat ||
+      global.composeAttachmentTracker.isDuplicateUrl(cloudFileUpload.url)
+    );
+  }
+
+  /**
    * Initiate a WebExtension cloudFile rename by triggering an onFileRename event.
    *
    * @param {Object} window Window object of the window, where the upload has
@@ -407,27 +427,24 @@ class CloudFileAccount {
    * @param {Integer} uploadId Id of the uploaded file.
    */
   async deleteFile(window, uploadId) {
-    let results;
+    if (!this.extension.emitter.has("deleteFile")) {
+      throw Components.Exception(
+        `Delete error: Missing cloudFile.onFileDeleted listener for ${this.extension.id}`,
+        cloudFileAccounts.constants.deleteErr
+      );
+    }
+
     try {
       if (this._uploads.has(uploadId)) {
-        results = await this.extension.emit(
-          "deleteFile",
-          this,
-          uploadId,
-          window
-        );
+        let upload = this._uploads.get(uploadId);
+        if (!this.isReusedUpload(upload)) {
+          await this.extension.emit("deleteFile", this, uploadId, window);
+        }
       }
       this._uploads.delete(uploadId);
     } catch (ex) {
       throw Components.Exception(
         `Delete error: ${ex.message}`,
-        cloudFileAccounts.constants.deleteErr
-      );
-    }
-
-    if (!results || results.length == 0) {
-      throw Components.Exception(
-        `Delete error: Missing cloudFile.onFileDeleted listener for ${this.extension.id}`,
         cloudFileAccounts.constants.deleteErr
       );
     }

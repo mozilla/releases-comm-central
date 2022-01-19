@@ -206,17 +206,11 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
     if (details) {
       await setComposeDetails(composeWindow, details, extension);
       if (details.attachments != null) {
-        let attachments = [];
+        let attachmentData = [];
         for (let data of details.attachments) {
-          let attachment = Cc[
-            "@mozilla.org/messengercompose/attachment;1"
-          ].createInstance(Ci.nsIMsgAttachment);
-          attachment.name = data.name || data.file.name;
-          attachment.size = data.file.size;
-          attachment.url = await fileURLForFile(data.file);
-          attachments.push(attachment);
+          attachmentData.push(await createAttachment(data));
         }
-        composeWindow.AddAttachments(attachments);
+        await AddAttachmentsToWindow(composeWindow, attachmentData);
       }
     }
     composeWindow.gContentChanged = false;
@@ -241,18 +235,6 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
     params.identity = identity;
   }
 
-  if (details && details.attachments != null) {
-    for (let data of details.attachments) {
-      let attachment = Cc[
-        "@mozilla.org/messengercompose/attachment;1"
-      ].createInstance(Ci.nsIMsgAttachment);
-      attachment.name = data.name || data.file.name;
-      attachment.size = data.file.size;
-      attachment.url = await fileURLForFile(data.file);
-
-      composeFields.addAttachment(attachment);
-    }
-  }
   params.composeFields = composeFields;
   let newWindowPromise = waitForWindow();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
@@ -264,6 +246,13 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   // the EditAsNew code path, unify API behavior by always calling it here too.
   if (details) {
     await setComposeDetails(composeWindow, details, extension);
+    if (details.attachments != null) {
+      let attachmentData = [];
+      for (let data of details.attachments) {
+        attachmentData.push(await createAttachment(data));
+      }
+      await AddAttachmentsToWindow(composeWindow, attachmentData);
+    }
   }
   composeWindow.gContentChanged = false;
   return composeWindow;
@@ -315,7 +304,7 @@ async function getComposeDetails(composeWindow, extension) {
         composeWindow.gMsgCompose.originalMsgURI
       );
       relatedMessageId = messageTracker.getId(relatedMsgHdr);
-    } catch (e) {
+    } catch (ex) {
       // We are currently unable to get the fake msgHdr from the uri of messages
       // opened from file.
     }
@@ -358,8 +347,8 @@ async function setFromField(composeWindow, details, extension) {
   // coming from.
   try {
     from = await parseComposeRecipientList(details.from, true);
-  } catch (e) {
-    throw new ExtensionError(`ComposeDetails.from: ${e.message}`);
+  } catch (ex) {
+    throw new ExtensionError(`ComposeDetails.from: ${ex.message}`);
   }
   if (!from) {
     throw new ExtensionError(
@@ -478,6 +467,86 @@ async function realFileForFile(file) {
 async function fileURLForFile(file) {
   let realFile = await realFileForFile(file);
   return Services.io.newFileURI(realFile).spec;
+}
+
+async function createAttachment(data) {
+  let attachment = Cc[
+    "@mozilla.org/messengercompose/attachment;1"
+  ].createInstance(Ci.nsIMsgAttachment);
+
+  if (data.id) {
+    if (!composeAttachmentTracker.hasAttachment(data.id)) {
+      throw new ExtensionError(`Invalid attachment ID: ${data.id}`);
+    }
+
+    let {
+      attachment: originalAttachment,
+      window: originalWindow,
+    } = composeAttachmentTracker.getAttachment(data.id);
+
+    let originalAttachmentItem = originalWindow.gAttachmentBucket.findItemForAttachment(
+      originalAttachment
+    );
+
+    attachment.name = data.name || originalAttachment.name;
+    attachment.size = originalAttachment.size;
+    attachment.url = originalAttachment.url;
+
+    return {
+      attachment,
+      originalAttachment,
+      originalCloudFileAccount: originalAttachmentItem.cloudFileAccount,
+      originalCloudFileUpload: originalAttachmentItem.cloudFileUpload,
+    };
+  }
+
+  if (data.file) {
+    attachment.name = data.name || data.file.name;
+    attachment.size = data.file.size;
+    attachment.url = await fileURLForFile(data.file);
+    return { attachment };
+  }
+
+  throw new ExtensionError(`Failed to create attachment.`);
+}
+
+async function AddAttachmentsToWindow(window, attachmentData) {
+  window.AddAttachments(attachmentData.map(a => a.attachment));
+  // Check if an attachment has been cloned and the cloudFileUpload needs to be
+  // re-applied.
+  for (let entry of attachmentData) {
+    let addedAttachmentItem = window.gAttachmentBucket.findItemForAttachment(
+      entry.attachment
+    );
+    if (!addedAttachmentItem) {
+      continue;
+    }
+
+    if (
+      !entry.originalAttachment ||
+      !entry.originalCloudFileAccount ||
+      !entry.originalCloudFileUpload
+    ) {
+      continue;
+    }
+
+    let cloudFileAccount = entry.originalCloudFileAccount;
+    // If the cloned attachment was renamed, treat it as a new upload instead of
+    // a reused upload.
+    let cloudFileUpload =
+      entry.originalAttachment.name == entry.attachment.name
+        ? entry.originalCloudFileUpload
+        : null;
+
+    try {
+      await window.UpdateAttachment(addedAttachmentItem, {
+        cloudFileUpload,
+        cloudFileAccount,
+      });
+    } catch (ex) {
+      throw new ExtensionError(ex.message);
+    }
+  }
 }
 
 var composeStates = {
@@ -600,6 +669,20 @@ var composeAttachmentTracker = {
     return this._attachments.has(id);
   },
 
+  /**
+   * Checks if a download url is used more then once by any of the known cloud
+   * file attachments.
+   *
+   * @param {String} url - download url of a cloud file attachment
+   */
+  isDuplicateUrl(url) {
+    return (
+      Array.from(this._attachments.values()).filter(
+        data => data.attachment.contentLocation == url
+      ).length > 1
+    );
+  },
+
   forgetAttachment(attachment) {
     // This is called on all attachments when the window closes, whether the
     // attachments have been assigned IDs or not.
@@ -627,16 +710,17 @@ var composeAttachmentTracker = {
     };
   },
 
-  getFile(id) {
-    let { attachment } = this.getAttachment(id);
+  getFile(attachment) {
     if (!attachment) {
       return null;
     }
-
     let uri = Services.io.newURI(attachment.url).QueryInterface(Ci.nsIFileURL);
-    return File.createFromNsIFile(uri.file);
+    // Enforce the actual filename used in the composer, do not leak internal or
+    // temporary filenames.
+    return File.createFromNsIFile(uri.file, { name: attachment.name });
   },
 };
+
 windowTracker.addCloseListener(
   composeAttachmentTracker.forgetAttachments.bind(composeAttachmentTracker)
 );
@@ -848,22 +932,27 @@ this.compose = class extends ExtensionAPI {
           }
           return attachments;
         },
+        async getAttachmentFile(attachmentId) {
+          if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
+            throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
+          }
+          let { attachment } = composeAttachmentTracker.getAttachment(
+            attachmentId
+          );
+          return composeAttachmentTracker.getFile(attachment);
+        },
         async addAttachment(tabId, data) {
           let tab = tabManager.get(tabId);
           if (tab.type != "messageCompose") {
             throw new ExtensionError(`Invalid compose tab: ${tabId}`);
           }
 
-          let attachment = Cc[
-            "@mozilla.org/messengercompose/attachment;1"
-          ].createInstance(Ci.nsIMsgAttachment);
-          attachment.name = data.name || data.file.name;
-          attachment.size = data.file.size;
-          attachment.url = await fileURLForFile(data.file);
-
-          tab.nativeTab.AddAttachments([attachment]);
-
-          return composeAttachmentTracker.convert(attachment, tab.nativeTab);
+          let attachmentData = await createAttachment(data);
+          await AddAttachmentsToWindow(tab.nativeTab, [attachmentData]);
+          return composeAttachmentTracker.convert(
+            attachmentData.attachment,
+            tab.nativeTab
+          );
         },
         async updateAttachment(tabId, attachmentId, data) {
           let tab = tabManager.get(tabId);
@@ -901,8 +990,8 @@ this.compose = class extends ExtensionAPI {
               file: realFile,
               name: data.name,
             });
-          } catch (e) {
-            throw new ExtensionError(e.message);
+          } catch (ex) {
+            throw new ExtensionError(ex.message);
           }
 
           return composeAttachmentTracker.convert(attachmentItem.attachment);
@@ -926,13 +1015,6 @@ this.compose = class extends ExtensionAPI {
 
           let item = window.gAttachmentBucket.findItemForAttachment(attachment);
           await window.RemoveAttachments([item]);
-        },
-
-        // This method is not available to the extension code, the extension
-        // code will call .getFile() on the object that is resolved from
-        // promises returned by various API methods.
-        getFile(attachmentId) {
-          return composeAttachmentTracker.getFile(attachmentId);
         },
       },
     };

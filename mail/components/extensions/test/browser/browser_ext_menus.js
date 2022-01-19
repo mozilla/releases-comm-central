@@ -235,30 +235,10 @@ function getExtensionDetails(...permissions) {
         }
 
         browser.menus.onShown.addListener((...args) => {
-          // Test the getFile function here, we can't pass it to sendMessage.
-          if ("attachments" in args[0]) {
-            for (let attachment of args[0].attachments) {
-              browser.test.assertEq(
-                "function",
-                typeof attachment.getFile,
-                "attachment has a getFile function"
-              );
-            }
-          }
           browser.test.sendMessage("onShown", args);
         });
 
         browser.menus.onClicked.addListener((...args) => {
-          // Test the getFile function here, we can't pass it to sendMessage.
-          if ("attachments" in args[0]) {
-            for (let attachment of args[0].attachments) {
-              browser.test.assertEq(
-                "function",
-                typeof attachment.getFile,
-                "attachment has a getFile function"
-              );
-            }
-          }
           browser.test.sendMessage("onClicked", args);
         });
         browser.test.sendMessage("menus-created");

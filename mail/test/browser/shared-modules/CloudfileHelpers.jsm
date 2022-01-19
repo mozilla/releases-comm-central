@@ -100,6 +100,10 @@ MockCloudfileAccount.prototype = {
     return upload;
   },
 
+  isReusedUpload() {
+    return false;
+  },
+
   uploadFile(window, aFile) {
     if (this.uploadError) {
       return Promise.reject(

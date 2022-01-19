@@ -63,11 +63,9 @@ add_task(async function testAttachments() {
 
       attachments = await browser.compose.listAttachments(forwardTab.id);
       browser.test.assertEq(3, attachments.length);
-      browser.test.assertEq("attachment5.txt", attachments[0].name);
-      browser.test.assertEq("attachment6.txt", attachments[1].name);
-      // This is the forwarded email. It really should be the first attachment,
-      // but it isn't.
-      browser.test.assertEq(`${messages[1].subject}.eml`, attachments[2].name);
+      browser.test.assertEq(`${messages[1].subject}.eml`, attachments[0].name);
+      browser.test.assertEq("attachment5.txt", attachments[1].name);
+      browser.test.assertEq("attachment6.txt", attachments[2].name);
 
       // Forward inline adds attachments differently, so check it works too.
 
