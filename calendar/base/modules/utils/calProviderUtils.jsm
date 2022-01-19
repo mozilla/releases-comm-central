@@ -250,7 +250,7 @@ var calprovider = {
     if (isCertError && request.securityInfo) {
       let secInfo = request.securityInfo.QueryInterface(Ci.nsITransportSecurityInfo);
       let badCertHandler = new calprovider.BadCertHandler(calendar);
-      badCertHandler.notifyCertProblem(null, secInfo, request.originalURI.displayHost);
+      badCertHandler.notifyCertProblem(null, secInfo, request.originalURI.displayHostPort);
     }
   },
 
