@@ -1822,6 +1822,9 @@ var detailsPane = {
         "Country",
       ]) {
         let value = card.getProperty(`${prefix}${field}`, "");
+        if (!value) {
+          continue;
+        }
         if (address) {
           address += field == "ZipCode" ? " " : ", ";
         }
