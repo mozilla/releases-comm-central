@@ -204,6 +204,24 @@ POP3_RFC1939_handler.prototype = {
     result += ".";
     return result;
   },
+  TOP(args) {
+    let [messageNumber, numberOfBodyLines] = args.split(" ");
+    console.log({ args });
+    if (this._state != kStateTransaction) {
+      return "-ERR invalid state";
+    }
+    let result = "+OK\r\n";
+    let msg = this._daemon._messages[messageNumber - 1].fileData;
+    let index = msg.indexOf("\r\n\r\n");
+    result += msg.slice(0, index);
+    if (numberOfBodyLines) {
+      result += "\r\n\r\n";
+      let bodyLines = msg.slice(index + 4).split("\r\n");
+      result += bodyLines.slice(0, numberOfBodyLines).join("\r\n");
+    }
+    result += "\r\n.";
+    return result;
+  },
   RETR(args) {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
@@ -260,8 +278,6 @@ POP3_RFC1939_handler.prototype = {
 /**
  * This implements CAPA
  * @see RFC 2449
- *
- * Not yet implemented, but desired are: TOP, UIDL, ...
  */
 function POP3_RFC2449_handler(daemon) {
   POP3_RFC1939_handler.call(this, daemon);
@@ -269,7 +285,7 @@ function POP3_RFC2449_handler(daemon) {
 POP3_RFC2449_handler.prototype = {
   __proto__: POP3_RFC1939_handler.prototype, // inherit
 
-  kCapabilities: ["UIDL"], // the test may adapt this as necessary
+  kCapabilities: ["UIDL", "TOP"], // the test may adapt this as necessary
 
   CAPA(args) {
     var capa = "+OK List of our wanna-be capabilities follows:\r\n";

@@ -1093,7 +1093,7 @@ class Pop3Client {
    */
   _actionTop = () => {
     this._nextAction = this._actionTopResponse;
-    let lineNumber = this._server.headersOnly ? 0 : 10;
+    let lineNumber = this._server.headersOnly ? 0 : 20;
     this._send(`TOP ${this._currentMessage.messageNumber} ${lineNumber}`);
   };
 
