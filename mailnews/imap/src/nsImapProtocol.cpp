@@ -1719,7 +1719,16 @@ static void DoomCacheEntry(nsIMsgMailNewsUrl* url) {
   }
 }
 
-// returns true if another url was run, false otherwise.
+/**
+ * ProcessCurrentURL() runs the current URL (m_runningUrl).
+ * Things to remember:
+ * - IMAP protocol URLs don't correspond directly to IMAP commands. A single
+ *   URL might cause multiple IMAP commands to be issued.
+ * - This is all synchronous. But that's OK, because we're running in our
+ *   own thread.
+ *
+ * @return true if another url was run, false otherwise.
+ */
 bool nsImapProtocol::ProcessCurrentURL() {
   nsresult rv = NS_OK;
   if (m_idle) EndIdle();
@@ -2645,6 +2654,12 @@ const char* nsImapProtocol::GetServerCommandTag() {
   return m_currentServerCommandTag;
 }
 
+/**
+ *  ProcessSelectedStateURL() is a helper for ProcessCurrentURL(). It handles
+ *  running URLs which require the connection to be in the selected state.
+ *  It will issue SELECT commands if needed to make sure the correct mailbox
+ *  is selected.
+ */
 void nsImapProtocol::ProcessSelectedStateURL() {
   nsCString mailboxName;
   bool bMessageIdsAreUids = true;
@@ -8061,6 +8076,11 @@ void nsImapProtocol::NthLevelChildList(const char* onlineMailboxPrefix,
   }
 }
 
+/**
+ * ProcessAuthenticatedStateURL() is a helper for ProcessCurrentURL() which
+ * handles running URLs which require the connection to be in the
+ * Authenticated state.
+ */
 void nsImapProtocol::ProcessAuthenticatedStateURL() {
   nsImapAction imapAction;
   char* sourceMailbox = nullptr;

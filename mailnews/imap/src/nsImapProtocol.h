@@ -582,7 +582,7 @@ class nsImapProtocol : public nsIImapProtocol,
   void ProcessSelectedStateURL();
   bool TryToLogon();
 
-  // Process Authenticated State Url used to be one giant if statement. I've
+  // ProcessAuthenticatedStateURL() used to be one giant if statement. I've
   // broken out a set of actions based on the imap action passed into the url.
   // The following functions are imap protocol handlers for each action. They
   // are called by ProcessAuthenticatedStateUrl.
