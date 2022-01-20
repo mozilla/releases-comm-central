@@ -440,14 +440,19 @@ var gCloudAttachmentLinkManager = {
     }
 
     let content = "";
-    let count = providers.length;
-    let lastLink = providers.pop();
-    let firstLinks = providers.join(", ");
-    if (lastLink) {
+    if (providers.length == 1) {
       content = await l10nCompose.formatValue(
-        "cloud-file-service-provider-footer",
+        "cloud-file-service-provider-footer-single",
         {
-          count,
+          link: providers[0],
+        }
+      );
+    } else if (providers.length > 1) {
+      let lastLink = providers.pop();
+      let firstLinks = providers.join(", ");
+      content = await l10nCompose.formatValue(
+        "cloud-file-service-provider-footer-multiple",
+        {
           firstLinks,
           lastLink,
         }
