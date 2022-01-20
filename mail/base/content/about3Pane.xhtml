@@ -60,7 +60,21 @@
   </div>
   <hr is="pane-splitter" id="splitter2" resize="next" min-width="200" min-height="200" />
   <div id="messageBrowserPane">
-    <xul:browser id="messageBrowser" type="content" src="about:message" />
+    <xul:browser id="webBrowser"
+                 type="content"
+                 hidden="true"
+                 remote="true"
+                 remoteType="web"
+                 forcemessagemanager="true"
+                 messagemanagergroup="browsers"
+                 maychangeremoteness="true" />
+    <xul:browser id="messageBrowser"
+                 hidden="true"
+                 src="about:message" />
+    <xul:browser id="multiMessageBrowser"
+                 type="content"
+                 hidden="true"
+                 src="chrome://messenger/content/multimessageview.xhtml" />
   </div>
   <div id="messageBrowserPaneCover" class="dragcover"><!--
     Occupies the same grid cell(s) as #messageBrowserPane, and only visible

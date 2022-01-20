@@ -48,6 +48,9 @@
   <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl" />
 
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"></script>
+  <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
   <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
@@ -111,6 +114,8 @@
                  primary="true"
                  autofind="false"
                  src="about:blank"
+                 forcemessagemanager="true"
+                 maychangeremoteness="true"
                  messagemanagergroup="single-page"/>
         <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
         <vbox id="attachmentView" collapsed="true">

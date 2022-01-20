@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals MailE10SUtils */
+
 // mailContext.js
 /* globals dbViewWrapperListener */
 
@@ -23,7 +25,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
   PhishingDetector: "resource:///modules/PhishingDetector.jsm",
-  PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(
@@ -93,6 +94,10 @@ function reportMsgRead() {
   // TODO: implement this telemetry function.
 }
 
+function ReloadMessage() {
+  displayMessage(gMessageURI, gViewWrapper);
+}
+
 var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 var MsgStatusFeedback =
   window.browsingContext.topChromeWindow.MsgStatusFeedback;
@@ -111,10 +116,13 @@ window.addEventListener("DOMContentLoaded", event => {
 
   content = document.querySelector("browser");
   OnLoadMsgHeaderPane();
+
+  preferenceObserver.init();
 });
 
 window.addEventListener("unload", () => {
   OnUnloadMsgHeaderPane();
+  preferenceObserver.cleanUp();
 });
 
 window.addEventListener("keypress", event => {
@@ -165,6 +173,14 @@ function displayMessage(uri, viewWrapper) {
   );
   gDBView = gViewWrapper.dbView;
 
+  MailE10SUtils.changeRemoteness(content, null);
+  content.docShell
+    ?.QueryInterface(Ci.nsIWebProgress)
+    .addProgressListener(
+      msgWindow.statusFeedback,
+      Ci.nsIWebProgress.NOTIFY_ALL
+    );
+
   // Ideally we'd do this without creating a msgWindow, and just pass the
   // docShell to the message service, but that's not easy yet.
   messageService.DisplayMessage(
@@ -198,3 +214,34 @@ function RestoreFocusAfterHdrButton() {
   // set focus to the message pane
   content.focus();
 }
+
+var preferenceObserver = {
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
+
+  _topics: [
+    "mail.inline_attachments",
+    "mail.show_headers",
+    "mail.showCondensedAddresses",
+    "mailnews.display.disallow_mime_handlers",
+    "mailnews.display.html_as",
+    "mailnews.display.prefer_plaintext",
+    "mailnews.headers.showReferences",
+    "rss.show.summary",
+  ],
+
+  init() {
+    for (let topic of this._topics) {
+      Services.prefs.addObserver(topic, this);
+    }
+  },
+
+  cleanUp() {
+    for (let topic of this._topics) {
+      Services.prefs.removeObserver(topic, this);
+    }
+  },
+
+  observe(subject, topic, data) {
+    ReloadMessage();
+  },
+};

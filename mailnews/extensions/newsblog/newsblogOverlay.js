@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals ReloadMessage, getBrowser, openContentTab, gDBView,
+/* globals ReloadMessage, getMessagePaneBrowser, openContentTab, gDBView,
            GetNumSelectedMessages, gMessageNotificationBar */
 
 var { XPCOMUtils } = ChromeUtils.import(
@@ -92,7 +92,7 @@ var FeedMessageHandler = {
     // Thunderbird 2 rss messages with 'Show article summary' not selected,
     // ie message body constructed to show web page in an iframe, can't show
     // a summary - notify user.
-    let browser = getBrowser();
+    let browser = getMessagePaneBrowser();
     let contentDoc = browser ? browser.contentDocument : null;
     let rssIframe = contentDoc
       ? contentDoc.getElementById("_mailrssiframe")
@@ -212,7 +212,7 @@ var FeedMessageHandler = {
             .getService(Ci.nsIExternalProtocolService)
             .loadURI(uri);
         } else if (aWhere.messagepane) {
-          MailE10SUtils.loadURI(getBrowser(), url);
+          MailE10SUtils.loadURI(getMessagePaneBrowser(), url);
         } else if (aWhere.tab) {
           openContentTab(url, "tab", null);
         } else if (aWhere.window) {
@@ -243,7 +243,7 @@ var FeedMessageHandler = {
         ReloadMessage();
       }
     } else {
-      let browser = getBrowser();
+      let browser = getMessagePaneBrowser();
       if (browser && browser.contentDocument && browser.contentDocument.body) {
         browser.contentDocument.body.hidden = true;
       }

@@ -30,25 +30,28 @@ var MailE10SUtils = {
     let shouldBeRemote = remoteType !== E10SUtils.NOT_REMOTE;
 
     if (shouldBeRemote != isRemote) {
-      browser.destroy();
-
-      if (shouldBeRemote) {
-        browser.setAttribute("remote", "true");
-        browser.setAttribute("remoteType", remoteType);
-      } else {
-        browser.setAttribute("remote", "false");
-        browser.removeAttribute("remoteType");
-      }
-
-      browser.changeRemoteness({ remoteType });
-      browser.construct();
-
-      ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
+      this.changeRemoteness(browser, remoteType);
     }
 
     params.triggeringPrincipal =
       params.triggeringPrincipal ||
       Services.scriptSecurityManager.getSystemPrincipal();
     browser.loadURI(uri, params);
+  },
+
+  changeRemoteness(browser, remoteType) {
+    browser.destroy();
+
+    if (remoteType) {
+      browser.setAttribute("remote", "true");
+      browser.setAttribute("remoteType", remoteType);
+    } else {
+      browser.setAttribute("remote", "false");
+      browser.removeAttribute("remoteType");
+    }
+
+    browser.changeRemoteness({ remoteType });
+    browser.construct();
+    ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
   },
 };

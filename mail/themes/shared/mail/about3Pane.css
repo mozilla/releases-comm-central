@@ -287,8 +287,9 @@ thread-listrow > .dateCol {
   display: flex;
 }
 
-#messageBrowser {
-  visibility: hidden;
+#webBrowser,
+#messageBrowser,
+#multiMessageBrowser {
   flex: 1;
 }
 

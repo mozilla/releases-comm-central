@@ -19,6 +19,8 @@ var { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
   FolderUtils: "resource:///modules/FolderUtils.jsm",
+  GlodaSyntheticView: "resource:///modules/gloda/GlodaSyntheticView.jsm",
+  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(
@@ -26,7 +28,13 @@ const messengerBundle = Services.strings.createBundle(
 );
 
 var gFolder, gViewWrapper, gDBView;
-var folderTree, splitter1, threadTree, splitter2, messageBrowser;
+var folderTree,
+  splitter1,
+  threadTree,
+  splitter2,
+  webBrowser,
+  messageBrowser,
+  multiMessageBrowser;
 
 window.addEventListener("DOMContentLoaded", event => {
   if (event.target != document) {
@@ -118,7 +126,10 @@ window.addEventListener("DOMContentLoaded", event => {
   });
 
   splitter2.addEventListener("splitter-collapsed", () => {
-    displayMessage();
+    // Clear any loaded page or messages.
+    clearWebPage();
+    clearMessage();
+    clearMessages();
 
     Services.xulStore.setValue(
       "chrome://messenger/content/messenger.xhtml",
@@ -129,13 +140,8 @@ window.addEventListener("DOMContentLoaded", event => {
   });
 
   splitter2.addEventListener("splitter-expanded", () => {
-    if (threadTree.view?.selection.count == 1) {
-      let uri = threadTree.view.getURIForViewIndex(threadTree.selectedIndex);
-      if (!uri) {
-        return;
-      }
-      displayMessage(uri);
-    }
+    // Load the selected messages.
+    threadTree.dispatchEvent(new CustomEvent("select"));
 
     Services.xulStore.setValue(
       "chrome://messenger/content/messenger.xhtml",
@@ -163,6 +169,7 @@ window.addEventListener("DOMContentLoaded", event => {
   );
 
   folderTree.addEventListener("select", event => {
+    clearMessage();
     let uri = folderTree.rows[folderTree.selectedIndex]?.dataset.uri;
     if (!uri) {
       return;
@@ -271,22 +278,27 @@ window.addEventListener("DOMContentLoaded", event => {
   });
 
   threadTree.addEventListener("select", async event => {
-    if (splitter2.isCollapsed) {
+    if (splitter2.isCollapsed || !gDBView) {
       return;
     }
-    if (threadTree.view.selection.count != 1) {
-      displayMessage();
-      return;
+    clearWebPage();
+    switch (gDBView.numSelected) {
+      case 0:
+        clearMessage();
+        clearMessages();
+        return;
+      case 1:
+        let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
+        displayMessage(uri);
+        return;
+      default:
+        displayMessages(gDBView.getSelectedMsgHdrs());
     }
-
-    let uri = threadTree.view.getURIForViewIndex(threadTree.selectedIndex);
-    if (!uri) {
-      return;
-    }
-    displayMessage(uri);
   });
 
+  webBrowser = document.getElementById("webBrowser");
   messageBrowser = document.getElementById("messageBrowser");
+  multiMessageBrowser = document.getElementById("multiMessageBrowser");
 });
 
 window.addEventListener("unload", () => {
@@ -332,6 +344,7 @@ function restoreState({
   folderPaneVisible,
   messagePaneVisible,
   folderURI,
+  first = false,
 } = {}) {
   if (folderPaneVisible === undefined) {
     folderPaneVisible = true;
@@ -351,6 +364,10 @@ function restoreState({
   if (folderURI) {
     displayFolder(folderURI);
   }
+
+  if (first && Services.prefs.getBoolPref("mailnews.start_page.enabled")) {
+    commandController.doCommand("cmd_goStartPage");
+  }
 }
 
 function displayFolder(folderURI) {
@@ -358,6 +375,32 @@ function displayFolder(folderURI) {
   if (index >= 0) {
     folderTree.selectedIndex = index;
   }
+}
+
+function clearWebPage() {
+  displayWebPage();
+}
+
+function clearMessage() {
+  displayMessage();
+}
+
+function clearMessages() {
+  displayMessages();
+}
+
+function displayWebPage(url) {
+  if (!url) {
+    MailE10SUtils.loadURI(webBrowser, "about:blank");
+    webBrowser.hidden = true;
+    return;
+  }
+
+  clearMessage();
+  clearMessages();
+
+  MailE10SUtils.loadURI(webBrowser, url);
+  webBrowser.hidden = false;
 }
 
 async function displayMessage(messageURI) {
@@ -369,7 +412,39 @@ async function displayMessage(messageURI) {
     );
   }
   messageBrowser.contentWindow.displayMessage(messageURI);
-  messageBrowser.style.visibility = messageURI ? "visible" : null;
+  if (!messageURI) {
+    messageBrowser.hidden = true;
+    return;
+  }
+
+  clearWebPage();
+  clearMessages();
+
+  messageBrowser.hidden = false;
+}
+
+async function displayMessages(messages = []) {
+  if (multiMessageBrowser.contentDocument.readyState != "complete") {
+    await new Promise(r =>
+      multiMessageBrowser.contentWindow.addEventListener("load", r, {
+        once: true,
+      })
+    );
+  }
+  if (messages.length == 0) {
+    multiMessageBrowser.hidden = true;
+    multiMessageBrowser.contentWindow.gMessageSummary.clear();
+    return;
+  }
+
+  clearWebPage();
+  clearMessage();
+
+  multiMessageBrowser.contentWindow.gMessageSummary.summarize(
+    "multipleselection",
+    messages
+  );
+  multiMessageBrowser.hidden = false;
 }
 
 var folderPaneContextMenu = {
@@ -1086,4 +1161,8 @@ commandController.registerCallback(
   "cmd_viewIgnoredThreads",
   () => SwitchView("cmd_viewIgnoredThreads"),
   () => !!gViewWrapper
+);
+
+commandController.registerCallback("cmd_goStartPage", () =>
+  displayWebPage(Services.urlFormatter.formatURLPref("mailnews.start_page.url"))
 );

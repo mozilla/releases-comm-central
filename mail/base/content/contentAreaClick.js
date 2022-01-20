@@ -86,7 +86,7 @@ function hRefForClickEvent(aEvent, aDontCheckInputElement) {
 
 function messagePaneOnResize(aEvent) {
   // Scale any overflowing images, exclude http content.
-  let browser = getBrowser();
+  let browser = getMessagePaneBrowser();
   let doc = browser && browser.contentDocument ? browser.contentDocument : null;
   if (!doc || doc.URL.startsWith("http") || !doc.images) {
     return;
