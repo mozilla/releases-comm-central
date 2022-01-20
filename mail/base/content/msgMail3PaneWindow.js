@@ -657,6 +657,12 @@ var gMailInit = {
         showSystemIntegrationDialog();
         break;
 
+      case "account-setup-dismissed":
+        // The user closed the account setup before completing it. Be sure to
+        // initialize the few important areas we need.
+        gSpacesToolbar.onLoad();
+        break;
+
       case "open-account-setup-tab":
         openAccountSetupTab();
         break;
@@ -722,6 +728,7 @@ var gMailInit = {
       // the Mail UI which would have taken care of this to properly handle
       // opened folders or messages in tabs.
       await atStartupRestoreTabs(false);
+      gSpacesToolbar.onLoad();
     }
 
     // All core modal dialogs are done, the user can now interact with the

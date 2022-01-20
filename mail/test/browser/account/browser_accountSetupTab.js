@@ -31,6 +31,14 @@ add_task(async function test_use_thunderbird_without_email() {
     "No account currently configured"
   );
 
+  let spacesToolbar = document.getElementById("spacesToolbar");
+  Assert.ok(spacesToolbar, "The spaces toolbar exists");
+
+  let spacesVisiblePromise = BrowserTestUtils.waitForCondition(
+    () => !spacesToolbar.hidden,
+    "The spaces toolbar is visible"
+  );
+
   // Get the current tab, which should be the account setup tab.
   let tab = mc.tabmail.selectedTab;
   Assert.equal(tab.browser.currentURI?.spec, "about:accountsetup");
@@ -71,6 +79,9 @@ add_task(async function test_use_thunderbird_without_email() {
 
   // Confirm the folder pane didn't load.
   Assert.ok(!mc.folderDisplay.folderPaneVisible);
+
+  // The spaces toolbar should be available and visible.
+  await spacesVisiblePromise;
 
   // Confirm the pref was updated properly.
   Assert.ok(Services.prefs.getBoolPref("app.use_without_mail_account", false));

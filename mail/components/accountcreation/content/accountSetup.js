@@ -172,6 +172,21 @@ var gAccountSetup = {
   // a server configuration or installing an add-on.
   _abortable: null,
 
+  tabMonitor: {
+    monitorName: "accountSetupMonitor",
+
+    onTabTitleChanged() {},
+    onTabOpened() {},
+    onTabPersist() {},
+    onTabRestored() {},
+    onTabClosing(tab) {
+      if (tab?.urlbar?.value == "about:accountsetup") {
+        gMainWindow?.postMessage("account-setup-dismissed", "*");
+      }
+    },
+    onTabSwitched() {},
+  },
+
   /**
    * Initialize the main notification box for the account setup process.
    */
@@ -277,6 +292,11 @@ var gAccountSetup = {
     if (new URL(autoconfigURL).origin != new URL(addonsURL).origin) {
       fetch(addonsURL, { method: "OPTIONS" }).catch(Cu.reportError);
     }
+
+    // The tab monitor will inform us when this tab is getting closed.
+    gMainWindow.document
+      .getElementById("tabmail")
+      .registerTabMonitor(this.tabMonitor);
 
     // We did everything, now we can update the variable.
     this.isInited = true;
@@ -2137,6 +2157,9 @@ var gAccountSetup = {
   },
 
   onUnload() {
+    gMainWindow.document
+      .getElementById("tabmail")
+      .unregisterTabMonitor(this.tabMonitor);
     this.checkIfAbortable();
     gAccountSetupLogger.debug("Shutting down email config dialog");
   },
