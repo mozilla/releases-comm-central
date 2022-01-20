@@ -26,7 +26,9 @@ function OnInit() {
   });
 
   // Selected folder URI is passed as folderURI argument in the query string.
-  let folderURI = document.location.search.replace("?folderURI=", "");
+  let folderURI = decodeURIComponent(
+    document.location.search.replace("?folderURI=", "")
+  );
   gSelectedFolder = folderURI ? MailUtils.getExistingFolder(folderURI) : null;
   gSelectedServer = gSelectedFolder ? gSelectedFolder.server : null;
 
@@ -162,7 +164,7 @@ function readMessages() {
   }
 
   try {
-    window.parent.OpenInboxForServer(gSelectedServer);
+    window.browsingContext.topChromeWindow.OpenInboxForServer(gSelectedServer);
   } catch (ex) {
     Cu.reportError("Error opening Inbox for server: " + ex + "\n");
   }
@@ -177,21 +179,24 @@ function readMessages() {
  *   'am-smtp.xhtml'
  */
 function viewSettings(selectPage) {
-  window.parent.MsgAccountManager(selectPage, gSelectedServer);
+  window.browsingContext.topChromeWindow.MsgAccountManager(
+    selectPage,
+    gSelectedServer
+  );
 }
 
 /**
  * Bring up the search interface for selected account.
  */
 function searchMessages() {
-  window.parent.MsgSearchMessages(gSelectedFolder);
+  window.browsingContext.topChromeWindow.MsgSearchMessages(gSelectedFolder);
 }
 
 /**
  * Open the filters window.
  */
 function createMsgFilters() {
-  window.parent.MsgFilters(null, gSelectedFolder);
+  window.browsingContext.topChromeWindow.MsgFilters(null, gSelectedFolder);
 }
 
 /**
@@ -202,9 +207,11 @@ function subscribe() {
     return;
   }
   if (gSelectedServer.type == "rss") {
-    window.parent.openSubscriptionsDialog(gSelectedServer.rootFolder);
+    window.browsingContext.topChromeWindow.openSubscriptionsDialog(
+      gSelectedServer.rootFolder
+    );
   } else {
-    window.parent.MsgSubscribe(gSelectedFolder);
+    window.browsingContext.topChromeWindow.MsgSubscribe(gSelectedFolder);
   }
 }
 

@@ -1864,7 +1864,9 @@ FolderDisplayWidget.prototype = {
     // Prevent a second load if necessary.
     let loadURL =
       "chrome://messenger/content/msgAccountCentral.xhtml" +
-      (this.displayedFolder ? "?folderURI=" + this.displayedFolder.URI : "");
+      (this.displayedFolder
+        ? "?folderURI=" + encodeURIComponent(this.displayedFolder.URI)
+        : "");
     if (window.frames.accountCentralPane.location.href != loadURL) {
       window.frames.accountCentralPane.location.href = loadURL;
     }

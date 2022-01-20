@@ -74,7 +74,7 @@
           </button>
           <button id="composeButton" type="button"
                   data-l10n-id="compose" class="btn-link btn-inline"
-                  onclick="window.parent.MsgNewMessage(event);" hidden="hidden">
+                  onclick="window.browsingContext.topChromeWindow.MsgNewMessage(event);" hidden="hidden">
           </button>
           <button id="searchButton" type="button"
                   data-l10n-id="search" class="btn-link btn-inline"
@@ -109,7 +109,7 @@
                   type="button"
                   data-l10n-id="calendar-label"
                   class="btn-hub btn-inline"
-                  onclick="window.parent.cal.window.openCalendarWizard(window);">
+                  onclick="window.browsingContext.topChromeWindow.cal.window.openCalendarWizard(window);">
           </button>
           <div class="account-description">
             <p data-l10n-id="calendar-description"></p>

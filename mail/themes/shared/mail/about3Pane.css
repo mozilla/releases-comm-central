@@ -133,6 +133,22 @@ body.layout-wide :is(#messageBrowserPane, #messageBrowserPaneCover) {
   grid-row: 3;
 }
 
+/* If Account Central is shown, it overrides the layout setting. */
+
+body.account-central {
+  grid-template-columns: var(--splitter1-width) 0 auto;
+  grid-template-rows: unset;
+}
+
+body.account-central :is(#threadTreePane, #splitter2, #messageBrowserPane, #messageBrowserPaneCover) {
+  display: none;
+}
+
+body.account-central :is(#accountCentralBrowser, #accountCentralBrowserCover) {
+  grid-column: 3;
+  grid-row: 1;
+}
+
 /* Folder tree pane. */
 
 #folderTreePane {
@@ -293,10 +309,16 @@ thread-listrow > .dateCol {
   flex: 1;
 }
 
-#messageBrowserPaneCover {
+/* Account Central pane. */
+
+#accountCentralBrowser {
+  border-inline-start: 1px solid ThreeDShadow;
+}
+
+body:not(.account-central) #accountCentralBrowser {
   display: none;
 }
 
-body.dragging #messageBrowserPaneCover {
-  display: unset;
+body:not(.dragging) .dragcover {
+  display: none;
 }

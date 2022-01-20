@@ -35,7 +35,8 @@ var folderTree,
   splitter2,
   webBrowser,
   messageBrowser,
-  multiMessageBrowser;
+  multiMessageBrowser,
+  accountCentralBrowser;
 
 window.addEventListener("DOMContentLoaded", event => {
   if (event.target != document) {
@@ -185,9 +186,24 @@ window.addEventListener("DOMContentLoaded", event => {
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
       gViewWrapper = gDBView = threadTree.view = null;
+
+      clearWebPage();
+      clearMessage();
+      clearMessages();
+
+      MailE10SUtils.loadURI(
+        accountCentralBrowser,
+        `chrome://messenger/content/msgAccountCentral.xhtml?folderURI=${encodeURIComponent(
+          gFolder.URI
+        )}`
+      );
+      document.body.classList.add("account-central");
+      accountCentralBrowser.hidden = false;
       return;
     }
     document.title = `${gFolder.name} - ${gFolder.server.prettyName}`;
+    document.body.classList.remove("account-central");
+    accountCentralBrowser.hidden = true;
 
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper._viewFlags = 1;
@@ -300,6 +316,7 @@ window.addEventListener("DOMContentLoaded", event => {
   webBrowser = document.getElementById("webBrowser");
   messageBrowser = document.getElementById("messageBrowser");
   multiMessageBrowser = document.getElementById("multiMessageBrowser");
+  accountCentralBrowser = document.getElementById("accountCentralBrowser");
 });
 
 window.addEventListener("unload", () => {
