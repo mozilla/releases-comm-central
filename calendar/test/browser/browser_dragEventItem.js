@@ -20,7 +20,7 @@ registerCleanupFunction(() => {
   CalendarTestUtils.removeProxyCalendar(calendar);
   Services.prefs.clearUserPref("calendar.view.visiblehours");
   // Reset the spaces toolbar to its default visible state.
-  document.getElementById("spacesToolbar").hidden = false;
+  window.gSpacesToolbar.toggleToolbar(false);
 });
 
 /**
@@ -164,7 +164,7 @@ add_task(async function testMonthViewDragEventItem() {
   await resetView(event.startDate);
 
   // Hide the spaces toolbar since it interferes with the calendar
-  document.getElementById("spacesToolbar").hidden = true;
+  window.gSpacesToolbar.toggleToolbar(true);
 
   let eventItem = await CalendarTestUtils.monthView.waitForItemAt(window, 3, 3, 1);
   let dayBox = await CalendarTestUtils.monthView.getDayBox(window, 3, 2);

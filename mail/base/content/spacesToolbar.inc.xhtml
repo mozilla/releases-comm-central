@@ -2,11 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<html:aside id="spacesToolbar" xmlns="http://www.w3.org/1999/xhtml"
-            class="spaces-toolbar"
-            data-l10n-id="spaces-toolbar"
-            data-l10n-attrs="toolbarname"
-            hidden="hidden">
+<html:div role="toolbar" id="spacesToolbar" xmlns="http://www.w3.org/1999/xhtml"
+          class="spaces-toolbar"
+          data-l10n-id="spaces-toolbar"
+          data-l10n-attrs="toolbarname"
+          aria-orientation="vertical"
+          hidden="hidden">
   <!-- Primary tabs. -->
   <div class="spaces-toolbar-container spaces-toolbar-top-container">
     <button id="mailButton"
@@ -52,4 +53,4 @@
       <img src="chrome://messenger/skin/icons/collapse.svg" alt="" />
     </button>
   </div>
-</html:aside>
+</html:div>

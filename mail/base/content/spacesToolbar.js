@@ -54,14 +54,7 @@ var gSpacesToolbar = {
           buttonID = "tasksButton";
           break;
         case "contentTab":
-          buttonID = null;
-          // Find which tab is actually open.
-          document.getElementById("tabmail");
-          let tab = document
-            .getElementById("tabmail")
-            .getTabForBrowser(newTab.browser);
-
-          if (tab?.urlbar?.value == "about:addressbook") {
+          if (newTab?.urlbar?.value == "about:addressbook") {
             buttonID = "addressBookButton";
           }
           break;
@@ -219,6 +212,7 @@ var gSpacesToolbar = {
     document.getElementById("titlebar").removeAttribute("style");
     document.getElementById("toolbar-menubar").removeAttribute("style");
     document.getElementById("navigation-toolbox").removeAttribute("style");
+    document.getElementById("tabmail-tabs").removeAttribute("style");
   },
 
   /**
