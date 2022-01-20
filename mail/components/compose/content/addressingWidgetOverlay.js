@@ -1400,5 +1400,5 @@ function openExtraAddressRowsMenu() {
   let button = document.getElementById("extraAddressRowsMenuButton");
   let menu = document.getElementById("extraAddressRowsMenu");
   // NOTE: menu handlers handle the aria-expanded state of the button.
-  menu.openPopup(button, "after_end", 8, 0, true);
+  menu.openPopup(button, "after_end", 8, 0);
 }
