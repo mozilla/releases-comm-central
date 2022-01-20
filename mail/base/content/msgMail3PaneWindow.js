@@ -413,8 +413,7 @@ var MailPrefObserver = {
         UpdateMailPaneConfig(true);
       } else if (prefName == "mail.showCondensedAddresses") {
         let version = Services.prefs.getIntPref("mail.displayname.version", 0);
-
-        Services.prefs.setIntPref("mail.displayname.version", version++);
+        Services.prefs.setIntPref("mail.displayname.version", ++version);
 
         // refresh the thread pane
         document.getElementById("threadTree").invalidate();
