@@ -1941,15 +1941,19 @@
     dayColumns = [];
 
     /**
-     * Whether the short/long heading widths need to be remeasured.
+     * Whether the number of headings, or the heading dates have changed, and
+     * the view still needs to be adjusted accordingly.
+     *
      * @type {boolean}
      */
-    headingWidthsOutdated = true;
+    headingDatesChanged = true;
     /**
-     * Whether the headers need repositioning.
+     * Whether the view has been rotated and the view still needs to be fully
+     * adjusted.
+     *
      * @type {boolean}
      */
-    headerPositionsOutdated = true;
+    rotationChanged = true;
 
     mSelectedDayCol = null;
     mSelectedDay = null;
@@ -2439,10 +2443,144 @@
         return;
       }
 
-      // Adjust pixels per minute.
       let isHorizontal = this.getAttribute("orient") == "horizontal";
+
+      // Adjust the headings. We do this before measuring the pixels per minute
+      // because this may adjust the size of the headings.
+      if (this.headingDatesChanged) {
+        this.shortHeadingContentWidth = 0;
+        for (let dayCol of this.dayColumns) {
+          // Make sure both headings are visible for measuring.
+          // We will hide one of them again further below.
+          dayCol.shortHeading.hidden = false;
+          dayCol.longHeading.hidden = false;
+
+          // We can safely measure the widths of the short and long headings
+          // because their headingContainer does not grow or shrink them.
+          let longHeadingRect = dayCol.longHeading.getBoundingClientRect();
+          if (!this.headingContentHeight) {
+            // We assume this is constant and the same for each heading.
+            this.headingContentHeight = longHeadingRect.height;
+          }
+
+          dayCol.longHeadingContentAreaWidth = longHeadingRect.width;
+          this.shortHeadingContentWidth = Math.max(
+            this.shortHeadingContentWidth,
+            dayCol.shortHeading.getBoundingClientRect().width
+          );
+        }
+        // Unset the other properties that use these values.
+        // NOTE: We do not calculate new values for these properties here
+        // because they can only be measured in one of the rotated or
+        // non-rotated states. So we will calculate them as needed.
+        delete this.rotatedHeadingWidth;
+        delete this.minHeadingWidth;
+      }
+
+      // Whether the headings need readjusting.
+      let adjustHeadingPositioning = this.headingDatesChanged || this.rotationChanged;
+      // Position headers.
+      if (isHorizontal) {
+        // We're in the rotated state, so we can measure the corresponding
+        // header dimensions.
+        // NOTE: we always use short headings in the rotated view.
+        if (!this.rotatedHeadingWidth) {
+          // Width is shared by all headings in the rotated view, so we set it
+          // so that its large enough to fit the text of each heading.
+          if (!this.rotatedHeadingContentToBorderWidthOffset) {
+            // We cache the value since we assume it is constant within the
+            // rotated view.
+            this.rotatedHeadingContentToBorderOffset = this.measureHeadingContentToBorderOffset();
+          }
+          this.rotatedHeadingWidth =
+            this.shortHeadingContentWidth + this.rotatedHeadingContentToBorderOffset.inline;
+          adjustHeadingPositioning = true;
+        }
+        if (adjustHeadingPositioning) {
+          for (let dayCol of this.dayColumns) {
+            // The header is sticky, so we need to position it. We want a constant
+            // position, so we offset the header by the heading width.
+            // NOTE: We assume there is no margin between the two.
+            dayCol.header.style.insetBlockStart = null;
+            dayCol.header.style.insetInlineStart = `${this.rotatedHeadingWidth}px`;
+            // NOTE: The heading must have its box-sizing set to border-box for
+            // this to work properly.
+            dayCol.headingContainer.style.width = `${this.rotatedHeadingWidth}px`;
+            dayCol.headingContainer.style.minWidth = null;
+          }
+        }
+      } else {
+        // We're in the non-rotated state, so we can measure the corresponding
+        // header dimensions.
+        if (!this.headingContentToBorderOffset) {
+          // We cache the value since we assume it is constant within the
+          // non-rotated view.
+          this.headingContentToBorderOffset = this.measureHeadingContentToBorderOffset();
+        }
+        if (!this.headingHeight) {
+          this.headingHeight = this.headingContentHeight + this.headingContentToBorderOffset.block;
+        }
+        if (!this.minHeadingWidth) {
+          // Make the minimum width large enough to fit the short heading.
+          this.minHeadingWidth =
+            this.shortHeadingContentWidth + this.headingContentToBorderOffset.inline;
+          adjustHeadingPositioning = true;
+        }
+        if (adjustHeadingPositioning) {
+          for (let dayCol of this.dayColumns) {
+            // We offset the header by the heading height.
+            dayCol.header.style.insetBlockStart = `${this.headingHeight}px`;
+            dayCol.header.style.insetInlineStart = null;
+            dayCol.headingContainer.style.minWidth = `${this.minHeadingWidth}px`;
+            dayCol.headingContainer.style.width = null;
+          }
+        }
+      }
+
+      // If the view is horizontal, we always use the short headings.
+      // We do this before calculating the pixelsPerMinute since the width of
+      // the heading is important to determining the size of the scroll area.
+      // We only need to do this when the view has been rotated, or when new
+      // headings have been added. adjustHeadingPosition covers both of these.
+      if (isHorizontal && adjustHeadingPositioning) {
+        for (let dayCol of this.dayColumns) {
+          dayCol.shortHeading.hidden = false;
+          dayCol.longHeading.hidden = true;
+        }
+      }
+      // Otherwise, if the view is vertical, we determine whether to use short
+      // or long headings after changing the pixelsPerMinute, which can change
+      // the amount of horizontal space.
+      // NOTE: when the view is vertical, both the short and long headings
+      // should take up the same vertical space, so this shouldn't effect the
+      // pixelsPerMinute calculation.
+
+      if (this.rotationChanged) {
+        // Clear the set widths/heights or positions before calculating the
+        // scroll area. Otherwise they will remain extended in the wrong
+        // direction, and keep the grid content larger than necessary, which can
+        // cause the grid content to overflow, which in turn shrinks the
+        // calculated scroll area due to extra scrollbars.
+        // The timebar will be corrected when the pixelsPerMinute is calculated.
+        this.timebar.style.width = null;
+        this.timebar.style.height = null;
+        // The time indicators will be corrected in updateTimeIndicatorPosition.
+        this.nowIndicator.style.insetInlineStart = null;
+        this.nowIndicator.style.insetBlockStart = null;
+        let todayIndicator = this.findColumnForDate(this.today())?.column.timeIndicatorBox;
+        if (todayIndicator) {
+          todayIndicator.style.marginInlineStart = null;
+          todayIndicator.style.marginBlockStart = null;
+        }
+      }
+
+      // Adjust pixels per minute.
       let ppmHasChanged = false;
-      if ((isHorizontal && horizontalResize) || (!isHorizontal && verticalResize)) {
+      if (
+        adjustHeadingPositioning ||
+        (isHorizontal && horizontalResize) ||
+        (!isHorizontal && verticalResize)
+      ) {
         if (isHorizontal && !this.timebarMinWidth) {
           // Measure the minimum width such that the time labels do not overflow
           // and are equal width.
@@ -2489,7 +2627,7 @@
           ? Math.max((scrollArea.right - scrollArea.left) * dayScale, this.timebarMinWidth)
           : Math.max((scrollArea.bottom - scrollArea.top) * dayScale, this.timebarMinHeight);
         let pixelsPerMinute = dayPixels / MINUTES_IN_DAY;
-        if (pixelsPerMinute != this.pixelsPerMinute) {
+        if (this.rotationChanged || pixelsPerMinute != this.pixelsPerMinute) {
           ppmHasChanged = true;
           this.pixelsPerMinute = pixelsPerMinute;
 
@@ -2518,115 +2656,20 @@
         }
       }
 
-      // Measure headings.
-      if (this.headingWidthsOutdated) {
-        this.shortHeadingContentWidth = 0;
-        for (let dayCol of this.dayColumns) {
-          // Make sure both headings are visible for measuring.
-          dayCol.shortHeading.hidden = false;
-          dayCol.longHeading.hidden = false;
-
-          let longHeadingRect = dayCol.longHeading.getBoundingClientRect();
-          if (!this.headingContentHeight) {
-            // We assume this is constant and the same for each heading.
-            this.headingContentHeight = longHeadingRect.height;
-          }
-
-          dayCol.longHeadingContentAreaWidth = longHeadingRect.width;
-          this.shortHeadingContentWidth = Math.max(
-            this.shortHeadingContentWidth,
-            dayCol.shortHeading.getBoundingClientRect().width
-          );
-        }
-        // Unset the other properties that use these values.
-        // NOTE: We do not calculate new values for these properties here
-        // because they can only be measured in one of the rotated or
-        // non-rotated states. So we will calculate them as needed.
-        delete this.rotatedHeadingWidth;
-        delete this.headingMinWidth;
-        delete this.useShortHeadings;
-        this.headingWidthsOutdated = false;
-      }
-      if (this.headerPositionsOutdated) {
-        delete this.useShortHeadings;
-      }
-
-      // Position headers.
-      if (isHorizontal) {
-        // We're in the rotated state, so we can measure the corresponding
-        // header dimensions.
-        // NOTE: we always use short headings in the rotated view.
-        if (!this.rotatedHeadingWidth) {
-          // Width is shared by all headings in the rotated view, so we set it
-          // so that its large enough to fit the text of each heading.
-          if (!this.rotatedHeadingContentToBorderWidthOffset) {
-            // We cache the value since we assume it is constant within the
-            // rotated view.
-            this.rotatedHeadingContentToBorderOffset = this.measureHeadingContentToBorderOffset();
-          }
-          this.rotatedHeadingWidth =
-            this.shortHeadingContentWidth + this.rotatedHeadingContentToBorderOffset.inline;
-          this.headerPositionsOutdated = true;
-        }
-        if (this.headerPositionsOutdated) {
-          for (let dayCol of this.dayColumns) {
-            // The header is sticky, so we need to position it. We want a constant
-            // position, so we offset the header by the heading width.
-            // NOTE: We assume there is no margin between the two.
-            dayCol.header.style.insetBlockStart = null;
-            dayCol.header.style.insetInlineStart = `${this.rotatedHeadingWidth}px`;
-            // NOTE: The heading must have its box-sizing set to border-box for
-            // this to work properly.
-            dayCol.headingContainer.style.width = `${this.rotatedHeadingWidth}px`;
-            dayCol.headingContainer.style.minWidth = null;
-          }
-          this.headerPositionsOutdated = false;
-        }
-      } else {
-        // We're in the non-rotated state, so we can measure the corresponding
-        // header dimensions.
-        if (!this.headingContentToBorderOffset) {
-          // We cache the value since we assume it is constant within the
-          // non-rotated view.
-          this.headingContentToBorderOffset = this.measureHeadingContentToBorderOffset();
-        }
-        if (!this.headingHeight) {
-          this.headingHeight = this.headingContentHeight + this.headingContentToBorderOffset.block;
-        }
-        if (!this.minHeadingWidth) {
-          // Make the minimum width large enough to fit the short heading.
-          this.minHeadingWidth =
-            this.shortHeadingContentWidth + this.headingContentToBorderOffset.inline;
-          this.headerPositionsOutdated = true;
-        }
-        if (this.headerPositionsOutdated) {
-          for (let dayCol of this.dayColumns) {
-            // We offset the header by the heading height.
-            dayCol.header.style.insetBlockStart = `${this.headingHeight}px`;
-            dayCol.header.style.insetInlineStart = null;
-            dayCol.headingContainer.style.minWidth = `${this.minHeadingWidth}px`;
-            dayCol.headingContainer.style.width = null;
-          }
-          this.headerPositionsOutdated = false;
-        }
-      }
-
       // Decide whether to use short headings.
-      if (isHorizontal) {
-        this.useShortHeadings = true;
-      } else if (horizontalResize || !("useShortHeadings" in this)) {
+      if (!isHorizontal && (horizontalResize || adjustHeadingPositioning)) {
         // Use short headings if *any* heading would horizontally overflow with
         // a long heading.
         let widthOffset = this.headingContentToBorderOffset.inline;
-        this.useShortHeadings = this.dayColumns.some(
+        let useShortHeadings = this.dayColumns.some(
           col =>
             col.headingContainer.getBoundingClientRect().width <
             col.longHeadingContentAreaWidth + widthOffset
         );
-      }
-      for (let dayCol of this.dayColumns) {
-        dayCol.shortHeading.hidden = !this.useShortHeadings;
-        dayCol.longHeading.hidden = this.useShortHeadings;
+        for (let dayCol of this.dayColumns) {
+          dayCol.shortHeading.hidden = !useShortHeadings;
+          dayCol.longHeading.hidden = useShortHeadings;
+        }
       }
 
       // Adjust the time indicator position and the related timer.
@@ -2639,6 +2682,10 @@
           this.updateTimeIndicatorPosition(true, ppmHasChanged, viewHasChanged);
         }
       }
+
+      // The changes have now been handled.
+      this.headingDatesChanged = false;
+      this.rotationChanged = false;
     }
 
     /**
@@ -3008,18 +3055,15 @@
         return;
       }
       if (!changes) {
-        changes = { dates: true };
-      }
-      if (changes.dates) {
-        // If there is a change in dates we treat as a change in orientation and
-        // context since the potential new columns need this information.
-        changes.rotated = true;
-        changes.context = true;
+        changes = { dates: true, rotated: true, context: true };
       }
       let scrollMinute = this.scrollMinute;
 
       const orient = this.getAttribute("orient") || "vertical";
       this.grid.classList.toggle("multiday-grid-rotated", orient == "horizontal");
+
+      let context = this.getAttribute("context");
+      let itemContext = this.getAttribute("item-context") || context;
 
       for (let dayCol of this.dayColumns) {
         dayCol.column.startLayoutBatchChange();
@@ -3056,7 +3100,7 @@
         // dates are likely to change.
         // We do not measure them here since we may be hidden. Instead we do so
         // in readjustView.
-        this.headingWidthsOutdated = true;
+        this.headingDatesChanged = true;
         let colIndex;
         for (colIndex = 0; colIndex < computedDateList.length; colIndex++) {
           let dayDate = computedDateList[colIndex];
@@ -3086,9 +3130,12 @@
             dayCol.column = document.createXULElement("calendar-event-column");
             dayCol.container.appendChild(dayCol.column);
             dayCol.column.calendarView = this;
-            dayCol.column.pixelsPerMinute = this.pixelsPerMinute;
             dayCol.column.startLayoutBatchChange();
+            dayCol.column.pixelsPerMinute = this.pixelsPerMinute;
             dayCol.column.setDayStartEndHours(this.dayStartHour, this.dayEndHour);
+            dayCol.column.setAttribute("orient", orient);
+            dayCol.column.setAttribute("context", context);
+            dayCol.column.setAttribute("item-context", itemContext);
 
             this.dayColumns[colIndex] = dayCol;
           }
@@ -3137,27 +3184,27 @@
       }
 
       if (changes.rotated) {
+        this.rotationChanged = true;
         for (let dayCol of this.dayColumns) {
           dayCol.column.setAttribute("orient", orient);
         }
-        // Fix pixels-per-minute and headers.
-        this.headerPositionsOutdated = true;
-        // Since the orientation has changed, act as if both directions have
-        // been resized.
-        this.readjustView(true, true, scrollMinute);
       }
 
       if (changes.context) {
-        let context = this.getAttribute("context");
-        let itemContext = this.getAttribute("item-context") || context;
         for (let dayCol of this.dayColumns) {
           dayCol.column.setAttribute("context", context);
           dayCol.column.setAttribute("item-context", itemContext);
         }
       }
 
+      // Let the columns relayout themselves before we readjust the view.
       for (let dayCol of this.dayColumns) {
         dayCol.column.endLayoutBatchChange();
+      }
+
+      if (changes.dates || changes.rotated) {
+        // Fix pixels-per-minute and headers, now or when next visible.
+        this.readjustView(false, false, scrollMinute);
       }
 
       // Store the start and end of current view. Next time when
