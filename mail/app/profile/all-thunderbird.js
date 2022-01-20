@@ -411,10 +411,6 @@ pref("network.protocol-handler.external.smile", false);
 pref("network.hosts.smtp_server",           "mail");
 pref("network.hosts.pop_server",            "mail");
 
-// Prevents mailto: handlers being loaded from HandlerList.jsm by having a
-// higher version number in the preferences than in the file. See bug 1750466.
-pref("gecko.handlerService.defaultHandlersVersion", 9999);
-
 // For testing purposes only: Flipping this pref to true allows
 // to skip the assertion that every about page ships with a CSP.
 pref("dom.security.skip_about_page_has_csp_assert", true);
