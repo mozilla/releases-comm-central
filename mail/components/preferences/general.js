@@ -1542,7 +1542,7 @@ var gGeneralPane = {
       } catch (error) {
         Cu.reportError(error);
         await this.updateReadPrefs();
-        await this.reportUpdatePrefWriteError(error);
+        await this.reportUpdatePrefWriteError();
         return;
       }
 
@@ -1554,12 +1554,12 @@ var gGeneralPane = {
     }
   },
 
-  async reportUpdatePrefWriteError(error) {
+  async reportUpdatePrefWriteError() {
     let [title, message] = await document.l10n.formatValues([
       { id: "update-setting-write-failure-title" },
       {
         id: "update-setting-write-failure-message",
-        args: { path: error.path },
+        args: { path: UpdateUtils.configFilePath },
       },
     ]);
 
