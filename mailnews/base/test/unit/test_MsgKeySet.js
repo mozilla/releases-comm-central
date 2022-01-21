@@ -60,3 +60,27 @@ add_task(function testAdd() {
   ok(keySet.has(4));
   equal(keySet.toString(), "1-2,4");
 });
+
+/**
+ * Test MsgKeySet.getLastMissingRange works correctly.
+ */
+add_task(function testGetLastMissingRange() {
+  // Init a set.
+  let keySet = new MsgKeySet("2-9,12-29");
+
+  // Test `start` should be a value not already in keySet.
+  let [start, end] = keySet.getLastMissingRange(2, 33);
+  equal(start, 30);
+  equal(end, 33);
+
+  // Test `start` should be the lowest input value.
+  [start, end] = keySet.getLastMissingRange(33, 33);
+  equal(start, 33);
+  equal(end, 33);
+
+  // Test `start` and `end` should be undefined if keySet already contains the
+  // input range.
+  [start, end] = keySet.getLastMissingRange(3, 23);
+  equal(start, undefined);
+  equal(end, undefined);
+});

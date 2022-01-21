@@ -285,6 +285,10 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   /** @see nsIMsgIncomingServer */
+  get serverRequiresPasswordForBiff() {
+    return false;
+  }
+
   get filterScope() {
     return Ci.nsMsgSearchScope.newsFilter;
   }

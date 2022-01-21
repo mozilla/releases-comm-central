@@ -28,7 +28,7 @@ class MsgKeySet {
     this._ranges = str
       ? str.split(",").map(part => {
           let [start, end] = part.split("-");
-          return [start, end || start];
+          return [+start, +end || +start];
         })
       : [];
   }
@@ -70,9 +70,9 @@ class MsgKeySet {
   }
 
   /**
-   * Get the last range that is in the input range, but not in the set.
-   * @param {number} low - The smallest value of the range.
-   * @param {number} high - The largest value of the range.
+   * Get the last range that is in the input range, but not in the key set.
+   * @param {number} low - The smallest value of the input range.
+   * @param {number} high - The largest value of the input range.
    * @returns {[number, number]}
    */
   getLastMissingRange(low, high) {
@@ -80,7 +80,7 @@ class MsgKeySet {
     for (let i = length - 1; i >= 0; i--) {
       let [, end] = this._ranges[i];
       if (end < high) {
-        return [Math.max(low, end), high];
+        return [Math.max(low, end + 1), high];
       }
       if (end >= high) {
         return [];
