@@ -77,7 +77,7 @@ class Pop3IncomingServer extends MsgIncomingServer {
     let incomingServer = MailServices.accounts.getAccount(
       this.deferredToAccount
     ).incomingServer;
-    if (incomingServer == this) {
+    if (incomingServer.equals(this)) {
       // Make sure we're not deferred to ourself.
       throw Components.Exception(
         `${incomingServer.prettyName} cannot be deferred to itself`,
