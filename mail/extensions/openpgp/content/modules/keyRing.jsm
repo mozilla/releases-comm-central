@@ -14,6 +14,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
   OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
@@ -1654,6 +1655,224 @@ var EnigmailKeyRing = {
       return null;
     }
     return RNP.getAutocryptKeyB64(keyId, "0x" + subKey.keyId, keyObj.userId);
+  },
+
+  /**
+   * @typedef {Object} EncryptionKeyMeta
+   * @property {string} readiness - one of
+   *   "accepted", "expiredAccepted",
+   *   "undecided", "expiredUndecided",
+   *   "rejected", "expiredRejected",
+   *   "collected", "rejectedPersonal", "revoked", "alias"
+   * @property {KeyObj} keyObj -
+   *   undefined if an alias
+   * @property {CollectedKey} collectedKey -
+   *   undefined if not a collected key or an alias
+   */
+
+  /**
+   * Obtain infomation on the availability of recipient keys
+   * for the given email address, and the status of the keys.
+   *
+   * No key details are returned for alias keys.
+   *
+   * If readiness is "collected" it's an unexpired key that hasn't
+   * been imported into permanent storage (keyring) yet.
+   *
+   * @param {String} email - email address
+   *
+   * @returns {EncryptionKeyMeta[]} - meta information for an encryption key
+   *
+   *   Callers can filter it keys according to needs, like
+   *
+   *   let meta = getEncryptionKeyMeta("foo@example.com");
+   *   let readyToUse = meta.filter(k => k.readiness == "accepted" || k.readiness == "alias");
+   *   let hasAlias = meta.filter(k => k.readiness == "alias");
+   *   let accepted = meta.filter(k => k.readiness == "accepted");
+   *   let expiredAccepted = meta.filter(k => k.readiness == "expiredAccepted");
+   *   let unaccepted = meta.filter(k => k.readiness == "undecided" || k.readiness == "rejected" );
+   *   let expiredUnaccepted = meta.filter(k => k.readiness == "expiredUndecided" || k.readiness == "expiredRejected");
+   *   let unacceptedNotYetImported = meta.filter(k => k.readiness == "collected");
+   *   let invalidKeys = meta.some(k => k.readiness == "revoked" || k.readiness == "rejectedPersonal" || );
+   *
+   *   let keyReadiness = meta.groupBy(({readiness}) => readiness);
+   */
+  async getEncryptionKeyMeta(email) {
+    email = email.toLowerCase();
+
+    let result = [];
+
+    result.hasAliasRule = OpenPGPAlias.hasAliasDefinition(email);
+    if (result.hasAliasRule) {
+      let keyMeta = {};
+      keyMeta.readiness = "alias";
+      result.push(keyMeta);
+      return result;
+    }
+
+    let fingerprintsInKeyring = new Set();
+
+    for (let keyObj of this.getAllKeys(null, null).keyList) {
+      let keyMeta = {};
+      keyMeta.keyObj = keyObj;
+
+      let uidMatch = false;
+      for (let uid of keyObj.userIds) {
+        if (uid.type !== "uid") {
+          continue;
+        }
+        // key valid for encryption?
+        if (!keyObj.keyUseFor.includes("E")) {
+          continue;
+        }
+
+        if (
+          EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() === email
+        ) {
+          uidMatch = true;
+          break;
+        }
+      }
+      if (!uidMatch) {
+        continue;
+      }
+      fingerprintsInKeyring.add(keyObj.fpr);
+
+      if (keyObj.keyTrust == "r") {
+        keyMeta.readiness = "revoked";
+        result.push(keyMeta);
+        continue;
+      }
+      let isExpired = keyObj.keyTrust == "e";
+
+      // Ensure we have at least one primary key or subkey usable for
+      // encryption that is not expired/revoked.
+      // We already checked above, the primary key is not revoked.
+      // If the primary key is good for encryption, we don't need to
+      // check subkeys.
+      if (!keyObj.keyUseFor.match(/e/)) {
+        let hasExpiredSubkey = false;
+        let hasRevokedSubkey = false;
+        let hasUsableSubkey = false;
+
+        for (let aSub of keyObj.subKeys) {
+          if (!aSub.keyUseFor.match(/e/)) {
+            continue;
+          }
+          if (aSub.keyTrust == "e") {
+            hasExpiredSubkey = true;
+          } else if (aSub.keyTrust == "r") {
+            hasRevokedSubkey = true;
+          } else {
+            hasUsableSubkey = true;
+          }
+        }
+
+        if (!hasUsableSubkey) {
+          if (hasExpiredSubkey) {
+            isExpired = true;
+          } else if (hasRevokedSubkey) {
+            keyMeta.readiness = "revoked";
+            result.push(keyMeta);
+            continue;
+          }
+        }
+      }
+
+      if (keyObj.secretAvailable) {
+        let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
+        if (isPersonal) {
+          keyMeta.readiness = "accepted";
+        } else {
+          // We don't allow encrypting to rejected secret/personal keys.
+          keyMeta.readiness = "rejectedPersonal";
+          result.push(keyMeta);
+          continue;
+        }
+      } else {
+        let acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
+          keyObj,
+          email
+        );
+        switch (acceptanceLevel) {
+          case 1:
+          case 2:
+            keyMeta.readiness = isExpired ? "expiredAccepted" : "accepted";
+            break;
+          case -1:
+            keyMeta.readiness = isExpired ? "expiredRejected" : "rejected";
+            break;
+          case 0:
+          default:
+            keyMeta.readiness = isExpired ? "expiredUndecided" : "undecided";
+            break;
+        }
+      }
+      result.push(keyMeta);
+    }
+
+    let collDB = await CollectedKeysDB.getInstance();
+    let coll = await collDB.findKeysForEmail(email);
+    for (let c of coll) {
+      let k = await RNP.getKeyListFromKeyBlockImpl(c.pubKey);
+      if (!k) {
+        continue;
+      }
+      if (k.length != 1) {
+        throw new Error("expected exactly one key");
+      }
+
+      let deleteFromCollected = false;
+
+      if (fingerprintsInKeyring.has(k[0].fpr)) {
+        deleteFromCollected = true;
+      } else {
+        let trust = k[0].keyTrust;
+        if (trust == "r" || trust == "e") {
+          deleteFromCollected = true;
+        }
+      }
+
+      if (!deleteFromCollected) {
+        // Ensure we have at least one primary key or subkey usable for
+        // encryption that is not expired/revoked.
+        // If the primary key is good for encryption, we don't need to
+        // check subkeys.
+
+        if (!k[0].keyUseFor.match(/e/)) {
+          let hasUsableSubkey = false;
+
+          for (let aSub of k[0].subKeys) {
+            if (!aSub.keyUseFor.match(/e/)) {
+              continue;
+            }
+            if (aSub.keyTrust != "e" && aSub.keyTrust != "r") {
+              hasUsableSubkey = true;
+              break;
+            }
+          }
+
+          if (!hasUsableSubkey) {
+            deleteFromCollected = true;
+          }
+        }
+      }
+
+      if (deleteFromCollected) {
+        let collDB = await CollectedKeysDB.getInstance();
+        collDB.deleteKey(k[0].fpr);
+        continue;
+      }
+
+      let keyMeta = {};
+      keyMeta.readiness = "collected";
+      keyMeta.keyObj = k[0];
+      keyMeta.collectedKey = c;
+
+      result.push(keyMeta);
+    }
+
+    return result;
   },
 }; //  EnigmailKeyRing
 

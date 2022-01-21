@@ -618,4 +618,34 @@ class EnigmailKeyObj {
 
     return rv;
   }
+
+  /**
+   * Obtain the list of alternative email addresses, except the one
+   * that is given as the parameter.
+   *
+   * @param {Boolean} exceptThisEmail - an email address that will
+   *   be excluded in the result array.
+   * @return {String[]} - an array of all email addresses found in all
+   *   of the key's user IDs, excluding exceptThisEmail.
+   */
+  getAlternativeEmails(exceptThisEmail) {
+    let result = [];
+
+    for (let u of this.userIds) {
+      let email;
+      try {
+        email = EnigmailFuncs.stripEmail(u.userId.toLowerCase());
+      } catch (x) {
+        email = u.userId.toLowerCase();
+      }
+
+      if (email == exceptThisEmail) {
+        continue;
+      }
+
+      result.push(email);
+    }
+
+    return result;
+  }
 }

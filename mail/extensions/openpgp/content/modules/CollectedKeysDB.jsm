@@ -268,12 +268,36 @@ class CollectedKeysDB {
         }
       };
       transaction.oncomplete = () => {
-        log.debug(`Keys gone for ${email}.`);
+        log.debug(`Keys gone for email ${email}.`);
         resolve(email);
       };
       transaction.onerror = event => {
         log.debug(
-          `Could not delete keys for for ${email}: ${transaction.error.message}`
+          `Could not delete keys for email ${email}: ${transaction.error.message}`
+        );
+        reject(transaction.error);
+      };
+    });
+  }
+
+  /**
+   * Delete key by fingerprint.
+   * @param {string} fingerprint - fingerprint of key to delete.
+   */
+  async deleteKey(fingerprint) {
+    if (fingerprint.length != 40) {
+      throw new Error(`Invalid fingerprint: ${fingerprint}`);
+    }
+    return new Promise((resolve, reject) => {
+      let transaction = this.db.transaction(["seen_keys"], "readwrite");
+      let request = transaction.objectStore("seen_keys").delete(fingerprint);
+      request.onsuccess = () => {
+        log.debug(`Keys gone for fingerprint ${fingerprint}.`);
+        resolve(fingerprint);
+      };
+      request.onerror = event => {
+        log.debug(
+          `Could not delete keys for fingerprint ${fingerprint}: ${transaction.error.message}`
         );
         reject(transaction.error);
       };

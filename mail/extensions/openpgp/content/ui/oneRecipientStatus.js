@@ -34,6 +34,10 @@ var gRowToKey = [];
 async function setListEntries(keys = null) {
   let index = 0;
 
+  // Temporary code for debugging/development, should be removed when
+  // a final patch for bug 1627956 lands.
+  console.log(await EnigmailKeyRing.getEncryptionKeyMeta(gAddr));
+
   if (!keys) {
     keys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(gAddr, true);
   }

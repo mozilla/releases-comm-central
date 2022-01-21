@@ -151,4 +151,27 @@ var OpenPGPAlias = {
     }
     return this._aliasEmails.get(email.toLowerCase());
   },
+
+  hasAliasDefinition(email) {
+    if (!this._loaded()) {
+      return false;
+    }
+    email = email.toLowerCase();
+    let hasEmail = this._aliasEmails.has(email);
+    if (hasEmail) {
+      return true;
+    }
+
+    let lastAt = email.lastIndexOf("@");
+    if (lastAt == -1) {
+      return false;
+    }
+
+    let domain = email.substr(lastAt + 1);
+    if (!domain) {
+      return false;
+    }
+
+    return this._aliasDomains.has(domain);
+  },
 };
