@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals commandController, dbViewWrapperListener, mailContextMenu */ // mailContext.js
+/* globals commandController, dbViewWrapperListener, mailContextMenu
+     nsMsgViewIndex_None */ // mailContext.js
 /* globals goDoCommand */ // globalOverlay.js
 
 var { DBViewWrapper } = ChromeUtils.import(
@@ -440,9 +441,29 @@ async function displayMessages(messages = []) {
   clearWebPage();
   clearMessage();
 
+  let getThreadId = function(message) {
+    return gDBView.getThreadContainingMsgHdr(message).getChildHdrAt(0)
+      .messageKey;
+  };
+
+  let oneThread = true;
+  let firstThreadId = getThreadId(messages[0]);
+  for (let i = 1; i < messages.length; i++) {
+    if (getThreadId(messages[i]) != firstThreadId) {
+      oneThread = false;
+      break;
+    }
+  }
+
   multiMessageBrowser.contentWindow.gMessageSummary.summarize(
-    "multipleselection",
-    messages
+    oneThread ? "thread" : "multipleselection",
+    messages,
+    gDBView,
+    function(messages) {
+      threadTree.selectedIndicies = messages
+        .map(m => gDBView.findIndexOfMsgHdr(m, true))
+        .filter(i => i != nsMsgViewIndex_None);
+    }
   );
   multiMessageBrowser.hidden = false;
 }
@@ -906,7 +927,7 @@ function saveSelection() {
 function restoreSelection() {
   threadTree.selectedIndicies = _savedSelection
     .map(gDBView.findIndexFromKey)
-    .filter(i => i != 0xffffffff); // nsMsgViewIndex_None
+    .filter(i => i != nsMsgViewIndex_None);
   _savedSelection = null;
 }
 

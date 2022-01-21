@@ -25,6 +25,7 @@ var { PluralStringFormatter, makeFriendlyDateAgo } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
@@ -39,8 +40,6 @@ XPCOMUtils.defineLazyGetter(this, "formatString", function() {
     return formatter.get(...args);
   };
 });
-
-var msgWindow = window.browsingContext.topChromeWindow;
 
 /**
  * A LimitIterator is a utility class that allows limiting the maximum number
@@ -133,6 +132,7 @@ MultiMessageSummary.prototype = {
    * Clear all the content from the summary.
    */
   clear() {
+    this._selectCallback = null;
     this._listener = null;
     this._glodaQuery = null;
     this._msgNodes = {};
@@ -152,12 +152,16 @@ MultiMessageSummary.prototype = {
    *
    * @param aType       The type of summary to perform (e.g. 'multimessage').
    * @param aMessages   The messages to summarize.
+   * @param aDBView     The current DB view.
+   * @param aSelectCallback  Called with an array of nsIMsgHdrs when one of
+   *                    a summarized message is clicked on.
    * @param [aListener] A listener to be notified when the summary starts and
    *                    finishes.
    */
-  summarize(aType, aMessages, aListener) {
+  summarize(aType, aMessages, aDBView, aSelectCallback, aListener) {
     this.clear();
 
+    this._selectCallback = aSelectCallback;
     this._listener = aListener;
     if (this._listener) {
       this._listener.onLoadStarted();
@@ -165,7 +169,7 @@ MultiMessageSummary.prototype = {
 
     // Enable/disable the archive button as appropriate.
     let archiveBtn = document.getElementById("hdrArchiveButton");
-    archiveBtn.collapsed = !msgWindow.gFolderDisplay.canArchiveSelectedMessages;
+    archiveBtn.collapsed = !MessageArchiver.canArchive(aMessages);
 
     let summarizer = this._summarizers[aType];
     if (!summarizer) {
@@ -173,7 +177,7 @@ MultiMessageSummary.prototype = {
     }
 
     let messages = new LimitIterator(aMessages, this.kMaxMessages);
-    let summarizedMessages = summarizer.summarize(messages);
+    let summarizedMessages = summarizer.summarize(messages, aDBView);
 
     // Stash somewhere so it doesn't get GC'ed.
     this._glodaQuery = Gloda.getMessageCollectionForHeaders(
@@ -268,9 +272,7 @@ MultiMessageSummary.prototype = {
       subjectNode.classList.add("subject", "primary_header", "link");
       subjectNode.textContent =
         message.mime2DecodedSubject || formatString("noSubject");
-      subjectNode.addEventListener("click", function() {
-        msgWindow.gFolderDisplay.selectMessages(thread);
-      });
+      subjectNode.addEventListener("click", () => this._selectCallback(thread));
       itemHeaderNode.appendChild(subjectNode);
 
       if (thread && thread.length > 1) {
@@ -304,9 +306,8 @@ MultiMessageSummary.prototype = {
       itemHeaderNode.appendChild(dateNode);
 
       authorNode.classList.add("primary_header", "link");
-      authorNode.addEventListener("click", function() {
-        msgWindow.gFolderDisplay.selectMessage(message);
-        msgWindow.document.getElementById("messagepane").focus();
+      authorNode.addEventListener("click", () => {
+        this._selectCallback([message]);
       });
       itemHeaderNode.appendChild(authorNode);
     }
@@ -544,7 +545,7 @@ ThreadSummarizer.prototype = {
    * @param aMessages A LimitIterator of the messages to summarize.
    * @return An array of the messages actually summarized.
    */
-  summarize(aMessages) {
+  summarize(aMessages, aDBView) {
     let messageList = document.getElementById("message_list");
 
     // Remove all ignored messages from summarization.
@@ -646,10 +647,10 @@ MultipleSelectionSummarizer.prototype = {
    *
    * @param aMessages The messages to summarize.
    */
-  summarize(aMessages) {
+  summarize(aMessages, aDBView) {
     let messageList = document.getElementById("message_list");
 
-    let threads = this._buildThreads(aMessages);
+    let threads = this._buildThreads(aMessages, aDBView);
     let threadsCount = threads.length;
 
     // Set the heading based on the number of messages & threads.
@@ -707,14 +708,12 @@ MultipleSelectionSummarizer.prototype = {
    * @param aMessages The messages to group.
    * @return An array of arrays of messages, grouped by thread.
    */
-  _buildThreads(aMessages) {
+  _buildThreads(aMessages, aDBView) {
     // First, we group the messages in threads and count the threads.
     let threads = [];
     let threadMap = {};
     for (let msgHdr of aMessages) {
-      let viewThreadId = msgWindow.gFolderDisplay.view.dbView.getThreadContainingMsgHdr(
-        msgHdr
-      ).threadKey;
+      let viewThreadId = aDBView.getThreadContainingMsgHdr(msgHdr).threadKey;
       if (!(viewThreadId in threadMap)) {
         threadMap[viewThreadId] = threads.length;
         threads.push([msgHdr]);

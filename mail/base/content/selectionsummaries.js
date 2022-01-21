@@ -59,6 +59,10 @@ function summarizeThread(aSelectedMessages, aMessageDisplay) {
       childWindow.gMessageSummary.summarize(
         "thread",
         aSelectedMessages,
+        aMessageDisplay.folderDisplay.view.dbView,
+        aMessageDisplay.folderDisplay.selectMessages.bind(
+          aMessageDisplay.folderDisplay
+        ),
         aMessageDisplay
       );
     } catch (e) {
@@ -86,6 +90,10 @@ function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
       childWindow.gMessageSummary.summarize(
         "multipleselection",
         aSelectedMessages,
+        aMessageDisplay.folderDisplay.view.dbView,
+        aMessageDisplay.folderDisplay.selectMessages.bind(
+          aMessageDisplay.folderDisplay
+        ),
         aMessageDisplay
       );
     } catch (e) {

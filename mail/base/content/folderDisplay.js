@@ -2282,62 +2282,13 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * The maximum number of messages to try to examine directly to determine if
-   * they can be archived; if we exceed this count, we'll try to approximate
-   * the answer by looking at the server's identities.  This is only here to
-   * let tests tweak the value.
-   */
-  MAX_COUNT_FOR_CAN_ARCHIVE_CHECK: 100,
-
-  /**
    * @return true if all the selected messages can be archived, false otherwise.
    */
   get canArchiveSelectedMessages() {
-    if (!this.view.dbView || this.messageDisplay.isDummy) {
-      return false;
-    }
-
-    if (this.selectedCount == 0) {
-      return false;
-    }
-
-    // If we're looking at a single folder (i.e. not a cross-folder search), we
-    // can just check to see if all the identities for this folder/server have
-    // archives enabled (or disabled). This is way faster than checking every
-    // message. Note: this may be slightly inaccurate if the identity for a
-    // header is actually on another server.
-    if (
-      this.selectedCount > this.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK &&
-      this.view.isSingleFolder &&
-      this.displayedFolder
-    ) {
-      let folderIdentity = this.displayedFolder.customIdentity;
-      if (folderIdentity) {
-        return folderIdentity.archiveEnabled;
-      }
-
-      if (this.displayedFolder.server) {
-        let serverIdentities = MailServices.accounts.getIdentitiesForServer(
-          this.displayedFolder.server
-        );
-
-        // Do all identities have the same archiveEnabled setting?
-        if (serverIdentities.every(id => id.archiveEnabled)) {
-          return true;
-        }
-        if (serverIdentities.every(id => !id.archiveEnabled)) {
-          return false;
-        }
-        // If we get here it's a mixture, so have to examine all the messages.
-      }
-    }
-
-    // Either we've selected a small number of messages or we just can't
-    // fast-path the result; examine all the messages.
-    return this.selectedMessages.every(function(msg) {
-      let [identity] = MailUtils.getIdentityForHeader(msg);
-      return Boolean(identity && identity.archiveEnabled);
-    });
+    return MessageArchiver.canArchive(
+      this.selectedMessages,
+      this.view.isSingleFolder
+    );
   },
 
   /**

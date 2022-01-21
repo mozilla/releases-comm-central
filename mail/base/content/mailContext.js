@@ -26,6 +26,9 @@ XPCOMUtils.defineLazyModuleGetters(LazyModules, {
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
+const nsMsgViewIndex_None = 0xffffffff;
+const nsMsgKey_None = 0xffffffff;
+
 window.addEventListener("DOMContentLoaded", event => {
   if (
     event.target != document ||
@@ -855,7 +858,7 @@ var commandController = {
       return true;
     }
 
-    let numSelectedMessages = gViewWrapper.dbView.selection.count;
+    let numSelectedMessages = gDBView.numSelected;
     let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
     let canMove =
       numSelectedMessages >= 1 && !isNewsgroup && gFolder?.canDeleteMessages;
@@ -933,47 +936,10 @@ var commandController = {
           this._getViewCommandStatus(Ci.nsMsgViewCommandType.runJunkControls)
         );
       case "cmd_archive":
-        if (!gDBView || !gFolder) {
-          return false;
-        }
-
-        if (numSelectedMessages == 0) {
-          return false;
-        }
-
-        // If we're looking at a single folder (i.e. not a cross-folder search), we
-        // can just check to see if all the identities for this folder/server have
-        // archives enabled (or disabled). This is way faster than checking every
-        // message. Note: this may be slightly inaccurate if the identity for a
-        // header is actually on another server.
-        if (numSelectedMessages > 100 && gViewWrapper.isSingleFolder) {
-          let folderIdentity = gFolder.customIdentity;
-          if (folderIdentity) {
-            return folderIdentity.archiveEnabled;
-          }
-
-          if (gFolder.server) {
-            let serverIdentities = MailServices.accounts.getIdentitiesForServer(
-              gFolder.server
-            );
-
-            // Do all identities have the same archiveEnabled setting?
-            if (serverIdentities.every(id => id.archiveEnabled)) {
-              return true;
-            }
-            if (serverIdentities.every(id => !id.archiveEnabled)) {
-              return false;
-            }
-            // If we get here it's a mixture, so have to examine all the messages.
-          }
-        }
-
-        // Either we've selected a small number of messages or we just can't
-        // fast-path the result; examine all the messages.
-        return gDBView.getSelectedMsgHdrs().every(function(msg) {
-          let [identity] = LazyModules.MailUtils.getIdentityForHeader(msg);
-          return Boolean(identity && identity.archiveEnabled);
-        });
+        return LazyModules.MessageArchiver.canArchive(
+          gDBView.getSelectedMsgHdrs(),
+          gViewWrapper.isSingleFolder
+        );
       case "cmd_moveToFolderAgain": {
         // Disable "Move to <folder> Again" for news and other read only
         // folders since we can't really move messages from there - only copy.
@@ -1107,16 +1073,14 @@ var commandController = {
       true
     );
 
-    // nsMsgViewIndex_None
-    if (resultIndex.value == 0xffffffff) {
+    if (resultIndex.value == nsMsgViewIndex_None) {
       // Not in about:message
       if (window.displayFolder) {
         CrossFolderNavigation(navigationType);
       }
       return;
     }
-    // nsMsgKey_None
-    if (resultKey.value == 0xffffffff) {
+    if (resultKey.value == nsMsgKey_None) {
       return;
     }
 

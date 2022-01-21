@@ -2715,7 +2715,7 @@ nsresult nsMsgDBView::ListCollapsedChildren(
 }
 
 bool nsMsgDBView::OperateOnMsgsInCollapsedThreads() {
-  if (mTreeSelection) {
+  if (!mJSTree && mTreeSelection) {
     RefPtr<mozilla::dom::XULTreeElement> selTree;
     mTreeSelection->GetTree(getter_AddRefs(selTree));
     // No tree means stand-alone message window.
