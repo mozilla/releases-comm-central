@@ -265,7 +265,7 @@ var gGeneralPane = {
     this.formatLocaleSetLabels();
 
     if (Services.prefs.getBoolPref("intl.multilingual.enabled")) {
-      this.initMessengerLocale();
+      this.initPrimaryMessengerLanguageUI();
     }
 
     this.mTagListBox = document.getElementById("tagList");
@@ -1048,16 +1048,20 @@ var gGeneralPane = {
     );
   },
 
-  initMessengerLocale() {
-    gGeneralPane.setMessengerLocales(Services.locale.requestedLocale);
+  initPrimaryMessengerLanguageUI() {
+    gGeneralPane.updatePrimaryMessengerLanguageUI(
+      Services.locale.requestedLocale
+    );
   },
 
   /**
    * Update the available list of locales and select the locale that the user
    * is "selecting". This could be the currently requested locale or a locale
    * that the user would like to switch to after confirmation.
+   *
+   * @param {string} selected - The selected BCP 47 locale.
    */
-  async setMessengerLocales(selected) {
+  async updatePrimaryMessengerLanguageUI(selected) {
     // HACK: calling getLocaleDisplayNames may fail the first time due to
     // synchronous loading of the .ftl files. If we load the files and wait
     // for a known value asynchronously, no such failure will happen.
@@ -1086,19 +1090,19 @@ var gGeneralPane = {
     // Add an option to search for more languages if downloading is supported.
     if (Services.prefs.getBoolPref("intl.multilingual.downloadEnabled")) {
       let menuitem = document.createXULElement("menuitem");
-      menuitem.id = "defaultMessengerLanguageSearch";
+      menuitem.id = "primaryMessengerLocaleSearch";
       menuitem.setAttribute(
         "label",
         await document.l10n.formatValue("messenger-languages-search")
       );
       menuitem.setAttribute("value", "search");
       menuitem.addEventListener("command", () => {
-        gGeneralPane.showMessengerLanguages({ search: true });
+        gGeneralPane.showMessengerLanguagesSubDialog({ search: true });
       });
       fragment.appendChild(menuitem);
     }
 
-    let menulist = document.getElementById("defaultMessengerLanguage");
+    let menulist = document.getElementById("primaryMessengerLocale");
     let menupopup = menulist.querySelector("menupopup");
     menupopup.textContent = "";
     menupopup.appendChild(fragment);
@@ -1107,8 +1111,18 @@ var gGeneralPane = {
     document.getElementById("messengerLanguagesBox").hidden = false;
   },
 
-  showMessengerLanguages({ search }) {
-    let opts = { selected: gGeneralPane.selectedLocales, search };
+  /**
+   * Open the messenger languages sub dialog in either the normal mode, or search mode.
+   * The search mode is only available from the menu to change the primary browser
+   * language.
+   *
+   * @param {{ search: boolean }}
+   */
+  showMessengerLanguagesSubDialog({ search }) {
+    let opts = {
+      selectedLocalesForRestart: gGeneralPane.selectedLocalesForRestart,
+      search,
+    };
     gSubDialog.open(
       "chrome://messenger/content/preferences/messengerLanguages.xhtml",
       { closingCallback: this.messengerLanguagesClosed },
@@ -1116,21 +1130,94 @@ var gGeneralPane = {
     );
   },
 
+  /**
+   * Returns the assumed script directionality for known Firefox locales. This is
+   * somewhat crude, but should work until Bug 1750781 lands.
+   *
+   * TODO (Bug 1750781) - This should use Intl.LocaleInfo once it is standardized (see
+   * Bug 1693576), rather than maintaining a hardcoded list of RTL locales.
+   *
+   * @param {string} locale
+   * @return {"ltr" | "rtl"}
+   */
+  getLocaleDirection(locale) {
+    if (
+      locale == "ar" ||
+      locale == "ckb" ||
+      locale == "fa" ||
+      locale == "he" ||
+      locale == "ur"
+    ) {
+      return "rtl";
+    }
+    return "ltr";
+  },
+
+  /**
+   * Determine the transition strategy for switching the locale based on prefs
+   * and the switched locales.
+   *
+   * @param {Array<string>} newLocales - List of BCP 47 locale identifiers.
+   * @returns {"locales-match" | "requires-restart" | "live-reload"}
+   */
+  getLanguageSwitchTransitionType(newLocales) {
+    const { appLocalesAsBCP47 } = Services.locale;
+    if (appLocalesAsBCP47.join(",") === newLocales.join(",")) {
+      // The selected locales match, the order matters.
+      return "locales-match";
+    }
+
+    if (Services.prefs.getBoolPref("intl.multilingual.liveReload")) {
+      if (
+        gGeneralPane.getLocaleDirection(newLocales[0]) !==
+          gGeneralPane.getLocaleDirection(appLocalesAsBCP47[0]) &&
+        !Services.prefs.getBoolPref("intl.multilingual.liveReloadBidirectional")
+      ) {
+        // Bug 1750852: The directionality of the text changed, which requires a restart
+        // until the quality of the switch can be improved.
+        return "requires-restart";
+      }
+
+      return "live-reload";
+    }
+
+    return "requires-restart";
+  },
+
   /* Show or hide the confirm change message bar based on the updated ordering. */
   messengerLanguagesClosed() {
-    let selected = this.gMessengerLanguagesDialog.selected;
-    let active = Services.locale.appLocalesAsBCP47;
+    // When the subdialog is closed, settings are stored on gMessengerLanguagesDialog.
+    // The next time the dialog is opened, a new gMessengerLanguagesDialog is created.
+    let { selected } = this.gMessengerLanguagesDialog;
 
-    // Prepare for changing the locales if they are different than the current locales.
-    if (selected && selected.join(",") != active.join(",")) {
-      gGeneralPane.showConfirmLanguageChangeMessageBar(selected);
-      gGeneralPane.setMessengerLocales(selected[0]);
+    if (!selected) {
+      // No locales were selected. Cancel the operation.
       return;
     }
 
-    // They matched, so we can reset the UI.
-    gGeneralPane.setMessengerLocales(Services.locale.appLocaleAsBCP47);
-    gGeneralPane.hideConfirmLanguageChangeMessageBar();
+    switch (gGeneralPane.getLanguageSwitchTransitionType(selected)) {
+      case "requires-restart":
+        gGeneralPane.showConfirmLanguageChangeMessageBar(selected);
+        gGeneralPane.updatePrimaryMessengerLanguageUI(selected[0]);
+        break;
+      case "live-reload":
+        Services.locale.requestedLocales = selected;
+
+        gGeneralPane.updatePrimaryMessengerLanguageUI(
+          Services.locale.appLocaleAsBCP47
+        );
+        gGeneralPane.hideConfirmLanguageChangeMessageBar();
+        break;
+      case "locales-match":
+        // They matched, so we can reset the UI.
+        gGeneralPane.updatePrimaryMessengerLanguageUI(
+          Services.locale.appLocaleAsBCP47
+        );
+        gGeneralPane.hideConfirmLanguageChangeMessageBar();
+        break;
+      default:
+        throw new Error("Unhandled transition type.");
+    }
   },
 
   /* Show the confirmation message bar to allow a restart into the new locales. */
@@ -1166,6 +1253,9 @@ var gGeneralPane = {
     for (let i = 0; i < messages.length; i++) {
       let messageContainer = document.createXULElement("hbox");
       messageContainer.classList.add("message-bar-content");
+      if (i == 0 && gGeneralPane.getLocaleDirection(locales[0]) === "rtl") {
+        description.classList.add("rtl-locale");
+      }
       messageContainer.setAttribute("flex", "1");
       messageContainer.setAttribute("align", "center");
 
@@ -1186,7 +1276,7 @@ var gGeneralPane = {
     }
 
     messageBar.hidden = false;
-    this.selectedLocales = locales;
+    this.selectedLocalesForRestart = locales;
   },
 
   hideConfirmLanguageChangeMessageBar() {
@@ -1225,7 +1315,7 @@ var gGeneralPane = {
   },
 
   /* Show or hide the confirm change message bar based on the new locale. */
-  onMessengerLanguageChange(event) {
+  onPrimaryMessengerLanguageMenuChange(event) {
     let locale = event.target.value;
 
     if (locale == "search") {
@@ -1235,10 +1325,33 @@ var gGeneralPane = {
       return;
     }
 
-    let locales = Array.from(
+    let newLocales = Array.from(
       new Set([locale, ...Services.locale.requestedLocales]).values()
     );
-    this.showConfirmLanguageChangeMessageBar(locales);
+
+    switch (gGeneralPane.getLanguageSwitchTransitionType(newLocales)) {
+      case "requires-restart":
+        // Prepare to change the locales, as they were different.
+        gGeneralPane.showConfirmLanguageChangeMessageBar(newLocales);
+        gGeneralPane.updatePrimaryMessengerLanguageUI(newLocales[0]);
+        break;
+      case "live-reload":
+        Services.locale.requestedLocales = newLocales;
+        gGeneralPane.updatePrimaryMessengerLanguageUI(
+          Services.locale.appLocaleAsBCP47
+        );
+        gGeneralPane.hideConfirmLanguageChangeMessageBar();
+        break;
+      case "locales-match":
+        // They matched, so we can reset the UI.
+        gGeneralPane.updatePrimaryMessengerLanguageUI(
+          Services.locale.appLocaleAsBCP47
+        );
+        gGeneralPane.hideConfirmLanguageChangeMessageBar();
+        break;
+      default:
+        throw new Error("Unhandled transition type.");
+    }
   },
 
   // appends the tag to the tag list box

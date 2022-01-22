@@ -556,7 +556,7 @@ checkbox {
   min-height: 360px;
 }
 
-#defaultMessengerLanguage {
+#primaryMessengerLocale {
   margin-inline: 0 4px;
   min-width: 20em;
 }

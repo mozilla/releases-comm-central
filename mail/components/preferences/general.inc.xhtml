@@ -321,8 +321,8 @@
                      data-l10n-id="choose-messenger-language-description"/>
         <hbox>
           <hbox>
-            <menulist id="defaultMessengerLanguage"
-                      oncommand="gGeneralPane.onMessengerLanguageChange(event)">
+            <menulist id="primaryMessengerLocale"
+                      oncommand="gGeneralPane.onPrimaryMessengerLanguageMenuChange(event)">
               <menupopup/>
             </menulist>
           </hbox>
@@ -330,7 +330,7 @@
             <button is="highlightable-button" id="manageMessengerLanguagesButton"
                     class="accessory-button"
                     data-l10n-id="manage-messenger-languages-button"
-                    oncommand="gGeneralPane.showMessengerLanguages({search: false})"
+                    oncommand="gGeneralPane.showMessengerLanguagesSubDialog({search: false})"
                     search-l10n-ids="
                       languages-customize-moveup.label,
                       languages-customize-movedown.label,

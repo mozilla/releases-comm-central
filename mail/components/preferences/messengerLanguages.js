@@ -18,7 +18,7 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/addons/AddonRepository.jsm"
 );
 
-/* This dialog provides an interface for managing what language the browser is
+/* This dialog provides an interface for managing what language the messenger is
  * displayed in.
  *
  * There is a list of "requested" locales and a list of "available" locales. The
@@ -156,12 +156,24 @@ class OrderedListBox {
   }
 }
 
+/**
+ * The sorted select list of Locales available for the app.
+ */
 class SortedItemSelectList {
   constructor({ menulist, button, onSelect, onChange, compareFn }) {
+    /** @type {XULElement} */
     this.menulist = menulist;
+
+    /** @type {XULElement} */
     this.popup = menulist.menupopup;
+
+    /** @type {XULElement} */
     this.button = button;
+
+    /** @type {(a: LocaleDisplayInfo, b: LocaleDisplayInfo) => number} */
     this.compareFn = compareFn;
+
+    /** @type {Array<LocaleDisplayInfo>} */
     this.items = [];
 
     menulist.addEventListener("command", () => {
@@ -186,6 +198,9 @@ class SortedItemSelectList {
     });
   }
 
+  /**
+   * @param {Array<LocaleDisplayInfo>} items
+   */
   setItems(items) {
     this.items = items.sort(this.compareFn);
     this.populate();
@@ -263,6 +278,21 @@ class SortedItemSelectList {
   }
 }
 
+/**
+ * @typedef LocaleDisplayInfo
+ * @type {object}
+ * @prop {string} id - A unique ID.
+ * @prop {string} label - The localized display name.
+ * @prop {string} value - The BCP 47 locale identifier or the word "search".
+ * @prop {boolean} canRemove - Locales that are part of the packaged locales cannot be
+ *                             removed.
+ * @prop {boolean} installed - Whether or not the locale is installed.
+ */
+
+/**
+ * @param {Array<string>} localeCodes - List of BCP 47 locale identifiers.
+ * @returns {Array<LocaleDisplayInfo>}
+ */
 async function getLocaleDisplayInfo(localeCodes) {
   let availableLocales = new Set(await getAvailableLocales());
   let packagedLocales = new Set(Services.locale.packagedLocales);
@@ -282,6 +312,11 @@ async function getLocaleDisplayInfo(localeCodes) {
   });
 }
 
+/**
+ * @param {LocaleDisplayInfo} a
+ * @param {LocaleDisplayInfo} b
+ * @returns {number}
+ */
 function compareItems(a, b) {
   // Sort by installed.
   if (a.installed != b.installed) {
@@ -305,33 +340,51 @@ function compareItems(a, b) {
 }
 
 var gMessengerLanguagesDialog = {
-  _availableLocales: null,
-  _selectedLocales: null,
-  selectedLocales: null,
+  /**
+   * The publicly readable list of selected locales. It is only set when the dialog is
+   * accepted, and can be retrieved elsewhere by directly reading the property
+   * on gMessengerLanguagesDialog.
+   *
+   *   let { selected } = gMessengerLanguagesDialog;
+   *
+   * @type {null | Array<string>}
+   */
+  selected: null,
+
+  /**
+   * @type {SortedItemSelectList}
+   */
+  _availableLocalesUI: null,
+
+  /**
+   * @type {OrderedListBox}
+   */
+  _selectedLocalesUI: null,
 
   get downloadEnabled() {
     // Downloading langpacks isn't always supported, check the pref.
     return Services.prefs.getBoolPref("intl.multilingual.downloadEnabled");
   },
 
-  beforeAccept() {
-    this.selected = this.getSelectedLocales();
-  },
-
   async onLoad() {
-    document.documentElement.addEventListener("beforeaccept", () =>
-      this.beforeAccept()
-    );
-    // Maintain the previously selected locales even if we cancel out.
-    let { selected, search } = window.arguments[0] || {};
-    this.selectedLocales = selected;
+    /**
+     * @typedef {Object} Options - Options passed in to configure the subdialog.
+     * @property {Array<string>} [selectedLocalesForRestart] The optional list of
+     *   previously selected locales for when a restart is required. This list is
+     *   preserved between openings of the dialog.
+     * @property {boolean} search Whether the user opened this from "Search for more
+     *   languages" option.
+     */
+
+    /** @type {Options} */
+    let { selectedLocalesForRestart, search } = window.arguments[0];
 
     // This is a list of available locales that the user selected. It's more
     // restricted than the Intl notion of `requested` as it only contains
     // locale codes for which we have matching locales available.
     // The first time this dialog is opened, populate with appLocalesAsBCP47.
     let selectedLocales =
-      this.selectedLocales || Services.locale.appLocalesAsBCP47;
+      selectedLocalesForRestart || Services.locale.appLocalesAsBCP47;
     let selectedLocaleSet = new Set(selectedLocales);
     let available = await getAvailableLocales();
     let availableSet = new Set(available);
@@ -348,21 +401,38 @@ var gMessengerLanguagesDialog = {
     await this.initAvailableLocales(available, search);
 
     this.initialized = true;
+
+    // Now the component is initialized, it's safe to accept the results.
+    document
+      .getElementById("MessengerLanguagesDialog")
+      .addEventListener("beforeaccept", () => {
+        this.selected = this._selectedLocalesUI.items.map(item => item.value);
+      });
   },
 
+  /**
+   * @param {string[]} selectedLocales - BCP 47 locale identifiers
+   */
   async initSelectedLocales(selectedLocales) {
-    this._selectedLocales = new OrderedListBox({
+    this._selectedLocalesUI = new OrderedListBox({
       richlistbox: document.getElementById("selectedLocales"),
       upButton: document.getElementById("up"),
       downButton: document.getElementById("down"),
       removeButton: document.getElementById("remove"),
       onRemove: item => this.selectedLocaleRemoved(item),
     });
-    this._selectedLocales.setItems(await getLocaleDisplayInfo(selectedLocales));
+    this._selectedLocalesUI.setItems(
+      await getLocaleDisplayInfo(selectedLocales)
+    );
   },
 
+  /**
+   * @param {Set<string>} available - The set of available BCP 47 locale identifiers.
+   * @param {boolean} search - Whether the user opened this from "Search for more
+   *                           languages" option.
+   */
   async initAvailableLocales(available, search) {
-    this._availableLocales = new SortedItemSelectList({
+    this._availableLocalesUI = new SortedItemSelectList({
       menulist: document.getElementById("availableLocales"),
       button: document.getElementById("add"),
       compareFn: compareItems,
@@ -394,7 +464,7 @@ var gMessengerLanguagesDialog = {
     }
 
     // Disable the dropdown while we hit the network.
-    this._availableLocales.disableWithMessageId(
+    this._availableLocalesUI.disableWithMessageId(
       "messenger-languages-searching"
     );
 
@@ -431,17 +501,20 @@ var gMessengerLanguagesDialog = {
     });
 
     // Remove the search option and add the remote locales.
-    let items = this._availableLocales.items;
+    let items = this._availableLocalesUI.items;
     items.pop();
     items = items.concat(availableItems);
 
     // Update the dropdown and enable it again.
-    this._availableLocales.setItems(items);
-    this._availableLocales.enableWithMessageId(
+    this._availableLocalesUI.setItems(items);
+    this._availableLocalesUI.enableWithMessageId(
       "messenger-languages-select-language"
     );
   },
 
+  /**
+   * @param {Set<string>} available - The set of available (BCP 47) locales.
+   */
   async loadLocalesFromInstalled(available) {
     let items;
     if (available.length > 0) {
@@ -456,9 +529,12 @@ var gMessengerLanguagesDialog = {
         value: "search",
       });
     }
-    this._availableLocales.setItems(items);
+    this._availableLocalesUI.setItems(items);
   },
 
+  /**
+   * @param {LocaleDisplayInfo} item
+   */
   async availableLanguageSelected(item) {
     if ((await getAvailableLocales()).includes(item.value)) {
       await this.requestLocalLanguage(item);
@@ -469,24 +545,30 @@ var gMessengerLanguagesDialog = {
     }
   },
 
-  async requestLocalLanguage(item, available) {
-    this._selectedLocales.addItem(item);
-    let selectedCount = this._selectedLocales.items.length;
+  /**
+   * @param {LocaleDisplayInfo} item
+   */
+  async requestLocalLanguage(item) {
+    this._selectedLocalesUI.addItem(item);
+    let selectedCount = this._selectedLocalesUI.items.length;
     let availableCount = (await getAvailableLocales()).length;
     if (selectedCount == availableCount) {
       // Remove the installed label, they're all installed.
-      this._availableLocales.items.shift();
-      this._availableLocales.setItems(this._availableLocales.items);
+      this._availableLocalesUI.items.shift();
+      this._availableLocalesUI.setItems(this._availableLocalesUI.items);
     }
 
     // The label isn't always reset when the selected item is removed, so set it again.
-    this._availableLocales.enableWithMessageId(
+    this._availableLocalesUI.enableWithMessageId(
       "messenger-languages-select-language"
     );
   },
 
+  /**
+   * @param {LocaleDisplayInfo} item
+   */
   async requestRemoteLanguage(item) {
-    this._availableLocales.disableWithMessageId(
+    this._availableLocalesUI.disableWithMessageId(
       "messenger-languages-downloading"
     );
 
@@ -507,15 +589,15 @@ var gMessengerLanguagesDialog = {
     }
 
     item.installed = true;
-    this._selectedLocales.addItem(item);
-    this._availableLocales.enableWithMessageId(
+    this._selectedLocalesUI.addItem(item);
+    this._availableLocalesUI.enableWithMessageId(
       "messenger-languages-select-language"
     );
   },
 
   showError() {
     document.getElementById("warning-message").hidden = false;
-    this._availableLocales.enableWithMessageId(
+    this._availableLocalesUI.enableWithMessageId(
       "messenger-languages-select-language"
     );
 
@@ -533,16 +615,15 @@ var gMessengerLanguagesDialog = {
     document.getElementById("warning-message").hidden = true;
   },
 
-  getSelectedLocales() {
-    return this._selectedLocales.items.map(item => item.value);
-  },
-
+  /**
+   * @param {LocaleDisplayInfo} item
+   */
   async selectedLocaleRemoved(item) {
-    this._availableLocales.addItem(item);
+    this._availableLocalesUI.addItem(item);
 
     // If the item we added is at the top of the list, it needs the label.
-    if (this._availableLocales.items[0] == item) {
-      this._availableLocales.addItem(await this.createInstalledLabel());
+    if (this._availableLocalesUI.items[0] == item) {
+      this._availableLocalesUI.addItem(await this.createInstalledLabel());
     }
   },
 

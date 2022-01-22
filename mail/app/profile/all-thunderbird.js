@@ -863,6 +863,11 @@ pref("intl.multilingual.downloadEnabled", true);
 #else
 pref("intl.multilingual.downloadEnabled", false);
 #endif
+// With the preference enabled below, switching the browser language will do a live
+// reload rather than requiring a restart. Enable bidirectional below as well to allow
+// live reloading when switching between LTR and RTL languages.
+pref("intl.multilingual.liveReload", false);
+pref("intl.multilingual.liveReloadBidirectional", false);
 
 // if true, use full page zoom instead of text zoom
 pref("browser.zoom.full", true);
