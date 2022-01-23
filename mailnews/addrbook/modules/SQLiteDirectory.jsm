@@ -173,8 +173,6 @@ class SQLiteDirectory extends AddrBookDirectory {
     super.init(uri);
 
     directories.set(fileName, this);
-    // Create the DB connection here already, to let init() throw on corrupt SQLite files.
-    this._dbConnection;
   }
   async cleanUp() {
     await super.cleanUp();
