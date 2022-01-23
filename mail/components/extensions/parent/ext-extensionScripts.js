@@ -133,10 +133,10 @@ class ExtensionScriptParent {
     }
 
     for (let css of this.options.css) {
-      await activeTab.insertCSS(this.context, css);
+      await activeTab.insertCSS(this.context, { ...css, frameId: null });
     }
     for (let js of this.options.js) {
-      await activeTab.executeScript(this.context, js);
+      await activeTab.executeScript(this.context, { ...js, frameId: null });
     }
     window.dispatchEvent(new window.CustomEvent("extension-scripts-added"));
   }
