@@ -1425,24 +1425,62 @@ function SetFocusThreadPaneIfNotOnMessagePane() {
  * @param event the event that triggered us
  */
 function SwitchPaneFocus(event) {
-  let messagePane = GetMessagePane();
-
   // First, build an array of panes to cycle through based on our current state.
   // This will usually be something like [threadPane, messagePane, folderPane].
-  let panes = [GetThreadTree()];
+  let panes = [];
+  let focusedElement;
 
-  if (!IsMessagePaneCollapsed()) {
-    panes.push(messagePane);
-  }
+  let { currentTabInfo } = document.getElementById("tabmail");
+  if (currentTabInfo.mode.name == "mail3PaneTab") {
+    let { browser, folderPaneVisible, messagePaneVisible } = currentTabInfo;
+    let {
+      document: contentDocument,
+      folderTree,
+      threadTree,
+      webBrowser,
+      messageBrowser,
+      multiMessageBrowser,
+      accountCentralBrowser,
+    } = browser.contentWindow;
 
-  if (gFolderDisplay.folderPaneVisible) {
-    panes.push(document.getElementById("folderTree"));
+    if (accountCentralBrowser.hidden) {
+      panes.push(threadTree);
+    } else {
+      panes.push(accountCentralBrowser);
+    }
+
+    if (messagePaneVisible) {
+      for (let browser of [webBrowser, messageBrowser, multiMessageBrowser]) {
+        if (!browser.hidden) {
+          panes.push(browser);
+        }
+      }
+    }
+
+    if (folderPaneVisible) {
+      panes.push(folderTree);
+    }
+
+    focusedElement = contentDocument.activeElement;
+  } else if (currentTabInfo.mode.tabType.name == "mail") {
+    panes.push(GetThreadTree());
+
+    if (!IsMessagePaneCollapsed()) {
+      panes.push(GetMessagePane());
+    }
+
+    if (gFolderDisplay.folderPaneVisible) {
+      panes.push(document.getElementById("folderTree"));
+    }
+
+    focusedElement = gFolderDisplay.focusedPane;
+  } else {
+    return;
   }
 
   // Find our focused element in the array. If focus is not on one of the main
   // panes (it's probably on the toolbar), then act as if it's on the thread
   // tree.
-  let focusedElement = gFolderDisplay.focusedPane;
   let focusedElementIndex = panes.indexOf(focusedElement);
   if (focusedElementIndex == -1) {
     focusedElementIndex = 0;
@@ -1465,7 +1503,7 @@ function SwitchPaneFocus(event) {
   // We need to handle the message pane specially, since focusing it isn't as
   // simple as just calling focus(). See SetFocusMessagePane below for more
   // details.
-  if (newElem == messagePane) {
+  if (newElem == GetMessagePane()) {
     SetFocusMessagePane();
   } else {
     newElem.focus();

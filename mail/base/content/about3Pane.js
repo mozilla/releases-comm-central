@@ -336,19 +336,6 @@ window.addEventListener("keypress", event => {
     case "F5":
       location.reload();
       break;
-    case "F6": {
-      let focusList = [folderTree, threadTree, messageBrowser];
-      let currentIndex = focusList.indexOf(document.activeElement);
-      let delta = event.shiftKey ? -1 : 1;
-
-      currentIndex = (currentIndex + delta + 3) % 3;
-      focusList[currentIndex].focus();
-      if (document.activeElement != focusList[currentIndex]) {
-        currentIndex = (currentIndex + delta + 3) % 3;
-        focusList[currentIndex].focus();
-      }
-      break;
-    }
     case "a":
       if (event.ctrlKey && !event.altKey && !event.metaKey) {
         commandController.doCommand("cmd_selectAll");

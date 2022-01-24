@@ -9,7 +9,7 @@
 "use strict";
 
 var {
-  add_message_to_folder,
+  add_message_sets_to_folders,
   be_in_folder,
   close_tab,
   collapse_all_threads,
@@ -35,7 +35,7 @@ add_task(async function setupModule(module) {
   let msg1 = create_thread(1);
   let thread = create_thread(3);
   let msg2 = create_thread(1);
-  await add_message_to_folder([folder], [msg1, thread, msg2]);
+  await add_message_sets_to_folders([folder], [msg1, thread, msg2]);
 
   be_in_folder(folder);
   make_display_threaded();
@@ -82,23 +82,28 @@ function check_pane_cycling(multimessage) {
   folderPane.focus();
 
   EventUtils.synthesizeKey("VK_F6", {}, mc.window);
-  Assert.equal(threadPane, get_focused_pane());
+  Assert.equal(get_focused_pane().id, threadPane.id);
   EventUtils.synthesizeKey("VK_F6", {}, mc.window);
-  Assert.equal(messagePane, get_focused_pane());
+  Assert.equal(get_focused_pane().id, messagePane.id);
   EventUtils.synthesizeKey("VK_F6", {}, mc.window);
-  Assert.equal(folderPane, get_focused_pane());
+  Assert.equal(get_focused_pane().id, folderPane.id);
 
   EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
-  Assert.equal(messagePane, get_focused_pane());
+  Assert.equal(get_focused_pane().id, messagePane.id);
   EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
-  Assert.equal(threadPane, get_focused_pane());
+  Assert.equal(get_focused_pane().id, threadPane.id);
   EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
-  Assert.equal(folderPane, get_focused_pane());
+  Assert.equal(get_focused_pane().id, folderPane.id);
 }
 
 add_task(function test_no_messages_selected() {
   be_in_folder(folder);
 
+  // With E10s enabled, this test doesn't work when the message pane is a
+  // remote browser, which it is at start-up when running only this test
+  // (about:blank can be a remote page or a parent process page). Load and
+  // unload a message to make the message pane a non-remote browser.
+  select_click_row(0);
   // Select nothing
   select_none();
   check_pane_cycling(false);
