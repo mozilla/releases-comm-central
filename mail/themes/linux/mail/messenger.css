@@ -241,8 +241,9 @@
 
   @media not (-moz-gtk-csd-reversed-placement) {
     /* Add the GTK titlebar border radius to the first tab if we don't have
-    * titlebar buttons and the tabs is attached to the edge of the window. */
-    :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"])
+    * titlebar buttons, a hidden spaces toolbar and the tab is attached to the
+    * edge of the window. */
+    :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"],[spacestoolbar])
       #toolbar-menubar[autohide=true][inactive] + #tabs-toolbar
       .tabmail-tab:first-child > .tab-stack > .tab-background {
       border-start-start-radius: env(-moz-gtk-csd-titlebar-radius);
