@@ -10,6 +10,9 @@
  *
  */
 
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -22,42 +25,26 @@ Services.prefs.setCharPref(
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-// IMAP pump
-
-setupIMAPPump();
-
-var gFinishedRunningURL = -1;
 var gSubfolder;
 
-// tests
+add_task(function setupTest() {
+  setupIMAPPump();
+  // quarantine messages
+  Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
+});
 
-var quarantineTests = [
-  createSubfolder,
-  getLocalMessages,
-  updateSubfolderAndTest,
-  get2Messages,
-  updateSubfolderAndTest2,
-  endTest,
-];
-
-function* createSubfolder() {
+add_task(async function createSubfolder() {
+  let folderAddedListener = PromiseTestUtils.promiseFolderAdded("subfolder");
   IMAPPump.incomingServer.rootFolder.createSubfolder("subfolder", null);
-  dl("wait for folderAdded notification");
-  yield false;
+  await folderAddedListener;
   gSubfolder = IMAPPump.incomingServer.rootFolder.getChildNamed("subfolder");
   Assert.ok(gSubfolder instanceof Ci.nsIMsgImapMailFolder);
-  gSubfolder.updateFolderWithListener(null, urlListener);
-  dl("wait for OnStopRunningURL");
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gSubfolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function* getLocalMessages() {
+add_task(async function getLocalMessages() {
   // setup copy then move mail filters on the inbox
   let filterList = gPOP3Pump.fakeServer.getFilterList(null);
   let filter = filterList.createFilter("copyThenMoveAll");
@@ -71,158 +58,64 @@ function* getLocalMessages() {
   filter.enabled = true;
   filterList.insertFilterAt(0, filter);
 
+  let resolveDone;
+  let promise = new Promise(resolve => {
+    resolveDone = resolve;
+  });
   gPOP3Pump.files = ["../../../data/bugmail1"];
-  gPOP3Pump.onDone = function() {
-    dump("POP3Pump done\n");
-    async_driver();
-  };
+  gPOP3Pump.onDone = resolveDone;
   gPOP3Pump.run();
-  dl("waiting for POP3Pump done");
-  yield false;
-}
+  await promise;
+});
 
-function checkResult() {
-  if (gFinishedRunningURL == 1) {
-    async_driver();
-    gFinishedRunningURL = -1;
-  } else if (gFinishedRunningURL == 0) {
-    gSubfolder.updateFolderWithListener(null, urlListener);
-    do_timeout(100, checkResult);
-  }
-  // Else just ignore it.
-}
+add_task(async function updateSubfolderAndTest() {
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  let folderLoaded = PromiseTestUtils.promiseFolderEvent(
+    gSubfolder,
+    "FolderLoaded"
+  );
+  gSubfolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+  await folderLoaded;
 
-function* updateSubfolderAndTest() {
-  // The previous function does an append, which may take a bit of time to
-  // complete. Unfortunately updateFolderWithListener succeeds successfully
-  // if there is a url running, but doesn't tell us that is the case. So we
-  // have to run updateFolderWithListener several times to actually find out
-  // when we are done.
-  gFinishedRunningURL = 0;
-  gSubfolder.updateFolderWithListener(null, urlListener);
-  dl("wait for OnStopRunningURL");
-  do_timeout(100, checkResult);
-  yield false;
-
-  // kill some time
-  do_timeout(200, async_driver);
-  yield false;
-
-  // test
-  listMessages(gSubfolder);
-  listMessages(localAccountUtils.inboxFolder);
   Assert.equal(folderCount(gSubfolder), 1);
   Assert.equal(folderCount(localAccountUtils.inboxFolder), 1);
-}
+});
 
-function* get2Messages() {
+add_task(async function get2Messages() {
+  let resolveDone;
+  let promise = new Promise(resolve => {
+    resolveDone = resolve;
+  });
   gPOP3Pump.files = ["../../../data/bugmail10", "../../../data/draft1"];
-  gPOP3Pump.onDone = function() {
-    dump("POP3Pump done\n");
-    async_driver();
-  };
+  gPOP3Pump.onDone = resolveDone;
   gPOP3Pump.run();
-  dl("waiting for POP3Pump done");
-  yield false;
-}
+  await promise;
+});
 
-function* updateSubfolderAndTest2() {
-  // The previous function does an append, which may take a bit of time to
-  // complete. Unfortunately updateFolderWithListener succeeds successfully
-  // if there is a url running, but doesn't tell us that is the case. So we
-  // have to run updateFolderWithListener several times to actually find out
-  // when we are done.
-  gFinishedRunningURL = 0;
-  gSubfolder.updateFolderWithListener(null, urlListener);
-  dl("wait for OnStopRunningURL");
-  do_timeout(1000, checkResult);
-  yield false;
-
-  // kill some time
-  do_timeout(1000, async_driver);
-  yield false;
-
-  // test
-  listMessages(gSubfolder);
-  listMessages(localAccountUtils.inboxFolder);
+add_task(async function updateSubfolderAndTest2() {
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  let folderLoaded = PromiseTestUtils.promiseFolderEvent(
+    gSubfolder,
+    "FolderLoaded"
+  );
+  gSubfolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+  await folderLoaded;
   Assert.equal(folderCount(gSubfolder), 3);
   Assert.equal(folderCount(localAccountUtils.inboxFolder), 3);
-}
+});
 
-function endTest() {
+add_task(function endTest() {
   // Cleanup, null out everything, close all cached connections and stop the
   // server
-  dl("Exiting mail tests");
   gPOP3Pump = null;
   teardownIMAPPump();
-}
-
-// listeners
-
-var mfnListener = {
-  folderAdded(aFolder) {
-    dl("folderAdded <" + aFolder.name + ">");
-    // we are only using async yield on the Subfolder add
-    if (aFolder.name == "subfolder") {
-      async_driver();
-    }
-  },
-
-  msgAdded(aMsg) {
-    dl(
-      "msgAdded to folder <" +
-        aMsg.folder.name +
-        "> subject <" +
-        aMsg.subject +
-        ">"
-    );
-  },
-};
-
-var urlListener = {
-  OnStartRunningUrl(aUrl) {
-    dl("OnStartRunningUrl");
-  },
-  OnStopRunningUrl(aUrl, aExitCode) {
-    dl("OnStopRunningUrl");
-    gFinishedRunningURL = 1;
-    checkResult();
-  },
-};
-
-// main test startup
-
-function run_test() {
-  // quarantine messages
-  Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
-
-  // Add folder listeners that will capture async events
-  const nsIMFNService = Ci.nsIMsgFolderNotificationService;
-  let flags = nsIMFNService.folderAdded | nsIMFNService.msgAdded;
-  MailServices.mfn.addListener(mfnListener, flags);
-
-  // start first test
-  async_run_tests(quarantineTests);
-}
+});
 
 // helper functions
 
 // count of messages in a folder, using the database
 function folderCount(folder) {
   return [...folder.msgDatabase.EnumerateMessages()].length;
-}
-
-// display of message subjects in a folder
-function listMessages(folder) {
-  var msgCount = 0;
-  dl("listing messages for " + folder.prettyName);
-  for (let hdr of folder.msgDatabase.EnumerateMessages()) {
-    msgCount++;
-    dl(msgCount + ": " + hdr.subject);
-  }
-}
-
-// shorthand output of a line of text
-function dl(text) {
-  dump(text + "\n");
 }

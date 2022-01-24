@@ -1,16 +1,17 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // This file tests that checking folders for new mail with STATUS
 // doesn't leave db's open.
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var gFolder1, gFolder2;
 
-var tests = [setup, check, teardown];
-
-function* setup() {
+add_task(function setupTest() {
   Services.prefs.setBoolPref("mail.check_all_imap_folders_for_new", true);
 
   setupIMAPPump();
@@ -26,26 +27,22 @@ function* setup() {
 
   IMAPPump.inbox.getNewMessages(null, null);
   IMAPPump.server.performTest("STATUS");
+  Assert.ok(IMAPPump.server.isTestFinished());
   // don't know if this will work, but we'll try. Wait for
   // second status response
   IMAPPump.server.performTest("STATUS");
-  mailTestUtils.do_timeout_function(1000, async_driver);
-  yield false;
-}
+  Assert.ok(IMAPPump.server.isTestFinished());
+});
 
-function check() {
+add_task(function check() {
   const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
     Ci.nsIMsgDBService
   );
   Assert.ok(gDbService.cachedDBForFolder(IMAPPump.inbox) !== null);
   Assert.ok(gDbService.cachedDBForFolder(gFolder1) === null);
   Assert.ok(gDbService.cachedDBForFolder(gFolder2) === null);
-}
+});
 
-function teardown() {
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

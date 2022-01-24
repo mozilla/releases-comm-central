@@ -14,13 +14,9 @@
  * Original Author: Atul Jangra<atuljangra66@gmail.com>
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-// IMAP pump
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -31,29 +27,22 @@ var gXGmMsgid = "1278455344230334865";
 var gXGmThrid = "1266894439832287888";
 var gXGmLabels = '(\\Inbox \\Sent Important "Muy Importante" foo)';
 
-setupIMAPPump("GMail");
+add_task(async function setupTest() {
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
+  setupIMAPPump("GMail");
+  IMAPPump.mailbox.specialUseFlag = "\\Inbox";
+  IMAPPump.mailbox.subscribed = true;
 
-IMAPPump.mailbox.specialUseFlag = "\\Inbox";
-IMAPPump.mailbox.subscribed = true;
-
-// need all mail folder to identify this as gmail server.
-IMAPPump.daemon.createMailbox("[Gmail]", { flags: ["\\NoSelect"] });
-IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {
-  subscribed: true,
-  specialUseFlag: "\\AllMail",
-});
-
-// Definition of tests
-var tests = [
-  loadImapMessage,
-  testFetchXGmMsgid,
-  testFetchXGmThrid,
-  testFetchXGmLabels,
-  endTest,
-];
-
-// load and update a message in the imap fake server
-function* loadImapMessage() {
+  // need all mail folder to identify this as gmail server.
+  IMAPPump.daemon.createMailbox("[Gmail]", { flags: ["\\NoSelect"] });
+  IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {
+    subscribed: true,
+    specialUseFlag: "\\AllMail",
+  });
+  // Load and update a message in the imap fake server.
   let message = new imapMessage(
     specForFileName(gMessage),
     IMAPPump.mailbox.uidnext++,
@@ -63,41 +52,34 @@ function* loadImapMessage() {
   message.xGmThrid = gXGmThrid;
   message.xGmLabels = gXGmLabels;
   IMAPPump.mailbox.addMessage(message);
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function testFetchXGmMsgid() {
+add_task(function testFetchXGmMsgid() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-MSGID");
   Assert.equal(val, gXGmMsgid);
-}
+});
 
-function testFetchXGmThrid() {
+add_task(function testFetchXGmThrid() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-THRID");
   Assert.equal(val, gXGmThrid);
-}
+});
 
-function testFetchXGmLabels() {
+add_task(function testFetchXGmLabels() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let val = msgHdr.getStringProperty("X-GM-LABELS");
   // We need to remove the starting "(" and ending ")" from gXGmLabels while comparing
   Assert.equal(val, gXGmLabels.substring(1, gXGmLabels.length - 1));
-}
+});
 
 // Cleanup at end
-function endTest() {
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  Services.prefs.setBoolPref(
-    "mail.server.server1.autosync_offline_stores",
-    false
-  );
-  async_run_tests(tests);
-}
+});
 
 /*
  * helper functions

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // This file tests undoing of an imap delete to the trash.
 // There are three main cases:
 // 1. Normal undo
@@ -6,13 +10,11 @@
 //
 // Original Author: David Bienvenu <bienvenu@nventure.com>
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
 var gRootFolder;
@@ -50,61 +52,11 @@ alertListener.prototype = {
   reset() {},
 
   onAlert(aMessage, aMsgWindow) {
-    dump("got alert " + aMessage + "\n");
-    do_throw("TEST FAILED " + aMessage);
+    throw new Error("got alert - TEST FAILED " + aMessage);
   },
 };
 
-var tests = [
-  setup,
-  function* updateFolder() {
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* deleteMessage() {
-    let msgToDelete = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    gMessages.push(msgToDelete);
-    IMAPPump.inbox.deleteMessages(
-      gMessages,
-      gMsgWindow,
-      false,
-      true,
-      asyncCopyListener,
-      true
-    );
-    yield false;
-  },
-  function* expunge() {
-    IMAPPump.inbox.expunge(asyncUrlListener, gMsgWindow);
-    yield false;
-
-    // Ensure that the message has been surely deleted.
-    Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 3);
-  },
-  function* undoDelete() {
-    gMsgWindow.transactionManager.undoTransaction();
-    // after undo, we select the trash and then the inbox, so that we sync
-    // up with the server, and clear out the effects of having done the
-    // delete offline.
-    let trash = gRootFolder.getChildNamed("Trash");
-    trash
-      .QueryInterface(Ci.nsIMsgImapMailFolder)
-      .updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* goBackToInbox() {
-    IMAPPump.inbox.updateFolderWithListener(gMsgWindow, asyncUrlListener);
-    yield false;
-  },
-  function verifyFolders() {
-    let msgRestored = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    Assert.ok(msgRestored !== null);
-    Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 4);
-  },
-  teardown,
-];
-
-function setup() {
+add_task(function setupTest() {
   setupIMAPPump();
 
   var listener1 = new alertListener();
@@ -140,13 +92,64 @@ function setup() {
     ],
     IMAPPump.mailbox
   );
-}
+});
 
-asyncUrlListener.callback = function(aUrl, aExitCode) {
-  Assert.equal(aExitCode, 0);
-};
+add_task(async function updateFolder() {
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function teardown() {
+add_task(async function deleteMessage() {
+  let msgToDelete = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  gMessages.push(msgToDelete);
+  IMAPPump.inbox.deleteMessages(
+    gMessages,
+    gMsgWindow,
+    false,
+    true,
+    copyListener,
+    true
+  );
+  await copyListener.promise;
+});
+
+add_task(async function expunge() {
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.expunge(listener, gMsgWindow);
+  await listener.promise;
+
+  // Ensure that the message has been surely deleted.
+  Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 3);
+});
+
+add_task(async function undoDelete() {
+  gMsgWindow.transactionManager.undoTransaction();
+  // after undo, we select the trash and then the inbox, so that we sync
+  // up with the server, and clear out the effects of having done the
+  // delete offline.
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  let trash = gRootFolder.getChildNamed("Trash");
+  trash
+    .QueryInterface(Ci.nsIMsgImapMailFolder)
+    .updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function goBackToInbox() {
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(gMsgWindow, listener);
+  await listener.promise;
+});
+
+add_task(function verifyFolders() {
+  let msgRestored = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
+  Assert.ok(msgRestored !== null);
+  Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 4);
+});
+
+add_task(function endTest() {
   // Cleanup, null out everything, close all cached connections and stop the
   // server
   gMessages = [];
@@ -154,8 +157,4 @@ function teardown() {
   gMsgWindow = null;
   gRootFolder = null;
   teardownIMAPPump();
-}
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

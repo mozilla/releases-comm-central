@@ -7,57 +7,55 @@
  * marked as unread.
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-
-// IMAP pump
-
-setupIMAPPump();
-
-// Definition of tests
-
-var tests = [createDraftsFolder, saveDraft, updateDrafts, checkResult, endTest];
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gDraftsFolder;
-function* createDraftsFolder() {
+
+add_task(function setupTest() {
+  setupIMAPPump();
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
+});
+
+add_task(async function createDraftsFolder() {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts", null);
-  dl("wait for folderAdded");
-  yield false;
+  await PromiseTestUtils.promiseFolderAdded("Drafts");
   gDraftsFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Drafts");
   Assert.ok(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);
-  gDraftsFolder.updateFolderWithListener(null, asyncUrlListener);
-  dl("wait for OnStopRunningURL");
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gDraftsFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function* saveDraft() {
-  var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+add_task(async function saveDraft() {
+  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
     Ci.nsIMsgCompose
   );
-  var fields = Cc[
+  let fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
-  var params = Cc[
+  let params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
   msgCompose.initialize(params);
 
   // Set up the identity
-  var identity = MailServices.accounts.createIdentity();
+  let identity = MailServices.accounts.createIdentity();
   identity.draftFolder = gDraftsFolder.URI;
 
-  var progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
+  let progressListener = new ProgressListener();
   progress.registerListener(progressListener);
   msgCompose.sendMsg(
     Ci.nsIMsgSend.nsMsgSaveAsDraft,
@@ -66,69 +64,34 @@ function* saveDraft() {
     null,
     progress
   );
-  yield false;
-}
+  await progressListener.promise;
+});
 
-function* updateDrafts() {
-  dump("updating drafts\n");
-  gDraftsFolder.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+add_task(async function updateDrafts() {
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gDraftsFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function* checkResult() {
-  dump("checking result\n");
+add_task(function checkResult() {
   Assert.equal(gDraftsFolder.getTotalMessages(false), 1);
   Assert.equal(gDraftsFolder.getNumUnread(false), 1);
-  yield true;
-}
+});
 
-function* endTest() {
+add_task(function endTest() {
   teardownIMAPPump();
-  yield true;
+});
+
+function ProgressListener() {
+  this._promise = new Promise(resolve => {
+    this._resolve = resolve;
+  });
 }
 
-function run_test() {
-  Services.prefs.setBoolPref(
-    "mail.server.default.autosync_offline_stores",
-    false
-  );
-
-  // Add folder listeners that will capture async events
-  const nsIMFNService = Ci.nsIMsgFolderNotificationService;
-
-  let flags =
-    nsIMFNService.msgsMoveCopyCompleted |
-    nsIMFNService.folderAdded |
-    nsIMFNService.msgAdded;
-  MailServices.mfn.addListener(mfnListener, flags);
-
-  // start first test
-  async_run_tests(tests);
-}
-
-var mfnListener = {
-  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
-    dl("msgsMoveCopyCompleted to folder " + aDestFolder.name);
-  },
-
-  folderAdded(aFolder) {
-    dl("folderAdded <" + aFolder.name + ">");
-    // we are only using async add on the Junk folder
-    if (aFolder.name == "Drafts") {
-      async_driver();
-    }
-  },
-
-  msgAdded(aMsg) {
-    dl("msgAdded with subject <" + aMsg.subject + ">");
-  },
-};
-
-var progressListener = {
+ProgressListener.prototype = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-      dl("onStateChange");
-      async_driver();
+      this._resolve();
     }
   },
 
@@ -149,13 +112,7 @@ var progressListener = {
     "nsIWebProgressListener",
     "nsISupportsWeakReference",
   ]),
+  get promise() {
+    return this._promise;
+  },
 };
-
-/*
- * helper functions
- */
-
-// quick shorthand for output of a line of text.
-function dl(text) {
-  dump(text + "\n");
-}

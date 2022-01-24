@@ -8,44 +8,39 @@
  * See Bug 805626
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-
-// IMAP pump
-
-setupIMAPPump();
-
-// Definition of tests
-
-var tests = [
-  createDraftsFolder,
-  goOffline,
-  saveDraft,
-  goOnline,
-  checkResult,
-  endTest,
-];
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
+);
 
 var gDraftsFolder;
 
-function* createDraftsFolder() {
+add_task(function setupTest() {
+  setupIMAPPump();
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
+});
+
+add_task(async function createDraftsFolder() {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Drafts", null);
-  yield false;
+  await PromiseTestUtils.promiseFolderAdded("Drafts");
   gDraftsFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Drafts");
   Assert.ok(gDraftsFolder instanceof Ci.nsIMsgImapMailFolder);
-  gDraftsFolder.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
-function* goOffline() {
-  // Don't prompt about offline download when going offline
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gDraftsFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function goOffline() {
+  // Don't prompt about offline download when going offline.
   Services.prefs.setIntPref("offline.download.download_messages", 2);
 
   IMAPPump.incomingServer.closeCachedConnections();
@@ -53,15 +48,11 @@ function* goOffline() {
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }
-
-  do_timeout(2000, async_driver);
-  yield false;
-
   IMAPPump.server.stop();
   Services.io.offline = true;
-}
+});
 
-function* saveDraft() {
+add_task(async function saveDraft() {
   let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
     Ci.nsIMsgCompose
   );
@@ -74,13 +65,14 @@ function* saveDraft() {
   params.composeFields = fields;
   msgCompose.initialize(params);
 
-  // Set up the identity
+  // Set up the identity.
   let identity = MailServices.accounts.createIdentity();
   identity.draftFolder = gDraftsFolder.URI;
 
   let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
+  let progressListener = new WebProgressListener();
   progress.registerListener(progressListener);
   msgCompose.sendMsg(
     Ci.nsIMsgSend.nsMsgSaveAsDraft,
@@ -89,12 +81,12 @@ function* saveDraft() {
     null,
     progress
   );
-  yield false;
-  // verify that message is not on the server yet
+  await progressListener.promise;
+  // Verify that message is not on the server yet.
   Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 0);
-}
+});
 
-function* goOnline() {
+add_task(async function goOnline() {
   let offlineManager = Cc[
     "@mozilla.org/messenger/offline-manager;1"
   ].getService(Ci.nsIMsgOfflineManager);
@@ -104,70 +96,34 @@ function* goOnline() {
   IMAPPump.server.start();
   offlineManager.inProgress = true;
   offlineManager.goOnline(false, true, null);
-  let waitForNotInProgress = function() {
-    if (offlineManager.inProgress) {
-      do_timeout(250, waitForNotInProgress);
-    } else {
-      async_driver();
-    }
-  };
-  waitForNotInProgress();
-  yield false;
-}
-
-function* checkResult() {
-  // verify that message is now on the server
-  Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 1);
-  yield true;
-}
-
-function* endTest() {
-  teardownIMAPPump();
-  yield true;
-}
-
-function run_test() {
-  Services.prefs.setBoolPref(
-    "mail.server.default.autosync_offline_stores",
-    false
+  // There seem to be some untraceable postprocessing with 100ms.
+  //  (Found through xpcshell-test --verify)
+  await PromiseTestUtils.promiseDelay(100);
+  await TestUtils.waitForCondition(
+    () => !offlineManager.inProgress,
+    "wait for offlineManager not in progress"
   );
+  // Verify that message is now on the server.
+  Assert.equal(IMAPPump.daemon.getMailbox("Drafts")._messages.length, 1);
+});
 
-  // Add folder listeners that will capture async events
-  const nsIMFNService = Ci.nsIMsgFolderNotificationService;
+add_task(function endTest() {
+  teardownIMAPPump();
+});
 
-  let flags =
-    nsIMFNService.msgsMoveCopyCompleted |
-    nsIMFNService.folderAdded |
-    nsIMFNService.msgAdded;
-  MailServices.mfn.addListener(mfnListener, flags);
+/*
+ * helper functions
+ */
 
-  // start first test
-  async_run_tests(tests);
+function WebProgressListener() {
+  this._promise = new Promise(resolve => {
+    this._resolve = resolve;
+  });
 }
-
-var mfnListener = {
-  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
-    dl("msgsMoveCopyCompleted to folder " + aDestFolder.name);
-  },
-
-  folderAdded(aFolder) {
-    dl("folderAdded <" + aFolder.name + ">");
-    // we are only using async add on the Junk folder
-    if (aFolder.name == "Drafts") {
-      async_driver();
-    }
-  },
-
-  msgAdded(aMsg) {
-    dl("msgAdded with subject <" + aMsg.subject + ">");
-  },
-};
-
-var progressListener = {
+WebProgressListener.prototype = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-      dl("onStateChange");
-      async_driver();
+      this._resolve();
     }
   },
 
@@ -188,13 +144,8 @@ var progressListener = {
     "nsIWebProgressListener",
     "nsISupportsWeakReference",
   ]),
+
+  get promise() {
+    return this._promise;
+  },
 };
-
-/*
- * helper functions
- */
-
-// quick shorthand for output of a line of text.
-function dl(text) {
-  dump(text + "\n");
-}

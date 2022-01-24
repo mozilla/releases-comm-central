@@ -12,34 +12,23 @@
  * http://bugzilla.zimbra.com/show_bug.cgi?id=78794
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/alertTestUtils.js");
-
-// IMAP pump
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-// Globals
+add_task(async function setupTest() {
+  // Zimbra is one of the servers that supports LIST-EXTENDED
+  // it also has a bug that causes a server crash in certain setups
+  setupIMAPPump("Zimbra");
 
-// Zimbra is one of the servers that supports LIST-EXTENDED
-// it also has a bug that causes a server crash in certain setups
-setupIMAPPump("Zimbra");
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
 
-// Definition of tests
-var tests = [
-  setupMailboxes,
-  testListSubscribed,
-  testZimbraServerVersions,
-  endTest,
-];
-
-// setup the mailboxes that will be used for this test
-function* setupMailboxes() {
+  // Setup the mailboxes that will be used for this test.
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.daemon.createMailbox("folder1", {
     subscribed: true,
@@ -56,12 +45,13 @@ function* setupMailboxes() {
   IMAPPump.daemon.createMailbox("folder3", {});
 
   // select the inbox to force folder discovery, etc.
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
 // tests that LIST (SUBSCRIBED) returns the proper response
-function* testListSubscribed() {
+add_task(async function testListSubscribed() {
   // check that we have \Noselect and \Noinferiors flags - these would not have
   // been returned if we had used LSUB instead of LIST(SUBSCRIBED)
   let rootFolder = IMAPPump.incomingServer.rootFolder;
@@ -85,11 +75,9 @@ function* testListSubscribed() {
   } catch (ex) {}
   // do_check_false(folder1.getFlag(Ci.nsMsgFolderFlags.Subscribed));
   Assert.equal(null, folder3);
+});
 
-  yield true;
-}
-
-function* testZimbraServerVersions() {
+add_task(async function testZimbraServerVersions() {
   // older versions of Zimbra can crash if we send LIST (SUBSCRIBED) so we want
   // to make sure that we are checking for versions
 
@@ -114,8 +102,9 @@ function* testZimbraServerVersions() {
     IMAPPump.incomingServer.closeCachedConnections();
     IMAPPump.incomingServer.performExpand(null);
     // select inbox is just to wait on performExpand since performExpand does not have listener
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
+    let listener = new PromiseTestUtils.PromiseUrlListener();
+    IMAPPump.inbox.updateFolderWithListener(null, listener);
+    await listener.promise;
     // if we send LSUB instead of LIST(SUBSCRIBED), then we should not have \NoSelect flag
     let rootFolder = IMAPPump.incomingServer.rootFolder;
     let folder1 = rootFolder.getChildNamed("folder1");
@@ -124,17 +113,9 @@ function* testZimbraServerVersions() {
       testValues[i].expectedResult
     );
   }
-}
+});
 
 // Cleanup at end
-function endTest() {
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  Services.prefs.setBoolPref(
-    "mail.server.server1.autosync_offline_stores",
-    false
-  );
-  async_run_tests(tests);
-}
+});

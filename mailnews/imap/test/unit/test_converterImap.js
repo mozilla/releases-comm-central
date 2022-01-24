@@ -11,22 +11,13 @@ Services.prefs.setCharPref(
   "@mozilla.org/msgstore/berkeleystore;1"
 );
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
-load("../../../resources/alertTestUtils.js");
-
-var log = console.createInstance({
-  prefix: "mail.mailstoreconverter",
-  maxLogLevel: "Warn",
-  maxLogLevelPref: "mail.mailstoreconverter.loglevel",
-});
-
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 // Globals
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
@@ -45,8 +36,8 @@ function checkConversion(aSource, aTarget) {
     let targetFile = FileUtils.File(
       PathUtils.join(aTarget.path, sourceContentName)
     );
-    log.debug("Checking path: " + targetFile.path);
 
+    // Checking path.
     if (ext == ".msf" || ext == ".dat") {
       Assert.ok(targetFile.exists());
     } else if (sourceContent.isDirectory()) {
@@ -69,7 +60,7 @@ function checkConversion(aSource, aTarget) {
 var EventTarget = function() {
   this.dispatchEvent = function(aEvent) {
     if (aEvent.type == "progress") {
-      log.trace("Progress: " + aEvent.detail);
+      console.trace("Progress: " + aEvent.detail);
     }
   };
 };
@@ -90,7 +81,7 @@ function addMessagesToServer(aMessages, aMailbox) {
   });
 }
 
-function setup() {
+add_task(function setupTest() {
   setupIMAPPump();
 
   // These hacks are required because we've created the inbox before
@@ -112,29 +103,16 @@ function setup() {
     IMAPPump.daemon.getMailbox("INBOX"),
     IMAPPump.inbox
   );
-}
+});
 
-async function downloadForOffline() {
+add_task(async function downloadForOffline() {
   // Download for offline use.
   let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
   await promiseUrlListener.promise;
-}
-
-function run_test() {
-  setup();
-  registerCleanupFunction(function() {
-    teardownIMAPPump();
-  });
-
-  run_next_test();
-}
+});
 
 add_task(async function convert() {
-  logHelperAllowedErrors.push("DEPRECATION");
-
-  await downloadForOffline();
-
   let mailstoreContractId = Services.prefs.getCharPref(
     "mail.server." + IMAPPump.incomingServer.key + ".storeContractID"
   );
@@ -144,20 +122,22 @@ add_task(async function convert() {
     IMAPPump.incomingServer,
     eventTarget
   );
-  do_test_pending();
   let originalRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
-  pConverted
+  await pConverted
     .then(function(val) {
-      log.debug("Conversion done: " + originalRootFolder.path + " => " + val);
+      // Conversion done: originalRootFolder.path => val.
       let newRootFolder = IMAPPump.incomingServer.rootFolder.filePath;
       checkConversion(originalRootFolder, newRootFolder);
       let newRootFolderMsf = FileUtils.File(newRootFolder.path + ".msf");
       Assert.ok(newRootFolderMsf.exists());
-      do_test_finished();
     })
     .catch(function(reason) {
-      log.error("Conversion Failed: " + reason);
+      // Conversion Failed.
       Assert.ok(false);
-      do_test_finished();
+      throw new Error(reason);
     });
+});
+
+add_task(function endTest() {
+  teardownIMAPPump();
 });

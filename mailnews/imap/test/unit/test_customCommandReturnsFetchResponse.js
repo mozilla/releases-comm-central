@@ -7,11 +7,9 @@
  * Bug 778246
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 // IMAP pump
 
@@ -31,17 +29,13 @@ var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
 
 setupIMAPPump("CUSTOM1");
 
-// Definition of tests
-var tests = [
-  loadImapMessage,
-  testStoreCustomList,
-  testStoreMinusCustomList,
-  testStorePlusCustomList,
-  endTest,
-];
+add_task(async function setupTest() {
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
+  // Load and update a message in the imap fake server.
 
-// load and update a message in the imap fake server
-function* loadImapMessage() {
   gMessage = new imapMessage(
     specForFileName(gMessageFileName),
     IMAPPump.mailbox.uidnext++,
@@ -49,11 +43,12 @@ function* loadImapMessage() {
   );
   gMessage.xCustomList = [];
   IMAPPump.mailbox.addMessage(gMessage);
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function* testStoreCustomList() {
+add_task(async function testStoreCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength = gCustomList.length;
   let uri = IMAPPump.inbox.issueCommandOnMsgs(
@@ -62,26 +57,22 @@ function* testStoreCustomList() {
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+  // Listens for response from customCommandResult request for X-CUSTOM-LIST.
+  let storeCustomListSetListener = new PromiseTestUtils.PromiseUrlListener({
+    OnStopRunningUrl(aUrl, aExitCode) {
+      aUrl.QueryInterface(Ci.nsIImapUrl);
+      Assert.equal(
+        aUrl.customCommandResult,
+        "(" + gMessage.xCustomList.join(" ") + ")"
+      );
+      Assert.equal(gMessage.xCustomList.length, gExpectedLength);
+    },
+  });
   uri.RegisterListener(storeCustomListSetListener);
-  yield false;
-}
+  await storeCustomListSetListener.promise;
+});
 
-// listens for response from customCommandResult request for X-CUSTOM-LIST
-var storeCustomListSetListener = {
-  OnStartRunningUrl(aUrl) {},
-
-  OnStopRunningUrl(aUrl, aExitCode) {
-    aUrl.QueryInterface(Ci.nsIImapUrl);
-    Assert.equal(
-      aUrl.customCommandResult,
-      "(" + gMessage.xCustomList.join(" ") + ")"
-    );
-    Assert.equal(gMessage.xCustomList.length, gExpectedLength);
-    async_driver();
-  },
-};
-
-function* testStoreMinusCustomList() {
+add_task(async function testStoreMinusCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength--;
   let uri = IMAPPump.inbox.issueCommandOnMsgs(
@@ -90,26 +81,22 @@ function* testStoreMinusCustomList() {
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+  // Listens for response from customCommandResult request for X-CUSTOM-LIST.
+  let storeCustomListRemovedListener = new PromiseTestUtils.PromiseUrlListener({
+    OnStopRunningUrl(aUrl, aExitCode) {
+      aUrl.QueryInterface(Ci.nsIImapUrl);
+      Assert.equal(
+        aUrl.customCommandResult,
+        "(" + gMessage.xCustomList.join(" ") + ")"
+      );
+      Assert.equal(gMessage.xCustomList.length, gExpectedLength);
+    },
+  });
   uri.RegisterListener(storeCustomListRemovedListener);
-  yield false;
-}
+  await storeCustomListRemovedListener.promise;
+});
 
-// listens for response from customCommandResult request for X-CUSTOM-LIST
-var storeCustomListRemovedListener = {
-  OnStartRunningUrl(aUrl) {},
-
-  OnStopRunningUrl(aUrl, aExitCode) {
-    aUrl.QueryInterface(Ci.nsIImapUrl);
-    Assert.equal(
-      aUrl.customCommandResult,
-      "(" + gMessage.xCustomList.join(" ") + ")"
-    );
-    Assert.equal(gMessage.xCustomList.length, gExpectedLength);
-    async_driver();
-  },
-};
-
-function* testStorePlusCustomList() {
+add_task(async function testStorePlusCustomList() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   gExpectedLength++;
   let uri = IMAPPump.inbox.issueCommandOnMsgs(
@@ -118,37 +105,24 @@ function* testStorePlusCustomList() {
     gMsgWindow
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+  let storeCustomListAddedListener = new PromiseTestUtils.PromiseUrlListener({
+    OnStopRunningUrl(aUrl, aExitCode) {
+      aUrl.QueryInterface(Ci.nsIImapUrl);
+      Assert.equal(
+        aUrl.customCommandResult,
+        "(" + gMessage.xCustomList.join(" ") + ")"
+      );
+      Assert.equal(gMessage.xCustomList.length, gExpectedLength);
+    },
+  });
   uri.RegisterListener(storeCustomListAddedListener);
-  yield false;
-}
-
-// listens for response from customCommandResult request for X-CUSTOM-LIST
-var storeCustomListAddedListener = {
-  OnStartRunningUrl(aUrl) {},
-
-  OnStopRunningUrl(aUrl, aExitCode) {
-    aUrl.QueryInterface(Ci.nsIImapUrl);
-    Assert.equal(
-      aUrl.customCommandResult,
-      "(" + gMessage.xCustomList.join(" ") + ")"
-    );
-    Assert.equal(gMessage.xCustomList.length, gExpectedLength);
-    async_driver();
-  },
-};
+  await storeCustomListAddedListener.promise;
+});
 
 // Cleanup at end
-function endTest() {
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  Services.prefs.setBoolPref(
-    "mail.server.server1.autosync_offline_stores",
-    false
-  );
-  async_run_tests(tests);
-}
+});
 
 /*
  * helper functions

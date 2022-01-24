@@ -1,52 +1,25 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Test to ensure that changes made from a different profile/machine
  * are synced correctly. In particular, we're checking that emptying out
  * an imap folder on the server makes us delete all the headers from our db.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var gMessage;
 var gSecondFolder;
 var gSynthMessage;
 
-var tests = [
-  setup,
-  function* switchAwayFromInbox() {
-    let rootFolder = IMAPPump.incomingServer.rootFolder;
-    gSecondFolder = rootFolder
-      .getChildNamed("secondFolder")
-      .QueryInterface(Ci.nsIMsgImapMailFolder);
-
-    // Selecting the second folder will close the cached connection
-    // on the inbox because fake server only supports one connection at a time.
-    //  Then, we can poke at the message on the imap server directly, which
-    // simulates the user changing the message from a different machine,
-    // and Thunderbird discovering the change when it does a flag sync
-    // upon reselecting the Inbox.
-    gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* simulateMailboxEmptied() {
-    gMessage.setFlag("\\Deleted");
-    IMAPPump.inbox.expunge(asyncUrlListener, null);
-    yield false;
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function checkMailboxEmpty() {
-    Assert.equal(IMAPPump.inbox.getTotalMessages(false), 0);
-  },
-  teardown,
-];
-
-function* setup() {
+add_task(async function setupTest() {
   /*
    * Set up an IMAP server.
    */
@@ -66,18 +39,42 @@ function* setup() {
   IMAPPump.mailbox.addMessage(gMessage);
 
   // update folder to download header.
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-asyncUrlListener.callback = function(aUrl, aExitCode) {
-  Assert.equal(aExitCode, 0);
-};
+add_task(async function switchAwayFromInbox() {
+  let rootFolder = IMAPPump.incomingServer.rootFolder;
+  gSecondFolder = rootFolder
+    .getChildNamed("secondFolder")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-function teardown() {
+  // Selecting the second folder will close the cached connection
+  // on the inbox because fake server only supports one connection at a time.
+  //  Then, we can poke at the message on the imap server directly, which
+  // simulates the user changing the message from a different machine,
+  // and Thunderbird discovering the change when it does a flag sync
+  // upon reselecting the Inbox.
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gSecondFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function simulateMailboxEmptied() {
+  gMessage.setFlag("\\Deleted");
+  let expungeListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.expunge(expungeListener, null);
+  await expungeListener.promise;
+  let updateListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, updateListener);
+  await updateListener.promise;
+});
+
+add_task(function checkMailboxEmpty() {
+  Assert.equal(IMAPPump.inbox.getTotalMessages(false), 0);
+});
+
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

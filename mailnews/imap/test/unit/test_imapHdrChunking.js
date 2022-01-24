@@ -6,65 +6,103 @@
  * Tests imap msg header download chunking
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
-
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-// javascript mime emitter functions
+var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
+);
 
-// IMAP pump
-
-setupIMAPPump();
+/**
+ * Keep it so that OVERALL_MESSAGES % CHUNKING_SIZE !== 0.
+ * With a modulo operator for CHUNKING_SIZE and a prime number for
+ *  OVERALL_MESSAGES this should prove that there have been a
+ *  chunking process without being depended on the first chunk.
+ */
+const CHUNKING_SIZE = 3;
+const OVERALL_MESSAGES = 137;
 
 // Dummy message window so we can say the inbox is open in a window.
-var dummyMsgWindow = {
-  openFolder: IMAPPump.inbox,
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIMsgWindow",
-    "nsISupportsWeakReference",
-  ]),
-};
+var dummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);
 
-var gFolderListener = {
-  _gotNewMailBiff: false,
+function FolderIntPropertyChangedListener() {
+  this._promise = new Promise(resolve => {
+    this._resolve = resolve;
+  });
+  this._gotNewMailBiff = false;
+}
+
+FolderIntPropertyChangedListener.prototype = {
   onFolderIntPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     if (
       aProperty == "BiffState" &&
       aNewValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail
     ) {
       this._gotNewMailBiff = true;
-      async_driver();
+      this._resolve();
     }
+  },
+  get promise() {
+    return this._promise;
+  },
+  get gotNewMailBiff() {
+    return this._gotNewMailBiff;
   },
 };
 
-var tests = [
-  uploadImapMessages,
-  testMessageFetched,
-  testHdrsDownloaded,
-  endTest,
-];
+var gFolderListener = new FolderIntPropertyChangedListener();
+/** Used to store a listener between tasks for inspecting chunking behaviour. */
+var gListener = new PromiseTestUtils.PromiseUrlListener();
 
-// upload messages to the imap fake server Inbox
-function* uploadImapMessages() {
-  // make 10 messages
+add_task(async function setupTest() {
+  Assert.equal(
+    OVERALL_MESSAGES % CHUNKING_SIZE !== 0,
+    true,
+    "const sanity check"
+  );
+  setupIMAPPump();
+  // We need to register the dummyMsgWindow so that we'll think the
+  //  Inbox is open in a folder and fetch headers in chunks.
+  dummyMsgWindow.openFolder = IMAPPump.inbox;
+  MailServices.mailSession.AddMsgWindow(dummyMsgWindow);
+  MailServices.mailSession.AddFolderListener(
+    gFolderListener,
+    Ci.nsIFolderListener.intPropertyChanged
+  );
+
+  // Set chunk size to CHUNKING_SIZE, so we'll have to chain several requests to get
+  //  OVERALL_MESSAGES headers.
+  Services.prefs.setIntPref("mail.imap.hdr_chunk_size", CHUNKING_SIZE);
+  // Turn off offline sync to avoid complications in verifying that we can
+  //  run a url after the first header chunk.
+  Services.prefs.setBoolPref(
+    "mail.server.server1.autosync_offline_stores",
+    false
+  );
+});
+
+// Upload messages to the imap fake server Inbox.
+add_task(async function uploadImapMessages() {
+  // make OVERALL_MESSAGES messages
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
 
   // build up a list of messages
   let messages = [];
-  messages = messages.concat(scenarioFactory.directReply(10));
+  messages = messages.concat(scenarioFactory.directReply(OVERALL_MESSAGES));
 
-  // Add 10 messages with uids 1-10.
+  // Add OVERALL_MESSAGES messages with uids 1,2,3...,OVERALL_MESSAGES.
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
-  // Create the imapMessages and store them on the mailbox
+  // Create the imapMessages and store them on the mailbox.
   messages.forEach(function(message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
@@ -73,50 +111,59 @@ function* uploadImapMessages() {
       new imapMessage(dataUri.spec, imapInbox.uidnext++, [])
     );
   });
+  // Do not wait for the listener to finish.
+  // We want to observe the message batches in the update process.
   // updateFolderWithListener with null for nsIMsgWindow makes biff notify.
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  IMAPPump.inbox.updateFolderWithListener(null, gListener);
+});
 
-function* testMessageFetched() {
+add_task(async function testMessageFetched() {
   // If we're really chunking, then the message fetch should have started before
   // we finished the updateFolder URL.
-  Assert.ok(gFolderListener._gotNewMailBiff);
-  // Should have only downloaded first chunk of headers when message
-  // has finished streaming.
-  Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 3);
-  yield false;
-}
+  await TestUtils.waitForCondition(() => {
+    return gFolderListener.gotNewMailBiff === true;
+  });
+  Assert.ok(gFolderListener.gotNewMailBiff);
 
-function* testHdrsDownloaded() {
-  // Make sure we got all 10 headers.
-  Assert.equal(IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages, 10);
-  yield true;
-}
+  // We do not check for the first chunk as this is unreliable without explicit
+  //  listeners/events.
+  // Instead we are checking if there's no rest of the division with
+  //  CHUNKING_SIZE while the chunking process is ongoing.
+  // It's important that the chunking is intact and aswell not failing
+  //  randomly in the test infrastructure.
+  // See at the CHUNKING_SIZE and OVERALL_MESSAGES declarations.
+  //
+  // HINT:
+  // If this causes future problems because stuff getting faster,
+  //  try to increase the overall message count.
+  await TestUtils.waitForCondition(() => {
+    let messagesDBFolder = IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages;
+    if (messagesDBFolder !== 0) {
+      Assert.equal(
+        messagesDBFolder % CHUNKING_SIZE,
+        0,
+        `${messagesDBFolder} messages in folder should be of chunk size ${CHUNKING_SIZE}`
+      ); // This is the primary test.
+      return true;
+    } else if (messagesDBFolder === OVERALL_MESSAGES) {
+      throw new Error(
+        `Batching failed in sizes of ${CHUNKING_SIZE} found instead ${OVERALL_MESSAGES} immediately`
+      );
+    }
+    return false; // Rerun waitForCondition.
+  }, 50);
+});
+
+add_task(async function testHdrsDownloaded() {
+  await gListener.promise; // Now we wait for the finished update of the Folder.
+  // Make sure that we got all OVERALL_MESSAGES headers.
+  Assert.equal(
+    IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages,
+    OVERALL_MESSAGES
+  );
+});
 
 // Cleanup
-function endTest() {
+add_task(async function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  // We need to register the dummyMsgWindow so that we'll think the
-  // Inbox is open in a folder and fetch headers in chunks.
-  MailServices.mailSession.AddMsgWindow(dummyMsgWindow);
-  MailServices.mailSession.AddFolderListener(
-    gFolderListener,
-    Ci.nsIFolderListener.intPropertyChanged
-  );
-
-  // Set chunk size to 3, so we'll have to chain 4 requests to get
-  // 10 headers.
-  Services.prefs.setIntPref("mail.imap.hdr_chunk_size", 3);
-  // Turn off offline sync to avoid complications in verifying that we can
-  // run a url after the first header chunk.
-  Services.prefs.setBoolPref(
-    "mail.server.server1.autosync_offline_stores",
-    false
-  );
-
-  async_run_tests(tests);
-}
+});

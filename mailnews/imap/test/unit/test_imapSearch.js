@@ -7,11 +7,9 @@
  * Original author: Kent James <kent@caspia.com>
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 // headers we will store in db
 // set value of headers we want parsed into the db
@@ -19,10 +17,9 @@ Services.prefs.setCharPref(
   "mailnews.customDBHeaders",
   "x-spam-status oneliner twoliner threeliner nospace withspace"
 );
-dump(
-  "set mailnews.customDBHeaders to " +
-    Services.prefs.getCharPref("mailnews.customDBHeaders") +
-    "\n"
+Assert.equal(
+  Services.prefs.getCharPref("mailnews.customDBHeaders"),
+  "x-spam-status oneliner twoliner threeliner nospace withspace"
 );
 
 // set customHeaders, which post-bug 363238 should get added to the db. Note that all headers but the last
@@ -32,17 +29,8 @@ Services.prefs.setCharPref(
   "x-uidl: x-bugzilla-watch-reason: x-bugzilla-component: received: x-spam-checker-version"
 );
 
-// IMAP pump
-
-// Globals
-
 // Messages to load must have CRLF line endings, that is Windows style
 var gMessage = "bugmail12"; // message file used as the test message
-
-setupIMAPPump();
-
-// Definition of tests
-var tests = [loadImapMessage, testSearch, endTest];
 
 /*
 /*
@@ -299,58 +287,54 @@ var searchTests = [
   },
 ];
 
-// load and update a message in the imap fake server
-function* loadImapMessage() {
+add_task(async function setupTest() {
+  setupIMAPPump();
+
+  // don't use offline store
+  IMAPPump.inbox.clearFlag(Ci.nsMsgFolderFlags.Offline);
+
+  // Load imap message.
   IMAPPump.mailbox.addMessage(
     new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
 
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
-  yield true;
-}
+});
 
 // process each test from queue, calls itself upon completion of each search
-function* testSearch() {
+add_task(async function testSearch() {
   while (searchTests.length) {
     let test = searchTests.shift();
     if (test.dbHeader) {
-      //  test of a custom db header
-      dump("testing dbHeader " + test.dbHeader + "\n");
+      // Test of a custom db header.
       let customValue = mailTestUtils
         .firstMsgHdr(IMAPPump.inbox)
         .getProperty(test.dbHeader);
       Assert.equal(customValue, test.testString);
     } else {
-      dump("testing for string '" + test.testString + "'\n");
-      new TestSearch(
-        IMAPPump.inbox,
-        test.testString,
-        test.testAttribute,
-        test.op,
-        test.count,
-        async_driver,
-        null,
-        test.customHeader ? test.customHeader : "X-Bugzilla-Watch-Reason"
-      );
-      yield false;
+      await new Promise(resolve => {
+        new TestSearch(
+          IMAPPump.inbox,
+          test.testString,
+          test.testAttribute,
+          test.op,
+          test.count,
+          resolve,
+          null,
+          test.customHeader ? test.customHeader : "X-Bugzilla-Watch-Reason"
+        );
+      });
     }
   }
-  yield true;
-}
+});
 
 // Cleanup at end
-function endTest() {
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  // don't use offline store
-  IMAPPump.inbox.clearFlag(Ci.nsMsgFolderFlags.Offline);
-
-  async_run_tests(tests);
-}
+});
 
 /*
  * helper function

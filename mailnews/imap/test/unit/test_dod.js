@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Test bodystructure and body fetch by parts. Messages with problem of
  * 'This part will be downloaded on demand' in message pane content (text) area.
@@ -7,19 +11,15 @@
  * See current test files for examples.
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gServer, gIMAPIncomingServer, gIMAPDaemon;
 
-var tests = [streamMessages, endTest];
-
-function run_test() {
+add_task(function setupTest() {
   gIMAPDaemon = new imapDaemon();
   // pref tuning: one connection only, turn off notifications
   Services.prefs.setIntPref("mail.server.server1.max_cached_connections", 1);
@@ -44,12 +44,9 @@ function run_test() {
 
   gServer = makeServer(gIMAPDaemon, "");
   gIMAPIncomingServer = createLocalIMAPServer(gServer.port);
+});
 
-  // start first test
-  async_run_tests(tests);
-}
-
-function* streamMessages() {
+add_task(async function streamMessages() {
   let inbox = gIMAPDaemon.getMailbox("INBOX");
   let imapS = Cc[
     "@mozilla.org/messenger/messageservice;1?type=imap"
@@ -87,59 +84,18 @@ function* streamMessages() {
         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
         Ci.nsIContentPolicy.TYPE_OTHER
       );
-      channel.asyncOpen(gStreamListener, null);
-      yield false;
-      let buf = gStreamListener._data;
-      dump(
-        "##########\nTesting--->" +
-          fileNames[i - 1] +
-          "; 'prefer plain text': " +
-          isPlain +
-          "\n" +
-          buf +
-          "\n" +
-          "##########\nTesting--->" +
-          fileNames[i - 1] +
-          "; 'prefer plain text': " +
-          isPlain +
-          "\n"
-      );
+      let streamListener = new PromiseTestUtils.PromiseStreamListener();
+      channel.asyncOpen(streamListener, null);
+      let buf = await streamListener.promise;
+
       try {
         Assert.ok(buf.includes(marker));
       } catch (e) {}
     }
   }
-  yield true;
-}
+});
 
-var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
-  _stream: null,
-  _data: null,
-  onStartRequest(aRequest) {
-    this._data = "";
-    this._stream = null;
-  },
-  onStopRequest(aRequest, aStatusCode) {
-    async_driver();
-  },
-  onDataAvailable(aRequest, aInputStream, aOff, aCount) {
-    if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      this._stream.init(aInputStream);
-    }
-    this._data += this._stream.read(aCount);
-  },
-};
-
-function* endTest() {
+add_task(function endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gServer.stop();
-  let thread = Services.tm.currentThread;
-  while (thread.hasPendingEvents()) {
-    thread.processNextEvent(true);
-  }
-  yield true;
-}
+});

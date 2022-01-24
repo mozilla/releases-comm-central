@@ -10,14 +10,12 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
-
-setupIMAPPump();
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 function stop_server() {
   IMAPPump.incomingServer.closeCachedConnections();
@@ -28,27 +26,15 @@ function stop_server() {
   }
 }
 
-var asyncCopyListener = {
-  OnStartCopy() {},
-  SetMessageKey(aMsgKey) {},
-  GetMessageId() {},
-  OnProgress(aProgress, aProgressMax) {
-    stop_server();
-  },
-  OnStopCopy(aStatus) {
-    Assert.equal(aStatus, 0);
-    async_driver();
-  },
-};
-
-var tests = [setup_messages, move_messages, check_messages];
-
-function* setup_messages() {
+add_task(function setupTest() {
+  setupIMAPPump();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
     false
   );
+});
 
+add_task(async function setup_messages() {
   let messageGenerator = new MessageGenerator();
   let messageString = messageGenerator.makeMessage().toMessageString();
   let dataUri = Services.io.newURI(
@@ -57,52 +43,54 @@ function* setup_messages() {
   let imapMsg = new imapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function* move_messages() {
+add_task(async function move_messages() {
   let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(
     IMAPPump.mailbox.uidnext - 1
   );
+  let copyListener = new PromiseTestUtils.PromiseCopyListener({
+    OnProgress(aProgress, aProgressMax) {
+      stop_server();
+    },
+  });
   MailServices.copy.copyMessages(
     IMAPPump.inbox,
     [msg],
     localAccountUtils.inboxFolder,
     true,
-    asyncCopyListener,
+    copyListener,
     null,
     false
   );
-  yield false;
-}
+  await copyListener.promise;
+});
 
-function* check_messages() {
+add_task(function check_messages() {
   Assert.equal(IMAPPump.inbox.getTotalMessages(false), 1);
   Assert.equal(localAccountUtils.inboxFolder.getTotalMessages(false), 0);
-  yield true;
-}
+});
 
-function run_test() {
-  registerCleanupFunction(function() {
-    // IMAPPump.server.performTest() brings this test to a halt,
-    // so we need teardownIMAPPump() without IMAPPump.server.performTest().
-    IMAPPump.inbox = null;
-    IMAPPump.server.resetTest();
-    try {
-      IMAPPump.incomingServer.closeCachedConnections();
-      let serverSink = IMAPPump.incomingServer.QueryInterface(
-        Ci.nsIImapServerSink
-      );
-      serverSink.abortQueuedUrls();
-    } catch (ex) {
-      dump(ex);
-    }
-    IMAPPump.server.stop();
-    let thread = gThreadManager.currentThread;
-    while (thread.hasPendingEvents()) {
-      thread.processNextEvent(true);
-    }
-  });
-  async_run_tests(tests);
-}
+add_task(function endTest() {
+  // IMAPPump.server.performTest() brings this test to a halt,
+  // so we need teardownIMAPPump() without IMAPPump.server.performTest().
+  IMAPPump.inbox = null;
+  IMAPPump.server.resetTest();
+  try {
+    IMAPPump.incomingServer.closeCachedConnections();
+    let serverSink = IMAPPump.incomingServer.QueryInterface(
+      Ci.nsIImapServerSink
+    );
+    serverSink.abortQueuedUrls();
+  } catch (ex) {
+    dump(ex);
+  }
+  IMAPPump.server.stop();
+  let thread = gThreadManager.currentThread;
+  while (thread.hasPendingEvents()) {
+    thread.processNextEvent(true);
+  }
+});

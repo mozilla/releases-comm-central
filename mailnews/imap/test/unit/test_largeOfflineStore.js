@@ -1,15 +1,18 @@
-/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Test to ensure that downloadAllForOffline works correctly for large imap
  * stores, i.e., over 4 GiB.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
+var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 Services.prefs.setCharPref(
   "mail.serverDefaultStoreContractID",
@@ -18,9 +21,7 @@ Services.prefs.setCharPref(
 
 var gOfflineStoreSize;
 
-var tests = [setup, check_result, teardown];
-
-function run_test() {
+add_task(async function setupTest() {
   setupIMAPPump();
 
   // Figure out the name of the IMAP inbox
@@ -38,9 +39,7 @@ function run_test() {
     "@mozilla.org/windows-registry-key;1" in Cc &&
     mailTestUtils.get_file_system(inboxFile) != "NTFS"
   ) {
-    dump("On Windows, this test only works on NTFS volumes.\n");
-    teardown();
-    return;
+    throw new Error("On Windows, this test only works on NTFS volumes.\n");
   }
 
   let isFileSparse = mailTestUtils.mark_file_region_sparse(
@@ -49,23 +48,15 @@ function run_test() {
     0x10000000f
   );
   let freeDiskSpace = inboxFile.diskSpaceAvailable;
-  info("Free disk space = " + mailTestUtils.toMiBString(freeDiskSpace));
-  if (!isFileSparse && freeDiskSpace < neededFreeSpace) {
-    info(
-      "This test needs " +
-        mailTestUtils.toMiBString(neededFreeSpace) +
-        " free space to run. Aborting."
-    );
-    todo_check_true(false);
+  Assert.ok(
+    isFileSparse && freeDiskSpace > neededFreeSpace,
+    "This test needs " +
+      mailTestUtils.toMiBString(neededFreeSpace) +
+      " free space to run."
+  );
+});
 
-    teardown();
-    return;
-  }
-
-  async_run_tests(tests);
-}
-
-function* setup() {
+add_task(async function addOfflineMessages() {
   // Create a couple test messages on the IMAP server.
   let messages = [];
   let messageGenerator = new MessageGenerator();
@@ -98,24 +89,26 @@ function* setup() {
 
   // Save initial file size.
   gOfflineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  info(
+  console.trace(
     "Offline store size (before 1st downloadAllForOffline()) = " +
       gOfflineStoreSize
   );
 
   // Download for offline use, to append created messages to local IMAP inbox.
-  IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  await listener.promise;
+});
 
-function* check_result() {
+add_task(async function check_result() {
   // Call downloadAllForOffline() a second time.
-  IMAPPump.inbox.downloadAllForOffline(asyncUrlListener, null);
-  yield false;
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.downloadAllForOffline(listener, null);
+  await listener.promise;
 
   // Make sure offline store grew (i.e., we were not writing over data).
   let offlineStoreSize = IMAPPump.inbox.filePath.fileSize;
-  info(
+  console.trace(
     "Offline store size (after 2nd downloadAllForOffline()) = " +
       offlineStoreSize +
       ". (Msg hdr offsets should be close to it.)"
@@ -125,21 +118,18 @@ function* check_result() {
   // Verify that the message headers have the offline flag set.
   for (let header of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
     // Verify that each message has been downloaded and looks OK.
-    if (
-      !(
-        header instanceof Ci.nsIMsgDBHdr &&
-        header.flags & Ci.nsMsgMessageFlags.Offline
-      )
-    ) {
-      do_throw("Message not downloaded for offline use");
-    }
+    Assert.ok(
+      header instanceof Ci.nsIMsgDBHdr &&
+        header.flags & Ci.nsMsgMessageFlags.Offline,
+      "Message downloaded for offline use"
+    );
 
     // Make sure we don't fall over if we ask to read the message.
     IMAPPump.inbox.getSlicedOfflineFileStream(header.messageKey).close();
   }
-}
+});
 
-function teardown() {
+add_task(function teardown() {
   // Free up disk space - if you want to look at the file after running
   // this test, comment out this line.
   if (IMAPPump.inbox) {
@@ -147,4 +137,4 @@ function teardown() {
   }
 
   teardownIMAPPump();
-}
+});

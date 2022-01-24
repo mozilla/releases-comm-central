@@ -8,58 +8,37 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-setupIMAPPump();
-
-var tests = [setup, test_rename];
-
-function* setup() {
+add_task(async function setupTest() {
+  setupIMAPPump();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
     false
   );
-  // Add folder listeners that will capture async events
-  MailServices.mfn.addListener(mfnListener, MailServices.mfn.folderAdded);
-
   IMAPPump.incomingServer.rootFolder.createSubfolder("folder 1", null);
-  yield false;
+  await PromiseTestUtils.promiseFolderAdded("folder 1");
 
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function* test_rename() {
+add_task(async function test_rename() {
   let rootFolder = IMAPPump.incomingServer.rootFolder;
   let targetFolder = rootFolder.getChildNamed("folder 1");
 
   targetFolder.rename("folder \u00e1", null);
 
   IMAPPump.server.performTest("RENAME");
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
 
   let folder = rootFolder.getChildNamed("folder \u00e1");
   Assert.ok(folder.msgDatabase.summaryValid);
   Assert.equal("folder &AOE-", folder.filePath.leafName);
   Assert.equal("folder \u00e1", folder.prettyName);
-
-  yield true;
-}
-
-var mfnListener = {
-  folderAdded(aFolder) {
-    // we are only using async yield on the target folder add
-    if (aFolder.name == "folder 1") {
-      async_driver();
-    }
-  },
-};
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

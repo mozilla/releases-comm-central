@@ -1,21 +1,20 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/*
- * Test to ensure that offline imap moves handle extremely high highwater
- * marks.
- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* import-globals-from ../../../test/resources/alertTestUtils.js */
+load("../../../resources/alertTestUtils.js");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/logHelper.js");
-load("../../../resources/alertTestUtils.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
+var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var gIMAPDaemon, gServer, gIMAPIncomingServer;
 
@@ -33,7 +32,7 @@ function addMessagesToServer(messages, mailbox) {
   });
 }
 
-function run_test() {
+add_task(function setupTest() {
   localAccountUtils.loadLocalMailAccount();
 
   /*
@@ -70,10 +69,9 @@ function run_test() {
   );
   // Don't prompt about offline download when going offline
   Services.prefs.setIntPref("offline.download.download_messages", 2);
-  actually_run_test();
-}
+});
 
-function* setupFolders() {
+add_task(function setupFolders() {
   // make 10 messages
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
@@ -95,18 +93,19 @@ function* setupFolders() {
   gIMAPInbox = gRootFolder
     .getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox)
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  yield true;
-}
+});
 
-function* doMoves() {
+add_task(async function doMoves() {
   // update folders to download headers.
-  gIMAPInbox.updateFolderWithListener(null, UrlListener);
-  yield false;
+  let urlListenerInbox = new PromiseTestUtils.PromiseUrlListener();
+  gIMAPInbox.updateFolderWithListener(null, urlListenerInbox);
+  await urlListenerInbox.promise;
   gFolder1 = gRootFolder
     .getChildNamed("folder 1")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
-  gFolder1.updateFolderWithListener(null, UrlListener);
-  yield false;
+  let urlListenerFolder1 = new PromiseTestUtils.PromiseUrlListener();
+  gFolder1.updateFolderWithListener(null, urlListenerFolder1);
+  await urlListenerFolder1.promise;
   // get five messages to move from Inbox to folder 1.
   let headers1 = [];
   let count = 0;
@@ -120,20 +119,29 @@ function* doMoves() {
     count++;
   }
   // this will add dummy headers with keys > 0xffffff80
+  let copyListenerDummyHeaders = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gIMAPInbox,
     headers1,
     gFolder1,
     true,
-    CopyListener,
+    copyListenerDummyHeaders,
     gDummyMsgWindow,
     true
   );
-  yield false;
-  gIMAPInbox.updateFolderWithListener(null, UrlListener);
-  yield false;
-  gFolder1.updateFolderWithListener(gDummyMsgWindow, UrlListener);
-  yield false;
+  await copyListenerDummyHeaders.promise;
+
+  let urlListenerInboxAfterDummy = new PromiseTestUtils.PromiseUrlListener();
+  gIMAPInbox.updateFolderWithListener(null, urlListenerInboxAfterDummy);
+  await urlListenerInboxAfterDummy.promise;
+
+  let urlListenerFolder1AfterDummy = new PromiseTestUtils.PromiseUrlListener();
+  gFolder1.updateFolderWithListener(
+    gDummyMsgWindow,
+    urlListenerFolder1AfterDummy
+  );
+  await urlListenerFolder1AfterDummy.promise;
+
   // Check that playing back offline events gets rid of dummy
   // headers, and thus highWater is recalculated.
   Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 6);
@@ -152,64 +160,36 @@ function* doMoves() {
   // It will thrown an exception if it can't.
   let msgHdr = gFolder1.msgDatabase.CreateNewHdr(0xfffffffd);
   gFolder1.msgDatabase.AddNewHdrToDB(msgHdr, false);
+  let copyListenerHighWater = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gIMAPInbox,
     headers1,
     gFolder1,
     true,
-    CopyListener,
+    copyListenerHighWater,
     gDummyMsgWindow,
     true
   );
-  yield false;
+  await copyListenerHighWater.promise;
   gServer.performTest("UID COPY");
 
   gFolder1.msgDatabase.DeleteHeader(msgHdr, null, true, false);
-  gIMAPInbox.updateFolderWithListener(null, UrlListener);
-  yield false;
+  let urlListenerInboxAfterDelete = new PromiseTestUtils.PromiseUrlListener();
+  gIMAPInbox.updateFolderWithListener(null, urlListenerInboxAfterDelete);
+  await urlListenerInboxAfterDelete.promise;
   // this should clear the dummy headers.
-  gFolder1.updateFolderWithListener(gDummyMsgWindow, UrlListener);
-  yield false;
+  let urlListenerFolder1AfterDelete = new PromiseTestUtils.PromiseUrlListener();
+  gFolder1.updateFolderWithListener(
+    gDummyMsgWindow,
+    urlListenerFolder1AfterDelete
+  );
+  await urlListenerFolder1AfterDelete.promise;
   Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 11);
-  yield true;
-}
+});
 
-var UrlListener = {
-  OnStartRunningUrl(url) {},
-  OnStopRunningUrl(url, rc) {
-    // Check for ok status.
-    Assert.equal(rc, 0);
-    async_driver();
-  },
-};
-
-// nsIMsgCopyServiceListener implementation
-var CopyListener = {
-  OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
-    Assert.equal(aStatus, 0);
-    async_driver();
-  },
-};
-
-// Definition of tests
-var tests = [setupFolders, doMoves, endTest];
-
-function actually_run_test() {
-  async_run_tests(tests);
-}
-
-function* endTest() {
+add_task(function endTest() {
   Services.io.offline = true;
   gServer.performTest("LOGOUT");
-  //  gIMAPIncomingServer.closeCachedConnections();
+  gIMAPIncomingServer.closeCachedConnections();
   gServer.stop();
-  let thread = gThreadManager.currentThread;
-  while (thread.hasPendingEvents()) {
-    thread.processNextEvent(true);
-  }
-  yield true;
-}
+});

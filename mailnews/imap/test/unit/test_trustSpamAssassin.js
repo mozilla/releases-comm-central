@@ -11,13 +11,9 @@
  * adapted from test_filterNeedsBody.js
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
-// IMAP pump
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 // Globals
 var { MailServices } = ChromeUtils.import(
@@ -25,37 +21,43 @@ var { MailServices } = ChromeUtils.import(
 );
 
 var gMessage = "SpamAssassinYes"; // message file used as the test message
-
-setupIMAPPump();
-
-// Definition of tests
-
-var tests = [
-  createJunkFolder,
-  loadImapMessage,
-  testMessageInJunk,
-  markMessageAsGood,
-  updateFoldersAndCheck,
-  endTest,
-];
-
 var gJunkFolder;
-function* createJunkFolder() {
+
+add_task(function setupTest() {
+  setupIMAPPump();
+  let server = IMAPPump.incomingServer;
+  let spamSettings = server.spamSettings;
+  server.setBoolValue("useServerFilter", true);
+  server.setCharValue("serverFilterName", "SpamAssassin");
+  server.setIntValue(
+    "serverFilterTrustFlags",
+    Ci.nsISpamSettings.TRUST_POSITIVES
+  );
+  server.setBoolValue("moveOnSpam", true);
+  server.setIntValue(
+    "moveTargetMode",
+    Ci.nsISpamSettings.MOVE_TARGET_MODE_ACCOUNT
+  );
+  server.setCharValue("spamActionTargetAccount", server.serverURI);
+
+  spamSettings.initialize(server);
+});
+
+add_task(async function createJunkFolder() {
   IMAPPump.incomingServer.rootFolder.createSubfolder("Junk", null);
-  dl("wait for folderAdded");
-  yield false;
+  await PromiseTestUtils.promiseFolderAdded("Junk");
   gJunkFolder = IMAPPump.incomingServer.rootFolder.getChildNamed("Junk");
   Assert.ok(gJunkFolder instanceof Ci.nsIMsgImapMailFolder);
-  gJunkFolder.updateFolderWithListener(null, asyncUrlListener);
-  dl("wait for OnStopRunningURL");
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gJunkFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
 /*
  * Load and update a message in the imap fake server, should move
  *  SpamAssassin-marked junk message to junk folder
  */
-function* loadImapMessage() {
+add_task(async function loadImapMessage() {
   IMAPPump.mailbox.addMessage(
     new imapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
   );
@@ -64,20 +66,21 @@ function* loadImapMessage() {
    *  to the junk folder
    */
   IMAPPump.inbox.updateFolder(null);
-  dl("wait for msgsMoveCopyCompleted");
-  yield false;
-  gJunkFolder.updateFolderWithListener(null, asyncUrlListener);
-  dl("wait for OnStopRunningURL");
-  yield false;
-}
+  await PromiseTestUtils.promiseFolderNotification(
+    gJunkFolder,
+    "msgsMoveCopyCompleted"
+  );
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gJunkFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function* testMessageInJunk() {
+add_task(function testMessageInJunk() {
   Assert.equal(0, IMAPPump.inbox.getTotalMessages(false));
   Assert.equal(1, gJunkFolder.getTotalMessages(false));
-  yield true;
-}
+});
 
-function* markMessageAsGood() {
+add_task(async function markMessageAsGood() {
   /*
    * This is done in the application in nsMsgDBView, which is difficult
    *  to test in xpcshell tests. We aren't really trying to test that here
@@ -104,76 +107,27 @@ function* markMessageAsGood() {
     null, // msgWindow
     false // allowUndo
   );
-  dl("wait for msgsMoveCopyCompleted");
-  yield false;
-}
+  await PromiseTestUtils.promiseFolderNotification(
+    IMAPPump.inbox,
+    "msgsMoveCopyCompleted"
+  );
+});
 
-function* updateFoldersAndCheck() {
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  dl("wait for OnStopRunningURL");
-  yield false;
-  gJunkFolder.updateFolderWithListener(null, asyncUrlListener);
-  dl("wait for OnStopRunningURL");
-  yield false;
+add_task(async function updateFoldersAndCheck() {
+  let inboxUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, inboxUrlListener);
+  await inboxUrlListener.promise;
+  let junkUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  gJunkFolder.updateFolderWithListener(null, junkUrlListener);
+  await junkUrlListener.promise;
   // bug 540385 causes this test to fail
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
   Assert.equal(0, gJunkFolder.getTotalMessages(false));
-  yield true;
-}
+});
 
-function endTest() {
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  let server = IMAPPump.incomingServer;
-  let spamSettings = server.spamSettings;
-  server.setBoolValue("useServerFilter", true);
-  server.setCharValue("serverFilterName", "SpamAssassin");
-  server.setIntValue(
-    "serverFilterTrustFlags",
-    Ci.nsISpamSettings.TRUST_POSITIVES
-  );
-  server.setBoolValue("moveOnSpam", true);
-  server.setIntValue(
-    "moveTargetMode",
-    Ci.nsISpamSettings.MOVE_TARGET_MODE_ACCOUNT
-  );
-  server.setCharValue("spamActionTargetAccount", server.serverURI);
-
-  spamSettings.initialize(server);
-
-  // Add folder listeners that will capture async events
-  const nsIMFNService = Ci.nsIMsgFolderNotificationService;
-
-  let flags =
-    nsIMFNService.msgsMoveCopyCompleted |
-    nsIMFNService.folderAdded |
-    nsIMFNService.msgAdded;
-  MailServices.mfn.addListener(mfnListener, flags);
-
-  // start first test
-  async_run_tests(tests);
-}
-
-var mfnListener = {
-  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
-    dl("msgsMoveCopyCompleted to folder " + aDestFolder.name);
-    async_driver();
-  },
-
-  folderAdded(aFolder) {
-    dl("folderAdded <" + aFolder.name + ">");
-    // we are only using async add on the Junk folder
-    if (aFolder.name == "Junk") {
-      async_driver();
-    }
-  },
-
-  msgAdded(aMsg) {
-    dl("msgAdded with subject <" + aMsg.subject + ">");
-  },
-};
+});
 
 /*
  * helper functions

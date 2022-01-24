@@ -12,22 +12,23 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
-
-// IMAP pump
-
-setupIMAPPump();
-
-var tests = [loadImapMessage, saveAsTemplate, endTest];
+add_task(function setupTest() {
+  setupIMAPPump();
+  Services.prefs.setBoolPref(
+    "mail.server.default.autosync_offline_stores",
+    false
+  );
+});
 
 // load and update a message in the imap fake server
-function* loadImapMessage() {
+add_task(async function loadImapMessage() {
   let gMessageGenerator = new MessageGenerator();
   // create a synthetic message with attachment
   let smsg = gMessageGenerator.makeMessage();
@@ -38,36 +39,18 @@ function* loadImapMessage() {
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   let message = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-  MailServices.mfn.addListener(mfnListener, MailServices.mfn.msgAdded);
-  yield true;
-}
-
-// Cleanup
-function* endTest() {
-  teardownIMAPPump();
-  yield true;
-}
-
-function saveAsUrlListener(aUri, aIdentity) {
-  this.uri = aUri;
-  this.identity = aIdentity;
-}
-
-saveAsUrlListener.prototype = {
-  OnStartRunningUrl(aUrl) {},
-  OnStopRunningUrl(aUrl, aExitCode) {
-    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-      Ci.nsIMessenger
-    );
-    messenger.saveAs(this.uri, false, this.identity, null);
-  },
-};
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
 // This is similar to the method in mailCommands.js, to test the way that
 // it creates a new templates folder before saving the message as a template.
-function* saveAsTemplate() {
+add_task(async function saveAsTemplate() {
+  // Prepare msgAddedListener for this test.
+  let msgAddedListener = new MsgAddedListener();
+  MailServices.mfn.addListener(msgAddedListener, MailServices.mfn.msgAdded);
+
   let hdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   let uri = IMAPPump.inbox.getUriForMsg(hdr);
   let identity = MailServices.accounts.getFirstIdentityForServer(
@@ -79,23 +62,36 @@ function* saveAsTemplate() {
   // Verify that Templates folder doesn't exist, and then create it.
   Assert.equal(templates.parent, null);
   templates.setFlag(Ci.nsMsgFolderFlags.Templates);
-  templates.createStorageIfMissing(new saveAsUrlListener(uri, identity));
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener({
+    OnStopRunningUrl() {
+      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        Ci.nsIMessenger
+      );
+      messenger.saveAs(uri, false, identity, null);
+    },
+  });
+  templates.createStorageIfMissing(listener);
+  await listener.promise;
+
+  await msgAddedListener.promise;
+});
+
+// Cleanup
+add_task(function endTest() {
+  teardownIMAPPump();
+});
 
 // listener for saveAsTemplate adding a message to the templates folder.
-var mfnListener = {
+function MsgAddedListener() {
+  this._promise = new Promise(resolve => {
+    this._resolve = resolve;
+  });
+}
+
+MsgAddedListener.prototype = {
   msgAdded(aMsg) {
     // Check this is the templates folder.
     Assert.equal(aMsg.folder.prettyName, "Templates");
-    async_driver();
+    this._resolve();
   },
 };
-
-function run_test() {
-  Services.prefs.setBoolPref(
-    "mail.server.default.autosync_offline_stores",
-    false
-  );
-  async_run_tests(tests);
-}

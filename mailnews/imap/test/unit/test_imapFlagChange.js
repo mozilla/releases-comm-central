@@ -1,128 +1,24 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * Test to ensure that imap flag changes made from a different profile/machine
  * are stored in db.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var gMessage;
 var gSecondFolder;
 var gSynthMessage;
 
-var tests = [
-  setup,
-  function* switchAwayFromInbox() {
-    let rootFolder = IMAPPump.incomingServer.rootFolder;
-    gSecondFolder = rootFolder
-      .getChildNamed("secondFolder")
-      .QueryInterface(Ci.nsIMsgImapMailFolder);
-
-    // Selecting the second folder will close the cached connection
-    // on the inbox because fake server only supports one connection at a time.
-    //  Then, we can poke at the message on the imap server directly, which
-    // simulates the user changing the message from a different machine,
-    // and Thunderbird discovering the change when it does a flag sync
-    // upon reselecting the Inbox.
-    gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* simulateForwardFlagSet() {
-    gMessage.setFlag("$Forwarded");
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* checkForwardedFlagSet() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
-      gSynthMessage.messageId
-    );
-    Assert.equal(
-      msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded,
-      Ci.nsMsgMessageFlags.Forwarded
-    );
-    gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* clearForwardedFlag() {
-    gMessage.clearFlag("$Forwarded");
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* checkForwardedFlagCleared() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
-      gSynthMessage.messageId
-    );
-    Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded, 0);
-    gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* setSeenFlag() {
-    gMessage.setFlag("\\Seen");
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* checkSeenFlagSet() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
-      gSynthMessage.messageId
-    );
-    Assert.equal(
-      msgHdr.flags & Ci.nsMsgMessageFlags.Read,
-      Ci.nsMsgMessageFlags.Read
-    );
-    gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* simulateRepliedFlagSet() {
-    gMessage.setFlag("\\Answered");
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* checkRepliedFlagSet() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
-      gSynthMessage.messageId
-    );
-    Assert.equal(
-      msgHdr.flags & Ci.nsMsgMessageFlags.Replied,
-      Ci.nsMsgMessageFlags.Replied
-    );
-    gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* simulateTagAdded() {
-    gMessage.setFlag("randomtag");
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* checkTagSet() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
-      gSynthMessage.messageId
-    );
-    let keywords = msgHdr.getStringProperty("keywords");
-    Assert.ok(keywords.includes("randomtag"));
-    gSecondFolder.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function* clearTag() {
-    gMessage.clearFlag("randomtag");
-    IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-    yield false;
-  },
-  function checkTagCleared() {
-    let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
-      gSynthMessage.messageId
-    );
-    let keywords = msgHdr.getStringProperty("keywords");
-    Assert.ok(!keywords.includes("randomtag"));
-  },
-  teardown,
-];
-
-function* setup() {
+add_task(async function setupTest() {
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
     false
@@ -145,18 +41,138 @@ function* setup() {
   IMAPPump.mailbox.addMessage(gMessage);
 
   // update folder to download header.
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-asyncUrlListener.callback = function(aUrl, aExitCode) {
-  Assert.equal(aExitCode, 0);
-};
+add_task(async function switchAwayFromInbox() {
+  let rootFolder = IMAPPump.incomingServer.rootFolder;
+  gSecondFolder = rootFolder
+    .getChildNamed("secondFolder")
+    .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-function teardown() {
+  // Selecting the second folder will close the cached connection
+  // on the inbox because fake server only supports one connection at a time.
+  //  Then, we can poke at the message on the imap server directly, which
+  // simulates the user changing the message from a different machine,
+  // and Thunderbird discovering the change when it does a flag sync
+  // upon reselecting the Inbox.
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gSecondFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function simulateForwardFlagSet() {
+  gMessage.setFlag("$Forwarded");
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function checkForwardedFlagSet() {
+  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+    gSynthMessage.messageId
+  );
+  Assert.equal(
+    msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded,
+    Ci.nsMsgMessageFlags.Forwarded
+  );
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gSecondFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function clearForwardedFlag() {
+  gMessage.clearFlag("$Forwarded");
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function checkForwardedFlagCleared() {
+  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+    gSynthMessage.messageId
+  );
+  Assert.equal(msgHdr.flags & Ci.nsMsgMessageFlags.Forwarded, 0);
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gSecondFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function setSeenFlag() {
+  gMessage.setFlag("\\Seen");
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function checkSeenFlagSet() {
+  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+    gSynthMessage.messageId
+  );
+  Assert.equal(
+    msgHdr.flags & Ci.nsMsgMessageFlags.Read,
+    Ci.nsMsgMessageFlags.Read
+  );
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gSecondFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function simulateRepliedFlagSet() {
+  gMessage.setFlag("\\Answered");
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function checkRepliedFlagSet() {
+  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+    gSynthMessage.messageId
+  );
+  Assert.equal(
+    msgHdr.flags & Ci.nsMsgMessageFlags.Replied,
+    Ci.nsMsgMessageFlags.Replied
+  );
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gSecondFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function simulateTagAdded() {
+  gMessage.setFlag("randomtag");
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function checkTagSet() {
+  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+    gSynthMessage.messageId
+  );
+  let keywords = msgHdr.getStringProperty("keywords");
+  Assert.ok(keywords.includes("randomtag"));
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  gSecondFolder.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(async function clearTag() {
+  gMessage.clearFlag("randomtag");
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
+
+add_task(function checkTagCleared() {
+  let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
+    gSynthMessage.messageId
+  );
+  let keywords = msgHdr.getStringProperty("keywords");
+  Assert.ok(!keywords.includes("randomtag"));
+});
+
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

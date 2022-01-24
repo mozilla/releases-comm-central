@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 /*
  * This file tests hdr parsing in the filter running context, specifically
  * filters on custom headers.
@@ -7,11 +11,10 @@
  * Original author: David Bienvenu <bienvenu@mozilla.com>
  */
 
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
 
 // IMAP pump
 
@@ -19,13 +22,8 @@ var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
 
-setupIMAPPump();
-
-// Definition of tests
-
-var tests = [setupTest, checkFilterResults, endTest];
-
-function run_test() {
+add_task(async function setupTest() {
+  setupIMAPPump();
   // Create a test filter.
   let filterList = IMAPPump.incomingServer.getFilterList(null);
   let filter = filterList.createFilter("test list-id");
@@ -46,11 +44,6 @@ function run_test() {
   action.type = Ci.nsMsgFilterAction.MarkRead;
   filter.appendAction(action);
   filterList.insertFilterAt(0, filter);
-
-  async_run_tests(tests);
-}
-
-function* setupTest() {
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
     false
@@ -61,18 +54,18 @@ function* setupTest() {
   IMAPPump.mailbox.addMessage(
     new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
+});
 
-function* checkFilterResults() {
+add_task(function checkFilterResults() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr.isRead);
-  yield true;
-}
+});
 
 // Cleanup
-function endTest() {
+add_task(function endTest() {
   IMAPPump.server.performTest("UID STORE");
   teardownIMAPPump();
-}
+});

@@ -6,36 +6,24 @@
  * Tests that you can stream a message without the attachments. Tests the
  * MsgHdrToMimeMessage API that exposes this.
  */
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 1000);
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/MessageGenerator.jsm");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
 
 // javascript mime emitter functions
 var mimeMsg = {};
 ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm", mimeMsg);
 
-// IMAP pump
-
-setupIMAPPump();
-
-var tests = [
-  setPrefs,
-  loadImapMessage,
-  startMime,
-  testAllInlineMessage,
-  updateCounts,
-  testNotRead,
-  endTest,
-];
-
 // make sure we are in the optimal conditions!
-function* setPrefs() {
+add_task(function setupTest() {
+  setupIMAPPump();
   Services.prefs.setIntPref("mail.imap.mime_parts_on_demand_threshold", 20);
   Services.prefs.setBoolPref("mail.imap.mime_parts_on_demand", true);
   Services.prefs.setBoolPref(
@@ -45,12 +33,10 @@ function* setPrefs() {
   Services.prefs.setBoolPref("mail.server.server1.offline_download", false);
   Services.prefs.setBoolPref("mail.server.server1.download_on_biff", false);
   Services.prefs.setIntPref("browser.cache.disk.capacity", 0);
-
-  yield true;
-}
+});
 
 // load and update a message in the imap fake server
-function* loadImapMessage() {
+add_task(async function loadImapMessage() {
   let file = do_get_file("../../../data/bodystructuretest1");
   let msgURI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
 
@@ -64,72 +50,70 @@ function* loadImapMessage() {
   msgURI = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   message = new imapMessage(msgURI.spec, imapInbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(message);
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
+  let listener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, listener);
+  await listener.promise;
 
   Assert.equal(2, IMAPPump.inbox.getTotalMessages(false));
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
   Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
-  yield true;
-}
+});
 
 // process the message through mime
-function* startMime() {
+add_task(async function startMime() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-
-  mimeMsg.MsgHdrToMimeMessage(
-    msgHdr,
-    this,
-    function(aMsgHdr, aMimeMessage) {
-      let url = aMimeMessage.allUserAttachments[0].url;
-      // A URL containing this string indicates that the attachment will be
-      // downloaded on demand.
-      Assert.ok(url.includes("/;section="));
-      async_driver();
-    },
-    true /* allowDownload */,
-    { partsOnDemand: true, examineEncryptedParts: true }
-  );
-  yield false;
-}
-
-// test that we don't mark all inline messages as read.
-function* testAllInlineMessage() {
-  for (let msg of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
+  await new Promise(resolve => {
     mimeMsg.MsgHdrToMimeMessage(
-      msg,
+      msgHdr,
       this,
       function(aMsgHdr, aMimeMessage) {
-        async_driver();
+        let url = aMimeMessage.allUserAttachments[0].url;
+        // A URL containing this string indicates that the attachment will be
+        // downloaded on demand.
+        Assert.ok(url.includes("/;section="));
+        resolve();
       },
       true /* allowDownload */,
-      { partsOnDemand: true }
+      { partsOnDemand: true, examineEncryptedParts: true }
     );
-    yield false;
-  }
-}
+  });
+});
 
-function* updateCounts() {
+// test that we don't mark all inline messages as read.
+add_task(async function testAllInlineMessage() {
+  for (let msg of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
+    await new Promise(resolve => {
+      mimeMsg.MsgHdrToMimeMessage(
+        msg,
+        this,
+        function(aMsgHdr, aMimeMessage) {
+          resolve();
+        },
+        true, // allowDownload
+        { partsOnDemand: true }
+      );
+    });
+  }
+});
+
+add_task(async function updateCounts() {
   // select the trash, then the inbox again, to force an update of the
   // read state of messages.
   let trash = IMAPPump.incomingServer.rootFolder.getChildNamed("Trash");
   Assert.ok(trash instanceof Ci.nsIMsgImapMailFolder);
-  trash.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
-}
+  let trashListener = new PromiseTestUtils.PromiseUrlListener();
+  trash.updateFolderWithListener(null, trashListener);
+  await trashListener.promise;
+  let inboxListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, inboxListener);
+  await inboxListener.promise;
+});
 
-function* testNotRead() {
+add_task(function testNotRead() {
   Assert.equal(2, IMAPPump.inbox.getNumUnread(false));
-  yield true;
-}
+});
 
 // Cleanup
-function endTest() {
+add_task(function endTest() {
   teardownIMAPPump();
-}
-
-function run_test() {
-  async_run_tests(tests);
-}
+});

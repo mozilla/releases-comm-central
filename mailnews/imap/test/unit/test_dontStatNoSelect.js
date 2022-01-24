@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // This file tests that checking folders for new mail with STATUS
 // doesn't try to STAT noselect folders.
 
@@ -6,21 +10,17 @@ var gIMAPInbox;
 var gFolder2Mailbox;
 var gFolder1, gFolder2;
 
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/MessageGenerator.jsm");
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
-var tests = [checkStatSelect, checkStatNoSelect, endTest];
-
-function run_test() {
+add_task(function setupTest() {
   var daemon = new imapDaemon();
   daemon.createMailbox("folder 1", { subscribed: true });
   let folder1Mailbox = daemon.getMailbox("folder 1");
@@ -68,11 +68,9 @@ function run_test() {
   gFolder2 = rootFolder.getChildNamed("folder 2");
   gFolder1.setFlag(Ci.nsMsgFolderFlags.CheckNew);
   gFolder2.setFlag(Ci.nsMsgFolderFlags.CheckNew);
-  // start first test
-  async_run_tests(tests);
-}
+});
 
-function* checkStatSelect() {
+add_task(function checkStatSelect() {
   // imap fake server's resetTest resets the authentication state - charming.
   // So poke the _test member directly.
   gServer._test = true;
@@ -85,27 +83,39 @@ function* checkStatSelect() {
   gServer._test = true;
   gIMAPInbox.updateFolder(null);
   gServer.performTest("NOOP");
-  yield true;
-}
+});
 
-function* checkStatNoSelect() {
+add_task(async function checkStatNoSelect() {
   // folder 2 should have been stat'd, but not folder 1. All we can really check
   // is that folder 2 was stat'd and that its unread msg count is 1
   Assert.equal(gFolder2.getNumUnread(false), 1);
   addMessageToFolder(gFolder2Mailbox);
   gFolder1.clearFlag(Ci.nsMsgFolderFlags.ImapNoselect);
   gServer._test = true;
+
+  let folderListener = new FolderListener();
+
   // we've cleared the ImapNoselect flag, so we will attempt to STAT folder 1,
   // which will fail. So we verify that we go on and STAT folder 2, and that
   // it picks up the message we added to it above.
   MailServices.mailSession.AddFolderListener(
-    gFolderListener,
+    folderListener,
     Ci.nsIFolderListener.boolPropertyChanged
   );
   gIMAPInbox.getNewMessages(null, null);
   // Wait for the folder listener to get told about new messages.
-  yield false;
-}
+  await folderListener.promise;
+});
+
+add_task(function endTest() {
+  Assert.equal(gFolder2.getNumUnread(false), 2);
+
+  // Clean up the server in preparation
+  gServer.resetTest();
+  gImapServer.closeCachedConnections();
+  gServer.performTest();
+  gServer.stop();
+});
 
 function addMessageToFolder(mbox) {
   // make a couple of messages
@@ -120,21 +130,20 @@ function addMessageToFolder(mbox) {
   mbox.addMessage(message);
 }
 
-function* endTest() {
-  Assert.equal(gFolder2.getNumUnread(false), 2);
-  // Clean up the server in preparation
-  gServer.resetTest();
-  gImapServer.closeCachedConnections();
-  gServer.performTest();
-  gServer.stop();
-  yield true;
+function FolderListener() {
+  this._promise = new Promise(resolve => {
+    this._resolve = resolve;
+  });
 }
 
-var gFolderListener = {
+FolderListener.prototype = {
   onFolderBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     // This means that the STAT on "folder 2" has finished.
     if (aProperty == "NewMessages" && aNewValue) {
-      async_driver();
+      this._resolve();
     }
+  },
+  get promise() {
+    return this._promise;
   },
 };
