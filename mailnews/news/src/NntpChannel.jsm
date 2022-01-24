@@ -269,8 +269,6 @@ class NntpChannel {
       );
     }
 
-    let lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
-
     this._server.wrappedJSObject.withClient(client => {
       client.onOpen = () => {
         if (this._messageId) {
@@ -288,19 +286,10 @@ class NntpChannel {
       client.onData = data => {
         outputStream.write(data, data.length);
         this._listener.onDataAvailable(null, inputStream, 0, data.length);
-        // NewsFolder will decide whether to save it to the offline storage.
-        this._newsFolder?.notifyDownloadedLine(
-          data.slice(0, -2) + lineSeparator,
-          this._articleNumber
-        );
       };
 
       client.onDone = () => {
         this._listener.onStopRequest(null, Cr.NS_OK);
-        this._newsFolder?.notifyDownloadedLine(
-          `.${lineSeparator}`,
-          this._articleNumber
-        );
         this._newsFolder?.msgDatabase.Commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );

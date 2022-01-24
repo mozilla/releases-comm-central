@@ -121,8 +121,9 @@ class NntpService {
   }
 
   fetchMessage(folder, key, msgWindow, consumer, urlListener) {
-    if (!(consumer instanceof Ci.nsIStreamListener)) {
-      return;
+    let streamListener;
+    if (consumer instanceof Ci.nsIStreamListener) {
+      streamListener = consumer;
     }
     let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
@@ -135,14 +136,14 @@ class NntpService {
 
       client.onOpen = () => {
         client.getArticleByArticleNumber(folder.name, key);
-        consumer.onStartRequest(null);
+        streamListener?.onStartRequest(null);
       };
       client.onData = data => {
         outputStream.write(data, data.length);
-        consumer.onDataAvailable(null, inputStream, 0, data.length);
+        streamListener?.onDataAvailable(null, inputStream, 0, data.length);
       };
       client.onDone = () => {
-        consumer.onStopRequest(null, Cr.NS_OK);
+        streamListener?.onStopRequest(null, Cr.NS_OK);
       };
     });
   }

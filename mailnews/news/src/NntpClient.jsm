@@ -79,6 +79,7 @@ class NntpClient {
       .QueryInterface(Ci.nsIMsgMailNewsUrl);
     this.urlListener = null;
     this._msgWindow = null;
+    this._newsFolder = null;
   }
 
   /**
@@ -266,6 +267,7 @@ class NntpClient {
    * @param {string} articleNumber - The article number.
    */
   getArticleByArticleNumber(groupName, articleNumber) {
+    this._newsFolder = this._server.rootFolder.getChildNamed(groupName);
     this._nextGroupName = this._getNextGroupName(groupName);
     this._articleNumber = articleNumber;
     this._firstGroupCommand = this._actionArticle;
@@ -571,7 +573,34 @@ class NntpClient {
    */
   _actionArticle = () => {
     this._sendCommand(`ARTICLE ${this._articleNumber}`);
-    this._nextAction = this._actionReadData;
+    this._nextAction = this._actionArticleResponse;
+  };
+
+  /**
+   * Handle `ARTICLE` response.
+   * @param {NntpResponse} res - ARTICLE response received from the server.
+   */
+  _actionArticleResponse = ({ data }) => {
+    let lineSeparator = AppConstants.platform == "win" ? "\r\n" : "\n";
+
+    this._lineReader(
+      data,
+      line => {
+        // NewsFolder will decide whether to save it to the offline storage.
+        this._newsFolder?.notifyDownloadedLine(
+          line.slice(0, -2) + lineSeparator,
+          this._articleNumber
+        );
+        this.onData(line);
+      },
+      () => {
+        this._newsFolder?.notifyDownloadedLine(
+          `.${lineSeparator}`,
+          this._articleNumber
+        );
+        this._actionDone();
+      }
+    );
   };
 
   /**

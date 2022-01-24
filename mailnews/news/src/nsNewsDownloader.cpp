@@ -102,8 +102,9 @@ nsresult nsNewsDownloader::DownloadNext(bool firstTimeP) {
       do_GetService(NS_NNTPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCOMPtr<nsIURI> uri;
   return nntpService->FetchMessage(m_folder, m_keyToDownload, m_window, nullptr,
-                                   this, nullptr);
+                                   this, getter_AddRefs(uri));
 }
 
 bool DownloadNewsArticlesToOfflineStore::GetNextHdrToRetrieve() {
