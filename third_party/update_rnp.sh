@@ -26,6 +26,7 @@ fi
 if [[ -n "$1" ]]; then
   CHECKOUT_REV="$1"
 fi
+export PYTHONPATH="../python/thirdroc/"
 THIRDROC="../../mach python -m thirdroc"
 
 MY_TEMP_DIR=$(mktemp -d -t rnp_update.XXXXXX) || exit 1
