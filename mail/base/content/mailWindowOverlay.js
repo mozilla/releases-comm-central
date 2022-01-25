@@ -150,15 +150,29 @@ function goUpdateMailMenuItems(commandset) {
  * using them get the checked state set up properly.
  */
 function updateCheckedStateForIgnoreAndWatchThreadCmds() {
+  let message;
+
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    message = tab.message;
+  } else if (tab?.folderDisplay) {
+    message = tab.folderDisplay.selectedMessage;
+  }
+
+  let folder = message?.folder;
+
   document
     .getElementById("cmd_killThread")
-    .setAttribute("checked", gFolderDisplay.selectedMessageThreadIgnored);
+    .setAttribute("checked", folder?.msgDatabase.IsIgnored(message.messageKey));
   document
     .getElementById("cmd_killSubthread")
-    .setAttribute("checked", gFolderDisplay.selectedMessageSubthreadIgnored);
+    .setAttribute(
+      "checked",
+      folder && message.flags & Ci.nsMsgMessageFlags.Ignored
+    );
   document
     .getElementById("cmd_watchThread")
-    .setAttribute("checked", gFolderDisplay.selectedMessageThreadWatched);
+    .setAttribute("checked", folder?.msgDatabase.IsWatched(message.messageKey));
 }
 
 function file_init() {
@@ -234,18 +248,44 @@ function InitGoMessagesMenu() {
  * state to reflect reality.
  */
 function view_init() {
-  let isFeed =
-    gFolderDisplay &&
-    (FeedUtils.isFeedFolder(gFolderDisplay.displayedFolder) ||
-      gFolderDisplay.selectedMessageIsFeed);
+  let accountCentralDisplayed;
+  let folderDisplayVisible;
+  let message;
+  let messageDisplayVisible;
 
-  let accountCentralDisplayed = gFolderDisplay.isAccountCentralDisplayed;
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (tab?.mode.name == "mail3PaneTab") {
+    ({
+      accountCentralVisible: accountCentralDisplayed,
+      folderPaneVisible: folderDisplayVisible,
+      message,
+      messagePaneVisible: messageDisplayVisible,
+    } = tab);
+  } else if (tab?.mode.name == "mailMessageTab") {
+    message = tab.message;
+    messageDisplayVisible = true;
+  } else if (tab?.folderDisplay) {
+    ({
+      isAccountCentralDisplayed: accountCentralDisplayed,
+      folderPaneVisible: folderDisplayVisible,
+      selectedMessage: message,
+    } = tab.folderDisplay);
+    messageDisplayVisible = tab.messageDisplay.visible;
+  } else if (!tab && gMessageDisplay) {
+    message = gMessageDisplay.displayedMessage;
+    messageDisplayVisible = true;
+  } else {
+    // TODO disable everything?
+  }
+
+  let isFeed = FeedUtils.isFeedMessage(message);
+
   let messagePaneMenuItem = document.getElementById("menu_showMessage");
   if (!messagePaneMenuItem.hidden) {
     // Hidden in the standalone msg window.
     messagePaneMenuItem.setAttribute(
       "checked",
-      accountCentralDisplayed ? false : gMessageDisplay.visible
+      accountCentralDisplayed ? false : messageDisplayVisible
     );
     messagePaneMenuItem.disabled = accountCentralDisplayed;
   }
@@ -255,7 +295,7 @@ function view_init() {
     // Hidden in the standalone msg window.
     messagePaneAppMenuItem.setAttribute(
       "checked",
-      accountCentralDisplayed ? false : gMessageDisplay.visible
+      accountCentralDisplayed ? false : messageDisplayVisible
     );
     messagePaneAppMenuItem.disabled = accountCentralDisplayed;
   }
@@ -263,19 +303,13 @@ function view_init() {
   let folderPaneMenuItem = document.getElementById("menu_showFolderPane");
   if (!folderPaneMenuItem.hidden) {
     // Hidden in the standalone msg window.
-    folderPaneMenuItem.setAttribute(
-      "checked",
-      gFolderDisplay.folderPaneVisible
-    );
+    folderPaneMenuItem.setAttribute("checked", folderDisplayVisible);
   }
 
   let folderPaneAppMenuItem = document.getElementById("appmenu_showFolderPane");
   if (!folderPaneAppMenuItem.hidden) {
     // Hidden in the standalone msg window.
-    folderPaneAppMenuItem.setAttribute(
-      "checked",
-      gFolderDisplay.folderPaneVisible
-    );
+    folderPaneAppMenuItem.setAttribute("checked", folderDisplayVisible);
   }
 
   let colsEnabled = Services.prefs.getBoolPref("mail.folderpane.showColumns");
@@ -379,7 +413,7 @@ function view_init() {
   document.commandDispatcher.updateCommands("create-menu-view");
 
   // Disable the charset item if there's nothing to enable
-  let disableCharsetItems = !gMessageDisplay.displayedMessage;
+  let disableCharsetItems = !message;
   document
     .getElementById("repair-text-encoding")
     .setAttribute("disabled", disableCharsetItems);
@@ -466,6 +500,12 @@ function InitViewLayoutStyleMenu(event, appmenu) {
  * Initialize (check) appropriate folder mode under the View | Folder menu.
  */
 function InitViewFolderViewsMenu(event) {
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    // TODO Folder views not supported yet.
+    return;
+  }
+
   for (let mode of gFolderTreeView.activeModes) {
     let selected = event.target.querySelector(`[value=${mode}]`);
     if (selected) {
@@ -508,7 +548,19 @@ function setSortByMenuItemCheckState(id, value) {
  * be up-to-date.
  */
 function InitViewSortByMenu() {
-  var sortType = gFolderDisplay.view.primarySortType;
+  let sortType, sortOrder, grouped, threaded;
+
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (tab?.mode.name == "mail3PaneTab") {
+    ({ type: sortType, order: sortOrder, grouped, threaded } = tab.sort);
+  } else if (tab?.mode.tabType.name == "mail") {
+    ({
+      primarySortType: sortType,
+      primarySortOrder: sortOrder,
+      showGroupedBySort: grouped,
+      showThreaded: threaded,
+    } = tab.folderDisplay.view);
+  }
 
   setSortByMenuItemCheckState(
     "sortByDateMenuitem",
@@ -571,7 +623,6 @@ function InitViewSortByMenu() {
     sortType == Ci.nsMsgViewSortType.byCorrespondent
   );
 
-  var sortOrder = gFolderDisplay.view.primarySortOrder;
   var sortTypeSupportsGrouping = isSortTypeValidForGrouping(sortType);
 
   setSortByMenuItemCheckState(
@@ -583,8 +634,6 @@ function InitViewSortByMenu() {
     sortOrder == Ci.nsMsgViewSortOrder.descending
   );
 
-  var grouped = gFolderDisplay.view.showGroupedBySort;
-  var threaded = gFolderDisplay.view.showThreaded;
   var sortThreadedMenuItem = document.getElementById("sortThreaded");
   var sortUnthreadedMenuItem = document.getElementById("sortUnthreaded");
 
@@ -598,7 +647,19 @@ function InitViewSortByMenu() {
 }
 
 function InitAppViewSortByMenu() {
-  let sortType = gFolderDisplay.view.primarySortType;
+  let sortType, sortOrder, grouped, threaded;
+
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (tab?.mode.name == "mail3PaneTab") {
+    ({ type: sortType, order: sortOrder, grouped, threaded } = tab.sort);
+  } else if (tab?.mode.tabType.name == "mail") {
+    ({
+      primarySortType: sortType,
+      primarySortOrder: sortOrder,
+      showGroupedBySort: grouped,
+      showThreaded: threaded,
+    } = tab.folderDisplay.view);
+  }
 
   setSortByMenuItemCheckState(
     "appmenu_sortByDateMenuitem",
@@ -657,7 +718,6 @@ function InitAppViewSortByMenu() {
     sortType == Ci.nsMsgViewSortType.byAttachments
   );
 
-  let sortOrder = gFolderDisplay.view.primarySortOrder;
   let sortTypeSupportsGrouping = isSortTypeValidForGrouping(sortType);
 
   setSortByMenuItemCheckState(
@@ -669,8 +729,6 @@ function InitAppViewSortByMenu() {
     sortOrder == Ci.nsMsgViewSortOrder.descending
   );
 
-  let grouped = gFolderDisplay.view.showGroupedBySort;
-  let threaded = gFolderDisplay.view.showThreaded;
   let sortThreadedMenuItem = document.getElementById("appmenu_sortThreaded");
   let sortUnthreadedMenuItem = document.getElementById(
     "appmenu_sortUnthreaded"
@@ -705,31 +763,33 @@ function isSortTypeValidForGrouping(sortType) {
 }
 
 function InitViewMessagesMenu() {
+  let view;
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    view = tab.browser.contentWindow.gViewWrapper;
+  } else if (tab?.mode.tabType.name == "mail") {
+    view = tab.folderDisplay.view;
+  }
+
   document
     .getElementById("viewAllMessagesMenuItem")
-    .setAttribute(
-      "checked",
-      !gFolderDisplay.view.showUnreadOnly && !gFolderDisplay.view.specialView
-    );
+    .setAttribute("checked", !view.showUnreadOnly && !view.specialView);
 
   document
     .getElementById("viewUnreadMessagesMenuItem")
-    .setAttribute("checked", gFolderDisplay.view.showUnreadOnly);
+    .setAttribute("checked", view.showUnreadOnly);
 
   document
     .getElementById("viewThreadsWithUnreadMenuItem")
-    .setAttribute("checked", gFolderDisplay.view.specialViewThreadsWithUnread);
+    .setAttribute("checked", view.specialViewThreadsWithUnread);
 
   document
     .getElementById("viewWatchedThreadsWithUnreadMenuItem")
-    .setAttribute(
-      "checked",
-      gFolderDisplay.view.specialViewWatchedThreadsWithUnread
-    );
+    .setAttribute("checked", view.specialViewWatchedThreadsWithUnread);
 
   document
     .getElementById("viewIgnoredThreadsMenuItem")
-    .setAttribute("checked", gFolderDisplay.view.showIgnored);
+    .setAttribute("checked", view.showIgnored);
 }
 
 function InitAppmenuViewMessagesMenu() {
@@ -761,9 +821,18 @@ function InitAppmenuViewMessagesMenu() {
 }
 
 function InitMessageMenu() {
-  var selectedMsg = gFolderDisplay.selectedMessage;
-  var isNews = gFolderDisplay.selectedMessageIsNews;
-  var isFeed = gFolderDisplay.selectedMessageIsFeed;
+  let selectedMsg;
+
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    selectedMsg = tab.message;
+  } else if (tab?.mode.tabType.name == "mail") {
+    selectedMsg = tab.folderDisplay.selectedMessage;
+  }
+
+  let isNews = selectedMsg?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup;
+  let isFeed = selectedMsg && FeedUtils.isFeedMessage(selectedMsg);
+  let isDummy = selectedMsg?.folder == null;
 
   // We show reply to Newsgroups only for news messages.
   document.getElementById("replyNewsgroupMainMenu").hidden = !isNews;
@@ -776,16 +845,16 @@ function InitMessageMenu() {
 
   // Disable the move and copy menus if there are no messages selected or if
   // the message is a dummy - e.g. opening a message in the standalone window.
-  let messageStoredInternally = selectedMsg && !gMessageDisplay.isDummy;
+  let messageStoredInternally = selectedMsg && !isDummy;
   // Disable the move menu if we can't delete msgs from the folder.
   let canMove =
-    messageStoredInternally && gFolderDisplay.canDeleteSelectedMessages;
+    messageStoredInternally && !isNews && selectedMsg.folder.canDeleteMessages;
+
   document.getElementById("moveMenu").disabled = !canMove;
 
   // Also disable copy when no folder is loaded (like for .eml files).
   let canCopy =
-    selectedMsg &&
-    (!gMessageDisplay.isDummy || window.arguments[0].scheme == "file");
+    selectedMsg && (!isDummy || window.arguments[0].scheme == "file");
   document.getElementById("copyMenu").disabled = !canCopy;
 
   initMoveToFolderAgainMenu(document.getElementById("moveToFolderAgain"));
@@ -825,7 +894,7 @@ function InitMessageMenu() {
   }
 
   // Disable mark menu when we're not in a folder.
-  document.getElementById("markMenu").disabled = gMessageDisplay.isDummy;
+  document.getElementById("markMenu").disabled = isDummy;
 
   document.commandDispatcher.updateCommands("create-menu-message");
 }
@@ -921,12 +990,17 @@ function InitAppMessageMenu() {
  * aFolderFlag  the nsMsgFolderFlag that the folder must have to show the command
  */
 function showCommandInSpecialFolder(aCommandIds, aFolderFlag) {
-  let msg = gFolderDisplay.selectedMessage;
-  let folder = gFolderDisplay.displayedFolder;
+  let folder, message;
+
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    ({ message, folder } = tab);
+  } else if (tab?.mode.tabType.name == "mail") {
+    ({ displayedFolder: folder, selectedMessage: message } = tab.folderDisplay);
+  }
+
   let inSpecialFolder =
-    (msg &&
-    msg.folder && // Check folder as messages opened from file have none.
-      msg.folder.isSpecialFolder(aFolderFlag, true)) ||
+    message?.folder?.isSpecialFolder(aFolderFlag, true) ||
     (folder && folder.getFlag(aFolderFlag));
   if (typeof aCommandIds === "string") {
     aCommandIds = [aCommandIds];
@@ -991,12 +1065,20 @@ function AdjustHeaderView(headermode) {
 }
 
 function InitViewBodyMenu() {
+  let message;
+
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    message = tab.message;
+  } else if (tab?.mode.tabType.name == "mail") {
+    message = tab.folderDisplay.selectedMessage;
+  }
+
   // Separate render prefs not implemented for feeds, bug 458606.  Show the
   // checked item for feeds as for the regular pref.
   //  let html_as = Services.prefs.getIntPref("rss.display.html_as");
   //  let prefer_plaintext = Services.prefs.getBoolPref("rss.display.prefer_plaintext");
   //  let disallow_classes = Services.prefs.getIntPref("rss.display.disallow_mime_handlers");
-
   let html_as = Services.prefs.getIntPref("mailnews.display.html_as");
   let prefer_plaintext = Services.prefs.getBoolPref(
     "mailnews.display.prefer_plaintext"
@@ -1004,7 +1086,7 @@ function InitViewBodyMenu() {
   let disallow_classes = Services.prefs.getIntPref(
     "mailnews.display.disallow_mime_handlers"
   );
-  let isFeed = gFolderDisplay.selectedMessageIsFeed;
+  let isFeed = FeedUtils.isFeedMessage(message);
   const defaultIDs = [
     "bodyAllowHTML",
     "bodySanitized",
@@ -1396,6 +1478,15 @@ function SetMessageTagLabel(menuitem, index, name) {
  * @param {string} [classes]        Classes to set on the menu items.
  */
 function InitMessageTags(parent, elementName = "menuitem", classes) {
+  let message;
+
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    message = tab.message;
+  } else if (tab?.mode.tabType.name == "mail") {
+    message = tab.folderDisplay.selectedMessage;
+  }
+
   const tagArray = MailServices.tags.getAllTags();
   const elementNameUpperCase = elementName.toUpperCase();
 
@@ -1419,9 +1510,8 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   );
 
   // Rebuild the list.
-  const msgHdr = gFolderDisplay.selectedMessage;
-  const suffix = msgHdr.label ? " $label" + msgHdr.label : "";
-  const curKeys = msgHdr.getStringProperty("keywords") + suffix;
+  const suffix = message.label ? " $label" + message.label : "";
+  const curKeys = message.getStringProperty("keywords") + suffix;
 
   tagArray.forEach((tagInfo, index) => {
     const removeKey = ` ${curKeys} `.includes(` ${tagInfo.key} `);
@@ -1914,8 +2004,16 @@ function SelectedMessagesAreRead() {
 }
 
 function SelectedMessagesAreFlagged() {
-  let firstSelectedMessage = gFolderDisplay.selectedMessage;
-  return firstSelectedMessage && firstSelectedMessage.isFlagged;
+  let message;
+
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
+    message = tab.message;
+  } else if (tab?.mode.tabType.name == "mail") {
+    message = tab.folderDisplay.selectedMessage;
+  }
+
+  return message?.isFlagged;
 }
 
 function GetFirstSelectedMsgFolder() {

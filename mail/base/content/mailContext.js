@@ -246,7 +246,7 @@ var mailContextMenu = {
     }
 
     let message = gDBView.hdrForFirstSelectedMessage;
-    let folder = message?.folder;
+    let folder = gViewWrapper.displayedFolder;
     let numSelectedMessages = gDBView.numSelected;
     let isNewsgroup = gFolder.flags & Ci.nsMsgFolderFlags.Newsgroup;
     let canMove =

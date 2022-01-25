@@ -874,6 +874,9 @@ var newMailTabType = {
         );
 
         tab.folderURI = args.folderURI;
+        tab.__defineGetter__("accountCentralVisible", () =>
+          tab.browser.contentDocument.body.classList.contains("account-central")
+        );
         tab.__defineGetter__(
           "folderPaneVisible",
           () => !tab.browser.contentWindow.splitter1.isCollapsed
@@ -896,10 +899,16 @@ var newMailTabType = {
             threaded: tab.browser.contentWindow.gViewWrapper.showThreaded,
           };
         });
+
         tab.__defineGetter__(
           "message",
           () => tab.browser.contentWindow.gDBView?.hdrForFirstSelectedMessage
         );
+        tab.__defineGetter__(
+          "folder",
+          () => tab.browser.contentWindow.gViewWrapper?.displayedFolder
+        );
+
         // The same as `doCommand` but with an extra argument.
         tab.performCommand = function(command, event) {
           let commandController = tab.browser?.contentWindow.commandController;
@@ -971,6 +980,11 @@ var newMailTabType = {
           "message",
           () => tab.browser.contentWindow.gMessage
         );
+        tab.__defineGetter__(
+          "folder",
+          () => tab.browser.contentWindow.gViewWrapper?.displayedFolder
+        );
+
         // The same as `doCommand` but with an extra argument.
         tab.performCommand = function(command, event) {
           let commandController = tab.browser?.contentWindow.commandController;
