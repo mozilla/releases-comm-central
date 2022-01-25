@@ -23,6 +23,7 @@ reference-jobs:
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
     - linux64-clang-tidy
+    - linux64-clang-toolchain
     - linux64-clang-win-cross
     - linux64-dump_syms
     - linux64-fix-stacks
@@ -56,6 +57,7 @@ reference-jobs:
     - macosx64-x64-compiler-rt-13
     - macosx64-clang-13
     - macosx64-clang-13-raw
+    - macosx64-clang-toolchain
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
@@ -73,6 +75,7 @@ reference-jobs:
     - win64-cbindgen
     - win64-clang
     - win64-clang-13-2stage
+    - win64-clang-toolchain
     - win64-dump_syms
     - win64-llvm-symbolizer
     - win64-mozmake
