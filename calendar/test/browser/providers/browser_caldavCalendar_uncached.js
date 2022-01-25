@@ -16,9 +16,6 @@ let calendar;
 add_task(async function setUp() {
   calendarObserver._onLoadPromise = PromiseUtils.defer();
   calendar = createCalendar("caldav", CalDAVServer.url, false);
-  // This calendar doesn't seem to wake up until something calls finalizeUpdatedItems.
-  // I'm not sure why that is, but for now just wake it up directly.
-  calendar.wrappedJSObject.finalizeUpdatedItems(null, calendar.wrappedJSObject.makeUri());
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");
 

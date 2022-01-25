@@ -545,6 +545,20 @@ var calprovider = {
     }
 
     /**
+     * Implementation of calICalendar.getItemsAsArray().
+     *
+     * @param {number} itemFilter
+     * @param {number} count
+     * @param {calIDateTime} rangeStart
+     * @param {calIDateTime} rangeEnd
+     *
+     * @return {calIItemBase[]}
+     */
+    async getItemsAsArray(itemFilter, count, rangeStart, rangeEnd) {
+      return cal.iterate.streamToArray(this.getItems(itemFilter, count, rangeStart, rangeEnd));
+    }
+
+    /**
      * Notifies the given listener for onOperationComplete, ignoring (but logging) any
      * exceptions that occur. If no listener is passed the function is a no-op.
      *

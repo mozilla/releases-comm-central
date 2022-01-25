@@ -168,7 +168,10 @@ var CalDAVServer = {
     let propNames = this._inputProps(input);
     let propValues = {
       "d:resourcetype": "<principal/>",
-      "c:calendar-home-set": "<href>/calendars/me/</href>",
+      "c:calendar-home-set": "<d:href>/calendars/me/</d:href>",
+      "c:calendar-user-address-set": `<d:href preferred="1">mailto:me@invalid</d:href>`,
+      "c:schedule-inbox-URL": "<d:href>/calendars/me/inbox/</d:href>",
+      "c:schedule-outbox-URL": "<d:href>/calendars/me/inbox/</d:href>",
     };
 
     response.setStatusLine("1.1", 207, "Multi-Status");
@@ -185,6 +188,12 @@ var CalDAVServer = {
 
   myCalendars(request, response) {
     if (!this.checkAuth(request, response)) {
+      return;
+    }
+
+    if (request.method == "OPTIONS") {
+      response.setStatusLine("1.1", 200, "OK");
+      response.setHeader("DAV", "1,2,3, calendar-access, calendar-schedule");
       return;
     }
 
@@ -296,14 +305,14 @@ var CalDAVServer = {
 
   propFind(input, depth, response) {
     let propNames = this._inputProps(input);
-
     let propValues = {
       "d:resourcetype": "<d:collection/><c:calendar/>",
       "d:owner": "/principals/me/",
-      "d:current-user-principal": "/principals/me/",
+      "d:current-user-principal": "<href>/principals/me/</href>",
       "d:current-user-privilege-set": "<d:privilege><d:all/></d:privilege>",
       "d:supported-report-set":
-        "<d:supported-report><d:report><c:calendar-multiget/></d:report></d:supported-report>",
+        "<d:supported-report><d:report><c:calendar-multiget/></d:report></d:supported-report>" +
+        "<d:supported-report><d:report><sync-collection/></d:report></d:supported-report>",
       "c:supported-calendar-component-set": "",
       "d:getcontenttype": "text/calendar; charset=utf-8",
       "c:calendar-home-set": `<d:href>/calendars/me/</d:href>`,

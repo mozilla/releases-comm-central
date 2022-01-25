@@ -204,26 +204,20 @@ function getItemIntervalString(aItem, aBoxDate) {
  * @param {boolean} notDueTasks - if true, include tasks with no due date
  * @returns {calIItemBase[]}
  */
-function getItems(startDate, endDate, filter, notDueTasks) {
+async function getItems(startDate, endDate, filter, notDueTasks) {
   let window = Services.wm.getMostRecentWindow("mail:3pane");
   let compositeCalendar = cal.view.getCompositeCalendar(window);
 
   let itemList = [];
-  return new Promise(resolve => {
-    let listener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onOperationComplete(calendar, status, operationType, id, dateTime) {
-        resolve(itemList);
-      },
-      onGetResult(calendar, status, itemType, detail, items) {
-        if (!notDueTasks) {
-          items = items.filter(i => !i.isTodo() || i.entryDate || i.dueDate);
-        }
-        itemList = itemList.concat(items);
-      },
-    };
-    compositeCalendar.getItems(filter, 0, startDate, endDate, listener);
-  });
+  for await (let items of cal.iterate.streamValues(
+    compositeCalendar.getItems(filter, 0, startDate, endDate)
+  )) {
+    if (!notDueTasks) {
+      items = items.filter(i => !i.isTodo() || i.entryDate || i.dueDate);
+    }
+    itemList = itemList.concat(items);
+  }
+  return itemList;
 }
 
 /**

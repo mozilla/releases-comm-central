@@ -6,10 +6,13 @@ var EXPORTED_SYMBOLS = ["CalCompositeCalendar"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+var { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
+
 /**
  * Calendar specific utility functions
  */
-var calIOperationListener = Ci.calIOperationListener;
 
 function calCompositeCalendarObserverHelper(compCalendar) {
   this.compCalendar = compCalendar;
@@ -338,33 +341,66 @@ CalCompositeCalendar.prototype = {
     return null;
   },
 
-  // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
-  //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
-  //                in calIOperationListener aListener );
-  getItems(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-    // If there are no calendars, then we just call onOperationComplete
+  // ReadableStream<calItemBase> getItems(in unsigned long itemFilter,
+  //                                      in unsigned long count,
+  //                                      in calIDateTime rangeStart,
+  //                                      in calIDateTime rangeEnd)
+  getItems(itemFilter, count, rangeStart, rangeEnd) {
+    // If there are no calendars return early.
     let enabledCalendars = this.enabledCalendars;
     if (enabledCalendars.length == 0) {
-      aListener.onOperationComplete(this, Cr.NS_OK, calIOperationListener.GET, null, null);
-      return null;
+      return CalReadableStreamFactory.createEmptyReadableStream();
     }
     if (this.mStatusObserver) {
       if (this.mStatusObserver.spinning == Ci.calIStatusObserver.NO_PROGRESS) {
         this.mStatusObserver.startMeteors(Ci.calIStatusObserver.UNDETERMINED_PROGRESS, -1);
       }
     }
-    let cmpListener = new calCompositeGetListenerHelper(this, aListener, aCount);
 
-    for (let calendar of enabledCalendars) {
-      try {
-        cmpListener.opGroup.add(
-          calendar.getItems(aItemFilter, aCount, aRangeStart, aRangeEnd, cmpListener)
-        );
-      } catch (exc) {
-        cal.ASSERT(false, exc);
+    let compositeCal = this;
+    return CalReadableStreamFactory.createBoundedReadableStream(
+      count,
+      CalReadableStreamFactory.defaultQueueSize,
+      {
+        iterators: [],
+        async start(controller) {
+          for (let calendar of enabledCalendars) {
+            let iterator = cal.iterate.streamValues(
+              calendar.getItems(itemFilter, count, rangeStart, rangeEnd)
+            );
+            this.iterators.push(iterator);
+            for await (let items of iterator) {
+              controller.enqueue(items);
+            }
+
+            if (compositeCal.statusDisplayed) {
+              compositeCal.mStatusObserver.calendarCompleted(calendar);
+            }
+          }
+          if (compositeCal.statusDisplayed) {
+            compositeCal.mStatusObserver.stopMeteors();
+          }
+          controller.close();
+        },
+
+        async cancel(reason) {
+          for (let iterator of this.iterators) {
+            await iterator.cancel(reason);
+          }
+          if (compositeCal.statusDisplayed) {
+            compositeCal.mStatusObserver.stopMeteors();
+          }
+        },
       }
-    }
-    return cmpListener.opGroup;
+    );
+  },
+
+  // Promise<calItemBase[]> getItemsAsArray(in unsigned long itemFilter,
+  //                                        in unsigned long count,
+  //                                        in calIDateTime rangeStart,
+  //                                        in calIDateTime rangeEnd)
+  async getItemsAsArray(itemFilter, count, rangeStart, rangeEnd) {
+    return cal.iterate.streamToArray(this.getItems(itemFilter, count, rangeStart, rangeEnd));
   },
 
   startBatch() {
@@ -386,111 +422,5 @@ CalCompositeCalendar.prototype = {
     if (this.mStatusObserver) {
       this.mStatusObserver.initialize(aWindow);
     }
-  },
-};
-
-// composite listener helper
-function calCompositeGetListenerHelper(aCompositeCalendar, aRealListener, aMaxItems) {
-  this.wrappedJSObject = this;
-  this.mCompositeCalendar = aCompositeCalendar;
-  this.mNumQueries = aCompositeCalendar.enabledCalendars.length;
-  this.mRealListener = aRealListener;
-  this.mMaxItems = aMaxItems;
-}
-
-calCompositeGetListenerHelper.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-
-  mNumQueries: 0,
-  mRealListener: null,
-  mOpGroup: null,
-  mReceivedCompletes: 0,
-  mFinished: false,
-  mMaxItems: 0,
-  mItemsReceived: 0,
-
-  get opGroup() {
-    if (!this.mOpGroup) {
-      this.mOpGroup = new cal.data.OperationGroup(() => {
-        let listener = this.mRealListener;
-        this.mRealListener = null;
-        if (listener) {
-          listener.onOperationComplete(
-            this,
-            Ci.calIErrors.OPERATION_CANCELLED,
-            calIOperationListener.GET,
-            null,
-            null
-          );
-          if (this.mCompositeCalendar.statusDisplayed) {
-            this.mCompositeCalendar.mStatusObserver.stopMeteors();
-          }
-        }
-      });
-    }
-    return this.mOpGroup;
-  },
-
-  onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-    if (!this.mRealListener) {
-      // has been cancelled, ignore any providers firing on this...
-      return;
-    }
-    if (this.mFinished) {
-      dump("+++ calCompositeGetListenerHelper.onOperationComplete: called with mFinished == true!");
-      return;
-    }
-    if (this.mCompositeCalendar.statusDisplayed) {
-      this.mCompositeCalendar.mStatusObserver.calendarCompleted(aCalendar);
-    }
-    if (!Components.isSuccessCode(aStatus)) {
-      // proxy this to a onGetResult
-      // XXX - do we want to give the real calendar? or this?
-      // XXX - get rid of iid param
-      this.mRealListener.onGetResult(aCalendar, aStatus, Ci.nsISupports, aDetail, []);
-    }
-
-    this.mReceivedCompletes++;
-    if (this.mReceivedCompletes == this.mNumQueries) {
-      if (this.mCompositeCalendar.statusDisplayed) {
-        this.mCompositeCalendar.mStatusObserver.stopMeteors();
-      }
-      // we're done here.
-      this.mFinished = true;
-      this.opGroup.notifyCompleted();
-      this.mRealListener.onOperationComplete(this, aStatus, calIOperationListener.GET, null, null);
-    }
-  },
-
-  onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-    if (!this.mRealListener) {
-      // has been cancelled, ignore any providers firing on this...
-      return;
-    }
-    if (this.mFinished) {
-      dump("+++ calCompositeGetListenerHelper.onGetResult: called with mFinished == true!");
-      return;
-    }
-
-    // ignore if we have a max and we're past it
-    if (this.mMaxItems && this.mItemsReceived >= this.mMaxItems) {
-      return;
-    }
-
-    let itemsCount = aItems.length;
-
-    if (
-      Components.isSuccessCode(aStatus) &&
-      this.mMaxItems &&
-      this.mItemsReceived + itemsCount > this.mMaxItems
-    ) {
-      // this will blow past the limit
-      itemsCount = this.mMaxItems - this.mItemsReceived;
-      aItems = aItems.slice(0, itemsCount);
-    }
-
-    // send GetResults to the real listener
-    this.mRealListener.onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems);
-    this.mItemsReceived += itemsCount;
   },
 };

@@ -7,6 +7,9 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
 
 /**
  * Object that contains a set of filter properties that may be used by a calFilter object
@@ -900,45 +903,15 @@ calFilter.prototype = {
 
   /**
    * Gets the items matching the currently applied filter properties from a calendar.
-   * This function is asynchronous, and returns results to a calIOperationListener object.
    *
-   * @param aCalendar           The calendar to get items from.
-   * @param aListener           The calIOperationListener object to return results to.
-   * @return                    the calIOperation handle to track the operation.
+   * @param {calICalendar} aCalendar           The calendar to get items from.
+   * @return {ReadableStream<calIItemBase>}    A stream of returned values.
    */
-  getItems(aCalendar, aListener) {
+  getItems(aCalendar) {
     if (!this.mFilterProperties) {
-      return null;
+      return CalReadableStreamFactory.createEmptyReadableStream();
     }
     let props = this.mFilterProperties;
-
-    // we use a local proxy listener for the calICalendar.getItems() call, and use it
-    // to handle occurrence expansion and filter the results before forwarding them to
-    // the listener passed in the aListener argument.
-    let self = this;
-    let listener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onOperationComplete: aListener.onOperationComplete.bind(aListener),
-
-      onGetResult(aOpCalendar, aStatus, aOpItemType, aDetail, aItems) {
-        let items;
-        if (props.occurrences == props.FILTER_OCCURRENCES_PAST_AND_NEXT) {
-          // with the FILTER_OCCURRENCES_PAST_AND_NEXT occurrence filter we will
-          // get parent items returned here, so we need to let the getOccurrences
-          // function handle occurrence expansion.
-          items = [];
-          for (let item of aItems) {
-            items = items.concat(self.getOccurrences(item));
-          }
-        } else {
-          // with other occurrence filters the calICalendar.getItems() function will
-          // return expanded occurrences appropriately, we only need to filter them.
-          items = self.filterItems(aItems);
-        }
-
-        aListener.onGetResult(aOpCalendar, aStatus, aOpItemType, aDetail, items);
-      },
-    };
 
     // build the filter argument for calICalendar.getItems() from the filter properties
     let filter = this.mItemType;
@@ -969,7 +942,29 @@ calFilter.prototype = {
       endDate = endDate || cal.dtz.now();
     }
 
-    return aCalendar.getItems(filter, 0, startDate, endDate, listener);
+    // We use a local ReadableStream for the calICalendar.getItems() call, and use it
+    // to handle occurrence expansion and filter the results before forwarding them
+    // upstream.
+    return CalReadableStreamFactory.createMappedReadableStream(
+      aCalendar.getItems(filter, 0, startDate, endDate),
+      chunk => {
+        let items;
+        if (props.occurrences == props.FILTER_OCCURRENCES_PAST_AND_NEXT) {
+          // with the FILTER_OCCURRENCES_PAST_AND_NEXT occurrence filter we will
+          // get parent items returned here, so we need to let the getOccurrences
+          // function handle occurrence expansion.
+          items = [];
+          for (let item of chunk) {
+            items = items.concat(this.getOccurrences(item));
+          }
+        } else {
+          // with other occurrence filters the calICalendar.getItems() function will
+          // return expanded occurrences appropriately, we only need to filter them.
+          items = this.filterItems(chunk);
+        }
+        return items;
+      }
+    );
   },
 };
 
@@ -1091,28 +1086,11 @@ let CalFilterMixin = Base =>
      */
     async _refreshCalendar(calendar) {
       if (!this._isCalendarVisible(calendar)) {
-        return Promise.resolve();
+        return;
       }
-
-      let deferred = PromiseUtils.defer();
-
-      let listener = {
-        onGetResult: (calendar, status, itemType, detail, items) => {
-          if (items.length) {
-            this.addItems(items);
-          }
-        },
-        onOperationComplete: (calendar, status, operationType, id, detail) => {
-          if (Components.isSuccessCode(status)) {
-            deferred.resolve();
-          } else {
-            deferred.reject(new Components.Exception(detail, status));
-          }
-        },
-      };
-      this._filter.getItems(calendar, listener);
-
-      return deferred.promise;
+      for await (let chunk of cal.iterate.streamValues(this._filter.getItems(calendar))) {
+        this.addItems(chunk);
+      }
     }
 
     /**

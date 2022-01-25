@@ -267,8 +267,7 @@ add_task(async () => {
   await dialogWindowPromise;
 
   // Check that the items were actually successfully imported.
-  let promiseCalendar = cal.async.promisifyCalendar(calendar);
-  let result = await promiseCalendar.getItems(
+  let result = await calendar.getItemsAsArray(
     Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
     0,
     cal.createDateTime("20190101T000000"),
@@ -279,6 +278,6 @@ add_task(async () => {
   await CalendarTestUtils.monthView.waitForItemAt(window, 1, 3, 4);
 
   for (let item of result) {
-    await promiseCalendar.deleteItem(item);
+    await calendar.deleteItem(item);
   }
 });

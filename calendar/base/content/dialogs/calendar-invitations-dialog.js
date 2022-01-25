@@ -214,63 +214,55 @@ window.addEventListener("unload", onUnload);
  * Sets up the invitations dialog from the window arguments, retrieves the
  * invitations from the invitations manager.
  */
-function onLoad() {
+async function onLoad() {
   let title = document.title;
-  let operationListener = {
-    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-    onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-      let updatingBox = document.getElementById("updating-box");
-      updatingBox.setAttribute("hidden", "true");
-      let richListBox = document.getElementById("invitations-listbox");
-      if (richListBox.getRowCount() > 0) {
-        richListBox.selectedIndex = 0;
-      } else {
-        let noInvitationsBox = document.getElementById("noinvitations-box");
-        noInvitationsBox.removeAttribute("hidden");
-      }
-    },
-    onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-      if (!Components.isSuccessCode(aStatus)) {
-        return;
-      }
-      document.title = title + " (" + aItems.length + ")";
-      let updatingBox = document.getElementById("updating-box");
-      updatingBox.setAttribute("hidden", "true");
-      let richListBox = document.getElementById("invitations-listbox");
-      for (let item of aItems) {
-        let newNode = document.createXULElement("richlistitem", {
-          is: "calendar-invitations-richlistitem",
-        });
-        richListBox.appendChild(newNode);
-        newNode.calendarItem = item;
-      }
-    },
-  };
-
   let updatingBox = document.getElementById("updating-box");
   updatingBox.removeAttribute("hidden");
-
-  let args = window.arguments[0];
-  args.invitationsManager.getInvitations(operationListener, args.onLoadOperationListener);
-
   opener.setCursor("auto");
+
+  let { invitationsManager } = window.arguments[0];
+  let items = await cal.iterate.mapStream(invitationsManager.getInvitations(), chunk => {
+    document.title = title + " (" + chunk.length + ")";
+    let updatingBox = document.getElementById("updating-box");
+    updatingBox.setAttribute("hidden", "true");
+    let richListBox = document.getElementById("invitations-listbox");
+    for (let item of chunk) {
+      let newNode = document.createXULElement("richlistitem", {
+        is: "calendar-invitations-richlistitem",
+      });
+      richListBox.appendChild(newNode);
+      newNode.calendarItem = item;
+    }
+  });
+
+  invitationsManager.toggleInvitationsPanel(items);
+  updatingBox.setAttribute("hidden", "true");
+
+  let richListBox = document.getElementById("invitations-listbox");
+  if (richListBox.getRowCount() > 0) {
+    richListBox.selectedIndex = 0;
+  } else {
+    let noInvitationsBox = document.getElementById("noinvitations-box");
+    noInvitationsBox.removeAttribute("hidden");
+  }
 }
 
 /**
  * Cleans up the invitations dialog, cancels pending requests.
  */
-function onUnload() {
+async function onUnload() {
   let args = window.arguments[0];
-  args.requestManager.cancelPendingRequests();
+  return args.InvitationsManager.cancelPendingRequests();
 }
 
 /**
  * Handler function to be called when the accept button is pressed.
  */
-document.addEventListener("dialogaccept", () => {
+document.addEventListener("dialogaccept", async () => {
   let args = window.arguments[0];
   fillJobQueue(args.queue);
-  args.invitationsManager.processJobQueue(args.queue, args.finishedCallBack);
+  await args.invitationsManager.processJobQueue(args.queue);
+  args.finishedCallBack();
 });
 
 /**
@@ -278,9 +270,7 @@ document.addEventListener("dialogaccept", () => {
  */
 document.addEventListener("dialogcancel", () => {
   let args = window.arguments[0];
-  if (args.finishedCallBack) {
-    args.finishedCallBack();
-  }
+  args.finishedCallBack();
 });
 
 /**

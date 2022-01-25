@@ -549,20 +549,7 @@ function editSelectedEvents() {
 /**
  * Select all events from all calendars. Use with care.
  */
-function selectAllEvents() {
-  let items = [];
-  let listener = {
-    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-    onOperationComplete(calendar, status, operationType, id, detail) {
-      currentView().setSelectedItems(items, false);
-    },
-    onGetResult(calendar, status, itemType, detail, itemsArg) {
-      for (let item of itemsArg) {
-        items.push(item);
-      }
-    },
-  };
-
+async function selectAllEvents() {
   let composite = cal.view.getCompositeCalendar(window);
   let filter = composite.ITEM_FILTER_CLASS_OCCURRENCES;
 
@@ -581,7 +568,8 @@ function selectAllEvents() {
   let end = currentView().endDay.clone();
   end.day += 1;
 
-  composite.getItems(filter, 0, currentView().startDay, end, listener);
+  let items = await composite.getItemsAsArray(filter, 0, currentView().startDay, end);
+  currentView().setSelectedItems(items, false);
 }
 
 var calendarNavigationBar = {

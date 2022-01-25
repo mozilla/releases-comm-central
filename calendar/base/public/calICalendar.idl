@@ -401,24 +401,29 @@ interface calICalendar : nsISupports
    *                    of time".
    * @param aRangeEndEx Items starting before (not including) aRangeEndEx should be
    *                    returned.  If null, assume "until the end of time".
-   * @param aListener   The results will be called back through this interface.
-   * @return            optional operation handle to track the operation
-   *
-   *
-   * The results of the operation are reported through the listener,
-   * via zero or more onGetResult calls followed by an onOperationComplete.
-   *
-   * The parameters to onOperationComplete will be:
-   *
-   * - aOperationType: calIOperationListener::GET
-   * - aId: null
-   * - aDetail: null
+   * @return {ReadableStream<calIItemBase>}
    */
-  calIOperation getItems(in unsigned long aItemFilter,
-                         in unsigned long aCount,
-                         in calIDateTime aRangeStart,
-                         in calIDateTime aRangeEndEx,
-                         in calIOperationListener aListener);
+   jsval getItems(in unsigned long aItemFilter,
+                  in unsigned long aCount,
+                  in calIDateTime aRangeStart,
+                  in calIDateTime aRangeEndEx);
+
+  /**
+   * Similar to getItems() but returns all results in a single array.
+   * @param aItemFilter ITEM_FILTER flags, or-ed together
+   * @param aCount      Maximum number of items to return, or 0 for
+   *                    an unbounded query.
+   * @param aRangeStart Items starting at this time or after should be
+   *                    returned.  If invalid, assume "since the beginning
+   *                    of time".
+   * @param aRangeEndEx Items starting before (not including) aRangeEndEx should be
+   *                    returned.  If null, assume "until the end of time".
+   * @return {Promise<calIItemBase[]>}
+   */
+  Promise getItemsAsArray(in unsigned long aItemFilter,
+                          in unsigned long aCount,
+                          in calIDateTime aRangeStart,
+                          in calIDateTime aRangeEndEx);
 
   /**
    * Refresh the datasource, and call the observers for any changes found.

@@ -471,45 +471,39 @@
         items: null,
         operation: null,
 
-        onOperationComplete(opCalendar, status, operationType, id, dateTime) {
-          if (!this.tree.mTreeView.tree) {
-            // Looks like we've been disconnected from the DOM, there's no point in continuing.
-            return;
-          }
-
-          if (opCalendar.id in this.tree.mPendingRefreshJobs) {
-            delete this.tree.mPendingRefreshJobs[opCalendar.id];
-          }
-
-          let oldItems = this.tree.mTaskArray.filter(item => item.calendar.id == opCalendar.id);
-          this.tree.mTreeView.modifyItems(this.items, oldItems);
-          this.tree.dispatchEvent(new CustomEvent("refresh", { bubbles: false }));
-        },
-
-        onGetResult(opCalendar, status, itemType, detail, items) {
-          this.items = this.items.concat(items);
-        },
-
-        cancel() {
-          if (this.operation && this.operation.isPending) {
-            this.operation.cancel();
+        async cancel() {
+          if (this.operation) {
+            await this.operation.cancel();
             this.operation = null;
             this.items = [];
           }
         },
 
-        execute() {
+        async execute() {
           if (calendar.id in this.tree.mPendingRefreshJobs) {
             this.tree.mPendingRefreshJobs[calendar.id].cancel();
           }
           this.calendar = calendar;
           this.items = [];
+          this.tree.mPendingRefreshJobs[calendar.id] = this;
+          this.operation = cal.iterate.streamValues(this.tree.mFilter.getItems(calendar));
 
-          let operation = this.tree.mFilter.getItems(calendar, this);
-          if (operation && operation.isPending) {
-            this.operation = operation;
-            this.tree.mPendingRefreshJobs[calendar.id] = this;
+          for await (let items of this.operation) {
+            this.items = this.items.concat(items);
           }
+
+          if (!this.tree.mTreeView.tree) {
+            // Looks like we've been disconnected from the DOM, there's no point in continuing.
+            return;
+          }
+
+          if (calendar.id in this.tree.mPendingRefreshJobs) {
+            delete this.tree.mPendingRefreshJobs[calendar.id];
+          }
+
+          let oldItems = this.tree.mTaskArray.filter(item => item.calendar.id == calendar.id);
+          this.tree.mTreeView.modifyItems(this.items, oldItems);
+          this.tree.dispatchEvent(new CustomEvent("refresh", { bubbles: false }));
         },
       };
 

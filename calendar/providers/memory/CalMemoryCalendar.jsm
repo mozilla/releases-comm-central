@@ -6,6 +6,10 @@ var EXPORTED_SYMBOLS = ["CalMemoryCalendar"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+var { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
+
 var cICL = Ci.calIChangeLog;
 
 function CalMemoryCalendar() {
@@ -321,19 +325,11 @@ CalMemoryCalendar.prototype = {
     return this.mItems[aId] || null;
   },
 
-  // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
-  //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
-  //                in calIOperationListener aListener );
-  getItems(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-    cal.postPone(() => {
-      this.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
-    });
-  },
-  getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-    if (!aListener) {
-      return;
-    }
-
+  // ReadableStream<calIItemBase> getItems(in unsigned long itemFilter,
+  //                                       in unsigned long count,
+  //                                       in calIDateTime rangeStart,
+  //                                       in calIDateTime rangeEnd)
+  getItems(itemFilter, count, rangeStart, rangeEnd) {
     const calICalendar = Ci.calICalendar;
 
     let itemsFound = [];
@@ -343,7 +339,7 @@ CalMemoryCalendar.prototype = {
     //
 
     let wantUnrespondedInvitations =
-      (aItemFilter & calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0;
+      (itemFilter & calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0;
     let superCal;
     try {
       superCal = this.superCalendar.QueryInterface(Ci.calISchedulingSupport);
@@ -356,56 +352,37 @@ CalMemoryCalendar.prototype = {
     }
 
     // item base type
-    let wantEvents = (aItemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) != 0;
-    let wantTodos = (aItemFilter & calICalendar.ITEM_FILTER_TYPE_TODO) != 0;
+    let wantEvents = (itemFilter & calICalendar.ITEM_FILTER_TYPE_EVENT) != 0;
+    let wantTodos = (itemFilter & calICalendar.ITEM_FILTER_TYPE_TODO) != 0;
     if (!wantEvents && !wantTodos) {
       // bail.
-      this.notifyOperationComplete(
-        aListener,
-        Cr.NS_ERROR_FAILURE,
-        Ci.calIOperationListener.GET,
-        null,
-        "Bad aItemFilter passed to getItems"
-      );
-      return;
+      return CalReadableStreamFactory.createEmptyReadableStream();
     }
 
     // completed?
-    let itemCompletedFilter = (aItemFilter & calICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
-    let itemNotCompletedFilter = (aItemFilter & calICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
+    let itemCompletedFilter = (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
+    let itemNotCompletedFilter = (itemFilter & calICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
     function checkCompleted(item) {
       item.QueryInterface(Ci.calITodo);
       return item.isCompleted ? itemCompletedFilter : itemNotCompletedFilter;
     }
 
     // return occurrences?
-    let itemReturnOccurrences = (aItemFilter & calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
+    let itemReturnOccurrences = (itemFilter & calICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
 
-    // figure out the return interface type
-    let typeIID = null;
-    if (itemReturnOccurrences) {
-      typeIID = Ci.calIItemBase;
-    } else if (wantEvents && wantTodos) {
-      typeIID = Ci.calIItemBase;
-    } else if (wantEvents) {
-      typeIID = Ci.calIEvent;
-    } else if (wantTodos) {
-      typeIID = Ci.calITodo;
-    }
-
-    aRangeStart = cal.dtz.ensureDateTime(aRangeStart);
-    aRangeEnd = cal.dtz.ensureDateTime(aRangeEnd);
+    rangeStart = cal.dtz.ensureDateTime(rangeStart);
+    rangeEnd = cal.dtz.ensureDateTime(rangeEnd);
     let startTime = -9223372036854775000;
-    if (aRangeStart) {
-      startTime = aRangeStart.nativeTime;
+    if (rangeStart) {
+      startTime = rangeStart.nativeTime;
     }
 
     let requestedFlag = 0;
-    if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
+    if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
       requestedFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
-    } else if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0) {
+    } else if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0) {
       requestedFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-    } else if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0) {
+    } else if ((itemFilter & calICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0) {
       requestedFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
     }
 
@@ -425,64 +402,76 @@ CalMemoryCalendar.prototype = {
       );
     };
 
-    cal.iterate.forEach(
-      this.mItems,
-      ([id, item]) => {
-        let isEvent_ = item.isEvent();
-        if (isEvent_) {
-          if (!wantEvents) {
-            return cal.iterate.forEach.CONTINUE;
-          }
-        } else if (!wantTodos) {
-          return cal.iterate.forEach.CONTINUE;
-        }
+    let self = this;
+    return CalReadableStreamFactory.createBoundedReadableStream(
+      count,
+      CalReadableStreamFactory.defaultQueueSize,
+      {
+        async start(controller) {
+          return new Promise(resolve => {
+            cal.iterate.forEach(
+              self.mItems,
+              ([id, item]) => {
+                let isEvent_ = item.isEvent();
+                if (isEvent_) {
+                  if (!wantEvents) {
+                    return cal.iterate.forEach.CONTINUE;
+                  }
+                } else if (!wantTodos) {
+                  return cal.iterate.forEach.CONTINUE;
+                }
 
-        let hasItemFlag = item.id in this.mOfflineFlags;
-        let itemFlag = hasItemFlag ? this.mOfflineFlags[item.id] : 0;
+                let hasItemFlag = item.id in self.mOfflineFlags;
+                let itemFlag = hasItemFlag ? self.mOfflineFlags[item.id] : 0;
 
-        // If the offline flag doesn't match, skip the item
-        if (!matchOffline(itemFlag, requestedFlag)) {
-          return cal.iterate.forEach.CONTINUE;
-        }
+                // If the offline flag doesn't match, skip the item
+                if (!matchOffline(itemFlag, requestedFlag)) {
+                  return cal.iterate.forEach.CONTINUE;
+                }
 
-        if (itemReturnOccurrences && item.recurrenceInfo) {
-          if (item.recurrenceInfo.recurrenceEndDate < startTime) {
-            return cal.iterate.forEach.CONTINUE;
-          }
+                if (itemReturnOccurrences && item.recurrenceInfo) {
+                  if (item.recurrenceInfo.recurrenceEndDate < startTime) {
+                    return cal.iterate.forEach.CONTINUE;
+                  }
 
-          let startDate = aRangeStart;
-          if (!aRangeStart && item.isTodo()) {
-            startDate = item.entryDate;
-          }
-          let occurrences = item.recurrenceInfo.getOccurrences(
-            startDate,
-            aRangeEnd,
-            aCount ? aCount - itemsFound.length : 0
-          );
-          if (wantUnrespondedInvitations) {
-            occurrences = occurrences.filter(checkUnrespondedInvitation);
-          }
-          if (!isEvent_) {
-            occurrences = occurrences.filter(checkCompleted);
-          }
-          itemsFound = itemsFound.concat(occurrences);
-        } else if (
-          (!wantUnrespondedInvitations || checkUnrespondedInvitation(item)) &&
-          (isEvent_ || checkCompleted(item)) &&
-          cal.item.checkIfInRange(item, aRangeStart, aRangeEnd)
-        ) {
-          // This needs fixing for recurring items, e.g. DTSTART of parent may occur before aRangeStart.
-          // This will be changed with bug 416975.
-          itemsFound.push(item);
-        }
-        if (aCount && itemsFound.length >= aCount) {
-          return cal.iterate.forEach.BREAK;
-        }
-        return cal.iterate.forEach.CONTINUE;
-      },
-      () => {
-        aListener.onGetResult(this.superCalendar, Cr.NS_OK, typeIID, null, itemsFound);
-        this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
+                  let startDate = rangeStart;
+                  if (!rangeStart && item.isTodo()) {
+                    startDate = item.entryDate;
+                  }
+                  let occurrences = item.recurrenceInfo.getOccurrences(
+                    startDate,
+                    rangeEnd,
+                    count ? count - itemsFound.length : 0
+                  );
+                  if (wantUnrespondedInvitations) {
+                    occurrences = occurrences.filter(checkUnrespondedInvitation);
+                  }
+                  if (!isEvent_) {
+                    occurrences = occurrences.filter(checkCompleted);
+                  }
+                  itemsFound = itemsFound.concat(occurrences);
+                } else if (
+                  (!wantUnrespondedInvitations || checkUnrespondedInvitation(item)) &&
+                  (isEvent_ || checkCompleted(item)) &&
+                  cal.item.checkIfInRange(item, rangeStart, rangeEnd)
+                ) {
+                  // This needs fixing for recurring items, e.g. DTSTART of parent may occur before rangeStart.
+                  // This will be changed with bug 416975.
+                  itemsFound.push(item);
+                }
+                if (controller.maxTotalItemsReached) {
+                  return cal.iterate.forEach.BREAK;
+                }
+                return cal.iterate.forEach.CONTINUE;
+              },
+              () => {
+                controller.enqueue(itemsFound);
+                controller.close();
+                resolve();
+              }
+            );
+          });
+        },
       }
     );
   },

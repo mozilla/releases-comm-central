@@ -195,4 +195,82 @@ var caliterate = {
       }
     }
   },
+
+  /**
+   * A function used to transform items received from a ReadableStream of
+   * calIItemBase instances.
+   * @callback MapStreamFunction
+   * @param {calIItemBase[]} chunk
+   *
+   * @return {*[]|Promise<*[]>}
+   */
+
+  /**
+   * Applies the provided MapStreamFunction to each chunk received from a
+   * ReadableStream of calIItemBase instances providing the results as a single
+   * array.
+   * @param {ReadableStream} stream
+   * @param {MapStreamFunction} func
+   *
+   * @return {*[]}
+   */
+  async mapStream(stream, func) {
+    let buffer = [];
+    for await (let value of caliterate.streamValues(stream)) {
+      buffer.push.apply(buffer, await func(value));
+    }
+    return buffer;
+  },
+  /**
+   * Converts a ReadableStream of calIItemBase into an array.
+   * @param {ReadableStream} stream
+   *
+   * @return {calIItemBase[]}
+   */
+  async streamToArray(stream) {
+    return caliterate.mapStream(stream, chunk => chunk);
+  },
+
+  /**
+   * Provides an async iterator for the target stream allowing its values to
+   * be extracted in a for of loop.
+   * @param {ReadableStream} stream
+   *
+   * @return {CalReadableStreamIterator}
+   */
+  streamValues(stream) {
+    return new CalReadableStreamIterator(stream);
+  },
 };
+
+/**
+ * An async iterator implementation for streams returned from getItems() and
+ * similar calls. This class can be used in a for await ... loop to extract
+ * the values of a stream.
+ */
+class CalReadableStreamIterator {
+  _stream = null;
+  _reader = null;
+
+  /**
+   * @param {ReadableStream} stream
+   */
+  constructor(stream) {
+    this._stream = stream;
+  }
+
+  [Symbol.asyncIterator]() {
+    this._reader = this._stream.getReader();
+    return this;
+  }
+
+  /**
+   * Cancels the reading of values from the underlying stream's reader.
+   */
+  async cancel() {
+    return this._reader && this._reader.cancel();
+  }
+  async next() {
+    return this._reader.read();
+  }
+}

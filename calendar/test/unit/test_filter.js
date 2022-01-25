@@ -6,24 +6,16 @@ const { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 const { CalTodo } = ChromeUtils.import("resource:///modules/CalTodo.jsm");
 
 /* globals calFilter */
 Services.scriptloader.loadSubScript("chrome://calendar/content/widgets/calendar-filter.js");
 
-function promiseItems(filter, calendar) {
-  return new Promise(resolve => {
-    let items = [];
-    filter.getItems(calendar, {
-      onGetResult(_calendar, status, itemType, detail, _items) {
-        items = items.concat(_items);
-      },
-      onOperationComplete(_calendar, status, operationType, id, detail) {
-        resolve(items);
-      },
-    });
-  });
+async function promiseItems(filter, calendar) {
+  return cal.iterate.streamToArray(filter.getItems(calendar));
 }
 
 add_task(() => new Promise(resolve => do_calendar_startup(resolve)));

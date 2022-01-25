@@ -64,7 +64,7 @@ calCachedCalendarObserverHelper.prototype = {
     this.home.mObservers.notify("onEndBatch", [this.home]);
   },
 
-  onLoad(calendar) {
+  async onLoad(calendar) {
     if (this.isCachedObserver) {
       this.home.mObservers.notify("onLoad", [this.home]);
     } else {
@@ -73,9 +73,8 @@ calCachedCalendarObserverHelper.prototype = {
       // although onAddItem et al have been called, we need to fire
       // an additional onLoad completing the refresh call (->composite)
       let home = this.home;
-      home.synchronize(status => {
-        home.mObservers.notify("onLoad", [home]);
-      });
+      await home.synchronize();
+      home.mObservers.notify("onLoad", [home]);
     }
   },
 
@@ -225,277 +224,203 @@ calCachedCalendar.prototype = {
     }
   },
 
-  getOfflineAddedItems(callbackFunc) {
-    let self = this;
-    self.offlineCachedItems = {};
-    let getListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        for (let item of aItems) {
-          self.offlineCachedItems[item.hashId] = item;
-          self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_CREATED_RECORD;
-        }
-      },
-
-      onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
-        self.getOfflineModifiedItems(callbackFunc);
-      },
-    };
-    this.mCachedCalendar.getItems(
-      calICalendar.ITEM_FILTER_ALL_ITEMS | calICalendar.ITEM_FILTER_OFFLINE_CREATED,
-      0,
-      null,
-      null,
-      getListener
-    );
+  async getOfflineAddedItems() {
+    this.offlineCachedItems = {};
+    for await (let items of cal.iterate.streamValues(
+      this.mCachedCalendar.getItems(
+        calICalendar.ITEM_FILTER_ALL_ITEMS | calICalendar.ITEM_FILTER_OFFLINE_CREATED,
+        0,
+        null,
+        null
+      )
+    )) {
+      for (let item of items) {
+        this.offlineCachedItems[item.hashId] = item;
+        this.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_CREATED_RECORD;
+      }
+    }
   },
 
-  getOfflineModifiedItems(callbackFunc) {
-    let self = this;
-    let getListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        for (let item of aItems) {
-          self.offlineCachedItems[item.hashId] = item;
-          self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
-        }
-      },
-
-      onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
-        self.getOfflineDeletedItems(callbackFunc);
-      },
-    };
-    this.mCachedCalendar.getItems(
-      calICalendar.ITEM_FILTER_OFFLINE_MODIFIED | calICalendar.ITEM_FILTER_ALL_ITEMS,
-      0,
-      null,
-      null,
-      getListener
-    );
+  async getOfflineModifiedItems() {
+    for await (let items of cal.iterate.streamValues(
+      this.mCachedCalendar.getItems(
+        calICalendar.ITEM_FILTER_OFFLINE_MODIFIED | calICalendar.ITEM_FILTER_ALL_ITEMS,
+        0,
+        null,
+        null
+      )
+    )) {
+      for (let item of items) {
+        this.offlineCachedItems[item.hashId] = item;
+        this.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
+      }
+    }
   },
 
-  getOfflineDeletedItems(callbackFunc) {
-    let self = this;
-    let getListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        for (let item of aItems) {
-          self.offlineCachedItems[item.hashId] = item;
-          self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_DELETED_RECORD;
-        }
-      },
-
-      onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
-        if (callbackFunc) {
-          callbackFunc();
-        }
-      },
-    };
-    this.mCachedCalendar.getItems(
-      calICalendar.ITEM_FILTER_OFFLINE_DELETED | calICalendar.ITEM_FILTER_ALL_ITEMS,
-      0,
-      null,
-      null,
-      getListener
-    );
+  async getOfflineDeletedItems() {
+    for await (let items of cal.iterate.streamValues(
+      this.mCachedCalendar.getItems(
+        calICalendar.ITEM_FILTER_OFFLINE_DELETED | calICalendar.ITEM_FILTER_ALL_ITEMS,
+        0,
+        null,
+        null
+      )
+    )) {
+      for (let item of items) {
+        this.offlineCachedItems[item.hashId] = item;
+        this.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_DELETED_RECORD;
+      }
+    }
   },
 
   mPendingSync: null,
-  mSyncQueue: null,
-  synchronize(respFunc) {
-    let self = this;
+  async synchronize() {
+    if (!this.mPendingSync) {
+      this.mPendingSync = this._doSynchronize();
+    }
+    return this.mPendingSync;
+  },
+  async _doSynchronize() {
     if (this.getProperty("disabled")) {
-      return emptyQueue(Cr.NS_OK);
+      clearPending();
+      return;
     }
 
-    this.mSyncQueue.push(respFunc);
-    if (this.mSyncQueue.length > 1) {
-      // don't use mPendingSync here
-      cal.LOG("[calCachedCalendar] sync in action/pending.");
-      return this.mPendingSync;
-    }
-
-    function emptyQueue(status) {
-      let queue = self.mSyncQueue;
-      self.mSyncQueue = [];
-      function execResponseFunc(func) {
-        try {
-          func(status);
-        } catch (exc) {
-          cal.ASSERT(false, exc);
-        }
-      }
-      queue.forEach(execResponseFunc);
-      cal.LOG("[calCachedCalendar] sync queue empty.");
-      let operation = self.mPendingSync;
-      self.mPendingSync = null;
-      return operation;
-    }
+    let clearPending = () => {
+      this.mPendingSync = null;
+    };
 
     if (this.offline) {
-      return emptyQueue(Cr.NS_OK);
+      clearPending();
+      return;
     }
 
     if (this.supportsChangeLog) {
-      cal.LOG("[calCachedCalendar] Doing changelog based sync for calendar " + this.uri.spec);
-      let opListener = {
-        onResult(operation, result) {
-          if (!operation || !operation.isPending) {
-            let status = operation ? operation.status : Cr.NS_OK;
-            if (!Components.isSuccessCode(status)) {
-              cal.ERROR(
-                "[calCachedCalendar] replay action failed: " +
-                  (operation && operation.id ? operation.id : "<unknown>") +
-                  ", uri=" +
-                  self.uri.spec +
-                  ", result=" +
-                  result +
-                  ", operation=" +
-                  operation
-              );
+      await new Promise((resolve, reject) => {
+        cal.LOG("[calCachedCalendar] Doing changelog based sync for calendar " + this.uri.spec);
+        let opListener = {
+          onResult(operation, result) {
+            if (!operation || !operation.isPending) {
+              let status = operation ? operation.status : Cr.NS_OK;
+              clearPending();
+              if (!Components.isSuccessCode(status)) {
+                reject(
+                  "[calCachedCalendar] replay action failed: " +
+                    (operation && operation.id ? operation.id : "<unknown>") +
+                    ", uri=" +
+                    this.uri.spec +
+                    ", result=" +
+                    result +
+                    ", operation=" +
+                    operation
+                );
+                return;
+              }
+              cal.LOG("[calCachedCalendar] replayChangesOn finished.");
+              resolve();
             }
-            cal.LOG("[calCachedCalendar] replayChangesOn finished.");
-            emptyQueue(status);
-          }
-        },
-      };
-      this.mPendingSync = this.mUncachedCalendar.replayChangesOn(opListener);
-      return this.mPendingSync;
+          },
+        };
+        this.mUncachedCalendar.replayChangesOn(opListener);
+      });
+      return;
     }
 
     cal.LOG("[calCachedCalendar] Doing full sync for calendar " + this.uri.spec);
-    let completeListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      modifiedTimes: {},
-      hasRenewedCalendar: false,
-      getsCompleted: 0,
-      getsReceived: 0,
-      opCompleted: false,
 
-      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        if (Components.isSuccessCode(aStatus)) {
-          if (!this.hasRenewedCalendar) {
-            // TODO instead of deleting the calendar and creating a new
-            // one, maybe we want to do a "real" sync between the
-            // existing local calendar and the remote calendar.
-            self.setupCachedCalendar();
-            this.hasRenewedCalendar = true;
+    await this.getOfflineAddedItems();
+    await this.getOfflineModifiedItems();
+    await this.getOfflineDeletedItems();
+
+    // TODO instead of deleting the calendar and creating a new
+    // one, maybe we want to do a "real" sync between the
+    // existing local calendar and the remote calendar.
+    this.setupCachedCalendar();
+
+    let modifiedTimes = {};
+    try {
+      for await (let items of cal.iterate.streamValues(
+        this.mUncachedCalendar.getItems(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null)
+      )) {
+        for (let item of items) {
+          // Adding items recd from the Memory Calendar
+          // These may be different than what the cache has
+          modifiedTimes[item.id] = item.lastModifiedTime;
+          this.mCachedCalendar.addItem(item);
+        }
+      }
+    } catch (e) {
+      await this.playbackOfflineItems();
+      this.mCachedObserver.onLoad(this.mCachedCalendar);
+      clearPending();
+      throw e; // Do not swallow this error.
+    }
+
+    await new Promise((resolve, reject) => {
+      cal.iterate.forEach(
+        this.offlineCachedItems,
+        item => {
+          switch (this.offlineCachedItemFlags[item.hashId]) {
+            case cICL.OFFLINE_FLAG_CREATED_RECORD:
+              // Created items are not present on the server, so its safe to adopt them
+              this.adoptOfflineItem(item.clone(), null);
+              break;
+            case cICL.OFFLINE_FLAG_MODIFIED_RECORD:
+              // Two Cases Here:
+              if (item.id in modifiedTimes) {
+                // The item is still on the server, we just retrieved it in the listener above.
+                if (item.lastModifiedTime.compare(modifiedTimes[item.id]) < 0) {
+                  // The item on the server has been modified, ask to overwrite
+                  cal.WARN(
+                    "[calCachedCalendar] Item '" +
+                      item.title +
+                      "' at the server seems to be modified recently."
+                  );
+                  this.promptOverwrite("modify", item, null);
+                } else {
+                  // Our item is newer, just modify the item
+                  this.modifyOfflineItem(item, null);
+                }
+              } else {
+                // The item has been deleted from the server, ask if it should be added again
+                cal.WARN(
+                  "[calCachedCalendar] Item '" + item.title + "' has been deleted from the server"
+                );
+                if (cal.provider.promptOverwrite("modify", item, null)) {
+                  this.adoptOfflineItem(item.clone(), null);
+                }
+              }
+              break;
+            case cICL.OFFLINE_FLAG_DELETED_RECORD:
+              if (item.id in modifiedTimes) {
+                // The item seems to exist on the server...
+                if (item.lastModifiedTime.compare(modifiedTimes[item.id]) < 0) {
+                  // ...and has been modified on the server. Ask to overwrite
+                  cal.WARN(
+                    "[calCachedCalendar] Item '" +
+                      item.title +
+                      "' at the server seems to be modified recently."
+                  );
+                  this.promptOverwrite("delete", item, null);
+                } else {
+                  // ...and has not been modified. Delete it now.
+                  this.deleteOfflineItem(item);
+                }
+              } else {
+                // Item has already been deleted from the server, no need to change anything.
+              }
+              break;
           }
-
-          this.getsReceived++;
-          cal.iterate.forEach(
-            aItems,
-            item => {
-              // Adding items recd from the Memory Calendar
-              // These may be different than what the cache has
-              completeListener.modifiedTimes[item.id] = item.lastModifiedTime;
-              self.mCachedCalendar.addItem(item);
-            },
-            () => {
-              completeListener.getsCompleted++;
-              if (completeListener.opCompleted) {
-                // onOperationComplete was called, but we were not ready yet. call it now.
-                completeListener.onOperationComplete(...completeListener.opCompleted);
-                completeListener.opCompleted = false;
-              }
-            }
-          );
+        },
+        async () => {
+          this.offlineCachedItems = {};
+          this.offlineCachedItemFlags = {};
+          await this.playbackOfflineItems();
+          clearPending();
+          resolve();
         }
-      },
-
-      onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
-        if (this.getsCompleted < this.getsReceived) {
-          // If not all of our gets have been processed, then save the
-          // arguments and finish processing later.
-          this.opCompleted = Array.from(arguments);
-          return;
-        }
-
-        if (Components.isSuccessCode(aStatus)) {
-          cal.iterate.forEach(
-            self.offlineCachedItems,
-            item => {
-              switch (self.offlineCachedItemFlags[item.hashId]) {
-                case cICL.OFFLINE_FLAG_CREATED_RECORD:
-                  // Created items are not present on the server, so its safe to adopt them
-                  self.adoptOfflineItem(item.clone(), null);
-                  break;
-                case cICL.OFFLINE_FLAG_MODIFIED_RECORD:
-                  // Two Cases Here:
-                  if (item.id in completeListener.modifiedTimes) {
-                    // The item is still on the server, we just retrieved it in the listener above.
-                    if (
-                      item.lastModifiedTime.compare(completeListener.modifiedTimes[item.id]) < 0
-                    ) {
-                      // The item on the server has been modified, ask to overwrite
-                      cal.WARN(
-                        "[calCachedCalendar] Item '" +
-                          item.title +
-                          "' at the server seems to be modified recently."
-                      );
-                      self.promptOverwrite("modify", item, null);
-                    } else {
-                      // Our item is newer, just modify the item
-                      self.modifyOfflineItem(item, null);
-                    }
-                  } else {
-                    // The item has been deleted from the server, ask if it should be added again
-                    cal.WARN(
-                      "[calCachedCalendar] Item '" +
-                        item.title +
-                        "' has been deleted from the server"
-                    );
-                    if (cal.provider.promptOverwrite("modify", item, null)) {
-                      self.adoptOfflineItem(item.clone(), null);
-                    }
-                  }
-                  break;
-                case cICL.OFFLINE_FLAG_DELETED_RECORD:
-                  if (item.id in completeListener.modifiedTimes) {
-                    // The item seems to exist on the server...
-                    if (
-                      item.lastModifiedTime.compare(completeListener.modifiedTimes[item.id]) < 0
-                    ) {
-                      // ...and has been modified on the server. Ask to overwrite
-                      cal.WARN(
-                        "[calCachedCalendar] Item '" +
-                          item.title +
-                          "' at the server seems to be modified recently."
-                      );
-                      self.promptOverwrite("delete", item, null);
-                    } else {
-                      // ...and has not been modified. Delete it now.
-                      self.deleteOfflineItem(item);
-                    }
-                  } else {
-                    // Item has already been deleted from the server, no need to change anything.
-                  }
-                  break;
-              }
-            },
-            () => {
-              self.offlineCachedItems = {};
-              self.offlineCachedItemFlags = {};
-              self.playbackOfflineItems(() => emptyQueue(aStatus));
-            }
-          );
-        } else {
-          self.playbackOfflineItems(() => self.mCachedObserver.onLoad(self.mCachedCalendar));
-          emptyQueue(aStatus);
-        }
-      },
-    };
-
-    this.getOfflineAddedItems(() => {
-      this.mPendingSync = this.mUncachedCalendar.getItems(
-        Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
-        0,
-        null,
-        null,
-        completeListener
       );
     });
-    return this.mPendingSync;
   },
 
   onOfflineStatusChanged(aNewState) {
@@ -523,95 +448,39 @@ calCachedCalendar.prototype = {
   /*
    * Asynchronously performs playback operations of items added, modified, or deleted offline
    *
-   * @param aCallback         (optional) The function to be called when playback is complete.
    * @param aPlaybackType     (optional) The starting operation type. This function will be
    *                          called recursively through playback operations in the order of
    *                          add, modify, delete. By default playback will start with the add
    *                          operation. Valid values for this parameter are defined as
    *                          OFFLINE_FLAG_XXX constants in the calIChangeLog interface.
    */
-  playbackOfflineItems(aCallback, aPlaybackType) {
+  async playbackOfflineItems(aPlaybackType) {
     let self = this;
     let storage = this.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
 
-    let resetListener = gNoOpListener;
     let itemQueue = [];
     let debugOp;
     let nextCallback;
     let uncachedOp;
-    let listenerOp;
     let filter;
 
     aPlaybackType = aPlaybackType || cICL.OFFLINE_FLAG_CREATED_RECORD;
     switch (aPlaybackType) {
       case cICL.OFFLINE_FLAG_CREATED_RECORD:
         debugOp = "add";
-        nextCallback = this.playbackOfflineItems.bind(
-          this,
-          aCallback,
-          cICL.OFFLINE_FLAG_MODIFIED_RECORD
-        );
-        uncachedOp = item =>
-          this.mUncachedCalendar.addItem(item).then(
-            () => opListener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
-            e =>
-              opListener.onOperationComplete(
-                null,
-                e.result || Cr.NS_ERROR_FAILURE,
-                cIOL.ADD,
-                item.id,
-                e
-              )
-          );
-        listenerOp = cIOL.ADD;
+        nextCallback = this.playbackOfflineItems.bind(this, cICL.OFFLINE_FLAG_MODIFIED_RECORD);
+        uncachedOp = item => this.mUncachedCalendar.addItem(item);
         filter = calICalendar.ITEM_FILTER_OFFLINE_CREATED;
         break;
       case cICL.OFFLINE_FLAG_MODIFIED_RECORD:
         debugOp = "modify";
-        nextCallback = this.playbackOfflineItems.bind(
-          this,
-          aCallback,
-          cICL.OFFLINE_FLAG_DELETED_RECORD
-        );
-        uncachedOp = item =>
-          this.mUncachedCalendar.modifyItem(item, item).then(
-            changedItem =>
-              opListener.onOperationComplete(
-                changedItem.calendar,
-                Cr.NS_OK,
-                cIOL.MODIFY,
-                changedItem.id,
-                changedItem
-              ),
-            e =>
-              opListener.onOperationComplete(
-                null,
-                e.result || Cr.NS_ERROR_FAILURE,
-                cIOL.MODIFY,
-                item.id,
-                e
-              )
-          );
-        listenerOp = cIOL.MODIFY;
+        nextCallback = this.playbackOfflineItems.bind(this, cICL.OFFLINE_FLAG_DELETED_RECORD);
+        uncachedOp = item => this.mUncachedCalendar.modifyItem(item, item);
         filter = calICalendar.ITEM_FILTER_OFFLINE_MODIFIED;
         break;
       case cICL.OFFLINE_FLAG_DELETED_RECORD:
         debugOp = "delete";
-        nextCallback = aCallback;
-        uncachedOp = item =>
-          this.mUncachedCalendar.deleteItem(item).then(
-            () =>
-              opListener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.DELETE, item.id, item),
-            e =>
-              opListener.onOperationComplete(
-                null,
-                e.result || Cr.NS_ERROR_FAILURE,
-                cIOL.DELETE,
-                item.id,
-                e
-              )
-          );
-        listenerOp = cIOL.MODIFY;
+        uncachedOp = item => this.mUncachedCalendar.deleteItem(item);
         filter = calICalendar.ITEM_FILTER_OFFLINE_DELETED;
         break;
       default:
@@ -619,14 +488,34 @@ calCachedCalendar.prototype = {
         return;
     }
 
-    let opListener = {
-      onGetResult(calendar, status, itemType, detail, items) {},
-      onOperationComplete(calendar, status, opType, id, detail) {
-        if (Components.isSuccessCode(status)) {
+    async function popItemQueue() {
+      if (!itemQueue || itemQueue.length == 0) {
+        // no items left in the queue, move on to the next operation
+        if (nextCallback) {
+          await nextCallback();
+        }
+      } else {
+        // perform operation on the next offline item in the queue
+        let item = itemQueue.pop();
+        let error = null;
+        try {
+          await uncachedOp(item);
+        } catch (e) {
+          error = e;
+          cal.ERROR(
+            "[calCachedCalendar] Could not perform playback operation " +
+              debugOp +
+              " for item " +
+              (item.title || " (none) ") +
+              ": " +
+              e
+          );
+        }
+        if (!error) {
           if (aPlaybackType == cICL.OFFLINE_FLAG_DELETED_RECORD) {
-            self.mCachedCalendar.deleteItem(detail);
+            self.mCachedCalendar.deleteItem(item);
           } else {
-            storage.resetItemOfflineFlag(detail, resetListener);
+            storage.resetItemOfflineFlag(item);
           }
         } else {
           // If the playback action could not be performed, then there
@@ -636,76 +525,41 @@ calCachedCalendar.prototype = {
             "[calCachedCalendar] Unable to perform playback action " +
               debugOp +
               " to the server, will try again next time (" +
-              id +
+              item.id +
               "," +
-              detail +
+              error +
               ")"
           );
         }
 
         // move on to the next item in the queue
-        popItemQueue();
-      },
-    };
-
-    function popItemQueue() {
-      if (!itemQueue || itemQueue.length == 0) {
-        // no items left in the queue, move on to the next operation
-        if (nextCallback) {
-          nextCallback();
-        }
-      } else {
-        // perform operation on the next offline item in the queue
-        let item = itemQueue.pop();
-        try {
-          uncachedOp(item, opListener);
-        } catch (e) {
-          cal.ERROR(
-            "[calCachedCalendar] Could not perform playback operation " +
-              debugOp +
-              " for item " +
-              (item.title || " (none) ") +
-              ": " +
-              e
-          );
-          opListener.onOperationComplete(self, e.result, listenerOp, item.id, e.message);
-        }
+        await popItemQueue();
       }
     }
 
-    let getListener = {
-      onGetResult(calendar, status, itemType, detail, items) {
-        itemQueue = itemQueue.concat(items);
-      },
-      onOperationComplete(calendar, status, opType, id, detail) {
-        if (self.offline) {
-          cal.LOG("[calCachedCalendar] back to offline mode, reconciliation aborted");
-          if (aCallback) {
-            aCallback();
-          }
-        } else {
-          cal.LOG(
-            "[calCachedCalendar] Performing playback operation " +
-              debugOp +
-              " on " +
-              itemQueue.length +
-              " items to " +
-              self.name
-          );
-
-          // start the first operation
-          popItemQueue();
-        }
-      },
-    };
-
-    this.mCachedCalendar.getItems(
-      calICalendar.ITEM_FILTER_ALL_ITEMS | filter,
-      0,
-      null,
-      null,
-      getListener
+    itemQueue = itemQueue.concat(
+      await this.mCachedCalendar.getItemsAsArray(
+        calICalendar.ITEM_FILTER_ALL_ITEMS | filter,
+        0,
+        null,
+        null
+      )
     );
+
+    if (this.offline) {
+      cal.LOG("[calCachedCalendar] back to offline mode, reconciliation aborted");
+    } else {
+      cal.LOG(
+        "[calCachedCalendar] Performing playback operation " +
+          debugOp +
+          " on " +
+          itemQueue.length +
+          " items to " +
+          self.name
+      );
+      // start the first operation
+      await popItemQueue();
+    }
   },
 
   get superCalendar() {
@@ -746,24 +600,25 @@ calCachedCalendar.prototype = {
 
     return this.mUncachedCalendar.getProperty(aName);
   },
-  refresh() {
+  async refresh() {
     if (this.offline) {
       this.downstreamRefresh();
     } else if (this.supportsChangeLog) {
       /* we first ensure that any remaining offline items are reconciled with the calendar server */
-      this.playbackOfflineItems(this.downstreamRefresh.bind(this));
+      await this.playbackOfflineItems();
+      await this.downstreamRefresh();
     } else {
       this.downstreamRefresh();
     }
   },
-  downstreamRefresh() {
+  async downstreamRefresh() {
     if (this.mUncachedCalendar.canRefresh && !this.offline) {
-      return this.mUncachedCalendar.refresh(); // will trigger synchronize once the calendar is loaded
+      this.mUncachedCalendar.refresh(); // will trigger synchronize once the calendar is loaded
+      return;
     }
-    return this.synchronize(status => {
-      // fire completing onLoad for this refresh call
-      this.mCachedObserver.onLoad(this.mCachedCalendar);
-    });
+    await this.synchronize();
+    // fire completing onLoad for this refresh call
+    this.mCachedObserver.onLoad(this.mCachedCalendar);
   },
 
   addObserver(aObserver) {
@@ -864,8 +719,8 @@ calCachedCalendar.prototype = {
         if (Components.isSuccessCode(status)) {
           let storage = self.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
           storage.addOfflineItem(detail).then(
-            item => listener.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
-            e => listener.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
+            item => listener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.ADD, item.id, item),
+            e => listener?.onOperationComplete(null, e.result || Cr.NS_ERROR_FAILURE, null, null, e)
           );
         } else if (listener) {
           listener.onOperationComplete(self, status, opType, id, detail);
@@ -1084,7 +939,7 @@ calCachedCalendar.prototype = {
   defineForwards(
     calCachedCalendar.prototype,
     "mCachedCalendar",
-    ["getItem", "getItems", "startBatch", "endBatch"],
+    ["getItem", "getItems", "getItemsAsArray", "startBatch", "endBatch"],
     [],
     []
   );

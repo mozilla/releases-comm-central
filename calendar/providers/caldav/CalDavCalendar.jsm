@@ -24,6 +24,9 @@ var { CalDavEtagsHandler, CalDavWebDavSyncHandler, CalDavMultigetSyncHandler } =
 );
 
 var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
+var { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
 
 var XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";
@@ -237,43 +240,39 @@ CalDavCalendar.prototype = {
    * Ensure that cached items have associated meta data, otherwise server side
    * changes may not be reflected
    */
-  ensureMetaData() {
-    let self = this;
+  async ensureMetaData() {
     let refreshNeeded = false;
-    let getMetaListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        for (let item of aItems) {
-          if (!(item.id in self.mItemInfoCache)) {
-            let path = self.getItemLocationPath(item);
-            cal.LOG("Adding meta-data for cached item " + item.id);
-            self.mItemInfoCache[item.id] = {
-              etag: null,
-              isNew: false,
-              locationPath: path,
-              isInboxItem: false,
-            };
-            self.mHrefIndex[self.mLocationPath + path] = item.id;
-            refreshNeeded = true;
-          }
+
+    for await (let items of cal.iterate.streamValues(
+      this.mOfflineStorage.wrappedJSObject.getItems(
+        Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
+        0,
+        null,
+        null
+      )
+    )) {
+      for (let item of items) {
+        if (!(item.id in this.mItemInfoCache)) {
+          let path = this.getItemLocationPath(item);
+          cal.LOG("Adding meta-data for cached item " + item.id);
+          this.mItemInfoCache[item.id] = {
+            etag: null,
+            isNew: false,
+            locationPath: path,
+            isInboxItem: false,
+          };
+          this.mHrefIndex[this.mLocationPath + path] = item.id;
+          refreshNeeded = true;
         }
-      },
-      onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
-        if (refreshNeeded) {
-          // resetting the cached ctag forces an item refresh when
-          // safeRefresh is called later
-          self.mCtag = null;
-          self.mProposedCtag = null;
-        }
-      },
-    };
-    this.mOfflineStorage.getItems(
-      Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
-      0,
-      null,
-      null,
-      getMetaListener
-    );
+      }
+    }
+
+    if (refreshNeeded) {
+      // resetting the cached ctag forces an item refresh when
+      // safeRefresh is called later
+      this.mCtag = null;
+      this.mProposedCtag = null;
+    }
   },
 
   fetchCachedMetaData() {
@@ -1072,12 +1071,8 @@ CalDavCalendar.prototype = {
         "this.mQueuedQueries.length=" +
         this.mQueuedQueries.length
     );
-    if (this.isCached) {
-      if (aChangeLogListener) {
-        aChangeLogListener.onResult({ status: Cr.NS_OK }, Cr.NS_OK);
-      } else {
-        this.mObservers.notify("onLoad", [this]);
-      }
+    if (this.isCached && aChangeLogListener) {
+      aChangeLogListener.onResult({ status: Cr.NS_OK }, Cr.NS_OK);
     } else {
       this.mObservers.notify("onLoad", [this]);
     }
@@ -1090,7 +1085,8 @@ CalDavCalendar.prototype = {
     this.mFirstRefreshDone = true;
     while (this.mQueuedQueries.length) {
       let query = this.mQueuedQueries.pop();
-      this.mOfflineStorage.getItems(...query);
+      let { filter, count, rangeStart, rangeEnd } = query;
+      query.onStream(this.mOfflineStorage.getItems(filter, count, rangeStart, rangeEnd));
     }
     if (this.hasScheduling && !this.isInbox(calendarURI.spec)) {
       this.pollInbox();
@@ -1117,18 +1113,7 @@ CalDavCalendar.prototype = {
     // If an error occurs here, we also need to unqueue the
     // requests previously queued.
     while (this.mQueuedQueries.length) {
-      let [, , , , listener] = this.mQueuedQueries.pop();
-      try {
-        listener.onOperationComplete(
-          this.superCalendar,
-          Cr.NS_ERROR_FAILURE,
-          cIOL.GET,
-          null,
-          errorMsg
-        );
-      } catch (e) {
-        cal.ERROR(e);
-      }
+      this.mQueuedQueries.pop().onError(new Components.Exception(errorMsg, Cr.NS_ERROR_FAILURE));
     }
   },
 
@@ -1171,24 +1156,56 @@ CalDavCalendar.prototype = {
     return this.mOfflineStorage.getItem(aId);
   },
 
-  // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
-  //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
-  //                in calIOperationListener aListener );
-  getItems(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
+  // ReadableStream<calIItemBase> getItems(in unsigned long filter,
+  //                                       in unsigned long count,
+  //                                       in calIDateTime rangeStart,
+  //                                       in calIDateTime rangeEnd)
+  getItems(filter, count, rangeStart, rangeEnd) {
     if (this.isCached) {
       if (this.mOfflineStorage) {
-        this.mOfflineStorage.getItems(...arguments);
-      } else {
-        this.notifyOperationComplete(aListener, Cr.NS_OK, cIOL.GET, null, null);
+        return this.mOfflineStorage.getItems(...arguments);
       }
+      return CalReadableStreamFactory.createEmptyReadableStream();
     } else if (
       this.checkedServerInfo ||
       this.getProperty("currentStatus") == Ci.calIErrors.READ_FAILED
     ) {
-      this.mOfflineStorage.getItems(...arguments);
-    } else {
-      this.mQueuedQueries.push(Array.from(arguments));
+      return this.mOfflineStorage.getItems(...arguments);
     }
+    let self = this;
+    return CalReadableStreamFactory.createBoundedReadableStream(
+      count,
+      CalReadableStreamFactory.defaultQueueSize,
+      {
+        async start(controller) {
+          return new Promise((resolve, reject) => {
+            self.mQueuedQueries.push({
+              filter,
+              count,
+              rangeStart,
+              rangeEnd,
+              failed: false,
+              onError(e) {
+                this.failed = true;
+                reject(e);
+              },
+              async onStream(stream) {
+                for await (let items of cal.iterate.streamValues(stream)) {
+                  if (this.failed) {
+                    break;
+                  }
+                  controller.enqueue(items);
+                }
+                if (!this.failed) {
+                  controller.close();
+                  resolve();
+                }
+              },
+            });
+          });
+        },
+      }
+    );
   },
 
   fillACLProperties() {
@@ -1916,7 +1933,6 @@ CalDavCalendar.prototype = {
       this.saveCalendarProperties();
       this.checkedServerInfo = true;
       this.setProperty("currentStatus", Cr.NS_OK);
-
       if (this.isCached) {
         this.safeRefresh(aChangeLogListener);
       } else {

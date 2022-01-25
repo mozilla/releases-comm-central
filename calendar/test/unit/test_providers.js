@@ -209,35 +209,28 @@ add_task(async function testIcalData() {
 
     // implement listener
     let count = 0;
-    await new Promise(resolve => {
-      let listener = {
-        onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-          equal(aStatus, 0);
-          equal(count, aResult);
-          resolve();
-        },
-        onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-          if (aItems.length) {
-            count += aItems.length;
-            for (let i = 0; i < aItems.length; i++) {
-              // Don't check creationDate as it changed when we added the item to the database.
-              compareItemsSpecific(aItems[i].parentItem, aItem, [
-                "start",
-                "end",
-                "duration",
-                "title",
-                "priority",
-                "privacy",
-                "status",
-                "alarmLastAck",
-                "recurrenceStartDate",
-              ]);
-            }
-          }
-        },
-      };
-      calendar.getItems(filter, 0, rangeStart, rangeEnd, listener);
-    });
+    for await (let items of cal.iterate.streamValues(
+      calendar.getItems(filter, 0, rangeStart, rangeEnd)
+    )) {
+      if (items.length) {
+        count += items.length;
+        for (let i = 0; i < items.length; i++) {
+          // Don't check creationDate as it changed when we added the item to the database.
+          compareItemsSpecific(items[i].parentItem, aItem, [
+            "start",
+            "end",
+            "duration",
+            "title",
+            "priority",
+            "privacy",
+            "status",
+            "alarmLastAck",
+            "recurrenceStartDate",
+          ]);
+        }
+      }
+    }
+    equal(count, aResult);
   }
 
   /**

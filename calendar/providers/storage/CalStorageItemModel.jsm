@@ -8,6 +8,9 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"
 );
+const { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
 const { CalStorageModelBase } = ChromeUtils.import(
   "resource:///modules/calendar/CalStorageModelBase.jsm"
 );
@@ -30,115 +33,6 @@ const DEFAULT_START_TIME = -9223372036854776000;
 
 // endTime needs to be the max value a PRTime can be
 const DEFAULT_END_TIME = 9223372036854776000;
-
-/**
- * CalItemQueue is used to buffer fetched items before dispatching to a listener.
- */
-class CalItemQueue {
-  /**
-   * The total number of items ever added to the queue.
-   * @type {number}
-   */
-  totalCount = 0;
-
-  /**
-   * An array containing the pending items added to the queue.
-   * @type {calIItemBase[]}
-   */
-  pendingItems = [];
-
-  /**
-   * Called with the flushed items from the queue.
-   * @type {GetItemsListener}
-   */
-  listener = null;
-
-  /**
-   * The total maximum number of items that can be added. If this is reached,
-   * any further attempts to add items will be ignored.
-   * @type {number}
-   */
-  maxTotalItems = null;
-
-  /**
-   * The maximum number of items to queue up before automatically flushing.
-   * @type {number}
-   */
-  maxQueueSize = null;
-
-  /**
-   * @param {GetItemsListener} listener
-   * @param {number} maxTotalItems
-   * @param {number} maxQueueSize
-   */
-  constructor(listener, maxTotalItems = 0, maxQueueSize = 10) {
-    this.listener = listener;
-    this.maxTotalItems = maxTotalItems;
-    this.maxQueueSize = maxQueueSize;
-  }
-
-  /**
-   * Indicates whether the maximum number of items have been to the queue after
-   * which no more will be allowed.
-   * @type {number}
-   */
-  get maxTotalItemsReached() {
-    // Ideally, maxTotalItems=0 should mean no items are returned but 0 is used
-    // elsewhere to indicate the absence of a limit.
-    return this.maxTotalItems && this.pendingItems.length >= this.maxTotalItems;
-  }
-
-  /**
-   * Adds one or more items to the end of the queue.
-   * @param {calItemBase|calItemBase[]} items
-   */
-  add(items) {
-    if (this.maxTotalItemsReached) {
-      return;
-    }
-
-    items = Array.isArray(items) ? items : [items];
-    this.pendingItems = this.pendingItems.concat(items);
-    this.totalCount += items.length;
-
-    if (this.pendingItems.length >= this.maxQueueSize) {
-      this.flush();
-    }
-  }
-
-  /**
-   * Implemented by child classes to pass the correct nsIID to the listener.
-   *
-   * @param {calItemBase[]} items
-   */
-  invokeListener(items) {}
-
-  /**
-   * Flushes the pending items passing them to the internal listener.
-   */
-  flush() {
-    this.invokeListener(this.pendingItems);
-    this.pendingItems = [];
-  }
-}
-
-/**
- * CalEventQueue is for events.
- */
-class CalEventQueue extends CalItemQueue {
-  invokeListener(items) {
-    this.listener(items, Ci.calIEvent);
-  }
-}
-
-/**
- * CalTodoQueue is for todos.
- */
-class CalTodoQueue extends CalItemQueue {
-  invokeListener(items) {
-    this.listener(items, Ci.calITodo);
-  }
-}
 
 /**
  * CalStorageItemModel provides methods for manipulating item data.
@@ -188,42 +82,50 @@ class CalStorageItemModel extends CalStorageModelBase {
    */
 
   /**
-   * A function that receives the result of a query to getItems().
-   * @callback GetItemsListener
-   * @param {calIItemBase[]] items
-   * @param {nsIIDRef} itemType
-   */
-
-  /**
    * Retrieves one or more items from the database based on the query provided.
    * See the definition of CalStorageQuery for valid query parameters.
    * @param {CalStorageQuery} query
-   * @param {GetItemsListener} listener
+   *
+   * @return {ReadableStream<calIItemBase>}
    */
-  async getItems(query, listener) {
-    let eventCount = 0;
+  getItems(query) {
     let { filters, count } = query;
-    if (filters) {
-      if (filters.wantEvents) {
-        eventCount += await this.getEvents(query, listener);
-      }
+    let self = this;
+    return CalReadableStreamFactory.createBoundedReadableStream(
+      count,
+      CalReadableStreamFactory.defaultQueueSize,
+      {
+        async start(controller) {
+          if (filters) {
+            if (filters.wantEvents) {
+              for await (let value of cal.iterate.streamValues(self.getEvents(query))) {
+                controller.enqueue(value);
+              }
+            }
 
-      count = count && count - eventCount;
-      if (filters.wantTodos && (!count || count > 0)) {
-        await this.getTodos({ ...query, count }, listener);
+            count = count && count - controller.count;
+            if (filters.wantTodos && (!count || count > 0)) {
+              for await (let value of cal.iterate.streamValues(
+                self.getTodos({ ...query, count })
+              )) {
+                controller.enqueue(value);
+              }
+            }
+            controller.close();
+          }
+        },
       }
-    }
+    );
   }
 
   /**
-   * Queries the database for calIEvent records passing them to the provided
-   * listener.
+   * Queries the database for calIEvent records providing them in a streaming
+   * fashion.
    * @param {CalStorageQuery} query
-   * @param {GetItemsListener} listener
    *
-   * @returns {number} The number of items retrieved.
+   * @returns {ReadableStream<calIEvent>}
    */
-  async getEvents(query, listener) {
+  getEvents(query) {
     let { filters, rangeStart, rangeEnd } = query;
     let startTime = DEFAULT_START_TIME;
     let endTime = DEFAULT_END_TIME;
@@ -245,61 +147,74 @@ class CalStorageItemModel extends CalStorageModelBase {
     } else if (filters.wantOfflineModifiedItems) {
       requestedOfflineJournal = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
     }
+    let self = this;
+    return CalReadableStreamFactory.createBoundedReadableStream(
+      query.count,
+      CalReadableStreamFactory.defaultQueueSize,
+      {
+        async start(controller) {
+          // first get non-recurring events that happen to fall within the range
+          try {
+            self.db.prepareStatement(self.statements.mSelectNonRecurringEventsByRange);
+            params = self.statements.mSelectNonRecurringEventsByRange.params;
+            params.range_start = startTime;
+            params.range_end = endTime;
+            params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
+            params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
+            params.offline_journal = requestedOfflineJournal;
 
-    let queue = new CalEventQueue(listener, query.count);
-
-    // first get non-recurring events that happen to fall within the range
-    //
-    try {
-      this.db.prepareStatement(this.statements.mSelectNonRecurringEventsByRange);
-      params = this.statements.mSelectNonRecurringEventsByRange.params;
-      params.range_start = startTime;
-      params.range_end = endTime;
-      params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
-      params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-      params.offline_journal = requestedOfflineJournal;
-
-      await this.db.executeAsync(this.statements.mSelectNonRecurringEventsByRange, async row => {
-        let event = await this.getEventFromRow(row);
-        queue.add(this._expandOccurrences(event, startTime, rangeStart, rangeEnd, filters));
-      });
-    } catch (e) {
-      this.db.logError("Error selecting non recurring events by range!\n", e);
-    }
-
-    if (!queue.maxTotalItemsReached) {
-      // Process the recurring events
-      let [recEvents, recEventFlags] = await this.getFullRecurringEventAndFlagMaps();
-      for (let [id, evitem] of recEvents.entries()) {
-        let cachedJournalFlag = recEventFlags.get(id);
-        // No need to return flagged unless asked i.e. requestedOfflineJournal == cachedJournalFlag
-        // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
-        if (
-          (requestedOfflineJournal == null &&
-            cachedJournalFlag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
-          (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
-        ) {
-          queue.add(this._expandOccurrences(evitem, startTime, rangeStart, rangeEnd, filters));
-          if (queue.maxTotalItemsReached) {
-            break;
+            await self.db.executeAsync(
+              self.statements.mSelectNonRecurringEventsByRange,
+              async row => {
+                let event = self._expandOccurrences(
+                  await self.getEventFromRow(row),
+                  startTime,
+                  rangeStart,
+                  rangeEnd,
+                  filters
+                );
+                controller.enqueue(event);
+              }
+            );
+          } catch (e) {
+            self.db.logError("Error selecting non recurring events by range!\n", e);
           }
-        }
-      }
-    }
 
-    queue.flush();
-    return queue.totalCount;
+          if (!controller.maxTotalItemsReached) {
+            // Process the recurring events
+            let [recEvents, recEventFlags] = await self.getFullRecurringEventAndFlagMaps();
+            for (let [id, evitem] of recEvents.entries()) {
+              let cachedJournalFlag = recEventFlags.get(id);
+              // No need to return flagged unless asked i.e. requestedOfflineJournal == cachedJournalFlag
+              // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
+              if (
+                (requestedOfflineJournal == null &&
+                  cachedJournalFlag != cICL.OFFLINE_FLAG_DELETED_RECORD) ||
+                (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
+              ) {
+                controller.enqueue(
+                  self._expandOccurrences(evitem, startTime, rangeStart, rangeEnd, filters)
+                );
+                if (controller.maxTotalItemsReached) {
+                  break;
+                }
+              }
+            }
+          }
+          controller.close();
+        },
+      }
+    );
   }
 
   /**
-   * Queries the database for calITodo records passing them to the provided
-   * listener.
+   * Queries the database for calITodo records providing them in a streaming
+   * fashion.
    * @param {CalStorageQuery} query
-   * @param {GetItemsListener} listener
    *
-   * @returns {number} The number of items retrieved.
+   * @returns {ReadableStream<calITodo>}
    */
-  async getTodos(query, listener) {
+  getTodos(query) {
     let { filters, rangeStart, rangeEnd } = query;
     let startTime = DEFAULT_START_TIME;
     let endTime = DEFAULT_END_TIME;
@@ -311,7 +226,6 @@ class CalStorageItemModel extends CalStorageModelBase {
       endTime = rangeEnd.nativeTime;
     }
 
-    let queue = new CalTodoQueue(listener, query.count);
     let params; // stmt params
     let requestedOfflineJournal = null;
 
@@ -326,61 +240,76 @@ class CalStorageItemModel extends CalStorageModelBase {
     let checkCompleted = item =>
       item.isCompleted ? filters.itemCompletedFilter : filters.itemNotCompletedFilter;
 
-    // first get non-recurring todos that happen to fall within the range
-    try {
-      this.db.prepareStatement(this.statements.mSelectNonRecurringTodosByRange);
-      params = this.statements.mSelectNonRecurringTodosByRange.params;
-      params.range_start = startTime;
-      params.range_end = endTime;
-      params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
-      params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
-      params.offline_journal = requestedOfflineJournal;
+    let self = this;
+    return CalReadableStreamFactory.createBoundedReadableStream(
+      query.count,
+      CalReadableStreamFactory.defaultQueueSize,
+      {
+        async start(controller) {
+          // first get non-recurring todos that happen to fall within the range
+          try {
+            self.db.prepareStatement(self.statements.mSelectNonRecurringTodosByRange);
+            params = self.statements.mSelectNonRecurringTodosByRange.params;
+            params.range_start = startTime;
+            params.range_end = endTime;
+            params.start_offset = rangeStart ? rangeStart.timezoneOffset * USECS_PER_SECOND : 0;
+            params.end_offset = rangeEnd ? rangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
+            params.offline_journal = requestedOfflineJournal;
 
-      await this.db.executeAsync(this.statements.mSelectNonRecurringTodosByRange, async row => {
-        let todo = await this.getTodoFromRow(row);
-        queue.add(
-          this._expandOccurrences(todo, startTime, rangeStart, rangeEnd, filters, checkCompleted)
-        );
-      });
-    } catch (e) {
-      this.db.logError("Error selecting non recurring todos by range", e);
-    }
-
-    if (!queue.maxTotalItemsReached) {
-      // Note: Reading the code, completed *occurrences* seems to be broken, because
-      //       only the parent item has been filtered; I fixed that.
-      //       Moreover item.todo_complete etc seems to be a leftover...
-
-      // process the recurring todos
-      let [recTodos, recTodoFlags] = await this.getFullRecurringTodoAndFlagMaps();
-      for (let [id, todoitem] of recTodos) {
-        let cachedJournalFlag = recTodoFlags.get(id);
-        if (
-          (requestedOfflineJournal == null &&
-            (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
-              cachedJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
-              cachedJournalFlag == null)) ||
-          (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
-        ) {
-          queue.add(
-            this._expandOccurrences(
-              todoitem,
-              startTime,
-              rangeStart,
-              rangeEnd,
-              filters,
-              checkCompleted
-            )
-          );
-          if (queue.maxTotalItemsReached) {
-            break;
+            await self.db.executeAsync(
+              self.statements.mSelectNonRecurringTodosByRange,
+              async row => {
+                let todo = self._expandOccurrences(
+                  await self.getTodoFromRow(row),
+                  startTime,
+                  rangeStart,
+                  rangeEnd,
+                  filters,
+                  checkCompleted
+                );
+                controller.enqueue(todo);
+              }
+            );
+          } catch (e) {
+            self.db.logError("Error selecting non recurring todos by range", e);
           }
-        }
-      }
-    }
 
-    queue.flush();
-    return queue.totalCount;
+          if (!controller.maxTotalItemsReached) {
+            // Note: Reading the code, completed *occurrences* seems to be broken, because
+            //       only the parent item has been filtered; I fixed that.
+            //       Moreover item.todo_complete etc seems to be a leftover...
+
+            // process the recurring todos
+            let [recTodos, recTodoFlags] = await self.getFullRecurringTodoAndFlagMaps();
+            for (let [id, todoitem] of recTodos) {
+              let cachedJournalFlag = recTodoFlags.get(id);
+              if (
+                (requestedOfflineJournal == null &&
+                  (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
+                    cachedJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
+                    cachedJournalFlag == null)) ||
+                (requestedOfflineJournal != null && cachedJournalFlag == requestedOfflineJournal)
+              ) {
+                controller.enqueue(
+                  self._expandOccurrences(
+                    todoitem,
+                    startTime,
+                    rangeStart,
+                    rangeEnd,
+                    filters,
+                    checkCompleted
+                  )
+                );
+                if (controller.maxTotalItemsReached) {
+                  break;
+                }
+              }
+            }
+          }
+          controller.close();
+        },
+      }
+    );
   }
 
   _checkUnrespondedInvitation(item) {

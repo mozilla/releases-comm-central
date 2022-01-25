@@ -100,32 +100,14 @@ function publishEntireCalendar(aCalendar) {
  * Callback method for publishEntireCalendar() that is called when the user
  * presses the OK button in the publish dialog.
  */
-function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDialog) {
+async function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDialog) {
   // store the selected remote ics path as a calendar preference
   CalendarPublishObject.calendar.setProperty("remote-ics-path", CalendarPublishObject.remotePath);
 
-  let itemArray = [];
-  let getListener = {
-    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-    onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-      publishItemArray(itemArray, CalendarPublishObject.remotePath, aProgressDialog);
-    },
-    onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-      if (!Components.isSuccessCode(aStatus)) {
-        return;
-      }
-      if (aItems.length) {
-        for (let i = 0; i < aItems.length; ++i) {
-          // Store a (short living) reference to the item.
-          let itemCopy = aItems[i].clone();
-          itemArray.push(itemCopy);
-        }
-      }
-    },
-  };
   aProgressDialog.onStartUpload();
   let oldCalendar = CalendarPublishObject.calendar;
-  oldCalendar.getItems(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null, getListener);
+  let items = await oldCalendar.getItems(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
+  publishItemArray(items, CalendarPublishObject.remotePath, aProgressDialog);
 }
 
 function publishItemArray(aItemArray, aPath, aProgressDialog) {

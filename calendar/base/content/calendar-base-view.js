@@ -236,44 +236,20 @@
       this.calView = calendarView;
       this.calendar = calendar;
       this.calId = null;
-      this.operation = null;
       this.cancelled = false;
+      this.iterator = null;
     }
 
-    onOperationComplete(opCalendar, status, operationType, id, dateTime) {
-      this.calView.mLog.info("Refresh complete of calendar " + this.calId);
-      if (this.calView.mPendingRefreshJobs.has(this.calId)) {
-        this.calView.mPendingRefreshJobs.delete(this.calId);
-      }
-
-      if (!this.cancelled) {
-        this.calView.fireEvent("viewloaded", operationType);
-      }
-    }
-
-    onGetResult(opCalendar, status, itemType, detail, items) {
-      if (this.cancelled || !Components.isSuccessCode(status)) {
-        return;
-      }
-
-      for (const item of items) {
-        if (!item.isTodo() || item.entryDate || item.dueDate) {
-          this.calView.doAddItem(item);
-        }
-      }
-    }
-
-    cancel() {
+    async cancel() {
       this.calView.mLog.info("Refresh cancelled for calendar " + this.calId);
       this.cancelled = true;
-      let { operation } = this;
-      if (operation && operation.isPending) {
-        operation.cancel();
-        this.operation = null;
+      if (this.iterator) {
+        await this.iterator.cancel();
       }
+      this.iterator = null;
     }
 
-    execute() {
+    async execute() {
       if (!this.calView.startDate || !this.calView.endDate || !this.calendar) {
         return;
       }
@@ -313,18 +289,25 @@
         filter |= this.calendar.ITEM_FILTER_TYPE_EVENT;
       }
 
-      let operation = this.calendar.getItems(
-        filter,
-        0,
-        this.calView.startDate,
-        this.calView.queryEndDate,
-        this
+      this.calView.mPendingRefreshJobs.set(this.calId, this);
+
+      this.iterator = cal.iterate.streamValues(
+        this.calendar.getItems(filter, 0, this.calView.startDate, this.calView.queryEndDate)
       );
 
-      if (operation && operation.isPending) {
-        this.operation = operation;
-        this.calView.mPendingRefreshJobs.set(this.calId, this);
+      for await (let items of this.iterator) {
+        for (let item of items) {
+          if (!item.isTodo() || item.entryDate || item.dueDate) {
+            this.calView.doAddItem(item);
+          }
+        }
       }
+      this.calView.mPendingRefreshJobs.delete(this.calId);
+      if (this.cancelled) {
+        return;
+      }
+      this.calView.mLog.info("Refresh complete of calendar " + this.calId);
+      this.calView.fireEvent("viewloaded");
     }
   }
 

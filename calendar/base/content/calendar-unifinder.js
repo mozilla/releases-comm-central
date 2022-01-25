@@ -907,27 +907,12 @@ function addItemsFromSingleCalendarInternal(eventArray) {
   unifinderTreeView.setSelectedItems();
 }
 
-function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
+async function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
   if (isUnifinderHidden()) {
     // If the unifinder is hidden, don't refresh the events to reduce needed
     // getItems calls.
     return;
   }
-  let refreshListener = {
-    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-    mEventArray: [],
-
-    onOperationComplete(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
-      let refreshTreeInternalFunc = function() {
-        aAddItemsInternalFunc(refreshListener.mEventArray);
-      };
-      setTimeout(refreshTreeInternalFunc, 0);
-    },
-
-    onGetResult(aOpCalendar, aStatus, aItemType, aDetail, aItems) {
-      refreshListener.mEventArray = refreshListener.mEventArray.concat(aItems);
-    },
-  };
 
   let filter = 0;
 
@@ -943,13 +928,17 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
     filter |= aCalendar.ITEM_FILTER_CLASS_OCCURRENCES;
   }
 
-  aCalendar.getItems(
+  let items = await aCalendar.getItemsAsArray(
     filter,
     0,
     unifinderTreeView.mFilter.startDate,
-    unifinderTreeView.mFilter.endDate,
-    refreshListener
+    unifinderTreeView.mFilter.endDate
   );
+
+  let refreshTreeInternalFunc = function() {
+    aAddItemsInternalFunc(items);
+  };
+  setTimeout(refreshTreeInternalFunc, 0);
 }
 
 function removeItemsFromCalendar(aCalendar) {

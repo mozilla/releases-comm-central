@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -138,7 +141,7 @@ add_task(async function test_dynamic_registration() {
     }
 
     getItems(itemFilter, count, rangeStart, rangeEnd, listener) {
-      this.notifyOperationComplete(listener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
+      return CalReadableStreamFactory.createEmptyReadableStream();
     }
   }
 

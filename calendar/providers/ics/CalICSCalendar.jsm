@@ -7,6 +7,9 @@ var EXPORTED_SYMBOLS = ["CalICSCalendar"];
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
 
 // This is a non-sync ics file. It reads the file pointer to by uri when set,
 // then writes it on updates. External changes to the file will be
@@ -291,77 +294,13 @@ CalICSCalendar.prototype = {
     }
   },
 
-  doWriteICS() {
+  async doWriteICS() {
     cal.LOG("[calICSCalendar] Writing ICS File " + this.uri.spec);
-    let self = this;
-    let listener = {
-      serializer: null,
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-        let inLastWindowClosingSurvivalArea = false;
-        try {
-          // All events are returned. Now set up a channel and a
-          // streamloader to upload.  onStopRequest will be called
-          // once the write has finished
-          let channel = Services.io.newChannelFromURI(
-            self.mUri,
-            null,
-            Services.scriptSecurityManager.getSystemPrincipal(),
-            null,
-            Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-            Ci.nsIContentPolicy.TYPE_OTHER
-          );
-
-          // Allow the hook to add things to the channel, like a
-          // header that checks etags
-          let notChanged = self.mHooks.onBeforePut(channel);
-          if (notChanged) {
-            channel.notificationCallbacks = self;
-            let uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
-
-            // Serialize
-            let icsStream = this.serializer.serializeToInputStream();
-
-            // Upload
-            uploadChannel.setUploadStream(icsStream, "text/calendar", -1);
-
-            Services.startup.enterLastWindowClosingSurvivalArea();
-            inLastWindowClosingSurvivalArea = true;
-            channel.asyncOpen(self);
-          } else {
-            if (inLastWindowClosingSurvivalArea) {
-              Services.startup.exitLastWindowClosingSurvivalArea();
-            }
-            self.mObserver.onError(
-              self.superCalendar,
-              calIErrors.MODIFICATION_FAILED,
-              "The calendar has been changed remotely. Please reload and apply your changes again!"
-            );
-            self.unlock(calIErrors.MODIFICATION_FAILED);
-          }
-        } catch (ex) {
-          if (inLastWindowClosingSurvivalArea) {
-            Services.startup.exitLastWindowClosingSurvivalArea();
-          }
-          self.mObserver.onError(
-            self.superCalendar,
-            ex.result,
-            "The calendar could not be saved; there was a failure: 0x" + ex.result.toString(16)
-          );
-          self.mObserver.onError(self.superCalendar, calIErrors.MODIFICATION_FAILED, "");
-          self.unlock(calIErrors.MODIFICATION_FAILED);
-          self.forceRefresh();
-        }
-      },
-      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        this.serializer.addItems(aItems);
-      },
-    };
-    listener.serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
     for (let comp of this.unmappedComponents) {
-      listener.serializer.addComponent(comp);
+      serializer.addComponent(comp);
     }
     for (let prop of this.unmappedProperties) {
       switch (prop.propertyName) {
@@ -370,25 +309,81 @@ CalICSCalendar.prototype = {
         case "X-WR-TIMEZONE":
           break;
         default:
-          listener.serializer.addProperty(prop);
+          serializer.addProperty(prop);
           break;
       }
     }
     let prop = cal.getIcsService().createIcalProperty("X-WR-CALNAME");
     prop.value = this.name;
-    listener.serializer.addProperty(prop);
+    serializer.addProperty(prop);
     prop = cal.getIcsService().createIcalProperty("X-WR-TIMEZONE");
     prop.value = cal.getTimezoneService().defaultTimezone.tzid;
-    listener.serializer.addProperty(prop);
+    serializer.addProperty(prop);
 
     // don't call this.getItems, because we are locked:
-    this.mMemoryCalendar.getItems(
-      calICalendar.ITEM_FILTER_TYPE_ALL | calICalendar.ITEM_FILTER_COMPLETED_ALL,
-      0,
-      null,
-      null,
-      listener
+    serializer.addItems(
+      await this.mMemoryCalendar.getItemsAsArray(
+        calICalendar.ITEM_FILTER_TYPE_ALL | calICalendar.ITEM_FILTER_COMPLETED_ALL,
+        0,
+        null,
+        null
+      )
     );
+
+    let inLastWindowClosingSurvivalArea = false;
+    try {
+      // All events are returned. Now set up a channel and a
+      // streamloader to upload.  onStopRequest will be called
+      // once the write has finished
+      let channel = Services.io.newChannelFromURI(
+        this.mUri,
+        null,
+        Services.scriptSecurityManager.getSystemPrincipal(),
+        null,
+        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+        Ci.nsIContentPolicy.TYPE_OTHER
+      );
+
+      // Allow the hook to add things to the channel, like a
+      // header that checks etags
+      let notChanged = this.mHooks.onBeforePut(channel);
+      if (notChanged) {
+        channel.notificationCallbacks = this;
+        let uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
+
+        // Serialize
+        let icsStream = serializer.serializeToInputStream();
+
+        // Upload
+        uploadChannel.setUploadStream(icsStream, "text/calendar", -1);
+
+        Services.startup.enterLastWindowClosingSurvivalArea();
+        inLastWindowClosingSurvivalArea = true;
+        channel.asyncOpen(this);
+      } else {
+        if (inLastWindowClosingSurvivalArea) {
+          Services.startup.exitLastWindowClosingSurvivalArea();
+        }
+        this.mObserver.onError(
+          this.superCalendar,
+          calIErrors.MODIFICATION_FAILED,
+          "The calendar has been changed remotely. Please reload and apply your changes again!"
+        );
+        this.unlock(calIErrors.MODIFICATION_FAILED);
+      }
+    } catch (ex) {
+      if (inLastWindowClosingSurvivalArea) {
+        Services.startup.exitLastWindowClosingSurvivalArea();
+      }
+      this.mObserver.onError(
+        this.superCalendar,
+        ex.result,
+        "The calendar could not be saved; there was a failure: 0x" + ex.result.toString(16)
+      );
+      this.mObserver.onError(this.superCalendar, calIErrors.MODIFICATION_FAILED, "");
+      this.unlock(calIErrors.MODIFICATION_FAILED);
+      this.forceRefresh();
+    }
   },
 
   // nsIStreamListener impl
@@ -552,16 +547,32 @@ CalICSCalendar.prototype = {
     });
   },
 
-  getItems(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-    this.queue.push({
-      action: "get_items",
-      itemFilter: aItemFilter,
-      count: aCount,
-      rangeStart: aRangeStart,
-      rangeEnd: aRangeEnd,
-      listener: aListener,
-    });
-    this.processQueue();
+  // ReadableStream<calItemBase> getItems(in unsigned long itemFilter,
+  //                                      in unsigned long count,
+  //                                      in calIDateTime rangeStart,
+  //                                      in calIDateTime rangeEnd)
+  getItems(itemFilter, count, rangeStart, rangeEnd) {
+    let self = this;
+    return CalReadableStreamFactory.createBoundedReadableStream(
+      count,
+      CalReadableStreamFactory.defaultQueueSize,
+      {
+        start(controller) {
+          self.queue.push({
+            action: "get_items",
+            exec: async () => {
+              for await (let value of cal.iterate.streamValues(
+                self.mMemoryCalendar.getItems(itemFilter, count, rangeStart, rangeEnd)
+              )) {
+                controller.enqueue(value);
+              }
+              controller.close();
+            },
+          });
+          self.processQueue();
+        },
+      }
+    );
   },
 
   processQueue() {
@@ -601,13 +612,7 @@ CalICSCalendar.prototype = {
           this.mMemoryCalendar.getItem(a.id).then(a.listener);
           break;
         case "get_items":
-          this.mMemoryCalendar.getItems(
-            a.itemFilter,
-            a.count,
-            a.rangeStart,
-            a.rangeEnd,
-            a.listener
-          );
+          a.exec();
           break;
         case "refresh":
           refreshAction = a;

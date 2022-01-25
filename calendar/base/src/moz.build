@@ -26,6 +26,7 @@ EXTRA_JS_MODULES += [
     "CalMetronome.jsm",
     "CalMimeConverter.jsm",
     "CalProtocolHandler.jsm",
+    "CalReadableStreamFactory.jsm",
     "CalRecurrenceDate.jsm",
     "CalRecurrenceInfo.jsm",
     "CalRelation.jsm",

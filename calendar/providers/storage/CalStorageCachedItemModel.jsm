@@ -4,6 +4,10 @@
 
 const EXPORTED_SYMBOLS = ["CalStorageCachedItemModel"];
 
+const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
 const { CalStorageItemModel } = ChromeUtils.import(
   "resource:///modules/calendar/CalStorageItemModel.jsm"
 );
@@ -83,27 +87,38 @@ class CalStorageCachedItemModel extends CalStorageItemModel {
   /**
    * Overridden here to build the recurring item caches when needed.
    * @param {CalStorageQuery} query
-   * @param {GetItemsListener} listener
+   *
+   * @return {ReadableStream<calIItemBase>
    */
-  async getItems(query, listener) {
-    // HACK because recurring offline events/todos objects don't have offline_journal information
-    // Hence we need to update the offline flags caches.
-    // It can be an expensive operation but is only used in Online Reconciliation mode
-    if (
-      (query.filters.wantOfflineCreatedItems ||
-        query.filters.wantOfflineDeletedItems ||
-        query.filters.wantOfflineModifiedItems) &&
-      this.mRecItemCachePromise
-    ) {
-      // If there's an existing Promise and it's not complete, wait for it - something else is
-      // already waiting and we don't want to break that by throwing away the caches. If it IS
-      // complete, we'll continue immediately.
-      await this.mRecItemCachePromise;
-      await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
-      this.mRecItemCachePromise = null;
-    }
-    await this.assureRecurringItemCaches();
-    return super.getItems(query, listener);
+  getItems(query) {
+    let self = this;
+    let getStream = () => super.getItems(query);
+    return CalReadableStreamFactory.createReadableStream({
+      async start(controller) {
+        // HACK because recurring offline events/todos objects don't have offline_journal information
+        // Hence we need to update the offline flags caches.
+        // It can be an expensive operation but is only used in Online Reconciliation mode
+        if (
+          (query.filters.wantOfflineCreatedItems ||
+            query.filters.wantOfflineDeletedItems ||
+            query.filters.wantOfflineModifiedItems) &&
+          self.mRecItemCachePromise
+        ) {
+          // If there's an existing Promise and it's not complete, wait for it - something else is
+          // already waiting and we don't want to break that by throwing away the caches. If it IS
+          // complete, we'll continue immediately.
+          await self.mRecItemCachePromise;
+          await new Promise(resolve => ChromeUtils.idleDispatch(resolve));
+          self.mRecItemCachePromise = null;
+        }
+        await self.assureRecurringItemCaches();
+
+        for await (let value of cal.iterate.streamValues(getStream())) {
+          controller.enqueue(value);
+        }
+        controller.close();
+      },
+    });
   }
 
   /**

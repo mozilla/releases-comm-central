@@ -34,7 +34,7 @@ function createStorageCalendar(id) {
 
   calendar.uri = uri;
   calendar.id = id;
-  return cal.async.promisifyCalendar(calendar);
+  return calendar;
 }
 
 /**
@@ -67,7 +67,7 @@ async function doPropertiesTest(filterType, originalItem, originalProps, changed
     Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL |
     Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES;
 
-  let savedItems = await calendar.getItems(
+  let savedItems = await calendar.getItemsAsArray(
     filter,
     0,
     cal.createDateTime("20201201T000000Z"),
@@ -117,7 +117,7 @@ async function doPropertiesTest(filterType, originalItem, originalProps, changed
       );
 
       // Refresh the saved items list after the change.
-      savedItems = await calendar.getItems(
+      savedItems = await calendar.getItemsAsArray(
         filter,
         0,
         cal.createDateTime("20201201T000000Z"),
@@ -128,7 +128,7 @@ async function doPropertiesTest(filterType, originalItem, originalProps, changed
 
   // Get a fresh copy of the occurrences by using a new calendar with the
   // same id.
-  let itemsAfterUpdate = await createStorageCalendar(calId).getItems(
+  let itemsAfterUpdate = await createStorageCalendar(calId).getItemsAsArray(
     filter,
     0,
     cal.createDateTime("20201201T000000Z"),

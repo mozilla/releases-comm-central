@@ -5,41 +5,13 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+var { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
+
 /* exported getInvitationsManager, openInvitationsDialog, setUpInvitationsManager,
  *          tearDownInvitationsManager
  */
-
-/**
- * This object contains functions to take care of manipulating requests.
- */
-var gInvitationsRequestManager = {
-  mRequestStatusList: {},
-
-  /**
-   * Add a request to the request manager.
-   *
-   * @param calendar    The calendar to add for.
-   * @param op          The operation to add
-   */
-  addRequestStatus(calendar, operation) {
-    if (operation) {
-      this.mRequestStatusList[calendar.id] = operation;
-    }
-  },
-
-  /**
-   * Cancel all pending requests
-   */
-  cancelPendingRequests() {
-    for (let id in this.mRequestStatusList) {
-      let request = this.mRequestStatusList[id];
-      if (request && request.isPending) {
-        request.cancel(null);
-      }
-    }
-    this.mRequestStatusList = {};
-  },
-};
 
 var gInvitationsManager = null;
 
@@ -64,29 +36,6 @@ const FIRST_DELAY_RESCHEDULE = 100;
 const FIRST_DELAY_REGISTER = 10000;
 const FIRST_DELAY_UNREGISTER = 0;
 
-var gInvitationsOperationListener = {
-  mCount: 0,
-  QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-
-  onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-    let invitationsBox = document.getElementById("calendar-invitations-panel");
-    if (Components.isSuccessCode(aStatus)) {
-      let value = cal.l10n.getLtnString("invitationsLink.label", [this.mCount]);
-      document.getElementById("calendar-invitations-label").value = value;
-      invitationsBox.hidden = this.mCount < 1;
-    } else {
-      invitationsBox.setAttribute("hidden", "true");
-    }
-    this.mCount = 0;
-  },
-
-  onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-    if (Components.isSuccessCode(aStatus)) {
-      this.mCount += aItems.length;
-    }
-  },
-};
-
 var gInvitationsCalendarManagerObserver = {
   mStoredThis: this,
   QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver"]),
@@ -103,8 +52,7 @@ var gInvitationsCalendarManagerObserver = {
 };
 
 function scheduleInvitationsUpdate(firstDelay) {
-  gInvitationsOperationListener.mCount = 0;
-  getInvitationsManager().scheduleInvitationsUpdate(firstDelay, gInvitationsOperationListener);
+  getInvitationsManager().scheduleInvitationsUpdate(firstDelay);
 }
 
 function rescheduleInvitationsUpdate(firstDelay) {
@@ -114,10 +62,7 @@ function rescheduleInvitationsUpdate(firstDelay) {
 
 function openInvitationsDialog() {
   getInvitationsManager().cancelInvitationsUpdate();
-  gInvitationsOperationListener.mCount = 0;
-  getInvitationsManager().openInvitationsDialog(gInvitationsOperationListener, () =>
-    scheduleInvitationsUpdate(FIRST_DELAY_RESCHEDULE)
-  );
+  getInvitationsManager().openInvitationsDialog();
 }
 
 function setUpInvitationsManager() {
@@ -139,7 +84,6 @@ function tearDownInvitationsManager() {
 function InvitationsManager() {
   this.mItemList = [];
   this.mStartDate = null;
-  this.mJobsPending = 0;
   this.mTimer = null;
 
   window.addEventListener("unload", () => {
@@ -151,26 +95,54 @@ function InvitationsManager() {
 InvitationsManager.prototype = {
   mItemList: null,
   mStartDate: null,
-  mJobsPending: 0,
   mTimer: null,
+  mPendingRequests: null,
 
   /**
    * Schedule an update for the invitations manager asynchronously.
    *
    * @param firstDelay          The timeout before the operation should start.
-   * @param operationListener   The calIGenericOperationListener to notify.
    */
-  scheduleInvitationsUpdate(firstDelay, operationListener) {
+  scheduleInvitationsUpdate(firstDelay) {
     this.cancelInvitationsUpdate();
 
-    this.mTimer = setTimeout(() => {
+    this.mTimer = setTimeout(async () => {
       if (Services.prefs.getBoolPref("calendar.invitations.autorefresh.enabled", true)) {
-        this.mTimer = setInterval(() => {
-          this.getInvitations(operationListener);
-        }, Services.prefs.getIntPref("calendar.invitations.autorefresh.timeout", 3) * 60000);
+        this.mTimer = setInterval(
+          async () => this._doInvitationsUpdate(),
+          Services.prefs.getIntPref("calendar.invitations.autorefresh.timeout", 3) * 60000
+        );
       }
-      this.getInvitations(operationListener);
+      await this._doInvitationsUpdate();
     }, firstDelay);
+  },
+
+  async _doInvitationsUpdate() {
+    try {
+      this.toggleInvitationsPanel(await cal.iterate.streamToArray(this.getInvitations()));
+    } catch (e) {
+      cal.ERROR(e);
+      this.toggleInvitationsPanel();
+    }
+  },
+
+  /**
+   * Toggles the display of the invitations panel in the status bar depending
+   * on the number of invitation items found.
+   *
+   * @param {calIItemBase[]?} items - The invitations found, if empty or not
+   *                                  provided, the panel will not be displayed.
+   */
+  toggleInvitationsPanel(items) {
+    let invitationsBox = document.getElementById("calendar-invitations-panel");
+    if (items) {
+      let count = items.length;
+      let value = cal.l10n.getLtnString("invitationsLink.label", [count]);
+      document.getElementById("calendar-invitations-label").value = value;
+      invitationsBox.hidden = count < 1;
+    } else {
+      invitationsBox.setAttribute("hidden", "true");
+    }
   },
 
   /**
@@ -181,101 +153,38 @@ InvitationsManager.prototype = {
   },
 
   /**
+   * Cancel any pending queries for invitations.
+   */
+  async cancelPendingRequests() {
+    return this.mPendingRequests && this.mPendingRequests.cancel();
+  },
+
+  /**
    * Retrieve invitations from all calendars. Notify all passed
    * operation listeners.
    *
-   * @param operationListener1    The first operation listener to notify.
-   * @param operationListener2    (optional) The second operation listener to
-   *                                notify.
+   * @return {ReadableStream<calIItemBase>}
    */
-  getInvitations(operationListener1, operationListener2) {
-    let listeners = [];
-    if (operationListener1) {
-      listeners.push(operationListener1);
-    }
-    if (operationListener2) {
-      listeners.push(operationListener2);
-    }
-
-    gInvitationsRequestManager.cancelPendingRequests();
+  getInvitations() {
     this.updateStartDate();
     this.deleteAllItems();
 
-    let cals = cal.getCalendarManager().getCalendars();
-
-    let opListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      mCount: cals.length,
-      mRequestManager: gInvitationsRequestManager,
-      mInvitationsManager: this,
-      mHandledItems: {},
-
-      // calIOperationListener
-      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-        if (--this.mCount == 0) {
-          this.mInvitationsManager.mItemList.sort((a, b) => {
-            return a.startDate.compare(b.startDate);
-          });
-          for (let listener of listeners) {
-            try {
-              if (this.mInvitationsManager.mItemList.length) {
-                // Only call if there are actually items
-                listener.onGetResult(
-                  null,
-                  Cr.NS_OK,
-                  Ci.calIItemBase,
-                  null,
-                  this.mInvitationsManager.mItemList
-                );
-              }
-              listener.onOperationComplete(
-                null,
-                Cr.NS_OK,
-                Ci.calIOperationListener.GET,
-                null,
-                null
-              );
-            } catch (exc) {
-              cal.ERROR(exc);
-            }
-          }
-        }
-      },
-
-      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        if (Components.isSuccessCode(aStatus)) {
-          for (let item of aItems) {
-            // we need to retrieve by occurrence to properly filter exceptions,
-            // should be fixed with bug 416975
-            item = item.parentItem;
-            let hid = item.hashId;
-            if (!this.mHandledItems[hid]) {
-              this.mHandledItems[hid] = true;
-              this.mInvitationsManager.addItem(item);
-            }
-          }
-        }
-      },
-    };
-
-    for (let calendar of cals) {
+    let streams = [];
+    for (let calendar of cal.getCalendarManager().getCalendars()) {
       if (!cal.acl.isCalendarWritable(calendar) || calendar.getProperty("disabled")) {
-        opListener.onOperationComplete();
         continue;
       }
 
       // temporary hack unless calCachedCalendar supports REQUEST_NEEDS_ACTION filter:
       calendar = calendar.getProperty("cache.uncachedCalendar");
       if (!calendar) {
-        opListener.onOperationComplete();
         continue;
       }
 
-      try {
-        calendar = calendar.QueryInterface(Ci.calICalendar);
-        let endDate = this.mStartDate.clone();
-        endDate.year += 1;
-        let operation = calendar.getItems(
+      let endDate = this.mStartDate.clone();
+      endDate.year += 1;
+      streams.push(
+        calendar.getItems(
           Ci.calICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION |
             Ci.calICalendar.ITEM_FILTER_TYPE_ALL |
             // we need to retrieve by occurrence to properly filter exceptions,
@@ -283,15 +192,42 @@ InvitationsManager.prototype = {
             Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES,
           0,
           this.mStartDate,
-          endDate /* we currently cannot pass null here, because of bug 416975 */,
-          opListener
-        );
-        gInvitationsRequestManager.addRequestStatus(calendar, operation);
-      } catch (exc) {
-        opListener.onOperationComplete();
-        cal.ERROR(exc);
-      }
+          endDate /* we currently cannot pass null here, because of bug 416975 */
+        )
+      );
     }
+
+    let self = this;
+    let mHandledItems = {};
+    return CalReadableStreamFactory.createReadableStream({
+      async start(controller) {
+        await self.cancelPendingRequests();
+
+        self.mPendingRequests = cal.iterate.streamValues(
+          CalReadableStreamFactory.createCombinedReadableStream(streams)
+        );
+
+        for await (let items of self.mPendingRequests) {
+          for (let item of items) {
+            // we need to retrieve by occurrence to properly filter exceptions,
+            // should be fixed with bug 416975
+            item = item.parentItem;
+            let hid = item.hashId;
+            if (!mHandledItems[hid]) {
+              mHandledItems[hid] = true;
+              self.addItem(item);
+            }
+          }
+        }
+
+        self.mItemList.sort((a, b) => {
+          return a.startDate.compare(b.startDate);
+        });
+      },
+      close() {
+        self.mPendingRequests = null;
+      },
+    });
   },
 
   /**
@@ -299,19 +235,11 @@ InvitationsManager.prototype = {
    *
    * XXX Passing these listeners in instead of keeping them in the window
    * sounds fishy to me. Maybe there is a more encapsulated solution.
-   *
-   * @param onLoadOpListener          The operation listener to notify when
-   *                                    getting invitations. Should be passed
-   *                                    to this.getInvitations().
-   * @param finishedCallBack          A callback function to call when the
-   *                                    dialog has completed.
    */
-  openInvitationsDialog(onLoadOpListener, finishedCallBack) {
+  openInvitationsDialog() {
     let args = {};
-    args.onLoadOperationListener = onLoadOpListener;
     args.queue = [];
-    args.finishedCallBack = finishedCallBack;
-    args.requestManager = gInvitationsRequestManager;
+    args.finishedCallBack = () => this.scheduleInvitationsUpdate(FIRST_DELAY_RESCHEDULE);
     args.invitationsManager = this;
     // the dialog will reset this to auto when it is done loading
     window.setCursor("wait");
@@ -330,59 +258,23 @@ InvitationsManager.prototype = {
    * operations into account.
    *
    * @param queue                         The array of objects to process.
-   * @param jobQueueFinishedCallBack      A callback function called when
-   *                                        job has finished.
    */
-  async processJobQueue(queue, jobQueueFinishedCallBack) {
+  async processJobQueue(queue) {
     // TODO: undo/redo
-    function operationListener(mgr, queueCallback, oldItem_) {
-      this.mInvitationsManager = mgr;
-      this.mJobQueueFinishedCallBack = queueCallback;
-      this.mOldItem = oldItem_;
-    }
-    operationListener.prototype = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-        if (
-          Components.isSuccessCode(aStatus) &&
-          aOperationType == Ci.calIOperationListener.MODIFY
-        ) {
-          cal.itip.checkAndSend(aOperationType, aDetail, this.mOldItem);
-          this.mInvitationsManager.deleteItem(aDetail);
-          this.mInvitationsManager.addItem(aDetail);
-        }
-        this.mInvitationsManager.mJobsPending--;
-        if (this.mInvitationsManager.mJobsPending == 0 && this.mJobQueueFinishedCallBack) {
-          this.mJobQueueFinishedCallBack();
-        }
-      },
-
-      onGetResult(calendar, status, itemType, detail, items) {},
-    };
-
-    this.mJobsPending = 0;
     for (let i = 0; i < queue.length; i++) {
       let job = queue[i];
       let oldItem = job.oldItem;
       let newItem = job.newItem;
       switch (job.action) {
         case "modify":
-          this.mJobsPending++;
           let item = await newItem.calendar.modifyItem(newItem, oldItem);
           cal.itip.checkAndSend(Ci.calIOperationListener.MODIFY, item, oldItem);
           this.deleteItem(item);
           this.addItem(item);
-          this.mJobsPending--;
-          if (this.mJobsPending == 0 && jobQueueFinishedCallBack) {
-            jobQueueFinishedCallBack();
-          }
           break;
         default:
           break;
       }
-    }
-    if (this.mJobsPending == 0 && jobQueueFinishedCallBack) {
-      jobQueueFinishedCallBack();
     }
   },
 

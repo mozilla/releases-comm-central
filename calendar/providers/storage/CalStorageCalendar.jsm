@@ -7,6 +7,9 @@ const EXPORTED_SYMBOLS = ["CalStorageCalendar"];
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { CalReadableStreamFactory } = ChromeUtils.import(
+  "resource:///modules/CalReadableStreamFactory.jsm"
+);
 const { CalStorageDatabase } = ChromeUtils.import(
   "resource:///modules/calendar/CalStorageDatabase.jsm"
 );
@@ -379,45 +382,36 @@ CalStorageCalendar.prototype = {
     return this.mItemModel.getItemById(aId);
   },
 
-  // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
-  //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
-  //                in calIOperationListener aListener );
-  async getItems(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-    if (!aListener) {
-      return;
-    }
-
+  // ReadableStream<calIItemBase> getItems(in unsigned long itemFilter,
+  //                                       in unsigned long count,
+  //                                       in calIDateTime rangeStart,
+  //                                       in calIDateTime rangeEnd);
+  getItems(itemFilter, count, rangeStart, rangeEnd) {
     let query = {
-      rangeStart: aRangeStart,
-      rangeEnd: aRangeEnd,
+      rangeStart,
+      rangeEnd,
       filters: {
         wantUnrespondedInvitations:
-          ((aItemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0) &
+          ((itemFilter & kCalICalendar.ITEM_FILTER_REQUEST_NEEDS_ACTION) != 0) &
           this.superCalendar.supportsScheduling,
-        wantEvents: (aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0,
-        wantTodos: (aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0,
-        asOccurrences: (aItemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0,
-        wantOfflineDeletedItems: (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0,
-        wantOfflineCreatedItems: (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0,
-        wantOfflineModifiedItems: (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0,
-        itemCompletedFilter: (aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_YES) != 0,
-        itemNotCompletedFilter: (aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_NO) != 0,
+        wantEvents: (itemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0,
+        wantTodos: (itemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0,
+        asOccurrences: (itemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0,
+        wantOfflineDeletedItems: (itemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0,
+        wantOfflineCreatedItems: (itemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0,
+        wantOfflineModifiedItems: (itemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0,
+        itemCompletedFilter: (itemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_YES) != 0,
+        itemNotCompletedFilter: (itemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_NO) != 0,
       },
-      count: aCount,
+      count,
     };
 
     if ((!query.filters.wantEvents && !query.filters.wantTodos) || this.getProperty("disabled")) {
       // nothing to do
-      this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
-      return;
+      return CalReadableStreamFactory.createEmptyReadableStream();
     }
 
-    await this.mItemModel.getItems(query, (items, queuedItemsIID) => {
-      aListener.onGetResult(this.superCalendar, Cr.NS_OK, queuedItemsIID, null, items);
-    });
-
-    // and finish
-    this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
+    return this.mItemModel.getItems(query);
   },
 
   async getItemOfflineFlag(aItem) {

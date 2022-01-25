@@ -6,7 +6,6 @@ var EXPORTED_SYMBOLS = ["CalAlarmService"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var kHoursBetweenUpdates = 6;
@@ -661,74 +660,55 @@ CalAlarmService.prototype = {
     }
   },
 
-  findAlarms(aCalendars, aStart, aUntil) {
-    let getListener = {
-      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-      alarmService: this,
-      addRemovePromise: PromiseUtils.defer(),
-      batchCount: 0,
-      results: false,
-      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-        this.addRemovePromise.promise.then(
-          aValue => {
-            // calendar has been loaded, so until now, onLoad events can be ignored:
-            this.alarmService.mLoadedCalendars[aCalendar.id] = true;
-
-            // notify observers that the alarms for the calendar have been loaded
-            this.alarmService.mObservers.notify("onAlarmsLoaded", [aCalendar]);
-          },
-          aReason => {
-            Cu.reportError("Promise was rejected: " + aReason);
-            this.alarmService.mLoadedCalendars[aCalendar.id] = true;
-            this.alarmService.mObservers.notify("onAlarmsLoaded", [aCalendar]);
-          }
-        );
-
-        // if no results were returned we still need to resolve the promise
-        if (!this.results) {
-          this.addRemovePromise.resolve();
-        }
-      },
-      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        let promise = this.addRemovePromise;
-        this.batchCount++;
-        this.results = true;
-
-        cal.iterate.forEach(
-          aItems,
-          item => {
-            try {
-              this.alarmService.removeAlarmsForItem(item);
-              this.alarmService.addAlarmsForItem(item);
-            } catch (ex) {
-              promise.reject(ex);
-            }
-          },
-          () => {
-            if (--this.batchCount <= 0) {
-              promise.resolve();
-            }
-          }
-        );
-      },
-    };
-
+  async findAlarms(aCalendars, aStart, aUntil) {
     const calICalendar = Ci.calICalendar;
     let filter =
       calICalendar.ITEM_FILTER_COMPLETED_ALL |
       calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
       calICalendar.ITEM_FILTER_TYPE_ALL;
 
-    for (let calendar of aCalendars) {
-      // assuming that suppressAlarms does not change anymore until refresh:
-      if (!calendar.getProperty("suppressAlarms") && !calendar.getProperty("disabled")) {
+    await Promise.all(
+      aCalendars.map(async calendar => {
+        if (calendar.getProperty("suppressAlarms") && calendar.getProperty("disabled")) {
+          this.mLoadedCalendars[calendar.id] = true;
+          this.mObservers.notify("onAlarmsLoaded", [calendar]);
+          return;
+        }
+
+        // Assuming that suppressAlarms does not change anymore until next refresh.
         this.mLoadedCalendars[calendar.id] = false;
-        calendar.getItems(filter, 0, aStart, aUntil, getListener);
-      } else {
+
+        for await (let items of cal.iterate.streamValues(
+          calendar.getItems(filter, 0, aStart, aUntil)
+        )) {
+          await new Promise((resolve, reject) => {
+            cal.iterate.forEach(
+              items,
+              item => {
+                try {
+                  this.removeAlarmsForItem(item);
+                  this.addAlarmsForItem(item);
+                } catch (e) {
+                  Cu.reportError("Promise was rejected: " + e);
+                  this.mLoadedCalendars[calendar.id] = true;
+                  this.mObservers.notify("onAlarmsLoaded", [calendar]);
+                  reject(e);
+                }
+              },
+              () => {
+                resolve();
+              }
+            );
+          });
+        }
+
+        // The calendar has been loaded, so until now, onLoad events can be ignored.
         this.mLoadedCalendars[calendar.id] = true;
+
+        // Notify observers that the alarms for the calendar have been loaded.
         this.mObservers.notify("onAlarmsLoaded", [calendar]);
-      }
-    }
+      })
+    );
   },
 
   initAlarms(aCalendars) {

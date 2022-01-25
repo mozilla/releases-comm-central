@@ -22,7 +22,6 @@
    * May get/set value in javascript with
    *   document.querySelector("#my-date-picker").value = new Date();
    *
-   * @implements {calIOperationListener}
    * @implements {calIObserver}
    * @implements {calICompositeObserver}
    */
@@ -32,7 +31,6 @@
       // Set up custom interfaces.
       this.calIObserver = this.getCustomInterfaceCallback(Ci.calIObserver);
       this.calICompositeObserver = this.getCustomInterfaceCallback(Ci.calICompositeObserver);
-      this.calIOperationListener = this.getCustomInterfaceCallback(Ci.calIOperationListener);
 
       let onPreferenceChanged = () => {
         delete this.dayBoxes; // Days have moved, force a refresh of the grid.
@@ -314,16 +312,6 @@
       return this.querySelector(".minimonth-readonly-header");
     }
 
-    // calIOperationListener methods.
-
-    onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {}
-
-    onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-      if (Components.isSuccessCode(aStatus)) {
-        aItems.forEach(item => this.setBusyDaysForOccurrence(item, true));
-      }
-    }
-
     setBusyDaysForItem(aItem, aState) {
       let items = aItem.recurrenceInfo
         ? aItem.getOccurrencesBetween(this.firstDate, this.lastDate)
@@ -416,7 +404,6 @@
       }
     }
 
-    // End of calIOperationListener methods.
     // calIObserver methods.
     calendarsInBatch = new Set();
 
@@ -816,7 +803,7 @@
       return super.setAttribute(aAttr, aVal);
     }
 
-    getItems(aCalendar) {
+    async getItems(aCalendar) {
       // The minimonth automatically clears extra styles on a month change.
       // Therefore we only need to fill the minimonth with new info.
 
@@ -827,7 +814,11 @@
         calendar.ITEM_FILTER_ALL_ITEMS;
 
       // Get new info.
-      calendar.getItems(filter, 0, this.firstDate, this.lastDate, this.calIOperationListener);
+      for await (let items of cal.iterate.streamValues(
+        calendar.getItems(filter, 0, this.firstDate, this.lastDate)
+      )) {
+        items.forEach(item => this.setBusyDaysForOccurrence(item, true));
+      }
     }
 
     updateAccessibleLabel() {
@@ -1018,7 +1009,6 @@
   MozXULElement.implementCustomInterface(CalendarMinimonth, [
     Ci.calIObserver,
     Ci.calICompositeObserver,
-    Ci.calIOperationListener,
   ]);
   customElements.define("calendar-minimonth", CalendarMinimonth);
 }
