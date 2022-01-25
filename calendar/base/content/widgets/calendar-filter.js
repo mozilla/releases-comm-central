@@ -1091,9 +1091,7 @@ let CalendarFilteredViewMixin = Base =>
 
     /**
      * One of the calICalendar.ITEM_FILTER_TYPE constants.
-     *
-     * Set this to a value to begin notification of item changes in calendars.
-     * Set it to 0 to stop notifications.
+     * This must be set to a non-zero value in order to display any items.
      *
      * @type {number}
      */
@@ -1107,6 +1105,29 @@ let CalendarFilteredViewMixin = Base =>
       }
 
       this.#filter.itemType = value;
+      this.#invalidate();
+    }
+
+    #isActive = false;
+
+    /**
+     * Whether the view is active.
+     *
+     * Whilst the view is active, it will listen for item changes. Otherwise,
+     * if the view is set to be inactive, it will stop listening for changes.
+     *
+     * @type {boolean}
+     */
+    get isActive() {
+      return this.#isActive;
+    }
+
+    set isActive(value) {
+      if (this.isActive == value) {
+        return;
+      }
+
+      this.#isActive = value;
       this.#calendarObserver.self = this;
       if (value) {
         cal.manager.addCalendarObserver(this.#calendarObserver);
@@ -1198,7 +1219,7 @@ let CalendarFilteredViewMixin = Base =>
      * @return {Promise} A promise resolved when this calendar has refreshed.
      */
     async #refreshCalendar(calendar) {
-      if (!this.itemType || !this.#isCalendarVisible(calendar)) {
+      if (!this.#isActive || !this.itemType || !this.#isCalendarVisible(calendar)) {
         return;
       }
       let iterator = cal.iterate.streamValues(this.#filter.getItems(calendar));

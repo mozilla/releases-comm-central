@@ -43,6 +43,7 @@ add_task(async function testBasicFunctionality() {
   let dayViewButton = document.querySelector("#calendar-day-view-button");
   dayViewButton.click();
   Assert.ok(dayViewButton.selected, "day view button is selected");
+  await CalendarTestUtils.ensureViewLoaded(window);
 
   // Day view should have 09:00 box.
   let someTime = cal.createDateTime();

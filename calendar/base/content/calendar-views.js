@@ -8,6 +8,8 @@
 
 //                           The calendar view class hierarchy.
 //
+//                                 CalendarFilteredViewMixin
+//                                             |
 //                                     CalendarBaseView
 //                                     /               \
 //             CalendarMultidayBaseView                CalendarMonthBaseView
@@ -36,7 +38,7 @@
 
     goToDay(date) {
       if (!date) {
-        this.refresh();
+        this.relayout();
         return;
       }
       const timezoneDate = date.getInTimezone(this.timezone);
@@ -74,7 +76,7 @@
       this.displayDaysOff = !this.mWorkdaysOnly;
 
       if (!date) {
-        this.refresh();
+        this.relayout();
         return;
       }
       date = date.getInTimezone(this.timezone);
@@ -173,7 +175,7 @@
         this.setDateRange(dayStart, dayEnd);
         this.selectedDay = date;
       } else {
-        this.refresh();
+        this.relayout();
       }
     }
 

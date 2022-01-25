@@ -126,12 +126,16 @@
       }
     }
 
-    setDate(aDate) {
+    clear() {
       // Remove all the old events.
       this.mItemHash = {};
       while (this.dayList.lastChild) {
         this.dayList.lastChild.remove();
       }
+    }
+
+    setDate(aDate) {
+      this.clear();
 
       if (this.mDate && aDate && this.mDate.compare(aDate) == 0) {
         return;
@@ -550,14 +554,6 @@
       return false;
     }
 
-    get startDate() {
-      return this.mStartDate;
-    }
-
-    get endDate() {
-      return this.mEndDate;
-    }
-
     set selectedDay(day) {
       if (this.mSelectedDayBox) {
         this.mSelectedDayBox.selected = false;
@@ -644,8 +640,7 @@
         this.setDateRange(date.startOfMonth, date.endOfMonth);
         this.selectedDay = date;
       } else {
-        // Refresh the selected day if it doesn't appear in the view.
-        this.refresh();
+        this.setDateRange(this.rangeStartDate, this.rangeEndDate);
       }
     }
 
@@ -664,6 +659,12 @@
 
       this.mStartDate = viewStart;
       this.mEndDate = viewEnd;
+
+      // The start and end dates to query calendars with (in CalendarFilteredViewMixin).
+      this.startDate = viewStart;
+      let viewEndPlusOne = viewEnd.clone();
+      viewEndPlusOne.day++;
+      this.endDate = viewEndPlusOne;
 
       // Check values of tasksInView, workdaysOnly, showCompleted.
       // See setDateRange comment in calendar-multiday-base-view.js.
@@ -692,7 +693,7 @@
         this.mViewStart.compare(viewStart) != 0 ||
         this.mToggleStatus != toggleStatus
       ) {
-        this.refresh();
+        this.relayout();
       }
     }
 
@@ -991,6 +992,7 @@
       }
 
       this.mToggleStatus = toggleStatus;
+      this.refreshItems(true);
     }
 
     /**
@@ -1150,12 +1152,23 @@
       }
     }
 
+    // CalendarFilteredViewMixin implementation.
+
+    /**
+     * Removes all items so they are no longer displayed.
+     */
+    clearItems() {
+      for (let dayBox of this.querySelectorAll("calendar-month-day-box")) {
+        dayBox.clear();
+      }
+    }
+
     /**
      * Remove all items for a given calendar so they are no longer displayed.
      *
-     * @param {calICalendar} calendar    A calendar object.
+     * @param {string} calendarId - The ID of the calendar to remove items from.
      */
-    removeItemsFromCalendar(calendar) {
+    removeItemsFromCalendar(calendarId) {
       if (!this.mDateBoxes) {
         return;
       }
@@ -1164,12 +1177,14 @@
           const node = box.mItemHash[id];
           const item = node.item;
 
-          if (item.calendar.id == calendar.id) {
+          if (item.calendar.id == calendarId) {
             box.removeItem(item);
           }
         }
       }
     }
+
+    // End of CalendarFilteredViewMixin implementation.
 
     /**
      * Make a calendar item flash.  Used when an alarm goes off to make the related item flash.
@@ -1178,7 +1193,7 @@
      * @param {boolean} stop        Whether to stop flashing that's already started.
      */
     flashAlarm(item, stop) {
-      if (!this.initialized) {
+      if (!this.mStartDate || !this.mEndDate) {
         return;
       }
 

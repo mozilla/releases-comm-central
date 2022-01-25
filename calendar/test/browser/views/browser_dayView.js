@@ -57,14 +57,16 @@ add_task(async function testDayView() {
   await setData(dialogWindow, iframeWindow, { title: TITLE2 });
   await saveAndCloseItemDialog(dialogWindow);
 
-  await CalendarTestUtils.ensureViewLoaded(window);
-
   // Check if name was saved.
-  eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
-  let eventName = eventBox.querySelector(".event-name-label");
+  await TestUtils.waitForCondition(() => {
+    eventBox = CalendarTestUtils.dayView.getEventBoxAt(window, 1);
+    if (!eventBox) {
+      return false;
+    }
 
-  Assert.ok(eventName);
-  Assert.equal(eventName.textContent, TITLE2);
+    let eventName = eventBox.querySelector(".event-name-label");
+    return eventName.textContent == TITLE2;
+  }, "event was modified in the view");
 
   // Delete event
   EventUtils.synthesizeMouseAtCenter(eventBox, {}, window);

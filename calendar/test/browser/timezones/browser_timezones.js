@@ -844,6 +844,9 @@ async function verify(dates, timezones, times) {
         await CalendarTestUtils.calendarViewBackward(window, 1);
       }
 
+      // Wait for at least one event box to exist.
+      await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
+
       let eventPositions = Array.from(CalendarTestUtils.dayView.getEventBoxes(window))
         .filter(node => node.mOccurrence.title == timezones[tzIdx])
         .map(node => node.getBoundingClientRect().y);
@@ -858,7 +861,7 @@ async function verify(dates, timezones, times) {
 
       Assert.ok(
         eventPositions.some(pos => Math.abs(timeY - pos) < allowedDifference),
-        `Should exist some event box that starts at ${hour} hours, ${minutes} minutes`
+        `There should be an event box that starts at ${hour} hours, ${minutes} minutes`
       );
     }
   }

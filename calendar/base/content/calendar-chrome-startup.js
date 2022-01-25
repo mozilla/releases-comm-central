@@ -87,8 +87,10 @@ async function loadCalendarComponent() {
   document.getElementById("calendar-view-splitter").addEventListener("command", () => {
     window.dispatchEvent(new CustomEvent("viewresize"));
   });
-  window.addEventListener("resize", () => {
-    window.dispatchEvent(new CustomEvent("viewresize"));
+  window.addEventListener("resize", event => {
+    if (event.target == window) {
+      window.dispatchEvent(new CustomEvent("viewresize"));
+    }
   });
 
   // Set calendar color CSS on this window

@@ -710,9 +710,7 @@ const CalendarTestUtils = {
    * @param {Window} win
    */
   async ensureViewLoaded(win) {
-    await TestUtils.waitForCondition(() => win.currentView().mPendingRefreshJobs.size == 0);
-    // After the queue is empty the view needs a moment to settle.
-    await new Promise(resolve => win.setTimeout(resolve, 200));
+    await win.currentView().ready;
   },
 
   /**
@@ -723,6 +721,7 @@ const CalendarTestUtils = {
    */
   async setCalendarView(win, viewName) {
     await CalendarTestUtils.openCalendarTab(win);
+    await CalendarTestUtils.ensureViewLoaded(win);
 
     let viewTabButton = win.document.getElementById(`calendar-${viewName}-view-button`);
     EventUtils.synthesizeMouseAtCenter(viewTabButton, { clickCount: 1 }, win);
@@ -741,8 +740,8 @@ const CalendarTestUtils = {
     let viewForwardButton = win.document.getElementById("next-view-button");
     for (let i = 0; i < n; i++) {
       await clickAndWait(win, viewForwardButton);
+      await CalendarTestUtils.ensureViewLoaded(win);
     }
-    await CalendarTestUtils.ensureViewLoaded(win);
   },
 
   /**
@@ -755,8 +754,8 @@ const CalendarTestUtils = {
     let viewBackwardButton = win.document.getElementById("previous-view-button");
     for (let i = 0; i < n; i++) {
       await clickAndWait(win, viewBackwardButton);
+      await CalendarTestUtils.ensureViewLoaded(win);
     }
-    await CalendarTestUtils.ensureViewLoaded(win);
   },
 
   /**

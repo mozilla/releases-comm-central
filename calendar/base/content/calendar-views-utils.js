@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported switchToView, getSelectedDay, minimonthPick,
+/* exported switchToView, minimonthPick,
  *          observeViewDaySelect, toggleOrientation,
  *          toggleWorkdaysOnly, toggleTasksInView, toggleShowCompletedInView,
  *          goToDate, gLastShownCalendarView, deleteSelectedEvents,
@@ -263,12 +263,12 @@ function switchToView(viewType) {
   ids = ["previous-view-button", "today-view-button", "next-view-button"];
   ids.forEach(x => setupViewNode(x, "tooltiptext"));
 
-  try {
-    selectedDay = getSelectedDay();
-    currentSelection = currentView().getSelectedItems();
-  } catch (ex) {
-    // This dies if no view has even been chosen this session, but that's
-    // ok because we'll just use cal.dtz.now() below.
+  let oldView = currentView();
+  if (oldView?.isActive) {
+    selectedDay = oldView.selectedDay;
+    currentSelection = oldView.getSelectedItems();
+    oldView.isActive = false;
+    oldView.clearItems();
   }
 
   if (!selectedDay) {
@@ -290,9 +290,7 @@ function switchToView(viewType) {
   let viewTabs = document.getElementById("view-tabs");
   viewTabs.selectedIndex = viewBox.getAttribute("selectedIndex");
 
-  let compositeCal = cal.view.getCompositeCalendar(window);
-  if (view.displayCalendar != compositeCal) {
-    view.displayCalendar = compositeCal;
+  if (!view.controller) {
     view.timezone = cal.dtz.defaultTimezone;
     view.controller = calendarViewController;
   }
@@ -301,6 +299,8 @@ function switchToView(viewType) {
   view.setSelectedItems(currentSelection);
 
   view.onResize(view);
+  view.isActive = true;
+  view.refreshItems();
 }
 
 /**
@@ -324,15 +324,6 @@ function currentView() {
     }
   }
   return null;
-}
-
-/**
- * Returns the selected day in the current view.
- *
- * @return      The selected day
- */
-function getSelectedDay() {
-  return currentView().selectedDay;
 }
 
 /**

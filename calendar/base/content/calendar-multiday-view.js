@@ -1215,8 +1215,6 @@
         // We won't pass a calendar, since the display calendar is the
         // composite anyway. createNewEvent() will use the selected
         // calendar.
-        // TODO We might want to get rid of the extra displayCalendar
-        // member.
         col.calendarView.controller.createNewEvent(null, newStart, newEnd);
       } else if (
         dragState.dragType == "move" ||
@@ -2146,7 +2144,6 @@
       // by refresh, we will scroll to this.
       // FIXME: Find a cleaner solution.
       this.scrollMinute = this.dayStartHour * 60;
-      this.refresh();
     }
 
     // calICalendarView Properties
@@ -2165,24 +2162,6 @@
 
     get hasDisjointDates() {
       return this.mDateList != null;
-    }
-
-    get startDate() {
-      if (this.mStartDate) {
-        return this.mStartDate;
-      } else if (this.mDateList && this.mDateList.length > 0) {
-        return this.mDateList[0];
-      }
-      return null;
-    }
-
-    get endDate() {
-      if (this.mEndDate) {
-        return this.mEndDate;
-      } else if (this.mDateList && this.mDateList.length > 0) {
-        return this.mDateList[this.mDateList.length - 1];
-      }
-      return null;
     }
 
     set selectedDay(day) {
@@ -2775,15 +2754,17 @@
       const targetDate = date.getInTimezone(this.mTimezone);
       targetDate.isDate = true;
 
-      if (this.mStartDate && this.mEndDate) {
-        if (this.mStartDate.compare(targetDate) <= 0 && this.mEndDate.compare(targetDate) >= 0) {
-          return;
-        }
-      } else if (this.mDateList) {
-        for (const listDate of this.mDateList) {
-          // If date is already visible, nothing to do.
-          if (listDate.compare(targetDate) == 0) {
+      if (this.mStartDate.timezone.tzid == date.timezone.tzid) {
+        if (this.mStartDate && this.mEndDate) {
+          if (this.mStartDate.compare(targetDate) <= 0 && this.mEndDate.compare(targetDate) >= 0) {
             return;
+          }
+        } else if (this.mDateList) {
+          for (const listDate of this.mDateList) {
+            // If date is already visible, nothing to do.
+            if (listDate.compare(targetDate) == 0) {
+              return;
+            }
           }
         }
       }
@@ -2810,14 +2791,15 @@
       viewStart.makeImmutable();
       viewEnd.isDate = true;
       viewEnd.makeImmutable();
+
       this.mStartDate = viewStart;
       this.mEndDate = viewEnd;
 
-      // goToDay are called when toggle the values below. The attempt to fix
-      // Bug 872063 has modified the behavior of setDateRange, which doesn't
-      // always refresh the view anymore. That is not the expected behavior
-      // by goToDay. Add checks here to determine if the view need to be
-      // refreshed.
+      // The start and end dates to query calendars with (in CalendarFilteredViewMixin).
+      this.startDate = viewStart;
+      let viewEndPlusOne = viewEnd.clone();
+      viewEndPlusOne.day++;
+      this.endDate = viewEndPlusOne;
 
       // First, check values of tasksInView, workdaysOnly, showCompleted.
       // Their status will determine the value of toggleStatus, which is
@@ -2843,11 +2825,12 @@
       if (
         !this.mViewStart ||
         !this.mViewEnd ||
+        this.mViewStart.timezone.tzid != viewStart.timezone.tzid ||
         this.mViewEnd.compare(viewEnd) != 0 ||
         this.mViewStart.compare(viewStart) != 0 ||
         this.mToggleStatus != toggleStatus
       ) {
-        this.refresh();
+        this.relayout({ dates: true });
       }
     }
 
@@ -3231,6 +3214,10 @@
       }
 
       this.mToggleStatus = toggleStatus;
+      if (changes.dates) {
+        // Fetch new items for the new dates.
+        this.refreshItems(true);
+      }
     }
 
     /**
@@ -3396,23 +3383,37 @@
       }
     }
 
+    // CalendarFilteredViewMixin implementation.
+
+    /**
+     * Removes all items so they are no longer displayed.
+     */
+    clearItems() {
+      for (let dayCol of this.dayColumns) {
+        dayCol.column.clear();
+        dayCol.header.clear();
+      }
+    }
+
     /**
      * Remove all items for a given calendar so they are no longer displayed.
      *
-     * @param {calICalendar} calendar    A calendar object.
+     * @param {string} calendarId - The ID of the calendar to remove items from.
      */
-    removeItemsFromCalendar(calendar) {
+    removeItemsFromCalendar(calendarId) {
       for (const col of this.dayColumns) {
         // Get all-day events in column header and events within the column.
         const colEvents = col.header.getAllEventItems().concat(col.column.getAllEventItems());
 
         for (const event of colEvents) {
-          if (event.calendar.id == calendar.id) {
+          if (event.calendar.id == calendarId) {
             this.doRemoveItem(event);
           }
         }
       }
     }
+
+    // End of CalendarFilteredViewMixin implementation.
 
     /**
      * Clear the pending magic scroll update method.

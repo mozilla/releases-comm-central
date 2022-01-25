@@ -46,7 +46,7 @@ let calendar, testWidget;
 let testItems = {};
 let addedTestItems = {};
 
-add_task(async function setUp() {
+add_setup(async function() {
   await new Promise(resolve => do_calendar_startup(resolve));
 
   calendar = CalendarTestUtils.createCalendar("test", "storage");
@@ -57,6 +57,7 @@ add_task(async function setUp() {
   testWidget.startDate = cal.createDateTime("20210801");
   testWidget.endDate = cal.createDateTime("20210831");
   testWidget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+  testWidget.isActive = true;
 
   for (let [title, startDate, endDate] of [
     ["before", "20210720", "20210721"],
@@ -795,6 +796,7 @@ add_task(async function testChangeWhileRefreshing() {
 
   let widget = new TestCalFilter();
   widget.id = "test-filter";
+  widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
 
   let ready1 = widget.ready;
   let ready1Resolved, ready1Rejected;
@@ -810,7 +812,7 @@ add_task(async function testChangeWhileRefreshing() {
   // Ask the calendars for items. Get a waiting Promise before and after doing so.
   // These should be the same as the earlier Promise.
 
-  widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+  widget.isActive = true;
 
   Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
   Assert.equal(widget.refreshItems(), ready1, ".refreshItems should return the same Promise");
@@ -822,9 +824,9 @@ add_task(async function testChangeWhileRefreshing() {
   await TestUtils.waitForCondition(() => widget.addedItems.length == 1, "first added item");
   Assert.equal(widget.addedItems[0].title, testItems.during.title, "added item was expected");
 
-  // Change the item type again. This invalidates the earlier call to `refreshItems`.
+  // Make the widget inactive. This invalidates the earlier call to `refreshItems`.
 
-  widget.itemType = 0;
+  widget.isActive = false;
 
   // Return some more items from the calendar. These should be ignored.
 
@@ -844,9 +846,9 @@ add_task(async function testChangeWhileRefreshing() {
   Assert.equal(ready1Resolved, undefined, "Promise did not yet resolve");
   Assert.equal(ready1Rejected, undefined, "Promise did not yet reject");
 
-  // Reset the item type so we can test some other things.
+  // Make the widget active again so we can test some other things.
 
-  widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+  widget.isActive = true;
   widget.clearItems();
 
   // Start a refresh...

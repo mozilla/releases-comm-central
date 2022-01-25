@@ -109,12 +109,8 @@ async function assertEditable(eventElement, editable, message) {
 
 async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
   async function makeChangeWithReload(changeFunction) {
-    let loadedPromise = BrowserTestUtils.waitForEvent(view, "viewloaded");
     await changeFunction();
-    await loadedPromise;
-    // 5ms delay in MozCalendarEventColumn.addEvent.
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(r => setTimeout(r, 5));
+    await CalendarTestUtils.ensureViewLoaded(window);
   }
 
   async function checkBoxItems(expectedCount, checkFunction) {
@@ -139,11 +135,8 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
 
   let view = document.getElementById(`${viewName}-view`);
 
-  window.goToDate(cal.createDateTime("20150201T000000Z"));
   await CalendarTestUtils.setCalendarView(window, viewName);
-  await makeChangeWithReload(() => {
-    window.goToDate(cal.createDateTime("20160201T000000Z"));
-  });
+  await CalendarTestUtils.goToDate(window, 2016, 2, 1);
 
   info("Check initial state.");
 

@@ -269,7 +269,7 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
   } else {
     event = new CalEvent();
 
-    let refDate = currentView().initialized && currentView().selectedDay.clone();
+    let refDate = currentView().selectedDay?.clone();
     setDefaultItemValues(event, calendar, startDate, endDate, refDate, aForceAllday);
     if (summary) {
       event.title = summary;

@@ -30,18 +30,6 @@ interface calICalendarView : nsISupports
   readonly attribute AUTF8String observerID;
 
   /**
-   * Generally corresponds to whether or not the view has been previously shown.
-   * Strictly speaking, it reports whether displayCalendar, startDay and endDay
-   * are all non-null.
-   */
-  readonly attribute boolean initialized;
-
-  /**
-   * the calendar that this view is displaying
-   */
-  attribute calICalendar displayCalendar;
-
-  /**
    * the controller for this view
    */
   attribute calICalendarViewController controller;
