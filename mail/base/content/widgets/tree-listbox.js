@@ -1163,6 +1163,10 @@
       this.filler.style.minHeight =
         rowCount * this._rowElementClass.ROW_HEIGHT + "px";
       this._ensureVisibleRowsAreDisplayed();
+
+      if (rowCount && this.currentIndex == -1) {
+        this.currentIndex = 0;
+      }
     }
 
     /**

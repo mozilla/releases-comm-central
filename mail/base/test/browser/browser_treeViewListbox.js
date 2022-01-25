@@ -127,7 +127,7 @@ async function testKeyboardAndMouse() {
     );
   }
 
-  checkCurrent(-1);
+  checkCurrent(0);
   checkSelected();
 
   // Click on some individual rows.
