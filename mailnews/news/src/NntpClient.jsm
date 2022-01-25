@@ -170,6 +170,7 @@ class NntpClient {
    */
   _onError = event => {
     this._logger.error(event, event.name, event.message, event.errorCode);
+    this._actionDone(event.errorCode);
   };
 
   /**
@@ -656,6 +657,8 @@ class NntpClient {
   _actionHandlePost({ status }) {
     if (status == 340) {
       this.onReadyToPost();
+    } else if ([440, 441].includes(status)) {
+      this._actionDone(Cr.NS_ERROR_FAILURE);
     }
   }
 
@@ -740,11 +743,11 @@ class NntpClient {
   /**
    * Close the connection and do necessary cleanup.
    */
-  _actionDone = () => {
+  _actionDone = (status = Cr.NS_OK) => {
     this.onDone();
     this._newsGroup?.cleanUp();
-    this._newsFolder?.OnStopRunningUrl?.(this.runningUri, 0);
-    this.urlListener?.OnStopRunningUrl(this.runningUri, 0);
+    this._newsFolder?.OnStopRunningUrl?.(this.runningUri, status);
+    this.urlListener?.OnStopRunningUrl(this.runningUri, status);
     this.runningUri.SetUrlState(false, Cr.NS_OK);
     this._reset();
     this.onIdle?.();
