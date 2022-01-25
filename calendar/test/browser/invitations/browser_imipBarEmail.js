@@ -123,6 +123,33 @@ add_task(async function test_event_from_eml() {
 });
 
 /**
+ * Test that when opening a message containing an outlook invite with "empty"
+ * content works as it should.
+ */
+add_task(async function test_outlook_event_from_eml() {
+  let file = getFileFromChromeURL("data/outlook-test-invite.eml");
+
+  let { window: msgWindow } = await open_message_from_file(file);
+
+  await TestUtils.waitForCondition(() => !msgWindow.document.getElementById("imip-bar").collapsed);
+  info("Ok, iMIP bar is showing");
+
+  let details = msgWindow.document
+    .getElementById("messagepane")
+    .contentDocument.getElementById("imipHTMLDetails");
+
+  Assert.equal(
+    details.getAttribute("open"),
+    "open",
+    "Details should be expanded when the message doesn't include good details"
+  );
+
+  await BrowserTestUtils.closeWindow(msgWindow);
+
+  Assert.ok(true, "test_outlook_event_from_eml test ran to completion");
+});
+
+/**
  * Test that when opening a message containing an event, the IMIP bar shows.
  */
 add_task(async function test_event_from_eml() {

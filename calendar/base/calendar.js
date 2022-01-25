@@ -87,6 +87,9 @@ pref("calendar.itip.separateInvitationButtons", true);
 // Whether to show the imip bar.
 pref("calendar.itip.showImipBar", true);
 
+// Whether to always expand the iMIP details, instead of collapsing them.
+pref("calendar.itip.imipDetailsOpen", true);
+
 // whether CalDAV (experimental) scheduling is enabled or not.
 pref("calendar.caldav.sched.enabled", false);
 

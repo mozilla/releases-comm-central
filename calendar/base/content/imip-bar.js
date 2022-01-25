@@ -131,13 +131,17 @@ var calImipBar = {
           let details = doc.getElementById("imipHTMLDetails");
           let msgbody = doc.querySelector("div.moz-text-html");
           if (!msgbody) {
-            // No html part. Open up the imip details then.
             details.setAttribute("open", "open");
           } else {
-            // Move the generated meeting details first (but keep it collapsed).
-            // Probably the HTML representation is better, and can contain
-            // important notes.
+            // The HTML representation can contain important notes.
+
+            // For consistent appearance, move the generated meeting details first.
             msgbody.prepend(details);
+
+            if (Services.prefs.getBoolPref("calendar.itip.imipDetailsOpen", true)) {
+              // Expand the iMIP details if pref says so.
+              details.setAttribute("open", "open");
+            }
           }
         },
         {
