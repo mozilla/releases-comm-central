@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -9,26 +8,28 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/subscribe.dtd">
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/subscribe.dtd">
 
-<window id="subscribeWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&subscribeDialog.title;"
-        style="width: 44em; height: 33em;"
-        persist="width height screenX screenY"
-        onload="SubscribeOnLoad()"
-        onunload="SubscribeOnUnload()"
-        lightweightthemes="true"
-        windowtype="mailnews:subscribe">
+<html id="subscribeWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      persist="width height screenX screenY"
+      width="645" height="484"
+      lightweightthemes="true"
+      windowtype="mailnews:subscribe"
+      scrolling="false">
+<head>
+  <title>&subscribeDialog.title;</title>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailWindow.js"></script>
+  <script defer="defer" src="chrome://messenger/content/subscribe.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <dialog>
   <stringbundle id="bundle_subscribe" src="chrome://messenger/locale/subscribe.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://messenger/content/mailWindow.js"/>
-  <script src="chrome://messenger/content/subscribe.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <vbox flex="1" style="width: 40em; height: 25em;">
     <hbox>
@@ -171,4 +172,5 @@
     </hbox>
   </vbox>
 </dialog>
-</window>
+</html:body>
+</html>
