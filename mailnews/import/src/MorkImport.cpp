@@ -331,3 +331,13 @@ NS_IMETHODIMP MorkImportAddressImpl::GetSampleData(int32_t index, bool* pFound,
                                                    char16_t** pStr) {
   return NS_OK;
 }
+
+NS_IMPL_ISUPPORTS(nsImportABFromMab, nsIImportABFile)
+
+nsImportABFromMab::nsImportABFromMab() {}
+
+NS_IMETHODIMP
+nsImportABFromMab::ReadFileToDirectory(nsIFile* sourceFile,
+                                       nsIAbDirectory* targetDirectory) {
+  return ReadMABToDirectory(sourceFile, targetDirectory);
+}

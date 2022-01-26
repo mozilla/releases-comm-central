@@ -1,0 +1,24 @@
+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * General interface for importing from a file to an address book.
+ */
+
+#include "nsISupports.idl"
+
+interface nsIFile;
+interface nsIAbDirectory;
+
+[scriptable, uuid(265209a6-9e1c-4910-97d4-d5ee3f13479b)]
+interface nsIImportABFile : nsISupports {
+  /**
+   * Import entries from a file into an address book directory.
+   * @param sourceFile - The source file.
+   * @param targetDirectory - The target address book directory.
+   */
+  void readFileToDirectory(in nsIFile sourceFile,
+                           in nsIAbDirectory targetDirectory);
+};

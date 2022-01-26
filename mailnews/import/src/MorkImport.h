@@ -7,6 +7,7 @@
 #ifndef MorkImport_h___
 #define MorkImport_h___
 
+#include "nsIImportABFile.h"
 #include "nsIImportModule.h"
 #include "nsCOMPtr.h"
 #include "nsIStringBundle.h"
@@ -22,6 +23,17 @@
   }
 
 nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory);
+
+class nsImportABFromMab : public nsIImportABFile {
+ public:
+  nsImportABFromMab();
+
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIIMPORTABFILE
+
+ private:
+  ~nsImportABFromMab(){};
+};
 
 class MorkImport : public nsIImportModule {
  public:
